@@ -1,8 +1,8 @@
 dist:
 	mkdir build
 	cd build
-	
 	mkdir scripts\modules
+	mkdir config
 !	IF "$(PLATFORM)"=="x64"
 	copy ..\..\pol\release\x64\pol.exe .
 	copy ..\..\uoconvert\release\x64\uoconvert.exe .
@@ -24,9 +24,9 @@ dist:
 	copy ..\..\doc\packethooks.txt .
 	copy ..\..\doc\packets.zip .
 	copy ..\..\support\uoconvert.cfg .
-	copy ..\..\support\boats.cfg .
-	copy ..\..\support\extobj.cfg .
-	copy ..\..\support\animxlate.cfg .
+	copy ..\..\support\boats.cfg .\config
+	copy ..\..\support\extobj.cfg .\config
+	copy ..\..\support\animxlate.cfg .\config
 	copy ..\..\support\scripts\basic.em scripts\modules
 	copy ..\..\support\scripts\basicio.em scripts\modules
 	copy ..\..\support\scripts\boat.em scripts\modules
@@ -79,14 +79,14 @@ debug:
 obj:
     mkdir obj-zip
     cd obj-zip
-!	IF "$(PLATFORM)"=="x64"
-   	copy ..\..\pol\release\x64\*.obj .
-    	copy ..\..\pol\release\x64\*.pdb .
-!	ELSE
-   	copy ..\..\pol\release\*.obj .
-    	copy ..\..\pol\release\*.pdb .
-!	ENDIF
-	..\7za a -tzip -mx9 -r ..\pol-obj-$(PLATFORM).zip @..\obj.lst
+!   IF "$(PLATFORM)"=="x64"
+        copy ..\..\pol\release\x64\*.obj .
+        copy ..\..\pol\release\x64\*.pdb .
+!   ELSE
+        copy ..\..\pol\release\*.obj .
+        copy ..\..\pol\release\*.pdb .
+!   ENDIF
+    ..\7za a -tzip -mx9 -r ..\pol-obj-$(PLATFORM).zip @..\obj.lst
     cd ..
     rmdir /S /Q obj-zip
 

@@ -6,3 +6,6 @@
 *.user
 Debug/
 Release/
+*.log
+dist/obj-zip
+dist/pol-*.zip
