@@ -13,11 +13,14 @@ Notes
 
 #include "../clib/esignal.h"
 #include "../plib/realm.h"
+#include "../plib/systemstate.h"
 
 #include "core.h"
+#include "gameclck.h"
+#include "globals/state.h"
+#include "globals/uvars.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
-#include "gameclck.h"
 #include "polclock.h"
 #include "polsem.h"
 #include "realms.h"
@@ -26,8 +29,6 @@ Notes
 #include "ufunc.h"
 #include "uofile.h"
 #include "uoscrobj.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
 #include "uworld.h"
 
 namespace Pol {
@@ -53,10 +54,27 @@ namespace Pol {
 	{
 	  Zone& zone = realm->zone[wx][wy];
 	  gameclock_t now = read_gameclock();
+      bool statistics = Plib::systemstate.config.thread_decay_statistics;
 
 	  for ( ZoneItems::size_type idx = 0; idx < zone.items.size(); ++idx )
 	  {
 		Items::Item* item = zone.items[idx];
+        if (statistics)
+        {
+          if (item->can_decay())
+          {
+            const Items::ItemDesc& descriptor = item->itemdesc();
+            if (!descriptor.decays_on_multis)
+            {
+		      Multi::UMulti* multi = realm->find_supporting_multi( item->x, item->y, item->z );
+              if (multi == NULL)
+                stateManager.decay_statistics.temp_count_active++;
+            }
+            else
+              stateManager.decay_statistics.temp_count_active++;
+          }
+        
+        }
 		if ( item->should_decay( now ) )
 		{
 		  // check the CanDecay syshook first if it returns 1 go over to other checks
@@ -72,6 +90,9 @@ namespace Pol {
 		  // some things don't decay on multis:
 		  if ( multi != NULL && !descriptor.decays_on_multis )
 			continue;
+
+          if (statistics)
+            stateManager.decay_statistics.temp_count_decayed++;
 
 		  if ( !descriptor.destroy_script.empty() && !item->inuse() )
 		  {
@@ -221,6 +242,7 @@ namespace Pol {
 	  // sweep every realm ~10minutes -> 36ms for 6 realms
 	  unsigned sleeptime = ( 60 * 10L * 1000 ) / total_grid_count;
 	  sleeptime = std::max( sleeptime, 30u ); // limit to 30ms
+      bool init=true;
 	  size_t realm_index=~0u;
 	  unsigned wx = 0;
 	  unsigned wy = 0;
@@ -236,7 +258,26 @@ namespace Pol {
 		  {
 			++realm_index;
 			if (realm_index >= gamestate.Realms.size())
+            {
 			  realm_index = 0;
+              if (!init && Plib::systemstate.config.thread_decay_statistics)
+              {
+                stateManager.decay_statistics.decayed.update(stateManager.decay_statistics.temp_count_decayed);
+                stateManager.decay_statistics.active_decay.update(stateManager.decay_statistics.temp_count_active);
+                stateManager.decay_statistics.temp_count_decayed = 0;
+                stateManager.decay_statistics.temp_count_active = 0;
+                POLLOG_INFO.Format("DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} mean {} variance {} runs {}\n")
+                  << stateManager.decay_statistics.decayed.max()
+                  << stateManager.decay_statistics.decayed.mean()
+                  << stateManager.decay_statistics.decayed.variance()
+                  << stateManager.decay_statistics.decayed.count()
+                  << stateManager.decay_statistics.active_decay.max()
+                  << stateManager.decay_statistics.active_decay.mean()
+                  << stateManager.decay_statistics.active_decay.variance()
+                  << stateManager.decay_statistics.active_decay.count();
+              }
+              init=false;
+            }
 			wx = 0;
 			wy = 0;
 		  }

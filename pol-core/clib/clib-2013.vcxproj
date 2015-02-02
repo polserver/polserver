@@ -228,6 +228,7 @@
     <ClCompile Include="boostutils.cpp" />
     <ClCompile Include="cfgfile.cpp" />
     <ClCompile Include="cfgsect.cpp" />
+    <ClCompile Include="clib_utils.cpp" />
     <ClCompile Include="cmdargs.cpp" />
     <ClCompile Include="Debugging\ExceptionParser.cpp" />
     <ClCompile Include="Debugging\LogSink.cpp" />

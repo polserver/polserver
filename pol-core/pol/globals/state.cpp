@@ -19,7 +19,8 @@ namespace Core {
 	uobjcount(),
 	itemserialnumber(ITEMSERIAL_START),
 	charserialnumber(CHARACTERSERIAL_START),
-	polsig()
+	polsig(),
+    decay_statistics()
   {
   
   }

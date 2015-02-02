@@ -89,6 +89,7 @@ namespace Pol {
 	  bool should_decay( unsigned int gameclock ) const;
 	  void restart_decay_timer();
 	  void disable_decay();
+      bool can_decay() const;
 
 	  bool setlayer( unsigned char layer );
 	  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;

@@ -110,6 +110,24 @@ namespace Pol {
 		*value = min;
 	}
 
+    // Class to calculate online statistics: mean, variance and max
+    // ref Knuth
+    class OnlineStatistics
+    {
+    public:
+      OnlineStatistics();
+      void update(double value);
+      double variance() const;
+      double mean() const;
+      double count() const;
+      double max() const;
+    private:
+      u64 _count;
+      double _max;
+      double _mean;
+      double _m2;
+    };
+
   }
 #define strzcpy Clib::stracpy
 
