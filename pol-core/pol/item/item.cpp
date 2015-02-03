@@ -931,11 +931,16 @@ namespace Pol {
 	  }
 	}
 
+    bool Item::can_decay() const
+    {
+      return !inuse() &&
+		( movable_ || ( objtype_ == UOBJ_CORPSE ) ) &&
+		decayat_gameclock_;
+    }
+
 	bool Item::should_decay( unsigned int gameclock ) const
 	{
-	  return !inuse() &&
-		( movable_ || ( objtype_ == UOBJ_CORPSE ) ) &&
-		decayat_gameclock_ &&
+	  return can_decay() &&
 		( gameclock > decayat_gameclock_ );
 	}
 

@@ -1,6 +1,7 @@
 #ifndef GLOBALS_STATE_H
 #define GLOBALS_STATE_H
 
+#include "../../clib/clib.h"
 #include "../polsig.h"
 #include "../profile.h"
 #include "../uobjcnt.h"
@@ -47,6 +48,14 @@ namespace Core {
 	  u32 charserialnumber;
 
 	  PolSig polsig;
+
+      struct {
+        Clib::OnlineStatistics decayed;
+        Clib::OnlineStatistics active_decay;
+        u32 temp_count_decayed;
+        u32 temp_count_active;
+      } decay_statistics;
+      
 
   };
 

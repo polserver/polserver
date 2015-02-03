@@ -90,6 +90,8 @@ namespace Pol {
 	  bool disable_nagle;
       bool show_realm_info;
       bool enforce_mount_objtype;
+      bool single_thread_decay;
+      bool thread_decay_statistics;
 
 	  static void read_pol_config( bool initial_load );
 	  static struct stat pol_cfg_stat;

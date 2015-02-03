@@ -69,7 +69,7 @@ cpp_sources = \
 	../lib/tinyxml/tinyxmlerror.cpp ../lib/tinyxml/tinyxmlparser.cpp \
 	../lib/format/format.cc \
 	clib/boostutils.cpp clib/streamsaver.cpp clib/timer.cpp \
-	clib/progver.cpp plib/polver.cpp plib/systemstate.cpp \
+	clib/progver.cpp plib/polver.cpp plib/systemstate.cpp clib/clib_utils.cpp \
 	pol/accounts/account.cpp pol/accounts/accounts.cpp pol/accounts/acscrobj.cpp pol/allocd.cpp \
 	pol/item/armor.cpp pol/mobile/attack.cpp pol/mobile/ufacing.cpp \
 	pol/mobile/attribute.cpp pol/network/auxclient.cpp pol/network/packets.cpp \

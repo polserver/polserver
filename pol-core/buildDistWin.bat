@@ -67,7 +67,7 @@ pause
 exit 1
 
 :error
-echo Something went wrong. Check the logs.
+echo Something went wrong. Check the logs in the 'dist' folder.
 pause
 exit 1
 
