@@ -366,6 +366,7 @@ modernize:
 
 gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	mkdir -p dist/scripts/modules
+	mkdir -p dist/config
 	strip -o dist/pol                bin/pol
 	strip -o dist/scripts/ecompile   bin/ecompile
 	strip -o dist/scripts/runecl     bin/runecl
@@ -378,9 +379,9 @@ gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 	cp doc/packethooks.txt                  dist
 	cp doc/packets.zip                      dist
 	cp support/uoconvert.cfg                dist
-	cp support/boats.cfg                    dist
-	cp support/extobj.cfg                   dist
-	cp support/animxlate.cfg                dist
+	cp support/boats.cfg                    dist/config
+	cp support/extobj.cfg                   dist/config
+	cp support/animxlate.cfg                dist/config
 	(cd dist ; \
 	tar -cvf pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG).tar \
 	pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg animxlate.cfg packethooks.txt packets.zip scripts ; \
@@ -396,6 +397,7 @@ gzipfile: bin/pol bin/ecompile bin/runecl bin/uoconvert bin/uotool #bin/poltool
 
 gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uoconvert-dynamic bin/uotool-dynamic
 	mkdir -p dist/scripts/modules
+	mkdir -p dist/config
 	strip -o dist/pol bin/pol-dynamic
 	strip -o dist/scripts/ecompile bin/ecompile-dynamic
 	strip -o dist/scripts/runecl bin/runecl-dynamic
@@ -408,9 +410,9 @@ gzipfile-dynamic: bin/pol-dynamic bin/ecompile-dynamic bin/runecl-dynamic bin/uo
 	cp doc/packethooks.txt dist
 	cp doc/packets.zip dist
 	cp support/uoconvert.cfg dist
-	cp support/boats.cfg dist
-	cp support/extobj.cfg dist
-	cp support/animxlate.cfg dist
+	cp support/boats.cfg dist/config
+	cp support/extobj.cfg dist/config
+	cp support/animxlate.cfg dist/config
 	(cd dist ; tar -cvf pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar pol uoconvert uotool core-changes.txt uoconvert.txt uoconvert.cfg boats.cfg extobj.cfg animxlate.cfg packethooks.txt packets.zip scripts ; gzip -9 pol-$(POL_BUILDNAME)-$(POL_BUILDPLATFORM)bin-$(POL_RELEASE)-`date +%Y-%m-%d`-$(POL_BUILDTAG)-dynamic.tar )
 	rm -f dist/core-changes.txt dist/pol dist/uoconvert dist/uotool
 	rm -f dist/packethooks.txt
