@@ -58,6 +58,7 @@ namespace Pol {
 		PKTIN_E4_ID, // Used by UO:KR
 		PKTIN_8D_ID,
 		PKTIN_F8_ID,
+        0xF1, // used by UOGateway
 		-1
 	  };
 	  networkManager.login_filter = std::unique_ptr<MessageTypeFilter>(new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, login_exceptions ));
