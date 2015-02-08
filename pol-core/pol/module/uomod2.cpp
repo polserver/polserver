@@ -1802,6 +1802,7 @@ namespace Pol {
 	  if ( stricmp( corevar, "iostats" ) == 0 ) return GetIoStats();
 	  if ( stricmp( corevar, "queued_iostats" ) == 0 ) return GetQueuedIoStats();
 	  if ( stricmp( corevar, "pkt_status" ) == 0 ) return GetPktStatusObj();
+      if ( stricmp( corevar, "memory_usage") == 0 ) return new BLong(static_cast<int>(Clib::getCurrentMemoryUsage()/1024));
 
       return new BError(std::string("Unknown core variable ") + corevar);
 	}
