@@ -217,16 +217,16 @@ namespace Pol {
 	  system_hooks.unload_system_hooks();
 
 	  configurationbuffer.deinitialize();
-
-	  Plib::systemstate.deinitialize();
-	  Multi::multidef_buffer.deinitialize();
-
+	  
 	  unload_npc_templates();  //quick and nasty fix until npcdesc usage is rewritten Turley 2012-08-27: moved before objecthash due to npc-method_script cleanup
 
 	  Bscript::UninitObject::ReleaseSharedInstance();
 	  objStorageManager.deinitialize();
 	  display_leftover_objects();
 
+	  Multi::multidef_buffer.deinitialize();
+	  Plib::systemstate.deinitialize();
+	  
 	  checkpoint( "unloading data" );
 	  unload_data();
 	  guilds.clear();
