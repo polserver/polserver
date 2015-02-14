@@ -29,6 +29,7 @@ Notes
 #include "../../clib/wallclock.h"
 #include "../../clib/refptr.h"
 
+#include "../polsem.h"
 #include "../pktin.h"
 #include "../sockets.h"
 #include "../uconst.h"
@@ -203,6 +204,7 @@ namespace Pol {
 
 	  const Core::MessageTypeFilter *msgtype_filter;
 
+      mutable Core::SpinLock _fpLog_lock;
 	  std::string fpLog;
 
 	  std::string status() const;
