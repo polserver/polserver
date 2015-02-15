@@ -88,6 +88,7 @@ namespace Pol {
 	  cryptengine( create_crypt_engine( encryption ) ),
 	  encrypt_server_stream( 0 ),
 	  msgtype_filter( Core::networkManager.login_filter.get() ),
+      _fpLog_lock(),
 	  fpLog( "" ),
 	  pause_count( 0 ),
 	  first_xmit_buffer( NULL ),
@@ -192,13 +193,16 @@ namespace Pol {
 		chr = NULL;
 	  }
 
-	  if ( !fpLog.empty() )
-	  {
-		time_t now = time( NULL );
-        FLEXLOG( fpLog ) << "Log closed at " << asctime( localtime( &now ) ) << "\n";
-        CLOSE_FLEXLOG( fpLog );
-		fpLog.clear();
-	  }
+      {
+        std::lock_guard<Core::SpinLock> guard(_fpLog_lock);
+	    if ( !fpLog.empty() )
+	    {
+		  time_t now = time( NULL );
+          FLEXLOG( fpLog ) << "Log closed at " << asctime( localtime( &now ) ) << "\n";
+          CLOSE_FLEXLOG( fpLog );
+		  fpLog.clear();
+        }
+      }
 
 	  delete gd;
 	  gd = NULL;
@@ -679,6 +683,7 @@ namespace Pol {
 
     size_t Client::estimatedSize() const
     {
+      std::lock_guard<Core::SpinLock> guard(_fpLog_lock);
       size_t size = sizeof(Client)
         +fpLog.capacity() + version_.capacity();
       Core::XmitBuffer* buffer_size = first_xmit_buffer;

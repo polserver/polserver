@@ -436,12 +436,15 @@ namespace Pol
                     unsigned char msgtype = client->buffer[0];
                     networkManager.iostats.received[msgtype].count++;
                     networkManager.iostats.received[msgtype].bytes += client->message_length;
-                    if (!client->fpLog.empty())
                     {
-                        fmt::Writer tmp;
-                        tmp << "Client -> Server: 0x" << fmt::hexu(msgtype) << ", " << client->message_length << " bytes\n";
-                        Clib::fdump(tmp, &client->buffer, client->message_length);
-                        FLEXLOG(client->fpLog) << tmp.c_str() << "\n";
+                      std::lock_guard<Core::SpinLock> guard(client->_fpLog_lock);
+                      if (!client->fpLog.empty())
+                      {
+                          fmt::Writer tmp;
+                          tmp << "Client -> Server: 0x" << fmt::hexu(msgtype) << ", " << client->message_length << " bytes\n";
+                          Clib::fdump(tmp, &client->buffer, client->message_length);
+                          FLEXLOG(client->fpLog) << tmp.c_str() << "\n";
+                      }
                     }
 
                     if (Plib::systemstate.config.verbose)

@@ -338,6 +338,7 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to get packets right?
 	  {
+        std::lock_guard<Core::SpinLock> guard(mob->client->_fpLog_lock);
 		if ( mob->client->fpLog.empty() )
 		{
 		  std::string filename = "log/";
@@ -365,6 +366,7 @@ namespace Pol {
 	  }
 	  else
 	  {
+        std::lock_guard<Core::SpinLock> guard(client->_fpLog_lock);
 		if ( client->fpLog.empty() )
 		{
 		  std::string filename = "log/";
@@ -387,6 +389,7 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to already have packets right?
 	  {
+        std::lock_guard<Core::SpinLock> guard(mob->client->_fpLog_lock);
 		if ( !mob->client->fpLog.empty() )
 		{
 		  time_t now = time( NULL );
@@ -411,6 +414,7 @@ namespace Pol {
 	  }
 	  else
 	  {
+        std::lock_guard<Core::SpinLock> guard(client->_fpLog_lock);
 		if ( !client->fpLog.empty() )
 		{
           time_t now = time( NULL );

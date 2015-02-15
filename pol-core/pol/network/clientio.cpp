@@ -221,13 +221,16 @@ namespace Pol {
 
 	  unsigned char msgtype = *(const char*)data;
 
-	  if ( !fpLog.empty() )
-	  {
-        fmt::Writer tmp;
-        tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
-        Clib::fdump( tmp, data, len );
-        FLEXLOG( fpLog ) << tmp.c_str() << "\n";
-	  }
+      {
+        std::lock_guard<Core::SpinLock> guard(_fpLog_lock);
+	    if ( !fpLog.empty() )
+	    {
+          fmt::Writer tmp;
+          tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
+          Clib::fdump( tmp, data, len );
+          FLEXLOG( fpLog ) << tmp.c_str() << "\n";
+	    }
+      }
 
 	  std::lock_guard<std::mutex> guard( _SocketMutex );
 	  if ( disconnect )
@@ -258,13 +261,16 @@ namespace Pol {
 
 	void Client::transmitmore( const void *data, int len )
 	{
-	  if ( !fpLog.empty() )
-	  {
-        fmt::Writer tmp;
-        tmp << "Server -> Client (" << len << " bytes)\n";
-        Clib::fdump( tmp, data, len );
-        FLEXLOG( fpLog ) << tmp.c_str() << "\n";
-	  }
+      {
+        std::lock_guard<Core::SpinLock> guard(_fpLog_lock);
+	    if ( !fpLog.empty() )
+	    {
+          fmt::Writer tmp;
+          tmp << "Server -> Client (" << len << " bytes)\n";
+          Clib::fdump( tmp, data, len );
+          FLEXLOG( fpLog ) << tmp.c_str() << "\n";
+	    }
+      }
 
 	  if ( encrypt_server_stream )
 	  {
