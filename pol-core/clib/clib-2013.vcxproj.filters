@@ -167,6 +167,9 @@
     <ClCompile Include="clib_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kbhit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryfile.h">
@@ -348,6 +351,9 @@
     </ClInclude>
     <ClInclude Include="Debugging\LogSink.h">
       <Filter>Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="kbhit.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

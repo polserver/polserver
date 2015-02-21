@@ -38,10 +38,10 @@ namespace Pol {
       UoClientThread( UoClientListener* def, Clib::SocketListener& SL ) :
         Clib::SocketClientThread( SL ), _def( *def ), client( NULL )
 	  {}
-      UoClientThread( UoClientThread& copy ) : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ) {}
+      UoClientThread( UoClientThread& copy ) : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ) {};
 	  virtual void run() POL_OVERRIDE;
 	  void create();
-	  ~UoClientThread() {}
+	  virtual ~UoClientThread() {};
 
 	private:
 	  UoClientListener _def;
@@ -130,20 +130,21 @@ namespace Pol {
 		  }
 		}
 
-		std::list<UoClientThread*>::iterator itr = login_clients.begin();
+		auto itr = login_clients.begin();
 		while ( itr != login_clients.end() )
 		{
 		  if ( ( *itr )->client != NULL && ( *itr )->client->isReallyConnected() )
 		  {
 			if ( !client_io_thread( ( *itr )->client, true ) )
 			{
+              delete (*itr);
 			  itr = login_clients.erase( itr );
 			  continue;
 			}
 
 			if ( ( *itr )->client->isConnected() && ( *itr )->client->chr )
 			{
-              Clib::SocketClientThread::start_thread( new UoClientThread( *( *itr ) ) );
+              Clib::SocketClientThread::start_thread( *itr );
 			  itr = login_clients.erase( itr );
 			}
 			else
@@ -153,6 +154,7 @@ namespace Pol {
 		  }
 		  else
 		  {
+            delete (*itr);
 			itr = login_clients.erase( itr );
 		  }
 		}

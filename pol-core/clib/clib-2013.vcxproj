@@ -240,6 +240,7 @@
     <ClCompile Include="fileutil.cpp" />
     <ClCompile Include="forspcnt.cpp" />
     <ClCompile Include="iohelp.cpp" />
+    <ClCompile Include="kbhit.cpp" />
     <ClCompile Include="logfacility.cpp" />
     <ClCompile Include="MD5.cpp" />
     <ClCompile Include="mdump.cpp" />
@@ -300,6 +301,7 @@
     <ClInclude Include="fileutil.h" />
     <ClInclude Include="fixalloc.h" />
     <ClInclude Include="iohelp.h" />
+    <ClInclude Include="kbhit.h" />
     <ClInclude Include="logfacility.h" />
     <ClInclude Include="maputil.h" />
     <ClInclude Include="MD5.h" />
