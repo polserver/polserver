@@ -3983,65 +3983,6 @@ namespace Pol {
 	  return static_cast<u16>( attribute( Core::gamestate.pAttrIntelligence->attrid ).effective() );
 	}
 
-	// a bad thing about having this function be a member of Character
-	// is that Character has to access global state variables (namely,
-	// the items collection).
-    Items::Item* Character::get_from_ground( u32 serial, Core::UContainer** found_in )
-	{
-	  if ( serial == 0 )
-	  {
-        POLLOG_INFO << "get_from_ground: Passed serial 0x" << fmt::hexu( serial ) << ", blocking movement.\n";
-		return NULL;
-	  }
-	  unsigned short wxL, wyL, wxH, wyH;
-      Core::zone_convert_clip( x - 3, y - 3, realm, &wxL, &wyL );
-      Core::zone_convert_clip( x + 3, y + 3, realm, &wxH, &wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          for ( auto &item : realm->zone[wx][wy].items )
-		  {
-			if ( item->serial == 0 )
-			{
-              POLLOG_INFO.Format( "get_from_ground: Item 0x{:X}, desc {} class {}, orphan! (old serial: 0x{:X})\n" )
-                << item->serial
-                << item->description()
-                << item->classname()
-                << cfBEu32( item->serial_ext );
-			  continue;
-			}
-			if ( inrange( this, item ) ) // FIXME needs to check smaller range.
-			{
-			  if ( item->serial == serial )
-			  {
-				if ( can_move( item ) )
-				{
-				  item->set_dirty();
-				  remove_item_from_world( item );
-
-				  *found_in = NULL;
-				  return item;
-				}
-				else
-				{
-				  return NULL;
-				}
-			  }
-			  if ( item->isa( UObject::CLASS_CONTAINER ) )
-			  {
-                Items::Item* _item = ( ( Core::UContainer * )item )->remove( serial, found_in );
-				if ( _item )
-				  return _item;
-			  }
-			}
-		  }
-		}
-	  }
-	  *found_in = NULL;
-	  return NULL;
-	}
-
 	bool Character::target_cursor_busy() const
 	{
 	  if ( tcursor2 != NULL )
