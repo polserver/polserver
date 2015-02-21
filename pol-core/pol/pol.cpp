@@ -129,6 +129,7 @@ Notes
 #include "../clib/esignal.h"
 #include "../clib/fdump.h"
 #include "../clib/fileutil.h"
+#include "../clib/kbhit.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
@@ -793,12 +794,16 @@ namespace Pol {
 
     void console_thread( void )
     {
+#ifndef _WIN32
+      Clib::KeyboardHook kb; // local to have a defined deconstruction to uninstall the hook
+#endif
       while ( !Clib::exit_signalled )
       {
         pol_sleep_ms( 1000 );
-
+#ifdef _WIN32
         ConsoleCommand::check_console_commands();
-#ifndef _WIN32
+#else
+        ConsoleCommand::check_console_commands(&kb);
         if ( stateManager.polsig.reload_configuration_signalled )
         {
           PolLock lck;

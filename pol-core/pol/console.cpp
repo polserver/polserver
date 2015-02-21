@@ -13,6 +13,7 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/kbhit.h"
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
@@ -29,9 +30,6 @@ Notes
 
 #ifdef _WIN32
 #	include <conio.h>
-#else
-#	include "clib/kbhit.h"
-keyboard kb;
 #endif
 
 #include <string>
@@ -240,21 +238,22 @@ namespace Pol {
 	  }
 	  return;
 	}
-
+#ifdef _WIN32
 	void ConsoleCommand::check_console_commands()
 	{
-#ifdef _WIN32
 	  if ( kbhit() )
 	  {
 		exec_console_cmd( static_cast<char>( getch() ) );
 	  }
+    }
 #else
-	  if (kb.kbhit())
+    void ConsoleCommand::check_console_commands(Clib::KeyboardHook* kb)
+	{
+	  if (kb->kbhit())
 	  {
-		exec_console_cmd( kb.getch() );
+		exec_console_cmd( kb->getch() );
 	  }
-#endif
 	}
-
+#endif
   }
 }
