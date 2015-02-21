@@ -26,7 +26,7 @@ namespace Pol {
       tcsetattr(0, TCSANOW, &initial_settings);
     }
 
-    int keyboard::kbhit()
+    int KeyboardHook::kbhit()
     {
       if (peek_character != -1) return 1;
 
@@ -45,7 +45,7 @@ namespace Pol {
       return 0;
     }
 
-    int keyboard::getch()
+    int KeyboardHook::getch()
     {
       char ch;
 
