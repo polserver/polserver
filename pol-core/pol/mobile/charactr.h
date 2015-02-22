@@ -441,7 +441,6 @@ namespace Pol {
 	  void add_remote_container( Items::Item* );
 	  Items::Item* search_remote_containers( u32 serial, bool* isRemoteContainer ) const;
 	  bool mightsee( const Items::Item *item ) const;
-	  Items::Item* get_from_ground( u32 serial, Core::UContainer** found_in );
 
 	  Items::Item *find_wornitem( u32 serial ) const;
 	  bool has_shield() const;

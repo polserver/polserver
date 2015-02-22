@@ -27,7 +27,7 @@ echo ---------------------------------------------------------------------------
 echo Version control
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install subversion -y
+sudo apt-get install git -y
 
 echo
 echo -------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ echo ---------------------------------------------------------------------------
 echo install clang
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install clang-3.5 clang-3.5-doc libclang-common-3.5-dev libclang-3.5-dev libclang1-3.5 libllvm-3.5-ocaml-dev libllvm3.5 lldb-3.5 llvm-3.5 llvm-3.5-dev llvm-3.5-doc llvm-3.5-examples llvm-3.5-runtime clang-modernize-3.5 clang-format-3.5 -y
+sudo apt-get install clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libllvm-3.7-ocaml-dev libllvm3.7 lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-modernize-3.7 clang-format-3.7 -y
 # libclang1-3.4-dbg
 # libllvm3.4-dbg
 
