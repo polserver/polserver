@@ -1026,18 +1026,12 @@ namespace Pol {
 
 	inline bool Character::has_shield() const
 	{
-	  if ( shield != NULL )
-		return true;
-	  else
-		return false;
+		return (shield != NULL);
 	}
 
 	inline Items::UArmor* Character::get_shield() const
 	{
-	  if ( shield != NULL )
 		return shield;
-	  else
-		return NULL;
 	}
 
 	inline const AttributeValue& Character::attribute( unsigned attrid ) const
