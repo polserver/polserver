@@ -79,9 +79,9 @@ namespace Pol {
 
 	  // Member Functions
 	public:
-	  virtual int	Receive( void *buffer, int max_expected, SOCKET socket ) = 0;
-	  virtual void	Init( void *pvSeed, int type = typeAuto ) = 0;
-	  virtual void	Encrypt( void *pvIn, void *pvOut, int len ) {
+	  virtual int  Receive( void *buffer, int max_expected, SOCKET socket ) = 0;
+	  virtual void Init( void *pvSeed, int type = typeAuto ) = 0;
+	  virtual void Encrypt( void *pvIn, void *pvOut, int len ) {
           /* Do nothing. */
           (void)pvIn; (void)pvOut; (void)len;
       };
@@ -100,16 +100,16 @@ namespace Pol {
 
 	  // Member Variables
 	protected:
-	  int				m_type;
-	  unsigned int	m_masterKey[2];
-	  unsigned char	encrypted_data[MAXBUFFER];
+	  int           m_type;
+	  unsigned int  m_masterKey[2];
+	  unsigned char encrypted_data[MAXBUFFER];
 
 	  // Member Functions
 	public:
-	  virtual void	SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) = 0;
+	  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) = 0;
 
 	protected:
-	  virtual void	Decrypt( void *pvIn, void *pvOut, int len ) = 0;
+	  virtual void Decrypt( void *pvIn, void *pvOut, int len ) = 0;
 	};
   }
 }

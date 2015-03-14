@@ -5,10 +5,6 @@
 ** Author:  TJ Houston <tjh@myrathi.co.uk>
 **
 *********************************************************************/
-#ifdef _MSC_VER
-#pragma once
-#endif
-
 #ifndef __CRYPTKEY_H__
 #define __CRYPTKEY_H__
 

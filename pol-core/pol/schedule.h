@@ -77,6 +77,7 @@ namespace Pol {
 	public:
 	  PeriodicTask( void( *f )( void ), int n_secs, const char* name );
 	  PeriodicTask( void( *f )( void ), int initial_wait_seconds, int periodic_seconds, const char* name );
+      virtual ~PeriodicTask() {};
 
 	  void set_secs( int n_secs );
 
@@ -114,6 +115,7 @@ namespace Pol {
 	  OneShotTaskInst( OneShotTask** handle, polclock_t run_when, void( *f )( T data ), T data ) :
 		OneShotTask( handle, run_when ), data_( data ), f_( f )
 	  {}
+      virtual ~OneShotTaskInst() {};
 
 	  virtual void on_run() POL_OVERRIDE;
 	private:
