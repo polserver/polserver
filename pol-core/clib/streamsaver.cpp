@@ -28,16 +28,27 @@ namespace Pol {
 	}
 
 	/// ofstream implementation (simple non threaded)
-    OFStreamWriter::OFStreamWriter( ) : StreamWriter( ), _stream( ), _fs_time( 0 ), _stream_name( )
+    OFStreamWriter::OFStreamWriter( ) : 
+      StreamWriter(),
+      _stream(), 
+#if 0
+      _fs_time( 0 ), 
+#endif
+      _stream_name()
 	{}
 
 	OFStreamWriter::OFStreamWriter( std::ofstream* stream )
-      : StreamWriter( ), _stream( stream ), _fs_time( 0 ), _stream_name( )
+      : StreamWriter(), 
+      _stream( stream ),
+#if 0
+      _fs_time( 0 ), 
+#endif 
+      _stream_name()
 	{}
 
 	OFStreamWriter::~OFStreamWriter()
 	{
-#ifdef PERGON
+#if 0
       if ( _writer->size() )
       {
         Tools::HighPerfTimer t;
@@ -59,7 +70,7 @@ namespace Pol {
 
 	void OFStreamWriter::flush()
 	{
-#ifdef PERGON
+#if 0
       Tools::HighPerfTimer t;
 #endif
 	  if( _writer->size() )
@@ -67,7 +78,7 @@ namespace Pol {
 		*_stream << _writer->c_str();
         _writer->Clear();
 	  }
-#ifdef PERGON
+#if 0
       _fs_time += t.ellapsed( );
 #endif
 	}

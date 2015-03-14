@@ -14,6 +14,7 @@ Notes
 #include "../clib/rawtypes.h"
 #include <cstddef>
 #include <ctime>
+#include <atomic>
 
 namespace Pol {
   namespace Core {
@@ -77,8 +78,8 @@ namespace Pol {
 	  //unsigned int scheduler_passes, last_scheduler_passes;
 	  //unsigned int last_schm;
 
-	  size_t script_passes_activity;
-	  size_t script_passes_noactivity;
+	  std::atomic<size_t> script_passes_activity;
+	  std::atomic<size_t> script_passes_noactivity;
 	  size_t last_script_passes_activity;
 	  size_t last_script_passes_noactivity;
 

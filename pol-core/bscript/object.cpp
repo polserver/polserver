@@ -29,6 +29,7 @@ Notes
 #include <string>
 #include <istream>
 #include <ostream>
+#include <mutex>
 
 #if BOBJECTIMP_DEBUG
 #include <unordered_map>
@@ -173,12 +174,12 @@ namespace Pol {
 
 #if !INLINE_BOBJECTIMP_CTOR
 	unsigned int BObjectImp::instances_ = 0;
-	std::mutex BObjectImp::bobjectimp_mutex;
+	Clib::SpinLock BObjectImp::bobjectimp_lock;
 	BObjectImp::BObjectImp( BObjectType type ) :
 	  type_(type),
 	  instance_(0)
 	{
-	  std::lock_guard<std::mutex> lock (bobjectimp_mutex);
+	  std::lock_guard<Clib::SpinLock> lock (bobjectimp_lock);
 	  instance_=instances_++;
 	  ++eobject_imp_count;
 	  ++eobject_imp_constructions;
@@ -187,7 +188,7 @@ namespace Pol {
 
 	BObjectImp::~BObjectImp()
 	{
-	  std::lock_guard<std::mutex> lock (bobjectimp_mutex);
+	  std::lock_guard<Clib::SpinLock> lock (bobjectimp_lock);
 	  bobjectimp_instances.erase( instance_ );
 	  --eobject_imp_count;
 	}

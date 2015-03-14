@@ -28,6 +28,7 @@ Notes
 #include "../../clib/rawtypes.h"
 #include "../../clib/wallclock.h"
 #include "../../clib/refptr.h"
+#include "../../clib/spinlock.h"
 
 #include "../polsem.h"
 #include "../pktin.h"
@@ -204,7 +205,7 @@ namespace Pol {
 
 	  const Core::MessageTypeFilter *msgtype_filter;
 
-      mutable Core::SpinLock _fpLog_lock;
+      mutable Clib::SpinLock _fpLog_lock;
 	  std::string fpLog;
 
 	  std::string status() const;
@@ -214,7 +215,7 @@ namespace Pol {
 
 	  void pause();
 	  void restart();
-	  int pause_count;
+	  std::atomic<int> pause_count;
 
 	  std::string ipaddrAsString() const;
 

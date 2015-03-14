@@ -23,6 +23,9 @@ How does it work?
 
   Why we have asserteql and assertsize if it does the same? dunno
 
+ATTENTION:
+This header is part of the PCH
+Remove the include in all StdAfx.h files or live with the consequences :)
 */
 
 #ifndef CLIB_COMPILEASSERT_H

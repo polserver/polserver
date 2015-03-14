@@ -26,30 +26,38 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #endif
 
 // System Includes
-#include <string>
+#include <assert.h>
+#include <atomic>
 #include <cstring>
-#include <vector>
-#include <stack>
 #include <deque>
-#include <queue>
-#include <map>
-#include <set>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <mutex>
-#include <thread>
-#include <assert.h>
+#include <queue>
+#include <set>
+#include <stack>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string>
+#include <thread>
+#include <vector>
 
 // 3rd Party Includes
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/any.hpp>
 #include <boost/flyweight.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/any.hpp>
-#include <boost/algorithm/string/case_conv.hpp>
 #include "../../lib/format/format.h"
 
 // Project Includes (be really really carefull what to include!)
+
+// explicit included since needed anyway for later includes
+#include "compileassert.h"
+#include "compilerspecifics.h" 
+#include "Debugging/LogSink.h"
+#include "message_queue.h"
+
 #include "passert.h"
 #include "logfacility.h"
 #include "stlutil.h"

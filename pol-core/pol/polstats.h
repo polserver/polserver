@@ -12,13 +12,15 @@ Notes
 #define POLSTATS_H
 
 #include "../clib/rawtypes.h"
+#include <atomic>
 namespace Pol {
   namespace Core {
 	class PolStats
 	{
 	public:
-	  u64 bytes_received;
-	  u64 bytes_sent;
+      PolStats();
+	  std::atomic<u64> bytes_received;
+	  std::atomic<u64> bytes_sent;
 	};
 	//extern PolStats auxstats; (Not yet... -- Nando)
 	//extern PolStats webstats;

@@ -16,6 +16,7 @@ Notes
 #include "passert.h"
 #include "logfacility.h"
 #include "threadhelp.h"
+#include "clib.h"
 #include "../../lib/StackWalker/StackWalker.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -78,8 +79,8 @@ namespace Pol {
 	  assert( !_Initialized );
 	  _Initialized = true;
 
-	  time_t now = time( NULL );
-	  strftime( _StartTimestamp, sizeof _StartTimestamp, "%Y%m%d%H%M%S", localtime( &now ) );
+	  auto time_tm = Clib::localtime(time( NULL ));
+	  strftime( _StartTimestamp, sizeof _StartTimestamp, "%Y%m%d%H%M%S", &time_tm );
 
 	  // appname will be obtained from progver
 

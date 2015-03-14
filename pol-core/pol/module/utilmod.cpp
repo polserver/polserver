@@ -19,15 +19,12 @@ Notes
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
+#include "../../clib/clib.h"
 #include "../../clib/random.h"
 #include "../../clib/rawtypes.h"
 
 #include <ctime>
 #include <climits>
-
-#ifdef _MSC_VER
-#pragma warning(disable:4996) // disable deprecation warning for localtime()
-#endif
 
 namespace Pol {
   namespace Bscript {
@@ -132,14 +129,14 @@ namespace Pol {
           time_stamp = 0;
 
 	  time_t seconds;
-	  struct tm* time_struct;
+	  
 
 	  if ( time_stamp <= 0 )
 		seconds = time( NULL );
 	  else
 		seconds = time_stamp;
 
-	  time_struct = localtime( &seconds );
+	  auto time_struct = Clib::localtime( seconds );
 
 	  //strftime uses assert check for invalid format -> precheck it
 	  size_t len = format_string->length();
@@ -185,7 +182,7 @@ namespace Pol {
 	  }
 
 	  char buffer[102]; // +2 for the \0 termination.
-	  if ( strftime( buffer, sizeof buffer, format_string->data(), time_struct ) > 0 )
+	  if ( strftime( buffer, sizeof buffer, format_string->data(), &time_struct ) > 0 )
 		return new String( buffer );
 	  else
 		return new BError( "Format string too long." );

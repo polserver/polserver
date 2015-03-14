@@ -28,6 +28,7 @@
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
+#include "../../clib/spinlock.h"
 
 #include "../../plib/systemstate.h"
 
@@ -437,7 +438,7 @@ namespace Pol
                     networkManager.iostats.received[msgtype].count++;
                     networkManager.iostats.received[msgtype].bytes += client->message_length;
                     {
-                      std::lock_guard<Core::SpinLock> guard(client->_fpLog_lock);
+                      std::lock_guard<Clib::SpinLock> guard(client->_fpLog_lock);
                       if (!client->fpLog.empty())
                       {
                           fmt::Writer tmp;

@@ -17,21 +17,19 @@ Notes
 	#pragma warning(disable:4786)
 #endif
 
+#include "../../lib/format/format.h"
+
 #include "../clib/clib.h"
 #include "../clib/fixalloc.h"
 #include "../clib/passert.h"
-#include "../../lib/format/format.h"
-
 #include "../clib/refptr.h"
+#include "../clib/spinlock.h"
+
 #include "escriptv.h"
 
 #include <vector>
 #include <stack>
 #include <iosfwd>
-
-#ifndef NDEBUG
-#include <mutex>
-#endif
 
 namespace Pol {
   namespace Bscript {
@@ -333,7 +331,7 @@ namespace Pol {
 #if BOBJECTIMP_DEBUG
 	  unsigned int instance_;
 	  static unsigned int instances_;
-	  static std::mutex bobjectimp_mutex;
+	  static Clib::SpinLock bobjectimp_lock;
 #endif
 	};
 

@@ -16,15 +16,14 @@ Notes
 #include <future>
 #include <map>
 
+#include "spinlock.h"
 #include "message_queue.h"
 
 namespace Pol {
   namespace threadhelp {
-	extern unsigned int child_threads;
+	extern std::atomic<unsigned int> child_threads;
 
 	void init_threadhelp();
-	void inc_child_thread_count( bool need_lock = true );
-	void dec_child_thread_count( bool need_lock = true );
 	void run_thread( void( *threadf )( void ) );
 	void run_thread( void( *threadf )( void * ), void* arg );
 
@@ -45,7 +44,10 @@ namespace Pol {
       void Register( size_t pid, const std::string& name );
       void Unregister( size_t pid );
 	  void CopyContents( Contents& out ) const;
+
+      ThreadMap();
 	private:
+      mutable Clib::SpinLock _spinlock;
 	  Contents _contents;
 #ifdef _WIN32
       HANDLES _handles;
