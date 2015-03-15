@@ -6,6 +6,7 @@
 #include "../profile.h"
 #include "../uobjcnt.h"
 
+#include <atomic>
 #include <boost/noncopyable.hpp>
 
 namespace Pol {
@@ -35,7 +36,7 @@ namespace Core {
 	  bool gflag_in_system_load;
 	  bool gflag_in_system_startup;
 
-	  clock_t polclock_paused_at;
+	  std::atomic<clock_t> polclock_paused_at;
 
 	  unsigned int stored_last_item_serial;
 	  unsigned int stored_last_char_serial;
@@ -55,6 +56,8 @@ namespace Core {
         u32 temp_count_decayed;
         u32 temp_count_active;
       } decay_statistics;
+
+      std::atomic<int> checkin_clock_times_out_at;
       
 
   };

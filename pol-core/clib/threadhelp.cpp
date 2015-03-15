@@ -16,9 +16,9 @@ Notes
 
 #include "threadhelp.h"
 
-#include "passert.h"
-#include "logfacility.h"
 #include "esignal.h"
+#include "logfacility.h"
+#include "passert.h"
 
 #include <cstring>
 
@@ -40,33 +40,12 @@ namespace Pol {
   namespace threadhelp {
 
     ThreadMap threadmap;
-    unsigned int child_threads = 0;
+    std::atomic<unsigned int> child_threads(0);
     static int threads = 0;
 
 #ifdef _WIN32
-    static CRITICAL_SECTION threadhelp_cs;
-    static CRITICAL_SECTION threadmap_cs;
     void init_threadhelp()
     {
-      InitializeCriticalSection( &threadhelp_cs );
-      InitializeCriticalSection( &threadmap_cs );
-    }
-    void threadsem_lock()
-    {
-      EnterCriticalSection( &threadhelp_cs );
-    }
-    void threadsem_unlock()
-    {
-      LeaveCriticalSection( &threadhelp_cs );
-    }
-
-    void threadmap_lock()
-    {
-      EnterCriticalSection( &threadmap_cs );
-    }
-    void threadmap_unlock()
-    {
-      LeaveCriticalSection( &threadmap_cs );
     }
 
     void thread_sleep_ms( unsigned millis )
@@ -113,78 +92,15 @@ namespace Pol {
       delete[] name;
     }
 #else
-    static pthread_mutexattr_t threadsem_attr;
-    static pthread_mutex_t threadsem;
-    static pid_t threadhelp_locker;
-
-    static pthread_mutexattr_t threadmap_sem_attr;
-    static pthread_mutex_t threadmap_sem;
-
     static pthread_attr_t create_detached_attr;
-
+    static Clib::SpinLock pthread_attr_lock;
 
     void init_threadhelp()
     {
       int res;
-
-      res = pthread_mutexattr_init( &threadsem_attr );
-      passert_always( res == 0 );
-
-      res = pthread_mutex_init( &threadsem, &threadsem_attr );
-      passert_always( res == 0 );
-
-      res = pthread_mutexattr_init( &threadmap_sem_attr );
-      passert_always( res == 0 );
-
-      res = pthread_mutex_init( &threadmap_sem, &threadmap_sem_attr );
-      passert_always( res == 0 );
-
       res = pthread_attr_init( &create_detached_attr );
       passert_always( res == 0 );
       res = pthread_attr_setdetachstate( &create_detached_attr, PTHREAD_CREATE_DETACHED );
-      passert_always( res == 0 );
-    }
-    void threadsem_lock()
-    {
-      pid_t pid = getpid();
-      int res = pthread_mutex_lock( &threadsem );
-      if (res != 0)
-      {
-        POLLOG << "pthread_mutex_lock: res="<< res << ", pid=" << pid << "\n";
-      }
-      passert_always( res == 0 );
-      passert_always( threadhelp_locker == 0 );
-      threadhelp_locker = pid;
-    }
-    void threadsem_unlock()
-    {
-      pid_t pid = getpid();
-      passert_always( threadhelp_locker == pid );
-      threadhelp_locker = 0;
-      int res = pthread_mutex_unlock( &threadsem );
-      if (res != 0)
-      {
-        POLLOG << "pthread_mutex_unlock: res="<< res << ", pid=" << pid << "\n";
-      }
-      passert_always( res == 0 );
-    }
-
-    void threadmap_lock()
-    {
-      int res = pthread_mutex_lock( &threadmap_sem );
-      if (res != 0)
-      {
-        POLLOG << "pthread_mutex_lock(threadmap_sem): res="<< res << ", pid=" << getpid() << "\n";
-      }
-      passert_always( res == 0 );
-    }
-    void threadmap_unlock()
-    {
-      int res = pthread_mutex_unlock( &threadmap_sem );
-      if (res != 0)
-      {
-        POLLOG << "pthread_mutex_unlock(threadmap_sem): res="<< res << ", pid=" << getpid() << "\n";
-      }
       passert_always( res == 0 );
     }
 
@@ -198,27 +114,6 @@ namespace Pol {
     }
 #endif
 
-    void inc_child_thread_count( bool /*need_lock*/ )
-    {
-      //if (need_lock)
-      threadsem_lock();
-
-      ++child_threads;
-
-      //if (need_lock)
-      threadsem_unlock();
-    }
-    void dec_child_thread_count( bool /*need_lock*/ )
-    {
-      //if (need_lock)
-      threadsem_lock();
-
-      --child_threads;
-
-      //if (need_lock)
-      threadsem_unlock();
-    }
-
     void run_thread( void( *threadf )( void ) )
     {
       // thread creator calls inc_child_thread_count before starting thread
@@ -231,7 +126,7 @@ namespace Pol {
         ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
       }
 
-      dec_child_thread_count();
+      --child_threads;
 
       threadmap.Unregister( thread_pid() );
     }
@@ -247,7 +142,7 @@ namespace Pol {
         ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
       }
 
-      dec_child_thread_count();
+      --child_threads;
 
       threadmap.Unregister( thread_pid() );
     }
@@ -304,7 +199,7 @@ namespace Pol {
 
         // dec_child says that we should dec_child_threads when there's an error... :)
         if ( dec_child )
-          dec_child_thread_count();
+          --child_threads;
       }
       else
       {
@@ -315,6 +210,7 @@ namespace Pol {
 #else
     void create_thread( ThreadData* td, bool dec_child = false )
     {
+      std::lock_guard<Clib::SpinLock> guard(pthread_attr_lock);
       pthread_t thread;
       int result = pthread_create( &thread, &create_detached_attr, thread_stub2, td );
       if ( result != 0) // added for better debugging
@@ -325,7 +221,7 @@ namespace Pol {
 
         // dec_child says that we should dec_child_threads when there's an error... :)
         if (dec_child)
-          dec_child_thread_count();
+          --child_threads;
       }
     }
 #endif
@@ -338,7 +234,7 @@ namespace Pol {
       td->entry_noparam = NULL;
       td->arg = arg;
 
-      inc_child_thread_count();
+      ++child_threads;
 
       create_thread( td, true );
     }
@@ -351,27 +247,34 @@ namespace Pol {
       td->entry_noparam = entry;
       td->arg = NULL;
 
-      inc_child_thread_count();
+      ++child_threads;
 
       create_thread( td, true );
     }
+
+     ThreadMap::ThreadMap()
+	: _spinlock(),
+	  _contents()
+#ifdef _WIN32
+      ,_handles()
+#endif
+     {}
+
 #ifdef _WIN32
     HANDLE ThreadMap::getThreadHandle( size_t pid ) const
     {
-      threadmap_lock();
+      std::lock_guard<Clib::SpinLock> guard(_spinlock);
       auto itr = _handles.find( pid );
       if ( itr == _handles.end() )
       {
-        threadmap_unlock();
         return 0;
       }
-      threadmap_unlock();
       return itr->second;
     }
 #endif
     void ThreadMap::Register( size_t pid, const std::string& name )
     {
-      threadmap_lock();
+      std::lock_guard<Clib::SpinLock> guard(_spinlock);
       _contents.insert( std::make_pair( pid, name ) );
 #ifdef _WIN32
       HANDLE hThread = 0;
@@ -384,17 +287,15 @@ namespace Pol {
         FALSE,
         DUPLICATE_SAME_ACCESS ) )
       {
-        threadmap_unlock();
         ERROR_PRINT << "failed to duplicate thread handle\n";
         return;
       }
       _handles.insert( std::make_pair( pid, hThread ) );
 #endif
-      threadmap_unlock();
     }
     void ThreadMap::Unregister( size_t pid )
     {
-      threadmap_lock();
+      std::lock_guard<Clib::SpinLock> guard(_spinlock);
       _contents.erase( pid );
 #ifdef _WIN32
       auto itr = _handles.find( pid );
@@ -402,13 +303,11 @@ namespace Pol {
         CloseHandle( itr->second );
       _handles.erase( pid );
 #endif
-      threadmap_unlock();
     }
     void ThreadMap::CopyContents( Contents& out ) const
     {
-      threadmap_lock();
+      std::lock_guard<Clib::SpinLock> guard(_spinlock);
       out = _contents;
-      threadmap_unlock();
     }
 
     ThreadRegister::ThreadRegister( const std::string &name )

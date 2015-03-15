@@ -154,15 +154,19 @@ namespace Pol {
       return size;
     }
 
+    PacketQueueSingle::PacketQueueSingle() :
+      _packets(),
+      _lock()
+    {}
     PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 /*sub*/)
     {
       // critical start
-      std::lock_guard<std::mutex> lock(_PacketQueueSingleMutex);
+      std::lock_guard<Clib::SpinLock> lock(_lock);
       PacketInterface* pkt;
-      if (!packets.empty())
+      if (!_packets.empty())
       {
-        pkt = packets.front();  // get next one
-        packets.pop();          // and remove it from queue
+        pkt = _packets.front();  // get next one
+        _packets.pop();          // and remove it from queue
         pkt->ReSetBuffer();
       }
       else
@@ -173,39 +177,43 @@ namespace Pol {
 
     PacketQueueSingle::~PacketQueueSingle()
     {
-      while (!packets.empty())
+      std::lock_guard<Clib::SpinLock> lock(_lock);
+      while (!_packets.empty())
       {
-        PacketInterface* pkt = packets.front();
-        packets.pop();
+        PacketInterface* pkt = _packets.front();
+        _packets.pop();
         delete pkt;
       }
     }
 
     void PacketQueueSingle::Add(PacketInterface* pkt)
     {
-      if (packets.size() > MAX_PACKETS_INSTANCES)  // enough?
+      std::lock_guard<Clib::SpinLock> lock(_lock);
+      if (_packets.size() > MAX_PACKETS_INSTANCES)  // enough?
         delete pkt;
       else
       {
-        // critical start
-        std::lock_guard<std::mutex> lock(_PacketQueueSingleMutex);
-        packets.push(pkt);  // readd it
-                            // critical end
+        _packets.push(pkt);  // readd it
       }
     }
 
     size_t PacketQueueSingle::estimateSize() const
     {
-      std::lock_guard<std::mutex> lock(_PacketQueueSingleMutex);
+      std::lock_guard<Clib::SpinLock> lock(_lock);
       size_t size = sizeof(PacketQueueSingle);
-      if (packets.size())
-        size += packets.front()->estimateSize();
+      if (!_packets.empty())
+        size += _packets.front()->estimateSize() * _packets.size();
       return size;
     }
 
+    PacketQueueSubs::PacketQueueSubs() :
+      _packets(),
+      _lock()
+    {}
     PacketQueueSubs::~PacketQueueSubs()
     {
-      for ( auto& pkts : packets )
+      std::lock_guard<Clib::SpinLock> lock(_lock);
+      for ( auto& pkts : _packets )
 	  {
         while ( !pkts.second.empty( ) )
 		{
@@ -214,18 +222,18 @@ namespace Pol {
 		  delete pkt;
 		}
 	  }
-	  packets.clear();
+	  _packets.clear();
 	}
 
 	PacketInterface* PacketQueueSubs::GetNext( u8 id, u16 sub )
 	{
 	  //critical start
-	  std::lock_guard<std::mutex> lock( _PacketQueueSubsMutex );
+	  std::lock_guard<Clib::SpinLock> lock(_lock);
 	  PacketInterface* pkt;
-	  if ( !packets.empty() )
+	  if ( !_packets.empty() )
 	  {
-		PacketInterfaceQueueMap::iterator itr = packets.find( sub );
-		if ( itr != packets.end() )
+		PacketInterfaceQueueMap::iterator itr = _packets.find( sub );
+		if ( itr != _packets.end() )
 		{
 		  if ( !itr->second.empty() )
 		  {
@@ -245,9 +253,9 @@ namespace Pol {
 	{
 	  u16 sub = pkt->getSubID();
 	  //critical start
-	  std::lock_guard<std::mutex> lock( _PacketQueueSubsMutex );
-	  PacketInterfaceQueueMap::iterator itr = packets.find( sub );
-	  if ( itr != packets.end() )
+	  std::lock_guard<Clib::SpinLock> lock(_lock);
+	  PacketInterfaceQueueMap::iterator itr = _packets.find( sub );
+	  if ( itr != _packets.end() )
 	  {
 		if ( itr->second.size() > MAX_PACKETS_INSTANCES ) // enough?
 		  delete pkt;
@@ -258,30 +266,31 @@ namespace Pol {
 	  {
 		PacketInterfaceQueue qu;
 		qu.push( pkt );
-		packets.insert( PacketInterfaceQueuePair( sub, qu ) );
+		_packets.insert( PacketInterfaceQueuePair( sub, qu ) );
 	  }
 	  //critical end
 	}
 
 	size_t PacketQueueSubs::Count() const
 	{
+      std::lock_guard<Clib::SpinLock> lock(_lock);
 	  size_t count = 0;
-	  for ( const auto& pkts : packets )
+	  for ( const auto& pkts : _packets )
 	  {
-        count += pkts.second.size( );
+        count += pkts.second.size();
 	  }
 	  return count;
 	}
 
     size_t PacketQueueSubs::estimateSize() const
     {
-      std::lock_guard<std::mutex> lock(_PacketQueueSubsMutex);
+      std::lock_guard<Clib::SpinLock> lock(_lock);
       size_t size = sizeof(PacketQueueSubs);
-      for (const auto& pkts : packets)
+      for (const auto& pkts : _packets)
       {
         size += sizeof(pkts.first) + (sizeof(void*) * 3 + 1) / 2;
         if (pkts.second.size())
-          size += pkts.second.front()->estimateSize();
+          size += pkts.second.front()->estimateSize() * pkts.second.size();
       }
       return size;
     }

@@ -72,6 +72,7 @@ Notes
 #include "../clib/opnew.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/spinlock.h"
 #include "../clib/threadhelp.h"
 #include "../clib/unicode.h"
 
@@ -338,7 +339,7 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to get packets right?
 	  {
-        std::lock_guard<Core::SpinLock> guard(mob->client->_fpLog_lock);
+        std::lock_guard<Clib::SpinLock> guard(mob->client->_fpLog_lock);
 		if ( mob->client->fpLog.empty() )
 		{
 		  std::string filename = "log/";
@@ -366,7 +367,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-        std::lock_guard<Core::SpinLock> guard(client->_fpLog_lock);
+        std::lock_guard<Clib::SpinLock> guard(client->_fpLog_lock);
 		if ( client->fpLog.empty() )
 		{
 		  std::string filename = "log/";
@@ -389,11 +390,11 @@ namespace Pol {
 	{
 	  if ( mob->connected ) // gotta be connected to already have packets right?
 	  {
-        std::lock_guard<Core::SpinLock> guard(mob->client->_fpLog_lock);
+        std::lock_guard<Clib::SpinLock> guard(mob->client->_fpLog_lock);
 		if ( !mob->client->fpLog.empty() )
 		{
-		  time_t now = time( NULL );
-          FLEXLOG( mob->client->fpLog ) << "Log closed at %s" << asctime( localtime( &now ) ) << "\n";
+          auto time_tm = Clib::localtime(time( NULL ));
+          FLEXLOG( mob->client->fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
           CLOSE_FLEXLOG( mob->client->fpLog );
           mob->client->fpLog.clear();
 		  send_sysmessage( looker->client, "I/O log file closed for " + mob->name() );
@@ -414,11 +415,11 @@ namespace Pol {
 	  }
 	  else
 	  {
-        std::lock_guard<Core::SpinLock> guard(client->_fpLog_lock);
+        std::lock_guard<Clib::SpinLock> guard(client->_fpLog_lock);
 		if ( !client->fpLog.empty() )
 		{
-          time_t now = time( NULL );
-          FLEXLOG( client->fpLog ) << "Log closed at %s" << asctime( localtime( &now ) ) << "\n";
+          auto time_tm = Clib::localtime(time( NULL ));
+          FLEXLOG( client->fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
           CLOSE_FLEXLOG( client->fpLog );
           client->fpLog.clear();
 		  send_sysmessage( client, "I/O log file closed." );

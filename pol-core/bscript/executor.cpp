@@ -79,7 +79,7 @@ namespace Pol {
 	}
 
 	extern int executor_count;
-	std::mutex Executor::_executor_mutex;
+	Clib::SpinLock Executor::_executor_lock;
 	Executor::Executor() :
 	  done( 0 ),
 	  error_( false ),
@@ -98,7 +98,7 @@ namespace Pol {
 	  bp_skip_( ~0u ),
 	  func_result_( NULL )
 	{
-	  std::lock_guard<std::mutex> lock( _executor_mutex );
+	  std::lock_guard<Clib::SpinLock> lock( _executor_lock );
 	  ++executor_count;
 	  executor_instances.insert( this );
 
@@ -111,10 +111,11 @@ namespace Pol {
 
 	Executor::~Executor()
 	{
-	  std::lock_guard<std::mutex> lock( _executor_mutex );
-	  --executor_count;
-	  executor_instances.erase( this );
-
+      {
+	    std::lock_guard<Clib::SpinLock> lock( _executor_lock );
+	    --executor_count;
+	    executor_instances.erase( this );
+      }
 	  delete Locals2;
 	  Locals2 = NULL;
 

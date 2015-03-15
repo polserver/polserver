@@ -1,3 +1,9 @@
+/*
+ATTENTION:
+This header is part of the PCH
+Remove the include in all StdAfx.h files or live with the consequences :)
+*/
+
 #ifndef CLIB_COMPILERSPECIFICS_H_
 #define CLIB_COMPILERSPECIFICS_H_
 

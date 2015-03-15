@@ -22,12 +22,12 @@ namespace Pol {
 	  typedef CCryptBase base;
 
 	  CCryptNoCrypt();
-	  ~CCryptNoCrypt();
+	  virtual ~CCryptNoCrypt();
 
 	  // Member Functions
 	public:
-	  int		Receive( void *buffer, int max_expected, SOCKET socket );
-	  void	Init( void *pvSeed, int type = CCryptBase::typeAuto );
+	  virtual int  Receive( void *buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+	  virtual void Init( void *pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
 	};
 
 	// BLOWFISH
@@ -40,18 +40,18 @@ namespace Pol {
 
 	  CCryptBlowfish();
 	  CCryptBlowfish( unsigned int masterKey1, unsigned int masterKey2 );
-	  ~CCryptBlowfish();
+	  virtual ~CCryptBlowfish();
 
 	  BlowFish bfish;
 
 	  // Member Functions
 	public:
-	  virtual int		Receive( void *buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
-	  virtual void	Init( void *pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
-	  virtual void	SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
+	  virtual int  Receive( void *buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+	  virtual void Init( void *pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
+	  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
 
 	protected:
-	  virtual void	Decrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
+	  virtual void Decrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
 	};
 
 	// BLOWFISH OLD
@@ -62,10 +62,10 @@ namespace Pol {
 	public:
 	  CCryptBlowfishOld();
 	  CCryptBlowfishOld( unsigned int masterKey1, unsigned int masterKey2 );
-	  ~CCryptBlowfishOld();
+	  virtual ~CCryptBlowfishOld();
 
 	protected:
-	  void	Decrypt( void *pvIn, void *pvOut, int len );
+	  virtual void Decrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
 	};
 
 	// BLOWFISH 1.25.36
@@ -76,10 +76,10 @@ namespace Pol {
 	public:
 	  CCrypt12536();
 	  CCrypt12536( unsigned int masterKey1, unsigned int masterKey2 );
-	  ~CCrypt12536();
+	  virtual ~CCrypt12536();
 
 	protected:
-	  void	Decrypt( void *pvIn, void *pvOut, int len );
+	  virtual void Decrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
 	};
 
 	// BLOWFISH + TWOFISH
@@ -89,18 +89,18 @@ namespace Pol {
 	public:
 	  CCryptBlowfishTwofish();
 	  CCryptBlowfishTwofish( unsigned int masterKey1, unsigned int masterKey2 );
-	  ~CCryptBlowfishTwofish();
+	  virtual ~CCryptBlowfishTwofish();
 
 	  BlowFish bfish;
 	  TwoFish tfish;
 
 	public:
-	  int		Receive( void *buffer, int max_expected, SOCKET socket );
-	  void	Init( void *pvSeed, int type = CCryptBase::typeAuto );
-	  void	SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 );
+	  virtual int  Receive( void *buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+	  virtual void Init( void *pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
+	  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
 
 	protected:
-	  void	Decrypt( void *pvIn, void *pvOut, int len );
+	  virtual void Decrypt( void *pvIn, void *pvOut, int len );
 	};
 
 	// TWOFISH
@@ -110,19 +110,19 @@ namespace Pol {
 	public:
 	  CCryptTwofish();
 	  CCryptTwofish( unsigned int masterKey1, unsigned int masterKey2 );
-	  ~CCryptTwofish();
+	  virtual ~CCryptTwofish();
 
 	  TwoFish tfish;
 	  MD5Crypt md5;
 
 	public:
-	  int		Receive( void *buffer, int max_expected, SOCKET socket );
-	  void	Init( void *pvSeed, int type = CCryptBase::typeAuto );
-	  void	SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 );
-	  void	Encrypt( void *pvIn, void *pvOut, int len );
+	  virtual int  Receive( void *buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+	  virtual void Init( void *pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
+	  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
+	  virtual void Encrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
 
 	protected:
-	  void	Decrypt( void *pvIn, void *pvOut, int len );
+	  virtual void Decrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
 	};
   }
 }

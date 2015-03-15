@@ -47,7 +47,9 @@ namespace Pol {
 	  virtual void flush_file() POL_OVERRIDE;
 	private:
 	  std::ofstream *_stream;
+#if 0
       Tools::HighPerfTimer::time_mu _fs_time;
+#endif
       std::string _stream_name;
 	};
 

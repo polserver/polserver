@@ -1857,10 +1857,9 @@ namespace Pol {
 		  if (type == 1)
 		  {
 			char buffer[30];
-			time_t now = time(NULL);
-			struct tm* tm_now = localtime( &now );
+			auto time_tm = Clib::localtime(time( NULL ));
 
-			strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now );
+			strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", &time_tm );
 		    DEBUGLOG << "[" << buffer << "] polcore().internal\n";
 		    LEAKLOG << buffer << ";";
 

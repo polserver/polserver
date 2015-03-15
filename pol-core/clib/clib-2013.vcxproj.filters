@@ -355,5 +355,8 @@
     <ClInclude Include="kbhit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="spinlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

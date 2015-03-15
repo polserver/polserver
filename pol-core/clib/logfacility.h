@@ -13,10 +13,10 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <memory>
 #include <fstream>
 #include <boost/noncopyable.hpp>
-#include "../clib/compilerspecifics.h"
 #include "../../lib/format/format.h"
-#include "Debugging/LogSink.h"
 
+#include "compilerspecifics.h"
+#include "Debugging/LogSink.h"
 #include "message_queue.h"
 
 namespace Pol {

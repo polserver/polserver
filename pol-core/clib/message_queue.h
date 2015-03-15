@@ -1,3 +1,9 @@
+/*
+ATTENTION:
+This header is part of the PCH
+Remove the include in all StdAfx.h files or live with the consequences :)
+*/
+
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 #include <chrono>
@@ -92,32 +98,42 @@ namespace Pol {
 	{
 	  std::list<Message> tmp;
 	  tmp.push_back( msg );  // costly pushback outside the lock
+      bool signal=false;
 	  {
 		std::lock_guard<std::mutex> lock( _mutex );
+        signal = _queue.empty();
 		_queue.splice( _queue.end(), tmp );  // fast splice inside
-		_notifier.notify_one();
 	  }
+      if (signal)
+        _notifier.notify_one();
 	}
 
 	template <typename Message>
 	void message_queue<Message>::push_move( Message&& msg )
 	{
 	  std::list<Message> tmp;
-	  tmp.emplace_back(
-		std::move( msg ) );  // costly pushback outside the lock
+	  tmp.emplace_back(	std::move( msg ) );  // costly pushback outside the lock
+      bool signal=false;
 	  {
 		std::lock_guard<std::mutex> lock( _mutex );
+        signal = _queue.empty();
 		_queue.splice( _queue.end(), tmp );  // fast splice inside
-		_notifier.notify_one();
 	  }
+      if (signal)
+        _notifier.notify_one();
 	}
 
     template <typename Message>
 	void message_queue<Message>::push( std::list<Message>& msg_list )
     {
-      std::lock_guard<std::mutex> lock( _mutex );
-      _queue.splice( _queue.end( ), msg_list );  // fast splice inside
-      _notifier.notify_one( );
+      bool signal=false;
+      {
+        std::lock_guard<std::mutex> lock( _mutex );
+        signal = _queue.empty();
+        _queue.splice( _queue.end(), msg_list );  // fast splice inside
+      }
+      if (signal)
+        _notifier.notify_one();
     }
 
 	template <typename Message>
@@ -169,13 +185,16 @@ namespace Pol {
 	template <typename Message>
 	void message_queue<Message>::pop_remaining( std::list<Message>* msgs )
 	{
+      std::unique_lock<std::mutex> lock( _mutex );
 	  msgs->splice( msgs->end(), _queue );
 	}
 	template <typename Message>
 	void message_queue<Message>::cancel()
 	{
-	  std::lock_guard<std::mutex> lock( _mutex );
-	  _cancel = true;
+      {
+	    std::lock_guard<std::mutex> lock( _mutex );
+	    _cancel = true;
+      }
 	  _notifier.notify_all();
 	}
   }

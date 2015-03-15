@@ -8,7 +8,7 @@
 // NOCRYPT
 namespace Pol {
   namespace Crypt {
-	CCryptNoCrypt::CCryptNoCrypt()
+	CCryptNoCrypt::CCryptNoCrypt() : CCryptBase()
 	{}
 
 	CCryptNoCrypt::~CCryptNoCrypt()
@@ -27,7 +27,7 @@ namespace Pol {
 
 	// BLOWFISH
 
-	CCryptBlowfish::CCryptBlowfish()
+	CCryptBlowfish::CCryptBlowfish() : CCryptBaseCrypt(), bfish()
 	{}
 
 	CCryptBlowfish::~CCryptBlowfish()
@@ -90,7 +90,7 @@ namespace Pol {
 
 	// BLOWFISH OLD
 
-	CCryptBlowfishOld::CCryptBlowfishOld()
+	CCryptBlowfishOld::CCryptBlowfishOld() : CCryptBlowfish()
 	{}
 
 	CCryptBlowfishOld::~CCryptBlowfishOld()
@@ -124,7 +124,7 @@ namespace Pol {
 
 	// BLOWFISH 1.25.36
 
-	CCrypt12536::CCrypt12536()
+	CCrypt12536::CCrypt12536() : CCryptBlowfish()
 	{}
 
 	CCrypt12536::~CCrypt12536()
@@ -158,7 +158,7 @@ namespace Pol {
 
 	// BLOWFISH + TWOFISH
 
-	CCryptBlowfishTwofish::CCryptBlowfishTwofish()
+	CCryptBlowfishTwofish::CCryptBlowfishTwofish() : CCryptBaseCrypt(), bfish(), tfish()
 	{}
 
 	CCryptBlowfishTwofish::~CCryptBlowfishTwofish()
@@ -223,7 +223,7 @@ namespace Pol {
 
 	// TWOFISH
 
-	CCryptTwofish::CCryptTwofish()
+	CCryptTwofish::CCryptTwofish() : CCryptBaseCrypt(), tfish(), md5()
 	{}
 
 	CCryptTwofish::~CCryptTwofish()

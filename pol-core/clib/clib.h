@@ -14,6 +14,7 @@ Notes
 #ifndef __STDDEF_H
 #	include "stddef.h"
 #endif
+#include <ctime>
 #include "rawtypes.h"
 
     /* explicit cast: use instead of c-style (type) casts.
@@ -120,7 +121,7 @@ namespace Pol {
       void update(double value);
       double variance() const;
       double mean() const;
-      double count() const;
+      u64 count() const;
       double max() const;
     private:
       u64 _count;
@@ -128,6 +129,20 @@ namespace Pol {
       double _mean;
       double _m2;
     };
+
+
+    // threadsafe version of localtime
+    inline std::tm localtime( std::time_t t )
+    {
+#ifdef _MSC_VER
+      std::tm temp;
+      localtime_s(&temp, &t);
+      return temp;
+#else
+      std::tm temp;
+      return *localtime_r( &t, &temp );
+#endif
+    }
 
   }
 #define strzcpy Clib::stracpy

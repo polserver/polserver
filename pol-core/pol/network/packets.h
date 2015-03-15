@@ -11,10 +11,11 @@ Notes
 #define POL_PACKETS_H
 
 #include "../../clib/endian.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
+#include "../../clib/spinlock.h"
 #include "../../clib/strutil.h"
-#include "../../clib/logfacility.h"
 #include "../layers.h"
 #include "../pktboth.h"
 #include "../pktbothid.h"
@@ -50,17 +51,17 @@ namespace Pol {
       class PacketQueueSingle : public PacketQueue
       {
        public:
-        PacketQueueSingle(){};
+        PacketQueueSingle();
         virtual ~PacketQueueSingle();
 
        private:
-        PacketInterfaceQueue packets;
-        mutable std::mutex _PacketQueueSingleMutex;
+        PacketInterfaceQueue _packets;
+        mutable Clib::SpinLock _lock;
 
        public:
         virtual PacketInterface* GetNext(u8 id, u16 sub = 0) POL_OVERRIDE;
         virtual void Add(PacketInterface* pkt) POL_OVERRIDE;
-        virtual size_t Count() const POL_OVERRIDE { return packets.size(); };
+        virtual size_t Count() const POL_OVERRIDE { return _packets.size(); };
         virtual size_t estimateSize() const POL_OVERRIDE;
       };
 
@@ -68,19 +69,19 @@ namespace Pol {
       class PacketQueueSubs : public PacketQueue
       {
        public:
-        PacketQueueSubs(){};
+        PacketQueueSubs();
         virtual ~PacketQueueSubs();
 
        private:
-        PacketInterfaceQueueMap packets;
-        mutable std::mutex _PacketQueueSubsMutex;
+        PacketInterfaceQueueMap _packets;
+        mutable Clib::SpinLock _lock;
 
        public:
         virtual PacketInterface* GetNext(u8 id, u16 sub = 0) POL_OVERRIDE;
         virtual void Add(PacketInterface* pkt) POL_OVERRIDE;
         virtual size_t Count() const POL_OVERRIDE;
         virtual bool HasSubs() const POL_OVERRIDE { return true; };
-		virtual PacketInterfaceQueueMap* GetSubs() POL_OVERRIDE { return &packets; };
+		virtual PacketInterfaceQueueMap* GetSubs() POL_OVERRIDE { return &_packets; };
         virtual size_t estimateSize() const POL_OVERRIDE;
       };
 

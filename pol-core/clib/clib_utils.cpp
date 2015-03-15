@@ -40,7 +40,7 @@ namespace Pol {
     {
       return _mean;
     }
-    double OnlineStatistics::count() const
+    u64 OnlineStatistics::count() const
     {
       return _count;
     }

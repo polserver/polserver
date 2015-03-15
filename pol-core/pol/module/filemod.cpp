@@ -16,6 +16,7 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
+#include "../../clib/clib.h"
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/maputil.h"
@@ -519,11 +520,10 @@ namespace Pol {
 
         if ( flags & Core::LOG_DATETIME )
 		{
-		  time_t now = time( NULL );
-		  struct tm* tm_now = localtime( &now );
+		  auto time_tm = Clib::localtime(time( NULL ));
 
 		  char buffer[30];
-		  if ( strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", tm_now ) > 0 )
+		  if ( strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", &time_tm ) > 0 )
 			ofs << "[" << buffer << "] ";
 		}
 

@@ -525,11 +525,9 @@ namespace Pol {
       }
     }
 
-    polclock_t checkin_clock_times_out_at;
-
     void polclock_checkin()
     {
-      checkin_clock_times_out_at = polclock() + 30 * POLCLOCKS_PER_SEC;
+      stateManager.checkin_clock_times_out_at = polclock() + 30 * POLCLOCKS_PER_SEC;
     }
 
 #define clock_t_to_ms(x) (x)
@@ -717,11 +715,11 @@ namespace Pol {
         if ( !stateManager.polclock_paused_at )
         {
           polclock_t now = polclock();
-          if ( now >= checkin_clock_times_out_at )
+          if ( now >= stateManager.checkin_clock_times_out_at )
           {
             ERROR_PRINT << "No clock movement in 30 seconds.  Dumping thread status.\n";
             stateManager.polsig.report_status_signalled = true;
-            checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
+            stateManager.checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
           }
         }
 

@@ -12,16 +12,13 @@ POLLOG.Format("hello {}") << "world";
 */
 
 #include "logfacility.h"
+#include "clib.h"
 
 #include <fstream> 
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <memory.h>
-
-#ifdef _MSC_VER
-    #pragma warning(disable:4996) // disable localtime() unsafe warning. use something else, perhaps? ;)
-#endif
 
 namespace Pol {
   namespace Clib {
@@ -366,8 +363,7 @@ namespace Pol {
           AddTimeStamp( _filestream );
           _filestream << "Logfile opened." << std::endl;
         }
-        time_t t_now = std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() );
-        _opened = *localtime( &t_now ); // mark current time for later possible rollover
+        _opened = Clib::localtime( std::chrono::system_clock::to_time_t( std::chrono::system_clock::now() ) ); // mark current time for later possible rollover
         _active_line = false;
       }
 
@@ -405,10 +401,9 @@ namespace Pol {
       // check if a rollover is needed (new day)
       bool LogSinkGenericFile::test_for_rollover( std::chrono::time_point<std::chrono::system_clock>& now )
       {
-        time_t t_now = std::chrono::system_clock::to_time_t( now );
-        auto tm_now = localtime( &t_now );
-        if ( _behaviour->rollover && ( tm_now->tm_mday != _opened.tm_mday ||
-          tm_now->tm_mon != _opened.tm_mon ) )
+        auto tm_now = Clib::localtime( std::chrono::system_clock::to_time_t( now ) );
+        if ( _behaviour->rollover && ( tm_now.tm_mday != _opened.tm_mday ||
+          tm_now.tm_mon != _opened.tm_mon ) )
         {
           // roll the log file over
           char buffer[30];
@@ -424,7 +419,7 @@ namespace Pol {
           _filestream.open( _log_filename, _behaviour->openmode );
           if ( !_filestream.is_open() )
             return false;
-          _opened = *tm_now;
+          _opened = tm_now;
         }
         return true;
       }

@@ -194,11 +194,12 @@ namespace Pol {
 	  }
 
       {
-        std::lock_guard<Core::SpinLock> guard(_fpLog_lock);
+        std::lock_guard<Clib::SpinLock> guard(_fpLog_lock);
 	    if ( !fpLog.empty() )
 	    {
 		  time_t now = time( NULL );
-          FLEXLOG( fpLog ) << "Log closed at " << asctime( localtime( &now ) ) << "\n";
+          auto time = Clib::localtime(now);
+          FLEXLOG( fpLog ) << "Log closed at " << asctime( &time ) << "\n";
           CLOSE_FLEXLOG( fpLog );
 		  fpLog.clear();
         }
@@ -683,7 +684,7 @@ namespace Pol {
 
     size_t Client::estimatedSize() const
     {
-      std::lock_guard<Core::SpinLock> guard(_fpLog_lock);
+      std::lock_guard<Clib::SpinLock> guard(_fpLog_lock);
       size_t size = sizeof(Client)
         +fpLog.capacity() + version_.capacity();
       Core::XmitBuffer* buffer_size = first_xmit_buffer;

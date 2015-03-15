@@ -107,7 +107,7 @@ namespace Pol {
         << " (encryption: " << ls->encryption.eType << ",0x" << fmt::hexu( ls->encryption.uiKey1 ) << ",0x" << fmt::hexu( ls->encryption.uiKey2 ) << ")\n";
 
       Clib::SocketListener SL( ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
-	  std::list<UoClientThread *> login_clients;
+	  std::list<std::unique_ptr<UoClientThread>> login_clients;
       while ( !Clib::exit_signalled )
 	  {
 		unsigned int timeout = 2;
@@ -118,10 +118,10 @@ namespace Pol {
 		  // create an appropriate Client object
 		  if ( Plib::systemstate.config.use_single_thread_login )
 		  {
-			UoClientThread* thread = new UoClientThread( ls, SL );
-			login_clients.push_back( thread );
+			std::unique_ptr<UoClientThread> thread (new UoClientThread( ls, SL ));
 			thread->create();
 			client_io_thread( thread->client, true );
+            login_clients.push_back( std::move(thread) );
 		  }
 		  else
 		  {
@@ -137,14 +137,13 @@ namespace Pol {
 		  {
 			if ( !client_io_thread( ( *itr )->client, true ) )
 			{
-              delete (*itr);
 			  itr = login_clients.erase( itr );
 			  continue;
 			}
 
 			if ( ( *itr )->client->isConnected() && ( *itr )->client->chr )
 			{
-              Clib::SocketClientThread::start_thread( *itr );
+              Clib::SocketClientThread::start_thread( itr->release() );
 			  itr = login_clients.erase( itr );
 			}
 			else
@@ -154,7 +153,6 @@ namespace Pol {
 		  }
 		  else
 		  {
-            delete (*itr);
 			itr = login_clients.erase( itr );
 		  }
 		}

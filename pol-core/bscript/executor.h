@@ -30,11 +30,12 @@ Notes
 #include "fmodule.h"
 #include "eprog.h"
 
+#include "../clib/spinlock.h"
+
 #include <stack>
 #include <deque>
 #include <vector>
 #include <exception>
-#include <mutex>
 
 namespace Pol {
   namespace Core {
@@ -77,7 +78,7 @@ namespace Pol {
 	class Executor
 	{
 	public:
-	  static std::mutex _executor_mutex;
+	  static Clib::SpinLock _executor_lock;
 	  virtual size_t sizeEstimate() const;
 
 	  friend void Core::list_script( Core::UOExecutor* uoexec );

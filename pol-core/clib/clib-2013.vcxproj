@@ -321,6 +321,7 @@
     <ClInclude Include="RefPtr.h" />
     <ClInclude Include="sckutil.h" />
     <ClInclude Include="socketsvc.h" />
+    <ClInclude Include="spinlock.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="stlutil.h" />
     <ClInclude Include="streamsaver.h" />

@@ -15,6 +15,7 @@ Notes
 #include "globals/uvars.h"
 
 #include "../clib/stlutil.h"
+#include "../clib/spinlock.h"
 
 #include <ctime>
 #include <mutex>
@@ -25,11 +26,11 @@ namespace Pol {
 
 	static time_t last_read;
 
-	static std::mutex _gameclock_mutex;
+	static Clib::SpinLock _gameclock_lock;
 
 	void start_gameclock()
 	{
-	  std::lock_guard<std::mutex> lock( _gameclock_mutex );
+	  std::lock_guard<Clib::SpinLock> lock( _gameclock_lock );
 	  std::string gameclock_str;
 	  if ( gamestate.global_properties->getprop( "gameclock", gameclock_str ) )
 	  {
@@ -59,7 +60,7 @@ namespace Pol {
 
 	gameclock_t read_gameclock()
 	{
-	  std::lock_guard<std::mutex> lock( _gameclock_mutex );
+	  std::lock_guard<Clib::SpinLock> lock( _gameclock_lock );
 	  time_t new_last_read = poltime();
 	  unsigned int diff = static_cast<unsigned int>( new_last_read - last_read );
 	  gameclock += diff;
