@@ -961,6 +961,7 @@ namespace Pol {
 	  BLong* m_pIterVal;
 	};
 	ArrayIterator::ArrayIterator( ObjArray* pArr, BObject* pIterVal ) :
+      ContIterator(),
 	  m_Index( 0 ),
 	  m_Array( pArr ),
 	  m_pArray( pArr ),

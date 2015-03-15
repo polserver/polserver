@@ -49,13 +49,13 @@ namespace Pol {
 	  Mobile::Character* targetter = client->chr;
 	  u32 target_cursor_serial = cfBEu32( msg->target_cursor_serial );
 
-	  // does target cursor even exist?
-	  if ( target_cursor_serial >= gamestate.target_cursors._cursorid_count )
+	  // does target cursor even exist? (NOTE 1-based)
+	  if ( target_cursor_serial== 0 || target_cursor_serial > gamestate.target_cursors._cursorid_count )
 	  {
 		return;
 	  }
 
-	  TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial];
+	  TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial-1];
 	  if ( tcursor != targetter->tcursor2 )
 	  {
         POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name() << " used out of sequence cursor.\n";
@@ -123,14 +123,14 @@ namespace Pol {
 	TargetCursor::TargetCursor( bool inform_on_cancel ) :
 	  inform_on_cancel_( inform_on_cancel )
 	{
-	  if ( gamestate.target_cursors._cursorid_count >= gamestate.target_cursors._target_cursors.size() )
+	  if ( gamestate.target_cursors._cursorid_count > gamestate.target_cursors._target_cursors.size() )
 	  {
 		throw std::runtime_error( "Too many targetting cursors!" );
 	  }
 
 	  cursorid_ = gamestate.target_cursors._cursorid_count;
 
-	  gamestate.target_cursors._target_cursors[cursorid_] = this;
+	  gamestate.target_cursors._target_cursors[cursorid_-1] = this;
 
 	  gamestate.target_cursors._cursorid_count++;
 	}
@@ -440,8 +440,8 @@ namespace Pol {
 	}
 
 	Cursors::Cursors() :
-	  _target_cursors(),
-	  _cursorid_count(0), // array and index needs to be initialized before registering the cursors
+	  _target_cursors(), // NOTE: the id is 1-based (seems that the stealth client has problem with serial==0)
+	  _cursorid_count(1), // array and index needs to be initialized before registering the cursors
 	  los_checked_script_cursor( Module::handle_script_cursor, true ),
 	  nolos_checked_script_cursor( Module::handle_script_cursor, true ),
 

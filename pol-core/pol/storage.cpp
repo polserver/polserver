@@ -317,6 +317,7 @@ namespace Pol {
 	};
 
 	StorageAreaIterator::StorageAreaIterator( StorageArea* area, BObject* pIter ) :
+      ContIterator(),
 	  m_pIterVal( pIter ),
 	  key( "" ),
 	  _area( area )
@@ -401,6 +402,7 @@ namespace Pol {
 	};
 
 	StorageAreasIterator::StorageAreasIterator( BObject* pIter ) :
+      ContIterator(),
 	  m_pIterVal( pIter ),
 	  key( "" )
 	{}

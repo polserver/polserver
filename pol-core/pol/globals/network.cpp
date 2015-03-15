@@ -112,7 +112,7 @@ namespace Core {
 	// unload_aux_service
 	Clib::delete_all( auxservices );
 #ifdef PERGON
-    auxthreadpool.release();
+    auxthreadpool.reset();
 #endif
 	banned_ips.clear();
 #ifdef _WIN32
