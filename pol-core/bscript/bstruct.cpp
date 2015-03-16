@@ -27,14 +27,15 @@ Notes
 
 namespace Pol {
   namespace Bscript {
-	BStruct::BStruct() : BObjectImp( OTStruct )
+	BStruct::BStruct() : BObjectImp( OTStruct ), contents_()
 	{}
 
-	BStruct::BStruct( BObjectType type ) : BObjectImp( type )
+	BStruct::BStruct( BObjectType type ) : BObjectImp( type ), contents_()
 	{}
 
 	BStruct::BStruct( const BStruct& other, BObjectType type ) :
-	  BObjectImp( type )
+	  BObjectImp( type ),
+      contents_()
 	{
 	  for ( const auto &elem : other.contents_ )
 	  {
@@ -46,7 +47,8 @@ namespace Pol {
 	}
 
 	BStruct::BStruct( std::istream& is, unsigned size, BObjectType type ) :
-	  BObjectImp( type )
+	  BObjectImp( type ),
+      contents_()
 	{
 	  for ( unsigned i = 0; i < size; ++i )
 	  {

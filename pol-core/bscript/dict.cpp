@@ -26,14 +26,15 @@ Notes
 
 namespace Pol {
   namespace Bscript {
-	BDictionary::BDictionary() : BObjectImp( OTDictionary )
+	BDictionary::BDictionary() : BObjectImp( OTDictionary ), contents_()
 	{}
 
-	BDictionary::BDictionary( BObjectType type ) : BObjectImp( type )
+	BDictionary::BDictionary( BObjectType type ) : BObjectImp( type ), contents_()
 	{}
 
 	BDictionary::BDictionary( const BDictionary& dict, BObjectType type ) :
-	  BObjectImp( type )
+	  BObjectImp( type ),
+      contents_()
 	{
 	  for ( const auto &elem : dict.contents_ )
 	  {
@@ -45,7 +46,8 @@ namespace Pol {
 	}
 
 	BDictionary::BDictionary( std::istream& is, unsigned size, BObjectType type ) :
-	  BObjectImp( type )
+	  BObjectImp( type ),
+      contents_()
 	{
 	  for ( unsigned i = 0; i < size; ++i )
 	  {
@@ -80,6 +82,7 @@ namespace Pol {
 	  bool m_First;
 	};
 	BDictionaryIterator::BDictionaryIterator( BDictionary* pDict, BObject* pIterVal ) :
+      ContIterator(),
 	  m_DictObj( pDict ),
 	  m_pDict( pDict ),
 	  m_IterVal( pIterVal ),

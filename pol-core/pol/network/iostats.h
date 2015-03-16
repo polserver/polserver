@@ -9,6 +9,8 @@ Notes
 */
 #ifndef __IOSTATS_H
 #define __IOSTATS_H
+
+#include <atomic>
 namespace Pol {
   namespace Network {
 	class IOStats
@@ -18,8 +20,8 @@ namespace Pol {
 
 	  struct Packet
 	  {
-		unsigned int count;
-		unsigned int bytes;
+		std::atomic<unsigned int> count;
+		std::atomic<unsigned int> bytes;
 	  };
 
 	  Packet sent[256];

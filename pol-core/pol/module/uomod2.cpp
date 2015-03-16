@@ -99,7 +99,6 @@ Notes
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polstats.h"
-#include "../poltimer.h"
 #include "../realms.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -792,16 +791,20 @@ namespace Pol {
 		return;
 
 	  NPC* vendor = client->gd->vendor.get();
-	  client->gd->vendor.clear();
+	  
 	  if ( vendor == NULL || vendor->orphan() ||
 		   vendor->serial_ext != msg->vendor_serial )
 	  {
+        client->gd->vendor.clear();
+        client->gd->vendor_bought.clear();
 		return;
 	  }
+      
 	  UContainer* vendor_bought = client->gd->vendor_bought.get();
-	  client->gd->vendor_bought.clear();
 	  if ( vendor_bought == NULL || vendor_bought->orphan() )
 	  {
+        client->gd->vendor.clear();
+        client->gd->vendor_bought.clear();
 		return;
 	  }
 
@@ -886,6 +889,8 @@ namespace Pol {
 
 	  send_clear_vendorwindow( client, vendor );
 
+      client->gd->vendor_bought.clear();
+      client->gd->vendor.clear();
 	  client->restart();
 	}
 
@@ -901,14 +906,20 @@ namespace Pol {
 		return;
 
 	  NPC* vendor = client->gd->vendor.get();
-	  client->gd->vendor.clear();
 	  if ( vendor == NULL || vendor->orphan() || vendor->serial_ext != msg->vendor_serial )
+      {
+        client->gd->vendor.clear();
+        client->gd->vendor_bought.clear();
 		return;
+      }
 
 	  UContainer* vendor_bought = client->gd->vendor_bought.get();
-	  client->gd->vendor_bought.clear();
 	  if ( vendor_bought == NULL || vendor_bought->orphan() )
+      {
+        client->gd->vendor.clear();
+        client->gd->vendor_bought.clear();
 		return;
+      }
 
 	  int num_items = cfBEu16( msg->num_items );
 	  std::unique_ptr<ObjArray> items_sold( new ObjArray );
@@ -940,6 +951,8 @@ namespace Pol {
 	  vendor->send_event( sale_event.release() );
 
 	  send_clear_vendorwindow( client, vendor );
+      client->gd->vendor.clear();
+      client->gd->vendor_bought.clear();
 	}
 
 	//
@@ -1208,7 +1221,8 @@ namespace Pol {
 	};
 
 	BIntHash::BIntHash() :
-	  BObjectImp( OTUnknown )
+	  BObjectImp( OTUnknown ),
+      contents_()
 	{}
 
 	BIntHash::BIntHash( const BIntHash& ih ) :

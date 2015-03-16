@@ -942,10 +942,10 @@ namespace Pol {
 	}
 
 
-	ObjArray::ObjArray() : BObjectImp( OTArray )
+	ObjArray::ObjArray() : BObjectImp( OTArray ), name_arr(), ref_arr()
 	{}
 
-	ObjArray::ObjArray( BObjectType type ) : BObjectImp( type )
+	ObjArray::ObjArray( BObjectType type ) : BObjectImp( type ), name_arr(), ref_arr()
 	{}
 
 	ObjArray::ObjArray( const ObjArray& copyfrom ) :
