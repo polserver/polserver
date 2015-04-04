@@ -222,6 +222,11 @@ namespace Pol {
       Plib::systemstate.config.single_thread_decay = elem.remove_bool("SingleThreadDecay", false);
       Plib::systemstate.config.thread_decay_statistics = elem.remove_bool("ThreadDecayStatistics", false);
 
+	  Plib::systemstate.config.admin_email = elem.remove_string("AdminEmail", "");
+	  Plib::systemstate.config.enable_automatic_report = elem.remove_bool("AutomaticReport", false);
+
+
+
 #ifdef _WIN32
       Clib::MiniDumper::SetMiniDumpType( Plib::systemstate.config.minidump_type );
 #endif
