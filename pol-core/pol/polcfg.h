@@ -94,6 +94,7 @@ namespace Pol {
       bool thread_decay_statistics;
 
 	  std::string admin_email;
+	  std::string report_url;
 	  bool enable_automatic_report;
 
 	  static void read_pol_config( bool initial_load );
