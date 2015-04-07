@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
 	using namespace Pol;
 	Clib::Logging::LogFacility logger;
 	Clib::Logging::initLogging( &logger );
-	Clib::ExceptionParser::InitGlobalExceptionCatching();
+	Clib::ExceptionParser::initGlobalExceptionCatching();
 
 	setlocale(LC_TIME,"");
     int exitcode = 0;

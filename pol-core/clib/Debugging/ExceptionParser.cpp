@@ -22,98 +22,98 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GetSignalDescription(int pSignal, string &pSignalName, string &pSignalDescription)
+void getSignalDescription(int signal, string &signalName, string &signalDescription)
 {
-    switch(pSignal)
+    switch(signal)
     {
         case 1:
-            pSignalName = "SIGHUP";
-            pSignalDescription = "hangup detected on controlling terminal or death of controlling process";
+            signalName = "SIGHUP";
+            signalDescription = "hangup detected on controlling terminal or death of controlling process";
             break;
         case 2:
-            pSignalName = "SIGINT";
-            pSignalDescription = "interrupt from keyboard";
+            signalName = "SIGINT";
+            signalDescription = "interrupt from keyboard";
             break;
         case 3:
-            pSignalName = "SIGQUIT";
-            pSignalDescription = "quit from keyboard";
+            signalName = "SIGQUIT";
+            signalDescription = "quit from keyboard";
             break;
         case 4:
-            pSignalName = "SIGILL";
-            pSignalDescription = "illegal Instruction";
+            signalName = "SIGILL";
+            signalDescription = "illegal Instruction";
             break;
         case 6:
-            pSignalName = "SIGABRT";
-            pSignalDescription = "abort signal from abort()";
+            signalName = "SIGABRT";
+            signalDescription = "abort signal from abort()";
             break;
         case 8:
-            pSignalName = "SIGFPE";
-            pSignalDescription = "floating point exception";
+            signalName = "SIGFPE";
+            signalDescription = "floating point exception";
             break;
         case 9:
-            pSignalName = "SIGKILL";
-            pSignalDescription = "kill signal";
+            signalName = "SIGKILL";
+            signalDescription = "kill signal";
             break;
         case 10:
-            pSignalName = "SIGBUS";
-            pSignalDescription = "bus error";
+            signalName = "SIGBUS";
+            signalDescription = "bus error";
             break;
         case 11:
-            pSignalName = "SIGSEGV";
-            pSignalDescription = "invalid memory reference";
+            signalName = "SIGSEGV";
+            signalDescription = "invalid memory reference";
             break;
         case 12:
-            pSignalName = "SIGSYS";
-            pSignalDescription = "bad argument to system call";
+            signalName = "SIGSYS";
+            signalDescription = "bad argument to system call";
             break;
         case 13:
-            pSignalName = "SIGPIPE";
-            pSignalDescription = "broken pipe: write to pipe with no readers";
+            signalName = "SIGPIPE";
+            signalDescription = "broken pipe: write to pipe with no readers";
             break;
         case 14:
-            pSignalName = "SIGALRM";
-            pSignalDescription = "timer signal from alarm()";
+            signalName = "SIGALRM";
+            signalDescription = "timer signal from alarm()";
             break;
         case 15:
-            pSignalName = "SIGTERM";
-            pSignalDescription = "termination signal";
+            signalName = "SIGTERM";
+            signalDescription = "termination signal";
             break;
         case 18:
-            pSignalName = "SIGCONT";
-            pSignalDescription = "continue signal from tty";
+            signalName = "SIGCONT";
+            signalDescription = "continue signal from tty";
             break;
         case 19:
-            pSignalName = "SIGSTOP";
-            pSignalDescription = "stop signal from tty";
+            signalName = "SIGSTOP";
+            signalDescription = "stop signal from tty";
             break;
         case 20:
-            pSignalName = "SIGTSTP";
-            pSignalDescription = "stop signal from user (keyboard)";
+            signalName = "SIGTSTP";
+            signalDescription = "stop signal from user (keyboard)";
             break;
         case 16:
         case 30:
-            pSignalName = "SIGUSR1";
-            pSignalDescription = "user-defined signal 1";
+            signalName = "SIGUSR1";
+            signalDescription = "user-defined signal 1";
             break;
         case 17:
         case 31:
-            pSignalName = "SIGUSR2";
-            pSignalDescription = "user-defined signal 2";
+            signalName = "SIGUSR2";
+            signalDescription = "user-defined signal 2";
             break;
         default:
-            pSignalName = "unsupported signal";
-            pSignalDescription = "unsupported signal occurred";
+            signalName = "unsupported signal";
+            signalDescription = "unsupported signal occurred";
             break;
     }
 }
 
-void LogExceptionSignal(int pSignal)
+void logExceptionSignal(int pSignal)
 {
-    string tSignalName;
-    string tSignalDescription;
+    string signalName;
+    string signalDescription;
 
-    GetSignalDescription(pSignal, tSignalName, tSignalDescription);
-    printf("Signal \"%s\"(%d: %s) detected.\n", tSignalName.c_str(), pSignal, tSignalDescription.c_str());
+    getSignalDescription(pSignal, signalName, signalDescription);
+    printf("Signal \"%s\"(%d: %s) detected.\n", signalName.c_str(), pSignal, signalDescription.c_str());
 }
 
 std::string getCompilerVersion()
@@ -166,7 +166,7 @@ std::string getCompilerVersion()
 	return result;
 }
 
-void HandleExceptionSignal(int pSignal)
+void handleExceptionSignal(int pSignal)
 {
     switch(pSignal)
     {
@@ -178,7 +178,7 @@ void HandleExceptionSignal(int pSignal)
             {
                 printf("########################################################################################\n");
                 printf("POL will exit now. Please post the following on http://forums.polserver.com/tracker.php.\n");
-                string tStackTrace = ExceptionParser::GetTrace();
+                string tStackTrace = ExceptionParser::getTrace();
                 printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
                 printf("Start time: %s\n", Pol::Plib::systemstate.getStartTime().c_str());
                 printf("Current time: %s\n", Pol::Clib::Logging::LogSink::GetTimeStamp().c_str());
@@ -215,102 +215,102 @@ ExceptionParser::~ExceptionParser()
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WIN32
-string ExceptionParser::GetTrace()
+string ExceptionParser::getTrace()
 {
-    string tResult;
+    string result;
 
-    void *tStackTrace[MAX_STACK_TRACE_DEPTH];
-    int tStackTraceSize;
-    char **tStackTraceList;
-    int tStackTraceStep = 0;
-    char *tStringBuf = (char*)malloc(MAX_STACK_TRACE_STEP_LENGTH);
+    void *stackTrace[MAX_STACK_TRACE_DEPTH];
+    int stackTraceSize;
+    char **stackTraceList;
+    int stackTraceStep = 0;
+    char *stringBuf = (char*)malloc(MAX_STACK_TRACE_STEP_LENGTH);
 
-    tStackTraceSize = backtrace(tStackTrace, MAX_STACK_TRACE_DEPTH);
-    tStackTraceList = backtrace_symbols(tStackTrace, tStackTraceSize);
+    stackTraceSize = backtrace(stackTrace, MAX_STACK_TRACE_DEPTH);
+    stackTraceList = backtrace_symbols(stackTrace, stackTraceSize);
 
-    size_t tFuncNameSize = 256;
-    char* tFuncnName = (char*)malloc(tFuncNameSize);
+    size_t funcNameSize = 256;
+    char* funcnName = (char*)malloc(funcNameSize);
 
     // iterate over all entries and do the demangling
-    for ( int i = 0; i < tStackTraceSize; i++ )
+    for ( int i = 0; i < stackTraceSize; i++ )
     {
         // get the pointers to the name, offset and end of offset
-        char *tBeginFuncName = 0;
-        char *tBeginFuncOffset = 0;
-        char *tEndFuncOffset = 0;
-        char *tBeginBinaryName = tStackTraceList[i];
-        char *tBeginBinaryOffset = 0;
-        char *tEndBinaryOffset = 0;
-        for (char *tEntryPointer = tStackTraceList[i]; *tEntryPointer; ++tEntryPointer)
+        char *beginFuncName = 0;
+        char *beginFuncOffset = 0;
+        char *endFuncOffset = 0;
+        char *beginBinaryName = stackTraceList[i];
+        char *beginBinaryOffset = 0;
+        char *endBinaryOffset = 0;
+        for (char *entryPointer = stackTraceList[i]; *entryPointer; ++entryPointer)
         {
-            if (*tEntryPointer == '(')
+            if (*entryPointer == '(')
             {
-                tBeginFuncName = tEntryPointer;
-            }else if (*tEntryPointer == '+')
+                beginFuncName = entryPointer;
+            }else if (*entryPointer == '+')
             {
-                tBeginFuncOffset = tEntryPointer;
-            }else if (*tEntryPointer == ')' && tBeginFuncOffset)
+                beginFuncOffset = entryPointer;
+            }else if (*entryPointer == ')' && beginFuncOffset)
             {
-                tEndFuncOffset = tEntryPointer;
-            }else if (*tEntryPointer == '[')
+                endFuncOffset = entryPointer;
+            }else if (*entryPointer == '[')
             {
-                tBeginBinaryOffset = tEntryPointer;
-            }else if (*tEntryPointer == ']' && tBeginBinaryOffset)
+                beginBinaryOffset = entryPointer;
+            }else if (*entryPointer == ']' && beginBinaryOffset)
             {
-                tEndBinaryOffset = tEntryPointer;
+                endBinaryOffset = entryPointer;
                 break;
             }
         }
 
         // set the default value for the output line
-        sprintf(tStringBuf, "\n");
+        sprintf(stringBuf, "\n");
 
         // get the detailed values for the output line
-        if (tBeginFuncName && tBeginFuncOffset && tEndFuncOffset && tBeginFuncName < tBeginFuncOffset)
+        if (beginFuncName && beginFuncOffset && endFuncOffset && beginFuncName < beginFuncOffset)
         {
             // terminate the C strings
-            *tBeginFuncName++ = '\0';
-            *tBeginFuncOffset++ = '\0';
-            *tEndFuncOffset = '\0';
-            *tBeginBinaryOffset++ = '\0';
-            *tEndBinaryOffset = '\0';
+            *beginFuncName++ = '\0';
+            *beginFuncOffset++ = '\0';
+            *endFuncOffset = '\0';
+            *beginBinaryOffset++ = '\0';
+            *endBinaryOffset = '\0';
 
-            int tRes;
-            tFuncnName = abi::__cxa_demangle(tBeginFuncName, tFuncnName, &tFuncNameSize, &tRes);
-            unsigned int tBinaryOffset = strtoul(tBeginBinaryOffset, NULL, 16);
-            if (tRes == 0)
+            int res;
+            funcnName = abi::__cxa_demangle(beginFuncName, funcnName, &funcNameSize, &res);
+            unsigned int binaryOffset = strtoul(beginBinaryOffset, NULL, 16);
+            if (res == 0)
             {
-                if(tBeginBinaryName && strlen(tBeginBinaryName))
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset, tBeginBinaryName);
+                if(beginBinaryName && strlen(beginBinaryName))
+                    sprintf(stringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", stackTraceStep, binaryOffset, funcnName, beginFuncOffset, beginBinaryName);
                 else
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset);
-                tStackTraceStep++;
+                    sprintf(stringBuf, "#%02d 0x%016x in %s from %s\n", stackTraceStep, binaryOffset, funcnName, beginFuncOffset);
+                stackTraceStep++;
             }else{
-                if(tBeginBinaryName && strlen(tBeginBinaryName))
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset, tBeginBinaryName);
+                if(beginBinaryName && strlen(beginBinaryName))
+                    sprintf(stringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", stackTraceStep, binaryOffset, beginFuncName, beginFuncOffset, beginBinaryName);
                 else
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s]\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset);
-                tStackTraceStep++;
+                    sprintf(stringBuf, "#%02d 0x%016x in %s:[%s]\n", stackTraceStep, binaryOffset, beginFuncName, beginFuncOffset);
+                stackTraceStep++;
             }
         }else{
-            sprintf(tStringBuf, "#%02d %s\n", tStackTraceStep, tStackTraceList[i]);
-            tStackTraceStep++;
+            sprintf(stringBuf, "#%02d %s\n", stackTraceStep, stackTraceList[i]);
+            stackTraceStep++;
         }
 
         // append the line to the result
-        tResult += string(tStringBuf);
+        result += string(stringBuf);
     }
 
     // memory cleanup
-    free(tFuncnName);
-    free(tStackTraceList);
+    free(funcnName);
+    free(stackTraceList);
 
-    return tResult;
+    return result;
 }
 
-static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
+static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
-    LogExceptionSignal(pSignal);
+    logExceptionSignal(pSignal);
     if (pSignalInfo != NULL)
     {
         if(pSignal == SIGSEGV)
@@ -325,20 +325,20 @@ static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
         if (pSignalInfo->si_code != 0)
             printf("Signal code is %d\n", pSignalInfo->si_code);
     }
-    HandleExceptionSignal(pSignal);
+    handleExceptionSignal(pSignal);
 }
 
-void ExceptionParser::InitGlobalExceptionCatching()
+void ExceptionParser::initGlobalExceptionCatching()
 {
-    // set handler
-    struct sigaction tSigAction;
-    memset(&tSigAction, 0, sizeof(tSigAction));
-    sigemptyset(&tSigAction.sa_mask);
-    tSigAction.sa_sigaction = HandleSignalLinux;
-    tSigAction.sa_flags   = SA_SIGINFO; // Invoke signal-catching function with three arguments instead of one
-    sigaction(SIGINT, &tSigAction, NULL);
-    sigaction(SIGTERM, &tSigAction, NULL);
-    sigaction(SIGSEGV, &tSigAction, NULL);
+    struct sigaction sigAction;
+
+    memset(&sigAction, 0, sizeof(sigAction));
+    sigemptyset(&sigAction.sa_mask);
+    sigAction.sa_sigaction = handleSignalLinux;
+    sigAction.sa_flags   = SA_SIGINFO;
+    sigaction(SIGINT, &sigAction, NULL);
+    sigaction(SIGTERM, &sigAction, NULL);
+    sigaction(SIGSEGV, &sigAction, NULL);
 
     // set handler stack
     stack_t tStack;
@@ -357,14 +357,14 @@ void ExceptionParser::InitGlobalExceptionCatching()
     }
 }
 #else // _WIN32
-string ExceptionParser::GetTrace()
+string ExceptionParser::getTrace()
 {
-    string tResult;
+    string result;
 
-    return tResult;
+    return result;
 }
 
-void ExceptionParser::InitGlobalExceptionCatching()
+void ExceptionParser::initGlobalExceptionCatching()
 {
 
 }

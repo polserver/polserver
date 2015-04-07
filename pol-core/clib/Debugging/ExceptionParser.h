@@ -16,12 +16,12 @@ public:
      *
      * @return the stack trace as multi-line string
      */
-    static std::string GetTrace();
+    static std::string getTrace();
 
     /**
      * Initiates globally the exception catching (signal handlers for Linux)
      */
-    static void InitGlobalExceptionCatching();
+    static void initGlobalExceptionCatching();
 };
 
 }} // namespaces
