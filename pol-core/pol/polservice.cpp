@@ -67,8 +67,8 @@ namespace Pol {
 		char buffer[1000] = "";
 		rc = GetCurrentDirectory( sizeof buffer, buffer );
 		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, buffer );
-		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, xmain_exedir.c_str() );
-		rc = SetCurrentDirectory( xmain_exedir.c_str() );
+		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, Pol::Plib::systemstate.getWorkingDirectory().c_str() );
+		rc = SetCurrentDirectory(Pol::Plib::systemstate.getWorkingDirectory().c_str());
 
 		char* dummy[1] = { "" };
 		xmain_outer( 1, dummy );

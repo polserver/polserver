@@ -29,6 +29,16 @@ namespace Pol {
 		executable = name;
 	}
 
+	void SystemState::setWorkingDirectrory(std::string dir)
+	{
+		working_dir = dir;
+	}
+
+	std::string SystemState::getWorkingDirectory()
+	{
+		return working_dir;
+	}
+
 	void SystemState::deinitialize()
 	{
 	  Clib::delete_all( packages );

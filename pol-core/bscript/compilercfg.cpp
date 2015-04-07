@@ -8,6 +8,7 @@ Notes
 */
 
 #include "compilercfg.h"
+#include "plib/systemstate.h"
 
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
@@ -110,10 +111,10 @@ namespace Pol {
 	  const char* tmp;
 
 	  tmp = getenv( "ECOMPILE_PATH_EM" );
-	  ModuleDirectory = tmp ? Clib::normalized_dir_form( tmp ) : xmain_exedir;
+	  ModuleDirectory = tmp ? Clib::normalized_dir_form( tmp ) : Pol::Plib::systemstate.getWorkingDirectory();
 
 	  tmp = getenv( "ECOMPILE_PATH_INC" );
-	  IncludeDirectory = tmp ? Clib::normalized_dir_form( tmp ) : xmain_exedir;
+	  IncludeDirectory = tmp ? Clib::normalized_dir_form( tmp ) : Pol::Plib::systemstate.getWorkingDirectory();
 
 	  PolScriptRoot = IncludeDirectory;
 

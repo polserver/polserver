@@ -31,6 +31,8 @@ namespace Pol {
 	  SystemState();
 	  ~SystemState();
 	  void setExecutable(std::string name);
+	  void setWorkingDirectrory(std::string dir);
+	  std::string getWorkingDirectory();
 	  void deinitialize();
 
 	  Packages packages;
@@ -41,6 +43,7 @@ namespace Pol {
 	  
 	  Core::PolConfig config;
 	  std::string executable;
+	  std::string working_dir;
 	  Core::Tile *tile;
 	  bool tiles_loaded;
 
