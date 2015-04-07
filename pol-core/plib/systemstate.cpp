@@ -22,7 +22,7 @@ namespace Pol {
 	  tile(nullptr),
 	  tiles_loaded(false)
 	{
-		start_time = Pol::Clib::Logging::LogSink::GetTimeStamp();
+		start_time = Pol::Clib::Logging::LogSink::getTimeStamp();
 	}
 	SystemState::~SystemState()
 	{}
