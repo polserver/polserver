@@ -1,4 +1,8 @@
 #include "ExceptionParser.h"
+#include "LogSink.h"
+
+#include "plib/systemstate.h"
+#include "plib/polver.h"
 
 #include <cstring>
 #include <signal.h>
@@ -112,6 +116,56 @@ void LogExceptionSignal(int pSignal)
     printf("Signal \"%s\"(%d: %s) detected.\n", tSignalName.c_str(), pSignal, tSignalDescription.c_str());
 }
 
+std::string getCompilerVersion()
+{
+	#ifndef _WIN32
+		char result[256];
+		sprintf(result, "gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+	#else
+		std::string result;
+		switch(_MSC_VER)
+		{
+		case 1800:
+			result = "MSVC++ 12.0 (Visual Studio 2013)";
+			break;
+		case 1700:
+			result = "MSVC++ 11.0 (Visual Studio 2012)";
+			break;
+		case 1600:
+			result = "MSVC++ 10.0 (Visual Studio 2010)";
+			break;
+		case 1500:
+			result = "MSVC++ 9.0 (Visual Studio 2008)";
+			break;
+		case 1400:
+			result = "MSVC++ 8.0 (Visual Studio 2005)";
+			break;
+		case 1310:
+			result = "MSVC++ 7.1 (Visual Studio 2003)";
+			break;
+		case 1300:
+			result = "MSVC++ 7.0";
+			break;
+		case 1200:
+			result = "MSVC++ 6.0";
+			break;
+		case 1100:
+			result = "MSVC++ 5.0";
+			break;
+		default:
+			if(_MSC_VER > 1800)
+				result = "MSVC++ newer than version 12.0"
+			else if (_MSC_VER < 1100)
+				result = "MSVC++ older than version 5.0"
+			else
+				result = "MSVC++ (some unsupported version)";
+			break;
+		}
+	#endif
+
+	return result;
+}
+
 void HandleExceptionSignal(int pSignal)
 {
     switch(pSignal)
@@ -122,11 +176,24 @@ void HandleExceptionSignal(int pSignal)
         case SIGTERM:
         case SIGABRT:
             {
+                printf("########################################################################################\n");
                 printf("POL will exit now. Please post the following on http://forums.polserver.com/tracker.php.\n");
                 string tStackTrace = ExceptionParser::GetTrace();
+                printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
+                printf("Start time: %s\n", Pol::Plib::systemstate.getStartTime().c_str());
+                printf("Current time: %s\n", Pol::Clib::Logging::LogSink::GetTimeStamp().c_str());
+                printf("\n");
                 printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
+				printf("Compiler: %s", getCompilerVersion().c_str());
+                printf("Compile time: %s\n", Pol::compiletime);
+                printf("Build target: %s\n", Pol::polbuildtag);
+                printf("Build revision: %s\n", Pol::polverstr);
+				#ifndef _WIN32
+					printf("GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__);
+				#endif
                 printf("\n");
+                printf("########################################################################################\n");
                 exit(1);
             }
             break;
