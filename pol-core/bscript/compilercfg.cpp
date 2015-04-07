@@ -66,9 +66,11 @@ namespace Pol {
 	  // with. 
 	  if ( stricmp( MyPath.c_str(), "ecompile.cfg" ) == 0 )
 	  {
+		  std::string workingDir = Pol::Plib::systemstate.getWorkingDirectory();
+
 		// Let's find the NEXT-TO-LAST / in the path, and remove from there on. Oh yay!
 		// To bad we can't just force everyone to use ABSOLUTE PATHS NANDO. :o
-		MyPath = xmain_exedir.substr( 0, xmain_exedir.length() - 1 );
+		MyPath = workingDir.substr( 0, workingDir.length() - 1 );
 		MyPath = MyPath.substr( 0, MyPath.find_last_of( '/' ) + 1 );
 	  }
       if (IncludeDirectory.find(':') == std::string::npos)
