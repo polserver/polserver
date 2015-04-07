@@ -223,9 +223,10 @@ namespace Pol {
       Plib::systemstate.config.thread_decay_statistics = elem.remove_bool("ThreadDecayStatistics", false);
 
 	  Plib::systemstate.config.admin_email = elem.remove_string("AdminEmail", "");
+
+	  Plib::systemstate.config.report_bugs_auto = elem.remove_bool("ReportBugsAutomatically", false);
 	  Plib::systemstate.config.report_server = elem.remove_string("ReportServer", "polserver.com");
 	  Plib::systemstate.config.report_url = elem.remove_string("ReportURL", "/pol/bug_report.php");
-	  Plib::systemstate.config.enable_automatic_report = elem.remove_bool("AutomaticBugReport", false);
 
 
 #ifdef _WIN32
