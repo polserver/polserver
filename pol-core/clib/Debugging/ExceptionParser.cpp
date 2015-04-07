@@ -18,112 +18,6 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ExceptionParser::ExceptionParser()
-{
-}
-
-ExceptionParser::~ExceptionParser()
-{
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-string ExceptionParser::GetTrace()
-{
-    string tResult;
-
-#ifndef _WIN32
-    void *tStackTrace[MAX_STACK_TRACE_DEPTH];
-    int tStackTraceSize;
-    char **tStackTraceList;
-    int tStackTraceStep = 0;
-    char *tStringBuf = (char*)malloc(MAX_STACK_TRACE_STEP_LENGTH);
-
-    tStackTraceSize = backtrace(tStackTrace, MAX_STACK_TRACE_DEPTH);
-    tStackTraceList = backtrace_symbols(tStackTrace, tStackTraceSize);
-
-    size_t tFuncNameSize = 256;
-    char* tFuncnName = (char*)malloc(tFuncNameSize);
-
-    // iterate over all entries and do the demangling
-    for ( int i = 0; i < tStackTraceSize; i++ )
-    {
-        // get the pointers to the name, offset and end of offset
-        char *tBeginFuncName = 0;
-        char *tBeginFuncOffset = 0;
-        char *tEndFuncOffset = 0;
-        char *tBeginBinaryName = tStackTraceList[i];
-        char *tBeginBinaryOffset = 0;
-        char *tEndBinaryOffset = 0;
-        for (char *tEntryPointer = tStackTraceList[i]; *tEntryPointer; ++tEntryPointer)
-        {
-            if (*tEntryPointer == '(')
-            {
-                tBeginFuncName = tEntryPointer;
-            }else if (*tEntryPointer == '+')
-            {
-                tBeginFuncOffset = tEntryPointer;
-            }else if (*tEntryPointer == ')' && tBeginFuncOffset)
-            {
-                tEndFuncOffset = tEntryPointer;
-            }else if (*tEntryPointer == '[')
-            {
-                tBeginBinaryOffset = tEntryPointer;
-            }else if (*tEntryPointer == ']' && tBeginBinaryOffset)
-            {
-                tEndBinaryOffset = tEntryPointer;
-                break;
-            }
-        }
-
-        // set the default value for the output line
-        sprintf(tStringBuf, "\n");
-
-        // get the detailed values for the output line
-        if (tBeginFuncName && tBeginFuncOffset && tEndFuncOffset && tBeginFuncName < tBeginFuncOffset)
-        {
-            // terminate the C strings
-            *tBeginFuncName++ = '\0';
-            *tBeginFuncOffset++ = '\0';
-            *tEndFuncOffset = '\0';
-            *tBeginBinaryOffset++ = '\0';
-            *tEndBinaryOffset = '\0';
-
-            int tRes;
-            tFuncnName = abi::__cxa_demangle(tBeginFuncName, tFuncnName, &tFuncNameSize, &tRes);
-            unsigned int tBinaryOffset = strtoul(tBeginBinaryOffset, NULL, 16);
-            if (tRes == 0)
-            {
-                if(tBeginBinaryName && strlen(tBeginBinaryName))
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset, tBeginBinaryName);
-                else
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset);
-                tStackTraceStep++;
-            }else{
-                if(tBeginBinaryName && strlen(tBeginBinaryName))
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset, tBeginBinaryName);
-                else
-                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s]\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset);
-                tStackTraceStep++;
-            }
-        }else{
-            sprintf(tStringBuf, "#%02d %s\n", tStackTraceStep, tStackTraceList[i]);
-            tStackTraceStep++;
-        }
-
-        // append the line to the result
-        tResult += string(tStringBuf);
-    }
-
-    // memory cleanup
-    free(tFuncnName);
-    free(tStackTraceList);
-
-#endif
-
-    return tResult;
-}
-
 void GetSignalDescription(int pSignal, string &pSignalName, string &pSignalDescription)
 {
     switch(pSignal)
@@ -241,7 +135,112 @@ void HandleExceptionSignal(int pSignal)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+ExceptionParser::ExceptionParser()
+{
+}
+
+ExceptionParser::~ExceptionParser()
+{
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef _WIN32
+string ExceptionParser::GetTrace()
+{
+    string tResult;
+
+    void *tStackTrace[MAX_STACK_TRACE_DEPTH];
+    int tStackTraceSize;
+    char **tStackTraceList;
+    int tStackTraceStep = 0;
+    char *tStringBuf = (char*)malloc(MAX_STACK_TRACE_STEP_LENGTH);
+
+    tStackTraceSize = backtrace(tStackTrace, MAX_STACK_TRACE_DEPTH);
+    tStackTraceList = backtrace_symbols(tStackTrace, tStackTraceSize);
+
+    size_t tFuncNameSize = 256;
+    char* tFuncnName = (char*)malloc(tFuncNameSize);
+
+    // iterate over all entries and do the demangling
+    for ( int i = 0; i < tStackTraceSize; i++ )
+    {
+        // get the pointers to the name, offset and end of offset
+        char *tBeginFuncName = 0;
+        char *tBeginFuncOffset = 0;
+        char *tEndFuncOffset = 0;
+        char *tBeginBinaryName = tStackTraceList[i];
+        char *tBeginBinaryOffset = 0;
+        char *tEndBinaryOffset = 0;
+        for (char *tEntryPointer = tStackTraceList[i]; *tEntryPointer; ++tEntryPointer)
+        {
+            if (*tEntryPointer == '(')
+            {
+                tBeginFuncName = tEntryPointer;
+            }else if (*tEntryPointer == '+')
+            {
+                tBeginFuncOffset = tEntryPointer;
+            }else if (*tEntryPointer == ')' && tBeginFuncOffset)
+            {
+                tEndFuncOffset = tEntryPointer;
+            }else if (*tEntryPointer == '[')
+            {
+                tBeginBinaryOffset = tEntryPointer;
+            }else if (*tEntryPointer == ']' && tBeginBinaryOffset)
+            {
+                tEndBinaryOffset = tEntryPointer;
+                break;
+            }
+        }
+
+        // set the default value for the output line
+        sprintf(tStringBuf, "\n");
+
+        // get the detailed values for the output line
+        if (tBeginFuncName && tBeginFuncOffset && tEndFuncOffset && tBeginFuncName < tBeginFuncOffset)
+        {
+            // terminate the C strings
+            *tBeginFuncName++ = '\0';
+            *tBeginFuncOffset++ = '\0';
+            *tEndFuncOffset = '\0';
+            *tBeginBinaryOffset++ = '\0';
+            *tEndBinaryOffset = '\0';
+
+            int tRes;
+            tFuncnName = abi::__cxa_demangle(tBeginFuncName, tFuncnName, &tFuncNameSize, &tRes);
+            unsigned int tBinaryOffset = strtoul(tBeginBinaryOffset, NULL, 16);
+            if (tRes == 0)
+            {
+                if(tBeginBinaryName && strlen(tBeginBinaryName))
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset, tBeginBinaryName);
+                else
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset);
+                tStackTraceStep++;
+            }else{
+                if(tBeginBinaryName && strlen(tBeginBinaryName))
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset, tBeginBinaryName);
+                else
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s]\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset);
+                tStackTraceStep++;
+            }
+        }else{
+            sprintf(tStringBuf, "#%02d %s\n", tStackTraceStep, tStackTraceList[i]);
+            tStackTraceStep++;
+        }
+
+        // append the line to the result
+        tResult += string(tStringBuf);
+    }
+
+    // memory cleanup
+    free(tFuncnName);
+    free(tStackTraceList);
+
+    return tResult;
+}
+
 static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
     LogExceptionSignal(pSignal);
@@ -261,11 +260,9 @@ static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
     }
     HandleExceptionSignal(pSignal);
 }
-#endif
 
 void ExceptionParser::InitGlobalExceptionCatching()
 {
-#ifndef _WIN32
     // set handler
     struct sigaction tSigAction;
     memset(&tSigAction, 0, sizeof(tSigAction));
@@ -291,8 +288,20 @@ void ExceptionParser::InitGlobalExceptionCatching()
         printf("Could not set signal handler stack\n");
         exit(1);
     }
-#endif
 }
+#else // _WIN32
+string ExceptionParser::GetTrace()
+{
+    string tResult;
+
+    return tResult;
+}
+
+void ExceptionParser::InitGlobalExceptionCatching()
+{
+
+}
+#endif // _WIN32
 
 ///////////////////////////////////////////////////////////////////////////////
 
