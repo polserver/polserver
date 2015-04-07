@@ -154,9 +154,9 @@ std::string getCompilerVersion()
 			break;
 		default:
 			if(_MSC_VER > 1800)
-				result = "MSVC++ newer than version 12.0"
+				result = "MSVC++ newer than version 12.0";
 			else if (_MSC_VER < 1100)
-				result = "MSVC++ older than version 5.0"
+				result = "MSVC++ older than version 5.0";
 			else
 				result = "MSVC++ (some unsupported version)";
 			break;
