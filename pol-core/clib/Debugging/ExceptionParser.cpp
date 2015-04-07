@@ -1,8 +1,8 @@
 #include "ExceptionParser.h"
 #include "LogSink.h"
 
-#include "plib/systemstate.h"
-#include "plib/polver.h"
+#include "../../plib/systemstate.h"
+#include "../../plib/polver.h"
 
 #include <cstring>
 #include <signal.h>
@@ -153,7 +153,7 @@ std::string getCompilerVersion()
 			result = "MSVC++ 5.0";
 			break;
 		default:
-			if(_MSC_VER > 1800)
+			if (_MSC_VER > 1800)
 				result = "MSVC++ newer than version 12.0";
 			else if (_MSC_VER < 1100)
 				result = "MSVC++ older than version 5.0";
@@ -181,7 +181,7 @@ void handleExceptionSignal(int pSignal)
                 string tStackTrace = ExceptionParser::getTrace();
                 printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
                 printf("Start time: %s\n", Pol::Plib::systemstate.getStartTime().c_str());
-                printf("Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str());
+                printf("Current time: %s\n", Pol::Clib::Logging::LogSink::GetTimeStamp().c_str());
                 printf("\n");
                 printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
