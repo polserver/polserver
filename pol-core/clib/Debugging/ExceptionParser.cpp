@@ -1,8 +1,8 @@
 #include "ExceptionParser.h"
 #include "LogSink.h"
 
-#include "plib/systemstate.h"
-#include "plib/polver.h"
+#include "../../plib/systemstate.h"
+#include "../../plib/polver.h"
 
 #include <cstring>
 #include <signal.h>
@@ -153,10 +153,10 @@ std::string getCompilerVersion()
 			result = "MSVC++ 5.0";
 			break;
 		default:
-			if(_MSC_VER > 1800)
-				result = "MSVC++ newer than version 12.0"
+			if (_MSC_VER > 1800)
+				result = "MSVC++ newer than version 12.0";
 			else if (_MSC_VER < 1100)
-				result = "MSVC++ older than version 5.0"
+				result = "MSVC++ older than version 5.0";
 			else
 				result = "MSVC++ (some unsupported version)";
 			break;

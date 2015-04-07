@@ -8,7 +8,7 @@ Notes
 */
 
 #include "compilercfg.h"
-#include "plib/systemstate.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
