@@ -30,98 +30,98 @@ ExceptionParser::~ExceptionParser()
 
 string ExceptionParser::GetTrace()
 {
-	string tResult;
+    string tResult;
 
 #ifndef _WIN32
-	void *tStackTrace[MAX_STACK_TRACE_DEPTH];
-	int tStackTraceSize;
-	char **tStackTraceList;
-	int tStackTraceStep = 0;
-	char *tStringBuf = (char*)malloc(MAX_STACK_TRACE_STEP_LENGTH);
+    void *tStackTrace[MAX_STACK_TRACE_DEPTH];
+    int tStackTraceSize;
+    char **tStackTraceList;
+    int tStackTraceStep = 0;
+    char *tStringBuf = (char*)malloc(MAX_STACK_TRACE_STEP_LENGTH);
 
-	tStackTraceSize = backtrace(tStackTrace, MAX_STACK_TRACE_DEPTH);
-	tStackTraceList = backtrace_symbols(tStackTrace, tStackTraceSize);
+    tStackTraceSize = backtrace(tStackTrace, MAX_STACK_TRACE_DEPTH);
+    tStackTraceList = backtrace_symbols(tStackTrace, tStackTraceSize);
 
-	size_t tFuncNameSize = 256;
-	char* tFuncnName = (char*)malloc(tFuncNameSize);
+    size_t tFuncNameSize = 256;
+    char* tFuncnName = (char*)malloc(tFuncNameSize);
 
-	// iterate over all entries and do the demangling
-	for ( int i = 0; i < tStackTraceSize; i++ )
-	{
-		// get the pointers to the name, offset and end of offset
-		char *tBeginFuncName = 0;
-		char *tBeginFuncOffset = 0;
-		char *tEndFuncOffset = 0;
-		char *tBeginBinaryName = tStackTraceList[i];
-		char *tBeginBinaryOffset = 0;
-		char *tEndBinaryOffset = 0;
-		for (char *tEntryPointer = tStackTraceList[i]; *tEntryPointer; ++tEntryPointer)
-		{
-			if (*tEntryPointer == '(')
-			{
-				tBeginFuncName = tEntryPointer;
-			}else if (*tEntryPointer == '+')
-			{
-				tBeginFuncOffset = tEntryPointer;
-			}else if (*tEntryPointer == ')' && tBeginFuncOffset)
-			{
-				tEndFuncOffset = tEntryPointer;
-			}else if (*tEntryPointer == '[')
-			{
-				tBeginBinaryOffset = tEntryPointer;
-			}else if (*tEntryPointer == ']' && tBeginBinaryOffset)
-			{
-				tEndBinaryOffset = tEntryPointer;
-				break;
-			}
-		}
+    // iterate over all entries and do the demangling
+    for ( int i = 0; i < tStackTraceSize; i++ )
+    {
+        // get the pointers to the name, offset and end of offset
+        char *tBeginFuncName = 0;
+        char *tBeginFuncOffset = 0;
+        char *tEndFuncOffset = 0;
+        char *tBeginBinaryName = tStackTraceList[i];
+        char *tBeginBinaryOffset = 0;
+        char *tEndBinaryOffset = 0;
+        for (char *tEntryPointer = tStackTraceList[i]; *tEntryPointer; ++tEntryPointer)
+        {
+            if (*tEntryPointer == '(')
+            {
+                tBeginFuncName = tEntryPointer;
+            }else if (*tEntryPointer == '+')
+            {
+                tBeginFuncOffset = tEntryPointer;
+            }else if (*tEntryPointer == ')' && tBeginFuncOffset)
+            {
+                tEndFuncOffset = tEntryPointer;
+            }else if (*tEntryPointer == '[')
+            {
+                tBeginBinaryOffset = tEntryPointer;
+            }else if (*tEntryPointer == ']' && tBeginBinaryOffset)
+            {
+                tEndBinaryOffset = tEntryPointer;
+                break;
+            }
+        }
 
-		// set the default value for the output line
-		sprintf(tStringBuf, "\n");
+        // set the default value for the output line
+        sprintf(tStringBuf, "\n");
 
-		// get the detailed values for the output line
-		if (tBeginFuncName && tBeginFuncOffset && tEndFuncOffset && tBeginFuncName < tBeginFuncOffset)
-		{
-			// terminate the C strings
-			*tBeginFuncName++ = '\0';
-			*tBeginFuncOffset++ = '\0';
-			*tEndFuncOffset = '\0';
-			*tBeginBinaryOffset++ = '\0';
-			*tEndBinaryOffset = '\0';
+        // get the detailed values for the output line
+        if (tBeginFuncName && tBeginFuncOffset && tEndFuncOffset && tBeginFuncName < tBeginFuncOffset)
+        {
+            // terminate the C strings
+            *tBeginFuncName++ = '\0';
+            *tBeginFuncOffset++ = '\0';
+            *tEndFuncOffset = '\0';
+            *tBeginBinaryOffset++ = '\0';
+            *tEndBinaryOffset = '\0';
 
-			int tRes;
-			tFuncnName = abi::__cxa_demangle(tBeginFuncName, tFuncnName, &tFuncNameSize, &tRes);
-			unsigned int tBinaryOffset = strtoul(tBeginBinaryOffset, NULL, 16);
-			if (tRes == 0)
-			{
-				if(tBeginBinaryName && strlen(tBeginBinaryName))
-					sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset, tBeginBinaryName);
-				else
-					sprintf(tStringBuf, "#%02d 0x%016x in %s from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset);
-				tStackTraceStep++;
-			}else{
-				if(tBeginBinaryName && strlen(tBeginBinaryName))
-					sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset, tBeginBinaryName);
-				else
-					sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s]\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset);
-				tStackTraceStep++;
-			}
-		}else{
-			sprintf(tStringBuf, "#%02d %s\n", tStackTraceStep, tStackTraceList[i]);
-			tStackTraceStep++;
-		}
+            int tRes;
+            tFuncnName = abi::__cxa_demangle(tBeginFuncName, tFuncnName, &tFuncNameSize, &tRes);
+            unsigned int tBinaryOffset = strtoul(tBeginBinaryOffset, NULL, 16);
+            if (tRes == 0)
+            {
+                if(tBeginBinaryName && strlen(tBeginBinaryName))
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset, tBeginBinaryName);
+                else
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s from %s\n", tStackTraceStep, tBinaryOffset, tFuncnName, tBeginFuncOffset);
+                tStackTraceStep++;
+            }else{
+                if(tBeginBinaryName && strlen(tBeginBinaryName))
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset, tBeginBinaryName);
+                else
+                    sprintf(tStringBuf, "#%02d 0x%016x in %s:[%s]\n", tStackTraceStep, tBinaryOffset, tBeginFuncName, tBeginFuncOffset);
+                tStackTraceStep++;
+            }
+        }else{
+            sprintf(tStringBuf, "#%02d %s\n", tStackTraceStep, tStackTraceList[i]);
+            tStackTraceStep++;
+        }
 
-		// append the line to the result
-		tResult += string(tStringBuf);
-	}
+        // append the line to the result
+        tResult += string(tStringBuf);
+    }
 
-	// memory cleanup
-	free(tFuncnName);
-	free(tStackTraceList);
+    // memory cleanup
+    free(tFuncnName);
+    free(tStackTraceList);
 
 #endif
 
-	return tResult;
+    return tResult;
 }
 
 void GetSignalDescription(int pSignal, string &pSignalName, string &pSignalDescription)
@@ -226,11 +226,11 @@ void HandleExceptionSignal(int pSignal)
         case SIGFPE:
         case SIGSEGV:
         case SIGTERM:
-    	case SIGABRT:
+        case SIGABRT:
             {
                 printf("POL will exit now. Please post the following on http://forums.polserver.com/tracker.php.\n");
-            	string tStackTrace = ExceptionParser::GetTrace();
-            	printf("Stack trace:\n%s", tStackTrace.c_str());
+                string tStackTrace = ExceptionParser::GetTrace();
+                printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
                 printf("\n");
                 exit(1);
@@ -244,22 +244,22 @@ void HandleExceptionSignal(int pSignal)
 #ifndef _WIN32
 static void HandleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
-	LogExceptionSignal(pSignal);
+    LogExceptionSignal(pSignal);
     if (pSignalInfo != NULL)
     {
-    	if(pSignal == SIGSEGV)
-		{
-			if(pSignalInfo->si_addr != NULL)
-				printf("Segmentation fault detected - faulty memory reference at location: %p\n", pSignalInfo->si_addr);
-			else
-				printf("Segmentation fault detected - null pointer reference\n");
-		}
+        if(pSignal == SIGSEGV)
+        {
+            if(pSignalInfo->si_addr != NULL)
+                printf("Segmentation fault detected - faulty memory reference at location: %p\n", pSignalInfo->si_addr);
+            else
+                printf("Segmentation fault detected - null pointer reference\n");
+        }
         if (pSignalInfo->si_errno != 0)
-        	printf("This signal occurred because \"%s\"(%d)\n", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
+            printf("This signal occurred because \"%s\"(%d)\n", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
         if (pSignalInfo->si_code != 0)
-        	printf("Signal code is %d\n", pSignalInfo->si_code);
+            printf("Signal code is %d\n", pSignalInfo->si_code);
     }
-	HandleExceptionSignal(pSignal);
+    HandleExceptionSignal(pSignal);
 }
 #endif
 
