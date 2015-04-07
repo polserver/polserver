@@ -32,7 +32,7 @@ namespace Pol {
 		executable = name;
 	}
 
-	void SystemState::setWorkingDirectrory(std::string dir)
+	void SystemState::setWorkingDirectory(std::string dir)
 	{
 		working_dir = dir;
 	}

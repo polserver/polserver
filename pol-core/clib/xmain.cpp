@@ -140,7 +140,7 @@ namespace Pol {
 			exe_dir.erase( pos );
 			exe_dir += "/";
 		}
-		Pol::Plib::systemstate.setWorkingDirectrory(exe_dir);
+		Pol::Plib::systemstate.setWorkingDirectory(exe_dir);
   }
   namespace Clib  {
 

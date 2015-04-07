@@ -31,7 +31,7 @@ namespace Pol {
 	  SystemState();
 	  ~SystemState();
 	  void setExecutable(std::string name);
-	  void setWorkingDirectrory(std::string dir);
+	  void setWorkingDirectory(std::string dir);
 	  std::string getWorkingDirectory();
 	  std::string getStartTime();
 	  void deinitialize();
