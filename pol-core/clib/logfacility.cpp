@@ -195,7 +195,7 @@ namespace Pol {
         {
           try
           {
-            getSink<Sink>()->AddMessage( moved._movable.get(), id );
+            getSink<Sink>()->addMessage(moved._movable.get(), id );
           }
           catch ( std::exception& msg )
           {
@@ -544,8 +544,8 @@ namespace Pol {
       template <typename log1, typename log2>
       void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg)
       {
-        getSink<log1>()->AddMessage( msg );
-        getSink<log2>()->AddMessage( msg );
+        getSink<log1>()->addMessage( msg );
+        getSink<log2>()->addMessage( msg );
       }
       template <typename log1, typename log2>
       void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg, std::string )
