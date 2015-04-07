@@ -12,6 +12,7 @@ Notes
 #include "xmain.h"
 
 #include "Debugging/ExceptionParser.h"
+#include "plib/systemstate.h"
 
 #include "clib.h"
 #include "logfacility.h"
@@ -98,7 +99,6 @@ int main( int argc, char *argv[] )
 }
 
 namespace Pol {
-  std::string xmain_exepath;
   std::string xmain_exedir;
 
   std::string fix_slashes(std::string pathname)
@@ -127,7 +127,8 @@ namespace Pol {
 	exe_path = argv[0];
 #endif
 
-	xmain_exepath = fix_slashes( exe_path );
+	Pol::Plib::systemstate.setExecutable(exe_path);
+
 	xmain_exedir = fix_slashes( exe_path );
 
     std::string::size_type pos = xmain_exedir.find_last_of("/");

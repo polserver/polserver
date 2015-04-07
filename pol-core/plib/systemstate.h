@@ -30,6 +30,7 @@ namespace Pol {
 	public:
 	  SystemState();
 	  ~SystemState();
+	  void setExecutable(std::string name);
 	  void deinitialize();
 
 	  Packages packages;
@@ -39,7 +40,7 @@ namespace Pol {
 	  struct stat accounts_txt_stat;
 	  
 	  Core::PolConfig config;
-
+	  std::string executable;
 	  Core::Tile *tile;
 	  bool tiles_loaded;
 

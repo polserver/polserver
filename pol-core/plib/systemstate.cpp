@@ -24,6 +24,11 @@ namespace Pol {
 	SystemState::~SystemState()
 	{}
 
+	void SystemState::setExecutable(std::string name)
+	{
+		executable = name;
+	}
+
 	void SystemState::deinitialize()
 	{
 	  Clib::delete_all( packages );
