@@ -225,7 +225,7 @@ namespace Pol {
   // helper bool if the debug.log is disabled (for more complex logging) DEBUGLOG checks also
 #define IS_DEBUGLOG_DISABLED Clib::Logging::LogSink_debuglog::Disabled
 
-#define GET_LOG_FILESTAMP Clib::Logging::LogSink::GetTimeStamp()
+#define GET_LOG_FILESTAMP Clib::Logging::LogSink::getTimeStamp()
 
 }
 
