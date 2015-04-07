@@ -15,6 +15,7 @@ Notes
 #include "../clib/logfacility.h"
 
 #include "../plib/polver.h"
+#include "../plib/systemstate.h"
 
 #include "polresource.h"
 
