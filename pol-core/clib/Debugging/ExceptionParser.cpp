@@ -6,10 +6,10 @@
 
 #include <cstring>
 #include <signal.h>
-#include <arpa/inet.h>
 #include <errno.h>
 
 #ifndef _WIN32
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <execinfo.h>
