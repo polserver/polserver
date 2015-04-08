@@ -95,7 +95,10 @@ namespace Pol {
 
 	  std::string admin_email;
 
-	  bool report_bugs_auto;
+	  /**
+	   * crash reporting system with some early default values
+	   */
+	  bool report_crashs_auto;
 	  std::string report_server;
 	  std::string report_url;
 
