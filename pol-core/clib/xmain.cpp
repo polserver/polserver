@@ -12,6 +12,7 @@ Notes
 #include "xmain.h"
 
 #include "Debugging/ExceptionParser.h"
+#include "../plib/systemstate.h"
 
 #include "clib.h"
 #include "logfacility.h"
@@ -40,7 +41,7 @@ int main( int argc, char *argv[] )
 	using namespace Pol;
 	Clib::Logging::LogFacility logger;
 	Clib::Logging::initLogging( &logger );
-	Clib::ExceptionParser::InitGlobalExceptionCatching();
+	Clib::ExceptionParser::initGlobalExceptionCatching();
 
 	setlocale(LC_TIME,"");
     int exitcode = 0;
@@ -98,9 +99,6 @@ int main( int argc, char *argv[] )
 }
 
 namespace Pol {
-  std::string xmain_exepath;
-  std::string xmain_exedir;
-
   std::string fix_slashes(std::string pathname)
   {
 	std::string::size_type bslashpos;
@@ -113,29 +111,36 @@ namespace Pol {
 
   static void parse_args( int /*argc*/, char *argv[] )
   {
-	std::string exe_path;
+	    std::string exe_path, exe_dir;
 
-#ifdef _WIN32
-	// useless windows shell (cmd) usually doesn't tell us the whole path.  
-	char module_path[_MAX_PATH];
-	if ( GetModuleFileName( NULL, module_path, sizeof module_path ) )
-	  exe_path = module_path;
-	else
-	  exe_path = argv[0];
-#else
-	// linux shells are generally more informative.
-	exe_path = argv[0];
-#endif
+		/**
+		 * determine and store the executable name
+		 */
+	    exe_path = argv[0];
+		#ifdef _WIN32
+			char module_path[_MAX_PATH];
+			if (GetModuleFileName( NULL, module_path, sizeof module_path))
+			  exe_path = module_path;
+		#endif
+		Pol::Plib::systemstate.setExecutable(exe_path);
 
-	xmain_exepath = fix_slashes( exe_path );
-	xmain_exedir = fix_slashes( exe_path );
+		/**
+		 * determine and store the executable directory
+		 */
+		exe_dir = exe_path;
+		std::string::size_type bslashpos;
+		while (std::string::npos != (bslashpos = exe_dir.find('\\')))
+		{
+			exe_dir.replace( bslashpos, 1, 1, '/' );
+		}
 
-    std::string::size_type pos = xmain_exedir.find_last_of("/");
-    if (pos != std::string::npos)
-	{
-	  xmain_exedir.erase( pos );
-	  xmain_exedir += "/";
-	}
+		std::string::size_type pos = exe_dir.find_last_of("/");
+		if (pos != std::string::npos)
+		{
+			exe_dir.erase( pos );
+			exe_dir += "/";
+		}
+		Pol::Plib::systemstate.setWorkingDirectory(exe_dir);
   }
   namespace Clib  {
 

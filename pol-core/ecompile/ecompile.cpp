@@ -793,7 +793,7 @@ namespace Pol {
 	  }
 
 	  // no -C arg, so use binary path (hope it's right..sigh.)
-      std::string cfgpath = xmain_exedir + "ecompile.cfg";
+      std::string cfgpath = Pol::Plib::systemstate.getWorkingDirectory() + "ecompile.cfg";
       if ( Clib::FileExists( "ecompile.cfg" ) )
 	  {
 		compilercfg.Read( "ecompile.cfg" );

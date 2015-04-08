@@ -62,7 +62,7 @@ namespace Pol {
 
     void force_backtrace(bool complete)
 	{
-      std::string stack_trace = Clib::ExceptionParser::GetTrace();
+      std::string stack_trace = Clib::ExceptionParser::getTrace();
       fmt::Writer tmp;
       tmp << "=== Stack Backtrace ===\nBuild: " << progverstr << " (" << buildtagstr << ")\nStack Backtrace:\n";
 	  tmp << stack_trace;
@@ -169,7 +169,7 @@ namespace Pol {
         return;
 
       fmt::Writer tmp;
-      std::string stack_trace = Clib::ExceptionParser::GetTrace();
+      std::string stack_trace = Clib::ExceptionParser::getTrace();
       threadhelp::ThreadMap::Contents contents;
       threadhelp::threadmap.CopyContents( contents );
       tmp << "Thread ID " << pthread_self() << " (" << contents[pthread_self()] << ")\n";
