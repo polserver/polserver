@@ -258,7 +258,7 @@ void reportCrash(string stackTrace)
      * set some default values if the crash occurs too early and pol.cfg wasn't parsed yet
      */
     string host = "polserver.com";
-    string url = "/pol/bug_report.php";
+    string url = "/pol/crash_report.php";
     if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
     {
         host = Plib::systemstate.config.report_server;
