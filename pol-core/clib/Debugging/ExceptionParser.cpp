@@ -122,57 +122,57 @@ void logExceptionSignal(int pSignal)
 
 string getCompilerVersion()
 {
-	#ifndef _WIN32
-		char result[256];
-		sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-	#else
-		string result;
-		switch(_MSC_VER)
-		{
-		case 1800:
-			result = "MSVC++ 12.0 (Visual Studio 2013)";
-			break;
-		case 1700:
-			result = "MSVC++ 11.0 (Visual Studio 2012)";
-			break;
-		case 1600:
-			result = "MSVC++ 10.0 (Visual Studio 2010)";
-			break;
-		case 1500:
-			result = "MSVC++ 9.0 (Visual Studio 2008)";
-			break;
-		case 1400:
-			result = "MSVC++ 8.0 (Visual Studio 2005)";
-			break;
-		case 1310:
-			result = "MSVC++ 7.1 (Visual Studio 2003)";
-			break;
-		case 1300:
-			result = "MSVC++ 7.0";
-			break;
-		case 1200:
-			result = "MSVC++ 6.0";
-			break;
-		case 1100:
-			result = "MSVC++ 5.0";
-			break;
-		default:
-			if (_MSC_VER > 1800)
-				result = "MSVC++ newer than version 12.0";
-			else if (_MSC_VER < 1100)
-				result = "MSVC++ older than version 5.0";
-			else
-				result = "MSVC++ (some unsupported version)";
-			break;
-		}
-	#endif
+    #ifndef _WIN32
+        char result[256];
+        sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    #else
+        string result;
+        switch(_MSC_VER)
+        {
+        case 1800:
+            result = "MSVC++ 12.0 (Visual Studio 2013)";
+            break;
+        case 1700:
+            result = "MSVC++ 11.0 (Visual Studio 2012)";
+            break;
+        case 1600:
+            result = "MSVC++ 10.0 (Visual Studio 2010)";
+            break;
+        case 1500:
+            result = "MSVC++ 9.0 (Visual Studio 2008)";
+            break;
+        case 1400:
+            result = "MSVC++ 8.0 (Visual Studio 2005)";
+            break;
+        case 1310:
+            result = "MSVC++ 7.1 (Visual Studio 2003)";
+            break;
+        case 1300:
+            result = "MSVC++ 7.0";
+            break;
+        case 1200:
+            result = "MSVC++ 6.0";
+            break;
+        case 1100:
+            result = "MSVC++ 5.0";
+            break;
+        default:
+            if (_MSC_VER > 1800)
+                result = "MSVC++ newer than version 12.0";
+            else if (_MSC_VER < 1100)
+                result = "MSVC++ older than version 5.0";
+            else
+                result = "MSVC++ (some unsupported version)";
+            break;
+        }
+    #endif
 
-	return result;
+    return result;
 }
 
 void doHttpPOST(string host, string url, string content)
 {
-	#define MAXLINE 4096
+    #define MAXLINE 4096
     char request[MAXLINE + 1];
     int socketFD;
     char targetIP[INET6_ADDRSTRLEN];
@@ -183,7 +183,7 @@ void doHttpPOST(string host, string url, string content)
     snprintf(request, MAXLINE,
              "POST %s HTTP/1.0\r\n"
              "Host: %s\r\n"
-    		 "Content-Type: application/x-www-form-urlencoded\r\n"
+             "Content-Type: application/x-www-form-urlencoded\r\n"
              "User-Agent: POL in-app crash reporting system, %s\r\n"
              "Content-length: %d\r\n\r\n"
              "%s", url.c_str(), host.c_str(), Pol::polverstr, (int)content.size(), content.c_str());
@@ -202,13 +202,13 @@ void doHttpPOST(string host, string url, string content)
     {
         switch(serverAddr->ai_addr->sa_family) {
             case AF_INET:
-            	if(inet_ntop(AF_INET, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET_ADDRSTRLEN) == NULL)
-            		exit(1);
+                if(inet_ntop(AF_INET, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET_ADDRSTRLEN) == NULL)
+                    exit(1);
                 break;
 
             case AF_INET6:
-            	if(inet_ntop(AF_INET6, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET6_ADDRSTRLEN) == NULL)
-            		exit(1);
+                if(inet_ntop(AF_INET6, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET6_ADDRSTRLEN) == NULL)
+                    exit(1);
                 break;
 
             default:
@@ -216,70 +216,70 @@ void doHttpPOST(string host, string url, string content)
                 exit(1);
         }
 
-		// create the socket
-		socketFD = socket(serverAddr->ai_family, serverAddr->ai_socktype, serverAddr->ai_protocol);
+        // create the socket
+        socketFD = socket(serverAddr->ai_family, serverAddr->ai_socktype, serverAddr->ai_protocol);
 
-		/**
-		 * connect to the bug tracking server
-		 */
-		if((res = connect(socketFD, serverAddr->ai_addr, serverAddr->ai_addrlen)) != 0)
-		{
-			fprintf(stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(), targetIP, strerror(errno), errno);
-			exit(1);
-		}
+        /**
+         * connect to the bug tracking server
+         */
+        if((res = connect(socketFD, serverAddr->ai_addr, serverAddr->ai_addrlen)) != 0)
+        {
+            fprintf(stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(), targetIP, strerror(errno), errno);
+            exit(1);
+        }
 
-		/**
-		 * send the request
-		 */
-		write(socketFD, request, strlen(request));
-	   	printf("Crash report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
+        /**
+         * send the request
+         */
+        write(socketFD, request, strlen(request));
+           printf("Crash report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
 
-		/**
-		 * wait for some answers and print them on the screen
-		 */
-	    ssize_t readBytes;
-	    char answer[MAXLINE + 1];
-		while ((readBytes = read(socketFD, answer, MAXLINE)) > 0) {
-			answer[readBytes] = '\0';
-			printf("Answer from bug tracking server: %s\n", answer);
-			// skip the received answer and proceed
-		}
+        /**
+         * wait for some answers and print them on the screen
+         */
+        ssize_t readBytes;
+        char answer[MAXLINE + 1];
+        while ((readBytes = read(socketFD, answer, MAXLINE)) > 0) {
+            answer[readBytes] = '\0';
+            printf("Answer from bug tracking server: %s\n", answer);
+            // skip the received answer and proceed
+        }
 
-		// close the socket to the bug tracking server
-		close(socketFD);
+        // close the socket to the bug tracking server
+        close(socketFD);
     }else{
-    	fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
+        fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
     }
 }
 
 void reportCrash(string stackTrace)
 {
-	/**
-	 * set some default values if the crash occurs too early and pol.cfg wasn't parsed yet
-	 */
-	string host = "polserver.com";
-	string url = "/pol/bug_report.php";
-	if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
-	{
-		host = Plib::systemstate.config.report_server;
-		if(Plib::systemstate.config.report_url.c_str() != NULL)
-			url = Plib::systemstate.config.report_url;
-	}
+    /**
+     * set some default values if the crash occurs too early and pol.cfg wasn't parsed yet
+     */
+    string host = "polserver.com";
+    string url = "/pol/bug_report.php";
+    if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
+    {
+        host = Plib::systemstate.config.report_server;
+        if(Plib::systemstate.config.report_url.c_str() != NULL)
+            url = Plib::systemstate.config.report_url;
+    }
 
-	// create the crash description for the subsequent POST request
-	string content = "email=" + Pol::Plib::systemstate.config.admin_email + "&"
-					 "bin=" + Pol::Plib::systemstate.executable + "&"
-					 "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
-					 "crash_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
-					 "trace=" + stackTrace + "&"
-					 "comp=" + getCompilerVersion() + "&"
-					 "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
-					 "build_target=" + Pol::polbuildtag + "&"
-					 "build_revision=" + Pol::polverstr + "&"
-					 "misc=";
+    // create the crash description for the subsequent POST request
+    string content = "email=" + Pol::Plib::systemstate.config.admin_email + "&"
+                     "bin=" + Pol::Plib::systemstate.executable + "&"
+                     "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
+                     "crash_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
+                     "trace=" + stackTrace + "&"
+                     "comp=" + getCompilerVersion() + "&"
+                     "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
+                     "build_target=" + Pol::polbuildtag + "&"
+                     "build_revision=" + Pol::polverstr + "&"
+                     "misc=";
 
-	// execute the POST request
-	doHttpPOST(host, url, content);
+    // execute the POST request
+    doHttpPOST(host, url, content);
 }
 
 void handleExceptionSignal(int pSignal)
@@ -297,9 +297,9 @@ void handleExceptionSignal(int pSignal)
                  */
                 printf("########################################################################################\n");
                 if(Plib::systemstate.config.report_crashs_auto)
-                	printf("POL will exit now. The following will be sent to the POL developers:\n");
+                    printf("POL will exit now. The following will be sent to the POL developers:\n");
                 else
-                	printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
+                    printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
                 printf("Admin contact: %s\n", Pol::Plib::systemstate.config.admin_email.c_str());
                 printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
@@ -308,13 +308,13 @@ void handleExceptionSignal(int pSignal)
                 printf("\n");
                 printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
-				printf("Compiler: %s", getCompilerVersion().c_str());
+                printf("Compiler: %s", getCompilerVersion().c_str());
                 printf("Compile time: %s\n", Pol::compiletime);
                 printf("Build target: %s\n", Pol::polbuildtag);
                 printf("Build revision: %s\n", Pol::polverstr);
-				#ifndef _WIN32
-					printf("GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__);
-				#endif
+                #ifndef _WIN32
+                    printf("GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__);
+                #endif
                 printf("\n");
                 printf("########################################################################################\n");
 
@@ -322,9 +322,9 @@ void handleExceptionSignal(int pSignal)
                  * use the crash reporting system
                  */
                 if(Plib::systemstate.config.report_crashs_auto)
-                	reportCrash(tStackTrace);
+                    reportCrash(tStackTrace);
 
-				// finally, go to hell
+                // finally, go to hell
                 exit(1);
             }
             break;
