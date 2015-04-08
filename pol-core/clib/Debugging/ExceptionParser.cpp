@@ -6,11 +6,11 @@
 
 #include <cstring>
 #include <signal.h>
-#include <netdb.h>
 #include <arpa/inet.h>
 #include <errno.h>
 
 #ifndef _WIN32
+#include <netdb.h>
 #include <netinet/in.h>
 #include <execinfo.h>
 #include <cxxabi.h>
