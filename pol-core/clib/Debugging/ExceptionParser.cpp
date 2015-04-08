@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <signal.h>
+#include <stdio.h>
 #include <errno.h>
 
 #ifndef _WIN32
@@ -16,6 +17,11 @@
 #include <cxxabi.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#else
+#include<winsock2.h>
+#include<Ws2tcpip.h>
+#define snprintf _snprintf_s
+#define ssize_t SSIZE_T
 #endif
 
 #define MAX_STACK_TRACE_DEPTH          200
@@ -231,22 +237,35 @@ void doHttpPOST(string host, string url, string content)
         /**
          * send the request
          */
-        write(socketFD, request, strlen(request));
-           printf("Crash report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
+        #ifndef _WIN32
+            send(socketFD, request, strlen(request), MSG_NOSIGNAL);
+        #else
+            send(socketFD, request, strlen(request), 0);
+        #endif
+        printf("Crash report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
 
         /**
          * wait for some answers and print them on the screen
          */
         ssize_t readBytes;
         char answer[MAXLINE + 1];
-        while ((readBytes = read(socketFD, answer, MAXLINE)) > 0) {
+
+        #ifndef _WIN32
+            while ((readBytes = recv(socketFD, answer, MAXLINE, MSG_NOSIGNAL)) > 0) {
+        #else
+            while ((readBytes = recv(socketFD, answer, MAXLINE, 0)) > 0) {
+        #endif
             answer[readBytes] = '\0';
             printf("Answer from bug tracking server: %s\n", answer);
             // skip the received answer and proceed
         }
 
         // close the socket to the bug tracking server
-        close(socketFD);
+        #ifndef _WIN32
+            close(socketFD);
+        #else
+            closesocket(socketFD);
+        #endif
     }else{
         fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
     }
