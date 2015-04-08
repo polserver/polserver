@@ -31,6 +31,8 @@ namespace Pol {
   namespace Clib {
 #ifdef _WIN32
 #ifndef _M_X64
+	//TODO: move the following parts to ExceptionParser.cpp
+
 	void se_trans_func( unsigned int n, EXCEPTION_POINTERS *ex )
 	{
       fmt::Writer tmp;
@@ -200,47 +202,9 @@ namespace Pol {
 
 #else
 
-
-void segv_handler(int signal)
-{
-  if (signal == SIGSEGV)
-  {
-    POLLOG_ERROR << "Caught SIGSEGV (Segfault).  Please post the following on http://forums.polserver.com/tracker.php :\n";
-  }
-  else
-  {
-    POLLOG_ERROR << "Caught SIGUSR2 (On-demand backtrace).  Please post the following with explanation and last lines from log files on http://forums.polserver.com/tracker.php :\n";
-  }
-  
-  fmt::Writer tmp;
-  tmp << "=== CUT ===\n";
-  tmp << "Build: " << progverstr << " (" << buildtagstr << ")\n";
-  tmp << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC << "\n";
-  POLLOG_ERROR << tmp.c_str();
-  force_backtrace(true);
-  POLLOG_ERROR << "=== CUT ===\n";
-
-  if (signal == SIGSEGV)
-  {
-	struct sigaction sa;
-	// Pass on the signal (so that a core file is produced)
-	// FIXME: this doesn't seem to work - just outputs 'Killed'
-	sa.sa_handler = SIG_DFL;
-	sigemptyset (&sa.sa_mask);
-	sa.sa_flags = 0;
-	sigaction (signal, &sa, NULL);
-	raise (signal);
-  }
-}
 void InstallStructuredExceptionHandler(void)
 {
-  struct sigaction sa;
-  sa.sa_handler = segv_handler;
-  sigemptyset (&sa.sa_mask);
-  sa.sa_flags = 0;
-  sigaction(SIGSEGV, &sa, NULL);
-
-  sigaction(SIGUSR2, &sa, NULL );
+	//Linux: use the exception handler from ExceptionParser.cpp
 }
 #endif
 }
