@@ -188,6 +188,7 @@
       <OutputFile>.\Debug\clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
