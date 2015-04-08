@@ -6,6 +6,10 @@
 
 #include <cstring>
 #include <signal.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <errno.h>
 
 #ifndef _WIN32
 #include <execinfo.h>
@@ -116,13 +120,13 @@ void logExceptionSignal(int pSignal)
     printf("Signal \"%s\"(%d: %s) detected.\n", signalName.c_str(), pSignal, signalDescription.c_str());
 }
 
-std::string getCompilerVersion()
+string getCompilerVersion()
 {
 	#ifndef _WIN32
 		char result[256];
-		sprintf(result, "gcc %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 	#else
-		std::string result;
+		string result;
 		switch(_MSC_VER)
 		{
 		case 1800:
@@ -166,6 +170,118 @@ std::string getCompilerVersion()
 	return result;
 }
 
+void doHttpPOST(string host, string url, string content)
+{
+	#define MAXLINE 4096
+    char request[MAXLINE + 1];
+    int socketFD;
+    char targetIP[INET6_ADDRSTRLEN];
+
+    /**
+     * prepare the request
+     */
+    snprintf(request, MAXLINE,
+             "POST %s HTTP/1.0\r\n"
+             "Host: %s\r\n"
+    		 "Content-Type: application/x-www-form-urlencoded\r\n"
+             "User-Agent: POL in-app crash reporting system, %s\r\n"
+             "Content-length: %d\r\n\r\n"
+             "%s", url.c_str(), host.c_str(), Pol::polverstr, (int)content.size(), content.c_str());
+
+    /**
+     * DNS lookup if needed
+     */
+    struct addrinfo *serverAddr;
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;  // IPv4 or IPv6
+    hints.ai_flags = AI_ADDRCONFIG;
+    hints.ai_socktype = SOCK_STREAM;
+    int res = getaddrinfo(host.c_str(), "http", &hints, &serverAddr);
+    if(res == 0)
+    {
+        switch(serverAddr->ai_addr->sa_family) {
+            case AF_INET:
+            	if(inet_ntop(AF_INET, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET_ADDRSTRLEN) == NULL)
+            		exit(1);
+                break;
+
+            case AF_INET6:
+            	if(inet_ntop(AF_INET6, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET6_ADDRSTRLEN) == NULL)
+            		exit(1);
+                break;
+
+            default:
+                fprintf(stderr, "Unknown address family found for %s\n", host.c_str());
+                exit(1);
+        }
+
+		// create the socket
+		socketFD = socket(serverAddr->ai_family, serverAddr->ai_socktype, serverAddr->ai_protocol);
+
+		/**
+		 * connect to the bug tracking server
+		 */
+		if((res = connect(socketFD, serverAddr->ai_addr, serverAddr->ai_addrlen)) != 0)
+		{
+			fprintf(stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(), targetIP, strerror(errno), errno);
+			exit(1);
+		}
+
+		/**
+		 * send the request
+		 */
+		write(socketFD, request, strlen(request));
+	   	printf("Crash report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
+
+		/**
+		 * wait for some answers and print them on the screen
+		 */
+	    ssize_t readBytes;
+	    char answer[MAXLINE + 1];
+		while ((readBytes = read(socketFD, answer, MAXLINE)) > 0) {
+			answer[readBytes] = '\0';
+			printf("Answer from bug tracking server: %s\n", answer);
+			// skip the received answer and proceed
+		}
+
+		// close the socket to the bug tracking server
+		close(socketFD);
+    }else{
+    	fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
+    }
+}
+
+void reportCrash(string stackTrace)
+{
+	/**
+	 * set some default values if the crash occurs too early and pol.cfg wasn't parsed yet
+	 */
+	string host = "polserver.com";
+	string url = "/pol/bug_report.php";
+	if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
+	{
+		host = Plib::systemstate.config.report_server;
+		if(Plib::systemstate.config.report_url.c_str() != NULL)
+			url = Plib::systemstate.config.report_url;
+	}
+
+	// create the crash description for the subsequent POST request
+	string content = "email=" + Pol::Plib::systemstate.config.admin_email + "&"
+					 "bin=" + Pol::Plib::systemstate.executable + "&"
+					 "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
+					 "crash_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
+					 "trace=" + stackTrace + "&"
+					 "comp=" + getCompilerVersion() + "&"
+					 "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
+					 "build_target=" + Pol::polbuildtag + "&"
+					 "build_revision=" + Pol::polverstr + "&"
+					 "misc=";
+
+	// execute the POST request
+	doHttpPOST(host, url, content);
+}
+
 void handleExceptionSignal(int pSignal)
 {
     switch(pSignal)
@@ -176,9 +292,16 @@ void handleExceptionSignal(int pSignal)
         case SIGTERM:
         case SIGABRT:
             {
+                /**
+                 * inform the user about the crash
+                 */
                 printf("########################################################################################\n");
-                printf("POL will exit now. Please post the following on http://forums.polserver.com/tracker.php.\n");
+                if(Plib::systemstate.config.report_crashs_auto)
+                	printf("POL will exit now. The following will be sent to the POL developers:\n");
+                else
+                	printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
+                printf("Admin contact: %s\n", Pol::Plib::systemstate.config.admin_email.c_str());
                 printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
                 printf("Start time: %s\n", Pol::Plib::systemstate.getStartTime().c_str());
                 printf("Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str());
@@ -194,6 +317,14 @@ void handleExceptionSignal(int pSignal)
 				#endif
                 printf("\n");
                 printf("########################################################################################\n");
+
+                /**
+                 * use the crash reporting system
+                 */
+                if(Plib::systemstate.config.report_crashs_auto)
+                	reportCrash(tStackTrace);
+
+				// finally, go to hell
                 exit(1);
             }
             break;
