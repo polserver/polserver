@@ -1,5 +1,7 @@
 #include "ExceptionParser.h"
 #include "LogSink.h"
+#include "../threadhelp.h"
+#include "../logfacility.h"
 
 #include "../../plib/systemstate.h"
 #include "../../plib/polver.h"
@@ -8,6 +10,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #ifndef _WIN32
 #include <arpa/inet.h>
@@ -485,6 +488,19 @@ static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
     handleExceptionSignal(pSignal);
 }
 
+static void handleStackTraceRequestLinux(int signal, siginfo_t *signalInfo, void *arg)
+{
+    threadhelp::ThreadMap::Contents threadDesc;
+    threadhelp::threadmap.CopyContents(threadDesc);
+
+    fmt::Writer output;
+    output << "STACK TRACE for thread \"" << threadDesc[pthread_self()] << "\"(" << pthread_self() << "):\n";
+    output << ExceptionParser::getTrace() << "\n";
+
+	printf("%s", output.c_str());
+	POLLOG_ERROR << output.c_str();
+}
+
 void ExceptionParser::initGlobalExceptionCatching()
 {
     struct sigaction sigAction;
@@ -496,6 +512,8 @@ void ExceptionParser::initGlobalExceptionCatching()
     sigaction(SIGINT, &sigAction, NULL);
     sigaction(SIGTERM, &sigAction, NULL);
     sigaction(SIGSEGV, &sigAction, NULL);
+    sigAction.sa_sigaction = handleStackTraceRequestLinux;
+    sigaction(SIGUSR1, &sigAction, NULL);
 
     // set handler stack
     stack_t tStack;
