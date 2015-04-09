@@ -20,6 +20,7 @@
 #include <cxxabi.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#define SOCKET int
 #else
 #include<winsock2.h>
 #include<Ws2tcpip.h>
@@ -183,7 +184,7 @@ void doHttpPOST(string host, string url, string content)
 {
     #define MAXLINE 4096
     char request[MAXLINE + 1];
-    int socketFD;
+	SOCKET socketFD;
     char targetIP[INET6_ADDRSTRLEN];
 
     /**
