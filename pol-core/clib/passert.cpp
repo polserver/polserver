@@ -74,12 +74,20 @@ namespace Pol {
 
 	void passert_failed( const char *expr, const char *file, unsigned line )
 	{
-	  POLLOG_ERROR << "Assertion Failed: " << expr << ", " << file << ", line " << line << "\n";
+		passert_failed(expr, "", file, line);
+	}
+
+    void passert_failed(const char *expr, const std::string& reason, const char *file, unsigned line)
+	{
+    	if(reason != "")
+    		POLLOG_ERROR << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line " << line << "\n";
+    	else
+    		POLLOG_ERROR << "Assertion Failed: " << expr << ", " << file << ", line " << line << "\n";
+
 
 	  if( passert_dump_stack )
 	  {
         POLLOG_ERROR << "Forcing stack backtrace.\n";
-
 		force_backtrace();
 	  }
       else
@@ -94,46 +102,13 @@ namespace Pol {
        */
       if(Plib::systemstate.config.report_program_aborts)
       {
-    	  char reason[512];
-    	  if(sprintf(reason, "ASSERT(%s) failed in %s:%d", expr, file, line) > 0)
-    		  ExceptionParser::reportProgramAbort(ExceptionParser::getTrace(), std::string(reason));
+    	  char reportedReason[512];
+    	  if(sprintf(reportedReason, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr, reason.c_str(),file, line) > 0)
+    		  ExceptionParser::reportProgramAbort(ExceptionParser::getTrace(), std::string(reportedReason));
     	  else
     		  ExceptionParser::reportProgramAbort(ExceptionParser::getTrace(), "ASSERT failed");
       }
 
-	  if( passert_shutdown )
-	  {
-        POLLOG_ERROR << "Shutting down due to assertion failure.\n";
-		exit_signalled = true;
-		passert_shutdown_due_to_assertion = true;
-	  }
-	  if( passert_abort )
-	  {
-        POLLOG_ERROR << "Aborting due to assertion failure.\n";
-		abort();
-	  }
-
-	  throw std::runtime_error( "Assertion Failed: "
-						   + std::string( expr ) + ", "
-                           + std::string(file) + ", line "
-						   + tostring( line ) );
-	}
-
-    void passert_failed(const char *expr, const std::string& reason, const char *file, unsigned line)
-	{
-      POLLOG_ERROR << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line " << line << "\n";
-
-	  if( passert_dump_stack )
-	  {
-        POLLOG_ERROR << "Forcing stack backtrace.\n";
-		force_backtrace();
-	  }
-      else
-      {
-#ifdef _WIN32
-        HiddenMiniDumper::print_backtrace();
-#endif
-      }
 
 	  if( passert_shutdown )
 	  {
@@ -147,11 +122,19 @@ namespace Pol {
 		abort();
 	  }
 
-      throw std::runtime_error("Assertion Failed: "
-          + std::string(expr) + " ("
-          + std::string(reason) + "), "
-          + std::string(file) + ", line "
-          + tostring(line));
+	  if(reason != "")
+	  {
+		  throw std::runtime_error("Assertion Failed: "
+			  + std::string(expr) + " ("
+			  + std::string(reason) + "), "
+			  + std::string(file) + ", line "
+			  + tostring(line));
+	  }else{
+		  throw std::runtime_error("Assertion Failed: "
+			  + std::string(expr) + ", "
+			  + std::string(file) + ", line "
+			  + tostring(line));
+	  }
 	}
   }
 }
