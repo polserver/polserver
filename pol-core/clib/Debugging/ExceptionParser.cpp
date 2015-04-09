@@ -271,7 +271,7 @@ void doHttpPOST(string host, string url, string content)
     }
 }
 
-void reportProgramAbort(string stackTrace, string reason)
+void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
 {
     /**
      * set some default values if the abort occurs too early and pol.cfg wasn't parsed yet
@@ -347,7 +347,7 @@ void handleExceptionSignal(int pSignal)
                     string signalDescription;
 
                     getSignalDescription(pSignal, signalName, signalDescription);
-                    reportProgramAbort(tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription + ")");
+                    ExceptionParser::reportProgramAbort(tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription + ")");
                 }
 
                 // finally, go to hell
