@@ -1,5 +1,5 @@
-#ifndef EXCEPTION_PARSER_H
-#define EXCEPTION_PARSER_H
+#ifndef CLIB_EXCEPTION_PARSER_H
+#define CLIB_EXCEPTION_PARSER_H
 
 #include <string>
 
