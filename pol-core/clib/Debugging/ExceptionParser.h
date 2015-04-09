@@ -27,6 +27,11 @@ public:
     static void reportProgramAbort(std::string stackTrace, std::string reason);
 
     /**
+     * Logs stack traces of all threads to stdout and error output
+     */
+    static void logAllStackTraces();
+
+    /**
      * Initiates globally the exception catching (signal handlers for Linux)
      */
     static void initGlobalExceptionCatching();
