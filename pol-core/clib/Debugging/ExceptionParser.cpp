@@ -498,14 +498,14 @@ static void handleStackTraceRequestLinux(int signal, siginfo_t *signalInfo, void
     output << ExceptionParser::getTrace() << "\n";
 
     // print to stdout
-	printf("%s", output.c_str());
+    printf("%s", output.c_str());
 
-	// print to error output
-	POLLOG_ERROR << output.c_str();
+    // print to error output
+    POLLOG_ERROR << output.c_str();
 
-	// wait here for logging facility to make sure everything was processed
-	if(Clib::Logging::global_logger)
-      Clib::Logging::global_logger->wait_for_empty_queue( );
+    // wait here for logging facility to make sure everything was processed
+    if(Clib::Logging::global_logger)
+      Clib::Logging::global_logger->wait_for_empty_queue();
 }
 
 void ExceptionParser::logAllStackTraces()
@@ -514,11 +514,11 @@ void ExceptionParser::logAllStackTraces()
     threadhelp::threadmap.CopyContents(threadsDesc);
     for (const auto& threadDesc : threadsDesc)
     {
-    	pthread_t threadID = (pthread_t)threadDesc.first;
+        pthread_t threadID = (pthread_t)threadDesc.first;
 
-    	if(pthread_kill(threadID, SIGUSR1) != 0)
-		  fprintf(stderr, "pthread_kill() failed to send SIGURS1 to thread %s(%" PRIu64 "\n", threadsDesc[threadID].c_str(), threadID);
-	}
+        if(pthread_kill(threadID, SIGUSR1) != 0)
+        	fprintf(stderr, "pthread_kill() failed to send SIGURS1 to thread %s(%" PRIu64 "\n", threadsDesc[threadID].c_str(), threadID);
+    }
 }
 
 void ExceptionParser::initGlobalExceptionCatching()
