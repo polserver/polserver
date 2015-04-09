@@ -59,8 +59,6 @@ namespace Pol {
 	  {}
 	}
 #else
-    void GetCallstack( pthread_t threadId );
-
     void force_backtrace(bool complete)
 	{
       std::string stack_trace = Clib::ExceptionParser::getTrace();
@@ -70,20 +68,7 @@ namespace Pol {
 	  
       POLLOG_ERROR << tmp.c_str() << "\n";
       if (complete)
-      {
-        threadhelp::ThreadMap::Contents contents;
-        threadhelp::threadmap.CopyContents( contents );
-        POLLOG_ERROR << "thread size " << contents.size() << "\n";
-        for ( const auto& threads : contents)
-        {
-          GetCallstack((pthread_t)threads.first);
-        }
-      }
-      if ( Clib::Logging::global_logger )
-        Clib::Logging::global_logger->wait_for_empty_queue( ); // wait here for logging facility to make sure everything was printed
-      POLLOG_ERROR << "=======================\n";
-      if ( Clib::Logging::global_logger )
-        Clib::Logging::global_logger->wait_for_empty_queue( ); // wait here for logging facility to make sure everything was printed
+    	  ExceptionParser::logAllStackTraces();
 	}
 #endif
 
@@ -168,57 +153,5 @@ namespace Pol {
           + std::string(file) + ", line "
           + tostring(line));
 	}
-
-
-#ifndef _WIN32 
-  #define CALLSTACK_SIG SIGUSR1
-
-    static pthread_t callingThread = 0;
-    static pthread_t targetThread = 0;
-
-    static void _callstack_signal_handler( int signr, siginfo_t *info, void *context )
-    {
-      if ( pthread_self() != targetThread )
-        return;
-
-      fmt::Writer tmp;
-      std::string stack_trace = Clib::ExceptionParser::getTrace();
-      threadhelp::ThreadMap::Contents contents;
-      threadhelp::threadmap.CopyContents( contents );
-      tmp << "Thread ID " << pthread_self() << " (" << contents[pthread_self()] << ")\n";
-	  tmp << stack_trace;
-
-      POLLOG_ERROR << tmp.c_str() << "\n";
-      if ( Clib::Logging::global_logger )
-        Clib::Logging::global_logger->wait_for_empty_queue(); // wait for finish
-    }
-
-    static void _setup_callstack_signal_handler()
-    {
-      struct sigaction sa;
-      sigfillset( &sa.sa_mask );
-      sa.sa_flags = SA_SIGINFO;
-      sa.sa_sigaction = _callstack_signal_handler;
-      sigaction( CALLSTACK_SIG, &sa, NULL );
-    }
-    static std::mutex callstack_mutex;
-    void GetCallstack( pthread_t threadId )
-    {
-      std::lock_guard<std::mutex> lock( callstack_mutex );
-      callingThread = pthread_self();
-      targetThread = threadId;
-      if ( callingThread == targetThread )
-      {
-        return;
-      }
-      _setup_callstack_signal_handler();
-      // call _callstack_signal_handler in target thread
-      if ( pthread_kill( threadId, CALLSTACK_SIG ) != 0 )
-      {
-        POLLOG_ERROR << "kill failed\n";
-        return;
-      }
-    }
-#endif
   }
 }
