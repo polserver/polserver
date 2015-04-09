@@ -25,6 +25,7 @@ Notes
 #ifdef _WIN32
 #	include <windows.h>
 #	include "mdumpimp.h"    
+#pragma warning(disable: 4996) // unsafe sprintf
 #else
 #include <signal.h>
 #include <unistd.h>

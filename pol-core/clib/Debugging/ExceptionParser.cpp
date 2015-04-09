@@ -26,6 +26,8 @@
 #include<Ws2tcpip.h>
 #define snprintf _snprintf_s
 #define ssize_t SSIZE_T
+#pragma warning(disable: 4127) // conditional expression is constant
+#pragma warning(disable: 4996) // unsafe strerror
 #endif
 
 #define MAX_STACK_TRACE_DEPTH          200
@@ -244,7 +246,7 @@ void doHttpPOST(string host, string url, string content)
         #ifndef _WIN32
             send(socketFD, request, strlen(request), MSG_NOSIGNAL);
         #else
-            send(socketFD, request, strlen(request), 0);
+            send(socketFD, request, (int)strlen(request), 0);
         #endif
         printf("Abort report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
 
