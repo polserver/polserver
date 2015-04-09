@@ -98,7 +98,7 @@ namespace Pol {
 	  /**
 	   * crash reporting system with some early default values
 	   */
-	  bool report_crashs_auto;
+	  bool report_program_aborts;
 	  std::string report_server;
 	  std::string report_url;
 

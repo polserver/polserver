@@ -190,7 +190,7 @@ void doHttpPOST(string host, string url, string content)
              "POST %s HTTP/1.0\r\n"
              "Host: %s\r\n"
              "Content-Type: application/x-www-form-urlencoded\r\n"
-             "User-Agent: POL in-app crash reporting system, %s\r\n"
+             "User-Agent: POL in-app abort reporting system, %s\r\n"
              "Content-length: %d\r\n\r\n"
              "%s", url.c_str(), host.c_str(), Pol::polverstr, (int)content.size(), content.c_str());
 
@@ -242,7 +242,7 @@ void doHttpPOST(string host, string url, string content)
         #else
             send(socketFD, request, strlen(request), 0);
         #endif
-        printf("Crash report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
+        printf("Abort report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
 
         /**
          * wait for some answers and print them on the screen
@@ -271,13 +271,13 @@ void doHttpPOST(string host, string url, string content)
     }
 }
 
-void reportCrash(string stackTrace)
+void reportProgramAbort(string stackTrace, string reason)
 {
     /**
-     * set some default values if the crash occurs too early and pol.cfg wasn't parsed yet
+     * set some default values if the abort occurs too early and pol.cfg wasn't parsed yet
      */
     string host = "polserver.com";
-    string url = "/pol/crash_report.php";
+    string url = "/pol/report_program_abort.php";
     if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
     {
         host = Plib::systemstate.config.report_server;
@@ -285,11 +285,12 @@ void reportCrash(string stackTrace)
             url = Plib::systemstate.config.report_url;
     }
 
-    // create the crash description for the subsequent POST request
+    // create the abort description for the subsequent POST request
     string content = "email=" + Pol::Plib::systemstate.config.admin_email + "&"
                      "bin=" + Pol::Plib::systemstate.executable + "&"
                      "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
-                     "crash_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
+                     "abort_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
+                     "reason=" + reason + "&"
                      "trace=" + stackTrace + "&"
                      "comp=" + getCompilerVersion() + "&"
                      "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
@@ -312,10 +313,10 @@ void handleExceptionSignal(int pSignal)
         case SIGABRT:
             {
                 /**
-                 * inform the user about the crash
+                 * inform the user about the program abort
                  */
                 printf("########################################################################################\n");
-                if(Plib::systemstate.config.report_crashs_auto)
+                if(Plib::systemstate.config.report_program_aborts)
                     printf("POL will exit now. The following will be sent to the POL developers:\n");
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
@@ -338,10 +339,16 @@ void handleExceptionSignal(int pSignal)
                 printf("########################################################################################\n");
 
                 /**
-                 * use the crash reporting system
+                 * use the program abort reporting system
                  */
-                if(Plib::systemstate.config.report_crashs_auto)
-                    reportCrash(tStackTrace);
+                if(Plib::systemstate.config.report_program_aborts)
+                {
+                    string signalName;
+                    string signalDescription;
+
+                    getSignalDescription(pSignal, signalName, signalDescription);
+                    reportProgramAbort(tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription + ")");
+                }
 
                 // finally, go to hell
                 exit(1);

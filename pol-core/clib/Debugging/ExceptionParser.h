@@ -19,6 +19,14 @@ public:
     static std::string getTrace();
 
     /**
+     * Reports a program abort to the core devs
+     *
+     * @param stackTrace the stack trace of the abort
+     * @param reason a descriptive text about the reason for the abort
+     */
+    static void reportProgramAbort(std::string stackTrace, std::string reason);
+
+    /**
      * Initiates globally the exception catching (signal handlers for Linux)
      */
     static void initGlobalExceptionCatching();
