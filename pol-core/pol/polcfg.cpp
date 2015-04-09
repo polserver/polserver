@@ -224,9 +224,9 @@ namespace Pol {
 
 	  Plib::systemstate.config.admin_email = elem.remove_string("AdminEmail", "");
 
-	  Plib::systemstate.config.report_bugs_auto = elem.remove_bool("ReportBugsAutomatically", false);
+	  Plib::systemstate.config.report_crashs_auto = elem.remove_bool("ReportCrashsAutomatically", false);
 	  Plib::systemstate.config.report_server = elem.remove_string("ReportServer", "polserver.com");
-	  Plib::systemstate.config.report_url = elem.remove_string("ReportURL", "/pol/bug_report.php");
+	  Plib::systemstate.config.report_url = elem.remove_string("ReportURL", "/pol/crash_report.php");
 
 
 #ifdef _WIN32

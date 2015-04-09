@@ -125,6 +125,7 @@
       <OutputFile>.\Release\clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -159,6 +160,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -188,6 +190,7 @@
       <OutputFile>.\Debug\clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -219,6 +222,7 @@
       <OutputFile>.\Debug\x64/clib.lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Ws2_32.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
