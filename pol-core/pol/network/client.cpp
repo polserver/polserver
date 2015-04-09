@@ -99,7 +99,7 @@ namespace Pol {
 	  instance_( ++instance_counter_ ),
 	  checkpoint( -1 ), //CNXBUG
 	  last_msgtype( 255 ),
-	  thread_pid( -1 ),
+	  thread_pid( (size_t)-1 ),
 	  UOExpansionFlag( 0 ),
 	  UOExpansionFlagClient( 0 ),
 	  ClientType( 0 ),
