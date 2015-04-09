@@ -12,6 +12,7 @@ Notes
 
 #include "passert.h"
 
+#include "../plib/systemstate.h"
 #include "Debugging/ExceptionParser.h"
 
 #include "esignal.h"
@@ -101,6 +102,18 @@ namespace Pol {
 #ifdef _WIN32
         HiddenMiniDumper::print_backtrace();
 #endif
+      }
+
+      /**
+       * use the program abort reporting system
+       */
+      if(Plib::systemstate.config.report_program_aborts)
+      {
+    	  char reason[512];
+    	  if(sprintf(reason, "ASSERT(%s) failed in %s:%d", expr, file, line) > 0)
+    		  ExceptionParser::reportProgramAbort(ExceptionParser::getTrace(), std::string(reason));
+    	  else
+    		  ExceptionParser::reportProgramAbort(ExceptionParser::getTrace(), "ASSERT failed");
       }
 
 	  if( passert_shutdown )
