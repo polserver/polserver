@@ -34,7 +34,6 @@ namespace Pol {
 	  access_violation() : structured_exception( 5, "Access Violation" ) {}
 	};
 
-	void InstallStructuredExceptionHandler( void );
 	void InstallOldStructuredExceptionHandler( void );
 
   }
