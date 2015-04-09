@@ -234,7 +234,7 @@ void doHttpPOST(string host, string url, string content)
         /**
          * connect to the bug tracking server
          */
-        if((res = connect(socketFD, serverAddr->ai_addr, serverAddr->ai_addrlen)) != 0)
+        if((res = connect(socketFD, serverAddr->ai_addr, (int)serverAddr->ai_addrlen)) != 0)
         {
             fprintf(stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(), targetIP, strerror(errno), errno);
             exit(1);
