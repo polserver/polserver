@@ -48,11 +48,6 @@ int main( int argc, char *argv[] )
 
     try 
     {
-    	//TODO: the following call influences only the Windows build,
-    	//      the function call should be removed and the functionality behind it should be moved to ExceptionParser.cpp
-        Clib::InstallStructuredExceptionHandler();
-        
-        
 	// FIXME: 2008 Upgrades needed here? Make sure this still valid on 2008
 #if defined(_WIN32) && defined(_DEBUG) && _MSC_VER >= 1300
         // on VS.NET, disable obnoxious heap checking

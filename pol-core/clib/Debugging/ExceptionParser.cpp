@@ -1,5 +1,7 @@
 #include "ExceptionParser.h"
 #include "LogSink.h"
+#include "../threadhelp.h"
+#include "../logfacility.h"
 
 #include "../../plib/systemstate.h"
 #include "../../plib/polver.h"
@@ -8,6 +10,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #ifndef _WIN32
 #include <arpa/inet.h>
@@ -17,11 +20,14 @@
 #include <cxxabi.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#define SOCKET int
 #else
 #include<winsock2.h>
 #include<Ws2tcpip.h>
 #define snprintf _snprintf_s
 #define ssize_t SSIZE_T
+#pragma warning(disable: 4127) // conditional expression is constant
+#pragma warning(disable: 4996) // unsafe strerror
 #endif
 
 #define MAX_STACK_TRACE_DEPTH          200
@@ -180,7 +186,7 @@ void doHttpPOST(string host, string url, string content)
 {
     #define MAXLINE 4096
     char request[MAXLINE + 1];
-    int socketFD;
+	SOCKET socketFD;
     char targetIP[INET6_ADDRSTRLEN];
 
     /**
@@ -190,7 +196,7 @@ void doHttpPOST(string host, string url, string content)
              "POST %s HTTP/1.0\r\n"
              "Host: %s\r\n"
              "Content-Type: application/x-www-form-urlencoded\r\n"
-             "User-Agent: POL in-app crash reporting system, %s\r\n"
+             "User-Agent: POL in-app abort reporting system, %s\r\n"
              "Content-length: %d\r\n\r\n"
              "%s", url.c_str(), host.c_str(), Pol::polverstr, (int)content.size(), content.c_str());
 
@@ -228,7 +234,7 @@ void doHttpPOST(string host, string url, string content)
         /**
          * connect to the bug tracking server
          */
-        if((res = connect(socketFD, serverAddr->ai_addr, serverAddr->ai_addrlen)) != 0)
+        if((res = connect(socketFD, serverAddr->ai_addr, (int)serverAddr->ai_addrlen)) != 0)
         {
             fprintf(stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(), targetIP, strerror(errno), errno);
             exit(1);
@@ -240,9 +246,9 @@ void doHttpPOST(string host, string url, string content)
         #ifndef _WIN32
             send(socketFD, request, strlen(request), MSG_NOSIGNAL);
         #else
-            send(socketFD, request, strlen(request), 0);
+            send(socketFD, request, (int)strlen(request), 0);
         #endif
-        printf("Crash report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
+        printf("Abort report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP);
 
         /**
          * wait for some answers and print them on the screen
@@ -271,13 +277,13 @@ void doHttpPOST(string host, string url, string content)
     }
 }
 
-void reportCrash(string stackTrace)
+void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
 {
     /**
-     * set some default values if the crash occurs too early and pol.cfg wasn't parsed yet
+     * set some default values if the abort occurs too early and pol.cfg wasn't parsed yet
      */
     string host = "polserver.com";
-    string url = "/pol/crash_report.php";
+    string url = "/pol/report_program_abort.php";
     if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
     {
         host = Plib::systemstate.config.report_server;
@@ -285,11 +291,12 @@ void reportCrash(string stackTrace)
             url = Plib::systemstate.config.report_url;
     }
 
-    // create the crash description for the subsequent POST request
+    // create the abort description for the subsequent POST request
     string content = "email=" + Pol::Plib::systemstate.config.admin_email + "&"
                      "bin=" + Pol::Plib::systemstate.executable + "&"
                      "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
-                     "crash_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
+                     "abort_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
+                     "reason=" + reason + "&"
                      "trace=" + stackTrace + "&"
                      "comp=" + getCompilerVersion() + "&"
                      "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
@@ -312,10 +319,10 @@ void handleExceptionSignal(int pSignal)
         case SIGABRT:
             {
                 /**
-                 * inform the user about the crash
+                 * inform the user about the program abort
                  */
                 printf("########################################################################################\n");
-                if(Plib::systemstate.config.report_crashs_auto)
+                if(Plib::systemstate.config.report_program_aborts)
                     printf("POL will exit now. The following will be sent to the POL developers:\n");
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
@@ -338,10 +345,16 @@ void handleExceptionSignal(int pSignal)
                 printf("########################################################################################\n");
 
                 /**
-                 * use the crash reporting system
+                 * use the program abort reporting system
                  */
-                if(Plib::systemstate.config.report_crashs_auto)
-                    reportCrash(tStackTrace);
+                if(Plib::systemstate.config.report_program_aborts)
+                {
+                    string signalName;
+                    string signalDescription;
+
+                    getSignalDescription(pSignal, signalName, signalDescription);
+                    ExceptionParser::reportProgramAbort(tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription + ")");
+                }
 
                 // finally, go to hell
                 exit(1);
@@ -478,6 +491,39 @@ static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
     handleExceptionSignal(pSignal);
 }
 
+static void handleStackTraceRequestLinux(int signal, siginfo_t *signalInfo, void *arg)
+{
+    threadhelp::ThreadMap::Contents threadDesc;
+    threadhelp::threadmap.CopyContents(threadDesc);
+
+    fmt::Writer output;
+    output << "STACK TRACE for thread \"" << threadDesc[pthread_self()] << "\"(" << pthread_self() << "):\n";
+    output << ExceptionParser::getTrace() << "\n";
+
+    // print to stdout
+    printf("%s", output.c_str());
+
+    // print to error output
+    POLLOG_ERROR << output.c_str();
+
+    // wait here for logging facility to make sure everything was processed
+    if(Clib::Logging::global_logger)
+      Clib::Logging::global_logger->wait_for_empty_queue();
+}
+
+void ExceptionParser::logAllStackTraces()
+{
+    threadhelp::ThreadMap::Contents threadsDesc;
+    threadhelp::threadmap.CopyContents(threadsDesc);
+    for (const auto& threadDesc : threadsDesc)
+    {
+        pthread_t threadID = (pthread_t)threadDesc.first;
+
+        if(pthread_kill(threadID, SIGUSR1) != 0)
+        	fprintf(stderr, "pthread_kill() failed to send SIGURS1 to thread %s(%" PRIu64 "\n", threadsDesc[threadID].c_str(), threadID);
+    }
+}
+
 void ExceptionParser::initGlobalExceptionCatching()
 {
     struct sigaction sigAction;
@@ -489,6 +535,8 @@ void ExceptionParser::initGlobalExceptionCatching()
     sigaction(SIGINT, &sigAction, NULL);
     sigaction(SIGTERM, &sigAction, NULL);
     sigaction(SIGSEGV, &sigAction, NULL);
+    sigAction.sa_sigaction = handleStackTraceRequestLinux;
+    sigaction(SIGUSR1, &sigAction, NULL);
 
     // set handler stack
     stack_t tStack;
@@ -512,6 +560,11 @@ string ExceptionParser::getTrace()
     string result;
 
     return result;
+}
+
+void ExceptionParser::logAllStackTraces()
+{
+
 }
 
 void ExceptionParser::initGlobalExceptionCatching()

@@ -177,21 +177,6 @@ namespace Pol {
 	  throw structured_exception( u );
 	}
 
-	void InstallStructuredExceptionHandler( void )
-	{
-	  static bool init = false;
-	  if( !init )
-	  {
-		init = true;
-	  }
-	  if( !IsDebuggerPresent() )
-	  {
-		// if there's a debugger, better to let it take control
-		// homegrown: _set_se_translator( se_trans_func );
-		// _set_se_translator( alt_se_trans_func );
-	  }
-	}
-
 	void InstallOldStructuredExceptionHandler( void )
 	{
 	  if( !IsDebuggerPresent() )
@@ -200,12 +185,6 @@ namespace Pol {
 	  }
 	}
 
-#else
-
-void InstallStructuredExceptionHandler(void)
-{
-	//Linux: use the exception handler from ExceptionParser.cpp
-}
 #endif
 }
 }

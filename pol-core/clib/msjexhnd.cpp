@@ -8,7 +8,7 @@ Notes
 */
 
 #pragma warning(disable:4189) //local variable is initialized but not referenced
-#define _CRT_SECURE_NO_WARNINGS
+#pragma warning(disable:4996) //unsafe strcpy
 
 //==========================================
 // Matt Pietrek
