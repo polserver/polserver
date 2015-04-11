@@ -186,7 +186,7 @@ void doHttpPOST(string host, string url, string content)
 {
     #define MAXLINE 4096
     char request[MAXLINE + 1];
-	SOCKET socketFD;
+    SOCKET socketFD;
     char targetIP[INET6_ADDRSTRLEN];
 
     /**
@@ -520,7 +520,11 @@ void ExceptionParser::logAllStackTraces()
         pthread_t threadID = (pthread_t)threadDesc.first;
 
         if(pthread_kill(threadID, SIGUSR1) != 0)
-        	fprintf(stderr, "pthread_kill() failed to send SIGURS1 to thread %s(%" PRIu64 "\n", threadsDesc[threadID].c_str(), threadID);
+        {
+            fmt::Writer output;
+            output << "pthread_kill() failed to send SIGURS1 to thread " << threadsDesc[threadID] << "(" << threadID << ")\n";
+            fprintf(stderr, "%s", output.c_str());
+        }
     }
 }
 
