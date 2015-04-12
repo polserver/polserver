@@ -539,6 +539,7 @@ void ExceptionParser::initGlobalExceptionCatching()
     sigaction(SIGINT, &sigAction, NULL);
     sigaction(SIGTERM, &sigAction, NULL);
     sigaction(SIGSEGV, &sigAction, NULL);
+    sigaction(SIGABRT, &sigAction, NULL);
     sigAction.sa_sigaction = handleStackTraceRequestLinux;
     sigaction(SIGUSR1, &sigAction, NULL);
 
