@@ -104,7 +104,7 @@ namespace Pol {
 
 	void load_uoskills_cfg()
 	{
-	  gamestate.uo_skills.reserve( SKILLID__COUNT );
+	  gamestate.uo_skills.resize( SKILLID__COUNT );
 	  Plib::load_packaged_cfgs( "uoskills.cfg", "Skill", load_skill_entry );
 	}
 
