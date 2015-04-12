@@ -292,7 +292,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
     }
 
     // create the abort description for the subsequent POST request
-    string content = "email=" + Pol::Plib::systemstate.config.admin_email + "&"
+    string content = "email=" + Pol::Plib::systemstate.config.report_admin_email + "&"
                      "bin=" + Pol::Plib::systemstate.executable + "&"
                      "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
                      "abort_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
@@ -327,7 +327,7 @@ void handleExceptionSignal(int pSignal)
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
-                printf("Admin contact: %s\n", Pol::Plib::systemstate.config.admin_email.c_str());
+                printf("Admin contact: %s\n", Pol::Plib::systemstate.config.report_admin_email.c_str());
                 printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
                 printf("Start time: %s\n", Pol::Plib::systemstate.getStartTime().c_str());
                 printf("Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str());

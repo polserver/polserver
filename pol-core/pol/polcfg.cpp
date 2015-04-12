@@ -222,9 +222,8 @@ namespace Pol {
       Plib::systemstate.config.single_thread_decay = elem.remove_bool("SingleThreadDecay", false);
       Plib::systemstate.config.thread_decay_statistics = elem.remove_bool("ThreadDecayStatistics", false);
 
-	  Plib::systemstate.config.admin_email = elem.remove_string("AdminEmail", "");
-
 	  Plib::systemstate.config.report_program_aborts = elem.remove_bool("ReportCrashsAutomatically", false);
+	  Plib::systemstate.config.report_admin_email = elem.remove_string("ReportAdminEmail", "");
 	  Plib::systemstate.config.report_server = elem.remove_string("ReportServer", "polserver.com");
 	  Plib::systemstate.config.report_url = elem.remove_string("ReportURL", "/pol/report_program_abort.php");
 
