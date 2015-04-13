@@ -141,7 +141,7 @@ namespace Pol {
         LogFacility();
         ~LogFacility();
         template <typename Sink>
-        void save( std::unique_ptr<fmt::Writer>&& message, std::string id );
+        void save( fmt::Writer* message, std::string id );
         void registerSink( LogSink* sink );
         void disableDebugLog();
         void deinitializeStartLog();
