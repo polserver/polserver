@@ -93,12 +93,11 @@ namespace Pol {
       bool single_thread_decay;
       bool thread_decay_statistics;
 
-	  std::string admin_email;
-
 	  /**
 	   * crash reporting system with some early default values
 	   */
 	  bool report_program_aborts;
+	  std::string report_admin_email;
 	  std::string report_server;
 	  std::string report_url;
 
