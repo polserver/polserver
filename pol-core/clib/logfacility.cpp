@@ -105,11 +105,6 @@ namespace Pol {
           send( [&]() { _done = true; } );
           _work_thread.join(); // wait for it
         }
-        // send and move msg into queue
-        void move_send( msg &&msg_ )
-        {
-          _queue.push_move( std::move( msg_ ) );
-        }
         // send msg into queue
         void send( msg msg_ )
         {
@@ -154,54 +149,22 @@ namespace Pol {
 		global_logger = nullptr;
       }
 
-      // evil madness
-      // since c++11 cannot capture by move inside a lambda and I need to transfer ownership of the fmt::Writer
-      // this performs a move on copy operations wrapper for given type
-      // use with care, eg if the whole lambda gets copied madness can happen
-      template<typename T>
-      struct MoveCopy
-      {
-        mutable T _movable;
-
-        explicit MoveCopy( T&& value ) : _movable( std::move( value ) ) {}
-        MoveCopy( const MoveCopy& other ) : _movable( std::move( other._movable ) ) {}
-        MoveCopy( MoveCopy&& other ) : _movable( std::move( other._movable ) ) {}
-
-        MoveCopy& operator=( MoveCopy const& other )
-        {
-          _movable = std::move( other._movable );
-          return *this;
-        }
-        MoveCopy& operator=( MoveCopy&& other )
-        {
-          _movable = std::move( other._movable );
-          return *this;
-        }
-      };
-
-      // small helper function to create the wrapper
-      template<typename T>
-      MoveCopy<T> makeMoveCopy( T&& aValue )
-      {
-        return MoveCopy<T>( std::move( aValue ) );
-      }
-
       // send logsink as a lambda to the worker
       template <typename Sink>
-      void LogFacility::save( std::unique_ptr<fmt::Writer>&& message, std::string id )
+      void LogFacility::save( fmt::Writer* message, std::string id )
       {
-        auto moved = makeMoveCopy( std::move( message ) ); // see note above we need to transfer ownership into the lambda
-        _worker->move_send( std::move( [moved, id]()
+        _worker->send( [message, id]()
         {
+          std::unique_ptr<fmt::Writer> msg(message);
           try
           {
-            getSink<Sink>()->addMessage(moved._movable.get(), id );
+            getSink<Sink>()->addMessage( msg.get(), id );
           }
           catch ( std::exception& msg )
           {
               std::cout << msg.what() << std::endl;
           }
-        } ) );
+        } );
       }
 
       // register sink for later deconstruction
@@ -299,7 +262,7 @@ namespace Pol {
 		  if (global_logger == nullptr)
 			printf( "%s",_formater->c_str() );
 		  else
-			global_logger->save<Sink>( std::move( _formater ), _id );
+			global_logger->save<Sink>( _formater.release(), _id );
 		}
       }
 
@@ -566,12 +529,12 @@ namespace Pol {
 #define SINK_TEMPLATE_DEFINES(sink) \
   template class Pol::Clib::Logging::Message<Pol::Clib::Logging::sink>; \
   template Pol::Clib::Logging::sink* Pol::Clib::Logging::getSink<Pol::Clib::Logging::sink>( ); \
-  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::sink>( std::unique_ptr<fmt::Writer>&& message, std::string id );
+  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::sink>( fmt::Writer* message, std::string id );
 
 #define SINK_TEMPLATE_DEFINES_DUAL(sink1, sink2) \
   template class Pol::Clib::Logging::Message<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>; \
   template Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>* Pol::Clib::Logging::getSink<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>( ); \
-  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>( std::unique_ptr<fmt::Writer>&& message, std::string id );
+  template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>( fmt::Writer* message, std::string id );
 
 
 SINK_TEMPLATE_DEFINES( LogSink_cout )
