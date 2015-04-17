@@ -1,7 +1,11 @@
 
+#include "packetdefs.h"
+
 #include "../../clib/logfacility.h"
 
-#include "packetdefs.h"
+#include "../globals/settings.h"
+#include "../uobject.h"
+#include "../pktdef.h"
 
 namespace Pol {
   namespace Network {
@@ -119,7 +123,6 @@ namespace Pol {
       _p_old(),
       _p()
     {
-      
     }
 
     void SendWorldMulti::build1A( )
@@ -231,7 +234,7 @@ namespace Pol {
     }
 
     MobileAnimationMsg::MobileAnimationMsg( u32 serial_ext )
-      :PktSender(),
+      : PktSender(),
       _serial_ext( serial_ext ),
       _anim( 0 ),
       _action( 0 ),
@@ -332,7 +335,8 @@ namespace Pol {
 
 
 	PlaySoundPkt::PlaySoundPkt(u8 type, u16 effect, u16 xcenter, u16 ycenter, s16 zcenter)
-	  : _type(type),
+	  : PktSender(),
+      _type(type),
 	  _effect(effect),
 	  _xcenter(xcenter),
 	  _ycenter(ycenter),
@@ -384,6 +388,402 @@ namespace Pol {
 	  _p->offset = 1;
       _p->Write<u32>( _serial );
 	}
+
+    SendDamagePkt::SendDamagePkt(u32 serial_ext, u16 damage)
+      : PktSender(),
+      _serial(serial_ext),
+      _damage(damage),
+      _p_old(),
+      _p()
+    {
+    }
+    void SendDamagePkt::Send( Client* client )
+	{
+	  if ( client->ClientType & CLIENTTYPE_4070 )
+      {
+        if ( _p->offset == 1 )
+          build();
+        _p.Send( client, _p->SIZE );
+      }
+      else
+      {
+        if ( _p_old->offset == 1 )
+          buildold();
+        _p_old.Send( client );
+      }
+	}
+
+    void SendDamagePkt::build()
+    {
+      _p->offset = 1;
+      _p->Write<u32>( _serial );
+	  _p->WriteFlipped<u16>( _damage );
+    }
+    void SendDamagePkt::buildold()
+    {
+      _p_old->offset = 1;
+	  _p_old->WriteFlipped<u16>( 11u );
+	  _p_old->offset += 2; //sub
+	  _p_old->Write<u8>( 1u );
+	  _p_old->Write<u32>( _serial );
+	  if ( _damage > 0xFF )
+		_p_old->Write<u8>( 0xFFu );
+	  else
+		_p_old->Write<u8>( _damage );
+    }
+
+
+    ObjRevisionPkt::ObjRevisionPkt(u32 serial_ext, u32 rev) :
+      PktSender(),
+      _serial_ext(serial_ext),
+      _rev(rev),
+      _p_old(),
+      _p()
+    {}
+
+    void ObjRevisionPkt::Send( Client* client )
+	{
+      if (client->UOExpansionFlag & AOS)
+      {
+        if ( Core::settingsManager.ssopt.uo_feature_enable & Core::PKTOUT_A9::FLAG_AOS_FEATURES )
+	    {
+          if ( ( Core::settingsManager.ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
+          {
+            if ( _p->offset == 1 )
+              build();
+            _p.Send( client, _p->SIZE );
+          }
+          else
+          {
+            if ( _p_old->offset == 1 )
+              buildold();
+            _p_old.Send( client );
+          }
+        }
+      }
+	}
+
+    void ObjRevisionPkt::build()
+    {
+      _p->offset = 1;
+      _p->Write<u32>( _serial_ext );
+	  _p->WriteFlipped<u32>(_rev );
+    }
+    void ObjRevisionPkt::buildold()
+    {
+      _p_old->offset = 1;
+	  _p_old->WriteFlipped<u16>( 0xDu );
+	  _p_old->offset += 2; //sub
+	  _p_old->Write<u32>( _serial_ext);
+	  _p_old->WriteFlipped<u32>( _rev );
+    }
+
+    GraphicEffectPkt::GraphicEffectPkt() :
+      PktSender(),
+      _effect_type(0),
+      _src_serial_ext(0), _dst_serial_ext(0),
+      _effect(0),
+      _xs(0), _ys(0), _zs(0),
+      _xd(0), _yd(0), _zd(0),
+      _speed(0),
+      _loop(0),
+      _explode(0),
+      _unk26(0),
+      _p()
+    {
+    }
+    GraphicEffectPkt::GraphicEffectPkt(u8 effect_type, u32 src_serial_ext, u32 dst_serial_ext,
+        u16 effect, u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd,
+        u8 speed, u8 loop, u8 explode, u8 unk26) :
+      PktSender(),
+      _effect_type(effect_type),
+      _src_serial_ext(src_serial_ext), _dst_serial_ext(dst_serial_ext),
+      _effect(effect),
+      _xs(xs), _ys(ys), _zs(zs),
+      _xd(xd), _yd(yd), _zd(zd),
+      _speed(speed),
+      _loop(loop),
+      _explode(explode),
+      _unk26(unk26),
+      _p()
+    {
+    }
+
+    void GraphicEffectPkt::movingEffect(const Core::UObject* src, const Core::UObject* dst,
+                             u16 effect, u8 speed, u8 loop, u8 explode)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_MOVING;
+      _src_serial_ext = src->serial_ext;
+      _dst_serial_ext = dst->serial_ext;
+      _effect = effect;
+      _xs = src->x; _ys = src->y; _zs = src->z + src->height;
+      _xd = dst->x; _yd = dst->y; _zd = dst->z + dst->height;
+      _speed = speed;
+      _loop = loop;
+      _explode = explode;
+      _unk26 = 0;
+    }
+    void GraphicEffectPkt::movingEffect(u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd,
+                            u16 effect, u8 speed, u8 loop, u8 explode)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_MOVING;
+      _src_serial_ext = 0; _dst_serial_ext = 0;
+      _effect = effect;
+      _xs = xs; _ys = ys; _zs = zs;
+      _xd = xd; _yd = yd; _zd = zd;
+      _speed = speed;
+      _loop = loop;
+      _explode = explode;
+      _unk26 = 0;
+    }
+    void GraphicEffectPkt::lightningBold(const Core::UObject* center)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_LIGHTNING;
+      _src_serial_ext = center->serial_ext;
+      _dst_serial_ext = 0;
+      _effect = 0;
+      _xs = center->x; _ys = center->y; _zs = center->z;
+      _xd = 0; _yd = 0; _zd = 0;
+      _speed = 0;
+      _loop = 0;
+      _explode = 0;
+      _unk26 = 0;
+    }
+
+    void GraphicEffectPkt::followEffect(const Core::UObject* center, u16 effect, u8 speed, u8 loop)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_FIXEDFROM;
+      _src_serial_ext = center->serial_ext;
+      _dst_serial_ext = 0;
+      _effect = effect;
+      _xs = center->x; _ys = center->y; _zs = center->z;
+      _xd = 0; _yd = 0; _zd = 0;
+      _speed = speed;
+      _loop = loop;
+      _explode = 0;
+      _unk26 = 0;
+    }
+
+    void GraphicEffectPkt::stationaryEffect(u16 xs, u16 ys, s8 zs, u16 effect, u8 speed, u8 loop, u8 explode)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_FIXEDXYZ;
+      _src_serial_ext = 0; _dst_serial_ext = 0;
+      _effect = effect;
+      _xs = xs; _ys = ys; _zs = zs;
+      _xd = 0; _yd = 0; _zd = 0;
+      _speed = speed;
+      _loop = loop;
+      _explode = explode;
+      _unk26 = 1; // this is right for teleport, anyway
+    }
+
+    void GraphicEffectPkt::build()
+    {
+      _p->offset = 1;
+      _p->Write<u8>( _effect_type );
+      _p->Write<u32>( _src_serial_ext );
+	  _p->Write<u32>( _dst_serial_ext );
+	  _p->WriteFlipped<u16>( _effect );
+	  _p->WriteFlipped<u16>( _xs );
+	  _p->WriteFlipped<u16>( _ys );
+	  _p->Write<s8>( _zs );
+	  _p->WriteFlipped<u16>( _xd );
+	  _p->WriteFlipped<u16>( _yd );
+	  _p->Write<s8>( _zd );
+	  _p->Write<u8>( _speed );
+	  _p->Write<u8>( _loop );
+	  _p->offset += 2; //unk24,unk25
+      _p->Write<u8>( _unk26 );
+	  _p->Write<u8>( _explode );
+    }
+
+    void GraphicEffectPkt::Send( Client* client )
+	{
+      if ( _p->offset == 1 )
+        build();
+      _p.Send( client, _p->SIZE );
+	}
+
+
+    GraphicEffectExPkt::GraphicEffectExPkt() :
+      PktSender(),
+      _effect_type(0),
+      _src_serial_ext(0), _dst_serial_ext(0),
+      _effect(0),
+      _xs(0), _ys(0), _zs(0),
+      _xd(0), _yd(0), _zd(0),
+      _speed(0),
+      _duration(0),
+      _direction(0),
+      _explode(0),
+      _hue(0),
+      _render(0),
+      _effect3d(0),
+      _effect3dexplode(0),
+      _effect3dsound(0),
+      _itemid(0),
+      _layer(0),
+      _p()
+    {
+    }
+    GraphicEffectExPkt::GraphicEffectExPkt(u8 effect_type, u32 src_serial_ext, u32 dst_serial_ext,
+        u16 srcx, u16 srcy, s8 srcz,
+		u16 dstx, u16 dsty, s8 dstz,
+		u16 effect, u8 speed, u8 duration, u8 direction,
+		u8 explode, u32 hue, u32 render,
+		u16 effect3d, u16 effect3dexplode, u16 effect3dsound,
+		u32 itemid, u8 layer) :
+      PktSender(),
+      _effect_type(effect_type),
+      _src_serial_ext(src_serial_ext),
+      _dst_serial_ext(dst_serial_ext),
+      _effect(effect),
+      _xs(srcx), _ys(srcy), _zs(srcz),
+      _xd(dstx), _yd(dsty), _zd(dstz),
+      _speed(speed),
+      _duration(duration),
+      _direction(direction),
+      _explode(explode),
+      _hue(hue),
+      _render(render),
+      _effect3d(effect3d),
+      _effect3dexplode(effect3dexplode),
+      _effect3dsound(effect3dsound),
+      _itemid(itemid),
+      _layer(layer),
+      _p()
+    {
+    }
+
+    void GraphicEffectExPkt::movingEffect(const Core::UObject *src, const Core::UObject *dst,
+						u16 effect, u8 speed, u8 duration, u32 hue,
+						u32 render, u8 direction, u8 explode,
+						u16 effect3d, u16 effect3dexplode, u16 effect3dsound)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_MOVING;
+      _src_serial_ext = src->serial_ext;
+      _dst_serial_ext = dst->serial_ext;
+      _effect = effect;
+      _xs = src->x; _ys = src->y; _zs = src->z + src->height;
+      _xd = dst->x; _yd = dst->y; _zd = dst->z + dst->height;
+      _speed = speed;
+      _duration = duration;
+      _direction = direction;
+      _explode = explode;
+      _hue = hue;
+      _render = render;
+      _effect3d = effect3d;
+      _effect3dexplode = effect3dexplode;
+      _effect3dsound = effect3dsound;
+      _itemid = 0;
+      _layer = 0xFF;
+    }
+    void GraphicEffectExPkt::movingEffect(u16 xs, u16 ys, s8 zs,
+                        u16 xd, u16 yd, s8 zd,
+						u16 effect, u8 speed, u8 duration, u32 hue,
+						u32 render, u8 direction, u8 explode,
+						u16 effect3d, u16 effect3dexplode, u16 effect3dsound)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_MOVING;
+      _src_serial_ext = 0; _dst_serial_ext = 0;
+      _effect = effect;
+      _xs = xs; _ys = ys; _zs = zs;
+      _xd = xd; _yd = yd; _zd = zd;
+      _speed = speed;
+      _duration = duration;
+      _direction = direction;
+      _explode = explode;
+      _hue = hue;
+      _render = render;
+      _effect3d = effect3d;
+      _effect3dexplode = effect3dexplode;
+      _effect3dsound = effect3dsound;
+      _itemid = 0;
+      _layer = 0xFF;
+    }
+
+    void GraphicEffectExPkt::followEffect(const Core::UObject* center,
+      u16 effect, u8 speed, u8 duration, u32 hue,
+	  u32 render, u8 layer, u16 effect3d)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_FIXEDFROM;
+      _src_serial_ext = center->serial_ext;
+      _dst_serial_ext = center->serial_ext;
+      _effect = effect;
+      _xs = center->x; _ys = center->y; _zs = center->z;
+      _xd = center->x; _yd = center->y; _zd = center->z;
+      _speed = speed;
+      _duration = duration;
+      _direction = 1;
+      _explode = 0;
+      _hue = hue;
+      _render = render;
+      _effect3d = effect3d;
+      _effect3dexplode = 1;
+      _effect3dsound = 0;
+      _itemid = center->serial_ext;
+      _layer = layer;
+    }
+
+    void GraphicEffectExPkt::stationaryEffect(u16 x, u16 y, s8 z, u16 effect,
+      u8 speed, u8 duration, u32 hue,
+	  u32 render, u16 effect3d)
+    {
+      _effect_type = Core::PKTOUT_C0::EFFECT_FIXEDXYZ;
+      _src_serial_ext = 0; _dst_serial_ext = 0;
+      _effect = effect;
+      _xs = x; _ys = y; _zs = z;
+      _xd = x; _yd = y; _zd = z;
+      _speed = speed;
+      _duration = duration;
+      _direction = 1;
+      _explode = 0;
+      _hue = hue;
+      _render = render;
+      _effect3d = effect3d;
+      _effect3dexplode = 1;
+      _effect3dsound = 0;
+      _itemid = 0;
+      _layer = 0xFF;
+    }
+
+    void GraphicEffectExPkt::build()
+    {
+      //C0 part
+      _p->offset = 1;
+      _p->Write<u8>( _effect_type );
+      _p->Write<u32>( _src_serial_ext );
+	  _p->Write<u32>( _dst_serial_ext );
+	  _p->WriteFlipped<u16>( _effect );
+	  _p->WriteFlipped<u16>( _xs );
+	  _p->WriteFlipped<u16>( _ys );
+	  _p->Write<s8>( _zs );
+	  _p->WriteFlipped<u16>( _xd );
+	  _p->WriteFlipped<u16>( _yd );
+	  _p->Write<s8>( _zd );
+	  _p->Write<u8>( _speed );
+	  _p->Write<u8>( _duration );
+	  _p->offset += 2; // u16 unk
+      _p->Write<u8>( _direction );
+	  _p->Write<u8>( _explode );
+      _p->WriteFlipped<u32>( _hue );
+      _p->WriteFlipped<u32>( _render );
+	  // C7 part
+	  _p->WriteFlipped<u16>( _effect3d );   //see particleffect subdir
+	  _p->WriteFlipped<u16>( _effect3dexplode ); //0 if no explosion
+	  _p->WriteFlipped<u16>( _effect3dsound ); //for moving effects, 0 otherwise
+	  _p->Write<u32>( _itemid ); //if target is item (type 2), 0 otherwise 
+	  _p->Write<u8>( _layer ); //(of the character, e.g left hand, right hand,  0-5,7, 0xff: moving effect or target is no char) 
+	  _p->offset += 2; // u16 unk_effect
+    }
+
+    void GraphicEffectExPkt::Send( Client* client )
+	{
+      if ( _p->offset == 1 )
+        build();
+      _p.Send( client, _p->SIZE );
+	}
+    
 
   }
 }

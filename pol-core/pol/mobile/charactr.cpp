@@ -1668,7 +1668,7 @@ namespace Pol {
 		  msg->WriteFlipped<u16>( 1u ); //unk
 		  msg->WriteFlipped<u16>( 1u ); // 1 = Green, 2 = Yellow, 3 = Red
 		  msg->Write<u8>( 0u ); //flag
-		  transmit_to_inrange( this, &msg->buffer, msg->offset, false, true );
+		  transmit_to_inrange( this, &msg->buffer, msg->offset, true );
 		}
 	  }
 	}

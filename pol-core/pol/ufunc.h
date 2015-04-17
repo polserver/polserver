@@ -176,13 +176,6 @@ namespace Pol {
 								 u16 xd, u16 yd, s8 zd, Plib::Realm* realm,
 								 u16 effect, u8 speed, u8 duration, u32 hue,
 								 u32 render, u8 direction, u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
-	void partical_effect( Network::PktOut_C7* msg, u8 type, u32 srcserial, u32 dstserial,
-						  u16 srcx, u16 srcy, s8 srcz,
-						  u16 dstx, u16 dsty, s8 dstz,
-						  u16 effect, u8 speed, u8 duration, u8 direction,
-						  u8 explode, u32 hue, u32 render,
-						  u16 effect3d, u16 effect3dexplode, u16 effect3dsound,
-						  u32 itemid, u8 layer );
 
 
 	// find_legal_item: search worn items, including backpack recursively, and
@@ -239,8 +232,8 @@ namespace Pol {
 
 	void send_char_data( Network::Client *client, Mobile::Character *chr );
 
-	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR );
-	void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR );
+	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_UOKR );
+	void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen );
 
 	void destroy_item( Items::Item* item );
 	void world_delete( UObject* uobj );
@@ -282,8 +275,6 @@ namespace Pol {
 	void send_new_subserver( Network::Client* client );
 	void send_fight_occuring( Network::Client* client, Mobile::Character* opponent );
 	void send_damage( Mobile::Character* attacker, Mobile::Character* defender, u16 damage );
-	void send_damage_old( Network::Client* client, Mobile::Character* defender, u16 damage );
-	void send_damage_new( Network::Client* client, Mobile::Character* defender, u16 damage );
 	void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const char *title, const u16 *utext, const u16 *etext );
   }
 }

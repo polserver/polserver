@@ -65,22 +65,8 @@ namespace Pol {
 	{
 	  if ( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
 	  {
-        if ( ( settingsManager.ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
-		{
-          PacketOut<Network::PktOut_DC> msgdc;
-		  msgdc->Write<u32>( obj->serial_ext );
-		  msgdc->WriteFlipped<u32>( obj->rev() );
-		  msgdc.Send( client );
-		}
-		else
-		{
-          PacketOut<Network::PktOut_BF_Sub10> msgbf10;
-		  msgbf10->WriteFlipped<u16>( 0xDu );
-		  msgbf10->offset += 2; //sub
-		  msgbf10->Write<u32>( obj->serial_ext );
-		  msgbf10->WriteFlipped<u32>( obj->rev() );
-		  msgbf10.Send( client );
-		}
+        auto pkt_rev = Network::ObjRevisionPkt(obj->serial_ext, obj->rev());
+        pkt_rev.Send(client);
 	  }
 	}
 
@@ -88,40 +74,12 @@ namespace Pol {
 	{
 	  if ( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
 	  {
-		// Since this is an InRange function, at least 1 person. So it isn't too far
-		// fetched to build for AOS and UOKR both, since both could be used. At least
-		// one will always be used, and this really makes a different in large groups.
-        PacketOut<Network::PktOut_DC> msgdc;
-        PacketOut<Network::PktOut_BF_Sub10> msgbf10;
+        auto pkt_rev = Network::ObjRevisionPkt(obj->serial_ext, obj->rev());
 
         WorldIterator<OnlinePlayerFilter>::InVisualRange( obj->toplevel_owner(), [&]( Mobile::Character *chr )
         {
-          Network::Client *client = chr->client;
+          pkt_rev.Send(chr->client);
           // FIXME need to check character's additional_legal_items.
-          if ( client->UOExpansionFlag & Network::AOS )
-          {
-            //send_object_cache(client2, obj);
-            if ( ( settingsManager.ssopt.force_new_objcache_packets ) || ( client->ClientType & Network::CLIENTTYPE_5000 ) )
-            {
-              if ( msgdc->offset == 1 )
-              {
-                msgdc->Write<u32>( obj->serial_ext );
-                msgdc->WriteFlipped<u32>( obj->rev() );
-              }
-              msgdc.Send( client );
-            }
-            else
-            {
-              if ( msgbf10->offset == 1 )
-              {
-                msgbf10->WriteFlipped<u16>( 0xDu );
-                msgbf10->offset += 2; //sub
-                msgbf10->Write<u32>( obj->serial_ext );
-                msgbf10->WriteFlipped<u32>( obj->rev() );
-              }
-              msgbf10.Send( client );
-            }
-          }
         } );
 	  }
 	}

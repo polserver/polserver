@@ -620,7 +620,6 @@ namespace Pol {
 
         void send_put_in_container(Client* client, const Item* item)
         {
-
             auto msg = Network::AddItemContainerMsg(item->serial_ext, item->graphic, item->get_senditem_amount(),
                 item->x, item->y, item->slot_index(), item->container->serial_ext, item->color);
             msg.Send(client);
@@ -634,6 +633,8 @@ namespace Pol {
             auto msg = Network::AddItemContainerMsg(item->serial_ext, item->graphic, item->get_senditem_amount(),
                 item->x, item->y, item->slot_index(), item->container->serial_ext, item->color);
 
+            auto pkt_rev = Network::ObjRevisionPkt(item->serial_ext, item->rev());
+
             // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
             for (auto &client2 : networkManager.clients)
             {
@@ -645,10 +646,7 @@ namespace Pol {
                 {
                     // FIXME if the container has an owner, and I'm not it, don't tell me?
                     msg.Send(client2);
-                    if (client2->UOExpansionFlag & AOS)
-                    {
-                        send_object_cache(client2, dynamic_cast<const UObject*>(item));
-                    }
+                    pkt_rev.Send(client2);
                 }
             }
         }
@@ -794,17 +792,33 @@ namespace Pol {
 	}
 
 	/* Tell all clients new information about an item */
-	// FIXME OPTIMIZE: OMG, EVERY TIME IT CALLS SEND_ITEM!
 	void send_item_to_inrange( const Item *item )
 	{
-	  // FIXME could use transmit_to_inrange, almost.
-	  // (Character-specific flags, like can_move(), make it so we can't)
-	  // However, could build main part of packet before for/loop, then
-	  // adjust per client. Would this be a better solution?
-
+      auto pkt = SendWorldItem ( item->serial, item->graphic, item->get_senditem_amount(), item->x, item->y, item->z, item->facing, item->color, 0 );
+      auto pkt_remove = RemoveObjectPkt (item->serial_ext);
+      auto pkt_rev = ObjRevisionPkt (item->serial_ext, item->rev());
+            
       WorldIterator<OnlinePlayerFilter>::InVisualRange( item, [&]( Character *zonechr )
       {
-        send_item( zonechr->client, item );
+        if ( item->invisible() && !zonechr->client->chr->can_seeinvisitems() )
+	    {
+          pkt_remove.Send(zonechr->client);
+		  return;
+	    }
+
+	    u8 flags = 0;
+	    if ( zonechr->client->chr->can_move( item ) )
+		  flags |= ITEM_FLAG_FORCE_MOVABLE;
+        pkt.updateFlags(flags);
+        pkt.Send(zonechr->client);
+
+	    // if the item is a corpse, transmit items contained by it
+	    if ( item->objtype_ == UOBJ_CORPSE )
+	    {
+		  send_corpse( zonechr->client, item );
+	    }
+
+        pkt_rev.Send(zonechr->client);
       } );
 	}
 
@@ -922,7 +936,7 @@ namespace Pol {
 	  msg->Write<u8>( item->layer );
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->WriteFlipped<u16>( item->color );
-	  transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
+	  transmit_to_inrange( item, &msg->buffer, msg->offset, false );
 	  send_object_cache_to_inrange( dynamic_cast<const UObject*>( item ) );
 	}
 
@@ -941,7 +955,7 @@ namespace Pol {
 		msg->Write<u8>( item->layer );
 		msg->Write<u32>( chr->serial_ext );
 		msg->WriteFlipped<u16>( item->color );
-		transmit_to_inrange( item, &msg->buffer, msg->offset, false, false );
+		transmit_to_inrange( item, &msg->buffer, msg->offset, false );
 
 		send_object_cache_to_inrange( dynamic_cast<const UObject*>( item ) );
 	  }
@@ -1125,21 +1139,8 @@ namespace Pol {
 							 u8 loop,
 							 u8 explode )
 	{
-	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( EFFECT_TYPE_MOVING );
-	  msg->Write<u32>( src->serial_ext );
-	  msg->Write<u32>( dst->serial_ext );
-	  msg->WriteFlipped<u16>( effect );
-	  msg->WriteFlipped<u16>( src->x );
-	  msg->WriteFlipped<u16>( src->y );
-	  msg->Write<s8>( src->z + src->height );
-	  msg->WriteFlipped<u16>( dst->x );
-	  msg->WriteFlipped<u16>( dst->y );
-	  msg->Write<s8>( dst->z + dst->height );
-	  msg->Write<u8>( speed );
-	  msg->Write<u8>( loop );
-	  msg->offset += 3; //unk24,unk25,unk26
-	  msg->Write<u8>( explode );
+      Network::GraphicEffectPkt msg;
+      msg.movingEffect(src, dst, effect, speed, loop, explode);
 
       WorldIterator<OnlinePlayerFilter>::InVisualRange( src->toplevel_owner(), [&]( Character *zonechr )
       {
@@ -1160,20 +1161,8 @@ namespace Pol {
 							  u8 explode,
 							  Plib::Realm* realm )
 	{
-	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( EFFECT_TYPE_MOVING );
-	  msg->offset += 8; // src+dst serial
-	  msg->WriteFlipped<u16>( effect );
-	  msg->WriteFlipped<u16>( xs );
-	  msg->WriteFlipped<u16>( ys );
-	  msg->Write<s8>( zs );
-	  msg->WriteFlipped<u16>( xd );
-	  msg->WriteFlipped<u16>( yd );
-	  msg->Write<s8>( zd );
-	  msg->Write<u8>( speed );
-	  msg->Write<u8>( loop );
-	  msg->offset += 3; //unk24,unk25,unk26
-	  msg->Write<u8>( explode );
+      Network::GraphicEffectPkt msg;
+      msg.movingEffect(xs, ys, zs, xd, yd, zd, effect, speed, loop, explode);
 
       WorldIterator<OnlinePlayerFilter>::InRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
@@ -1189,15 +1178,12 @@ namespace Pol {
 
 	void play_lightning_bolt_effect( const UObject* center )
 	{
-	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( EFFECT_TYPE_LIGHTNING_BOLT );
-	  msg->Write<u32>( center->serial_ext );
-	  msg->offset += 6; // dst serial + effect
-	  msg->WriteFlipped<u16>( center->x );
-	  msg->WriteFlipped<u16>( center->y );
-	  msg->Write<s8>( center->z );
-	  msg->offset += 11;
-	  transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
+      Network::GraphicEffectPkt msg;
+      msg.lightningBold(center);
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( center->toplevel_owner(), [&]( Character *zonechr )
+      {
+        msg.Send( zonechr->client );
+      } );
 	}
 
 	void play_object_centered_effect( const UObject* center,
@@ -1205,37 +1191,18 @@ namespace Pol {
 									  u8 speed,
 									  u8 loop )
 	{
-	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( EFFECT_TYPE_FOLLOW_OBJ );
-	  msg->Write<u32>( center->serial_ext );
-	  msg->offset += 4; // dst serial
-	  msg->WriteFlipped<u16>( effect );
-	  msg->WriteFlipped<u16>( center->x );
-	  msg->WriteFlipped<u16>( center->y );
-	  msg->Write<s8>( center->z );
-	  msg->offset += 5; //dst x,y,z
-	  msg->Write<u8>( speed );
-	  msg->Write<u8>( loop );
-	  msg->offset += 4; //unk24,unk25,unk26,explode
-	  transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
+      Network::GraphicEffectPkt msg;
+      msg.followEffect(center,effect, speed, loop);
+	  WorldIterator<OnlinePlayerFilter>::InVisualRange( center->toplevel_owner(), [&]( Character *zonechr )
+      {
+        msg.Send( zonechr->client );
+      } );
 	}
 
     void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Plib::Realm* realm )
 	{
-	  PktHelper::PacketOut<PktOut_70> msg;
-	  msg->Write<u8>( EFFECT_TYPE_STATIONARY_XYZ );
-	  msg->offset += 8; // src,dst serial
-	  msg->WriteFlipped<u16>( effect );
-	  msg->WriteFlipped<u16>( x );
-	  msg->WriteFlipped<u16>( y );
-	  msg->Write<s8>( z );
-	  msg->offset += 5; //dst x,y,z
-	  msg->Write<u8>( speed );
-	  msg->Write<u8>( loop );
-	  msg->offset += 2; //unk24,unk25
-	  msg->Write<u8>( 1u ); // this is right for teleport, anyway
-	  msg->Write<u8>( explode );
-
+      Network::GraphicEffectPkt msg;
+      msg.stationaryEffect(x, y, z, effect, speed, loop, explode);
       WorldIterator<OnlinePlayerFilter>::InRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
         msg.Send( zonechr->client );
@@ -1245,13 +1212,8 @@ namespace Pol {
     void play_stationary_effect_ex( u16 x, u16 y, s8 z, Plib::Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue,
 									u32 render, u16 effect3d )
 	{
-	  PktHelper::PacketOut<PktOut_C7> msg;
-	  partical_effect( msg.Get(), PKTOUT_C0::EFFECT_FIXEDXYZ,
-					   0, 0, x, y, z, x, y, z,
-					   effect, speed, duration, 1, 0,
-					   hue, render, effect3d, 1, 0,
-					   0, 0xFF );
-
+      Network::GraphicEffectExPkt msg;
+      msg.stationaryEffect(x, y, z, effect, speed, duration, hue, render, effect3d);
       WorldIterator<OnlinePlayerFilter>::InRange( x, y, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
         msg.Send( zonechr->client );
@@ -1261,16 +1223,12 @@ namespace Pol {
 	void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration, u32 hue,
 										 u32 render, u8 layer, u16 effect3d )
 	{
-	  PktHelper::PacketOut<PktOut_C7> msg;
-	  partical_effect( msg.Get(), PKTOUT_C0::EFFECT_FIXEDFROM,
-					   center->serial_ext, center->serial_ext,
-					   center->x, center->y, center->z,
-					   center->x, center->y, center->z,
-					   effect, speed, duration, 1, 0,
-					   hue, render, effect3d, 1, 0,
-					   center->serial_ext, layer );
-
-	  transmit_to_inrange( center, &msg->buffer, msg->offset, false, false );
+      Network::GraphicEffectExPkt msg;
+      msg.followEffect(center, effect, speed, duration, hue, render, layer, effect3d);
+      WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
+      {
+        msg.Send( zonechr->client );
+      } );
 	}
 
 	void play_moving_effect_ex( const UObject *src, const UObject *dst,
@@ -1278,14 +1236,8 @@ namespace Pol {
 								u32 render, u8 direction, u8 explode,
 								u16 effect3d, u16 effect3dexplode, u16 effect3dsound )
 	{
-	  PktHelper::PacketOut<PktOut_C7> msg;
-	  partical_effect( msg.Get(), PKTOUT_C0::EFFECT_MOVING,
-					   src->serial_ext, dst->serial_ext,
-					   src->x, src->y, src->z + src->height,
-					   dst->x, dst->y, dst->z + dst->height,
-					   effect, speed, duration, direction, explode, hue, render,
-					   effect3d, effect3dexplode, effect3dsound,
-					   0, 0xFF );
+      Network::GraphicEffectExPkt msg;
+      msg.movingEffect(src, dst, effect, speed, duration, hue, render, direction, explode, effect3d, effect3dexplode, effect3dsound);
 
       WorldIterator<OnlinePlayerFilter>::InVisualRange( src, [&]( Character *zonechr )
       {
@@ -1304,12 +1256,8 @@ namespace Pol {
 								 u32 render, u8 direction, u8 explode,
 								 u16 effect3d, u16 effect3dexplode, u16 effect3dsound )
 	{
-	  PktHelper::PacketOut<PktOut_C7> msg;
-	  partical_effect( msg.Get(), PKTOUT_C0::EFFECT_MOVING,
-					   0, 0, xs, ys, zs, xd, yd, zd,
-					   effect, speed, duration, direction, explode, hue, render,
-					   effect3d, effect3dexplode, effect3dsound,
-					   0, 0xFF );
+      Network::GraphicEffectExPkt msg;
+      msg.movingEffect(xs, ys, zs, xd, yd, zd, effect, speed, duration, hue, render, direction, explode, effect3d, effect3dexplode, effect3dsound);
 
       WorldIterator<OnlinePlayerFilter>::InRange( xs, ys, realm, RANGE_VISUAL, [&]( Character *zonechr )
       {
@@ -1320,42 +1268,6 @@ namespace Pol {
         if ( !inrange(zonechr, xs, ys ) ) // send to chrs only in range of dst
           msg.Send( zonechr->client );
       } );
-	}
-
-	// Central function to build 0xC7 packet
-	void partical_effect( PktOut_C7* msg, u8 type, u32 srcserial, u32 dstserial,
-						  u16 srcx, u16 srcy, s8 srcz,
-						  u16 dstx, u16 dsty, s8 dstz,
-						  u16 effect, u8 speed, u8 duration, u8 direction,
-						  u8 explode, u32 hue, u32 render,
-						  u16 effect3d, u16 effect3dexplode, u16 effect3dsound,
-						  u32 itemid, u8 layer )
-	{
-	  //C0 part
-	  msg->Write<u8>( type );
-	  msg->Write<u32>( srcserial );
-	  msg->Write<u32>( dstserial );
-	  msg->WriteFlipped<u16>( effect );
-	  msg->WriteFlipped<u16>( srcx );
-	  msg->WriteFlipped<u16>( srcy );
-	  msg->Write<s8>( srcz );
-	  msg->WriteFlipped<u16>( dstx );
-	  msg->WriteFlipped<u16>( dsty );
-	  msg->Write<s8>( dstz );
-	  msg->Write<u8>( speed );
-	  msg->Write<u8>( duration );
-	  msg->offset += 2; // u16 unk
-	  msg->Write<u8>( direction );
-	  msg->Write<u8>( explode );
-	  msg->WriteFlipped<u32>( hue );
-	  msg->WriteFlipped<u32>( render );
-	  // C7 part
-	  msg->WriteFlipped<u16>( effect3d );   //see particleffect subdir
-	  msg->WriteFlipped<u16>( effect3dexplode ); //0 if no explosion
-	  msg->WriteFlipped<u16>( effect3dsound ); //for moving effects, 0 otherwise
-	  msg->Write<u32>( itemid ); //if target is item (type 2), 0 otherwise 
-	  msg->Write<u8>( layer ); //(of the character, e.g left hand, right hand, � 0-5,7, 0xff: moving effect or target is no char) 
-	  msg->offset += 2; // u16 unk_effect
 	}
 
 	// System message -- message in lower left corner
@@ -1499,7 +1411,7 @@ namespace Pol {
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 	  // todo: only send to those that I'm visible to.
-	  transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	  transmit_to_inrange( obj, &msg->buffer, len, false );
 	  return true;
 	}
 
@@ -1540,7 +1452,7 @@ namespace Pol {
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 	  // todo: only send to those that I'm visible to.
-	  transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	  transmit_to_inrange( obj, &msg->buffer, len, false );
 	  return true;
 	}
 
@@ -1739,28 +1651,22 @@ namespace Pol {
       } );
 	}
 
-	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR )
+	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_UOKR )
 	{
       WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
       {
         Client* client = zonechr->client;
-        if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
-          return;
         if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
           return;
         Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 	}
 
-	void transmit_to_others_inrange( Character* center, const void* msg, unsigned msglen, bool is_6017, bool is_UOKR )
+	void transmit_to_others_inrange( Character* center, const void* msg, unsigned msglen)
 	{
       WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
       {
         Client* client = zonechr->client;
-        if ( is_6017 && ( !( client->ClientType & CLIENTTYPE_6017 ) ) )
-          return;
-        if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
-          return;
         if ( zonechr == center )
           return;
         Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
@@ -2368,42 +2274,11 @@ namespace Pol {
 
 	void send_damage( Character* attacker, Character* defender, u16 damage )
 	{
+      SendDamagePkt pkt(defender->serial_ext, damage);
 	  if ( attacker->client != NULL )
-	  {
-		if ( attacker->client->ClientType & CLIENTTYPE_4070 )
-		  send_damage_new( attacker->client, defender, damage );
-		else
-		  send_damage_old( attacker->client, defender, damage );
-	  }
+        pkt.Send(attacker->client);
 	  if ( ( defender->client != NULL ) && ( attacker != defender ) )
-	  {
-		if ( defender->client->ClientType & CLIENTTYPE_4070 )
-		  send_damage_new( defender->client, defender, damage );
-		else
-		  send_damage_old( defender->client, defender, damage );
-	  }
-	}
-
-	void send_damage_new( Client* client, Character* defender, u16 damage )
-	{
-	  PktHelper::PacketOut<PktOut_0B> msg;
-	  msg->Write<u32>( defender->serial_ext );
-	  msg->WriteFlipped<u16>( damage );
-	  msg.Send( client );
-	}
-
-	void send_damage_old( Client* client, Character* defender, u16 damage )
-	{
-	  PktHelper::PacketOut<PktOut_BF_Sub22> msg;
-	  msg->WriteFlipped<u16>( 11u );
-	  msg->offset += 2; //sub
-	  msg->Write<u8>( 1u );
-	  msg->Write<u32>( defender->serial_ext );
-	  if ( damage > 0xFF )
-		msg->Write<u8>( 0xFFu );
-	  else
-		msg->Write<u8>( damage );
-	  msg.Send( client );
+        pkt.Send(defender->client);
 	}
 
 	void sendCharProfile( Character* chr, Character* of_who, const char *title, const u16 *utext, const u16 *etext )
