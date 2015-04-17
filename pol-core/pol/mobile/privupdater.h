@@ -38,7 +38,7 @@ namespace Pol {
 			static void disable_see_invis_items(Items::Item* in_range_item, Character* chr);
 
 			static void enable_invul(Character* in_range_chr, Character* chr);
-			static void disable_invul(Character* in_range_chr, Character* chr);
+			static void disable_invul(Character* in_range_chr, Character* chr, Network::HealthBarStatusUpdate& msg);
 		};
 
 		void PrivUpdater::on_change_see_hidden(Character* chr, bool enable)
@@ -93,7 +93,8 @@ namespace Pol {
 			}
 			else
 			{
-				Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(chr, [&](Character* zonechr) { disable_invul(zonechr, chr); });
+                Network::HealthBarStatusUpdate msg(chr->serial_ext, Network::HealthBarStatusUpdate::Color::YELLOW, false);
+				Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(chr, [&](Character* zonechr) { disable_invul(zonechr, chr, msg); });
 			}
 		}
 
@@ -193,7 +194,7 @@ namespace Pol {
 			}
 		}
 
-		void PrivUpdater::disable_invul(Character* in_range_chr, Character* chr)
+		void PrivUpdater::disable_invul(Character* in_range_chr, Character* chr, Network::HealthBarStatusUpdate& msg)
 		{
 			if (in_range_chr != chr) {
 				if (in_range_chr->is_visible_to_me(chr))
@@ -201,16 +202,14 @@ namespace Pol {
 					send_owncreate(in_range_chr->client, chr);
 
 					// Needs to update the healthbar, because send_owncreate only sends if invul() == true.
-					if (in_range_chr->client->ClientType & Network::CLIENTTYPE_UOKR)
-						send_invulhealthbar(in_range_chr->client, chr);
+					msg.Send(in_range_chr->client);
 				}
 			}
 			else {
 				send_move(chr->client, chr); // tells itself if player (same justification as in enable_invul)
 
 				// Needs to update the healthbar to the player as well
-				if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
-					send_invulhealthbar(chr->client, chr);
+				msg.Send(chr->client);
 			}
 		}
 	}

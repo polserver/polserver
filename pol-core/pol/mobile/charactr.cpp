@@ -1654,7 +1654,7 @@ namespace Pol {
 		{
 		  send_goxyz( client, client->chr );
 		  // if poisoned send_goxyz handles 0x17 packet
-          if ( ( !poisoned() ) && ( client->ClientType & Network::CLIENTTYPE_UOKR ) )
+          if ( !poisoned() )
 			send_poisonhealthbar( client, client->chr );
 		}
 		// This is a KR only packet, so transmit it only to KR clients
@@ -1662,13 +1662,11 @@ namespace Pol {
 		// if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
 		if ( !poisoned() )
 		{
-		  Network::PktHelper::PacketOut<Network::PktOut_17> msg;
-		  msg->WriteFlipped<u16>( sizeof msg->buffer );
-		  msg->Write<u32>( this->serial_ext );
-		  msg->WriteFlipped<u16>( 1u ); //unk
-		  msg->WriteFlipped<u16>( 1u ); // 1 = Green, 2 = Yellow, 3 = Red
-		  msg->Write<u8>( 0u ); //flag
-		  transmit_to_inrange( this, &msg->buffer, msg->offset, true );
+          Network::HealthBarStatusUpdate msg(serial_ext, Network::HealthBarStatusUpdate::Color::GREEN, poisoned());
+          Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character *zonechr )
+          {
+            msg.Send(zonechr->client);
+          } );
 		}
 	  }
 	}
@@ -2584,13 +2582,11 @@ namespace Pol {
       using namespace Network;
 	  if ( chr == NULL ) return;
 	  RemoveObjectPkt msgremove( chr->serial_ext );
+      HealthBarStatusUpdate msgpoison(chr->serial_ext, HealthBarStatusUpdate::Color::GREEN, chr->poisoned());
+      HealthBarStatusUpdate msginvul(chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul());
 	  PktHelper::PacketOut<PktOut_77> msgmove;
-	  PktHelper::PacketOut<PktOut_17> msgpoison;
-	  PktHelper::PacketOut<PktOut_17> msginvul;
 	  PktHelper::PacketOut<PktOut_78> msgcreate;
 	  build_send_move( chr, msgmove.Get() );
-	  build_poisonhealthbar( chr, msgpoison.Get() );
-	  build_invulhealthbar( chr, msginvul.Get() );
 	  build_owncreate( chr, msgcreate.Get() );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr )
@@ -2611,12 +2607,11 @@ namespace Pol {
 			if ( client->ClientType & Network::CLIENTTYPE_7090 )
 			{
 				if ( chr->poisoned() ) //if poisoned send 0x17 for newer clients
-					send_poisonhealthbar( client, chr );
+				  msgpoison.Send(client);
 
 				if ( chr->invul() ) //if invul send 0x17 for newer clients
-					send_invulhealthbar( client, chr );
-
-				return;
+				  msginvul.Send(client);
+                return;
 			}
 			else
 			{
@@ -2628,16 +2623,28 @@ namespace Pol {
 				#else
 						//send_remove_character( client, chr );
 				#endif
-				send_owncreate( client, chr, msgcreate.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+				send_owncreate( client, chr, msgcreate.Get() );
+                if ( chr->poisoned() )
+				  msgpoison.Send(client);
+				if ( chr->invul() )
+				  msginvul.Send(client);
 			}
         }
         else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
         {
-          send_move( client, chr, msgmove.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+          send_move( client, chr, msgmove.Get() );
+          if ( chr->poisoned() )
+		    msgpoison.Send(client);
+		  if ( chr->invul() )
+			msginvul.Send(client);
         }
         else
         {
-          send_owncreate( client, chr, msgcreate.Get( ), msgpoison.Get( ), msginvul.Get( ) );
+          send_owncreate( client, chr, msgcreate.Get() );
+          if ( chr->poisoned() )
+		    msgpoison.Send(client);
+		  if ( chr->invul() )
+			msginvul.Send(client);
         }
       } );
 

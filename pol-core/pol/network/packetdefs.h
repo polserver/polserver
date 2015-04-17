@@ -265,7 +265,27 @@ namespace Pol {
 	   u32 _itemid;
        u8 _layer;
 
-       PktHelper::PacketOut<PktOut_C7> _p;       
+       PktHelper::PacketOut<PktOut_C7> _p;
+    };
+
+    class HealthBarStatusUpdate : public PktSender
+    {
+    public:
+      enum Color : u8
+      {
+        GREEN  = 1,
+        YELLOW = 2,
+        RED    = 3,
+      };
+      HealthBarStatusUpdate(u32 serial_ext, Color color, bool enable);
+      virtual void Send( Client* client ) POL_OVERRIDE;
+    private:
+      void build();
+
+      u32 _serial_ext;
+      bool _enable;
+      Color _color;
+      PktHelper::PacketOut<PktOut_17> _p;
     };
   }
 }

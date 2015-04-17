@@ -783,6 +783,33 @@ namespace Pol {
         build();
       _p.Send( client, _p->SIZE );
 	}
+
+
+    HealthBarStatusUpdate::HealthBarStatusUpdate(u32 serial_ext, Color color, bool enable)
+      : PktSender(),
+      _serial_ext(serial_ext),
+      _enable(enable),
+      _color(color)
+    {
+    }
+    void HealthBarStatusUpdate::build()
+    {
+      _p->offset = 1;
+      _p->WriteFlipped<u16>(_p->SIZE);
+      _p->Write<u32>(_serial_ext);
+      _p->WriteFlipped<u16>(1u); //unk
+      _p->WriteFlipped<u16>(_color);
+      _p->Write<u8>(_enable ? 1u : 0u); //flag
+    }
+    void HealthBarStatusUpdate::Send( Client* client )
+    {
+      if (client->ClientType & CLIENTTYPE_UOKR)
+      {
+        if ( _p->offset == 1 )
+          build();
+        _p.Send( client );
+      }
+    }
     
 
   }

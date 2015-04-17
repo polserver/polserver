@@ -207,26 +207,19 @@ namespace Pol {
             msg->Write<u8>(chr->hilite_color_idx(client->chr));
             msg.Send(client);
 
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned())) //if poisoned send 0x17 for newer clients
-                send_poisonhealthbar(client, chr);
+            if (chr->poisoned()) //if poisoned send 0x17 for newer clients
+              send_poisonhealthbar(client, chr);
 
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
-                send_invulhealthbar(client, chr);
+            if (chr->invul()) //if invul send 0x17 for newer clients
+              send_invulhealthbar(client, chr);
         }
 
-        void send_move(Client *client, const Character *chr, PktOut_77* movebuffer, PktOut_17* poisonbuffer, PktOut_17* invulbuffer)
+        void send_move(Client *client, const Character *chr, PktOut_77* movebuffer)
         {
             movebuffer->offset = 15;
             movebuffer->Write<u8>(chr->get_flag1(client));
             movebuffer->Write<u8>(chr->hilite_color_idx(client->chr));
             Core::networkManager.clientTransmit->AddToQueue(client, &movebuffer->buffer, movebuffer->offset);
-            if (client->ClientType & CLIENTTYPE_UOKR)
-			{
-			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
-                Core::networkManager.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
-			  if (chr->invul()) //if invul send 0x17 for newer clients
-                Core::networkManager.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
-			}
         }
 
         void build_send_move(const Character *chr, PktOut_77* msg)
@@ -242,42 +235,20 @@ namespace Pol {
 
         void send_poisonhealthbar(Client *client, const Character *chr)
         {
-            PktHelper::PacketOut<PktOut_17> msg;
-            msg->WriteFlipped<u16>(sizeof msg->buffer);
-            msg->Write<u32>(chr->serial_ext);
-            msg->WriteFlipped<u16>(1u); //unk
-            msg->WriteFlipped<u16>(1u); // 1 = Green, 2 = Yellow
-            msg->Write<u8>((chr->poisoned()) ? 1u : 0u); //flag
+          if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
+          {
+            Network::HealthBarStatusUpdate msg(chr->serial_ext, Network::HealthBarStatusUpdate::Color::GREEN, chr->poisoned());
             msg.Send(client);
+          }
         }
 
         void send_invulhealthbar(Client *client, const Character *chr)
         {
-            PktHelper::PacketOut<PktOut_17> msg;
-            msg->WriteFlipped<u16>(sizeof msg->buffer);
-            msg->Write<u32>(chr->serial_ext);
-            msg->WriteFlipped<u16>(1u); //unk
-            msg->WriteFlipped<u16>(2u); // 1 = Green, 2 = Yellow
-            msg->Write<u8>((chr->invul()) ? 1u : 0u); //flag
+          if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
+          {
+            Network::HealthBarStatusUpdate msg(chr->serial_ext, Network::HealthBarStatusUpdate::Color::YELLOW, chr->invul());
             msg.Send(client);
-        }
-
-        void build_poisonhealthbar(const Character *chr, PktOut_17* msg)
-        {
-            msg->WriteFlipped<u16>(sizeof msg->buffer);
-            msg->Write<u32>(chr->serial_ext);
-            msg->WriteFlipped<u16>(1u); //unk
-            msg->WriteFlipped<u16>(1u); // 1 = Green, 2 = Yellow
-            msg->Write<u8>((chr->poisoned()) ? 1u : 0u); //flag
-        }
-
-        void build_invulhealthbar(const Character *chr, PktOut_17* msg)
-        {
-            msg->WriteFlipped<u16>(sizeof msg->buffer);
-            msg->Write<u32>(chr->serial_ext);
-            msg->WriteFlipped<u16>(1u); //unk
-            msg->WriteFlipped<u16>(2u); // 1 = Green, 2 = Yellow
-            msg->Write<u8>((chr->invul()) ? 1u : 0u); //flag
+          }
         }
 
         void send_owncreate(Client *client, const Character *chr)
@@ -347,11 +318,11 @@ namespace Pol {
                 }
             }
 
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->poisoned())) //if poisoned send 0x17 for newer clients
-                send_poisonhealthbar(client, chr);
+            if (chr->poisoned()) //if poisoned send 0x17 for newer clients
+              send_poisonhealthbar(client,chr);
 
-            if ((client->ClientType & CLIENTTYPE_UOKR) && (chr->invul())) //if invul send 0x17 for newer clients
-                send_invulhealthbar(client, chr);
+            if (chr->invul()) //if invul send 0x17 for newer clients
+              send_invulhealthbar(client,chr);
         }
 
         void build_owncreate(const Character *chr, PktOut_78* owncreate)
@@ -365,7 +336,7 @@ namespace Pol {
             owncreate->Write<u8>(chr->facing);
             owncreate->WriteFlipped<u16>(chr->color);//17
         }
-        void send_owncreate(Client *client, const Character *chr, PktOut_78* owncreate, PktOut_17* poisonbuffer, PktOut_17* invulbuffer)
+        void send_owncreate(Client *client, const Character *chr, PktOut_78* owncreate)
         {
             owncreate->offset = 17;
             owncreate->Write<u8>(chr->get_flag1(client));
@@ -423,14 +394,6 @@ namespace Pol {
                     send_object_cache(client, dynamic_cast<const UObject*>(item));
                 }
             }
-
-            if (client->ClientType & CLIENTTYPE_UOKR)
-			{
-			  if (chr->poisoned()) //if poisoned send 0x17 for newer clients
-                Core::networkManager.clientTransmit->AddToQueue(client, &poisonbuffer->buffer, poisonbuffer->offset);
-			  if (chr->invul()) //if invul send 0x17 for newer clients
-                Core::networkManager.clientTransmit->AddToQueue(client, &invulbuffer->buffer, invulbuffer->offset);
-			}
         }
 
         void send_remove_character(Client *client, const Character *chr)
@@ -936,7 +899,7 @@ namespace Pol {
 	  msg->Write<u8>( item->layer );
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->WriteFlipped<u16>( item->color );
-	  transmit_to_inrange( item, &msg->buffer, msg->offset, false );
+	  transmit_to_inrange( item, &msg->buffer, msg->offset );
 	  send_object_cache_to_inrange( dynamic_cast<const UObject*>( item ) );
 	}
 
@@ -955,7 +918,7 @@ namespace Pol {
 		msg->Write<u8>( item->layer );
 		msg->Write<u32>( chr->serial_ext );
 		msg->WriteFlipped<u16>( item->color );
-		transmit_to_inrange( item, &msg->buffer, msg->offset, false );
+		transmit_to_inrange( item, &msg->buffer, msg->offset );
 
 		send_object_cache_to_inrange( dynamic_cast<const UObject*>( item ) );
 	  }
@@ -1411,7 +1374,7 @@ namespace Pol {
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 	  // todo: only send to those that I'm visible to.
-	  transmit_to_inrange( obj, &msg->buffer, len, false );
+	  transmit_to_inrange( obj, &msg->buffer, len );
 	  return true;
 	}
 
@@ -1452,7 +1415,7 @@ namespace Pol {
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 	  // todo: only send to those that I'm visible to.
-	  transmit_to_inrange( obj, &msg->buffer, len, false );
+	  transmit_to_inrange( obj, &msg->buffer, len );
 	  return true;
 	}
 
@@ -1651,14 +1614,11 @@ namespace Pol {
       } );
 	}
 
-	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_UOKR )
+	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen )
 	{
       WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character *zonechr )
       {
-        Client* client = zonechr->client;
-        if ( is_UOKR && ( !( client->ClientType & CLIENTTYPE_UOKR ) ) )
-          return;
-        Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
+        Core::networkManager.clientTransmit->AddToQueue( zonechr->client, msg, msglen );
       } );
 	}
 

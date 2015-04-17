@@ -84,7 +84,7 @@ namespace Pol {
 	bool in_whisper_range( const Mobile::Character *c1, const Mobile::Character *c2 );
 
 	void send_owncreate( Network::Client *client, const Mobile::Character *chr );
-	void send_owncreate( Network::Client *client, const Mobile::Character *chr, Network::PktOut_78* owncreate, Network::PktOut_17* poisonbuffer, Network::PktOut_17* invulbuffer );
+	void send_owncreate( Network::Client *client, const Mobile::Character *chr, Network::PktOut_78* owncreate);
 	void build_owncreate( const Mobile::Character *chr, Network::PktOut_78* msg );
 
     void send_item(Network::Client *client, const Items::Item *item);
@@ -94,14 +94,12 @@ namespace Pol {
 	void send_wornitem( Network::Client *client, const Mobile::Character *chr, const Items::Item *item );
 
 	void send_move( Network::Client *client, const Mobile::Character *chr );
-	void send_move( Network::Client *client, const Mobile::Character *chr, Network::PktOut_77* movebuffer, Network::PktOut_17* poisonbuffer, Network::PktOut_17* invulbuffer );
+	void send_move( Network::Client *client, const Mobile::Character *chr, Network::PktOut_77* movebuffer );
 	void build_send_move( const Mobile::Character *chr, Network::PktOut_77* msg );
 	void send_objdesc( Network::Client *client, Items::Item *item );
 
 	void send_poisonhealthbar( Network::Client *client, const Mobile::Character *chr );
 	void send_invulhealthbar( Network::Client* client, const Mobile::Character *chr );
-	void build_poisonhealthbar( const Mobile::Character *chr, Network::PktOut_17* msg );
-	void build_invulhealthbar( const Mobile::Character *chr, Network::PktOut_17* msg );
 
 	void send_item_to_inrange( const Items::Item *item );
 	void update_item_to_inrange( const Items::Item* item );
@@ -232,7 +230,7 @@ namespace Pol {
 
 	void send_char_data( Network::Client *client, Mobile::Character *chr );
 
-	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen, bool is_UOKR );
+	void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen );
 	void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen );
 
 	void destroy_item( Items::Item* item );
