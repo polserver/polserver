@@ -276,15 +276,6 @@ namespace Pol {
 	  spell_( spell )
 	{}
 
-    void play_spell_fizzle( Mobile::Character* caster )
-	{
-	  play_object_centered_effect( caster,
-								   0x3735, // HARDCODE
-								   0,
-								   30 );
-	  play_sound_effect( caster, 0x5D ); // HARDCODE
-	}
-
 	void SpellTask::on_run()
 	{
 	  THREAD_CHECKPOINT( tasks, 900 );

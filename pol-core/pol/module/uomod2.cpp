@@ -1897,6 +1897,17 @@ namespace Pol {
           {
             Core::MemoryUsage::log();
           }
+          else if ( type == 3 )
+	      {
+	        POLLOG_ERROR << "Forcing crash\n";
+	        int *i=0;
+	        *i=1;
+	      }
+	      else if ( type == 4 )
+	      {
+	        POLLOG_ERROR << "Forcing assert crash\n";
+	        passert_always(false);
+	      }
 		  return new BLong( 1 );
 		}
 		else

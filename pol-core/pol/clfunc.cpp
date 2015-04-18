@@ -94,7 +94,7 @@ namespace Pol {
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 	  //  MuadDib - FIXME: only send to those that I'm visible to. 
-	  transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	  transmit_to_inrange( obj, &msg->buffer, len );
 	}
 
 	void private_say_above_cl( Mobile::Character *chr, const UObject* obj,
@@ -209,7 +209,7 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( len );
 
 	  // MuadDib - FIXME: only send to those that I'm visible to.
-	  transmit_to_inrange( obj, &msg->buffer, len, false, false );
+	  transmit_to_inrange( obj, &msg->buffer, len );
 	}
 
 	void private_say_above_cl_affix( Mobile::Character *chr, const UObject* obj, unsigned int cliloc_num,

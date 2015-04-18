@@ -310,7 +310,7 @@ namespace Pol {
 	  }
 
 	  // Exclude self... otherwise their status-window shows 1000 hp!! >_<
-	  transmit_to_others_inrange( chr, &msg->buffer, msg->offset, false, false );
+	  transmit_to_others_inrange( chr, &msg->buffer, msg->offset );
 	}
   }
 }
