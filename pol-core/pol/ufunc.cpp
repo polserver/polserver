@@ -235,7 +235,7 @@ namespace Pol {
 
         void send_poisonhealthbar(Client *client, const Character *chr)
         {
-          if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
+          if (client->ClientType & Network::CLIENTTYPE_UOKR)
           {
             Network::HealthBarStatusUpdate msg(chr->serial_ext, Network::HealthBarStatusUpdate::Color::GREEN, chr->poisoned());
             msg.Send(client);
@@ -244,7 +244,7 @@ namespace Pol {
 
         void send_invulhealthbar(Client *client, const Character *chr)
         {
-          if (chr->client->ClientType & Network::CLIENTTYPE_UOKR)
+          if (client->ClientType & Network::CLIENTTYPE_UOKR)
           {
             Network::HealthBarStatusUpdate msg(chr->serial_ext, Network::HealthBarStatusUpdate::Color::YELLOW, chr->invul());
             msg.Send(client);
