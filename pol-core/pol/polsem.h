@@ -36,11 +36,10 @@ namespace Pol {
 	void send_ClientTransmit_pulse();
 	void wait_for_ClientTransmit_pulse( unsigned int millis );
     
+    extern size_t locker;
 #ifdef _WIN32
 	extern CRITICAL_SECTION cs;
-	extern DWORD locker;
 #else 
-	extern pid_t locker;
     extern pthread_mutex_t polsem;
 #endif // not _WIN32
 
