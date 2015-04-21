@@ -727,12 +727,9 @@ namespace Pol {
         {
           fmt::Writer tmp;
           tmp << "*Thread Info*\n";
-          tmp << "Semaphore PID: " << locker << "\n";
+          tmp << "Semaphore TID: " << locker << "\n";
 #ifdef __unix__
-          if ( locker )
-          {
-            tmp << "  (\"kill -SIGUSR2 " << locker << "\" to output backtrace)\n";
-          }
+          tmp << "  (\"kill -SIGUSR2 " << getpid() << "\" to output backtrace)\n";
           void* bt[200];
           char **strings;
           int n = backtrace( bt, 200 );

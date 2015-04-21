@@ -28,11 +28,11 @@ Notes
 
 namespace Pol {
   namespace Core {
+    size_t locker;
 #ifdef _WIN32
-	DWORD locker;
 	void polsem_lock()
 	{
-	  DWORD tid = GetCurrentThreadId();
+	  size_t tid =  threadhelp::thread_pid();
 	  EnterCriticalSection( &cs );
 	  passert_always( locker == 0 );
 	  locker = tid;
@@ -40,34 +40,33 @@ namespace Pol {
 
 	void polsem_unlock()
 	{
-	  DWORD tid = GetCurrentThreadId();
+	  size_t tid = GetCurrentThreadId();
 	  passert_always( locker == tid );
 	  locker = 0;
 	  LeaveCriticalSection( &cs );
 	}
 #else
-	pid_t locker;
 	void polsem_lock()
 	{
-	  pid_t pid = getpid();
+	  size_t tid = threadhelp::thread_pid();
 	  int res = pthread_mutex_lock( &polsem );
 	  if (res != 0 || locker != 0)
 	  {
-        POLLOG.Format( "pthread_mutex_lock: res={}, pid={}, locker={}\n")<< res<< pid<< locker;
+        POLLOG.Format( "pthread_mutex_lock: res={}, tid={}, locker={}\n")<< res<< tid<< locker;
 	  }
 	  passert_always( res == 0 );
 	  passert_always( locker == 0 );
-	  locker = pid;
+	  locker = tid;
 	}
 	void polsem_unlock()
 	{
-	  pid_t pid = getpid();
-	  passert_always( locker == pid );
+	  size_t tid = threadhelp::thread_pid();
+	  passert_always( locker == tid );
 	  locker = 0;
 	  int res = pthread_mutex_unlock( &polsem );
 	  if (res != 0)
 	  {
-        POLLOG.Format( "pthread_mutex_unlock: res={},pid={}") << res << pid;
+        POLLOG.Format( "pthread_mutex_unlock: res={},tid={}") << res << tid;
 	  }
 	  passert_always( res == 0 );
 	}
