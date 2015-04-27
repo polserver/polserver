@@ -39,40 +39,37 @@ namespace Pol {
 
 
   // enum for the propertys
-  enum DynPropTypes : u32
+  enum DynPropTypes : u8
   {
     EMPTY               = 0,
-    AR_MOD              = 1 << 0,
-    MAX_ITEMS_MOD       = 1 << 1,
-    MAX_SLOTS_MOD       = 1 << 2,
-    MAX_WEIGHT_MOD      = 1 << 3,
-    SELLPRICE           = 1 << 4,
-    BUYPRICE            = 1 << 5,
-    MAXHP_MOD           = 1 << 6,
-    NAME_SUFFIX         = 1 << 7,
-    RESIST_FIRE         = 1 << 8,
-    RESIST_COLD         = 1 << 9,
-    RESIST_ENERGY       = 1 << 10,
-    RESIST_POISON       = 1 << 11,
-    RESIST_PHYSICAL     = 1 << 12,
-    DAMAGE_FIRE         = 1 << 13,
-    DAMAGE_COLD         = 1 << 14,
-    DAMAGE_ENERGY       = 1 << 15,
-    DAMAGE_POISON       = 1 << 16,
-    DAMAGE_PHYSICAL     = 1 << 17,
-    RESIST_FIRE_MOD     = 1 << 18,
-    RESIST_COLD_MOD     = 1 << 19,
-    RESIST_ENERGY_MOD   = 1 << 20,
-    RESIST_POISON_MOD   = 1 << 21,
-    RESIST_PHYSICAL_MOD = 1 << 22,
-    DAMAGE_FIRE_MOD     = 1 << 23,
-    DAMAGE_COLD_MOD     = 1 << 24,
-    DAMAGE_ENERGY_MOD   = 1 << 25,
-    DAMAGE_POISON_MOD   = 1 << 26,
-    DAMAGE_PHYSICAL_MOD = 1 << 27,
-    UNUSED1             = 1 << 28,
-    UNUSED2             = 1 << 29,
-    UNUSED3             = 1 << 30,
+    AR_MOD              = 1,
+    MAX_ITEMS_MOD       = 2,
+    MAX_SLOTS_MOD       = 3,
+    MAX_WEIGHT_MOD      = 4,
+    SELLPRICE           = 5,
+    BUYPRICE            = 6,
+    MAXHP_MOD           = 7,
+    NAME_SUFFIX         = 8,
+    RESIST_FIRE         = 9,
+    RESIST_COLD         = 10,
+    RESIST_ENERGY       = 11,
+    RESIST_POISON       = 12,
+    RESIST_PHYSICAL     = 13,
+    DAMAGE_FIRE         = 14,
+    DAMAGE_COLD         = 15,
+    DAMAGE_ENERGY       = 16,
+    DAMAGE_POISON       = 17,
+    DAMAGE_PHYSICAL     = 18,
+    RESIST_FIRE_MOD     = 19,
+    RESIST_COLD_MOD     = 20,
+    RESIST_ENERGY_MOD   = 21,
+    RESIST_POISON_MOD   = 22,
+    RESIST_PHYSICAL_MOD = 23,
+    DAMAGE_FIRE_MOD     = 24,
+    DAMAGE_COLD_MOD     = 25,
+    DAMAGE_ENERGY_MOD   = 26,
+    DAMAGE_POISON_MOD   = 27,
+    DAMAGE_PHYSICAL_MOD = 28,
   };
 
   class DynProps;
@@ -172,7 +169,8 @@ namespace Pol {
 
   inline bool DynProps::hasProperty(DynPropTypes type) const
   {
-	return (type & _prop_bits) != 0;
+    passert_always(type == DynPropTypes::EMPTY);
+	return ((1 << (type-1)) & _prop_bits) != 0;
   }
 
   template <typename V>
@@ -205,7 +203,7 @@ namespace Pol {
 		}
 	  }
     }
-    _prop_bits |= type;
+    _prop_bits |= (1 << (type-1)); 
     _props.emplace_back(type,value);
   }
 
@@ -217,7 +215,7 @@ namespace Pol {
       std::remove_if(_props.begin(), _props.end(),
         [&type](const PropHolder& x){return type == x._type;})
         , _props.end()),
-    _prop_bits &= ~type;
+    _prop_bits &= ~(1 << (type-1));
   }
 
   inline size_t DynProps::estimateSize() const
