@@ -1336,6 +1336,9 @@
     <ClInclude Include="globals\memoryusage.h">
       <Filter>globals</Filter>
     </ClInclude>
+    <ClInclude Include="dynproperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="pol.rc">
