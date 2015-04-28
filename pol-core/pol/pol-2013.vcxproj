@@ -567,6 +567,7 @@
     <ClInclude Include="clfunc.h" />
     <ClInclude Include="clidata.h" />
     <ClInclude Include="console.h" />
+    <ClInclude Include="dynproperties.h" />
     <ClInclude Include="globals\memoryusage.h" />
     <ClInclude Include="globals\multidefs.h" />
     <ClInclude Include="globals\network.h" />
