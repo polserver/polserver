@@ -38,6 +38,19 @@ namespace Pol {
   //    having only the full struct: (5*s16)+u32 = 14
   //    the other way around storing single values would use less if only two or less values are needed
 
+  #define DYN_PROPERTY(name, type, id, default) \
+    type name() const \
+    { \
+      type val; \
+      if (getmember<type>(id,&val)) \
+        return val; \
+      return default; \
+    }; \
+    void name(const type val) \
+    { \
+      setmember(id, val, static_cast<type>(default)); \
+    }
+
 
   // enum for the propertys
   enum DynPropTypes : u8
