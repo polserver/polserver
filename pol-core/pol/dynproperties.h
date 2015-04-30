@@ -11,6 +11,7 @@ Notes
 
 #include "../clib/rawtypes.h"
 
+#include <boost/variant.hpp>
 #include <boost/any.hpp>
 #include <string>
 
@@ -36,6 +37,19 @@ namespace Pol {
   // -> having a char with all resistances set needs 5*(s16+u32) = 30
   //    having only the full struct: (5*s16)+u32 = 14
   //    the other way around storing single values would use less if only two or less values are needed
+
+  #define DYN_PROPERTY(name, type, id, default) \
+    type name() const \
+    { \
+      type val; \
+      if (getmember<type>(id,&val)) \
+        return val; \
+      return default; \
+    }; \
+    void name(const type val) \
+    { \
+      setmember(id, val, static_cast<type>(default)); \
+    }
 
 
   // enum for the propertys
@@ -72,21 +86,42 @@ namespace Pol {
     DAMAGE_PHYSICAL_MOD = 28,
   };
 
-  class DynProps;
+  template <typename Storage>
+  class PropHolderContainer;
   // holder class
   // stores the property kind and via boost::any the value
+  typedef boost::variant<u8,u16,u32,s8,s16,s32> variant_storage;
+  template <typename Storage>
   class PropHolder
   {
   public:
-    friend class DynProps;
+    template <typename S>
+    friend class PropHolderContainer;
     PropHolder();
     explicit PropHolder(DynPropTypes type);
-    PropHolder(DynPropTypes type, const boost::any& value);
+    PropHolder(DynPropTypes type, const Storage& value);
     template <typename T>
     T getValue() const;
   protected:
     DynPropTypes _type;
-    boost::any _value;
+    Storage _value;
+  };
+
+  template <typename Storage>
+  class PropHolderContainer
+  {
+  public:
+    PropHolderContainer();
+    template <typename T>
+    bool getValue(DynPropTypes type, T *value) const;
+    template <typename T>
+    bool updateValue(DynPropTypes type, const T &value);
+    template <typename T>
+    void addValue(DynPropTypes type, const T &value);
+    void removeValue(DynPropTypes type);
+    size_t estimateSize() const;
+  private:
+    std::vector<PropHolder<Storage>> _props;
   };
 
   // management class
@@ -105,11 +140,13 @@ namespace Pol {
     template <typename V>
     void setProperty(DynPropTypes type, const V& value);
     // remove a prop
+    template <typename V>
     void removeProperty(DynPropTypes type);
     size_t estimateSize() const;
   private:
     u32 _prop_bits;
-    std::vector<PropHolder> _props;
+    PropHolderContainer<variant_storage> _props;
+    std::unique_ptr<PropHolderContainer<boost::any>> _any_props;
   };
 
   // Base class for dynamic properties, should be derived from
@@ -123,13 +160,9 @@ namespace Pol {
     template <typename T>
     bool getmember(DynPropTypes member, T* value) const;
     template <typename T>
-    void setmember(DynPropTypes member, const T& value);
-    template <typename T>
     void setmember(DynPropTypes member, const T& value, const T& defaultvalue);
-    void removemember(DynPropTypes member);
     size_t estimateSize() const;
-
-  private:
+  private: 
     void initProps();
     std::unique_ptr<DynProps> _dynprops;
   };
@@ -141,30 +174,99 @@ namespace Pol {
 
   ////////////////
   // PropHolder
-  PropHolder::PropHolder() : 
+  template <class Storage>
+  PropHolder<Storage>::PropHolder() : 
     _type(DynPropTypes::EMPTY),
     _value()
   {}
-  PropHolder::PropHolder(DynPropTypes type) :
+  template <class Storage>
+  PropHolder<Storage>::PropHolder(DynPropTypes type) :
     _type(type),
     _value()
   {}
-  PropHolder::PropHolder(DynPropTypes type, const boost::any& value) :
+  template <class Storage>
+  PropHolder<Storage>::PropHolder(DynPropTypes type, const Storage& value) :
     _type(type),
     _value(value)
   {}
 
+  template <>
   template <typename T>
-  inline T PropHolder::getValue() const
+  inline T PropHolder<boost::any>::getValue() const
   {
     return boost::any_cast<T>(_value);
+  }
+  template <>
+  template <typename T>
+  inline T PropHolder<variant_storage>::getValue() const
+  {
+    return boost::get<T>(_value);
+  }
+
+  ////////////////
+  // PropHolderContainer
+  template <class Storage>
+  PropHolderContainer<Storage>::PropHolderContainer() :
+    _props()
+  {}
+
+  template <class Storage>
+  template <typename T>
+  bool PropHolderContainer<Storage>::getValue(DynPropTypes type, T *value) const
+  {
+    for (const PropHolder<Storage>& prop : _props)
+    {
+      if ( prop._type == type )
+      {
+        *value = prop.getValue<T>();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  template <class Storage>
+  template <typename T>
+  bool PropHolderContainer<Storage>::updateValue(DynPropTypes type, const T &value)
+  {
+    for (PropHolder<Storage>& prop : _props)
+    {
+      if (prop._type == type)
+      {
+        prop._value = value;
+        return true;
+      }
+    }
+    return false;
+  }
+  template <class Storage>
+  template <typename T>
+  void PropHolderContainer<Storage>::addValue(DynPropTypes type, const T &value)
+  {
+    _props.emplace_back(type,value);
+  }
+
+  template <class Storage>
+  void PropHolderContainer<Storage>::removeValue(DynPropTypes type)
+  {
+    _props.erase(
+      std::remove_if(_props.begin(), _props.end(),
+        [&type](const PropHolder<Storage>& x){ return type == x._type; })
+        , _props.end());
+  }
+  
+  template <class Storage>
+  size_t PropHolderContainer<Storage>::estimateSize() const
+  {
+    return 3 * sizeof(void*) + _props.capacity() * sizeof(PropHolder<Storage>);
   }
 
   ////////////////
   // DynProps
   DynProps::DynProps() :
     _prop_bits(DynPropTypes::EMPTY),
-    _props()
+    _props(),
+    _any_props(nullptr)
   {}
 
   inline bool DynProps::hasProperty(DynPropTypes type) const
@@ -178,15 +280,13 @@ namespace Pol {
   {
     if (!hasProperty(type))
       return false;
-    for (const PropHolder& prop : _props)
+    if (sizeof(V) <= sizeof(u32))
+      return _props.getValue(type, value);
+    else
     {
-	  if (prop._type == type)
-      {
-		*value = prop.getValue<V>();
-        return true;
-	  }
-	}
-    return false;
+      passert_always(!_any_props);
+      return _any_props->getValue(type, value);
+    }
   }
 
   template <typename V>
@@ -194,34 +294,50 @@ namespace Pol {
   {
     if (hasProperty(type))
     {
-      for (PropHolder& prop : _props) 
+      if (sizeof(V) <= sizeof(u32))
       {
-		if (prop._type == type) 
-        {
-		  prop._value = value;
-          return;
-		}
-	  }
+        passert_always(!_props.updateValue(type,value));
+      }
+      else
+      {
+        passert_always(!_any_props);
+        passert_always(!_any_props->updateValue(type,value));
+      }
+      return;
     }
-    _prop_bits |= (1 << (type-1)); 
-    _props.emplace_back(type,value);
+    _prop_bits |= (1 << (type-1));
+    if (sizeof(V) <= sizeof(u32))
+      _props.addValue(type,value);
+    else
+    {
+      if (!_any_props)
+        _any_props.reset(new PropHolderContainer<boost::any>());
+      _any_props->addValue(type,value);
+    }
   }
 
+  template <typename V>
   inline void DynProps::removeProperty(DynPropTypes type)
   {
     if (!hasProperty(type))
       return;
-    _props.erase(
-      std::remove_if(_props.begin(), _props.end(),
-        [&type](const PropHolder& x){return type == x._type;})
-        , _props.end()),
+    if (sizeof(V) <= sizeof(u32))
+      _props.removeValue(type);
+    else
+    {
+      passert_always(!_any_props);
+      _any_props->removeValue(type);
+    }
     _prop_bits &= ~(1 << (type-1));
   }
 
   inline size_t DynProps::estimateSize() const
   {
-    return sizeof(u32)
-      + 3 * sizeof(PropHolder*) + _props.capacity() * sizeof(PropHolder);
+    size_t size = sizeof(u32) + sizeof(std::unique_ptr<void>)
+      + _props.estimateSize();
+    if (_any_props)
+      size += _any_props->estimateSize();
+    return size;
   }
 
   ////////////////
@@ -253,30 +369,16 @@ namespace Pol {
   }
 
   template <typename T>
-  void DynamicPropsHolder::setmember(DynPropTypes member, const T& value)
-  {
-    initProps();
-    _dynprops->setProperty(member,value);
-  }
-
-  template <typename T>
   void DynamicPropsHolder::setmember(DynPropTypes member, const T& value, const T& defaultvalue)
   {
     if (value == defaultvalue)
     {
       if (_dynprops)
-        _dynprops->removeProperty(member);
+        _dynprops->removeProperty<T>(member);
       return;
     }
     initProps();
     _dynprops->setProperty(member,value);
-  }
-
-  void DynamicPropsHolder::removemember(DynPropTypes member)
-  {
-    if (!hasmember(member))
-      return;
-    _dynprops->removeProperty(member);
   }
 
   inline size_t DynamicPropsHolder::estimateSize() const
