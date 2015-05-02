@@ -114,7 +114,7 @@ namespace Pol {
   class PropHolderContainer;
 
   // small property type no types above size 4, for bigger types boost::any will be used
-  using variant_storage = boost::variant<u8,u16,u32,s8,s16,s32>;
+  typedef boost::variant<u8,u16,u32,s8,s16,s32> variant_storage;
 
   // holder class
   // stores the property kind and via boost::variant/boost::any the value
