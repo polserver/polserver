@@ -28,12 +28,10 @@ Notes
 #include "udatfile.h"
 #include "globals/uvars.h"
 #include "skilladv.h"
+#include "dynproperties.h"
 
 #include "uobject.h"
 #include "../clib/timer.h"
-
-#include <boost/variant.hpp>
-#include <boost/any.hpp>
 
 namespace Pol {
   namespace Plib {
@@ -50,267 +48,6 @@ namespace Pol {
     void read_multidefs( );
   }
   namespace Core {
-    //////////////////////////////////////////////////
-    // Test Implementation of a new way to store dynamic props
-    // Basic Idea:
-    // instead of a big map, use a small vector plus a bitflag for fast checking
-    // create the class only if needed for each object
-    // roll a dice if any or variant should be used? seems to be equally fast, but variant can check at compiletime
-#define TESTING_VARIANT
-    namespace Testing {
-    // enum for the propertys
-    enum DynPropTypes : u32 {
-	  PROP_TYPE_NONE = 0,
-	  PROP_TYPE_NAME = 1,
-	  PROP_TYPE_BLAH = 2,
-    };
-
-    class DynProps;
-    // holder class
-    // stores the property kind and via boost::any the value
-    class PropHolder
-    {
-    public:
-      friend class DynProps;
-      PropHolder();
-      explicit PropHolder(DynPropTypes type);
-      template <typename T>
-      inline T getValue() const;
-    protected:
-      DynPropTypes _type;
-#ifdef TESTING_VARIANT
-      boost::variant<u32,std::string> _value;
-#else
-      boost::any _value;
-#endif
-    };
-
-
-    // management class
-    // has a bitflag for fast checking if a property exists
-    // simple vector for all the PropHolders
-    class DynProps {
-    public:
-      DynProps();
-      // fast bitflag check
-      inline bool hasProperty(DynPropTypes type) const;
-      // get property returns false if non existent (checks via hasProperty before)
-      template <typename T>
-      inline bool getProperty(DynPropTypes type, T* value) const;
-      // set property (sets also the flag)
-      template <typename T>
-      inline void setProperty(DynPropTypes type, T value);
-      // remove a prop
-      inline void removeProperty(DynPropTypes type);
-    private:
-      u32 _prop_bits;
-      std::vector<PropHolder> _props;
-    };
-
-    // example implementation (should later be UObject)
-    // holds a pointer to the DynProps, which is lazy filled
-    // due to memory usage, pointer is 8 but due to the vector the pure class is 32 (on my system)
-    class NewPropUser {
-    public:
-      NewPropUser();
-      template <typename T>
-      T getmember(DynPropTypes member) const;
-      template <typename T>
-      void setmember(DynPropTypes member, T value);
-
-    private:
-      std::unique_ptr<DynProps> _dynprops;
-    };
-
-    PropHolder::PropHolder() 
-      : _type(PROP_TYPE_NONE) ,
-      _value()
-      
-    {}
-    PropHolder::PropHolder(DynPropTypes type) 
-      : _type(type),
-      _value()
-    {}
-
-    template <typename T>
-    inline T PropHolder::getValue() const
-    {
-#ifdef TESTING_VARIANT
-      return boost::get<T>(_value);
-#else
-      return boost::any_cast<T>( _value );
-#endif
-    }
-
-    DynProps::DynProps()
-      : _prop_bits(0),
-      _props()
-    {
-    }
-    inline bool DynProps::hasProperty(DynPropTypes type) const
-    {
-	  return (type & _prop_bits) != 0;
-	}
-    template <typename T>
-    inline bool DynProps::getProperty(DynPropTypes type, T* value) const 
-    {
-      if (!hasProperty(type))
-        return false;
-      for (const PropHolder& prop : _props)
-      {
-		if (prop._type == type)
-        {
-		  *value = prop.getValue<T>();
-          return true;
-		}
-	  }
-      return false;
-    }
-    template <typename T>
-    inline void DynProps::setProperty(DynPropTypes type, T value)
-    {
-      if (hasProperty(type))
-      {
-        for (PropHolder& prop : _props) 
-        {
-		  if (prop._type == type) 
-          {
-			prop._value = value;
-            return;
-		  }
-		}
-      }
-      _prop_bits |= type;
-      _props.emplace_back(type);
-      _props.back()._value = value;
-    }
-
-    inline void DynProps::removeProperty(DynPropTypes type)
-    {
-      if (!hasProperty(type))
-        return;
-      _props.erase(std::remove_if(_props.begin(), _props.end(),
-        [&type](const PropHolder& x){return type == x._type;}),
-        _props.end()),
-      _prop_bits &= ~type;
-    }
-
-    NewPropUser::NewPropUser()
-      : _dynprops(nullptr)
-    {}
-    template <typename T>
-    T NewPropUser::getmember(DynPropTypes member) const
-    {
-      if (!_dynprops)
-        return 0;
-      T value;
-      if (_dynprops->getProperty(member,&value))
-        return value;
-      return 0;
-    }
-    template <typename T>
-    void NewPropUser::setmember(DynPropTypes member, T value)
-    {
-      if (!_dynprops)
-        _dynprops.reset(new DynProps());
-      _dynprops->setProperty(member,value);
-    }
-
-    // current UObject impl
-    class OldMap {
-    public:
-      AnyMemberMap dynmap;
-      template <typename T>
-      T getmember(unsigned short member) const;
-      template <typename T>
-      bool getmember(unsigned short member, T* value) const;
-      template <typename T>
-      void setmember(unsigned short member, const T& value);
-      template <typename T>
-      void setmember(unsigned short member, const T& value, const T& defaultvalue);
-    };
-    template <typename T>
-    inline T OldMap::getmember(unsigned short member) const
-    {
-        return MemberHelper<T>::getmember(dynmap, member);
-    }
-    template <typename T>
-    inline bool OldMap::getmember(unsigned short member, T* value) const
-    {
-        return MemberHelper<T>::getmember(dynmap, member, value);
-    }
-    template <typename T>
-    inline void OldMap::setmember(unsigned short member, const T& value)
-    {
-        MemberHelper<T>::setmember(dynmap, member, value);
-    }
-    template <typename T>
-    inline void OldMap::setmember(unsigned short member, const T& value, const T& defaultvalue)
-    {
-      MemberHelper<T>::setmember(dynmap, member, value, defaultvalue);
-    }
-
-    u32 last_value;
-    void test_prop_imps()
-    {
-      {
-        // test access with old method
-        std::vector<OldMap*> oldones;
-        std::vector<u32> newones;
-        for (u32 i=0;i<1000000;++i)
-        {
-          OldMap* m=new OldMap();
-          oldones.push_back(m);
-        }
-        for (u32 i=0;i<1000000;++i)
-        {
-          OldMap* m=new OldMap();
-          m->setmember<u32>(1,10);
-          m->setmember<u32>(2,10);
-          oldones.push_back(m);
-        }
-        {
-          Tools::Timer<Tools::DebugT> t;
-          for (const auto& m: oldones)
-          {  
-            last_value=m->getmember<u32>(2);
-            if (last_value==0) //try to convince the compiler to not optimize out the whole loop
-              newones.push_back(last_value);
-          }
-        }
-        INFO_PRINT << newones.size()<<"\n";
-      }
-
-      {
-        std::vector<NewPropUser*> oldones;
-        std::vector<u32> newones;
-        for (u32 i=0;i<1000000;++i)
-        {
-          NewPropUser* m=new NewPropUser();
-          oldones.push_back(m);
-        }
-        for (u32 i=0;i<1000000;++i)
-        {
-          NewPropUser* m=new NewPropUser();
-          m->setmember<u32>(PROP_TYPE_NAME,10);
-          m->setmember<u32>(PROP_TYPE_BLAH,10);
-          oldones.push_back(m);
-        }
-        {
-          Tools::Timer<Tools::DebugT> t;
-          for (const auto& m: oldones)
-          {  
-            last_value=m->getmember<u32>(PROP_TYPE_BLAH);
-            if (last_value==0)
-              newones.push_back(last_value);
-          }
-        
-        }
-        INFO_PRINT << newones.size()<<"\n";
-      }
-    }
-    } // namespace Testing
-
     extern bool static_debug_on;
 
 	extern Mobile::NPC* test_banker;
@@ -410,7 +147,27 @@ namespace Pol {
 
 	void run_pol_tests()
 	{
-      Testing::test_prop_imps();
+      class Test : public DynamicPropsHolder
+      {
+      public:
+            DYN_PROPERTY(armod, s16, AR_MOD, 0);
+            DYN_PROPERTY(max_items, u32, MAX_ITEMS_MOD, 0);
+            DYN_PROPERTY(itemname, std::string, NAME_SUFFIX, "");
+      };
+      Test h;
+      INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
+      INFO_PRINT << "ar " << h.armod() << " " << h.hasarmod() << "\n";
+      h.armod(10);
+      INFO_PRINT << "ar " << h.armod()<<" " << h.hasarmod() << "\n";
+      h.armod(0);
+      INFO_PRINT << "ar " << h.armod()<<" " << h.hasarmod() << "\n";
+      INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
+      INFO_PRINT << "name " << h.itemname() << " " << h.hasitemname() << "\n";
+      h.itemname("hello world");
+      INFO_PRINT << "name " << h.itemname() << " " << h.hasitemname() << "\n";
+      h.itemname("");
+      INFO_PRINT << "name " << h.itemname() << " " << h.hasitemname() << "\n";
+      INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
       return;
       Plib::create_test_environment();
 
