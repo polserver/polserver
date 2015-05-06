@@ -4,6 +4,12 @@
     if (!$offline) {
       $g_Page = "home";
       include_once '/home/polteam/include/_header.php';
+      
+      // PHP-BB global stuff
+			global $request;
+			$request->enable_super_globals();
+			//
+	
       $guidefile = $_GET['guidefile'];
     }
     else {

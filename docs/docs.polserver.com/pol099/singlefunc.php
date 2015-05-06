@@ -5,6 +5,11 @@
       include_once '/home/polteam/include/_header.php';
     }
     
+    // PHP-BB global stuff
+		global $request;
+		$request->enable_super_globals();
+		//
+    
 
   	$funcname =  $_GET['funcname'];
   	$xmlfile = $_GET['xmlfile'];
