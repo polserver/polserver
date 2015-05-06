@@ -1,4 +1,5 @@
 <?php
+	date_default_timezone_set(@date_default_timezone_get());
   include_once( "include/global.inc" );
   if (!$offline) {
     $g_Page = "poldoc";
@@ -8,6 +9,11 @@
   if ($offline) {
     siteheader('POL Scripting Reference');
   }
+
+	// PHP-BB global stuff
+	global $request;
+	$request->enable_super_globals();
+	//
 
   $xmlfile = $_GET['xmlfile'];
   
