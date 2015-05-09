@@ -40,11 +40,6 @@ namespace Pol {
 
 	  unsigned short speed() const;
 	  unsigned short delay() const;
-      s16 damage_mod() const;
-      void damage_mod(s16 newvalue);
-
-      s16 speed_mod() const;
-      void speed_mod(s16 newvalue);
 
 	  const Mobile::Attribute& attribute() const;
 	  unsigned short get_random_damage() const;
@@ -67,6 +62,9 @@ namespace Pol {
 
       virtual Item* clone() const POL_OVERRIDE;
       virtual size_t estimatedSize() const POL_OVERRIDE;
+
+      DYN_PROPERTY(damage_mod, s16, Core::PROP_DMG_MOD, 0);
+      DYN_PROPERTY(speed_mod,  s16, Core::PROP_SPEED_MOD, 0);
 
 	protected:
 	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
@@ -112,26 +110,6 @@ namespace Pol {
 	{
 	  return hit_script_;
 	}
-
-
-
-    inline s16 UWeapon::damage_mod() const
-    {
-        return getmember<s16>(Bscript::MBR_DMG_MOD);
-    }
-    inline void UWeapon::damage_mod(s16 newvalue)
-    {
-        setmember<s16>(Bscript::MBR_DMG_MOD, newvalue);
-    }
-
-    inline s16 UWeapon::speed_mod() const
-    {
-        return getmember<s16>(Bscript::MBR_SPEED_MOD);
-    }
-    inline void UWeapon::speed_mod(s16 newvalue)
-    {
-        setmember<s16>(Bscript::MBR_SPEED_MOD, newvalue);
-    }
 
 	void load_weapon_templates();
 	bool isa_weapon( u32 objtype );

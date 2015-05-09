@@ -211,24 +211,28 @@ namespace Pol {
 
       for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 	  {
-
 		switch ( element )
 		{
-          case Core::ELEMENTAL_FIRE: 
-            item->setBaseResistance( Core::ELEMENTAL_FIRE, id.element_resist.fire );
-            item->setBaseElementDamage( Core::ELEMENTAL_FIRE, id.element_damage.fire ); break;
+          case Core::ELEMENTAL_FIRE:
+            item->fire_resist(item->fire_resist().addToValue(id.element_resist.fire));
+            item->fire_damage(item->fire_damage().addToValue(id.element_damage.fire));
+            break;
           case Core::ELEMENTAL_COLD: 
-            item->setBaseResistance( Core::ELEMENTAL_COLD, id.element_resist.cold );
-            item->setBaseElementDamage( Core::ELEMENTAL_COLD, id.element_damage.cold ); break;
+            item->cold_resist(item->cold_resist().addToValue(id.element_resist.cold));
+            item->cold_damage(item->cold_damage().addToValue(id.element_damage.cold));
+            break;
           case Core::ELEMENTAL_ENERGY: 
-            item->setBaseResistance( Core::ELEMENTAL_ENERGY, id.element_resist.energy );
-            item->setBaseElementDamage( Core::ELEMENTAL_ENERGY, id.element_damage.energy ); break;
+            item->energy_resist(item->energy_resist().addToValue(id.element_resist.energy));
+            item->energy_damage(item->energy_damage().addToValue(id.element_damage.energy));
+            break;
           case Core::ELEMENTAL_POISON: 
-            item->setBaseResistance( Core::ELEMENTAL_POISON, id.element_resist.poison );
-            item->setBaseElementDamage( Core::ELEMENTAL_POISON, id.element_damage.poison ); break;
+            item->poison_resist(item->poison_resist().addToValue(id.element_resist.poison));
+            item->poison_damage(item->poison_damage().addToValue(id.element_damage.poison));
+            break;
           case Core::ELEMENTAL_PHYSICAL: 
-            item->setBaseResistance( Core::ELEMENTAL_PHYSICAL, id.element_resist.physical );
-            item->setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, id.element_damage.physical ); break;
+            item->physical_resist(item->physical_resist().addToValue(id.element_resist.physical));
+            item->physical_damage(item->physical_damage().addToValue(id.element_damage.physical));
+            break;
 		}
 	  }
 

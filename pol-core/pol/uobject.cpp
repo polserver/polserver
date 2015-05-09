@@ -17,7 +17,6 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/streamsaver.h"
-#include "../bscript/objmembers.h"
 
 #include "../plib/realm.h"
 #include "../plib/systemstate.h"
@@ -67,8 +66,9 @@ namespace Pol {
 
 	std::atomic<unsigned int> UObject::dirty_writes;
 	std::atomic<unsigned int> UObject::clean_writes;
-
-	UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class ) :
+    AosValuePack UObject::DEFAULT_AOSVALUEPACK = AosValuePack();
+    
+	UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class ) : DynamicPropsHolder(),
 	  serial( 0 ),
 	  serial_ext( 0 ),
 	  objtype_( objtype ),
@@ -108,7 +108,7 @@ namespace Pol {
     size_t UObject::estimatedSize() const
     {
       size_t size = sizeof(UObject) + proplist_.estimatedSize();
-      size += dynmap.size() * (sizeof( unsigned short ) + sizeof( boost::any ) * 2 + ( sizeof(void*)* 3 + 1 ) / 2);
+      size += estimateSizeDynProps();
       return size;
     }
 
@@ -391,100 +391,5 @@ namespace Pol {
 	{
 	  return "object";
 	}
-
-    
-    s16 UObject::getBaseResistance( ElementalType type ) const
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_RESIST );
-        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_RESIST );
-        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_RESIST );
-        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_RESIST );
-        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_RESIST );
-      }
-      return 0;
-    }
-    void UObject::setBaseResistance( ElementalType type, s16 value )
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_RESIST, value );
-        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_RESIST, value );
-        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_RESIST, value );
-        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_RESIST, value );
-        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_RESIST, value );
-      }
-    }
-    s16 UObject::getResistanceMod( ElementalType type ) const
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_RESIST_MOD );
-        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_RESIST_MOD );
-        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_RESIST_MOD );
-        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_RESIST_MOD );
-        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_RESIST_MOD );
-      }
-      return 0;
-    }
-    void UObject::setResistanceMod( ElementalType type, s16 value )
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_RESIST_MOD, value );
-        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_RESIST_MOD, value );
-        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_RESIST_MOD, value );
-        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_RESIST_MOD, value );
-        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_RESIST_MOD, value );
-      }
-    }
-
-    s16 UObject::getBaseElementDamage( ElementalType type ) const
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_DAMAGE );
-        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_DAMAGE );
-        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_DAMAGE );
-        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_DAMAGE );
-        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE );
-      }
-      return 0;
-    }
-    void UObject::setBaseElementDamage( ElementalType type, s16 value )
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_DAMAGE, value );
-        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_DAMAGE, value );
-        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_DAMAGE, value );
-        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_DAMAGE, value );
-        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE, value );
-      }
-    }
-    s16 UObject::getElementDamageMod( ElementalType type ) const 
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_DAMAGE_MOD );
-        case ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_DAMAGE_MOD );
-        case ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_DAMAGE_MOD );
-        case ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_DAMAGE_MOD );
-        case ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE_MOD );
-      }
-      return 0;
-    }
-    void UObject::setElementDamageMod( ElementalType type, s16 value )
-    {
-      switch ( type )
-      {
-        case ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_DAMAGE_MOD, value );
-        case ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_DAMAGE_MOD, value );
-        case ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_DAMAGE_MOD, value );
-        case ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_DAMAGE_MOD, value );
-        case ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE_MOD, value );
-      }
-    }
   }
 }

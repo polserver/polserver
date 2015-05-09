@@ -5,7 +5,9 @@ History
 
 Notes
 =======
-
+ATTENTION:
+This header is part of the PCH
+Remove the include in all StdAfx.h files or live with the consequences :)
 */
 
 
@@ -21,11 +23,10 @@ Notes
 #endif
 
 #include "../clib/refptr.h"
+#include "dynproperties.h"
 #include "proplist.h"
 
 #include "../clib/boostutils.h"
-
-#include "../bscript/objmembers.h" // needed for knowing the definitions of MBR_...
 
 #include <boost/any.hpp>
 #include <boost/flyweight.hpp>
@@ -90,14 +91,6 @@ namespace Pol {
 	  s16 physical;
 	};
 
-	struct Resistances_Mods
-	{
-	  s16 fire;
-	  s16 cold;
-	  s16 poison;
-	  s16 energy;
-	  s16 physical;
-	};
 	enum ElementalType
 	{
 	  ELEMENTAL_TYPE_MAX = 0x4,
@@ -117,78 +110,16 @@ namespace Pol {
 	  s16 physical;
 	};
 
-	struct ElementDamages_Mods
-	{
-	  s16 fire;
-	  s16 cold;
-	  s16 poison;
-	  s16 energy;
-	  s16 physical;
-	};
-
-	struct Expanded_Statbar
-	{
-	  static const s16 default_statcap = 225;
-	  static const s16 default_luck = 0;
-	  static const s8 default_followers = 0;
-	  static const s8 default_followers_max = 0;
-	  static const s16 default_dmg_min = 0;
-	  static const s16 default_dmg_max = 0;
-	  static const s32 default_tithing = 0;
-	  Expanded_Statbar() :
-		statcap( default_statcap ),
-		luck( default_luck ),
-		followers( default_followers ),
-		followers_max( default_followers_max ),
-		dmg_min( default_dmg_min ),
-		dmg_max( default_dmg_max ),
-		tithing( default_tithing )
-	  {
-	  };
-	  s16 statcap;
-	  s16 luck;
-	  s8 followers;
-	  s8 followers_max;
-	  s16 dmg_min;
-	  s16 dmg_max;
-	  s32 tithing;
-	};
-
-	struct MovementCost_Mod
-	{
-	  MovementCost_Mod() :
-		walk( 1.0 ),
-		run( 1.0 ),
-		walk_mounted( 1.0 ),
-		run_mounted( 1.0 )
-	  {
-	  };
-	  double walk;
-	  double run;
-	  double walk_mounted;
-	  double run_mounted;
-	};
 #ifdef _MSC_VER
 #	pragma pack( pop )
 #else
 #	pragma pack()
 #endif
-    typedef std::map<unsigned short, boost::any> AnyMemberMap;
-	template<typename T>
-	struct MemberHelper
-	{
-	public:
-      
-      static bool getmember( const AnyMemberMap &map, unsigned short member, T* value );
-      static T getmember( const AnyMemberMap &map, unsigned short member );
-      static void setmember( AnyMemberMap &map, unsigned short member, const T& value, const T& defaultvalue );
-	  static void setmember( AnyMemberMap &map, unsigned short member, const T& value );
-    };
 
 	/* NOTES:
 			if you add fields, be sure to update Items::create().
 			*/
-	class UObject : protected ref_counted
+	class UObject : protected ref_counted, public DynamicPropsHolder
 	{
 	public:
 	  enum UOBJ_CLASS
@@ -290,16 +221,6 @@ namespace Pol {
 	  static std::atomic<unsigned int> dirty_writes;
 	  static std::atomic<unsigned int>  clean_writes;
 
-      s16 getBaseResistance( ElementalType type ) const;
-      void setBaseResistance( ElementalType type, s16 value );
-      s16 getResistanceMod( ElementalType type ) const;
-      void setResistanceMod( ElementalType type, s16 value );
-
-      s16 getBaseElementDamage( ElementalType type ) const;
-      void setBaseElementDamage( ElementalType type, s16 value );
-      s16 getElementDamageMod( ElementalType type ) const;
-      void setElementDamageMod( ElementalType type, s16 value );
-
 	protected:
 
 	  virtual void printProperties( Clib::StreamWriter& sw ) const;
@@ -340,6 +261,20 @@ namespace Pol {
 	  bool saveonexit_;	// 1-25-2009 MuadDib added. So far only items will make use of this.
 	  // Another possibility is adding this to NPCs for WoW style Instances.
 
+      DYN_PROPERTY(maxhp_mod, s16, PROP_MAXHP_MOD, 0);
+      static AosValuePack DEFAULT_AOSVALUEPACK;
+      DYN_PROPERTY(fire_resist,     AosValuePack, PROP_RESIST_FIRE,     DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(cold_resist,     AosValuePack, PROP_RESIST_COLD,     DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(energy_resist,   AosValuePack, PROP_RESIST_ENERGY,   DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(poison_resist,   AosValuePack, PROP_RESIST_POISON,   DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(physical_resist, AosValuePack, PROP_RESIST_PHYSICAL, DEFAULT_AOSVALUEPACK);
+
+      DYN_PROPERTY(fire_damage,     AosValuePack, PROP_DAMAGE_FIRE,     DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(cold_damage,     AosValuePack, PROP_DAMAGE_COLD,     DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(energy_damage,   AosValuePack, PROP_DAMAGE_ENERGY,   DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(poison_damage,   AosValuePack, PROP_DAMAGE_POISON,   DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK);
+
 	private:
 	  const u8 uobj_class_;
 	  mutable bool dirty_;
@@ -347,19 +282,9 @@ namespace Pol {
 
 	protected:
       boost_utils::object_name_flystring name_;
-      
-      template <typename T>
-      T getmember(unsigned short member) const;
-      template <typename T>
-      bool getmember(unsigned short member, T* value) const;
-      template <typename T>
-      void setmember(unsigned short member, const T& value);
-      template <typename T>
-      void setmember(unsigned short member, const T& value, const T& defaultvalue);
 
 	private:
 	  PropertyList proplist_;
-	  AnyMemberMap dynmap;
       
 	private: // not implemented:
 	  UObject( const UObject& );
@@ -422,75 +347,6 @@ namespace Pol {
 	{
 	  return ( serial & 0x40000000Lu ) ? true : false;
 	}
-
-    //////////////////////
-    // MemberHelper Imp
-    template<typename T>
-	inline bool MemberHelper<T>::getmember( const AnyMemberMap &map, unsigned short member, T* value )
-	{
-	  auto itr = map.find( member );
-	  if ( itr == map.end() )
-      	return false;
-      *value = boost::any_cast<T>( ( *itr ).second );
-      return true;
-	};
-    template<typename T>
-    inline T MemberHelper<T>::getmember( const AnyMemberMap &map, unsigned short member )
-	{
-      T value;
-      if (getmember(map,member,&value))
-        return value;
-      return 0;
-	};
-    template<typename T>
-    inline void MemberHelper<T>::setmember( AnyMemberMap &map, unsigned short member, const T& value, const T& defaultvalue )
-    {
-      if ( value == defaultvalue )
-		map.erase( member );
-	  else
-		map[member] = value;
-    }
-    template<typename T>
-    inline void MemberHelper<T>::setmember( AnyMemberMap &map, unsigned short member, const T& value )
-	{
-      setmember(map, member, value, 0);
-	};
-
-    template<>
-	inline std::string MemberHelper<std::string>::getmember( const AnyMemberMap &map, unsigned short member )
-    {
-      std::string value;
-      if (getmember(map,member,&value))
-        return value;
-      return "";
-    }
-    template<>
-	inline void MemberHelper<std::string>::setmember( AnyMemberMap &map, unsigned short member, const std::string& value )
-	{
-      setmember(map, member, value, "");
-	}
-
-
-    template <typename T>
-    inline T UObject::getmember(unsigned short member) const
-    {
-        return MemberHelper<T>::getmember(dynmap, member);
-    }
-    template <typename T>
-    inline bool UObject::getmember(unsigned short member, T* value) const
-    {
-        return MemberHelper<T>::getmember(dynmap, member, value);
-    }
-    template <typename T>
-    inline void UObject::setmember(unsigned short member, const T& value)
-    {
-        MemberHelper<T>::setmember(dynmap, member, value);
-    }
-    template <typename T>
-    inline void UObject::setmember(unsigned short member, const T& value, const T& defaultvalue)
-    {
-      MemberHelper<T>::setmember(dynmap, member, value, defaultvalue);
-    }
   }
 }
 

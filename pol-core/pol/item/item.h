@@ -125,9 +125,6 @@ namespace Pol {
 
 	  virtual std::string name() const POL_OVERRIDE;
 
-      std::string name_suffix() const;
-      void name_suffix(const std::string& name);
-
 	  virtual UObject* owner() POL_OVERRIDE;
 	  virtual const UObject* owner() const POL_OVERRIDE;
 	  virtual UObject* toplevel_owner() POL_OVERRIDE;
@@ -223,8 +220,6 @@ namespace Pol {
 	  u8 tile_layer;
 	  unsigned short hp_;
 	  unsigned short maxhp() const;
-      s16 maxhp_mod() const;
-      void maxhp_mod(s16 newvalue);
 
 	  double quality_;
 
@@ -232,6 +227,13 @@ namespace Pol {
       s16 calc_element_damage( Core::ElementalType element ) const;
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
+
+      DYN_PROPERTY(maxhp_mod,   s16,         Core::PROP_MAXHP_MOD,   0);
+      DYN_PROPERTY(name_suffix, std::string, Core::PROP_NAME_SUFFIX, "");
+    private:
+      // sell and buyprice generated functions only private! (additional logic needed)
+      DYN_PROPERTY(sellprice_, u32, Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);
+      DYN_PROPERTY(buyprice_,  u32, Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
 
     private:
         Mobile::Character* gotten_by_;
@@ -333,22 +335,6 @@ namespace Pol {
 	  }
 	  return true;
 	}
-
-    inline s16 Item::maxhp_mod() const {
-        return getmember<s16>(Bscript::MBR_MAXHP_MOD);
-    }
-    inline void Item::maxhp_mod(s16 newvalue) {
-        setmember<s16>(Bscript::MBR_MAXHP_MOD, newvalue);
-    }
-
-    inline std::string Item::name_suffix() const
-    {
-        return getmember<std::string>(Bscript::MBR_NAME_SUFFIX);
-    }
-    inline void Item::name_suffix(const std::string &suffix)
-    {
-        setmember<std::string>(Bscript::MBR_NAME_SUFFIX, suffix);
-    }
 
     inline bool valid_equip_layer(int layer) {
         return layer >= Core::LAYER_INFO::LOWEST_LAYER && layer <= Core::LAYER_INFO::HIGHEST_LAYER;

@@ -253,6 +253,10 @@ namespace Pol {
 	  Core::gamestate.armor_zone_chance_sum = 0;
 	}
 
+    const Core::MovementCostMod Character::DEFAULT_MOVEMENTCOSTMOD = Core::MovementCostMod(1.0,1.0,1.0,1.0);
+    const Core::ExtStatBarFollowers Character::DEFAULT_EXTSTATBARFOLLOWERS = Core::ExtStatBarFollowers(0,0);
+    const Core::SkillStatCap Character::DEFAULT_SKILLSTATCAP = Core::SkillStatCap(225,700);
+
 	Character::Character( u32 objtype, UOBJ_CLASS uobj_class ) :
 	  UObject( objtype, uobj_class ),
 	  // NPC
@@ -276,7 +280,6 @@ namespace Pol {
       movemode( Core::MOVEMODE_LAND ),
 	  lightoverride( -1 ),
 	  lightoverride_until( 0 ),
-	  movement_cost(),
 	  // COMBAT
 	  warmode_wait( 0 ),
 	  ar_( 0 ),
@@ -330,8 +333,6 @@ namespace Pol {
 	  cmdlevel_( 0 ),
 	  warmode( false ),
 	  poisoned_( false ),
-	  expanded_statbar(),
-	  skillcap_( default_skillcap ),
 	  dead_( false ),
 	  hidden_( false ),
 	  concealed_( 0 ),
@@ -364,8 +365,6 @@ namespace Pol {
 	  wornitems.chr_owner = this; //FIXME, dangerous.
 
 	  set_caps_to_default();
-
-	  load_default_elements();
 
 	  // vector
 	  refresh_cached_settings( false );
@@ -600,47 +599,50 @@ namespace Pol {
 	  if ( frozen_ )
 		sw() << "\tFrozen\t" << static_cast<int>( frozen_ ) << pf_endl;
 
-      s16 value = getResistanceMod( Core::ELEMENTAL_FIRE );
+      s16 value = fire_resist().mod;
       if ( value != 0 )
         sw( ) << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_COLD );
+      value = cold_resist().mod;
       if ( value != 0 )
         sw( ) << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_ENERGY );
+      value = energy_resist().mod;
       if ( value != 0 )
         sw( ) << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_POISON );
+      value = poison_resist().mod;
       if ( value != 0 )
         sw( ) << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_PHYSICAL );
+      value = physical_resist().mod;
       if ( value != 0 )
         sw( ) << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
       
-      value = getElementDamageMod( Core::ELEMENTAL_FIRE );
+      value = fire_damage().mod;
       if ( value != 0 )
         sw( ) << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_COLD );
+      value = cold_damage().mod;
       if ( value != 0 )
         sw( ) << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_ENERGY );
+      value = energy_damage().mod;
       if ( value != 0 )
         sw( ) << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_POISON );
+      value = poison_damage().mod;
       if ( value != 0 )
         sw( ) << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_PHYSICAL );
+      value = physical_damage().mod;
       if ( value != 0 )
         sw( ) << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
 
-	  if ( movement_cost.walk != 1.0 )
-		sw() << "\tMovementWalkMod\t" << static_cast<double>( movement_cost.walk ) << pf_endl;
-	  if ( movement_cost.run != 1.0 )
-		sw() << "\tMovementRunMod\t" << static_cast<double>( movement_cost.run ) << pf_endl;
-	  if ( movement_cost.walk_mounted != 1.0 )
-		sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( movement_cost.walk_mounted ) << pf_endl;
-	  if ( movement_cost.run_mounted != 1.0 )
-		sw() << "\tMovementRunMountedMod\t" << static_cast<double>( movement_cost.run_mounted ) << pf_endl;
-
+      if (has_movement_cost())
+      {
+        auto value = movement_cost();
+	    if ( value.walk != DEFAULT_MOVEMENTCOSTMOD.walk )
+		  sw() << "\tMovementWalkMod\t" << static_cast<double>( value.walk ) << pf_endl;
+	    if ( value.run != DEFAULT_MOVEMENTCOSTMOD.run )
+		  sw() << "\tMovementRunMod\t" << static_cast<double>( value.run ) << pf_endl;
+	    if ( value.walk_mounted != DEFAULT_MOVEMENTCOSTMOD.walk_mounted )
+		  sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( value.walk_mounted ) << pf_endl;
+	    if ( value.run_mounted != DEFAULT_MOVEMENTCOSTMOD.run_mounted )
+		  sw() << "\tMovementRunMountedMod\t" << static_cast<double>( value.run_mounted ) << pf_endl;
+      }
 	  if ( carrying_capacity_mod_ )
 		sw() << "\tCarryingCapacityMod\t" << static_cast<int>( carrying_capacity_mod_ ) << pf_endl;
 
@@ -677,9 +679,6 @@ namespace Pol {
 		}
 	  }
 
-	  if ( skillcap_ != default_skillcap)
-		sw() << "\tSkillcap\t" << static_cast<int>( skillcap_ ) << pf_endl;
-
 	  // output Vitals
       for ( Core::Vital* pVital = Core::FindVital( 0 ); pVital != NULL; pVital = pVital->next )
 	  {
@@ -690,17 +689,28 @@ namespace Pol {
 		}
 	  }
 
-	  if ( expanded_statbar.statcap != Core::Expanded_Statbar::default_statcap )
-		sw() << "\tStatcap\t" << static_cast<int>( expanded_statbar.statcap ) << pf_endl;
+	  if ( has_skillstatcap() )
+      {
+        auto value = skillstatcap();
+        if (value.statcap != DEFAULT_SKILLSTATCAP.statcap)
+		  sw() << "\tStatcap\t" << static_cast<int>( value.statcap ) << pf_endl;
+        if ( value.skillcap != DEFAULT_SKILLSTATCAP.skillcap)
+		  sw() << "\tSkillcap\t" << static_cast<int>( value.skillcap ) << pf_endl;
+      }
 
-	  if ( expanded_statbar.luck != 0 )
-		sw() << "\tLuck\t" << static_cast<int>( expanded_statbar.luck ) << pf_endl;
-	  if ( expanded_statbar.followers_max != 0 )
-		sw() << "\tFollowersMax\t" << static_cast<int>( expanded_statbar.followers_max ) << pf_endl;
-	  if ( expanded_statbar.tithing != 0 )
-		sw() << "\tTithing\t" << static_cast<int>( expanded_statbar.tithing ) << pf_endl;
-	  if ( expanded_statbar.followers != 0 )
-		sw() << "\tFollowers\t" << static_cast<int>( expanded_statbar.followers ) << pf_endl;
+	  if ( has_luck() )
+		sw() << "\tLuck\t" << static_cast<int>( luck() ) << pf_endl;
+      if ( has_followers() )
+      {
+        auto value = followers();
+        if (value.followers_max != DEFAULT_EXTSTATBARFOLLOWERS.followers_max)
+          sw() << "\tFollowersMax\t" << static_cast<int>( value.followers_max ) << pf_endl;
+        if (value.followers != DEFAULT_EXTSTATBARFOLLOWERS.followers)
+          sw() << "\tFollowers\t" << static_cast<int>( value.followers ) << pf_endl;
+      }
+      if (has_tithing())
+		sw() << "\tTithing\t" << static_cast<int>( tithing() ) << pf_endl;
+
 
       if ( movemode != Core::MOVEMODE_LAND )
 		sw() << "\tMoveMode\t" << encode_movemode( movemode ) << pf_endl;
@@ -889,22 +899,44 @@ namespace Pol {
 	  hidden_ = elem.remove_bool( "HIDDEN", false );
 	  frozen_ = elem.remove_bool( "FROZEN", false );
 
-      setResistanceMod( Core::ELEMENTAL_FIRE, static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_COLD, static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_ENERGY, static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_POISON, static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_PHYSICAL, static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) ) );
+      s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
+      if (mod_value != 0)
+        fire_resist(fire_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        cold_resist(cold_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        energy_resist(energy_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        poison_resist(poison_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        physical_resist(physical_resist().setAsMod(mod_value));
 
-      setElementDamageMod( Core::ELEMENTAL_FIRE, static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_COLD, static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_ENERGY, static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_POISON, static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_PHYSICAL, static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) ) );
+      mod_value = static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        fire_damage(fire_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        cold_damage(cold_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        energy_damage(energy_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        poison_damage(poison_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        physical_damage(physical_damage().setAsMod(mod_value));
 
-	  movement_cost.walk = elem.remove_double( "MovementWalkMod", 1.0 );
-	  movement_cost.run = elem.remove_double( "MovementRunMod", 1.0 );
-	  movement_cost.walk_mounted = elem.remove_double( "MovementWalkMountedMod", 1.0 );
-	  movement_cost.run_mounted = elem.remove_double( "MovementRunMountedMod", 1.0 );
+      movement_cost( Core::MovementCostMod(
+        elem.remove_double( "MovementWalkMod", DEFAULT_MOVEMENTCOSTMOD.walk ),
+        elem.remove_double( "MovementRunMod", DEFAULT_MOVEMENTCOSTMOD.run ),
+        elem.remove_double( "MovementWalkMountedMod", DEFAULT_MOVEMENTCOSTMOD.walk_mounted ),
+        elem.remove_double( "MovementRunMountedMod", DEFAULT_MOVEMENTCOSTMOD.run_mounted )
+        ));
 
 	  carrying_capacity_mod_ = static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) );
 
@@ -937,12 +969,16 @@ namespace Pol {
 	  }
 
 	  uclang = elem.remove_string( "UCLang", "enu" );
-	  expanded_statbar.statcap = static_cast<s16>( elem.remove_int( "STATCAP", Core::Expanded_Statbar::default_statcap ) );
-	  skillcap_ = static_cast<u16>( elem.remove_int( "SKILLCAP", default_skillcap ) );
-	  expanded_statbar.luck = static_cast<s16>( elem.remove_int( "LUCK", Core::Expanded_Statbar::default_luck ) );
-	  expanded_statbar.followers = static_cast<s8>( elem.remove_int( "FOLLOWERS", Core::Expanded_Statbar::default_followers ) );
-	  expanded_statbar.followers_max = static_cast<s8>( elem.remove_int( "FOLLOWERSMAX", Core::Expanded_Statbar::default_followers_max ) );
-	  expanded_statbar.tithing = elem.remove_int( "TITHING", Core::Expanded_Statbar::default_tithing );
+      skillstatcap( Core::SkillStatCap(
+        static_cast<s16>( elem.remove_int( "STATCAP", DEFAULT_SKILLSTATCAP.statcap ) ),
+        static_cast<u16>( elem.remove_int( "SKILLCAP", DEFAULT_SKILLSTATCAP.skillcap ) )
+        ));
+	  luck( static_cast<s16>( elem.remove_int( "LUCK", 0 ) ) );
+      followers( Core::ExtStatBarFollowers(
+        static_cast<s8>( elem.remove_int( "FOLLOWERS", DEFAULT_EXTSTATBARFOLLOWERS.followers ) ),
+        static_cast<s8>( elem.remove_int( "FOLLOWERSMAX", DEFAULT_EXTSTATBARFOLLOWERS.followers_max ) )
+        ));
+	  tithing( elem.remove_int( "TITHING", 0 ) );
 
 	  privs.readfrom( elem.remove_string( "Privs", "" ) );
 	  settings.readfrom( elem.remove_string( "Settings", "" ) );
@@ -1074,35 +1110,6 @@ namespace Pol {
 	bool Character::setting_enabled( const char* setting ) const
 	{
 	  return settings.contains( setting ) || cached_settings.all;
-	}
-
-	void Character::load_default_elements()
-	{
-	  // Let's build the resistances defaults.
-      setBaseResistance( Core::ELEMENTAL_FIRE, 0 );
-      setBaseResistance( Core::ELEMENTAL_COLD, 0 );
-      setBaseResistance( Core::ELEMENTAL_ENERGY, 0 );
-      setBaseResistance( Core::ELEMENTAL_POISON, 0 );
-      setBaseResistance( Core::ELEMENTAL_PHYSICAL, 0 );
-	  // Mods
-      setResistanceMod( Core::ELEMENTAL_FIRE, 0 );
-      setResistanceMod( Core::ELEMENTAL_COLD, 0 );
-      setResistanceMod( Core::ELEMENTAL_ENERGY, 0 );
-      setResistanceMod( Core::ELEMENTAL_POISON, 0 );
-      setResistanceMod( Core::ELEMENTAL_PHYSICAL, 0 );
-
-	  // Let's build the damages defaults.
-      setBaseElementDamage( Core::ELEMENTAL_FIRE, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_COLD, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_ENERGY, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_POISON, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
-	  // Mods
-      setElementDamageMod( Core::ELEMENTAL_FIRE, 0 );
-      setElementDamageMod( Core::ELEMENTAL_COLD, 0 );
-      setElementDamageMod( Core::ELEMENTAL_ENERGY, 0 );
-      setElementDamageMod( Core::ELEMENTAL_POISON, 0 );
-      setElementDamageMod( Core::ELEMENTAL_PHYSICAL, 0 );
 	}
 
 	void Character::refresh_cached_settings( bool update )
@@ -2487,24 +2494,192 @@ namespace Pol {
 
     void Character::update_element( Core::ElementalType element, Items::Item *item )
 	{
-      setBaseResistance( element, getBaseResistance( element ) + item->calc_element_resist( element ) );
-      setBaseElementDamage( element, getBaseElementDamage( element ) + item->calc_element_damage( element ) );
+      Core::AosValuePack curr;
+      switch (element)
+      {
+      case Core::ELEMENTAL_FIRE:
+        if (item->has_fire_resist())
+          fire_resist(fire_resist().addToValue(item->fire_resist()));
+        break;
+      case Core::ELEMENTAL_COLD:
+        if (item->has_cold_resist())
+          cold_resist(cold_resist().addToValue(item->cold_resist()));
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        if (item->has_energy_resist())
+          energy_resist(energy_resist().addToValue(item->energy_resist()));
+        break;
+      case Core::ELEMENTAL_POISON:
+        if (item->has_poison_resist())
+          poison_resist(poison_resist().addToValue(item->poison_resist()));
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        if (item->has_physical_resist())
+          physical_resist(physical_resist().addToValue(item->physical_resist()));
+        break;
+      }
+      switch (element)
+      {
+      case Core::ELEMENTAL_FIRE:
+        if (item->has_fire_damage())
+          fire_damage(fire_damage().addToValue(item->fire_damage()));
+        break;
+      case Core::ELEMENTAL_COLD:
+        if (item->has_cold_damage())
+          cold_damage(cold_damage().addToValue(item->cold_damage()));
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        if (item->has_energy_damage())
+          energy_damage(energy_damage().addToValue(item->energy_damage()));
+        break;
+      case Core::ELEMENTAL_POISON:
+        if (item->has_poison_damage())
+          poison_damage(poison_damage().addToValue(item->poison_damage()));
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        if (item->has_physical_damage())
+          physical_damage(physical_damage().addToValue(item->physical_damage()));
+        break;
+      }
 	}
 
 	void Character::refresh_element( Core::ElementalType element )
 	{
-      setBaseResistance( element, getResistanceMod( element ) );
-      setBaseElementDamage( element, getElementDamageMod( element ) );
+      Core::AosValuePack curr;
+      switch (element)
+      {
+      case Core::ELEMENTAL_FIRE:
+        if (has_fire_resist())
+        {
+          curr = fire_resist();
+          curr.value = curr.mod;
+          fire_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_COLD:
+        if (has_cold_resist())
+        {
+          curr = cold_resist();
+          curr.value = curr.mod;
+          cold_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        if (has_energy_resist())
+        {
+          curr = energy_resist();
+          curr.value = curr.mod;
+          energy_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_POISON:
+        if (has_poison_resist())
+        {
+          curr = poison_resist();
+          curr.value = curr.mod;
+          poison_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        if (has_physical_resist())
+        {
+          curr = physical_resist();
+          curr.value = curr.mod;
+          physical_resist(curr);
+        }
+        break;
+      }
+      switch ( element )
+      {
+        case Core::ELEMENTAL_FIRE:
+          if ( has_fire_damage() )
+          {
+            curr = fire_damage();
+            curr.value = curr.mod;
+            fire_damage( curr );
+          }
+          break;
+        case Core::ELEMENTAL_COLD:
+          if ( has_cold_damage() )
+          {
+            curr = cold_damage();
+            curr.value = curr.mod;
+            cold_damage( curr );
+          }
+          break;
+        case Core::ELEMENTAL_ENERGY:
+          if ( has_energy_damage() )
+          {
+            curr = energy_damage();
+            curr.value = curr.mod;
+            energy_damage( curr );
+          }
+          break;
+        case Core::ELEMENTAL_POISON:
+          if ( has_poison_damage() )
+          {
+            curr = poison_damage();
+            curr.value = curr.mod;
+            poison_damage( curr );
+          }
+          break;
+        case Core::ELEMENTAL_PHYSICAL:
+          if ( has_physical_damage() )
+          {
+            curr = physical_damage();
+            curr.value = curr.mod;
+            physical_damage( curr );
+          }
+          break;
+      }
 	}
 
     s16 Character::calc_element_resist( Core::ElementalType resist ) const
 	{
-      return getBaseResistance( resist ) + getResistanceMod( resist );
+      Core::AosValuePack curr;
+      switch (resist)
+      {
+      case Core::ELEMENTAL_FIRE:
+        curr = fire_resist();
+        break;
+      case Core::ELEMENTAL_COLD:
+        curr = cold_resist();
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        curr = energy_resist();
+        break;
+      case Core::ELEMENTAL_POISON:
+        curr = poison_resist();
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        curr = physical_resist();
+        break;
+      }
+      return curr.value + curr.mod;
 	}
 
     s16 Character::calc_element_damage( Core::ElementalType element ) const
 	{
-      return getBaseElementDamage( element ) + getElementDamageMod( element );
+      Core::AosValuePack curr;
+      switch (element)
+      {
+      case Core::ELEMENTAL_FIRE:
+        curr = fire_damage();
+        break;
+      case Core::ELEMENTAL_COLD:
+        curr = cold_damage();
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        curr = energy_damage();
+        break;
+      case Core::ELEMENTAL_POISON:
+        curr = poison_damage();
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        curr = physical_damage();
+        break;
+      }
+      return curr.value + curr.mod;
 	}
 
 	void Character::showarmor() const
@@ -4107,9 +4282,6 @@ namespace Pol {
         + sizeof( Core::Menu* )/*menu*/
         + sizeof(int)/*lightoverride*/
         +sizeof( Core::gameclock_t )/*lightoverride_until*/
-        + sizeof( Core::Expanded_Statbar )/*expanded_statbar*/
-        + sizeof(u16)/*skillcap_*/
-        +sizeof( Core::MovementCost_Mod )/*movement_cost*/
         + sizeof(u16)/*_last_textcolor*/
         +sizeof( ref_ptr<Core::WornItemsContainer> )/*wornitems_ref*/
         + sizeof(unsigned short)/*ar_*/

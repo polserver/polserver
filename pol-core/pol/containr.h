@@ -173,14 +173,9 @@ namespace Pol {
 	  unsigned short max_weight() const;
 	  u8 max_slots() const;
 
-      s16 max_items_mod() const;
-      void max_items_mod(s16 newvalue);
-
-      s8 max_slots_mod() const;
-      void max_slots_mod(s8 newvalue);
-
-      s16 max_weight_mod() const;
-      void max_weight_mod(s16 newvalue);
+      DYN_PROPERTY(max_items_mod,  s16, Core::PROP_MAX_ITEMS_MOD,  0);
+      DYN_PROPERTY(max_slots_mod,  s8,  Core::PROP_MAX_SLOTS_MOD,  0);
+      DYN_PROPERTY(max_weight_mod, s16, Core::PROP_MAX_WEIGHT_MOD, 0);
 
 	protected:
 	  Contents contents_;
@@ -228,31 +223,6 @@ namespace Pol {
 	{
 	  return ITEM_ELEM_PTR( contents_[idx] );
 	}
-
-    inline s16 UContainer::max_items_mod() const {
-        return getmember<s16>(Bscript::MBR_MAX_ITEMS_MOD);
-    }
-    inline void UContainer::max_items_mod(s16 newvalue) {
-        setmember<s16>(Bscript::MBR_MAX_ITEMS_MOD, newvalue);
-    }
-
-    inline s8 UContainer::max_slots_mod() const
-    {
-        return getmember<s8>(Bscript::MBR_MAX_SLOTS_MOD);
-    }
-    inline void UContainer::max_slots_mod(s8 newvalue)
-    {
-        setmember<s8>(Bscript::MBR_MAX_SLOTS_MOD, newvalue);
-    }
-
-    inline s16 UContainer::max_weight_mod() const
-    {
-        return getmember<s16>(Bscript::MBR_MAX_WEIGHT_MOD);
-    }
-    inline void UContainer::max_weight_mod(s16 newvalue)
-    {
-        setmember<s16>(Bscript::MBR_MAX_WEIGHT_MOD, newvalue);
-    }
   }
 }
 #endif

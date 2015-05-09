@@ -3,23 +3,25 @@
 # Build with CLANG
 
 export BUILD64POL=1
-#export USE_MYSQL=1
+export USE_MYSQL=1
 
 export LIBCRYPT="crypto"
 export POL_BUILDTAG="ubuntu"
-export CXX_MORE_OPTS="-O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
+export CXX_MORE_OPTS="-O3 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\" -Wno-unused-local-typedef"
 
+#ASAN_SYMBOLIZER_PATH=/usr/lib/llvm-3.6/bin/llvm-symbolizer ./pol-dynamic
+#MSAN_SYMBOLIZER_PATH=/usr/lib/llvm-3.6/bin/llvm-symbolizer ./pol-dynamic
 
 case "$1" in
 	-n|--normal)
 		##use clang normal build
-		CC="clang -std=c++11 -Wfatal-errors" LINKER="clang -std=c++11" make -j3 -f makefile.gcc dynrelease
+		CC="clang++-3.6 -std=c++11 -Wfatal-errors" LINKER="clang++-3.6 -std=c++11" make -j3 -f makefile.gcc dynrelease
 		;;
 	-a|--analyze)
 		# normal build + static analyze
 		# pipe into a file (will loose the nice colors, but way to many lines for direct console)
 		export CXX_MORE_OPTS="-O0 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
-		CC="clang -std=c++11 --analyze -Xanalyzer -analyzer-output=text" LINKER="clang -std=c++11" make -f makefile.gcc release 2>&1 | tee clanganalyze.log
+		CC="clang++-3.6 -std=c++11 --analyze -Xanalyzer -analyzer-output=text" LINKER="clang++-3.6 -std=c++11" make -f makefile.gcc dynrelease 2>&1 | tee clanganalyze.log
 		;;
 	-m|--modernize)
 		# perform modernize on sourcecode
@@ -29,10 +31,30 @@ case "$1" in
 	-s|--scanbuild)
 		# scan build
 		export CXX_MORE_OPTS=" -std=c++11 -O0 -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\""
-		scan-build -v -o . --use-cc clang --use-c++ clang++ make -f makefile.gcc release
+		CC="clang-3.6 -std=c++11" LINKER="clang-3.6 -std=c++11" scan-build-3.6 -v -o . --use-cc clang-3.6 --use-c++ clang++-3.6   make -f makefile.gcc release
+		;;
+	-T|--threadS)
+		# compile with thread sanitizer
+		export CXX_MORE_OPTS="-O1 -g -fsanitize=thread -fno-omit-frame-pointer -DUSE_SYSTEM_ZLIB -DPERGON -DDEBUG_FLYWEIGHT -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\" -Wno-unused-local-typedef"
+		CC="clang++-3.6 -std=c++11 -Wfatal-errors" LINKER="clang++-3.6 -std=c++11" make -j3 -f makefile.gcc dynrelease
+		;;
+	-A|--addressS)
+		# compile with address sanitizer
+		export CXX_MORE_OPTS="-O1 -g -fsanitize=address -fno-omit-frame-pointer -DPERGON -DDEBUG_FLYWEIGHT -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\" -Wno-unused-local-typedef"
+		CC="clang++-3.6 -std=c++11 -Wfatal-errors" LINKER="clang++-3.6 -std=c++11" make -j3 -f makefile.gcc dynrelease
+		;;
+	-U|--undefinedS)
+		# compile with undefined sanitizer
+		#-fno-sanitize=vptr,function
+		export CXX_MORE_OPTS="-O1 -g -fsanitize=undefined -fno-sanitize=vptr,alignment,function -fno-omit-frame-pointer -DPERGON -DDEBUG_FLYWEIGHT -DUSE_SYSTEM_ZLIB -DHAVE_OPENSSL -DNDEBUG -D_REENTRANT -DPOL_BUILDTAG=\\\"ubuntu\\\" -Wno-unused-local-typedef"
+		CC="clang++-3.6 -std=c++11 -Wfatal-errors" LINKER="clang++-3.6 -std=c++11" make -j3 -f makefile.gcc dynrelease
 		;;
 	-c|--clean)
 		make -f makefile.gcc clean
+		;;
+	-b|--blubb)
+		##use clang normal build
+		CC="../include-what-you-use/include-what-you-use -std=c++11 -Wfatal-errors" LINKER="clang++-3.6 -std=c++11" make -j3 -f makefile.gcc dynrelease
 		;;
 	*)
 		echo "Clang builds"
@@ -41,6 +63,9 @@ case "$1" in
 		echo "-a, --analyze     perform static analyze (pipes into clanganalyze.log)"
 		echo "-m, --modernize   modernize code into c++11"
 		echo "-s, --scanbuild   perform static analyze (html report)"
+		echo "-T, --threadS     compile with thread sanitizer"
+		echo "-A, --addressS    compile with address sanitizer"
+		echo "-U, --undefinedS  compile with undefined behaviour sanitizer"
 		;;
 esac
 

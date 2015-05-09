@@ -876,21 +876,21 @@ namespace Pol {
 		case MBR_ENERGY_RESIST: return new BLong( calc_element_resist( Core::ELEMENTAL_ENERGY ) ); break;
 		case MBR_POISON_RESIST: return new BLong( calc_element_resist( Core::ELEMENTAL_POISON ) ); break;
 		case MBR_PHYSICAL_RESIST: return new BLong( calc_element_resist( Core::ELEMENTAL_PHYSICAL ) ); break;
-        case MBR_FIRE_RESIST_MOD: return new BLong( getResistanceMod( Core::ELEMENTAL_FIRE) ); break;
-        case MBR_COLD_RESIST_MOD: return new BLong( getResistanceMod( Core::ELEMENTAL_COLD ) ); break;
-        case MBR_ENERGY_RESIST_MOD: return new BLong( getResistanceMod( Core::ELEMENTAL_ENERGY ) ); break;
-        case MBR_POISON_RESIST_MOD: return new BLong( getResistanceMod( Core::ELEMENTAL_POISON ) ); break;
-        case MBR_PHYSICAL_RESIST_MOD: return new BLong( getResistanceMod( Core::ELEMENTAL_PHYSICAL ) ); break;
+        case MBR_FIRE_RESIST_MOD: return new BLong( fire_resist().mod ); break;
+        case MBR_COLD_RESIST_MOD: return new BLong( cold_resist().mod ); break;
+        case MBR_ENERGY_RESIST_MOD: return new BLong( energy_resist().mod ); break;
+        case MBR_POISON_RESIST_MOD: return new BLong( poison_resist().mod ); break;
+        case MBR_PHYSICAL_RESIST_MOD: return new BLong( physical_resist().mod ); break;
 		case MBR_FIRE_DAMAGE: return new BLong( calc_element_damage( Core::ELEMENTAL_FIRE ) ); break;
 		case MBR_COLD_DAMAGE: return new BLong( calc_element_damage( Core::ELEMENTAL_COLD ) ); break;
 		case MBR_ENERGY_DAMAGE: return new BLong( calc_element_damage( Core::ELEMENTAL_ENERGY ) ); break;
 		case MBR_POISON_DAMAGE: return new BLong( calc_element_damage( Core::ELEMENTAL_POISON ) ); break;
 		case MBR_PHYSICAL_DAMAGE: return new BLong( calc_element_damage( Core::ELEMENTAL_PHYSICAL ) ); break;
-        case MBR_FIRE_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_FIRE) ); break;
-        case MBR_COLD_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_COLD ) ); break;
-        case MBR_ENERGY_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_ENERGY ) ); break;
-        case MBR_POISON_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_POISON ) ); break;
-        case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) ); break;
+        case MBR_FIRE_DAMAGE_MOD: return new BLong( fire_damage().mod ); break;
+        case MBR_COLD_DAMAGE_MOD: return new BLong( cold_damage().mod ); break;
+        case MBR_ENERGY_DAMAGE_MOD: return new BLong( energy_damage().mod ); break;
+        case MBR_POISON_DAMAGE_MOD: return new BLong( poison_damage().mod ); break;
+        case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( physical_damage().mod ); break;
 		case MBR_GETGOTTENBY:
 		  if ( is_gotten() )
 			return new Module::ECharacterRefObjImp( get_gotten() );
@@ -997,7 +997,7 @@ namespace Pol {
 		  saveonexit( value ? true : false );
 		  return new BLong( saveonexit() );
 		case MBR_FIRE_RESIST_MOD:
-		  setResistanceMod(Core::ELEMENTAL_FIRE, static_cast<short>( value ));
+          fire_resist(fire_resist().setAsMod(static_cast<short>( value )));
 		  if ( container != NULL )
 		  {
 			if ( Core::IsCharacter( container->serial ) )
@@ -1007,10 +1007,10 @@ namespace Pol {
 				chr->refresh_ar();
 			}
 		  }
-          return new BLong( getResistanceMod( Core::ELEMENTAL_FIRE) );
+          return new BLong( fire_resist().mod );
 		  break;
 		case MBR_COLD_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_COLD, static_cast<short>( value ));
+          cold_resist(cold_resist().setAsMod(static_cast<short>( value )));
 		  if ( container != NULL )
 		  {
 			if ( Core::IsCharacter( container->serial ) )
@@ -1020,10 +1020,10 @@ namespace Pol {
 				chr->refresh_ar();
 			}
 		  }
-          return new BLong( getResistanceMod( Core::ELEMENTAL_COLD) );
+          return new BLong( cold_resist().mod );
 		  break;
 		case MBR_ENERGY_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_ENERGY, static_cast<short>( value ));
+          energy_resist(energy_resist().setAsMod(static_cast<short>( value )));
 		  if ( container != NULL )
 		  {
 			if ( Core::IsCharacter( container->serial ) )
@@ -1033,10 +1033,10 @@ namespace Pol {
 				chr->refresh_ar();
 			}
 		  }
-          return new BLong( getResistanceMod( Core::ELEMENTAL_ENERGY) );
+          return new BLong( energy_resist().mod );
 		  break;
 		case MBR_POISON_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_POISON, static_cast<short>( value ));
+          poison_resist(poison_resist().setAsMod(static_cast<short>( value )));
 		  if ( container != NULL )
 		  {
 			if ( Core::IsCharacter( container->serial ) )
@@ -1046,10 +1046,10 @@ namespace Pol {
 				chr->refresh_ar();
 			}
 		  }
-          return new BLong( getResistanceMod( Core::ELEMENTAL_POISON) );
+          return new BLong( poison_resist().mod );
 		  break;
 		case MBR_PHYSICAL_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_PHYSICAL, static_cast<short>( value ));
+          physical_resist(physical_resist().setAsMod(static_cast<short>( value )));
 		  if ( container != NULL )
 		  {
 			if ( Core::IsCharacter( container->serial ) )
@@ -1059,26 +1059,26 @@ namespace Pol {
 				chr->refresh_ar();
 			}
 		  }
-          return new BLong( getResistanceMod( Core::ELEMENTAL_PHYSICAL) );
+          return new BLong( physical_resist().mod );
 		  break;
 		case MBR_FIRE_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_FIRE, static_cast<short>( value ) );
+          fire_damage(fire_damage().setAsMod(static_cast<short>( value )));
 		  return new BLong( static_cast<short>( value ) );
 		  break;
 		case MBR_COLD_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_COLD, static_cast<short>( value ) );
+          cold_damage(cold_damage().setAsMod(static_cast<short>( value )));
 		  return new BLong( static_cast<short>( value ) );
 		  break;
 		case MBR_ENERGY_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_ENERGY, static_cast<short>( value ) );
+          energy_damage(energy_damage().setAsMod(static_cast<short>( value )));
 		  return new BLong( static_cast<short>( value ) );
 		  break;
 		case MBR_POISON_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_POISON, static_cast<short>( value ) );
+          poison_damage(poison_damage().setAsMod(static_cast<short>( value )));
 		  return new BLong( static_cast<short>( value ) );
 		  break;
 		case MBR_PHYSICAL_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_PHYSICAL, static_cast<short>( value ) );
+          physical_damage(physical_damage().setAsMod(static_cast<short>( value )));
 		  return new BLong( static_cast<short>( value ) );
 		  break;
 		case MBR_QUALITY: return new Double( ( quality_ = double( value ) ) );
@@ -1666,32 +1666,32 @@ namespace Pol {
 		case MBR_HITCHANCE_MOD:     return new BLong( hitchance_mod_ ); break;
 		case MBR_EVASIONCHANCE_MOD: return new BLong( evasionchance_mod_ ); break;
 		case MBR_CARRYINGCAPACITY_MOD: return new BLong( carrying_capacity_mod_ ); break;
-        case MBR_FIRE_RESIST:     return new BLong( getBaseResistance( Core::ELEMENTAL_FIRE ) ); break;
-        case MBR_COLD_RESIST:     return new BLong( getBaseResistance( Core::ELEMENTAL_COLD ) ); break;
-        case MBR_ENERGY_RESIST:   return new BLong( getBaseResistance( Core::ELEMENTAL_ENERGY ) ); break;
-        case MBR_POISON_RESIST:   return new BLong( getBaseResistance( Core::ELEMENTAL_POISON ) ); break;
-        case MBR_PHYSICAL_RESIST: return new BLong( getBaseResistance( Core::ELEMENTAL_PHYSICAL ) ); break;
-        case MBR_FIRE_RESIST_MOD:     return new BLong( getResistanceMod(Core::ELEMENTAL_FIRE) ); break;
-        case MBR_COLD_RESIST_MOD:     return new BLong( getResistanceMod( Core::ELEMENTAL_COLD ) ); break;
-        case MBR_ENERGY_RESIST_MOD:   return new BLong( getResistanceMod( Core::ELEMENTAL_ENERGY ) ); break;
-        case MBR_POISON_RESIST_MOD:   return new BLong( getResistanceMod( Core::ELEMENTAL_POISON ) ); break;
-        case MBR_PHYSICAL_RESIST_MOD: return new BLong( getResistanceMod( Core::ELEMENTAL_PHYSICAL ) ); break;
-		case MBR_STATCAP:      return new BLong( expanded_statbar.statcap ); break;
-		case MBR_SKILLCAP:     return new BLong( skillcap_ ); break;
-		case MBR_LUCK:         return new BLong( expanded_statbar.luck ); break;
-		case MBR_FOLLOWERSMAX: return new BLong( expanded_statbar.followers_max ); break;
-		case MBR_TITHING:      return new BLong( expanded_statbar.tithing ); break;
-		case MBR_FOLLOWERS:    return new BLong( expanded_statbar.followers ); break;
-        case MBR_FIRE_DAMAGE:     return new BLong( getBaseElementDamage( Core::ELEMENTAL_FIRE) ); break;
-        case MBR_COLD_DAMAGE:     return new BLong( getBaseElementDamage( Core::ELEMENTAL_COLD ) ); break;
-        case MBR_ENERGY_DAMAGE:   return new BLong( getBaseElementDamage( Core::ELEMENTAL_ENERGY ) ); break;
-        case MBR_POISON_DAMAGE:   return new BLong( getBaseElementDamage( Core::ELEMENTAL_POISON ) ); break;
-        case MBR_PHYSICAL_DAMAGE: return new BLong( getBaseElementDamage( Core::ELEMENTAL_PHYSICAL ) ); break;
-        case MBR_FIRE_DAMAGE_MOD:     return new BLong( getElementDamageMod( Core::ELEMENTAL_FIRE ) ); break;
-        case MBR_COLD_DAMAGE_MOD:     return new BLong( getElementDamageMod( Core::ELEMENTAL_COLD ) ); break;
-        case MBR_ENERGY_DAMAGE_MOD:   return new BLong( getElementDamageMod( Core::ELEMENTAL_ENERGY ) ); break;
-        case MBR_POISON_DAMAGE_MOD:   return new BLong( getElementDamageMod( Core::ELEMENTAL_POISON ) ); break;
-        case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) ); break;
+        case MBR_FIRE_RESIST:     return new BLong( fire_resist().value ); break;
+        case MBR_COLD_RESIST:     return new BLong( cold_resist().value ); break;
+        case MBR_ENERGY_RESIST:   return new BLong( energy_resist().value ); break;
+        case MBR_POISON_RESIST:   return new BLong( poison_resist().value ); break;
+        case MBR_PHYSICAL_RESIST: return new BLong( physical_resist().value ); break;
+        case MBR_FIRE_RESIST_MOD:     return new BLong( fire_resist().mod ); break;
+        case MBR_COLD_RESIST_MOD:     return new BLong( cold_resist().mod ); break;
+        case MBR_ENERGY_RESIST_MOD:   return new BLong( energy_resist().mod ); break;
+        case MBR_POISON_RESIST_MOD:   return new BLong( poison_resist().mod ); break;
+        case MBR_PHYSICAL_RESIST_MOD: return new BLong( physical_resist().mod ); break;
+		case MBR_STATCAP:      return new BLong( skillstatcap().statcap ); break;
+		case MBR_SKILLCAP:     return new BLong( skillstatcap().skillcap ); break;
+		case MBR_LUCK:         return new BLong( luck() ); break;
+		case MBR_FOLLOWERSMAX: return new BLong( followers().followers_max ); break;
+		case MBR_TITHING:      return new BLong( tithing() ); break;
+		case MBR_FOLLOWERS:    return new BLong( followers().followers ); break;
+        case MBR_FIRE_DAMAGE:     return new BLong( fire_damage().value ); break;
+        case MBR_COLD_DAMAGE:     return new BLong( cold_damage().value ); break;
+        case MBR_ENERGY_DAMAGE:   return new BLong( energy_damage().value ); break;
+        case MBR_POISON_DAMAGE:   return new BLong( poison_damage().value ); break;
+        case MBR_PHYSICAL_DAMAGE: return new BLong( physical_damage().value ); break;
+        case MBR_FIRE_DAMAGE_MOD:     return new BLong( fire_damage().mod ); break;
+        case MBR_COLD_DAMAGE_MOD:     return new BLong( cold_damage().mod ); break;
+        case MBR_ENERGY_DAMAGE_MOD:   return new BLong( energy_damage().mod ); break;
+        case MBR_POISON_DAMAGE_MOD:   return new BLong( poison_damage().mod ); break;
+        case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( physical_damage().mod ); break;
 		case MBR_PARTY:
 		  if ( party_ != NULL )
 			return Module::CreatePartyRefObjImp( party_ );
@@ -1705,10 +1705,10 @@ namespace Pol {
 		  else
 			return new BError( "Not a candidate of a party" );
 		  break;
-		case MBR_MOVECOST_WALK:         return new Double( movement_cost.walk ); break;
-		case MBR_MOVECOST_RUN:	        return new Double( movement_cost.run ); break;
-		case MBR_MOVECOST_WALK_MOUNTED: return new Double( movement_cost.walk_mounted ); break;
-		case MBR_MOVECOST_RUN_MOUNTED:  return new Double( movement_cost.run_mounted ); break;
+		case MBR_MOVECOST_WALK:         return new Double( movement_cost().walk ); break;
+		case MBR_MOVECOST_RUN:	        return new Double( movement_cost().run ); break;
+		case MBR_MOVECOST_WALK_MOUNTED: return new Double( movement_cost().walk_mounted ); break;
+		case MBR_MOVECOST_RUN_MOUNTED:  return new Double( movement_cost().run_mounted ); break;
 
 		case MBR_AGGRESSORTO:  return GetAggressorTo(); break;
 		case MBR_LAWFULLYDAMAGED: return GetLawFullyDamaged(); break;
@@ -1867,92 +1867,129 @@ namespace Pol {
 		  on_facing_changed();
 		  return new BLong( 1 );
 		case MBR_FIRE_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_FIRE, static_cast<short>( value ) );
+          fire_resist(fire_resist().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getResistanceMod( Core::ELEMENTAL_FIRE));
+          return new BLong( fire_resist().mod );
 		  break;
 		case MBR_COLD_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_COLD, static_cast<short>( value ));
+          cold_resist(cold_resist().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getResistanceMod( Core::ELEMENTAL_COLD ) );
+          return new BLong( cold_resist().mod );
 		  break;
 		case MBR_ENERGY_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_ENERGY, static_cast<short>( value ));
+          energy_resist(energy_resist().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getResistanceMod( Core::ELEMENTAL_ENERGY ) );
+          return new BLong( energy_resist().mod );
 		  break;
 		case MBR_POISON_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_POISON, static_cast<short>( value ));
+          poison_resist(poison_resist().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getResistanceMod( Core::ELEMENTAL_POISON ) );
+          return new BLong( poison_resist().mod );
 		  break;
 		case MBR_PHYSICAL_RESIST_MOD:
-          setResistanceMod( Core::ELEMENTAL_PHYSICAL, static_cast<short>( value ));
+          physical_resist(physical_resist().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getResistanceMod( Core::ELEMENTAL_PHYSICAL ) );
+          return new BLong( physical_resist().mod );
 		  break;
 		case MBR_STATCAP:
-		  expanded_statbar.statcap = static_cast<short>( value );
+        {
+          auto val = skillstatcap();
+          val.statcap = static_cast<short>( value );
+          skillstatcap(val);
 		  if ( !this->isa( UObject::CLASS_NPC ) )
 			on_aos_ext_stat_changed();
-		  return new BLong( expanded_statbar.statcap );
-		  break;
+		  return new BLong( skillstatcap().statcap );
+        }
 		case MBR_SKILLCAP:
-		  return new BLong( skillcap_ = static_cast<short>( value ) );
-		  break;
+        {
+          auto val = skillstatcap();
+          val.skillcap = static_cast<u16>( value );
+          skillstatcap(val);
+		  return new BLong( skillstatcap().skillcap );
+        }
 		case MBR_LUCK:
-		  expanded_statbar.luck = static_cast<short>( value );
+		  luck( static_cast<short>( value ) );
 		  if ( !this->isa( UObject::CLASS_NPC ) )
 			on_aos_ext_stat_changed();
-		  return new BLong( expanded_statbar.luck );
+		  return new BLong( luck() );
 		  break;
 		case MBR_FOLLOWERSMAX:
-		  expanded_statbar.followers_max = static_cast<u8>( value );
+        {
+          auto val = followers();
+          val.followers_max = static_cast<u8>( value );
+          followers(val);
 		  if ( !this->isa( UObject::CLASS_NPC ) )
 			on_aos_ext_stat_changed();
-		  return new BLong( expanded_statbar.followers_max );
-		  break;
+		  return new BLong( followers().followers_max );
+        }
 		case MBR_TITHING:
-		  expanded_statbar.tithing = static_cast<short>( value );
+		  tithing( static_cast<s32>( value ) );
 		  if ( !this->isa( UObject::CLASS_NPC ) )
 			on_aos_ext_stat_changed();
-		  return new BLong( expanded_statbar.tithing );
+		  return new BLong( tithing() );
 		  break;
 		case MBR_FOLLOWERS:
-		  expanded_statbar.followers = static_cast<u8>( value );
+        {
+          auto val = followers();
+          val.followers = static_cast<u8>( value );
+          followers(val);
 		  if ( !this->isa( UObject::CLASS_NPC ) )
 			on_aos_ext_stat_changed();
-		  return new BLong( expanded_statbar.followers );
-		  break;
+		  return new BLong( followers().followers );
+        }
 		case MBR_FIRE_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_FIRE, static_cast<short>( value ) );
+          fire_damage(fire_damage().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getElementDamageMod( Core::ELEMENTAL_FIRE) );
+          return new BLong( fire_damage().mod );
 		  break;
 		case MBR_COLD_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_COLD, static_cast<short>( value ));
+          cold_damage(cold_damage().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getElementDamageMod( Core::ELEMENTAL_COLD) );
+          return new BLong( cold_damage().mod );
 		  break;
 		case MBR_ENERGY_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_ENERGY, static_cast<short>( value ));
+          energy_damage(energy_damage().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getElementDamageMod( Core::ELEMENTAL_ENERGY) );
+          return new BLong( energy_damage().mod );
 		  break;
 		case MBR_POISON_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_POISON, static_cast<short>( value ));
+          poison_damage(poison_damage().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getElementDamageMod( Core::ELEMENTAL_POISON) );
+          return new BLong( poison_damage().mod );
 		  break;
 		case MBR_PHYSICAL_DAMAGE_MOD:
-          setElementDamageMod( Core::ELEMENTAL_PHYSICAL, static_cast<short>( value ));
+          physical_damage(physical_damage().setAsMod(static_cast<short>( value )));
 		  refresh_ar();
-          return new BLong( getElementDamageMod( Core::ELEMENTAL_PHYSICAL) );
+          return new BLong( physical_damage().mod );
 		  break;
-		case MBR_MOVECOST_WALK:         return new Double( ( movement_cost.walk = double( value ) ) ); break;
-		case MBR_MOVECOST_RUN:          return new Double( ( movement_cost.run = double( value ) ) ); break;
-		case MBR_MOVECOST_WALK_MOUNTED: return new Double( ( movement_cost.walk_mounted = double( value ) ) ); break;
-		case MBR_MOVECOST_RUN_MOUNTED:  return new Double( ( movement_cost.run_mounted = double( value ) ) ); break;
+		case MBR_MOVECOST_WALK:
+        {
+          auto val = movement_cost();
+          val.walk = static_cast<double>( value );
+          movement_cost(val);
+		  return new Double( movement_cost().walk );
+        }
+		case MBR_MOVECOST_RUN:
+        {
+          auto val = movement_cost();
+          val.run = static_cast<double>( value );
+          movement_cost(val);
+		  return new Double( movement_cost().run );
+        }
+		case MBR_MOVECOST_WALK_MOUNTED:
+        {
+          auto val = movement_cost();
+          val.walk_mounted = static_cast<double>( value );
+          movement_cost(val);
+		  return new Double( movement_cost().walk_mounted );
+        }
+		case MBR_MOVECOST_RUN_MOUNTED:
+        {
+          auto val = movement_cost();
+          val.run_mounted = static_cast<double>( value );
+          movement_cost(val);
+		  return new Double( movement_cost().run_mounted );
+        }
 		default:
 		  return NULL;
 	  }
@@ -1962,10 +1999,34 @@ namespace Pol {
 	{
 	  switch ( id )
 	  {
-		case MBR_MOVECOST_WALK:         return new Double( ( movement_cost.walk = double( value ) ) ); break;
-		case MBR_MOVECOST_RUN:          return new Double( ( movement_cost.run = double( value ) ) ); break;
-		case MBR_MOVECOST_WALK_MOUNTED: return new Double( ( movement_cost.walk_mounted = double( value ) ) ); break;
-		case MBR_MOVECOST_RUN_MOUNTED:  return new Double( ( movement_cost.run_mounted = double( value ) ) ); break;
+        case MBR_MOVECOST_WALK:
+        {
+          auto val = movement_cost();
+          val.walk = value;
+          movement_cost(val);
+		  return new Double( movement_cost().walk );
+        }
+		case MBR_MOVECOST_RUN:
+        {
+          auto val = movement_cost();
+          val.run = value;
+          movement_cost(val);
+		  return new Double( movement_cost().run );
+        }
+		case MBR_MOVECOST_WALK_MOUNTED:
+        {
+          auto val = movement_cost();
+          val.walk_mounted = value;
+          movement_cost(val);
+		  return new Double( movement_cost().walk_mounted );
+        }
+		case MBR_MOVECOST_RUN_MOUNTED:
+        {
+          auto val = movement_cost();
+          val.run_mounted = value;
+          movement_cost(val);
+		  return new Double( movement_cost().run_mounted );
+        }
 		default: return NULL;
 	  }
 

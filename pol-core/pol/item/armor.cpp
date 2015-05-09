@@ -15,7 +15,6 @@ Notes
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
-#include "../../bscript/objmembers.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/endian.h"

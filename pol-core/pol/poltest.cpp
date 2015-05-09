@@ -150,23 +150,23 @@ namespace Pol {
       class Test : public DynamicPropsHolder
       {
       public:
-            DYN_PROPERTY(armod, s16, AR_MOD, 0);
-            DYN_PROPERTY(max_items, u32, MAX_ITEMS_MOD, 0);
-            DYN_PROPERTY(itemname, std::string, NAME_SUFFIX, "");
+            DYN_PROPERTY(armod, s16, PROP_AR_MOD, 0);
+            DYN_PROPERTY(max_items, u32, PROP_MAX_ITEMS_MOD, 0);
+            DYN_PROPERTY(itemname, std::string, PROP_NAME_SUFFIX, "");
       };
       Test h;
       INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
-      INFO_PRINT << "ar " << h.armod() << " " << h.hasarmod() << "\n";
+      INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
       h.armod(10);
-      INFO_PRINT << "ar " << h.armod()<<" " << h.hasarmod() << "\n";
+      INFO_PRINT << "ar " << h.armod()<<" " << h.has_armod() << "\n";
       h.armod(0);
-      INFO_PRINT << "ar " << h.armod()<<" " << h.hasarmod() << "\n";
+      INFO_PRINT << "ar " << h.armod()<<" " << h.has_armod() << "\n";
       INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
-      INFO_PRINT << "name " << h.itemname() << " " << h.hasitemname() << "\n";
+      INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
       h.itemname("hello world");
-      INFO_PRINT << "name " << h.itemname() << " " << h.hasitemname() << "\n";
+      INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
       h.itemname("");
-      INFO_PRINT << "name " << h.itemname() << " " << h.hasitemname() << "\n";
+      INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
       INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
       return;
       Plib::create_test_environment();

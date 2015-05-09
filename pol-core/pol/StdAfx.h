@@ -23,7 +23,11 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #include <array>
 #include <unordered_map>
 
+#include <boost/variant.hpp>
+
 // include default pch
 #include "../clib/StdAfx.h"
+
+#include "uobject.h"
 
 #endif

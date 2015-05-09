@@ -20,8 +20,6 @@ Notes
 
 #include "containr.h"
 
-#include "../bscript/objmembers.h"
-
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
@@ -868,24 +866,20 @@ namespace Pol {
 	void UContainer::printProperties( Clib::StreamWriter& sw ) const
 	{
 	  base::printProperties( sw );
-      short max_items_mod_ = this->max_items_mod();
-      short max_weight_mod_ = this->max_weight_mod();
-      s8 max_slots_mod_ = this->max_slots_mod();
-
-	  if ( max_items_mod_ )
-		sw() << "\tMax_Items_mod\t" << max_items_mod_ << pf_endl;
-	  if ( max_weight_mod_ )
-		sw() << "\tMax_Weight_mod\t" << max_weight_mod_ << pf_endl;
-	  if ( max_slots_mod_ )
-		sw() << "\tMax_Slots_mod\t" << max_slots_mod_ << pf_endl;
+	  if ( has_max_items_mod() )
+		sw() << "\tMax_Items_mod\t" << max_items_mod() << pf_endl;
+      if ( has_max_weight_mod() )
+		sw() << "\tMax_Weight_mod\t" << max_weight_mod() << pf_endl;
+	  if ( has_max_slots_mod() )
+		sw() << "\tMax_Slots_mod\t" << max_slots_mod() << pf_endl;
 	}
 
 	void UContainer::readProperties( Clib::ConfigElem& elem )
 	{
 	  base::readProperties( elem );
-      this->max_items_mod( static_cast<s16>( elem.remove_int( "MAX_ITEMS_MOD", 0 ) ));
-      this->max_weight_mod( static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ));
-      this->max_slots_mod( static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ));
+      max_items_mod( static_cast<s16>( elem.remove_int( "MAX_ITEMS_MOD", 0 ) ));
+      max_weight_mod( static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ));
+      max_slots_mod( static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ));
 	}
 
 	unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const

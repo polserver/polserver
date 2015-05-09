@@ -51,30 +51,6 @@ namespace Pol {
 
 	  // hmm, doesn't quite work right with items created on startup..
       decayat_gameclock_ = Core::read_gameclock( ) + id.decay_time * 60;
-
-	  // FIXME : Need to change this to it's own function like Character Class does.
-	  // Let's build the resistances defaults.
-      setBaseResistance( Core::ELEMENTAL_FIRE, 0 );
-      setBaseResistance( Core::ELEMENTAL_COLD, 0 );
-      setBaseResistance( Core::ELEMENTAL_ENERGY, 0 );
-      setBaseResistance( Core::ELEMENTAL_POISON, 0 );
-      setBaseResistance( Core::ELEMENTAL_PHYSICAL, 0 );
-      setResistanceMod( Core::ELEMENTAL_FIRE, 0 );
-      setResistanceMod( Core::ELEMENTAL_COLD, 0 );
-      setResistanceMod( Core::ELEMENTAL_ENERGY, 0 );
-      setResistanceMod( Core::ELEMENTAL_POISON, 0 );
-      setResistanceMod( Core::ELEMENTAL_PHYSICAL, 0 );
-
-      setBaseElementDamage( Core::ELEMENTAL_FIRE, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_COLD, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_ENERGY, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_POISON, 0 );
-      setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
-      setElementDamageMod( Core::ELEMENTAL_FIRE, 0 );
-      setElementDamageMod( Core::ELEMENTAL_COLD, 0 );
-      setElementDamageMod( Core::ELEMENTAL_ENERGY, 0 );
-      setElementDamageMod( Core::ELEMENTAL_POISON, 0 );
-      setElementDamageMod( Core::ELEMENTAL_PHYSICAL, 0 );
 	}
 
 	Item::~Item()
