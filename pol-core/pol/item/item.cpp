@@ -24,7 +24,6 @@ Notes
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
-#include "../../bscript/objmembers.h"
 
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
@@ -72,11 +71,8 @@ namespace Pol {
 	  item->layer = layer;
 	  item->tile_layer = tile_layer;
 	  item->container = NULL; // was container
-      u32 price;
-      if (getmember<u32>(Bscript::MBR_SELLPRICE, &price))
-        item->setmember<u32>(Bscript::MBR_SELLPRICE, price);
-      if (getmember<u32>(Bscript::MBR_BUYPRICE, &price))
-        item->setmember<u32>(Bscript::MBR_BUYPRICE, price);
+      item->sellprice_(sellprice_());
+      item->buyprice_(buyprice_());
 	  item->newbie_ = newbie_;
 
 	  item->invisible_ = invisible_;	//dave 12-20
@@ -95,34 +91,20 @@ namespace Pol {
 
 	  item->saveonexit( saveonexit() );
 
-	  // Let's build the resistances defaults.
-      item->setBaseResistance( Core::ELEMENTAL_COLD, getBaseResistance( Core::ELEMENTAL_COLD ) );
-      item->setBaseResistance( Core::ELEMENTAL_ENERGY, getBaseResistance( Core::ELEMENTAL_ENERGY ) );
-      item->setBaseResistance( Core::ELEMENTAL_FIRE, getBaseResistance( Core::ELEMENTAL_FIRE ) );
-      item->setBaseResistance( Core::ELEMENTAL_POISON, getBaseResistance( Core::ELEMENTAL_POISON ) );
-      item->setBaseResistance( Core::ELEMENTAL_PHYSICAL, getBaseResistance( Core::ELEMENTAL_PHYSICAL ) );
+      item->fire_resist(fire_resist());
+      item->cold_resist(cold_resist());
+      item->energy_resist(energy_resist());
+      item->poison_resist(poison_resist());
+      item->physical_resist(physical_resist());
 
-      item->setResistanceMod( Core::ELEMENTAL_COLD, getResistanceMod( Core::ELEMENTAL_COLD ) );
-      item->setResistanceMod( Core::ELEMENTAL_ENERGY, getResistanceMod( Core::ELEMENTAL_ENERGY ) );
-      item->setResistanceMod( Core::ELEMENTAL_FIRE, getResistanceMod( Core::ELEMENTAL_FIRE ) );
-      item->setResistanceMod( Core::ELEMENTAL_POISON, getResistanceMod( Core::ELEMENTAL_POISON ) );
-      item->setResistanceMod( Core::ELEMENTAL_PHYSICAL, getResistanceMod( Core::ELEMENTAL_PHYSICAL ) );
+      item->fire_damage(fire_damage());
+      item->cold_damage(cold_damage());
+      item->energy_damage(energy_damage());
+      item->poison_damage(poison_damage());
+      item->physical_damage(physical_damage());
 
-	  // Let's build the resistances defaults.
-      item->setBaseElementDamage( Core::ELEMENTAL_COLD, getBaseElementDamage( Core::ELEMENTAL_COLD ) );
-      item->setBaseElementDamage( Core::ELEMENTAL_ENERGY, getBaseElementDamage( Core::ELEMENTAL_ENERGY ) );
-      item->setBaseElementDamage( Core::ELEMENTAL_FIRE, getBaseElementDamage( Core::ELEMENTAL_FIRE ) );
-      item->setBaseElementDamage( Core::ELEMENTAL_POISON, getBaseElementDamage( Core::ELEMENTAL_POISON ) );
-      item->setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, getBaseElementDamage( Core::ELEMENTAL_PHYSICAL ) );
-
-      item->setElementDamageMod( Core::ELEMENTAL_COLD, getElementDamageMod( Core::ELEMENTAL_COLD ) );
-      item->setElementDamageMod( Core::ELEMENTAL_ENERGY, getElementDamageMod( Core::ELEMENTAL_ENERGY ) );
-      item->setElementDamageMod( Core::ELEMENTAL_FIRE, getElementDamageMod( Core::ELEMENTAL_FIRE ) );
-      item->setElementDamageMod( Core::ELEMENTAL_POISON, getElementDamageMod( Core::ELEMENTAL_POISON ) );
-      item->setElementDamageMod( Core::ELEMENTAL_PHYSICAL, getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) );
-
-      item->maxhp_mod( this->maxhp_mod() );
-      item->name_suffix( this->name_suffix() );
+      item->maxhp_mod( maxhp_mod() );
+      item->name_suffix( name_suffix() );
 
 	  return item;
 	}
@@ -213,14 +195,14 @@ namespace Pol {
 
 	u32 Item::sellprice() const
 	{
-      u32 price;
-      if (getmember<u32>(Bscript::MBR_SELLPRICE,&price))
-        return price;
-      return itemdesc().vendor_sells_for;
+      u32 price = sellprice_();
+      if (price == SELLPRICE_DEFAULT)
+        return itemdesc().vendor_sells_for;
+      return price;
 	}
     void Item::sellprice(u32 value)
     {
-      setmember<u32>(Bscript::MBR_SELLPRICE,value,SELLPRICE_DEFAULT);
+      sellprice_(value);
     }
 
 	//Dave add buyprice() 11/28. Dont know wtf getbuyprice() is trying to do.
@@ -229,15 +211,15 @@ namespace Pol {
 	//   -Eric
 	u32 Item::buyprice() const
 	{
-      u32 price;
-      if (getmember<u32>(Bscript::MBR_BUYPRICE,&price))
-        return price;
-      return itemdesc().vendor_buys_for;
+      u32 price = buyprice_();
+      if (price == BUYPRICE_DEFAULT)
+        return itemdesc().vendor_buys_for;
+      return price;
 	}
 
     void Item::buyprice(u32 value)
     {
-      setmember<u32>(Bscript::MBR_BUYPRICE,value,BUYPRICE_DEFAULT);
+      buyprice_(value);
     }
 
 	bool Item::getbuyprice( u32& bp ) const
@@ -350,35 +332,35 @@ namespace Pol {
 	  if ( invisible_ != default_invisible() )
 		sw() << "\tInvisible\t" << invisible_ << pf_endl;
 
-      s16 value = getResistanceMod( Core::ELEMENTAL_FIRE );
+      s16 value = fire_resist().mod;
       if ( value != 0 )
         sw( ) << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_COLD );
+      value = cold_resist().mod;
       if ( value != 0 )
         sw( ) << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_ENERGY );
+      value = energy_resist().mod;
       if ( value != 0 )
         sw( ) << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_POISON );
+      value = poison_resist().mod;
       if ( value != 0 )
         sw( ) << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getResistanceMod( Core::ELEMENTAL_PHYSICAL );
+      value = physical_resist().mod;
       if ( value != 0 )
         sw( ) << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
 
-      value = getElementDamageMod( Core::ELEMENTAL_FIRE );
+      value = fire_damage().mod;
       if ( value != 0 )
         sw( ) << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_COLD );
+      value = cold_damage().mod;
       if ( value != 0 )
         sw( ) << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_ENERGY );
+      value = energy_damage().mod;
       if ( value != 0 )
         sw( ) << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_POISON );
+      value = poison_damage().mod;
       if ( value != 0 )
         sw( ) << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
-      value = getElementDamageMod( Core::ELEMENTAL_PHYSICAL );
+      value = physical_damage().mod;
       if ( value != 0 )
         sw( ) << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
 
@@ -397,11 +379,10 @@ namespace Pol {
 	  if ( decayat_gameclock_ != 0 )
 		sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
 
-      u32 price;
-	  if ( getmember<u32>(Bscript::MBR_SELLPRICE, &price) ) 
-		sw() << "\tSellPrice\t" << price << pf_endl;
-      if ( getmember<u32>(Bscript::MBR_SELLPRICE, &price) ) 
-		sw() << "\tBuyPrice\t" << price << pf_endl;
+	  if ( has_sellprice_() ) 
+		sw() << "\tSellPrice\t" << sellprice_() << pf_endl;
+      if ( has_buyprice_() ) 
+		sw() << "\tBuyPrice\t" << buyprice_() << pf_endl;
 
 	  if ( newbie_ != default_newbie() )
 		sw() << "\tNewbie\t" << newbie_ << pf_endl;
@@ -440,32 +421,53 @@ namespace Pol {
 	  unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
 
 	  decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
-	  setmember<u32>(Bscript::MBR_SELLPRICE, elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ), SELLPRICE_DEFAULT);
-      setmember<u32>(Bscript::MBR_BUYPRICE, elem.remove_ulong( "BUYPRICE", BUYPRICE_DEFAULT ), BUYPRICE_DEFAULT);
+	  sellprice_(elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ));
+      buyprice_(elem.remove_ulong( "BUYPRICE", BUYPRICE_DEFAULT ));
 
 	  // buyprice used to be read in with remove_int (which was wrong).
 	  // the UINT_MAX values used to be written out (which was wrong).
 	  // when UINT_MAX is read in by atoi, it returned 2147483647 (0x7FFFFFFF)
 	  // correct for this.
-	  if ( getmember<u32>(Bscript::MBR_BUYPRICE) == 2147483647 )
-		setmember<u32>(Bscript::MBR_BUYPRICE, BUYPRICE_DEFAULT, BUYPRICE_DEFAULT);
+	  if ( buyprice_() == 2147483647 )
+		buyprice_(BUYPRICE_DEFAULT);
 	  newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
 	  hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
 	  quality_ = elem.remove_double( "QUALITY", itemdesc().quality );
 
-      setResistanceMod( Core::ELEMENTAL_FIRE, static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_COLD, static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_ENERGY, static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_POISON, static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) ) );
-      setResistanceMod( Core::ELEMENTAL_PHYSICAL, static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) ) );
+      s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
+      if (mod_value != 0)
+        fire_resist(fire_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        cold_resist(cold_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        energy_resist(energy_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        poison_resist(poison_resist().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) );
+      if (mod_value != 0)
+        physical_resist(physical_resist().setAsMod(mod_value));
 
-      setElementDamageMod( Core::ELEMENTAL_FIRE, static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_COLD, static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_ENERGY, static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_POISON, static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) ) );
-      setElementDamageMod( Core::ELEMENTAL_PHYSICAL, static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) ) );
+      mod_value = static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        fire_damage(fire_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        cold_damage(cold_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        energy_damage(energy_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        poison_damage(poison_damage().setAsMod(mod_value));
+      mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
+      if (mod_value != 0)
+        physical_damage(physical_damage().setAsMod(mod_value));
 
-	  setmember<s16>( Bscript::MBR_MAXHP_MOD, static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
+
+	  maxhp_mod(static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
 	  name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
 
 	}
@@ -1142,12 +1144,50 @@ namespace Pol {
 
     s16 Item::calc_element_resist( Core::ElementalType element ) const
 	{
-      return getBaseResistance( element ) + getResistanceMod( element );
+      Core::AosValuePack curr;
+      switch (element)
+      {
+      case Core::ELEMENTAL_FIRE:
+        curr = fire_resist();
+        break;
+      case Core::ELEMENTAL_COLD:
+        curr = cold_resist();
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        curr = energy_resist();
+        break;
+      case Core::ELEMENTAL_POISON:
+        curr = poison_resist();
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        curr = physical_resist();
+        break;
+      }
+      return curr.value + curr.mod;
 	}
 
     s16 Item::calc_element_damage( Core::ElementalType element ) const
 	{
-      return getBaseElementDamage( element ) + getElementDamageMod( element );
+      Core::AosValuePack curr;
+      switch (element)
+      {
+      case Core::ELEMENTAL_FIRE:
+        curr = fire_damage();
+        break;
+      case Core::ELEMENTAL_COLD:
+        curr = cold_damage();
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        curr = energy_damage();
+        break;
+      case Core::ELEMENTAL_POISON:
+        curr = poison_damage();
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        curr = physical_damage();
+        break;
+      }
+      return curr.value + curr.mod;
 	}
 
     bool Item::has_resistance( Mobile::Character* /*chr*/ )

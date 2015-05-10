@@ -87,16 +87,18 @@ namespace Pol {
 	unsigned short movecost( const Mobile::Character* chr, int carry_perc, bool running, bool mounted )
 	{
 	  MovementCost* mc;
-	  double costmod;
+	  double costmod(1.0);
 	  if ( mounted )
 	  {
 		mc = running ? &settingsManager.movecost_running_mounted : &settingsManager.movecost_walking_mounted;
-		costmod = running ? chr->movement_cost.run_mounted : chr->movement_cost.walk_mounted;
+        if (chr->has_movement_cost())
+		  costmod = running ? chr->movement_cost().run_mounted : chr->movement_cost().walk_mounted;
 	  }
 	  else
 	  {
 		mc = running ? &settingsManager.movecost_running : &settingsManager.movecost_walking;
-		costmod = running ? chr->movement_cost.run : chr->movement_cost.walk;
+        if (chr->has_movement_cost())
+		  costmod = running ? chr->movement_cost().run : chr->movement_cost().walk;
 	  }
 
 	  double mult;

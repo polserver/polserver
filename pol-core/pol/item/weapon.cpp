@@ -30,7 +30,6 @@ Notes
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
-#include "../../bscript/objmembers.h"
 
 #include "../../plib/pkg.h"
 #include "../../plib/realm.h"

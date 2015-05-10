@@ -159,10 +159,17 @@ namespace Pol {
     
 	// ATTRIBUTES / VITALS
 	private:
-	  s16 getCurrentResistance( Core::ElementalType type ) const;
-      void setCurrentResistance( Core::ElementalType type, s16 value );
-      s16 getCurrentElementDamage( Core::ElementalType type ) const;
-      void setCurrentElementDamage( Core::ElementalType type, s16 value );
+      DYN_PROPERTY(curr_fire_resist,     Core::AosValuePack, Core::PROP_RESIST_FIRE,     Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_cold_resist,     Core::AosValuePack, Core::PROP_RESIST_COLD,     Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_energy_resist,   Core::AosValuePack, Core::PROP_RESIST_ENERGY,   Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_poison_resist,   Core::AosValuePack, Core::PROP_RESIST_POISON,   Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_physical_resist, Core::AosValuePack, Core::PROP_RESIST_PHYSICAL, Core::UObject::DEFAULT_AOSVALUEPACK);
+
+      DYN_PROPERTY(curr_fire_damage,     Core::AosValuePack, Core::PROP_DAMAGE_FIRE,     Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_cold_damage,     Core::AosValuePack, Core::PROP_DAMAGE_COLD,     Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_energy_damage,   Core::AosValuePack, Core::PROP_DAMAGE_ENERGY,   Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_poison_damage,   Core::AosValuePack, Core::PROP_DAMAGE_POISON,   Core::UObject::DEFAULT_AOSVALUEPACK);
+      DYN_PROPERTY(curr_physical_damage, Core::AosValuePack, Core::PROP_DAMAGE_PHYSICAL, Core::UObject::DEFAULT_AOSVALUEPACK);
 
 	  void reset_element_resist( Core::ElementalType resist );
       void reset_element_damage( Core::ElementalType damage );

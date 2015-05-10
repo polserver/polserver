@@ -566,8 +566,6 @@ namespace Pol {
 	  bool consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
 	  void set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
 	  void set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
-	private:
-	  void load_default_elements();
 
 	// REPUTATION
 	public:
@@ -789,7 +787,8 @@ namespace Pol {
 	  Core::MOVEMODE movemode;
 	  int lightoverride;
 	  Core::gameclock_t lightoverride_until;
-	  Core::MovementCost_Mod movement_cost;
+      static const Core::MovementCostMod DEFAULT_MOVEMENTCOSTMOD;
+      DYN_PROPERTY(movement_cost, Core::MovementCostMod, Core::PROP_MOVEMENTCOST_MOD, DEFAULT_MOVEMENTCOSTMOD);
 	// COMBAT
 	public:
 	  u32 warmode_wait;
@@ -860,9 +859,15 @@ namespace Pol {
 	  u8 cmdlevel_;
 	  bool warmode;
 	  bool poisoned_;
-	  Core::Expanded_Statbar expanded_statbar;
-	  u16 skillcap_;
-	protected:
+
+      static const Core::ExtStatBarFollowers DEFAULT_EXTSTATBARFOLLOWERS;
+      static const Core::SkillStatCap DEFAULT_SKILLSTATCAP;
+      DYN_PROPERTY(skillstatcap, Core::SkillStatCap,        Core::PROP_STATCAP_SKILLCAP,      DEFAULT_SKILLSTATCAP);
+      DYN_PROPERTY(luck,         s16,                       Core::PROP_EXT_STATBAR_LUCK,      0);
+      DYN_PROPERTY(followers,    Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS, DEFAULT_EXTSTATBARFOLLOWERS);
+      DYN_PROPERTY(tithing,      s32,                       Core::PROP_EXT_STATBAR_TITHING,   0);
+
+    protected:
 	  bool dead_;
 	  bool hidden_;
 	  u8 concealed_; // 0 to cmdlevel
@@ -878,7 +883,6 @@ namespace Pol {
 	  mutable Core::gameclock_t squelched_until;
 	  mutable Core::gameclock_t deafened_until;
 	private:
-	  static const u16 default_skillcap = 700;
 	// SERIALIZATION
 
 	// CREATION

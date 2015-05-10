@@ -69,7 +69,6 @@ Notes
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/modules.h"
-#include "../../bscript/objmembers.h"
 
 #include "../../plib/realm.h"
 
@@ -319,35 +318,35 @@ namespace Pol {
 	  if ( use_adjustments != true )
 		sw() << "\tUseAdjustments\t" << use_adjustments << pf_endl;
 
-      s16 value = getCurrentResistance( Core::ELEMENTAL_FIRE );
+      s16 value = curr_fire_resist().value;
 	  if ( value != 0 )
 		sw() << "\tFireResist\t" << static_cast<int>( value ) << pf_endl;
-      value = getCurrentResistance( Core::ELEMENTAL_COLD );
+      value = curr_cold_resist().value;
 	  if ( value != 0 )
         sw( ) << "\tColdResist\t" << static_cast<int>( value ) << pf_endl;
-      value = getCurrentResistance( Core::ELEMENTAL_ENERGY );
+      value = curr_energy_resist().value;
       if ( value != 0 )
         sw( ) << "\tEnergyResist\t" << static_cast<int>( value ) << pf_endl;
-      value = getCurrentResistance( Core::ELEMENTAL_POISON);
+      value = curr_poison_resist().value;
       if ( value != 0 )
         sw( ) << "\tPoisonResist\t" << static_cast<int>( value ) << pf_endl;
-      value = getCurrentResistance( Core::ELEMENTAL_PHYSICAL );
+      value = curr_physical_resist().value;
       if ( value != 0 )
         sw( ) << "\tPhysicalResist\t" << static_cast<int>( value ) << pf_endl;
 
-      value = getCurrentElementDamage( Core::ELEMENTAL_FIRE );
+      value = curr_fire_damage().value;
       if ( value != 0 )
 		sw() << "\tFireDamage\t" << static_cast<int>( value) << pf_endl;
-      value = getCurrentElementDamage( Core::ELEMENTAL_COLD );
+      value = curr_cold_damage().value;
       if ( value != 0 )
         sw( ) << "\tColdDamage\t" << static_cast<int>( value ) << pf_endl;
-      value = getCurrentElementDamage( Core::ELEMENTAL_ENERGY );
+      value = curr_energy_damage().value;
       if ( value != 0 )
         sw( ) << "\tEnergyDamage\t" << static_cast<int>( value ) << pf_endl;
-      value = getCurrentElementDamage( Core::ELEMENTAL_POISON );
+      value = curr_poison_damage().value;
       if ( value != 0 )
         sw( ) << "\tPoisonDamage\t" << static_cast<int>( value ) << pf_endl;
-      value = getCurrentElementDamage( Core::ELEMENTAL_PHYSICAL );
+      value = curr_physical_damage().value;
       if ( value != 0 )
         sw( ) << "\tPhysicalDamage\t" << static_cast<int>( value ) << pf_endl;
 	}
@@ -443,140 +442,95 @@ namespace Pol {
 		case 5: passed = elem.remove_prop( "PHYSICALRESIST", &tmp ); break;
 	  }
 
+      int value=0;
 	  if ( passed )
 	  {
 		Core::Dice dice;
         std::string errmsg;
 		if ( !dice.load( tmp.c_str(), &errmsg ) )
-		{
-		  switch ( resistanceType )
-		  {
-			case 0: npc_ar_ = static_cast<u16>( atoi( tmp.c_str() ) ); break;
-            case 1:
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str() ) );
-                    setCurrentResistance( Core::ELEMENTAL_FIRE, value );
-                    setBaseResistance( Core::ELEMENTAL_FIRE, value );
-                    break;
-            }
-			case 2: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( Core::ELEMENTAL_COLD, value );
-                    setBaseResistance( Core::ELEMENTAL_COLD, value );
-                    break;
-            }
-			case 3: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( Core::ELEMENTAL_ENERGY, value );
-                    setBaseResistance( Core::ELEMENTAL_ENERGY, value );
-                    break;
-            }
-			case 4: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( Core::ELEMENTAL_POISON, value );
-                    setBaseResistance( Core::ELEMENTAL_POISON, value );
-                    break;
-            }
-			case 5: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentResistance( Core::ELEMENTAL_PHYSICAL, value );
-                    setBaseResistance( Core::ELEMENTAL_PHYSICAL, value );
-                    break;
-            }
-		  }
-		}
-		else
-		{
-		  switch ( resistanceType )
-		  {
-			case 0: npc_ar_ = dice.roll(); break;
-			case 1: 
-            {
-                    s16 value = dice.roll( );
-                    setCurrentResistance( Core::ELEMENTAL_FIRE, value );
-                    setBaseResistance( Core::ELEMENTAL_FIRE, value );
-                    break;
-            }
-			case 2:
-            {
-                    s16 value = dice.roll( );
-                    setCurrentResistance( Core::ELEMENTAL_COLD, value );
-                    setBaseResistance( Core::ELEMENTAL_COLD, value );
-                    break;
-            }
-			case 3:
-            {
-                    s16 value = dice.roll( );
-                    setCurrentResistance( Core::ELEMENTAL_ENERGY, value );
-                    setBaseResistance( Core::ELEMENTAL_ENERGY, value );
-                    break;
-            }
-			case 4:
-            {
-                    s16 value = dice.roll( );
-                    setCurrentResistance( Core::ELEMENTAL_POISON, value );
-                    setBaseResistance( Core::ELEMENTAL_POISON, value );
-                    break;
-            }
-			case 5:
-            {
-                    s16 value = dice.roll( );
-                    setCurrentResistance( Core::ELEMENTAL_PHYSICAL, value );
-                    setBaseResistance( Core::ELEMENTAL_PHYSICAL, value );
-                    break;
-            }
-		  }
-		}
-	  }
-	  else
+          value = atoi( tmp.c_str() );
+        else
+          value = dice.roll();
+      }
+      // mod values are loaded before in character code!
+	  switch ( resistanceType )
 	  {
-		switch ( resistanceType )
-		{
-		  case 0: npc_ar_ = 0; break;
-		  case 1: 
-            setCurrentResistance( Core::ELEMENTAL_FIRE, 0 );
-            setBaseResistance( Core::ELEMENTAL_FIRE, 0 );
-            break;
-		  case 2: 
-            setCurrentResistance( Core::ELEMENTAL_COLD, 0 );
-            setBaseResistance( Core::ELEMENTAL_COLD, 0 );
-            break;
-		  case 3: 
-            setCurrentResistance( Core::ELEMENTAL_ENERGY, 0 );
-            setBaseResistance( Core::ELEMENTAL_ENERGY, 0 );
-            break;
-		  case 4: 
-            setCurrentResistance( Core::ELEMENTAL_POISON, 0 );
-            setBaseResistance( Core::ELEMENTAL_POISON, 0 );
-            break;
-		  case 5: 
-            setCurrentResistance( Core::ELEMENTAL_PHYSICAL, 0 );
-            setBaseResistance( Core::ELEMENTAL_PHYSICAL, 0 );
-            break;
-		}
+		case 0: npc_ar_ = static_cast<u16>(value); break;
+        case 1:
+        {
+          if (value != 0)
+          {
+            fire_resist(fire_resist().addToValue(static_cast<s16>(value)));
+            curr_fire_resist(curr_fire_resist().addToValue(static_cast<s16>(value)));
+          }
+          break;
+        }
+		case 2: 
+        {
+          if (value != 0)
+          {
+            cold_resist(cold_resist().addToValue(static_cast<s16>(value)));
+            curr_cold_resist(curr_cold_resist().addToValue(static_cast<s16>(value)));
+          }
+          break;
+        }
+		case 3: 
+        {
+          if (value != 0)
+          {
+            energy_resist(energy_resist().addToValue(static_cast<s16>(value)));
+            curr_energy_resist(curr_energy_resist().addToValue(static_cast<s16>(value)));
+          }
+          break;
+        }
+		case 4: 
+        {
+          if (value != 0)
+          {
+            poison_resist(poison_resist().addToValue(static_cast<s16>(value)));
+            curr_poison_resist(curr_poison_resist().addToValue(static_cast<s16>(value)));
+          }
+          break;
+        }
+		case 5: 
+        {
+          if (value != 0)
+          {
+            physical_resist(physical_resist().addToValue(static_cast<s16>(value)));
+            curr_physical_resist(curr_physical_resist().addToValue(static_cast<s16>(value)));
+          }
+          break;
+        }
 	  }
 
+      Core::AosValuePack curr;
 	  switch ( resistanceType )
 	  {
 		case 0: break; // ArMod isnt saved
-		case 1: 
-          setBaseResistance( Core::ELEMENTAL_FIRE, getBaseResistance( Core::ELEMENTAL_FIRE ) + getResistanceMod( Core::ELEMENTAL_FIRE ) );
+		case 1:
+          curr = fire_resist();
+          curr.value += curr.mod;
+          fire_resist(curr);
           break;
 		case 2: 
-          setBaseResistance( Core::ELEMENTAL_COLD, getBaseResistance( Core::ELEMENTAL_COLD ) + getResistanceMod( Core::ELEMENTAL_COLD ) );
+          curr = cold_resist();
+          curr.value += curr.mod;
+          cold_resist(curr);
           break;
 		case 3: 
-          setBaseResistance( Core::ELEMENTAL_ENERGY, getBaseResistance( Core::ELEMENTAL_ENERGY ) + getResistanceMod( Core::ELEMENTAL_ENERGY ) );
+          curr = energy_resist();
+          curr.value += curr.mod;
+          energy_resist(curr);
           break;
 		case 4: 
-          setBaseResistance( Core::ELEMENTAL_POISON, getBaseResistance( Core::ELEMENTAL_POISON ) + getResistanceMod( Core::ELEMENTAL_POISON ) );
+          curr = poison_resist();
+          curr.value += curr.mod;
+          poison_resist(curr);
           break;
 		case 5: 
-          setBaseResistance( Core::ELEMENTAL_PHYSICAL, getBaseResistance( Core::ELEMENTAL_PHYSICAL ) + getResistanceMod( Core::ELEMENTAL_PHYSICAL ) );
+          curr = physical_resist();
+          curr.value += curr.mod;
+          physical_resist(curr);
           break;
 	  }
 	}
@@ -600,127 +554,94 @@ namespace Pol {
 		case 5: passed = elem.remove_prop( "PHYSICALDAMAGE", &tmp ); break;
 	  }
 
+      s16 value = 0;
 	  if ( passed )
 	  {
 		Core::Dice dice;
         std::string errmsg;
 		if ( !dice.load( tmp.c_str(), &errmsg ) )
-		{
-		  switch ( damageType )
-		  {
-			case 1: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( Core::ELEMENTAL_FIRE, value );
-                    setBaseElementDamage( Core::ELEMENTAL_FIRE, value );
-                    break;
-            }
-			case 2: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( Core::ELEMENTAL_COLD, value );
-                    setBaseElementDamage( Core::ELEMENTAL_COLD, value );
-                    break;
-            }
-			case 3: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( Core::ELEMENTAL_ENERGY, value );
-                    setBaseElementDamage( Core::ELEMENTAL_ENERGY, value );
-                    break;
-            }
-			case 4: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( Core::ELEMENTAL_POISON, value );
-                    setBaseElementDamage( Core::ELEMENTAL_POISON, value );
-                    break;
-            }
-			case 5: 
-            {
-                    s16 value = static_cast<s16>( atoi( tmp.c_str( ) ) );
-                    setCurrentElementDamage( Core::ELEMENTAL_PHYSICAL, value );
-                    setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, value );
-                    break;
-            }
-		  }
-		}
-		else
-		{
-		  switch ( damageType )
-		  {
-			case 1:
-            {
-                    s16 value = dice.roll( );
-                    setCurrentElementDamage( Core::ELEMENTAL_FIRE, value );
-                    setBaseElementDamage( Core::ELEMENTAL_FIRE, value );
-                    break;
-            }
-			case 2: 
-            {
-                    s16 value = dice.roll( );
-                    setCurrentElementDamage( Core::ELEMENTAL_COLD, value );
-                    setBaseElementDamage( Core::ELEMENTAL_COLD, value );
-                    break;
-            }
-			case 3:
-            {
-                    s16 value = dice.roll( );
-                    setCurrentElementDamage( Core::ELEMENTAL_ENERGY, value );
-                    setBaseElementDamage( Core::ELEMENTAL_ENERGY, value );
-                    break;
-            }
-			case 4: 
-            {
-                    s16 value = dice.roll( );
-                    setCurrentElementDamage( Core::ELEMENTAL_POISON, value );
-                    setBaseElementDamage( Core::ELEMENTAL_POISON, value );
-                    break;
-            }
-			case 5:
-            {
-                    s16 value = dice.roll( );
-                    setCurrentElementDamage( Core::ELEMENTAL_PHYSICAL, value );
-                    setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, value );
-                    break;
-            }
-		  }
-		}
-	  }
-	  else
-	  {
-		switch ( damageType )
-		{
-		  case 1: 
-            setCurrentElementDamage( Core::ELEMENTAL_FIRE, 0 );
-            setBaseElementDamage( Core::ELEMENTAL_FIRE, 0 );
-            break;
-          case 2: 
-            setCurrentElementDamage( Core::ELEMENTAL_COLD, 0 );
-            setBaseElementDamage( Core::ELEMENTAL_COLD, 0 );
-            break;
-		  case 3: 
-            setCurrentElementDamage( Core::ELEMENTAL_ENERGY, 0 );
-            setBaseElementDamage( Core::ELEMENTAL_ENERGY, 0 );
-            break;
-		  case 4: 
-            setCurrentElementDamage( Core::ELEMENTAL_POISON, 0 );
-            setBaseElementDamage( Core::ELEMENTAL_POISON, 0 );
-            break;
-		  case 5:
-            setCurrentElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
-            setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, 0 );
-            break;
-		}
-	  }
-
+          value = static_cast<s16>( atoi( tmp.c_str( ) ) );
+        else
+          value = dice.roll();
+      }
+      // mod values are loaded before in character code!
 	  switch ( damageType )
 	  {
-        case 1: setBaseElementDamage( Core::ELEMENTAL_FIRE, getBaseElementDamage( Core::ELEMENTAL_FIRE ) + getElementDamageMod( Core::ELEMENTAL_FIRE ) ); break;
-        case 2: setBaseElementDamage( Core::ELEMENTAL_COLD, getBaseElementDamage( Core::ELEMENTAL_COLD ) + getElementDamageMod( Core::ELEMENTAL_COLD ) ); break;
-        case 3: setBaseElementDamage( Core::ELEMENTAL_ENERGY, getBaseElementDamage( Core::ELEMENTAL_ENERGY ) + getElementDamageMod( Core::ELEMENTAL_ENERGY ) ); break;
-        case 4: setBaseElementDamage( Core::ELEMENTAL_POISON, getBaseElementDamage( Core::ELEMENTAL_POISON ) + getElementDamageMod( Core::ELEMENTAL_POISON ) ); break;
-        case 5: setBaseElementDamage( Core::ELEMENTAL_PHYSICAL, getBaseElementDamage( Core::ELEMENTAL_PHYSICAL ) + getElementDamageMod( Core::ELEMENTAL_PHYSICAL ) ); break;
+		case 1: 
+        {
+          if (value != 0)
+          {
+            fire_damage(fire_damage().addToValue(value));
+            curr_fire_damage(curr_fire_damage().addToValue(value));
+          }
+          break;
+        }
+		case 2: 
+        {
+          if (value != 0)
+          {
+            cold_damage(cold_damage().addToValue(value));
+            curr_cold_damage(curr_cold_damage().addToValue(value));
+          }
+          break;
+        }
+		case 3: 
+        {
+          if (value != 0)
+          {
+            energy_damage(energy_damage().addToValue(value));
+            curr_energy_damage(curr_energy_damage().addToValue(value));
+          }
+          break;
+        }
+		case 4: 
+        {
+          if (value != 0)
+          {
+            poison_damage(poison_damage().addToValue(value));
+            curr_poison_damage(curr_poison_damage().addToValue(value));
+          }
+          break;
+        }
+		case 5: 
+        {
+          if (value != 0)
+          {
+            physical_damage(physical_damage().addToValue(value));
+            curr_physical_damage(curr_physical_damage().addToValue(value));
+          }
+          break;
+        }
+	  }
+
+      Core::AosValuePack curr;
+	  switch ( damageType )
+	  {
+		case 1: 
+          curr = fire_damage();
+          curr.value += curr.mod;
+          fire_damage(curr);
+          break;
+		case 2: 
+          curr = cold_damage();
+          curr.value += curr.mod;
+          cold_damage(curr);
+          break;
+		case 3: 
+          curr = energy_damage();
+          curr.value += curr.mod;
+          energy_damage(curr);
+          break;
+		case 4: 
+          curr = poison_damage();
+          curr.value += curr.mod;
+          poison_damage(curr);
+          break;
+		case 5: 
+          curr = physical_damage();
+          curr.value += curr.mod;
+          physical_damage(curr);
+          break;
 	  }
 	}
 
@@ -1293,12 +1214,98 @@ namespace Pol {
 
     void NPC::reset_element_resist( Core::ElementalType resist )
 	{
-      setBaseResistance( resist, getCurrentResistance( resist ) + getResistanceMod( resist ) );
+      Core::AosValuePack curr;
+      switch (resist)
+      {
+      case Core::ELEMENTAL_FIRE:
+        if (has_fire_resist() || has_curr_fire_resist())
+        {
+          curr = fire_resist();
+          curr.value = curr.mod + curr_fire_resist().value;
+          fire_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_COLD:
+        if (has_cold_resist() || has_curr_cold_resist())
+        {
+          curr = cold_resist();
+          curr.value = curr.mod + curr_cold_resist().value;
+          cold_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        if (has_energy_resist() || has_curr_energy_resist())
+        {
+          curr = energy_resist();
+          curr.value = curr.mod + curr_energy_resist().value;
+          energy_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_POISON:
+        if (has_poison_resist() || has_curr_poison_resist())
+        {
+          curr = poison_resist();
+          curr.value = curr.mod + curr_poison_resist().value;
+          poison_resist(curr);
+        }
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        if (has_physical_resist() || has_curr_physical_resist())
+        {
+          curr = physical_resist();
+          curr.value = curr.mod + curr_physical_resist().value;
+          physical_resist(curr);
+        }
+        break;
+      }
 	}
 
     void NPC::reset_element_damage( Core::ElementalType damage )
 	{
-      setBaseElementDamage( damage, getCurrentElementDamage( damage ) + getElementDamageMod( damage ) );
+      Core::AosValuePack curr;
+      switch (damage)
+      {
+      case Core::ELEMENTAL_FIRE:
+        if (has_fire_damage() || has_curr_fire_damage())
+        {
+          curr = fire_damage();
+          curr.value = curr.mod + curr_fire_damage().value;
+          fire_damage(curr);
+        }
+        break;
+      case Core::ELEMENTAL_COLD:
+        if (has_cold_damage() || has_curr_cold_damage())
+        {
+          curr = cold_damage();
+          curr.value = curr.mod + curr_cold_damage().value;
+          cold_damage(curr);
+        }
+        break;
+      case Core::ELEMENTAL_ENERGY:
+        if (has_energy_damage() || has_curr_energy_damage())
+        {
+          curr = energy_damage();
+          curr.value = curr.mod + curr_energy_damage().value;
+          energy_damage(curr);
+        }
+        break;
+      case Core::ELEMENTAL_POISON:
+        if (has_poison_damage() || has_curr_poison_damage())
+        {
+          curr = poison_damage();
+          curr.value = curr.mod + curr_poison_damage().value;
+          poison_damage(curr);
+        }
+        break;
+      case Core::ELEMENTAL_PHYSICAL:
+        if (has_physical_damage() || has_curr_physical_damage())
+        {
+          curr = physical_damage();
+          curr.value = curr.mod + curr_physical_damage().value;
+          physical_damage(curr);
+        }
+        break;
+      }
 	}
 
     size_t NPC::estimatedSize() const
@@ -1315,53 +1322,6 @@ namespace Pol {
         +sizeof(unsigned short)/*speech_font_*/
         +sizeof( boost_utils::script_name_flystring ) /*script*/
         + sizeof( boost_utils::npctemplate_name_flystring ); /*template_name*/
-    }
-
-    s16 NPC::getCurrentResistance( Core::ElementalType type ) const
-    {
-      switch ( type )
-      {
-        case Core::ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_RESIST + 1000 );
-        case Core::ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_RESIST + 1000 );
-        case Core::ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000 );
-        case Core::ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_RESIST + 1000 );
-        case Core::ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000 );
-      }
-      return 0;
-    }
-    void NPC::setCurrentResistance( Core::ElementalType type, s16 value )
-    {
-      switch ( type )
-      {
-        case Core::ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_RESIST + 1000, value );
-        case Core::ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_RESIST + 1000, value );
-        case Core::ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_RESIST + 1000, value );
-        case Core::ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_RESIST + 1000, value );
-        case Core::ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_RESIST + 1000, value );
-      }
-    }
-    s16 NPC::getCurrentElementDamage( Core::ElementalType type ) const
-    {
-      switch ( type )
-      {
-        case Core::ELEMENTAL_FIRE: return getmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000 );
-        case Core::ELEMENTAL_COLD: return getmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000 );
-        case Core::ELEMENTAL_ENERGY: return getmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000 );
-        case Core::ELEMENTAL_POISON: return getmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000 );
-        case Core::ELEMENTAL_PHYSICAL: return getmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000 );
-      }
-      return 0;
-    }
-    void NPC::setCurrentElementDamage( Core::ElementalType type, s16 value )
-    {
-      switch ( type )
-      {
-        case Core::ELEMENTAL_FIRE: return setmember<s16>( Bscript::MBR_FIRE_DAMAGE + 1000, value );
-        case Core::ELEMENTAL_COLD: return setmember<s16>( Bscript::MBR_COLD_DAMAGE + 1000, value );
-        case Core::ELEMENTAL_ENERGY: return setmember<s16>( Bscript::MBR_ENERGY_DAMAGE + 1000, value );
-        case Core::ELEMENTAL_POISON: return setmember<s16>( Bscript::MBR_POISON_DAMAGE + 1000, value );
-        case Core::ELEMENTAL_PHYSICAL: return setmember<s16>( Bscript::MBR_PHYSICAL_DAMAGE + 1000, value );
-      }
     }
 
 	u16 NPC::get_damaged_sound() const

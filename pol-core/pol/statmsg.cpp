@@ -140,7 +140,7 @@ namespace Pol {
 	  // Adjusted to work with Physical Resist if AOS client, and AOS Resistances enabled.
       if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
       {
-        s16 value = chr->getBaseResistance( Core::ELEMENTAL_PHYSICAL );
+        s16 value = chr->physical_resist().value;
         msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
                                 ( 0x10000 + value ) :
                                 value ));
@@ -162,30 +162,31 @@ namespace Pol {
 	  // moreinfo 3 start
 	  if ( ( client->UOExpansionFlag & Network::AOS ) )
 	  {
-		msg->WriteFlipped<s16>( chr->expanded_statbar.statcap );
-		msg->Write<s8>( chr->expanded_statbar.followers );
-		msg->Write<s8>( chr->expanded_statbar.followers_max );
+		msg->WriteFlipped<s16>( chr->skillstatcap().statcap );
+        auto follow_value = chr->followers();
+		msg->Write<s8>( follow_value.followers );
+		msg->Write<s8>( follow_value.followers_max );
 		// moreinfo 4 start
-        s16 value = chr->getBaseResistance( Core::ELEMENTAL_FIRE );
+        s16 value = chr->fire_resist().value;
         msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
                                 ( 0x10000 + value ) :
                                 value ));
-        value = chr->getBaseResistance( Core::ELEMENTAL_COLD );
+        value = chr->cold_resist().value;
         msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
                                 ( 0x10000 + value ) :
                                  value ));
-        value = chr->getBaseResistance( Core::ELEMENTAL_POISON );
+        value = chr->poison_resist().value;
         msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
                                 ( 0x10000 + value ) :
                                 value ));
-        value = chr->getBaseResistance( Core::ELEMENTAL_ENERGY );
+        value = chr->energy_resist().value;
         msg->WriteFlipped<u16>( static_cast<u16>(( value < 0 ) ?
                                 ( 0x10000 + value ) :
                                 value ));
-		msg->WriteFlipped<s16>( chr->expanded_statbar.luck );
+		msg->WriteFlipped<s16>( chr->luck() );
 		msg->WriteFlipped<u16>( chr->min_weapon_damage() );
 		msg->WriteFlipped<u16>( chr->max_weapon_damage() );
-		msg->WriteFlipped<s32>( chr->expanded_statbar.tithing );
+		msg->WriteFlipped<s32>( chr->tithing() );
 	  }
 
 	  // Add the new entries as 0's for now

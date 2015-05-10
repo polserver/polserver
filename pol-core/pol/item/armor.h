@@ -38,8 +38,7 @@ namespace Pol {
 	  void set_onhitscript( const std::string& scriptname );
 	  std::set<unsigned short> tmplzones();
       
-      s16 ar_mod() const;
-      void ar_mod(s16 newvalue);
+      DYN_PROPERTY(ar_mod, s16, Core::PROP_AR_MOD, 0);
 
 	protected:
 
@@ -67,16 +66,6 @@ namespace Pol {
 
 	  Core::ScriptDef onhitscript_;
 	};
-
-    inline s16 UArmor::ar_mod() const
-    {
-        return getmember<s16>(Bscript::MBR_AR_MOD);
-    }
-    inline void UArmor::ar_mod(s16 newvalue)
-    {
-        setmember<s16>(Bscript::MBR_AR_MOD, newvalue);
-    }
-
 
 	void load_armor_templates();
 	void unload_armor_templates();
