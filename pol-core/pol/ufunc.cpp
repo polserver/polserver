@@ -189,48 +189,16 @@ namespace Pol {
         }
 
         // Character chr has moved.  Tell a client about it.
-        // FIXME: Use of this packet needs optimized. Other functions for
-        // sending to in range etc, call this function for each client.
-        // Even with the independant flags, we should be able to
-        // optimize this out to reduce build amounts
         void send_move(Client *client, const Character *chr)
         {
-            PktHelper::PacketOut<PktOut_77> msg;
-            msg->Write<u32>(chr->serial_ext);
-            msg->WriteFlipped<u16>(chr->graphic);
-            msg->WriteFlipped<u16>(chr->x);
-            msg->WriteFlipped<u16>(chr->y);
-            msg->Write<s8>(chr->z);
-            msg->Write<u8>((chr->dir & 0x80u) | chr->facing);// NOTE, this only includes mask 0x07 of the last MOVE message 
-            msg->WriteFlipped<u16>(chr->color);
-            msg->Write<u8>(chr->get_flag1(client));
-            msg->Write<u8>(chr->hilite_color_idx(client->chr));
-            msg.Send(client);
+          MoveChrPkt msgmove (chr);
+          msgmove.Send(client);
 
-            if (chr->poisoned()) //if poisoned send 0x17 for newer clients
-              send_poisonhealthbar(client, chr);
+          if (chr->poisoned()) //if poisoned send 0x17 for newer clients
+            send_poisonhealthbar(client, chr);
 
-            if (chr->invul()) //if invul send 0x17 for newer clients
-              send_invulhealthbar(client, chr);
-        }
-
-        void send_move(Client *client, const Character *chr, PktOut_77* movebuffer)
-        {
-            movebuffer->offset = 15;
-            movebuffer->Write<u8>(chr->get_flag1(client));
-            movebuffer->Write<u8>(chr->hilite_color_idx(client->chr));
-            Core::networkManager.clientTransmit->AddToQueue(client, &movebuffer->buffer, movebuffer->offset);
-        }
-
-        void build_send_move(const Character *chr, PktOut_77* msg)
-        {
-            msg->Write<u32>(chr->serial_ext);
-            msg->WriteFlipped<u16>(chr->graphic);
-            msg->WriteFlipped<u16>(chr->x);
-            msg->WriteFlipped<u16>(chr->y);
-            msg->Write<s8>(chr->z);
-            msg->Write<u8>((chr->dir & 0x80u) | chr->facing);// NOTE, this only includes mask 0x07 of the last MOVE message 
-            msg->WriteFlipped<u16>(chr->color);
+          if (chr->invul()) //if invul send 0x17 for newer clients
+            send_invulhealthbar(client, chr);
         }
 
         void send_poisonhealthbar(Client *client, const Character *chr)
@@ -305,7 +273,7 @@ namespace Pol {
 
             if (client->UOExpansionFlag & AOS)
             {
-                send_object_cache(client, dynamic_cast<const UObject*>(chr));
+                send_object_cache(client, chr);
                 // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
                 for (int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer)
                 {
@@ -314,7 +282,7 @@ namespace Pol {
                         continue;
                     if (layer == LAYER_FACE)
                         continue;
-                    send_object_cache(client, dynamic_cast<const UObject*>(item));
+                    send_object_cache(client, item);
                 }
             }
 
@@ -382,7 +350,7 @@ namespace Pol {
 
             if (client->UOExpansionFlag & AOS)
             {
-                send_object_cache(client, dynamic_cast<const UObject*>(chr));
+                send_object_cache(client, chr);
                 // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
                 for (int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer)
                 {
@@ -391,7 +359,7 @@ namespace Pol {
                         continue;
                     if (layer == LAYER_FACE)
                         continue;
-                    send_object_cache(client, dynamic_cast<const UObject*>(item));
+                    send_object_cache(client, item);
                 }
             }
         }
@@ -588,7 +556,7 @@ namespace Pol {
             msg.Send(client);
 
             if (client->UOExpansionFlag & AOS)
-                send_object_cache(client, dynamic_cast<const UObject*>(item));
+                send_object_cache(client, item);
         }
 
         void send_put_in_container_to_inrange(const Item *item)
@@ -886,7 +854,7 @@ namespace Pol {
 
 	  if ( client->UOExpansionFlag & AOS )
 	  {
-		send_object_cache( client, dynamic_cast<const UObject*>( item ) );
+		send_object_cache( client, item );
 	  }
 	}
 
@@ -900,7 +868,7 @@ namespace Pol {
 	  msg->Write<u32>( chr->serial_ext );
 	  msg->WriteFlipped<u16>( item->color );
 	  transmit_to_inrange( item, &msg->buffer, msg->offset );
-	  send_object_cache_to_inrange( dynamic_cast<const UObject*>( item ) );
+	  send_object_cache_to_inrange( item );
 	}
 
 	// This used when item already worn and graphic/color changed. Deletes the item
@@ -920,7 +888,7 @@ namespace Pol {
 		msg->WriteFlipped<u16>( item->color );
 		transmit_to_inrange( item, &msg->buffer, msg->offset );
 
-		send_object_cache_to_inrange( dynamic_cast<const UObject*>( item ) );
+		send_object_cache_to_inrange( item );
 	  }
 	}
 
@@ -1814,20 +1782,21 @@ namespace Pol {
 		if ( !client->ready )
 		  continue;
 
-		if ( client->chr->lightoverride_until < read_gameclock() && client->chr->lightoverride_until != ~0u )
+        auto light_until = client->chr->lightoverride_until();
+		if ( light_until < read_gameclock() && light_until != ~0u )
 		{
-		  client->chr->lightoverride_until = 0;
-		  client->chr->lightoverride = -1;
+		  client->chr->lightoverride_until(0);
+		  client->chr->lightoverride(-1);
 		}
 
 		if ( client->gd->weather_region &&
 			 client->gd->weather_region->lightoverride != -1 &&
-			 client->chr->lightoverride == -1 )
+			 !client->chr->has_lightoverride() )
 			 continue;
 
 		int newlightlevel;
-		if ( client->chr->lightoverride != -1 )
-		  newlightlevel = client->chr->lightoverride;
+		if ( client->chr->has_lightoverride() )
+		  newlightlevel = client->chr->lightoverride();
 		else
 		{
 		  //dave 12-22 check for no regions
@@ -2023,17 +1992,6 @@ namespace Pol {
 	  }
 	}
 
-	void send_move_mobile_if_nearby_cansee( Client* client, const Character* chr )
-	{
-	  if ( client->ready &&                // must be logged into game
-		   inrange( client->chr, chr ) &&
-		   client->chr != chr &&
-		   client->chr->is_visible_to_me( chr ) )
-	  {
-		send_move( client, chr );
-	  }
-	}
-
 	void send_create_mobile_to_nearby_cansee( const Character* chr )
 	{
       WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
@@ -2047,12 +2005,13 @@ namespace Pol {
 
 	void send_move_mobile_to_nearby_cansee( const Character* chr )
 	{
+      MoveChrPkt msgmove(chr);
       WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character *zonechr )
       {
         if ( zonechr == chr )
           return;
         if ( zonechr->is_visible_to_me( chr ) )
-          send_move( zonechr->client, chr );
+          msgmove.Send(zonechr->client);
       } );
 	}
 
@@ -2203,7 +2162,7 @@ namespace Pol {
 		// Sending Season info resets light level in client, this fixes it during login
 		if ( client->gd->weather_region != NULL &&
 			 client->gd->weather_region->lightoverride != -1 &&
-			 client->chr->lightoverride == -1 )
+			 !client->chr->has_lightoverride() )
 		{
 		  send_light( client, client->gd->weather_region->lightoverride );
 		}

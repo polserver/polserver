@@ -38,7 +38,6 @@ namespace Pol {
 	  _itemdesc( nullptr ),
 	  layer( 0 ),
 	  hp_( id.maxhp ),
-	  quality_( id.quality ),
       gotten_by_ ( nullptr )
 	{
 	  graphic = id.graphic;
@@ -75,7 +74,6 @@ namespace Pol {
         +sizeof(u8)/* layer*/
         +sizeof(u8)/* tile_layer*/
         +sizeof(unsigned short)/* hp_*/
-        +sizeof(double)/* quality_*/
         +sizeof( boost_utils::script_name_flystring ) /*on_use_script_*/
         +sizeof( boost_utils::script_name_flystring ) /*equip_script_*/
         +sizeof( boost_utils::script_name_flystring ); /*unequip_script_*/

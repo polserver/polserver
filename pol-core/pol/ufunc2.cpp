@@ -124,7 +124,7 @@ namespace Pol {
 		  const Items::Item* item = GET_ITEM_PTR( itr );
 		  if ( !item->invisible() || client->chr->can_seeinvisitems() )
 		  {
-			send_object_cache( client, dynamic_cast<const UObject*>( item ) );
+			send_object_cache( client, item );
 		  }
 		}
 	  }

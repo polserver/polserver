@@ -903,10 +903,10 @@ namespace Pol {
 								   return new BLong( itemdesc.doubleclick_range );
 								   break;
 		}
-		case MBR_QUALITY: return new Double( quality_ ); break;
+		case MBR_QUALITY: return new Double( quality() ); break;
 		case MBR_HP: return new BLong( hp_ ); break;
 		case MBR_MAXHP_MOD: return new BLong( maxhp_mod() ); break;
-		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * quality_ ) ); break;
+		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * quality() ) ); break;
 		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
 		default: return NULL;
 	  }
@@ -1081,7 +1081,9 @@ namespace Pol {
           physical_damage(physical_damage().setAsMod(static_cast<short>( value )));
 		  return new BLong( static_cast<short>( value ) );
 		  break;
-		case MBR_QUALITY: return new Double( ( quality_ = double( value ) ) );
+		case MBR_QUALITY:
+          quality(double( value ) );
+          return new Double( double( value ) );
 		  break;
 		case MBR_HP:
 		  hp_ = static_cast<unsigned short>( value );
@@ -1134,7 +1136,9 @@ namespace Pol {
 		return imp;
 	  switch ( id )
 	  {
-		case MBR_QUALITY: return new Double( ( quality_ = double( value ) ) ); break;
+		case MBR_QUALITY: 
+          quality(value);
+          return new Double( value );
 		default: return NULL;
 	  }
 	}
@@ -1558,10 +1562,10 @@ namespace Pol {
 		  break;
 		case MBR_GOLD: return new BLong( gold_carried() ); break;
 
-		case MBR_TITLE_PREFIX: return new String( title_prefix ); break;
-		case MBR_TITLE_SUFFIX: return new String( title_suffix ); break;
-		case MBR_TITLE_GUILD:  return new String( title_guild ); break;
-		case MBR_TITLE_RACE:   return new String( title_race ); break;
+		case MBR_TITLE_PREFIX: return new String( title_prefix() ); break;
+		case MBR_TITLE_SUFFIX: return new String( title_suffix() ); break;
+		case MBR_TITLE_GUILD:  return new String( title_guild() ); break;
+		case MBR_TITLE_RACE:   return new String( title_race() ); break;
 		case MBR_UCLANG: return new String( uclang ); break;
 		case MBR_GUILDID: return new BLong( guildid() ); break;
 		case MBR_GUILD:
@@ -1764,10 +1768,10 @@ namespace Pol {
 	  String* ret;
 	  switch ( id )
 	  {
-		case MBR_TITLE_PREFIX: ret = new String( title_prefix = value ); break;
-		case MBR_TITLE_SUFFIX: ret = new String( title_suffix = value ); break;
-		case MBR_TITLE_GUILD:  ret = new String( title_guild = value ); break;
-		case MBR_TITLE_RACE:   ret = new String( title_race = value ); break;
+		case MBR_TITLE_PREFIX: title_prefix(value); ret = new String( value ); break;
+		case MBR_TITLE_SUFFIX: title_suffix(value); ret = new String( value ); break;
+		case MBR_TITLE_GUILD:  title_guild(value); ret = new String( value ); break;
+		case MBR_TITLE_RACE:   title_race(value); ret = new String( value ); break;
 		default: return NULL;
 	  }
 	  set_dirty();
@@ -2159,19 +2163,19 @@ namespace Pol {
 		  if ( ex.getParam( 0, level ) &&
 				ex.getParam( 1, duration ) )
 		  {
-				lightoverride = level;
+				lightoverride(level);
 	
 				if ( duration == -1 )
-				  lightoverride_until = ~0u;
+				  lightoverride_until(~0u);
 				else if ( duration == 0 )
-				  lightoverride_until = 0;
+				  lightoverride_until(0);
 				else
-				  lightoverride_until = Core::read_gameclock() + duration;
+				  lightoverride_until(Core::read_gameclock() + duration);
 	
 				check_region_changes();
 				if ( duration == -1 )
 				  return new BLong( duration );
-				return new BLong( lightoverride_until );
+				return new BLong( lightoverride_until() );
 			}
 		  break;
 		}
@@ -2209,14 +2213,14 @@ namespace Pol {
 			set_dirty();
 			if ( duration == -1 )
 			{
-			  squelched_until = ~0u;
+			  squelched_until(~0u);
 			  return new BLong( -1 );
 			}
 			else if ( duration == 0 )
-			  squelched_until = 0;
+			  squelched_until(0);
 			else
-			  squelched_until = Core::read_gameclock() + duration;
-			return new BLong( squelched_until );
+			  squelched_until(Core::read_gameclock() + duration);
+			return new BLong( squelched_until() );
 		  }
 		  break;
 		}
@@ -2552,14 +2556,14 @@ namespace Pol {
 		    set_dirty();
 		    if ( duration == -1 )
 		    {
-		      deafened_until = ~0u;
+		      deafened_until(~0u);
 		      return new BLong( -1 );
 		    }
 		    else if ( duration == 0 )
-		      deafened_until = 0;
+		      deafened_until(0);
 		    else
-		      deafened_until = Core::read_gameclock() + duration;
-		    return new BLong( deafened_until );
+		      deafened_until(Core::read_gameclock() + duration);
+		    return new BLong( deafened_until() );
 	      }
 	      break;
 		}
@@ -2572,8 +2576,8 @@ namespace Pol {
 		  {
 			if ( duration < 0 )
 			  return new BError( "Duration must be >= 0" );
-			disable_skills_until = Core::poltime() + duration;
-			return new BLong( static_cast<int>(disable_skills_until) );
+			disable_skills_until(Core::poltime() + duration);
+			return new BLong( static_cast<int>(disable_skills_until()) );
 		  }
 		  break;
 		}

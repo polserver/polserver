@@ -55,11 +55,11 @@ namespace Pol {
 
 	  if ( ( !settingsManager.ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
 	  {
-		std::string name = ( chr->title_prefix.empty() ? "" : chr->title_prefix + " " ) +
+		std::string name = ( !chr->has_title_prefix() ? "" : chr->title_prefix() + " " ) +
 		  chr->name() +
-		  ( chr->title_suffix.empty() ? "" : " " + chr->title_suffix );
-		if ( !chr->title_race.empty() )
-		  name += " (" + chr->title_race + ")";
+		  ( !chr->has_title_suffix() ? "" : " " + chr->title_suffix() );
+		if ( chr->has_title_race() )
+		  name += " (" + chr->title_race() + ")";
 		msg->Write( name.c_str(), 60 );
 	  }
 	  else
@@ -113,13 +113,13 @@ namespace Pol {
 		return;
 	  }
 
-	  if ( client->chr->dblclick_wait > read_gameclock() )
+	  if ( client->chr->dblclick_wait() > read_gameclock() )
 	  {
 		private_say_above( client->chr, client->chr, "You must wait to use something again." );
 		return;
 	  }
 	  else
-		client->chr->dblclick_wait = read_gameclock() + settingsManager.ssopt.dblclick_wait;
+		client->chr->dblclick_wait(read_gameclock() + settingsManager.ssopt.dblclick_wait);
 
 	  if ( IsCharacter( serial ) )
 	  {

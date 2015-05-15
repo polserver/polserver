@@ -64,15 +64,27 @@ namespace Pol {
       {
         THREAD_CHECKPOINT( tasks, 402 );
 
-        if ( chr->lightoverride != -1 )
+        if ( chr->has_lightoverride() )
         {
-          if ( chr->lightoverride_until < now_gameclock && chr->lightoverride_until != ~0u )
+          auto light_until = chr->lightoverride_until();
+          if ( light_until < now_gameclock && light_until != ~0u )
           {
-            chr->lightoverride = -1;
-            chr->lightoverride_until = 0;
+            chr->lightoverride(-1);
+            chr->lightoverride_until(0);
             THREAD_CHECKPOINT( tasks, 403 );
             chr->check_region_changes( );
           }
+        }
+
+        if ( chr->has_dblclick_wait())
+        {
+          if (chr->dblclick_wait() < now_gameclock)
+            chr->dblclick_wait(0);
+        }
+        if ( chr->has_disable_skills_until())
+        {
+          if (chr->disable_skills_until() < now)
+            chr->disable_skills_until(0);
         }
         THREAD_CHECKPOINT( tasks, 404 );
 

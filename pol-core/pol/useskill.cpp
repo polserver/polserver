@@ -71,7 +71,7 @@ namespace Pol {
 			chr->unhide();
 		  if ( attrib->delay_seconds )
 		  {
-			chr->disable_skills_until = poltime() + attrib->delay_seconds;
+			chr->disable_skills_until(poltime() + attrib->delay_seconds);
 		  }
 		  return true;
 		}
@@ -97,7 +97,7 @@ namespace Pol {
 		private_say_above( chr, chr, "I am already performing another action." );
 		return false;
 	  }
-	  else if ( poltime() < chr->disable_skills_until )
+	  else if ( poltime() < chr->disable_skills_until() )
 	  {
 		send_sysmessage( client, "You must wait to perform another action." );
 		return false;

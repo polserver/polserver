@@ -345,7 +345,7 @@ namespace Pol {
 				if ( chr->hidden() && attr->unhides )
 				  chr->unhide();
 				if ( attr->delay_seconds )
-                  chr->disable_skills_until = Core::poltime( ) + attr->delay_seconds;
+                  chr->disable_skills_until(Core::poltime() + attr->delay_seconds);
 			  }
 			}
 			else
@@ -355,7 +355,7 @@ namespace Pol {
 				if ( chr->hidden() && attr->unhides )
 				  chr->unhide();
 				if ( attr->delay_seconds )
-                  chr->disable_skills_until = Core::poltime( ) + attr->delay_seconds;
+                  chr->disable_skills_until(Core::poltime() + attr->delay_seconds);
 			  }
 			}
 		  }

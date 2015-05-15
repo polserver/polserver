@@ -46,6 +46,8 @@ Combining would use the u32 size for a prop in a variant without loss (2*s16)
 #include "../clib/rawtypes.h"
 #include "../clib/passert.h"
 
+#include "gameclck.h"
+
 #include <bitset>
 #include <string>
 #include <type_traits>
@@ -112,6 +114,17 @@ namespace Pol {
     PROP_EXT_STATBAR_FOLLOWERS= 32, // Character
     PROP_EXT_STATBAR_TITHING  = 33, // Character
     PROP_MOVEMENTCOST_MOD     = 34, // Character
+    PROP_QUALITY              = 35, // Item
+    PROP_DOUBLECLICK_WAIT     = 36, // Character
+    PROP_DISABLE_SKILLS_UNTIL = 37, // Character
+    PROP_SQUELCHED_UNTIL      = 38, // Character
+    PROP_DEAFENED_UNTIL       = 39, // Character
+    PROP_LIGHTOVERRIDE_UNTIL  = 40, // Character
+    PROP_LIGHTOVERRIDE        = 41, // Character
+    PROP_TITLE_PREFIX         = 42, // Character
+    PROP_TITLE_SUFFIX         = 43, // Character
+    PROP_TITLE_GUILD          = 44, // Character
+    PROP_TITLE_RACE           = 45, // Character
 
     PROP_FLAG_SIZE // used for bitset size
   };
@@ -169,7 +182,7 @@ namespace Pol {
   class PropHolderContainer;
 
   // small property type no types above size 4, for bigger types boost::any will be used
-  typedef boost::variant<u8,u16,u32,s8,s16,s32,AosValuePack,SkillStatCap,ExtStatBarFollowers> variant_storage;
+  typedef boost::variant<u8,u16,u32,s8,s16,s32,AosValuePack,SkillStatCap,ExtStatBarFollowers,gameclock_t> variant_storage;
   template <typename T> struct can_be_used_in_variant
   {
      static const bool value =
@@ -181,7 +194,8 @@ namespace Pol {
         std::is_same<T,s32>::value ||
         std::is_same<T,AosValuePack>::value ||
         std::is_same<T,SkillStatCap>::value ||
-        std::is_same<T,ExtStatBarFollowers>::value;
+        std::is_same<T,ExtStatBarFollowers>::value ||
+        std::is_same<T,gameclock_t>::value ;
   };
 
   // holder class

@@ -278,8 +278,6 @@ namespace Pol {
 	  lastz( 0 ),
 	  move_reason( OTHER ),
       movemode( Core::MOVEMODE_LAND ),
-	  lightoverride( -1 ),
-	  lightoverride_until( 0 ),
 	  // COMBAT
 	  warmode_wait( 0 ),
 	  ar_( 0 ),
@@ -317,7 +315,6 @@ namespace Pol {
 	  trading_with( NULL ),
 	  trade_accepted( false ),
 	  // SCRIPT
-	  disable_skills_until( 0 ),
 	  tcursor2( NULL ),
 	  menu( NULL ),
 	  on_menu_selection( NULL ),
@@ -343,8 +340,6 @@ namespace Pol {
 	  privs(),
 	  settings(),
 	  cached_settings(),
-	  squelched_until( 0 ),
-	  deafened_until( 0 ),
 	  // SERIALIZATION
 	  // CREATION
 	  created_at( 0 ),
@@ -357,8 +352,7 @@ namespace Pol {
 	  // this is probably okay, but something to keep in mind.
       gender( Core::GENDER_MALE ),
       race( Core::RACE_HUMAN ),
-	  last_corpse( 0 ),
-	  dblclick_wait( 0 )
+	  last_corpse( 0 )
 	{
 	  
 	  height = PLAYER_CHARACTER_HEIGHT; //this gets overwritten in UObject::readProperties!
@@ -726,19 +720,19 @@ namespace Pol {
 
 	  sw() << "\tCreatedAt\t" << created_at << pf_endl;
 
-	  if ( squelched_until )
-		sw() << "\tSquelchedUntil\t" << squelched_until << pf_endl;
-	  if ( deafened_until )
-		sw() << "\tDeafenedUntil\t" << deafened_until << pf_endl;
+	  if ( has_squelched_until() )
+		sw() << "\tSquelchedUntil\t" << squelched_until() << pf_endl;
+	  if ( has_deafened_until() )
+		sw() << "\tDeafenedUntil\t" << deafened_until() << pf_endl;
 
-	  if ( !title_prefix.empty() )
-		sw() << "\tTitlePrefix\t" << Clib::getencodedquotedstring( title_prefix ) << pf_endl;
-	  if ( !title_suffix.empty() )
-        sw( ) << "\tTitleSuffix\t" << Clib::getencodedquotedstring( title_suffix ) << pf_endl;
-	  if ( !title_guild.empty() )
-        sw( ) << "\tTitleGuild\t" << Clib::getencodedquotedstring( title_guild ) << pf_endl;
-	  if ( !title_race.empty() )
-        sw( ) << "\tTitleRace\t" << Clib::getencodedquotedstring( title_race ) << pf_endl;
+	  if ( has_title_prefix() )
+		sw() << "\tTitlePrefix\t" << Clib::getencodedquotedstring( title_prefix() ) << pf_endl;
+	  if ( has_title_suffix() )
+        sw( ) << "\tTitleSuffix\t" << Clib::getencodedquotedstring( title_suffix() ) << pf_endl;
+	  if ( has_title_guild() )
+        sw( ) << "\tTitleGuild\t" << Clib::getencodedquotedstring( title_guild() ) << pf_endl;
+	  if ( has_title_race() )
+        sw( ) << "\tTitleRace\t" << Clib::getencodedquotedstring( title_race() ) << pf_endl;
 
 	  //	if (guildid_)
 	  //		scf() << "\tGuildId\t" << guildid_ << pf_endl;
@@ -943,13 +937,13 @@ namespace Pol {
 	  height = PLAYER_CHARACTER_HEIGHT; //no really, height is 9
 
 	  created_at = elem.remove_ulong( "CreatedAt", 0 );
-	  squelched_until = elem.remove_ulong( "SquelchedUntil", 0 );
-	  deafened_until = elem.remove_ulong( "DeafenedUntil", 0 );
+	  squelched_until(elem.remove_ulong( "SquelchedUntil", 0 ));
+	  deafened_until(elem.remove_ulong( "DeafenedUntil", 0 ));
 
-	  title_prefix = elem.remove_string( "TITLEPREFIX", "" );
-	  title_suffix = elem.remove_string( "TITLESUFFIX", "" );
-	  title_guild = elem.remove_string( "TITLEGUILD", "" );
-	  title_race = elem.remove_string( "TITLERACE", "" );
+	  title_prefix(elem.remove_string( "TITLEPREFIX", "" ));
+	  title_suffix(elem.remove_string( "TITLESUFFIX", "" ));
+	  title_guild (elem.remove_string( "TITLEGUILD", "" ));
+	  title_race  (elem.remove_string( "TITLERACE", "" ));
 
 	  unsigned int tmp_guildid;
 	  if ( elem.remove_prop( "GUILDID", &tmp_guildid ) )
@@ -2759,9 +2753,8 @@ namespace Pol {
 	  RemoveObjectPkt msgremove( chr->serial_ext );
       HealthBarStatusUpdate msgpoison(chr->serial_ext, HealthBarStatusUpdate::Color::GREEN, chr->poisoned());
       HealthBarStatusUpdate msginvul(chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul());
-	  PktHelper::PacketOut<PktOut_77> msgmove;
 	  PktHelper::PacketOut<PktOut_78> msgcreate;
-	  build_send_move( chr, msgmove.Get() );
+      MoveChrPkt msgmove(chr);
 	  build_owncreate( chr, msgcreate.Get() );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr )
@@ -2807,7 +2800,7 @@ namespace Pol {
         }
         else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
         {
-          send_move( client, chr, msgmove.Get() );
+          msgmove.Send(client);
           if ( chr->poisoned() )
 		    msgpoison.Send(client);
 		  if ( chr->invul() )
@@ -3166,11 +3159,12 @@ namespace Pol {
 	  }
 	  else
 	  {
+        Network::MoveChrPkt msgmove(this);
         Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr )
         {
           if ( chr == this )
             return;
-          send_move( chr->client, this );
+          msgmove.Send(chr->client);
         } );
 	  }
 	}
@@ -3462,20 +3456,20 @@ namespace Pol {
 
 	void Character::check_light_region_change()
 	{
-      if ( lightoverride_until < Core::read_gameclock( ) && lightoverride_until != ~0u )
+      auto light_unil = lightoverride_until();
+      if ( light_unil < Core::read_gameclock() && light_unil != ~0u )
 	  {
-		lightoverride_until = 0;
-		lightoverride = -1;
+		lightoverride_until(0);
+		lightoverride(-1);
 	  }
-
 	  if ( client->gd->weather_region &&
 		   client->gd->weather_region->lightoverride != -1 &&
-		   lightoverride == -1 )
+		   !has_lightoverride())
 		   return;
 
 	  int newlightlevel;
-	  if ( lightoverride != -1 )
-		newlightlevel = lightoverride;
+	  if ( has_lightoverride() )
+		newlightlevel = lightoverride();
 	  else
 	  {
 		//dave 12-22 check for no regions
@@ -3595,7 +3589,7 @@ namespace Pol {
 	  {
 		if ( new_weather_region != NULL &&
 			 new_weather_region->lightoverride != -1 &&
-			 lightoverride == -1 )
+			 !has_lightoverride() )
 		{
           Core::send_light( client, new_weather_region->lightoverride );
 		  client->gd->lightlevel = new_weather_region->lightoverride;
@@ -4113,36 +4107,38 @@ namespace Pol {
 
 	bool Character::squelched() const
 	{
-	  if ( squelched_until == 0 )
+      Core::gameclock_t squelched = squelched_until();
+	  if ( squelched == 0 )
 		return false;
-	  else if ( squelched_until == ~0u )
+	  else if ( squelched == ~0u )
 		return true;
 
-      if ( Core::read_gameclock( ) < squelched_until )
+      if ( Core::read_gameclock( ) < squelched )
 	  {
 		return true;
 	  }
 	  else
 	  {
-		squelched_until = 0;
+		const_cast<Character*>(this)->squelched_until(0);
 		return false;
 	  }
 	}
 
 	bool Character::deafened() const
 	{
-	  if ( deafened_until == 0 )
+      Core::gameclock_t deafened = deafened_until();
+	  if ( deafened == 0 )
 		return false;
-	  else if ( deafened_until == ~0u )
+	  else if ( deafened == ~0u )
 		return true;
 
-      if ( Core::read_gameclock( ) < deafened_until )
+      if ( Core::read_gameclock( ) < deafened )
 	  {
 		return true;
 	  }
 	  else
 	  {
-		deafened_until = 0;
+		const_cast<Character*>(this)->deafened_until(0);
 		return false;
 	  }
 	}
@@ -4251,8 +4247,7 @@ namespace Pol {
     size_t Character::estimatedSize() const
     {
       size_t size = base::estimatedSize()
-        + uclang.capacity() + title_prefix.capacity() + title_suffix.capacity()
-        + title_guild.capacity() + title_race.capacity()
+        + uclang.capacity()
         + privs.estimatedSize() + settings.estimatedSize();
       size += sizeof( Core::AccountRef )/*acct*/
         + sizeof( Network::Client* )/*client*/
@@ -4267,7 +4262,6 @@ namespace Pol {
         +sizeof(s8)/*lastz*/
         +sizeof( Core::MOVEMODE )/*movemode*/
         + sizeof(time_t)/*disable_regeneration_until*/
-        +sizeof(time_t)/*disable_skills_until*/
         +sizeof(u16)/*truecolor*/
         +sizeof(u32)/*trueobjtype*/
         +sizeof( Core::UGENDER )/*gender*/
@@ -4275,13 +4269,10 @@ namespace Pol {
         + sizeof(bool)/*poisoned_*/
         +sizeof(short)/*gradual_boost*/
         +sizeof(u32)/*last_corpse*/
-        +sizeof(unsigned int)/*dblclick_wait*/
         +sizeof( Items::Item* )/*gotten_item*/
         + sizeof(unsigned char)/*gotten_item_source*/
         +sizeof( Core::TargetCursor* )/*tcursor2*/
         + sizeof( Core::Menu* )/*menu*/
-        + sizeof(int)/*lightoverride*/
-        +sizeof( Core::gameclock_t )/*lightoverride_until*/
         + sizeof(u16)/*_last_textcolor*/
         +sizeof( ref_ptr<Core::WornItemsContainer> )/*wornitems_ref*/
         + sizeof(unsigned short)/*ar_*/
@@ -4309,8 +4300,6 @@ namespace Pol {
         +sizeof( Core::OneShotTask* )/*swing_task*/
         + sizeof( Core::OneShotTask* )/*spell_task*/
         + sizeof( Core::gameclock_t )/*created_at*/
-        + sizeof( Core::gameclock_t )/*squelched_until*/
-        + sizeof( Core::gameclock_t )/*deafened_until*/
         + sizeof( Core::polclock_t )/*criminal_until_*/
         + sizeof( Core::OneShotTask* )/*repsys_task_*/
         + sizeof( Core::Guild* )/*guild_*/

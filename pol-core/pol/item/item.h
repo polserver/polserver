@@ -199,6 +199,8 @@ namespace Pol {
 
 	  Item( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
 
+    private:
+      double getItemdescQuality() const;
 	public:
 	  Core::UContainer* container;
 	protected:
@@ -221,8 +223,6 @@ namespace Pol {
 	  unsigned short hp_;
 	  unsigned short maxhp() const;
 
-	  double quality_;
-
 	  s16 calc_element_resist( Core::ElementalType element ) const;
       s16 calc_element_damage( Core::ElementalType element ) const;
 	  bool has_resistance( Mobile::Character* chr );
@@ -230,6 +230,7 @@ namespace Pol {
 
       DYN_PROPERTY(maxhp_mod,   s16,         Core::PROP_MAXHP_MOD,   0);
       DYN_PROPERTY(name_suffix, std::string, Core::PROP_NAME_SUFFIX, "");
+      DYN_PROPERTY(quality,     double,      Core::PROP_QUALITY,     getItemdescQuality());
     private:
       // sell and buyprice generated functions only private! (additional logic needed)
       DYN_PROPERTY(sellprice_, u32, Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);

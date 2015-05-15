@@ -6,6 +6,7 @@
 #include "../globals/settings.h"
 #include "../uobject.h"
 #include "../pktdef.h"
+#include "../mobile/charactr.h"
 
 namespace Pol {
   namespace Network {
@@ -789,7 +790,8 @@ namespace Pol {
       : PktSender(),
       _serial_ext(serial_ext),
       _enable(enable),
-      _color(color)
+      _color(color),
+      _p()
     {
     }
     void HealthBarStatusUpdate::build()
@@ -812,5 +814,31 @@ namespace Pol {
     }
     
 
+    MoveChrPkt::MoveChrPkt(const Mobile::Character* chr)
+      : PktSender(),
+      _chr(chr),
+      _p()
+    {}
+
+    void MoveChrPkt::build()
+    {
+      _p->offset = 1;
+      _p->Write<u32>(_chr->serial_ext);
+      _p->WriteFlipped<u16>(_chr->graphic);
+      _p->WriteFlipped<u16>(_chr->x);
+      _p->WriteFlipped<u16>(_chr->y);
+      _p->Write<s8>(_chr->z);
+      _p->Write<u8>((_chr->dir & 0x80u) | _chr->facing);// NOTE, this only includes mask 0x07 of the last MOVE message 
+      _p->WriteFlipped<u16>(_chr->color);
+    }
+    void MoveChrPkt::Send( Client* client )
+    {
+      if ( _p->offset == 1 )
+          build();
+      _p->offset = 15;
+      _p->Write<u8>(_chr->get_flag1(client));
+      _p->Write<u8>(_chr->hilite_color_idx(client->chr));
+      _p.Send( client );
+    }
   }
 }

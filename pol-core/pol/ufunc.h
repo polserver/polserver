@@ -95,7 +95,6 @@ namespace Pol {
 
 	void send_move( Network::Client *client, const Mobile::Character *chr );
 	void send_move( Network::Client *client, const Mobile::Character *chr, Network::PktOut_77* movebuffer );
-	void build_send_move( const Mobile::Character *chr, Network::PktOut_77* msg );
 	void send_objdesc( Network::Client *client, Items::Item *item );
 
 	void send_poisonhealthbar( Network::Client *client, const Mobile::Character *chr );
@@ -247,7 +246,6 @@ namespace Pol {
 	void send_create_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );
 	void send_create_mobile_to_nearby_cansee( const Mobile::Character* chr );
 
-	void send_move_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );
 	void send_move_mobile_to_nearby_cansee( const Mobile::Character* chr );
 
 	void send_remove( Network::Client& client, UObject& to_remove );

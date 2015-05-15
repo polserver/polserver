@@ -78,7 +78,7 @@ namespace Pol {
 	  item->invisible_ = invisible_;	//dave 12-20
 	  item->movable_ = movable_;		//dave 12-20
 	  item->hp_ = hp_;
-	  item->quality_ = quality_;
+	  item->quality(quality());
 
 	  item->on_use_script_ = on_use_script_;	//dave 12-20
 	  item->equip_script_ = equip_script_;	//dave 12-20
@@ -391,8 +391,8 @@ namespace Pol {
 		sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
 	  if ( hp_ != itemdesc().maxhp )
 		sw() << "\tHp\t" << hp_ << pf_endl;
-	  if ( quality_ != itemdesc().quality )
-		sw() << "\tQuality\t" << quality_ << pf_endl;
+	  if ( has_quality() )
+		sw() << "\tQuality\t" << quality() << pf_endl;
 	  if ( !suffix.empty() )
 		sw() << "\tNameSuffix\t" << suffix << pf_endl;
 	}
@@ -432,7 +432,7 @@ namespace Pol {
 		buyprice_(BUYPRICE_DEFAULT);
 	  newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
 	  hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
-	  quality_ = elem.remove_double( "QUALITY", itemdesc().quality );
+	  quality(elem.remove_double( "QUALITY", itemdesc().quality ));
 
       s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
       if (mod_value != 0)
@@ -1242,5 +1242,10 @@ namespace Pol {
 	{
 	  return "item";
 	}
+
+    double Item::getItemdescQuality() const
+    {
+      return itemdesc().quality;
+    }
   }
 }

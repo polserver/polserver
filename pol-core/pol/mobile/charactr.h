@@ -785,8 +785,9 @@ namespace Pol {
 
 	  enum { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
 	  Core::MOVEMODE movemode;
-	  int lightoverride;
-	  Core::gameclock_t lightoverride_until;
+      DYN_PROPERTY(lightoverride,       int,               Core::PROP_LIGHTOVERRIDE,       -1);
+      DYN_PROPERTY(lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0);
+      
       static const Core::MovementCostMod DEFAULT_MOVEMENTCOSTMOD;
       DYN_PROPERTY(movement_cost, Core::MovementCostMod, Core::PROP_MOVEMENTCOST_MOD, DEFAULT_MOVEMENTCOSTMOD);
 	// COMBAT
@@ -839,7 +840,7 @@ namespace Pol {
 	  bool trade_accepted;
 	// SCRIPT
 	public:
-	  time_t disable_skills_until;
+      DYN_PROPERTY(disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0);
 	  Core::TargetCursor* tcursor2;
 	  Core::Menu* menu;
 	  void( *on_menu_selection )( Network::Client *client, Core::MenuItem *mi, Core::PKTIN_7D *msg );
@@ -880,8 +881,8 @@ namespace Pol {
 	  Clib::StringSet settings;
 	  CachedSettings cached_settings;
 	  
-	  mutable Core::gameclock_t squelched_until;
-	  mutable Core::gameclock_t deafened_until;
+      DYN_PROPERTY(squelched_until, Core::gameclock_t, Core::PROP_SQUELCHED_UNTIL, 0);
+      DYN_PROPERTY(deafened_until,  Core::gameclock_t, Core::PROP_DEAFENED_UNTIL, 0);
 	private:
 	// SERIALIZATION
 
@@ -897,12 +898,13 @@ namespace Pol {
 	  Core::UGENDER gender;
 	  Core::URACE race;
 	  u32 last_corpse;
-	  unsigned int dblclick_wait;
 
-	  std::string title_prefix;
-	  std::string title_suffix;
-	  std::string title_guild;
-	  std::string title_race;
+      DYN_PROPERTY(dblclick_wait, u32, Core::PROP_DOUBLECLICK_WAIT, 0);
+
+      DYN_PROPERTY(title_prefix, std::string, Core::PROP_TITLE_PREFIX, "");
+      DYN_PROPERTY(title_suffix, std::string, Core::PROP_TITLE_SUFFIX, "");
+      DYN_PROPERTY(title_guild,  std::string, Core::PROP_TITLE_GUILD,  "");
+      DYN_PROPERTY(title_race,   std::string, Core::PROP_TITLE_RACE,  "");
 	};
 
 
