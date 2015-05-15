@@ -198,8 +198,8 @@ namespace Pol {
 	  Anchor anchor;
 	// EVENTS
 	private:
-	  unsigned short speech_color_;
-	  unsigned short speech_font_;
+      DYN_PROPERTY(speech_color, u16, Core::PROP_SPEECH_COLOR, Core::DEFAULT_TEXT_COLOR);
+      DYN_PROPERTY(speech_font,  u16, Core::PROP_SPEECH_FONT,  Core::DEFAULT_TEXT_FONT);
 	// SCRIPT
 	private:
       boost_utils::script_name_flystring script;

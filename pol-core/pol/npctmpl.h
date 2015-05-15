@@ -40,7 +40,7 @@ namespace Pol {
 	  const Plib::Package* pkg;
 
 	  // std::string script;
-	  enum ALIGNMENT { NEUTRAL, EVIL, GOOD } alignment;
+	  enum ALIGNMENT : u8 { NEUTRAL, EVIL, GOOD } alignment;
 
 	  ExportScript* method_script;
 

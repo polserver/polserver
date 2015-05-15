@@ -261,14 +261,13 @@ namespace Pol {
 	  UObject( objtype, uobj_class ),
 	  // NPC
 	  // EQUIPMENT / ITEMS
-	  carrying_capacity_mod_( 0 ),
 	  weapon( Core::gamestate.wrestling_weapon ),
 	  shield( NULL ),
 	  armor_( Core::gamestate.armorzones.size() ),
 	  wornitems_ref( new Core::WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
 	  wornitems( *wornitems_ref ),
 	  gotten_item( NULL ),
-	  gotten_item_source( 0 ),
+	  gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
 	  remote_containers_(),
 	  //MOVEMENT
 	  dir( 0 ),
@@ -281,10 +280,6 @@ namespace Pol {
 	  // COMBAT
 	  warmode_wait( 0 ),
 	  ar_( 0 ),
-	  ar_mod_( 0 ),
-	  delay_mod_( 0 ),
-	  hitchance_mod_( 0 ),
-	  evasionchance_mod_( 0 ),
 	  opponent_( NULL ),
 	  opponent_of(),
 	  swing_timer_start_clock_( 0 ),
@@ -532,7 +527,7 @@ namespace Pol {
 	///
 	unsigned short Character::carrying_capacity() const
 	{
-      return static_cast<u16>( floor( ( 40 + strength( ) * 7 / 2 + carrying_capacity_mod_ ) * Core::settingsManager.ssopt.carrying_capacity_mod ) );
+      return static_cast<u16>( floor( ( 40 + strength( ) * 7 / 2 + carrying_capacity_mod() ) * Core::settingsManager.ssopt.carrying_capacity_mod ) );
 	}
 
 	int Character::charindex() const
@@ -637,8 +632,8 @@ namespace Pol {
 	    if ( value.run_mounted != DEFAULT_MOVEMENTCOSTMOD.run_mounted )
 		  sw() << "\tMovementRunMountedMod\t" << static_cast<double>( value.run_mounted ) << pf_endl;
       }
-	  if ( carrying_capacity_mod_ )
-		sw() << "\tCarryingCapacityMod\t" << static_cast<int>( carrying_capacity_mod_ ) << pf_endl;
+	  if ( has_carrying_capacity_mod() )
+		sw() << "\tCarryingCapacityMod\t" << static_cast<int>( carrying_capacity_mod() ) << pf_endl;
 
 
 	  // output Attributes
@@ -932,7 +927,7 @@ namespace Pol {
         elem.remove_double( "MovementRunMountedMod", DEFAULT_MOVEMENTCOSTMOD.run_mounted )
         ));
 
-	  carrying_capacity_mod_ = static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) );
+	  carrying_capacity_mod(static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) ) );
 
 	  height = PLAYER_CHARACTER_HEIGHT; //no really, height is 9
 
@@ -2868,12 +2863,12 @@ namespace Pol {
 		}
 		else
 		{
-		  int delay_sum = weapon_delay + delay_mod_;
+		  int delay_sum = weapon_delay + delay_mod();
 		  if ( delay_sum < 0 )
 			delay_sum = 0;
 
           INFO_PRINT_TRACE( 19 ) << "clocks[delay] = ((" <<
-            weapon_delay << "+" << delay_mod_ << "=" << delay_sum << ")*" << Core::POLCLOCKS_PER_SEC << ")/1000\n";
+            weapon_delay << "+" << delay_mod() << "=" << delay_sum << ")*" << Core::POLCLOCKS_PER_SEC << ")/1000\n";
 
           clocks = ( delay_sum * Core::POLCLOCKS_PER_SEC ) / 1000;
 		}
@@ -3343,8 +3338,8 @@ namespace Pol {
 	  }
 
 	  double hit_chance = ( weapon_attribute().effective() + 50.0 ) / ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
-	  hit_chance += hitchance_mod_ * 0.001f;
-	  hit_chance -= opponent->evasionchance_mod_ * 0.001f;
+	  hit_chance += hitchance_mod() * 0.001f;
+	  hit_chance -= opponent->evasionchance_mod() * 0.001f;
       if ( Core::settingsManager.watch.combat )
         INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
 	  if ( Clib::random_double( 1.0 ) < hit_chance )
@@ -4248,56 +4243,52 @@ namespace Pol {
     {
       size_t size = base::estimatedSize()
         + uclang.capacity()
-        + privs.estimatedSize() + settings.estimatedSize();
-      size += sizeof( Core::AccountRef )/*acct*/
+        + privs.estimatedSize() + settings.estimatedSize()
+        + sizeof( Core::AccountRef )/*acct*/
         + sizeof( Network::Client* )/*client*/
         + sizeof(u32)/*registered_house*/
-        +sizeof(unsigned char)/*cmdlevel_*/
-        +sizeof(u8)/*dir*/
-        +sizeof(bool)/*warmode*/
-        +sizeof(bool)/*logged_in*/
-        +sizeof(bool)/*connected*/
-        +sizeof(u16)/*lastx*/
-        +sizeof(u16)/*lasty*/
-        +sizeof(s8)/*lastz*/
-        +sizeof( Core::MOVEMODE )/*movemode*/
+        + sizeof(unsigned char)/*cmdlevel_*/
+        + sizeof(u8)/*dir*/
+        + sizeof(bool)/*warmode*/
+        + sizeof(bool)/*logged_in*/
+        + sizeof(bool)/*connected*/
+        + sizeof(u16)/*lastx*/
+        + sizeof(u16)/*lasty*/
+        + sizeof(s8)/*lastz*/
+        + sizeof(MOVEREASON) /*move_reason*/
+        + sizeof( Core::MOVEMODE )/*movemode*/
         + sizeof(time_t)/*disable_regeneration_until*/
-        +sizeof(u16)/*truecolor*/
-        +sizeof(u32)/*trueobjtype*/
-        +sizeof( Core::UGENDER )/*gender*/
+        + sizeof(u16)/*truecolor*/
+        + sizeof(u32)/*trueobjtype*/
+        + sizeof( Core::UGENDER )/*gender*/
         + sizeof( Core::URACE )/*race*/
         + sizeof(bool)/*poisoned_*/
-        +sizeof(short)/*gradual_boost*/
-        +sizeof(u32)/*last_corpse*/
-        +sizeof( Items::Item* )/*gotten_item*/
-        + sizeof(unsigned char)/*gotten_item_source*/
-        +sizeof( Core::TargetCursor* )/*tcursor2*/
+        + sizeof(short)/*gradual_boost*/
+        + sizeof(u32)/*last_corpse*/
+        + sizeof( Items::Item* )/*gotten_item*/
+        + sizeof(GOTTEN_ITEM_TYPE)/*gotten_item_source*/
+        + sizeof( Core::TargetCursor* )/*tcursor2*/
         + sizeof( Core::Menu* )/*menu*/
         + sizeof(u16)/*_last_textcolor*/
-        +sizeof( ref_ptr<Core::WornItemsContainer> )/*wornitems_ref*/
+        + sizeof( ref_ptr<Core::WornItemsContainer> )/*wornitems_ref*/
         + sizeof(unsigned short)/*ar_*/
-        +sizeof(s16)/*ar_mod_*/
-        +sizeof(s16)/*delay_mod_*/
-        +sizeof(s16)/*hitchance_mod_*/
-        +sizeof(s16)/*evasionchance_mod_*/
-        +sizeof(s16)/*carrying_capacity_mod_*/
-        +sizeof( Items::UWeapon* )/*weapon*/
+        + sizeof( Items::UWeapon* )/*weapon*/
         + sizeof( Items::UArmor* )/*shield*/
         + sizeof(bool)/*dead_*/
-        +sizeof(bool)/*hidden_*/
-        +sizeof(unsigned char)/*concealed_*/
-        +sizeof(bool)/*frozen_*/
-        +sizeof(bool)/*paralyzed_*/
-        +sizeof(unsigned short)/*stealthsteps_*/
-        +sizeof(unsigned int)/*mountedsteps_*/
-        +privs.estimatedSize()
+        + sizeof(bool)/*hidden_*/
+        + sizeof(unsigned char)/*concealed_*/
+        + sizeof(bool)/*frozen_*/
+        + sizeof(bool)/*paralyzed_*/
+        + sizeof(unsigned short)/*stealthsteps_*/
+        + sizeof(unsigned int)/*mountedsteps_*/
+        + privs.estimatedSize()
         + settings.estimatedSize()
         + sizeof(cached_settings)
-        +sizeof( Core::UOExecutor* )/*script_ex*/
+        + sizeof( Core::UOExecutor* )/*script_ex*/
         + sizeof(Character*)/*opponent_*/
-        +sizeof( Core::polclock_t )/*swing_timer_start_clock_*/
+        + sizeof( Core::polclock_t )/*swing_timer_start_clock_*/
         + sizeof(bool)/*ready_to_swing*/
-        +sizeof( Core::OneShotTask* )/*swing_task*/
+        + sizeof( Core::OneShotTask* )/*swing_task*/
         + sizeof( Core::OneShotTask* )/*spell_task*/
         + sizeof( Core::gameclock_t )/*created_at*/
         + sizeof( Core::polclock_t )/*criminal_until_*/
@@ -4307,9 +4298,9 @@ namespace Pol {
         + sizeof( Core::Party* )/*candidate_of_*/
         + sizeof( Core::Party* )/*offline_mem_of_*/
         + sizeof(bool)/*party_can_loot_*/
-        +sizeof( Core::OneShotTask* )/*party_decline_timeout_*/
+        + sizeof( Core::OneShotTask* )/*party_decline_timeout_*/
         + sizeof(bool)/*murderer_*/
-        +sizeof( Core::Party* )/*candidate_of_*/
+        + sizeof( Core::Party* )/*candidate_of_*/
         ;
 
       size += 3 * sizeof(AttributeValue*)+attributes.capacity() * sizeof( AttributeValue );

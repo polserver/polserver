@@ -91,7 +91,7 @@ namespace Pol {
 	  unsigned int vendor_sells_for;
 	  unsigned int vendor_buys_for;
 	  unsigned decay_time;
-	  enum Movable { UNMOVABLE, MOVABLE, DEFAULT } movable;
+	  enum Movable : u8 { UNMOVABLE, MOVABLE, DEFAULT } movable;
 	  unsigned short doubleclick_range;
 	  bool use_requires_los; //DAVE 11/24
 	  bool ghosts_can_use; //DAVE 11/24

@@ -163,9 +163,8 @@ namespace Pol {
 	void UArmor::printProperties( Clib::StreamWriter& sw ) const
 	{
 	  base::printProperties( sw );
-      short ar_mod_ = ar_mod();
-	  if ( ar_mod_ )
-		sw() << "\tAR_mod\t" << ar_mod_ << pf_endl;
+	  if ( has_ar_mod() )
+		sw() << "\tAR_mod\t" << ar_mod() << pf_endl;
 	  if ( tmpl != NULL && onhitscript_ != tmpl->on_hit_script )
 		sw() << "\tOnHitScript\t" << onhitscript_.relativename( tmpl->pkg ) << pf_endl;
 	}

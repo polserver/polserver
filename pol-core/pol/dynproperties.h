@@ -79,7 +79,7 @@ namespace Pol {
   // enum for the propertys
   enum DynPropTypes : u8
   {
-    PROP_AR_MOD               = 0,  // UArmor
+    PROP_AR_MOD               = 0,  // UArmor, Character
     PROP_MAX_ITEMS_MOD        = 1,  // UContainer
     PROP_MAX_SLOTS_MOD        = 2,  // UContainer
     PROP_MAX_WEIGHT_MOD       = 3,  // UContainer
@@ -125,6 +125,12 @@ namespace Pol {
     PROP_TITLE_SUFFIX         = 43, // Character
     PROP_TITLE_GUILD          = 44, // Character
     PROP_TITLE_RACE           = 45, // Character
+    PROP_SPEECH_COLOR         = 46, // Npc
+    PROP_SPEECH_FONT          = 47, // Npc
+    PROP_CARRY_CAPACITY_MOD   = 48, // Character
+    PROP_DELAY_MOD            = 49, // Character
+    PROP_HITCHANCE_MOD        = 50, // Character
+    PROP_EVASIONCHANCE_MOD    = 51, // Character
 
     PROP_FLAG_SIZE // used for bitset size
   };

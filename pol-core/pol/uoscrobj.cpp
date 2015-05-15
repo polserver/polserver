@@ -1496,7 +1496,7 @@ namespace Pol {
 		case MBR_TRUEOBJTYPE: return new BLong( trueobjtype ); break;
 		case MBR_TRUECOLOR: return new BLong( truecolor ); break;
 		case MBR_AR_MOD: return new BLong( ar_mod() ); break;
-		case MBR_DELAY_MOD: return new BLong( delay_mod_ ); break;
+		case MBR_DELAY_MOD: return new BLong( delay_mod() ); break;
 		case MBR_HIDDEN: return new BLong( hidden() ? 1 : 0 ); break;
 		case MBR_CONCEALED: return new BLong( concealed() ); break;
 		case MBR_FROZEN: return new BLong( frozen() ? 1 : 0 ); break;
@@ -1667,9 +1667,9 @@ namespace Pol {
 		  return new String( mode );
 		  break;
 		}
-		case MBR_HITCHANCE_MOD:     return new BLong( hitchance_mod_ ); break;
-		case MBR_EVASIONCHANCE_MOD: return new BLong( evasionchance_mod_ ); break;
-		case MBR_CARRYINGCAPACITY_MOD: return new BLong( carrying_capacity_mod_ ); break;
+		case MBR_HITCHANCE_MOD:     return new BLong( hitchance_mod() ); break;
+		case MBR_EVASIONCHANCE_MOD: return new BLong( evasionchance_mod() ); break;
+		case MBR_CARRYINGCAPACITY_MOD: return new BLong( carrying_capacity_mod() ); break;
         case MBR_FIRE_RESIST:     return new BLong( fire_resist().value ); break;
         case MBR_COLD_RESIST:     return new BLong( cold_resist().value ); break;
         case MBR_ENERGY_RESIST:   return new BLong( energy_resist().value ); break;
@@ -1823,7 +1823,8 @@ namespace Pol {
 		  refresh_ar();
 		  return new BLong( ar_mod() );
 		case MBR_DELAY_MOD:
-		  return new BLong( delay_mod_ = static_cast<short>( value ) );
+          delay_mod(static_cast<short>( value ));
+		  return new BLong( delay_mod() );
 		case MBR_HIDDEN:
 		{
 		  //FIXME: don't call on_change unless the value actually changed?
@@ -1855,16 +1856,18 @@ namespace Pol {
 		  make_murderer( value ? true : false );
 		  return new BLong( murderer_ );
 		case MBR_HITCHANCE_MOD:
-		  return new BLong( hitchance_mod_ = static_cast<short>( value ) );
+          hitchance_mod(static_cast<short>( value ));
+		  return new BLong( hitchance_mod() );
 		case MBR_EVASIONCHANCE_MOD:
-		  return new BLong( evasionchance_mod_ = static_cast<short>( value ) );
+          evasionchance_mod(static_cast<short>( value ));
+		  return new BLong( evasionchance_mod() );
 		case MBR_CARRYINGCAPACITY_MOD:
-		  carrying_capacity_mod_ = static_cast<short>( value );
+		  carrying_capacity_mod(static_cast<short>( value ));
 		  if ( client != NULL )
 		  {   // CHECKME consider sending less frequently
 			send_full_statmsg( client, this );
 		  }
-		  return new BLong( carrying_capacity_mod_ );
+		  return new BLong( carrying_capacity_mod() );
 		case MBR_FACING:
 		  if ( !face( static_cast<Core::UFACING>( value & PKTIN_02_FACING_MASK ), 0 ) )
 			return new BLong( 0 );
@@ -2716,8 +2719,8 @@ namespace Pol {
             return new BError( "No script running" );
           break;
 
-        case MBR_SPEECH_COLOR: return new BLong( speech_color_ ); break;
-        case MBR_SPEECH_FONT:  return new BLong( speech_font_ ); break;
+        case MBR_SPEECH_COLOR: return new BLong( speech_color() ); break;
+        case MBR_SPEECH_FONT:  return new BLong( speech_font() ); break;
         case MBR_USE_ADJUSTMENTS:  return new BLong( use_adjustments ? 1 : 0 ); break;
         case MBR_RUN_SPEED: return new BLong( run_speed ); break;
         case MBR_ALIGNMENT:	return new BLong( this->template_.alignment ); break;
@@ -2763,8 +2766,12 @@ namespace Pol {
         return imp;
       switch ( id )
       {
-        case MBR_SPEECH_COLOR: return new BLong( speech_color_ = static_cast<unsigned short>( value ) );
-        case MBR_SPEECH_FONT: return new BLong( speech_font_ = static_cast<unsigned short>( value ) );
+        case MBR_SPEECH_COLOR: 
+          speech_color(static_cast<unsigned short>( value )); 
+          return new BLong( speech_color() );
+        case MBR_SPEECH_FONT: 
+          speech_font(static_cast<unsigned short>( value ));
+          return new BLong( speech_font() );
         case MBR_USE_ADJUSTMENTS: return new BLong( use_adjustments = value ? true : false );
         case MBR_RUN_SPEED: return new BLong( run_speed = static_cast<unsigned short>( value ) );
         case MBR_SAVEONEXIT:

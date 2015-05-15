@@ -54,7 +54,7 @@ namespace Pol {
 	  ~MultiDef();
 
 	  u16 multiid;
-	  enum { UNKNOWN, BOAT, HOUSE, STAIRS } type;
+	  enum HOUSETYPE : u8 { UNKNOWN, BOAT, HOUSE, STAIRS } type;
 
 	  std::vector< MULTI_ELEM > elems;
 

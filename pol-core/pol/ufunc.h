@@ -52,7 +52,6 @@ namespace Pol {
 	class UObject;
 	struct USTRUCT_TILE;
 	class Menu;
-	enum UFACING;
 
 	void SetCurrentItemSerialNumber( u32 serial );
 	void SetCurrentCharSerialNumber( u32 serial );
@@ -178,9 +177,6 @@ namespace Pol {
 	// find_legal_item: search worn items, including backpack recursively, and
 	// items on the ground, recursively, for an item of a given serial.
 	Items::Item *find_legal_item( const Mobile::Character *chr, u32 serial, bool* additlegal = NULL, bool* isRemoteContainer = NULL );
-
-	const unsigned short DEFAULT_TEXT_FONT = 3;
-	const unsigned short DEFAULT_TEXT_COLOR = 0x3B2;
 
 	void send_sysmessage( Network::Client *client,
 						  const char *text,

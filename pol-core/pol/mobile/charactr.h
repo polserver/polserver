@@ -508,8 +508,6 @@ namespace Pol {
 	  const CharacterSet& hostiles() const;
 	  void run_hit_script( Character* defender, double damage );
 
-	  s16 ar_mod() const;
-	  s16 ar_mod( s16 new_value );
 	private:
 	  void schedule_attack();
 	  static void swing_task_func( Character* chr );
@@ -758,7 +756,8 @@ namespace Pol {
 	protected:
 	// EQUIPMENT / ITEMS
 	protected:
-	  s16 carrying_capacity_mod_;
+      DYN_PROPERTY(carrying_capacity_mod, s16, Core::PROP_CARRY_CAPACITY_MOD, 0);
+      
 	  Items::UWeapon* weapon;
 	  Items::UArmor* shield;
 	  std::vector<Items::UArmor*> armor_;
@@ -767,13 +766,12 @@ namespace Pol {
 	  Core::WornItemsContainer& wornitems;
 	public:
 	  Items::Item* gotten_item;
-	  enum
+	  enum GOTTEN_ITEM_TYPE : u8
 	  {
 		GOTTEN_ITEM_ON_GROUND,
 		GOTTEN_ITEM_EQUIPPED_ON_SELF,
 		GOTTEN_ITEM_IN_CONTAINER
-	  };
-	  unsigned char gotten_item_source;
+	  } gotten_item_source;
 
 	  std::vector< Core::ItemRef > remote_containers_; // does not own its objects
 	// MOVEMENT
@@ -783,7 +781,7 @@ namespace Pol {
 	  u16 lastx, lasty;	// position before their last MSG02_WALK 
 	  s8 lastz;
 
-	  enum { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
+	  enum MOVEREASON : u8 { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
 	  Core::MOVEMODE movemode;
       DYN_PROPERTY(lightoverride,       int,               Core::PROP_LIGHTOVERRIDE,       -1);
       DYN_PROPERTY(lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0);
@@ -795,10 +793,10 @@ namespace Pol {
 	  u32 warmode_wait;
 	protected:
 	  u16 ar_;
-	  s16 ar_mod_;
-	  s16 delay_mod_;
-	  s16 hitchance_mod_;
-	  s16 evasionchance_mod_;
+      DYN_PROPERTY(ar_mod,            s16, Core::PROP_AR_MOD,            0);
+      DYN_PROPERTY(delay_mod,         s16, Core::PROP_DELAY_MOD,         0);
+      DYN_PROPERTY(hitchance_mod,     s16, Core::PROP_HITCHANCE_MOD,     0);
+      DYN_PROPERTY(evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0);
 
 	  Character* opponent_;
 	  CharacterSet opponent_of;
@@ -882,7 +880,7 @@ namespace Pol {
 	  CachedSettings cached_settings;
 	  
       DYN_PROPERTY(squelched_until, Core::gameclock_t, Core::PROP_SQUELCHED_UNTIL, 0);
-      DYN_PROPERTY(deafened_until,  Core::gameclock_t, Core::PROP_DEAFENED_UNTIL, 0);
+      DYN_PROPERTY(deafened_until,  Core::gameclock_t, Core::PROP_DEAFENED_UNTIL,  0);
 	private:
 	// SERIALIZATION
 
@@ -904,7 +902,7 @@ namespace Pol {
       DYN_PROPERTY(title_prefix, std::string, Core::PROP_TITLE_PREFIX, "");
       DYN_PROPERTY(title_suffix, std::string, Core::PROP_TITLE_SUFFIX, "");
       DYN_PROPERTY(title_guild,  std::string, Core::PROP_TITLE_GUILD,  "");
-      DYN_PROPERTY(title_race,   std::string, Core::PROP_TITLE_RACE,  "");
+      DYN_PROPERTY(title_race,   std::string, Core::PROP_TITLE_RACE,   "");
 	};
 
 
@@ -989,17 +987,6 @@ namespace Pol {
 	inline unsigned short Character::ar() const
 	{
 	  return ar_;
-	}
-
-	inline s16 Character::ar_mod() const
-	{
-	  return ar_mod_;
-	}
-
-	inline s16 Character::ar_mod( s16 new_value )
-	{
-	  ar_mod_ = new_value;
-	  return ar_mod_;
 	}
 
 	inline bool Character::skill_ex_active() const

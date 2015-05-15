@@ -29,7 +29,6 @@ Notes
 
 namespace Pol {
   namespace Core {
-	enum MOVEMODE;
 	class UObject;
 	struct LosObj;
 	struct Zone;
