@@ -1634,7 +1634,7 @@ namespace Pol {
 
 		if ( item->container == NULL ) // on ground, easy.
 		{
-		  if ( !item->is_gotten() ) // and not in hand
+		  if ( !item->has_gotten_by() ) // and not in hand
 			remove_item_from_world( item );
 		}
 		else

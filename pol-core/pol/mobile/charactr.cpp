@@ -266,7 +266,6 @@ namespace Pol {
 	  armor_( Core::gamestate.armorzones.size() ),
 	  wornitems_ref( new Core::WornItemsContainer ),// default objtype is in containr.cpp, WornItemsContainer class
 	  wornitems( *wornitems_ref ),
-	  gotten_item( NULL ),
 	  gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
 	  remote_containers_(),
 	  //MOVEMENT
@@ -459,10 +458,10 @@ namespace Pol {
 
 	void Character::clear_gotten_item()
 	{
-	  if ( gotten_item != NULL )
+      auto item = gotten_item();
+	  if ( item != nullptr )
 	  {
-		Items::Item* item = gotten_item;
-		gotten_item = NULL;
+		gotten_item(nullptr);
 		item->inuse( false );
 		if ( connected )
           Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
@@ -511,8 +510,8 @@ namespace Pol {
 	unsigned int Character::weight() const
 	{
 	  unsigned int wt = 10 + wornitems.weight();
-	  if ( gotten_item )
-		wt += gotten_item->weight();
+	  if ( has_gotten_item() )
+		wt += gotten_item()->weight();
 	  if ( trading_cont.get() )
 		wt += trading_cont->weight();
 	  return wt;
@@ -3958,8 +3957,8 @@ namespace Pol {
 	  //	backpack()->realm = realm;
 	  //	backpack()->for_each_item(setrealm, (void*)realm);
       wornitems.for_each_item( Core::setrealm, (void*)realm );
-	  if ( gotten_item )
-		gotten_item->realm = realm;
+	  if ( has_gotten_item() )
+		gotten_item()->realm = realm;
 	  if ( trading_cont.get() )
 		trading_cont->realm = realm;
 
@@ -4252,7 +4251,6 @@ namespace Pol {
         + sizeof(bool)/*poisoned_*/
         + sizeof(short)/*gradual_boost*/
         + sizeof(u32)/*last_corpse*/
-        + sizeof( Items::Item* )/*gotten_item*/
         + sizeof(GOTTEN_ITEM_TYPE)/*gotten_item_source*/
         + sizeof( Core::TargetCursor* )/*tcursor2*/
         + sizeof( Core::Menu* )/*menu*/

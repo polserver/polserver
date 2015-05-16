@@ -1409,8 +1409,8 @@ namespace Pol {
 	  if ( getItemParam( exec, 0, item ) &&
 		   getParam( 1, amount, 1, item->itemdesc().stack_limit ) )
 	  {
-		if ( item->is_gotten() )
-			item->get_gotten()->clear_gotten_item();
+		if ( item->has_gotten_by() )
+			item->gotten_by()->clear_gotten_item();
 		else if ( item->inuse() && !is_reserved_to_me( item ) )
 	 		return new BError( "That item is being used." );
 		subtract_amount_from_item( item, amount );
@@ -3033,8 +3033,8 @@ namespace Pol {
 	  Item* item;
 	  if ( getItemParam( exec, 0, item ) )
 	  {
-		if ( item->is_gotten() )
-			item->get_gotten()->clear_gotten_item();
+		if ( item->has_gotten_by() )
+			item->gotten_by()->clear_gotten_item();
 		else if ( item->inuse() && !is_reserved_to_me( item ) )
 	 		return new BError( "That item is being used." );
 

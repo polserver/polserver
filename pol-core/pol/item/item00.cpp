@@ -37,8 +37,7 @@ namespace Pol {
 	  slot_index_( 0 ),
 	  _itemdesc( nullptr ),
 	  layer( 0 ),
-	  hp_( id.maxhp ),
-      gotten_by_ ( nullptr )
+	  hp_( id.maxhp )
 	{
 	  graphic = id.graphic;
 	  color = id.color;
@@ -62,7 +61,6 @@ namespace Pol {
     {
       return base::estimatedSize()
         + sizeof( Core::UContainer* )/* container*/
-        + sizeof( Mobile::Character* )/* gotten_by_*/
         + sizeof(int)/* decayat_gameclock_*/
         +sizeof(u16)/* amount_*/
         +sizeof(bool)/* newbie_*/

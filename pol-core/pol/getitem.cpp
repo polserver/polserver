@@ -70,7 +70,7 @@ namespace Pol {
 
 	  Items::Item *item;
 
-	  if ( client->chr->gotten_item )
+	  if ( client->chr->has_gotten_item() )
 	  {
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_ALREADY_HOLDING_AN_ITEM );
 		return;
@@ -163,9 +163,9 @@ namespace Pol {
 		remove_item_from_world( item );
 	  }
 
-	  client->chr->gotten_item = item;
+	  client->chr->gotten_item(item);
 	  item->inuse( true );
-	  item->set_gotten( client->chr );
+	  item->gotten_by( client->chr );
 	  item->x = item->y = item->z = 0; // don't let a boat carry it around
 
 	  if ( orig_container != NULL )
@@ -273,7 +273,7 @@ namespace Pol {
 	  ItemRef itemref( item ); //dave 1/28/3 prevent item from being destroyed before function ends
 	  item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
 
-	  item->set_gotten( nullptr );
+	  item->gotten_by( nullptr );
       if ( chr->gotten_item_source == Mobile::Character::GOTTEN_ITEM_EQUIPPED_ON_SELF )
 	  {
 		if ( chr->equippable( item ) &&

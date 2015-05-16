@@ -436,6 +436,7 @@ namespace Pol {
 	  unsigned int gold_carried() const;
 	  void spend_gold( unsigned int amount );
 
+      DYN_PROPERTY_POINTER(gotten_item, Items::Item*, Core::PROP_GOTTEN_BY);
 	  void clear_gotten_item();
 
 	  void add_remote_container( Items::Item* );
@@ -761,7 +762,6 @@ namespace Pol {
 	  ref_ptr<Core::WornItemsContainer> wornitems_ref;
 	  Core::WornItemsContainer& wornitems;
 	public:
-	  Items::Item* gotten_item;
 	  enum GOTTEN_ITEM_TYPE : u8
 	  {
 		GOTTEN_ITEM_ON_GROUND,

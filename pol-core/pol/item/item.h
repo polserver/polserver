@@ -74,10 +74,6 @@ namespace Pol {
 	  bool inuse() const;
 	  void inuse( bool newvalue );
 
-	  bool is_gotten() const;
-	  void set_gotten( Mobile::Character* by_char );
-      Mobile::Character* get_gotten() const;
-
 	  bool invisible() const;
 	  void invisible( bool newvalue );
 	  void on_invisible_changed();
@@ -228,8 +224,9 @@ namespace Pol {
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
 
-      DYN_PROPERTY(maxhp_mod,   s16,         Core::PROP_MAXHP_MOD,   0);
-      DYN_PROPERTY(name_suffix, std::string, Core::PROP_NAME_SUFFIX, "");
+      DYN_PROPERTY        (maxhp_mod,   s16,                Core::PROP_MAXHP_MOD,   0);
+      DYN_PROPERTY        (name_suffix, std::string,        Core::PROP_NAME_SUFFIX, "");
+      DYN_PROPERTY_POINTER(gotten_by,   Mobile::Character*, Core::PROP_GOTTEN_BY);
       virtual double getQuality() const;
       virtual void setQuality(double value);
     private:
@@ -238,9 +235,6 @@ namespace Pol {
       DYN_PROPERTY(buyprice_,  u32,    Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
       // equipment has a fixed member see get/setQuality
       DYN_PROPERTY(quality,    double, Core::PROP_QUALITY,   getItemdescQuality());
-
-    private:
-        Mobile::Character* gotten_by_;
 
     protected:
       static const u32 SELLPRICE_DEFAULT; // means use the itemdesc value
@@ -275,21 +269,6 @@ namespace Pol {
 	{
 		inuse_ = newvalue;
 	}
-
-	inline bool Item::is_gotten() const
-	{
-	  return gotten_by_ != nullptr;
-	}
-
-	inline void Item::set_gotten( Mobile::Character* by_char )
-	{
-		gotten_by_ = by_char;
-	}
-
-    inline Mobile::Character* Item::get_gotten() const
-    {
-      return gotten_by_;
-    }
 
 	inline bool Item::invisible() const
 	{

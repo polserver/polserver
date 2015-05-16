@@ -882,9 +882,10 @@ namespace Pol {
 
     // Austin (Oct. 17, 2006)
     // Added to handle gotten item saving.
-    inline void WriteGottenItem( Mobile::Character* chr, Clib::StreamWriter& sw )
+    inline void WriteGottenItem( Mobile::Character* chr, Items::Item* item, Clib::StreamWriter& sw )
     {
-      Items::Item* item = chr->gotten_item;
+      if (item == nullptr || item->orphan())
+        return;
       // For now, it just saves the item in items.txt 
       item->x = chr->x;
       item->y = chr->y;
@@ -967,8 +968,8 @@ namespace Pol {
           if ( !chr->isa( UObject::CLASS_NPC ) )
           {
             // Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
-            if ( chr->gotten_item && !chr->gotten_item->orphan() )
-              WriteGottenItem( chr, sw_items );
+            if ( chr->has_gotten_item() )
+              WriteGottenItem( chr, chr->gotten_item(), sw_items );
           }
         }
       }

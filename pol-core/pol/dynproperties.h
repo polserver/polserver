@@ -153,6 +153,8 @@ namespace Pol {
     PROP_PARTY_CANDIDATE      = 53, // Character
     PROP_PARTY_OFFLINE        = 54, // Character
     PROP_GUILD                = 55, // Character
+    PROP_GOTTEN_BY            = 56, // Item
+    PROP_GOTTEN_ITEM          = 57, // Character
 
     PROP_FLAG_SIZE // used for bitset size
   };

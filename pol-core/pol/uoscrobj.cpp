@@ -892,8 +892,8 @@ namespace Pol {
         case MBR_POISON_DAMAGE_MOD: return new BLong( poison_damage().mod ); break;
         case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( physical_damage().mod ); break;
 		case MBR_GETGOTTENBY:
-		  if ( is_gotten() )
-			return new Module::ECharacterRefObjImp( get_gotten() );
+		  if ( has_gotten_by() )
+			return new Module::ECharacterRefObjImp( gotten_by() );
 		  else
 			return new BError( "Gotten By NULL" );
 		  break;
@@ -2344,13 +2344,13 @@ namespace Pol {
 		  break;
 		}
 		case MTH_GETGOTTENITEM:
-		  if ( gotten_item != NULL )
-			return new Module::EItemRefObjImp( gotten_item );
+		  if ( has_gotten_item() )
+			return new Module::EItemRefObjImp( gotten_item() );
 		  else
 			return new BError( "Gotten Item NULL" );
 		  break;
 		case MTH_CLEARGOTTENITEM:
-		  if ( gotten_item != NULL )
+		  if ( has_gotten_item() )
 		  {
 			clear_gotten_item();
 			return new BLong( 1 );

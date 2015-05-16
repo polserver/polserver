@@ -1316,7 +1316,7 @@ namespace Pol {
 
 				// This should be rare enough for a simple log to be the solution. We don't want POL to crash
 				// in MoveItemWorldPosition() because the item was not in the world to start with, so we skip it.
-				if (item->container != NULL || item->is_gotten()) {
+				if (item->container != NULL || item->has_gotten_by()) {
 					u32 containerSerial = (item->container != NULL) ? item->container->serial : 0;
 					POLLOG_ERROR.Format("Boat component is gotten or in a container and couldn't be moved together with the boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}.") << item->serial << item->graphic << containerSerial;
 					continue;
@@ -1379,7 +1379,7 @@ namespace Pol {
 
 		  // This should be rare enough for a simple log to be the solution. We don't want POL to crash
 		  // in MoveItemWorldPosition() because the item was not in the world to start with, so we skip it.
-		  if (item->container != NULL || item->is_gotten() ) {
+		  if (item->container != NULL || item->has_gotten_by() ) {
 			  u32 containerSerial = (item->container != NULL) ? item->container->serial : 0;
 			  POLLOG_INFO.Format("Boat component is gotten or in a container and couldn't be moved together with the boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}.") << item->serial << item->graphic << containerSerial;
 			  continue;
