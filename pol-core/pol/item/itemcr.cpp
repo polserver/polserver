@@ -79,7 +79,7 @@ namespace Pol {
 		  throw std::runtime_error( message.str() );
 		else
 		{
-          ERROR_PRINT << message.c_str() << "\n";
+          ERROR_PRINT << message.str() << "\n";
 		  return NULL;
 		}
 	  }

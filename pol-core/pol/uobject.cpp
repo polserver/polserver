@@ -48,7 +48,7 @@ namespace Pol {
       sw() << o->name() << ", " << o->ref_counted_count() << '\n';
 	  o->printOn( sw );
 	  o->printOnDebug( sw_orphan );
-      INFO_PRINT << sw().c_str();
+      INFO_PRINT << sw().str();
 	  //ref_ptr<UObject>::display_referers( o->as_ref_counted() );
 
 	  return 0;

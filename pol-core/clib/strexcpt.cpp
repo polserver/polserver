@@ -52,11 +52,11 @@ namespace Pol {
           fmt::Writer _tmp;
           _tmp.Format( "{}{:#X}" ) << ( ( ( i & 7 ) == 0 ) ? "\n  " : "  " ) // print newline every 8 numbers
             << ex->ExceptionRecord->ExceptionInformation[i];
-          tmp << _tmp.c_str();
+          tmp << _tmp.str();
 		}
         tmp << "\n";
 	  }
-      POLLOG_INFO << tmp.c_str();
+      POLLOG_INFO << tmp.str();
 
 
       POLLOG_INFO << "ContextRecord:\n"
@@ -140,7 +140,7 @@ namespace Pol {
 		  eip = new_eip;
           tmp << "\n";
 		}
-        POLLOG_INFO << tmp.c_str();
+        POLLOG_INFO << tmp.str();
 
 	  }
 

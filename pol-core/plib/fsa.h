@@ -190,7 +190,7 @@ namespace Pol {
 		  p = p->pNext;
 		}
         _tmp << "\n";
-        INFO_PRINT << _tmp.c_str();
+        INFO_PRINT << _tmp.str();
 
         INFO_PRINT << "used list\n";
         _tmp.Clear();
@@ -202,7 +202,7 @@ namespace Pol {
 		  p = p->pNext;
 		}
         _tmp << "\n";
-        INFO_PRINT << _tmp.c_str( );
+        INFO_PRINT << _tmp.str( );
 	  }
 
 	  // Iterators

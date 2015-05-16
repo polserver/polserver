@@ -40,7 +40,7 @@ namespace Pol {
 	  {
         tmp << "cref " << ( *itr ).first << "=0x" << fmt::hexu(( *itr ).second->get()->serial )<< "\n";
 	  }
-      INFO_PRINT << tmp.c_str();
+      INFO_PRINT << tmp.str();
 #endif
 	}
 #if REFTYPE_DEBUG

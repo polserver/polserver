@@ -353,7 +353,7 @@ namespace Pol {
             addTimeStamp( _filestream );
         }
         _active_line = ( msg->data()[msg->size() - 1] != '\n' ); // is the last character a newline?
-        _filestream << msg->c_str();
+        _filestream << msg->str();
         _filestream.flush();
       }
       void LogSinkGenericFile::addMessage( fmt::Writer* msg, std::string )
@@ -392,7 +392,7 @@ namespace Pol {
       // print given msg into std::cout
       void LogSink_cout::addMessage( fmt::Writer* msg)
       {
-        std::cout << msg->c_str();
+        std::cout << msg->str();
         std::cout.flush();
       }
       void LogSink_cout::addMessage( fmt::Writer* msg, std::string )
@@ -405,7 +405,7 @@ namespace Pol {
       // print given msg into std::cerr
       void LogSink_cerr::addMessage( fmt::Writer* msg )
       {
-        std::cerr << msg->c_str();
+        std::cerr << msg->str();
         std::cerr.flush();
       }
       void LogSink_cerr::addMessage( fmt::Writer* msg, std::string )

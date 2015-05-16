@@ -66,7 +66,7 @@ namespace Pol {
         case _HEAPBADBEGIN:     _tmp << "ERROR - bad start of heap\n";      break;
         case _HEAPBADNODE:      _tmp << "ERROR - bad node in heap\n";      break;
 	  }
-      INFO_PRINT << _tmp.c_str();
+      INFO_PRINT << _tmp.str();
 #endif
 	}
   }

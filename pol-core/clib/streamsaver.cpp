@@ -57,7 +57,7 @@ namespace Pol {
       }
       ERROR_PRINT << "streamwriter " << _stream_name << " io time " << _fs_time.count( ) << "\n";
 #else
-      if ( _writer->size( ) ) *_stream << _writer->c_str( );
+      if ( _writer->size( ) ) *_stream << _writer->str( );
 #endif
 	}
 
@@ -75,7 +75,7 @@ namespace Pol {
 #endif
 	  if( _writer->size() )
 	  {
-		*_stream << _writer->c_str();
+		*_stream << _writer->str();
         _writer->Clear();
 	  }
 #if 0
@@ -99,7 +99,7 @@ namespace Pol {
 
 	OStreamWriter::~OStreamWriter()
 	{
-	  if( _writer->size() ) *_stream << _writer->c_str();
+	  if( _writer->size() ) *_stream << _writer->str();
 	}
 
 	void OStreamWriter::init( const std::string& )
@@ -109,7 +109,7 @@ namespace Pol {
 	{
 	  if( _writer->size() )
 	  {
-		*_stream << _writer->c_str();
+		*_stream << _writer->str();
 		_writer.reset( new fmt::Writer );
 	  }
 	}
@@ -143,7 +143,7 @@ namespace Pol {
 		  for( const auto& _w : l )
 		  {
 			if( _w->size() )
-			  *_stream << _w->c_str();
+			  *_stream << _w->str();
 		  }
 		};
 		try

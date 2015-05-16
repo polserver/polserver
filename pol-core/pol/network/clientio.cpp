@@ -228,7 +228,7 @@ namespace Pol {
           fmt::Writer tmp;
           tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
           Clib::fdump( tmp, data, len );
-          FLEXLOG( fpLog ) << tmp.c_str() << "\n";
+          FLEXLOG( fpLog ) << tmp.str() << "\n";
 	    }
       }
 
@@ -268,7 +268,7 @@ namespace Pol {
           fmt::Writer tmp;
           tmp << "Server -> Client (" << len << " bytes)\n";
           Clib::fdump( tmp, data, len );
-          FLEXLOG( fpLog ) << tmp.c_str() << "\n";
+          FLEXLOG( fpLog ) << tmp.str() << "\n";
 	    }
       }
 

@@ -156,7 +156,7 @@ namespace Pol {
           tmp << cmd.description << "\n";
 		}
         tmp << "  ?: Help (This list)\n";
-        INFO_PRINT << tmp.c_str();
+        INFO_PRINT << tmp.str();
 		return;
 	  }
 

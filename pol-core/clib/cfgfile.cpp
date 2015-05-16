@@ -1063,7 +1063,7 @@ void ConfigFile::display_error( const std::string& msg,
       tmp << "\tNear line: " << _cur_line << "\n";
     if (_element_line_start && !showed_elem_line)
       tmp << "\tElement started on line: " << _element_line_start << "\n";
-    ERROR_PRINT << tmp.c_str();
+    ERROR_PRINT << tmp.str();
 }
 
 void ConfigFile::display_and_rethrow_exception()

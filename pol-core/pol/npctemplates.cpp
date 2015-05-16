@@ -74,7 +74,7 @@ namespace Pol {
 	  //    cerr << "\tNear line: " << _cur_line << endl;
 	  if ( _fileline && !showed_elem_line )
 		tmp << "\tElement started on line: " << _fileline << "\n";
-      ERROR_PRINT << tmp.c_str();
+      ERROR_PRINT << tmp.str();
 	}
 
 

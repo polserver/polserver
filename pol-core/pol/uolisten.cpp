@@ -95,7 +95,7 @@ namespace Pol {
 		{
           tmp << " on interface " << Network::AddressToString( &host_addr );
 		}
-        POLLOG << tmp.c_str() << "\n";
+        POLLOG << tmp.str() << "\n";
 	  }
 	}
 

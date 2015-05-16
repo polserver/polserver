@@ -307,7 +307,7 @@ namespace Pol {
             tmp << "\tCall to an object method.\n";
           tmp << "\tParameter " << param << ": Expected datatype " << BObjectImp::typestr( type )
             << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
-          DEBUGLOG << tmp.c_str();
+          DEBUGLOG << tmp.str();
         }
         return NULL;
 

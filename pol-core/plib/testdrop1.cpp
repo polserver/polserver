@@ -38,7 +38,7 @@ namespace Pol {
 	  if ( exp_result != result )
 	  {
         tmp << "Failure!\n";
-        INFO_PRINT << tmp.c_str();
+        INFO_PRINT << tmp.str();
 		inc_failures();
 		return;
 	  }
@@ -47,13 +47,13 @@ namespace Pol {
 		if ( newz != exp_z )
 		{
           tmp << "Failure!\n";
-          INFO_PRINT << tmp.c_str();
+          INFO_PRINT << tmp.str();
 		  inc_failures();
 		  return;
 		}
 	  }
 	  inc_successes();
-      INFO_PRINT << tmp.c_str() << "Ok!\n";
+      INFO_PRINT << tmp.str() << "Ok!\n";
 	}
 
 	void pol_drop_test( void )

@@ -166,18 +166,18 @@ namespace Pol {
 		  BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo, NULL, NULL );
 		  if( bOK )
 		  {
-            result.Format("Unhandled Exception! Writing Minidump file. \nPost this file with explanation and last lines from log files on http://forums.polserver.com/tracker.php for the development team.\nSaved dump file to '{}'\n") << dumppath.c_str();
+            result.Format("Unhandled Exception! Writing Minidump file. \nPost this file with explanation and last lines from log files on http://forums.polserver.com/tracker.php for the development team.\nSaved dump file to '{}'\n") << dumppath.str();
 			retval = EXCEPTION_EXECUTE_HANDLER;
 		  }
 		  else
 		  {
-            result.Format( "Failed to save dump file to '{}' (error {})" ) << dumppath.c_str() << GetLastError();
+            result.Format( "Failed to save dump file to '{}' (error {})" ) << dumppath.str() << GetLastError();
 		  }
 		  ::CloseHandle( hFile );
 		}
 		else
 		{
-          result.Format( "Failed to create dump file '{}' (error {})" ) << dumppath.c_str() << GetLastError();
+          result.Format( "Failed to create dump file '{}' (error {})" ) << dumppath.str() << GetLastError();
 		}
 	  }
       print_backtrace();
@@ -187,7 +187,7 @@ namespace Pol {
       if ( result.size() > 0 )
 	  {
         POLLOG_ERROR << "##########################################################\n"
-          << result.c_str() << "\n"
+          << result.str() << "\n"
           << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC
           << "\n##########################################################\n";
 	  }
@@ -203,7 +203,7 @@ namespace Pol {
       virtual ~StackWalkerLogger()
       {
         if ( _log.size() > 0 )
-          POLLOG_ERROR << _log.c_str();
+          POLLOG_ERROR << _log.str();
       }
       fmt::Writer _log;
     protected:

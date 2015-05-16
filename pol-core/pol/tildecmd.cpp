@@ -62,7 +62,7 @@ namespace Pol {
 		  for ( size_t i = 0; wtextbuf[i] != L'\0'; i++ )
             tmp << wcout.narrow( static_cast<wchar_t>( cfBEu16( wtextbuf[i] ) ), '?' );
           tmp << "\n";
-          INFO_PRINT << tmp.c_str();
+          INFO_PRINT << tmp.str();
 		}
 
 		invoke( client, wtextbuf + 2 );
