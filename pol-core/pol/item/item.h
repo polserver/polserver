@@ -74,10 +74,6 @@ namespace Pol {
 	  bool inuse() const;
 	  void inuse( bool newvalue );
 
-	  bool is_gotten() const;
-	  void set_gotten( Mobile::Character* by_char );
-      Mobile::Character* get_gotten() const;
-
 	  bool invisible() const;
 	  void invisible( bool newvalue );
 	  void on_invisible_changed();
@@ -199,6 +195,8 @@ namespace Pol {
 
 	  Item( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
 
+    private:
+      double getItemdescQuality() const;
 	public:
 	  Core::UContainer* container;
 	protected:
@@ -221,22 +219,22 @@ namespace Pol {
 	  unsigned short hp_;
 	  unsigned short maxhp() const;
 
-	  double quality_;
-
 	  s16 calc_element_resist( Core::ElementalType element ) const;
       s16 calc_element_damage( Core::ElementalType element ) const;
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
 
-      DYN_PROPERTY(maxhp_mod,   s16,         Core::PROP_MAXHP_MOD,   0);
-      DYN_PROPERTY(name_suffix, std::string, Core::PROP_NAME_SUFFIX, "");
+      DYN_PROPERTY        (maxhp_mod,   s16,                Core::PROP_MAXHP_MOD,   0);
+      DYN_PROPERTY        (name_suffix, std::string,        Core::PROP_NAME_SUFFIX, "");
+      DYN_PROPERTY_POINTER(gotten_by,   Mobile::Character*, Core::PROP_GOTTEN_BY);
+      virtual double getQuality() const;
+      virtual void setQuality(double value);
     private:
       // sell and buyprice generated functions only private! (additional logic needed)
-      DYN_PROPERTY(sellprice_, u32, Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);
-      DYN_PROPERTY(buyprice_,  u32, Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
-
-    private:
-        Mobile::Character* gotten_by_;
+      DYN_PROPERTY(sellprice_, u32,    Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);
+      DYN_PROPERTY(buyprice_,  u32,    Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
+      // equipment has a fixed member see get/setQuality
+      DYN_PROPERTY(quality,    double, Core::PROP_QUALITY,   getItemdescQuality());
 
     protected:
       static const u32 SELLPRICE_DEFAULT; // means use the itemdesc value
@@ -271,21 +269,6 @@ namespace Pol {
 	{
 		inuse_ = newvalue;
 	}
-
-	inline bool Item::is_gotten() const
-	{
-	  return gotten_by_ != nullptr;
-	}
-
-	inline void Item::set_gotten( Mobile::Character* by_char )
-	{
-		gotten_by_ = by_char;
-	}
-
-    inline Mobile::Character* Item::get_gotten() const
-    {
-      return gotten_by_;
-    }
 
 	inline bool Item::invisible() const
 	{

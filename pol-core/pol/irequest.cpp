@@ -163,7 +163,7 @@ namespace Pol {
 			if ( pol_distance( client->chr->x, client->chr->y, bob->x, bob->y ) < 20 )
 			  statrequest( client, serial );
 		  }
-		  if ( client->chr->party() != NULL )
+		  if ( client->chr->has_party() )
 			client->chr->party()->send_stat_to( client->chr, bob );
 		}
 	  }

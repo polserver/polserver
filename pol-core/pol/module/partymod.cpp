@@ -122,61 +122,61 @@ namespace Pol {
 		return BObjectRef( UninitObject::create() );
 	}
 
-	BObjectRef EPartyRefObjImp::get_member_id( const int id ) //id test
-	{
-	  switch ( id )
-	  {
-		case MBR_MEMBERS:
-		{
-						  std::unique_ptr<ObjArray> arr( new ObjArray );
-						  auto itr = obj_->_member_serials.begin();
-						  while ( itr != obj_->_member_serials.end() )
-						  {
-                            Mobile::Character* chr = Core::system_find_mobile( *itr );
-							if ( chr != NULL )
-							{
-							  arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
-							  ++itr;
-							}
-							else
-							  itr = obj_->_member_serials.erase( itr );
-						  }
-						  return BObjectRef( arr.release() );
-		}
+    BObjectRef EPartyRefObjImp::get_member_id( const int id )  // id test
+    {
+      switch ( id )
+      {
+        case MBR_MEMBERS:
+        {
+          std::unique_ptr<ObjArray> arr( new ObjArray );
+          auto itr = obj_->_member_serials.begin();
+          while ( itr != obj_->_member_serials.end() )
+          {
+            Mobile::Character* chr = Core::system_find_mobile( *itr );
+            if ( chr != NULL )
+            {
+              arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
+              ++itr;
+            }
+            else
+              itr = obj_->_member_serials.erase( itr );
+          }
+          return BObjectRef( arr.release() );
+        }
 
-		case MBR_LEADER:
-		{
-                         Mobile::Character* chr = Core::system_find_mobile( obj_->_leaderserial );
-						 if ( chr != NULL )
-						   return BObjectRef( new EOfflineCharacterRefObjImp( chr ) );
-						 else
-						   return BObjectRef( new BLong( 0 ) );
-		}
+        case MBR_LEADER:
+        {
+          Mobile::Character* chr = Core::system_find_mobile( obj_->_leaderserial );
+          if ( chr != NULL )
+            return BObjectRef( new EOfflineCharacterRefObjImp( chr ) );
+          else
+            return BObjectRef( new BLong( 0 ) );
+        }
 
-		case MBR_CANDIDATES:
-		{
-							 std::unique_ptr<ObjArray> arr( new ObjArray );
-							 auto itr = obj_->_candidates_serials.begin();
-							 while ( itr != obj_->_candidates_serials.end() )
-							 {
-                               Mobile::Character* chr = Core::system_find_mobile( *itr );
-							   if ( chr != NULL )
-							   {
-								 arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
-								 ++itr;
-							   }
-							   else
-								 itr = obj_->_candidates_serials.erase( itr );
-							 }
-							 return BObjectRef( arr.release() );
-		}
+        case MBR_CANDIDATES:
+        {
+          std::unique_ptr<ObjArray> arr( new ObjArray );
+          auto itr = obj_->_candidates_serials.begin();
+          while ( itr != obj_->_candidates_serials.end() )
+          {
+            Mobile::Character* chr = Core::system_find_mobile( *itr );
+            if ( chr != NULL )
+            {
+              arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
+              ++itr;
+            }
+            else
+              itr = obj_->_candidates_serials.erase( itr );
+          }
+          return BObjectRef( arr.release() );
+        }
 
-		default:
-		  return BObjectRef( UninitObject::create() );
-	  }
-	}
+        default:
+          return BObjectRef( UninitObject::create() );
+      }
+    }
 
-	BObjectImp* EPartyRefObjImp::call_method( const char* methodname, Executor& ex )
+    BObjectImp* EPartyRefObjImp::call_method( const char* methodname, Executor& ex )
 	{
 	  ObjMethod* objmethod = getKnownObjMethod( methodname );
 	  if ( objmethod != NULL )
@@ -188,158 +188,160 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
-	{
-	  switch ( id )
-	  {
-		case MTH_ADDMEMBER:
-		{
-                            Mobile::Character* chr;
-							if ( !ex.hasParams( 1 ) )
-							  return new BError( "Not enough parameters" );
-							if ( !getCharacterParam( ex, 0, chr ) )
-							  return new BError( "Invalid parameter type" );
-							if ( chr->party() != NULL )
-							  return new BError( "Character is already in a party" );
-							else if ( chr->candidate_of() != NULL )
-							  return new BError( "Character is already candidate of a party" );
-							else if ( chr->offline_mem_of() != NULL )
-							  return new BError( "Character is already offline member of a party" );
-							if ( !obj_->can_add() )
-							  return new BError( "Party is already full" );
-							if ( obj_->add_member( chr->serial ) )
-							{
-							  chr->party( obj_.get() );
-                              if ( Core::settingsManager.party_cfg.Hooks.OnAddToParty )
-                                Core::settingsManager.party_cfg.Hooks.OnAddToParty->call( chr->make_ref( ) );
-							  if ( chr->has_active_client() )
-                                Core::send_sysmessage_cl( chr->client, Core::CLP_Added );// You have been added to the party.
-                              obj_->send_msg_to_all( Core::CLP_Joined, chr->name( ).c_str( ), chr );//  : joined the party.
-							  obj_->send_member_list( NULL );
-							  obj_->send_stats_on_add( chr );
-							}
+    BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+    {
+      switch ( id )
+      {
+        case MTH_ADDMEMBER:
+        {
+          Mobile::Character* chr;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if ( !getCharacterParam( ex, 0, chr ) )
+            return new BError( "Invalid parameter type" );
+          if ( chr->has_party() )
+            return new BError( "Character is already in a party" );
+          else if ( chr->has_candidate_of() )
+            return new BError( "Character is already candidate of a party" );
+          else if ( chr->has_offline_mem_of() )
+            return new BError( "Character is already offline member of a party" );
+          if ( !obj_->can_add() )
+            return new BError( "Party is already full" );
+          if ( obj_->add_member( chr->serial ) )
+          {
+            chr->party( obj_.get() );
+            if ( Core::settingsManager.party_cfg.Hooks.OnAddToParty )
+              Core::settingsManager.party_cfg.Hooks.OnAddToParty->call( chr->make_ref() );
+            if ( chr->has_active_client() )
+              Core::send_sysmessage_cl( chr->client, Core::CLP_Added );  // You have been added to the party.
+            obj_->send_msg_to_all( Core::CLP_Joined, chr->name().c_str(), chr );  //  : joined the party.
+            obj_->send_member_list( NULL );
+            obj_->send_stats_on_add( chr );
+          }
 
-							return new BLong( static_cast<int>( obj_->_member_serials.size() ) );
-		}
+          return new BLong( static_cast<int>( obj_->_member_serials.size() ) );
+        }
 
-		case MTH_REMOVEMEMBER:
-		{
-                               Mobile::Character* chr;
-							   if ( !ex.hasParams( 1 ) )
-								 return new BError( "Not enough parameters" );
-							   if ( !getCharacterParam( ex, 0, chr ) )
-								 return new BError( "Invalid parameter type" );
-							   if ( !obj_->is_member( chr->serial ) )
-								 return new BError( "Character is not in this party" );
-							   if ( obj_->is_leader( chr->serial ) )
-								 return new BError( "Character is leader of this party" );
+        case MTH_REMOVEMEMBER:
+        {
+          Mobile::Character* chr;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if ( !getCharacterParam( ex, 0, chr ) )
+            return new BError( "Invalid parameter type" );
+          if ( !obj_->is_member( chr->serial ) )
+            return new BError( "Character is not in this party" );
+          if ( obj_->is_leader( chr->serial ) )
+            return new BError( "Character is leader of this party" );
 
-							   if ( obj_->remove_member( chr->serial ) )
-							   {
-								 bool disband;
-								 obj_->send_remove_member( chr, &disband );
-								 chr->party( NULL );
-                                 if ( Core::settingsManager.party_cfg.Hooks.OnLeaveParty )
-                                   Core::settingsManager.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref( ), new BLong( 0 ) );
-								 if ( chr->has_active_client() )
-								 {
-                                   Core::send_sysmessage_cl( chr->client, Core::CLP_Removed ); //You have been removed from the party.
-                                   Core::send_empty_party( chr );
-								 }
-								 if ( disband )
-                                   Core::disband_party( obj_->leader( ) );
+          if ( obj_->remove_member( chr->serial ) )
+          {
+            bool disband;
+            obj_->send_remove_member( chr, &disband );
+            chr->party( NULL );
+            if ( Core::settingsManager.party_cfg.Hooks.OnLeaveParty )
+              Core::settingsManager.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref(), new BLong( 0 ) );
+            if ( chr->has_active_client() )
+            {
+              Core::send_sysmessage_cl( chr->client, Core::CLP_Removed );  // You have been removed from the party.
+              Core::send_empty_party( chr );
+            }
+            if ( disband )
+              Core::disband_party( obj_->leader() );
 
-								 return new BLong( 1 );
-							   }
-							   return new BLong( 0 );
-		}
+            return new BLong( 1 );
+          }
+          return new BLong( 0 );
+        }
 
-		case MTH_SETLEADER:
-		{
-                            Mobile::Character* chr;
-							if ( !ex.hasParams( 1 ) )
-							  return new BError( "Not enough parameters" );
-							if ( !getCharacterParam( ex, 0, chr ) )
-							  return new BError( "Invalid parameter type" );
-							if ( !obj_->is_member( chr->serial ) )
-							  return new BError( "Character is not in this party" );
-							if ( obj_->is_leader( chr->serial ) )
-							  return new BError( "Character is already leader of this party" );
+        case MTH_SETLEADER:
+        {
+          Mobile::Character* chr;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if ( !getCharacterParam( ex, 0, chr ) )
+            return new BError( "Invalid parameter type" );
+          if ( !obj_->is_member( chr->serial ) )
+            return new BError( "Character is not in this party" );
+          if ( obj_->is_leader( chr->serial ) )
+            return new BError( "Character is already leader of this party" );
 
-							obj_->set_leader( chr->serial );
-							obj_->send_member_list( NULL );
-							return new BLong( 1 );
-		}
+          obj_->set_leader( chr->serial );
+          obj_->send_member_list( NULL );
+          return new BLong( 1 );
+        }
 
-		case MTH_ADDCANDIDATE:
-		{
-                               Mobile::Character* chr;
-							   if ( !ex.hasParams( 1 ) )
-								 return new BError( "Not enough parameters" );
-							   if ( !getCharacterParam( ex, 0, chr ) )
-								 return new BError( "Invalid parameter type" );
-							   if ( chr->party() != NULL )
-								 return new BError( "Character is already in a party" );
-							   else if ( chr->candidate_of() != NULL )
-								 return new BError( "Character is already candidate of a party" );
-							   else if ( chr->offline_mem_of() != NULL )
-								 return new BError( "Character is already offline member of a party" );
-							   if ( !obj_->can_add() )
-								 return new BError( "Party is already full" );
-							   if ( !chr->has_active_client() )
-								 return new BError( "Character is offline" );
+        case MTH_ADDCANDIDATE:
+        {
+          Mobile::Character* chr;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if ( !getCharacterParam( ex, 0, chr ) )
+            return new BError( "Invalid parameter type" );
+          if ( chr->has_party() )
+            return new BError( "Character is already in a party" );
+          else if ( chr->has_candidate_of() )
+            return new BError( "Character is already candidate of a party" );
+          else if ( chr->has_offline_mem_of() )
+            return new BError( "Character is already offline member of a party" );
+          if ( !obj_->can_add() )
+            return new BError( "Party is already full" );
+          if ( !chr->has_active_client() )
+            return new BError( "Character is offline" );
 
-                               if ( Core::settingsManager.party_cfg.General.DeclineTimeout > 0 )
-								 chr->set_party_invite_timeout();
+          if ( Core::settingsManager.party_cfg.General.DeclineTimeout > 0 )
+            chr->set_party_invite_timeout();
 
-							   if ( obj_->add_candidate( chr->serial ) )
-							   {
-                                 Mobile::Character* leader = Core::system_find_mobile( obj_->leader( ) );
-								 if ( leader != NULL )
-								 {
-								   chr->candidate_of( obj_.get() );
-                                   Core::send_invite( chr, leader );
-								   return new BLong( 1 );
-								 }
-							   }
-							   return new BLong( 0 );
-		}
+          if ( obj_->add_candidate( chr->serial ) )
+          {
+            Mobile::Character* leader = Core::system_find_mobile( obj_->leader() );
+            if ( leader != NULL )
+            {
+              chr->candidate_of( obj_.get() );
+              Core::send_invite( chr, leader );
+              return new BLong( 1 );
+            }
+          }
+          return new BLong( 0 );
+        }
 
-		case MTH_REMOVECANDIDATE:
-		{
-                                  Mobile::Character* chr;
-								  if ( !ex.hasParams( 1 ) )
-									return new BError( "Not enough parameters" );
-								  if ( !getCharacterParam( ex, 0, chr ) )
-									return new BError( "Invalid parameter type" );
-								  if ( !obj_->is_candidate( chr->serial ) )
-									return new BError( "Character is not candidate of this party" );
+        case MTH_REMOVECANDIDATE:
+        {
+          Mobile::Character* chr;
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if ( !getCharacterParam( ex, 0, chr ) )
+            return new BError( "Invalid parameter type" );
+          if ( !obj_->is_candidate( chr->serial ) )
+            return new BError( "Character is not candidate of this party" );
 
-								  if ( obj_->remove_candidate( chr->serial ) )
-								  {
-									chr->cancel_party_invite_timeout();
-                                    Mobile::Character* leader = Core::system_find_mobile( obj_->leader( ) );
-									chr->candidate_of( NULL );
-									if ( chr->has_active_client() )
-                                      Core::send_sysmessage_cl( chr->client, Core::CLP_Decline ); // You notify them that you do not wish to join the party.
-									if ( leader != NULL )
-									{
-									  if ( leader->has_active_client() )
-                                        Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Notify_Decline, chr->name( ).c_str( ), true ); //: Does not wish to join the party.
-									}
+          if ( obj_->remove_candidate( chr->serial ) )
+          {
+            chr->cancel_party_invite_timeout();
+            Mobile::Character* leader = Core::system_find_mobile( obj_->leader() );
+            chr->candidate_of( nullptr );
+            if ( chr->has_active_client() )
+              Core::send_sysmessage_cl( chr->client, Core::CLP_Decline );  // You notify them that you do not wish to join the party.
+            if ( leader != NULL )
+            {
+              if ( leader->has_active_client() )
+                Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Notify_Decline,
+                                                chr->name().c_str(),
+                                                true );  //: Does not wish to join the party.
+            }
 
-									if ( !obj_->test_size() )
-                                      Core::disband_party( obj_->leader( ) );
-									return new BLong( 1 );
-								  }
-								  return new BLong( 0 );
-		}
+            if ( !obj_->test_size() )
+              Core::disband_party( obj_->leader() );
+            return new BLong( 1 );
+          }
+          return new BLong( 0 );
+        }
 
-		default:
-		  bool changed = false;
-		  return CallPropertyListMethod_id( obj_->_proplist, id, ex, changed );
-	  }
-	}
+        default:
+          bool changed = false;
+          return CallPropertyListMethod_id( obj_->_proplist, id, ex, changed );
+      }
+    }
 
 	// party.em Functions:
 	bool getPartyParam( Executor& exec,
@@ -374,19 +376,19 @@ namespace Pol {
 	  if ( ( getCharacterParam( exec, 0, leader ) ) &&
 		   ( getCharacterParam( exec, 1, firstmem ) ) )
 	  {
-		if ( leader->party() != NULL )
+		if ( leader->has_party() )
 		  return new BError( "Leader is already in a party" );
-		else if ( leader->candidate_of() != NULL )
+		else if ( leader->has_candidate_of() )
 		  return new BError( "Leader is already candidate of a party" );
-		else if ( leader->offline_mem_of() != NULL )
+		else if ( leader->has_offline_mem_of() )
 		  return new BError( "Leader is already offline member of a party" );
 		else if ( leader == firstmem )
 		  return new BError( "Leader and Firstmember are the same" );
-		else if ( firstmem->party() != NULL )
+		else if ( firstmem->has_party() )
 		  return new BError( "First Member is already in a party" );
-		else if ( firstmem->candidate_of() != NULL )
+		else if ( firstmem->has_candidate_of() )
 		  return new BError( "First Member is already candidate of a party" );
-		else if ( firstmem->offline_mem_of() != NULL )
+		else if ( firstmem->has_offline_mem_of() )
 		  return new BError( "First Member is already offline member of a party" );
 
         Core::Party* party = new Core::Party( leader->serial );

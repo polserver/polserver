@@ -91,12 +91,12 @@ namespace Pol {
 	  if ( obj->isa( UObject::CLASS_CHARACTER ) )
 	  {
 		Mobile::Character* chr = (Mobile::Character*)obj;
-		desc = ( chr->title_prefix.empty() ? " \t" : chr->title_prefix + " \t" ) + chr->name() +
-		  ( chr->title_suffix.empty() ? "\t " : "\t " + chr->title_suffix );
-		if ( !chr->title_race.empty() )
-		  desc += " (" + chr->title_race + ")";
-		if ( !chr->title_guild.empty() )
-		  desc += " [" + chr->title_guild + "]";
+		desc = ( !chr->has_title_prefix() ? " \t" : chr->title_prefix() + " \t" ) + chr->name() +
+		  ( !chr->has_title_suffix() ? "\t " : "\t " + chr->title_suffix() );
+		if ( chr->has_title_race() )
+		  desc += " (" + chr->title_race() + ")";
+		if ( chr->has_title_guild() )
+		  desc += " [" + chr->title_guild() + "]";
 	  }
 	  else
 	  if ( vendor_content )

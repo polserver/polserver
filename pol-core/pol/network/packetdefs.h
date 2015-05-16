@@ -287,6 +287,18 @@ namespace Pol {
       Color _color;
       PktHelper::PacketOut<PktOut_17> _p;
     };
+
+    class MoveChrPkt : public PktSender
+    {
+    public:
+      MoveChrPkt(const Mobile::Character* chr);
+      virtual void Send( Client* client ) POL_OVERRIDE;
+    private:
+      void build();
+
+      const Mobile::Character* _chr;
+      PktHelper::PacketOut<PktOut_77> _p;
+    };
   }
 }
 #endif

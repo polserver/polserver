@@ -107,8 +107,6 @@ namespace Pol {
 	  use_adjustments( true ),
 	  anchor(),
 	  // EVENTS
-		speech_color_(Core::DEFAULT_TEXT_COLOR),
-		speech_font_(Core::DEFAULT_TEXT_FONT),
 	  // SCRIPT
 	  script( "" ),
 	  ex( NULL ),
@@ -306,11 +304,11 @@ namespace Pol {
 	  if ( master_.get() != NULL )
 		sw() << "\tmaster\t" << master_->serial << pf_endl;
 
-      if (speech_color_ != Core::DEFAULT_TEXT_COLOR)
-		sw() << "\tSpeechColor\t" << speech_color_ << pf_endl;
+      if (has_speech_color())
+		sw() << "\tSpeechColor\t" << speech_color() << pf_endl;
 
-	  if ( speech_font_ != Core::DEFAULT_TEXT_FONT )
-		sw() << "\tSpeechFont\t" << speech_font_ << pf_endl;
+	  if ( has_speech_font())
+		sw() << "\tSpeechFont\t" << speech_font() << pf_endl;
 
 	  if ( run_speed != dexterity() )
 		sw() << "\tRunSpeed\t" << run_speed << pf_endl;
@@ -411,8 +409,8 @@ namespace Pol {
       if ( !script.get().empty( ) )
 		start_script();
 
-	  speech_color_ = elem.remove_ushort( "SpeechColor", Core::DEFAULT_TEXT_COLOR );
-	  speech_font_ = elem.remove_ushort( "SpeechFont", Core::DEFAULT_TEXT_FONT );
+	  speech_color(elem.remove_ushort( "SpeechColor", Core::DEFAULT_TEXT_COLOR ));
+	  speech_font(elem.remove_ushort( "SpeechFont", Core::DEFAULT_TEXT_FONT ));
 	  saveonexit_ = elem.remove_bool( "SaveOnExit", true );
 
 	  use_adjustments = elem.remove_bool( "UseAdjustments", true );
@@ -1318,8 +1316,6 @@ namespace Pol {
         +sizeof(unsigned short)/*npc_ar_*/
         +sizeof(Core::CharacterRef)/*master_*/
         +sizeof(anchor)/*anchor*/
-        +sizeof(unsigned short)/*speech_color_*/
-        +sizeof(unsigned short)/*speech_font_*/
         +sizeof( boost_utils::script_name_flystring ) /*script*/
         + sizeof( boost_utils::npctemplate_name_flystring ); /*template_name*/
     }

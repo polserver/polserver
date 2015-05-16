@@ -746,8 +746,8 @@ namespace Pol {
 	  msg->Write<u32>( npc.serial_ext );
 	  msg->WriteFlipped<u16>( npc.graphic );
 	  msg->Write<u8>( texttype );
-	  msg->WriteFlipped<u16>( npc.speech_color_ );
-	  msg->WriteFlipped<u16>( npc.speech_font_ );
+	  msg->WriteFlipped<u16>( npc.speech_color() );
+	  msg->WriteFlipped<u16>( npc.speech_font() );
 	  msg->Write( npc.name().c_str(), 30 );
 	  msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 ) ? SPEECH_MAX_LEN + 1 : static_cast<u16>( strlen( text ) + 1 ) );
 	  u16 len = msg->offset;
@@ -835,8 +835,8 @@ namespace Pol {
 		talkmsg->Write<u32>( npc.serial_ext );
 		talkmsg->WriteFlipped<u16>( npc.graphic );
 		talkmsg->Write<u8>( texttype );
-		talkmsg->WriteFlipped<u16>( npc.speech_color_ );
-		talkmsg->WriteFlipped<u16>( npc.speech_font_ );
+		talkmsg->WriteFlipped<u16>( npc.speech_color() );
+		talkmsg->WriteFlipped<u16>( npc.speech_font() );
 		talkmsg->Write( languc.c_str(), 4 );
 		talkmsg->Write( npc.description().c_str(), 30 );
 		talkmsg->WriteFlipped( &gwtext[0], static_cast<u16>( textlen ) );

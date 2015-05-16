@@ -892,8 +892,8 @@ namespace Pol {
         case MBR_POISON_DAMAGE_MOD: return new BLong( poison_damage().mod ); break;
         case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( physical_damage().mod ); break;
 		case MBR_GETGOTTENBY:
-		  if ( is_gotten() )
-			return new Module::ECharacterRefObjImp( get_gotten() );
+		  if ( has_gotten_by() )
+			return new Module::ECharacterRefObjImp( gotten_by() );
 		  else
 			return new BError( "Gotten By NULL" );
 		  break;
@@ -903,10 +903,10 @@ namespace Pol {
 								   return new BLong( itemdesc.doubleclick_range );
 								   break;
 		}
-		case MBR_QUALITY: return new Double( quality_ ); break;
+		case MBR_QUALITY: return new Double( getQuality() ); break;
 		case MBR_HP: return new BLong( hp_ ); break;
 		case MBR_MAXHP_MOD: return new BLong( maxhp_mod() ); break;
-		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * quality_ ) ); break;
+		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * getQuality() ) ); break;
 		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
 		default: return NULL;
 	  }
@@ -1081,7 +1081,9 @@ namespace Pol {
           physical_damage(physical_damage().setAsMod(static_cast<short>( value )));
 		  return new BLong( static_cast<short>( value ) );
 		  break;
-		case MBR_QUALITY: return new Double( ( quality_ = double( value ) ) );
+		case MBR_QUALITY:
+          setQuality(double( value ) );
+          return new Double( double( value ) );
 		  break;
 		case MBR_HP:
 		  hp_ = static_cast<unsigned short>( value );
@@ -1134,7 +1136,9 @@ namespace Pol {
 		return imp;
 	  switch ( id )
 	  {
-		case MBR_QUALITY: return new Double( ( quality_ = double( value ) ) ); break;
+		case MBR_QUALITY: 
+          setQuality(value);
+          return new Double( value );
 		default: return NULL;
 	  }
 	}
@@ -1492,7 +1496,7 @@ namespace Pol {
 		case MBR_TRUEOBJTYPE: return new BLong( trueobjtype ); break;
 		case MBR_TRUECOLOR: return new BLong( truecolor ); break;
 		case MBR_AR_MOD: return new BLong( ar_mod() ); break;
-		case MBR_DELAY_MOD: return new BLong( delay_mod_ ); break;
+		case MBR_DELAY_MOD: return new BLong( delay_mod() ); break;
 		case MBR_HIDDEN: return new BLong( hidden() ? 1 : 0 ); break;
 		case MBR_CONCEALED: return new BLong( concealed() ); break;
 		case MBR_FROZEN: return new BLong( frozen() ? 1 : 0 ); break;
@@ -1558,15 +1562,15 @@ namespace Pol {
 		  break;
 		case MBR_GOLD: return new BLong( gold_carried() ); break;
 
-		case MBR_TITLE_PREFIX: return new String( title_prefix ); break;
-		case MBR_TITLE_SUFFIX: return new String( title_suffix ); break;
-		case MBR_TITLE_GUILD:  return new String( title_guild ); break;
-		case MBR_TITLE_RACE:   return new String( title_race ); break;
+		case MBR_TITLE_PREFIX: return new String( title_prefix() ); break;
+		case MBR_TITLE_SUFFIX: return new String( title_suffix() ); break;
+		case MBR_TITLE_GUILD:  return new String( title_guild() ); break;
+		case MBR_TITLE_RACE:   return new String( title_race() ); break;
 		case MBR_UCLANG: return new String( uclang ); break;
 		case MBR_GUILDID: return new BLong( guildid() ); break;
 		case MBR_GUILD:
-		  if ( guild_ != NULL )
-			return Module::GuildExecutorModule::CreateGuildRefObjImp( guild_ );
+		  if ( has_guild() )
+			return Module::GuildExecutorModule::CreateGuildRefObjImp( guild() );
 		  else
 			return new BError( "Not a member of a guild" );
 		  break;
@@ -1663,9 +1667,9 @@ namespace Pol {
 		  return new String( mode );
 		  break;
 		}
-		case MBR_HITCHANCE_MOD:     return new BLong( hitchance_mod_ ); break;
-		case MBR_EVASIONCHANCE_MOD: return new BLong( evasionchance_mod_ ); break;
-		case MBR_CARRYINGCAPACITY_MOD: return new BLong( carrying_capacity_mod_ ); break;
+		case MBR_HITCHANCE_MOD:     return new BLong( hitchance_mod() ); break;
+		case MBR_EVASIONCHANCE_MOD: return new BLong( evasionchance_mod() ); break;
+		case MBR_CARRYINGCAPACITY_MOD: return new BLong( carrying_capacity_mod() ); break;
         case MBR_FIRE_RESIST:     return new BLong( fire_resist().value ); break;
         case MBR_COLD_RESIST:     return new BLong( cold_resist().value ); break;
         case MBR_ENERGY_RESIST:   return new BLong( energy_resist().value ); break;
@@ -1693,15 +1697,15 @@ namespace Pol {
         case MBR_POISON_DAMAGE_MOD:   return new BLong( poison_damage().mod ); break;
         case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( physical_damage().mod ); break;
 		case MBR_PARTY:
-		  if ( party_ != NULL )
-			return Module::CreatePartyRefObjImp( party_ );
+		  if ( has_party() )
+			return Module::CreatePartyRefObjImp( party() );
 		  else
 			return new BError( "Not a member of a party" );
 		  break;
 		case MBR_PARTYLOOT: return new BLong( party_can_loot() );
 		case MBR_CANDIDATE_OF_PARTY:
-		  if ( candidate_of_ != NULL )
-			return Module::CreatePartyRefObjImp( candidate_of_ );
+		  if ( has_candidate_of() )
+			return Module::CreatePartyRefObjImp( candidate_of() );
 		  else
 			return new BError( "Not a candidate of a party" );
 		  break;
@@ -1764,10 +1768,10 @@ namespace Pol {
 	  String* ret;
 	  switch ( id )
 	  {
-		case MBR_TITLE_PREFIX: ret = new String( title_prefix = value ); break;
-		case MBR_TITLE_SUFFIX: ret = new String( title_suffix = value ); break;
-		case MBR_TITLE_GUILD:  ret = new String( title_guild = value ); break;
-		case MBR_TITLE_RACE:   ret = new String( title_race = value ); break;
+		case MBR_TITLE_PREFIX: title_prefix(value); ret = new String( value ); break;
+		case MBR_TITLE_SUFFIX: title_suffix(value); ret = new String( value ); break;
+		case MBR_TITLE_GUILD:  title_guild(value); ret = new String( value ); break;
+		case MBR_TITLE_RACE:   title_race(value); ret = new String( value ); break;
 		default: return NULL;
 	  }
 	  set_dirty();
@@ -1819,7 +1823,8 @@ namespace Pol {
 		  refresh_ar();
 		  return new BLong( ar_mod() );
 		case MBR_DELAY_MOD:
-		  return new BLong( delay_mod_ = static_cast<short>( value ) );
+          delay_mod(static_cast<short>( value ));
+		  return new BLong( delay_mod() );
 		case MBR_HIDDEN:
 		{
 		  //FIXME: don't call on_change unless the value actually changed?
@@ -1851,16 +1856,18 @@ namespace Pol {
 		  make_murderer( value ? true : false );
 		  return new BLong( murderer_ );
 		case MBR_HITCHANCE_MOD:
-		  return new BLong( hitchance_mod_ = static_cast<short>( value ) );
+          hitchance_mod(static_cast<short>( value ));
+		  return new BLong( hitchance_mod() );
 		case MBR_EVASIONCHANCE_MOD:
-		  return new BLong( evasionchance_mod_ = static_cast<short>( value ) );
+          evasionchance_mod(static_cast<short>( value ));
+		  return new BLong( evasionchance_mod() );
 		case MBR_CARRYINGCAPACITY_MOD:
-		  carrying_capacity_mod_ = static_cast<short>( value );
+		  carrying_capacity_mod(static_cast<short>( value ));
 		  if ( client != NULL )
 		  {   // CHECKME consider sending less frequently
 			send_full_statmsg( client, this );
 		  }
-		  return new BLong( carrying_capacity_mod_ );
+		  return new BLong( carrying_capacity_mod() );
 		case MBR_FACING:
 		  if ( !face( static_cast<Core::UFACING>( value & PKTIN_02_FACING_MASK ), 0 ) )
 			return new BLong( 0 );
@@ -2159,19 +2166,19 @@ namespace Pol {
 		  if ( ex.getParam( 0, level ) &&
 				ex.getParam( 1, duration ) )
 		  {
-				lightoverride = level;
+				lightoverride(level);
 	
 				if ( duration == -1 )
-				  lightoverride_until = ~0u;
+				  lightoverride_until(~0u);
 				else if ( duration == 0 )
-				  lightoverride_until = 0;
+				  lightoverride_until(0);
 				else
-				  lightoverride_until = Core::read_gameclock() + duration;
+				  lightoverride_until(Core::read_gameclock() + duration);
 	
 				check_region_changes();
 				if ( duration == -1 )
 				  return new BLong( duration );
-				return new BLong( lightoverride_until );
+				return new BLong( lightoverride_until() );
 			}
 		  break;
 		}
@@ -2209,14 +2216,14 @@ namespace Pol {
 			set_dirty();
 			if ( duration == -1 )
 			{
-			  squelched_until = ~0u;
+			  squelched_until(~0u);
 			  return new BLong( -1 );
 			}
 			else if ( duration == 0 )
-			  squelched_until = 0;
+			  squelched_until(0);
 			else
-			  squelched_until = Core::read_gameclock() + duration;
-			return new BLong( squelched_until );
+			  squelched_until(Core::read_gameclock() + duration);
+			return new BLong( squelched_until() );
 		  }
 		  break;
 		}
@@ -2337,13 +2344,13 @@ namespace Pol {
 		  break;
 		}
 		case MTH_GETGOTTENITEM:
-		  if ( gotten_item != NULL )
-			return new Module::EItemRefObjImp( gotten_item );
+		  if ( has_gotten_item() )
+			return new Module::EItemRefObjImp( gotten_item() );
 		  else
 			return new BError( "Gotten Item NULL" );
 		  break;
 		case MTH_CLEARGOTTENITEM:
-		  if ( gotten_item != NULL )
+		  if ( has_gotten_item() )
 		  {
 			clear_gotten_item();
 			return new BLong( 1 );
@@ -2552,14 +2559,14 @@ namespace Pol {
 		    set_dirty();
 		    if ( duration == -1 )
 		    {
-		      deafened_until = ~0u;
+		      deafened_until(~0u);
 		      return new BLong( -1 );
 		    }
 		    else if ( duration == 0 )
-		      deafened_until = 0;
+		      deafened_until(0);
 		    else
-		      deafened_until = Core::read_gameclock() + duration;
-		    return new BLong( deafened_until );
+		      deafened_until(Core::read_gameclock() + duration);
+		    return new BLong( deafened_until() );
 	      }
 	      break;
 		}
@@ -2572,8 +2579,8 @@ namespace Pol {
 		  {
 			if ( duration < 0 )
 			  return new BError( "Duration must be >= 0" );
-			disable_skills_until = Core::poltime() + duration;
-			return new BLong( static_cast<int>(disable_skills_until) );
+			disable_skills_until(Core::poltime() + duration);
+			return new BLong( static_cast<int>(disable_skills_until()) );
 		  }
 		  break;
 		}
@@ -2712,8 +2719,8 @@ namespace Pol {
             return new BError( "No script running" );
           break;
 
-        case MBR_SPEECH_COLOR: return new BLong( speech_color_ ); break;
-        case MBR_SPEECH_FONT:  return new BLong( speech_font_ ); break;
+        case MBR_SPEECH_COLOR: return new BLong( speech_color() ); break;
+        case MBR_SPEECH_FONT:  return new BLong( speech_font() ); break;
         case MBR_USE_ADJUSTMENTS:  return new BLong( use_adjustments ? 1 : 0 ); break;
         case MBR_RUN_SPEED: return new BLong( run_speed ); break;
         case MBR_ALIGNMENT:	return new BLong( this->template_.alignment ); break;
@@ -2759,8 +2766,12 @@ namespace Pol {
         return imp;
       switch ( id )
       {
-        case MBR_SPEECH_COLOR: return new BLong( speech_color_ = static_cast<unsigned short>( value ) );
-        case MBR_SPEECH_FONT: return new BLong( speech_font_ = static_cast<unsigned short>( value ) );
+        case MBR_SPEECH_COLOR: 
+          speech_color(static_cast<unsigned short>( value )); 
+          return new BLong( speech_color() );
+        case MBR_SPEECH_FONT: 
+          speech_font(static_cast<unsigned short>( value ));
+          return new BLong( speech_font() );
         case MBR_USE_ADJUSTMENTS: return new BLong( use_adjustments = value ? true : false );
         case MBR_RUN_SPEED: return new BLong( run_speed = static_cast<unsigned short>( value ) );
         case MBR_SAVEONEXIT:

@@ -37,6 +37,9 @@ namespace Pol {
       virtual ~Equipment() {};
 	  void reduce_hp_from_hit();
 
+      virtual double getQuality() const POL_OVERRIDE;
+      virtual void setQuality(double value) POL_OVERRIDE;
+
 	protected:
 	  Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
 	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
@@ -56,6 +59,8 @@ namespace Pol {
 
 	protected:
 	  const Core::EquipDesc& eq_tmpl_;
+    private:
+      double _quality;
 	};
   }
 }

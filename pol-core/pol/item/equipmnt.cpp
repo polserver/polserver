@@ -21,7 +21,8 @@ namespace Pol {
   namespace Items {
 	Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :
 	  Item( itemdesc, uobj_class ),
-	  eq_tmpl_( static_cast<const Core::EquipDesc&>( find_itemdesc( objtype_ ) ) ) // be sure to grab the permanent entry
+	  eq_tmpl_( static_cast<const Core::EquipDesc&>( find_itemdesc( objtype_ ) ) ), // be sure to grab the permanent entry
+      _quality(0.0)
 	{}
 
 	Item* Equipment::clone() const
@@ -60,7 +61,17 @@ namespace Pol {
 
     size_t Equipment::estimatedSize() const
     {
-      return base::estimatedSize();
+      return base::estimatedSize() 
+        + sizeof(double) /*_quality*/;
+    }
+
+    double Equipment::getQuality() const
+    {
+      return _quality;
+    }
+    void Equipment::setQuality(double value)
+    {
+      _quality = value;
     }
   }
 }

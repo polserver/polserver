@@ -41,9 +41,9 @@ namespace Pol {
 		return;
 	  }
 
-	  Items::Item *item = client->chr->gotten_item;
+	  Items::Item *item = client->chr->gotten_item();
 
-	  if ( item == NULL )
+	  if ( item == nullptr )
 	  {
         POLLOG_ERROR.Format( "Character 0x{:X} tried to equip item 0x{:X}, which did not exist in gotten_items.\n" )
           << client->chr->serial << serial;
@@ -58,16 +58,16 @@ namespace Pol {
           << serial
           << item->serial;
 		send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP ); // 5
-		item->set_gotten(nullptr);
+		item->gotten_by(nullptr);
 		return;
 	  }
 
 	  ItemRef itemref( item );
 
 	  item->layer = item->tile_layer;
-	  client->chr->gotten_item->inuse( false );
-	  item->set_gotten(nullptr);
-	  client->chr->gotten_item = NULL;
+	  item->inuse( false );
+	  item->gotten_by(nullptr);
+	  client->chr->gotten_item(nullptr);
 
 	  Mobile::Character* equip_on = NULL;
 	  if ( equip_on_serial == client->chr->serial )
@@ -135,7 +135,7 @@ namespace Pol {
 	  }
 
 	  // Unregister the item if it is on a multi
-	  if ( item->container == NULL && !item->is_gotten() )
+	  if ( item->container == NULL && !item->has_gotten_by() )
 	  {
 		Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
 

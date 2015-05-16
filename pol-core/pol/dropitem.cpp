@@ -743,8 +743,8 @@ namespace Pol {
 	  s8 z = msg->z;
 	  u32 target_serial = cfBEu32( msg->target_serial );
 
-	  Items::Item *item = client->chr->gotten_item;
-	  if ( item == NULL )
+	  Items::Item *item = client->chr->gotten_item();
+	  if ( item == nullptr )
 	  {
         POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
           << client->chr->serial
@@ -757,12 +757,12 @@ namespace Pol {
           << client->chr->serial
           << item_serial
           << item->serial;
-		item->set_gotten(nullptr);
+		item->gotten_by(nullptr);
 		return;
 	  }
-	  client->chr->gotten_item->inuse( false );
-	  client->chr->gotten_item->set_gotten(nullptr);
-	  client->chr->gotten_item = NULL;
+	  item->inuse( false );
+	  item->gotten_by(nullptr);
+	  client->chr->gotten_item(nullptr);
 
 	  bool res;
 	  if ( target_serial == 0xFFffFFffLu )
@@ -790,7 +790,7 @@ namespace Pol {
 		  undo_get_item( client->chr, item );
 		}
 		item->inuse( false );
-		item->set_gotten( nullptr );
+		item->gotten_by( nullptr );
 	  }
 	  send_full_statmsg( client, client->chr );
 	}
@@ -813,8 +813,8 @@ namespace Pol {
 	  u8 slotIndex = msg->slotindex;
 	  u32 target_serial = cfBEu32( msg->target_serial );
 
-	  Items::Item *item = client->chr->gotten_item;
-	  if ( item == NULL )
+	  Items::Item *item = client->chr->gotten_item();
+	  if ( item == nullptr )
 	  {
         POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
           << client->chr->serial
@@ -827,12 +827,12 @@ namespace Pol {
           << client->chr->serial
           << item_serial
           << item->serial;
-		item->set_gotten(nullptr);
+		item->gotten_by(nullptr);
 		return;
 	  }
-	  client->chr->gotten_item->inuse( false );
-	  client->chr->gotten_item->set_gotten(nullptr);
-	  client->chr->gotten_item = NULL;
+	  item->inuse( false );
+	  item->gotten_by(nullptr);
+	  client->chr->gotten_item(nullptr);
 
 	  bool res;
 	  if ( target_serial == 0xFFffFFffLu )
@@ -860,7 +860,7 @@ namespace Pol {
 		  undo_get_item( client->chr, item );
 		}
 		item->inuse( false );
-		item->set_gotten( nullptr );
+		item->gotten_by( nullptr );
 	  }
 
       Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;

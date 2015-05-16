@@ -251,7 +251,7 @@ namespace Pol {
 		//send_feature_enable(client); //dave commented out 8/21/03, unexpected problems with people sending B9 via script with this too.
 		if ( ( client->UOExpansionFlag & AOS ) )
 		{
-		  send_object_cache( client, dynamic_cast<const UObject*>( client->chr ) );
+		  send_object_cache( client, client->chr );
 		}
 	  }
 	  else

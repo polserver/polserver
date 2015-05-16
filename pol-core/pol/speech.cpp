@@ -57,9 +57,8 @@ Notes
 
 namespace Pol {
   namespace Core {
-    using namespace Network;
 
-	void handle_processed_speech( Client* client, char* textbuf, int textbuflen, char firstchar, u8 type, u16 color, u16 font )
+	void handle_processed_speech( Network::Client* client, char* textbuf, int textbuflen, char firstchar, u8 type, u16 color, u16 font )
 	{
 	  // ENHANCE: if (intextlen+1) != textbuflen, then the input line was 'dirty'.  May want to log this fact.
 
@@ -105,7 +104,7 @@ namespace Pol {
 	  if ( textlen > SPEECH_MAX_LEN + 1 )
 		textlen = SPEECH_MAX_LEN + 1;
 
-	  PktHelper::PacketOut<PktOut_1C> talkmsg;
+	  Network::PktHelper::PacketOut<Network::PktOut_1C> talkmsg;
 	  talkmsg->offset += 2;
 	  talkmsg->Write<u32>( chr->serial_ext );
 	  talkmsg->WriteFlipped<u16>( chr->graphic );
@@ -119,7 +118,7 @@ namespace Pol {
 	  talkmsg->WriteFlipped<u16>( len );
 	  talkmsg.Send( client, len );
 
-	  PktHelper::PacketOut<PktOut_1C> ghostmsg;
+	  Network::PktHelper::PacketOut<Network::PktOut_1C> ghostmsg;
 	  if ( chr->dead() && !chr->can_be_heard_as_ghost() )
 	  {
 		memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
@@ -188,7 +187,7 @@ namespace Pol {
 
 
 
-	void SpeechHandler( Client *client, PKTIN_03 *mymsg )
+	void SpeechHandler( Network::Client *client, PKTIN_03 *mymsg )
 	{
 	  int i;
 	  int intextlen;
@@ -220,7 +219,7 @@ namespace Pol {
 	  handle_processed_speech( client, textbuf, textbuflen, mymsg->text[0], mymsg->type, mymsg->color, mymsg->font );
 	}
 
-    void SendUnicodeSpeech( Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
+    void SendUnicodeSpeech( Network::Client *client, PKTIN_AD *msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
 	{
       // validate text color
       u16 textcol = cfBEu16( msgin->color );
@@ -267,8 +266,8 @@ namespace Pol {
 		  << fmt::hexu( cfBEu16( msgin->color ) ) << "\n";
 	  }
 
-	  PktHelper::PacketOut<PktOut_AE> ghostmsg;
-	  PktHelper::PacketOut<PktOut_AE> talkmsg;
+	  Network::PktHelper::PacketOut<Network::PktOut_AE> ghostmsg;
+	  Network::PktHelper::PacketOut<Network::PktOut_AE> talkmsg;
 	  talkmsg->offset += 2;
 	  talkmsg->Write<u32>( chr->serial_ext );
 	  talkmsg->WriteFlipped<u16>( chr->graphic );
@@ -285,25 +284,35 @@ namespace Pol {
 
 	  if ( msgin->type == 0x0d )
 	  {
-		if ( settingsManager.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
-		for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
-		{
-		  Client *client2 = networkManager.clients[cli];
-		  if ( !client2->ready ) continue;
-		  if ( chr->guildid() == client2->chr->guildid() )
-			talkmsg.Send( client2, len );
-		}
+        auto thisguild = chr->guild();
+		if ( settingsManager.ssopt.core_sends_guildmsgs && thisguild != nullptr )
+        {
+		  for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
+		  {
+		    Network::Client *client2 = networkManager.clients[cli];
+		    if ( !client2->ready ) continue;
+		    if ( thisguild->guildid() == client2->chr->guildid() )
+			  talkmsg.Send( client2, len );
+		  }
+        }
 	  }
 	  else if ( msgin->type == 0x0e )
 	  {
-		if ( settingsManager.ssopt.core_sends_guildmsgs && client->chr->guildid() > 0 )
-		for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
-		{
-		  Client *client2 = networkManager.clients[cli];
-		  if ( !client2->ready ) continue;
-		  if ( chr->guildid() == client2->chr->guildid() || ( client2->chr->guild() > 0 && chr->guild()->hasAlly( client2->chr->guild() ) ) )
-			talkmsg.Send( client2, len );
-		}
+        auto thisguild = chr->guild();
+		if ( settingsManager.ssopt.core_sends_guildmsgs && thisguild != nullptr )
+        {
+		  for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
+		  {
+		    Network::Client *client2 = networkManager.clients[cli];
+		    if ( !client2->ready ) continue;
+            auto otherguild = client2->chr->guild();
+            if (otherguild != nullptr)
+            {
+		      if ( thisguild->guildid() == otherguild->guildid() || ( thisguild->hasAlly( otherguild ) ) )
+			    talkmsg.Send( client2, len );
+            }
+		  }
+        }
 	  }
 	  else
 	  {
@@ -426,7 +435,7 @@ namespace Pol {
 	  return i + 1;
 	}
 
-	void UnicodeSpeechHandler( Client *client, PKTIN_AD *msgin )
+	void UnicodeSpeechHandler( Network::Client *client, PKTIN_AD *msgin )
 	{
 	  using std::wcout; // wcout.narrow() function r0x! :-)
 

@@ -43,7 +43,7 @@ namespace Pol {
 	void remove_item_from_world( Items::Item* item )
 	{
 	  // Unregister the item if it is on a multi
-		if ( item->container == NULL && !item->is_gotten() )
+		if ( item->container == NULL && !item->has_gotten_by() )
 		{
 			Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
 

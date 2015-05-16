@@ -436,6 +436,7 @@ namespace Pol {
 	  unsigned int gold_carried() const;
 	  void spend_gold( unsigned int amount );
 
+      DYN_PROPERTY_POINTER(gotten_item, Items::Item*, Core::PROP_GOTTEN_BY);
 	  void clear_gotten_item();
 
 	  void add_remote_container( Items::Item* );
@@ -508,8 +509,6 @@ namespace Pol {
 	  const CharacterSet& hostiles() const;
 	  void run_hit_script( Character* defender, double damage );
 
-	  s16 ar_mod() const;
-	  s16 ar_mod( s16 new_value );
 	private:
 	  void schedule_attack();
 	  static void swing_task_func( Character* chr );
@@ -610,20 +609,16 @@ namespace Pol {
 
 	// GUILD
 	public:
-	  Core::Guild* guild() const;
-	  void guild( Core::Guild* );
+      DYN_PROPERTY_POINTER(guild, Core::Guild*, Core::PROP_GUILD);
 	  unsigned int guildid() const;
 	  bool is_guild_ally( const Character* chr ) const;
 	  bool is_guild_enemy( const Character* chr ) const;
 
 	// PARTY
 	public:
-	  Core::Party* party() const;
-	  void party( Core::Party* );
-	  Core::Party* candidate_of( ) const;
-	  void candidate_of( Core::Party* );
-	  Core::Party* offline_mem_of( ) const;
-	  void offline_mem_of( Core::Party* );
+      DYN_PROPERTY_POINTER(party,          Core::Party*, Core::PROP_PARTY);
+      DYN_PROPERTY_POINTER(candidate_of,   Core::Party*, Core::PROP_PARTY_CANDIDATE);
+      DYN_PROPERTY_POINTER(offline_mem_of, Core::Party*, Core::PROP_PARTY_OFFLINE);
 	  bool party_can_loot() const;
 	  void set_party_can_loot( bool );
 	  void set_party_invite_timeout();
@@ -758,7 +753,8 @@ namespace Pol {
 	protected:
 	// EQUIPMENT / ITEMS
 	protected:
-	  s16 carrying_capacity_mod_;
+      DYN_PROPERTY(carrying_capacity_mod, s16, Core::PROP_CARRY_CAPACITY_MOD, 0);
+      
 	  Items::UWeapon* weapon;
 	  Items::UArmor* shield;
 	  std::vector<Items::UArmor*> armor_;
@@ -766,14 +762,12 @@ namespace Pol {
 	  ref_ptr<Core::WornItemsContainer> wornitems_ref;
 	  Core::WornItemsContainer& wornitems;
 	public:
-	  Items::Item* gotten_item;
-	  enum
+	  enum GOTTEN_ITEM_TYPE : u8
 	  {
 		GOTTEN_ITEM_ON_GROUND,
 		GOTTEN_ITEM_EQUIPPED_ON_SELF,
 		GOTTEN_ITEM_IN_CONTAINER
-	  };
-	  unsigned char gotten_item_source;
+	  } gotten_item_source;
 
 	  std::vector< Core::ItemRef > remote_containers_; // does not own its objects
 	// MOVEMENT
@@ -783,10 +777,11 @@ namespace Pol {
 	  u16 lastx, lasty;	// position before their last MSG02_WALK 
 	  s8 lastz;
 
-	  enum { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
+	  enum MOVEREASON : u8 { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
 	  Core::MOVEMODE movemode;
-	  int lightoverride;
-	  Core::gameclock_t lightoverride_until;
+      DYN_PROPERTY(lightoverride,       int,               Core::PROP_LIGHTOVERRIDE,       -1);
+      DYN_PROPERTY(lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0);
+      
       static const Core::MovementCostMod DEFAULT_MOVEMENTCOSTMOD;
       DYN_PROPERTY(movement_cost, Core::MovementCostMod, Core::PROP_MOVEMENTCOST_MOD, DEFAULT_MOVEMENTCOSTMOD);
 	// COMBAT
@@ -794,10 +789,10 @@ namespace Pol {
 	  u32 warmode_wait;
 	protected:
 	  u16 ar_;
-	  s16 ar_mod_;
-	  s16 delay_mod_;
-	  s16 hitchance_mod_;
-	  s16 evasionchance_mod_;
+      DYN_PROPERTY(ar_mod,            s16, Core::PROP_AR_MOD,            0);
+      DYN_PROPERTY(delay_mod,         s16, Core::PROP_DELAY_MOD,         0);
+      DYN_PROPERTY(hitchance_mod,     s16, Core::PROP_HITCHANCE_MOD,     0);
+      DYN_PROPERTY(evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0);
 
 	  Character* opponent_;
 	  CharacterSet opponent_of;
@@ -824,12 +819,8 @@ namespace Pol {
 	  ReportableList reportable_;
 	// GUILD
 	private: 
-	  Core::Guild* guild_;
 	// PARTY
-	private: 
-	  Core::Party* party_;
-	  Core::Party* candidate_of_;
-	  Core::Party* offline_mem_of_;
+	private:
 	  bool party_can_loot_;
 	  Core::OneShotTask* party_decline_timeout_;
     // SECURE TRADING
@@ -839,7 +830,7 @@ namespace Pol {
 	  bool trade_accepted;
 	// SCRIPT
 	public:
-	  time_t disable_skills_until;
+      DYN_PROPERTY(disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0);
 	  Core::TargetCursor* tcursor2;
 	  Core::Menu* menu;
 	  void( *on_menu_selection )( Network::Client *client, Core::MenuItem *mi, Core::PKTIN_7D *msg );
@@ -880,8 +871,8 @@ namespace Pol {
 	  Clib::StringSet settings;
 	  CachedSettings cached_settings;
 	  
-	  mutable Core::gameclock_t squelched_until;
-	  mutable Core::gameclock_t deafened_until;
+      DYN_PROPERTY(squelched_until, Core::gameclock_t, Core::PROP_SQUELCHED_UNTIL, 0);
+      DYN_PROPERTY(deafened_until,  Core::gameclock_t, Core::PROP_DEAFENED_UNTIL,  0);
 	private:
 	// SERIALIZATION
 
@@ -897,12 +888,13 @@ namespace Pol {
 	  Core::UGENDER gender;
 	  Core::URACE race;
 	  u32 last_corpse;
-	  unsigned int dblclick_wait;
 
-	  std::string title_prefix;
-	  std::string title_suffix;
-	  std::string title_guild;
-	  std::string title_race;
+      DYN_PROPERTY(dblclick_wait, u32, Core::PROP_DOUBLECLICK_WAIT, 0);
+
+      DYN_PROPERTY(title_prefix, std::string, Core::PROP_TITLE_PREFIX, "");
+      DYN_PROPERTY(title_suffix, std::string, Core::PROP_TITLE_SUFFIX, "");
+      DYN_PROPERTY(title_guild,  std::string, Core::PROP_TITLE_GUILD,  "");
+      DYN_PROPERTY(title_race,   std::string, Core::PROP_TITLE_RACE,   "");
 	};
 
 
@@ -987,17 +979,6 @@ namespace Pol {
 	inline unsigned short Character::ar() const
 	{
 	  return ar_;
-	}
-
-	inline s16 Character::ar_mod() const
-	{
-	  return ar_mod_;
-	}
-
-	inline s16 Character::ar_mod( s16 new_value )
-	{
-	  ar_mod_ = new_value;
-	  return ar_mod_;
 	}
 
 	inline bool Character::skill_ex_active() const

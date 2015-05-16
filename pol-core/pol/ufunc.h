@@ -52,7 +52,6 @@ namespace Pol {
 	class UObject;
 	struct USTRUCT_TILE;
 	class Menu;
-	enum UFACING;
 
 	void SetCurrentItemSerialNumber( u32 serial );
 	void SetCurrentCharSerialNumber( u32 serial );
@@ -95,7 +94,6 @@ namespace Pol {
 
 	void send_move( Network::Client *client, const Mobile::Character *chr );
 	void send_move( Network::Client *client, const Mobile::Character *chr, Network::PktOut_77* movebuffer );
-	void build_send_move( const Mobile::Character *chr, Network::PktOut_77* msg );
 	void send_objdesc( Network::Client *client, Items::Item *item );
 
 	void send_poisonhealthbar( Network::Client *client, const Mobile::Character *chr );
@@ -180,9 +178,6 @@ namespace Pol {
 	// items on the ground, recursively, for an item of a given serial.
 	Items::Item *find_legal_item( const Mobile::Character *chr, u32 serial, bool* additlegal = NULL, bool* isRemoteContainer = NULL );
 
-	const unsigned short DEFAULT_TEXT_FONT = 3;
-	const unsigned short DEFAULT_TEXT_COLOR = 0x3B2;
-
 	void send_sysmessage( Network::Client *client,
 						  const char *text,
 						  unsigned short font = DEFAULT_TEXT_FONT,
@@ -247,7 +242,6 @@ namespace Pol {
 	void send_create_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );
 	void send_create_mobile_to_nearby_cansee( const Mobile::Character* chr );
 
-	void send_move_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );
 	void send_move_mobile_to_nearby_cansee( const Mobile::Character* chr );
 
 	void send_remove( Network::Client& client, UObject& to_remove );

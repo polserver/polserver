@@ -89,8 +89,8 @@ namespace Pol {
 
 		if ( chr != NULL && inrange( client->chr, chr ) && !client->chr->is_concealed_from_me( chr ) )
 		{
-		  if ( !chr->title_guild.empty() && ( settingsManager.ssopt.core_handled_tags & 0x1 ) )
-			send_nametext( client, chr, "[" + chr->title_guild + "]" );
+		  if ( chr->has_title_guild() && ( settingsManager.ssopt.core_handled_tags & 0x1 ) )
+			send_nametext( client, chr, "[" + chr->title_guild() + "]" );
 		  send_nametext( client, chr, chr->name() );
 
 		  std::string tags;

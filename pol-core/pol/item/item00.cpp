@@ -37,9 +37,7 @@ namespace Pol {
 	  slot_index_( 0 ),
 	  _itemdesc( nullptr ),
 	  layer( 0 ),
-	  hp_( id.maxhp ),
-	  quality_( id.quality ),
-      gotten_by_ ( nullptr )
+	  hp_( id.maxhp )
 	{
 	  graphic = id.graphic;
 	  color = id.color;
@@ -63,7 +61,6 @@ namespace Pol {
     {
       return base::estimatedSize()
         + sizeof( Core::UContainer* )/* container*/
-        + sizeof( Mobile::Character* )/* gotten_by_*/
         + sizeof(int)/* decayat_gameclock_*/
         +sizeof(u16)/* amount_*/
         +sizeof(bool)/* newbie_*/
@@ -75,7 +72,6 @@ namespace Pol {
         +sizeof(u8)/* layer*/
         +sizeof(u8)/* tile_layer*/
         +sizeof(unsigned short)/* hp_*/
-        +sizeof(double)/* quality_*/
         +sizeof( boost_utils::script_name_flystring ) /*on_use_script_*/
         +sizeof( boost_utils::script_name_flystring ) /*equip_script_*/
         +sizeof( boost_utils::script_name_flystring ); /*unequip_script_*/

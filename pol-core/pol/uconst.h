@@ -13,15 +13,18 @@ Notes
 
 #ifndef __UCONST_H
 #define __UCONST_H
+
+#include "../clib/rawtypes.h"
+
 namespace Pol {
   namespace Core {
-	enum UGENDER
+	enum UGENDER : u8
 	{
 	  GENDER_MALE = 0,
 	  GENDER_FEMALE = 1
 	};
 
-	enum URACE
+	enum URACE : u8
 	{
 	  RACE_HUMAN = 0,
 	  RACE_ELF = 1,
@@ -35,7 +38,7 @@ namespace Pol {
 		5	4	3
 		*/
 
-	enum UFACING
+	enum UFACING : u8
 	{
 	  FACING_N = 0,
 	  FACING_NE = 1,
@@ -48,7 +51,7 @@ namespace Pol {
 	};
 
 
-	enum UTEXTTYPE
+	enum UTEXTTYPE : u8
 	{
 	  TEXTTYPE_NORMAL = 0x00,
 	  TEXTTYPE_SYS_BROADCAST = 0x01,
@@ -74,7 +77,7 @@ namespace Pol {
 	const unsigned VALID_ITEM_COLOR_MASK = 0x0FFF;
 
 
-	enum MOVEMODE
+	enum MOVEMODE : u8
 	{
 	  MOVEMODE_NONE = 0,
 	  MOVEMODE_LAND = 1,
@@ -92,6 +95,9 @@ namespace Pol {
 
 #define MAX_STACK_ITEMS		60000L
 #define MAX_WEIGHT          65535L
+
+    const unsigned short DEFAULT_TEXT_FONT = 3;
+	const unsigned short DEFAULT_TEXT_COLOR = 0x3B2;
   }
 }
 #endif /* UCONST_H */
