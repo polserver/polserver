@@ -903,10 +903,10 @@ namespace Pol {
 								   return new BLong( itemdesc.doubleclick_range );
 								   break;
 		}
-		case MBR_QUALITY: return new Double( quality() ); break;
+		case MBR_QUALITY: return new Double( getQuality() ); break;
 		case MBR_HP: return new BLong( hp_ ); break;
 		case MBR_MAXHP_MOD: return new BLong( maxhp_mod() ); break;
-		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * quality() ) ); break;
+		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * getQuality() ) ); break;
 		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
 		default: return NULL;
 	  }
@@ -1082,7 +1082,7 @@ namespace Pol {
 		  return new BLong( static_cast<short>( value ) );
 		  break;
 		case MBR_QUALITY:
-          quality(double( value ) );
+          setQuality(double( value ) );
           return new Double( double( value ) );
 		  break;
 		case MBR_HP:
@@ -1137,7 +1137,7 @@ namespace Pol {
 	  switch ( id )
 	  {
 		case MBR_QUALITY: 
-          quality(value);
+          setQuality(value);
           return new Double( value );
 		default: return NULL;
 	  }
@@ -1569,8 +1569,8 @@ namespace Pol {
 		case MBR_UCLANG: return new String( uclang ); break;
 		case MBR_GUILDID: return new BLong( guildid() ); break;
 		case MBR_GUILD:
-		  if ( guild_ != NULL )
-			return Module::GuildExecutorModule::CreateGuildRefObjImp( guild_ );
+		  if ( has_guild() )
+			return Module::GuildExecutorModule::CreateGuildRefObjImp( guild() );
 		  else
 			return new BError( "Not a member of a guild" );
 		  break;
@@ -1697,15 +1697,15 @@ namespace Pol {
         case MBR_POISON_DAMAGE_MOD:   return new BLong( poison_damage().mod ); break;
         case MBR_PHYSICAL_DAMAGE_MOD: return new BLong( physical_damage().mod ); break;
 		case MBR_PARTY:
-		  if ( party_ != NULL )
-			return Module::CreatePartyRefObjImp( party_ );
+		  if ( has_party() )
+			return Module::CreatePartyRefObjImp( party() );
 		  else
 			return new BError( "Not a member of a party" );
 		  break;
 		case MBR_PARTYLOOT: return new BLong( party_can_loot() );
 		case MBR_CANDIDATE_OF_PARTY:
-		  if ( candidate_of_ != NULL )
-			return Module::CreatePartyRefObjImp( candidate_of_ );
+		  if ( has_candidate_of() )
+			return Module::CreatePartyRefObjImp( candidate_of() );
 		  else
 			return new BError( "Not a candidate of a party" );
 		  break;

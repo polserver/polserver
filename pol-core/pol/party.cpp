@@ -447,7 +447,7 @@ namespace Pol {
         Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
 		{
-		  chr->party( NULL );
+		  chr->party( nullptr );
 		  if ( chr->has_active_client() )
 		  {
 			send_empty_party( chr );
@@ -459,13 +459,13 @@ namespace Pol {
 	  {
         Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
-		  chr->candidate_of( NULL );
+		  chr->candidate_of( nullptr );
 	  }
       for ( const auto& serial : _offlinemember_serials )
 	  {
         Mobile::Character* chr = system_find_mobile( serial );
 		if ( chr != NULL )
-		  chr->offline_mem_of( NULL );
+		  chr->offline_mem_of( nullptr );
 	  }
 
 	  _member_serials.clear();
@@ -853,11 +853,11 @@ namespace Pol {
 
 	void on_loggoff_party( Mobile::Character* chr )
 	{
-	  if ( chr->party() != NULL )
+	  if ( chr->has_party() )
 	  {
 		if ( settingsManager.party_cfg.General.RemoveMemberOnLogoff )
 		{
-		  Party* party = chr->party();
+          Party* party = chr->party();
 		  if ( party->remove_member( chr->serial ) )
 		  {
 			bool disband = false;
@@ -866,7 +866,7 @@ namespace Pol {
 			  if ( !party->test_size() )
 			  {
 				disband_party( party->leader() );
-                chr->party( NULL );
+                chr->party( nullptr );
 				return;
 			  }
 			  party->set_leader( party->get_member_at( 0 ) );
@@ -875,7 +875,7 @@ namespace Pol {
 			}
 			else
 			  party->send_remove_member( chr, &disband );
-			chr->party( NULL );
+			chr->party( nullptr );
 			if ( settingsManager.party_cfg.Hooks.OnLeaveParty )
 			  settingsManager.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref(), chr->make_ref() );
 
@@ -897,7 +897,7 @@ namespace Pol {
 
 	void on_loggon_party( Mobile::Character* chr )
 	{
-	  if ( chr->offline_mem_of() != NULL )
+	  if ( chr->has_offline_mem_of() )
 	  {
 		Party* party = chr->offline_mem_of();
 		if ( party->remove_offline_mem( chr->serial ) )
@@ -911,16 +911,17 @@ namespace Pol {
 			party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(), chr ); //: rejoined the party.
 		  }
 		}
-		chr->offline_mem_of( NULL );
+		chr->offline_mem_of( nullptr );
 	  }
-	  else if ( chr->party() == NULL )
+	  else if ( !chr->has_party() )
 		send_empty_party( chr );
 	  else
 	  {
+        Party* party = chr->party();
 		send_sysmessage_cl( chr->client, CLP_Rejoined ); //You have rejoined the party.
-		chr->party()->send_member_list( chr );
-		chr->party()->send_stats_on_add( chr );
-		chr->party()->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(), chr ); //: rejoined the party.
+		party->send_member_list( chr );
+		party->send_stats_on_add( chr );
+		party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(), chr ); //: rejoined the party.
 	  }
 	}
 
@@ -986,7 +987,7 @@ namespace Pol {
 		if ( rem != NULL )
 		{
 		  Party* party = chr->party();
-		  if ( ( party == NULL ) || ( !party->is_leader( chr->serial ) ) || ( !party->is_member( rem->serial ) ) )
+		  if ( ( party == nullptr ) || ( !party->is_leader( chr->serial ) ) || ( !party->is_member( rem->serial ) ) )
 			return;
 		  if ( chr == rem )
 			send_sysmessage_cl( chr->client, CLP_Cannot_Remove_Self ); //You may only remove yourself from a party if you are not the leader.
@@ -1004,7 +1005,7 @@ namespace Pol {
 			{
 			  bool disband;
 			  party->send_remove_member( rem, &disband );
-			  rem->party( NULL );
+			  rem->party( nullptr );
 			  if ( settingsManager.party_cfg.Hooks.OnLeaveParty )
 				settingsManager.party_cfg.Hooks.OnLeaveParty->call( rem->make_ref(), chr->make_ref() );
 
@@ -1021,7 +1022,7 @@ namespace Pol {
 	void handle_remove( Network::Client* client, PKTBI_BF* msg )
 	{
 	  Party* party = client->chr->party();
-	  if ( party == NULL )
+	  if ( party == nullptr )
 	  {
 		send_sysmessage_cl( client, CLP_No_Party ); //You are not in a party.
 		return;
@@ -1061,7 +1062,7 @@ namespace Pol {
 		if ( party->remove_member( member->serial ) )
 		{
 		  bool disband;
-		  member->party( NULL );
+		  member->party( nullptr );
 		  party->send_remove_member( member, &disband );
 		  if ( settingsManager.party_cfg.Hooks.OnLeaveParty )
 			settingsManager.party_cfg.Hooks.OnLeaveParty->call( member->make_ref(), client->chr->make_ref() );
@@ -1084,7 +1085,7 @@ namespace Pol {
 	  {
 		Party* party = client->chr->party();
 
-		if ( ( party != NULL ) && ( member->party() != NULL ) && ( party->is_member( member->serial ) ) )
+		if ( ( party != nullptr ) && ( member->has_party() ) && ( party->is_member( member->serial ) ) )
 		{
 		  int intextlen;
 		  u16 * themsg = msg->partydata.partymembermsg.wtext;
@@ -1133,14 +1134,15 @@ namespace Pol {
 	void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
 	{
 	  using std::wcout; // wcout.narrow() function r0x! :-)
-	  if ( client->chr->party() != NULL )
+      Party* party = client->chr->party();
+	  if ( party != nullptr )
 	  {
 		int intextlen;
 		u16 * themsg = msg->partydata.partymsg.wtext;
 		//u8 *  bytemsg = ((u8 *) themsg);
 		//int wtextoffset = 0;
 		int i, starti;
-		Mobile::Character* member = NULL;
+		Mobile::Character* member = nullptr;
 
 		u16 wtextbuf[SPEECH_MAX_LEN + 1];
 		size_t wtextbuflen;
@@ -1168,11 +1170,11 @@ namespace Pol {
 			  no = 9;
 			else
 			  no--;
-			u32 mem = client->chr->party()->get_member_at( (unsigned short)no );
+			u32 mem = party->get_member_at( (unsigned short)no );
 			if ( mem != 0 )
 			{
 			  member = system_find_mobile( mem );
-			  if ( ( member != NULL ) && ( member->has_active_client() ) )
+			  if ( ( member != nullptr ) && ( member->has_active_client() ) )
 				starti = 2;
 			}
 		  }
@@ -1195,7 +1197,7 @@ namespace Pol {
             if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
 			  settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
 		  }
-		  client->chr->party()->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
+		  party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
 		}
 		else
 		{
@@ -1206,7 +1208,7 @@ namespace Pol {
 			  settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
 		  }
 
-		  client->chr->party()->send_member_msg_public( client->chr, wtextbuf, wtextbuflen );
+		  party->send_member_msg_public( client->chr, wtextbuf, wtextbuflen );
 		}
 	  }
 	  else
@@ -1215,7 +1217,7 @@ namespace Pol {
 
 	void handle_loot_perm( Network::Client* client, PKTBI_BF* msg )
 	{
-	  if ( client->chr->party() == NULL )
+	  if ( !client->chr->has_party() )
 		send_sysmessage_cl( client, CLP_No_Party ); //You are not in a party.
 	  else
 	  {
@@ -1234,13 +1236,13 @@ namespace Pol {
 	  Mobile::Character* leader = system_find_mobile( cfBEu32( msg->partydata.partyaccinvite.leaderid ) );
 	  if ( leader != NULL )
 	  {
-		if ( leader->party() != NULL )
+        Party* party = leader->party();
+		if ( party != nullptr )
 		{
-		  Party* party = leader->party();
 		  if ( party->remove_candidate( client->chr->serial ) )
 		  {
 			client->chr->cancel_party_invite_timeout();
-			client->chr->candidate_of( NULL );
+			client->chr->candidate_of( nullptr );
 			if ( party->add_member( client->chr->serial ) )
 			{
 			  client->chr->party( party );
@@ -1264,13 +1266,13 @@ namespace Pol {
 	  Mobile::Character* leader = system_find_mobile( cfBEu32( msg->partydata.partydecinvite.leaderid ) );
 	  if ( leader != NULL )
 	  {
-		if ( leader->party() != NULL )
+        Party* party = leader->party();
+		if ( party != nullptr )
 		{
-		  Party* party = leader->party();
 		  if ( party->remove_candidate( client->chr->serial ) )
 		  {
 			client->chr->cancel_party_invite_timeout();
-			client->chr->candidate_of( NULL );
+			client->chr->candidate_of( nullptr );
 			send_sysmessage_cl( client, CLP_Decline ); // You notify them that you do not wish to join the party.
 			if ( leader->has_active_client() )
 			  send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name().c_str(), true ); //: Does not wish to join the party.
@@ -1291,25 +1293,29 @@ namespace Pol {
 	{
 	  if (leader == nullptr)
 		return;
-	  if ( member == NULL )
+	  if ( member == nullptr )
+      {
 		send_sysmessage_cl( leader->client, CLP_Add_Living ); //You may only add living things to your party!
-	  else if ( member == leader )
+        return;
+      }
+      Party* party = leader->party();
+	  if ( member == leader )
 		send_sysmessage_cl( leader->client, CLP_Add_Yourself ); //You cannot add yourself to a party.
-	  else if ( ( leader->party() != NULL ) && ( !leader->party()->is_leader( leader->serial ) ) )
+	  else if ( ( party != nullptr ) && ( !party->is_leader( leader->serial ) ) )
 		send_sysmessage_cl( leader->client, CLP_Add_No_Leader ); //You may only add members to the party if you are the leader.
-	  else if ( ( leader->party() != NULL ) && ( !leader->party()->can_add() ) )
+	  else if ( ( party != nullptr ) && ( !party->can_add() ) )
 		send_sysmessage_cl( leader->client, CLP_Max_Size ); //You may only have 10 in your party (this includes candidates).
 	  else if ( member->isa( UObject::CLASS_NPC ) )
 		send_sysmessage_cl( leader->client, CLP_Ignore_Offer ); //The creature ignores your offer.
-	  else if ( ( leader->party() != NULL ) && ( leader->party()->is_member( member->serial ) ) )
+	  else if ( ( party != nullptr ) && ( party->is_member( member->serial ) ) )
 		send_sysmessage_cl( leader->client, CLP_Already_Your_Party ); //This person is already in your party!
-	  else if ( ( leader->party() != NULL ) && ( leader->party()->is_candidate( member->serial ) ) )
+	  else if ( ( party != nullptr ) && ( party->is_candidate( member->serial ) ) )
 		send_sysmessage_cl( leader->client, CLP_Already_Your_Party ); //This person is already in your party!
-	  else if ( member->party() != NULL )
+	  else if ( member->has_party() )
 		send_sysmessage_cl( leader->client, CLP_Already_in_a_Party ); //This person is already in a party!
 	  else
 	  {
-		if ( member->candidate_of() != NULL )
+		if ( member->has_candidate_of() )
 		  send_sysmessage_cl( leader->client, CLP_Already_in_a_Party ); //This person is already in a party!
 		else
 		{
@@ -1321,17 +1327,17 @@ namespace Pol {
 		  if ( settingsManager.party_cfg.General.DeclineTimeout > 0 )
 			member->set_party_invite_timeout();
 
-		  if ( leader->party() == NULL )
+		  if ( party == nullptr )
 		  {
-			Party* party = new Party( leader->serial );
+			party = new Party( leader->serial );
 			gamestate.parties.push_back( ref_ptr<Party>( party ) );
 			leader->party( party );
 			if ( settingsManager.party_cfg.Hooks.OnPartyCreate )
 			  settingsManager.party_cfg.Hooks.OnPartyCreate->call( Module::CreatePartyRefObjImp( party ) );
 		  }
-		  if ( leader->party()->add_candidate( member->serial ) )
+		  if ( party->add_candidate( member->serial ) )
 		  {
-			member->candidate_of( leader->party() );
+			member->candidate_of( party );
 			send_invite( member, leader );
 		  }
 		  else
@@ -1343,7 +1349,7 @@ namespace Pol {
 	void invite_timeout( Mobile::Character* mem )
 	{
 	  Party* party = mem->candidate_of();
-	  if ( party != NULL )
+	  if ( party != nullptr )
 	  {
 		if ( party->remove_candidate( mem->serial ) )
 		{
@@ -1360,7 +1366,7 @@ namespace Pol {
 			  disband_party( leader->serial );
 		  }
 		}
-		mem->candidate_of( NULL );
+		mem->candidate_of( nullptr );
 	  }
 	}
 
@@ -1417,15 +1423,6 @@ namespace Pol {
 
     }
     namespace Mobile {
-      Core::Party* Character::party() const
-      {
-        return party_;
-      }
-      void Character::party( Core::Party* p )
-      {
-        party_ = p;
-      }
-
       bool Character::party_can_loot() const
       {
         return party_can_loot_;
@@ -1434,26 +1431,6 @@ namespace Pol {
       void Character::set_party_can_loot( bool b )
       {
         party_can_loot_ = b;
-      }
-
-      Core::Party* Character::candidate_of( ) const
-      {
-        return candidate_of_;
-      }
-
-      void Character::candidate_of( Core::Party* c )
-      {
-        candidate_of_ = c;
-      }
-
-      Core::Party* Character::offline_mem_of( ) const
-      {
-        return offline_mem_of_;
-      }
-
-      void Character::offline_mem_of( Core::Party* c )
-      {
-        offline_mem_of_ = c;
       }
 
       void Character::set_party_invite_timeout()

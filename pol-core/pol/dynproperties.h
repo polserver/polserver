@@ -67,9 +67,27 @@ namespace Pol {
         return val; \
       return defaultvalue; \
     }; \
-    void name(const type val) \
+    void name(const type& val) \
     { \
       setmember(id, val, static_cast<type>(defaultvalue)); \
+    }; \
+    bool has_##name() const \
+    { \
+      return hasmember(id); \
+    }
+
+    // define to generate 3 methods for get/set/has
+  #define DYN_PROPERTY_POINTER(name, type, id) \
+    type name() const \
+    { \
+      type val; \
+      if (getmember<type>(id,&val)) \
+        return val; \
+      return nullptr; \
+    }; \
+    void name(type val) \
+    { \
+      setmemberPointer(id, val); \
     }; \
     bool has_##name() const \
     { \
@@ -114,7 +132,7 @@ namespace Pol {
     PROP_EXT_STATBAR_FOLLOWERS= 32, // Character
     PROP_EXT_STATBAR_TITHING  = 33, // Character
     PROP_MOVEMENTCOST_MOD     = 34, // Character
-    PROP_QUALITY              = 35, // Item
+    PROP_QUALITY              = 35, // Item (Equipment has fixed member)
     PROP_DOUBLECLICK_WAIT     = 36, // Character
     PROP_DISABLE_SKILLS_UNTIL = 37, // Character
     PROP_SQUELCHED_UNTIL      = 38, // Character
@@ -131,6 +149,10 @@ namespace Pol {
     PROP_DELAY_MOD            = 49, // Character
     PROP_HITCHANCE_MOD        = 50, // Character
     PROP_EVASIONCHANCE_MOD    = 51, // Character
+    PROP_PARTY                = 52, // Character
+    PROP_PARTY_CANDIDATE      = 53, // Character
+    PROP_PARTY_OFFLINE        = 54, // Character
+    PROP_GUILD                = 55, // Character
 
     PROP_FLAG_SIZE // used for bitset size
   };
@@ -233,7 +255,11 @@ namespace Pol {
     template <typename V>
     bool updateValue(DynPropTypes type, const V &value);
     template <typename V>
+    bool updateValuePointer(DynPropTypes type, V value);
+    template <typename V>
     void addValue(DynPropTypes type, const V &value);
+    template <typename V>
+    void addValuePointer(DynPropTypes type, V value);
     void removeValue(DynPropTypes type);
     size_t estimateSize() const;
   private:
@@ -257,6 +283,8 @@ namespace Pol {
     // set property (sets also the flag)
     template <typename V>
     void setProperty(DynPropTypes type, const V& value);
+    template <typename V>
+    void setPropertyPointer(DynPropTypes type, V value);
     // remove a prop
     template <typename V>
     void removeProperty(DynPropTypes type);
@@ -279,6 +307,8 @@ namespace Pol {
     bool getmember(DynPropTypes member, V* value) const;
     template <typename V>
     void setmember(DynPropTypes member, const V& value, const V& defaultvalue);
+    template <typename V>
+    void setmemberPointer(DynPropTypes member, V value);
     size_t estimateSizeDynProps() const;
 
   private: 
@@ -420,9 +450,32 @@ namespace Pol {
     }
     return false;
   }
+
+  template <class Storage>
+  template <typename V>
+  inline bool PropHolderContainer<Storage>::updateValuePointer(DynPropTypes type, V value)
+  {
+    for (PropHolder<Storage>& prop : _props)
+    {
+      if (prop._type == type)
+      {
+        prop._value = value;
+        return true;
+      }
+    }
+    return false;
+  }
+
   template <class Storage>
   template <typename V>
   inline void PropHolderContainer<Storage>::addValue(DynPropTypes type, const V &value)
+  {
+    _props.emplace_back(type,value);
+  }
+
+  template <class Storage>
+  template <typename V>
+  inline void PropHolderContainer<Storage>::addValuePointer(DynPropTypes type, V value)
   {
     _props.emplace_back(type,value);
   }
@@ -553,6 +606,22 @@ namespace Pol {
   }
 
   template <typename V>
+  inline void DynProps::setPropertyPointer(DynPropTypes type, V value)
+  {
+    if (hasProperty(type))
+    {
+      passert_always(_any_props.get());
+      bool res = _any_props->updateValue(type,value);
+      passert_always(res);
+      return;
+    }
+    _prop_bits.set(type,true);
+    if (!_any_props)
+      _any_props.reset(new PropHolderContainer<boost::any>());
+    _any_props->addValue(type,value);
+  }
+
+  template <typename V>
   inline void DynProps::removeProperty(DynPropTypes type)
   {
     if (!hasProperty(type))
@@ -602,6 +671,19 @@ namespace Pol {
   inline void DynamicPropsHolder::setmember(DynPropTypes member, const V& value, const V& defaultvalue)
   {
     if (value == defaultvalue)
+    {
+      if (_dynprops)
+        _dynprops->removeProperty<V>(member);
+      return;
+    }
+    initProps();
+    _dynprops->setProperty(member,value);
+  }
+
+  template <typename V>
+  inline void DynamicPropsHolder::setmemberPointer(DynPropTypes member, V value)
+  {
+    if (value == nullptr)
     {
       if (_dynprops)
         _dynprops->removeProperty<V>(member);

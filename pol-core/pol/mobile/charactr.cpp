@@ -298,11 +298,7 @@ namespace Pol {
 	  to_be_reportable_(),
 	  reportable_(),
 	  // GUILD
-	  guild_( NULL ),
 	  // PARTY
-	  party_( NULL ),
-	  candidate_of_( NULL ),
-	  offline_mem_of_( NULL ),
 	  party_can_loot_( false ),
 	  party_decline_timeout_( NULL ),
 	  // SECURE TRADING
@@ -729,8 +725,6 @@ namespace Pol {
 	  if ( has_title_race() )
         sw( ) << "\tTitleRace\t" << Clib::getencodedquotedstring( title_race() ) << pf_endl;
 
-	  //	if (guildid_)
-	  //		scf() << "\tGuildId\t" << guildid_ << pf_endl;
 	  if ( murderer_ )
 		sw() << "\tMurderer\t" << murderer_ << pf_endl;
 	  if ( party_can_loot_ )
@@ -942,8 +936,8 @@ namespace Pol {
 
 	  unsigned int tmp_guildid;
 	  if ( elem.remove_prop( "GUILDID", &tmp_guildid ) )
-		guild_ = Core::Guild::FindOrCreateGuild( tmp_guildid, serial );
-	  //guildid_ = elem.remove_ulong( "GUILDID", 0 );
+		guild(Core::Guild::FindOrCreateGuild( tmp_guildid, serial ));
+
 	  murderer_ = elem.remove_bool( "MURDERER", false );
 	  party_can_loot_ = elem.remove_bool( "PARTYCANLOOT", false );
       std::string rt;
@@ -4226,17 +4220,10 @@ namespace Pol {
       _last_textcolor = color;
     }
 
-	Core::Guild* Character::guild( ) const
-    {
-      return guild_;
-    }
-    void Character::guild( Core::Guild* g )
-    {
-      guild_ = g;
-    }
     unsigned int Character::guildid( ) const
     {
-      return guild_ ? guild_->guildid( ) : 0;
+      auto g = guild();
+      return (g != nullptr) ? g->guildid() : 0;
     }
 
     size_t Character::estimatedSize() const
@@ -4293,14 +4280,9 @@ namespace Pol {
         + sizeof( Core::gameclock_t )/*created_at*/
         + sizeof( Core::polclock_t )/*criminal_until_*/
         + sizeof( Core::OneShotTask* )/*repsys_task_*/
-        + sizeof( Core::Guild* )/*guild_*/
-        + sizeof( Core::Party* )/*party_*/
-        + sizeof( Core::Party* )/*candidate_of_*/
-        + sizeof( Core::Party* )/*offline_mem_of_*/
         + sizeof(bool)/*party_can_loot_*/
         + sizeof( Core::OneShotTask* )/*party_decline_timeout_*/
         + sizeof(bool)/*murderer_*/
-        + sizeof( Core::Party* )/*candidate_of_*/
         ;
 
       size += 3 * sizeof(AttributeValue*)+attributes.capacity() * sizeof( AttributeValue );

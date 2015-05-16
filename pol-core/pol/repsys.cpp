@@ -516,7 +516,8 @@ namespace Pol {
       {
         if ( !settingsManager.repsys_cfg.General.PartyHelpFullCountsAsCriminal )
         {
-          if ( ( amy->party() != NULL ) && ( amy->party()->is_member( bob->serial ) ) )
+          Party* party = amy->party();
+          if ( ( party != nullptr ) && ( party->is_member( bob->serial ) ) )
             return;
         }
         amy->make_criminal();
@@ -666,9 +667,11 @@ namespace Pol {
     ///
     bool Character::is_guild_ally( const Character* chr ) const
     {
-      return ( guildid() &&
-               chr->guildid() &&
-               Core::Guild::AreAllies( guild(), chr->guild() ) );
+      auto thisguild = guild();
+      auto otherguild = chr->guild();
+      return ( thisguild != nullptr &&
+               otherguild != nullptr &&
+               Core::Guild::AreAllies( thisguild, otherguild ) );
     }
 
     ///
@@ -681,9 +684,11 @@ namespace Pol {
     ///
     bool Character::is_guild_enemy( const Character* chr ) const
     {
-      return ( guildid() &&
-               chr->guildid() &&
-               Core::Guild::AreEnemies( guild(), chr->guild() ) );
+      auto thisguild = guild();
+      auto otherguild = chr->guild();
+      return ( thisguild != nullptr &&
+               otherguild != nullptr &&
+               Core::Guild::AreEnemies( thisguild, otherguild ) );
     }
 
     //

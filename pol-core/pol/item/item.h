@@ -230,11 +230,14 @@ namespace Pol {
 
       DYN_PROPERTY(maxhp_mod,   s16,         Core::PROP_MAXHP_MOD,   0);
       DYN_PROPERTY(name_suffix, std::string, Core::PROP_NAME_SUFFIX, "");
-      DYN_PROPERTY(quality,     double,      Core::PROP_QUALITY,     getItemdescQuality());
+      virtual double getQuality() const;
+      virtual void setQuality(double value);
     private:
       // sell and buyprice generated functions only private! (additional logic needed)
-      DYN_PROPERTY(sellprice_, u32, Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);
-      DYN_PROPERTY(buyprice_,  u32, Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
+      DYN_PROPERTY(sellprice_, u32,    Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);
+      DYN_PROPERTY(buyprice_,  u32,    Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
+      // equipment has a fixed member see get/setQuality
+      DYN_PROPERTY(quality,    double, Core::PROP_QUALITY,   getItemdescQuality());
 
     private:
         Mobile::Character* gotten_by_;

@@ -119,7 +119,7 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( static_cast<u16>( v ) );
 	  msg.Send( client );
 
-	  if ( me->party() != NULL )
+	  if ( me->has_party() )
 		me->party()->on_mana_changed( me );
 	}
 
@@ -138,7 +138,7 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( static_cast<u16>( v ) );
 	  msg.Send( client );
 
-	  if ( me->party() != NULL )
+	  if ( me->has_party() )
 		me->party()->on_stam_changed( me );
 	}
     void send_uo_strength( Client* client, Mobile::Character* me, const Mobile::Attribute* /*attr*/ )

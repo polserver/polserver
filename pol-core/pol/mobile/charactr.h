@@ -608,20 +608,16 @@ namespace Pol {
 
 	// GUILD
 	public:
-	  Core::Guild* guild() const;
-	  void guild( Core::Guild* );
+      DYN_PROPERTY_POINTER(guild, Core::Guild*, Core::PROP_GUILD);
 	  unsigned int guildid() const;
 	  bool is_guild_ally( const Character* chr ) const;
 	  bool is_guild_enemy( const Character* chr ) const;
 
 	// PARTY
 	public:
-	  Core::Party* party() const;
-	  void party( Core::Party* );
-	  Core::Party* candidate_of( ) const;
-	  void candidate_of( Core::Party* );
-	  Core::Party* offline_mem_of( ) const;
-	  void offline_mem_of( Core::Party* );
+      DYN_PROPERTY_POINTER(party,          Core::Party*, Core::PROP_PARTY);
+      DYN_PROPERTY_POINTER(candidate_of,   Core::Party*, Core::PROP_PARTY_CANDIDATE);
+      DYN_PROPERTY_POINTER(offline_mem_of, Core::Party*, Core::PROP_PARTY_OFFLINE);
 	  bool party_can_loot() const;
 	  void set_party_can_loot( bool );
 	  void set_party_invite_timeout();
@@ -823,12 +819,8 @@ namespace Pol {
 	  ReportableList reportable_;
 	// GUILD
 	private: 
-	  Core::Guild* guild_;
 	// PARTY
-	private: 
-	  Core::Party* party_;
-	  Core::Party* candidate_of_;
-	  Core::Party* offline_mem_of_;
+	private:
 	  bool party_can_loot_;
 	  Core::OneShotTask* party_decline_timeout_;
     // SECURE TRADING
