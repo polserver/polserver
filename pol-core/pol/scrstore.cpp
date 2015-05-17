@@ -195,7 +195,7 @@ namespace Pol {
 		  eprog->invocations = eprog->count() - 1; // 1 count is the scrstore's
 		}
 	  }
-      POLLOG << tmp.c_str();
+      POLLOG << tmp.str();
       if ( clear_counters )
         POLLOG << "Profiling counters cleared.\n";
 	}

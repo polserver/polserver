@@ -64,7 +64,7 @@ namespace Pol {
 			else
 				tmp << pkg->dir( ) << "itemdesc.cfg\n";
 
-			ERROR_PRINT << tmp.c_str();
+			ERROR_PRINT << tmp.str();
 			throw;
 		}
 	  }
@@ -90,7 +90,7 @@ namespace Pol {
 			else
 				tmp << pkg->dir( ) << "itemdesc.cfg\n";
 
-			ERROR_PRINT << tmp.c_str();
+			ERROR_PRINT << tmp.str();
 			throw;
 		  }
 		}

@@ -756,7 +756,7 @@ namespace Pol {
           tmp << "Child threads (child_threads): " << threadhelp::child_threads << "\n";
           tmp << "Registered threads (ThreadMap): " << contents.size() << "\n";
           stateManager.polsig.report_status_signalled = false;
-          ERROR_PRINT << tmp.c_str();
+          ERROR_PRINT << tmp.str();
         }
         if ( Clib::exit_signalled )
         {
@@ -959,9 +959,9 @@ namespace Pol {
 
         fmt::Writer tmp;
         tmp.Format( "Client connected from {}\n" ) << Network::AddressToString( &client_addr );
-        INFO_PRINT << tmp.c_str();
+        INFO_PRINT << tmp.str();
         if ( Plib::systemstate.config.loglevel >= 2 )
-          POLLOG << tmp.c_str();
+          POLLOG << tmp.str();
 
         Network::Client *client = new Network::Client( *Core::networkManager.uo_client_interface.get(), Plib::systemstate.config.client_encryption_version );
         client->csocket = client_socket;
@@ -1012,7 +1012,7 @@ namespace Pol {
         tmp << "Remaining Executors: " << Bscript::executor_count << "\n";
       if ( Bscript::eobject_imp_count )
         tmp << "Remaining script objectimps: " << Bscript::eobject_imp_count << "\n";
-      INFO_PRINT << tmp.c_str();
+      INFO_PRINT << tmp.str();
     }
 
     void run_start_scripts()

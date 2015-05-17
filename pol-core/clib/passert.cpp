@@ -67,7 +67,7 @@ namespace Pol {
       tmp << "=== Stack Backtrace ===\nBuild: " << progverstr << " (" << buildtagstr << ")\nStack Backtrace:\n";
 	  tmp << stack_trace;
 	  
-      POLLOG_ERROR << tmp.c_str() << "\n";
+      POLLOG_ERROR << tmp.str() << "\n";
       if (complete)
     	  ExceptionParser::logAllStackTraces();
 	}

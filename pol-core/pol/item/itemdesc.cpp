@@ -1025,7 +1025,7 @@ namespace Pol {
             tmp << "config/itemdesc.cfg\n";
 		  else
             tmp << find_itemdesc( descriptor->objtype ).pkg->dir( ) << "itemdesc.cfg\n";
-          ERROR_PRINT << tmp.c_str();
+          ERROR_PRINT << tmp.str();
 
 		  elem.throw_error( "ObjType " + Clib::hexint( descriptor->objtype ) + " defined more than once." );
 		}

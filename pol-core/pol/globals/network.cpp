@@ -79,9 +79,9 @@ namespace Core {
           << client->instance_
           << ( client->acct ? client->acct->name() : "[no account]" )
           << ( client->chr ? client->chr->name() : "[no character]" );
-        ERROR_PRINT << tmp.c_str() << "\n";
+        ERROR_PRINT << tmp.str() << "\n";
         if ( Plib::systemstate.config.loglevel >= 4 )
-          POLLOG << tmp.c_str() << "\n";
+          POLLOG << tmp.str() << "\n";
 
         Network::Client::Delete( client );
         client = NULL;

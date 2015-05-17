@@ -759,7 +759,7 @@ namespace Pol {
         if ( summary.UpToDateScripts )
           tmp << "    " << summary.UpToDateScripts << " script" << ( summary.UpToDateScripts == 1 ? " was" : "s were" )
           << " already up-to-date.\n";
-        INFO_PRINT << tmp.c_str();
+        INFO_PRINT << tmp.str();
 	  }
 
 	  return any;

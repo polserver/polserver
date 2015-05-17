@@ -181,7 +181,7 @@ namespace Pol
                                         << ex.what();
                                     fmt::Writer tmp;
                                     Clib::fdump(tmp, pkt.pktbuffer, 7);
-                                    POLLOG << tmp.c_str() << "\n";
+                                    POLLOG << tmp.str() << "\n";
                                     restart_all_clients();
                                     throw;
                                 }
@@ -444,7 +444,7 @@ namespace Pol
                           fmt::Writer tmp;
                           tmp << "Client -> Server: 0x" << fmt::hexu(msgtype) << ", " << client->message_length << " bytes\n";
                           Clib::fdump(tmp, &client->buffer, client->message_length);
-                          FLEXLOG(client->fpLog) << tmp.c_str() << "\n";
+                          FLEXLOG(client->fpLog) << tmp.str() << "\n";
                       }
                     }
 
@@ -490,7 +490,7 @@ namespace Pol
                                     << ex.what();
                                 fmt::Writer tmp;
                                 Clib::fdump(tmp, client->buffer, client->bytes_received);
-                                POLLOG << tmp.c_str() << "\n";
+                                POLLOG << tmp.str() << "\n";
                                 restart_all_clients();
                                 throw;
                             }
@@ -627,13 +627,13 @@ namespace Pol
                 if (client->bytes_received <= 64)
                 {
                     Clib::fdump(tmp, &client->buffer, client->bytes_received);
-                    POLLOG_INFO << tmp.c_str() << "\n";
+                    POLLOG_INFO << tmp.str() << "\n";
                 }
                 else
                 {
-                    INFO_PRINT << tmp.c_str() << "\n";
+                    INFO_PRINT << tmp.str() << "\n";
                     Clib::fdump(tmp, &client->buffer, client->bytes_received);
-                    POLLOG << tmp.c_str() << "\n";
+                    POLLOG << tmp.str() << "\n";
                 }
             }
         }
@@ -657,13 +657,13 @@ namespace Pol
             if (client->bytes_received <= 64)
             {
                 Clib::fdump(tmp, client->buffer, client->bytes_received);
-                POLLOG_INFO << tmp.c_str() << "\n";
+                POLLOG_INFO << tmp.str() << "\n";
             }
             else
             {
-                INFO_PRINT << tmp.c_str();
+                INFO_PRINT << tmp.str();
                 Clib::fdump(tmp, client->buffer, client->bytes_received);
-                POLLOG << tmp.c_str() << "\n";
+                POLLOG << tmp.str() << "\n";
             }
         }
     }

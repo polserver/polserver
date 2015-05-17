@@ -116,7 +116,7 @@ namespace Pol {
           << valout;
 	  }
       _tmp << "};\n";
-      INFO_PRINT << _tmp.c_str();
+      INFO_PRINT << _tmp.str();
 	  return 0;
 	}
 
@@ -269,7 +269,7 @@ namespace Pol {
 	  {
         tmp << elem.first << ": " << elem.second << "\n";
 	  }
-      INFO_PRINT << tmp.c_str();
+      INFO_PRINT << tmp.str();
       Core::clear_tiledata( );
 	  return 0;
 	}
@@ -297,7 +297,7 @@ namespace Pol {
 	  {
 		tmp << elem.first << ": " << elem.second << "\n";
 	  }
-      INFO_PRINT << tmp.c_str();
+      INFO_PRINT << tmp.str();
       Core::clear_tiledata( );
 	  return 0;
 	}
@@ -588,7 +588,7 @@ namespace Pol {
         fmt::Writer tmp;
         tmp << "Header:\n";
         Clib::fdump( tmp, buffer, hdrlen );
-        INFO_PRINT << tmp.c_str() << "\n";
+        INFO_PRINT << tmp.str() << "\n";
 	  }
 
 	  while ( fread( buffer, reclen, 1, fp ) == 1 )
@@ -596,7 +596,7 @@ namespace Pol {
         fmt::Writer tmp;
         tmp.Format( "Record {} (0x{:X}):\n" ) << recnum << recnum;
         Clib::fdump( tmp, buffer, reclen );
-        INFO_PRINT << tmp.c_str( ) << "\n";
+        INFO_PRINT << tmp.str( ) << "\n";
 
 		++recnum;
 	  }
@@ -681,7 +681,7 @@ namespace Pol {
         tmp << "\n";
 	  }
       tmp << "\n";
-      INFO_PRINT << tmp.c_str( );
+      INFO_PRINT << tmp.str( );
 	}
 
 	void print_widedata( u16 i, Multi::MultiDef* multi )
@@ -711,7 +711,7 @@ namespace Pol {
         tmp << "\n";
 	  }
       tmp << "\n";
-      INFO_PRINT << tmp.c_str();
+      INFO_PRINT << tmp.str();
 	}
 
 	void print_multidata( u16 i, Multi::MultiDef* multi )
@@ -731,7 +731,7 @@ namespace Pol {
 		  << " 0x" << fmt::hexu((int)elem->is_static)
 		  << ":"  << elem->x << "," << elem->y << "," << elem->z << "\n";
 	  }
-      INFO_PRINT << tmp.c_str();
+      INFO_PRINT << tmp.str();
 	}
 
 	int print_multis( void )

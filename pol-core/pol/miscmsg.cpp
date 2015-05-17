@@ -119,7 +119,7 @@ namespace Pol {
                 << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" )
                 << (int)msg->msgtype << msg->name;
               Clib::fdump( tmp, msg->name, static_cast<int>( strlen( msg->name ) ) );
-              POLLOG_INFO << tmp.c_str();
+              POLLOG_INFO << tmp.str();
               *p = '\0';
 			  send_sysmessage( client, "Invalid name!" );
 			  return; //dave 12/26 if invalid name, do not apply to chr!

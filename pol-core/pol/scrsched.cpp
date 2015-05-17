@@ -130,7 +130,7 @@ namespace Pol {
               tmp << "Runaway script[" << os_module->pid( ) << "]: " << ex->scriptname( )
                 << " (" << ex->runaway_cycles << " cycles)\n";
               ex->show_context( tmp, ex->PC );
-              SCRIPTLOG << tmp.c_str();
+              SCRIPTLOG << tmp.str();
 			}
 			ex->warn_runaway_on_cycle += Plib::systemstate.config.runaway_script_threshold;
 		  }
@@ -147,7 +147,7 @@ namespace Pol {
                 fmt::Writer tmp;
                 tmp << "Critical script " << ex->scriptname() << " has run for " << totcount << " instructions\n";
                 ex->show_context( tmp, ex->PC );
-                ERROR_PRINT << tmp.c_str();
+                ERROR_PRINT << tmp.str();
               }
 			}
 			continue;

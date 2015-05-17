@@ -435,7 +435,7 @@ namespace Pol {
 		{
           tmp << "	Spell redefined in main\n";
 		}
-        ERROR_PRINT << tmp.c_str();
+        ERROR_PRINT << tmp.str();
 		throw std::runtime_error( "Spell ID multiply defined" );
 	  }
 

@@ -1584,7 +1584,7 @@ namespace Pol {
           _tmp << *tk << " ";
 		  tx.pop();
 		}
-        INFO_PRINT << _tmp.c_str() << "\n";
+        INFO_PRINT << _tmp.str() << "\n";
 	  }
 
 	  for ( ;; )

@@ -249,7 +249,7 @@ namespace Pol {
             << (itr->second.sum / itr->second.count) << "\n";
         }
 #endif
-        INFO_PRINT << tmp.c_str();
+        INFO_PRINT << tmp.str();
       }
       return exres ? 0 : 1;
     }

@@ -48,7 +48,7 @@ namespace Pol {
 	  {
 		tmp << "	" << table[i].name << "\n";
 	  }
-      ERROR_PRINT << tmp.c_str();
+      ERROR_PRINT << tmp.str();
 	  throw std::runtime_error( "Unable to translate value" );
 	  return 0;
 	}

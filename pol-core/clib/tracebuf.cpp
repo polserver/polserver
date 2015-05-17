@@ -33,7 +33,7 @@ namespace Pol {
           tmp << tracebuffer[i].tag << "=" << tracebuffer[i].value << "\n";
 	  }
       tmp << "End of TraceBuffer.\n";
-      POLLOG << tmp.c_str();
+      POLLOG << tmp.str();
 #endif
 	}
   }

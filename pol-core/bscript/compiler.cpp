@@ -4199,7 +4199,7 @@ namespace Pol {
           fmt::Writer _tmp;
           _tmp << "Error compiling statement at ";
           savectx.printOnShort( _tmp );
-          INFO_PRINT << _tmp.c_str();
+          INFO_PRINT << _tmp.str();
 		}
 	  }
 	  catch ( std::exception& ex )
@@ -4208,7 +4208,7 @@ namespace Pol {
 		_tmp << "Error compiling statement at ";
 		savectx.printOnShort( _tmp );
         _tmp << ex.what() << "\n";
-        INFO_PRINT << _tmp.c_str();
+        INFO_PRINT << _tmp.str();
 		res = -1;
 	  }
 	  return res;
@@ -4891,7 +4891,7 @@ namespace Pol {
           _tmp << "Error detected in program body.\n"
 		   << "Error occurred at ";
 		  program_ctx.printOnShort( _tmp );
-          INFO_PRINT << _tmp.c_str();
+          INFO_PRINT << _tmp.str();
 		  // << program_ctx;
 		  return res;
 		}

@@ -356,7 +356,7 @@ namespace Pol {
             tmp << ",";
           tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
 		}
-        ERROR_PRINT << tmp.c_str() << "\n";
+        ERROR_PRINT << tmp.str() << "\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -710,7 +710,7 @@ namespace Pol {
 			tmp << ",";
 		  tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
 		}
-        ERROR_PRINT << tmp.c_str() << "\n";
+        ERROR_PRINT << tmp.str() << "\n";
 		client->forceDisconnect();
 		return;
 	  }
@@ -1095,7 +1095,7 @@ namespace Pol {
 			tmp << ",";
 		  tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
 		}
-        ERROR_PRINT << tmp.c_str() << "\n";
+        ERROR_PRINT << tmp.str() << "\n";
 		client->forceDisconnect();
 		return;
 	  }

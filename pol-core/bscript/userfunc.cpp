@@ -22,7 +22,7 @@ namespace Pol {
 	  {
         tmp << uf->name << "\n";
 	  }
-      ERROR_PRINT << tmp.c_str();
+      ERROR_PRINT << tmp.str();
 	}
 	void UserFunction::register_instance()
 	{
