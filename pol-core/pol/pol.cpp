@@ -718,6 +718,7 @@ namespace Pol {
           polclock_t now = polclock();
           if ( now >= stateManager.checkin_clock_times_out_at )
           {
+            ERROR_PRINT << "########################################################\n";
             ERROR_PRINT << "No clock movement in 30 seconds.  Dumping thread status.\n";
             stateManager.polsig.report_status_signalled = true;
             stateManager.checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
