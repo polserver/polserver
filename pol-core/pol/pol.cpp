@@ -737,6 +737,9 @@ namespace Pol {
           tmp << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << "\n";
           tmp << "Tasks Thread Checkpoint: " << stateManager.polsig.tasks_thread_checkpoint << "\n";
           tmp << "Active Client Thread Checkpoint: " << stateManager.polsig.active_client_thread_checkpoint << "\n";
+          tmp << "Number of clients: " <<  Core::networkManager.clients.size() << "\n";
+          for (const auto &client : Core::networkManager.clients)
+            tmp << " " << Network::AddressToString(&client->ipaddr) << " " << (client->acct == NULL ? "prelogin " : client->acct->name()) << " " << client->checkpoint << "\n";
           if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
             tmp << "check_attack_after_move() Checkpoint: " << stateManager.polsig.check_attack_after_move_function_checkpoint << "\n";
           tmp << "Current Threads:" << "\n";
