@@ -139,6 +139,7 @@ Notes
 #include "../clib/threadhelp.h"
 #include "../clib/timer.h"
 #include "../clib/tracebuf.h"
+#include "../clib/Debugging/ExceptionParser.h"
 
 #include "../plib/systemstate.h"
 
@@ -728,17 +729,9 @@ namespace Pol {
           fmt::Writer tmp;
           tmp << "*Thread Info*\n";
           tmp << "Semaphore TID: " << locker << "\n";
-#ifdef __unix__
-          tmp << "  (\"kill -SIGUSR2 " << getpid() << "\" to output backtrace)\n";
-          void* bt[200];
-          char **strings;
-          int n = backtrace( bt, 200 );
-          strings = backtrace_symbols( bt, n );
-          for ( int j = 0; j < n; j++ )
-            tmp << strings[j] << "\n";
 
-          free( strings );
-#endif
+          Pol::Clib::ExceptionParser::logAllStackTraces();
+
           tmp << "Scripts Thread Checkpoint: " << stateManager.polsig.scripts_thread_checkpoint << "\n";
           tmp << "Last Script: " << Clib::scripts_thread_script << " PC: " << Clib::scripts_thread_scriptPC << "\n";
           tmp << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << "\n";
