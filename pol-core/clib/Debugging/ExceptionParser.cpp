@@ -522,7 +522,7 @@ void ExceptionParser::logAllStackTraces()
         if(pthread_kill(threadID, SIGUSR1) != 0)
         {
             fmt::Writer output;
-            output << "pthread_kill() failed to send SIGURS1 to thread " << threadsDesc[threadID] << "(" << threadID << ")\n";
+            output << "pthread_kill() failed to send SIGUSR1 to thread " << threadsDesc[threadID] << "(" << threadID << ")\n";
             fprintf(stderr, "%s", output.c_str());
         }
     }
