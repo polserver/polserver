@@ -473,6 +473,7 @@ string ExceptionParser::getTrace()
 
 static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
+    (void)pArg;
     logExceptionSignal(pSignal);
     if (pSignalInfo != NULL)
     {
@@ -493,6 +494,9 @@ static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 
 static void handleStackTraceRequestLinux(int signal, siginfo_t *signalInfo, void *arg)
 {
+    (void)signal;
+    (void)signalInfo;
+    (void)arg;
     threadhelp::ThreadMap::Contents threadDesc;
     threadhelp::threadmap.CopyContents(threadDesc);
 
@@ -522,7 +526,7 @@ void ExceptionParser::logAllStackTraces()
         if(pthread_kill(threadID, SIGUSR1) != 0)
         {
             fmt::Writer output;
-            output << "pthread_kill() failed to send SIGURS1 to thread " << threadsDesc[threadID] << "(" << threadID << ")\n";
+            output << "pthread_kill() failed to send SIGUSR1 to thread " << threadsDesc[threadID] << "(" << threadID << ")\n";
             fprintf(stderr, "%s", output.c_str());
         }
     }

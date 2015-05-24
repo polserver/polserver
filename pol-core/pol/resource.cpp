@@ -67,6 +67,7 @@ namespace Pol {
 	///	  
 	Bscript::BObjectImp* ResourceRegion::get_harvest_difficulty( xcoord x, ycoord y, Plib::Realm* realm )
 	{
+          (void)realm;
 	  unsigned int xy = ( x << 16 ) | y;
 	  Depletions::iterator itr = depletions_.find( xy );
 	  int units = units_per_area_;

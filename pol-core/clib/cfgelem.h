@@ -39,6 +39,7 @@ namespace Pol {
 	class ConfigElemBase
 	{
 	public:
+          virtual ~ConfigElemBase(){};
 	  bool type_is( const char* name ) const;
 	  const char *type() const;
 	  const char *rest() const;
@@ -56,7 +57,7 @@ namespace Pol {
 	{
 	public:
 	  ConfigElem();
-	  ~ConfigElem();
+	  virtual ~ConfigElem();
       virtual size_t estimateSize() const POL_OVERRIDE;
 	  friend class ConfigFile;
 
@@ -122,7 +123,7 @@ namespace Pol {
 	{
 	public:
 	  VectorConfigElem();
-	  ~VectorConfigElem();
+	  virtual ~VectorConfigElem();
 
 	  friend class ConfigFile;
 	  bool type_is( const char* name ) const;

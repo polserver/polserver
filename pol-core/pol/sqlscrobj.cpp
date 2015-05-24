@@ -209,10 +209,6 @@ namespace Pol {
     {
     }
 
-	BSQLConnection::BSQLConnection( std::string host, std::string user, std::string password ) : Bscript::BObjectImp( OTSQLConnection ), _errno( 0 )
-	{
-
-	}
 	BSQLConnection::~BSQLConnection()
 	{
 	}

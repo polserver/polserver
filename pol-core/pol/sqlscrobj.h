@@ -108,7 +108,6 @@ namespace Pol {
     public:
       BSQLConnection();
       BSQLConnection( std::shared_ptr<ConnectionWrapper> conn );
-      BSQLConnection( std::string host, std::string user, std::string password );
       ~BSQLConnection();
       bool connect( const char *host, const char *user, const char *passwd );
       bool query( const char *query );

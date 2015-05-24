@@ -661,7 +661,7 @@ const std::string& ConfigFile::filename() const
 {
     return _filename;
 }
-const time_t ConfigFile::modified() const
+time_t ConfigFile::modified() const
 {
     return _modified;
 }

@@ -101,7 +101,7 @@ DirList::~DirList()
         dir_ = NULL;
     }
 }
-void DirList::open( const char* filespec )
+void DirList::open( const char* /*filespec*/ )
 {
     // TODO
 }

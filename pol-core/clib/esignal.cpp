@@ -65,6 +65,7 @@ namespace Pol {
 
 void ctrlc_handler( int x )
 {
+  (void)x;
   exit_signalled = true;
 }
 void enable_exit_signaller()

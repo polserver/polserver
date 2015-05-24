@@ -73,7 +73,7 @@ namespace Core {
     logs.push_back( std::make_pair( "ObjMultiSize",     object_sizes.obj_multi_size ) );
 
 #ifdef DEBUG_FLYWEIGHT
-    for ( int i = 0; i < boost_utils::debug_flyweight_queries.size(); ++i )
+    for ( size_t i = 0; i < boost_utils::debug_flyweight_queries.size(); ++i )
     {
       auto ptr = boost_utils::debug_flyweight_queries[i];
       if (ptr == nullptr)

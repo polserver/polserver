@@ -30,7 +30,7 @@ namespace Pol {
     {
     public:
       typedef std::size_t size_type;
-
+      virtual ~bucket_query() {};
       virtual size_type bucket_count()const = 0;
       virtual size_type max_bucket_count()const = 0;
       virtual size_type bucket_size( size_type n )const = 0;

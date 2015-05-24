@@ -139,6 +139,7 @@ Notes
 #include "../clib/threadhelp.h"
 #include "../clib/timer.h"
 #include "../clib/tracebuf.h"
+#include "../clib/Debugging/ExceptionParser.h"
 
 #include "../plib/systemstate.h"
 
@@ -717,6 +718,7 @@ namespace Pol {
           polclock_t now = polclock();
           if ( now >= stateManager.checkin_clock_times_out_at )
           {
+            ERROR_PRINT << "########################################################\n";
             ERROR_PRINT << "No clock movement in 30 seconds.  Dumping thread status.\n";
             stateManager.polsig.report_status_signalled = true;
             stateManager.checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
@@ -728,22 +730,17 @@ namespace Pol {
           fmt::Writer tmp;
           tmp << "*Thread Info*\n";
           tmp << "Semaphore TID: " << locker << "\n";
-#ifdef __unix__
-          tmp << "  (\"kill -SIGUSR2 " << getpid() << "\" to output backtrace)\n";
-          void* bt[200];
-          char **strings;
-          int n = backtrace( bt, 200 );
-          strings = backtrace_symbols( bt, n );
-          for ( int j = 0; j < n; j++ )
-            tmp << strings[j] << "\n";
 
-          free( strings );
-#endif
+          Pol::Clib::ExceptionParser::logAllStackTraces();
+
           tmp << "Scripts Thread Checkpoint: " << stateManager.polsig.scripts_thread_checkpoint << "\n";
           tmp << "Last Script: " << Clib::scripts_thread_script << " PC: " << Clib::scripts_thread_scriptPC << "\n";
           tmp << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << "\n";
           tmp << "Tasks Thread Checkpoint: " << stateManager.polsig.tasks_thread_checkpoint << "\n";
           tmp << "Active Client Thread Checkpoint: " << stateManager.polsig.active_client_thread_checkpoint << "\n";
+          tmp << "Number of clients: " <<  Core::networkManager.clients.size() << "\n";
+          for (const auto &client : Core::networkManager.clients)
+            tmp << " " << Network::AddressToString(&client->ipaddr) << " " << (client->acct == NULL ? "prelogin " : client->acct->name()) << " " << client->checkpoint << "\n";
           if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
             tmp << "check_attack_after_move() Checkpoint: " << stateManager.polsig.check_attack_after_move_function_checkpoint << "\n";
           tmp << "Current Threads:" << "\n";

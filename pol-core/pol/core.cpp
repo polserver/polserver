@@ -43,6 +43,9 @@ namespace Pol {
 		tipPriority = priority;
 		SetSysTrayPopupText( text.c_str() );
 	  }
+#else
+(void)text;
+(void)priority;
 #endif
 	}
 
