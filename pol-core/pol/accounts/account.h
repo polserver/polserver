@@ -44,7 +44,7 @@ namespace Pol {
 	  const std::string password() const;
 	  const std::string passwordhash() const;
 	  const std::string uo_expansion() const;
-	  const unsigned short uo_expansion_flag() const;
+	  unsigned short uo_expansion_flag() const;
 	  static unsigned short convert_uo_expansion( const std::string& expansion );
 	  bool enabled() const;
 	  bool banned() const;

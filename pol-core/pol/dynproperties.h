@@ -508,7 +508,7 @@ namespace Pol {
     {
       (void)any_props;
       return variant_props.getValue(type, value);
-    };
+    }
     template <typename V>
     static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type
     getPropertyHelper(const PropHolderContainer<variant_storage>& variant_props,
@@ -517,7 +517,7 @@ namespace Pol {
       (void)variant_props;
       passert_always(any_props.get());
       return any_props->getValue(type, value);
-    };
+    }
 
     template <typename V>
     static typename std::enable_if<can_be_used_in_variant<V>::value, bool>::type
@@ -526,7 +526,7 @@ namespace Pol {
     {
       (void)any_props;
       return variant_props.updateValue(type,value);
-    };
+    }
     template <typename V>
     static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type
     updatePropertyHelper(PropHolderContainer<variant_storage>& variant_props,
@@ -535,7 +535,7 @@ namespace Pol {
       (void)variant_props;
       passert_always(any_props.get());
       return any_props->updateValue(type,value);
-    };
+    }
     template <typename V>
     static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type
     addPropertyHelper(PropHolderContainer<variant_storage>& variant_props,
@@ -543,7 +543,7 @@ namespace Pol {
     {
       (void)any_props;
       variant_props.addValue(type,value);
-    };
+    }
     template <typename V>
     static typename std::enable_if<!can_be_used_in_variant<V>::value, void>::type
     addPropertyHelper(PropHolderContainer<variant_storage>& variant_props,
@@ -553,7 +553,7 @@ namespace Pol {
       if (!any_props)
         any_props.reset(new PropHolderContainer<boost::any>());
       any_props->addValue(type,value);
-    };
+    }
 
     template <typename V>
     static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type
@@ -562,7 +562,7 @@ namespace Pol {
     {
       (void)any_props;
       variant_props.removeValue(type);
-    };
+    }
     template <typename V>
     static typename std::enable_if<!can_be_used_in_variant<V>::value, void>::type
     removePropertyHelper(PropHolderContainer<variant_storage>& variant_props,
@@ -571,7 +571,7 @@ namespace Pol {
       (void)variant_props;
       passert_always(any_props.get());
       any_props->removeValue(type);
-    };
+    }
   } // namespace
 
   ////////////////

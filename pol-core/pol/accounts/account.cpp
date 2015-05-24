@@ -230,7 +230,7 @@ namespace Pol {
 	  }
 	}
 
-	const unsigned short Account::uo_expansion_flag() const
+	unsigned short Account::uo_expansion_flag() const
 	{
 	  return uo_expansion_;
 	}

@@ -59,7 +59,7 @@ namespace Pol {
 	  void readraw( ConfigElem& elem );     // reads 0 or more properties
 
 	  const std::string& filename() const;
-	  const time_t modified() const;
+	  time_t modified() const;
 	  unsigned element_line_start() const;
 
 

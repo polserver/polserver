@@ -473,6 +473,7 @@ string ExceptionParser::getTrace()
 
 static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 {
+    (void)pArg;
     logExceptionSignal(pSignal);
     if (pSignalInfo != NULL)
     {
@@ -493,6 +494,9 @@ static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
 
 static void handleStackTraceRequestLinux(int signal, siginfo_t *signalInfo, void *arg)
 {
+    (void)signal;
+    (void)signalInfo;
+    (void)arg;
     threadhelp::ThreadMap::Contents threadDesc;
     threadhelp::threadmap.CopyContents(threadDesc);
 

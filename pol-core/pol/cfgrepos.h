@@ -70,7 +70,7 @@ namespace Pol {
 	  ElemRef findelem( const std::string& key );
 
 	  int maxintkey() const;
-	  const time_t modified() const;
+	  time_t modified() const;
 
       typedef std::map<std::string, ElemRef, Clib::ci_cmp_pred> ElementsByName;
 	  ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }

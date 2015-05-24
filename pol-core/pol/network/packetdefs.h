@@ -20,6 +20,7 @@ namespace Pol {
     class PktSender
     {
     public:
+      virtual ~PktSender(){};
       virtual void Send( Client* client ) =0;
     };
 
@@ -27,6 +28,7 @@ namespace Pol {
     {
     public:
       SendWorldItem( u32 serial, u16 graphic, u16 amount, u16 x, u16 y, s8 z, u8 facing, u16 color, u8 flags );
+      virtual ~SendWorldItem(){};
       virtual void Send( Client* client ) POL_OVERRIDE;
       void updateFlags( u8 flags );
     private:
@@ -50,6 +52,7 @@ namespace Pol {
     {
     public:
       SendWorldMulti( u32 serial_ext, u16 graphic, u16 x, u16 y, s8 z, u16 color );
+      virtual ~SendWorldMulti(){};
       virtual void Send( Client* client ) POL_OVERRIDE;
     private:
       void buildF3();
@@ -69,6 +72,7 @@ namespace Pol {
     {
     public:
       AddItemContainerMsg( u32 serial_ext, u16 graphic, u16 amount, u16 x, u16 y, u8 slotindex, u32 containerserial_ext, u16 color );
+      virtual ~AddItemContainerMsg(){};
       virtual void Send( Client* client ) POL_OVERRIDE;
     private:
       void buildLegacy();
@@ -93,6 +97,7 @@ namespace Pol {
                           Core::DIRECTION_FLAG_OLD backward_old, Core::REPEAT_FLAG_OLD repeat_flag_old, u8 delay_old,
                           bool oldanim_valid, bool newanim_valid);
       MobileAnimationMsg( u32 serial_ext );
+      virtual ~MobileAnimationMsg(){};
       virtual void Send( Client* client ) POL_OVERRIDE;
       void update( u16 anim, u16 action, u8 subaction,
                    u16 action_old, u16 framecount_old, u16 repeat_old,
@@ -122,6 +127,7 @@ namespace Pol {
 	{
 	public:
 	  PlaySoundPkt( u8 type, u16 effect, u16 xcenter, u16 ycenter, s16 zcenter );
+          virtual ~PlaySoundPkt(){};
 	  virtual void Send( Client* client ) POL_OVERRIDE;
 	private:
 	  void build();
@@ -137,6 +143,7 @@ namespace Pol {
 	{
 	public:
 	  RemoveObjectPkt( u32 serial );
+          virtual ~RemoveObjectPkt(){};
 	  virtual void Send( Client* client ) POL_OVERRIDE;
 	  void update( u32 serial );
 	private:
@@ -149,6 +156,7 @@ namespace Pol {
     {
     public:
       SendDamagePkt(u32 serial, u16 damage);
+      virtual ~SendDamagePkt(){};
       virtual void Send( Client* client ) POL_OVERRIDE;
     private:
       void build();
@@ -164,6 +172,7 @@ namespace Pol {
     {
       public:
         ObjRevisionPkt(u32 serial_ext, u32 rev);
+        virtual ~ObjRevisionPkt(){};
         virtual void Send( Client* client ) POL_OVERRIDE;
       private:
         void build();
@@ -182,6 +191,7 @@ namespace Pol {
       GraphicEffectPkt(u8 effect_type, u32 src_serial_ext, u32 dst_serial_ext,
         u16 effect, u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd,
         u8 speed, u8 loop, u8 explode, u8 unk26);
+      virtual ~GraphicEffectPkt(){};
 
       void movingEffect(const Core::UObject* src, const Core::UObject* dst,
                              u16 effect, u8 speed, u8 loop, u8 explode);
@@ -224,6 +234,7 @@ namespace Pol {
 		u8 explode, u32 hue, u32 render,
 		u16 effect3d, u16 effect3dexplode, u16 effect3dsound,
 		u32 itemid, u8 layer);
+      virtual ~GraphicEffectExPkt(){};
 
       void movingEffect(const Core::UObject *src, const Core::UObject *dst,
 						u16 effect, u8 speed, u8 duration, u32 hue,
@@ -278,6 +289,7 @@ namespace Pol {
         RED    = 3,
       };
       HealthBarStatusUpdate(u32 serial_ext, Color color, bool enable);
+      virtual ~HealthBarStatusUpdate(){};
       virtual void Send( Client* client ) POL_OVERRIDE;
     private:
       void build();
@@ -292,6 +304,7 @@ namespace Pol {
     {
     public:
       MoveChrPkt(const Mobile::Character* chr);
+      virtual ~MoveChrPkt(){};
       virtual void Send( Client* client ) POL_OVERRIDE;
     private:
       void build();
