@@ -77,7 +77,7 @@ namespace Pol {
 	public:
 	  USpell( Clib::ConfigElem& elem, Plib::Package* pkg );
       size_t estimateSize() const;
-	  const unsigned short spell_id() const;
+	  unsigned short spell_id() const;
 	  const std::string& name() const;
 
 	  void cast( Mobile::Character* caster );
@@ -137,7 +137,7 @@ namespace Pol {
 	{
 	  return action_;
 	}
-	inline const unsigned short USpell::spell_id() const
+	inline unsigned short USpell::spell_id() const
 	{
 	  return spellid_;
 	}

@@ -189,7 +189,7 @@ namespace Pol {
 	  }
 	}
 
-	const time_t StoredConfigFile::modified() const
+	time_t StoredConfigFile::modified() const
 	{
 	  return modified_;
 	}

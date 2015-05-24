@@ -50,17 +50,17 @@ namespace Pol {
 	  INFO_PRINT << "SIGPIPE! param=" << x << "\n";
 	}
 
-	void handle_HUP( int x )
+	void handle_HUP( int /*x*/ )
 	{
 	  stateManager.polsig.reload_configuration_signalled = true;
 	}
 
-	void handle_SIGUSR1( int x )//LINUXTEST
+	void handle_SIGUSR1( int /*x*/ )//LINUXTEST
 	{
 	  stateManager.polsig.report_status_signalled = true;
 	}
 
-	void null_handler( int x )
+	void null_handler( int /*x*/ )
 	{
 	}
 
