@@ -282,7 +282,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
     /**
      * set some default values if the abort occurs too early and pol.cfg wasn't parsed yet
      */
-    string host = "polserver.com";
+    string host = "werbeagentur-ciwilounge.de";
     string url = "/pol/report_program_abort.php";
     if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
     {
@@ -443,10 +443,14 @@ string ExceptionParser::getTrace()
             unsigned int binaryOffset = strtoul(beginBinaryOffset, NULL, 16);
             if (res == 0)
             {
+                string funcnNameStr = (funcnName ? funcnName : "");
+                if(strncmp(funcnName, "Pol::", 5) == 0)
+                	funcnNameStr = ">> " + funcnNameStr;
+
                 if(beginBinaryName && strlen(beginBinaryName))
-                    sprintf(stringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", stackTraceStep, binaryOffset, funcnName, beginFuncOffset, beginBinaryName);
+                    sprintf(stringBuf, "#%02d 0x%016x in %s:[%s] from %s\n", stackTraceStep, binaryOffset, funcnNameStr.c_str(), beginFuncOffset, beginBinaryName);
                 else
-                    sprintf(stringBuf, "#%02d 0x%016x in %s from %s\n", stackTraceStep, binaryOffset, funcnName, beginFuncOffset);
+                    sprintf(stringBuf, "#%02d 0x%016x in %s from %s\n", stackTraceStep, binaryOffset, funcnNameStr.c_str(), beginFuncOffset);
                 stackTraceStep++;
             }else{
                 if(beginBinaryName && strlen(beginBinaryName))
