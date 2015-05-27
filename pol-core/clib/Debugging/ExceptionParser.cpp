@@ -282,7 +282,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
     /**
      * set some default values if the abort occurs too early and pol.cfg wasn't parsed yet
      */
-    string host = "werbeagentur-ciwilounge.de";
+    string host = "polserver.com";
     string url = "/pol/report_program_abort.php";
     if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
     {
