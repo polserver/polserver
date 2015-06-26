@@ -22,7 +22,7 @@ namespace Pol {
 	Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :
 	  Item( itemdesc, uobj_class ),
 	  eq_tmpl_( static_cast<const Core::EquipDesc&>( find_itemdesc( objtype_ ) ) ), // be sure to grab the permanent entry
-      _quality(0.0)
+      _quality(itemdesc.quality)
 	{}
 
 	Item* Equipment::clone() const
