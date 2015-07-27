@@ -659,83 +659,82 @@ namespace Pol {
 	  }
 	}
 
-    bool try_to_format(std::stringstream &to_stream, BObjectImp *what, std::string& frmt)
-	{
-	  if ( frmt.empty() )
-	  {
-		to_stream << what->getStringRep();
-		return false;
-	  }
+    // suplementory function to format
+    bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string& frmt )
+    {
+      if ( frmt.empty() )
+      {
+        to_stream << what->getStringRep();
+        return false;
+      }
 
-      if (frmt.find('b') != std::string::npos)
-	  {
-		if ( !what->isa( BObjectImp::OTLong ) )
-		{
-		  to_stream << "<int required>";
-		  return false;
-		}
-		BLong* plong = static_cast<BLong*>( what );
-		int n = plong->value();
-        if (frmt.find('#') != std::string::npos)
-		  to_stream << ( ( n < 0 ) ? "-" : "" ) << "0b";
-		int_to_binstr( n, to_stream );
-	  }
-      else if (frmt.find('x') != std::string::npos)
-	  {
-		if ( !what->isa( BObjectImp::OTLong ) )
-		{
-		  to_stream << "<int required>";
-		  return false;
-		}
-		BLong* plong = static_cast<BLong*>( what );
-		int n = plong->value();
-        if (frmt.find('#') != std::string::npos)
-		  to_stream << "0x";
-		to_stream << std::hex << n;
-	  }
-      else if (frmt.find('o') != std::string::npos)
-	  {
-		if ( !what->isa( BObjectImp::OTLong ) )
-		{
-		  to_stream << "<int required>";
-		  return false;
-		}
-		BLong* plong = static_cast<BLong*>( what );
-		int n = plong->value();
-        if (frmt.find('#') != std::string::npos)
-		  to_stream << "0o";
-		to_stream << std::oct << n;
-	  }
-      else if (frmt.find('d') != std::string::npos)
-	  {
-		int n;
-		if ( what->isa( BObjectImp::OTLong ) )
-		{
-		  BLong* plong = static_cast<BLong*>( what );
-		  n = plong->value();
-		}
-		else if ( what->isa( BObjectImp::OTDouble ) )
-		{
-		  Double* pdbl = static_cast<Double*>( what );
-		  n = (int)pdbl->value();
-		}
-		else
-		{
-		  to_stream << "<int or double required>";
-		  return false;
-		}
-		to_stream << std::dec << n;
-	  }
-	  else
-	  {
-		to_stream << "<unknown format: " << frmt << ">";
-		return false;
-	  }
-	  return true;
-	}
-
-	// --
-
+      if ( frmt.find( 'b' ) != std::string::npos )
+      {
+        if ( !what->isa( BObjectImp::OTLong ) )
+        {
+          to_stream << "<needs Int>";
+          return false;
+        }
+        BLong* plong = static_cast<BLong*>( what );
+        int n = plong->value();
+        if ( frmt.find( '#' ) != std::string::npos )
+          to_stream << ( ( n < 0 ) ? "-" : "" ) << "0b";
+        int_to_binstr( n, to_stream );
+      }
+      else if ( frmt.find( 'x' ) != std::string::npos )
+      {
+        if ( !what->isa( BObjectImp::OTLong ) )
+        {
+          to_stream << "<needs Int>";
+          return false;
+        }
+        BLong* plong = static_cast<BLong*>( what );
+        int n = plong->value();
+        if ( frmt.find( '#' ) != std::string::npos )
+          to_stream << "0x";
+        to_stream << std::hex << n;
+      }
+      else if ( frmt.find( 'o' ) != std::string::npos )
+      {
+        if ( !what->isa( BObjectImp::OTLong ) )
+        {
+          to_stream << "<needs Int>";
+          return false;
+        }
+        BLong* plong = static_cast<BLong*>( what );
+        int n = plong->value();
+        if ( frmt.find( '#' ) != std::string::npos )
+          to_stream << "0o";
+        to_stream << std::oct << n;
+      }
+      else if ( frmt.find( 'd' ) != std::string::npos )
+      {
+        int n;
+        if ( what->isa( BObjectImp::OTLong ) )
+        {
+          BLong* plong = static_cast<BLong*>( what );
+          n = plong->value();
+        }
+        else if ( what->isa( BObjectImp::OTDouble ) )
+        {
+          Double* pdbl = static_cast<Double*>( what );
+          n = (int)pdbl->value();
+        }
+        else
+        {
+          to_stream << "<needs Int, Double>";
+          return false;
+        }
+        to_stream << std::dec << n;
+      }
+      else
+      {
+        to_stream << "<bad format: " << frmt << ">";
+        return false;
+      }
+      return true;
+    }
+    // --
 
 	BObjectImp* String::call_method( const char* methodname, Executor& ex )
 	{
@@ -745,199 +744,213 @@ namespace Pol {
 	  else
 		return NULL;
 	}
-	BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
-	{
-	  switch ( id )
-	  {
-		case MTH_LENGTH:
-		  if ( ex.numParams() == 0 )
-			return new BLong( static_cast<int>( value_.length() ) );
-		  else
-			return new BError( "string.length() doesn't take parameters." );
-		  break;
-		case MTH_FIND:
-		{
-					   if ( ex.numParams() > 2 )
-						 return new BError( "string.find(Search, [Start]) takes only two parameters" );
-					   if ( ex.numParams() < 1 )
-						 return new BError( "string.find(Search, [Start]) takes at least one parameter" );
-					   const char *s = ex.paramAsString( 0 );
-					   int d = 0;
-					   if ( ex.numParams() == 2 )
-						 d = ex.paramAsLong( 1 );
-					   int posn = find( d ? ( d - 1 ) : 0, s ) + 1;
-					   return new BLong( posn );
-		}
-		case MTH_UPPER:
-		{
-						if ( ex.numParams() == 0 )
-						{
-						  toUpper();
-						  return this;
-						}
-						else
-						  return new BError( "string.upper() doesn't take parameters." );
-		}
+    BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+    {
+      switch ( id )
+      {
+        case MTH_LENGTH:
+          if ( ex.numParams() == 0 )
+            return new BLong( static_cast<int>( value_.length() ) );
+          else
+            return new BError( "string.length() doesn't take parameters." );
+          break;
+        case MTH_FIND:
+        {
+          if ( ex.numParams() > 2 )
+            return new BError( "string.find(Search, [Start]) takes only two parameters" );
+          if ( ex.numParams() < 1 )
+            return new BError( "string.find(Search, [Start]) takes at least one parameter" );
+          const char* s = ex.paramAsString( 0 );
+          int d = 0;
+          if ( ex.numParams() == 2 )
+            d = ex.paramAsLong( 1 );
+          int posn = find( d ? ( d - 1 ) : 0, s ) + 1;
+          return new BLong( posn );
+        }
+        case MTH_UPPER:
+        {
+          if ( ex.numParams() == 0 )
+          {
+            toUpper();
+            return this;
+          }
+          else
+            return new BError( "string.upper() doesn't take parameters." );
+        }
 
-		case MTH_LOWER:
-		{
-						if ( ex.numParams() == 0 )
-						{
-						  toLower();
-						  return this;
-						}
-						else
-						  return new BError( "string.lower() doesn't take parameters." );
-		}
-		case MTH_FORMAT:
-		{
-						 if ( ex.numParams() > 0 )
-						 {
+        case MTH_LOWER:
+        {
+          if ( ex.numParams() == 0 )
+          {
+            toLower();
+            return this;
+          }
+          else
+            return new BError( "string.lower() doesn't take parameters." );
+        }
+        case MTH_FORMAT:
+        {
+          if ( ex.numParams() > 0 )
+          {
+            // string s = this->getStringRep(); // string itself
+            std::stringstream result;
 
-                           std::string s = this->getStringRep(); // string itself
-						   std::stringstream result;
+            size_t tag_start_pos;  // the position of tag's start "{"
+            size_t tag_stop_pos;   // the position of tag's end "}"
+            size_t tag_dot_pos;
 
-						   size_t tag_start_pos; // the position of tag's start "{"
-						   size_t tag_stop_pos;  // the position of tag's end "}"
-						   size_t tag_dot_pos;
-						   int tag_param_idx;
+            int tag_param_idx;
 
-						   size_t str_pos = 0; // current string position		
-						   unsigned int next_param_idx = 0; // next index of .format() parameter
+            size_t str_pos = 0;         // current string position
+            unsigned int next_param_idx = 0;  // next index of .format() parameter
 
-                           while ((tag_start_pos = s.find("{", str_pos)) != std::string::npos)
-						   {
-                               if ((tag_stop_pos = s.find("}", tag_start_pos)) != std::string::npos)
-							 {
+            char w_spaces[] = "\t ";
 
-							   result << s.substr( str_pos, tag_start_pos - str_pos );
-							   str_pos = tag_stop_pos + 1;
+            while ( ( tag_start_pos = value_.find( "{", str_pos ) ) != std::string::npos )
+            {
+              if ( ( tag_stop_pos = value_.find( "}", tag_start_pos ) ) != std::string::npos )
+              {
+                result << value_.substr( str_pos, tag_start_pos - str_pos );
+                str_pos = tag_stop_pos + 1;
 
-                               std::string tag_body = s.substr(tag_start_pos + 1, (tag_stop_pos - tag_start_pos) - 1);
-							   s_trim( tag_body ); // trim the tag of whitespaces
+                std::string tag_body =
+                    value_.substr( tag_start_pos + 1, ( tag_stop_pos - tag_start_pos ) - 1 );
 
-                               std::string frmt;
-							   size_t formatter_pos = tag_body.find( ':' );
+                tag_start_pos = tag_body.find_first_not_of( w_spaces );
+                tag_stop_pos = tag_body.find_last_not_of( w_spaces );
 
-                               if (formatter_pos != std::string::npos)
-							   {
-                                   frmt = tag_body.substr(formatter_pos + 1, std::string::npos); //
-								 tag_body = tag_body.substr( 0, formatter_pos ); // remove property from the tag
-							   }
+                // cout << "' tag_body1: '" << tag_body << "'";
 
-                               std::string prop_name;
-							   // parsing {1.this_part}
-							   tag_dot_pos = tag_body.find( ".", 0 );
+                // trim the tag of whitespaces (slightly faster code ~25%)
+                if ( tag_start_pos != std::string::npos && tag_stop_pos != std::string::npos )
+                  tag_body = tag_body.substr( tag_start_pos, ( tag_stop_pos - tag_start_pos ) + 1 );
+                else if ( tag_start_pos != std::string::npos )
+                  tag_body = tag_body.substr( tag_start_pos );
+                else if ( tag_stop_pos != std::string::npos )
+                  tag_body = tag_body.substr( 0, tag_stop_pos + 1 );
 
-							   // '.' is found within the tag, there is a property name
-                               if (tag_dot_pos != std::string::npos)
-							   {
-								 prop_name = tag_body.substr( tag_dot_pos + 1, std::string::npos ); //
-								 tag_body = tag_body.substr( 0, tag_dot_pos ); // remove property from the tag
+                // s_trim( tag_body ); // trim the tag of whitespaces
 
-								 // if s_tag_body is numeric then use it as an index
-								 if ( s_parse_int( tag_param_idx, tag_body ) )
-								 {
-								   tag_param_idx -= 1; // sinse POL indexes are 1-based
-								 }
-								 else
-								 {
-								   result << "<idx required before: '" << prop_name << "'>";
-								   continue;
-								 }
-							   }
-							   else
-							   {
-								 if ( s_parse_int( tag_param_idx, tag_body ) )
-								 {
-								   tag_param_idx -= 1; // sinse POL indexes are 1-based
-								 }
-								 else
-								 { // non-integer body has just next idx in line
-								   prop_name = tag_body;
-								   tag_param_idx = next_param_idx++;
-								 }
-							   }
+                // cout << "' tag_body2: '" << tag_body << "'";
 
-							   // -- end of property parsing
+                std::string frmt;
+                size_t formatter_pos = tag_body.find( ':' );
 
-							   //cout << "prop_name: '" << prop_name << "' tag_body: '" << tag_body << "'";
+                if ( formatter_pos != std::string::npos )
+                {
+                  frmt = tag_body.substr( formatter_pos + 1, std::string::npos );  //
+                  tag_body = tag_body.substr( 0, formatter_pos );  // remove property from the tag
+                }
 
-							   // Checks that tag_param_idx is >0, otherwise it would fail when compared with ex.numParams()
-							   if ( tag_param_idx < 0 || ex.numParams() <= static_cast<size_t>( tag_param_idx ) )
-							   {
-								 result << "<idx out of range: #" << ( tag_param_idx + 1 ) << ">";
-								 continue;
-							   }
+                std::string prop_name;
+                // parsing {1.this_part}
+                tag_dot_pos = tag_body.find( ".", 0 );
 
-							   BObjectImp *imp = ex.getParamImp( tag_param_idx );
+                // '.' is found within the tag, there is a property name
+                if ( tag_dot_pos != std::string::npos )
+                {
+                  prop_name = tag_body.substr( tag_dot_pos + 1, std::string::npos );  //
+                  tag_body = tag_body.substr( 0, tag_dot_pos );  // remove property from the tag
 
-							   if ( prop_name.empty() == false )
-							   { // accesing object member
-								 BObjectRef obj_member = imp->get_member( prop_name.c_str() );
-								 BObjectImp *member_imp = obj_member->impptr();
-								 try_to_format( result, member_imp, frmt );
-							   }
-							   else
-							   {
-								 try_to_format( result, imp, frmt );
-							   }
-							 }
-							 else
-							 {
-							   break;
-							 }
-						   }
+                  // if s_tag_body is numeric then use it as an index
+                  if ( s_parse_int( tag_param_idx, tag_body ) )
+                  {
+                    tag_param_idx -= 1;  // sinse POL indexes are 1-based
+                  }
+                  else
+                  {
+                    result << "<idx required before: '" << prop_name << "'>";
+                    continue;
+                  }
+                }
+                else
+                {
+                  if ( s_parse_int( tag_param_idx, tag_body ) )
+                  {
+                    tag_param_idx -= 1;  // sinse POL indexes are 1-based
+                  }
+                  else
+                  {  // non-integer body has just next idx in line
+                    prop_name = tag_body;
+                    tag_param_idx = next_param_idx++;
+                  }
+                }
 
-						   if ( str_pos < s.length() )
-						   {
-                               result << s.substr(str_pos, std::string::npos);
-						   }
+                // -- end of property parsing
 
-						   return new String( result.str() );
+                // cout << "prop_name: '" << prop_name << "' tag_body: '" << tag_body << "'";
 
-						 }
-						 else
-						 {
-						   return new BError( "string.format() requires a parameter." );
-						 }
+                if ( ex.numParams() <= tag_param_idx )
+                {
+                  result << "<invalid index: #" << ( tag_param_idx + 1 ) << ">";
+                  continue;
+                }
 
-		}
+                BObjectImp* imp = ex.getParamImp( tag_param_idx );
+
+                if ( !prop_name.empty() )
+                {  // accesing object
+                  BObjectRef obj_member = imp->get_member( prop_name.c_str() );
+                  BObjectImp* member_imp = obj_member->impptr();
+                  try_to_format( result, member_imp, frmt );
+                }
+                else
+                {
+                  try_to_format( result, imp, frmt );
+                }
+              }
+              else
+              {
+                break;
+              }
+            }
+
+            if ( str_pos < value_.length() )
+            {
+              result << value_.substr( str_pos, std::string::npos );
+            }
+
+            return new String( result.str() );
+          }
+          else
+          {
+            return new BError( "string.format() requires a parameter." );
+          }
+        }
         case MTH_JOIN:
         {
-                       BObject* cont;
-                       if ( ex.numParams() == 1 &&
-                            ( cont = ex.getParamObj( 0 ) ) != NULL )
-                       {
-                         if ( !( cont->isa( OTArray ) ) )
-                           return new BError( "string.join expects an array" );
-                         ObjArray* container = static_cast<ObjArray*>( cont->impptr() );
-                         // no empty check here on purpose
-                         OSTRINGSTREAM joined;
-                         bool first = true;
-                         for ( const BObjectRef &ref : container->ref_arr )
-                         {
-                           if ( ref.get() )
-                           {
-                             BObject *bo = ref.get();
+          BObject* cont;
+          if ( ex.numParams() == 1 && ( cont = ex.getParamObj( 0 ) ) != NULL )
+          {
+            if ( !( cont->isa( OTArray ) ) )
+              return new BError( "string.join expects an array" );
+            ObjArray* container = static_cast<ObjArray*>( cont->impptr() );
+            // no empty check here on purpose
+            OSTRINGSTREAM joined;
+            bool first = true;
+            for ( const BObjectRef& ref : container->ref_arr )
+            {
+              if ( ref.get() )
+              {
+                BObject* bo = ref.get();
 
-                             if ( bo == NULL )
-                               continue;
-                             if ( !first )
-                               joined << value_;
-                             else
-                               first = false;
-                             joined << bo->impptr()->getStringRep();
-                           }
-                         }
-                         return new String( OSTRINGSTREAM_STR( joined ) );
-                       }
-                       else
-                         return new BError( "string.join(array) requires a parameter." );
+                if ( bo == NULL )
+                  continue;
+                if ( !first )
+                  joined << value_;
+                else
+                  first = false;
+                joined << bo->impptr()->getStringRep();
+              }
+            }
+            return new String( OSTRINGSTREAM_STR( joined ) );
+          }
+          else
+            return new BError( "string.join(array) requires a parameter." );
         }
-		default:
-		  return NULL;
-	  }
-	}
+        default:
+          return NULL;
+      }
+    }
   }
 }
