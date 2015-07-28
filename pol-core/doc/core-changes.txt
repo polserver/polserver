@@ -1,4 +1,17 @@
 ﻿-- POL099 --
+07-27-2015 Turley:
+  Added:   array.cycle([count])
+           will move array backwards or forwards in-place as it were a conveyor belt.
+		   {1, 2, 3}.cycle()
+		   Will make it:
+           {3, 1, 2}
+		   Accepts a negative value as a shift to move different direction
+  Changed: string.format()
+           Now actually faster than string concatenation in eScript
+           Fixes a bug where {:d} formating could cause an arbitrary number shown instead of a real value
+           tag errors are slightly more intuitive and compact.
+  Note:    Patches submitted by andenixa
+
 02-08-2015 Turley:
   Added:   PolCore().memory_usage member, returns current process usage in KB
   Changed: 0xF1 Freeshard list pkt is now allowed during login state,

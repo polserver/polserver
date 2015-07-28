@@ -1408,176 +1408,203 @@ namespace Pol {
 
 	};
 
-	BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
-	{
-	  switch ( id )
-	  {
-		case MTH_SIZE:
-		  if ( ex.numParams() == 0 )
-			return new BLong( static_cast<int>( ref_arr.size() ) );
-		  else
-			return new BError( "array.size() doesn't take parameters." );
+    BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+    {
+      switch ( id )
+      {
+        case MTH_SIZE:
+          if ( ex.numParams() == 0 )
+            return new BLong( static_cast<int>( ref_arr.size() ) );
+          else
+            return new BError( "array.size() doesn't take parameters." );
 
-		case MTH_ERASE:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 1 )
-			{
-			  int idx;
-			  if ( ex.getParam( 0, idx, 1, static_cast<int>( ref_arr.size() ) ) ) // 1-based index
-			  {
-				ref_arr.erase( ref_arr.begin() + idx - 1 );
-				return new BLong( 1 );
-			  }
-			  else
-			  {
-				return NULL;
-			  }
-			}
-			else
-			  return new BError( "array.erase(index) requires a parameter." );
-		  }
-		  break;
-		case MTH_EXISTS:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 1 )
-			{
-			  int idx;
-			  if ( ex.getParam( 0, idx ) && idx >= 0 )
-			  {
-				bool exists = ( idx <= (int)ref_arr.size() );
-				return new BLong( exists ? 1 : 0 );
-			  }
-			  else
-			  {
-				return new BError( "Invalid parameter type" );
-			  }
-			}
-			else
-			  return new BError( "array.exists(index) requires a parameter." );
-		  }
-		  break;
-		case MTH_INSERT:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 2 )
-			{
-			  int idx;
-			  BObjectImp* imp = ex.getParamImp( 1 );
-			  if ( ex.getParam( 0, idx, 1, static_cast<int>( ref_arr.size() + 1 ) ) && imp != NULL ) // 1-based index
-			  {
-				--idx;
-				// FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
-#if (defined(_WIN32) && _MSC_VER >= 1300) || (!defined(USE_STLPORT) && __GNUC__)
-				BObjectRef tmp;
-				ref_arr.insert( ref_arr.begin() + idx, tmp );
+        case MTH_ERASE:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 1 )
+            {
+              int idx;
+              if ( ex.getParam( 0, idx, 1, static_cast<int>( ref_arr.size() ) ) )  // 1-based index
+              {
+                ref_arr.erase( ref_arr.begin() + idx - 1 );
+                return new BLong( 1 );
+              }
+              else
+              {
+                return NULL;
+              }
+            }
+            else
+              return new BError( "array.erase(index) requires a parameter." );
+          }
+          break;
+        case MTH_EXISTS:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 1 )
+            {
+              int idx;
+              if ( ex.getParam( 0, idx ) && idx >= 0 )
+              {
+                bool exists = ( idx <= (int)ref_arr.size() );
+                return new BLong( exists ? 1 : 0 );
+              }
+              else
+              {
+                return new BError( "Invalid parameter type" );
+              }
+            }
+            else
+              return new BError( "array.exists(index) requires a parameter." );
+          }
+          break;
+        case MTH_INSERT:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 2 )
+            {
+              int idx;
+              BObjectImp* imp = ex.getParamImp( 1 );
+              if ( ex.getParam( 0, idx, 1, static_cast<int>( ref_arr.size() + 1 ) ) &&
+                   imp != NULL )  // 1-based index
+              {
+                --idx;
+    // FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
+#if ( defined( _WIN32 ) && _MSC_VER >= 1300 ) || ( !defined( USE_STLPORT ) && __GNUC__ )
+                BObjectRef tmp;
+                ref_arr.insert( ref_arr.begin() + idx, tmp );
 #else
-				ref_arr.insert( ref_arr.begin() + idx );
+                ref_arr.insert( ref_arr.begin() + idx );
 #endif
-				BObjectRef& ref = ref_arr[idx];
-				ref.set( new BObject( imp->copy() ) );
-			  }
-			  else
-			  {
-				return new BError( "Invalid parameter type" );
-			  }
-			}
-			else
-			  return new BError( "array.insert(index,value) requires two parameters." );
-		  }
-		  break;
-		case MTH_SHRINK:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 1 )
-			{
-			  int idx;
-			  if ( ex.getParam( 0, idx, 0, static_cast<int>( ref_arr.size() ) ) ) // 1-based index
-			  {
-				ref_arr.erase( ref_arr.begin() + idx, ref_arr.end() );
-				return new BLong( 1 );
-			  }
-			  else
-			  {
-				return new BError( "Invalid parameter type" );
-			  }
-			}
-			else
-			  return new BError( "array.shrink(nelems) requires a parameter." );
-		  }
-		  break;
-		case MTH_APPEND:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 1 )
-			{
-			  BObjectImp* imp = ex.getParamImp( 0 );
-			  if ( imp )
-			  {
-				ref_arr.push_back( BObjectRef( new BObject( imp->copy() ) ) );
+                BObjectRef& ref = ref_arr[idx];
+                ref.set( new BObject( imp->copy() ) );
+              }
+              else
+              {
+                return new BError( "Invalid parameter type" );
+              }
+            }
+            else
+              return new BError( "array.insert(index,value) requires two parameters." );
+          }
+          break;
+        case MTH_SHRINK:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 1 )
+            {
+              int idx;
+              if ( ex.getParam( 0, idx, 0, static_cast<int>( ref_arr.size() ) ) )  // 1-based index
+              {
+                ref_arr.erase( ref_arr.begin() + idx, ref_arr.end() );
+                return new BLong( 1 );
+              }
+              else
+              {
+                return new BError( "Invalid parameter type" );
+              }
+            }
+            else
+              return new BError( "array.shrink(nelems) requires a parameter." );
+          }
+          break;
+        case MTH_APPEND:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 1 )
+            {
+              BObjectImp* imp = ex.getParamImp( 0 );
+              if ( imp )
+              {
+                ref_arr.push_back( BObjectRef( new BObject( imp->copy() ) ) );
 
-				return new BLong( 1 );
-			  }
-			  else
-			  {
-				return new BError( "Invalid parameter type" );
-			  }
-			}
-			else
-			  return new BError( "array.append(value) requires a parameter." );
-		  }
-		  break;
-		case MTH_REVERSE:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 0 )
-			{
-			  reverse( ref_arr.begin(), ref_arr.end() );
-			  return new BLong( 1 );
-			}
-			else
-			  return new BError( "array.reverse() doesn't take parameters." );
-		  }
-		  break;
-		case MTH_SORT:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 0 )
-			{
-			  sort( ref_arr.begin(), ref_arr.end(), objref_cmp() );
-			  return new BLong( 1 );
-			}
-			else
-			  return new BError( "array.sort() doesn't take parameters." );
-		  }
-		  break;
-		case MTH_RANDOMENTRY:
-		  if ( name_arr.empty() )
-		  {
-			if ( ex.numParams() == 0 )
-			{
-			  if ( !ref_arr.empty() )
-			  {
-				const BObjectRef& ref = ref_arr[Clib::random_int( static_cast<int>( ref_arr.size() )-1 )];
-				if ( ref.get() == NULL )
-				  return NULL;
-				return ref.get()->impptr();
-			  }
-			}
-			else
-			  return new BError( "array.randomentry() doesn't take parameters." );
-		  }
-		  break;
+                return new BLong( 1 );
+              }
+              else
+              {
+                return new BError( "Invalid parameter type" );
+              }
+            }
+            else
+              return new BError( "array.append(value) requires a parameter." );
+          }
+          break;
+        case MTH_REVERSE:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 0 )
+            {
+              reverse( ref_arr.begin(), ref_arr.end() );
+              return new BLong( 1 );
+            }
+            else
+              return new BError( "array.reverse() doesn't take parameters." );
+          }
+          break;
+        case MTH_SORT:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 0 )
+            {
+              sort( ref_arr.begin(), ref_arr.end(), objref_cmp() );
+              return new BLong( 1 );
+            }
+            else
+              return new BError( "array.sort() doesn't take parameters." );
+          }
+          break;
+        case MTH_RANDOMENTRY:
+          if ( name_arr.empty() )
+          {
+            if ( ex.numParams() == 0 )
+            {
+              if ( !ref_arr.empty() )
+              {
+                const BObjectRef& ref =
+                    ref_arr[Clib::random_int( static_cast<int>( ref_arr.size() ) - 1 )];
+                if ( ref.get() == NULL )
+                  return NULL;
+                return ref.get()->impptr();
+              }
+            }
+            else
+              return new BError( "array.randomentry() doesn't take parameters." );
+          }
+          break;
+        case MTH_CYCLE:
+          if ( name_arr.empty() )
+          {
+            int shift_by;
 
-		default:
-		  return NULL;
-	  }
-	  return NULL;
-	}
+            if ( ex.numParams() > 0 )
+            {
+              if ( !ex.getParam( 0, shift_by ) )
+                return new BError( "Invalid parameter type" );
+              if ( shift_by == 0 )
+                return new BLong( 0 );
+            }
+            else
+              shift_by = 1;
 
+            if ( ref_arr.empty() || std::abs(shift_by) > ref_arr.size())
+              return new BLong( 0 );
 
-	BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
+            if (shift_by>0)
+              std::rotate(ref_arr.begin(), ref_arr.end() - shift_by, ref_arr.end());
+            else
+              std::rotate(ref_arr.begin(), ref_arr.begin() - shift_by, ref_arr.end());
+
+            return new BLong( 1 );
+          }
+          break;
+
+        default:
+          return NULL;
+      }
+      return NULL;
+    }
+
+    BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
 	{
 	  ObjMethod* objmethod = getKnownObjMethod( methodname );
 	  if ( objmethod != NULL )

@@ -171,7 +171,8 @@ namespace Pol {
 	  MTH_UPPER,
 	  MTH_LOWER,				//145
 	  MTH_FORMAT,
-	  MTH_DISABLE_SKILLS_FOR
+	  MTH_DISABLE_SKILLS_FOR,
+	  MTH_CYCLE,
 	};
 
 
