@@ -234,7 +234,9 @@ namespace Pol {
 	  RSV_EXPORTED,
 	  TOK_MEMBER,
 	  TOK_DICTKEY,
-	  RSV_DOWHILE
+	  RSV_DOWHILE,
+
+	  TOK_UNUSED
 	};
 
 	enum ESCRIPT_CASE_TYPES

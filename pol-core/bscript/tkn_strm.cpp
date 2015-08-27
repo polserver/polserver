@@ -112,6 +112,7 @@ namespace Pol {
 		case TOK_LOG_NOT:		   os << "!";			  break;
 		case TOK_CONSUMER:		  os << "#";			  break;
 		case TOK_REFTO:			 os << "refto";		  break;
+		case TOK_UNUSED:			 os << "unused";		  break;
 		case TOK_BITAND:			os << "&";			  break;
 		case TOK_BITOR:			 os << "|";			  break;
 		case TOK_BSRIGHT:			os << ">>";				break;

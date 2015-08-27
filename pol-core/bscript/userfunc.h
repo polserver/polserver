@@ -27,8 +27,9 @@ namespace Pol {
 	  int have_default;
 	  Token dflt_value;
 	  bool pass_by_reference;
+	  bool unused;
 
-	  UserParam() : name( "" ), have_default( false ), pass_by_reference( false ) {}
+	  UserParam() : name( "" ), have_default( false ), pass_by_reference( false ), unused( false ) {}
 	};
 
 	class UserFunction
