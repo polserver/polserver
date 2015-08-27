@@ -1,5 +1,5 @@
 97
-<error>
+error{ errortext = "Invalid parameter type" }
 97
 98
 A
