@@ -51,6 +51,7 @@ Combining would use the u32 size for a prop in a variant without loss (2*s16)
 #include <bitset>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #include <boost/variant.hpp>
 #include <boost/any.hpp>
