@@ -294,7 +294,7 @@ Check the [return-value] if you want to know which CheckBoxes were selected.</td
         <table frame="box" rules="none" width="100%" border="1" CELLPADDING="1" CELLSPACING="0">
           <tr>
             <td width="120px">CmdName:</td>
-            <td>GumpPic <i>[x] [y] [id] hue=[color]</i></td>
+            <td>GumpPic <i>[x] [y] [id] hue=[color] class=[class]</i></td>
           </tr>
           <tr>
             <td>Client introduced:</td>
@@ -303,7 +303,7 @@ Check the [return-value] if you want to know which CheckBoxes were selected.</td
           <tr>
             <td>Description:</td>
             <td>Adds a graphic to the gump, where [id] ist the graphic id of an item. For example use InsideUO to get them.
-Optionaly there is a color parameter.</td>
+Optionaly there is a color parameter. The class parameter is also optional, triggers special behavior (e.g. "VirtueGump" will enable virtue tooltips).</td>
           </tr>
         </table>
         </td>
