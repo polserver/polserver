@@ -1,4 +1,17 @@
 ﻿-- POL099 --
+08-27-2015 Bodom:
+  Added:   New eScript keyword: unused
+           This keyword can now be added before a variable name in function or program block declarations.
+           It has no effect on the resulting compiled code, but instructs the compiler not to issue a warning if
+           the following variable will not be used. The compiler will instead fire a warning if the interested
+           variable will then be used later in the code. Examples:
+           program onremovescript( character, container, unused item, unused item_amount, movetype )
+               // Here the variables item and item_amount are needed in the program declaration but will not be used,
+               // the unused keyword prevents warnings to be triggered
+           endprogram
+           function myfunc( parameter1, unused parameter_for_future_use )
+               // Same as above: parameter_for_future_use is not used and unused prevents the warning message
+           endfunction
 07-27-2015 Turley:
   Added:   array.cycle([count])
            will move array backwards or forwards in-place as it were a conveyor belt.
