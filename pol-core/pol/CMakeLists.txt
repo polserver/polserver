@@ -24,60 +24,6 @@ SET (SOURCES
 	../../lib/tinyxml/tinyxmlerror.cpp 
 	../../lib/tinyxml/tinyxmlparser.cpp
 	../../lib/format/format.cc
-	../clib/Debugging/LogSink.cpp
-	../clib/Debugging/ExceptionParser.cpp		
-	../clib/clib_utils.cpp 
-	../clib/boostutils.cpp 
-	../clib/timer.cpp
-	../clib/streamsaver.cpp
-	../clib/progver.cpp 
-	../clib/socketsvc.cpp 
-	../clib/binaryfile.cpp 
-	../clib/cfgfile.cpp 
-	../clib/cfgsect.cpp
-	../clib/dirlist.cpp
-	../clib/fileutil.cpp 
-	../clib/iohelp.cpp
-	../clib/kbhit.cpp
-	../clib/mlog.cpp 
-	../clib/MD5.cpp
-	../clib/opnew.cpp
-	../clib/passert.cpp
-	../clib/sckutil.cpp 
-	../clib/strexcpt.cpp 
-	../clib/strset.cpp 
-	../clib/strutil.cpp
-	../clib/threadhelp.cpp
-	../clib/tracebuf.cpp
-	../clib/fdump.cpp 
-	../clib/stracpy.cpp
-	../clib/random.cpp 
-	../clib/cmdargs.cpp 
-	../clib/wallclock.cpp
-	../clib/wnsckt.cpp
-	../clib/xmain.cpp
-	../clib/unicode.cpp
-	../clib/pkthelper.cpp
-	../clib/logfacility.cpp
-	../clib/esignal.cpp
-	../plib/polver.cpp
-	../plib/mapfunc.cpp 
-	../plib/mapserver.cpp 
-	../plib/pkg.cpp 
-	../plib/realm.cpp
-	../plib/filemapserver.cpp 
-	../plib/inmemorymapserver.cpp
-	../plib/realmfunc.cpp
-	../plib/maptileserver.cpp 
-	../plib/realmdescriptor.cpp 
-	../plib/staticserver.cpp
-	../plib/testdrop1.cpp 
-	../plib/testenv.cpp
-	../plib/testwalk1.cpp
-	../plib/testlos1.cpp 
-	../plib/realmlos.cpp 
-	../plib/realmlos2.cpp
-	../plib/systemstate.cpp
 	../bscript/berror.cpp 
 	../bscript/blong.cpp 
 	../bscript/bstruct.cpp
@@ -306,11 +252,16 @@ SET (SOURCES
 ##############################################################
 # include dirs
 SET (INCLUDE_DIRS
-	/usr/local/include/stlport
-	../lib/boost_1_55_0
 	../
 )
 
+##############################################################
+# set directory for internal libs
+SET (LIB_DIRS
+	${LIB_DIRS}
+	${CMAKE_CURRENT_LIST_DIR}/../bin
+)
+	
 ##############################################################
 # compile flags
 IF(NOT WINDOWS)
@@ -326,40 +277,28 @@ IF(NOT WINDOWS)
     	-Wno-ignored-qualifiers #TODO: remove and fix the code
 	)
 ENDIF()
-IF(LINUX)
-	SET (FLAGS
-		${FLAGS}
-		-DPOL_BUILDTAG=\\\"ubuntu\\\"
-	)
-ENDIF()
 
 ##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
+	clib_debugging
+	clib
+	plib
 	crypto
     pthread
     z
 )
 
 ##############################################################
-# define binary name
-SET (TARGET_PROGRAM_NAME
-	pol
+# define target directory
+SET (TARGET_DIRECTORY
+	${CMAKE_CURRENT_LIST_DIR}/../bin
 )
 
 ##############################################################
-# create config.h
-INCLUDE (CheckIncludeFiles)
-IF(WINDOWS)
-    SET(HAVE_OPENSSL true)
-    SET(HAVE_MYSQL true)
-ELSE()
-    CHECK_INCLUDE_FILES (openssl/md5.h HAVE_OPENSSL)
-    CHECK_INCLUDE_FILES (mysql/mysql.h HAVE_MYSQL)
-ENDIF() 
-CONFIGURE_FILE(
-    ${CMAKE_CURRENT_LIST_DIR}/../../cmake/env/pol_global_config.h.in 
-    ${CMAKE_CURRENT_BINARY_DIR}/pol_global_config.h
+# define binary name
+SET (TARGET_PROGRAM_NAME
+	pol
 )
 
 ##############################################################
