@@ -24,30 +24,6 @@ SET (SOURCES
 	../../lib/tinyxml/tinyxmlerror.cpp 
 	../../lib/tinyxml/tinyxmlparser.cpp
 	../../lib/format/format.cc
-	../bscript/berror.cpp 
-	../bscript/blong.cpp 
-	../bscript/bstruct.cpp
-	../bscript/compctx.cpp 
-	../bscript/compilercfg.cpp 
-	../bscript/eprog_read.cpp
-	../bscript/eprog2.cpp
-	../bscript/dbl.cpp 
-	../bscript/dict.cpp 
-	../bscript/eprog.cpp
-	../bscript/escrutil.cpp
-	../bscript/escript_config.cpp 
-	../bscript/escriptv.cpp 
-	../bscript/execmodl.cpp
-	../bscript/executor.cpp
-	../bscript/fmodule.cpp
-	../bscript/object.cpp 
-	../bscript/objstrm.cpp
-	../bscript/parser.cpp
-	../bscript/str.cpp 
-	../bscript/symcont.cpp
-	../bscript/tkn_strm.cpp 
-	../bscript/token.cpp
-	../bscript/userfunc.cpp
 	accounts/account.cpp 
 	accounts/accounts.cpp 
 	accounts/acscrobj.cpp 
@@ -268,8 +244,6 @@ IF(NOT WINDOWS)
 	SET (FLAGS
 		${FLAGS}
 		-fopenmp  
-		-fno-strict-aliasing  
-		-Wno-unused-result 
 		-DINC_PASSERT=1 
 		-DTIXML_USE_STL 
 		-Wall 
@@ -281,6 +255,7 @@ ENDIF()
 ##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
+	bscript
 	clib_debugging
 	clib
 	plib
