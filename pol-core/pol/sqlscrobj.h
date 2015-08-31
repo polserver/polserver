@@ -8,6 +8,8 @@ Notes
 
 */
 
+#include "pol_global_config.h"
+
 #ifdef HAVE_MYSQL
 
 #ifndef SQLSCROBJ_H

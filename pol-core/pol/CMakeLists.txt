@@ -351,9 +351,11 @@ SET (TARGET_PROGRAM_NAME
 # create config.h
 INCLUDE (CheckIncludeFiles)
 IF(WINDOWS)
-    SET(HAVE_OPENSSL false)
+    SET(HAVE_OPENSSL true)
+    SET(HAVE_MYSQL true)
 ELSE()
     CHECK_INCLUDE_FILES (openssl/md5.h HAVE_OPENSSL)
+    CHECK_INCLUDE_FILES (mysql/mysql.h HAVE_MYSQL)
 ENDIF() 
 CONFIGURE_FILE(
     ${CMAKE_CURRENT_LIST_DIR}/../../cmake/env/pol_global_config.h.in 
