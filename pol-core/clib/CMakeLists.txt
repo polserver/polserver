@@ -11,40 +11,41 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES
-	clib_utils.cpp 
-	boostutils.cpp 
-	timer.cpp
-	streamsaver.cpp
-	progver.cpp 
-	socketsvc.cpp 
 	binaryfile.cpp 
+	boostutils.cpp 
 	cfgfile.cpp 
 	cfgsect.cpp
+	clib_utils.cpp 
+	cmdargs.cpp 
 	dirlist.cpp
+	esignal.cpp
+	fdump.cpp 
+    filecont.cpp
 	fileutil.cpp 
 	iohelp.cpp
 	kbhit.cpp
-	mlog.cpp 
 	MD5.cpp
+	logfacility.cpp
+	mlog.cpp 
 	opnew.cpp
 	passert.cpp
+	pkthelper.cpp
+	progver.cpp 
+	socketsvc.cpp 
+	streamsaver.cpp
+	random.cpp 
 	sckutil.cpp 
+	stracpy.cpp
 	strexcpt.cpp 
 	strset.cpp 
 	strutil.cpp
 	threadhelp.cpp
+	timer.cpp
 	tracebuf.cpp
-	fdump.cpp 
-	stracpy.cpp
-	random.cpp 
-	cmdargs.cpp 
+	unicode.cpp
 	wallclock.cpp
 	wnsckt.cpp
 	xmain.cpp
-	unicode.cpp
-	pkthelper.cpp
-	logfacility.cpp
-	esignal.cpp
 )
 
 ##############################################################
