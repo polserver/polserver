@@ -1,0 +1,6 @@
+#ifndef POL_GLOBAL_CONFIG_H
+#define POL_GLOBAL_CONFIG_H
+
+#cmakedefine HAVE_OPENSSL
+
+#endif /* POL_GLOBAL_CONFIG_H */
