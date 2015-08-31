@@ -83,6 +83,8 @@ namespace Pol {
 	  {
 		if ( Clib::stringicmp( varname, variables_[i].name ) == 0 )
 		{
+			if ( variables_[i].unused )
+				INFO_PRINT << "Warning: variable '" << variables_[i].name << "' declared as unused but used.\n";
 		  variables_[i].used = true;
 		  idx = i;
 		  return true;
@@ -116,7 +118,7 @@ namespace Pol {
 	  for ( ; bd.varcount; bd.varcount-- ) // To enable popping variables only
 	  {
 		Variable& bk = variables_.back();
-		if ( !bk.used && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+		if ( !bk.used && !bk.unused && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
 		{
 		  INFO_PRINT << "Warning: local variable '" << bk.name << "' not used.\n";
 		  if ( compilercfg.ErrorOnWarning )
@@ -130,7 +132,7 @@ namespace Pol {
 	  if ( !varsOnly ) blockdescs_.pop_back();
 	}
 
-	void Scope::addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused )
+	void Scope::addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused, bool unused )
 	{
 	  for ( size_t i = variables_.size() - blockdescs_.back().varcount; i < variables_.size(); ++i )
 	  {
@@ -143,6 +145,7 @@ namespace Pol {
 	  newvar.name = varname;
 	  newvar.ctx = ctx;
 	  newvar.used = !warn_on_notused;
+	  newvar.unused = unused;
 	  variables_.push_back( newvar );
 	  blockdescs_.back().varcount++;
 	}
@@ -2387,6 +2390,7 @@ namespace Pol {
 		if ( res ) return -1;
 
 		bool pass_by_reference = false;
+		bool unused = false;
 
 		if ( token.id == TOK_RPAREN ) break;
 		if ( token.id == TOK_REFTO )
@@ -2394,6 +2398,12 @@ namespace Pol {
 		  pass_by_reference = true;
 		  res = getToken( ctx, token );
 		  if ( res ) return -1;
+		}
+		if (token.id == TOK_UNUSED)
+		{
+			unused = true;
+			res = getToken(ctx, token);
+			if (res) return -1;
 		}
 		if ( token.id != TOK_IDENT )
 		{
@@ -2403,10 +2413,17 @@ namespace Pol {
 		UserParam& param = userfunc.parameters.back();
 		param.name = token.tokval();
 		param.pass_by_reference = pass_by_reference;
+		param.unused = unused;
 		peekToken( ctx, token );
 		if ( token.id == TOK_ASSIGN )
 		{
 		  // We have a default argument.
+		  if (unused)
+		  {
+		    INFO_PRINT << "Default arguments are not allowed in unused parameters\n";
+		    return -1;
+		  }
+
 		  param.have_default = 1;
 		  getToken( ctx, token ); // Eat the assignment operator
 
@@ -4311,7 +4328,7 @@ namespace Pol {
 		  TYP_OPERATOR, posn ), 0 );
 		program->addlocalvar( user_param->name );
 
-		localscope.addvar( user_param->name, ctx );
+		localscope.addvar( user_param->name, ctx, true, user_param->unused );
 	  }
 
 	  res = handleBlock( ctx, 1 /* level */ );
@@ -4420,7 +4437,7 @@ namespace Pol {
 		  TYP_OPERATOR, posn ), 0 );
 
 		program->addlocalvar( params->name );
-		localscope.addvar( params->name, ctx );
+		localscope.addvar( params->name, ctx, true, params->unused );
 	  }
 
 	  Token endblock_tkn;
@@ -4571,11 +4588,18 @@ namespace Pol {
 	  {
 		Token token;
 		res = getToken( ctx, token );
+		bool unused = false;
 		if ( res < 0 ) return res;
 		if ( res > 0 )
 		{
           INFO_PRINT << "End-of-file reached reading program argument list\n";
 		  return -1;
+		}
+		if (token.id == TOK_UNUSED)
+		{
+			unused = true;
+			res = getToken(ctx, token);
+			if (res) return -1;
 		}
 		if ( token.id == TOK_RPAREN )
 		{
@@ -4593,7 +4617,7 @@ namespace Pol {
 		  program->symbols.append( token.tokval(), posn );
 		  program->append( StoredToken( Mod_Basic, INS_GET_ARG, TYP_OPERATOR, posn ), 0 );
 		  program->addlocalvar( token.tokval() );
-		  localscope.addvar( token.tokval(), ctx );
+		  localscope.addvar( token.tokval(), ctx, true, unused );
 
 		  res = peekToken( ctx, token );
 		  if ( res < 0 ) return res;
@@ -4677,7 +4701,7 @@ namespace Pol {
 		  save_ctx,
 		  0 );
 		program->addlocalvar( params->name );
-		localscope.addvar( params->name, ctx );
+		localscope.addvar( params->name, ctx, true, params->unused );
 	  }
 
 	  BTokenId last_statement_id;

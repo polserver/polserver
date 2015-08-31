@@ -11,12 +11,12 @@ class Compare:
       l1=f1.readlines()
       l2=f2.readlines()
       if len(l1) != len(l2):
-        print 'line count differs'
+        print('line count differs')
         return False
       for c1,c2 in zip(l1,l2):
         if c1!=c2:
-          print '"',c1,'"'
-          print '"',c2,'"'
+          print('"',c1,'"')
+          print('"',c2,'"')
           return False
       return True
 
@@ -35,7 +35,7 @@ class Executor:
     try:
       return subprocess.check_output(cmd,shell=True,stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-      print e.cmd,e.output
+      print(e.cmd,e.output)
 
 class Compiler:
   def __init__(self,comp):
@@ -45,7 +45,7 @@ class Compiler:
     try:
       return subprocess.check_output(self.comp+' -l -xt -q -C ecompile.cfg '+file,shell=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-      print e.cmd, e.output
+      print(e.cmd, e.output)
 
 class StdTests:
   def __init__(self):
@@ -68,19 +68,19 @@ class StdTests:
   def __call__(self,compiler,runecl):
     all_passed=True
     for f in self.files:
-      print 'Testing',f
+      print('Testing',f)
       if compiler(f) is None:
         all_passed=False
-        print 'failed to compile'
+        print('failed to compile')
         continue
 
       if runecl(f) is None:
         all_passed=False
-        print 'failed to execute'
+        print('failed to execute')
         continue
 
       if not Compare.outputcompare(f):
-        print 'output differs'
+        print('output differs')
         all_passed=False
     return all_passed
 

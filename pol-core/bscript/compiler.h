@@ -67,6 +67,7 @@ namespace Pol {
 	{
 	  std::string name;
 	  mutable bool used;
+	  mutable bool unused;
 	  CompilerContext ctx;
 	};
 	typedef std::vector<Variable> Variables;
@@ -76,7 +77,7 @@ namespace Pol {
 	public:
 	  BlockDesc& pushblock();
 	  void popblock( bool varsOnly );
-	  void addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused = true );
+	  void addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused = true, bool unused = false );
 	  void addvalue();
 	  bool inblock() const { return !blockdescs_.empty(); }
 	  unsigned numVarsInBlock() const { return blockdescs_.back().varcount; }

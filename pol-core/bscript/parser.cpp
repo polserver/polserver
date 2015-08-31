@@ -857,6 +857,7 @@ namespace Pol {
 	  { "or", TOK_OR, TYP_OPERATOR, PREC_LOGOR },
 	  { "not", TOK_LOG_NOT, TYP_UNARY_OPERATOR, PREC_UNARY_OPS },
 	  { "byref", TOK_REFTO, TYP_RESERVED },  //UNARY_OPERATOR, 12 },
+	  { "unused", TOK_UNUSED, TYP_RESERVED },
 	  { "error", TOK_ERROR, TYP_OPERAND },
 	  { "hash", RSV_FUTURE, TYP_RESERVED },
 	  { "dictionary", TOK_DICTIONARY, TYP_OPERAND },
