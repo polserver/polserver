@@ -24,6 +24,8 @@ CONFIGURE_FILE(
 IF(LINUX)
 	SET (FLAGS
 		${FLAGS}
+		-fno-strict-aliasing  
+		-Wno-unused-result 
 		-DPOL_BUILDTAG=\\\"ubuntu\\\"
 	)
 ENDIF()
