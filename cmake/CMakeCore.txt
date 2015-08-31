@@ -85,28 +85,9 @@ MESSAGE("### Header search path: ${INCLUDE_DIRS}")
 
 ##############################################################
 # compile flags
-SET (FLAGS
-    ${FLAGS}
-    -D_GNU_SOURCE
-    -W
-    -Wall
-    -Wno-overloaded-virtual
-    -Wno-switch
-    -Wno-unused
-    -Wno-long-long
-    -Wno-deprecated-declarations
-    -Wno-format
-    -Wno-unused-parameter
-    -Wno-unknown-pragmas
-)
 IF (WINDOWS)
 	# TODO
 ELSE()
-    SET(FLAGS
-        ${FLAGS}
-    	-std=c++11
-	    -Wno-unused-but-set-parameter
-    )
 	IF (DEFINED FORCE_ARCH_BITS)
 	    SET (FLAGS
 	        ${FLAGS}

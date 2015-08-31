@@ -24,8 +24,24 @@ CONFIGURE_FILE(
 IF(LINUX)
 	SET (FLAGS
 		${FLAGS}
+	    -D_GNU_SOURCE
+    	-std=c++11
+		-fopenmp  
+		-DINC_PASSERT=1 
+		-DTIXML_USE_STL 
+	    -W
+	    -Wall
+	    -Wno-overloaded-virtual
+	    -Wno-switch
+	    -Wno-unused
+	    -Wno-long-long
+	    -Wno-deprecated-declarations
+	    -Wno-format
+	    -Wno-unused-parameter
+	    -Wno-unknown-pragmas
 		-fno-strict-aliasing  
 		-Wno-unused-result 
+	    -Wno-unused-but-set-parameter
 		-DPOL_BUILDTAG=\\\"ubuntu\\\"
 	)
 ENDIF()

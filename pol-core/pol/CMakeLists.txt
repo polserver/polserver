@@ -243,10 +243,6 @@ SET (LIB_DIRS
 IF(NOT WINDOWS)
 	SET (FLAGS
 		${FLAGS}
-		-fopenmp  
-		-DINC_PASSERT=1 
-		-DTIXML_USE_STL 
-		-Wall 
 	    -Wno-uninitialized  #TODO: remove and fix the code
     	-Wno-ignored-qualifiers #TODO: remove and fix the code
 	)

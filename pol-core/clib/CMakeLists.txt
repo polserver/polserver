@@ -50,8 +50,6 @@ SET (SOURCES
 ##############################################################
 # include dirs
 SET (INCLUDE_DIRS
-	/usr/local/include/stlport
-	../../lib/boost_1_55_0
 	../..
 	../
 	./
@@ -63,16 +61,6 @@ SET (LIB_DIRS
 	${LIB_DIRS}
 	${CMAKE_CURRENT_LIST_DIR}/../bin
 )
-
-##############################################################
-# compile flags
-IF(NOT WINDOWS)
-	SET (FLAGS
-		${FLAGS}
-		-fno-strict-aliasing  
-		-Wno-unused-result 
-	)
-ENDIF()
 
 ##############################################################
 # link to the needed libs

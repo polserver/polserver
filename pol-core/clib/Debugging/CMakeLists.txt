@@ -21,16 +21,6 @@ SET (INCLUDE_DIRS
 )	
 
 ##############################################################
-# compile flags
-IF(NOT WINDOWS)
-	SET (FLAGS
-		${FLAGS}
-		-fno-strict-aliasing  
-		-Wno-unused-result 
-	)
-ENDIF()
-
-##############################################################
 # define target directory
 SET (TARGET_DIRECTORY
 	${CMAKE_CURRENT_LIST_DIR}/../../bin
