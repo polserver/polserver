@@ -26,20 +26,20 @@ set(BINARYL_VERSION "${BINARY_VERSION_MAJOR}.${BINARY_VERSION_MINOR}.${BINARY_VE
 ##############################################################
 # architecture
 IF (NOT DEFINED FORCE_ARCH_BITS)
-	IF ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-		set(ARCH_BITS "64")
-		MESSAGE("Detected architecture is 64 bit")
-	ELSEIF ("${CMAKE_SIZEOF_VOID_P}" EQUAL "4")
-		set(ARCH_BITS "32")
-		MESSAGE("Detected architecture is 32 bit")
-	ELSE()
-		MESSAGE("Unable to detect architecture of your system")
-	ENDIF()
+    IF ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+        set(ARCH_BITS "64")
+        MESSAGE("Detected architecture is 64 bit")
+    ELSEIF ("${CMAKE_SIZEOF_VOID_P}" EQUAL "4")
+        set(ARCH_BITS "32")
+        MESSAGE("Detected architecture is 32 bit")
+    ELSE()
+        MESSAGE("Unable to detect architecture of your system")
+    ENDIF()
 ELSE()
-	set(ARCH_BITS 
-		${FORCE_ARCH_BITS}
-	)
-	MESSAGE("Architecture was explicitly defined as ${FORCE_ARCH_BITS} bit")
+    set(ARCH_BITS 
+        ${FORCE_ARCH_BITS}
+    )
+    MESSAGE("Architecture was explicitly defined as ${FORCE_ARCH_BITS} bit")
 ENDIF (NOT DEFINED FORCE_ARCH_BITS)
 
 ##############################################################
@@ -49,53 +49,53 @@ MESSAGE("Detected processor type is ${CMAKE_SYSTEM_PROCESSOR}")
 ##############################################################
 # detect FreeBSD
 IF (${CMAKE_SYSTEM} MATCHES "FreeBSD.*")
-	SET (BSD "true")
-	
-	# clear LINUX variable, otherwise the source gets confused because cmake detects FreeBSD also as LINUX environment
-	SET (LINUX)
-	MESSAGE("Target system is FreeBSD")
+    SET (BSD "true")
+    
+    # clear LINUX variable, otherwise the source gets confused because cmake detects FreeBSD also as LINUX environment
+    SET (LINUX)
+    MESSAGE("Target system is FreeBSD")
 ELSE()
-	MESSAGE("Target system is ${CMAKE_SYSTEM}") 
+    MESSAGE("Target system is ${CMAKE_SYSTEM}") 
 ENDIF()
 
 ##############################################################
 # detect Linux
 IF (UNIX AND NOT WIN32 AND NOT APPLE AND NOT BSD)
-	MESSAGE("Target system is Linux")
-	SET (LINUX "true")
+    MESSAGE("Target system is Linux")
+    SET (LINUX "true")
 ENDIF()
 
 ##############################################################
 # detect OS X
 if (APPLE)
-	exec_program(uname ARGS -v OUTPUT_VARIABLE DARWIN_VERSION)
-	string(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
-	if (DARWIN_VERSION LESS 10)
-		# 10.6 of Snow Leopard is minimum
-		MESSAGE(FATAL_ERROR "You need at least OS X Snow Leopard")
-	endif()
-	if (DARWIN_VERSION EQUAL 10)
-		MESSAGE("Target system is DARWIN version 10 from OS X Snow Leopard")
-	elseif (DARWIN_VERSION EQUAL 11)
-		MESSAGE("Target system is DARWIN version 11 from OS X Lion")
-	else()
-		message("Target system is DARWIN version ${DARWIN_VERSION}")
-	endif()
+    exec_program(uname ARGS -v OUTPUT_VARIABLE DARWIN_VERSION)
+    string(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
+    if (DARWIN_VERSION LESS 10)
+        # 10.6 of Snow Leopard is minimum
+        MESSAGE(FATAL_ERROR "You need at least OS X Snow Leopard")
+    endif()
+    if (DARWIN_VERSION EQUAL 10)
+        MESSAGE("Target system is DARWIN version 10 from OS X Snow Leopard")
+    elseif (DARWIN_VERSION EQUAL 11)
+        MESSAGE("Target system is DARWIN version 11 from OS X Lion")
+    else()
+        message("Target system is DARWIN version ${DARWIN_VERSION}")
+    endif()
 endif(APPLE)
 
 ##############################################################
 # detect Windows
 IF (WIN32)
-	SET (WINDOWS "true")
-	IF ("${ARCH_BITS}" EQUAL "64")
-		MESSAGE("Target system is Windows64")
-		SET(WIN64 "true")
-		# undefine WIN32
-		SET(WIN32)
-	ELSE()
-		MESSAGE("Target system is Windows32")
-		SET(WIN32 "true")
-	ENDIF()
+    SET (WINDOWS "true")
+    IF ("${ARCH_BITS}" EQUAL "64")
+        MESSAGE("Target system is Windows64")
+        SET(WIN64 "true")
+        # undefine WIN32
+        SET(WIN32)
+    ELSE()
+        MESSAGE("Target system is Windows32")
+        SET(WIN32 "true")
+    ENDIF()
 ENDIF()
 
 ##############################################################

@@ -13,17 +13,17 @@
 MESSAGE("##### RC file generation for Windows build")
 
 IF(WINDOWS)
-	##############################################################
-	# WINDOWS: create library.rc automatically as additional object for linking process
-	configure_file(
-			library.rc.in
-		  	${CMAKE_CURRENT_BINARY_DIR}/library.rc
-	@ONLY)
-	
-	##############################################################
-	# WINDOWS: add binary.rc file to linking process
-	SET (SOURCES
-			${SOURCES}
-			${CMAKE_CURRENT_BINARY_DIR}/library.rc	
-	)
+    ##############################################################
+    # WINDOWS: create library.rc automatically as additional object for linking process
+    configure_file(
+            library.rc.in
+            ${CMAKE_CURRENT_BINARY_DIR}/library.rc
+    @ONLY)
+    
+    ##############################################################
+    # WINDOWS: add binary.rc file to linking process
+    SET (SOURCES
+            ${SOURCES}
+            ${CMAKE_CURRENT_BINARY_DIR}/library.rc    
+    )
 ENDIF()

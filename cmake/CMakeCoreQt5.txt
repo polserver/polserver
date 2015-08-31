@@ -19,7 +19,7 @@ QT5_WRAP_UI(SOURCES  ${QT_UI_SOURCES})
 ##############################################################
 # parse Q_OBJECT entries via moc
 QT5_WRAP_CPP(SOURCES ${QT_MOC_SOURCES})
-	
+
 ##############################################################
 # add Qt5 resources
 QT5_ADD_RESOURCES(SOURCES ${QT_QRC_SOURCES})
