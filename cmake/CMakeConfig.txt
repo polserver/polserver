@@ -100,3 +100,5 @@ ENDIF()
 
 ##############################################################
 SET (PRE_DEFINITIONS_EXECUTED "true")
+
+INCLUDE (${CMAKE_CURRENT_LIST_DIR}/POL.txt)
