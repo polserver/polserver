@@ -13,12 +13,14 @@ SET (SOURCES  # sorted !
 	blong.cpp 
 	bstruct.cpp
 	compctx.cpp 
+	compiler.cpp
 	compilercfg.cpp 
 	dbl.cpp 
 	dict.cpp 
 	eprog.cpp
 	eprog_read.cpp
 	eprog2.cpp
+	eprog3.cpp
 	escrutil.cpp
 	escript_config.cpp 
 	escriptv.cpp 
