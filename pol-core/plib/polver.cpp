@@ -50,5 +50,7 @@ namespace Pol {
   const char polbuildtag[] = "VS.NET 2012" PERGON_TAG "" MEMORYLEAK_TAG "" PROFILE_TAG "" POL_64;
 #elif defined(_MSC_VER) && (_MSC_VER <= 1800)
   const char polbuildtag[] = "VS.NET 2013" PERGON_TAG "" MEMORYLEAK_TAG "" PROFILE_TAG "" POL_64;
+#else
+  const char polbuildtag[] = "[UNKNOWN]" PERGON_TAG "" MEMORYLEAK_TAG "" PROFILE_TAG "" POL_64;
 #endif
 }
