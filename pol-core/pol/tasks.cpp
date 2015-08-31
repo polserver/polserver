@@ -39,7 +39,7 @@ Notes
 #include "../bscript/berror.h"
 #include "../bscript/escriptv.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 
 #ifdef _MSC_VER

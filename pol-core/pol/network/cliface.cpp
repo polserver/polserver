@@ -8,7 +8,7 @@ Notes
 
 */
 
-//#include "../../clib/endian.h"
+//#include "../../clib/clib_endian.h"
 
 #include "cliface.h"
 

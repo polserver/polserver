@@ -22,7 +22,7 @@ Notes
 
 #include "../plib/realm.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"

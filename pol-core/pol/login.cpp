@@ -45,7 +45,7 @@ Notes
 #include "../clib/stlutil.h"
 #include "../clib/MD5.h"
 #include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/fdump.h"
 

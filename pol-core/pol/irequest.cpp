@@ -29,7 +29,7 @@ Notes
 #include "ufunc.h"
 #include "party.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"

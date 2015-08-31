@@ -43,7 +43,7 @@ Notes
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/fileutil.h"

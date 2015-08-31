@@ -48,7 +48,7 @@ Notes
 #include "polcfg.h"
 
 #include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"

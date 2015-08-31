@@ -13,7 +13,7 @@ Notes
 
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
 #include "../clib/esignal.h"

@@ -13,7 +13,7 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
