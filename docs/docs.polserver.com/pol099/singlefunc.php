@@ -2,13 +2,15 @@
     include_once 'include/global.inc';
     if (!$offline) {
       $g_Page = "poldoc";
-      include_once '/home/polteam/include/_header.php';
+      if( isset($header) && $header )
+        include_once $header;
     }
     
     // PHP-BB global stuff
-		global $request;
+	global $request;
+	if( isset($request) )
 		$request->enable_super_globals();
-		//
+	//
     
 
   	$funcname =  $_GET['funcname'];

@@ -13,8 +13,10 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>02/25/2010</datemodified>
+    <datemodified>08/31/2015</datemodified>
 </fileheader>
+
+
 <cfgfile name="attributes.cfg">
     <location>Any Package</location>
     <numberallowed>any</numberallowed>
@@ -104,6 +106,7 @@ Protocol
 Listener
 {
     Port           (int port number 1024..65535)
+    KeepClients    (integer 0/1 {default 0})
     Encryption     (string encryption type {default none})
     AOSResistances (integer 0/1)
 }
@@ -115,6 +118,7 @@ Listener
     <explain>MaxSkillID allows you to use new client skills, but setting it too high can crash older clients. You must define attributes.cfg/uoskills.cfg entries for each skillID up to MaxSkillID (default 57).</explain>
     <explain>The Protocol and Listener sections are optional.</explain>
     <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section. If you use Listeners set ListenPort in pol.cfg to 0.</explain>
+    <explain>KeepClients: if set to 1 clients keep this listener port even after different gameserver select; actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort</explain>
     <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
     <explain>MethodScript: General Methodscript for characters</explain>
     <related>attributes.cfg</related>
@@ -185,6 +189,11 @@ Mounts
 {
   Tiles (int ItemID) [(int ItemID) ...]
 }
+
+ClientOptions
+{
+  UseNewHSAFormat (integer 0/1 {default 0})
+}
 </structure>
     <explain>MultiIDs depends on your multi.mul/idx.</explain>
     <explain>ItemIDs depends on your anim.mul and tiledata.mul.</explain>
@@ -225,6 +234,7 @@ Additional entries required up to maximum UO skill id
     <explain>If 'ProfileScripts 1' is in this file, profiling information will be printed when any script exits.</explain>
 </cfgfile>
 
+
 <cfgfile name="syshook.cfg">
     <location>Any package</location>
     <numberallowed>any</numberallowed>
@@ -256,12 +266,17 @@ StartingLocation
 {
     City        (string CityName)
     Description (string Description)
+    MapID       (int mapid {default 0})
+    Cliloc      (int clilocid {default 1075072})
     Coordinate  (int x),(int y),(int z)
+    Realm       (string realm)
 }
 [StartingLocation...]
 </structure>
     <explain>CityName and Description are sent to the client! no larger than 30 characters please.</explain>
-    <explain>x,y,z is where the character will be placed after created. You could set all the locations to the same coordinate to force players to start in one town.</explain>
+    <explain>MapID is the same number as in mapX.mul files, needed for the client to show the map correctly</explain>
+    <explain>Cliloc values are the description of the start locations</explain>
+    <explain>x,y,z,realm is where the character will be placed after created. You could set all the locations to the same coordinate to force players to start in one town.</explain>
 </cfgfile>
 
 
@@ -302,6 +317,7 @@ Spell (int spellid)
     <related>circles.cfg</related>
 </cfgfile>
 
+
 <cfgfile name="servspecopt.cfg">
     <location>/config only</location>
     <numberallowed>1</numberallowed>
@@ -337,6 +353,7 @@ Spell (int spellid)
 [SendStatLocks                  (0/1 {default 0})]
 [MaxContainerSlots              (int {default 125})]
 [UseContainerSlots              (0/1 {default 0})]
+[EditServer                     (0/1 {default 0})]
 [CarryingCapacityMod            (double {default 1.0})]
 [SpeechRange                    (int range {default 12})]
 [WhisperRange                   (int range {default 2})]
@@ -344,7 +361,17 @@ Spell (int spellid)
 [CoreSendsSeason                (0/1 {default 1})]
 [CoreHandledTags                (int bitfield {default 0xffff})]
 [SupportFaces                   (0/1/2 {default 0})]
+[NewbieStartingEquipment        (0/1 {default 1})]
 [SpeedhackPrevention            (0/1 {default 0})]
+[ScriptedMerchantHandlers       (0/1 {default 0})]
+[HonorUnequipScriptOnDeath      (0/1 {default 0})]
+[SpeedHack_MountRunDelay        (int milliseconds {default 80})]
+[SpeedHack_MountWalkDelay       (int milliseconds {default 180})]
+[SpeedHack_FootRunDelay         (int milliseconds {default 180})]
+[SpeedHack_FootWalkDelay        (int milliseconds {default 380})]
+[SeperateSpeechTokens           (0/1 {default 0})]
+[CoreGuildMessages              (0/1 {default 1})]
+[MobilesBlockNpcMovement        (0/1 {default 1})]
 </structure>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
   <explain><i>MovementUsesStamina:</i> if enabled stamina costs are defined in movecost.cfg</explain>
@@ -366,6 +393,7 @@ Spell (int spellid)
   <explain><i>SendStatLocks:</i> makes POL send stat lock message (Client version &gt; 3)</explain>
   <explain><i>MaxContainerSlots:</i> This will allow setting the internal overall allowed item count for containers. This is introduced for future KR support.</explain>
   <explain><i>UseContainerSlots:</i> check to can add bulk code to ensure not going over max slot capacity of 255 and a container's max slot capacity.</explain>
+  <explain><i>EditServer:</i> for bypassing cryptseed packet</explain>
   <explain><i>CarryingCapacityMod:</i> * modifier for mobile max_weight</explain>
   <explain><i>SpeechRange:</i> definies the range of normal speech</explain>
   <explain><i>WhisperRange:</i> definies the range of whispered speech</explain>
@@ -378,8 +406,33 @@ Spell (int spellid)
     0x4  [paralyzed]<br/>
     0x8  [squelched]<br/>
     0x10 [deafened]</explain>
-  <explain><i>SupportFaces :</i> 0 disables faces support, 1 basic faces support, 2 roleplay faces (sets 0x2000 flag in 0xB9 packet) (KR/SA feature)</explain>
-  <explain><i>SpeedhackPrevention :</i> 1 activates the intern SpeedHackPrevention system</explain>
+  <explain><i>SupportFaces:</i> 0 disables faces support, 1 basic faces support, 2 roleplay faces (sets 0x2000 flag in 0xB9 packet) (KR/SA feature)</explain>
+  <explain><i>NewbieStartingEquipment:</i> used to determine if equipped items created during the character creation should be newbied or not</explain>
+  <explain><i>SpeedhackPrevention:</i> 1 activates the intern SpeedHackPrevention system</explain>
+  <explain><i>ScriptedMerchantHandlers:</i> if enabled, the below change will come into effect:
+when a player buys something from a merchant the core will not longer handle taking gold from the player, and moving items to the players pack.
+When the event for EVID_MERCHANT_SOLD and EVID_MERCHANT_BOUGHT is sent it will be a struct {<br/>
+    type := EVID_MERCHANT_SOLD or EVID_MERCHANT_BOUGHT,<br/>
+    source := player buying,<br/>
+    shoppinglist := array{ struct.item, struct.amount }<br/>
+}
+The shopping list items will still be items in the merchant's container.
+It is up to the script to split the items from the stacks there and move them to the player's pack.
+It is also up to the script to handle gold checks and consumption.</explain>
+  <explain><i>HonorUnequipScriptOnDeath:</i> if enabled, the core will call unequip and unequiptest scripts on death and obey their return value</explain>
+  <explain><i>SpeedHack_MountRunDelay:</i> hacks the movement speed, change it at your own risk</explain>
+  <explain><i>SpeedHack_MountWalkDelay:</i> hacks the movement speed, change it at your own risk</explain>
+  <explain><i>SpeedHack_FootRunDelay:</i> hacks the movement speed, change it at your own risk</explain>
+  <explain><i>SpeedHack_FootWalkDelay:</i> hacks the movement speed, change it at your own risk</explain>
+  <explain><i>SeperateSpeechTokens:</i>if enabled, RegisterForSpeechEvents() and EnableEvents/DisableEvents will behave differently<br/>
+for uo:EnableEvents/DisableEvents if SeperateSpeechTokens is set you can control which events you get,
+for NPCs you only get speech with tokens if you set SYSEVENT_TOKEN_SPEECH/SYSEVENT_TOKEN_GHOST_SPEECH
+and non Token speech with SYSEVENT_SPEECH,SYSEVENT_GHOST_SPEECH
+for RegisterForSpeechEvents() you get speech with and without Tokens when setting LISTENPT_HEAR_TOKENS
+and no speech without Tokens setting LISTENPT_NO_SPEECH<br/>
+Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
+  <explain><i>CoreGuildMessages:</i> used to determine if core should handle guild and alliance messages</explain>
+  <explain><i>MobilesBlockNpcMovement:</i> use to determine if mobiles block the movement of npcs</explain>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>
@@ -449,7 +502,17 @@ HookList
 </structure>
   <explain>NameColoring defines the single-click name colors for mobiles with various reputation states.</explain>
   <explain>Repsys coloring for Invulnerable names will only occur when InvulTag in ServSpecOpt.cfg is set to 2.</explain>
-  <explain>HookList section is only needed if you wish to define repsys hooks.</explain>
+  <explain>HookList section is only needed if you wish to define repsys hooks. Currently name (single click) and highlight (health bar) colors are hookable:<br/>
+exported function NameColor(mobile, visible_to) // must return an Integer, the new color to be used<br/>
+exported function HighLightColor(mobile, visible_to) // must return an Integer, the hightlight to be used (see below)<br/>
+exported function OnAttack(attacker, defender) // run when a mobile attacks another, return 1 to prevent POL from doing standard repsys actions<br/>
+exported function OnDamage(attacker, defender) // run when a mobile damages another, return 1 to prevent POL from doing standard repsys actions<br/>
+exported function OnHelp(helper, helped) // run when a mobile helps another, return 1 to prevent POL from doing standard repsys actions<br/>
+HighLightColor note: The client seems to only accept the following numbers
+0 - None, 1 - Innocent, 2 - Friend, 3 - Attackable,
+4 - Criminal, 5 - Enemy, 6 - Murderer, 7 - Invulnerable
+8 - Unknown (blue gump, pure black mobile)
+</explain>
   <explain>HighLightColor function should be made as fast as possible, as it is called many times.</explain>
   <explain>PartyHelpFullCountsAsCriminal defines if HelpFull action counts as criminal act on murderers/criminals if in same party</explain>
   <related>servspecopt.cfg</related>
@@ -468,7 +531,7 @@ Name          (string package name)
 Requires      (string package name) [(int version)] ...
 Replaces      (string package name) ...
 Conflicts     (string package name) ...
-[Version      (string version number)]
+[Version      (string version number {default 0})]
 [CoreRequired (int core version without leading 0, or full version string)]
 [ProvidesSystemHomePage (0/1)]
 
@@ -507,19 +570,28 @@ PackageRoot
     <numberallowed>1</numberallowed>
     <requiredtostart>Yes</requiredtostart>
     <requiredby>Core</requiredby>
-    <purpose>Maps the UO 'MultiID' number with the graphic number for the multi.</purpose>
+    <purpose>This file is usually automatically generated by uoconvert. Maps the UO 'MultiID' number with the graphic number for the multi.</purpose>
     <structure>
 House (int multid)
 {
-    Graphic (int graphic)
+    [static  (objtype) (xoffset) (yoffset) (zoffset)]
+    [dynamic (objtype) (xoffset) (yoffset) (zoffset)]
 }
 [House...]
 
 Boat (int multid)
 {
-    (int graphic)
+    [static  (objtype) (xoffset) (yoffset) (zoffset)]
+    [dynamic (objtype) (xoffset) (yoffset) (zoffset)]
 }
 [Boat...]
+
+Stairs (int multid)
+{
+    [static  (objtype) (xoffset) (yoffset) (zoffset)]
+    [dynamic (objtype) (xoffset) (yoffset) (zoffset)]
+}
+[Stairs...]
 </structure>
     <explain>Use InsideUO to get the MultiIDs. Multi Graphics start at 0x4000 and are equal to 0x4000 + MultiID.</explain>
 </cfgfile>
@@ -564,6 +636,7 @@ Running
     <related>servspecopt.cfg</related>
 </cfgfile>
 
+
 <cfgfile name="bannedips.cfg">
     <location>/config only</location>
     <numberallowed>1</numberallowed>
@@ -606,13 +679,26 @@ AuxService
     <numberallowed>1</numberallowed>
     <requiredtostart>No</requiredtostart>
     <requiredby>Core</requiredby>
-    <purpose>Defines the mappings for animation codes for standing and while on horseback.</purpose>
+    <purpose>Defines the mappings for animation codes for standing and while on horseback. Mobile types based on graphic and translation between the two different animation packets</purpose>
     <structure>
 OnMount
 {
     [(int normal animation) (int mounted animation)]...
 }
+
+MobileType (string type)
+{
+    [OldAnimX (int action) [int framecount {default 5}] [int repeatcount {default 5}] [int backward {default 0}] [int repeatflag {default 0}] [int delay {default 1}]
+    [NewAnim (int anim) [int action {default 0}] [int subaction {default 0}]
+    [Graphic (int graphic)]
+}
 </structure>
+    <explain>Actions while on a mount: format is normal-animation  on-mount-animation</explain>
+    <explain>MobileType format:<br/>
+MountTranslation 1/0  defines if the OnMount table can be used (only valid for humans)<br/>
+Graphic int  defines the mobile graphics for this type<br/>
+OldAnimX and NewAnimX (where X is between 0 and 34) defines the animation pkt for each action<br/>
+NewAnim is used for 7.0.9.0 clients</explain>
 </cfgfile>
 
 
@@ -635,6 +721,7 @@ ArmorZone
     <explain>Layer is for the different equipped item layers the UO client uses. For example, items that are only equipped on the arms (like platemail arms) are layer 19. You may define multiple layers per zone.</explain>
 </cfgfile>
 
+
 <cfgfile name="combat.cfg">
     <location>/config only</location>
     <numberallowed>1</numberallowed>
@@ -652,6 +739,7 @@ ArmorZone
 [SendSwingPacket             (0/1 {default 1})]
 [SendDamagePacket            (0/1 {default 0})]
 [AttackWhileFrozen           (0/1 {default 1})]
+[SendAttackMsg               (0/1 {default 1})]
 </structure>
     <explain><i>WarModeDelay:</i> is a delay between ability to toggle war mode status via client. Does not affect using SetWarMode method.</explain>
     <explain><i>SingleCombat:</i> allows players to attack themselves.</explain>
@@ -661,7 +749,9 @@ ArmorZone
     <explain><i>SendSwingPacket:</i> Should packet 0x2F be send on swing.</explain>
     <explain><i>SendDamagePacket:</i> Should 0xB (0xBF sub 0x22 for clients&lt;4.0.7a) be send on damage</explain>
     <explain><i>AttackWhileFrozen:</i> if set to false attack checks if chr is frozen or paralyzed</explain>
+    <explain><i>SendAttackMsg:</i> setting this to 0 stops the core repsys system sending "is attacking you" messages</explain>
 </cfgfile>
+
 
 <cfgfile name="equip.cfg">
     <location>/config only</location>
@@ -782,6 +872,7 @@ ItemMenu
 UoDataFileRoot=(path to UO MUL files)
 WorldDataPath=(path to POL Data files {default data/})
 RealmDataPath=(path to POL Realm files {default realm/})
+PidFilePath=(where POL will write its .pid file {default ./})
 [ListenPort=(integer TCP port)]
 [ClientEncryptionVersion=(string {default none})]
 [CountResourceTiles=(1/0 {default 1}]
@@ -790,7 +881,7 @@ RealmDataPath=(path to POL Realm files {default realm/})
 [WebServerPort=(int port {default 8080})]
 [IgnoreLoadErrors=(1/0 {default 0})]
 [DebugPort=(int port {default 0})]
-
+[AccountDataSave=(1/0 {default -1})]
 [Verbose=(1/0 {default 0})]
 [LogLevel=(int level {default 0})]
 [SelectTimeout=(int {default 10})]
@@ -818,21 +909,33 @@ RealmDataPath=(path to POL Realm files {default realm/})
 [DisplayUnknownPackets=(1/0 {default 0})]
 [ExpLosChecksMap=(1/0 {default 1})]
 [EnableDebugLog=(1/0 {default 0})]
-[ReportMissingConfigs=(1/0 {default 1})]
 [DebugPassword=(string {default empty})]
 [DebugLocalOnly=(1/0 {default 1})]
 [DebugLevel=(int level {default 0})]
 [ReportRunToCompletionScripts=(1/0 {default 1})]
 [ReportCriticalScripts=(1/0 {default 1})]
+[ReportMissingConfigs=(1/0 {default 1})]
 [MaximumClients=(int {default 300})]
 [MaximumClientsBypassCmdLevel=(int cmdlevel {default 1})]
 [CharacterSlots=(int {default 5})]
 [MiniDumpType=(string small/large/variable {default variable})]
 [RetainCleartextPasswords=(1/0 {default 0})]
-[AssertionFailureAction=(abort/continue/shutdown/shutdown-nosave {default abort})]
+[AssertionFailureAction=(abort/continue/shutdown/shutdown-nosave/shutdown-save-full/shutdown-save-incremental {default abort})]
+[ShutdownSaveType=(full/incremental {default full})]
 [TimestampEveryLine=(1/0 {default 0})]
 [MaxTileID=(0x3FFF/0x7FFF {default 0x3FFF})]
+[MaxObjtype=(0x20000/0xFFFFFFFF {default 0x20000})]
 [DiscardOldEvents=(1/0 {default 0})]
+[UseSingleThreadLogin=(1/0 {default 0})]
+[DisableNagle=(1/0 {default 0})]
+[ShowRealmInfo=(1/0 {default 0})]
+[EnforceMountObjtype=(1/0 {default 0})]
+[SingleThreadDecay=(1/0 {default 0})]
+[ThreadDecayStatistics=(1/0 {default 0})]
+[ReportCrashsAutomatically=(1/0 {default 0})]
+[ReportAdminEmail=(string email {default ""})]
+[ReportServer=(string servername {default "polserver.com"})]
+[ReportURL=(string url {default "/pol/report_program_abort.php"})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
     ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
@@ -844,7 +947,13 @@ RealmDataPath=(path to POL Realm files {default realm/})
     <explain>AssertionFailureAction options: abort: (like old behavior) aborts immediately, without saving data. continue: allows execution to continue. shutdown: attempts graceful shutdown. shutdown-nosave: attempts graceful shutdown, without saving data. If the assertion occurred during execution of a script, either 'shutdown', 'shutdown-nosave', or 'continue' will abort that script, displaying the script name and PC.</explain>
     <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
     <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>
+    <explain>AccountDataSave: -1 : old behaviour, saves accounts.txt immediately after an account change, 0 : saves only during worldsave (if needed), >0 : saves every X seconds and during worldsave (if needed)</explain>
+    <explain>UseSingleThreadLogin: if set all prelogin clients are handled inside the listener thread and not inside an extra thread this will reduce the amount of thread creates and destroys</explain>
+    <explain>DisableNagle: disables Nagle's algorithm. In theory, latency should improve if DisableNagle=1.</explain>
+    <explain>ShowRealmInfo: will report every once in a while the number of items, mobiles and multis per realm.</explain>
+    <explain>EnforceMountObjtype: will enforce that only items with the mount objtype (as defined in extobj.cfg) can be mounted.</explain>
 </cfgfile>
+
 
 <cfgfile name="ecompile.cfg">
     <location>same directory as ecompile.exe only</location>
@@ -872,6 +981,9 @@ PackageRoot (path to package root)
 [DisplaySummary (0/1 {default 0})]            //Displays overall totals after compilation, unless compilation 
                                               //aborted due to a compile error.
 [OptimizeObjectMembers (0/1 {default 1})]     //-m flag will set it to 0
+[ErrorOnWarning (0/1 {default 0})]            //same as -y flag
+[ThreadedCompilation (0/1 {default 0})]       //uses multiple thread to speed up compilation
+[ParanoiaWarnings (0/1 {default 0})]          //will complain about {} syntax
 
 </structure>
     <explain>The 'generate' properties allow default behavior for generating listing or debug files.</explain>
@@ -890,17 +1002,25 @@ PackageRoot (path to package root)
     <structure>
 Boat
 {
-    ObjType                     (int boat multi graphic)
+    MultiId                     (int boat multi id)
     TillerMan                   (int item graphic) (x offset) (y offset)
     PortGangplankExtended       (int item graphic) (x offset) (y offset)
     PortGangplankRetracted      (int item graphic) (x offset) (y offset)
     StarboardGangplankExtended  (int item graphic) (x offset) (y offset)
     StarboardGangplankRetracted (int item graphic) (x offset) (y offset)
     Hold                        (int item graphic) (x offset) (y offset)
+    [Rope                       (int item graphic) (x offset) (y offset)]
+    [Wheel                      (int item graphic) (x offset) (y offset)]
+    [Hull                       (int item graphic) (x offset) (y offset)]
+    [Tiller                     (int item graphic) (x offset) (y offset)]
+    [Rudder                     (int item graphic) (x offset) (y offset)]
+    [Sails                      (int item graphic) (x offset) (y offset)]
+    [Storage                    (int item graphic) (x offset) (y offset)]
+    [WeaponSlot                 (int item graphic) (x offset) (y offset)]
 }
 [Boat...]
 </structure>
-    <explain>ObjType should be &gt;= 0x4000.</explain>
+    <explain>MultiId usually equals grapphic-0x4000.</explain>
     <explain>All the x,y tile distance offsets are from the ship's mast. As normal on the map, positive X is east, positive Y is south. It doesn't matter what 'facing' of the boat this is for, parts of the boat that are east of the mast are defined with positive X values, parts south of the mast are defined with positive Y values, and vice versa.</explain>
 </cfgfile>
 
@@ -924,11 +1044,11 @@ Region (region name)
     [Midi             (int music number)]
     [NoCast           (0/1 {default 0})]
     [NoCombat         (0/1 {default 0})]
-    [Light            (int light level {default 0}]
+    [LightLevel       (int light level {default 0}]
     [WeatherType      (int type {default 0})]
     [WeatherSeverity  (int severity {default 0})]
     [WeatherAux       (int {default 0})]
-    [LightOverride    (int light level override {default 1})]
+    [LightOverride    (int light level override {default -1})]
 }
 [Region...]
 </structure>
@@ -937,7 +1057,7 @@ Region (region name)
     <explain>'Midi' are for 'music' regions, and may be split into /regions/music.cfg, the prefered location for these regions.</explain>
     <explain>'NoCast' are for 'nocast' regions and may be split into /regions/nocast.cfg, the prefered location for these regions.</explain>
     <explain>'NoCombat' regions will not allow the Clicking of a mobile to select as a new opponent if they are in this region. It will also reset opponent data for mob if one enters this region. This is a PvP specific addon. It does NOT check for npcs, this will have to be done via packethooks. When Entering a NoCombat region, while already in combat, if YOU are the attacker, it will reset your fight. If you are the one being attacked, it will reset the fight with the first "opponent" you have listed.</explain>
-    <explain>'Light' are for 'light' regions and may be split into /regions/light.cfg, the prefered location for these regions.</explain>
+    <explain>'LightLevel' are for 'light' regions and may be split into /regions/light.cfg, the prefered location for these regions.</explain>
     <explain>'WeatherType', 'WeatherSeverity', 'WeatherAux', and 'LightOverride' are for 'weather' regions and may be split into /regions/weather.cfg, the prefered location for these regions.</explain>
     <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>
 </cfgfile>
@@ -990,6 +1110,7 @@ Region (region name)
     <related>regions.cfg</related>
 </cfgfile>
 
+
 <cfgfile name="nocast.cfg">
     <location>/regions only</location>
     <numberallowed>1</numberallowed>
@@ -1026,7 +1147,7 @@ Region (region name)
     [WeatherType      (int type {default 255})]
     [WeatherSeverity  (int severity {default 0})]
     [WeatherAux       (int {default 0})]
-    [LightOverride    (int light level override {default 1})]
+    [LightOverride    (int light level override {default -1})]
 }
 [Region...]
 </structure>
@@ -1039,7 +1160,7 @@ Region (region name)
     2 - snow ("It begins to snow")<br/>
     3 - brewing storm - ("A storm is brewing")<br/>
     255 - None (Turns sound effects off)<br/>
-      
+
     severity:is set on a 0-70 scale, 70=torrential rain, 0=light drizzle. <br/>    
     aux: nothing<br/>
     lightoverride: light level amount overrides current level. -1 means no override.</explain>
@@ -1144,10 +1265,12 @@ NpcTemplate (string unique templatename)
 
     [(VitalName)           (die-string value)]
     [VitalName...]
-    
+
     [(AttributeName)       (die-string value)]
     [AttributeName...]
-    
+
+    // Intrinsic weapon creation
+    AttackSpeed            (int intrinsic weapon speed, no weapon will be created if missing)
     [AttackDelay           (int intrinsic weapon delay in ms {default 0})]
     AttackDamage           (die-string damage for intrinsic weapon)
     AttackAttribute        (string attribute name used for intrinsic weapon)
@@ -1157,27 +1280,26 @@ NpcTemplate (string unique templatename)
     [AttackMinRange        (int intrinsic weapon minimum range {default 0})]
     [AttackMaxRange        (int intrinsic weapon maximum range {default 0})]
     [AttackAnimation       (int animation ID {default 0 (wrestling)})]
-    
+    [AttackProjectile      (0/1 if defined, sets the intrinsic weapon as a projectile weapon]
+    [AttackProjectileAnim  (int tile number of animation)]
+    [AttackProjectileType  (int objtype of projectile)]
+    [AttackProjectileSound (int soundID for projectile shoot)]
+
     [FireDamage]            (int/(die-string value))]
     [ColdDamage]            (int/(die-string value))]
     [EnergyDamage]          (int/(die-string value))]
     [PoisonDamage]          (int/(die-string value))]
     [PhysicalDamage]        (int/(die-string value))]
 
-    [AttackProjectile...]
-    [AttackProjectileAnim...]
-    [AttackProjectileType...]
-    [AttackProjectileSound...]
-
     [MaxHp                 (int maximum hitpoints for intrinsic weapon {default 1}]
 
     [MoveMode              (movemode string {default 'L'})]
     [Privs                 (string privilege) [(more privs)]...]
     [Settings              (string priv set 'on') [(more privs)]...]
-    
+
     [SpeechColor           (int speech color {default 0x3B2})]
     [SpeechFont            (int speech color {default 3})]
-    
+
     [UseAdjustments        (0/1 {default 1})]
     [RunSpeed              (int 0-250 {default dexterity})]
     [SaveOnExit            (0/1 {default 1})]
@@ -1217,6 +1339,7 @@ NpcTemplate (string unique templatename)
 Item (objtype)
 {
     Name                    (string unique object name)
+    [Name...]
     Graphic                 (int tile number)
     [Color                  (int color {default 0})]
     [Facing                 (int facing {default 0})]
@@ -1247,6 +1370,7 @@ Item (objtype)
     [DecaysOnMultis         (0/1 {default 0})]
     [BlocksCastingIfInHand  (0/1 {default 0})]
     [StrRequired            (int strength {default 0})]
+    [MaxHP                  (int max {default 0})]
     [Weight                 (int weight {default tiledata value})]
     [OldObjtype             (int old objtype)]...
     [StackingIgnoresCProps  (propname1) [(propname2)]... ]
@@ -1289,7 +1413,7 @@ Spellbook (objtype)
 }
 
 Door (objtype)
-{    
+{
     {everything Item can have, plus: }
     XMod            (int x modification when door toggled)
     YMod            (int y modification when door toggled)
@@ -1325,23 +1449,24 @@ Weapon (objtype)
     [HitSound        (int soundID)]
     [MissSound       (int soundID)]
     [HitScript       (string script name)]
-    
+    MaxHP            (int max)
+
     [Projectile      (0/1 {default 0})]
     [ProjectileType  (int objtype of projectile)]
     [ProjectileAnim  (int tile number of animation)]
     [ProjectileSound (int soundID for projectile shoot)]
-    
+
     [TwoHanded       (0/1 {default 0})]
     [MinRange        (int minimum range to attack {default 2 if projectile weapon, 0 else})]
     [MaxRange        (int maximum range to attack {default 20 if projectile weapon, 1 else})]
-    [Intrinsic       (0/1 {default 0})]
 }
 
 Armor (objtype)
 {
     {everything Item can have, plus: }
     AR               (int armor rating)
-    [OnHitScript     (string script name)]   
+    MaxHP            (int max)
+    [OnHitScript     (string script name)]
     [Coverage        (string armor zone name {defaults to layer number zone})]
     [Coverage...]
 }
@@ -1405,6 +1530,7 @@ FileAccess
     <explain>This config is reloadable on-demand. Use ReloadConfiguration() (polsys.em) or SIGHUP under linux.</explain>
 </cfgfile>
 
+
 <cfgfile name="www.cfg">
     <location>/config only</location>
     <numberallowed>1</numberallowed>
@@ -1421,6 +1547,7 @@ MIME (string extension)
 </structure>
     <explain>This allows you to add new file types that the web server can handle, for example PNG images, PDF files or favicon.ico. If you don't supply a www.cfg, old defaults are used ("jpg", "jpeg" and "gif").</explain>
 </cfgfile>
+
 
 <cfgfile name="uopacket.cfg">
     <location>Any Package</location>
@@ -1465,6 +1592,7 @@ the client's version number in the core.</explain>
   <explain><i>Hint:</i> Please do not try to hook Sub-Sub-Commands (like the 0xBF 0x06 Party System subsubcommands), instead use a case statement in the subcommand hook.</explain>
   <explain><i>Hint:</i> You can find examples in packethooks.txt</explain>
 </cfgfile>
+
 
 <cfgfile name="party.cfg">
     <location>/config only</location>
@@ -1540,5 +1668,36 @@ HookList
 </structure>
   <explain>HookList section is only needed if you wish to define party hooks.</explain>
 </cfgfile>
+
+
+<cfgfile name="extobj.cfg">
+    <location>/config only</location>
+    <numberallowed>1</numberallowed>
+    <requiredtostart>no</requiredtostart>
+    <requiredby>Core</requiredby>
+    <purpose>Defines objtypes for internal objects. If the file 'extobj.local.cfg' exists, the entries will be used in that file instead (to keep changes from being destroyed if a new extobj.cfg is installed from, say, the official distribution)</purpose>
+    <structure>
+[Tillerman                      (int objtype {default 0x1F010})]
+[Port_Plank                     (int objtype {default 0x1F011})]
+[Starboard_Plank                (int objtype {default 0x1F012})]
+[Hold                           (int objtype {default 0x1F013})]
+[Rope                           (int objtype {default 0x1F014})]
+[Wheel                          (int objtype {default 0x1F015})]
+[Hull                           (int objtype {default 0x1F016})]
+[Tiller                         (int objtype {default 0x1F017})]
+[Rudder                         (int objtype {default 0x1F018})]
+[Sails                          (int objtype {default 0x1F019})]
+[Storage                        (int objtype {default 0x1F01A})]
+[Waponslot                      (int objtype {default 0x1F01B})]
+
+[Wrestling                      (int objtype {default 0x1F020})]
+[Mount                          (int objtype {default 0x1F021})]
+
+[Secure_Trade_Container         (int objtype {default 0x1FF01})]
+[Wornitems_Container            (int objtype {default 0x1FF02})]
+</structure>
+<explain>Note: Subtract 0x10000 for quick POL098 backward compatibility if you don't use HSA expansion.</explain>
+</cfgfile>
+
 
 </ESCRIPT>

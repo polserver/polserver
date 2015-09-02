@@ -6,8 +6,9 @@
     <fname>POL System Events</fname>
     <hdesc>This document describes all the "System Events" (Sysevents) that the POL core uses. These are enabled in Control Scripts using the EnableEvents() function. Only these events listed here should be used in the EnableEvents() function. You may not define User Events with any of these values (or any of the reserved values in sysEvent.inc). To use a user event in your script, you must not use EnableEvents(), just send it using SendEvent() (or process_obj.sendevent()) and look for it normally in the receiving script. Some of the Sysevents below are ranged, meaning you may specify a world distance in EnableEvents() beyond which the script will not receive the event. Use DisableEvents() to disable any of the Sysevents.
     </hdesc>
-    <datemodified>10/27/2007</datemodified>
-</header>    
+    <datemodified>08/31/2015</datemodified>
+</header>
+
 
 <event>
   <name>SYSEVENT_SPEECH</name>
@@ -19,9 +20,11 @@
   <member mname="texttype" value="type of speech: &quot;yell&quot;, &quot;whisper&quot;, &quot;emote&quot;, or &quot;default&quot;"/>
   <member mname="uc_text" value="(Unicode only) a &quot;Unicode array&quot; of 2-byte &quot;Big Endian&quot; integers corresponding to the unicode characters sent. will be an 'error' type if the Unicode input is &quot;bad&quot;.  will be uninitialized if no Unicode text is available (ie, when a non-Unicode client types the command)"/>
   <member mname="langcode" value="(Unicode only) string 3-character, uppercase language code, i.e. &quot;ENU&quot;, &quot;DEU&quot;, etc."/>
+  <member mname="tokens" value="(Unicode only) if speech has (speech.mul) Tokens, gives array of spoken TokenIDs"/>
   <whensent>When a player speaks in range of an item listening point, or NPC that has enabled the event. Note Ghost speech is a seperate event.</whensent>
   <ranged>Yes</ranged>
 </event>
+
 
 <event>
   <name>SYSEVENT_ENGAGED</name>
@@ -32,6 +35,7 @@
   <whensent>When an attack is initiated against an NPC. (set opponent, or Target with the Harmful flag set)</whensent>
   <ranged>No</ranged>
 </event>
+
 
 <event>
   <name>SYSEVENT_DISENGAGED</name>
@@ -104,7 +108,8 @@
   <ID>0x00000100</ID>
   <member mname="type" value="SYSEVENT_MERCHANT_BOUGHT (0x00000100)"/>
   <member mname="source" value="Character Reference"/>
-  <member mname="amount" value="amount of gold items sold for"/>
+  <member mname="amount" value="if ScriptedMerchantHandlers is 0 in servspecopt.cfg, amount of gold items sold for"/>
+  <member mname="shoppinglist" value="if ScriptedMerchantHandlers is 1 in servspecopt.cfg, array{ struct.item, struct.amount }"/>
   <whensent>After an NPC merchant buys items from a player.</whensent>
   <ranged>No</ranged>
 </event>
@@ -116,7 +121,8 @@
   <ID>0x00000200</ID>
   <member mname="type" value="SYSEVENT_MERCHANT_SOLD (0x00000200)"/>
   <member mname="source" value="Character Reference"/>
-  <member mname="amount" value="amount of gold items sold for"/>
+  <member mname="amount" value="if ScriptedMerchantHandlers is 0 in servspecopt.cfg, amount of gold items sold for"/>
+  <member mname="shoppinglist" value="if ScriptedMerchantHandlers is 1 in servspecopt.cfg, array{ struct.item, struct.amount }"/>
   <whensent>After an NPC merchant sells items to a player.</whensent>
   <ranged>No</ranged>
 </event>
@@ -145,6 +151,7 @@
   <ranged>No</ranged>
 </event>
 
+
 <event>
   <name>SYSEVENT_GHOST_SPEECH</name>
   <explain>Dead players generate this event when speaking, not SYSEVENT_SPEECH. Otherwise, see SYSEVENT_SPEECH for the struct members.</explain>
@@ -152,6 +159,7 @@
   <whensent>A dead player speaks.</whensent>
   <ranged>Yes</ranged>
 </event>
+
 
 <event>
   <name>SYSEVENT_GONE_CRIMINAL</name>
@@ -163,6 +171,7 @@
   <ranged>Yes</ranged>
 </event>
 
+
 <event>
   <name>AUX_Connection_Receive_Event</name>
   <explain>This event is the method by which the AUX connection script received data from an external application. (Data may be sent with aux_connection.send())</explain>
@@ -173,5 +182,24 @@
   <whensent>When an external application connected to an AUX handler script sends packed data, wait_for_event() will return this struct.</whensent>
   <ranged>Yes</ranged>
 </event>
+
+
+<event>
+  <name>SYSEVENT_TOKEN_SPEECH</name>
+  <explain>Used for token speech if SeperateSpeechTokens is enabled in servspecopt.cfg.</explain>
+  <ID>0x00004000</ID>
+  <whensent>Like SYSEVENT_SPEECH but only when tokens are present.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
+
+<event>
+  <name>SYSEVENT_TOKEN_GHOST_SPEECH</name>
+  <explain>Used for token speech if SeperateSpeechTokens is enabled in servspecopt.cfg.</explain>
+  <ID>0x00008000</ID>
+  <whensent>Like SYSEVENT_GHOST_SPEECH but only when tokens are present.</whensent>
+  <ranged>Yes</ranged>
+</event>
+
 
 </ESCRIPT>

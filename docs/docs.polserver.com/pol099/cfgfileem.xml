@@ -5,9 +5,9 @@
 <ESCRIPT>
   <fileheader fname="CFGfile.em">
     <filedesc>Functions for accessing configuration files.</filedesc>
-    <datemodified>10/27/2007</datemodified>
+    <datemodified>08/31/2015</datemodified>
   </fileheader>
-    
+
   <function name="ReadConfigFile"> 
     <prototype>ReadConfigFile(filename)</prototype>
     <parameter name="filename" value="String (not including '.cfg')" />
@@ -170,6 +170,16 @@ Use: 'var ingredients := GetConfigStringArray(element,&quot;Ingredient&quot;);'
 </code></explain>
     <explain>Value of the properties are always returned as strings. If the values are ints or reals, use CInt() or CDbl() to cast the values to the correct type.</explain>
     <return>An array of strings.</return>
+    <error>"Invalid parameter type"</error>
+</function>
+
+<function name="GetConfigIntArray">
+    <prototype>GetConfigIntArray( element, property_name )</prototype>
+    <parameter name="element" value="ConfigElementRef"/>
+    <parameter name="property_name" value="String"/>
+    <explain>For elements with multiple occurrences of a given property, returns an array containing each occurrence.</explain>
+    <explain>Value of the properties are always returned as integers.</explain>
+    <return>An array of integers.</return>
     <error>"Invalid parameter type"</error>
 </function>
 

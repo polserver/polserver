@@ -302,7 +302,7 @@ Check the [return-value] if you want to know which CheckBoxes were selected.</td
           </tr>
           <tr>
             <td>Description:</td>
-            <td>Adds a graphic to the gump, where [id] ist the graphic id of an item. For example use InsideUO to get them.
+            <td>Adds a graphic to the gump, where [id] is the graphic id of an item. For example use InsideUO to get them.
 Optionaly there is a color parameter. The class parameter is also optional, triggers special behavior (e.g. "VirtueGump" will enable virtue tooltips).</td>
           </tr>
         </table>

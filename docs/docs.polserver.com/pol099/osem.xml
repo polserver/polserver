@@ -4,14 +4,15 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>02/10/2009</datemodified>
+    <datemodified>08/31/2015</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
     <constant>const SCRIPTOPT_NO_RUNAWAY   := 3; // if 1, doesn't warn about runaway conditions</constant>
     <constant>const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</constant>
+    <constant>const SCRIPTOPT_AUXSVC_ASSUME_STRING := 5;</constant>
   </fileheader>
-    
+
   <function name="GetProcess"> 
     <prototype>GetProcess(pid)</prototype>
     <parameter name="pid" value="Integer process ID of a script" />
@@ -22,8 +23,8 @@
     <related>Script</related>
   </function>
 
-  <function name="Getpid"> 
-    <prototype>Getpid()</prototype>
+  <function name="GetPid"> 
+    <prototype>GetPid()</prototype>
     <explain>Returns the Process ID for this script.</explain>
     <return>Integer Process ID</return>
   </function>
@@ -133,6 +134,20 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <related>Script</related>
 </function>
 
+<function name="Start_Skill_Script">
+    <prototype>Start_Skill_Script( chr, attr_name, script_name := 0, param := 0 )</prototype>
+    <parameter name="chr" value="Character to start the script for"/>
+    <parameter name="attr_name" value="AttributeID to start the script for"/>
+    <parameter name="script_name" value="If given, starts this script instead of the default one" />
+    <parameter name="param" value="object to pass to the script. Only one param may be passed. (optional)"/>
+    <explain>starts for given chr and attr_name definied script (overrideable with param script_name)</explain>
+    <explain>param is any UObject given to skill script as second param (first is chr)</explain>
+    <explain>performs the same checks like normal skillusage (death,frozen,skilldelay,...)</explain>
+    <explain>Tip: write your script to expect a struct or array as its only parameter, so you may pass multiple pieces of data through the struct or array.</explain>
+    <return>A Script object for the started script on success.</return>
+    <related>Script</related>
+</function>
+
 <function name="Run_Script">
     <prototype>Run_Script( script_name, param := 0 )</prototype>
     <parameter name="script_name" value="String name and path of script to run" />
@@ -160,8 +175,8 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <error>"Script descriptor error"</error>
 </function>
 
-<function name="Syslog">
-    <prototype>Syslog( text )</prototype>
+<function name="SysLog">
+    <prototype>SysLog( text )</prototype>
     <parameter name="text" value="String"/>
     <explain>write text to the console, and to the log file includes context (calling script name)</explain>
     <return>1 on success</return>
@@ -207,6 +222,21 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <prototype>Is_Critical()</prototype>
     <explain>Returns true if the script is critical (by using set_critical())</explain>
     <return>1 if critical, else 0.</return>
+</function>
+
+<function name="OpenConnection">
+    <prototype>OpenConnection( host, port, scriptdef )</prototype>
+    <parameter name="host" value="Target host"/>
+    <parameter name="port" value="Target port"/>
+    <parameter name="scriptdef" value="Name of the script to be started when the connection is established"/>
+    <explain>creates an outgoing TCP/IP connection</explain>
+    <return>1 on success</return>
+</function>
+
+<function name="Debugger">
+    <prototype>Debugger()</prototype>
+    <explain>puts the script in debug state</explain>
+    <return>1 on success</return>
 </function>
 
 </ESCRIPT>

@@ -3,6 +3,7 @@
 <MODULES>
   <em name="attributesem" nice="Attribute"/>
   <em name="basicem" nice="Basic"/>
+  <em name="basicioem" nice="BasicIO"/>
   <em name="boatem" nice="Boat"/>
   <em name="cfgfileem" nice="CfgFile"/>
   <em name="clilocem" nice="CliLoc"/>
@@ -16,6 +17,7 @@
   <em name="partyem" nice="Party"/>
   <em name="polsysem" nice="PolSys"/>
   <em name="storageem" nice="Storage"/>
+  <em name="sqlem" nice="MySQL"/>
   <em name="unicodeem" nice="Unicode"/>
   <em name="uoem" nice="UO"/>
   <em name="utilem" nice="Util"/>

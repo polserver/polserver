@@ -2,7 +2,8 @@
   include_once( "include/global.inc" );
   if (!$offline) {
     $g_Page = "home";
-    include_once '/home/polteam/include/_header.php';
+    if( isset($header) && $header )
+      include_once $header;
   }
   /* add the header */
   if ($offline) {

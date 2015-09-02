@@ -4,10 +4,10 @@
 <ESCRIPT>
 <header>
   <topic>Pseudocode for the core combat system.</topic>
-  <datemodified>02/10/2009</datemodified>
+  <datemodified>08/31/2015</datemodified>
 </header>
 <pre>
-if( attackhook )
+if( Attack sys hook is loaded )
   call hook
   if hook returned 1, exit
 endif
@@ -25,7 +25,7 @@ else
   play attack anim
 endif
 
-if( combat advancement hook exists )
+if( CombatAdvancement sys hook is loaded )
   call it
 else
   THE CORE DOESN'T ADVANCE ANY SKILLS
@@ -39,14 +39,14 @@ if( random_float(1.0) &lt; hitchance )
   play hit sounds and anims
   damage weapon (1 in 100 chance to lose 1 hp)
 
-  damage = random_weapon_die_damage
+  damage = random_weapon_dice_damage * weapon_hp / max_weapon_hp + weapon_damage_mod
   damage_multiplier = tactics + 50
   damage_multiplier += strength * 0.2
   damage_multiplier *= 0.01
   damage *= damage_multiplier
 
   if( opponent has shield )
-    call parry advancement hook
+    call ParryAdvancement sys hook
 
     parry_chance = opponent_parry_skill / 200.0
     if( random_float(1.0) &lt; parry_chance )
