@@ -4,11 +4,11 @@
 <ESCRIPT>
   <fileheader fname="Util.em">
     <filedesc>Utility functions</filedesc>
-    <datemodified>08/02/2010</datemodified>
+    <datemodified>08/31/2015</datemodified>
   </fileheader>
-    
+
   <function name="RandomInt"> 
-    <prototype>RandomInt(integer below_this_number)</prototype>
+    <prototype>RandomInt(below_this_number)</prototype>
     <parameter name="below_this_number" value="Integer" />
     <explain>Returns a random integer below the passed parameter and greater or equal to zero.</explain>
     <return>Integer R such that 0 less or equal to R less than below_this_number</return>
@@ -16,24 +16,24 @@
   </function>
 
   <function name="RandomIntMinMax"> 
-    <prototype>RandomIntMinMax(integer min_integer, integer max_integer)</prototype>
-    <parameter name="min_integer" value="Integer" />
-    <parameter name="max_integer" value="Integer" />
+    <prototype>RandomIntMinMax(minValue, maxValue)</prototype>
+    <parameter name="minValue" value="Integer" />
+    <parameter name="maxValue" value="Integer" />
     <explain>Returns a random integer between the Min and Max integers passed. Accepts negative Integers and if parameters in wrong order swaps them.</explain>
     <return>Integer Randomly between Min and Max parameters</return>
 	<error>"RandomIntMinMax() expects an integer"</error>
   </function>
 
   <function name="RandomFloat"> 
-    <prototype>RandomFloat(real below_this_number)</prototype>
-    <parameter name="below_this_number" value="Real" />
+    <prototype>RandomFloat(below_this_float)</prototype>
+    <parameter name="below_this_float" value="Real" />
     <explain>Returns a random real below the passed parameter and greater or equal to zero.</explain>
     <return>Real R such that 0 less or equal to R less than below_this_number</return>
 	<error>"RandomFloat() expects a Real parameter"</error>
   </function>
 
   <function name="RandomDiceRoll"> 
-    <prototype>RandomDiceRoll(String dice_string)</prototype>
+    <prototype>RandomDiceRoll(dice_string)</prototype>
     <parameter name="dice_string" value="String" />
     <explain>Returns a random number according to the passed die roll string. This is standard NdS+X format. N=number of dies to roll, S=number of sides per die, X=integer to add(or subtract) after roll.</explain>
     <explain>Here's some acceptable examples:

@@ -4,10 +4,10 @@
 <ESCRIPT>
   <fileheader fname="POLsys.em">
     <filedesc>Functions to access POL system data.</filedesc>
-    <datemodified>11/30/2009</datemodified>
+    <datemodified>08/31/2015</datemodified>
 <constant>const MSGLEN_VARIABLE := -1;</constant>
   </fileheader>
-    
+
   <function name="ReloadConfiguration"> 
     <prototype>ReloadConfiguration()</prototype>
     <explain>reloads pol.cfg (most entries), npcdesc.cfg and bannedips.cfg</explain>
@@ -33,7 +33,7 @@
     <explain>Sets the systray icon's tooltip text (win32 only)</explain>
     <return>1</return>
   </function>
-  
+
   <function name="GetItemDescriptor">
     <prototype>GetItemDescriptor(objtype)</prototype>
     <parameter name="objtype" value="int Objtype OR string ObjtypeName" />
@@ -68,9 +68,19 @@ endforeach</code></explain>
     <relatedcfg>itemdesc.cfg</relatedcfg>
 </function>
 
+<function name="FormatItemDescription">
+  <prototype>FormatItemDescription(desc, amount := 1, suffix := "")</prototype>
+  <parameter name="desc" value="Base item description" />
+  <parameter name="amount" value="Item amount" />
+  <parameter name="suffix" value="Suffix to append" />
+  <explain>This formats the desc using Pols built in Singular/Plular formatter.</explain>
+  <return>A string.</return> 
+</function>
+
 <function name="Realms">
-    <prototype>Realms(realms:="")</prototype>
-    <explain>Returns a dictionary of structs.</explain>
+    <prototype>Realms(realm:="")</prototype>
+    <parameter name="realm" value="String" />
+    <explain>Returns a dictionary of structs or a single struct.</explain>
     <explain>If a single case-sensitive realm name is passed, will return the information for only that realm.</explain>
     <explain>example:
 <code>    "realm_name" -> "width"
@@ -79,7 +89,7 @@ endforeach</code></explain>
                     "toplevel_item_count"
                     "mobile_count"
                     "season"</code></explain>
-    <return>A dictionary of structs of Realms.</return> 
+    <return>A dictionary of structs of Realms or struct of single Realm</return> 
 </function>
 
   <function name="GetCmdLevelName">

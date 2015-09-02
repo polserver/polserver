@@ -4,13 +4,13 @@
 <ESCRIPT>  
   <fileheader fname="Cliloc.em">
     <filedesc>Functions for sending Cliloc (Client Localized) messages to the Client.</filedesc>
-    <datemodified>10/27/2007</datemodified>
+    <datemodified>08/31/2015</datemodified>
     <constant>const _DEFAULT_CLFONT  := 3;</constant>
     <constant>const _DEFAULT_CLCOLOR := 0x3B2;</constant>
   </fileheader>
-  
+
   <function name="SendSysMessageCL"> 
-    <prototype>SendSysMessageCL(character, cliloc_num, uc_text:={}, font:=_DEFAULT_CLFONT, color:=_DEFAULT_CLCOLOR)</prototype>
+    <prototype>SendSysMessageCL(character, cliloc_num, uc_text:=array, font:=_DEFAULT_CLFONT , color:=_DEFAULT_CLCOLOR)</prototype>
     <parameter name="character" value="Character reference to receive the text" />
     <parameter name="cliloc_num" value="Cliloc Number you wish to be displayed." />
     <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character. Only used when the cliloc accepts arguments for replacement." />
@@ -38,7 +38,7 @@ The uc_text string may have "100 thousand\t25 hundred", which in turn would modi
   </function>
 
   <function name="PrintTextAboveCL"> 
-    <prototype>PrintTextAboveCL(character, cliloc_num, uc_text:={}, font:=_DEFAULT_CLFONT, color:=_DEFAULT_CLCOLOR)</prototype>
+    <prototype>PrintTextAboveCL(character, cliloc_num, uc_text:=array, font:=_DEFAULT_CLFONT , color:=_DEFAULT_CLCOLOR)</prototype>
     <parameter name="character" value="Character reference to receive the text" />
     <parameter name="cliloc_num" value="Cliloc Number you wish to be displayed." />
     <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character. Only used when the cliloc accepts arguments for replacement." />
@@ -66,7 +66,7 @@ The uc_text string may have "100 thousand\t25 hundred", which in turn would modi
   </function>
 
   <function name="PrintTextAbovePrivateCL"> 
-    <prototype>PrintTextAbovePrivateCL(character, object, cliloc_num, uc_text:={}, font:=_DEFAULT_CLFONT, color:=_DEFAULT_CLCOLOR)</prototype>
+    <prototype>PrintTextAbovePrivateCL(character, object, cliloc_num, uc_text:=array, font:=_DEFAULT_CLFONT , color:=_DEFAULT_CLCOLOR)</prototype>
     <parameter name="character" value="Character reference to receive the text" />
     <parameter name="object" value="UObject reference to print the text above" />
     <parameter name="cliloc_num" value="Cliloc Number you wish to be displayed." />
@@ -93,5 +93,5 @@ The uc_text string may have "100 thousand\t25 hundred", which in turn would modi
     <error>"A parameter was invalid"</error>
     <related>Array</related>
   </function>
-  
+
 </ESCRIPT>

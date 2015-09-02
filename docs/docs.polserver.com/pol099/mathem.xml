@@ -4,9 +4,9 @@
 <ESCRIPT>
   <fileheader fname="Math.em">
     <filedesc>Mathematic functions for your enjoyment</filedesc>
-    <datemodified>02/10/2009</datemodified>
+    <datemodified>08/31/2015</datemodified>
   </fileheader>
-    
+
   <function name="Sin"> 
     <prototype>Sin(x)</prototype>
     <parameter name="x" value="Real, in radians" />
@@ -22,7 +22,7 @@
     <return>Real number</return>
     <error>"Invalid parameter type"</error>
   </function>
-  
+
   <function name="Tan"> 
     <prototype>Tan(x)</prototype>
     <parameter name="x" value="Real, in radians" />
@@ -30,7 +30,7 @@
     <return>Real number</return>
     <error>"Invalid parameter type"</error>
   </function>
-  
+
   <function name="ASin"> 
     <prototype>ASin(x)</prototype>
     <parameter name="x" value="Real, in radians" />
@@ -46,7 +46,7 @@
     <return>Real number in radians</return>
     <error>"Invalid parameter type"</error>
   </function>
-  
+
   <function name="ATan"> 
     <prototype>ATan(x)</prototype>
     <parameter name="x" value="Real, in radians" />
@@ -54,7 +54,7 @@
     <return>Real number in radians</return>
     <error>"Invalid parameter type"</error>
   </function>
-    
+
   <function name="RadToDeg"> 
     <prototype>RadToDeg( radians )</prototype>
     <parameter name="radians" value="Real, in radians" />
@@ -70,7 +70,7 @@
     <return>Real number in radians</return>
     <error>"Invalid parameter type"</error>
   </function>
-  
+
   <function name="Pow"> 
     <prototype>Pow(x,y)</prototype>
     <parameter name="x" value="Real" />
@@ -79,7 +79,7 @@
     <return>Real number</return>
     <error>"Invalid parameter type"</error>
   </function>
-      
+
   <function name="Sqrt"> 
     <prototype>Sqrt(x)</prototype>
     <parameter name="x" value="Real" />
@@ -87,7 +87,7 @@
     <return>Real number</return>
     <error>"Invalid parameter type"</error>
   </function>
-      
+
   <function name="Root"> 
     <prototype>Root(x,y)</prototype>
     <parameter name="x" value="Real" />
@@ -96,7 +96,7 @@
     <return>Real number</return>
     <error>"Invalid parameter type"</error>
   </function>
-      
+
   <function name="Abs"> 
     <prototype>Abs(x)</prototype>
     <parameter name="x" value="Real or Integer" />
@@ -104,7 +104,7 @@
     <return>Real number</return>
     <error>"Invalid parameter type"</error>
   </function>
- 
+
   <function name="Log10"> 
     <prototype>Log10(x)</prototype>
     <parameter name="x" value="Real" />
@@ -112,7 +112,7 @@
     <return>Real number</return>
     <error>"Invalid parameter type"</error>
   </function>
-  
+
   <function name="LogE"> 
     <prototype>LogE(x)</prototype>
     <parameter name="x" value="Real" />
@@ -136,7 +136,7 @@
     <return>Real that is largest integer &lt;= x</return>
     <error>"Invalid parameter type"</error>
   </function>
-  
+
   <function name="ConstPi"> 
     <prototype>ConstPi()</prototype>
     <explain>Returns an approximation of the trancendental number Pi</explain>
@@ -147,7 +147,7 @@
     digits. Pi can be expressed through the Fourier series pi = 4 - (4/3) + (4/5) - (4/7) + (4/9) - ... </explain>
     <return>Real number (3.14159....)</return>
   </function>
-  
+
   <function name="ConstE"> 
     <prototype>ConstE()</prototype>
     <explain>Returns an approximation of the trancendental number E</explain>
@@ -160,7 +160,7 @@
     statistics to nuclear physics</explain>
     <return>Real number</return>
   </function> 
-  
+
   <function name="FormatRealToString"> 
     <prototype>FormatRealToString( value, precision )</prototype>
     <parameter name="value" value="Real" />
@@ -171,7 +171,7 @@
   </function>
 
   <function name="Min"> 
-    <prototype>Min( x, y := 0 )</prototype>
+    <prototype>Min( x, y:=0 )</prototype>
     <parameter name="x" value="Integer/Double/Array" />
     <parameter name="y" value="Integer/Double" />
     <explain>The numerically lowest Integer of the parameter values. Will return int/dbl based on parameter types passed.</explain>
@@ -183,7 +183,7 @@
   </function>
 
   <function name="Max"> 
-    <prototype>Max( x, y := 0)</prototype>
+    <prototype>Max( x, y:=0)</prototype>
     <parameter name="x" value="Integer/Double/Array" />
     <parameter name="y" value="Integer/Double" />
     <explain>The numerically highest Integer of the parameter values. Will return int/dbl based on parameter types passed.</explain>

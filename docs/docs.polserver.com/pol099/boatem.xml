@@ -4,15 +4,21 @@
 <ESCRIPT>
   <fileheader fname="Boat.em">
     <filedesc>Functions for manipulating Multi Boat objects.</filedesc>
-    <datemodified>10/27/2007</datemodified>
+    <datemodified>08/31/2015</datemodified>
+    <constant>const BOAT_SPEED_ONE_TILE 	:= 1;</constant>
+    <constant>const BOAT_SPEED_SLOW		:= 2;</constant>
+    <constant>const BOAT_SPEED_MEDIUM 	:= 3;</constant>
+    <constant>const BOAT_SPEED_FAST 		:= 4;</constant>
   </fileheader>
-    
+
   <function name="MoveBoat"> 
-    <prototype>MoveBoat( boat, facing )</prototype>
+    <prototype>MoveBoat( boat, facing, speed := BOAT_SPEED_ONE_TILE )</prototype>
     <parameter name="boat" value="Boat Reference" />
     <parameter name="facing" value="Integer (0..7)" />
+    <parameter name="speed" value="Integer (0..4)" />
     <explain>Moves a boat in the direction of an absolute facing</explain>
     <explain>0=N, 1=NE, 2=E, 3=SE, 4=S, 5=SW, 6=W, 7=NW</explain>
+    <explain>speed to determine how fast the boat movement should be animated for smooth move</explain>
     <return>1 always</return>
     <error>none (returns 0 on invalid param)</error>
     <related>Boat</related>
@@ -31,11 +37,13 @@
   </function>
 
   <function name="MoveBoatRelative"> 
-    <prototype>MoveBoatRelative( boat, direction )</prototype>
+    <prototype>MoveBoatRelative( boat, direction, speed := BOAT_SPEED_ONE_TILE )</prototype>
     <parameter name="boat" value="Boat Reference" />
-    <parameter name="facing" value="Integer (0..7)" />
+    <parameter name="direction" value="Integer (0..7)" />
+    <parameter name="speed" value="Integer (0..4)" />
     <explain>Move a boat in the direction of a relative facing. Same as MoveBoat, but adjusted for boat's facing.</explain>
     <explain>If boat faces East, 0 will move E, 1 will move SE, etc.</explain>
+    <explain>speed to determine how fast the boat movement should be animated for smooth move</explain>
     <return>1 always</return>
     <error>none (returns 0 on invalid param)</error>
     <related>Boat</related>

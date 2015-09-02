@@ -4,9 +4,9 @@
 <ESCRIPT>  
   <fileheader fname="Party.em">
     <filedesc>Functions for working with parties in eScript.</filedesc>
-    <datemodified>03/13/2009</datemodified>
+    <datemodified>08/31/2015</datemodified>
   </fileheader>
-  
+
 <function name="CreateParty">
 	<prototype>CreateParty( leader, firstmember)</prototype>
 	<parameter name="leader" value="Character Reference" />
@@ -35,10 +35,10 @@
 </function>
 
 <function name="SendPartyMsg">
-	<prototype>SendPartyMsg( partyref, character, uctext )</prototype>
-	<parameter name="partyref" value="Party Reference" />
+	<prototype>SendPartyMsg( party, character, uctext )</prototype>
+	<parameter name="party" value="Party Reference" />
 	<parameter name="character" value="Character Reference" />
-	<parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />	
+	<parameter name="uctext" value="Array of 2-byte integers, where each integer is a Unicode character" />	
 	<explain>Sends a Party Message with character=Sender</explain>
 	<return>1 on success</return>
 	<error>"Unicode array exceeds maximum size."</error>
@@ -48,13 +48,13 @@
 	<related>Array</related>
 	<relatedcfg>party.cfg</relatedcfg>
 </function>
-	
+
 <function name="SendPrivatePartyMsg">
-	<prototype>SendPrivatePartyMsg( partyref, character, tocharacter, uctext )</prototype>
-	<parameter name="partyref" value="Party Reference" />
+	<prototype>SendPrivatePartyMsg( party, character, tocharacter, uctext )</prototype>
+	<parameter name="party" value="Party Reference" />
 	<parameter name="character" value="Character Reference" />
 	<parameter name="tocharacter" value="Character Reference" />
-	<parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />	
+	<parameter name="uctext" value="Array of 2-byte integers, where each integer is a Unicode character" />	
 	<explain>Sends a Private Party Message with character=Sender</explain>
 	<return>1 on success</return>
 	<error>"Unicode array exceeds maximum size."</error>

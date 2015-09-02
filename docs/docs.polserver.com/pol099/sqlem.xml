@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+<fileheader fname="sql.em">
+  <filedesc>Functions for interacting with a MySQL DBMS.
+You must have the MySQL headers and libraries installed.
+Only really tested with dynamically linking mysql libraries on Linux.</filedesc>
+  <datemodified>08/31/2015</datemodified>
+</fileheader>
+
+<function name="mysql_connect">
+  <prototype>mysql_connect(host,username,password := "")</prototype>
+  <parameter name="host" value="MySQL DBMS hostname, usually 'localhost'" />
+  <parameter name="username" value="User Name for the connection" />
+  <parameter name="password" value="Password for the connection" />
+  <explain>Connects to DMBS.</explain>
+  <return>Connection on success</return>
+</function>
+
+<function name="mysql_query">
+  <prototype>mysql_query(connection,query)</prototype>
+  <parameter name="connection" value="Connection object" />
+  <parameter name="query" value="the SQL query to perform" />
+  <explain>Performs a query.</explain>
+  <return>Connection on success</return>
+</function>
+
+<function name="mysql_fetch_row">
+  <prototype>mysql_fetch_row(result)</prototype>
+  <parameter name="result" value="Result object" />
+  <explain>Fetches next row from Result.</explain>
+  <return>Array on success</return>
+</function>
+
+<function name="mysql_affected_rows">
+  <prototype>mysql_affected_rows(result)</prototype>
+  <parameter name="result" value="Result object" />
+  <explain>Returns number of rows affected by last query.</explain>
+  <return>Integer on success</return>
+</function>
+
+<function name="mysql_num_fields">
+  <prototype>mysql_num_fields(result)</prototype>
+  <parameter name="result" value="Result object" />
+  <explain>Returns number of fields in result.</explain>
+  <return>Integer on success</return>
+</function>
+
+<function name="mysql_num_rows">
+  <prototype>mysql_num_rows(result)</prototype>
+  <parameter name="result" value="Result object" />
+  <explain>Returns number of rows in result.</explain>
+  <return>Integer on success</return>
+</function>
+
+<function name="mysql_select_db">
+  <prototype>mysql_select_db(connection,database)</prototype>
+  <parameter name="connection" value="Connection object" />
+  <parameter name="database" value="database name" />
+  <explain>Select a database to perform queries on.</explain>
+  <return>1 on success</return>
+</function>
+
+<function name="mysql_field_name">
+  <prototype>mysql_field_name(result,column_index)</prototype>
+  <parameter name="result" value="Result object" />
+  <parameter name="column_index" value="index for the field in the result" />
+  <explain>Returns the given field's name in result.</explain>
+  <return>String on success</return>
+</function>
+
+<function name="mysql_close">
+  <prototype>mysql_close(connection)</prototype>
+  <parameter name="connection" value="Connection object" />
+  <explain>Closed the connection to DBMS.</explain>
+  <return>1 on success</return>
+</function>
+
+</ESCRIPT>
