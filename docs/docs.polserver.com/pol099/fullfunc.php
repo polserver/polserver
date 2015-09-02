@@ -3,7 +3,8 @@
   include_once( "include/global.inc" );
   if (!$offline) {
     $g_Page = "poldoc";
-    include_once '/home/polteam/include/_header.php';
+    if( isset($header) && $header )
+      include_once $header;
   }
   /* add the header */
   if ($offline) {
@@ -12,7 +13,8 @@
 
 	// PHP-BB global stuff
 	global $request;
-	$request->enable_super_globals();
+	if( isset($request) )
+		$request->enable_super_globals();
 	//
 
   $xmlfile = $_GET['xmlfile'];

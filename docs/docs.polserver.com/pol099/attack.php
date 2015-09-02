@@ -1,15 +1,9 @@
 <?php
-if (ini_get('date.timezone')) {
-    echo 'date.timezone: ' . ini_get('date.timezone');
-}
-else {
-	echo 'no ini';
-}
-echo '...' .getenv("TZ") . '...';
     include_once( "include/global.inc" );
     if (!$offline) {
       $g_Page = "home";
-      include_once '/home/polteam/include/_header.php';
+      if( isset($header) && $header )
+        include_once $header;
     }
 
     /* add the header */
