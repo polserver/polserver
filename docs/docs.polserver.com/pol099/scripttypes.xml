@@ -6,7 +6,8 @@
   <desc>This is a list of all the different script types used in the POL system. Some only pertain to specific objects, and/or specifc events, as described.</desc>
   <datemodified>05/07/2015</datemodified>
 </fileheader>
-     
+
+
 <scripttype name="UseScript">
     <prototype>program usescript(character, item)</prototype>
     <parameter name="character" value="Character Ref"/>
@@ -1232,6 +1233,7 @@ endprogram</example>
     <relatedcfg>auxsvc.cfg</relatedcfg>
 </scripttype>
 
+
 <scripttype name="CanDeleteScript">
     <prototype>program candelete( character, deleteby )</prototype>
     <parameter name="character" value="Character Ref" />
@@ -1252,6 +1254,7 @@ const DELETE_BY_SCRIPT := 1; // Delete-Request by account.DeleteCharacter( index
     <relatedobj>Account</relatedobj>
     <relatedtype>OnDeleteScript</relatedtype>
 </scripttype>
+
 
 <scripttype name="EnterScript">
     <prototype>program enterscript(mobile, region_name)</prototype>
@@ -1276,6 +1279,7 @@ endprogram</example>
     <relatedtype>LeaveScript</relatedtype>
 </scripttype>
 
+
 <scripttype name="LeaveScript">
     <prototype>program leavescript(mobile, region_name)</prototype>
     <parameter name="mobile" value="Character Ref" />
@@ -1293,6 +1297,7 @@ see EnterScript</example>
     <relatedcfg>justice.cfg</relatedcfg>
     <relatedtype>EnterScript</relatedtype>
 </scripttype>
+
 
 <scripttype name="GuildButtonScript">
     <prototype>program GuildButton(character)</prototype>
@@ -1312,6 +1317,7 @@ endprogram</example>
     <relatedobj>Character</relatedobj>
 </scripttype>
 
+
 <scripttype name="QuestButtonScript">
     <prototype>program QuestButton(character)</prototype>
     <parameter name="character" value="Character ref" />
@@ -1329,6 +1335,7 @@ program QuestButton( character )
 endprogram</example>
     <relatedobj>Character</relatedobj>
 </scripttype>
+
 
 <scripttype name="VirtueButtonScript">
     <prototype>program VirtueButton(character)</prototype>
@@ -1348,6 +1355,7 @@ endprogram</example>
     <relatedobj>Character</relatedobj>
 </scripttype>
 
+
 <scripttype name="ChatButtonScript">
     <prototype>program ChatButton(character)</prototype>
     <parameter name="character" value="Character ref" />
@@ -1365,6 +1373,7 @@ program ChatButton( character )
 endprogram</example>
     <relatedobj>Character</relatedobj>
 </scripttype>
+
 
 <scripttype name="CharProfileScript">
     <prototype>program CharProfile(character, of_who, mode, uctext)</prototype>
@@ -1395,3 +1404,4 @@ endprogram</example>
 </scripttype>
 
 </ESCRIPT>
+
