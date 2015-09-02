@@ -334,8 +334,8 @@ PlayMovingEffectXYZ( srcx, srcy, srcz, dstx, dsty, dstz, effect, speed, loop := 
 PlayMovingEffectXYZEx( srcx, srcy, srcz, dstx, dsty, dstz, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, fixeddirection := 0, explode := 0, effect3d := 0, effect3dexplode := 0, effect3dsound := 0 );
 PlayObjectCenteredEffect( center, effect, speed, loop := 0 );
 PlayObjectCenteredEffectEx( center, effect, speed, duration := 0, hue := 0, render := 0, layer := 0, effect3d := 0 );
-PlaySoundEffect( character, effect );
-PlaySoundEffectPrivate( character, effect, playfor );
+PlaySoundEffect( object, effect );
+PlaySoundEffectPrivate( object, effect, playfor );
 PlaySoundEffectXYZ( x, y, z, effect, realm := _DEFAULT_REALM );
 PlayMusic( chr, music_id := 0 );
 PlayStationaryEffect( x, y, z, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM );
@@ -375,7 +375,7 @@ SendTextEntryGump( who, line1, cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NOR
 SendViewContainer( character, container );
 SetGlobalProperty( propname, propval );
 SetName( object, name );
-SetObjProperty( object, property_name, property_value_string_only );
+SetObjProperty( object, property_name, property_value );
 SetRegionLightLevel( regionname, lightlevel );
 SetRegionWeatherLevel( region, type, severity, aux := 0, lightoverride := -1);
 SetScriptController( who );
