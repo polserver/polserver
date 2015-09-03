@@ -8,6 +8,7 @@
            Hint: this feature can also be used in conjunction with CanDie sys hook to determine via script which
            items a player will drop on death; since the CanDie hook is called exactly one moment before death you
            can use it to insure the items that you don't want to fall on the corpse.
+  Added:   RepSys NameColor and HighLightColor hooks can now return -1 to let the core run the builtin code.
 08-27-2015 Bodom:
   Added:   New eScript keyword: unused
            This keyword can now be added before a variable name in function or program block declarations.

@@ -16,6 +16,7 @@ but they can still be sold to vendors.</change>
 			<change type="Hint">this feature can also be used in conjunction with CanDie sys hook to determine via script which<br/>
 items a player will drop on death; since the CanDie hook is called exactly one moment before death you<br/>
 can use it to insure the items that you don't want to fall on the corpse.</change>
+			<change type="Added">RepSys NameColor and HighLightColor hooks can now return -1 to let the core run the builtin code.</change>
 		</entry>
 		<entry>
 			<date>08-27-2015</date>
