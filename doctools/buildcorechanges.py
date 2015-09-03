@@ -85,7 +85,7 @@ class CoreChanges:
 		self.path = path
 		self.releases = []
 
-		with open(self.path, 'rt') as f:
+		with open(self.path, 'rt', encoding='utf-8') as f:
 			# Status variables
 			currel = None
 			curchange = None
@@ -241,7 +241,7 @@ class Main:
 
 		# Write
 		outFile = os.path.join('..','docs','docs.polserver.com','pol099','corechanges.xml')
-		with open(outFile, 'wt') as f:
+		with open(outFile, 'wt', encoding='utf-8') as f:
 			f.write(out)
 
 		print("{} written.".format(outFile))
