@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>02/25/2010</datemodified>
+    <datemodified>08/31/2015</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -28,11 +28,14 @@
 <constant> </constant>
 <constant>// Send*Window flags</constant>
 <constant>const VENDOR_SEND_AOS_TOOLTIP   := 0x01;    // send Item Description using AoS Tooltips</constant>
+<constant>const VENDOR_BUYABLE_CONTAINER_FILTER := 0x02; // filter items in the SendSellWindow() by what is in the buyable container</constant>
 <constant> </constant>
 <constant>const SENDDIALOGMENU_FORCE_OLD  := 0x01;    // send UnCompressed Gump</constant>
 <constant> </constant>
 <constant>// RegisterForSpeechEvents flags</constant>
 <constant>const LISTENPT_HEAR_GHOSTS      := 0x01;    // hear ghost speech in addition to living speech</constant>
+<constant>const LISTENPT_HEAR_TOKENS      := 0x02;    // hear also speechtokens (only with ssopt.SeperateSpeechTokens)</constant>
+<constant>const LISTENPT_NO_SPEECH        := 0x04;    // hear no normal speech (only with ssopt.SeperateSpeechTokens)</constant>
 <constant> </constant>
 <constant>// List[Statics/Items]* flags</constant>
 <constant>const ITEMS_IGNORE_STATICS      := 0x01;    // Don't list Static Items</constant>
@@ -46,6 +49,8 @@
 <constant>const LISTEX_FLAG_HIDDEN := 0x02;</constant>
 <constant>const LISTEX_FLAG_GHOST := 0x04;</constant>
 <constant>const LISTEX_FLAG_CONCEALED := 0x08;</constant>
+<constant>const LISTEX_FLAG_PLAYERS_ONLY := 0x10;</constant>
+<constant>const LISTEX_FLAG_NPC_ONLY := 0x20;</constant>
 <constant> </constant>
 <constant>// ListItemsNearLocationWithFlag( x,y,z, range, flags ); tiledata flags</constant>
 <constant>// Thanks to Alazane: http://dkbush.cablenet-va.com/alazane/file_formats.html#3.17</constant>
@@ -183,6 +188,7 @@
 <constant>// Realms</constant>
 <constant>const _DEFAULT_REALM  := "britannia";</constant>
 <constant>const REALM_BRITANNIA := _DEFAULT_REALM;</constant>
+<constant>const REALM_BRITANNIA_ALT	:= "britannia_alt";</constant>
 <constant>const REALM_ILSHENAR  := "ilshenar";</constant>
 <constant>const REALM_MALAS     := "malas";</constant>
 <constant>const REALM_TOKUNO    := "tokuno";</constant>
@@ -203,11 +209,14 @@
 <constant>const CLOSE_STATUS    := 2;</constant>
 <constant>const CLOSE_PROFILE   := 8;</constant>
 <constant>const CLOSE_CONTAINER := 12;</constant>
+<constant>//SendCharProfile</constant>
+<constant>const CHARPROFILE_NO_UNEDITABLE_TEXT := array;</constant>
+<constant>const CHARPROFILE_NO_EDITABLE_TEXT := array;</constant>
 </fileheader>
-  
+
 <function name="AddAmount">
-  <prototype>AddAmount( item_ref, amount )</prototype>
-  <parameter name="item_ref" value="Item reference"/>
+  <prototype>AddAmount( item, amount )</prototype>
+  <parameter name="item" value="Item reference"/>
   <parameter name="amount" value="An integer 1-60000" />
   <explain>Adds the specified amount to a stack of items. Amount is between 1 and 60000 </explain>
   <return>1 or error</return> 
@@ -219,8 +228,8 @@
 </function>
 
 <function name="ConsumeReagents">
-  <prototype>ConsumeReagents( caster, spellid )</prototype>
-  <parameter name="caster" value="Character Reference" />
+  <prototype>ConsumeReagents( who, spellid )</prototype>
+  <parameter name="who" value="Character Reference" />
   <parameter name="spellid" value="An integer" />
   <explain>Removes reagent items from caster's pack according to spellid's definition in spells.cfg. Spells.cfg 
 files define spells &amp; spell ids.</explain>
@@ -333,7 +342,9 @@ CProp value.</explain>
 
 <function name="ListItemsAtLocation">
   <prototype>ListItemsAtLocation( x, y, z, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Returns a list of items at the specified x,y,z. test ret != 0</explain>
   <explain>Use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.</explain>
@@ -350,8 +361,12 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="ListObjectsInBox">
   <prototype>ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x1,y1,z1" value="integer, for north west upper corner of box" />
-  <parameter name="x2,y2,z2" value="integer, for south east lower corner of box" />
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Lists all items &amp; mobiles inside an imaginary box. Finds both characters (PCs &amp; NPCs) and items</explain>
   <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
@@ -359,6 +374,23 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
   <error>"Invalid parameter"</error>
   <error>"Realm not found"</error>
   <related>Item</related>
+  <related>Character</related>
+  <related>Array</related>
+</function>
+
+<function name="ListMobilesInBox">
+  <prototype>ListMobilesInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>like ListObjectsInBox but returns only mobiles</explain>
+  <return>Error or Array of all characters found inside the specified box.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
   <related>Character</related>
   <related>Array</related>
 </function> 
@@ -406,7 +438,7 @@ endif</code></explain>
 </function>
 
 <function name="GetRegionLightLevelAtLocation">
-  <prototype>GetRegionLightLevelAtLocation( x, y, realm )</prototype>
+  <prototype>GetRegionLightLevelAtLocation( x, y, realm := _DEFAULT_REALM )</prototype>
   <parameter name="x" value="x location" />
   <parameter name="y" value="y location" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
@@ -430,7 +462,7 @@ endif</code></explain>
 </function>
 
 <function name="GetRegionNameAtLocation">
-  <prototype>GetRegionNameAtLocation( x, y, realm )</prototype>
+  <prototype>GetRegionNameAtLocation( x, y, realm := _DEFAULT_REALM )</prototype>
   <parameter name="x" value="x location" />
   <parameter name="y" value="y location" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
@@ -446,7 +478,8 @@ endif</code></explain>
 <function name="GetRegionString"> 
   <prototype>GetRegionString( resource, x, y, propertyname, realm := _DEFAULT_REALM )</prototype>
   <parameter name="resource" value="string" />
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="propertyname" value="string" />
   <explain>Allows you to look up custom properties within a resource region entry.</explain>
@@ -455,7 +488,7 @@ endif</code></explain>
   filename matching the supplied resource).</explain>
   <explain>"property_name" is the _custom_ property to match (i.e. UnitsPerArea, SecondsPerRegrow, 
   Capacity, Range are NOT matched) in the found region.
-          
+
 <code>
 Example: in regions/resource.cfg there exists a ResourceType "ore". In ore.cfg 
          there exists a region:
@@ -477,8 +510,7 @@ GetRegionString("ore",2299,785,"Prop"); would return "value_string"</code></expl
   <error>"Property not found" if "propertyname" was not found in the matching region.</error>
   <relatedcfg>regions.cfg</relatedcfg>
 </function>
-  
-  
+
 <function name="SetRegionWeatherLevel">
   <prototype>SetRegionWeatherLevel( region, type, severity, aux := 0, lightoverride := -1)</prototype>
   <parameter name="region" value="string"/>
@@ -505,8 +537,7 @@ type:
   <error>"Weather region not found" if "region" not found in regions/weather.cfg</error>
   <relatedcfg>weather.cfg</relatedcfg>
 </function>
-  
-  
+
 <function name="CreateAccount">
   <prototype>CreateAccount( acctname, password, enabled )</prototype>
   <parameter name="acctname" value="string" />
@@ -523,8 +554,7 @@ type:
   <error>"Attempted to use password in account creation with non-allowed characters."</error>
   <related>Account</related>
 </function>
-  
-  
+
 <function name="FindAccount">
   <prototype>FindAccount( acctname )</prototype>
   <parameter name="acctname" value="string" />
@@ -534,7 +564,7 @@ type:
   <error>"Invalid parameter type"</error>
   <related>Account</related>
 </function>
-  
+
 <function name="ListAccounts">
   <prototype>ListAccounts()</prototype>
   <explain>Gets a list of all account names.</explain>
@@ -542,7 +572,7 @@ type:
   <related>Array</related>
   <related>Account</related>
 </function>
-  
+
 <function name="DestroyMulti">
   <prototype>DestroyMulti( multi )</prototype>
   <parameter name="multi" value="Multi Reference" />
@@ -558,8 +588,6 @@ type:
   <related>House</related>
   <related>Boat</related>
 </function>
-  
-  
 
 <function name="DisableEvents">
   <prototype>DisableEvents( eventtype )</prototype>
@@ -568,8 +596,7 @@ type:
   <return>New event mask on success</return>
   <error>"Invalid parameter"</error>
 </function>
-  
-  
+
 <function name="SendEvent">
   <prototype>SendEvent( npc, event )</prototype>
   <parameter name="npc" value="Character Reference to an NPC" />
@@ -583,8 +610,24 @@ NPC's control script.</explain>
   <error>"Event queue is full, discarding event"</error>
   <related>NPC</related>
 </function>
-  
-  
+
+<function name="SendHousingTool">
+  <prototype>SendHousingTool( who, house )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <parameter name="house" value="House Reference" />
+  <explain>Sends the custom housing tool to Character</explain>
+  <explain>house.setcustom(1) is needed before SendHousingTool() works</explain>
+  <explain>during editing chr is only allowed to walk inside the house</explain>
+  <explain>all components which are not invisible get removed from component list during edit and added to design
+(not invisible to give the chance to eg protect a house sign from been removed from the editing char)</explain>
+  <explain>any item inside the house will be invisible for the chr</explain>
+  <explain>any other mobiles get moved outside the house</explain>
+  <explain>param houseelemarray in script call is the current list of houseparts, multi.house_parts gives you the last stored list</explain>
+  <explain>until no house.acceptcommit() is called and start of commitscript no new SendHousingTool() for this house is allowed</explain>
+  <return>1 on success</return>
+  <related>Character</related>
+  <related>House</related>
+</function>
 
 <function name="ApplyConstraint">
   <prototype>ApplyConstraint( objlist, configfile, propertyname, minvalue )</prototype>
@@ -608,7 +651,6 @@ return objtypes;</code></explain>
   <related>UObject</related>
   <related>Array</related>
 </function>
-  
 
 <function name="GetCommandHelp">  
   <prototype>GetCommandHelp( character, command )</prototype>
@@ -621,8 +663,7 @@ return objtypes;</code></explain>
   <error>"No help for that command found"</error>
   <related>Character</related>
 </function>
-  
-  
+
 <function name="GetMenuObjTypes">
   <prototype>GetMenuObjTypes( menuname )</prototype>
   <parameter name="menuname" value="static or dynamic menu" />
@@ -632,8 +673,7 @@ return objtypes;</code></explain>
   <error>none (instead returns 0 on failure)</error>
   <related>Array</related>
 </function>
-  
-  
+
 <function name="SetScriptController">
   <prototype>SetScriptController( who )</prototype>
   <parameter name="who" value="Character Reference" />
@@ -645,7 +685,7 @@ return objtypes;</code></explain>
   <error>none (instead returns 0 on failure)</error>
   <related>Character</related>
 </function>
-  
+
 <function name="GetSpellDifficulty">
   <prototype>GetSpellDifficulty( spellid )</prototype>
   <parameter name="spellid" value="Integer" />
@@ -658,7 +698,7 @@ return objtypes;</code></explain>
   <error>"Spell ID out of range"</error>
   <relatedcfg>circles.cfg</relatedcfg>
 </function>
-  
+
 <function name="SpeakPowerWords">
   <prototype>SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR )</prototype>
   <parameter name="who" value="Character Reference" />
@@ -675,8 +715,7 @@ return objtypes;</code></explain>
   <related>Character</related>
   <relatedcfg>spells.cfg</relatedcfg>
 </function>
-  
-  
+
 <function name="StartSpellEffect">
   <prototype>StartSpellEffect( who, spellid )</prototype>
   <parameter name="who" value="Character Reference" />
@@ -701,8 +740,7 @@ return objtypes;</code></explain>
   <error>"No client is attached"</error>
   <related>Character</related>
 </function>
-  
-  
+
 <function name="ListEquippedItems">
   <prototype>ListEquippedItems( who )</prototype>
   <parameter name="who" value="Character Reference" />
@@ -713,8 +751,7 @@ return objtypes;</code></explain>
   <related>Item</related>
   <related>Array</related>
 </function>
-  
-  
+
 <function name="ListHostiles">
   <prototype>ListHostiles( character, range := 20, flags := 0 )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -731,8 +768,7 @@ const LH_FLAG_INCLUDE_HIDDEN    := 2;       // include hidden characters</code><
   <related>Character</related>
   <related>Array</related>
 </function>
-  
-  
+
 <function name="OpenPaperdoll">
   <prototype>OpenPaperdoll( towhom, forwhom )</prototype>
   <parameter name="towhom" value="Character Reference" />
@@ -744,8 +780,7 @@ const LH_FLAG_INCLUDE_HIDDEN    := 2;       // include hidden characters</code><
   <error>"No client attached"</error>
   <related>Character</related>
 </function>
-  
-  
+
 <function name="SelectColor">
   <prototype>SelectColor( character, item )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -761,14 +796,13 @@ const LH_FLAG_INCLUDE_HIDDEN    := 2;       // include hidden characters</code><
   <related>Character</related>
   <related>Item</related>
 </function>
-  
-  
+
 <function name="SendBuyWindow">
   <prototype>SendBuyWindow( character, container, vendor, items, flags := 0 )</prototype>
   <parameter name="character" value="Character Reference to player" />
   <parameter name="container" value="Container Reference ( vendor 'for sale items' container )" />
   <parameter name="vendor" value="Character Reference to NPC vendor" />
-  <parameter name="item" value="Container Reference (vendor 'player bought items' container)" />
+  <parameter name="items" value="Container Reference (vendor 'player bought items' container)" />
   <parameter name="flags" value="Integer" />
   <explain>Sends the "buy scroll" gump to a player to choose items to buy.</explain>
   <explain>Notes: Pretty nasty function. Containers should be in storage areas.</explain>
@@ -786,14 +820,14 @@ const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
   <related>Character</related>
   <related>Container</related>
 </function>
-  
-  
+
 <function name="SendDialogGump">
   <prototype>SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0 )</prototype>
   <parameter name="who" value="Character Reference" />
   <parameter name="layout" value="String Array" />
   <parameter name="textlines" value="String Array" />
-  <parameter name="x,y" value="Integer-Offset" />
+  <parameter name="x" value="Integer-Offset" />
+  <parameter name="y" value="Integer-Offset" />
   <parameter name="flags" value="Integer" />
   <explain>Sends a generic gump window to "who" and waits for the user's input.</explain>
   <explain>Notes: "layout" is an array of strings with each string a gump layout directive.
@@ -816,8 +850,7 @@ const SENDDIALOGMENU_FORCE_OLD  := 0x01;</code></explain>
   <related>Dictionary</related>
   <related>Array</related>
 </function>
-  
-  
+
 <function name="SendInstaResDialog">
   <prototype>SendInstaResDialog( character )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -831,8 +864,7 @@ Instares.</explain>
   <error>"Client busy with another instares dialog"</error>
   <related>Character</related>  
 </function> 
-  
-  
+
 <function name="SendOpenBook">
   <prototype>SendOpenBook( character, book )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -859,8 +891,7 @@ exported function GetContents(book)   // returns an array of all lines</code></e
   <related>Item</related>
   <related>Array</related>
 </function>
-  
-  
+
 <function name="SendOpenSpecialContainer">
   <prototype>SendOpenSpecialContainer( character, container )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -876,8 +907,7 @@ exported function GetContents(book)   // returns an array of all lines</code></e
   <related>Character</related>
   <related>Container</related>
 </function>
-  
-  
+
 <function name="SendPacket">
   <prototype>SendPacket( to_whom, packet_hex_string )</prototype>
   <parameter name="to_whom" value="Character Reference" />
@@ -891,8 +921,7 @@ exported function GetContents(book)   // returns an array of all lines</code></e
   <error>"Invalid packet string length."</error>
   <related>Character</related>
 </function>
-  
-  
+
 <function name="SendSellWindow">
   <prototype>SendSellWindow( character, vendor, i1, i2, i3, flags := 0 )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -916,8 +945,7 @@ const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
   <related>Character</related>
   <related>Container</related>
 </function>
-  
-  
+
 <function name="SendSkillWindow">
   <prototype>SendSkillWindow( towhom, forwhom )</prototype>
   <parameter name="towhom" value="Character Reference" />
@@ -929,8 +957,7 @@ const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
   <error>"No client attached"</error>
   <related>Character</related>
 </function>
-  
-  
+
 <function name="SendStringAsTipWindow">
   <prototype>SendStringAsTipWindow( character, text )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -942,12 +969,12 @@ const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
   <error>"No client attached"</error>
   <related>Character</related>
 </function>
-  
-  
+
 <function name="SendTextEntryGump">
   <prototype>SendTextEntryGump( who, line1, cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NORMAL, maximum := 40, 
 line2 := "" )</prototype>
   <parameter name="who" value="Character Reference" />
+  <parameter name="line1" value="String" />
   <parameter name="cancel" value="Integer (TE_CANCEL_DISABLE or TE_CANCEL_ENABLE)" />
   <parameter name="style" value="Integer (TE_STYLE_DISABLE or TE_STYLE_NORMAL or TE_STYLE_NUMERICAL)" />
   <parameter name="maximum" value="Integer" />
@@ -958,7 +985,7 @@ string.</explain>
 <code>
 const TE_CANCEL_DISABLE := 0;
 const TE_CANCEL_ENABLE  := 1;
-      
+
 const TE_STYLE_DISABLE  := 0;
 const TE_STYLE_NORMAL   := 1;
 const TE_STYLE_NUMERICAL:= 2;</code></explain>
@@ -968,8 +995,7 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <error>"No client attached"</error>
   <related>Character</related>
 </function>
-  
-  
+
 <function name="SendViewContainer">
   <prototype>SendViewContainer( character, container )</prototype>
   <parameter name="character" value="Character Reference" />
@@ -983,12 +1009,15 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <related>Character</related>
   <related>Container</related>
 </function>
-  
 
 <function name="PlayMovingEffectXYZ">
   <prototype>PlayMovingEffectXYZ( srcx, srcy, srcz, dstx, dsty, dstz, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="srcx,srcy,srcz" value="Integer Source world coordinates" />
-  <parameter name="dstx,dsty,dstz" value="Integer Destination world coordinates" />
+  <parameter name="srcx" value="Integer Source world coordinates" />
+  <parameter name="srcy" value="Integer Source world coordinates" />
+  <parameter name="srcz" value="Integer Source world coordinates" />
+  <parameter name="dstx" value="Integer Destination world coordinates" />
+  <parameter name="dsty" value="Integer Destination world coordinates" />
+  <parameter name="dstz" value="Integer Destination world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="effect" value="integer" />
   <parameter name="speed" value="integer (to 255)" />
@@ -1003,8 +1032,7 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <error>"Realm not found"</error>
   <error>"Invalid Coordinates for Realm"</error>
 </function>
-  
-  
+
 <function name="PlaySoundEffectPrivate">
   <prototype>PlaySoundEffectPrivate( object, effect, playfor )</prototype>
   <parameter name="object" value="UObject Reference" />
@@ -1017,11 +1045,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <related>Character</related>
   <related>UObject</related>
 </function>
-  
-  
+
 <function name="PlayStationaryEffect">
   <prototype>PlayStationaryEffect( x, y, z, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="effect" value="integer" />
   <parameter name="speed" value="integer (to 255)" />
@@ -1037,20 +1066,18 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <error>"Realm not found"</error>
   <error>"Invalid Coordinates for Realm"</error>
 </function>
-  
-  
 
-<function name="Polcore">
-  <prototype>Polcore()</prototype>
+<function name="POLCore">
+  <prototype>POLCore()</prototype>
   <explain>Returns a Polcore object. See object reference for object methods.</explain>
   <return>Polcore object reference</return>
   <related>Polcore</related>
 </function>
-  
-  
+
 <function name="GetMapInfo">
   <prototype>GetMapInfo( x, y, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Gets information about map data at a location.</explain>
   <explain>Notes: Tells you nothing about Static items! 
@@ -1061,13 +1088,13 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <error>"Realm not found"</error>
   <error>"Invalid Coordinates for Realm"</error>
 </function>
-  
-  
+
 <function name="GetStandingHeight">
   <prototype>GetStandingHeight( x, y, startz, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="startz" value="Integer" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
-  <parameter name="startx" value="Integer" />
   <explain>Gets the lowest z height value one could stand at x,y starting at "startz". </explain>
   <explain>Notes: For example, if there is a static tunnel under the map, using a startz value less than the
         tunnel floor would get you the z of the floor. Above that value would get you the 
@@ -1079,11 +1106,11 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <error>"Invalid Coordinates for Realm"</error>
   <error>"Can't stand there" if inaccessible location</error>
 </function>
-  
-  
+
 <function name="GetWorldHeight">
   <prototype>GetWorldHeight( x, y, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Gets the lowest standing height at x,y</explain>
   <return>z value of lowest standing height</return>
@@ -1093,8 +1120,7 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <error>"Location out of bounds"</error>
   <error>"Nowhere" if one could not stand at any z value of x,y</error>
 </function>
-  
-  
+
 <function name="Shutdown">
   <prototype>Shutdown()</prototype>
   <explain>Shuts down the server</explain>
@@ -1103,8 +1129,8 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="Accessible">
-    <prototype>Accessible( Character, item )</prototype>
-  <parameter name="Character" value="Character Reference" />
+    <prototype>Accessible( by_character, item )</prototype>
+  <parameter name="by_character" value="Character Reference" />
   <parameter name="item" value="Item Reference" />
   <explain>Function: Determines if an item falls into one of the following categories for a character:</explain>
   <explain>An item on the ground, within two squares </explain>
@@ -1154,7 +1180,9 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 <function name="CheckLosAt">
   <prototype>CheckLosAt( character, x, y, z )</prototype>
   <parameter name="character" value="Character Reference" />
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <explain>Tests if character has Line-of-sight to coordinate</explain>
   <return>1 if character has line-of-sight to (x,y,z)</return>
   <return>0 if character does not have line-of-sight to (x,y,z)</return>
@@ -1175,7 +1203,9 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 
 <function name="CreateItemAtLocation">
   <prototype>CreateItemAtLocation( x, y, z, objtype, amount := 1, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="amount" value="Integer (0..60000)" />
@@ -1237,7 +1267,9 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 <function name="CreateNpcFromTemplate">
   <prototype>CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM)</prototype>
   <parameter name="template" value="String" />
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="override_properties" value="A Struct with keys as String members and values as appropriate (see notes)" />
   <explain>Creates an NPC from a template (found in NPCDESC.CFG).</explain>
@@ -1280,9 +1312,9 @@ endprogram</code>
 </function>
 
 <function name="Distance">
-  <prototype>Distance( object1, object2 )</prototype>
-  <parameter name="object1" value="UObject Reference" />
-  <parameter name="object2" value="UObject Reference" />
+  <prototype>Distance( obj1, obj2 )</prototype>
+  <parameter name="obj1" value="UObject Reference" />
+  <parameter name="obj2" value="UObject Reference" />
   <explain>Determines the distance between two objects.  If either object is in a container, 
         uses the world-position of its ultimate-parent container. </explain>
   <explain>Notes: This distance is defined as the greater of the x-distance and the y-distance. z-distance 
@@ -1359,7 +1391,9 @@ const ENUMERATE_ROOT_ONLY     := 0x2; // Do not list contents of sub-containers.
 
 <function name="ListGhostsNearLocation">
   <prototype>ListGhostsNearLocation( x, y, z, range, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="range" value="Integer" />
   <explain>Searches the world for ghosts within "range" squares of (x,y,z).</explain>
@@ -1375,7 +1409,9 @@ const ENUMERATE_ROOT_ONLY     := 0x2; // Do not list contents of sub-containers.
 
 <function name="ListItemsNearLocation">
   <prototype>ListItemsNearLocation( x, y, z, range, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="range" value="Integer" />
   <explain>Searches the world for items within range squares of (x,y,z).</explain>
@@ -1394,7 +1430,9 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="ListItemsNearLocationOfType">
   <prototype>ListItemsNearLocationOfType( x, y, z, range, objtype, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="range" value="Integer" />
   <parameter name="objtype" value="Integer" />
@@ -1425,7 +1463,9 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="ListMobilesNearLocation">
   <prototype>ListMobilesNearLocation( x, y, z, range, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="range" value="Integer" />
   <explain>Searches the world for mobiles within range squares of (x,y,z).</explain>
@@ -1446,7 +1486,9 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="ListMobilesNearLocationEx">
   <prototype>ListMobilesNearLocationEx( x, y, z, range, flags, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="range" value="Integer" />
   <parameter name="flags" value="Integer" />
@@ -1468,6 +1510,18 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
   <error>"Invalid parameter"</error>
   <error>"Realm not found"</error>
   <error>"Invalid Coordinates for Realm"</error>
+  <related>Character</related>
+  <related>Array</related>
+</function>
+
+<function name="ListOfflineMobilesInRealm">
+  <prototype>ListOfflineMobilesInRealm(realm := _DEFAULT_REALM)</prototype>
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>returns the list of offline mobiles in a specific realm.</explain>
+  <explain>Useful for moving the offline mobiles out of a shadow realm before deleting it.</explain>
+  <return>An Array of Character References of mobiles found.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
   <related>Character</related>
   <related>Array</related>
 </function>
@@ -1552,8 +1606,8 @@ const JOURNAL_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</c
 </function>
 
 <function name="Resurrect">
-  <prototype>Resurrect( ghost, flags := 0 )</prototype>
-  <parameter name="ghost" value="Character Reference" />
+  <prototype>Resurrect( mobile, flags := 0 )</prototype>
+  <parameter name="mobile" value="Character Reference" />
   <parameter name="flags" value="integer flags" />
   <explain>Resurrects a ghost. Checks to see if the location occupied by the ghost is valid for an alive character first unless flags ==  RESURRECT_FORCELOCATION. (Be very careful with this unless you like exploits)
 <code>
@@ -1570,7 +1624,7 @@ const RESURRECT_FORCELOCATION := 0x01;</code>
 <function name="RevokePrivilege">
   <prototype>RevokePrivilege( character, privilege )</prototype>
   <parameter name="character" value="Character Reference" />
-  <parameter name="privilage" value="String" />
+  <parameter name="privilege" value="String" />
   <explain>Revokes a privilege from a character. </explain>
   <return>1 if the privilege was revoked, or if it was not previously granted. </return>
   <error>"Invalid parameter"</error>
@@ -1658,8 +1712,8 @@ const TGTOPT_HELPFUL     := 0x0004;</code></explain>
 </function>
 
 <function name="TargetCoordinates">
-  <prototype>TargetCoordinates( Character )</prototype>
-  <parameter name="Character" value="Character Reference" />
+  <prototype>TargetCoordinates( by_character )</prototype>
+  <parameter name="by_character" value="Character Reference" />
   <explain>Sends a target cursor to a character's client, and waits for the player to target a ground tile.</explain>
   <explain>Notes: Line-of-sight is not checked.</explain>
   <return>A Structure on success: 
@@ -1678,7 +1732,7 @@ members: structure.x,structure.y,structure.z,structure.realm - containing the lo
 
 
 <function name="AddMenuItem">
-  <prototype>AddMenuItem( menu, objtype, text, color=:0 )</prototype>
+  <prototype>AddMenuItem( menu, objtype, text, color:=0 )</prototype>
   <parameter name="menu" value="Dynamic Menu Reference (from CreateMenu())" />
   <parameter name="objtype" value="Integer tile graphic to add to menu" />
   <parameter name="text" value="String description" />
@@ -1722,9 +1776,9 @@ members: structure.x,structure.y,structure.z,structure.realm - containing the lo
 </function>
 
 <function name="EraseObjProperty">
-  <prototype>EraseObjProperty( object, propertyname )</prototype>
+  <prototype>EraseObjProperty( object, propname )</prototype>
   <parameter name="object" value="UObject Reference" />
-  <parameter name="propertyname" value="String" />
+  <parameter name="propname" value="String" />
   <explain>Removes a property from the custom-property ("cprop") list of an object. propertyname is case-sensative</explain>
   <return>1 if the property was erased or did not exist.</return>
   <error>"Invalid parameter type"</error>
@@ -1732,9 +1786,9 @@ members: structure.x,structure.y,structure.z,structure.realm - containing the lo
 </function>
 
 <function name="GetObjProperty">
-  <prototype>GetObjProperty( object, propertyname )</prototype>
+  <prototype>GetObjProperty( object, property_name )</prototype>
   <parameter name="object" value="UObject Reference" />
-  <parameter name="propertyname" value="String" />
+  <parameter name="property_name" value="String" />
   <explain>Retrieves custom data (a "cprop") associated with an object. propertyname is case-sensative</explain>
   <return>On success, the unpacked object that was saved with SetObjProperty. This could be a
        string, integer, real, array, struct, dictionary, etc.</return>
@@ -1744,10 +1798,10 @@ members: structure.x,structure.y,structure.z,structure.realm - containing the lo
 </function>
 
 <function name="SetObjProperty">
-  <prototype>SetObjProperty( object, propertyname, propertyvalue )</prototype>
+  <prototype>SetObjProperty( object, property_name, property_value )</prototype>
   <parameter name="object" value="UObject Reference" />
-  <parameter name="propertyname" value="String" />
-  <parameter name="propertyvalue" value="a script object (could be string, int, real, array, etc)" />
+  <parameter name="property_name" value="String" />
+  <parameter name="property_value" value="a script object (could be string, int, real, array, etc)" />
   <explain>Sets a custom data property on an object. This data will be saved with the object, for later retrieval with GetObjProperty. propertyname is case-sensative</explain>
   <return>1 on success</return>
   <error>"Invalid parameter type"</error>
@@ -1755,16 +1809,16 @@ members: structure.x,structure.y,structure.z,structure.realm - containing the lo
 </function>
 
 <function name="EraseGlobalProperty">
-  <prototype>EraseGlobalProperty( propertyname )</prototype>
-  <parameter name="propertyname" value="String" />
+  <prototype>EraseGlobalProperty( propname )</prototype>
+  <parameter name="propname" value="String" />
   <explain>Removes a property from the global property list. propertyname is case-sensative</explain>
   <return>1 if the property was erased or did not exist.</return>
   <error>"Invalid parameter type"</error>
 </function>
 
 <function name="GetGlobalProperty">
-  <prototype>GetGlobalProperty( propertyname )</prototype>
-  <parameter name="propertyname" value="String" />
+  <prototype>GetGlobalProperty( propname )</prototype>
+  <parameter name="propname" value="String" />
   <explain>Retrieves the value of a global property. propertyname is case-sensative</explain>
   <return>On success a script object (string, integer, real, array, etc) containing the value of the named property</return>
   <error>"Invalid parameter type"</error>
@@ -1772,9 +1826,9 @@ members: structure.x,structure.y,structure.z,structure.realm - containing the lo
 </function>
 
 <function name="SetGlobalProperty">
-  <prototype>SetGlobalProperty( propertyname, propertyvalue )</prototype>
-  <parameter name="propertyname" value="String" />
-  <parameter name="propertyvalue" value="a script object (could be string, int, real, array, etc)" />
+  <prototype>SetGlobalProperty( propname, propval )</prototype>
+  <parameter name="propname" value="String" />
+  <parameter name="propval" value="a script object (could be string, int, real, array, etc)" />
   <explain>Sets the value of a global property. propertyname is case-sensative</explain>
   <return>1 on success</return>
   <error>"Invalid parameter type"</error>
@@ -1787,7 +1841,7 @@ members: structure.x,structure.y,structure.z,structure.realm - containing the lo
 </function>
 
 <function name="PerformAction">
-  <prototype>PerformAction( character, action, framecount:=5, repeatcount:=1, backward:=ACTION_DIR_FORWARD, repeatflag:=ACTION_NOREPEAT, delay:=1 )</prototype>
+  <prototype>PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD, repeatflag := ACTION_NOREPEAT, delay := 1 )</prototype>
   <parameter name="character" value="Character Reference" />
   <parameter name="action" value="Integer" />
   <parameter name="framecount" value="Integer (Optional)" />
@@ -1836,8 +1890,8 @@ const ACTION_REPEAT       := 1;</code></explain>
 </function>
 
 <function name="PlayObjectCenteredEffect">
-  <prototype>PlayObjectCenteredEffect( uobject, effect, speed, loop := 0)</prototype>
-  <parameter name="uobject" value="UObject Reference" />
+  <prototype>PlayObjectCenteredEffect( center, effect, speed, loop := 0)</prototype>
+  <parameter name="center" value="UObject Reference" />
   <parameter name="effect" value="Integer" />
   <parameter name="speed" value="Integer (0..255)" />
   <parameter name="loop" value="Integer (Optional, 0..255)" />
@@ -1862,8 +1916,10 @@ const ACTION_REPEAT       := 1;</code></explain>
 </function>
 
 <function name="PlaySoundEffectXYZ">
-  <prototype>PlaySoundEffect( x, y, z, effect, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <prototype>PlaySoundEffectXYZ( x, y, z, effect, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="effect" value="Integer" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Causes a sound effect to be played, centered on Location. </explain>
@@ -1909,10 +1965,12 @@ const ACTION_REPEAT       := 1;</code></explain>
 </function>
 
 <function name="MoveItemToContainer">
-  <prototype>MoveItemToContainer( item, container, x := -1, y := -1 )</prototype>
+  <prototype>MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 )</prototype>
   <parameter name="item" value="Item Reference" />
   <parameter name="container" value="Container Reference" />
-  <parameter name="x,y" value="Integer coords inside container gump (optional)" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
+  <parameter name="add_to_existing_stack" value="Defines if the items moved to the container will look for an existing stack and add to it or just add as a new item ( old behaviour )" />
   <explain>Moves an item into a container.</explain>
   <explain>Notes: If the default values for x and y are passed, or if x or y does not fall within the
        legal bounds for a container as found in ITEMDESC.CFG, then a random location 
@@ -1920,6 +1978,7 @@ const ACTION_REPEAT       := 1;</code></explain>
   <explain>Calls the item's unequiptest and unequip scripts, if any.</explain>
   <explain>Calls the container's canInsert and onInsert scripts, if any.</explain>
   <explain>Calls the item's original container's (if any) canRemove and onRemove scripts, if any.</explain>
+  <explain>If add_to_existing_stack == 1 and there is no stack in the container, it will return Error "There is no existing stack", so its up to scripts to check this.</explain>
   <return>1 on success</return>
   <error>"Invalid parameter type"</error>
   <error>"That is immobile"</error>
@@ -1929,6 +1988,7 @@ const ACTION_REPEAT       := 1;</code></explain>
   <error>"Can't put a container into an item in itself"</error>
   <error>"Container is too full to add that"</error>
   <error>"Item cannot be unequipped"</error>
+  <error>"There is no existing stack"</error>
   <related>Item</related>
   <related>Container</related>
 </function>
@@ -1946,7 +2006,9 @@ const ACTION_REPEAT       := 1;</code></explain>
        
 <function name="CreateMultiAtLocation">
   <prototype>CreateMultiAtLocation( x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="flags" value="Integer (optional)" />
@@ -1984,11 +2046,13 @@ const CRMULTI_IGNORE_ALL        := 0x0007; </code></explain>
 </function>
 
 <function name="TargetMultiPlacement">
-  <prototype>TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0 )</prototype>
+  <prototype>TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0, hue := 0 )</prototype>
   <parameter name="character" value="Character Reference" />
   <parameter name="objtype" value="Integer" />
   <parameter name="flags" value="Integer (optional)" />
-  <parameter name="xoffset,yoffset" value="Integer offset to 'ghost' target house" />
+  <parameter name="xoffset" value="Integer offset to 'ghost' target house" />
+  <parameter name="yoffset" value="Integer offset to 'ghost' target house" />
+  <parameter name="hue" value="Integer" />
   <explain>Sends character a "ghost" multi to select placement location in the world.</explain>
   <explain>Notes: objtype must be from an itemdesc.cfg entry with a Boat or House type.</explain>
   <explain>boats only constants for flags:
@@ -2033,8 +2097,8 @@ const CRMULTI_FACING_WEST       := 0x0300;</code></explain>
 </function>
 
 <function name="EnableEvents">
-  <prototype>EnableEvents( events, range := -1 )</prototype>
-  <parameter name="events" value="Integer" />
+  <prototype>EnableEvents( eventtype, range := -1 )</prototype>
+  <parameter name="eventtype" value="Integer" />
   <parameter name="range" value="Integer (optional, 0..32)" />
   <explain>Enables events specified. When enabled events occur, they will be placed on the 
         script's event queue, and must be read with wait_for_event.  Events that were 
@@ -2051,7 +2115,8 @@ const CRMULTI_FACING_WEST       := 0x0300;</code></explain>
 <function name="GetHarvestDifficulty">
   <prototype>GetHarvestDifficulty( resource, x, y, tiletype, realm := _DEFAULT_REALM )</prototype>
   <parameter name="resource" value="String" />
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="tiletype" value="Integer" />
   <explain>Determines the difficulty of harvesting a resource from location (x,y). </explain>
@@ -2075,7 +2140,8 @@ const CRMULTI_FACING_WEST       := 0x0300;</code></explain>
 <function name="HarvestResource">
   <prototype>HarvestResource( resource, x, y, b, n, realm := _DEFAULT_REALM )</prototype>
   <parameter name="resource" value="String" />
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="b" value="Integer" />
   <parameter name="n" value="Integer" />
@@ -2094,7 +2160,9 @@ equal to n.  Thus you can request 0-40  units in groups of 5, etc. </explain>
 
 <function name="CreateItemCopyAtLocation">
   <prototype>CreateItemCopyAtLocation(x, y, z, item, realm := _DEFAULT_REALM)</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="item" value="Item Reference" />
   <explain>makes a clone of the item
@@ -2113,7 +2181,8 @@ equal to n.  Thus you can request 0-40  units in groups of 5, etc. </explain>
 <function name="SendQuestArrow">   
   <prototype>SendQuestArrow(to_whom, x := -1, y := -1)</prototype>
   <parameter name="to_whom" value="Character reference the arrow shows to" />
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
   <explain>Sends a "quest arrow" to the player that points at x,y</explain>
   <explain>Passing 'x' and 'y' within map bounds will set the Quest Arrow to point at that location.</explain>
   <explain>Passing -1 as 'x' and 'y' (ie. by just called SendQuestArrow(to_whom)) will remove it.</explain>
@@ -2125,7 +2194,9 @@ equal to n.  Thus you can request 0-40  units in groups of 5, etc. </explain>
 
 <function name="ListItemsNearLocationWithFlag">
   <prototype>ListItemsNearLocationWithFlag( x, y, z, range, flags, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="range" value="Integer" />
   <parameter name="flags" value="Integer" />
@@ -2181,8 +2252,12 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="ListMultisInBox">
   <prototype>ListMultisInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x1,y1,z1" value="integer, for north west upper corner of box" />
-  <parameter name="x2,y2,z2" value="integer, for south east lower corner of box" />
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Lists all multis inside an imaginary box (where a multi must have at least one 'static' piece inside the box)</explain>
   <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
@@ -2206,8 +2281,12 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="FindPath">
   <prototype>FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 )</prototype>
-  <parameter name="x1,y1,z1" value="Integer world coordinates - start of the path" />
-  <parameter name="x2,y2,z2" value="Integer world coordinates - destination" />
+  <parameter name="x1" value="Integer world coordinates - start of the path" />
+  <parameter name="y1" value="Integer world coordinates - start of the path" />
+  <parameter name="z1" value="Integer world coordinates - start of the path" />
+  <parameter name="x2" value="Integer world coordinates - destination" />
+  <parameter name="y2" value="Integer world coordinates - destination" />
+  <parameter name="z2" value="Integer world coordinates - destination" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="flags" value="Integer" />
   <parameter name="searchskirt" value="Integer" />
@@ -2248,8 +2327,8 @@ const FP_IGNORE_DOORS           := 0x02;    // ignore Doors (you've to open door
 </function> 
 
 <function name="GetMultiDimensions">
-  <prototype>GetMultiDimensions( graphic )</prototype>
-  <parameter name="graphic" value="Multi Graphic ID" />
+  <prototype>GetMultiDimensions( multiid )</prototype>
+  <parameter name="multiid" value="Multi Graphic ID" />
   <explain>Returns struct with coords of _relative_ distances from center. xmin and ymin are _negative_.</explain>
   <return>Struct with "xmin", "xmax", "ymin", "ymax".</return>
   <error>"Invalid parameter"</error>
@@ -2333,7 +2412,9 @@ const FINDSUBSTANCE_FIND_ALL      := 0x4; // Find all matches ignoring given amo
 
 <function name="ListStaticsAtLocation">
   <prototype>ListStaticsAtLocation( x, y, z, flags := 0, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="flags" value="Integer" />
   <explain>Returns a list of Static or Multi Items at the specified x,y,z.</explain>
@@ -2356,7 +2437,9 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="ListStaticsNearLocation">
   <prototype>ListStaticsNearLocation( x, y, z, range, flags := 0, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="range" value="Integer" />
   <parameter name="flags" value="Integer" />
@@ -2381,7 +2464,8 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="GetStandingLayers">
   <prototype>GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x,y" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="flags" value="Integer" />
   <explain>Returns an Array of standing Layers and blocking Solids.</explain>
@@ -2413,8 +2497,12 @@ const MAPDATA_FLAG_ALL          := 0xffffffff; // All</code></explain>
 
 <function name="ListStaticsInBox">
   <prototype>ListStaticsInBox( x1,y1,z1, x2,y2,z2, flags := 0, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x1,y1,z1" value="integer, for north west upper corner of box" />
-  <parameter name="x2,y2,z2" value="integer, for south east lower corner of box" />
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="flags" value="Integer" />
   <explain>Lists all Static or Multi Items inside an imaginary box.</explain>
@@ -2445,7 +2533,9 @@ const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items</code></ex
 <function name="MoveObjectToLocation">
   <prototype>MoveObjectToLocation( object, x, y, z, realm := _DEFAULT_REALM, flags := MOVEOBJECT_NORMAL )</prototype>
   <parameter name="object" value="Object Reference" />
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="flags" value="Integer" />
   <explain>Moves an Object to a location in the world and/or from one realm to another realm.</explain>
@@ -2493,8 +2583,10 @@ const MOVEOBJECT_FORCELOCATION  := 0x40000000;</code></explain>
 
 <function name="CoordinateDistance">
   <prototype>CoordinateDistance(x1, y1, x2, y2)</prototype>
-  <parameter name="x1,y1" value="Integer world coordinates" />
-  <parameter name="x2,y2" value="Integer world coordinates" />
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="x2" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
   <explain>Calculates the distance between two coordinates.</explain>
   <return>The distance between two coordinates.</return>
   <error>"Invalid parameter type"</error>
@@ -2503,8 +2595,10 @@ const MOVEOBJECT_FORCELOCATION  := 0x40000000;</code></explain>
 
 <function name="GetCoordsInLine">
   <prototype>GetCoordsInLine(x1, y1, x2, y2)</prototype>
-  <parameter name="x1,y1" value="Integer world coordinates" />
-  <parameter name="x2,y2" value="Integer world coordinates" />
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="x2" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
   <explain>Calculates every coordinate between the two points.</explain>
   <return>Array of Structs {.x, .y}</return>
   <error>"Invalid parameter type"</error>
@@ -2513,8 +2607,10 @@ const MOVEOBJECT_FORCELOCATION  := 0x40000000;</code></explain>
 
 <function name="GetFacing">
   <prototype>GetFacing(from_x, from_y, to_x, to_y)</prototype>
-  <parameter name="from_x,from_y" value="Integer world coordinates" />
-  <parameter name="to_x,to_y" value="Integer world coordinates" />
+  <parameter name="from_x" value="Integer world coordinates" />
+  <parameter name="from_y" value="Integer world coordinates" />
+  <parameter name="to_x" value="Integer world coordinates" />
+  <parameter name="to_y" value="Integer world coordinates" />
   <explain>Returns the facing number an object must have in order to face to_x and to_y from from_x and from_y.</explain>
   <return>Facing number</return>
   <error>"Invalid parameter type"</error>
@@ -2542,10 +2638,18 @@ const MOVEOBJECT_FORCELOCATION  := 0x40000000;</code></explain>
   <related>Item</related>
 </function> 
 
+<function name="UpdateItem">
+  <prototype>UpdateItem( item )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <explain>updates the item to every client in range, good to use for example after returning 1 in some packethook and the item get invisible</explain>
+  <return>1 on success or Error</return>
+  <related>Item</related>
+</function> 
+
 <function name="UpdateMobile">
-  <prototype>UpdateMobile( mobile, flags := UPDATEMOBILE_UPDATE )</prototype>
+  <prototype>UpdateMobile( mobile, recreate := UPDATEMOBILE_UPDATE )</prototype>
   <parameter name="mobile" value="Character Reference" />
-  <parameter name="flags" value="Integer (Optional, 0..1)" />
+  <parameter name="recreate" value="Integer (Optional, 0..1)" />
   <explain>if flags set to UPDATEMOBILE_UPDATE sends to mobiles in visual range UpdatePlayer packet of mobile, for example to inform of notority changes</explain>
   <explain>if flags set to UPDATEMOBILE_RECREATE sends ReCreate packet (0x78)</explain>
   <explain>uo.em constants:
@@ -2597,8 +2701,12 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 
 <function name="PlayMovingEffectXYZEx">
   <prototype>PlayMovingEffectXYZEx( srcx, srcy, srcz, dstx, dsty, dstz, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, fixeddirection := 0, explode := 0, effect3d := 0, effect3dexplode := 0, effect3dsound := 0 )</prototype>
-  <parameter name="srcx,srcy,srcz" value="Integer Source world coordinates" />
-  <parameter name="dstx,dsty,dstz" value="Integer Destination world coordinates" />
+  <parameter name="srcx" value="Integer Source world coordinates" />
+  <parameter name="srcy" value="Integer Source world coordinates" />
+  <parameter name="srcz" value="Integer Source world coordinates" />
+  <parameter name="dstx" value="Integer Destination world coordinates" />
+  <parameter name="dsty" value="Integer Destination world coordinates" />
+  <parameter name="dstz" value="Integer Destination world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="effect" value="Integer" />
   <parameter name="speed" value="Integer (0..255)" />
@@ -2674,18 +2782,19 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 </function>
 
 <function name="PlayStationaryEffectEx">
-  <prototype>PlayStationaryEffectEx( x, y, z, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, layer := 0, effect3d := 0 )</prototype>
-  <parameter name="x,y,z" value="Integer world coordinates" />
+  <prototype>PlayStationaryEffectEx( x, y, z, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, effect3d := 0 )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="effect" value="Integer" />
   <parameter name="speed" value="Integer (to 255)" />
   <parameter name="duration" value="Integer (Optional, 0..255)" />
   <parameter name="hue" value="Integer" />
   <parameter name="render" value="Integer (Optional, 0..255)" />
-  <parameter name="layer" value="Integer (Optional, 0..255)" />
   <parameter name="effect3d" value="Integer" />
   <explain>Starts a stationary graphic effect at x,y,z.</explain>
-  <explain>layer, effect3d are only interpreted by the 3D client</explain>
+  <explain>effect3d is only interpreted by the 3D client</explain>
   <explain>effect3d values can be found in client/particles dir.</explain>
   <explain>Notes: effect= is a UO graphic number (the first graphic in a series for an animated effect)
        speed = controls the time between frames of animation
@@ -2716,8 +2825,12 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 
 <function name="CheckLosBetween">
   <prototype>CheckLosBetween( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="x1,y1,z1" value="Integer world coordinates for coordinate 1" />
-  <parameter name="x2,y2,z2" value="Integer world coordinates for coordinate 2" />
+  <parameter name="x1" value="Integer world coordinates for coordinate 1" />
+  <parameter name="y1" value="Integer world coordinates for coordinate 1" />
+  <parameter name="z1" value="Integer world coordinates for coordinate 1" />
+  <parameter name="x2" value="Integer world coordinates for coordinate 2" />
+  <parameter name="y2" value="Integer world coordinates for coordinate 2" />
+  <parameter name="z2" value="Integer world coordinates for coordinate 2" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Tests if coordinate 1 has Line-of-sight to coordinate 2</explain>
   <return>1 if coordinate 1 has line-of-sight to coordinate 2</return>
@@ -2729,8 +2842,8 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 </function>
 
 <function name="CloseGump">
-  <prototype>CloseGump( chr, pid, response := 0 )</prototype>
-  <parameter name="chr" value="Character" />
+  <prototype>CloseGump( character, pid, response := 0 )</prototype>
+  <parameter name="character" value="Character" />
   <parameter name="pid" value="Integer - PID of the script that sent the gump" />
   <parameter name="response" value="UObject - what is going to be returned to the gump script" />
   <explain>Closes the gump, returning 'response' to the script that called SendDialogGump()</explain>
@@ -2746,7 +2859,7 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 <function name="PlayMusic">
   <prototype>PlayMusic( chr, music_id := 0 )</prototype>
   <parameter name="chr" value="Character" />
-  <parameter name="musicid" value="Integer - ID of the music to be played on client" />
+  <parameter name="music_id" value="Integer - ID of the music to be played on client" />
   <explain>Plays music on client, as if it had just entered a new region</explain>
   <return>1 on success</return>
   <error>"Invalid Parameters"</error>
@@ -2756,8 +2869,11 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 <function name="CanWalk">
   <prototype>CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM)</prototype>
   <parameter name="movemode" value="String" />
-  <parameter name="x1,y2,z1" value="Integer world coordinates" />
-  <parameter name="x2_or_dir,y2" value="Integer world coordinates" />
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="z1" value="Integer world coordinates" />
+  <parameter name="x2_or_dir" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Checks if a mobile can walk with given movemode into given direction and returns the new z value or error.</explain>
   <explain>Note: if y2 is CANWALK_DIR x2 is considered as direction. if x2 and y2 is given it calculates the needed direction</explain>
@@ -2827,9 +2943,9 @@ const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
 </function>
 
 <function name="DistanceEuclidean">
-  <prototype>DistanceEuclidean( object1, object2 )</prototype>
-  <parameter name="object1" value="UObject Reference" />
-  <parameter name="object2" value="UObject Reference" />
+  <prototype>DistanceEuclidean( obj1, obj2 )</prototype>
+  <parameter name="obj1" value="UObject Reference" />
+  <parameter name="obj2" value="UObject Reference" />
   <explain>Determines the distance between two objects.  If either object is in a container, 
         uses the world-position of its ultimate-parent container. </explain>
   <explain>Notes: This distance is defined as sqrt(pow(object1.x-object2.x,2)+pow(object1.y-object2.y,2)) </explain>
@@ -2840,13 +2956,26 @@ const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
 
 <function name="CoordinateDistanceEuclidean">
   <prototype>CoordinateDistanceEuclidean(x1, y1, x2, y2)</prototype>
-  <parameter name="x1,y1" value="Integer world coordinates" />
-  <parameter name="x2,y2" value="Integer world coordinates" />
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="x2" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
   <explain>Calculates the distance between two coordinates.</explain>
   <explain>Notes: This distance is defined as sqrt(pow(x1-x2,2)+pow(y1-y2,2)) </explain>
   <return>Double - calculated distance on success</return>
   <error>"Invalid parameter type"</error>
   <related>UObject</related>
+</function> 
+
+<function name="GetMidpointCircleCoords">
+  <prototype>GetMidpointCircleCoords(xcenter, ycenter, radius)</prototype>
+  <parameter name="xcenter" value="Integer center of the circle coordinate" />
+  <parameter name="ycenter" value="Integer center of the circle coordinate" />
+  <parameter name="radius" value="Integer circle radius" />
+  <explain>based on given center coordinates and radius returns array of x,y structs which represent a circle</explain>
+  <explain>The array of coordinates is sorted, which means that its easily possible to only use every second point</explain>
+  <return>Error or Array</return>
+  <related>Array</related>
 </function> 
 
 </ESCRIPT>

@@ -1,12 +1,13 @@
 <?php
     $g_Page = "home";
-    include '/home/polteam/include/_header.php';
     include( "include/global.inc" );
-    include_once ("include/archive.inc");
+    //include_once ("include/archive.inc");
+    if( isset($header) && $header )
+      include_once $header;
 
     /* add the header */
     mainpageheader();
-    
+
     $xsltproc = new XsltProcessor();
     $xsl = new DomDocument;
     $xsl->load($webroot.'front_em.xslt');

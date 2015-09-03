@@ -10,7 +10,7 @@
 <constant>const DF_KEYTYPE_STRING       := 0x00; // default</constant>
 <constant>const DF_KEYTYPE_INTEGER      := 0x01;</constant>
   </fileheader>
-    
+
   <function name="CreateDataFile"> 
     <prototype>CreateDataFile( filespec, flags := DF_KEYTYPE_STRING )</prototype>
     <parameter name="filespec" value="String" />
@@ -37,7 +37,7 @@
     <error>"Invalid parameter type"</error>
     <related>Datafile</related>
   </function>
-  
+
   <function name="UnloadDataFile"> 
     <prototype>UnloadDataFile( filespec )</prototype>
     <parameter name="filespec" value="String" />

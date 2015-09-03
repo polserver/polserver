@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="File.em">
     <filedesc>File Access functions</filedesc>
-    <datemodified>12/21/2009</datemodified>
+    <datemodified>08/31/2015</datemodified>
     <constant>// LogToFile constants</constant>
     <constant>const LOG_DATETIME := 1; // log Core-Style DateTimeStr in front of log entry</constant>
     <constant>//BinaryFile constants</constant>
@@ -52,7 +52,7 @@
     <error>"File not found: X"</error>
     <relatedcfg>fileaccess.cfg</relatedcfg>
   </function>
-  
+
   <function name="WriteFile"> 
     <prototype>WriteFile( filename, textcontents )</prototype>
     <parameter name="filename" value="string" />
@@ -69,12 +69,12 @@
     <error>"Unable to remove filenameX: reasonY</error>
     <error>"Unable to rename filenameX: to filenameZ: reasonY</error>
     <relatedcfg>fileaccess.cfg</relatedcfg>
-  </function>  
-  
+  </function>
+
   <function name="AppendToFile"> 
-    <prototype>AppendToFile( filename, morelines )</prototype>
+    <prototype>AppendToFile( filename, textlines )</prototype>
     <parameter name="filename" value="string" />
-    <parameter name="morelines" value="array of strings" />
+    <parameter name="textlines" value="array of strings" />
     <explain>Appends to a text file, adding newlines. Creates file if it does not exist.</explain>
     <explain>By default, no package has any file access rights. To grant access, see config/fileaccess.cfg</explain>
     <return>1 or error</return>
@@ -86,12 +86,12 @@
     <error>"Error during write."</error>
     <relatedcfg>fileaccess.cfg</relatedcfg>
   </function>
-  
+
   <function name="LogToFile"> 
     <prototype>LogToFile( filename, line, flags := 0 )</prototype>
     <parameter name="filename" value="String" />
     <parameter name="line" value="String" />
-	<parameter name="flags" value="Integer" />
+    <parameter name="flags" value="Integer" />
     <explain>Appends a single line to a text file, adds newlines, creates file if it does not exist.</explain>
     <explain>By default, no package has any file access rights. To grant access, see config/fileaccess.cfg</explain>
     <explain>file.em constants for flags:
@@ -106,7 +106,7 @@ const LOG_DATETIME := 1; // log Core-Style DateTimeStr in front of log entry</co
     <error>"Error during write."</error>
     <relatedcfg>fileaccess.cfg</relatedcfg>
   </function>  
-  
+
   <function name="OpenBinaryFile"> 
     <prototype>OpenBinaryFile( filename, mode := OPENMODE_IN, endian := LITTLE_ENDIAN )</prototype>
     <parameter name="filename" value="string" />
@@ -135,7 +135,7 @@ const BIG_ENDIAN    := 0x01;
     <related>BinaryFile</related>
     <relatedcfg>fileaccess.cfg</relatedcfg>
   </function>  
-  
+
   <function name="CreateDirectory"> 
     <prototype>CreateDirectory( dirname )</prototype>
     <parameter name="dirname" value="string" />
@@ -147,7 +147,7 @@ const BIG_ENDIAN    := 0x01;
     <error>"Directory already exists."</error>
     <error>"Could not create directory."</error>
   </function>
-  
+
   <function name="ListDirectory"> 
     <prototype>ListDirectory( dirname, extension := LISTDIR_ALL_FILES, listdirs := LISTDIR_DONT_LIST_DIRS )</prototype>
     <parameter name="dirname" value="string" />
@@ -170,5 +170,21 @@ const LISTDIR_DONT_LIST_DIRS := 0x0;
     <error>"No parent path traversal please."</error>
     <error>"Directory not found."</error>
   </function> 
+
+  <function name="CreateXmlFile"> 
+    <prototype>CreateXMLFile()</prototype>
+    <explain>TinyXML based xml reading/writing.</explain>
+    <explain>creates an empty XMLFile object</explain>
+    <return>XMLFile object or error</return>
+  </function>
+
+  <function name="OpenXmlFile"> 
+    <prototype>OpenXMLFile( filename )</prototype>
+    <parameter name="filename" value="string" />
+    <explain>TinyXML based xml reading/writing.</explain>
+    <explain>opens given filename and returns XMLFile object, fileaccess.cfg is checked</explain>
+    <return>XMLFile object or error</return>
+    <relatedcfg>fileaccess.cfg</relatedcfg>
+  </function>
 
 </ESCRIPT>

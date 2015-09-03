@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="NPC.em">
     <filedesc>Functions for manipulating non-player character mobiles. All (most?) these functions are limited to use in an NPC context (meaning an AI script).</filedesc>
-    <datemodified>02/10/2009</datemodified>
+    <datemodified>08/31/2015</datemodified>
 
     <constant>// Constants for texttype flags in the Say() function</constant>
     <constant>const SAY_TEXTTYPE_DEFAULT := "default";</constant>
@@ -23,7 +23,7 @@
     <constant>const FACE_NORMAL := 0x0;</constant>
     <constant>const FACE_FORCE := 0x1;</constant>
   </fileheader>
-    
+
 <function name="SetAnchor"> 
     <prototype>SetAnchor( centerx, centery, distance_start, percent_subtract )</prototype>
     <parameter name="centerx" value="Integer world coordinate" />
@@ -308,13 +308,6 @@ const SAY_DOEVENT_ENABLE := 0x1;</code></explain>
     <error>"Unicode array exceeds maximum size."</error>
     <error>"langcode must be a 3-character code."</error>
     <error>"Invalid value in Unicode array."</error>
-    <related>NPC</related>
-</function>
-
-<function name="Position">
-    <prototype>Position()</prototype>
-    <explain>Deprecated. Use Self().x, Self().y, Self().z instead.</explain>
-    <return>A struct with x,y, and z members.</return>
     <related>NPC</related>
 </function>
 

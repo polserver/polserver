@@ -1,12 +1,14 @@
 <?php
 
 $webroot = '/home/polteam/docs.polserver.com/pol099/';
+$header = '/home/polteam/include/_header.php';
 $offline = 0;
 set_error_handler('XML_errorHandler');
 
 if (function_exists('date_default_timezone_set'))
 {
-	@date_default_timezone_set(getenv("TZ"));
+	if( $envtz = getenv("TZ") )
+		@date_default_timezone_set($envtz);
 }
 
 
@@ -149,7 +151,7 @@ function sitefooter($offline=0)
       If you <i>know</i> if any information is incorrect on these pages, mail your corrections to polteam@polserver.com
     </p>
     <p >
-      Copyright &copy;2003-2012 David Carpman and POL Development Team, all rights reserved. DO NOT REPRODUCE, MIRROR, ALTER, SPINDLE, MUTILATE, OR SIT ON.
+      Copyright &copy;2003-2015 David Carpman and POL Development Team, all rights reserved. DO NOT REPRODUCE, MIRROR, ALTER, SPINDLE, MUTILATE, OR SIT ON.
     </p>
     </div>
     </div>

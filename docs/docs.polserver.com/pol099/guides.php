@@ -3,8 +3,9 @@
     $guidefile="";
     if (!$offline) {
       $g_Page = "home";
-      include_once '/home/polteam/include/_header.php';
-      
+      if( isset($header) && $header )
+        include_once $header;
+
       // PHP-BB global stuff
 			global $request;
 			$request->enable_super_globals();

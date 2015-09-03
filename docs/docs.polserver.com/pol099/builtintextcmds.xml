@@ -5,11 +5,12 @@
 <header>
   <topic>List of Built-In Text Commands</topic>
   <text>Note many of these are OLD, and/or useless. Originally meant for development team use only, some may be useful to admins out there.</text>
-  <datemodified>02/21/2009</datemodified>
+  <datemodified>08/31/2015</datemodified>
 </header>
 
 <list name="armor">prints your armor coverage to the screen.</list>
 <list name="constat">sends connection statuses of all clients to you</list>
+<list name="heapcheck">prints heap allocation data</list>
 <list name="i_repdata">sends reputation system data for a targetted char</list>
 <list name="t_ident">sends serial and graphic data for a targetted obj</list>
 <list name="integ_item">sends status of world item integrity</list>
@@ -21,11 +22,9 @@
 <list name="log_profile_clear">prints script profile to pol.log and clears counters</list>
 <list name="orphans">prints orphaned object data</list>
 <list name="procs">prints process data</list>
-<list name="t_props">prints cprop info for targetted obj</list>
 <list name="resendchars">sends nearby characters to your client</list>
 <list name="shutdown">shuts down the server</list>
 <list name="startlog">begins logging packet data send to and from your client. If priv "plogany" is enabled target cursor for Char selection.</list>
 <list name="stoplog">stops packet logging. log file in /pol/log/[account name].log</list>
 <list name="threads">prints thread info</list>
-<list name="set [priv] [on/off]">turns the privilege on or off</list>
 </ESCRIPT>

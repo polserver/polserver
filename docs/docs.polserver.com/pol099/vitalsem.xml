@@ -4,7 +4,7 @@
 <ESCRIPT>  
   <fileheader fname="Vitals.em">
     <filedesc>Functions for working with mobile vitals.</filedesc>
-    <datemodified>02/25/2010</datemodified>
+    <datemodified>08/31/2015</datemodified>
 <constant>//Apply*Damage constants</constant>
 <constant>const DAMAGE_USE_REPSYS  := 1;</constant>
 <constant>const DAMAGE_NO_REPSYS   := 0;</constant>
@@ -17,11 +17,11 @@
 <constant>const RECALC_VITALS           := 1;</constant>
 <constant>const RECALC_NO_VITALS        := 0;</constant>
   </fileheader>
-  
+
 <function name="ApplyDamage">
-    <prototype>ApplyDamage( Character, Hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
-	<parameter name="Character" value="Character Reference" />
-	<parameter name="Hits" value="Real (0.0 to 30000.0)" />
+    <prototype>ApplyDamage( mobile, damage, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
+	<parameter name="mobile" value="Character Reference" />
+	<parameter name="damage" value="Real (0.0 to 30000.0)" />
 	<parameter name="userepsys" value="Integer (optional, default DAMAGE_USE_REPSYS)" />
 	<parameter name="send_damage" value="Integer (optional, default DAMAGE_USE_DEFAULT)" />
 	<explain>Decreases a character's hit points, after reducing damage due to armor.</explain>
@@ -99,7 +99,7 @@ const DAMAGE_USE_DEFAULT := 2;</code></explain>
 	<prototype>ConsumeVital( who, vital, hundredths )</prototype>
 	<parameter name="who" value="Character Reference" />
 	<parameter name="vital" value="String (vital name)" />
-	<parameter name="hundreths" value="Integer" />
+	<parameter name="hundredths" value="Integer" />
 	<explain>Consumes an amount of vital "vital" in hundreths. for example, ConsumeVital(who, "Stamina", 100) 
 consumes one point of stamina.</explain>
 	<return>1 on consume success or 0 on failure (insufficient value for the vital)</return>
@@ -178,7 +178,7 @@ const RECALC_NO_VITALS        := 0;</code></explain>
 	<relatedcfg>vitals.cfg</relatedcfg>
 	<relatedcfg>attributes.cfg</relatedcfg>
 </function>
-	
+
 <function name="SetVital">
 	<prototype>SetVital( character, vitalname, value )</prototype>
 	<parameter name="character" value="Character Reference" />
