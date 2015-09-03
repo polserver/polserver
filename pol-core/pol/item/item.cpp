@@ -74,6 +74,7 @@ namespace Pol {
       item->sellprice_(sellprice_());
       item->buyprice_(buyprice_());
 	  item->newbie_ = newbie_;
+	  item->insured_ = insured_;
 
 	  item->invisible_ = invisible_;	//dave 12-20
 	  item->movable_ = movable_;		//dave 12-20
@@ -299,6 +300,23 @@ namespace Pol {
 	  return itemdesc().newbie;
 	}
 
+	bool Item::default_insured() const
+	{
+		return itemdesc().insured;
+	}
+
+	/// Returns current insurance value and resets it to false
+	bool Item::use_insurance()
+	{
+	  if ( insured_ )
+	  {
+		set_dirty();
+		insured_ = false;
+		return true;
+	  }
+	  return false;
+	}
+
 	unsigned short Item::maxhp() const
 	{
 	  int maxhp = itemdesc().maxhp + maxhp_mod();
@@ -387,6 +405,9 @@ namespace Pol {
 	  if ( newbie_ != default_newbie() )
 		sw() << "\tNewbie\t" << newbie_ << pf_endl;
 
+	  if ( insured_ != default_insured() )
+		  sw() << "\tInsured\t" << insured_ << pf_endl;
+
 	  if ( maxhp_mod_ )
 		sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
 	  if ( hp_ != itemdesc().maxhp )
@@ -432,6 +453,7 @@ namespace Pol {
 	  if ( buyprice_() == 2147483647 )
 		buyprice_(BUYPRICE_DEFAULT);
 	  newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
+	  insured_ = elem.remove_bool( "INSURED", default_insured() );
 	  hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
 	  setQuality(elem.remove_double( "QUALITY", itemdesc().quality ));
 
@@ -580,6 +602,9 @@ namespace Pol {
 	  if ( !item->newbie() )
 		newbie_ = false;
 
+	  if ( !item->insured() )
+		insured_ = false;
+
 	  item->destroy();
 	  item = NULL;
 	}
@@ -691,6 +716,7 @@ namespace Pol {
 	{
 	  bool res = ( ( item.objtype_ == objtype_ ) &&
 				   ( item.newbie() == newbie() ) &&
+				   ( item.insured() == insured() ) &&
 				   ( item.graphic == graphic ) &&
 				   ( item.color == color ) &&
 				   ( !inuse() ) &&

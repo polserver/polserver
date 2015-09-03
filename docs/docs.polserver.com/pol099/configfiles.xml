@@ -1366,6 +1366,7 @@ Item (objtype)
     [CanUseWhileFrozen      (0/1 {default 0})]
     [CanUseWhileParalyzed   (0/1 {default 0})]
     [Newbie                 (0/1 {default 0})]
+    [Insured                (0/1 {default 0})]
     [Invisible              (0/1 {default 0})]
     [DecaysOnMultis         (0/1 {default 0})]
     [BlocksCastingIfInHand  (0/1 {default 0})]

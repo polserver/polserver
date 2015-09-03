@@ -2247,7 +2247,7 @@ namespace Pol {
 		  _copy_item( item );
 		  continue;
 		}
-		if ( item->newbie() )
+		if ( item->newbie() || item->insured() )
 		  continue;
         else if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
 		{
@@ -2302,7 +2302,7 @@ namespace Pol {
 		  bp_item->container = NULL;
 		  bp_item->layer = 0;
 		  UPDATE_CHECKPOINT();
-		  if ( bp_item->newbie() && bp->can_add( *bp_item ) )
+		  if ( ( bp_item->newbie() || bp_item->use_insurance() ) && bp->can_add( *bp_item ) )
 		  {
 			if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
 			{
@@ -2353,7 +2353,7 @@ namespace Pol {
 		  }
           if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS && !item->movable( ) )
 			continue;
-		  if ( item->newbie() && bp->can_add( *item ) )
+		  if ( ( item->newbie() || item->use_insurance() ) && bp->can_add( *item ) )
 		  {
 			UPDATE_CHECKPOINT();
 			item->check_unequip_script();

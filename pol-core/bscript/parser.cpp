@@ -485,7 +485,8 @@ namespace Pol {
 	  { MBR_SPEED_MOD, "speed_mod", false },
 	  { MBR_NAME_SUFFIX, "name_suffix", false },
 	  { MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true }, //210
-      { MBR_LAST_TEXTCOLOR, "last_textcolor", true }
+	  { MBR_LAST_TEXTCOLOR, "last_textcolor", true },
+	  { MBR_INSURED, "insured", false },
 	};
 	int n_objmembers = sizeof object_members / sizeof object_members[0];
 	ObjMember* getKnownObjMember( const char* token )

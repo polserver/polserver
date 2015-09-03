@@ -2,9 +2,21 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-02-2015</datemodified>
+		<datemodified>09-03-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-03-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">Item insurance support, new Item.insured property (0/1)<br/>
+An insured item behaves on death like a newbie item, except that the insured flag gets reset back<br/>
+to 0 after every death. If the item for some reason (e.g. when backpack is full) will get dropped<br/>
+instead, the insured flag will be reset anyway. Insured items are not stackable with normal items<br/>
+but they can still be sold to vendors.</change>
+			<change type="Hint">this feature can also be used in conjunction with CanDie sys hook to determine via script which<br/>
+items a player will drop on death; since the CanDie hook is called exactly one moment before death you<br/>
+can use it to insure the items that you don't want to fall on the corpse.</change>
+		</entry>
 		<entry>
 			<date>08-27-2015</date>
 			<author>Bodom:</author>

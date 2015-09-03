@@ -98,6 +98,7 @@ namespace Pol {
 	  bool can_use_while_paralyzed;
 	  bool can_use_while_frozen;
 	  bool newbie;
+	  bool insured;
 	  bool invisible;
 	  bool decays_on_multis;
 	  bool blocks_casting_if_in_hand;

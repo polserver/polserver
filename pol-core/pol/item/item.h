@@ -111,6 +111,11 @@ namespace Pol {
 	  bool default_newbie() const;
 	  void newbie( bool newvalue );
 
+	  bool insured() const;
+	  bool default_insured() const;
+	  void insured( bool newvalue );
+	  bool use_insurance();
+
 	  u8 slot_index() const;
 	  bool slot_index( u8 newvalue );
       void reset_slot();
@@ -203,6 +208,7 @@ namespace Pol {
 	  unsigned int decayat_gameclock_;
 	  u16 amount_;
 	  bool newbie_;
+	  bool insured_;
 	  bool movable_;
 	  bool inuse_;
 	  bool invisible_;
@@ -292,6 +298,16 @@ namespace Pol {
 	inline void Item::newbie( bool newvalue )
 	{
 		newbie_ = newvalue;
+	}
+
+	inline bool Item::insured() const
+	{
+	  return insured_;
+	}
+
+	inline void Item::insured( bool newvalue )
+	{
+	  insured_ = newvalue;
 	}
 
 	inline u8 Item::slot_index() const
