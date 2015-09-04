@@ -572,6 +572,10 @@
 <method proto="removemember(CharacterRef)" returns="true/error" desc="removes a character member" />
 <method proto="removeallyguild(GuildRef)" returns="true/error" desc="removes an ally guild" />
 <method proto="removeenemyguild(GuildRef)" returns="true/error" desc="removes an enemy guild" />
+<method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
+<method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
+<method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
+<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 </class>
 
 
@@ -697,6 +701,10 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <method proto="addcandidate(CharacterRef)" returns="error/true" desc="adds a character to the party as candidate" />
 <method proto="removemember(CharacterRef)" returns="true/error" desc="removes a character member" />
 <method proto="removecandidate(CharacterRef)" returns="true/error" desc="removes a character candidate" />
+<method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
+<method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
+<method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
+<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 </class>
 
 
