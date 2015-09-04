@@ -332,6 +332,7 @@ namespace Pol {
 
 		  if ( item->objtype_ == descriptor->objtype &&
 			   !item->newbie() &&
+			   item->insured() == descriptor->insured &&
 			   item->color == descriptor->color && //dave added 5/11/3, only add to existing stack if is default color
 			   item->has_only_default_cprops( descriptor ) &&	   //dave added 5/11/3, only add to existing stack if default cprops
 			   ( !item->inuse() || ( uoemod && uoemod->is_reserved_to_me( item ) ) ) &&

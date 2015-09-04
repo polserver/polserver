@@ -56,10 +56,10 @@ namespace Pol {
 	const char* poldbg_base_members[] = { "x", "y", "z", "name", "objtype", "graphic",
 	  "serial", "color", "facing", "height", "weight",
 	  "multi", "realm", "dirty" };
-	// 27 members
+	// 28 members
 	const char* poldbg_itemref_members[] = { "amount", "layer", "container", "usescript",
 	  "equipscript", "desc", "movable", "invisible",
-	  "decayat", "sellprice", "buyprice", "newbie",
+	  "decayat", "sellprice", "buyprice", "newbie", "insured",
 	  "tile_layer", "unequipscript", "item_count",
 	  "stackable", "saveonexit", "resist_fire",
 	  "resist_cold", "resist_energy", "resist_poison",

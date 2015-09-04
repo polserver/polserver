@@ -868,6 +868,7 @@ namespace Pol {
 		case MBR_SELLPRICE: return new BLong( sellprice() ); break;
 		case MBR_BUYPRICE: return new BLong( buyprice() ); break;
 		case MBR_NEWBIE: return new BLong( newbie() ? 1 : 0 ); break;
+		case MBR_INSURED: return new BLong( insured() ? 1 : 0 ); break;
 		case MBR_ITEM_COUNT: return new BLong( item_count() ); break;
 		case MBR_STACKABLE:  return new BLong( stackable() ? 1 : 0 ); break;
 		case MBR_SAVEONEXIT: return new BLong( saveonexit() ); break;
@@ -990,6 +991,11 @@ namespace Pol {
 		  newbie( value ? true : false );
 		  increv();
 		  return new BLong( newbie() );
+		case MBR_INSURED:
+		  restart_decay_timer();
+		  insured( value ? true : false );
+		  increv();
+		  return new BLong( insured() );
 		case MBR_FACING:
 		  setfacing( (u8)value );
 		  return new BLong( facing );
