@@ -2,9 +2,28 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-03-2015</datemodified>
+		<datemodified>09-05-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-05-2015</date>
+			<author>Bodom:</author>
+			<change type="Changed">Process ids (pid) no longer start from 1 but from 0x01000000.<br/>
+This should have no practical effect.</change>
+			<change type="Added">Allow specifying an arbitrary Gump id in SendDialogGump()<br/>
+Custom gump ids must be in the range 1-0xFFFFFF. If no gumpid is given,<br/>
+the old behavior of using the pid will still be used (so that this<br/>
+does not break backward compatibility).<br/>
+It is now possible to organize the gumpids in a constants file and have<br/>
+the same gump to always be sent with the same id. This way the client<br/>
+will recognize it and, if the player moved it last time, it will<br/>
+reposition it where the player liked it: this should be a nice<br/>
+interface improvement.<br/>
+It is now possible to implement the Virtues gump, since it needs a<br/>
+pre-defined gumpid of 0x01CD to work.</change>
+			<change type="Changed">CloseGump() now accepts a gumpid instead of a pid. For scripts not<br/>
+using custom gump ids, its behavior is the same as before.</change>
+		</entry>
 		<entry>
 			<date>09-03-2015</date>
 			<author>Bodom:</author>

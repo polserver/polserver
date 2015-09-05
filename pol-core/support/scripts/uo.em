@@ -244,7 +244,7 @@ CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_RE
 CheckLineOfSight( object1, object2 );
 CheckLosAt( character, x, y, z );
 CheckLosBetween( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM );
-CloseGump( character, pid, response := 0 );
+CloseGump( character, gumpid, response := 0 );
 CloseTradeWindow( character );
 CloseWindow( character, type, object );
 ConsumeReagents( who, spellid );
@@ -357,7 +357,7 @@ SelectMenuItem2( character, menuname );
 SendBuyWindow( character, container, vendor, items, flags := 0 );
 SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNEDITABLE_TEXT, editable_text := CHARPROFILE_NO_EDITABLE_TEXT );
 SendCharacterRaceChanger( character );
-SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0 );
+SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0, gumpid := 0 );
 SendEvent( npc, event );
 SendHousingTool( who, house );
 SendInstaResDialog( character );

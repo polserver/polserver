@@ -8,6 +8,12 @@ namespace Pol {
 namespace Core {
   ScriptEngineInternalManager scriptEngineInternalManager;
 
+  // This number is intended so that PID and custom GUMPIDS will never clash together
+  // and to avoid breaking the old assumption that gumpid == pid when gumpid has been
+  // automatically generated (for backward compatibility).
+  // Custom gumpids must always be < PID_MIN.
+  const unsigned int ScriptEngineInternalManager::PID_MIN = 0x01000000;
+
   ScriptEngineInternalManager::ScriptEngineInternalManager() :
 	runlist(),
 	ranlist(),
@@ -17,7 +23,7 @@ namespace Core {
 	priority_divide(1),
 	scrstore(),
 	pidlist(),
-	next_pid(0)
+	next_pid(PID_MIN)
   {
   
   }

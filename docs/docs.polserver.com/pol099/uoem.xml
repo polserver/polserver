@@ -822,14 +822,16 @@ const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
 </function>
 
 <function name="SendDialogGump">
-  <prototype>SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0 )</prototype>
+  <prototype>SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0, gumpid := 0 )</prototype>
   <parameter name="who" value="Character Reference" />
   <parameter name="layout" value="String Array" />
   <parameter name="textlines" value="String Array" />
   <parameter name="x" value="Integer-Offset" />
   <parameter name="y" value="Integer-Offset" />
   <parameter name="flags" value="Integer" />
+  <parameter name="gumpid" value="Integer, 0 to 0xFFFFFF" />
   <explain>Sends a generic gump window to "who" and waits for the user's input.</explain>
+  <explain>If no gumpid is given, the script's pid will be sent as gumpid.</explain>
   <explain>Notes: "layout" is an array of strings with each string a gump layout directive.
        "textlines" is an array of strings with text that is displayed on the gump. "Layout" references
           this array in a 0-based manner.
@@ -846,6 +848,7 @@ const SENDDIALOGMENU_FORCE_OLD  := 0x01;</code></explain>
   <error>"Invalid parameter"</error>
   <error>"No client attached"</error>
   <error>"Buffer length exceeded" (64K byte)</error>
+  <error>"GumpID out of range"</error>
   <related>Character</related>
   <related>Dictionary</related>
   <related>Array</related>
@@ -2842,10 +2845,12 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 </function>
 
 <function name="CloseGump">
-  <prototype>CloseGump( character, pid, response := 0 )</prototype>
+  <prototype>CloseGump( character, gumpid, response := 0 )</prototype>
   <parameter name="character" value="Character" />
-  <parameter name="pid" value="Integer - PID of the script that sent the gump" />
+  <parameter name="gumpid" value="Integer" />
   <parameter name="response" value="UObject - what is going to be returned to the gump script" />
+  <explain>If the gump was sent using a custom gumpid, then the same gumpid must be used here.
+If the gump was sent without specifying a gumpid, then use the sender script's pid.</explain>
   <explain>Closes the gump, returning 'response' to the script that called SendDialogGump()</explain>
   <return>1 on success</return>
   <error>"Invalid Parameters"</error>

@@ -237,7 +237,7 @@ namespace Pol {
 	  if ( gump_chr != NULL )
 	  {
         if ( gump_chr->client != nullptr && gump_chr->client->gd != nullptr )
-		  gump_chr->client->gd->remove_gumpmod( this );
+		  gump_chr->client->gd->remove_gumpmods( this );
 		gump_chr = NULL;
 	  }
 	  if ( textentry_chr != NULL )

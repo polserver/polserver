@@ -1,4 +1,20 @@
 ﻿-- POL099 --
+09-05-2015 Bodom:
+  Changed: Process ids (pid) no longer start from 1 but from 0x01000000.
+           This should have no practical effect.
+  Added:   Allow specifying an arbitrary Gump id in SendDialogGump()
+           Custom gump ids must be in the range 1-0xFFFFFF. If no gumpid is given,
+           the old behavior of using the pid will still be used (so that this
+           does not break backward compatibility).
+           It is now possible to organize the gumpids in a constants file and have
+           the same gump to always be sent with the same id. This way the client
+           will recognize it and, if the player moved it last time, it will
+           reposition it where the player liked it: this should be a nice
+           interface improvement.
+           It is now possible to implement the Virtues gump, since it needs a
+           pre-defined gumpid of 0x01CD to work.
+  Changed: CloseGump() now accepts a gumpid instead of a pid. For scripts not
+           using custom gump ids, its behavior is the same as before.
 09-03-2015 Bodom:
   Added:   Item insurance support, new Item.insured property (0/1)
            An insured item behaves on death like a newbie item, except that the insured flag gets reset back

@@ -56,10 +56,11 @@ namespace Pol {
 	{
 	  while ( !gumpmods.empty() )
 	  {
-		Module::UOExecutorModule* uoemod = *gumpmods.begin();
+		GumpMods::iterator it = gumpmods.begin();
+		Module::UOExecutorModule* uoemod = it->second;
 		uoemod->uoexec.os_module->revive();
 		uoemod->gump_chr = NULL;
-		gumpmods.erase( gumpmods.begin() );
+		gumpmods.erase( it );
 	  }
 
 	  if ( textentry_uoemod != NULL )
@@ -134,25 +135,29 @@ namespace Pol {
 
 	}
 
-	void ClientGameData::add_gumpmod( Module::UOExecutorModule* uoemod )
+	/// Registers a gumpid for the given module
+	void ClientGameData::add_gumpmod( Module::UOExecutorModule* uoemod, u32 gumpid )
 	{
-	  gumpmods.insert( uoemod );
+	  gumpmods[gumpid] = uoemod;
 	}
 
-	Module::UOExecutorModule* ClientGameData::find_gumpmod( u32 pid )
+	/// Given a gumpid, finds the module that registered it, returns NULL if not found
+	Module::UOExecutorModule* ClientGameData::find_gumpmod( u32 gumpid )
 	{
-	  for ( GumpMods::iterator itr = gumpmods.begin(); itr != gumpmods.end(); ++itr )
-	  {
-		Module::UOExecutorModule* uoemod = ( *itr );
-		if ( uoemod->uoexec.os_module->pid() == pid )
-		  return uoemod;
-	  }
-	  return NULL;
+	  GumpMods::iterator it = gumpmods.find( gumpid );
+	  if( it == gumpmods.end() )
+		return NULL;
+	  return it->second;
 	}
 
-	void ClientGameData::remove_gumpmod( Module::UOExecutorModule* uoemod )
+	/// Removes all the registered gumpids for a given module
+	void ClientGameData::remove_gumpmods( Module::UOExecutorModule* uoemod )
 	{
-	  gumpmods.erase( uoemod );
+	  for( GumpMods::const_iterator it = gumpmods.cbegin(); it != gumpmods.cend(); /* no inc here */ )
+		if( it->second == uoemod )
+		  gumpmods.erase( it++ );
+		else
+		  ++it;
 	}
 
     size_t ClientGameData::estimatedSize() const

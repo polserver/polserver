@@ -16,7 +16,7 @@ Notes
 #include "../../clib/rawtypes.h"
 
 #include <cstddef>
-#include <set>
+#include <map>
 
 namespace Pol {
   namespace Module {
@@ -45,12 +45,12 @@ namespace Pol {
 	  ref_ptr<Core::UContainer> vendor_for_sale;
 	  Core::NPCRef vendor;
 
-	  typedef std::set<Module::UOExecutorModule*> GumpMods;
+	  typedef std::map<u32, Module::UOExecutorModule*> GumpMods;
 	  GumpMods gumpmods;
 
-	  void add_gumpmod( Module::UOExecutorModule* );
-	  Module::UOExecutorModule* find_gumpmod( u32 pid );
-	  void remove_gumpmod( Module::UOExecutorModule* );
+	  void add_gumpmod( Module::UOExecutorModule*, u32 gumpid );
+	  Module::UOExecutorModule* find_gumpmod( u32 gumpid );
+	  void remove_gumpmods( Module::UOExecutorModule* );
 
 	  Module::UOExecutorModule* textentry_uoemod;
 
