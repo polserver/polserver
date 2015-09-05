@@ -31,6 +31,7 @@ namespace Pol {
 	  decayat_gameclock_( 0 ),
 	  amount_( 1 ),
 	  newbie_( id.newbie ),
+	  insured_( id.insured ),
 	  movable_( id.default_movable() ),
 	  inuse_( false ),
 	  invisible_( id.invisible ),
@@ -64,6 +65,7 @@ namespace Pol {
         + sizeof(int)/* decayat_gameclock_*/
         +sizeof(u16)/* amount_*/
         +sizeof(bool)/* newbie_*/
+        +sizeof(bool)/* insured */
         +sizeof(bool)/* movable_*/
         +sizeof(bool)/* inuse_*/
         +sizeof(bool)/* invisible_*/

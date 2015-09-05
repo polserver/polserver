@@ -188,6 +188,7 @@ namespace Pol {
 	  can_use_while_paralyzed( elem.remove_bool( "CanUseWhileParalyzed", false ) ),
 	  can_use_while_frozen( elem.remove_bool( "CanUseWhileFrozen", false ) ),
 	  newbie( elem.remove_bool( "NEWBIE", false ) ),
+	  insured( elem.remove_bool("INSURED", false) ),
 	  invisible( elem.remove_bool( "INVISIBLE", false ) ),
 	  decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
 	  blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
@@ -473,6 +474,7 @@ namespace Pol {
 	  can_use_while_paralyzed ( false ),
 	  can_use_while_frozen ( false ),
 	  newbie( false ),
+	  insured( false ),
 	  invisible( false ),
 	  decays_on_multis( false ),
 	  blocks_casting_if_in_hand( true ),
@@ -539,6 +541,7 @@ namespace Pol {
 	  descriptor->addMember( "CanUseWhileFrozen", new BLong( can_use_while_frozen ) );
 	  descriptor->addMember( "CanUseWhileParalyzed", new BLong( can_use_while_paralyzed ) );
 	  descriptor->addMember( "Newbie", new BLong( newbie ) );
+	  descriptor->addMember( "Insured", new BLong( insured ) );
 	  descriptor->addMember( "Invisible", new BLong( invisible ) );
 	  descriptor->addMember( "DecaysOnMultis", new BLong( decays_on_multis ) );
 	  descriptor->addMember( "BlocksCastingIfInHand", new BLong( blocks_casting_if_in_hand ) );

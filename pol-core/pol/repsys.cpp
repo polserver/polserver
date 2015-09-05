@@ -563,7 +563,9 @@ namespace Pol {
       {
         Mobile::Character* t_amy = const_cast<Mobile::Character*>( amy );
         Mobile::Character* t_bob = const_cast<Mobile::Character*>( bob );
-        return (unsigned char)( settingsManager.repsys_cfg.Hooks.HighLightColor->call_long( t_bob->make_ref(), t_amy->make_ref() ) );
+        int hook_highlight = settingsManager.repsys_cfg.Hooks.HighLightColor->call_long( t_bob->make_ref(), t_amy->make_ref() );
+        if ( hook_highlight != -1 )
+          return (unsigned char)hook_highlight;
       }
 
       if ( ( settingsManager.ssopt.invul_tag == 2 ) && bob->invul() )
@@ -593,7 +595,9 @@ namespace Pol {
       {
         Mobile::Character* t_amy = const_cast<Mobile::Character*>( amy );
         Mobile::Character* t_bob = const_cast<Mobile::Character*>( bob );
-        return (unsigned short)( settingsManager.repsys_cfg.Hooks.NameColor->call_long( t_bob->make_ref(), t_amy->make_ref() ) );
+        int hook_color = settingsManager.repsys_cfg.Hooks.NameColor->call_long( t_bob->make_ref(), t_amy->make_ref() );
+        if ( hook_color != -1 )
+          return (unsigned short)hook_color;
       }
 
       if ( settingsManager.ssopt.invul_tag == 2 )

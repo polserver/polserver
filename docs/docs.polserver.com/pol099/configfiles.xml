@@ -503,8 +503,8 @@ HookList
   <explain>NameColoring defines the single-click name colors for mobiles with various reputation states.</explain>
   <explain>Repsys coloring for Invulnerable names will only occur when InvulTag in ServSpecOpt.cfg is set to 2.</explain>
   <explain>HookList section is only needed if you wish to define repsys hooks. Currently name (single click) and highlight (health bar) colors are hookable:<br/>
-exported function NameColor(mobile, visible_to) // must return an Integer, the new color to be used<br/>
-exported function HighLightColor(mobile, visible_to) // must return an Integer, the hightlight to be used (see below)<br/>
+exported function NameColor(mobile, visible_to) // must return an Integer, the new color to be used, return -1 to let the core decide<br/>
+exported function HighLightColor(mobile, visible_to) // must return an Integer, the hightlight to be used (see below), return -1 to let the core decide<br/>
 exported function OnAttack(attacker, defender) // run when a mobile attacks another, return 1 to prevent POL from doing standard repsys actions<br/>
 exported function OnDamage(attacker, defender) // run when a mobile damages another, return 1 to prevent POL from doing standard repsys actions<br/>
 exported function OnHelp(helper, helped) // run when a mobile helps another, return 1 to prevent POL from doing standard repsys actions<br/>
@@ -1366,6 +1366,7 @@ Item (objtype)
     [CanUseWhileFrozen      (0/1 {default 0})]
     [CanUseWhileParalyzed   (0/1 {default 0})]
     [Newbie                 (0/1 {default 0})]
+    [Insured                (0/1 {default 0})]
     [Invisible              (0/1 {default 0})]
     [DecaysOnMultis         (0/1 {default 0})]
     [BlocksCastingIfInHand  (0/1 {default 0})]
