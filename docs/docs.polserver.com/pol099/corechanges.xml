@@ -11,6 +11,15 @@
 			<change type="Added">New Item.process property<br/>
 Returns reference to the controlscript, if any running</change>
 			<change type="Changed">Script.attached_to now returns a reference to the Item when called on a ControlScript</change>
+			<change type="Added">New servspecopt.cfg option DefaultCharacterHeight (1-32)<br/>
+This will be the default (and never changed so far) height of Characters<br/>
+and NPCs. Default value is 15. Back in the POL095 days is was 9, so consider<br/>
+9-15 as your &quot;safe&quot; play range. Anything outside that range could cause weird<br/>
+movement behavior. Even small changes will have a great impact on LOS<br/>
+calculations and, more in general, on the combat system.<br/>
+It is also used to calculate wether a Character can fit under a low<br/>
+passage (e.g. dungeon stairs).<br/>
+Keep in mind a Titan and a Slime will have the same height.</change>
 		</entry>
 		<entry>
 			<date>09-05-2015</date>

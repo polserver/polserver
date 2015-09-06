@@ -372,6 +372,7 @@ Spell (int spellid)
 [SeperateSpeechTokens           (0/1 {default 0})]
 [CoreGuildMessages              (0/1 {default 1})]
 [MobilesBlockNpcMovement        (0/1 {default 1})]
+[DefaultCharacterHeight         (1-32 {default 15})]
 </structure>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
   <explain><i>MovementUsesStamina:</i> if enabled stamina costs are defined in movecost.cfg</explain>
@@ -433,6 +434,12 @@ and no speech without Tokens setting LISTENPT_NO_SPEECH<br/>
 Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   <explain><i>CoreGuildMessages:</i> used to determine if core should handle guild and alliance messages</explain>
   <explain><i>MobilesBlockNpcMovement:</i> use to determine if mobiles block the movement of npcs</explain>
+  <explain><i>DefaultCharacterHeight:</i> This is the default (and never changed so far) height for Characters and NPCs.<br/>
+  Default value is 15. Back in the POL095 days is was 9, so consider 9-15 as your "safe" play range.<br/>
+  Anything outside that range could cause weird movement behavior.<br/>
+  Even small changes will have a great impact on LOS calculations and, more in general, on the combat system.<br/>
+  It is also used to calculate wether a Character can fit under a low passage (e.g. dungeon stairs).<br/>
+  Keep in mind a Titan and a Slime will have the same height.</explain>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>

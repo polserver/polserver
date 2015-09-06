@@ -345,7 +345,7 @@ namespace Pol {
 	  last_corpse( 0 )
 	{
 	  
-	  height = PLAYER_CHARACTER_HEIGHT; //this gets overwritten in UObject::readProperties!
+	  height = Core::settingsManager.ssopt.default_character_height; //this gets overwritten in UObject::readProperties!
 	  wornitems.chr_owner = this; //FIXME, dangerous.
 
 	  set_caps_to_default();
@@ -922,7 +922,7 @@ namespace Pol {
 
 	  carrying_capacity_mod(static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) ) );
 
-	  height = PLAYER_CHARACTER_HEIGHT; //no really, height is 9
+	  height = Core::settingsManager.ssopt.default_character_height; //no really, height is 9
 
 	  created_at = elem.remove_ulong( "CreatedAt", 0 );
 	  squelched_until(elem.remove_ulong( "SquelchedUntil", 0 ));

@@ -68,7 +68,7 @@ namespace Pol {
       for ( BlockNodeVector::iterator blockNode = m_List.begin(), blockNode_end = m_List.end(); blockNode != blockNode_end; ++blockNode )
       {
         theNode = ( *blockNode );
-        if ( ( theNode->x == x ) && ( theNode->y == y ) && ( abs( theNode->z - z ) < PLAYER_CHARACTER_HEIGHT ) )
+        if ( ( theNode->x == x ) && ( theNode->y == y ) && ( abs( theNode->z - z ) < settingsManager.ssopt.default_character_height ) )
           return true;
       }
       return false;
@@ -105,7 +105,6 @@ namespace Pol {
   };
   bool UOPathState::IsSameState( UOPathState &rhs )
   {
-    //	return ((rhs.x == x) && (rhs.y == y) && (abs(rhs.z - z) <= PLAYER_CHARACTER_HEIGHT));
     return ( ( rhs.x == x ) && ( rhs.y == y ) && ( rhs.z == z ) && ( rhs.realm == realm ) );
   }
   float UOPathState::GoalDistanceEstimate( UOPathState &nodeGoal )
@@ -114,7 +113,7 @@ namespace Pol {
   }
   bool UOPathState::IsGoal( UOPathState &nodeGoal )
   {
-    return ( ( nodeGoal.x == x ) && ( nodeGoal.y == y ) && ( abs( nodeGoal.z - z ) <= PLAYER_CHARACTER_HEIGHT ) );
+    return ( ( nodeGoal.x == x ) && ( nodeGoal.y == y ) && ( abs( nodeGoal.z - z ) <= settingsManager.ssopt.default_character_height ) );
     //	return (IsSameState(nodeGoal));
   }
   float UOPathState::GetCost( UOPathState &successor )
