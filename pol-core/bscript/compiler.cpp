@@ -83,8 +83,12 @@ namespace Pol {
 	  {
 		if ( Clib::stringicmp( varname, variables_[i].name ) == 0 )
 		{
-			if ( variables_[i].unused )
+			if ( variables_[i].unused && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+			{
 				INFO_PRINT << "Warning: variable '" << variables_[i].name << "' declared as unused but used.\n";
+				if ( compilercfg.ErrorOnWarning )
+					throw std::runtime_error("Warnings treated as errors.");
+			}
 		  variables_[i].used = true;
 		  idx = i;
 		  return true;
