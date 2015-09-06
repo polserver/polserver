@@ -156,6 +156,7 @@ namespace Pol {
     PROP_GUILD                = 55, // Character
     PROP_GOTTEN_BY            = 56, // Item
     PROP_GOTTEN_ITEM          = 57, // Character
+    PROP_PROCESS              = 58, // Item
 
     PROP_FLAG_SIZE // used for bitset size
   };

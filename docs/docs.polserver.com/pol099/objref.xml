@@ -127,6 +127,7 @@
 <member mname="damage_poison_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
 <member mname="damage_physical_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
 <member mname="getgottenby" type="Character" access="r/o" mdesc="Returns CharRef of Player holding item, Error if not being held" />
+<member mname="process" type="Script" access="r/o" mdesc="Control script reference, error on none" />
 <member mname="doubleclickrange" type="Integer" access="r/o" mdesc="Max distance for using this item" />
 <member mname="quality" type="Double" access="r/w" mdesc="1.0=Average and default" />
 <member mname="hp" type="Integer" access="r/w" mdesc="Hit points of item" />
@@ -547,7 +548,11 @@
 <member mname="num_globals" type="Integer" access="r/o" mdesc="Number of global variables" />
 <member mname="var_size" type="Integer" access="r/o" mdesc="Estimated size of global variables and current local variables" />
 <member mname="globals" type="Dictionary" access="r/o" mdesc="Dictionary of global variable name=>value pairs" />
-<member mname="attached_to" type="MobileRef" access="r/o" mdesc="Mobile where Script is attached to. If it's an AI-Script it will return the NPC." />
+<member mname="attached_to" type="Object" access="r/o" mdesc="Mobile or Item where Script is attached to.
+If it's attached to a Character, it will return the Character.
+If it's an AI-Script it will return the NPC.
+If it's a ControlScript it will return the Item.
+Checks are made in the order above." />
 <member mname="controller" type="MobileRef" access="r/o" mdesc="Mobile which is responsible for damage etc." />
 
 <method proto="sendevent(obj event)" returns="error/true" desc="sends a event to this script (usually a struct)" />

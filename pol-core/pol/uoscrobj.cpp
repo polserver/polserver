@@ -898,6 +898,18 @@ namespace Pol {
 		  else
 			return new BError( "Gotten By NULL" );
 		  break;
+		case MBR_PROCESS:
+		{
+		  Module::UOExecutorModule* proc = process();
+		  if ( proc )
+		  {
+			Pol::Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
+			return new Core::ScriptExObjImp( executor );
+		  }
+		  else
+			return new BError( "No script running" );
+		  break;
+		}
 		case MBR_DOUBLECLICKRANGE:
 		{
 								   const ItemDesc& itemdesc = this->itemdesc();

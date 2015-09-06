@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+09-06-2015 Bodom:
+  Added:   New Item.process property
+           Returns reference to the controlscript, if any running
+  Changed: Script.attached_to now returns a reference to the Item when called on a ControlScript
 09-05-2015 Bodom:
   Changed: Process ids (pid) no longer start from 1 but from 0x01000000.
            This should have no practical effect.

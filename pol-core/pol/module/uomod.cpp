@@ -201,6 +201,7 @@ namespace Pol {
 	  target_options( 0 ),
 	  attached_chr_( NULL ),
 	  attached_npc_( NULL ),
+	  attached_item_( nullptr ),
 	  controller_( NULL ),
 	  reserved_items_(),
 	  registered_for_speech_events( false )
@@ -263,6 +264,11 @@ namespace Pol {
 		passert( attached_chr_->script_ex == &uoexec );
 		attached_chr_->script_ex = NULL;
 		attached_chr_ = NULL;
+	  }
+	  if ( attached_item_ )
+	  {
+		attached_item_->process(nullptr);
+		attached_item_ = nullptr;
 	  }
 	  if ( registered_for_speech_events )
 	  {

@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-05-2015</datemodified>
+		<datemodified>09-06-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-06-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New Item.process property<br/>
+Returns reference to the controlscript, if any running</change>
+			<change type="Changed">Script.attached_to now returns a reference to the Item when called on a ControlScript</change>
+		</entry>
 		<entry>
 			<date>09-05-2015</date>
 			<author>Bodom:</author>
