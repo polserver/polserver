@@ -76,7 +76,7 @@ namespace Pol {
 	  for ( ;; )
 	  {
 		//recycle time. when we roll over the max serial, start from the beginning. now the find() below may take some time to get the next unused.
-		if ( tempserial > ITEMSERIAL_END )
+		if ( tempserial < ITEMSERIAL_START || tempserial > ITEMSERIAL_END )
 		  tempserial = ITEMSERIAL_START;
 
 		if ( hash.find( tempserial ) != hash.end() )
@@ -110,7 +110,7 @@ namespace Pol {
 	  for ( ;; )
 	  {
 		//recycle time. when we roll over the max serial, start from the beginning. now the find() below may take some time to get the next unused.
-		if ( tempserial > CHARACTERSERIAL_END )
+		if ( tempserial < CHARACTERSERIAL_START || tempserial > CHARACTERSERIAL_END )
 		  tempserial = CHARACTERSERIAL_START;
 
 		if ( hash.find( tempserial ) != hash.end() )
