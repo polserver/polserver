@@ -170,6 +170,14 @@ namespace Pol {
         ERROR_PRINT << "Item element has no SERIAL property, omitting.\n";
         return NULL;
       }
+	  
+	  if (!IsItem(serial)) {
+		  elem.warn_with_line("Item element does not have an item serial\n(should be larger than 0x40000000)");
+		  if (Plib::systemstate.config.check_integrity) {
+			  throw std::runtime_error("Data integrity error");
+		  }
+		  return NULL;
+	  }
 
       if ( Plib::systemstate.config.check_integrity )
       {
