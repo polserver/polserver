@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+09-06-2015 Nando:
+  Added:   Data integrity check will test if the item serial is valid (serial >= 0x40000000) when loading items.
+  Fixed:   Items could be created with character serials if the wrong values were saved in data/pol.txt.
+  Note:	   Character serials must be in the range 1 to 0x3FFFFFF (inclusive), while item serials must
+		   be between 0x40000000 and 0x7FFFFFFF (inclusive).
 09-03-2015 Bodom:
   Added:   Item insurance support, new Item.insured property (0/1)
            An insured item behaves on death like a newbie item, except that the insured flag gets reset back
