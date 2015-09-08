@@ -54,15 +54,20 @@ namespace Pol {
 		const char* adstr = inet_ntoa( ad );
         POLLOG_INFO << "address: " << adstr << "\n";
 
+#ifdef _WIN32
+		const unsigned long ip = ad.S_un.S_addr;
+#else
+		const unsigned long ip = ad.s_addr;
+#endif
 		// Careful: IPs are reversed (i.e. 1.0.168.192)
-		if ( ( ad.S_un.S_addr & 0x0000ffff ) == 0x0000a8c0 || // 192.168.0.0/16
-			 ( ad.S_un.S_addr & 0x00000fff ) == 0x000010ac || // 172.16.0.0/12
-			 ( ad.S_un.S_addr & 0x000000ff ) == 0x0000000a )  // 10.0.0.0/8
+		if ( ( ip & 0x0000ffff ) == 0x0000a8c0 || // 192.168.0.0/16
+			 ( ip & 0x0000f0ff ) == 0x000010ac || // 172.16.0.0/12
+			 ( ip & 0x000000ff ) == 0x0000000a )  // 10.0.0.0/8
 		{
 		  if ( !Core::networkManager.lanaddr_str[0] )
 			set_lan_address( adstr );
 		}
-		else if ( ( ad.S_un.S_addr & 0x000000ffL ) == 0x0000007f ) // 127.0.0.0/8
+		else if ( ( ip & 0x000000ff ) == 0x0000007f ) // 127.0.0.0/8
 		{
 		  ;
 		}
