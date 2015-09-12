@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-08-2015</datemodified>
+		<datemodified>09-12-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-12-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Bug in loading POL098 and older data files: boats were rotated leaving<br/>
+dynamic elements like plank and tillerman on the old position.</change>
+		</entry>
 		<entry>
 			<date>09-08-2015</date>
 			<author>Bodom:</author>

@@ -144,6 +144,7 @@ namespace Pol {
 	  void move_components( Plib::Realm* oldrealm );
 
 	  explicit UBoat( const Items::ItemDesc& descriptor );
+	  virtual void fixInvalidGraphic() POL_OVERRIDE;
 	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
 	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 	  friend class UMulti;

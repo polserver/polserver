@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+09-12-2015 Bodom:
+  Fixed:   Bug in loading POL098 and older data files: boats were rotated leaving
+           dynamic elements like plank and tillerman on the old position.
 09-08-2015 Bodom:
   Fixed:   Bug in LAN IP address identification (some IPs in 172.16.0.0/12 were skipped)
 09-06-2015 Nando:

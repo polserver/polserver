@@ -1501,11 +1501,27 @@ namespace Pol {
 	  }
 	}
 
+	/// POL098 and earlier were using graphic to store MultiID, this should not be lost
+	/// to avoid screwing up boats during conversion
+	void UBoat::fixInvalidGraphic()
+	{
+	  if( Core::settingsManager.polvar.DataWrittenBy < 99 )
+	  {
+		assert( graphic >= 0x4000 );
+		multiid = graphic - 0x4000;
+	  }
+	  base::fixInvalidGraphic();
+	}
+
 	void UBoat::readProperties( Clib::ConfigElem& elem )
 	{
 	  base::readProperties( elem );
 
-	  multiid = elem.remove_ushort( "MultiID", this->multidef().multiid );
+	  // POL098 and earlier was not saving a MultiID in its data files,
+	  // but it was using 0x4000 + id as graphic instead. Not respecting
+	  // this would rotate most of the boats during POL098 -> POL99 migration
+	  if( Core::settingsManager.polvar.DataWrittenBy >= 99 )
+	    multiid = elem.remove_ushort( "MultiID", this->multidef().multiid );
 
 	  BoatContext bc( *this );
 	  u32 tmp_serial;

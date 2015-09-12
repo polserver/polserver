@@ -279,14 +279,20 @@ namespace Pol {
 	  sw() << "# uobj_class: " << (int)uobj_class_ << pf_endl;
 	}
 
+	/// Fixes invalid graphic, moving here to allow it to be overridden in subclass (see Multi)
+	void UObject::fixInvalidGraphic()
+	{
+	  if ( graphic > ( Plib::systemstate.config.max_tile_id ) )
+		graphic = GRAPHIC_NODRAW;
+	}
+
     void UObject::readProperties( Clib::ConfigElem& elem )
 	{
 	  name_ = elem.remove_string( "NAME", "" );
 
 	  // serial, objtype extracted by caller
 	  graphic = elem.remove_ushort( "GRAPHIC", static_cast<u16>( objtype_ ) );
-	  if ( graphic > ( Plib::systemstate.config.max_tile_id ) )
-		graphic = GRAPHIC_NODRAW;
+	  fixInvalidGraphic();
 
 	  height = tileheight( graphic );
 
