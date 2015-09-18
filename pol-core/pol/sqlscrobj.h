@@ -8,7 +8,7 @@ Notes
 
 */
 
-//#include "pol_global_config.h"
+#include "pol_global_config.h"
 
 #ifdef HAVE_MYSQL
 

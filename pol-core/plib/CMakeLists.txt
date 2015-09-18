@@ -16,11 +16,7 @@ SET (SOURCES  # sorted !
 	maptileserver.cpp 
 	pkg.cpp 
 	polver.cpp
-	realm.cpp
 	realmdescriptor.cpp 
-	realmfunc.cpp
-	realmlos.cpp 
-	realmlos2.cpp
 	staticserver.cpp
 	systemstate.cpp
 	testdrop1.cpp 
