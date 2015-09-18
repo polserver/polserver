@@ -72,6 +72,7 @@ Notes
 #include "objtype.h"
 #include "polclass.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "spelbook.h"
 #include "statmsg.h"
 #include "syshookscript.h"
@@ -97,8 +98,6 @@ Notes
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 #include "../bscript/bobject.h"
-
-#include "../plib/realm.h"
 
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
@@ -1182,7 +1181,7 @@ namespace Pol {
 			return new BError( "Item is in use" );
 
 		  // Validate where things are going
-		  Plib::Realm* realm = Core::find_realm( realm_name->value() );
+		  Realms::Realm* realm = Core::find_realm( realm_name->value() );
 		  if ( !realm )
 			return new BError( "Realm not found" );
 		  else if ( !realm->valid( x, y, z ) )
@@ -3172,7 +3171,7 @@ namespace Pol {
                   ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
                   ex.getStringParam( 3, strrealm ) )
               {
-                Plib::Realm* realm = Core::find_realm( strrealm->value() );
+                Realms::Realm* realm = Core::find_realm( strrealm->value() );
                 if ( !realm )
                   return new BError( "Realm not found" );
 

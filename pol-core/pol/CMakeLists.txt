@@ -151,6 +151,10 @@ SET (SOURCES
     repsys.cpp
     resource.cpp
     realms.cpp
+    realms/realm.cpp
+    realms/realmfunc.cpp
+    realms/realmlos.cpp 
+    realms/realmlos2.cpp
     savedata.cpp
     schedule.cpp 
     scrdef.cpp 

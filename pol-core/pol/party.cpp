@@ -35,7 +35,7 @@ Notes
 #include "../clib/unicode.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
-#include "../plib/realm.h"
+
 #include "../plib/systemstate.h"
 
 #include "clfunc.h"
@@ -48,6 +48,7 @@ Notes
 #include "target.h"
 #include "globals/settings.h"
 #include "globals/uvars.h"
+#include "realms/realm.h"
 
 #include "../bscript/berror.h"
 #ifdef MEMORYLEAK

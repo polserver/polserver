@@ -48,6 +48,7 @@ Notes
 #include "../objtype.h"
 #include "../pktout.h"
 #include "../poltype.h"
+#include "../realms/realm.h"
 #include "../realms.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -69,8 +70,6 @@ Notes
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/modules.h"
-
-#include "../../plib/realm.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib.h"
@@ -730,7 +729,7 @@ namespace Pol {
 	  if ( Clib::FileExists( "scripts/misc/death.ecl" ) )
 		Core::start_script( "misc/death", new Module::EItemRefObjImp( corpse ) );
 
-	  ClrCharacterWorldPosition( this, Plib::WorldChangeReason::NpcDeath );
+	  ClrCharacterWorldPosition( this, Realms::WorldChangeReason::NpcDeath );
 	  if ( ex != NULL )
 	  {
 		// this will force the execution engine to stop running this script immediately

@@ -13,8 +13,6 @@ Notes
 #include "unimod.h"
 #include "uomod.h"
 
-#include "../../plib/realm.h"
-
 #include "../containr.h"
 #include "../dice.h"
 #include "../eventid.h"
@@ -33,6 +31,7 @@ Notes
 #include "../pktout.h"
 #include "../poltype.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skilladv.h"

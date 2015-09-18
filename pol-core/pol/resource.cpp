@@ -11,7 +11,6 @@ Notes
 #include "resource.h"
 
 #include "../plib/maptile.h"
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "item/itemdesc.h"
@@ -19,6 +18,7 @@ Notes
 #include "polclock.h"
 #include "proplist.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "schedule.h"
 #include "udatfile.h"
 #include "uofile.h"
@@ -65,7 +65,7 @@ namespace Pol {
 
 	/// [1] Harvest Difficulty
 	///	  
-	Bscript::BObjectImp* ResourceRegion::get_harvest_difficulty( xcoord x, ycoord y, Plib::Realm* realm )
+	Bscript::BObjectImp* ResourceRegion::get_harvest_difficulty( xcoord x, ycoord y, Realms::Realm* realm )
 	{
           (void)realm;
 	  unsigned int xy = ( x << 16 ) | y;
@@ -181,7 +181,7 @@ namespace Pol {
 	  current_units_ = static_cast<int>( elem.remove_ulong( "Units" ) );
 	}
 
-    bool ResourceDef::findmarker( xcoord x, ycoord y, Plib::Realm* realm, unsigned int objtype )
+    bool ResourceDef::findmarker( xcoord x, ycoord y, Realms::Realm* realm, unsigned int objtype )
 	{
 	  if ( !landtiles_.count( Items::getgraphic( objtype ) ) && !tiles_.count( Items::getgraphic( objtype ) ) )
 		return false;
@@ -202,7 +202,7 @@ namespace Pol {
 	{
 	  unsigned int tilecount = 0;
 
-      std::vector<Plib::Realm*>::iterator itr;
+      std::vector<Realms::Realm*>::iterator itr;
 	  for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		for ( unsigned short x = 0; x < ( *itr )->width(); ++x )
@@ -269,7 +269,7 @@ namespace Pol {
     Bscript::BObjectImp* get_harvest_difficulty( const char* resource,
 										xcoord x,
 										ycoord y,
-                                        Plib::Realm* realm,
+                                        Realms::Realm* realm,
 										unsigned short marker )
 	{
 	  ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
@@ -288,7 +288,7 @@ namespace Pol {
 	}
 
     Bscript::BObjectImp* harvest_resource( const char* resource,
-                                  xcoord x, ycoord y, Plib::Realm* realm,
+                                  xcoord x, ycoord y, Realms::Realm* realm,
 								  int b, int n )
 	{
 	  ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
@@ -309,7 +309,7 @@ namespace Pol {
 	}
 
     Bscript::BObjectImp* get_region_string( const char* resource,
-                                   xcoord x, ycoord y, Plib::Realm* realm,
+                                   xcoord x, ycoord y, Realms::Realm* realm,
 								   const std::string& propname )
 	{
 	  ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );

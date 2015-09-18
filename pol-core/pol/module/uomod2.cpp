@@ -57,7 +57,7 @@ Notes
 #include "../../clib/MD5.h"
 #include "../../clib/stlutil.h"
 
-#include "../../plib/realm.h"
+#include "../realms/realm.h"
 
 #include "../accounts/account.h"
 

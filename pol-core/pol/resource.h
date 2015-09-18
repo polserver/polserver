@@ -30,14 +30,14 @@ namespace Pol {
 
 	Bscript::BObjectImp* get_harvest_difficulty( const char* resource,
 										xcoord x,
-										ycoord y, Plib::Realm* realm,
+										ycoord y, Realms::Realm* realm,
 										unsigned short marker );
 	Bscript::BObjectImp* harvest_resource( const char* resource,
-										   xcoord x, ycoord y, Plib::Realm* realm,
+										   xcoord x, ycoord y, Realms::Realm* realm,
 								  int b, int n );
 
 	Bscript::BObjectImp* get_region_string( const char* resource,
-											xcoord x, ycoord y, Plib::Realm* realm,
+											xcoord x, ycoord y, Realms::Realm* realm,
 								   const std::string& propname );
 
 	ResourceDef* find_resource_def( const std::string& rname );
@@ -54,7 +54,7 @@ namespace Pol {
 
 	  void read_data( Clib::ConfigElem& elem );
 
-	  Bscript::BObjectImp* get_harvest_difficulty( xcoord x, ycoord y, Plib::Realm* realm );
+	  Bscript::BObjectImp* get_harvest_difficulty( xcoord x, ycoord y, Realms::Realm* realm );
 	  Bscript::BObjectImp* harvest_resource( xcoord x, ycoord y, int b, int n );
 
 	  void regenerate( time_t now );
@@ -91,7 +91,7 @@ namespace Pol {
       virtual size_t estimateSize() const POL_OVERRIDE;
 	  // void read_region( ConfigElem& elem );
 
-	  bool findmarker( xcoord x, ycoord y, Plib::Realm* realm, unsigned int objtype );
+	  bool findmarker( xcoord x, ycoord y, Realms::Realm* realm, unsigned int objtype );
 	  void regenerate( time_t now );
 	  void consume( unsigned amount );
 	  void produce( unsigned amount );

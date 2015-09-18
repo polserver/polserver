@@ -38,7 +38,7 @@ Notes
 
 //typedef BObject (UOExecutorModule::*UOExecutorModuleFn)();
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Core {
@@ -321,11 +321,11 @@ namespace Pol {
 	  virtual int functionIndex( const char *func ) POL_OVERRIDE;
 	  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
 	  static UOFunctionDef function_table[];
-	  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  static void internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Plib::Realm* realm );
+	  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  static void internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Realms::Realm* realm );
 	  Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y );
 	  Bscript::BObjectImp* internal_SendCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y );
 

@@ -15,8 +15,6 @@ Notes
 
 #include "textcmd.h"
 
-#include "../plib/realm.h"
-
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -40,6 +38,7 @@ Notes
 #include "polclock.h"
 #include "polsem.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "schedule.h"
 #include "scrsched.h"
 #include "scrstore.h"
@@ -499,7 +498,7 @@ namespace Pol {
 	}
 
 
-	bool check_single_zone_item_integrity( int, int, Plib::Realm* );
+	bool check_single_zone_item_integrity( int, int, Realms::Realm* );
     void textcmd_singlezone_integ_item( Network::Client* client )
 	{
 	  unsigned short wx, wy;

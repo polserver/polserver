@@ -23,13 +23,12 @@ Notes
 #include "network/clienttransmit.h"
 #include "network/msghandl.h"
 
-#include "../plib/realm.h"
-
 #include "fnsearch.h"
 #include "los.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "ufunc.h"
 #include "globals/uvars.h"
 #include "polclass.h"

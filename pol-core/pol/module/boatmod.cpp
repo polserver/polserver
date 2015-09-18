@@ -22,7 +22,7 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../../clib/rawtypes.h"
-#include "../../plib/realm.h"
+#include "../realms/realm.h"
 
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"

@@ -32,8 +32,8 @@ Notes
 #include "globals/settings.h"
 #include "uworld.h"
 #include "vital.h"
+#include "realms/realm.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "../bscript/berror.h"

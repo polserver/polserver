@@ -135,7 +135,7 @@ namespace Pol {
 			  ex.getParam( 2, range ) &&
 			  ex.getStringParam( 3, strrealm ) )
 		  {
-			Plib::Realm* realm = find_realm( strrealm->value() );
+			Realms::Realm* realm = find_realm( strrealm->value() );
 			if ( !realm ) return new BError( "Realm not found" );
 			if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
