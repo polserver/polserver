@@ -18,62 +18,35 @@ MESSAGE("####################################")
 
 ###############################################################################
 # define source files
-SET (SOURCES
+SET (SOURCES  # sorted !
     ../../lib/tinyxml/tinystr.cpp 
     ../../lib/tinyxml/tinyxml.cpp
     ../../lib/tinyxml/tinyxmlerror.cpp 
     ../../lib/tinyxml/tinyxmlparser.cpp
-    ../../lib/format/format.cc
     accounts/account.cpp 
     accounts/accounts.cpp 
     accounts/acscrobj.cpp 
     allocd.cpp
-    guilds.cpp
-    item/armor.cpp 
-    mobile/attack.cpp 
-    mobile/ufacing.cpp
-    mobile/attribute.cpp 
-    network/auxclient.cpp 
-    network/packets.cpp
-    network/bannedips.cpp 
     binaryfilescrobj.cpp 
-    multi/boat.cpp 
-    multi/boatcomp.cpp
-    module/boatmod.cpp 
-    mobile/boundbox.cpp 
     bowsalut.cpp
-    module/cfgmod.cpp 
     cfgrepos.cpp 
-    network/cgdata.cpp 
-    mobile/charactr.cpp
     checkpnt.cpp
-    mobile/chrcast.cpp 
-    mobile/chrituse.cpp 
-    mobile/chrskuse.cpp 
-    network/client.cpp
-    network/clientio.cpp 
-    network/clienttransmit.cpp
-    network/cliface.cpp 
+    clfunc.cpp 
     cmbtcfg.cpp 
     cmdlevel.cpp 
-    containr.cpp
     console.cpp 
+    containr.cpp
     core.cpp 
-    mobile/corpse.cpp 
-    mobile/wornitems.cpp
     create.cpp
-    crypt/cryptengine.cpp 
-    crypt/cryptbase.cpp 
-    crypt/cryptkey.cpp
     crypt/blowfish.cpp 
-    crypt/twofish.cpp 
     crypt/crypt.cpp 
+    crypt/cryptbase.cpp 
+    crypt/cryptengine.cpp 
+    crypt/cryptkey.cpp
     crypt/logincrypt.cpp 
     crypt/md5.cpp
+    crypt/twofish.cpp 
     ctable.cpp
-    multi/customhouses.cpp 
-    multi/customhousehelp.cpp
-    module/datastore.cpp 
     dblclick.cpp 
     decay.cpp 
     dice.cpp
@@ -81,58 +54,110 @@ SET (SOURCES
     dropitem.cpp
     eqpitem.cpp 
     equipdsc.cpp 
-    item/equipmnt.cpp 
     exscrobj.cpp
     extobj.cpp
-    module/filemod.cpp 
     fnsearch.cpp
     gameclck.cpp 
     getitem.cpp 
     getmsg.cpp 
+    globals/memoryusage.cpp
+    globals/multidefs.cpp
+    globals/network.cpp 
+    globals/object_storage.cpp
+    globals/script_internals.cpp 
+    globals/settings.cpp
+    globals/state.cpp
+    globals/ucfg.cpp 
+    globals/uvars.cpp
     guardrgn.cpp
-    module/guildmod.cpp
-    module/basiciomod.cpp 
-    module/basicmod.cpp
+    guilds.cpp
     help.cpp 
-    multi/house.cpp
-    network/iostats.cpp 
     irequest.cpp 
+    item/armor.cpp 
+    item/equipmnt.cpp 
     item/item.cpp 
     item/item00.cpp
     item/itemcr.cpp 
     item/itemdesc.cpp
+    item/weapon.cpp
     landtile.cpp
     listenpt.cpp 
+    loaddata.cpp 
     loadunld.cpp 
     lockable.cpp
-    loaddata.cpp 
     login.cpp
-    module/mathmod.cpp 
     menu.cpp 
     menusel.cpp 
     miscmsg.cpp
     miscrgn.cpp 
     mkscrobj.cpp
-    sqlscrobj.cpp
+    mobile/attack.cpp 
+    mobile/attribute.cpp 
+    mobile/boundbox.cpp 
+    mobile/charactr.cpp
+    mobile/chrcast.cpp 
+    mobile/chrituse.cpp 
+    mobile/chrskuse.cpp 
+    mobile/corpse.cpp 
+    mobile/npc.cpp
+    mobile/ufacing.cpp
+    mobile/wornitems.cpp
+    module/attributemod.cpp 
+    module/basiciomod.cpp 
+    module/basicmod.cpp
+    module/boatmod.cpp 
+    module/cfgmod.cpp 
+    module/clmod.cpp 
+    module/datastore.cpp 
+    module/filemod.cpp 
+    module/guildmod.cpp
+    module/httpmod.cpp 
+    module/mathmod.cpp 
+    module/npcmod.cpp
+    module/osmod.cpp
+    module/partymod.cpp
+    module/polsystemmod.cpp
+    module/sqlmod.cpp
+    module/storagemod.cpp 
+    module/unimod.cpp
+    module/uomod.cpp 
+    module/uomod2.cpp
+    module/uomod3.cpp 
+    module/uomod4.cpp 
+    module/utilmod.cpp 
+    module/vitalmod.cpp
     movecost.cpp 
     movement.cpp 
-    network/msgfiltr.cpp 
-    network/msghandl.cpp
+    multi/boat.cpp 
+    multi/boatcomp.cpp
+    multi/customhousehelp.cpp
+    multi/customhouses.cpp 
+    multi/house.cpp
     multi/multicfg.cpp 
     multi/multicr.cpp 
     multi/multidef.cpp 
-    multi/multis.cpp
     multi/multidef2.cpp
+    multi/multis.cpp
     musicrgn.cpp
-    npctmpl.cpp 
-    npctemplates.cpp 
-    module/npcmod.cpp
-    objecthash.cpp 
-    module/osmod.cpp
+    network/auxclient.cpp 
+    network/bannedips.cpp 
+    network/cgdata.cpp 
+    network/client.cpp
+    network/clientio.cpp 
+    network/clientthread.cpp
+    network/clienttransmit.cpp
+    network/cliface.cpp 
+    network/iostats.cpp 
+    network/msgfiltr.cpp 
+    network/msghandl.cpp
+    network/packetdefs.cpp
     network/packethooks.cpp 
+    network/packets.cpp
+    npctemplates.cpp 
+    npctmpl.cpp 
+    objecthash.cpp 
     packetscrobj.cpp 
     party.cpp 
-    module/partymod.cpp
     pol.cpp 
     polcfg.cpp 
     polclock.cpp 
@@ -141,20 +166,18 @@ SET (SOURCES
     polsem.cpp 
     polsig.cpp 
     polstats.cpp
-    module/polsystemmod.cpp
     poltest.cpp 
     polwww.cpp 
-    module/httpmod.cpp 
     proplist.cpp
-    reftypes.cpp 
-    region.cpp 
-    repsys.cpp
-    resource.cpp
     realms.cpp
     realms/realm.cpp
     realms/realmfunc.cpp
     realms/realmlos.cpp 
     realms/realmlos2.cpp
+    reftypes.cpp 
+    region.cpp 
+    repsys.cpp
+    resource.cpp
     savedata.cpp
     schedule.cpp 
     scrdef.cpp 
@@ -166,6 +189,7 @@ SET (SOURCES
     speech.cpp 
     spelbook.cpp
     spells.cpp 
+    sqlscrobj.cpp
     ssopt.cpp
     stackcfg.cpp
     startloc.cpp 
@@ -186,47 +210,23 @@ SET (SOURCES
     ufunc2.cpp 
     uimport.cpp
     umap.cpp 
-    module/unimod.cpp
+    unicode.cpp
     uobjcnt.cpp 
     uobject.cpp 
     uobjhelp.cpp 
     uoclient.cpp
-    module/uomod.cpp 
-    module/uomod2.cpp
-    module/uomod3.cpp 
-    module/uomod4.cpp 
+    uoexec.cpp
     uoexhelp.cpp
     uolisten.cpp
     uoscrobj.cpp 
     uoskills.cpp 
     useskill.cpp
-    module/utilmod.cpp 
-    module/sqlmod.cpp
-    mobile/npc.cpp
     uworld.cpp
-    vital.cpp
-    item/weapon.cpp
-    zone.cpp
-    module/attributemod.cpp 
-    module/clmod.cpp 
-    clfunc.cpp 
-    uoexec.cpp
-    globals/uvars.cpp
-    globals/ucfg.cpp 
-    globals/multidefs.cpp
-    globals/network.cpp 
-    globals/script_internals.cpp 
-    globals/settings.cpp
-    globals/state.cpp
-    globals/object_storage.cpp
-    globals/memoryusage.cpp
     uworld.cpp 
+    vital.cpp
     vital.cpp    
-    module/storagemod.cpp 
-    module/vitalmod.cpp
-    network/clientthread.cpp
     xmlfilescrobj.cpp
-    network/packetdefs.cpp
+    zone.cpp
 )    
 
 ##############################################################

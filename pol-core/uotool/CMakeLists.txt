@@ -8,20 +8,19 @@ MESSAGE("####################################")
 
 ###############################################################################
 # define source files
-SET (SOURCES
-    uotool.cpp
-	uofile04.cpp 
-	uofile05.cpp
-    ../../lib/format/format.cc
+SET (SOURCES  # sorted !
+	../pol/globals/multidefs.cpp
+	../pol/multi/multidef.cpp 
+	../pol/polfile1.cpp
 	../pol/uofile00.cpp
 	../pol/uofile01.cpp
 	../pol/uofile02.cpp
 	../pol/uofile06.cpp
 	../pol/uofile07.cpp
 	../pol/uofile08.cpp
-	../pol/polfile1.cpp
-	../pol/multi/multidef.cpp 
-	../pol/globals/multidefs.cpp
+	uofile04.cpp 
+	uofile05.cpp
+	uotool.cpp
 )    
 
 ##############################################################

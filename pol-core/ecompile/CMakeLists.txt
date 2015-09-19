@@ -10,7 +10,6 @@ MESSAGE("####################################")
 # define source files
 SET (SOURCES
     ecompile.cpp
-    ../../lib/format/format.cc
 )    
 
 ##############################################################

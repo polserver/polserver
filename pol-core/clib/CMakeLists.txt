@@ -10,7 +10,8 @@ MESSAGE("####################################")
 
 ###############################################################################
 # define source files
-SET (SOURCES
+SET (SOURCES  # sorted !
+	../../lib/format/format.cc
 	binaryfile.cpp 
 	boostutils.cpp 
 	cfgfile.cpp 
@@ -20,32 +21,31 @@ SET (SOURCES
 	dirlist.cpp
 	esignal.cpp
 	fdump.cpp 
-    filecont.cpp
 	fileutil.cpp 
 	iohelp.cpp
 	kbhit.cpp
-	MD5.cpp
 	logfacility.cpp
+	MD5.cpp
 	mlog.cpp 
 	opnew.cpp
 	passert.cpp
 	pkthelper.cpp
 	progver.cpp 
-	socketsvc.cpp 
-	streamsaver.cpp
 	random.cpp 
 	sckutil.cpp 
+	socketsvc.cpp 
 	stracpy.cpp
+	streamsaver.cpp
 	strexcpt.cpp 
 	strset.cpp 
 	strutil.cpp
 	threadhelp.cpp
 	timer.cpp
 	tracebuf.cpp
-	unicode.cpp
 	wallclock.cpp
 	wnsckt.cpp
 	xmain.cpp
+    filecont.cpp
 )
 
 ##############################################################
@@ -67,6 +67,7 @@ SET (LIB_DIRS
 # link to the needed libs
 SET (LIBS_LINUX
 	clib_debugging
+	crypto
 )
 
 ##############################################################

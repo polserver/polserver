@@ -8,15 +8,15 @@ MESSAGE("####################################")
 
 ###############################################################################
 # define source files
-SET (SOURCES
-	uoconvert.cpp
-    ../../lib/format/format.cc
+SET (SOURCES  # sorted !
+	../plib/mapwriter.cpp
+	../pol/polfile1.cpp
 	../pol/uofile00.cpp 
 	../pol/uofile01.cpp
 	../pol/uofile02.cpp
 	../pol/uofile07.cpp
 	../pol/uofile08.cpp
-	../pol/polfile1.cpp
+	uoconvert.cpp
 )    
 
 ##############################################################
@@ -36,6 +36,7 @@ SET (LIB_DIRS
 ##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
+    bscript
     clib_debugging
     clib
     plib
