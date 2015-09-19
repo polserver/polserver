@@ -63,6 +63,7 @@ Notes
 #include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
@@ -81,7 +82,6 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 
 #include <stdexcept>
 

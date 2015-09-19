@@ -132,6 +132,7 @@ Notes
 #include "../uworld.h"
 #include "../wthrtype.h"
 #include "../zone.h"
+#include "../unicode.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
@@ -143,7 +144,6 @@ Notes
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 #include "../../clib/weakptr.h"
 
 #include "../../plib/systemstate.h"
@@ -5662,14 +5662,14 @@ namespace Pol {
 		  if ( ulen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 
-		  if ( !Clib::convertArrayToUC( uText, uwtext, ulen ) )
+		  if ( !Core::convertArrayToUC( uText, uwtext, ulen ) )
 			return new BError( "Invalid parameter type" );
 
 		  size_t elen = eText->ref_arr.size();
 		  if ( elen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 
-		  if ( !Clib::convertArrayToUC( eText, ewtext, elen ) )
+		  if ( !Core::convertArrayToUC( eText, ewtext, elen ) )
 			return new BError( "Invalid parameter type" );
 
 		  sendCharProfile( chr, of_who, title->data(), uwtext, ewtext );

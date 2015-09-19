@@ -89,6 +89,7 @@ Notes
 #include "network/clienttransmit.h"
 #include "eventid.h"
 #include "globals/uvars.h"
+#include "unicode.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/dict.h"
@@ -102,7 +103,6 @@ Notes
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/unicode.h"
 
 namespace Pol {
   namespace Module {
@@ -3863,7 +3863,7 @@ namespace Pol {
       unsigned wlen = 0;
       while ( wspeech[wlen] != L'\0' )
         ++wlen;
-      if ( !Clib::convertUCtoArray( wspeech, arr, wlen, true ) )
+      if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
         addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
       else
       {
@@ -3883,7 +3883,7 @@ namespace Pol {
       unsigned wlen = 0;
       while ( wspeech[wlen] != L'\0' )
         ++wlen;
-      if ( !Clib::convertUCtoArray( wspeech, arr, wlen, true ) )
+      if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
         addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
       else
       {

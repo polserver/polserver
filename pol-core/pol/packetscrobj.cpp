@@ -24,6 +24,7 @@ Notes
 #include "realms.h"
 #include "uoexhelp.h"
 #include "uworld.h"
+#include "unicode.h"
 #include "globals/network.h"
 
 #include "../bscript/executor.h"
@@ -35,7 +36,6 @@ Notes
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/unicode.h"
 
 #include <iomanip>
 
@@ -260,7 +260,7 @@ namespace Pol {
 			  return new BError( "Offset too high" );
 
 			ObjArray* arr;
-			Clib::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, true );
+			Core::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, true );
 			return arr;
 		  }
 		  break;
@@ -278,7 +278,7 @@ namespace Pol {
 			  return new BError( "Offset too high" );
 
 			ObjArray* arr;
-			Clib::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, false );
+			Core::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, false );
 			return arr;
 		  }
 		  break;
@@ -464,7 +464,7 @@ namespace Pol {
 						return new BError( "Offset value out of range on a fixed length packet" );;
 				  }
 				}
-				if (!Clib::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen, true, nullterm ? true : false ))
+				if (!Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen, true, nullterm ? true : false ))
 					return new BError("Invalid value in Unicode array.");
 	
 				return new BLong( 1 );
@@ -490,7 +490,7 @@ namespace Pol {
 					return new BError( "Offset value out of range on a fixed length packet" );;
 				  }
 				}
-				if (!Clib::convertArrayToUC(unitext, reinterpret_cast<u16*>(&buffer[offset]), textlen, false, nullterm ? true : false))
+				if (!Core::convertArrayToUC(unitext, reinterpret_cast<u16*>(&buffer[offset]), textlen, false, nullterm ? true : false))
           return new BError("Invalid value in Unicode array.");
 				return new BLong( 1 );
 		  }

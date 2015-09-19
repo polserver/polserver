@@ -698,6 +698,9 @@
     <ClCompile Include="realms\realmlos2.cpp">
       <Filter>realms</Filter>
     </ClCompile>
+    <ClCompile Include="unicode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1359,6 +1362,9 @@
     </ClInclude>
     <ClInclude Include="realms\WorldChangeReasons.h">
       <Filter>realms</Filter>
+    </ClInclude>
+    <ClInclude Include="unicode.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

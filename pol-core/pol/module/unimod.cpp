@@ -13,7 +13,6 @@ Notes
 #include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -30,6 +29,7 @@ Notes
 #include "../pktboth.h"
 #include "../sockio.h"
 #include "../ufunc.h"
+#include "../unicode.h"
 
 #include "osmod.h"
 #include "unimod.h"
@@ -188,7 +188,7 @@ namespace Pol {
 		if ( lang->length() != 3 )
 		  return new BError( "langcode must be a 3-character code." );
 		//lang->toUpper(); // Language codes are in upper-case :)
-		if ( !Clib::convertArrayToUC( oText, gwtext, textlen ) )
+		if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
 		  return new BError( "Invalid value in Unicode array." );
 		Core::broadcast( gwtext, Clib::strupper( lang->value() ).c_str(), font, color );
 		return new BLong( 1 );
@@ -220,7 +220,7 @@ namespace Pol {
 		  return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
 		  return new BError( "langcode must be a 3-character code." );
-		if ( !Clib::convertArrayToUC( oText, gwtext, textlen ) )
+		if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
 		  return new BError( "Invalid value in Unicode array." );
 
         return new BLong( say_above( obj, gwtext, Clib::strupper( lang->value( ) ).c_str( ), font, color, journal_print ) );
@@ -253,7 +253,7 @@ namespace Pol {
 		if ( lang->length() != 3 )
 		  return new BError( "langcode must be a 3-character code." );
 		//lang->toUpper(); // Language codes are in upper-case :)
-        if ( !Clib::convertArrayToUC( oText, gwtext, textlen ) )
+        if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
 		  return new BError( "Invalid value in Unicode array." );
 
         return new BLong( private_say_above( chr, obj, gwtext, Clib::strupper( lang->value( ) ).c_str( ), font, color ) );
@@ -290,7 +290,7 @@ namespace Pol {
 		  return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
 		  return new BError( "langcode must be a 3-character code." );
-        if ( !Clib::convertArrayToUC( oPrompt, gwtext, textlen ) )
+        if ( !Core::convertArrayToUC( oPrompt, gwtext, textlen ) )
 		  return new BError( "Invalid value in Unicode array." );
 
         Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->value( ) ).c_str( ) );
@@ -330,7 +330,7 @@ namespace Pol {
 		  if ( lang->length() != 3 )
 			return new BError( "langcode must be a 3-character code." );
 		  //lang->toUpper(); // Language codes are in upper-case :)
-          if ( !Clib::convertArrayToUC( oText, gwtext, textlen ) )
+          if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
 			return new BError( "Invalid value in Unicode array." );
 
           Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->value( ) ).c_str( ), font, color );

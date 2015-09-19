@@ -408,6 +408,7 @@
     <ClCompile Include="ufunc2.cpp" />
     <ClCompile Include="uimport.cpp" />
     <ClCompile Include="umap.cpp" />
+    <ClCompile Include="unicode.cpp" />
     <ClCompile Include="uobjcnt.cpp" />
     <ClCompile Include="uobject.cpp" />
     <ClCompile Include="uobjhelp.cpp" />
@@ -702,6 +703,7 @@
     <ClInclude Include="uimport.h" />
     <ClInclude Include="umanip.h" />
     <ClInclude Include="umap.h" />
+    <ClInclude Include="unicode.h" />
     <ClInclude Include="uobjcnt.h" />
     <ClInclude Include="uobject.h" />
     <ClInclude Include="uobjhelp.h" />

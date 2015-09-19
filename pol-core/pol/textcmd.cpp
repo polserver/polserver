@@ -55,6 +55,7 @@ Notes
 #include "uworld.h"
 #include "repsys.h"
 #include "fnsearch.h"
+#include "unicode.h"
 
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
@@ -73,7 +74,6 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/spinlock.h"
 #include "../clib/threadhelp.h"
-#include "../clib/unicode.h"
 
 #include <map>
 #include <string>
@@ -649,7 +649,7 @@ namespace Pol {
 				// Need to calc length with a loop (coz linux is a PITA with 4-byte unicode!)
 				while ( *( wtext + woffset + wtlen ) )
 				  ++wtlen;
-				UCconv = Clib::convertUCtoArray( wtext + woffset, arr,
+				UCconv = Core::convertUCtoArray( wtext + woffset, arr,
 										   wtlen,
 										   true ); // convert back with ctBEu16()
 				if ( UCconv )
