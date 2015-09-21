@@ -19,10 +19,6 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES  # sorted !
-    ../../lib/tinyxml/tinystr.cpp 
-    ../../lib/tinyxml/tinyxml.cpp
-    ../../lib/tinyxml/tinyxmlerror.cpp 
-    ../../lib/tinyxml/tinyxmlparser.cpp
     accounts/account.cpp 
     accounts/accounts.cpp 
     accounts/acscrobj.cpp 
@@ -259,6 +255,7 @@ SET (LIBS_LINUX
     clib_debugging
     clib
     plib
+    tinyxml
     crypto
     pthread
     z
