@@ -14,6 +14,7 @@ Notes
 #include "poltype.h"
 #include "sockio.h"
 #include "ufunc.h"
+#include "realms/realm.h"
 
 #include "network/client.h"
 #include "network/packets.h"
@@ -26,8 +27,6 @@ Notes
 #include "../bscript/executor.h"
 #include "../bscript/berror.h"
 #include "../bscript/objmethods.h"
-
-#include "../plib/realm.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/clib_endian.h"

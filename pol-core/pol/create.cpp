@@ -20,7 +20,6 @@ Notes
 #include "../clib/random.h"
 #include "../clib/strutil.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "accounts/account.h"
@@ -37,6 +36,7 @@ Notes
 #include "pktin.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "scrdef.h"
 #include "skilladv.h"
 #include "sockio.h"
@@ -321,7 +321,7 @@ namespace Pol {
 	  chr->truecolor = chr->color;
 
 	  Coordinate coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
-	  Plib::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
+	  Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
 
 	  chr->x = coord.x;
 	  chr->y = coord.y;
@@ -533,7 +533,7 @@ namespace Pol {
 	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-	  SetCharacterWorldPosition( chr, Plib::WorldChangeReason::PlayerEnter );
+	  SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
 	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 
@@ -675,7 +675,7 @@ namespace Pol {
 	  chr->truecolor = chr->color;
 
 	  Coordinate coord = gamestate.startlocations[0]->select_coordinate();
-	  Plib::Realm* realm = gamestate.startlocations[0]->realm;
+	  Realms::Realm* realm = gamestate.startlocations[0]->realm;
 
 	  chr->x = coord.x;
 	  chr->y = coord.y;
@@ -908,7 +908,7 @@ namespace Pol {
 	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-      SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);
+      SetCharacterWorldPosition(chr, Realms::WorldChangeReason::PlayerEnter);
 	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 
@@ -1060,7 +1060,7 @@ namespace Pol {
 	  chr->truecolor = chr->color;
 
 	  Coordinate coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
-	  Plib::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
+	  Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
 
 	  chr->x = coord.x;
 	  chr->y = coord.y;
@@ -1315,7 +1315,7 @@ namespace Pol {
 	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-      SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);
+      SetCharacterWorldPosition(chr, Realms::WorldChangeReason::PlayerEnter);
 	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 

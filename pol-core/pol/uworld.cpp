@@ -18,9 +18,8 @@ Notes
 #include "multi/multi.h"
 
 #include "realms.h"
+#include "realms/realm.h"
 #include "globals/uvars.h"
-
-#include "../plib/realm.h"
 
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
@@ -86,7 +85,7 @@ namespace Pol {
 
 	void move_multi_in_world( unsigned short oldx, unsigned short oldy,
 							  unsigned short newx, unsigned short newy,
-							  Multi::UMulti* multi, Plib::Realm* oldrealm )
+							  Multi::UMulti* multi, Realms::Realm* oldrealm )
 	{
 	  Zone& oldzone = getzone( oldx, oldy, oldrealm );
 	  Zone& newzone = getzone( newx, newy, multi->realm );
@@ -125,7 +124,7 @@ namespace Pol {
 	//4-17-04 Rac destroyed the world! in favor of splitting its duties amongst the realms
 	//World world;
 
-    void SetCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason )
+    void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
     {
       Zone& zone = getzone( chr->x, chr->y, chr->realm );
 
@@ -145,9 +144,9 @@ namespace Pol {
 
     // Function for reporting the whereabouts of chars which are not in their expected zone 
     // (hopefully will never be called)
-    static void find_missing_char_in_zone(Mobile::Character* chr, Plib::WorldChangeReason reason);
+    static void find_missing_char_in_zone(Mobile::Character* chr, Realms::WorldChangeReason reason);
 
-    void ClrCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason )
+    void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
 	{
 	  Zone& zone = getzone( chr->x, chr->y, chr->realm );
 
@@ -171,7 +170,7 @@ namespace Pol {
 
     void MoveCharacterWorldPosition(unsigned short oldx, unsigned short oldy,
         unsigned short newx, unsigned short newy,
-        Mobile::Character* chr, Plib::Realm* oldrealm)
+        Mobile::Character* chr, Realms::Realm* oldrealm)
     {
         if (oldrealm == NULL)
             oldrealm = chr->realm;
@@ -208,13 +207,13 @@ namespace Pol {
         // Regardless of online or not, tell the realms that we've left
         if (chr->realm != oldrealm)
         {
-            oldrealm->remove_mobile(*chr, Plib::WorldChangeReason::Moved);
-            chr->realm->add_mobile(*chr, Plib::WorldChangeReason::Moved);
+            oldrealm->remove_mobile(*chr, Realms::WorldChangeReason::Moved);
+            chr->realm->add_mobile(*chr, Realms::WorldChangeReason::Moved);
         }
     }
 
 	void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy,
-                                Items::Item* item, Plib::Realm* oldrealm )
+                                Items::Item* item, Realms::Realm* oldrealm )
 	{
 	  if ( oldrealm == NULL )
 		oldrealm = item->realm;
@@ -248,15 +247,15 @@ namespace Pol {
 
     // If the ClrCharacterWorldPosition() fails, this function will find the actual char position and report
     // TODO: check if this is really needed...
-    void find_missing_char_in_zone(Mobile::Character* chr, Plib::WorldChangeReason reason) {
+    void find_missing_char_in_zone(Mobile::Character* chr, Realms::WorldChangeReason reason) {
         unsigned wgridx = chr->realm->grid_width();
         unsigned wgridy = chr->realm->grid_height();
 
         std::string msgreason = "unknown reason";
         switch (reason) {
-        case Plib::WorldChangeReason::PlayerExit:
+        case Realms::WorldChangeReason::PlayerExit:
             msgreason = "Client Exit"; break;
-        case Plib::WorldChangeReason::NpcDeath:
+        case Realms::WorldChangeReason::NpcDeath:
             msgreason = "NPC death"; break;
 		default:
 		  break;
@@ -289,7 +288,7 @@ namespace Pol {
     }
 	// Dave added this for debugging a single zone
 
-	bool check_single_zone_item_integrity( int x, int y, Plib::Realm* realm )
+	bool check_single_zone_item_integrity( int x, int y, Realms::Realm* realm )
 	{
 	  try
 	  {

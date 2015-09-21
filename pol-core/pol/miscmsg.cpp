@@ -43,6 +43,7 @@ Notes
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "sockio.h"
+#include "unicode.h"
 
 #include "scrstore.h"
 #include "polcfg.h"
@@ -53,7 +54,6 @@ Notes
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
-#include "../clib/unicode.h"
 #include "../plib/systemstate.h"
 
 
@@ -189,7 +189,7 @@ namespace Pol {
 
           Bscript::ObjArray* arr;
 
-          if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+          if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
             client->chr->start_script( prog.get( ), false, new Module::ECharacterRefObjImp( mobile ), new Bscript::BLong( msg->mode ), arr );
 		}
 	  }

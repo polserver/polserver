@@ -13,8 +13,6 @@ Notes
 #include "unimod.h"
 #include "uomod.h"
 
-#include "../../plib/realm.h"
-
 #include "../containr.h"
 #include "../dice.h"
 #include "../eventid.h"
@@ -33,6 +31,7 @@ Notes
 #include "../pktout.h"
 #include "../poltype.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skilladv.h"
@@ -45,6 +44,7 @@ Notes
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
@@ -62,7 +62,6 @@ Notes
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -810,7 +809,7 @@ namespace Pol {
 		  return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
 		  return new BError( "langcode must be a 3-character code." );
-		if ( !Clib::convertArrayToUC( oText, gwtext, textlenucc ) )
+		if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
 		  return new BError( "Invalid value in Unicode array." );
 
         std::string languc = Clib::strupper(lang->value());

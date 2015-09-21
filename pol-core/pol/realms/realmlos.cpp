@@ -8,19 +8,19 @@ Notes
 */
 
 #include "realm.h"
-#include "mapcell.h"
-#include "mapserver.h"
-#include "inmemorymapserver.h"
-#include "mapshape.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/mapserver.h"
+#include "../../plib/inmemorymapserver.h"
+#include "../../plib/mapshape.h"
 
-#include "../pol/uworld.h" // TODO move 'world' into Realm
-#include "../pol/item/item.h"
-#include "../pol/udatfile.h"
-#include "../pol/los.h"
-#include "../pol/clidata.h"
+#include "../uworld.h" // TODO move 'world' into Realm
+#include "../item/item.h"
+#include "../udatfile.h"
+#include "../los.h"
+#include "../clidata.h"
 
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
 	const int los_range = 20;
 	//const int z_los_range = 60; // unused as yet
 
@@ -70,7 +70,7 @@ namespace Pol {
 		{
           u32 flags = Core::tile_flags( item->graphic );
 
-		  if ( flags & FLAG::BLOCKSIGHT )
+		  if ( flags & Plib::FLAG::BLOCKSIGHT )
 		  {
 			if ( item->z <= z &&
 				 z < item->z + item->height )
@@ -91,14 +91,14 @@ namespace Pol {
 
 	bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z ) const
 	{
-	  static MapShapeList shapes;
+	  static Plib::MapShapeList shapes;
 	  shapes.clear();
 
-	  getmapshapes( shapes, x, y, FLAG::BLOCKSIGHT );
-	  readmultis( shapes, x, y, FLAG::BLOCKSIGHT );
-	  for ( MapShapeList::const_iterator itr = shapes.begin(), end = shapes.end(); itr != end; ++itr )
+	  getmapshapes( shapes, x, y, Plib::FLAG::BLOCKSIGHT );
+	  readmultis( shapes, x, y, Plib::FLAG::BLOCKSIGHT );
+	  for ( Plib::MapShapeList::const_iterator itr = shapes.begin(), end = shapes.end(); itr != end; ++itr )
 	  {
-		const MapShape& shape = ( *itr );
+		const Plib::MapShape& shape = ( *itr );
 		short ob_ht = shape.height;
 		short ob_z = shape.z;
 #if ENABLE_POLTEST_OUTPUT

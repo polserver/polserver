@@ -23,7 +23,7 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../../plib/pkg.h"
-#include "../../plib/realm.h"
+
 #include "../../plib/systemstate.h"
 
 #include "../core.h"
@@ -33,6 +33,7 @@ Notes
 #include "../listenpt.h"
 #include "../polclock.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../uoexhelp.h"
 #include "../packetscrobj.h"
 #include "../uobject.h"
@@ -294,7 +295,7 @@ namespace Pol {
       return Core::GetListenPoints( );
 	}
 
-	BStruct* SetupRealmDetails( Plib::Realm* realm )
+	BStruct* SetupRealmDetails( Realms::Realm* realm )
 	{
 	  std::unique_ptr<BStruct> details( new BStruct() );
 	  details->addMember( "width", new BLong( realm->width() ) );
@@ -325,7 +326,7 @@ namespace Pol {
 
 	  if ( realm_name->length() > 0 )
 	  {
-        Plib::Realm* realm = Core::find_realm( realm_name->value( ) );
+        Realms::Realm* realm = Core::find_realm( realm_name->value( ) );
 		if ( !realm )
 		  return new BError( "Realm not found." );
 		else
@@ -334,7 +335,7 @@ namespace Pol {
 	  else
 	  {
 		BDictionary* dict = new BDictionary;
-        std::vector<Plib::Realm*>::iterator itr;
+        std::vector<Realms::Realm*>::iterator itr;
         for ( itr = Core::gamestate.Realms.begin( ); itr != Core::gamestate.Realms.end( ); ++itr )
 		{
 		  dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
@@ -418,7 +419,7 @@ namespace Pol {
 	  {
 		return new BError( "Invalid parameter" );
 	  }
-	  Plib::Realm* baserealm = Core::find_realm( base->value() );
+	  Realms::Realm* baserealm = Core::find_realm( base->value() );
 	  if ( !baserealm )
 		return new BError( "BaseRealm not found." );
 	  if ( baserealm->is_shadowrealm )
@@ -444,7 +445,7 @@ namespace Pol {
 	  if ( !( getStringParam( 0, realm_name ) ) )
 		return new BError( "Invalid parameter" );
 
-      Plib::Realm* realm = Core::find_realm( realm_name->value( ) );
+      Realms::Realm* realm = Core::find_realm( realm_name->value( ) );
 
 	  if ( !realm )
 		return new BError( "Realm not found." );

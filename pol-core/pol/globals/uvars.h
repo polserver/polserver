@@ -36,7 +36,7 @@ Notes
 #include <set>
 
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Items {
@@ -152,9 +152,9 @@ namespace Pol {
 	  Guilds guilds;
 	  unsigned int nextguildid;
 
-	  Plib::Realm* main_realm;
-	  std::vector<Plib::Realm*> Realms;
-	  std::map<int, Plib::Realm*> shadowrealms_by_id;
+	  Realms::Realm* main_realm;
+	  std::vector<Realms::Realm*> Realms;
+	  std::map<int, Realms::Realm*> shadowrealms_by_id;
 	  unsigned int baserealm_count;
 	  unsigned int shadowrealm_count;
 

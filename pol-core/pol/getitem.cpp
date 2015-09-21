@@ -17,7 +17,7 @@ Notes
 
 */
 
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include "multi/boat.h"
 #include "mobile/charactr.h"

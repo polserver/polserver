@@ -25,6 +25,7 @@ Notes
 #include "mobile/npc.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "resource.h"
 #include "savedata.h"
 #include "servdesc.h"
@@ -43,7 +44,6 @@ Notes
 #include "containr.h"
 
 #include "../plib/polver.h"
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
@@ -108,7 +108,7 @@ namespace Pol {
         chr->readProperties( elem );
 
         // Allows the realm to recognize this char as offline
-        chr->realm->add_mobile(*chr, Plib::WorldChangeReason::PlayerLoad);
+        chr->realm->add_mobile(*chr, Realms::WorldChangeReason::PlayerLoad);
 
         chr->clear_dirty();
         
@@ -139,7 +139,7 @@ namespace Pol {
       {
         npc->readProperties( elem );
 
-        SetCharacterWorldPosition( npc.get(), Plib::WorldChangeReason::NpcLoad );
+        SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
         npc->clear_dirty();
 
         ////HASH
@@ -298,7 +298,7 @@ namespace Pol {
     void read_shadow_realms( Clib::ConfigElem& elem )
     {
       std::string name = elem.remove_string( "Name" );
-      Plib::Realm* baserealm = find_realm( elem.remove_string( "BaseRealm" ) );
+      Realms::Realm* baserealm = find_realm( elem.remove_string( "BaseRealm" ) );
       if ( !baserealm )
         elem.warn_with_line( "BaseRealm not found." );
       if ( defined_realm( name ) )
@@ -494,7 +494,7 @@ namespace Pol {
       }
     }
 
-    Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Plib::Realm* realm )
+    Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm* realm )
     {
       unsigned short wx, wy;
       zone_convert( x, y, &wx, &wy, realm );

@@ -53,11 +53,10 @@ Notes
 #endif
 
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 #include "../../clib/MD5.h"
 #include "../../clib/stlutil.h"
 
-#include "../../plib/realm.h"
+#include "../realms/realm.h"
 
 #include "../accounts/account.h"
 
@@ -110,6 +109,7 @@ Notes
 #include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>

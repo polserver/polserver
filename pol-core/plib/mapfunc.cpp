@@ -18,7 +18,6 @@ Notes
 
 #include "../plib/mapcell.h"
 #include "../plib/mapshape.h"
-#include "../plib/realm.h"
 
 #include "../pol/uconst.h"
 #include "../pol/ustruct.h"

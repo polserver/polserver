@@ -24,6 +24,15 @@ SET (LIB_DIRS
 	${LIB_DIRS}
 	${CMAKE_CURRENT_LIST_DIR}/../bin
 )
+
+##############################################################
+# link to the needed libs
+SET (LIBS_LINUX
+    bscript
+    clib_debugging
+    clib
+    plib
+)
 	
 ##############################################################
 # define target directory

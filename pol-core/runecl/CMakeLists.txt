@@ -8,26 +8,25 @@ MESSAGE("####################################")
 
 ###############################################################################
 # define source files
-SET (SOURCES
-    runecl.cpp
+SET (SOURCES  # sorted !
     ../../lib/tinyxml/tinystr.cpp
     ../../lib/tinyxml/tinyxml.cpp
     ../../lib/tinyxml/tinyxmlerror.cpp 
     ../../lib/tinyxml/tinyxmlparser.cpp
-    ../../lib/format/format.cc
+    ../pol/binaryfilescrobj.cpp 
+    ../pol/cfgrepos.cpp 
+    ../pol/dice.cpp
+    ../pol/globals/ucfg.cpp
     ../pol/module/basiciomod.cpp 
     ../pol/module/basicmod.cpp 
-    ../pol/module/utilmod.cpp 
-    ../pol/dice.cpp
-    ../pol/module/filemod.cpp 
-    ../pol/binaryfilescrobj.cpp 
-    ../pol/xmlfilescrobj.cpp
     ../pol/module/cfgmod.cpp 
     ../pol/module/datastore.cpp
-    ../pol/cfgrepos.cpp 
-    ../pol/proplist.cpp
-    ../pol/globals/ucfg.cpp
+    ../pol/module/filemod.cpp 
     ../pol/module/mathmod.cpp
+    ../pol/module/utilmod.cpp 
+    ../pol/proplist.cpp
+    ../pol/xmlfilescrobj.cpp
+    runecl.cpp
 )    
 
 ##############################################################
@@ -47,6 +46,7 @@ SET (LIB_DIRS
 ##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
+    bscript
     clib_debugging
     clib
     plib

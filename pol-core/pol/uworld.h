@@ -28,7 +28,7 @@ Notes
 #include "zone.h"
 
 #include "../clib/passert.h"
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include <vector>
 
@@ -51,18 +51,18 @@ namespace Pol {
 	void remove_multi_from_world( Multi::UMulti* multi );
 	void move_multi_in_world( unsigned short oldx, unsigned short oldy,
 							  unsigned short newx, unsigned short newy,
-							  Multi::UMulti* multi, Plib::Realm* oldrealm );
+							  Multi::UMulti* multi, Realms::Realm* oldrealm );
 
-	void SetCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason);
-	void ClrCharacterWorldPosition( Mobile::Character* chr, Plib::WorldChangeReason reason);
+	void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason);
+	void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason);
 	void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy,
 									 unsigned short newx, unsigned short newy,
-									 Mobile::Character* chr, Plib::Realm* oldrealm );
+									 Mobile::Character* chr, Realms::Realm* oldrealm );
 
 	void SetItemWorldPosition( Items::Item* item );
 	void ClrItemWorldPosition( Items::Item* item );
 	void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy,
-								Items::Item* item, Plib::Realm* oldrealm );
+								Items::Item* item, Realms::Realm* oldrealm );
 
 	int get_toplevel_item_count();
 	int get_mobile_count();
@@ -81,7 +81,7 @@ namespace Pol {
 	  ZoneMultis multis;
 	};
 
-    inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx, unsigned short* wy, const Plib::Realm* realm )
+    inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx, unsigned short* wy, const Realms::Realm* realm )
 	{
 	  passert( x < realm->width() );
 	  passert( y < realm->height() );
@@ -90,7 +90,7 @@ namespace Pol {
 	  (*wy) = y >> Plib::WGRID_SHIFT;
 	}
 
-	inline void zone_convert_clip( int x, int y, const Plib::Realm* realm, unsigned short* wx, unsigned short* wy )
+	inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigned short* wx, unsigned short* wy )
 	{
 	  if ( x < 0 )
 		x = 0;
@@ -105,7 +105,7 @@ namespace Pol {
 	  (*wy) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
 	}
 
-	inline Zone& getzone( unsigned short x, unsigned short y, Plib::Realm* realm )
+	inline Zone& getzone( unsigned short x, unsigned short y, Realms::Realm* realm )
 	{
 	  passert( x < realm->width() );
 	  passert( y < realm->height() );
@@ -128,14 +128,14 @@ namespace Pol {
     struct WorldIterator
     {
       template <typename F>
-	  static void InRange( u16 x, u16 y, const Plib::Realm* realm, unsigned range, F &&f );
+	  static void InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range, F &&f );
       template <typename F>
 	  static void InVisualRange( const UObject* obj, F &&f );
       template <typename F>
-	  static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, F &&f );
+	  static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm, F &&f );
     protected:
       template <typename F>
-	  static void _forEach( const CoordsArea &coords, const Plib::Realm* realm, F &&f );
+	  static void _forEach( const CoordsArea &coords, const Realms::Realm* realm, F &&f );
     };
 
 	enum class FilterType
@@ -172,8 +172,8 @@ namespace Pol {
 	  struct CoordsArea
       {
 		// structure to hold the world and shifted coords
-		CoordsArea( u16 x, u16 y, const Plib::Realm* realm, unsigned range); // create from range
-		CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm ); // create from box
+		CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range); // create from range
+		CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm ); // create from box
 		bool inRange( const UObject *obj ) const;
 
 		// shifted coords
@@ -183,7 +183,7 @@ namespace Pol {
         u16 wyH;
 
 	  private:
-		void convert( int xL, int yL, int xH, int yH, const Plib::Realm* realm );
+		void convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm );
 
 		// plain coords
         int xL;
@@ -195,7 +195,7 @@ namespace Pol {
 	///////////////
 	// imp
 	namespace {
-	  CoordsArea::CoordsArea( u16 x, u16 y, const Plib::Realm* realm, unsigned range )
+	  CoordsArea::CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range )
 	  {
 		convert( x - range, y - range, x + range, y + range, realm );
 		xL = x - range;
@@ -208,7 +208,7 @@ namespace Pol {
 		yH = y + range;
 	  }
 
-	  CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm )
+	  CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm )
 	  {
 		convert( x1, y1, x2, y2, realm );
 		xL = x1;
@@ -223,7 +223,7 @@ namespace Pol {
 				 obj->y >= yL && obj->y <= yH );
 	  }
 
-	  void CoordsArea::convert( int xL, int yL, int xH, int yH, const Plib::Realm* realm )
+	  void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )
 	  {
 		zone_convert_clip( xL, yL, realm, &wxL, &wyL );
 		zone_convert_clip( xH, yH, realm, &wxH, &wyH );
@@ -234,7 +234,7 @@ namespace Pol {
 
 	template <class Filter>
 	template <typename F>
-    void WorldIterator<Filter>::InRange( u16 x, u16 y, const Plib::Realm* realm, unsigned range, F &&f )
+    void WorldIterator<Filter>::InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range, F &&f )
     {
 	  if ( realm == nullptr )
 		return;
@@ -249,7 +249,7 @@ namespace Pol {
     }
     template <class Filter>
 	template <typename F>
-    void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Plib::Realm* realm, F &&f )
+    void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm, F &&f )
     {
 	  if ( realm == nullptr )
 		return;
@@ -260,7 +260,7 @@ namespace Pol {
 	template <class Filter>
 	template <typename F>
     void WorldIterator<Filter>::_forEach( const CoordsArea &coords,
-                          const Plib::Realm* realm, F &&f )
+                          const Realms::Realm* realm, F &&f )
     {
       for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
       {
