@@ -21,6 +21,7 @@ SET (SOURCES  # sorted !
 	dirlist.cpp
 	esignal.cpp
 	fdump.cpp 
+    filecont.cpp
 	fileutil.cpp 
 	iohelp.cpp
 	kbhit.cpp
@@ -45,7 +46,6 @@ SET (SOURCES  # sorted !
 	wallclock.cpp
 	wnsckt.cpp
 	xmain.cpp
-    filecont.cpp
 )
 
 ##############################################################
