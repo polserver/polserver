@@ -367,6 +367,9 @@ namespace Pol {
 		  wpnelem.add_prop( "ProjectileSound", elem.remove_string( "AttackProjectileSound" ).c_str() );
 		}
 
+		while ( elem.remove_prop("AttackCProp", &tmp) )
+		  wpnelem.add_prop( "CProp", tmp.c_str() );
+
 		return create_intrinsic_weapon( elem.rest(), wpnelem, pkg );
 	  }
 	  else

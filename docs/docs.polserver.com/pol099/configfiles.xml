@@ -1291,6 +1291,8 @@ NpcTemplate (string unique templatename)
     [AttackProjectileAnim  (int tile number of animation)]
     [AttackProjectileType  (int objtype of projectile)]
     [AttackProjectileSound (int soundID for projectile shoot)]
+    [AttackCProp           (string name, string value, will set a CProp on the intrinsicn weapon)]
+    [AttackCprop           (...)]
 
     [FireDamage]            (int/(die-string value))]
     [ColdDamage]            (int/(die-string value))]

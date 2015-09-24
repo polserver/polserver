@@ -8,6 +8,8 @@
 		<entry>
 			<date>09-24-2015</date>
 			<author>Bodom:</author>
+			<change>Added    New keyword AttackCProp on npcdesc.cfg allows defining CProps for<br/>
+         intrinsic weapons.</change>
 			<change type="Fixed">Hp/MaxHp updates to nearby clients were still using the real value<br/>
 instead of the 1000-based ratio when sending the 0xa1 packet.</change>
 			<change type="Fixed">Hp/MaxHp updates were sent twice to the originating character.</change>
