@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+09-25-2015 Bodom:
+  Fixed:   When using MapDiff, tiles could disappear in some circumstances
 09-24-2015 Bodom:
   Added    New keyword AttackCProp on npcdesc.cfg allows defining CProps for
            intrinsic weapons.

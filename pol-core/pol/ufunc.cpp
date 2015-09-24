@@ -2132,15 +2132,44 @@ namespace Pol {
 	  msg.Send( client );
 	}
 
+	/// Sends number of maps used and number of map/static patches for each map
 	void send_map_difs( Client* client )
 	{
+	  // Prepare the data by reading map id used by every realm
+	  // When a map is used multiple times in different realms, only
+	  // take into account first realm found. No support for using the
+	  // same map with different diff files for different realms.
+	  struct mapdiff
+	  {
+		u32 static_patches;
+		u32 map_patches;
+	  };
+	  std::map<u32,mapdiff> mapinfo;
+	  for ( auto it = gamestate.Realms.begin(); it != gamestate.Realms.end(); ++it )
+	  {
+		mapdiff md = { (*it)->getNumStaticPatches(), (*it)->getNumMapPatches() };
+		mapinfo.insert( std::pair<u32,mapdiff>( (*it)->getUOMapID(), md ) );
+	  }
+
+	  u32 max_map_id = mapinfo.rbegin()->first;
+
 	  PktHelper::PacketOut<PktOut_BF_Sub18> msg;
 	  msg->offset += 4; //len+sub
-	  msg->WriteFlipped<u32>( gamestate.baserealm_count );
-	  for ( unsigned int i = 0; i < gamestate.baserealm_count; i++ )
+	  msg->WriteFlipped<u32>( max_map_id + 1 ); // Number of maps
+	  for ( u32 i = 0; i <= max_map_id; i++ )
 	  {
-		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumStaticPatches() );
-		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumMapPatches() );
+		auto it = mapinfo.find(i);
+		if ( it == mapinfo.end() )
+		{
+		  // Filling hole (map not used)
+		  msg->WriteFlipped<u32>( 0u );
+		  msg->WriteFlipped<u32>( 0u );
+		}
+		else
+		{
+		  msg->WriteFlipped<u32>( mapinfo.at(i).static_patches );
+		  msg->WriteFlipped<u32>( mapinfo.at(i).map_patches );
+		}
 	  }
 	  u16 len = msg->offset;
 	  msg->offset = 1;
