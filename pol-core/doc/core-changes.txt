@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+09-24-2015 Bodom:
+  Fixed:   Hp/MaxHp updates to nearby clients were still using the real value
+           instead of the 1000-based ratio when sending the 0xa1 packet.
+  Fixed:   Hp/MaxHp updates were sent twice to the originating character.
 09-12-2015 Bodom:
   Fixed:   Bug in loading POL098 and older data files: boats were rotated leaving
            dynamic elements like plank and tillerman on the old position.

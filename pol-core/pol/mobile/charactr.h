@@ -195,6 +195,11 @@ namespace Pol {
 	  {
 		return _current / 100;
 	  }
+	  int current_thousands() const
+	  {
+		  // use division to prevent overflow
+		  return (_current / 100) * 1000 / (_maximum/100);
+	  }
 	  int maximum() const
 	  {
 		return _maximum;

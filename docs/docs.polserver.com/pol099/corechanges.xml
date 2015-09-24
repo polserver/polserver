@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-12-2015</datemodified>
+		<datemodified>09-24-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-24-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Hp/MaxHp updates to nearby clients were still using the real value<br/>
+instead of the 1000-based ratio when sending the 0xa1 packet.</change>
+			<change type="Fixed">Hp/MaxHp updates were sent twice to the originating character.</change>
+		</entry>
 		<entry>
 			<date>09-12-2015</date>
 			<author>Bodom:</author>
