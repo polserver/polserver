@@ -280,6 +280,8 @@ namespace Pol {
 	  Bscript::BObjectImp* mf_SendOverallSeason(/*season_id, playsound := 1*/ );
       Bscript::BObjectImp* mf_GetMidpointCircleCoords(/* xcenter, ycenter, radius */);
 
+	  Bscript::BObjectImp* mf_SendPopUpMenu(/* to_whom, above, menu */);
+
 	  Core::UOExecutor& uoexec;
 
 	  /* If we're asking a character for a target, who is it?
@@ -290,6 +292,8 @@ namespace Pol {
 		 */
 	  Mobile::Character* target_cursor_chr;
 	  Mobile::Character* menu_selection_chr;
+	  Mobile::Character* popup_menu_selection_chr;
+	  Core::UObject* popup_menu_selection_above;
 	  Mobile::Character* prompt_chr;
 	  Mobile::Character* gump_chr;
 	  Mobile::Character* textentry_chr;

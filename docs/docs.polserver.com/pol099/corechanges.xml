@@ -2,12 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-25-2015</datemodified>
+		<datemodified>09-27-2015</datemodified>
 	</header>
 	<version name="POL099">
 		<entry>
 			<date>09-25-2015</date>
 			<author>Bodom:</author>
+			<change type="Added">New uo.em function SendPopUpMenu( to, above, menu ).</change>
+			<change type="Added">On pop-up menu request (single click) &quot;misc/popupmenu.ecl&quot; is called.</change>
 			<change type="Fixed">When using MapDiff, tiles could disappear in some circumstances</change>
 		</entry>
 		<entry>

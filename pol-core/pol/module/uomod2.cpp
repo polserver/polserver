@@ -2546,5 +2546,143 @@ namespace Pol {
 		send_wornitem_to_inrange( client->chr, tmpitem );
 	  }
 	}
+
+	// Called when selection made or when selection canceled with NULL parameters
+	void popup_menu_selection_made( Network::Client* client, u32 serial, u16 id )
+	{
+	  if( client == NULL )
+		return;
+
+	  Character* chr = client->chr;
+	  if( chr == NULL || chr->client->gd->popup_menu_selection_uoemod == NULL )
+		return;
+
+	  // The function sending the PopUp menu is responsible to set this
+	  assert( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL );
+
+	  if( id && serial )
+		if( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above->serial == serial )
+		  chr->client->gd->popup_menu_selection_uoemod->uoexec.ValueStack.back().set( new BObject(new BLong(id)) );
+		else
+		  POLLOG_INFO.Format( "{}/{} send an unexpected popup reply for {}.\n" )
+			<< client->acct->name()
+			<< client->chr->name()
+			<< serial;
+
+	  chr->client->gd->popup_menu_selection_uoemod->uoexec.os_module->revive();
+	  chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_chr = NULL;
+	  chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above = NULL;
+	  chr->client->gd->popup_menu_selection_uoemod = NULL;
+	}
+
+	/// Sends a PopUp/Context menu
+	BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
+	{
+	  Character* chr;
+	  UObject* above;
+	  ObjArray* menu_arr;
+	  if( ! ( getCharacterParam( exec, 0, chr ) &&
+		getUObjectParam( exec, 1, above ) &&
+		exec.getObjArrayParam( 2, menu_arr ) ) )
+	  {
+		return new BError( "Invalid parameter" );
+	  }
+	  if( ! chr->has_active_client() )
+		return new BError( "No client attached" );
+	  if( ! menu_arr->ref_arr.size() )
+		return new BError( "Can't send empty menu" );
+	  if( menu_arr->ref_arr.size() > 0xff )
+		return new BError( "Too many entries in menu" );
+
+	  //Prepare packet
+	  //TODO: add KR support?
+	  PktHelper::PacketOut<PktOut_BF_Sub14> msg;
+	  msg->offset += 4;
+	  msg->Write<u8>( 0u ); //unknown
+	  msg->Write<u8>( 1u ); //1=2D, 2=KR
+	  msg->Write<u32>( above->serial_ext );  // Above serial
+	  msg->Write<u8>( static_cast<u8>( menu_arr->ref_arr.size() ) ); // Num of entries
+	  for( u16 i = 0; i < menu_arr->ref_arr.size(); ++i )
+	  {
+		BObject* bo = menu_arr->ref_arr[i].get();
+		if( bo == NULL )
+		  return new BError( "Null element in menu" );
+		BObjectImp* imp = bo->impptr();
+
+		int cliloc;
+		bool disabled = false;
+		bool arrow = false;
+		u16 color = NULL;
+		if( imp->isa(BObjectImp::OTLong) )
+		{
+		  //Short form: meu is just an int
+		  const BLong* lng = static_cast<BLong*>( imp );
+		  cliloc = lng->value();
+		}
+		else if( imp->isa(BObjectImp::OTStruct) )
+		{
+		  //Full form: menu is a struct
+		  BStruct* elem = static_cast<BStruct*>( imp );
+
+		  BObjectImp* cl = const_cast<BObjectImp*>( elem->FindMember("cliloc") );
+		  if( cl == NULL )
+			return new BError( "Missing cliloc for menu element" );
+		  if( ! cl->isa(BObjectImp::OTLong) )
+			return new BError( "Invalid cliloc for menu element" );
+		  const BLong* lng = static_cast<BLong*>( cl );
+		  cliloc = lng->value();
+
+		  const BObjectImp* ds = elem->FindMember("disabled");
+		  if( ds != NULL )
+			disabled = ds->isTrue();
+
+		  const BObjectImp* ar = elem->FindMember("arrow");
+		  if( ar != NULL )
+			arrow = ar->isTrue();
+
+		  BObjectImp* co = const_cast<BObjectImp*>( elem->FindMember("color") );
+		  if( co != NULL && co->isa(BObjectImp::OTLong) )
+		  {
+			const BLong* colng = static_cast<BLong*>( co );
+			color = static_cast<u16>( colng->value() );
+		  }
+		}
+		else
+		  return new BError( "Menu elements must be int or struct" );
+
+		if( cliloc < 3000000 || cliloc > 3065535 )
+		  return new BError( "Cliloc out of range in menu" );
+
+		u16 flags = 0x00;
+		if( disabled )
+		  flags |= 0x01;
+		if( arrow )
+		  flags |= 0x02;
+		if( color != NULL )
+		  flags |= 0x20;
+		msg->WriteFlipped<u16>( static_cast<u16>(i + 1) ); // Menu element ID
+		msg->WriteFlipped<u16>( static_cast<u16>(cliloc - 3000000) ); // Cliloc ID, adjusted
+		msg->WriteFlipped<u16>( flags ); // Flags
+		if( color != NULL )
+		  msg->WriteFlipped<u16>( static_cast<u16>(color) );
+	  }
+
+	  // Add length and send
+	  u16 len = msg->offset;
+	  msg->offset = 1;
+	  msg->WriteFlipped<u16>( len );
+	  msg.Send( chr->client, len );
+
+	  // Cancel any previously waiting popup response and suspend the script waiting for return value
+	  if( chr->client->gd->popup_menu_selection_uoemod != NULL )
+		chr->client->gd->popup_menu_selection_uoemod->uoexec.os_module->revive();
+	  chr->on_popup_menu_selection = popup_menu_selection_made;
+	  chr->client->gd->popup_menu_selection_uoemod = this;
+	  popup_menu_selection_chr = chr;
+	  popup_menu_selection_above = above;
+	  uoexec.os_module->suspend();
+	  return new BLong( 0 );
+	}
+
   }
 }

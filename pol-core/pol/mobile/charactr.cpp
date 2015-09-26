@@ -308,6 +308,7 @@ namespace Pol {
 	  tcursor2( NULL ),
 	  menu( NULL ),
 	  on_menu_selection( NULL ),
+	  on_popup_menu_selection ( NULL ),
 	  script_ex( NULL ),
 	  spell_task( NULL ),
 	  // CLIENT

@@ -1403,5 +1403,31 @@ endprogram</example>
     <relatedobj>Character</relatedobj>
 </scripttype>
 
+<scripttype name="PopUpMenuScript">
+    <prototype>program PopUpMenu(who, what)</prototype>
+    <parameter name="who" value="Character ref, who requested the pop-up menu" />
+    <parameter name="what" value="Object, reference to the item or mobile clicked" />
+    <return>return value ignored</return>
+    <schedtype>Normal</schedtype>
+    <def_prio>1</def_prio>
+    <whencalled>When a player single clicks an item, another player or an npc and UOFeatureEnable 0x08 is set.</whencalled>
+    <wherelives>The 'program' in popupmenu.src file, only in /scripts/misc</wherelives>
+    <todefine>Automatically called if file exists.</todefine>
+    <explain>Use this script to send the pop-up menu with SendPopUpMenu().</explain>
+    <example>use uo;
+program popupmenu(who, what)
+    print(who.name + " requested popup of " + CStr(what));
+    var menu := array{
+        3000484,
+        struct{ cliloc := 3000487 },
+        struct{ cliloc := 3000488, disabled := 1 }, 
+        struct{ cliloc := 3000501, color := 0x1f }
+    };
+    var ret := SendPopUpMenu( who, what, menu );
+    print("Menu response:" + CStr(ret));
+endprogram</example>
+    <relatedobj>Character</relatedobj>
+</scripttype>
+
 </ESCRIPT>
 

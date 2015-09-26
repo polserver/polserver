@@ -193,6 +193,8 @@ namespace Pol {
 	  uoexec( exec ),
 	  target_cursor_chr( NULL ),
 	  menu_selection_chr( NULL ),
+	  popup_menu_selection_chr( NULL ),
+	  popup_menu_selection_above( NULL ),
 	  prompt_chr( NULL ),
 	  gump_chr( NULL ),
 	  textentry_chr( NULL ),
@@ -228,6 +230,13 @@ namespace Pol {
         if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
 		  menu_selection_chr->client->gd->menu_selection_uoemod = NULL;
 		menu_selection_chr = NULL;
+	  }
+	  if ( popup_menu_selection_chr != NULL )
+	  {
+        if ( popup_menu_selection_chr->client != nullptr && popup_menu_selection_chr->client->gd != nullptr )
+		  popup_menu_selection_chr->client->gd->popup_menu_selection_uoemod = NULL;
+		popup_menu_selection_chr = NULL;
+		popup_menu_selection_above = NULL;
 	  }
 	  if ( prompt_chr != NULL )
 	  {
@@ -5943,7 +5952,9 @@ namespace Pol {
 	  { "SendOverallSeason", &UOExecutorModule::mf_SendOverallSeason },
       { "ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm },
       { "ListMobilesInBox", &UOExecutorModule::mf_ListMobilesInBox },
-      { "GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords }
+      { "GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords },
+
+	  { "SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu },
 	};
 
 	typedef std::map< std::string, int, Clib::ci_cmp_pred > FuncIdxMap;

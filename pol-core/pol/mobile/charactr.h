@@ -43,6 +43,7 @@ Notes
 
 #include "../../clib/strset.h"
 #include "../reftypes.h"
+#include "../pktboth.h"
 
 #include "attribute.h"
 
@@ -839,6 +840,7 @@ namespace Pol {
 	  Core::TargetCursor* tcursor2;
 	  Core::Menu* menu;
 	  void( *on_menu_selection )( Network::Client *client, Core::MenuItem *mi, Core::PKTIN_7D *msg );
+	  void( *on_popup_menu_selection )( Network::Client *client, u32 serial, u16 id );
 	protected:
 	  Core::UOExecutor* script_ex;
 	  Core::OneShotTask* spell_task;

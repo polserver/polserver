@@ -365,6 +365,7 @@ SendOpenBook( character, book );
 SendOpenSpecialContainer( character, container );
 SendOverallSeason( season_id, playsound := 1 );
 SendPacket( to_whom, packet_hex_string );
+SendPopUpMenu( to_whom, above, menu );
 SendQuestArrow( to_whom, x := -1, y := -1); // no params (-1x,-1y) turns the arrow off
 SendSellWindow( character, vendor, i1, i2, i3, flags := 0 );
 SendSkillWindow( towhom, forwhom );

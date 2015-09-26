@@ -2983,4 +2983,34 @@ const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
   <related>Array</related>
 </function> 
 
+<function name="SendPopUpMenu">
+  <prototype>SendPopUpMenu( to_whom, above, menu )</prototype>
+  <parameter name="to_whom" value="Character: who to send the menu to" />
+  <parameter name="above" value="Object: Item or Mobile to display the menu above" />
+  <parameter name="menu" value="Array: array of menu elements" />
+  <explain>Will show a pop-up context menu above the given object, waits for a reponse and return it 
+           (if no response is given, this could hang the script undefinitely)</explain>
+  <explain>Every element in the menu array must be an integer specifying a cliloc text for the menu or a
+           struct { cliloc, [disabled,] [arrow,] [color] }</explain>
+  <explain>- cliloc: int, this is the only mandatory element in struct, the cliloc text id (min 3000000, max 3065535)</explain>
+  <explain>- disabled: bool, if true, the menu entry will be disabled and shown in gray (default: false)</explain>
+  <explain>- arrow: bool, if true, an arrow will be shown (default: false)</explain>
+  <explain>- color: an optional rgb 1555 color (ex, 0 = transparent, 0x8000 = solid black, 0x1F = blue, 0x3E0 = green, 0x7C00 = red)</explain>
+  <return>Error or Array index selected (0 if canceled). No validation is done.</return>
+  <error>"Invalid parameter"</error>
+  <error>"No client attached"</error>
+  <error>"Can't send empty menu"</error>
+  <error>"Too many entries in menu"</error>
+  <error>"Null element in menu"</error>
+  <error>"Menu elements must be int or struct"</error>
+  <error>"Cliloc out of range in menu"</error>
+  <error>"Missing cliloc for menu element"</error>
+  <error>"Invalid cliloc for menu element"</error>
+  <related>Character</related>
+  <related>Item</related>
+  <related>Mobile</related>
+  <related>Array</related>
+  <related>Struct</related>
+</function>
+
 </ESCRIPT>

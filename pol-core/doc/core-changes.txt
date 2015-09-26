@@ -1,5 +1,7 @@
 ﻿-- POL099 --
 09-25-2015 Bodom:
+  Added:   New uo.em function SendPopUpMenu( to, above, menu ).
+  Added:   On pop-up menu request (single click) "misc/popupmenu.ecl" is called.
   Fixed:   When using MapDiff, tiles could disappear in some circumstances
 09-24-2015 Bodom:
   Added    New keyword AttackCProp on npcdesc.cfg allows defining CProps for

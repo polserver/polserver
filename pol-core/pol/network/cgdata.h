@@ -62,6 +62,7 @@ namespace Pol {
 	   */
 	  Module::UOExecutorModule* target_cursor_uoemod;
 	  Module::UOExecutorModule* menu_selection_uoemod;
+	  Module::UOExecutorModule* popup_menu_selection_uoemod;
 	  Module::UOExecutorModule* prompt_uoemod;
 	  Module::UOExecutorModule* resurrect_uoemod;
 	  Module::UOExecutorModule* selcolor_uoemod;

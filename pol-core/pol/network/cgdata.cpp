@@ -35,6 +35,7 @@ namespace Pol {
 	  textentry_uoemod( NULL ),
 	  target_cursor_uoemod( NULL ),
 	  menu_selection_uoemod( NULL ),
+	  popup_menu_selection_uoemod( NULL ),
 	  prompt_uoemod( NULL ),
 	  resurrect_uoemod( NULL ),
 	  selcolor_uoemod( NULL ),
@@ -75,6 +76,14 @@ namespace Pol {
 		menu_selection_uoemod->uoexec.os_module->revive();
 		menu_selection_uoemod->menu_selection_chr = NULL;
 		menu_selection_uoemod = NULL;
+	  }
+
+	  if ( popup_menu_selection_uoemod != NULL )
+	  {
+		popup_menu_selection_uoemod->uoexec.os_module->revive();
+		popup_menu_selection_uoemod->popup_menu_selection_chr = NULL;
+		popup_menu_selection_uoemod->popup_menu_selection_above = NULL;
+		popup_menu_selection_uoemod = NULL;
 	  }
 
 	  if ( prompt_uoemod != NULL )
