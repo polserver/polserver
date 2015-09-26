@@ -2561,6 +2561,7 @@ namespace Pol {
 	  assert( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL );
 
 	  if( id && serial )
+	  {
 		if( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above->serial == serial )
 		  chr->client->gd->popup_menu_selection_uoemod->uoexec.ValueStack.back().set( new BObject(new BLong(id)) );
 		else
@@ -2568,6 +2569,7 @@ namespace Pol {
 			<< client->acct->name()
 			<< client->chr->name()
 			<< serial;
+	  }
 
 	  chr->client->gd->popup_menu_selection_uoemod->uoexec.os_module->revive();
 	  chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_chr = NULL;
@@ -2612,7 +2614,8 @@ namespace Pol {
 		int cliloc;
 		bool disabled = false;
 		bool arrow = false;
-		u16 color = NULL;
+		u16 color = 0;
+		bool use_color = false;
 		if( imp->isa(BObjectImp::OTLong) )
 		{
 		  //Short form: meu is just an int
@@ -2645,6 +2648,7 @@ namespace Pol {
 		  {
 			const BLong* colng = static_cast<BLong*>( co );
 			color = static_cast<u16>( colng->value() );
+			use_color = true;
 		  }
 		}
 		else
@@ -2658,12 +2662,12 @@ namespace Pol {
 		  flags |= 0x01;
 		if( arrow )
 		  flags |= 0x02;
-		if( color != NULL )
+		if( use_color )
 		  flags |= 0x20;
 		msg->WriteFlipped<u16>( static_cast<u16>(i + 1) ); // Menu element ID
 		msg->WriteFlipped<u16>( static_cast<u16>(cliloc - 3000000) ); // Cliloc ID, adjusted
 		msg->WriteFlipped<u16>( flags ); // Flags
-		if( color != NULL )
+		if( use_color )
 		  msg->WriteFlipped<u16>( static_cast<u16>(color) );
 	  }
 
