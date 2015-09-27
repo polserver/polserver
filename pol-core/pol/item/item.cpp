@@ -817,8 +817,8 @@ namespace Pol {
 
 	bool Item::setgraphic( u16 newgraphic )
 	{
-        // Can't set the graphic of an equipped item, unless it's a mount and the new graphic is also a mount.
-        if (layer && (layer != Core::LAYER_MOUNT || layer != Core::tilelayer(newgraphic)))
+        // Can't set the graphic of an equipped item, unless the new graphic has the same layer
+        if (layer && layer != Core::tilelayer(newgraphic))
         {
             return false;
         }
