@@ -1129,7 +1129,7 @@ namespace Pol {
 		  continue;
 		for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 		{
-          if ( item->calc_element_resist( (Core::ElementalType)element ) != 0 || item->calc_element_damage( (Core::ElementalType)element ) != 0 )
+		  if ( item->isa( CLASS_ARMOR ) || item->calc_element_resist( (Core::ElementalType)element ) != 0 || item->calc_element_damage( (Core::ElementalType)element ) != 0 )
 		  {
 			hasArmor = true;
 			break;

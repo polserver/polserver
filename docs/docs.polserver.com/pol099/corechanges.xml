@@ -8,6 +8,7 @@
 		<entry>
 			<date>09-27-2015</date>
 			<author>Bodom:</author>
+			<change type="Fixed">Armor were not calculated correctly for NPCs wearing equip</change>
 			<change type="Fixed">Allow changing graphic of equipped items again if the new graphic has the same layer</change>
 		</entry>
 		<entry>
