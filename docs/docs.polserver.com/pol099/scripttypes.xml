@@ -1417,12 +1417,13 @@ endprogram</example>
     <example>use uo;
 program popupmenu(who, what)
     print(who.name + " requested popup of " + CStr(what));
-    var menu := array{
-        3000484,
-        struct{ cliloc := 3000487 },
-        struct{ cliloc := 3000488, disabled := 1 }, 
-        struct{ cliloc := 3000501, color := 0x1f }
-    };
+
+    var menu := array{};
+    menu[10] := 3000484;
+    menu[20] := struct{ cliloc := 3000487 };
+    menu[30] := struct{ cliloc := 3000488, disabled := 1 };
+    menu[40] := struct{ cliloc := 3000501, color := 0x1f };
+
     var ret := SendPopUpMenu( who, what, menu );
     print("Menu response:" + CStr(ret));
 endprogram</example>

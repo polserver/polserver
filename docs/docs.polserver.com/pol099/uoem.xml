@@ -3001,7 +3001,6 @@ const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
   <error>"No client attached"</error>
   <error>"Can't send empty menu"</error>
   <error>"Too many entries in menu"</error>
-  <error>"Null element in menu"</error>
   <error>"Menu elements must be int or struct"</error>
   <error>"Cliloc out of range in menu"</error>
   <error>"Missing cliloc for menu element"</error>

@@ -2593,7 +2593,7 @@ namespace Pol {
 		return new BError( "No client attached" );
 	  if( ! menu_arr->ref_arr.size() )
 		return new BError( "Can't send empty menu" );
-	  if( menu_arr->ref_arr.size() > 0xff )
+	  if( menu_arr->ref_arr.size() > 0xfffe )
 		return new BError( "Too many entries in menu" );
 
 	  //Prepare packet
@@ -2603,13 +2603,19 @@ namespace Pol {
 	  msg->Write<u8>( 0u ); //unknown
 	  msg->Write<u8>( 1u ); //1=2D, 2=KR
 	  msg->Write<u32>( above->serial_ext );  // Above serial
-	  msg->Write<u8>( static_cast<u8>( menu_arr->ref_arr.size() ) ); // Num of entries
+	  u16 offset_num_entries = msg->offset;
+	  msg->offset += 1; // Skip num entries now, write it later
+
+	  u8 num_entries = 0;
 	  for( u16 i = 0; i < menu_arr->ref_arr.size(); ++i )
 	  {
 		BObject* bo = menu_arr->ref_arr[i].get();
 		if( bo == NULL )
-		  return new BError( "Null element in menu" );
+		  continue;
 		BObjectImp* imp = bo->impptr();
+
+		if( ! ++num_entries ) // overflow
+		  return new BError( "Too many entries in menu" );
 
 		int cliloc;
 		bool disabled = false;
@@ -2671,8 +2677,10 @@ namespace Pol {
 		  msg->WriteFlipped<u16>( static_cast<u16>(color) );
 	  }
 
-	  // Add length and send
+	  // Add lengths and send
 	  u16 len = msg->offset;
+	  msg->offset = offset_num_entries;
+	  msg->Write<u8>( num_entries );
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
 	  msg.Send( chr->client, len );
