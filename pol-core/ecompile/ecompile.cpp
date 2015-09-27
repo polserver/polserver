@@ -615,7 +615,7 @@ namespace Pol {
 		  {
 			++compiled_scripts;
 			++error_scripts;
-            ERROR_PRINT << "failed to compile " << e.what() << "\n";
+            ERROR_PRINT << "failed to compile " << files[i].c_str() << ": " << e.what() << "\n";
 			if ( !keep_building )
 			{
 #pragma omp critical(building_break)
