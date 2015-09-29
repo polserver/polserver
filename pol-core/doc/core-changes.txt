@@ -1,5 +1,7 @@
 ﻿-- POL099 --
 09-29-2015 Bodom:
+  Fixed:   When a robe is already equipped before resurrect, no longer destroy it to
+           equip the death robe
   Fixed:   When HonorUnequipScriptOnDeath is on, item's unequip and unequiptest scripts
            were called twice on death and in the wrong order
 09-27-2015 Bodom:

@@ -2035,17 +2035,29 @@ namespace Pol {
       if ( !Core::gamestate.pVitalStamina->regen_while_dead )
         set_current_ones( Core::gamestate.pVitalStamina, vital( Core::gamestate.pVitalStamina->vitalid ), 1 );
 
-	  // replace the death shroud with a death robe
+	  // Replace the death shroud with a death robe
+	  bool equip_death_robe = true;
       if ( layer_is_equipped( Core::LAYER_ROBE_DRESS ) )
 	  {
         Items::Item* death_shroud = wornitems.GetItemOnLayer( Core::LAYER_ROBE_DRESS );
-		unequip( death_shroud );
-		death_shroud->destroy();
-		death_shroud = NULL;
+		if ( death_shroud->objtype_ == UOBJ_DEATH_SHROUD )
+		{
+		  unequip( death_shroud );
+		  death_shroud->destroy();
+		  death_shroud = NULL;
+		}
+		else
+		{
+		  // Do not destroy and replace the already equipped robe
+		  equip_death_robe = false;
+		}
 	  }
-	  Items::Item* death_robe = create_death_robe();
-	  death_robe->realm = realm;
-	  equip( death_robe );
+	  if ( equip_death_robe )
+	  {
+		Items::Item* death_robe = create_death_robe();
+		death_robe->realm = realm;
+		equip( death_robe );
+	  }
 
 	  // equip( create_backpack() );
 
