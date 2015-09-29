@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-27-2015</datemodified>
+		<datemodified>09-29-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-29-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">When HonorUnequipScriptOnDeath is on, item's unequip and unequiptest scripts<br/>
+were called twice on death and in the wrong order</change>
+		</entry>
 		<entry>
 			<date>09-27-2015</date>
 			<author>Bodom:</author>

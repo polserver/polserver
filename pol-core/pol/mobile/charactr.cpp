@@ -2250,11 +2250,6 @@ namespace Pol {
 		}
 		if ( item->newbie() || item->insured() )
 		  continue;
-        else if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
-		{
-		  if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
-			continue;
-		}
         else if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS && !item->movable() )  // dress layer needs to be unequipped for deathrobe
         {
           _copy_item( item );
@@ -2265,7 +2260,17 @@ namespace Pol {
 		/// onto a corpse if honor_unequip_script_on_death is disabled.
 		///
 		UPDATE_CHECKPOINT();
-		item->check_unequip_script();
+		if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
+		{
+		  if ( ! item->check_unequiptest_scripts() )
+			continue;
+		  if ( ! item->check_unequip_script() )
+			continue;
+		}
+		else
+		{
+		  item->check_unequip_script();
+		}
 		UPDATE_CHECKPOINT();
 		unequip( item );
 		UPDATE_CHECKPOINT();
@@ -2347,17 +2352,22 @@ namespace Pol {
 			continue;
           if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR || item->layer == Core::LAYER_FACE )
 			continue;
-          if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
-		  {
-			if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
-			  continue;
-		  }
           if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS && !item->movable( ) )
 			continue;
 		  if ( ( item->newbie() || item->use_insurance() ) && bp->can_add( *item ) )
 		  {
 			UPDATE_CHECKPOINT();
-			item->check_unequip_script();
+			if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
+			{
+			  if ( ! item->check_unequiptest_scripts() )
+				continue;
+			  if ( ! item->check_unequip_script() )
+				continue;
+			}
+			else
+			{
+			  item->check_unequip_script();
+			}
 			UPDATE_CHECKPOINT();
 			unequip( item );
 			item->layer = 0;
