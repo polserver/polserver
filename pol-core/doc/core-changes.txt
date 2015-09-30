@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+09-30-2015 Bodom:
+  Added:   MoveItemToContainer parameter add_to_existing_stack can now be 2 for "auto" behavior
+           The function will try to add the item to an existing stack and just try move the
+           item inside the container if no stack is found
 09-29-2015 Bodom:
   Fixed:   When a robe is already equipped before resurrect, no longer destroy it to
            equip the death robe

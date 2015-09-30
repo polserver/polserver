@@ -3632,7 +3632,7 @@ namespace Pol {
 		getItemParam( exec, 1, cont_item ) &&
 		getParam( 2, px, -1, 65535 ) &&
 		getParam( 3, py, -1, 65535 ) &&
-		getParam( 4, add_to_existing_stack, 0, 1 ) ) )
+		getParam( 4, add_to_existing_stack, 0, 2 ) ) )
 	  {
 		return new BError( "Invalid parameter type" );
 	  }
@@ -3694,14 +3694,15 @@ namespace Pol {
 		  if ( !cont->can_insert_increase_stack( chr_owner, UContainer::MT_CORE_MOVED, existing_stack, item->getamount(), item ) )
 			return new BError( "Could not add to existing stack" );
 		}
+		else if ( add_to_existing_stack == 2 )
+		  add_to_existing_stack = 0;
 		else
 		  return new BError( "There is no existing stack" );
 	  }
-	  else
-	  {
+
+	  if ( ! add_to_existing_stack )
 		if ( !cont->can_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item ) )
 		  return new BError( "Could not insert item into container." );
-	  }
 
 	  if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
 	  {
@@ -3770,8 +3771,8 @@ namespace Pol {
 	  else
 	  {
 		u16 amount = item->getamount();
-		existing_stack->add_to_self( item );
 		true_extricate( item );
+		existing_stack->add_to_self( item );
 		update_item_to_inrange( existing_stack );
 		UpdateCharacterWeight( existing_stack );
 

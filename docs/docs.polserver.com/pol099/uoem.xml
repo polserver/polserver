@@ -1982,6 +1982,7 @@ const ACTION_REPEAT       := 1;</code></explain>
   <explain>Calls the container's canInsert and onInsert scripts, if any.</explain>
   <explain>Calls the item's original container's (if any) canRemove and onRemove scripts, if any.</explain>
   <explain>If add_to_existing_stack == 1 and there is no stack in the container, it will return Error "There is no existing stack", so its up to scripts to check this.</explain>
+  <explain>If add_to_existing_stack == 2 and there is no stack in the container, it will just add as a new item like when add_to_existing_stack == 0.</explain>
   <return>1 on success</return>
   <error>"Invalid parameter type"</error>
   <error>"That is immobile"</error>

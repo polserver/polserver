@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-29-2015</datemodified>
+		<datemodified>09-30-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-30-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">MoveItemToContainer parameter add_to_existing_stack can now be 2 for &quot;auto&quot; behavior<br/>
+The function will try to add the item to an existing stack and just try move the<br/>
+item inside the container if no stack is found</change>
+		</entry>
 		<entry>
 			<date>09-29-2015</date>
 			<author>Bodom:</author>
