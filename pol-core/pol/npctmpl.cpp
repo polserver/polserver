@@ -13,6 +13,7 @@ Notes
 #include "npctmpl.h"
 
 #include "item/weapon.h"
+#include "item/armor.h"
 #include "syshookscript.h"
 #include "globals/uvars.h"
 
@@ -63,7 +64,8 @@ namespace Pol {
 
 
 	NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg ) :
-	  intrinsic_weapon( Items::find_intrinsic_weapon( elem.rest() ) ),
+	  intrinsic_weapon( static_cast<Items::UWeapon*>( Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND1 )) ),
+	  intrinsic_shield( static_cast<Items::UArmor*>( Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND2 )) ),
 	  pkg( pkg ),
 	  // script( elem.read_string( "SCRIPT" ) ),
 	  alignment( static_cast<ALIGNMENT>( translate( elem.read_string( "ALIGNMENT", "neutral" ), xlate_align ) ) ),

@@ -366,13 +366,17 @@ namespace Pol {
 	{
 	  registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
 
-	  Items::UWeapon* wpn = Items::find_intrinsic_weapon( elem.rest() );
+	  Items::UWeapon* wpn = static_cast<Items::UWeapon*>( Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND1 ) );
 	  if ( wpn == NULL )
-	  {
 		wpn = Items::create_intrinsic_weapon_from_npctemplate( elem, template_.pkg );
-	  }
 	  if ( wpn != NULL )
 		weapon = wpn;
+
+	  Items::UArmor* sld = static_cast<Items::UArmor*>( Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND2 ) );
+	  if ( sld == NULL )
+		sld = Items::create_intrinsic_shield_from_npctemplate( elem, template_.pkg );
+	  if ( sld != NULL )
+		shield = sld;
 
 	  // Load the base, equiping items etc will refresh_ar() to update for reals.
 	  for ( int i = 0; i < 6; i++ )

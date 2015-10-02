@@ -154,7 +154,7 @@ namespace Pol {
 	  temp_itemdesc(new Items::ItemDesc(Items::ItemDesc::ITEMDESC)),
 	  resourcedefs(),
 	  
-	  intrinsic_weapons(),
+	  intrinsic_equipments(),
 	  boatshapes(),
 
 	  animation_translates(),
@@ -206,7 +206,7 @@ namespace Pol {
 
 	  // unload_other_objects
 	  unload_intrinsic_weapons();
-      unload_weapon_templates( );
+      unload_intrinsic_templates( );
 
 	  // unload_itemdesc_scripts
 	  for ( auto &elem : desctable )
@@ -376,19 +376,18 @@ namespace Pol {
 	  }
 	}
 
-	void GameState::unload_weapon_templates()
-	{
-      for ( auto &weapon : intrinsic_weapons )
+    void GameState::unload_intrinsic_templates()
+    {
+      for ( auto it = intrinsic_equipments.begin(); it != intrinsic_equipments.end(); ++it )
       {
-        //	t.second->serial = 1; // just to force the delete to work.
-        if ( weapon.second != NULL )
+        if ( it->second != NULL )
         {
-          weapon.second->destroy( );
-          weapon.second = NULL;
+           it->second->destroy( );
+           it->second = NULL;
         }
       }
-	  intrinsic_weapons.clear();
-	}
+      intrinsic_equipments.clear();
+    }
 
 	//quick and nasty fix until npcdesc usage is rewritten
 	void GameState::unload_npc_templates()
@@ -543,9 +542,9 @@ namespace Pol {
         if (elem.second != nullptr)
           usage.misc += elem.second->estimateSize();
       }
-      for (const auto &elem : intrinsic_weapons)
+      for ( const auto &elem : intrinsic_equipments )
       {
-        usage.misc += elem.first.capacity() +sizeof( Items::UWeapon* ) + ( sizeof(void*) * 3 + 1 ) / 2;
+        usage.misc += elem.first.first.capacity() + sizeof( u8 ) + sizeof( Items::Equipment* ) + ( sizeof(void*) * 3 + 1 ) / 2;
       }
       for (const auto &elem : boatshapes)
       {

@@ -423,6 +423,7 @@
 <child>Weapon</child>
 <child>Armor</child>
 <explain>Class containing concrete subclasses which are equipable and have hit points</explain>
+<member mname="intrinsic" type="Boolean" access="r/o" mdesc="Intrinsic Equipment?" />
 </class>
 
 
@@ -433,7 +434,6 @@
 <member mname="speed_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, an optional way to delay if you want to use the default speed math and just add to that" />
 <member mname="attribute" type="String" access="r/o" mdesc="Attribute name this weapon uses as a skill" />
 <member mname="hitscript" type="String" access="r/w" mdesc="Script name that runs when weapon makes a hit" />
-<member mname="intrinsic" type="Boolean" access="r/o" mdesc="Intrinsic Weapon?" />
 </class>
 
 

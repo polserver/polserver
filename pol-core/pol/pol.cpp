@@ -70,6 +70,8 @@ Notes
 #include "gameclck.h"
 #include "guardrgn.h"
 #include "item/itemdesc.h"
+#include "item/equipmnt.h"
+#include "item/armor.h"
 #include "lightlvl.h"
 #include "loadunld.h"
 #include "miscrgn.h"
@@ -1247,6 +1249,8 @@ namespace Pol {
 
     Core::checkpoint( "loading intrinsic weapons" );
     Items::load_intrinsic_weapons();
+    Core::checkpoint( "validating intrinsic shield template" );
+    Items::validate_intrinsic_shield_template();
     Core::checkpoint( "reading gameservers" );
     Core::read_gameservers();
     Core::checkpoint( "reading starting locations" );
@@ -1275,7 +1279,7 @@ namespace Pol {
     }
 
 
-    Items::allocate_intrinsic_weapon_serials();
+    Items::allocate_intrinsic_equipment_serials();
     Core::stateManager.gflag_in_system_startup = false;
 
     // PrintAllocationData();

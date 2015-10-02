@@ -226,8 +226,8 @@ namespace Pol {
 	  checkpoint( "load_special_storedconfig: spells" );
 	  Multi::load_special_storedconfig( "spells" );
 
-	  checkpoint( "load_weapon_templates" );
-      Items::load_weapon_templates( );
+      checkpoint( "load_npc_intrinsic_equip" );
+      Items::load_npc_intrinsic_equip( );
 
 	  checkpoint( "load_npc_templates" );
 	  load_npc_templates();

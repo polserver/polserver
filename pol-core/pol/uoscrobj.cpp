@@ -3471,13 +3471,11 @@ namespace Pol {
       if ( imp != NULL )
         return imp;
 
-      return NULL;
-      /*
       switch(id)
       {
-      default: return NULL;
+        case MBR_INTRINSIC: return new BLong( is_intrinsic() ); break;
+        default: return NULL;
       }
-      */
     }
     BObjectImp* Equipment::get_script_member( const char *membername ) const
     {
@@ -3547,7 +3545,6 @@ namespace Pol {
       case MBR_SPEED_MOD:	return new BLong(speed_mod()); break;
         case MBR_ATTRIBUTE: return new String( attribute().name ); break;
         case MBR_HITSCRIPT: return new String( hit_script_.relativename( tmpl->pkg ) ); break;
-        case MBR_INTRINSIC: return new BLong( is_intrinsic() ); break;
         default: return NULL;
       }
     }
@@ -3634,7 +3631,7 @@ namespace Pol {
       {
       case MBR_AR_MOD: return new BLong(ar_mod()); break;
         case MBR_AR: return new BLong( ar() ); break;
-        case MBR_AR_BASE: return new BLong( tmpl->ar ); break;
+        case MBR_AR_BASE: return new BLong( ar_base() ); break;
         case MBR_ONHIT_SCRIPT: return new String( onhitscript_.relativename( tmpl->pkg ) ); break;
         default: return NULL;
       }

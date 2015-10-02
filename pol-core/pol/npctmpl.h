@@ -27,6 +27,7 @@ namespace Pol {
   }
   namespace Items {
 	class UWeapon;
+	class UArmor;
   }
   namespace Core {
 	class ExportScript;
@@ -37,6 +38,7 @@ namespace Pol {
 	  std::string name;
 
 	  Items::UWeapon* intrinsic_weapon;
+	  Items::UArmor* intrinsic_shield;
 	  const Plib::Package* pkg;
 
 	  // std::string script;

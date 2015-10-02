@@ -130,7 +130,9 @@ namespace Pol {
 	  }
 	  else if ( elem.type_is( "Armor" ) )
 	  {
-		descriptor = new ArmorDesc( objtype, elem, pkg );
+		// Ugly but effective workaround, needed to avoid coverage error
+		bool forceShield = (objtype == Core::settingsManager.extobj.shield);
+		descriptor = new ArmorDesc( objtype, elem, pkg, forceShield );
 	  }
 	  else if ( elem.type_is( "Boat" ) )
 	  {

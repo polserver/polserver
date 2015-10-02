@@ -55,9 +55,6 @@ namespace Pol {
 	  unsigned short hit_sound;
 	  unsigned short miss_sound;
 
-	  bool is_intrinsic;
-	  bool is_pc_weapon; // used to differentiate npc and pc intrinsics
-
 	  bool two_handed;
 
 	  unsigned short minrange;

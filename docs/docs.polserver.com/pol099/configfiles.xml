@@ -1294,6 +1294,10 @@ NpcTemplate (string unique templatename)
     [AttackCProp           (string name, string value, will set a CProp on the intrinsicn weapon)]
     [AttackCprop           (...)]
 
+    // Intrinsic shield creation
+    Shield                 (int intrinsic shield armor, no shield will be created if missing)
+    [ShieldOnHitScript     (string script for intrinsic shield hit)]
+
     [FireDamage]            (int/(die-string value))]
     [ColdDamage]            (int/(die-string value))]
     [EnergyDamage]          (int/(die-string value))]
@@ -1702,6 +1706,7 @@ HookList
 
 [Wrestling                      (int objtype {default 0x1F020})]
 [Mount                          (int objtype {default 0x1F021})]
+[Shield                         (int objtype {default 0x1F022})]
 
 [Secure_Trade_Container         (int objtype {default 0x1FF01})]
 [Wornitems_Container            (int objtype {default 0x1FF02})]

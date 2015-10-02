@@ -43,6 +43,7 @@ namespace Pol {
 	class UWeapon;
     class Item;
 	class ItemDesc;
+	class Equipment;
   }
   namespace Accounts {
 	class Account;
@@ -105,7 +106,8 @@ namespace Pol {
 	typedef std::map<unsigned int, unsigned int> OldObjtypeConversions;
 	typedef std::map<std::string, u32, Clib::ci_cmp_pred> ObjtypeByNameMap;
 	typedef std::map<std::string, ResourceDef*> ResourceDefs;
-	typedef std::map<std::string, Items::UWeapon*> IntrinsicWeapons;
+	typedef std::pair<std::string /* name */, u8 /* layer */> NameAndLayer;
+	typedef std::map<NameAndLayer, Items::Equipment*> IntrinsicEquipments;
 	typedef std::map< u16 /* graphic */, Multi::BoatShape* > BoatShapes;
 	typedef std::map<UOExecutor*, ListenPoint*> ListenPoints;
 	typedef std::priority_queue< ScheduledTask*, std::vector<ScheduledTask*>, SchComparer > TaskQueue;
@@ -203,7 +205,7 @@ namespace Pol {
 
 	  ResourceDefs resourcedefs;
 
-	  IntrinsicWeapons intrinsic_weapons;
+	  IntrinsicEquipments intrinsic_equipments;
 
 	  BoatShapes boatshapes;
 
@@ -243,7 +245,7 @@ namespace Pol {
 	  void cleanup_scripts();
 	  void clear_listen_points();
 	  void unload_intrinsic_weapons();
-	  void unload_weapon_templates();
+	  void unload_intrinsic_templates();
 	  void unload_npc_templates();
 	};
 	extern GameState gamestate;

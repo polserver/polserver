@@ -1,4 +1,16 @@
 ﻿-- POL099 --
+10-02-2015 Bodom:
+  Added:   Intrinsic Shield support, works just like intrinsic weapons
+           New extobj.cfg entry "Shield" (defaults to 0x1F022)
+           New item must be defined in itemdesc.cfg
+           // Intrinsic Shield template - special pseudo Shield for NPCs
+           Armor 0x1F022
+           {
+               Name            intrinsicshield
+               Graphic         1
+               MaxHP           1
+               SaveOnExit      0
+           }
 09-30-2015 Bodom:
   Added:   MoveItemToContainer parameter add_to_existing_stack can now be 2 for "auto" behavior
            The function will try to add the item to an existing stack and just try move the
