@@ -253,6 +253,9 @@ namespace Pol {
         if ( elem.remove_prop( "ShieldOnHitScript", &tmp ) )
           shieldelem.add_prop( "OnHitScript", tmp.c_str() );
 
+        while ( elem.remove_prop("ShieldCProp", &tmp) )
+          shieldelem.add_prop( "CProp", tmp.c_str() );
+
         return create_intrinsic_shield( elem.rest(), shieldelem, pkg );
       }
       else

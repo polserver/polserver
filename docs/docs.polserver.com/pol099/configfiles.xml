@@ -1297,6 +1297,8 @@ NpcTemplate (string unique templatename)
     // Intrinsic shield creation
     Shield                 (int intrinsic shield armor, no shield will be created if missing)
     [ShieldOnHitScript     (string script for intrinsic shield hit)]
+    [ShieldCProp           (string name, string value, will set a CProp on the intrinsicn shield)]
+    [ShieldCprop           (...)]
 
     [FireDamage]            (int/(die-string value))]
     [ColdDamage]            (int/(die-string value))]
