@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-29-2015</datemodified>
+		<datemodified>10-06-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>10-06-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Fixed crash condition (stack overflow) when unequipping last armor<br/>
+piece weared by an NPC and then receiving an hit.</change>
+			<change type="Changed">Intrinsic armor now takes precedence over equipped armor (is was the<br/>
+opposite before). Anyway, using both of them could lead to unexpected<br/>
+behavior so it is not a good pratice.</change>
+		</entry>
 		<entry>
 			<date>09-29-2015</date>
 			<author>Bodom:</author>

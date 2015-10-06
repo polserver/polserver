@@ -1119,95 +1119,29 @@ namespace Pol {
 
 	void NPC::refresh_ar()
 	{
-	  // This is an npc, we need to check to see if any armor is being wore
-	  // otherwise we just reset this to the base values from their template.
-	  bool hasArmor = false;
-	  for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
+	  // Check if the NPC is using intrinsic armor. If yes, use it and set armor to 0
+	  // regardless of what is equipped. If not, just calculate like a PC.
+	  // TODO: intrinsic and equipped armor should sum, but many code will need to be
+	  //       modified for this to work.
+	  // NOTE: Keep in mind an armor could have just been destroyed when calling this
+	  //       and it could've been the last piece of armor equipped, so checking for
+	  //       an equipped armor will not be wise. Intrinsic armor is assumed to never
+	  //       change instead.
+	  if( npc_ar_ )
 	  {
-        Items::Item *item = wornitems.GetItemOnLayer( layer );
-		if ( item == NULL )
-		  continue;
-		for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-		{
-		  if ( item->isa( CLASS_ARMOR ) || item->calc_element_resist( (Core::ElementalType)element ) != 0 || item->calc_element_damage( (Core::ElementalType)element ) != 0 )
-		  {
-			hasArmor = true;
-			break;
-		  }
-		}
-	  }
-
-	  if ( !hasArmor )
-	  {
+		for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
+		  armor_[zone] = NULL;
 		ar_ = 0;
 		for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
 		{
-          reset_element_resist( (Core::ElementalType)element );
-          reset_element_damage( (Core::ElementalType)element );
-		}
-		return;
-	  }
-
-	  for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
-		armor_[zone] = NULL;
-	  // we need to reset each resist to 0, then add the base back using calc.
-	  for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-	  {
-        refresh_element( (Core::ElementalType)element );
-	  }
-
-	  for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
-	  {
-        Items::Item *item = wornitems.GetItemOnLayer( layer );
-		if ( item == NULL )
-		  continue;
-		// Let's check all items as base, and handle their element_resists.
-		for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-		{
-          update_element( (Core::ElementalType)element, item );
-		}
-		if ( item->isa( CLASS_ARMOR ) )
-		{
-          Items::UArmor* armor = static_cast<Items::UArmor*>( item );
-		  std::set<unsigned short> tmplzones = armor->tmplzones();
-		  std::set<unsigned short>::iterator itr;
-		  for ( itr = tmplzones.begin(); itr != tmplzones.end(); ++itr )
-		  {
-			if ( ( armor_[*itr] == NULL ) || ( armor->ar() > armor_[*itr]->ar() ) )
-			  armor_[*itr] = armor;
-		  }
+		  reset_element_resist( (Core::ElementalType)element );
+		  reset_element_damage( (Core::ElementalType)element );
 		}
 	  }
-
-	  double new_ar = 0.0;
-      for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size( ); ++zone )
-	  {
-		Items::UArmor* armor = armor_[zone];
-		if ( armor != NULL )
-		{
-          new_ar += armor->ar( ) * Core::gamestate.armorzones[zone].chance;
-		}
-	  }
-
-	  /* add AR due to shield : parry skill / 2 is percent of AR */
-	  // FIXME: Should we allow this to be adjustable via a prop? Hrmmmmm
-	  if ( shield != NULL )
-	  {
-		double add = 0.5 * 0.01 * shield->ar() * attribute( Core::gamestate.pAttrParry->attrid ).effective();
-		if ( add > 1.0 )
-		  new_ar += add;
-		else
-		  new_ar += 1.0;
-	  }
-
-	  new_ar += ar_mod();
-
-	  short s_new_ar = static_cast<short>( new_ar );
-	  if ( s_new_ar >= 0 )
-		ar_ = s_new_ar;
 	  else
-		ar_ = 0;
-
+	  {
+		base::refresh_ar();
+	  }
 	}
 
     void NPC::reset_element_resist( Core::ElementalType resist )

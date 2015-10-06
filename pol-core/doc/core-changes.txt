@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+10-06-2015 Bodom:
+  Fixed:   Fixed crash condition (stack overflow) when unequipping last armor
+           piece weared by an NPC and then receiving an hit.
+  Changed: Intrinsic armor now takes precedence over equipped armor (is was the
+           opposite before). Anyway, using both of them could lead to unexpected
+           behavior so it is not a good pratice.
 09-29-2015 Bodom:
   Fixed:   When HonorUnequipScriptOnDeath is on, item's unequip and unequiptest scripts
            were called twice on death and in the wrong order
