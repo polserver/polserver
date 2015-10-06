@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+10-06-2015 Bodom:
+  Fixed:   Fixed crash condition (stack overflow) when unequipping last armor
+           piece weared by an NPC and then receiving an hit.
+  Changed: Intrinsic armor now takes precedence over equipped armor (is was the
+           opposite before). Anyway, using both of them could lead to unexpected
+           behavior so it is not a good pratice.
 10-02-2015 Bodom:
   Added:   Intrinsic Shield support, works just like intrinsic weapons
            New extobj.cfg entry "Shield" (defaults to 0x1F022)
