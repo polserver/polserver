@@ -6,6 +6,11 @@
 	</header>
 	<version name="POL099">
 		<entry>
+			<date>10-07-2015</date>
+			<author>Bodom:</author>
+			<change type="Removed">&quot;house_serial&quot; CProp is no longer set by core for house components</change>
+		</entry>
+		<entry>
 			<date>10-06-2015</date>
 			<author>Bodom:</author>
 			<change type="Fixed">Fixed crash condition (stack overflow) when unequipping last armor<br/>

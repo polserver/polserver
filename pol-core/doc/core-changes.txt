@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+10-07-2015 Bodom:
+  Removed: "house_serial" CProp is no longer set by core for house components
 10-06-2015 Bodom:
   Fixed:   Fixed crash condition (stack overflow) when unequipping last armor
            piece weared by an NPC and then receiving an hit.

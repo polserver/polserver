@@ -123,7 +123,6 @@ namespace Pol {
 		  item->x = x + elem.x;
 		  item->y = y + elem.y;
 		  item->z = static_cast<s8>( z + elem.z );
-		  item->setprop( "house_serial", "i" + Clib::decint( serial ) );
 		  item->disable_decay();
 		  item->movable( false );
 		  item->realm = realm;
@@ -139,7 +138,6 @@ namespace Pol {
 	  item->x = static_cast<u16>(x + xoff);
 	  item->y = static_cast<u16>(y + yoff);
 	  item->z = static_cast<s8>( z + zoff );
-	  item->setprop( "house_serial", "i" + Clib::decint( serial ) );
 	  item->disable_decay();
 	  item->movable( false );
 	  item->realm = realm;
