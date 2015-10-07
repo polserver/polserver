@@ -2,13 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-06-2015</datemodified>
+		<datemodified>10-07-2015</datemodified>
 	</header>
 	<version name="POL099">
 		<entry>
 			<date>10-07-2015</date>
 			<author>Bodom:</author>
 			<change type="Removed">&quot;house_serial&quot; CProp is no longer set by core for house components</change>
+			<change type="Fixed">Exception when editing a custom house with components outside of the<br/>
+house</change>
 		</entry>
 		<entry>
 			<date>10-06-2015</date>
