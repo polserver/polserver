@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+10-18-2016 Bodom:
+  Fixed:   MoveItemToContainer could stack non-stackable items in some circumstances
 10-07-2015 Bodom:
   Removed: "house_serial" CProp is no longer set by core for house components
   Fixed:   Exception when editing a custom house with components outside of the

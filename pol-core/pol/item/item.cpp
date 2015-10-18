@@ -715,6 +715,7 @@ namespace Pol {
 	bool Item::can_add_to_self( const Item& item ) const //dave 1/26/03 totally changed this function to handle the cprop comparisons.
 	{
 	  bool res = ( ( item.objtype_ == objtype_ ) &&
+				   ( item.stackable() && stackable() ) &&
 				   ( item.newbie() == newbie() ) &&
 				   ( item.insured() == insured() ) &&
 				   ( item.graphic == graphic ) &&

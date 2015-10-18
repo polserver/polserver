@@ -401,6 +401,9 @@ namespace Pol {
 
 	Items::Item* UContainer::find_addable_stack( const Items::Item* adding_item ) const
 	{
+	  if( ! adding_item->stackable() )
+		return NULL;
+
 	  unsigned short maxamount = adding_item->itemdesc().stack_limit - adding_item->getamount();
 
 	  if ( maxamount > 0 )
