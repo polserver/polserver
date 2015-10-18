@@ -26,29 +26,32 @@
 <header>Class Hierarchy</header>
 <pre xml:space="preserve">
 
-            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>        <a href="#DataFileElement">DataFileElement</a>
+            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>      <a href="#DataFileElement">DataFileElement</a>
                |
-               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>           <a href="#Datastore">Datastore</a>
+               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datastore">Datastore</a>
      +---------+--------+
-     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>           <a href="#Datafile">Datafile</a>
+     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#Datafile">Datafile</a>
    <a href="#Character">Character</a>           <a href="#Item">Item</a>
-     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>    <a href="#BinaryFile">BinaryFile</a>
+     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#BinaryFile">BinaryFile</a>
     <a href="#NPC">NPC</a>                 |
-                        |                                        <a href="#Package">Package</a>
+                        |                                      <a href="#Package">Package</a>
      +------------------+--------------+-----------+
-     |                  |              |           |             <a href="#Struct">Struct</a>
+     |                  |              |           |           <a href="#Struct">Struct</a>
  <a href="#Equipment">Equipment</a>           <a href="#Lockable">Lockable</a>         <a href="#Map">Map</a>        <a href="#Multi">Multi</a>
-     |                  |                          |             <a href="#Array">Array</a>
+     |                  |                          |           <a href="#Array">Array</a>
  +---+----+        +----+--------+            +----+----+
- |        |        |             |            |         |        <a href="#Dictionary">Dictionary</a>
+ |        |        |             |            |         |      <a href="#Dictionary">Dictionary</a>
 <a href="#Armor">Armor</a>  <a href="#Weapon">Weapon</a>     <a href="#Door">Door</a>        <a href="#Container">Container</a>      <a href="#Boat">Boat</a>     <a href="#House">House</a>
-                                 |                               <a href="#String">String</a>
+                                 |                             <a href="#String">String</a>
                             +----+----+
-                            |         |                          <a href="#Error">Error</a>
+                            |         |                        <a href="#Error">Error</a>
                          <a href="#Spellbook">Spellbook</a>   <a href="#Corpse">Corpse</a>
+                                                               <a href="#StorageAreas">StorageAreas</a>
+
+                                                               <a href="#StorageAreas">StorageArea</a>
 </pre>
 
-<datemodified>08/31/2015</datemodified>
+<datemodified>10/18/2015</datemodified>
 </fileheader>
 
 
@@ -764,6 +767,21 @@ methods and properties in the Character and they will be removed in a future rel
 <member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield" />
 
 <method proto="compareversion(string Version)" returns="true/false" desc="true if Client Version >= given Versionstring" />
+</class>
+
+
+<class name="StorageAreas">
+<explain>Object representing a list of all storage areas.
+It is iterable: iterates over StorageArea objects.
+It supports the [] operator: its behavior is similar to FindStorageArea()</explain>
+<member mname="count" type="Integer" access="r/o" mdesc="Number of storage areas" />
+</class>
+
+
+<class name="StorageArea">
+<explain>Object representing a storage area.
+It is iterable: iterates over Item objects (root items in storage area).</explain>
+<member mname="count" type="Integer" access="r/o" mdesc="Number of root items in this storage area" />
 </class>
 
 
