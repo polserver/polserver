@@ -695,6 +695,9 @@ namespace Pol {
 
 	bool Item::can_add_to_self( unsigned short amount ) const
 	{
+	  if( ! stackable() )
+		return false;
+
 	  unsigned int amount1 = (unsigned int)amount_;
 	  unsigned int amount2 = (unsigned int)amount;
 
