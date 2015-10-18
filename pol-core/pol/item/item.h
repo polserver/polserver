@@ -134,8 +134,8 @@ namespace Pol {
 	  virtual UObject* toplevel_owner() POL_OVERRIDE;
 	  virtual const UObject* toplevel_owner() const POL_OVERRIDE;
 
-	  bool can_add_to_self( unsigned short amount ) const;
-	  bool can_add_to_self( const Item& item ) const;
+	  bool can_add_to_self( unsigned short amount, bool force_stacking ) const;
+	  bool can_add_to_self( const Item& item, bool force_stacking ) const;
 	  bool has_only_default_cprops( const ItemDesc* compare = NULL ) const;
 	  void add_to_self( Item*& item ); // deletes the item passed
 

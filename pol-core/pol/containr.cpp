@@ -410,7 +410,7 @@ namespace Pol {
 	  {
         for ( auto &item : contents_ )
 		{
-		  if ( item && item->can_add_to_self( *adding_item ) )
+		  if ( item && item->can_add_to_self( *adding_item, false ) )
 		  {
 			return item;
 		  }

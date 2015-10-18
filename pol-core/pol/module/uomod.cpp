@@ -351,7 +351,7 @@ namespace Pol {
 			   item->color == descriptor->color && //dave added 5/11/3, only add to existing stack if is default color
 			   item->has_only_default_cprops( descriptor ) &&	   //dave added 5/11/3, only add to existing stack if default cprops
 			   ( !item->inuse() || ( uoemod && uoemod->is_reserved_to_me( item ) ) ) &&
-			   item->can_add_to_self( amount ) )
+			   item->can_add_to_self( amount, force_stacking ) )
 		  {
 
 			//DAVE added this 11/17, call can/onInsert scripts for this container
@@ -1454,7 +1454,7 @@ namespace Pol {
 		{
 		  return new BError( "That item type is not stackable." );
 		}
-		if ( !item->can_add_to_self( amount ) )
+		if ( !item->can_add_to_self( amount, false ) )
 		{
 		  return new BError( "Can't add that much to that stack" );
 		}
@@ -5535,7 +5535,7 @@ namespace Pol {
 	  if ( !item1->stackable() )
 		return new BError( "That item type is not stackable." );
 
-	  if ( item1->can_add_to_self( *item2 ) )
+	  if ( item1->can_add_to_self( *item2, false ) )
 		return new BLong( 1 );
 	  else
 		return new BError( "Failed to stack" );

@@ -693,9 +693,9 @@ namespace Pol {
 	}
 #endif
 
-	bool Item::can_add_to_self( unsigned short amount ) const
+	bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
 	{
-	  if( ! stackable() )
+	  if( ! force_stacking && ! stackable() )
 		return false;
 
 	  unsigned int amount1 = (unsigned int)amount_;
@@ -715,16 +715,15 @@ namespace Pol {
 	  return true;
 	}
 
-	bool Item::can_add_to_self( const Item& item ) const //dave 1/26/03 totally changed this function to handle the cprop comparisons.
+	bool Item::can_add_to_self( const Item& item, bool force_stacking ) const //dave 1/26/03 totally changed this function to handle the cprop comparisons.
 	{
 	  bool res = ( ( item.objtype_ == objtype_ ) &&
-				   ( item.stackable() && stackable() ) &&
 				   ( item.newbie() == newbie() ) &&
 				   ( item.insured() == insured() ) &&
 				   ( item.graphic == graphic ) &&
 				   ( item.color == color ) &&
 				   ( !inuse() ) &&
-				   ( can_add_to_self( item.amount_ ) )
+				   ( can_add_to_self( item.amount_, force_stacking ) )
 				   );
 	  if ( res == true )
 	  {
