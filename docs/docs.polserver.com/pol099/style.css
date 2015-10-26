@@ -1,0 +1,985 @@
+/* @group Structure */
+
+body {
+	font: 12px/1.45em "Lucida Grande", Verdana, Arial, sans-serif;
+	background-color: #FFFFFF;
+}
+
+* {
+	padding:0;
+	margin:0;
+}
+
+.container {
+	width: 1140px;
+	margin: 0 auto;
+	visibility: visible;
+}
+
+.container:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+#row-table table, #row-table tr, #row-table td {
+	width: 100%;
+	border-collapse: collapse;
+	padding: 0px;
+	margin: 0px;
+	border-spacing: 0px;
+}
+
+/* @end */
+
+
+/* @group Header */
+
+#header {
+	width: 100%;
+	background: #055A95 url(images/header_bg.jpg) repeat-x center top;
+}
+
+#logo {
+	width: 440px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+}
+
+/* @end */
+
+/* @group Navigation */
+
+#navigation {
+	width: 700px;
+	height: 31px;
+	margin-left: -100px;
+	padding-top: 20px;
+	float: right;
+}
+
+#navigation ul {
+	margin: 0;
+	padding: 0;
+}
+
+#navigation ul li {
+	text-align: center;
+	text-transform: capitalize;
+	margin: 0;
+	padding: 0;
+	display: inline;
+	list-style-type: none;
+}
+
+#navigation ul li a:link, #navigation ul li a:visited {
+	color: #fff;
+	line-height: 16px;
+	text-decoration: none;
+	text-align: center;
+	background: #04416B repeat-x center top;
+	margin-left: 8px;
+	padding: 8px 13px 7px;
+	float: right;
+}
+
+#navigation ul li a:link.current, #navigation ul li a:visited.current {
+	color: #272a2d;
+	font-weight: bold;
+	text-decoration: none;
+	background: #fff repeat-x center top;
+}
+
+#navigation ul li a:hover {
+	color: #272a2d;
+	background: #fff repeat-x center top;
+}
+
+/* @end */
+
+
+/* @group Mini-Header */
+
+#mini-header {
+	background: #D4E2E7 url(images/miniheader_bg.jpg) repeat-x center top;
+	padding: 6px 0;
+}
+
+#mini-header a, #mini-header a:link, #mini-header a:visited {
+	color: #0167A9;
+	text-decoration: none;
+}
+
+#mini-header a:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+#mini-nav {
+	width: 600px;
+	padding-top: 3px;
+	float: left;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+#search-box {
+	width: 367px;
+	float: right;
+}
+
+#search-box #q {
+	height: 10px;
+	color: #323639;
+	font: 10px "Lucida Grande", Verdana, sans-serif;
+	width: 300px;
+	margin: 2px 67px 0px 0px;
+	padding: 1px;
+	border-top: 2px solid #8D9899;
+	border-right: 1px solid #A4B0B2;
+	border-bottom: 1px solid #A4B0B2;
+	border-left: 1px solid #A4B0B2;
+	float: left;
+}
+
+#opts {
+	float: left;
+	display: block;
+	margin: -10px 0px 0px 0px;
+	text-align: left;
+	vertical-align: bottom;
+	font: 10px "Lucida Grande", Verdana, sans-serif;
+}
+
+#search {
+	margin: -20px 0px -38px 0px;
+	float: right;
+	padding: 0;
+	display: block;
+}
+
+/* @end */
+
+
+/* @group Main */
+
+#main {
+	background-color: #FFFFFF;
+	padding: 10px 0;
+}
+
+#main a, #main a:link, #main a:visited {
+	color: #0167A9;
+	text-decoration: none;
+}
+
+#main a:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+.expander {
+	width: 16px;
+	height: 10px;
+	text-align: right;
+	vertical-align: middle;
+	font-size: 10px;
+	float: right;
+	padding-right: 2px;
+}
+
+.expander a, .expander a:link, .expander a:visited, .expander a:hover 
+{
+	color: #6FB2CB;
+	text-decoration: none;
+}
+
+.col_1 {
+	width: 321px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+	margin-right: 6px;
+}
+
+.col_2 {
+	width: 321px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+	margin-left: 3px;
+	margin-right: 3px;
+}
+
+.col_3 {
+	width: 321px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+	margin-left: 6px;
+}
+
+.col_12 {
+	width: 649px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+	margin-right: 3px;
+}
+
+.col_23 {
+	width: 649px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+	margin-left: 3px;
+}
+
+.col_123 {
+	width: 981px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.mainbox {
+	width: 639px;
+	background: #f5f9fb url(images/sectionheader_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 25px;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.mainbox-gold {
+	width: 639px;
+	background: #f8f7f2 url(images/sectionheader_gold_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 25px;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.mainbox h1, .mainbox-gold h1 {
+	color: #04416b;
+	font: 16px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	font-variant: small-caps;
+	text-decoration: underline;
+	text-align: left;
+	line-height: 20px;
+	padding-left: 25px;
+	padding-bottom: 3px;
+}
+
+.mainbox h2, .mainbox-gold h2 {
+	color: #04416b;
+	vertical-align: top;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	padding: 0px;
+}
+
+.smallbox {
+	width: 311px;
+	background: #f5f9fb url(images/sectionheader_small_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 15px;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.smallbox-gold {
+	width: 311px;
+	background: #f8f7f2 url(images/sectionheader_small_gold_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 15px;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.smallbox h1, .smallbox-gold h1 {
+	color: #04416b;
+	font: 14px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	font-variant: small-caps;
+	text-align: center;
+	text-decoration: underline;
+	line-height: 20px;
+	padding-bottom: 3px;
+}
+
+.smallbox h2, .smallbox-gold h2 {
+	color: #04416b;
+	vertical-align: top;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	padding: 0px;
+}
+
+.smallbox table, .smallbox-gold table {
+	vertical-align: top;
+	padding: 0px;
+	margin: 0px;
+	
+	border-collapse: separate;
+	border-spacing: 2px;
+	border-style: none;
+	border-width: 0px;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.smallbox td, .smallbox-gold td {
+	vertical-align: top;
+	padding: 0;
+	margin: 0;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.smallbox ul, .smallbox-gold ul {
+	margin: 0;
+	padding: 0;
+}
+
+.smallbox ul li, .smallbox-gold ul li {
+	text-align: left;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.smallbox ul li a:link, .smallbox ul li a:visited, .smallbox-gold ul li a:link, .smallbox-gold ul li a:visited {
+	color: #fff;
+	text-decoration: underline;
+	text-align: left;
+}
+
+.smallbox ul li a:link.current, .smallbox ul li a:visited.current, .smallbox-gold ul li a:link.current, .smallbox-gold ul li a:visited.current {
+	color: #272a2d;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.smallbox ul li a:hover, .smallbox-gold ul li a:hover {
+	color: #272a2d;
+}
+
+.mainbox ul, .mainbox-gold ul {
+	margin: 0px 0px 0px 15px;
+	padding: 0;
+	font: 11px/1.6em "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.mainbox ul li, .mainbox-gold ul li {
+	text-align: left;
+	margin: 0px 0px 0px 15px;
+	padding: 0;
+	list-style-type: circle;
+	line-height: 1.4em;
+}
+
+.mainbox ul li a:link, .mainbox ul li a:visited, .mainbox-gold ul li a:link, .mainbox-gold ul li a:visited {
+	color: #fff;
+	text-decoration: underline;
+	text-align: left;
+}
+
+.mainbox ul li a:link.current, .mainbox ul li a:visited.current, .mainbox-gold ul li a:link.current, .mainbox-gold ul li a:visited.current {
+	color: #272a2d;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.mainbox ul li a:hover, .mainbox-gold ul li a:hover {
+	color: #272a2d;
+}
+
+.shardimg {
+	float: left;
+	width: 88px;
+	height: 44px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+}
+
+/* @end */
+
+
+/* @group Footer */
+
+#footer {
+	width: 100%;
+	color: #fff;
+	background-color: #055A95;
+	text-align: center;
+	vertical-align: middle;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	margin: 0px;
+}
+
+#footer a {
+	color: #55abd2;
+	text-decoration: underline;
+}
+
+#footer a:hover {
+	color: #e0dfc9;
+	text-decoration: underline;
+}
+
+/* @end */
+
+
+/* @group Global Styles */
+
+img {
+	border: none;
+}
+
+table {
+	text-align: left;
+}
+
+.clear {
+	clear: both;
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+/* @end */
+
+
+/* Search Results */
+
+#searchresults #q {
+	color: #323639;
+	font: 13px "Lucida Grande", Verdana, sans-serif;
+	width: 300px;
+	margin-right: 5px;
+	padding: 1px;
+	border-top: 2px solid #99988d;
+	border-right: 1px solid #b2b0a4;
+	border-bottom: 1px solid #b2b0a4;
+	border-left: 1px solid #b2b0a4;
+}
+
+#searchresults {
+	margin: 0 !important;
+	padding-top: 5px;
+}
+
+#searchresults h3, #searchresults h3 a:link, #searchresults h3 a:visited, #searchresults h3 a:hover {
+	color: #55abd2;
+	font-size: 12px;
+	margin: 15px 0 2px !important;
+	font-weight: bold;
+}
+
+#searchresults h3 a:link, #searchresults h3 a:visited {
+	text-decoration: underline;
+}
+
+#searchresults h3 a:hover {
+	color: #9c0002;
+	text-decoration: underline;
+}
+
+.highlight {
+	color: #c1191c;
+}
+
+.result-image img {
+	width: 0px;
+	height: 0px;
+	visibility: hidden;
+}
+
+#searchresults ol {
+	padding-top: 10px;
+}
+
+#searchresults li {
+	margin: 0 0 15px !important;
+	border-top: 1px solid #e1ddc8;
+	list-style-position: inside;
+}
+
+/* @end */
+
+
+/* Group Misc Pages */
+
+
+.shard_form .inputfield {
+	color: #323639;
+	font: 10px "Lucida Grande", Verdana, sans-serif;
+	width: 300px;
+	margin: 0;
+	border-top: 2px solid #8D9899;
+	border-right: 1px solid #A4B0B2;
+	border-bottom: 1px solid #A4B0B2;
+	border-left: 1px solid #A4B0B2;
+	float: left;
+}
+
+/* @end */
+
+/* Doc Pages */
+
+pre {
+  white-space: pre-wrap; /* css-3 */
+  white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  width: 99%; 
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+  -ms-word-wrap: break-word;
+  display: inline;
+  _white-space: pre; /* IE only hack to re-specify */
+}
+
+.changelog {
+  font-size: 12px;
+}
+
+.changelog-type {
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+	vertical-align: middle;
+}
+
+.doc-table {
+  margin:0px auto 0px auto;
+  border-right: 0px none !important;
+  border-left: 0px none !important;
+  table-layout: fixed;
+}
+
+.doc-table tbody tr td {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.doc-col_2 {
+	width: 280px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+	margin-right: 3px;
+}
+
+.doc-col_23 {
+	width: 690px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	float: left;
+	margin-left: 8px;
+}
+
+.doc-col_1 {
+	width: 485px;
+	padding-top: 0px;
+	padding-bottom: 5px;
+	float: left;
+	margin-right: 6px;
+}
+
+.doc-col_12 {
+	width: 485px;
+	padding-top: 0px;
+	padding-bottom: 5px;
+	float: left;
+	margin-left: 3px;
+}
+
+#doc-table-dark {
+  background-color: #f4edc3;
+}
+
+#doc-table-med {
+  background-color: #f4eeca;
+}
+
+#doc-table-light {
+  background-color: #f5f1d8;
+}
+
+#doc-mini-header {
+	background: #D4E2E7 url(images/miniheader_bg.jpg) repeat-x center top;
+	padding: 6px 6px 6px 6px;
+	margin: 0px 0px 5px 0px;
+}
+
+#doc-mini-header a, #doc-mini-header a:link, #doc-mini-header a:visited {
+	color: #0167A9;
+	text-decoration: none;
+}
+
+#doc-mini-header a:hover {
+	color: #000000;
+	text-decoration: none;
+	
+}
+
+#doc-mini-header h1 {
+	color: #04416b;
+	vertical-align: top;
+	text-align: center;
+	font: 14px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	padding: 0px;
+}
+
+#doc-mini-header h2 {
+	color: #04416b;
+	vertical-align: top;
+	font: 14px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	padding: 0px;
+}
+
+#doc-mini-header b {
+	color: #04416b;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+}
+
+#doc-mini-header ul {
+  margin: 10px 0px 10px 20px;
+	padding: 0;
+}
+
+#doc-mini-header ul li{
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 10px;
+	list-style-type: circle;
+}
+
+
+.doc-mainbox {
+	width: 971px;
+	background: #f5f9fb url(images/sectionheader_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 0px;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-mainbox-gold {
+	width: 680px;
+	background: #f8f7f2 url(images/sectionheader_gold_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 10px;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-mainbox-small {
+	width: 475px;
+	background: #f5f9fb url(images/sectionheader_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 0px;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-mainbox-big-gold {
+	width: 971px;
+	background: #f8f7f2 url(images/sectionheader_gold_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 5px;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-mainbox h1, .doc-mainbox-gold h1, .doc-mainbox-big-gold h1, .doc-mainbox-small h1 {
+	color: #04416b;
+	font: 16px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	font-variant: small-caps;
+	text-decoration: underline;
+	text-align: left;
+	line-height: 20px;
+	padding-left: 25px;
+	padding-bottom: 3px;
+}
+
+.doc-mainbox h2, .doc-mainbox-gold h2, .doc-mainbox-big-gold h2, .doc-mainbox-small h2 {
+	color: #04416b;
+	vertical-align: top;
+	font: 12px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	padding: 0px;
+}
+
+.doc-mainbox ul, .doc-mainbox-gold ul, .doc-mainbox-big-gold ul, .doc-mainbox-small ul{
+	margin: 0px 0px 0px 15px;
+	padding: 0;
+	font: 11px/1.6em "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-mainbox ol, .doc-mainbox-gold ol, .doc-mainbox-big-gold ol, .doc-mainbox-small ol{
+	margin: 0px 0px 0px 15px;
+	padding: 0;
+	font: 11px/1.6em "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-mainbox ul li, .doc-mainbox-gold ul li, .doc-mainbox-big-gold ul li, .doc-mainbox-small ul li {
+	text-align: left;
+	margin: 0px 0px 0px 15px;
+	padding: 0;
+	list-style-type: circle;
+	line-height: 1.4em;
+}
+
+.doc-mainbox ol li, .doc-mainbox-gold ol li, .doc-mainbox-big-gold ol li, .doc-mainbox-small ol li {
+	text-align: left;
+	margin: 0px 0px 0px 15px;
+	padding: 0;
+	line-height: 1.4em;
+}
+
+.doc-mainbox ul li a:link, .doc-mainbox ul li a:visited, .doc-mainbox-gold ul li a:link, .doc-mainbox-gold ul li a:visited, .doc-mainbox-big-gold ul li a:link, .doc-mainbox-big-gold ul li a:visited, .doc-mainbox-small ul li a:link, .doc-mainbox-small ul li a:visited {
+	color: #fff;
+	text-decoration: underline;
+	text-align: left;
+}
+
+.doc-mainbox ul li a:link.current, .doc-mainbox ul li a:visited.current, .doc-mainbox-gold ul li a:link.current, .doc-mainbox-gold ul li a:visited.current, .doc-mainbox-big-gold ul li a:link.current, .doc-mainbox-big-gold ul li a:visited.current, .doc-mainbox-small ul li a:link.current, .doc-mainbox-small ul li a:visited.current {
+	color: #272a2d;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.doc-mainbox ul li a:hover, .doc-mainbox-gold ul li a:hover, .doc-mainbox-big-gold ul li a:hover, .doc-mainbox-small ul li a:hover{
+	color: #272a2d;
+}
+
+.doc-smallbox {
+	width: 270px;
+	background: #f5f9fb url(images/sectionheader_small_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 15px;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-smallbox-gold {
+	width: 270px;
+	background: #f8f7f2 url(images/sectionheader_small_gold_bg.jpg) no-repeat left top;
+	padding: 2px 5px 5px 5px;
+	margin-bottom: 15px;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-smallbox h1, .doc-smallbox-gold h1 {
+	color: #04416b;
+	font: 14px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	font-variant: small-caps;
+	text-align: center;
+	text-decoration: underline;
+	line-height: 20px;
+	padding-bottom: 3px;
+}
+
+.doc-smallbox h2, .doc-smallbox-gold h2 {
+	color: #04416b;
+	vertical-align: top;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+	font-weight: 900;
+	padding: 0px;
+}
+
+.doc-smallbox table, .doc-smallbox-gold table {
+	vertical-align: top;
+	padding: 0px;
+	margin: 0px;
+	
+	border-collapse: separate;
+	border-spacing: 2px;
+	border-style: none;
+	border-width: 0px;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-smallbox td, .doc-smallbox-gold td {
+	vertical-align: top;
+	padding: 0;
+	margin: 0;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+.doc-smallbox ul, .doc-smallbox-gold ul {
+	margin: 0;
+	padding: 0;
+}
+
+.doc-smallbox ul li, .doc-smallbox-gold ul li {
+	text-align: left;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.doc-smallbox ul li a:link, .doc-smallbox ul li a:visited, .doc-smallbox-gold ul li a:link, .doc-smallbox-gold ul li a:visited {
+	color: #fff;
+	text-decoration: underline;
+	text-align: left;
+}
+
+.doc-smallbox ul li a:link.current, .doc-smallbox ul li a:visited.current, .doc-smallbox-gold ul li a:link.current, .doc-smallbox-gold ul li a:visited.current {
+	color: #272a2d;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.doc-smallbox ul li a:hover, .doc-smallbox-gold ul li a:hover {
+	color: #272a2d;
+}
+
+.doc-anchor {
+	width: 14px;
+	height: 10px;
+	text-align: left;
+	vertical-align: middle;
+	font-size: 9px;
+	float: right;
+}
+
+.doc-anchor a, .doc-anchor a:link, .doc-anchor a:visited, .doc-anchor a:hover 
+{
+	color: #6FB2CB;
+	text-decoration: none;
+}
+
+.doc-home {
+	width: 30px;
+	height: 10px;
+	text-align: left;
+	vertical-align: middle;
+	font-size: 9px;
+	float: right;
+}
+
+.doc-home a:link, .doc-home a:visited {
+	color: #fff;
+	text-decoration: underline;
+	text-align: left;
+}
+
+.doc-home a:link.current, .doc-home a:visited.current {
+	color: #272a2d;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.doc-home a:hover, .doc-home a:hover {
+	color: #272a2d;
+}
+
+.doc-guide-pre {
+  border: 1px #444444 solid; 
+  background-color: #EEEEEE; 
+  margin: 0.5cm; 
+  padding: 5px;
+}
+
+.doc-changelog-table {
+  margin:0px auto 15px auto;
+  border-right: 0px none !important;
+  border-left: 0px none !important;
+  table-layout: fixed;
+}
+
+.doc-changelog-table tbody tr td {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+#packet-info {
+  width: 100%;
+  font-size: 10px;
+}
+
+#packet-info hr {
+  width: 100%;
+  height: 2px; 
+  color: grey; 
+  background-color: grey; 
+  border: none;
+}
+
+#packet-info ul {
+	margin: 0px 0px 0px 15px;
+	padding: 0;
+	font: 10px "Lucida Grande", Verdana, Arial, sans-serif;
+}
+
+#packet-info ul li {
+  text-align: left;
+	margin: 0;
+	padding: 0;
+	list-style-type: circle;
+	line-height: 1.4em;
+}
+
+#main .pktBoth:link, #main .pktBoth:active, #main .pktBoth:visited {
+	color: #D68F00;
+	text-decoration: none;
+}
+
+#main .pktBoth:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+#main .pktServer:link, #main .pktServer:active, #main .pktServer:visited {
+	color: #01A743;
+	text-decoration: none;
+}
+
+#main .pktServer:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+#main .pktClient:link, #main .pktClient:active, #main .pktClient:visited {
+	color: #0167A9;
+	text-decoration: none;
+}
+
+#main .pktClient:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+#main .pktUnknown:link, #main .pktUnknown:active, #main .pktUnknown:visited {
+	color: #D62400;
+	text-decoration: none;
+}
+
+#main .pktUnknown:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+#main .pktBothMaybe:link, #main .pktBothMaybe:active, #main .pktBothMaybe:visited {
+	color: #FFB114;
+	text-decoration: none;
+}
+
+#main .pktBothMaybe:hover {
+	color: #000000;
+	text-decoration: none;
+}
+
+.treenodeopen ul li, .treenode ul li {
+  padding-left: 10px; 
+}
+
+
+/* @end */
+
+/* End of Stylesheet */
