@@ -10,10 +10,10 @@
 
     $xsltproc = new XsltProcessor();
     $xsl = new DomDocument;
-    $xsl->load($webroot.'front_em.xslt');
+    $xsl->load('front_em.xslt');
     $xsltproc->importStylesheet($xsl);
     $xml_doc = new DomDocument;
-    $xml_doc->load($webroot.'modules.xml');
+    $xml_doc->load('modules.xml');
     $xsltproc->setParameter('', 'offline', $offline);
     
     if ($html = $xsltproc->transformToXML($xml_doc)) {

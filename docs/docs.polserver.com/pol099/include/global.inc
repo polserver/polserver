@@ -1,7 +1,6 @@
 <?php
 
-$webroot = '/home/polteam/docs.polserver.com/pol099/';
-$header = '/home/polteam/include/_header.php';
+//$header = '/home/polteam/include/_header.php';
 $offline = 0;
 set_error_handler('XML_errorHandler');
 
@@ -12,13 +11,13 @@ if (function_exists('date_default_timezone_set'))
 }
 
 
-function XML_errorHandler ($errno, $errstr, $errfile, $errline,$errcontext)
+function XML_errorHandler ($errno, $errstr, $errfile, $errline, $errcontext)
 {
   global $offline;
   if ($offline) {
-    ob_end_clean();
+    @ob_end_clean();
   }
-  die(sprintf("%s %s %s %s", $errstr, $errfile, $errline,$errcontext));
+  die("ERROR $errno in \"$errfile\" at line $errline: \"$errstr\"\n");
 }
 
 function siteheader($title)

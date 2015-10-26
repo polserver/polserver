@@ -21,10 +21,10 @@
   
   $xsltproc = new XsltProcessor();
   $xsl = new DomDocument;
-  $xsl->load($webroot.'escript.xslt');
+  $xsl->load('escript.xslt');
   $xsltproc->importStylesheet($xsl);
   $xml_doc = new DomDocument;
-  $xml_doc->load($webroot.$xmlfile.'.xml');
+  $xml_doc->load($xmlfile.'.xml');
   $xsltproc->setParameter('', 'offline', $offline);
   $xsltproc->setParameter('', 'xmlfile', $xmlfile);
   

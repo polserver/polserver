@@ -12,10 +12,10 @@
   
   $xsltproc = new XsltProcessor();
   $xsl = new DomDocument;
-  $xsl->load($webroot.'scripttypes.xslt');
+  $xsl->load('scripttypes.xslt');
   $xsltproc->importStylesheet($xsl);
   $xml_doc = new DomDocument;
-  $xml_doc->load($webroot.'scripttypes.xml');
+  $xml_doc->load('scripttypes.xml');
   $xsltproc->setParameter('', 'offline', $offline);
   
   if ($html = $xsltproc->transformToXML($xml_doc)) {

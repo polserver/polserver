@@ -13,10 +13,10 @@
     
     $xsltproc = new XsltProcessor();
     $xsl = new DomDocument;
-    $xsl->load($webroot.'attack.xslt');
+    $xsl->load('attack.xslt');
     $xsltproc->importStylesheet($xsl);
     $xml_doc = new DomDocument;
-    $xml_doc->load($webroot.'attack.xml');
+    $xml_doc->load('attack.xml');
     $xsltproc->setParameter('', 'offline', $offline);
 	  
 	  if ($html = $xsltproc->transformToXML($xml_doc)) {

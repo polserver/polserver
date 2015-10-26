@@ -5,9 +5,9 @@ function ob_file_callback($buffer)
   fwrite($ob_file,$buffer);
 }
 
-    include_once("/home/polteam/include/CreateZipFile.inc");
+    //include_once("/home/polteam/include/CreateZipFile.inc");
     include( "include/global.inc" );
-    
+
     $offline = 1;
     if (!is_dir('offline')) {
       mkdir('offline');
@@ -22,7 +22,7 @@ function ob_file_callback($buffer)
       }
       closedir($dh);
     }
-    
+
     $ob_file = fopen('offline/index.html','w');
 
     ob_start('ob_file_callback');
@@ -33,12 +33,12 @@ function ob_file_callback($buffer)
     
     $xsltproc = new XsltProcessor();
     $xsl = new DomDocument;
-    $xsl->load($webroot.'front_em.xslt');
+    $xsl->load('front_em.xslt');
     $xsltproc->importStylesheet($xsl);
     $xml_doc = new DomDocument;
-    $xml_doc->load($webroot.'modules.xml');
+    $xml_doc->load('modules.xml');
     $xsltproc->setParameter('', 'offline', $offline);
-    
+
     if ($html = $xsltproc->transformToXML($xml_doc)) {
        echo $html;
     }
@@ -77,26 +77,26 @@ function ob_file_callback($buffer)
    /* add the footer */
    sitefooter($offline);
    ob_end_flush();
-   
+
    /* generate Core Documentation */
    $files = array("objref","configfiles","scripttypes","events","builtintextcmds","privileges","attack");
    foreach ($files as $f)
    {
      $ob_file = fopen('offline/'.$f.'.html','w');
-   
+
      ob_start('ob_file_callback');
      include $f.'.php';
      ob_end_flush();
    }
-   
+
    /* generate em Modules */
    $xsltproc = new XsltProcessor();
    $xsl = new DomDocument;
-   $xsl->load($webroot.'/escript.xslt');
+   $xsl->load('escript.xslt');
    $xsltproc->importStylesheet($xsl);
    $xsltproc->setParameter('', 'offline', $offline);
-   
-   $xml = simplexml_load_file($webroot.'/modules.xml');
+
+   $xml = simplexml_load_file('modules.xml');
    foreach ($xml as $em)
    {
       $name=(string)$em['name'];
@@ -105,8 +105,8 @@ function ob_file_callback($buffer)
       ob_start('ob_file_callback');
       siteheader('POL Scripting Reference '.$nicename.'.em');
       $xml_doc = new DomDocument;
-      $xml_doc->load($webroot.'/'.$name.'.xml');
-     
+      $xml_doc->load($name.'.xml');
+
 	    if ($html = $xsltproc->transformToXML($xml_doc)) {
         echo $html;
       }
@@ -122,7 +122,7 @@ function ob_file_callback($buffer)
    {
      $type=$f;
      $ob_file = fopen('offline/'.$f.'.html','w');
-   
+
      ob_start('ob_file_callback');
      include 'guides.php';
      ob_end_flush();
@@ -132,11 +132,10 @@ function ob_file_callback($buffer)
    include 'corechanges.php';
    ob_end_flush();
 
-   
+
    /* copy files */
-   $styledir ='/home/.orlo/polteam/polserver.com/';
-   copy($styledir.'style.css','offline/style.css');
-   copy('picture_gump_finish_1.jpg','offline/picture_gump_finish_1.jpg');
+   copy('style.css','offline/style.css');
+   //copy('picture_gump_finish_1.jpg','offline/picture_gump_finish_1.jpg');
    if (!is_dir('offline/images')) {
      mkdir('offline/images');
    }
@@ -150,54 +149,46 @@ function ob_file_callback($buffer)
        closedir($dh);
      }
    }
-   copy($styledir.'images/miniheader_bg.jpg','offline/images/miniheader_bg.jpg');
-   copy($styledir.'images/sectionheader_bg.jpg','offline/images/sectionheader_bg.jpg');
-   copy($styledir.'images/sectionheader_gold_bg.jpg','offline/images/sectionheader_gold_bg.jpg');
-   copy($styledir.'images/sectionheader_small_bg.jpg','offline/images/sectionheader_small_bg.jpg');
-   copy($styledir.'images/sectionheader_small_gold_bg.jpg','offline/images/sectionheader_small_gold_bg.jpg');
-   
+   copy('images/miniheader_bg.jpg','offline/images/miniheader_bg.jpg');
+   copy('images/sectionheader_bg.jpg','offline/images/sectionheader_bg.jpg');
+   copy('images/sectionheader_gold_bg.jpg','offline/images/sectionheader_gold_bg.jpg');
+   copy('images/sectionheader_small_bg.jpg','offline/images/sectionheader_small_bg.jpg');
+   copy('images/sectionheader_small_gold_bg.jpg','offline/images/sectionheader_small_gold_bg.jpg');
+
    /* Save archivetime */
-   //date_default_timezone_set('America/Los_Angeles');
-   $ob_file = fopen('include/archive.inc','w');
-   ob_start('ob_file_callback');
+   date_default_timezone_set('America/Los_Angeles');
    $d=date('Y-m-d');
-   echo ("<?php\n");
-   echo ('$archivetime="'.$d.'";');   
-   echo ("\n?>");
-   ob_end_flush();
 
    /* Zip the offline doc */   
    if (!is_dir('archives')) {
      mkdir('archives');
      copy('include/index.html','archives/index.html');
    }
-   $zip = new createZip;
-   $zip -> addDirectory("images/");
-   
-   if ($dh = opendir('offline')) {
-     while (($file = readdir($dh)) !== false) {
-       if(is_file('offline/'. $file)) {
-         $fileContents = file_get_contents('offline/'.$file);  
-         $zip -> addFile($fileContents, $file);  
+
+   class POLZip extends ZipArchive {
+     public function addDirRecursive($dirname, $base=null) {
+       if( $base )
+         if( ! $this->addEmptyDir($base) )
+           throw new Exception("ERROR while adding \"$base\" to zip archive");
+
+       foreach( scandir($dirname) as $file ) {
+         $relpath = $base ? "$base/$file" : $file;
+
+         if( $file == '.' || $file == '..' )
+           continue;
+         elseif( is_file("$dirname/$file") ) {
+           echo "Compressing $file...\n";
+           if( ! $this->addFile("$dirname/$file", $relpath) )
+             throw new Exception("ERROR while adding \"$dirname/$file\" to zip archive");
+         } elseif( is_dir($file) )
+           $this->addDirRecursive($file, $relpath);
        }
      }
-     closedir($dh);
    }
-   if ($dh = opendir('offline/images')) {
-     while (($file = readdir($dh)) !== false) {
-       if(is_file('offline/images/'. $file)) {
-         $fileContents = file_get_contents('offline/images/'.$file);  
-         $zip -> addFile($fileContents, 'images/'.$file);  
-       }
-     }
-     closedir($dh);
-   }
-   $fileName = 'archives/pol-docs-099-'.$d.'.zip';
-   $fd = fopen ($fileName, "wb");
-   $out = fwrite ($fd, $zip -> getZippedfile());
-   fclose ($fd);
 
-   echo "Finished";
-?>
+   $zip = new POLZip();
+   $zip->open("archives/pol-docs-099-$d.zip", ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+   $zip->addDirRecursive('offline');
+   $zip->close();
 
-
+   echo "Finished\n";

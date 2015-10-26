@@ -22,10 +22,10 @@
     }
     $xsltproc = new XsltProcessor();
     $xsl = new DomDocument;
-    $xsl->load($webroot.'singlefunc.xslt');
+    $xsl->load('singlefunc.xslt');
     $xsltproc->importStylesheet($xsl);
     $xml_doc = new DomDocument;
-    $xml_doc->load($webroot.$xmlfile);
+    $xml_doc->load($xmlfile);
     $xsltproc->setParameter('', 'funcname', $funcname);
     $xsltproc->setParameter('', 'xmlfile', $xmlfile);
     

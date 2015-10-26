@@ -12,10 +12,10 @@
   
   $xsltproc = new XsltProcessor();
   $xsl = new DomDocument;
-  $xsl->load($webroot.'privileges.xslt');
+  $xsl->load('privileges.xslt');
   $xsltproc->importStylesheet($xsl);
   $xml_doc = new DomDocument;
-  $xml_doc->load($webroot.'privileges.xml');
+  $xml_doc->load('privileges.xml');
   $xsltproc->setParameter('', 'offline', $offline);
   
   if ($html = $xsltproc->transformToXML($xml_doc)) {

@@ -12,10 +12,10 @@
   
   $xsltproc = new XsltProcessor();
   $xsl = new DomDocument;
-  $xsl->load($webroot.'corechanges.xslt');
+  $xsl->load('corechanges.xslt');
   $xsltproc->importStylesheet($xsl);
   $xml_doc = new DomDocument;
-  $xml_doc->load($webroot.'corechanges.xml');
+  $xml_doc->load('corechanges.xml');
   $xsltproc->setParameter('', 'offline', $offline);
   
   if ($html = $xsltproc->transformToXML($xml_doc)) {

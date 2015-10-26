@@ -12,10 +12,10 @@
   }
   $xsltproc = new XsltProcessor();
   $xsl = new DomDocument;
-  $xsl->load($webroot.'builtintextcmds.xslt');
+  $xsl->load('builtintextcmds.xslt');
   $xsltproc->importStylesheet($xsl);
   $xml_doc = new DomDocument;
-  $xml_doc->load($webroot.'builtintextcmds.xml');
+  $xml_doc->load('builtintextcmds.xml');
   $xsltproc->setParameter('', 'offline', $offline);
   
   if ($html = $xsltproc->transformToXML($xml_doc)) {
