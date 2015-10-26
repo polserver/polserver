@@ -91,10 +91,10 @@
 											</th>
 										</tr>
 										<xsl:if test="parameter">
-											<tr id="doc-table-dark">
+											<tr class="doc-table-dark">
 												<th align="left" colspan="2">Parameters:</th>
 											</tr>
-											<tr id="doc-table-med">
+											<tr class="doc-table-med">
 												<td>Name</td>
 												<td>Type</td>
 											</tr>
@@ -111,7 +111,7 @@
 												</tr>
 											</xsl:for-each>
 										</xsl:if>
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Explanation</th>
 										</tr>
 										<xsl:for-each select="(explain | explain/code)">
@@ -130,7 +130,7 @@
 												</td>
 											</tr>
 										</xsl:for-each>
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Return values</th>
 										</tr>
 										<xsl:for-each select="return">
@@ -141,7 +141,7 @@
 											</tr>
 										</xsl:for-each>
 										<xsl:if test="error">
-											<tr id="doc-table-dark">
+											<tr class="doc-table-dark">
 												<th align="left" colspan="2">Errors</th>
 											</tr>
 											<xsl:for-each select="error">
@@ -153,7 +153,7 @@
 											</xsl:for-each>
 										</xsl:if>
 										<xsl:if test="related">
-											<tr id="doc-table-dark">
+											<tr class="doc-table-dark">
 												<th align="left" colspan="2">Related</th>
 											</tr>
 											<xsl:for-each select="related">
@@ -169,7 +169,7 @@
 											</xsl:for-each>
 										</xsl:if>
 										<xsl:if test="relatedcfg">
-											<tr id="doc-table-dark">
+											<tr class="doc-table-dark">
 												<th align="left" colspan="2">Related Configs</th>
 											</tr>
 											<xsl:for-each select="relatedcfg">

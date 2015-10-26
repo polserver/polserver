@@ -69,7 +69,7 @@
 								</tbody>
 								<xsl:if test="explain">
 									<tbody>
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Explanation</th>
 										</tr>
 									</tbody>
@@ -84,7 +84,7 @@
 									</tbody>
 								</xsl:if>
 								<tbody>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left">ID#:</th>
 										<td align="left">
 											<xsl:value-of select="ID"/>
@@ -93,12 +93,12 @@
 								</tbody>
 								<xsl:if test="member">
 									<tbody>
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Struct Members:</th>
 										</tr>
 									</tbody>
 									<tbody>
-										<tr id="doc-table-med">
+										<tr class="doc-table-med">
 											<td>Name</td>
 											<td>Type</td>
 										</tr>
@@ -120,7 +120,7 @@
 								</xsl:if>
 								<xsl:if test="whensent">
 									<tbody>
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">When sent:</th>
 										</tr>
 									</tbody>
@@ -134,7 +134,7 @@
 								</xsl:if>
 								<xsl:if test="ranged">
 									<tbody>
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Ranged?</th>
 										</tr>
 									</tbody>

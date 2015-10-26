@@ -70,7 +70,7 @@
 										</th>
 									</tr>
 									<xsl:if test="parameter">
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Parameters:</th>
 										</tr>
 										<tr>
@@ -90,7 +90,7 @@
 											</tr>
 										</xsl:for-each>
 									</xsl:if>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">Return values</th>
 									</tr>
 									<xsl:for-each select="return">
@@ -100,7 +100,7 @@
 											</td>
 										</tr>
 									</xsl:for-each>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">Scheduler Type</th>
 									</tr>
 									<tr>
@@ -108,7 +108,7 @@
 											<xsl:value-of select="schedtype"/>
 										</td>
 									</tr>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">Default Priority</th>
 									</tr>
 									<tr>
@@ -116,7 +116,7 @@
 											<xsl:value-of select="def_prio"/>
 										</td>
 									</tr>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">When Is It Called?</th>
 									</tr>
 									<tr>
@@ -124,7 +124,7 @@
 											<xsl:value-of select="whencalled"/>
 										</td>
 									</tr>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">Where Does It Live?</th>
 									</tr>
 									<tr>
@@ -132,7 +132,7 @@
 											<xsl:value-of select="wherelives"/>
 										</td>
 									</tr>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">To Define</th>
 									</tr>
 									<tr>
@@ -140,7 +140,7 @@
 											<xsl:value-of select="todefine"/>
 										</td>
 									</tr>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">Explanation</th>
 									</tr>
 									<xsl:for-each select="(explain | explain/code)">
@@ -159,7 +159,7 @@
 											</td>
 										</tr>
 									</xsl:for-each>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="2">Examples</th>
 									</tr>
 									<xsl:for-each select="example">
@@ -172,7 +172,7 @@
 										</tr>
 									</xsl:for-each>
 									<xsl:if test="relatedobj">
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Related Objects</th>
 										</tr>
 										<xsl:for-each select="relatedobj">
@@ -196,7 +196,7 @@
 										</xsl:for-each>
 									</xsl:if>
 									<xsl:if test="relatedcfg">
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Related Config Files</th>
 										</tr>
 										<xsl:for-each select="relatedcfg">
@@ -220,7 +220,7 @@
 										</xsl:for-each>
 									</xsl:if>
 									<xsl:if test="relatedtype">
-										<tr id="doc-table-dark">
+										<tr class="doc-table-dark">
 											<th align="left" colspan="2">Related Script Types</th>
 										</tr>
 										<xsl:for-each select="relatedtype">
