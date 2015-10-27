@@ -194,7 +194,10 @@ namespace Pol {
 
 	  item->graphic = graphic;
 
-	  item->copyprops( id.props );
+	  // If item already has a serial (eg. an existing item loaded from a save),
+	  // then do not assign CProps from descriptor
+	  if( ! serial )
+		item->copyprops( id.props );
 
 #ifdef PERGON
 	  std::string value_self;

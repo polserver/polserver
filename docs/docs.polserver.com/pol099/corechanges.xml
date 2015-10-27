@@ -11,6 +11,7 @@
 			<change type="Added">New pol.cfg option AllowMultiClientsPerAccount (default: false)<br/>
 When true, allows multiple characters from the same account to be<br/>
 logged in at the same time</change>
+			<change type="Fixed">Items' CProps were loaded again from itemdesc.cfg at startup when deleted</change>
 		</entry>
 		<entry>
 			<date>10-18-2015</date>

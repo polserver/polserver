@@ -3,6 +3,7 @@
   Added:   New pol.cfg option AllowMultiClientsPerAccount (default: false)
            When true, allows multiple characters from the same account to be
            logged in at the same time
+  Fixed:   Items' CProps were loaded again from itemdesc.cfg at startup when deleted
 10-18-2015 Bodom:
   Fixed:   MoveItemToContainer could stack non-stackable items in some circumstances
 10-07-2015 Bodom:
