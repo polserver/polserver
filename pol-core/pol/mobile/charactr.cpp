@@ -360,8 +360,6 @@ namespace Pol {
 	{
 	  if ( acct.get() )
 	  {
-		if ( acct->active_character == this )
-		  acct->active_character = NULL;
         for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 		{
 		  if ( acct->get_character( i ) == this )

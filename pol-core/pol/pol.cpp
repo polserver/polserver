@@ -434,33 +434,29 @@ namespace Pol {
         return;
       }
 
-      if ( client->acct->active_character != NULL ) // this account has a currently active character.
+      if ( chosen_char->client )
       {
-        // if it's not the one that was picked, refuse to start this one.
-        if ( client->acct->active_character != chosen_char )
-        {
-          send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
-          client->Disconnect();
-          return;
-        }
-
         // we're reattaching to a character that is in-game.  If there is still
         // a client attached, disconnect it.
-        if ( chosen_char->client )
-        {
-          chosen_char->client->gd->clear();
-          chosen_char->client->forceDisconnect();
-          chosen_char->client->ready = 0;
-          chosen_char->client->msgtype_filter = networkManager.disconnected_filter.get();
 
+        chosen_char->client->gd->clear();
+        chosen_char->client->forceDisconnect();
+        chosen_char->client->ready = 0;
+        chosen_char->client->msgtype_filter = networkManager.disconnected_filter.get();
 
-          // disassociate the objects from each other.
-          chosen_char->client->acct = NULL;
-          chosen_char->client->chr = NULL;
+        // disassociate the objects from each other.
+        chosen_char->client->acct = NULL;
+        chosen_char->client->chr = NULL;
 
-          chosen_char->client = NULL;
-        }
+        chosen_char->client = NULL;
         reconnecting = true;
+      }
+      else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
+      {
+        // We are trying to attach a new character, but AllowMultiCharacters is not set
+        send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
+        client->Disconnect();
+        return;
       }
       else
       {
@@ -469,7 +465,6 @@ namespace Pol {
         chosen_char->logged_in = true;
       }
 
-      client->acct->active_character = chosen_char;
       client->chr = chosen_char;
       chosen_char->client = client;
       chosen_char->acct.set( client->acct );

@@ -1,5 +1,9 @@
 ﻿-- POL099 --
-10-18-2016 Bodom:
+10-27-2015 Bodom:
+  Added:   New pol.cfg option AllowMultiClientsPerAccount (default: false)
+           When true, allows multiple characters from the same account to be
+           logged in at the same time
+10-18-2015 Bodom:
   Fixed:   MoveItemToContainer could stack non-stackable items in some circumstances
 10-07-2015 Bodom:
   Removed: "house_serial" CProp is no longer set by core for house components

@@ -210,6 +210,7 @@ namespace Pol {
 	  Plib::systemstate.config.max_clients = elem.remove_ushort( "MaximumClients", 300 );
 	  Plib::systemstate.config.character_slots = elem.remove_ushort( "CharacterSlots", 5 );
 	  Plib::systemstate.config.max_clients_bypass_cmdlevel = elem.remove_ushort( "MaximumClientsBypassCmdLevel", 1 );
+	  Plib::systemstate.config.allow_multi_clients_per_account = elem.remove_bool( "AllowMultiClientsPerAccount", false );
 	  Plib::systemstate.config.minidump_type = elem.remove_string( "MiniDumpType", "variable" );
 	  Plib::systemstate.config.retain_cleartext_passwords = elem.remove_bool( "RetainCleartextPasswords", false );
 	  Plib::systemstate.config.discard_old_events = elem.remove_bool( "DiscardOldEvents", false );

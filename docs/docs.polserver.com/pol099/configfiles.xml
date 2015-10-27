@@ -924,6 +924,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ReportMissingConfigs=(1/0 {default 1})]
 [MaximumClients=(int {default 300})]
 [MaximumClientsBypassCmdLevel=(int cmdlevel {default 1})]
+[AllowMultiClientsPerAccount=(1/0 {default 0})]
 [CharacterSlots=(int {default 5})]
 [MiniDumpType=(string small/large/variable {default variable})]
 [RetainCleartextPasswords=(1/0 {default 0})]
@@ -959,6 +960,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>DisableNagle: disables Nagle's algorithm. In theory, latency should improve if DisableNagle=1.</explain>
     <explain>ShowRealmInfo: will report every once in a while the number of items, mobiles and multis per realm.</explain>
     <explain>EnforceMountObjtype: will enforce that only items with the mount objtype (as defined in extobj.cfg) can be mounted.</explain>
+    <explain>AllowMultiClientsPerAccount: when true, will allow multiple characters from the same account to be logged in at the same time</explain>
 </cfgfile>
 
 

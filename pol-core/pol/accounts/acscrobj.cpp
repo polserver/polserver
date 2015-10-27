@@ -124,10 +124,11 @@ namespace Pol {
 		  if ( ex.numParams() == 0 )
 		  {
 			obj_->banned_ = true;
-			if ( obj_->active_character )
+			for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
 			{
-			  if ( obj_->active_character->client )
-				obj_->active_character->client->Disconnect();
+			  Mobile::Character* chr = obj_->get_character(i);
+			  if( chr && chr->client )
+				chr->client->Disconnect();
 			}
 		  }
 		  else
@@ -158,10 +159,11 @@ namespace Pol {
 		  if ( ex.numParams() == 0 )
 		  {
 			obj_->enabled_ = false;
-			if ( obj_->active_character )
+			for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
 			{
-			  if ( obj_->active_character->client )
-				obj_->active_character->client->Disconnect();
+			  Mobile::Character* chr = obj_->get_character(i);
+			  if( chr && chr->client )
+				chr->client->Disconnect();
 			}
 			break;
 		  }
@@ -373,8 +375,12 @@ namespace Pol {
 				 ( expansion_str->value() == "T2A" ) )
 			{
 			  obj_->uo_expansion_ = obj_->convert_uo_expansion( expansion_str->value() );
-			  if ( obj_->active_character )
-				Core::send_feature_enable( obj_->active_character->client );
+			  for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
+			  {
+				Mobile::Character* chr = obj_->get_character(i);
+				if( chr && chr->has_active_client() )
+				  Core::send_feature_enable( chr->client );
+			  }
 			}
 			else
 			  return new BError( "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA" );

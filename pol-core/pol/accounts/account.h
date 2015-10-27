@@ -52,11 +52,11 @@ namespace Pol {
 	  int numchars() const;
 	  int getnextfreeslot() const;
 
-	  Mobile::Character* active_character;
-
 	  Mobile::Character* get_character( int index );
 	  void set_character( int index, Mobile::Character* chr );
 	  void clear_character( int index );
+
+	  bool has_active_characters();
 
 	  void readfrom( Clib::ConfigElem& elem );
 	  void writeto( Clib::StreamWriter& sw ) const;

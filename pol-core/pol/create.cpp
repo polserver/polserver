@@ -228,7 +228,7 @@ namespace Pol {
 		client->Disconnect();
 		return;
 	  }
-	  else if ( client->acct->active_character != NULL )
+	  else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
 	  {
 		send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
 		client->Disconnect();
@@ -530,7 +530,6 @@ namespace Pol {
 
 	  client->chr = chr;
 	  client->acct->set_character( msg->CharNumber, client->chr );
-	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
 	  SetCharacterWorldPosition( chr, Plib::WorldChangeReason::PlayerEnter );
@@ -616,7 +615,7 @@ namespace Pol {
 		client->Disconnect();
 		return;
 	  }
-	  else if ( client->acct->active_character != NULL )
+	  else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
 	  {
 		send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
 		client->Disconnect();
@@ -905,7 +904,6 @@ namespace Pol {
 
 	  client->chr = chr;
 	  client->acct->set_character( charslot, client->chr );
-	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
       SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);
@@ -967,7 +965,7 @@ namespace Pol {
 		client->Disconnect();
 		return;
 	  }
-	  else if ( client->acct->active_character != NULL )
+	  else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
 	  {
 		send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
 		client->Disconnect();
@@ -1312,7 +1310,6 @@ namespace Pol {
 
 	  client->chr = chr;
 	  client->acct->set_character( msg->CharNumber, client->chr );
-	  client->acct->active_character = chr;
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
       SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);

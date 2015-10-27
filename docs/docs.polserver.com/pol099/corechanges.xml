@@ -2,11 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-18-2015</datemodified>
+		<datemodified>10-27-2015</datemodified>
 	</header>
 	<version name="POL099">
 		<entry>
-			<date>10-18-2016</date>
+			<date>10-27-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New pol.cfg option AllowMultiClientsPerAccount (default: false)<br/>
+When true, allows multiple characters from the same account to be<br/>
+logged in at the same time</change>
+		</entry>
+		<entry>
+			<date>10-18-2015</date>
 			<author>Bodom:</author>
 			<change type="Fixed">MoveItemToContainer could stack non-stackable items in some circumstances</change>
 		</entry>

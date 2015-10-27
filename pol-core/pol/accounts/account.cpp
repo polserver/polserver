@@ -31,7 +31,6 @@ Notes
 namespace Pol {
   namespace Accounts {
 	Account::Account( Clib::ConfigElem& elem ) :
-	  active_character( NULL ),
 	  characters_(),
 	  name_( elem.remove_string( "NAME" ) ),
 	  enabled_( true ),
@@ -147,26 +146,13 @@ namespace Pol {
 
 	Account::~Account()
 	{
-	  if ( active_character != NULL )
-	  {
-		if ( ( active_character->client != NULL ) &&
-			 ( active_character->client->acct == this ) )
-		{
-		  active_character->client->acct = NULL;
-		}
-
-		if ( active_character->acct == this )
-		{
-		  active_character->acct.clear();
-		}
-
-		active_character = NULL;
-	  }
-
 	  for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 	  {
 		if ( characters_[i].get() )
 		{
+		  if ( characters_[i]->client != NULL && characters_[i]->client->acct == this )
+			characters_[i]->client->acct = NULL;
+
 		  characters_[i]->acct.clear();
 		  characters_[i].clear();
 		}
@@ -197,6 +183,15 @@ namespace Pol {
 	void Account::clear_character( int index )
 	{
 	  characters_.at( index ).clear();
+	}
+
+	/// Returns true if at least one character from this account is already logged in
+	bool Account::has_active_characters()
+	{
+	  for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
+		if ( characters_[i].get() && characters_[i]->client )
+		  return true;
+	  return false;
 	}
 
 	const char* Account::name() const
