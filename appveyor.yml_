@@ -1,0 +1,14 @@
+version: 1.0.{build} 
+shallow_clone: true
+clone_folder: c:\projects\pol_testing
+install:
+- cd lib
+- time /T
+- prepare_boost.bat > NUL
+- time /T
+- cd ..
+cache: lib/boost_1_55_0
+build_script:
+- msbuild "pol-core/pol-2013.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
+test: off
+deploy: off
