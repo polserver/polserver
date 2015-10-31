@@ -1,27 +1,6 @@
 <?php
-    include_once( "include/global.inc" );
-    if (!$offline) {
-      $g_Page = "home";
-      if( isset($header) && $header )
-        include_once $header;
-    }
+	require 'include/global.inc';
 
-    /* add the header */
-    if( $offline || ! isset($header) ) {
-      siteheader('Core Attack Code');
-    }
-    
-    $xsltproc = new XsltProcessor();
-    $xsl = new DomDocument;
-    $xsl->load('attack.xslt');
-    $xsltproc->importStylesheet($xsl);
-    $xml_doc = new DomDocument;
-    $xml_doc->load('attack.xml');
-    $xsltproc->setParameter('', 'offline', $offline);
-	  
-	  if ($html = $xsltproc->transformToXML($xml_doc)) {
-       echo $html;
-    } 
-
-   /* add the footer */
-   sitefooter();
+	siteheader('Core Attack Code');
+	xlstdocument('attack.xslt', 'attack.xml');
+	sitefooter();

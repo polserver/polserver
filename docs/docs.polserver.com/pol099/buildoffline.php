@@ -5,8 +5,7 @@ function ob_file_callback($buffer)
   fwrite($ob_file,$buffer);
 }
 
-    //include_once("/home/polteam/include/CreateZipFile.inc");
-    include( "include/global.inc" );
+	require 'include/global.inc';
 
     $offline = 1;
     if (!is_dir('offline')) {

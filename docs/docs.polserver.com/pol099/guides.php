@@ -1,5 +1,6 @@
 <?php
-    include_once( "include/global.inc" );
+	require 'include/global.inc';
+
     $guidefile="";
     if (!$offline) {
       $g_Page = "home";

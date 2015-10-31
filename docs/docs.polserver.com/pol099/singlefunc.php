@@ -1,25 +1,9 @@
 <?php
-    include_once 'include/global.inc';
-    if (!$offline) {
-      $g_Page = "poldoc";
-      if( isset($header) && $header )
-        include_once $header;
-    }
-    
-    // PHP-BB global stuff
-	global $request;
-	if( isset($request) )
-		$request->enable_super_globals();
-	//
-    
-
-  	$funcname =  $_GET['funcname'];
-  	$xmlfile = $_GET['xmlfile'];
-
-    /* add the header */
-    if( $offline || ! isset($header) ) {
-      siteheader($funcname.' Reference');
-    }
+	require 'include/global.inc';
+	$funcname =  $_GET['funcname'];
+	$xmlfile = $_GET['xmlfile'];
+	siteheader($funcname.' Reference');
+/*
     $xsltproc = new XsltProcessor();
     $xsl = new DomDocument;
     $xsl->load('singlefunc.xslt');
@@ -32,6 +16,6 @@
     if ($html = $xsltproc->transformToXML($xml_doc)) {
        echo $html;
     } 
-
-    /* add the footer */
-    sitefooter();
+*/
+xlstdocument('singlefunc.xslt', $xmlfile);
+	sitefooter();
