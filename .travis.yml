@@ -9,11 +9,12 @@ compiler:
 
 addons:
   apt:
+    #ref: https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
     sources:
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise
-      #- kubuntu-backports # cmake 2.8.12
+      - llvm-toolchain-precise-3.7
       - george-edison55-precise-backports # cmake 3.2.3
+    #ref: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
     packages:
       - gcc-4.8
       - g++-4.8
@@ -22,12 +23,6 @@ addons:
       - cmake-data
    
 before_install:
-#  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-#  - sudo apt-get update -qq
-#  - sudo apt-get install -y -qq gcc-4.8 g++-4.8
-#currently disabled 4.8 gcc test but use it for clang
-#  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-#  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
   - cd lib
   - tar xjf boost_1_55_0.tar.bz2
   - cd ../pol-core/bin-build
