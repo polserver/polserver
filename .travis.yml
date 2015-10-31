@@ -29,6 +29,7 @@ before_install:
   - chmod a+x build_linux.sh
 
 script:
+  - export TRAVIS_CI=1
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
   - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
   - ./build_linux.sh
