@@ -76,10 +76,6 @@ namespace Pol {
 	  {
 		++hits;
 		cref_instance = crefs_count++;
-		if (cref_instance == 50)
-		{
-		  cref_instance = cref_instance;
-		}
 		crefs[ cref_instance ] = this;
 	  }
 	  ++characterrefs;
