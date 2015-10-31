@@ -1,7 +1,7 @@
 <?php
     $g_Page = "home";
     include( "include/global.inc" );
-    //include_once ("include/archive.inc");
+    include_once ("include/archive.inc");
     if( isset($header) && $header )
       include_once $header;
 
