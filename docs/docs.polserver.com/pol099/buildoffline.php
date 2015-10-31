@@ -1,92 +1,38 @@
 <?php
-function ob_file_callback($buffer)
-{
-  global $ob_file;
-  fwrite($ob_file,$buffer);
-}
+	require_once 'include/global.inc';
+	$offline = 1;
 
-	require 'include/global.inc';
+	if (!is_dir('offline')) {
+		mkdir('offline');
+	} else { /* cleanup */
+		if($dh = opendir('offline')) {
+			while (($file = readdir($dh)) !== false) {
+				if(is_file('offline/'. $file)) {
+					unlink('offline/'. $file);
+				}
+			}
+		}
+		closedir($dh);
+	}
 
-    $offline = 1;
-    if (!is_dir('offline')) {
-      mkdir('offline');
-    }
-    else { /* cleanup */
-      if($dh = opendir('offline')) {
-        while (($file = readdir($dh)) !== false) {
-          if(is_file('offline/'. $file)) {
-             unlink('offline/'. $file);
-          }
-        }
-      }
-      closedir($dh);
-    }
+	// This callback will take care of writing the offline doc file when the
+	// output buffer is flushed
+	function ob_file_callback($buffer)
+	{
+		global $ob_file;
+		fwrite($ob_file, $buffer);
+	}
 
-    $ob_file = fopen('offline/index.html','w');
+	// generate Core Documentation
+	$files = array('index',"objref","configfiles","scripttypes","events","builtintextcmds","privileges","attack");
+	foreach ($files as $f)
+	{
+		$ob_file = fopen('offline/'.$f.'.html','w');
 
-    ob_start('ob_file_callback');
-
-    /* add the header */
-    siteheader('POL Scripting Reference');
-    mainpageheader($offline);
-    
-    $xsltproc = new XsltProcessor();
-    $xsl = new DomDocument;
-    $xsl->load('front_em.xslt');
-    $xsltproc->importStylesheet($xsl);
-    $xml_doc = new DomDocument;
-    $xml_doc->load('modules.xml');
-    $xsltproc->setParameter('', 'offline', $offline);
-
-    if ($html = $xsltproc->transformToXML($xml_doc)) {
-       echo $html;
-    }
-?>
-<div id="main">
-	<div class="container">
-	  <div class="doc-col_1">
-    <div class="doc-mainbox-small">
-      <center><h2>POL Core Documentation:</h2></center>
-      <ul>
-      <li><a href="objref.html">POL Object Class Reference</a>
-      <li><a href="configfiles.html">Configuration Files</a>
-      <li><a href="scripttypes.html">Script Types</a>
-      <li><a href="events.html">System Events</a>
-      <li><a href="builtintextcmds.html">Built-In Text Commands</a>
-      <li><a href="privileges.html">Character Privileges</a>
-      <li><a href="attack.html">Combat Pseudocode</a>
-      </ul>
-  </div>
-  </div>
-  <div class="doc-col_12">
-    <div class="doc-mainbox-small">
-      <center><h2>Tutorials and Guides:</h2></center>
-        <ul>
-        <li><a href="corechanges.html">Latest Core Changes</a>  
-        <li><a href="escriptguide.html">Racalac's eScript Guide</a>
-        <li><a href="performance.html">ToGu's eScript Performance Guide</a>
-        <li><a href="gumps.html">Lystramon's Gump Tutorial</a>
-        <li><a href="gumpcmdlist.html">Turley's Gump-Command-List</a>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
-<?php
-   /* add the footer */
-   sitefooter($offline);
-   ob_end_flush();
-
-   /* generate Core Documentation */
-   $files = array("objref","configfiles","scripttypes","events","builtintextcmds","privileges","attack");
-   foreach ($files as $f)
-   {
-     $ob_file = fopen('offline/'.$f.'.html','w');
-
-     ob_start('ob_file_callback');
-     include $f.'.php';
-     ob_end_flush();
-   }
+		ob_start('ob_file_callback');
+		require $f.'.php';
+		ob_end_flush();
+	}
 
    /* generate em Modules */
    $xsltproc = new XsltProcessor();

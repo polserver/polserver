@@ -1,5 +1,5 @@
 <?php
-	require 'include/global.inc';
+	require_once 'include/global.inc';
 
 	siteheader('POL Documentation Site');
 
@@ -33,19 +33,9 @@
 <?php } ?>
 		</div>
 	</div>
-<?php
 
-	$xsltproc = new XsltProcessor();
-	$xsl = new DomDocument;
-	$xsl->load('front_em.xslt');
-	$xsltproc->importStylesheet($xsl);
-	$xml_doc = new DomDocument;
-	$xml_doc->load('modules.xml');
-	$xsltproc->setParameter('', 'offline', $offline);
-	
-	if ($html = $xsltproc->transformToXML($xml_doc)) {
-	echo $html;
-	}
+<?php
+	xlstdocument('front_em.xslt', 'modules.xml');
 ?>
 
 	<div id="main">

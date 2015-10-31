@@ -1,5 +1,5 @@
 <?php
-	require 'include/global.inc';
+	require_once 'include/global.inc';
 
     $guidefile="";
     if (!$offline) {

@@ -1,5 +1,5 @@
 <?php
-	require 'include/global.inc';
+	require_once 'include/global.inc';
 
 	siteheader('POL System Events Reference');
 	xlstdocument('events.xslt', 'events.xml');

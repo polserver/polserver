@@ -33,7 +33,7 @@ set_error_handler('XML_errorHandler');
 function XML_errorHandler ($errno, $errstr, $errfile, $errline, $errcontext)
 {
 	global $offline;
-	if ($offline) {
+	if( $offline ) {
 		@ob_end_clean();
 	}
 	die("ERROR $errno in \"$errfile\" at line $errline: \"$errstr\"\n");

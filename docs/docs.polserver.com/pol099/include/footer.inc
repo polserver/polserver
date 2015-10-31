@@ -8,7 +8,11 @@
 	</p>
 </div>
 
-<?=$analytics ?>
+<?php
+	if( isset($analytics) ) {
+		echo $analytics;
+	}
+?>
 
 </body>
 </html>
