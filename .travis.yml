@@ -34,8 +34,8 @@ before_install:
 script:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
-  - if [ "$CXX" = "g++" ]; then ./build_linux.sh; fi
-  - if [ "$CXX" = "clang++" ]; then ./build_linux.sh; fi
+  - ./build_linux.sh
+
 #  - cd ../testsuite/escript
 #  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
 
