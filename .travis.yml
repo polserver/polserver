@@ -12,6 +12,8 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
       - llvm-toolchain-precise
+      #- kubuntu-backports # cmake 2.8.12
+      - george-edison55-precise-backports # cmake 3.2.3
     packages:
       - gcc-4.8
       - g++-4.8
