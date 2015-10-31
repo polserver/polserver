@@ -5,6 +5,10 @@ MESSAGE("##### Preparing POL specific configuration")
 MESSAGE("####################################")
 
 ##############################################################
+
+# activate static builds
+set(BUILD_STATIC                OFF)
+
 # create global pol_config.h
 INCLUDE (CheckIncludeFiles)
 IF(WINDOWS)

@@ -44,6 +44,11 @@ SET (LIBS_LINUX
     clib
     plib
 )
+SET (LIBS_LINUX_STATIC_BIN_STATIC
+    clib_debugging_static
+    clib_static
+    plib_static
+)
 
 ##############################################################
 # define target directory

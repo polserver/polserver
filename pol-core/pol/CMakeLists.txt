@@ -260,6 +260,13 @@ SET (LIBS_LINUX
     pthread
     z
 )
+SET (LIBS_LINUX_STATIC_BIN_STATIC
+    bscript_static
+    clib_debugging_static
+    clib_static
+    plib_static
+    tinyxml_static
+)
 
 ##############################################################
 # define target directory

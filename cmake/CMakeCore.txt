@@ -100,6 +100,10 @@ ELSE()
             -O2
         )
     ENDIF()
+    SET (FLAGS
+        ${FLAGS}
+        -fPIC
+    )
 ENDIF()
 
 ##############################################################
@@ -196,15 +200,6 @@ IF (APPLE)
 ENDIF()
 
 ##############################################################
-# build only shared libs by default
-SET(BUILD_SHARED_LIBS ON)
-IF (NOT (${BUILD} MATCHES "Release"))
-    SET(BUILD_STATIC_LIBS OFF)
-ELSE ()
-    SET(BUILD_STATIC_LIBS ON)
-ENDIF()
-
-##############################################################
 # for win32 remove the "lib" prefix for dll's
 IF (WINDOWS)
     SET(CMAKE_SHARED_LIBRARY_PREFIX "")
@@ -266,7 +261,14 @@ IF (DEFINED TARGET_LIB_NAME)
     MESSAGE("### Library output path: ${TARGET_DIRECTORY}")
     
     # trigger library creation
-    ADD_LIBRARY(${TARGET_LIB_NAME} SHARED ${SOURCES})
+   	ADD_LIBRARY(${TARGET_LIB_NAME}_OBJECTS OBJECT ${SOURCES})
+  	ADD_LIBRARY(${TARGET_LIB_NAME} SHARED $<TARGET_OBJECTS:${TARGET_LIB_NAME}_OBJECTS>)
+    IF(${BUILD_STATIC} MATCHES "ON")
+        MESSAGE("####################################################################### Building DYNAMIC and STATIC LIBRARIES")
+    	ADD_LIBRARY(${TARGET_LIB_NAME}_static STATIC $<TARGET_OBJECTS:${TARGET_LIB_NAME}_OBJECTS>)
+    ELSE()
+        MESSAGE("####################################################################### Building only DYNAMIC LIBRARIES")
+    ENDIF()
     SET(TARGET_NAME
         ${TARGET_LIB_NAME}
     )
@@ -297,7 +299,11 @@ IF (DEFINED TARGET_PROGRAM_NAME)
     ELSEIF (WINDOWS)
         ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} WIN32 ${SOURCES})
     ELSE ()
-        ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} ${SOURCES})
+   		ADD_LIBRARY(${TARGET_PROGRAM_NAME}_OBJECTS OBJECT ${SOURCES})
+  		ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} $<TARGET_OBJECTS:${TARGET_PROGRAM_NAME}_OBJECTS>)
+    	IF(${BUILD_STATIC} MATCHES "ON")
+  			ADD_EXECUTABLE(${TARGET_PROGRAM_NAME}_static $<TARGET_OBJECTS:${TARGET_PROGRAM_NAME}_OBJECTS>)
+	    ENDIF()
     ENDIF ()
     SET(TARGET_NAME
         ${TARGET_PROGRAM_NAME}
@@ -405,6 +411,9 @@ ENDIF (BSD)
 IF (LINUX)
     MESSAGE("### Linking static Linux libraries: ${LIBS_LINUX_STATIC}")
     TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC} -Wl,-Bdynamic )
+    IF(${BUILD_STATIC} MATCHES "ON")
+    	TARGET_LINK_LIBRARIES(${TARGET_NAME}_static -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC_BIN_STATIC} -Wl,-Bdynamic )
+    ENDIF()
 
     MESSAGE("### Linking dynamic Linux libraries: ${LIBS_LINUX}")
     TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_LINUX})
