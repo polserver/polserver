@@ -1,59 +1,43 @@
 <?php
 	require_once 'include/global.inc';
 
-    $guidefile="";
-    if (!$offline) {
-      $g_Page = "home";
-      if( isset($header) && $header )
-        include_once $header;
+	$guidefile = $offline ? $type : $_GET['guidefile'];
 
-      // PHP-BB global stuff
-			global $request;
-			$request->enable_super_globals();
-			//
-	
-      $guidefile = $_GET['guidefile'];
-    }
-    else {
-     $guidefile=$type;
-    }
+	switch( $guidefile ) {
+	case 'escriptguide':
+		$title = 'Racalac\'s EScript Guide';
+		break;
+	case 'performance':
+		$title = 'POL Performance Guide';
+		break;
+	case 'gumps':
+		$title = 'Lystramon\'s Gump Tutorial';
+		break;
+	case 'gumpcmdlist':
+		$title = 'Turley\'s Gump-Command-List';
+		break;
+	}
+	siteheader($title);
 
-    /* add the header */
-    if( $offline || ! isset($header) ) {
-      if ($guidefile=='escriptguide') {
-        siteheader("Racalac's EScript Guide");
-      }
-      else if ($guidefile=='performance') {
-        siteheader("POL Performance Guide");
-      }
-      else if ($guidefile=='gumps') {
-        siteheader("Lystramon's Gump Tutorial");
-      }
-      else if ($guidefile=='gumpcmdlist') {
-        siteheader("Turley's Gump-Command-List");
-      }
-    }
-    if ($offline) {
-      echo('<div id="main">
-      <div class="container">');
-    }
-echo('
-<div class="doc-mainbox">');
-if ($offline) {
-echo("<div class='doc-home'><a href='index.html'>Home</a></div>");
-}
-else {
-echo("<div class='doc-home'><a href='index.php'>Home</a></div>");
-}
-echo('<br/>');
-    
-    include('include/'.$guidefile.'.inc');
+	if( $offline ) {
+?>
+	<div id="main"><div class="container">
+<?php } ?>
 
-echo('
-</div>');
-if ($offline) {
-      echo('</div></div>');
-    }
+	<div class="doc-mainbox">
 
-   /* add the footer */
-   sitefooter();
+<?php if( $offline ) { ?>
+		<div class='doc-home'><a href='index.html'>Home</a></div>
+<?php } else { ?>
+		<div class='doc-home'><a href='index.php'>Home</a></div>
+<?php } ?>
+			<br/>
+			<?php require 'include/'.$guidefile.'.inc'; ?>
+		</div>
+
+<?php if( $offline ) { ?>
+	</div></div>
+<?php
+	}
+
+	sitefooter();

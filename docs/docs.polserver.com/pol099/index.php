@@ -36,6 +36,12 @@
 
 <?php
 	xlstdocument('front_em.xslt', 'modules.xml');
+
+	$ext = $offline ? 'html' : 'php';
+	function guideUrl($name) {
+		global $offline;
+		return $offline ? "$name.html" : "guides.php?guidefile=$name";
+	}
 ?>
 
 	<div id="main">
@@ -44,13 +50,13 @@
 				<div class="doc-mainbox-small">
 					<center><h2>POL Core Documentation:</h2></center>
 					<ul>
-					<li><a href="objref.php">POL Object Class Reference</a>
-					<li><a href="configfiles.php">Configuration Files</a>
-					<li><a href="scripttypes.php">Script Types</a>
-					<li><a href="events.php">System Events</a>
-					<li><a href="builtintextcmds.php">Built-In Text Commands</a>
-					<li><a href="privileges.php">Character Privileges</a>
-					<li><a href="attack.php">Combat Pseudocode</a>
+					<li><a href="objref.<?=$ext?>">POL Object Class Reference</a>
+					<li><a href="configfiles.<?=$ext?>">Configuration Files</a>
+					<li><a href="scripttypes.<?=$ext?>">Script Types</a>
+					<li><a href="events.<?=$ext?>">System Events</a>
+					<li><a href="builtintextcmds.<?=$ext?>">Built-In Text Commands</a>
+					<li><a href="privileges.<?=$ext?>">Character Privileges</a>
+					<li><a href="attack.<?=$ext?>">Combat Pseudocode</a>
 					</ul>
 				</div>
 			</div>
@@ -58,11 +64,11 @@
 			<div class="doc-mainbox-small">
 				<center><h2>Tutorials and Guides:</h2></center>
 				<ul>
-				<li><a href="corechanges.php">Latest Core Changes</a>
-				<li><a href="guides.php?guidefile=escriptguide">Racalac's eScript Guide</a>
-				<li><a href="guides.php?guidefile=performance">ToGu's eScript Performance Guide</a>
-				<li><a href="guides.php?guidefile=gumps">Lystramon's Gump Tutorial</a>
-				<li><a href="guides.php?guidefile=gumpcmdlist">Turley's Gump-Command-List</a>
+				<li><a href="corechanges.<?=$ext?>">Latest Core Changes</a>
+				<li><a href="<?=guideUrl('escriptguide')?>">Racalac's eScript Guide</a>
+				<li><a href="<?=guideUrl('performance')?>">ToGu's eScript Performance Guide</a>
+				<li><a href="<?=guideUrl('gumps')?>">Lystramon's Gump Tutorial</a>
+				<li><a href="<?=guideUrl('gumpcmdlist')?>">Turley's Gump-Command-List</a>
 				</ul>
 			</div>
 		</div>
