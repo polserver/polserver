@@ -43,7 +43,7 @@ namespace Pol {
 	  if( !_listen_sck.listen( port ) )
 	  {
 		POLLOG_ERROR << "Unable to open listen port " + decint( port );
-        abort();
+		abort();
 	  }
 	}
 
