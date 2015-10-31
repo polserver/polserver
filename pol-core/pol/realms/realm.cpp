@@ -12,32 +12,32 @@ Notes
 
 #include "realm.h"
 
-#include "realmdescriptor.h"
+#include "../../plib/realmdescriptor.h"
 
-#include "mapserver.h"
-#include "staticserver.h"
-#include "maptileserver.h"
+#include "../../plib/mapserver.h"
+#include "../../plib/staticserver.h"
+#include "../../plib/maptileserver.h"
 
-#include "../pol/uworld.h"
-#include "../pol/mobile/charactr.h"
-#include "../pol/poltype.h"
+#include "../uworld.h"
+#include "../mobile/charactr.h"
+#include "../poltype.h"
 #include "WorldChangeReasons.h"
-#include "../clib/logfacility.h"
+#include "../../clib/logfacility.h"
 
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
     Realm::Realm(const std::string& realm_name, const std::string& realm_path) :
 	  is_shadowrealm( false ),
 	  shadowid( 0 ),
 	  baserealm( nullptr ), 
-	  _descriptor( RealmDescriptor::Load( realm_name, realm_path ) ),
+	  _descriptor( Plib::RealmDescriptor::Load( realm_name, realm_path ) ),
 	  _mobile_count( 0 ),
 	  _offline_count( 0 ),
 	  _toplevel_item_count( 0 ),
 	  _multi_count( 0 ),
-	  _mapserver( MapServer::Create( _descriptor ) ),
-	  _staticserver( new StaticServer( _descriptor ) ),
-	  _maptileserver( new MapTileServer( _descriptor ) )
+	  _mapserver( Plib::MapServer::Create( _descriptor ) ),
+	  _staticserver( new Plib::StaticServer( _descriptor ) ),
+	  _maptileserver( new Plib::MapTileServer( _descriptor ) )
 	{
 	  size_t gridwidth = grid_width();
       size_t gridheight = grid_height();

@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY(lib/tinyxml)
+ADD_SUBDIRECTORY(pol-core)

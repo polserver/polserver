@@ -472,7 +472,7 @@ namespace Pol {
         if (realm != nullptr)
           usage.realm_size += realm->sizeEstimate();
       }
-      usage.realm_size += ( sizeof(int)+sizeof( Plib::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * gamestate.shadowrealms_by_id.size();
+      usage.realm_size += ( sizeof(int)+sizeof( Realms::Realm* ) + ( sizeof(void*)* 3 + 1 ) / 2 ) * gamestate.shadowrealms_by_id.size();
 
       for ( const auto &attr : attributes )
       {

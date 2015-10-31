@@ -186,7 +186,7 @@ namespace Pol {
 	  }
 	}
 
-	void StorageArea::on_delete_realm( Plib::Realm *realm )
+	void StorageArea::on_delete_realm( Realms::Realm *realm )
 	{
 	  for ( Cont::const_iterator itr = _items.begin(), itrend = _items.end();
 			itr != itrend;
@@ -205,7 +205,7 @@ namespace Pol {
 	  }
 	}
 
-	void Storage::on_delete_realm( Plib::Realm *realm )
+	void Storage::on_delete_realm( Realms::Realm *realm )
 	{
 	  for ( AreaCont::const_iterator itr = areas.begin(), itrend = areas.end();
 			itr != itrend;

@@ -16,9 +16,10 @@ Notes
 #include "../plib/mapshape.h"
 #include "../plib/realmdescriptor.h"
 
-#include "../plib/realm.h"
 #include "../plib/maptile.h"
 #include "../plib/maptileserver.h"
+
+#include "../pol/realms/realm.h"
 
 #include <string>
 #include <fstream>

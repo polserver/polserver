@@ -51,6 +51,7 @@ Notes
 #include "module/unimod.h"
 #include "module/utilmod.h"
 #include "module/vitalmod.h"
+#include "unicode.h"
 
 #include "../bscript/bobject.h"
 #include "../bscript/berror.h"
@@ -59,11 +60,10 @@ Notes
 #include "../bscript/impstr.h"
 
 #include "../clib/logfacility.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/unicode.h"
 
 #include "../plib/systemstate.h"
 

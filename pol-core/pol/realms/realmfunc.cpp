@@ -17,31 +17,31 @@ In standingheight checks there is a nasty bug. Items NOT locked down
 
 #include "realm.h"
 
-#include "realmdescriptor.h"
-#include "mapcell.h"
-#include "mapserver.h"
-#include "staticserver.h"
-#include "systemstate.h"
-#include "mapshape.h"
-#include "maptileserver.h"
+#include "../../plib/realmdescriptor.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/mapserver.h"
+#include "../../plib/staticserver.h"
+#include "../../plib/systemstate.h"
+#include "../../plib/mapshape.h"
+#include "../../plib/maptileserver.h"
 
-#include "../pol/tiles.h"
-#include "../pol/mobile/charactr.h"
-#include "../pol/network/cgdata.h"
-#include "../pol/network/client.h"
-#include "../pol/fnsearch.h"
-#include "../pol/globals/uvars.h"
-#include "../pol/uworld.h"
-#include "../pol/item/item.h"
-#include "../pol/item/itemdesc.h"
-#include "../pol/item/itemdesc.h"
-#include "../pol/multi/multi.h"
-#include "../pol/multi/house.h"
-#include "../pol/multi/customhouses.h"
-#include "../pol/uconst.h"
-#include "../pol/clidata.h"
-#include "../pol/objtype.h"
-#include "../pol/poltype.h"
+#include "../tiles.h"
+#include "../mobile/charactr.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
+#include "../fnsearch.h"
+#include "../globals/uvars.h"
+#include "../uworld.h"
+#include "../item/item.h"
+#include "../item/itemdesc.h"
+#include "../item/itemdesc.h"
+#include "../multi/multi.h"
+#include "../multi/house.h"
+#include "../multi/customhouses.h"
+#include "../uconst.h"
+#include "../clidata.h"
+#include "../objtype.h"
+#include "../poltype.h"
 
 #include <vector>
 
@@ -51,17 +51,17 @@ namespace Pol {
 	Items::Item* find_walkon_item( Core::ItemsVector& ivec, short z );
 	unsigned char flags_from_tileflags( unsigned int uoflags );
   }
-  namespace Multi {
-	class UMulti;
-	UMulti* find_supporting_multi( Plib::MultiList& mvec, short z );
-  }
+ // namespace Multi {
+	//class UMulti;
+	//UMulti* find_supporting_multi( Realms::MultiList& mvec, short z );
+ // }
 
-  namespace Plib {
+  namespace Realms {
 	bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) const
 	{
-	  static MapShapeList vec;
+	  static Plib::MapShapeList vec;
 	  vec.clear();
-	  getmapshapes( vec, x, y, FLAG::MOVELAND | FLAG::MOVESEA | FLAG::BLOCKING | FLAG::GRADUAL );
+	  getmapshapes( vec, x, y, Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING | Plib::FLAG::GRADUAL );
 
 	  bool res = true;
 	  lowest_standheight( Core::MOVEMODE_LAND, vec, *z, &res, z );
@@ -69,11 +69,11 @@ namespace Pol {
 	}
 
 	void Realm::standheight( Core::MOVEMODE movemode,
-							 MapShapeList& shapes,
+							 Plib::MapShapeList& shapes,
 							 short oldz,
 							 bool* result_out, short * newz_out, short* gradual_boost )
 	{
-	  static std::vector<const MapShape*> possible_shapes;
+	  static std::vector<const Plib::MapShape*> possible_shapes;
 	  possible_shapes.clear();
 	  bool land_ok = ( movemode & Core::MOVEMODE_LAND ) ? true : false;
 	  bool sea_ok = ( movemode & Core::MOVEMODE_SEA ) ? true : false;
@@ -102,12 +102,12 @@ namespace Pol {
 		}
 #endif
 
-		if ( ( land_ok && ( flags&FLAG::MOVELAND ) ) ||
-			 ( sea_ok && ( flags&FLAG::MOVESEA ) ) ||
-			 ( fly_ok && ( flags&FLAG::OVERFLIGHT ) ) )
+		if ( ( land_ok && ( flags & Plib::FLAG::MOVELAND ) ) ||
+			 ( sea_ok && ( flags & Plib::FLAG::MOVESEA ) ) ||
+			 ( fly_ok && ( flags & Plib::FLAG::OVERFLIGHT ) ) )
 		{
-		  if ( ( ( ztop <= oldz + 2 + the_boost ) || ( ( flags&FLAG::GRADUAL ) && ( ztop <= oldz + 15 ) )   // not too high to step onto
-			|| ( fly_ok && ( flags&FLAG::OVERFLIGHT ) && ( ztop <= oldz + 20 ) ) ) && // seems that flying allows higher steps
+		  if ( ( ( ztop <= oldz + 2 + the_boost ) || ( ( flags & Plib::FLAG::GRADUAL ) && ( ztop <= oldz + 15 ) )   // not too high to step onto
+			|| ( fly_ok && ( flags & Plib::FLAG::OVERFLIGHT ) && ( ztop <= oldz + 20 ) ) ) && // seems that flying allows higher steps
 			( ztop >= newz ) )     // but above or same as the highest yet seen
 		  {
 #if ENABLE_POLTEST_OUTPUT
@@ -136,7 +136,7 @@ namespace Pol {
 		  newz = pos_shape->z + pos_shape->height;
 		  for ( const auto &shape : shapes )
 		  {
-			if ( ( shape.flags & ( FLAG::MOVELAND | FLAG::MOVESEA | FLAG::BLOCKING ) ) == 0 )
+			if ( ( shape.flags & ( Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING ) ) == 0 )
 			  continue;
 			int shape_top = shape.z + shape.height;
 
@@ -170,7 +170,7 @@ namespace Pol {
 			  continue;
 			ret_result = true;
 			ret_newz = newz;
-			if ( pos_shape->flags & FLAG::GRADUAL )
+			if ( pos_shape->flags & Plib::FLAG::GRADUAL )
 			  new_boost = pos_shape->height;
 		  }
 		}
@@ -189,7 +189,7 @@ namespace Pol {
 
 
 	void Realm::lowest_standheight( Core::MOVEMODE movemode,
-									MapShapeList& shapes,
+									Plib::MapShapeList& shapes,
 									short minz,
 									bool* result_out, short* newz_out, short* gradual_boost )
 	{
@@ -204,8 +204,8 @@ namespace Pol {
 
 	  if ( shapes.size() == 1 ) //map only
 	  {
-		const MapShape& shape = shapes.at( 0 );
-		if ( land_ok && ( shape.flags & ( FLAG::MOVELAND ) ) )
+		const Plib::MapShape& shape = shapes.at( 0 );
+		if ( land_ok && ( shape.flags & ( Plib::FLAG::MOVELAND ) ) )
 		{
 		  *result_out = true;
 		  *newz_out = shape.z + shape.height;
@@ -233,9 +233,9 @@ namespace Pol {
 		if ( the_boost < 5 )
 		  the_boost = 5;
 
-		if ( ( land_ok && ( flags&FLAG::MOVELAND ) ) ||
-			 ( sea_ok && ( flags&FLAG::MOVESEA ) ) ||
-			 ( fly_ok && ( flags&FLAG::OVERFLIGHT ) ) )
+		if ( ( land_ok && ( flags & Plib::FLAG::MOVELAND ) ) ||
+			 ( sea_ok && ( flags & Plib::FLAG::MOVESEA ) ) ||
+			 ( fly_ok && ( flags & Plib::FLAG::OVERFLIGHT ) ) )
 		{
 		  if ( ( ztop >= minz ) &&	// higher than our base
 			   ( ztop < newz ) )		// lower than we've seen before
@@ -247,7 +247,7 @@ namespace Pol {
 			// validate that its actually standable
 			for ( const auto &shapeCheck : shapes )
 			{
-			  if ( ( shapeCheck.flags & ( FLAG::MOVELAND | FLAG::MOVESEA | FLAG::BLOCKING ) ) == 0 )
+			  if ( ( shapeCheck.flags & ( Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING ) ) == 0 )
 				continue;
 
 			  if ( ( ( ztop < shapeCheck.z ) &&		// if the check-shape is higher than the location
@@ -276,7 +276,7 @@ namespace Pol {
 			{
 			  newz = ztop;
 			  result = true;
-			  if ( flags&FLAG::GRADUAL )
+			  if ( flags & Plib::FLAG::GRADUAL )
 				new_boost = shape.height;
 			}
 		  }
@@ -296,18 +296,18 @@ namespace Pol {
 
 	
 
-	void Realm::readdynamics( MapShapeList& vec, unsigned short x, unsigned short y, Core::ItemsVector& walkon_items, bool doors_block )
+	void Realm::readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y, Core::ItemsVector& walkon_items, bool doors_block )
 	{
 	  Core::ZoneItems& witems = Core::getzone( x, y, this ).items;
 	  for ( const auto &item : witems )
 	  {
 		if ( ( item->x == x ) && ( item->y == y ) )
 		{
-		  if ( Core::tile_flags( item->graphic ) & FLAG::WALKBLOCK )
+		  if ( Core::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
 		  {
 			if ( doors_block || item->itemdesc().type != Items::ItemDesc::DOORDESC )
 			{
-			  MapShape shape;
+			  Plib::MapShape shape;
 			  shape.z = item->z;
 			  shape.height = item->height;
 			  shape.flags = Plib::systemstate.tile[item->graphic].flags;
@@ -338,7 +338,7 @@ namespace Pol {
 		return false;
 	  }
 
-	  static MapShapeList shapes;
+	  static Plib::MapShapeList shapes;
 	  static MultiList mvec;
 	  static Core::ItemsVector walkon_items;
 	  shapes.clear();
@@ -346,9 +346,9 @@ namespace Pol {
 	  walkon_items.clear();
 
 	  readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
-	  unsigned int flags = FLAG::MOVE_FLAGS;
+	  unsigned int flags = Plib::FLAG::MOVE_FLAGS;
 	  if ( movemode & Core::MOVEMODE_FLY )
-		flags |= FLAG::OVERFLIGHT;
+		flags |= Plib::FLAG::OVERFLIGHT;
 	  readmultis( shapes, x, y, flags, mvec );
 	  getmapshapes( shapes, x, y, flags );
 
@@ -393,7 +393,7 @@ namespace Pol {
 		return false;
 	  }
 
-	  static MapShapeList shapes;
+	  static Plib::MapShapeList shapes;
 	  static MultiList mvec;
 	  static Core::ItemsVector walkon_items;
 	  shapes.clear();
@@ -401,9 +401,9 @@ namespace Pol {
 	  walkon_items.clear();
 
 	  readdynamics( shapes, x, y, walkon_items, chr->doors_block() );
-	  unsigned int flags = FLAG::MOVE_FLAGS;
+	  unsigned int flags = Plib::FLAG::MOVE_FLAGS;
 	  if ( chr->movemode & Core::MOVEMODE_FLY )
-		flags |= FLAG::OVERFLIGHT;
+		flags |= Plib::FLAG::OVERFLIGHT;
 	  readmultis( shapes, x, y, flags, mvec );
 	  getmapshapes( shapes, x, y, flags );
 
@@ -470,7 +470,7 @@ namespace Pol {
 		return false;
 	  }
 
-	  static MapShapeList shapes;
+	  static Plib::MapShapeList shapes;
 	  static MultiList mvec;
 	  static Core::ItemsVector walkon_items;
 	  shapes.clear();
@@ -478,9 +478,9 @@ namespace Pol {
 	  walkon_items.clear();
 
 	  readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
-	  unsigned int flags = FLAG::MOVE_FLAGS;
+	  unsigned int flags = Plib::FLAG::MOVE_FLAGS;
 	  if ( movemode & Core::MOVEMODE_FLY )
-		flags |= FLAG::OVERFLIGHT;
+		flags |= Plib::FLAG::OVERFLIGHT;
 	  readmultis( shapes, x, y, flags, mvec );
 	  getmapshapes( shapes, x, y, flags );
 
@@ -526,7 +526,7 @@ namespace Pol {
 		return false;
 	  }
 
-	  static MapShapeList shapes;
+	  static Plib::MapShapeList shapes;
 	  static MultiList mvec;
 	  static Core::ItemsVector ivec;
 	  shapes.clear();
@@ -534,8 +534,8 @@ namespace Pol {
 	  ivec.clear();
 
 	  readdynamics( shapes, dropx, dropy, ivec, true /* doors_block */ );
-	  readmultis( shapes, dropx, dropy, FLAG::DROP_FLAGS, mvec );
-	  getmapshapes( shapes, dropx, dropy, FLAG::DROP_FLAGS );
+	  readmultis( shapes, dropx, dropy, Plib::FLAG::DROP_FLAGS, mvec );
+	  getmapshapes( shapes, dropx, dropy, Plib::FLAG::DROP_FLAGS );
 
 	  bool result = dropheight( shapes, dropz, chrz, newz );
 	  if ( result )
@@ -553,7 +553,7 @@ namespace Pol {
 	}
 
 	// used to be statics_dropheight
-	bool Realm::dropheight( MapShapeList& shapes,
+	bool Realm::dropheight( Plib::MapShapeList& shapes,
 							short dropz,
 							short chrz,
 							short* newz )
@@ -574,7 +574,7 @@ namespace Pol {
 		}
 #endif
 
-		if ( flags & FLAG::ALLOWDROPON )
+		if ( flags & Plib::FLAG::ALLOWDROPON )
 		{
 		  if ( ( ztop <= chrz + PLAYER_CHARACTER_HEIGHT ) &&   // not too high to reach
 			   ( ztop >= z ) )          // but above or same as the highest yet seen
@@ -595,7 +595,7 @@ namespace Pol {
 	  {
 		for ( const auto &shape : shapes )
 		{
-		  if ( shape.flags & FLAG::BLOCKING )
+		  if ( shape.flags & Plib::FLAG::BLOCKING )
 		  {
 			short ztop = shape.z + shape.height;
 
@@ -630,7 +630,7 @@ namespace Pol {
 
 	}
 
-	void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags ) const
+	void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags ) const
 	{
       Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi )
       {
@@ -646,7 +646,7 @@ namespace Pol {
       } );
 	}
 
-	void Realm::readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags, MultiList& mvec ) const
+	void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int anyflags, MultiList& mvec ) const
 	{
       Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi )
       {
@@ -693,15 +693,15 @@ namespace Pol {
 
 	  bool onwater = false;
 
-	  static MapShapeList shapes;
+	  static Plib::MapShapeList shapes;
 	  shapes.clear();
 
 	  // possible: readdynamic, readmultis
-	  getmapshapes( shapes, x, y, static_cast<u32>(FLAG::ALL) );
+	  getmapshapes( shapes, x, y, static_cast<u32>(Plib::FLAG::ALL) );
 
 	  for ( const auto &shape : shapes)
 	  {
-		if ( shape.flags & FLAG::MOVESEA )
+		if ( shape.flags & Plib::FLAG::MOVESEA )
 		{
 		  onwater = true;
 		}
@@ -724,11 +724,11 @@ namespace Pol {
 		return NULL;
 	  }
 
-	  static MapShapeList vec;
+	  static Plib::MapShapeList vec;
 	  static MultiList mvec;
 	  vec.clear();
 	  mvec.clear();
-	  readmultis( vec, x, y, FLAG::MOVE_FLAGS, mvec );
+	  readmultis( vec, x, y, Plib::FLAG::MOVE_FLAGS, mvec );
 
 	  return find_supporting_multi( mvec, z );
 	}
@@ -761,7 +761,7 @@ namespace Pol {
 		return _staticserver->findstatic( x, y, objtype );
 	}
 
-	void Realm::getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const
+	void Realm::getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const
 	{
 	  if ( is_shadowrealm )
 		return baserealm->_staticserver->getstatics( statics, x, y );
@@ -771,17 +771,17 @@ namespace Pol {
 
 	bool Realm::groundheight( unsigned short x, unsigned short y, short* z ) const
 	{
-	  MAPTILE_CELL cell = _maptileserver->GetMapTile( x, y );
+	  Plib::MAPTILE_CELL cell = _maptileserver->GetMapTile( x, y );
 	  *z = cell.z;
 
 	  if ( cell.landtile == GRAPHIC_NODRAW ) // it's a nodraw tile
 		*z = Core::ZCOORD_MIN;
 
 	  return ( ( cell.landtile < 0x4000 ) &&
-			   ( ( Core::landtile_flags( cell.landtile ) & FLAG::BLOCKING ) == 0 ) );
+			   ( ( Core::landtile_flags( cell.landtile ) & Plib::FLAG::BLOCKING ) == 0 ) );
 	}
 
-	MAPTILE_CELL Realm::getmaptile( unsigned short x, unsigned short y ) const
+	Plib::MAPTILE_CELL Realm::getmaptile( unsigned short x, unsigned short y ) const
 	{
 	  if ( is_shadowrealm )
 		return baserealm->_maptileserver->GetMapTile( x, y );
@@ -789,7 +789,7 @@ namespace Pol {
 		return _maptileserver->GetMapTile( x, y );
 	}
 
-	void Realm::getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const
+	void Realm::getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const
 	{
 	  if ( is_shadowrealm )
 		baserealm->_mapserver->GetMapShapes( shapes, x, y, anyflags );

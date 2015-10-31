@@ -31,7 +31,7 @@ namespace Pol {
 	  typedef UMulti base;
 
 	public:
-	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags );
+	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags );
 	  void destroy_components();
 
 	  CustomHouseDesign CurrentDesign;

@@ -109,7 +109,7 @@ namespace Pol {
       std::string zonestr, strrealm;
 
 	  strrealm = elem.remove_string( "Realm", "britannia" );
-      Plib::Realm* realm = find_realm( strrealm );
+      Realms::Realm* realm = find_realm( strrealm );
 	  if ( !realm )
 		elem.throw_error( "Realm not found" );
 	  while ( elem.remove_prop( "Range", &zonestr ) )
@@ -147,7 +147,7 @@ namespace Pol {
 	  }
 	}
 
-    RegionId RegionGroupBase::getregionid( xcoord x, ycoord y, Plib::Realm* realm )
+    RegionId RegionGroupBase::getregionid( xcoord x, ycoord y, Realms::Realm* realm )
 	{
 	  unsigned zx, zy;
 	  XyToZone( x, y, &zx, &zy );
@@ -168,7 +168,7 @@ namespace Pol {
 		return ( *itr ).second;
 	}
 
-	Region* RegionGroupBase::getregion_byloc( xcoord x, ycoord y, Plib::Realm* realm )
+	Region* RegionGroupBase::getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm )
 	{
 	  RegionId ridx = getregionid( x, y, realm );
 
@@ -211,7 +211,7 @@ namespace Pol {
         if (realm.first != nullptr)
         {
 		  unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
-          size+=gridwidth*sizeof(RegionId) + sizeof(Plib::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
+          size+=gridwidth*sizeof(RegionId) + sizeof(Realms::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
         }
 	  }
       size += name_.capacity();

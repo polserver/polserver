@@ -101,7 +101,7 @@ namespace Pol {
       /**
        * use the program abort reporting system
        */
-      if(Plib::systemstate.config.report_program_aborts)
+      if(Plib::systemstate.config.report_program_aborts())
       {
     	  char reportedReason[512];
     	  if(sprintf(reportedReason, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr, reason.c_str(),file, line) > 0)

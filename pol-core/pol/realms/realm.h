@@ -10,17 +10,17 @@ Notes
 
 */
 
-#ifndef PLIB_REALM_H
-#define PLIB_REALM_H
+#ifndef POL_REALM_H
+#define POL_REALM_H
 
-#include "realmdescriptor.h"
-#include "staticblock.h"
-#include "../pol/uconst.h" // for MOVEMODE under gcc, bleh
-#include "../pol/udatfile.h"
+#include "../../plib/realmdescriptor.h"
+#include "../../plib/staticblock.h"
+#include "../uconst.h"
+#include "../udatfile.h"
 
 #include "WorldChangeReasons.h"
 
-#include "../clib/rawtypes.h"
+#include "../../clib/rawtypes.h"
 
 #include <set>
 #include <vector>
@@ -49,8 +49,9 @@ namespace Pol {
 	struct MAPTILE_CELL;
 	class MapTileServer;
 	class StaticServer;
+  }
+  namespace Realms {
 	
-
 	typedef std::vector<Multi::UMulti*> MultiList;
 
 	class Realm
@@ -123,12 +124,12 @@ namespace Pol {
 
 	  bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const;
 	  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
-	  void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;
+	  void getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const;
 	  bool groundheight( unsigned short x, unsigned short y, short* z ) const;
-	  MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
-	  void getmapshapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const;
-	  void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags ) const;
-	  void readmultis( MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags, MultiList& mvec ) const;
+	  Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
+	  void getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const;
+	  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags ) const;
+	  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags, MultiList& mvec ) const;
 	  void readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const;
 
 	  Core::Zone** zone;
@@ -139,23 +140,23 @@ namespace Pol {
 	  static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );
 	protected:
 	  static void standheight( Core::MOVEMODE movemode,
-							   MapShapeList& shapes,
+							   Plib::MapShapeList& shapes,
 							   short oldz, bool* result,
 							   short* newz,
 							   short* gradual_boost = NULL );
 
 	  static void lowest_standheight( Core::MOVEMODE movemode,
-									  MapShapeList& shapes,
+									  Plib::MapShapeList& shapes,
 									  short oldz, bool* result,
 									  short* newz,
 									  short* gradual_boost = NULL );
 
-	  static bool dropheight( MapShapeList& shapes,
+	  static bool dropheight( Plib::MapShapeList& shapes,
 							  short dropz,
 							  short chrz,
 							  short* newz );
 
-	  void readdynamics( MapShapeList& vec,
+	  void readdynamics( Plib::MapShapeList& vec,
 						 unsigned short x,
 						 unsigned short y,
 						 Core::ItemsVector& walkon_items,
@@ -171,14 +172,14 @@ namespace Pol {
 	  Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;
 
 	private:
-	  const RealmDescriptor _descriptor;
+	  const Plib::RealmDescriptor _descriptor;
       unsigned int _mobile_count;
       unsigned int _offline_count;
       unsigned int _toplevel_item_count;
       unsigned int _multi_count;
-	  std::unique_ptr<MapServer> _mapserver;
-	  std::unique_ptr<StaticServer> _staticserver;
-	  std::unique_ptr<MapTileServer> _maptileserver;
+	  std::unique_ptr<Plib::MapServer> _mapserver;
+	  std::unique_ptr<Plib::StaticServer> _staticserver;
+	  std::unique_ptr<Plib::MapTileServer> _maptileserver;
 
 	private:
 	  // not implemented:

@@ -9,11 +9,11 @@ Notes
 
 #include "realm.h"
 
-#include "../pol/los.h"
-#include "../pol/mobile/charactr.h"
+#include "../los.h"
+#include "../mobile/charactr.h"
 
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
     bool Realm::has_los( const Core::UObject& iatt, const Core::UObject& itgt ) const
 	{
 	  if ( iatt.realm != itgt.realm )

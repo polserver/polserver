@@ -27,7 +27,6 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 
 #include "../bscript/berror.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "fnsearch.h"
@@ -48,6 +47,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "pktin.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "sfx.h"
 #include "sockio.h"
 #include "statmsg.h"
@@ -61,7 +61,7 @@ FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks th
 #include "uworld.h"
 #include "containr.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
