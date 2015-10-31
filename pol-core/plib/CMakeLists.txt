@@ -23,8 +23,6 @@ SET (SOURCES  # sorted !
 	testenv.cpp
 	testlos1.cpp 
 	testwalk1.cpp
-	../pol/multi/multicr.cpp
-	../pol/ufunc.cpp
 )
 
 ##############################################################
