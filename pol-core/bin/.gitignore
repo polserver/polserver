@@ -3,5 +3,7 @@
 /runecl
 /uoconvert
 /uotool
-/*-dynamic
+/poltool
+*-dynamic
 *.so
+
