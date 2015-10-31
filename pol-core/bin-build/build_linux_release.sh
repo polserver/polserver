@@ -16,11 +16,11 @@ mkdir -p $DEST_DIR_DISTRI/scripts/modules
 mkdir -p $DEST_DIR_DISTRI/config
 
 echo "############## Removing debug symbols and copying binaries to RELEASE folder"
-strip -o $DEST_DIR_DISTRI/pol				$SOURCE_DIR_BUILD_BIN/pol
-strip -o $DEST_DIR_DISTRI/scripts/ecompile	$SOURCE_DIR_BUILD_BIN/ecompile
-strip -o $DEST_DIR_DISTRI/scripts/runecl	$SOURCE_DIR_BUILD_BIN/runecl
-strip -o $DEST_DIR_DISTRI/uoconvert			$SOURCE_DIR_BUILD_BIN/uoconvert
-strip -o $DEST_DIR_DISTRI/uotool			$SOURCE_DIR_BUILD_BIN/uotool
+strip -o $DEST_DIR_DISTRI/pol              $SOURCE_DIR_BUILD_BIN/pol
+strip -o $DEST_DIR_DISTRI/scripts/ecompile $SOURCE_DIR_BUILD_BIN/ecompile
+strip -o $DEST_DIR_DISTRI/scripts/runecl   $SOURCE_DIR_BUILD_BIN/runecl
+strip -o $DEST_DIR_DISTRI/uoconvert        $SOURCE_DIR_BUILD_BIN/uoconvert
+strip -o $DEST_DIR_DISTRI/uotool           $SOURCE_DIR_BUILD_BIN/uotool
 
 echo "############## Copying additionally needed files to RELEASE folder"
 cp ../support/scripts/*.em                 $DEST_DIR_DISTRI/scripts/modules
