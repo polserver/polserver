@@ -1,5 +1,4 @@
 ###############################################################################
-
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeConfig.txt)
 
 MESSAGE("####################################")
@@ -9,10 +8,10 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES  # sorted !
-    ../../lib/tinyxml/tinystr.cpp 
-    ../../lib/tinyxml/tinyxml.cpp
-    ../../lib/tinyxml/tinyxmlerror.cpp 
-    ../../lib/tinyxml/tinyxmlparser.cpp 
+    tinystr.cpp 
+    tinyxml.cpp
+    tinyxmlerror.cpp 
+    tinyxmlparser.cpp 
 )
 
 ##############################################################
@@ -36,7 +35,7 @@ SET (LIBS_LINUX
 ##############################################################
 # define target directory
 SET (TARGET_DIRECTORY
-	${CMAKE_CURRENT_LIST_DIR}/../bin
+	${CMAKE_CURRENT_LIST_DIR}/../../pol-core/bin
 )
 
 ##############################################################
