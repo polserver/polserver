@@ -1,7 +1,27 @@
 <?php
 
-//$header = '/home/polteam/include/_header.php';
-$offline = 0;
+// NOTE:
+// An online website can define its own $header to prevent default one from being included
+// also $official, $analytics and other site-specific variables can be defined there
+
+// Set this to true on the official website
+$official = false;
+
+//$analytics = '
+//     <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+//     </script>
+//     <script type="text/javascript">
+//     _uacct = "UA-2869696-3";
+//     urchinTracker();
+//     </script>'
+
+define('OFFICIAL_HEADER_PATH', '/home/polteam/include/_header.php');
+if( file_exists(OFFICIAL_HEADER_PATH) )
+    $header = OFFICIAL_HEADER_PATH;
+
+// Will be set to true when building the offline doc
+$offline = false;
+
 set_error_handler('XML_errorHandler');
 
 if (function_exists('date_default_timezone_set'))
@@ -101,8 +121,10 @@ window.onload = initMenus;
 <?php
 }
 
-function mainpageheader($offline=0)
+function mainpageheader()
 {
+   global $offline, $official;
+
    echo('
     <div class="container">
       <div id="doc-mini-header">
@@ -115,7 +137,7 @@ function mainpageheader($offline=0)
 	      version may contain more up-to-date information.<p>
         I hope you find these documents useful!');
     
-    if (!$offline)
+    if( ! $offline && $official )
     {
     global $archivetime;
       echo('
@@ -138,9 +160,11 @@ function mainpageheader($offline=0)
 }
 
 /* web page footer function */
-function sitefooter($offline=0)
+function sitefooter()
 {
-   if (!$offline) {
+   global $offline, $official;
+
+   if ( ! $offline && $official ) {
      echo ('</div></div>');
    }
    echo ('
@@ -154,9 +178,11 @@ function sitefooter($offline=0)
     </p>
     </div>
     </div>
+    ');
+    if( isset($analytics) )
+        echo($analytics);
+    echo ('
     </body>
     </html>
    ');
 }
-
-?>

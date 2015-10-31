@@ -135,7 +135,7 @@ function ob_file_callback($buffer)
 
    /* copy files */
    copy('style.css','offline/style.css');
-   //copy('picture_gump_finish_1.jpg','offline/picture_gump_finish_1.jpg');
+   copy('picture_gump_finish_1.jpg','offline/picture_gump_finish_1.jpg');
    if (!is_dir('offline/images')) {
      mkdir('offline/images');
    }

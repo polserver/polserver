@@ -1,11 +1,15 @@
 <?php
+
     $g_Page = "home";
     include( "include/global.inc" );
     //include_once ("include/archive.inc");
-    if( isset($header) && $header )
+    if( isset($header) )
       include_once $header;
 
     /* add the header */
+    if( ! isset($header) ) {
+        siteheader('POL Documentation Site');
+    }
     mainpageheader();
 
     $xsltproc = new XsltProcessor();
@@ -51,16 +55,8 @@
   </div>
   </div>
 </div>
-	<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-	</script>
-	<script type="text/javascript">
-		_uacct = "UA-2869696-3";
-		urchinTracker();
-	</script>
 <?php
-   
-   /* add the footer */
-   sitefooter($offline);
-?>
 
+   /* add the footer */
+   sitefooter();
 
