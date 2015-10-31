@@ -7,9 +7,9 @@ Notes
 
 */
 
-#ifdef HAVE_MYSQL
-
 #include "sqlscrobj.h"
+
+#ifdef HAVE_MYSQL
 
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"

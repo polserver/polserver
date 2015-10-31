@@ -260,6 +260,12 @@ SET (LIBS_LINUX
     pthread
     z
 )
+IF(HAVE_MYSQL)
+	SET (LIBS_LINUX
+		${LIBS_LINUX}
+		mysqlclient
+	)
+ENDIF()
 SET (LIBS_LINUX_STATIC_BIN_STATIC
     bscript_static
     clib_debugging_static
