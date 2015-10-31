@@ -28,7 +28,6 @@ before_install:
 #currently disabled 4.8 gcc test but use it for clang
 #  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
 #  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-  - sudo add-apt-repository -y ppa:smspillaz/cmake-2.8.12
   - cd lib
   - tar xjf boost_1_55_0.tar.bz2
   - cd ../pol-core/bin-build
