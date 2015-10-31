@@ -134,7 +134,7 @@ function ob_file_callback($buffer)
 
    
    /* copy files */
-   $styledir ='/home/.orlo/polteam/polserver.com/';
+   $styledir ='/home/polteam/polserver.com/';
    copy($styledir.'style.css','offline/style.css');
    copy('picture_gump_finish_1.jpg','offline/picture_gump_finish_1.jpg');
    if (!is_dir('offline/images')) {
