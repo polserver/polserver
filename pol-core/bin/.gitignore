@@ -6,4 +6,5 @@
 /poltool
 *-dynamic
 *.so
+*.a
 
