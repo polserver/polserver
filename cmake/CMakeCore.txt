@@ -262,12 +262,12 @@ IF (DEFINED TARGET_LIB_NAME)
     
     # trigger library creation
     IF(${BUILD_STATIC} MATCHES "ON")
-        MESSAGE("####################################################################### Building DYNAMIC and STATIC LIBRARIES")
+        MESSAGE("### Building DYNAMIC and STATIC LIBRARIES")
    		ADD_LIBRARY(${TARGET_LIB_NAME}_OBJECTS OBJECT ${SOURCES})
   		ADD_LIBRARY(${TARGET_LIB_NAME} SHARED $<TARGET_OBJECTS:${TARGET_LIB_NAME}_OBJECTS>)
     	ADD_LIBRARY(${TARGET_LIB_NAME}_static STATIC $<TARGET_OBJECTS:${TARGET_LIB_NAME}_OBJECTS>)
     ELSE()
-        MESSAGE("####################################################################### Building only DYNAMIC LIBRARIES")
+        MESSAGE("### Building only DYNAMIC LIBRARIES")
   		ADD_LIBRARY(${TARGET_LIB_NAME} SHARED ${SOURCES})
     ENDIF()
     SET(TARGET_NAME
