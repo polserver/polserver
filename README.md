@@ -40,6 +40,8 @@ Minimum compiler version: Visual Studio 2012 (Express editions might require the
 Compiling in Linux
 ----------
 
-Make sure you have the required libraries installed: boost, zlib and the mysql client (if SQL supported is desired), then run `./buildcore` in the `pol-core` folder.
+Make sure you have the required libraries installed: boost, zlib and the mysql client (if SQL supported is desired), then run the following commands:
+  `cd pol-core/bin-build`
+  `./build_linux.sh`
 
 Minimum compiler version: GCC 4.8 or LLVM/Clang 3.5.
