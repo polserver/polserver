@@ -1,6 +1,8 @@
 #ifndef GLOBALS_NETWORK_H
 #define GLOBALS_NETWORK_H
 
+#include "pol_global_config.h"
+
 #include "../network/iostats.h"
 #include "../network/msghandl.h"
 #include "../network/bannedips.h"
