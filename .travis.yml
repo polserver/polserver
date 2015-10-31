@@ -13,13 +13,12 @@ before_install:
 #  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
   - cd lib
   - tar xjf boost_1_55_0.tar.bz2
-  - cd ../pol-core
-  - chmod a+x buildcore
-  - chmod a+x analyzecore
+  - cd ../pol-core/bin-build
+  - chmod a+x build_linux.sh
   
 script:
-  - if [ "$CXX" = "g++" ]; then cd pol-core/bin-build && ./build_linux.sh; fi
-  - if [ "$CXX" = "clang++" ]; then ./analyzecore -n; fi
-  - cd ../testsuite/escript
-  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
+  - if [ "$CXX" = "g++" ]; then ./build_linux.sh; fi
+#  - if [ "$CXX" = "clang++" ]; then ./analyzecore -n; fi
+#  - cd ../testsuite/escript
+#  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
 
