@@ -1,7 +1,9 @@
 language: cpp
+
 compiler:
   - gcc
-  - clang 
+  - clang
+   
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
@@ -14,8 +16,9 @@ before_install:
   - cd ../pol-core
   - chmod a+x buildcore
   - chmod a+x analyzecore
+  
 script:
-  - if [ "$CXX" = "g++" ]; then ./buildcore; fi
+  - if [ "$CXX" = "g++" ]; then cd pol-core/bin-build && ./build_linux.sh; fi
   - if [ "$CXX" = "clang++" ]; then ./analyzecore -n; fi
   - cd ../testsuite/escript
   - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
