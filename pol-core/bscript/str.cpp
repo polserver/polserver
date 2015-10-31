@@ -880,7 +880,7 @@ namespace Pol {
 
                 // cout << "prop_name: '" << prop_name << "' tag_body: '" << tag_body << "'";
 
-                if ( ex.numParams() <= tag_param_idx )
+                if ( (int)ex.numParams() <= tag_param_idx )
                 {
                   result << "<invalid index: #" << ( tag_param_idx + 1 ) << ">";
                   continue;

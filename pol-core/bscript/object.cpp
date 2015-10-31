@@ -1586,7 +1586,7 @@ namespace Pol {
             else
               shift_by = 1;
 
-            if ( ref_arr.empty() || std::abs(shift_by) > ref_arr.size())
+            if ( ref_arr.empty() || std::abs(shift_by) > (int)ref_arr.size())
               return new BLong( 0 );
 
             if (shift_by>0)

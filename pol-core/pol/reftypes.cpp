@@ -86,10 +86,6 @@ namespace Pol {
 	  {
 		++hits;
 		cref_instance = crefs_count++;
-		if (cref_instance == 50)
-		{
-		  cref_instance = cref_instance;
-		}
 		crefs[ cref_instance ] = this;
 	  }
 	  ++characterrefs;
@@ -99,10 +95,6 @@ namespace Pol {
 	  --characterrefs;
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
-		if (cref_instance == 50)
-		{
-		  cref_instance = cref_instance;
-		}
 		crefs.erase( cref_instance );
 		--hits;
 	  }
