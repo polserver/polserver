@@ -15,8 +15,7 @@ MESSAGE("##### Preparing configuration")
 MESSAGE("####################################")
 
 ##############################################################
-# auto. link against qtmain.lib on Windows works since 2.8.11
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 ##############################################################
 # every version information in the rest of the build system is generated from the following entries
