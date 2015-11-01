@@ -13,6 +13,7 @@ Notes
 #include "../../clib/rawtypes.h"
 
 #include <map>
+#include <cstddef>
 #include <boost/noncopyable.hpp>
 
 namespace Pol {
