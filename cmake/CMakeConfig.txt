@@ -46,6 +46,22 @@ ENDIF (NOT DEFINED FORCE_ARCH_BITS)
 MESSAGE("Detected processor type is ${CMAKE_SYSTEM_PROCESSOR}")
 
 ##############################################################
+# detect compiler
+IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	MESSAGE("Detected compiler type is Clang")
+    SET (CLANG "true")
+ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	MESSAGE("Detected compiler type is GNU GCC")
+    SET (GCC "true")
+ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+	MESSAGE("Detected compiler type is Intel C++")
+    SET (INTELCPP "true")
+ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+	MESSAGE("Detected compiler type is Visual Studio C++")
+    SET (VSCPP "true")
+ENDIF()
+
+##############################################################
 # detect FreeBSD
 IF (${CMAKE_SYSTEM} MATCHES "FreeBSD.*")
     SET (BSD "true")
