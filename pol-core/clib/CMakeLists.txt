@@ -2,7 +2,7 @@
 
 ADD_SUBDIRECTORY(Debugging)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeConfig.txt)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
 
 MESSAGE("####################################")
 MESSAGE("##### Building POL - CLIB")

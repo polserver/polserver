@@ -26,10 +26,10 @@ ELSEIF (DEFINED TARGET_NAME_LIB)
 ENDIF ()
 
 ##############################################################
-# check if CMakePreDefs.txt was parsed before
+# check if CMakeEnvironment.txt was parsed before
 IF (NOT PRE_DEFINITIONS_EXECUTED)
-    MESSAGE("Including automatically the pre-definitions from CMakeConfig.txt..")
-    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeConfig.txt)
+    MESSAGE("Including automatically the pre-definitions from CMakeEnvironment.txt..")
+    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeEnvironment.txt)
 ENDIF ()
 
 ##############################################################
