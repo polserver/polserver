@@ -66,20 +66,24 @@ ENDIF()
 
 ##############################################################
 # library search paths
-SET (LIB_DIRS
-    ${LIB_DIRS}
-    /usr/local/lib
-    /usr/lib
-    /usr/lib${ARCH_BITS}
-)
+IF(NOT WINDOWS)
+	SET (LIB_DIRS
+    	${LIB_DIRS}
+	    /usr/local/lib
+	    /usr/lib
+    	/usr/lib${ARCH_BITS}
+	)
+ENDIF()
+MESSAGE("### Library search path: ${LIB_DIRS}")
 
 ##############################################################
 # include dirs
-SET (INCLUDE_DIRS
-    ${INCLUDE_DIRS}
-    /usr/local/include    
-)
-
+IF(NOT WINDOWS)
+	SET (INCLUDE_DIRS
+	    ${INCLUDE_DIRS}
+	    /usr/local/include    
+	)
+ENDIF()
 MESSAGE("### Header search path: ${INCLUDE_DIRS}")
 
 ##############################################################
@@ -112,12 +116,16 @@ IF (${BUILD} MATCHES "Debug")
     IF (APPLE)
         SET (FLAGS "${FLAGS} -g -DDEBUG_VERSION")
     ELSEIF(WINDOWS)
-        # TODO
+    	SET (FLAGS "${FLAGS} /DDEBUG_VERSION")
     ELSE()
         SET (FLAGS "${FLAGS} -g -ggdb -DDEBUG_VERSION")
     ENDIF()
 ELSE ()
-    SET (FLAGS "${FLAGS} -DRELEASE_VERSION")
+    IF(WINDOWS)
+    	SET (FLAGS "${FLAGS} /DRELEASE_VERSION")
+    ELSE()
+    	SET (FLAGS "${FLAGS} -DRELEASE_VERSION")
+    ENDIF()
 ENDIF ()
 
 ##############################################################
