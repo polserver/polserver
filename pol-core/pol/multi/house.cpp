@@ -23,14 +23,13 @@ Notes
 #include "../../bscript/objmethods.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/streamsaver.h"
 
-#include "../../plib/realm.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
@@ -42,6 +41,7 @@ Notes
 #include "../objtype.h"
 #include "../polcfg.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../tiles.h"
@@ -577,7 +577,7 @@ namespace Pol {
 
 	//fixme realm
 	bool multis_exist_in( unsigned short mywest, unsigned short mynorth,
-						  unsigned short myeast, unsigned short mysouth, Plib::Realm* realm )
+						  unsigned short myeast, unsigned short mysouth, Realms::Realm* realm )
 	{
 	  unsigned short wxL, wyL, wxH, wyH;
 
@@ -638,7 +638,7 @@ namespace Pol {
 	  return false;
 	}
 
-	bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2, Plib::Realm* realm )
+	bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2, Realms::Realm* realm )
 	{
 	  unsigned short wxL, wyL, wxH, wyH;
       Core::zone_convert_clip( x1, y1, realm, &wxL, &wyL );
@@ -675,7 +675,7 @@ namespace Pol {
 
 	bool statics_cause_problems( unsigned short x1, unsigned short y1,
 								 unsigned short x2, unsigned short y2,
-								 s8 z, int /*flags*/, Plib::Realm* realm )
+								 s8 z, int /*flags*/, Realms::Realm* realm )
 	{
 	  for ( unsigned short x = x1; x <= x2; ++x )
 	  {
@@ -699,7 +699,7 @@ namespace Pol {
 	  return false;
 	}
 
-    Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags )
+    Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags )
 	{
 	  const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
 	  if ( md == NULL )

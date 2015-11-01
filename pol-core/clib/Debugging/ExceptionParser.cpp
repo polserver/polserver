@@ -3,7 +3,6 @@
 #include "../threadhelp.h"
 #include "../logfacility.h"
 
-#include "../../plib/systemstate.h"
 #include "../../plib/polver.h"
 
 #include <cstring>
@@ -35,6 +34,15 @@
 
 namespace Pol{ namespace Clib{
 using namespace std;
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool ExceptionParser::m_programAbortReporting = true;
+std::string ExceptionParser::m_programAbortReportingServer = "";
+std::string ExceptionParser::m_programAbortReportingUrl = "";
+std::string ExceptionParser::m_programAbortReportingReporter = "";
+std::string ExceptionParser::m_programName = "";
+std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTimeStamp();
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -123,13 +131,13 @@ void getSignalDescription(int signal, string &signalName, string &signalDescript
     }
 }
 
-void logExceptionSignal(int pSignal)
+void logExceptionSignal(int signal)
 {
     string signalName;
     string signalDescription;
 
-    getSignalDescription(pSignal, signalName, signalDescription);
-    printf("Signal \"%s\"(%d: %s) detected.\n", signalName.c_str(), pSignal, signalDescription.c_str());
+    getSignalDescription(signal, signalName, signalDescription);
+    printf("Signal \"%s\"(%d: %s) detected.\n", signalName.c_str(), signal, signalDescription.c_str());
 }
 
 string getCompilerVersion()
@@ -284,17 +292,17 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
      */
     string host = "polserver.com";
     string url = "/pol/report_program_abort.php";
-    if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
+    if((m_programAbortReportingServer.c_str() != NULL) && (m_programAbortReportingServer != ""))
     {
-        host = Plib::systemstate.config.report_server;
-        if(Plib::systemstate.config.report_url.c_str() != NULL)
-            url = Plib::systemstate.config.report_url;
+        host = m_programAbortReportingServer;
+        if(m_programAbortReportingUrl.c_str() != NULL)
+            url = m_programAbortReportingUrl;
     }
 
     // create the abort description for the subsequent POST request
-    string content = "email=" + Pol::Plib::systemstate.config.report_admin_email + "&"
-                     "bin=" + Pol::Plib::systemstate.executable + "&"
-                     "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
+    string content = "email=" + m_programAbortReportingReporter + "&"
+                     "bin=" + m_programName + "&"
+                     "start_time=" + m_programStart + "&"
                      "abort_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
                      "reason=" + reason + "&"
                      "trace=" + stackTrace + "&"
@@ -308,9 +316,9 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
     doHttpPOST(host, url, content);
 }
 
-void handleExceptionSignal(int pSignal)
+void ExceptionParser::handleExceptionSignal(int signal)
 {
-    switch(pSignal)
+    switch(signal)
     {
         case SIGILL:
         case SIGFPE:
@@ -322,14 +330,14 @@ void handleExceptionSignal(int pSignal)
                  * inform the user about the program abort
                  */
                 printf("########################################################################################\n");
-                if(Plib::systemstate.config.report_program_aborts)
+                if(m_programAbortReporting)
                     printf("POL will exit now. The following will be sent to the POL developers:\n");
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
-                printf("Admin contact: %s\n", Pol::Plib::systemstate.config.report_admin_email.c_str());
-                printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
-                printf("Start time: %s\n", Pol::Plib::systemstate.getStartTime().c_str());
+                printf("Admin contact: %s\n", m_programAbortReportingReporter.c_str());
+                printf("Executable: %s\n", m_programName.c_str());
+                printf("Start time: %s\n", m_programStart.c_str());
                 printf("Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str());
                 printf("\n");
                 printf("Stack trace:\n%s", tStackTrace.c_str());
@@ -347,12 +355,12 @@ void handleExceptionSignal(int pSignal)
                 /**
                  * use the program abort reporting system
                  */
-                if(Plib::systemstate.config.report_program_aborts)
+                if(m_programAbortReporting)
                 {
                     string signalName;
                     string signalDescription;
 
-                    getSignalDescription(pSignal, signalName, signalDescription);
+                    getSignalDescription(signal, signalName, signalDescription);
                     ExceptionParser::reportProgramAbort(tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription + ")");
                 }
 
@@ -475,25 +483,25 @@ string ExceptionParser::getTrace()
     return result;
 }
 
-static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
+static void handleSignalLinux(int signal, siginfo_t *signalInfo, void *arg)
 {
-    (void)pArg;
-    logExceptionSignal(pSignal);
-    if (pSignalInfo != NULL)
+    (void)arg;
+    logExceptionSignal(signal);
+    if (signalInfo != NULL)
     {
-        if(pSignal == SIGSEGV)
+        if(signal == SIGSEGV)
         {
-            if(pSignalInfo->si_addr != NULL)
-                printf("Segmentation fault detected - faulty memory reference at location: %p\n", pSignalInfo->si_addr);
+            if(signalInfo->si_addr != NULL)
+                printf("Segmentation fault detected - faulty memory reference at location: %p\n", signalInfo->si_addr);
             else
                 printf("Segmentation fault detected - null pointer reference\n");
         }
-        if (pSignalInfo->si_errno != 0)
-            printf("This signal occurred because \"%s\"(%d)\n", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
-        if (pSignalInfo->si_code != 0)
-            printf("Signal code is %d\n", pSignalInfo->si_code);
+        if (signalInfo->si_errno != 0)
+            printf("This signal occurred because \"%s\"(%d)\n", strerror(signalInfo->si_errno), signalInfo->si_errno);
+        if (signalInfo->si_code != 0)
+            printf("Signal code is %d\n", signalInfo->si_code);
     }
-    handleExceptionSignal(pSignal);
+    ExceptionParser::handleExceptionSignal(signal);
 }
 
 static void handleStackTraceRequestLinux(int signal, siginfo_t *signalInfo, void *arg)
@@ -585,6 +593,20 @@ void ExceptionParser::initGlobalExceptionCatching()
 
 }
 #endif // _WIN32
+
+void ExceptionParser::configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter, std::string programName)
+{
+	m_programAbortReporting = active;
+    m_programAbortReportingServer = server;
+    m_programAbortReportingUrl = url;
+    m_programAbortReportingReporter = reporter;
+    m_programName = programName;
+}
+
+bool ExceptionParser::programAbortReporting()
+{
+	return m_programAbortReporting;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

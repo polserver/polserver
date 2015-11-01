@@ -16,9 +16,10 @@ Notes
 #include "../plib/mapshape.h"
 #include "../plib/realmdescriptor.h"
 
-#include "../plib/realm.h"
 #include "../plib/maptile.h"
 #include "../plib/maptileserver.h"
+
+#include "../pol/realms/realm.h"
 
 #include <string>
 #include <fstream>
@@ -41,7 +42,7 @@ namespace Pol {
 	{
 	  short wxl = 5485, wxh = 5500, wyl = 0, wyh = 30;
 
-	  char* realmname = "britannia";
+	  char* realmname = (char*)"britannia";
 	  if ( argc >= 6 )
 	  {
 		realmname = argv[5];

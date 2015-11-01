@@ -8,16 +8,14 @@ Notes
 
 */
 
-#ifdef HAVE_MYSQL
-
 #ifndef SQLSCROBJ_H
 #define SQLSCROBJ_H
 
+#include "pol_global_config.h"
 
-#ifndef BSCRIPT_BOBJECT_H
+#ifdef HAVE_MYSQL
+
 #include "../bscript/bobject.h"
-#endif
-
 #include "../bscript/contiter.h"
 #ifdef _WIN32
 #   define WIN32_LEAN_AND_MEAN

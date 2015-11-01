@@ -365,6 +365,10 @@
     <ClCompile Include="polwww.cpp" />
     <ClCompile Include="proplist.cpp" />
     <ClCompile Include="realms.cpp" />
+    <ClCompile Include="realms\realm.cpp" />
+    <ClCompile Include="realms\realmfunc.cpp" />
+    <ClCompile Include="realms\realmlos.cpp" />
+    <ClCompile Include="realms\realmlos2.cpp" />
     <ClCompile Include="reftypes.cpp" />
     <ClCompile Include="region.cpp" />
     <ClCompile Include="repsys.cpp" />
@@ -404,6 +408,7 @@
     <ClCompile Include="ufunc2.cpp" />
     <ClCompile Include="uimport.cpp" />
     <ClCompile Include="umap.cpp" />
+    <ClCompile Include="unicode.cpp" />
     <ClCompile Include="uobjcnt.cpp" />
     <ClCompile Include="uobject.cpp" />
     <ClCompile Include="uobjhelp.cpp" />
@@ -652,6 +657,8 @@
     <ClInclude Include="property.h" />
     <ClInclude Include="proplist.h" />
     <ClInclude Include="realms.h" />
+    <ClInclude Include="realms\realm.h" />
+    <ClInclude Include="realms\WorldChangeReasons.h" />
     <ClInclude Include="reftypes.h" />
     <ClInclude Include="region.h" />
     <ClInclude Include="repsys.h" />
@@ -696,6 +703,7 @@
     <ClInclude Include="uimport.h" />
     <ClInclude Include="umanip.h" />
     <ClInclude Include="umap.h" />
+    <ClInclude Include="unicode.h" />
     <ClInclude Include="uobjcnt.h" />
     <ClInclude Include="uobject.h" />
     <ClInclude Include="uobjhelp.h" />

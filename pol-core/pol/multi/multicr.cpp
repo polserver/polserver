@@ -19,7 +19,7 @@ Notes
 
 #include "../../bscript/berror.h"
 
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/strutil.h"
 #include "../../clib/logfacility.h"
 
@@ -70,7 +70,7 @@ namespace Pol {
 	}
 
 
-	Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags )
+	Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags )
 	{
       if ( descriptor.type == Items::ItemDesc::BOATDESC )
 		return UBoat::scripted_create( descriptor, x, y, z, realm, flags );

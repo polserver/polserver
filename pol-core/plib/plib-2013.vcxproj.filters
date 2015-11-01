@@ -35,19 +35,7 @@
     <ClCompile Include="polver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="realm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="realmdescriptor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="realmfunc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="realmlos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="realmlos2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="staticserver.cpp">
@@ -116,9 +104,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="polver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="realm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="realmdescriptor.h">

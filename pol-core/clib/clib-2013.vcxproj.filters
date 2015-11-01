@@ -116,9 +116,6 @@
     <ClCompile Include="tracebuf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="unicode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wallclock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -287,9 +284,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tracebuf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="unicode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="unittest.h">

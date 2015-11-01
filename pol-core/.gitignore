@@ -7,7 +7,3 @@
 Debug/
 Release/
 *.log
-dist/obj-zip
-dist/pol-*.zip
-dist/src-zip/
-dist/lib-zip/

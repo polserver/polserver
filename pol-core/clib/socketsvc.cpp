@@ -8,6 +8,7 @@ Notes
 */
 
 
+#include "logfacility.h"
 #include "socketsvc.h"
 
 #include "passert.h"
@@ -28,7 +29,10 @@ namespace Pol {
 	  _listen_sck()
 	{
 	  if( !_listen_sck.listen( port ) )
-		throw std::runtime_error( "Unable to open listen port " + decint( port ) );
+	  {
+		POLLOG_ERROR << "Unable to open listen port " + decint( port );
+		abort();
+	  }
 	}
 
 	SocketListener::SocketListener( unsigned short port, Socket::option opt ) :
@@ -37,7 +41,10 @@ namespace Pol {
 	  _listen_sck.set_options( opt );
 
 	  if( !_listen_sck.listen( port ) )
-          throw std::runtime_error("Unable to open listen port " + decint(port));
+	  {
+		POLLOG_ERROR << "Unable to open listen port " + decint( port );
+		abort();
+	  }
 	}
 
 	bool SocketListener::GetConnection( unsigned int timeout_sec )

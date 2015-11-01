@@ -10,9 +10,9 @@ Notes
 
 #include "unicode.h"
 
-#include "endian.h"
+#include "../clib/clib_endian.h"
 namespace Pol {
-  namespace Clib {
+  namespace Core {
 	// Warning: Make sure that your buffer if large enough! Don't forget to add space for null terminator if requested.
 	bool convertArrayToUC( Bscript::ObjArray*& in_text, u16* out_wtext,
 						   size_t textlen, bool ConvToBE /*false*/, bool nullterm /*true*/ )

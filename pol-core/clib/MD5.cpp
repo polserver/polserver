@@ -16,6 +16,7 @@ Notes
 
 #include <sstream>
 #include <iomanip>
+#include "pol_global_config.h"
 
 #ifdef _WIN32
 

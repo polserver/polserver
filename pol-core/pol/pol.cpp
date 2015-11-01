@@ -55,7 +55,6 @@ Notes
 */
 
 #include "../plib/pkg.h"
-#include "../plib/realm.h"
 
 #include "../bscript/escriptv.h"
 #include "../plib/polver.h"
@@ -100,6 +99,7 @@ Notes
 #include "poltest.h"
 #include "polwww.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "savedata.h"
 #include "schedule.h"
 #include "scrdef.h"
@@ -125,7 +125,7 @@ Notes
 #include "network/clientthread.h"
 
 #include "../clib/MD5.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fdump.h"
 #include "../clib/fileutil.h"
@@ -463,7 +463,7 @@ namespace Pol {
       else
       {
         // logging in a character that's offline.
-        SetCharacterWorldPosition(chosen_char, Plib::WorldChangeReason::PlayerEnter);
+        SetCharacterWorldPosition(chosen_char, Realms::WorldChangeReason::PlayerEnter);
         chosen_char->logged_in = true;
       }
 
@@ -837,7 +837,7 @@ namespace Pol {
         }
         else
         {
-          std::vector<Plib::Realm*>::iterator itr;
+          std::vector<Realms::Realm*>::iterator itr;
           for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
           {
             std::ostringstream thname;

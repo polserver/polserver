@@ -76,7 +76,7 @@ Notes
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/maptile.h"
-#include "../../plib/realm.h"
+
 
 #include "../action.h"
 #include "../cfgrepos.h"
@@ -113,6 +113,7 @@ Notes
 #include "../polclass.h"
 #include "../poltype.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../resource.h"
 #include "../savedata.h"
 #include "../scrsched.h"
@@ -131,18 +132,18 @@ Notes
 #include "../uworld.h"
 #include "../wthrtype.h"
 #include "../zone.h"
+#include "../unicode.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 #include "../../clib/weakptr.h"
 
 #include "../../plib/systemstate.h"
@@ -1084,7 +1085,7 @@ namespace Pol {
 	  }
 	}
 
-	BObjectImp* _complete_create_item_at_location( Item* item, unsigned short x, unsigned short y, short z, Plib::Realm* realm )
+	BObjectImp* _complete_create_item_at_location( Item* item, unsigned short x, unsigned short y, short z, Realms::Realm* realm )
 	{
 	  //Dave moved these 3 lines up here 12/20 cuz x,y,z was uninit in the createscript.
 	  item->x = x;
@@ -1135,7 +1136,7 @@ namespace Pol {
 		  return new BError( "That item is not stackable.  Create one at a time." );
 		}
 
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -1169,7 +1170,7 @@ namespace Pol {
 		if ( origitem->script_isa( POLCLASS_MULTI ) )
 		  return new BError( "This function does not work with Multi objects." );
 
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -1196,7 +1197,7 @@ namespace Pol {
 	  short z;
 	  const ItemDesc* descriptor;
 	  int flags = 0;
-	  Plib::Realm* realm = find_realm( std::string( "britannia" ) );
+	  Realms::Realm* realm = find_realm( std::string( "britannia" ) );
 	  if ( !( getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
@@ -1271,7 +1272,7 @@ namespace Pol {
 	  unsigned short x, y;
 	  short z;
 	  const String* strrealm;
-	  Plib::Realm* realm = find_realm( std::string( "britannia" ) );
+	  Realms::Realm* realm = find_realm( std::string( "britannia" ) );
 
 	  if ( !( getStringParam( 0, tmplname ) &&
 		getParam( 1, x ) &&
@@ -1354,7 +1355,7 @@ namespace Pol {
 
 
 		//characters.push_back( npc.get() );
-        SetCharacterWorldPosition(npc.get(), Plib::WorldChangeReason::NpcCreate);
+        SetCharacterWorldPosition(npc.get(), Realms::WorldChangeReason::NpcCreate);
         WorldIterator<OnlinePlayerFilter>::InVisualRange( npc.get( ), [&]( Character *zonechr )
         {
           send_char_data( zonechr->client, npc.get() );
@@ -1535,7 +1536,7 @@ namespace Pol {
 		   getParam( 3, effect ) &&
 		   getStringParam( 4, strrealm ) )
 	  {
-        Plib::Realm* realm = find_realm( strrealm->value( ) );
+        Realms::Realm* realm = find_realm( strrealm->value( ) );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( cx, cy, cz ) )
 		  return new BError( "Invalid Coordinates for realm" );
@@ -1984,7 +1985,7 @@ namespace Pol {
 		   getParam( 9, explode, UCHAR_MAX ) &&
 		   getStringParam( 10, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( sx, sy, sz ) || !realm->valid( dx, dy, dz ) )
 		  return new BError( "Invalid Coordinates for realm" );
@@ -2048,7 +2049,7 @@ namespace Pol {
 		   getParam( 6, explode, UCHAR_MAX ) &&
 		   getStringParam( 7, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, z ) ) return new BError( "Invalid Coordinates for realm" );
 
@@ -2153,7 +2154,7 @@ namespace Pol {
 		   getParam( 15, effect3dexplode ) &&
 		   getParam( 16, effect3dsound ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( sx, sy, sz ) || !realm->valid( dx, dy, dz ) )
 		  return new BError( "Invalid Coordinates for realm" );
@@ -2241,7 +2242,7 @@ namespace Pol {
 		   getParam( 8, render, INT_MAX ) &&
 		   getParam( 9, effect3d ) )
 	  {
-        Plib::Realm* realm = find_realm( strrealm->value( ) );
+        Realms::Realm* realm = find_realm( strrealm->value( ) );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, z ) ) return new BError( "Invalid Coordinates for realm" );
 
@@ -2283,7 +2284,7 @@ namespace Pol {
 	  int z;
 	  short range;
 	  const String* strrealm;
-      Plib::Realm* realm;
+      Realms::Realm* realm;
 
 	  if ( getParam( 0, x ) &&
 		   getParam( 1, y ) &&
@@ -2322,7 +2323,7 @@ namespace Pol {
 	  return NULL;
 	}
 
-    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Plib::Realm* realm )
+    void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Realms::Realm* realm )
 	{
 	  if ( z1 < ZCOORD_MIN || z1 == LIST_IGNORE_Z)
 		z1 = ZCOORD_MIN;
@@ -2342,7 +2343,7 @@ namespace Pol {
 	  unsigned short x2, y2;
 	  int z2;
 	  const String* strrealm;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  if ( !( getParam( 0, x1 ) &&
 		getParam( 1, y1 ) &&
@@ -2396,7 +2397,7 @@ namespace Pol {
 	  unsigned short x2, y2;
 	  int z2;
 	  const String* strrealm;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  if ( !( getParam( 0, x1 ) &&
 		getParam( 1, y1 ) &&
@@ -2443,7 +2444,7 @@ namespace Pol {
 	  unsigned short x2, y2;
 	  int z2;
 	  const String* strrealm;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  if ( !( getParam( 0, x1 ) &&
 		getParam( 1, y1 ) &&
@@ -2549,7 +2550,7 @@ namespace Pol {
 		   getParam( 6, flags ) &&
 		   getStringParam( 7, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -2631,7 +2632,7 @@ namespace Pol {
 		   getObjtypeParam( exec, 4, objtype ) &&
 		   getStringParam( 5, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -2669,7 +2670,7 @@ namespace Pol {
 	  unsigned short x, y;
 	  int z;
 	  const String* strrealm;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  if ( getParam( 0, x ) &&
 		   getParam( 1, y ) &&
@@ -2721,7 +2722,7 @@ namespace Pol {
 		   getParam( 3, range ) &&
 		   getStringParam( 4, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 
 		std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -2763,7 +2764,7 @@ namespace Pol {
 		   getParam( 4, flags ) &&
 		   getStringParam( 5, strrealm ) )
 	  {
-        Plib::Realm* realm = find_realm( strrealm->value( ) );
+        Realms::Realm* realm = find_realm( strrealm->value( ) );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -2823,7 +2824,7 @@ namespace Pol {
 	  int z;
 	  short range;
 	  const String* strrealm;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  if ( getParam( 0, x ) &&
 		   getParam( 1, y ) &&
@@ -2896,7 +2897,7 @@ namespace Pol {
     BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm(/*realm*/)
     {
         const String* strrealm = nullptr;
-        Plib::Realm* realm = nullptr;
+        Realms::Realm* realm = nullptr;
 
         if (getStringParam(0, strrealm))
         {
@@ -3012,7 +3013,7 @@ namespace Pol {
 		   getParam( 5, z2 ) &&
 		   getStringParam( 6, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -3413,7 +3414,7 @@ namespace Pol {
 	  {
 		return new BError( "Invalid Parameter type" );
 	  }
-	  Plib::Realm* realm = find_realm( strrealm->value() );
+	  Realms::Realm* realm = find_realm( strrealm->value() );
 	  if ( !realm ) return new BError( "Realm not found" );
 	  if ( !realm->valid( xwest, ynorth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 	  if ( !realm->valid( xeast, ysouth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
@@ -3923,7 +3924,7 @@ namespace Pol {
 		   getParam( 3, tiletype ) &&
 		   getStringParam( 4, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
@@ -3951,7 +3952,7 @@ namespace Pol {
 		   getParam( 4, n ) &&
 		   getStringParam( 5, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
@@ -4005,7 +4006,7 @@ namespace Pol {
 		   getParam( 1, y ) &&
 		   getStringParam( 2, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) )
@@ -4034,7 +4035,7 @@ namespace Pol {
 		   getStringParam( 3, propname ) &&
 		   getStringParam( 4, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
@@ -4055,7 +4056,7 @@ namespace Pol {
 		   getParam( 1, y ) &&
 		   getStringParam( 2, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) )
@@ -4433,7 +4434,7 @@ namespace Pol {
 		   getParam( 1, y ) &&
 		   getStringParam( 2, strrealm ) ) // FIXME realm size
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
@@ -4458,7 +4459,7 @@ namespace Pol {
 		   getParam( 1, y ) &&
 		   getStringParam( 2, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for Realm" );
 
@@ -4644,7 +4645,7 @@ namespace Pol {
 		   getParam( 2, z ) &&
 		   getStringParam( 3, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, z ) ) return new BError( "Coordinates Invalid for Realm" );
 		short newz;
@@ -4680,7 +4681,7 @@ namespace Pol {
 		   getParam( 2, flags ) &&
 		   getStringParam( 3, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -4922,7 +4923,7 @@ namespace Pol {
 	  short range;
 	  int z, flags;
 	  const String* strrealm;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  if ( getParam( 0, x ) &&
 		   getParam( 1, y ) &&
@@ -4977,7 +4978,7 @@ namespace Pol {
 		   getParam( 3, flags ) &&
 		   getStringParam( 4, strrealm ) )
 	  {
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm )
 		  return new BError( "Realm not found" );
 
@@ -5045,7 +5046,7 @@ namespace Pol {
 	  int z, flags;
 	  short range;
 	  const String* strrealm;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  if ( getParam( 0, x ) &&
 		   getParam( 1, y ) &&
@@ -5258,7 +5259,7 @@ namespace Pol {
 		if ( theSkirt < 0 )
 		  theSkirt = 0;
 
-		Plib::Realm* realm = find_realm( strrealm->value() );
+		Realms::Realm* realm = find_realm( strrealm->value() );
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x1, y1, z1 ) ) return new BError( "Start Coordinates Invalid for Realm" );
 		if ( !realm->valid( x2, y2, z2 ) ) return new BError( "End Coordinates Invalid for Realm" );
@@ -5591,7 +5592,7 @@ namespace Pol {
 	  {
 		MOVEMODE movemode = Character::decode_movemode( movemode_name->value() );
 
-		Plib::Realm* realm = find_realm( realm_name->value() );
+		Realms::Realm* realm = find_realm( realm_name->value() );
 		if ( !realm )
 		  return new BError( "Realm not found." );
 		else if ( !realm->valid( x, y, z ) )
@@ -5662,14 +5663,14 @@ namespace Pol {
 		  if ( ulen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 
-		  if ( !Clib::convertArrayToUC( uText, uwtext, ulen ) )
+		  if ( !Core::convertArrayToUC( uText, uwtext, ulen ) )
 			return new BError( "Invalid parameter type" );
 
 		  size_t elen = eText->ref_arr.size();
 		  if ( elen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
 
-		  if ( !Clib::convertArrayToUC( eText, ewtext, elen ) )
+		  if ( !Core::convertArrayToUC( eText, ewtext, elen ) )
 			return new BError( "Invalid parameter type" );
 
 		  sendCharProfile( chr, of_who, title->data(), uwtext, ewtext );
