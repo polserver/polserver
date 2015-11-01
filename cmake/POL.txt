@@ -6,6 +6,10 @@ MESSAGE("####################################")
 
 ##############################################################
 
+# versioning
+set(LIBS_WITH_VERSIONING 		ON)
+set(BINARY_WITH_VERSIONING		OFF)
+
 # activate static builds
 set(BUILD_STATIC                OFF)
 

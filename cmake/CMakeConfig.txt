@@ -20,7 +20,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 ##############################################################
 # every version information in the rest of the build system is generated from the following entries
 INCLUDE (${CMAKE_CURRENT_LIST_DIR}/Version.txt)
-set(BINARYL_VERSION "${BINARY_VERSION_MAJOR}.${BINARY_VERSION_MINOR}.${BINARY_VERSION_PATCH}")
+set(BINARY_VERSION "${BINARY_VERSION_MAJOR}.${BINARY_VERSION_MINOR}.${BINARY_VERSION_PATCH}")
 
 ##############################################################
 # architecture

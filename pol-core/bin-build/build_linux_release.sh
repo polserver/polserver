@@ -24,7 +24,7 @@ strip -o $DEST_DIR_DISTRI/uoconvert        $SOURCE_DIR_BUILD_BIN/uoconvert
 strip -o $DEST_DIR_DISTRI/uotool           $SOURCE_DIR_BUILD_BIN/uotool
 
 echo "############## Copying additionally needed files to RELEASE folder"
-cp $SOURCE_DIR_BUILD_BIN/lib*.so           $DEST_DIR_DISTRI/lib
+cp $SOURCE_DIR_BUILD_BIN/lib*.so*          $DEST_DIR_DISTRI/lib
 cp ../support/scripts/*.em                 $DEST_DIR_DISTRI/scripts/modules
 cp ../support/scripts/ecompile.cfg.example $DEST_DIR_DISTRI/scripts
 cp ../doc/core-changes.txt                 $DEST_DIR_DISTRI/

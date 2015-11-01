@@ -15,10 +15,11 @@ Notes
 
 #include "polver.h"
 #include "../clib/progver.h"
+#include "pol_global_config.h"
 
 namespace Pol {
-  const char polverstr[] = "POL099-2013-09-03 Break Everything Even Rudder";
-  unsigned int polver = 99;
+  const char polverstr[] = "POL" POL_VERSION_STR " " POL_VERSION_NAME;
+  unsigned int polver = POL_VERSION_MAJOR;
 
 #ifdef PERGON
 #define PERGON_TAG " - Pergon"
