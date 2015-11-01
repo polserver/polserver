@@ -99,6 +99,7 @@ ELSE()
             -O2
         )
     ENDIF()
+    # position independent code to use it both for dynamic and static linking
     SET (FLAGS
         ${FLAGS}
         -fPIC
