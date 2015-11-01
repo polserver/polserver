@@ -41,7 +41,6 @@ ELSE()
 ENDIF()
 
 # check compiler version
-EXECUTE_PROCESS(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE COMPILER_VERSION)
 IF(NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER ${REQUIRED_COMPILER_VERSION} AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_EQUAL ${REQUIRED_COMPILER_VERSION})
     MESSAGE(FATAL_ERROR "You need at least compiler version ${REQUIRED_COMPILER_VERSION} and you run version ${CMAKE_CXX_COMPILER_VERSION}!")
 ENDIF()
@@ -59,9 +58,9 @@ ENDIF()
 # app/lib versioning
 IF (WINDOWS)
     IF (DEFINED TARGET_NAME_BINARY) 
-        INCLUDE(CMakeWindowsBinary.txt)
+#TODO        INCLUDE(CMakeWindowsBinary.txt)
     ELSE()
-        INCLUDE(CMakeWindowsLibrary.txt)
+#TODO        INCLUDE(CMakeWindowsLibrary.txt)
     ENDIF()
 ENDIF()
 
