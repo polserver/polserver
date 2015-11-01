@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+11-01-2015 Bodom:
+  Added:   mysql_query() now supports a third "parameters" (array) argument.
+           It can be used to safely replace "?" placeholders inside the query
+           with corresponding array entries.
 10-27-2015 Bodom:
   Added:   New pol.cfg option AllowMultiClientsPerAccount (default: false)
            When true, allows multiple characters from the same account to be

@@ -19,10 +19,15 @@ Only really tested with dynamically linking mysql libraries on Linux.</filedesc>
 </function>
 
 <function name="mysql_query">
-  <prototype>mysql_query(connection,query)</prototype>
+  <prototype>mysql_query(connection,query,parameters := "")</prototype>
   <parameter name="connection" value="Connection object" />
   <parameter name="query" value="the SQL query to perform" />
-  <explain>Performs a query.</explain>
+  <parameter name="parameters" value="Array of parameters." />
+  <explain>Performs a query. Every occurrence of ? in the query will be replaced
+  by corresponding parameter in the parameters array (if present). Parameters are
+  automatically escaped. All parameters are handled as string by now.</explain>
+  <explain>Example: mysql_query(conn, "SELECT a FROM t WHERE a = ? AND b = ?", array{1,"hel'lo")
+  executes "SELECT a FROM t WHERE a = '1' AND b = 'hel\'lo'"</explain>
   <return>Connection on success</return>
 </function>
 

@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-27-2015</datemodified>
+		<datemodified>11-01-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>11-01-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">mysql_query() now supports a third &quot;parameters&quot; (array) argument.<br/>
+It can be used to safely replace &quot;?&quot; placeholders inside the query<br/>
+with corresponding array entries.</change>
+		</entry>
 		<entry>
 			<date>10-27-2015</date>
 			<author>Bodom:</author>

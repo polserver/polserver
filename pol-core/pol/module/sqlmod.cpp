@@ -116,9 +116,24 @@ namespace Pol {
       return new BLong( 0 );
     }
 
-    BObjectImp* SQLExecutorModule::background_query( Core::UOExecutor& uoexec, Core::BSQLConnection *sql, const std::string query )
+    BObjectImp* SQLExecutorModule::background_query( Core::UOExecutor& uoexec, Core::BSQLConnection *sql, const std::string query, const Bscript::ObjArray* params )
     {
-      auto msg = [&uoexec, sql, query]()
+      // Copy and parse params before they will be deleted by this thread (go out of scope)
+      Core::QueryParams sharedParams(nullptr);
+      if( params != nullptr )
+      {
+        sharedParams = std::make_shared<Core::QueryParam>();
+
+        for( unsigned i = 0; i < params->ref_arr.size(); ++i )
+        {
+          const BObjectRef& ref = params->ref_arr[i];
+          const BObject* obj = ref.get();
+          if( obj != NULL )
+            sharedParams->insert(sharedParams->end(), obj->impptr()->getStringRep());
+        }
+      }
+
+      auto msg = [&uoexec, sql, query, sharedParams]()
       {
         if ( &uoexec == nullptr )
         {
@@ -132,7 +147,7 @@ namespace Pol {
           uoexec.ValueStack.back( ).set( new BObject( new BError( "Invalid parameters" ) ) );
           uoexec.os_module->revive( );
         }
-        else if ( !sql->query( query.c_str() ) )
+        else if ( !sql->query( query, sharedParams ) )
         {
           Core::PolLock lck;
           uoexec.ValueStack.back( ).set( new BObject( new BError( sql->getLastError( ) ) ) );
@@ -176,11 +191,14 @@ namespace Pol {
 	{
       Core::BSQLConnection *sql = static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
       const String *query = getStringParam( 1 );
+      ObjArray* params;
+      bool use_parameters = getObjArrayParam( 2, params );
       if ( !sql || !query )
 	  {
 		return new BError( "Invalid parameters" );
 	  }
-      return background_query( uoexec, sql, query->getStringRep() );
+
+      return background_query( uoexec, sql, query->getStringRep(), use_parameters ? params : nullptr );
 	}
 
 	Bscript::BObjectImp* SQLExecutorModule::mf_NumFields()
