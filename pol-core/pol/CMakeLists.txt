@@ -245,6 +245,10 @@ IF(NOT WINDOWS)
         ${FLAGS}
         -Wno-uninitialized  #TODO: remove and fix the code
         -Wno-ignored-qualifiers #TODO: remove and fix the code
+		-Wl,-R.
+		-Wl,-R./lib
+		-Wl,-R../lib
+		-Wl,-R../../lib
     )
 ENDIF()
 
