@@ -15,7 +15,7 @@ MESSAGE("##### Preparing configuration")
 MESSAGE("####################################")
 
 ##############################################################
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 ##############################################################
 # every version information in the rest of the build system is generated from the following entries
