@@ -26,24 +26,23 @@ ELSEIF (DEFINED TARGET_NAME_LIB)
 ENDIF ()
 
 ##############################################################
-# check if CMakePreDefs.txt was parsed before
+# check if CMakeEnvironment.txt was parsed before
 IF (NOT PRE_DEFINITIONS_EXECUTED)
-    MESSAGE("Including automatically the pre-definitions from CMakeConfig.txt..")
-    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeConfig.txt)
+    MESSAGE("Including automatically the pre-definitions from CMakeEnvironment.txt..")
+    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeEnvironment.txt)
 ENDIF ()
 
 ##############################################################
 # minimum required GCC version
 IF (CLANG)
-    SET(REQUIRED_COMPILER_VERSION 4.2)
+    SET(REQUIRED_COMPILER_VERSION 3.5)
 ELSE()
     SET(REQUIRED_COMPILER_VERSION 4.7)
 ENDIF()
 
 # check compiler version
-EXECUTE_PROCESS(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE COMPILER_VERSION)
-IF(NOT COMPILER_VERSION VERSION_GREATER ${REQUIRED_COMPILER_VERSION} AND NOT COMPILER_VERSION VERSION_EQUAL ${REQUIRED_COMPILER_VERSION})
-    MESSAGE(FATAL_ERROR "You need at least compiler version ${REQUIRED_COMPILER_VERSION} and you run version ${COMPILER_VERSION}!")
+IF(NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER ${REQUIRED_COMPILER_VERSION} AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_EQUAL ${REQUIRED_COMPILER_VERSION})
+    MESSAGE(FATAL_ERROR "You need at least compiler version ${REQUIRED_COMPILER_VERSION} and you run version ${CMAKE_CXX_COMPILER_VERSION}!")
 ENDIF()
 
 ##############################################################
@@ -59,28 +58,32 @@ ENDIF()
 # app/lib versioning
 IF (WINDOWS)
     IF (DEFINED TARGET_NAME_BINARY) 
-        INCLUDE(CMakeWindowsBinary.txt)
+#TODO        INCLUDE(CMakeWindowsBinary.txt)
     ELSE()
-        INCLUDE(CMakeWindowsLibrary.txt)
+#TODO        INCLUDE(CMakeWindowsLibrary.txt)
     ENDIF()
 ENDIF()
 
 ##############################################################
 # library search paths
-SET (LIB_DIRS
-    ${LIB_DIRS}
-    /usr/local/lib
-    /usr/lib
-    /usr/lib${ARCH_BITS}
-)
+IF(NOT WINDOWS)
+	SET (LIB_DIRS
+    	${LIB_DIRS}
+	    /usr/local/lib
+	    /usr/lib
+    	/usr/lib${ARCH_BITS}
+	)
+ENDIF()
+MESSAGE("### Library search path: ${LIB_DIRS}")
 
 ##############################################################
 # include dirs
-SET (INCLUDE_DIRS
-    ${INCLUDE_DIRS}
-    /usr/local/include    
-)
-
+IF(NOT WINDOWS)
+	SET (INCLUDE_DIRS
+	    ${INCLUDE_DIRS}
+	    /usr/local/include    
+	)
+ENDIF()
 MESSAGE("### Header search path: ${INCLUDE_DIRS}")
 
 ##############################################################
@@ -100,6 +103,7 @@ ELSE()
             -O2
         )
     ENDIF()
+    # position independent code to use it both for dynamic and static linking
     SET (FLAGS
         ${FLAGS}
         -fPIC
@@ -112,12 +116,16 @@ IF (${BUILD} MATCHES "Debug")
     IF (APPLE)
         SET (FLAGS "${FLAGS} -g -DDEBUG_VERSION")
     ELSEIF(WINDOWS)
-        # TODO
+    	SET (FLAGS "${FLAGS} /DDEBUG_VERSION")
     ELSE()
         SET (FLAGS "${FLAGS} -g -ggdb -DDEBUG_VERSION")
     ENDIF()
 ELSE ()
-    SET (FLAGS "${FLAGS} -DRELEASE_VERSION")
+    IF(WINDOWS)
+    	SET (FLAGS "${FLAGS} /DRELEASE_VERSION")
+    ELSE()
+    	SET (FLAGS "${FLAGS} -DRELEASE_VERSION")
+    ENDIF()
 ENDIF ()
 
 ##############################################################
@@ -275,12 +283,7 @@ IF (DEFINED TARGET_LIB_NAME)
     )
     # library versioning
     IF (${LIBS_WITH_VERSIONING} MATCHES "ON")
-        SET_TARGET_PROPERTIES(
-            ${TARGET_LIB_NAME}
-            PROPERTIES
-            SOVERSION ${BINARY_VERSION_MAJOR}
-            VERSION ${BINARY_VERSION}
-        )
+        SET_TARGET_PROPERTIES(${TARGET_LIB_NAME} PROPERTIES SOVERSION ${BINARY_VERSION_MAJOR} VERSION ${BINARY_VERSION})
     ENDIF()
 ENDIF ()
 # generate program from given source files
@@ -313,11 +316,7 @@ IF (DEFINED TARGET_PROGRAM_NAME)
     )
     # binary versioning
     IF (${BINARY_WITH_VERSIONING} MATCHES "ON")
-        SET_TARGET_PROPERTIES(
-            ${TARGET_PROGRAM_NAME}
-            PROPERTIES
-            VERSION ${HOMER_VERSION}
-        )
+        SET_TARGET_PROPERTIES(${TARGET_PROGRAM_NAME} PROPERTIES VERSION ${BINARY_VERSION})
     ENDIF()
 ENDIF ()
 

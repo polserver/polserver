@@ -38,5 +38,5 @@ script:
   - ./build_linux.sh
 
   - cd ../../testsuite/escript
-  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile-dynamic -r ../../pol-core/bin/runecl-dynamic
+  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl
 

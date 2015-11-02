@@ -11,6 +11,7 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include <cstddef>
 
 namespace Pol {
 namespace Core {

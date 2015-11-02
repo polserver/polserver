@@ -10,11 +10,11 @@
 #
 ###############################################################################
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeConfig.txt)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
 
-MESSAGE("####################################")
-MESSAGE("##### Building POL")
-MESSAGE("####################################")
+MESSAGE("########################################################################")
+MESSAGE("##### Building POL ${BINARY_VERSION} (${BINARY_VERSION_NAME})")
+MESSAGE("########################################################################")
 
 ###############################################################################
 # define source files
@@ -245,6 +245,10 @@ IF(NOT WINDOWS)
         ${FLAGS}
         -Wno-uninitialized  #TODO: remove and fix the code
         -Wno-ignored-qualifiers #TODO: remove and fix the code
+		-Wl,-R.
+		-Wl,-R./lib
+		-Wl,-R../lib
+		-Wl,-R../../lib
     )
 ENDIF()
 
