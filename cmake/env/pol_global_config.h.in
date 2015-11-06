@@ -5,7 +5,8 @@
 #define POL_VERSION_MINOR           @BINARY_VERSION_MINOR@
 #define POL_VERSION_PATCH           @BINARY_VERSION_PATCH@
 #define POL_VERSION_STR             "@BINARY_VERSION@"
-#define POL_VERSION_NAME            "@BINARY_VERSION_NAME@"            
+#define POL_VERSION_NAME            "@BINARY_VERSION_NAME@"
+#define POL_VERSION_ID              "POL@BINARY_VERSION@ @BINARY_VERSION_NAME@"
 
 #cmakedefine HAVE_OPENSSL
 #cmakedefine HAVE_MYSQL

@@ -10,6 +10,7 @@ Notes
 #include "pkg.h"
 #include "polver.h"
 #include "systemstate.h"
+#include "pol_global_config.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -217,12 +218,12 @@ namespace Pol {
 	  }
 	  else if ( !core_versionstring_required_.empty() )
 	  {
-		int cmp = stricmp( polverstr, core_versionstring_required_.c_str() );
+		int cmp = stricmp( POL_VERSION_ID, core_versionstring_required_.c_str() );
 		if ( cmp < 0 )
 		{
           ERROR_PRINT << "Error in package " << desc() << ":\n"
             << "  Core version " << core_versionstring_required_
-            << " is required, but version " << polverstr << " is running.\n";
+            << " is required, but version " << POL_VERSION_ID << " is running.\n";
           throw std::runtime_error("Package requires a newer core version");
 		}
 	  }

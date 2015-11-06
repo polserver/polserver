@@ -3,6 +3,7 @@
 #include "../threadhelp.h"
 #include "../logfacility.h"
 
+#include "pol_global_config.h"
 #include "../../plib/polver.h"
 
 #include <cstring>
@@ -206,7 +207,7 @@ void doHttpPOST(string host, string url, string content)
              "Content-Type: application/x-www-form-urlencoded\r\n"
              "User-Agent: POL in-app abort reporting system, %s\r\n"
              "Content-length: %d\r\n\r\n"
-             "%s", url.c_str(), host.c_str(), Pol::polverstr, (int)content.size(), content.c_str());
+             "%s", url.c_str(), host.c_str(), POL_VERSION_ID, (int)content.size(), content.c_str());
 
     /**
      * DNS lookup if needed
@@ -309,7 +310,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
                      "comp=" + getCompilerVersion() + "&"
                      "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
                      "build_target=" + Pol::polbuildtag + "&"
-                     "build_revision=" + Pol::polverstr + "&"
+                     "build_revision=" POL_VERSION_ID "&"
                      "misc=";
 
     // execute the POST request
@@ -345,7 +346,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                 printf("Compiler: %s", getCompilerVersion().c_str());
                 printf("Compile time: %s\n", Pol::compiletime);
                 printf("Build target: %s\n", Pol::polbuildtag);
-                printf("Build revision: %s\n", Pol::polverstr);
+                printf("Build revision: %s\n", POL_VERSION_ID);
                 #ifndef _WIN32
                     printf("GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__);
                 #endif

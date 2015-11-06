@@ -18,7 +18,6 @@ Notes
 #include "pol_global_config.h"
 
 namespace Pol {
-  const char polverstr[] = "POL" POL_VERSION_STR " " POL_VERSION_NAME;
   unsigned int polver = POL_VERSION_MAJOR;
 
 #ifdef PERGON

@@ -1454,7 +1454,7 @@ namespace Pol {
 #ifndef _WIN32
   int xmain( int argc, char *argv[] )
   {
-    strcpy( progverstr, polverstr );
+    strcpy( progverstr, POL_VERSION_ID );
     strcpy( buildtagstr, polbuildtag );
     progver = polver;
 

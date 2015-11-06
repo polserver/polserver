@@ -860,7 +860,7 @@ namespace Pol {
         << "System" << pf_endl
         << "{" << pf_endl
         << "\tCoreVersion\t" << progver << pf_endl
-        << "\tCoreVersionString\t" << polverstr << pf_endl
+        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl
         << "\tCompileDate\t" << compiledate << pf_endl
         << "\tCompileTime\t" << compiletime << pf_endl
         << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl //dave 3/9/3
@@ -1116,7 +1116,7 @@ namespace Pol {
               try
               {
                 sc.pol() << "#" << pf_endl
-                  << "#  Created by Version: " << polverstr
+                  << "#  Created by Version: " << POL_VERSION_ID
                   << pf_endl
                   << "#  Mobiles:		 " << get_mobile_count()
                   << pf_endl << "#  Top-level Items: "
