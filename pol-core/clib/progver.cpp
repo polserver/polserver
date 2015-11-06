@@ -11,11 +11,5 @@ Notes
 #include "../svn_version.h"
 
 namespace Pol {
-	const char compiledate[] = __DATE__;
-#ifdef _SVNVER
-	const char compiletime[] = __TIME__ " (Rev. " _SVNVER ")";
-#else
-    const char compiletime[] = __TIME__;
-#endif
 	char buildtagstr[64];
 }

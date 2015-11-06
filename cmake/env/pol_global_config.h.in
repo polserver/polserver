@@ -7,6 +7,8 @@
 #define POL_VERSION_STR             "@BINARY_VERSION@"
 #define POL_VERSION_NAME            "@BINARY_VERSION_NAME@"
 #define POL_VERSION_ID              "POL@BINARY_VERSION@ @BINARY_VERSION_NAME@"
+#define POL_BUILD_DATE              __DATE__
+#define POL_BUILD_TIME              __TIME__
 
 #cmakedefine HAVE_OPENSSL
 #cmakedefine HAVE_MYSQL

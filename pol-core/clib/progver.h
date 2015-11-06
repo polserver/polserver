@@ -12,7 +12,5 @@ Notes
 #define CLIB_PROGVER_H
 namespace Pol {
 	extern char buildtagstr[64]; // must be assigned
-	extern const char compiledate[];
-	extern const char compiletime[];
 }
 #endif
