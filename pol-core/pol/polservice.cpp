@@ -38,8 +38,6 @@ namespace Pol {
 
   int xmain( int argc, char *argv[] )
   {
-    strcpy( buildtagstr, polbuildtag );
-
     return Core::RunWindowsService( argc, argv );
   }
   namespace Core {

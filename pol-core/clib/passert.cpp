@@ -17,7 +17,6 @@ Notes
 
 #include "esignal.h"
 #include "logfacility.h"
-#include "progver.h"
 #include "stlutil.h"
 #include "threadhelp.h"
 #include <cstring>

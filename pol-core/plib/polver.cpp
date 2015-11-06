@@ -14,7 +14,6 @@ Notes
 */
 
 #include "polver.h"
-#include "../clib/progver.h"
 #include "pol_global_config.h"
 
 namespace Pol {

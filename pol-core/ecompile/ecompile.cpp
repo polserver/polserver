@@ -14,7 +14,6 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/mdump.h"
-#include "../clib/progver.h"
 #include "../clib/timer.h"
 
 #include "../plib/pkg.h"

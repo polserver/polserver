@@ -10,7 +10,6 @@ Notes
 
 */
 
-#include "progver.h"
 #include "logfacility.h"
 
 #ifdef _WIN32

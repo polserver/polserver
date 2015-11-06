@@ -1454,8 +1454,6 @@ namespace Pol {
 #ifndef _WIN32
   int xmain( int argc, char *argv[] )
   {
-    strcpy( buildtagstr, polbuildtag );
-
     return xmain_outer( argc, argv );
   }
 #endif
