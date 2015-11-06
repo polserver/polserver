@@ -1806,7 +1806,7 @@ namespace Pol {
 
 	  LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
 	  LONG_COREVAR( priority_divide, scriptEngineInternalManager.priority_divide );
-	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( progverstr );
+	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( POL_VERSION_ID );
 	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( compiledate );
 	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( compiletime );
 	  if ( stricmp( corevar, "packages" ) == 0 ) return GetPackageList();

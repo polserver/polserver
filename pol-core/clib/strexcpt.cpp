@@ -167,7 +167,6 @@ namespace Pol {
 	  {
 		in_ex_handler = true;
         POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" )
-          << progverstr
           << compiledate
           << compiletime;
 

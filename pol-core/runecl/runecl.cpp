@@ -8,7 +8,6 @@ Notes
 */
 
 #include "../clib/clib.h"
-#include "../clib/progver.h"
 #include "../clib/logfacility.h"
 
 #include "../bscript/config.h"
@@ -67,7 +66,7 @@ namespace Pol {
     void usage( void )
     {
       ERROR_PRINT << "  Usage:\n"
-        << "    " << progverstr << " [options] filespec [filespec ...]\n"
+        << "    " << "RUNECL [options] filespec [filespec ...]\n"
         << "        Options:\n"
         << "            -q    Quiet\n"
         << "            -d    Debug output\n"
@@ -286,7 +285,6 @@ namespace Pol {
   {
     Clib::StoreCmdArgs( argc, argv );
 
-    strcpy( progverstr, "RUNECL" );
     int progver = 1;
 
     Runecl::escript_config.max_call_depth = 100;

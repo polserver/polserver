@@ -17,6 +17,5 @@ namespace Pol {
 #else
     const char compiletime[] = __TIME__;
 #endif
-	char progverstr[64];
 	char buildtagstr[64];
 }

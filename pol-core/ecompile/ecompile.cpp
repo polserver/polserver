@@ -79,7 +79,7 @@ namespace Pol {
 	void usage( void )
 	{
       ERROR_PRINT << " Usage:\n"
-        << "   " << Pol::progverstr << " [options] filespec [filespec ...]\n"
+        << "   " << "ECOMPILE [options] filespec [filespec ...]\n"
         << "   Output is : filespec.ecl\n"
         << "   Options: \n"
         << "       -a           compile *.asp pages also\n"
@@ -814,7 +814,6 @@ namespace Pol {
 
   int xmain( int argc, char *argv[] )
   {
-	strcpy( Pol::progverstr, "ECOMPILE" );
 	int progver = 1; //TODO: use a better solution here
 
 #ifdef _WIN32
