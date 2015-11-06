@@ -815,7 +815,7 @@ namespace Pol {
   int xmain( int argc, char *argv[] )
   {
 	strcpy( Pol::progverstr, "ECOMPILE" );
-	progver = 1;
+	int progver = 1; //TODO: use a better solution here
 
 #ifdef _WIN32
 	Clib::MiniDumper::Initialize();

@@ -12,8 +12,6 @@ Notes
 
 #include "../clib/progver.h"
 namespace Pol {
-  extern const char polverstr[];
   extern const char polbuildtag[];
-  extern unsigned int polver;
 }
 #endif

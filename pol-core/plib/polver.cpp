@@ -18,8 +18,6 @@ Notes
 #include "pol_global_config.h"
 
 namespace Pol {
-  unsigned int polver = POL_VERSION_MAJOR;
-
 #ifdef PERGON
 #define PERGON_TAG " - Pergon"
 #else

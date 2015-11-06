@@ -1790,7 +1790,7 @@ namespace Pol {
 	  LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
 	  //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
 	  //	LONG_COREVAR( bytes_received, polstats.bytes_received );
-	  LONG_COREVAR( version, polver );
+	  LONG_COREVAR( version, POL_VERSION_MAJOR );
 	  LONG_COREVAR( systime, time( NULL ) );
 	  LONG_COREVAR( events_per_min, GET_PROFILEVAR_PER_MIN( events ) );
 	  LONG_COREVAR( skill_checks_per_min, GET_PROFILEVAR_PER_MIN( skill_checks ) );

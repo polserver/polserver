@@ -52,7 +52,6 @@ Notes
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/progver.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
@@ -859,7 +858,7 @@ namespace Pol {
       sw()
         << "System" << pf_endl
         << "{" << pf_endl
-        << "\tCoreVersion\t" << progver << pf_endl
+        << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
         << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl
         << "\tCompileDate\t" << compiledate << pf_endl
         << "\tCompileTime\t" << compiletime << pf_endl

@@ -287,7 +287,7 @@ namespace Pol {
     Clib::StoreCmdArgs( argc, argv );
 
     strcpy( progverstr, "RUNECL" );
-    progver = 1;
+    int progver = 1;
 
     Runecl::escript_config.max_call_depth = 100;
     Runecl::quiet = Clib::FindArg( "q" ) ? 1 : 0;

@@ -19,5 +19,4 @@ namespace Pol {
 #endif
 	char progverstr[64];
 	char buildtagstr[64];
-	unsigned int progver;
 }

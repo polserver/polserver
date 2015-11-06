@@ -208,11 +208,11 @@ namespace Pol {
 	{
 	  if ( core_required_ )
 	  {
-		if ( core_required_ > polver )
+		if ( core_required_ > POL_VERSION_MAJOR ) //TODO: use a more fine grained check here
 		{
           ERROR_PRINT << "Error in package " << desc() << ":\n"
             << "  Core version " << core_required_
-            << " is required, but version " << polver << " is running.\n";
+            << " is required, but version " << POL_VERSION_MAJOR << " is running.\n";
           throw std::runtime_error("Package requires a newer core version");
 		}
 	  }

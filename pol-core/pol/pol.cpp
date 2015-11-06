@@ -1456,7 +1456,6 @@ namespace Pol {
   {
     strcpy( progverstr, POL_VERSION_ID );
     strcpy( buildtagstr, polbuildtag );
-    progver = polver;
 
     return xmain_outer( argc, argv );
   }
