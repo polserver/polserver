@@ -37,13 +37,11 @@ SET (LIB_DIRS
 # link to the needed libs
 SET (LIBS_LINUX
     bscript
-    clib_debugging
     clib
     plib
 )
 SET (LIBS_LINUX_STATIC_BIN_STATIC
     bscript_static
-    clib_debugging_static
     clib_static
     plib_static
 )

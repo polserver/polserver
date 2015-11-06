@@ -40,12 +40,10 @@ SET (LIB_DIRS
 ##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
-    clib_debugging
     clib
     plib
 )
 SET (LIBS_LINUX_STATIC_BIN_STATIC
-    clib_debugging_static
     clib_static
     plib_static
 )
