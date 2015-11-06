@@ -50,7 +50,6 @@ IF(LINUX)
         -fno-strict-aliasing  
         -Wno-unused-result 
         -Wno-unused-but-set-parameter
-        -DPOL_BUILDTAG=\\\"ubuntu\\\"
     )
 
     SET(BOOST_ROOT "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_55_0")

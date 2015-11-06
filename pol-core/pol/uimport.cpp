@@ -43,7 +43,6 @@ Notes
 #include "multi/house.h"
 #include "containr.h"
 
-#include "../plib/polver.h"
 #include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"

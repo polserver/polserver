@@ -4,7 +4,6 @@
 #include "../logfacility.h"
 
 #include "pol_global_config.h"
-#include "../../plib/polver.h"
 
 #include <cstring>
 #include <signal.h>
@@ -150,6 +149,9 @@ string getCompilerVersion()
         string result;
         switch(_MSC_VER)
         {
+        case 1900:
+            result = "MSVC++ 14.0 (Visual Studio 2015)";
+            break;
         case 1800:
             result = "MSVC++ 12.0 (Visual Studio 2013)";
             break;
@@ -309,7 +311,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
                      "trace=" + stackTrace + "&"
                      "comp=" + getCompilerVersion() + "&"
                      "comp_time=" POL_BUILD_DATE "(" POL_BUILD_TIME ")&"
-                     "build_target=" + Pol::polbuildtag + "&"
+                     "build_target=" + POL_BUILD_TARGET + "&"
                      "build_revision=" POL_VERSION_ID "&"
                      "misc=";
 
@@ -345,7 +347,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                 printf("\n");
                 printf("Compiler: %s", getCompilerVersion().c_str());
                 printf("Compile time: %s\n", POL_BUILD_TIME);
-                printf("Build target: %s\n", Pol::polbuildtag);
+                printf("Build target: %s\n", POL_BUILD_TARGET);
                 printf("Build revision: %s\n", POL_VERSION_ID);
                 #ifndef _WIN32
                     printf("GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__);

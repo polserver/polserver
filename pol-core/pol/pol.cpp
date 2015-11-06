@@ -57,7 +57,6 @@ Notes
 #include "../plib/pkg.h"
 
 #include "../bscript/escriptv.h"
-#include "../plib/polver.h"
 #include "accounts/account.h"
 #include "allocd.h"
 #include "checkpnt.h"
@@ -1138,7 +1137,7 @@ namespace Pol {
 
     Clib::MakeDirectory( "log" );
 
-    POLLOG_INFO << POL_VERSION_ID << " (" << polbuildtag << ")"
+    POLLOG_INFO << POL_VERSION_ID << " (" << POL_BUILD_TARGET << ")"
       << "\ncompiled on " << POL_BUILD_DATE << " " << POL_BUILD_TIME
       << "\nCopyright (C) 1993-2015 Eric N. Swanson"
       << "\n\n";
@@ -1321,7 +1320,7 @@ namespace Pol {
     {
       DEINIT_STARTLOG();
     }
-    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << POL_VERSION_ID << polbuildtag << POL_BUILD_DATE << POL_BUILD_TIME;
+    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
     //if( 1 )
     {
       POLLOG_INFO << "Game is active.\n";

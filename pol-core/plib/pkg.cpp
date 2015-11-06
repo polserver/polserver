@@ -8,7 +8,6 @@ Notes
 */
 
 #include "pkg.h"
-#include "polver.h"
 #include "systemstate.h"
 #include "pol_global_config.h"
 
