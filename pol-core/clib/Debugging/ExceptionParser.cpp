@@ -3,7 +3,7 @@
 #include "../threadhelp.h"
 #include "../logfacility.h"
 
-#include "../../plib/polver.h"
+#include "pol_global_config.h"
 
 #include <cstring>
 #include <signal.h>
@@ -149,6 +149,9 @@ string getCompilerVersion()
         string result;
         switch(_MSC_VER)
         {
+        case 1900:
+            result = "MSVC++ 14.0 (Visual Studio 2015)";
+            break;
         case 1800:
             result = "MSVC++ 12.0 (Visual Studio 2013)";
             break;
@@ -206,7 +209,7 @@ void doHttpPOST(string host, string url, string content)
              "Content-Type: application/x-www-form-urlencoded\r\n"
              "User-Agent: POL in-app abort reporting system, %s\r\n"
              "Content-length: %d\r\n\r\n"
-             "%s", url.c_str(), host.c_str(), Pol::polverstr, (int)content.size(), content.c_str());
+             "%s", url.c_str(), host.c_str(), POL_VERSION_ID, (int)content.size(), content.c_str());
 
     /**
      * DNS lookup if needed
@@ -307,9 +310,9 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
                      "reason=" + reason + "&"
                      "trace=" + stackTrace + "&"
                      "comp=" + getCompilerVersion() + "&"
-                     "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
-                     "build_target=" + Pol::polbuildtag + "&"
-                     "build_revision=" + Pol::polverstr + "&"
+                     "comp_time=" POL_BUILD_DATE "(" POL_BUILD_TIME ")&"
+                     "build_target=" + POL_BUILD_TARGET + "&"
+                     "build_revision=" POL_VERSION_ID "&"
                      "misc=";
 
     // execute the POST request
@@ -343,9 +346,9 @@ void ExceptionParser::handleExceptionSignal(int signal)
                 printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
                 printf("Compiler: %s", getCompilerVersion().c_str());
-                printf("Compile time: %s\n", Pol::compiletime);
-                printf("Build target: %s\n", Pol::polbuildtag);
-                printf("Build revision: %s\n", Pol::polverstr);
+                printf("Compile time: %s\n", POL_BUILD_TIME);
+                printf("Build target: %s\n", POL_BUILD_TARGET);
+                printf("Build revision: %s\n", POL_VERSION_ID);
                 #ifndef _WIN32
                     printf("GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__);
                 #endif

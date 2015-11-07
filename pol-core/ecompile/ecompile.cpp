@@ -14,7 +14,6 @@ Notes
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/mdump.h"
-#include "../clib/progver.h"
 #include "../clib/timer.h"
 
 #include "../plib/pkg.h"
@@ -79,7 +78,7 @@ namespace Pol {
 	void usage( void )
 	{
       ERROR_PRINT << " Usage:\n"
-        << "   " << Pol::progverstr << " [options] filespec [filespec ...]\n"
+        << "   " << "ECOMPILE [options] filespec [filespec ...]\n"
         << "   Output is : filespec.ecl\n"
         << "   Options: \n"
         << "       -a           compile *.asp pages also\n"
@@ -814,8 +813,7 @@ namespace Pol {
 
   int xmain( int argc, char *argv[] )
   {
-	strcpy( Pol::progverstr, "ECOMPILE" );
-	progver = 1;
+	int progver = 1; //TODO: use a better solution here
 
 #ifdef _WIN32
 	Clib::MiniDumper::Initialize();

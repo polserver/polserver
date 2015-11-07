@@ -17,7 +17,6 @@ Notes
 
 #include "esignal.h"
 #include "logfacility.h"
-#include "progver.h"
 #include "stlutil.h"
 #include "threadhelp.h"
 #include <cstring>
@@ -64,8 +63,7 @@ namespace Pol {
 	{
       std::string stack_trace = Clib::ExceptionParser::getTrace();
       fmt::Writer tmp;
-      tmp << "=== Stack Backtrace ===\nBuild: " << progverstr << " (" << buildtagstr << ")\nStack Backtrace:\n";
-	  tmp << stack_trace;
+      tmp << "=== Stack Backtrace ===\n" << stack_trace;
 	  
       POLLOG_ERROR << tmp.str() << "\n";
       if (complete)

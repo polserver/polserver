@@ -15,7 +15,6 @@ SET (SOURCES  # sorted !
 	mapserver.cpp 
 	maptileserver.cpp 
 	pkg.cpp 
-	polver.cpp
 	realmdescriptor.cpp 
 	staticserver.cpp
 	systemstate.cpp

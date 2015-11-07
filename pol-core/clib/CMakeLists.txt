@@ -1,7 +1,5 @@
 ###############################################################################
 
-ADD_SUBDIRECTORY(Debugging)
-
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
 
 MESSAGE("####################################")
@@ -12,6 +10,8 @@ MESSAGE("####################################")
 # define source files
 SET (SOURCES  # sorted !
 	../../lib/format/format.cc
+	Debugging/LogSink.cpp
+	Debugging/ExceptionParser.cpp		
 	binaryfile.cpp 
 	boostutils.cpp 
 	cfgfile.cpp 
@@ -31,7 +31,6 @@ SET (SOURCES  # sorted !
 	opnew.cpp
 	passert.cpp
 	pkthelper.cpp
-	progver.cpp 
 	random.cpp 
 	sckutil.cpp 
 	socketsvc.cpp 
@@ -66,7 +65,6 @@ SET (LIB_DIRS
 ##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
-	clib_debugging
 	crypto
 )
 

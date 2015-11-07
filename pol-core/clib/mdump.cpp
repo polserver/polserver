@@ -11,7 +11,6 @@ Notes
 
 
 #include "mdump.h"
-#include "progver.h"
 #include "strexcpt.h"
 #include "passert.h"
 #include "logfacility.h"
@@ -140,7 +139,7 @@ namespace Pol {
 	  MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
 	  if( pDump )
 	  {
-        dumppath << progverstr << "-" << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
+        dumppath << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
 
         HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
 									 FILE_ATTRIBUTE_NORMAL, NULL );

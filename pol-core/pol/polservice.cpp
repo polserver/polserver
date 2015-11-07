@@ -9,7 +9,6 @@ Notes
 */
 
 #include "../clib/esignal.h"
-#include "../clib/progver.h"
 #include "../clib/threadhelp.h"
 #include "../clib/xmain.h"
 #include "../clib/logfacility.h"
@@ -39,10 +38,6 @@ namespace Pol {
 
   int xmain( int argc, char *argv[] )
   {
-    strcpy( progverstr, polverstr );
-    strcpy( buildtagstr, polbuildtag );
-    progver = polver;
-
     return Core::RunWindowsService( argc, argv );
   }
   namespace Core {

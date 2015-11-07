@@ -43,7 +43,6 @@ Notes
 #include "multi/house.h"
 #include "containr.h"
 
-#include "../plib/polver.h"
 #include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
@@ -52,7 +51,6 @@ Notes
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/progver.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
@@ -859,10 +857,10 @@ namespace Pol {
       sw()
         << "System" << pf_endl
         << "{" << pf_endl
-        << "\tCoreVersion\t" << progver << pf_endl
-        << "\tCoreVersionString\t" << polverstr << pf_endl
-        << "\tCompileDate\t" << compiledate << pf_endl
-        << "\tCompileTime\t" << compiletime << pf_endl
+        << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
+        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl
+        << "\tCompileDate\t" << POL_BUILD_DATE << pf_endl
+        << "\tCompileTime\t" << POL_BUILD_TIME << pf_endl
         << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl //dave 3/9/3
         << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl //dave 3/9/3
         << "}" << pf_endl
@@ -1116,7 +1114,7 @@ namespace Pol {
               try
               {
                 sc.pol() << "#" << pf_endl
-                  << "#  Created by Version: " << polverstr
+                  << "#  Created by Version: " << POL_VERSION_ID
                   << pf_endl
                   << "#  Mobiles:		 " << get_mobile_count()
                   << pf_endl << "#  Top-level Items: "
