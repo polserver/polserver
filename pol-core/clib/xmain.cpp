@@ -33,7 +33,6 @@ Notes
 
 namespace Pol {
   unsigned int refptr_count;
-  static void parse_args( int argc, char *argv[] );
 }
 
 int main( int argc, char *argv[] )
@@ -55,7 +54,19 @@ int main( int argc, char *argv[] )
         flags &= 0x0000FFFF; // set heap check frequency to 0
         _CrtSetDbgFlag( flags );
 #endif
-        parse_args( argc, argv );
+
+
+		/**
+		 * determine and store the executable name
+		 */
+	    std::string exe_path = argv[0];
+		#ifdef _WIN32
+			char module_path[_MAX_PATH];
+			if (GetModuleFileName( NULL, module_path, sizeof module_path))
+			  exe_path = module_path;
+		#endif
+		CONFIG_ENV::configureProgramEnvironment(exe_path);
+
         exitcode = xmain( argc, argv );
     }
     catch( const char *msg )
@@ -108,21 +119,6 @@ namespace Pol {
 	return pathname;
   }
 
-  static void parse_args( int /*argc*/, char *argv[] )
-  {
-	    std::string exe_path;
-
-		/**
-		 * determine and store the executable name
-		 */
-	    exe_path = argv[0];
-		#ifdef _WIN32
-			char module_path[_MAX_PATH];
-			if (GetModuleFileName( NULL, module_path, sizeof module_path))
-			  exe_path = module_path;
-		#endif
-		CONFIG_ENV::configureProgramEnvironment(exe_path);
-  }
   namespace Clib  {
 
     size_t getCurrentMemoryUsage( )
