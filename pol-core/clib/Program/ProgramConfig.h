@@ -1,15 +1,15 @@
-#ifndef CLIB_CONFIG_ENVIRONMENT_H
-#define CLIB_CONFIG_ENVIRONMENT_H
+#ifndef CLIB_PROGRAM_CONFIG_H
+#define CLIB_PROGRAM_CONFIG_H
 
 #include <string>
 
 namespace Pol{ namespace Clib{
 
-class ConfigEnvironment
+class ProgramConfig
 {
 public:
-    ConfigEnvironment();
-    virtual ~ConfigEnvironment();
+    ProgramConfig();
+    virtual ~ProgramConfig();
 
     /**
      * @brief Returns the name of the currently running program
@@ -33,6 +33,6 @@ private:
 
 }} // namespaces
 
-#define CONFIG_ENV            Pol::Clib::ConfigEnvironment
+#define PROG_CONFIG           Pol::Clib::ProgramConfig
 
-#endif // CLIB_CONFIG_ENVIRONMENT_H
+#endif // CLIB_PROGRAM_CONFIG_H

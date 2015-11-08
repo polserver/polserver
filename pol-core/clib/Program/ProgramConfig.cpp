@@ -1,4 +1,4 @@
-#include "ConfigEnvironment.h"
+#include "ProgramConfig.h"
 #include <string>
 
 namespace Pol{ namespace Clib{
@@ -6,12 +6,12 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string ConfigEnvironment::m_programName = "";
-std::string ConfigEnvironment::m_programDir = "";
+std::string ProgramConfig::m_programName = "";
+std::string ProgramConfig::m_programDir = "";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ConfigEnvironment::configureProgramEnvironment(std::string programName)
+void ProgramConfig::configureProgramEnvironment(std::string programName)
 {
     m_programName = programName;
 
@@ -31,12 +31,12 @@ void ConfigEnvironment::configureProgramEnvironment(std::string programName)
 	m_programDir = exeDir;
 }
 
-std::string ConfigEnvironment::programName()
+std::string ProgramConfig::programName()
 {
     return m_programName;
 }
 
-std::string ConfigEnvironment::programDir()
+std::string ProgramConfig::programDir()
 {
     return m_programDir;
 }

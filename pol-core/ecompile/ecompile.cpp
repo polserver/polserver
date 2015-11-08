@@ -8,7 +8,7 @@ Notes
 */
 
 #include "../clib/xmain.h"
-#include "../clib/Debugging/ConfigEnvironment.h"
+#include "../clib/Program/ProgramConfig.h"
 #include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
@@ -792,7 +792,7 @@ namespace Pol {
 	  }
 
 	  // no -C arg, so use binary path (hope it's right..sigh.)
-      std::string cfgpath = CONFIG_ENV::programDir() + "ecompile.cfg";
+      std::string cfgpath = PROG_CONFIG::programDir() + "ecompile.cfg";
       if ( Clib::FileExists( "ecompile.cfg" ) )
 	  {
 		compilercfg.Read( "ecompile.cfg" );

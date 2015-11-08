@@ -12,7 +12,7 @@ Notes
 #include "xmain.h"
 
 #include "Debugging/ExceptionParser.h"
-#include "Debugging/ConfigEnvironment.h"
+#include "Program/ProgramConfig.h"
 
 #include "clib.h"
 #include "logfacility.h"
@@ -65,7 +65,7 @@ int main( int argc, char *argv[] )
 			if (GetModuleFileName( NULL, module_path, sizeof module_path))
 			  exe_path = module_path;
 		#endif
-		CONFIG_ENV::configureProgramEnvironment(exe_path);
+        PROG_CONFIG::configureProgramEnvironment(exe_path);
 
         exitcode = xmain( argc, argv );
     }

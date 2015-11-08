@@ -1,5 +1,5 @@
 #include "ExceptionParser.h"
-#include "ConfigEnvironment.h"
+#include "ProgramConfig.h"
 #include "LogSink.h"
 #include "../threadhelp.h"
 #include "../logfacility.h"
@@ -304,7 +304,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
 
     // create the abort description for the subsequent POST request
     string content = "email=" + m_programAbortReportingReporter + "&"
-                     "bin=" + CONFIG_ENV::programName() + "&"
+                     "bin=" + PROG_CONFIG::programName() + "&"
                      "start_time=" + m_programStart + "&"
                      "abort_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
                      "reason=" + reason + "&"
@@ -339,7 +339,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
                 printf("Admin contact: %s\n", m_programAbortReportingReporter.c_str());
-                printf("Executable: %s\n", CONFIG_ENV::programName().c_str());
+                printf("Executable: %s\n", PROG_CONFIG::programName().c_str());
                 printf("Start time: %s\n", m_programStart.c_str());
                 printf("Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str());
                 printf("\n");
