@@ -30,9 +30,6 @@ namespace Pol {
 	public:
 	  SystemState();
 	  ~SystemState();
-	  void setExecutable(std::string name);
-	  void setWorkingDirectory(std::string dir);
-	  std::string getWorkingDirectory();
 	  std::string getStartTime();
 	  void deinitialize();
 
@@ -43,8 +40,6 @@ namespace Pol {
 	  struct stat accounts_txt_stat;
 	  
 	  Core::PolConfig config;
-	  std::string executable;
-	  std::string working_dir;
 	  std::string start_time;
 	  Core::Tile *tile;
 	  bool tiles_loaded;

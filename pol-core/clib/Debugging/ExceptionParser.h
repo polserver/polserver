@@ -37,7 +37,7 @@ public:
     /**
      * @brief Configures the bug reporting system
      */
-    static void configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter, std::string programName);
+    static void configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter);
 
     /**
      * @brief Returns true if the bug reporting is active
@@ -54,7 +54,6 @@ private:
     static std::string       m_programAbortReportingServer;
     static std::string       m_programAbortReportingUrl;
     static std::string       m_programAbortReportingReporter;
-    static std::string       m_programName;
     static std::string       m_programStart;
 };
 

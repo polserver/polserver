@@ -12,7 +12,7 @@ Notes
 #include "xmain.h"
 
 #include "Debugging/ExceptionParser.h"
-#include "../plib/systemstate.h"
+#include "Debugging/ConfigEnvironment.h"
 
 #include "clib.h"
 #include "logfacility.h"
@@ -110,7 +110,7 @@ namespace Pol {
 
   static void parse_args( int /*argc*/, char *argv[] )
   {
-	    std::string exe_path, exe_dir;
+	    std::string exe_path;
 
 		/**
 		 * determine and store the executable name
@@ -121,25 +121,7 @@ namespace Pol {
 			if (GetModuleFileName( NULL, module_path, sizeof module_path))
 			  exe_path = module_path;
 		#endif
-		Pol::Plib::systemstate.setExecutable(exe_path);
-
-		/**
-		 * determine and store the executable directory
-		 */
-		exe_dir = exe_path;
-		std::string::size_type bslashpos;
-		while (std::string::npos != (bslashpos = exe_dir.find('\\')))
-		{
-			exe_dir.replace( bslashpos, 1, 1, '/' );
-		}
-
-		std::string::size_type pos = exe_dir.find_last_of("/");
-		if (pos != std::string::npos)
-		{
-			exe_dir.erase( pos );
-			exe_dir += "/";
-		}
-		Pol::Plib::systemstate.setWorkingDirectory(exe_dir);
+		CONFIG_ENV::configureProgramEnvironment(exe_path);
   }
   namespace Clib  {
 

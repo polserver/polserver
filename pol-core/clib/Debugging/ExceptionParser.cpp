@@ -1,4 +1,5 @@
 #include "ExceptionParser.h"
+#include "ConfigEnvironment.h"
 #include "LogSink.h"
 #include "../threadhelp.h"
 #include "../logfacility.h"
@@ -41,7 +42,6 @@ bool ExceptionParser::m_programAbortReporting = true;
 std::string ExceptionParser::m_programAbortReportingServer = "";
 std::string ExceptionParser::m_programAbortReportingUrl = "";
 std::string ExceptionParser::m_programAbortReportingReporter = "";
-std::string ExceptionParser::m_programName = "";
 std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTimeStamp();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -304,7 +304,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
 
     // create the abort description for the subsequent POST request
     string content = "email=" + m_programAbortReportingReporter + "&"
-                     "bin=" + m_programName + "&"
+                     "bin=" + CONFIG_ENV::programName() + "&"
                      "start_time=" + m_programStart + "&"
                      "abort_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
                      "reason=" + reason + "&"
@@ -339,7 +339,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
                 printf("Admin contact: %s\n", m_programAbortReportingReporter.c_str());
-                printf("Executable: %s\n", m_programName.c_str());
+                printf("Executable: %s\n", CONFIG_ENV::programName().c_str());
                 printf("Start time: %s\n", m_programStart.c_str());
                 printf("Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str());
                 printf("\n");
@@ -597,13 +597,12 @@ void ExceptionParser::initGlobalExceptionCatching()
 }
 #endif // _WIN32
 
-void ExceptionParser::configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter, std::string programName)
+void ExceptionParser::configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter)
 {
 	m_programAbortReporting = active;
     m_programAbortReportingServer = server;
     m_programAbortReportingUrl = url;
     m_programAbortReportingReporter = reporter;
-    m_programName = programName;
 }
 
 bool ExceptionParser::programAbortReporting()

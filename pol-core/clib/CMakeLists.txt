@@ -10,8 +10,9 @@ MESSAGE("####################################")
 # define source files
 SET (SOURCES  # sorted !
 	../../lib/format/format.cc
+	Debugging/ConfigEnvironment.cpp
+	Debugging/ExceptionParser.cpp			
 	Debugging/LogSink.cpp
-	Debugging/ExceptionParser.cpp		
 	binaryfile.cpp 
 	boostutils.cpp 
 	cfgfile.cpp 

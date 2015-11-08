@@ -27,21 +27,6 @@ namespace Pol {
 	SystemState::~SystemState()
 	{}
 
-	void SystemState::setExecutable(std::string name)
-	{
-		executable = name;
-	}
-
-	void SystemState::setWorkingDirectory(std::string dir)
-	{
-		working_dir = dir;
-	}
-
-	std::string SystemState::getWorkingDirectory()
-	{
-		return working_dir;
-	}
-
 	std::string SystemState::getStartTime()
 	{
 		return start_time;
