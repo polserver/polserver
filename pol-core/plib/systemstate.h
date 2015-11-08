@@ -30,7 +30,6 @@ namespace Pol {
 	public:
 	  SystemState();
 	  ~SystemState();
-	  std::string getStartTime();
 	  void deinitialize();
 
 	  Packages packages;
@@ -40,7 +39,6 @@ namespace Pol {
 	  struct stat accounts_txt_stat;
 	  
 	  Core::PolConfig config;
-	  std::string start_time;
 	  Core::Tile *tile;
 	  bool tiles_loaded;
 

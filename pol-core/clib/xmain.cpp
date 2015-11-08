@@ -109,16 +109,6 @@ int main( int argc, char *argv[] )
 }
 
 namespace Pol {
-  std::string fix_slashes(std::string pathname)
-  {
-	std::string::size_type bslashpos;
-    while (std::string::npos != (bslashpos = pathname.find('\\')))
-	{
-	  pathname.replace( bslashpos, 1, 1, '/' );
-	}
-	return pathname;
-  }
-
   namespace Clib  {
 
     size_t getCurrentMemoryUsage( )

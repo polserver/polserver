@@ -2,7 +2,6 @@
 #include "systemstate.h"
 #include "../pol/tiles.h"
 #include "../clib/stlutil.h"
-#include "../clib/Debugging/LogSink.h"
 #include "pkg.h"
 
 #include <sys/stat.h>
@@ -22,15 +21,9 @@ namespace Pol {
 	  tile(nullptr),
 	  tiles_loaded(false)
 	{
-		start_time = Pol::Clib::Logging::LogSink::getTimeStamp();
 	}
 	SystemState::~SystemState()
 	{}
-
-	std::string SystemState::getStartTime()
-	{
-		return start_time;
-	}
 
 	void SystemState::deinitialize()
 	{
