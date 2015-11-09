@@ -12,7 +12,7 @@ Notes
 #include "xmain.h"
 
 #include "Debugging/ExceptionParser.h"
-#include "../plib/systemstate.h"
+#include "Program/ProgramConfig.h"
 
 #include "clib.h"
 #include "logfacility.h"
@@ -33,7 +33,6 @@ Notes
 
 namespace Pol {
   unsigned int refptr_count;
-  static void parse_args( int argc, char *argv[] );
 }
 
 int main( int argc, char *argv[] )
@@ -55,7 +54,19 @@ int main( int argc, char *argv[] )
         flags &= 0x0000FFFF; // set heap check frequency to 0
         _CrtSetDbgFlag( flags );
 #endif
-        parse_args( argc, argv );
+
+
+		/**
+		 * determine and store the executable name
+		 */
+	    std::string exe_path = argv[0];
+		#ifdef _WIN32
+			char module_path[_MAX_PATH];
+			if (GetModuleFileName( NULL, module_path, sizeof module_path))
+			  exe_path = module_path;
+		#endif
+        PROG_CONFIG::configureProgramEnvironment(exe_path);
+
         exitcode = xmain( argc, argv );
     }
     catch( const char *msg )
@@ -98,49 +109,6 @@ int main( int argc, char *argv[] )
 }
 
 namespace Pol {
-  std::string fix_slashes(std::string pathname)
-  {
-	std::string::size_type bslashpos;
-    while (std::string::npos != (bslashpos = pathname.find('\\')))
-	{
-	  pathname.replace( bslashpos, 1, 1, '/' );
-	}
-	return pathname;
-  }
-
-  static void parse_args( int /*argc*/, char *argv[] )
-  {
-	    std::string exe_path, exe_dir;
-
-		/**
-		 * determine and store the executable name
-		 */
-	    exe_path = argv[0];
-		#ifdef _WIN32
-			char module_path[_MAX_PATH];
-			if (GetModuleFileName( NULL, module_path, sizeof module_path))
-			  exe_path = module_path;
-		#endif
-		Pol::Plib::systemstate.setExecutable(exe_path);
-
-		/**
-		 * determine and store the executable directory
-		 */
-		exe_dir = exe_path;
-		std::string::size_type bslashpos;
-		while (std::string::npos != (bslashpos = exe_dir.find('\\')))
-		{
-			exe_dir.replace( bslashpos, 1, 1, '/' );
-		}
-
-		std::string::size_type pos = exe_dir.find_last_of("/");
-		if (pos != std::string::npos)
-		{
-			exe_dir.erase( pos );
-			exe_dir += "/";
-		}
-		Pol::Plib::systemstate.setWorkingDirectory(exe_dir);
-  }
   namespace Clib  {
 
     size_t getCurrentMemoryUsage( )

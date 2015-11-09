@@ -227,7 +227,7 @@ namespace Pol {
       std::string reportingAdminEmail = elem.remove_string("ReportAdminEmail", "");
       std::string reportingServer = elem.remove_string("ReportServer", "polserver.com");
 	  std::string reportingUrl = elem.remove_string("ReportURL", "/pol/report_program_abort.php");
-      Pol::Clib::ExceptionParser::configureProgramAbortReportingSystem(reportingActive, reportingServer, reportingUrl, reportingAdminEmail, Pol::Plib::systemstate.executable);
+      Pol::Clib::ExceptionParser::configureProgramAbortReportingSystem(reportingActive, reportingServer, reportingUrl, reportingAdminEmail);
 
 #ifdef _WIN32
       Clib::MiniDumper::SetMiniDumpType( Plib::systemstate.config.minidump_type );
