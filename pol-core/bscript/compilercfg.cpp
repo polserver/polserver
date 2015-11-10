@@ -12,7 +12,6 @@ Notes
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
 #include "../clib/dirlist.h"
-#include "../clib/xmain.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4996) // POSIX deprecation warnings for stricmp, getenv

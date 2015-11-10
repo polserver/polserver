@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <inttypes.h>
 
-#ifndef _WIN32
+#ifndef WINDOWS
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -22,12 +22,7 @@
 #include <sys/syscall.h>
 #define SOCKET int
 #else
-#include<winsock2.h>
-#include<Ws2tcpip.h>
-#define snprintf _snprintf_s
-#define ssize_t SSIZE_T
-#pragma warning(disable: 4127) // conditional expression is constant
-#pragma warning(disable: 4996) // unsafe strerror
+#include <../Header_Windows.h>
 #endif
 
 #define MAX_STACK_TRACE_DEPTH          200

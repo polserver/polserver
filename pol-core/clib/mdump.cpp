@@ -18,8 +18,7 @@ Notes
 #include "clib.h"
 #include "../../lib/StackWalker/StackWalker.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <Header_Windows.h>
 #include <assert.h>
 #include <time.h>
 

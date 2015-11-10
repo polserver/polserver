@@ -3,8 +3,8 @@
 
 #include <string>
 
-#ifdef _WIN32
-#	include <winsock.h>
+#if defined(WINDOWS)
+#include <Header_Windows.h>
 #else
 #	include <sys/socket.h>
 	typedef int SOCKET;

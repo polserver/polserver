@@ -1,4 +1,4 @@
-#ifndef _WIN32
+#ifndef WINDOWS
 
 #ifndef KBHIT_H
 #define KBHIT_H

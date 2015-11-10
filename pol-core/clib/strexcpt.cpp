@@ -11,11 +11,10 @@ Notes
 */
 
 #include "logfacility.h"
+#include "pol_global_config.h"
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <eh.h>
+#if defined(WINDOWS)
+#include <Header_Windows.h>
 #include <stdio.h>
 #include "strexcpt.h"
 #include "msjexhnd.h"
@@ -165,9 +164,7 @@ namespace Pol {
 	  else
 	  {
 		in_ex_handler = true;
-        POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" )
-          << compiledate
-          << compiletime;
+        POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" ) << POL_BUILD_DATE << POL_BUILD_TIME;
 
 		MSJExceptionHandler::MSJUnhandledExceptionFilter( pExp );
 		in_ex_handler = false;

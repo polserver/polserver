@@ -8,7 +8,7 @@ Implementation of CNTService
 
 */
 
-#include <windows.h>
+#include <Header_Windows.h>
 #include <stdio.h>
 #include "NTService.h"
 

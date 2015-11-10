@@ -79,7 +79,7 @@
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **********************************************************************/
-#include <windows.h>
+#include <Header_Windows.h>
 #include <tchar.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -659,7 +659,7 @@ private:
     pGMI = (tGMI) GetProcAddress( hPsapi, "GetModuleInformation" );
     if ( (pEPM == NULL) || (pGMFNE == NULL) || (pGMBN == NULL) || (pGMI == NULL) )
     {
-      // we couldn´t find all functions
+      // we couldnï¿½t find all functions
       FreeLibrary(hPsapi);
       return FALSE;
     }
