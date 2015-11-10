@@ -1107,7 +1107,7 @@ namespace Pol {
 
   } // namespace Core
 
-  int xmain_inner( int argc, char** /*argv*/)
+  int xmain_inner()
   {
 #ifdef _WIN32
     Clib::MiniDumper::Initialize();
@@ -1251,15 +1251,16 @@ namespace Pol {
     Core::checkpoint( "reading starting locations" );
     Core::read_starting_locations();
 
-    if ( argc > 1 )
-    {
-      POLLOG_INFO << "Running POL test suite.\n";
-      Core::run_pol_tests();
-      Core::cancel_all_trades();
-      Core::stop_gameclock();
-	  Core::gamestate.deinitialize();
-      return 0;
-    }
+//TODO: remove the following because it is not used anymore
+//    if ( argc > 1 )
+//    {
+//      POLLOG_INFO << "Running POL test suite.\n";
+//      Core::run_pol_tests();
+//      Core::cancel_all_trades();
+//      Core::stop_gameclock();
+//	  Core::gamestate.deinitialize();
+//      return 0;
+//    }
 
     // PrintAllocationData();
     POLLOG_INFO << "Reading data files:\n";
@@ -1431,11 +1432,11 @@ namespace Pol {
     return 0;
   }
 
-  int xmain_outer( int argc, char *argv[] )
+  int xmain_outer()
   {
     try
     {
-      return xmain_inner( argc, argv );
+      return xmain_inner();
     }
     catch ( std::exception& )
     {
@@ -1449,12 +1450,5 @@ namespace Pol {
       throw;
     }
   }
-
-#ifndef _WIN32
-  int xmain( int argc, char *argv[] )
-  {
-    return xmain_outer( argc, argv );
-  }
-#endif
 }
 

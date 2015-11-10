@@ -31,10 +31,7 @@ Notes
 #include <stdexcept>
 #include <string>
 
-namespace Pol {
-  unsigned int refptr_count;
-}
-
+#ifdef WINDOWS
 int main( int argc, char *argv[] )
 {
 	using namespace Pol;
@@ -107,6 +104,7 @@ int main( int argc, char *argv[] )
 
     return exitcode;
 }
+#endif
 
 namespace Pol {
   namespace Clib  {

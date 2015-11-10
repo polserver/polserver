@@ -13,6 +13,7 @@ SET (SOURCES  # sorted !
 	Debugging/ExceptionParser.cpp			
 	Debugging/LogSink.cpp
 	Program/ProgramConfig.cpp
+	Program/ProgramMain.cpp
 	binaryfile.cpp 
 	boostutils.cpp 
 	cfgfile.cpp 

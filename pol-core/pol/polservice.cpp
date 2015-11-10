@@ -34,7 +34,7 @@ namespace Pol {
   namespace Core {
     int RunWindowsService( int argc, char** argv );
   }
-  int xmain_outer( int argc, char* argv[] );
+  int xmain_outer();
 
   int xmain( int argc, char *argv[] )
   {
@@ -66,8 +66,7 @@ namespace Pol {
 		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, Pol::Plib::systemstate.getWorkingDirectory().c_str() );
 		rc = SetCurrentDirectory(Pol::Plib::systemstate.getWorkingDirectory().c_str());
 
-		char* dummy[1] = { "" };
-		xmain_outer( 1, dummy );
+		xmain_outer();
 	  }
 	  catch ( std::exception& ex )
 	  {
@@ -89,7 +88,7 @@ namespace Pol {
 	  if ( !MyService.ParseStandardArgs( argc, argv ) )
 	  {
 		// no service-related parameters
-		return xmain_outer( argc, argv );
+		return xmain_outer();
 	  }
 	  else
 	  {
