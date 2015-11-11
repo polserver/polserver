@@ -159,6 +159,7 @@ SET (SOURCES  # sorted !
     polclock.cpp 
     poldbg.cpp
     polfile2.cpp 
+    PolMain.cpp
     polsem.cpp 
     polsig.cpp 
     polstats.cpp

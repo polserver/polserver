@@ -216,6 +216,24 @@ IF (WINDOWS)
 ENDIF (WINDOWS)
 
 ##############################################################
+# search for header files - needed for Visual Studio solution
+IF(WINDOWS)
+	FOREACH(SOURCES_ENTRY ${SOURCES})
+		GET_FILENAME_COMPONENT(SOURCES_ENTRY_PATH ${SOURCES_ENTRY} PATH)
+		GET_FILENAME_COMPONENT(SOURCES_ENTRY_NAME_WE ${SOURCES_ENTRY} NAME_WE)
+		SET(SOURCES_ENTRY_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCES_ENTRY_PATH}/${SOURCES_ENTRY_NAME_WE}.h)
+    	IF(EXISTS "${SOURCES_ENTRY_HEADER}")
+    		MESSAGE("Found automatically the header file: ${SOURCES_ENTRY_HEADER}")
+    		SET(SOURCES 
+    			${SOURCES}
+    			${SOURCES_ENTRY_HEADER}
+    	 	)
+    	ENDIF()
+    	ADD_DEFINITIONS("${DEFINITIONS_ENTRY}")
+	ENDFOREACH(SOURCES_ENTRY ${SOURCES})
+ENDIF()	
+
+##############################################################
 # add definitions for compilation
 FOREACH(DEFINITIONS_ENTRY ${DEFINITIONS})
     ADD_DEFINITIONS("${DEFINITIONS_ENTRY}")

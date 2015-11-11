@@ -22,7 +22,7 @@ SET (SOURCES  # sorted !
     ../pol/module/utilmod.cpp 
     ../pol/proplist.cpp
     ../pol/xmlfilescrobj.cpp
-    runecl.cpp
+    RunEclMain.cpp
 )    
 
 ##############################################################

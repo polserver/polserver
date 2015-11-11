@@ -12,7 +12,6 @@ Notes
 
 #include "passert.h"
 
-#include "../plib/systemstate.h"
 #include "Debugging/ExceptionParser.h"
 
 #include "esignal.h"
@@ -21,10 +20,9 @@ Notes
 #include "threadhelp.h"
 #include <cstring>
 
-#ifdef _WIN32
-#	include <windows.h>
-#	include "mdumpimp.h"    
-#pragma warning(disable: 4996) // unsafe sprintf
+#ifdef WINDOWS
+#include <Header_Windows.h>
+#include "mdumpimp.h"
 #else
 #include <signal.h>
 #include <unistd.h>
@@ -99,7 +97,7 @@ namespace Pol {
       /**
        * use the program abort reporting system
        */
-      if(Plib::systemstate.config.report_program_aborts())
+      if(Pol::Clib::ExceptionParser::programAbortReporting())
       {
     	  char reportedReason[512];
     	  if(sprintf(reportedReason, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr, reason.c_str(),file, line) > 0)

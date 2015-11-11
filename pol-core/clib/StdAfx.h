@@ -17,13 +17,10 @@ And since the pch header file needs to be included everywhere also use /FI (forc
 The pch needs also to be created and thats why the additional cpp file exists, in the properties of this file instead of "Use /Yu" set it to "Create /Yc"
 */
 
-#if !defined(_CLIB_STDAFX_H)
+#ifndef _CLIB_STDAFX_H
 #define _CLIB_STDAFX_H
 
-#ifdef _MSC_VER
-#	define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-#	include <windows.h>
-#endif
+#include <Header_Windows.h>
 
 // System Includes
 #include <assert.h>
@@ -66,4 +63,4 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #include "fixalloc.h"
 #include "refptr.h"
 
-#endif
+#endif // _CLIB_STDAFX_H

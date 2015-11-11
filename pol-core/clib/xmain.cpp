@@ -18,12 +18,9 @@ Notes
 #include "logfacility.h"
 #include "strexcpt.h"
 
-#ifdef _WIN32
-#   define WIN32_LEAN_AND_MEAN
-#	include <windows.h> // for GetModuleFileName
-#	include <crtdbg.h>
-#   include <psapi.h>
-#   pragma comment(lib, "psapi.lib") // 32bit is a bit dumb..
+#if defined(WINDOWS)
+#include <Header_Windows.h>
+#pragma comment(lib, "psapi.lib") // 32bit is a bit dumb..
 #else
 #   include <unistd.h>
 #   include <sys/resource.h>
@@ -31,10 +28,7 @@ Notes
 #include <stdexcept>
 #include <string>
 
-namespace Pol {
-  unsigned int refptr_count;
-}
-
+#if 0 //TODO: remove the following code fragment after the reworking after CMake introduction is finished
 int main( int argc, char *argv[] )
 {
 	using namespace Pol;
@@ -107,6 +101,7 @@ int main( int argc, char *argv[] )
 
     return exitcode;
 }
+#endif
 
 namespace Pol {
   namespace Clib  {

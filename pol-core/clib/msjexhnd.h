@@ -10,7 +10,7 @@ Notes
 #ifndef __MSJEXHND_H__
 #define __MSJEXHND_H__
 
-#include <windows.h>
+#include <Header_Windows.h>
 #include <imagehlp.h>
 namespace Pol {
   namespace Clib {
