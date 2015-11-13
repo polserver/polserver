@@ -16,7 +16,7 @@ SET (SOURCES  # sorted !
 	../pol/uofile02.cpp
 	../pol/uofile07.cpp
 	../pol/uofile08.cpp
-	uoconvert.cpp
+	UoConvertMain.cpp
 )    
 
 ##############################################################
