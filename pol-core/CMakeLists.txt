@@ -5,7 +5,7 @@ ADD_SUBDIRECTORY(pol)
 #ADD_SUBDIRECTORY(ecompile)		# add again if the source is reworked
 ADD_SUBDIRECTORY(runecl)
 ADD_SUBDIRECTORY(uoconvert)
-#ADD_SUBDIRECTORY(uotool) 		# add again if the source is reworked
+ADD_SUBDIRECTORY(uotool)
 ADD_SUBDIRECTORY(poltool)
 
 

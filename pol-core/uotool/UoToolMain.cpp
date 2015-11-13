@@ -25,13 +25,19 @@
 #include "../clib/fdump.h"
 #include "../clib/passert.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996) // deprecation warning for fopen, sprintf, stricmp
-#endif
+namespace Pol{
+namespace Multi {
+  void read_multidefs();
+  bool BoatShapeExists( unsigned short /*graphic*/ )
+  {
+    return true;
+  }
+}
 
-namespace Pol{ namespace UoTool{
+namespace UoTool{
 using namespace std;
 using namespace Pol::Core;
+using namespace Pol::Plib;
 
 ///////////////////////////////////////////////////////////////////////////////
 
