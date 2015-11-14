@@ -16,7 +16,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <cstring>
 #include <sstream>
 
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 
 namespace Pol {
   namespace Clib {
