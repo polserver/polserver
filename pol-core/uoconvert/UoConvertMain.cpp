@@ -54,12 +54,17 @@ UoConvertMain::~UoConvertMain()
 
 void UoConvertMain::showHelp()
 {
-	ERROR_PRINT << "Usage:\n"
-    			<< "    \n"
-				<< "  UOCONVERT function [options ...]\n"
-    			<< "    \n"
-				<< "  The function can be:\n";
-	//TODO
+    ERROR_PRINT << "Usage:\n"
+                << "    \n"
+                << "  UOCONVERT command [options ...]\n"
+                << "    \n"
+                << "  Commands: \n"
+                << "    map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}\n"
+                << "    statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
+                << "    maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
+                << "    multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
+                << "    tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
+                << "    landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n";
 }
 
 static int s_argc;
@@ -76,9 +81,6 @@ std::set<unsigned int> BoatTypes;
 std::set<unsigned int> StairTypes;
 std::set<unsigned int> MountTypes;
 
-
-
-void generate_map();
 void create_map(const std::string& realm, unsigned short width, unsigned short height);
 void update_map(const std::string& realm, unsigned short x, unsigned short y);
 
@@ -91,37 +93,34 @@ void display_flags()
 {
   for ( unsigned blocking = 0; blocking <= 1; ++blocking )
   {
-	for ( unsigned platform = 0; platform <= 1; ++platform )
-	{
-	  for ( unsigned walk = 0; walk <= 1; ++walk )
-	  {
-		for ( unsigned wall = 0; wall <= 1; ++wall )
-		{
-		  for ( unsigned half = 0; half <= 1; ++half )
-		  {
-			for ( unsigned floor = 0; floor <= 1; ++floor )
-			{
-			  unsigned flags = 0;
-			  if ( blocking ) flags |= Core::USTRUCT_TILE::FLAG_BLOCKING;
-			  if ( platform ) flags |= Core::USTRUCT_TILE::FLAG_PLATFORM;
-			  if ( walk ) flags |= Core::USTRUCT_TILE::FLAG__WALK;
-			  if ( wall ) flags |= Core::USTRUCT_TILE::FLAG_WALL;
-			  if ( half ) flags |= Core::USTRUCT_TILE::FLAG_HALF_HEIGHT;
-			  if ( floor ) flags |= Core::USTRUCT_TILE::FLAG_FLOOR;
+    for ( unsigned platform = 0; platform <= 1; ++platform )
+    {
+      for ( unsigned walk = 0; walk <= 1; ++walk )
+      {
+        for ( unsigned wall = 0; wall <= 1; ++wall )
+        {
+          for ( unsigned half = 0; half <= 1; ++half )
+          {
+            for ( unsigned floor = 0; floor <= 1; ++floor )
+            {
+              unsigned flags = 0;
+              if ( blocking ) flags |= Core::USTRUCT_TILE::FLAG_BLOCKING;
+              if ( platform ) flags |= Core::USTRUCT_TILE::FLAG_PLATFORM;
+              if ( walk ) flags |= Core::USTRUCT_TILE::FLAG__WALK;
+              if ( wall ) flags |= Core::USTRUCT_TILE::FLAG_WALL;
+              if ( half ) flags |= Core::USTRUCT_TILE::FLAG_HALF_HEIGHT;
+              if ( floor ) flags |= Core::USTRUCT_TILE::FLAG_FLOOR;
 
-			  unsigned int polflags = Plib::polflags_from_tileflags( 0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
-			  unsigned moveland = ( polflags & Plib::FLAG::MOVELAND ) ? 1 : 0;
+              unsigned int polflags = Plib::polflags_from_tileflags( 0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+              unsigned moveland = ( polflags & Plib::FLAG::MOVELAND ) ? 1 : 0;
               INFO_PRINT.Format( "{} {} {} {} {} {}: {}\n" ) << blocking << platform << walk << wall << half << floor << moveland;
-			}
-		  }
-		}
-	  }
-	}
+            }
+          }
+        }
+      }
+    }
   }
 }
-
-
-
 
 unsigned char polmap_flags_from_landtile( unsigned short landtile )
 {
@@ -150,35 +149,35 @@ void create_maptile(const std::string& realmname)
 
   for ( unsigned short y_base = 0; y_base < uo_map_height; y_base += Plib::MAPTILE_CHUNK )
   {
-	for ( unsigned short x_base = 0; x_base < uo_map_width; x_base += Plib::MAPTILE_CHUNK )
-	{
-	  for ( unsigned short x_add = 0; x_add < Plib::MAPTILE_CHUNK; ++x_add )
-	  {
-		for ( unsigned short y_add = 0; y_add < Plib::MAPTILE_CHUNK; ++y_add )
-		{
-		  unsigned short x = x_base + x_add;
-		  unsigned short y = y_base + y_add;
+    for ( unsigned short x_base = 0; x_base < uo_map_width; x_base += Plib::MAPTILE_CHUNK )
+    {
+      for ( unsigned short x_add = 0; x_add < Plib::MAPTILE_CHUNK; ++x_add )
+      {
+        for ( unsigned short y_add = 0; y_add < Plib::MAPTILE_CHUNK; ++y_add )
+        {
+          unsigned short x = x_base + x_add;
+          unsigned short y = y_base + y_add;
 
-		  short z;
-		  Core::USTRUCT_MAPINFO mi;
+          short z;
+          Core::USTRUCT_MAPINFO mi;
 
-		  safe_getmapinfo( x, y, &z, &mi );
+          safe_getmapinfo( x, y, &z, &mi );
 
           if ( mi.landtile > 0x3FFF )
             INFO_PRINT.Format("Tile 0x{:X} at ({},{},{}) is an invalid ID!\n") << mi.landtile << x << y << z;
 
-		  // for water, don't average with surrounding tiles.
-		  if ( landtile_uoflags( mi.landtile ) & Core::USTRUCT_TILE::FLAG_LIQUID )
-			z = mi.z;
+          // for water, don't average with surrounding tiles.
+          if ( landtile_uoflags( mi.landtile ) & Core::USTRUCT_TILE::FLAG_LIQUID )
+            z = mi.z;
 
-		  Plib::MAPTILE_CELL cell;
-		  cell.landtile = mi.landtile;
-		  cell.z = static_cast<signed char>( z );
-		  writer->SetMapTile( x, y, cell );
+          Plib::MAPTILE_CELL cell;
+          cell.landtile = mi.landtile;
+          cell.z = static_cast<signed char>( z );
+          writer->SetMapTile( x, y, cell );
 
-		}
-	  }
-	}
+        }
+      }
+    }
     INFO_PRINT << "\rConverting: " << y_base * 100 / uo_map_height << "%";
   }
   writer->Flush();
@@ -191,23 +190,23 @@ class StaticsByZ
 public:
   bool operator()( const StaticRec& a, const StaticRec& b )
   {
-	return ( a.z < b.z ) ||
-	  ( ( a.z == b.z && a.height < b.height ) );
+    return ( a.z < b.z ) ||
+      ( ( a.z == b.z && a.height < b.height ) );
   }
 };
 
 bool flags_match( unsigned int f1, unsigned int f2, unsigned char bits_compare )
 {
   return ( f1 & bits_compare )
-	==
-	( f2 & bits_compare );
+    ==
+    ( f2 & bits_compare );
 }
 
 bool otherflags_match( unsigned char f1, unsigned char f2, unsigned char bits_exclude )
 {
   return ( f1 & ~bits_exclude )
-	==
-	( f2 & ~bits_exclude );
+    ==
+    ( f2 & ~bits_exclude );
 }
 
 bool differby_exactly( unsigned char f1, unsigned char f2, unsigned char bits )
@@ -254,10 +253,10 @@ void create_map(const std::string& realm, unsigned short width, unsigned short h
   INFO_PRINT << "  Reading mapfiles time: " << timer.ellapsed() << " ms.\n";
   for ( unsigned short y_base = 0; y_base < height; y_base += SOLIDX_Y_SIZE )
   {
-	for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
-	{
-	  ProcessSolidBlock( x_base, y_base, *mapwriter );
-	}
+    for ( unsigned short x_base = 0; x_base < width; x_base += SOLIDX_X_SIZE )
+    {
+      ProcessSolidBlock( x_base, y_base, *mapwriter );
+    }
     INFO_PRINT << "\rConverting: " << y_base * 100 / height << "%";
   }
   timer.stop();
@@ -283,40 +282,40 @@ bool is_no_draw( USTRUCT_MAPINFO& mi )
 bool is_cave_exit( USTRUCT_MAPINFO& mi )
 {
   return ( mi.landtile == 0x7ec ||
-		   mi.landtile == 0x7ed ||
-		   mi.landtile == 0x7ee ||
-		   mi.landtile == 0x7ef ||
-		   mi.landtile == 0x7f0 ||
-		   mi.landtile == 0x7f1 ||
-		   mi.landtile == 0x834 ||
-		   mi.landtile == 0x835 ||
-		   mi.landtile == 0x836 ||
-		   mi.landtile == 0x837 ||
-		   mi.landtile == 0x838 ||
-		   mi.landtile == 0x839 ||
-		   mi.landtile == 0x1d3 ||
-		   mi.landtile == 0x1d4 ||
-		   mi.landtile == 0x1d5 ||
-		   mi.landtile == 0x1d6 ||
-		   mi.landtile == 0x1d7 ||
-		   mi.landtile == 0x1d8 ||
-		   mi.landtile == 0x1d9 ||
-		   mi.landtile == 0x1da
-		   );
+           mi.landtile == 0x7ed ||
+           mi.landtile == 0x7ee ||
+           mi.landtile == 0x7ef ||
+           mi.landtile == 0x7f0 ||
+           mi.landtile == 0x7f1 ||
+           mi.landtile == 0x834 ||
+           mi.landtile == 0x835 ||
+           mi.landtile == 0x836 ||
+           mi.landtile == 0x837 ||
+           mi.landtile == 0x838 ||
+           mi.landtile == 0x839 ||
+           mi.landtile == 0x1d3 ||
+           mi.landtile == 0x1d4 ||
+           mi.landtile == 0x1d5 ||
+           mi.landtile == 0x1d6 ||
+           mi.landtile == 0x1d7 ||
+           mi.landtile == 0x1d8 ||
+           mi.landtile == 0x1d9 ||
+           mi.landtile == 0x1da
+           );
 }
 
 bool is_cave_shadow( USTRUCT_MAPINFO& mi )
 {
   return ( mi.landtile == 0x1db || // shadows above caves
-		   mi.landtile == 0x1ae || // more shadows above caves
-		   mi.landtile == 0x1af ||
-		   mi.landtile == 0x1b0 ||
-		   mi.landtile == 0x1b1 ||
-		   mi.landtile == 0x1b2 ||
-		   mi.landtile == 0x1b3 ||
-		   mi.landtile == 0x1b4 ||
-		   mi.landtile == 0x1b5
-		   );
+           mi.landtile == 0x1ae || // more shadows above caves
+           mi.landtile == 0x1af ||
+           mi.landtile == 0x1b0 ||
+           mi.landtile == 0x1b1 ||
+           mi.landtile == 0x1b2 ||
+           mi.landtile == 0x1b3 ||
+           mi.landtile == 0x1b4 ||
+           mi.landtile == 0x1b5
+           );
 }
 
 short get_lowestadjacentz( unsigned short x, unsigned short y, short z )
@@ -328,136 +327,136 @@ short get_lowestadjacentz( unsigned short x, unsigned short y, short z )
 
   if ( ( x - 1 >= 0 ) && ( y - 1 >= 0 ) )
   {
-	safe_getmapinfo( x - 1, y - 1, &z0, &mi );
+    safe_getmapinfo( x - 1, y - 1, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( x - 1 >= 0 )
   {
-	safe_getmapinfo( x - 1, y, &z0, &mi );
+    safe_getmapinfo( x - 1, y, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( ( x - 1 >= 0 ) && ( y + 1 < uo_map_height ) )
   {
-	safe_getmapinfo( x - 1, y + 1, &z0, &mi );
+    safe_getmapinfo( x - 1, y + 1, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( y - 1 >= 0 )
   {
-	safe_getmapinfo( x, y - 1, &z0, &mi );
+    safe_getmapinfo( x, y - 1, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( ( y - 1 >= 0 ) && ( x + 1 < uo_map_width ) )
   {
-	safe_getmapinfo( x + 1, y - 1, &z0, &mi );
+    safe_getmapinfo( x + 1, y - 1, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( x + 1 < uo_map_width )
   {
-	safe_getmapinfo( x + 1, y, &z0, &mi );
+    safe_getmapinfo( x + 1, y, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( ( x + 1 < uo_map_width ) && ( y + 1 < uo_map_height ) )
   {
-	safe_getmapinfo( x + 1, y + 1, &z0, &mi );
+    safe_getmapinfo( x + 1, y + 1, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( y + 1 < uo_map_height )
   {
-	safe_getmapinfo( x, y + 1, &z0, &mi );
+    safe_getmapinfo( x, y + 1, &z0, &mi );
 
-	if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
-	  z0 = z;
+    if ( is_cave_shadow( mi ) || is_cave_exit( mi ) )
+      z0 = z;
 
-	if ( is_no_draw( mi ) )
-	  cave_override = true;
+    if ( is_no_draw( mi ) )
+      cave_override = true;
 
-	if ( z0 < lowest_z )
-	{
-	  lowest_z = z0;
-	}
+    if ( z0 < lowest_z )
+    {
+      lowest_z = z0;
+    }
   }
 
   if ( cave_override )
-	return z;
+    return z;
   else
-	return lowest_z;
+    return lowest_z;
 }
 
 void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter& mapwriter )
@@ -469,338 +468,338 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
 
   unsigned short x_add_max = SOLIDX_X_SIZE, y_add_max = SOLIDX_Y_SIZE;
   if ( x_base + x_add_max > uo_map_width )
-	x_add_max = uo_map_width - x_base;
+    x_add_max = uo_map_width - x_base;
   if ( y_base + y_add_max > uo_map_height )
-	y_add_max = uo_map_height - y_base;
+    y_add_max = uo_map_height - y_base;
 
   for ( unsigned short x_add = 0; x_add < x_add_max; ++x_add )
   {
-	for ( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
-	{
-	  unsigned short x = x_base + x_add;
-	  unsigned short y = y_base + y_add;
+    for ( unsigned short y_add = 0; y_add < y_add_max; ++y_add )
+    {
+      unsigned short x = x_base + x_add;
+      unsigned short y = y_base + y_add;
 
-	  StaticList statics;
+      StaticList statics;
 
-	  // read the map, and treat it like a static.
-	  short z;
-	  USTRUCT_MAPINFO mi;
+      // read the map, and treat it like a static.
+      short z;
+      USTRUCT_MAPINFO mi;
 
-	  safe_getmapinfo( x, y, &z, &mi );
-
-      if ( mi.landtile > 0x3FFF )
-        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x << y << z;
-
-	  // for water, don't average with surrounding tiles.
-	  if ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
-		z = mi.z;
-	  short low_z = get_lowestadjacentz( x, y, z );
-
-	  short lt_height = z - low_z;
-	  z = low_z;
+      safe_getmapinfo( x, y, &z, &mi );
 
       if ( mi.landtile > 0x3FFF )
         INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x << y << z;
 
-	  unsigned int lt_flags = landtile_uoflags( mi.landtile );
-	  if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
-	  { // this seems to be the default.
-		lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
-	  }
-	  lt_flags |= USTRUCT_TILE::FLAG_NO_SHOOT;    // added to make sure people using noshoot will have shapes
-	  // generated by this tile in future block LOS, shouldn't
-	  // affect people using old LOS method one way or another.
-	  lt_flags |= USTRUCT_TILE::FLAG_FLOOR;
-	  lt_flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT; // the entire map is this way
+      // for water, don't average with surrounding tiles.
+      if ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
+        z = mi.z;
+      short low_z = get_lowestadjacentz( x, y, z );
 
-	  if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
-		lt_height = 20;
+      short lt_height = z - low_z;
+      z = low_z;
 
-	  readstatics( statics, x, y,
-				   USTRUCT_TILE::FLAG_BLOCKING |
-				   USTRUCT_TILE::FLAG_PLATFORM |
-				   USTRUCT_TILE::FLAG_HALF_HEIGHT |
-				   USTRUCT_TILE::FLAG_LIQUID |
-				   USTRUCT_TILE::FLAG_HOVEROVER
-				   //USTRUCT_TILE::FLAG__WALK
-				   );
+      if ( mi.landtile > 0x3FFF )
+        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x << y << z;
 
-	  for ( unsigned i = 0; i < statics.size(); ++i )
-	  {
-		StaticRec srec = statics[i];
+      unsigned int lt_flags = landtile_uoflags( mi.landtile );
+      if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
+      { // this seems to be the default.
+        lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
+      }
+      lt_flags |= USTRUCT_TILE::FLAG_NO_SHOOT;    // added to make sure people using noshoot will have shapes
+      // generated by this tile in future block LOS, shouldn't
+      // affect people using old LOS method one way or another.
+      lt_flags |= USTRUCT_TILE::FLAG_FLOOR;
+      lt_flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT; // the entire map is this way
 
-		unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+      if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
+        lt_height = 20;
 
-		if ( ( ~polflags & FLAG::MOVELAND ) &&
-			 ( ~polflags & FLAG::MOVESEA ) &&
-			 ( ~polflags & FLAG::BLOCKSIGHT ) &&
-			 ( ~polflags & FLAG::BLOCKING ) &&
-			 ( ~polflags & FLAG::OVERFLIGHT ) )
-		{
-		  // remove it.  we'll re-sort later.
-		  statics.erase( statics.begin() + i );
-		  --i; // do-over
-		}
-		if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
-			 /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
-		{
-		  // remove it.  we'll re-sort later.
-		  statics.erase( statics.begin() + i );
-		  --i; // do-over
-		}
-	  }
+      readstatics( statics, x, y,
+                   USTRUCT_TILE::FLAG_BLOCKING |
+                   USTRUCT_TILE::FLAG_PLATFORM |
+                   USTRUCT_TILE::FLAG_HALF_HEIGHT |
+                   USTRUCT_TILE::FLAG_LIQUID |
+                   USTRUCT_TILE::FLAG_HOVEROVER
+                   //USTRUCT_TILE::FLAG__WALK
+                   );
 
-	  bool addMap = true;
+      for ( unsigned i = 0; i < statics.size(); ++i )
+      {
+        StaticRec srec = statics[i];
 
-	  for ( const auto &srec : statics )
-	  {
-		// Look for water tiles.  If there are any, discard the map (which is usually at -15 anyway)
-		if ( z + lt_height <= srec.z && ( ( srec.z - ( z + lt_height ) ) <= 10 ) && // only where the map is below or same Z as the static
-			 srec.graphic >= 0x1796 && srec.graphic <= 0x17B2 ) // FIXME hardcoded
-		{
-		  // arr, there be water here
-		  addMap = false;
-		}
+        unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
 
-		// if there's a static on top of one of these "wall" landtiles, make it override.
-		if ( ( lt_flags & USTRUCT_TILE::FLAG_WALL ) && // wall?
-			 z <= srec.z &&
-			 srec.z - z <= lt_height )
-		{
+        if ( ( ~polflags & FLAG::MOVELAND ) &&
+             ( ~polflags & FLAG::MOVESEA ) &&
+             ( ~polflags & FLAG::BLOCKSIGHT ) &&
+             ( ~polflags & FLAG::BLOCKING ) &&
+             ( ~polflags & FLAG::OVERFLIGHT ) )
+        {
+          // remove it.  we'll re-sort later.
+          statics.erase( statics.begin() + i );
+          --i; // do-over
+        }
+        if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
+             /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
+        {
+          // remove it.  we'll re-sort later.
+          statics.erase( statics.begin() + i );
+          --i; // do-over
+        }
+      }
 
-		  lt_height = srec.z - z;
-		}
-	  }
-	  // shadows above caves
-	  if ( is_cave_shadow( mi ) && !statics.empty() )
-	  {
-		addMap = false;
-	  }
+      bool addMap = true;
+
+      for ( const auto &srec : statics )
+      {
+        // Look for water tiles.  If there are any, discard the map (which is usually at -15 anyway)
+        if ( z + lt_height <= srec.z && ( ( srec.z - ( z + lt_height ) ) <= 10 ) && // only where the map is below or same Z as the static
+             srec.graphic >= 0x1796 && srec.graphic <= 0x17B2 ) // FIXME hardcoded
+        {
+          // arr, there be water here
+          addMap = false;
+        }
+
+        // if there's a static on top of one of these "wall" landtiles, make it override.
+        if ( ( lt_flags & USTRUCT_TILE::FLAG_WALL ) && // wall?
+             z <= srec.z &&
+             srec.z - z <= lt_height )
+        {
+
+          lt_height = srec.z - z;
+        }
+      }
+      // shadows above caves
+      if ( is_cave_shadow( mi ) && !statics.empty() )
+      {
+        addMap = false;
+      }
 
 
 
-	  // If the map is a NODRAW tile, and there are statics, discard the map tile
-	  if ( mi.landtile == 2 && !statics.empty() )
-		addMap = false;
+      // If the map is a NODRAW tile, and there are statics, discard the map tile
+      if ( mi.landtile == 2 && !statics.empty() )
+        addMap = false;
 
-	  if ( addMap )
-		statics.push_back( StaticRec( 0, static_cast<signed char>( z ), lt_flags, static_cast<char>( lt_height ) ) );
+      if ( addMap )
+        statics.push_back( StaticRec( 0, static_cast<signed char>( z ), lt_flags, static_cast<char>( lt_height ) ) );
 
-	  sort( statics.begin(), statics.end(), StaticsByZ() );
-	  reverse( statics.begin(), statics.end() );
+      sort( statics.begin(), statics.end(), StaticsByZ() );
+      reverse( statics.begin(), statics.end() );
 
       std::vector<MapShape> shapes;
 
-	  // try to consolidate like shapes, and discard ones we don't care about.
-	  while ( !statics.empty() )
-	  {
-		StaticRec srec = statics.back();
-		statics.pop_back();
+      // try to consolidate like shapes, and discard ones we don't care about.
+      while ( !statics.empty() )
+      {
+        StaticRec srec = statics.back();
+        statics.pop_back();
 
-		unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
-		if ( ( ~polflags & FLAG::MOVELAND ) &&
-			 ( ~polflags & FLAG::MOVESEA ) &&
-			 ( ~polflags & FLAG::BLOCKSIGHT ) &&
-			 ( ~polflags & FLAG::BLOCKING ) &&
-			 ( ~polflags & FLAG::OVERFLIGHT ) )
-		{
-		  passert_always( 0 );
-		  continue;
-		}
-		if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
-			 ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
-			 /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
-		{
-		  passert_always( 0 );
-		  continue;
-		}
+        unsigned int polflags = polflags_from_tileflags( srec.graphic, srec.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+        if ( ( ~polflags & FLAG::MOVELAND ) &&
+             ( ~polflags & FLAG::MOVESEA ) &&
+             ( ~polflags & FLAG::BLOCKSIGHT ) &&
+             ( ~polflags & FLAG::BLOCKING ) &&
+             ( ~polflags & FLAG::OVERFLIGHT ) )
+        {
+          passert_always( 0 );
+          continue;
+        }
+        if ( ( ~srec.flags & USTRUCT_TILE::FLAG_BLOCKING ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_PLATFORM ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_LIQUID ) &&
+             ( ~srec.flags & USTRUCT_TILE::FLAG_HOVEROVER ) )
+             /*(~srec.flags & USTRUCT_TILE::FLAG__WALK)*/
+        {
+          passert_always( 0 );
+          continue;
+        }
 
-		if ( shapes.empty() )
-		{
-		  // this, whatever it is, is the map base.
-		  //TODO: look for water statics and use THOSE as the map.
-		  MapShape shape;
-		  shape.z = srec.z;      //these will be converted below to
-		  shape.height = 0;      //make the map "solid"
-		  shape.flags = static_cast<unsigned char>( polflags );
-		  // no matter what, the lowest level is gradual
-		  shape.flags |= FLAG::GRADUAL;
-		  shapes.push_back( shape );
+        if ( shapes.empty() )
+        {
+          // this, whatever it is, is the map base.
+          //TODO: look for water statics and use THOSE as the map.
+          MapShape shape;
+          shape.z = srec.z;      //these will be converted below to
+          shape.height = 0;      //make the map "solid"
+          shape.flags = static_cast<unsigned char>( polflags );
+          // no matter what, the lowest level is gradual
+          shape.flags |= FLAG::GRADUAL;
+          shapes.push_back( shape );
 
-		  //for wall flag - map tile always height 0, at bottom. if map tile has height, add it as a static
-		  if ( srec.height != 0 )
-		  {
-			MapShape _shape;
-			_shape.z = srec.z;
-			_shape.height = srec.height;
-			_shape.flags = polflags;
-			shapes.push_back( _shape );
+          //for wall flag - map tile always height 0, at bottom. if map tile has height, add it as a static
+          if ( srec.height != 0 )
+          {
+            MapShape _shape;
+            _shape.z = srec.z;
+            _shape.height = srec.height;
+            _shape.flags = polflags;
+            shapes.push_back( _shape );
 
-		  }
-		  continue;
-		}
+          }
+          continue;
+        }
 
-		MapShape& prev = shapes.back();
-		// we're adding it.
-		MapShape shape;
-		shape.z = srec.z;
-		shape.height = srec.height;
-		shape.flags = polflags;
+        MapShape& prev = shapes.back();
+        // we're adding it.
+        MapShape shape;
+        shape.z = srec.z;
+        shape.height = srec.height;
+        shape.flags = polflags;
 
-		//always add the map shape seperately
-		if ( shapes.size() == 1 )
-		{
-		  shapes.push_back( shape );
-		  continue;
-		}
+        //always add the map shape seperately
+        if ( shapes.size() == 1 )
+        {
+          shapes.push_back( shape );
+          continue;
+        }
 
-		if ( shape.z < prev.z + prev.height )
-		{
-		  // things can't exist in the same place.
-		  // shrink the bottom part of this shape.
-		  // if that would give it negative height, then skip it.
-		  short height_remove = prev.z + prev.height - shape.z;
-		  if ( height_remove <= shape.height )
-		  {
-			shape.z += height_remove;
-			shape.height -= height_remove;
-		  }
-		  else
-		  { // example: 5530, 14
-			continue;
-		  }
-		}
+        if ( shape.z < prev.z + prev.height )
+        {
+          // things can't exist in the same place.
+          // shrink the bottom part of this shape.
+          // if that would give it negative height, then skip it.
+          short height_remove = prev.z + prev.height - shape.z;
+          if ( height_remove <= shape.height )
+          {
+            shape.z += height_remove;
+            shape.height -= height_remove;
+          }
+          else
+          { // example: 5530, 14
+            continue;
+          }
+        }
 
-		// sometimes water has "sand" a couple z-coords above it.
-		// We'll try to detect this (really, anything that is up to 4 dist from water)
-		// and extend the thing above downward.
-		if ( ( prev.flags & FLAG::MOVESEA ) &&
-			 ( shape.z > prev.z + prev.height ) &&
-			 ( shape.z <= prev.z + prev.height + 4 ) )
-		{
-		  short height_add = shape.z - prev.z - prev.height;
-		  shape.z -= height_add;
-		  shape.height += height_add;
-		}
-		if ( ( prev.flags & FLAG::MOVESEA ) &&
-			 ( prev.z + prev.height == -5 ) &&
-			 ( shape.flags & FLAG::MOVESEA ) &&
-			 ( shape.z == 25 ) )
-		{
-		  // oddly, there are some water tiles at z=25 in some places...I don't get it
-		  continue;
-		}
+        // sometimes water has "sand" a couple z-coords above it.
+        // We'll try to detect this (really, anything that is up to 4 dist from water)
+        // and extend the thing above downward.
+        if ( ( prev.flags & FLAG::MOVESEA ) &&
+             ( shape.z > prev.z + prev.height ) &&
+             ( shape.z <= prev.z + prev.height + 4 ) )
+        {
+          short height_add = shape.z - prev.z - prev.height;
+          shape.z -= height_add;
+          shape.height += height_add;
+        }
+        if ( ( prev.flags & FLAG::MOVESEA ) &&
+             ( prev.z + prev.height == -5 ) &&
+             ( shape.flags & FLAG::MOVESEA ) &&
+             ( shape.z == 25 ) )
+        {
+          // oddly, there are some water tiles at z=25 in some places...I don't get it
+          continue;
+        }
 
-		//string prevflags_s = flagstr(prev.flags);
-		//const char* prevflags = prevflags_s.c_str();
-		//string shapeflags_s = flagstr(shape.flags);
-		//const char* shapeflags = shapeflags_s.c_str();
+        //string prevflags_s = flagstr(prev.flags);
+        //const char* prevflags = prevflags_s.c_str();
+        //string shapeflags_s = flagstr(shape.flags);
+        //const char* shapeflags = shapeflags_s.c_str();
 
-		if ( shape.z > prev.z + prev.height )
-		{
-		  //
-		  // elevated above what's below, must include separately
-		  //
+        if ( shape.z > prev.z + prev.height )
+        {
+          //
+          // elevated above what's below, must include separately
+          //
 
-		  shapes.push_back( shape );
-		  continue;
-		}
+          shapes.push_back( shape );
+          continue;
+        }
 
-		passert_always( shape.z == prev.z + prev.height );
+        passert_always( shape.z == prev.z + prev.height );
 
-		if ( shape.z == prev.z + prev.height )
-		{
-		  //
-		  // sitting right on top of the previous solid
-		  //
+        if ( shape.z == prev.z + prev.height )
+        {
+          //
+          // sitting right on top of the previous solid
+          //
 
-		  // standable atop non-standable: standable
-		  // nonstandable atop standable: nonstandable
-		  // etc
-		  bool can_combine = flags_match( prev.flags, shape.flags, FLAG::BLOCKSIGHT | FLAG::BLOCKING );
-		  if ( prev.flags & FLAG::MOVELAND &&
-			   ~shape.flags & FLAG::BLOCKING &&
-			   ~shape.flags & FLAG::MOVELAND )
-		  {
-			can_combine = false;
-		  }
+          // standable atop non-standable: standable
+          // nonstandable atop standable: nonstandable
+          // etc
+          bool can_combine = flags_match( prev.flags, shape.flags, FLAG::BLOCKSIGHT | FLAG::BLOCKING );
+          if ( prev.flags & FLAG::MOVELAND &&
+               ~shape.flags & FLAG::BLOCKING &&
+               ~shape.flags & FLAG::MOVELAND )
+          {
+            can_combine = false;
+          }
 
-		  if ( can_combine )
-		  {
-			prev.flags = shape.flags;
-			prev.height += shape.height;
-		  }
-		  else // if one blocks LOS, but not the other, they can't be combined this way.
-		  {
-			shapes.push_back( shape );
-			continue;
-		  }
-		}
-	  }
+          if ( can_combine )
+          {
+            prev.flags = shape.flags;
+            prev.height += shape.height;
+          }
+          else // if one blocks LOS, but not the other, they can't be combined this way.
+          {
+            shapes.push_back( shape );
+            continue;
+          }
+        }
+      }
 
-	  // the first StaticShape is the map base.
-	  MapShape base = shapes[0];
-	  shapes.erase( shapes.begin() );
-	  MAPCELL cell;
-	  passert_always( base.height == 0 );
-	  cell.z = static_cast<signed char>( base.z ); //assume now map has height=1. a static was already added if it was >0
-	  cell.flags = static_cast<u8>( base.flags );
-	  if ( !shapes.empty() )
-		cell.flags |= FLAG::MORE_SOLIDS;
+      // the first StaticShape is the map base.
+      MapShape base = shapes[0];
+      shapes.erase( shapes.begin() );
+      MAPCELL cell;
+      passert_always( base.height == 0 );
+      cell.z = static_cast<signed char>( base.z ); //assume now map has height=1. a static was already added if it was >0
+      cell.flags = static_cast<u8>( base.flags );
+      if ( !shapes.empty() )
+        cell.flags |= FLAG::MORE_SOLIDS;
 
-	  mapwriter.SetMapCell( x, y, cell );
+      mapwriter.SetMapCell( x, y, cell );
 
-	  if ( !shapes.empty() )
-	  {
-		++with_more_solids;
-		total_statics += static_cast<unsigned int>( shapes.size() );
-		if ( idx2_offset == 0 )
-		  idx2_offset = mapwriter.NextSolidx2Offset();
+      if ( !shapes.empty() )
+      {
+        ++with_more_solids;
+        total_statics += static_cast<unsigned int>( shapes.size() );
+        if ( idx2_offset == 0 )
+          idx2_offset = mapwriter.NextSolidx2Offset();
 
-		unsigned int addindex = mapwriter.NextSolidIndex() - idx2_elem.baseindex;
-		if ( addindex > std::numeric_limits<unsigned short>::max() )
+        unsigned int addindex = mapwriter.NextSolidIndex() - idx2_elem.baseindex;
+        if ( addindex > std::numeric_limits<unsigned short>::max() )
             throw std::runtime_error("addoffset overflow");
-		idx2_elem.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
-		int count = static_cast<int>( shapes.size() );
-		for ( int j = 0; j < count; ++j )
-		{
-		  MapShape shape = shapes[j];
-		  char _z, height, flags;
-		  _z = static_cast<char>( shapes[j].z );
-		  height = static_cast<char>( shape.height );
-		  flags = static_cast<u8>( shape.flags );
-		  if ( !height )//make 0 height solid
-		  {
-			--_z;
-			++height;
-		  }
+        idx2_elem.addindex[x_add][y_add] = static_cast<unsigned short>( addindex );
+        int count = static_cast<int>( shapes.size() );
+        for ( int j = 0; j < count; ++j )
+        {
+          MapShape shape = shapes[j];
+          char _z, height, flags;
+          _z = static_cast<char>( shapes[j].z );
+          height = static_cast<char>( shape.height );
+          flags = static_cast<u8>( shape.flags );
+          if ( !height )//make 0 height solid
+          {
+            --_z;
+            ++height;
+          }
 
-		  if ( j != count - 1 )
-			flags |= FLAG::MORE_SOLIDS;
-		  SOLIDS_ELEM solid;
-		  solid.z = _z;
-		  solid.height = height;
-		  solid.flags = flags;
-		  mapwriter.AppendSolid( solid );
-		}
-	  }
-	}
+          if ( j != count - 1 )
+            flags |= FLAG::MORE_SOLIDS;
+          SOLIDS_ELEM solid;
+          solid.z = _z;
+          solid.height = height;
+          solid.flags = flags;
+          mapwriter.AppendSolid( solid );
+        }
+      }
+    }
   }
   if ( idx2_offset )
   {
-	++nonempty;
-	mapwriter.AppendSolidx2Elem( idx2_elem );
+    ++nonempty;
+    mapwriter.AppendSolidx2Elem( idx2_elem );
   }
   else
   {
-	++empty;
+    ++empty;
   }
   mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
 }
@@ -810,21 +809,21 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
   USTRUCT_MULTI_ELEMENT elem;
   unsigned int count;
   if ( cfg_use_new_hsa_format )
-	count = length / sizeof( USTRUCT_MULTI_ELEMENT_HSA );
+    count = length / sizeof( USTRUCT_MULTI_ELEMENT_HSA );
   else
-	count = length / sizeof elem;
+    count = length / sizeof elem;
 
   std::string type, mytype;
   if ( BoatTypes.count( id ) )
-	type = "Boat";
+    type = "Boat";
   else if ( HouseTypes.count( id ) )
-	type = "House";
+    type = "House";
   else if ( StairTypes.count( id ) )
-	type = "Stairs";
+    type = "Stairs";
   else
   {
     ERROR_PRINT << "Type 0x" << fmt::hexu( id ) << " not found in uoconvert.cfg, assuming \"House\" type.\n";
-	type = "House";
+    type = "House";
   }
   mytype = type;
 
@@ -849,35 +848,35 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
               throw std::runtime_error("write_multi(): fseek() failed");
       }
 
-	if ( elem.graphic == GRAPHIC_NODRAW )
-	  continue;
+    if ( elem.graphic == GRAPHIC_NODRAW )
+      continue;
 
-	if ( elem.flags )
-	  type = "static";
-	else
-	  type = "dynamic";
+    if ( elem.flags )
+      type = "static";
+    else
+      type = "dynamic";
 
-	// boats typically have as their first element the "mast", but flagged as dynamic.
-	if ( mytype == "Boat" )
-	{
-	  if ( first && elem.graphic != 1 )
-		type = "static";
-	}
+    // boats typically have as their first element the "mast", but flagged as dynamic.
+    if ( mytype == "Boat" )
+    {
+      if ( first && elem.graphic != 1 )
+        type = "static";
+    }
     std::string comment;
-	if ( cfg_use_new_hsa_format )
-	{
-	  USTRUCT_TILE_HSA tile;
-	  readtile( elem.graphic, &tile );
-	  comment.assign( tile.name, sizeof( tile.name ) );
-	}
-	else
-	{
-	  USTRUCT_TILE tile;
-	  readtile( elem.graphic, &tile );
-	  comment.assign( tile.name, sizeof( tile.name ) );
-	}
-	fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic, elem.x, elem.y, elem.z, comment.c_str() );
-	first = false;
+    if ( cfg_use_new_hsa_format )
+    {
+      USTRUCT_TILE_HSA tile;
+      readtile( elem.graphic, &tile );
+      comment.assign( tile.name, sizeof( tile.name ) );
+    }
+    else
+    {
+      USTRUCT_TILE tile;
+      readtile( elem.graphic, &tile );
+      comment.assign( tile.name, sizeof( tile.name ) );
+    }
+    fprintf( multis_cfg, "    %-7s 0x%04x %4d %4d %4d   // %s\n", type.c_str(), elem.graphic, elem.x, elem.y, elem.z, comment.c_str() );
+    first = false;
   }
   fprintf( multis_cfg, "}\n" );
   fprintf( multis_cfg, "\n" );
@@ -891,21 +890,21 @@ void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
   USTRUCT_IDX idxrec;
   for ( int i = 0; fread( &idxrec, sizeof idxrec, 1, multi_idx ) == 1; ++i )
   {
-	const USTRUCT_VERSION* vrec = NULL;
+    const USTRUCT_VERSION* vrec = NULL;
 
-	if ( check_verdata( VERFILE_MULTI_MUL, i, vrec ) )
-	{
-	  write_multi( multis_cfg, i, verfile, vrec->filepos, vrec->length );
-	  ++count;
-	}
-	else
-	{
-	  if ( idxrec.offset == 0xFFffFFffLu )
-		continue;
+    if ( check_verdata( VERFILE_MULTI_MUL, i, vrec ) )
+    {
+      write_multi( multis_cfg, i, verfile, vrec->filepos, vrec->length );
+      ++count;
+    }
+    else
+    {
+      if ( idxrec.offset == 0xFFffFFffLu )
+        continue;
 
-	  write_multi( multis_cfg, i, multi_mul, idxrec.offset, idxrec.length );
-	  ++count;
-	}
+      write_multi( multis_cfg, i, multi_mul, idxrec.offset, idxrec.length );
+      ++count;
+    }
   }
   INFO_PRINT << count << " multi definitions written to multis.cfg\n";
 }
@@ -949,60 +948,60 @@ void create_tiles_cfg()
   unsigned count = 0;
   for ( unsigned int graphic_i = 0; graphic_i <= Plib::systemstate.config.max_tile_id; ++graphic_i )
   {
-	u16 graphic = static_cast<u16>( graphic_i );
-	USTRUCT_TILE tile;
-	if ( cfg_use_new_hsa_format )
-	{
-	  USTRUCT_TILE_HSA newtile;
-	  read_objinfo( graphic, newtile );
-	  tile.anim = newtile.anim;
-	  tile.flags = newtile.flags;
-	  tile.height = newtile.height;
-	  tile.layer = newtile.layer;
-	  memcpy( tile.name, newtile.name, sizeof tile.name );
-	  tile.unk14 = newtile.unk14;
-	  tile.unk15 = newtile.unk15;
-	  tile.unk6 = newtile.unk6;
-	  tile.unk7 = newtile.unk7;
-	  tile.unk8 = newtile.unk8;
-	  tile.unk9 = newtile.unk9;
-	  tile.weight = newtile.weight;
-	}
-	else
-	  read_objinfo( graphic, tile );
-	mountCount = static_cast<int>( MountTypes.count( graphic ) );
+    u16 graphic = static_cast<u16>( graphic_i );
+    USTRUCT_TILE tile;
+    if ( cfg_use_new_hsa_format )
+    {
+      USTRUCT_TILE_HSA newtile;
+      read_objinfo( graphic, newtile );
+      tile.anim = newtile.anim;
+      tile.flags = newtile.flags;
+      tile.height = newtile.height;
+      tile.layer = newtile.layer;
+      memcpy( tile.name, newtile.name, sizeof tile.name );
+      tile.unk14 = newtile.unk14;
+      tile.unk15 = newtile.unk15;
+      tile.unk6 = newtile.unk6;
+      tile.unk7 = newtile.unk7;
+      tile.unk8 = newtile.unk8;
+      tile.unk9 = newtile.unk9;
+      tile.weight = newtile.weight;
+    }
+    else
+      read_objinfo( graphic, tile );
+    mountCount = static_cast<int>( MountTypes.count( graphic ) );
 
-	if ( tile.name[0] == '\0' &&
-		 tile.flags == 0 &&
-		 tile.layer == 0 &&
-		 tile.height == 0 &&
-		 mountCount == 0
-		 )
-	{
-	  continue;
-	}
-	unsigned int flags = polflags_from_tileflags( graphic, tile.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
-	if ( mountCount != 0 )
-	{
-	  tile.layer = 25;
-	  flags |= FLAG::EQUIPPABLE;
-	}
+    if ( tile.name[0] == '\0' &&
+         tile.flags == 0 &&
+         tile.layer == 0 &&
+         tile.height == 0 &&
+         mountCount == 0
+         )
+    {
+      continue;
+    }
+    unsigned int flags = polflags_from_tileflags( graphic, tile.flags, cfg_use_no_shoot, cfg_LOS_through_windows );
+    if ( mountCount != 0 )
+    {
+      tile.layer = 25;
+      flags |= FLAG::EQUIPPABLE;
+    }
 
-	memset( name, 0, sizeof name );
-	memcpy( name, tile.name, sizeof tile.name );
+    memset( name, 0, sizeof name );
+    memcpy( name, tile.name, sizeof tile.name );
 
-	fprintf( fp, "tile 0x%x\n", graphic );
-	fprintf( fp, "{\n" );
-	fprintf( fp, "    Desc %s\n", name );
-	fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>( tile.flags ) );
-	if ( tile.layer )
-	  fprintf( fp, "    Layer %u\n", tile.layer );
-	fprintf( fp, "    Height %u\n", tile.height );
-	fprintf( fp, "    Weight %u\n", tile.weight );
-	write_flags( fp, flags );
-	fprintf( fp, "}\n" );
-	fprintf( fp, "\n" );
-	++count;
+    fprintf( fp, "tile 0x%x\n", graphic );
+    fprintf( fp, "{\n" );
+    fprintf( fp, "    Desc %s\n", name );
+    fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>( tile.flags ) );
+    if ( tile.layer )
+      fprintf( fp, "    Layer %u\n", tile.layer );
+    fprintf( fp, "    Height %u\n", tile.height );
+    fprintf( fp, "    Weight %u\n", tile.weight );
+    write_flags( fp, flags );
+    fprintf( fp, "}\n" );
+    fprintf( fp, "\n" );
+    ++count;
   }
   fclose( fp );
 
@@ -1016,32 +1015,32 @@ void create_landtiles_cfg()
 
   for ( u16 i = 0; i <= 0x3FFF; ++i )
   {
-	USTRUCT_LAND_TILE landtile;
-	if ( cfg_use_new_hsa_format )
-	{
-	  USTRUCT_LAND_TILE_HSA newlandtile;
-	  readlandtile( i, &newlandtile );
-	  landtile.flags = newlandtile.flags;
-	  landtile.unk = newlandtile.unk;
-	  memcpy( landtile.name, newlandtile.name, sizeof landtile.name );
-	}
-	else
-	  readlandtile( i, &landtile );
+    USTRUCT_LAND_TILE landtile;
+    if ( cfg_use_new_hsa_format )
+    {
+      USTRUCT_LAND_TILE_HSA newlandtile;
+      readlandtile( i, &newlandtile );
+      landtile.flags = newlandtile.flags;
+      landtile.unk = newlandtile.unk;
+      memcpy( landtile.name, newlandtile.name, sizeof landtile.name );
+    }
+    else
+      readlandtile( i, &landtile );
 
-	if ( landtile.name[0] || landtile.flags )
-	{
-	  fprintf( fp, "landtile 0x%x\n", i );
-	  fprintf( fp, "{\n" );
-	  fprintf( fp, "    Name %s\n", landtile.name );
-	  fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>( landtile.flags ) );
+    if ( landtile.name[0] || landtile.flags )
+    {
+      fprintf( fp, "landtile 0x%x\n", i );
+      fprintf( fp, "{\n" );
+      fprintf( fp, "    Name %s\n", landtile.name );
+      fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>( landtile.flags ) );
 
-	  unsigned int flags = polflags_from_landtileflags( i, landtile.flags );
-	  flags &= ~FLAG::MOVABLE; // movable makes no sense for landtiles
-	  write_flags( fp, flags );
-	  fprintf( fp, "}\n" );
-	  fprintf( fp, "\n" );
-	  ++count;
-	}
+      unsigned int flags = polflags_from_landtileflags( i, landtile.flags );
+      flags &= ~FLAG::MOVABLE; // movable makes no sense for landtiles
+      write_flags( fp, flags );
+      fprintf( fp, "}\n" );
+      fprintf( fp, "\n" );
+      ++count;
+    }
   }
   fclose( fp );
 
@@ -1050,25 +1049,24 @@ void create_landtiles_cfg()
 
 int UoConvertMain::main()
 {
-	const std::vector<std::string> binArgs = programArgs();
+    const std::vector<std::string> binArgs = programArgs();
 
     /**********************************************
      * show help
      **********************************************/
-	if (binArgs.size() == 1)
-	{
-	  showHelp();
-	  return 0; // return "okay"
-	}
+    if (binArgs.size() == 1)
+    {
+      showHelp();
+      return 0; // return "okay"
+    }
 
     /**********************************************
-     * TODO: rework the following cruft from former uotool.cpp
+     * TODO: rework the following cruft from former uoconvert.cpp
      **********************************************/
     Plib::systemstate.config.max_tile_id = UOBJ_DEFAULT_MAX; //default
-
-    if ( Clib::FindArg2( "uodata=" ) != NULL )
+    if (programArgsFind("uodata=") != "")
     {
-      Plib::systemstate.config.uo_datafile_root = Clib::FindArg2( "uodata=" );
+      Plib::systemstate.config.uo_datafile_root = programArgsFind( "uodata=" );
       Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
     }
     else
@@ -1087,7 +1085,7 @@ int UoConvertMain::main()
         Plib::systemstate.config.max_tile_id = max_tile;
     }
 
-    if ( Clib::FindArg2( "maxtileid=" ) != NULL )
+    if (programArgsFind("maxtileid=") != "")
     {
       unsigned short max_tile = static_cast<unsigned short>( Clib::LongHexArg2( "maxtileid=", UOBJ_DEFAULT_MAX ) );
       if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
@@ -1198,7 +1196,7 @@ int UoConvertMain::main()
       UoConvert::uo_mapid = Clib::LongArg2( "mapid=", 0 );
       UoConvert::uo_usedif = Clib::LongArg2( "usedif=", 0 );
 
-      const char* realm = Clib::FindArg2( "realm=", "britannia" );
+      std::string realm = programArgsFindEquals("realm=", "britannia");
       int default_width = 6144;
       int default_height = 4096;
       switch ( UoConvert::uo_mapid )
@@ -1251,7 +1249,7 @@ int UoConvertMain::main()
     }
     else if ( command == "statics" )
     {
-      const char* realm = Clib::FindArg2( "realm=", "britannia" );
+      std::string realm = programArgsFindEquals("realm=", "britannia");
       Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 
       UoConvert::uo_mapid = descriptor.uomapid;
@@ -1284,7 +1282,7 @@ int UoConvertMain::main()
     }
     else if ( command == "maptile" )
     {
-      const char* realm = Clib::FindArg2( "realm=", "britannia" );
+      std::string realm = programArgsFindEquals("realm=", "britannia");
       Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 
       UoConvert::uo_mapid = descriptor.uomapid;
@@ -1303,6 +1301,7 @@ int UoConvertMain::main()
     }
     else
     {
+      //TODO: remove - we use showHelp() now
       ERROR_PRINT << "Usage: uoconvert [command] [options]\n"
         << "Commands: \n"
         << "  map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}\n"
@@ -1325,10 +1324,10 @@ int UoConvertMain::main()
 
 int main( int argc, char *argv[] )
 {
-	Pol::UoConvert::s_argc = argc;
-	Pol::UoConvert::s_argv = argv;
+    Pol::UoConvert::s_argc = argc;
+    Pol::UoConvert::s_argv = argv;
 
-	Pol::UoConvert::UoConvertMain* UoConvertMain = new Pol::UoConvert::UoConvertMain();
-	UoConvertMain->start(argc, argv);
+    Pol::UoConvert::UoConvertMain* UoConvertMain = new Pol::UoConvert::UoConvertMain();
+    UoConvertMain->start(argc, argv);
 }
 
