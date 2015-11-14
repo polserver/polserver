@@ -20,6 +20,7 @@ protected:
 
     const std::vector<std::string>& programArgs();
     std::string programArgsFind(std::string filter);
+    std::string programArgsFindEquals(std::string filter, std::string defaultVal);
 
 private:
     std::vector<std::string>    m_programArguments;

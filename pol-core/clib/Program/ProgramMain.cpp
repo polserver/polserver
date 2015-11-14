@@ -142,4 +142,16 @@ std::string ProgramMain::programArgsFind(std::string filter)
 	return "";
 }
 
+std::string ProgramMain::programArgsFindEquals(std::string filter, std::string defaultVal)
+{
+	const std::vector<std::string> binArgs = programArgs();
+	for (int i = 1; i < (int)binArgs.size(); i++)
+	{
+		const std::string& param = binArgs[i];
+		if (param.substr(0, filter.size()) == filter)
+			return param.substr(filter.size(), param.size() - (filter.size()));
+	}
+	return defaultVal;
+}
+
 }} // namespaces
