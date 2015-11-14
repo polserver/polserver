@@ -1201,9 +1201,9 @@ void UoToolMain::showHelp()
 {
 	ERROR_PRINT << "Usage:\n"
     			<< "    \n"
-				<< "  UOTOOL function [options ...]\n"
+				<< "  UOTOOL command [options ...]\n"
     			<< "    \n"
-				<< "  The function can be:\n"
+				<< "  Commands:\n"
 				<< "    tiledump filename        Dump object information\n"
 				<< "    vertile                  Dump updated object info\n"
 				<< "    rawdump filename hdrlen reclen\n"
