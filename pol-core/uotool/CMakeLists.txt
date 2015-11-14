@@ -42,6 +42,7 @@ SET (LIB_DIRS
 SET (LIBS_LINUX
     clib
     plib
+    pthread    
 )
 SET (LIBS_LINUX_STATIC_BIN_STATIC
     clib_static

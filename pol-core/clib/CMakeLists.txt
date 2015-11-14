@@ -70,6 +70,7 @@ SET (LIB_DIRS
 # link to the needed libs
 SET (LIBS_LINUX
 	crypto
+    pthread    
 )
 
 ##############################################################
