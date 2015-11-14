@@ -2,10 +2,8 @@ ADD_SUBDIRECTORY(bscript)
 ADD_SUBDIRECTORY(clib)
 ADD_SUBDIRECTORY(plib)
 ADD_SUBDIRECTORY(pol)
-#ADD_SUBDIRECTORY(ecompile)		# add again if the source is reworked
+ADD_SUBDIRECTORY(ecompile)
 ADD_SUBDIRECTORY(runecl)
 ADD_SUBDIRECTORY(uoconvert)
 ADD_SUBDIRECTORY(uotool)
 ADD_SUBDIRECTORY(poltool)
-
-

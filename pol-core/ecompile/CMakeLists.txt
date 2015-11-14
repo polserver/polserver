@@ -9,7 +9,7 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES
-    ecompile.cpp
+    ECompileMain.cpp
 )    
 
 ##############################################################
@@ -32,6 +32,7 @@ SET (LIBS_LINUX
     bscript
     clib
     plib
+    pthread    
 )
 SET (LIBS_LINUX_STATIC_BIN_STATIC
     bscript_static
