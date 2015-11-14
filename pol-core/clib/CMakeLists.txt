@@ -9,8 +9,9 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES  # sorted !
-	../../lib/format/format.cc
-	Debugging/ExceptionParser.cpp			
+	../../lib/format/format.cc          	#TODO: cleanup for this hack
+	Header_Windows.h 						#no auto-detect		
+	Debugging/ExceptionParser.cpp
 	Debugging/LogSink.cpp
 	Program/ProgramConfig.cpp
 	Program/ProgramMain.cpp
@@ -38,7 +39,7 @@ SET (SOURCES  # sorted !
 	socketsvc.cpp 
 	stracpy.cpp
 	streamsaver.cpp
-	strexcpt.cpp 
+	#strexcpt.cpp #TODO: remove as default? 
 	strset.cpp 
 	strutil.cpp
 	threadhelp.cpp
@@ -48,6 +49,15 @@ SET (SOURCES  # sorted !
 	wnsckt.cpp
 	xmain.cpp
 )
+IF(WINDOWS)
+	SET (SOURCES  # sorted !
+		${SOURCES}
+		../../lib/StackWalker/StackWalker.cpp 	#TODO: cleanup for this hack
+		mdump.cpp
+		msjexhnd.cpp
+		strexcpt.cpp
+	)
+ENDIF()
 
 ##############################################################
 # include dirs
@@ -67,10 +77,19 @@ SET (LIB_DIRS
 )
 
 ##############################################################
-# link to the needed libs
+# Linux specific dependencies
 SET (LIBS_LINUX
 	crypto
     pthread    
+)
+
+##############################################################
+# Windows specific dependencies
+SET (LIBS_WINDOWS
+	ws2_32
+	Psapi
+	DbgHelp
+#	crypto
 )
 
 ##############################################################
