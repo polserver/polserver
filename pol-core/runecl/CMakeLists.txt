@@ -33,6 +33,20 @@ SET (INCLUDE_DIRS
 )
 
 ##############################################################
+# compile flags
+IF(NOT WINDOWS)
+	IF(GCC)
+    	SET (FLAGS
+	        ${FLAGS}
+			-Wl,-R.
+			-Wl,-R./lib
+			-Wl,-R../lib
+			-Wl,-R../../lib
+	    )
+    ENDIF()
+ENDIF()
+
+##############################################################
 # set directory for internal libs
 SET (LIB_DIRS
     ${LIB_DIRS}
