@@ -80,6 +80,7 @@ SET (LIB_DIRS
 # Linux specific dependencies
 SET (LIBS_LINUX
 	crypto
+    pthread    
 )
 
 ##############################################################

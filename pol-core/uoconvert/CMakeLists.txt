@@ -16,7 +16,7 @@ SET (SOURCES  # sorted !
 	../pol/uofile02.cpp
 	../pol/uofile07.cpp
 	../pol/uofile08.cpp
-	uoconvert.cpp
+	UoConvertMain.cpp
 )    
 
 ##############################################################
@@ -39,6 +39,7 @@ SET (LIBS_LINUX
     bscript
     clib
     plib
+    pthread    
 )
 SET (LIBS_LINUX_STATIC_BIN_STATIC
     bscript_static
