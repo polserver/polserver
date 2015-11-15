@@ -43,7 +43,7 @@ Notes
 #include "ufunc.h"
 
 #include "../clib/stlutil.h"
-#include "../clib/MD5.h"
+#include "../clib/clib_MD5.h"
 #include "../clib/clib.h"
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"

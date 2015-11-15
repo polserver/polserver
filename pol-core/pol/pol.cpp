@@ -123,7 +123,7 @@ Notes
 
 #include "network/clientthread.h"
 
-#include "../clib/MD5.h"
+#include "../clib/clib_MD5.h"
 #include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fdump.h"
