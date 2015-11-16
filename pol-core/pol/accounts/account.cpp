@@ -15,7 +15,7 @@ Notes
 #include "accounts.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 #include "../../clib/streamsaver.h"
 
 #include "../globals/uvars.h"

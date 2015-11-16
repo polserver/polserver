@@ -53,7 +53,7 @@ Notes
 #endif
 
 #include "../../clib/strutil.h"
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 #include "../../clib/stlutil.h"
 
 #include "../realms/realm.h"

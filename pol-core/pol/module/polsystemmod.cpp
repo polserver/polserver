@@ -42,7 +42,7 @@ Notes
 
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
 

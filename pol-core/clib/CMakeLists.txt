@@ -19,6 +19,7 @@ SET (SOURCES  # sorted !
 	boostutils.cpp 
 	cfgfile.cpp 
 	cfgsect.cpp
+	clib_MD5.cpp
 	clib_utils.cpp 
 	cmdargs.cpp 
 	dirlist.cpp
@@ -29,7 +30,6 @@ SET (SOURCES  # sorted !
 	iohelp.cpp
 	kbhit.cpp
 	logfacility.cpp
-	MD5.cpp
 	mlog.cpp 
 	opnew.cpp
 	passert.cpp

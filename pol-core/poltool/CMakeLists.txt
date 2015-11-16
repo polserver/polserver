@@ -27,6 +27,20 @@ SET (LIB_DIRS
 )
 
 ##############################################################
+# compile flags
+IF(NOT WINDOWS)
+	IF(GCC)
+    	SET (FLAGS
+	        ${FLAGS}
+			-Wl,-R.
+			-Wl,-R./lib
+			-Wl,-R../lib
+			-Wl,-R../../lib
+	    )
+    ENDIF()
+ENDIF()
+
+##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
     bscript

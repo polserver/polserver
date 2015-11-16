@@ -28,7 +28,7 @@ Notes
 #include "account.h"
 #include "accounts.h"
 
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"

@@ -9,7 +9,7 @@ Notes
 
 */
 
-#include "MD5.h"
+#include "clib_MD5.h"
 
 #include "stlutil.h"
 #include "logfacility.h"
@@ -109,7 +109,7 @@ void MD5_Cleanup()
 
 #else
 extern "C"{
-#include "MD5.h"
+#include "MD5.h" //TODO: rework the following code - does not work with up-to-date header files anymore
 }
 namespace Pol {
   namespace Clib {
