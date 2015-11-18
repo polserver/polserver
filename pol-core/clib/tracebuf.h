@@ -49,4 +49,4 @@ namespace Pol {
 #endif
 }
 
-#endif
+#endif //CLIB_TRACEBUF_H

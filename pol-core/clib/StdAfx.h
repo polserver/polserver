@@ -20,7 +20,7 @@ The pch needs also to be created and thats why the additional cpp file exists, i
 #ifndef _CLIB_STDAFX_H
 #define _CLIB_STDAFX_H
 
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 
 // System Includes
 #include <assert.h>

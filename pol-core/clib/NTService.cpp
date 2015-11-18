@@ -8,7 +8,7 @@ Implementation of CNTService
 
 */
 
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 #include <stdio.h>
 #include "NTService.h"
 
@@ -116,7 +116,7 @@ namespace Pol {
 		  if( Uninstall() )
 		  {
 			// Get the executable file path
-			char szFilePath[_MAX_PATH];
+			char szFilePath[MAX_PATH];
 			::GetModuleFileName( NULL, szFilePath, sizeof( szFilePath ) );
 			printf( "%s removed. (You must delete the file (%s) yourself.)\n",
 					m_szServiceName, szFilePath );
@@ -186,7 +186,7 @@ namespace Pol {
 	  if( !hSCM ) return FALSE;
 
 	  // Get the executable file path
-	  char szFilePath[_MAX_PATH];
+	  char szFilePath[MAX_PATH];
 	  ::GetModuleFileName( NULL, szFilePath, sizeof( szFilePath ) );
 	  strcat( szFilePath, " -s" );
 

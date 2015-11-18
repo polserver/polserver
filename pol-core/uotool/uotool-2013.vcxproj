@@ -103,7 +103,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NOMINMAX;INC_PASSERT;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NOMINMAX;INC_PASSERT;TIXML_USE_STL;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
@@ -288,7 +288,7 @@
     <ClCompile Include="..\pol\uofile06.cpp" />
     <ClCompile Include="..\pol\uofile07.cpp" />
     <ClCompile Include="..\pol\uofile08.cpp" />
-    <ClCompile Include="uotool.cpp" />
+    <ClCompile Include="UoToolMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\clib\clib-2013.vcxproj">
@@ -313,6 +313,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="UoToolMain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

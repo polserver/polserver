@@ -1,4 +1,4 @@
-#include <runecl/RunEclMain.h>
+#include "RunEclMain.h"
 
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
@@ -212,9 +212,9 @@ int RunEclMain::main()
 {
 	const std::vector<std::string> binArgs = programArgs();
     Pol::Bscript::escript_config.max_call_depth = 100;
-    bool m_quiet = programArgsFind("q") != "";
-    bool m_debug = programArgsFind("d") != "";
-    bool m_profile = programArgsFind("p") != "";
+    m_quiet = programArgsFind("q") != "";
+    m_debug = programArgsFind("d") != "";
+    m_profile = programArgsFind("p") != "";
 
     /**********************************************
      * show copyright

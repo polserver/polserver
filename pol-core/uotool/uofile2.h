@@ -2,7 +2,7 @@
 #ifndef UOFILE2_H
 #define UOFILE2_H
 
-#include <clib/rawtypes.h>
+#include "../clib/rawtypes.h"
 
 namespace Pol {
   namespace Core {

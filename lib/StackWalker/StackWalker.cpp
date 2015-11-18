@@ -79,7 +79,7 @@
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **********************************************************************/
-#include <Header_Windows.h>
+#include "../../pol-core/clib/Header_Windows.h"
 #include <tchar.h>
 #include <stdio.h>
 #include <stdlib.h>

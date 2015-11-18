@@ -701,6 +701,9 @@
     <ClCompile Include="unicode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PolMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -1364,6 +1367,9 @@
       <Filter>realms</Filter>
     </ClInclude>
     <ClInclude Include="unicode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PolMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

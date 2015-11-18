@@ -32,9 +32,6 @@
     <ClCompile Include="pkg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="polver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="realmdescriptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -101,9 +98,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pkg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="polver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="realmdescriptor.h">

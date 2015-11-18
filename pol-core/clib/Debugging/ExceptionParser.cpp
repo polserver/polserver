@@ -1,10 +1,14 @@
 #include "ExceptionParser.h"
-#include "ProgramConfig.h"
+#include "../Program/ProgramConfig.h"
 #include "LogSink.h"
 #include "../threadhelp.h"
 #include "../logfacility.h"
 
+#ifdef WINDOWS
+#include "../pol_global_config_win.h"
+#else
 #include "pol_global_config.h"
+#endif
 
 #include <cstring>
 #include <signal.h>
@@ -22,7 +26,7 @@
 #include <sys/syscall.h>
 #define SOCKET int
 #else
-#include <../Header_Windows.h>
+#include "../Header_Windows.h"
 #endif
 
 #define MAX_STACK_TRACE_DEPTH          200

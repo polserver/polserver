@@ -14,8 +14,7 @@ Notes
 #include "passert.h"
 #include "strutil.h"
 #include "threadhelp.h"
-
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 #include <memory>
 
 namespace Pol {

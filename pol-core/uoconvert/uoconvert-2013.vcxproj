@@ -192,7 +192,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NOMINMAX;INC_PASSERT;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NOMINMAX;INC_PASSERT;TIXML_USE_STL;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -291,16 +291,17 @@
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="uoconvert.cpp" />
     <ClCompile Include="..\pol\uofile00.cpp" />
     <ClCompile Include="..\pol\uofile01.cpp" />
     <ClCompile Include="..\pol\uofile02.cpp" />
     <ClCompile Include="..\pol\uofile07.cpp" />
     <ClCompile Include="..\pol\uofile08.cpp" />
+    <ClCompile Include="UoConvertMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="UoConvertMain.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\clib\clib-2013.vcxproj">

@@ -168,7 +168,7 @@
       <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;NOMINMAX;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -232,6 +232,7 @@
     <ClCompile Include="boostutils.cpp" />
     <ClCompile Include="cfgfile.cpp" />
     <ClCompile Include="cfgsect.cpp" />
+    <ClCompile Include="clib_MD5.cpp" />
     <ClCompile Include="clib_utils.cpp" />
     <ClCompile Include="cmdargs.cpp" />
     <ClCompile Include="Debugging\ExceptionParser.cpp" />
@@ -246,7 +247,6 @@
     <ClCompile Include="iohelp.cpp" />
     <ClCompile Include="kbhit.cpp" />
     <ClCompile Include="logfacility.cpp" />
-    <ClCompile Include="MD5.cpp" />
     <ClCompile Include="mdump.cpp" />
     <ClCompile Include="mlog.cpp" />
     <ClCompile Include="msjexhnd.cpp" />
@@ -254,7 +254,8 @@
     <ClCompile Include="opnew.cpp" />
     <ClCompile Include="passert.cpp" />
     <ClCompile Include="pkthelper.cpp" />
-    <ClCompile Include="progver.cpp" />
+    <ClCompile Include="Program\ProgramConfig.cpp" />
+    <ClCompile Include="Program\ProgramMain.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="sckutil.cpp" />
     <ClCompile Include="socketsvc.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="cfgsect.h" />
     <ClInclude Include="clib.h" />
     <ClInclude Include="clibopt.h" />
+    <ClInclude Include="clib_MD5.h" />
     <ClInclude Include="cmdargs.h" />
     <ClInclude Include="compileassert.h" />
     <ClInclude Include="compilerspecifics.h" />
@@ -303,11 +305,11 @@
     <ClInclude Include="filecont.h" />
     <ClInclude Include="fileutil.h" />
     <ClInclude Include="fixalloc.h" />
+    <ClInclude Include="Header_Windows.h" />
     <ClInclude Include="iohelp.h" />
     <ClInclude Include="kbhit.h" />
     <ClInclude Include="logfacility.h" />
     <ClInclude Include="maputil.h" />
-    <ClInclude Include="MD5.h" />
     <ClInclude Include="mdump.h" />
     <ClInclude Include="mdumpimp.h" />
     <ClInclude Include="message_queue.h" />
@@ -318,7 +320,9 @@
     <ClInclude Include="opnew.h" />
     <ClInclude Include="passert.h" />
     <ClInclude Include="pkthelper.h" />
-    <ClInclude Include="progver.h" />
+    <ClInclude Include="pol_global_config_win.h" />
+    <ClInclude Include="Program\ProgramConfig.h" />
+    <ClInclude Include="Program\ProgramMain.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="rawtypes.h" />
     <ClInclude Include="RefPtr.h" />

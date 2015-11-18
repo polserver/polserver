@@ -21,7 +21,7 @@ Notes
 #include <cstring>
 
 #ifdef WINDOWS
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 #include "mdumpimp.h"
 #else
 #include <signal.h>

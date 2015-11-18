@@ -13,15 +13,12 @@ Notes
 #include "../clib/xmain.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/polver.h"
 #include "../plib/systemstate.h"
 
 #include "polresource.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <process.h>
-#include <shellapi.h>
+#include "../clib/Program/ProgramConfig.h"
+#include "../clib/Header_Windows.h"
 
 #include "../clib/ntservice.h" // This needs to be after the windows includes, otherwise it'll complain about windows types.
 
@@ -63,8 +60,8 @@ namespace Pol {
 		char buffer[1000] = "";
 		rc = GetCurrentDirectory( sizeof buffer, buffer );
 		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, buffer );
-		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, Pol::Plib::systemstate.getWorkingDirectory().c_str() );
-		rc = SetCurrentDirectory(Pol::Plib::systemstate.getWorkingDirectory().c_str());
+		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, PROG_CONFIG::programDir().c_str() );
+		rc = SetCurrentDirectory(PROG_CONFIG::programDir().c_str());
 
 		xmain_outer();
 	  }
