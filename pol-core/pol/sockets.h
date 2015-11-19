@@ -12,10 +12,10 @@ Notes
 #define __SOCKETS_H
 
 #ifdef _WIN32
-#	include <winsock.h>
-#	define SOCKET_ERRNO(x) WSA##x
-#	define socket_errno WSAGetLastError()
-	typedef int socklen_t;
+#include "../clib/Header_Windows.h"
+#define SOCKET_ERRNO(x) WSA##x
+#define socket_errno WSAGetLastError()
+typedef int socklen_t;
 
 #else
 // WTF! socket isn't a type.

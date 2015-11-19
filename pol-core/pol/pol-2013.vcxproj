@@ -200,7 +200,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
@@ -357,6 +357,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="polfile2.cpp" />
+    <ClCompile Include="PolMain.cpp" />
     <ClCompile Include="polsem.cpp" />
     <ClCompile Include="polservice.cpp" />
     <ClCompile Include="polsig.cpp" />
@@ -645,6 +646,7 @@
     <ClInclude Include="polclock.h" />
     <ClInclude Include="poldbg.h" />
     <ClInclude Include="polfile.h" />
+    <ClInclude Include="PolMain.h" />
     <ClInclude Include="polsem.h" />
     <ClInclude Include="polsig.h" />
     <ClInclude Include="polstats.h" />

@@ -16,10 +16,14 @@ Notes
 
 #include <sstream>
 #include <iomanip>
+#ifdef WINDOWS
+#include "pol_global_config_win.h"
+#else
 #include "pol_global_config.h"
+#endif
 
 #ifdef WINDOWS
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 #include <wincrypt.h>
 
 namespace Pol {

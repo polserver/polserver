@@ -7,8 +7,8 @@ Notes
 
 */
 
-#ifndef MD5_H
-#define MD5_H
+#ifndef CLIB_MD5_H
+#define CLIB_MD5_H
 
 #include <string>
 
@@ -19,4 +19,4 @@ namespace Pol {
 	void MD5_Cleanup();
   }
 }
-#endif
+#endif //CLIB_MD5_H

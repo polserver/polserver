@@ -9,8 +9,8 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES  # sorted !
-	../../lib/format/format.cc          	#TODO: cleanup for this hack
-	Header_Windows.h 						#no auto-detect		
+	../../lib/format/format.cc          	
+	Header_Windows.h 								
 	Debugging/ExceptionParser.cpp
 	Debugging/LogSink.cpp
 	Program/ProgramConfig.cpp
@@ -19,6 +19,8 @@ SET (SOURCES  # sorted !
 	boostutils.cpp 
 	cfgfile.cpp 
 	cfgsect.cpp
+	clib.h
+	clibopt.h
 	clib_MD5.cpp
 	clib_utils.cpp 
 	cmdargs.cpp 

@@ -1,11 +1,10 @@
-#include <ProgramMain.h>
+#include "ProgramMain.h"
+#include "ProgramConfig.h"
+#include "../Debugging/ExceptionParser.h"
 
-#include "Debugging/ExceptionParser.h"
-#include "Program/ProgramConfig.h"
-
-#include "clib.h"
-#include "logfacility.h"
-#include "strexcpt.h"
+#include "../clib.h"
+#include "../logfacility.h"
+#include "../strexcpt.h"
 
 #ifdef _WIN32
 #   define WIN32_LEAN_AND_MEAN

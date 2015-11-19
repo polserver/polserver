@@ -8,8 +8,8 @@ Notes
 
 */
 
-#ifndef THREADHELP_H
-#define THREADHELP_H
+#ifndef CLIB_THREADHELP_H
+#define CLIB_THREADHELP_H
 
 #include "Header_Windows.h"
 #include <vector>
@@ -22,17 +22,17 @@ Notes
 
 namespace Pol {
   namespace threadhelp {
-	extern std::atomic<unsigned int> child_threads;
+	  extern std::atomic<unsigned int> child_threads;
 
-	void init_threadhelp();
-	void run_thread( void( *threadf )( void ) );
-	void run_thread( void( *threadf )( void * ), void* arg );
+	  void init_threadhelp();
+	  void run_thread( void( *threadf )( void ) );
+	  void run_thread( void( *threadf )( void * ), void* arg );
 
-	void start_thread( void( *entry )( void* ), const char* thread_name, void* arg );
-	void start_thread( void( *entry )( void ), const char* thread_name );
+	  void start_thread( void( *entry )( void* ), const char* thread_name, void* arg );
+	  void start_thread( void( *entry )( void ), const char* thread_name );
 
-	void thread_sleep_ms( unsigned milliseconds );
-    size_t thread_pid();
+	  void thread_sleep_ms( unsigned milliseconds );
+	  size_t thread_pid();
 
 	class ThreadMap
 	{
@@ -110,4 +110,4 @@ namespace Pol {
 
   } // namespace threadhelp
 }
-#endif
+#endif //CLIB_THREADHELP_H

@@ -11,10 +11,14 @@ Notes
 */
 
 #include "logfacility.h"
+#ifdef WINDOWS
+#include "pol_global_config_win.h"
+#else
 #include "pol_global_config.h"
+#endif
 
 #if defined(WINDOWS)
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 #include <stdio.h>
 #include "strexcpt.h"
 #include "msjexhnd.h"

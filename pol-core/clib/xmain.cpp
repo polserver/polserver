@@ -19,7 +19,7 @@ Notes
 #include "strexcpt.h"
 
 #if defined(WINDOWS)
-#include <Header_Windows.h>
+#include "Header_Windows.h"
 #pragma comment(lib, "psapi.lib") // 32bit is a bit dumb..
 #else
 #   include <unistd.h>

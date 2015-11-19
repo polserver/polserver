@@ -1,16 +1,14 @@
-#ifndef __WNSCKT_H__
-#define __WNSCKT_H__
+#ifndef CLIB_WNSCKT_H
+#define CLIB_WNSCKT_H
 
 #include <string>
-
-#if defined(WINDOWS)
-#include <Header_Windows.h>
-#else
+#include "Header_Windows.h"
+#ifndef WINDOWS
 #	include <sys/socket.h>
 	typedef int SOCKET;
-#	ifndef INVALID_SOCKET
-#		define INVALID_SOCKET (SOCKET)(-1)
-#	endif
+#ifndef INVALID_SOCKET
+#define INVALID_SOCKET (SOCKET)(-1)
+#endif
 #endif
 
 namespace Pol {
@@ -74,4 +72,4 @@ namespace Pol {
 	};
   }
 }
-#endif
+#endif //CLIB_WNSCKT_H

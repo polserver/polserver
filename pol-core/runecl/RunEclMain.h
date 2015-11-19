@@ -1,7 +1,7 @@
 #ifndef RUN_ECL_MAIN_H
 #define RUN_ECL_MAIN_H
 
-#include <clib/Program/ProgramMain.h>
+#include "../clib/Program/ProgramMain.h"
 
 #include <string>
 

@@ -20,6 +20,9 @@
 #include <eh.h>
 #include <dbghelp.h>
 #include <crtdbg.h>
+#include <Shellapi.h>
+
+#define snprintf _snprintf
 
 #define MAXDRIVE _MAX_DRIVE
 #define MAXDIR   _MAX_DIR
@@ -28,10 +31,15 @@
 #define MAXEXT   _MAX_EXT
 
 #define ssize_t SSIZE_T
+
 #pragma warning(push)
 #pragma warning(disable: 4005) // redefinition
 #pragma warning(disable: 4127) // conditional expression is constant (needed because of FD_SET)
 #pragma warning(disable: 4996) // unsafe strerror, deprecation warnings for getcwd, chdir
+#pragma warning(disable: 4786)
+#pragma warning(disable: 4091)
+
+#pragma warning(disable: 4251)
 
 #endif // defined(Windows)
 

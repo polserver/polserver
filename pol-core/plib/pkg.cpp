@@ -9,7 +9,11 @@ Notes
 
 #include "pkg.h"
 #include "systemstate.h"
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
 #include "pol_global_config.h"
+#endif
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"

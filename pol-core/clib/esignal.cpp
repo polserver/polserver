@@ -11,9 +11,8 @@ Notes
 #include "esignal.h"
 #include "logfacility.h"
 
-#ifdef WINDOWS
-#include <Header_Windows.h>
-#else
+#include "Header_Windows.h"
+#ifndef WINDOWS
 #include <signal.h>
 #endif
 namespace Pol {

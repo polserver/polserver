@@ -12,15 +12,16 @@ Notes
 
 #include <string>
 
-#ifdef WINDOWS
-#include <Header_Windows.h>
-#else
-#	include <sys/types.h>
-#	include <dirent.h>
+#include "Header_Windows.h"
+
+#ifndef WINDOWS
+#include <sys/types.h>
+#include <dirent.h>
 #endif
+
 namespace Pol {
   namespace Clib {
-	class DirList
+    class DirList
 	{
 	public:
 	  explicit DirList( const char* path );

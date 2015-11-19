@@ -1,7 +1,7 @@
 #ifndef POL_MAIN_H
 #define POL_MAIN_H
 
-#include <clib/Program/ProgramMain.h>
+#include "../clib/Program/ProgramMain.h"
 
 namespace Pol{ namespace Clib{
 
