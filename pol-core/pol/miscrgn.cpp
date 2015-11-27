@@ -15,8 +15,7 @@ Notes
 #include "realms.h"
 #include "uworld.h"
 #include "globals/uvars.h"
-
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include "../clib/cfgelem.h"
 
@@ -118,7 +117,7 @@ namespace Pol {
       for ( const auto &realm : default_regionrealms)
 	  {
 		unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
-        size+=gridwidth*sizeof(RegionId) + sizeof(Plib::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
+        size+=gridwidth*sizeof(RegionId) + sizeof(Realms::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
 	  }
       return size;
     }
@@ -127,7 +126,7 @@ namespace Pol {
 	{
       for ( auto &realmregion : regionrealms )
 	  {
-        Plib::Realm* realm = realmregion.first;
+        Realms::Realm* realm = realmregion.first;
 		unsigned int gridwidth = realm->width() / ZONE_SIZE;
         unsigned int gridheight = realm->height() / ZONE_SIZE;
 
@@ -145,7 +144,7 @@ namespace Pol {
 	  const char* regionname,
 	  unsigned short xwest, unsigned short ynorth,
 	  unsigned short xeast, unsigned short ysouth,
-	  Plib::Realm* realm )
+	  Realms::Realm* realm )
 	{
 	  if ( xwest >= realm->width() ) xwest = static_cast<unsigned short>( realm->width() ) - 1;
 	  if ( xeast >= realm->width() ) xeast = static_cast<unsigned short>( realm->width() ) - 1;

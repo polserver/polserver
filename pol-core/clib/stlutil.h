@@ -16,10 +16,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <cstring>
 #include <sstream>
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4996)
-#endif
+#include "Header_Windows.h"
 
 namespace Pol {
   namespace Clib {

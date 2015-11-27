@@ -43,7 +43,7 @@ Notes
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/fileutil.h"
@@ -53,11 +53,10 @@ Notes
 #endif
 
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 #include "../../clib/stlutil.h"
 
-#include "../../plib/realm.h"
+#include "../realms/realm.h"
 
 #include "../accounts/account.h"
 
@@ -66,7 +65,6 @@ Notes
 #endif
 
 #include "../../plib/pkg.h"
-#include "../../plib/polver.h"
 #include "../../plib/systemstate.h"
 
 #include "../accounts/account.h"
@@ -110,6 +108,7 @@ Notes
 #include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -1836,7 +1835,7 @@ namespace Pol {
 	  LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
 	  //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
 	  //	LONG_COREVAR( bytes_received, polstats.bytes_received );
-	  LONG_COREVAR( version, polver );
+	  LONG_COREVAR( version, POL_VERSION_MAJOR );
 	  LONG_COREVAR( systime, time( NULL ) );
 	  LONG_COREVAR( events_per_min, GET_PROFILEVAR_PER_MIN( events ) );
 	  LONG_COREVAR( skill_checks_per_min, GET_PROFILEVAR_PER_MIN( skill_checks ) );
@@ -1852,9 +1851,9 @@ namespace Pol {
 
 	  LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
 	  LONG_COREVAR( priority_divide, scriptEngineInternalManager.priority_divide );
-	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( progverstr );
-	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( compiledate );
-	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( compiletime );
+	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( POL_VERSION_ID );
+	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( POL_BUILD_DATE );
+	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( POL_BUILD_TIME );
 	  if ( stricmp( corevar, "packages" ) == 0 ) return GetPackageList();
 	  if ( stricmp( corevar, "running_scripts" ) == 0 ) return GetRunningScriptList();
 	  if ( stricmp( corevar, "all_scripts" ) == 0 ) return GetAllScriptList();

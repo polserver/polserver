@@ -25,6 +25,7 @@ Notes
 #include "mobile/npc.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "resource.h"
 #include "savedata.h"
 #include "servdesc.h"
@@ -42,17 +43,14 @@ Notes
 #include "multi/house.h"
 #include "containr.h"
 
-#include "../plib/polver.h"
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/progver.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
@@ -108,7 +106,7 @@ namespace Pol {
         chr->readProperties( elem );
 
         // Allows the realm to recognize this char as offline
-        chr->realm->add_mobile(*chr, Plib::WorldChangeReason::PlayerLoad);
+        chr->realm->add_mobile(*chr, Realms::WorldChangeReason::PlayerLoad);
 
         chr->clear_dirty();
         
@@ -139,7 +137,7 @@ namespace Pol {
       {
         npc->readProperties( elem );
 
-        SetCharacterWorldPosition( npc.get(), Plib::WorldChangeReason::NpcLoad );
+        SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
         npc->clear_dirty();
 
         ////HASH
@@ -306,7 +304,7 @@ namespace Pol {
     void read_shadow_realms( Clib::ConfigElem& elem )
     {
       std::string name = elem.remove_string( "Name" );
-      Plib::Realm* baserealm = find_realm( elem.remove_string( "BaseRealm" ) );
+      Realms::Realm* baserealm = find_realm( elem.remove_string( "BaseRealm" ) );
       if ( !baserealm )
         elem.warn_with_line( "BaseRealm not found." );
       if ( defined_realm( name ) )
@@ -502,7 +500,7 @@ namespace Pol {
       }
     }
 
-    Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Plib::Realm* realm )
+    Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm* realm )
     {
       unsigned short wx, wy;
       zone_convert( x, y, &wx, &wy, realm );
@@ -859,10 +857,10 @@ namespace Pol {
       sw()
         << "System" << pf_endl
         << "{" << pf_endl
-        << "\tCoreVersion\t" << progver << pf_endl
-        << "\tCoreVersionString\t" << polverstr << pf_endl
-        << "\tCompileDate\t" << compiledate << pf_endl
-        << "\tCompileTime\t" << compiletime << pf_endl
+        << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
+        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl
+        << "\tCompileDate\t" << POL_BUILD_DATE << pf_endl
+        << "\tCompileTime\t" << POL_BUILD_TIME << pf_endl
         << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl //dave 3/9/3
         << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl //dave 3/9/3
         << "}" << pf_endl
@@ -1116,7 +1114,7 @@ namespace Pol {
               try
               {
                 sc.pol() << "#" << pf_endl
-                  << "#  Created by Version: " << polverstr
+                  << "#  Created by Version: " << POL_VERSION_ID
                   << pf_endl
                   << "#  Mobiles:		 " << get_mobile_count()
                   << pf_endl << "#  Top-level Items: "

@@ -29,7 +29,7 @@ namespace Pol {
   namespace Mobile {
 	class Character;
   }
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Core {
@@ -48,7 +48,7 @@ namespace Pol {
 							unsigned short y,
 							short z,
 							int flags,
-							Plib::Realm* oldrealm );
+							Realms::Realm* oldrealm );
 
 	const int MOVEITEM_IGNOREMOVABLE = 0x20000000L;
 	const int MOVEITEM_FORCELOCATION = 0x40000000L;

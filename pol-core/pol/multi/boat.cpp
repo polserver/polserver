@@ -27,14 +27,13 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 
-#include "../../plib/realm.h"
 #include "../../plib/systemstate.h"
 
 #include "../mobile/charactr.h"
@@ -49,6 +48,7 @@ Notes
 #include "../objtype.h"
 #include "../pktout.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../scrsched.h"
 #include "../tiles.h"
 #include "../tooltips.h"
@@ -623,7 +623,7 @@ namespace Pol {
 	}
 
 	// navigable: Can the ship sit here?  ie is every point on the hull on water,and not blocked?
-	bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z, Plib::Realm* realm )
+	bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z, Realms::Realm* realm )
 	{
 
 	  if ( int( x + md.minrx ) < 0 || int( x + md.maxrx ) > int( realm->width() ) ||
@@ -684,7 +684,7 @@ namespace Pol {
 	  return bc.mdef.body_contains( rx, ry );
 	}
 
-	void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short newx, unsigned short newy, Plib::Realm* oldrealm )
+	void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short newx, unsigned short newy, Realms::Realm* oldrealm )
 	{
 	  bool any_orphans = false;
 
@@ -1047,7 +1047,7 @@ namespace Pol {
 	  return false;
 	}
 
-	void UBoat::move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z, Plib::Realm* realm )
+	void UBoat::move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z, Realms::Realm* realm )
 	{
 	  BoatContext bc( *this );
 
@@ -1162,7 +1162,7 @@ namespace Pol {
 	}
 
 	//dave 3/26/3 added
-	bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Plib::Realm* oldrealm )
+	bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms::Realm* oldrealm )
 	{
 	  bool result;
       BoatMoveGuard registerguard( this );
@@ -1297,7 +1297,7 @@ namespace Pol {
 	}
 
 
-	void UBoat::transform_components( const BoatShape& old_boatshape, Plib::Realm* oldrealm )
+	void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm )
 	{
 		const BoatShape& bshape = boatshape();
         std::vector<Items::Item*>::iterator itr;
@@ -1358,7 +1358,7 @@ namespace Pol {
 		}
 	}
 
-	void UBoat::move_components( Plib::Realm* oldrealm )
+	void UBoat::move_components( Realms::Realm* oldrealm )
 	{
 	  const BoatShape& bshape = boatshape();
       std::vector<Items::Item*>::iterator itr;
@@ -1598,7 +1598,7 @@ namespace Pol {
 	  }
 	}
 
-	Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags )
+	Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags )
 	{
 	  unsigned short multiid = descriptor.multiid;
 	  unsigned short multiid_offset = static_cast<unsigned short>( ( flags & CRMULTI_FACING_MASK ) >> CRMULTI_FACING_SHIFT );

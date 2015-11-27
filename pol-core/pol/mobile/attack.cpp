@@ -25,7 +25,7 @@ Notes
 #include "../guardrgn.h"
 #include "../globals/settings.h"
 
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 
 #include <cstdio>
 

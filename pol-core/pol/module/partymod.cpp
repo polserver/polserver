@@ -10,6 +10,7 @@ Notes
 
 #include "partymod.h"
 #include "../party.h"
+#include "../unicode.h"
 
 #ifdef MEMORYLEAK
 #include "../../bscript/bobject.h"
@@ -18,7 +19,6 @@ Notes
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 #include "../../bscript/bobject.h"
-#include "../../clib/unicode.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/cfgelem.h"
 #include "../network/client.h"
@@ -443,7 +443,7 @@ namespace Pol {
 		  u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 		  if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
-          if ( !Clib::convertArrayToUC( oText, gwtext, textlen, true ) )
+          if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
 			return new BError( "Invalid value in Unicode array." );
 
           if ( Core::settingsManager.party_cfg.Hooks.OnPublicChat )
@@ -476,7 +476,7 @@ namespace Pol {
 		  u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 		  if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
-		  if ( !Clib::convertArrayToUC( oText, gwtext, textlen, true ) )
+		  if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
 			return new BError( "Invalid value in Unicode array." );
 
           if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )

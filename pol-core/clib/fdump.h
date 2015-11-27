@@ -7,8 +7,8 @@ Notes
 
 */
 
-#ifndef __FDUMP_H
-#define __FDUMP_H
+#ifndef CLIB_FDUMP_H
+#define CLIB_FDUMP_H
 
 #include "../../lib/format/format.h"
 
@@ -20,4 +20,4 @@ namespace Pol {
 }
 
 
-#endif
+#endif //CLIB_FDUMP_H

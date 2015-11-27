@@ -11,7 +11,7 @@ Notes
 #ifndef MISCRGN_H
 #define MISCRGN_H
 
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include "region.h"
 
@@ -71,7 +71,7 @@ namespace Pol {
 	  bool assign_zones_to_region( const char* regionname,
 								   unsigned short x1, unsigned short y1,
 								   unsigned short x2, unsigned short y2,
-								   Plib::Realm* realm );
+								   Realms::Realm* realm );
 	private:
 	  RegionRealms default_regionrealms;
 	};

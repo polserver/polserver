@@ -42,6 +42,9 @@
     <Filter Include="globals">
       <UniqueIdentifier>{9974fe35-eaa2-4dd0-a1d4-11b9e0cd72b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="realms">
+      <UniqueIdentifier>{ccd073ce-b056-49a6-99d2-1fdf44d87713}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="allocd.cpp">
@@ -682,6 +685,24 @@
     </ClCompile>
     <ClCompile Include="globals\memoryusage.cpp">
       <Filter>globals</Filter>
+    </ClCompile>
+    <ClCompile Include="realms\realm.cpp">
+      <Filter>realms</Filter>
+    </ClCompile>
+    <ClCompile Include="realms\realmfunc.cpp">
+      <Filter>realms</Filter>
+    </ClCompile>
+    <ClCompile Include="realms\realmlos.cpp">
+      <Filter>realms</Filter>
+    </ClCompile>
+    <ClCompile Include="realms\realmlos2.cpp">
+      <Filter>realms</Filter>
+    </ClCompile>
+    <ClCompile Include="unicode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PolMain.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1337,6 +1358,18 @@
       <Filter>globals</Filter>
     </ClInclude>
     <ClInclude Include="dynproperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="realms\realm.h">
+      <Filter>realms</Filter>
+    </ClInclude>
+    <ClInclude Include="realms\WorldChangeReasons.h">
+      <Filter>realms</Filter>
+    </ClInclude>
+    <ClInclude Include="unicode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PolMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

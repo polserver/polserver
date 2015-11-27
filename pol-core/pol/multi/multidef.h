@@ -38,6 +38,8 @@ namespace Pol {
     class MapShapeList;
   }
   namespace Multi {
+  	extern void read_multidefs();
+
 	struct MULTI_ELEM
 	{
 	  unsigned short objtype;

@@ -11,10 +11,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ecompile.cpp">
+    <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StdAfx.cpp">
+    <ClCompile Include="ECompileMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,6 +28,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ECompileMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

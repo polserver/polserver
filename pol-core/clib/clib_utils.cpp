@@ -8,7 +8,6 @@ Notes
 */
 
 #include "clib.h"
-#include <algorithm>
 
 namespace Pol {
   namespace Clib {
@@ -26,7 +25,7 @@ namespace Pol {
       double delta = value - _mean;
       _mean += delta / _count;
       _m2 += delta * (value - _mean);
-      _max = std::max(_max, value);
+      _max = value > _max ? value : _max;
     }
 
     double OnlineStatistics::variance() const

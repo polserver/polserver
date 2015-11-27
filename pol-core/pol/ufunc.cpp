@@ -62,6 +62,7 @@ Notes
 #include "polcfg.h"
 #include "polclass.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "repsys.h"
 #include "sockio.h"
 #include "statmsg.h"
@@ -85,13 +86,12 @@ Notes
 
 
 #include "../plib/mapcell.h"
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "../bscript/impstr.h"
 
 #include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/pkthelper.h"
@@ -1042,7 +1042,7 @@ namespace Pol {
       } );
 	}
 
-	void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Plib::Realm* realm )
+	void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Realms::Realm* realm )
 	{
 	  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY,
 		effect - 1u,
@@ -1090,7 +1090,7 @@ namespace Pol {
 							  u8 speed,
 							  u8 loop,
 							  u8 explode,
-							  Plib::Realm* realm )
+							  Realms::Realm* realm )
 	{
       Network::GraphicEffectPkt msg;
       msg.movingEffect(xs, ys, zs, xd, yd, zd, effect, speed, loop, explode);
@@ -1130,7 +1130,7 @@ namespace Pol {
       } );
 	}
 
-    void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Plib::Realm* realm )
+    void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Realms::Realm* realm )
 	{
       Network::GraphicEffectPkt msg;
       msg.stationaryEffect(x, y, z, effect, speed, loop, explode);
@@ -1140,7 +1140,7 @@ namespace Pol {
       } );
 	}
 
-    void play_stationary_effect_ex( u16 x, u16 y, s8 z, Plib::Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue,
+    void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue,
 									u32 render, u16 effect3d )
 	{
       Network::GraphicEffectExPkt msg;
@@ -1182,7 +1182,7 @@ namespace Pol {
 	}
 
 	void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
-                                 u16 xd, u16 yd, s8 zd, Plib::Realm* realm,
+                                 u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
 								 u16 effect, u8 speed, u8 duration, u32 hue,
 								 u32 render, u8 direction, u8 explode,
 								 u16 effect3d, u16 effect3dexplode, u16 effect3dsound )
@@ -1648,13 +1648,13 @@ namespace Pol {
 
 	void setrealm( Item* item, void* arg )
 	{
-      Plib::Realm* realm = static_cast<Plib::Realm*>( arg );
+      Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
 	  item->realm = realm;
 	}
 
 	void setrealmif( Item* item, void* arg )
 	{
-      Plib::Realm* realm = static_cast<Plib::Realm*>( arg );
+      Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
 	  if ( item->realm == realm )
 		item->realm = realm->baserealm;
 	}
@@ -1720,7 +1720,7 @@ namespace Pol {
 	// FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 	// that needs to get it. There should be a better method for this. Such as, a function
 	// to run all the checks after building the packet here, then send as it needs to.
-	void move_item( Item* item, unsigned short newx, unsigned short newy, signed char newz, Plib::Realm* oldrealm )
+	void move_item( Item* item, unsigned short newx, unsigned short newy, signed char newz, Realms::Realm* oldrealm )
 	{
 	  item->set_dirty();
 
@@ -2123,7 +2123,7 @@ namespace Pol {
 	  msg.Send( client );
 	}
 
-	void send_realm_change( Client* client, Plib::Realm* realm )
+	void send_realm_change( Client* client, Realms::Realm* realm )
 	{
 	  PktHelper::PacketOut<PktOut_BF_Sub8> msg;
 	  msg->WriteFlipped<u16>( 6u );

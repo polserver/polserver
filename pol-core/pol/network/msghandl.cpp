@@ -1,7 +1,7 @@
 #include "msghandl.h"
 
 #include "../../clib/passert.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "client.h"
 #include "../globals/network.h"

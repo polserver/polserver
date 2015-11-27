@@ -95,7 +95,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
@@ -230,12 +230,7 @@
     <ClCompile Include="maptileserver.cpp" />
     <ClCompile Include="mapwriter.cpp" />
     <ClCompile Include="pkg.cpp" />
-    <ClCompile Include="polver.cpp" />
-    <ClCompile Include="realm.cpp" />
     <ClCompile Include="realmdescriptor.cpp" />
-    <ClCompile Include="realmfunc.cpp" />
-    <ClCompile Include="realmlos.cpp" />
-    <ClCompile Include="realmlos2.cpp" />
     <ClCompile Include="staticserver.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -262,8 +257,6 @@
     <ClInclude Include="maptileserver.h" />
     <ClInclude Include="mapwriter.h" />
     <ClInclude Include="pkg.h" />
-    <ClInclude Include="polver.h" />
-    <ClInclude Include="realm.h" />
     <ClInclude Include="realmdescriptor.h" />
     <ClInclude Include="staticblock.h" />
     <ClInclude Include="staticserver.h" />

@@ -7,9 +7,14 @@ Notes
 
 */
 
-#ifndef __CLIB_H
-#define __CLIB_H
+#ifndef CLIB_CLIB_H
+#define CLIB_CLIB_H
 
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #ifndef __STDDEF_H
 #	include "stddef.h"
@@ -155,5 +160,4 @@ namespace Pol {
 #define MEMCPY(a,b)   memcpy(&a,&b,sizeof a)
 }
 
-
-#endif
+#endif //CLIB_CLIB_H

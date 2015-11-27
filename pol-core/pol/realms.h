@@ -20,12 +20,12 @@ Notes
 #include <string>
 
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Core {
-	Plib::Realm* find_realm( const std::string& name );
-	void add_realm( const std::string& name, Plib::Realm* base );
+	Realms::Realm* find_realm( const std::string& name );
+	void add_realm( const std::string& name, Realms::Realm* base );
 	bool defined_realm( const std::string& name );
 	void remove_realm( const std::string& name );
 

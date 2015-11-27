@@ -11,6 +11,8 @@ Notes
 
 #include "multidef.h"
 
+#include "boat.h"
+
 #include "../item/itemdesc.h"
 #include "../objtype.h"
 #include "../udatfile.h"

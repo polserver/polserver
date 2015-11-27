@@ -11,7 +11,7 @@ Notes
 #include "binaryfilescrobj.h"
 
 #include "../clib/strutil.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/berror.h"

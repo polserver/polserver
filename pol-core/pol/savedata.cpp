@@ -18,7 +18,7 @@ Notes
 #include "globals/uvars.h"
 #include "globals/object_storage.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/iohelp.h"
 #include "../clib/logfacility.h"

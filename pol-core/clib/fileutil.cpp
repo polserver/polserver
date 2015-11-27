@@ -13,7 +13,7 @@ Notes
 
 #include <sys/stat.h>
 
-#ifdef __unix__
+#ifdef LINUX
 #include <unistd.h>
 #else
 #include <direct.h>

@@ -10,7 +10,7 @@ Notes
 #ifndef POL_PACKETS_H
 #define POL_PACKETS_H
 
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
