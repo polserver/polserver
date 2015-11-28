@@ -56,11 +56,14 @@ IF(LINUX)
 			-Wno-unused-but-set-parameter
 		)
 	ENDIF()
-
+	
     SET(BOOST_ROOT "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_55_0")
-    MESSAGE(STATUS "** Search Boost root: ${BOOST_ROOT}")
+    MESSAGE("##### Searching BOOST also in: ${BOOST_ROOT}")
     FIND_PACKAGE(Boost 1.55)
-    MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
+    IF(NOT Boost_FOUND)
+    	MESSAGE(FATAL_ERROR ">>>>> You need the BOOST dev. package to compile POL <<<<<") 
+    ENDIF()    
+    MESSAGE("##### BOOST include directory: ${Boost_INCLUDE_DIR}")
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
     LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 ENDIF()
