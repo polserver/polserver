@@ -9,7 +9,6 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES  # sorted !
-	../plib/mapwriter.cpp
 	../pol/polfile1.cpp
 	../pol/uofile00.cpp 
 	../pol/uofile01.cpp

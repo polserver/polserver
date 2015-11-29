@@ -14,6 +14,7 @@ SET (SOURCES  # sorted !
 	mapfunc.cpp 
 	mapserver.cpp 
 	maptileserver.cpp 
+	mapwriter.cpp
 	pkg.cpp 
 	realmdescriptor.cpp 
 	staticserver.cpp
