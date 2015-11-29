@@ -1,6 +1,11 @@
 #!/bin/bash
-#
-# Build Official Release
+cd bin-build
+./build_linux.sh
+exit 0
+
+###############################################################################
+## deprecated lines
+############################################################################### 
 if [ ! -d ../lib/boost_1_55_0/boost ]; then
   cd ../lib
   tar xjf boost_1_55_0.tar.bz2
