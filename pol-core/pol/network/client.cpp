@@ -105,7 +105,9 @@ namespace Pol {
 	  ClientType( 0 ),
 	  next_movement( 0 ),
 	  movementsequence( 0 ),
-	  paused_( false )
+	  paused_( false ),
+	  last_activity_at( 0 ),
+	  last_packet_at( 0 )
 	{
 	  // For bypassing cryptseed packet
 	  if ( Core::settingsManager.ssopt.use_edit_server )

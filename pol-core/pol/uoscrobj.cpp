@@ -3749,6 +3749,7 @@ namespace Pol {
     {
       if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
         return BObjectRef( new BError( "Client not ready or disconnected" ) );
+
       switch ( id )
       {
         case MBR_ACCTNAME:
@@ -3783,8 +3784,15 @@ namespace Pol {
         case MBR_UO_EXPANSION_CLIENT:
           return BObjectRef( new BLong( obj_->UOExpansionFlagClient ) );
           break;
-        default: return BObjectRef( UninitObject::create() );
+        case MBR_LAST_ACTIVITY_AT:
+          return BObjectRef( new BLong( obj_->last_activity_at ) );
+          break;
+        case MBR_LAST_PACKET_AT:
+          return BObjectRef( new BLong( obj_->last_packet_at ) );
+          break;
       }
+
+      return base::get_member_id(id);
     }
 
     BObjectRef EClientRefObjImp::get_member( const char* membername )
@@ -3842,8 +3850,9 @@ namespace Pol {
 			return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
   		  return new BError( "Invalid parameter type" );
         }
-        default: return NULL;
       }
+
+      return base::call_method_id( id, ex );
     }
 
 
