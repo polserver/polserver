@@ -40,11 +40,13 @@ Minimum compiler version: Visual Studio 2012 (Express editions might require the
 Compiling in Linux
 ----------
 
-Make sure you have the required libraries installed: boost, zlib and the mysql client (if SQL supported is desired), then run the following commands:
+Make sure you have the required libraries installed: boost, zlib and the mysql client (if SQL supported is desired), then run the following commands (you need at least CMake 3.1):
 
 * `cd pol-core/bin-build`
 * `./build_linux.sh`
 
 Minimum compiler version: GCC 4.7 or LLVM/Clang 3.5.
 
-Additionally, you need at least CMake 3.1.
+The command will generate binaries and dynamicaly linked libraries in the `bin/` folder. You need them all for your binaries to work. Debug symbols are included by default.
+
+To generate a compressed distributable archive (without debug symbols), then use `./build_linux_release.sh`.
