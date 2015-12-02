@@ -143,7 +143,7 @@ namespace Pol {
 		return USHRT_MAX;
 	}
 
-    inline unsigned short UArmor::ar_base() const
+    unsigned short UArmor::ar_base() const
     {
       return ARMOR_TMPL->ar;
     }
