@@ -31,7 +31,6 @@ Notes
 #include "reftypes.h"
 #include "tooltips.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "zone.h"
 
 #include <stdexcept>

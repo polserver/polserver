@@ -105,7 +105,6 @@ Notes
 #include "../syshook.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../unicode.h"

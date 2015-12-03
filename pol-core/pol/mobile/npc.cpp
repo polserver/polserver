@@ -60,7 +60,6 @@ Notes
 #include "../ufuncinl.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../unicode.h"

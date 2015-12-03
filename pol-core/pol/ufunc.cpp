@@ -71,7 +71,6 @@ Notes
 #include "uconst.h"
 #include "uobject.h"
 #include "uoclient.h"
-#include "uofile.h"
 #include "ustruct.h"
 #include "globals/uvars.h"
 #include "globals/state.h"

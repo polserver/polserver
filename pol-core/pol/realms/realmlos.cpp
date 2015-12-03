@@ -15,7 +15,6 @@ Notes
 
 #include "../uworld.h" // TODO move 'world' into Realm
 #include "../item/item.h"
-#include "../udatfile.h"
 #include "../los.h"
 #include "../clidata.h"
 

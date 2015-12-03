@@ -32,7 +32,7 @@ namespace Pol {
 
 	typedef std::vector<StaticRec> StaticList;
 
-
+	//TODO: the functions below are only used for uotool or uoconvert. Consider moving to a separate include.
 	void readstatics( StaticList& vec, unsigned short x, unsigned short y );
 	void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags );
 	void readallstatics( StaticList& vec, unsigned short x, unsigned short y );

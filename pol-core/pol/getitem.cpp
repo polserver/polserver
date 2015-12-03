@@ -30,7 +30,6 @@ Notes
 #include "statmsg.h"
 #include "globals/uvars.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "uobject.h"
 #include "uworld.h"
 #include "containr.h"
