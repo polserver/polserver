@@ -54,7 +54,6 @@ Notes
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "../uconst.h"
-#include "../uofile.h"
 #include "../ustruct.h"
 #include "../globals/uvars.h"
 #include "../globals/object_storage.h"

@@ -46,7 +46,6 @@ Notes
 #include "../scrstore.h"
 #include "../tiles.h"
 #include "../ufunc.h"
-#include "../uofile.h"
 #include "../uoexec.h"
 #include "../module/uomod.h"
 #include "../uoscrobj.h"

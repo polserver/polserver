@@ -1,11 +1,12 @@
 #include "UoConvertMain.h"
 
-#include "../pol/uofile.h"
 #include "../pol/objtype.h"
 #include "../pol/polcfg.h"
+
+#include "../pol/uofile.h"
+#include "../pol/uofilei.h"
 #include "../pol/udatfile.h"
 #include "../pol/polfile.h"
-#include "../pol/uofilei.h"
 
 #include "../plib/mapcell.h"
 #include "../plib/mapblock.h"

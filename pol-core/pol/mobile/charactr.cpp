@@ -146,7 +146,6 @@ Notes
 #include "../ufuncstd.h"
 #include "../umanip.h"
 #include "../uoexec.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../vital.h"

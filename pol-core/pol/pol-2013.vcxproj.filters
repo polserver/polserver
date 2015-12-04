@@ -347,24 +347,6 @@
     <ClCompile Include="uoexhelp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="uofile00.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uofile01.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uofile02.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uofile06.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uofile07.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uofile08.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="uolisten.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1046,12 +1028,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uoexhelp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uofile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uofilei.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uoscrobj.h">

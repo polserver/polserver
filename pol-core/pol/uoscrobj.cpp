@@ -78,7 +78,6 @@ Notes
 #include "syshookscript.h"
 #include "tooltips.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "item/weapon.h"
 #include "item/wepntmpl.h"
 #include "uoexhelp.h"
