@@ -9,6 +9,14 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES  # sorted !
+	../pol/uofile00.cpp       # TODO: move all uofile*.cpp into the plib folder
+	../pol/uofile01.cpp
+	../pol/uofile02.cpp
+	../uotool/uofile04.cpp 
+	../uotool/uofile05.cpp
+	../pol/uofile06.cpp
+	../pol/uofile07.cpp
+	../pol/uofile08.cpp
 	filemapserver.cpp 
 	inmemorymapserver.cpp
 	mapfunc.cpp 
