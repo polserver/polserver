@@ -2621,7 +2621,7 @@ namespace Pol {
               return new BError("Unicode array exceeds maximum size.");
             u16 cltext[(SPEECH_MAX_LEN + 1)];
             size_t textlen = oText->ref_arr.size();
-            if( ! Clib::convertArrayToUC(oText, cltext, textlen, false) )
+            if( ! Core::convertArrayToUC(oText, cltext, textlen, false) )
               return new BError("Invalid value in Unicode array.");
 
             // Now convert it into a vector of u32
