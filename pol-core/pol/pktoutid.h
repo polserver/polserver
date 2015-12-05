@@ -117,6 +117,7 @@ namespace Pol {
 	  PKTOUT_D8_ID = 0xD8,	// Custom Housing
 	  PKTOUT_DC_ID = 0xDC,	// Object Cahce/Revision (SE Introduced version)
 	  PKTOUT_DD_ID = 0xDD,    // Compressed Gump
+	  PKTOUT_DF_ID = 0xDF,  // Buff/Debuff System
 
       PKTOUT_E2_ID = 0xE2,  // HSA MobileAnimation
 	  PKTOUT_E3_ID = 0xE3,	// KR Encryption Response

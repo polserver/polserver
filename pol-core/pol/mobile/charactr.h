@@ -276,6 +276,21 @@ namespace Pol {
 	  int _regenrate; // in hundredths of points per minute
 	};
 
+	/**
+	* Represents a buff icon in the buff bar, see packet 0xDF documentation for more details
+	*/
+	struct Buff {
+	  // Polclock when the buff will end (only for displaying countdown)
+	  Core::gameclock_t end;
+	  // Name cliloc ID
+	  u32 cl_name;
+	  // Description cliloc ID
+	  u32 cl_descr;
+	  // Unicode string, arguments to be replaced in cl_descr, separated by tabs
+	  // TODO: use a real unicode string class, maybe a vector of them
+	  std::vector<u32> arguments;
+	};
+
 	struct reportable_t { u32 serial; Core::polclock_t polclock; };
 	inline bool operator < ( const reportable_t& lhs, const reportable_t& rhs )
 	{
@@ -749,6 +764,15 @@ namespace Pol {
 	  void on_delete_from_account();
 	protected:
 	  friend void Core::undo_get_item( Character *chr, Items::Item *item ); // this just gets uglier and uglier.
+
+    // BUFF/DEBUFF BAR
+    public:
+      void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments );
+      bool delBuff( u16 icon );
+      void clearBuffs();
+      void send_buffs();
+    protected:
+      std::map<u16, Buff> buffs_; // indexed by icon ID
 
 	// ==========================================================
 	// DATA:

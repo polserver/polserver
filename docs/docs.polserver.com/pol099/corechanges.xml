@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-28-2015</datemodified>
+		<datemodified>12-05-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>12-05-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">Buff Bar support<br/>
+New Character's addBuff(), delBuff() and clearBuffs() methods,<br/>
+please see docs for details and explanation.<br/>
+0xDF packets are automatically sent when needed (eg. at relogin).<br/>
+Buff Bar status is not saved, maybe it will be in future.</change>
+		</entry>
 		<entry>
 			<date>11-28-2015</date>
 			<author>Bodom:</author>

@@ -74,6 +74,10 @@
 <member mname="weight" type="Integer" access="r/o" mdesc="weight of the graphic as defined in tiledata.mul" />
 <member mname="multi" type="Multi" access="r/o" mdesc="MultiRef for the Multi the object is on" />
 
+<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, array arguments)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string (array of int); separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, CAscZ(&quot;1234 5678&quot;));" />
+<method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
+<method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
+<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 <method proto="isa(POLCLASS_*)" returns="boolean" desc="True if the derived class is the same as the passed class type (see uo.em for all constants)" />
 <method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
 <method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />

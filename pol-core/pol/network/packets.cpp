@@ -108,6 +108,7 @@ namespace Pol {
 	  packets.insert( PacketQueuePair( PKTBI_D6_OUT_ID, new PacketQueueSingle() ) );
 	  packets.insert( PacketQueuePair( PKTOUT_DC_ID, new PacketQueueSingle() ) );
 	  packets.insert( PacketQueuePair( PKTOUT_DD_ID, new PacketQueueSingle() ) );
+	  packets.insert( PacketQueuePair( PKTOUT_DF_ID, new PacketQueueSingle() ) );
       packets.insert( PacketQueuePair( PKTOUT_E2_ID, new PacketQueueSingle( ) ) );
 	  packets.insert( PacketQueuePair( PKTOUT_E3_ID, new PacketQueueSingle() ) );
 	  packets.insert( PacketQueuePair( PKTOUT_F3_ID, new PacketQueueSingle() ) );
@@ -398,6 +399,7 @@ namespace Pol {
 		  case PKTBI_D6_OUT_ID: return new PktOut_D6();
 		  case PKTOUT_DC_ID: return new PktOut_DC();
 		  case PKTOUT_DD_ID: return new PktOut_DD();
+		  case PKTOUT_DF_ID: return new PktOut_DF();
           case PKTOUT_E2_ID: return new PktOut_E2( );
 		  case PKTOUT_E3_ID: return new PktOut_E3();
 		  case PKTOUT_F3_ID: return new PktOut_F3();
