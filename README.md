@@ -40,8 +40,13 @@ Minimum compiler version: Visual Studio 2012 (Express editions might require the
 Compiling in Linux
 ----------
 
-Make sure you have the required libraries installed: boost, zlib and the mysql client (if SQL supported is desired), then run the following commands (you need at least CMake 3.1):
+Make sure you have the required libraries installed: boost, zlib and the mysql client (if SQL supported is desired).
+Boost libraries are also shipped with the source. If you choose to use the provided version, unpack them with:
+* `cd lib`
+* `tar xjf boost_1_55_0.tar.bz2`
+* `cd ..`
 
+Then run the following commands (you need at least CMake 3.1):
 * `cd pol-core/bin-build`
 * `./build_linux.sh`
 
