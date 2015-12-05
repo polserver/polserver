@@ -2601,6 +2601,66 @@ namespace Pol {
 		  }
 		  break;
 		}
+        case MTH_ADD_BUFF:
+        {
+          u16 icon;
+          u16 duration;
+          u32 cl_name;
+          u32 cl_descr;
+          ObjArray* oText;
+
+          if( ! ex.hasParams( 5 ) )
+            return new BError( "Not enough parameters" );
+          if( ex.getParam( 0, icon ) && ex.getParam( 1, duration ) && ex.getParam( 2, cl_name ) && ex.getParam( 3, cl_descr ) && ex.getObjArrayParam( 4, oText ) )
+          {
+            if( ! ( icon && cl_name && cl_descr ) )
+              return new BError( "Invalid parameters" );
+
+            // Retrieve and validate the unicode text as an array of u16
+            if( oText->ref_arr.size() > SPEECH_MAX_LEN )
+              return new BError("Unicode array exceeds maximum size.");
+            u16 cltext[(SPEECH_MAX_LEN + 1)];
+            size_t textlen = oText->ref_arr.size();
+            if( ! Clib::convertArrayToUC(oText, cltext, textlen, false) )
+              return new BError("Invalid value in Unicode array.");
+
+            // Now convert it into a vector of u32
+            // TODO: use a unicode string class or something bettwer when it will be ready
+            std::vector<u32> arguments;
+            arguments.reserve(textlen);
+            for( size_t i = 0; i < textlen; i++ )
+               arguments.insert(arguments.end(), cltext[i]);
+
+            addBuff( icon, duration, cl_name, cl_descr, arguments );
+            return new BLong( 1 );
+          }
+          break;
+        }
+        case MTH_CLEAR_BUFFS:
+        {
+          clearBuffs();
+
+          return new BLong( 1 );
+          break;
+        }
+        case MTH_DEL_BUFF:
+        {
+          u16 icon;
+
+          if( ! ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if( ex.getParam( 0, icon ) )
+          {
+            if( ! icon )
+              return new BError( "Invalid parameter" );
+
+            if( ! delBuff( icon ) )
+              return new BError( "Buff not found" );
+
+            return new BLong( 1 );
+          }
+          break;
+        }
 		default:
 		  return NULL;
 	  }

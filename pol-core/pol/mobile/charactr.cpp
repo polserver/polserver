@@ -4246,6 +4246,77 @@ namespace Pol {
       return (g != nullptr) ? g->guildid() : 0;
     }
 
+    /**
+    * Adds a new buff or overwrites an existing one for the character
+    * Sends packets to the client accordingly
+    * @author Bodom
+    */
+    void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments )
+    {
+      if( client != NULL && buffs_.find(icon) != buffs_.end() )
+      {
+        // Icon is already present, must send a remove packet first or client will not update
+        send_buff_message( this, icon, false );
+      }
+
+      Core::gameclock_t end = Core::read_gameclock() + duration;
+      buffs_[icon] = { end, cl_name, cl_descr, arguments };
+
+      if( client != NULL )
+        send_buff_message( this, icon, true, duration, cl_name, cl_descr, arguments );
+    }
+
+    /**
+    * Removes a buff for the character
+    * Sends packets to the client accordingly
+    * @author Bodom
+    * @return True when the buff has been found and removed, False when the buff was not present
+    */
+    bool Character::delBuff( u16 icon )
+    {
+      auto b = buffs_.find(icon);
+
+      if( b == buffs_.end() )
+        return false;
+
+      buffs_.erase(b);
+      if( client != NULL )
+        send_buff_message( this, icon, false );
+      return true;
+    }
+
+    /**
+    * Removes al buffs for the character
+    * Sends packets to the client accordingly
+    * @author Bodom
+    */
+    void Character::clearBuffs()
+    {
+      for( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+        delBuff( it->first );
+    }
+
+    /**
+    * Resends all buffs (with updated duration), usually called at (re)login
+    * @author Bodom
+    */
+    void Character::send_buffs()
+    {
+      if( client == NULL )
+        return;
+
+      for( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+      {
+        int duration = it->second.end - Core::read_gameclock();
+        if( duration < 0 )
+          duration = 0;
+        else if( duration > 0xFFFF )
+          duration = 0xFFFF;
+
+        send_buff_message( this, it->first, true, static_cast<u16>(duration), it->second.cl_name, it->second.cl_descr, it->second.arguments );
+      }
+    }
+
     size_t Character::estimatedSize() const
     {
       size_t size = base::estimatedSize()

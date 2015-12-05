@@ -268,6 +268,8 @@ namespace Pol {
 	void send_fight_occuring( Network::Client* client, Mobile::Character* opponent );
 	void send_damage( Mobile::Character* attacker, Mobile::Character* defender, u16 damage );
 	void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const char *title, const u16 *utext, const u16 *etext );
+
+    void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0, u32 cl_name = 0, u32 cl_descr = 0, std::vector<u32> arguments = std::vector<u32>() );
   }
 }
 #endif

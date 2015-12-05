@@ -448,6 +448,7 @@ namespace Pol {
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_D6_OUT_ID, 0xFFFF> PktOut_D6;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DC_ID, 9> PktOut_DC;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DD_ID, 0xFFFF> PktOut_DD;
+	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DF_ID, 0xFFFF> PktOut_DF;
     typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_E2_ID, 10> PktOut_E2;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_E3_ID, 77> PktOut_E3;
 	// HSA 26 old 24

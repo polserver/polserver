@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+12-05-2015 Bodom:
+  Added:   Buff Bar support
+           New Character's addBuff(), delBuff() and clearBuffs() methods,
+           please see docs for details and explanation.
+           0xDF packets are automatically sent when needed (eg. at relogin).
+           Buff Bar status is not saved, maybe it will be in future.
 11-28-2015 Bodom:
   Added:   New Client object properties last_packet_at and last_activity_at
 11-01-2015 Bodom:

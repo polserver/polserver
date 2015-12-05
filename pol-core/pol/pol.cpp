@@ -330,6 +330,7 @@ namespace Pol {
 
       client->chr->clear_gotten_item();
       on_loggon_party( client->chr );
+      client->chr->send_buffs();
 
 
       //  Moved login_complete higher to prevent weather regions from messing up client 

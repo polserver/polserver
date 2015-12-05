@@ -659,7 +659,10 @@ namespace Pol {
 	  { MTH_LOWER, "lower", false },					//145
 	  { MTH_FORMAT, "format", false },
 	  { MTH_DISABLE_SKILLS_FOR, "disableskillsfor", false },
-	  { MTH_CYCLE, "cycle", false }
+	  { MTH_CYCLE, "cycle", false },
+	  { MTH_ADD_BUFF, "addbuff", false },
+	  { MTH_DEL_BUFF, "delbuff", false },              //150
+	  { MTH_CLEAR_BUFFS, "clearbuffs", false },
 	};
 	int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 	ObjMethod* getKnownObjMethod( const char* token )
