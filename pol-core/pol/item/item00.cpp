@@ -17,7 +17,6 @@ Notes
 #include "../layers.h"
 #include "../resource.h"
 #include "../objtype.h"
-#include "../uofile.h"
 #include "../ustruct.h"
 #include "../globals/state.h"
 

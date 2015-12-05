@@ -22,15 +22,7 @@ Notes
 
 namespace Pol {
 #define MAX_STATICS_PER_BLOCK 10000
-  namespace Mobile {
-	class Character;
-  }
-  namespace Multi {
-	class UMulti;
-  }
-  namespace Items {
-    class Item;
-  }
+
   namespace Core {
 
 	extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );

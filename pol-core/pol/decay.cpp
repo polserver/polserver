@@ -27,7 +27,6 @@ Notes
 #include "scrsched.h"
 #include "syshook.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "uoscrobj.h"
 #include "uworld.h"
 

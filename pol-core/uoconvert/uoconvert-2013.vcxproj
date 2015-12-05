@@ -291,11 +291,6 @@
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\pol\uofile00.cpp" />
-    <ClCompile Include="..\pol\uofile01.cpp" />
-    <ClCompile Include="..\pol\uofile02.cpp" />
-    <ClCompile Include="..\pol\uofile07.cpp" />
-    <ClCompile Include="..\pol\uofile08.cpp" />
     <ClCompile Include="UoConvertMain.cpp" />
   </ItemGroup>
   <ItemGroup>

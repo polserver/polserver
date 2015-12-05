@@ -20,7 +20,6 @@ Notes
 #include "decay.h"
 #include "polcfg.h"
 #include "polclock.h"
-#include "polfile.h"
 #include "realms.h"
 #include "schedule.h"
 #include "scrsched.h"

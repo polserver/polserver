@@ -265,14 +265,6 @@
 	<ClCompile Include="..\pol\globals\multidefs.cpp" />
     <ClCompile Include="..\pol\multi\multidef.cpp" />
     <ClCompile Include="..\pol\polfile1.cpp" />
-    <ClCompile Include="..\pol\uofile00.cpp" />
-    <ClCompile Include="..\pol\uofile01.cpp" />
-    <ClCompile Include="..\pol\uofile02.cpp" />
-    <ClCompile Include="uofile04.cpp" />
-    <ClCompile Include="uofile05.cpp" />
-    <ClCompile Include="..\pol\uofile06.cpp" />
-    <ClCompile Include="..\pol\uofile07.cpp" />
-    <ClCompile Include="..\pol\uofile08.cpp" />
     <ClCompile Include="uotool.cpp" />
   </ItemGroup>
   <ItemGroup>

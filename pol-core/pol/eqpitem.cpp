@@ -22,7 +22,6 @@ Notes
 #include "multi/multi.h"
 #include "pktin.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "globals/uvars.h"
 
 #include <cstdio>

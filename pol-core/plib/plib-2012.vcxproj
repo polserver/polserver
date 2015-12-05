@@ -211,6 +211,14 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\pol\uofile00.cpp" />
+    <ClCompile Include="..\pol\uofile01.cpp" />
+    <ClCompile Include="..\pol\uofile02.cpp" />
+    <ClCompile Include="..\pol\uofile06.cpp" />
+    <ClCompile Include="..\pol\uofile07.cpp" />
+    <ClCompile Include="..\pol\uofile08.cpp" />
+    <ClCompile Include="..\uotool\uofile04.cpp" />
+    <ClCompile Include="..\uotool\uofile05.cpp" />
     <ClCompile Include="filemapserver.cpp" />
     <ClCompile Include="inmemorymapserver.cpp" />
     <ClCompile Include="mapfunc.cpp" />
@@ -233,6 +241,8 @@
     <ClCompile Include="uoexpansion.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\pol\uofile.h" />
+    <ClInclude Include="..\pol\uofilei.h" />
     <ClInclude Include="filemapserver.h" />
     <ClInclude Include="fsa.h" />
     <ClInclude Include="inmemorymapserver.h" />

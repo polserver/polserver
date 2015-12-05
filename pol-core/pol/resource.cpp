@@ -20,9 +20,6 @@ Notes
 #include "realms.h"
 #include "realms/realm.h"
 #include "schedule.h"
-#include "udatfile.h"
-#include "uofile.h"
-#include "udatfile.h"
 #include "globals/uvars.h"
 #include "globals/state.h"
 

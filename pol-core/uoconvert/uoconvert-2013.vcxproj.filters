@@ -18,11 +18,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\pol\polfile1.cpp" />
-    <ClCompile Include="..\pol\uofile00.cpp" />
-    <ClCompile Include="..\pol\uofile01.cpp" />
-    <ClCompile Include="..\pol\uofile02.cpp" />
-    <ClCompile Include="..\pol\uofile07.cpp" />
-    <ClCompile Include="..\pol\uofile08.cpp" />
     <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="UoConvertMain.cpp" />
   </ItemGroup>

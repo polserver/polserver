@@ -41,7 +41,6 @@ Notes
 #include "../spelbook.h"
 #include "../tiles.h"
 #include "../ufunc.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../globals/uvars.h"
 #include "../globals/object_storage.h"

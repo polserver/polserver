@@ -48,7 +48,6 @@ Notes
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uobjhelp.h"
-#include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
 #include "globals/state.h"

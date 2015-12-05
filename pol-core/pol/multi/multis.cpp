@@ -22,10 +22,7 @@ Notes
 #include "../objtype.h"
 #include "../globals/state.h"
 
-#include "../udatfile.h"
 #include "../uobject.h"
-#include "../uofilei.h"
-#include "../uofile.h"
 #include "../ustruct.h"
 #include "../polcfg.h"
 

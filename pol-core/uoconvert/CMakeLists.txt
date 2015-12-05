@@ -10,11 +10,6 @@ MESSAGE("####################################")
 # define source files
 SET (SOURCES  # sorted !
 	../pol/polfile1.cpp
-	../pol/uofile00.cpp 
-	../pol/uofile01.cpp
-	../pol/uofile02.cpp
-	../pol/uofile07.cpp
-	../pol/uofile08.cpp
 	UoConvertMain.cpp
 )    
 
