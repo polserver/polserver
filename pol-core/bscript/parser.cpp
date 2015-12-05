@@ -1337,30 +1337,29 @@ namespace Pol {
 	  ext_err[0] = '\0';
 	}
 
-	/* what is a token? a set of homogeneous characters
-	   a Label:
-	   begins with [A-Za-z_], followed by [A-Za-z0-9]
-
-	   A character literal:
-	   begins with '"', ends with '"'. anything goes in between.
-
-	   a Number:
-	   begins with [0-9] (note: not plus or minus, these get eaten as unary ops)
-	   can be either a float (stored as double), or a long.
-	   0xABC is hex, which is read okay.
-	   So is 0.5e+17. I let strtod do most of the work.
-	   basically whichever of strtod or strtol can do more with it
-	   (endptr arg is greater on exit), that's what i decide that it is.
-
-	   an operator:
-	   any collection of the operator characters
-	   [ ( ) * / + - < = > ,] not separated by whitespace, digits, or alphas
-	   note a collection of more than one is considered a SINGLE operator.
-	   So if you put 6*-7, *- is the operator. nasty I know, but
-	   what am I supposed to do? (Maximal munch, is what is actually done!)
-
-	   */
-
+	/**
+	 * what is a token? a set of homogeneous characters
+	 * a Label:
+	 * begins with [A-Za-z_], followed by [A-Za-z0-9]
+	 *
+	 * A character literal:
+	 * begins with '"', ends with '"'. anything goes in between.
+	 *
+	 * a Number:
+	 * begins with [0-9] (note: not plus or minus, these get eaten as unary ops)
+	 * can be either a float (stored as double), or a long.
+	 * 0xABC is hex, which is read okay.
+	 * So is 0.5e+17. I let strtod do most of the work.
+	 * basically whichever of strtod or strtol can do more with it
+	 * (endptr arg is greater on exit), that's what i decide that it is.
+	 *
+	 * an operator:
+	 * any collection of the operator characters
+	 * [ ( ) * / + - < = > ,] not separated by whitespace, digits, or alphas
+	 * note a collection of more than one is considered a SINGLE operator.
+	 * So if you put 6*-7, *- is the operator. nasty I know, but
+	 * what am I supposed to do? (Maximal munch, is what is actually done!)
+	 */
 	int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not used */ )
 	{
 	  int hit = 0;
