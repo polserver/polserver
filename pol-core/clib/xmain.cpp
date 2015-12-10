@@ -36,6 +36,9 @@ namespace Pol {
   static void parse_args( int argc, char *argv[] );
 }
 
+/**
+ * This is the main entry point for any POL program
+ */
 int main( int argc, char *argv[] )
 {
 	using namespace Pol;
@@ -56,6 +59,7 @@ int main( int argc, char *argv[] )
         _CrtSetDbgFlag( flags );
 #endif
         parse_args( argc, argv );
+        // Pass the excution ot the relevant program
         exitcode = xmain( argc, argv );
     }
     catch( const char *msg )

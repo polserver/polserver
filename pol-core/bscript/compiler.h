@@ -265,9 +265,6 @@ namespace Pol {
 	  int write( const char *fname );
 	  int write_dbg( const char *fname, bool generate_txtfile );
 	  void writeIncludedFilenames( const char* fname ) const;
-	  void divine_options_in_included_file( const char *modulename );
-	  void inner_divine_options( const CompilerContext& ctx );
-	  void divine_options( const CompilerContext& ctx );
 
 	  // phase 0: determining bracket syntax
 

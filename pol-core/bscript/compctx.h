@@ -15,6 +15,13 @@ Notes
 
 namespace Pol {
   namespace Bscript {
+
+	/**
+	 * Represents a single compile context.
+	 *
+	 * A new compile context is created for every source file being compiled,
+	 * but a context can spawn itself many sub-contexts when needed
+	 */
 	class CompilerContext
 	{
 	public:

@@ -143,6 +143,14 @@ namespace Pol {
           throw std::runtime_error("Error compiling file");
 	}
 
+	/**
+	 * Compiles the single given file (inc, src, hsr, asp), if needed
+	 *
+	 * Takes into account compilercfg.OnlyCompileUpdatedScripts and force_update
+	 *
+	 * @param path path of the file to be compiled
+	 * @return TRUE if the file was compiled, FALSE otherwise (eg. the file is up-to-date)
+	 */
 	bool compile_file( const char *path )
 	{
         std::string fname(path);
@@ -494,6 +502,12 @@ namespace Pol {
 	  return 0;
 	}
 
+	/**
+	 * Recursively compile a folder
+	 *
+	 * @param basedir Path of the folder to recurse into
+	 * @param files
+	 */
     void recurse_compile(const std::string& basedir, std::vector<std::string>* files)
 	{
 	  int s_compiled, s_uptodate, s_errors;
@@ -637,6 +651,9 @@ namespace Pol {
 	  summary.ScriptsWithCompileErrors = error_scripts;
 	}
 
+	/**
+	 * Runs the compilation threads
+	 */
 	void AutoCompile()
 	{
 	  bool save = compilercfg.OnlyCompileUpdatedScripts;
@@ -662,8 +679,12 @@ namespace Pol {
 	  compilercfg.OnlyCompileUpdatedScripts = save;
 	}
 
+	/**
+	 * Takes decisions, runs, the compilation, prints summary and cleans after
+	 */
 	bool run( int argc, char **argv )
 	{
+	  // Load and analyze the package structure
 	  for ( const auto &elem : compilercfg.PackageRoot )
 	  {
 		Plib::load_packages( elem, true /* quiet */ );
@@ -671,6 +692,7 @@ namespace Pol {
 	  Plib::replace_packages();
 	  Plib::check_package_deps();
 
+	  // Determine the run mode and do the compile itself
 	  Tools::Timer<> timer;
 	  bool any = false;
 
@@ -740,6 +762,7 @@ namespace Pol {
 		AutoCompile();
 	  }
 
+	  // Execution is completed: start final/cleanup tasks
 	  timer.stop();
 
 	  Plib::systemstate.deinitialize();
@@ -811,7 +834,9 @@ namespace Pol {
   }
 
 
-
+  /**
+   * This is the main entry point for ecompile program
+   */
   int xmain( int argc, char *argv[] )
   {
 	strcpy( Pol::progverstr, "ECOMPILE" );
