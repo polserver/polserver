@@ -1126,6 +1126,9 @@ see nothing. That's because we made it so you wouldn't receive your own
 broadcast. So to test, get a couple friends on your server and ask them if they
 got the message. If they did, congrats, your very first script.</message></p>
 
+<!-- TODO: talk about ecompile.cfg and recursive compiling, mention POL ignores
+           files starting with '.' -->
+
 <br/>
 
 <!-- ====================================================================== -->
