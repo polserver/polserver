@@ -109,6 +109,7 @@ namespace Pol {
 
 
 	  int curSourceFile;
+	  /** Part of the content of the line being read, only for info/debug output, limited to 80 chars */
 	  char curLine[80];
 	  int inExpr;
 	  int inFunction;

@@ -5300,6 +5300,9 @@ namespace Pol {
 	  return false;
 	}
 
+	/**
+	 * Transforms the raw html page into a script with a single WriteHtml() instruction
+	 */
 	void preprocess_web_script( Clib::FileContents& fc )
 	{
 	  std::string output;
