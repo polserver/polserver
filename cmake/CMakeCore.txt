@@ -35,7 +35,7 @@ ENDIF ()
 ##############################################################
 # minimum required GCC version
 IF (CLANG)
-    SET(REQUIRED_COMPILER_VERSION 3.5)
+    SET(REQUIRED_COMPILER_VERSION 3.4)
 ELSE()
     SET(REQUIRED_COMPILER_VERSION 4.7)
 ENDIF()
