@@ -18,7 +18,7 @@ Notes
 #include "armor.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/strutil.h"
 #include "../../clib/streamsaver.h"
 
@@ -29,7 +29,6 @@ Notes
 #include "../../plib/systemstate.h"
 
 #include "../ustruct.h"
-#include "../uofile.h"
 #include "../containr.h"
 #include "../ufunc.h"
 #include "../network/client.h"

@@ -89,7 +89,6 @@ Notes
 #include "../../clib/strutil.h"
 
 #include "../../plib/mapcell.h"
-#include "../../plib/realm.h"
 #include "../../plib/systemstate.h"
 
 #include "../accounts/account.h"
@@ -129,6 +128,7 @@ Notes
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polclock.h"
+#include "../realms/realm.h"
 #include "../realms.h"
 #include "../schedule.h"
 #include "../scrsched.h"
@@ -146,7 +146,6 @@ Notes
 #include "../ufuncstd.h"
 #include "../umanip.h"
 #include "../uoexec.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../vital.h"
@@ -4395,7 +4394,7 @@ namespace Pol {
     void Character::on_delete_from_account()
     {
         if (realm)
-            realm->remove_mobile(*this, Plib::WorldChangeReason::PlayerDeleted);
+            realm->remove_mobile(*this, Realms::WorldChangeReason::PlayerDeleted);
     }
 
 

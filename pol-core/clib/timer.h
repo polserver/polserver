@@ -1,9 +1,8 @@
-#ifndef TOOLS_TIMER_H
-#define TOOLS_TIMER_H
+#ifndef CLIB_TIMER_H
+#define CLIB_TIMER_H
 
 #include <chrono>
 #include <string>
-
 
 namespace Pol {
   namespace Tools // global ns is enough polluted 
@@ -61,4 +60,4 @@ namespace Pol {
   }
 }
 
-#endif
+#endif //CLIB_TIMER_H

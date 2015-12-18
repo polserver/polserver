@@ -7,10 +7,10 @@ Notes
 
 */
 
-#ifndef __MSJEXHND_H__
-#define __MSJEXHND_H__
+#ifndef CLIB_MSJEXHND_H
+#define CLIB_MSJEXHND_H
 
-#include <windows.h>
+#include "Header_Windows.h"
 #include <imagehlp.h>
 namespace Pol {
   namespace Clib {
@@ -86,4 +86,4 @@ namespace Pol {
 	extern MSJExceptionHandler g_MSJExceptionHandler;  // global instance of class
   }
 }
-#endif
+#endif //CLIB_MSJEXHND_H

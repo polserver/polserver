@@ -7,9 +7,10 @@ Notes
 
 */
 
-#include <windows.h>
+#include "Header_Windows.h"
 #include <stdio.h>
 #include "clib.h"
+
 namespace Pol {
   namespace Clib {
 	int forspec( const char *spec, void( *func )( const char *pathname ) )

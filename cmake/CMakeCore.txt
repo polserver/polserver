@@ -1,0 +1,440 @@
+#####################################################################
+# 
+# Copyright (C) 2015 Thomas Volkert <thomas@homer-conferencing.com>
+# All rights reserved.
+# 
+# The environment was provided for the POL project. Redistribution 
+# and use in source and binary forms, with or without modification, 
+# are permitted. However, this paragraph has to be included in its 
+# original form in every project.
+# 
+#####################################################################
+
+INCLUDE(CheckLibraryExists)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+##############################################################
+
+IF (DEFINED TARGET_NAME_BINARY) 
+    MESSAGE("###########################################################################")
+    MESSAGE("##### Configuring binary \"${TARGET_NAME_BINARY}\"")
+    MESSAGE("###########################################################################")
+ELSEIF (DEFINED TARGET_NAME_LIB) 
+    MESSAGE("###########################################################################")
+    MESSAGE("##### Configuring library \"${TARGET_NAME_LIB}\"")
+    MESSAGE("###########################################################################")
+ENDIF ()
+
+##############################################################
+# check if CMakeEnvironment.txt was parsed before
+IF (NOT PRE_DEFINITIONS_EXECUTED)
+    MESSAGE("Including automatically the pre-definitions from CMakeEnvironment.txt..")
+    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeEnvironment.txt)
+ENDIF ()
+
+##############################################################
+# minimum required GCC version
+IF (CLANG)
+    SET(REQUIRED_COMPILER_VERSION 3.5)
+ELSE()
+    SET(REQUIRED_COMPILER_VERSION 4.7)
+ENDIF()
+
+# check compiler version
+IF(NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER ${REQUIRED_COMPILER_VERSION} AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_EQUAL ${REQUIRED_COMPILER_VERSION})
+    MESSAGE(FATAL_ERROR "You need at least compiler version ${REQUIRED_COMPILER_VERSION} and you run version ${CMAKE_CXX_COMPILER_VERSION}!")
+ENDIF()
+
+##############################################################
+# verbose command line output
+IF (${CMAKE_VERBOSE_MAKEFILE} MATCHES "ON")
+    SET (FLAGS 
+        ${FLAGS}
+        -v
+    )
+ENDIF()
+
+##############################################################
+# app/lib versioning
+IF (WINDOWS)
+    IF (DEFINED TARGET_NAME_BINARY) 
+#TODO        INCLUDE(CMakeWindowsBinary.txt)
+    ELSE()
+#TODO        INCLUDE(CMakeWindowsLibrary.txt)
+    ENDIF()
+ENDIF()
+
+##############################################################
+# library search paths
+IF(NOT WINDOWS)
+	SET (LIB_DIRS
+    	${LIB_DIRS}
+	    /usr/local/lib
+	    /usr/lib
+    	/usr/lib${ARCH_BITS}
+	)
+ENDIF()
+MESSAGE("### Library search path: ${LIB_DIRS}")
+
+##############################################################
+# include dirs
+IF(NOT WINDOWS)
+	SET (INCLUDE_DIRS
+	    ${INCLUDE_DIRS}
+	    /usr/local/include    
+	)
+ENDIF()
+MESSAGE("### Header search path: ${INCLUDE_DIRS}")
+
+##############################################################
+# compile flags
+IF (WINDOWS)
+    # TODO
+ELSE()
+    IF (DEFINED FORCE_ARCH_BITS)
+        SET (FLAGS
+            ${FLAGS}
+            -m${FORCE_ARCH_BITS}
+        )
+    ENDIF()
+    IF (NOT (${BUILD} MATCHES "Default"))
+        SET (FLAGS
+            ${FLAGS}
+            -O2
+        )
+    ENDIF()
+    # position independent code to use it both for dynamic and static linking
+    SET (FLAGS
+        ${FLAGS}
+        -fPIC
+    )
+ENDIF()
+
+##############################################################
+# differentiate between debug and release version
+IF (${BUILD} MATCHES "Debug")
+    IF (APPLE)
+        SET (FLAGS "${FLAGS} -g -DDEBUG_VERSION")
+    ELSEIF(WINDOWS)
+    	SET (FLAGS "${FLAGS} /DDEBUG_VERSION")
+    ELSE()
+        SET (FLAGS "${FLAGS} -g -ggdb -DDEBUG_VERSION")
+    ENDIF()
+ELSE ()
+    IF(WINDOWS)
+    	SET (FLAGS "${FLAGS} /DRELEASE_VERSION")
+    ELSE()
+    	SET (FLAGS "${FLAGS} -DRELEASE_VERSION")
+    ENDIF()
+ENDIF ()
+
+##############################################################
+# define minimum OS X version to which the binary is compatible
+IF (APPLE)
+    SET(FLAGS
+        ${FLAGS}
+        -mmacosx-version-min=${MIN_SUPPORTED_OSX_VERSION}
+    )
+ENDIF()
+
+##############################################################
+# stripping for all platforms excluding APPLE
+IF (LINUX OR BSD)
+    IF (${BUILD} MATCHES "Release")
+        SET (LFLAGS "${LFLAGS} -s")
+    ENDIF()
+ENDIF()
+
+##############################################################
+# definitions
+SET (DEFINITIONS
+    ${DEFINITIONS}
+    ${FEATURES}
+    -D__STDC_CONSTANT_MACROS
+    -D__STDC_FORMAT_MACROS
+    -D__STDC_LIMIT_MACROS
+    -D_REENTRANT
+    -DARCH_BITS=${ARCH_BITS}
+)
+
+# "-D" options for compilation in WINDOWS environment
+IF(WINDOWS)
+    SET (DEFINITIONS
+        ${DEFINITIONS}
+        ${DEFINITIONS_WINDOWS}
+        -DWINVER=0x0501
+        -DWINDOWS
+    )
+    IF (WIN32)
+        SET (DEFINITIONS
+            ${DEFINITIONS}
+            -DWIN32
+        )
+    ENDIF()
+    IF (WIN64)
+        SET (DEFINITIONS
+            ${DEFINITIONS}
+            -DWIN64
+        )
+    ENDIF()
+ENDIF()
+
+# "-D" options for compilation in LINUX environment
+IF (LINUX)
+    SET (DEFINITIONS
+        ${DEFINITIONS}
+        ${DEFINITIONS_LINUX}
+        -DLINUX
+    )
+ENDIF()
+
+# "-D" options for compilation in BSD environment
+IF (BSD)
+    SET (DEFINITIONS
+        ${DEFINITIONS}
+        ${DEFINITIONS_BSD}
+        -DBSD
+    )
+ENDIF()
+
+# "-D" options for compilation in APPLE environment
+IF (APPLE)
+    SET (DEFINITIONS
+        ${DEFINITIONS}
+        ${DEFINITIONS_APPLE}
+        -DAPPLE
+        -D_THREAD_SAFE
+    )
+ENDIF()
+
+##############################################################
+# for win32 remove the "lib" prefix for dll's
+IF (WINDOWS)
+    SET(CMAKE_SHARED_LIBRARY_PREFIX "")
+    SET(CMAKE_STATIC_LIBRARY_PREFIX "")
+    SET(CMAKE_IMPORT_LIBRARY_PREFIX "")
+ENDIF (WINDOWS)
+
+##############################################################
+# search for header files - needed for Visual Studio solution
+IF(WINDOWS)
+	FOREACH(SOURCES_ENTRY ${SOURCES})
+		GET_FILENAME_COMPONENT(SOURCES_ENTRY_PATH ${SOURCES_ENTRY} PATH)
+		GET_FILENAME_COMPONENT(SOURCES_ENTRY_NAME_WE ${SOURCES_ENTRY} NAME_WE)
+		SET(SOURCES_ENTRY_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCES_ENTRY_PATH}/${SOURCES_ENTRY_NAME_WE}.h)
+    	IF(EXISTS "${SOURCES_ENTRY_HEADER}")
+    		MESSAGE("Found automatically the header file: ${SOURCES_ENTRY_HEADER}")
+    		SET(SOURCES 
+    			${SOURCES}
+    			${SOURCES_ENTRY_HEADER}
+    	 	)
+    	ENDIF()
+    	ADD_DEFINITIONS("${DEFINITIONS_ENTRY}")
+	ENDFOREACH(SOURCES_ENTRY ${SOURCES})
+ENDIF()	
+
+##############################################################
+# add definitions for compilation
+FOREACH(DEFINITIONS_ENTRY ${DEFINITIONS})
+    ADD_DEFINITIONS("${DEFINITIONS_ENTRY}")
+ENDFOREACH(DEFINITIONS_ENTRY ${DEFINITIONS})
+
+##############################################################
+# add flags for linking
+FOREACH(LFLAGS_ENTRY ${LFLAGS})
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LFLAGS_ENTRY}")
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${LFLAGS_ENTRY}")
+    SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${LFLAGS_ENTRY}")
+ENDFOREACH(LFLAGS_ENTRY ${LFLAGS})
+
+##############################################################
+# add flags for compilation
+FOREACH(FLAGS_ENTRY ${FLAGS})
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAGS_ENTRY}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAGS_ENTRY}")
+ENDFOREACH(FLAGS_ENTRY ${FLAGS})
+MESSAGE("### Flags for C compiling: ${CMAKE_C_FLAGS}")
+MESSAGE("### Flags for C++ compiling: ${CMAKE_CXX_FLAGS}")
+
+##############################################################
+# add include paths
+FOREACH(INCLUDE_DIRS_ENTRY ${INCLUDE_DIRS})
+    INCLUDE_DIRECTORIES("${INCLUDE_DIRS_ENTRY}")
+ENDFOREACH(INCLUDE_DIRS_ENTRY ${INCLUDE_DIRS})
+
+##############################################################
+# add library paths
+FOREACH(LIB_DIRS_ENTRY ${LIB_DIRS})
+    LINK_DIRECTORIES("${LIB_DIRS_ENTRY}")
+ENDFOREACH(LIB_DIRS_ENTRY ${LIB_DIRS})
+
+##############################################################
+# generate library from given source files
+IF (DEFINED TARGET_LIB_NAME) 
+    # set libraries install_name for APPLE systems
+    IF (APPLE)
+        SET (LFLAGS
+            ${LFLAGS}
+            -Wl,-install_name,@rpath/lib${TARGET_LIB_NAME}.dylib
+        )
+    ENDIF (APPLE)
+    
+    MESSAGE("### Flags for shared linking: ${CMAKE_SHARED_LINKER_FLAGS}")
+    MESSAGE("### Flags for module linking: ${CMAKE_MODULE_LINKER_FLAGS}")
+    
+    # build destination
+    SET(LIBRARY_OUTPUT_PATH ${TARGET_DIRECTORY})
+    MESSAGE("### Library output path: ${TARGET_DIRECTORY}")
+    
+    # trigger library creation
+    IF(${BUILD_STATIC} MATCHES "ON")
+        MESSAGE("### Building DYNAMIC and STATIC LIBRARIES")
+   		ADD_LIBRARY(${TARGET_LIB_NAME}_OBJECTS OBJECT ${SOURCES})
+  		ADD_LIBRARY(${TARGET_LIB_NAME} SHARED $<TARGET_OBJECTS:${TARGET_LIB_NAME}_OBJECTS>)
+    	ADD_LIBRARY(${TARGET_LIB_NAME}_static STATIC $<TARGET_OBJECTS:${TARGET_LIB_NAME}_OBJECTS>)
+    ELSE()
+        MESSAGE("### Building only DYNAMIC LIBRARIES")
+  		ADD_LIBRARY(${TARGET_LIB_NAME} SHARED ${SOURCES})
+    ENDIF()
+    SET(TARGET_NAME
+        ${TARGET_LIB_NAME}
+    )
+    # library versioning
+    IF (${LIBS_WITH_VERSIONING} MATCHES "ON")
+        SET_TARGET_PROPERTIES(${TARGET_LIB_NAME} PROPERTIES SOVERSION ${BINARY_VERSION_MAJOR} VERSION ${BINARY_VERSION})
+    ENDIF()
+ENDIF ()
+# generate program from given source files
+IF (DEFINED TARGET_PROGRAM_NAME) 
+    IF (WINDOWS)
+        MESSAGE("### Flags for Windows binary linking: ${CMAKE_EXE_LINKER_FLAGS}")
+    ENDIF (WINDOWS)
+    
+    # build destination
+    SET(EXECUTABLE_OUTPUT_PATH ${TARGET_DIRECTORY})
+    MESSAGE("### Program output path: ${EXECUTABLE_OUTPUT_PATH}")
+
+    # trigger program creation
+    IF(APPLE)
+#        ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} MACOSX_BUNDLE ${SOURCES})
+        ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} ${SOURCES})
+    ELSEIF (WINDOWS)
+        ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} WIN32 ${SOURCES})
+    ELSE ()
+    	IF(${BUILD_STATIC} MATCHES "ON")
+   			ADD_LIBRARY(${TARGET_PROGRAM_NAME}_OBJECTS OBJECT ${SOURCES})
+  			ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} $<TARGET_OBJECTS:${TARGET_PROGRAM_NAME}_OBJECTS>)
+  			ADD_EXECUTABLE(${TARGET_PROGRAM_NAME}_static $<TARGET_OBJECTS:${TARGET_PROGRAM_NAME}_OBJECTS>)
+	    ELSE()
+  			ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} ${SOURCES})
+	    ENDIF()
+    ENDIF ()
+    SET(TARGET_NAME
+        ${TARGET_PROGRAM_NAME}
+    )
+    # binary versioning
+    IF (${BINARY_WITH_VERSIONING} MATCHES "ON")
+        SET_TARGET_PROPERTIES(${TARGET_PROGRAM_NAME} PROPERTIES VERSION ${BINARY_VERSION})
+    ENDIF()
+ENDIF ()
+
+##############################################################
+# INSTALL library: define install target
+IF (DEFINED INSTALL_LIBDIR)
+    MESSAGE("##### Libraries will be installed to " ${INSTALL_LIBDIR})
+ENDIF()  
+IF (DEFINED TARGET_LIB_NAME) 
+    IF (DEFINED INSTALL_LIBDIR)
+        INSTALL(TARGETS ${TARGET_NAME} COMPONENT libraries RUNTIME DESTINATION ${INSTALL_LIBDIR} LIBRARY DESTINATION ${INSTALL_LIBDIR})
+    ELSE()
+        IF(WINDOWS)
+                INSTALL(TARGETS ${TARGET_NAME} COMPONENT libraries RUNTIME DESTINATION . LIBRARY DESTINATION .)
+        ELSE()
+                INSTALL(TARGETS ${TARGET_NAME} COMPONENT libraries RUNTIME DESTINATION lib LIBRARY DESTINATION lib)
+        ENDIF()         
+    ENDIF()
+ENDIF ()
+
+# INSTALL data files
+IF (DEFINED INSTALL_DATADIR)
+    MESSAGE("##### Data files will be installed to " ${INSTALL_DATADIR})
+ENDIF()  
+
+# INSTALL executable: define install target
+IF (DEFINED TARGET_PROGRAM_NAME)
+    IF(WINDOWS)
+        INSTALL(TARGETS ${TARGET_NAME} RUNTIME DESTINATION . COMPONENT application)
+    ELSE()
+        INSTALL(TARGETS ${TARGET_NAME} BUNDLE DESTINATION . RUNTIME DESTINATION . PERMISSIONS OWNER_EXECUTE OWNER_READ OWNER_WRITE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE COMPONENT application)
+    ENDIF()
+ENDIF()
+
+# INSTALL additional libraries: define install target
+IF (WINDOWS)
+    MESSAGE("### Will additionally install Windows libraries: ${LIBS_WINDOWS_INSTALL}")
+    FOREACH(LIBS_WINDOWS_INSTALL_ENTRY ${LIBS_WINDOWS_INSTALL})
+        GET_FILENAME_COMPONENT(LIBS_INSTALL_ENTRY_PATH_PREFIX ${LIBS_WINDOWS_INSTALL_ENTRY} PATH)
+        INSTALL(FILES release/win${ARCH_BITS}/${LIBS_WINDOWS_INSTALL_ENTRY} DESTINATION ./${LIBS_INSTALL_ENTRY_PATH_PREFIX} COMPONENT extlibraries)
+    ENDFOREACH(LIBS_WINDOWS_INSTALL_ENTRY ${LIBS_WINDOWS_INSTALL})
+ENDIF()
+IF (LINUX)
+    MESSAGE("### Will additionally install Linux libraries: ${LIBS_LINUX_INSTALL}")
+    FOREACH(LIBS_LINUX_INSTALL_ENTRY ${LIBS_LINUX_INSTALL})
+        GET_FILENAME_COMPONENT(LIBS_INSTALL_ENTRY_PATH_PREFIX ${LIBS_LINUX_INSTALL_ENTRY} PATH)
+        INSTALL(FILES release/linux${ARCH_BITS}/${LIBS_LINUX_INSTALL_ENTRY} DESTINATION lib/${LIBS_INSTALL_ENTRY_PATH_PREFIX} COMPONENT extlibraries)
+    ENDFOREACH(LIBS_LINUX_INSTALL_ENTRY ${LIBS_LINUX_INSTALL})
+ENDIF()
+IF (APPLE)
+    MESSAGE("### Will additionally install OS X libraries: ${LIBS_APPLE_INSTALL}")
+    FOREACH(LIBS_APPLE_INSTALL_ENTRY ${LIBS_APPLE_INSTALL})
+        GET_FILENAME_COMPONENT(LIBS_INSTALL_ENTRY_PATH_PREFIX ${LIBS_APPLE_INSTALL_ENTRY} PATH)
+        INSTALL(FILES release/apple${ARCH_BITS}/${LIBS_APPLE_INSTALL_ENTRY} DESTINATION lib/${LIBS_INSTALL_ENTRY_PATH_PREFIX} COMPONENT extlibraries)
+    ENDFOREACH(LIBS_APPLE_INSTALL_ENTRY ${LIBS_APPLE_INSTALL})
+ENDIF()
+
+##############################################################
+# link to needed external libraries
+IF (DEFINED TARGET_NAME)
+    IF (WINDOWS)
+       MESSAGE("### Linking dynamic Windows libraries: ${LIBS_WINDOWS}")
+       TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_WINDOWS})
+    ENDIF (WINDOWS)
+ENDIF()
+
+IF (APPLE)
+    # activate rpath
+    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+    
+    MESSAGE("### Linking static Apple libraries: ${LIBS_APPLE_STATIC}")
+    SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-search_paths_first")
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE_STATIC})
+
+    MESSAGE("### Linking dynamic Apple libraries: ${LIBS_APPLE}")
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE})
+
+    MESSAGE("### Linking Apple frameworks: ${FRAMEWORKS_APPLE}")
+    FOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} "-framework ${FRAMEWORKS_APPLE_ENTRY}" )
+    ENDFOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
+ENDIF (APPLE)
+
+IF (BSD)
+    MESSAGE("### Linking static BSD libraries: ${LIBS_BSD_STATIC}")
+#    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD_STATIC} )
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_BSD_STATIC} -Wl,-Bdynamic )
+
+    MESSAGE("### Linking dynamic BSD libraries: ${LIBS_BSD}")
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD})
+ENDIF (BSD)
+
+IF (LINUX)
+    MESSAGE("### Linking static Linux libraries: ${LIBS_LINUX_STATIC}")
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC} -Wl,-Bdynamic )
+    IF(${BUILD_STATIC} MATCHES "ON")
+    	TARGET_LINK_LIBRARIES(${TARGET_NAME}_static -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC_BIN_STATIC} -Wl,-Bdynamic )
+    ENDIF()
+
+    MESSAGE("### Linking dynamic Linux libraries: ${LIBS_LINUX}")
+    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_LINUX})
+ENDIF (LINUX)

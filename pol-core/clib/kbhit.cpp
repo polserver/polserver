@@ -1,8 +1,8 @@
 // History
 //   2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
 
-//this file only used in unix build
-#ifdef __unix__
+//this file only used in Linux build
+#ifdef LINUX
 
 #include "kbhit.h"
 #include <unistd.h> // read()

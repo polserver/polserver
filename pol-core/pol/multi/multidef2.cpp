@@ -15,9 +15,6 @@ Notes
 
 #include "../tiles.h"
 #include "../objtype.h"
-#include "../udatfile.h"
-#include "../uofilei.h"
-#include "../uofile.h"
 #include "../ustruct.h"
 
 #include "../../plib/mapcell.h"

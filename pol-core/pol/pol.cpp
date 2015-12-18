@@ -55,10 +55,8 @@ Notes
 */
 
 #include "../plib/pkg.h"
-#include "../plib/realm.h"
 
 #include "../bscript/escriptv.h"
-#include "../plib/polver.h"
 #include "accounts/account.h"
 #include "allocd.h"
 #include "checkpnt.h"
@@ -97,11 +95,11 @@ Notes
 #include "polcfg.h"
 #include "polclock.h"
 #include "poldbg.h"
-#include "polfile.h"
 #include "polsem.h"
 #include "poltest.h"
 #include "polwww.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "savedata.h"
 #include "schedule.h"
 #include "scrdef.h"
@@ -111,7 +109,6 @@ Notes
 #include "sockio.h"
 #include "tasks.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
 #include "globals/network.h"
@@ -126,8 +123,8 @@ Notes
 
 #include "network/clientthread.h"
 
-#include "../clib/MD5.h"
-#include "../clib/endian.h"
+#include "../clib/clib_MD5.h"
+#include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fdump.h"
 #include "../clib/fileutil.h"
@@ -462,7 +459,7 @@ namespace Pol {
       else
       {
         // logging in a character that's offline.
-        SetCharacterWorldPosition(chosen_char, Plib::WorldChangeReason::PlayerEnter);
+        SetCharacterWorldPosition(chosen_char, Realms::WorldChangeReason::PlayerEnter);
         chosen_char->logged_in = true;
       }
 
@@ -835,7 +832,7 @@ namespace Pol {
         }
         else
         {
-          std::vector<Plib::Realm*>::iterator itr;
+          std::vector<Realms::Realm*>::iterator itr;
           for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
           {
             std::ostringstream thname;
@@ -1106,7 +1103,7 @@ namespace Pol {
 
   } // namespace Core
 
-  int xmain_inner( int argc, char** /*argv*/)
+  int xmain_inner()
   {
 #ifdef _WIN32
     Clib::MiniDumper::Initialize();
@@ -1136,8 +1133,8 @@ namespace Pol {
 
     Clib::MakeDirectory( "log" );
 
-    POLLOG_INFO << progverstr << " (" << polbuildtag << ")"
-      << "\ncompiled on " << compiledate << " " << compiletime
+    POLLOG_INFO << POL_VERSION_ID << " (" << POL_BUILD_TARGET << ")"
+      << "\ncompiled on " << POL_BUILD_DATE << " " << POL_BUILD_TIME
       << "\nCopyright (C) 1993-2015 Eric N. Swanson"
       << "\n\n";
 
@@ -1252,15 +1249,16 @@ namespace Pol {
     Core::checkpoint( "reading starting locations" );
     Core::read_starting_locations();
 
-    if ( argc > 1 )
-    {
-      POLLOG_INFO << "Running POL test suite.\n";
-      Core::run_pol_tests();
-      Core::cancel_all_trades();
-      Core::stop_gameclock();
-	  Core::gamestate.deinitialize();
-      return 0;
-    }
+//TODO: remove the following because it is not used anymore
+//    if ( argc > 1 )
+//    {
+//      POLLOG_INFO << "Running POL test suite.\n";
+//      Core::run_pol_tests();
+//      Core::cancel_all_trades();
+//      Core::stop_gameclock();
+//	  Core::gamestate.deinitialize();
+//      return 0;
+//    }
 
     // PrintAllocationData();
     POLLOG_INFO << "Reading data files:\n";
@@ -1321,7 +1319,7 @@ namespace Pol {
     {
       DEINIT_STARTLOG();
     }
-    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << progverstr << polbuildtag << compiledate << compiletime;
+    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
     //if( 1 )
     {
       POLLOG_INFO << "Game is active.\n";
@@ -1432,11 +1430,11 @@ namespace Pol {
     return 0;
   }
 
-  int xmain_outer( int argc, char *argv[] )
+  int xmain_outer()
   {
     try
     {
-      return xmain_inner( argc, argv );
+      return xmain_inner();
     }
     catch ( std::exception& )
     {
@@ -1450,16 +1448,5 @@ namespace Pol {
       throw;
     }
   }
-
-#ifndef _WIN32
-  int xmain( int argc, char *argv[] )
-  {
-    strcpy( progverstr, polverstr );
-    strcpy( buildtagstr, polbuildtag );
-    progver = polver;
-
-    return xmain_outer( argc, argv );
-  }
-#endif
 }
 

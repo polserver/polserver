@@ -11,10 +11,8 @@ Notes
 #include "esignal.h"
 #include "logfacility.h"
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#else
+#include "Header_Windows.h"
+#ifndef WINDOWS
 #include <signal.h>
 #endif
 namespace Pol {
@@ -22,7 +20,7 @@ namespace Pol {
 	
       std::atomic<bool> exit_signalled(false);
 
-#ifdef _WIN32
+#ifdef WINDOWS
 	BOOL WINAPI control_handler( DWORD dwCtrlType )
 	{
 	  switch( dwCtrlType )

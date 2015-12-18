@@ -12,7 +12,6 @@ Notes
 #include "decay.h"
 
 #include "../clib/esignal.h"
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "core.h"
@@ -24,10 +23,10 @@ Notes
 #include "polclock.h"
 #include "polsem.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "scrsched.h"
 #include "syshook.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "uoscrobj.h"
 #include "uworld.h"
 
@@ -50,7 +49,7 @@ namespace Pol {
 	///     before destroying the container.
 	///
 
-	void decay_worldzone( unsigned wx, unsigned wy, Plib::Realm* realm )
+	void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
 	{
 	  Zone& zone = realm->zone[wx][wy];
 	  gameclock_t now = read_gameclock();
@@ -115,7 +114,7 @@ namespace Pol {
 	  static unsigned wx = ~0u;
 	  static unsigned wy = 0;
 
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 	  for (auto itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		realm = *itr;
@@ -145,7 +144,7 @@ namespace Pol {
 	///     once every 10 minutes
 	///
 
-	void decay_single_zone( Plib::Realm* realm, unsigned gridx, unsigned gridy, unsigned& wx, unsigned& wy )
+	void decay_single_zone( Realms::Realm* realm, unsigned gridx, unsigned gridy, unsigned& wx, unsigned& wy )
 	{
 	  if ( ++wx >= gridx )
 	  {
@@ -162,7 +161,7 @@ namespace Pol {
 	{
 	  unsigned wx = ~0u;
 	  unsigned wy = 0;
-      Plib::Realm* realm = static_cast<Plib::Realm*>( arg );
+      Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
 
 	  unsigned gridwidth = realm->grid_width();
 	  unsigned gridheight = realm->grid_height();
@@ -187,7 +186,7 @@ namespace Pol {
 	{
 	  unsigned wx = ~0u;
 	  unsigned wy = 0;
-      unsigned id = static_cast<Plib::Realm*>( arg )->shadowid;
+      unsigned id = static_cast<Realms::Realm*>( arg )->shadowid;
 
 	  if ( gamestate.shadowrealms_by_id[id] == NULL )
 		return;
@@ -217,7 +216,7 @@ namespace Pol {
 	  (void)x;
 	  if (index >= gamestate.Realms.size())
 		return true;
-	  Plib::Realm* realm = gamestate.Realms[index];
+	  Realms::Realm* realm = gamestate.Realms[index];
 	  if (realm == nullptr)
 		return true;
 

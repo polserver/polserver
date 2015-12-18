@@ -1,0 +1,5 @@
+set(BINARY_VERSION_MAJOR "99")
+set(BINARY_VERSION_MINOR "0")
+set(BINARY_VERSION_PATCH "0")
+
+set(BINARY_VERSION_NAME "Break Everything Even Rudder")

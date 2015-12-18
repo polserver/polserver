@@ -7,8 +7,8 @@ Notes
 
 */
 
-#ifndef __CMDARGS_H
-#define __CMDARGS_H
+#ifndef CLIB_CMD_ARGS_H
+#define CLIB_CMD_ARGS_H
 
 
 /* See CMDARGS.CPP for comments */
@@ -26,5 +26,5 @@ namespace Pol {
 	int LongHexArg2( const char *tag, int deflt );
   }
 }
-#endif
+#endif //CLIB_CMD_ARGS_H
 

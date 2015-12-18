@@ -48,6 +48,7 @@ Notes
 #include "../objtype.h"
 #include "../pktout.h"
 #include "../poltype.h"
+#include "../realms/realm.h"
 #include "../realms.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -59,9 +60,9 @@ Notes
 #include "../ufuncinl.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
@@ -70,11 +71,9 @@ Notes
 #include "../../bscript/impstr.h"
 #include "../../bscript/modules.h"
 
-#include "../../plib/realm.h"
-
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
@@ -82,7 +81,6 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 
 #include <stdexcept>
 
@@ -734,7 +732,7 @@ namespace Pol {
 	  if ( Clib::FileExists( "scripts/misc/death.ecl" ) )
 		Core::start_script( "misc/death", new Module::EItemRefObjImp( corpse ) );
 
-	  ClrCharacterWorldPosition( this, Plib::WorldChangeReason::NpcDeath );
+	  ClrCharacterWorldPosition( this, Realms::WorldChangeReason::NpcDeath );
 	  if ( ex != NULL )
 	  {
 		// this will force the execution engine to stop running this script immediately

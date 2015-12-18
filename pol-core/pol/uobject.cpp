@@ -13,12 +13,11 @@ Notes
 #include "uobject.h"
 
 #include "../clib/cfgelem.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/streamsaver.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "globals/state.h"
@@ -28,10 +27,10 @@ Notes
 #include "polclass.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "reftypes.h"
 #include "tooltips.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "zone.h"
 
 #include <stdexcept>

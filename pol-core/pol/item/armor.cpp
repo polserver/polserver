@@ -17,7 +17,7 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 #include "../../plib/pkg.h"
@@ -143,7 +143,7 @@ namespace Pol {
 		return USHRT_MAX;
 	}
 
-    inline unsigned short UArmor::ar_base() const
+    unsigned short UArmor::ar_base() const
     {
       return ARMOR_TMPL->ar;
     }

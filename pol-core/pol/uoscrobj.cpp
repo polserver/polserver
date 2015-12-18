@@ -72,12 +72,12 @@ Notes
 #include "objtype.h"
 #include "polclass.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "spelbook.h"
 #include "statmsg.h"
 #include "syshookscript.h"
 #include "tooltips.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "item/weapon.h"
 #include "item/wepntmpl.h"
 #include "uoexhelp.h"
@@ -88,6 +88,7 @@ Notes
 #include "network/clienttransmit.h"
 #include "eventid.h"
 #include "globals/uvars.h"
+#include "unicode.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/dict.h"
@@ -98,12 +99,9 @@ Notes
 #include "../bscript/objmethods.h"
 #include "../bscript/bobject.h"
 
-#include "../plib/realm.h"
-
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/unicode.h"
 
 namespace Pol {
   namespace Module {
@@ -1200,7 +1198,7 @@ namespace Pol {
 			return new BError( "Item is in use" );
 
 		  // Validate where things are going
-		  Plib::Realm* realm = Core::find_realm( realm_name->value() );
+		  Realms::Realm* realm = Core::find_realm( realm_name->value() );
 		  if ( !realm )
 			return new BError( "Realm not found" );
 		  else if ( !realm->valid( x, y, z ) )
@@ -2622,7 +2620,7 @@ namespace Pol {
               return new BError("Unicode array exceeds maximum size.");
             u16 cltext[(SPEECH_MAX_LEN + 1)];
             size_t textlen = oText->ref_arr.size();
-            if( ! Clib::convertArrayToUC(oText, cltext, textlen, false) )
+            if( ! Core::convertArrayToUC(oText, cltext, textlen, false) )
               return new BError("Invalid value in Unicode array.");
 
             // Now convert it into a vector of u32
@@ -3250,7 +3248,7 @@ namespace Pol {
                   ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
                   ex.getStringParam( 3, strrealm ) )
               {
-                Plib::Realm* realm = Core::find_realm( strrealm->value() );
+                Realms::Realm* realm = Core::find_realm( strrealm->value() );
                 if ( !realm )
                   return new BError( "Realm not found" );
 
@@ -3948,7 +3946,7 @@ namespace Pol {
       unsigned wlen = 0;
       while ( wspeech[wlen] != L'\0' )
         ++wlen;
-      if ( !Clib::convertUCtoArray( wspeech, arr, wlen, true ) )
+      if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
         addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
       else
       {
@@ -3968,7 +3966,7 @@ namespace Pol {
       unsigned wlen = 0;
       while ( wspeech[wlen] != L'\0' )
         ++wlen;
-      if ( !Clib::convertUCtoArray( wspeech, arr, wlen, true ) )
+      if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
         addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
       else
       {

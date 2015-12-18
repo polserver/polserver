@@ -15,8 +15,6 @@ Notes
 
 #include "textcmd.h"
 
-#include "../plib/realm.h"
-
 #include "accounts/account.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -40,6 +38,7 @@ Notes
 #include "polclock.h"
 #include "polsem.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "schedule.h"
 #include "scrsched.h"
 #include "scrstore.h"
@@ -49,13 +48,13 @@ Notes
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uobjhelp.h"
-#include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
 #include "globals/state.h"
 #include "uworld.h"
 #include "repsys.h"
 #include "fnsearch.h"
+#include "unicode.h"
 
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
@@ -65,7 +64,7 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
@@ -74,7 +73,6 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/spinlock.h"
 #include "../clib/threadhelp.h"
-#include "../clib/unicode.h"
 
 #include <map>
 #include <string>
@@ -499,7 +497,7 @@ namespace Pol {
 	}
 
 
-	bool check_single_zone_item_integrity( int, int, Plib::Realm* );
+	bool check_single_zone_item_integrity( int, int, Realms::Realm* );
     void textcmd_singlezone_integ_item( Network::Client* client )
 	{
 	  unsigned short wx, wy;
@@ -650,7 +648,7 @@ namespace Pol {
 				// Need to calc length with a loop (coz linux is a PITA with 4-byte unicode!)
 				while ( *( wtext + woffset + wtlen ) )
 				  ++wtlen;
-				UCconv = Clib::convertUCtoArray( wtext + woffset, arr,
+				UCconv = Core::convertUCtoArray( wtext + woffset, arr,
 										   wtlen,
 										   true ); // convert back with ctBEu16()
 				if ( UCconv )

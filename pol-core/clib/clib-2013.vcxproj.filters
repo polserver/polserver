@@ -59,9 +59,6 @@
     <ClCompile Include="iohelp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MD5.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mdump.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,9 +78,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pkthelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="progver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="random.cpp">
@@ -114,9 +108,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tracebuf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="unicode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="wallclock.cpp">
@@ -168,6 +159,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="kbhit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="clib_MD5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Program\ProgramConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Program\ProgramMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -223,9 +223,6 @@
     <ClInclude Include="maputil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MD5.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="mdump.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -248,9 +245,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pkthelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="progver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="random.h">
@@ -287,9 +281,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tracebuf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="unicode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="unittest.h">
@@ -356,6 +347,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="spinlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header_Windows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pol_global_config_win.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clib_MD5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Program\ProgramConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Program\ProgramMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

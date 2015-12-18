@@ -41,13 +41,12 @@ Notes
 #include "../spelbook.h"
 #include "../tiles.h"
 #include "../ufunc.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../globals/uvars.h"
 #include "../globals/object_storage.h"
 
 #include "../../clib/cfgfile.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/strutil.h"
 

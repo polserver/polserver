@@ -17,37 +17,32 @@ Notes
 #include <cstdio>
 #include <cstring>
 
-#ifdef _WIN32
-#   define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
-#	include <winsock.h>
-#	define SOCKET_ERRNO(x) WSA##x
-#	define socket_errno WSAGetLastError()
-	typedef int socklen_t;
+
+#if defined(WINDOWS)
+#include "Header_Windows.h"
+#define SOCKET_ERRNO(x) WSA##x
+#define socket_errno WSAGetLastError()
+typedef int socklen_t;
 
 #else
 
-#	include <netinet/in.h>
-#	include <netinet/tcp.h>
-#	include <arpa/inet.h>
-#	include <sys/socket.h>
-#	include <sys/time.h>
-#	include <sys/types.h>
-#	include <netdb.h>
-#	include <sys/time.h>
-#	include <unistd.h>
-#	include <fcntl.h>
-#	include <errno.h>
-#	define SOCKET_ERRNO(x) x
-#	define socket_errno errno
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#define SOCKET_ERRNO(x) x
+#define socket_errno errno
 
 #endif
 
 #include <stdexcept>
-
-#ifdef _MSC_VER
-#pragma warning(disable: 4127) // conditional expression is constant (needed because of FD_SET)
-#endif
 
 #ifndef SCK_WATCH
 #define SCK_WATCH 0

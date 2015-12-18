@@ -17,7 +17,7 @@ Notes
 
 */
 
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include "multi/boat.h"
 #include "mobile/charactr.h"
@@ -30,12 +30,11 @@ Notes
 #include "statmsg.h"
 #include "globals/uvars.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "uobject.h"
 #include "uworld.h"
 #include "containr.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 
 

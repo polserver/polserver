@@ -25,7 +25,7 @@ namespace Pol {
   namespace Bscript {
 	class BObjectImp;
   }
-  namespace Plib {
+  namespace Realms {
     class Realm;
   }
   namespace Module {
@@ -83,7 +83,7 @@ namespace Pol {
       virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
 	  bool move( Core::UFACING dir, u8 speed, bool relative );
-	  bool move_xy( unsigned short x, unsigned short y, int flags, Plib::Realm* oldrealm );
+	  bool move_xy( unsigned short x, unsigned short y, int flags, Realms::Realm* oldrealm );
 
       enum RELATIVE_DIR { NO_TURN, RIGHT, AROUND, LEFT };
 	  bool turn( RELATIVE_DIR dir );
@@ -110,10 +110,10 @@ namespace Pol {
       void regself();
       void unregself();
 
-	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags );
+	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags );
 
 	  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
-	  static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z, Plib::Realm* realm );
+	  static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z, Realms::Realm* realm );
 	  void realm_changed();
 	  void adjust_traveller_z( s8 delta_z );
 
@@ -127,11 +127,11 @@ namespace Pol {
 	  Items::Item* hold;
 
 	protected:
-	  void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX, Plib::Realm* oldrealm = NULL );
+	  void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX, Realms::Realm* oldrealm = NULL );
 	  void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
 	  void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
 	  static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
-	  void move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z, Plib::Realm* realm );
+	  void move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z, Realms::Realm* realm );
 	  const MultiDef& multi_ifturn( RELATIVE_DIR dir );
 	  unsigned short multiid_ifturn( RELATIVE_DIR dir );
 
@@ -140,8 +140,8 @@ namespace Pol {
 	  const BoatShape& boatshape() const;
 	  void rescan_components();
 	  void reread_components();
-	  void transform_components( const BoatShape& old_boatshape, Plib::Realm* oldrealm );
-	  void move_components( Plib::Realm* oldrealm );
+	  void transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm );
+	  void move_components( Realms::Realm* oldrealm );
 
 	  explicit UBoat( const Items::ItemDesc& descriptor );
 	  virtual void fixInvalidGraphic() POL_OVERRIDE;

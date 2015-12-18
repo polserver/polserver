@@ -11,13 +11,11 @@ Notes
 
 #include "multidef.h"
 
+#include "boat.h"
+
 #include "../item/itemdesc.h"
 #include "../objtype.h"
-#include "../udatfile.h"
-#include "../uofilei.h"
-#include "../uofile.h"
 #include "../ustruct.h"
-#include "../uofilei.h"
 #include "../globals/uvars.h"
 #include "../globals/multidefs.h"
 

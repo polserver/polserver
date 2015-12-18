@@ -14,12 +14,11 @@ Notes
 #include "realms.h"
 
 #include "storage.h"
-#include "uofile.h"
 #include "los.h"
 #include "polcfg.h"
 #include "globals/uvars.h"
 
-#include "../plib/realm.h"
+#include "realms/realm.h"
 #include "../plib/mapserver.h"
 #include "../plib/systemstate.h"
 
@@ -34,7 +33,7 @@ namespace Pol {
   namespace Core {
 	bool load_realms()
 	{
-	  Plib::Realm* temprealm;
+	  Realms::Realm* temprealm;
 	  int realm_counter = 0;
 	  for ( Clib::DirList dl( Plib::systemstate.config.realm_data_path.c_str() ); !dl.at_end(); dl.next() )
 	  {
@@ -47,7 +46,7 @@ namespace Pol {
 
         POLLOG_INFO << "Loading Realm " << realm_name << ".\n";
 		Tools::Timer<> timer;
-		temprealm = new Plib::Realm( realm_name, Plib::systemstate.config.realm_data_path + realm_name );
+		temprealm = new Realms::Realm( realm_name, Plib::systemstate.config.realm_data_path + realm_name );
         POLLOG_INFO << "Completed in " << timer.ellapsed( ) << " ms.\n";
 		gamestate.Realms.push_back( temprealm );
 		++realm_counter;
@@ -66,7 +65,7 @@ namespace Pol {
 		return false;
 	}
 
-	Plib::Realm* find_realm( const std::string& name )
+	Realms::Realm* find_realm( const std::string& name )
 	{
 	  for ( auto &realm : gamestate.Realms )
 	  {
@@ -86,9 +85,9 @@ namespace Pol {
 	  return false;
 	}
 
-    void add_realm(const std::string& name, Plib::Realm* base)
+    void add_realm(const std::string& name, Realms::Realm* base)
 	{
-	  Plib::Realm* r = new Plib::Realm( name, base );
+	  Realms::Realm* r = new Realms::Realm( name, base );
 	  r->shadowid = ++gamestate.shadowrealm_count;
 	  gamestate.shadowrealms_by_id[r->shadowid] = r;
 	  gamestate.Realms.push_back( r );
@@ -96,7 +95,7 @@ namespace Pol {
 
     void remove_realm(const std::string& name)
 	{
-	  std::vector<Plib::Realm*>::iterator itr;
+	  std::vector<Realms::Realm*>::iterator itr;
 	  for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
 	  {
 		if ( ( *itr )->name() == name )

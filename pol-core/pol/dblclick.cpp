@@ -18,9 +18,8 @@ Notes
 */
 
 #include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "network/client.h"
@@ -35,6 +34,7 @@ Notes
 #include "pktin.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "scrstore.h"
 #include "ufunc.h"
 #include "uoscrobj.h"

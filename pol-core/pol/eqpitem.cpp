@@ -12,17 +12,16 @@ Notes
 
 #include "../bscript/bobject.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/realm.h"
+#include "realms/realm.h"
 #include "network/client.h"
 #include "network/msghandl.h"
 #include "mobile/charactr.h"
 #include "multi/multi.h"
 #include "pktin.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "globals/uvars.h"
 
 #include <cstdio>

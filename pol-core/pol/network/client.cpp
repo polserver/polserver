@@ -25,7 +25,6 @@ Notes
 #include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h" //CNXBUG
-#include "../../clib/unicode.h"
 
 #include "../../bscript/berror.h"
 
@@ -46,6 +45,7 @@ Notes
 #include "../uworld.h"
 #include "../xbuffer.h"
 #include "../uoscrobj.h"
+#include "../unicode.h"
 
 // only in here temporarily, until logout-on-disconnect stuff is removed
 #include "../ufunc.h"
@@ -105,9 +105,9 @@ namespace Pol {
 	  ClientType( 0 ),
 	  next_movement( 0 ),
 	  movementsequence( 0 ),
-	  paused_( false ),
 	  last_activity_at( 0 ),
-	  last_packet_at( 0 )
+	  last_packet_at( 0 ),
+	  paused_( false )
 	{
 	  // For bypassing cryptseed packet
 	  if ( Core::settingsManager.ssopt.use_edit_server )
@@ -161,7 +161,7 @@ namespace Pol {
 	  {
 		if ( chr->logged_in )
 		{
-		  ClrCharacterWorldPosition( chr, Plib::WorldChangeReason::PlayerExit );
+		  ClrCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerExit );
 		  send_remove_character_to_nearby( chr );
 		  chr->logged_in = false;
 
@@ -246,7 +246,7 @@ namespace Pol {
 	  unsigned wlen_vd = 0;
 	  while ( ( clientinfo_.video_description[wlen_vd] != L'\0' ) && ( wlen_vd < maxlen_vd ) )
 		++wlen_vd;
-	  if ( !Clib::convertUCtoArray( clientinfo_.video_description, arr_vd, wlen_vd, true ) )
+	  if ( !Core::convertUCtoArray( clientinfo_.video_description, arr_vd, wlen_vd, true ) )
 		ret->addMember( "video_description", new Bscript::BError( "Invalid Unicode speech received." ) );
 	  else
 	  {
@@ -266,7 +266,7 @@ namespace Pol {
 	  unsigned wlen_lc = 0;
       while ( ( wlen_lc < maxlen_lc ) && ( clientinfo_.langcode[wlen_lc] != L'\0' ) )
 		++wlen_lc;
-	  if ( !Clib::convertUCtoArray( clientinfo_.langcode, arr_lc, wlen_lc, true ) )
+	  if ( !Core::convertUCtoArray( clientinfo_.langcode, arr_lc, wlen_lc, true ) )
 		ret->addMember( "langcode", new Bscript::BError( "Invalid Unicode speech received." ) );
 	  else
 	  {

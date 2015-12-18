@@ -12,7 +12,7 @@ Notes
 #include "core.h"
 
 #include "realms.h"
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include "globals/uvars.h"
 #include "mobile/charactr.h"
@@ -54,7 +54,7 @@ namespace Pol {
 							unsigned short y,
 							short z,
 							int flags,
-							Plib::Realm* oldrealm )
+							Realms::Realm* oldrealm )
 	{
 	  // FIXME consider consolidating with similar code in CHARACTER.CPP
 	  short newz;
