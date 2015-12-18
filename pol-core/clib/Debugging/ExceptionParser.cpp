@@ -344,7 +344,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                 printf("\n");
                 printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
-                printf("Compiler: %s", getCompilerVersion().c_str());
+                printf("Compiler: %s\n", getCompilerVersion().c_str());
                 printf("Compile time: %s\n", POL_BUILD_TIME);
                 printf("Build target: %s\n", POL_BUILD_TARGET);
                 printf("Build revision: %s\n", POL_VERSION_ID);
