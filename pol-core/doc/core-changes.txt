@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+12-18-2015 Bodom:
+  Added:   New eScript escape sequence in strings "\xAA". Allows to specify a
+           single character by its binary value (\x01 to \xFF). The value must
+           always be 2 digits long, in hex, case insensitive (eg. \xA is not
+           valid).
 12-05-2015 Bodom:
   Added:   Buff Bar support
            New Character's addBuff(), delBuff() and clearBuffs() methods,
