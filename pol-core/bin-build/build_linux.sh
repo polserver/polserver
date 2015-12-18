@@ -24,5 +24,5 @@ echo "########################### Compiling + Linking  #########################
 echo "################################################################################"
 USED_CPU_CORES=$(($CPU_CORES + 1))
 if [ -n "$TRAVIS_CI" ]; then USED_CPU_CORES=2; fi
-echo "############################ Using $USED_CPU_CORES CPU cores  ###############################"
+echo "####################### Using $USED_CPU_CORES parallel compile jobs  ########################"
 make -j $USED_CPU_CORES

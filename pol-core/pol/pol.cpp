@@ -1133,7 +1133,7 @@ namespace Pol {
 
     Clib::MakeDirectory( "log" );
 
-    POLLOG_INFO << POL_VERSION_ID << " (" << POL_BUILD_TARGET << ")"
+    POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET
       << "\ncompiled on " << POL_BUILD_DATE << " " << POL_BUILD_TIME
       << "\nCopyright (C) 1993-2015 Eric N. Swanson"
       << "\n\n";
