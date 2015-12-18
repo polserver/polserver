@@ -1,5 +1,5 @@
+#!/usr/bin/env python3
 import os, subprocess
-import optparse
 import shutil
 import sys
 import codecs
@@ -65,36 +65,50 @@ class StdTests:
 					os.unlink(base+ext)
 				except:
 					pass
+
 	def __call__(self,compiler,runecl):
-		all_passed=True
+		tested = 0
+		passed = 0
 		for f in self.files:
+			tested += 1
 			print('Testing',f)
+
 			if compiler(f) is None:
-				all_passed=False
 				print('failed to compile')
 				continue
 
 			if runecl(f) is None:
-				all_passed=False
 				print('failed to execute')
 				continue
 
 			if not Compare.outputcompare(f):
 				print('output differs')
-				all_passed=False
-		return all_passed
+				continue
 
-def opts():
-	parser = optparse.OptionParser()
-	parser.add_option('-c',dest='c_path')
-	parser.add_option('-r',dest='r_path')
-	return parser.parse_args()
+			passed += 1
+
+		status = True if tested == passed else False
+
+		print('')
+		print('*** TEST SUMMARY***')
+		print('{}: {} files tested, {} passed, {} failed.'.format(
+				'OK' if status else 'FAILED', tested, passed, tested-passed))
+		return status
+
 
 if __name__ == '__main__':
-	options,args = opts()
+	# Includes not needed when used as module
+	import argparse
+
+	# Parse command line
+	parser = argparse.ArgumentParser()
+	parser.add_argument('ecompile', help="Full path to ecompile executable")
+	parser.add_argument('runecl', help="Full path to runecl executable")
+	args = parser.parse_args()
+
 	test=StdTests()
-	compiler=Compiler(options.c_path)
-	runecl=Executor(options.r_path)
+	compiler=Compiler(args.ecompile)
+	runecl=Executor(args.runecl)
 
 	res=test(compiler,runecl)
 	test.clean()
