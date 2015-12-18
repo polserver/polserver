@@ -100,6 +100,7 @@ namespace Pol {
 	  "Unknown Operator",
 	  "Waaah!",
 	  "Unterminated String Literal",
+	  "Invalid escape sequence in String",
 	  "Too Few Arguments",
 	  "Too Many Arguments",
 	  "Unexpected Comma",
@@ -1165,7 +1166,11 @@ namespace Pol {
 	  {
 		const char* end = &ctx.s[1];
         std::string lit;
-		bool escnext = false;
+		bool escnext = false; // true when waiting for 2nd char in an escape sequence
+		u8 hexnext = 0; // tells how many more chars in a \xNN escape sequence
+		char hexstr[3]; // will contain the \x escape chars to be processed
+		memset( hexstr, 0, 3 );
+
 		for ( ;; )
 		{
 		  if ( !*end )
@@ -1173,15 +1178,37 @@ namespace Pol {
 			err = PERR_UNTERMSTRING;
 			return -1;
 		  }
+
+		  assert( ! (escnext && hexnext) );
+
 		  if ( escnext )
 		  {
+			// waiting for 2nd character after a backslash
 			escnext = false;
 			if ( *end == 'n' )
 			  lit += '\n';
 			else if ( *end == 't' )
 			  lit += '\t';
+			else if ( *end == 'x' )
+			  hexnext = 2;
 			else
 			  lit += *end;
+		  }
+		  else if ( hexnext )
+		  {
+			// waiting for next (two) chars in hex escape sequence (eg. \xFF)
+			hexstr[2-hexnext] = *end;
+			if( ! --hexnext )
+			{
+			  char* endptr;
+			  char ord = static_cast<char>(strtol(hexstr, &endptr, 16));
+			  if( *endptr != '\0' )
+			  {
+				err = PERR_INVESCAPE;
+				return -1;
+			  }
+			  lit += ord;
+			}
 		  }
 		  else
 		  {

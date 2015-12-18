@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-05-2015</datemodified>
+		<datemodified>12-19-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>12-18-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New eScript escape sequence in strings &quot;\xAA&quot;. Allows to specify a<br/>
+single character by its binary value (\x01 to \xFF). The value must<br/>
+always be 2 digits long, in hex, case insensitive (eg. \xA is not<br/>
+valid).</change>
+		</entry>
 		<entry>
 			<date>12-05-2015</date>
 			<author>Bodom:</author>

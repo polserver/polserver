@@ -1,6 +1,12 @@
 <h1>Racalac's eScript Reference and Guide v096<br>
 <font size="2">(Last Updated: Feb 19, 2009)</font></h1>
 
+<!-- TODO:
+	- talk about ecompile.cfg and recursive compiling, mention POL ignores
+	  files starting with '.'
+	- talk about escape sequences in string, do not forget "\xFF"
+-->
+
 <br/>
 
 <p><b>Foreword:</b><br>This reference is targeted to be used and understood by
@@ -1125,9 +1131,6 @@ type .bcast <message>. Now, if you did everything right up to here, you should
 see nothing. That's because we made it so you wouldn't receive your own
 broadcast. So to test, get a couple friends on your server and ask them if they
 got the message. If they did, congrats, your very first script.</message></p>
-
-<!-- TODO: talk about ecompile.cfg and recursive compiling, mention POL ignores
-           files starting with '.' -->
 
 <br/>
 
