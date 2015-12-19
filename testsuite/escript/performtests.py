@@ -4,6 +4,7 @@ import shutil
 import sys
 import codecs
 
+
 class Compare:
 	@staticmethod
 	def txtcompare(file1,file2):
@@ -23,6 +24,10 @@ class Compare:
 	@staticmethod
 	def outputcompare(file):
 		basename=os.path.splitext(file)[0]
+		if not os.path.exists(basename+'.out'):
+			with open(basename+'.tst', 'r') as tst:
+				print(tst.read())
+			return False
 		return Compare.txtcompare(basename+'.out',basename+'.tst')
 
 class Executor:
@@ -48,45 +53,63 @@ class Compiler:
 			print(e.cmd, e.output)
 
 class StdTests:
-	def __init__(self):
-		self.files = [
-			os.path.join(root,file)
-				for root,dirs,files in os.walk('.')
-					for file in sorted(files)
-						if (file.endswith('.src') and
-							os.path.exists(os.path.join(root,os.path.splitext(file)[0]+'.out')))
-			]
+	'''
+	This script runs unit tests to validate the functionality of the escript
+	compiler and perser.
 
-	def clean(self):
-		for f in self.files:
-			base=os.path.splitext(f)[0]
-			for ext in ('.ecl','.tst','.dbg','.lst','.dbg.txt','.dep'):
-				try:
-					os.unlink(base+ext)
-				except:
-					pass
+	Unit test are organized in folders (packeges). Folders whose name starts with an
+	underscore character, will be ignoed (disabled).
+	To create a test, create a .src file into a package. That file will be executed
+	and its output checked agains a .out file with the same name on the same
+	package. If output matches, test is succesfull.
+	'''
 
-	def __call__(self,compiler,runecl):
+	def __init__(self, compiler, runecl):
+		self.files = []
+		for pkg in sorted(os.listdir('.')):
+			if os.path.isdir(pkg):
+				if pkg.startswith('_'):
+					continue
+				for f in os.listdir(pkg):
+					file = os.path.join(pkg, f)
+					if os.path.isfile(file) and file.endswith('.src'):
+						self.files.append(file)
+		self.compiler = compiler
+		self.runecl = runecl
+
+	def cleanFile(self, file):
+		base=os.path.splitext(file)[0]
+		for ext in ('.ecl','.tst','.dbg','.lst','.dbg.txt','.dep'):
+			try:
+				os.unlink(base+ext)
+			except:
+				pass
+
+	def testFile(self, file):
+		print('Testing',file)
+
+		if self.compiler(file) is None:
+			print('failed to compile')
+			return False
+
+		if self.runecl(file) is None:
+			print('failed to execute')
+			return False
+
+		if not Compare.outputcompare(file):
+			print('output differs')
+			return False
+
+		return True
+
+	def __call__(self):
 		tested = 0
 		passed = 0
 		for f in self.files:
 			tested += 1
-			print('Testing',f)
-
-			if compiler(f) is None:
-				print('failed to compile')
-				continue
-
-			if runecl(f) is None:
-				print('failed to execute')
-				continue
-
-			if not Compare.outputcompare(f):
-				print('output differs')
-				continue
-
-			passed += 1
-
+			if self.testFile(f):
+				passed += 1
+			self.cleanFile(f)
 		status = True if tested == passed else False
 
 		print('')
@@ -101,16 +124,18 @@ if __name__ == '__main__':
 	import argparse
 
 	# Parse command line
-	parser = argparse.ArgumentParser()
+	descr = ''
+	for line in StdTests.__doc__.splitlines():
+		descr += line.strip() + '\n'
+	parser = argparse.ArgumentParser(description=descr)
 	parser.add_argument('ecompile', help="Full path to ecompile executable")
 	parser.add_argument('runecl', help="Full path to runecl executable")
 	args = parser.parse_args()
 
-	test=StdTests()
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 
-	res=test(compiler,runecl)
-	test.clean()
-	sys.exit(0)
+	test=StdTests(compiler, runecl)
+	res=test()
 
+	sys.exit(0)
