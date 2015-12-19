@@ -1,4 +1,4 @@
-use temod;
+use uo;
 
 SendSysMessage( 3, Distance(1,1);
 

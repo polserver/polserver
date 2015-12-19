@@ -1,5 +1,6 @@
 function foo()
    var a;
+   print("ok");
 endfunction
 
 foo();

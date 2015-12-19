@@ -12,4 +12,6 @@ program test()
 	    var h; // should leave block(2)
 	until (0);
 	var g;
+
+	print("ok");
 endprogram

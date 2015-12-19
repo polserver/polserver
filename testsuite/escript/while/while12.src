@@ -1,9 +1,9 @@
 program test()
 
-	local startX := 3, endX := 8;
-	local startY := 2, endY := 7;
+	var startX := 3, endX := 8;
+	var startY := 2, endY := 7;
 
-	local fooY := 2;
+	var fooY := 2;
 	while (startX <= endX)
 		while (startY <= endY)
 			print( "startX=" +startX + ", startY=" + startY );

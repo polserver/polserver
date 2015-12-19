@@ -30,6 +30,12 @@ class Compare:
 			l2=f2.readlines()
 			if len(l1) != len(l2):
 				print('line count differs')
+				print('EXPECTED:')
+				for l in l1:
+					print('\t'+l.rstrip('\r\n'))
+				print('GOT:')
+				for l in l2:
+					print('\t'+l.rstrip('\r\n'))
 				return False
 			for c1,c2 in zip(l1,l2):
 				if c1!=c2:
@@ -47,27 +53,65 @@ class Compare:
 			return False
 		return Compare.txtcompare(basename+'.out',basename+'.tst')
 
-class Executor:
-	def __init__(self,runecl):
-		self.runecl=runecl
-
-	def __call__(self,file,instructions=False):
-		basename=os.path.splitext(file)[0]
-		cmd='{0} -q {1}.ecl > {1}.{2}'.format(self.runecl,basename,'tst')
-		try:
-			return subprocess.check_output(cmd,shell=True,stderr=subprocess.STDOUT)
-		except subprocess.CalledProcessError as e:
-			print(e.cmd,e.output)
-
-class Compiler:
-	def __init__(self,comp):
-		self.comp=comp
-
+class ExtUtil:
 	def __call__(self, file):
+		''' Try to compile a file. IF a errExt filex esists, then compilation is
+		    expetcted to fail, and the text in the errExt file must be found in the
+		    error message for the compilation to succeed
+
+		    @param file path to the file to compile
+		    @return a tuple of booleans (<compiled>, <success>)
+		'''
+		if os.path.exists(self.baseName(file) + self.errExt):
+			expectErr = True
+			with open(self.baseName(file) + self.errExt, 'rb') as err:
+				errorMatch = err.read().strip()
+		else:
+			expectErr = False
+
 		try:
-			return subprocess.check_output(self.comp+' -l -xt -q -C ecompile.cfg '+file,shell=True, stderr=subprocess.STDOUT)
+			cmd = self.cmd.format(base=self.baseName(file), file=file)
+			subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+			compiled = True
 		except subprocess.CalledProcessError as e:
-			print(e.cmd, e.output)
+			cmd = e.cmd
+			err = e.output
+			compiled = False
+
+		if compiled:
+			if expectErr:
+				return (True, False)
+			else:
+				return (True, True)
+		else:
+			if expectErr:
+				if errorMatch in err:
+					return (False, True)
+				else:
+					print(errorMatch)
+					print('NOT FOUND IN')
+					print(err)
+					return (False, False)
+			else:
+				print(cmd)
+				print(err)
+				return (False, False)
+
+		raise RuntimeError('This should never happen')
+
+	def baseName(self, file):
+		return os.path.splitext(file)[0]
+
+class Executor(ExtUtil):
+	def __init__(self,runecl):
+		self.cmd = runecl + ' -q {base}.ecl > {base}.tst'
+		self.errExt = '.exr'
+
+class Compiler(ExtUtil):
+	def __init__(self,comp):
+		self.cmd = comp + ' -l -xt -q -C ecompile.cfg {file}'
+		self.errExt = '.err'
+
 
 class TestFailed(Exception):
 	pass
@@ -82,11 +126,22 @@ class StdTests:
 	To create a test, create a .src file into a package. That file will be executed
 	and its output checked agains a .out file with the same name on the same
 	package. If output matches, test is succesfull.
+	If a test is supposed to give an error on compile, create a .err file instead
+	and put the text to be matched on the error message inside it.
+	If a test is supposed to give an error on execute, create a .exr file instead
+	and put the text to be matched on the error message inside it.
 	'''
 
-	def __init__(self, compiler, runecl, script=None):
-		if script:
-			spkg, sfile = script.split('/')
+	def __init__(self, compiler, runecl, what=None):
+		if what:
+			splits = what.split('/')
+			if len(splits) > 2:
+				raise ValueError('Invalid package/script name {}'.format(what))
+			elif len(splits) == 2:
+				spkg, sfile = splits
+			elif len(splits) == 1:
+				spkg = splits[0]
+				sfile = None
 		else:
 			spkg = None
 			sfile = None
@@ -116,13 +171,16 @@ class StdTests:
 				pass
 
 	def testFile(self, file):
-		if self.compiler(file) is None:
-			raise TestFailed('failed to compile')
+		compiled, compSuccess = self.compiler(file)
+		if not compSuccess:
+			raise TestFailed("shouldn't compile" if compiled else 'failed to compile')
 
-		if self.runecl(file) is None:
-			raise TestFailed('failed to execute')
+		if compiled:
+			runned, runSuccess = self.runecl(file)
+			if not runSuccess:
+				raise TestFailed('unexpected execute' if runned else 'failed to execute')
 
-		if not Compare.outputcompare(file):
+		if compiled and not Compare.outputcompare(file):
 			raise TestFailed('output differs')
 
 	def __call__(self, haltOnError=False):
@@ -162,14 +220,14 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description=descr)
 	parser.add_argument('ecompile', help="Full path to ecompile executable")
 	parser.add_argument('runecl', help="Full path to runecl executable")
-	parser.add_argument('script', nargs='?', help='If specified, tests a single script (package/name)')
+	parser.add_argument('what', nargs='?', help='If specified, tests a single package or package/script')
 	parser.add_argument('-a', '--halt', action='store_true', help="Halt on first error")
 	args = parser.parse_args()
 
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 
-	test=StdTests(compiler, runecl, args.script)
+	test=StdTests(compiler, runecl, args.what)
 	if test(args.halt):
 		sys.exit(0)
 	sys.exit(1)
