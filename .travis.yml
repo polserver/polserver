@@ -38,5 +38,4 @@ script:
   - ./build_linux.sh
 
   - cd ../../testsuite/escript
-  - /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl
-
+  - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl

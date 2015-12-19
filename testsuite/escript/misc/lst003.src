@@ -6,6 +6,7 @@ b := len(a);
 program prog( parama )
     var x := foo();
     x := "hello";
+    print(x);
 endprogram
 
 function foo()

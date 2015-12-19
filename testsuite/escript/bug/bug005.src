@@ -23,4 +23,5 @@ endfunction
 
 program foo()
     A(4);
+    print("ok");
 endprogram

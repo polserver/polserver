@@ -1,2 +1,5 @@
 var a;
 a := +a;
+
+//TODO: this should not compile? - 2015-19-12 Bodom
+print(a);
