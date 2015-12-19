@@ -20,7 +20,8 @@ addons:
       - clang-3.7
       - cmake
       - cmake-data
-   
+      - python3
+
 before_install:
   - cd lib
   - tar xjf boost_1_55_0.tar.bz2
