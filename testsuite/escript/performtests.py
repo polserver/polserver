@@ -85,7 +85,11 @@ class StdTests:
 	'''
 
 	def __init__(self, compiler, runecl, script=None):
-		spkg, sfile = script.split('/')
+		if script:
+			spkg, sfile = script.split('/')
+		else:
+			spkg = None
+			sfile = None
 
 		self.files = []
 		for pkg in sorted(os.listdir('.')):
@@ -137,14 +141,14 @@ class StdTests:
 				passed += 1
 			finally:
 				self.cleanFile(f)
-		status = True if tested == passed else False
+		success = True if tested == passed else False
 
-		color = 'green' if status else 'red'
+		color = 'green' if success else 'red'
 		print('')
 		print('*** TEST SUMMARY ***')
 		colorprint('Overall status: {}. {} files tested, {} passed, {} failed.'.format(
-				'OK' if status else 'FAILED', tested, passed, tested-passed), color)
-		return status
+				'OK' if success else 'FAILED', tested, passed, tested-passed), color)
+		return success
 
 
 if __name__ == '__main__':
@@ -166,6 +170,6 @@ if __name__ == '__main__':
 	runecl=Executor(args.runecl)
 
 	test=StdTests(compiler, runecl, args.script)
-	res=test(args.halt)
-
-	sys.exit(0)
+	if test(args.halt):
+		sys.exit(0)
+	sys.exit(1)
