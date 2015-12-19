@@ -4,6 +4,23 @@ import shutil
 import sys
 import codecs
 
+def colorprint(text, color):
+	if os.name == 'nt':
+		print(text)
+		return
+
+	if color == 'cyan':
+		code = 96
+	elif color == 'green':
+		code = 92
+	elif color == 'red':
+		code = 91
+	else:
+		raise NotImplementedError();
+
+	out = '\033[{}m'.format(str(code)) + text + '\033[0m'
+	print(out)
+
 
 class Compare:
 	@staticmethod
@@ -52,6 +69,9 @@ class Compiler:
 		except subprocess.CalledProcessError as e:
 			print(e.cmd, e.output)
 
+class TestFailed(Exception):
+	pass
+
 class StdTests:
 	'''
 	This script runs unit tests to validate the functionality of the escript
@@ -64,15 +84,21 @@ class StdTests:
 	package. If output matches, test is succesfull.
 	'''
 
-	def __init__(self, compiler, runecl):
+	def __init__(self, compiler, runecl, script=None):
+		spkg, sfile = script.split('/')
+
 		self.files = []
 		for pkg in sorted(os.listdir('.')):
 			if os.path.isdir(pkg):
 				if pkg.startswith('_'):
 					continue
-				for f in os.listdir(pkg):
+				if spkg and pkg != spkg:
+					continue
+				for f in sorted(os.listdir(pkg)):
 					file = os.path.join(pkg, f)
 					if os.path.isfile(file) and file.endswith('.src'):
+						if sfile and f != sfile + '.src':
+							continue
 						self.files.append(file)
 		self.compiler = compiler
 		self.runecl = runecl
@@ -86,36 +112,38 @@ class StdTests:
 				pass
 
 	def testFile(self, file):
-		print('Testing',file)
-
 		if self.compiler(file) is None:
-			print('failed to compile')
-			return False
+			raise TestFailed('failed to compile')
 
 		if self.runecl(file) is None:
-			print('failed to execute')
-			return False
+			raise TestFailed('failed to execute')
 
 		if not Compare.outputcompare(file):
-			print('output differs')
-			return False
+			raise TestFailed('output differs')
 
-		return True
-
-	def __call__(self):
+	def __call__(self, haltOnError=False):
 		tested = 0
 		passed = 0
 		for f in self.files:
+			colorprint('Testing {}'.format(f), 'cyan')
 			tested += 1
-			if self.testFile(f):
+			try:
+				self.testFile(f)
+			except TestFailed as e:
+				colorprint('FAILED: {}'.format(e), 'red')
+				if haltOnError:
+					break
+			else:
 				passed += 1
-			self.cleanFile(f)
+			finally:
+				self.cleanFile(f)
 		status = True if tested == passed else False
 
+		color = 'green' if status else 'red'
 		print('')
-		print('*** TEST SUMMARY***')
-		print('{}: {} files tested, {} passed, {} failed.'.format(
-				'OK' if status else 'FAILED', tested, passed, tested-passed))
+		print('*** TEST SUMMARY ***')
+		colorprint('Overall status: {}. {} files tested, {} passed, {} failed.'.format(
+				'OK' if status else 'FAILED', tested, passed, tested-passed), color)
 		return status
 
 
@@ -130,12 +158,14 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description=descr)
 	parser.add_argument('ecompile', help="Full path to ecompile executable")
 	parser.add_argument('runecl', help="Full path to runecl executable")
+	parser.add_argument('script', nargs='?', help='If specified, tests a single script (package/name)')
+	parser.add_argument('-a', '--halt', action='store_true', help="Halt on first error")
 	args = parser.parse_args()
 
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 
-	test=StdTests(compiler, runecl)
-	res=test()
+	test=StdTests(compiler, runecl, args.script)
+	res=test(args.halt)
 
 	sys.exit(0)
