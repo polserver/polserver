@@ -2,6 +2,7 @@
 History
 =======
 2006/09/16 Shinigami: fixed Memory Overwrite Bug in convertArrayToUC
+2015/08/12 Bodom: added Unicode and UTF8 classes
 
 Notes
 =======
@@ -221,13 +222,13 @@ namespace Pol {
 
 
   /**
-   * Makes an ANSI string representation of this Unicode object, when possible
+   * Makes an ANSI string representation of this object, when possible
    *
    * @param outStr pointer to the string object that will be appended with the unicode output
    *               when an error is encountered, the string will be only partially filled.
    * @return TRUE on success, FALSE when non ANSI-compatible characters were encountered.
    */
-  bool Unicode::asAnsi( std::string* outStr ) const
+  bool UnicodeString::asAnsi( std::string* outStr ) const
   {
     for( auto it = begin(); it != end(); ++it )
     {
@@ -241,13 +242,13 @@ namespace Pol {
   }
 
   /**
-   * Returns an ANSI string representation of this Unicode object
+   * Returns an ANSI string representation of this object
    *
    * @param failsafe When true, will replace invalid chars with "?" instead of throwing
    * @return the ANSI string
    * @throws CastFailedException
    */
-  std::string Unicode::asAnsi( const bool failsafe ) const
+  std::string UnicodeString::asAnsi( const bool failsafe ) const
   {
     std::string ret;
 
@@ -266,7 +267,7 @@ namespace Pol {
   /**
    * In-place convert this string to lowercase
    */
-  void Unicode::toLower()
+  void UnicodeString::toLower()
   {
     for( auto itr = this->begin(); itr != this->end(); ++itr )
       itr->toLower();
@@ -275,7 +276,7 @@ namespace Pol {
   /**lowercase in-place
    * In-place convert this string to uppercase
    */
-  void Unicode::toUpper()
+  void UnicodeString::toUpper()
   {
     for( auto itr = this->begin(); itr != this->end(); ++itr )
       itr->toUpper();

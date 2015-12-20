@@ -2,6 +2,7 @@
 History
 =======
 2006/09/16 Shinigami: fixed Memory Overwrite Bug in convertArrayToUC
+2015/08/12 Bodom: added Unicode and UTF8 classes
 
 Notes
 =======
@@ -21,8 +22,6 @@ Notes
 #include "../pol/utype.h"
 namespace Pol {
   namespace Clib {
-	//std::string toascii( const std::wstring& wstr );
-	//std::wstring tounicode( const std::string& str );
 
 	void unicode_copy_string( wchar_t* dst, size_t dstsize, const char* src );
 
@@ -35,6 +34,7 @@ namespace Pol {
 
   /**
    * Trown when conversion fails
+   * @author Bodom, 12-08-2015
    */
   class UnicodeCastFailedException: public std::exception
   {
@@ -42,6 +42,7 @@ namespace Pol {
 
   /**
    * Represents a single POL Unicode Character, in the range 0x0000 - 0xFFFF
+   * @author Bodom, 12-08-2015
    */
   class UnicodeChar
   {
@@ -101,37 +102,37 @@ namespace Pol {
    *   be represented anyway)
    * @author Bodom, 12-08-2015
    */
-  class Unicode : public std::basic_string<UnicodeChar>
+  class UnicodeString : public std::basic_string<UnicodeChar>
   {
   private:
     typedef std::basic_string<UnicodeChar> base;
 
   public:
-    Unicode() { };
-    Unicode( const char* s ) { *this += s; };
-    Unicode( const std::string& s ) { *this += s; };
-    Unicode( const std::string& s, size_t pos, size_t n ) { base(Unicode(s), pos, n); };
+    UnicodeString() { };
+    UnicodeString( const char* s ) { *this += s; };
+    UnicodeString( const std::string& s ) { *this += s; };
+    UnicodeString( const std::string& s, size_t pos, size_t n ) { base(UnicodeString(s), pos, n); };
 
     //   ------------------------------- OPERATORS ----------------------------------------------
-    inline Unicode& operator=( const char16_t c )  { UnicodeChar uc = UnicodeChar(c); assign(&uc); return *this; };
-    inline Unicode& operator+=( const char16_t c ) { UnicodeChar uc = UnicodeChar(c); append(&uc); return *this; };
-    inline Unicode& operator=( const UnicodeChar& c )  { assign(&c); return *this; };
-    inline Unicode& operator+=( const UnicodeChar& c ) { append(&c); return *this; };
-    inline Unicode& operator=( const Unicode& s )  { assign(s); return *this; };
-    inline Unicode& operator+=( const Unicode& s ) { append(s); return *this; };
-    inline Unicode& operator=( const char* s )  { while( *s++ != '\0' ){ UnicodeChar uc = UnicodeChar(*s); assign(&uc); } return *this; };
-    inline Unicode& operator+=( const char* s ) { while( *s++ != '\0' ){ UnicodeChar uc = UnicodeChar(*s); append(&uc); } return *this; };
-    inline Unicode operator+( const char16_t c ) const { Unicode res(*this); res += c; return res; };
-    inline Unicode operator+( const UnicodeChar& c ) const { Unicode res(*this); res += c; return res; };
-    inline Unicode operator+( const Unicode& s ) const { Unicode res(*this); res += s; return res; };
-    inline Unicode operator+( const char* s ) const { Unicode res(*this); res += s; return res; };
+    inline UnicodeString& operator=( const char16_t c )  { UnicodeChar uc = UnicodeChar(c); assign(&uc); return *this; };
+    inline UnicodeString& operator+=( const char16_t c ) { UnicodeChar uc = UnicodeChar(c); append(&uc); return *this; };
+    inline UnicodeString& operator=( const UnicodeChar& c )  { assign(&c); return *this; };
+    inline UnicodeString& operator+=( const UnicodeChar& c ) { append(&c); return *this; };
+    inline UnicodeString& operator=( const UnicodeString& s )  { assign(s); return *this; };
+    inline UnicodeString& operator+=( const UnicodeString& s ) { append(s); return *this; };
+    inline UnicodeString& operator=( const char* s )  { while( *s++ != '\0' ){ UnicodeChar uc = UnicodeChar(*s); assign(&uc); } return *this; };
+    inline UnicodeString& operator+=( const char* s ) { while( *s++ != '\0' ){ UnicodeChar uc = UnicodeChar(*s); append(&uc); } return *this; };
+    inline UnicodeString operator+( const char16_t c ) const { UnicodeString res(*this); res += c; return res; };
+    inline UnicodeString operator+( const UnicodeChar& c ) const { UnicodeString res(*this); res += c; return res; };
+    inline UnicodeString operator+( const UnicodeString& s ) const { UnicodeString res(*this); res += s; return res; };
+    inline UnicodeString operator+( const char* s ) const { UnicodeString res(*this); res += s; return res; };
 
-    inline bool Unicode::operator==( const char16_t c ) const { return size() == 1 && front() == c; };
+    inline bool UnicodeString::operator==( const char16_t c ) const { return size() == 1 && front() == c; };
 
     int compare( const char* s ) const;
     int compare( size_t pos, size_t len, const char* s ) const;
 
-    Unicode substr( size_type pos = 0, size_type count = npos ) const;
+    UnicodeString substr( size_type pos = 0, size_type count = npos ) const;
     void toLower();
     void toUpper();
 
@@ -142,6 +143,7 @@ namespace Pol {
 
   /**
    * Represents a single UTF8 character
+   * @author Bodom, 12-08-2015
    */
   class Utf8Char
   {

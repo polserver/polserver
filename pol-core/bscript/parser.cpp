@@ -35,6 +35,7 @@ GetGottenBy Method
 2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
 2012/04/15 Tomi:    Added MBR_EDITABLE for maps
 2012/06/02 Tomi:    Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+2015/20/12 Bodom:   Added Unicode string support ( u"utf8" )
 
 Notes
 =======
@@ -102,7 +103,7 @@ namespace Pol {
 	  "Waaah!",
 	  "Unterminated String Literal",
 	  "Invalid escape sequence in String",
-	  "Invalid utf8 character in Unicode string",
+	  "Invalid utf8 character in Unicode String",
 	  "Too Few Arguments",
 	  "Too Many Arguments",
 	  "Unexpected Comma",
@@ -1177,7 +1178,7 @@ namespace Pol {
 		char hexstr[3] = {} ; // will contain the \x escape chars to be processed
 		Utf8CharValidator validator;
 		std::string lit; // will containing the read string/literal
-		Unicode ulit; // will contain the read unicode
+		UnicodeString ulit; // will contain the read unicode
 
 		for ( ;; )
 		{
