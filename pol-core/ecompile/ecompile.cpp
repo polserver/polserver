@@ -40,15 +40,6 @@ Notes
 #endif
 
 namespace Pol {
-  namespace Bscript {
-	ExecInstrFunc Executor::GetInstrFunc( const Token& /*token*/ )
-	{
-	  return NULL;
-	}
-  }
-}
-
-namespace Pol {
   namespace Ecompile {
     using namespace Bscript;
 #if REFPTR_DEBUG

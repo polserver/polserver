@@ -62,6 +62,7 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/unittest.h"
 #include "../clib/logfacility.h"
+#include "../clib/unicode.h"
 
 #include <cstdlib>
 #include <cctype>
@@ -101,6 +102,7 @@ namespace Pol {
 	  "Waaah!",
 	  "Unterminated String Literal",
 	  "Invalid escape sequence in String",
+	  "Invalid utf8 character in Unicode string",
 	  "Too Few Arguments",
 	  "Too Many Arguments",
 	  "Unexpected Comma",
@@ -1154,7 +1156,11 @@ namespace Pol {
 	}
 
 	/**
-	* Tries to read a literal (string/variable name) from context
+	* Tries to read a literal (string/unicode/variable name) from context
+	*
+	* A string is ANSI bytes between double quotes "", with \" escape sequence
+	* An unicode is UTF8 bytes between double quotes prepended by an 'u' u"",
+	* with \" escape. Valid characters are limited to 0x0001-0xFFFF
 	*
 	* @param tok Token&: The token to store the found literal into
 	* @param ctx CompilerContext&: The context to look into
@@ -1162,14 +1168,16 @@ namespace Pol {
 	*/
 	int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 	{
-	  if ( ctx.s[0] == '\"' )
+	  bool unicode = ( ctx.s[0] == 'u' );
+	  if ( ctx.s[unicode ? 1 : 0] == '\"' )
 	  {
-		const char* end = &ctx.s[1];
-        std::string lit;
+		const char* end = &ctx.s[unicode ? 2 : 1];
 		bool escnext = false; // true when waiting for 2nd char in an escape sequence
 		u8 hexnext = 0; // tells how many more chars in a \xNN escape sequence
-		char hexstr[3]; // will contain the \x escape chars to be processed
-		memset( hexstr, 0, 3 );
+		char hexstr[3] = {} ; // will contain the \x escape chars to be processed
+		Utf8CharValidator validator;
+		std::string lit; // will containing the read string/literal
+		Unicode ulit; // will contain the read unicode
 
 		for ( ;; )
 		{
@@ -1179,60 +1187,106 @@ namespace Pol {
 			return -1;
 		  }
 
+		  // Read next char to be processed
+		  wchar_t nextChar;
+		  if( unicode )
+		  {
+			switch( validator.addByte(*end) )
+			{
+			case Pol::Utf8CharValidator::MORE:
+			  end++;
+			  continue;
+			case Pol::Utf8CharValidator::INVALID:
+			  err = PERR_INVUTF8;
+			  return -1;
+			default:
+			  assert(false); //This should never happen
+			case Pol::Utf8CharValidator::DONE:
+			  break;
+			}
+
+			try {
+			  nextChar = validator.getChar().asUtf16();
+			  validator.reset();
+			} catch( const UnicodeCastFailedException& ) {
+			  err = PERR_INVUTF8;
+			  return -1;
+			}
+		  }
+		  else
+		  {
+		    nextChar = *end;
+		  }
+
 		  assert( ! (escnext && hexnext) );
 
 		  if ( escnext )
 		  {
 			// waiting for 2nd character after a backslash
 			escnext = false;
-			if ( *end == 'n' )
+			if ( nextChar == 'n' )
 			  lit += '\n';
-			else if ( *end == 't' )
+			else if ( nextChar == 't' )
 			  lit += '\t';
-			else if ( *end == 'x' )
+			else if ( nextChar == 'x' )
 			  hexnext = 2;
+			else if ( unicode )
+			  ulit += static_cast<char16_t>(nextChar);
 			else
-			  lit += *end;
+			  lit += static_cast<char>(nextChar);
 		  }
 		  else if ( hexnext )
 		  {
 			// waiting for next (two) chars in hex escape sequence (eg. \xFF)
-			hexstr[2-hexnext] = *end;
+			if( nextChar < 0x30 || nextChar > 0x80 )
+			{
+			  // Out of 0-z range, no need for more checks
+			  err = PERR_INVESCAPE;
+			  return -1;
+			}
+			hexstr[2-hexnext] = static_cast<char>(nextChar);
+
 			if( ! --hexnext )
 			{
 			  char* endptr;
+			  errno = 0;
 			  char ord = static_cast<char>(strtol(hexstr, &endptr, 16));
-			  if( *endptr != '\0' )
+			  if( *endptr != 0 || errno )
 			  {
 				err = PERR_INVESCAPE;
 				return -1;
 			  }
-			  lit += ord;
+			  if( unicode )
+				ulit += ord;
+			  else
+				lit += ord;
 			}
 		  }
 		  else
 		  {
-			if ( *end == '\\' )
+			if ( nextChar == '\\' )
 			  escnext = true;
-			else if ( *end == '\"' )
+			else if ( nextChar == '\"' )
 			  break;
+			else if ( unicode )
+			  ulit += static_cast<char16_t>(nextChar);
 			else
-			  lit += *end;
+			  lit += static_cast<char>(nextChar);
 		  }
 		  ++end;
 		}
-		/*
-				char *end = strchr(&ctx.s[1], '\"');
-				if (!end)
-				{
-				err = PERR_UNTERMSTRING;
-				return -1;
-				}
-				*/
-		//int len = end - ctx.s;   //   "abd" len = 5-1 = 4
-		tok.id = TOK_STRING; // this is a misnomer I think!
-		tok.type = TYP_OPERAND;
-		tok.copyStr( lit.c_str() );
+
+		if ( unicode )
+		{
+		  //TODO: emit the unicode token
+		  throw std::runtime_error( "Unicode token still not implemented" );
+		}
+		else
+		{
+		  tok.id = TOK_STRING;
+		  tok.type = TYP_OPERAND;
+		  tok.copyStr( lit.c_str() );
+		}
 
 		ctx.s = end + 1; // skip past the ending delimiter
 		return 1;

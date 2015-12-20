@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+XX-XX-XXXX Bodom:
+  Added:   Native unicode support
+           New syntax u"some utf8 text" in escript, used to define an Unicode
+           object. Valid chars are 0x0000-0xFFFF: chars above 0xFFFF are not
+           supported in UO. When an unicode contains invalid chars, the compiler
+           will issue an error.
 12-18-2015 Bodom:
   Added:   New eScript escape sequence in strings "\xAA". Allows to specify a
            single character by its binary value (\x01 to \xFF). The value must

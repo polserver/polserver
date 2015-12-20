@@ -42,6 +42,7 @@ namespace Pol {
 	  PERR_WAAH,         // god knows what happened
 	  PERR_UNTERMSTRING, // "abcd  (not terminated with '"')
 	  PERR_INVESCAPE,    // an invalid escape sequence (eg. \xFG)
+	  PERR_INVUTF8,      // an invalid utf8 character
 	  PERR_TOOFEWARGS,
 	  PERR_TOOMANYARGS,
 	  PERR_UNEXPCOMMA,
@@ -135,6 +136,7 @@ namespace Pol {
 	  int IP( Expression& expr, char *s );
 
 	  void setQuiet( int x ) { quiet = x; }
+
 	};
 
 
