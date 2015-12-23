@@ -1,5 +1,5 @@
 var a;
 a := +a;
 
-//TODO: this should not compile? - 2015-19-12 Bodom
+//2015-19-12 Bodom, this is not a syntax error, it's unary +, meanining noop
 print(a);
