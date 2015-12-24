@@ -72,20 +72,20 @@ cmake -Wno-dev
 A file called `CMakeCache.txt` has now been created: inside this file, you will find all the settings that will be used for your build. You have many options to edit this file:
 * by hand, with your favorite text editor (read the comments in the file header for a quick syntax briefing)
 * from a terminal GUI, like `ccmake` (`sudo apt-get install cmake-curses-gui` to install it on Debian-based systems): just launch the gui by typing `ccmake .` and follow the interface
-* from a X window GUI, like `cmake-gui` (`sudo apt-get install cmake-qt-gui` to install it on Debian-based systems): just launch the gui by typing `ccmake .` and follow the interface
+* from a X window GUI, like `cmake-gui` (`sudo apt-get install cmake-qt-gui` to install it on Debian-based systems): just launch the gui by typing `cmake-gui .` and follow the interface
 
 Here is a non-complete description of the most useful options:
-* `FORCE_ARCH_BITS='\<bits\>'` replace \<bits\> with 32 to force a 32 bit build, 64, to force a 64 bit build. The default settings use autodetection.
-* `BUILD='\<type\>'` replace \<type\> with one of the following:
-** *Default*: runs the default build using default settings
-** *Debug*: makes a debug build (adds '-g', '--ggdb')
-** *Vagrant*: makes a special debug build to be used in Vagrant that will run very slowly. (like *Debug*, but also adds '-O0')
+* `FORCE_ARCH_BITS='<bits>'` replace \<bits\> with 32 to force a 32 bit build, 64, to force a 64 bit build. The default settings use autodetection.
+* `BUILD='<type>'` replace \<type\> with one of the following:
+  * `Default`: runs the default build using default settings
+  * `Debug`: makes a debug build (adds '-O2', '-g', '--ggdb')
+  * `Vagrant`: makes a special debug build to be used in Vagrant that will run very slowly (like *Debug*, but uses '-O0' instead of '-O2')
 
-You can also set an option directly with the "-D" cmake flag, by example:
+You can also set an option directly with the '-D' cmake flag, by example:
 ```
 cmake -Wno-dev -DFORCE_ARCH_BITS=32 -DBUILD=Debug
 ```
-Remember that even when set as argument, the option will be saved in the cache (configuraton) file and remembered for future builds.
+Keep in mind that even when set this way, the option will be saved in the `CMakeCache.txt` configuraton file and remembered for future builds.
 
 You can now use the classic *make* command to compile the POL. You can type:
 * `make` or `make all` to do the build
