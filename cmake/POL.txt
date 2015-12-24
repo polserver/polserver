@@ -3,6 +3,7 @@
 MESSAGE("####################################")
 MESSAGE("##### Preparing POL specific configuration")
 MESSAGE("####################################")
+MESSAGE("##### Build type is: " ${BUILD})
 
 ##############################################################
 
