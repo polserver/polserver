@@ -79,7 +79,7 @@ Here is a non-complete description of the most useful options:
 * `BUILD='<type>'` replace \<type\> with one of the following:
   * `Default`: runs the default build using default settings
   * `Debug`: makes a debug build (adds '-O2', '-g', '--ggdb')
-  * `Vagrant`: makes a special debug build to be used in Vagrant that will run very slowly (like *Debug*, but uses '-O0' instead of '-O2')
+  * `Valgrind`: makes a special debug build to be used in Valgrind that will run very slowly (like *Debug*, but uses '-O0' instead of '-O2')
 
 You can also set an option directly with the '-D' cmake flag, by example:
 ```

@@ -14,7 +14,7 @@ INCLUDE(CheckLibraryExists)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Default build type
-SET(BUILD "Default" CACHE STRING "The build type, one of Default,Debug,Vagrant")
+SET(BUILD "Default" CACHE STRING "The build type, one of Default,Debug,Valgrind")
 
 ##############################################################
 
@@ -100,7 +100,7 @@ ELSE()
             -m${FORCE_ARCH_BITS}
         )
     ENDIF()
-    IF (${BUILD} MATCHES "Vagrant")
+    IF (${BUILD} MATCHES "Valgrind")
         SET (FLAGS
             ${FLAGS}
             -O0
@@ -120,7 +120,7 @@ ENDIF()
 
 ##############################################################
 # differentiate between debug and release version
-IF ( (${BUILD} MATCHES "Debug") OR (${BUILD} MATCHES "Vagrant") )
+IF ( (${BUILD} MATCHES "Debug") OR (${BUILD} MATCHES "Valgrind") )
     IF (APPLE)
         SET (FLAGS "${FLAGS} -g -DDEBUG_VERSION")
     ELSEIF(WINDOWS)
