@@ -85,7 +85,7 @@ echo ---------------------------------------------------------------------------
 echo install clang
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libllvm-3.7-ocaml-dev libllvm3.7 lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-modernize-3.7 clang-format-3.7 -y
+sudo apt-get install clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libllvm-3.7-ocaml-dev libllvm3.7 lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-tidy-3.7 clang-format-3.7 llvm-toolchain-3.7 -y
 #sudo apt-get install libiomp5 -y
 echo
 echo -------------------------------------------------------------------------------
