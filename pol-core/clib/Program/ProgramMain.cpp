@@ -116,12 +116,12 @@ void ProgramMain::start(int argc, char *argv[])
     exit(exitcode);
 }
 
-const std::vector<std::string>& ProgramMain::programArgs()
+const std::vector<std::string>& ProgramMain::programArgs() const
 {
 	return m_programArguments;
 }
 
-std::string ProgramMain::programArgsFind(std::string filter)
+std::string ProgramMain::programArgsFind(const std::string& filter) const
 {
 	const std::vector<std::string> binArgs = programArgs();
 	for (int i = 1; i < (int)binArgs.size(); i++)
@@ -141,16 +141,24 @@ std::string ProgramMain::programArgsFind(std::string filter)
 	return "";
 }
 
-std::string ProgramMain::programArgsFindEquals(std::string filter, std::string defaultVal)
+std::string ProgramMain::programArgsFindEquals(const std::string& filter, std::string defaultVal) const
 {
-	const std::vector<std::string> binArgs = programArgs();
-	for (int i = 1; i < (int)binArgs.size(); i++)
+	const std::vector<std::string>& binArgs = programArgs();
+	for (size_t i = 1; i < binArgs.size(); i++)
 	{
 		const std::string& param = binArgs[i];
 		if (param.substr(0, filter.size()) == filter)
 			return param.substr(filter.size(), param.size() - (filter.size()));
 	}
 	return defaultVal;
+}
+
+int ProgramMain::programArgsFindEquals(const std::string& filter, int defaultVal, bool hexvalue) const
+{
+  std::string val = programArgsFindEquals(filter, "");
+  if (val.empty())
+    return defaultVal;
+  return strtoul( val.c_str(), NULL, hexvalue ? 16 : 10 );
 }
 
 }} // namespaces

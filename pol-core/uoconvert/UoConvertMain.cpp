@@ -68,9 +68,6 @@ void UoConvertMain::showHelp()
                 << "    landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n";
 }
 
-static int s_argc;
-static char **s_argv;
-
 using namespace Core;
 using namespace Plib;
 
@@ -1050,7 +1047,7 @@ void create_landtiles_cfg()
 
 int UoConvertMain::main()
 {
-    const std::vector<std::string> binArgs = programArgs();
+    const std::vector<std::string>& binArgs = programArgs();
 
     /**********************************************
      * show help
@@ -1065,9 +1062,10 @@ int UoConvertMain::main()
      * TODO: rework the following cruft from former uoconvert.cpp
      **********************************************/
     Plib::systemstate.config.max_tile_id = UOBJ_DEFAULT_MAX; //default
-    if (programArgsFind("uodata=") != "")
+    std::string argvalue = programArgsFindEquals("uodata=","");
+    if (!argvalue.empty())
     {
-      Plib::systemstate.config.uo_datafile_root = programArgsFind( "uodata=" );
+      Plib::systemstate.config.uo_datafile_root = argvalue;
       Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
     }
     else
@@ -1086,12 +1084,9 @@ int UoConvertMain::main()
         Plib::systemstate.config.max_tile_id = max_tile;
     }
 
-    if (programArgsFind("maxtileid=") != "")
-    {
-      unsigned short max_tile = static_cast<unsigned short>( Clib::LongHexArg2( "maxtileid=", UOBJ_DEFAULT_MAX ) );
-      if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
-        Plib::systemstate.config.max_tile_id = max_tile;
-    }
+    unsigned short max_tile = static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", UOBJ_DEFAULT_MAX, true ) );
+    if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
+      Plib::systemstate.config.max_tile_id = max_tile;
 
 
     std::string main_cfg = "uoconvert.cfg";
@@ -1184,18 +1179,11 @@ int UoConvertMain::main()
       }
     }
 
-    std::string command = "map";
-    if ( s_argc > 1 )
-    {
-      command = s_argv[1];
-      ++s_argv;
-      --s_argc;
-    }
-
+    std::string command = binArgs[1];
     if ( command == "map" )
     {
-      UoConvert::uo_mapid = Clib::LongArg2( "mapid=", 0 );
-      UoConvert::uo_usedif = Clib::LongArg2( "usedif=", 0 );
+      UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false);
+      UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 0, false );
 
       std::string realm = programArgsFindEquals("realm=", "britannia");
       int default_width = 6144;
@@ -1222,16 +1210,16 @@ int UoConvertMain::main()
           default_height = 4096;
           break;
       }
-      int width = Clib::LongArg2( "width=", default_width );
-      int height = Clib::LongArg2( "height=", default_height );
+      int width = programArgsFindEquals( "width=", default_width, false );
+      int height = programArgsFindEquals( "height=", default_height, false );
       UoConvert::uo_map_width = static_cast<unsigned short>( width );
       UoConvert::uo_map_height = static_cast<unsigned short>( height );
 
       UoConvert::open_uo_data_files( );
       UoConvert::read_uo_data( );
 
-      int x = Clib::LongArg2( "x=", -1 );
-      int y = Clib::LongArg2( "y=", -1 );
+      int x = programArgsFindEquals( "x=", -1, false );
+      int y = programArgsFindEquals( "y=", -1, false );
 
       // brittania: realm=main mapid=0 width=6144 height=4096
       // ilshenar: realm=ilshenar mapid=2 width=2304 height=1600
@@ -1300,17 +1288,9 @@ int UoConvertMain::main()
     {
       UoConvert::display_flags( );
     }
-    else
+    else // unknown option
     {
-      //TODO: remove - we use showHelp() now
-      ERROR_PRINT << "Usage: uoconvert [command] [options]\n"
-        << "Commands: \n"
-        << "  map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} {height=Height} {x=X} {y=Y}\n"
-        << "  statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
-        << "  maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
-        << "  multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
-        << "  tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
-        << "  landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n";
+      showHelp();
       return 1;
     }
     UoConvert::clear_tiledata( );
@@ -1325,9 +1305,6 @@ int UoConvertMain::main()
 
 int main( int argc, char *argv[] )
 {
-    Pol::UoConvert::s_argc = argc;
-    Pol::UoConvert::s_argv = argv;
-
     Pol::UoConvert::UoConvertMain* UoConvertMain = new Pol::UoConvert::UoConvertMain();
     UoConvertMain->start(argc, argv);
 }

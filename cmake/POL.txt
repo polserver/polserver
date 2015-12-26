@@ -70,16 +70,16 @@ IF(LINUX)
 ENDIF()
 IF(WINDOWS)
 	SET (FLAGS
-    	${FLAGS}
-    	/D"INC_PASSERT" 
-    	/D"TIXML_USE_STL" 
-		/D"_WIN32"
-		/D"WIN32"
-		/D"NOMINMAX"
+    	    ${FLAGS}
+    	    /D"INC_PASSERT" 
+    	    /D"TIXML_USE_STL" 
+	    /D"_WIN32"
+	    /D"WIN32"
+	    /D"NOMINMAX"
 	)
 	SET (INCLUDE_DIRS
-    	${INCLUDE_DIRS}
-		../../lib/mysql-connector-c-6.0.2-win32
+    	    ${INCLUDE_DIRS}
+	        ../../lib/mysql-connector-c-6.0.2-win32
 	)
 
     SET(BOOST_ROOT "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_55_0")
