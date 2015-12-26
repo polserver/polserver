@@ -5,6 +5,7 @@ History
                       will not work with Strings in Arrays, Dicts, etc.
 2008/02/08 Turley:    String::unpackWithLen() will accept zero length Strings
 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
+2015/20/12 Bodom:     moved most of the methods/props to BaseString
 
 Notes
 =======
@@ -26,20 +27,19 @@ Notes
 #	include <streambuf>
 #endif
 
-#ifdef _MSC_VER
-#	pragma warning( disable: 4244 )
-#endif
 namespace Pol {
   namespace Bscript {
-	String::String( BObjectImp& objimp ) :
-	  BObjectImp( OTString ),
-	  value_( objimp.getStringRep() )
-	{}
 
-	String::String( const char *s, int len ) :
-	  BObjectImp( OTString ),
-	  value_( s, len )
-	{}
+    /**
+     * Creates a String from a char* pointer of a fixed length
+     *
+     * @param s: the pointer to start reading chars from
+     * @param len: Number of chars to read
+     */
+    String::String( const char *s, int len )
+    {
+      value_.append( s, len );
+    }
 
 	String *String::StrStr( int begin, int len )
 	{
@@ -169,226 +169,11 @@ namespace Pol {
 	  return sizeof(String)+value_.capacity();
 	}
 
-	/*
-		0-based string find
-		find( "str srch", 2, "srch"):
-		01^-- start
-		*/
-	int String::find( int begin, const char *target )
-	{
-	  // TODO: check what happens in string if begin position is out of range
-        std::string::size_type pos;
-	  pos = value_.find( target, begin );
-      if (pos == std::string::npos)
-		return -1;
-	  else
-		return static_cast<int>( pos );
-	}
-
-	// Returns the amount of alpha-numeric characters in string.
-	unsigned int String::alnumlen( void ) const
-	{
-	  unsigned int c = 0;
-	  while ( isalnum( value_[c] ) )
-	  {
-		c++;
-	  }
-	  return c;
-	}
-
-	unsigned int String::SafeCharAmt() const
-	{
-	  int strlen = static_cast<int>( this->length() );
-	  for ( int i = 0; i < strlen; i++ )
-	  {
-		unsigned char tmp = value_[i];
-		if ( isalnum( tmp ) ) // a-z A-Z 0-9
-		  continue;
-		else if ( ispunct( tmp ) ) // !"#$%&'()*+,-./:;<=>?@{|}~
-		{
-		  if ( tmp == '{' || tmp == '}' )
-			return i;
-		  else
-			continue;
-		}
-		else
-		{
-		  return i;
-		}
-	  }
-	  return strlen;
-	}
-
-	void String::reverse( void )
-	{
-        std::reverse(value_.begin(), value_.end());
-	}
-
-	void String::set( char *newstr )
-	{
-	  value_ = newstr;
-	  delete newstr;
-	}
-
-
-	BObjectImp* String::selfPlusObjImp( const BObjectImp& objimp ) const
-	{
-	  return objimp.selfPlusObj( *this );
-	}
-	BObjectImp* String::selfPlusObj( const BObjectImp& objimp ) const
-	{
-	  return new String( value_ + objimp.getStringRep() );
-	}
-	BObjectImp* String::selfPlusObj( const BLong& objimp ) const
-	{
-	  return new String( value_ + objimp.getStringRep() );
-	}
-	BObjectImp* String::selfPlusObj( const Double& objimp ) const
-	{
-	  return new String( value_ + objimp.getStringRep() );
-	}
-	BObjectImp* String::selfPlusObj( const String& objimp ) const
-	{
-	  return new String( value_ + objimp.getStringRep() );
-	}
-	BObjectImp* String::selfPlusObj( const ObjArray& objimp ) const
-	{
-	  return new String( value_ + objimp.getStringRep() );
-	}
-	void String::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
-	{
-	  objimp.selfPlusObj( *this, obj );
-	}
-	void String::selfPlusObj( BObjectImp& objimp, BObject& /*obj*/ )
-	{
-	  value_ += objimp.getStringRep();
-	}
-	void String::selfPlusObj( BLong& objimp, BObject& /*obj*/ )
-	{
-	  value_ += objimp.getStringRep();
-	}
-	void String::selfPlusObj( Double& objimp, BObject& /*obj*/ )
-	{
-	  value_ += objimp.getStringRep();
-	}
-	void String::selfPlusObj( String& objimp, BObject& /*obj*/ )
-	{
-	  value_ += objimp.getStringRep();
-	}
-	void String::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
-	{
-	  value_ += objimp.getStringRep();
-	}
-
-
-	void String::remove( const char *rm )
-	{
-	  size_t len = strlen( rm );
-
-      auto pos = value_.find(rm);
-      if (pos != std::string::npos)
-		value_.erase( pos, len );
-	}
-
-	BObjectImp* String::selfMinusObjImp( const BObjectImp& objimp ) const
-	{
-	  return objimp.selfMinusObj( *this );
-	}
-	BObjectImp* String::selfMinusObj( const BObjectImp& objimp ) const
-	{
-	  String *tmp = (String *)copy();
-	  tmp->remove( objimp.getStringRep().data() );
-	  return tmp;
-	}
-	BObjectImp* String::selfMinusObj( const BLong& objimp ) const
-	{
-	  String *tmp = (String *)copy();
-	  tmp->remove( objimp.getStringRep().data() );
-	  return tmp;
-	}
-	BObjectImp* String::selfMinusObj( const Double& objimp ) const
-	{
-	  String *tmp = (String *)copy();
-	  tmp->remove( objimp.getStringRep().data() );
-	  return tmp;
-	}
-	BObjectImp* String::selfMinusObj( const String& objimp ) const
-	{
-	  String *tmp = (String *)copy();
-	  tmp->remove( objimp.value_.data() );
-	  return tmp;
-	}
-	BObjectImp* String::selfMinusObj( const ObjArray& objimp ) const
-	{
-	  String *tmp = (String *)copy();
-	  tmp->remove( objimp.getStringRep().data() );
-	  return tmp;
-	}
-	void String::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
-	{
-	  objimp.selfMinusObj( *this, obj );
-	}
-	void String::selfMinusObj( BObjectImp& objimp, BObject& /*obj*/ )
-	{
-	  remove( objimp.getStringRep().data() );
-	}
-	void String::selfMinusObj( BLong& objimp, BObject& /*obj*/ )
-	{
-	  remove( objimp.getStringRep().data() );
-	}
-	void String::selfMinusObj( Double& objimp, BObject& /*obj*/ )
-	{
-	  remove( objimp.getStringRep().data() );
-	}
-	void String::selfMinusObj( String& objimp, BObject& /*obj*/ )
-	{
-	  remove( objimp.value_.data() );
-	}
-	void String::selfMinusObj( ObjArray& objimp, BObject& /*obj*/ )
-	{
-	  remove( objimp.getStringRep().data() );
-	}
-
-
-	bool String::isEqual( const BObjectImp& objimp ) const
-	{
-	  if ( objimp.isa( OTString ) )
-	  {
-		return ( value_ == static_cast<const String&>( objimp ).value_ );
-	  }
-	  else
-	  {
-		return false;
-	  }
-	}
-
-	/* since non-Strings show up here as not equal, we make them less than. */
-	bool String::isLessThan( const BObjectImp& objimp ) const
-	{
-	  if ( objimp.isa( OTString ) )
-	  {
-		return ( value_ < static_cast<const String&>( objimp ).value_ );
-	  }
-	  else if ( objimp.isa( OTUninit ) || objimp.isa( OTError ) )
-	  {
-		return false;
-	  }
-	  else
-	  {
-		return true;
-	  }
-	}
-
-	String *String::midstring( int begin, int len ) const
-	{
-	  return new String( value_.substr( begin - 1, len ) );
-	}
-
 	void String::toUpper( void )
 	{
 	  for( char &c : value_ )
 	  {
-		c = toupper( c );
+		c = static_cast<char>(toupper( c ));
 	  }
 	}
 
@@ -396,222 +181,10 @@ namespace Pol {
 	{
 	  for( char &c : value_ )
 	  {
-		c = tolower( c );
+		c = static_cast<char>(tolower( c ));
 	  }
 	}
 
-	BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*copy*/ )
-	{
-      std::string::size_type pos, len;
-
-	  // first, determine position and length.
-	  if ( idx->isa( OTString ) )
-	  {
-		String& rtstr = (String&)*idx;
-		pos = value_.find( rtstr.value_ );
-		len = rtstr.length();
-	  }
-	  else if ( idx->isa( OTLong ) )
-	  {
-		BLong& lng = (BLong&)*idx;
-		pos = lng.value() - 1;
-		len = 1;
-	  }
-	  else if ( idx->isa( OTDouble ) )
-	  {
-		Double& dbl = (Double&)*idx;
-        pos = static_cast<std::string::size_type>(dbl.value());
-		len = 1;
-	  }
-	  else
-	  {
-		return UninitObject::create();
-	  }
-
-      if (pos != std::string::npos)
-	  {
-		if ( target->isa( OTString ) )
-		{
-		  String* target_str = (String*)target;
-		  value_.replace( pos, len, target_str->value_ );
-		}
-		return this;
-	  }
-	  else
-	  {
-		return UninitObject::create();
-	  }
-	}
-
-    BObjectRef String::OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target)
-	{
-	  BObjectRef start_ref = indices.top();
-	  indices.pop();
-	  BObjectRef length_ref = indices.top();
-	  indices.pop();
-
-	  BObject& length_obj = *length_ref;
-	  BObject& start_obj = *start_ref;
-
-	  BObjectImp& length = length_obj.impref();
-	  BObjectImp& start = start_obj.impref();
-
-	  // first deal with the start position.
-	  unsigned index;
-	  if ( start.isa( OTLong ) )
-	  {
-		BLong& lng = (BLong&)start;
-		index = (unsigned)lng.value();
-		if ( index == 0 || index > value_.size() )
-		  return BObjectRef( new BError( "Subscript out of range" ) );
-
-	  }
-	  else if ( start.isa( OTString ) )
-	  {
-		String& rtstr = (String&)start;
-        std::string::size_type pos = value_.find(rtstr.value_);
-        if (pos != std::string::npos)
-		  index = static_cast<unsigned int>( pos + 1 );
-		else
-		  return BObjectRef( new UninitObject );
-	  }
-	  else
-	  {
-		return BObjectRef( copy() );
-	  }
-
-	  // now deal with the length.
-	  int len;
-	  if ( length.isa( OTLong ) )
-	  {
-		BLong& lng = (BLong &)length;
-
-		len = (int)lng.value();
-	  }
-	  else if ( length.isa( OTDouble ) )
-	  {
-		Double& dbl = (Double &)length;
-
-		len = (int)dbl.value();
-	  }
-	  else
-	  {
-		return BObjectRef( copy() );
-	  }
-
-	  if ( target->isa( OTString ) )
-	  {
-		String* target_str = (String*)target;
-		value_.replace( index - 1, len, target_str->value_ );
-	  }
-	  else
-	  {
-		return BObjectRef( UninitObject::create() );
-	  }
-
-	  return BObjectRef( this );
-	}
-
-
-    BObjectRef String::OperMultiSubscript(std::stack<BObjectRef>& indices)
-	{
-	  BObjectRef start_ref = indices.top();
-	  indices.pop();
-	  BObjectRef length_ref = indices.top();
-	  indices.pop();
-
-	  BObject& length_obj = *length_ref;
-	  BObject& start_obj = *start_ref;
-
-	  BObjectImp& length = length_obj.impref();
-	  BObjectImp& start = start_obj.impref();
-
-	  // first deal with the start position.
-	  unsigned index;
-	  if ( start.isa( OTLong ) )
-	  {
-		BLong& lng = (BLong&)start;
-		index = (unsigned)lng.value();
-		if ( index == 0 || index > value_.size() )
-		  return BObjectRef( new BError( "Subscript out of range" ) );
-
-	  }
-	  else if ( start.isa( OTString ) )
-	  {
-		String& rtstr = (String&)start;
-        std::string::size_type pos = value_.find(rtstr.value_);
-        if (pos != std::string::npos)
-		  index = static_cast<unsigned int>( pos + 1 );
-		else
-		  return BObjectRef( new UninitObject );
-	  }
-	  else
-	  {
-		return BObjectRef( copy() );
-	  }
-
-	  // now deal with the length.
-	  int len;
-	  if ( length.isa( OTLong ) )
-	  {
-		BLong& lng = (BLong &)length;
-
-		len = (int)lng.value();
-	  }
-	  else if ( length.isa( OTDouble ) )
-	  {
-		Double& dbl = (Double &)length;
-
-		len = (int)dbl.value();
-	  }
-	  else
-	  {
-		return BObjectRef( copy() );
-	  }
-
-	  auto str = new String( value_, index - 1, len );
-	  return BObjectRef( str );
-	}
-
-	BObjectRef String::OperSubscript( const BObject& rightobj )
-	{
-	  const BObjectImp& right = rightobj.impref();
-	  if ( right.isa( OTLong ) )
-	  {
-		BLong& lng = (BLong&)right;
-
-		unsigned index = (unsigned)lng.value();
-
-		if ( index == 0 || index > value_.size() )
-		  return BObjectRef( new BError( "Subscript out of range" ) );
-
-		return BObjectRef( new BObject( new String( value_.c_str() + index - 1, 1 ) ) );
-	  }
-	  else if ( right.isa( OTDouble ) )
-	  {
-		Double& dbl = (Double&)right;
-
-		unsigned index = (unsigned)dbl.value();
-
-		if ( index == 0 || index > value_.size() )
-		  return BObjectRef( new BError( "Subscript out of range" ) );
-
-		return BObjectRef( new BObject( new String( value_.c_str() + index - 1, 1 ) ) );
-	  }
-	  else if ( right.isa( OTString ) )
-	  {
-		String& rtstr = (String&)right;
-        auto pos = value_.find(rtstr.value_);
-        if (pos != std::string::npos)
-		  return BObjectRef( new BObject( new String( value_, pos, 1 ) ) );
-		else
-		  return BObjectRef( new UninitObject );
-	  }
-	  else
-	  {
-		return BObjectRef( new UninitObject );
-	  }
-	}
 
 	// -- format related stuff --
 

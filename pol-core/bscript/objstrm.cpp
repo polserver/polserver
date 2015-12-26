@@ -68,16 +68,6 @@ namespace Pol {
 	  os << '\"' << value_ << '\"';
 	}
 
-#if 0
-    void SubString::printOn(std::ostream& os ) const
-	{
-	  os << "{ \"";
-	  os << ref_String->value_.substr( begin-1, len );
-
-	  os << "\" }";
-	}
-#endif
-
     void Double::printOn(std::ostream& os) const
 	{
 	  // CHECKME: consider setting precision

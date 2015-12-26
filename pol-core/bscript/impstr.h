@@ -1,48 +1,42 @@
 /*
 History
 =======
+2015/20/12 Bodom:     moved most of the methods/props to BaseString
 
 Notes
 =======
 
 */
 
-#ifndef H_BSCRIPT_IMPSTR_H
-#define H_BSCRIPT_IMPSTR_H
-#define H_IMPSTR_H
+#pragma once
 
-#ifndef BSCRIPT_BOBJECT_H
-#include "bobject.h"
-#endif
-
-#include <string>
-#include <stack>
+#include "basestr.h"
 
 namespace Pol {
   namespace Bscript {
-	class SubString;
 
-	class String : public BObjectImp
-	{
-	public:
-	  String() : BObjectImp( OTString ), value_( "" ) {}
+    class String : public BaseString<std::string, String, BObjectImp::BObjectType::OTString>
+    {
+    protected:
+      inline virtual BaseString& child() { return *this; }
+
+    public:
+      // TODO: just inherit constructors the "using" way when upgrading to Visual Studio 2015,
+      //       since Visual Studio 2013 does not support the following syntax:
+      // using BaseString::BaseString;
+      inline String() : BaseString() {}
+      inline String( const String& str ) : BaseString( str ) {}
+      inline explicit String( BObjectImp& objimp ) : BaseString( objimp ) {}
+      inline explicit String( const std::string& str ) : BaseString( str ) {}
+      inline explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n ) : BaseString( str, pos, n ) {}
+      inline explicit String( const String& left, const String& right ) : BaseString( left, right ) {}
+      // TODO: end of manually inherited constructors
 
 	  String( const char *str, int nchars );
-	  explicit String( const char *str ) : BObjectImp( OTString ), value_( str ) {}
-	  explicit String( const std::string& str ) : BObjectImp( OTString ), value_( str ) {}
-	  explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n ) : BObjectImp( OTString ), value_( str, pos, n ) {}
-	  String( const char *left, const char *right ) :
-		BObjectImp( OTString ),
-		value_( std::string( left ) + std::string( right ) )
-	  {}
-
-	  String( const String& left, const String& right ) :
-		BObjectImp( OTString ),
-		value_( left.value_ + right.value_ )
-	  {}
-	  explicit String( BObjectImp& objimp );
-	  String( const String& str ) : BObjectImp( OTString ), value_( str.value_ )
-	  {}
+      /** Creates an instance from a c-style string */
+      inline explicit String( const char *str ) { value_.append(str); };
+      /** Creates an instance by concatenating two c-style strings */
+      inline String( const char *left, const char *right ) { value_.append(left); value_.append(right); };
 
 	  static BObjectImp* unpack( const char* pstr );
 	  static BObjectImp* unpack( std::istream& is );
@@ -65,10 +59,13 @@ namespace Pol {
 	  void EStrReplace( String* str1, String* str2 );
 	  void ESubStrReplace( String* replace_with, unsigned int index, unsigned int len );
 
-	  void set( char *newstr ); /* String now owns newstr */
 	  const char *data() const { return value_.c_str(); }
 	  const std::string& value() const { return value_; }
-	  size_t length() const { return value_.length(); }
+      /*
+       * Only for backward compatibility
+       * @deprecated
+       */
+      inline int find( int begin, const char* target ) { const std::string str(target); return BaseString::find( begin, str); }
 	  void toUpper( void );
 	  void toLower( void );
 
@@ -80,46 +77,9 @@ namespace Pol {
 	  void copyvalue( const String& str ) { value_ = str.value_; }
 	  operator const char *( ) const { return value_.data(); }
 
-	  void remove( const char *s );
 	  virtual bool isTrue() const POL_OVERRIDE { return !value_.empty(); }
 	public:
-	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfPlusObj( const Double& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfPlusObj( const String& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfPlusObj( const ObjArray& objimp ) const POL_OVERRIDE;
-	  virtual void selfPlusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfPlusObj( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfPlusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfPlusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfPlusObj( String& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfPlusObj( ObjArray& objimp, BObject& obj ) POL_OVERRIDE;
 
-	  virtual BObjectImp* selfMinusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfMinusObj( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfMinusObj( const BLong& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfMinusObj( const Double& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfMinusObj( const String& objimp ) const POL_OVERRIDE;
-	  virtual BObjectImp* selfMinusObj( const ObjArray& objimp ) const POL_OVERRIDE;
-	  virtual void selfMinusObjImp( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfMinusObj( BObjectImp& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfMinusObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfMinusObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfMinusObj( String& objimp, BObject& obj ) POL_OVERRIDE;
-	  virtual void selfMinusObj( ObjArray& objimp, BObject& obj ) POL_OVERRIDE;
-
-	  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
-	  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices ) POL_OVERRIDE;
-      virtual BObjectRef OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target) POL_OVERRIDE;
-
-	  int find( int begin, const char *target );
-	  unsigned int alnumlen() const;
-	  unsigned int SafeCharAmt() const;
-
-	  void reverse();
-
-	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
 	  int find( char *s, int *posn );
 
 	  virtual std::string getStringRep() const POL_OVERRIDE { return value_; }
@@ -128,23 +88,10 @@ namespace Pol {
 
 	protected:
 
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
-
 	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
 	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
 
-	private:
-	  std::string value_;
-	  String *midstring( int begin, int len ) const;
-	  friend class SubString;
 	};
 
-	class ConstString : public String
-	{
-	public:
-	  explicit ConstString( const std::string& str ) : String( str ) {}
-	};
   }
 }
-#endif
