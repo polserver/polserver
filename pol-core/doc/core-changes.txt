@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+12-26-2015 Bodom:
+  Fixed:   Bug in String.format()
+           String tags were not correctly processed.
+           "{name} you hit level {level}".format(struct{name:="Jane Doe", level:=4})
+           now correctly formats as "Jane Doe you hit level 4" instead of
+           "Jane Doe you hit level <invalid index: #2>"
 12-18-2015 Bodom:
   Added:   New eScript escape sequence in strings "\xAA". Allows to specify a
            single character by its binary value (\x01 to \xFF). The value must
