@@ -379,6 +379,9 @@ namespace Pol {
 
             char w_spaces[] = "\t ";
 
+           	// Tells whether last found tag was an integer
+            bool last_tag_was_int = true;
+
             while ( ( tag_start_pos = value_.find( "{", str_pos ) ) != std::string::npos )
             {
               if ( ( tag_stop_pos = value_.find( "}", tag_start_pos ) ) != std::string::npos )
@@ -422,6 +425,7 @@ namespace Pol {
                 // '.' is found within the tag, there is a property name
                 if ( tag_dot_pos != std::string::npos )
                 {
+                  last_tag_was_int = true;
                   prop_name = tag_body.substr( tag_dot_pos + 1, std::string::npos );  //
                   tag_body = tag_body.substr( 0, tag_dot_pos );  // remove property from the tag
 
@@ -438,14 +442,25 @@ namespace Pol {
                 }
                 else
                 {
-                  if ( s_parse_int( tag_param_idx, tag_body ) )
+                  if ( tag_body == "" )
                   {
+                    // empty body just takes next integer idx
+                    last_tag_was_int = true;
+                    tag_param_idx = next_param_idx++;
+                  }
+                  else if ( s_parse_int( tag_param_idx, tag_body ) )
+                  {
+                    last_tag_was_int = true;
                     tag_param_idx -= 1;  // sinse POL indexes are 1-based
                   }
                   else
-                  {  // non-integer body has just next idx in line
+                  {
+                    // string body takes next idx in line if this is
+                    // the first string body occurrence,
+                    // will reuse last idx if this is 2nd or more in a row
+                    last_tag_was_int = false;
                     prop_name = tag_body;
-                    tag_param_idx = next_param_idx++;
+                    tag_param_idx = last_tag_was_int ? next_param_idx++ : next_param_idx;
                   }
                 }
 

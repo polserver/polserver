@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-19-2015</datemodified>
+		<datemodified>12-26-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>12-26-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Bug in String.format()<br/>
+String tags were not correctly processed.<br/>
+&quot;{name} you hit level {level}&quot;.format(struct{name:=&quot;Jane Doe&quot;, level:=4})<br/>
+now correctly formats as &quot;Jane Doe you hit level 4&quot; instead of<br/>
+&quot;Jane Doe you hit level &lt;invalid index: #2&gt;&quot;</change>
+		</entry>
 		<entry>
 			<date>12-18-2015</date>
 			<author>Bodom:</author>
