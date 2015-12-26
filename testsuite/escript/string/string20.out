@@ -1,0 +1,1264 @@
+String
+<uninitialized object>
+<uninitialized object>
+---------------------------------------------
+shello
+hello
+1
+1
+---------------------------------------------
+t == 1234
+0
+1234 == t 
+0
+t != 1234
+1
+t < 1234
+0
+t <= 1234
+0
+t > 1234
+1
+t >= 1234
+1
+t + 1234
+hello1234
+1234 + t
+1234hello
+t - 1234
+hello
+1234 - t
+1234
+t * 1234
+hello
+1234 * t
+1234
+t / 1234
+hello
+1234 / t
+1234
+t % 1234
+hello
+1234 % t
+1234
+tmp += 1234
+hello1234
+tmp -= 1234
+hello
+tmp *= 1234
+hello
+tmp /= 1234
+hello
+tmp %= 1234
+hello
+t & 1234
+hello
+1234 & t
+1234
+t | 1234
+hello
+1234 | t
+1234
+t ^ 1234
+hello
+1234 ^ t
+1234
+t << 1234
+hello
+1234 << t
+1234
+t >> 1234
+hello
+1234 >> t
+1234
+tmp .+ 1234
+hello
+tmp .- 1234
+hello
+t[1234]
+<uninitialized object>
+---------------------------------------------
+t == hello
+1
+hello == t 
+1
+t != hello
+0
+t < hello
+0
+t <= hello
+1
+t > hello
+0
+t >= hello
+1
+t + hello
+hellohello
+hello + t
+hellohello
+t - hello
+
+hello - t
+
+t * hello
+hello
+hello * t
+hello
+t / hello
+hello
+hello / t
+hello
+t % hello
+hello
+hello % t
+hello
+tmp += hello
+hellohello
+tmp -= hello
+
+tmp *= hello
+hello
+tmp /= hello
+hello
+tmp %= hello
+hello
+t & hello
+hello
+hello & t
+hello
+t | hello
+hello
+hello | t
+hello
+t ^ hello
+hello
+hello ^ t
+hello
+t << hello
+hello
+hello << t
+hello
+t >> hello
+hello
+hello >> t
+hello
+tmp .+ hello
+hello
+tmp .- hello
+hello
+t[hello]
+h
+---------------------------------------------
+t == b
+0
+b == t 
+0
+t != b
+1
+t < b
+0
+t <= b
+0
+t > b
+1
+t >= b
+1
+t + b
+hellob
+b + t
+bhello
+t - b
+hello
+b - t
+b
+t * b
+hello
+b * t
+b
+t / b
+hello
+b / t
+b
+t % b
+hello
+b % t
+b
+tmp += b
+hellob
+tmp -= b
+hello
+tmp *= b
+hello
+tmp /= b
+hello
+tmp %= b
+hello
+t & b
+hello
+b & t
+b
+t | b
+hello
+b | t
+b
+t ^ b
+hello
+b ^ t
+b
+t << b
+hello
+b << t
+b
+t >> b
+hello
+b >> t
+b
+tmp .+ b
+hello
+tmp .- b
+hello
+t[b]
+<uninitialized object>
+---------------------------------------------
+t == ab
+0
+ab == t 
+0
+t != ab
+1
+t < ab
+0
+t <= ab
+0
+t > ab
+1
+t >= ab
+1
+t + ab
+helloab
+ab + t
+abhello
+t - ab
+hello
+ab - t
+ab
+t * ab
+hello
+ab * t
+ab
+t / ab
+hello
+ab / t
+ab
+t % ab
+hello
+ab % t
+ab
+tmp += ab
+helloab
+tmp -= ab
+hello
+tmp *= ab
+hello
+tmp /= ab
+hello
+tmp %= ab
+hello
+t & ab
+hello
+ab & t
+ab
+t | ab
+hello
+ab | t
+ab
+t ^ ab
+hello
+ab ^ t
+ab
+t << ab
+hello
+ab << t
+ab
+t >> ab
+hello
+ab >> t
+ab
+tmp .+ ab
+hello
+tmp .- ab
+hello
+t[ab]
+<uninitialized object>
+---------------------------------------------
+t == a
+0
+a == t 
+0
+t != a
+1
+t < a
+0
+t <= a
+0
+t > a
+1
+t >= a
+1
+t + a
+helloa
+a + t
+ahello
+t - a
+hello
+a - t
+a
+t * a
+hello
+a * t
+a
+t / a
+hello
+a / t
+a
+t % a
+hello
+a % t
+a
+tmp += a
+helloa
+tmp -= a
+hello
+tmp *= a
+hello
+tmp /= a
+hello
+tmp %= a
+hello
+t & a
+hello
+a & t
+a
+t | a
+hello
+a | t
+a
+t ^ a
+hello
+a ^ t
+a
+t << a
+hello
+a << t
+a
+t >> a
+hello
+a >> t
+a
+tmp .+ a
+hello
+tmp .- a
+hello
+t[a]
+<uninitialized object>
+---------------------------------------------
+t == caterpillar
+0
+caterpillar == t 
+0
+t != caterpillar
+1
+t < caterpillar
+0
+t <= caterpillar
+0
+t > caterpillar
+1
+t >= caterpillar
+1
+t + caterpillar
+hellocaterpillar
+caterpillar + t
+caterpillarhello
+t - caterpillar
+hello
+caterpillar - t
+caterpillar
+t * caterpillar
+hello
+caterpillar * t
+caterpillar
+t / caterpillar
+hello
+caterpillar / t
+caterpillar
+t % caterpillar
+hello
+caterpillar % t
+caterpillar
+tmp += caterpillar
+hellocaterpillar
+tmp -= caterpillar
+hello
+tmp *= caterpillar
+hello
+tmp /= caterpillar
+hello
+tmp %= caterpillar
+hello
+t & caterpillar
+hello
+caterpillar & t
+caterpillar
+t | caterpillar
+hello
+caterpillar | t
+caterpillar
+t ^ caterpillar
+hello
+caterpillar ^ t
+caterpillar
+t << caterpillar
+hello
+caterpillar << t
+caterpillar
+t >> caterpillar
+hello
+caterpillar >> t
+caterpillar
+tmp .+ caterpillar
+hello
+tmp .- caterpillar
+hello
+t[caterpillar]
+<uninitialized object>
+---------------------------------------------
+t == 1234
+0
+1234 == t 
+0
+t != 1234
+1
+t < 1234
+1
+t <= 1234
+1
+t > 1234
+0
+t >= 1234
+0
+t + 1234
+hello1234
+1234 + t
+1234hello
+t - 1234
+hello
+1234 - t
+1234
+t * 1234
+hello
+1234 * t
+1234
+t / 1234
+hello
+1234 / t
+1234
+t % 1234
+hello
+1234 % t
+1234
+tmp += 1234
+hello1234
+tmp -= 1234
+hello
+tmp *= 1234
+hello
+tmp /= 1234
+hello
+tmp %= 1234
+hello
+t & 1234
+hello
+1234 & t
+1234
+t | 1234
+hello
+1234 | t
+1234
+t ^ 1234
+hello
+1234 ^ t
+1234
+t << 1234
+hello
+1234 << t
+1234
+t >> 1234
+hello
+1234 >> t
+1234
+tmp .+ 1234
+hello
+tmp .- 1234
+hello
+t[1234]
+error{ errortext = "Subscript out of range" }
+---------------------------------------------
+t == 0
+0
+0 == t 
+0
+t != 0
+1
+t < 0
+1
+t <= 0
+1
+t > 0
+0
+t >= 0
+0
+t + 0
+hello0
+0 + t
+0hello
+t - 0
+hello
+0 - t
+0
+t * 0
+hello
+0 * t
+0
+t / 0
+hello
+0 / t
+0
+t % 0
+hello
+0 % t
+0
+tmp += 0
+hello0
+tmp -= 0
+hello
+tmp *= 0
+hello
+tmp /= 0
+hello
+tmp %= 0
+hello
+t & 0
+hello
+0 & t
+0
+t | 0
+hello
+0 | t
+0
+t ^ 0
+hello
+0 ^ t
+0
+t << 0
+hello
+0 << t
+0
+t >> 0
+hello
+0 >> t
+0
+tmp .+ 0
+hello
+tmp .- 0
+hello
+t[0]
+error{ errortext = "Subscript out of range" }
+---------------------------------------------
+t == -6
+0
+-6 == t 
+0
+t != -6
+1
+t < -6
+1
+t <= -6
+1
+t > -6
+0
+t >= -6
+0
+t + -6
+hello-6
+-6 + t
+-6hello
+t - -6
+hello
+-6 - t
+-6
+t * -6
+hello
+-6 * t
+-6
+t / -6
+hello
+-6 / t
+-6
+t % -6
+hello
+-6 % t
+-6
+tmp += -6
+hello-6
+tmp -= -6
+hello
+tmp *= -6
+hello
+tmp /= -6
+hello
+tmp %= -6
+hello
+t & -6
+hello
+-6 & t
+-6
+t | -6
+hello
+-6 | t
+-6
+t ^ -6
+hello
+-6 ^ t
+-6
+t << -6
+hello
+-6 << t
+-6
+t >> -6
+hello
+-6 >> t
+-6
+tmp .+ -6
+hello
+tmp .- -6
+hello
+t[-6]
+error{ errortext = "Subscript out of range" }
+---------------------------------------------
+t == 12.11
+0
+12.11 == t 
+0
+t != 12.11
+1
+t < 12.11
+1
+t <= 12.11
+1
+t > 12.11
+0
+t >= 12.11
+0
+t + 12.11
+hello12.11
+12.11 + t
+12.11hello
+t - 12.11
+hello
+12.11 - t
+12.11
+t * 12.11
+hello
+12.11 * t
+12.11
+t / 12.11
+hello
+12.11 / t
+12.11
+t % 12.11
+hello
+12.11 % t
+12.11
+tmp += 12.11
+hello12.11
+tmp -= 12.11
+hello
+tmp *= 12.11
+hello
+tmp /= 12.11
+hello
+tmp %= 12.11
+hello
+t & 12.11
+hello
+12.11 & t
+12.11
+t | 12.11
+hello
+12.11 | t
+12.11
+t ^ 12.11
+hello
+12.11 ^ t
+12.11
+t << 12.11
+hello
+12.11 << t
+12.11
+t >> 12.11
+hello
+12.11 >> t
+12.11
+tmp .+ 12.11
+hello
+tmp .- 12.11
+hello
+t[12.11]
+error{ errortext = "Subscript out of range" }
+---------------------------------------------
+t == 0
+0
+0 == t 
+0
+t != 0
+1
+t < 0
+1
+t <= 0
+1
+t > 0
+0
+t >= 0
+0
+t + 0
+hello0
+0 + t
+0hello
+t - 0
+hello
+0 - t
+0
+t * 0
+hello
+0 * t
+0
+t / 0
+hello
+0 / t
+0
+t % 0
+hello
+0 % t
+0
+tmp += 0
+hello0
+tmp -= 0
+hello
+tmp *= 0
+hello
+tmp /= 0
+hello
+tmp %= 0
+hello
+t & 0
+hello
+0 & t
+0
+t | 0
+hello
+0 | t
+0
+t ^ 0
+hello
+0 ^ t
+0
+t << 0
+hello
+0 << t
+0
+t >> 0
+hello
+0 >> t
+0
+tmp .+ 0
+hello
+tmp .- 0
+hello
+t[0]
+error{ errortext = "Subscript out of range" }
+---------------------------------------------
+t == -8.8
+0
+-8.8 == t 
+0
+t != -8.8
+1
+t < -8.8
+1
+t <= -8.8
+1
+t > -8.8
+0
+t >= -8.8
+0
+t + -8.8
+hello-8.8
+-8.8 + t
+-8.8hello
+t - -8.8
+hello
+-8.8 - t
+-8.8
+t * -8.8
+hello
+-8.8 * t
+-8.8
+t / -8.8
+hello
+-8.8 / t
+-8.8
+t % -8.8
+hello
+-8.8 % t
+-8.8
+tmp += -8.8
+hello-8.8
+tmp -= -8.8
+hello
+tmp *= -8.8
+hello
+tmp /= -8.8
+hello
+tmp %= -8.8
+hello
+t & -8.8
+hello
+-8.8 & t
+-8.8
+t | -8.8
+hello
+-8.8 | t
+-8.8
+t ^ -8.8
+hello
+-8.8 ^ t
+-8.8
+t << -8.8
+hello
+-8.8 << t
+-8.8
+t >> -8.8
+hello
+-8.8 >> t
+-8.8
+tmp .+ -8.8
+hello
+tmp .- -8.8
+hello
+t[-8.8]
+error{ errortext = "Subscript out of range" }
+---------------------------------------------
+t == { a, b, c, 19 }
+0
+{ a, b, c, 19 } == t 
+0
+t != { a, b, c, 19 }
+1
+t < { a, b, c, 19 }
+1
+t <= { a, b, c, 19 }
+1
+t > { a, b, c, 19 }
+0
+t >= { a, b, c, 19 }
+0
+t + { a, b, c, 19 }
+hello{ a, b, c, 19 }
+{ a, b, c, 19 } + t
+{ a, b, c, 19, hello }
+t - { a, b, c, 19 }
+hello
+{ a, b, c, 19 } - t
+{ a, b, c, 19 }
+t * { a, b, c, 19 }
+hello
+{ a, b, c, 19 } * t
+{ a, b, c, 19 }
+t / { a, b, c, 19 }
+hello
+{ a, b, c, 19 } / t
+{ a, b, c, 19 }
+t % { a, b, c, 19 }
+hello
+{ a, b, c, 19 } % t
+{ a, b, c, 19 }
+tmp += { a, b, c, 19 }
+hello{ a, b, c, 19 }
+tmp -= { a, b, c, 19 }
+hello
+tmp *= { a, b, c, 19 }
+hello
+tmp /= { a, b, c, 19 }
+hello
+tmp %= { a, b, c, 19 }
+hello
+t & { a, b, c, 19 }
+hello
+{ a, b, c, 19 } & t
+{ a, b, c, 19 }
+t | { a, b, c, 19 }
+hello
+{ a, b, c, 19 } | t
+{ a, b, c, 19 }
+t ^ { a, b, c, 19 }
+hello
+{ a, b, c, 19 } ^ t
+{ a, b, c, 19 }
+t << { a, b, c, 19 }
+hello
+{ a, b, c, 19 } << t
+{ a, b, c, 19 }
+t >> { a, b, c, 19 }
+hello
+{ a, b, c, 19 } >> t
+{ a, b, c, 19 }
+tmp .+ { a, b, c, 19 }
+hello
+tmp .- { a, b, c, 19 }
+hello
+t[{ a, b, c, 19 }]
+<uninitialized object>
+---------------------------------------------
+t == dict{ "1234" -> "456", "eeee" -> 0 }
+0
+dict{ "1234" -> "456", "eeee" -> 0 } == t 
+0
+t != dict{ "1234" -> "456", "eeee" -> 0 }
+1
+t < dict{ "1234" -> "456", "eeee" -> 0 }
+1
+t <= dict{ "1234" -> "456", "eeee" -> 0 }
+1
+t > dict{ "1234" -> "456", "eeee" -> 0 }
+0
+t >= dict{ "1234" -> "456", "eeee" -> 0 }
+0
+t + dict{ "1234" -> "456", "eeee" -> 0 }
+hellodict{ "1234" -> "456", "eeee" -> 0 }
+dict{ "1234" -> "456", "eeee" -> 0 } + t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t - dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } - t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t * dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } * t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t / dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } / t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t % dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } % t
+dict{ "1234" -> "456", "eeee" -> 0 }
+tmp += dict{ "1234" -> "456", "eeee" -> 0 }
+hellodict{ "1234" -> "456", "eeee" -> 0 }
+tmp -= dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+tmp *= dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+tmp /= dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+tmp %= dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+t & dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } & t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t | dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } | t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t ^ dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } ^ t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t << dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } << t
+dict{ "1234" -> "456", "eeee" -> 0 }
+t >> dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+dict{ "1234" -> "456", "eeee" -> 0 } >> t
+dict{ "1234" -> "456", "eeee" -> 0 }
+tmp .+ dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+tmp .- dict{ "1234" -> "456", "eeee" -> 0 }
+hello
+t[dict{ "1234" -> "456", "eeee" -> 0 }]
+<uninitialized object>
+---------------------------------------------
+t == struct{ a = "hello", b = 21, c = "0" }
+0
+struct{ a = "hello", b = 21, c = "0" } == t 
+0
+t != struct{ a = "hello", b = 21, c = "0" }
+1
+t < struct{ a = "hello", b = 21, c = "0" }
+1
+t <= struct{ a = "hello", b = 21, c = "0" }
+1
+t > struct{ a = "hello", b = 21, c = "0" }
+0
+t >= struct{ a = "hello", b = 21, c = "0" }
+0
+t + struct{ a = "hello", b = 21, c = "0" }
+hellostruct{ a = "hello", b = 21, c = "0" }
+struct{ a = "hello", b = 21, c = "0" } + t
+struct{ a = "hello", b = 21, c = "0" }
+t - struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } - t
+struct{ a = "hello", b = 21, c = "0" }
+t * struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } * t
+struct{ a = "hello", b = 21, c = "0" }
+t / struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } / t
+struct{ a = "hello", b = 21, c = "0" }
+t % struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } % t
+struct{ a = "hello", b = 21, c = "0" }
+tmp += struct{ a = "hello", b = 21, c = "0" }
+hellostruct{ a = "hello", b = 21, c = "0" }
+tmp -= struct{ a = "hello", b = 21, c = "0" }
+hello
+tmp *= struct{ a = "hello", b = 21, c = "0" }
+hello
+tmp /= struct{ a = "hello", b = 21, c = "0" }
+hello
+tmp %= struct{ a = "hello", b = 21, c = "0" }
+hello
+t & struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } & t
+struct{ a = "hello", b = 21, c = "0" }
+t | struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } | t
+struct{ a = "hello", b = 21, c = "0" }
+t ^ struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } ^ t
+struct{ a = "hello", b = 21, c = "0" }
+t << struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } << t
+struct{ a = "hello", b = 21, c = "0" }
+t >> struct{ a = "hello", b = 21, c = "0" }
+hello
+struct{ a = "hello", b = 21, c = "0" } >> t
+struct{ a = "hello", b = 21, c = "0" }
+tmp .+ struct{ a = "hello", b = 21, c = "0" }
+hello
+tmp .- struct{ a = "hello", b = 21, c = "0" }
+hello
+t[struct{ a = "hello", b = 21, c = "0" }]
+<uninitialized object>
+---------------------------------------------
+t == error{ errortext = "ERROR" }
+0
+error{ errortext = "ERROR" } == t 
+0
+t != error{ errortext = "ERROR" }
+1
+t < error{ errortext = "ERROR" }
+0
+t <= error{ errortext = "ERROR" }
+0
+t > error{ errortext = "ERROR" }
+0
+t >= error{ errortext = "ERROR" }
+0
+t + error{ errortext = "ERROR" }
+helloerror{ errortext = "ERROR" }
+error{ errortext = "ERROR" } + t
+error{ errortext = "ERROR" }
+t - error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } - t
+error{ errortext = "ERROR" }
+t * error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } * t
+error{ errortext = "ERROR" }
+t / error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } / t
+error{ errortext = "ERROR" }
+t % error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } % t
+error{ errortext = "ERROR" }
+tmp += error{ errortext = "ERROR" }
+helloerror{ errortext = "ERROR" }
+tmp -= error{ errortext = "ERROR" }
+hello
+tmp *= error{ errortext = "ERROR" }
+hello
+tmp /= error{ errortext = "ERROR" }
+hello
+tmp %= error{ errortext = "ERROR" }
+hello
+t & error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } & t
+error{ errortext = "ERROR" }
+t | error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } | t
+error{ errortext = "ERROR" }
+t ^ error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } ^ t
+error{ errortext = "ERROR" }
+t << error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } << t
+error{ errortext = "ERROR" }
+t >> error{ errortext = "ERROR" }
+hello
+error{ errortext = "ERROR" } >> t
+error{ errortext = "ERROR" }
+tmp .+ error{ errortext = "ERROR" }
+hello
+tmp .- error{ errortext = "ERROR" }
+hello
+t[error{ errortext = "ERROR" }]
+<uninitialized object>
+---------------------------------------------
+t == <uninitialized object>
+0
+<uninitialized object> == t 
+0
+t != <uninitialized object>
+1
+t < <uninitialized object>
+0
+t <= <uninitialized object>
+0
+t > <uninitialized object>
+1
+t >= <uninitialized object>
+1
+t + <uninitialized object>
+hello<uninitialized object>
+<uninitialized object> + t
+<uninitialized object>
+t - <uninitialized object>
+hello
+<uninitialized object> - t
+<uninitialized object>
+t * <uninitialized object>
+hello
+<uninitialized object> * t
+<uninitialized object>
+t / <uninitialized object>
+hello
+<uninitialized object> / t
+<uninitialized object>
+t % <uninitialized object>
+hello
+<uninitialized object> % t
+<uninitialized object>
+tmp += <uninitialized object>
+hello<uninitialized object>
+tmp -= <uninitialized object>
+hello
+tmp *= <uninitialized object>
+hello
+tmp /= <uninitialized object>
+hello
+tmp %= <uninitialized object>
+hello
+t & <uninitialized object>
+hello
+<uninitialized object> & t
+<uninitialized object>
+t | <uninitialized object>
+hello
+<uninitialized object> | t
+<uninitialized object>
+t ^ <uninitialized object>
+hello
+<uninitialized object> ^ t
+<uninitialized object>
+t << <uninitialized object>
+hello
+<uninitialized object> << t
+<uninitialized object>
+t >> <uninitialized object>
+hello
+<uninitialized object> >> t
+<uninitialized object>
+tmp .+ <uninitialized object>
+hello
+tmp .- <uninitialized object>
+hello
+t[<uninitialized object>]
+<uninitialized object>
+---------------------------------------------
+~ t
+hello
+---------------------------------------------
+104
+{ 104, 101, 108, 108, 111 }
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Invalid parameter type" }
+0
+0
+hello
+---------------------------------------------
+error{ errortext = "Subscript out of range" }
+hello
+
+hello
+el
+l
+he__o
+---------------------------------------------
+t is true
+"" is false
+0 is true
+---------------------------------------------
+1
+3
+5
+hello
+{ 123, 456	789 }
+he__o
+el
+hXXXXXXo
+	hello
+HELLO
+---------------------------------------------
+5
+hello
+2
+HELLO
+hello
+a
+0xa
+You have 120 gold coins
+John hits Bob for 120 of damage
+You hit John Doe for 120 damage
+Spell Fire Wrath requires reagents: Ba, Bm, Ga
+Jane Doe you hit level 4
+---------------------------------------------
+hello

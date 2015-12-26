@@ -51,7 +51,7 @@
                                                                <a href="#StorageAreas">StorageArea</a>
 </pre>
 
-<datemodified>10/18/2015</datemodified>
+<datemodified>12/26/2015</datemodified>
 </fileheader>
 
 
@@ -648,6 +648,38 @@ Declare and pre-initialize with var s := "my string"</explain>
 <method proto="[substr]" returns="string/uninit" desc="seaches the string for 'substr'. If found, returns the first character of the substring, else uninitialized object. " />
 <method proto="[substr] := replace_str" returns="string" desc="finds the first occurance of 'substr' and replaces substr with 'replace_str'. returns the new string."/>
 <method proto="+ string" returns="string" desc="concatenates the strings, returns the new string."/>
+<method proto="length()" returns="int" desc="returns number of characters in the string"/>
+<method proto="find(search,[start])" returns="int" desc="returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str, but unlike the basic.em function the Start parameter is optional if not given it searches the whole string"/>
+<method proto="upper()" returns="string" desc="returns like upper(str) the uppercase version and also modifies the str"/>
+<method proto="lower()" returns="string" desc="returns like lower(str) the lowercase version and also modifies the str"/>
+<method proto="format(args)" returns="string" desc="formats a string using the data from args.
+	Accepts the following format:
+	{:x} for hex representation
+	{:o} for octal
+	{:b} for binary
+
+	Add a # to get notation prefix, e.g.:
+	&quot;{:x}&quot;.format(10) -> &quot;a&quot;
+	&quot;{:#x}&quot;.format(10) -> &quot;0xa&quot;
+
+	Parameters can be simple:
+	&quot;You have {} gold coins&quot;.format(120) -> &quot;You have 120 gold coins&quot;
+
+	and are unpacked implicitly by their order:
+	&quot;{} hits {} for {} of damage&quot;.format(&quot;John&quot;, &quot;Bob&quot;, 120) -> &quot;John hits Bob for 120 of damage&quot;
+
+	However you can specify parameters explicitly (first argument is at 1):
+	&quot;You hit {2} for {1} damage&quot;.format(120, &quot;John Doe&quot;) -> &quot;You hit John Doe for 120 damage&quot;
+
+	Format allows accessing object members:
+	&quot;Spell {1.spell_name} requires reagents: {1.reagents}&quot;.format(struct{spell_name:=&quot;Fire Wrath&quot;, &quot;Ba, Bm, Ga&quot;}) -> &quot;Spell Fire Wrath requires reagents: Ba, Bm, Ga&quot;
+
+	Implicit members also work:
+	&quot;{name} you hit level {level}&quot;.format(struct{name:=&quot;Jane Doe&quot;, level:=4}) -> &quot;Jane Doe you hit level 4&quot;
+
+	Character or item members are accessed the same way:
+	&quot;{1.name}, your shield {2.desc} has {2.hp} hp&quot;.format(who, who.shield) -> &quot;Admin, your shield Buckler of Death has 150 hp&quot;"/>
+<method proto="join(array)" returns="string" desc="returns a string which is the concatenation of the array elements, seperated by str"/>
 </class>
 
 
