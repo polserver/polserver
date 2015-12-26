@@ -18,9 +18,10 @@ protected:
     virtual int main() = 0;
     virtual void showHelp() = 0;
 
-    const std::vector<std::string>& programArgs();
-    std::string programArgsFind(std::string filter);
-    std::string programArgsFindEquals(std::string filter, std::string defaultVal);
+    const std::vector<std::string>& programArgs() const;
+    std::string programArgsFind(const std::string& filter) const;
+    std::string programArgsFindEquals(const std::string& filter, std::string defaultVal) const;
+    int programArgsFindEquals(const std::string& filter, int defaultVal, bool hexvalue) const;
 
 private:
     std::vector<std::string>    m_programArguments;

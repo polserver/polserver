@@ -20,20 +20,20 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 // Defines noreturn attribute using VC++ specifics, C++11-way for modern compilers. :P
 // Note: noreturn can be used for code-generation and is supposed to produce more optimized code
 #ifndef POL_NORETURN
-#	ifdef _MSC_VER
+#	if defined(_MSC_VER)
 #		define POL_NORETURN _declspec(noreturn)
-#	else
-#       ifdef __GNUC__
-#           define POL__GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
-#           if POL__GCC_VERSION <= 407
-#		        define POL_NORETURN __attribute__((noreturn))
-#           else
-#   		    define POL_NORETURN [[noreturn]]
-#           endif
-#           undef POL__GCC_VERSION
+#	elif defined(__clang__)
+#   	define POL_NORETURN [[noreturn]]
+#   elif defined(__GNUC__)
+#       define POL__GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+#       if POL__GCC_VERSION <= 407
+#		    define POL_NORETURN __attribute__((noreturn))
 #       else
 #   		define POL_NORETURN [[noreturn]]
 #       endif
+#       undef POL__GCC_VERSION
+#   else
+#   	define POL_NORETURN [[noreturn]]
 #	endif
 #endif
 
@@ -53,24 +53,25 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 // override and final makros
 #ifndef POL_OVERRIDE
-#	ifdef _MSC_VER
+#	if defined(_MSC_VER)
 #		define POL_OVERRIDE override
 #		define POL_FINAL final
-#	else
-#       ifdef __GNUC__
-#           define POL__GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
-#           if POL__GCC_VERSION < 407
-#				define POL_OVERRIDE 
-#				define POL_FINAL 
-#           else
-#				define POL_OVERRIDE override
-#				define POL_FINAL final
-#           endif
-#           undef POL__GCC_VERSION
+#	elif defined(__clang__)
+#		define POL_OVERRIDE override
+#		define POL_FINAL final
+#   elif defined(__GNUC__)
+#       define POL__GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
+#       if POL__GCC_VERSION < 407
+#			define POL_OVERRIDE 
+#			define POL_FINAL 
 #       else
 #			define POL_OVERRIDE override
 #			define POL_FINAL final
-#       endif
+#        endif
+#        undef POL__GCC_VERSION
+#   else
+#        define POL_OVERRIDE 
+#        define POL_FINAL
 #	endif
 #endif
 
