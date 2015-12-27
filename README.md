@@ -47,4 +47,4 @@ Make sure you have the required libraries installed: boost, zlib and the mysql c
 
 Minimum compiler version: GCC 4.7 or LLVM/Clang 3.5.
 
-Additionally, you need at least CMake 3.1.
+Additionally, you need at least CMake 2.8.
