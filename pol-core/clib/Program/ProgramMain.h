@@ -21,7 +21,7 @@ protected:
     const std::vector<std::string>& programArgs() const;
     std::string programArgsFind(const std::string& filter) const;
     std::string programArgsFindEquals(const std::string& filter, std::string defaultVal) const;
-    int programArgsFindEquals(const std::string& filter, int defaultVal, bool hexvalue) const;
+    int programArgsFindEquals(const std::string& filter, int defaultVal, bool hexVal) const;
 
 private:
     std::vector<std::string>    m_programArguments;

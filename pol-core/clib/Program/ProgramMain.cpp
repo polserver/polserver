@@ -153,12 +153,12 @@ std::string ProgramMain::programArgsFindEquals(const std::string& filter, std::s
 	return defaultVal;
 }
 
-int ProgramMain::programArgsFindEquals(const std::string& filter, int defaultVal, bool hexvalue) const
+int ProgramMain::programArgsFindEquals(const std::string& filter, int defaultVal, bool hexVal) const
 {
   std::string val = programArgsFindEquals(filter, "");
   if (val.empty())
     return defaultVal;
-  return strtoul( val.c_str(), NULL, hexvalue ? 16 : 10 );
+  return strtoul(val.c_str(), NULL, hexVal ? 16 : 10);
 }
 
 }} // namespaces
