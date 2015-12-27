@@ -10,7 +10,7 @@ Notes
 
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
-#include "../clib/xmain.h"
+//#include "../clib/xmain.h"
 #include "../clib/logfacility.h"
 
 #include "../plib/systemstate.h"

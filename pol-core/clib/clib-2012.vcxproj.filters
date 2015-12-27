@@ -295,9 +295,6 @@
     <ClInclude Include="wnsckt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="xmain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\lib\tinyxml\tinystr.h">
       <Filter>tinyxml</Filter>
     </ClInclude>
