@@ -74,6 +74,9 @@ Notes
 namespace Pol {
   namespace Core {
 
+    // See comment in boost_utils::flyweight_initializers
+    boost_utils::flyweight_initializers fw_inits;
+
 	GameState gamestate;
 
 
