@@ -1616,14 +1616,14 @@ template<typename... Args>
 inline Writer Format(const StringRef &format, const Args & ... args) {
   Writer w;
   w.Format(format, args...);
-  return std::move(w);
+  return w;
 }
 
 template<typename... Args>
 inline WWriter Format(const WStringRef &format, const Args & ... args) {
   WWriter w;
   w.Format(format, args...);
-  return std::move(w);
+  return w;
 }
 #endif  // FMT_USE_VARIADIC_TEMPLATES && FMT_USE_RVALUE_REFERENCES
 }
