@@ -39,6 +39,6 @@ script:
 
   - cd ../../testsuite/escript
   - if [ "$CXX" = "g++-5" ]; then
-      /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl
+      /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl ;
     fi
 
