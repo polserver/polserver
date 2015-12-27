@@ -21,7 +21,7 @@ Notes
 #include <string>
 #include <stack>
 
-// Just like "this", but with explicit cast to child (see above)
+// Just like "this", but with explicit cast to child (see BaseString doc)
 #define this_child (static_cast<D*>(this))
 #define this_child_const (static_cast<const D*>(this))
 
@@ -34,22 +34,13 @@ namespace Pol {
      *
      * @param V type of the underlying value_ container
      * @param D type of the derived class (the class implementing this template itself)
-     *          Just found this technique has a name: CRTP - Curiously recurring template pattern
+     *          Just found this technique has a name: CRTP - Curiously Recurring Template Pattern
      * @param T ID for the object type, constant for BObjectImp constructor
      */
     template <typename V, typename D, BObjectImp::BObjectType T>
     class BaseString : public BObjectImp {
 
     typedef typename V::size_type V_size_type;
-
-    protected:
-    // ---------------- PURE VIRTUALS -----------------------------------------
-
-      /**
-       * This allows to use child() just like *this was used inside the child class
-       */
-      virtual BaseString& child() = 0;
-
 
     public:
     // ---------------- CONSTRUCTORS ------------------------------------------
@@ -315,7 +306,11 @@ namespace Pol {
           return false;
       }
 
-      /** Since non-Strings show up here as not equal, we make them less than. */
+      /**
+       * Since non-Strings show up here as not equal, we make them less than.
+       *
+       * @todo TODO: Change this behavior? It doesn't make much sense - 12-27-2015 Bodom
+       */
       virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE
       {
         if ( objimp.isa( T ) )
@@ -362,7 +357,7 @@ namespace Pol {
             D* target_str = (D*)target;
             value_.replace( pos, len, target_str->value_ );
           }
-          return this;
+          return this_child;
         }
         else
         {
@@ -436,7 +431,7 @@ namespace Pol {
           return BObjectRef( UninitObject::create() );
         }
 
-        return BObjectRef( this );
+        return BObjectRef( this_child );
       }
 
 

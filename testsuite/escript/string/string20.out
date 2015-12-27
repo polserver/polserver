@@ -1083,9 +1083,9 @@ t < error{ errortext = "ERROR" }
 t <= error{ errortext = "ERROR" }
 0
 t > error{ errortext = "ERROR" }
-0
+1
 t >= error{ errortext = "ERROR" }
-0
+1
 t + error{ errortext = "ERROR" }
 helloerror{ errortext = "ERROR" }
 error{ errortext = "ERROR" } + t

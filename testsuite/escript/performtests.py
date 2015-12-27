@@ -33,14 +33,17 @@ class Compare:
 				print('EXPECTED:')
 				for l in l1:
 					print('\t'+l.rstrip('\r\n'))
-				print('GOT:')
+				print('RESULT:')
 				for l in l2:
 					print('\t'+l.rstrip('\r\n'))
 				return False
+			line = 0
 			for c1,c2 in zip(l1,l2):
+				line += 1
 				if c1!=c2:
-					print('"',c1,'"')
-					print('"',c2,'"')
+					print('Line {}:'.format(line))
+					print('EXPECTED: "{}"'.format(c1.rstrip('\r\n')))
+					print('RESULT:   "{}"'.format(c2.rstrip('\r\n')))
 					return False
 			return True
 

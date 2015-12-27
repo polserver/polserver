@@ -18,6 +18,7 @@ Notes
 #include "bstruct.h"
 #include "dict.h"
 #include "impstr.h"
+//#include "impunicode.h"
 #include "escriptv.h"
 #include "executor.h"
 
@@ -89,6 +90,7 @@ namespace Pol {
 		{
 		  case 's': return String::unpack( is );
 		  case 'S': return String::unpackWithLen( is );
+		  //case 'U': return Unicode::unpack( is );
 		  case 'i': return BLong::unpack( is );
 		  case 'r': return Double::unpack( is );
 		  case 'u': return UninitObject::create();
@@ -248,8 +250,21 @@ namespace Pol {
 	{
 	  return ( this == &objimp );
 	}
+    /**
+     * Based on string implementation, non-strings are always bigger
+     * than strings, except for OTUninit and OTError
+     *
+     * @todo TODO: Change this behavior? It doesn't make much sense - 12-27-2015 Bodom
+     */
 	bool BObjectImp::isLessThan( const BObjectImp& objimp ) const
 	{
+      if ( objimp.isa( OTString ) )
+      {
+        if( isa( OTUninit ) || isa( OTError ) )
+          return true;
+        return false;
+      }
+      //FIXME: this default behavior does not make any sense!!!
 	  return ( this < &objimp );
 	}
 
