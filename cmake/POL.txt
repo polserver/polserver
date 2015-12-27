@@ -38,8 +38,8 @@ IF(LINUX)
         -DTIXML_USE_STL 
         -W
         -Wall
-        -Wno-overloaded-virtual
-        -Wno-switch
+      #  -Wno-overloaded-virtual
+      #  -Wno-switch
         -Wno-unused
         -Wno-long-long
         -Wno-deprecated-declarations

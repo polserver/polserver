@@ -63,7 +63,7 @@ namespace Pol {
 	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLFile; }
 	  virtual bool isTrue() const POL_OVERRIDE;
       virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
-      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+      virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new BXMLNodeIterator( &file, pIterVal );
 	  }
@@ -94,7 +94,7 @@ namespace Pol {
 	  {
         return sizeof( *this ) + sizeof( TiXmlNode );
 	  }
-      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+      virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new BXMLNodeIterator( node, pIterVal );
 	  }
@@ -129,7 +129,7 @@ namespace Pol {
 	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLAttributes; }
 	  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
 
-      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+      virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new BXMLAttributeIterator( node, pIterVal );
 	  }

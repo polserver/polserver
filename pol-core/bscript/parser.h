@@ -160,7 +160,7 @@ namespace Pol {
       virtual int isUserFunc(Token& tok, UserFunction **userfunc);
 
 	  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token * ) POL_OVERRIDE;
-	  int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL );
+	  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL ) POL_OVERRIDE;
 
 	  bool callingMethod( CompilerContext& ctx );
 

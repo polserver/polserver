@@ -2,7 +2,6 @@
 
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
-#include "../clib/cmdargs.h"
 #include "../clib/cfgelem.h"
 #include "../clib/timer.h"
 
@@ -215,6 +214,7 @@ int RunEclMain::main()
     m_quiet = programArgsFind("q") != "";
     m_debug = programArgsFind("d") != "";
     m_profile = programArgsFind("p") != "";
+    Clib::passert_disabled = !programArgsFind("a").empty() ? false : true;
 
     /**********************************************
      * show copyright

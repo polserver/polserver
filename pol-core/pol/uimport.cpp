@@ -1090,7 +1090,7 @@ namespace Pol {
       auto critical_promise = std::make_shared<std::promise<bool>>();
       auto critical_future = critical_promise->get_future();
       SaveContext::finished =
-        std::move( std::async( std::launch::async, [&, critical_promise]()->bool
+        std::async( std::launch::async, [&, critical_promise]()->bool
       {
         // limit the used thread
 #ifndef __clang__
@@ -1283,7 +1283,7 @@ namespace Pol {
         commit( "datastore" );
         commit( "parties" );
         return true;
-      } ) );
+      } );
       critical_future.wait();  // wait for end of critical part
 
       if ( Plib::systemstate.accounts_txt_dirty ) // write accounts extra, since it uses extra thread for io operations would be to many threads working

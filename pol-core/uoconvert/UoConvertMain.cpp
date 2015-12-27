@@ -21,7 +21,6 @@
 #include "../clib/stlutil.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/cmdargs.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
@@ -1221,7 +1220,7 @@ int UoConvertMain::main()
       int x = programArgsFindEquals( "x=", -1, false );
       int y = programArgsFindEquals( "y=", -1, false );
 
-      // brittania: realm=main mapid=0 width=6144 height=4096
+      // britannia: realm=main mapid=0 width=6144 height=4096
       // ilshenar: realm=ilshenar mapid=2 width=2304 height=1600
       // malas: realm=malas mapid=3 width=2560 height=2048
       // tokuno: realm=tokuno mapid=4 width=1448 height=1448

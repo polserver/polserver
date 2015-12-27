@@ -45,7 +45,7 @@ namespace Pol {
 	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
 	  virtual bool isTrue() const POL_OVERRIDE;
 
-	  ContIterator* createIterator( BObject* pIterVal );
+	  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
 
 	private:
 	  static unsigned int creations_;
