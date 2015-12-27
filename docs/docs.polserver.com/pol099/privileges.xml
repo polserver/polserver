@@ -17,7 +17,7 @@
 <list name="seeinvisitems">can see items that are inivisble</list>
 <list name="dblclickany">can use any item, regardless of LOS or distance</list>
 <list name="losany">always has Line-of-sight to any object</list>
-<list name="ignoredoors">doors do not block movement</list>
+<list name="ignoredoors">doors do not block movement (Note: When using the original client, you can not run through doors without GM or dead graphic, and it has nothing to do with POL. This is a client-side block. No packet will be sent if you trying to walk through a door without GM Form)</list>
 <list name="freemove">immune to paralyze, frozen, stamina cost for movement, ignores PushThrough syshook.</list>
 <list name="firewhilemoving">swingtimer will not be reset if char is moving with projectile weapon</list>
 <list name="attackhidden">char can attack hidden opponents</list>
