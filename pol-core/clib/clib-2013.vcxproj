@@ -234,7 +234,6 @@
     <ClCompile Include="cfgsect.cpp" />
     <ClCompile Include="clib_MD5.cpp" />
     <ClCompile Include="clib_utils.cpp" />
-    <ClCompile Include="cmdargs.cpp" />
     <ClCompile Include="Debugging\ExceptionParser.cpp" />
     <ClCompile Include="Debugging\LogSink.cpp" />
     <ClCompile Include="dirfunc.cpp" />
@@ -292,7 +291,6 @@
     <ClInclude Include="clib.h" />
     <ClInclude Include="clibopt.h" />
     <ClInclude Include="clib_MD5.h" />
-    <ClInclude Include="cmdargs.h" />
     <ClInclude Include="compileassert.h" />
     <ClInclude Include="compilerspecifics.h" />
     <ClInclude Include="Debugging\ExceptionParser.h" />

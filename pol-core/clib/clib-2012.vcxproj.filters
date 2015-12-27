@@ -32,9 +32,6 @@
     <ClCompile Include="cfgsect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cmdargs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dirfunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -188,9 +185,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="clibopt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cmdargs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="compileassert.h">
