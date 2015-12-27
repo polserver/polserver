@@ -1105,13 +1105,6 @@ namespace Pol {
 
   int xmain_inner()
   {
-    // Must call this in single threaded mode
-    if( ! boost_utils::flystring_init() )
-    {
-      POLLOG_ERROR << "Unable to init flystrings.\n";
-      return 1;
-    }
-
 #ifdef _WIN32
     Clib::MiniDumper::Initialize();
     // Aug. 15, 2006 Austin

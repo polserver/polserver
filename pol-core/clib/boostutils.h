@@ -145,8 +145,6 @@ namespace Pol {
 #endif
 
     // definition of the different Flyweight factories
-    // IMPORTANT NOTE: when adding a type, remember to also add a call to its
-    //                 init() method in flystring_init()
     struct cprop_name_tag {};
     typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>, FLYWEIGHT_HASH_FACTORY> cprop_name_flystring;
     struct cprop_value_tag {};
@@ -161,9 +159,6 @@ namespace Pol {
     typedef boost::flyweight<std::string, boost::flyweights::tag<npctemplate_name_tag>, FLYWEIGHT_HASH_FACTORY> npctemplate_name_flystring;
     struct function_name_tag {};
     typedef boost::flyweight<std::string, boost::flyweights::tag<function_name_tag>, FLYWEIGHT_HASH_FACTORY> function_name_flystring;
-
-    bool flystring_init();
-
   }
 }
 #endif
