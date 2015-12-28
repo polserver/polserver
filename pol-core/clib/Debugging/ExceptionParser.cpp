@@ -144,7 +144,7 @@ string getCompilerVersion()
     #ifdef LINUX
         char result[256];
 		#ifdef __clang__
-        	sprintf(result, "clang %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+        	sprintf(result, "clang %d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
 		#else
         	sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 		#endif
