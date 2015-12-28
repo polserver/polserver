@@ -141,11 +141,15 @@ void logExceptionSignal(int signal)
 
 string getCompilerVersion()
 {
-    #ifndef _WIN32
-        //TODO: clang
+    #ifdef LINUX
         char result[256];
-        sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-    #else
+		#ifdef __clang__
+        	sprintf(result, "clang %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		#else
+        	sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		#endif
+	#endif
+    #ifdef WINDOWS
         string result;
         switch(_MSC_VER)
         {
