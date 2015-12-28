@@ -277,7 +277,7 @@ void doHttpPOST(string host, string url, string content)
             while ((readBytes = recv(socketFD, answer, MAXLINE, 0)) > 0) {
         #endif
             answer[readBytes] = '\0';
-            printf("Answer from bug tracking server: %s\n", answer);
+            printf("Answer from bug tracking server:\n%s\n", answer);
             // skip the received answer and proceed
         }
 
@@ -338,7 +338,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                  */
                 printf("########################################################################################\n");
                 if(m_programAbortReporting)
-                    printf("POL will exit now. The following will be sent to the POL developers:\n");
+                    printf("POL will exit now. The following will be sent to the POL developers:\n\n");
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
