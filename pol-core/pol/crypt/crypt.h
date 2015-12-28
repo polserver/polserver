@@ -100,7 +100,7 @@ namespace Pol {
 	  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
 
 	protected:
-	  virtual void Decrypt( void *pvIn, void *pvOut, int len );
+	  virtual void Decrypt( void *pvIn, void *pvOut, int len ) POL_OVERRIDE;
 	};
 
 	// TWOFISH

@@ -19,7 +19,6 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/cmdargs.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/fdump.h"
@@ -1247,7 +1246,6 @@ int UoToolMain::main()
     /**********************************************
      * TODO: rework the following cruft from former uotool.cpp
      **********************************************/
-	Clib::StoreCmdArgs( s_argc, s_argv );
 	Clib::ConfigFile cf( "pol.cfg" );
 	Clib::ConfigElem elem;
 

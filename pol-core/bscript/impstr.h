@@ -124,7 +124,7 @@ namespace Pol {
 
 	  virtual std::string getStringRep() const POL_OVERRIDE { return value_; }
 	  virtual std::string getFormattedStringRep() const POL_OVERRIDE { return "\"" + value_ + "\""; }
-	  void printOn( std::ostream& ) const;
+	  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
 	protected:
 

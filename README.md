@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/polserver/polserver.svg?branch=master)](https://travis-ci.org/polserver/polserver)
+[![Build status](https://ci.appveyor.com/api/projects/status/trv2pbr1icve49sp?svg=true)](https://ci.appveyor.com/project/turleypol/polserver)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2862/badge.svg)](https://scan.coverity.com/projects/2862)
 
 
@@ -46,7 +47,7 @@ Boost libraries are also shipped with the source. If you choose to use the provi
 * `tar xjf boost_1_55_0.tar.bz2`
 * `cd ..`
 
-Then run the following commands (you need at least CMake 3.1):
+Then run the following commands (you need at least CMake 2.8):
 * `cd pol-core/bin-build`
 * `./build_linux.sh`
 

@@ -23,7 +23,6 @@ SET (SOURCES  # sorted !
 	clibopt.h
 	clib_MD5.cpp
 	clib_utils.cpp 
-	cmdargs.cpp 
 	dirlist.cpp
 	esignal.cpp
 	fdump.cpp 

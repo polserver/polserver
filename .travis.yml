@@ -4,7 +4,7 @@ sudo: false
 
 compiler:
   - gcc
-#  - clang
+  - clang
 
 addons:
   apt:
@@ -39,4 +39,6 @@ script:
   - ./build_linux.sh
 
   - cd ../../testsuite/escript
-  - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl
+  - if [ "$CXX" = "g++-5" ]; then
+      ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl ;
+    fi

@@ -828,11 +828,11 @@ namespace Pol {
 
 	  const BApplicObjType* object_type() const;
 	public: // Class Machinery
-	  virtual BObjectImp* copy() const = 0;
+	  virtual BObjectImp* copy() const POL_OVERRIDE = 0;
 
 	  virtual std::string getStringRep() const POL_OVERRIDE;
 	  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
-	  virtual size_t sizeEstimate() const = 0;
+	  virtual size_t sizeEstimate() const POL_OVERRIDE = 0;
 
 	private:
 	  const BApplicObjType* object_type_;
@@ -860,9 +860,9 @@ namespace Pol {
 	  const T& value() const;
 	  T* operator->( );
 
-	  virtual const char* typeOf() const = 0;
-	  virtual int typeOfInt() const = 0;
-	  virtual BObjectImp* copy() const = 0;
+	  virtual const char* typeOf() const POL_OVERRIDE = 0;
+	  virtual int typeOfInt() const POL_OVERRIDE = 0;
+	  virtual BObjectImp* copy() const POL_OVERRIDE = 0;
 	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 	protected:

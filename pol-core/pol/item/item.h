@@ -99,7 +99,7 @@ namespace Pol {
 	  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
 	  virtual void on_facing_changed() POL_OVERRIDE;
 
-	  std::string description() const;
+	  virtual std::string description() const POL_OVERRIDE;
 	  std::string merchant_description() const;
       
 
