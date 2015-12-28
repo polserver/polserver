@@ -222,7 +222,6 @@
     <ClCompile Include="cfgfile.cpp" />
     <ClCompile Include="cfgsect.cpp" />
     <ClCompile Include="clib_utils.cpp" />
-    <ClCompile Include="cmdargs.cpp" />
 	<ClCompile Include="Debugging\ExceptionParser.cpp" />
 	<ClCompile Include="Debugging\LogSink.cpp" />
     <ClCompile Include="dirfunc.cpp" />
@@ -278,7 +277,6 @@
     <ClInclude Include="cfgsect.h" />
     <ClInclude Include="clib.h" />
     <ClInclude Include="clibopt.h" />
-    <ClInclude Include="cmdargs.h" />
     <ClInclude Include="compileassert.h" />
     <ClInclude Include="compilerspecifics.h" />
 	<ClInclude Include="Debugging\ExceptionParser.h"/>
@@ -325,7 +323,6 @@
     <ClInclude Include="wallclock.h" />
     <ClInclude Include="weakptr.h" />
     <ClInclude Include="wnsckt.h" />
-    <ClInclude Include="xmain.h" />
     <ClInclude Include="..\..\lib\tinyxml\tinystr.h" />
     <ClInclude Include="..\..\lib\tinyxml\tinyxml.h" />
   </ItemGroup>

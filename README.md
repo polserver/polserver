@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/polserver/polserver.svg?branch=master)](https://travis-ci.org/polserver/polserver)
+[![Build status](https://ci.appveyor.com/api/projects/status/trv2pbr1icve49sp?svg=true)](https://ci.appveyor.com/project/turleypol/polserver)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2862/badge.svg)](https://scan.coverity.com/projects/2862)
 
 
@@ -47,4 +48,4 @@ Make sure you have the required libraries installed: boost, zlib and the mysql c
 
 Minimum compiler version: GCC 4.7 or LLVM/Clang 3.5.
 
-Additionally, you need at least CMake 3.1.
+Additionally, you need at least CMake 2.8.
