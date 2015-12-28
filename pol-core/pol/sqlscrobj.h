@@ -102,6 +102,10 @@ namespace Pol {
       int _affected_rows;
     };
     class SQLService;
+
+    typedef std::vector<std::string> QueryParam;
+    typedef std::shared_ptr<QueryParam> QueryParams;
+
     class BSQLConnection : public Bscript::BObjectImp
     {
       class ConnectionWrapper;
@@ -110,7 +114,8 @@ namespace Pol {
       BSQLConnection( std::shared_ptr<ConnectionWrapper> conn );
       ~BSQLConnection();
       bool connect( const char *host, const char *user, const char *passwd );
-      bool query( const char *query );
+      bool query( const std::string query );
+      bool query( const std::string query, const QueryParams params );
       bool select_db( const char *db );
       bool close();
       Bscript::BObjectImp *getResultSet() const;

@@ -30,6 +30,7 @@ namespace Pol {
 
 	  unsigned int wrestling;
 	  unsigned int mount;
+	  unsigned int shield;
 
 	  unsigned int secure_trade_container;
 	  unsigned int wornitems_container;

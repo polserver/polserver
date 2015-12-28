@@ -88,6 +88,8 @@ namespace Pol {
 	  bool core_sends_guildmsgs;
 	  bool mobiles_block_npc_movement;
 
+	  unsigned char default_character_height;
+
 	  static void read_servspecopt();
 	  static void ssopt_parse_totalstats( Clib::ConfigElem& elem );
 	};

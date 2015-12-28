@@ -35,6 +35,7 @@ Notes
 #include "../sockets.h"
 #include "../uconst.h"
 #include "../crypt/cryptkey.h"
+#include "../polclock.h"
 
 #include <memory>
 #include <cstring>
@@ -248,6 +249,9 @@ namespace Pol {
 	  std::queue<PacketThrottler> movementqueue;
 	  Clib::wallclock_t next_movement;
 	  u8 movementsequence;
+	  // Will be set by clientthread
+	  Core::polclock_t last_activity_at;
+	  Core::polclock_t last_packet_at;
 
 	private:
 	  struct

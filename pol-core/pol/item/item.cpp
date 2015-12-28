@@ -692,8 +692,11 @@ namespace Pol {
 	}
 #endif
 
-	bool Item::can_add_to_self( unsigned short amount ) const
+	bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
 	{
+	  if( ! force_stacking && ! stackable() )
+		return false;
+
 	  unsigned int amount1 = (unsigned int)amount_;
 	  unsigned int amount2 = (unsigned int)amount;
 
@@ -711,7 +714,7 @@ namespace Pol {
 	  return true;
 	}
 
-	bool Item::can_add_to_self( const Item& item ) const //dave 1/26/03 totally changed this function to handle the cprop comparisons.
+	bool Item::can_add_to_self( const Item& item, bool force_stacking ) const //dave 1/26/03 totally changed this function to handle the cprop comparisons.
 	{
 	  bool res = ( ( item.objtype_ == objtype_ ) &&
 				   ( item.newbie() == newbie() ) &&
@@ -719,7 +722,7 @@ namespace Pol {
 				   ( item.graphic == graphic ) &&
 				   ( item.color == color ) &&
 				   ( !inuse() ) &&
-				   ( can_add_to_self( item.amount_ ) )
+				   ( can_add_to_self( item.amount_, force_stacking ) )
 				   );
 	  if ( res == true )
 	  {
@@ -816,8 +819,8 @@ namespace Pol {
 
 	bool Item::setgraphic( u16 newgraphic )
 	{
-        // Can't set the graphic of an equipped item, unless it's a mount and the new graphic is also a mount.
-        if (layer && (layer != Core::LAYER_MOUNT || layer != Core::tilelayer(newgraphic)))
+        // Can't set the graphic of an equipped item, unless the new graphic has the same layer
+        if (layer && layer != Core::tilelayer(newgraphic))
         {
             return false;
         }

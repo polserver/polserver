@@ -9,8 +9,9 @@
   
   <function name="StorageAreas"> 
     <prototype>StorageAreas()</prototype>
-    <explain>Get an array of "Storage area objects", with "count" member, and [] operator. (more info TBD)</explain>
-    <return>?</return>
+    <explain>Returns a StorageAreas object, see object reference for details</explain>
+    <return>StorageAreas object</return>
+    <related>StorageAreas</related>
   </function>
 
 <function name="FindStorageArea">
@@ -19,8 +20,9 @@
 	<explain>Gets a reference to the storage area named "areaname"</explain>
 	<return>Storage Area reference on success</return>
 	<error>none (returns 0 on invalid parameter or area not found)</error>
+	<related>StorageArea</related>
 </function>
-	
+
 <function name="FindRootItemInStorageArea">
 	<prototype>FindRootItemInStorageArea( area, itemname )</prototype>
 	<parameter name="area" value="Storage Area Reference" />

@@ -2131,15 +2131,44 @@ namespace Pol {
 	  msg.Send( client );
 	}
 
+	/// Sends number of maps used and number of map/static patches for each map
 	void send_map_difs( Client* client )
 	{
+	  // Prepare the data by reading map id used by every realm
+	  // When a map is used multiple times in different realms, only
+	  // take into account first realm found. No support for using the
+	  // same map with different diff files for different realms.
+	  struct mapdiff
+	  {
+		u32 static_patches;
+		u32 map_patches;
+	  };
+	  std::map<u32,mapdiff> mapinfo;
+	  for ( auto it = gamestate.Realms.begin(); it != gamestate.Realms.end(); ++it )
+	  {
+		mapdiff md = { (*it)->getNumStaticPatches(), (*it)->getNumMapPatches() };
+		mapinfo.insert( std::pair<u32,mapdiff>( (*it)->getUOMapID(), md ) );
+	  }
+
+	  u32 max_map_id = mapinfo.rbegin()->first;
+
 	  PktHelper::PacketOut<PktOut_BF_Sub18> msg;
 	  msg->offset += 4; //len+sub
-	  msg->WriteFlipped<u32>( gamestate.baserealm_count );
-	  for ( unsigned int i = 0; i < gamestate.baserealm_count; i++ )
+	  msg->WriteFlipped<u32>( max_map_id + 1 ); // Number of maps
+	  for ( u32 i = 0; i <= max_map_id; i++ )
 	  {
-		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumStaticPatches() );
-		msg->WriteFlipped<u32>( gamestate.Realms.at( i )->getNumMapPatches() );
+		auto it = mapinfo.find(i);
+		if ( it == mapinfo.end() )
+		{
+		  // Filling hole (map not used)
+		  msg->WriteFlipped<u32>( 0u );
+		  msg->WriteFlipped<u32>( 0u );
+		}
+		else
+		{
+		  msg->WriteFlipped<u32>( mapinfo.at(i).static_patches );
+		  msg->WriteFlipped<u32>( mapinfo.at(i).map_patches );
+		}
 	  }
 	  u16 len = msg->offset;
 	  msg->offset = 1;
@@ -2233,5 +2262,55 @@ namespace Pol {
 	  msg->WriteFlipped<u16>( len );
 	  msg.Send( chr->client, len );
 	}
+
+    /**
+    * Sends the packet for the buff bar
+    * @author Bodom, 2015-12-02
+    *
+    * @param chr the Character to send the packet to
+    * @param icon the ID of the icon to show/remove
+    * @param show if true, shows/updates the icon; if false, removes the icon
+    * @param duration duration in seconds, only for displaying [ignored if show is false]
+    * @param cl_name name of the buff, cliloc id [ignored if show is false]
+    * @param cl_descr description of the buff, cliloc id [ignored if show is false]
+    * @param arguments arguments for cl_descr as unicode string, separated by spaces, without NULL terminator
+    */
+    void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments )
+    {
+      PktHelper::PacketOut<PktOut_DF> msg;
+      msg->offset += 2; // length will be written later
+      msg->Write<u32>( chr->serial_ext );
+      msg->WriteFlipped<u16>( icon );
+      msg->Write<u8>( 0u ); // unknown, always 0
+      msg->Write<u8>( show ? 1u : 0u );
+      if( show )
+      {
+        msg->Write<u32>( 0u ); // unknown, always 0
+        msg->WriteFlipped<u16>( icon );
+        msg->Write<u8>(  0u ); // unknown, always 0
+        msg->Write<u8>(  1u ); // unknown, always 1
+        msg->Write<u32>( 0u ); // unknown, always 0
+        msg->WriteFlipped<u16>( duration );
+        msg->Write<u16>( 0u ); // unknown, always 0
+        msg->Write<u8>(  0u ); // unknown, always 0
+        msg->WriteFlipped<u32>( cl_name );
+        msg->WriteFlipped<u32>( cl_descr );
+        msg->Write<u32>( 0u ); // unknown, always 0
+        msg->Write<u8>(  0u ); // unknown, always 0
+        msg->Write<u8>(  1u ); // unknown, always 1
+        msg->Write<u16>( 20u ); // a space character
+        msg->Write<u16>( 20u ); // a space character
+        for( auto it = arguments.begin(); it != arguments.end(); ++it )
+          msg->Write<u16>( *it );
+        msg->Write<u16>( 0u ); // NULL terminator for unicode string
+      }
+
+      u16 len = msg->offset;
+      msg->offset = 1;
+      msg->WriteFlipped<u16>( len );
+
+      msg.Send( chr->client, len );
+    }
+
   }
 }

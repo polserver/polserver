@@ -105,6 +105,8 @@ namespace Pol {
 	  ClientType( 0 ),
 	  next_movement( 0 ),
 	  movementsequence( 0 ),
+	  last_activity_at( 0 ),
+	  last_packet_at( 0 ),
 	  paused_( false )
 	{
 	  // For bypassing cryptseed packet
@@ -154,31 +156,26 @@ namespace Pol {
 	void Client::PreDelete()
 	{
 	  closeConnection();
-	  // FIXME: TEMPORARY FIX: disassociate the character from the account, so
-	  // you can log on with another character
-	  if ( ( acct != NULL ) &&
-		   ( acct->active_character != NULL ) &&
-		   ( acct->active_character->client == this ) )
-	  {
-		if ( acct->active_character->logged_in )
-		{
-		  Mobile::Character* tchr = acct->active_character;
-		  ClrCharacterWorldPosition( tchr, Realms::WorldChangeReason::PlayerExit );
-		  send_remove_character_to_nearby( tchr );
-		  tchr->logged_in = false;
 
-		  tchr->set_opponent( NULL );
-		  tchr->removal_cleanup();
-		  if ( tchr->get_opponent() != NULL )
+	  if ( chr != NULL && chr->client == this )
+	  {
+		if ( chr->logged_in )
+		{
+		  ClrCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerExit );
+		  send_remove_character_to_nearby( chr );
+		  chr->logged_in = false;
+
+		  chr->set_opponent( NULL );
+		  chr->removal_cleanup();
+		  if ( chr->get_opponent() != NULL )
 		  {
-			tchr->set_opponent( NULL, true );
+			chr->set_opponent( NULL, true );
 		  }
 		}
 		else
 		{
           ERROR_PRINT << "Uhh...  active character not logged in!??\n";
 		}
-		acct->active_character = NULL;
 	  }
 
 	  // detach the account and character from this client, if they

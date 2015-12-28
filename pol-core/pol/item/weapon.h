@@ -21,6 +21,7 @@ Notes
 #include <memory>
 #include <string>
 
+#define WEAPON_TMPL (static_cast<const WeaponDesc*>(tmpl))
 
 namespace Pol {
   namespace Mobile {
@@ -36,7 +37,7 @@ namespace Pol {
 	{
 	  typedef Equipment base;
 	public:
-      virtual ~UWeapon();
+      virtual ~UWeapon() {};
 
 	  unsigned short speed() const;
 	  unsigned short delay() const;
@@ -44,7 +45,6 @@ namespace Pol {
 	  const Mobile::Attribute& attribute() const;
 	  unsigned short get_random_damage() const;
 	  bool is_projectile() const;
-	  bool is_intrinsic() const;
 	  bool consume_projectile( Core::UContainer* cont ) const;
 	  bool in_range( const Mobile::Character* wielder,
 					 const Mobile::Character* target ) const;
@@ -84,7 +84,6 @@ namespace Pol {
 	  friend class Item;
 	  friend void load_data();
 	  friend UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  friend void load_weapon_templates();
 	  friend void load_intrinsic_weapons();
 
     private:
@@ -100,9 +99,6 @@ namespace Pol {
 		  g ranges from .75 to 1.25
 		  */
 
-
-	  const WeaponDesc* tmpl;
-
 	  Core::ScriptDef hit_script_;
 	};
 
@@ -111,10 +107,8 @@ namespace Pol {
 	  return hit_script_;
 	}
 
-	void load_weapon_templates();
 	bool isa_weapon( u32 objtype );
 
-	UWeapon* find_intrinsic_weapon( const std::string& name );
 	UWeapon* create_intrinsic_weapon( Clib::ConfigElem& elem );
 	UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg );
   }

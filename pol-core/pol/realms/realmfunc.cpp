@@ -118,7 +118,7 @@ namespace Pol {
 		  }
 		}
 		if ( newz < shape.z &&
-			 shape.z < newz + PLAYER_CHARACTER_HEIGHT )  // space too small to stand?
+			 shape.z < newz + Core::settingsManager.ssopt.default_character_height )  // space too small to stand?
 		{
 		  if ( !possible_shapes.empty() )
 			possible_shapes.pop_back(); // remove the last pos_shape
@@ -140,13 +140,14 @@ namespace Pol {
 			  continue;
 			int shape_top = shape.z + shape.height;
 
+			unsigned char default_character_height = Core::settingsManager.ssopt.default_character_height;
 			if ( ( newz < shape.z &&
 			  //        Must be left lower than 15 height like
 			  //        other checks, it will block char from walking down
 			  //        ladders in homes/dungeons if over 9.
-			  shape.z <= oldz + 9 /*PLAYER_CHARACTER_HEIGHT*/ )
+			  shape.z <= oldz + ( default_character_height < 9 ? default_character_height : 9 ) )
 			  ||
-			  ( shape.z < newz + PLAYER_CHARACTER_HEIGHT && shape_top > newz ) )
+			  ( shape.z < newz + default_character_height && shape_top > newz ) )
 			{
 #if ENABLE_POLTEST_OUTPUT
 			  if (static_debug_on)
@@ -250,10 +251,11 @@ namespace Pol {
 			  if ( ( shapeCheck.flags & ( Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING ) ) == 0 )
 				continue;
 
+			  unsigned char default_character_height = Core::settingsManager.ssopt.default_character_height;
 			  if ( ( ( ztop < shapeCheck.z ) &&		// if the check-shape is higher than the location
-				( shapeCheck.z < ztop + 9 ) )	// but low enough to block standing (9 instead of 15 for ladders)
+				( shapeCheck.z < ztop + (default_character_height < 9 ? default_character_height : 9 ) ) )	// but low enough to block standing (9 instead of 15 for ladders)
 				||								// OR
-				( ( shapeCheck.z < ztop + PLAYER_CHARACTER_HEIGHT ) &&		// if the check-shape is sitting below the standing space of my new location
+				( ( shapeCheck.z < ztop + default_character_height ) &&		// if the check-shape is sitting below the standing space of my new location
 				( shapeCheck.z + shapeCheck.height > ztop ) ) )			// and the top of the object is above my new location
 
 			  {
@@ -576,7 +578,7 @@ namespace Pol {
 
 		if ( flags & Plib::FLAG::ALLOWDROPON )
 		{
-		  if ( ( ztop <= chrz + PLAYER_CHARACTER_HEIGHT ) &&   // not too high to reach
+		  if ( ( ztop <= chrz + Core::settingsManager.ssopt.default_character_height ) &&   // not too high to reach
 			   ( ztop >= z ) )          // but above or same as the highest yet seen
 		  {                           // NOTE, the >= here is so statics at ground height
 			// will override a blocking map tile.

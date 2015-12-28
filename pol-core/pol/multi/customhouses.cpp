@@ -494,6 +494,21 @@ namespace Pol {
         }
     }
 
+	/// Tells wether an item should be show in custom house design or not
+	inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
+	{
+	  // Give scripters the chance to keep an item alive
+	  if( item->invisible() )
+		return false;
+
+	  // Some items could be part of the house, but not inside the house (e.g. an exterior lamp post)
+	  // hide them to avoid an exception later, since this is not supported
+	  if( house->realm->find_supporting_multi( item->x, item->y, item->z ) != house )
+		return false;
+
+	  return true;
+	}
+
 	void CustomHouseDesign::ClearComponents( UHouse* house )
 	{
 	  UHouse::Components* comp = house->get_components();
@@ -503,7 +518,7 @@ namespace Pol {
 		Items::Item* item = ( *itr ).get();
 		if ( item != NULL && !item->orphan() )
 		{
-		  if ( !item->invisible() ) //give scripters the chance to keep an item alive
+		  if ( isEditableItem( house, item ) )
 		  {
 			itr = comp->erase( itr );
 			destroy_item( item );
@@ -522,7 +537,7 @@ namespace Pol {
 		Items::Item* item = ( *itr ).get();
 		if ( item != NULL && !item->orphan() )
 		{
-		  if ( !item->invisible() ) //give scripters the chance to keep an item alive
+		  if ( isEditableItem( house, item ) ) //give scripters the chance to keep an item alive
 		  {
 			CUSTOM_HOUSE_ELEMENT elem;
 			elem.graphic = item->graphic;

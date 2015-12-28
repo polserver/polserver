@@ -173,6 +173,9 @@ namespace Pol {
 	  MTH_FORMAT,
 	  MTH_DISABLE_SKILLS_FOR,
 	  MTH_CYCLE,
+	  MTH_ADD_BUFF,
+	  MTH_DEL_BUFF,             //150
+	  MTH_CLEAR_BUFFS,
 	};
 
 

@@ -100,6 +100,7 @@ namespace Pol {
 	  "Unknown Operator",
 	  "Waaah!",
 	  "Unterminated String Literal",
+	  "Invalid escape sequence in String",
 	  "Too Few Arguments",
 	  "Too Many Arguments",
 	  "Unexpected Comma",
@@ -487,6 +488,8 @@ namespace Pol {
 	  { MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true }, //210
 	  { MBR_LAST_TEXTCOLOR, "last_textcolor", true },
 	  { MBR_INSURED, "insured", false },
+	  { MBR_LAST_ACTIVITY_AT, "last_activity_at", false },
+	  { MBR_LAST_PACKET_AT, "last_packet_at", false },
 	};
 	int n_objmembers = sizeof object_members / sizeof object_members[0];
 	ObjMember* getKnownObjMember( const char* token )
@@ -657,7 +660,10 @@ namespace Pol {
 	  { MTH_LOWER, "lower", false },					//145
 	  { MTH_FORMAT, "format", false },
 	  { MTH_DISABLE_SKILLS_FOR, "disableskillsfor", false },
-	  { MTH_CYCLE, "cycle", false }
+	  { MTH_CYCLE, "cycle", false },
+	  { MTH_ADD_BUFF, "addbuff", false },
+	  { MTH_DEL_BUFF, "delbuff", false },              //150
+	  { MTH_CLEAR_BUFFS, "clearbuffs", false },
 	};
 	int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 	ObjMethod* getKnownObjMethod( const char* token )
@@ -1002,7 +1008,15 @@ namespace Pol {
 	}
 #endif
 
-
+	/**
+	* Tries to read a an operator from context
+	*
+	* @param tok Token&: The token to store the found literal into
+	* @param ctx CompilerContext&: The context to look into
+	* @param opList: The list of possible operators to look for, as Operator[]
+	* @param n_ops: Number of operators in the list
+	* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+	*/
 	int Parser::tryOperator( Token& tok,
 							 const char *t,
 							 const char **s,
@@ -1072,6 +1086,13 @@ namespace Pol {
 	  return 0; // didn't find one!
 	}
 
+	/**
+	* Tries to read a binary operator from context
+	*
+	* @param tok Token&: The token to store the found literal into
+	* @param ctx CompilerContext&: The context to look into
+	* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+	*/
 	int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 	{
 	  int res;
@@ -1082,6 +1103,13 @@ namespace Pol {
 	  return res;
 	}
 
+	/**
+	* Tries to read an unary operator from context
+	*
+	* @param tok Token&: The token to store the found literal into
+	* @param ctx CompilerContext&: The context to look into
+	* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+	*/
 	int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 	{
 	  int res;
@@ -1092,6 +1120,13 @@ namespace Pol {
 	  return res;
 	}
 
+	/**
+	* Tries to read a numeric value from context
+	*
+	* @param tok Token&: The token to store the found literal into
+	* @param ctx CompilerContext&: The context to look into
+	* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+	*/
 	int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 	{
 	  if ( isdigit( ctx.s[0] ) || ctx.s[0] == '.' )
@@ -1118,13 +1153,24 @@ namespace Pol {
 	  return 0; // not numeric
 	}
 
+	/**
+	* Tries to read a literal (string/variable name) from context
+	*
+	* @param tok Token&: The token to store the found literal into
+	* @param ctx CompilerContext&: The context to look into
+	* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+	*/
 	int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 	{
 	  if ( ctx.s[0] == '\"' )
 	  {
 		const char* end = &ctx.s[1];
         std::string lit;
-		bool escnext = false;
+		bool escnext = false; // true when waiting for 2nd char in an escape sequence
+		u8 hexnext = 0; // tells how many more chars in a \xNN escape sequence
+		char hexstr[3]; // will contain the \x escape chars to be processed
+		memset( hexstr, 0, 3 );
+
 		for ( ;; )
 		{
 		  if ( !*end )
@@ -1132,15 +1178,37 @@ namespace Pol {
 			err = PERR_UNTERMSTRING;
 			return -1;
 		  }
+
+		  assert( ! (escnext && hexnext) );
+
 		  if ( escnext )
 		  {
+			// waiting for 2nd character after a backslash
 			escnext = false;
 			if ( *end == 'n' )
 			  lit += '\n';
 			else if ( *end == 't' )
 			  lit += '\t';
+			else if ( *end == 'x' )
+			  hexnext = 2;
 			else
 			  lit += *end;
+		  }
+		  else if ( hexnext )
+		  {
+			// waiting for next (two) chars in hex escape sequence (eg. \xFF)
+			hexstr[2-hexnext] = *end;
+			if( ! --hexnext )
+			{
+			  char* endptr;
+			  char ord = static_cast<char>(strtol(hexstr, &endptr, 16));
+			  if( *endptr != '\0' )
+			  {
+				err = PERR_INVESCAPE;
+				return -1;
+			  }
+			  lit += ord;
+			}
 		  }
 		  else
 		  {
@@ -1332,30 +1400,36 @@ namespace Pol {
 	  ext_err[0] = '\0';
 	}
 
-	/* what is a token? a set of homogeneous characters
-	   a Label:
-	   begins with [A-Za-z_], followed by [A-Za-z0-9]
-
-	   A character literal:
-	   begins with '"', ends with '"'. anything goes in between.
-
-	   a Number:
-	   begins with [0-9] (note: not plus or minus, these get eaten as unary ops)
-	   can be either a float (stored as double), or a long.
-	   0xABC is hex, which is read okay.
-	   So is 0.5e+17. I let strtod do most of the work.
-	   basically whichever of strtod or strtol can do more with it
-	   (endptr arg is greater on exit), that's what i decide that it is.
-
-	   an operator:
-	   any collection of the operator characters
-	   [ ( ) * / + - < = > ,] not separated by whitespace, digits, or alphas
-	   note a collection of more than one is considered a SINGLE operator.
-	   So if you put 6*-7, *- is the operator. nasty I know, but
-	   what am I supposed to do? (Maximal munch, is what is actually done!)
-
-	   */
-
+	/**
+	 * Reads next token from given context
+	 *
+	 * what is a token? a set of homogeneous characters
+	 * a Label:
+	 * begins with [A-Za-z_], followed by [A-Za-z0-9]
+	 *
+	 * A character literal:
+	 * begins with '"', ends with '"'. anything goes in between.
+	 *
+	 * a Number:
+	 * begins with [0-9] (note: not plus or minus, these get eaten as unary ops)
+	 * can be either a float (stored as double), or a long.
+	 * 0xABC is hex, which is read okay.
+	 * So is 0.5e+17. I let strtod do most of the work.
+	 * basically whichever of strtod or strtol can do more with it
+	 * (endptr arg is greater on exit), that's what i decide that it is.
+	 *
+	 * an operator:
+	 * any collection of the operator characters
+	 * [ ( ) * / + - < = > ,] not separated by whitespace, digits, or alphas
+	 * note a collection of more than one is considered a SINGLE operator.
+	 * So if you put 6*-7, *- is the operator. nasty I know, but
+	 * what am I supposed to do? (Maximal munch, is what is actually done!)
+	 *
+	 * @param tok Token&: The token to store the found literal into
+	 * @param ctx CompilerContext&: The context to look into
+	 * @param pexpr unused
+	 * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+	 */
 	int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not used */ )
 	{
 	  int hit = 0;
@@ -1423,6 +1497,11 @@ namespace Pol {
 	  return -1;
 	}
 
+	/**
+	 * Reads next token from given context, but without modifying the context
+	 *
+	 * @see Parser::getToken( CompilerContext& ctx, Token& tok )
+	 */
 	int Parser::peekToken( const CompilerContext& ctx, Token& token, Expression* expr )
 	{
 	  CompilerContext tctx( ctx );
@@ -1468,32 +1547,6 @@ namespace Pol {
 	  return allowed_table[last_type][this_type];   // maybe okay
 	}
 
-	/* Functions */
-
-	/*
-	struct {
-	Verb *vtable;
-	int tablesize;
-	} VerbTable[MOD_HIGHEST] =
-	{
-	{ parser_verbs, n_parser_verbs }
-	};
-	*/
-
-
-	/* let's suppose..
-	   an overridden getToken is really smart, and figures out if IDENTS
-	   are variable names, verbs, functions,  or labels.  To this end it
-	   pulls out the ':' if necessary.
-	   TYP_OPERAND, TOK_VARNAME
-	   TYP_FUNC,	TOK_MID,	<-- TYP_OPERAND for purposes of legality
-	   TYP_PROC,	TOK_PRINT,
-	   TYP_LABEL,   (don't care)
-
-	   IP still does the same thing only it no longer looks for isVerb.
-	   have the new getToken put, say, the verb number in lval, so we now
-	   have an array element number.
-	   */
 	/*
 	int SmartParser::isFunc(Token& token, Verb **v)
 	{
@@ -1513,16 +1566,17 @@ namespace Pol {
 	}
 	*/
 
-	/* Labels.
-
-			A label is an ident operand, followed by a colon, followed by
-			either whitespace or end-of-file.
-
-			Note, this definition just happens to exclude ':=' and '::',
-			which is important.
-			*/
-
-
+	/**
+	 * Like Parser::tryLiteral, with extra elements supported
+	 *
+	 * Labels.
+	 * A label is an ident operand, followed by a colon, followed by
+	 * either whitespace or end-of-file.
+	 * Note, this definition just happens to exclude ':=' and '::',
+	 * which is important.
+	 *
+	 * @see Parser::tryLiteral( Token& tok, CompilerContext& ctx )
+	 */
 	int SmartParser::tryLiteral( Token& tok, CompilerContext& ctx )
 	{
 	  int res;
@@ -1775,24 +1829,38 @@ namespace Pol {
 	  return 0;
 	}
 
-	/*
-		Some identifiers are functions (user-defined or module-defined)
-		these are recognized here.  HOWEVER, in some cases these should
-		be ignored - particularly, after the "." operator and its ilk.
-		For example, if the LEN function is defined,
-		"print a.len;" should still be valid (assuming A is a variable
-		with a 'len' member).  In these cases, the operator in question
-		will be at the top of the TX stack.  So, if we find this operator
-		there, we won't check for functions.
-		This is also the perfect opportunity to morph would-be identifiers
-		into strings, or "member names" if that turns out the way to go.
-		(Normally, we would emit TOK_IDENT(left) TOK_IDENT(right) TOK_MEMBER.
-		The problem here is that TOK_IDENT(left) is seen as a variable
-		(quite rightly), but so is TOK_IDENT(right), which is wrong.
-		We used to transform this in addToken, but this is better
-		I think.)
-		*/
-
+	/**
+	 * Some identifiers are functions (user-defined or module-defined)
+	 * these are recognized here.  HOWEVER, in some cases these should
+	 * be ignored - particularly, after the "." operator and its ilk.
+	 * For example, if the LEN function is defined,
+	 * "print a.len;" should still be valid (assuming A is a variable
+	 * with a 'len' member).  In these cases, the operator in question
+	 * will be at the top of the TX stack.  So, if we find this operator
+	 * there, we won't check for functions.
+	 * This is also the perfect opportunity to morph would-be identifiers
+	 * into strings, or "member names" if that turns out the way to go.
+	 * (Normally, we would emit TOK_IDENT(left) TOK_IDENT(right) TOK_MEMBER.
+	 * The problem here is that TOK_IDENT(left) is seen as a variable
+	 * (quite rightly), but so is TOK_IDENT(right), which is wrong.
+	 * We used to transform this in addToken, but this is better
+	 * I think.)
+	 *
+	 * @note let's suppose..
+	 * an overridden getToken is really smart, and figures out if IDENTS
+	 * are variable names, verbs, functions,  or labels.  To this end it
+	 * pulls out the ':' if necessary.
+	 * TYP_OPERAND, TOK_VARNAME
+	 * TYP_FUNC,	TOK_MID,	<-- TYP_OPERAND for purposes of legality
+	 * TYP_PROC,	TOK_PRINT,
+	 * TYP_LABEL,   (don't care)
+	 *
+	 * IP still does the same thing only it no longer looks for isVerb.
+	 * have the new getToken put, say, the verb number in lval, so we now
+	 * have an array element number.
+	 *
+	 * @see Parser::getToken( CompilerContext& ctx, Token& token )
+	 */
 	int SmartParser::getToken( CompilerContext& ctx, Token& token, Expression* pexpr )
 	{
 	  int res = Parser::getToken( ctx, token );
@@ -1942,15 +2010,14 @@ namespace Pol {
 	  return false;
 	}
 
-	/* if comma terminator is allowed, (reading args, or declaring variables)
-		leaves the terminator/comma.
-		if comma term not allowed, eats the semicolon.
-		if right paren allowed, leaves the right paren.
-
-
-		(obviously, this function's behavior needs some work!)
-		*/
-
+	/**
+	 * if comma terminator is allowed, (reading args, or declaring variables)
+	 * leaves the terminator/comma.
+	 * if comma term not allowed, eats the semicolon.
+	 * if right paren allowed, leaves the right paren.
+	 *
+	 * @note (obviously, this function's behavior needs some work!)
+	 **/
 	int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
 	{
 	  BTokenType last_type = TYP_TERMINATOR;

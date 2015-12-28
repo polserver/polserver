@@ -103,6 +103,14 @@ namespace Pol {
 	  settingsManager.ssopt.seperate_speechtoken = elem.remove_bool( "SeperateSpeechTokens", false );
 	  settingsManager.ssopt.core_sends_guildmsgs = elem.remove_bool( "CoreGuildMessages", true );
 	  settingsManager.ssopt.mobiles_block_npc_movement = elem.remove_bool( "MobilesBlockNpcMovement", true );
+
+	  unsigned char default_character_height = static_cast<unsigned char>( elem.remove_ushort( "DefaultCharacterHeight", 15 ) );
+	  if( default_character_height < 1 )
+		default_character_height = 1;
+	  else if( default_character_height > 32 )
+		default_character_height = 32;
+	  settingsManager.ssopt.default_character_height = default_character_height;
+
 	  ssopt_parse_totalstats( elem );
 
 	  // Turley 2009/11/06 u8 range...

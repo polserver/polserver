@@ -168,12 +168,12 @@
 						</tbody>
 						<xsl:if test="parameter">
 							<tbody>
-								<tr id="doc-table-dark">
+								<tr class="doc-table-dark">
 									<th align="left" colspan="2">Parameters:</th>
 								</tr>
 							</tbody>
 							<tbody>
-								<tr id="doc-table-med">
+								<tr class="doc-table-med">
 									<td>Name</td>
 									<td>Type</td>
 								</tr>
@@ -194,7 +194,7 @@
 							</tbody>
 						</xsl:if>
 						<tbody>
-							<tr id="doc-table-dark">
+							<tr class="doc-table-dark">
 								<th align="left" colspan="2">Explanation</th>
 							</tr>
 						</tbody>
@@ -217,7 +217,7 @@
 							</xsl:for-each>
 						</tbody>
 						<tbody>
-							<tr id="doc-table-dark">
+							<tr class="doc-table-dark">
 								<th align="left" colspan="2">Return values</th>
 							</tr>
 						</tbody>
@@ -232,7 +232,7 @@
 						</tbody>
 						<xsl:if test="error">
 							<tbody>
-								<tr id="doc-table-dark">
+								<tr class="doc-table-dark">
 									<th align="left" colspan="2">Errors</th>
 								</tr>
 							</tbody>
@@ -248,7 +248,7 @@
 						</xsl:if>
 						<xsl:if test="related">
 							<tbody>
-								<tr id="doc-table-dark">
+								<tr class="doc-table-dark">
 									<th align="left" colspan="2">Related</th>
 								</tr>
 							</tbody>
@@ -276,7 +276,7 @@
 						</xsl:if>
 						<xsl:if test="relatedcfg">
 							<tbody>
-								<tr id="doc-table-dark">
+								<tr class="doc-table-dark">
 									<th align="left" colspan="2">Related Configs</th>
 								</tr>
 							</tbody>

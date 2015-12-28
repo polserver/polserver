@@ -73,7 +73,7 @@
                     <tbody>
                       <xsl:choose>
                         <xsl:when test="(position() mod 2)=1">
-                          <tr id="doc-table-light">
+                          <tr class="doc-table-light">
                             <td class="changelog-type">
                               <xsl:value-of select="@type"/>
                             </td>

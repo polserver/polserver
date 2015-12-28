@@ -202,6 +202,8 @@ namespace Pol {
 			return BObjectRef( new Module::ECharacterRefObjImp( uoemod->attached_chr_ ) );
 		  else if ( uoemod->attached_npc_ != NULL )
 			return BObjectRef( new Module::ECharacterRefObjImp( uoemod->attached_npc_ ) );
+		  else if ( uoemod->attached_item_ )
+			return BObjectRef( new Module::EItemRefObjImp( uoemod->attached_item_ ) );
 		  else
 			return BObjectRef( new BLong( 0 ) );
 		case MBR_CONTROLLER:

@@ -192,6 +192,8 @@ namespace Pol {
 	  uoexec( exec ),
 	  target_cursor_chr( NULL ),
 	  menu_selection_chr( NULL ),
+	  popup_menu_selection_chr( NULL ),
+	  popup_menu_selection_above( NULL ),
 	  prompt_chr( NULL ),
 	  gump_chr( NULL ),
 	  textentry_chr( NULL ),
@@ -200,6 +202,7 @@ namespace Pol {
 	  target_options( 0 ),
 	  attached_chr_( NULL ),
 	  attached_npc_( NULL ),
+	  attached_item_( nullptr ),
 	  controller_( NULL ),
 	  reserved_items_(),
 	  registered_for_speech_events( false )
@@ -227,6 +230,13 @@ namespace Pol {
 		  menu_selection_chr->client->gd->menu_selection_uoemod = NULL;
 		menu_selection_chr = NULL;
 	  }
+	  if ( popup_menu_selection_chr != NULL )
+	  {
+        if ( popup_menu_selection_chr->client != nullptr && popup_menu_selection_chr->client->gd != nullptr )
+		  popup_menu_selection_chr->client->gd->popup_menu_selection_uoemod = NULL;
+		popup_menu_selection_chr = NULL;
+		popup_menu_selection_above = NULL;
+	  }
 	  if ( prompt_chr != NULL )
 	  {
         if ( prompt_chr->client != nullptr && prompt_chr->client->gd != nullptr )
@@ -236,7 +246,7 @@ namespace Pol {
 	  if ( gump_chr != NULL )
 	  {
         if ( gump_chr->client != nullptr && gump_chr->client->gd != nullptr )
-		  gump_chr->client->gd->remove_gumpmod( this );
+		  gump_chr->client->gd->remove_gumpmods( this );
 		gump_chr = NULL;
 	  }
 	  if ( textentry_chr != NULL )
@@ -262,6 +272,11 @@ namespace Pol {
 		passert( attached_chr_->script_ex == &uoexec );
 		attached_chr_->script_ex = NULL;
 		attached_chr_ = NULL;
+	  }
+	  if ( attached_item_ )
+	  {
+		attached_item_->process(nullptr);
+		attached_item_ = nullptr;
 	  }
 	  if ( registered_for_speech_events )
 	  {
@@ -335,7 +350,7 @@ namespace Pol {
 			   item->color == descriptor->color && //dave added 5/11/3, only add to existing stack if is default color
 			   item->has_only_default_cprops( descriptor ) &&	   //dave added 5/11/3, only add to existing stack if default cprops
 			   ( !item->inuse() || ( uoemod && uoemod->is_reserved_to_me( item ) ) ) &&
-			   item->can_add_to_self( amount ) )
+			   item->can_add_to_self( amount, force_stacking ) )
 		  {
 
 			//DAVE added this 11/17, call can/onInsert scripts for this container
@@ -1438,7 +1453,7 @@ namespace Pol {
 		{
 		  return new BError( "That item type is not stackable." );
 		}
-		if ( !item->can_add_to_self( amount ) )
+		if ( !item->can_add_to_self( amount, false ) )
 		{
 		  return new BError( "Can't add that much to that stack" );
 		}
@@ -3616,7 +3631,7 @@ namespace Pol {
 		getItemParam( exec, 1, cont_item ) &&
 		getParam( 2, px, -1, 65535 ) &&
 		getParam( 3, py, -1, 65535 ) &&
-		getParam( 4, add_to_existing_stack, 0, 1 ) ) )
+		getParam( 4, add_to_existing_stack, 0, 2 ) ) )
 	  {
 		return new BError( "Invalid parameter type" );
 	  }
@@ -3678,14 +3693,15 @@ namespace Pol {
 		  if ( !cont->can_insert_increase_stack( chr_owner, UContainer::MT_CORE_MOVED, existing_stack, item->getamount(), item ) )
 			return new BError( "Could not add to existing stack" );
 		}
+		else if ( add_to_existing_stack == 2 )
+		  add_to_existing_stack = 0;
 		else
 		  return new BError( "There is no existing stack" );
 	  }
-	  else
-	  {
+
+	  if ( ! add_to_existing_stack )
 		if ( !cont->can_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item ) )
 		  return new BError( "Could not insert item into container." );
-	  }
 
 	  if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
 	  {
@@ -3754,8 +3770,8 @@ namespace Pol {
 	  else
 	  {
 		u16 amount = item->getamount();
-		existing_stack->add_to_self( item );
 		true_extricate( item );
+		existing_stack->add_to_self( item );
 		update_item_to_inrange( existing_stack );
 		UpdateCharacterWeight( existing_stack );
 
@@ -5518,7 +5534,7 @@ namespace Pol {
 	  if ( !item1->stackable() )
 		return new BError( "That item type is not stackable." );
 
-	  if ( item1->can_add_to_self( *item2 ) )
+	  if ( item1->can_add_to_self( *item2, false ) )
 		return new BLong( 1 );
 	  else
 		return new BError( "Failed to stack" );
@@ -5936,7 +5952,9 @@ namespace Pol {
 	  { "SendOverallSeason", &UOExecutorModule::mf_SendOverallSeason },
       { "ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm },
       { "ListMobilesInBox", &UOExecutorModule::mf_ListMobilesInBox },
-      { "GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords }
+      { "GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords },
+
+	  { "SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu },
 	};
 
 	typedef std::map< std::string, int, Clib::ci_cmp_pred > FuncIdxMap;

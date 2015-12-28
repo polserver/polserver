@@ -2,7 +2,7 @@
 // SQL related functions
 //
 mysql_connect(host,username,password := "");
-mysql_query(connection,query);
+mysql_query(connection,query,parameters := "");
 mysql_fetch_row(result);
 mysql_affected_rows(result);
 mysql_num_fields(result);

@@ -36,9 +36,7 @@ Notes
 #include "../../plib/systemstate.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
 #include "../../clib/clib_endian.h"
-#include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 #include "../../clib/random.h"
@@ -116,8 +114,6 @@ namespace Pol {
 	  mounted_anim( remove_action( elem, "MountedAnim", anim ) ),
 	  hit_sound( elem.remove_ushort( "HITSOUND", 0 ) ),
 	  miss_sound( elem.remove_ushort( "MISSSOUND", 0 ) ),
-	  is_intrinsic( false ),
-	  is_pc_weapon( false ),
 	  two_handed( elem.remove_bool( "TWOHANDED", false ) ),
 	  minrange( elem.remove_ushort( "MINRANGE", projectile ? 2 : 0 ) ),
 	  maxrange( elem.remove_ushort( "MAXRANGE", projectile ? 20 : 1 ) )
@@ -235,68 +231,31 @@ namespace Pol {
       + sizeof( Core::UACTION )/*mounted_anim*/
       + sizeof(unsigned short)/*hit_sound*/
       +sizeof(unsigned short)/*miss_sound*/
-      +sizeof(bool)/*is_intrinsic*/
-      +sizeof(bool)/*is_pc_weapon*/
       +sizeof(bool)/*two_handed*/
       +sizeof(unsigned short)/*minrange*/
       +sizeof(unsigned short)/*maxrange*/
         + hit_script.estimatedSize();
     }
 
-	void load_npc_weapon_templates();
-
-    UWeapon* find_intrinsic_weapon(const std::string& name)
-	{
-	  auto itr = Core::gamestate.intrinsic_weapons.find( name );
-	  if ( itr != Core::gamestate.intrinsic_weapons.end() )
-	  {
-		return ( *itr ).second;
-	  }
-	  else
-	  {
-		return NULL;
-	  }
-	}
-
-	void allocate_intrinsic_weapon_serials()
-	{
-	  for ( const auto &intrinsic_weapon : Core::gamestate.intrinsic_weapons )
-	  {
-		UWeapon* wpn = intrinsic_weapon.second;
-
-		wpn->serial = Core::GetNewItemSerialNumber();
-		wpn->serial_ext = ctBEu32( wpn->serial );
-		Core::objStorageManager.objecthash.Insert( wpn );
-	  }
-	}
-
+	/// Creates a new intrinsic weapon and returns it
+	/// @param name: the unique weapon's name
+	/// @param elem: the config element to create from
+	/// @param pkg: the package
 	UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg )
 	{
 	  auto tmpl = new WeaponDesc( Core::settingsManager.extobj.wrestling, elem, pkg );
 	  tmpl->is_intrinsic = true;
 	  auto wpn = new UWeapon( *tmpl, tmpl );
+	  wpn->layer = Core::LAYER_HAND1;
 	  wpn->tmpl = tmpl;
 
-	  wpn->inuse( true );
+	  Items::register_intrinsic_equipment( name, wpn );
 
-	  // during system startup, defer serial allocation in order to avoid clashes with 
-	  // saved items.
-      if ( !Core::stateManager.gflag_in_system_startup )
-	  {
-        wpn->serial = Core::GetNewItemSerialNumber( );
-		wpn->serial_ext = ctBEu32( wpn->serial );
-        Core::objStorageManager.objecthash.Insert( wpn );
-	  }
-
-	  Core::gamestate.intrinsic_weapons.insert( Core::IntrinsicWeapons::value_type( name, wpn ) );
 	  return wpn;
 	}
 
-	void load_weapon_templates()
-	{
-	  load_npc_weapon_templates();
-	}
-
+	/// Creates the intrinsic wrestling weapon for PCs
+	/// must be called at startup
 	void load_intrinsic_weapons()
 	{
       const ItemDesc& id = find_itemdesc( Core::settingsManager.extobj.wrestling );
@@ -312,12 +271,12 @@ namespace Pol {
 		  // sets wrestling weapondesc as intrinsic
 		  WeaponDesc* wdesc = const_cast<WeaponDesc*>( weapon_descriptor );
 		  wdesc->is_intrinsic = true;
-		  wdesc->is_pc_weapon = true;
+		  wdesc->is_pc_intrinsic = true;
 		}
         Core::gamestate.wrestling_weapon->inuse( true );
+		Core::gamestate.wrestling_weapon->layer = Core::LAYER_HAND1;
 
-        Core::gamestate.intrinsic_weapons.insert( Core::IntrinsicWeapons::value_type( "PC_weapon", Core::gamestate.wrestling_weapon ) );
-
+		Items::insert_intrinsic_equipment( "PC_weapon", Core::gamestate.wrestling_weapon );
 	  }
 
 	  // wrestling_weapon = find_intrinsic_weapon( "Wrestling" );
@@ -325,6 +284,10 @@ namespace Pol {
           throw std::runtime_error("A WeaponTemplate for Wrestling is required in itemdesc.cfg");
 	}
 
+	/// Creates a new intrinic weapon for an NPC template and returns it
+	/// @param elem: The conig element defining the NPC
+	/// @param pkg: The package
+	/// @returns The created weapon or NULL if none is defined in the template
 	UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg )
 	{
       std::string tmp;
@@ -367,6 +330,9 @@ namespace Pol {
 		  wpnelem.add_prop( "ProjectileSound", elem.remove_string( "AttackProjectileSound" ).c_str() );
 		}
 
+		while ( elem.remove_prop("AttackCProp", &tmp) )
+		  wpnelem.add_prop( "CProp", tmp.c_str() );
+
 		return create_intrinsic_weapon( elem.rest(), wpnelem, pkg );
 	  }
 	  else
@@ -375,79 +341,20 @@ namespace Pol {
 	  }
 	}
 
-	void load_npc_weapon_templates()
-	{
-	  if ( Clib::FileExists( "config/npcdesc.cfg" ) )
-	  {
-        Clib::ConfigFile cf( "config/npcdesc.cfg" );
-        Clib::ConfigElem elem;
-		while ( cf.read( elem ) )
-		{
-		  create_intrinsic_weapon_from_npctemplate( elem, NULL );
-		}
-	  }
-	  for ( const auto &pkg : Plib::systemstate.packages )
-	  {
-        std::string filename = Plib::GetPackageCfgPath(pkg, "npcdesc.cfg");
-
-        if ( Clib::FileExists( filename.c_str( ) ) )
-		{
-          Clib::ConfigFile cf( filename.c_str( ) );
-          Clib::ConfigElem elem;
-		  while ( cf.read( elem ) )
-		  {
-			std::string newrest = ":" + pkg->name() + ":" + std::string( elem.rest() );
-			elem.set_rest( newrest.c_str() );
-			create_intrinsic_weapon_from_npctemplate( elem, pkg );
-		  }
-		}
-	  }
-	}
-
 	UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor ) :
-	  Equipment( descriptor, CLASS_WEAPON ),
-	  tmpl( permanent_descriptor ),
+	  Equipment( descriptor, CLASS_WEAPON, permanent_descriptor ),
 	  hit_script_( descriptor.hit_script )
 	{}
 
-	UWeapon::~UWeapon()
-	{
-	  // Every intrinsic weapon has its own local itemdesc element that should be deleted here.
-	  // Only exception is the wrestling weapon, which should be deferred 
-	  // to the global desctable cleaning.
-
-	  if ( is_intrinsic() )
-	  {
-		WeaponDesc* wd = const_cast<WeaponDesc*>( tmpl );
-		if ( !wd->is_pc_weapon )
-		{
-		  wd->unload_scripts();
-
-		  delete tmpl;
-		  tmpl = NULL;
-		}
-	  }
-	}
-
     size_t UWeapon::estimatedSize() const
     {
-      size_t size = base::estimatedSize()
-        + sizeof(const WeaponDesc*) /*tmpl*/
+      return base::estimatedSize()
         + hit_script_.estimatedSize();
-      if ( is_intrinsic() )
-      {
-        WeaponDesc* wd = const_cast<WeaponDesc*>( tmpl );
-        if ( !wd->is_pc_weapon )
-        {
-          size += wd->estimatedSize();
-        }
-      }
-      return size;
     }
 
 	unsigned short UWeapon::speed() const
 	{
-	  int speed_ = tmpl->speed + speed_mod();
+	  int speed_ = WEAPON_TMPL->speed + speed_mod();
 
 	  if ( speed_ < 0 )
 		return 0;
@@ -459,17 +366,17 @@ namespace Pol {
 
 	unsigned short UWeapon::delay() const
 	{
-	  return tmpl->delay;
+	  return WEAPON_TMPL->delay;
 	}
     
 	const Mobile::Attribute& UWeapon::attribute() const
 	{
-	  return *( tmpl->pAttr );
+	  return *( WEAPON_TMPL->pAttr );
 	}
 
 	unsigned short UWeapon::get_random_damage() const
 	{
-	  int dmg = int( tmpl->get_random_damage() ) * hp_ / maxhp();
+	  int dmg = int( WEAPON_TMPL->get_random_damage() ) * hp_ / maxhp();
       dmg += damage_mod();
 	  if ( dmg < 0 )
 		return 0;
@@ -482,25 +389,19 @@ namespace Pol {
 	bool UWeapon::is_projectile() const
     {
       passert(tmpl != NULL);
-	  return tmpl->projectile;
-	}
-
-	bool UWeapon::is_intrinsic() const
-	{
-        passert(tmpl != NULL);
-        return tmpl->is_intrinsic;
+	  return WEAPON_TMPL->projectile;
 	}
 
 	unsigned short UWeapon::projectile_sound() const
 	{
       passert(tmpl != NULL);
-	  return tmpl->projectile_sound;
+	  return WEAPON_TMPL->projectile_sound;
 	}
 
 	unsigned short UWeapon::projectile_anim() const
 	{
       passert(tmpl != NULL);
-	  return tmpl->projectile_anim;
+	  return WEAPON_TMPL->projectile_anim;
 	}
 
 	/*
@@ -513,38 +414,38 @@ namespace Pol {
 	Core::UACTION UWeapon::anim() const
 	{
       passert(tmpl != NULL);
-	  return tmpl->anim;
+	  return WEAPON_TMPL->anim;
 	}
 
 	Core::UACTION UWeapon::mounted_anim() const
 	{
       passert(tmpl != NULL);
-	  return tmpl->mounted_anim;
+	  return WEAPON_TMPL->mounted_anim;
 	}
 
 	unsigned short UWeapon::hit_sound() const
     {
       passert(tmpl != NULL);
-	  return tmpl->hit_sound;
+	  return WEAPON_TMPL->hit_sound;
 	}
 
 	unsigned short UWeapon::miss_sound() const
 	{
       passert(tmpl != NULL);
-	  return tmpl->miss_sound;
+	  return WEAPON_TMPL->miss_sound;
 	}
 
 	const WeaponDesc& UWeapon::descriptor() const
 	{
       passert(tmpl != NULL);
-	  return *tmpl;
+	  return *WEAPON_TMPL;
 	}
 
 	bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 	{
       passert(tmpl != NULL);
 
-	  Item* item = cont->find_objtype_noninuse( tmpl->projectile_type );
+	  Item* item = cont->find_objtype_noninuse( WEAPON_TMPL->projectile_type );
 	  if ( item != NULL )
 	  {
 		subtract_amount_from_item( item, 1 );
@@ -562,11 +463,11 @@ namespace Pol {
 	  unsigned short dist = pol_distance( wielder, target );
       INFO_PRINT_TRACE( 22 ) << "in_range(0x" << fmt::hexu(wielder->serial) << ",0x" << fmt::hexu(target->serial) << "):\n"
         << "dist:	 " << dist << "\n"
-        << "minrange: " << tmpl->minrange << "\n"
-        << "maxrange: " << tmpl->maxrange << "\n"
+        << "minrange: " << WEAPON_TMPL->minrange << "\n"
+        << "maxrange: " << WEAPON_TMPL->maxrange << "\n"
         << "has_los:  " << wielder->realm->has_los( *wielder, *target ) << "\n";
-	  return ( dist >= tmpl->minrange &&
-			   dist <= tmpl->maxrange &&
+	  return ( dist >= WEAPON_TMPL->minrange &&
+			   dist <= WEAPON_TMPL->maxrange &&
 			   wielder->realm->has_los( *wielder, *target ) );
 	}
 
@@ -592,7 +493,7 @@ namespace Pol {
 		sw() << "\tdmg_mod\t" << dmg_mod << pf_endl;
 	  if ( speed_mod_ )
 		sw() << "tspeed_mod\t" << speed_mod_ << pf_endl;
-	  if ( !( hit_script_ == tmpl->hit_script ) )
+	  if ( !( hit_script_ == WEAPON_TMPL->hit_script ) )
 		sw() << "\tHitScript\t" << hit_script_.relativename( tmpl->pkg ) << pf_endl;
 	}
 

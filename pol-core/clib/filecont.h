@@ -4,6 +4,10 @@
 #include <string>
 namespace Pol {
   namespace Clib {
+
+	/**
+	 * Simple class to read a whole file as a char array
+	 */
 	class FileContents
 	{
 	public:
@@ -14,6 +18,7 @@ namespace Pol {
 	private:
 	  std::string contents_;
 	};
+
   }
 }
 #endif

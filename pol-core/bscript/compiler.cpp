@@ -82,8 +82,12 @@ namespace Pol {
 	  {
 		if ( Clib::stringicmp( varname, variables_[i].name ) == 0 )
 		{
-			if ( variables_[i].unused )
+			if ( variables_[i].unused && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+			{
 				INFO_PRINT << "Warning: variable '" << variables_[i].name << "' declared as unused but used.\n";
+				if ( compilercfg.ErrorOnWarning )
+					throw std::runtime_error("Warnings treated as errors.");
+			}
 		  variables_[i].used = true;
 		  idx = i;
 		  return true;
@@ -5280,6 +5284,10 @@ namespace Pol {
 		}
 	  }
 	}
+
+	/**
+	 * Given a file name, tells if this is a web script
+	 */
 	bool is_web_script( const char* file )
 	{
 	  const char* ext = strstr( file, ".hsr" );
@@ -5291,6 +5299,9 @@ namespace Pol {
 	  return false;
 	}
 
+	/**
+	 * Transforms the raw html page into a script with a single WriteHtml() instruction
+	 */
 	void preprocess_web_script( Clib::FileContents& fc )
 	{
 	  std::string output;
@@ -5354,7 +5365,13 @@ namespace Pol {
 	  fc.set_contents( output );
 	}
 
-	// getcwd
+
+	/**
+	 * Here starts the real complation. Reads the given file and process it
+	 *
+	 * @param in_file Path for the file to compile, no more validity checks are done
+	 * @return <0 on error
+	 */
 	int Compiler::compileFile( const char *in_file )
 	{
 	  int res = -1;
@@ -5373,7 +5390,7 @@ namespace Pol {
 		}
 
 		CompilerContext ctx( filepath, program->add_dbg_filename( filepath ), fc.contents() );
-		//divine_options( ctx );
+
 		bool bres = read_function_declarations( ctx );
 		// cout << "bres:" << bres << endl;
 		if ( !bres )

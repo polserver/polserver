@@ -86,8 +86,6 @@ namespace Pol {
 	  MOVEMODE_FLY = 8
 	};
 
-#define PLAYER_CHARACTER_HEIGHT		15
-
 #define MAXBUFFER 2560
 
 #define MAX_CONTAINER_ITEMS 3200 //0x3C packet maxsize 5+3200*20 ~= 0xFFFF

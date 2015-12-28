@@ -34,14 +34,15 @@ namespace Pol {
 	  typedef Item base;
 
 	public:
-      virtual ~Equipment() {};
+      virtual ~Equipment();
 	  void reduce_hp_from_hit();
+	  bool is_intrinsic() const;
 
       virtual double getQuality() const POL_OVERRIDE;
       virtual void setQuality(double value) POL_OVERRIDE;
 
 	protected:
-	  Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
+	  Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class, const Core::EquipDesc* permanent_descriptor );
 	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
@@ -57,11 +58,17 @@ namespace Pol {
 
       virtual size_t estimatedSize() const POL_OVERRIDE;
 
-	protected:
-	  const Core::EquipDesc& eq_tmpl_;
+	  const Core::EquipDesc* tmpl;
+
     private:
       double _quality;
 	};
+
+	Equipment* find_intrinsic_equipment( const std::string& name, u8 type );
+	void register_intrinsic_equipment(const std::string& name, Equipment* equip);
+	void insert_intrinsic_equipment( const std::string& name, Equipment* equip );
+	void allocate_intrinsic_equipment_serials();
+	void load_npc_intrinsic_equip();
   }
 }
 #endif

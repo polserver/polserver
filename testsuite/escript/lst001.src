@@ -1,3 +1,0 @@
-print( "hello" );
-len( "hello" );
-left( "hello", 3 );

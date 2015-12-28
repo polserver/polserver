@@ -26,29 +26,32 @@
 <header>Class Hierarchy</header>
 <pre xml:space="preserve">
 
-            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>        <a href="#DataFileElement">DataFileElement</a>
+            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>      <a href="#DataFileElement">DataFileElement</a>
                |
-               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>           <a href="#Datastore">Datastore</a>
+               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datastore">Datastore</a>
      +---------+--------+
-     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>           <a href="#Datafile">Datafile</a>
+     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#Datafile">Datafile</a>
    <a href="#Character">Character</a>           <a href="#Item">Item</a>
-     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>    <a href="#BinaryFile">BinaryFile</a>
+     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#BinaryFile">BinaryFile</a>
     <a href="#NPC">NPC</a>                 |
-                        |                                        <a href="#Package">Package</a>
+                        |                                      <a href="#Package">Package</a>
      +------------------+--------------+-----------+
-     |                  |              |           |             <a href="#Struct">Struct</a>
+     |                  |              |           |           <a href="#Struct">Struct</a>
  <a href="#Equipment">Equipment</a>           <a href="#Lockable">Lockable</a>         <a href="#Map">Map</a>        <a href="#Multi">Multi</a>
-     |                  |                          |             <a href="#Array">Array</a>
+     |                  |                          |           <a href="#Array">Array</a>
  +---+----+        +----+--------+            +----+----+
- |        |        |             |            |         |        <a href="#Dictionary">Dictionary</a>
+ |        |        |             |            |         |      <a href="#Dictionary">Dictionary</a>
 <a href="#Armor">Armor</a>  <a href="#Weapon">Weapon</a>     <a href="#Door">Door</a>        <a href="#Container">Container</a>      <a href="#Boat">Boat</a>     <a href="#House">House</a>
-                                 |                               <a href="#String">String</a>
+                                 |                             <a href="#String">String</a>
                             +----+----+
-                            |         |                          <a href="#Error">Error</a>
+                            |         |                        <a href="#Error">Error</a>
                          <a href="#Spellbook">Spellbook</a>   <a href="#Corpse">Corpse</a>
+                                                               <a href="#StorageAreas">StorageAreas</a>
+
+                                                               <a href="#StorageAreas">StorageArea</a>
 </pre>
 
-<datemodified>08/31/2015</datemodified>
+<datemodified>12/26/2015</datemodified>
 </fileheader>
 
 
@@ -71,6 +74,10 @@
 <member mname="weight" type="Integer" access="r/o" mdesc="weight of the graphic as defined in tiledata.mul" />
 <member mname="multi" type="Multi" access="r/o" mdesc="MultiRef for the Multi the object is on" />
 
+<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, array arguments)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string (array of int); separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, CAscZ(&quot;1234 5678&quot;));" />
+<method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
+<method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
+<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 <method proto="isa(POLCLASS_*)" returns="boolean" desc="True if the derived class is the same as the passed class type (see uo.em for all constants)" />
 <method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
 <method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
@@ -127,6 +134,7 @@
 <member mname="damage_poison_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
 <member mname="damage_physical_mod" type="Integer" access="r/w" mdesc="AOS+ damage modifier" />
 <member mname="getgottenby" type="Character" access="r/o" mdesc="Returns CharRef of Player holding item, Error if not being held" />
+<member mname="process" type="Script" access="r/o" mdesc="Control script reference, error on none" />
 <member mname="doubleclickrange" type="Integer" access="r/o" mdesc="Max distance for using this item" />
 <member mname="quality" type="Double" access="r/w" mdesc="1.0=Average and default" />
 <member mname="hp" type="Integer" access="r/w" mdesc="Hit points of item" />
@@ -422,6 +430,7 @@
 <child>Weapon</child>
 <child>Armor</child>
 <explain>Class containing concrete subclasses which are equipable and have hit points</explain>
+<member mname="intrinsic" type="Boolean" access="r/o" mdesc="Intrinsic Equipment?" />
 </class>
 
 
@@ -432,7 +441,6 @@
 <member mname="speed_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, an optional way to delay if you want to use the default speed math and just add to that" />
 <member mname="attribute" type="String" access="r/o" mdesc="Attribute name this weapon uses as a skill" />
 <member mname="hitscript" type="String" access="r/w" mdesc="Script name that runs when weapon makes a hit" />
-<member mname="intrinsic" type="Boolean" access="r/o" mdesc="Intrinsic Weapon?" />
 </class>
 
 
@@ -547,7 +555,11 @@
 <member mname="num_globals" type="Integer" access="r/o" mdesc="Number of global variables" />
 <member mname="var_size" type="Integer" access="r/o" mdesc="Estimated size of global variables and current local variables" />
 <member mname="globals" type="Dictionary" access="r/o" mdesc="Dictionary of global variable name=>value pairs" />
-<member mname="attached_to" type="MobileRef" access="r/o" mdesc="Mobile where Script is attached to. If it's an AI-Script it will return the NPC." />
+<member mname="attached_to" type="Object" access="r/o" mdesc="Mobile or Item where Script is attached to.
+If it's attached to a Character, it will return the Character.
+If it's an AI-Script it will return the NPC.
+If it's a ControlScript it will return the Item.
+Checks are made in the order above." />
 <member mname="controller" type="MobileRef" access="r/o" mdesc="Mobile which is responsible for damage etc." />
 
 <method proto="sendevent(obj event)" returns="error/true" desc="sends a event to this script (usually a struct)" />
@@ -636,6 +648,38 @@ Declare and pre-initialize with var s := "my string"</explain>
 <method proto="[substr]" returns="string/uninit" desc="seaches the string for 'substr'. If found, returns the first character of the substring, else uninitialized object. " />
 <method proto="[substr] := replace_str" returns="string" desc="finds the first occurance of 'substr' and replaces substr with 'replace_str'. returns the new string."/>
 <method proto="+ string" returns="string" desc="concatenates the strings, returns the new string."/>
+<method proto="length()" returns="int" desc="returns number of characters in the string"/>
+<method proto="find(search,[start])" returns="int" desc="returns like Find(string, search, start) the index of the first occurance of 'search' after 'start' within str, but unlike the basic.em function the Start parameter is optional if not given it searches the whole string"/>
+<method proto="upper()" returns="string" desc="returns like upper(str) the uppercase version and also modifies the str"/>
+<method proto="lower()" returns="string" desc="returns like lower(str) the lowercase version and also modifies the str"/>
+<method proto="format(args)" returns="string" desc="formats a string using the data from args.
+	Accepts the following format:
+	{:x} for hex representation
+	{:o} for octal
+	{:b} for binary
+
+	Add a # to get notation prefix, e.g.:
+	&quot;{:x}&quot;.format(10) -> &quot;a&quot;
+	&quot;{:#x}&quot;.format(10) -> &quot;0xa&quot;
+
+	Parameters can be simple:
+	&quot;You have {} gold coins&quot;.format(120) -> &quot;You have 120 gold coins&quot;
+
+	and are unpacked implicitly by their order:
+	&quot;{} hits {} for {} of damage&quot;.format(&quot;John&quot;, &quot;Bob&quot;, 120) -> &quot;John hits Bob for 120 of damage&quot;
+
+	However you can specify parameters explicitly (first argument is at 1):
+	&quot;You hit {2} for {1} damage&quot;.format(120, &quot;John Doe&quot;) -> &quot;You hit John Doe for 120 damage&quot;
+
+	Format allows accessing object members:
+	&quot;Spell {1.spell_name} requires reagents: {1.reagents}&quot;.format(struct{spell_name:=&quot;Fire Wrath&quot;, &quot;Ba, Bm, Ga&quot;}) -> &quot;Spell Fire Wrath requires reagents: Ba, Bm, Ga&quot;
+
+	Implicit members also work:
+	&quot;{name} you hit level {level}&quot;.format(struct{name:=&quot;Jane Doe&quot;, level:=4}) -> &quot;Jane Doe you hit level 4&quot;
+
+	Character or item members are accessed the same way:
+	&quot;{1.name}, your shield {2.desc} has {2.hp} hp&quot;.format(who, who.shield) -> &quot;Admin, your shield Buckler of Death has 150 hp&quot;"/>
+<method proto="join(array)" returns="string" desc="returns a string which is the concatenation of the array elements, seperated by str"/>
 </class>
 
 
@@ -757,8 +801,24 @@ methods and properties in the Character and they will be removed in a future rel
 <member mname="clientver_detail" type="Struct" access="r/o" mdesc="UO Client version string as Struct of Ints {major;minor;rev;patch}" />
 <member mname="uo_expansion_client" type="Integer" access="r/o" mdesc="client send expansion info flag" />
 <member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield" />
-
+<member mname="last_activity_at" type="Integer" access="r/o" mdesc="POL clock when last activity has been made" />
+<member mname="last_packet_at" type="Integer" access="r/o" mdesc="POL clock when last packet has been received" />
 <method proto="compareversion(string Version)" returns="true/false" desc="true if Client Version >= given Versionstring" />
+</class>
+
+
+<class name="StorageAreas">
+<explain>Object representing a list of all storage areas.
+It is iterable: iterates over StorageArea objects.
+It supports the [] operator: its behavior is similar to FindStorageArea()</explain>
+<member mname="count" type="Integer" access="r/o" mdesc="Number of storage areas" />
+</class>
+
+
+<class name="StorageArea">
+<explain>Object representing a storage area.
+It is iterable: iterates over Item objects (root items in storage area).</explain>
+<member mname="count" type="Integer" access="r/o" mdesc="Number of root items in this storage area" />
 </class>
 
 

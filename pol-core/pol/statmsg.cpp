@@ -252,15 +252,7 @@ namespace Pol {
 
 	  if ( networkManager.uoclient_general.hits.any )
 	  {
-		int h, mh;
-		h = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
-		if ( h > 0xFFFF )
-		  h = 0xFFFF;
-		mh = chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
-		if ( mh > 0xFFFF )
-		  mh = 0xFFFF;
-
-		msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
+		msg->WriteFlipped<u16>(static_cast<u16>(chr->vital(networkManager.uoclient_general.hits.id).current_thousands()));
 		msg->WriteFlipped<u16>( 1000u ); // max_hits
 	  }
 	  else

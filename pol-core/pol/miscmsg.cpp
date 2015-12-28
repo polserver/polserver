@@ -361,6 +361,43 @@ namespace Pol {
 		case PKTBI_BF::TYPE_CLIENTTYPE:
 		  client->UOExpansionFlagClient = ctBEu32( msg->clienttype.clientflag );
 		  break;
+		case PKTBI_BF::TYPE_POPUP_MENU_REQUEST:
+		{
+		  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/popupmenu", true, Plib::systemstate.config.cache_interactive_scripts );
+		  if ( prog.get() == NULL )
+			break;
+		  u32 serial = cfBEu32( msg->serial_request_popup_menu );
+		  if ( IsCharacter( serial ) )
+		  {
+			Pol::Mobile::Character* chr = system_find_mobile( serial );
+			if ( chr == NULL )
+			  break;
+			client->chr->start_script( prog.get(), false, new Pol::Module::ECharacterRefObjImp( chr ) );
+		  }
+		  else
+		  {
+			Pol::Items::Item* item = system_find_item( serial );
+			if ( item == NULL )
+			  break;
+			client->chr->start_script( prog.get(), false, item->make_ref() );
+		  }
+		  break;
+		}
+		case PKTBI_BF::TYPE_POPUP_ENTRY_SELECT:
+		{
+		  if ( client->chr->on_popup_menu_selection == NULL )
+		  {
+			POLLOG_INFO.Format( "{}/{} tried to use a popup menu, but none was active.\n" )
+			  << client->acct->name()
+			  << client->chr->name();
+			break;
+		  }
+
+		  u32 serial = cfBEu32( msg->popupselect.serial );
+		  u16 id = cfBEu16( msg->popupselect.entry_tag );
+		  client->chr->on_popup_menu_selection( client, serial, id );
+		  break;
+		}
 		default:
 		  handle_unknown_packet( client );
 	  }

@@ -27,7 +27,7 @@
 		<div id="main">
 			<div class="container">
 				<div class="doc-mainbox">
-					<table class="doc-table" width="540px">
+					<table class="doc-table" width="600px">
 						<tr align="center">
 							<td>
 								<strong>
@@ -72,7 +72,7 @@
 							</tbody>
 							<xsl:if test="parent">
 								<tbody>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="4">Parent</th>
 									</tr>
 								</tbody>
@@ -88,7 +88,7 @@
 							</xsl:if>
 							<xsl:if test="child">
 								<tbody>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="4">Children</th>
 									</tr>
 								</tbody>
@@ -105,7 +105,7 @@
 								</tbody>
 							</xsl:if>
 							<tbody>
-								<tr id="doc-table-dark">
+								<tr class="doc-table-dark">
 									<th align="left" colspan="4">Explanation</th>
 								</tr>
 							</tbody>
@@ -118,12 +118,12 @@
 							</tbody>
 							<xsl:if test="member">
 								<tbody>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="4">Members</th>
 									</tr>
 								</tbody>
 								<tbody>
-									<tr id="doc-table-med">
+									<tr class="doc-table-med">
 										<td>Name</td>
 										<td>Type</td>
 										<td>Desc</td>
@@ -151,7 +151,7 @@
   											</tr>
 										  </xsl:when>
 										  <xsl:otherwise>
-  											<tr id="doc-table-light">
+  											<tr class="doc-table-light">
   												<td>
   													<xsl:value-of select="@mname"/>
   												</td>
@@ -172,13 +172,13 @@
 							</xsl:if>
 							<xsl:if test="method">
 								<tbody>
-									<tr id="doc-table-dark">
+									<tr class="doc-table-dark">
 										<th align="left" colspan="4">Methods</th>
 									</tr>
 								</tbody>
 
 								<tbody>
-									<tr id="doc-table-med">
+									<tr class="doc-table-med">
 										<td>Prototype</td>
 										<td>Returns</td>
 										<td colspan="2">Desc</td>
@@ -202,7 +202,7 @@
   											</tr>
   										</xsl:when>
   										<xsl:otherwise>
-  											<tr id="doc-table-light">
+  											<tr class="doc-table-light">
   												<td>
   													<xsl:value-of select="@proto"/>
   												</td>
