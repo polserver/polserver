@@ -72,7 +72,7 @@ namespace Pol {
 	  return "Error";
 	}
 
-	int BError::typeOfInt() const
+	u8 BError::typeOfInt() const
 	{
 	  return OTError;
 	}

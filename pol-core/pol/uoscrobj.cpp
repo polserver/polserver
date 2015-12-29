@@ -120,7 +120,7 @@ namespace Pol {
 	{
 	  return "MobileRef";
 	}
-	int ECharacterRefObjImp::typeOfInt() const
+	u8 ECharacterRefObjImp::typeOfInt() const
 	{
 	  return OTMobileRef;
 	}
@@ -280,7 +280,7 @@ namespace Pol {
 	{
 	  return "OfflineMobileRef";
 	}
-	int EOfflineCharacterRefObjImp::typeOfInt() const
+	u8 EOfflineCharacterRefObjImp::typeOfInt() const
 	{
 	  return OTOfflineMobileRef;
 	}
@@ -299,7 +299,7 @@ namespace Pol {
 	{
 	  return "ItemRef";
 	}
-	int EItemRefObjImp::typeOfInt() const
+	u8 EItemRefObjImp::typeOfInt() const
 	{
 	  return OTItemRef;
 	}
@@ -459,7 +459,7 @@ namespace Pol {
 	{
 	  return "BoatRef";
 	}
-	int EUBoatRefObjImp::typeOfInt() const
+	u8 EUBoatRefObjImp::typeOfInt() const
 	{
 	  return OTBoatRef;
 	}
@@ -622,7 +622,7 @@ namespace Pol {
 	{
 	  return "MultiRef";
 	}
-	int EMultiRefObjImp::typeOfInt() const
+	u8 EMultiRefObjImp::typeOfInt() const
 	{
 	  return OTMultiRef;
 	}
@@ -3765,7 +3765,7 @@ namespace Pol {
     {
       return "ClientRef";
     }
-    int EClientRefObjImp::typeOfInt() const
+    u8 EClientRefObjImp::typeOfInt() const
     {
       return OTClientRef;
     }

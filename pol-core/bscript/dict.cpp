@@ -351,7 +351,7 @@ namespace Pol {
 	{
 	  return "Dictionary";
 	}
-	int BDictionary::typeOfInt() const
+	u8 BDictionary::typeOfInt() const
 	{
 	  return OTDictionary;
 	}

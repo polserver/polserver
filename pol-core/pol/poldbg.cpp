@@ -154,7 +154,7 @@ namespace Pol {
 	public:
 	  explicit DebugContextObjImp( ref_ptr<DebugContext> rcdctx );
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual BObjectImp* copy() const POL_OVERRIDE;
 	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
 	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
@@ -166,7 +166,7 @@ namespace Pol {
 	{
 	  return "DebugContext";
 	}
-	int DebugContextObjImp::typeOfInt() const
+	u8 DebugContextObjImp::typeOfInt() const
 	{
 	  return OTDebugContext;
 	}

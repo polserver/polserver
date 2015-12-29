@@ -85,7 +85,7 @@ namespace Pol {
 	  explicit DataFileRefObjImp( DataFileContentsRef dfref );
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
@@ -111,7 +111,7 @@ namespace Pol {
 	public:
 	  DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dflem );
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;

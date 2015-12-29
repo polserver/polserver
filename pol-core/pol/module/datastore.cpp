@@ -250,7 +250,7 @@ namespace Pol {
 	{
 	  return "DataFileRef";
 	}
-	int DataFileRefObjImp::typeOfInt() const
+	u8 DataFileRefObjImp::typeOfInt() const
 	{
 	  return OTDataFileRef;
 	}
@@ -361,7 +361,7 @@ namespace Pol {
 	{
 	  return "DataElemRef";
 	}
-	int DataElemRefObjImp::typeOfInt() const
+	u8 DataElemRefObjImp::typeOfInt() const
 	{
 	  return OTDataElemRef;
 	}

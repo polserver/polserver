@@ -182,7 +182,7 @@ namespace Pol {
 	public:
 	  EMenuObjImp( const Menu& m ) : BApplicObj<Menu>( &menu_type, m ) {}
 	  virtual const char* typeOf() const POL_OVERRIDE { return "MenuRef"; }
-	  virtual int typeOfInt() const POL_OVERRIDE { return OTMenuRef; }
+	  virtual u8 typeOfInt() const POL_OVERRIDE { return OTMenuRef; }
 	  virtual BObjectImp* copy() const POL_OVERRIDE { return new EMenuObjImp( value() ); }
 	};
 

@@ -65,7 +65,7 @@ namespace Pol {
 	{
 	  return "AccountRef";
 	}
-	int AccountObjImp::typeOfInt() const
+	u8 AccountObjImp::typeOfInt() const
 	{
 	  return OTAccountRef;
 	}

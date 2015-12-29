@@ -45,7 +45,7 @@ namespace Pol {
 	{
 	  return "ScriptExRef";
 	}
-	int ScriptExObjImp::typeOfInt() const
+	u8 ScriptExObjImp::typeOfInt() const
 	{
 	  return OTScriptExRef;
 	}

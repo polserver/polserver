@@ -92,7 +92,7 @@ namespace Pol {
 	{
 	  return "Struct";
 	}
-	int BStruct::typeOfInt() const
+	u8 BStruct::typeOfInt() const
 	{
 	  return OTStruct;
 	}

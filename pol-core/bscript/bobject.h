@@ -59,51 +59,58 @@ namespace Pol {
 	class BObjectImp : public ref_counted
 	{
 	public:
-	  enum BObjectType
+      /**
+       * Specify the object type for the child classes
+       *
+       * @warning This is directly returned by TypeOfInt(), so don't forget to
+       *          keep constants inside basic.em in sync! It is better to always
+       *          add new values at the end and use explicit int conversion to
+       *          avoid breaking backward compatibility.
+       */
+	  enum BObjectType : u8
 	  {
-		OTUnknown,
-		OTUninit,
-		OTString,
-		OTLong,
-		OTDouble,
-		OTArray,
-		OTApplicPtr,
-		OTApplicObj,
-		OTError,
-		OTDictionary,
-		OTStruct,
-		OTPacket,
-		OTBinaryFile,
-		OTXMLFile,
-		OTXMLNode,
-		OTXMLAttributes,
-		OTPolCoreRef,
+		OTUnknown = 0,
+		OTUninit = 1,
+		OTString = 2,
+		OTLong = 3,
+		OTDouble = 4,
+		OTArray = 5,
+		OTApplicPtr = 6,
+		OTApplicObj = 7,
+		OTError = 8,
+		OTDictionary = 9,
+		OTStruct = 10,
+		OTPacket = 11,
+		OTBinaryFile = 12,
+		OTXMLFile = 13,
+		OTXMLNode = 14,
+		OTXMLAttributes = 15,
+		OTPolCoreRef = 16,
 
 		// non direct used constants (for TypeOfInt) start
-		OTAccountRef,
-		OTConfigFileRef,
-		OTConfigElemRef,
-		OTDataFileRef,
-		OTDataElemRef,
-		OTGuildRef,
-		OTPartyRef,
-		OTBoundingBox,
-		OTDebugContext,
-		OTScriptExRef,
-		OTPackage,
-		OTMenuRef,
-		OTMobileRef,
-		OTOfflineMobileRef,
-		OTItemRef,
-		OTBoatRef,
-		OTMultiRef,
-		OTClientRef,
+		OTAccountRef = 17,
+		OTConfigFileRef = 18,
+		OTConfigElemRef = 19,
+		OTDataFileRef = 20,
+		OTDataElemRef = 21,
+		OTGuildRef = 22,
+		OTPartyRef = 23,
+		OTBoundingBox = 24,
+		OTDebugContext = 25,
+		OTScriptExRef = 26,
+		OTPackage = 27,
+		OTMenuRef = 28,
+		OTMobileRef = 29,
+		OTOfflineMobileRef = 30,
+		OTItemRef = 31,
+		OTBoatRef = 32,
+		OTMultiRef = 33,
+		OTClientRef = 34,
 		// non direct used Constants (for TypeOfInt) end
 
-		OTSQLConnection,
-		OTSQLResultSet,
-		OTSQLRow
-
+		OTSQLConnection = 35,
+		OTSQLResultSet = 36,
+		OTSQLRow = 37,
 	  };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -139,7 +146,7 @@ namespace Pol {
 
 	  virtual size_t sizeEstimate() const = 0;
 	  virtual const char* typeOf() const;
-	  virtual int typeOfInt() const;
+	  virtual u8 typeOfInt() const;
 
 
 	  virtual std::string pack() const;
@@ -861,7 +868,7 @@ namespace Pol {
 	  T* operator->( );
 
 	  virtual const char* typeOf() const POL_OVERRIDE = 0;
-	  virtual int typeOfInt() const POL_OVERRIDE = 0;
+	  virtual u8 typeOfInt() const POL_OVERRIDE = 0;
 	  virtual BObjectImp* copy() const POL_OVERRIDE = 0;
 	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 

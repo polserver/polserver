@@ -238,7 +238,7 @@ namespace Pol {
 	}
 
 
-	int BObjectImp::typeOfInt() const
+	u8 BObjectImp::typeOfInt() const
 	{
 	  return type_;
 	}
