@@ -15,6 +15,13 @@ Notes
 
 namespace Pol {
   namespace Bscript {
+
+	/**
+	 * Represents a single compile context.
+	 *
+	 * A new compile context is created for every source file being compiled,
+	 * but a context can spawn itself many sub-contexts when needed
+	 */
 	class CompilerContext
 	{
 	public:
@@ -31,6 +38,10 @@ namespace Pol {
 	  void skipws();
 	  int skipcomments();
 
+	  /**
+	   * The code to be compiled, as null-terminated char sequence.
+	   * The pointer is moved forward when part of the string has been processed
+	   */
 	  const char *s;
 	  int line;
 	  std::string filename;

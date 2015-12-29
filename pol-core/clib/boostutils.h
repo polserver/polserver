@@ -145,6 +145,7 @@ namespace Pol {
 #endif
 
     // definition of the different Flyweight factories
+    // WARNING: do not forget to add new types to struct flyweight_initializers
     struct cprop_name_tag {};
     typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>, FLYWEIGHT_HASH_FACTORY> cprop_name_flystring;
     struct cprop_value_tag {};
@@ -159,6 +160,22 @@ namespace Pol {
     typedef boost::flyweight<std::string, boost::flyweights::tag<npctemplate_name_tag>, FLYWEIGHT_HASH_FACTORY> npctemplate_name_flystring;
     struct function_name_tag {};
     typedef boost::flyweight<std::string, boost::flyweights::tag<function_name_tag>, FLYWEIGHT_HASH_FACTORY> function_name_flystring;
+
+    /**
+     * These types must be initialized before any static objects using them
+     * are initialized. Prevents a crash on exit after last destructor is called
+     * because boost::flyweights initialization is not thread safe.
+     */
+    struct flyweight_initializers {
+      cprop_name_flystring::initializer fwInit_cprop_name;
+      cprop_value_flystring::initializer fwInit_cprop_value;
+      cfg_key_flystring::initializer fwInit_cfg_key;
+      object_name_flystring::initializer fwInit_obj_name;
+      script_name_flystring::initializer fwInit_script_name;
+      npctemplate_name_flystring::initializer fwInit_npctemplate_name;
+      function_name_flystring::initializer fwInit_func_name;
+    };
+
   }
 }
 #endif

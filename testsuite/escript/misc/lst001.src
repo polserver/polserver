@@ -1,0 +1,3 @@
+print( "hello" );
+print(len( "hello" ));
+//left( "hello", 3 );

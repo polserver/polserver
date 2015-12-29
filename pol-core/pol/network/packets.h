@@ -431,6 +431,7 @@ namespace Pol {
 	typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_PARTY_SYSTEM, 0xFFFF> PktOut_BF_Sub6;
 	typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CURSOR_HUE, 5 + 1> PktOut_BF_Sub8;
 	typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_OBJECT_CACHE, 5 + 8> PktOut_BF_Sub10;
+	typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_DISPLAY_POPUP_MENU, 0xFFFF> PktOut_BF_Sub14;
 	typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CLOSE_WINDOW, 5 + 8> PktOut_BF_Sub16;
 	typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_ENABLE_MAP_DIFFS, 5 + 4 + MAX_NUMER_REALMS * 8> PktOut_BF_Sub18;
 	typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_EXTENDED_STATS_OUT, 5 + 7> PktOut_BF_Sub19;
@@ -447,6 +448,7 @@ namespace Pol {
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_D6_OUT_ID, 0xFFFF> PktOut_D6;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DC_ID, 9> PktOut_DC;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DD_ID, 0xFFFF> PktOut_DD;
+	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DF_ID, 0xFFFF> PktOut_DF;
     typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_E2_ID, 10> PktOut_E2;
 	typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_E3_ID, 77> PktOut_E3;
 	// HSA 26 old 24

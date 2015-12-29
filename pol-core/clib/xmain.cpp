@@ -18,6 +18,7 @@ Notes
 #endif
 #include <stdexcept>
 
+
 namespace Pol {
   namespace Clib  {
 

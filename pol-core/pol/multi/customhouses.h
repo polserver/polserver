@@ -31,6 +31,9 @@ namespace Pol {
   namespace Network {
     class Client;
   }
+  namespace Items {
+    class Item;
+  }
   namespace Mobile {
     class Character;
   }
@@ -149,6 +152,7 @@ namespace Pol {
 	  Bscript::ObjArray* list_parts() const;
 
 	private:
+	  inline static bool isEditableItem( UHouse* house, Items::Item* item );
 	  static char z_to_custom_house_table( char z );
 	};
 

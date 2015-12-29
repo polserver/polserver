@@ -63,6 +63,9 @@ namespace Pol {
 #endif
 	}
 
+	/**
+	 * Initializes an empty token
+	 */
 	Token::Token() :
 	  id( TOK_TERM ),
 	  type( TYP_TERMINATOR ),
@@ -80,6 +83,9 @@ namespace Pol {
 	  register_instance();
 	}
 
+	/**
+	 * Initializes a token copying data from a given one
+	 */
 	Token::Token( const Token& tok ) :
 	  id( tok.id ),
 	  type( tok.type ),
@@ -104,6 +110,9 @@ namespace Pol {
 	  }
 	}
 
+	/**
+	 * Assigns the values from a given token to this one
+	 */
 	Token& Token::operator=( const Token& tok )
 	{
 	  module = tok.module;
@@ -189,6 +198,9 @@ namespace Pol {
 	  register_instance();
 	}
 
+	/**
+	 * Erases all the content from the String (s), that becomes empty
+	 */
 	void Token::nulStr()
 	{
 	  if ( token && ownsStr )
@@ -206,6 +218,9 @@ namespace Pol {
 	  token = s;
 	}
 
+	/**
+	 * Copies value form the given null terminated char array into the String (s)
+	 */
 	void Token::copyStr( const char *s )
 	{
 	  nulStr();

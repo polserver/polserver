@@ -280,6 +280,8 @@ namespace Pol {
 	  Bscript::BObjectImp* mf_SendOverallSeason(/*season_id, playsound := 1*/ );
       Bscript::BObjectImp* mf_GetMidpointCircleCoords(/* xcenter, ycenter, radius */);
 
+	  Bscript::BObjectImp* mf_SendPopUpMenu(/* to_whom, above, menu */);
+
 	  Core::UOExecutor& uoexec;
 
 	  /* If we're asking a character for a target, who is it?
@@ -290,6 +292,8 @@ namespace Pol {
 		 */
 	  Mobile::Character* target_cursor_chr;
 	  Mobile::Character* menu_selection_chr;
+	  Mobile::Character* popup_menu_selection_chr;
+	  Core::UObject* popup_menu_selection_above;
 	  Mobile::Character* prompt_chr;
 	  Mobile::Character* gump_chr;
 	  Mobile::Character* textentry_chr;
@@ -300,6 +304,7 @@ namespace Pol {
 
 	  Mobile::Character* attached_chr_;
 	  Mobile::Character* attached_npc_;
+	  Items::Item* attached_item_;
 	  Core::CharacterRef controller_;
 
 	  bool is_reserved_to_me( Items::Item* item );
@@ -326,8 +331,8 @@ namespace Pol {
 	  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
 	  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
 	  static void internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Realms::Realm* realm );
-	  Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y );
-	  Bscript::BObjectImp* internal_SendCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y );
+	  Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
+	  Bscript::BObjectImp* internal_SendCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
 
 	private: // not implemented
 	  UOExecutorModule( const UOExecutorModule& );

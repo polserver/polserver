@@ -1,5 +1,0 @@
-var x;
-
-if (1)
-    var x;
-endif

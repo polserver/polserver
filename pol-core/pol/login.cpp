@@ -496,8 +496,7 @@ namespace Pol {
 
 	  Accounts::Account* acct = client->acct;
 	  Mobile::Character* chr = acct->get_character( charidx );
-	  if ( chr->client != NULL ||
-		   acct->active_character != NULL ) // this account has a currently active character.
+	  if ( chr->client != NULL || ( ! Plib::systemstate.config.allow_multi_clients_per_account && acct->has_active_characters() ) )
 	  {
 		send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
 		client->Disconnect();

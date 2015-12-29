@@ -1,6 +1,0 @@
-function foo()
-   var a;
-endfunction
-
-foo();
-foo();

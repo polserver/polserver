@@ -43,6 +43,7 @@ Notes
 
 #include "../../clib/strset.h"
 #include "../reftypes.h"
+#include "../pktboth.h"
 
 #include "attribute.h"
 
@@ -195,6 +196,11 @@ namespace Pol {
 	  {
 		return _current / 100;
 	  }
+	  int current_thousands() const
+	  {
+		  // use division to prevent overflow
+		  return (_current / 100) * 1000 / (_maximum/100);
+	  }
 	  int maximum() const
 	  {
 		return _maximum;
@@ -268,6 +274,21 @@ namespace Pol {
 	  unsigned int _current;     // 0 to 10000000 [0 to 100000.00]
 	  unsigned int _maximum;
 	  int _regenrate; // in hundredths of points per minute
+	};
+
+	/**
+	* Represents a buff icon in the buff bar, see packet 0xDF documentation for more details
+	*/
+	struct Buff {
+	  // Polclock when the buff will end (only for displaying countdown)
+	  Core::gameclock_t end;
+	  // Name cliloc ID
+	  u32 cl_name;
+	  // Description cliloc ID
+	  u32 cl_descr;
+	  // Unicode string, arguments to be replaced in cl_descr, separated by tabs
+	  // TODO: use a real unicode string class, maybe a vector of them
+	  std::vector<u32> arguments;
 	};
 
 	struct reportable_t { u32 serial; Core::polclock_t polclock; };
@@ -744,6 +765,15 @@ namespace Pol {
 	protected:
 	  friend void Core::undo_get_item( Character *chr, Items::Item *item ); // this just gets uglier and uglier.
 
+    // BUFF/DEBUFF BAR
+    public:
+      void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments );
+      bool delBuff( u16 icon );
+      void clearBuffs();
+      void send_buffs();
+    protected:
+      std::map<u16, Buff> buffs_; // indexed by icon ID
+
 	// ==========================================================
 	// DATA:
 	// ==========================================================
@@ -834,6 +864,7 @@ namespace Pol {
 	  Core::TargetCursor* tcursor2;
 	  Core::Menu* menu;
 	  void( *on_menu_selection )( Network::Client *client, Core::MenuItem *mi, Core::PKTIN_7D *msg );
+	  void( *on_popup_menu_selection )( Network::Client *client, u32 serial, u16 id );
 	protected:
 	  Core::UOExecutor* script_ex;
 	  Core::OneShotTask* spell_task;

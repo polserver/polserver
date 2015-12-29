@@ -21,6 +21,13 @@ Notes
 
 namespace Pol {
   namespace Clib {
+
+	/**
+	 * Creates the instance and reads the whole file content into it
+	 *
+	 * @param filename Full path of the file to be read
+	 * @throws std::runtime_error When something goes wrong when reading the file
+	 */
 	FileContents::FileContents( const char* filename )
 	{
 	  FILE *fp = fopen( filename, "rb" );
@@ -41,11 +48,17 @@ namespace Pol {
 	  fclose( fp );
 	}
 
+	/**
+	 * Returns a pointer to the file content
+	 */
 	const char* FileContents::contents() const
 	{
 	  return contents_.c_str();
 	}
 
+	/**
+	 * Replaces the internal content with a copy of the given one
+	 */
 	void FileContents::set_contents( const std::string& str )
 	{
 	  contents_ = str;

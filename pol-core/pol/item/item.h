@@ -24,6 +24,9 @@ Notes
 #include "../globals/settings.h"
 
 namespace Pol {
+  namespace Module {
+    class UOExecutorModule;
+  }
   namespace Core {
 	struct USTRUCT_TILE;
 	class UContainer;
@@ -131,8 +134,8 @@ namespace Pol {
 	  virtual UObject* toplevel_owner() POL_OVERRIDE;
 	  virtual const UObject* toplevel_owner() const POL_OVERRIDE;
 
-	  bool can_add_to_self( unsigned short amount ) const;
-	  bool can_add_to_self( const Item& item ) const;
+	  bool can_add_to_self( unsigned short amount, bool force_stacking ) const;
+	  bool can_add_to_self( const Item& item, bool force_stacking ) const;
 	  bool has_only_default_cprops( const ItemDesc* compare = NULL ) const;
 	  void add_to_self( Item*& item ); // deletes the item passed
 
@@ -230,9 +233,10 @@ namespace Pol {
 	  bool has_resistance( Mobile::Character* chr );
 	  bool has_element_damage();
 
-      DYN_PROPERTY        (maxhp_mod,   s16,                Core::PROP_MAXHP_MOD,   0);
-      DYN_PROPERTY        (name_suffix, std::string,        Core::PROP_NAME_SUFFIX, "");
-      DYN_PROPERTY_POINTER(gotten_by,   Mobile::Character*, Core::PROP_GOTTEN_BY);
+      DYN_PROPERTY        (maxhp_mod,   s16,                       Core::PROP_MAXHP_MOD,   0);
+      DYN_PROPERTY        (name_suffix, std::string,               Core::PROP_NAME_SUFFIX, "");
+      DYN_PROPERTY_POINTER(gotten_by,   Mobile::Character*,        Core::PROP_GOTTEN_BY);
+      DYN_PROPERTY_POINTER(process,     Module::UOExecutorModule*, Core::PROP_PROCESS);
       virtual double getQuality() const;
       virtual void setQuality(double value);
     private:

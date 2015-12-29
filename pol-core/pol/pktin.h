@@ -410,8 +410,8 @@ namespace Pol {
 		u8 msgtype;
 		u16 msglen;
 		u32 serial;
-		u32 dialogid;
-		u32 gumpid;
+		u32 dialogid; // Alias for gumpid
+		u32 buttonid;
 	  };
 	  struct INTS_HEADER
 	  {

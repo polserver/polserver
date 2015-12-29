@@ -2,9 +2,187 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-03-2015</datemodified>
+		<datemodified>12-27-2015</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>12-27-2015</date>
+			<author>Bodom &amp; Nando:</author>
+			<change type="Fixed">Linux crash on shutdown</change>
+		</entry>
+		<entry>
+			<date>12-26-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Bug in String.format()<br/>
+String tags were not correctly processed.<br/>
+&quot;{name} you hit level {level}&quot;.format(struct{name:=&quot;Jane Doe&quot;, level:=4})<br/>
+now correctly formats as &quot;Jane Doe you hit level 4&quot; instead of<br/>
+&quot;Jane Doe you hit level &lt;invalid index: #2&gt;&quot;</change>
+		</entry>
+		<entry>
+			<date>12-18-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New eScript escape sequence in strings &quot;\xAA&quot;. Allows to specify a<br/>
+single character by its binary value (\x01 to \xFF). The value must<br/>
+always be 2 digits long, in hex, case insensitive (eg. \xA is not<br/>
+valid).</change>
+		</entry>
+		<entry>
+			<date>12-05-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">Buff Bar support<br/>
+New Character's addBuff(), delBuff() and clearBuffs() methods,<br/>
+please see docs for details and explanation.<br/>
+0xDF packets are automatically sent when needed (eg. at relogin).<br/>
+Buff Bar status is not saved, maybe it will be in future.</change>
+		</entry>
+		<entry>
+			<date>11-28-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New Client object properties last_packet_at and last_activity_at</change>
+		</entry>
+		<entry>
+			<date>11-01-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">mysql_query() now supports a third &quot;parameters&quot; (array) argument.<br/>
+It can be used to safely replace &quot;?&quot; placeholders inside the query<br/>
+with corresponding array entries.</change>
+		</entry>
+		<entry>
+			<date>10-27-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New pol.cfg option AllowMultiClientsPerAccount (default: false)<br/>
+When true, allows multiple characters from the same account to be<br/>
+logged in at the same time</change>
+			<change type="Fixed">Items' CProps were loaded again from itemdesc.cfg at startup when deleted</change>
+		</entry>
+		<entry>
+			<date>10-18-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">MoveItemToContainer could stack non-stackable items in some circumstances</change>
+		</entry>
+		<entry>
+			<date>10-07-2015</date>
+			<author>Bodom:</author>
+			<change type="Removed">&quot;house_serial&quot; CProp is no longer set by core for house components</change>
+			<change type="Fixed">Exception when editing a custom house with components outside of the<br/>
+house</change>
+		</entry>
+		<entry>
+			<date>10-06-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Fixed crash condition (stack overflow) when unequipping last armor<br/>
+piece weared by an NPC and then receiving an hit.</change>
+			<change type="Changed">Intrinsic armor now takes precedence over equipped armor (is was the<br/>
+opposite before). Anyway, using both of them could lead to unexpected<br/>
+behavior so it is not a good pratice.</change>
+		</entry>
+		<entry>
+			<date>10-02-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">Intrinsic Shield support, works just like intrinsic weapons<br/>
+New extobj.cfg entry &quot;Shield&quot; (defaults to 0x1F022)<br/>
+New item must be defined in itemdesc.cfg<br/>
+// Intrinsic Shield template - special pseudo Shield for NPCs<br/>
+Armor 0x1F022<br/>
+{<br/>
+    Name            intrinsicshield<br/>
+    Graphic         1<br/>
+    MaxHP           1<br/>
+    SaveOnExit      0<br/>
+}</change>
+		</entry>
+		<entry>
+			<date>09-30-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">MoveItemToContainer parameter add_to_existing_stack can now be 2 for &quot;auto&quot; behavior<br/>
+The function will try to add the item to an existing stack and just try move the<br/>
+item inside the container if no stack is found</change>
+		</entry>
+		<entry>
+			<date>09-29-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">When a robe is already equipped before resurrect, no longer destroy it to<br/>
+equip the death robe</change>
+			<change type="Fixed">When HonorUnequipScriptOnDeath is on, item's unequip and unequiptest scripts<br/>
+were called twice on death and in the wrong order</change>
+		</entry>
+		<entry>
+			<date>09-27-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Armor were not calculated correctly for NPCs wearing equip</change>
+			<change type="Fixed">Allow changing graphic of equipped items again if the new graphic has the same layer</change>
+		</entry>
+		<entry>
+			<date>09-25-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New uo.em function SendPopUpMenu( to, above, menu ).</change>
+			<change type="Added">On pop-up menu request (single click) &quot;misc/popupmenu.ecl&quot; is called.</change>
+			<change type="Fixed">When using MapDiff, tiles could disappear in some circumstances</change>
+		</entry>
+		<entry>
+			<date>09-24-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New keyword AttackCProp on npcdesc.cfg allows defining CProps for<br/>
+intrinsic weapons.</change>
+			<change type="Fixed">Hp/MaxHp updates to nearby clients were still using the real value<br/>
+instead of the 1000-based ratio when sending the 0xa1 packet.</change>
+			<change type="Fixed">Hp/MaxHp updates were sent twice to the originating character.</change>
+		</entry>
+		<entry>
+			<date>09-12-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Bug in loading POL098 and older data files: boats were rotated leaving<br/>
+dynamic elements like plank and tillerman on the old position.</change>
+		</entry>
+		<entry>
+			<date>09-08-2015</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Bug in LAN IP address identification (some IPs in 172.16.0.0/12 were skipped)</change>
+		</entry>
+		<entry>
+			<date>09-06-2015</date>
+			<author>Nando:</author>
+			<change type="Added">Data integrity check will test if the item serial is valid (serial &gt;= 0x40000000) when loading items.</change>
+			<change type="Fixed">Items could be created with character serials if the wrong values were saved in data/pol.txt.</change>
+			<change type="Note">Character serials must be in the range 1 to 0x3FFFFFF (inclusive), while item serials must<br/>
+be between 0x40000000 and 0x7FFFFFFF (inclusive).</change>
+		</entry>
+		<entry>
+			<date>09-06-2015</date>
+			<author>Bodom:</author>
+			<change type="Added">New Item.process property<br/>
+Returns reference to the controlscript, if any running</change>
+			<change type="Changed">Script.attached_to now returns a reference to the Item when called on a ControlScript</change>
+			<change type="Added">New servspecopt.cfg option DefaultCharacterHeight (1-32)<br/>
+This will be the default (and never changed so far) height of Characters<br/>
+and NPCs. Default value is 15. Back in the POL095 days is was 9, so consider<br/>
+9-15 as your &quot;safe&quot; play range. Anything outside that range could cause weird<br/>
+movement behavior. Even small changes will have a great impact on LOS<br/>
+calculations and, more in general, on the combat system.<br/>
+It is also used to calculate wether a Character can fit under a low<br/>
+passage (e.g. dungeon stairs).<br/>
+Keep in mind a Titan and a Slime will have the same height.</change>
+		</entry>
+		<entry>
+			<date>09-05-2015</date>
+			<author>Bodom:</author>
+			<change type="Changed">Process ids (pid) no longer start from 1 but from 0x01000000.<br/>
+This should have no practical effect.</change>
+			<change type="Added">Allow specifying an arbitrary Gump id in SendDialogGump()<br/>
+Custom gump ids must be in the range 1-0xFFFFFF. If no gumpid is given,<br/>
+the old behavior of using the pid will still be used (so that this<br/>
+does not break backward compatibility).<br/>
+It is now possible to organize the gumpids in a constants file and have<br/>
+the same gump to always be sent with the same id. This way the client<br/>
+will recognize it and, if the player moved it last time, it will<br/>
+reposition it where the player liked it: this should be a nice<br/>
+interface improvement.<br/>
+It is now possible to implement the Virtues gump, since it needs a<br/>
+pre-defined gumpid of 0x01CD to work.</change>
+			<change type="Changed">CloseGump() now accepts a gumpid instead of a pid. For scripts not<br/>
+using custom gump ids, its behavior is the same as before.</change>
+		</entry>
 		<entry>
 			<date>09-03-2015</date>
 			<author>Bodom:</author>

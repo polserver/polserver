@@ -5,6 +5,6 @@
 /uotool
 /poltool
 *-dynamic
-*.so
+*.so*
 *.a
 

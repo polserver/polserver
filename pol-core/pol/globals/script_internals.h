@@ -25,6 +25,8 @@ namespace Core {
   class ScriptEngineInternalManager : boost::noncopyable
   {
   public:
+	  static const unsigned int PID_MIN;
+
 	  ScriptEngineInternalManager();
 	  ~ScriptEngineInternalManager();
       struct Memory;

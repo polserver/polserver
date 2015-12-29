@@ -149,6 +149,14 @@ void compile_inc( const char* path )
       throw std::runtime_error("Error compiling file");
 }
 
+/**
+ * Compiles the single given file (inc, src, hsr, asp), if needed
+ *
+ * Takes into account compilercfg.OnlyCompileUpdatedScripts and force_update
+ *
+ * @param path path of the file to be compiled
+ * @return TRUE if the file was compiled, FALSE otherwise (eg. the file is up-to-date)
+ */
 bool compile_file( const char *path )
 {
     std::string fname(path);
@@ -499,6 +507,12 @@ int readargs( int argc, char **argv )
   return 0;
 }
 
+/**
+ * Recursively compile a folder
+ *
+ * @param basedir Path of the folder to recurse into
+ * @param files
+ */
 void recurse_compile(const std::string& basedir, std::vector<std::string>* files)
 {
   int s_compiled, s_uptodate, s_errors;
@@ -620,7 +634,7 @@ void parallel_compile(const std::vector<std::string> &files)
 	  {
 		++compiled_scripts;
 		++error_scripts;
-        ERROR_PRINT << "failed to compile " << e.what() << "\n";
+		ERROR_PRINT << "failed to compile " << files[i].c_str() << ": " << e.what() << "\n";
 		if ( !keep_building )
 		{
 #pragma omp critical(building_break)
@@ -642,6 +656,10 @@ void parallel_compile(const std::vector<std::string> &files)
   summary.ScriptsWithCompileErrors = error_scripts;
 }
 
+
+/**
+ * Runs the compilation threads
+ */
 void AutoCompile()
 {
   bool save = compilercfg.OnlyCompileUpdatedScripts;
@@ -667,8 +685,12 @@ void AutoCompile()
   compilercfg.OnlyCompileUpdatedScripts = save;
 }
 
+/**
+ * Takes decisions, runs, the compilation, prints summary and cleans after
+ */
 bool run( int argc, char **argv )
 {
+  // Load and analyze the package structure
   for ( const auto &elem : compilercfg.PackageRoot )
   {
 	Plib::load_packages( elem, true /* quiet */ );
@@ -676,6 +698,7 @@ bool run( int argc, char **argv )
   Plib::replace_packages();
   Plib::check_package_deps();
 
+  // Determine the run mode and do the compile itself
   Tools::Timer<> timer;
   bool any = false;
 
@@ -745,6 +768,7 @@ bool run( int argc, char **argv )
 	AutoCompile();
   }
 
+  // Execution is completed: start final/cleanup tasks
   timer.stop();
 
   Plib::systemstate.deinitialize();
@@ -814,6 +838,9 @@ void read_config_file( int argc, char* argv[] )
   }
 }
 
+/**
+ * This is the main entry point for ecompile program
+ */
 int ECompileMain::main()
 {
 	const std::vector<std::string> binArgs = programArgs();

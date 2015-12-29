@@ -896,6 +896,18 @@ namespace Pol {
 		  else
 			return new BError( "Gotten By NULL" );
 		  break;
+		case MBR_PROCESS:
+		{
+		  Module::UOExecutorModule* proc = process();
+		  if ( proc )
+		  {
+			Pol::Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
+			return new Core::ScriptExObjImp( executor );
+		  }
+		  else
+			return new BError( "No script running" );
+		  break;
+		}
 		case MBR_DOUBLECLICKRANGE:
 		{
 								   const ItemDesc& itemdesc = this->itemdesc();
@@ -2588,6 +2600,66 @@ namespace Pol {
 		  }
 		  break;
 		}
+        case MTH_ADD_BUFF:
+        {
+          u16 icon;
+          u16 duration;
+          u32 cl_name;
+          u32 cl_descr;
+          ObjArray* oText;
+
+          if( ! ex.hasParams( 5 ) )
+            return new BError( "Not enough parameters" );
+          if( ex.getParam( 0, icon ) && ex.getParam( 1, duration ) && ex.getParam( 2, cl_name ) && ex.getParam( 3, cl_descr ) && ex.getObjArrayParam( 4, oText ) )
+          {
+            if( ! ( icon && cl_name && cl_descr ) )
+              return new BError( "Invalid parameters" );
+
+            // Retrieve and validate the unicode text as an array of u16
+            if( oText->ref_arr.size() > SPEECH_MAX_LEN )
+              return new BError("Unicode array exceeds maximum size.");
+            u16 cltext[(SPEECH_MAX_LEN + 1)];
+            size_t textlen = oText->ref_arr.size();
+            if( ! Core::convertArrayToUC(oText, cltext, textlen, false) )
+              return new BError("Invalid value in Unicode array.");
+
+            // Now convert it into a vector of u32
+            // TODO: use a unicode string class or something bettwer when it will be ready
+            std::vector<u32> arguments;
+            arguments.reserve(textlen);
+            for( size_t i = 0; i < textlen; i++ )
+               arguments.insert(arguments.end(), cltext[i]);
+
+            addBuff( icon, duration, cl_name, cl_descr, arguments );
+            return new BLong( 1 );
+          }
+          break;
+        }
+        case MTH_CLEAR_BUFFS:
+        {
+          clearBuffs();
+
+          return new BLong( 1 );
+          break;
+        }
+        case MTH_DEL_BUFF:
+        {
+          u16 icon;
+
+          if( ! ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          if( ex.getParam( 0, icon ) )
+          {
+            if( ! icon )
+              return new BError( "Invalid parameter" );
+
+            if( ! delBuff( icon ) )
+              return new BError( "Buff not found" );
+
+            return new BLong( 1 );
+          }
+          break;
+        }
 		default:
 		  return NULL;
 	  }
@@ -3457,13 +3529,11 @@ namespace Pol {
       if ( imp != NULL )
         return imp;
 
-      return NULL;
-      /*
       switch(id)
       {
-      default: return NULL;
+        case MBR_INTRINSIC: return new BLong( is_intrinsic() ); break;
+        default: return NULL;
       }
-      */
     }
     BObjectImp* Equipment::get_script_member( const char *membername ) const
     {
@@ -3533,7 +3603,6 @@ namespace Pol {
       case MBR_SPEED_MOD:	return new BLong(speed_mod()); break;
         case MBR_ATTRIBUTE: return new String( attribute().name ); break;
         case MBR_HITSCRIPT: return new String( hit_script_.relativename( tmpl->pkg ) ); break;
-        case MBR_INTRINSIC: return new BLong( is_intrinsic() ); break;
         default: return NULL;
       }
     }
@@ -3620,7 +3689,7 @@ namespace Pol {
       {
       case MBR_AR_MOD: return new BLong(ar_mod()); break;
         case MBR_AR: return new BLong( ar() ); break;
-        case MBR_AR_BASE: return new BLong( tmpl->ar ); break;
+        case MBR_AR_BASE: return new BLong( ar_base() ); break;
         case MBR_ONHIT_SCRIPT: return new String( onhitscript_.relativename( tmpl->pkg ) ); break;
         default: return NULL;
       }
@@ -3739,6 +3808,7 @@ namespace Pol {
     {
       if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
         return BObjectRef( new BError( "Client not ready or disconnected" ) );
+
       switch ( id )
       {
         case MBR_ACCTNAME:
@@ -3773,8 +3843,15 @@ namespace Pol {
         case MBR_UO_EXPANSION_CLIENT:
           return BObjectRef( new BLong( obj_->UOExpansionFlagClient ) );
           break;
-        default: return BObjectRef( UninitObject::create() );
+        case MBR_LAST_ACTIVITY_AT:
+          return BObjectRef( new BLong( obj_->last_activity_at ) );
+          break;
+        case MBR_LAST_PACKET_AT:
+          return BObjectRef( new BLong( obj_->last_packet_at ) );
+          break;
       }
+
+      return base::get_member_id(id);
     }
 
     BObjectRef EClientRefObjImp::get_member( const char* membername )
@@ -3832,8 +3909,9 @@ namespace Pol {
 			return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
   		  return new BError( "Invalid parameter type" );
         }
-        default: return NULL;
       }
+
+      return base::call_method_id( id, ex );
     }
 
 

@@ -244,7 +244,7 @@ namespace Pol {
 	  // UContainer::MT_CORE_* constants to the can_insert function (yet). :)
 
 	  ItemRef itemref( item );
-	  if ( ( !target_item->stackable() ) || ( !target_item->can_add_to_self( *item ) ) ||
+	  if ( ( !target_item->stackable() ) || ( !target_item->can_add_to_self( *item, false ) ) ||
 		   ( target_item->container && !target_item->container->can_insert_increase_stack( client->chr, UContainer::MT_PLAYER, target_item, item->getamount(), item ) ) )
 	  {
 		send_sysmessage( client, "Could not add item to stack." );
@@ -674,7 +674,7 @@ namespace Pol {
 		for ( UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
 		{
 		  Items::Item* exitem = GET_ITEM_PTR( itr );
-		  if ( exitem->can_add_to_self( *item ) )
+		  if ( exitem->can_add_to_self( *item, false ) )
 		  {
 			if ( cont->can_add( *item ) )
 			{

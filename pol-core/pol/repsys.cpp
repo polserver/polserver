@@ -995,8 +995,9 @@ namespace Pol {
       {
         NPC* t_amy = const_cast<NPC*>( this );
         Character* t_bob = const_cast<Character*>( seen_by );
-        int tmp = Core::settingsManager.repsys_cfg.Hooks.HighLightColor->call_long( t_amy->make_ref(), t_bob->make_ref() );
-        return (unsigned char)( tmp );
+        int hook_highlight = Core::settingsManager.repsys_cfg.Hooks.HighLightColor->call_long( t_amy->make_ref(), t_bob->make_ref() );
+        if ( hook_highlight != -1 )
+          return (unsigned char)( hook_highlight );
       }
 
       if ( Core::settingsManager.ssopt.invul_tag == 2 )
@@ -1034,7 +1035,9 @@ namespace Pol {
       {
         NPC* t_amy = const_cast<NPC*>( this );
         Character* t_bob = const_cast<Character*>( seen_by );
-        return (unsigned short)( Core::settingsManager.repsys_cfg.Hooks.NameColor->call_long( t_amy->make_ref(), t_bob->make_ref() ) );
+        int hook_color = Core::settingsManager.repsys_cfg.Hooks.NameColor->call_long( t_amy->make_ref(), t_bob->make_ref() );
+        if ( hook_color != -1 )
+          return (unsigned short)hook_color;
       }
 
       if ( Core::settingsManager.ssopt.invul_tag == 2 )

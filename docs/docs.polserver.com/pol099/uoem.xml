@@ -822,14 +822,16 @@ const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
 </function>
 
 <function name="SendDialogGump">
-  <prototype>SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0 )</prototype>
+  <prototype>SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0, gumpid := 0 )</prototype>
   <parameter name="who" value="Character Reference" />
   <parameter name="layout" value="String Array" />
   <parameter name="textlines" value="String Array" />
   <parameter name="x" value="Integer-Offset" />
   <parameter name="y" value="Integer-Offset" />
   <parameter name="flags" value="Integer" />
+  <parameter name="gumpid" value="Integer, 0 to 0xFFFFFF" />
   <explain>Sends a generic gump window to "who" and waits for the user's input.</explain>
+  <explain>If no gumpid is given, the script's pid will be sent as gumpid.</explain>
   <explain>Notes: "layout" is an array of strings with each string a gump layout directive.
        "textlines" is an array of strings with text that is displayed on the gump. "Layout" references
           this array in a 0-based manner.
@@ -846,6 +848,7 @@ const SENDDIALOGMENU_FORCE_OLD  := 0x01;</code></explain>
   <error>"Invalid parameter"</error>
   <error>"No client attached"</error>
   <error>"Buffer length exceeded" (64K byte)</error>
+  <error>"GumpID out of range"</error>
   <related>Character</related>
   <related>Dictionary</related>
   <related>Array</related>
@@ -1979,6 +1982,7 @@ const ACTION_REPEAT       := 1;</code></explain>
   <explain>Calls the container's canInsert and onInsert scripts, if any.</explain>
   <explain>Calls the item's original container's (if any) canRemove and onRemove scripts, if any.</explain>
   <explain>If add_to_existing_stack == 1 and there is no stack in the container, it will return Error "There is no existing stack", so its up to scripts to check this.</explain>
+  <explain>If add_to_existing_stack == 2 and there is no stack in the container, it will just add as a new item like when add_to_existing_stack == 0.</explain>
   <return>1 on success</return>
   <error>"Invalid parameter type"</error>
   <error>"That is immobile"</error>
@@ -2842,10 +2846,12 @@ const UPDATEMOBILE_UPDATE   := 0;</code></explain>
 </function>
 
 <function name="CloseGump">
-  <prototype>CloseGump( character, pid, response := 0 )</prototype>
+  <prototype>CloseGump( character, gumpid, response := 0 )</prototype>
   <parameter name="character" value="Character" />
-  <parameter name="pid" value="Integer - PID of the script that sent the gump" />
+  <parameter name="gumpid" value="Integer" />
   <parameter name="response" value="UObject - what is going to be returned to the gump script" />
+  <explain>If the gump was sent using a custom gumpid, then the same gumpid must be used here.
+If the gump was sent without specifying a gumpid, then use the sender script's pid.</explain>
   <explain>Closes the gump, returning 'response' to the script that called SendDialogGump()</explain>
   <return>1 on success</return>
   <error>"Invalid Parameters"</error>
@@ -2977,5 +2983,34 @@ const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
   <return>Error or Array</return>
   <related>Array</related>
 </function> 
+
+<function name="SendPopUpMenu">
+  <prototype>SendPopUpMenu( to_whom, above, menu )</prototype>
+  <parameter name="to_whom" value="Character: who to send the menu to" />
+  <parameter name="above" value="Object: Item or Mobile to display the menu above" />
+  <parameter name="menu" value="Array: array of menu elements" />
+  <explain>Will show a pop-up context menu above the given object, waits for a reponse and return it 
+           (if no response is given, this could hang the script undefinitely)</explain>
+  <explain>Every element in the menu array must be an integer specifying a cliloc text for the menu or a
+           struct { cliloc, [disabled,] [arrow,] [color] }</explain>
+  <explain>- cliloc: int, this is the only mandatory element in struct, the cliloc text id (min 3000000, max 3065535)</explain>
+  <explain>- disabled: bool, if true, the menu entry will be disabled and shown in gray (default: false)</explain>
+  <explain>- arrow: bool, if true, an arrow will be shown (default: false)</explain>
+  <explain>- color: an optional rgb 1555 color (ex, 0 = transparent, 0x8000 = solid black, 0x1F = blue, 0x3E0 = green, 0x7C00 = red)</explain>
+  <return>Error or Array index selected (0 if canceled). No validation is done.</return>
+  <error>"Invalid parameter"</error>
+  <error>"No client attached"</error>
+  <error>"Can't send empty menu"</error>
+  <error>"Too many entries in menu"</error>
+  <error>"Menu elements must be int or struct"</error>
+  <error>"Cliloc out of range in menu"</error>
+  <error>"Missing cliloc for menu element"</error>
+  <error>"Invalid cliloc for menu element"</error>
+  <related>Character</related>
+  <related>Item</related>
+  <related>Mobile</related>
+  <related>Array</related>
+  <related>Struct</related>
+</function>
 
 </ESCRIPT>

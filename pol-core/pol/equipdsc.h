@@ -31,6 +31,9 @@ namespace Pol {
       virtual ~EquipDesc() {};
 	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
       virtual size_t estimatedSize() const POL_OVERRIDE;
+
+	  bool is_intrinsic;
+	  bool is_pc_intrinsic; // used to differentiate npc and pc intrinsics
 	};
   }
 }

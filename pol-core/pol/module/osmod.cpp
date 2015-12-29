@@ -61,8 +61,10 @@ namespace Pol {
 	{
 	  for ( ;; )
 	  {
-		unsigned int newpid = ++Core::scriptEngineInternalManager.next_pid;
-		if ( newpid != 0 &&
+		unsigned int newpid = Core::scriptEngineInternalManager.next_pid++;
+		if( newpid < Core::ScriptEngineInternalManager::PID_MIN )
+		  newpid = Core::ScriptEngineInternalManager::PID_MIN;
+		if ( newpid != 0 && // newpid=0 should now never happen but leaving this check in place for extra code robustness
 			 Core::scriptEngineInternalManager.pidlist.find( newpid ) == Core::scriptEngineInternalManager.pidlist.end() )
 		{
 		  Core::scriptEngineInternalManager.pidlist[newpid] = uoexec;

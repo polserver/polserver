@@ -52,6 +52,8 @@ Notes
 
 #include "../../plib/systemstate.h"
 
+#include "../module/uomod.h"
+
 #include <stdexcept>
 
 namespace Pol {
@@ -191,7 +193,10 @@ namespace Pol {
 
 	  item->graphic = graphic;
 
-	  item->copyprops( id.props );
+	  // If item already has a serial (eg. an existing item loaded from a save),
+	  // then do not assign CProps from descriptor
+	  if( ! serial )
+		item->copyprops( id.props );
 
 #ifdef PERGON
 	  std::string value_self;
@@ -201,8 +206,15 @@ namespace Pol {
 
 	  if ( !id.control_script.empty() )
 	  {
+		passert( item->process() == nullptr );
+
 		Module::UOExecutorModule* uoemod = start_script( id.control_script, item->make_ref() );
-		if ( !uoemod )
+		if ( uoemod )
+		{
+			uoemod->attached_item_ = item;
+			item->process(uoemod);
+		}
+		else
 		{
           POLLOG << "Unable to start control script " << id.control_script.name() << " for " << id.objtype_description() << "\n";
 		}

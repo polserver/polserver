@@ -141,11 +141,15 @@ void logExceptionSignal(int signal)
 
 string getCompilerVersion()
 {
-    #ifndef _WIN32
-        //TODO: clang
+    #ifdef LINUX
         char result[256];
-        sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-    #else
+		#ifdef __clang__
+        	sprintf(result, "clang %d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
+		#else
+        	sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		#endif
+	#endif
+    #ifdef WINDOWS
         string result;
         switch(_MSC_VER)
         {
@@ -273,7 +277,7 @@ void doHttpPOST(string host, string url, string content)
             while ((readBytes = recv(socketFD, answer, MAXLINE, 0)) > 0) {
         #endif
             answer[readBytes] = '\0';
-            printf("Answer from bug tracking server: %s\n", answer);
+            printf("Answer from bug tracking server:\n%s\n", answer);
             // skip the received answer and proceed
         }
 
@@ -334,7 +338,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                  */
                 printf("########################################################################################\n");
                 if(m_programAbortReporting)
-                    printf("POL will exit now. The following will be sent to the POL developers:\n");
+                    printf("POL will exit now. The following will be sent to the POL developers:\n\n");
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();

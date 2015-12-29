@@ -53,8 +53,7 @@ namespace Pol
             struct timeval c_select_timeout = { 0, 0 };
             int checkpoint = 0;
             int nidle = 0;
-            polclock_t last_activity;
-            polclock_t last_packet_at = polclock();
+            client->last_packet_at = polclock();
             if (!login)
             {
                 if (Plib::systemstate.config.loglevel >= 11)
@@ -66,7 +65,7 @@ namespace Pol
             {
                 PolLock lck;
                 client->checkpoint = 61; //CNXBUG
-                last_activity = polclock();
+                client->last_activity_at = polclock();
             }
             if (!login)
             {
@@ -202,11 +201,11 @@ namespace Pol
                             PolLock lck;
 
                             //reset packet timer
-                            last_packet_at = polclock();
+                            client->last_packet_at = polclock();
                             if (!check_inactivity(client))
                             {
                                 nidle = 0;
-                                last_activity = polclock();
+                                client->last_activity_at = polclock();
                             }
 
                             checkpoint = 5;
@@ -220,7 +219,7 @@ namespace Pol
                     checkpoint = 6;
 
                     polclock_t polclock_now = polclock();
-                    if ((polclock_now - last_packet_at) >= 120000) //2 mins
+                    if ((polclock_now - client->last_packet_at) >= 120000) //2 mins
                     {
                         client->forceDisconnect();
                         break;
@@ -305,7 +304,7 @@ namespace Pol
                         }
                     }
 
-                    polclock_t when_logoff = last_activity + seconds_wait * POLCLOCKS_PER_SEC;
+                    polclock_t when_logoff = client->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
 
                     checkpoint = 9;
                     CLIENT_CHECKPOINT(13);

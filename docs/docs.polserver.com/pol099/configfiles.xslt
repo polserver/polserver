@@ -79,7 +79,7 @@
                 </tbody>
                 <xsl:if test="location">
                   <tbody>
-                    <tr id="doc-table-dark">
+                    <tr class="doc-table-dark">
                       <th align="left">Location:</th>
                       <td align="left">
                         <xsl:value-of select="location"/>
@@ -89,7 +89,7 @@
                 </xsl:if>
                 <xsl:if test="numberallowed">
                   <tbody>
-                    <tr id="doc-table-med">
+                    <tr class="doc-table-med">
                       <th align="left">Number Allowed</th>
                       <td align="left">
                         <xsl:value-of select="numberallowed"/>
@@ -99,7 +99,7 @@
                 </xsl:if>
                 <xsl:if test="requiredtostart">
                   <tbody>
-                    <tr id="doc-table-dark">
+                    <tr class="doc-table-dark">
                       <th align="left">Required to Start?</th>
                       <td align="left">
                         <xsl:value-of select="requiredtostart"/>
@@ -109,7 +109,7 @@
                 </xsl:if>
                 <xsl:if test="requiredby">
                   <tbody>
-                    <tr id="doc-table-med">
+                    <tr class="doc-table-med">
                       <th align="left" colspan="2">Required/Used by</th>
                     </tr>
                   </tbody>
@@ -124,7 +124,7 @@
                           </tr>
                         </xsl:when>
                         <xsl:otherwise>
-                          <tr id="doc-table-light">
+                          <tr class="doc-table-light">
                             <td colspan="2">
                               <xsl:value-of select="current()"/>
                             </td>
@@ -135,7 +135,7 @@
                   </tbody>
                 </xsl:if>
                 <tbody>
-                  <tr id="doc-table-dark">
+                  <tr class="doc-table-dark">
                     <th align="left" colspan="2">Purpose</th>
                   </tr>
                 </tbody>
@@ -147,7 +147,7 @@
                   </tr>
                 </tbody>
                 <tbody>
-                  <tr id="doc-table-dark">
+                  <tr class="doc-table-dark">
                     <th align="left" colspan="2">Structure</th>
                   </tr>
                 </tbody>
@@ -162,7 +162,7 @@
                 </tbody>
                 <xsl:if test="explain">
                   <tbody>
-                    <tr id="doc-table-dark">
+                    <tr class="doc-table-dark">
                       <th align="left" colspan="2">Explanation</th>
                     </tr>
                   </tbody>
@@ -178,7 +178,7 @@
                 </xsl:if>
                 <xsl:if test="related">
                 <tbody>
-                  <tr id="doc-table-dark">
+                  <tr class="doc-table-dark">
                     <th align="left" colspan="2">Related Files</th>
                   </tr>
                 </tbody>
@@ -195,7 +195,7 @@
                         </tr>
                       </xsl:when>
                       <xsl:otherwise>
-                        <tr id="doc-table-light">
+                        <tr class="doc-table-light">
                           <td colspan="2">
                             <a href="#{current()}">
                               <xsl:value-of select="current()"/>

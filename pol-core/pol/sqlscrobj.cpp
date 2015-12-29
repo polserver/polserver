@@ -30,6 +30,8 @@ Notes
 #include "../plib/pkg.h"
 #include "globals/network.h"
 
+#include <regex>
+
 namespace Pol {
   namespace Core {
     using namespace Bscript;
@@ -256,7 +258,8 @@ namespace Pol {
 	  }
 	  return true;
 	}
-	bool BSQLConnection::query( const char *query )
+
+	bool BSQLConnection::query( const std::string query )
 	{
       if ( !_conn->ptr() )
 	  {
@@ -264,7 +267,8 @@ namespace Pol {
 		_error = "No active MYSQL object instance.";
 		return false;
 	  }
-      if ( mysql_query( _conn->ptr(), query ) )
+
+      if ( mysql_query( _conn->ptr(), query.c_str() ) )
 	  {
         _errno = mysql_errno( _conn->ptr() );
         _error = mysql_error( _conn->ptr() );
@@ -273,6 +277,59 @@ namespace Pol {
 
 	  return true;
 	}
+
+    /*
+     * Allows binding parameters to the query
+     * Every occurrence of "?" is replaced with a single parameter
+     */
+    bool BSQLConnection::query( const std::string query, QueryParams params )
+    {
+      if( params == nullptr || ! params->size() )
+        return this->query(query);
+
+      if ( ! _conn->ptr() )
+      {
+        _errno = -1;
+        _error = "No active MYSQL object instance.";
+        return false;
+      }
+
+      std::string replaced = query;
+      std::regex re("^((?:[^']|'[^']*')*?)(\\?)");
+      for( auto it = params->begin(); it != params->end(); ++it )
+      {
+        if( ! std::regex_search(replaced, re) )
+        {
+          _errno = -2;
+          _error = "Could not replace parameters.";
+          return false;
+        }
+
+        if( it->size() > ULONG_MAX )
+        {
+          _errno = -3;
+          _error = "Parameter is too long.";
+        }
+
+        // Escape the string and add quoting. A bit tricky, but effective.
+        size_t escaped_max_size = it->size() * 2 + 5; //max is +1, using +5 to leave space for quoting and "$1"
+        char *escptr = (char*)malloc(escaped_max_size);
+        escptr += 3; // Will move it back later to add quoting
+        unsigned long esclen = mysql_real_escape_string(_conn->ptr(), escptr, it->c_str(), (unsigned long)it->size());
+        escptr -= 3;
+        esclen += 4;
+        escptr[0] = '$';
+        escptr[1] = '1';
+        escptr[2] = '\'';
+        escptr[esclen-1] = '\'';
+        escptr[esclen] = '\0';
+
+        replaced = std::regex_replace(replaced, re, escptr, std::regex_constants::format_first_only);
+        free(escptr);
+      }
+
+      return this->query(replaced);
+    }
 
 	std::string BSQLConnection::getLastError() const 
 	{ 

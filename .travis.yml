@@ -20,7 +20,8 @@ addons:
       - clang-3.7
       - cmake
       - cmake-data
-   
+      - python3
+
 before_install:
   - cd lib
   - tar xjf boost_1_55_0.tar.bz2
@@ -39,6 +40,5 @@ script:
 
   - cd ../../testsuite/escript
   - if [ "$CXX" = "g++-5" ]; then
-      /usr/bin/python performtests.py -c ../../pol-core/bin/ecompile -r ../../pol-core/bin/runecl ;
+      ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl ;
     fi
-

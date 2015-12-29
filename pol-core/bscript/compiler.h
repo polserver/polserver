@@ -109,6 +109,7 @@ namespace Pol {
 
 
 	  int curSourceFile;
+	  /** Part of the content of the line being read, only for info/debug output, limited to 80 chars */
 	  char curLine[80];
 	  int inExpr;
 	  int inFunction;
@@ -265,9 +266,6 @@ namespace Pol {
 	  int write( const char *fname );
 	  int write_dbg( const char *fname, bool generate_txtfile );
 	  void writeIncludedFilenames( const char* fname ) const;
-	  void divine_options_in_included_file( const char *modulename );
-	  void inner_divine_options( const CompilerContext& ctx );
-	  void divine_options( const CompilerContext& ctx );
 
 	  // phase 0: determining bracket syntax
 

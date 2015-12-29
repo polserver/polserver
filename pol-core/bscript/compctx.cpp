@@ -49,6 +49,9 @@ namespace Pol {
 	  return *this;
 	}
 
+	/**
+	 * Skips whitespaces. Moves the pointer forward until a non-whitespace is found
+	 */
 	void CompilerContext::skipws()
 	{
 	  while ( isspace( s[0] ) )
@@ -127,7 +130,9 @@ namespace Pol {
       writer << filename << ", Line " << line << "\n";
     }
 
-
+	/**
+	 * Skips to the end of the line (or to the end of the file, whathever comes first)
+	 */
 	int eatToEndOfLine( CompilerContext& ctx )
 	{
 	  const char *t = ctx.s;
@@ -139,6 +144,11 @@ namespace Pol {
 	  return 0;
 	}
 
+	/**
+	 * Skips to the end of a multiline comment, supports nested comments
+	 *
+	 * @return 0 on success
+	 */
 	int eatToCommentEnd( CompilerContext& ctx )
 	{
 	  CompilerContext tmp( ctx );

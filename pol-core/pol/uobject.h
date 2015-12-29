@@ -176,6 +176,7 @@ namespace Pol {
 	  virtual void printSelfOn( Clib::StreamWriter& sw ) const;
 
 	  virtual void printOnDebug( Clib::StreamWriter& sw ) const;
+	  virtual void fixInvalidGraphic();
 	  virtual void readProperties( Clib::ConfigElem& elem );
 	  //virtual Bscript::BObjectImp* script_member( const char *membername );
 	  virtual Bscript::BObjectImp* make_ref() = 0;

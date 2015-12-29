@@ -64,6 +64,7 @@ namespace Pol {
 	  unsigned short max_clients;
 	  unsigned short character_slots;
 	  unsigned short max_clients_bypass_cmdlevel;
+	  bool allow_multi_clients_per_account;
 	  bool display_unknown_packets;
 	  bool exp_los_checks_map;
 	  bool enable_debug_log;

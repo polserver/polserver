@@ -87,6 +87,15 @@ namespace Pol {
 	  }
 	}
 
+	/// Just like send_uo_hits, but sends hits on a 1000-basis instead
+	void send_fake_hits(Client* client, Mobile::Character* me, const Core::Vital* vital)
+	{
+		PktHelper::PacketOut<PktOut_A1> msg;
+		msg->Write<u32>(me->serial_ext);
+		msg->WriteFlipped<u16>(1000u);
+		msg->WriteFlipped<u16>(static_cast<u16>(me->vital(vital->vitalid).current_thousands()));
+		msg.Send(client);
+	}
 
     void send_uo_hits( Client* client, Mobile::Character* me, const Core::Vital* vital )
 	{
@@ -189,7 +198,7 @@ namespace Pol {
 	  if ( Core::networkManager.uoclient_general.hits.any )
 	  {
         vital_updaters[Core::networkManager.uoclient_general.hits.id].my_vital_changed = send_uo_hits;
-        vital_updaters[Core::networkManager.uoclient_general.hits.id].others_vital_changed = send_uo_hits;
+        vital_updaters[Core::networkManager.uoclient_general.hits.id].others_vital_changed = send_fake_hits;
 	  }
       if ( Core::networkManager.uoclient_general.mana.any )
 	  {
@@ -231,7 +240,7 @@ namespace Pol {
 	  {
 		for ( auto &client : clients )
 		{
-		  if ( client->ready && inrange( who, client->chr ) )
+		  if ( who->client != client && client->ready && inrange( who, client->chr ) )
 		  {
 			cvu.others_vital_changed( client, who, vital );
 		  }

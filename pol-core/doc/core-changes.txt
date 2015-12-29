@@ -1,9 +1,119 @@
 ﻿-- POL099 --
+12-27-2015 Bodom & Nando:
+  Fixed:   Linux crash on shutdown
+12-26-2015 Bodom:
+  Fixed:   Bug in String.format()
+           String tags were not correctly processed.
+           "{name} you hit level {level}".format(struct{name:="Jane Doe", level:=4})
+           now correctly formats as "Jane Doe you hit level 4" instead of
+           "Jane Doe you hit level <invalid index: #2>"
+12-18-2015 Bodom:
+  Added:   New eScript escape sequence in strings "\xAA". Allows to specify a
+           single character by its binary value (\x01 to \xFF). The value must
+           always be 2 digits long, in hex, case insensitive (eg. \xA is not
+           valid).
+12-05-2015 Bodom:
+  Added:   Buff Bar support
+           New Character's addBuff(), delBuff() and clearBuffs() methods,
+           please see docs for details and explanation.
+           0xDF packets are automatically sent when needed (eg. at relogin).
+           Buff Bar status is not saved, maybe it will be in future.
+11-28-2015 Bodom:
+  Added:   New Client object properties last_packet_at and last_activity_at
+11-01-2015 Bodom:
+  Added:   mysql_query() now supports a third "parameters" (array) argument.
+           It can be used to safely replace "?" placeholders inside the query
+           with corresponding array entries.
+10-27-2015 Bodom:
+  Added:   New pol.cfg option AllowMultiClientsPerAccount (default: false)
+           When true, allows multiple characters from the same account to be
+           logged in at the same time
+  Fixed:   Items' CProps were loaded again from itemdesc.cfg at startup when deleted
+10-18-2015 Bodom:
+  Fixed:   MoveItemToContainer could stack non-stackable items in some circumstances
+10-07-2015 Bodom:
+  Removed: "house_serial" CProp is no longer set by core for house components
+  Fixed:   Exception when editing a custom house with components outside of the
+           house
+10-06-2015 Bodom:
+  Fixed:   Fixed crash condition (stack overflow) when unequipping last armor
+           piece weared by an NPC and then receiving an hit.
+  Changed: Intrinsic armor now takes precedence over equipped armor (is was the
+           opposite before). Anyway, using both of them could lead to unexpected
+           behavior so it is not a good pratice.
+10-02-2015 Bodom:
+  Added:   Intrinsic Shield support, works just like intrinsic weapons
+           New extobj.cfg entry "Shield" (defaults to 0x1F022)
+           New item must be defined in itemdesc.cfg
+           // Intrinsic Shield template - special pseudo Shield for NPCs
+           Armor 0x1F022
+           {
+               Name            intrinsicshield
+               Graphic         1
+               MaxHP           1
+               SaveOnExit      0
+           }
+09-30-2015 Bodom:
+  Added:   MoveItemToContainer parameter add_to_existing_stack can now be 2 for "auto" behavior
+           The function will try to add the item to an existing stack and just try move the
+           item inside the container if no stack is found
+09-29-2015 Bodom:
+  Fixed:   When a robe is already equipped before resurrect, no longer destroy it to
+           equip the death robe
+  Fixed:   When HonorUnequipScriptOnDeath is on, item's unequip and unequiptest scripts
+           were called twice on death and in the wrong order
+09-27-2015 Bodom:
+  Fixed:   Armor were not calculated correctly for NPCs wearing equip
+  Fixed:   Allow changing graphic of equipped items again if the new graphic has the same layer
+09-25-2015 Bodom:
+  Added:   New uo.em function SendPopUpMenu( to, above, menu ).
+  Added:   On pop-up menu request (single click) "misc/popupmenu.ecl" is called.
+  Fixed:   When using MapDiff, tiles could disappear in some circumstances
+09-24-2015 Bodom:
+  Added:   New keyword AttackCProp on npcdesc.cfg allows defining CProps for
+           intrinsic weapons.
+  Fixed:   Hp/MaxHp updates to nearby clients were still using the real value
+           instead of the 1000-based ratio when sending the 0xa1 packet.
+  Fixed:   Hp/MaxHp updates were sent twice to the originating character.
+09-12-2015 Bodom:
+  Fixed:   Bug in loading POL098 and older data files: boats were rotated leaving
+           dynamic elements like plank and tillerman on the old position.
+09-08-2015 Bodom:
+  Fixed:   Bug in LAN IP address identification (some IPs in 172.16.0.0/12 were skipped)
 09-06-2015 Nando:
   Added:   Data integrity check will test if the item serial is valid (serial >= 0x40000000) when loading items.
   Fixed:   Items could be created with character serials if the wrong values were saved in data/pol.txt.
   Note:	   Character serials must be in the range 1 to 0x3FFFFFF (inclusive), while item serials must
 		   be between 0x40000000 and 0x7FFFFFFF (inclusive).
+09-06-2015 Bodom:
+  Added:   New Item.process property
+           Returns reference to the controlscript, if any running
+  Changed: Script.attached_to now returns a reference to the Item when called on a ControlScript
+  Added:   New servspecopt.cfg option DefaultCharacterHeight (1-32)
+           This will be the default (and never changed so far) height of Characters
+           and NPCs. Default value is 15. Back in the POL095 days is was 9, so consider
+           9-15 as your "safe" play range. Anything outside that range could cause weird
+           movement behavior. Even small changes will have a great impact on LOS
+           calculations and, more in general, on the combat system.
+           It is also used to calculate wether a Character can fit under a low
+           passage (e.g. dungeon stairs).
+           Keep in mind a Titan and a Slime will have the same height.
+09-05-2015 Bodom:
+  Changed: Process ids (pid) no longer start from 1 but from 0x01000000.
+           This should have no practical effect.
+  Added:   Allow specifying an arbitrary Gump id in SendDialogGump()
+           Custom gump ids must be in the range 1-0xFFFFFF. If no gumpid is given,
+           the old behavior of using the pid will still be used (so that this
+           does not break backward compatibility).
+           It is now possible to organize the gumpids in a constants file and have
+           the same gump to always be sent with the same id. This way the client
+           will recognize it and, if the player moved it last time, it will
+           reposition it where the player liked it: this should be a nice
+           interface improvement.
+           It is now possible to implement the Virtues gump, since it needs a
+           pre-defined gumpid of 0x01CD to work.
+  Changed: CloseGump() now accepts a gumpid instead of a pid. For scripts not
+           using custom gump ids, its behavior is the same as before.
 09-03-2015 Bodom:
   Added:   Item insurance support, new Item.insured property (0/1)
            An insured item behaves on death like a newbie item, except that the insured flag gets reset back

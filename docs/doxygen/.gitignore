@@ -1,0 +1,5 @@
+# Ignoring generated files
+*
+!.gitignore
+!README.txt
+

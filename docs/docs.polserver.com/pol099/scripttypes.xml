@@ -1403,5 +1403,55 @@ endprogram</example>
     <relatedobj>Character</relatedobj>
 </scripttype>
 
+<scripttype name="PopUpMenuScript">
+    <prototype>program PopUpMenu(who, what)</prototype>
+    <parameter name="who" value="Character ref, who requested the pop-up menu" />
+    <parameter name="what" value="Object, reference to the item or mobile clicked" />
+    <return>return value ignored</return>
+    <schedtype>Normal</schedtype>
+    <def_prio>1</def_prio>
+    <whencalled>When a player single clicks an item, another player or an npc and UOFeatureEnable 0x08 is set.</whencalled>
+    <wherelives>The 'program' in popupmenu.ecl file, only in /scripts/misc</wherelives>
+    <todefine>Automatically called if file exists.</todefine>
+    <explain>Use this script to send the pop-up menu with SendPopUpMenu().</explain>
+    <example>use uo;
+program popupmenu(who, what)
+    print(who.name + " requested popup of " + CStr(what));
+
+    var menu := array{};
+    menu[10] := 3000484;
+    menu[20] := struct{ cliloc := 3000487 };
+    menu[30] := struct{ cliloc := 3000488, disabled := 1 };
+    menu[40] := struct{ cliloc := 3000501, color := 0x1f };
+
+    var ret := SendPopUpMenu( who, what, menu );
+    print("Menu response:" + CStr(ret));
+endprogram</example>
+    <relatedobj>Character</relatedobj>
+</scripttype>
+
+<scripttype name="CustomHouseCommitScript">
+    <prototype>program custom_house_commit( who, house, elements )</prototype>
+    <parameter name="who" value="Character ref, who is committing the house design" />
+    <parameter name="house" value="House ref, the house being committed" />
+    <parameter name="elements" value="Array of struct{graphic,xoffset,yoffset,z}, the custom house elements" />
+    <return>return value ignored</return>
+    <schedtype>Normal</schedtype>
+    <def_prio>1</def_prio>
+    <whencalled>After client presses the commit button.</whencalled>
+    <wherelives>The 'program' in customhousecommit.ecl file, only in /scripts/misc</wherelives>
+    <todefine>Automatically called if file exists.</todefine>
+    <explain>To accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit<br/>
+        Min purpose should be calculation of cost (with delta support for later changes),
+        link establishing of houseteleporters (0x181D - 0x1828)
+        and adding a signhanger/sign if you didnt added it during multifoundation buildup.<br/>
+        Doors and Teleporters are added to house components as normal items without any special treatment
+        so dont forget to add scripts/itemdesc entries</explain>
+    <relatedobj>Character</relatedobj>
+    <relatedobj>House</relatedobj>
+    <relatedobj>Array</relatedobj>
+    <relatedobj>Struct</relatedobj>
+</scripttype>
+
 </ESCRIPT>
 

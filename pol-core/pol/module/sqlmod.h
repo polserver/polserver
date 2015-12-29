@@ -39,7 +39,7 @@ namespace Pol {
 
       static Bscript::BObjectImp* background_connect( Core::UOExecutor* uoexec, const std::string host, const std::string username, const std::string password );
       static Bscript::BObjectImp* background_select( Core::UOExecutor* uoexec, Core::BSQLConnection *sql, const std::string db );
-      static Bscript::BObjectImp* background_query( Core::UOExecutor* uoexec, Core::BSQLConnection *sql, const std::string query );
+      static Bscript::BObjectImp* background_query( Core::UOExecutor* uoexec, Core::BSQLConnection *sql, const std::string query, const Bscript::ObjArray* params );
     private:
       Core::UOExecutor& uoexec;
 	};

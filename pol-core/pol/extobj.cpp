@@ -52,6 +52,7 @@ namespace Pol {
 
 	  settingsManager.extobj.wrestling = elem.remove_unsigned( "Wrestling", 0x1F020 );
 	  settingsManager.extobj.mount = elem.remove_unsigned( "Mount", 0x1F021 );
+	  settingsManager.extobj.shield = elem.remove_unsigned( "Shield", 0x1F022 );
 
 	  settingsManager.extobj.secure_trade_container = elem.remove_unsigned( "Secure_Trade_Container", 0x1FF01 );
 	  settingsManager.extobj.wornitems_container = elem.remove_unsigned( "Wornitems_Container", 0x1FF02 );

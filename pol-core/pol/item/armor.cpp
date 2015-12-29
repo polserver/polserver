@@ -39,10 +39,9 @@ namespace Pol {
   }
   namespace Items {
 
-	
-	
-
-	ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+	/// Since the constructor is doing some wrong guessing to tell when an armor is a shield,
+	/// forceShield will force to consider it a shield
+	ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg, bool forceShield ) :
 	  EquipDesc( objtype, elem, ARMORDESC, pkg ),
 	  ar( elem.remove_ushort( "AR", 0 ) ),
 	  zones(),
@@ -75,7 +74,7 @@ namespace Pol {
 		// default coverage based on object type/layer
 		unsigned short layer = Plib::systemstate.tile[graphic].layer;
 		// special case for shields - they effectively have no coverage.
-		if ( layer != Core::LAYER_HAND1 && layer != Core::LAYER_HAND2 )
+		if ( ! forceShield && layer != Core::LAYER_HAND1 && layer != Core::LAYER_HAND2 )
 		{
 		  try
 		  {
@@ -123,15 +122,14 @@ namespace Pol {
     }
 
 	UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor ) :
-	  Equipment( descriptor, CLASS_ARMOR ),
-	  tmpl( permanent_descriptor ),
+	  Equipment( descriptor, CLASS_ARMOR, permanent_descriptor ),
 	  onhitscript_( descriptor.on_hit_script )
 	{}
 
 	unsigned short UArmor::ar() const
 	{
       short ar_mod = this->ar_mod();
-	  int ar = tmpl->ar * hp_ / maxhp();
+	  int ar = ar_base() * hp_ / maxhp();
 	  if ( ar_mod != 0 )
 	  {
 		ar += ar_mod;
@@ -145,10 +143,15 @@ namespace Pol {
 		return USHRT_MAX;
 	}
 
+    unsigned short UArmor::ar_base() const
+    {
+      return ARMOR_TMPL->ar;
+    }
+
 	bool UArmor::covers( unsigned short layer ) const
 	{
       passert(tmpl != NULL);
-	  return tmpl->zones.find( layer ) != tmpl->zones.end();
+	  return ARMOR_TMPL->zones.find( layer ) != ARMOR_TMPL->zones.end();
 	}
 
 	Item* UArmor::clone() const
@@ -165,7 +168,7 @@ namespace Pol {
 	  base::printProperties( sw );
 	  if ( has_ar_mod() )
 		sw() << "\tAR_mod\t" << ar_mod() << pf_endl;
-	  if ( tmpl != NULL && onhitscript_ != tmpl->on_hit_script )
+	  if ( tmpl != NULL && onhitscript_ != ARMOR_TMPL->on_hit_script )
 		sw() << "\tOnHitScript\t" << onhitscript_.relativename( tmpl->pkg ) << pf_endl;
 	}
 
@@ -193,13 +196,77 @@ namespace Pol {
     std::set<unsigned short> UArmor::tmplzones( ) 
     { 
       passert(tmpl != NULL);
-      return tmpl->zones;
+      return ARMOR_TMPL->zones;
+    }
+
+    /// Must be called at startup, validates the intrinsic shield element
+    void validate_intrinsic_shield_template()
+    {
+      const ItemDesc& id = find_itemdesc( Core::settingsManager.extobj.shield );
+      if ( id.save_on_exit )
+        throw std::runtime_error("Intrinsic Shield " + Clib::hexint(Core::settingsManager.extobj.shield) + " must specify SaveOnExit 0");
+
+      if ( id.type != ItemDesc::ARMORDESC )
+        throw std::runtime_error("An Armor template for Intrinsic Shield is required in itemdesc.cfg");
+    }
+
+    /// Creates a new intrinsic shield and returns it
+    /// @param name: the unique shield's name
+    /// @param elem: the config element to create from
+    /// @param pkg: the package
+    UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg )
+    {
+      auto tmpl = new ArmorDesc( Core::settingsManager.extobj.shield, elem, pkg, true );
+      tmpl->is_intrinsic = true;
+      auto armr = new UArmor( *tmpl, tmpl );
+      armr->layer = Core::LAYER_HAND2;
+      armr->tmpl = tmpl;
+
+      Items::register_intrinsic_equipment( name, armr );
+
+      return armr;
+    }
+
+    /// Creates a new intrinic shield for an NPC template and returns it
+    /// @param elem: The conig element defining the NPC
+    /// @param pkg: The package
+    /// @returns The created shield or NULL if none is defined in the template
+    UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg )
+    {
+      std::string tmp;
+      if ( elem.remove_prop( "Shield", &tmp ) )
+      {
+        // Construct an ArmorTemplate for this NPC template.
+        Clib::ConfigElem shieldelem;
+        shieldelem.set_rest( elem.rest() );
+        shieldelem.set_source( elem );
+        shieldelem.add_prop( "Objtype", "0xFFFF" );
+        shieldelem.add_prop( "Graphic", "1" );
+        shieldelem.add_prop( "SaveOnExit", "0" );
+        shieldelem.add_prop( "AR", tmp.c_str() );
+
+        if ( elem.remove_prop( "ShieldMaxHp", &tmp ) )
+          shieldelem.add_prop( "MaxHP", tmp.c_str() );
+        else
+          shieldelem.add_prop( "MaxHP", "1" );
+
+        if ( elem.remove_prop( "ShieldOnHitScript", &tmp ) )
+          shieldelem.add_prop( "OnHitScript", tmp.c_str() );
+
+        while ( elem.remove_prop("ShieldCProp", &tmp) )
+          shieldelem.add_prop( "CProp", tmp.c_str() );
+
+        return create_intrinsic_shield( elem.rest(), shieldelem, pkg );
+      }
+      else
+      {
+        return NULL;
+      }
     }
 
     size_t UArmor::estimatedSize() const
     {
       size_t size = base::estimatedSize()
-        + sizeof(const ArmorDesc*) /*tmpl*/
         + onhitscript_.estimatedSize();
       return size;
     }

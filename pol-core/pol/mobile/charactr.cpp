@@ -307,6 +307,7 @@ namespace Pol {
 	  tcursor2( NULL ),
 	  menu( NULL ),
 	  on_menu_selection( NULL ),
+	  on_popup_menu_selection ( NULL ),
 	  script_ex( NULL ),
 	  spell_task( NULL ),
 	  // CLIENT
@@ -344,7 +345,7 @@ namespace Pol {
 	  last_corpse( 0 )
 	{
 	  
-	  height = PLAYER_CHARACTER_HEIGHT; //this gets overwritten in UObject::readProperties!
+	  height = Core::settingsManager.ssopt.default_character_height; //this gets overwritten in UObject::readProperties!
 	  wornitems.chr_owner = this; //FIXME, dangerous.
 
 	  set_caps_to_default();
@@ -358,8 +359,6 @@ namespace Pol {
 	{
 	  if ( acct.get() )
 	  {
-		if ( acct->active_character == this )
-		  acct->active_character = NULL;
         for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
 		{
 		  if ( acct->get_character( i ) == this )
@@ -921,7 +920,7 @@ namespace Pol {
 
 	  carrying_capacity_mod(static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) ) );
 
-	  height = PLAYER_CHARACTER_HEIGHT; //no really, height is 9
+	  height = Core::settingsManager.ssopt.default_character_height; //no really, height is 9
 
 	  created_at = elem.remove_ulong( "CreatedAt", 0 );
 	  squelched_until(elem.remove_ulong( "SquelchedUntil", 0 ));
@@ -2033,17 +2032,29 @@ namespace Pol {
       if ( !Core::gamestate.pVitalStamina->regen_while_dead )
         set_current_ones( Core::gamestate.pVitalStamina, vital( Core::gamestate.pVitalStamina->vitalid ), 1 );
 
-	  // replace the death shroud with a death robe
+	  // Replace the death shroud with a death robe
+	  bool equip_death_robe = true;
       if ( layer_is_equipped( Core::LAYER_ROBE_DRESS ) )
 	  {
         Items::Item* death_shroud = wornitems.GetItemOnLayer( Core::LAYER_ROBE_DRESS );
-		unequip( death_shroud );
-		death_shroud->destroy();
-		death_shroud = NULL;
+		if ( death_shroud->objtype_ == UOBJ_DEATH_SHROUD )
+		{
+		  unequip( death_shroud );
+		  death_shroud->destroy();
+		  death_shroud = NULL;
+		}
+		else
+		{
+		  // Do not destroy and replace the already equipped robe
+		  equip_death_robe = false;
+		}
 	  }
-	  Items::Item* death_robe = create_death_robe();
-	  death_robe->realm = realm;
-	  equip( death_robe );
+	  if ( equip_death_robe )
+	  {
+		Items::Item* death_robe = create_death_robe();
+		death_robe->realm = realm;
+		equip( death_robe );
+	  }
 
 	  // equip( create_backpack() );
 
@@ -2248,11 +2259,6 @@ namespace Pol {
 		}
 		if ( item->newbie() || item->insured() )
 		  continue;
-        else if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
-		{
-		  if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
-			continue;
-		}
         else if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS && !item->movable() )  // dress layer needs to be unequipped for deathrobe
         {
           _copy_item( item );
@@ -2263,7 +2269,17 @@ namespace Pol {
 		/// onto a corpse if honor_unequip_script_on_death is disabled.
 		///
 		UPDATE_CHECKPOINT();
-		item->check_unequip_script();
+		if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
+		{
+		  if ( ! item->check_unequiptest_scripts() )
+			continue;
+		  if ( ! item->check_unequip_script() )
+			continue;
+		}
+		else
+		{
+		  item->check_unequip_script();
+		}
 		UPDATE_CHECKPOINT();
 		unequip( item );
 		UPDATE_CHECKPOINT();
@@ -2345,17 +2361,22 @@ namespace Pol {
 			continue;
           if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR || item->layer == Core::LAYER_FACE )
 			continue;
-          if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
-		  {
-			if ( !item->check_unequip_script() || !item->check_unequiptest_scripts() )
-			  continue;
-		  }
           if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS && !item->movable( ) )
 			continue;
 		  if ( ( item->newbie() || item->use_insurance() ) && bp->can_add( *item ) )
 		  {
 			UPDATE_CHECKPOINT();
-			item->check_unequip_script();
+			if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
+			{
+			  if ( ! item->check_unequiptest_scripts() )
+				continue;
+			  if ( ! item->check_unequip_script() )
+				continue;
+			}
+			else
+			{
+			  item->check_unequip_script();
+			}
 			UPDATE_CHECKPOINT();
 			unequip( item );
 			item->layer = 0;
@@ -4222,6 +4243,77 @@ namespace Pol {
     {
       auto g = guild();
       return (g != nullptr) ? g->guildid() : 0;
+    }
+
+    /**
+    * Adds a new buff or overwrites an existing one for the character
+    * Sends packets to the client accordingly
+    * @author Bodom
+    */
+    void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments )
+    {
+      if( client != NULL && buffs_.find(icon) != buffs_.end() )
+      {
+        // Icon is already present, must send a remove packet first or client will not update
+        send_buff_message( this, icon, false );
+      }
+
+      Core::gameclock_t end = Core::read_gameclock() + duration;
+      buffs_[icon] = { end, cl_name, cl_descr, arguments };
+
+      if( client != NULL )
+        send_buff_message( this, icon, true, duration, cl_name, cl_descr, arguments );
+    }
+
+    /**
+    * Removes a buff for the character
+    * Sends packets to the client accordingly
+    * @author Bodom
+    * @return True when the buff has been found and removed, False when the buff was not present
+    */
+    bool Character::delBuff( u16 icon )
+    {
+      auto b = buffs_.find(icon);
+
+      if( b == buffs_.end() )
+        return false;
+
+      buffs_.erase(b);
+      if( client != NULL )
+        send_buff_message( this, icon, false );
+      return true;
+    }
+
+    /**
+    * Removes al buffs for the character
+    * Sends packets to the client accordingly
+    * @author Bodom
+    */
+    void Character::clearBuffs()
+    {
+      for( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+        delBuff( it->first );
+    }
+
+    /**
+    * Resends all buffs (with updated duration), usually called at (re)login
+    * @author Bodom
+    */
+    void Character::send_buffs()
+    {
+      if( client == NULL )
+        return;
+
+      for( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+      {
+        int duration = it->second.end - Core::read_gameclock();
+        if( duration < 0 )
+          duration = 0;
+        else if( duration > 0xFFFF )
+          duration = 0xFFFF;
+
+        send_buff_message( this, it->first, true, static_cast<u16>(duration), it->second.cl_name, it->second.cl_descr, it->second.arguments );
+      }
     }
 
     size_t Character::estimatedSize() const

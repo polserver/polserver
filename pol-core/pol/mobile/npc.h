@@ -18,6 +18,10 @@ Notes
 #	include "charactr.h"
 #endif
 
+#ifndef ARMOR_H
+#	include "../item/armor.h"
+#endif
+
 #include "../eventid.h"
 #include "../npctmpl.h"
 #include "../uoscrobj.h"
@@ -230,7 +234,11 @@ namespace Pol {
 	inline unsigned short NPC::ar() const
 	{
 	  if ( ar_ == 0 )
+	  {
+		if ( shield != NULL && shield->is_intrinsic() )
+		  return npc_ar_ + shield->ar();
 		return npc_ar_;
+	  }
 	  else
 		return ar_;
 	}
