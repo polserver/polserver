@@ -11,10 +11,12 @@ Notes
 #define __TOKENS_H
 
 #include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
+
 
 namespace Pol {
-  namespace Bscript {
 
+  namespace Bscript {
     /**
      * The token type
      *
@@ -276,7 +278,12 @@ namespace Pol {
       CASE_TYPE_DEFAULT = 254,
       CASE_STRING_MAXLEN = 253
     };
-
   }
+
+  namespace Clib {
+    template <> std::string tostring( const Bscript::BTokenType& v );
+    template <> std::string tostring( const Bscript::BTokenId& v );
+  }
+
 }
 #endif
