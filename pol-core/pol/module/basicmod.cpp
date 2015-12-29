@@ -23,6 +23,7 @@ Notes
 #include "../../bscript/execmodl.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
+#include "../../bscript/impunicode.h"
 
 #include <cstdio>
 #include <cstring>
@@ -42,9 +43,10 @@ namespace Pol {
 		Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( imp );
 		return new BLong( static_cast<int>( arr->ref_arr.size() ) );
 	  }
-	  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
+	  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
 	  {
-		return new BLong( static_cast<int>( imp->getStringRep().length() ) );
+		BaseString* bs = static_cast<BaseString*>( imp );
+		return new BLong( static_cast<int>( bs->length() ) );
 	  }
 	  else if ( imp->isa( Bscript::BObjectImp::OTError ) )
 	  {
@@ -76,25 +78,42 @@ namespace Pol {
 	  int start = static_cast<int>( exec.paramAsLong( 1 ) );
 	  int length = static_cast<int>( exec.paramAsLong( 2 ) );
 
-	  return str->StrStr( start, length );
+	  return str->substr( start-1, length );
 	}
 
 	Bscript::BObjectImp* BasicExecutorModule::mf_Trim()
 	{
 	  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-	  if ( !( imp->isa( Bscript::BObjectImp::OTString ) ) )
-	  {
-		return new BError( "Param 1 must be a string." );
-	  }
-	  String *string = static_cast<String*>( imp );
-	  int type = static_cast<int>( exec.paramAsLong( 1 ) );
-	  const char* cset = exec.paramAsString( 2 );
-	  if ( type > 3 )
-		type = 3;
-	  if ( type < 1 )
-		type = 1;
 
-	  return string->ETrim( cset, type );
+      BaseString::TrimTypes type;
+      switch ( exec.paramAsLong( 1 ) ) {
+      case 1:
+        type = BaseString::TrimTypes::TRIM_LEFT;
+        break;
+      case 2:
+        type = BaseString::TrimTypes::TRIM_RIGHT;
+        break;
+      default:
+        type = BaseString::TrimTypes::TRIM_BOTH;
+      }
+      const char* cset = exec.paramAsString( 2 );
+
+      if ( imp->isa( Bscript::BObjectImp::OTString ) )
+      {
+        String* string = static_cast<String*>( imp );
+        String* newStr = new String(*string);
+        newStr->trim(std::string(cset), type);
+        return newStr;
+      }
+      else if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
+      {
+        //TODO: implement it on Unicode
+        return new BError( "Not implemented. Please report this error." );
+      }
+      else
+      {
+        return new BError( "Param 1 must be a string or unicode." );
+      }
 	}
 
 	/*
@@ -105,6 +124,13 @@ namespace Pol {
 	Bscript::BObjectImp* BasicExecutorModule::mf_StrReplace()
 	{
 	  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
+
+      if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
+      {
+        //TODO: implement unicode
+        return new BError( "Not implemented yet. Please report this error." );
+      }
+
 	  std::unique_ptr<String> string( new String( imp->getStringRep().c_str() ) );
 	  String *to_replace = static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
 	  if ( !to_replace )
@@ -118,7 +144,7 @@ namespace Pol {
 	  if ( to_replace->length() < 1 )
 		return new BError( "Cannot use empty string for string needle." );
 
-	  string->EStrReplace( to_replace, replace_with );
+	  string->replace( *to_replace, *replace_with );
 
 	  return string.release();
 	}
@@ -126,6 +152,7 @@ namespace Pol {
 	// SubStrReplace(str, replace_with, start, length:=0); 
 	Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 	{
+      //TODO: implement Unicode
 	  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
 	  std::unique_ptr<String> string( new String( imp->getStringRep().c_str() ) );
 	  String *replace_with = static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
@@ -151,7 +178,7 @@ namespace Pol {
 	  if ( !len )
 		len = static_cast<int>( replace_with->length() - index );
 
-	  string->ESubStrReplace( replace_with, static_cast<unsigned>( index ), static_cast<unsigned>( len ) );
+	  string->replace( *replace_with, static_cast<unsigned>( index ), static_cast<unsigned>( len ) );
 
 	  return string.release();
 	}
@@ -240,10 +267,10 @@ namespace Pol {
 	  {
 		return imp->copy();
 	  }
-	  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
+	  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
 	  {
-		String* str = static_cast<String*>( imp );
-		return new BLong( strtoul( str->data(), NULL, 0 ) );
+		BaseString* str = static_cast<BaseString*>( imp );
+		return new BLong( str->intval() );
 	  }
 	  else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
 	  {
@@ -264,10 +291,10 @@ namespace Pol {
 		BLong* lng = static_cast<BLong*>( imp );
 		return new Double( lng->value() );
 	  }
-	  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
+	  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
 	  {
-		String* str = static_cast<String*>( imp );
-		return new Double( strtod( str->data(), NULL ) );
+		BaseString* str = static_cast<BaseString*>( imp );
+		return new Double( str->dblval() );
 	  }
 	  else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
 	  {
@@ -291,7 +318,12 @@ namespace Pol {
 	  if ( imp->isa( Bscript::BObjectImp::OTString ) )
 	  {
 		String* str = static_cast<String*>( imp );
-		return new BLong( static_cast<unsigned char>( str->data()[0] ) );
+		return new BLong( static_cast<unsigned char>( str->value()[0] ) );
+	  }
+	  if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
+	  {
+		Unicode* str = static_cast<Unicode*>( imp );
+		return new BLong( static_cast<char32_t>(str->value()[0]) );
 	  }
 	  else
 	  {
@@ -380,16 +412,16 @@ namespace Pol {
 		sprintf( s, "0x%X", static_cast<unsigned int>( pdbl->value() ) );
 		return new String( s );
 	  }
-	  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
+	  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
 	  {
-		String* str = static_cast<String*>( imp );
+		BaseString* str = static_cast<BaseString*>( imp );
 		char s[20];
-		sprintf( s, "0x%X", static_cast<unsigned int>(strtoul( str->data(), NULL, 0 ) ) );
+		sprintf( s, "0x%X", str->intval() );
 		return new String( s );
 	  }
 	  else
 	  {
-		return new BError( "Hex() expects an Integer, Real, or String" );
+		return new BError( "Hex() expects an Integer, Real, String or Unicode" );
 	  }
 	}
 
@@ -532,7 +564,7 @@ namespace Pol {
 
 	  if ( exec.getStringParam( 0, str ) )
 	  {
-		return Bscript::BObjectImp::unpack( str->data() );
+		return Bscript::BObjectImp::unpack( str->value().c_str() );
 	  }
 	  else
 	  {

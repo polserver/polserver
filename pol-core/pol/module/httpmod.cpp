@@ -142,7 +142,7 @@ namespace Pol {
 	  const String* str;
 	  if ( getStringParam( 0, str ) )
 	  {
-		QueryParamMap::iterator itr = params_.find( str->data() );
+		QueryParamMap::iterator itr = params_.find( str->value() );
 		if ( itr != params_.end() )
 		  return new String( ( *itr ).second );
 		else

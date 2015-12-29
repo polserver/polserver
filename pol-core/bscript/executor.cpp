@@ -217,7 +217,7 @@ namespace Pol {
 	  BObjectImp *objimp = fparams[param]->impptr();
 
 	  String *str = (String *)objimp;
-	  return str ? str->data() : "";
+	  return str ? str->value().c_str() : "";
 	}
 
 	int Executor::makeDouble( unsigned param )
@@ -900,7 +900,7 @@ namespace Pol {
 
 	  const String& varname = static_cast<const String&>( right.impref() );
 
-	  return left.impref().operDotPlus( varname.data() );
+	  return left.impref().operDotPlus( varname.value().c_str() );
 	}
 
 	BObjectRef Executor::removemember( BObject& left, const BObject& right )
@@ -912,7 +912,7 @@ namespace Pol {
 
 	  const String& varname = static_cast<const String&>( right.impref() );
 
-	  return left.impref().operDotMinus( varname.data() );
+	  return left.impref().operDotMinus( varname.value().c_str() );
 	}
 
 	BObjectRef Executor::checkmember( BObject& left, const BObject& right )
@@ -924,7 +924,7 @@ namespace Pol {
 
 	  const String& varname = static_cast<const String&>( right.impref() );
 
-	  return left.impref().operDotQMark( varname.data() );
+	  return left.impref().operDotQMark( varname.value().c_str() );
 	}
 
 

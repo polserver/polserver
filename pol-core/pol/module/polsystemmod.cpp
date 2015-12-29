@@ -191,7 +191,7 @@ namespace Pol {
 	  }
 	  else if ( getStringParam( 0, cmdlevel_alias ) )
 	  {
-        Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data( ) );
+        Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->value() );
 		if ( cmdlevel == NULL )
 		  return new BError( "Could not find a command level with that alias." );
 		else
@@ -208,7 +208,7 @@ namespace Pol {
 	  if ( !getStringParam( 0, cmdlvlname ) )
 		return new BError( "Invalid parameter type." );
 
-      Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdlvlname->data( ) );
+      Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdlvlname->value().c_str() );
 	  if ( cmdlevel_search == NULL )
 		return new BError( "Could not find a command level with that name." );
 

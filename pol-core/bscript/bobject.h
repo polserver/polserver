@@ -54,6 +54,7 @@ namespace Pol {
 	class BLong;
 	class Double;
 	class String;
+	class Unicode;
 	class ObjArray;
 
 	class BObjectImp : public ref_counted
@@ -64,6 +65,7 @@ namespace Pol {
 		OTUnknown,
 		OTUninit,
 		OTString,
+		OTUnicode,
 		OTLong,
 		OTDouble,
 		OTArray,
@@ -141,9 +143,11 @@ namespace Pol {
 	  virtual const char* typeOf() const;
 	  virtual int typeOfInt() const;
 
-
+	  /** Returns a packed version of this object */
 	  virtual std::string pack() const;
+	  /** Writes a packet version of this object into the given stream */
 	  virtual void packonto( std::ostream& os ) const;
+	  /** Prints this object into the given stream */
 	  virtual void printOn( std::ostream& ) const;
 
 	  // Operators and stuff

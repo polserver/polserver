@@ -1568,7 +1568,7 @@ namespace Pol {
 	  if ( numbytes > 256 )
 		numbytes = 256;
 	  msg->WriteFlipped<u16>( numbytes );
-	  msg->Write( line1->data(), static_cast<u16>( numbytes ) ); // null-terminated
+	  msg->Write( line1->value().c_str(), static_cast<u16>( numbytes ) ); // null-terminated
 
 	  msg->Write<u8>( static_cast<u8>(cancel) );
 	  msg->Write<u8>( static_cast<u8>(style) );
@@ -1577,7 +1577,7 @@ namespace Pol {
 	  if ( numbytes > 256 )
 		numbytes = 256;
 	  msg->WriteFlipped<u16>( numbytes );
-	  msg->Write( line2->data(), static_cast<u16>( numbytes ) ); // null-terminated
+	  msg->Write( line2->value().c_str(), static_cast<u16>( numbytes ) ); // null-terminated
 	  u16 len = msg->offset;
 	  msg->offset = 1;
 	  msg->WriteFlipped<u16>( len );
@@ -1992,7 +1992,7 @@ namespace Pol {
 		  return new BError( "Attempted to use password in account creation with non-allowed characters." );
 		}
 
-		if ( Accounts::find_account( acctname->data() ) )
+		if ( Accounts::find_account( acctname->value().c_str() ) )
 		{
 		  return new BError( "Account already exists" );
 		}
@@ -2013,7 +2013,7 @@ namespace Pol {
 	  const String* acctname;
 	  if ( getStringParam( 0, acctname ) )
 	  {
-        Accounts::Account* acct = Accounts::find_account( acctname->data( ) );
+        Accounts::Account* acct = Accounts::find_account( acctname->value().c_str() );
 		if ( acct != NULL )
 		{
           return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( AccountRef( acct ) ) );

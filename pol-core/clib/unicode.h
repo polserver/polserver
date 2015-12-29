@@ -48,7 +48,7 @@ namespace Pol {
   {
   public:
     /**
-     * This triviall default constructible
+     * This trivial default constructible
      * @warning Using this constructor leaves the internal character container uninitialized
      */
     UnicodeChar() = default;
@@ -64,13 +64,13 @@ namespace Pol {
     inline UnicodeChar& operator+=( const UnicodeChar &c ) { val_ += c.val_; return *this; };
     inline UnicodeChar& operator-=( const UnicodeChar &c ) { val_ -= c.val_; return *this; };
 
-    //operator char16_t();
-    //operator wchar_t();
+    // Automagically cast to safe char types... is this dangerous?
+    inline operator char32_t() const { return val_; };
+    inline operator char16_t() const { return val_; };
+    inline operator wchar_t() const { return val_; };
 
     u8 getByteLen() const;
-    char32_t asUtf32() const;
-    /** Returns an UTF16 representation */
-    inline char16_t asUtf16( ) const { return val_; };
+    std::string asUtf8() const;
     char asAnsi( const bool failsafe = false ) const;
 
     /** Tells wether this is a space character */
@@ -108,10 +108,12 @@ namespace Pol {
     typedef std::basic_string<UnicodeChar> base;
 
   public:
+    // TODO: use ("using") all base class constructor on VS2015
     UnicodeString() { };
     UnicodeString( const char* s ) { *this += s; };
     UnicodeString( const std::string& s ) { *this += s; };
-    UnicodeString( const std::string& s, size_t pos, size_t n ) { base(UnicodeString(s), pos, n); };
+    explicit UnicodeString( const UnicodeString& s, size_type pos, size_type n ) : base(s, pos, n) {};
+    explicit UnicodeString( const std::string& s, size_type pos, size_type n ) : base(UnicodeString(s), pos, n) {};
 
     //   ------------------------------- OPERATORS ----------------------------------------------
     inline UnicodeString& operator=( const char16_t c )  { UnicodeChar uc = UnicodeChar(c); assign(&uc); return *this; };
@@ -129,16 +131,27 @@ namespace Pol {
 
     inline bool UnicodeString::operator==( const char16_t c ) const { return size() == 1 && front() == c; };
 
-    int compare( const char* s ) const;
-    int compare( size_t pos, size_t len, const char* s ) const;
+    /**
+     * Converts to an ANSI string, same as calling Unicode.asAnsi(true)
+     *
+     * @warning converison may lead to loss of precision
+     */
+    explicit operator std::string() const { return asAnsi(true); };
 
-    UnicodeString substr( size_type pos = 0, size_type count = npos ) const;
+    //   ------------------------------- REDEFINED BASE CLASS FUNCTIONS -------------------------
+    inline UnicodeString substr( size_t pos = 0, size_t len = npos ) { return substr(pos, len); };
+
+
+    //   ------------------------------- MISCELLANEOUS ------------------------------------------
     void toLower();
     void toUpper();
 
     const wchar_t* asWcharArray() const;
     bool asAnsi( std::string* outStr ) const;
     std::string asAnsi( const bool failsafe = false ) const;
+    std::string asUtf8() const;
+
+    size_t sizeEstimate() const;
   };
 
   /**
@@ -150,18 +163,23 @@ namespace Pol {
   friend class Utf8CharValidator;
 
   public:
+    typedef std::vector<char> Utf8Bytes;
+
+    Utf8Char();
+    Utf8Char( const char32_t c );
+
     u8 getByteLen() const;
     char32_t asUtf32() const;
     char16_t asUtf16( const bool failsafe = false ) const;
     char asAnsi( const bool failsafe = false ) const;
 
+    const Utf8Bytes* getBytes() const;
+
   protected:
-    Utf8Char();
-    Utf8Char( const char c );
     inline bool operator==( const char c ) const { return bytes_.size() == 1 && bytes_[0] == c; };
 
   private:
-    std::vector<char> bytes_;
+    Utf8Bytes bytes_;
   };
 
   /**
@@ -173,7 +191,7 @@ namespace Pol {
   class Utf8CharValidator
   {
   public:
-    enum AddByteResult
+    enum class AddByteResult
     {
       DONE,
       INVALID,

@@ -68,19 +68,48 @@ namespace Pol {
   }
 
   /**
-   * Create an utf8 char from a standard char.
+   * Create an utf8 char from a char32_t
+   *
+   * @param c the char, in the range 0x000000 - 0x10FFFFFF
+   * @throws UnicodeCastFailedException
    */
-  Utf8Char::Utf8Char( const char c )
+  Utf8Char::Utf8Char( const char32_t c )
   {
-    if( static_cast<const unsigned char>(c) < 0x80 )
+    // Code could be ugly writte in this way, but avoiding loops to make it faster
+
+    if( c < 0x80 )
     {
-      bytes_.push_back(c);
+      // up to 7 bits, ASCII-compatibility, 1 byte long result
+      bytes_.push_back(static_cast<const char>(c));
+      return;
     }
-    else
+    else if( c < 0x7FF )
     {
+      // up to 11 bits, 2 byte long result
       bytes_.push_back(static_cast<char>(0xC0 | ( c >> 6 ))); // first byte: 110XXXXX
       bytes_.push_back(static_cast<char>(0x80 | ( c & 0x3f ))); // second byte: 10XXXXXX
+      return;
     }
+    else if( c < 0xFFFF )
+    {
+      // up to 16 bits, 3 byte long result
+      bytes_.push_back(static_cast<char>(0xE0 | ( c >> 12 ))); // first byte: 1110XXXX
+      bytes_.push_back(static_cast<char>(0x80 | ( (c >> 6) & 0x3f ))); // second byte: 10XXXXXX
+      bytes_.push_back(static_cast<char>(0x80 | ( c & 0x3f ))); // third byte:  10XXXXXX
+      return;
+    }
+    else if( c < 0x10FFFF )
+    {
+      // up to 21 bits, 4 byte long result
+      bytes_.push_back(static_cast<char>(0xF0 | ( c >> 18 ))); // first byte: 11110XXX
+      bytes_.push_back(static_cast<char>(0x80 | ( (c >> 12) & 0x3f ))); // second byte: 10XXXXXX
+      bytes_.push_back(static_cast<char>(0x80 | ( (c >> 6) & 0x3f ))); // third byte: 10XXXXXX
+      bytes_.push_back(static_cast<char>(0x80 | ( c & 0x3f ))); // fourth byte:  10XXXXXX
+      return;
+    }
+
+    // Out of range
+    throw UnicodeCastFailedException();
   }
 
   /**
@@ -165,6 +194,14 @@ namespace Pol {
     return static_cast<char>(out);
   }
 
+  /**
+   * Returns internal bytes for direct access
+   */
+  const Utf8Char::Utf8Bytes* Utf8Char::getBytes() const
+  {
+    return &bytes_;
+  }
+
 
   /**
    * Creates a new char from a given char
@@ -183,6 +220,15 @@ namespace Pol {
       return 2;
     return 1;
   }
+
+   /**
+    * Returns an utf8-encoded representation of this Unicode char
+    */
+   std::string UnicodeChar::asUtf8() const
+   {
+     auto bytes = Utf8Char( val_ ).getBytes();
+     return std::string( bytes->begin(), bytes->end() );
+   }
 
   /**
    * Returns an ANSI representation of this utf8 char, when possible
@@ -265,6 +311,19 @@ namespace Pol {
   }
 
   /**
+   * Returns an utf8-encoded representation of this object
+   */
+  std::string UnicodeString::asUtf8() const
+  {
+    std::string ret;
+
+    for( auto it = begin(); it != end(); ++it )
+      ret += it->asUtf8();
+
+    return ret;
+  }
+
+  /**
    * In-place convert this string to lowercase
    */
   void UnicodeString::toLower()
@@ -280,6 +339,14 @@ namespace Pol {
   {
     for( auto itr = this->begin(); itr != this->end(); ++itr )
       itr->toUpper();
+  }
+
+  /**
+   * Returns an esteem of the amount of memory currently allocated by this object
+   */
+  size_t UnicodeString::sizeEstimate() const
+  {
+    return capacity() * sizeof(char16_t);
   }
 
 

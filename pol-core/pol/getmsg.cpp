@@ -94,7 +94,7 @@ namespace Pol {
         return new Bscript::BError( "Another script has an active prompt" );
 	  }
 
-	  Core::send_sysmessage( chr->client, prompt->data() );
+	  Core::send_sysmessage( chr->client, prompt->value().c_str() );
 
 	  chr->client->gd->prompt_uoemod = this;
 	  prompt_chr = chr;

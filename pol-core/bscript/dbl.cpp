@@ -131,7 +131,7 @@ namespace Pol {
 	}
 	BObjectImp* Double::selfPlusObj( const String& objimp ) const
 	{
-	  return new String( getStringRep() + objimp.data() );
+	  return new String( getStringRep() + objimp.value() );
 	}
 	void Double::selfPlusObjImp( BObjectImp&  objimp, BObject& obj )
 	{

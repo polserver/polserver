@@ -78,7 +78,7 @@ namespace Pol {
 
 	  if ( imp.isa( OTString ) )
 	  {
-		const char* strval = static_cast<const Bscript::String*>( &imp )->data( );
+		const std::string strval = static_cast<const Bscript::String*>( &imp )->value();
 		celem = obj_->findelem( strval );
 	  }
 	  else if ( imp.isa( OTLong ) )
@@ -262,14 +262,11 @@ namespace Pol {
 	  }
 	}
 
-	bool legal_scp_filename( const char* filename )
+	bool legal_scp_filename( const std::string& filename )
 	{
-	  while ( filename && *filename )
-	  {
-		if ( !isalnum( *filename ) )
+	  for ( char c : filename )
+		if ( !isalnum( c ) )
 		  return false;
-		++filename;
-	  }
 	  return true;
 	}
 
@@ -281,7 +278,7 @@ namespace Pol {
 		return new Bscript::BError( "Invalid parameter type" );
 	  }
 
-	  if ( !legal_scp_filename( filename_str->data() ) )
+	  if ( !legal_scp_filename( filename_str->value() ) )
 	  {
 		return new Bscript::BError( "Filename cannot include path information or special characters" );
 	  }
@@ -365,7 +362,7 @@ namespace Pol {
 		}
 		else if ( keyimp->isa( Bscript::BObjectImp::OTString ) )
 		{
-		  const char* strval = static_cast<Bscript::String*>( keyimp )->data( );
+		  const std::string strval = static_cast<Bscript::String*>( keyimp )->value( );
 		  celem = cfile->findelem( strval );
 		}
 		else
@@ -420,7 +417,7 @@ namespace Pol {
 	  if ( getStoredConfigElemParam( *this, 0, celem ) &&
 		   getStringParam( 1, propname_str ) )
 	  {
-        std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->data());
+        std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->value());
 		Core::StoredConfigElem::const_iterator itr = pr.first;
 		Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -449,7 +446,7 @@ namespace Pol {
 
 	  if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
 	  {
-        std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->data());
+        std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->value());
 		Core::StoredConfigElem::const_iterator itr = pr.first;
 		Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -508,7 +505,7 @@ namespace Pol {
 		  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
 		  {
 			Bscript::String* str = static_cast<Bscript::String*>( imp );
-			return new Bscript::BLong( strtoul( str->data( ), NULL, 0 ) );
+			return new Bscript::BLong( strtoul( str->value( ).c_str(), NULL, 0 ) );
 		  }
 		  else
 		  {
@@ -534,7 +531,7 @@ namespace Pol {
 	  if ( getStoredConfigElemParam( *this, 0, celem ) &&
 		   getStringParam( 1, propname_str ) )
 	  {
-        auto pr = celem->equal_range(propname_str->data());
+        auto pr = celem->equal_range(propname_str->value());
 		Core::StoredConfigElem::const_iterator itr = pr.first;
 		Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -559,7 +556,7 @@ namespace Pol {
 			else if ( imp->isa( Bscript::BObjectImp::OTString ) )
 			{
 			  Bscript::String* str = static_cast<Bscript::String*>( imp );
-			  ar->addElement( new  Bscript::BLong( strtoul( str->data( ), NULL, 0 ) ) );
+			  ar->addElement( new  Bscript::BLong( str->intval() ) );
 			}
 
 		  }
@@ -595,7 +592,7 @@ namespace Pol {
 		  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
 		  {
 			Bscript::String* str = static_cast<Bscript::String*>( imp );
-			return new Bscript::Double( strtod( str->data( ), NULL ) );
+			return new Bscript::Double( str->dblval() );
 		  }
 		  else
 		  {

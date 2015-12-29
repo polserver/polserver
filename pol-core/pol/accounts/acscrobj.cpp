@@ -417,7 +417,7 @@ namespace Pol {
 			  if ( acctname->value().empty() )
 				return new BError( "Account name must not be empty." );
 
-			  if ( find_account( acctname->data() ) )
+			  if ( find_account( acctname->value().c_str() ) )
 				return new BError( "Account already exists." );
 
 			  Mobile::Character* chr = obj_->get_character( index - 1 );
@@ -457,7 +457,7 @@ namespace Pol {
 			  if ( acctname->value().empty() )
 				return new BError( "Account name must not be empty." );
 
-			  Account* account = find_account( acctname->data() );
+			  Account* account = find_account( acctname->value().c_str() );
 			  if ( account == NULL )
 				return new BError( "Account doesn't exists." );
 

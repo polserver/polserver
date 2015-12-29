@@ -706,7 +706,7 @@ namespace Pol {
 	  {
 		if ( chr->has_active_client() )
 		{
-		  send_sysmessage( chr->client, ptext->data(), font, color );
+		  send_sysmessage( chr->client, ptext->value().c_str(), font, color );
 		  return new BLong( 1 );
 		}
 		else
@@ -734,7 +734,7 @@ namespace Pol {
 		   getParam( 3, color ) &&
 		   getParam( 4, journal_print ) )
 	  {
-		return new BLong( say_above( obj, ptext->data(), font, color, journal_print ) );
+		return new BLong( say_above( obj, ptext->value().c_str(), font, color, journal_print ) );
 	  }
 	  else
 	  {
@@ -757,7 +757,7 @@ namespace Pol {
 		   getParam( 4, color ) &&
 		   getParam( 5, journal_print ) )
 	  {
-		return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
+		return new BLong( private_say_above( chr, obj, ptext->value().c_str(), font, color, journal_print ) );
 	  }
 	  else
 	  {
@@ -1321,7 +1321,7 @@ namespace Pol {
       Clib::ConfigElem elem;
 	  START_PROFILECLOCK( npc_search );
 	  //bool found = FindNpcTemplate( tmplname->data(), cfile, elem );
-	  bool found = FindNpcTemplate( tmplname->data(), elem );
+	  bool found = FindNpcTemplate( tmplname->value().c_str(), elem );
 	  STOP_PROFILECLOCK( npc_search );
 	  INC_PROFILEVAR( npc_searches );
 
@@ -1631,7 +1631,7 @@ namespace Pol {
 	  if ( imp->isa( BObjectImp::OTString ) )
 	  {
 		String* pmenuname = static_cast<String*>( imp );
-		menu = Menu::find_menu( pmenuname->data() );
+		menu = Menu::find_menu( pmenuname->value().c_str() );
 		return ( menu != NULL );
 	  }
 	  else if ( imp->isa( BObjectImp::OTApplicObj ) )
@@ -1776,7 +1776,7 @@ namespace Pol {
 	  {
 		Menu temp;
 		temp.menu_id = 0;
-		strzcpy( temp.title, title->data(), sizeof temp.title );
+		strzcpy( temp.title, title->value().c_str(), sizeof temp.title );
 		return new EMenuObjImp( temp );
 	  }
 	  return new BLong( 0 );
@@ -1798,7 +1798,7 @@ namespace Pol {
 		MenuItem* mi = &menu->menuitems_.back();
 		mi->objtype_ = objtype;
 		mi->graphic_ = getgraphic( objtype );
-		strzcpy( mi->title, text->data(), sizeof mi->title );
+		strzcpy( mi->title, text->value().c_str(), sizeof mi->title );
 		mi->color_ = color & settingsManager.ssopt.item_color_mask;
 		return new BLong( 1 );
 	  }
@@ -3433,7 +3433,7 @@ namespace Pol {
 	  if ( !realm->valid( xwest, ynorth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 	  if ( !realm->valid( xeast, ysouth, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
-	  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->data(),
+	  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->value().c_str(),
 													 xwest, ynorth,
 													 xeast, ysouth,
 													 realm );
@@ -3943,7 +3943,7 @@ namespace Pol {
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
-		return get_harvest_difficulty( resource->data(), x, y, realm, tiletype );
+		return get_harvest_difficulty( resource->value().c_str(), x, y, realm, tiletype );
 	  }
 	  else
 	  {
@@ -3973,7 +3973,7 @@ namespace Pol {
 
 		if ( b <= 0 )
 		  return new BError( "b must be >= 0" );
-		return harvest_resource( resource->data(), x, y, realm, b, n );
+		return harvest_resource( resource->value().c_str(), x, y, realm, b, n );
 	  }
 	  else
 	  {
@@ -4054,7 +4054,7 @@ namespace Pol {
 		if ( !realm ) return new BError( "Realm not found" );
 		if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
-		return get_region_string( resource->data(), x, y, realm, propname->value() );
+		return get_region_string( resource->value().c_str(), x, y, realm, propname->value() );
 	  }
 	  else
 	  {
@@ -4098,7 +4098,7 @@ namespace Pol {
 	  if ( getCharacterParam( exec, 0, chr ) &&
 		   getStringParam( 1, template_name ) )
 	  {
-		return equip_from_template( chr, template_name->data() );
+		return equip_from_template( chr, template_name->value().c_str() );
 	  }
 	  else
 	  {
@@ -4114,7 +4114,7 @@ namespace Pol {
 	  if ( getCharacterParam( exec, 0, chr ) &&
 		   getStringParam( 1, privstr ) )
 	  {
-		chr->grant_privilege( privstr->data() );
+		chr->grant_privilege( privstr->value().c_str() );
 		return new BLong( 1 );
 	  }
 	  else
@@ -4131,7 +4131,7 @@ namespace Pol {
 	  if ( getCharacterParam( exec, 0, chr ) &&
 		   getStringParam( 1, privstr ) )
 	  {
-		chr->revoke_privilege( privstr->data() );
+		chr->revoke_privilege( privstr->value().c_str() );
 		return new BLong( 1 );
 	  }
 	  else
@@ -4171,7 +4171,7 @@ namespace Pol {
 		}
         Network::PktHelper::PacketOut<Network::EncryptedPktBuffer> buffer; // encryptedbuffer is the only one without getID buffer[0]
 		unsigned char* buf = reinterpret_cast<unsigned char*>( buffer->getBuffer() );
-		const char*s = str->data();
+		const char*s = str->value().c_str();
 		while ( buffer->offset < 2000 && isxdigit( s[0] ) && isxdigit( s[1] ) )
 		{
 		  unsigned char ch;
@@ -4495,7 +4495,7 @@ namespace Pol {
 	  const String* namestr;
 	  if ( getStringParam( 0, namestr ) )
 	  {
-		unsigned int objtype = get_objtype_byname( namestr->data() );
+		unsigned int objtype = get_objtype_byname( namestr->value().c_str() );
 		if ( objtype != 0 )
 		  return new BLong( objtype );
 		else
@@ -5317,7 +5317,7 @@ namespace Pol {
 		if ( Plib::systemstate.config.loglevel >= 12 )
 		{
           POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, {}, {}, {}, {}, 0x{:X}, {})\n" )
-            << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->data() << flags << theSkirt;
+            << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->value() << flags << theSkirt;
           POLLOG.Format( "[FindPath]   search for Blockers inside {} {} {} {}\n" ) << xL << yL << xH << yH;
 		}
 
@@ -5688,7 +5688,7 @@ namespace Pol {
 		  if ( !Clib::convertArrayToUC( eText, ewtext, elen ) )
 			return new BError( "Invalid parameter type" );
 
-		  sendCharProfile( chr, of_who, title->data(), uwtext, ewtext );
+		  sendCharProfile( chr, of_who, title->value().c_str(), uwtext, ewtext );
 		  return new BLong( 1 );
 		}
 		else

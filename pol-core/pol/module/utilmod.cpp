@@ -101,7 +101,7 @@ namespace Pol {
 	  {
 		std::string errormsg;
 		Core::Dice dice;
-		if ( dice.load( dicestr->data(), &errormsg ) )
+		if ( dice.load( dicestr->strval().c_str(), &errormsg ) )
 		{
 		  return new BLong( dice.roll() );
 		}
@@ -140,7 +140,7 @@ namespace Pol {
 
 	  //strftime uses assert check for invalid format -> precheck it
 	  size_t len = format_string->length();
-	  const char* str = format_string->data();
+	  const char* str = format_string->value().c_str();
 	  while ( len-- > 0 )
 	  {
 		if ( *str++ == '%' )
@@ -182,7 +182,7 @@ namespace Pol {
 	  }
 
 	  char buffer[102]; // +2 for the \0 termination.
-	  if ( strftime( buffer, sizeof buffer, format_string->data(), &time_struct ) > 0 )
+	  if ( strftime( buffer, sizeof buffer, format_string->value().c_str(), &time_struct ) > 0 )
 		return new String( buffer );
 	  else
 		return new BError( "Format string too long." );

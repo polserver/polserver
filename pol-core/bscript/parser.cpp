@@ -1194,15 +1194,15 @@ namespace Pol {
 		  {
 			switch( validator.addByte(*end) )
 			{
-			case Pol::Utf8CharValidator::MORE:
+			case Pol::Utf8CharValidator::AddByteResult::MORE:
 			  end++;
 			  continue;
-			case Pol::Utf8CharValidator::INVALID:
+			case Pol::Utf8CharValidator::AddByteResult::INVALID:
 			  err = PERR_INVUTF8;
 			  return -1;
 			default:
 			  assert(false); //This should never happen
-			case Pol::Utf8CharValidator::DONE:
+			case Pol::Utf8CharValidator::AddByteResult::DONE:
 			  break;
 			}
 

@@ -10,6 +10,7 @@ Notes
 
 #include "bobject.h"
 #include "impstr.h"
+#include "impunicode.h"
 
 #include "../../lib/format/format.h"
 #include <sstream>
@@ -65,7 +66,12 @@ namespace Pol {
 
     void String::printOn(std::ostream& os) const
 	{
-	  os << '\"' << value_ << '\"';
+	  os << getFormattedStringRep();
+	}
+
+    void Unicode::printOn(std::ostream& os) const
+	{
+	  os << getFormattedStringRep();
 	}
 
     void Double::printOn(std::ostream& os) const
