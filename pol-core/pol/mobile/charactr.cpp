@@ -4252,11 +4252,8 @@ namespace Pol {
     */
     void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments )
     {
-      if( client != NULL && buffs_.find(icon) != buffs_.end() )
-      {
-        // Icon is already present, must send a remove packet first or client will not update
-        send_buff_message( this, icon, false );
-      }
+      // Icon is already present, must send a remove packet first or client will not update
+      delBuff(icon);
 
       Core::gameclock_t end = Core::read_gameclock() + duration;
       buffs_[icon] = { end, cl_name, cl_descr, arguments };
@@ -4386,6 +4383,8 @@ namespace Pol {
 
       size += 3 * sizeof(void*)+to_be_reportable_.size() * ( sizeof(USERIAL)+3 * sizeof( void* ) );
       size += 3 * sizeof(void*)+reportable_.size() * ( sizeof(reportable_t)+3 * sizeof( void* ) );
+
+      size += 3 * sizeof(void*) + buffs_.size() * ( sizeof(u16) + sizeof(Buff) + sizeof(void*) );
 
       return size;
 
