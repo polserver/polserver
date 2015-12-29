@@ -62,6 +62,11 @@ namespace Pol {
       TYP_NUMTYPES = 0x21,
     };
 
+    inline std::ostream& operator<<( std::ostream& out, const BTokenType& tok )
+    {
+      return out << static_cast<int>(tok);
+    }
+
     /**
      * The token ID: what this token is
      *
@@ -271,6 +276,11 @@ namespace Pol {
 
       TOK_UNUSED,
     };
+
+    inline std::ostream& operator<<( std::ostream& out, const BTokenId& tok )
+    {
+      return out << static_cast<int>(tok);
+    }
 
     enum ESCRIPT_CASE_TYPES : u8
     {
