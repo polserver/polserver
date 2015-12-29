@@ -69,9 +69,6 @@ namespace Pol {
 		table[0] = lkey[0];
 		table[1] = lkey[1];
 
-		lkey[0] = ( ( table[0] >> 1 ) | ( table[1] << 31 ) ) ^ m_k2;
-		lkey[1] = ( ( table[1] >> 1 ) | ( table[0] << 31 ) ) ^ m_k1;
-
 		lkey[1] =
 		  ( m_k1 >> ( ( 5 * table[1] * table[1] ) & 0xff ) )
 		  + ( table[1] * m_k1 )
