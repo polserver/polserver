@@ -61,7 +61,7 @@ namespace Pol {
 	  virtual ~ECharacterRefObjImp( ) { --Core::stateManager.uobjcount.uobj_count_echrref; }
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
@@ -85,7 +85,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 
 	  virtual bool isTrue() const POL_OVERRIDE;
@@ -114,7 +114,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
@@ -138,7 +138,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
@@ -161,7 +161,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
@@ -201,7 +201,7 @@ namespace Pol {
 
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;

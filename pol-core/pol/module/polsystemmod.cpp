@@ -78,7 +78,7 @@ namespace Pol {
     public:
       explicit PackageObjImp( const PackagePtrHolder& other );
       virtual const char* typeOf() const POL_OVERRIDE;
-      virtual int typeOfInt() const POL_OVERRIDE;
+      virtual u8 typeOfInt() const POL_OVERRIDE;
       virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
       virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
       virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
@@ -122,7 +122,7 @@ namespace Pol {
 	{
 	  return "Package";
 	}
-	int PackageObjImp::typeOfInt() const
+	u8 PackageObjImp::typeOfInt() const
 	{
 	  return OTPackage;
 	}

@@ -79,7 +79,7 @@ namespace Pol {
 	  virtual std::string getStringRep() const POL_OVERRIDE;
       virtual size_t sizeEstimate() const POL_OVERRIDE;
 	  virtual const char* typeOf() const POL_OVERRIDE { return "BinaryFile"; }
-	  virtual int typeOfInt() const POL_OVERRIDE { return OTBinaryFile; }
+	  virtual u8 typeOfInt() const POL_OVERRIDE { return OTBinaryFile; }
 	  virtual bool isTrue() const POL_OVERRIDE;
 	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 

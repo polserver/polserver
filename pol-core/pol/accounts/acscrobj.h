@@ -41,7 +41,7 @@ namespace Pol {
 		Bscript::BApplicObj< AccountPtrHolder >( &accountobjimp_type, other )
 	  {}
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
