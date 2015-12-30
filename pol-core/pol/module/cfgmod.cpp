@@ -101,7 +101,7 @@ namespace Pol {
 	{
 	  return "ConfigFileRef";
 	}
-	int EConfigFileRefObjImp::typeOfInt() const
+	u8 EConfigFileRefObjImp::typeOfInt() const
 	{
 	  return OTConfigFileRef;
 	}
@@ -118,7 +118,7 @@ namespace Pol {
 	{
 	  return "ConfigElemRef";
 	}
-	int EConfigElemRefObjImp::typeOfInt() const
+	u8 EConfigElemRefObjImp::typeOfInt() const
 	{
 	  return OTConfigElemRef;
 	}

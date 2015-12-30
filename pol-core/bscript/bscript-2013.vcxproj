@@ -247,6 +247,7 @@
     <ClCompile Include="symcont.cpp" />
     <ClCompile Include="tkn_strm.cpp" />
     <ClCompile Include="token.cpp" />
+    <ClCompile Include="tokens.cpp" />
     <ClCompile Include="userfunc.cpp" />
   </ItemGroup>
   <ItemGroup>

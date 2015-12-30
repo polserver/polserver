@@ -1636,7 +1636,7 @@ namespace Pol {
 	  virtual std::string getStringRep() const POL_OVERRIDE;
 	  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( PolCore ); }
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	private:
 	  // not implemented:
 	  PolCore& operator=( const PolCore& );
@@ -1659,7 +1659,7 @@ namespace Pol {
 	{
 	  return "PolCoreRef";
 	}
-	int PolCore::typeOfInt() const
+	u8 PolCore::typeOfInt() const
 	{
 	  return OTPolCoreRef;
 	}

@@ -30,7 +30,7 @@
 #endif
 
 #define MAX_STACK_TRACE_DEPTH          200
-#define MAX_STACK_TRACE_STEP_LENGTH    256
+#define MAX_STACK_TRACE_STEP_LENGTH    512
 
 namespace Pol{ namespace Clib{
 using namespace std;
@@ -225,9 +225,12 @@ void doHttpPOST(string host, string url, string content)
     hints.ai_flags = AI_ADDRCONFIG;
     hints.ai_socktype = SOCK_STREAM;
     int res = getaddrinfo(host.c_str(), "http", &hints, &serverAddr);
-    if(res == 0)
-    {
-        switch(serverAddr->ai_addr->sa_family) {
+	if (res != 0) {
+		fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
+		exit(1);
+	}
+     
+	switch(serverAddr->ai_addr->sa_family) {
             case AF_INET:
                 if(inet_ntop(AF_INET, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET_ADDRSTRLEN) == NULL)
                     exit(1);
@@ -241,7 +244,7 @@ void doHttpPOST(string host, string url, string content)
             default:
                 fprintf(stderr, "Unknown address family found for %s\n", host.c_str());
                 exit(1);
-        }
+    }
 
         // create the socket
         socketFD = socket(serverAddr->ai_family, serverAddr->ai_socktype, serverAddr->ai_protocol);
@@ -254,6 +257,8 @@ void doHttpPOST(string host, string url, string content)
             fprintf(stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(), targetIP, strerror(errno), errno);
             exit(1);
         }
+
+		freeaddrinfo(serverAddr); // not needed anymore
 
         /**
          * send the request
@@ -287,9 +292,6 @@ void doHttpPOST(string host, string url, string content)
         #else
             closesocket(socketFD);
         #endif
-    }else{
-        fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
-    }
 }
 
 void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
@@ -413,12 +415,12 @@ string ExceptionParser::getTrace()
     for ( int i = 0; i < stackTraceSize; i++ )
     {
         // get the pointers to the name, offset and end of offset
-        char *beginFuncName = 0;
-        char *beginFuncOffset = 0;
-        char *endFuncOffset = 0;
+        char *beginFuncName = nullptr;
+		char *beginFuncOffset = nullptr;
+		char *endFuncOffset = nullptr;
         char *beginBinaryName = stackTraceList[i];
-        char *beginBinaryOffset = 0;
-        char *endBinaryOffset = 0;
+		char *beginBinaryOffset = nullptr;
+		char *endBinaryOffset = nullptr;
         for (char *entryPointer = stackTraceList[i]; *entryPointer; ++entryPointer)
         {
             if (*entryPointer == '(')
@@ -443,8 +445,14 @@ string ExceptionParser::getTrace()
         // set the default value for the output line
         sprintf(stringBuf, "\n");
 
-        // get the detailed values for the output line
-        if (beginFuncName && beginFuncOffset && endFuncOffset && beginFuncName < beginFuncOffset)
+		bool parse_succeeded = 
+			beginFuncName 
+			&& beginFuncOffset && endFuncOffset
+			&& beginBinaryOffset && endBinaryOffset
+			&& beginFuncName < beginFuncOffset;
+
+        // get the detailed values for the output line if available
+		if (parse_succeeded)
         {
             // terminate the C strings
             *beginFuncName++ = '\0';
@@ -475,6 +483,7 @@ string ExceptionParser::getTrace()
                 stackTraceStep++;
             }
         }else{
+			// print the raw trace, as it is better than nothing
             sprintf(stringBuf, "#%02d %s\n", stackTraceStep, stackTraceList[i]);
             stackTraceStep++;
         }
@@ -486,6 +495,7 @@ string ExceptionParser::getTrace()
     // memory cleanup
     free(funcnName);
     free(stackTraceList);
+	free(stringBuf);
 
     return result;
 }

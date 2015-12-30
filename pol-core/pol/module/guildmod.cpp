@@ -88,7 +88,7 @@ namespace Pol {
 	public:
 	  EGuildRefObjImp( Core::GuildRef gref );
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual BObjectImp* copy() const POL_OVERRIDE;
 	  virtual bool isTrue() const POL_OVERRIDE;
 	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
@@ -109,7 +109,7 @@ namespace Pol {
 	{
 	  return "GuildRef";
 	}
-	int EGuildRefObjImp::typeOfInt() const
+	u8 EGuildRefObjImp::typeOfInt() const
 	{
 	  return OTGuildRef;
 	}

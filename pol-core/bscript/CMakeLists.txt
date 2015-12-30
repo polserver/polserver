@@ -34,6 +34,7 @@ SET (SOURCES  # sorted !
 	symcont.cpp
 	tkn_strm.cpp 
 	token.cpp
+	tokens.cpp
 	userfunc.cpp
 )
 
