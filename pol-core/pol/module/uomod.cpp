@@ -1210,7 +1210,7 @@ namespace Pol {
 	  short z;
 	  const ItemDesc* descriptor;
 	  int flags = 0;
-	  Realms::Realm* realm = find_realm( std::string( "britannia" ) );
+	  Realms::Realm* realm = find_realm("britannia");
 	  if ( !( getParam( 0, x ) &&
 		getParam( 1, y ) &&
 		getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
@@ -1229,9 +1229,9 @@ namespace Pol {
 		if ( !getStringParam( 5, strrealm ) )
 		  return new BError( "Invalid parameter type" );
 		realm = find_realm( strrealm->value() );
-		if ( !realm )
-		  return new BError( "Realm not found" );
 	  }
+
+	  if (!realm) return new BError("Realm not found");
 	  if ( !realm->valid( x, y, z ) ) return new BError( "Invalid Coordinates for Realm" );
 	  if ( descriptor->type != ItemDesc::BOATDESC &&
 		   descriptor->type != ItemDesc::HOUSEDESC )
@@ -1285,7 +1285,7 @@ namespace Pol {
 	  unsigned short x, y;
 	  short z;
 	  const String* strrealm;
-	  Realms::Realm* realm = find_realm( std::string( "britannia" ) );
+	  Realms::Realm* realm = find_realm("britannia");
 
 	  if ( !( getStringParam( 0, tmplname ) &&
 		getParam( 1, x ) &&
@@ -1313,9 +1313,11 @@ namespace Pol {
 		if ( !getStringParam( 5, strrealm ) )
 		  return new BError( "Realm not found" );
 		realm = find_realm( strrealm->value() );
-		if ( !realm ) return new BError( "Realm not found" );
-		if ( !realm->valid( x, y, z ) ) return new BError( "Invalid Coordinates for Realm" );
 	  }
+
+	  if (!realm) return new BError("Realm not found");
+	  if (!realm->valid(x, y, z)) return new BError("Invalid Coordinates for Realm");
+
 	  //ConfigFile cfile;
       Clib::ConfigElem elem;
 	  START_PROFILECLOCK( npc_search );
