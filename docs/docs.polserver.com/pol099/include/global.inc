@@ -60,6 +60,26 @@ if( file_exists(OFFICIAL_HEADER_PATH) ) {
 // **** FUNCTIONS **************************************************************
 
 /**
+ * Gets an HTTP GET parameter (use this instead of $_GET)
+ *
+ * @param $name The name of the GET parameter to retrieve
+ * @param $default The default value to return if not found (default: null)
+ * @return The retrieved parameter or default value
+ */
+function httpget($name, $default=null)
+{
+	global $official;
+
+	if ($official)
+		return request_var($name, $default);
+
+	if (isset($_GET[$name]))
+		return $_GET[$name];
+
+	return $default;
+}
+
+/**
 * Outputs the page header, from doctype to body
 *
 * @param $title string: The page title
