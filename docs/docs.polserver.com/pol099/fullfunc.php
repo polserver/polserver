@@ -1,7 +1,7 @@
 <?php
 	require_once 'include/global.inc';
 
-	$defaultxml = httpget('xmlfile');
+	$xmlfile = httpget('xmlfile');
 
 	siteheader('POL Scripting Reference');
 	if ($xmlfile && file_exists($xmlfile.'.xml')) // A better error processing here wouldn't hurt
