@@ -66,7 +66,7 @@ If you are familiar with linux source tarballs, just think to *cmake* as a moder
 
 First of all, run cmake one first time and let it do some autodetection:
 ```
-cd pol-server
+cd pol-core
 cmake -Wno-dev
 ```
 
