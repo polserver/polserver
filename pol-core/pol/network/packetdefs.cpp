@@ -224,13 +224,13 @@ namespace Pol {
       {
         if ( _p->offset == 1 )
           build();
-        _p.Send( client, _p->SIZE );
+        _p.Send( client, _p->getSize() );
       }
       else
       {
         if ( _p_old->offset == 1 )
           buildLegacy();
-        _p_old.Send( client, _p->SIZE-1 );
+        _p_old.Send( client, _p->getSize()-1 );
       }
     }
 
@@ -322,7 +322,7 @@ namespace Pol {
           return;
         if ( _p->offset == 1 )
           build();
-        _p.Send( client, _p->SIZE );
+        _p.Send( client, _p->getSize() );
       }
       else
       {
@@ -330,7 +330,7 @@ namespace Pol {
           return;
         if ( _p_old->offset == 1 )
           build6E();
-        _p_old.Send( client, _p_old->SIZE );
+        _p_old.Send( client, _p_old->getSize() );
       }
     }
 
@@ -350,7 +350,7 @@ namespace Pol {
 	{
 	  if ( _p->offset == 1 )
         build();
-      _p.Send( client, _p->SIZE );
+      _p.Send( client, _p->getSize() );
 	}
 
 	void PlaySoundPkt::build()
@@ -381,7 +381,7 @@ namespace Pol {
 	{
 	  if ( _p->offset == 1 )
         build();
-      _p.Send( client, _p->SIZE );
+      _p.Send( client, _p->getSize() );
 	}
 
 	void RemoveObjectPkt::build()
@@ -404,7 +404,7 @@ namespace Pol {
       {
         if ( _p->offset == 1 )
           build();
-        _p.Send( client, _p->SIZE );
+        _p.Send( client, _p->getSize() );
       }
       else
       {
@@ -452,7 +452,7 @@ namespace Pol {
           {
             if ( _p->offset == 1 )
               build();
-            _p.Send( client, _p->SIZE );
+            _p.Send( client, _p->getSize() );
           }
           else
           {
@@ -602,7 +602,7 @@ namespace Pol {
 	{
       if ( _p->offset == 1 )
         build();
-      _p.Send( client, _p->SIZE );
+      _p.Send( client, _p->getSize() );
 	}
 
 
@@ -782,7 +782,7 @@ namespace Pol {
 	{
       if ( _p->offset == 1 )
         build();
-      _p.Send( client, _p->SIZE );
+      _p.Send( client, _p->getSize() );
 	}
 
 
@@ -797,7 +797,7 @@ namespace Pol {
     void HealthBarStatusUpdate::build()
     {
       _p->offset = 1;
-      _p->WriteFlipped<u16>(_p->SIZE);
+      _p->WriteFlipped<u16>(_p->getSize());
       _p->Write<u32>(_serial_ext);
       _p->WriteFlipped<u16>(1u); //unk
       _p->WriteFlipped<u16>(_color);
