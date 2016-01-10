@@ -46,7 +46,7 @@ namespace Pol {
 
     BObjectImp* SQLExecutorModule::background_connect( Core::UOExecutor* uoexec, const std::string host, const std::string username, const std::string password )
     {
-      auto msg = [&uoexec, host, username, password]()
+      auto msg = [uoexec, host, username, password]()
       {
         if ( uoexec == nullptr )
         {
@@ -85,7 +85,7 @@ namespace Pol {
 
     BObjectImp* SQLExecutorModule::background_select( Core::UOExecutor* uoexec, Core::BSQLConnection *sql, const std::string db )
     {
-      auto msg = [&uoexec, sql, db]()
+      auto msg = [uoexec, sql, db]()
       {
         if ( uoexec == nullptr )
         {
@@ -133,7 +133,7 @@ namespace Pol {
         }
       }
 
-      auto msg = [&uoexec, sql, query, sharedParams]()
+      auto msg = [uoexec, sql, query, sharedParams]()
       {
         if ( uoexec == nullptr )
         {
