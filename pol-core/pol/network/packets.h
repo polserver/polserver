@@ -185,6 +185,7 @@ namespace Pol {
 		char buffer[SIZE];
         virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
         virtual inline u8 getID() const POL_OVERRIDE { return ID; };
+        virtual inline u16 getSize() const POL_OVERRIDE { return SIZE; };
         virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof(PacketInterface); };
 
 		// ---- Buffer Write Methods ----
@@ -343,6 +344,7 @@ namespace Pol {
 		};
         virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
         virtual inline u8 getID() const POL_OVERRIDE { return ID; };
+        virtual inline u16 getSize() const POL_OVERRIDE { return SIZE; };
         virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof(PacketInterface); };
 	  };
 

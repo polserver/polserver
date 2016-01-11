@@ -313,10 +313,10 @@ namespace Pol {
 
         // Escape the string and add quoting. A bit tricky, but effective.
         size_t escaped_max_size = it->size() * 2 + 5; //max is +1, using +5 to leave space for quoting and "$1"
-        char *escptr = (char*)malloc(escaped_max_size);
-        escptr += 3; // Will move it back later to add quoting
-        unsigned long esclen = mysql_real_escape_string(_conn->ptr(), escptr, it->c_str(), (unsigned long)it->size());
-        escptr -= 3;
+        std::unique_ptr<char[]> escptr( new char[escaped_max_size] ); // will contain the escaped string
+        // use +3 to leave space for quoting
+        unsigned long esclen = mysql_real_escape_string(_conn->ptr(), escptr.get()+3, it->c_str(), static_cast<unsigned long>(it->size()));
+        // Now add quoting, equivalent to escptr = "$1'" + escptr + "'"
         esclen += 4;
         escptr[0] = '$';
         escptr[1] = '1';
@@ -324,8 +324,7 @@ namespace Pol {
         escptr[esclen-1] = '\'';
         escptr[esclen] = '\0';
 
-        replaced = std::regex_replace(replaced, re, escptr, std::regex_constants::format_first_only);
-        free(escptr);
+        replaced = std::regex_replace(replaced, re, escptr.get(), std::regex_constants::format_first_only);
       }
 
       return this->query(replaced);
