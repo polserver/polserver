@@ -2,6 +2,10 @@
 	require_once 'include/global.inc';
 
 	siteheader('POL Documentation Site');
+	if (!$offline && $official) {
+		$files = scandir('archives', SCANDIR_SORT_DESCENDING);
+		$archivefile = $files[0];
+	}
 
 ?>
 	<div class="container">
@@ -21,8 +25,8 @@
 <?php if( ! $offline && $official ) { ?>
 				<hr>
 				Downloadable Version (099):
-				<a href="http://docs.polserver.com/pol099/archives/pol-docs-099-<?=$archivetime?>.zip">
-					099 Offline Documentation <?=$archivetime?>
+				<a href="http://docs.polserver.com/pol099/archives/pol-docs-099-<?=$archivefile?>.zip">
+					099 Offline Documentation <?=$archivefile?>
 				</a>
 				<hr>
 <?php } else { ?>
