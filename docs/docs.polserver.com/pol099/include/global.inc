@@ -66,7 +66,7 @@ if( file_exists(OFFICIAL_HEADER_PATH) ) {
  * @param $default The default value to return if not found (default: null)
  * @return The retrieved parameter or default value
  */
-function httpget($name, $default=null)
+function httpget($name, $default='')
 {
 	global $official;
 
