@@ -11,6 +11,13 @@ Notes
 #ifndef __EXECUTOR_H
 #define __EXECUTOR_H
 
+
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
+
 #ifndef __SYMCONT_H
 #include "symcont.h"
 #endif

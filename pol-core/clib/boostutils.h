@@ -6,6 +6,12 @@
 #ifndef BOOSTUTILS_H
 #define BOOSTUTILS_H
 
+#ifdef WINDOWS
+#include "pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
+
 #ifdef DEBUG_FLYWEIGHT
   #include <vector>
   #include <string>

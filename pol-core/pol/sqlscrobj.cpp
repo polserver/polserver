@@ -30,7 +30,13 @@ Notes
 #include "../plib/pkg.h"
 #include "globals/network.h"
 
+#ifndef USE_BOOST_REGEX
 #include <regex>
+#define REGEX_NSPACE std
+#else
+#include <boost/regex.hpp>
+#define REGEX_NSPACE boost
+#endif
 
 namespace Pol {
   namespace Core {
@@ -295,10 +301,10 @@ namespace Pol {
       }
 
       std::string replaced = query;
-      std::regex re("^((?:[^']|'[^']*')*?)(\\?)");
+      REGEX_NSPACE::regex re("^((?:[^']|'[^']*')*?)(\\?)");
       for( auto it = params->begin(); it != params->end(); ++it )
       {
-        if( ! std::regex_search(replaced, re) )
+        if( ! REGEX_NSPACE::regex_search(replaced, re) )
         {
           _errno = -2;
           _error = "Could not replace parameters.";
@@ -324,7 +330,7 @@ namespace Pol {
         escptr[esclen-1] = '\'';
         escptr[esclen] = '\0';
 
-        replaced = std::regex_replace(replaced, re, escptr.get(), std::regex_constants::format_first_only);
+        replaced = REGEX_NSPACE::regex_replace(replaced, re, escptr.get(), REGEX_NSPACE::regex_constants::format_first_only);
       }
 
       return this->query(replaced);
@@ -484,4 +490,5 @@ namespace Pol {
     }
   }
 }
+#undef REGEX_NSPACE
 #endif

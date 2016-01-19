@@ -14,6 +14,12 @@ Notes
 #ifndef CFGREPOS_H
 #define CFGREPOS_H
 
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
+
 #include "../clib/maputil.h"
 #include "../clib/refptr.h"
 #include "../clib/boostutils.h"

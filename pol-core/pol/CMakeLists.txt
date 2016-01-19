@@ -274,6 +274,12 @@ IF(HAVE_MYSQL)
 		${LIBS_LINUX}
 		mysqlclient
 	)
+	IF(DEFINED USE_BOOST_REGEX)
+		SET (LIBS_LINUX
+			${LIBS_LINUX}
+			boost_regex
+		)
+	ENDIF()
 ENDIF()
 SET (LIBS_LINUX_STATIC_BIN_STATIC
     bscript_static

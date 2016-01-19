@@ -69,6 +69,12 @@ Notes
 
 */
 
+#ifdef WINDOWS
+#include "../../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
+
 #include "charactr.h"
 
 #ifdef __GNUC__
