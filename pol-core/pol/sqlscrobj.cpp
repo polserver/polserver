@@ -30,6 +30,8 @@ Notes
 #include "../plib/pkg.h"
 #include "globals/network.h"
 
+// std::regex support is broken in GCC < 4.9. This define is a workaround for GCC 4.8.
+// TODO: remove this in future and just use std:: namespace
 #ifndef USE_BOOST_REGEX
 #include <regex>
 #define REGEX_NSPACE std

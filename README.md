@@ -51,7 +51,8 @@ Then run the following commands (you need at least CMake 2.8):
 * `cd pol-core/bin-build`
 * `./build_linux.sh`
 
-Minimum compiler version: GCC 4.7 or LLVM/Clang 3.5.
+Minimum compiler version: GCC 4.9 or LLVM/Clang 3.5.
+For compiling with GCC 4.7 and 4.8, please see the `Advanced Compiling` section on how to enable `USE_BOOST_REGEX=1`
 
 The command will generate binaries and dynamicaly linked libraries in the `bin/` folder. You need them all for your binaries to work. Debug symbols are included by default.
 
@@ -81,6 +82,7 @@ Here is a non-complete description of the most useful options:
   * `Default`: runs the default build using default settings
   * `Debug`: makes a debug build (adds '-O2', '-g', '--ggdb')
   * `Valgrind`: makes a special debug build to be used in Valgrind that will run very slowly (like *Debug*, but uses '-O0' instead of '-O2')
+* `USE_BOOST_REGEX=<1|0>` if set to 1, uses boost instead of std regex to work around a GCC bug in versions prior to 4.9
 
 You can also set an option directly with the '-D' cmake flag, by example:
 ```
