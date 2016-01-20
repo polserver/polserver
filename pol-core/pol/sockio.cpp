@@ -231,9 +231,9 @@ namespace Pol {
 	}
 
 	PolSocket::PolSocket() :
-	  listen_timeout( { 0, 0 } ),
-	  select_timeout ({ 0, 0 }),
-	  listen_socket(INVALID_SOCKET)
+	  listen_socket (INVALID_SOCKET),
+	  listen_timeout ( { 0, 0 } ),
+	  select_timeout ({ 0, 0 })
 	{}
   }
 }
