@@ -105,7 +105,7 @@ ELSE()
             ${FLAGS}
             -O0
         )
-    ELSEIF (NOT (${BUILD} MATCHES "Default"))
+    ELSEIF (NOT (${BUILD} MATCHES "Debug"))
         SET (FLAGS
             ${FLAGS}
             -O2
@@ -130,9 +130,9 @@ IF ( (${BUILD} MATCHES "Debug") OR (${BUILD} MATCHES "Valgrind") )
     ENDIF()
 ELSE ()
     IF(WINDOWS)
-    	SET (FLAGS "${FLAGS} /DRELEASE_VERSION")
+    	SET (FLAGS "${FLAGS} /DRELEASE_VERSION /DNDEBUG")
     ELSE()
-    	SET (FLAGS "${FLAGS} -DRELEASE_VERSION")
+    	SET (FLAGS "${FLAGS} -DRELEASE_VERSION -DNDEBUG")
     ENDIF()
 ENDIF ()
 
