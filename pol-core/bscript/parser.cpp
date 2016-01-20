@@ -1012,9 +1012,11 @@ namespace Pol {
 	* Tries to read a an operator from context
 	*
 	* @param tok Token&: The token to store the found literal into
-	* @param ctx CompilerContext&: The context to look into
 	* @param opList: The list of possible operators to look for, as Operator[]
 	* @param n_ops: Number of operators in the list
+	* @param t: todo
+	* @param s: todo
+	* @param opbuf: todo
 	* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
 	*/
 	int Parser::tryOperator( Token& tok,
@@ -1427,7 +1429,7 @@ namespace Pol {
 	 *
 	 * @param tok Token&: The token to store the found literal into
 	 * @param ctx CompilerContext&: The context to look into
-	 * @param pexpr unused
+	 * @param expr unused
 	 * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
 	 */
 	int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not used */ )
