@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+01-20-2016 Bodom:
+  Added:   New Item.house property, returns a reference to the house if the
+           item is a component of it (listed in House.components()).
+           This is the intended replacement for the previously removed CProp
+           "house_serial": use item.house.serial instead of
+           GetObjProperty(item, "house_serial").
 12-27-2015 Bodom & Nando:
   Fixed:   Linux crash on shutdown
 12-26-2015 Bodom:

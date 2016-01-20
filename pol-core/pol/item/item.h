@@ -37,6 +37,7 @@ namespace Pol {
   }
   namespace Multi {
 	class UMulti;
+    class UHouse;
   }
   namespace Network {
 	class Client;
@@ -237,6 +238,8 @@ namespace Pol {
       DYN_PROPERTY        (name_suffix, std::string,               Core::PROP_NAME_SUFFIX, "");
       DYN_PROPERTY_POINTER(gotten_by,   Mobile::Character*,        Core::PROP_GOTTEN_BY);
       DYN_PROPERTY_POINTER(process,     Module::UOExecutorModule*, Core::PROP_PROCESS);
+      /** Tells of which house this item is a component, if any */
+      DYN_PROPERTY_POINTER(house,       Multi::UHouse*,            Core::PROP_HOUSE);
       virtual double getQuality() const;
       virtual void setQuality(double value);
     private:

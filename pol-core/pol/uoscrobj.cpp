@@ -919,6 +919,11 @@ namespace Pol {
 		case MBR_MAXHP_MOD: return new BLong( maxhp_mod() ); break;
 		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * getQuality() ) ); break;
 		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
+        case MBR_HOUSE:
+          if ( house() != NULL )
+            return house()->make_ref();
+          return new BError( "This is a not component of any house" );
+          break;
 		default: return NULL;
 	  }
 	}

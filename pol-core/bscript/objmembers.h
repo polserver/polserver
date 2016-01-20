@@ -251,6 +251,7 @@ namespace Pol {
 	  MBR_INSURED,
 	  MBR_LAST_ACTIVITY_AT,
 	  MBR_LAST_PACKET_AT,
+      MBR_HOUSE, //215
 	};
 
 
@@ -269,4 +270,3 @@ namespace Pol {
   }
 }
 #endif
-

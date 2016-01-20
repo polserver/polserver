@@ -490,6 +490,7 @@ namespace Pol {
 	  { MBR_INSURED, "insured", false },
 	  { MBR_LAST_ACTIVITY_AT, "last_activity_at", false },
 	  { MBR_LAST_PACKET_AT, "last_packet_at", false },
+      { MBR_HOUSE, "house", true }, //215, Item
 	};
 	int n_objmembers = sizeof object_members / sizeof object_members[0];
 	ObjMember* getKnownObjMember( const char* token )

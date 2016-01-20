@@ -29,6 +29,8 @@ namespace Pol {
 	class UHouse : public UMulti
 	{
 	  typedef UMulti base;
+      typedef Core::ItemRef Component;
+      typedef std::vector<Component> Components;
 
 	public:
 	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags );
@@ -57,7 +59,8 @@ namespace Pol {
 	  virtual void walk_on( Mobile::Character* chr ) POL_OVERRIDE;
 
 	  void ClearSquatters();
-	  void add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff );
+      bool add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff );
+      bool add_component( Component& component );
 	  static void list_contents( const UHouse* house,
 								 ItemList& items_in,
 								 MobileList& chrs_in );
@@ -88,8 +91,6 @@ namespace Pol {
 	  friend class UMulti;
 	  friend class CustomHouseDesign;
 
-	  typedef Core::ItemRef Component;
-	  typedef std::vector< Component > Components;
 	  Components* get_components() { return &components_; }
 	  bool custom;
 	private:
@@ -97,6 +98,13 @@ namespace Pol {
 	  typedef std::vector< Squatter > Squatters;
 	  Squatters squatters_;
 
+      /**
+       * Stores ItemRefs that are part of this house (eg. sign, doors, etc...)
+       *
+       * @warning Do not add items directly, use add_component(component) instead, because
+       *          the mattching house() dinamyc property must be set on the item being added
+       * @see add_component
+       */
 	  Components components_;
 	};
 

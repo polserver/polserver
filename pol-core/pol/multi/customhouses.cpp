@@ -572,7 +572,7 @@ namespace Pol {
 				{
                   Items::Item* component = Items::Item::create( id.objtype );
 				  if ( component != NULL )
-					house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                    assert( house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z ) );
 				}
 				zitr = yitr->erase( zitr );
 				floor_sizes[i]--;
@@ -583,7 +583,7 @@ namespace Pol {
 				{
                   Items::Item* component = Items::Item::create( zitr->graphic );
 				  if ( component != NULL )
-					house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                    assert( house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z ) );
 				}
 				zitr = yitr->erase( zitr );
 				floor_sizes[i]--;
