@@ -41,7 +41,14 @@
 #include <iostream>
 #include <iomanip>
 
-namespace Pol{ namespace Clib{
+namespace Pol{
+
+namespace Core{
+  // See comment in boost_utils::flyweight_initializers
+  boost_utils::flyweight_initializers fw_inits;
+}
+
+namespace Clib{
 using namespace std;
 using namespace Pol::Bscript;
 using namespace Pol::Module;
