@@ -36,6 +36,8 @@ IF(LINUX)
         -std=c++11
         -DINC_PASSERT=1 
         -DTIXML_USE_STL 
+        #Todo: definable from extern?
+        -DNDEBUG
         -W
         -Wall
       #  -Wno-overloaded-virtual
