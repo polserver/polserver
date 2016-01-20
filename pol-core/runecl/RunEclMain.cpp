@@ -41,7 +41,14 @@
 #include <iostream>
 #include <iomanip>
 
-namespace Pol{ namespace Clib{
+namespace Pol{
+
+namespace Core{
+  // See comment in boost_utils::flyweight_initializers
+  boost_utils::flyweight_initializers fw_inits;
+}
+
+namespace Clib{
 using namespace std;
 using namespace Pol::Bscript;
 using namespace Pol::Module;
@@ -230,7 +237,7 @@ int RunEclMain::main()
     {
       double vernum = 1 + (double)(ESCRIPT_FILE_VER_CURRENT / 100.0f);
       ERROR_PRINT << "EScript Executor v" << vernum << "\n"
-    		  	  << "Copyright (C) 1993-2015 Eric N. Swanson\n\n";
+    		  	  << "Copyright (C) 1993-2016 Eric N. Swanson\n\n";
     }
 
     /**********************************************
