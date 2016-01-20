@@ -37,11 +37,14 @@ class Compare:
 				for l in l2:
 					print('\t'+l.rstrip('\r\n'))
 				return False
+			i=1
 			for c1,c2 in zip(l1,l2):
 				if c1!=c2:
+					print('line: {}'.format(i))
 					print('"',c1,'"')
 					print('"',c2,'"')
 					return False
+				i+=1
 			return True
 
 	@staticmethod
