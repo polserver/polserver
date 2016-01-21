@@ -184,6 +184,11 @@ class StdTests:
 	def testFile(self, file):
 		compiled, compSuccess = self.compiler(file)
 		if not compSuccess:
+			base=os.path.splitext(file)[0]
+			if os.path.exists(base+'.lst'):
+				with codecs.open(base+'.lst','r',encoding='utf-8',errors='replace') as f1:
+					for l in f1.readlines():
+						print(l.rstrip('\r\n'))
 			raise TestFailed("shouldn't compile" if compiled else 'failed to compile')
 
 		if compiled:
