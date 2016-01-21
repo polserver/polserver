@@ -73,7 +73,7 @@ class ExtUtil:
 		'''
 		if os.path.exists(self.baseName(file) + self.errExt):
 			expectErr = True
-			with open(self.baseName(file) + self.errExt, 'rb') as err:
+			with open(self.baseName(file) + self.errExt, 'r') as err:
 				errorMatch = err.read().strip()
 		else:
 			expectErr = False
@@ -84,7 +84,7 @@ class ExtUtil:
 			compiled = True
 		except subprocess.CalledProcessError as e:
 			cmd = e.cmd
-			err = e.output
+			err = e.output.decode('utf-8')
 			compiled = False
 
 		if compiled:
