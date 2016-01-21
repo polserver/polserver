@@ -60,7 +60,7 @@ namespace Pol {
 
 	  void ClearSquatters();
       bool add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff );
-      bool add_component( Component& component );
+      bool add_component( Component component );
 	  static void list_contents( const UHouse* house,
 								 ItemList& items_in,
 								 MobileList& chrs_in );
@@ -97,6 +97,24 @@ namespace Pol {
 	  typedef Core::UObjectRef Squatter;
 	  typedef std::vector< Squatter > Squatters;
 	  Squatters squatters_;
+
+      /**
+       * Checks if item can be added as component:
+       * an Item can't be a component in two houses
+       *
+       * @param item Pointer to the item to be added
+       */
+      inline bool can_add_component( const Items::Item* item ) {
+        return item->house() == nullptr;
+      }
+
+      /**
+       * Adds an Item as component, performs no checks, internal usage
+       */
+      inline void add_component_no_check( Component& item ) {
+        item->house(this);
+        components_.push_back( item );
+      }
 
       /**
        * Stores ItemRefs that are part of this house (eg. sign, doors, etc...)

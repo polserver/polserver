@@ -2562,7 +2562,8 @@ namespace Pol {
 		return;
 
 	  // The function sending the PopUp menu is responsible to set this
-	  assert( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL );
+      passert_always_r( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL,
+                 "Bug in handling PopUp menu selection. Please report this on the forums." );
 
 	  if( id && serial )
 	  {

@@ -1182,7 +1182,7 @@ namespace Pol {
 			return -1;
 		  }
 
-		  assert( ! (escnext && hexnext) );
+		  passert_always_r( ! (escnext && hexnext), "Bug in the compiler. Please report this on the forums." );
 
 		  if ( escnext )
 		  {

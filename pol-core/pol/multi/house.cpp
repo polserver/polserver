@@ -119,7 +119,8 @@ namespace Pol {
 		if ( !elem.is_static )
 		{
 		  Items::Item* item = Items::Item::create( elem.objtype );
-          assert( add_component( item, elem.x, elem.y, elem.z ) );
+          bool res = add_component( item, elem.x, elem.y, elem.z );
+          passert_always_r( res, "Couldn't add newly created item as house component. Please report this bug on the forums." );
 		}
 	  }
 	}
@@ -136,7 +137,7 @@ namespace Pol {
      */
 	bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff )
 	{
-      if( ! add_component(Component(item)) )
+      if( ! can_add_component(item) )
         return false;
 
 	  item->x = static_cast<u16>(x + xoff);
@@ -147,6 +148,7 @@ namespace Pol {
 	  item->realm = realm;
 	  update_item_to_inrange( item );
 	  add_item_to_world( item );
+      add_component_no_check( Component(item) );
       return true;
 	}
 
@@ -157,14 +159,12 @@ namespace Pol {
      * @param item Reference to the item being added
      * @return true on success, false when the item can't be added
      */
-    bool UHouse::add_component( Component& item )
+    bool UHouse::add_component( Component item )
     {
-      // An item can't be component of two houses
-      if( item->house() != nullptr )
+      if( ! can_add_component(item.get()) )
         return false;
 
-      item->house(this);
-      components_.push_back( item );
+      add_component_no_check( item );
       return true;
     }
 
