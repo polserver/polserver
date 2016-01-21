@@ -1,6 +1,8 @@
 version: 1.0.{build} 
 shallow_clone: true
 clone_folder: c:\projects\pol_testing
+init:
+- git config --global core.autocrlf true
 install:
 - cd lib
 - time /T
@@ -10,5 +12,8 @@ install:
 cache: lib/boost_1_55_0
 build_script:
 - msbuild "pol-core/pol-2013.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
-test: off
+#test: off
+test_script: 
+- cd testsuite\\escript
+- c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\ecompile\\Release\\x64\\ecompile.exe ..\\..\\pol-core\\runecl\\Release\\x64\\runecl.exe
 deploy: off
