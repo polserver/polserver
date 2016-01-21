@@ -1,6 +1,8 @@
 version: 1.0.{build} 
 shallow_clone: true
 clone_folder: c:\projects\pol_testing
+init:
+- git config --global core.autocrlf true
 install:
 - cd lib
 - time /T
