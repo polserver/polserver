@@ -24,6 +24,10 @@ def colorprint(text, color):
 
 class Compare:
 	@staticmethod
+	def forceLinuxEOL(text):
+		return string.replace(text, '\r\n', '\n')
+
+	@staticmethod
 	def txtcompare(file1,file2):
 		with codecs.open(file1,'r',encoding='utf-8',errors='replace') as f1, codecs.open(file2,'r',encoding='utf-8',errors='replace') as f2:
 			l1=f1.readlines()
@@ -39,8 +43,8 @@ class Compare:
 				return False
 			i=1
 			for c1,c2 in zip(l1,l2):
-				c1=c1.rstrip('\r\n')
-				c2=c2.rstrip('\r\n')
+				c1=Compare.forceLinuxEOL(c1)
+				c2=Compare.forceLinuxEOL(c2)
 				if c1!=c2:
 					print('line: {}'.format(i))
 					print('"',c1,'"')
@@ -90,6 +94,8 @@ class ExtUtil:
 				return (True, True)
 		else:
 			if expectErr:
+				errorMatch=Compare.forceLinuxEOL(errorMatch)
+				err=Compare.forceLinuxEOL(err)
 				if errorMatch in err:
 					return (False, True)
 				else:
