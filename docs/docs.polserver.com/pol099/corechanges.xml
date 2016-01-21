@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-20-2016</datemodified>
+		<datemodified>01-22-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>01-22-2016</date>
+			<author>Bodom:</author>
+			<change type="Fixed">Minor bug in ecompile allowing Double literals in the form &quot;2d4&quot;.<br/>
+These were incorrectly interpreted as &quot;2e4&quot;, meaning 20000 and<br/>
+leading to confusion with dice rolls. The compiler now issues<br/>
+an error instead.</change>
+		</entry>
 		<entry>
 			<date>01-20-2016</date>
 			<author>Bodom:</author>

@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+01-22-2016 Bodom:
+  Fixed:   Minor bug in ecompile allowing Double literals in the form "2d4".
+           These were incorrectly interpreted as "2e4", meaning 20000 and
+           leading to confusion with dice rolls. The compiler now issues
+           an error instead.
 01-20-2016 Bodom:
   Added:   New Item.house property, returns a reference to the house if the
            item is a component of it (listed in House.components()).
