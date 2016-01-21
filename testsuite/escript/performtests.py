@@ -25,7 +25,7 @@ def colorprint(text, color):
 class Compare:
 	@staticmethod
 	def forceLinuxEOL(text):
-		return string.replace(text, '\r\n', '\n')
+		return text.replace('\r\n', '\n')
 
 	@staticmethod
 	def txtcompare(file1,file2):
