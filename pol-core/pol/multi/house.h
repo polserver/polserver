@@ -111,7 +111,7 @@ namespace Pol {
       /**
        * Adds an Item as component, performs no checks, internal usage
        */
-      inline void add_component_no_check( Component& item ) {
+      inline void add_component_no_check( Component item ) {
         item->house(this);
         components_.push_back( item );
       }
