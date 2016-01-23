@@ -2,7 +2,6 @@
 import os, subprocess
 import shutil
 import sys
-import codecs
 import re
 
 def colorprint(text, color):
@@ -25,8 +24,9 @@ def colorprint(text, color):
 
 class Compare:
 	@staticmethod
-	def txtcompare(file1, file2, paranoid=False):
-		with codecs.open(file1,'r',encoding='utf-8',errors='replace') as f1, codecs.open(file2,'r',encoding='utf-8',errors='replace') as f2:
+	def txtcompare(file1, file2):
+		with open(file1,'rt',encoding='utf-8',errors='replace',newline=None) as f1, \
+				open(file2,'rt',encoding='utf-8',errors='replace',newline=None) as f2:
 			l1=f1.readlines()
 			l2=f2.readlines()
 			if len(l1) != len(l2):
@@ -40,9 +40,9 @@ class Compare:
 				return False
 			i=1
 			for c1,c2 in zip(l1,l2):
-				if c1.startswith(':REGEX:/') and c1.rstrip('\r\n').endswith('/'):
+				if c1.startswith(':REGEX:/') and c1[:-1].endswith('/'):
 					try:
-						r = re.compile('^' + c1.rstrip('\r\n')[8:-1] + '\r?$')
+						r = re.compile('^' + c1[8:-2] + '\r?$')
 					except Exception as e:
 						print('line: {}'.format(i))
 						print('invalid regex: {} ({})'.format(repr(c1), e))
@@ -53,10 +53,7 @@ class Compare:
 						print(repr(c2))
 						return False
 				else:
-					if not paranoid:
-						c1=c1.rstrip('\r\n')
-						c2=c2.rstrip('\r\n')
-					if c1!=c2:
+					if c1 != c2:
 						print('line: {}'.format(i))
 						print(repr(c1))
 						print(repr(c2))
@@ -65,13 +62,13 @@ class Compare:
 			return True
 
 	@staticmethod
-	def outputcompare(file, paranoid=False):
+	def outputcompare(file):
 		basename=os.path.splitext(file)[0]
 		if not os.path.exists(basename+'.out'):
 			with open(basename+'.tst', 'r') as tst:
 				print(tst.read())
 			return False
-		return Compare.txtcompare(basename+'.out', basename+'.tst', paranoid)
+		return Compare.txtcompare(basename+'.out', basename+'.tst')
 
 class ExtUtil:
 	def __call__(self, file):
@@ -154,7 +151,7 @@ class StdTests:
 	and put the text to be matched on the error message inside it.
 	'''
 
-	def __init__(self, compiler, runecl, what=None, paranoid=False):
+	def __init__(self, compiler, runecl, what=None):
 		if what:
 			splits = what.split('/')
 			if len(splits) > 2:
@@ -183,7 +180,6 @@ class StdTests:
 						self.files.append(file)
 		self.compiler = compiler
 		self.runecl = runecl
-		self.paranoid = paranoid
 
 	def cleanFile(self, file):
 		base=os.path.splitext(file)[0]
@@ -203,7 +199,7 @@ class StdTests:
 			if not runSuccess:
 				raise TestFailed('unexpected execute' if runned else 'failed to execute')
 
-		if compiled and not Compare.outputcompare(file, self.paranoid):
+		if compiled and not Compare.outputcompare(file):
 			raise TestFailed('output differs')
 
 	def __call__(self, haltOnError=False, quiet=False):
@@ -249,14 +245,13 @@ if __name__ == '__main__':
 	parser.add_argument('runecl', help="Full path to runecl executable")
 	parser.add_argument('what', nargs='?', help='If specified, tests a single package or package/script')
 	parser.add_argument('-a', '--halt', action='store_true', help="Halt on first error")
-	parser.add_argument('-p', '--paranoid', action='store_true', help="Also matches line endings")
 	parser.add_argument('-q', '--quiet', action='store_true', help="Quiet output: only display errors and summary")
 	args = parser.parse_args()
 
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 
-	test=StdTests(compiler, runecl, args.what, args.paranoid)
+	test=StdTests(compiler, runecl, args.what)
 	if test(args.halt, args.quiet):
 		sys.exit(0)
 	sys.exit(1)
