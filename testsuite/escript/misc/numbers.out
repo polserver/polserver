@@ -30,10 +30,10 @@ Double
 0
 11.
 Double
--2.14748e+009
+:REGEX:/-2\.14748e\+0+9/
 12.
 Double
-2.14748e+009
+:REGEX:/2\.14748e\+0+9/
 13.
 Double
 77.77
@@ -42,7 +42,7 @@ Double
 1
 15.
 Double
-2e+009
+:REGEX:/2e\+0+9/
 16.
 Double
-2e+009
+:REGEX:/2e\+0+9/

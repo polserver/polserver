@@ -16,7 +16,7 @@ endfunction
 t := 0;
 testPrint(t);
 
-t := -2147483648;
+t := -2147483647;
 testPrint(t);
 
 t := 2147483647;

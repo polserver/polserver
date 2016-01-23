@@ -81,7 +81,7 @@ class ExtUtil:
 		'''
 		if os.path.exists(self.baseName(file) + self.errExt):
 			expectErr = True
-			with open(self.baseName(file) + self.errExt, 'rb') as err:
+			with open(self.baseName(file) + self.errExt,'rt',newline=None) as err:
 				errorMatch = err.read().strip()
 		else:
 			expectErr = False
@@ -102,7 +102,7 @@ class ExtUtil:
 				return (True, True)
 		else:
 			if expectErr:
-				if errorMatch in err:
+				if errorMatch in err.decode():
 					return (False, True)
 				else:
 					print(errorMatch)
