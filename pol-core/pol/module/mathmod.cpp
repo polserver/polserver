@@ -371,6 +371,8 @@ namespace Pol {
 		   getParam( 1, digits ) )
 	  {
 		char buffer[200];
+        /// @todo: sprintf produces different output on some doubles (eg. M_PI)
+        ///        on Windows/Linux. Use something else? 2016-01-23 Bodom
 		sprintf( buffer, "%.*g", static_cast<int>( digits ), x );
 		return new String( buffer );
 	  }
