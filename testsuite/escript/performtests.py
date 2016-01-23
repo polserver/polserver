@@ -82,7 +82,9 @@ class ExtUtil:
 		if os.path.exists(self.baseName(file) + self.errExt):
 			expectErr = True
 			with open(self.baseName(file) + self.errExt,'rt',newline=None) as err:
-				errorMatch = err.read().strip()
+				lines = err.readlines()
+				lines = map(lambda i: i[:-1] if i.endswith('\n') else i, lines)
+				errorMatch = os.linesep.join(lines)
 		else:
 			expectErr = False
 
@@ -92,7 +94,7 @@ class ExtUtil:
 			compiled = True
 		except subprocess.CalledProcessError as e:
 			cmd = e.cmd
-			err = e.output
+			err = e.output.decode()
 			compiled = False
 
 		if compiled:
@@ -102,12 +104,12 @@ class ExtUtil:
 				return (True, True)
 		else:
 			if expectErr:
-				if errorMatch in err.decode():
+				if errorMatch in err:
 					return (False, True)
 				else:
-					print(errorMatch)
+					print(repr(errorMatch))
 					print('NOT FOUND IN')
-					print(err)
+					print(repr(err))
 					return (False, False)
 			else:
 				print(cmd)
