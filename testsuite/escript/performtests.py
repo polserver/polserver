@@ -153,7 +153,7 @@ class StdTests:
 	and put the text to be matched on the error message inside it.
 	'''
 
-	def __init__(self, compiler, runecl, what=None):
+	def __init__(self, compiler, runecl, what=None, quiet=False):
 		if what:
 			splits = what.split('/')
 			if len(splits) > 2:
@@ -182,6 +182,7 @@ class StdTests:
 						self.files.append(file)
 		self.compiler = compiler
 		self.runecl = runecl
+		self.quiet = quiet
 
 	def cleanFile(self, file):
 		base=os.path.splitext(file)[0]
@@ -194,6 +195,14 @@ class StdTests:
 	def testFile(self, file):
 		compiled, compSuccess = self.compiler(file)
 		if not compSuccess:
+			if compiled and not self.quiet:
+				# Show lst output if file unexpectedly compiled
+				base = os.path.splitext(file)[0]
+				if os.path.exists(base+'.lst'):
+					with open(base+'.lst','rt',newline=None) as f1:
+						print('LST OUTPUT:')
+						for l in f1.readlines():
+							print(l.rstrip('\n'))
 			raise TestFailed("shouldn't compile" if compiled else 'failed to compile')
 
 		if compiled:
@@ -204,18 +213,18 @@ class StdTests:
 		if compiled and not Compare.outputcompare(file):
 			raise TestFailed('output differs')
 
-	def __call__(self, haltOnError=False, quiet=False):
+	def __call__(self, haltOnError=False):
 		tested = 0
 		passed = 0
 		for f in self.files:
-			if not quiet:
+			if not self.quiet:
 				colorprint('Testing {}'.format(f), 'cyan')
 			tested += 1
 			try:
 				self.testFile(f)
 			except TestFailed as e:
 				errMex = 'FAILED: {}'.format(e)
-				if quiet:
+				if self.quiet:
 					errMex += ' in {}'.format(f)
 				colorprint(errMex, 'red')
 				if haltOnError:
@@ -253,7 +262,7 @@ if __name__ == '__main__':
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 
-	test=StdTests(compiler, runecl, args.what)
-	if test(args.halt, args.quiet):
+	test=StdTests(compiler, runecl, args.what, args.quiet)
+	if test(args.halt):
 		sys.exit(0)
 	sys.exit(1)
