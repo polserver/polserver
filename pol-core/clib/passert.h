@@ -1,10 +1,10 @@
 /** @file
  *
  * @par History
- * 2005/01/17 Shinigami: added passert*_r, same as passert* with additional param "reason"
- * 2005/09/16 Shinigami: scripts_thread_script* moved to passert
+ * - 2005/01/17 Shinigami: added passert*_r, same as passert* with additional param "reason"
+ * - 2005/09/16 Shinigami: scripts_thread_script* moved to passert
  *
- * @warning This header is part of the PCH
+ * @warning This header is part of the PCH\n
  * Remove the include in all StdAfx.h files or live with the consequences :)
 */
 
