@@ -42,7 +42,8 @@ namespace Pol {
 	  virtual const char* typeOf() const POL_OVERRIDE;
 	  virtual u8 typeOfInt() const POL_OVERRIDE;
 
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+      virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+      virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
 	  virtual bool isTrue() const POL_OVERRIDE;
 
 	  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;

@@ -65,7 +65,7 @@ namespace Pol {
 	}
 
 
-	bool Double::isEqual( const BObjectImp& objimp ) const
+	bool Double::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTDouble ) )
 	  {
@@ -83,7 +83,7 @@ namespace Pol {
 	  }
 	}
 
-	bool Double::isLessThan( const BObjectImp& objimp ) const
+	bool Double::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTDouble ) )
 	  {
@@ -93,19 +93,8 @@ namespace Pol {
 	  {
 		return ( dval_ < ( (BLong&)objimp ).value() );
 	  }
-	  else
-	  {
-		return false;
-	  }
-	}
 
-	bool Double::isGE( int val ) const
-	{
-	  return dval_ >= val;
-	}
-	bool Double::isGT( int val ) const
-	{
-	  return dval_ > val;
+      return base::operator<( objimp );
 	}
 
     std::string Double::getStringRep() const

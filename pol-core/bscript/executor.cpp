@@ -1123,7 +1123,7 @@ namespace Pol {
 		dbl->increment();
 	  }
 
-	  if ( !end->isLessThan( *itr ) )
+	  if ( *end >= *itr )
 	  {
 		PC = ins.token.lval;
 	  }
@@ -1849,7 +1849,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = !( left->isEqual( right.impref() ) );
+	  int _true = ( left != right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -1867,7 +1867,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( left->isEqual( right.impref() ) );
+	  int _true = ( left == right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -1885,7 +1885,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( left->isLT( right.impref() ) );
+	  int _true = ( left < right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -1902,7 +1902,7 @@ namespace Pol {
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
-	  int _true = ( left->isLE( right.impref() ) );
+	  int _true = ( left <= right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 	void Executor::ins_greaterthan( const Instruction& /*ins*/ )
@@ -1919,7 +1919,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( right->isLT( left.impref() ) );
+	  int _true = ( left > right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 	void Executor::ins_greaterequal( const Instruction& /*ins*/ )
@@ -1936,7 +1936,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( right->isLE( left.impref() ) );
+	  int _true = ( left >= right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -2967,7 +2967,7 @@ namespace Pol {
 											case TOK_EQUAL:    _true = ( left == right ); break;
 											case TOK_NEQ:      _true = ( left != right ); break;
 											case TOK_LESSTHAN: _true = ( left <  right ); break;
-											case TOK_LESSEQ:   _true = ( left->isLE( right.impref() ) ); break;
+											case TOK_LESSEQ:   _true = ( left <= right ); break;
 											case TOK_GRTHAN:   _true = ( left >  right ); break;
 											case TOK_GREQ:     _true = ( left >= right ); break;
 											case TOK_AND:      _true = ( left.isTrue() &&

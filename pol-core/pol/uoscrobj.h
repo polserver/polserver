@@ -71,8 +71,8 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;//id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator<( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual bool offline_access_ok() const { return false; }
 	};
@@ -124,8 +124,8 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator<( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 
@@ -148,7 +148,7 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 
@@ -170,7 +170,7 @@ namespace Pol {
 	  virtual bool isTrue() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 	class ClientPtrHolder
@@ -211,7 +211,7 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 	// EMenuObjImp defined on UOEMOD.CPP

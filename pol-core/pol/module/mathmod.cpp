@@ -215,7 +215,7 @@ namespace Pol {
 	  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) || ( impX->isa( Bscript::BObjectImp::OTLong ) ) )
 		   && ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) || ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
 	  {
-		if ( impX->isLessThan( *impY ) )
+		if ( *impX < *impY )
 		  return impX->copy();
 		else
 		  return impY->copy();
@@ -239,7 +239,7 @@ namespace Pol {
 			{
 			  if ( compare == NULL )
 				compare = bo->impptr();
-			  else if ( bo->impptr()->isLessThan( *compare ) )
+			  else if ( *(bo->impptr()) < *compare )
 				compare = bo->impptr();
 			}
 		  }
@@ -260,7 +260,7 @@ namespace Pol {
 	  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) || ( impX->isa( Bscript::BObjectImp::OTLong ) ) )
 		   && ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) || ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
 	  {
-		if ( impX->isLessThan( *impY ) )
+		if ( *impX < *impY )
 		  return impY->copy();
 		else
 		  return impX->copy();
@@ -284,7 +284,7 @@ namespace Pol {
 			{
 			  if ( compare == NULL )
 				compare = bo->impptr();
-			  else if ( !( bo->impptr()->isLessThan( *compare ) ) )
+			  else if ( *(bo->impptr()) >= *compare )
 				compare = bo->impptr();
 			}
 		  }

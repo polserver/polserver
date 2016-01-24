@@ -349,34 +349,20 @@ namespace Pol {
 	  remove( objimp.getStringRep().data() );
 	}
 
-
-	bool String::isEqual( const BObjectImp& objimp ) const
+	bool String::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTString ) )
-	  {
-		return ( value_ == static_cast<const String&>( objimp ).value_ );
-	  }
-	  else
-	  {
-		return false;
-	  }
+        return ( value_ == static_cast<const String&>( objimp ).value_ );
+
+      return base::operator==( objimp );
 	}
 
-	/* since non-Strings show up here as not equal, we make them less than. */
-	bool String::isLessThan( const BObjectImp& objimp ) const
+	bool String::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTString ) )
-	  {
-		return ( value_ < static_cast<const String&>( objimp ).value_ );
-	  }
-	  else if ( objimp.isa( OTUninit ) || objimp.isa( OTError ) )
-	  {
-		return false;
-	  }
-	  else
-	  {
-		return true;
-	  }
+        return ( value_ < static_cast<const String&>( objimp ).value_ );
+
+      return base::operator<( objimp );
 	}
 
 	String *String::midstring( int begin, int len ) const

@@ -64,7 +64,7 @@ namespace Pol {
 	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual BObjectImp* copy() const POL_OVERRIDE;
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 	  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
@@ -94,7 +94,7 @@ namespace Pol {
 	  return ( obj_->test_size() );
 	}
 
-	bool EPartyRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EPartyRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
