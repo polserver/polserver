@@ -1139,13 +1139,13 @@ namespace Pol {
         // TODO: The best solution would be to reimplement the int/double parsing
         if( ! ( ctx.s[0] == '0' && ctx.s[1] && ( ctx.s[1] == 'x' || ctx.s[1] == 'X' ) ) ) {
           // This is not hex, so no 'd' can be valid
-          for( const char* i = ctx.s; i <= endptr2; i++ ) {
+          for( const char* i = ctx.s; i < endptr2; i++ ) {
             if( *i == 'd' || *i == 'D' ) {
               // A 'd' has been eaten, bug could have occurred:
               // re-perform parsing on a cleaned version of the string
               size_t safelen = i - ctx.s + 1;
-              std::unique_ptr<char[]> safeptr( new char[safelen] );
-              strncpy( safeptr.get(), ctx.s, safelen );
+              std::unique_ptr<char[]> safeptr( new char[safelen]() );
+              strncpy( safeptr.get(), ctx.s, safelen - 1 );
               d = strtod( safeptr.get(), &endptr2 );
               size_t newlen = endptr2 - safeptr.get();
               endptr2 = const_cast<char*>(ctx.s + newlen);
