@@ -271,6 +271,10 @@ if __name__ == '__main__':
 	while loopsLeft is None or loopsLeft > 0:
 		try:
 			i += 1
+			if i > 1:
+				print()
+				print()
+
 			test = StdTests(compiler, runecl, args.what, args.quiet)
 
 			if not test((i,totLoopsStr), args.halt):
