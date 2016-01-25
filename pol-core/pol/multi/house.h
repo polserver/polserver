@@ -55,7 +55,7 @@ namespace Pol {
 	  virtual void walk_on( Mobile::Character* chr ) POL_OVERRIDE;
 
 	  void ClearSquatters();
-      bool add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff );
+      bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
       bool add_component( Component component );
 	  static void list_contents( const UHouse* house,
 								 ItemList& items_in,

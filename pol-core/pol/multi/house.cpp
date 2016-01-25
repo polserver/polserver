@@ -10,6 +10,8 @@
  * - 2012/02/02 Tomi:      Added boat member MBR_MULTIID
  */
 
+#include <boost/numeric/conversion/cast.hpp> 
+
 #include "house.h"
 #include "multidef.h"
 
@@ -106,6 +108,9 @@ namespace Pol {
       return size;
     }
 
+    /**
+     * Creates dynamic house components from MultiDef (multis.cfg at the time of writing)
+     */
 	void UHouse::create_components()
 	{
 	  const MultiDef& md = multidef();
@@ -131,14 +136,26 @@ namespace Pol {
      * @param zoff The Z offset inside the house
      * @return true on success, false when the item can't be added
      */
-	bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff )
+	bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
 	{
       if( ! can_add_component(item) )
         return false;
 
-	  item->x = static_cast<u16>(x + xoff);
-	  item->y = static_cast<u16>(y + yoff);
-	  item->z = static_cast<s8>( z + zoff );
+      u16 newx, newy; s8 newz;
+      try {
+        // These casts should be safe, but better check them - 2015-01-25 Bodom
+        newx = boost::numeric_cast<u16>(x + xoff);
+        newy = boost::numeric_cast<u16>(y + yoff);
+        newz = boost::numeric_cast<s8>(z + zoff);
+      } catch( boost::bad_numeric_cast& ) {
+        // Printing an error because this is supposed to not happen,
+        // so it's probably a bug.
+        POLLOG_ERROR << "Out-of-range coordinates while trying to add Item " << fmt::hexu(item->serial) << " to House " << fmt::hexu(serial) << '\n';
+        return false;
+      }
+      item->x = newx;
+      item->y = newy;
+      item->z = newz;
 	  item->disable_decay();
 	  item->movable( false );
 	  item->realm = realm;
@@ -449,14 +466,14 @@ namespace Pol {
 		if ( item != NULL )
 		{
           if( ! add_component(Component(item)) ) {
-            std::ostringstream os;
-            os << "Couldn't add component " << item->serial << " to house " << this->serial << "." << std::endl;
+            fmt::Writer os;
+            os << "Couldn't add component " << fmt::hexu(item->serial) << " to house " << fmt::hexu(serial) << ".\n";
             UHouse* contHouse = item->house();
             if( contHouse == nullptr ) {
               os << "This is probably a core bug. Please report it on the forums.";
             } else {
-              os << "This item is already part of house " << contHouse->serial << "." << std::endl;
-              os << "Allowing an item to be a component in two different houses was a bug," << std::endl;
+              os << "This item is already part of house " << contHouse->serial << ".\n";
+              os << "Allowing an item to be a component in two different houses was a bug,\n";
               os << "please also fix your save data.";
             }
             throw std::runtime_error(os.str());
