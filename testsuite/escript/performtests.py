@@ -55,8 +55,8 @@ class Compare:
 				else:
 					if c1 != c2:
 						print('line: {}'.format(i))
-						print(repr(c1))
-						print(repr(c2))
+						print('EXPECTED:', repr(c1))
+						print('GOT:     ', repr(c2))
 						return False
 				i+=1
 			return True
@@ -213,7 +213,7 @@ class StdTests:
 		if compiled and not Compare.outputcompare(file):
 			raise TestFailed('output differs')
 
-	def __call__(self, haltOnError=False):
+	def __call__(self, num, haltOnError=False):
 		tested = 0
 		passed = 0
 		for f in self.files:
@@ -237,7 +237,7 @@ class StdTests:
 
 		color = 'green' if success else 'red'
 		print('')
-		print('*** TEST SUMMARY ***')
+		print('*** TEST {}/{} SUMMARY ***'.format(*num))
 		colorprint('Overall status: {}. {} files tested, {} passed, {} failed.'.format(
 				'OK' if success else 'FAILED', tested, passed, tested-passed), color)
 		return success
@@ -257,12 +257,29 @@ if __name__ == '__main__':
 	parser.add_argument('what', nargs='?', help='If specified, tests a single package or package/script')
 	parser.add_argument('-a', '--halt', action='store_true', help="Halt on first error")
 	parser.add_argument('-q', '--quiet', action='store_true', help="Quiet output: only display errors and summary")
+	parser.add_argument('-n', '--num', type=int, default=1,
+		help="Repeat tests this number of times or until it fails (to detect intermittent bugs). O means forever.")
 	args = parser.parse_args()
 
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 
-	test=StdTests(compiler, runecl, args.what, args.quiet)
-	if test(args.halt):
-		sys.exit(0)
-	sys.exit(1)
+	totLoops = args.num if args.num > 0 else None
+	totLoopsStr = str(totLoops) if totLoops else '∞'
+	loopsLeft = totLoops
+	i = 0
+	while loopsLeft is None or loopsLeft > 0:
+		try:
+			i += 1
+			test = StdTests(compiler, runecl, args.what, args.quiet)
+
+			if not test((i,totLoopsStr), args.halt):
+				sys.exit(1)
+
+			if loopsLeft is not None:
+				loopsLeft -= 1
+		except KeyboardInterrupt:
+			print('*** TEST {}/{} INTERRUPTED (CTRL+C) ***'.format(i,totLoopsStr))
+			sys.exit(2)
+
+	sys.exit(0)

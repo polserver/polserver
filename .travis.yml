@@ -40,5 +40,5 @@ script:
 
   - cd ../../testsuite/escript
 #  - if [ "$CXX" = "g++-5" ]; then
-  -    ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl ;
+  -    ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -q -n 5;
 #    fi
