@@ -1,15 +1,11 @@
-/*
-History
-=======
-2007/12/09 Shinigami: removed ( is.peek() != EOF ) check from String::unpackWithLen()
-                      will not work with Strings in Arrays, Dicts, etc.
-2008/02/08 Turley:    String::unpackWithLen() will accept zero length Strings
-2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2007/12/09 Shinigami: removed ( is.peek() != EOF ) check from String::unpackWithLen()
+ *                         will not work with Strings in Arrays, Dicts, etc.
+ * - 2008/02/08 Turley:    String::unpackWithLen() will accept zero length Strings
+ * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
+ */
 
 #include "impstr.h"
 

@@ -59,24 +59,23 @@ namespace Pol {
 	}
 
 
-	/*
-	  pack formats:
-	  sSTRING\0		  string
-	  iINTEGER\0		 integer
-	  rREAL\0			real
-	  u\0				uninitialized
-	  aNN:ELEMS		  array
-	  SNN:STRING
-
-	  Examples:
-	  57			  i57
-	  4.3			 r4.3
-	  "hello world"   shello world
-	  { 5,3 }		 a2:i5i3
-	  { 5, "hey" }	a2:i5S3:hey
-	  { 5, "hey", 7 } a3:i5S3:heyi7
-	  */
-
+    /**
+     * Pack formats:
+     * - sSTRING\0   string
+     * - iINTEGER\0  integer
+     * - rREAL\0     real
+     * - u\0         uninitialized
+     * - aNN:ELEMS   array
+     * - SNN:STRING
+     *
+     * Examples:
+     * - 57              i57
+     * - 4.3             r4.3
+     * - "hello world"   shello world
+     * - { 5,3 }         a2:i5i3
+     * - { 5, "hey" }    a2:i5S3:hey
+     * - { 5, "hey", 7 } a3:i5S3:heyi7
+     */
     BObjectImp* BObjectImp::unpack(std::istream& is)
 	{
 	  char typech;

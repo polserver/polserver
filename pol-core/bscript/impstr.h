@@ -1,11 +1,7 @@
-/*
-History
-=======
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ */
 
 #ifndef H_BSCRIPT_IMPSTR_H
 #define H_BSCRIPT_IMPSTR_H

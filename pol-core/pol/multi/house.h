@@ -1,13 +1,9 @@
-/*
-History
-=======
-2005/06/06 Shinigami: added readobjects - to get a list of statics
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2005/06/06 Shinigami: added readobjects - to get a list of statics
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
 #ifndef _HOUSE_H
 #define _HOUSE_H

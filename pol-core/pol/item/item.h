@@ -1,14 +1,10 @@
-/*
-History
-=======
-2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/08/06 MuadDib:   Added gotten_by for character ref.
-2009/08/06 MuadDib:   Added gotten_by code for items.
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/08/06 MuadDib:   Added gotten_by for character ref.
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ */
 
 #ifndef ITEM_H
 #define ITEM_H
@@ -51,8 +47,10 @@ namespace Pol {
   namespace Items {
 	class ItemDesc;
 
-	// NOTE: All derived classes should have protected constructors, 
-	//			and make Item a friend.
+    /**
+     * @warning All derived classes should have protected constructors,
+     *          and make Item a friend.
+     */
 	class Item : public Core::UObject
 	{
 	  typedef Core::UObject base;
@@ -153,9 +151,10 @@ namespace Pol {
 
 	  bool amount_to_remove_is_partial( u16 amount_to_remove ) const;
 
-	  // NOTE: this_item_amount is the amount that this item
-	  //	  will have.  A new item will be created, whos amount
-	  //		is the remainder. This is the returned item.
+      /**
+       * @param this_item_new_amount is the amount that this item will have.
+       * @return A new item will be created, whos amount is the remainder. This is the returned item.
+       */
 	  Item* slice_stacked_item( u16 this_item_new_amount );
 
 	  Item* remove_part_of_stack( u16 amount_to_remove );
@@ -174,12 +173,18 @@ namespace Pol {
 	  bool check_unequiptest_scripts( Mobile::Character* chr );
 	  bool check_unequiptest_scripts();
 
-	  //DAVE added this 11/17, Shortcut function to get a pointer to the owner character
+      /**
+       * Shortcut function to get a pointer to the owner character
+       *
+       * @author DAVE, 11/17
+       */
 	  Mobile::Character* GetCharacterOwner( );
-	  // I'm using the named constructor idiom for creation,
-	  // so that the right kind of object gets created
-	  // and so that object serial numbers get generated.
-	  // If no serial passed, one will be generated.
+      /**
+       * I'm using the named constructor idiom for creation,
+       * so that the right kind of object gets created
+       * and so that object serial numbers get generated.
+       * If no serial passed, one will be generated.
+       */
 	  static Item* create( u32 objtype, u32 serial = 0 );
 	  static Item* create( const ItemDesc& itemdesc, u32 serial = 0 );
 	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
@@ -249,10 +254,10 @@ namespace Pol {
       virtual double getQuality() const;
       virtual void setQuality(double value);
     private:
-      // sell and buyprice generated functions only private! (additional logic needed)
+      /// sell and buyprice generated functions only private! (additional logic needed)
       DYN_PROPERTY(sellprice_, u32,    Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);
       DYN_PROPERTY(buyprice_,  u32,    Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
-      // equipment has a fixed member see get/setQuality
+      /// equipment has a fixed member see get/setQuality
       DYN_PROPERTY(quality,    double, Core::PROP_QUALITY,   getItemdescQuality());
 
     protected:

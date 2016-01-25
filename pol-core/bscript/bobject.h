@@ -793,12 +793,13 @@ namespace Pol {
 	class BApplicObjType
 	{};
 
-	/*
-		Application Pointer object.  Meant to point to some application data.
-		The script can't modify the value of the pointer, so the application can
-		hand this off to the script and trust that when it gets it back, it's
-		what was passed in.  pointer_type should be, typically, a class name.
-		*/
+    /**
+     * Application Pointer object.  Meant to point to some application data.
+     *
+     * The script can't modify the value of the pointer, so the application can
+     * hand this off to the script and trust that when it gets it back, it's
+     * what was passed in.  pointer_type should be, typically, a class name.
+     */
 	class BApplicPtr : public BObjectImp
 	{
 	public:
