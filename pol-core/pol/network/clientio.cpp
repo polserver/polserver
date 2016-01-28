@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/12/04 Turley:    Crypto cleanup - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/12/04 Turley:    Crypto cleanup - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "client.h"
 

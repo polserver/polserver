@@ -1,15 +1,11 @@
-/*
-History
-=======
-2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
-2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
-2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+/** @file
+ *
+ * @par History
+ * - 2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
+ * - 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+ * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef __SPELBOOK_H
 #define __SPELBOOK_H

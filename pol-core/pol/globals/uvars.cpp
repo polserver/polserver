@@ -1,19 +1,16 @@
-/*
-History
-=======
-2005/01/23 Shinigami: cleanup_vars - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
-2008/02/09 Shinigami: removed hard coded MAX_CHARS from cleanup_vars()
-2009/01/18 Nando:     Realms was not being freed when exiting POL
-                      vitals too. Multidefs too. Oh well...
-                      Moved objecthash.ClearCharacterAccountReferences() out of the realms' loop
-                      Added clean_multidefs()
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-                      Changes for multi related source file relocation
+/** @file
+ *
+ * @par History
+ * - 2005/01/23 Shinigami: cleanup_vars - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ * - 2008/02/09 Shinigami: removed hard coded MAX_CHARS from cleanup_vars()
+ * - 2009/01/18 Nando:     Realms was not being freed when exiting POL
+ *                         vitals too. Multidefs too. Oh well...
+ *                         Moved objecthash.ClearCharacterAccountReferences() out of the realms' loop
+ *                         Added clean_multidefs()
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Changes for multi related source file relocation
+ */
 
-Notes
-=======
-
-*/
 #include "uvars.h"
 #include "multidefs.h"
 #include "script_internals.h"

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ */
 
-Notes
-=======
-
-*/
 
 #include "tiplist.h"
 

@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/04/31 Shinigami: mf_LogToFile - added flag to log Core-Style DateTimeStr in front of log entry
-2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2009/12/18 Turley:    added CreateDirectory() & ListDirectory()
-2011/01/07 Nando:     mf_LogToFile - check the return of strftime
+/** @file
+ *
+ * @par History
+ * - 2005/04/31 Shinigami: mf_LogToFile - added flag to log Core-Style DateTimeStr in front of log entry
+ * - 2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2009/12/18 Turley:    added CreateDirectory() & ListDirectory()
+ * - 2011/01/07 Nando:     mf_LogToFile - check the return of strftime
+ */
 
-Notes
-=======
-
-*/
 
 #include "filemod.h"
 #include "fileaccess.h"

@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_COMPCTX_H
 #define BSCRIPT_COMPCTX_H

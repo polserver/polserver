@@ -1,17 +1,14 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2007/04/08 MuadDib:   Changed Realms() to get BObject IMP, and check for string
-                      explicitly.
-2009/11/30 Turley:    added MD5Encrypt(string)
-2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2007/04/08 MuadDib:   Changed Realms() to get BObject IMP, and check for string
+ *                         explicitly.
+ * - 2009/11/30 Turley:    added MD5Encrypt(string)
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+ */
 
-Notes
-=======
-
-*/
 
 #include "polsystemmod.h"
 

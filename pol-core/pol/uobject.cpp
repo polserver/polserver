@@ -1,14 +1,11 @@
-/*
-History
-=======
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of realm and saveonexit_
-2009/09/14 MuadDib:   UObject::setgraphic added error printing.
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of realm and saveonexit_
+ * - 2009/09/14 MuadDib:   UObject::setgraphic added error printing.
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "uobject.h"
 

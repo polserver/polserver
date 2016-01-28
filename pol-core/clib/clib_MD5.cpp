@@ -1,13 +1,10 @@
-/*
-History
-=======
-2003/06/29 Dave: MD5_Encrypt(), changed the order. the "safe" method was also really slow, so do it only if the "fast" method fails.
-                 also, store provider handle for further speed improvements
+/** @file
+ *
+ * @par History
+ * - 2003/06/29 Dave: MD5_Encrypt(), changed the order. the "safe" method was also really slow, so do it only if the "fast" method fails.
+ *                    also, store provider handle for further speed improvements
+ */
 
-Notes
-=======
-
-*/
 
 #include "clib_MD5.h"
 

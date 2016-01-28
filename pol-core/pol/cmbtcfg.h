@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/23/11 MuadDib:   Added warmode_wait timer for changing war mode.
-2009/09/03 MuadDib:   Moved combat related settings to Combat Config from SSOPT
-2009/09/22 Turley:    Added DamagePacket support
+/** @file
+ *
+ * @par History
+ * - 2005/23/11 MuadDib:   Added warmode_wait timer for changing war mode.
+ * - 2009/09/03 MuadDib:   Moved combat related settings to Combat Config from SSOPT
+ * - 2009/09/22 Turley:    Added DamagePacket support
+ */
 
-Notes
-=======
-
-*/
 #ifndef __CMBTCFG_H
 #define __CMBTCFG_H
 namespace Pol {

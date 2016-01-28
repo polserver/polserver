@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2009/07/27 MuadDib:   Pakcet struct refactoring
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2009/07/27 MuadDib:   Pakcet struct refactoring
+ */
 
-Notes
-=======
-
-*/
 
 #include "action.h"
 

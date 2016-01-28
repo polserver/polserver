@@ -1,31 +1,28 @@
-/*
-History
-=======
-2005/03/02 Shinigami: mf_MoveObjectToRealm - fixed item detection and added container handling
-2005/06/11 Shinigami: added polcore().internal - just for internal Development (not documented)
-2005/06/20 Shinigami: added memory log to polcore().internal (needs defined MEMORYLEAK)
-2005/07/25 Shinigami: doubled Msg size in mf_SendGumpMenu to use larger Gumps
-2005/10/16 Shinigami: added x- and y-offset to mf_SendGumpMenu
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
-2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
-added character_race_changer_handler()
-2006/05/30 Shinigami: Changed params of character_race_changer_handler()
-Fixed Bug with detection of Gump-Cancel in uo::SendCharacterRaceChanger()
-2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
-2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Relocation of multi related cpp/h
-2009/09/10 Turley:    CompressedGump support (Grin)
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/03/02 Shinigami: mf_MoveObjectToRealm - fixed item detection and added container handling
+ * - 2005/06/11 Shinigami: added polcore().internal - just for internal Development (not documented)
+ * - 2005/06/20 Shinigami: added memory log to polcore().internal (needs defined MEMORYLEAK)
+ * - 2005/07/25 Shinigami: doubled Msg size in mf_SendGumpMenu to use larger Gumps
+ * - 2005/10/16 Shinigami: added x- and y-offset to mf_SendGumpMenu
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
+ * - 2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
+ *                         added character_race_changer_handler()
+ * - 2006/05/30 Shinigami: Changed params of character_race_changer_handler()
+ *                         Fixed Bug with detection of Gump-Cancel in uo::SendCharacterRaceChanger()
+ * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ * - 2009/09/10 Turley:    CompressedGump support (Grin)
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 /*
 	UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions

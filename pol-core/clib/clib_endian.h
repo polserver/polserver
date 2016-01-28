@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/09/10 MuadDib:   FlipEndian32 Update for compilers. Submitted by Grin.
+/** @file
+ *
+ * @par History
+ * - 2009/09/10 MuadDib:   FlipEndian32 Update for compilers. Submitted by Grin.
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __CLIB_ENDIAN_H
 #define __CLIB_ENDIAN_H

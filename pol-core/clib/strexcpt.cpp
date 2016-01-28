@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
-						backtrace will be printed in pol.log too
-2009-07-18 MuadDib: Updated sigfault messages to point to bug tracker rather than mail to old yahoo groups.
+/** @file
+ *
+ * @par History
+ * - 2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
+ *                         backtrace will be printed in pol.log too
+ * - 2009-07-18 MuadDib: Updated sigfault messages to point to bug tracker rather than mail to old yahoo groups.
+ */
 
-Notes
-=======
-
-*/
 
 #include "logfacility.h"
 #ifdef WINDOWS

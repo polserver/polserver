@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
-2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
-2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+/** @file
+ *
+ * @par History
+ * - 2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
+ * - 2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
+ * - 2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef UOFILE_H
 #define UOFILE_H

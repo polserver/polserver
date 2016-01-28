@@ -1,58 +1,55 @@
-/*
-History
-=======
-2005/02/23 Shinigami: ServSpecOpt DecayItems to enable/disable item decay
-2005/04/03 Shinigami: send_feature_enable() call moved from start_client_char()
-to send_start() to send before char selection
-2005/04/04 Shinigami: added can_delete_character( chr, delete_by )
-2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation Heap
-added Check_for_WinXP_or_Win2003() and low_fragmentation_Heap()
-2005/06/20 Shinigami: added llog (needs defined MEMORYLEAK)
-2005/07/01 Shinigami: removed Check_for_WinXP_or_Win2003() and transformed call of
-Use_low_fragmentation_Heap() into Run-Time Dynamic Linking
-2005/10/13 Shinigami: added Check_libc_version() and printing a Warning if libc is to old
-2005/11/25 Shinigami: PKTBI_BF::TYPE_SESPAM will not block Inactivity-Check
-2005/11/28 MuadDib:   Created check_inactivity() bool function to handle checking packets
-for ones to be considered "ignored" for inactivity. Returns true if
-the packet was one to be ignored.
-2005/11/28 MuadDib:   Implemented check_inactivity() function in appropriate place.
-2006/03/01 MuadDib:   Added connect = true to start_client_char so char creation can use.
-2006/03/03 MuadDib:   Moved all instances of connected = true to start_client_char.
-2006/06/03 Shinigami: added little bit more logging @ pthread_create
-2006/06/05 Shinigami: added little bit more logging @ Client disconnects by Core
-2006/07/05 Shinigami: moved MakeDirectory("log") a little bit up
-2006/10/07 Shinigami: FreeBSD fix - changed some __linux__ to __unix__
-2007/03/08 Shinigami: added pthread_exit and _endhreadex to close threads
-2007/05/06 Shinigami: smaller bugfix in Check_libc_version()
-2007/06/17 Shinigami: Pergon-Linux-Release generates file "pol.pid"
-2007/07/08 Shinigami: added UO:KR login process
-2008/07/08 Turley:    removed Checkpoint "initializing random number generator"
-2008/12/17 MuadDub:   Added check when loading Realms for no realms existing.
-2009/01/19 Nando:     added unload_aux_services() and unload_packages() to the shutdown cleanup
-2009/1/24  MuadDib:   Added read_bannedips_config() and checkpoint for it after loading of pol.cfg
-2009/07/23 MuadDib:   Updates for MSGOUT naming.
-2009/07/31 MuadDib:   xmain_inner(): Force Client Disconnect to initiate cleanup of clients and chars, after shutdown,
-before other cleanups.
-2009/08/01 MuadDib:   Removed send_tech_stuff(), send_betaclient_BF(), just_ignore_message(), and ignore_69() due to not used or obsolete.
-2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
-Renamed secondary handler class to *_V2 for naming convention
-2009/08/14 Turley:    fixed definition of PKTIN_5D
-2009/08/19 Turley:    PKTIN_5D clientflag saved in client->UOExpansionFlagClient
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Changes for multi related source file relocation
-2009/09/15 MuadDib:   Multi registration/unregistration support added.
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/09/22 MuadDib:   Fix for lightlevel resets in client during login.
-2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
-2009/12/04 Turley:    Crypto cleanup - Tomi
-2010/01/22 Turley:    Speedhack Prevention System
-2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
-2011/11/12 Tomi:	  Added extobj.cfg
+/** @file
+ *
+ * @par History
+ * - 2005/02/23 Shinigami: ServSpecOpt DecayItems to enable/disable item decay
+ * - 2005/04/03 Shinigami: send_feature_enable() call moved from start_client_char()
+ *                         to send_start() to send before char selection
+ * - 2005/04/04 Shinigami: added can_delete_character( chr, delete_by )
+ * - 2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation Heap
+ *                         added Check_for_WinXP_or_Win2003() and low_fragmentation_Heap()
+ * - 2005/06/20 Shinigami: added llog (needs defined MEMORYLEAK)
+ * - 2005/07/01 Shinigami: removed Check_for_WinXP_or_Win2003() and transformed call of
+ *                         Use_low_fragmentation_Heap() into Run-Time Dynamic Linking
+ * - 2005/10/13 Shinigami: added Check_libc_version() and printing a Warning if libc is to old
+ * - 2005/11/25 Shinigami: PKTBI_BF::TYPE_SESPAM will not block Inactivity-Check
+ * - 2005/11/28 MuadDib:   Created check_inactivity() bool function to handle checking packets
+ *                         for ones to be considered "ignored" for inactivity. Returns true if
+ *                         the packet was one to be ignored.
+ * - 2005/11/28 MuadDib:   Implemented check_inactivity() function in appropriate place.
+ * - 2006/03/01 MuadDib:   Added connect = true to start_client_char so char creation can use.
+ * - 2006/03/03 MuadDib:   Moved all instances of connected = true to start_client_char.
+ * - 2006/06/03 Shinigami: added little bit more logging @ pthread_create
+ * - 2006/06/05 Shinigami: added little bit more logging @ Client disconnects by Core
+ * - 2006/07/05 Shinigami: moved MakeDirectory("log") a little bit up
+ * - 2006/10/07 Shinigami: FreeBSD fix - changed some __linux__ to __unix__
+ * - 2007/03/08 Shinigami: added pthread_exit and _endhreadex to close threads
+ * - 2007/05/06 Shinigami: smaller bugfix in Check_libc_version()
+ * - 2007/06/17 Shinigami: Pergon-Linux-Release generates file "pol.pid"
+ * - 2007/07/08 Shinigami: added UO:KR login process
+ * - 2008/07/08 Turley:    removed Checkpoint "initializing random number generator"
+ * - 2008/12/17 MuadDub:   Added check when loading Realms for no realms existing.
+ * - 2009/01/19 Nando:     added unload_aux_services() and unload_packages() to the shutdown cleanup
+ * - 2009/1/24  MuadDib:   Added read_bannedips_config() and checkpoint for it after loading of pol.cfg
+ * - 2009/07/23 MuadDib:   Updates for MSGOUT naming.
+ * - 2009/07/31 MuadDib:   xmain_inner(): Force Client Disconnect to initiate cleanup of clients and chars, after shutdown,
+ *                         before other cleanups.
+ * - 2009/08/01 MuadDib:   Removed send_tech_stuff(), send_betaclient_BF(), just_ignore_message(), and ignore_69() due to not used or obsolete.
+ * - 2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
+ *                         Renamed secondary handler class to *_V2 for naming convention
+ * - 2009/08/14 Turley:    fixed definition of PKTIN_5D
+ * - 2009/08/19 Turley:    PKTIN_5D clientflag saved in client->UOExpansionFlagClient
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Changes for multi related source file relocation
+ * - 2009/09/15 MuadDib:   Multi registration/unregistration support added.
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/09/22 MuadDib:   Fix for lightlevel resets in client during login.
+ * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+ * - 2009/12/04 Turley:    Crypto cleanup - Tomi
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+ * - 2011/11/12 Tomi:	  Added extobj.cfg
+ */
 
-Notes
-=======
-
-*/
 
 #include "../plib/pkg.h"
 

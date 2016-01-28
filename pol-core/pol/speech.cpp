@@ -1,18 +1,14 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/01 MuadDib:   Rewrote where needed to do away with TEXTDEF struct useage. Pointless.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: buffer not used
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ * - 2009/10/14 Turley:    new priv canbeheardasghost
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+ */
 
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/01 MuadDib:   Rewrote where needed to do away with TEXTDEF struct useage. Pointless.
-2009/08/25 Shinigami: STLport-5.2.1 fix: buffer not used
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-2009/10/14 Turley:    new priv canbeheardasghost
-2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
-
-Notes
-=======
-
-*/
 
 #include "accounts/account.h"
 #include "network/client.h"

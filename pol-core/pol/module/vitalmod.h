@@ -1,13 +1,10 @@
-/*
-History
-=======
-2006/10/28 Shinigami: GCC 4.1.1 fix - extra qualification in class removed
-2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+/** @file
+ *
+ * @par History
+ * - 2006/10/28 Shinigami: GCC 4.1.1 fix - extra qualification in class removed
+ * - 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef VITALEMOD_H

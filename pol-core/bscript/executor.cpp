@@ -1,18 +1,15 @@
-/*
-History
-=======
-2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
-2006/01/27 Shinigami: added missing TOK_BS* to Executor::GetInstrFunc
-2006/06/10 Shinigami: getParamImp/2 - better Error Message added
-2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
-2007/07/07 Shinigami: added code to analyze memoryleaks in initForFnCall() (needs defined MEMORYLEAK)
-2009/07/19 MuadDib: Executor::ins_member() Removed, due to no longer used since case optimization code added.
-2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+/** @file
+ *
+ * @par History
+ * - 2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
+ * - 2006/01/27 Shinigami: added missing TOK_BS* to Executor::GetInstrFunc
+ * - 2006/06/10 Shinigami: getParamImp/2 - better Error Message added
+ * - 2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
+ * - 2007/07/07 Shinigami: added code to analyze memoryleaks in initForFnCall() (needs defined MEMORYLEAK)
+ * - 2009/07/19 MuadDib: Executor::ins_member() Removed, due to no longer used since case optimization code added.
+ * - 2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+ */
 
-Notes
-=======
-
-*/
 
 #ifdef WINDOWS
 #include "../clib/pol_global_config_win.h"

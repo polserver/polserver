@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/06/01 Shinigami: added getstatics - to fill a list with statics
+/** @file
+ *
+ * @par History
+ * - 2005/06/01 Shinigami: added getstatics - to fill a list with statics
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_STATICSERVER_H
 #define PLIB_STATICSERVER_H

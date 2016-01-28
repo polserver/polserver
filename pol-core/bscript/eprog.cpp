@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 #include "eprog.h"
 #include "escriptv.h"
 #include "options.h"

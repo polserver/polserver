@@ -1,12 +1,9 @@
-/*
-History
-=======
-2015/12/29 Bodom: created this file
+/** @file
+ *
+ * @par History
+ * - 2015/12/29 Bodom: created this file
+ */
 
-Notes
-=======
-
-*/
 
 
 # include "tokens.h"

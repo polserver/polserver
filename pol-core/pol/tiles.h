@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef TILES_H
 #define TILES_H

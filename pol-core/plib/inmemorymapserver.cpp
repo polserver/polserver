@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 #include "inmemorymapserver.h"
 
 #include "../clib/strutil.h"

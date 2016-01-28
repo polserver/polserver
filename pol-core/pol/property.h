@@ -1,12 +1,9 @@
-/*
-History
-=======
-2013/11/03 Nando: created
+/** @file
+ *
+ * @par History
+ * - 2013/11/03 Nando: created
+ */
 
-Notes
-=======
-
-*/
 #ifndef H_PROPERTY_ACCESSOR
 #define H_PROPERTY_ACCESSOR
 

@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_BSTRUCT_H
 #define BSCRIPT_BSTRUCT_H

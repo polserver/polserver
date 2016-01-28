@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/12/06 Shinigami: fixed <un-/signed>(z)-bug inside internal_MoveCharacter() to fix z<0 problem
+/** @file
+ *
+ * @par History
+ * - 2005/12/06 Shinigami: fixed <un-/signed>(z)-bug inside internal_MoveCharacter() to fix z<0 problem
+ */
 
-Notes
-=======
-
-*/
 
 
 /*

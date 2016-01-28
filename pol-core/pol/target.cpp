@@ -1,14 +1,11 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-                      Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #include "target.h"
 

@@ -1,13 +1,10 @@
-/*
-History
-=======
-2006/12/05 Shinigami: removed dummy floor creation in ::readobjects and ::readshapes
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2006/12/05 Shinigami: removed dummy floor creation in ::readobjects and ::readshapes
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #include "multidef.h"
 

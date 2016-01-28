@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/04/28 Shinigami: mf_EnumerateItemsInContainer/enumerate_contents - added flag to list content of locked container too
-2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
-2009/08/07 MuadDib:   Added layer_list_ and functions like WornItems to corpse class. Used to handle showing equippable items
-                      on a corpse.
+/** @file
+ *
+ * @par History
+ * - 2005/04/28 Shinigami: mf_EnumerateItemsInContainer/enumerate_contents - added flag to list content of locked container too
+ * - 2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
+ * - 2009/08/07 MuadDib:   Added layer_list_ and functions like WornItems to corpse class. Used to handle showing equippable items
+ *                         on a corpse.
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef CONTAINR_H
 #define CONTAINR_H

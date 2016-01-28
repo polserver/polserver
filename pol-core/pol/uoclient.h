@@ -1,13 +1,10 @@
-/*
-History
-=======
-2010/02/03 Turley:    MethodScript support for mobiles
-2011/12/01 MuadDib:   Changed max_skills to unsigned short. 0xFF max in packets anyway. Probably never need to support over 255 skills anyway.
+/** @file
+ *
+ * @par History
+ * - 2010/02/03 Turley:    MethodScript support for mobiles
+ * - 2011/12/01 MuadDib:   Changed max_skills to unsigned short. 0xFF max in packets anyway. Probably never need to support over 255 skills anyway.
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef UOCLIENT_H
 #define UOCLIENT_H

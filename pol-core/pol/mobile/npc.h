@@ -1,15 +1,12 @@
-/*
-History
-=======
-2006/09/17 Shinigami: send_event() will return error "Event queue is full, discarding event"
-2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
-2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
-2010/02/03 Turley:    MethodScript support for mobiles
+/** @file
+ *
+ * @par History
+ * - 2006/09/17 Shinigami: send_event() will return error "Event queue is full, discarding event"
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+ * - 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+ * - 2010/02/03 Turley:    MethodScript support for mobiles
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef H_NPC_H
 #define H_NPC_H

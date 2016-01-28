@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+/** @file
+ *
+ * @par History
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ */
 
-Notes
-=======
-
-*/
 
 #include "storagemod.h"
 

@@ -1,13 +1,11 @@
-/*
-History
-=======
-2009/07/23 MuadDib: Initial creation.
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib: Initial creation.
+ *
+ * @note This file is for packet structs who sent by both client and server.
+ */
 
-Notes
-=======
-This file is for packet structs who sent by both client and server.
-
-*/
 
 #ifndef __PKTBOTHIDH
 #define __PKTBOTHIDH

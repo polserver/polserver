@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/09/03 Shinigami: GetSuccessors - added support for non-blocking doors
+/** @file
+ *
+ * @par History
+ * - 2005/09/03 Shinigami: GetSuccessors - added support for non-blocking doors
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __UOPATHNODE_H
 #define __UOPATHNODE_H

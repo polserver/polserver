@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef GLOBALS_MULTIDEFS_H
 #define GLOBALS_MULTIDEFS_H

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/09/14 Shinigami: regen_while_dead implemented
+/** @file
+ *
+ * @par History
+ * - 2005/09/14 Shinigami: regen_while_dead implemented
+ */
 
-Notes
-=======
-
-*/
 
 #include "vital.h"
 

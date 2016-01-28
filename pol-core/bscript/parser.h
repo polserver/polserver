@@ -1,13 +1,9 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr changed little bit
+ */
 
-2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr changed little bit
-
-Notes
-=======
-
-*/
 
 #ifndef __PARSER_H
 #define __PARSER_H

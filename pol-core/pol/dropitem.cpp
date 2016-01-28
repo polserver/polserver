@@ -1,29 +1,26 @@
-/*
-History
-=======
-2005/05/28 Shinigami: now u can call open_trade_window without item and splitted (for use with uo::SecureTradeWin)
-                      place_item_in_secure_trade_container splitted (for use with uo::MoveItemToSecureTradeWin)
-2005/06/01 Shinigami: return_traded_items - added realm support
-2005/11/28 MuadDib:   Added 2 more send_trade_statuses() for freshing of chr and droped_on
-                      in sending of secure trade windows. This was per packet checks on
-                      OSI, and works in newer clients. Unable to test in 2.0.0
-2009/07/20 MuadDib:   Slot checks added where can_add() is called.
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/06 MuadDib:   Added gotten_by code for items.
-2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
-2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return NULL to reject move instead of a crash.
-                      Added slot support to find_giveitem_container()
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-					  Changes for multi related source file relocation
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/11/19 Turley:    removed sysmsg after CanInsert call (let scripter handle it) - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/05/28 Shinigami: now u can call open_trade_window without item and splitted (for use with uo::SecureTradeWin)
+ *                         place_item_in_secure_trade_container splitted (for use with uo::MoveItemToSecureTradeWin)
+ * - 2005/06/01 Shinigami: return_traded_items - added realm support
+ * - 2005/11/28 MuadDib:   Added 2 more send_trade_statuses() for freshing of chr and droped_on
+ *                         in sending of secure trade windows. This was per packet checks on
+ *                         OSI, and works in newer clients. Unable to test in 2.0.0
+ * - 2009/07/20 MuadDib:   Slot checks added where can_add() is called.
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ * - 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
+ * - 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return NULL to reject move instead of a crash.
+ *                         Added slot support to find_giveitem_container()
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/11/19 Turley:    removed sysmsg after CanInsert call (let scripter handle it) - Tomi
+ *
+ * @note FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks there too.
+ */
 
-
-Notes
-=======
-FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks there too.
-
-*/
 
 #include "../bscript/berror.h"
 

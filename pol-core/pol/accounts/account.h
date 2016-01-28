@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/05/25 Shinigami: added void writeto( ConfigElem& elem )
-2005/05/25 Shinigami: added getnextfreeslot()
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+/** @file
+ *
+ * @par History
+ * - 2005/05/25 Shinigami: added void writeto( ConfigElem& elem )
+ * - 2005/05/25 Shinigami: added getnextfreeslot()
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef ACCOUNT_H
 #define ACCOUNT_H

@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/04/02 Shinigami: move_offline_mobiles - added realm param
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-                      Changes for multi related source file relocation
+/** @file
+ *
+ * @par History
+ * - 2005/04/02 Shinigami: move_offline_mobiles - added realm param
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef BOAT_H

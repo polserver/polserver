@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/11/30 Turley:    added MD5Encrypt(string)
+/** @file
+ *
+ * @par History
+ * - 2009/11/30 Turley:    added MD5Encrypt(string)
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef POLSYSTEMEMOD_H
 #define POLSYSTEMEMOD_H

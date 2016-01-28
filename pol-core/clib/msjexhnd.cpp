@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #pragma warning(disable:4189) //local variable is initialized but not referenced
 #pragma warning(disable:4996) //unsafe strcpy

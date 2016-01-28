@@ -1,12 +1,9 @@
-/*
-History
-=======
-2007/03/28 Shinigami: added increv() to Equipment::reduce_hp_from_hit
+/** @file
+ *
+ * @par History
+ * - 2007/03/28 Shinigami: added increv() to Equipment::reduce_hp_from_hit
+ */
 
-Notes
-=======
-
-*/
 
 #include "equipmnt.h"
 #include "weapon.h"

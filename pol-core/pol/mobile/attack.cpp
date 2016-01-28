@@ -1,16 +1,13 @@
-/*
-History
-=======
-2005/11/26 MuadDib:   Added update code for updating highlight packet to client.
-2005/11/26 Shinigami: added Character check
-2005/11/25 MuadDib:   Added distance check in handle_attack.
-2006/03/07 MuadDib:   Added Justice Region NoCombat check to attack request.
-2009/01/03 MuadDib:   Removed logging of null defenders. Who cares if it's empty :o
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 MuadDib:   Added update code for updating highlight packet to client.
+ * - 2005/11/26 Shinigami: added Character check
+ * - 2005/11/25 MuadDib:   Added distance check in handle_attack.
+ * - 2006/03/07 MuadDib:   Added Justice Region NoCombat check to attack request.
+ * - 2009/01/03 MuadDib:   Removed logging of null defenders. Who cares if it's empty :o
+ */
 
-Notes
-=======
-
-*/
 
 #include "charactr.h"
 

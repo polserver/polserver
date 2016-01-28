@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/07/01 Shinigami: added ConfigFile::_modified (stat.st_mtime) to detect cfg file modification
+/** @file
+ *
+ * @par History
+ * - 2005/07/01 Shinigami: added ConfigFile::_modified (stat.st_mtime) to detect cfg file modification
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef CLIB_CFGFILE_H
 #define CLIB_CFGFILE_H

@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/01/17 Shinigami: passert_failed extended by param "reason" (see passert*_r macros)
-2005/09/16 Shinigami: scripts_thread_script* moved to passert
-2006/11/26 Shinigami: fixed a crash in passert_failed
+/** @file
+ *
+ * @par History
+ * - 2005/01/17 Shinigami: passert_failed extended by param "reason" (see passert*_r macros)
+ * - 2005/09/16 Shinigami: scripts_thread_script* moved to passert
+ * - 2006/11/26 Shinigami: fixed a crash in passert_failed
+ */
 
-Notes
-=======
-
-*/
 
 #include "passert.h"
 

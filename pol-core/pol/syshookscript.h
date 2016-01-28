@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef SYSHOOKSCRIPT_H
 #define SYSHOOKSCRIPT_H

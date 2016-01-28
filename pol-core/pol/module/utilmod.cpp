@@ -1,14 +1,11 @@
-/*
-History
-=======
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2008/07/08 Turley:    Added mf_RandomIntMinMax - Return Random Value between...
-2011/01/07 Nando:     fix uninit in mf_StrFormatTime - strftime's return is now tested
+/** @file
+ *
+ * @par History
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2008/07/08 Turley:    Added mf_RandomIntMinMax - Return Random Value between...
+ * - 2011/01/07 Nando:     fix uninit in mf_StrFormatTime - strftime's return is now tested
+ */
 
-Notes
-=======
-
-*/
 
 #include "utilmod.h"
 

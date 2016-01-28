@@ -1,20 +1,17 @@
-/*
-History
-=======
-2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
-2006/05/11 Shinigami: better logging in ::signal_event()
-2006/05/27 Shinigami: fixed a smaller cout-bug
-2006/09/17 Shinigami: ::signal_event() will return error on full evene queue
-2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
-2009/07/28 MuadDib:   Packet Struct Refactoring
-2009/09/03 MuadDib:   Relocation of boat related cpp/h
-2010/02/04 Turley:    "Event queue full" cerr only if loglevel>=11
-                      polcfg.discard_old_events discards oldest event if queue is full
+/** @file
+ *
+ * @par History
+ * - 2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
+ * - 2006/05/11 Shinigami: better logging in ::signal_event()
+ * - 2006/05/27 Shinigami: fixed a smaller cout-bug
+ * - 2006/09/17 Shinigami: ::signal_event() will return error on full evene queue
+ * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
+ * - 2009/07/28 MuadDib:   Packet Struct Refactoring
+ * - 2009/09/03 MuadDib:   Relocation of boat related cpp/h
+ * - 2010/02/04 Turley:    "Event queue full" cerr only if loglevel>=11
+ *                         polcfg.discard_old_events discards oldest event if queue is full
+ */
 
-Notes
-=======
-
-*/
 
 #include "scrsched.h"
 

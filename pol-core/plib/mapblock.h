@@ -1,13 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @note a map block is a 64x64 cell area of a map.
+ * @note Since a mapcell is 2 bytes, each map block is 8K.
+ */
 
-Notes
-=======
-a map block is a 64x64 cell area of a map.
-Since a mapcell is 2 bytes, each map block is 8K.
-
-*/
 
 #ifndef PLIB_MAPBLOCK_H
 #define PLIB_MAPBLOCK_H

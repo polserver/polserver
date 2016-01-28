@@ -1,14 +1,10 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2005/01/23 Shinigami: Realm::Con-/Destructor - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of is_shadowrealm, baserealm and shadowname
+ */
 
-2005/01/23 Shinigami: Realm::Con-/Destructor - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of is_shadowrealm, baserealm and shadowname
-
-Notes
-=======
-
-*/
 
 #include "realm.h"
 

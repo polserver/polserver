@@ -1,24 +1,21 @@
-/*
-History
-=======
-2005/02/23 Shinigami: ServSpecOpt DecayItems to enable/disable item decay
-2005/03/05 Shinigami: ServSpecOpt UseAAnTileFlags to enable/disable "a"/"an" via Tiles.cfg in formatted Item Names
-2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation Heap
-2005/08/29 Shinigami: ServSpecOpt UseAAnTileFlags renamed to UseTileFlagPrefix
-2005/12/05 MuadDib:   ServSpecOpt InvulTage using 0, 1, 2 for method of invul showing.
-2009/07/31 Turley:	ServSpecOpt ResetSwingOnTurn=true/false Should SwingTimer be reset with projectile weapon on facing change
-					  ServSpecOpt SendSwingPacket=true/false Should packet 0x2F be send on swing.
-2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
-2009/09/09 Turley:	ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
-2009/10/12 Turley:	whisper/yell/say-range ssopt definition
-2009/11/19 Turley:	ssopt.core_sends_season & .core_handled_tags - Tomi
-2009/12/02 Turley:	added ssopt.support_faces
-2010/01/22 Turley:	Speedhack Prevention System
+/** @file
+ *
+ * @par History
+ * - 2005/02/23 Shinigami: ServSpecOpt DecayItems to enable/disable item decay
+ * - 2005/03/05 Shinigami: ServSpecOpt UseAAnTileFlags to enable/disable "a"/"an" via Tiles.cfg in formatted Item Names
+ * - 2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation Heap
+ * - 2005/08/29 Shinigami: ServSpecOpt UseAAnTileFlags renamed to UseTileFlagPrefix
+ * - 2005/12/05 MuadDib:   ServSpecOpt InvulTage using 0, 1, 2 for method of invul showing.
+ * - 2009/07/31 Turley:    ServSpecOpt ResetSwingOnTurn=true/false Should SwingTimer be reset with projectile weapon on facing change
+ *                         ServSpecOpt SendSwingPacket=true/false Should packet 0x2F be send on swing.
+ * - 2009/09/03 MuadDib:   Moved combat related settings to Combat Config.
+ * - 2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
+ * - 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+ * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+ * - 2009/12/02 Turley:    added ssopt.support_faces
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ */
 
-Notes
-=======
-
-*/
 
 #include "ssopt.h"
 #include "pktdef.h"

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/01/23 Shinigami: WeatherDef::Con-/Destructor & ::copy_default_regions - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+/** @file
+ *
+ * @par History
+ * - 2005/01/23 Shinigami: WeatherDef::Con-/Destructor & ::copy_default_regions - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ */
 
-Notes
-=======
-
-*/
 
 #include "miscrgn.h"
 

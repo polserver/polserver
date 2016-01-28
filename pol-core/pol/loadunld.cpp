@@ -1,14 +1,11 @@
-/*
-History
-=======
-2009/1/24 MuadDib: Added read_bannedips_config() to reload_configuration.
-2009/12/02 Turley: config.max_tile_id
-2011/11/12 Tomi:   added extobj.secure_trade_container and extobj.wornitems_container
+/** @file
+ *
+ * @par History
+ * - 2009/1/24 MuadDib: Added read_bannedips_config() to reload_configuration.
+ * - 2009/12/02 Turley: config.max_tile_id
+ * - 2011/11/12 Tomi:   added extobj.secure_trade_container and extobj.wornitems_container
+ */
 
-Notes
-=======
-
-*/
 
 #include "loadunld.h"
 

@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/11/24 Turley:    Added realm check
+/** @file
+ *
+ * @par History
+ * - 2009/11/24 Turley:    Added realm check
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "listenpt.h"
 

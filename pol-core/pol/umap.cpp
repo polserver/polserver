@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2012/04/14 Tomi:      added new map message packet 0xF5 for new clients >= 7.0.13.0 and facetid member for maps
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2012/04/14 Tomi:      added new map message packet 0xF5 for new clients >= 7.0.13.0 and facetid member for maps
+ */
 
-Notes
-=======
-
-*/
 #include "umap.h"
 #include "pktboth.h"
 #include "poltype.h"

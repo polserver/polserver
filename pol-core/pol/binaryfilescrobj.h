@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BINARYSCROBJ_H
 #define BINARYSCROBJ_H

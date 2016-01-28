@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/01/13 Shinigami: safe_getmapinfo - add missing checks for x and y
-2005/01/23 Shinigami: rawmapinfo - used constant WORLD_X/Y... bad idea
+/** @file
+ *
+ * @par History
+ * - 2005/01/13 Shinigami: safe_getmapinfo - add missing checks for x and y
+ * - 2005/01/23 Shinigami: rawmapinfo - used constant WORLD_X/Y... bad idea
+ */
 
-Notes
-=======
-
-*/
 
 #include "uofile.h"
 #include "uofilei.h"

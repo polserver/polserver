@@ -1,22 +1,19 @@
-/*
-History
-=======
-2005/01/24 Shinigami: added getspyonclient2 to support packet 0xd9 (Spy on Client 2)
-2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
-getspyonclient2 renamed to getclientinfo
-2007/07/09 Shinigami: added isUOKR [bool] - UO:KR client used?
-2009/07/20 MuadDib:   Added statement to bypass cryptseed at login. Handled by changing default client recv_state using ssopt flag.
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of aosresist
-STLport-5.2.1 fix: params in call of Log2()
-2009/09/06 Turley:    Added u8 ClientType + FlagEnum
-Removed is*
-2010/01/22 Turley:    Speedhack Prevention System
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added getspyonclient2 to support packet 0xd9 (Spy on Client 2)
+ * - 2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
+ *                         getspyonclient2 renamed to getclientinfo
+ * - 2007/07/09 Shinigami: added isUOKR [bool] - UO:KR client used?
+ * - 2009/07/20 MuadDib:   Added statement to bypass cryptseed at login. Handled by changing default client recv_state using ssopt flag.
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of aosresist
+ *                         STLport-5.2.1 fix: params in call of Log2()
+ * - 2009/09/06 Turley:    Added u8 ClientType + FlagEnum
+ *                         Removed is*
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "client.h"

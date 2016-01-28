@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/08/03 MuadDib:   Renamed secondary handler class to *_V2 for naming convention
+/** @file
+ *
+ * @par History
+ * - 2009/08/03 MuadDib:   Renamed secondary handler class to *_V2 for naming convention
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef MSGHANDL_H
 #define MSGHANDL_H

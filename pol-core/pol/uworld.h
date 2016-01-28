@@ -1,13 +1,10 @@
-/*
-History
-=======
-2006/09/27 Shinigami: GCC 3.4.x fix - added "#include "charactr.h" because of ForEachMobileInVisualRange
-2009/10/17 Turley:    added ForEachItemInRange & ForEachItemInVisualRange
+/** @file
+ *
+ * @par History
+ * - 2006/09/27 Shinigami: GCC 3.4.x fix - added "#include "charactr.h" because of ForEachMobileInVisualRange
+ * - 2009/10/17 Turley:    added ForEachItemInRange & ForEachItemInVisualRange
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef UWORLD_H

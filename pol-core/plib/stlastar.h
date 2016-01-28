@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/09/03 Shinigami: SearchStep - added support for non-blocking doors
+/** @file
+ *
+ * @par History
+ * - 2005/09/03 Shinigami: SearchStep - added support for non-blocking doors
+ */
 
-Notes
-=======
-
-*/
 
 
 // STL A* Search implementation

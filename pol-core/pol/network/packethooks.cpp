@@ -1,22 +1,19 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2006/05/23 Shinigami: added missing Check to ExportedPacketHookHandler() for
+ *                         missing default_handler in Packets with SubCommands
+ * - 2007/08/19 Shinigami: fixed Memory Leak in PacketHook functions
+ * - 2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
+ *                         Renamed secondary handler class to *_V2 for naming convention
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: params in call of Log2()
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *
+ * @note Version member: Positive Integer. This is used to translate the "version" of the packet structure
+ * to the correct internal core Message Handler (Default 1, which translates to use handler[]). Each
+ * new Handler added to the core needs a new Version number here. As of 8/3/09 there is only 2.
+ */
 
-2006/05/23 Shinigami: added missing Check to ExportedPacketHookHandler() for
-                      missing default_handler in Packets with SubCommands
-2007/08/19 Shinigami: fixed Memory Leak in PacketHook functions
-2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
-                      Renamed secondary handler class to *_V2 for naming convention
-2009/08/25 Shinigami: STLport-5.2.1 fix: params in call of Log2()
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-
-Notes
-=======
-Version member: Positive Integer. This is used to translate the "version" of the packet structure
-to the correct internal core Message Handler (Default 1, which translates to use handler[]). Each
-new Handler added to the core needs a new Version number here. As of 8/3/09 there is only 2.
-
-*/
 
 #include "packethooks.h"
 #include "msghandl.h"

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2007/05/04 Shinigami: added region_name() to support UO::GetRegionName*
+/** @file
+ *
+ * @par History
+ * - 2007/05/04 Shinigami: added region_name() to support UO::GetRegionName*
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef GUARDRGN_H
 #define GUARDRGN_H

@@ -1,13 +1,10 @@
-/*
-History
-=======
-2011/11/10 Tomi:	Added file
-2011/12/13 Tomi:    Added rope, wheel, hull, sails, tiller, rudder, storage and weaponslot objtypes for new boat support
+/** @file
+ *
+ * @par History
+ * - 2011/11/10 Tomi:	Added file
+ * - 2011/12/13 Tomi:    Added rope, wheel, hull, sails, tiller, rudder, storage and weaponslot objtypes for new boat support
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef EXTOBJ_H
 #define EXTOBJ_H

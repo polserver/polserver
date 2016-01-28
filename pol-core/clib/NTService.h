@@ -1,12 +1,10 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @note Definitions for CNTService
+ */
 
-Notes
-=======
-Definitions for CNTService
-
-*/
 
 #ifndef _NTSERVICE_H_
 #define _NTSERVICE_H_

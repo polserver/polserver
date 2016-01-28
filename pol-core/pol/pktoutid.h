@@ -1,18 +1,16 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   Initial creation.
-2009/08/01 MuadDib:   Completed moving all "Outbound only" Packet IDs to here.
-2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
-2009/09/10 Turley:    CompressedGump support (Grin)
-2009/12/02 Turley:    PKTOUT_F3 -Tomi
-2012/04/14 Tomi:      PKTOUT_F5
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   Initial creation.
+ * - 2009/08/01 MuadDib:   Completed moving all "Outbound only" Packet IDs to here.
+ * - 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
+ * - 2009/09/10 Turley:    CompressedGump support (Grin)
+ * - 2009/12/02 Turley:    PKTOUT_F3 -Tomi
+ * - 2012/04/14 Tomi:      PKTOUT_F5
+ *
+ * @note This file is for packet structs who sent by server.
+ */
 
-Notes
-=======
-This file is for packet structs who sent by server.
-
-*/
 
 #ifndef __PKTOUTIDH
 #define __PKTOUTIDH

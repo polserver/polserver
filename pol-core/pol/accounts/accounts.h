@@ -1,15 +1,11 @@
-/*
-History
-=======
-2005/05/24 Shinigami: added delete_account
-2005/05/25 Shinigami: added duplicate_account
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+/** @file
+ *
+ * @par History
+ * - 2005/05/24 Shinigami: added delete_account
+ * - 2005/05/25 Shinigami: added duplicate_account
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef ACCOUNTS_H
 #define ACCOUNTS_H

@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 #ifndef CLIB_ESIGNAL_H
 #define CLIB_ESIGNAL_H
 

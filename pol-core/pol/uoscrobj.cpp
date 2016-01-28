@@ -1,51 +1,48 @@
-/*
-History
-=======
-2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
-2005/03/09 Shinigami: Added Prop Character::Delay_Mod [ms] for WeaponDelay
-2005/04/02 Shinigami: UBoat::script_method_id & UBoat::script_method - added optional realm param
-2005/04/04 Shinigami: Added Prop Character::CreatedAt [PolClock]
-2005/08/29 Shinigami: get-/setspyonclient2 renamed to get-/setclientinfo
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2005/12/09 MuadDib:   Added uclang member for storing UC language from client.
-2005/12/09 MuadDib:   Fixed ~ItemGivenEvent not returning items correctly if the script
-did nothing with it. Was incorrect str/int comparision for times.
-2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
-2006/06/15 Austin:    Added mobile.Privs()
-2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
-2008/07/08 Turley:    Added character.movemode - returns the MoveMode like given in NPCDesc
-Added item.stackable - Is item stackable?
-2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/07/20 MuadDib:   ReAdded on_facing_change() to MBR_FACING: for items.
-2009/08/06 MuadDib:   Added gotten_by code for items.
-2009/08/31 MuadDib:   Changed layer check on graphic change, excluding mount layer entirely.
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Relocation of multi related cpp/h
-2009/09/06 Turley:    Removed isUOKR added ClientType
-2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
-2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
-2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
-2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
-MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
-2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
-2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
-2009/12/02 Turley:    gargoyle race support
-2009/12/03 Turley:    added gargoyle flying movemode
-2009/12/21 Turley:    ._method() call fix
-multi support of methodscripts
-2010/01/15 Turley:    (Tomi) season stuff
-2010/02/03 Turley:    MethodScript support for mobiles
-2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
-2012/02/02 Tomi:      Added boat member MBR_MULTIID
-2012/03/26 Tomi:      Added MBR_LASTCOORD
-2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
-2012/04/15 Tomi:      Added MBR_EDITABLE for maps
-2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
+ * - 2005/03/09 Shinigami: Added Prop Character::Delay_Mod [ms] for WeaponDelay
+ * - 2005/04/02 Shinigami: UBoat::script_method_id & UBoat::script_method - added optional realm param
+ * - 2005/04/04 Shinigami: Added Prop Character::CreatedAt [PolClock]
+ * - 2005/08/29 Shinigami: get-/setspyonclient2 renamed to get-/setclientinfo
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2005/12/09 MuadDib:   Added uclang member for storing UC language from client.
+ * - 2005/12/09 MuadDib:   Fixed ~ItemGivenEvent not returning items correctly if the script
+ *                         did nothing with it. Was incorrect str/int comparision for times.
+ * - 2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
+ * - 2006/06/15 Austin:    Added mobile.Privs()
+ * - 2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
+ * - 2008/07/08 Turley:    Added character.movemode - returns the MoveMode like given in NPCDesc
+ *                         Added item.stackable - Is item stackable?
+ * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/07/20 MuadDib:   ReAdded on_facing_change() to MBR_FACING: for items.
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ * - 2009/08/31 MuadDib:   Changed layer check on graphic change, excluding mount layer entirely.
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ * - 2009/09/06 Turley:    Removed isUOKR added ClientType
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+ * - 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+ * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+ * -            MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
+ * - 2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
+ * - 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
+ * - 2009/12/02 Turley:    gargoyle race support
+ * - 2009/12/03 Turley:    added gargoyle flying movemode
+ * - 2009/12/21 Turley:    ._method() call fix
+ *                         multi support of methodscripts
+ * - 2010/01/15 Turley:    (Tomi) season stuff
+ * - 2010/02/03 Turley:    MethodScript support for mobiles
+ * - 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+ * - 2012/02/02 Tomi:      Added boat member MBR_MULTIID
+ * - 2012/03/26 Tomi:      Added MBR_LASTCOORD
+ * - 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
+ * - 2012/04/15 Tomi:      Added MBR_EDITABLE for maps
+ * - 2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+ */
 
-Notes
-=======
-
-*/
 
 #include "uoscrobj.h"
 

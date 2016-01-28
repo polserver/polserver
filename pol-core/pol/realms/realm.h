@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/06/01 Shinigami: added getmapshapes - to get access to mapshapes
-                      added getstatics - to fill a list with statics
-2005/06/06 Shinigami: added readmultis derivative - to get a list of statics
+/** @file
+ *
+ * @par History
+ * - 2005/06/01 Shinigami: added getmapshapes - to get access to mapshapes
+ * - added getstatics - to fill a list with statics
+ * - 2005/06/06 Shinigami: added readmultis derivative - to get a list of statics
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef POL_REALM_H
 #define POL_REALM_H

@@ -1,14 +1,12 @@
-/*
-History
-=======
-2009/08/02 MuadDib: Initial creation.
+/** @file
+ *
+ * @par History
+ * - 2009/08/02 MuadDib: Initial creation.
+ *
+ * @note This is where all the Not Implemented Packets belong. Including if you are implementing them. They need
+ * to remain here until fully implemented and working.
+ */
 
-Notes
-=======
-This is where all the Not Implemented Packets belong. Including if you are implementing them. They need
-to remain here until fully implemented and working.
-
-*/
 
 #ifndef __PKTNIID_H
 #define __PKTNIID_H

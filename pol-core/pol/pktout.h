@@ -1,22 +1,20 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   Initial creation. This file is for packet structs who sent by server only.
-2009/07/24 MuadDib:   Rewrote packet 0x1C structure to remove secondary struct.
-2009/07/26 MuadDib:   Added packet 0x0B
-2009/07/27 MuadDib:   Added packet 0x97
-2009/08/01 MuadDib:   Added packet 0x86, 0x9C. Completed moving all "Outbound only" Packet structs to here.
-2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
-2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
-2009/09/10 Turley:    CompressedGump support (Grin)
-2009/09/06 Turley:    Added more known Flags to 0xA9
-2009/12/02 Turley:    PKTOUT_F3 -Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   Initial creation. This file is for packet structs who sent by server only.
+ * - 2009/07/24 MuadDib:   Rewrote packet 0x1C structure to remove secondary struct.
+ * - 2009/07/26 MuadDib:   Added packet 0x0B
+ * - 2009/07/27 MuadDib:   Added packet 0x97
+ * - 2009/08/01 MuadDib:   Added packet 0x86, 0x9C. Completed moving all "Outbound only" Packet structs to here.
+ * - 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
+ * - 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
+ * - 2009/09/10 Turley:    CompressedGump support (Grin)
+ * - 2009/09/06 Turley:    Added more known Flags to 0xA9
+ * - 2009/12/02 Turley:    PKTOUT_F3 -Tomi
+ *
+ * @note This file is for packet structs who sent by server.
+ */
 
-Notes
-=======
-This file is for packet structs who sent by server.
-
-*/
 #ifndef __PKTOUTH
 #define __PKTOUTH
 

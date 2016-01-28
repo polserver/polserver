@@ -1,20 +1,17 @@
-/*
-History
-=======
-2006/09/15 austin:    added ENUMERATE_ROOT_ONLY flag
-2005/04/04 Shinigami: added constant for use with can_delete_character( chr, delete_by )
-2005/04/28 Shinigami: added constant for use with EnumerateItemsInContainer( container, flags := 0 )
-2005/04/31 Shinigami: added constant for use with LogToFile( filename, line, flags := 0 )
-2005/06/06 Shinigami: added constant for use with ListStatics*
-2005/07/04 Shinigami: added constant for use with List[Statics/Items]*, List* constants renamed
-2005/09/03 Shinigami: added constant for use with FindPath
-2006/05/07 Shinigami: added constant for use with Send*Window
-2008/10/29 Luth:      added constant for use with PrintTextAbove
+/** @file
+ *
+ * @par History
+ * - 2006/09/15 austin:    added ENUMERATE_ROOT_ONLY flag
+ * - 2005/04/04 Shinigami: added constant for use with can_delete_character( chr, delete_by )
+ * - 2005/04/28 Shinigami: added constant for use with EnumerateItemsInContainer( container, flags := 0 )
+ * - 2005/04/31 Shinigami: added constant for use with LogToFile( filename, line, flags := 0 )
+ * - 2005/06/06 Shinigami: added constant for use with ListStatics*
+ * - 2005/07/04 Shinigami: added constant for use with List[Statics/Items]*, List* constants renamed
+ * - 2005/09/03 Shinigami: added constant for use with FindPath
+ * - 2006/05/07 Shinigami: added constant for use with Send*Window
+ * - 2008/10/29 Luth:      added constant for use with PrintTextAbove
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef CORE_H

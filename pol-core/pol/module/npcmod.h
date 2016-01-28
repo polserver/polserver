@@ -1,14 +1,10 @@
-/*
-History
-=======
-2005/06/15 Shinigami: added CanMove - checks if an NPC can move in given direction
-                      (IsLegalMove works in a different way and is used for bounding boxes only)
+/** @file
+ *
+ * @par History
+ * - 2005/06/15 Shinigami: added CanMove - checks if an NPC can move in given direction
+ *                         (IsLegalMove works in a different way and is used for bounding boxes only)
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef NPCEMOD_H
 #define NPCEMOD_H

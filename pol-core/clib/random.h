@@ -1,12 +1,9 @@
-/*
-History
-=======
-2008/07/08 Turley: Added Random Number Generator "lagged Fibonacci generator"
+/** @file
+ *
+ * @par History
+ * - 2008/07/08 Turley: Added Random Number Generator "lagged Fibonacci generator"
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef RANDOM_H
 #define RANDOM_H

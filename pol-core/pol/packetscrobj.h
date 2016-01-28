@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef PACKETSCROBJ_H
 #define PACKETSCROBJ_H

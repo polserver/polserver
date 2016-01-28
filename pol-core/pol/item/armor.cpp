@@ -1,12 +1,9 @@
-/*
-History
-=======
- 2003/07/10 Dave: armordesc expects string zone names
+/** @file
+ *
+ * @par History
+ * - 2003/07/10 Dave: armordesc expects string zone names
+ */
 
-Notes
-=======
-
-*/
 
 #include "armor.h"
 #include "item.h"

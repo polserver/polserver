@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/09/14 MuadDib:   CreateItem() now has slot support.
+/** @file
+ *
+ * @par History
+ * - 2009/09/14 MuadDib:   CreateItem() now has slot support.
+ */
 
-Notes
-=======
-
-*/
 #include "npcmod.h"
 
 #include "osmod.h"

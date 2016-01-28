@@ -1,15 +1,12 @@
-/*
-History
-=======
-2007/06/17 Shinigami: added config.world_data_path
-2008/12/17 MuadDib:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/09/14 MuadDib:   Added slot support to equip_loaded_item() and add_loaded_item()
-2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
+/** @file
+ *
+ * @par History
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2008/12/17 MuadDib:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/09/14 MuadDib:   Added slot support to equip_loaded_item() and add_loaded_item()
+ * - 2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
+ */
 
-Notes
-=======
-
-*/
 
 #include "mobile/charactr.h"
 #include "clidata.h"

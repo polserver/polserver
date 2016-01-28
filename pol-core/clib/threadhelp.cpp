@@ -1,18 +1,15 @@
-/*
-History
-=======
-2005/12/13 Shinigami: added error code printing in create_thread for debugging
-2006/02/06 Shinigami: smaller bugfix in logging
-                      error code printing in create_thread extended
-2007/02/28 Shinigami: error code printing in create_thread added for linux
-2007/03/08 Shinigami: added pthread_exit and _endhreadex to close threads
-2008/03/02 Nando: Added bool dec_child to create_thread, used to dec_child_thread_count()
-                  if there is an error on create_thread. Will fix some of the zombies.
+/** @file
+ *
+ * @par History
+ * - 2005/12/13 Shinigami: added error code printing in create_thread for debugging
+ * - 2006/02/06 Shinigami: smaller bugfix in logging
+ *                         error code printing in create_thread extended
+ * - 2007/02/28 Shinigami: error code printing in create_thread added for linux
+ * - 2007/03/08 Shinigami: added pthread_exit and _endhreadex to close threads
+ * - 2008/03/02 Nando:     Added bool dec_child to create_thread, used to dec_child_thread_count()
+ *                         if there is an error on create_thread. Will fix some of the zombies.
+ */
 
-Notes
-=======
-
-*/
 
 #include "threadhelp.h"
 

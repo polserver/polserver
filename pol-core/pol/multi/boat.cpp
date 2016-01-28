@@ -1,21 +1,18 @@
-/*
-History
-=======
-2005/04/02 Shinigami: move_offline_mobiles - added realm param
-2005/08/22 Shinigami: do_tellmoves - bugfix - sometimes we've destroyed objects because of control scripts
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
-STLport-5.2.1 fix: boat_components changed little bit
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-Changes for multi related source file relocation
-2009/12/02 Turley:    added 0xf3 packet - Tomi
-2011/11/12 Tomi:	  added extobj.tillerman, extobj.port_plank, extobj.starboard_plank and extobj.hold
-2011/12/13 Tomi:      added support for new boats
+/** @file
+ *
+ * @par History
+ * - 2005/04/02 Shinigami: move_offline_mobiles - added realm param
+ * - 2005/08/22 Shinigami: do_tellmoves - bugfix - sometimes we've destroyed objects because of control scripts
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
+ *                         STLport-5.2.1 fix: boat_components changed little bit
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/12/02 Turley:    added 0xf3 packet - Tomi
+ * - 2011/11/12 Tomi:      added extobj.tillerman, extobj.port_plank, extobj.starboard_plank and extobj.hold
+ * - 2011/12/13 Tomi:      added support for new boats
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "boat.h"

@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
-2009-07-18 MuadDib: Updated dump messages for bug tracker
+/** @file
+ *
+ * @par History
+ * - 2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
+ * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "mdump.h"

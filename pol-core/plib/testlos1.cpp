@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 // TODO: REWORK ME!!
 //
 //#include "testenv.h"

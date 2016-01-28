@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/05/24 Shinigami: added delete_account
-2005/05/25 Shinigami: added duplicate_account
-2007/06/17 Shinigami: added config.world_data_path
-2009/09/03 MuadDib:   Relocation of account related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2005/05/24 Shinigami: added delete_account
+ * - 2005/05/25 Shinigami: added duplicate_account
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #ifdef _MSC_VER
     #pragma warning(disable: 4996) // disables POSIX deprecation warning for unlink / stricmp

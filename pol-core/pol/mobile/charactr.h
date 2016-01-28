@@ -1,33 +1,30 @@
-/*
-History
-=======
-2005/03/09 Shinigami: Added Prop Delay_Mod [ms] for WeaponDelay
-2005/11/23 MuadDib:   Added warmode_wait for changing war mode.
-2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
-2006/05/04 MuadDib:   Removed get_legal_item for no use.
-2006/05/16 Shinigami: added Prop Race (RACE_* Constants) to support Elfs
-2008/07/08 Turley:    get_flag1() changed to show WarMode of other player again
-                      get_flag1_aos() removed
-2009/02/01 MuadDib:   Resistance storage added.
-2009/09/15 MuadDib:   Cleanup from registered houses on destroy
-                      u32 registered_house added to store serial of registered multi.
-2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
-2009/09/22 Turley:    repsys param to applydamage
-2009/10/14 Turley:    new priv canbeheardasghost
-2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
-2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
-                      fixed "all" priv
-2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
-2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
-2010/01/15 Turley:    (Tomi) priv runwhilestealth
-2010/01/22 Turley:    Speedhack Prevention System
-2010/02/03 Turley:    MethodScript support for mobiles
-2011/11/28 MuadDib:   Removed last of uox referencing code.
+/** @file
+ *
+ * @par History
+ * - 2005/03/09 Shinigami: Added Prop Delay_Mod [ms] for WeaponDelay
+ * - 2005/11/23 MuadDib:   Added warmode_wait for changing war mode.
+ * - 2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
+ * - 2006/05/04 MuadDib:   Removed get_legal_item for no use.
+ * - 2006/05/16 Shinigami: added Prop Race (RACE_* Constants) to support Elfs
+ * - 2008/07/08 Turley:    get_flag1() changed to show WarMode of other player again
+ *                         get_flag1_aos() removed
+ * - 2009/02/01 MuadDib:   Resistance storage added.
+ * - 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
+ *                         u32 registered_house added to store serial of registered multi.
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+ * - 2009/09/22 Turley:    repsys param to applydamage
+ * - 2009/10/14 Turley:    new priv canbeheardasghost
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+ * - 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
+ *                         fixed "all" priv
+ * - 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+ * - 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+ * - 2010/01/15 Turley:    (Tomi) priv runwhilestealth
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ * - 2010/02/03 Turley:    MethodScript support for mobiles
+ * - 2011/11/28 MuadDib:   Removed last of uox referencing code.
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __CHARACTR_H
 #define __CHARACTR_H

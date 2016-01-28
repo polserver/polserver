@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/09/16 Shinigami: fixed Memory Overwrite Bug in convertArrayToUC
+/** @file
+ *
+ * @par History
+ * - 2006/09/16 Shinigami: fixed Memory Overwrite Bug in convertArrayToUC
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef POL_UNICODE_H
 #define POL_UNICODE_H

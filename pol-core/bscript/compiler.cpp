@@ -1,24 +1,21 @@
-/*
-History
-=======
-2005/07/26 Shinigami: if you use 'Include ":blah:blubb";' eCompile will search for
-":blah:blubb.inc" and ":blah:include/blubb.inc". It will use
-first file found. If both files exist eCompile will print a Warning.
-2005/07/28 Shinigami: Assignment inside Condition Check will produce Warning on -v5 only
-2005-09-07 Folko	: No longer warn about unused variables in BASIC style for loops
-2005/09/08 Shinigami: Will warn about unused variables in BASIC style for loops on -v5 only
-2005/09/25 Shinigami: BugFix inside FileCheck for multiple include of same File
-e.g.: inside scripts\textcmd\test\textcmd.src:
-Include "../../../pkg/std/housing/include/test";
-Include ":housing:test";
-Include ":housing:include/test";
-will be handled as same file now
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+/** @file
+ *
+ * @par History
+ * - 2005/07/26 Shinigami: if you use 'Include ":blah:blubb";' eCompile will search for
+ *                         ":blah:blubb.inc" and ":blah:include/blubb.inc". It will use
+ *                         first file found. If both files exist eCompile will print a Warning.
+ * - 2005/07/28 Shinigami: Assignment inside Condition Check will produce Warning on -v5 only
+ * - 2005-09-07 Folko:     No longer warn about unused variables in BASIC style for loops
+ * - 2005/09/08 Shinigami: Will warn about unused variables in BASIC style for loops on -v5 only
+ * - 2005/09/25 Shinigami: BugFix inside FileCheck for multiple include of same File
+ *                         e.g.: inside scripts	extcmd	est	extcmd.src:
+ *                         Include "../../../pkg/std/housing/include/test";
+ *                         Include ":housing:test";
+ *                         Include ":housing:include/test";
+ *                         will be handled as same file now
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ */
 
-Notes
-=======
-
-*/
 
 #include "compiler.h"
 

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+/** @file
+ *
+ * @par History
+ * - 2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_MAPFUNC_H
 #define PLIB_MAPFUNC_H

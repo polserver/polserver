@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 // TODO: REWORK ME!!
 //#include "../clib/cfgfile.h"

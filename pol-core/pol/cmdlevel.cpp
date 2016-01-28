@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/07/26 Shinigami: you can use "commands/cmdlevel" to hold textcmds in packages too
+/** @file
+ *
+ * @par History
+ * - 2005/07/26 Shinigami: you can use "commands/cmdlevel" to hold textcmds in packages too
+ */
 
-Notes
-=======
-
-*/
 
 #include "cmdlevel.h"
 

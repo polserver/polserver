@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/07/04 Shinigami: mf_AppendConfigFileElem will reload file
-2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+/** @file
+ *
+ * @par History
+ * - 2005/07/04 Shinigami: mf_AppendConfigFileElem will reload file
+ * - 2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ */
 
-Notes
-=======
-
-*/
 
 #include "cfgmod.h"
 #include "../cfgrepos.h"

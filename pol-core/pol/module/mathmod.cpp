@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/09/10 Shinigami: added mf_Root - calculates y Root of x as a Real
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-                      removed obsolete gcvt, used sprintf
+/** @file
+ *
+ * @par History
+ * - 2005/09/10 Shinigami: added mf_Root - calculates y Root of x as a Real
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ *                         removed obsolete gcvt, used sprintf
+ */
 
-Notes
-=======
-
-*/
 
 #include "mathmod.h"
 

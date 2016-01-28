@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/12/18 Turley:    added CreateDirectory() & ListDirectory()
+/** @file
+ *
+ * @par History
+ * - 2009/12/18 Turley:    added CreateDirectory() & ListDirectory()
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef FILEMOD_H
 #define FILEMOD_H

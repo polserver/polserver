@@ -1,13 +1,10 @@
-/*
-History
-=======
-2003/03/15 Dave:      Support configurable max skillid
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+/** @file
+ *
+ * @par History
+ * - 2003/03/15 Dave:      Support configurable max skillid
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ */
 
-Notes
-=======
-
-*/
 
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"

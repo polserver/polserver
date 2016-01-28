@@ -1,12 +1,9 @@
-/*
-History
-=======
-2003/03/15 Dave: support configurable max skillid
+/** @file
+ *
+ * @par History
+ * - 2003/03/15 Dave: support configurable max skillid
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef SKILLID_H
 #define SKILLID_H

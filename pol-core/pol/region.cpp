@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/01/23 Shinigami: RegionGroupBase::Con-/Destructor - Tokuno MapDimension doesn't fit blocks of 32x32 (ZONE_SIZE)
+/** @file
+ *
+ * @par History
+ * - 2005/01/23 Shinigami: RegionGroupBase::Con-/Destructor - Tokuno MapDimension doesn't fit blocks of 32x32 (ZONE_SIZE)
+ */
 
-Notes
-=======
-
-*/
 #include "region.h"
 
 #include "realms.h"

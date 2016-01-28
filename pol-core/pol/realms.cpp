@@ -1,15 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2005/03/01 Shinigami: added MAX_NUMER_REALMS check to prevent core crash (see MSGBF_SUB18_ENABLE_MAP_DIFFS)
+ * - 2008/12/17 MuadDub:   Added check when loading Realms for no realms existing via int counter.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: shadowrealm_count definition fixed
+ */
 
-2005/03/01 Shinigami: added MAX_NUMER_REALMS check to prevent core crash (see MSGBF_SUB18_ENABLE_MAP_DIFFS)
-2008/12/17 MuadDub:   Added check when loading Realms for no realms existing via int counter.
-2009/08/25 Shinigami: STLport-5.2.1 fix: shadowrealm_count definition fixed
-
-Notes
-=======
-
-*/
 
 #include "realms.h"
 

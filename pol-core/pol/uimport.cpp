@@ -1,18 +1,15 @@
-/*
-History
-=======
-2005/01/23 Shinigami: for_all_mobiles, write_items & write_multis - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
-2007/06/17 Shinigami: added config.world_data_path
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Relocation of multi related cpp/h
-2009/09/14 MuadDib:   All UOX3 Import Code commented out. You can script this.
-2009/12/02 Turley:    added config.max_tile_id - Tomi
-2011/11/28 MuadDib:   Removed last of uox referencing code.
+/** @file
+ *
+ * @par History
+ * - 2005/01/23 Shinigami: for_all_mobiles, write_items & write_multis - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ * - 2009/09/14 MuadDib:   All UOX3 Import Code commented out. You can script this.
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ * - 2011/11/28 MuadDib:   Removed last of uox referencing code.
+ */
 
-Notes
-=======
-
-*/
 
 #include "loaddata.h"
 #include "accounts/account.h"

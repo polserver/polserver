@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/07/20 MuadDib: Removed calls and use of StackWalker for leak detection. vld is now used, much better.
-                    Removed StackWalker.cpp/.h from the vcproj files also.
+/** @file
+ *
+ * @par History
+ * - 2009/07/20 MuadDib: Removed calls and use of StackWalker for leak detection. vld is now used, much better.
+ *                       Removed StackWalker.cpp/.h from the vcproj files also.
+ */
 
-Notes
-=======
-
-*/
 
 #if defined(WINDOWS)
 #include "Header_Windows.h"

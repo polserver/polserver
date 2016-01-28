@@ -1,18 +1,15 @@
-/*
-History
-=======
-2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
-2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
-2006/09/16 Shinigami: fixed Memory Overwrite Bug in packet.SetUnicodeString* -> convertArrayToUC
-2008/12/17 MuadDib:   fixed Memory Leak in SetSize() where it returns BObjects back
-                      to calling Methods where they do not handle a return value.
-2009/08/25 Shinigami: STLport-5.2.1 fix: oldsize not used
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
+ * - 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
+ * - 2006/09/16 Shinigami: fixed Memory Overwrite Bug in packet.SetUnicodeString* -> convertArrayToUC
+ * - 2008/12/17 MuadDib:   fixed Memory Leak in SetSize() where it returns BObjects back
+ * - to calling Methods where they do not handle a return value.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: oldsize not used
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "packetscrobj.h"
 

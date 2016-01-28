@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2007/06/17 Shinigami: added config.world_data_path
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "guildmod.h"
 #include "../guilds.h"

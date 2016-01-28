@@ -1,16 +1,13 @@
-/*
-History
-=======
-2006/05/16 Shinigami: UOBJ_*MALE_GHOST renamed to UOBJ_HUMAN_*MALE_GHOST
-                      added UOBJ_ELF_* constants
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-					  Changes for multi related source file relocation
-2009/12/02 Turley:    Gargoyle support
+/** @file
+ *
+ * @par History
+ * - 2006/05/16 Shinigami: UOBJ_*MALE_GHOST renamed to UOBJ_HUMAN_*MALE_GHOST
+ *                         added UOBJ_ELF_* constants
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/12/02 Turley:    Gargoyle support
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __UOBJ_H
 #define __UOBJ_H

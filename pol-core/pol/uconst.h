@@ -1,15 +1,12 @@
-/*
-History
-=======
-2006/05/16 Shinigami: added URACE with RACE_* Constants
-2009/10/12 Turley:    whisper/yell/say-range ssopt definition
-2009/12/02 Turley:    added gargoyle race
-2009/12/03 Turley:    added MOVEMODE_FLY
+/** @file
+ *
+ * @par History
+ * - 2006/05/16 Shinigami: added URACE with RACE_* Constants
+ * - 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+ * - 2009/12/02 Turley:    added gargoyle race
+ * - 2009/12/03 Turley:    added MOVEMODE_FLY
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __UCONST_H
 #define __UCONST_H

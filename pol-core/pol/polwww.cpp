@@ -1,18 +1,15 @@
-/*
-History
-=======
-2005-08-22 Folko:     Add config/www.cfg, reloaded when select times out (all 5 seconds)
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2008/12/31 Nando:     A call to Register() and some _endthread / pthread_exit were missing
-2009/02/22 Nando:     send_binary() was sending the wrong size on sck.send().
-2009/02/25 Nando:     removed a stray "\n" that was being sent at the end of send_binary(),
-                      probably causing some corrupted images to be loaded in browsers.
-2010/04/05 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within start_http_conn_thread and http_conn_thread_stub
+/** @file
+ *
+ * @par History
+ * - 2005-08-22 Folko:     Add config/www.cfg, reloaded when select times out (all 5 seconds)
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2008/12/31 Nando:     A call to Register() and some _endthread / pthread_exit were missing
+ * - 2009/02/22 Nando:     send_binary() was sending the wrong size on sck.send().
+ * - 2009/02/25 Nando:     removed a stray "\n" that was being sent at the end of send_binary(),
+ *                         probably causing some corrupted images to be loaded in browsers.
+ * - 2010/04/05 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within start_http_conn_thread and http_conn_thread_stub
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "polwww.h"

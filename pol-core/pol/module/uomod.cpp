@@ -1,63 +1,60 @@
-/*
-History
-=======
-2005/03/02 Shinigami: internal_MoveItem - item took from container don't had the correct realm
-2005/04/02 Shinigami: mf_CreateItemCopyAtLocation - added realm param
-2005/04/28 Shinigami: mf_EnumerateItemsInContainer/enumerate_contents - added flag to list content of locked container too
-2005/04/28 Shinigami: added mf_SecureTradeWin - to init secure trade via script over long distances
-added mf_MoveItemToSecureTradeWin - to move item to secure trade window via script
-2005/04/31 Shinigami: mf_EnumerateItemsInContainer - error message added
-2005/06/01 Shinigami: added mf_Attach - to attach a Script to a Character
-mf_MoveItem - stupid non-realm anti-crash bugfix (e.g. for intrinsic weapons without realm)
-added mf_ListStaticsAtLocation - list static Items at location
-added mf_ListStaticsNearLocation - list static Items around location
-added mf_GetStandingLayers - get layer a mobile can stand
-2005/06/06 Shinigami: mf_ListStatics* will return multi Items too / flags added
-2005/07/04 Shinigami: mf_ListStatics* constants renamed
-added Z to mf_ListStatics*Location - better specify what u want to get
-modified Z handling of mf_ListItems*Location* and mf_ListMobilesNearLocation*
-better specify what u want to get
-added realm-based coord check to mf_ListItems*Location*,
-mf_List*InBox and mf_ListMobilesNearLocation*
-added mf_ListStaticsInBox - list static items in box
-2005/07/07 Shinigami: realm-based coord check in mf_List*InBox disabled
-2005/09/02 Shinigami: mf_Attach - smaller bug which allowed u to attach more than one Script to a Character
-2005/09/03 Shinigami: mf_FindPath - added Flags to support non-blocking doors
-2005/09/23 Shinigami: added mf_SendStatus - to send full status packet to support extensions
-2005/12/06 MuadDib:   Rewrote realm handling for Move* and internal_move_item. New realm is
-to be passed to function, and oldrealm handling is done within the function.
-Container's still save and check oldrealm as before to update clients.
-2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
-2006/05/10 Shinigami: mf_ListMobilesNearLocationEx - just a logical mismatch
-2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
-2006/06/08 Shinigami: started to add FindPath logging
-2006/09/17 Shinigami: mf_SendEvent() will return error "Event queue is full, discarding event"
-2006/11/25 Shinigami: mf_GetWorldHeight() fixed bug because z was'n initialized
-2007/05/03 Turley:	added mf_GetRegionNameAtLocation - get name of justice region
-2007/05/04 Shinigami: added mf_GetRegionName - get name of justice region by objref
-2007/05/07 Shinigami: fixed a crash in mf_GetRegionName using NPCs; added TopLevelOwner
-2008/07/08 Turley:	Added mf_IsStackable - Is item stackable?
-2008/07/21 Mehdorn:   mf_ReserveItem() will return 2 if Item is already reserved by me (instead of 1)
-2009/07/27 MuadDib:   Packet Struct Refactoring
-2009/08/08 MuadDib:   mf_SetRawSkill(),  mf_GetRawSkill(),  mf_ApplyRawDamage(), mf_GameStat(),
-mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
-2009/08/25 Shinigami: STLport-5.2.1 fix: additional parentheses in mf_ListMultisInBox
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-Changes for multi related source file relocation
-2009/09/14 MuadDib:   Slot support added to creation/move to container.
-2009/09/15 MuadDib:   Multi registration/unregistration support added.
-2009/10/22 Turley:	added CanWalk()
-2009/11/19 Turley:	added flag param to UpdateMobile controls if packet 0x78 or 0x77 should be send - Tomi
-2009/12/02 Turley:	added config.max_tile_id - Tomi
-2009/12/17 Turley:	CloseWindow( character, type, object ) - Tomi
-2010/01/15 Turley:	(Tomi) season stuff
-(Tomi) SpeakPowerWords font and color params
-2011/11/12 Tomi:	  added extobj.mount
+/** @file
+ *
+ * @par History
+ * - 2005/03/02 Shinigami: internal_MoveItem - item took from container don't had the correct realm
+ * - 2005/04/02 Shinigami: mf_CreateItemCopyAtLocation - added realm param
+ * - 2005/04/28 Shinigami: mf_EnumerateItemsInContainer/enumerate_contents - added flag to list content of locked container too
+ * - 2005/04/28 Shinigami: added mf_SecureTradeWin - to init secure trade via script over long distances
+ *                         added mf_MoveItemToSecureTradeWin - to move item to secure trade window via script
+ * - 2005/04/31 Shinigami: mf_EnumerateItemsInContainer - error message added
+ * - 2005/06/01 Shinigami: added mf_Attach - to attach a Script to a Character
+ *                         mf_MoveItem - stupid non-realm anti-crash bugfix (e.g. for intrinsic weapons without realm)
+ *                         added mf_ListStaticsAtLocation - list static Items at location
+ *                         added mf_ListStaticsNearLocation - list static Items around location
+ *                         added mf_GetStandingLayers - get layer a mobile can stand
+ * - 2005/06/06 Shinigami: mf_ListStatics* will return multi Items too / flags added
+ * - 2005/07/04 Shinigami: mf_ListStatics* constants renamed
+ *                         added Z to mf_ListStatics*Location - better specify what u want to get
+ *                         modified Z handling of mf_ListItems*Location* and mf_ListMobilesNearLocation*
+ *                         better specify what u want to get
+ *                         added realm-based coord check to mf_ListItems*Location*,
+ *                         mf_List*InBox and mf_ListMobilesNearLocation*
+ *                         added mf_ListStaticsInBox - list static items in box
+ * - 2005/07/07 Shinigami: realm-based coord check in mf_List*InBox disabled
+ * - 2005/09/02 Shinigami: mf_Attach - smaller bug which allowed u to attach more than one Script to a Character
+ * - 2005/09/03 Shinigami: mf_FindPath - added Flags to support non-blocking doors
+ * - 2005/09/23 Shinigami: added mf_SendStatus - to send full status packet to support extensions
+ * - 2005/12/06 MuadDib:   Rewrote realm handling for Move* and internal_move_item. New realm is
+ *                         to be passed to function, and oldrealm handling is done within the function.
+ *                         Container's still save and check oldrealm as before to update clients.
+ * - 2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
+ * - 2006/05/10 Shinigami: mf_ListMobilesNearLocationEx - just a logical mismatch
+ * - 2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
+ * - 2006/06/08 Shinigami: started to add FindPath logging
+ * - 2006/09/17 Shinigami: mf_SendEvent() will return error "Event queue is full, discarding event"
+ * - 2006/11/25 Shinigami: mf_GetWorldHeight() fixed bug because z was'n initialized
+ * - 2007/05/03 Turley:    added mf_GetRegionNameAtLocation - get name of justice region
+ * - 2007/05/04 Shinigami: added mf_GetRegionName - get name of justice region by objref
+ * - 2007/05/07 Shinigami: fixed a crash in mf_GetRegionName using NPCs; added TopLevelOwner
+ * - 2008/07/08 Turley:    Added mf_IsStackable - Is item stackable?
+ * - 2008/07/21 Mehdorn:   mf_ReserveItem() will return 2 if Item is already reserved by me (instead of 1)
+ * - 2009/07/27 MuadDib:   Packet Struct Refactoring
+ * - 2009/08/08 MuadDib:   mf_SetRawSkill(),  mf_GetRawSkill(),  mf_ApplyRawDamage(), mf_GameStat(),
+ *                         mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: additional parentheses in mf_ListMultisInBox
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/09/14 MuadDib:   Slot support added to creation/move to container.
+ * - 2009/09/15 MuadDib:   Multi registration/unregistration support added.
+ * - 2009/10/22 Turley:    added CanWalk()
+ * - 2009/11/19 Turley:    added flag param to UpdateMobile controls if packet 0x78 or 0x77 should be send - Tomi
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ * - 2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+ * - 2010/01/15 Turley:    (Tomi) season stuff
+ *                         (Tomi) SpeakPowerWords font and color params
+ * - 2011/11/12 Tomi:      added extobj.mount
+ */
 
-Notes
-=======
-
-*/
 
 #ifdef WINDOWS
 #include "../../clib/pol_global_config_win.h"

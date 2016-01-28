@@ -1,20 +1,16 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of _leaderserial
+ *                         STLport-5.2.1 fix: UCconv, bytemsg and wtextoffset not used
+ *                         STLport-5.2.1 fix: "wtext[ SPEECH_MAX_LEN+1 ];" has no effect
+ *                         STLport-5.2.1 fix: illegal usage of NULL instead of 0
+ *                         STLport-5.2.1 fix: initialization of member in handle_party_msg()
+ * - 2009/08/26 Turley:    changed convertUCtoArray() to if check
+ * - 2009/11/17 Turley:    fixed hang due to illegal pointers
+ */
 
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of _leaderserial
-STLport-5.2.1 fix: UCconv, bytemsg and wtextoffset not used
-STLport-5.2.1 fix: "wtext[ SPEECH_MAX_LEN+1 ];" has no effect
-STLport-5.2.1 fix: illegal usage of NULL instead of 0
-STLport-5.2.1 fix: initialization of member in handle_party_msg()
-2009/08/26 Turley:    changed convertUCtoArray() to if check
-2009/11/17 Turley:    fixed hang due to illegal pointers
-
-Notes
-=======
-
-*/
 #ifdef WINDOWS
 #include "../clib/pol_global_config_win.h"
 #else

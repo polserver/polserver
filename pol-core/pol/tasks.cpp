@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/01/23 Shinigami: regen_stats - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
-2005/09/14 Shinigami: regen_stats - Vital.regen_while_dead implemented
-2006/09/23 Shinigami: wrong data type correction
-2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/01/23 Shinigami: regen_stats - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ * - 2005/09/14 Shinigami: regen_stats - Vital.regen_while_dead implemented
+ * - 2006/09/23 Shinigami: wrong data type correction
+ * - 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "tasks.h"
 

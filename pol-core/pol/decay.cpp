@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/01/23 Shinigami: decay_items & decay_thread - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
-2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+/** @file
+ *
+ * @par History
+ * - 2005/01/23 Shinigami: decay_items & decay_thread - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+ */
 
-Notes
-=======
-
-*/
 
 #include "decay.h"
 

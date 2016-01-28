@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #include "compilercfg.h"
 #include "../clib/Program/ProgramConfig.h"

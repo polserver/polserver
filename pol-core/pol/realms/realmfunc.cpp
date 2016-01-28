@@ -1,19 +1,18 @@
-/*
-History
-=======
-2005/06/01 Shinigami: added getmapshapes - to get access to mapshapes
-                      added getstatics - to fill a list with statics
-2005/06/06 Shinigami: added readmultis derivative - to get a list of statics
-2005/09/03 Shinigami: fixed: Realm::walkheight ignored param doors_block
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/11/13 Turley:    Rewrote MovementCode
-2009/12/03 Turley:    basic gargoyle fly support
-Notes
-=======
-In standingheight checks there is a nasty bug. Items NOT locked down
-(unmovable), are NOT being checked correctly to block movement.
+/** @file
+ *
+ * @par History
+ * - 2005/06/01 Shinigami: added getmapshapes - to get access to mapshapes
+ *                         added getstatics - to fill a list with statics
+ * - 2005/06/06 Shinigami: added readmultis derivative - to get a list of statics
+ * - 2005/09/03 Shinigami: fixed: Realm::walkheight ignored param doors_block
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/11/13 Turley:    Rewrote MovementCode
+ * - 2009/12/03 Turley:    basic gargoyle fly support
+ *
+ * @note In standingheight checks there is a nasty bug. Items NOT locked down
+ * (unmovable), are NOT being checked correctly to block movement.
+ */
 
-*/
 
 #include "realm.h"
 

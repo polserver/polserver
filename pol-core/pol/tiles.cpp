@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/07/05 Shinigami: added Warning if no tile was loaded
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/07/05 Shinigami: added Warning if no tile was loaded
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "tiles.h"
 #include "polcfg.h"

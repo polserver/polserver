@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 #ifndef __MSGFILTR_H
 #define __MSGFILTR_H
 namespace Pol {

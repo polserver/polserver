@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/03/09 Shinigami: Added Prop Delay [ms]
-2005/07/25 Shinigami: added MinDamage and MaxDamage in Weapon-Descriptor
-2011/11/12 Tomi:	  added extobj.wrestling
+/** @file
+ *
+ * @par History
+ * - 2005/03/09 Shinigami: Added Prop Delay [ms]
+ * - 2005/07/25 Shinigami: added MinDamage and MaxDamage in Weapon-Descriptor
+ * - 2011/11/12 Tomi:	  added extobj.wrestling
+ */
 
-Notes
-=======
-
-*/
 
 #include "weapon.h"
 #include "wepntmpl.h"

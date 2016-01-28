@@ -1,17 +1,14 @@
-/*
-History
-=======
-2006/05/07 Shinigami: SendAOSTooltip - will now send merchant_description() if needed
-2009/07/26 MuadDib:   updates for new Packet Refactoring
-2009/07/31 Turley:    added send_fight_occuring() for packet 0x2F
-2009/08/01 MuadDib:   Removed send_tech_stuff(), unused and obsolete.
-2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
-2009/09/22 Turley:    Added DamagePacket support
+/** @file
+ *
+ * @par History
+ * - 2006/05/07 Shinigami: SendAOSTooltip - will now send merchant_description() if needed
+ * - 2009/07/26 MuadDib:   updates for new Packet Refactoring
+ * - 2009/07/31 Turley:    added send_fight_occuring() for packet 0x2F
+ * - 2009/08/01 MuadDib:   Removed send_tech_stuff(), unused and obsolete.
+ * - 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
+ * - 2009/09/22 Turley:    Added DamagePacket support
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __UFUNC_H
 #define __UFUNC_H

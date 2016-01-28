@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/12/10 Turley:   Method/Syshook definitions now supports :pkg: format
+/** @file
+ *
+ * @par History
+ * - 2009/12/10 Turley:   Method/Syshook definitions now supports :pkg: format
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "syshookscript.h"
 

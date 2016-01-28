@@ -1,18 +1,14 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
+ * - 2006/05/27 MuadDib:   added "realm" to base_members and updated loop length for added
+ * - prop.
+ * - 2009/01/26 MuadDib:   Added a TON of members. All are up to date as of this date.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: string array definition and memname definition changed
+ */
 
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
-2006/05/27 MuadDib:   added "realm" to base_members and updated loop length for added
-prop.
-2009/01/26 MuadDib:   Added a TON of members. All are up to date as of this date.
-2009/08/25 Shinigami: STLport-5.2.1 fix: string array definition and memname definition changed
-
-Notes
-=======
-
-*/
 #include "poldbg.h"
 
 #include "polcfg.h"

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/07/05 Shinigami: added Warning if no landtile was loaded
+/** @file
+ *
+ * @par History
+ * - 2005/07/05 Shinigami: added Warning if no landtile was loaded
+ */
 
-Notes
-=======
-
-*/
 
 #include "../plib/mapfunc.h"
 #include "../plib/pkg.h"

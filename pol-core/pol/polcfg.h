@@ -1,15 +1,12 @@
-/*
-History
-=======
-2007/06/17 Shinigami: added config.world_data_path
-2009/12/02 Turley:    added MaxTileID -Tomi
-2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
-2010/02/04 Turley:    polcfg.discard_old_events discards oldest event if queue is full
+/** @file
+ *
+ * @par History
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/12/02 Turley:    added MaxTileID -Tomi
+ * - 2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
+ * - 2010/02/04 Turley:    polcfg.discard_old_events discards oldest event if queue is full
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef POLCFG_H
 #define POLCFG_H

@@ -1,15 +1,11 @@
-/*
-History
-=======
-2005/03/01 Shinigami: extended error message for passert(pstat[i].graphic < 0x4000)
-2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/03/01 Shinigami: extended error message for passert(pstat[i].graphic < 0x4000)
+ * - 2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "polfile.h"
 

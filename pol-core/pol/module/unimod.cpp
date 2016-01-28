@@ -1,13 +1,10 @@
-/*
-History
-=======
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2009/09/03 MuadDib:   Relocation of account related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"

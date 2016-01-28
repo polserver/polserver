@@ -1,12 +1,9 @@
-/*
-History
-=======
-2008/07/08 Turley: Added mf_RandomIntMinMax - Return Random Value between...
+/** @file
+ *
+ * @par History
+ * - 2008/07/08 Turley: Added mf_RandomIntMinMax - Return Random Value between...
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __UTILMOD_H
 #define __UTILMOD_H

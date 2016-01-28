@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
+/** @file
+ *
+ * @par History
+ * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PROFILE_H
 #define PROFILE_H

@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/06/06 Shinigami: added readobjects template - to get a list of statics
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2005/06/06 Shinigami: added readobjects template - to get a list of statics
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef MULTI_H

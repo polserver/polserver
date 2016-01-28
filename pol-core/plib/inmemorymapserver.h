@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_INMEMORYMAPSERVER_H
 #define PLIB_INMEMORYMAPSERVER_H

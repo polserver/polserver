@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/08/07 MuadDib:   Added layer_list_ and functions like WornItems to corpse class. Used to handle showing equippable items
-                      on a corpse.
+/** @file
+ *
+ * @par History
+ * - 2009/08/07 MuadDib:   Added layer_list_ and functions like WornItems to corpse class. Used to handle showing equippable items
+ *                         on a corpse.
+ */
 
-Notes
-=======
-
-*/
 
 #include "corpse.h"
 

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/10/28 Shinigami: GCC 4.1.1 fix - missing declaration of friend functions
+/** @file
+ *
+ * @par History
+ * - 2006/10/28 Shinigami: GCC 4.1.1 fix - missing declaration of friend functions
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef __SCHEDULE_H

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2007/06/17 Shinigami: added config.world_data_path
+/** @file
+ *
+ * @par History
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ */
 
-Notes
-=======
-
-*/
 
 #include "resource.h"
 

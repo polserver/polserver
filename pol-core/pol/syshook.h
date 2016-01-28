@@ -1,14 +1,10 @@
-/*
-History
-=======
-2009/10/22 Turley:    added OuchHook
-2009/11/26 Turley:    Syshook CanDie(mobile)
+/** @file
+ *
+ * @par History
+ * - 2009/10/22 Turley:    added OuchHook
+ * - 2009/11/26 Turley:    Syshook CanDie(mobile)
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef SYSHOOK_H
 #define SYSHOOK_H

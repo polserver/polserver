@@ -1,40 +1,37 @@
-/*
-History
-=======
-2005/03/05 Shinigami: format_description -> ServSpecOpt UseAAnTileFlags to enable/disable "a"/"an" via Tiles.cfg in formatted Item Names
-2005/04/03 Shinigami: send_feature_enable - added UOExpansionFlag for Samurai Empire
-2005/08/29 Shinigami: ServSpecOpt UseAAnTileFlags renamed to UseTileFlagPrefix
-2005/09/17 Shinigami: send_nametext - smaller bugfix in passert-check
-2006/05/07 Shinigami: SendAOSTooltip - will now send merchant_description() if needed
-2006/05/16 Shinigami: send_feature_enable - added UOExpansionFlag for Mondain's Legacy
-2007/04/08 MuadDib:   Updated send_worn_item_to_inrange to create the message only
-once and use the Transmit_to_inrange instead. Then uses
-send_object_cache_to_inrange. Required a tooltips.* update.
-2008/07/08 Turley:    get_flag1() changed to show WarMode of other player again
-get_flag1_aos() removed
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/07/31 Turley:    added send_fight_occuring() for packet 0x2F
-2009/08/01 MuadDib:   Removed send_tech_stuff(), unused and obsolete.
-2009/08/09 MuadDib:   UpdateCharacterWeight() Rewritten to send stat msg intead of refreshar().
-Refactor of Packet 0x25 for naming convention
-2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Relocation of multi related cpp/h
-2009/09/13 MuadDib:   Optimized send_remove_character_to_nearby_cansee, send_remove_character_to_nearby_cantsee, send_remove_character_to_nearby
-to build packet and handle iter internally. Packet built just once this way, and sent to those who need it.
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/09/22 MuadDib:   Adding resending of light level if override not in effect, to sending of season packet. Fixes EA client bug.
-2009/09/22 Turley:    Added DamagePacket support
-2009/10/07 Turley:    Fixed DestroyItem while in hand
-2009/10/12 Turley:    whisper/yell/say-range ssopt definition
-2009/12/02 Turley:    0xf3 packet support - Tomi
-face support
-2009/12/03 Turley:    added 0x17 packet everywhere only send if poisoned, fixed get_flag1 (problem with poisoned & flying)
+/** @file
+ *
+ * @par History
+ * - 2005/03/05 Shinigami: format_description -> ServSpecOpt UseAAnTileFlags to enable/disable "a"/"an" via Tiles.cfg in formatted Item Names
+ * - 2005/04/03 Shinigami: send_feature_enable - added UOExpansionFlag for Samurai Empire
+ * - 2005/08/29 Shinigami: ServSpecOpt UseAAnTileFlags renamed to UseTileFlagPrefix
+ * - 2005/09/17 Shinigami: send_nametext - smaller bugfix in passert-check
+ * - 2006/05/07 Shinigami: SendAOSTooltip - will now send merchant_description() if needed
+ * - 2006/05/16 Shinigami: send_feature_enable - added UOExpansionFlag for Mondain's Legacy
+ * - 2007/04/08 MuadDib:   Updated send_worn_item_to_inrange to create the message only
+ *                         once and use the Transmit_to_inrange instead. Then uses
+ *                         send_object_cache_to_inrange. Required a tooltips.* update.
+ * - 2008/07/08 Turley:    get_flag1() changed to show WarMode of other player again
+ *                         get_flag1_aos() removed
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/07/31 Turley:    added send_fight_occuring() for packet 0x2F
+ * - 2009/08/01 MuadDib:   Removed send_tech_stuff(), unused and obsolete.
+ * - 2009/08/09 MuadDib:   UpdateCharacterWeight() Rewritten to send stat msg intead of refreshar().
+ *                         Refactor of Packet 0x25 for naming convention
+ * - 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ * - 2009/09/13 MuadDib:   Optimized send_remove_character_to_nearby_cansee, send_remove_character_to_nearby_cantsee, send_remove_character_to_nearby
+ *                         to build packet and handle iter internally. Packet built just once this way, and sent to those who need it.
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/09/22 MuadDib:   Adding resending of light level if override not in effect, to sending of season packet. Fixes EA client bug.
+ * - 2009/09/22 Turley:    Added DamagePacket support
+ * - 2009/10/07 Turley:    Fixed DestroyItem while in hand
+ * - 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+ * - 2009/12/02 Turley:    0xf3 packet support - Tomi
+ *                         face support
+ * - 2009/12/03 Turley:    added 0x17 packet everywhere only send if poisoned, fixed get_flag1 (problem with poisoned & flying)
+ */
 
-Notes
-=======
-
-*/
 
 
 

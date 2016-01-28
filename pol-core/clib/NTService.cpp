@@ -1,12 +1,10 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @note Implementation of CNTService
+ */
 
-Notes
-=======
-Implementation of CNTService
-
-*/
 
 #include "Header_Windows.h"
 #include <stdio.h>

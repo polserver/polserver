@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009-03-03 Nando - private_say_above_cl(), say_above_cl(), send_sysmessage_cl() Crash fix when arguments are NULL
-2009/12/04 Turley: if arguments are NULL still add the terminator
+/** @file
+ *
+ * @par History
+ * - 2009-03-03 Nando - private_say_above_cl(), say_above_cl(), send_sysmessage_cl() Crash fix when arguments are NULL
+ * - 2009/12/04 Turley: if arguments are NULL still add the terminator
+ */
 
-Notes
-=======
-
-*/
 
 #include "clfunc.h"
 

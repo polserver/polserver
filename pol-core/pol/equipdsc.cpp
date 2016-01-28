@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 #include "equipdsc.h"
 
 #include "../clib/cfgelem.h"

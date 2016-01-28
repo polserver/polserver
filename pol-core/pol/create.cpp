@@ -1,17 +1,14 @@
-/*
-History
-=======
-2006/05/16 Shinigami: ClientCreateChar() updated to support Elfs
-2006/05/23 Shinigami: added Elf Hair Style to validhair() & comments added
-validbeard() rewritten & comments added
-2009/12/02 Turley:    added gargoyle support, 0x8D char create, face support
-2010/01/14 Turley:    more error checks, Tomi's startequip patch
-2011/10/26 Tomi:	  added 0xF8 char create for clients >= 7.0.16.0
+/** @file
+ *
+ * @par History
+ * - 2006/05/16 Shinigami: ClientCreateChar() updated to support Elfs
+ * - 2006/05/23 Shinigami: added Elf Hair Style to validhair() & comments added
+ *                         validbeard() rewritten & comments added
+ * - 2009/12/02 Turley:    added gargoyle support, 0x8D char create, face support
+ * - 2010/01/14 Turley:    more error checks, Tomi's startequip patch
+ * - 2011/10/26 Tomi:      added 0xF8 char create for clients >= 7.0.16.0
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "../clib/clib_endian.h"

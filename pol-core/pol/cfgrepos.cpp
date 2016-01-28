@@ -1,19 +1,17 @@
-/*
-History
-=======
-2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file modification
-                      added oldcfgfiles - holds all references to "removed" cfg files
-                      UnloadConfigFile will reload file if modified only
-2005/07/04 Shinigami: added StoredConfigFile::reload to check for file modification
-                      moved file modification check from UnloadConfigFile to FindConfigFile
-                      added ConfigFiles_log_stuff for memory logging
-2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+/** @file
+ *
+ * @par History
+ * - 2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file modification
+ *                         added oldcfgfiles - holds all references to "removed" cfg files
+ *                         UnloadConfigFile will reload file if modified only
+ * - 2005/07/04 Shinigami: added StoredConfigFile::reload to check for file modification
+ *                         moved file modification check from UnloadConfigFile to FindConfigFile
+ *                         added ConfigFiles_log_stuff for memory logging
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+ *
+ * @note Configuration File Repository
+ */
 
-Notes
-=======
-Configuration File Repository
-
-*/
 
 #include "cfgrepos.h"
 #include "polcfg.h"

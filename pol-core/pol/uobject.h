@@ -1,14 +1,13 @@
-/*
-History
-=======
-2009/02/01 MuadDib:   Resistance storage added.
+/** @file
+ *
+ * @par History
+ * - 2009/02/01 MuadDib:   Resistance storage added.
+ *
+ * @note ATTENTION
+ * This header is part of the PCH
+ * Remove the include in all StdAfx.h files or live with the consequences :)
+ */
 
-Notes
-=======
-ATTENTION:
-This header is part of the PCH
-Remove the include in all StdAfx.h files or live with the consequences :)
-*/
 
 
 #ifndef __UOBJECT_H

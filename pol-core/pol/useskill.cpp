@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/09/03 MuadDib:   Relocation of account related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "uoskills.h"
 #include "skills.h"
