@@ -60,10 +60,10 @@ To generate a compressed distributable archive (without debug symbols), then use
 
 ### Manual/Advanced compiling
 
-The following instructions are only for andvanced users. If you oly want to compile the core, please follow the steps above.
+The following instructions are only for advanced users. If you only want to compile the core, please follow the steps above.
 
 This software uses a CMake-based build system. CMake is a build system generator: on Linux, it will take care of generating a Makefile.
-If you are familiar with linux source tarballs, just think to *cmake* as a modern replacement for the good old *./configure* script.
+If you are familiar with linux source tarballs, just think of *cmake* as a modern replacement for the good old *./configure* script.
 
 First of all, run cmake one first time and let it do some autodetection:
 ```
