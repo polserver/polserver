@@ -1,15 +1,11 @@
-/*
-History
-=======
-2007/12/09 Shinigami: removed ( is.peek() != EOF ) check from String::unpackWithLen()
-                      will not work with Strings in Arrays, Dicts, etc.
-2008/02/08 Turley:    String::unpackWithLen() will accept zero length Strings
-2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2007/12/09 Shinigami: removed ( is.peek() != EOF ) check from String::unpackWithLen()
+ *                         will not work with Strings in Arrays, Dicts, etc.
+ * - 2008/02/08 Turley:    String::unpackWithLen() will accept zero length Strings
+ * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
+ */
 
 #include "impstr.h"
 
@@ -349,34 +345,20 @@ namespace Pol {
 	  remove( objimp.getStringRep().data() );
 	}
 
-
-	bool String::isEqual( const BObjectImp& objimp ) const
+	bool String::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTString ) )
-	  {
-		return ( value_ == static_cast<const String&>( objimp ).value_ );
-	  }
-	  else
-	  {
-		return false;
-	  }
+        return ( value_ == static_cast<const String&>( objimp ).value_ );
+
+      return base::operator==( objimp );
 	}
 
-	/* since non-Strings show up here as not equal, we make them less than. */
-	bool String::isLessThan( const BObjectImp& objimp ) const
+	bool String::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTString ) )
-	  {
-		return ( value_ < static_cast<const String&>( objimp ).value_ );
-	  }
-	  else if ( objimp.isa( OTUninit ) || objimp.isa( OTError ) )
-	  {
-		return false;
-	  }
-	  else
-	  {
-		return true;
-	  }
+        return ( value_ < static_cast<const String&>( objimp ).value_ );
+
+      return base::operator<( objimp );
 	}
 
 	String *String::midstring( int begin, int len ) const

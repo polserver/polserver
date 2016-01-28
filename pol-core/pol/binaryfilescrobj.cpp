@@ -316,7 +316,7 @@ namespace Pol {
 	  return file.IsOpen();
 	}
 
-	bool BBinaryfile::isEqual( const Bscript::BObjectImp& objimp ) const
+	bool BBinaryfile::operator==( const Bscript::BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( Bscript::BObjectImp::OTBinaryFile ) )
 	  {

@@ -150,8 +150,8 @@ namespace Pol {
     /// Adds a new intrisinc equipment to the map of known ones
     void insert_intrinsic_equipment( const std::string& name, Equipment* equip )
     {
-      assert( equip->layer );
-      assert( equip->is_intrinsic() );
+      passert_always_r( equip->layer, "Trying to use register equipment without a layer as intrinsic. Please report this bug on the forums." );
+      passert_always_r( equip->is_intrinsic(), "Trying to register non-intrinsic equipment. Please report this bug on the forums." );
       Core::gamestate.intrinsic_equipments.insert( Core::IntrinsicEquipments::value_type( Core::NameAndLayer(name, equip->layer), equip ) );
     }
 

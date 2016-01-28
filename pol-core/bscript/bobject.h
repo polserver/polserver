@@ -1,14 +1,10 @@
-/*
-History
-=======
-2006/10/28 Shinigami: GCC 4.1.1 fix - invalid use of constructor as a template
-2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
-2009/12/21 Turley:    ._method() call fix
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2006/10/28 Shinigami: GCC 4.1.1 fix - invalid use of constructor as a template
+ * - 2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
 #ifndef BSCRIPT_BOBJECT_H
 #define BSCRIPT_BOBJECT_H
@@ -153,14 +149,12 @@ namespace Pol {
 	  virtual void packonto( std::ostream& os ) const;
 	  virtual void printOn( std::ostream& ) const;
 
-	  // Operators and stuff
-	  virtual bool isEqual( const BObjectImp& objimp ) const;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const;
-
-	  virtual bool isLE( const BObjectImp& objimp ) const;
-	  virtual bool isLT( const BObjectImp& objimp ) const;
-	  virtual bool isGT( int val ) const;
-	  virtual bool isGE( int val ) const;
+      virtual bool operator==( const BObjectImp& objimp ) const;
+      virtual bool operator<( const BObjectImp& objimp ) const;
+      virtual bool operator<=( const BObjectImp& objimp ) const;
+      virtual bool operator>( const BObjectImp& objimp ) const;
+      virtual bool operator>=( const BObjectImp& objimp ) const;
+      virtual bool operator!=( const BObjectImp& objimp ) const;
 
 	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const;
 	  virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const;
@@ -475,8 +469,8 @@ namespace Pol {
 	  virtual void printOn( std::ostream& os ) const POL_OVERRIDE;
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  void* operator new( std::size_t len );
 	  void operator delete( void * );
@@ -556,7 +550,7 @@ namespace Pol {
 	  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
 	  virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices ) POL_OVERRIDE;
 
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+      virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
 	protected:
@@ -569,6 +563,8 @@ namespace Pol {
 
 	class BLong : public BObjectImp
 	{
+      typedef BObjectImp base;
+
 	public:
 #if BOBJECTIMP_DEBUG
 	  explicit BLong( int lval = 0L );
@@ -606,13 +602,8 @@ namespace Pol {
 
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
-
-	  virtual bool isLE( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLT( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isGT( int val ) const POL_OVERRIDE;
-	  virtual bool isGE( int val ) const POL_OVERRIDE;
+      virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+      virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
 	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const POL_OVERRIDE;
@@ -705,6 +696,8 @@ namespace Pol {
 
 	class Double : public BObjectImp
 	{
+      typedef BObjectImp base;
+
 	public:
 	  explicit Double( double dval = 0.0 ) : BObjectImp( OTDouble ), dval_( dval ) {}
 	  Double( const Double& dbl ) : BObjectImp( OTDouble ), dval_( dbl.dval_ ) {}
@@ -741,10 +734,9 @@ namespace Pol {
 	  {
 		return new Double( *this );
 	  }
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isGT( int val ) const POL_OVERRIDE;
-	  virtual bool isGE( int val ) const POL_OVERRIDE;
+
+      virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+      virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
 	  virtual BObjectImp* selfPlusObj( const BLong& objimp ) const POL_OVERRIDE;
@@ -801,12 +793,13 @@ namespace Pol {
 	class BApplicObjType
 	{};
 
-	/*
-		Application Pointer object.  Meant to point to some application data.
-		The script can't modify the value of the pointer, so the application can
-		hand this off to the script and trust that when it gets it back, it's
-		what was passed in.  pointer_type should be, typically, a class name.
-		*/
+    /**
+     * Application Pointer object.  Meant to point to some application data.
+     *
+     * The script can't modify the value of the pointer, so the application can
+     * hand this off to the script and trust that when it gets it back, it's
+     * what was passed in.  pointer_type should be, typically, a class name.
+     */
 	class BApplicPtr : public BObjectImp
 	{
 	public:

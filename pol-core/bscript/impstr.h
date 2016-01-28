@@ -1,11 +1,7 @@
-/*
-History
-=======
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ */
 
 #ifndef H_BSCRIPT_IMPSTR_H
 #define H_BSCRIPT_IMPSTR_H
@@ -24,6 +20,8 @@ namespace Pol {
 
 	class String : public BObjectImp
 	{
+      typedef BObjectImp base;
+
 	public:
 	  String() : BObjectImp( OTString ), value_( "" ) {}
 
@@ -127,9 +125,8 @@ namespace Pol {
 	  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
 	protected:
-
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
 	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;

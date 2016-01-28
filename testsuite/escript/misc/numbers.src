@@ -1,0 +1,64 @@
+
+// Testing all numeric creation possibilities
+
+var t;
+var n := 0;
+
+function testPrint(num)
+	n += 1;
+	print(CStr(n) + ".");
+	print(TypeOf(t));
+	print(t);
+endfunction
+
+// Int
+
+t := 0;
+testPrint(t);
+
+t := -2147483647;
+testPrint(t);
+
+t := 2147483647;
+testPrint(t);
+
+t := 0xfF0123a;
+testPrint(t);
+
+t := 0Xaaaaaa0;
+testPrint(t);
+
+t := -0Xff;
+testPrint(t);
+
+t := 000000;
+testPrint(t);
+
+t := 0000067;
+testPrint(t);
+
+t := 0755;
+testPrint(t);
+
+// Dbl
+
+t := 0.0;
+testPrint(t);
+
+t := -2147483648.123456;
+testPrint(t);
+
+t := 2147483647.123456;
+testPrint(t);
+
+t := 077.77;
+testPrint(t);
+
+t := 1.000000000000000000000000000000001;
+testPrint(t);
+
+t := 2e9;
+testPrint(t);
+
+t := 2E9;
+testPrint(t);

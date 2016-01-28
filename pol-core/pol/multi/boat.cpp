@@ -1506,7 +1506,7 @@ namespace Pol {
 	{
 	  if( Core::settingsManager.polvar.DataWrittenBy < 99 )
 	  {
-		assert( graphic >= 0x4000 );
+		passert_always_r( graphic >= 0x4000, "Unexpected boat graphic < 0x4000 in POL < 099 data" );
 		multiid = graphic - 0x4000;
 	  }
 	  base::fixInvalidGraphic();

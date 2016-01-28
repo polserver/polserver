@@ -2,7 +2,7 @@
 import os, subprocess
 import shutil
 import sys
-import codecs
+import re
 
 def colorprint(text, color):
 	if os.name == 'nt':
@@ -24,12 +24,9 @@ def colorprint(text, color):
 
 class Compare:
 	@staticmethod
-	def forceLinuxEOL(text):
-		return text.replace('\r\n', '\n')
-
-	@staticmethod
-	def txtcompare(file1,file2):
-		with codecs.open(file1,'r',encoding='utf-8',errors='replace') as f1, codecs.open(file2,'r',encoding='utf-8',errors='replace') as f2:
+	def txtcompare(file1, file2):
+		with open(file1,'rt',encoding='utf-8',errors='replace',newline=None) as f1, \
+				open(file2,'rt',encoding='utf-8',errors='replace',newline=None) as f2:
 			l1=f1.readlines()
 			l2=f2.readlines()
 			if len(l1) != len(l2):
@@ -43,13 +40,24 @@ class Compare:
 				return False
 			i=1
 			for c1,c2 in zip(l1,l2):
-				c1=Compare.forceLinuxEOL(c1)
-				c2=Compare.forceLinuxEOL(c2)
-				if c1!=c2:
-					print('line: {}'.format(i))
-					print('"',c1,'"')
-					print('"',c2,'"')
-					return False
+				if c1.startswith(':REGEX:/') and c1[:-1].endswith('/'):
+					try:
+						r = re.compile('^' + c1[8:-2] + '\r?$')
+					except Exception as e:
+						print('line: {}'.format(i))
+						print('invalid regex: {} ({})'.format(repr(c1), e))
+						return False
+					if not r.match(c2):
+						print('line: {}'.format(i))
+						print('/{}/'.format(r.pattern))
+						print(repr(c2))
+						return False
+				else:
+					if c1 != c2:
+						print('line: {}'.format(i))
+						print('EXPECTED:', repr(c1))
+						print('GOT:     ', repr(c2))
+						return False
 				i+=1
 			return True
 
@@ -60,7 +68,7 @@ class Compare:
 			with open(basename+'.tst', 'r') as tst:
 				print(tst.read())
 			return False
-		return Compare.txtcompare(basename+'.out',basename+'.tst')
+		return Compare.txtcompare(basename+'.out', basename+'.tst')
 
 class ExtUtil:
 	def __call__(self, file):
@@ -73,8 +81,10 @@ class ExtUtil:
 		'''
 		if os.path.exists(self.baseName(file) + self.errExt):
 			expectErr = True
-			with open(self.baseName(file) + self.errExt, 'r') as err:
-				errorMatch = err.read().strip()
+			with open(self.baseName(file) + self.errExt,'rt',newline=None) as err:
+				lines = err.readlines()
+				lines = map(lambda i: i[:-1] if i.endswith('\n') else i, lines)
+				errorMatch = os.linesep.join(lines)
 		else:
 			expectErr = False
 
@@ -84,7 +94,7 @@ class ExtUtil:
 			compiled = True
 		except subprocess.CalledProcessError as e:
 			cmd = e.cmd
-			err = e.output.decode('utf-8')
+			err = e.output.decode()
 			compiled = False
 
 		if compiled:
@@ -94,14 +104,12 @@ class ExtUtil:
 				return (True, True)
 		else:
 			if expectErr:
-				errorMatch=Compare.forceLinuxEOL(errorMatch)
-				err=Compare.forceLinuxEOL(err)
 				if errorMatch in err:
 					return (False, True)
 				else:
-					print(errorMatch)
+					print(repr(errorMatch))
 					print('NOT FOUND IN')
-					print(err)
+					print(repr(err))
 					return (False, False)
 			else:
 				print(cmd)
@@ -136,14 +144,16 @@ class StdTests:
 	underscore character, will be ignoed (disabled).
 	To create a test, create a .src file into a package. That file will be executed
 	and its output checked agains a .out file with the same name on the same
-	package. If output matches, test is succesfull.
+	package. If output matches, test is succesfull. A special rule: if a line starts
+	with :REGEX:/ and ends with /, then that line will be handled as a regex (line
+	start and end markers will be added automatically)
 	If a test is supposed to give an error on compile, create a .err file instead
 	and put the text to be matched on the error message inside it.
 	If a test is supposed to give an error on execute, create a .exr file instead
 	and put the text to be matched on the error message inside it.
 	'''
 
-	def __init__(self, compiler, runecl, what=None):
+	def __init__(self, compiler, runecl, what=None, quiet=False):
 		if what:
 			splits = what.split('/')
 			if len(splits) > 2:
@@ -172,6 +182,7 @@ class StdTests:
 						self.files.append(file)
 		self.compiler = compiler
 		self.runecl = runecl
+		self.quiet = quiet
 
 	def cleanFile(self, file):
 		base=os.path.splitext(file)[0]
@@ -184,11 +195,14 @@ class StdTests:
 	def testFile(self, file):
 		compiled, compSuccess = self.compiler(file)
 		if not compSuccess:
-			base=os.path.splitext(file)[0]
-			if os.path.exists(base+'.lst'):
-				with codecs.open(base+'.lst','r',encoding='utf-8',errors='replace') as f1:
-					for l in f1.readlines():
-						print(l.rstrip('\r\n'))
+			if compiled and not self.quiet:
+				# Show lst output if file unexpectedly compiled
+				base = os.path.splitext(file)[0]
+				if os.path.exists(base+'.lst'):
+					with open(base+'.lst','rt',newline=None) as f1:
+						print('LST OUTPUT:')
+						for l in f1.readlines():
+							print(l.rstrip('\n'))
 			raise TestFailed("shouldn't compile" if compiled else 'failed to compile')
 
 		if compiled:
@@ -199,16 +213,20 @@ class StdTests:
 		if compiled and not Compare.outputcompare(file):
 			raise TestFailed('output differs')
 
-	def __call__(self, haltOnError=False):
+	def __call__(self, num, haltOnError=False):
 		tested = 0
 		passed = 0
 		for f in self.files:
-			colorprint('Testing {}'.format(f), 'cyan')
+			if not self.quiet:
+				colorprint('Testing {}'.format(f), 'cyan')
 			tested += 1
 			try:
 				self.testFile(f)
 			except TestFailed as e:
-				colorprint('FAILED: {}'.format(e), 'red')
+				errMex = 'FAILED: {}'.format(e)
+				if self.quiet:
+					errMex += ' in {}'.format(f)
+				colorprint(errMex, 'red')
 				if haltOnError:
 					break
 			else:
@@ -219,7 +237,7 @@ class StdTests:
 
 		color = 'green' if success else 'red'
 		print('')
-		print('*** TEST SUMMARY ***')
+		print('*** TEST {}/{} SUMMARY ***'.format(*num))
 		colorprint('Overall status: {}. {} files tested, {} passed, {} failed.'.format(
 				'OK' if success else 'FAILED', tested, passed, tested-passed), color)
 		return success
@@ -238,12 +256,34 @@ if __name__ == '__main__':
 	parser.add_argument('runecl', help="Full path to runecl executable")
 	parser.add_argument('what', nargs='?', help='If specified, tests a single package or package/script')
 	parser.add_argument('-a', '--halt', action='store_true', help="Halt on first error")
+	parser.add_argument('-q', '--quiet', action='store_true', help="Quiet output: only display errors and summary")
+	parser.add_argument('-n', '--num', type=int, default=1,
+		help="Repeat tests this number of times or until it fails (to detect intermittent bugs). O means forever.")
 	args = parser.parse_args()
 
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 
-	test=StdTests(compiler, runecl, args.what)
-	if test(args.halt):
-		sys.exit(0)
-	sys.exit(1)
+	totLoops = args.num if args.num > 0 else None
+	totLoopsStr = str(totLoops) if totLoops else '∞'
+	loopsLeft = totLoops
+	i = 0
+	while loopsLeft is None or loopsLeft > 0:
+		try:
+			i += 1
+			if i > 1:
+				print()
+				print()
+
+			test = StdTests(compiler, runecl, args.what, args.quiet)
+
+			if not test((i,totLoopsStr), args.halt):
+				sys.exit(1)
+
+			if loopsLeft is not None:
+				loopsLeft -= 1
+		except KeyboardInterrupt:
+			print('*** TEST {}/{} INTERRUPTED (CTRL+C) ***'.format(i,totLoopsStr))
+			sys.exit(2)
+
+	sys.exit(0)

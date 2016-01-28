@@ -571,8 +571,10 @@ namespace Pol {
 				if ( add_as_component )
 				{
                   Items::Item* component = Items::Item::create( id.objtype );
-				  if ( component != NULL )
-					house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+				  if ( component != NULL ) {
+                    bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                    passert_always_r( res, "Couldn't add newly created door as house component. Please report this bug on the forums." );
+                  }
 				}
 				zitr = yitr->erase( zitr );
 				floor_sizes[i]--;
@@ -582,8 +584,10 @@ namespace Pol {
 				if ( add_as_component )
 				{
                   Items::Item* component = Items::Item::create( zitr->graphic );
-				  if ( component != NULL )
-					house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+				  if ( component != NULL ) {
+                    bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                    passert_always_r( res, "Couldn't add newly created teleporter as house component. Please report this bug on the forums." );
+                  }
 				}
 				zitr = yitr->erase( zitr );
 				floor_sizes[i]--;

@@ -1,0 +1,95 @@
+
+// 2015-01-24 Bodom
+//
+// Tests comparison operators
+// All tests expected to be true
+
+
+// Int and Double
+var i1 := 1;
+var d1 := 1.0;
+var i2 := 2;
+var d2 := 2.0;
+print( i1 == d1 );
+print( i1 == i2 - 1 );
+print( i1 != i2 );
+print( i1 != d2 );
+print( i1 < i2 );
+print( i1 <= i2 );
+print( i1 < d2 );
+print( i1 <= d2 );
+print( i2 > i1 );
+print( i2 > d1 );
+print( i2 >= i1 );
+print( i2 >= d2 );
+print( d1 == d1 );
+print( d1 != i2 );
+print( d1 != d2 );
+print( d1 < i2 );
+print( d1 <= i2 );
+print( d1 < d2 );
+print( d1 <= d2 );
+print( d2 > i1 );
+print( d2 > d1 );
+print( d2 >= i1 );
+print( d2 >= d2 );
+
+// String
+var sa := "aaaaaaaaaaaa";
+var sb := "bbbbbbbbbbbb";
+print( sa != sb );
+print( sa == StrReplace(sa,"b","a") );
+print( sa < sb );
+print( sa <= sb );
+print( sb > sa );
+print( sb >= sa );
+
+// Uninit and Error
+var un;
+var err := error{};
+print( un == err );
+print( un != 0 );
+print( err != 0 );
+print( un != i1 );
+print( err != i1 );
+print( un < i1 );
+print( err < i1 );
+print( un <= i1 );
+print( err <= i1 );
+print( d1 > err );
+print( d1 > un );
+print( d1 >= err );
+print( d1 >= un );
+
+// Array
+var a1 := array{ 1, 2, 3 };
+var a2 := array{ 2, 3, 4 };
+var a3 := array{ i1, i2, i2+1 };
+print( a1 != a2 );
+print( a1 == a3 );
+
+// Struct
+var t1 := struct{ a := 1, b := 2 };
+var t2 := struct{ a := 2, b := 3 };
+print( t1 != t2 );
+
+// Comparison between objects of different kind
+// (undocumented "undefined" behavior, just checked for internal consistency)
+// OTUnknown = 0,
+// OTUninit = 1,
+// OTString = 2,
+// OTLong = 3,
+// OTDouble = 4,
+// OTArray = 5,
+// OTApplicPtr = 6,
+// OTApplicObj = 7,
+// OTError = 8,
+// OTDictionary = 9,
+// OTStruct = 10,
+// OTPacket = 11,
+print( t1 != a1 );
+print( 0 != struct{} );
+print( 0 > un );
+print( 0 > err );
+print( dictionary{} < struct{} );
+print( array{} > 3.0 );

@@ -1,18 +1,16 @@
-/*
-History
-=======
-2005/06/06 Shinigami: added readobjects - to get a list of statics
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/09/14 MuadDib:   Squatters code added to register.unregister mobs.
-2009/09/15 MuadDib:   Better cleanup handling on house destroy. Alos clears registered_house off character.
-                      Houses now only allow mobiles to be registered. May add items later for other storage.
-2012/02/02 Tomi:      Added boat member MBR_MULTIID
+/** @file
+ *
+ * @par History
+ * - 2005/06/06 Shinigami: added readobjects - to get a list of statics
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/09/14 MuadDib:   Squatters code added to register.unregister mobs.
+ * - 2009/09/15 MuadDib:   Better cleanup handling on house destroy. Alos clears registered_house off character.
+ *                         Houses now only allow mobiles to be registered. May add items later for other storage.
+ * - 2012/02/02 Tomi:      Added boat member MBR_MULTIID
+ */
 
-Notes
-=======
-
-*/
+#include <boost/numeric/conversion/cast.hpp> 
 
 #include "house.h"
 #include "multidef.h"
@@ -110,6 +108,9 @@ namespace Pol {
       return size;
     }
 
+    /**
+     * Creates dynamic house components from MultiDef (multis.cfg at the time of writing)
+     */
 	void UHouse::create_components()
 	{
 	  const MultiDef& md = multidef();
@@ -119,32 +120,72 @@ namespace Pol {
 		if ( !elem.is_static )
 		{
 		  Items::Item* item = Items::Item::create( elem.objtype );
-		  item->x = x + elem.x;
-		  item->y = y + elem.y;
-		  item->z = static_cast<s8>( z + elem.z );
-		  item->disable_decay();
-		  item->movable( false );
-		  item->realm = realm;
-		  update_item_to_inrange( item );
-		  add_item_to_world( item );
-		  components_.push_back( Component( item ) );
+          bool res = add_component( item, elem.x, elem.y, elem.z );
+          passert_always_r( res, "Couldn't add newly created item as house component. Please report this bug on the forums." );
 		}
 	  }
 	}
 
-	void UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, u8 zoff )
+    /**
+     * Moves the item into the house, adding it as house component
+     * (change item coordinates, set it unmovable, etc...)
+     *
+     * @param item Pointer to the item to be added
+     * @param xoff The X offset inside the house
+     * @param yoff The Y offset inside the house
+     * @param zoff The Z offset inside the house
+     * @return true on success, false when the item can't be added
+     */
+	bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
 	{
-	  item->x = static_cast<u16>(x + xoff);
-	  item->y = static_cast<u16>(y + yoff);
-	  item->z = static_cast<s8>( z + zoff );
+      if( ! can_add_component(item) )
+        return false;
+
+      u16 newx, newy; s8 newz;
+      try {
+        // These casts should be safe, but better check them - 2015-01-25 Bodom
+        newx = boost::numeric_cast<u16>(x + xoff);
+        newy = boost::numeric_cast<u16>(y + yoff);
+        newz = boost::numeric_cast<s8>(z + zoff);
+      } catch( boost::bad_numeric_cast& ) {
+        // Printing an error because this is supposed to not happen,
+        // so it's probably a bug.
+        POLLOG_ERROR << "Out-of-range coordinates while trying to add Item " << fmt::hexu(item->serial) << " to House " << fmt::hexu(serial) << '\n';
+        return false;
+      }
+      item->x = newx;
+      item->y = newy;
+      item->z = newz;
 	  item->disable_decay();
 	  item->movable( false );
 	  item->realm = realm;
 	  update_item_to_inrange( item );
 	  add_item_to_world( item );
-	  components_.push_back( Component( item ) );
+      add_component_no_check( Component(item) );
+      return true;
 	}
 
+    /**
+     * (Re-)Adds a component to the House, without modifying it:
+     * the item must already be inside the house, it just gets added to the components list
+     *
+     * @param item Reference to the item being added
+     * @return true on success, false when the item can't be added
+     */
+    bool UHouse::add_component( Component item )
+    {
+      if( ! can_add_component(item.get()) )
+        return false;
+
+      add_component_no_check( item );
+      return true;
+    }
+
+    /**
+     * Returns list of house components by allocating a new Array to be used by scripts
+     *
+     * @return ObjArray* pointer to the newly allocated array
+     */
 	Bscript::ObjArray* UHouse::component_list() const
 	{
       std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
@@ -216,7 +257,6 @@ namespace Pol {
 		  else
 			return CurrentDesign.list_parts();
 		  break;
-
 		default: return NULL;
 	  }
 	}
@@ -259,8 +299,14 @@ namespace Pol {
 			{
 			  Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
 			  Core::ItemRef iref = ir->value( );
-			  components_.push_back( iref );
-			  return new BLong( 1 );
+
+              if( add_component(iref) )
+                return new BLong( 1 );
+
+              if( iref->house() )
+                return new BError( "Item is already an house component" );
+              else
+                return new BError( "Couldn't add component" );
 			}
 		  }
 		  break;
@@ -419,7 +465,19 @@ namespace Pol {
 		Items::Item* item = Core::find_toplevel_item( tmp_serial );
 		if ( item != NULL )
 		{
-		  components_.push_back( Component( item ) );
+          if( ! add_component(Component(item)) ) {
+            fmt::Writer os;
+            os << "Couldn't add component " << fmt::hexu(item->serial) << " to house " << fmt::hexu(serial) << ".\n";
+            UHouse* contHouse = item->house();
+            if( contHouse == nullptr ) {
+              os << "This is probably a core bug. Please report it on the forums.";
+            } else {
+              os << "This item is already part of house " << contHouse->serial << ".\n";
+              os << "Allowing an item to be a component in two different houses was a bug,\n";
+              os << "please also fix your save data.";
+            }
+            throw std::runtime_error(os.str());
+          }
 		}
 	  }
 	  custom = elem.remove_bool( "Custom", false );

@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/01/17 Shinigami: added passert*_r, same as passert* with additional param "reason"
-2005/09/16 Shinigami: scripts_thread_script* moved to passert
-
-Notes
-=======
-ATTENTION:
-This header is part of the PCH
-Remove the include in all StdAfx.h files or live with the consequences :)
+/** @file
+ *
+ * @par History
+ * - 2005/01/17 Shinigami: added passert*_r, same as passert* with additional param "reason"
+ * - 2005/09/16 Shinigami: scripts_thread_script* moved to passert
+ *
+ * @warning This header is part of the PCH\n
+ * Remove the include in all StdAfx.h files or live with the consequences :)
 */
 
 #ifndef CLIB_PASSERT_H
@@ -57,7 +54,12 @@ namespace Pol {
   }
 #if  INC_PASSERT
 
+/**
+ * Works the same way as assert(), but is not stripped at non-debug compilation time.
+ * Use this for non-crucial assertions.
+ */
 #define passert(exp) (void)( Clib::passert_disabled || (exp) || (Clib::passert_failed(#exp, __FILE__, __LINE__), 0) ); passert_assume(exp)
+/** Just like passert(), but allows to specify a reason as additional parameter */
 #define passert_r(exp, reason) (void)( Clib::passert_disabled || (exp) || (Clib::passert_failed(#exp, reason, __FILE__, __LINE__), 0) ); passert_assume(exp)
 
 #else
@@ -66,12 +68,22 @@ namespace Pol {
 
 #endif
 
+/**
+ * Works the same way as assert(), but is guaranteed to be never stripped.
+ * Use this for critical assertions that can't be ignored.
+ */
 #define passert_always(exp) (void)( (exp) || (Clib::passert_failed(#exp, __FILE__, __LINE__), 0) ); passert_assume(exp)
+/** Just like passert_always(), but allows to specify a reason as additional parameter */
 #define passert_always_r(exp, reason) (void)( (exp) || (Clib::passert_failed(#exp, reason, __FILE__, __LINE__), 0) ); passert_assume(exp)
 
 #if  INC_PASSERT_PARANOID
 
+/**
+ * This works the same way as assert(), but is guaranteed to be stripped at non-debug compilation time
+ * Use this for trivial assertions: "I've proved it's impossible, but ..."
+ */
 #define passert_paranoid(exp) (void)( (exp) || (Clib::passert_failed(#exp, __FILE__, __LINE__), 0) ); passert_assume(exp)
+/** Just like passert_paranoid(), but allows to specify a reason as additional parameter */
 #define passert_paranoid_r(exp, reason) (void)( (exp) || (Clib::passert_failed(#exp, reason, __FILE__, __LINE__), 0) ); passert_assume(exp)
 
 #else

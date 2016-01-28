@@ -1,11 +1,7 @@
-/*
-History
-=======
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ */
 
 #include "realm.h"
 #include "../../plib/mapcell.h"
@@ -23,38 +19,41 @@ namespace Pol {
 	const int los_range = 20;
 	//const int z_los_range = 60; // unused as yet
 
-	/*
-		To determine LOS, a 3D line is drawn from the top of the attacker
-		to the top of the target.
+    /**
+     * @defgroup los3d 3D LOS CHECKING
+     *
+     * To determine LOS, a 3D line is drawn from the top of the attacker
+     * to the top of the target.
+     *
+     * An 3D extension of Bresenham's algorithm is used to draw the line.
+     *
+     * Each point along the way is checked for items and statics of any kind.
+     * Only integer addition and subtraction is required.
+     *
+     * The line always starts at the point with the lowest Y-coordinate,
+     * or if the Y coordinates are the same, the point with the lowest
+     * Z-coordinate.  This way, if A -> B has LOS, then B -> A has LOS,
+     * always.  (Bresenham lines can occupy different points, given
+     * the same endpoints, depending on which point is used as the start)
+     *
+     * Zero-height items (floor tiles, mostly) are treated as 1-height
+     * items, sitting at 1 lower Z coordinate.  This makes floors solid.
+     * (A weirdness: On a floor at height 72, characters walk around at Z=73,
+     * but items are placed at Z=72.  This is somewhat unfortunate.)
+     *
+     * @note All obstacles found to obstruct the LOS are checked
+     * to make sure they are neither the attacker nor the target,
+     * since both endpoints are checked.  This is actually unnecessary
+     * when both attacker and defender are characters, which ends up
+     * being all the time when it matters.
+     *
+     * @par Possible optimizations/improvements
+     * Read statics file once per X/Y change, rather than each X/Y/Z change
+     */
 
-		An 3D extension of Bresenham's algorithm is used to draw the line.
-
-		Each point along the way is checked for items and statics of any kind.
-		Only integer addition and subtraction is required.
-
-		The line always starts at the point with the lowest Y-coordinate,
-		or if the Y coordinates are the same, the point with the lowest
-		Z-coordinate.  This way, if A -> B has LOS, then B -> A has LOS,
-		always.  (Bresenham lines can occupy different points, given
-		the same endpoints, depending on which point is used as the start)
-
-		Zero-height items (floor tiles, mostly) are treated as 1-height
-		items, sitting at 1 lower Z coordinate.  This makes floors solid.
-		(A weirdness: On a floor at height 72, characters walk around at Z=73,
-		but items are placed at Z=72.  This is somewhat unfortunate.)
-
-		Note, all obstacles found to obstruct the LOS are checked
-		to make sure they are neither the attacker nor the target,
-		since both endpoints are checked.  This is actually unnecessary
-		when both attacker and defender are characters, which ends up
-		being all the time when it matters.
-
-		Possible optimizations/improvements:
-		Read statics file once per X/Y change, rather than each X/Y/Z change
-		*/
-
-	/**************************** 3D LOS CHECKING *******************************/
-
+    /**
+     * @ingroup los3d
+     */
     bool Realm::dynamic_item_blocks_los( const Core::LosObj& att, const Core::LosObj& target,
 										 unsigned short x, unsigned short y, short z ) const
 	{
@@ -88,6 +87,9 @@ namespace Pol {
 	  return false;
 	}
 
+    /**
+     * @ingroup los3d
+     */
 	bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z ) const
 	{
 	  static Plib::MapShapeList shapes;
@@ -126,7 +128,11 @@ namespace Pol {
 	  return false;
 	}
 
-	// Is any object occupying point (x,y,z) that is neither attacker nor target?
+    /**
+     * Is any object occupying point (x,y,z) that is neither attacker nor target?
+     *
+     * @ingroup los3d
+     */
     bool Realm::los_blocked( const Core::LosObj& att, const Core::LosObj& target,
 							 unsigned short x, unsigned short y, short z ) const
 	{
@@ -150,12 +156,15 @@ namespace Pol {
 		static_item_blocks_los( x, y, z );
 	}
 
-	// absolute value of a 
+    /// absolute value of a 
 #define ABS(a) (((a)<0) ? -(a) : (a))
 
-	// take sign of a, either -1, 0, or 1 
+    /// take sign of a, either -1, 0, or 1 
 #define ZSGN(a) (((a)<0) ? -1 : (a)>0 ? 1 : 0)
 
+     /**
+     * @ingroup los3d
+     */
     bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
 	{
 	  short x1, y1, z1; // one of the endpoints

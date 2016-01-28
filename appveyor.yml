@@ -15,5 +15,5 @@ build_script:
 #test: off
 test_script: 
 - cd testsuite\\escript
-- c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\ecompile\\Release\\x64\\ecompile.exe ..\\..\\pol-core\\runecl\\Release\\x64\\runecl.exe
+- c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\ecompile\\Release\\x64\\ecompile.exe ..\\..\\pol-core\\runecl\\Release\\x64\\runecl.exe -n 5
 deploy: off

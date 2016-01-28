@@ -234,7 +234,7 @@ namespace Pol {
 	  return ( !obj_->orphan() && obj_->logged_in );
 	}
 
-	bool ECharacterRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -254,7 +254,7 @@ namespace Pol {
 		return false;
 	}
 
-	bool ECharacterRefObjImp::isLessThan( const BObjectImp& objimp ) const
+	bool ECharacterRefObjImp::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -272,8 +272,7 @@ namespace Pol {
 		else
 		  return false;
 	  }
-	  else
-		return false;
+      return base::operator<( objimp );
 	}
 
 	const char* EOfflineCharacterRefObjImp::typeOf() const
@@ -415,7 +414,7 @@ namespace Pol {
 	  return ( !obj_->orphan() );
 	}
 
-	bool EItemRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EItemRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -435,7 +434,7 @@ namespace Pol {
 		return false;
 	}
 
-	bool EItemRefObjImp::isLessThan( const BObjectImp& objimp ) const
+	bool EItemRefObjImp::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -451,8 +450,8 @@ namespace Pol {
 		else
 		  return ( &eitemrefobjimp_type < aob->object_type() );
 	  }
-	  else
-		return false;
+
+      return base::operator<( objimp );
 	}
 
 	const char* EUBoatRefObjImp::typeOf() const
@@ -548,7 +547,7 @@ namespace Pol {
 	  return ( !obj_->orphan() );
 	}
 
-	bool EUBoatRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -687,7 +686,7 @@ namespace Pol {
 	  return ( !obj_->orphan() );
 	}
 
-	bool EMultiRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -919,6 +918,11 @@ namespace Pol {
 		case MBR_MAXHP_MOD: return new BLong( maxhp_mod() ); break;
 		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * getQuality() ) ); break;
 		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
+        case MBR_HOUSE:
+          if ( house() != nullptr )
+            return house()->make_ref();
+          return new BError( "This is a not component of any house" );
+          break;
 		default: return NULL;
 	  }
 	}
@@ -3780,7 +3784,7 @@ namespace Pol {
       return ( ( obj_.ConstPtr() != NULL ) && obj_->isConnected() );
     }
 
-    bool EClientRefObjImp::isEqual( const BObjectImp& objimp ) const
+    bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
     {
       if ( objimp.isa( BObjectImp::OTApplicObj ) )
       {

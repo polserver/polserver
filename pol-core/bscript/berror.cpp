@@ -101,10 +101,21 @@ namespace Pol {
 	{
 	  return false;
 	}
-	bool BError::isEqual( const BObjectImp& imp ) const
-	{
-	  return ( imp.isa( OTError ) || imp.isa( OTUninit ) );
-	}
+    /**
+     * An error is equal to any other error or uninit
+     */
+    bool BError::operator==( const BObjectImp& imp ) const
+    {
+      return ( imp.isa( OTError ) || imp.isa( OTUninit ) );
+    }
+
+    bool BError::operator<( const BObjectImp& imp ) const
+    {
+      if ( imp.isa( OTError ) || imp.isa( OTUninit ) )
+        return false; // Because it's equal can't be lesser
+
+      return true;
+    }
 
 	ContIterator* BError::createIterator( BObject* /*pIterVal*/ )
 	{

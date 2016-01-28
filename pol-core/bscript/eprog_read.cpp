@@ -1,13 +1,8 @@
-/*
-History
-=======
-2005/12/07 MuadDib: Added "Recompile required" to Bad version reports.
-
-Notes
-=======
-
-*/
-
+/** @file
+ *
+ * @par History
+ * - 2005/12/07 MuadDib: Added "Recompile required" to Bad version reports.
+ */
 
 #include "eprog.h"
 
@@ -29,6 +24,12 @@ Notes
 
 namespace Pol {
   namespace Bscript {
+
+    /**
+     * Opens and ECL file containing bytecode and reads it
+     *
+     * This is where script bytecode processing is done
+     */
 	int EScriptProgram::read( const char *fname )
 	{
 	  FILE* fp = NULL;
@@ -160,6 +161,9 @@ namespace Pol {
 	  return 0;
 	}
 
+    /**
+     * Reads the Program Header section from the file pointer
+     */
 	int EScriptProgram::read_progdef_hdr( FILE *fp )
 	{
 	  BSCRIPT_PROGDEF_HDR hdr;
@@ -171,6 +175,9 @@ namespace Pol {
 	  return 0;
 	}
 
+    /**
+     * Reads a module "usages" section from the file pointer
+     */
 	int EScriptProgram::read_module( FILE *fp )
 	{
 	  BSCRIPT_MODULE_HDR hdr;
