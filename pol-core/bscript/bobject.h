@@ -28,6 +28,10 @@
 #include <iosfwd>
 
 namespace Pol {
+
+  /**
+   * Bscript namespace is for escript stuff, like compiler and basic modules
+   */
   namespace Bscript {
 	class BObjectImp;
 	class BObject;
