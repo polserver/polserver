@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef ARMRTMPL_H
 #define ARMRTMPL_H

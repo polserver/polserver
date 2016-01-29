@@ -1,13 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @note SOLIDX2_FILLER_SIZE bytes are at the beginning of the solidx2.dat file,
+ * so that something referencing the first element won't reference offset 0.
+ */
 
-Notes
-=======
-SOLIDX2_FILLER_SIZE bytes are at the beginning of the solidx2.dat file,
-so that something referencing the first element won't reference offset 0.
-
-*/
 
 #ifndef PLIB_MAPBLOB_H
 #define PLIB_MAPBLOB_H

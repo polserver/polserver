@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 #ifndef __UMANIP_H
 #define __UMANIP_H
 namespace Pol {

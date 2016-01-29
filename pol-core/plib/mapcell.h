@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_MAPCELL_H
 #define PLIB_MAPCELL_H

@@ -14,6 +14,19 @@ XX-XX-XXXX Bodom:
            non-ANSI characters (those above 0xFF) are silently converted to a
            question mark ('?').
            Unicode objects are saved and packed using utf8 encoding.
+01-22-2016 Bodom:
+  Fixed:   Minor bug in ecompile allowing Double literals in the form "2d4".
+           These were incorrectly interpreted as "2e4", meaning 20000 and
+           leading to confusion with dice rolls. The compiler now issues
+           an error instead.
+01-20-2016 Bodom:
+  Added:   New Item.house property, returns a reference to the house if the
+           item is a component of it (listed in House.components()).
+           This is the intended replacement for the previously removed CProp
+           "house_serial": use item.house.serial instead of
+           GetObjProperty(item, "house_serial").
+12-27-2015 Bodom & Nando:
+  Fixed:   Linux crash on shutdown
 12-26-2015 Bodom:
   Fixed:   Bug in String.format()
            String tags were not correctly processed.
@@ -83,7 +96,7 @@ XX-XX-XXXX Bodom:
   Added:   On pop-up menu request (single click) "misc/popupmenu.ecl" is called.
   Fixed:   When using MapDiff, tiles could disappear in some circumstances
 09-24-2015 Bodom:
-  Added    New keyword AttackCProp on npcdesc.cfg allows defining CProps for
+  Added:   New keyword AttackCProp on npcdesc.cfg allows defining CProps for
            intrinsic weapons.
   Fixed:   Hp/MaxHp updates to nearby clients were still using the real value
            instead of the 1000-based ratio when sending the 0xa1 packet.

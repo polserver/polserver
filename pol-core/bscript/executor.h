@@ -1,15 +1,19 @@
-/*
-History
-=======
-2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+/** @file
+ *
+ * @par History
+ * - 2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __EXECUTOR_H
 #define __EXECUTOR_H
+
+
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #ifndef __SYMCONT_H
 #include "symcont.h"

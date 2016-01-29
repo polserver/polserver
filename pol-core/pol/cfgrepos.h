@@ -1,18 +1,20 @@
-/*
-History
-=======
-2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file modification
-2005/07/04 Shinigami: added StoredConfigFile::reload to check for file modification
-added ConfigFiles_log_stuff for memory logging
+/** @file
+ *
+ * @par History
+ * - 2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file modification
+ * - 2005/07/04 Shinigami: added StoredConfigFile::reload to check for file modification
+ *                         added ConfigFiles_log_stuff for memory logging
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef CFGREPOS_H
 #define CFGREPOS_H
+
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include "../clib/maputil.h"
 #include "../clib/refptr.h"

@@ -1,18 +1,21 @@
-/*
-History
-=======
-2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
-2006/01/27 Shinigami: added missing TOK_BS* to Executor::GetInstrFunc
-2006/06/10 Shinigami: getParamImp/2 - better Error Message added
-2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
-2007/07/07 Shinigami: added code to analyze memoryleaks in initForFnCall() (needs defined MEMORYLEAK)
-2009/07/19 MuadDib: Executor::ins_member() Removed, due to no longer used since case optimization code added.
-2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+/** @file
+ *
+ * @par History
+ * - 2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
+ * - 2006/01/27 Shinigami: added missing TOK_BS* to Executor::GetInstrFunc
+ * - 2006/06/10 Shinigami: getParamImp/2 - better Error Message added
+ * - 2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
+ * - 2007/07/07 Shinigami: added code to analyze memoryleaks in initForFnCall() (needs defined MEMORYLEAK)
+ * - 2009/07/19 MuadDib: Executor::ins_member() Removed, due to no longer used since case optimization code added.
+ * - 2009/09/05 Turley: Added struct .? and .- as shortcut for .exists() and .erase()
+ */
 
-Notes
-=======
 
-*/
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include "executor.h"
 
@@ -1117,7 +1120,7 @@ namespace Pol {
 		dbl->increment();
 	  }
 
-	  if ( !end->isLessThan( *itr ) )
+	  if ( *end >= *itr )
 	  {
 		PC = ins.token.lval;
 	  }
@@ -1843,7 +1846,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = !( left->isEqual( right.impref() ) );
+	  int _true = ( left != right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -1861,7 +1864,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( left->isEqual( right.impref() ) );
+	  int _true = ( left == right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -1879,7 +1882,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( left->isLT( right.impref() ) );
+	  int _true = ( left < right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -1896,7 +1899,7 @@ namespace Pol {
 
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
-	  int _true = ( left->isLE( right.impref() ) );
+	  int _true = ( left <= right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 	void Executor::ins_greaterthan( const Instruction& /*ins*/ )
@@ -1913,7 +1916,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( right->isLT( left.impref() ) );
+	  int _true = ( left > right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 	void Executor::ins_greaterequal( const Instruction& /*ins*/ )
@@ -1930,7 +1933,7 @@ namespace Pol {
 	  BObject& right = *rightref;
 	  BObject& left = *leftref;
 
-	  int _true = ( right->isLE( left.impref() ) );
+	  int _true = ( left >= right );
 	  leftref.set( new BObject( new BLong( _true ) ) );
 	}
 
@@ -2961,7 +2964,7 @@ namespace Pol {
 											case TOK_EQUAL:    _true = ( left == right ); break;
 											case TOK_NEQ:      _true = ( left != right ); break;
 											case TOK_LESSTHAN: _true = ( left <  right ); break;
-											case TOK_LESSEQ:   _true = ( left->isLE( right.impref() ) ); break;
+											case TOK_LESSEQ:   _true = ( left <= right ); break;
 											case TOK_GRTHAN:   _true = ( left >  right ); break;
 											case TOK_GREQ:     _true = ( left >= right ); break;
 											case TOK_AND:      _true = ( left.isTrue() &&

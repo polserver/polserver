@@ -1,16 +1,13 @@
-/*
-History
-=======
-2005/01/24 Shinigami: added packet 0xd9 (Spy on Client 2) to exceptions
-2005/08/29 Shinigami: SPY_ON_CLIENT renamed to CLIENT_INFO
-2007/07/08 Shinigami: added PKTIN_E4_ID to login_exceptions (used by UO:KR)
-2009/09/06 Turley:    Added 0xE1 packet
-2011/11/11 Tomi:	  Added 0xF8 packet
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added packet 0xd9 (Spy on Client 2) to exceptions
+ * - 2005/08/29 Shinigami: SPY_ON_CLIENT renamed to CLIENT_INFO
+ * - 2007/07/08 Shinigami: added PKTIN_E4_ID to login_exceptions (used by UO:KR)
+ * - 2009/09/06 Turley:    Added 0xE1 packet
+ * - 2011/11/11 Tomi:	  Added 0xF8 packet
+ */
 
-Notes
-=======
-
-*/
 
 #include "msgfiltr.h"
 

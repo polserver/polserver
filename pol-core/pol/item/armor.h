@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef ARMOR_H
 #define ARMOR_H
@@ -34,7 +30,7 @@ namespace Pol {
 	public:
       virtual ~UArmor() {};
 	  virtual unsigned short ar() const;
-	  virtual inline unsigned short ar_base() const;
+	  virtual unsigned short ar_base() const;
 	  virtual bool covers( unsigned short layer ) const;
 	  virtual Item* clone() const POL_OVERRIDE;
       virtual size_t estimatedSize( ) const POL_OVERRIDE;

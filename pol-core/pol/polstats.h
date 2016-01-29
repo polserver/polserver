@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef POLSTATS_H
 #define POLSTATS_H

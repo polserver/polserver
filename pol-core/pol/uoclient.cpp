@@ -1,13 +1,9 @@
-/*
-History
-=======
-2010/02/03 Turley:    MethodScript support for mobiles
+/** @file
+ *
+ * @par History
+ * - 2010/02/03 Turley:    MethodScript support for mobiles
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "uoclient.h"
 

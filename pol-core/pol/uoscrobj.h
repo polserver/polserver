@@ -1,15 +1,12 @@
-/*
-History
-=======
-2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-                      Changes for multi related source file relocation
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef UOSCROBJ_H
 #define UOSCROBJ_H
@@ -61,7 +58,7 @@ namespace Pol {
 	  virtual ~ECharacterRefObjImp( ) { --Core::stateManager.uobjcount.uobj_count_echrref; }
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
@@ -71,8 +68,8 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;//id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator<( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual bool offline_access_ok() const { return false; }
 	};
@@ -85,7 +82,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 
 	  virtual bool isTrue() const POL_OVERRIDE;
@@ -114,7 +111,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
@@ -124,8 +121,8 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
-	  virtual bool isLessThan( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator<( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 
@@ -138,7 +135,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
@@ -148,7 +145,7 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 
@@ -161,7 +158,7 @@ namespace Pol {
 	  {}
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
@@ -170,7 +167,7 @@ namespace Pol {
 	  virtual bool isTrue() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 	class ClientPtrHolder
@@ -201,7 +198,7 @@ namespace Pol {
 
 
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
@@ -211,7 +208,7 @@ namespace Pol {
 	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
 
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 	// EMenuObjImp defined on UOEMOD.CPP

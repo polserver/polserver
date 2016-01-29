@@ -1,15 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of gotten_by, layer and slot_index_
+ * - 2009/09/01 MuadDib:   Removed layer setting on item creation for mounts. Pointless.
+ */
 
-2009/08/06 MuadDib:   Added gotten_by code for items.
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of gotten_by, layer and slot_index_
-2009/09/01 MuadDib:   Removed layer setting on item creation for mounts. Pointless.
-
-Notes
-=======
-
-*/
 
 #include "item.h"
 #include "itemdesc.h"
@@ -17,7 +13,6 @@ Notes
 #include "../layers.h"
 #include "../resource.h"
 #include "../objtype.h"
-#include "../uofile.h"
 #include "../ustruct.h"
 #include "../globals/state.h"
 

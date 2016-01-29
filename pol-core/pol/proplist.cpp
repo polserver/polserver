@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/05/25 Shinigami: added PropertyList::printProperties( ConfigElem& elem )
+/** @file
+ *
+ * @par History
+ * - 2005/05/25 Shinigami: added PropertyList::printProperties( ConfigElem& elem )
+ */
 
-Notes
-=======
-
-*/
 
 #include "proplist.h"
 

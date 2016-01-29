@@ -1,14 +1,11 @@
-/*
-History
-=======
-2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-                      Changes for multi related source file relocation
+/** @file
+ *
+ * @par History
+ * - 2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ */
 
-Notes
-=======
-
-*/
 
 #include "boatmod.h"
 
@@ -22,7 +19,7 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../../clib/rawtypes.h"
-#include "../../plib/realm.h"
+#include "../realms/realm.h"
 
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"

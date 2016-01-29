@@ -1,20 +1,17 @@
-/*
-History
-=======
-2005/02/14 Shinigami: find_container_desc - fixed passert condition
-2005/12/07 MuadDib:   Changed "has already been specified for objtype" to 
-                      "is the same as objtype" for easier non-english understanding.
-2006/05/19 MuadDib:   Removed read_itemdesc_file( "config/wepndesc.cfg" ); line, due to
-                      no longer being used by ANYTHING in the core. So no longer will
-                      require this file to run POL. Same with config/armrdesc.cfg
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of max_slots
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/02/14 Shinigami: find_container_desc - fixed passert condition
+ * - 2005/12/07 MuadDib:   Changed "has already been specified for objtype" to
+ *                         "is the same as objtype" for easier non-english understanding.
+ * - 2006/05/19 MuadDib:   Removed read_itemdesc_file( "config/wepndesc.cfg" ); line, due to
+ *                         no longer being used by ANYTHING in the core. So no longer will
+ *                         require this file to run POL. Same with config/armrdesc.cfg
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of max_slots
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "itemdesc.h"
 

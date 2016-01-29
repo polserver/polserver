@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "uoskills.h"
 

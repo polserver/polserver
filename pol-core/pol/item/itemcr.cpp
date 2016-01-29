@@ -1,16 +1,13 @@
-/*
-History
-=======
-2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-                      Changes for multi related source file relocation
-2009/12/02 Turley:    added config.max_tile_id - Tomi
-2011/11/12 Tomi:	  added extobj.port_plank and extobj.starboard_plank
+/** @file
+ *
+ * @par History
+ * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ * - 2011/11/12 Tomi:      added extobj.port_plank and extobj.starboard_plank
+ */
 
-Notes
-=======
-
-*/
 
 #include "item.h"
 #include "itemdesc.h"
@@ -41,13 +38,12 @@ Notes
 #include "../spelbook.h"
 #include "../tiles.h"
 #include "../ufunc.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../globals/uvars.h"
 #include "../globals/object_storage.h"
 
 #include "../../clib/cfgfile.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/strutil.h"
 

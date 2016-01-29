@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/06/01 Shinigami: added getstatics - to fill a list with statics
+/** @file
+ *
+ * @par History
+ * - 2005/06/01 Shinigami: added getstatics - to fill a list with statics
+ */
 
-Notes
-=======
-
-*/
 
 #include "staticserver.h"
 

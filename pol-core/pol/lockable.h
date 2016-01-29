@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef LOCKABLE_H
 #define LOCKABLE_H

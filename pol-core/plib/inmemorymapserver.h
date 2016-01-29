@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_INMEMORYMAPSERVER_H
 #define PLIB_INMEMORYMAPSERVER_H
@@ -23,7 +20,7 @@ namespace Pol {
 	  virtual ~InMemoryMapServer();
 
 	  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const POL_OVERRIDE;
-      size_t sizeEstimate() const;
+      virtual size_t sizeEstimate() const POL_OVERRIDE;
 	private:
       std::vector<MAPBLOCK> _mapblocks;
 

@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_CONTITER_H
 #define BSCRIPT_CONTITER_H
@@ -21,6 +18,7 @@ namespace Pol {
 	  BObjectImp *copy( void ) const;
 	  size_t sizeEstimate() const;
 	  std::string getStringRep() const;
+
 	};
 
   }

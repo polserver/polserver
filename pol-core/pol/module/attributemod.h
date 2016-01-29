@@ -1,14 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @note Make sure to set the module up in scrsched.cpp too
+ * add_common_exmods()
+ */
 
-
-Notes
-=======
-Make sure to set the module up in scrsched.cpp too
-add_common_exmods()
-
-*/
 
 #ifndef ATTRIBUTEEMOD_H
 #define ATTRIBUTEEMOD_H

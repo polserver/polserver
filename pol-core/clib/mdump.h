@@ -1,14 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
 
-*/
-
-#ifndef __MDUMP_H
-#define __MDUMP_H
+#ifndef CLIB_MDUMP_H
+#define CLIB_MDUMP_H
 
 #include <string>
 
@@ -22,4 +19,4 @@ namespace Pol {
 	};
   }
 }
-#endif
+#endif //CLIB_MDUMP_H

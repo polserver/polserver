@@ -1,14 +1,11 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/10/12 Turley:    whisper/yell/say-range ssopt definition
+ */
 
-Notes
-=======
-
-*/
 
 #include "ufunc.h"
 
@@ -24,7 +21,7 @@ Notes
 #include "globals/uvars.h"
 #include "containr.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/clib.h"
 
 #include <cstring>

@@ -1,13 +1,10 @@
-/*
-History
-=======
-2007/04/07 MuadDib:   send_object_cache_to_inrange updated from just UObject* to
-                      const UObject* for compatibility across more areas.
+/** @file
+ *
+ * @par History
+ * - 2007/04/07 MuadDib:   send_object_cache_to_inrange updated from just UObject* to
+ * - const UObject* for compatibility across more areas.
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __TOOLTIPS_H
 #define __TOOLTIPS_H

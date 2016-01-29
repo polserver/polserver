@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/10/06 Shinigami: malloc.h -> stdlib.h
+/** @file
+ *
+ * @par History
+ * - 2006/10/06 Shinigami: malloc.h -> stdlib.h
+ */
 
-Notes
-=======
-
-*/
 #include "token.h"
 #include "tokens.h"
 #include "modules.h"

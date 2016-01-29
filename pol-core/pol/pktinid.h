@@ -1,14 +1,12 @@
-/*
-History
-=======
-2009/07/26 MuadDib:   Initial creation.
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+/** @file
+ *
+ * @par History
+ * - 2009/07/26 MuadDib:   Initial creation.
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ *
+ * @note This file is for packet structs who sent by client.
+ */
 
-Notes
-=======
-This file is for packet structs who sent by client.
-
-*/
 
 #ifndef __PKTINIDH
 #define __PKTINIDH

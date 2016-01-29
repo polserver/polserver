@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/10/06 Shinigami: Win needs malloc.h for _HEAPINFO
+/** @file
+ *
+ * @par History
+ * - 2006/10/06 Shinigami: Win needs malloc.h for _HEAPINFO
+ */
 
-Notes
-=======
-
-*/
 
 #include "allocd.h"
 

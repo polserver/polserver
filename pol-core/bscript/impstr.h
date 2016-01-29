@@ -1,12 +1,9 @@
-/*
-History
-=======
-2015/20/12 Bodom:     moved most of the methods/props to BaseStringTpl
+/** @file
+ *
+ * @par History
+ * - 2015/20/12 Bodom:     moved most of the methods/props to BaseStringTpl
+ */
 
-Notes
-=======
-
-*/
 
 #pragma once
 
@@ -71,7 +68,7 @@ namespace Pol {
 
       inline virtual std::string getStringRep() const POL_OVERRIDE { return value_; }
       inline virtual std::string getFormattedStringRep() const POL_OVERRIDE { return "\"" + value_ + "\""; }
-      virtual void printOn(std::ostream& os) const;
+      virtual void printOn(std::ostream& os) const POL_OVERRIDE;
 
     };
 

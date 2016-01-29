@@ -1,19 +1,14 @@
-/*
-History
-=======
-2009/09/14 MuadDib:   CreateItem() now has slot support.
+/** @file
+ *
+ * @par History
+ * - 2009/09/14 MuadDib:   CreateItem() now has slot support.
+ */
 
-Notes
-=======
-
-*/
 #include "npcmod.h"
 
 #include "osmod.h"
 #include "unimod.h"
 #include "uomod.h"
-
-#include "../../plib/realm.h"
 
 #include "../containr.h"
 #include "../dice.h"
@@ -33,6 +28,7 @@ Notes
 #include "../pktout.h"
 #include "../poltype.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skilladv.h"
@@ -45,6 +41,7 @@ Notes
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
@@ -55,14 +52,13 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -155,7 +151,7 @@ namespace Pol {
       BoundingBoxObjImp( ) : BApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
       explicit BoundingBoxObjImp( const Mobile::BoundingBox& b ) : BApplicObj<Mobile::BoundingBox>( &bounding_box_type, b ) {}
 	  virtual const char* typeOf() const POL_OVERRIDE { return "BoundingBox"; }
-	  virtual int typeOfInt() const POL_OVERRIDE { return OTBoundingBox; }
+	  virtual u8 typeOfInt() const POL_OVERRIDE { return OTBoundingBox; }
 	  virtual BObjectImp* copy() const POL_OVERRIDE { return new BoundingBoxObjImp( value() ); }
 
 	};
@@ -810,7 +806,7 @@ namespace Pol {
 		  return new BError( "Unicode array exceeds maximum size." );
 		if ( lang->length() != 3 )
 		  return new BError( "langcode must be a 3-character code." );
-		if ( !Clib::convertArrayToUC( oText, gwtext, textlenucc ) )
+		if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
 		  return new BError( "Invalid value in Unicode array." );
 
         std::string languc = Clib::strupper(lang->value());

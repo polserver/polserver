@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2008/02/11 Turley:    BStruct::unpack() will accept zero length Structs
-2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2008/02/11 Turley:    BStruct::unpack() will accept zero length Structs
+ * - 2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "bstruct.h"
 
@@ -92,7 +89,7 @@ namespace Pol {
 	{
 	  return "Struct";
 	}
-	int BStruct::typeOfInt() const
+	u8 BStruct::typeOfInt() const
 	{
 	  return OTStruct;
 	}

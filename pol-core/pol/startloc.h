@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef STARTLOC_H
 #define STARTLOC_H
@@ -15,7 +11,7 @@ Notes
 #include <vector>
 
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Core {
@@ -38,7 +34,7 @@ namespace Pol {
 	public:
 	  std::string city;
 	  std::string desc;
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 	  unsigned short mapid;
 	  unsigned long cliloc_desc;
 	  /* NOTE: this list will be selected from randomly.

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/12/06 Shinigami: fixed <un-/signed>(z)-bug inside internal_MoveCharacter() to fix z<0 problem
+/** @file
+ *
+ * @par History
+ * - 2005/12/06 Shinigami: fixed <un-/signed>(z)-bug inside internal_MoveCharacter() to fix z<0 problem
+ */
 
-Notes
-=======
-
-*/
 
 
 /*
@@ -56,7 +53,7 @@ namespace Pol {
 	  {
 		return new BError( "Invalid parameter" );
 	  }
-	  Plib::Realm* realm = find_realm( realm_name->value() );
+	  Realms::Realm* realm = find_realm( realm_name->value() );
 	  if ( !realm )
 		return new BError( "Realm not found." );
 	  else if ( !realm->valid( x, y, z ) )
@@ -76,7 +73,7 @@ namespace Pol {
 		return new BError( "Can't handle that object type." );
 	}
 
-	BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, ycoord y, zcoord z, int flags, Plib::Realm* newrealm )
+	BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 	{
 	  short newz;
 	  Multi::UMulti* supporting_multi = NULL;
@@ -90,7 +87,7 @@ namespace Pol {
 			return new BError( "Can't go there" );
 		}
 	  }
-      Plib::Realm* oldrealm = chr->realm;
+      Realms::Realm* oldrealm = chr->realm;
 
 	  bool ok;
 	  if ( newrealm == NULL || oldrealm == newrealm )
@@ -117,9 +114,9 @@ namespace Pol {
 		return new BError( "Can't go there" );
 	}
 
-	BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z, int flags, Plib::Realm* newrealm )
+	BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 	{
-      Plib::Realm* oldrealm = boat->realm;
+      Realms::Realm* oldrealm = boat->realm;
       { // local scope for reg/unreg guard
         Multi::UBoat::BoatMoveGuard registerguard( boat );
         if ( !boat->navigable( boat->multidef(), x, y, z, newrealm ) )
@@ -141,9 +138,9 @@ namespace Pol {
 	  return new BLong( ok );
 	}
 
-    BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xcoord x, ycoord y, zcoord z, int flags, Plib::Realm* newrealm )
+    BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 	{
-	  Plib::Realm* oldrealm = container->realm;
+	  Realms::Realm* oldrealm = container->realm;
 
 	  BObjectImp* ok = internal_MoveItem( static_cast<Item*>( container ), x, y, z, flags, newrealm );
 	  // Check if container was successfully moved to a new realm and update contents.
@@ -156,7 +153,7 @@ namespace Pol {
 	  return ok;
 	}
 
-    BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y, zcoord z, int flags, Plib::Realm* newrealm )
+    BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 	{
 	  ItemRef itemref( item ); //dave 1/28/3 prevent item from being destroyed before function ends
 	  if ( !( flags & MOVEITEM_IGNOREMOVABLE ) && !item->movable() )
@@ -170,7 +167,7 @@ namespace Pol {
 		return new BError( "That item is being used." );
 	  }
 
-      Plib::Realm* oldrealm = item->realm;
+      Realms::Realm* oldrealm = item->realm;
 	  item->realm = newrealm;
 	  if ( !item->realm->valid( x, y, z ) )
 	  {	// Should probably have checked this already.

@@ -1,64 +1,59 @@
-/*
-History
-=======
-2005/02/23 Shinigami: ServSpecOpt DecayItems to enable/disable item decay
-2005/04/03 Shinigami: send_feature_enable() call moved from start_client_char()
-to send_start() to send before char selection
-2005/04/04 Shinigami: added can_delete_character( chr, delete_by )
-2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation Heap
-added Check_for_WinXP_or_Win2003() and low_fragmentation_Heap()
-2005/06/20 Shinigami: added llog (needs defined MEMORYLEAK)
-2005/07/01 Shinigami: removed Check_for_WinXP_or_Win2003() and transformed call of
-Use_low_fragmentation_Heap() into Run-Time Dynamic Linking
-2005/10/13 Shinigami: added Check_libc_version() and printing a Warning if libc is to old
-2005/11/25 Shinigami: PKTBI_BF::TYPE_SESPAM will not block Inactivity-Check
-2005/11/28 MuadDib:   Created check_inactivity() bool function to handle checking packets
-for ones to be considered "ignored" for inactivity. Returns true if
-the packet was one to be ignored.
-2005/11/28 MuadDib:   Implemented check_inactivity() function in appropriate place.
-2006/03/01 MuadDib:   Added connect = true to start_client_char so char creation can use.
-2006/03/03 MuadDib:   Moved all instances of connected = true to start_client_char.
-2006/06/03 Shinigami: added little bit more logging @ pthread_create
-2006/06/05 Shinigami: added little bit more logging @ Client disconnects by Core
-2006/07/05 Shinigami: moved MakeDirectory("log") a little bit up
-2006/10/07 Shinigami: FreeBSD fix - changed some __linux__ to __unix__
-2007/03/08 Shinigami: added pthread_exit and _endhreadex to close threads
-2007/05/06 Shinigami: smaller bugfix in Check_libc_version()
-2007/06/17 Shinigami: Pergon-Linux-Release generates file "pol.pid"
-2007/07/08 Shinigami: added UO:KR login process
-2008/07/08 Turley:    removed Checkpoint "initializing random number generator"
-2008/12/17 MuadDub:   Added check when loading Realms for no realms existing.
-2009/01/19 Nando:     added unload_aux_services() and unload_packages() to the shutdown cleanup
-2009/1/24  MuadDib:   Added read_bannedips_config() and checkpoint for it after loading of pol.cfg
-2009/07/23 MuadDib:   Updates for MSGOUT naming.
-2009/07/31 MuadDib:   xmain_inner(): Force Client Disconnect to initiate cleanup of clients and chars, after shutdown,
-before other cleanups.
-2009/08/01 MuadDib:   Removed send_tech_stuff(), send_betaclient_BF(), just_ignore_message(), and ignore_69() due to not used or obsolete.
-2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
-Renamed secondary handler class to *_V2 for naming convention
-2009/08/14 Turley:    fixed definition of PKTIN_5D
-2009/08/19 Turley:    PKTIN_5D clientflag saved in client->UOExpansionFlagClient
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Changes for multi related source file relocation
-2009/09/15 MuadDib:   Multi registration/unregistration support added.
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/09/22 MuadDib:   Fix for lightlevel resets in client during login.
-2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
-2009/12/04 Turley:    Crypto cleanup - Tomi
-2010/01/22 Turley:    Speedhack Prevention System
-2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
-2011/11/12 Tomi:	  Added extobj.cfg
+/** @file
+ *
+ * @par History
+ * - 2005/02/23 Shinigami: ServSpecOpt DecayItems to enable/disable item decay
+ * - 2005/04/03 Shinigami: send_feature_enable() call moved from start_client_char()
+ *                         to send_start() to send before char selection
+ * - 2005/04/04 Shinigami: added can_delete_character( chr, delete_by )
+ * - 2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation Heap
+ *                         added Check_for_WinXP_or_Win2003() and low_fragmentation_Heap()
+ * - 2005/06/20 Shinigami: added llog (needs defined MEMORYLEAK)
+ * - 2005/07/01 Shinigami: removed Check_for_WinXP_or_Win2003() and transformed call of
+ *                         Use_low_fragmentation_Heap() into Run-Time Dynamic Linking
+ * - 2005/10/13 Shinigami: added Check_libc_version() and printing a Warning if libc is to old
+ * - 2005/11/25 Shinigami: PKTBI_BF::TYPE_SESPAM will not block Inactivity-Check
+ * - 2005/11/28 MuadDib:   Created check_inactivity() bool function to handle checking packets
+ *                         for ones to be considered "ignored" for inactivity. Returns true if
+ *                         the packet was one to be ignored.
+ * - 2005/11/28 MuadDib:   Implemented check_inactivity() function in appropriate place.
+ * - 2006/03/01 MuadDib:   Added connect = true to start_client_char so char creation can use.
+ * - 2006/03/03 MuadDib:   Moved all instances of connected = true to start_client_char.
+ * - 2006/06/03 Shinigami: added little bit more logging @ pthread_create
+ * - 2006/06/05 Shinigami: added little bit more logging @ Client disconnects by Core
+ * - 2006/07/05 Shinigami: moved MakeDirectory("log") a little bit up
+ * - 2006/10/07 Shinigami: FreeBSD fix - changed some __linux__ to __unix__
+ * - 2007/03/08 Shinigami: added pthread_exit and _endhreadex to close threads
+ * - 2007/05/06 Shinigami: smaller bugfix in Check_libc_version()
+ * - 2007/06/17 Shinigami: Pergon-Linux-Release generates file "pol.pid"
+ * - 2007/07/08 Shinigami: added UO:KR login process
+ * - 2008/07/08 Turley:    removed Checkpoint "initializing random number generator"
+ * - 2008/12/17 MuadDub:   Added check when loading Realms for no realms existing.
+ * - 2009/01/19 Nando:     added unload_aux_services() and unload_packages() to the shutdown cleanup
+ * - 2009/1/24  MuadDib:   Added read_bannedips_config() and checkpoint for it after loading of pol.cfg
+ * - 2009/07/23 MuadDib:   Updates for MSGOUT naming.
+ * - 2009/07/31 MuadDib:   xmain_inner(): Force Client Disconnect to initiate cleanup of clients and chars, after shutdown,
+ *                         before other cleanups.
+ * - 2009/08/01 MuadDib:   Removed send_tech_stuff(), send_betaclient_BF(), just_ignore_message(), and ignore_69() due to not used or obsolete.
+ * - 2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
+ *                         Renamed secondary handler class to *_V2 for naming convention
+ * - 2009/08/14 Turley:    fixed definition of PKTIN_5D
+ * - 2009/08/19 Turley:    PKTIN_5D clientflag saved in client->UOExpansionFlagClient
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Changes for multi related source file relocation
+ * - 2009/09/15 MuadDib:   Multi registration/unregistration support added.
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/09/22 MuadDib:   Fix for lightlevel resets in client during login.
+ * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+ * - 2009/12/04 Turley:    Crypto cleanup - Tomi
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+ * - 2011/11/12 Tomi:	  Added extobj.cfg
+ */
 
-Notes
-=======
-
-*/
 
 #include "../plib/pkg.h"
-#include "../plib/realm.h"
 
 #include "../bscript/escriptv.h"
-#include "../plib/polver.h"
 #include "accounts/account.h"
 #include "allocd.h"
 #include "checkpnt.h"
@@ -97,11 +92,11 @@ Notes
 #include "polcfg.h"
 #include "polclock.h"
 #include "poldbg.h"
-#include "polfile.h"
 #include "polsem.h"
 #include "poltest.h"
 #include "polwww.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "savedata.h"
 #include "schedule.h"
 #include "scrdef.h"
@@ -111,7 +106,6 @@ Notes
 #include "sockio.h"
 #include "tasks.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
 #include "globals/network.h"
@@ -126,8 +120,8 @@ Notes
 
 #include "network/clientthread.h"
 
-#include "../clib/MD5.h"
-#include "../clib/endian.h"
+#include "../clib/clib_MD5.h"
+#include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fdump.h"
 #include "../clib/fileutil.h"
@@ -462,7 +456,7 @@ namespace Pol {
       else
       {
         // logging in a character that's offline.
-        SetCharacterWorldPosition(chosen_char, Plib::WorldChangeReason::PlayerEnter);
+        SetCharacterWorldPosition(chosen_char, Realms::WorldChangeReason::PlayerEnter);
         chosen_char->logged_in = true;
       }
 
@@ -835,7 +829,7 @@ namespace Pol {
         }
         else
         {
-          std::vector<Plib::Realm*>::iterator itr;
+          std::vector<Realms::Realm*>::iterator itr;
           for ( itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
           {
             std::ostringstream thname;
@@ -1106,7 +1100,7 @@ namespace Pol {
 
   } // namespace Core
 
-  int xmain_inner( int argc, char** /*argv*/)
+  int xmain_inner()
   {
 #ifdef _WIN32
     Clib::MiniDumper::Initialize();
@@ -1136,9 +1130,9 @@ namespace Pol {
 
     Clib::MakeDirectory( "log" );
 
-    POLLOG_INFO << progverstr << " (" << polbuildtag << ")"
-      << "\ncompiled on " << compiledate << " " << compiletime
-      << "\nCopyright (C) 1993-2015 Eric N. Swanson"
+    POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET
+      << "\ncompiled on " << POL_BUILD_DATE << " " << POL_BUILD_TIME
+      << "\nCopyright (C) 1993-2016 Eric N. Swanson"
       << "\n\n";
 
 #ifndef NDEBUG
@@ -1252,15 +1246,16 @@ namespace Pol {
     Core::checkpoint( "reading starting locations" );
     Core::read_starting_locations();
 
-    if ( argc > 1 )
-    {
-      POLLOG_INFO << "Running POL test suite.\n";
-      Core::run_pol_tests();
-      Core::cancel_all_trades();
-      Core::stop_gameclock();
-	  Core::gamestate.deinitialize();
-      return 0;
-    }
+//TODO: remove the following because it is not used anymore
+//    if ( argc > 1 )
+//    {
+//      POLLOG_INFO << "Running POL test suite.\n";
+//      Core::run_pol_tests();
+//      Core::cancel_all_trades();
+//      Core::stop_gameclock();
+//	  Core::gamestate.deinitialize();
+//      return 0;
+//    }
 
     // PrintAllocationData();
     POLLOG_INFO << "Reading data files:\n";
@@ -1321,7 +1316,7 @@ namespace Pol {
     {
       DEINIT_STARTLOG();
     }
-    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << progverstr << polbuildtag << compiledate << compiletime;
+    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
     //if( 1 )
     {
       POLLOG_INFO << "Game is active.\n";
@@ -1432,11 +1427,11 @@ namespace Pol {
     return 0;
   }
 
-  int xmain_outer( int argc, char *argv[] )
+  int xmain_outer()
   {
     try
     {
-      return xmain_inner( argc, argv );
+      return xmain_inner();
     }
     catch ( std::exception& )
     {
@@ -1450,16 +1445,5 @@ namespace Pol {
       throw;
     }
   }
-
-#ifndef _WIN32
-  int xmain( int argc, char *argv[] )
-  {
-    strcpy( progverstr, polverstr );
-    strcpy( buildtagstr, polbuildtag );
-    progver = polver;
-
-    return xmain_outer( argc, argv );
-  }
-#endif
 }
 

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2008/03/01 Shinigami: VS2005 will not use STLport, but VS2003 will use it
+/** @file
+ *
+ * @par History
+ * - 2008/03/01 Shinigami: VS2005 will not use STLport, but VS2003 will use it
+ */
 
-Notes
-=======
-
-*/
 
 
 #include <stdio.h>

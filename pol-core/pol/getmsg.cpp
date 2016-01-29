@@ -1,17 +1,13 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/rawtypes.h"
 
 #include "item/item.h"

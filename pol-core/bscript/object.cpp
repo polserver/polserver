@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2008/02/11 Turley:    ObjArray::unpack() will accept zero length Arrays and Erros from Array-Elements
-2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2008/02/11 Turley:    ObjArray::unpack() will accept zero length Arrays and Erros from Array-Elements
+ * - 2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 #include "bobject.h"
 #include "objmembers.h"
 #include "objmethods.h"
@@ -63,24 +60,23 @@ namespace Pol {
 	}
 
 
-	/*
-	  pack formats:
-	  sSTRING\0		  string
-	  iINTEGER\0		 integer
-	  rREAL\0			real
-	  u\0				uninitialized
-	  aNN:ELEMS		  array
-	  SNN:STRING
-
-	  Examples:
-	  57			  i57
-	  4.3			 r4.3
-	  "hello world"   shello world
-	  { 5,3 }		 a2:i5i3
-	  { 5, "hey" }	a2:i5S3:hey
-	  { 5, "hey", 7 } a3:i5S3:heyi7
-	  */
-
+    /**
+     * Pack formats:
+     * - sSTRING\0   string
+     * - iINTEGER\0  integer
+     * - rREAL\0     real
+     * - u\0         uninitialized
+     * - aNN:ELEMS   array
+     * - SNN:STRING
+     *
+     * Examples:
+     * - 57              i57
+     * - 4.3             r4.3
+     * - "hello world"   shello world
+     * - { 5,3 }         a2:i5i3
+     * - { 5, "hey" }    a2:i5S3:hey
+     * - { 5, "hey", 7 } a3:i5S3:heyi7
+     */
     BObjectImp* BObjectImp::unpack(std::istream& is)
 	{
 	  char typech;
@@ -128,29 +124,27 @@ namespace Pol {
 
 	bool BObject::operator!=( const BObject& obj ) const
 	{
-	  return !( objimp->isEqual( obj.impref() ) );
+	  return *objimp != *(obj.objimp);
 	}
 	bool BObject::operator==( const BObject& obj ) const
 	{
-	  return objimp->isEqual( obj.impref() );
+	  return *objimp == *(obj.objimp);
 	}
 	bool BObject::operator<( const BObject& obj ) const
 	{
-	  return objimp->isLessThan( *obj.objimp );
+	  return *objimp < *(obj.objimp);
 	}
 	bool BObject::operator<=( const BObject& obj ) const
 	{
-	  return objimp->isLessThan( *obj.objimp ) ||
-		objimp->isEqual( *obj.objimp );
+	  return *objimp <= *(obj.objimp);
 	}
 	bool BObject::operator>( const BObject& obj ) const
 	{
-	  return !objimp->isLessThan( *obj.objimp ) &&
-		!objimp->isEqual( *obj.objimp );
+	  return *objimp > *(obj.objimp);
 	}
 	bool BObject::operator>=( const BObject& obj ) const
 	{
-	  return !objimp->isLessThan( *obj.objimp );
+	  return *objimp >= *(obj.objimp);
 	}
 
 	////////////////////// BObjectImp //////////////////////
@@ -240,51 +234,68 @@ namespace Pol {
 	}
 
 
-	int BObjectImp::typeOfInt() const
+	u8 BObjectImp::typeOfInt() const
 	{
 	  return type_;
 	}
 
-	// These two functions are just here for completeness.
-	bool BObjectImp::isEqual( const BObjectImp& objimp ) const
-	{
-	  return ( this == &objimp );
-	}
     /**
-     * Based on string implementation, non-strings are always bigger
-     * than strings, except for OTUninit and OTError
-     *
-     * @todo TODO: Change this behavior? It doesn't make much sense - 12-27-2015 Bodom
+     * Can be overridden. By default objects are considered equal
+     * only when having the same address in memory
      */
-	bool BObjectImp::isLessThan( const BObjectImp& objimp ) const
-	{
-      if ( objimp.isa( OTString ) )
-      {
-        if( isa( OTUninit ) || isa( OTError ) )
-          return true;
+    bool BObjectImp::operator==( const BObjectImp& objimp ) const
+    {
+      return ( this == &objimp );
+    }
+    /**
+     * Should be overridden. By default objects are lesser or greater
+     * based on their type ID. Uninit and Error are always lesser than any other.
+     * Same type object should have a custom comparison.
+     *
+     * @warning: do not forget to call base class when overriding
+     */
+    bool BObjectImp::operator<( const BObjectImp& objimp ) const
+    {
+      // Error an uninit are always lesser than any other type
+      if( (objimp.type_ == OTError || objimp.type_ == OTUninit) && type_ != OTError && type_ != OTUninit )
         return false;
+
+      if( type_ == objimp.type_ ) {
+        // This is "undefined behavior" and should be avoided by implementing
+        // comparison in child class
+        return ( this < &objimp );
       }
-      //FIXME: this default behavior does not make any sense!!!
-	  return ( this < &objimp );
-	}
 
-	bool BObjectImp::isLE( const BObjectImp& objimp ) const
-	{
-	  return isEqual( objimp ) || isLessThan( objimp );
-	}
-	bool BObjectImp::isLT( const BObjectImp& objimp ) const
-	{
-	  return isLessThan( objimp );
-	}
-
-	bool BObjectImp::isGT( int /*val*/ ) const
-	{
-	  return false;
-	}
-	bool BObjectImp::isGE( int /*val*/ ) const
-	{
-	  return false;
-	}
+      return type_ < objimp.type_;
+    }
+    /**
+     * Can be overridden. By default uses == and <
+     */
+    bool BObjectImp::operator<=( const BObjectImp& objimp ) const
+    {
+      return *this == objimp || *this < objimp;
+    }
+    /**
+     * Can be overridden. By default uses == and <
+     */
+    bool BObjectImp::operator>( const BObjectImp& objimp ) const
+    {
+      return ! ( *this == objimp || *this < objimp );
+    }
+    /**
+     * Can be overridden. By default uses <
+     */
+    bool BObjectImp::operator>=( const BObjectImp& objimp ) const
+    {
+      return ! ( *this < objimp );
+    }
+    /**
+     * Can be overridden. By default uses ==
+     */
+    bool BObjectImp::operator!=( const BObjectImp& objimp ) const
+    {
+      return ! ( *this == objimp );
+    }
 
 	BObjectImp* BObjectImp::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/, bool /*copy*/ )
 	{
@@ -943,15 +954,19 @@ namespace Pol {
 	{
 	  return false;
 	}
-	bool UninitObject::isEqual( const BObjectImp& imp ) const
+
+    /**
+     * An uninit is equal to any other error or uninit
+     */
+	bool UninitObject::operator==( const BObjectImp& imp ) const
 	{
 	  return ( imp.isa( OTError ) || imp.isa( OTUninit ) );
 	}
 
-	bool UninitObject::isLessThan( const BObjectImp& imp ) const
+	bool UninitObject::operator<( const BObjectImp& imp ) const
 	{
 	  if ( imp.isa( OTError ) || imp.isa( OTUninit ) )
-		return false;
+		return false; // Because it's equal can't be lesser
 
 	  return true;
 	}
@@ -1012,14 +1027,15 @@ namespace Pol {
 	  return size;
 	}
 
-	/*
-	  Equality for arrays:
-	  if the other guy is an array, check each element
-	  otherwise not equal.
-	  note that struct names aren't checked.
-	  TODO: check structure names too?
-	  */
-	bool ObjArray::isEqual( const BObjectImp& imp ) const
+    /**
+     * Equality for arrays:
+     * if the other guy is an array, check each element
+     * otherwise not equal.
+     * note that struct names aren't checked.
+     *
+     * @todo check structure names too?
+     */
+	bool ObjArray::operator==( const BObjectImp& imp ) const
 	{
 	  if ( !imp.isa( OTArray ) )
 		return false;
@@ -1040,7 +1056,7 @@ namespace Pol {
 		  const BObjectImp& thisimp = thisobj->impref();
 		  const BObjectImp& thatimp = thatobj->impref();
 
-		  if ( thisimp.isEqual( thatimp ) )
+		  if ( thisimp == thatimp )
 			continue;
 		  else
 			return false;
@@ -1397,7 +1413,7 @@ namespace Pol {
             INFO_PRINT << Clib::scripts_thread_script << " - '" << imp << " in array{}' check. Invalid data at index " << ( itr - ref_arr.begin( ) ) + 1 << "\n";
 			continue;
 		  }
-		  else if ( bo->impptr()->isEqual( imp ) )
+		  else if ( *(bo->impptr()) == imp )
 		  {
 			return ( static_cast<long>( ( itr - ref_arr.begin() ) + 1 ) );
 		  }
@@ -1601,7 +1617,7 @@ namespace Pol {
             else
               shift_by = 1;
 
-            if ( ref_arr.empty() || std::abs(shift_by) > ref_arr.size())
+            if ( ref_arr.empty() || std::abs(shift_by) > (int)ref_arr.size())
               return new BLong( 0 );
 
             if (shift_by>0)

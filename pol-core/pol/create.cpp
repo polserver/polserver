@@ -1,26 +1,22 @@
-/*
-History
-=======
-2006/05/16 Shinigami: ClientCreateChar() updated to support Elfs
-2006/05/23 Shinigami: added Elf Hair Style to validhair() & comments added
-validbeard() rewritten & comments added
-2009/12/02 Turley:    added gargoyle support, 0x8D char create, face support
-2010/01/14 Turley:    more error checks, Tomi's startequip patch
-2011/10/26 Tomi:	  added 0xF8 char create for clients >= 7.0.16.0
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2006/05/16 Shinigami: ClientCreateChar() updated to support Elfs
+ * - 2006/05/23 Shinigami: added Elf Hair Style to validhair() & comments added
+ *                         validbeard() rewritten & comments added
+ * - 2009/12/02 Turley:    added gargoyle support, 0x8D char create, face support
+ * - 2010/01/14 Turley:    more error checks, Tomi's startequip patch
+ * - 2011/10/26 Tomi:      added 0xF8 char create for clients >= 7.0.16.0
+ */
 
 
-#include "../clib/endian.h"
+
+#include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/logfacility.h"
 #include "../clib/random.h"
 #include "../clib/strutil.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "accounts/account.h"
@@ -37,6 +33,7 @@ Notes
 #include "pktin.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "scrdef.h"
 #include "skilladv.h"
 #include "sockio.h"
@@ -321,7 +318,7 @@ namespace Pol {
 	  chr->truecolor = chr->color;
 
 	  Coordinate coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
-	  Plib::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
+	  Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
 
 	  chr->x = coord.x;
 	  chr->y = coord.y;
@@ -532,7 +529,7 @@ namespace Pol {
 	  client->acct->set_character( msg->CharNumber, client->chr );
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-	  SetCharacterWorldPosition( chr, Plib::WorldChangeReason::PlayerEnter );
+	  SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
 	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 
@@ -674,7 +671,7 @@ namespace Pol {
 	  chr->truecolor = chr->color;
 
 	  Coordinate coord = gamestate.startlocations[0]->select_coordinate();
-	  Plib::Realm* realm = gamestate.startlocations[0]->realm;
+	  Realms::Realm* realm = gamestate.startlocations[0]->realm;
 
 	  chr->x = coord.x;
 	  chr->y = coord.y;
@@ -906,7 +903,7 @@ namespace Pol {
 	  client->acct->set_character( charslot, client->chr );
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-      SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);
+      SetCharacterWorldPosition(chr, Realms::WorldChangeReason::PlayerEnter);
 	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 
@@ -1058,7 +1055,7 @@ namespace Pol {
 	  chr->truecolor = chr->color;
 
 	  Coordinate coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
-	  Plib::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
+	  Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
 
 	  chr->x = coord.x;
 	  chr->y = coord.y;
@@ -1312,7 +1309,7 @@ namespace Pol {
 	  client->acct->set_character( msg->CharNumber, client->chr );
 
       POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-      SetCharacterWorldPosition(chr, Plib::WorldChangeReason::PlayerEnter);
+      SetCharacterWorldPosition(chr, Realms::WorldChangeReason::PlayerEnter);
 	  client->msgtype_filter = networkManager.game_filter.get();
 	  start_client_char( client );
 

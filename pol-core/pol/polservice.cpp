@@ -1,28 +1,20 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "../clib/esignal.h"
-#include "../clib/progver.h"
 #include "../clib/threadhelp.h"
-#include "../clib/xmain.h"
+//#include "../clib/xmain.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/polver.h"
 #include "../plib/systemstate.h"
 
 #include "polresource.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <process.h>
-#include <shellapi.h>
+#include "../clib/Program/ProgramConfig.h"
+#include "../clib/Header_Windows.h"
 
 #include "../clib/ntservice.h" // This needs to be after the windows includes, otherwise it'll complain about windows types.
 
@@ -35,14 +27,10 @@ namespace Pol {
   namespace Core {
     int RunWindowsService( int argc, char** argv );
   }
-  int xmain_outer( int argc, char* argv[] );
+  int xmain_outer();
 
   int xmain( int argc, char *argv[] )
   {
-    strcpy( progverstr, polverstr );
-    strcpy( buildtagstr, polbuildtag );
-    progver = polver;
-
     return Core::RunWindowsService( argc, argv );
   }
   namespace Core {
@@ -68,11 +56,10 @@ namespace Pol {
 		char buffer[1000] = "";
 		rc = GetCurrentDirectory( sizeof buffer, buffer );
 		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, buffer );
-		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, Pol::Plib::systemstate.getWorkingDirectory().c_str() );
-		rc = SetCurrentDirectory(Pol::Plib::systemstate.getWorkingDirectory().c_str());
+		LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, PROG_CONFIG::programDir().c_str() );
+		rc = SetCurrentDirectory(PROG_CONFIG::programDir().c_str());
 
-		char* dummy[1] = { "" };
-		xmain_outer( 1, dummy );
+		xmain_outer();
 	  }
 	  catch ( std::exception& ex )
 	  {
@@ -94,7 +81,7 @@ namespace Pol {
 	  if ( !MyService.ParseStandardArgs( argc, argv ) )
 	  {
 		// no service-related parameters
-		return xmain_outer( argc, argv );
+		return xmain_outer();
 	  }
 	  else
 	  {

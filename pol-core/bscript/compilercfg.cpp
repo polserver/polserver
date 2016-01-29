@@ -1,19 +1,14 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #include "compilercfg.h"
-#include "../plib/systemstate.h"
-
+#include "../clib/Program/ProgramConfig.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
 #include "../clib/dirlist.h"
-#include "../clib/xmain.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4996) // POSIX deprecation warnings for stricmp, getenv
@@ -66,7 +61,7 @@ namespace Pol {
 	  // with. 
 	  if ( stricmp( MyPath.c_str(), "ecompile.cfg" ) == 0 )
 	  {
-		  std::string workingDir = Pol::Plib::systemstate.getWorkingDirectory();
+		  std::string workingDir = PROG_CONFIG::programDir();
 
 		// Let's find the NEXT-TO-LAST / in the path, and remove from there on. Oh yay!
 		// To bad we can't just force everyone to use ABSOLUTE PATHS NANDO. :o
@@ -113,10 +108,10 @@ namespace Pol {
 	  const char* tmp;
 
 	  tmp = getenv( "ECOMPILE_PATH_EM" );
-	  ModuleDirectory = tmp ? Clib::normalized_dir_form( tmp ) : Pol::Plib::systemstate.getWorkingDirectory();
+	  ModuleDirectory = tmp ? Clib::normalized_dir_form( tmp ) : PROG_CONFIG::programDir();
 
 	  tmp = getenv( "ECOMPILE_PATH_INC" );
-	  IncludeDirectory = tmp ? Clib::normalized_dir_form( tmp ) : Pol::Plib::systemstate.getWorkingDirectory();
+	  IncludeDirectory = tmp ? Clib::normalized_dir_form( tmp ) : PROG_CONFIG::programDir();
 
 	  PolScriptRoot = IncludeDirectory;
 

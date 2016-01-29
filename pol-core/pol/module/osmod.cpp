@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 #include "osmod.h"
 
 #include "uomod.h"
@@ -35,13 +32,13 @@ Notes
 #include "../scrstore.h"
 #include "../skills.h"
 #include "../ufuncstd.h"
+#include "../unicode.h"
 
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 #include "../../clib/sckutil.h"
 #include "../../clib/socketsvc.h"
 

@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2007/06/17 Shinigami: added config.world_data_path
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/09/26 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "datastore.h"
 #include "datastoreimp.h"
@@ -250,7 +247,7 @@ namespace Pol {
 	{
 	  return "DataFileRef";
 	}
-	int DataFileRefObjImp::typeOfInt() const
+	u8 DataFileRefObjImp::typeOfInt() const
 	{
 	  return OTDataFileRef;
 	}
@@ -361,7 +358,7 @@ namespace Pol {
 	{
 	  return "DataElemRef";
 	}
-	int DataElemRefObjImp::typeOfInt() const
+	u8 DataElemRefObjImp::typeOfInt() const
 	{
 	  return OTDataElemRef;
 	}

@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef H_STORAGE_H
 #define H_STORAGE_H
@@ -24,7 +20,7 @@ namespace Pol {
   namespace Items {
 	class Item;
   }
-  namespace Plib{
+  namespace Realms{
       class Realm;
   }
   namespace Clib {
@@ -42,7 +38,7 @@ namespace Pol {
 	  Items::Item *find_root_item( const std::string& name );
 	  void insert_root_item( Items::Item *item );
 	  bool delete_root_item( const std::string& name );
-	  void on_delete_realm( Plib::Realm *realm );
+	  void on_delete_realm( Realms::Realm *realm );
 
 	  void print( Clib::StreamWriter& sw ) const;
 	  void load_item( Clib::ConfigElem& elem );
@@ -66,7 +62,7 @@ namespace Pol {
 	  StorageArea* find_area( const std::string& name );
 	  StorageArea* create_area( const std::string& name );
 	  StorageArea* create_area( Clib::ConfigElem& elem );
-	  void on_delete_realm( Plib::Realm *realm );
+	  void on_delete_realm( Realms::Realm *realm );
 
 	  void print( Clib::StreamWriter& sw ) const;
 	  void read( Clib::ConfigFile& cf );

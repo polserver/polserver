@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/03/09 Shinigami: Added Prop Delay [ms]
-2005/07/25 Shinigami: added MinDamage and MaxDamage in Weapon-Descriptor
-2011/11/12 Tomi:	  added extobj.wrestling
+/** @file
+ *
+ * @par History
+ * - 2005/03/09 Shinigami: Added Prop Delay [ms]
+ * - 2005/07/25 Shinigami: added MinDamage and MaxDamage in Weapon-Descriptor
+ * - 2011/11/12 Tomi:	  added extobj.wrestling
+ */
 
-Notes
-=======
-
-*/
 
 #include "weapon.h"
 #include "wepntmpl.h"
@@ -27,16 +24,16 @@ Notes
 #include "../globals/uvars.h"
 #include "../globals/object_storage.h"
 #include "../containr.h"
+#include "../realms/realm.h"
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
 
 #include "../../plib/pkg.h"
-#include "../../plib/realm.h"
 #include "../../plib/systemstate.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 #include "../../clib/random.h"

@@ -1,16 +1,19 @@
-/*
-History
-=======
-2005/06/20 Shinigami: extended new/delete operator with linux malloc_usable_size
-                      added memory block classification to analyze a little bit (needs defined MEMORYLEAK)
-2006/10/06 Shinigami: Linux needs malloc.h for malloc_usable_size
-                      FreeBSD 6.1 doesn't know malloc_usable_size (FreeBSD 7.0 will support it)
-2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+/** @file
+ *
+ * @par History
+ * - 2005/06/20 Shinigami: extended new/delete operator with linux malloc_usable_size
+ *                         added memory block classification to analyze a little bit (needs defined MEMORYLEAK)
+ * - 2006/10/06 Shinigami: Linux needs malloc.h for malloc_usable_size
+ *                         FreeBSD 6.1 doesn't know malloc_usable_size (FreeBSD 7.0 will support it)
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+ */
 
-Notes
-=======
 
-*/
+#ifdef WINDOWS
+#include "pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include "opnew.h"
 #include "logfacility.h"

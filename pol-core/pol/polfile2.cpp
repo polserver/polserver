@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-
-Notes
-=======
-
-*/
 
 // TODO: consider joining this file with landtile.cpp, tiles.cpp and clidata.h and renaming it all to something consistent.
 // TODO: encapsulate the tile[] vector here

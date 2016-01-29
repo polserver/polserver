@@ -1,14 +1,12 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @note ATTENTION
+ * This header is part of the PCH
+ * Remove the include in all StdAfx.h files or live with the consequences :)
+ */
 
-Notes
-=======
-ATTENTION:
-This header is part of the PCH
-Remove the include in all StdAfx.h files or live with the consequences :)
-
-*/
 
 #ifndef STLUTIL_H
 #define STLUTIL_H
@@ -16,10 +14,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <cstring>
 #include <sstream>
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4996)
-#endif
+#include "Header_Windows.h"
 
 namespace Pol {
   namespace Clib {

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "uofile.h"
 #include "uofilei.h"

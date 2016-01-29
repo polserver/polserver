@@ -1,19 +1,16 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
-
-#ifdef HAVE_MYSQL
 
 #include "sqlscrobj.h"
 
+#ifdef HAVE_MYSQL
+
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
 #include "../clib/esignal.h"
@@ -30,7 +27,15 @@ Notes
 #include "../plib/pkg.h"
 #include "globals/network.h"
 
+// std::regex support is broken in GCC < 4.9. This define is a workaround for GCC 4.8.
+// TODO: remove this in future and just use std:: namespace
+#ifndef USE_BOOST_REGEX
 #include <regex>
+#define REGEX_NSPACE std
+#else
+#include <boost/regex.hpp>
+#define REGEX_NSPACE boost
+#endif
 
 namespace Pol {
   namespace Core {
@@ -295,10 +300,10 @@ namespace Pol {
       }
 
       std::string replaced = query;
-      std::regex re("^((?:[^']|'[^']*')*?)(\\?)");
+      REGEX_NSPACE::regex re("^((?:[^']|'[^']*')*?)(\\?)");
       for( auto it = params->begin(); it != params->end(); ++it )
       {
-        if( ! std::regex_search(replaced, re) )
+        if( ! REGEX_NSPACE::regex_search(replaced, re) )
         {
           _errno = -2;
           _error = "Could not replace parameters.";
@@ -313,10 +318,10 @@ namespace Pol {
 
         // Escape the string and add quoting. A bit tricky, but effective.
         size_t escaped_max_size = it->size() * 2 + 5; //max is +1, using +5 to leave space for quoting and "$1"
-        char *escptr = (char*)malloc(escaped_max_size);
-        escptr += 3; // Will move it back later to add quoting
-        unsigned long esclen = mysql_real_escape_string(_conn->ptr(), escptr, it->c_str(), (unsigned long)it->size());
-        escptr -= 3;
+        std::unique_ptr<char[]> escptr( new char[escaped_max_size] ); // will contain the escaped string
+        // use +3 to leave space for quoting
+        unsigned long esclen = mysql_real_escape_string(_conn->ptr(), escptr.get()+3, it->c_str(), static_cast<unsigned long>(it->size()));
+        // Now add quoting, equivalent to escptr = "$1'" + escptr + "'"
         esclen += 4;
         escptr[0] = '$';
         escptr[1] = '1';
@@ -324,8 +329,7 @@ namespace Pol {
         escptr[esclen-1] = '\'';
         escptr[esclen] = '\0';
 
-        replaced = std::regex_replace(replaced, re, escptr, std::regex_constants::format_first_only);
-        free(escptr);
+        replaced = REGEX_NSPACE::regex_replace(replaced, re, escptr.get(), REGEX_NSPACE::regex_constants::format_first_only);
       }
 
       return this->query(replaced);
@@ -485,4 +489,5 @@ namespace Pol {
     }
   }
 }
+#undef REGEX_NSPACE
 #endif

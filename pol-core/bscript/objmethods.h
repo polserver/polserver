@@ -1,22 +1,19 @@
-/*
-History
-=======
-2005/05/24 Shinigami: added ObjMethod account.delete() to delete this account
-2005/05/25 Shinigami: added ObjMethod account.split( newacctname : string, index : 1..5 )
-					  to create a new account and move character to it
-2005/05/25 Shinigami: added ObjMethod account.move_char( destacctname : string, index : 1..5 )
-					  to move character from this account to destaccount
-2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
-2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
-2009/08/06 MuadDib:   Added GetGottenBy to find who is holding the item. Returning char ref of course.
-2009/10/09 Turley:	Added spellbook.spells() & .hasspell() methods
-2009/10/10 Turley:	Added spellbook.addspell() & .removespell() methods
-2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+/** @file
+ *
+ * @par History
+ * - 2005/05/24 Shinigami: added ObjMethod account.delete() to delete this account
+ * - 2005/05/25 Shinigami: added ObjMethod account.split( newacctname : string, index : 1..5 )
+ *                         to create a new account and move character to it
+ * - 2005/05/25 Shinigami: added ObjMethod account.move_char( destacctname : string, index : 1..5 )
+ *                         to move character from this account to destaccount
+ * - 2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
+ * - 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
+ * - 2009/08/06 MuadDib:   Added GetGottenBy to find who is holding the item. Returning char ref of course.
+ * - 2009/10/09 Turley:	Added spellbook.spells() & .hasspell() methods
+ * - 2009/10/10 Turley:	Added spellbook.addspell() & .removespell() methods
+ * - 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef OBJMETHODS_H
 #define OBJMETHODS_H

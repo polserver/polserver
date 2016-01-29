@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/08/25 Shinigami: STLport-5.2.1 fix: Error message in BinaryFile::Seek stripped little bit.
-2009/09/01 MuadDib:   STLPort-5.x fix: BinaryFile::Seek requires casting to long in decint under Win32
+/** @file
+ *
+ * @par History
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: Error message in BinaryFile::Seek stripped little bit.
+ * - 2009/09/01 MuadDib:   STLPort-5.x fix: BinaryFile::Seek requires casting to long in decint under Win32
+ */
 
-Notes
-=======
-
-*/
 
 #include "binaryfile.h"
 

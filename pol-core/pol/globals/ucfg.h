@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/11/11 Turley:   Changed MAX_CONTAINER_ITEMS too highest possible value (3200)
+/** @file
+ *
+ * @par History
+ * - 2009/11/11 Turley:   Changed MAX_CONTAINER_ITEMS too highest possible value (3200)
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef UCFG_H
 #define UCFG_H

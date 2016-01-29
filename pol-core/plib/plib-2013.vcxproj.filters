@@ -32,22 +32,7 @@
     <ClCompile Include="pkg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="polver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="realm.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="realmdescriptor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="realmfunc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="realmlos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="realmlos2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="staticserver.cpp">
@@ -72,6 +57,30 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="systemstate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pol\uofile00.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pol\uofile01.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pol\uofile02.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\uotool\uofile04.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\uotool\uofile05.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pol\uofile06.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pol\uofile07.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pol\uofile08.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -115,12 +124,6 @@
     <ClInclude Include="pkg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="polver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="realm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="realmdescriptor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -149,6 +152,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="systemstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pol\uofilei.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pol\uofile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

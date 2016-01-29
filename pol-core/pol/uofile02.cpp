@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/01/17 Shinigami: readstaticblock - modified passert reason
-2005/01/23 Shinigami: readstaticblock - used constant WORLD_X/Y... bad idea
-2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
+/** @file
+ *
+ * @par History
+ * - 2005/01/17 Shinigami: readstaticblock - modified passert reason
+ * - 2005/01/23 Shinigami: readstaticblock - used constant WORLD_X/Y... bad idea
+ * - 2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
+ */
 
-Notes
-=======
-
-*/
 
 #include "uofile.h"
 #include "uofilei.h"

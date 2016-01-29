@@ -1,14 +1,13 @@
-/*
-History
-=======
-2009/02/01 MuadDib:   Resistance storage added.
+/** @file
+ *
+ * @par History
+ * - 2009/02/01 MuadDib:   Resistance storage added.
+ *
+ * @note ATTENTION
+ * This header is part of the PCH
+ * Remove the include in all StdAfx.h files or live with the consequences :)
+ */
 
-Notes
-=======
-ATTENTION:
-This header is part of the PCH
-Remove the include in all StdAfx.h files or live with the consequences :)
-*/
 
 
 #ifndef __UOBJECT_H
@@ -50,7 +49,7 @@ namespace Pol {
   namespace Clib {
 	class ConfigElem;
   }
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Items {
@@ -257,7 +256,7 @@ namespace Pol {
 
 	  u8 facing; // not always used for items.
 	  // always used for characters
-	  Plib::Realm* realm;
+	  Realms::Realm* realm;
 
 	  bool saveonexit_;	// 1-25-2009 MuadDib added. So far only items will make use of this.
 	  // Another possibility is adding this to NPCs for WoW style Instances.

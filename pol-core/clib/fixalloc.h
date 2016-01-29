@@ -1,19 +1,24 @@
-/*
-History
-=======
-2005/06/20 Shinigami: added log_stuff and everything needed to analyze a little bit (needs defined MEMORYLEAK)
-2006/10/06 Shinigami: malloc.h -> stdlib.h
-2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+/** @file
+ *
+ * @par History
+ * - 2005/06/20 Shinigami: added log_stuff and everything needed to analyze a little bit (needs defined MEMORYLEAK)
+ * - 2006/10/06 Shinigami: malloc.h -> stdlib.h
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+ *
+ * @note ATTENTION
+ * This header is part of the PCH
+ * Remove the include in all StdAfx.h files or live with the consequences :)
+ */
 
-Notes
-=======
-ATTENTION:
-This header is part of the PCH
-Remove the include in all StdAfx.h files or live with the consequences :)
-*/
 
 #ifndef __CLIB_FIXALLOC_H
 #define __CLIB_FIXALLOC_H
+
+#ifdef WINDOWS
+#include "pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include <assert.h>
 #include <stddef.h>

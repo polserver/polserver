@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/09/10 Shinigami: added mf_Root - calculates y Root of x as a Real
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-                      removed obsolete gcvt, used sprintf
+/** @file
+ *
+ * @par History
+ * - 2005/09/10 Shinigami: added mf_Root - calculates y Root of x as a Real
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ *                         removed obsolete gcvt, used sprintf
+ */
 
-Notes
-=======
-
-*/
 
 #include "mathmod.h"
 
@@ -215,7 +212,7 @@ namespace Pol {
 	  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) || ( impX->isa( Bscript::BObjectImp::OTLong ) ) )
 		   && ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) || ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
 	  {
-		if ( impX->isLessThan( *impY ) )
+		if ( *impX < *impY )
 		  return impX->copy();
 		else
 		  return impY->copy();
@@ -239,7 +236,7 @@ namespace Pol {
 			{
 			  if ( compare == NULL )
 				compare = bo->impptr();
-			  else if ( bo->impptr()->isLessThan( *compare ) )
+			  else if ( *(bo->impptr()) < *compare )
 				compare = bo->impptr();
 			}
 		  }
@@ -260,7 +257,7 @@ namespace Pol {
 	  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) || ( impX->isa( Bscript::BObjectImp::OTLong ) ) )
 		   && ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) || ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
 	  {
-		if ( impX->isLessThan( *impY ) )
+		if ( *impX < *impY )
 		  return impY->copy();
 		else
 		  return impX->copy();
@@ -284,7 +281,7 @@ namespace Pol {
 			{
 			  if ( compare == NULL )
 				compare = bo->impptr();
-			  else if ( !( bo->impptr()->isLessThan( *compare ) ) )
+			  else if ( *(bo->impptr()) >= *compare )
 				compare = bo->impptr();
 			}
 		  }
@@ -371,6 +368,8 @@ namespace Pol {
 		   getParam( 1, digits ) )
 	  {
 		char buffer[200];
+        /// @todo: sprintf produces different output on some doubles (eg. M_PI)
+        ///        on Windows/Linux. Use something else? 2016-01-23 Bodom
 		sprintf( buffer, "%.*g", static_cast<int>( digits ), x );
 		return new String( buffer );
 	  }

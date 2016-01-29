@@ -1,17 +1,14 @@
-/*
-History
-=======
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "binaryfilescrobj.h"
 
 #include "../clib/strutil.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/berror.h"
@@ -316,7 +313,7 @@ namespace Pol {
 	  return file.IsOpen();
 	}
 
-	bool BBinaryfile::isEqual( const Bscript::BObjectImp& objimp ) const
+	bool BBinaryfile::operator==( const Bscript::BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( Bscript::BObjectImp::OTBinaryFile ) )
 	  {

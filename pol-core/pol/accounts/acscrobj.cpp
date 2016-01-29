@@ -1,34 +1,31 @@
-/*
-History
-=======
-2005/04/04 Shinigami: account.Set_UO_Expansion( string ) - extended for Samurai Empire,
-                      added value check, added to AccountObjImp::call_method (was missing)
-2005/04/04 Shinigami: call ondelete script in account.DeleteCharacter( index ) too
-2005/04/04 Shinigami: added candelete script
-2005/05/24 Shinigami: added account.delete() to delete this account
-2005/05/25 Shinigami: added account.split( newacctname : string, index : 1..5 )
-                      to create a new account and move character to it
-2005/05/25 Shinigami: added account.move_char( destacctname : string, index : 1..5 )
-                      to move character from this account to destaccount
-2005/11/25 Shinigami: MTH_GET_MEMBER/"get_member" - GCC fix
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/05/16 Shinigami: account.Set_UO_Expansion( string ) - extended for Mondain's Legacy
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-2009/12/02 Turley:    added SA expansion - Tomi
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/04/04 Shinigami: account.Set_UO_Expansion( string ) - extended for Samurai Empire,
+ *                         added value check, added to AccountObjImp::call_method (was missing)
+ * - 2005/04/04 Shinigami: call ondelete script in account.DeleteCharacter( index ) too
+ * - 2005/04/04 Shinigami: added candelete script
+ * - 2005/05/24 Shinigami: added account.delete() to delete this account
+ * - 2005/05/25 Shinigami: added account.split( newacctname : string, index : 1..5 )
+ *                         to create a new account and move character to it
+ * - 2005/05/25 Shinigami: added account.move_char( destacctname : string, index : 1..5 )
+ *                         to move character from this account to destaccount
+ * - 2005/11/25 Shinigami: MTH_GET_MEMBER/"get_member" - GCC fix
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/05/16 Shinigami: account.Set_UO_Expansion( string ) - extended for Mondain's Legacy
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ * - 2009/12/02 Turley:    added SA expansion - Tomi
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "acscrobj.h"
 
 #include "account.h"
 #include "accounts.h"
 
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
@@ -65,7 +62,7 @@ namespace Pol {
 	{
 	  return "AccountRef";
 	}
-	int AccountObjImp::typeOfInt() const
+	u8 AccountObjImp::typeOfInt() const
 	{
 	  return OTAccountRef;
 	}

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/03/05 Shinigami: schedule_spell - spell-delay removed
+/** @file
+ *
+ * @par History
+ * - 2005/03/05 Shinigami: schedule_spell - spell-delay removed
+ */
 
-Notes
-=======
-
-*/
 
 #include "charactr.h"
 

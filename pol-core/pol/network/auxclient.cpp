@@ -1,12 +1,15 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ */
 
-Notes
-=======
 
-*/
+#ifdef WINDOWS
+#include "../../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include "auxclient.h"
 

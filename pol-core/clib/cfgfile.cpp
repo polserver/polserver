@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/07/01 Shinigami: added ConfigFile::_modified (stat.st_mtime) to detect cfg file modification
-2009/08/25 Shinigami: STLport-5.2.1 fix: elem->type() check will use strlen() now
+/** @file
+ *
+ * @par History
+ * - 2005/07/01 Shinigami: added ConfigFile::_modified (stat.st_mtime) to detect cfg file modification
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: elem->type() check will use strlen() now
+ */
 
-Notes
-=======
-
-*/
 
 #include "cfgfile.h"
 

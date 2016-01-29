@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_EXECUTORTYPE_H
 #define BSCRIPT_EXECUTORTYPE_H

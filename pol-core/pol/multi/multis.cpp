@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #include "multi.h"
 
@@ -22,10 +19,7 @@ Notes
 #include "../objtype.h"
 #include "../globals/state.h"
 
-#include "../udatfile.h"
 #include "../uobject.h"
-#include "../uofilei.h"
-#include "../uofile.h"
 #include "../ustruct.h"
 #include "../polcfg.h"
 

@@ -1,17 +1,13 @@
-/*
-History
-=======
-2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
-2009-07-18 MuadDib: Updated dump messages for bug tracker
+/** @file
+ *
+ * @par History
+ * - 2005/09/16 Shinigami: added scripts_thread_script* to support better debugging
+ * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "mdump.h"
-#include "progver.h"
 #include "strexcpt.h"
 #include "passert.h"
 #include "logfacility.h"
@@ -19,8 +15,7 @@ Notes
 #include "clib.h"
 #include "../../lib/StackWalker/StackWalker.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "Header_Windows.h"
 #include <assert.h>
 #include <time.h>
 
@@ -140,7 +135,7 @@ namespace Pol {
 	  MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
 	  if( pDump )
 	  {
-        dumppath << progverstr << "-" << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
+        dumppath << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
 
         HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
 									 FILE_ATTRIBUTE_NORMAL, NULL );

@@ -1,32 +1,26 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: additional parentheses in asserteql
+ * - 2010/03/27 Shinigami: Notes added.
+ *
+ * @note How does it work?\n
+ * asserteql\n
+ * defines one "char xxxyyyzzz[1];" globaly.
+ * per check it tries to define another "char xxxyyyzzz[1-(0)];" (a^(b) = a XOR b).
+ * if this is not possible, than it will fail, due to different definitions.\n
+ * assertsize\n
+ * tries to define two entries in a different way.
+ * if this is not possible, than it will fail, due to different definitions.\n
+ * assertofs\n
+ * will not be used.\n
+ * Why we have asserteql and assertsize if it does the same? dunno
+ *
+ * @note ATTENTION
+ * This header is part of the PCH
+ * Remove the include in all StdAfx.h files or live with the consequences :)
+ */
 
-2009/08/25 Shinigami: STLport-5.2.1 fix: additional parentheses in asserteql
-2010/03/27 Shinigami: Notes added.
-
-Notes
-=======
-
-How does it work?
-  asserteql
-    defines one "char xxxyyyzzz[1];" globaly.
-    per check it tries to define another "char xxxyyyzzz[1-(0)];" (a^(b) = a XOR b).
-      if this is not possible, than it will fail, due to different definitions.
-
-  assertsize
-    tries to define two entries in a different way.
-	  if this is not possible, than it will fail, due to different definitions.
-
-  assertofs
-    will not be used.
-
-  Why we have asserteql and assertsize if it does the same? dunno
-
-ATTENTION:
-This header is part of the PCH
-Remove the include in all StdAfx.h files or live with the consequences :)
-*/
 
 #ifndef CLIB_COMPILEASSERT_H
 #define CLIB_COMPILEASSERT_H

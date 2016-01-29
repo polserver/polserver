@@ -1,25 +1,22 @@
-/*
-History
-=======
-2005/01/24 Shinigami: added get-/setspyonclient2 to support packet 0xd9 (Spy on Client 2)
-2005/04/03 Shinigami: added UOExpansionFlag for Samurai Empire
-2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
-                      get-/setspyonclient2 renamed to get-/setclientinfo
-2006/05/16 Shinigami: added UOExpansionFlag for Mondain's Legacy
-                      added GENDER/RACE flag (e.g. used inside ClientCreateChar())
-2007/07/09 Shinigami: added isUOKR [bool] - UO:KR client used?
-2009/08/10 MuadDib:   Added CLIENT_VER_50000 for v5.0.0x clients.
-2009/08/19 Turley:    Added u32 UOExpansionFlagClient
-2009/09/06 Turley:    Added u8 ClientType + FlagEnum
-                      Removed is*
-2009/12/02 Turley:    added SA expansion - Tomi
-2009/12/04 Turley:    Crypto cleanup - Tomi
-2010/01/22 Turley:    Speedhack Prevention System
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added get-/setspyonclient2 to support packet 0xd9 (Spy on Client 2)
+ * - 2005/04/03 Shinigami: added UOExpansionFlag for Samurai Empire
+ * - 2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
+ *                         get-/setspyonclient2 renamed to get-/setclientinfo
+ * - 2006/05/16 Shinigami: added UOExpansionFlag for Mondain's Legacy
+ *                         added GENDER/RACE flag (e.g. used inside ClientCreateChar())
+ * - 2007/07/09 Shinigami: added isUOKR [bool] - UO:KR client used?
+ * - 2009/08/10 MuadDib:   Added CLIENT_VER_50000 for v5.0.0x clients.
+ * - 2009/08/19 Turley:    Added u32 UOExpansionFlagClient
+ * - 2009/09/06 Turley:    Added u8 ClientType + FlagEnum
+ *                         Removed is*
+ * - 2009/12/02 Turley:    added SA expansion - Tomi
+ * - 2009/12/04 Turley:    Crypto cleanup - Tomi
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __CLIENT_H
 #define __CLIENT_H

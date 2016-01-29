@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/12/05 MuadDib:   Added check for invul_tag from ssopt. If not 1, don't add tag.
-2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/12/05 MuadDib:   Added check for invul_tag from ssopt. If not 1, don't add tag.
+ * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "network/client.h"
 #include "network/msghandl.h"
@@ -20,7 +17,6 @@ Notes
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "ustruct.h"
-#include "uofile.h"
 #include "uworld.h"
 #include "containr.h"
 

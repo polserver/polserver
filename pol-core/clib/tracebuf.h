@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef CLIB_TRACEBUF_H
 #define CLIB_TRACEBUF_H
@@ -49,4 +45,4 @@ namespace Pol {
 #endif
 }
 
-#endif
+#endif //CLIB_TRACEBUF_H

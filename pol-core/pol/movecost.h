@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
+/** @file
+ *
+ * @par History
+ * - 2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef MOVECOST_H
 #define MOVECOST_H

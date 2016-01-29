@@ -1,21 +1,18 @@
-/*
-History
-=======
-2005/05/25 Shinigami: added void writeto( ConfigElem& elem )
-2005/05/25 Shinigami: added getnextfreeslot()
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-2009/09/03 MuadDib:   Relocation of account related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2005/05/25 Shinigami: added void writeto( ConfigElem& elem )
+ * - 2005/05/25 Shinigami: added getnextfreeslot()
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #include "account.h"
 #include "accounts.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 #include "../../clib/streamsaver.h"
 
 #include "../globals/uvars.h"

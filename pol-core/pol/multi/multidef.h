@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/09/01 Turley:    VS2005/2008 Support moved inline MultiDef::getkey to .h
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/09/01 Turley:    VS2005/2008 Support moved inline MultiDef::getkey to .h
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef MULTIDEF_H
 #define MULTIDEF_H
@@ -38,6 +35,8 @@ namespace Pol {
     class MapShapeList;
   }
   namespace Multi {
+  	extern void read_multidefs();
+
 	struct MULTI_ELEM
 	{
 	  unsigned short objtype;

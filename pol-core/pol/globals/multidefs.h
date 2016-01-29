@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef GLOBALS_MULTIDEFS_H
 #define GLOBALS_MULTIDEFS_H
@@ -13,6 +10,7 @@ Notes
 #include "../../clib/rawtypes.h"
 
 #include <map>
+#include <cstddef>
 #include <boost/noncopyable.hpp>
 
 namespace Pol {

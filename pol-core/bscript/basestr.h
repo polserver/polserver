@@ -1,12 +1,9 @@
-/*
-History
-=======
-2015/20/12 Bodom:     creating this file to handle string/unicode
+/** @file
+ *
+ * @par History
+ * - 2015/20/12 Bodom:     creating this file to handle string/unicode
+ */
 
-Notes
-=======
-
-*/
 
 #pragma once
 
@@ -834,7 +831,7 @@ namespace Pol {
         remove( objimp.getStringRep() );
       }
 
-      virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE
+      virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE
       {
         if ( objimp.isa( T ) )
           return ( value_ == static_cast<const D&>( objimp ).value_ );
@@ -847,14 +844,12 @@ namespace Pol {
        *
        * @todo TODO: Change this behavior? It doesn't make much sense - 12-27-2015 Bodom
        */
-      virtual bool isLessThan( const BObjectImp& objimp ) const POL_OVERRIDE
+      virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE
       {
         if ( objimp.isa( T ) )
           return ( value_ < static_cast<const D&>( objimp ).value_ );
-        else if ( objimp.isa( OTUninit ) || objimp.isa( OTError ) )
-          return false;
-        else
-          return true;
+
+        return BObjectImp::operator<( objimp );
       }
 
 

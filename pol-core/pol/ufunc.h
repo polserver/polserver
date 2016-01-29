@@ -1,17 +1,14 @@
-/*
-History
-=======
-2006/05/07 Shinigami: SendAOSTooltip - will now send merchant_description() if needed
-2009/07/26 MuadDib:   updates for new Packet Refactoring
-2009/07/31 Turley:    added send_fight_occuring() for packet 0x2F
-2009/08/01 MuadDib:   Removed send_tech_stuff(), unused and obsolete.
-2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
-2009/09/22 Turley:    Added DamagePacket support
+/** @file
+ *
+ * @par History
+ * - 2006/05/07 Shinigami: SendAOSTooltip - will now send merchant_description() if needed
+ * - 2009/07/26 MuadDib:   updates for new Packet Refactoring
+ * - 2009/07/31 Turley:    added send_fight_occuring() for packet 0x2F
+ * - 2009/08/01 MuadDib:   Removed send_tech_stuff(), unused and obsolete.
+ * - 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
+ * - 2009/09/22 Turley:    Added DamagePacket support
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __UFUNC_H
 #define __UFUNC_H
@@ -43,7 +40,7 @@ namespace Pol {
   namespace Multi {
 	class UMulti;
   }
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
 
@@ -140,7 +137,7 @@ namespace Pol {
 	bool is_a_parent( const Items::Item *item, u32 serial );
 	void play_sound_effect( const UObject *center, u16 effect );
 	void play_sound_effect_private( const UObject *center, u16 effect, Mobile::Character* forchr );
-	void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Plib::Realm* realm );
+	void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Realms::Realm* realm );
 	void play_lightning_bolt_effect( const UObject* center );
 	void play_moving_effect( const UObject *src, const UObject *dst,
 							 u16 effect,
@@ -153,15 +150,15 @@ namespace Pol {
 							  u8 speed,
 							  u8 loop,
 							  u8 explode,
-							  Plib::Realm* realm );
+							  Realms::Realm* realm );
 	void play_object_centered_effect( const UObject* center,
 									  u16 effect,
 									  u8 speed,
 									  u8 loop );
 
-	void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Plib::Realm* realm );
+	void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Realms::Realm* realm );
 
-	void play_stationary_effect_ex( u16 x, u16 y, s8 z, Plib::Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue,
+	void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue,
 									u32 render, u16 effect3d );
 	void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration, u32 hue,
 										 u32 render, u8 layer, u16 effect3d );
@@ -169,7 +166,7 @@ namespace Pol {
 								u16 effect, u8 speed, u8 duration, u32 hue,
 								u32 render, u8 direction, u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
 	void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
-								 u16 xd, u16 yd, s8 zd, Plib::Realm* realm,
+								 u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
 								 u16 effect, u8 speed, u8 duration, u32 hue,
 								 u32 render, u8 direction, u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
 
@@ -232,7 +229,7 @@ namespace Pol {
 	void world_delete( UObject* uobj );
 
 	void move_item( Items::Item* item, UFACING facing );
-	void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz, Plib::Realm* oldrealm );
+	void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz, Realms::Realm* oldrealm );
 
 	void send_char_if_newly_inrange( Mobile::Character *chr, Network::Client *client );
 	void send_item_if_newly_inrange( Items::Item *item, Network::Client *client );
@@ -261,7 +258,7 @@ namespace Pol {
 	bool clientHasCharacter( Network::Client* c );
 	void login_complete( Network::Client* c );
 	void send_feature_enable( Network::Client* client );
-	void send_realm_change( Network::Client* client, Plib::Realm* realm );
+	void send_realm_change( Network::Client* client, Realms::Realm* realm );
 	void send_map_difs( Network::Client* client );
 	void send_season_info( Network::Client* client );
 	void send_new_subserver( Network::Client* client );

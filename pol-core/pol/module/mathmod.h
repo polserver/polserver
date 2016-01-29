@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/09/10 Shinigami: added mf_Root - calculates y Root of x as a Real
+/** @file
+ *
+ * @par History
+ * - 2005/09/10 Shinigami: added mf_Root - calculates y Root of x as a Real
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_MATHEMOD_H
 #define BSCRIPT_MATHEMOD_H

@@ -1,19 +1,17 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2012/04/14 Tomi:      added new map message packet 0xF5 for new clients >= 7.0.13.0 and facetid member for maps
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2012/04/14 Tomi:      added new map message packet 0xF5 for new clients >= 7.0.13.0 and facetid member for maps
+ */
 
-Notes
-=======
-
-*/
 #include "umap.h"
 #include "pktboth.h"
 #include "poltype.h"
 #include "sockio.h"
 #include "ufunc.h"
+#include "realms/realm.h"
 
 #include "network/client.h"
 #include "network/packets.h"
@@ -27,10 +25,8 @@ Notes
 #include "../bscript/berror.h"
 #include "../bscript/objmethods.h"
 
-#include "../plib/realm.h"
-
 #include "../clib/cfgelem.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
 

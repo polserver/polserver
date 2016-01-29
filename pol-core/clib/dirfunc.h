@@ -2,20 +2,11 @@
 
 #define __DIRFUNC_H
 
-#ifdef _MSC_VER
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#if defined(WINDOWS)
 #include <stdlib.h>
-#define MAXDRIVE _MAX_DRIVE
-#define MAXDIR   _MAX_DIR
-#define MAXFILE  _MAX_FNAME
-#define MAXPATH  _MAX_PATH
-#define MAXEXT   _MAX_EXT
+#include "Header_Windows.h"
 #else
-
-#ifndef __DIR_H
 #include <dir.h>
-#endif
 #endif
 namespace Pol {
   namespace Clib {

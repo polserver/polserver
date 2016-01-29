@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/07/26 MuadDib:   updates for new Enum::Packet IDs
-2009/12/02 Turley:    layer 15 is face layer
+/** @file
+ *
+ * @par History
+ * - 2009/07/26 MuadDib:   updates for new Enum::Packet IDs
+ * - 2009/12/02 Turley:    layer 15 is face layer
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __LAYERS_H
 #define __LAYERS_H

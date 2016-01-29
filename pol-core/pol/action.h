@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/07/27 MuadDib:   Packet Struct Refactoring
+/** @file
+ *
+ * @par History
+ * - 2009/07/27 MuadDib:   Packet Struct Refactoring
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef ACTION_H

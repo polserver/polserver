@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/09/17 Shinigami: ::signal_event() will return error on full evene queue
+/** @file
+ *
+ * @par History
+ * - 2006/09/17 Shinigami: ::signal_event() will return error on full evene queue
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_OSEMOD_H
 #define BSCRIPT_OSEMOD_H

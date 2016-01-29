@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "poltest.h"
 
@@ -15,7 +11,6 @@ Notes
 #include "../clib/passert.h"
 
 #include "../plib/maptile.h"
-#include "../plib/realm.h"
 #include "../plib/testenv.h"
 
 #include "realms.h"
@@ -23,24 +18,23 @@ Notes
 #include "item/item.h"
 #include "los.h"
 #include "mobile/npc.h"
-#include "uofile.h"
 #include "polcfg.h"
-#include "udatfile.h"
 #include "globals/uvars.h"
 #include "skilladv.h"
 #include "dynproperties.h"
+#include "realms/realm.h"
 
 #include "uobject.h"
 #include "../clib/timer.h"
 
 namespace Pol {
   namespace Plib {
-    void pol_walk_test();
-    void pol_drop_test();
-    void pol_los_test();
-    void pol_test_multiwalk();
-    void display_test_results();
-    void create_test_environment( );
+    //void pol_walk_test();
+    //void pol_drop_test();
+    //void pol_los_test();
+    //void pol_test_multiwalk();
+    //void display_test_results();
+    //void create_test_environment( );
     void inc_failures();
     void inc_successes( );
   }
@@ -169,14 +163,14 @@ namespace Pol {
       INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
       INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
       return;
-      Plib::create_test_environment();
+   //   Plib::create_test_environment();
 
-	  Plib::pol_drop_test();
-      Plib::pol_walk_test( );
-      Plib::pol_los_test( );
-      Plib::pol_test_multiwalk( );
+	  //Plib::pol_drop_test();
+   //   Plib::pol_walk_test( );
+   //   Plib::pol_los_test( );
+   //   Plib::pol_test_multiwalk( );
 
-      Plib::display_test_results( );
+   //   Plib::display_test_results( );
 	}
 
 

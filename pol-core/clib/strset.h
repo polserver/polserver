@@ -1,14 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
 
-*/
-
-#ifndef STRSET_H
-#define STRSET_H
+#ifndef CLIB_STRSET_H
+#define CLIB_STRSET_H
 
 #include <cstddef>
 
@@ -43,4 +40,4 @@ namespace Pol {
 	};
   }
 }
-#endif
+#endif //CLIB_STRSET_H

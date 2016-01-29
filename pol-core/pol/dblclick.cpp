@@ -1,26 +1,22 @@
-/*
-History
-=======
-2006/05/16 Shinigami: updated doubleclick() to support Elf
-2006/05/26 Shinigami: fixed start_script call of dblclickother
-2007/01/04 MuadDib:   changed a large if || || || to a case switch in dbl click check.
-2007/01/04 MuadDib:   changed flag status in sendpaperdoll to send status, instead of
-                      only warmode status. 
-2008/09/24 Luth:      If this is my paperdoll, tell me all about me otherwise tell less
-2008/09/xx Turley:    Paperdoll info decided with ssopt.cfg option (for luth's update)
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/12/02 Turley:    added gargoyle support
+/** @file
+ *
+ * @par History
+ * - 2006/05/16 Shinigami: updated doubleclick() to support Elf
+ * - 2006/05/26 Shinigami: fixed start_script call of dblclickother
+ * - 2007/01/04 MuadDib:   changed a large if || || || to a case switch in dbl click check.
+ * - 2007/01/04 MuadDib:   changed flag status in sendpaperdoll to send status, instead of
+ *                         only warmode status.
+ * - 2008/09/24 Luth:      If this is my paperdoll, tell me all about me otherwise tell less
+ * - 2008/09/xx Turley:    Paperdoll info decided with ssopt.cfg option (for luth's update)
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/12/02 Turley:    added gargoyle support
+ */
 
-Notes
-=======
-
-*/
 
 #include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "network/client.h"
@@ -35,6 +31,7 @@ Notes
 #include "pktin.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "scrstore.h"
 #include "ufunc.h"
 #include "uoscrobj.h"

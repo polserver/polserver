@@ -1,21 +1,18 @@
-/*
-History
-=======
-2005/04/02 Shinigami: move_offline_mobiles - added realm param
-2005/08/22 Shinigami: do_tellmoves - bugfix - sometimes we've destroyed objects because of control scripts
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
-STLport-5.2.1 fix: boat_components changed little bit
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-Changes for multi related source file relocation
-2009/12/02 Turley:    added 0xf3 packet - Tomi
-2011/11/12 Tomi:	  added extobj.tillerman, extobj.port_plank, extobj.starboard_plank and extobj.hold
-2011/12/13 Tomi:      added support for new boats
+/** @file
+ *
+ * @par History
+ * - 2005/04/02 Shinigami: move_offline_mobiles - added realm param
+ * - 2005/08/22 Shinigami: do_tellmoves - bugfix - sometimes we've destroyed objects because of control scripts
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
+ *                         STLport-5.2.1 fix: boat_components changed little bit
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/12/02 Turley:    added 0xf3 packet - Tomi
+ * - 2011/11/12 Tomi:      added extobj.tillerman, extobj.port_plank, extobj.starboard_plank and extobj.hold
+ * - 2011/12/13 Tomi:      added support for new boats
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "boat.h"
@@ -27,14 +24,13 @@ Notes
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
 
-#include "../../plib/realm.h"
 #include "../../plib/systemstate.h"
 
 #include "../mobile/charactr.h"
@@ -49,12 +45,12 @@ Notes
 #include "../objtype.h"
 #include "../pktout.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../scrsched.h"
 #include "../tiles.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "../uconst.h"
-#include "../uofile.h"
 #include "../ustruct.h"
 #include "../globals/uvars.h"
 #include "../globals/object_storage.h"
@@ -623,7 +619,7 @@ namespace Pol {
 	}
 
 	// navigable: Can the ship sit here?  ie is every point on the hull on water,and not blocked?
-	bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z, Plib::Realm* realm )
+	bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z, Realms::Realm* realm )
 	{
 
 	  if ( int( x + md.minrx ) < 0 || int( x + md.maxrx ) > int( realm->width() ) ||
@@ -684,7 +680,7 @@ namespace Pol {
 	  return bc.mdef.body_contains( rx, ry );
 	}
 
-	void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short newx, unsigned short newy, Plib::Realm* oldrealm )
+	void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short newx, unsigned short newy, Realms::Realm* oldrealm )
 	{
 	  bool any_orphans = false;
 
@@ -1047,7 +1043,7 @@ namespace Pol {
 	  return false;
 	}
 
-	void UBoat::move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z, Plib::Realm* realm )
+	void UBoat::move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z, Realms::Realm* realm )
 	{
 	  BoatContext bc( *this );
 
@@ -1162,7 +1158,7 @@ namespace Pol {
 	}
 
 	//dave 3/26/3 added
-	bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Plib::Realm* oldrealm )
+	bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms::Realm* oldrealm )
 	{
 	  bool result;
       BoatMoveGuard registerguard( this );
@@ -1297,7 +1293,7 @@ namespace Pol {
 	}
 
 
-	void UBoat::transform_components( const BoatShape& old_boatshape, Plib::Realm* oldrealm )
+	void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm )
 	{
 		const BoatShape& bshape = boatshape();
         std::vector<Items::Item*>::iterator itr;
@@ -1358,7 +1354,7 @@ namespace Pol {
 		}
 	}
 
-	void UBoat::move_components( Plib::Realm* oldrealm )
+	void UBoat::move_components( Realms::Realm* oldrealm )
 	{
 	  const BoatShape& bshape = boatshape();
       std::vector<Items::Item*>::iterator itr;
@@ -1507,7 +1503,7 @@ namespace Pol {
 	{
 	  if( Core::settingsManager.polvar.DataWrittenBy < 99 )
 	  {
-		assert( graphic >= 0x4000 );
+		passert_always_r( graphic >= 0x4000, "Unexpected boat graphic < 0x4000 in POL < 099 data" );
 		multiid = graphic - 0x4000;
 	  }
 	  base::fixInvalidGraphic();
@@ -1598,7 +1594,7 @@ namespace Pol {
 	  }
 	}
 
-	Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags )
+	Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags )
 	{
 	  unsigned short multiid = descriptor.multiid;
 	  unsigned short multiid_offset = static_cast<unsigned short>( ( flags & CRMULTI_FACING_MASK ) >> CRMULTI_FACING_SHIFT );

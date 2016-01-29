@@ -1,31 +1,28 @@
-/*
-History
-=======
-2005/04/28 Shinigami: added mf_SecureTradeWin - to init secure trade via script over long distances
-added mf_MoveItemToSecureTradeWin - to move item to secure trade window via script
-2005/06/01 Shinigami: added mf_Attach - to attach a Script to a Character
-added mf_ListStaticsAtLocation - list static Items at location
-added mf_ListStaticsNearLocation - list static Items around location
-added mf_GetStandingLayers - get layer a mobile can stand
-2005/06/06 Shinigami: flags added to mf_ListStatics*
-2005/07/04 Shinigami: added mf_ListStaticsInBox - list static items in box
-2005/09/23 Shinigami: added mf_SendStatus - to send full status packet to support extensions
-2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
-2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
-2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
-2007/05/03 Turley:    added mf_GetRegionNameAtLocation - get name of justice region
-2007/05/04 Shinigami: added mf_GetRegionName - get name of justice region by objref
-2008/07/08 Turley:    Added mf_IsStackable - Is item stackable?
-2009/08/08 MuadDib:   mf_SetRawSkill(),  mf_GetRawSkill(),  mf_ApplyRawDamage(), mf_GameStat(), 
-                      mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
-2009/09/10 Turley:    CompressedGump support (Grin)
-2009/10/22 Turley:    added CanWalk()
-2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/04/28 Shinigami: added mf_SecureTradeWin - to init secure trade via script over long distances
+ *                         added mf_MoveItemToSecureTradeWin - to move item to secure trade window via script
+ * - 2005/06/01 Shinigami: added mf_Attach - to attach a Script to a Character
+ *                         added mf_ListStaticsAtLocation - list static Items at location
+ *                         added mf_ListStaticsNearLocation - list static Items around location
+ *                         added mf_GetStandingLayers - get layer a mobile can stand
+ * - 2005/06/06 Shinigami: flags added to mf_ListStatics*
+ * - 2005/07/04 Shinigami: added mf_ListStaticsInBox - list static items in box
+ * - 2005/09/23 Shinigami: added mf_SendStatus - to send full status packet to support extensions
+ * - 2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
+ * - 2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
+ * - 2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
+ * - 2007/05/03 Turley:    added mf_GetRegionNameAtLocation - get name of justice region
+ * - 2007/05/04 Shinigami: added mf_GetRegionName - get name of justice region by objref
+ * - 2008/07/08 Turley:    Added mf_IsStackable - Is item stackable?
+ * - 2009/08/08 MuadDib:   mf_SetRawSkill(),  mf_GetRawSkill(),  mf_ApplyRawDamage(), mf_GameStat(),
+ *                         mf_AwardRawPoints(), old replace_properties(), mf_GetSkill() cleaned out.
+ * - 2009/09/10 Turley:    CompressedGump support (Grin)
+ * - 2009/10/22 Turley:    added CanWalk()
+ * - 2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef H_UOMOD_H
 #define H_UOMOD_H
@@ -38,7 +35,7 @@ Notes
 
 //typedef BObject (UOExecutorModule::*UOExecutorModuleFn)();
 namespace Pol {
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Core {
@@ -326,11 +323,11 @@ namespace Pol {
 	  virtual int functionIndex( const char *func ) POL_OVERRIDE;
 	  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
 	  static UOFunctionDef function_table[];
-	  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Plib::Realm* newrealm );
-	  static void internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Plib::Realm* realm );
+	  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x, Core::ycoord y, Core::zcoord z, int flags, Realms::Realm* newrealm );
+	  static void internal_InBoxAreaChecks( unsigned short &x1, unsigned short &y1, int &z1, unsigned short &x2, unsigned short &y2, int &z2, Realms::Realm* realm );
 	  Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
 	  Bscript::BObjectImp* internal_SendCompressedGumpMenu( Mobile::Character* chr, Bscript::ObjArray* layout_arr, Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
 

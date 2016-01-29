@@ -165,7 +165,11 @@
     <prototype>FormatRealToString( value, precision )</prototype>
     <parameter name="value" value="Real" />
     <parameter name="precision" value="Integer" />
-    <explain>Who knows if this even works at all</explain>
+    <explain>
+    Formats a Double into a string. WARNING: this may produce different output on Windows and Linux,
+    output is intended only for displaying and informational purposes. Do not rely on it to be accurate,
+    to do not change in time, or to fit into any specifiec or predictable format.
+    </explain>
     <return>String rep of the real number</return>
     <error>"Invalid parameter type"</error>
   </function>

@@ -1,46 +1,41 @@
-/*
-History
-=======
-
-2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
-2005/03/09 Shinigami: added Prop Character::Delay_Mod [ms] for WeaponDelay
-2005/04/04 Shinigami: added Prop Character::CreatedAt [PolClock]
-2005/05/24 Shinigami: added ObjMethod account.delete() to delete this account
-2005/05/25 Shinigami: added ObjMethod account.split( newacctname : string, index : 1..5 )
-to create a new account and move character to it
-2005/05/25 Shinigami: added ObjMethod account.move_char( destacctname : string, index : 1..5 )
-to move character from this account to destaccount
-2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
-2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
-2005/10/02 Shinigami: added Prop Script.attached_to and Script.controller
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
-2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
-2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
-2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
-2008/07/08 Turley:	Added character.movemode - returns the MoveMode like given in NPCDesc
-Added item.stackable - Is item stackable?
-2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-GetGottenBy Method
-2009/08/19 Turley:	Added character.uo_expansion_client
-2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr and ReservedWord changed little bit
-2009/09/06 Turley:	Removed chr.isUOKR added chr.ClientType
-2009/10/09 Turley:	Added spellbook.spells() & .hasspell() methods
-2009/10/10 Turley:	Added spellbook.addspell() & .removespell() methods
-2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
-2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
-2012/02/02 Tomi:    Multi member MBR_MULTIID
-2012/03/26 Tomi:    Added MBR_LASTCOORD
-2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
-2012/04/15 Tomi:    Added MBR_EDITABLE for maps
-2012/06/02 Tomi:    Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
-2015/20/12 Bodom:   Added Unicode string support ( u"utf8" )
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
+ * - 2005/03/09 Shinigami: added Prop Character::Delay_Mod [ms] for WeaponDelay
+ * - 2005/04/04 Shinigami: added Prop Character::CreatedAt [PolClock]
+ * - 2005/05/24 Shinigami: added ObjMethod account.delete() to delete this account
+ * - 2005/05/25 Shinigami: added ObjMethod account.split( newacctname : string, index : 1..5 )
+ *                         to create a new account and move character to it
+ * - 2005/05/25 Shinigami: added ObjMethod account.move_char( destacctname : string, index : 1..5 )
+ *                         to move character from this account to destaccount
+ * - 2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
+ * - 2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
+ * - 2005/10/02 Shinigami: added Prop Script.attached_to and Script.controller
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
+ * - 2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
+ * - 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
+ * - 2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
+ * - 2008/07/08 Turley:    Added character.movemode - returns the MoveMode like given in NPCDesc
+ *                         Added item.stackable - Is item stackable?
+ * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ *                         GetGottenBy Method
+ * - 2009/08/19 Turley:    Added character.uo_expansion_client
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr and ReservedWord changed little bit
+ * - 2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
+ * - 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+ * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+ * - 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+ * - 2012/02/02 Tomi:      Multi member MBR_MULTIID
+ * - 2012/03/26 Tomi:      Added MBR_LASTCOORD
+ * - 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
+ * - 2012/04/15 Tomi:      Added MBR_EDITABLE for maps
+ * - 2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+ * - 2015/20/12 Bodom:     Added Unicode string support ( u"utf8" )
+ */
 
 #include "parser.h"
 
@@ -207,69 +202,69 @@ namespace Pol {
 	Operator binary_operators[] =
 	{
 
-	  { "(", TOK_LPAREN, PREC_PAREN, TYP_LEFTPAREN },
-	  { ")", TOK_RPAREN, PREC_PAREN, TYP_RIGHTPAREN },
-	  { "[", TOK_LBRACKET, PREC_PAREN, TYP_LEFTBRACKET },
-	  { "]", TOK_RBRACKET, PREC_PAREN, TYP_RIGHTBRACKET },
-	  { "{", TOK_LBRACE, PREC_PAREN, TYP_LEFTBRACE },
-	  { "}", TOK_RBRACE, PREC_PAREN, TYP_RIGHTBRACE },
+	  { "(", TOK_LPAREN, PREC_PAREN, TYP_LEFTPAREN, false, false },
+	  { ")", TOK_RPAREN, PREC_PAREN, TYP_RIGHTPAREN, false, false },
+	  { "[", TOK_LBRACKET, PREC_PAREN, TYP_LEFTBRACKET, false, false },
+	  { "]", TOK_RBRACKET, PREC_PAREN, TYP_RIGHTBRACKET, false, false },
+	  { "{", TOK_LBRACE, PREC_PAREN, TYP_LEFTBRACE, false, false },
+	  { "}", TOK_RBRACE, PREC_PAREN, TYP_RIGHTBRACE, false, false },
 
-	  { ".", TOK_MEMBER, PREC_PAREN, TYP_OPERATOR, true },
-	  { "->", TOK_DICTKEY, PREC_ASSIGN, TYP_RESERVED },
+	  { ".", TOK_MEMBER, PREC_PAREN, TYP_OPERATOR, true, false },
+	  { "->", TOK_DICTKEY, PREC_ASSIGN, TYP_RESERVED, false, false },
 
-	  { "*", TOK_MULT, PREC_MULT, TYP_OPERATOR, true },
-	  { "/", TOK_DIV, PREC_MULT, TYP_OPERATOR, true },
-	  { "%", TOK_MODULUS, PREC_MULT, TYP_OPERATOR, true },
+	  { "*", TOK_MULT, PREC_MULT, TYP_OPERATOR, true, false },
+	  { "/", TOK_DIV, PREC_MULT, TYP_OPERATOR, true, false },
+	  { "%", TOK_MODULUS, PREC_MULT, TYP_OPERATOR, true, false },
 
-	  { "+", TOK_ADD, PREC_PLUS, TYP_OPERATOR, true },
-	  { "-", TOK_SUBTRACT, PREC_PLUS, TYP_OPERATOR, true },
+	  { "+", TOK_ADD, PREC_PLUS, TYP_OPERATOR, true, false },
+	  { "-", TOK_SUBTRACT, PREC_PLUS, TYP_OPERATOR, true, false },
 
-	  { "+=", TOK_PLUSEQUAL, PREC_ASSIGN, TYP_OPERATOR },
-	  { "-=", TOK_MINUSEQUAL, PREC_ASSIGN, TYP_OPERATOR },
-	  { "*=", TOK_TIMESEQUAL, PREC_ASSIGN, TYP_OPERATOR },
-	  { "/=", TOK_DIVIDEEQUAL, PREC_ASSIGN, TYP_OPERATOR },
-	  { "%=", TOK_MODULUSEQUAL, PREC_ASSIGN, TYP_OPERATOR },
+	  { "+=", TOK_PLUSEQUAL, PREC_ASSIGN, TYP_OPERATOR, false, false },
+	  { "-=", TOK_MINUSEQUAL, PREC_ASSIGN, TYP_OPERATOR, false, false },
+	  { "*=", TOK_TIMESEQUAL, PREC_ASSIGN, TYP_OPERATOR, false, false },
+	  { "/=", TOK_DIVIDEEQUAL, PREC_ASSIGN, TYP_OPERATOR, false, false },
+	  { "%=", TOK_MODULUSEQUAL, PREC_ASSIGN, TYP_OPERATOR, false, false },
 
-	  { "<=", TOK_LESSEQ, PREC_LESSTHAN, TYP_OPERATOR },
-	  { "<", TOK_LESSTHAN, PREC_LESSTHAN, TYP_OPERATOR, true },
-	  { ">=", TOK_GREQ, PREC_LESSTHAN, TYP_OPERATOR },
-	  { ">", TOK_GRTHAN, PREC_LESSTHAN, TYP_OPERATOR, true },
+	  { "<=", TOK_LESSEQ, PREC_LESSTHAN, TYP_OPERATOR, false, false },
+	  { "<", TOK_LESSTHAN, PREC_LESSTHAN, TYP_OPERATOR, true, false },
+	  { ">=", TOK_GREQ, PREC_LESSTHAN, TYP_OPERATOR, false, false },
+	  { ">", TOK_GRTHAN, PREC_LESSTHAN, TYP_OPERATOR, true, false },
 
-	  { ">>", TOK_BSRIGHT, PREC_BSRIGHT, TYP_OPERATOR },
-	  { "<<", TOK_BSLEFT, PREC_BSLEFT, TYP_OPERATOR },
-	  { "&", TOK_BITAND, PREC_BITAND, TYP_OPERATOR, true },
-	  { "^", TOK_BITXOR, PREC_BITXOR, TYP_OPERATOR },
-	  { "|", TOK_BITOR, PREC_BITOR, TYP_OPERATOR, true },
+	  { ">>", TOK_BSRIGHT, PREC_BSRIGHT, TYP_OPERATOR, false, false },
+	  { "<<", TOK_BSLEFT, PREC_BSLEFT, TYP_OPERATOR, false, false },
+	  { "&", TOK_BITAND, PREC_BITAND, TYP_OPERATOR, true, false },
+	  { "^", TOK_BITXOR, PREC_BITXOR, TYP_OPERATOR, false, false },
+	  { "|", TOK_BITOR, PREC_BITOR, TYP_OPERATOR, true, false },
 
-	  { "<>", TOK_NEQ, PREC_EQUALTO, TYP_OPERATOR },
-	  { "!=", TOK_NEQ, PREC_EQUALTO, TYP_OPERATOR },
+	  { "<>", TOK_NEQ, PREC_EQUALTO, TYP_OPERATOR, false, false },
+	  { "!=", TOK_NEQ, PREC_EQUALTO, TYP_OPERATOR, false, false },
 	  { "=", TOK_EQUAL1, PREC_EQUALTO, TYP_OPERATOR, true, false }, // deprecated: :=/==
-	  { "==", TOK_EQUAL, PREC_EQUALTO, TYP_OPERATOR },
+	  { "==", TOK_EQUAL, PREC_EQUALTO, TYP_OPERATOR, false, false },
 
-	  //	{ "and",	TOK_AND,	PREC_LOGAND,  TYP_OPERATOR },
-	  { "&&", TOK_AND, PREC_LOGAND, TYP_OPERATOR },
+	  //	{ "and",	TOK_AND,	PREC_LOGAND,  TYP_OPERATOR, false, false },
+	  { "&&", TOK_AND, PREC_LOGAND, TYP_OPERATOR, false, false },
 
-	  //	{ "or",	TOK_OR,		 PREC_LOGOR,  TYP_OPERATOR },
-	  { "||", TOK_OR, PREC_LOGOR, TYP_OPERATOR },
+	  //	{ "or",	TOK_OR,		 PREC_LOGOR,  TYP_OPERATOR, false, false },
+	  { "||", TOK_OR, PREC_LOGOR, TYP_OPERATOR, false, false },
 
-	  { ":=", TOK_ASSIGN, PREC_ASSIGN, TYP_OPERATOR },
-	  { ".+", TOK_ADDMEMBER, PREC_ASSIGN, TYP_OPERATOR },
-	  { ".-", TOK_DELMEMBER, PREC_ASSIGN, TYP_OPERATOR },
-	  { ".?", TOK_CHKMEMBER, PREC_ASSIGN, TYP_OPERATOR },
+	  { ":=", TOK_ASSIGN, PREC_ASSIGN, TYP_OPERATOR, false, false },
+	  { ".+", TOK_ADDMEMBER, PREC_ASSIGN, TYP_OPERATOR, false, false },
+	  { ".-", TOK_DELMEMBER, PREC_ASSIGN, TYP_OPERATOR, false, false },
+	  { ".?", TOK_CHKMEMBER, PREC_ASSIGN, TYP_OPERATOR, false, false },
 
-	  { ",", TOK_COMMA, PREC_COMMA, TYP_SEPARATOR },
-	  { "", TOK_TERM, PREC_TERMINATOR, TYP_TERMINATOR }
+	  { ",", TOK_COMMA, PREC_COMMA, TYP_SEPARATOR, false, false },
+	  { "", TOK_TERM, PREC_TERMINATOR, TYP_TERMINATOR, false, false }
 	};
 	int n_operators = sizeof binary_operators / sizeof binary_operators[0];
 
 	Operator unary_operators[] =
 	{
-	  { "+", TOK_UNPLUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR },
-	  { "-", TOK_UNMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR },
-	  { "!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR },
-	  { "~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR }
-	  //	{ "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR }
-	  // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR
+	  { "+", TOK_UNPLUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false },
+	  { "-", TOK_UNMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false },
+	  { "!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false },
+	  { "~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
+	  //	{ "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
+	  // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR, false, false
 	};
 	int n_unary = sizeof unary_operators / sizeof unary_operators[0];
 
@@ -493,6 +488,7 @@ namespace Pol {
 	  { MBR_INSURED, "insured", false },
 	  { MBR_LAST_ACTIVITY_AT, "last_activity_at", false },
 	  { MBR_LAST_PACKET_AT, "last_packet_at", false },
+      { MBR_HOUSE, "house", true }, //215, Item
 	};
 	int n_objmembers = sizeof object_members / sizeof object_members[0];
 	ObjMember* getKnownObjMember( const char* token )
@@ -515,158 +511,158 @@ namespace Pol {
 	}
 
 	ObjMethod object_methods[] = {
-	  { MTH_ISA, "isa" },								  //0
-	  { MTH_SET_MEMBER, "set_member" },					//1
-	  { MTH_GET_MEMBER, "get_member" },
-	  { MTH_SETPOISONED, "setpoisoned" },
-	  { MTH_SETPARALYZED, "setparalyzed" },
-	  { MTH_SETCRIMINAL, "setcriminal" },				  //5
-	  { MTH_SETLIGHTLEVEL, "setlightlevel" },
-	  { MTH_SQUELCH, "squelch" },
-	  { MTH_ENABLE, "enable" },
-	  { MTH_DISABLE, "disable" },
-	  { MTH_ENABLED, "enabled" },						 //10
-	  { MTH_SETCMDLEVEL, "setcmdlevel" },
-	  { MTH_SPENDGOLD, "spendgold" },
-	  { MTH_SETMURDERER, "setmurderer" },
-	  { MTH_REMOVEREPORTABLE, "removereportable" },
-	  { MTH_GETGOTTENITEM, "getgottenitem" },			 //15
-	  { MTH_CLEARGOTTENITEM, "cleargottenitem" },
-	  { MTH_SETWARMODE, "setwarmode" },
-	  { MTH_SETMASTER, "setmaster" }, //npc
-	  { MTH_MOVE_OFFLINE_MOBILES, "move_offline_mobiles" },//boat
-	  { MTH_SETCUSTOM, "setcustom" }, //house			 //20
-	  { MTH_GETPINS, "getpins" },//map
-	  { MTH_INSERTPIN, "insertpin" },
-	  { MTH_APPENDPIN, "appendpin" },
-	  { MTH_ERASEPIN, "erasepin" },
-	  { MTH_OPEN, "open" },//door						 //25
-	  { MTH_CLOSE, "close" },
-	  { MTH_TOGGLE, "toggle" },
-	  { MTH_BAN, "ban" }, //account
-	  { MTH_UNBAN, "unban" },
-	  { MTH_SETPASSWORD, "setpassword" },				  //30
-	  { MTH_CHECKPASSWORD, "checkpassword" },
-	  { MTH_SETNAME, "setname" },
-	  { MTH_GETCHARACTER, "getcharacter" },
-	  { MTH_DELETECHARACTER, "deletecharacter" },
-	  { MTH_GETPROP, "getprop" },						  //35
-	  { MTH_SETPROP, "setprop" },
-	  { MTH_ERASEPROP, "eraseprop" },
-	  { MTH_PROPNAMES, "propnames" },
-	  { MTH_ISMEMBER, "ismember" },//guild
-	  { MTH_ISALLYGUILD, "isallyguild" },				  //40
-	  { MTH_ISENEMYGUILD, "isenemyguild" },
-	  { MTH_ADDMEMBER, "addmember" },
-	  { MTH_ADDALLYGUILD, "addallyguild" },
-	  { MTH_ADDENEMYGUILD, "addenemyguild" },
-	  { MTH_REMOVEMEMBER, "removemember" },				//45
-	  { MTH_REMOVEALLYGUILD, "removeallyguild" },
-	  { MTH_REMOVEENEMYGUILD, "removeenemyguild" },
-	  { MTH_SIZE, "size" }, //ARRAY
-	  { MTH_ERASE, "erase" },
-	  { MTH_INSERT, "insert" },							//50
-	  { MTH_SHRINK, "shrink" },
-	  { MTH_APPEND, "append" },
-	  { MTH_REVERSE, "reverse" },
-	  { MTH_SORT, "sort" }, //dict
-	  { MTH_EXISTS, "exists" },							//55
-	  { MTH_KEYS, "keys" },
-	  { MTH_SENDPACKET, "sendpacket" }, //packet
-	  { MTH_SENDAREAPACKET, "sendareapacket" },
-	  { MTH_GETINT8, "getint8" },
-	  { MTH_GETINT16, "getint16" },						//60
-	  { MTH_GETINT32, "getint32" },
-	  { MTH_SETINT8, "setint8" },
-	  { MTH_SETINT16, "setint16" },
-	  { MTH_SETINT32, "setint32" },
-	  { MTH_GETSTRING, "getstring" },					  //65
-	  { MTH_GETUNICODESTRING, "getunicodestring" },
-	  { MTH_SETSTRING, "setstring" },
-	  { MTH_SETUNICODESTRING, "setunicodestring" },
-	  { MTH_GETSIZE, "getsize" },
-	  { MTH_SETSIZE, "setsize" },						  //70
-	  { MTH_CREATEELEMENT, "createelement" },//datastore
-	  { MTH_FINDELEMENT, "findelement" },
-	  { MTH_DELETEELEMENT, "deleteelement" },
-	  { MTH_SENDEVENT, "sendevent" },//script
-	  { MTH_KILL, "kill" },								//75
-	  { MTH_LOADSYMBOLS, "loadsymbols" },
-	  { MTH_SET_UO_EXPANSION, "set_uo_expansion" },
-	  { MTH_CLEAR_EVENT_QUEUE, "clear_event_queue" },
-	  { MTH_ADD_COMPONENT, "add_component" },
-	  { MTH_ERASE_COMPONENT, "erase_component" },		  //80
-	  { MTH_DELETE, "delete" },
-	  { MTH_SPLIT, "split" },
-	  { MTH_MOVE_CHAR, "move_char" },
-	  { MTH_GETINT16FLIPPED, "getint16flipped" },
-	  { MTH_GETINT32FLIPPED, "getint32flipped" },		  //85
-	  { MTH_SETINT16FLIPPED, "setint16flipped" },
-	  { MTH_SETINT32FLIPPED, "setint32flipped" },
-	  { MTH_GETCORPSE, "getcorpse" },
-	  { MTH_SETDEFAULTCMDLEVEL, "setdefaultcmdlevel" },
-	  { MTH_PRIVILEGES, "privileges" },					//90
-	  { MTH_GETUNICODESTRINGFLIPPED, "getunicodestringflipped" },
-	  { MTH_SETUNICODESTRINGFLIPPED, "setunicodestringflipped" },
-	  { MTH_ADD_CHARACTER, "AddCharacter" },
-	  { MTH_SET_SWINGTIMER, "setswingtimer" },
-	  { MTH_ATTACK_ONCE, "attack_once" },				   //95
-	  { MTH_SETFACING, "setfacing" },
-	  { MTH_COMPAREVERSION, "compareversion" },
-	  { MTH_SETLEADER, "setleader" },
-	  { MTH_ADDCANDIDATE, "addcandidate" },
-	  { MTH_REMOVECANDIDATE, "removecandidate" },		  //100
-	  { MTH_RANDOMENTRY, "randomentry" },
-	  { MTH_SEEK, "seek" },
-	  { MTH_PEEK, "peek" },
-	  { MTH_TELL, "tell" },
-	  { MTH_FLUSH, "flush" },							 //105
-	  { MTH_GETSINT8, "getsint8" },
-	  { MTH_GETSINT16, "getsint16" },
-	  { MTH_GETSINT32, "getsint32" },
-	  { MTH_SETSINT8, "setsint8" },
-	  { MTH_SETSINT16, "setsint16" },					 //110
-	  { MTH_SETSINT32, "setsint32" },
-	  { MTH_SETAGGRESSORTO, "setaggressorto" },
-	  { MTH_SETLAWFULLYDAMAGEDTO, "setlawfullydamagedto" },
-	  { MTH_CLEARAGGRESSORTO, "clearaggressorto" },
-	  { MTH_CLEARLAWFULLYDAMAGEDTO, "clearlawfullydamagedto" }, //115
-	  { MTH_HASSPELL, "hasspell" },
-	  { MTH_SPELLS, "spells" },
-	  { MTH_REMOVESPELL, "removespell" },
-	  { MTH_ADDSPELL, "addspell" },
-	  { MTH_DEAF, "deaf" },								 //120
-	  { MTH_SETSEASON, "setseason" },
-	  { MTH_NEXTSIBLING, "nextxmlsibling" },
-	  { MTH_FIRSTCHILD, "firstxmlchild" },
-	  { MTH_SAVEXML, "savexml" },
-	  { MTH_APPENDNODE, "appendxmlnode" },				 //125
-	  { MTH_SETDECLARATION, "setxmldeclaration" },
-	  { MTH_SETATTRIBUTE, "setxmlattribute" },
-	  { MTH_REMOVEATTRIBUTE, "removexmlattribute" },
-	  { MTH_REMOVENODE, "removexmlnode" },
-	  { MTH_APPENDTEXT, "appendxmltext" },				  //130
-	  { MTH_XMLTOSTRING, "xmltostring" },
-	  { MTH_APPENDXMLCOMMENT, "appendxmlcomment" },
-	  { MTH_ADD_HOUSE_PART, "addhousepart" },
-	  { MTH_ERASE_HOUSE_PART, "erasehousepart" },
-	  { MTH_ACCEPT_COMMIT, "acceptcommit" },				 //135
-	  { MTH_SPLITSTACK_AT, "splitstackat" },
-	  { MTH_SPLITSTACK_INTO, "splitstackinto" },
-	  { MTH_CANCEL_EDITING, "cancelediting" },
-	  { MTH_CLONENODE, "clonenode" },
-	  { MTH_HAS_EXISTING_STACK, "hasexistingstack" },	//140
-	  { MTH_LENGTH, "length" },
-	  { MTH_JOIN, "join" },
-	  { MTH_FIND, "find" },
-	  { MTH_UPPER, "upper" },
-	  { MTH_LOWER, "lower" },					//145
-	  { MTH_FORMAT, "format" },
-	  { MTH_DISABLE_SKILLS_FOR, "disableskillsfor" },
-	  { MTH_CYCLE, "cycle" },
-	  { MTH_ADD_BUFF, "addbuff" },
-	  { MTH_DEL_BUFF, "delbuff" },              //150
-	  { MTH_CLEAR_BUFFS, "clearbuffs" },
+	  { MTH_ISA, "isa", false },								  //0
+	  { MTH_SET_MEMBER, "set_member", false },					//1
+	  { MTH_GET_MEMBER, "get_member", false },
+	  { MTH_SETPOISONED, "setpoisoned", false },
+	  { MTH_SETPARALYZED, "setparalyzed", false },
+	  { MTH_SETCRIMINAL, "setcriminal", false },				  //5
+	  { MTH_SETLIGHTLEVEL, "setlightlevel", false },
+	  { MTH_SQUELCH, "squelch", false },
+	  { MTH_ENABLE, "enable", false },
+	  { MTH_DISABLE, "disable", false },
+	  { MTH_ENABLED, "enabled", false },						 //10
+	  { MTH_SETCMDLEVEL, "setcmdlevel", false },
+	  { MTH_SPENDGOLD, "spendgold", false },
+	  { MTH_SETMURDERER, "setmurderer", false },
+	  { MTH_REMOVEREPORTABLE, "removereportable", false },
+	  { MTH_GETGOTTENITEM, "getgottenitem", false },			 //15
+	  { MTH_CLEARGOTTENITEM, "cleargottenitem", false },
+	  { MTH_SETWARMODE, "setwarmode", false },
+	  { MTH_SETMASTER, "setmaster", false }, //npc
+	  { MTH_MOVE_OFFLINE_MOBILES, "move_offline_mobiles", false },//boat
+	  { MTH_SETCUSTOM, "setcustom", false }, //house			 //20
+	  { MTH_GETPINS, "getpins", false },//map
+	  { MTH_INSERTPIN, "insertpin", false },
+	  { MTH_APPENDPIN, "appendpin", false },
+	  { MTH_ERASEPIN, "erasepin", false },
+	  { MTH_OPEN, "open", false },//door						 //25
+	  { MTH_CLOSE, "close", false },
+	  { MTH_TOGGLE, "toggle", false },
+	  { MTH_BAN, "ban", false }, //account
+	  { MTH_UNBAN, "unban", false },
+	  { MTH_SETPASSWORD, "setpassword", false },				  //30
+	  { MTH_CHECKPASSWORD, "checkpassword", false },
+	  { MTH_SETNAME, "setname", false },
+	  { MTH_GETCHARACTER, "getcharacter", false },
+	  { MTH_DELETECHARACTER, "deletecharacter", false },
+	  { MTH_GETPROP, "getprop", false },						  //35
+	  { MTH_SETPROP, "setprop", false },
+	  { MTH_ERASEPROP, "eraseprop", false },
+	  { MTH_PROPNAMES, "propnames", false },
+	  { MTH_ISMEMBER, "ismember", false },//guild
+	  { MTH_ISALLYGUILD, "isallyguild", false },				  //40
+	  { MTH_ISENEMYGUILD, "isenemyguild", false },
+	  { MTH_ADDMEMBER, "addmember", false },
+	  { MTH_ADDALLYGUILD, "addallyguild", false },
+	  { MTH_ADDENEMYGUILD, "addenemyguild", false },
+	  { MTH_REMOVEMEMBER, "removemember", false },				//45
+	  { MTH_REMOVEALLYGUILD, "removeallyguild", false },
+	  { MTH_REMOVEENEMYGUILD, "removeenemyguild", false },
+	  { MTH_SIZE, "size", false }, //ARRAY
+	  { MTH_ERASE, "erase", false },
+	  { MTH_INSERT, "insert", false },							//50
+	  { MTH_SHRINK, "shrink", false },
+	  { MTH_APPEND, "append", false },
+	  { MTH_REVERSE, "reverse", false },
+	  { MTH_SORT, "sort", false }, //dict
+	  { MTH_EXISTS, "exists", false },							//55
+	  { MTH_KEYS, "keys", false },
+	  { MTH_SENDPACKET, "sendpacket", false }, //packet
+	  { MTH_SENDAREAPACKET, "sendareapacket", false },
+	  { MTH_GETINT8, "getint8", false },
+	  { MTH_GETINT16, "getint16", false },						//60
+	  { MTH_GETINT32, "getint32", false },
+	  { MTH_SETINT8, "setint8", false },
+	  { MTH_SETINT16, "setint16", false },
+	  { MTH_SETINT32, "setint32", false },
+	  { MTH_GETSTRING, "getstring", false },					  //65
+	  { MTH_GETUNICODESTRING, "getunicodestring", false },
+	  { MTH_SETSTRING, "setstring", false },
+	  { MTH_SETUNICODESTRING, "setunicodestring", false },
+	  { MTH_GETSIZE, "getsize", false },
+	  { MTH_SETSIZE, "setsize", false },						  //70
+	  { MTH_CREATEELEMENT, "createelement", false },//datastore
+	  { MTH_FINDELEMENT, "findelement", false },
+	  { MTH_DELETEELEMENT, "deleteelement", false },
+	  { MTH_SENDEVENT, "sendevent", false },//script
+	  { MTH_KILL, "kill", false },								//75
+	  { MTH_LOADSYMBOLS, "loadsymbols", false },
+	  { MTH_SET_UO_EXPANSION, "set_uo_expansion", false },
+	  { MTH_CLEAR_EVENT_QUEUE, "clear_event_queue", false },
+	  { MTH_ADD_COMPONENT, "add_component", false },
+	  { MTH_ERASE_COMPONENT, "erase_component", false },		  //80
+	  { MTH_DELETE, "delete", false },
+	  { MTH_SPLIT, "split", false },
+	  { MTH_MOVE_CHAR, "move_char", false },
+	  { MTH_GETINT16FLIPPED, "getint16flipped", false },
+	  { MTH_GETINT32FLIPPED, "getint32flipped", false },		  //85
+	  { MTH_SETINT16FLIPPED, "setint16flipped", false },
+	  { MTH_SETINT32FLIPPED, "setint32flipped", false },
+	  { MTH_GETCORPSE, "getcorpse", false },
+	  { MTH_SETDEFAULTCMDLEVEL, "setdefaultcmdlevel", false },
+	  { MTH_PRIVILEGES, "privileges", false },					//90
+	  { MTH_GETUNICODESTRINGFLIPPED, "getunicodestringflipped", false },
+	  { MTH_SETUNICODESTRINGFLIPPED, "setunicodestringflipped", false },
+	  { MTH_ADD_CHARACTER, "AddCharacter", false },
+	  { MTH_SET_SWINGTIMER, "setswingtimer", false },
+	  { MTH_ATTACK_ONCE, "attack_once", false },				   //95
+	  { MTH_SETFACING, "setfacing", false },
+	  { MTH_COMPAREVERSION, "compareversion", false },
+	  { MTH_SETLEADER, "setleader", false },
+	  { MTH_ADDCANDIDATE, "addcandidate", false },
+	  { MTH_REMOVECANDIDATE, "removecandidate", false },		  //100
+	  { MTH_RANDOMENTRY, "randomentry", false },
+	  { MTH_SEEK, "seek", false },
+	  { MTH_PEEK, "peek", false },
+	  { MTH_TELL, "tell", false },
+	  { MTH_FLUSH, "flush", false },							 //105
+	  { MTH_GETSINT8, "getsint8", false },
+	  { MTH_GETSINT16, "getsint16", false },
+	  { MTH_GETSINT32, "getsint32", false },
+	  { MTH_SETSINT8, "setsint8", false },
+	  { MTH_SETSINT16, "setsint16", false },					 //110
+	  { MTH_SETSINT32, "setsint32", false },
+	  { MTH_SETAGGRESSORTO, "setaggressorto", false },
+	  { MTH_SETLAWFULLYDAMAGEDTO, "setlawfullydamagedto", false },
+	  { MTH_CLEARAGGRESSORTO, "clearaggressorto", false },
+	  { MTH_CLEARLAWFULLYDAMAGEDTO, "clearlawfullydamagedto", false }, //115
+	  { MTH_HASSPELL, "hasspell", false },
+	  { MTH_SPELLS, "spells", false },
+	  { MTH_REMOVESPELL, "removespell", false },
+	  { MTH_ADDSPELL, "addspell", false },
+	  { MTH_DEAF, "deaf", false },								 //120
+	  { MTH_SETSEASON, "setseason", false },
+	  { MTH_NEXTSIBLING, "nextxmlsibling", false },
+	  { MTH_FIRSTCHILD, "firstxmlchild", false },
+	  { MTH_SAVEXML, "savexml", false },
+	  { MTH_APPENDNODE, "appendxmlnode", false },				 //125
+	  { MTH_SETDECLARATION, "setxmldeclaration", false },
+	  { MTH_SETATTRIBUTE, "setxmlattribute", false },
+	  { MTH_REMOVEATTRIBUTE, "removexmlattribute", false },
+	  { MTH_REMOVENODE, "removexmlnode", false },
+	  { MTH_APPENDTEXT, "appendxmltext", false },				  //130
+	  { MTH_XMLTOSTRING, "xmltostring", false },
+	  { MTH_APPENDXMLCOMMENT, "appendxmlcomment", false },
+	  { MTH_ADD_HOUSE_PART, "addhousepart", false },
+	  { MTH_ERASE_HOUSE_PART, "erasehousepart", false },
+	  { MTH_ACCEPT_COMMIT, "acceptcommit", false },				 //135
+	  { MTH_SPLITSTACK_AT, "splitstackat", false },
+	  { MTH_SPLITSTACK_INTO, "splitstackinto", false },
+	  { MTH_CANCEL_EDITING, "cancelediting", false },
+	  { MTH_CLONENODE, "clonenode", false },
+	  { MTH_HAS_EXISTING_STACK, "hasexistingstack", false },	//140
+	  { MTH_LENGTH, "length", false },
+	  { MTH_JOIN, "join", false },
+	  { MTH_FIND, "find", false },
+	  { MTH_UPPER, "upper", false },
+	  { MTH_LOWER, "lower", false },					//145
+	  { MTH_FORMAT, "format", false },
+	  { MTH_DISABLE_SKILLS_FOR, "disableskillsfor", false },
+	  { MTH_CYCLE, "cycle", false },
+	  { MTH_ADD_BUFF, "addbuff", false },
+	  { MTH_DEL_BUFF, "delbuff", false },              //150
+	  { MTH_CLEAR_BUFFS, "clearbuffs", false },
 	};
 	int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 	ObjMethod* getKnownObjMethod( const char* token )
@@ -784,97 +780,97 @@ namespace Pol {
 
 
 	ReservedWord reserved_words[] = {
-	  { "if", RSV_ST_IF, TYP_RESERVED },
-	  { "then", RSV_THEN, TYP_RESERVED },
-	  { "elseif", RSV_ELSEIF, TYP_RESERVED },
-	  { "endif", RSV_ENDIF, TYP_RESERVED },
-	  { "else", RSV_ELSE, TYP_RESERVED },
-	  { "_OptionBracketed", RSV_OPTION_BRACKETED, TYP_RESERVED },
+	  { "if", RSV_ST_IF, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "then", RSV_THEN, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "elseif", RSV_ELSEIF, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endif", RSV_ENDIF, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "else", RSV_ELSE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "_OptionBracketed", RSV_OPTION_BRACKETED, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "goto", RSV_GOTO, TYP_RESERVED },
-	  { "gosub", RSV_GOSUB, TYP_RESERVED },
-	  { "return", RSV_RETURN, TYP_RESERVED },
+	  { "goto", RSV_GOTO, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "gosub", RSV_GOSUB, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "return", RSV_RETURN, TYP_RESERVED, PREC_TERMINATOR, false },
 
 	  //	{ "global",		RSV_GLOBAL,	 TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
 	  //	{ "local",		RSV_LOCAL,	  TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
-	  { "const", RSV_CONST, TYP_RESERVED },
-	  { "var", RSV_VAR, TYP_RESERVED },
+	  { "const", RSV_CONST, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "var", RSV_VAR, TYP_RESERVED, PREC_TERMINATOR, false },
 
 	  //  { "begin",		RSV_BEGIN,	  TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
 	  //  { "end",		RSV_ENDB,	   TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
 
-	  { "do", RSV_DO, TYP_RESERVED },
-	  { "dowhile", RSV_DOWHILE, TYP_RESERVED },
-	  { "while", RSV_WHILE, TYP_RESERVED },
-	  { "endwhile", RSV_ENDWHILE, TYP_RESERVED },
+	  { "do", RSV_DO, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "dowhile", RSV_DOWHILE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "while", RSV_WHILE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endwhile", RSV_ENDWHILE, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "exit", RSV_EXIT, TYP_RESERVED },
+	  { "exit", RSV_EXIT, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "declare", RSV_DECLARE, TYP_RESERVED },
+	  { "declare", RSV_DECLARE, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "function", RSV_FUNCTION, TYP_RESERVED },
-	  { "endfunction", RSV_ENDFUNCTION, TYP_RESERVED },
-	  { "exported", RSV_EXPORTED, TYP_RESERVED },
+	  { "function", RSV_FUNCTION, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endfunction", RSV_ENDFUNCTION, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "exported", RSV_EXPORTED, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "use", RSV_USE_MODULE, TYP_RESERVED },
-	  { "include", RSV_INCLUDE_FILE, TYP_RESERVED },
+	  { "use", RSV_USE_MODULE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "include", RSV_INCLUDE_FILE, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "break", RSV_BREAK, TYP_RESERVED },
-	  { "continue", RSV_CONTINUE, TYP_RESERVED },
+	  { "break", RSV_BREAK, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "continue", RSV_CONTINUE, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "for", RSV_FOR, TYP_RESERVED },
-	  { "endfor", RSV_ENDFOR, TYP_RESERVED },
-	  { "to", RSV_TO, TYP_RESERVED },
-	  { "next", RSV_NEXT, TYP_RESERVED },
+	  { "for", RSV_FOR, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endfor", RSV_ENDFOR, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "to", RSV_TO, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "next", RSV_NEXT, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "foreach", RSV_FOREACH, TYP_RESERVED },
-	  { "endforeach", RSV_ENDFOREACH, TYP_RESERVED },
+	  { "foreach", RSV_FOREACH, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endforeach", RSV_ENDFOREACH, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "repeat", RSV_REPEAT, TYP_RESERVED },
-	  { "until", RSV_UNTIL, TYP_RESERVED },
+	  { "repeat", RSV_REPEAT, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "until", RSV_UNTIL, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "program", RSV_PROGRAM, TYP_RESERVED },
-	  { "endprogram", RSV_ENDPROGRAM, TYP_RESERVED },
+	  { "program", RSV_PROGRAM, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endprogram", RSV_ENDPROGRAM, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "case", RSV_SWITCH, TYP_RESERVED },
-	  // { "case",	   RSV_CASE,	   TYP_RESERVED },
-	  { "default", RSV_DEFAULT, TYP_RESERVED },
-	  { "endcase", RSV_ENDSWITCH, TYP_RESERVED },
+	  { "case", RSV_SWITCH, TYP_RESERVED, PREC_TERMINATOR, false },
+	  // { "case",	   RSV_CASE,	   TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "default", RSV_DEFAULT, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endcase", RSV_ENDSWITCH, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "enum", RSV_ENUM, TYP_RESERVED },
-	  { "endenum", RSV_ENDENUM, TYP_RESERVED },
+	  { "enum", RSV_ENUM, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "endenum", RSV_ENDENUM, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "downto", RSV_FUTURE, TYP_RESERVED },
-	  { "step", RSV_FUTURE, TYP_RESERVED },
-	  { "reference", RSV_FUTURE, TYP_RESERVED },
-	  { "out", RSV_FUTURE, TYP_RESERVED },
-	  { "inout", RSV_FUTURE, TYP_RESERVED },
-	  // { "ByRef",	  RSV_FUTURE,	 TYP_RESERVED },
-	  { "ByVal", RSV_FUTURE, TYP_RESERVED },
+	  { "downto", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "step", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "reference", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "out", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "inout", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  // { "ByRef",	  RSV_FUTURE,	 TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "ByVal", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "string", RSV_FUTURE, TYP_RESERVED },
-	  { "long", RSV_FUTURE, TYP_RESERVED },
-	  { "integer", RSV_FUTURE, TYP_RESERVED },
-	  { "unsigned", RSV_FUTURE, TYP_RESERVED },
-	  { "signed", RSV_FUTURE, TYP_RESERVED },
-	  { "real", RSV_FUTURE, TYP_RESERVED },
-	  { "float", RSV_FUTURE, TYP_RESERVED },
-	  { "double", RSV_FUTURE, TYP_RESERVED },
-	  { "as", RSV_FUTURE, TYP_RESERVED },
-	  { "is", RSV_FUTURE, TYP_RESERVED },
+	  { "string", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "long", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "integer", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "unsigned", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "signed", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "real", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "float", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "double", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "as", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "is", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
 
-	  { "and", TOK_AND, TYP_OPERATOR, PREC_LOGAND },
-	  { "or", TOK_OR, TYP_OPERATOR, PREC_LOGOR },
-	  { "not", TOK_LOG_NOT, TYP_UNARY_OPERATOR, PREC_UNARY_OPS },
-	  { "byref", TOK_REFTO, TYP_RESERVED },  //UNARY_OPERATOR, 12 },
-	  { "unused", TOK_UNUSED, TYP_RESERVED },
-	  { "error", TOK_ERROR, TYP_OPERAND },
-	  { "hash", RSV_FUTURE, TYP_RESERVED },
-	  { "dictionary", TOK_DICTIONARY, TYP_OPERAND },
-	  { "struct", TOK_STRUCT, TYP_OPERAND },
-	  { "array", TOK_ARRAY, TYP_OPERAND },
-	  { "stack", TOK_STACK, TYP_OPERAND },
-	  { "in", TOK_IN, TYP_OPERATOR, PREC_EQUALTO }
+	  { "and", TOK_AND, TYP_OPERATOR, PREC_LOGAND, false },
+	  { "or", TOK_OR, TYP_OPERATOR, PREC_LOGOR, false },
+	  { "not", TOK_LOG_NOT, TYP_UNARY_OPERATOR, PREC_UNARY_OPS, false },
+	  { "byref", TOK_REFTO, TYP_RESERVED, PREC_TERMINATOR, false },  //UNARY_OPERATOR, 12 },
+	  { "unused", TOK_UNUSED, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "error", TOK_ERROR, TYP_OPERAND, PREC_TERMINATOR, false },
+	  { "hash", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false },
+	  { "dictionary", TOK_DICTIONARY, TYP_OPERAND, PREC_TERMINATOR, false },
+	  { "struct", TOK_STRUCT, TYP_OPERAND, PREC_TERMINATOR, false },
+	  { "array", TOK_ARRAY, TYP_OPERAND, PREC_TERMINATOR, false },
+	  { "stack", TOK_STACK, TYP_OPERAND, PREC_TERMINATOR, false },
+	  { "in", TOK_IN, TYP_OPERATOR, PREC_EQUALTO, false }
 	  //	{ "bitand",	 TOK_BITAND,	 TYP_OPERATOR, PREC_BITAND },
 	  //	{ "bitxor",	 TOK_BITXOR,	 TYP_OPERATOR, PREC_BITXOR },
 	  //	{ "bitor",	  TOK_BITOR,	  TYP_OPERATOR, PREC_BITOR }
@@ -1015,9 +1011,11 @@ namespace Pol {
 	* Tries to read a an operator from context
 	*
 	* @param tok Token&: The token to store the found literal into
-	* @param ctx CompilerContext&: The context to look into
 	* @param opList: The list of possible operators to look for, as Operator[]
 	* @param n_ops: Number of operators in the list
+	* @param t: todo
+	* @param s: todo
+	* @param opbuf: todo
 	* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
 	*/
 	int Parser::tryOperator( Token& tok,
@@ -1137,6 +1135,28 @@ namespace Pol {
 		char *endptr, *endptr2;
 		int l = strtol( ctx.s, &endptr, 0 );
 		double d = strtod( ctx.s, &endptr2 );
+
+        // 2015-01-21 Bodom: weird trick to remove an unwanted feature from Microsoft compiler
+        //                   interpreting 'd' as 'e' (exponent), but 'd' in UO means dice,
+        //                   leading to confusion
+        // TODO: The best solution would be to reimplement the int/double parsing
+        if( ! ( ctx.s[0] == '0' && ctx.s[1] && ( ctx.s[1] == 'x' || ctx.s[1] == 'X' ) ) ) {
+          // This is not hex, so no 'd' can be valid
+          for( const char* i = ctx.s; i < endptr2; i++ ) {
+            if( *i == 'd' || *i == 'D' ) {
+              // A 'd' has been eaten, bug could have occurred:
+              // re-perform parsing on a cleaned version of the string
+              size_t safelen = i - ctx.s + 1;
+              std::unique_ptr<char[]> safeptr( new char[safelen]() );
+              strncpy( safeptr.get(), ctx.s, safelen - 1 );
+              d = strtod( safeptr.get(), &endptr2 );
+              size_t newlen = endptr2 - safeptr.get();
+              endptr2 = const_cast<char*>(ctx.s + newlen);
+              break;
+            }
+          }
+        }
+
 		tok.type = TYP_OPERAND;
 		if ( endptr >= endptr2 )
 		{ // long got more out of it, we'll go with that
@@ -1176,9 +1196,9 @@ namespace Pol {
 		bool escnext = false; // true when waiting for 2nd char in an escape sequence
 		u8 hexnext = 0; // tells how many more chars in a \xNN escape sequence
 		char hexstr[3] = {} ; // will contain the \x escape chars to be processed
-		Utf8CharValidator validator;
+		Clib::Utf8CharValidator validator;
 		std::string lit; // will containing the read string/literal
-		UnicodeString ulit; // will contain the read unicode
+		Clib::UnicodeString ulit; // will contain the read unicode
 
 		for ( ;; )
 		{
@@ -1188,28 +1208,29 @@ namespace Pol {
 			return -1;
 		  }
 
+		  passert_always_r( ! (escnext && hexnext), "Bug in the compiler. Please report this on the forums." );
 		  // Read next char to be processed
 		  wchar_t nextChar;
 		  if( unicode )
 		  {
 			switch( validator.addByte(*end) )
 			{
-			case Pol::Utf8CharValidator::AddByteResult::MORE:
+			case Clib::Utf8CharValidator::AddByteResult::MORE:
 			  end++;
 			  continue;
-			case Pol::Utf8CharValidator::AddByteResult::INVALID:
+			case Clib::Utf8CharValidator::AddByteResult::INVALID:
 			  err = PERR_INVUTF8;
 			  return -1;
 			default:
-			  assert(false); //This should never happen
-			case Pol::Utf8CharValidator::AddByteResult::DONE:
+			  passert_always_r(false, "Bug in the compiler. Please report this on the forums.");
+			case Clib::Utf8CharValidator::AddByteResult::DONE:
 			  break;
 			}
 
 			try {
 			  nextChar = validator.getChar().asUtf16();
 			  validator.reset();
-			} catch( const UnicodeCastFailedException& ) {
+			} catch( const Clib::UnicodeCastFailedException& ) {
 			  err = PERR_INVUTF8;
 			  return -1;
 			}
@@ -1219,7 +1240,6 @@ namespace Pol {
 		    nextChar = *end;
 		  }
 
-		  assert( ! (escnext && hexnext) );
 
 		  if ( escnext )
 		  {
@@ -1482,7 +1502,7 @@ namespace Pol {
 	 *
 	 * @param tok Token&: The token to store the found literal into
 	 * @param ctx CompilerContext&: The context to look into
-	 * @param pexpr unused
+	 * @param expr unused
 	 * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
 	 */
 	int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not used */ )

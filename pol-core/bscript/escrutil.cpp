@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/07/06 Shinigami: convert_numeric will use string representation if overflow
+/** @file
+ *
+ * @par History
+ * - 2005/07/06 Shinigami: convert_numeric will use string representation if overflow
+ */
 
-Notes
-=======
-
-*/
 
 #include "escrutil.h"
 #include "bobject.h"

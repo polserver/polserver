@@ -1,32 +1,29 @@
-/*
-History
-=======
-2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
-2005/03/09 Shinigami: added Prop Character::Delay_Mod [ms] for WeaponDelay
-2005/04/04 Shinigami: added Prop Character::CreatedAt [PolClock]
-2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
-2005/10/02 Shinigami: added Prop Script.attached_to and Script.controller
-2005/12/09 MuadDib:   added member uclang for storing Unicode Language sent during logon.
-2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
-2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
-2008/07/08 Turley:	Added character.movemode - returns the MoveMode like given in NPCDesc
-					  Added item.stackable - Is item stackable?
-2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-2009/08/19 Turley:	Added character.uo_expansion_client
-2009/09/06 Turley:	Removed chr.isUOKR added chr.ClientType
-2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
-2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
-2012/02/02 Tomi:    Multi member MBR_MULTIID
-2012/03/26 Tomi:    Added MBR_LASTCOORD
-2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
-2012/04/15 Tomi:    Added MBR_EDITABLE for maps
-2012/06/02 Tomi:    Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
+ * - 2005/03/09 Shinigami: added Prop Character::Delay_Mod [ms] for WeaponDelay
+ * - 2005/04/04 Shinigami: added Prop Character::CreatedAt [PolClock]
+ * - 2005/08/29 Shinigami: character.spyonclient2 renamed to character.clientinfo
+ * - 2005/10/02 Shinigami: added Prop Script.attached_to and Script.controller
+ * - 2005/12/09 MuadDib:   added member uclang for storing Unicode Language sent during logon.
+ * - 2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
+ * - 2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
+ * - 2008/07/08 Turley:	Added character.movemode - returns the MoveMode like given in NPCDesc
+ * - Added item.stackable - Is item stackable?
+ * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ * - 2009/08/19 Turley:	Added character.uo_expansion_client
+ * - 2009/09/06 Turley:	Removed chr.isUOKR added chr.ClientType
+ * - 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+ * - 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+ * - 2012/02/02 Tomi:    Multi member MBR_MULTIID
+ * - 2012/03/26 Tomi:    Added MBR_LASTCOORD
+ * - 2012/04/14 Tomi:    Added MBR_FACETID for new map message packet
+ * - 2012/04/15 Tomi:    Added MBR_EDITABLE for maps
+ * - 2012/06/02 Tomi:    Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef OBJMEMBERS_H
 #define OBJMEMBERS_H
@@ -251,6 +248,7 @@ namespace Pol {
 	  MBR_INSURED,
 	  MBR_LAST_ACTIVITY_AT,
 	  MBR_LAST_PACKET_AT,
+      MBR_HOUSE, //215
 	};
 
 
@@ -269,4 +267,3 @@ namespace Pol {
   }
 }
 #endif
-

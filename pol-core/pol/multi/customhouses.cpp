@@ -1,32 +1,27 @@
-/*
-History
-=======
-2005/08/19 Shinigami: ZLib functionality linked directly into Core
-2005/09/26 Shinigami: wrong styled break condition in ::Compress
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/08/19 Shinigami: ZLib functionality linked directly into Core
+ * - 2005/09/26 Shinigami: wrong styled break condition in ::Compress
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ *
+ * @todo Will require a special Character member to check in all kinds of places. Character.EditHouse=0/1
+ * The purpose, is to make NPCs IGNORE THIS PERSON, and to NOT send ANY packets about this person
+ * to ANYONE. This will also need to be checked when using all sorts of crap. Like when triggering
+ * equip/insert/item use/etc. This char should be able to do NOTHING except edit the house when
+ * in edit house mode, etc.
+ * Enabling this mode can be internal only, simply by linking it with the Custom housing tool.
+ * Have a script that can be made to run additional stuff with using the tool, so scripters can
+ * check extra stuff if they want, etc, and that script's return decides if to activate the housing
+ * tool. Should suffice.
+ */
 
-
-Notes
-=======
-
-TODO:
-Will require a special Character member to check in all kinds of places. Character.EditHouse=0/1
-The purpose, is to make NPCs IGNORE THIS PERSON, and to NOT send ANY packets about this person
-to ANYONE. This will also need to be checked when using all sorts of crap. Like when triggering
-equip/insert/item use/etc. This char should be able to do NOTHING except edit the house when
-in edit house mode, etc.
-Enabling this mode can be internal only, simply by linking it with the Custom housing tool.
-Have a script that can be made to run additional stuff with using the tool, so scripters can
-check extra stuff if they want, etc, and that script's return decides if to activate the housing
-tool. Should suffice.
-
-*/
 
 #include "customhouses.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
@@ -571,8 +566,10 @@ namespace Pol {
 				if ( add_as_component )
 				{
                   Items::Item* component = Items::Item::create( id.objtype );
-				  if ( component != NULL )
-					house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+				  if ( component != NULL ) {
+                    bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                    passert_always_r( res, "Couldn't add newly created door as house component. Please report this bug on the forums." );
+                  }
 				}
 				zitr = yitr->erase( zitr );
 				floor_sizes[i]--;
@@ -582,8 +579,10 @@ namespace Pol {
 				if ( add_as_component )
 				{
                   Items::Item* component = Items::Item::create( zitr->graphic );
-				  if ( component != NULL )
-					house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+				  if ( component != NULL ) {
+                    bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                    passert_always_r( res, "Couldn't add newly created teleporter as house component. Please report this bug on the forums." );
+                  }
 				}
 				zitr = yitr->erase( zitr );
 				floor_sizes[i]--;

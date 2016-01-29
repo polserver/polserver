@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef REGION_H
 #define REGION_H
@@ -23,7 +19,7 @@ namespace Pol {
   namespace Bscript {
 	class BObjectImp;
   }
-  namespace Plib {
+  namespace Realms {
 	class Realm;
   }
   namespace Core {
@@ -80,16 +76,16 @@ namespace Pol {
 	  const std::string& name() const;
 	protected:
 	  Region* getregion_byname( const std::string& regionname );
-	  Region* getregion_byloc( xcoord x, ycoord y, Plib::Realm* realm );
+	  Region* getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm );
 
 	  std::vector<Region*> regions_;
 
-	  typedef std::map<Plib::Realm*, RegionId**> RegionRealms;
+	  typedef std::map<Realms::Realm*, RegionId**> RegionRealms;
 	  RegionRealms regionrealms;
 	private:
 	  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const = 0;
 
-	  RegionId getregionid( xcoord x, ycoord y, Plib::Realm* realm );
+	  RegionId getregionid( xcoord x, ycoord y, Realms::Realm* realm );
 	  void paint_zones( Clib::ConfigElem& elem, RegionId ridx );
 	  std::string name_;
 	  typedef std::map<std::string, Region*> RegionsByName;
@@ -107,7 +103,7 @@ namespace Pol {
 	public:
 	  explicit RegionGroup( const char* name );
 
-	  virtual T* getregion( xcoord x, ycoord y, Plib::Realm* realm );
+	  virtual T* getregion( xcoord x, ycoord y, Realms::Realm* realm );
 	  virtual T* getregion( const std::string& regionname );
 
 	protected:
@@ -122,7 +118,7 @@ namespace Pol {
 	{}
 
 	template<class T>
-	inline T* RegionGroup<T>::getregion( xcoord x, ycoord y, Plib::Realm* realm )
+	inline T* RegionGroup<T>::getregion( xcoord x, ycoord y, Realms::Realm* realm )
 	{
 	  return static_cast<T*>( getregion_byloc( x, y, realm ) );
 	}

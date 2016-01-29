@@ -1,35 +1,38 @@
-/*
-History
-=======
-2005/03/02 Shinigami: mf_MoveObjectToRealm - fixed item detection and added container handling
-2005/06/11 Shinigami: added polcore().internal - just for internal Development (not documented)
-2005/06/20 Shinigami: added memory log to polcore().internal (needs defined MEMORYLEAK)
-2005/07/25 Shinigami: doubled Msg size in mf_SendGumpMenu to use larger Gumps
-2005/10/16 Shinigami: added x- and y-offset to mf_SendGumpMenu
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
-2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
-added character_race_changer_handler()
-2006/05/30 Shinigami: Changed params of character_race_changer_handler()
-Fixed Bug with detection of Gump-Cancel in uo::SendCharacterRaceChanger()
-2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
-2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Relocation of multi related cpp/h
-2009/09/10 Turley:    CompressedGump support (Grin)
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+/** @file
+ *
+ * @par History
+ * - 2005/03/02 Shinigami: mf_MoveObjectToRealm - fixed item detection and added container handling
+ * - 2005/06/11 Shinigami: added polcore().internal - just for internal Development (not documented)
+ * - 2005/06/20 Shinigami: added memory log to polcore().internal (needs defined MEMORYLEAK)
+ * - 2005/07/25 Shinigami: doubled Msg size in mf_SendGumpMenu to use larger Gumps
+ * - 2005/10/16 Shinigami: added x- and y-offset to mf_SendGumpMenu
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
+ * - 2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
+ *                         added character_race_changer_handler()
+ * - 2006/05/30 Shinigami: Changed params of character_race_changer_handler()
+ *                         Fixed Bug with detection of Gump-Cancel in uo::SendCharacterRaceChanger()
+ * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ * - 2009/09/10 Turley:    CompressedGump support (Grin)
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/12/17 Turley:    CloseWindow( character, type, object ) - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 /*
 	UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
 	*/
+
+#ifdef WINDOWS
+#include "../../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include "uomod.h"
 #include "osmod.h"
@@ -43,7 +46,7 @@ Notes
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/fileutil.h"
@@ -53,11 +56,10 @@ Notes
 #endif
 
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 #include "../../clib/stlutil.h"
 
-#include "../../plib/realm.h"
+#include "../realms/realm.h"
 
 #include "../accounts/account.h"
 
@@ -66,7 +68,6 @@ Notes
 #endif
 
 #include "../../plib/pkg.h"
-#include "../../plib/polver.h"
 #include "../../plib/systemstate.h"
 
 #include "../accounts/account.h"
@@ -107,9 +108,9 @@ Notes
 #include "../syshook.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #	include <zlib.h>
@@ -1638,7 +1639,7 @@ namespace Pol {
 	  virtual std::string getStringRep() const POL_OVERRIDE;
 	  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( PolCore ); }
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	private:
 	  // not implemented:
 	  PolCore& operator=( const PolCore& );
@@ -1661,7 +1662,7 @@ namespace Pol {
 	{
 	  return "PolCoreRef";
 	}
-	int PolCore::typeOfInt() const
+	u8 PolCore::typeOfInt() const
 	{
 	  return OTPolCoreRef;
 	}
@@ -1836,7 +1837,7 @@ namespace Pol {
 	  LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
 	  //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
 	  //	LONG_COREVAR( bytes_received, polstats.bytes_received );
-	  LONG_COREVAR( version, polver );
+	  LONG_COREVAR( version, POL_VERSION_MAJOR );
 	  LONG_COREVAR( systime, time( NULL ) );
 	  LONG_COREVAR( events_per_min, GET_PROFILEVAR_PER_MIN( events ) );
 	  LONG_COREVAR( skill_checks_per_min, GET_PROFILEVAR_PER_MIN( skill_checks ) );
@@ -1852,9 +1853,9 @@ namespace Pol {
 
 	  LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
 	  LONG_COREVAR( priority_divide, scriptEngineInternalManager.priority_divide );
-	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( progverstr );
-	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( compiledate );
-	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( compiletime );
+	  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( POL_VERSION_ID );
+	  if ( stricmp( corevar, "compiledate" ) == 0 ) return new String( POL_BUILD_DATE );
+	  if ( stricmp( corevar, "compiletime" ) == 0 ) return new String( POL_BUILD_TIME );
 	  if ( stricmp( corevar, "packages" ) == 0 ) return GetPackageList();
 	  if ( stricmp( corevar, "running_scripts" ) == 0 ) return GetRunningScriptList();
 	  if ( stricmp( corevar, "all_scripts" ) == 0 ) return GetAllScriptList();
@@ -2558,7 +2559,8 @@ namespace Pol {
 		return;
 
 	  // The function sending the PopUp menu is responsible to set this
-	  assert( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL );
+      passert_always_r( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL,
+                 "Bug in handling PopUp menu selection. Please report this on the forums." );
 
 	  if( id && serial )
 	  {

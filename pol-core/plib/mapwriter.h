@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/10/28 Shinigami: GCC 4.1.1 fix - extra qualification in class removed
+/** @file
+ *
+ * @par History
+ * - 2006/10/28 Shinigami: GCC 4.1.1 fix - extra qualification in class removed
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_MAPWRITER_H
 #define PLIB_MAPWRITER_H

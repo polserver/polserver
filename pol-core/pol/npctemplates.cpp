@@ -1,14 +1,10 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2006/05/10 MuadDib:   Removed unload_npc_templates for non use.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: elem->type() check will use strlen() now
+ */
 
-2006/05/10 MuadDib:   Removed unload_npc_templates for non use.
-2009/08/25 Shinigami: STLport-5.2.1 fix: elem->type() check will use strlen() now
-
-Notes
-=======
-
-*/
 
 #include "npctmpl.h"
 

@@ -1,18 +1,15 @@
-/*
-History
-=======
-2007/06/17 Shinigami: added config.world_data_path
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-                      ClearTextPasswords now default is False.
-2009/10/14 Turley:    added bool LogfileTimestampEveryLine
-2009/12/02 Turley:    added MaxTileID -Tomi
-2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
-2010/02/04 Turley:    polcfg.discard_old_events discards oldest event if queue is full
+/** @file
+ *
+ * @par History
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ *                         ClearTextPasswords now default is False.
+ * - 2009/10/14 Turley:    added bool LogfileTimestampEveryLine
+ * - 2009/12/02 Turley:    added MaxTileID -Tomi
+ * - 2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
+ * - 2010/02/04 Turley:    polcfg.discard_old_events discards oldest event if queue is full
+ */
 
-Notes
-=======
-
-*/
 
 #include "polcfg.h"
 
@@ -223,11 +220,12 @@ namespace Pol {
       Plib::systemstate.config.single_thread_decay = elem.remove_bool("SingleThreadDecay", false);
       Plib::systemstate.config.thread_decay_statistics = elem.remove_bool("ThreadDecayStatistics", false);
 
-	  Plib::systemstate.config.report_program_aborts = elem.remove_bool("ReportCrashsAutomatically", false);
-	  Plib::systemstate.config.report_admin_email = elem.remove_string("ReportAdminEmail", "");
-	  Plib::systemstate.config.report_server = elem.remove_string("ReportServer", "polserver.com");
-	  Plib::systemstate.config.report_url = elem.remove_string("ReportURL", "/pol/report_program_abort.php");
-
+      // store the configuration for the reporting system in the ExceptionParser
+      bool reportingActive = elem.remove_bool("ReportCrashsAutomatically", false);
+      std::string reportingAdminEmail = elem.remove_string("ReportAdminEmail", "");
+      std::string reportingServer = elem.remove_string("ReportServer", "polserver.com");
+      std::string reportingUrl = elem.remove_string("ReportURL", "/pol/report_program_abort.php");
+      Pol::Clib::ExceptionParser::configureProgramAbortReportingSystem(reportingActive, reportingServer, reportingUrl, reportingAdminEmail);
 
 #ifdef _WIN32
       Clib::MiniDumper::SetMiniDumpType( Plib::systemstate.config.minidump_type );

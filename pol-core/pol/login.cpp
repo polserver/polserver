@@ -1,26 +1,23 @@
-/*
-History
-=======
-2005/01/24 Shinigami: added message handler for packet 0xd9 (Spy on Client 2)
-2005/01/27 Shinigami: using little/big endian functions provided by endian.h
-2005/04/03 Shinigami: send_feature_enable() call moved from start_client_char()
-                      to send_start() to send before char selection
-2005/04/03 Shinigami: FLAG_UPTO_SIX_CHARACTERS disabled in uo_feature_enable
-2005/04/04 Shinigami: added candelete script
-2005/08/29 Shinigami: get-/setspyonclient2 renamed to get-/setclientinfo
-2007/07/09 Shinigami: modified PKTOUT_8C.new_key to not conflict with UO:KR detection
-                      added message handler for packet 0xe4 (UO:KR Verifier Response)
-2008/02/09 Shinigami: removed hardcoded MAX_CHARS from send_start()
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/06 MuadDib:   Removed PasswordOnlyHash support
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/12/04 Turley:    Crypto cleanup - Tomi
-2010/01/14 Turley:    fixed ip byteorder for pkt 0xa8 if hostname is given - Arkham
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added message handler for packet 0xd9 (Spy on Client 2)
+ * - 2005/01/27 Shinigami: using little/big endian functions provided by endian.h
+ * - 2005/04/03 Shinigami: send_feature_enable() call moved from start_client_char()
+ *                         to send_start() to send before char selection
+ * - 2005/04/03 Shinigami: FLAG_UPTO_SIX_CHARACTERS disabled in uo_feature_enable
+ * - 2005/04/04 Shinigami: added candelete script
+ * - 2005/08/29 Shinigami: get-/setspyonclient2 renamed to get-/setclientinfo
+ * - 2007/07/09 Shinigami: modified PKTOUT_8C.new_key to not conflict with UO:KR detection
+ *                         added message handler for packet 0xe4 (UO:KR Verifier Response)
+ * - 2008/02/09 Shinigami: removed hardcoded MAX_CHARS from send_start()
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/12/04 Turley:    Crypto cleanup - Tomi
+ * - 2010/01/14 Turley:    fixed ip byteorder for pkt 0xa8 if hostname is given - Arkham
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "network/client.h"
@@ -43,9 +40,9 @@ Notes
 #include "ufunc.h"
 
 #include "../clib/stlutil.h"
-#include "../clib/MD5.h"
+#include "../clib/clib_MD5.h"
 #include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/fdump.h"
 

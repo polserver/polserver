@@ -1,17 +1,12 @@
-/*
-History
-=======
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+/** @file
+ *
+ * @par History
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "clmod.h"
-
-#include "../../clib/unicode.h"
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
@@ -20,6 +15,7 @@ Notes
 #include "../network/client.h"
 #include "../uoexhelp.h"
 #include "../clfunc.h"
+#include "../unicode.h"
 
 namespace Pol {
   namespace Bscript {
@@ -66,7 +62,7 @@ namespace Pol {
           
           u16 cltext[(SPEECH_MAX_LEN + 1)];
           size_t textlen = oText->ref_arr.size();
-          if (!Clib::convertArrayToUC(oText, cltext, textlen, false))
+          if (!Core::convertArrayToUC(oText, cltext, textlen, false))
               return new BError("Invalid value in Unicode array.");
 
           Core::send_sysmessage_cl(chr->client, cliloc_num, cltext, font, color);
@@ -100,7 +96,7 @@ namespace Pol {
 
           u16 cltext[(SPEECH_MAX_LEN + 1)];
           size_t textlen = oText->ref_arr.size();
-          if (!Clib::convertArrayToUC(oText, cltext, textlen, false))
+          if (!Core::convertArrayToUC(oText, cltext, textlen, false))
               return new BError("Invalid value in Unicode array.");
           
           say_above_cl(obj, cliloc_num, cltext, font, color);
@@ -142,7 +138,7 @@ namespace Pol {
 
         u16 cltext[(SPEECH_MAX_LEN + 1)];
         size_t textlen = oText->ref_arr.size();
-        if (!Clib::convertArrayToUC(oText, cltext, textlen, false))
+        if (!Core::convertArrayToUC(oText, cltext, textlen, false))
             return new BError("Invalid value in Unicode array.");
 
         private_say_above_cl(chr, obj, cliloc_num, cltext, font, color);

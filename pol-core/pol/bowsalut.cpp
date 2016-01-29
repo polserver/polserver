@@ -1,19 +1,16 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2009/07/27 MuadDib:   Pakcet struct refactoring
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2009/07/27 MuadDib:   Pakcet struct refactoring
+ */
 
-Notes
-=======
-
-*/
 
 #include "action.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"

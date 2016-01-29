@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/06/01 Shinigami: added StaticEntryList for use with getstatics - to fill a list with statics
+/** @file
+ *
+ * @par History
+ * - 2005/06/01 Shinigami: added StaticEntryList for use with getstatics - to fill a list with statics
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_STATICBLOCK_H
 #define PLIB_STATICBLOCK_H

@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef H_COMPILER_H
 #define H_COMPILER_H
@@ -200,7 +197,7 @@ namespace Pol {
 	  void patchoffset( unsigned instruc, unsigned newoffset );
 	  void addToken( Token& tok );
 
-	  int isLegal( Token& tok );
+	  virtual int isLegal( Token& tok ) POL_OVERRIDE;
 
 	  virtual int getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr ) POL_OVERRIDE;
 	  virtual int getArrayElements( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;

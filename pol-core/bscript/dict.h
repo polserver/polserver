@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_DICT_H
 #define BSCRIPT_DICT_H
@@ -48,7 +45,7 @@ namespace Pol {
 	  virtual size_t sizeEstimate() const POL_OVERRIDE;
 	  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 
 	  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
 

@@ -1,14 +1,11 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
 
-*/
-
-#ifndef __STREXCPT_H
-#define __STREXCPT_H
+#ifndef CLIB_STREXCPT_H
+#define CLIB_STREXCPT_H
 
 #include <stdexcept>
 
@@ -38,4 +35,4 @@ namespace Pol {
 
   }
 }
-#endif
+#endif //CLIB_STREXCPT_H

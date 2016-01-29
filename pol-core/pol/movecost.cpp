@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
-2007/08/20 Shinigami: fixed bug in load_movecost() - "Walking_Mounted" was ignored
+/** @file
+ *
+ * @par History
+ * - 2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
+ * - 2007/08/20 Shinigami: fixed bug in load_movecost() - "Walking_Mounted" was ignored
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "movecost.h"

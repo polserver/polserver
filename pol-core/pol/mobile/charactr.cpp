@@ -1,73 +1,76 @@
-/*
-History
-=======
-2003/12/24 Dave:      on_poison_changed() changed to keep life bars from disappearing when you poison someone.
-2005/03/09 Shinigami: Added Prop Delay_Mod [ms] for WeaponDelay (see schedule_attack too)
-2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
-2005/09/14 Shinigami: Character::resurrect() - Vital.regen_while_dead implemented
-2005/10/14 Shinigami: fixed missing init of Character::dblclick_wait
-2005/11/23 MuadDib:	  Added warmode_wait object for characters.
-2005/11/25 MuadDib:   Added realm check to is_visible_to_me.
-2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
-2006/03/10 MuadDib:   Added NoCombat support to checking of justice region.
-2006/05/04 MuadDib:   Removed get_legal_item for no use.
-2006/05/04 MuadDib:   SkillValue() removed for no use.
-2006/05/16 Shinigami: UOBJ_*MALE_GHOST renamed to UOBJ_HUMAN_*MALE_GHOST
-added Prop Race (RACE_* Constants) to support Elfs
-Character::die(), Character::doors_block() and Character::resurrect() updated
-2008/07/08 Turley:    get_flag1() changed to show WarMode of other player again
-get_flag1_aos() removed
-2009/01/14 Nando:     setgraphic() changed to allow graphics up to 2048 (0x800).
-2009/02/01 MuadDib:   Resistance storage added.
-2009/02/25 MuadDib:   on_poison_changed() added UOKR Status bar update for poisoned. Booyah!
-2009/07/20 MuadDib:   Slot checks added to Character::Die()
-2009/07/25 MuadDib:   equippable() now checks if a twohanded is intrinsic or not also. Intrinsic gets ignored
-2009/07/31 Turley:    added check for cmbtcfg::send_swing_packet & reset_swing_onturn
-2009/08/04 MuadDib:   calc_vital_stuff() now checks to see if a vital changed, before using tell_vital_changed()
-2009/08/06 MuadDib:   Addeed gotten_by code for items.
-2009/08/07 MuadDib:   Added new Corpse Layer code to character Die() to put equipped items on correct layer with
-corpse. Ignores items from pack, because in death we only want the items it had equipped in
-life, showing up on the corpse when dead.
-2009/08/09 MuadDib:   on_poison_changed() rewritten for better KR poison support.
-2009/08/16 MuadDib:   fix for die() where checking corpse and not item for slot_index().
-2009/08/25 Shinigami: STLport-5.2.1 fix: corpseSlot not used
-STLport-5.2.1 fix: init order changed of party_can_loot_, party_decline_timeout_ and skillcap_
-2009/08/28 Turley:    Crashfix for Character::on_poison_changed()
-2009/09/03 MuadDib:   Changed combat related ssopt stuff to combat_config.
-Changes for account related source file relocation
-Changes for multi related source file relocation
-2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
-2009/09/15 MuadDib:   Cleanup from registered houses on destroy
-u32 registered_house added to store serial of registered multi.
-Multi registration/unregistration support added.
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/09/18 MuadDib:   Adding save/load of registered house serial
-2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
-2009/09/22 Turley:    Added DamagePacket support & repsys param to applydamage
-2009/10/14 Turley:    new priv canbeheardasghost
-2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
-2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
-fixed "all" priv
-PrivUpdater class cleanup, removed duplicate stuff
-2009/10/22 Turley:    added OuchHook call if lastz-z>21 (clientside value)
-2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
-2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
-2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
-2009/11/26 Turley:    Syshook CanDie(mobile)
-2009/11/30 Turley:    fixed calc_single_vital doesnt check changed maximum value
-2009/12/02 Turley:    added gargoyle & face support
-2009/12/03 Turley:    fixed client>=7 poison/flying flag, basic flying support
-2010/01/14 Turley:    AttackWhileFrozen check
-2010/01/15 Turley:    (Tomi) priv runwhilestealth
-2010/01/22 Turley:    Speedhack Prevention System
-2011/11/12 Tomi:	  added extobj.mount and extobj.secure_trade_container
-2012/02/06 MuadDib:   Added serial check at root of Character::get_from_ground to make sure not trying to move orphaned items.
-In loop, if an found is an orphan it logs it and skips rest of individual itr to ensure movement not attempted.
+/** @file
+ *
+ * @par History
+ * - 2003/12/24 Dave:      on_poison_changed() changed to keep life bars from disappearing when you poison someone.
+ * - 2005/03/09 Shinigami: Added Prop Delay_Mod [ms] for WeaponDelay (see schedule_attack too)
+ * - 2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
+ * - 2005/09/14 Shinigami: Character::resurrect() - Vital.regen_while_dead implemented
+ * - 2005/10/14 Shinigami: fixed missing init of Character::dblclick_wait
+ * - 2005/11/23 MuadDib:	  Added warmode_wait object for characters.
+ * - 2005/11/25 MuadDib:   Added realm check to is_visible_to_me.
+ * - 2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
+ * - 2006/03/10 MuadDib:   Added NoCombat support to checking of justice region.
+ * - 2006/05/04 MuadDib:   Removed get_legal_item for no use.
+ * - 2006/05/04 MuadDib:   SkillValue() removed for no use.
+ * - 2006/05/16 Shinigami: UOBJ_*MALE_GHOST renamed to UOBJ_HUMAN_*MALE_GHOST
+ *                         added Prop Race (RACE_* Constants) to support Elfs
+ *                         Character::die(), Character::doors_block() and Character::resurrect() updated
+ * - 2008/07/08 Turley:    get_flag1() changed to show WarMode of other player again
+ *                         get_flag1_aos() removed
+ * - 2009/01/14 Nando:     setgraphic() changed to allow graphics up to 2048 (0x800).
+ * - 2009/02/01 MuadDib:   Resistance storage added.
+ * - 2009/02/25 MuadDib:   on_poison_changed() added UOKR Status bar update for poisoned. Booyah!
+ * - 2009/07/20 MuadDib:   Slot checks added to Character::Die()
+ * - 2009/07/25 MuadDib:   equippable() now checks if a twohanded is intrinsic or not also. Intrinsic gets ignored
+ * - 2009/07/31 Turley:    added check for cmbtcfg::send_swing_packet & reset_swing_onturn
+ * - 2009/08/04 MuadDib:   calc_vital_stuff() now checks to see if a vital changed, before using tell_vital_changed()
+ * - 2009/08/06 MuadDib:   Addeed gotten_by code for items.
+ * - 2009/08/07 MuadDib:   Added new Corpse Layer code to character Die() to put equipped items on correct layer with
+ *                         corpse. Ignores items from pack, because in death we only want the items it had equipped in
+ *                         life, showing up on the corpse when dead.
+ * - 2009/08/09 MuadDib:   on_poison_changed() rewritten for better KR poison support.
+ * - 2009/08/16 MuadDib:   fix for die() where checking corpse and not item for slot_index().
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: corpseSlot not used
+ *                         STLport-5.2.1 fix: init order changed of party_can_loot_, party_decline_timeout_ and skillcap_
+ * - 2009/08/28 Turley:    Crashfix for Character::on_poison_changed()
+ * - 2009/09/03 MuadDib:   Changed combat related ssopt stuff to combat_config.
+ *                         Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/09/09 Turley:    ServSpecOpt CarryingCapacityMod as * modifier for Character::carrying_capacity()
+ * - 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
+ *                         u32 registered_house added to store serial of registered multi.
+ *                         Multi registration/unregistration support added.
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/09/18 MuadDib:   Adding save/load of registered house serial
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+ * - 2009/09/22 Turley:    Added DamagePacket support & repsys param to applydamage
+ * - 2009/10/14 Turley:    new priv canbeheardasghost
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+ * - 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
+ *                         fixed "all" priv
+ *                         PrivUpdater class cleanup, removed duplicate stuff
+ * - 2009/10/22 Turley:    added OuchHook call if lastz-z>21 (clientside value)
+ * - 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+ * - 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
+ * - 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+ * - 2009/11/26 Turley:    Syshook CanDie(mobile)
+ * - 2009/11/30 Turley:    fixed calc_single_vital doesnt check changed maximum value
+ * - 2009/12/02 Turley:    added gargoyle & face support
+ * - 2009/12/03 Turley:    fixed client>=7 poison/flying flag, basic flying support
+ * - 2010/01/14 Turley:    AttackWhileFrozen check
+ * - 2010/01/15 Turley:    (Tomi) priv runwhilestealth
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ * - 2011/11/12 Tomi:      added extobj.mount and extobj.secure_trade_container
+ * - 2012/02/06 MuadDib:   Added serial check at root of Character::get_from_ground to make sure not trying to move orphaned items.
+ *                         In loop, if an found is an orphan it logs it and skips rest of individual itr to ensure movement not attempted.
+ */
 
-Notes
-=======
 
-*/
+#ifdef WINDOWS
+#include "../../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include "charactr.h"
 
@@ -89,7 +92,6 @@ Notes
 #include "../../clib/strutil.h"
 
 #include "../../plib/mapcell.h"
-#include "../../plib/realm.h"
 #include "../../plib/systemstate.h"
 
 #include "../accounts/account.h"
@@ -129,6 +131,7 @@ Notes
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polclock.h"
+#include "../realms/realm.h"
 #include "../realms.h"
 #include "../schedule.h"
 #include "../scrsched.h"
@@ -146,7 +149,6 @@ Notes
 #include "../ufuncstd.h"
 #include "../umanip.h"
 #include "../uoexec.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../vital.h"
@@ -4253,11 +4255,8 @@ namespace Pol {
     */
     void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments )
     {
-      if( client != NULL && buffs_.find(icon) != buffs_.end() )
-      {
-        // Icon is already present, must send a remove packet first or client will not update
-        send_buff_message( this, icon, false );
-      }
+      // Icon is already present, must send a remove packet first or client will not update
+      delBuff(icon);
 
       Core::gameclock_t end = Core::read_gameclock() + duration;
       buffs_[icon] = { end, cl_name, cl_descr, arguments };
@@ -4388,6 +4387,8 @@ namespace Pol {
       size += 3 * sizeof(void*)+to_be_reportable_.size() * ( sizeof(USERIAL)+3 * sizeof( void* ) );
       size += 3 * sizeof(void*)+reportable_.size() * ( sizeof(reportable_t)+3 * sizeof( void* ) );
 
+      size += 3 * sizeof(void*) + buffs_.size() * ( sizeof(u16) + sizeof(Buff) + sizeof(void*) );
+
       return size;
 
     }
@@ -4395,7 +4396,7 @@ namespace Pol {
     void Character::on_delete_from_account()
     {
         if (realm)
-            realm->remove_mobile(*this, Plib::WorldChangeReason::PlayerDeleted);
+            realm->remove_mobile(*this, Realms::WorldChangeReason::PlayerDeleted);
     }
 
 

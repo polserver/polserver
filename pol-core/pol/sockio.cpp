@@ -1,19 +1,15 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 
 #include "sockio.h"
 
 #include "sockets.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/clib.h"
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
@@ -231,7 +227,8 @@ namespace Pol {
 	}
 
 	PolSocket::PolSocket() :
-	  listen_timeout( { 0, 0 } ),
+	  listen_socket (INVALID_SOCKET),
+	  listen_timeout ( { 0, 0 } ),
 	  select_timeout ({ 0, 0 })
 	{}
   }

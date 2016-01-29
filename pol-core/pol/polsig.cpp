@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/09/16 Shinigami: scripts_thread_script* moved to passert
+/** @file
+ *
+ * @par History
+ * - 2005/09/16 Shinigami: scripts_thread_script* moved to passert
+ */
 
-Notes
-=======
-
-*/
 
 #include "polsig.h"
 

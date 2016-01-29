@@ -1,14 +1,11 @@
-/*
-History
-=======
-2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
-2006/05/30 Shinigami: fixed a bug with ShowRoofAndPlatformWarning - a missing expression
-2009/12/03 Turley:    added gargoyle flying flag (hoverover/overflight flag)
+/** @file
+ *
+ * @par History
+ * - 2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+ * - 2006/05/30 Shinigami: fixed a bug with ShowRoofAndPlatformWarning - a missing expression
+ * - 2009/12/03 Turley:    added gargoyle flying flag (hoverover/overflight flag)
+ */
 
-Notes
-=======
-
-*/
 
 #include "mapserver.h"
 
@@ -18,7 +15,6 @@ Notes
 
 #include "../plib/mapcell.h"
 #include "../plib/mapshape.h"
-#include "../plib/realm.h"
 
 #include "../pol/uconst.h"
 #include "../pol/ustruct.h"

@@ -1,15 +1,19 @@
-/*
-History
-=======
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
 
-*/
+#ifdef WINDOWS
+#include "../../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include "partymod.h"
 #include "../party.h"
+#include "../unicode.h"
 
 #ifdef MEMORYLEAK
 #include "../../bscript/bobject.h"
@@ -18,7 +22,6 @@ Notes
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 #include "../../bscript/bobject.h"
-#include "../../clib/unicode.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/cfgelem.h"
 #include "../network/client.h"
@@ -55,10 +58,10 @@ namespace Pol {
 	public:
 	  EPartyRefObjImp( Core::PartyRef pref );
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual BObjectImp* copy() const POL_OVERRIDE;
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 	  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
@@ -73,7 +76,7 @@ namespace Pol {
 	{
 	  return "PartyRef";
 	}
-	int EPartyRefObjImp::typeOfInt() const
+	u8 EPartyRefObjImp::typeOfInt() const
 	{
 	  return OTPartyRef;
 	}
@@ -88,7 +91,7 @@ namespace Pol {
 	  return ( obj_->test_size() );
 	}
 
-	bool EPartyRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EPartyRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -443,7 +446,7 @@ namespace Pol {
 		  u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 		  if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
-          if ( !Clib::convertArrayToUC( oText, gwtext, textlen, true ) )
+          if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
 			return new BError( "Invalid value in Unicode array." );
 
           if ( Core::settingsManager.party_cfg.Hooks.OnPublicChat )
@@ -476,7 +479,7 @@ namespace Pol {
 		  u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 		  if ( textlen > SPEECH_MAX_LEN )
 			return new BError( "Unicode array exceeds maximum size." );
-		  if ( !Clib::convertArrayToUC( oText, gwtext, textlen, true ) )
+		  if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
 			return new BError( "Invalid value in Unicode array." );
 
           if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )

@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 #ifndef __UFUNCSTD_H
 #define __UFUNCSTD_H
 namespace Pol {

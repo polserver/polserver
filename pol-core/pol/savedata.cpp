@@ -1,12 +1,9 @@
-/*
-History
-=======
-2007/06/17 Shinigami: added config.world_data_path
+/** @file
+ *
+ * @par History
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ */
 
-Notes
-=======
-
-*/
 
 #include "savedata.h"
 
@@ -18,7 +15,7 @@ Notes
 #include "globals/uvars.h"
 #include "globals/object_storage.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/iohelp.h"
 #include "../clib/logfacility.h"

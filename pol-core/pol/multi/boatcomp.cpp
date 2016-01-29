@@ -1,14 +1,10 @@
-/*
-History
-=======
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-                      Changes for multi related source file relocation
+/** @file
+ *
+ * @par History
+ * - 2009/09/03 MuadDib:    Changes for account related source file relocation
+ *                          Changes for multi related source file relocation
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "boatcomp.h"
 

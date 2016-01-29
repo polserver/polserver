@@ -1,18 +1,14 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
+ * - 2006/05/27 MuadDib:   added "realm" to base_members and updated loop length for added
+ * - prop.
+ * - 2009/01/26 MuadDib:   Added a TON of members. All are up to date as of this date.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: string array definition and memname definition changed
+ */
 
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
-2006/05/27 MuadDib:   added "realm" to base_members and updated loop length for added
-prop.
-2009/01/26 MuadDib:   Added a TON of members. All are up to date as of this date.
-2009/08/25 Shinigami: STLport-5.2.1 fix: string array definition and memname definition changed
-
-Notes
-=======
-
-*/
 #include "poldbg.h"
 
 #include "polcfg.h"
@@ -154,7 +150,7 @@ namespace Pol {
 	public:
 	  explicit DebugContextObjImp( ref_ptr<DebugContext> rcdctx );
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual BObjectImp* copy() const POL_OVERRIDE;
 	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
 	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
@@ -166,7 +162,7 @@ namespace Pol {
 	{
 	  return "DebugContext";
 	}
-	int DebugContextObjImp::typeOfInt() const
+	u8 DebugContextObjImp::typeOfInt() const
 	{
 	  return OTDebugContext;
 	}

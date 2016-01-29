@@ -1,24 +1,20 @@
-/*
-History
-=======
-2006/03/01 MuadDib:   Altered the decayat_gameclock_ check (to check for != 0).
-2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/08/06 MuadDib:   Added gotten_by code for items.
-2009/08/25 Shinigami: STLport-5.2.1 fix: new_ar not used
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-Changes for multi related source file relocation
-2009/12/02 Turley:    added config.max_tile_id - Tomi
-
-Notes
-=======
-
-*/
+/** @file
+ *
+ * @par History
+ * - 2006/03/01 MuadDib:   Altered the decayat_gameclock_ check (to check for != 0).
+ * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: new_ar not used
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
 #include "item.h"
 #include "armor.h"
 
 #include "../../clib/cfgelem.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/strutil.h"
 #include "../../clib/streamsaver.h"
 
@@ -29,7 +25,6 @@ Notes
 #include "../../plib/systemstate.h"
 
 #include "../ustruct.h"
-#include "../uofile.h"
 #include "../containr.h"
 #include "../ufunc.h"
 #include "../network/client.h"
@@ -53,10 +48,11 @@ namespace Pol {
     const u32 Item::SELLPRICE_DEFAULT = UINT_MAX;
     const u32 Item::BUYPRICE_DEFAULT = UINT_MAX;
 
-	/* This is a pretty good clone.  Somewhat inefficient, but does
-	   work for derived classes that do not have data.
-	   (since it calls Item::create, virtual tables are copied)
-	   */
+    /**
+     * This is a pretty good clone. Somewhat inefficient, but does
+     * work for derived classes that do not have data.
+     * (since it calls Item::create, virtual tables are copied)
+     */
 	Item* Item::clone() const
 	{
 	  Item* item = Item::create( objtype_ );
@@ -134,19 +130,22 @@ namespace Pol {
 	  return *_itemdesc;
 	}
 
-	/* there are four forms of 'name' in objinfo:
-		name					 (normal)
-		name%s					 (percent followed by plural-part, then null-term)
-		name%s%					 (percent followed by plural-part, then percent, then more)
-		wheat shea%ves/f%		 ( '%', plural part, '/', single part, '%', rest )
-		Some examples:
-		pil%es/e% of hides
-		banana%s%
-		feather%s
-		Known bugs:
-		1 gold coin displays as "gold coin".  There must be a bit somewhere
-		that I just don't understand yet.
-		*/
+    /**
+     * there are four forms of 'name' in objinfo:
+     * - name                   (normal)
+     * - name%s                 (percent followed by plural-part, then null-term)
+     * - name%s%                (percent followed by plural-part, then percent, then more)
+     * - wheat shea%ves/f%      ( '%', plural part, '/', single part, '%', rest )
+     *
+     * Some examples:
+     * - pil%es/e% of hides
+     * - banana%s%
+     * - feather%s
+     *
+     * Known bugs:
+     * - 1 gold coin displays as "gold coin".  There must be a bit somewhere
+     *   that I just don't understand yet.
+     */
 	std::string Item::description() const
 	{
       std::string suffix = name_suffix();
@@ -742,7 +741,9 @@ namespace Pol {
 	  return res;
 	}
 
-	//dave added 5/11/3
+    /**
+     * @author dave 5/11/3
+     */
 	bool Item::has_only_default_cprops( const ItemDesc* compare ) const
 	{
 	  if ( compare == NULL )
@@ -766,18 +767,21 @@ namespace Pol {
 			   ( this_item_new_amount > 0 ) );		// if new size 0, assume whole stack
 	}
 
-	/* slice_stacked_item:
-			Used when a portion of a stack is dragged.
-			Given ITEM1, with, for example, amount 75.
-			If 25 units are dragged off, this function will get called
-			with 25.  What happens then:
-			ITEM2 is created, with Amount 50.  It it placed where ITEM1 used to be.
-			ITEM1's Amount is set to 25.
-			In short, we go from:
-			ITEM1 (Amount:75)
-			TO
-			ITEM1 (Amount:25) -under cursor, ITEM2(Amount:50) where ITEM1 was.
-			*/
+    /**
+     * Slice_stacked_item
+     *
+     * Used when a portion of a stack is dragged.
+     * Given ITEM1, with, for example, amount 75.
+     * If 25 units are dragged off, this function will get called
+     * with 25.  What happens then:
+     * - ITEM2 is created, with Amount 50. It it placed where ITEM1 used to be.
+     * - ITEM1's Amount is set to 25.
+     *
+     * In short, we go from:
+     * ITEM1 (Amount:75)
+     * TO
+     * ITEM1 (Amount:25) -under cursor, ITEM2(Amount:50) where ITEM1 was.
+     */
 	Item* Item::slice_stacked_item( u16 this_item_new_amount )
 	{
 	  Item* new_item = clone();
@@ -820,7 +824,7 @@ namespace Pol {
 
 	bool Item::setgraphic( u16 newgraphic )
 	{
-        // Can't set the graphic of an equipped item, unless the new graphic has the same layer
+        /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
         if (layer && layer != Core::tilelayer(newgraphic))
         {
             return false;
@@ -833,7 +837,7 @@ namespace Pol {
         height = Core::tileheight( graphic );
         tile_layer = Core::tilelayer( graphic );
 
-		// Update facing on graphic change
+		/// Update facing on graphic change
 		const ItemDesc& id = this->itemdesc();
 
 		if ( id.facing == 127 )
@@ -853,7 +857,7 @@ namespace Pol {
 
 	bool Item::setcolor( u16 newcolor )
 	{
-	  // return false if the color is invalid (high nibble set)
+	  /// return false if the color is invalid (high nibble set)
 	  bool res = true;
       u16  theMask = (u16)Core::settingsManager.ssopt.item_color_mask;
 	  if ( ( newcolor & ( ~theMask ) ) != 0 )
@@ -888,7 +892,7 @@ namespace Pol {
 
 	void Item::setfacing( u8 newfacing )
 	{
-	  // allow 0-127 (all but MSB)
+	  /// allow 0-127 (all but MSB)
 	  if ( newfacing > 127 )
 		  newfacing = 0;
 
@@ -1250,7 +1254,11 @@ namespace Pol {
 	  return false;
 	}
 
-	//DAVE added this 11/17, Shortcut function to get a pointer to the owner character
+    /**
+     * Shortcut function to get a pointer to the owner character
+     *
+     * @author DAVE 11/17
+     */
     Mobile::Character* Item::GetCharacterOwner( )
 	{
 	  UObject* top_level_item = toplevel_owner();

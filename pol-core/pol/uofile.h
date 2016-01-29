@@ -1,14 +1,11 @@
-/*
-History
-=======
-2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
-2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
-2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+/** @file
+ *
+ * @par History
+ * - 2005/07/05 Shinigami: added uoconvert.cfg option *StaticsPerBlock (hard limit is set to 10000)
+ * - 2005/07/16 Shinigami: added uoconvert.cfg flag ShowIllegalGraphicWarning
+ * - 2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef UOFILE_H
 #define UOFILE_H
@@ -22,18 +19,11 @@ Notes
 
 namespace Pol {
 #define MAX_STATICS_PER_BLOCK 10000
-  namespace Mobile {
-	class Character;
-  }
-  namespace Multi {
-	class UMulti;
-  }
-  namespace Items {
-    class Item;
-  }
+
   namespace Core {
 
 	extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );
+	extern void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 	void rawmapfullread();
 	void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 	void readtile( unsigned short tilenum, USTRUCT_TILE *tile );

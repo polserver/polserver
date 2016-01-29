@@ -1,13 +1,11 @@
-﻿/*
-History
-=======
-2015/20/12 Bodom:     creating this file by copy/pasting impstr.h (shame on me)
+﻿/** @file
+ *
+ * @par History
+ * - 2015/20/12 Bodom:     creating this file by copy/pasting impstr.h (shame on me)
+ *
+ * @note This file uses UTF8 encoding
+ */
 
-Notes
-=======
-- This file uses UTF8 encoding
-
-*/
 
 #pragma once
 
@@ -16,6 +14,9 @@ Notes
 
 namespace Pol {
   namespace Bscript {
+
+    using Clib::UnicodeString;
+    using Clib::UnicodeChar;
 
     /**
      * Represents an Unicode string. Like a string, but can hold unicode characters like

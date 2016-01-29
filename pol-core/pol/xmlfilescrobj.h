@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef XMLSCROBJ_H
 #define XMLSCROBJ_H
@@ -60,10 +56,10 @@ namespace Pol {
 	  virtual std::string getStringRep() const POL_OVERRIDE;
       virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + _filename.capacity(); }
 	  virtual const char* typeOf() const POL_OVERRIDE { return "XMLFile"; }
-	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLFile; }
+	  virtual u8 typeOfInt() const POL_OVERRIDE { return OTXMLFile; }
 	  virtual bool isTrue() const POL_OVERRIDE;
       virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
-      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+      virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new BXMLNodeIterator( &file, pIterVal );
 	  }
@@ -88,13 +84,13 @@ namespace Pol {
 	  virtual std::string getStringRep() const POL_OVERRIDE;
 
 	  virtual const char* typeOf() const POL_OVERRIDE { return "XMLNode"; }
-	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLNode; }
+	  virtual u8 typeOfInt() const POL_OVERRIDE { return OTXMLNode; }
 
 	  virtual size_t sizeEstimate() const POL_OVERRIDE
 	  {
         return sizeof( *this ) + sizeof( TiXmlNode );
 	  }
-      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+      virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new BXMLNodeIterator( node, pIterVal );
 	  }
@@ -126,10 +122,10 @@ namespace Pol {
 	  }
 
 	  virtual const char* typeOf() const POL_OVERRIDE { return "XMLAttributes"; }
-	  virtual int typeOfInt() const POL_OVERRIDE { return OTXMLAttributes; }
+	  virtual u8 typeOfInt() const POL_OVERRIDE { return OTXMLAttributes; }
 	  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
 
-      Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal )
+      virtual Bscript::ContIterator* createIterator( Bscript::BObject* pIterVal ) POL_OVERRIDE
 	  {
 		return new BXMLAttributeIterator( node, pIterVal );
 	  }

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/03/09 Shinigami: Added Prop Delay [ms]
+/** @file
+ *
+ * @par History
+ * - 2005/03/09 Shinigami: Added Prop Delay [ms]
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef WEAPON_H
 #define WEAPON_H

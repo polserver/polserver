@@ -5,7 +5,7 @@
 // An online website can define its own $header to prevent default one from being included
 // also $official, $analytics and other site-specific variables can be defined there
 
-// Set this to true on the official website
+// Will be set to true when official site is detected
 $official = false;
 
 //$analytics = '
@@ -17,8 +17,6 @@ $official = false;
 //     </script>'
 
 define('OFFICIAL_HEADER_PATH', '/home/polteam/include/_header.php');
-if( file_exists(OFFICIAL_HEADER_PATH) )
-	$header = OFFICIAL_HEADER_PATH;
 
 // Will be set to true when building the offline doc
 $offline = false;
@@ -49,9 +47,37 @@ if (function_exists('date_default_timezone_set')) {
 if( isset($request) )
 	$request->enable_super_globals();
 
-
+// The official header does not like to be put into a function, so what i am
+// doing instead is caching the output now and using it later
+if( file_exists(OFFICIAL_HEADER_PATH) ) {
+	ob_start();
+	include OFFICIAL_HEADER_PATH;
+	$header = ob_get_contents();
+	ob_end_clean();
+	$official = true;
+}
 
 // **** FUNCTIONS **************************************************************
+
+/**
+ * Gets an HTTP GET parameter (use this instead of $_GET)
+ *
+ * @param $name The name of the GET parameter to retrieve
+ * @param $default The default value to return if not found (default: null)
+ * @return The retrieved parameter or default value
+ */
+function httpget($name, $default='')
+{
+	global $official;
+
+	if ($official)
+		return request_var($name, $default);
+
+	if (isset($_GET[$name]))
+		return $_GET[$name];
+
+	return $default;
+}
 
 /**
 * Outputs the page header, from doctype to body
@@ -62,12 +88,10 @@ function siteheader($title)
 {
 	global $offline, $official, $header;
 
-	if( isset($header) ) {
+	if( isset($header) )
 		echo $header;
-		return;
-	}
-
-	require 'header.inc';
+	else
+		require 'header.inc';
 }
 
 /**

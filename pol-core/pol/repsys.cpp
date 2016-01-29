@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/12/05 MuadDib:   Added ssopt.invul_tag for Repsys::hilite_color_idx
-2005/12/05 MuadDib:   Added ssopt.invul_tag for NPC::hilite_color_idx
-2005/12/05 MuadDib:   Added repsys.invulnerable color for names.
-2009/08/06 Turley:    Added escript interface to add/remove aggressor/lawfullydamaged
+/** @file
+ *
+ * @par History
+ * - 2005/12/05 MuadDib:   Added ssopt.invul_tag for Repsys::hilite_color_idx
+ * - 2005/12/05 MuadDib:   Added ssopt.invul_tag for NPC::hilite_color_idx
+ * - 2005/12/05 MuadDib:   Added repsys.invulnerable color for names.
+ * - 2009/08/06 Turley:    Added escript interface to add/remove aggressor/lawfullydamaged
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "repsys.h"

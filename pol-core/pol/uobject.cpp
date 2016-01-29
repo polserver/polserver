@@ -1,24 +1,20 @@
-/*
-History
-=======
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of realm and saveonexit_
-2009/09/14 MuadDib:   UObject::setgraphic added error printing.
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of realm and saveonexit_
+ * - 2009/09/14 MuadDib:   UObject::setgraphic added error printing.
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "uobject.h"
 
 #include "../clib/cfgelem.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/streamsaver.h"
 
-#include "../plib/realm.h"
 #include "../plib/systemstate.h"
 
 #include "globals/state.h"
@@ -28,10 +24,10 @@ Notes
 #include "polclass.h"
 #include "polcfg.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "reftypes.h"
 #include "tooltips.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "zone.h"
 
 #include <stdexcept>

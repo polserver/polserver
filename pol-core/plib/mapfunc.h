@@ -1,17 +1,16 @@
-/*
-History
-=======
-2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+/** @file
+ *
+ * @par History
+ * - 2006/04/09 Shinigami: added uoconvert.cfg flag ShowRoofAndPlatformWarning
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_MAPFUNC_H
 #define PLIB_MAPFUNC_H
 
+#include <string>
 #include "../clib/rawtypes.h"
+
 namespace Pol {
   namespace Clib {
 	class ConfigElem;
@@ -22,6 +21,8 @@ namespace Pol {
 	u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags );
 
 	unsigned int readflags( Clib::ConfigElem& elem );
+    std::string flagstr( unsigned int flags );
+    std::string flagdescs();
   }
 }
 #endif

@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_USERFUNC_H
 #define BSCRIPT_USERFUNC_H

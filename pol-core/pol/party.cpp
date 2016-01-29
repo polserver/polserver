@@ -1,20 +1,22 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of _leaderserial
+ *                         STLport-5.2.1 fix: UCconv, bytemsg and wtextoffset not used
+ *                         STLport-5.2.1 fix: "wtext[ SPEECH_MAX_LEN+1 ];" has no effect
+ *                         STLport-5.2.1 fix: illegal usage of NULL instead of 0
+ *                         STLport-5.2.1 fix: initialization of member in handle_party_msg()
+ * - 2009/08/26 Turley:    changed convertUCtoArray() to if check
+ * - 2009/11/17 Turley:    fixed hang due to illegal pointers
+ */
 
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of _leaderserial
-STLport-5.2.1 fix: UCconv, bytemsg and wtextoffset not used
-STLport-5.2.1 fix: "wtext[ SPEECH_MAX_LEN+1 ];" has no effect
-STLport-5.2.1 fix: illegal usage of NULL instead of 0
-STLport-5.2.1 fix: initialization of member in handle_party_msg()
-2009/08/26 Turley:    changed convertUCtoArray() to if check
-2009/11/17 Turley:    fixed hang due to illegal pointers
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
-Notes
-=======
-
-*/
 #include "party.h"
 #include "party_cfg.h"
 
@@ -28,14 +30,13 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
-#include "../clib/unicode.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
-#include "../plib/realm.h"
+
 #include "../plib/systemstate.h"
 
 #include "clfunc.h"
@@ -48,6 +49,8 @@ Notes
 #include "target.h"
 #include "globals/settings.h"
 #include "globals/uvars.h"
+#include "realms/realm.h"
+#include "unicode.h"
 
 #include "../bscript/berror.h"
 #ifdef MEMORYLEAK
@@ -112,7 +115,7 @@ namespace Pol {
 		  settingsManager.party_cfg.General.PrivateMsgPrefixLen = SPEECH_MAX_LEN;
 
         Bscript::ObjArray* arrPtr = arr.get( );
-		if ( !Clib::convertArrayToUC( arrPtr, settingsManager.party_cfg.General.PrivateMsgPrefix, settingsManager.party_cfg.General.PrivateMsgPrefixLen, true ) )
+		if ( !Core::convertArrayToUC( arrPtr, settingsManager.party_cfg.General.PrivateMsgPrefix, settingsManager.party_cfg.General.PrivateMsgPrefixLen, true ) )
 		  settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
 	  }
 	}
@@ -658,7 +661,7 @@ namespace Pol {
 	  if ( settingsManager.party_cfg.Hooks.ChangePublicChat )
 	  {
 		Bscript::ObjArray* arr;
-		if ( !Clib::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
+		if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
 		  return;
         Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref( ), arr );
         if ( obj->isa( Bscript::BObjectImp::OTArray ) )
@@ -667,7 +670,7 @@ namespace Pol {
 		  unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
 		  if ( len > SPEECH_MAX_LEN )
 			len = SPEECH_MAX_LEN;
-		  if ( !Clib::convertArrayToUC( arr, wtext, len, true ) )
+		  if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
 			return;
 		  wtextlen = len + 1;
 		}
@@ -705,7 +708,7 @@ namespace Pol {
 	  if ( settingsManager.party_cfg.Hooks.ChangePrivateChat )
 	  {
         Bscript::ObjArray* arr;
-		if ( !Clib::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
+		if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
 		  return;
         Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object( chr->make_ref( ), tochr->make_ref( ), arr );
         if ( obj->isa( Bscript::BObjectImp::OTArray ) )
@@ -714,7 +717,7 @@ namespace Pol {
 		  unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
 		  if ( len > SPEECH_MAX_LEN )
 			len = SPEECH_MAX_LEN;
-		  if ( !Clib::convertArrayToUC( arr, wtext, len, true ) )
+		  if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
 			return;
 		  wtextlen = len + 1;
 		}
@@ -1120,7 +1123,7 @@ namespace Pol {
 		  if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
 		  {
             Bscript::ObjArray* arr;
-            if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+            if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
 			  settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
 		  }
 
@@ -1194,7 +1197,7 @@ namespace Pol {
 		  if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
 		  {
 			Bscript::ObjArray* arr;
-            if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+            if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
 			  settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
 		  }
 		  party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
@@ -1204,7 +1207,7 @@ namespace Pol {
 		  if ( settingsManager.party_cfg.Hooks.OnPublicChat )
 		  {
 			Bscript::ObjArray* arr;
-            if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+            if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
 			  settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
 		  }
 

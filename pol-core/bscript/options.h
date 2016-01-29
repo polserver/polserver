@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_OPTIONS_H
 #define BSCRIPT_OPTIONS_H

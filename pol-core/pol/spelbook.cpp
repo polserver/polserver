@@ -1,16 +1,13 @@
-/*
-History
-=======
-2005/02/14 Shinigami: double_click - simple logical error in layer_is_equipped check
-2009/07/26 MuadDib:   Packet struct refactoring.
-2009/09/17 MuadDib:   Spellbook::can_add upgraded to check bitflags instead of contents.
-2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
-2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+/** @file
+ *
+ * @par History
+ * - 2005/02/14 Shinigami: double_click - simple logical error in layer_is_equipped check
+ * - 2009/07/26 MuadDib:   Packet struct refactoring.
+ * - 2009/09/17 MuadDib:   Spellbook::can_add upgraded to check bitflags instead of contents.
+ * - 2009/09/18 MuadDib:   Spellbook rewrite to deal with only bits, not scrolls inside them.
+ * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+ */
 
-Notes
-=======
-
-*/
 #include "spelbook.h"
 
 #include "item/itemdesc.h"
@@ -29,7 +26,7 @@ Notes
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../plib/systemstate.h"
 
 #include <sstream>

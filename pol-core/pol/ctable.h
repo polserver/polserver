@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 #ifndef __CTABLE_H
 #define __CTABLE_H
 namespace Pol {

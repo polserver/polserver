@@ -1,12 +1,9 @@
-/*
-History
-=======
-2011/11/28 MuadDib:   Removed last of uox referencing code.
+/** @file
+ *
+ * @par History
+ * - 2011/11/28 MuadDib:   Removed last of uox referencing code.
+ */
 
-Notes
-=======
-
-*/
 #ifndef __UIMPORT_H
 #define __UIMPORT_H
 namespace Pol {

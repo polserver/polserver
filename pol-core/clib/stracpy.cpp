@@ -1,15 +1,10 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
 
-*/
-
-#ifdef _MSC_VER
-#pragma warning(disable:4996) // unsafe strncpy
-#endif
+#include "Header_Windows.h"
 
 #include <assert.h>
 #include "string.h"

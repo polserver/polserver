@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/06/06 Shinigami: added readobjects template - to get a list of statics
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2005/06/06 Shinigami: added readobjects template - to get a list of statics
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 
 #ifndef MULTI_H
@@ -32,7 +29,7 @@ namespace Pol {
     class BObjectImp;
     class BStruct;
   }
-  namespace Plib {
+  namespace Realms {
     class Realm;
   }
   namespace Multi {
@@ -57,7 +54,7 @@ namespace Pol {
 
 	  static UMulti* create( const Items::ItemDesc& descriptor, u32 serial = 0 );
 
-	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Plib::Realm* realm, int flags );
+	  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags );
 
 	  virtual void double_click( Network::Client* client ) POL_OVERRIDE;
 	  virtual void register_object( UObject* obj );

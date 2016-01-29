@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef CFGEMOD_H
 #define CFGEMOD_H
@@ -58,7 +54,7 @@ namespace Pol {
 	  EConfigFileRefObjImp( ref_ptr<Core::StoredConfigFile> rcfile );
 	  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 	};
 
@@ -73,7 +69,7 @@ namespace Pol {
 	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
 	};
 

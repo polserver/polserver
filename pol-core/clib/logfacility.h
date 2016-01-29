@@ -4,8 +4,8 @@ This header is part of the PCH
 Remove the include in all StdAfx.h files or live with the consequences :)
 */
 
-#ifndef LOGFACILITY_H
-#define LOGFACILITY_H
+#ifndef CLIB_LOGFACILITY_H
+#define CLIB_LOGFACILITY_H
 
 #include <map>
 #include <thread>
@@ -229,4 +229,4 @@ namespace Pol {
 
 }
 
-#endif
+#endif // CLIB_LOGFACILITY_H

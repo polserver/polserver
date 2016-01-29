@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 #ifndef __TEXTCMD_H
 #define __TEXTCMD_H
 

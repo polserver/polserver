@@ -1,44 +1,40 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @par Design decisions (64bit)
+ * Since boost::any has a size of 8 a padding of 8 will be introduced which means that even if the prop type is a u8 full 16 bytes will be used
+ * boost::variant is as big as the biggest possible value plus a type information member
+ * in our case the biggest type to store in a variant is u32 thus only a padding of 4 exists: min/max size is 12 instead of 16
+ * an empty vector still uses 24bytes moving the vectors into a pointer saves if unused 16bytes.
+ *
+ * @par Layout
+ * - Uobject
+ *   - ptr DynProps
+ *     -> 8 bytes per object
+ * - DynProps
+ *   - bitset (currently 4 bytes (more then 32 types = 8 bytes)
+ *   - vector<PropHolder> variant version
+ *   - ptr vector<PropHolder> any version
+ *     -> N "small" properties:
+ *     4+24+12*N+8 = 36+12*N
+ *     -> +M "big" properties:
+ *     +24+(16+unk)*M = (36+12*N) + (24+(16+unk)*M)
+ *     unk is the type size which is stored in boost::any
+ *
+ * @todo Is it worse it to combine e.g resistances struct?
+ * 5 * s16
+ * 24+12*5 -> 84
+ * Combining means storage as boost::any:
+ * 24+(16+5*2) -> 50
+ * But only valid if all 5 props are really set, if only 2 props are set variant is smaller-> 24+12*2=48
+ * Different idea combine per resistance type mod and real value:
+ * for variant its still 24+12*5 -> 84
+ * any would use 24+(16+5*2)*2 -> 76 (but again only if all props are set)
+ * Combining would use the u32 size for a prop in a variant without loss (2*s16)
+ * -> 8 props can be stored with less space
+ */
 
-Notes
-=======
-Design decisions (64bit):
-Since boost::any has a size of 8 a padding of 8 will be introduced which means that even if the prop type is a u8 full 16 bytes will be used
-boost::variant is as big as the biggest possible value plus a type information member
-in our case the biggest type to store in a variant is u32 thus only a padding of 4 exists: min/max size is 12 instead of 16
-an empty vector still uses 24bytes moving the vectors into a pointer saves if unused 16bytes.
-
-Layout:
-Uobject
- - ptr DynProps
--> 8 bytes per object
-
-DynProps
- - bitset (currently 4 bytes (more then 32 types = 8 bytes)
- - vector<PropHolder> variant version
- - ptr vector<PropHolder> any version
--> N "small" properties:
-     4+24+12*N+8 = 36+12*N
--> +M "big" properties:
-     +24+(16+unk)*M = (36+12*N) + (24+(16+unk)*M)
-     unk is the type size which is stored in boost::any
-
-TODO:
-Is it worse it to combine e.g resistances struct?
-5 * s16
-24+12*5 -> 84
-Combining means storage as boost::any:
-24+(16+5*2) -> 50
-But only valid if all 5 props are really set, if only 2 props are set variant is smaller-> 24+12*2=48
-Different idea combine per resistance type mod and real value:
-for variant its still 24+12*5 -> 84
-any would use 24+(16+5*2)*2 -> 76 (but again only if all props are set)
-Combining would use the u32 size for a prop in a variant without loss (2*s16)
--> 8 props can be stored with less space 
-
-*/
 
 #ifndef __POL_DYNPROPS_H
 #define __POL_DYNPROPS_H
@@ -52,6 +48,7 @@ Combining would use the u32 size for a prop in a variant without loss (2*s16)
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <memory>
 
 #include <boost/variant.hpp>
 #include <boost/any.hpp>
@@ -157,6 +154,7 @@ namespace Pol {
     PROP_GOTTEN_BY            = 56, // Item
     PROP_GOTTEN_ITEM          = 57, // Character
     PROP_PROCESS              = 58, // Item
+    PROP_HOUSE                = 59, // House
 
     PROP_FLAG_SIZE // used for bitset size
   };

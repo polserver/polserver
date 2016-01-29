@@ -1,10 +1,14 @@
 #include "ExceptionParser.h"
+#include "../Program/ProgramConfig.h"
 #include "LogSink.h"
 #include "../threadhelp.h"
 #include "../logfacility.h"
 
-#include "../../plib/systemstate.h"
-#include "../../plib/polver.h"
+#ifdef WINDOWS
+#include "../pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
 
 #include <cstring>
 #include <signal.h>
@@ -12,7 +16,7 @@
 #include <errno.h>
 #include <inttypes.h>
 
-#ifndef _WIN32
+#ifndef WINDOWS
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -22,19 +26,22 @@
 #include <sys/syscall.h>
 #define SOCKET int
 #else
-#include<winsock2.h>
-#include<Ws2tcpip.h>
-#define snprintf _snprintf_s
-#define ssize_t SSIZE_T
-#pragma warning(disable: 4127) // conditional expression is constant
-#pragma warning(disable: 4996) // unsafe strerror
+#include "../Header_Windows.h"
 #endif
 
 #define MAX_STACK_TRACE_DEPTH          200
-#define MAX_STACK_TRACE_STEP_LENGTH    256
+#define MAX_STACK_TRACE_STEP_LENGTH    512
 
 namespace Pol{ namespace Clib{
 using namespace std;
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool ExceptionParser::m_programAbortReporting = true;
+std::string ExceptionParser::m_programAbortReportingServer = "";
+std::string ExceptionParser::m_programAbortReportingUrl = "";
+std::string ExceptionParser::m_programAbortReportingReporter = "";
+std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTimeStamp();
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -123,24 +130,32 @@ void getSignalDescription(int signal, string &signalName, string &signalDescript
     }
 }
 
-void logExceptionSignal(int pSignal)
+void logExceptionSignal(int signal)
 {
     string signalName;
     string signalDescription;
 
-    getSignalDescription(pSignal, signalName, signalDescription);
-    printf("Signal \"%s\"(%d: %s) detected.\n", signalName.c_str(), pSignal, signalDescription.c_str());
+    getSignalDescription(signal, signalName, signalDescription);
+    printf("Signal \"%s\"(%d: %s) detected.\n", signalName.c_str(), signal, signalDescription.c_str());
 }
 
 string getCompilerVersion()
 {
-    #ifndef _WIN32
+    #ifdef LINUX
         char result[256];
-        sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-    #else
+		#ifdef __clang__
+        	sprintf(result, "clang %d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
+		#else
+        	sprintf(result, "gcc %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+		#endif
+	#endif
+    #ifdef WINDOWS
         string result;
         switch(_MSC_VER)
         {
+        case 1900:
+            result = "MSVC++ 14.0 (Visual Studio 2015)";
+            break;
         case 1800:
             result = "MSVC++ 12.0 (Visual Studio 2013)";
             break;
@@ -198,7 +213,7 @@ void doHttpPOST(string host, string url, string content)
              "Content-Type: application/x-www-form-urlencoded\r\n"
              "User-Agent: POL in-app abort reporting system, %s\r\n"
              "Content-length: %d\r\n\r\n"
-             "%s", url.c_str(), host.c_str(), Pol::polverstr, (int)content.size(), content.c_str());
+             "%s", url.c_str(), host.c_str(), POL_VERSION_ID, (int)content.size(), content.c_str());
 
     /**
      * DNS lookup if needed
@@ -210,9 +225,12 @@ void doHttpPOST(string host, string url, string content)
     hints.ai_flags = AI_ADDRCONFIG;
     hints.ai_socktype = SOCK_STREAM;
     int res = getaddrinfo(host.c_str(), "http", &hints, &serverAddr);
-    if(res == 0)
-    {
-        switch(serverAddr->ai_addr->sa_family) {
+	if (res != 0) {
+		fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
+		exit(1);
+	}
+     
+	switch(serverAddr->ai_addr->sa_family) {
             case AF_INET:
                 if(inet_ntop(AF_INET, &((struct sockaddr_in *)serverAddr->ai_addr)->sin_addr, targetIP, INET_ADDRSTRLEN) == NULL)
                     exit(1);
@@ -226,7 +244,7 @@ void doHttpPOST(string host, string url, string content)
             default:
                 fprintf(stderr, "Unknown address family found for %s\n", host.c_str());
                 exit(1);
-        }
+    }
 
         // create the socket
         socketFD = socket(serverAddr->ai_family, serverAddr->ai_socktype, serverAddr->ai_protocol);
@@ -239,6 +257,8 @@ void doHttpPOST(string host, string url, string content)
             fprintf(stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(), targetIP, strerror(errno), errno);
             exit(1);
         }
+
+		freeaddrinfo(serverAddr); // not needed anymore
 
         /**
          * send the request
@@ -262,7 +282,7 @@ void doHttpPOST(string host, string url, string content)
             while ((readBytes = recv(socketFD, answer, MAXLINE, 0)) > 0) {
         #endif
             answer[readBytes] = '\0';
-            printf("Answer from bug tracking server: %s\n", answer);
+            printf("Answer from bug tracking server:\n%s\n", answer);
             // skip the received answer and proceed
         }
 
@@ -272,9 +292,6 @@ void doHttpPOST(string host, string url, string content)
         #else
             closesocket(socketFD);
         #endif
-    }else{
-        fprintf(stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(), gai_strerror(res), res);
-    }
 }
 
 void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
@@ -284,33 +301,33 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
      */
     string host = "polserver.com";
     string url = "/pol/report_program_abort.php";
-    if((Plib::systemstate.config.report_server.c_str() != NULL) && (Plib::systemstate.config.report_server != ""))
+    if((m_programAbortReportingServer.c_str() != NULL) && (m_programAbortReportingServer != ""))
     {
-        host = Plib::systemstate.config.report_server;
-        if(Plib::systemstate.config.report_url.c_str() != NULL)
-            url = Plib::systemstate.config.report_url;
+        host = m_programAbortReportingServer;
+        if(m_programAbortReportingUrl.c_str() != NULL)
+            url = m_programAbortReportingUrl;
     }
 
     // create the abort description for the subsequent POST request
-    string content = "email=" + Pol::Plib::systemstate.config.report_admin_email + "&"
-                     "bin=" + Pol::Plib::systemstate.executable + "&"
-                     "start_time=" + Pol::Plib::systemstate.getStartTime() + "&"
+    string content = "email=" + m_programAbortReportingReporter + "&"
+                     "bin=" + PROG_CONFIG::programName() + "&"
+                     "start_time=" + m_programStart + "&"
                      "abort_time=" + Pol::Clib::Logging::LogSink::getTimeStamp() + "&"
                      "reason=" + reason + "&"
                      "trace=" + stackTrace + "&"
                      "comp=" + getCompilerVersion() + "&"
-                     "comp_time=" + Pol::compiledate + "(" + Pol::compiletime + ")&"
-                     "build_target=" + Pol::polbuildtag + "&"
-                     "build_revision=" + Pol::polverstr + "&"
+                     "comp_time=" POL_BUILD_DATE "(" POL_BUILD_TIME ")&"
+                     "build_target=" + POL_BUILD_TARGET + "&"
+                     "build_revision=" POL_VERSION_ID "&"
                      "misc=";
 
     // execute the POST request
     doHttpPOST(host, url, content);
 }
 
-void handleExceptionSignal(int pSignal)
+void ExceptionParser::handleExceptionSignal(int signal)
 {
-    switch(pSignal)
+    switch(signal)
     {
         case SIGILL:
         case SIGFPE:
@@ -322,22 +339,22 @@ void handleExceptionSignal(int pSignal)
                  * inform the user about the program abort
                  */
                 printf("########################################################################################\n");
-                if(Plib::systemstate.config.report_program_aborts)
-                    printf("POL will exit now. The following will be sent to the POL developers:\n");
+                if(m_programAbortReporting)
+                    printf("POL will exit now. The following will be sent to the POL developers:\n\n");
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
-                printf("Admin contact: %s\n", Pol::Plib::systemstate.config.report_admin_email.c_str());
-                printf("Executable: %s\n", Pol::Plib::systemstate.executable.c_str());
-                printf("Start time: %s\n", Pol::Plib::systemstate.getStartTime().c_str());
+                printf("Admin contact: %s\n", m_programAbortReportingReporter.c_str());
+                printf("Executable: %s\n", PROG_CONFIG::programName().c_str());
+                printf("Start time: %s\n", m_programStart.c_str());
                 printf("Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str());
                 printf("\n");
                 printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
-                printf("Compiler: %s", getCompilerVersion().c_str());
-                printf("Compile time: %s\n", Pol::compiletime);
-                printf("Build target: %s\n", Pol::polbuildtag);
-                printf("Build revision: %s\n", Pol::polverstr);
+                printf("Compiler: %s\n", getCompilerVersion().c_str());
+                printf("Compile time: %s\n", POL_BUILD_TIME);
+                printf("Build target: %s\n", POL_BUILD_TARGET);
+                printf("Build revision: %s\n", POL_VERSION_ID);
                 #ifndef _WIN32
                     printf("GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__);
                 #endif
@@ -347,12 +364,12 @@ void handleExceptionSignal(int pSignal)
                 /**
                  * use the program abort reporting system
                  */
-                if(Plib::systemstate.config.report_program_aborts)
+                if(m_programAbortReporting)
                 {
                     string signalName;
                     string signalDescription;
 
-                    getSignalDescription(pSignal, signalName, signalDescription);
+                    getSignalDescription(signal, signalName, signalDescription);
                     ExceptionParser::reportProgramAbort(tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription + ")");
                 }
 
@@ -398,12 +415,12 @@ string ExceptionParser::getTrace()
     for ( int i = 0; i < stackTraceSize; i++ )
     {
         // get the pointers to the name, offset and end of offset
-        char *beginFuncName = 0;
-        char *beginFuncOffset = 0;
-        char *endFuncOffset = 0;
+        char *beginFuncName = nullptr;
+		char *beginFuncOffset = nullptr;
+		char *endFuncOffset = nullptr;
         char *beginBinaryName = stackTraceList[i];
-        char *beginBinaryOffset = 0;
-        char *endBinaryOffset = 0;
+		char *beginBinaryOffset = nullptr;
+		char *endBinaryOffset = nullptr;
         for (char *entryPointer = stackTraceList[i]; *entryPointer; ++entryPointer)
         {
             if (*entryPointer == '(')
@@ -428,8 +445,14 @@ string ExceptionParser::getTrace()
         // set the default value for the output line
         sprintf(stringBuf, "\n");
 
-        // get the detailed values for the output line
-        if (beginFuncName && beginFuncOffset && endFuncOffset && beginFuncName < beginFuncOffset)
+		bool parse_succeeded = 
+			beginFuncName 
+			&& beginFuncOffset && endFuncOffset
+			&& beginBinaryOffset && endBinaryOffset
+			&& beginFuncName < beginFuncOffset;
+
+        // get the detailed values for the output line if available
+		if (parse_succeeded)
         {
             // terminate the C strings
             *beginFuncName++ = '\0';
@@ -460,6 +483,7 @@ string ExceptionParser::getTrace()
                 stackTraceStep++;
             }
         }else{
+			// print the raw trace, as it is better than nothing
             sprintf(stringBuf, "#%02d %s\n", stackTraceStep, stackTraceList[i]);
             stackTraceStep++;
         }
@@ -471,29 +495,30 @@ string ExceptionParser::getTrace()
     // memory cleanup
     free(funcnName);
     free(stackTraceList);
+	free(stringBuf);
 
     return result;
 }
 
-static void handleSignalLinux(int pSignal, siginfo_t *pSignalInfo, void *pArg)
+static void handleSignalLinux(int signal, siginfo_t *signalInfo, void *arg)
 {
-    (void)pArg;
-    logExceptionSignal(pSignal);
-    if (pSignalInfo != NULL)
+    (void)arg;
+    logExceptionSignal(signal);
+    if (signalInfo != NULL)
     {
-        if(pSignal == SIGSEGV)
+        if(signal == SIGSEGV)
         {
-            if(pSignalInfo->si_addr != NULL)
-                printf("Segmentation fault detected - faulty memory reference at location: %p\n", pSignalInfo->si_addr);
+            if(signalInfo->si_addr != NULL)
+                printf("Segmentation fault detected - faulty memory reference at location: %p\n", signalInfo->si_addr);
             else
                 printf("Segmentation fault detected - null pointer reference\n");
         }
-        if (pSignalInfo->si_errno != 0)
-            printf("This signal occurred because \"%s\"(%d)\n", strerror(pSignalInfo->si_errno), pSignalInfo->si_errno);
-        if (pSignalInfo->si_code != 0)
-            printf("Signal code is %d\n", pSignalInfo->si_code);
+        if (signalInfo->si_errno != 0)
+            printf("This signal occurred because \"%s\"(%d)\n", strerror(signalInfo->si_errno), signalInfo->si_errno);
+        if (signalInfo->si_code != 0)
+            printf("Signal code is %d\n", signalInfo->si_code);
     }
-    handleExceptionSignal(pSignal);
+    ExceptionParser::handleExceptionSignal(signal);
 }
 
 static void handleStackTraceRequestLinux(int signal, siginfo_t *signalInfo, void *arg)
@@ -585,6 +610,19 @@ void ExceptionParser::initGlobalExceptionCatching()
 
 }
 #endif // _WIN32
+
+void ExceptionParser::configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter)
+{
+	m_programAbortReporting = active;
+    m_programAbortReportingServer = server;
+    m_programAbortReportingUrl = url;
+    m_programAbortReportingReporter = reporter;
+}
+
+bool ExceptionParser::programAbortReporting()
+{
+	return m_programAbortReporting;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

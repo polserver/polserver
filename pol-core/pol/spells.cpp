@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/09/20 MuadDib:   docast no longer unhides. Let scripts handle this.
-2010/01/15 Turley:    (Tomi) SpeakPowerWords font and color params
+/** @file
+ *
+ * @par History
+ * - 2009/09/20 MuadDib:   docast no longer unhides. Let scripts handle this.
+ * - 2010/01/15 Turley:    (Tomi) SpeakPowerWords font and color params
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "spells.h"

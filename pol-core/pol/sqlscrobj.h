@@ -1,29 +1,25 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
-
-#ifdef HAVE_MYSQL
 
 #ifndef SQLSCROBJ_H
 #define SQLSCROBJ_H
 
-
-#ifndef BSCRIPT_BOBJECT_H
-#include "../bscript/bobject.h"
+#ifdef WINDOWS
+#include "../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
 #endif
 
+#ifdef HAVE_MYSQL
+
+#include "../bscript/bobject.h"
 #include "../bscript/contiter.h"
 #ifdef _WIN32
-#   define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
-#	include <winsock.h>
-#	include <mysql.h>
+#include "../clib/Header_Windows.h"
+#include <mysql.h>
 #else
 #	include <mysql/mysql.h>
 #endif
@@ -66,7 +62,7 @@ namespace Pol {
       virtual std::string getStringRep() const POL_OVERRIDE { return "SQLRow"; }
       virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + sizeof(MYSQL_FIELD); }
       virtual const char* typeOf() const POL_OVERRIDE { return "SQLRow"; }
-      virtual int typeOfInt() const POL_OVERRIDE { return OTSQLRow; }
+      virtual u8 typeOfInt() const POL_OVERRIDE { return OTSQLRow; }
       virtual bool isTrue() const POL_OVERRIDE { return _row != 0; };
       virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
 
@@ -91,7 +87,7 @@ namespace Pol {
       virtual std::string getStringRep() const POL_OVERRIDE;
       virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + sizeof( MYSQL_FIELD); }
       virtual const char* typeOf() const POL_OVERRIDE { return "SQLResultSet"; }
-      virtual int typeOfInt() const POL_OVERRIDE { return OTSQLResultSet; }
+      virtual u8 typeOfInt() const POL_OVERRIDE { return OTSQLResultSet; }
       virtual bool isTrue() const POL_OVERRIDE;
       // virtual BObjectRef OperSubscript( const BObject& obj );
 
@@ -132,7 +128,7 @@ namespace Pol {
       virtual std::string getStringRep() const POL_OVERRIDE;
       virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this )+_error.capacity(); }
       virtual const char* typeOf() const POL_OVERRIDE { return "SQLConnection"; }
-      virtual int typeOfInt() const POL_OVERRIDE { return OTSQLConnection; }
+      virtual u8 typeOfInt() const POL_OVERRIDE { return OTSQLConnection; }
       virtual bool isTrue() const POL_OVERRIDE;
       // virtual BObjectRef OperSubscript( const BObject& obj );
 

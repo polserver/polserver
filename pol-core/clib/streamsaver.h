@@ -1,5 +1,5 @@
-#ifndef _STREAMSAVER_H
-#define _STREAMSAVER_H
+#ifndef CLIB_STREAMSAVER_H
+#define CLIB_STREAMSAVER_H
 
 #include <boost/noncopyable.hpp>
 #include <iosfwd>
@@ -89,4 +89,4 @@ namespace Pol {
 
   }
 }
-#endif // !_STREAMSAVER_H
+#endif // CLIB_STREAMSAVER_H

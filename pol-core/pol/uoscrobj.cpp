@@ -1,51 +1,48 @@
-/*
-History
-=======
-2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
-2005/03/09 Shinigami: Added Prop Character::Delay_Mod [ms] for WeaponDelay
-2005/04/02 Shinigami: UBoat::script_method_id & UBoat::script_method - added optional realm param
-2005/04/04 Shinigami: Added Prop Character::CreatedAt [PolClock]
-2005/08/29 Shinigami: get-/setspyonclient2 renamed to get-/setclientinfo
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2005/12/09 MuadDib:   Added uclang member for storing UC language from client.
-2005/12/09 MuadDib:   Fixed ~ItemGivenEvent not returning items correctly if the script
-did nothing with it. Was incorrect str/int comparision for times.
-2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
-2006/06/15 Austin:    Added mobile.Privs()
-2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
-2008/07/08 Turley:    Added character.movemode - returns the MoveMode like given in NPCDesc
-Added item.stackable - Is item stackable?
-2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
-2009/07/20 MuadDib:   ReAdded on_facing_change() to MBR_FACING: for items.
-2009/08/06 MuadDib:   Added gotten_by code for items.
-2009/08/31 MuadDib:   Changed layer check on graphic change, excluding mount layer entirely.
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-Relocation of multi related cpp/h
-2009/09/06 Turley:    Removed isUOKR added ClientType
-2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
-2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
-2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
-2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
-MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
-2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
-2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
-2009/12/02 Turley:    gargoyle race support
-2009/12/03 Turley:    added gargoyle flying movemode
-2009/12/21 Turley:    ._method() call fix
-multi support of methodscripts
-2010/01/15 Turley:    (Tomi) season stuff
-2010/02/03 Turley:    MethodScript support for mobiles
-2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
-2012/02/02 Tomi:      Added boat member MBR_MULTIID
-2012/03/26 Tomi:      Added MBR_LASTCOORD
-2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
-2012/04/15 Tomi:      Added MBR_EDITABLE for maps
-2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+/** @file
+ *
+ * @par History
+ * - 2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
+ * - 2005/03/09 Shinigami: Added Prop Character::Delay_Mod [ms] for WeaponDelay
+ * - 2005/04/02 Shinigami: UBoat::script_method_id & UBoat::script_method - added optional realm param
+ * - 2005/04/04 Shinigami: Added Prop Character::CreatedAt [PolClock]
+ * - 2005/08/29 Shinigami: get-/setspyonclient2 renamed to get-/setclientinfo
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2005/12/09 MuadDib:   Added uclang member for storing UC language from client.
+ * - 2005/12/09 MuadDib:   Fixed ~ItemGivenEvent not returning items correctly if the script
+ *                         did nothing with it. Was incorrect str/int comparision for times.
+ * - 2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
+ * - 2006/06/15 Austin:    Added mobile.Privs()
+ * - 2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
+ * - 2008/07/08 Turley:    Added character.movemode - returns the MoveMode like given in NPCDesc
+ *                         Added item.stackable - Is item stackable?
+ * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
+ * - 2009/07/20 MuadDib:   ReAdded on_facing_change() to MBR_FACING: for items.
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ * - 2009/08/31 MuadDib:   Changed layer check on graphic change, excluding mount layer entirely.
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ * - 2009/09/06 Turley:    Removed isUOKR added ClientType
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+ * - 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+ * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+ * -            MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
+ * - 2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
+ * - 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
+ * - 2009/12/02 Turley:    gargoyle race support
+ * - 2009/12/03 Turley:    added gargoyle flying movemode
+ * - 2009/12/21 Turley:    ._method() call fix
+ *                         multi support of methodscripts
+ * - 2010/01/15 Turley:    (Tomi) season stuff
+ * - 2010/02/03 Turley:    MethodScript support for mobiles
+ * - 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+ * - 2012/02/02 Tomi:      Added boat member MBR_MULTIID
+ * - 2012/03/26 Tomi:      Added MBR_LASTCOORD
+ * - 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
+ * - 2012/04/15 Tomi:      Added MBR_EDITABLE for maps
+ * - 2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+ */
 
-Notes
-=======
-
-*/
 
 #include "uoscrobj.h"
 
@@ -72,12 +69,12 @@ Notes
 #include "objtype.h"
 #include "polclass.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "spelbook.h"
 #include "statmsg.h"
 #include "syshookscript.h"
 #include "tooltips.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "item/weapon.h"
 #include "item/wepntmpl.h"
 #include "uoexhelp.h"
@@ -88,6 +85,7 @@ Notes
 #include "network/clienttransmit.h"
 #include "eventid.h"
 #include "globals/uvars.h"
+#include "unicode.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/dict.h"
@@ -98,12 +96,9 @@ Notes
 #include "../bscript/objmethods.h"
 #include "../bscript/bobject.h"
 
-#include "../plib/realm.h"
-
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/unicode.h"
 
 namespace Pol {
   namespace Module {
@@ -122,7 +117,7 @@ namespace Pol {
 	{
 	  return "MobileRef";
 	}
-	int ECharacterRefObjImp::typeOfInt() const
+	u8 ECharacterRefObjImp::typeOfInt() const
 	{
 	  return OTMobileRef;
 	}
@@ -236,7 +231,7 @@ namespace Pol {
 	  return ( !obj_->orphan() && obj_->logged_in );
 	}
 
-	bool ECharacterRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -256,7 +251,7 @@ namespace Pol {
 		return false;
 	}
 
-	bool ECharacterRefObjImp::isLessThan( const BObjectImp& objimp ) const
+	bool ECharacterRefObjImp::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -274,15 +269,14 @@ namespace Pol {
 		else
 		  return false;
 	  }
-	  else
-		return false;
+      return base::operator<( objimp );
 	}
 
 	const char* EOfflineCharacterRefObjImp::typeOf() const
 	{
 	  return "OfflineMobileRef";
 	}
-	int EOfflineCharacterRefObjImp::typeOfInt() const
+	u8 EOfflineCharacterRefObjImp::typeOfInt() const
 	{
 	  return OTOfflineMobileRef;
 	}
@@ -301,7 +295,7 @@ namespace Pol {
 	{
 	  return "ItemRef";
 	}
-	int EItemRefObjImp::typeOfInt() const
+	u8 EItemRefObjImp::typeOfInt() const
 	{
 	  return OTItemRef;
 	}
@@ -417,7 +411,7 @@ namespace Pol {
 	  return ( !obj_->orphan() );
 	}
 
-	bool EItemRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EItemRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -437,7 +431,7 @@ namespace Pol {
 		return false;
 	}
 
-	bool EItemRefObjImp::isLessThan( const BObjectImp& objimp ) const
+	bool EItemRefObjImp::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -453,15 +447,15 @@ namespace Pol {
 		else
 		  return ( &eitemrefobjimp_type < aob->object_type() );
 	  }
-	  else
-		return false;
+
+      return base::operator<( objimp );
 	}
 
 	const char* EUBoatRefObjImp::typeOf() const
 	{
 	  return "BoatRef";
 	}
-	int EUBoatRefObjImp::typeOfInt() const
+	u8 EUBoatRefObjImp::typeOfInt() const
 	{
 	  return OTBoatRef;
 	}
@@ -550,7 +544,7 @@ namespace Pol {
 	  return ( !obj_->orphan() );
 	}
 
-	bool EUBoatRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -624,7 +618,7 @@ namespace Pol {
 	{
 	  return "MultiRef";
 	}
-	int EMultiRefObjImp::typeOfInt() const
+	u8 EMultiRefObjImp::typeOfInt() const
 	{
 	  return OTMultiRef;
 	}
@@ -689,7 +683,7 @@ namespace Pol {
 	  return ( !obj_->orphan() );
 	}
 
-	bool EMultiRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {
@@ -921,6 +915,11 @@ namespace Pol {
 		case MBR_MAXHP_MOD: return new BLong( maxhp_mod() ); break;
 		case MBR_MAXHP: return new BLong( static_cast<int>( maxhp() * getQuality() ) ); break;
 		case MBR_NAME_SUFFIX: return new String( name_suffix() ); break;
+        case MBR_HOUSE:
+          if ( house() != nullptr )
+            return house()->make_ref();
+          return new BError( "This is a not component of any house" );
+          break;
 		default: return NULL;
 	  }
 	}
@@ -1200,7 +1199,7 @@ namespace Pol {
 			return new BError( "Item is in use" );
 
 		  // Validate where things are going
-		  Plib::Realm* realm = Core::find_realm( realm_name->value() );
+		  Realms::Realm* realm = Core::find_realm( realm_name->value() );
 		  if ( !realm )
 			return new BError( "Realm not found" );
 		  else if ( !realm->valid( x, y, z ) )
@@ -2622,7 +2621,7 @@ namespace Pol {
               return new BError("Unicode array exceeds maximum size.");
             u16 cltext[(SPEECH_MAX_LEN + 1)];
             size_t textlen = oText->ref_arr.size();
-            if( ! Clib::convertArrayToUC(oText, cltext, textlen, false) )
+            if( ! Core::convertArrayToUC(oText, cltext, textlen, false) )
               return new BError("Invalid value in Unicode array.");
 
             // Now convert it into a vector of u32
@@ -3250,7 +3249,7 @@ namespace Pol {
                   ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
                   ex.getStringParam( 3, strrealm ) )
               {
-                Plib::Realm* realm = Core::find_realm( strrealm->value() );
+                Realms::Realm* realm = Core::find_realm( strrealm->value() );
                 if ( !realm )
                   return new BError( "Realm not found" );
 
@@ -3767,7 +3766,7 @@ namespace Pol {
     {
       return "ClientRef";
     }
-    int EClientRefObjImp::typeOfInt() const
+    u8 EClientRefObjImp::typeOfInt() const
     {
       return OTClientRef;
     }
@@ -3782,7 +3781,7 @@ namespace Pol {
       return ( ( obj_.ConstPtr() != NULL ) && obj_->isConnected() );
     }
 
-    bool EClientRefObjImp::isEqual( const BObjectImp& objimp ) const
+    bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
     {
       if ( objimp.isa( BObjectImp::OTApplicObj ) )
       {
@@ -3948,7 +3947,7 @@ namespace Pol {
       unsigned wlen = 0;
       while ( wspeech[wlen] != L'\0' )
         ++wlen;
-      if ( !Clib::convertUCtoArray( wspeech, arr, wlen, true ) )
+      if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
         addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
       else
       {
@@ -3968,7 +3967,7 @@ namespace Pol {
       unsigned wlen = 0;
       while ( wspeech[wlen] != L'\0' )
         ++wlen;
-      if ( !Clib::convertUCtoArray( wspeech, arr, wlen, true ) )
+      if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
         addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
       else
       {

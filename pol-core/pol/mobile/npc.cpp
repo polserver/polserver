@@ -1,28 +1,25 @@
-/*
-History
-=======
-2005/06/15 Shinigami: added CanMove - checks if an NPC can move in given direction
-                      (IsLegalMove works in a different way and is used for bounding boxes only)
-2006/01/18 Shinigami: set Master first and then start Script in NPC::readNpcProperties
-2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
-2006/09/17 Shinigami: send_event() will return error "Event queue is full, discarding event"
-2009/03/27 MuadDib:   NPC::inform_moved() && NPC::inform_imoved()
-                      split the left/entered area to fix bug where one would trigger when not enabled.
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/25 Shinigami: STLport-5.2.1 fix: params not used
-                      STLport-5.2.1 fix: init order changed of damaged_sound
-2009/09/15 MuadDib:   Cleanup from registered houses on destroy
-2009/09/18 MuadDib:   Adding save/load of registered house serial
-2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
-2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
-2009/10/23 Turley:    fixed OPPONENT_MOVED,LEFTAREA,ENTEREDAREA
-2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
-2010/01/15 Turley:    (Tomi) SaveOnExit as npcdesc entry
+/** @file
+ *
+ * @par History
+ * - 2005/06/15 Shinigami: added CanMove - checks if an NPC can move in given direction
+ *                         (IsLegalMove works in a different way and is used for bounding boxes only)
+ * - 2006/01/18 Shinigami: set Master first and then start Script in NPC::readNpcProperties
+ * - 2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
+ * - 2006/09/17 Shinigami: send_event() will return error "Event queue is full, discarding event"
+ * - 2009/03/27 MuadDib:   NPC::inform_moved() && NPC::inform_imoved()
+ *                         split the left/entered area to fix bug where one would trigger when not enabled.
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: params not used
+ *                         STLport-5.2.1 fix: init order changed of damaged_sound
+ * - 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
+ * - 2009/09/18 MuadDib:   Adding save/load of registered house serial
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
+ * - 2009/10/23 Turley:    fixed OPPONENT_MOVED,LEFTAREA,ENTEREDAREA
+ * - 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
+ * - 2010/01/15 Turley:    (Tomi) SaveOnExit as npcdesc entry
+ */
 
-Notes
-=======
-
-*/
 #include "npc.h"
 #include "../npctmpl.h"
 #include "../module/npcmod.h"
@@ -48,6 +45,7 @@ Notes
 #include "../objtype.h"
 #include "../pktout.h"
 #include "../poltype.h"
+#include "../realms/realm.h"
 #include "../realms.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -59,9 +57,9 @@ Notes
 #include "../ufuncinl.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
-#include "../uofile.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../unicode.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
@@ -70,11 +68,9 @@ Notes
 #include "../../bscript/impstr.h"
 #include "../../bscript/modules.h"
 
-#include "../../plib/realm.h"
-
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib.h"
-#include "../../clib/endian.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
@@ -82,7 +78,6 @@ Notes
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../clib/strutil.h"
-#include "../../clib/unicode.h"
 
 #include <stdexcept>
 
@@ -734,7 +729,7 @@ namespace Pol {
 	  if ( Clib::FileExists( "scripts/misc/death.ecl" ) )
 		Core::start_script( "misc/death", new Module::EItemRefObjImp( corpse ) );
 
-	  ClrCharacterWorldPosition( this, Plib::WorldChangeReason::NpcDeath );
+	  ClrCharacterWorldPosition( this, Realms::WorldChangeReason::NpcDeath );
 	  if ( ex != NULL )
 	  {
 		// this will force the execution engine to stop running this script immediately

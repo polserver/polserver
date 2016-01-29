@@ -1,12 +1,9 @@
-/*
-History
-=======
-2005/07/25 Shinigami: added min_value and max_value to populate Weapon-Descriptor
+/** @file
+ *
+ * @par History
+ * - 2005/07/25 Shinigami: added min_value and max_value to populate Weapon-Descriptor
+ */
 
-Notes
-=======
-
-*/
 
 #include "dice.h"
 

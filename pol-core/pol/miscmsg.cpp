@@ -1,26 +1,23 @@
-/*
-History
-=======
-2005/11/25 MuadDib:   Added PKTBI_BF::TYPE_SESPAM: to do away with spam.
-2005/11/23 MuadDib:   Altered handle_mode_set for 0x72 Packet. Nows reads
-                      from combat.cfg for warmode_wait object. Sends the
-                      0x77 Packet and returns 0 when out of timer.
-2005/12/09 MuadDib:   Added TYPE_CLIENT_LANGUAGE for setting member uclang.
-2006/05/24 Shinigami: Added PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER to support Elfs
-2006/05/30 Shinigami: Changed params of character_race_changer_handler()
-2009/07/23 MuadDib:   updates for new Enum::Packet IDs
-2009/08/14 Turley:    Added PKTBI_BF::TYPE_SCREEN_SIZE & TYPE_CLOSED_STATUS_GUMP (anti spam)
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-                      Added 0xE1 packet (UO3D clienttype packet)
-2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
-2009/12/03 Turley:    toggle gargoyle flying support
+/** @file
+ *
+ * @par History
+ * - 2005/11/25 MuadDib:   Added PKTBI_BF::TYPE_SESPAM: to do away with spam.
+ * - 2005/11/23 MuadDib:   Altered handle_mode_set for 0x72 Packet. Nows reads
+ *                         from combat.cfg for warmode_wait object. Sends the
+ *                         0x77 Packet and returns 0 when out of timer.
+ * - 2005/12/09 MuadDib:   Added TYPE_CLIENT_LANGUAGE for setting member uclang.
+ * - 2006/05/24 Shinigami: Added PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER to support Elfs
+ * - 2006/05/30 Shinigami: Changed params of character_race_changer_handler()
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet IDs
+ * - 2009/08/14 Turley:    Added PKTBI_BF::TYPE_SCREEN_SIZE & TYPE_CLOSED_STATUS_GUMP (anti spam)
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ *                         Added 0xE1 packet (UO3D clienttype packet)
+ * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
+ * - 2009/12/03 Turley:    toggle gargoyle flying support
+ */
 
-Notes
-=======
-
-*/
 
 /* MISCMSG.CPP: Miscellaneous message handlers.  Handlers shouldn't stay here long, 
    only until they find a better home - but this is better than putting them in POL.CPP. */
@@ -43,17 +40,17 @@ Notes
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "sockio.h"
+#include "unicode.h"
 
 #include "scrstore.h"
 #include "polcfg.h"
 
 #include "../clib/clib.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
-#include "../clib/unicode.h"
 #include "../plib/systemstate.h"
 
 
@@ -189,7 +186,7 @@ namespace Pol {
 
           Bscript::ObjArray* arr;
 
-          if ( Clib::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+          if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
             client->chr->start_script( prog.get( ), false, new Module::ECharacterRefObjImp( mobile ), new Bscript::BLong( msg->mode ), arr );
 		}
 	  }

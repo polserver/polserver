@@ -1,17 +1,14 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2007/04/08 MuadDib:   Changed Realms() to get BObject IMP, and check for string
-                      explicitly.
-2009/11/30 Turley:    added MD5Encrypt(string)
-2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2007/04/08 MuadDib:   Changed Realms() to get BObject IMP, and check for string
+ *                         explicitly.
+ * - 2009/11/30 Turley:    added MD5Encrypt(string)
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+ */
 
-Notes
-=======
-
-*/
 
 #include "polsystemmod.h"
 
@@ -23,7 +20,7 @@ Notes
 #include "../../bscript/impstr.h"
 
 #include "../../plib/pkg.h"
-#include "../../plib/realm.h"
+
 #include "../../plib/systemstate.h"
 
 #include "../core.h"
@@ -33,6 +30,7 @@ Notes
 #include "../listenpt.h"
 #include "../polclock.h"
 #include "../realms.h"
+#include "../realms/realm.h"
 #include "../uoexhelp.h"
 #include "../packetscrobj.h"
 #include "../uobject.h"
@@ -41,7 +39,7 @@ Notes
 
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
-#include "../../clib/MD5.h"
+#include "../../clib/clib_MD5.h"
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
 
@@ -77,7 +75,7 @@ namespace Pol {
     public:
       explicit PackageObjImp( const PackagePtrHolder& other );
       virtual const char* typeOf() const POL_OVERRIDE;
-      virtual int typeOfInt() const POL_OVERRIDE;
+      virtual u8 typeOfInt() const POL_OVERRIDE;
       virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
       virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
       virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
@@ -121,7 +119,7 @@ namespace Pol {
 	{
 	  return "Package";
 	}
-	int PackageObjImp::typeOfInt() const
+	u8 PackageObjImp::typeOfInt() const
 	{
 	  return OTPackage;
 	}
@@ -294,7 +292,7 @@ namespace Pol {
       return Core::GetListenPoints( );
 	}
 
-	BStruct* SetupRealmDetails( Plib::Realm* realm )
+	BStruct* SetupRealmDetails( Realms::Realm* realm )
 	{
 	  std::unique_ptr<BStruct> details( new BStruct() );
 	  details->addMember( "width", new BLong( realm->width() ) );
@@ -325,7 +323,7 @@ namespace Pol {
 
 	  if ( realm_name->length() > 0 )
 	  {
-        Plib::Realm* realm = Core::find_realm( realm_name->value( ) );
+        Realms::Realm* realm = Core::find_realm( realm_name->value( ) );
 		if ( !realm )
 		  return new BError( "Realm not found." );
 		else
@@ -334,7 +332,7 @@ namespace Pol {
 	  else
 	  {
 		BDictionary* dict = new BDictionary;
-        std::vector<Plib::Realm*>::iterator itr;
+        std::vector<Realms::Realm*>::iterator itr;
         for ( itr = Core::gamestate.Realms.begin( ); itr != Core::gamestate.Realms.end( ); ++itr )
 		{
 		  dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
@@ -418,7 +416,7 @@ namespace Pol {
 	  {
 		return new BError( "Invalid parameter" );
 	  }
-	  Plib::Realm* baserealm = Core::find_realm( base->value() );
+	  Realms::Realm* baserealm = Core::find_realm( base->value() );
 	  if ( !baserealm )
 		return new BError( "BaseRealm not found." );
 	  if ( baserealm->is_shadowrealm )
@@ -444,7 +442,7 @@ namespace Pol {
 	  if ( !( getStringParam( 0, realm_name ) ) )
 		return new BError( "Invalid parameter" );
 
-      Plib::Realm* realm = Core::find_realm( realm_name->value( ) );
+      Realms::Realm* realm = Core::find_realm( realm_name->value( ) );
 
 	  if ( !realm )
 		return new BError( "Realm not found." );

@@ -1,13 +1,9 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr changed little bit
+ */
 
-2009/08/25 Shinigami: STLport-5.2.1 fix: ParseErrorStr changed little bit
-
-Notes
-=======
-
-*/
 
 #ifndef __PARSER_H
 #define __PARSER_H
@@ -163,7 +159,7 @@ namespace Pol {
       virtual int isUserFunc(Token& tok, UserFunction **userfunc);
 
 	  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token * ) POL_OVERRIDE;
-	  int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL );
+	  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL ) POL_OVERRIDE;
 
 	  bool callingMethod( CompilerContext& ctx );
 

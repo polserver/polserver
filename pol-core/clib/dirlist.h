@@ -1,27 +1,24 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef CLIB_DIRLIST_H
 #define CLIB_DIRLIST_H
 
 #include <string>
 
-#ifdef _WIN32
-#   define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
-#else
-#	include <sys/types.h>
-#	include <dirent.h>
+#include "Header_Windows.h"
+
+#ifndef WINDOWS
+#include <sys/types.h>
+#include <dirent.h>
 #endif
+
 namespace Pol {
   namespace Clib {
-	class DirList
+    class DirList
 	{
 	public:
 	  explicit DirList( const char* path );

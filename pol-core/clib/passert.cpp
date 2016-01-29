@@ -1,31 +1,25 @@
-/*
-History
-=======
-2005/01/17 Shinigami: passert_failed extended by param "reason" (see passert*_r macros)
-2005/09/16 Shinigami: scripts_thread_script* moved to passert
-2006/11/26 Shinigami: fixed a crash in passert_failed
+/** @file
+ *
+ * @par History
+ * - 2005/01/17 Shinigami: passert_failed extended by param "reason" (see passert*_r macros)
+ * - 2005/09/16 Shinigami: scripts_thread_script* moved to passert
+ * - 2006/11/26 Shinigami: fixed a crash in passert_failed
+ */
 
-Notes
-=======
-
-*/
 
 #include "passert.h"
 
-#include "../plib/systemstate.h"
 #include "Debugging/ExceptionParser.h"
 
 #include "esignal.h"
 #include "logfacility.h"
-#include "progver.h"
 #include "stlutil.h"
 #include "threadhelp.h"
 #include <cstring>
 
-#ifdef _WIN32
-#	include <windows.h>
-#	include "mdumpimp.h"    
-#pragma warning(disable: 4996) // unsafe sprintf
+#ifdef WINDOWS
+#include "Header_Windows.h"
+#include "mdumpimp.h"
 #else
 #include <signal.h>
 #include <unistd.h>
@@ -64,8 +58,7 @@ namespace Pol {
 	{
       std::string stack_trace = Clib::ExceptionParser::getTrace();
       fmt::Writer tmp;
-      tmp << "=== Stack Backtrace ===\nBuild: " << progverstr << " (" << buildtagstr << ")\nStack Backtrace:\n";
-	  tmp << stack_trace;
+      tmp << "=== Stack Backtrace ===\n" << stack_trace;
 	  
       POLLOG_ERROR << tmp.str() << "\n";
       if (complete)
@@ -101,7 +94,7 @@ namespace Pol {
       /**
        * use the program abort reporting system
        */
-      if(Plib::systemstate.config.report_program_aborts)
+      if(Pol::Clib::ExceptionParser::programAbortReporting())
       {
     	  char reportedReason[512];
     	  if(sprintf(reportedReason, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr, reason.c_str(),file, line) > 0)

@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 #ifndef __LOADUNLD_H
 #define __LOADUNLD_H
 namespace Pol {

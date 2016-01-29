@@ -1,22 +1,19 @@
-/*
-History
-=======
-10/22/2008 Luth:      on_insert_add_item() on_insert_script now called with all appropriate parameters
-2008/12/17 MuadDib:   unequipping item now resets item->layer to 0
-2009/07/20 MuadDib:   find_addable_stack() now runs correct check to see if can add to an existing stack.
-2009/08/07 MuadDib:   Added Corpse checks in on_remove and on_insert_add to add to corpse layers for equips.
-                      Create vector for item storage called layer_list_ for corpses, to work as storage to show
-					  items listed as "equipped". Also created necessary functions to make use of this like
-					  WornItem Container has.
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/11/12 Turley:    Changed "can add"-functions to only check weight recursive
-2009/11/17 Turley:    Fixed problem with sending remove object packet
-2011/11/12 Tomi:	  added extobj.wornitems_container
+/** @file
+ *
+ * @par History
+ * - 10/22/2008 Luth:      on_insert_add_item() on_insert_script now called with all appropriate parameters
+ * - 2008/12/17 MuadDib:   unequipping item now resets item->layer to 0
+ * - 2009/07/20 MuadDib:   find_addable_stack() now runs correct check to see if can add to an existing stack.
+ * - 2009/08/07 MuadDib:   Added Corpse checks in on_remove and on_insert_add to add to corpse layers for equips.
+ *                         Create vector for item storage called layer_list_ for corpses, to work as storage to show
+ *                         items listed as "equipped". Also created necessary functions to make use of this like
+ *                         WornItem Container has.
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/11/12 Turley:    Changed "can add"-functions to only check weight recursive
+ * - 2009/11/17 Turley:    Fixed problem with sending remove object packet
+ * - 2011/11/12 Tomi:      added extobj.wornitems_container
+ */
 
-Notes
-=======
-
-*/
 
 #include "containr.h"
 

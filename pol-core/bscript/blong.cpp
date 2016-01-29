@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #include "bobject.h"
 #include "berror.h"
@@ -94,7 +91,7 @@ namespace Pol {
 	  return ( lval_ != 0 );
 	}
 
-	bool BLong::isEqual( const BObjectImp& objimp ) const
+	bool BLong::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTLong ) )
 	  {
@@ -110,7 +107,7 @@ namespace Pol {
 	  }
 	}
 
-	bool BLong::isLessThan( const BObjectImp& objimp ) const
+	bool BLong::operator<( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( OTLong ) )
 	  {
@@ -120,27 +117,8 @@ namespace Pol {
 	  {
 		return lval_ < ( (Double&)objimp ).value();
 	  }
-	  else
-	  {
-		return false;
-	  }
-	}
 
-	bool BLong::isLE( const BObjectImp& objimp ) const
-	{
-	  return objimp.isGE( lval_ );
-	}
-	bool BLong::isLT( const BObjectImp& objimp ) const
-	{
-	  return objimp.isGT( lval_ );
-	}
-	bool BLong::isGT( int val ) const
-	{
-	  return ( lval_ > val );
-	}
-	bool BLong::isGE( int val ) const
-	{
-	  return ( lval_ >= val );
+      return base::operator<( objimp );
 	}
 
     std::string BLong::getStringRep() const

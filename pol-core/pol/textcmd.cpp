@@ -1,21 +1,16 @@
-/*
-History
-=======
-2006/06/15 Austin:    Removed .set .priv and .priv
-2006/05/30 Shinigami: fixed a smaller mistype in textcmd_startlog()
-                      set correct time stamp in textcmd_startlog() and textcmd_stoplog()
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-2009/09/10 MuadDib:   Cleanup of depreciated internal text commands.
-2009/10/17 Turley:    check for priv "plogany" enabled instead of existence - Tomi
+/** @file
+ *
+ * @par History
+ * - 2006/06/15 Austin:    Removed .set .priv and .priv
+ * - 2006/05/30 Shinigami: fixed a smaller mistype in textcmd_startlog()
+ *                         set correct time stamp in textcmd_startlog() and textcmd_stoplog()
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ * - 2009/09/10 MuadDib:   Cleanup of depreciated internal text commands.
+ * - 2009/10/17 Turley:    check for priv "plogany" enabled instead of existence - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "textcmd.h"
-
-#include "../plib/realm.h"
 
 #include "accounts/account.h"
 #include "mobile/charactr.h"
@@ -40,6 +35,7 @@ Notes
 #include "polclock.h"
 #include "polsem.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "schedule.h"
 #include "scrsched.h"
 #include "scrstore.h"
@@ -49,13 +45,13 @@ Notes
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uobjhelp.h"
-#include "uofile.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
 #include "globals/state.h"
 #include "uworld.h"
 #include "repsys.h"
 #include "fnsearch.h"
+#include "unicode.h"
 
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
@@ -65,7 +61,7 @@ Notes
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
@@ -74,7 +70,6 @@ Notes
 #include "../clib/strutil.h"
 #include "../clib/spinlock.h"
 #include "../clib/threadhelp.h"
-#include "../clib/unicode.h"
 
 #include <map>
 #include <string>
@@ -499,7 +494,7 @@ namespace Pol {
 	}
 
 
-	bool check_single_zone_item_integrity( int, int, Plib::Realm* );
+	bool check_single_zone_item_integrity( int, int, Realms::Realm* );
     void textcmd_singlezone_integ_item( Network::Client* client )
 	{
 	  unsigned short wx, wy;
@@ -650,7 +645,7 @@ namespace Pol {
 				// Need to calc length with a loop (coz linux is a PITA with 4-byte unicode!)
 				while ( *( wtext + woffset + wtlen ) )
 				  ++wtlen;
-				UCconv = Clib::convertUCtoArray( wtext + woffset, arr,
+				UCconv = Core::convertUCtoArray( wtext + woffset, arr,
 										   wtlen,
 										   true ); // convert back with ctBEu16()
 				if ( UCconv )

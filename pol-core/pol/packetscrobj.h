@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-
-Notes
-=======
-
-*/
 
 #ifndef PACKETSCROBJ_H
 #define PACKETSCROBJ_H
@@ -41,7 +37,7 @@ namespace Pol {
 	  Bscript::BObjectImp* SetSize( u16 newsize, bool giveReturn );
       virtual size_t sizeEstimate( ) const POL_OVERRIDE { return sizeof( *this ) + 3 * sizeof(void*) * buffer.capacity( ) * sizeof( unsigned char ); }
 	  virtual const char* typeOf() const POL_OVERRIDE { return "Packet"; }
-	  virtual int typeOfInt() const POL_OVERRIDE { return OTPacket; }
+	  virtual u8 typeOfInt() const POL_OVERRIDE { return OTPacket; }
 
 	  bool is_variable_length;
 	};

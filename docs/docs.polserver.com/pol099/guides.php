@@ -1,7 +1,7 @@
 <?php
 	require_once 'include/global.inc';
 
-	$guidefile = $offline ? $type : $_GET['guidefile'];
+	$guidefile = $offline ? $type : httpget('guidefile');
 
 	switch( $guidefile ) {
 	case 'escriptguide':

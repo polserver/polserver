@@ -103,7 +103,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-win32\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;NOACCESS_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;NOACCESS_CHECKS;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
@@ -277,7 +277,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\plib\pkg.cpp" />
-    <ClCompile Include="..\plib\polver.cpp" />
     <ClCompile Include="..\plib\systemstate.cpp" />
     <ClCompile Include="..\pol\binaryfilescrobj.cpp" />
     <ClCompile Include="..\pol\cfgrepos.cpp" />
@@ -292,14 +291,13 @@
     <ClCompile Include="..\pol\module\utilmod.cpp" />
     <ClCompile Include="..\pol\proplist.cpp" />
     <ClCompile Include="..\pol\xmlfilescrobj.cpp" />
-    <ClCompile Include="runecl.cpp" />
+    <ClCompile Include="RunEclMain.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\plib\pkg.h" />
-    <ClInclude Include="..\plib\polver.h" />
     <ClInclude Include="..\plib\systemstate.h" />
     <ClInclude Include="..\pol\binaryfilescrobj.h" />
     <ClInclude Include="..\pol\cfgrepos.h" />
@@ -314,6 +312,7 @@
     <ClInclude Include="..\pol\module\utilmod.h" />
     <ClInclude Include="..\pol\proplist.h" />
     <ClInclude Include="..\pol\xmlfilescrobj.h" />
+    <ClInclude Include="RunEclMain.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>

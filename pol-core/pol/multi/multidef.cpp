@@ -1,23 +1,18 @@
-/*
-History
-=======
-2009/09/01 Turley:    VS2005/2008 Support moved inline MultiDef::getkey to .h
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/09/01 Turley:    VS2005/2008 Support moved inline MultiDef::getkey to .h
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #include "multidef.h"
 
+#include "boat.h"
+
 #include "../item/itemdesc.h"
 #include "../objtype.h"
-#include "../udatfile.h"
-#include "../uofilei.h"
-#include "../uofile.h"
 #include "../ustruct.h"
-#include "../uofilei.h"
 #include "../globals/uvars.h"
 #include "../globals/multidefs.h"
 

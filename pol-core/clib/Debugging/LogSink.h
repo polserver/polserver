@@ -3,11 +3,12 @@ ATTENTION:
 This header is part of the PCH
 Remove the include in all StdAfx.h files or live with the consequences :)
 */
-#ifndef LOG_SINK_H
-#define LOG_SINK_H
+#ifndef CLIB_LOG_SINK_H
+#define CLIB_LOG_SINK_H
+
+#include "../../../lib/format/format.h"
 
 #include <boost/noncopyable.hpp>
-#include "../../lib/format/format.h" //TODO: simplify this after cleanup of build system
 #include <string>
 
 namespace Pol{ namespace Clib{ namespace Logging{

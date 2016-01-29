@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef PLIB_REALMDESCRIPTOR_H
 #define PLIB_REALMDESCRIPTOR_H

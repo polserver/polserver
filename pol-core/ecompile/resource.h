@@ -1,12 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-
-Notes
-=======
-
-*/
 
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.

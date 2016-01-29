@@ -1,15 +1,12 @@
-/*
-History
-=======
-2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2009/09/22 Turley:    repsys param to applydamage
-2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
-2010/01/15 Turley:    (Tomi) send damage param ApplyDamage/ApplyRawDamage
+/** @file
+ *
+ * @par History
+ * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2009/09/22 Turley:    repsys param to applydamage
+ * - 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
+ * - 2010/01/15 Turley:    (Tomi) send damage param ApplyDamage/ApplyRawDamage
+ */
 
-Notes
-=======
-
-*/
 
 #include "vitalmod.h"
 

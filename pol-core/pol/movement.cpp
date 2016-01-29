@@ -1,14 +1,11 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2010/01/22 Turley:    Speedhack Prevention System
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2010/01/22 Turley:    Speedhack Prevention System
+ */
 
-Notes
-=======
-
-*/
 
 #include "mobile/charactr.h"
 

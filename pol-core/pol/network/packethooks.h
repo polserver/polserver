@@ -1,15 +1,13 @@
-/*
-History
-=======
-2009/08/03 MuadDib:   Upgraded ph6017 and is6017 to version, and integer instead of bool.
+/** @file
+ *
+ * @par History
+ * - 2009/08/03 MuadDib:   Upgraded ph6017 and is6017 to version, and integer instead of bool.
+ *
+ * @note Version member: Positive Integer. This is used to translate the "version" of the packet structure
+ * to the correct internal core Message Handler (Default 1, which translates to use handler[]). Each
+ * new Handler added to the core needs a new Version number here. As of 8/3/09 there is only 2.
+ */
 
-Notes
-=======
-Version member: Positive Integer. This is used to translate the "version" of the packet structure
-to the correct internal core Message Handler (Default 1, which translates to use handler[]). Each
-new Handler added to the core needs a new Version number here. As of 8/3/09 there is only 2.
-
-*/
 
 #ifndef PACKETHOOKS_H
 #define PACKETHOOKS_H

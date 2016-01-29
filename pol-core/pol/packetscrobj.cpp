@@ -1,18 +1,15 @@
-/*
-History
-=======
-2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
-2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
-2006/09/16 Shinigami: fixed Memory Overwrite Bug in packet.SetUnicodeString* -> convertArrayToUC
-2008/12/17 MuadDib:   fixed Memory Leak in SetSize() where it returns BObjects back
-                      to calling Methods where they do not handle a return value.
-2009/08/25 Shinigami: STLport-5.2.1 fix: oldsize not used
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
+ * - 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
+ * - 2006/09/16 Shinigami: fixed Memory Overwrite Bug in packet.SetUnicodeString* -> convertArrayToUC
+ * - 2008/12/17 MuadDib:   fixed Memory Leak in SetSize() where it returns BObjects back
+ * - to calling Methods where they do not handle a return value.
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: oldsize not used
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "packetscrobj.h"
 
@@ -24,6 +21,7 @@ Notes
 #include "realms.h"
 #include "uoexhelp.h"
 #include "uworld.h"
+#include "unicode.h"
 #include "globals/network.h"
 
 #include "../bscript/executor.h"
@@ -32,10 +30,9 @@ Notes
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/unicode.h"
 
 #include <iomanip>
 
@@ -135,7 +132,7 @@ namespace Pol {
 			  ex.getParam( 2, range ) &&
 			  ex.getStringParam( 3, strrealm ) )
 		  {
-			Plib::Realm* realm = find_realm( strrealm->value() );
+			Realms::Realm* realm = find_realm( strrealm->value() );
 			if ( !realm ) return new BError( "Realm not found" );
 			if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
@@ -260,7 +257,7 @@ namespace Pol {
 			  return new BError( "Offset too high" );
 
 			ObjArray* arr;
-			Clib::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, true );
+			Core::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, true );
 			return arr;
 		  }
 		  break;
@@ -278,7 +275,7 @@ namespace Pol {
 			  return new BError( "Offset too high" );
 
 			ObjArray* arr;
-			Clib::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, false );
+			Core::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, false );
 			return arr;
 		  }
 		  break;
@@ -464,7 +461,7 @@ namespace Pol {
 						return new BError( "Offset value out of range on a fixed length packet" );;
 				  }
 				}
-				if (!Clib::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen, true, nullterm ? true : false ))
+				if (!Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen, true, nullterm ? true : false ))
 					return new BError("Invalid value in Unicode array.");
 	
 				return new BLong( 1 );
@@ -490,7 +487,7 @@ namespace Pol {
 					return new BError( "Offset value out of range on a fixed length packet" );;
 				  }
 				}
-				if (!Clib::convertArrayToUC(unitext, reinterpret_cast<u16*>(&buffer[offset]), textlen, false, nullterm ? true : false))
+				if (!Core::convertArrayToUC(unitext, reinterpret_cast<u16*>(&buffer[offset]), textlen, false, nullterm ? true : false))
           return new BError("Invalid value in Unicode array.");
 				return new BLong( 1 );
 		  }

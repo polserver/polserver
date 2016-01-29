@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef CLIB_FILEUTIL_H
 #define CLIB_FILEUTIL_H

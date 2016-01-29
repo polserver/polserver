@@ -1,26 +1,18 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #include "dirlist.h"
-
-#ifdef _MSC_VER
-#pragma warning(disable:4996) // disable deprecation warnings for getcwd, chdir
-#endif
+#include "Header_Windows.h"
 
 #ifdef __unix__
 #include <unistd.h>
 #endif
 
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h> 
+#ifdef WINDOWS
 
 namespace Pol {
   namespace Clib {

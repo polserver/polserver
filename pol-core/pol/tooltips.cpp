@@ -1,17 +1,14 @@
-/*
-History
-=======
-2007/04/07 MuadDib:   send_object_cache_to_inrange updated from just UObject* to
-                      const UObject* for compatibility across more areas.
-2009/01/03 MuadDib:   Some generic recoding to remove useless code. O_O
-2009/01/27 MuadDib:   Rewrote Obj Cache Building/Sending.
-2009/07/26 MuadDib:   Packet struct refactoring.
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+/** @file
+ *
+ * @par History
+ * - 2007/04/07 MuadDib:   send_object_cache_to_inrange updated from just UObject* to
+ *                         const UObject* for compatibility across more areas.
+ * - 2009/01/03 MuadDib:   Some generic recoding to remove useless code. O_O
+ * - 2009/01/27 MuadDib:   Rewrote Obj Cache Building/Sending.
+ * - 2009/07/26 MuadDib:   Packet struct refactoring.
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ */
 
-Notes
-=======
-
-*/
 
 #include "tooltips.h"
 

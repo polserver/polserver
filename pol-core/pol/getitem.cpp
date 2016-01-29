@@ -1,23 +1,20 @@
-/*
-History
-=======
-2005/12/05 MuadDib:   Added set_decay_after(60) when item is approved to be "gotten" by
-                      line 19x for a dirty fix for instant decay on items dropped in current
-                      decay zone being processed.
-2006/03/01 MuadDib:   Added check for != 1 on item-> amount to set_decay_after to help with
-                      bug of changing the initial stack's decay timer.
-2008/12/17 MuadDub:   unequipping item now resets item->layer to 0
-2009/08/06 MuadDib:   Added gotten_by code for items.
-2009/08/16 MuadDib:   Added Slot support to undo_get_item()
-2009/09/03 MuadDib:	  Changes for account related source file relocation
-                      Changes for multi related source file relocation
+/** @file
+ *
+ * @par History
+ * - 2005/12/05 MuadDib:   Added set_decay_after(60) when item is approved to be "gotten" by
+ *                         line 19x for a dirty fix for instant decay on items dropped in current
+ *                         decay zone being processed.
+ * - 2006/03/01 MuadDib:   Added check for != 1 on item-> amount to set_decay_after to help with
+ *                         bug of changing the initial stack's decay timer.
+ * - 2008/12/17 MuadDub:   unequipping item now resets item->layer to 0
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ * - 2009/08/16 MuadDib:   Added Slot support to undo_get_item()
+ * - 2009/09/03 MuadDib:   Changes for account related source file relocation
+ *                         Changes for multi related source file relocation
+ */
 
-Notes
-=======
 
-*/
-
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include "multi/boat.h"
 #include "mobile/charactr.h"
@@ -30,12 +27,11 @@ Notes
 #include "statmsg.h"
 #include "globals/uvars.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "uobject.h"
 #include "uworld.h"
 #include "containr.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 
 

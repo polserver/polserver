@@ -1,16 +1,13 @@
-/*
-History
-=======
-2005/12/08 Shinigami: New Version added to force Recompiling...
-2006/09/16 Shinigami: New Version... Internal handling of UO.EM Function execution changed.
-2007/11/07 Shinigami: New Version... Removed some tokens like Left+Mid
-2009/08/27 Turley:    New Version Muad removed members/methods
-2009/09/16 Turley:    New Version removed member isUOKR
+/** @file
+ *
+ * @par History
+ * - 2005/12/08 Shinigami: New Version added to force Recompiling...
+ * - 2006/09/16 Shinigami: New Version... Internal handling of UO.EM Function execution changed.
+ * - 2007/11/07 Shinigami: New Version... Removed some tokens like Left+Mid
+ * - 2009/08/27 Turley:    New Version Muad removed members/methods
+ * - 2009/09/16 Turley:    New Version removed member isUOKR
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __BSCRIPT_FILEFMT_H
 #define __BSCRIPT_FILEFMT_H

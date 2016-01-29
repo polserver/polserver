@@ -1,15 +1,13 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   Initial creation.
-2009/12/03 Turley:    toggle gargoyle flying support
-2009/12/17 Turley:    bf sub 0x16 - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   Initial creation.
+ * - 2009/12/03 Turley:    toggle gargoyle flying support
+ * - 2009/12/17 Turley:    bf sub 0x16 - Tomi
+ *
+ * @note This file is for packet structs who sent by both client and server.
+ */
 
-Notes
-=======
-This file is for packet structs who sent by both client and server.
-
-*/
 
 #ifndef __PKTBOTHH
 #define __PKTBOTHH

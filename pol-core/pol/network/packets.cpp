@@ -1,17 +1,12 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ *
+ * @note New packet add:
+ * - PacketsSingleton::PacketsSingleton() add queue for it
+ * - PacketInterface* GetPacket(u8 id, u16 sub) add pkt create
+ */
 
-
-Notes
-=======
-Central class that holds every pkt object, this way client doesnt need to create pkts, just requests a object and
-after sending readds it
-New packet add:
-PacketsSingleton::PacketsSingleton() add queue for it
-PacketInterface* GetPacket(u8 id, u16 sub) add pkt create
-
-*/
 
 #include "packets.h"
 #include "packethelper.h"
@@ -24,6 +19,13 @@ namespace Pol {
   namespace Network {
 	using namespace PktHelper;
 	using namespace PacketWriterDefs;
+
+	/** @class PacketsSingleton
+	 * Central class that holds every pkt object
+	 *
+	 * This way client doesnt need to create pkts, just requests a object and
+	 * after sending readds it
+	 */
 
     PacketsSingleton::PacketsSingleton()
     {

@@ -1,12 +1,9 @@
-/*
-History
-=======
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "cgdata.h"
@@ -15,7 +12,6 @@ Notes
 #include "../containr.h"
 #include "../multi/house.h"
 
-#include "../../clib/unicode.h"
 
 #include "../mobile/npc.h"
 
@@ -23,6 +19,7 @@ Notes
 #include "../module/unimod.h"
 #include "../module/uomod.h"
 #include "../uoexec.h"
+#include "../unicode.h"
 
 #include <vector>
 

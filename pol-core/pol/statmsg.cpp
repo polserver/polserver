@@ -1,16 +1,13 @@
-/*
-History
-=======
-2006/05/23 Shinigami: send_full_statmsg() updated to support Elfs
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
-2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
-2009/12/02 Turley:    fixed 0x11 packet (race flag)
+/** @file
+ *
+ * @par History
+ * - 2006/05/23 Shinigami: send_full_statmsg() updated to support Elfs
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
+ * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
+ * - 2009/12/02 Turley:    fixed 0x11 packet (race flag)
+ */
 
-Notes
-=======
-
-*/
 
 #include "statmsg.h"
 

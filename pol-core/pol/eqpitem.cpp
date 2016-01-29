@@ -1,28 +1,24 @@
-/*
-History
-=======
-2009/08/06 MuadDib:   Added gotten_by code for items.
-2009/08/07 MuadDib:   Altered Layer code in equip_item() to use tile_layer prop instead. Cleaner, less vars, less execution.
+/** @file
+ *
+ * @par History
+ * - 2009/08/06 MuadDib:   Added gotten_by code for items.
+ * - 2009/08/07 MuadDib:   Altered Layer code in equip_item() to use tile_layer prop instead. Cleaner, less vars, less execution.
+ */
 
-Notes
-=======
-
-*/
 
 
 #include "../bscript/bobject.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/realm.h"
+#include "realms/realm.h"
 #include "network/client.h"
 #include "network/msghandl.h"
 #include "mobile/charactr.h"
 #include "multi/multi.h"
 #include "pktin.h"
 #include "ufunc.h"
-#include "uofile.h"
 #include "globals/uvars.h"
 
 #include <cstdio>

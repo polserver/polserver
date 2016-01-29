@@ -1,12 +1,9 @@
-/*
-History
-=======
-2006/10/28 Shinigami: GCC 4.1.1 fix - invalid use of constructor as a template
+/** @file
+ *
+ * @par History
+ * - 2006/10/28 Shinigami: GCC 4.1.1 fix - invalid use of constructor as a template
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef BSCRIPT_EXECMODL_H
 #define BSCRIPT_EXECMODL_H

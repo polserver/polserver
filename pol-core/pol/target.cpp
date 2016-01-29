@@ -1,14 +1,11 @@
-/*
-History
-=======
-2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
-2009/09/03 MuadDib:   Relocation of account related cpp/h
-                      Relocation of multi related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
+ * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ *                         Relocation of multi related cpp/h
+ */
 
-Notes
-=======
-
-*/
 
 #include "target.h"
 
@@ -23,20 +20,19 @@ Notes
 #include "network/clienttransmit.h"
 #include "network/msghandl.h"
 
-#include "../plib/realm.h"
-
 #include "fnsearch.h"
 #include "los.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "realms.h"
+#include "realms/realm.h"
 #include "ufunc.h"
 #include "globals/uvars.h"
 #include "polclass.h"
 
 #include "guardrgn.h"
 
-#include "../clib/endian.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 
 #include <stdexcept>

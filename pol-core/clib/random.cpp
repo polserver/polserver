@@ -1,13 +1,10 @@
-/*
-History
-=======
-2008/07/08 Turley: Added Random Number Generator "lagged Fibonacci generator"
-2014/08/01 Kimungu: usage of c++11 random lib (mersenne twister)
+/** @file
+ *
+ * @par History
+ * - 2008/07/08 Turley: Added Random Number Generator "lagged Fibonacci generator"
+ * - 2014/08/01 Kimungu: usage of c++11 random lib (mersenne twister)
+ */
 
-Notes
-=======
-
-*/
 
 
 #include <chrono>

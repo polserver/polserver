@@ -1,13 +1,10 @@
-/*
-History
-=======
-2005/09/23 Shinigami: added mf_SendStatus - to send full status packet to support extensions
-2005/09/30 Shinigami: added Player Check to mf_SendStatus (crashed on NPCs)
+/** @file
+ *
+ * @par History
+ * - 2005/09/23 Shinigami: added mf_SendStatus - to send full status packet to support extensions
+ * - 2005/09/30 Shinigami: added Player Check to mf_SendStatus (crashed on NPCs)
+ */
 
-Notes
-=======
-
-*/
 #include "uomod.h"
 
 #include "../../bscript/berror.h"

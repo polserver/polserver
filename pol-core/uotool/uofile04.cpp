@@ -1,11 +1,8 @@
-/*
-History
-=======
+/** @file
+ *
+ * @par History
+ */
 
-Notes
-=======
-
-*/
 
 #include "../pol/uofile.h"
 #include "../pol/uofilei.h"
@@ -23,7 +20,7 @@ namespace Pol {
 
     std::set<unsigned int> water;
 
-    inline bool iswater( u16 objtype )
+    bool iswater( u16 objtype )
     {
       return ( objtype >= 0x1796 && objtype <= 0x17b2 );
     }

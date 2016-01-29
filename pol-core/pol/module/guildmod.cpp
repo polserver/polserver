@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
-2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
-2007/06/17 Shinigami: added config.world_data_path
-2009/12/21 Turley:    ._method() call fix
+/** @file
+ *
+ * @par History
+ * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
+ * - 2006/09/27 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/12/21 Turley:    ._method() call fix
+ */
 
-Notes
-=======
-
-*/
 
 #include "guildmod.h"
 #include "../guilds.h"
@@ -88,10 +85,10 @@ namespace Pol {
 	public:
 	  EGuildRefObjImp( Core::GuildRef gref );
 	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual int typeOfInt() const POL_OVERRIDE;
+	  virtual u8 typeOfInt() const POL_OVERRIDE;
 	  virtual BObjectImp* copy() const POL_OVERRIDE;
 	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool isEqual( const BObjectImp& objimp ) const POL_OVERRIDE;
+	  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
 	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 	  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
@@ -109,7 +106,7 @@ namespace Pol {
 	{
 	  return "GuildRef";
 	}
-	int EGuildRefObjImp::typeOfInt() const
+	u8 EGuildRefObjImp::typeOfInt() const
 	{
 	  return OTGuildRef;
 	}
@@ -124,7 +121,7 @@ namespace Pol {
 	  return ( !obj_->_disbanded );
 	}
 
-	bool EGuildRefObjImp::isEqual( const BObjectImp& objimp ) const
+	bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
 	{
 	  if ( objimp.isa( BObjectImp::OTApplicObj ) )
 	  {

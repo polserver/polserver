@@ -1,13 +1,10 @@
-/*
-History
-=======
-2009/09/03 MuadDib:   Relocation of multi related cpp/h
-2009/12/02 Turley:    added config.max_tile_id - Tomi
+/** @file
+ *
+ * @par History
+ * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
+ * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
+ */
 
-Notes
-=======
-
-*/
 
 #include "customhouses.h"
 #include "../../plib/systemstate.h"

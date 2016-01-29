@@ -1,18 +1,15 @@
-/*
-History
-=======
-2005/09/03 Shinigami: GetSuccessors - added support for non-blocking doors
+/** @file
+ *
+ * @par History
+ * - 2005/09/03 Shinigami: GetSuccessors - added support for non-blocking doors
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef __UOPATHNODE_H
 #define __UOPATHNODE_H
 // AStar search class
 #include "../plib/stlastar.h"
-#include "../plib/realm.h"
+#include "realms/realm.h"
 
 #include "realms.h"
 
@@ -83,12 +80,12 @@ namespace Pol {
     short x;
     short y;
     short z;
-    Plib::Realm* realm;
+    Realms::Realm* realm;
 
 	UOPathState() : theBlockers( nullptr ), x( 0 ), y( 0 ), z( 0 ), realm( Core::find_realm( std::string( "britannia" ) ) )
     {
     };
-    UOPathState( short newx, short newy, short newz, Plib::Realm* newrealm, AStarBlockers * blockers )
+    UOPathState( short newx, short newy, short newz, Realms::Realm* newrealm, AStarBlockers * blockers )
     {
       x = newx;
       y = newy;

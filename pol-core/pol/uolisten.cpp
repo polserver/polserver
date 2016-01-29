@@ -1,13 +1,9 @@
-/*
-History
-=======
-2009/09/03 MuadDib:   Relocation of boat related cpp/h
+/** @file
+ *
+ * @par History
+ * - 2009/09/03 MuadDib:   Relocation of boat related cpp/h
+ */
 
-
-Notes
-=======
-
-*/
 
 #include "uoclient.h"
 #include "network/client.h"

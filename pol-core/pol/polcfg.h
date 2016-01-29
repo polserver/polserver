@@ -1,22 +1,19 @@
-/*
-History
-=======
-2007/06/17 Shinigami: added config.world_data_path
-2009/12/02 Turley:    added MaxTileID -Tomi
-2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
-2010/02/04 Turley:    polcfg.discard_old_events discards oldest event if queue is full
+/** @file
+ *
+ * @par History
+ * - 2007/06/17 Shinigami: added config.world_data_path
+ * - 2009/12/02 Turley:    added MaxTileID -Tomi
+ * - 2009/12/04 Turley:    cleanup "MasterKey1","MasterKey2","ClientVersion","KeyFile" - Tomi
+ * - 2010/02/04 Turley:    polcfg.discard_old_events discards oldest event if queue is full
+ */
 
-Notes
-=======
-
-*/
 
 #ifndef POLCFG_H
 #define POLCFG_H
 
 #include <string>
 #include "crypt/cryptkey.h"
-
+#include "../clib/Debugging/ExceptionParser.h"
 #if !defined(_WIN32)
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -94,10 +91,14 @@ namespace Pol {
       bool single_thread_decay;
       bool thread_decay_statistics;
 
+      /**
+       * @brief Returns true if program aborts are reported
+       */
+	  bool report_program_aborts(){ return Pol::Clib::ExceptionParser::programAbortReporting(); }
+
 	  /**
 	   * crash reporting system with some early default values
 	   */
-	  bool report_program_aborts;
 	  std::string report_admin_email;
 	  std::string report_server;
 	  std::string report_url;

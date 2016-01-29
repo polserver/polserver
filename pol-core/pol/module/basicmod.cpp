@@ -1,15 +1,12 @@
-/*
-History
-=======
-2005/11/24 Shinigami: added itoa for Linux because it is not ANSI C/C++
-2005/11/29 Shinigami: mf_SplitWords will now accept each type of to-split-value as same as in the past
-2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
-2006/12/29 Shinigami: mf_SplitWords will not hang server on queue of delimiter
+/** @file
+ *
+ * @par History
+ * - 2005/11/24 Shinigami: added itoa for Linux because it is not ANSI C/C++
+ * - 2005/11/29 Shinigami: mf_SplitWords will now accept each type of to-split-value as same as in the past
+ * - 2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
+ * - 2006/12/29 Shinigami: mf_SplitWords will not hang server on queue of delimiter
+ */
 
-Notes
-=======
-
-*/
 
 #include "basicmod.h"
 
