@@ -1,7 +1,7 @@
 /** @file
  *
  * @par History
- * - 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: cassert removed
  * - 2009/09/03 MuadDib:   Changes for account related source file relocation
  *                         Changes for multi related source file relocation
  * - 2009/12/21 Turley:    ._method() call fix

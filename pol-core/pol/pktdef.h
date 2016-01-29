@@ -4,7 +4,7 @@
  * - 2009/07/24 MuadDib:   Initial creation.
  * - 2010/01/22 Turley:    Speedhack Prevention System
  *
- * @note This is for all general packet #define/enum that don't fit anywhere else or go to multiple types of packets.
+ * @note This is for all general packet \#define/enum that don't fit anywhere else or go to multiple types of packets.
  */
 
 

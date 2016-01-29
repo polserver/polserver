@@ -1,7 +1,7 @@
 /** @file
  *
  * @par History
- * - 2006/09/17 Shinigami: ::signal_event() will return error on full evene queue
+ * - 2006/09/17 Shinigami: OSExecutorModule::signal_event() will return error on full evene queue
  */
 
 
