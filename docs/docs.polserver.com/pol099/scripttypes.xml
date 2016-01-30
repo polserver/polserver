@@ -1434,19 +1434,22 @@ endprogram</example>
     <prototype>program custom_house_commit( who, house, elements )</prototype>
     <parameter name="who" value="Character ref, who is committing the house design" />
     <parameter name="house" value="House ref, the house being committed" />
-    <parameter name="elements" value="Array of struct{graphic,xoffset,yoffset,z}, the custom house elements" />
+    <parameter name="elements" value="Array of struct{graphic,xoffset,yoffset,z}, the custom house elements (excluding doors and teleporters)" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
     <def_prio>1</def_prio>
     <whencalled>After client presses the commit button.</whencalled>
     <wherelives>The 'program' in customhousecommit.ecl file, only in /scripts/misc</wherelives>
     <todefine>Automatically called if file exists.</todefine>
-    <explain>To accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit<br/>
-        Min purpose should be calculation of cost (with delta support for later changes),
+    <explain>To accept the changes call new method house.acceptcommit(chr,1) or
+        house.acceptcommit(chr,0) to drop them. Unless you drop changes explicitly,
+        the changes will be implicitly accepted.</explain>
+    <explain>Main purpose should be calculation of cost (with delta support for later changes),
         link establishing of houseteleporters (0x181D - 0x1828)
-        and adding a signhanger/sign if you didnt added it during multifoundation buildup.<br/>
-        Doors and Teleporters are added to house components as normal items without any special treatment
-        so dont forget to add scripts/itemdesc entries</explain>
+        and adding a signhanger/sign if you didnt added it during multifoundation buildup.</explain>
+    <explain>Doors and Teleporters are added to house components as normal items
+        before this script is called, without any special treatment so dont forget to add
+        scripts/itemdesc entries</explain>
     <relatedobj>Character</relatedobj>
     <relatedobj>House</relatedobj>
     <relatedobj>Array</relatedobj>
