@@ -508,9 +508,21 @@ namespace Pol {
 	}
 
 
+    /**
+     * Handler for a 0xD7 packet
+     */
 	void handle_aos_commands( Client *client, PKTBI_D7* msg )
 	{
-	  //should check if serial is valid? client->chr->serial == msg->serial?
+      // nullptr prevention, no need to disturb if client or character is not found
+      if( client == nullptr || client->chr == nullptr )
+        return;
+
+      /// Checks that serial written inside packet matches sending character's serial
+      u32 serial = cfBEu32( msg->serial );
+      if( client && client->chr && client->chr->serial != serial ) {
+        INFO_PRINT << "Ignoring spoofed packet 0xD7 from character 0x" << fmt::hexu(client->chr->serial) << " trying to spoof 0x" << fmt::hexu(serial) << "\n";
+        return;
+      }
 
 	  switch ( cfBEu16( msg->subcmd ) )
 	  {

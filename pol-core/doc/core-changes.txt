@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+01-30-2016 Bodom & Nando:
+  Fixed:   Spoofing prevention on packet 0xD7 (custom housing)
 01-22-2016 Bodom:
   Fixed:   Minor bug in ecompile allowing Double literals in the form "2d4".
            These were incorrectly interpreted as "2e4", meaning 20000 and

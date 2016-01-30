@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-22-2016</datemodified>
+		<datemodified>01-30-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>01-30-2016</date>
+			<author>Bodom &amp; Nando:</author>
+			<change type="Fixed">Spoofing prevention on packet 0xD7 (custom housing)</change>
+		</entry>
 		<entry>
 			<date>01-22-2016</date>
 			<author>Bodom:</author>
