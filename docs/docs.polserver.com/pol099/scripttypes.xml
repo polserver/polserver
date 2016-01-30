@@ -1450,6 +1450,8 @@ endprogram</example>
     <explain>Doors and Teleporters are added to house components as normal items
         before this script is called, without any special treatment so dont forget to add
         scripts/itemdesc entries</explain>
+    <explain>The core does not perform any validity checks on the elements, it's up to the script
+        ensure that all house elements and components are valid graphics/objtypes.</explain>
     <relatedobj>Character</relatedobj>
     <relatedobj>House</relatedobj>
     <relatedobj>Array</relatedobj>
