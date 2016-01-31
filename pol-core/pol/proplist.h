@@ -46,9 +46,6 @@ namespace Pol {
        */
       enum class Type : u8
       {
-        /// Special value, do not use
-        START,
-
         //main types
         ACCOUNT,
         GUILD,
@@ -64,9 +61,6 @@ namespace Pol {
 
         //unknown type (only when profiler is enabled after startup)
         UNKNOWN,
-
-        /// Special value, do not use
-        END
       };
 
       /** Returns an instance of the profiler, instantiate it on first need */

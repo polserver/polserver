@@ -309,8 +309,9 @@ namespace Pol {
           return CPropProfiler::Type::MULTI;
         }
 
-        // Must compute all cases, Hopefully this gets caught at startup while debugging
-        throw new std::runtime_error("Can't deduce CProp type form Object type");
+        /// Must compute all cases, failing when in debug mode
+        assert(false);
+        return CPropProfiler::Type::UNKNOWN;
       }
 
 	private: // not implemented:

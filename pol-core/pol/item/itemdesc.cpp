@@ -193,9 +193,9 @@ namespace Pol {
 	  blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
 	  base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
 	  quality( elem.remove_double( "QUALITY", 1.0 ) ),
+      props( Core::CPropProfiler::Type::ITEM ),
 	  method_script( NULL ),
-	  save_on_exit( elem.remove_bool( "SaveOnExit", true ) ),
-      props( Core::CPropProfiler::Type::ITEM )
+	  save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
 	{
 	  if ( type == BOATDESC || type == HOUSEDESC )
 	  {
@@ -483,9 +483,9 @@ namespace Pol {
 	  quality( 1.0 ),
 	  multiid( 0xFFFF ),
 	  maxhp( 0 ),
+      props( Core::CPropProfiler::Type::ITEM ),
 	  method_script( NULL ),
-	  save_on_exit( true ),
-      props( Core::CPropProfiler::Type::ITEM )
+	  save_on_exit( true )
 	{
 	  memset( &element_resist, 0, sizeof( element_resist ) );
 	  memset( &element_damage, 0, sizeof( element_damage ) );
