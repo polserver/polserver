@@ -194,7 +194,8 @@ namespace Pol {
 	  base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
 	  quality( elem.remove_double( "QUALITY", 1.0 ) ),
 	  method_script( NULL ),
-	  save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
+	  save_on_exit( elem.remove_bool( "SaveOnExit", true ) ),
+      props( Core::CPropProfiler::Type::ITEM )
 	{
 	  if ( type == BOATDESC || type == HOUSEDESC )
 	  {
@@ -483,7 +484,8 @@ namespace Pol {
 	  multiid( 0xFFFF ),
 	  maxhp( 0 ),
 	  method_script( NULL ),
-	  save_on_exit( true )
+	  save_on_exit( true ),
+      props( Core::CPropProfiler::Type::ITEM )
 	{
 	  memset( &element_resist, 0, sizeof( element_resist ) );
 	  memset( &element_damage, 0, sizeof( element_damage ) );

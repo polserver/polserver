@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-30-2016</datemodified>
+		<datemodified>01-31-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>01-31-2016</date>
+			<author>Bodom:</author>
+			<change type="Added">CProp profiler: helps detecting unused CProps.<br/>
+It can be enabled by using the new pol.cfg option &quot;ProfileCProps&quot;.<br/>
+For better results, should be enabled before startup.<br/>
+Impacts on performance very slightly, but consumes an average of<br/>
+300 bytes of extra RAM for every CProp used.<br/>
+New polsys.em function LogCPropProfile() can be called to dump<br/>
+the profiling information into cpprofile.log.</change>
+		</entry>
 		<entry>
 			<date>01-30-2016</date>
 			<author>Bodom &amp; Nando:</author>

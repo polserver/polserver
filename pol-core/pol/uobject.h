@@ -115,22 +115,30 @@ namespace Pol {
 #	pragma pack()
 #endif
 
-	/* NOTES:
-			if you add fields, be sure to update Items::create().
-			*/
+    /**
+     * @warning if you add fields, be sure to update Items::create().
+     */
 	class UObject : protected ref_counted, public DynamicPropsHolder
 	{
 	public:
-	  enum UOBJ_CLASS
-	  {       // UOBJ_CLASS is meant to be coarse-grained.
-		CLASS_ITEM,         // It's meant as an alternative to dynamic_cast.
-		CLASS_CONTAINER,    //
-		CLASS_CHARACTER,    // Mostly used to go from UItem to UContainer.
-		CLASS_NPC,          //
-		CLASS_WEAPON,
-		CLASS_ARMOR,
-		CLASS_MULTI
-	  };
+
+      /**
+       * This is meant to be coarse-grained. It's meant as an alternative to dynamic_cast.
+       *
+       * Mostly used to go from UItem to UContainer.
+       *
+       * @warning When adding a class, be sure to to also update class_to_type static method
+       */
+      enum UOBJ_CLASS : u8
+      {
+        CLASS_ITEM,
+        CLASS_CONTAINER,
+        CLASS_CHARACTER,
+        CLASS_NPC,
+        CLASS_WEAPON,
+        CLASS_ARMOR,
+        CLASS_MULTI,
+      };
 
 
 	  virtual std::string name() const;
@@ -285,7 +293,26 @@ namespace Pol {
 
 	private:
 	  PropertyList proplist_;
-      
+      /** Given an UOBJ_CLASS, returns the corresponding Type for profiling */
+      inline static CPropProfiler::Type class_to_type( const UOBJ_CLASS oclass )
+      {
+        switch( oclass ) {
+        case UObject::UOBJ_CLASS::CLASS_ITEM:
+        case UObject::UOBJ_CLASS::CLASS_ARMOR:
+        case UObject::UOBJ_CLASS::CLASS_CONTAINER:
+        case UObject::UOBJ_CLASS::CLASS_WEAPON:
+          return CPropProfiler::Type::ITEM;
+        case UObject::UOBJ_CLASS::CLASS_CHARACTER:
+        case UObject::UOBJ_CLASS::CLASS_NPC:
+          return CPropProfiler::Type::MOBILE;
+        case UObject::UOBJ_CLASS::CLASS_MULTI:
+          return CPropProfiler::Type::MULTI;
+        }
+
+        // Must compute all cases, Hopefully this gets caught at startup while debugging
+        throw new std::runtime_error("Can't deduce CProp type form Object type");
+      }
+
 	private: // not implemented:
 	  UObject( const UObject& );
 	  UObject& operator=( const UObject& );

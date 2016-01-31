@@ -45,6 +45,7 @@ namespace Pol {
 	  bool web_server_local_only;
 	  unsigned short web_server_debug;
 	  std::string web_server_password;
+      bool profile_cprops;
 	  bool cache_interactive_scripts;
 	  bool show_speech_colors;
 	  bool require_spellbooks;

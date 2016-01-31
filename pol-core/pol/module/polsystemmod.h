@@ -34,6 +34,7 @@ namespace Pol {
       Bscript::BObjectImp* mf_DeleteRealm(/*name*/ );
       Bscript::BObjectImp* mf_MD5Encrypt(/*string*/ );
       Bscript::BObjectImp* mf_FormatItemDescription(/*string,amount,suffix*/ );
+      Bscript::BObjectImp* mf_LogCPropProfile();
 	};
   }
 }

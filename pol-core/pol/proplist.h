@@ -2,6 +2,7 @@
  *
  * @par History
  * - 2005/05/25 Shinigami: added PropertyList::printProperties( ConfigElem& elem )
+ * - 2016/01/31 Bodom:     added profiling support
  */
 
 
@@ -9,6 +10,7 @@
 #define PROPLIST_H
 
 #include "../clib/boostutils.h"
+#include "../clib/rawtypes.h"
 
 #include <boost/flyweight.hpp>
 
@@ -16,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <mutex>
 
 namespace Pol {
   namespace Bscript {
@@ -27,11 +30,152 @@ namespace Pol {
     class ConfigElem;
   }
   namespace Core {
+    class PropertyList;
 
+    /**
+     * Profiler for CProps: stores usage information and computes statistics
+     *
+     * @author Bodom
+     */
+    class CPropProfiler
+    {
+    public:
+
+      /**
+       * Type of CProp, for profiling
+       */
+      enum class Type : u8
+      {
+        /// Special value, do not use
+        START,
+
+        //main types
+        ACCOUNT,
+        GUILD,
+        GLOBAL,
+        ITEM,
+        MOBILE,
+        MULTI,
+        PARTY,
+
+        //ignored types
+        DATAFILEELEMENT,
+        REGION,
+
+        //unknown type (only when profiler is enabled after startup)
+        UNKNOWN,
+
+        /// Special value, do not use
+        END
+      };
+
+      /** Returns an instance of the profiler, instantiate it on first need */
+      inline static CPropProfiler& instance() {
+        static CPropProfiler instance;
+        return instance;
+      };
+
+      /** No copies allowed */
+      CPropProfiler(const CPropProfiler&) = delete;
+      /** No copies allowed */
+      void operator=(const CPropProfiler&) = delete;
+
+      void registerProplist(const PropertyList* proplist, const Type type);
+      void registerProplist(const PropertyList* proplist, const PropertyList* copiedFrom);
+      void unregisterProplist(const PropertyList* proplist);
+
+      void dumpProfile(std::ostream& os);
+
+    private:
+      class HitsCounter
+      {
+      public:
+        static const size_t READ = 0;
+        static const size_t WRITE = 1;
+        static const size_t ERASE = 2;
+
+        inline HitsCounter() : hits(std::array<u64,3>{}) {};
+        inline u64& operator[](size_t idx) { return hits[idx]; };
+        inline const u64& operator[](size_t idx) const { return hits[idx]; };
+      private:
+        /// 0=read, 1=write, 2=erase
+        std::array<u64,3> hits;
+      };
+      typedef std::map<const PropertyList*, const Type> PropLists;
+      typedef std::map<const std::string,HitsCounter> HitsEntries;
+      typedef std::map<const Type,HitsEntries> Hits;
+
+      CPropProfiler() : _proplists(new PropLists()), _hits(new Hits()) {};
+
+      /**
+       * Returns proplist type, internal usage
+       */
+      inline Type getProplistType(const PropertyList* proplist)
+      {
+        _proplistsMutex.lock();
+        PropLists::iterator el = _proplists->find(proplist);
+        _proplistsMutex.unlock();
+
+        if( el == _proplists->end() ) {
+          assert(false); // Unknown should never happen, so breaking when in debug mode
+          return Type::UNKNOWN;
+        }
+
+        return el->second;
+      };
+
+      /**
+       * Returns wether a given type should be ignored, intenal usage
+       */
+      inline bool isIgnored(Type type)
+      {
+        if( type == Type::DATAFILEELEMENT || type == Type::REGION )
+          return true;
+        return false;
+      };
+
+      void cpropAction(const PropertyList* proplist, const std::string& name, const size_t key );
+
+      std::unique_ptr<PropLists> _proplists;
+      std::unique_ptr<Hits> _hits;
+      std::mutex _proplistsMutex;
+      std::mutex _hitsMutex;
+
+    public:
+      /**
+       * Register a cprop read
+       *
+       * @param proplist Pointer to the registered list where this cprop resides
+       * @param name Name of the cprop
+       */
+      inline void cpropRead(const PropertyList* proplist, const std::string& name) { cpropAction(proplist, name, HitsCounter::READ); };
+      /**
+       * Register a cprop write
+       *
+       * @param proplist Pointer to the registered list where this cprop resides
+       * @param name Name of the cprop
+       */
+      inline void cpropWrite(const PropertyList* proplist, const std::string& name) { cpropAction(proplist, name, HitsCounter::WRITE); };
+      /**
+       * Register a cprop erase
+       *
+       * @param proplist Pointer to the registered list where this cprop resides
+       * @param name Name of the cprop
+       * @throws std::runtime_error When proplist is not registered
+       */
+      inline void cpropErase(const PropertyList* proplist, const std::string& name) { cpropAction(proplist, name, HitsCounter::ERASE); };
+    };
+
+
+    /**
+     * Holds an object's CProps
+     */
 	class PropertyList
 	{
 	public:
-	  PropertyList();
+      PropertyList() = delete;
+      PropertyList( const CPropProfiler::Type& type );
+      PropertyList( const CPropProfiler::Type& type, bool force );
 	  PropertyList( const PropertyList& );  //dave added 1/26/3
 	  bool getprop( const std::string& propname, std::string& propvalue ) const;
 	  void setprop( const std::string& propname, const std::string& propvalue );

@@ -69,7 +69,8 @@ namespace Pol {
 	  _member_serials(),
 	  _candidates_serials(),
 	  _offlinemember_serials(),
-	  _leaderserial( serial )
+	  _leaderserial( serial ),
+      _proplist( Core::CPropProfiler::Type::PARTY )
 	{
 	  _member_serials.push_back( serial );
 	}
@@ -78,7 +79,8 @@ namespace Pol {
 	  _member_serials(),
 	  _candidates_serials(),
 	  _offlinemember_serials(),
-	  _leaderserial( 0 )
+	  _leaderserial( 0 ),
+      _proplist( Core::CPropProfiler::Type::PARTY )
 	{
 	  _leaderserial = elem.remove_ulong( "LEADER" );
 	  unsigned int tmp;

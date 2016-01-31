@@ -110,6 +110,8 @@ namespace Pol {
 	  Plib::systemstate.config.web_server_debug = elem.remove_ushort( "WebServerDebug", 0 );
 	  Plib::systemstate.config.web_server_password = elem.remove_string( "WebServerPassword", "" );
 
+      Plib::systemstate.config.profile_cprops = elem.remove_bool( "ProfileCProps", false );
+
 	  Plib::systemstate.config.cache_interactive_scripts = elem.remove_bool( "CacheInteractiveScripts", true );
 	  Plib::systemstate.config.show_speech_colors = elem.remove_bool( "ShowSpeechColors", false );
 	  Plib::systemstate.config.require_spellbooks = elem.remove_bool( "RequireSpellbooks", true );

@@ -206,5 +206,11 @@ const MSGLEN_VARIABLE := -1;</code></explain>
     <error>"String is empty"</error>
     <error>"Failed to encrypt"</error>
   </function>
+
+  <function name="LogCPropProfile">
+    <prototype>LogCPropProfile()</prototype>
+    <explain>Writes the CProp profiling info into cpprofile.log file (see ProfileCProps option in pol.cfg).</explain>
+    <return>1 or Error</return> 
+  </function>
         
 </ESCRIPT>

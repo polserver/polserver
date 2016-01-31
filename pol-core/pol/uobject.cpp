@@ -79,7 +79,8 @@ namespace Pol {
 	  uobj_class_( static_cast<const u8>( i_uobj_class ) ),
 	  dirty_( true ),
 	  _rev( 0 ),
-	  name_( "" )
+	  name_( "" ),
+      proplist_( class_to_type(i_uobj_class) )
 	{
 	  graphic = Items::getgraphic( objtype );
 

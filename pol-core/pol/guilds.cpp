@@ -39,7 +39,7 @@ namespace Core {
 	  _member_serials( elem, "MEMBER" ),
 	  _allyguild_serials( elem, "ALLYGUILD" ),
 	  _enemyguild_serials( elem, "ENEMYGUILD" ),
-	  _proplist(),
+	  _proplist( Core::CPropProfiler::Type::GUILD ),
 	  _disbanded( false )
   {
 	_proplist.readProperties( elem );
@@ -50,7 +50,7 @@ namespace Core {
 	_member_serials(),
 	_allyguild_serials(),
 	_enemyguild_serials(),
-	_proplist(),
+	_proplist( Core::CPropProfiler::Type::GUILD ),
 	_disbanded( false )
   {
 	if ( _guildid >= Core::gamestate.nextguildid )

@@ -32,7 +32,8 @@ namespace Pol {
 	  name_( elem.remove_string( "NAME" ) ),
 	  enabled_( true ),
 	  banned_( false ),
-	  default_cmdlevel_( 0 )
+	  default_cmdlevel_( 0 ),
+      props_( Core::CPropProfiler::Type::ACCOUNT )
 	{
 	  // If too low, will cause the client to freeze and the console to report 
 	  // Exception in message handler 0x91: vector
