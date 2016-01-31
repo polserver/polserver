@@ -66,63 +66,60 @@ namespace Pol {
   }
   namespace Module {
     using namespace Bscript;
-	/*
-	I'm thinking that, if anything, I'd want to present a VERY simple, high-level interface.
-	So no seeking / reading / writing.  Something more like this:
 
-	// all filenames are package-relative.
-	// Only files in packages can be accessed.
-	ReadFile( filename ); // returns the entire file as an array of lines
-	WriteFile( filename, contents ); // writes a file in its entirely
-	AppendToFile( filename, data );
-	LogToFile( filename, text );
-
-	WriteFile and AppendToFile would accept either a string or an array of lines.  The
-	string would be written verbatim, while the array of lines would be written with
-	newlines appended.
-
-	WriteFile would be atomic for existing files - it would write a new file to a temporary
-	location, then do the rename-rename-delete thing.
-
-	LogToFile would take a string as input, and append a newline.  It's the equivalent of
-	AppendToFile( filename, array { text } )
-
-	Probably a systemwide configuration file would dictate the types of files allowed to
-	be written, and perhaps even name the packages allowed to do so.  I could see a
-	use for being able to write .src files, for example.  And I'm having thoughts of
-	integrating compile capability directly into pol, and adding something like
-	CompileScript( scriptpath ) to polsys.em
-
-	config/fileaccess.cfg
-	// anyone can append to a log file in their own package
-	FileAccess
-	{
-	allow append
-	match *.log
-	package <all>
-	}
-	// anyone can create .htm files in their own web root
-	FileAccess
-	{
-	allow write
-	match www/ *.html
-	package <all>
-	}
-	// the uploader package is allowed to write .src and .cfg files in any package
-	FileAccess
-	{
-	allow read
-	allow write
-	remote 1
-	match *.cfg
-	match *.src
-	package uploader
-	}
-
-	*/
-
-	
-
+    /**
+     * I'm thinking that, if anything, I'd want to present a VERY simple, high-level interface.
+     *
+     * So no seeking / reading / writing.  Something more like this:
+     * - all filenames are package-relative.
+     * - Only files in packages can be accessed.
+     * - ReadFile( filename ); // returns the entire file as an array of lines
+     * - WriteFile( filename, contents ); // writes a file in its entirely
+     * - AppendToFile( filename, data );
+     * - LogToFile( filename, text );
+     *
+     * WriteFile and AppendToFile would accept either a string or an array of lines.  The
+     * string would be written verbatim, while the array of lines would be written with
+     * newlines appended.
+     *
+     * WriteFile would be atomic for existing files - it would write a new file to a temporary
+     * location, then do the rename-rename-delete thing.
+     *
+     * LogToFile would take a string as input, and append a newline.  It's the equivalent of
+     * AppendToFile( filename, array { text } )
+     *
+     * Probably a systemwide configuration file would dictate the types of files allowed to
+     * be written, and perhaps even name the packages allowed to do so.  I could see a
+     * use for being able to write .src files, for example.  And I'm having thoughts of
+     * integrating compile capability directly into pol, and adding something like
+     * CompileScript( scriptpath ) to polsys.em
+     *
+     * @example config/fileaccess.cfg
+     * // anyone can append to a log file in their own package
+     * FileAccess
+     * {
+     * allow append
+     * match *.log
+     * package <all>
+     * }
+     * // anyone can create .htm files in their own web root
+     * FileAccess
+     * {
+     * allow write
+     * match www/ *.html
+     * package <all>
+     * }
+     * // the uploader package is allowed to write .src and .cfg files in any package
+     * FileAccess
+     * {
+     * allow read
+     * allow write
+     * remote 1
+     * match *.cfg
+     * match *.src
+     * package uploader
+     * }
+     */
 	FileAccess::FileAccess( Clib::ConfigElem& elem ) :
 	  AllowWrite( elem.remove_bool( "AllowWrite", false ) ),
 	  AllowAppend( elem.remove_bool( "AllowAppend", false ) ),
