@@ -59,7 +59,7 @@ namespace Pol {
         DATAFILEELEMENT,
         REGION,
 
-        //unknown type (only when profiler is enabled after startup)
+        ///unknown type, do not use (internally used when profiler is enabled after startup)
         UNKNOWN,
       };
 
@@ -78,7 +78,10 @@ namespace Pol {
       void registerProplist(const PropertyList* proplist, const PropertyList* copiedFrom);
       void unregisterProplist(const PropertyList* proplist);
 
+      void clear();
       void dumpProfile(std::ostream& os);
+
+      size_t estimateSize();
 
     private:
       class HitsCounter
@@ -91,6 +94,8 @@ namespace Pol {
         inline HitsCounter() : hits(std::array<u64,3>{}) {};
         inline u64& operator[](size_t idx) { return hits[idx]; };
         inline const u64& operator[](size_t idx) const { return hits[idx]; };
+
+        inline size_t sizeEstimate() const { return sizeof(void*) + sizeof(u64) * hits.size(); };
       private:
         /// 0=read, 1=write, 2=erase
         std::array<u64,3> hits;
@@ -111,7 +116,9 @@ namespace Pol {
         _proplistsMutex.unlock();
 
         if( el == _proplists->end() ) {
-          assert(false); // Unknown should never happen, so breaking when in debug mode
+          /// Unknown should happen only when the profiler has been disabled and
+          /// then re-enabled (including when it was disabled at startup and enabled
+          /// later). In any other case, it's a bug.
           return Type::UNKNOWN;
         }
 

@@ -80,6 +80,21 @@ namespace Pol {
     }
 
     /**
+     * Discards all the gathered data
+     */
+    void CPropProfiler::clear()
+    {
+      _proplistsMutex.lock();
+      _hitsMutex.lock();
+
+      _proplists->clear();
+      _hits->clear();
+
+      _hitsMutex.unlock();
+      _proplistsMutex.unlock();
+    }
+
+    /**
      * Dumps current status into a given stream
      *
      * @param os The output stream to write into
@@ -162,6 +177,31 @@ namespace Pol {
       }
     }
 
+    /**
+     * Returns the estimated in-memory size of the profiler
+     */
+    size_t CPropProfiler::estimateSize()
+    {
+      /// Size of base empty containers
+      size_t ret = sizeof(_hitsMutex) + sizeof(_proplistsMutex) +
+                   sizeof(_hits) + sizeof(_proplists) +
+                   sizeof(void*) * 2;
+
+      /// + size of proplists
+      ret += ( sizeof(PropertyList*) + sizeof(Type) ) * _proplists->size();
+
+      /// + size of hits
+      _hitsMutex.lock();
+      for( auto itr1 = _hits->begin(); itr1 != _hits->end(); ++itr1 ) {
+        ret += sizeof(Type) + sizeof(HitsEntries);
+        for( auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); ++itr2 ) {
+          ret += itr2->first.size() + itr2->second.sizeEstimate();
+        }
+      }
+      _hitsMutex.unlock();
+
+      return ret;
+    }
 
     /**
      * Initialize and register this property list based on a given type

@@ -496,6 +496,8 @@ namespace Pol {
       auto tm = std::localtime(&t);
       ofs << std::string(80, '=') << std::endl;
       ofs << "CProp profiling information dumped on " << std::asctime(tm) << std::endl;
+      ofs << "the profiler is using an estimated amount of " << Core::CPropProfiler::instance().estimateSize() << " Bytes of memory." << std::endl;
+      ofs << "the profiler is currently " << (Plib::systemstate.config.profile_cprops?"enabled":"disabled") << "." << std::endl;
       ofs << std::endl;
 
       // Write the body

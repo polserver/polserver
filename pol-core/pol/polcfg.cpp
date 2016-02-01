@@ -237,6 +237,12 @@ namespace Pol {
         DISABLE_DEBUGLOG();
 
 	  Plib::systemstate.config.debug_level = elem.remove_ushort( "DebugLevel", 0 );
+
+      /// The profiler needs to gather some data before the pol.cfg file gets loaded, so when it
+      /// turns out to be disabled, or when it was enabled before, but is being disabled now,
+      /// run "garbage collection" to free the allocated resources
+      if( ! Plib::systemstate.config.profile_cprops )
+        Core::CPropProfiler::instance().clear();
 	}
 
 	void PolConfig::reload_pol_cfg()
