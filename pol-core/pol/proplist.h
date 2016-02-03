@@ -11,6 +11,7 @@
 
 #include "../clib/boostutils.h"
 #include "../clib/rawtypes.h"
+#include "../clib/spinlock.h"
 
 #include <boost/flyweight.hpp>
 
@@ -18,7 +19,7 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <mutex>
+
 
 namespace Pol {
   namespace Bscript {
@@ -111,9 +112,11 @@ namespace Pol {
        */
       inline Type getProplistType(const PropertyList* proplist)
       {
-        _proplistsMutex.lock();
-        PropLists::iterator el = _proplists->find(proplist);
-        _proplistsMutex.unlock();
+        PropLists::iterator el;
+        {
+          Clib::SpinLockGuard lock(_proplistsLock);
+          el = _proplists->find(proplist);
+        }
 
         if( el == _proplists->end() ) {
           /// Unknown should happen only when the profiler has been disabled and
@@ -139,8 +142,8 @@ namespace Pol {
 
       std::unique_ptr<PropLists> _proplists;
       std::unique_ptr<Hits> _hits;
-      std::mutex _proplistsMutex;
-      std::mutex _hitsMutex;
+      Clib::SpinLock _proplistsLock;
+      Clib::SpinLock _hitsLock;
 
     public:
       /**

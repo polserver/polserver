@@ -35,9 +35,8 @@ namespace Pol {
      */
     void CPropProfiler::registerProplist(const PropertyList* proplist, const CPropProfiler::Type type)
     {
-      _proplistsMutex.lock();
+      Clib::SpinLockGuard lock(_proplistsLock);
       _proplists->insert(std::make_pair(proplist, type));
-      _proplistsMutex.unlock();
     }
 
     /**
@@ -55,9 +54,8 @@ namespace Pol {
      * Unregisters a property list address
      */
     void CPropProfiler::unregisterProplist(const PropertyList* proplist) {
-      _proplistsMutex.lock();
+      Clib::SpinLockGuard lock(_proplistsLock);
       _proplists->erase(proplist);
-      _proplistsMutex.unlock();
     }
 
     /**
@@ -73,10 +71,12 @@ namespace Pol {
       if( isIgnored(type) )
         return;
 
-      _hitsMutex.lock();
-      if( (*_hits)[type][name][key] < std::numeric_limits<u64>::max() )
-        (*_hits)[type][name][key]++;
-      _hitsMutex.unlock();
+      {
+        Clib::SpinLockGuard lock(_hitsLock);
+        u64* cur = &(*_hits)[type][name][key];
+        if( *cur < std::numeric_limits<u64>::max() )
+          (*cur)++;
+      }
     }
 
     /**
@@ -84,14 +84,11 @@ namespace Pol {
      */
     void CPropProfiler::clear()
     {
-      _proplistsMutex.lock();
-      _hitsMutex.lock();
+      Clib::SpinLockGuard plock(_proplistsLock);
+      Clib::SpinLockGuard hlock(_hitsLock);
 
       _proplists->clear();
       _hits->clear();
-
-      _hitsMutex.unlock();
-      _proplistsMutex.unlock();
     }
 
     /**
@@ -106,57 +103,59 @@ namespace Pol {
       // map<categoryname, map<typename, vector<lines> >>
       std::map<std::string, std::map<std::string, std::vector<std::string>>> outData;
 
-      _hitsMutex.lock();
-      for( auto tIter = _hits->begin(); tIter != _hits->end(); ++tIter ) {
-        Type t = tIter->first;
+      {
+        Clib::SpinLockGuard lock(_hitsLock);
 
-        std::string typeName;
-        switch( t ) {
-        case Type::ACCOUNT:
-          typeName = "Account";
-          break;
-        case Type::GUILD:
-          typeName = "Guild";
-          break;
-        case Type::GLOBAL:
-          typeName = "Global";
-          break;
-        case Type::ITEM:
-          typeName = "Item";
-          break;
-        case Type::MOBILE:
-          typeName = "Mobile";
-          break;
-        case Type::MULTI:
-          typeName = "Multi";
-          break;
-        case Type::PARTY:
-          typeName = "Party";
-          break;
-        case Type::UNKNOWN:
-          typeName = "UNKNOWN";
-          break;
-        default:
-          typeName = "ERROR " + std::to_string(static_cast<unsigned int>(t));
-          break;
-        }
+        for( auto tIter = _hits->begin(); tIter != _hits->end(); ++tIter ) {
+          Type t = tIter->first;
 
-        for( auto pIter = tIter->second.begin(); pIter != tIter->second.end(); ++pIter ) {
-          std::ostringstream line;
-          line << pIter->first << " ";
-          line << pIter->second[HitsCounter::READ] << "/";
-          line << pIter->second[HitsCounter::WRITE] << "/";
-          line << pIter->second[HitsCounter::ERASE] << std::endl;
+          std::string typeName;
+          switch( t ) {
+          case Type::ACCOUNT:
+            typeName = "Account";
+            break;
+          case Type::GUILD:
+            typeName = "Guild";
+            break;
+          case Type::GLOBAL:
+            typeName = "Global";
+            break;
+          case Type::ITEM:
+            typeName = "Item";
+            break;
+          case Type::MOBILE:
+            typeName = "Mobile";
+            break;
+          case Type::MULTI:
+            typeName = "Multi";
+            break;
+          case Type::PARTY:
+            typeName = "Party";
+            break;
+          case Type::UNKNOWN:
+            typeName = "UNKNOWN";
+            break;
+          default:
+            typeName = "ERROR " + std::to_string(static_cast<unsigned int>(t));
+            break;
+          }
 
-          if( ! pIter->second[HitsCounter::READ] )
-            outData["WRITTEN BUT NEVER READ"][typeName].push_back(line.str());
-          else if( ! pIter->second[HitsCounter::WRITE] )
-            outData["READ BUT NEVER WRITTEN"][typeName].push_back(line.str());
-          else
-            outData["ALL THE REST"][typeName].push_back(line.str());
+          for( auto pIter = tIter->second.begin(); pIter != tIter->second.end(); ++pIter ) {
+            std::ostringstream line;
+            line << pIter->first << " ";
+            line << pIter->second[HitsCounter::READ] << "/";
+            line << pIter->second[HitsCounter::WRITE] << "/";
+            line << pIter->second[HitsCounter::ERASE] << std::endl;
+
+            if( ! pIter->second[HitsCounter::READ] )
+              outData["WRITTEN BUT NEVER READ"][typeName].push_back(line.str());
+            else if( ! pIter->second[HitsCounter::WRITE] )
+              outData["READ BUT NEVER WRITTEN"][typeName].push_back(line.str());
+            else
+              outData["ALL THE REST"][typeName].push_back(line.str());
+          }
         }
       }
-      _hitsMutex.unlock();
 
       // Then output it
       for( auto it1 = outData.rbegin(); it1 != outData.rend(); ++it1 ) {
@@ -183,7 +182,7 @@ namespace Pol {
     size_t CPropProfiler::estimateSize()
     {
       /// Size of base empty containers
-      size_t ret = sizeof(_hitsMutex) + sizeof(_proplistsMutex) +
+      size_t ret = sizeof(Clib::SpinLock) + sizeof(_proplistsLock) +
                    sizeof(_hits) + sizeof(_proplists) +
                    sizeof(void*) * 2;
 
@@ -191,14 +190,15 @@ namespace Pol {
       ret += ( sizeof(PropertyList*) + sizeof(Type) ) * _proplists->size();
 
       /// + size of hits
-      _hitsMutex.lock();
-      for( auto itr1 = _hits->begin(); itr1 != _hits->end(); ++itr1 ) {
-        ret += sizeof(Type) + sizeof(HitsEntries);
-        for( auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); ++itr2 ) {
-          ret += itr2->first.size() + itr2->second.sizeEstimate();
+      {
+        Clib::SpinLockGuard lock(_hitsLock);
+        for( auto itr1 = _hits->begin(); itr1 != _hits->end(); ++itr1 ) {
+          ret += sizeof(Type) + sizeof(HitsEntries);
+          for( auto itr2 = itr1->second.begin(); itr2 != itr1->second.end(); ++itr2 ) {
+            ret += itr2->first.size() + itr2->second.sizeEstimate();
+          }
         }
       }
-      _hitsMutex.unlock();
 
       return ret;
     }
