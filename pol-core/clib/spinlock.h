@@ -8,7 +8,8 @@ namespace Pol {
   namespace Clib {
 
     /**
-     * This is a much fast replacement for a mutex
+     * This is a much faster replacement for mutex when locking very small
+     * and fast running protected parts. It is based on a busy loop.
      *
      * @warning use it only through SpinLockGuard
      */
@@ -39,7 +40,7 @@ namespace Pol {
     }
 
     /**
-     * Works just like std::mutex::lock
+     * Puts the caller in an endless busy loop until it acquires the lock
      */
     inline void SpinLock::lock()
     {
@@ -48,7 +49,7 @@ namespace Pol {
     }
 
     /**
-     * Works just like std::mutex::unlock
+     * Releases the lock
      */
     inline void SpinLock::unlock()
     {
