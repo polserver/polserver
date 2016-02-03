@@ -2,22 +2,34 @@
 #define CLIB_SPINLOCK_H
 
 #include <atomic>
+#include <mutex>
 
 namespace Pol {
   namespace Clib {
-    // spinLock implementation
-    // use only with std::lock_guard !
+
+    /**
+     * This is a much fast replacement for a mutex
+     *
+     * @warning use it only through SpinLockGuard
+     */
     class SpinLock
     {
+      friend class std::lock_guard<SpinLock>;
+
     public:
       SpinLock();
       ~SpinLock();
+
+    private:
       void lock();
       void unlock();
-    private:
+
       std::atomic_flag _lck;
     };
-    
+
+    /** This is a std::lock_guard specific for SpinLock */
+    typedef std::lock_guard<SpinLock> SpinLockGuard;
+
     inline SpinLock::SpinLock()
     {
       _lck.clear();
@@ -25,11 +37,19 @@ namespace Pol {
     inline SpinLock::~SpinLock()
     {
     }
+
+    /**
+     * Works just like std::mutex::lock
+     */
     inline void SpinLock::lock()
     {
       while(_lck.test_and_set(std::memory_order_acquire))
         {}
     }
+
+    /**
+     * Works just like std::mutex::unlock
+     */
     inline void SpinLock::unlock()
     {
       _lck.clear(std::memory_order_release);

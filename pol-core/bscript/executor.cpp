@@ -101,7 +101,7 @@ namespace Pol {
 	  bp_skip_( ~0u ),
 	  func_result_( NULL )
 	{
-	  std::lock_guard<Clib::SpinLock> lock( _executor_lock );
+      Clib::SpinLockGuard lock( _executor_lock );
 	  ++executor_count;
 	  executor_instances.insert( this );
 
@@ -115,7 +115,7 @@ namespace Pol {
 	Executor::~Executor()
 	{
       {
-	    std::lock_guard<Clib::SpinLock> lock( _executor_lock );
+        Clib::SpinLockGuard lock( _executor_lock );
 	    --executor_count;
 	    executor_instances.erase( this );
       }

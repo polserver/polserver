@@ -205,7 +205,7 @@ namespace Pol {
 #else
     void create_thread( ThreadData* td, bool dec_child = false )
     {
-      std::lock_guard<Clib::SpinLock> guard(pthread_attr_lock);
+      Clib::SpinLockGuard guard(pthread_attr_lock);
       pthread_t thread;
       int result = pthread_create( &thread, &create_detached_attr, thread_stub2, td );
       if ( result != 0) // added for better debugging
@@ -258,7 +258,7 @@ namespace Pol {
 #ifdef _WIN32
     HANDLE ThreadMap::getThreadHandle( size_t pid ) const
     {
-      std::lock_guard<Clib::SpinLock> guard(_spinlock);
+      Clib::SpinLockGuard guard(_spinlock);
       auto itr = _handles.find( pid );
       if ( itr == _handles.end() )
       {
@@ -269,7 +269,7 @@ namespace Pol {
 #endif
     void ThreadMap::Register( size_t pid, const std::string& name )
     {
-      std::lock_guard<Clib::SpinLock> guard(_spinlock);
+      Clib::SpinLockGuard guard(_spinlock);
       _contents.insert( std::make_pair( pid, name ) );
 #ifdef _WIN32
       HANDLE hThread = 0;
@@ -290,7 +290,7 @@ namespace Pol {
     }
     void ThreadMap::Unregister( size_t pid )
     {
-      std::lock_guard<Clib::SpinLock> guard(_spinlock);
+      Clib::SpinLockGuard guard(_spinlock);
       _contents.erase( pid );
 #ifdef _WIN32
       auto itr = _handles.find( pid );
@@ -301,7 +301,7 @@ namespace Pol {
     }
     void ThreadMap::CopyContents( Contents& out ) const
     {
-      std::lock_guard<Clib::SpinLock> guard(_spinlock);
+      Clib::SpinLockGuard guard(_spinlock);
       out = _contents;
     }
 

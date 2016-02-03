@@ -188,7 +188,7 @@ namespace Pol {
 	  }
 
       {
-        std::lock_guard<Clib::SpinLock> guard(_fpLog_lock);
+        Clib::SpinLockGuard guard(_fpLog_lock);
 	    if ( !fpLog.empty() )
 	    {
 		  time_t now = time( NULL );
@@ -678,7 +678,7 @@ namespace Pol {
 
     size_t Client::estimatedSize() const
     {
-      std::lock_guard<Clib::SpinLock> guard(_fpLog_lock);
+      Clib::SpinLockGuard guard(_fpLog_lock);
       size_t size = sizeof(Client)
         +fpLog.capacity() + version_.capacity();
       Core::XmitBuffer* buffer_size = first_xmit_buffer;
