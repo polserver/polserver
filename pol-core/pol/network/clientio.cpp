@@ -233,6 +233,10 @@ namespace Pol {
 	  if ( disconnect )
 	  {
 		POLLOG_INFO << "Warning: Trying to send to a disconnected client! \n";
+        fmt::Writer tmp;
+        tmp << "Server -> Client: 0x" << fmt::hexu(msgtype) << ", " << len << " bytes\n";
+        Clib::fdump(tmp, data, len);
+        POLLOG_INFO << tmp.str() << "\n";
 		return;
 	  }
 

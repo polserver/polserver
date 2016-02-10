@@ -39,7 +39,7 @@ namespace Pol {
 
 	  ref_ptr<Core::UContainer> vendor_bought;
 	  ref_ptr<Core::UContainer> vendor_for_sale;
-	  Core::NPCRef vendor;
+	  Core::NpcRef vendor;
 
 	  typedef std::map<u32, Module::UOExecutorModule*> GumpMods;
 	  GumpMods gumpmods;

@@ -13,34 +13,6 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 #include <boost/noncopyable.hpp>
 
-/*
-TODO:
-- this is an blocking queue, consider after updating to a newer boost version
-the lockfree queues.
-
-Idea for lockfree pop_wait:
-keep the conditional and lock members
-void push(Message const& msg)
-{
-   _queue.push_back(msg);
-   _notifier.notify_one(); // no lock only signal the state
-}
-
-void pop_wait(Message& msg)
-{
- if (try_pop(msg)) // fast lookup
-  return;
- // queue is empty part
- boost::mutex::scoped_lock lock(_mutex);
- while (!try_pop(msg)) 
- {
-  t= some time (a few ms)
-  // timed wait just to be sure that no deadlocks can accur
-  // since between the try_pop a new entry can be inserted
-  _notifier.timed_wait(lock, t);                            
- }
-}
-*/
 namespace Pol {
   namespace Clib {
 	template <typename Message>

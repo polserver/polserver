@@ -251,16 +251,14 @@ namespace Pol {
 		if ( listener.GetConnection( 5 ) )
 		{
           Core::PolLock lock;
-		  // Shinigami: Just 4 Debugging. We got Crashes here...
 #ifdef PERGON
-		  ERROR_PRINT << "Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ") - add task\n";
+          // TODO remove the ifdef it works..
           AuxClientThread* client( new AuxClientThread( this, listener ) );
           Core::networkManager.auxthreadpool->push( [client]()
           {
             std::unique_ptr<AuxClientThread> _clientptr( client );
             _clientptr->run();
           } );
-          ERROR_PRINT << "AuxWorkerSize: " << Core::networkManager.auxthreadpool->threadpoolsize() << "\n";
 #else
 		  Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
 		  clientthread->start();

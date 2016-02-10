@@ -482,12 +482,12 @@ namespace Pol {
 	  }
 	}
 
-	Items::Item *UContainer::remove( u32 serial, UContainer** found_in )
+	Items::Item *UContainer::remove( u32 objserial, UContainer** found_in )
 	{
 	  Items::Item* item;
 	  iterator itr;
 
-	  item = find( serial, itr );
+	  item = find(objserial, itr );
 	  if ( item != NULL )
 	  {
 		if ( found_in != NULL )
@@ -545,7 +545,7 @@ namespace Pol {
 	}
 
 	// FIXME this is depth-first.  Not sure I like that.
-	UContainer *UContainer::find_container( u32 serial ) const
+	UContainer *UContainer::find_container( u32 objserial) const
 	{
       for ( auto &item : contents_ )
 	  {
@@ -553,9 +553,9 @@ namespace Pol {
 			 item->isa( UObject::CLASS_CONTAINER ) )
 		{
 		  UContainer *cont = static_cast<UContainer *>( item );
-		  if ( cont->serial == serial )
+		  if ( cont->serial == objserial)
 			return cont;
-		  cont = cont->find_container( serial );
+		  cont = cont->find_container(objserial);
 		  if ( cont != NULL )
 			return cont;
 		}
@@ -563,7 +563,7 @@ namespace Pol {
 	  return NULL;
 	}
 
-	Items::Item *UContainer::find( u32 serial, iterator& where_in_container )
+	Items::Item *UContainer::find( u32 objserial, iterator& where_in_container )
 	{
 	  for ( iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
 	  {
@@ -571,7 +571,7 @@ namespace Pol {
 		passert( item != NULL );
 		if ( item != NULL )
 		{
-		  if ( item->serial == serial )
+		  if ( item->serial == objserial)
 		  {
 			where_in_container = itr;
 			return item;
@@ -581,7 +581,7 @@ namespace Pol {
 			UContainer* cont = static_cast<UContainer*>( item );
 			if ( !cont->locked_ )
 			{
-			  item = cont->find( serial, where_in_container );
+			  item = cont->find(objserial, where_in_container );
 			  if ( item != NULL )
 				return item;
 			}
@@ -591,14 +591,14 @@ namespace Pol {
 	  return NULL;
 	}
 
-	Items::Item *UContainer::find( u32 serial ) const
+	Items::Item *UContainer::find( u32 objserial) const
 	{
       for ( const auto &item : contents_ )
 	  {
 		passert( item != NULL );
 		if ( item != NULL )
 		{
-		  if ( item->serial == serial )
+		  if ( item->serial == objserial)
 			return item;
 
 		  if ( item->isa( UObject::CLASS_CONTAINER ) )
@@ -606,7 +606,7 @@ namespace Pol {
 			UContainer* cont = static_cast<UContainer*>( item );
 			if ( !cont->locked_ )
 			{
-			  auto child_item = cont->find( serial );
+			  auto child_item = cont->find(objserial);
               if ( child_item != NULL )
                 return child_item;
 			}
@@ -616,14 +616,14 @@ namespace Pol {
 	  return NULL;
 	}
 
-	Items::Item *UContainer::find_toplevel( u32 serial ) const
+	Items::Item *UContainer::find_toplevel( u32 objserial) const
 	{
       for ( auto &item : contents_ )
 	  {
 		passert( item != NULL );
 		if ( item != NULL )
 		{
-		  if ( item->serial == serial )
+		  if ( item->serial == objserial)
 			return item;
 
 		}
@@ -706,10 +706,10 @@ namespace Pol {
 	  }
 	}
 
-	bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 x, u16 y ) const
+	bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) const
 	{
-	  return ( x >= desc.minx && x <= desc.maxx &&
-			   y >= desc.miny && y <= desc.maxy );
+	  return ( px >= desc.minx && px <= desc.maxx &&
+			   py >= desc.miny && py <= desc.maxy );
 	}
 
 	void UContainer::spill_contents( Multi::UMulti* multi )
