@@ -1,5 +1,4 @@
-*.cpp text=auto
-*.h text=auto
+* text auto
 
 *.vcproj text eol=crlf 
 *.bat text eol=crlf
