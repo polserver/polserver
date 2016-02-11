@@ -1,0 +1,14 @@
+*.cpp text=auto
+*.h text=auto
+
+*.vcproj text eol=crlf 
+*.bat text eol=crlf
+*.sh text eol=lf
+
+*.exe binary
+*.dll binary
+*.lib binary
+*.aps binary
+*.zip binary
+*.rar binary
+*.bz2 binary
