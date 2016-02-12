@@ -15,5 +15,4 @@ build_script:
 #test: off
 test_script: 
 - c:\\Python34\\python.exe testsuite\\escript\\performtests.py pol-core\\ecompile\\Release\\x64\\ecompile.exe pol-core\\runecl\\Release\\x64\\runecl.exe -n 5
-- c:\\Python34\\python.exe testsuite\\lineendings\\checknl.py
 deploy: off

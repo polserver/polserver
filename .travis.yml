@@ -40,4 +40,3 @@ script:
 
   - cd ../..
   - testsuite/escript/performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
-  - testsuite/lineendings/checknl.py
