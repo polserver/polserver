@@ -4,6 +4,7 @@
 *.bat text eol=crlf
 *.sh text eol=lf
 
+*.doc binary
 *.exe binary
 *.dll binary
 *.lib binary
@@ -11,3 +12,4 @@
 *.zip binary
 *.rar binary
 *.bz2 binary
+
