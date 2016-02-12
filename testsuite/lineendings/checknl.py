@@ -68,9 +68,13 @@ class Main:
 	def isGitIgnored(self, path):
 		''' Checks if file is ignored by git '''
 
-		cmd = ('git', 'check-ignore', path)
-		if subprocess.call(cmd):
+		# Using shell to have git automatically found in travis/appveyor
+		cmd = 'git check-ignore "' + path + '"'
+		try:
+			subprocess.check_call(cmd, shell=True)
+		except subprocess.CalledProcessError:
 			return False
+
 		return True
 
 	def checkLineEndings(self, path, nl='auto'):
