@@ -468,13 +468,13 @@ namespace Pol {
 			fprintf( fptext, "  Local variables %u-%u: \n", varfirst, varlast );
 		  for ( unsigned j = 0; j < block.localvarnames.size(); ++j )
 		  {
-            std::string name = block.localvarnames[j];
+            std::string varname = block.localvarnames[j];
 			if ( fptext )
-			  fprintf( fptext, "      %u: %s\n", varfirst + j, name.c_str() );
+			  fprintf( fptext, "      %u: %s\n", varfirst + j, varname.c_str() );
 
-			count = static_cast<unsigned int>( name.size() + 1 );
+			count = static_cast<unsigned int>(varname.size() + 1 );
 			fwrite( &count, sizeof count, 1, fp );
-			fwrite( name.c_str(), count, 1, fp );
+			fwrite(varname.c_str(), count, 1, fp );
 		  }
 		}
 	  }
@@ -581,10 +581,10 @@ namespace Pol {
 	{
 	  blocks[curblock].localvarnames.push_back( localvarname );
 	}
-    void EScriptProgram::addfunction(std::string name, unsigned firstPC, unsigned lastPC)
+    void EScriptProgram::addfunction(std::string funcname, unsigned firstPC, unsigned lastPC)
 	{
 	  EPDbgFunction func;
-	  func.name = name;
+	  func.name = funcname;
 	  func.firstPC = firstPC;
 	  func.lastPC = lastPC;
 	  dbg_functions.push_back( func );

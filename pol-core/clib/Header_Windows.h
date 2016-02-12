@@ -22,7 +22,7 @@
 #include <crtdbg.h>
 #include <Shellapi.h>
 
-#define snprintf _snprintf
+//#define snprintf _snprintf
 
 #define MAXDRIVE _MAX_DRIVE
 #define MAXDIR   _MAX_DIR

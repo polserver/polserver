@@ -162,10 +162,10 @@ namespace Pol {
 	//									unsigned short x2, unsigned short y2 )
 	// to ufunc.cpp
 
-	bool NPC::anchor_allows_move(Core::UFACING dir) const
+	bool NPC::anchor_allows_move(Core::UFACING fdir) const
 	{
-		unsigned short newx = x + Core::move_delta[dir].xmove;
-		unsigned short newy = y + Core::move_delta[dir].ymove;
+		unsigned short newx = x + Core::move_delta[fdir].xmove;
+		unsigned short newy = y + Core::move_delta[fdir].ymove;
 
 	  if ( anchor.enabled && !warmode )
 	  {
@@ -186,15 +186,15 @@ namespace Pol {
 	  return true;
 	}
 
-	bool NPC::could_move(Core::UFACING dir) const
+	bool NPC::could_move(Core::UFACING fdir) const
 	{
 	  short newz;
 	  Multi::UMulti* supporting_multi;
 	  Items::Item* walkon_item;
 	  // Check for diagonal move - use Nandos change from charactr.cpp -- OWHorus (2011-04-26)
-	  if ( dir & 1 ) // check if diagonal movement is allowed -- Nando (2009-02-26)
+	  if ( fdir & 1 ) // check if diagonal movement is allowed -- Nando (2009-02-26)
 	  {
-		u8 tmp_facing = ( dir + 1 ) & 0x7;
+		u8 tmp_facing = ( fdir + 1 ) & 0x7;
 		unsigned short tmp_newx = x + Core::move_delta[tmp_facing].xmove;
 		unsigned short tmp_newy = y + Core::move_delta[tmp_facing].ymove;
 
@@ -202,59 +202,58 @@ namespace Pol {
 		short current_boost = gradual_boost;
 		bool walk1 = realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost );
 
-		tmp_facing = ( dir - 1 ) & 0x7;
+		tmp_facing = ( fdir - 1 ) & 0x7;
 		tmp_newx = x + Core::move_delta[tmp_facing].xmove;
 		tmp_newy = y + Core::move_delta[tmp_facing].ymove;
 		current_boost = gradual_boost;
 		if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ) )
 		  return false;
 	  }
-	  unsigned short newx = x + Core::move_delta[dir].xmove;
-	  unsigned short newy = y + Core::move_delta[dir].ymove;
+	  unsigned short newx = x + Core::move_delta[fdir].xmove;
+	  unsigned short newy = y + Core::move_delta[fdir].ymove;
 	  short current_boost = gradual_boost;
 	  return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item, &current_boost ) &&
-		!npc_path_blocked( dir ) &&
-		anchor_allows_move( dir );
+		!npc_path_blocked( fdir ) &&
+		anchor_allows_move( fdir );
 	}
 
-	bool NPC::npc_path_blocked(Core::UFACING dir) const
-	{
-		if (cached_settings.freemove || (!this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement))
-		return false;
+    bool NPC::npc_path_blocked( Core::UFACING fdir ) const
+    {
+      if ( cached_settings.freemove ||
+           ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )
+        return false;
 
-		unsigned short newx = x + Core::move_delta[dir].xmove;
-		unsigned short newy = y + Core::move_delta[dir].ymove;
+      unsigned short newx = x + Core::move_delta[fdir].xmove;
+      unsigned short newy = y + Core::move_delta[fdir].ymove;
 
-	  unsigned short wx, wy;
-	  Core::zone_convert_clip(newx, newy, realm, &wx, &wy);
+      unsigned short wx, wy;
+      Core::zone_convert_clip( newx, newy, realm, &wx, &wy );
 
-	  if (Core::settingsManager.ssopt.mobiles_block_npc_movement)
+      if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
       {
-        for ( const auto &chr : realm->zone[wx][wy].characters )
+        for ( const auto& chr : realm->zone[wx][wy].characters )
         {
           // First check if there really is a character blocking
-          if ( chr->x == newx &&
-               chr->y == newy &&
-               chr->z >= z - 10 && chr->z <= z + 10 )
+          if ( chr->x == newx && chr->y == newy && chr->z >= z - 10 && chr->z <= z + 10 )
           {
             if ( !chr->dead() && is_visible_to_me( chr ) )
               return true;
           }
         }
       }
-      for ( const auto &chr : realm->zone[wx][wy].npcs )
+      for ( const auto& chr : realm->zone[wx][wy].npcs )
       {
         // First check if there really is a character blocking
-        if ( chr->x == newx &&
-             chr->y == newy &&
-             chr->z >= z - 10 && chr->z <= z + 10 )
+        if ( chr->x == newx && chr->y == newy && chr->z >= z - 10 && chr->z <= z + 10 )
         {
-          // Check first with the ssopt false to now allow npcs of same master running on top of each other
-		  if (!Core::settingsManager.ssopt.mobiles_block_npc_movement)
+          // Check first with the ssopt false to now allow npcs of same master running on top of
+          // each other
+          if ( !Core::settingsManager.ssopt.mobiles_block_npc_movement )
           {
-			NPC* npc = static_cast<NPC*>( chr );
-			if ( npc->master() && this->master() == npc->master() && !npc->dead() && is_visible_to_me( npc ) )
-				return true;
+            NPC* npc = static_cast<NPC*>( chr );
+            if ( npc->master() && this->master() == npc->master() && !npc->dead() &&
+                 is_visible_to_me( npc ) )
+              return true;
           }
           else
           {
@@ -263,10 +262,10 @@ namespace Pol {
           }
         }
       }
-	  return false;
-	}
+      return false;
+    }
 
-	void NPC::printOn( Clib::StreamWriter& sw ) const
+    void NPC::printOn( Clib::StreamWriter& sw ) const
 	{
 	  sw() << classname() << " " << template_name.get() << pf_endl;
 	  sw() << "{" << pf_endl;

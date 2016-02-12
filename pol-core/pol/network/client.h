@@ -21,23 +21,25 @@
 #ifndef __CLIENT_H
 #define __CLIENT_H
 
-
 #include "../../clib/rawtypes.h"
-#include "../../clib/wallclock.h"
 #include "../../clib/refptr.h"
 #include "../../clib/spinlock.h"
+#include "../../clib/wallclock.h"
+#include "../../clib/weakptr.h"
 
-#include "../polsem.h"
+#include "../crypt/cryptkey.h"
 #include "../pktin.h"
+#include "../polclock.h"
+#include "../polsem.h"
 #include "../sockets.h"
 #include "../uconst.h"
-#include "../crypt/cryptkey.h"
-#include "../polclock.h"
 
 #include <memory>
 #include <cstring>
 #include <mutex>
 #include <queue>
+
+#include <boost/noncopyable.hpp>
 
 namespace Pol {
   namespace Bscript {
@@ -75,8 +77,6 @@ namespace Pol {
 	const u8 FLAG_GENDER = 0x01;
 	const u8 FLAG_RACE = 0x02;
 
-
-
 	struct VersionDetailStruct
 	{
 	  int major;
@@ -97,39 +97,38 @@ namespace Pol {
     const struct VersionDetailStruct CLIENT_VER_70300 = { 7, 0, 30, 0 };
     const struct VersionDetailStruct CLIENT_VER_70331 = { 7, 0, 33, 1 };
 
-	enum ClientTypeFlag
-	{
-	  CLIENTTYPE_4000 = 0x1,  // 4.0.0a   (new spellbookcontent packet 0xbf:0x1b)
-	  CLIENTTYPE_4070 = 0x2,  // 4.0.7a   (new damage packet 0x0b instead of 0xbf:0x22)
-	  CLIENTTYPE_5000 = 0x4,  // 5.0.0a   (compressed gumps)
-	  CLIENTTYPE_5020 = 0x8,  // 5.0.2a   (Buff/Debuff 0xdf)
-	  CLIENTTYPE_6017 = 0x10, // 6.0.1.7  (Grid locs)
-	  CLIENTTYPE_60142 = 0x20, // 6.0.14.2 (feature enable 0xb9 size change)
-	  CLIENTTYPE_UOKR = 0x40,
-	  CLIENTTYPE_7000 = 0x80, // 7.0.0.0  (Gargoyle race)
-	  CLIENTTYPE_UOSA = 0x100,
-	  CLIENTTYPE_7090 = 0x200, // 7.0.9.0 (High Sea Adventures)
-	  CLIENTTYPE_70130 = 0x400, // 7.0.13.0 (New 0xA9 packet)
-      CLIENTTYPE_70300 = 0x800,  // 7.0.30.0 (New Status entries for classic client)
-      CLIENTTYPE_70331 = 0x1000 // 7.0.33.1 new mobile incoming
-	};
+    enum ClientTypeFlag
+    {
+      CLIENTTYPE_4000 = 0x1,    // 4.0.0a   (new spellbookcontent packet 0xbf:0x1b)
+      CLIENTTYPE_4070 = 0x2,    // 4.0.7a   (new damage packet 0x0b instead of 0xbf:0x22)
+      CLIENTTYPE_5000 = 0x4,    // 5.0.0a   (compressed gumps)
+      CLIENTTYPE_5020 = 0x8,    // 5.0.2a   (Buff/Debuff 0xdf)
+      CLIENTTYPE_6017 = 0x10,   // 6.0.1.7  (Grid locs)
+      CLIENTTYPE_60142 = 0x20,  // 6.0.14.2 (feature enable 0xb9 size change)
+      CLIENTTYPE_UOKR = 0x40,
+      CLIENTTYPE_7000 = 0x80,   // 7.0.0.0  (Gargoyle race)
+      CLIENTTYPE_UOSA = 0x100,
+      CLIENTTYPE_7090 = 0x200,  // 7.0.9.0 (High Sea Adventures)
+      CLIENTTYPE_70130 = 0x400, // 7.0.13.0 (New 0xA9 packet)
+      CLIENTTYPE_70300 = 0x800, // 7.0.30.0 (New Status entries for classic client)
+      CLIENTTYPE_70331 = 0x1000  // 7.0.33.1 new mobile incoming
+    };
 
     typedef struct
     {
       unsigned char pktbuffer[PKTIN_02_SIZE];
     }PacketThrottler;
 
-	class Client : public ref_counted
+	class Client : boost::noncopyable
 	{
 	public:
 	  Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
 	  static void Delete( Client* client );
-	  friend class GCCHelper;
-	  virtual ~Client();
       size_t estimatedSize() const;
 
-	private:
+    private:
 	  void PreDelete();
+      virtual ~Client();
 	  bool preDisconnect;
 	  bool disconnect;		// if 1, disconnect this client
 
@@ -260,9 +259,7 @@ namespace Pol {
 	  Core::PKTIN_D9 clientinfo_;
 	  bool paused_;
 	  VersionDetailStruct versiondetail_;
-	  // hidden:
-	  Client( const Client& x );
-	  Client& operator=( const Client& x );
+      weak_ptr_owner<Client> weakptr;
 	};
 
 	inline bool Client::have_queued_data() const

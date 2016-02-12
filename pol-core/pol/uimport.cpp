@@ -128,7 +128,7 @@ namespace Pol {
       if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
         return;
 
-      NPCRef npc( new Mobile::NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
+      NpcRef npc( new Mobile::NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
 
       try
       {

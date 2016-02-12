@@ -106,6 +106,8 @@ namespace Pol {
 	  last_packet_at( 0 ),
 	  paused_( false )
 	{
+      weakptr.set(this); // store weakptr for usage in scripts (see EClientRefObjImp)
+
 	  // For bypassing cryptseed packet
 	  if ( Core::settingsManager.ssopt.use_edit_server )
 	  {
@@ -118,7 +120,6 @@ namespace Pol {
 	  memset( &clientinfo_, 0, sizeof( clientinfo_ ) );
 	  memset( &versiondetail_, 0, sizeof( versiondetail_ ) );
 	  memset( &ipaddr, 0, sizeof( ipaddr ) );
-	  this->add_ref(); //NOTE: since Client is ref_counted +1 so escript cannot delete class
 	}
 
 	void Client::Delete( Client* client )
@@ -673,7 +674,7 @@ namespace Pol {
 
 	Bscript::BObjectImp* Client::make_ref()
 	{
-	  return new Module::EClientRefObjImp( Module::ClientPtrHolder( Core::ClientRef( this ) ) );
+	  return new Module::EClientRefObjImp(weakptr);
 	}
 
     size_t Client::estimatedSize() const

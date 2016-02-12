@@ -1139,10 +1139,10 @@ namespace Pol {
 	}
 
 	// add serial to Bob's ToBeReportable list
-	void Character::add_to_be_reportable( u32 serial )
+	void Character::add_to_be_reportable( u32 repserial )
 	{
 	  set_dirty();
-	  to_be_reportable_.insert( serial );
+	  to_be_reportable_.insert( repserial );
 	}
 	void Character::clear_to_be_reportables()
 	{
@@ -1166,11 +1166,11 @@ namespace Pol {
 
 	  to_be_reportable_.clear();
 	}
-    void Character::clear_reportable( u32 serial, Core::polclock_t when )
+    void Character::clear_reportable( u32 repserial, Core::polclock_t when )
 	{
 	  set_dirty();
 	  reportable_t rt;
-	  rt.serial = serial;
+	  rt.serial = repserial;
 	  rt.polclock = when;
 	  reportable_.erase( rt );
 	}
@@ -1181,8 +1181,8 @@ namespace Pol {
 		end = to_be_reportable_.end();
 	  for ( ; itr != end; ++itr )
 	  {
-		u32 serial = ( *itr );
-        Character* aggressor = Core::system_find_mobile( serial );
+		u32 repserial = ( *itr );
+        Character* aggressor = Core::system_find_mobile(repserial);
 		if ( aggressor != NULL )
 		{
 		  aggressor->remove_as_aggressor_to( this );
@@ -1209,8 +1209,8 @@ namespace Pol {
 		end = to_be_reportable_.end();
 	  for ( ; itr != end; ++itr )
 	  {
-		u32 serial = ( *itr );
-        Character* damager = Core::system_find_mobile( serial );
+		u32 repserial = ( *itr );
+        Character* damager = Core::system_find_mobile(repserial);
 		if ( damager != NULL )
 		{
 		  damager->remove_as_lawful_damager( this );

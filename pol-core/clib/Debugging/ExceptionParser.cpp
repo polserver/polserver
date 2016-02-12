@@ -207,7 +207,12 @@ void doHttpPOST(string host, string url, string content)
     /**
      * prepare the request
      */
-    snprintf(request, MAXLINE,
+#ifdef _MSC_VER
+    _snprintf(
+#else
+    snprintf(
+#endif
+      request, MAXLINE,
              "POST %s HTTP/1.0\r\n"
              "Host: %s\r\n"
              "Content-Type: application/x-www-form-urlencoded\r\n"
@@ -344,6 +349,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                 else
                     printf("POL will exit now. Please, post the following to the forum: http://forums.polserver.com/.\n");
                 string tStackTrace = ExceptionParser::getTrace();
+                printf(tStackTrace.c_str());
                 printf("Admin contact: %s\n", m_programAbortReportingReporter.c_str());
                 printf("Executable: %s\n", PROG_CONFIG::programName().c_str());
                 printf("Start time: %s\n", m_programStart.c_str());
@@ -360,6 +366,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                 #endif
                 printf("\n");
                 printf("########################################################################################\n");
+                fflush(stdout);
 
                 /**
                  * use the program abort reporting system

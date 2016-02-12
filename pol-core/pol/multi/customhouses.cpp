@@ -194,8 +194,8 @@ namespace Pol {
 			itrend = column->end();
 			itr != itrend; ++itr )
 	  {
-        char height = Core::tileheight( itr->graphic );
-		if ( ( itr->z == z ) && ( height >= minheight ) )
+        char t_height = Core::tileheight( itr->graphic );
+		if ( ( itr->z == z ) && (t_height >= minheight ) )
 		{
 		  column->erase( itr );
 		  floor_sizes[floor_num]--;

@@ -16,6 +16,8 @@
 #include "spinlock.h"
 #include "message_queue.h"
 
+#include <boost/noncopyable.hpp>
+
 namespace Pol {
   namespace threadhelp {
 	  extern std::atomic<unsigned int> child_threads;

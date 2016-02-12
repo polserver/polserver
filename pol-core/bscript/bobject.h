@@ -562,9 +562,6 @@ namespace Pol {
 	  void deepcopy();
 	};
 
-	class GCCHelper
-	{};
-
 	class BLong : public BObjectImp
 	{
       typedef BObjectImp base;
@@ -577,9 +574,6 @@ namespace Pol {
 	  explicit BLong( int lval = 0L ) : BObjectImp( OTLong ), lval_( static_cast<int>( lval ) ) {}
 	  BLong( const BLong& L ) : BObjectImp( OTLong ), lval_( L.lval_ ) {}
 #endif
-
-	  friend class GCCHelper;
-
 	private:
 	  ~BLong() {}
 
@@ -705,8 +699,6 @@ namespace Pol {
 	public:
 	  explicit Double( double dval = 0.0 ) : BObjectImp( OTDouble ), dval_( dval ) {}
 	  Double( const Double& dbl ) : BObjectImp( OTDouble ), dval_( dbl.dval_ ) {}
-
-	  friend class GCCHelper;
 
 	  // FIXME: 2008 Upgrades needed here? Still valid, or why the hell we even do this anyway???
 #if defined(__GNUC__) || (defined(_WIN32) && _MSC_VER >= 1300)

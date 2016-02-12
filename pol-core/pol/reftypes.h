@@ -39,9 +39,8 @@ namespace Pol {
 	typedef ref_ptr<UObject> UObjectRef;
 	typedef ref_ptr<Mobile::Character> CharacterRef;
 	typedef ref_ptr<Items::Item> ItemRef;
-	typedef ref_ptr<Mobile::NPC> NPCRef; // TODO: rename NpcRef
+	typedef ref_ptr<Mobile::NPC> NpcRef;
 	typedef ref_ptr<Accounts::Account> AccountRef;
-	typedef ref_ptr<Network::Client> ClientRef;
 #else
 	class UObjectRef : public ref_ptr<UObject>
 	{
@@ -73,16 +72,15 @@ namespace Pol {
 	  ~ItemRef();
 	};
 
-	class NPCRef : public ref_ptr<Mobile::NPC>
+	class NpcRef : public ref_ptr<Mobile::NPC>
 	{
 	public:
-	  explicit NPCRef( Mobile::NPC* npc = 0 );
-	  NPCRef( const NPCRef& rptr );
-	  ~NPCRef();
+	  explicit NpcRef( Mobile::NPC* npc = 0 );
+	  NpcRef( const NpcRef& rptr );
+	  ~NpcRef();
 	};
 
 	typedef ref_ptr<Accounts::Account> AccountRef;
-	typedef ref_ptr<Network::Client> ClientRef;
 
 #endif
   }
