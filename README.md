@@ -27,6 +27,7 @@ We always need updates or better descriptions in the docs, so feel free to send 
 
 The best way to get used to the code is to search for eScript functions in the cpp files. For example, "SystemFindObjectBySerial" or "ApplyDamage". This way you can see how eScript interfaces with the core and how to add/modify modules and functions.
 
+
 Compiling in Windows
 ---------
 
