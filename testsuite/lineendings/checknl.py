@@ -17,7 +17,7 @@ class Main:
 	# Extensions of always-unix files
 	UNIXEXTS = ('.sh', )
 	# Extensions of always-windows files
-	WINEXTS = ('.vcproj', )
+	WINEXTS = ('.vcproj', '.bat')
 
 	def __init__(self):
 		mydir = os.path.dirname(os.path.realpath(__file__))
