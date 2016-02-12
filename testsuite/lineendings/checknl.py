@@ -13,7 +13,7 @@ import subprocess
 class Main:
 
 	# Extensions of binary files, will be ignored
-	BINEXTS = ('.jpg', '.rar', '.zip', '.exe', '.dll', '.doc', '.lib', '.bz2')
+	BINEXTS = ('.jpg', '.rar', '.zip', '.exe', '.dll', '.doc', '.lib', '.bz2', '.aps')
 	# Extensions of always-unix files
 	UNIXEXTS = ('.sh', )
 	# Extensions of always-windows files
@@ -21,7 +21,7 @@ class Main:
 
 	def __init__(self):
 		mydir = os.path.dirname(os.path.realpath(__file__))
-		self.polroot = os.path.realpath(os.path.join('..', '..'))
+		self.polroot = os.path.realpath(os.path.join(mydir, '..', '..'))
 
 		# Just to be sure
 		if os.linesep != '\r\n' and os.linesep != '\n':

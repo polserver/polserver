@@ -14,6 +14,6 @@ build_script:
 - msbuild "pol-core/pol-2013.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
 #test: off
 test_script: 
-- cd testsuite\\escript
-- c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\ecompile\\Release\\x64\\ecompile.exe ..\\..\\pol-core\\runecl\\Release\\x64\\runecl.exe -n 5
+- c:\\Python34\\python.exe testsuite\\escript\\performtests.py pol-core\\ecompile\\Release\\x64\\ecompile.exe pol-core\\runecl\\Release\\x64\\runecl.exe -n 5
+- c:\\Python34\\python.exe testsuite\\lineendings\\checknl.py
 deploy: off
