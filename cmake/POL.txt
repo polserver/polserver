@@ -56,13 +56,23 @@ IF(LINUX)
 			-Wno-unused-but-set-parameter
 		)
 	ENDIF()
-	
+
     SET(BOOST_ROOT "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_55_0")
     MESSAGE("##### Searching BOOST also in: ${BOOST_ROOT}")
     FIND_PACKAGE(Boost 1.55)
     IF(NOT Boost_FOUND)
-    	MESSAGE(FATAL_ERROR ">>>>> You need the BOOST dev. package to compile POL <<<<<") 
-    ENDIF()    
+        IF(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_55_0.tar.bz2")
+            MESSAGE(STATUS "Found boost tarball, trying to unpack it...")
+            execute_process(
+                COMMAND tar xjf boost_1_55_0.tar.bz2
+                WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../lib
+            )
+        ENDIF()
+    ENDIF()
+    FIND_PACKAGE(Boost 1.55)
+    IF(NOT Boost_FOUND)
+        MESSAGE(FATAL_ERROR ">>>>> You need the BOOST dev package to compile POL <<<<<")
+    ENDIF()
     MESSAGE("##### BOOST include directory: ${Boost_INCLUDE_DIR}")
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
     LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
