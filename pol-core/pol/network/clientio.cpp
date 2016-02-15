@@ -219,7 +219,7 @@ namespace Pol {
 	  unsigned char msgtype = *(const char*)data;
 
       {
-        std::lock_guard<Clib::SpinLock> guard(_fpLog_lock);
+        Clib::SpinLockGuard guard(_fpLog_lock);
 	    if ( !fpLog.empty() )
 	    {
           fmt::Writer tmp;
@@ -263,7 +263,7 @@ namespace Pol {
 	void Client::transmitmore( const void *data, int len )
 	{
       {
-        std::lock_guard<Clib::SpinLock> guard(_fpLog_lock);
+        Clib::SpinLockGuard guard(_fpLog_lock);
 	    if ( !fpLog.empty() )
 	    {
           fmt::Writer tmp;

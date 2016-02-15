@@ -81,7 +81,8 @@ namespace Pol {
 	  cmdlevels(),
 	  npc_templates(),
 	  npc_template_elems(),
-	  global_properties(new Core::PropertyList),
+      // Using force allocate because this is inited before reading global CProp setting
+	  global_properties(new Core::PropertyList(CPropProfiler::Type::GLOBAL, true)),
 	  accounts(),
 	  startlocations(),
 	  wrestling_weapon(nullptr),

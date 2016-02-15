@@ -164,7 +164,7 @@ namespace Pol {
     PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 /*sub*/)
     {
       // critical start
-      std::lock_guard<Clib::SpinLock> lock(_lock);
+      Clib::SpinLockGuard lock(_lock);
       PacketInterface* pkt;
       if (!_packets.empty())
       {
@@ -180,7 +180,7 @@ namespace Pol {
 
     PacketQueueSingle::~PacketQueueSingle()
     {
-      std::lock_guard<Clib::SpinLock> lock(_lock);
+      Clib::SpinLockGuard lock(_lock);
       while (!_packets.empty())
       {
         PacketInterface* pkt = _packets.front();
@@ -191,7 +191,7 @@ namespace Pol {
 
     void PacketQueueSingle::Add(PacketInterface* pkt)
     {
-      std::lock_guard<Clib::SpinLock> lock(_lock);
+      Clib::SpinLockGuard lock(_lock);
       if (_packets.size() > MAX_PACKETS_INSTANCES)  // enough?
         delete pkt;
       else
@@ -202,7 +202,7 @@ namespace Pol {
 
     size_t PacketQueueSingle::estimateSize() const
     {
-      std::lock_guard<Clib::SpinLock> lock(_lock);
+      Clib::SpinLockGuard lock(_lock);
       size_t size = sizeof(PacketQueueSingle);
       if (!_packets.empty())
         size += _packets.front()->estimateSize() * _packets.size();
@@ -215,7 +215,7 @@ namespace Pol {
     {}
     PacketQueueSubs::~PacketQueueSubs()
     {
-      std::lock_guard<Clib::SpinLock> lock(_lock);
+      Clib::SpinLockGuard lock(_lock);
       for ( auto& pkts : _packets )
 	  {
         while ( !pkts.second.empty( ) )
@@ -231,7 +231,7 @@ namespace Pol {
 	PacketInterface* PacketQueueSubs::GetNext( u8 id, u16 sub )
 	{
 	  //critical start
-	  std::lock_guard<Clib::SpinLock> lock(_lock);
+	  Clib::SpinLockGuard lock(_lock);
 	  PacketInterface* pkt;
 	  if ( !_packets.empty() )
 	  {
@@ -256,7 +256,7 @@ namespace Pol {
 	{
 	  u16 sub = pkt->getSubID();
 	  //critical start
-	  std::lock_guard<Clib::SpinLock> lock(_lock);
+	  Clib::SpinLockGuard lock(_lock);
 	  PacketInterfaceQueueMap::iterator itr = _packets.find( sub );
 	  if ( itr != _packets.end() )
 	  {
@@ -276,7 +276,7 @@ namespace Pol {
 
 	size_t PacketQueueSubs::Count() const
 	{
-      std::lock_guard<Clib::SpinLock> lock(_lock);
+      Clib::SpinLockGuard lock(_lock);
 	  size_t count = 0;
 	  for ( const auto& pkts : _packets )
 	  {
@@ -287,7 +287,7 @@ namespace Pol {
 
     size_t PacketQueueSubs::estimateSize() const
     {
-      std::lock_guard<Clib::SpinLock> lock(_lock);
+      Clib::SpinLockGuard lock(_lock);
       size_t size = sizeof(PacketQueueSubs);
       for (const auto& pkts : _packets)
       {

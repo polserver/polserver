@@ -32,6 +32,7 @@ namespace Pol {
 	  name_( elem.remove_string( "NAME" ) ),
 	  enabled_( true ),
 	  banned_( false ),
+      props_( Core::CPropProfiler::Type::ACCOUNT ),
 	  default_cmdlevel_( 0 )
 	{
 	  // If too low, will cause the client to freeze and the console to report 

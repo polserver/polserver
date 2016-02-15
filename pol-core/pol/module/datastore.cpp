@@ -698,10 +698,11 @@ namespace Pol {
 	  
 
 	DataFileElement::DataFileElement() :
-	  proplist()
+      proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )
 	{}
 
-	DataFileElement::DataFileElement( Clib::ConfigElem& elem )
+	DataFileElement::DataFileElement( Clib::ConfigElem& elem ) :
+      proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )
 	{
 	  proplist.readRemainingPropertiesAsStrings( elem );
 	}

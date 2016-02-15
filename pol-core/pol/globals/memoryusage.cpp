@@ -38,9 +38,11 @@ namespace Core {
     size_t state_size = stateManager.estimateSize();
     auto config_sizes = configurationbuffer.estimateSize();
     auto gamestate_size = gamestate.estimateSize();
+    auto cprop_profiler_size = CPropProfiler::instance().estimateSize();
 
     std::vector<std::pair<std::string, size_t>> logs;
     logs.push_back( std::make_pair( "ProcessSize",      Clib::getCurrentMemoryUsage() ) );
+    logs.push_back( std::make_pair( "CPProfilerSize",   cprop_profiler_size ) );
     logs.push_back( std::make_pair( "GameStateSize",    gamestate_size.misc ) );
     logs.push_back( std::make_pair( "RealmSize",        gamestate_size.realm_size ) );
     logs.push_back( std::make_pair( "SystemStateSize",  systemstate_size ) );

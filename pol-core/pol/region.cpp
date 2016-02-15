@@ -22,7 +22,8 @@ namespace Pol {
   namespace Core {
 	Region::Region( Clib::ConfigElem& elem, RegionId id ) :
 	  name_( elem.rest() ),
-	  regionid_( id )
+	  regionid_( id ),
+      proplist_( Core::CPropProfiler::Type::REGION )
 	{}
 
 	Region::~Region()

@@ -193,6 +193,7 @@ namespace Pol {
 	  blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
 	  base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
 	  quality( elem.remove_double( "QUALITY", 1.0 ) ),
+      props( Core::CPropProfiler::Type::ITEM ),
 	  method_script( NULL ),
 	  save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
 	{
@@ -482,6 +483,7 @@ namespace Pol {
 	  quality( 1.0 ),
 	  multiid( 0xFFFF ),
 	  maxhp( 0 ),
+      props( Core::CPropProfiler::Type::ITEM ),
 	  method_script( NULL ),
 	  save_on_exit( true )
 	{

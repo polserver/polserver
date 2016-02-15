@@ -1,4 +1,14 @@
 ﻿-- POL099 --
+01-31-2016 Bodom:
+  Added:   CProp profiler: helps detecting unused CProps.
+           It can be enabled by using the new pol.cfg option "ProfileCProps".
+           For better results, should be enabled before startup.
+           Impacts on performance very slightly, but consumes an average of
+           300 bytes of extra RAM for every CProp used.
+           New polsys.em function LogCPropProfile() can be called to dump
+           the profiling information into cpprofile.log.
+01-30-2016 Bodom & Nando:
+  Fixed:   Spoofing prevention on packet 0xD7 (custom housing)
 01-22-2016 Bodom:
   Fixed:   Minor bug in ecompile allowing Double literals in the form "2d4".
            These were incorrectly interpreted as "2e4", meaning 20000 and
