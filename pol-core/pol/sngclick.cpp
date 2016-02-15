@@ -67,55 +67,64 @@ namespace Pol {
 
 	  return NULL;
 	}
+	
+	std::string create_nametags(Mobile::Character* chr)
+	{
+		std::string tags;
 
-	void singleclick( Network::Client *client, PKTIN_09 *msg )
+		if (chr->frozen() && (settingsManager.ssopt.core_handled_tags & 0x2))
+			tags = "[frozen] ";
+		if (chr->paralyzed() && (settingsManager.ssopt.core_handled_tags & 0x4))
+			tags += "[paralyzed] ";
+		if (chr->squelched() && (settingsManager.ssopt.core_handled_tags & 0x8))
+			tags += "[squelched] ";
+		if (chr->deafened() && (settingsManager.ssopt.core_handled_tags & 0x10))
+			tags += "[deafened] ";
+		if (chr->invul() && settingsManager.ssopt.invul_tag == 1)
+			tags += "[invulnerable]";
+		
+		return tags;
+	}
+
+	void singleclick(Network::Client* client, u32 serial)
+	{
+		passert_always(client != nullptr && client->chr != nullptr);
+
+		if (IsCharacter(serial))
+		{
+			Mobile::Character *chr = nullptr;
+			if (serial == client->chr->serial)
+				chr = client->chr;
+			else
+				chr = find_character(serial);
+
+			if (chr != nullptr && inrange(client->chr, chr) && !client->chr->is_concealed_from_me(chr))
+			{
+				if (chr->has_title_guild() && (settingsManager.ssopt.core_handled_tags & 0x1))
+					send_nametext(client, chr, "[" + chr->title_guild() + "]");
+				send_nametext(client, chr, chr->name());
+
+				std::string tags = create_nametags(chr);
+				if (!tags.empty())
+					send_nametext(client, chr, tags);
+			}
+		}
+		else // single clicked on an item
+		{
+			Items::Item *item = find_legal_singleclick_item(client->chr, serial);
+			if (item)
+			{
+				send_objdesc(client, item);
+			}
+		}
+	}
+
+	void handle_singleclick(Network::Client *client, PKTIN_09 *msg)
 	{
 	  u32 serial = cfBEu32( msg->serial );
-
-	  if ( IsCharacter( serial ) )
-	  {
-		Mobile::Character *chr = NULL;
-		if ( serial == client->chr->serial )
-		  chr = client->chr;
-
-		if ( chr == NULL )
-		{
-		  chr = find_character( serial );
-		}
-
-		if ( chr != NULL && inrange( client->chr, chr ) && !client->chr->is_concealed_from_me( chr ) )
-		{
-		  if ( chr->has_title_guild() && ( settingsManager.ssopt.core_handled_tags & 0x1 ) )
-			send_nametext( client, chr, "[" + chr->title_guild() + "]" );
-		  send_nametext( client, chr, chr->name() );
-
-		  std::string tags;
-		  if ( chr->frozen() && ( settingsManager.ssopt.core_handled_tags & 0x2 ) )
-			tags = "[frozen] ";
-		  if ( chr->paralyzed() && ( settingsManager.ssopt.core_handled_tags & 0x4 ) )
-			tags += "[paralyzed] ";
-		  if ( chr->squelched() && ( settingsManager.ssopt.core_handled_tags & 0x8 ) )
-			tags += "[squelched] ";
-		  if ( chr->deafened() && ( settingsManager.ssopt.core_handled_tags & 0x10 ) )
-			tags += "[deafened] ";
-
-		  if ( settingsManager.ssopt.invul_tag == 1 )
-		  {
-			if ( chr->invul() )
-			  tags += "[invulnerable]";
-		  }
-		  if ( !tags.empty() )
-			send_nametext( client, chr, tags );
-		}
-	  }
-	  else // single clicked on an item
-	  {
-		Items::Item *item = find_legal_singleclick_item( client->chr, serial );
-		if ( item )
-		{
-		  send_objdesc( client, item );
-		}
-	  }
+	  if (client && client->chr)
+		  singleclick(client, serial);
+	  // TODO: report if someone tries to use singleclick without a connected char (should have been blocked)
 	}
   }
 }
