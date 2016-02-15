@@ -686,6 +686,17 @@ return objtypes;</code></explain>
   <related>Character</related>
 </function>
 
+<function name="SingleClick">
+	<prototype>SingleClick( who, what )</prototype>
+	<parameter name="who" value="Character Reference" />
+	<parameter name="what" value="Character or Item reference" />
+	<explain>Emulates a single click of the character "who" on the object or character "what".</explain>
+	<explain>Note: "what" can be a serial.</explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter"</error>
+	<error>"Mobile has no active client"</error>
+</function>
+
 <function name="GetSpellDifficulty">
   <prototype>GetSpellDifficulty( spellid )</prototype>
   <parameter name="spellid" value="Integer" />
@@ -2183,16 +2194,19 @@ equal to n.  Thus you can request 0-40  units in groups of 5, etc. </explain>
 </function>
    
 <function name="SendQuestArrow">   
-  <prototype>SendQuestArrow(to_whom, x := -1, y := -1)</prototype>
+  <prototype>SendQuestArrow(to_whom, x := -1, y := -1, target := "")</prototype>
   <parameter name="to_whom" value="Character reference the arrow shows to" />
   <parameter name="x" value="Integer world coordinates" />
   <parameter name="y" value="Integer world coordinates" />
+  <parameter name="target" value="Item or Character reference" />
   <explain>Sends a "quest arrow" to the player that points at x,y</explain>
   <explain>Passing 'x' and 'y' within map bounds will set the Quest Arrow to point at that location.</explain>
   <explain>Passing -1 as 'x' and 'y' (ie. by just called SendQuestArrow(to_whom)) will remove it.</explain>
+  <explain>If the client is HSA (client version > 7.0.9), "target" is required. Otherwise it will be ignored.</explain>
   <return>1 on success</return>
   <error>"No client attached"</error>
   <error>"Invalid parameter"</error>
+  <error>"No valid target for HSA client"</error>
   <related>Character</related>
 </function>
 

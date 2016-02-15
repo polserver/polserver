@@ -1,4 +1,15 @@
 ﻿-- POL099 --
+02-15-2016 Nando:
+  Changed: UO::SendQuestArrow(x := -1, y := -1, target := "")
+           This function will now work for HSA clients (version > 7.0.9), which
+           require a larger packet. Target is ignored for older clients, but is
+           required (and must be a valid Item or Character reference) for HSA 
+           clients.           
+  Added:   UO::SingleClick(who, what)
+           This function will emulate a single-click from the client, sending
+           the character name, guild and tags or the item description. Note
+           that the client may display the item description wherever it had
+           clicked before. "what" can be either a serial, item or character.
 01-31-2016 Bodom:
   Added:   CProp profiler: helps detecting unused CProps.
            It can be enabled by using the new pol.cfg option "ProfileCProps".

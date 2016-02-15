@@ -366,7 +366,7 @@ SendOpenSpecialContainer( character, container );
 SendOverallSeason( season_id, playsound := 1 );
 SendPacket( to_whom, packet_hex_string );
 SendPopUpMenu( to_whom, above, menu );
-SendQuestArrow( to_whom, x := -1, y := -1); // no params (-1x,-1y) turns the arrow off
+SendQuestArrow( to_whom, x := -1, y := -1, target := "" ); // no params (-1x,-1y) turns the arrow off, target is required for HSA clients
 SendSellWindow( character, vendor, i1, i2, i3, flags := 0 );
 SendSkillWindow( towhom, forwhom );
 SendStatus( character );
@@ -380,6 +380,7 @@ SetObjProperty( object, property_name, property_value );
 SetRegionLightLevel( regionname, lightlevel );
 SetRegionWeatherLevel( region, type, severity, aux := 0, lightoverride := -1);
 SetScriptController( who );
+SingleClick( who, what );
 Shutdown();
 SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
 StartSpellEffect( who, spellid );

@@ -138,7 +138,7 @@ namespace Pol {
 	void char_select( Network::Client *client, PKTIN_5D *msg );
 	void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* msg );
 	void handle_keep_alive( Network::Client *client, PKTBI_73 *msg );
-	void singleclick( Network::Client *client, PKTIN_09 *msg );
+	void handle_singleclick( Network::Client *client, PKTIN_09 *msg );
 	void handle_target_cursor( Network::Client *client, PKTBI_6C *msg );
 	void handle_get_tip( Network::Client* client, PKTIN_A7* msg );
 	void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin );

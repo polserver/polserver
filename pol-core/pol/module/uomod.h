@@ -278,6 +278,7 @@ namespace Pol {
       Bscript::BObjectImp* mf_GetMidpointCircleCoords(/* xcenter, ycenter, radius */);
 
 	  Bscript::BObjectImp* mf_SendPopUpMenu(/* to_whom, above, menu */);
+	  Bscript::BObjectImp* mf_SingleClick(/*who, what*/);
 
 	  Core::UOExecutor& uoexec;
 
