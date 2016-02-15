@@ -640,6 +640,7 @@
     <ClInclude Include="skilladv.h" />
     <ClInclude Include="skillid.h" />
     <ClInclude Include="skills.h" />
+    <ClInclude Include="sngclick.h" />
     <ClInclude Include="sockets.h" />
     <ClInclude Include="sockio.h" />
     <ClInclude Include="spelbook.h" />

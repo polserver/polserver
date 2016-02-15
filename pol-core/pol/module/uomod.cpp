@@ -5959,6 +5959,7 @@ namespace Pol {
       { "GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords },
 
 	  { "SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu },
+	  { "SingleClick", &UOExecutorModule::mf_SingleClick }
 	};
 
 	typedef std::map< std::string, int, Clib::ci_cmp_pred > FuncIdxMap;

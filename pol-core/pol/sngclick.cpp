@@ -21,6 +21,7 @@
 #include "containr.h"
 
 #include <cstdio>
+#include "sngclick.h"
 
 namespace Pol {
   namespace Core {

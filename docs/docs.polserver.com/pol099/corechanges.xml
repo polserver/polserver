@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-31-2016</datemodified>
+		<datemodified>02-15-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>02-15-2016</date>
+			<author>Nando:</author>
+			<change type="Added">UO::SingleClick(who, what)<br/>
+This function will emulate a single-click from the client, sending<br/>
+the character name, guild and tags or the item description. Note<br/>
+that the client may display the item description wherever it had<br/>
+clicked before. "what" can be either a serial, item or character.<br/>
+			</change>
+		</entry>
 		<entry>
 			<date>01-31-2016</date>
 			<author>Bodom:</author>

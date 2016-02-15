@@ -686,6 +686,17 @@ return objtypes;</code></explain>
   <related>Character</related>
 </function>
 
+<function name="SingleClick">
+	<prototype>SingleClick( who, what )</prototype>
+	<parameter name="who" value="Character Reference" />
+	<parameter name="what" value="Character or Item reference" />
+	<explain>Emulates a single click of the character "who" on the object or character "what".</explain>
+	<explain>Note: "what" can be a serial.</explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter"</error>
+	<error>"Mobile has no active client"</error>
+</function>
+
 <function name="GetSpellDifficulty">
   <prototype>GetSpellDifficulty( spellid )</prototype>
   <parameter name="spellid" value="Integer" />

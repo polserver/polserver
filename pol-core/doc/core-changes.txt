@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+02-15-2016 Nando:
+  Added:   UO::SingleClick(who, what)
+		   This function will emulate a single-click from the client, sending
+		   the character name, guild and tags or the item description. Note
+		   that the client may display the item description wherever it had
+		   clicked before. "what" can be either a serial, item or character.
 01-31-2016 Bodom:
   Added:   CProp profiler: helps detecting unused CProps.
            It can be enabled by using the new pol.cfg option "ProfileCProps".
