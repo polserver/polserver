@@ -309,8 +309,8 @@ namespace Pol {
           return CPropProfiler::Type::MULTI;
         }
 
-        /// Must compute all cases, failing when in debug mode
-        assert(false);
+        /// Must compute all cases, relying on GCC's -wSwitch option to check it
+        /// but placing a safe fallback anyway.
         return CPropProfiler::Type::UNKNOWN;
       }
 
