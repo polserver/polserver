@@ -8,6 +8,12 @@
 		<entry>
 			<date>02-15-2016</date>
 			<author>Nando:</author>
+            <change type="Changed">UO::SendQuestArrow(x := -1, y := -1, target := "")<br/>
+This function will now work for HSA clients (version > 7.0.9), which<br/>
+require a larger packet. Target is ignored for older clients, but is<br/>
+required (and must be a valid Item or Character reference) for HSA<br/>
+clients.<br/>
+           </change>
 			<change type="Added">UO::SingleClick(who, what)<br/>
 This function will emulate a single-click from the client, sending<br/>
 the character name, guild and tags or the item description. Note<br/>
