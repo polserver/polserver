@@ -4223,15 +4223,28 @@ namespace Pol {
 	{
 	  Character* chr;
 	  int x, y;
+	  UObject* target = nullptr;
+
 	  if ( getCharacterParam( exec, 0, chr ) &&
 		   getParam( 1, x, -1, 1000000 ) &&
-		   getParam( 2, y, -1, 1000000 ) )  //max vaues checked below
+		   getParam( 2, y, -1, 1000000 ) )  //max values checked below
 	  {
+		  if (!chr->has_active_client())
+			  return new BError("No client attached");
+
+		  bool usesNewPktSize = (chr->client->ClientType & Network::CLIENTTYPE_7090) > 0;
+		  if (usesNewPktSize && !getUObjectParam(exec, 3, target)) {
+			  exec.setFunctionResult(nullptr);
+			  return new BError("No valid target for HSA client");
+		  }
+
         Network::PktHelper::PacketOut<Network::PktOut_BA> msg;
 		if ( x == -1 && y == -1 )
 		{
 		  msg->Write<u8>( PKTOUT_BA_ARROW_OFF );
 		  msg->offset += 4; // u16 x_tgt,y_tgt
+		  if (usesNewPktSize)
+			  msg->offset += 4; // u32 serial
 		}
 		else
 		{
@@ -4240,9 +4253,10 @@ namespace Pol {
 		  msg->Write<u8>( PKTOUT_BA_ARROW_ON );
 		  msg->WriteFlipped<u16>( static_cast<u16>(x & 0xFFFF) );
 		  msg->WriteFlipped<u16>( static_cast<u16>(y & 0xFFFF) );
+		  if (usesNewPktSize)
+			msg->Write<u32>( static_cast<u32>(target->serial_ext & 0xFFFFFFFF) );
 		}
-		if ( !chr->has_active_client() )
-		  return new BError( "No client attached" );
+
 		msg.Send( chr->client );
 		return new BLong( 1 );
 	  }
