@@ -5,6 +5,7 @@
  * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
  */
 
+#include "sngclick.h"
 
 #include "network/client.h"
 #include "network/msghandl.h"
@@ -21,7 +22,6 @@
 #include "containr.h"
 
 #include <cstdio>
-#include "sngclick.h"
 
 namespace Pol {
   namespace Core {

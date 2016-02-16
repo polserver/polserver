@@ -92,7 +92,7 @@ namespace Pol {
         static const size_t WRITE = 1;
         static const size_t ERASE = 2;
 
-        inline HitsCounter() : hits(std::array<u64,3>{0,0,0}) {};
+        inline HitsCounter() : hits(std::array<u64,3>{{0,0,0}}) {};
         inline u64& operator[](size_t idx) { return hits[idx]; };
         inline const u64& operator[](size_t idx) const { return hits[idx]; };
 
