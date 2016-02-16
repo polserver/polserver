@@ -39,7 +39,7 @@ script:
   - ./build_linux.sh
 
   - cd ../../testsuite/escript
-  - performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
+  - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
   
 notifications:
   email:
