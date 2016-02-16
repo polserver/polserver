@@ -1,7 +1,7 @@
 #ifndef SNGCLICK_H
 #define SNGCLICK_H
 
-#include "..\clib\rawtypes.h"
+#include "../clib/rawtypes.h"
 
 namespace Pol {
 	namespace Network {
