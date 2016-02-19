@@ -96,18 +96,19 @@ namespace Pol {
      *
      * @example config/fileaccess.cfg
      * // anyone can append to a log file in their own package
+     * // (backslash escaping on "\<all\>" is here for doxygen only)
      * FileAccess
      * {
      * allow append
      * match *.log
-     * package <all>
+     * package \<all\>
      * }
      * // anyone can create .htm files in their own web root
      * FileAccess
      * {
      * allow write
      * match www/ *.html
-     * package <all>
+     * package \<all\>
      * }
      * // the uploader package is allowed to write .src and .cfg files in any package
      * FileAccess
