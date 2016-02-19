@@ -16,7 +16,7 @@
 //
 //#include "realm.h"
 //#include "mapserver.h"
-//namespace Pol {
+// namespace Pol {
 //  namespace Plib {
 //	void inc_successes();
 //	void inc_failures();
@@ -76,10 +76,12 @@
 //	  if ( p_test_realm == NULL )
 //		p_test_realm = new Realm( "britannia" );
 //
-//      INFO_PRINT << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ",ht=" << int( h1 ) << ")"
+//      INFO_PRINT << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ",ht=" << int( h1 ) <<
+//      ")"
 //		<< " - (" << x2 << "," << y2 << "," << int( z2 ) << ",ht=" << int( h2 ) << ")"
 //		<< " (" << should_have_los << "):";
-//      bool res = p_test_realm->has_los( Core::LosObj( x1, y1, z1, h1 ), Core::LosObj( x2, y2, z2, h2 ) );
+//      bool res = p_test_realm->has_los( Core::LosObj( x1, y1, z1, h1 ), Core::LosObj( x2, y2, z2,
+//      h2 ) );
 //      INFO_PRINT << res << " ";
 //	  if ( should_have_los == res )
 //	  {

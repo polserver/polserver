@@ -25,12 +25,12 @@
 
 #ifdef _DEBUG
 
-#pragma comment(lib, "vld.lib")
+#pragma comment( lib, "vld.lib" )
 
 // Force a symbolic reference to the global VisualLeakDetector class object from
 // the DLL. This enusres that the DLL is loaded and linked with the program,
 // even if no code otherwise imports any of the DLL's exports.
-#pragma comment(linker, "/include:__imp_?vld@@3VVisualLeakDetector@@A")
+#pragma comment( linker, "/include:__imp_?vld@@3VVisualLeakDetector@@A" )
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -39,7 +39,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif // __cplusplus
+#endif  // __cplusplus
 
 // VLDDisable - Disables Visual Leak Detector's memory leak detection at
 //   runtime. If memory leak detection is already disabled, then calling this
@@ -61,7 +61,7 @@ extern "C" {
 //
 //    None.
 //
-__declspec(dllimport) void VLDDisable ();
+__declspec( dllimport ) void VLDDisable();
 
 // VLDEnable - Enables Visual Leak Detector's memory leak detection at runtime.
 //   If memory leak detection is already enabled, which it is by default, then
@@ -83,15 +83,15 @@ __declspec(dllimport) void VLDDisable ();
 //
 //    None.
 //
-__declspec(dllimport) void VLDEnable ();
+__declspec( dllimport ) void VLDEnable();
 
 #ifdef __cplusplus
 }
-#endif // __cplusplus
+#endif  // __cplusplus
 
-#else // !_DEBUG
+#else  // !_DEBUG
 
 #define VLDEnable()
 #define VLDDisable()
 
-#endif // _DEBUG
+#endif  // _DEBUG

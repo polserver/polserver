@@ -19,42 +19,41 @@
 #include <cstring>
 
 #ifdef _MSC_VER
-#pragma warning(disable:4996) // stricmp deprecation
+#pragma warning( disable : 4996 )  // stricmp deprecation
 #endif
 
-namespace Pol {
-  namespace Module {
-    
-	Bscript::BObjectImp* BasicIoExecutorModule::print()
-	{
-	  INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";
-	  return new Bscript::UninitObject;
-	}
+namespace Pol
+{
+namespace Module
+{
+Bscript::BObjectImp* BasicIoExecutorModule::print()
+{
+  INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";
+  return new Bscript::UninitObject;
+}
 
-	BasicIoFunctionDef BasicIoExecutorModule::function_table[] =
-	{
-	  { "print", &BasicIoExecutorModule::print }
-	};
+BasicIoFunctionDef BasicIoExecutorModule::function_table[] = {
+    {"print", &BasicIoExecutorModule::print}};
 
-	int BasicIoExecutorModule::functionIndex( const char *name )
-	{
-	  for ( unsigned idx = 0; idx < arsize( function_table ); idx++ )
-	  {
-		if ( stricmp( name, function_table[idx].funcname ) == 0 )
-		  return idx;
-	  }
-	  return -1;
-	}
+int BasicIoExecutorModule::functionIndex( const char* name )
+{
+  for ( unsigned idx = 0; idx < arsize( function_table ); idx++ )
+  {
+    if ( stricmp( name, function_table[idx].funcname ) == 0 )
+      return idx;
+  }
+  return -1;
+}
 
-	Bscript::BObjectImp* BasicIoExecutorModule::execFunc( unsigned funcidx )
-	{
-	  return callMemberFunction( *this, function_table[funcidx].fptr )( );
-	};
+Bscript::BObjectImp* BasicIoExecutorModule::execFunc( unsigned funcidx )
+{
+  return callMemberFunction ( *this, function_table[funcidx].fptr )();
+};
 
-	std::string BasicIoExecutorModule::functionName( unsigned idx )
-	{
-	  return function_table[idx].funcname;
-	}
+std::string BasicIoExecutorModule::functionName( unsigned idx )
+{
+  return function_table[idx].funcname;
+}
 
 
 #if 0
@@ -100,5 +99,5 @@ namespace Pol {
 	  return result;
 	}
 #endif
-  }
+}
 }

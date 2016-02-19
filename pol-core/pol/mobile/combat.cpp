@@ -1,5 +1,6 @@
-namespace Pol {
-  namespace Mobile {
-
-  }
+namespace Pol
+{
+namespace Mobile
+{
+}
 }

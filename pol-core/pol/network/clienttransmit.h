@@ -10,40 +10,42 @@
 #include <mutex>
 #include <vector>
 
-namespace Pol {
-  namespace Network {
-	class Client;
+namespace Pol
+{
+namespace Network
+{
+class Client;
 
-	struct TransmitData
-	{
-	  Client* client;
-	  int len;
-	  std::vector<u8> data;
-	  bool disconnects;
+struct TransmitData
+{
+  Client* client;
+  int len;
+  std::vector<u8> data;
+  bool disconnects;
 
-	  TransmitData() : client( nullptr ), len( 0 ), disconnects( false ) {};
-	};
+  TransmitData() : client( nullptr ), len( 0 ), disconnects( false ){};
+};
 
-	typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
-	typedef Clib::message_queue<TransmitDataSPtr> ClientTransmitQueue;
+typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
+typedef Clib::message_queue<TransmitDataSPtr> ClientTransmitQueue;
 
-	class ClientTransmit : boost::noncopyable
-	{
-     public:
-	   ClientTransmit();
-      ~ClientTransmit();
+class ClientTransmit : boost::noncopyable
+{
+public:
+  ClientTransmit();
+  ~ClientTransmit();
 
-      void AddToQueue(Client* client, const void* data, int len);
-      void QueueDisconnection(Client* client);
-      void Cancel();
+  void AddToQueue( Client* client, const void* data, int len );
+  void QueueDisconnection( Client* client );
+  void Cancel();
 
-      TransmitDataSPtr NextQueueEntry();
+  TransmitDataSPtr NextQueueEntry();
 
-     private:
-      ClientTransmitQueue _transmitqueue;
-    };
+private:
+  ClientTransmitQueue _transmitqueue;
+};
 
-    void ClientTransmitThread();
-  }
+void ClientTransmitThread();
+}
 }
 #endif

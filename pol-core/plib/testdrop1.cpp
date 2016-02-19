@@ -11,7 +11,7 @@
 //#include "realm.h"
 //#include "mapserver.h"
 //
-//namespace Pol {
+// namespace Pol {
 //  namespace Plib {
 //	void inc_successes();
 //	void inc_failures();
@@ -20,7 +20,8 @@
 //
 //	// This code should mirror code in drop_item_on_ground
 //	static void test_drop( unsigned short chrx, unsigned short chry, short chrz,
-//						   unsigned short dropx, unsigned short dropy, short dropz, bool exp_result, short exp_z )
+//						   unsigned short dropx, unsigned short dropy, short dropz, bool exp_result, short
+//exp_z )
 //	{
 //	  if ( p_test_realm == NULL )
 //		p_test_realm = new Realm( "britannia" );
@@ -82,4 +83,3 @@
 //  }
 //}
 //
-

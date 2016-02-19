@@ -8,13 +8,15 @@
 #ifndef RANDOM_H
 #define RANDOM_H
 
-namespace Pol {
-  namespace Clib {
-	  double random_double( double f );
+namespace Pol
+{
+namespace Clib
+{
+double random_double( double f );
 
-	  int random_int( int i );
+int random_int( int i );
 
-	  int random_int_range( int minI, int maxI );
-  }
+int random_int_range( int minI, int maxI );
 }
-#endif //RANDOM_H
+}
+#endif  // RANDOM_H

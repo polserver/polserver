@@ -23,109 +23,113 @@
 
 #include <cstdio>
 
-namespace Pol {
-  namespace Core {
-	Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
-	{
-	  Items::Item *item = find_legal_item( chr, serial );
-	  if ( item )
-		return item;
+namespace Pol
+{
+namespace Core
+{
+Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
+{
+  Items::Item* item = find_legal_item( chr, serial );
+  if ( item )
+    return item;
 
-	  // search equipment of nearby mobiles
-	  unsigned short wxL, wyL, wxH, wyH;
-	  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, &wxL, &wyL );
-	  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, &wxH, &wyH );
-	  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
-	  {
-		for ( unsigned short wy = wyL; wy <= wyH; ++wy )
-		{
-          for ( const auto &ochr : chr->realm->zone[wx][wy].characters )
-          {
-            Items::Item *_item = ochr->find_wornitem( serial );
-            if ( _item != NULL )
-              return _item;
-          }
-          for ( const auto &ochr : chr->realm->zone[wx][wy].npcs )
-          {
-            Items::Item *_item = ochr->find_wornitem( serial );
-            if ( _item != NULL )
-              return _item;
-          }
-		}
-	  }
-	  if ( chr->trade_container() )
-	  {
-		item = chr->trade_container()->find( serial );
-		if ( item )
-		  return item;
-	  }
-	  if ( chr->trading_with.get() && chr->trading_with->trade_container() )
-	  {
-		item = chr->trading_with->trade_container()->find( serial );
-		if ( item )
-		  return item;
-	  }
-
-	  return NULL;
-	}
-	
-	std::string create_nametags(Mobile::Character* chr)
-	{
-		std::string tags;
-
-		if (chr->frozen() && (settingsManager.ssopt.core_handled_tags & 0x2))
-			tags = "[frozen] ";
-		if (chr->paralyzed() && (settingsManager.ssopt.core_handled_tags & 0x4))
-			tags += "[paralyzed] ";
-		if (chr->squelched() && (settingsManager.ssopt.core_handled_tags & 0x8))
-			tags += "[squelched] ";
-		if (chr->deafened() && (settingsManager.ssopt.core_handled_tags & 0x10))
-			tags += "[deafened] ";
-		if (chr->invul() && settingsManager.ssopt.invul_tag == 1)
-			tags += "[invulnerable]";
-		
-		return tags;
-	}
-
-	void singleclick(Network::Client* client, u32 serial)
-	{
-		passert_always(client != nullptr && client->chr != nullptr);
-
-		if (IsCharacter(serial))
-		{
-			Mobile::Character *chr = nullptr;
-			if (serial == client->chr->serial)
-				chr = client->chr;
-			else
-				chr = find_character(serial);
-
-			if (chr != nullptr && inrange(client->chr, chr) && !client->chr->is_concealed_from_me(chr))
-			{
-				if (chr->has_title_guild() && (settingsManager.ssopt.core_handled_tags & 0x1))
-					send_nametext(client, chr, "[" + chr->title_guild() + "]");
-				send_nametext(client, chr, chr->name());
-
-				std::string tags = create_nametags(chr);
-				if (!tags.empty())
-					send_nametext(client, chr, tags);
-			}
-		}
-		else // single clicked on an item
-		{
-			Items::Item *item = find_legal_singleclick_item(client->chr, serial);
-			if (item)
-			{
-				send_objdesc(client, item);
-			}
-		}
-	}
-
-	void handle_singleclick(Network::Client *client, PKTIN_09 *msg)
-	{
-	  u32 serial = cfBEu32( msg->serial );
-	  if (client && client->chr)
-		  singleclick(client, serial);
-	  // TODO: report if someone tries to use singleclick without a connected char (should have been blocked)
-	}
+  // search equipment of nearby mobiles
+  unsigned short wxL, wyL, wxH, wyH;
+  zone_convert_clip( chr->x - RANGE_VISUAL, chr->y - RANGE_VISUAL, chr->realm, &wxL, &wyL );
+  zone_convert_clip( chr->x + RANGE_VISUAL, chr->y + RANGE_VISUAL, chr->realm, &wxH, &wyH );
+  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  {
+    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    {
+      for ( const auto& ochr : chr->realm->zone[wx][wy].characters )
+      {
+        Items::Item* _item = ochr->find_wornitem( serial );
+        if ( _item != NULL )
+          return _item;
+      }
+      for ( const auto& ochr : chr->realm->zone[wx][wy].npcs )
+      {
+        Items::Item* _item = ochr->find_wornitem( serial );
+        if ( _item != NULL )
+          return _item;
+      }
+    }
   }
+  if ( chr->trade_container() )
+  {
+    item = chr->trade_container()->find( serial );
+    if ( item )
+      return item;
+  }
+  if ( chr->trading_with.get() && chr->trading_with->trade_container() )
+  {
+    item = chr->trading_with->trade_container()->find( serial );
+    if ( item )
+      return item;
+  }
+
+  return NULL;
+}
+
+std::string create_nametags( Mobile::Character* chr )
+{
+  std::string tags;
+
+  if ( chr->frozen() && ( settingsManager.ssopt.core_handled_tags & 0x2 ) )
+    tags = "[frozen] ";
+  if ( chr->paralyzed() && ( settingsManager.ssopt.core_handled_tags & 0x4 ) )
+    tags += "[paralyzed] ";
+  if ( chr->squelched() && ( settingsManager.ssopt.core_handled_tags & 0x8 ) )
+    tags += "[squelched] ";
+  if ( chr->deafened() && ( settingsManager.ssopt.core_handled_tags & 0x10 ) )
+    tags += "[deafened] ";
+  if ( chr->invul() && settingsManager.ssopt.invul_tag == 1 )
+    tags += "[invulnerable]";
+
+  return tags;
+}
+
+void singleclick( Network::Client* client, u32 serial )
+{
+  passert_always( client != nullptr && client->chr != nullptr );
+
+  if ( IsCharacter( serial ) )
+  {
+    Mobile::Character* chr = nullptr;
+    if ( serial == client->chr->serial )
+      chr = client->chr;
+    else
+      chr = find_character( serial );
+
+    if ( chr != nullptr && inrange( client->chr, chr ) &&
+         !client->chr->is_concealed_from_me( chr ) )
+    {
+      if ( chr->has_title_guild() && ( settingsManager.ssopt.core_handled_tags & 0x1 ) )
+        send_nametext( client, chr, "[" + chr->title_guild() + "]" );
+      send_nametext( client, chr, chr->name() );
+
+      std::string tags = create_nametags( chr );
+      if ( !tags.empty() )
+        send_nametext( client, chr, tags );
+    }
+  }
+  else  // single clicked on an item
+  {
+    Items::Item* item = find_legal_singleclick_item( client->chr, serial );
+    if ( item )
+    {
+      send_objdesc( client, item );
+    }
+  }
+}
+
+void handle_singleclick( Network::Client* client, PKTIN_09* msg )
+{
+  u32 serial = cfBEu32( msg->serial );
+  if ( client && client->chr )
+    singleclick( client, serial );
+  // TODO: report if someone tries to use singleclick without a connected char (should have been
+  // blocked)
+}
+}
 }

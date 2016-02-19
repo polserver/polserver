@@ -9,45 +9,49 @@
 #define __UOEXEC_H
 
 #ifndef __BSCRIPT_EXECUTOR_H
-#	include "../bscript/executor.h"
+#include "../bscript/executor.h"
 #endif
 
 #include "../clib/weakptr.h"
-namespace Pol {
-  namespace Module {
-	class OSExecutorModule;
-  }
-  namespace Core {
-	// const int SCRIPT_RUNAWAY_INTERVAL = 5000;
+namespace Pol
+{
+namespace Module
+{
+class OSExecutorModule;
+}
+namespace Core
+{
+// const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
-	class UOExecutor : public Bscript::Executor
-	{
-      typedef Bscript::Executor base;
-	public:
-	  Module::OSExecutorModule* os_module;
-	  UOExecutor();
-	  virtual ~UOExecutor();
-      virtual size_t sizeEstimate() const POL_OVERRIDE;
+class UOExecutor : public Bscript::Executor
+{
+  typedef Bscript::Executor base;
 
-	  std::string state();
+public:
+  Module::OSExecutorModule* os_module;
+  UOExecutor();
+  virtual ~UOExecutor();
+  virtual size_t sizeEstimate() const POL_OVERRIDE;
 
-	  u64 instr_cycles;
-	  u64 sleep_cycles;
-	  time_t start_time;
+  std::string state();
 
-	  u64 warn_runaway_on_cycle;
-	  u64 runaway_cycles;
+  u64 instr_cycles;
+  u64 sleep_cycles;
+  time_t start_time;
 
-	  unsigned int eventmask;
-	  unsigned short area_size;
-	  unsigned short speech_size;
+  u64 warn_runaway_on_cycle;
+  u64 runaway_cycles;
 
-	  bool can_access_offline_mobiles;
-	  bool auxsvc_assume_string;
-	  weak_ptr_owner<UOExecutor> weakptr;
+  unsigned int eventmask;
+  unsigned short area_size;
+  unsigned short speech_size;
 
-	  UOExecutor	*pParent, *pChild;
-	};
-  }
+  bool can_access_offline_mobiles;
+  bool auxsvc_assume_string;
+  weak_ptr_owner<UOExecutor> weakptr;
+
+  UOExecutor *pParent, *pChild;
+};
+}
 }
 #endif

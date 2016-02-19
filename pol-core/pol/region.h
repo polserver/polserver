@@ -15,130 +15,133 @@
 #include <map>
 #include <string>
 
-namespace Pol {
-  namespace Bscript {
-	class BObjectImp;
-  }
-  namespace Realms {
-	class Realm;
-  }
-  namespace Core {
-	class RegionGroupBase;
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+}
+namespace Realms
+{
+class Realm;
+}
+namespace Core
+{
+class RegionGroupBase;
 
-	class Region
-	{
-	public:
-	  Bscript::BObjectImp* get_region_string( const std::string& propname );
-	  const std::string& name() const;
-	  RegionId regionid() const;
-      virtual size_t estimateSize() const;
+class Region
+{
+public:
+  Bscript::BObjectImp* get_region_string( const std::string& propname );
+  const std::string& name() const;
+  RegionId regionid() const;
+  virtual size_t estimateSize() const;
 
-	protected:
-	  explicit Region( Clib::ConfigElem& elem, RegionId id );
-	  virtual ~Region();
+protected:
+  explicit Region( Clib::ConfigElem& elem, RegionId id );
+  virtual ~Region();
 
-	  // virtual void read_config( ConfigElem& elem );
-	  void read_custom_config( Clib::ConfigElem& elem );
+  // virtual void read_config( ConfigElem& elem );
+  void read_custom_config( Clib::ConfigElem& elem );
 
-	  friend class RegionGroupBase;
+  friend class RegionGroupBase;
 
-	protected:
-	  std::string name_;
-	  RegionId regionid_;
-	  //
-	  // custom per-region properties
-	  //
-	  // Note, these aren't "script-packed", they're just strings.
-	  //
-	  PropertyList proplist_;
-	};
+protected:
+  std::string name_;
+  RegionId regionid_;
+  //
+  // custom per-region properties
+  //
+  // Note, these aren't "script-packed", they're just strings.
+  //
+  PropertyList proplist_;
+};
 
-	inline const std::string& Region::name() const
-	{
-	  return name_;
-	}
+inline const std::string& Region::name() const
+{
+  return name_;
+}
 
-	inline RegionId Region::regionid() const
-	{
-	  return regionid_;
-	}
+inline RegionId Region::regionid() const
+{
+  return regionid_;
+}
 
-	class RegionGroupBase
-	{
-	public:
-	  explicit RegionGroupBase( const char* name );
-	  virtual ~RegionGroupBase();
-      virtual size_t estimateSize() const;
+class RegionGroupBase
+{
+public:
+  explicit RegionGroupBase( const char* name );
+  virtual ~RegionGroupBase();
+  virtual size_t estimateSize() const;
 
-	  void read_region( Clib::ConfigElem& elem );
-	  void create_bgnd_region( Clib::ConfigElem& elem );
+  void read_region( Clib::ConfigElem& elem );
+  void create_bgnd_region( Clib::ConfigElem& elem );
 
-	  const std::string& name() const;
-	protected:
-	  Region* getregion_byname( const std::string& regionname );
-	  Region* getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm );
+  const std::string& name() const;
 
-	  std::vector<Region*> regions_;
+protected:
+  Region* getregion_byname( const std::string& regionname );
+  Region* getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm );
 
-	  typedef std::map<Realms::Realm*, RegionId**> RegionRealms;
-	  RegionRealms regionrealms;
-	private:
-	  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const = 0;
+  std::vector<Region*> regions_;
 
-	  RegionId getregionid( xcoord x, ycoord y, Realms::Realm* realm );
-	  void paint_zones( Clib::ConfigElem& elem, RegionId ridx );
-	  std::string name_;
-	  typedef std::map<std::string, Region*> RegionsByName;
-	  RegionsByName regions_byname_;
-	};
+  typedef std::map<Realms::Realm*, RegionId**> RegionRealms;
+  RegionRealms regionrealms;
 
-	inline const std::string& RegionGroupBase::name() const
-	{
-	  return name_;
-	}
+private:
+  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const = 0;
 
-	template <class T>
-	class RegionGroup : public RegionGroupBase
-	{
-	public:
-	  explicit RegionGroup( const char* name );
+  RegionId getregionid( xcoord x, ycoord y, Realms::Realm* realm );
+  void paint_zones( Clib::ConfigElem& elem, RegionId ridx );
+  std::string name_;
+  typedef std::map<std::string, Region*> RegionsByName;
+  RegionsByName regions_byname_;
+};
 
-	  virtual T* getregion( xcoord x, ycoord y, Realms::Realm* realm );
-	  virtual T* getregion( const std::string& regionname );
+inline const std::string& RegionGroupBase::name() const
+{
+  return name_;
+}
 
-	protected:
-	  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const POL_OVERRIDE;
+template <class T>
+class RegionGroup : public RegionGroupBase
+{
+public:
+  explicit RegionGroup( const char* name );
 
+  virtual T* getregion( xcoord x, ycoord y, Realms::Realm* realm );
+  virtual T* getregion( const std::string& regionname );
 
-	};
+protected:
+  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const POL_OVERRIDE;
+};
 
-	template<class T>
-	RegionGroup<T>::RegionGroup( const char* name ) :
-	  RegionGroupBase( name )
-	{}
+template <class T>
+RegionGroup<T>::RegionGroup( const char* name )
+    : RegionGroupBase( name )
+{
+}
 
-	template<class T>
-	inline T* RegionGroup<T>::getregion( xcoord x, ycoord y, Realms::Realm* realm )
-	{
-	  return static_cast<T*>( getregion_byloc( x, y, realm ) );
-	}
+template <class T>
+inline T* RegionGroup<T>::getregion( xcoord x, ycoord y, Realms::Realm* realm )
+{
+  return static_cast<T*>( getregion_byloc( x, y, realm ) );
+}
 
-	template<class T>
-	inline T* RegionGroup<T>::getregion( const std::string& regionname )
-	{
-	  return static_cast<T*>( getregion_byname( regionname ) );
-	}
+template <class T>
+inline T* RegionGroup<T>::getregion( const std::string& regionname )
+{
+  return static_cast<T*>( getregion_byname( regionname ) );
+}
 
-	template<class T>
-	inline Region* RegionGroup<T>::create_region( Clib::ConfigElem& elem, RegionId id ) const
-	{
-	  return new T( elem, id );
-	}
+template <class T>
+inline Region* RegionGroup<T>::create_region( Clib::ConfigElem& elem, RegionId id ) const
+{
+  return new T( elem, id );
+}
 
-	void read_region_data( RegionGroupBase& grp,
-						   const char* preferred_filename,
-						   const char* other_filename,
-						   const char* tags_expected );
-  }
+void read_region_data( RegionGroupBase& grp, const char* preferred_filename,
+                       const char* other_filename, const char* tags_expected );
+}
 }
 #endif
