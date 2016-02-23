@@ -1131,7 +1131,7 @@ namespace Pol {
     Clib::MakeDirectory( "log" );
 
     POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET
-      << "\ncompiled on " << POL_BUILD_DATE << " " << POL_BUILD_TIME
+      << "\ncompiled on " << POL_BUILD_DATETIME
       << "\nCopyright (C) 1993-2016 Eric N. Swanson"
       << "\n\n";
 
@@ -1316,7 +1316,7 @@ namespace Pol {
     {
       DEINIT_STARTLOG();
     }
-    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" ) << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
+    POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} running.\n" ) << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATETIME;
     //if( 1 )
     {
       POLLOG_INFO << "Game is active.\n";

@@ -856,8 +856,7 @@ namespace Pol {
         << "{" << pf_endl
         << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
         << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl
-        << "\tCompileDate\t" << POL_BUILD_DATE << pf_endl
-        << "\tCompileTime\t" << POL_BUILD_TIME << pf_endl
+        << "\tCompileDateTime\t" << POL_BUILD_DATETIME << pf_endl
         << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl //dave 3/9/3
         << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl //dave 3/9/3
         << "}" << pf_endl

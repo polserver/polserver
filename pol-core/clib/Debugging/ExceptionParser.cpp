@@ -321,7 +321,7 @@ void ExceptionParser::reportProgramAbort(string stackTrace, string reason)
                      "reason=" + reason + "&"
                      "trace=" + stackTrace + "&"
                      "comp=" + getCompilerVersion() + "&"
-                     "comp_time=" POL_BUILD_DATE "(" POL_BUILD_TIME ")&"
+                     "comp_time=" POL_BUILD_DATETIME + "&"
                      "build_target=" + POL_BUILD_TARGET + "&"
                      "build_revision=" POL_VERSION_ID "&"
                      "misc=";
@@ -358,7 +358,7 @@ void ExceptionParser::handleExceptionSignal(int signal)
                 printf("Stack trace:\n%s", tStackTrace.c_str());
                 printf("\n");
                 printf("Compiler: %s\n", getCompilerVersion().c_str());
-                printf("Compile time: %s\n", POL_BUILD_TIME);
+                printf("Compile time: %s\n", POL_BUILD_DATETIME);
                 printf("Build target: %s\n", POL_BUILD_TARGET);
                 printf("Build revision: %s\n", POL_VERSION_ID);
                 #ifndef _WIN32
