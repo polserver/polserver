@@ -89,6 +89,17 @@ class Cleaner:
 	def clearBinaries(self):
 		self.__delFromList(self.findBinaries())
 
+	def findEmpty(self):
+		''' Returns list of empty folders '''
+		ret = []
+		for folder, subfolders, files in os.walk(self.root):
+			if not subfolders and not files:
+				ret.append(os.path.join(self.root,folder))
+		return ret
+
+	def clearEmpty(self):
+		self.__delFromList(self.findEmpty())
+
 
 if __name__ == '__main__':
 	import argparse
@@ -130,8 +141,11 @@ if __name__ == '__main__':
 	if c.findCmake() and yesNo('Delete cmake and intermediate build files?', True):
 		c.clearCmake()
 
-	if c.findBinaries() and yesNo('Delete built finaries?', True):
+	if c.findBinaries() and yesNo('Delete built binaries?', True):
 		c.clearBinaries()
+
+	if c.findEmpty() and yesNo('Delete empty folders?', True):
+		c.clearEmpty()
 
 	if yesNo('Show list of files ignored by git?', False):
 		c = ['git', 'ls-files', '--others', '-i', '--exclude-standard']

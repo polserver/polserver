@@ -93,6 +93,8 @@ Keep in mind that even when set this way, the option will be saved in the `CMake
 
 You can now use the classic *make* command to compile the POL. You can type:
 * `make` or `make all` to do the build
-* `make clean` to delete all the intermediate build files
 
 You will find the compiled files inside the `bin/` folder.
+
+To delete intermediate build files and clean the folder you can use the
+interective clean.py script.
