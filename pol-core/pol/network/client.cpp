@@ -692,6 +692,11 @@ Bscript::BObjectImp* Client::make_ref()
   return new Module::EClientRefObjImp( weakptr );
 }
 
+weak_ptr<Client> Client::getWeakPtr() const
+{
+  return weakptr;
+}
+
 size_t Client::estimatedSize() const
 {
   Clib::SpinLockGuard guard( _fpLog_lock );

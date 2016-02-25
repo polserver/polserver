@@ -232,6 +232,7 @@ public:
 
   bool SpeedHackPrevention( bool add = true );
   Bscript::BObjectImp* make_ref();
+  weak_ptr<Client> getWeakPtr() const;
 
 protected:
   Core::XmitBuffer* first_xmit_buffer;

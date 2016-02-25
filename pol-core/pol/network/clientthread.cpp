@@ -350,13 +350,8 @@ bool client_io_thread( Network::Client* client, bool login )
         << client->instance_ << checkpoint << ex.what();
   }
 
-  // if (1)
-  {
-    PolLock lck;
-    CLIENT_CHECKPOINT( 17 );
-    Network::Client::Delete( client );
-    client = NULL;
-  }
+  // queue delete of client ptr see method doc for reason
+  Core::networkManager.clientTransmit->QueueDisconnection( client );
   return false;
 }
 
