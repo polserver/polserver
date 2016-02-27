@@ -65,7 +65,7 @@ typedef struct tagTHREADNAME_INFO
 } THREADNAME_INFO;
 #pragma pack( pop )
 
-void _SetThreadName( DWORD dwThreadID, char* name )
+void _SetThreadName( DWORD dwThreadID, const char* name )
 {
   THREADNAME_INFO info;
   info.dwType = 0x1000;
@@ -83,10 +83,9 @@ void _SetThreadName( DWORD dwThreadID, char* name )
 }
 void SetThreadName( int threadid, std::string threadName )
 {
-  char* name = new char[threadName.length() + 1];
-  strcpy( name, threadName.c_str() );
-  _SetThreadName( threadid, name );
-  delete[] name;
+  // This redirection is needed because std::string has a destructor
+  // which isn't compatible with __try
+  _SetThreadName( threadid, threadName.c_str() );
 }
 #else
 static pthread_attr_t create_detached_attr;
@@ -186,6 +185,10 @@ void* thread_stub2( void* v_td )
 #ifdef _WIN32
 void create_thread( ThreadData* td, bool dec_child = false )
 {
+  // If the thread starts successfully, td will be deleted by thread_stub2.
+  // So we must save the threadName for later.
+  std::string threadName = td->name;
+
   unsigned threadid = 0;
   HANDLE h = (HANDLE)_beginthreadex( NULL, 0, thread_stub2, td, 0, &threadid );
   if ( h == 0 )  // added for better debugging
@@ -201,8 +204,8 @@ void create_thread( ThreadData* td, bool dec_child = false )
       --child_threads;
   }
   else
-  {
-    SetThreadName( threadid, td->name );
+  {    
+    SetThreadName( threadid, threadName );
     CloseHandle( h );
   }
 }
