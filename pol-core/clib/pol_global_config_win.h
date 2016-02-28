@@ -16,8 +16,7 @@
 #define POL_VERSION_STR             "99.0.0"
 #define POL_VERSION_NAME            "Break Everything Even Rudder"
 #define POL_VERSION_ID              "99.0.1 Break Everything Even Rudder"
-#define POL_BUILD_DATE              __DATE__
-#define POL_BUILD_TIME              __TIME__
+#define POL_BUILD_DATETIME          __DATE__ " " __TIME__
 
 #ifdef PERGON
 #define POL_BUILD_TARGET_TAG_PERGON " - Pergon"
