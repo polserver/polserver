@@ -128,9 +128,9 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
 
 void Client::Delete( Client* client )
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex );
+  std::lock_guard<std::mutex> lock( _SocketMutex ); // TODO: check if this is necessary
   client->PreDelete();
-  delete client->cryptengine;
+  delete client->cryptengine; // TODO: move this into a unique_ptr<> or at least ~Client()
   client->cryptengine = NULL;
   delete client;
 }
