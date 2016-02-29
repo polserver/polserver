@@ -266,20 +266,20 @@ void ref_ptr<T>::clear()
 template <class T>
 void ref_ptr<T>::add_ref()
 {
-  if ( _ptr.load() )
+  T* Pointee = _ptr.load();
+  if ( Pointee )
   {
-    _ptr.load()->add_ref( REFERER_PARAM( this ) );
+    Pointee->add_ref( REFERER_PARAM( this ) );
   }
 }
 template <class T>
 void ref_ptr<T>::release()
 {
-  T* Pointee = _ptr.load();
+  T* Pointee = _ptr.exchange(nullptr);
   if ( Pointee )
   {
     if ( 0 == Pointee->release( REFERER_PARAM( this ) ) )
     {
-      _ptr = 0;
       delete Pointee;
     }
   }
