@@ -73,7 +73,7 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.listen_port = elem.remove_ushort( "ListenPort", 0 );
     Plib::systemstate.config.check_integrity = true;  // elem.remove_bool( "CheckIntegrity", true );
     Plib::systemstate.config.count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
-    Plib::systemstate.config.multithread = elem.remove_ushort( "Multithread", 0 );
+    Plib::systemstate.config.multithread = elem.remove_ushort( "Multithread", 1 );
     Plib::systemstate.config.web_server = elem.remove_bool( "WebServer", false );
     Plib::systemstate.config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
 

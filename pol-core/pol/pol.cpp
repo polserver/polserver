@@ -1355,6 +1355,18 @@ int xmain_inner()
       << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
   // if( 1 )
   {
+    if ( Plib::systemstate.config.multithread == 0 ) {
+      POLLOG_INFO <<
+        "\n"
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+        "WARNING: Threading is disabled (Multithread==0 in pol.cfg).    \n"
+        "         This setting is deprecated and will be removed from   \n"
+        "         the next version of POL. It may not even work now!    \n"
+        "         Only use this option if you really know what you are  \n"
+        "         doing. And you probably don't.                        \n"
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+        "\n";
+    }
     POLLOG_INFO << "Game is active.\n";
   }
   Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );

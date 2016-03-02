@@ -7,6 +7,15 @@
 	<version name="POL099">
 		<entry>
 			<date>03-02-2016</date>
+			<author>Nando:</author>
+			<change type="Changed">POL will default to use multithreading (Multithread = 1 in pol.cfg).</change>
+			<change type="Note">Multithread=0 is deprecated and likely buggy. It's possible that it doesn't<br/>
+even work at the moment. Because every OS should support threading by now,<br/>
+we see no reason to maintain two separate systems. Singlethread support will<br/>
+be removed in the next version.</change>
+		</entry>
+		<entry>
+			<date>03-02-2016</date>
 			<author>Nando &amp; Turley:</author>
 			<change type="Fixed">Possible crashes when sending events to npcs whose event queues were full.</change>
 		</entry>
