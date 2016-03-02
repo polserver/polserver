@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-29-2016</datemodified>
+		<datemodified>03-02-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>03-02-2016</date>
+			<author>Nando &amp; Turley:</author>
+			<change type="Fixed">Possible crashes when sending events to npcs whose event queues were full.</change>
+		</entry>
 		<entry>
 			<date>02-29-2016</date>
 			<author>Nando &amp; Turley:</author>

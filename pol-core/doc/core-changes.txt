@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+03-02-2016 Nando & Turley:
+  Fixed:   Possible crashes when sending events to npcs whose event queues were full.
 02-29-2016 Nando & Turley:
   Fixed:   Data races when dealing with clients. Some other not-reproducible crashes
            should also go away now.
