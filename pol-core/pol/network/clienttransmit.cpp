@@ -69,8 +69,9 @@ void ClientTransmitThread()
           Core::PolLock lock;
           Client::Delete( data->client.get_weakptr() );
         }
-        else if ( data->disconnects )
+        else if ( data->disconnects ) {
           data->client->forceDisconnect();
+        }
         else if ( data->client->isReallyConnected() )
           data->client->transmit( static_cast<void*>( &data->data[0] ), data->len, true );
       }
