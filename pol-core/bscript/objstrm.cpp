@@ -4,66 +4,66 @@
  */
 
 
+
 #include "bobject.h"
 #include "impstr.h"
 
 #include "../../lib/format/format.h"
 #include <sstream>
 
-namespace Pol
-{
-namespace Bscript
-{
-std::ostream& operator<<( std::ostream& os, const BObject& obj )
-{
-  obj.impptr()->printOn( os );
-  return os;
-}
-fmt::Writer& operator<<( fmt::Writer& w, const BObject& obj )
-{
-  std::ostringstream os;
-  obj.impptr()->printOn( os );
-  w << os.str();
-  return w;
-}
+namespace Pol {
+  namespace Bscript {
 
-std::ostream& operator<<( std::ostream& os, const BObjectImp& objimp )
-{
-  objimp.printOn( os );
-  return os;
-}
-fmt::Writer& operator<<( fmt::Writer& w, const BObjectImp& objimp )
-{
-  std::ostringstream os;
-  objimp.printOn( os );
-  w << os.str();
-  return w;
-}
+    std::ostream& operator << (std::ostream& os, const BObject& obj)
+	{
+	  obj.impptr()->printOn( os );
+	  return os;
+	}
+    fmt::Writer& operator << ( fmt::Writer& w, const BObject& obj )
+    {
+      std::ostringstream os;
+      obj.impptr( )->printOn( os );
+      w << os.str();
+      return w;
+    }
 
-void BObject::printOn( std::ostream& os ) const
-{
-  os << "{ BObject: " << BObjectImp::typestr( objimp->type() ) << " }";
-}
+    std::ostream& operator << (std::ostream& os, const BObjectImp& objimp)
+	{
+	  objimp.printOn( os );
+	  return os;
+	}
+    fmt::Writer& operator << ( fmt::Writer& w, const BObjectImp& objimp )
+    {
+      std::ostringstream os;
+      objimp.printOn( os );
+      w << os.str( );
+      return w;
+    }
 
-void BObjectImp::printOn( std::ostream& os ) const
-{
-  os << "{ BObjectImp: " << typestr( type() ) << " }";
-}
+    void BObject::printOn(std::ostream& os) const
+	{
+	  os << "{ BObject: " << BObjectImp::typestr( objimp->type() ) << " }";
+	}
 
-void UninitObject::printOn( std::ostream& os ) const
-{
-  os << "{ Uninitialized Object }";
-}
+    void BObjectImp::printOn(std::ostream& os) const
+	{
+	  os << "{ BObjectImp: " << typestr( type() ) << " }";
+	}
 
-void ObjArray::printOn( std::ostream& os ) const
-{
-  os << " { Array[" << ref_arr.size() << "] }";
-}
+    void UninitObject::printOn(std::ostream& os) const
+	{
+	  os << "{ Uninitialized Object }";
+	}
 
-void String::printOn( std::ostream& os ) const
-{
-  os << '\"' << value_ << '\"';
-}
+    void ObjArray::printOn(std::ostream& os) const
+	{
+	  os << " { Array[" << ref_arr.size() << "] }";
+	}
+
+    void String::printOn(std::ostream& os) const
+	{
+	  os << '\"' << value_ << '\"';
+	}
 
 #if 0
     void SubString::printOn(std::ostream& os ) const
@@ -75,15 +75,16 @@ void String::printOn( std::ostream& os ) const
 	}
 #endif
 
-void Double::printOn( std::ostream& os ) const
-{
-  // CHECKME: consider setting precision
-  os << dval_;
-}
+    void Double::printOn(std::ostream& os) const
+	{
+	  // CHECKME: consider setting precision
+	  os << dval_;
+	}
 
-void BLong::printOn( std::ostream& os ) const
-{
-  os << lval_;
-}
-}
+    void BLong::printOn(std::ostream& os) const
+	{
+	  os << lval_;
+	}
+
+  }
 }

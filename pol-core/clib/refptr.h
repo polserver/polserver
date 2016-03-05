@@ -26,10 +26,10 @@
 class ref_counted
 {
   // Construction
-protected:
+ protected:
   ref_counted();
 
-public:
+ public:
   // Operations
   unsigned int add_ref();
   unsigned int release();
@@ -38,7 +38,7 @@ public:
   unsigned int instance() const;
 #endif
   // Representation
-protected:
+ protected:
   unsigned int _count;
 #if REFPTR_DEBUG
   unsigned int _cumulative_references;
@@ -46,7 +46,7 @@ protected:
   static unsigned int _ctor_calls;
 #endif
 
-private:  // not implemented
+ private:  // not implemented
   ref_counted& operator=( const ref_counted& );
   ref_counted( const ref_counted& );
 };
@@ -60,7 +60,7 @@ template <class T>
 class ref_ptr
 {
   // Construction
-public:
+ public:
   explicit ref_ptr( T* ptr = 0 );
   ref_ptr( const ref_ptr& rptr );
   ~ref_ptr();
@@ -89,12 +89,12 @@ public:
   void set( T* ptr );
   void clear();
 
-protected:
+ protected:
   void add_ref();
   void release();
 
   // Representation
-private:
+ private:
   T* _ptr;
 };
 
@@ -131,8 +131,7 @@ inline unsigned int ref_counted::instance() const
 #endif
 
 template <class T>
-ref_ptr<T>::ref_ptr( T* ptr )
-    : _ptr( ptr )
+ref_ptr<T>::ref_ptr( T* ptr ) : _ptr( ptr )
 {
   add_ref();
 #if REFPTR_DEBUG
@@ -140,8 +139,7 @@ ref_ptr<T>::ref_ptr( T* ptr )
 #endif
 }
 template <class T>
-ref_ptr<T>::ref_ptr( const ref_ptr& rptr )
-    : _ptr( rptr._ptr )
+ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr._ptr )
 {
   add_ref();
 #if REFPTR_DEBUG

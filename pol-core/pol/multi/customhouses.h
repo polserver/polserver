@@ -13,42 +13,33 @@
 #include <vector>
 #include <list>
 #include <string>
-#include <cstddef>  // for size_t
-#include <iosfwd>   // for testprint()
+#include <cstddef> // for size_t
+#include <iosfwd> // for testprint()
 
-namespace Pol
-{
-namespace Bscript
-{
-class ObjArray;
-}
-namespace Clib
-{
-class ConfigElem;
-class StreamWriter;
-}
-namespace Network
-{
-class Client;
-}
-namespace Items
-{
-class Item;
-}
-namespace Mobile
-{
-class Character;
-}
-namespace Multi
-{
-class UHouse;
-}
-namespace Core
-{
-struct PKTBI_D7;
-}
-namespace Multi
-{
+namespace Pol {
+  namespace Bscript {
+    class ObjArray;
+  }
+  namespace Clib {
+    class ConfigElem;
+    class StreamWriter;
+  }
+  namespace Network {
+    class Client;
+  }
+  namespace Items {
+    class Item;
+  }
+  namespace Mobile {
+    class Character;
+  }
+  namespace Multi {
+    class UHouse;
+  }
+  namespace Core {
+    struct PKTBI_D7;
+  }
+  namespace Multi {
 #define CUSTOM_HOUSE_NUM_PLANES 6
 #define STAIR_MULTIID_MIN 0x1DB0
 #define STAIR_MULTIID_MAX 0x1DF3
@@ -56,125 +47,129 @@ namespace Multi
 #define TELEPORTER_START 0x181D
 #define TELEPORTER_END 0x1828
 
-class UHouse;
+	class UHouse;
 
-enum
-{
-  HOUSE_DESIGN_CURRENT = 1,
-  HOUSE_DESIGN_WORKING
-};
+	enum
+	{
+	  HOUSE_DESIGN_CURRENT = 1,
+	  HOUSE_DESIGN_WORKING
+	};
 
-struct CUSTOM_HOUSE_ELEMENT
-{
-  u8 z;
-  u16 graphic;
-  s32 xoffset;
-  s32 yoffset;
-};
+	struct CUSTOM_HOUSE_ELEMENT
+	{
+	  u8 z;
+	  u16 graphic;
+	  s32 xoffset;
+	  s32 yoffset;
+	};
 
-typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;  // vector of N-S rows
-typedef std::vector<std::list<CUSTOM_HOUSE_ELEMENT>> HouseFloorRow;  // vector of Z columns
-typedef std::list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
-// [][][][][][] - Xoffset vector
-// | | | | | |  - vec of yoffsets
-// v v v v v v
-// [][][][][][] - lists of zoffsets
-// [][][][][][]
+    typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;//vector of N-S rows
+    typedef std::vector<std::list<CUSTOM_HOUSE_ELEMENT>> HouseFloorRow;//vector of Z columns
+	typedef std::list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
+	// [][][][][][] - Xoffset vector
+	// | | | | | |  - vec of yoffsets
+	// v v v v v v
+	// [][][][][][] - lists of zoffsets
+	// [][][][][][]
 
-class CustomHouseElements
-{
-public:
-  CustomHouseElements();
-  CustomHouseElements( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
-  ~CustomHouseElements();
+	class CustomHouseElements
+	{
+	public:
+	  CustomHouseElements();
+	  CustomHouseElements( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
+	  ~CustomHouseElements();
 
-  void SetHeight( u32 _height );
-  void SetWidth( u32 _width );
-  size_t estimatedSize() const;
-  HouseFloorZColumn* GetElementsAt( s32 xoffset, s32 yoffset );
+	  void SetHeight( u32 _height );
+	  void SetWidth( u32 _width );
+	  size_t estimatedSize() const;
+	  HouseFloorZColumn* GetElementsAt( s32 xoffset, s32 yoffset );
 
-  void AddElement( CUSTOM_HOUSE_ELEMENT& elem );
+	  void AddElement( CUSTOM_HOUSE_ELEMENT& elem );
 
-  HouseFloor data;
-  u32 height, width;
-  s32 xoff, yoff;
-};
+	  HouseFloor data;
+	  u32 height, width;
+	  s32 xoff, yoff;
 
-class CustomHouseDesign
-{
-public:
-  CustomHouseDesign();
-  CustomHouseDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
-  ~CustomHouseDesign();
-  size_t estimatedSize() const;
-  void InitDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
+	};
 
-  CustomHouseDesign& operator=( const CustomHouseDesign& design );
-  void Add( CUSTOM_HOUSE_ELEMENT& elem );
-  void AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem );
-  void AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z );
+	class CustomHouseDesign
+	{
+	public:
+	  CustomHouseDesign();
+	  CustomHouseDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
+	  ~CustomHouseDesign();
+      size_t estimatedSize() const;
+	  void InitDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
 
-  bool Erase( u32 xoffset, u32 yoffset, u8 z, int minheight = 0 );
-  bool EraseGraphicAt( u16 graphic, u32 xoffset, u32 yoffset, u8 z );
+	  CustomHouseDesign& operator=( const CustomHouseDesign& design );
+	  void Add( CUSTOM_HOUSE_ELEMENT& elem );
+	  void AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem );
+	  void AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z );
 
-  void ReplaceDirtFloor( u32 x, u32 y );
-  void Clear();
-  bool IsEmpty() const;
+	  bool Erase( u32 xoffset, u32 yoffset, u8 z, int minheight = 0 );
+	  bool EraseGraphicAt( u16 graphic, u32 xoffset, u32 yoffset, u8 z );
 
-  unsigned char* Compress( int floor, u32* uncompr_length, u32* compr_length );
+	  void ReplaceDirtFloor( u32 x, u32 y );
+	  void Clear();
+	  bool IsEmpty() const;
 
-  unsigned int TotalSize() const;
-  unsigned char NumUsedPlanes() const;
+	  unsigned char* Compress( int floor, u32* uncompr_length, u32* compr_length );
 
-  void readProperties( Clib::ConfigElem& elem, const std::string& prefix );
-  void printProperties( Clib::StreamWriter& sw, const std::string& prefix ) const;
+	  unsigned int TotalSize() const;
+	  unsigned char NumUsedPlanes() const;
 
-  int floor_sizes[CUSTOM_HOUSE_NUM_PLANES];
+	  void readProperties( Clib::ConfigElem& elem, const std::string& prefix );
+	  void printProperties( Clib::StreamWriter& sw, const std::string& prefix ) const;
 
-  bool DeleteStairs( u16 id, s32 x, s32 y, s8 z );
+	  int floor_sizes[CUSTOM_HOUSE_NUM_PLANES];
 
-  // assumes x,y already added with xoff and yoff
-  inline bool ValidLocation( u32 xidx, u32 yidx ) { return !( xidx >= width || yidx >= height ); }
-  static bool IsStair( u16 id, int& dir );
-  static bool IsStairBlock( u16 id );
+	  bool DeleteStairs( u16 id, s32 x, s32 y, s8 z );
 
-  u32 height, width;  // total sizes including front steps
-  s32 xoff, yoff;     // offsets from center west-most and north-most indicies are 0
-  CustomHouseElements Elements[CUSTOM_HOUSE_NUM_PLANES];  // 5 planes
+	  //assumes x,y already added with xoff and yoff
+	  inline bool ValidLocation( u32 xidx, u32 yidx )
+	  {
+		return !( xidx >= width || yidx >= height );
+	  }
 
-  static const char custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];
-  // for testing
-  void testprint( std::ostream& os ) const;
+	  static bool IsStair( u16 id, int& dir );
+	  static bool IsStairBlock( u16 id );
 
-  void AddComponents( UHouse* house );
-  void FillComponents( UHouse* house, bool add_as_component = true );
-  static void ClearComponents( UHouse* house );
-  Bscript::ObjArray* list_parts() const;
+	  u32 height, width; //total sizes including front steps
+	  s32 xoff, yoff;      //offsets from center west-most and north-most indicies are 0
+	  CustomHouseElements Elements[CUSTOM_HOUSE_NUM_PLANES]; //5 planes
 
-private:
-  inline static bool isEditableItem( UHouse* house, Items::Item* item );
-  static char z_to_custom_house_table( char z );
-};
+	  static const char custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];
+	  //for testing
+	  void testprint( std::ostream& os ) const;
 
-// House Tool Command Implementations:
-void CustomHousesAdd( Core::PKTBI_D7* msg );
-void CustomHousesAddMulti( Core::PKTBI_D7* msg );
-void CustomHousesErase( Core::PKTBI_D7* msg );
-void CustomHousesClear( Core::PKTBI_D7* msg );
-void CustomHousesQuit( Core::PKTBI_D7* msg );
-void CustomHousesCommit( Core::PKTBI_D7* msg );
-void CustomHousesSelectFloor( Core::PKTBI_D7* msg );
-void CustomHousesBackup( Core::PKTBI_D7* msg );
-void CustomHousesRestore( Core::PKTBI_D7* msg );
-void CustomHousesSynch( Core::PKTBI_D7* msg );
-void CustomHousesRevert( Core::PKTBI_D7* msg );
-void CustomHousesRoofSelect( Core::PKTBI_D7* msg );
-void CustomHousesRoofRemove( Core::PKTBI_D7* msg );
-void CustomHousesSendFull( UHouse* house, Network::Client* client,
-                           int design = HOUSE_DESIGN_CURRENT );
-void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
-void CustomHousesSendShort( UHouse* house, Network::Client* client );
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house );
-}
+	  void AddComponents( UHouse* house );
+	  void FillComponents( UHouse* house, bool add_as_component = true );
+	  static void ClearComponents( UHouse* house );
+	  Bscript::ObjArray* list_parts() const;
+
+	private:
+	  inline static bool isEditableItem( UHouse* house, Items::Item* item );
+	  static char z_to_custom_house_table( char z );
+	};
+
+	//House Tool Command Implementations:
+	void CustomHousesAdd( Core::PKTBI_D7* msg );
+	void CustomHousesAddMulti( Core::PKTBI_D7* msg );
+	void CustomHousesErase( Core::PKTBI_D7* msg );
+	void CustomHousesClear( Core::PKTBI_D7* msg );
+	void CustomHousesQuit( Core::PKTBI_D7* msg );
+	void CustomHousesCommit( Core::PKTBI_D7* msg );
+	void CustomHousesSelectFloor( Core::PKTBI_D7* msg );
+	void CustomHousesBackup( Core::PKTBI_D7* msg );
+	void CustomHousesRestore( Core::PKTBI_D7* msg );
+	void CustomHousesSynch( Core::PKTBI_D7* msg );
+	void CustomHousesRevert( Core::PKTBI_D7* msg );
+	void CustomHousesRoofSelect( Core::PKTBI_D7* msg );
+	void CustomHousesRoofRemove( Core::PKTBI_D7* msg );
+	void CustomHousesSendFull( UHouse* house, Network::Client* client, int design = HOUSE_DESIGN_CURRENT );
+	void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
+	void CustomHousesSendShort( UHouse* house, Network::Client* client );
+	void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house );
+  }
 }
 #endif

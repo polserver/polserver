@@ -10,56 +10,55 @@
 #include <iosfwd>
 #include "../../lib/format/format.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-/**
- * Represents a single compile context.
- *
- * A new compile context is created for every source file being compiled,
- * but a context can spawn itself many sub-contexts when needed
- */
-class CompilerContext
-{
-public:
-  CompilerContext();
-  CompilerContext( const std::string& filename, int dbg_filenum, const char* s );
-  CompilerContext( const CompilerContext& );
-  CompilerContext& operator=( const CompilerContext& );
+namespace Pol {
+  namespace Bscript {
 
-  void printOn( std::ostream& os ) const;
-  void printOn( fmt::Writer& writer ) const;
-  void printOnShort( std::ostream& os ) const;
-  void printOnShort( fmt::Writer& writer ) const;
+	/**
+	 * Represents a single compile context.
+	 *
+	 * A new compile context is created for every source file being compiled,
+	 * but a context can spawn itself many sub-contexts when needed
+	 */
+	class CompilerContext
+	{
+	public:
+	  CompilerContext();
+	  CompilerContext( const std::string& filename, int dbg_filenum, const char *s );
+	  CompilerContext( const CompilerContext& );
+	  CompilerContext& operator=( const CompilerContext& );
 
-  void skipws();
-  int skipcomments();
+      void printOn( std::ostream& os ) const;
+      void printOn( fmt::Writer& writer ) const;
+	  void printOnShort( std::ostream& os ) const;
+      void printOnShort( fmt::Writer& writer ) const;
 
-  /**
-   * The code to be compiled, as null-terminated char sequence.
-   * The pointer is moved forward when part of the string has been processed
-   */
-  const char* s;
-  int line;
-  std::string filename;
+	  void skipws();
+	  int skipcomments();
 
-  const char* s_begin;
+	  /**
+	   * The code to be compiled, as null-terminated char sequence.
+	   * The pointer is moved forward when part of the string has been processed
+	   */
+	  const char *s;
+	  int line;
+	  std::string filename;
 
-  int dbg_filenum;
-};
+	  const char* s_begin;
 
-inline std::ostream& operator<<( std::ostream& os, const CompilerContext& ctx )
-{
-  ctx.printOn( os );
-  return os;
-}
+	  int dbg_filenum;
+	};
 
-inline fmt::Writer& operator<<( fmt::Writer& writer, const CompilerContext& ctx )
-{
-  ctx.printOn( writer );
-  return writer;
-}
-}
+	inline std::ostream& operator<<( std::ostream& os, const CompilerContext& ctx )
+	{
+	  ctx.printOn( os );
+	  return os;
+	}
+
+    inline fmt::Writer& operator<<( fmt::Writer& writer, const CompilerContext& ctx )
+    {
+      ctx.printOn( writer );
+      return writer;
+    }
+  }
 }
 #endif

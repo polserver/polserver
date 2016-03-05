@@ -14,101 +14,100 @@
 #include <string>
 #include "crypt/cryptkey.h"
 #include "../clib/Debugging/ExceptionParser.h"
-#if !defined( _WIN32 )
+#if !defined(_WIN32)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
-namespace Pol
-{
-namespace Core
-{
-struct PolConfig
-{
-  std::string uo_datafile_root;
-  std::string world_data_path;
-  std::string realm_data_path;
-  std::string pidfile_path;
-  unsigned short listen_port;
-  bool verbose;
-  unsigned short loglevel;  // 0=nothing 10=lots
-  unsigned short select_timeout_usecs;
-  bool watch_rpm;
-  bool watch_sysload;
-  bool log_sysload;
-  bool watch_mapcache;
-  bool check_integrity;
-  bool inhibit_saves;
-  bool log_script_cycles;
-  bool count_resource_tiles;
-  Crypt::TCryptInfo client_encryption_version;
-  unsigned short multithread;
-  bool web_server;
-  unsigned short web_server_port;
-  bool web_server_local_only;
-  unsigned short web_server_debug;
-  std::string web_server_password;
-  bool profile_cprops;
-  bool cache_interactive_scripts;
-  bool show_speech_colors;
-  bool require_spellbooks;
-  bool enable_secure_trading;
-  unsigned int runaway_script_threshold;
-  bool ignore_load_errors;
-  unsigned short min_cmdlvl_ignore_inactivity;
-  unsigned short inactivity_warning_timeout;
-  unsigned short inactivity_disconnect_timeout;
-  unsigned short min_cmdlevel_to_login;
-  unsigned int max_tile_id;
-  unsigned int max_objtype;
+namespace Pol {
+  namespace Core {
+	struct PolConfig
+	{
+	  std::string uo_datafile_root;
+	  std::string world_data_path;
+	  std::string realm_data_path;
+	  std::string pidfile_path;
+	  unsigned short listen_port;
+	  bool verbose;
+	  unsigned short loglevel; // 0=nothing 10=lots
+	  unsigned short select_timeout_usecs;
+	  bool watch_rpm;
+	  bool watch_sysload;
+	  bool log_sysload;
+	  bool watch_mapcache;
+	  bool check_integrity;
+	  bool inhibit_saves;
+	  bool log_script_cycles;
+	  bool count_resource_tiles;
+	  Crypt::TCryptInfo client_encryption_version;
+	  unsigned short multithread;
+	  bool web_server;
+	  unsigned short web_server_port;
+	  bool web_server_local_only;
+	  unsigned short web_server_debug;
+	  std::string web_server_password;
+      bool profile_cprops;
+	  bool cache_interactive_scripts;
+	  bool show_speech_colors;
+	  bool require_spellbooks;
+	  bool enable_secure_trading;
+	  unsigned int runaway_script_threshold;
+	  bool ignore_load_errors;
+	  unsigned short min_cmdlvl_ignore_inactivity;
+	  unsigned short inactivity_warning_timeout;
+	  unsigned short inactivity_disconnect_timeout;
+	  unsigned short min_cmdlevel_to_login;
+	  unsigned int max_tile_id;
+	  unsigned int max_objtype;
 
-  unsigned short max_clients;
-  unsigned short character_slots;
-  unsigned short max_clients_bypass_cmdlevel;
-  bool allow_multi_clients_per_account;
-  bool display_unknown_packets;
-  bool exp_los_checks_map;
-  bool enable_debug_log;
+	  unsigned short max_clients;
+	  unsigned short character_slots;
+	  unsigned short max_clients_bypass_cmdlevel;
+	  bool allow_multi_clients_per_account;
+	  bool display_unknown_packets;
+	  bool exp_los_checks_map;
+	  bool enable_debug_log;
 
-  unsigned short debug_port;
-  std::string debug_password;
-  bool debug_local_only;
+	  unsigned short debug_port;
+	  std::string debug_password;
+	  bool debug_local_only;
 
-  unsigned short debug_level;
-  bool report_rtc_scripts;
-  bool report_critical_scripts;
-  bool report_missing_configs;
-  bool retain_cleartext_passwords;
-  bool discard_old_events;
+	  unsigned short debug_level;
+	  bool report_rtc_scripts;
+	  bool report_critical_scripts;
+	  bool report_missing_configs;
+	  bool retain_cleartext_passwords;
+	  bool discard_old_events;
 
-  int shutdown_save_type;  // either SAVE_FULL or SAVE_INCREMENTAL
-  int assertion_shutdown_save_type;
+	  int shutdown_save_type; // either SAVE_FULL or SAVE_INCREMENTAL
+	  int assertion_shutdown_save_type;
 
-  std::string minidump_type;
+	  std::string minidump_type;
 
-  int account_save;
-  bool use_single_thread_login;
+	  int account_save;
+	  bool use_single_thread_login;
+	  
+	  bool disable_nagle;
+      bool show_realm_info;
+      bool enforce_mount_objtype;
+      bool single_thread_decay;
+      bool thread_decay_statistics;
 
-  bool disable_nagle;
-  bool show_realm_info;
-  bool enforce_mount_objtype;
-  bool single_thread_decay;
-  bool thread_decay_statistics;
+      /**
+       * @brief Returns true if program aborts are reported
+       */
+	  bool report_program_aborts(){ return Pol::Clib::ExceptionParser::programAbortReporting(); }
 
-  /**
-   * @brief Returns true if program aborts are reported
-   */
-  bool report_program_aborts() { return Pol::Clib::ExceptionParser::programAbortReporting(); }
-  /**
-   * crash reporting system with some early default values
-   */
-  std::string report_admin_email;
-  std::string report_server;
-  std::string report_url;
+	  /**
+	   * crash reporting system with some early default values
+	   */
+	  std::string report_admin_email;
+	  std::string report_server;
+	  std::string report_url;
 
-  static void read_pol_config( bool initial_load );
-  static struct stat pol_cfg_stat;
-  static void reload_pol_cfg();
-};
-}
+	  static void read_pol_config( bool initial_load );
+	  static struct stat pol_cfg_stat;
+	  static void reload_pol_cfg();
+	};
+  }
 }
 #endif

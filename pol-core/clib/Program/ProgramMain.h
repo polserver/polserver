@@ -4,33 +4,31 @@
 #include <string>
 #include <vector>
 
-namespace Pol
-{
-namespace Clib
-{
+namespace Pol{ namespace Clib{
+
 class ProgramMain
 {
 public:
-  ProgramMain();
-  virtual ~ProgramMain();
+    ProgramMain();
+    virtual ~ProgramMain();
 
-  void start( int argc, char* argv[] );
+    void start(int argc, char *argv[]);
 
 protected:
-  virtual int main() = 0;
-  virtual void showHelp() = 0;
+    virtual int main() = 0;
+    virtual void showHelp() = 0;
 
-  const std::vector<std::string>& programArgs() const;
-  std::string programArgsFind( const std::string& filter ) const;
-  std::string programArgsFindEquals( const std::string& filter, std::string defaultVal ) const;
-  int programArgsFindEquals( const std::string& filter, int defaultVal, bool hexVal ) const;
+    const std::vector<std::string>& programArgs() const;
+    std::string programArgsFind(const std::string& filter) const;
+    std::string programArgsFindEquals(const std::string& filter, std::string defaultVal) const;
+    int programArgsFindEquals(const std::string& filter, int defaultVal, bool hexVal) const;
 
 private:
-  std::vector<std::string> m_programArguments;
+    std::vector<std::string>    m_programArguments;
 };
-}
-}  // namespaces
 
-#define PROG_MAIN Pol::Clib::ProgramMain
+}} // namespaces
 
-#endif  // CLIB_PROGRAM_MAIN_H
+#define PROG_MAIN           Pol::Clib::ProgramMain
+
+#endif // CLIB_PROGRAM_MAIN_H

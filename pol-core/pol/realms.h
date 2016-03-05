@@ -7,6 +7,7 @@
  */
 
 
+
 #ifndef REALMS_H
 #define REALMS_H
 
@@ -14,21 +15,18 @@
 #include <vector>
 #include <string>
 
-namespace Pol
-{
-namespace Realms
-{
-class Realm;
-}
-namespace Core
-{
-Realms::Realm* find_realm( const std::string& name );
-void add_realm( const std::string& name, Realms::Realm* base );
-bool defined_realm( const std::string& name );
-void remove_realm( const std::string& name );
+namespace Pol {
+  namespace Realms {
+	class Realm;
+  }
+  namespace Core {
+	Realms::Realm* find_realm( const std::string& name );
+	void add_realm( const std::string& name, Realms::Realm* base );
+	bool defined_realm( const std::string& name );
+	void remove_realm( const std::string& name );
 
-// Support up to 5 Maps: Britannia, Britannia_alt, Ilshenar, Malas, Tokuno, TerMur
+	// Support up to 5 Maps: Britannia, Britannia_alt, Ilshenar, Malas, Tokuno, TerMur
 #define MAX_NUMER_REALMS 6
-}
+  }
 }
 #endif

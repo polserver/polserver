@@ -3,63 +3,60 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Clib
-{
+namespace Pol{ namespace Clib{
+
 class ExceptionParser
 {
 public:
-  ExceptionParser();
-  virtual ~ExceptionParser();
+    ExceptionParser();
+    virtual ~ExceptionParser();
 
-  /**
-   * @brief Returns a string containing the current stack trace
-   * @return the stack trace as multi-line string
-   */
-  static std::string getTrace();
+    /**
+     * @brief Returns a string containing the current stack trace
+     * @return the stack trace as multi-line string
+     */
+    static std::string getTrace();
 
-  /**
-   * @brief Reports a program abort to the program devs
-   * @param stackTrace the stack trace of the abort
-   * @param reason a descriptive text about the reason for the abort
-   */
-  static void reportProgramAbort( std::string stackTrace, std::string reason );
+    /**
+     * @brief Reports a program abort to the program devs
+     * @param stackTrace the stack trace of the abort
+     * @param reason a descriptive text about the reason for the abort
+     */
+    static void reportProgramAbort(std::string stackTrace, std::string reason);
 
-  /**
-   * @brief Logs stack traces of all threads to stdout and error output
-   */
-  static void logAllStackTraces();
+    /**
+     * @brief Logs stack traces of all threads to stdout and error output
+     */
+    static void logAllStackTraces();
 
-  /**
-   * @brief Initiates globally the exception catching (signal handlers for Linux)
-   */
-  static void initGlobalExceptionCatching();
+    /**
+     * @brief Initiates globally the exception catching (signal handlers for Linux)
+     */
+    static void initGlobalExceptionCatching();
 
-  /**
-   * @brief Configures the bug reporting system
-   */
-  static void configureProgramAbortReportingSystem( bool active, std::string server,
-                                                    std::string url, std::string reporter );
+    /**
+     * @brief Configures the bug reporting system
+     */
+    static void configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter);
 
-  /**
-   * @brief Returns true if the bug reporting is active
-   */
-  static bool programAbortReporting();
+    /**
+     * @brief Returns true if the bug reporting is active
+     */
+    static bool programAbortReporting();
 
-  /**
-   * @brief Handles exceptions
-   */
-  static void handleExceptionSignal( int signal );
+    /**
+     * @brief Handles exceptions
+     */
+    static void handleExceptionSignal(int signal);
 
 private:
-  static bool m_programAbortReporting;
-  static std::string m_programAbortReportingServer;
-  static std::string m_programAbortReportingUrl;
-  static std::string m_programAbortReportingReporter;
-  static std::string m_programStart;
+    static bool              m_programAbortReporting;
+    static std::string       m_programAbortReportingServer;
+    static std::string       m_programAbortReportingUrl;
+    static std::string       m_programAbortReportingReporter;
+    static std::string       m_programStart;
 };
-}
-}  // namespaces
+
+}} // namespaces
 
 #endif

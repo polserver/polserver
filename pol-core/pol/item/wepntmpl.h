@@ -5,6 +5,7 @@
  */
 
 
+
 #ifndef WEPNTMPL_H
 #define WEPNTMPL_H
 
@@ -14,50 +15,48 @@
 #include "../dice.h"
 #include "../equipdsc.h"
 
-namespace Pol
-{
-namespace Mobile
-{
-class Attribute;
-}
-namespace Items
-{
-class WeaponDesc : public Core::EquipDesc
-{
-public:
-  typedef EquipDesc base;
-  WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-  WeaponDesc();  // for dummy template
-  virtual ~WeaponDesc(){};
-  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+namespace Pol {
+  namespace Mobile {
+	class Attribute;
+  }
+  namespace Items {
+	
+	class WeaponDesc : public Core::EquipDesc
+	{
+	public:
+	  typedef EquipDesc base;
+	  WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
+	  WeaponDesc(); // for dummy template
+      virtual ~WeaponDesc() {};
+	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
-  unsigned short get_random_damage() const;
+	  unsigned short get_random_damage() const;
 
-  const Mobile::Attribute* pAttr;
+	  const Mobile::Attribute* pAttr;
 
-  unsigned short speed;
-  unsigned short delay;
+	  unsigned short speed;
+	  unsigned short delay;
 
-  Core::ScriptDef hit_script;
+	  Core::ScriptDef hit_script;
 
-  Core::Dice damage_dice;
+	  Core::Dice damage_dice;
 
-  bool projectile;
-  unsigned short projectile_type;
-  unsigned short projectile_anim;
-  unsigned short projectile_sound;
-  Core::UACTION projectile_action;
-  Core::UACTION anim;
-  Core::UACTION mounted_anim;
-  unsigned short hit_sound;
-  unsigned short miss_sound;
+	  bool projectile;
+	  unsigned short projectile_type;
+	  unsigned short projectile_anim;
+	  unsigned short projectile_sound;
+	  Core::UACTION projectile_action;
+	  Core::UACTION anim;
+	  Core::UACTION mounted_anim;
+	  unsigned short hit_sound;
+	  unsigned short miss_sound;
 
-  bool two_handed;
+	  bool two_handed;
 
-  unsigned short minrange;
-  unsigned short maxrange;
-};
-}
+	  unsigned short minrange;
+	  unsigned short maxrange;
+	};
+  }
 }
 #endif

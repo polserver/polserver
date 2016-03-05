@@ -14,75 +14,74 @@
 #include <string>
 #include <fstream>
 
-namespace Pol
-{
-namespace Plib
-{
-struct SOLIDS_ELEM;
-struct SOLIDX2_ELEM;
-struct MAPCELL;
-struct MAPTILE_CELL;
+namespace Pol {
+  namespace Plib {
 
-class MapWriter
-{
-public:
-  MapWriter();
-  ~MapWriter();
+      struct SOLIDS_ELEM;
+      struct SOLIDX2_ELEM;
+      struct MAPCELL;
+      struct MAPTILE_CELL;
 
-  void SetMapCell( unsigned short x, unsigned short y, MAPCELL cell );
-  void SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell );
+	class MapWriter
+	{
+	public:
+	  MapWriter();
+	  ~MapWriter();
 
-  void Flush();
+	  void SetMapCell( unsigned short x, unsigned short y, MAPCELL cell );
+	  void SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell );
 
-  void CreateNewFiles( const std::string& realm_name, unsigned short width, unsigned short height );
-  void OpenExistingFiles( const std::string& realm_name );
-  void WriteConfigFile();
+	  void Flush();
 
-  void CreateBaseDat( const std::string& realm_name, const std::string& directory );
-  void CreateSolidx1Dat( const std::string& realm_name, const std::string& directory );
-  void CreateSolidx2Dat( const std::string& realm_name, const std::string& directory );
-  void CreateSolidsDat( const std::string& realm_name, const std::string& directory );
-  void CreateMaptileDat( const std::string& realm_name, const std::string& directory );
+	  void CreateNewFiles( const std::string& realm_name, unsigned short width, unsigned short height );
+	  void OpenExistingFiles( const std::string& realm_name );
+	  void WriteConfigFile();
 
-  unsigned int NextSolidIndex();
-  unsigned int NextSolidOffset();
+      void CreateBaseDat(const std::string& realm_name, const std::string& directory);
+	  void CreateSolidx1Dat( const std::string& realm_name, const std::string& directory );
+	  void CreateSolidx2Dat( const std::string& realm_name, const std::string& directory );
+	  void CreateSolidsDat( const std::string& realm_name, const std::string& directory );
+	  void CreateMaptileDat( const std::string& realm_name, const std::string& directory );
 
-  unsigned int NextSolidx2Offset();
+	  unsigned int NextSolidIndex();
+	  unsigned int NextSolidOffset();
 
-  void AppendSolid( const SOLIDS_ELEM& solid );
-  void AppendSolidx2Elem( const SOLIDX2_ELEM& elem );
-  void SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned int offset );
+	  unsigned int NextSolidx2Offset();
 
-  unsigned width() const { return _width; }
-  unsigned height() const { return _height; }
-private:
-  std::fstream::pos_type total_size();
+	  void AppendSolid( const SOLIDS_ELEM& solid );
+	  void AppendSolidx2Elem( const SOLIDX2_ELEM& elem );
+	  void SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned int offset );
 
-  unsigned int total_solid_blocks();
-  unsigned int total_blocks();
-  unsigned int total_maptile_blocks();
+	  unsigned width() const { return _width; }
+	  unsigned height() const { return _height; }
+	private:
+	  std::fstream::pos_type total_size();
 
-  void FlushBaseFile();
-  void FlushMapTileFile();
+	  unsigned int total_solid_blocks();
+	  unsigned int total_blocks();
+	  unsigned int total_maptile_blocks();
 
-private:
-  std::string _realm_name;
-  unsigned short _width;
-  unsigned short _height;
-  std::fstream _ofs_base;
-  int _cur_mapblock_index;
-  MAPBLOCK _block;
+	  void FlushBaseFile();
+	  void FlushMapTileFile();
 
-  std::fstream _ofs_solidx1;
-  std::fstream _ofs_solidx2;
-  std::fstream _ofs_solids;
+	private:
+	  std::string _realm_name;
+	  unsigned short _width;
+	  unsigned short _height;
+	  std::fstream _ofs_base;
+	  int _cur_mapblock_index;
+	  MAPBLOCK _block;
 
-  std::fstream _ofs_maptile;
-  int _cur_maptile_index;
-  MAPTILE_BLOCK _maptile_block;
-  size_t solidx2_offset;
-  size_t solids_offset;
-};
-}
+      std::fstream _ofs_solidx1;
+      std::fstream _ofs_solidx2;
+      std::fstream _ofs_solids;
+
+      std::fstream _ofs_maptile;
+	  int _cur_maptile_index;
+	  MAPTILE_BLOCK _maptile_block;
+	  size_t solidx2_offset;
+	  size_t solids_offset;
+	};
+  }
 }
 #endif

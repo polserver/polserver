@@ -23,7 +23,7 @@
 //
 //#include <string>
 //
-// namespace Pol {
+//namespace Pol {
 //  namespace Core {
 //    bool FindNpcTemplate( const char *template_name,
 //                          Clib::ConfigFile& cfile,
@@ -69,8 +69,7 @@
 //	void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short z, int flags )
 //	{
 //        Realm* realm = find_realm(std::string("britannia"));
-//	  Bscript::BObject obj( Multi::UMulti::scripted_create( find_itemdesc( objtype ), x, y,
-//static_cast<s8>( z ), realm, flags ) );
+//	  Bscript::BObject obj( Multi::UMulti::scripted_create( find_itemdesc( objtype ), x, y, static_cast<s8>( z ), realm, flags ) );
 //	}
 //
 //	Mobile::NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, short z )
@@ -137,8 +136,7 @@
 //
 //	  // a boat in britain harbor
 //	  add_multi( 0x6040, 1487, 1768, -5, Multi::CRMULTI_FACING_NORTH );
-//	  // the call above creates the planks, hold, and tillerman.  hm, how to extend the port
-//gangplank, though...
+//	  // the call above creates the planks, hold, and tillerman.  hm, how to extend the port gangplank, though...
 //	  //add_item( 0x3ED5, 1485, 1768, -5 ); // port gangplank, extended
 //	  //add_item( 0x3eb2, 1489, 1768, -5 ); // starboard gangplank, retracted
 //	  //add_item( 0xF013, 1487, 1764, -5 ); // hold

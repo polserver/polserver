@@ -12,30 +12,28 @@
 //
 //#include "realm.h"
 //#include "mapserver.h"
-namespace Pol
-{
-namespace Plib
-{
+namespace Pol {
+  namespace Plib {
 //    using namespace Items;
 //    using namespace Multi;
 //    using namespace Core;
-int failures;
-int successes;
+	int failures;
+	int successes;
 
-void inc_failures()
-{
-  ++failures;
-}
+	void inc_failures()
+	{
+	  ++failures;
+	}
 
-void inc_successes()
-{
-  ++successes;
-}
-void display_test_results()
-{
-  INFO_PRINT << "Successes: " << successes << "\n"
-             << "Failures:  " << failures << "\n";
-}
+	void inc_successes()
+	{
+	  ++successes;
+	}
+	void display_test_results()
+	{
+      INFO_PRINT << "Successes: " << successes << "\n"
+        << "Failures:  " << failures << "\n";
+	}
 //
 //
 //	bool pol_walkheight( unsigned short x, unsigned short y, short oldz,
@@ -61,8 +59,7 @@ void display_test_results()
 //		<< "Expect " << exp_result << "," << exp_z << ": ";
 //	  UMulti* multi;
 //	  Item* itm;
-//	  bool res = p_test_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, true/*doors
-//block*/, MOVEMODE_LAND );
+//	  bool res = p_test_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, true/*doors block*/, MOVEMODE_LAND );
 //
 //      INFO_PRINT << "Got " << res << "," << newz << ": ";
 //
@@ -85,8 +82,7 @@ void display_test_results()
 //      INFO_PRINT << "Ok!\n";
 //	}
 //	static void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz,
-//							unsigned short newx, unsigned short newy, bool doors_block, MOVEMODE movemode, bool
-//exp_result, short exp_z )
+//							unsigned short newx, unsigned short newy, bool doors_block, MOVEMODE movemode, bool exp_result, short exp_z )
 //	{
 //	  if ( p_test_realm == NULL )
 //		p_test_realm = new Realm( "britannia" );
@@ -97,8 +93,7 @@ void display_test_results()
 //		<< "Expect " << exp_result << "," << exp_z << ": ";
 //	  UMulti* multi;
 //	  Item* itm;
-//	  bool res = p_test_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, doors_block,
-//movemode );
+//	  bool res = p_test_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, doors_block, movemode );
 //
 //      INFO_PRINT << "Got " << res << "," << newz << ": ";
 //
@@ -355,5 +350,6 @@ void display_test_results()
 //
 //	}
 //
+  }
 }
-}
+

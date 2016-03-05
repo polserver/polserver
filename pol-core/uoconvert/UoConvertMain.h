@@ -5,23 +5,21 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace UoConvert
-{
+namespace Pol{ namespace UoConvert{
+
 class UoConvertMain : public Pol::Clib::ProgramMain
 {
 public:
-  UoConvertMain();
-  virtual ~UoConvertMain();
+	UoConvertMain();
+    virtual ~UoConvertMain();
 
 protected:
-  virtual int main();
+    virtual int main();
 
 private:
-  virtual void showHelp();
+    virtual void showHelp();
 };
-}
-}  // namespaces
 
-#endif  // UO_CONVERT_MAIN_H
+}} // namespaces
+
+#endif // UO_CONVERT_MAIN_H

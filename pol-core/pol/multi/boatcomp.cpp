@@ -8,28 +8,25 @@
 
 #include "boatcomp.h"
 
-namespace Pol
-{
-namespace Multi
-{
-UPlank::UPlank( const Items::ItemDesc& descriptor ) : Core::ULockable( descriptor, CLASS_ITEM )
-{
-}
+namespace Pol {
+  namespace Multi {
+	UPlank::UPlank( const Items::ItemDesc& descriptor ) : Core::ULockable( descriptor, CLASS_ITEM )
+	{}
 
-void UPlank::setboat( UBoat* boat )
-{
-  boat_.set( boat );
-}
+	void UPlank::setboat( UBoat* boat )
+	{
+	  boat_.set( boat );
+	}
 
-void UPlank::destroy()
-{
-  boat_.clear();
-  base::destroy();
-}
+	void UPlank::destroy()
+	{
+	  boat_.clear();
+	  base::destroy();
+	}
 
-size_t UPlank::estimatedSize() const
-{
-  return base::estimatedSize() + sizeof( ref_ptr<UBoat> );
-}
-}
+    size_t UPlank::estimatedSize( ) const
+    {
+      return base::estimatedSize( ) + sizeof( ref_ptr<UBoat> );
+    }
+  }
 }

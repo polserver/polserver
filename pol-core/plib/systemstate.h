@@ -5,7 +5,7 @@
 #include <boost/noncopyable.hpp>
 #include <map>
 #include <vector>
-#if !defined( _WIN32 )
+#if !defined(_WIN32)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -15,42 +15,40 @@
 #include "../pol/polcfg.h"
 
 
-namespace Pol
-{
-namespace Core
-{
-class Tile;
-}
-namespace Plib
-{
-class Package;
+namespace Pol {
+  namespace Core {
+	class Tile;
+  }
+  namespace Plib {
+	class Package;
 
-typedef std::vector<Package*> Packages;
-typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
+	typedef std::vector<Package*> Packages;
+	typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
 
-class SystemState : boost::noncopyable
-{
-public:
-  SystemState();
-  ~SystemState();
-  void deinitialize();
+	class SystemState : boost::noncopyable
+	{
+	public:
+	  SystemState();
+	  ~SystemState();
+	  void deinitialize();
 
-  Packages packages;
-  PackagesByName packages_byname;
+	  Packages packages;
+	  PackagesByName packages_byname;
 
-  bool accounts_txt_dirty;
-  struct stat accounts_txt_stat;
+	  bool accounts_txt_dirty;
+	  struct stat accounts_txt_stat;
+	  
+	  Core::PolConfig config;
+	  Core::Tile *tile;
+	  bool tiles_loaded;
 
-  Core::PolConfig config;
-  Core::Tile* tile;
-  bool tiles_loaded;
+      size_t estimatedSize() const;
 
-  size_t estimatedSize() const;
+	private:
+	
+	};
 
-private:
-};
-
-extern SystemState systemstate;
-}
+	extern SystemState systemstate;
+  }
 }
 #endif

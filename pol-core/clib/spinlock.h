@@ -4,60 +4,58 @@
 #include <atomic>
 #include <mutex>
 
-namespace Pol
-{
-namespace Clib
-{
-/**
- * This is a much faster replacement for mutex when locking very small
- * and fast running protected parts. It is based on a busy loop.
- *
- * @warning use it only through SpinLockGuard
- */
-class SpinLock
-{
-  friend class std::lock_guard<SpinLock>;
+namespace Pol {
+  namespace Clib {
 
-public:
-  SpinLock();
-  ~SpinLock();
+    /**
+     * This is a much faster replacement for mutex when locking very small
+     * and fast running protected parts. It is based on a busy loop.
+     *
+     * @warning use it only through SpinLockGuard
+     */
+    class SpinLock
+    {
+      friend class std::lock_guard<SpinLock>;
 
-private:
-  void lock();
-  void unlock();
+    public:
+      SpinLock();
+      ~SpinLock();
 
-  std::atomic_flag _lck;
-};
+    private:
+      void lock();
+      void unlock();
 
-/** This is a std::lock_guard specific for SpinLock */
-typedef std::lock_guard<SpinLock> SpinLockGuard;
+      std::atomic_flag _lck;
+    };
 
-inline SpinLock::SpinLock()
-{
-  _lck.clear();
-}
-inline SpinLock::~SpinLock()
-{
-}
+    /** This is a std::lock_guard specific for SpinLock */
+    typedef std::lock_guard<SpinLock> SpinLockGuard;
 
-/**
- * Puts the caller in an endless busy loop until it acquires the lock
- */
-inline void SpinLock::lock()
-{
-  while ( _lck.test_and_set( std::memory_order_acquire ) )
-  {
-  }
-}
+    inline SpinLock::SpinLock()
+    {
+      _lck.clear();
+    }
+    inline SpinLock::~SpinLock()
+    {
+    }
 
-/**
- * Releases the lock
- */
-inline void SpinLock::unlock()
-{
-  _lck.clear( std::memory_order_release );
-}
+    /**
+     * Puts the caller in an endless busy loop until it acquires the lock
+     */
+    inline void SpinLock::lock()
+    {
+      while(_lck.test_and_set(std::memory_order_acquire))
+        {}
+    }
 
-}  // namespace Clib
-}  // namespace Pol
+    /**
+     * Releases the lock
+     */
+    inline void SpinLock::unlock()
+    {
+      _lck.clear(std::memory_order_release);
+    }
+
+  } // namespace Clib
+} // namespace Pol
 #endif

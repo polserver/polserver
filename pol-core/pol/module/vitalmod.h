@@ -6,61 +6,57 @@
  */
 
 
+
 #ifndef VITALEMOD_H
 #define VITALEMOD_H
 
 #include "../../bscript/execmodl.h"
 #include "uomod.h"
 
-namespace Pol
-{
-namespace Mobile
-{
-class Character;
-}
-namespace Module
-{
-class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule>
-{
-public:
-  VitalExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec )
-  {
+namespace Pol {
+  namespace Mobile {
+    class Character;
   }
+  namespace Module {
+	class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule>
+	{
+	public:
+      VitalExecutorModule( Bscript::Executor& exec ) :
+        Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec ) {}
 
-  Bscript::BObjectImp* mf_ApplyRawDamage();
-  Bscript::BObjectImp* mf_ApplyDamage();
+      Bscript::BObjectImp* mf_ApplyRawDamage( );
+      Bscript::BObjectImp* mf_ApplyDamage( );
 
-  Bscript::BObjectImp* mf_HealDamage();
+      Bscript::BObjectImp* mf_HealDamage( );
 
-  Bscript::BObjectImp* mf_ConsumeMana();
+      Bscript::BObjectImp* mf_ConsumeMana( );
 
-  Bscript::BObjectImp* mf_ConsumeVital( /* mob, vital, hundredths */ );
-  Bscript::BObjectImp* mf_RecalcVitals( /* mob, attributes, vitals */ );
+      Bscript::BObjectImp* mf_ConsumeVital( /* mob, vital, hundredths */ );
+      Bscript::BObjectImp* mf_RecalcVitals( /* mob, attributes, vitals */ );
 
-  Bscript::BObjectImp* mf_GetVitalName( /*alias_name*/ );
+      Bscript::BObjectImp* mf_GetVitalName(/*alias_name*/ );
 
-  Bscript::BObjectImp* mf_GetVital( /* mob, vitalid */ );
-  Bscript::BObjectImp* mf_GetVitalMaximumValue( /* mob, vitalid */ );
-  Bscript::BObjectImp* mf_GetVitalRegenRate( /* mob, vitalid */ );
+      Bscript::BObjectImp* mf_GetVital( /* mob, vitalid */ );
+      Bscript::BObjectImp* mf_GetVitalMaximumValue( /* mob, vitalid */ );
+      Bscript::BObjectImp* mf_GetVitalRegenRate( /* mob, vitalid */ );
 
-  Bscript::BObjectImp* mf_SetVitalMaximumValue( /* mob, vitalid, value */ );
-  Bscript::BObjectImp* mf_SetVital( /* mob, vitalid, value */ );
-  Bscript::BObjectImp* mf_SetVitalRegenRate( /* mob, vitalid, rate */ );
+      Bscript::BObjectImp* mf_SetVitalMaximumValue( /* mob, vitalid, value */ );
+      Bscript::BObjectImp* mf_SetVital( /* mob, vitalid, value */ );
+      Bscript::BObjectImp* mf_SetVitalRegenRate( /* mob, vitalid, rate */ );
 
-private:
-  Mobile::Character* GetUOController();
-};
+	private:
+	  Mobile::Character* GetUOController();
+	};
 
-inline Mobile::Character* VitalExecutorModule::GetUOController()
-{
-  UOExecutorModule* uo_module = static_cast<UOExecutorModule*>( exec.findModule( "UO" ) );
+	inline Mobile::Character* VitalExecutorModule::GetUOController()
+	{
+	  UOExecutorModule* uo_module = static_cast<UOExecutorModule*>( exec.findModule( "UO" ) );
 
-  if ( uo_module != NULL && uo_module->controller_.get() )
-    return uo_module->controller_.get();
-  else
-    return NULL;
-}
-}
+	  if ( uo_module != NULL && uo_module->controller_.get() )
+		return uo_module->controller_.get();
+	  else
+		return NULL;
+	}
+  }
 }
 #endif

@@ -10,24 +10,20 @@
 
 #include "../../bscript/execmodl.h"
 
-namespace Pol
-{
-namespace Module
-{
-class UtilExecutorModule : public Bscript::TmplExecutorModule<UtilExecutorModule>
-{
-public:
-  UtilExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<UtilExecutorModule>( "util", exec )
-  {
-  }
+namespace Pol {
+  namespace Module {
+	class UtilExecutorModule : public Bscript::TmplExecutorModule<UtilExecutorModule>
+	{
+	public:
+      UtilExecutorModule( Bscript::Executor& exec ) : Bscript::TmplExecutorModule<UtilExecutorModule>( "util", exec ) {}
 
-  Bscript::BObjectImp* mf_RandomInt();
-  Bscript::BObjectImp* mf_RandomFloat();
-  Bscript::BObjectImp* mf_RandomDiceRoll();
-  Bscript::BObjectImp* mf_StrFormatTime();
-  Bscript::BObjectImp* mf_RandomIntMinMax();
-};
+	  Bscript::BObjectImp* mf_RandomInt();
+	  Bscript::BObjectImp* mf_RandomFloat();
+	  Bscript::BObjectImp* mf_RandomDiceRoll();
+	  Bscript::BObjectImp* mf_StrFormatTime();
+	  Bscript::BObjectImp* mf_RandomIntMinMax();
+	};
+  }
 }
-}
-#endif  // UTILMOD_H
+#endif // UTILMOD_H
+

@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2005/07/01 Shinigami: added ConfigFile::_modified (stat.st_mtime) to detect cfg file
- * modification
+ * - 2005/07/01 Shinigami: added ConfigFile::_modified (stat.st_mtime) to detect cfg file modification
  * - 2009/08/25 Shinigami: STLport-5.2.1 fix: elem->type() check will use strlen() now
  */
 
@@ -23,59 +22,64 @@
 #include <ctype.h>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable POSIX deprecation warnings for stricmp
-#define _CRT_SECURE_NO_WARNINGS    // disable unsecure warning for fread()
+    #pragma warning(disable:4996) // disable POSIX deprecation warnings for stricmp
+    #define _CRT_SECURE_NO_WARNINGS // disable unsecure warning for fread()
 #endif
 
 #undef CFGFILE_USES_TRANSLATION_TABLE
 #define CFGFILE_USES_TRANSLATION_TABLE 0
 
 #if CFGFILE_USES_TRANSLATION_TABLE
-#include "xlate.h"
+#	include "xlate.h"
 #endif
-namespace Pol
-{
-namespace Clib
-{
-bool commentline( const std::string& str )
-{
+namespace Pol {
+  namespace Clib {
+    bool commentline( const std::string& str )
+    {
 #ifdef __GNUC__
-  return ( ( str[0] == '#' ) || ( str.substr( 0, 2 ) == "//" ) );
+      return ( (str[0] == '#') 
+               || 
+               (str.substr(0,2) == "//") );
 #else
-  return ( ( str[0] == '#' ) || ( str.compare( 0, 2, "//" ) == 0 ) );
+      return ( ( str[0] == '#' )
+               ||
+               ( str.compare( 0, 2, "//" ) == 0 ) );
 #endif
-}
+    }
 
 
-ConfigProperty::ConfigProperty( const char* name, const char* value )
-    : name_( name ), value_( value )
-{
-}
+    ConfigProperty::ConfigProperty( const char *name, const char *value ) :
+      name_( name ),
+      value_( value )
+    {}
 
-ConfigProperty::ConfigProperty( const std::string& name, const std::string& value )
-    : name_( name ), value_( value )
-{
-}
+    ConfigProperty::ConfigProperty(const std::string& name, const std::string& value) :
+      name_( name ),
+      value_( value )
+    {}
 
-ConfigProperty::ConfigProperty( std::string* pname, std::string* pvalue )
-{
-  pname->swap( name_ );
-  pvalue->swap( value_ );
-}
+    ConfigProperty::ConfigProperty(std::string* pname, std::string* pvalue)
+    {
+      pname->swap( name_ );
+      pvalue->swap( value_ );
+    }
 
-ConfigProperty::~ConfigProperty()
-{
-}
+    ConfigProperty::~ConfigProperty()
+    {}
 
-ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( NULL )
+ConfigElemBase::ConfigElemBase() :
+	type_(""),
+	rest_(""),
+    _source(NULL)
 {
 }
 size_t ConfigElemBase::estimateSize() const
 {
-  return type_.capacity() + rest_.capacity() + sizeof( _source );
+  return type_.capacity() + rest_.capacity()+sizeof(_source);
 }
 
-ConfigElem::ConfigElem() : ConfigElemBase()
+ConfigElem::ConfigElem() :
+    ConfigElemBase()
 {
 }
 
@@ -86,1022 +90,1040 @@ ConfigElem::~ConfigElem()
 size_t ConfigElem::estimateSize() const
 {
   size_t size = ConfigElemBase::estimateSize();
-  for ( const auto& ele : properties )
-    size += ele.first.capacity() + ele.second.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
+  for(const auto& ele : properties)
+    size += ele.first.capacity()+ele.second.capacity() + ( sizeof(void*) * 3 + 1 ) / 2;
   return size;
 }
 
 
-const char* ConfigElemBase::type() const
+const char *ConfigElemBase::type() const
 {
-  return type_.c_str();
+	return type_.c_str();
 }
 
-const char* ConfigElemBase::rest() const
+const char *ConfigElemBase::rest() const
 {
-  return rest_.c_str();
+	return rest_.c_str();
 }
 
 void ConfigElem::set_rest( const char* rest )
 {
-  rest_ = rest;
+    rest_ = rest;
 }
 
 void ConfigElem::set_type( const char* type )
 {
-  type_ = type;
+    type_ = type;
 }
 
 void ConfigElem::set_source( const ConfigElem& elem )
 {
-  _source = elem._source;
+    _source = elem._source;
 }
 void ConfigElem::set_source( const ConfigSource* source )
 {
-  _source = source;
+    _source = source;
 }
 
 bool ConfigElemBase::type_is( const char* type ) const
 {
-  return ( stricmp( type_.c_str(), type ) == 0 );
+    return (stricmp( type_.c_str(), type ) == 0);
 }
 
-bool ConfigElem::remove_first_prop( std::string* propname, std::string* value )
+bool ConfigElem::remove_first_prop( std::string* propname,
+                                   std::string* value )
 {
-  if ( properties.empty() )
-    return false;
-
-  auto itr = properties.begin();
-  *propname = ( *itr ).first;
-  *value = ( *itr ).second;
-  properties.erase( itr );
-  return true;
-}
-
-bool ConfigElem::has_prop( const char* propname ) const
-{
-  return properties.count( propname ) != 0;
-}
-bool VectorConfigElem::has_prop( const char* propname ) const
-{
-  for ( const auto& prop : properties )
-  {
-    if ( stricmp( prop->name_.c_str(), propname ) == 0 )
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool ConfigElem::remove_prop( const char* propname, std::string* value )
-{
-  auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *value = ( *itr ).second;
+	if (properties.empty())
+		return false;
+	
+    auto itr = properties.begin();
+    *propname = (*itr).first;
+    *value = (*itr).second;
     properties.erase( itr );
     return true;
-  }
-  else
-  {
-    return false;
-  }
 }
-bool VectorConfigElem::remove_prop( const char* propname, std::string* value )
+
+bool ConfigElem::has_prop( const char *propname ) const
 {
-  auto itr = properties.begin(), end = properties.end();
-  for ( ; itr != end; ++itr )
-  {
-    ConfigProperty* prop = *itr;
-    if ( stricmp( prop->name_.c_str(), propname ) == 0 )
+	return properties.count( propname ) != 0;
+}
+bool VectorConfigElem::has_prop( const char *propname ) const
+{
+	for( const auto &prop : properties )
+	{
+		if ( stricmp( prop->name_.c_str(), propname) == 0 )
+		{
+            return true;
+		}
+	}
+	return false;
+}
+
+bool ConfigElem::remove_prop( const char *propname, std::string* value )
+{
+	auto itr = properties.find( propname );
+    if (itr != properties.end())
     {
-      *value = prop->value_;
-      delete prop;
-      properties.erase( itr );
-      return true;
-    }
-  }
-  return false;
-}
-
-bool ConfigElem::read_prop( const char* propname, std::string* value ) const
-{
-  auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *value = ( *itr ).second;
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-bool VectorConfigElem::read_prop( const char* propname, std::string* value ) const
-{
-  for ( const auto& prop : properties )
-  {
-    if ( stricmp( prop->name_.c_str(), propname ) == 0 )
+		*value = (*itr).second;
+        properties.erase( itr );
+    	return true;
+	}
+    else
     {
-      *value = prop->value_;
-      return true;
+        return false;
     }
-  }
-  return false;
+}
+bool VectorConfigElem::remove_prop( const char *propname, std::string* value )
+{
+    auto itr = properties.begin(), end = properties.end();
+	for( ; itr != end; ++itr )
+	{
+		ConfigProperty *prop = *itr;
+		if ( stricmp( prop->name_.c_str(), propname) == 0 )
+		{
+			*value = prop->value_;
+			delete prop;
+            properties.erase( itr );
+			return true;
+		}
+	}
+	return false;
 }
 
-void ConfigElem::get_prop( const char* propname, unsigned int* plong ) const
+bool ConfigElem::read_prop( const char *propname, std::string* value ) const
 {
-  auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *plong = strtoul( ( *itr ).second.c_str(), NULL, 0 );
-  }
-  else
-  {
-    throw_error( "SERIAL property not found" );
-  }
-}
-
-bool ConfigElem::remove_prop( const char* propname, unsigned int* plong )
-{
-  auto itr = properties.find( propname );
-  if ( itr != properties.end() )
-  {
-    *plong = strtoul( ( *itr ).second.c_str(), NULL, 0 );
-    properties.erase( itr );
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-bool VectorConfigElem::remove_prop( const char* propname, unsigned int* plong )
-{
-  auto itr = properties.begin(), end = properties.end();
-  for ( ; itr != end; ++itr )
-  {
-    ConfigProperty* prop = *itr;
-    if ( stricmp( prop->name_.c_str(), propname ) == 0 )
+	auto itr = properties.find( propname );
+    if (itr != properties.end())
     {
-      *plong = strtoul( prop->value_.c_str(), NULL, 0 );
-      delete prop;
-      properties.erase( itr );
-      return true;
+		*value = (*itr).second;
+    	return true;
+	}
+    else
+    {
+        return false;
     }
-  }
-  return false;
+}
+bool VectorConfigElem::read_prop( const char *propname, std::string* value ) const
+{
+	for( const auto &prop : properties )
+	{
+		if ( stricmp( prop->name_.c_str(), propname) == 0 )
+		{
+			*value = prop->value_;
+			return true;
+		}
+	}
+	return false;
 }
 
-bool ConfigElem::remove_prop( const char* propname, unsigned short* psval )
+void ConfigElem::get_prop( const char *propname, unsigned int* plong ) const
 {
-  std::string temp;
-  if ( remove_prop( propname, &temp ) )
-  {
+    auto itr = properties.find( propname );
+	if (itr != properties.end())
+	{
+		*plong = strtoul( (*itr).second.c_str(), NULL, 0 );
+	}
+    else
+    {
+        throw_error( "SERIAL property not found" );
+    }
+}
+
+bool ConfigElem::remove_prop( const char *propname, unsigned int *plong )
+{
+    auto itr = properties.find( propname );
+	if (itr != properties.end())
+	{
+		*plong = strtoul( (*itr).second.c_str(), NULL, 0 );
+        properties.erase( itr );
+		return true;
+	}
+    else
+    {
+        return false;
+    }
+}
+bool VectorConfigElem::remove_prop( const char *propname, unsigned int *plong )
+{
+    auto itr = properties.begin(), end = properties.end();
+	for( ; itr != end; ++itr )
+	{
+		ConfigProperty *prop = *itr;
+		if (stricmp( prop->name_.c_str(), propname ) == 0)
+		{
+			*plong = strtoul( prop->value_.c_str(), NULL, 0 );
+			delete prop;
+            properties.erase( itr );
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ConfigElem::remove_prop( const char *propname, unsigned short *psval )
+{
+    std::string temp;
+    if (remove_prop( propname, &temp ))
+	{
 #if CFGFILE_USES_TRANSLATION_TABLE
-    TranslationTable* tbl = translations.get_trans_table( propname );
-    if ( tbl != NULL )
-      tbl->translate( &temp );
+        TranslationTable* tbl = translations.get_trans_table( propname );
+        if (tbl != NULL)
+            tbl->translate( &temp );
 #endif
 
-    // FIXME isdigit isxdigit - +
-    // or, use endptr
-
-    char* endptr = NULL;
-    *psval = (unsigned short)strtoul( temp.c_str(), &endptr, 0 );
-    if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
-    {
-      std::string errmsg;
-      errmsg = "Poorly formed number in property '";
-      errmsg += propname;
-      errmsg += "': " + temp;
-      throw_error( errmsg );
-    }
-    // FIXME check range within unsigned short
-    return true;
-  }
-  return false;
+        // FIXME isdigit isxdigit - +
+        // or, use endptr
+        
+        char *endptr = NULL;
+		*psval = (unsigned short) strtoul( temp.c_str(), &endptr, 0 );
+        if ((endptr != NULL) &&
+            (*endptr != '\0') &&
+            !isspace(*endptr))
+        {
+            std::string errmsg;
+            errmsg = "Poorly formed number in property '";
+            errmsg += propname;
+            errmsg += "': " + temp;
+            throw_error( errmsg );
+        }
+        // FIXME check range within unsigned short
+		return true;
+	}
+	return false;
 }
 
-bool VectorConfigElem::remove_prop( const char* propname, unsigned short* psval )
+bool VectorConfigElem::remove_prop( const char *propname, unsigned short *psval )
 {
-  auto itr = properties.begin(), end = properties.end();
-  for ( ; itr != end; ++itr )
-  {
-    ConfigProperty* prop = *itr;
-    if ( stricmp( prop->name_.c_str(), propname ) == 0 )
-    {
+    auto itr = properties.begin(), end = properties.end();
+	for( ; itr != end; ++itr )
+	{
+		ConfigProperty *prop = *itr;
+		if (stricmp( prop->name_.c_str(), propname ) == 0)
+		{
 #if CFGFILE_USES_TRANSLATION_TABLE
-      TranslationTable* tbl = translations.get_trans_table( propname );
-      if ( tbl != NULL )
-        tbl->translate( &prop->value_ );
+            TranslationTable* tbl = translations.get_trans_table( propname );
+            if (tbl != NULL)
+                tbl->translate( &prop->value_ );
 #endif
 
-      // FIXME isdigit isxdigit - +
-      // or, use endptr
-
-      char* endptr = NULL;
-      *psval = (unsigned short)strtoul( prop->value_.c_str(), &endptr, 0 );
-      if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
-      {
-        std::string errmsg;
-        errmsg = "Poorly formed number in property '";
-        errmsg += propname;
-        errmsg += "': " + prop->value_;
-        throw_error( errmsg );
-      }
-      // FIXME check range within unsigned short
-      delete prop;
-      properties.erase( itr );
-      return true;
-    }
-  }
-  return false;
+            // FIXME isdigit isxdigit - +
+            // or, use endptr
+            
+            char *endptr = NULL;
+			*psval = (unsigned short) strtoul( prop->value_.c_str(), &endptr, 0 );
+            if ((endptr != NULL) &&
+                (*endptr != '\0') &&
+                !isspace(*endptr))
+            {
+                std::string errmsg;
+                errmsg = "Poorly formed number in property '";
+                errmsg += propname;
+                errmsg += "': " + prop->value_;
+                throw_error( errmsg );
+            }
+            // FIXME check range within unsigned short
+			delete prop;
+            properties.erase( itr );
+			return true;
+		}
+	}
+	return false;
 }
 
-void ConfigElem::throw_error( const std::string& errmsg ) const
+void ConfigElem::throw_error(const std::string& errmsg) const
 {
-  if ( _source != NULL )
-    _source->display_error( errmsg, false, this );
-  throw std::runtime_error( "Configuration file error" );
+    if (_source != NULL)
+        _source->display_error( errmsg, false, this );
+    throw std::runtime_error( "Configuration file error" );
 }
-void VectorConfigElem::throw_error( const std::string& errmsg ) const
+void VectorConfigElem::throw_error(const std::string& errmsg) const
 {
-  if ( _source != NULL )
-    _source->display_error( errmsg, false, this );
-  throw std::runtime_error( "Configuration file error" );
+    if (_source != NULL)
+        _source->display_error( errmsg, false, this );
+    throw std::runtime_error( "Configuration file error" );
 }
 
 void ConfigElem::warn( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
-    _source->display_error( errmsg, false, this, false );
+    if (_source != NULL)
+        _source->display_error( errmsg, false, this, false );
 }
 
 void ConfigElem::warn_with_line( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
-    _source->display_error( errmsg, true, this, false );
+    if (_source != NULL)
+        _source->display_error( errmsg, true, this, false );
 }
 
-void ConfigElem::prop_not_found( const char* propname ) const
+void ConfigElem::prop_not_found( const char *propname ) const
 {
-  std::string errmsg( "Property '" );
-  errmsg += propname;
-  errmsg += "' was not found.";
-  throw_error( errmsg );
+    std::string errmsg("Property '");
+    errmsg += propname;
+    errmsg += "' was not found.";
+    throw_error( errmsg );
 }
 
-unsigned short ConfigElem::remove_ushort( const char* propname )
+unsigned short ConfigElem::remove_ushort( const char *propname )
 {
-  unsigned short temp;
-  if ( remove_prop( propname, &temp ) )
-  {
-    return temp;
-  }
-  else
-  {
-    prop_not_found( propname );  // prop_not_found throws
-  }
+    unsigned short temp;
+    if (remove_prop( propname, &temp))
+    {
+        return temp;
+    }
+    else
+    {
+        prop_not_found( propname ); // prop_not_found throws
+    }
 }
 
-unsigned short ConfigElem::remove_ushort( const char* propname, unsigned short dflt )
+unsigned short ConfigElem::remove_ushort( const char *propname, unsigned short dflt )
 {
-  unsigned short temp;
-  if ( remove_prop( propname, &temp ) )
-    return temp;
-  else
-    return dflt;
+    unsigned short temp;
+    if (remove_prop( propname, &temp))
+        return temp;
+    else
+        return dflt;
 }
 
-int ConfigElem::remove_int( const char* propname )
+int ConfigElem::remove_int( const char *propname )
 {
-  std::string temp = remove_string( propname );
+    std::string temp = remove_string(propname);
 
-  return atoi( temp.c_str() );
-}
-
-int ConfigElem::remove_int( const char* propname, int dflt )
-{
-  std::string temp;
-  if ( remove_prop( propname, &temp ) )
-  {
     return atoi( temp.c_str() );
-  }
-  else
-  {
-    return dflt;
-  }
 }
 
-unsigned ConfigElem::remove_unsigned( const char* propname )
+int ConfigElem::remove_int( const char *propname, int dflt )
 {
-  std::string temp = remove_string( propname );
-
-  return strtoul( temp.c_str(), NULL, 0 );  // TODO check unsigned range
+    std::string temp;
+    if (remove_prop( propname, &temp ))
+    {
+        return atoi( temp.c_str() );
+    }
+    else
+    {
+        return dflt;
+    }
 }
 
-unsigned ConfigElem::remove_unsigned( const char* propname, int dflt )
+unsigned ConfigElem::remove_unsigned( const char *propname )
 {
-  std::string temp;
-  if ( remove_prop( propname, &temp ) )
-  {
-    return strtoul( temp.c_str(), NULL, 0 );  // TODO check unsigned range
-  }
-  else
-  {
-    return dflt;
-  }
+    std::string temp = remove_string(propname);
+
+    return strtoul( temp.c_str(), NULL, 0 ); // TODO check unsigned range
+}
+
+unsigned ConfigElem::remove_unsigned( const char *propname, int dflt )
+{
+    std::string temp;
+    if (remove_prop( propname, &temp ))
+    {
+        return strtoul( temp.c_str(), NULL, 0  ); // TODO check unsigned range
+    }
+    else
+    {
+        return dflt;
+    }
 }
 
 
-std::string ConfigElem::remove_string( const char* propname )
+std::string ConfigElem::remove_string(const char *propname)
 {
-  std::string temp;
-  if ( remove_prop( propname, &temp ) )
-  {
-    return temp;
-  }
-  else
-  {
-    prop_not_found( propname );
-    return "";  // this is not reached, prop_not_found throws
-  }
+    std::string temp;
+    if (remove_prop( propname, &temp))
+    {
+        return temp;
+    }
+    else
+    {
+        prop_not_found( propname );
+        return ""; // this is not reached, prop_not_found throws
+    }
 }
 
-std::string ConfigElem::read_string( const char* propname ) const
+std::string ConfigElem::read_string(const char *propname) const
 {
-  std::string temp;
-  if ( read_prop( propname, &temp ) )
-  {
-    return temp;
-  }
-  else
-  {
-    prop_not_found( propname );
-    return "";  // this is not reached, prop_not_found throws
-  }
+    std::string temp;
+    if (read_prop( propname, &temp))
+    {
+        return temp;
+    }
+    else
+    {
+        prop_not_found( propname );
+        return ""; // this is not reached, prop_not_found throws
+    }
 }
-std::string ConfigElem::read_string( const char* propname, const char* dflt ) const
+std::string ConfigElem::read_string(const char *propname, const char *dflt) const
 {
-  std::string temp;
-  if ( read_prop( propname, &temp ) )
-    return temp;
-  else
-    return dflt;
-}
-
-std::string ConfigElem::remove_string( const char* propname, const char* dflt )
-{
-  std::string temp;
-  if ( remove_prop( propname, &temp ) )
-    return temp;
-  else
-    return dflt;
+    std::string temp;
+    if (read_prop( propname, &temp))
+        return temp;
+    else
+        return dflt;
 }
 
-bool ConfigElem::remove_bool( const char* propname )
+std::string ConfigElem::remove_string(const char *propname, const char *dflt)
 {
-  return remove_ushort( propname ) ? true : false;
+    std::string temp;
+    if (remove_prop( propname, &temp ))
+        return temp;
+    else
+        return dflt;
 }
 
-bool ConfigElem::remove_bool( const char* propname, bool dflt )
+bool ConfigElem::remove_bool( const char *propname )
 {
-  return remove_ushort( propname, dflt ) ? true : false;
+    return remove_ushort( propname ) ? true : false;
 }
 
-float ConfigElem::remove_float( const char* propname, float dflt )
+bool ConfigElem::remove_bool( const char *propname, bool dflt )
 {
-  std::string tmp;
-  if ( remove_prop( propname, &tmp ) )
-  {
-    return static_cast<float>( strtod( tmp.c_str(), NULL ) );
-  }
-  else
-  {
-    return dflt;
-  }
-}
-double ConfigElem::remove_double( const char* propname, double dflt )
-{
-  std::string tmp;
-  if ( remove_prop( propname, &tmp ) )
-  {
-    return strtod( tmp.c_str(), NULL );
-  }
-  else
-  {
-    return dflt;
-  }
+    return remove_ushort( propname, dflt ) ? true : false;
 }
 
-unsigned int ConfigElem::remove_ulong( const char* propname )
+float ConfigElem::remove_float( const char *propname, float dflt )
 {
-  unsigned int temp;
-  if ( remove_prop( propname, &temp ) )
-  {
-    return temp;
-  }
-  else
-  {
-    prop_not_found( propname );  // prop_not_found throws
-  }
+    std::string tmp;
+    if (remove_prop( propname, &tmp ))
+    {
+        return static_cast<float>(strtod( tmp.c_str(), NULL ));
+    }
+    else
+    {
+        return dflt;
+    }
+}
+double ConfigElem::remove_double( const char *propname, double dflt )
+{
+    std::string tmp;
+    if (remove_prop( propname, &tmp ))
+    {
+        return strtod( tmp.c_str(), NULL );
+    }
+    else
+    {
+        return dflt;
+    }
 }
 
-unsigned int ConfigElem::remove_ulong( const char* propname, unsigned int dflt )
+unsigned int ConfigElem::remove_ulong( const char *propname )
 {
-  unsigned int temp;
-  if ( remove_prop( propname, &temp ) )
-    return temp;
-  else
-    return dflt;
+    unsigned int temp;
+    if (remove_prop( propname, &temp))
+    {
+        return temp;
+    }
+    else
+    {
+        prop_not_found( propname ); // prop_not_found throws
+    }
 }
 
-void ConfigElem::clear_prop( const char* propname )
+unsigned int ConfigElem::remove_ulong( const char *propname, unsigned int dflt )
 {
-  unsigned int dummy;
-  while ( remove_prop( propname, &dummy ) )
-    continue;
+    unsigned int temp;
+    if (remove_prop( propname, &temp))
+        return temp;
+    else
+        return dflt;
+}
+
+void ConfigElem::clear_prop( const char *propname )
+{
+    unsigned int dummy;
+    while (remove_prop( propname, &dummy ))
+        continue;
 }
 
 void ConfigElem::add_prop( const char* propname, const char* propval )
 {
-  properties.insert( make_pair( std::string( propname ), std::string( propval ) ) );
+    properties.insert(make_pair(std::string(propname), std::string(propval)));
 }
 void VectorConfigElem::add_prop( const char* propname, const char* propval )
 {
-  ConfigProperty* prop;
+    ConfigProperty* prop;
 
-  prop = new ConfigProperty( propname, propval );
+    prop = new ConfigProperty( propname, propval );
 
-  properties.push_back( prop );
+    properties.push_back( prop );
 }
 
 void ConfigElem::add_prop( const char* propname, unsigned short sval )
 {
-  OSTRINGSTREAM os;
-  os << sval;
+    OSTRINGSTREAM os;
+    os << sval;
 
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+    properties.insert(make_pair(std::string(propname), OSTRINGSTREAM_STR(os)));
 }
 void ConfigElem::add_prop( const char* propname, short sval )
 {
-  OSTRINGSTREAM os;
-  os << sval;
+    OSTRINGSTREAM os;
+    os << sval;
 
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+    properties.insert(make_pair(std::string(propname), OSTRINGSTREAM_STR(os)));
 }
 
 void VectorConfigElem::add_prop( const char* propname, unsigned short sval )
 {
-  ConfigProperty* prop;
-  OSTRINGSTREAM os;
-  os << sval;
+    ConfigProperty* prop;
+    OSTRINGSTREAM os;
+    os << sval;
 
-  prop = new ConfigProperty( propname, OSTRINGSTREAM_STR( os ) );
+    prop = new ConfigProperty( propname, OSTRINGSTREAM_STR(os) );
 
-  properties.push_back( prop );
+    properties.push_back( prop );
 }
 
 void ConfigElem::add_prop( const char* propname, unsigned int lval )
 {
-  OSTRINGSTREAM os;
-  os << lval;
+    OSTRINGSTREAM os;
+    os << lval;
 
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+    properties.insert(make_pair(std::string(propname), OSTRINGSTREAM_STR(os)));
 }
 void VectorConfigElem::add_prop( const char* propname, unsigned int lval )
 {
-  ConfigProperty* prop;
-  OSTRINGSTREAM os;
-  os << lval;
+    ConfigProperty* prop;
+    OSTRINGSTREAM os;
+    os << lval;
 
-  prop = new ConfigProperty( propname, OSTRINGSTREAM_STR( os ) );
+    prop = new ConfigProperty( propname, OSTRINGSTREAM_STR(os) );
 
-  properties.push_back( prop );
+    properties.push_back( prop );
 }
 
-bool VectorConfigElem::remove_first_prop( std::string* propname, std::string* value )
+bool VectorConfigElem::remove_first_prop( std::string* propname,
+                                   std::string* value )
 {
-  if ( properties.empty() )
-    return false;
-
-  ConfigProperty* prop = properties.front();
-  *propname = prop->name_;
-  *value = prop->value_;
-  delete prop;
-  properties.erase( properties.begin() );
-  return true;
+	if (properties.empty())
+		return false;
+	
+	ConfigProperty *prop = properties.front();
+	*propname = prop->name_;
+	*value = prop->value_;
+	delete prop;
+    properties.erase( properties.begin() );
+	return true;
 }
 
-ConfigFile::ConfigFile( const char* i_filename, const char* allowed_types_str )
-    : _filename( "<n/a>" ),
-      _modified( 0 ),
+ConfigFile::ConfigFile( const char *i_filename,
+                        const char *allowed_types_str ) :
+    _filename("<n/a>"),
+    _modified(0),
 #if CFGFILE_USES_IOSTREAMS
-      ifs(),
+    ifs(),
 #else
-      fp( NULL ),
+    fp(NULL),
 #endif
-      _element_line_start( 0 ),
-      _cur_line( 0 )
+    _element_line_start(0),
+    _cur_line(0)
 {
-  init( i_filename, allowed_types_str );
+    init( i_filename, allowed_types_str );
 }
 
-ConfigFile::ConfigFile( const std::string& i_filename, const char* allowed_types_str )
-    : _filename( "<n/a>" ),
-      _modified( 0 ),
+ConfigFile::ConfigFile( const std::string& i_filename,
+                        const char *allowed_types_str ) :
+    _filename("<n/a>"),
+    _modified(0),
 #if CFGFILE_USES_IOSTREAMS
-      ifs(),
+    ifs(),
 #else
-      fp( NULL ),
+    fp(NULL),
 #endif
-      _element_line_start( 0 ),
-      _cur_line( 0 )
+    _element_line_start(0),
+    _cur_line(0)
 {
-  init( i_filename.c_str(), allowed_types_str );
+    init( i_filename.c_str(), allowed_types_str );
 }
 
 void ConfigFile::init( const char* i_filename, const char* allowed_types_str )
 {
-  if ( i_filename )
-  {
-    open( i_filename );
-  }
-
-  if ( allowed_types_str != NULL )
-  {
-    ISTRINGSTREAM is( allowed_types_str );
-    std::string tag;
-    while ( is >> tag )
+    if (i_filename)
     {
-      allowed_types_.insert( tag.c_str() );
+        open( i_filename );
     }
-  }
+
+    if (allowed_types_str != NULL)
+    {
+        ISTRINGSTREAM is( allowed_types_str );
+        std::string tag;
+        while (is >> tag)
+        {
+            allowed_types_.insert( tag.c_str() );
+        }
+    }
 }
 
 const std::string& ConfigFile::filename() const
 {
-  return _filename;
+    return _filename;
 }
 time_t ConfigFile::modified() const
 {
-  return _modified;
+    return _modified;
 }
 unsigned ConfigFile::element_line_start() const
 {
-  return _element_line_start;
+    return _element_line_start;
 }
 
-void ConfigFile::open( const char* i_filename )
+void ConfigFile::open( const char *i_filename )
 {
-  _filename = i_filename;
+    _filename = i_filename;
 
 #if CFGFILE_USES_IOSTREAMS
-  ifs.open( i_filename, ios::in );
-
-  if ( !ifs.is_open() )
-  {
-    ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
-    throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
-  }
+    ifs.open( i_filename, ios::in );
+    
+    if (!ifs.is_open())
+    {
+      ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
+      throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
+    }
 #else
-  fp = fopen( i_filename, "rt" );
-  if ( !fp )
-  {
-    ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
-    throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
-  }
+    fp = fopen( i_filename, "rt" );
+    if (!fp)
+    {
+        ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
+        throw std::runtime_error(std::string("Unable to open configuration file ") + _filename);
+    }
 #endif
 
-  struct stat cfgstat;
-  stat( i_filename, &cfgstat );
-  _modified = cfgstat.st_mtime;
+    struct stat cfgstat;
+    stat( i_filename, &cfgstat );
+    _modified = cfgstat.st_mtime;
 }
 
 ConfigFile::~ConfigFile()
 {
 #if !CFGFILE_USES_IOSTREAMS
-  if ( fp )
-    fclose( fp );
-  fp = NULL;
+    if (fp)
+        fclose(fp);
+    fp = NULL;
 #endif
 }
 
 #if !CFGFILE_USES_IOSTREAMS
-char ConfigFile::buffer[1024];
+char ConfigFile::buffer[ 1024 ];
 #endif
 
 #if CFGFILE_USES_IOSTREAMS
 // returns true if ended on a }, false if ended on EOF.
 bool ConfigFile::read_properties( ConfigElem& elem )
 {
-  std::string strbuf;
-  std::string propname, propvalue;
-  while ( getline( ifs, strbuf ) )  // get
-  {
-    ++cur_line;
+    std::string strbuf;
+    std::string propname, propvalue;
+	while (getline( ifs, strbuf )) // get
+	{
+        ++cur_line;
 
-    ISTRINGSTREAM is( strbuf );
+        ISTRINGSTREAM is( strbuf );
 
+        
+        splitnamevalue( strbuf, propname, propvalue );
 
-    splitnamevalue( strbuf, propname, propvalue );
+		if (propname.empty() ||                     // empty line
+            commentline( propname ))
+        {
+            continue;
+        }
+            
+		if (propname == "}")
+			return true;
+		
+        if (propvalue[0] == '\"')
+            convertquotedstring( propvalue );
 
-    if ( propname.empty() ||  // empty line
-         commentline( propname ) )
-    {
-      continue;
-    }
-
-    if ( propname == "}" )
-      return true;
-
-    if ( propvalue[0] == '\"' )
-      convertquotedstring( propvalue );
-
-    ConfigProperty* prop = new ConfigProperty( &propname, &propvalue );
-    elem.properties.push_back( prop );
-  }
-  return false;
+		ConfigProperty *prop = new ConfigProperty( &propname, &propvalue );
+		elem.properties.push_back( prop );
+	}
+    return false;
 }
 
 
 bool ConfigFile::_read( ConfigElem& elem )
 {
-  while ( !elem.properties.empty() )
-  {
-    delete elem.properties.back();
-    elem.properties.pop_back();
-  }
-  elem.type_ = "";
-  elem.rest_ = "";
-
-  element_line_start = 0;
-
-  std::string strbuf;
-  while ( getline( ifs, strbuf ) )
-  {
-    ++cur_line;
-
-    string type, rest;
-    splitnamevalue( strbuf, type, rest );
-
-    if ( type.empty() ||  // empty line
-         commentline( type ) )
+    while (!elem.properties.empty())
     {
-      continue;
+        delete elem.properties.back();
+        elem.properties.pop_back();
     }
+    elem.type_ = "";
+    elem.rest_ = "";
 
-    element_line_start = cur_line;
+    element_line_start = 0;
 
-    elem.type_ = type;
+    std::string strbuf;
+	while ( getline( ifs, strbuf ))
+	{
+        ++cur_line;
 
-    if ( !allowed_types_.empty() )
-    {
-      if ( allowed_types_.find( type.c_str() ) == allowed_types_.end() )
-      {
-        e_ostringstream os;
-        os << "Unexpected type '" << type << "'" << endl;
-        os << "\tValid types are:";
-        for ( AllowedTypesCont::const_iterator itr = allowed_types_.begin();
-              itr != allowed_types_.end(); ++itr )
+        string type, rest;
+        splitnamevalue( strbuf, type, rest );
+		
+		if (type.empty() || 					// empty line
+            commentline( type ))
+		{	
+			continue;
+		}
+		
+        element_line_start = cur_line;
+
+		elem.type_ = type;
+
+        if (!allowed_types_.empty())
         {
-          os << " " << ( *itr ).c_str();
+            if (allowed_types_.find( type.c_str() ) == allowed_types_.end())
+            {
+                e_ostringstream os;
+                os << "Unexpected type '" << type << "'" << endl;
+                os << "\tValid types are:";
+                for( AllowedTypesCont::const_iterator itr = allowed_types_.begin();
+                     itr != allowed_types_.end();
+                     ++itr)
+                {
+                    os << " " << (*itr).c_str();
+                }
+                throw std::runtime_error( os.e_str() );
+            }
         }
-        throw std::runtime_error( os.e_str() );
-      }
-    }
 
-    elem.rest_ = rest;
+        elem.rest_ = rest;
+		
+		if (! getline( ifs, strbuf ))
+			throw std::runtime_error( "File ends after element type -- expected a '{'" );
+	    ++cur_line;
 
-    if ( !getline( ifs, strbuf ) )
-      throw std::runtime_error( "File ends after element type -- expected a '{'" );
-    ++cur_line;
+		if (strbuf.empty() ||
+            strbuf[0] != '{')
+		{
+			throw std::runtime_error( "Expected '{' on a blank line after element type" );
+		}
 
-    if ( strbuf.empty() || strbuf[0] != '{' )
-    {
-      throw std::runtime_error( "Expected '{' on a blank line after element type" );
-    }
-
-    if ( read_properties( elem ) )
-      return true;
-    else
-      throw std::runtime_error( "Expected '}' on a blank line after element properties" );
-  }
-  return false;
+        if (read_properties( elem ))
+            return true;
+        else
+            throw std::runtime_error( "Expected '}' on a blank line after element properties" );
+	}
+	return false;
 }
 #else
 
-bool ConfigFile::readline( std::string& strbuf )
+bool ConfigFile::readline(std::string& strbuf)
 {
-  if ( !fgets( buffer, sizeof buffer, fp ) )
-    return false;
+    if (!fgets( buffer, sizeof buffer, fp ))
+        return false;
 
-  strbuf = "";
+    strbuf = "";
 
-  do
-  {
-    char* nl = strchr( buffer, '\n' );
-    if ( nl )
+    do
     {
-      if ( nl != buffer && nl[-1] == '\r' )
-        --nl;
-      *nl = '\0';
-      strbuf += buffer;
-      return true;
-    }
-    else
-    {
-      strbuf += buffer;
-    }
-  } while ( fgets( buffer, sizeof buffer, fp ) );
+        char* nl = strchr( buffer, '\n' );
+        if (nl)
+        {
+            if (nl != buffer && nl[-1] == '\r')
+                --nl;
+            *nl = '\0';
+            strbuf += buffer;
+            return true;
+        }
+        else
+        {
+            strbuf += buffer;
+        }
+    } while (fgets( buffer, sizeof buffer, fp ));
 
-  return true;
+    return true;
 }
 
 // returns true if ended on a }, false if ended on EOF.
 bool ConfigFile::read_properties( ConfigElem& elem )
 {
-  static std::string strbuf;
-  static std::string propname, propvalue;
-  while ( readline( strbuf ) )
-  {
-    ++_cur_line;
-
-    ISTRINGSTREAM is( strbuf );
-
-
-    splitnamevalue( strbuf, propname, propvalue );
-
-    if ( propname.empty() ||  // empty line
-         commentline( propname ) )
+    static std::string strbuf;
+    static std::string propname, propvalue;
+	while (readline( strbuf ))
     {
-      continue;
-    }
+        ++_cur_line;
 
-    if ( propname == "}" )
-      return true;
+        ISTRINGSTREAM is( strbuf );
 
-    if ( propvalue[0] == '\"' )
-    {
-      decodequotedstring( propvalue );
-    }
+        
+        splitnamevalue( strbuf, propname, propvalue );
 
-    elem.properties.insert( make_pair( propname, propvalue ) );
-  }
-  return false;
+		if (propname.empty() ||                     // empty line
+            commentline( propname ))
+        {
+            continue;
+        }
+            
+		if (propname == "}")
+			return true;
+		
+        if (propvalue[0] == '\"')
+        {
+            decodequotedstring( propvalue );
+        }
+
+        elem.properties.insert( make_pair(propname, propvalue) );
+	}
+    return false;
 }
 bool ConfigFile::read_properties( VectorConfigElem& elem )
 {
-  static std::string strbuf;
-  static std::string propname, propvalue;
-  while ( readline( strbuf ) )
-  {
-    ++_cur_line;
-
-    ISTRINGSTREAM is( strbuf );
-
-
-    splitnamevalue( strbuf, propname, propvalue );
-
-    if ( propname.empty() ||  // empty line
-         commentline( propname ) )
+    static std::string strbuf;
+    static std::string propname, propvalue;
+	while (readline( strbuf ))
     {
-      continue;
-    }
+        ++_cur_line;
 
-    if ( propname == "}" )
-      return true;
+        ISTRINGSTREAM is( strbuf );
 
-    if ( propvalue[0] == '\"' )
-    {
-      decodequotedstring( propvalue );
-    }
+        
+        splitnamevalue( strbuf, propname, propvalue );
 
-    auto prop = new ConfigProperty( &propname, &propvalue );
-    elem.properties.push_back( prop );
-  }
-  return false;
+		if (propname.empty() ||                     // empty line
+            commentline( propname ))
+        {
+            continue;
+        }
+            
+		if (propname == "}")
+			return true;
+		
+        if (propvalue[0] == '\"')
+        {
+            decodequotedstring( propvalue );
+        }
+
+		auto prop = new ConfigProperty( &propname, &propvalue );
+		elem.properties.push_back( prop );
+	}
+    return false;
 }
 
 
 bool ConfigFile::_read( ConfigElem& elem )
 {
-  elem.properties.clear();
+    elem.properties.clear();
 
-  elem.type_ = "";
-  elem.rest_ = "";
+    elem.type_ = "";
+    elem.rest_ = "";
 
-  _element_line_start = 0;
+    _element_line_start = 0;
 
-  std::string strbuf;
-  while ( readline( strbuf ) )
-  {
-    ++_cur_line;
-
-    std::string type, rest;
-    splitnamevalue( strbuf, type, rest );
-
-    if ( type.empty() ||  // empty line
-         commentline( type ) )
+    std::string strbuf;
+    while (readline( strbuf ))
     {
-      continue;
-    }
+        ++_cur_line;
 
-    _element_line_start = _cur_line;
+        std::string type, rest;
+        splitnamevalue( strbuf, type, rest );
+		
+		if (type.empty() || 					// empty line
+			commentline( type ))
+		{	
+			continue;
+		}
+		
+        _element_line_start = _cur_line;
 
-    elem.type_ = type;
+		elem.type_ = type;
 
-    if ( !allowed_types_.empty() )
-    {
-      if ( allowed_types_.find( type.c_str() ) == allowed_types_.end() )
-      {
-        OSTRINGSTREAM os;
-        os << "Unexpected type '" << type << "'" << std::endl;
-        os << "\tValid types are:";
-        for ( const auto& elem : allowed_types_ )
+        if (!allowed_types_.empty())
         {
-          os << " " << elem.c_str();
+            if (allowed_types_.find( type.c_str() ) == allowed_types_.end())
+            {
+                OSTRINGSTREAM os;
+                os << "Unexpected type '" << type << "'" << std::endl;
+                os << "\tValid types are:";
+                for(const auto &elem : allowed_types_)
+                {
+                    os << " " << elem.c_str();
+                }
+                throw std::runtime_error( OSTRINGSTREAM_STR(os) );
+            }
         }
-        throw std::runtime_error( OSTRINGSTREAM_STR( os ) );
-      }
-    }
 
-    elem.rest_ = rest;
+        elem.rest_ = rest;
+		
+		if (!fgets( buffer, sizeof buffer, fp ))
+			throw std::runtime_error( "File ends after element type -- expected a '{'" );
+	    strbuf = buffer;
+        ++_cur_line;
 
-    if ( !fgets( buffer, sizeof buffer, fp ) )
-      throw std::runtime_error( "File ends after element type -- expected a '{'" );
-    strbuf = buffer;
-    ++_cur_line;
+		if (strbuf.empty() ||
+            strbuf[0] != '{')
+		{
+			throw std::runtime_error( "Expected '{' on a blank line after element type" );
+		}
 
-    if ( strbuf.empty() || strbuf[0] != '{' )
-    {
-      throw std::runtime_error( "Expected '{' on a blank line after element type" );
-    }
-
-    if ( read_properties( elem ) )
-      return true;
-    else
-      throw std::runtime_error( "Expected '}' on a blank line after element properties" );
-  }
-  return false;
+        if (read_properties( elem ))
+            return true;
+        else
+            throw std::runtime_error( "Expected '}' on a blank line after element properties" );
+	}
+	return false;
 }
 
 bool ConfigFile::_read( VectorConfigElem& elem )
 {
-  while ( !elem.properties.empty() )
-  {
-    delete elem.properties.back();
-    elem.properties.pop_back();
-  }
-  elem.type_ = "";
-  elem.rest_ = "";
-
-  _element_line_start = 0;
-
-  std::string strbuf;
-  while ( readline( strbuf ) )
-  {
-    ++_cur_line;
-
-    std::string type, rest;
-    splitnamevalue( strbuf, type, rest );
-
-    if ( type.empty() ||  // empty line
-         commentline( type ) )
+    while (!elem.properties.empty())
     {
-      continue;
+        delete elem.properties.back();
+        elem.properties.pop_back();
     }
+    elem.type_ = "";
+    elem.rest_ = "";
 
-    _element_line_start = _cur_line;
+    _element_line_start = 0;
 
-    elem.type_ = type;
-
-    if ( !allowed_types_.empty() )
+    std::string strbuf;
+    while (readline( strbuf ))
     {
-      if ( allowed_types_.find( type.c_str() ) == allowed_types_.end() )
-      {
-        OSTRINGSTREAM os;
-        os << "Unexpected type '" << type << "'" << std::endl;
-        os << "\tValid types are:";
-        for ( const auto& elem : allowed_types_ )
+        ++_cur_line;
+
+        std::string type, rest;
+        splitnamevalue( strbuf, type, rest );
+		
+		if (type.empty() || 					// empty line
+			commentline( type ))
+		{	
+			continue;
+		}
+		
+        _element_line_start = _cur_line;
+
+		elem.type_ = type;
+
+        if (!allowed_types_.empty())
         {
-          os << " " << elem.c_str();
+            if (allowed_types_.find( type.c_str() ) == allowed_types_.end())
+            {
+                OSTRINGSTREAM os;
+                os << "Unexpected type '" << type << "'" << std::endl;
+                os << "\tValid types are:";
+                for(const auto &elem : allowed_types_)
+                {
+                    os << " " << elem.c_str();
+                }
+                throw std::runtime_error( OSTRINGSTREAM_STR(os) );
+            }
         }
-        throw std::runtime_error( OSTRINGSTREAM_STR( os ) );
-      }
-    }
 
-    elem.rest_ = rest;
+        elem.rest_ = rest;
+		
+		if (!fgets( buffer, sizeof buffer, fp ))
+			throw std::runtime_error( "File ends after element type -- expected a '{'" );
+	    strbuf = buffer;
+        ++_cur_line;
 
-    if ( !fgets( buffer, sizeof buffer, fp ) )
-      throw std::runtime_error( "File ends after element type -- expected a '{'" );
-    strbuf = buffer;
-    ++_cur_line;
+		if (strbuf.empty() ||
+            strbuf[0] != '{')
+		{
+			throw std::runtime_error( "Expected '{' on a blank line after element type" );
+		}
 
-    if ( strbuf.empty() || strbuf[0] != '{' )
-    {
-      throw std::runtime_error( "Expected '{' on a blank line after element type" );
-    }
-
-    if ( read_properties( elem ) )
-      return true;
-    else
-      throw std::runtime_error( "Expected '}' on a blank line after element properties" );
-  }
-  return false;
+        if (read_properties( elem ))
+            return true;
+        else
+            throw std::runtime_error( "Expected '}' on a blank line after element properties" );
+	}
+	return false;
 }
 
 
 #endif
 
-void ConfigFile::display_error( const std::string& msg, bool show_curline,
-                                const ConfigElemBase* elem, bool error ) const
+void ConfigFile::display_error( const std::string& msg, 
+                                bool show_curline,
+                                const ConfigElemBase* elem,
+                                bool error) const
 {
-  bool showed_elem_line = false;
-  fmt::Writer tmp;
-  tmp << ( error ? "Error" : "Warning" ) << " reading configuration file " << _filename << ":\n"
+    bool showed_elem_line = false;
+    fmt::Writer tmp;
+    tmp << ( error ? "Error" : "Warning" )
+      << " reading configuration file " << _filename << ":\n"
       << "\t" << msg << "\n";
-
-  if ( elem != NULL )
-  {
-    if ( strlen( elem->type() ) > 0 )
+    
+    if (elem != NULL)
     {
-      tmp << "\tElement: " << elem->type() << " " << elem->rest();
-      if ( _element_line_start )
-        tmp << ", found on line " << _element_line_start;
-      tmp << "\n";
-      showed_elem_line = true;
+      if ( strlen( elem->type() ) > 0 )
+      {
+        tmp << "\tElement: " << elem->type() << " " << elem->rest();
+        if ( _element_line_start )
+          tmp << ", found on line " << _element_line_start;
+        tmp << "\n";
+        showed_elem_line = true;
+      }
     }
-  }
 
-  if ( show_curline )
-    tmp << "\tNear line: " << _cur_line << "\n";
-  if ( _element_line_start && !showed_elem_line )
-    tmp << "\tElement started on line: " << _element_line_start << "\n";
-  ERROR_PRINT << tmp.str();
+    if (show_curline)
+      tmp << "\tNear line: " << _cur_line << "\n";
+    if (_element_line_start && !showed_elem_line)
+      tmp << "\tElement started on line: " << _element_line_start << "\n";
+    ERROR_PRINT << tmp.str();
 }
 
 void ConfigFile::display_and_rethrow_exception()
 {
-  try
-  {
-    throw;
-  }
-  catch ( const char* msg )
-  {
-    display_error( msg );
-  }
-  catch ( std::string& str )
-  {
-    display_error( str );
-  }
-  catch ( std::exception& ex )
-  {
-    display_error( ex.what() );
-  }
-  catch ( ... )
-  {
-    display_error( "(Generic exception)" );
-  }
+    try 
+    {
+        throw;
+    }
+    catch( const char * msg )
+    {
+        display_error( msg );
+    }
+    catch (std::string& str)
+    {
+        display_error( str );
+    }
+    catch( std::exception& ex )
+    {
+        display_error( ex.what() );
+    }
+    catch( ... )
+    {
+        display_error( "(Generic exception)" );
+    }
 
-  throw std::runtime_error( "Configuration file error." );
+    throw std::runtime_error( "Configuration file error." );
 }
 
 bool ConfigFile::read( ConfigElem& elem )
 {
-  try
-  {
-    elem._source = this;
-    return _read( elem );
-  }
-  catch ( ... )
-  {
-    display_and_rethrow_exception();  // throws and doesn't return
-  }
+    try 
+    {
+        elem._source = this;
+        return _read( elem );
+    }
+    catch( ... ) 
+    {
+        display_and_rethrow_exception(); // throws and doesn't return
+    }
 }
 
 void ConfigFile::readraw( ConfigElem& elem )
 {
-  try
-  {
-    elem._source = this;
-    if ( read_properties( elem ) )
-      throw std::runtime_error( "unexpected '}' in file" );
-  }
-  catch ( ... )
-  {
-    display_and_rethrow_exception();
-  }
+    try {
+        elem._source = this;
+        if (read_properties( elem ))
+            throw std::runtime_error( "unexpected '}' in file" );
+    }
+    catch( ... )
+    {
+        display_and_rethrow_exception();
+    }
 }
 
-void StubConfigSource::display_error( const std::string& msg, bool /*show_curline*/,
-                                      const ConfigElemBase* /*elem*/, bool error ) const
+void StubConfigSource::display_error( const std::string& msg, 
+                        bool /*show_curline*/,
+                        const ConfigElemBase* /*elem*/,
+                        bool error ) const
 {
-  ERROR_PRINT << ( error ? "Error" : "Warning" ) << " reading configuration element:"
-              << "\t" << msg << "\n";
+  ERROR_PRINT << ( error ? "Error" : "Warning" )
+    << " reading configuration element:"
+    << "\t" << msg << "\n";
 }
+
 }
 }

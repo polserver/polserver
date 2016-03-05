@@ -8,14 +8,12 @@
 
 #include <atomic>
 
-namespace Pol
-{
-namespace Clib
-{
-extern std::atomic<bool> exit_signalled;
+namespace Pol {
+  namespace Clib {
+	extern std::atomic<bool> exit_signalled;
 
-void enable_exit_signaller();
-}
+	void enable_exit_signaller();
+  }
 }
 
-#endif  // CLIB_ESIGNAL_H
+#endif //CLIB_ESIGNAL_H

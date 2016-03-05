@@ -27,112 +27,101 @@
 #include <boost/noncopyable.hpp>
 #include <cstdio>
 
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-}
-namespace Plib
-{
-class MapShapeList;
-}
-namespace Multi
-{
-extern void read_multidefs();
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Plib {
+    class MapShapeList;
+  }
+  namespace Multi {
+  	extern void read_multidefs();
 
-struct MULTI_ELEM
-{
-  unsigned short objtype;
-  s16 x;
-  s16 y;
-  s16 z;
-  bool is_static;
-};
+	struct MULTI_ELEM
+	{
+	  unsigned short objtype;
+	  s16 x;
+	  s16 y;
+	  s16 z;
+	  bool is_static;
+	};
 
-class MultiDef
-{
-public:
-  explicit MultiDef( Clib::ConfigElem& elem, u16 multiid );
-  ~MultiDef();
+	class MultiDef
+	{
+	public:
+	  explicit MultiDef( Clib::ConfigElem& elem, u16 multiid );
+	  ~MultiDef();
 
-  u16 multiid;
-  enum HOUSETYPE : u8
-  {
-    UNKNOWN,
-    BOAT,
-    HOUSE,
-    STAIRS
-  } type;
+	  u16 multiid;
+	  enum HOUSETYPE : u8 { UNKNOWN, BOAT, HOUSE, STAIRS } type;
 
-  std::vector<MULTI_ELEM> elems;
+	  std::vector< MULTI_ELEM > elems;
 
-  short xbase;  // x[0] is really x[xbase]
-  short xsize;
-  short ybase;
-  short ysize;
+	  short xbase;          // x[0] is really x[xbase]
+	  short xsize;
+	  short ybase;
+	  short ysize;
 
-  typedef std::vector<const MULTI_ELEM*> HullList;
-  HullList hull;
-  HullList internal_hull;
-  typedef std::set<unsigned short> HullList2;
-  HullList2 hull2;
-  HullList2 internal_hull2;
+	  typedef std::vector<const MULTI_ELEM*> HullList;
+	  HullList hull;
+	  HullList internal_hull;
+      typedef std::set<unsigned short> HullList2;
+	  HullList2 hull2;
+	  HullList2 internal_hull2;
 
-  typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
-  typedef std::pair<Components::const_iterator, Components::const_iterator> ItrPair;
+	  typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
+	  typedef std::pair<Components::const_iterator, Components::const_iterator> ItrPair;
 
-  short minrx, minry, minrz;  // minimum relative distances
-  short maxrx, maxry, maxrz;
-  Components components;
+	  short minrx, minry, minrz; // minimum relative distances
+	  short maxrx, maxry, maxrz;
+	  Components components;
 
-  static short global_minrx;
-  static short global_minry;
-  static short global_minrz;
-  static short global_maxrx;
-  static short global_maxry;
-  static short global_maxrz;
+	  static short global_minrx;
+	  static short global_minry;
+	  static short global_minrz;
+	  static short global_maxrx;
+	  static short global_maxry;
+	  static short global_maxrz;
 
-  ItrPair findcomponents( short rx, short ry );
+	  ItrPair findcomponents( short rx, short ry );
 
-  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end, short rx,
-                       short ry ) const;
+	  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
+						   short rx, short ry ) const;
 
-  static unsigned short getkey( short rx, short ry );
+	  static unsigned short getkey( short rx, short ry );
 
-  // returns true if it finds anything at this rx,ry
-  bool readobjects( Core::StaticList& vec, short rx, short ry, short zbase ) const;
-  bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase,
-                   unsigned int anyflags ) const;
+	  // returns true if it finds anything at this rx,ry
+	  bool readobjects( Core::StaticList& vec, short rx, short ry, short zbase ) const;
+	  bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase, unsigned int anyflags ) const;
 
-  bool body_contains( short rx, short ry ) const;
-  const MULTI_ELEM* find_component( short rx, short ry ) const;
+	  bool body_contains( short rx, short ry ) const;
+	  const MULTI_ELEM* find_component( short rx, short ry ) const;
 
-  void add_to_hull( const MULTI_ELEM* elem );
-  void add_to_internal_hull( const MULTI_ELEM* elem );
-  void add_row_tohull( short y );
-  void add_body_tohull();
-  void eliminate_hull_dupes();
-  void computehull();
-  void addrec( const MULTI_ELEM* elem );
-  void fill_hull2();
+	  void add_to_hull( const MULTI_ELEM* elem );
+	  void add_to_internal_hull( const MULTI_ELEM* elem );
+	  void add_row_tohull( short y );
+	  void add_body_tohull();
+	  void eliminate_hull_dupes();
+	  void computehull();
+	  void addrec( const MULTI_ELEM* elem );
+	  void fill_hull2();
 
-  void init();
+	  void init();
 
-  size_t estimateSize() const;
-};
+      size_t estimateSize() const;
+	};
 
-bool MultiDefByMultiIDExists( u16 multiid );
-const MultiDef* MultiDefByMultiID( u16 multiid );
+	bool MultiDefByMultiIDExists( u16 multiid );
+	const MultiDef* MultiDefByMultiID( u16 multiid );
 
-inline unsigned short MultiDef::getkey( short rx, short ry )
-{
-  unsigned char crx = static_cast<unsigned char>( rx );
-  unsigned char cry = static_cast<unsigned char>( ry );
+	inline unsigned short MultiDef::getkey( short rx, short ry )
+	{
+	  unsigned char crx = static_cast<unsigned char>( rx );
+	  unsigned char cry = static_cast<unsigned char>( ry );
 
-  unsigned short key = ( crx << 8 ) | cry;
-  return key;
-}
-}
+	  unsigned short key = ( crx << 8 ) | cry;
+	  return key;
+	}
+  }
 }
 #endif

@@ -20,71 +20,69 @@
 #include <vector>
 #include <string>
 
-namespace Pol
-{
-namespace Mobile
-{
-class Character;
-}
-namespace Network
-{
-class Client;
-}
-namespace Accounts
-{
-class Account : public ref_counted
-{
-public:
-  explicit Account( Clib::ConfigElem& elem );
-  ~Account();
+namespace Pol {
+  namespace Mobile {
+	class Character;
+  }
+  namespace Network {
+	class Client;
+  }
+  namespace Accounts {
 
-  size_t estimatedSize() const;
+	class Account : public ref_counted
+	{
+	public:
+	  explicit Account( Clib::ConfigElem& elem );
+	  ~Account();
 
-  const char* name() const;
-  const std::string password() const;
-  const std::string passwordhash() const;
-  const std::string uo_expansion() const;
-  unsigned short uo_expansion_flag() const;
-  static unsigned short convert_uo_expansion( const std::string& expansion );
-  bool enabled() const;
-  bool banned() const;
+      size_t estimatedSize() const;
 
-  int numchars() const;
-  int getnextfreeslot() const;
+	  const char *name() const;
+	  const std::string password() const;
+	  const std::string passwordhash() const;
+	  const std::string uo_expansion() const;
+	  unsigned short uo_expansion_flag() const;
+	  static unsigned short convert_uo_expansion( const std::string& expansion );
+	  bool enabled() const;
+	  bool banned() const;
 
-  Mobile::Character* get_character( int index );
-  void set_character( int index, Mobile::Character* chr );
-  void clear_character( int index );
+	  int numchars() const;
+	  int getnextfreeslot() const;
 
-  bool has_active_characters();
+	  Mobile::Character* get_character( int index );
+	  void set_character( int index, Mobile::Character* chr );
+	  void clear_character( int index );
 
-  void readfrom( Clib::ConfigElem& elem );
-  void writeto( Clib::StreamWriter& sw ) const;
-  void writeto( Clib::ConfigElem& elem ) const;
+	  bool has_active_characters();
 
-  std::string default_privlist() const;
-  unsigned char default_cmdlevel() const;
+	  void readfrom( Clib::ConfigElem& elem );
+	  void writeto( Clib::StreamWriter& sw ) const;
+	  void writeto( Clib::ConfigElem& elem ) const;
 
-  void set_password( std::string newpass ) { password_ = newpass; };
-  void set_passwordhash( std::string newpass ) { passwordhash_ = newpass; };
-  friend class AccountObjImp;
+	  std::string default_privlist() const;
+	  unsigned char default_cmdlevel() const;
 
-private:
-  std::vector<Core::CharacterRef> characters_;
-  std::string name_;
-  std::string password_;
-  std::string passwordhash_;
-  unsigned short uo_expansion_;
-  bool enabled_;
-  bool banned_;
-  Core::PropertyList props_;
-  Clib::StringSet default_privs_;
-  unsigned char default_cmdlevel_;
+	  void set_password( std::string newpass ) { password_ = newpass; };
+	  void set_passwordhash( std::string newpass ) { passwordhash_ = newpass; };
 
-  Clib::StringSet options_;
-};
+	  friend class AccountObjImp;
 
-Account* find_account( const char* acctname );
-}
+	private:
+	  std::vector<Core::CharacterRef> characters_;
+	  std::string name_;
+	  std::string password_;
+	  std::string passwordhash_;
+	  unsigned short uo_expansion_;
+	  bool enabled_;
+	  bool banned_;
+	  Core::PropertyList props_;
+	  Clib::StringSet default_privs_;
+	  unsigned char default_cmdlevel_;
+
+	  Clib::StringSet options_;
+	};
+
+	Account *find_account( const char *acctname );
+  }
 }
 #endif

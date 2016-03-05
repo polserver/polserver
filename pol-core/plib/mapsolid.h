@@ -19,31 +19,30 @@
 #define SOLIDX_Y_SIZE 16
 #define SOLIDX_Y_SHIFT 4
 #define SOLIDX_Y_CELLMASK 0xF
-namespace Pol
-{
-namespace Plib
-{
-struct SOLIDX1_ELEM
-{
-  unsigned int offset;
-};
+namespace Pol {
+  namespace Plib {
 
-const unsigned SOLIDX2_FILLER_SIZE = 4;
+	struct SOLIDX1_ELEM
+	{
+	  unsigned int offset;
+	};
 
-struct SOLIDX2_ELEM
-{
-  unsigned int baseindex;
-  unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
-};
-assertsize( SOLIDX2_ELEM, 516 );
+	const unsigned SOLIDX2_FILLER_SIZE = 4;
 
-struct SOLIDS_ELEM
-{
-  signed char z;
-  unsigned char height;
-  unsigned char flags;
-};
-assertsize( SOLIDS_ELEM, 3 );
-}
+	struct SOLIDX2_ELEM
+	{
+	  unsigned int baseindex;
+	  unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
+	};
+	assertsize( SOLIDX2_ELEM, 516 );
+
+	struct SOLIDS_ELEM
+	{
+	  signed char z;
+	  unsigned char height;
+	  unsigned char flags;
+	};
+	assertsize( SOLIDS_ELEM, 3 );
+  }
 }
 #endif

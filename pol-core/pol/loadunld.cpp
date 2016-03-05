@@ -33,265 +33,250 @@
 #include <stdexcept>
 #include <string>
 
-namespace Pol
-{
-namespace Plib
-{
-void load_packages();
-}
-namespace Items
-{
-void preload_test_scripts();
-void unload_itemdesc();
-void load_itemdesc();
-}
-namespace Mobile
-{
-void unload_armor_zones();
-void load_armor_zones();
-void load_attributes_cfg();
-}
-namespace Multi
-{
-void load_special_storedconfig( std::string cfgname );
-void read_multidefs();
-void read_boat_cfg();
-}
-namespace Network
-{
-void read_bannedips_config( bool initial_load );
-void initialize_client_interfaces();
-}
-namespace Module
-{
-void load_fileaccess_cfg();
-}
-namespace Core
-{
-void load_stacking_cfg();
-void load_repsys_cfg( bool reload );
-void unload_repsys_cfg();
-
-void load_npc_templates();
-void load_resource_cfg();
-
-void set_watch_vars();
-void load_skill_scripts();
-void load_anim_xlate_cfg( bool reload );
-void load_spell_data();
-
-void load_cmdlevels();
-void load_package_cmdlevels();
-void load_tips();
-
-
-void load_intrinsic_weapons();
-
-void read_justice_zones();
-void read_nocast_zones();
-void read_music_zones();
-void read_light_zones();
-void read_weather_zones();
-
-
-void load_vitals_cfg();
-void load_uoskills_cfg();
-void load_uoclient_cfg();
-
-void read_npc_templates();
-
-void load_tiles_cfg();
-void load_landtile_cfg();
-void load_party_cfg( bool reload );
-
-void load_movecost( bool reload );
-
-void unload_party();
-void read_npc_templates();
-
-void check_config()
-{
-  // Check if secure trading is enabled and that the container for it is setup.
-  if ( Plib::systemstate.config.enable_secure_trading )
-  {
-    const Items::ItemDesc& stid =
-        Items::find_itemdesc( settingsManager.extobj.secure_trade_container );
-    if ( stid.type != Items::ItemDesc::CONTAINERDESC )
-      throw std::runtime_error( "Secure trade container (" +
-                                Clib::hexint( settingsManager.extobj.secure_trade_container ) +
-                                ") must be defined in itemdesc.cfg as a container." );
+namespace Pol {
+  namespace Plib {
+    void load_packages( );
   }
+  namespace Items {
+    void preload_test_scripts( );
+    void unload_itemdesc( );
+    void load_itemdesc( );
+  }
+  namespace Mobile {
+    void unload_armor_zones( );
+    void load_armor_zones( );
+    void load_attributes_cfg( );
+  }
+  namespace Multi {
+    void load_special_storedconfig( std::string cfgname );
+    void read_multidefs( );
+    void read_boat_cfg( );
+  }
+  namespace Network {
+    void read_bannedips_config( bool initial_load );
+    void initialize_client_interfaces( );
+  }
+  namespace Module {
+    void load_fileaccess_cfg( );
+  }
+  namespace Core {
+	
+    void load_stacking_cfg();
+	void load_repsys_cfg( bool reload );
+	void unload_repsys_cfg();
 
-  // Make sure backpack container is defined.
-  const Items::ItemDesc& backpackid = Items::find_itemdesc( UOBJ_BACKPACK );
-  if ( backpackid.type != Items::ItemDesc::CONTAINERDESC )
-    throw std::runtime_error( "Backpack container (" + Clib::hexint( UOBJ_BACKPACK ) +
-                              ") must be defined in itemdesc.cfg as a container." );
+	void load_npc_templates();
+	void load_resource_cfg();
+	
+	void set_watch_vars();
+	void load_skill_scripts();
+	void load_anim_xlate_cfg( bool reload );
+	void load_spell_data();
+	
+	void load_cmdlevels();
+	void load_package_cmdlevels();
+	void load_tips();
+	
+	
+	void load_intrinsic_weapons();
+	
+	void read_justice_zones();
+	void read_nocast_zones();
+	void read_music_zones();
+	void read_light_zones();
+	void read_weather_zones();
+	
+	
+	void load_vitals_cfg();
+	void load_uoskills_cfg();
+	void load_uoclient_cfg();
+	
+	void read_npc_templates();
+	
+	void load_tiles_cfg();
+	void load_landtile_cfg();
+	void load_party_cfg( bool reload );
 
-  // Make sure corpse container is defined.
-  const Items::ItemDesc& corpseid = Items::find_itemdesc( UOBJ_CORPSE );
-  if ( corpseid.type != Items::ItemDesc::CONTAINERDESC )
-    throw std::runtime_error( "Corpse container (" + Clib::hexint( UOBJ_CORPSE ) +
-                              ") must be defined in itemdesc.cfg as a container." );
+	void load_movecost( bool reload );
 
-  // Make sure the WornItems container is defined.
-  const Items::ItemDesc& wic_id =
-      Items::find_itemdesc( settingsManager.extobj.wornitems_container );
-  if ( wic_id.type != Items::ItemDesc::CONTAINERDESC )
-    throw std::runtime_error( "WornItems container (" +
-                              Clib::hexint( settingsManager.extobj.wornitems_container ) +
-                              ") must be defined in itemdesc.cfg as a container." );
+    void unload_party( );
+    void read_npc_templates( );
 
-  const Items::ContainerDesc& cd =
-      Items::find_container_desc( settingsManager.extobj.wornitems_container );
-  Items::getgraphic( cd.objtype );
-}
+	void check_config()
+	{
+	  // Check if secure trading is enabled and that the container for it is setup.
+	  if ( Plib::systemstate.config.enable_secure_trading )
+	  {
+        const Items::ItemDesc& stid = Items::find_itemdesc( settingsManager.extobj.secure_trade_container );
+        if ( stid.type != Items::ItemDesc::CONTAINERDESC )
+		  throw std::runtime_error( "Secure trade container (" + Clib::hexint( settingsManager.extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
+	  }
 
-void load_config( bool reload )
-{
-  checkpoint( "load movement cost" );
-  load_movecost( reload );
+	  // Make sure backpack container is defined.
+      const Items::ItemDesc& backpackid = Items::find_itemdesc( UOBJ_BACKPACK );
+      if ( backpackid.type != Items::ItemDesc::CONTAINERDESC )
+          throw std::runtime_error("Backpack container (" + Clib::hexint(UOBJ_BACKPACK) + ") must be defined in itemdesc.cfg as a container.");
 
-  checkpoint( "load animation translations" );
-  load_anim_xlate_cfg( reload );
+	  // Make sure corpse container is defined.
+      const Items::ItemDesc& corpseid = Items::find_itemdesc( UOBJ_CORPSE );
+      if ( corpseid.type != Items::ItemDesc::CONTAINERDESC )
+          throw std::runtime_error("Corpse container (" + Clib::hexint(UOBJ_CORPSE) + ") must be defined in itemdesc.cfg as a container.");
 
-  checkpoint( "load repsys config" );
-  load_repsys_cfg( reload );
+	  // Make sure the WornItems container is defined.
+      const Items::ItemDesc& wic_id = Items::find_itemdesc( settingsManager.extobj.wornitems_container );
+      if ( wic_id.type != Items::ItemDesc::CONTAINERDESC )
+          throw std::runtime_error("WornItems container (" + Clib::hexint(settingsManager.extobj.wornitems_container) + ") must be defined in itemdesc.cfg as a container.");
 
-  checkpoint( "load party config" );
-  load_party_cfg( reload );
-}
+      const Items::ContainerDesc& cd = Items::find_container_desc( settingsManager.extobj.wornitems_container );
+      Items::getgraphic( cd.objtype );
+	}
 
-void load_data()
-{
-  //	checkpoint( "read_translations" );
-  //	read_translations();
+	void load_config( bool reload )
+	{
+	  checkpoint( "load movement cost" );
+	  load_movecost( reload );
 
-  checkpoint( "load_cmdlevels" );
-  load_cmdlevels();
+	  checkpoint( "load animation translations" );
+	  load_anim_xlate_cfg( reload );
 
-  checkpoint( "read_combat_config" );
-  CombatConfig::read_combat_config();
+	  checkpoint( "load repsys config" );
+	  load_repsys_cfg( reload );
 
-  checkpoint( "read_boat_cfg" );
-  Multi::read_boat_cfg();
+	  checkpoint( "load party config" );
+	  load_party_cfg( reload );
+	}
 
-  checkpoint( "read_multidefs" );
-  Multi::read_multidefs();
+	void load_data()
+	{
+	  //	checkpoint( "read_translations" );
+	  //	read_translations();
 
-  checkpoint( "set_watch_vars" );
-  set_watch_vars();
+	  checkpoint( "load_cmdlevels" );
+	  load_cmdlevels();
 
-  checkpoint( "load_packages" );
-  Plib::load_packages();
+	  checkpoint( "read_combat_config" );
+	  CombatConfig::read_combat_config();
 
-  checkpoint( "load_package_cmdlevels" );
-  load_package_cmdlevels();
+	  checkpoint( "read_boat_cfg" );
+	  Multi::read_boat_cfg();
 
-  checkpoint( "load_resource_cfg" );
-  load_resource_cfg();
+	  checkpoint( "read_multidefs" );
+	  Multi::read_multidefs();
 
-  checkpoint( "read_justice_zones" );
-  read_justice_zones();
+	  checkpoint( "set_watch_vars" );
+	  set_watch_vars();
 
-  checkpoint( "read_music_zones" );
-  read_music_zones();
+	  checkpoint( "load_packages" );
+	  Plib::load_packages();
 
-  checkpoint( "read_nocast_zones" );
-  read_nocast_zones();
+	  checkpoint( "load_package_cmdlevels" );
+	  load_package_cmdlevels();
 
-  checkpoint( "read_light_zones" );
-  read_light_zones();
+	  checkpoint( "load_resource_cfg" );
+	  load_resource_cfg();
 
-  checkpoint( "read_weather_zones" );
-  read_weather_zones();
+	  checkpoint( "read_justice_zones" );
+	  read_justice_zones();
 
-  checkpoint( "load_armor_zones" );
-  Mobile::load_armor_zones();
+	  checkpoint( "read_music_zones" );
+	  read_music_zones();
 
-  checkpoint( "load_attributes_cfg" );
-  Mobile::load_attributes_cfg();
+	  checkpoint( "read_nocast_zones" );
+	  read_nocast_zones();
 
-  checkpoint( "load_vitals_cfg" );
-  load_vitals_cfg();
+	  checkpoint( "read_light_zones" );
+	  read_light_zones();
 
-  checkpoint( "load_uoskills_cfg" );
-  load_uoskills_cfg();
+	  checkpoint( "read_weather_zones" );
+	  read_weather_zones();
 
-  checkpoint( "load_uoclient_cfg" );
-  load_uoclient_cfg();
+	  checkpoint( "load_armor_zones" );
+	  Mobile::load_armor_zones();
 
-  checkpoint( "initialize_client_interfaces" );
-  Network::initialize_client_interfaces();
+	  checkpoint( "load_attributes_cfg" );
+	  Mobile::load_attributes_cfg();
 
-  checkpoint( "load_tiles_cfg" );
-  load_tiles_cfg();
+	  checkpoint( "load_vitals_cfg" );
+	  load_vitals_cfg();
 
-  checkpoint( "load_landtile_cfg" );
-  load_landtile_cfg();
+	  checkpoint( "load_uoskills_cfg" );
+	  load_uoskills_cfg();
 
-  checkpoint( "load_itemdesc" );
-  Items::load_itemdesc();
+	  checkpoint( "load_uoclient_cfg" );
+	  load_uoclient_cfg();
 
-  checkpoint( "load_special_storedconfig: itemdesc" );
-  Multi::load_special_storedconfig( "itemdesc" );
+	  checkpoint( "initialize_client_interfaces" );
+	  Network::initialize_client_interfaces();
 
-  checkpoint( "load_special_storedconfig: spells" );
-  Multi::load_special_storedconfig( "spells" );
+	  checkpoint( "load_tiles_cfg" );
+	  load_tiles_cfg();
 
-  checkpoint( "load_npc_intrinsic_equip" );
-  Items::load_npc_intrinsic_equip();
+	  checkpoint( "load_landtile_cfg" );
+	  load_landtile_cfg();
 
-  checkpoint( "load_npc_templates" );
-  load_npc_templates();
+	  checkpoint( "load_itemdesc" );
+	  Items::load_itemdesc();
 
-  checkpoint( "preload_test_scripts" );
-  Items::preload_test_scripts();
+	  checkpoint( "load_special_storedconfig: itemdesc" );
+	  Multi::load_special_storedconfig( "itemdesc" );
 
-  checkpoint( "load_spell_data" );
-  load_spell_data();
+	  checkpoint( "load_special_storedconfig: spells" );
+	  Multi::load_special_storedconfig( "spells" );
 
-  checkpoint( "load_tips" );
-  load_tips();
+      checkpoint( "load_npc_intrinsic_equip" );
+      Items::load_npc_intrinsic_equip( );
 
-  checkpoint( "load stacking cfg" );  // dave 1/26/3
-  load_stacking_cfg();
+	  checkpoint( "load_npc_templates" );
+	  load_npc_templates();
 
-  load_config( false );
+	  checkpoint( "preload_test_scripts" );
+      Items::preload_test_scripts( );
 
-  read_npc_templates();
+	  checkpoint( "load_spell_data" );
+	  load_spell_data();
+
+	  checkpoint( "load_tips" );
+	  load_tips();
+
+	  checkpoint( "load stacking cfg" ); //dave 1/26/3
+	  load_stacking_cfg();
+
+	  load_config( false );
+
+	  read_npc_templates();
 
 
-  //#ifdef _WIN32
-  checkpoint( "load console commands" );
-  ConsoleCommand::load_console_commands();
-  //#endif
+	  //#ifdef _WIN32
+	  checkpoint( "load console commands" );
+	  ConsoleCommand::load_console_commands();
+	  //#endif
 
-  Module::load_fileaccess_cfg();
+	  Module::load_fileaccess_cfg();
 
-  checkpoint( "check configuration" );
-  check_config();
-}
+	  checkpoint( "check configuration" );
+	  check_config();
 
-void reload_configuration()
-{
-  PolConfig::read_pol_config( false );
-  Network::read_bannedips_config( false );
-  load_npc_templates();
-  read_npc_templates();  // dave 1/12/3 npc template data wasn't actually being read, just names.
-  ConsoleCommand::load_console_commands();
-  Module::load_fileaccess_cfg();
-}
+	}
 
-void unload_data()
-{
-  Mobile::unload_armor_zones();
+	void reload_configuration()
+	{
+	  PolConfig::read_pol_config( false );
+	  Network::read_bannedips_config( false );
+	  load_npc_templates();
+	  read_npc_templates(); //dave 1/12/3 npc template data wasn't actually being read, just names.
+	  ConsoleCommand::load_console_commands();
+	  Module::load_fileaccess_cfg();
+	}
 
-  unload_repsys_cfg();  // Any better place?
+	void unload_data()
+	{
+	  Mobile::unload_armor_zones();
 
-  Items::unload_itemdesc();
+	  unload_repsys_cfg(); // Any better place?
 
-  unload_party();
-}
-}
+	  Items::unload_itemdesc();
+
+	  unload_party();
+	}
+  }
 }

@@ -10,28 +10,27 @@
 #define BOATEMOD_H
 
 #include "../../bscript/execmodl.h"
-namespace Pol
-{
-namespace Module
-{
-class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule>
-{
-public:
-  UBoatExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<UBoatExecutorModule>( "boat", exec ){};
+namespace Pol {
+  namespace Module {
 
-  Bscript::BObjectImp* mf_MoveBoat();
-  Bscript::BObjectImp* mf_MoveBoatRelative();
+	class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule>
+	{
+	public:
+	  UBoatExecutorModule( Bscript::Executor& exec ) :
+		Bscript::TmplExecutorModule<UBoatExecutorModule>( "boat", exec ) {};
 
-  Bscript::BObjectImp* mf_TurnBoat();
+	  Bscript::BObjectImp* mf_MoveBoat( );
+	  Bscript::BObjectImp* mf_MoveBoatRelative( );
 
-  Bscript::BObjectImp* mf_RegisterItemWithBoat();
-  Bscript::BObjectImp* mf_BoatFromItem();
+	  Bscript::BObjectImp* mf_TurnBoat( );
 
-  Bscript::BObjectImp* mf_SystemFindBoatBySerial();
+	  Bscript::BObjectImp* mf_RegisterItemWithBoat( );
+	  Bscript::BObjectImp* mf_BoatFromItem( );
 
-  Bscript::BObjectImp* mf_MoveBoatXY();
-};
-}
+	  Bscript::BObjectImp* mf_SystemFindBoatBySerial( );
+
+	  Bscript::BObjectImp* mf_MoveBoatXY( );
+	};
+  }
 }
 #endif

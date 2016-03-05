@@ -13,11 +13,9 @@
 #endif
 
 #include "modules.h"
-namespace Pol
-{
-namespace Bscript
-{
-}
+namespace Pol {
+  namespace Bscript {
+  }
 }
 
 #endif

@@ -2,60 +2,61 @@
 
 #define __DIRFUNC_H
 
-#if defined( WINDOWS )
+#if defined(WINDOWS)
 #include <stdlib.h>
 #include "Header_Windows.h"
 #else
 #include <dir.h>
 #endif
-namespace Pol
-{
-namespace Clib
-{
-#define MAXFULLDIR ( MAXDRIVE + MAXDIR - 1 )
+namespace Pol {
+  namespace Clib {
 
-#define MAXFNAME ( MAXFILE + MAXEXT - 1 )
+#define MAXFULLDIR (MAXDRIVE+MAXDIR-1)
 
-typedef char Directory[MAXFULLDIR];
-typedef char File1[MAXFILE];
-typedef char FFile[MAXFNAME];
-typedef char Pathname[MAXPATH];
+#define MAXFNAME (MAXFILE+MAXEXT-1)
 
-extern char temp_path[MAXPATH];
-extern char temp_drive[MAXDRIVE];
-extern char temp_dir[MAXDIR];
-extern char temp_fname[MAXFILE];
-extern char temp_ext[MAXEXT];
+	typedef char Directory[MAXFULLDIR];
+	typedef char File1[MAXFILE];
+	typedef char FFile[MAXFNAME];
+	typedef char Pathname[MAXPATH];
 
-int fullsplit( const char* path );
-char* fullmerge( char* path );
-char* mergeFnExt( char* path );
+	extern char temp_path[MAXPATH];
+	extern char temp_drive[MAXDRIVE];
+	extern char temp_dir[MAXDIR];
+	extern char temp_fname[MAXFILE];
+	extern char temp_ext[MAXEXT];
 
-char* nodefile( const char* directory, const char* filename, int node );
-char* buildfn( const char* directory, const char* filename );
-char* buildfnext( const char* dir, const char* file, const char* ext );
-void normalize_dir( char* dir );
-int strip_one( char* direc );
+	int fullsplit( const char *path );
+	char *fullmerge( char *path );
+	char *mergeFnExt( char *path );
+
+	char *nodefile( const char *directory, const char *filename, int node );
+	char *buildfn( const char *directory, const char *filename );
+	char *buildfnext( const char *dir, const char *file, const char *ext );
+	void normalize_dir( char *dir );
+	int strip_one( char *direc );
 
 
-enum
-{
-  SRC_NO_EXIST = 1,
-  DST_ALREADY_EXIST,
-  SRC_OPEN_ERROR,
-  DST_OPEN_ERROR,
-  WRITE_ERROR
-};
+	enum
+	{
+	  SRC_NO_EXIST = 1,
+	  DST_ALREADY_EXIST,
+	  SRC_OPEN_ERROR,
+	  DST_OPEN_ERROR,
+	  WRITE_ERROR
+	};
 
-extern int mydir_errno;
+	extern int mydir_errno;
 
-int copyFile( const char* src, const char* dst );
-int copyFileNoRep( const char* src, const char* dst );
+	int copyFile( const char *src, const char *dst );
+	int copyFileNoRep( const char *src, const char *dst );
 
-int moveFile( const char* src, const char* dst );
-int moveFileNoRep( const char* src, const char* dst );
+	int moveFile( const char *src, const char *dst );
+	int moveFileNoRep( const char *src, const char *dst );
 
-int chddir( const char* directory );
-}
+	int chddir( const char *directory );
+
+
+  }
 }
 #endif

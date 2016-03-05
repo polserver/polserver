@@ -12,20 +12,18 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Accounts
-{
-class Account;
+namespace Pol {
+  namespace Accounts {
 
-Account* create_new_account( const std::string& acctname, const std::string& password,
-                             bool enabled );
-Account* duplicate_account( const std::string& oldacctname, const std::string& newacctname );
-Account* find_account( const char* acctname );
-int delete_account( const char* acctname );
-void write_account_data();
-void reload_account_data();
-void write_account_data_task();
-}
+    class Account;
+
+	Account* create_new_account( const std::string& acctname, const std::string& password, bool enabled );
+	Account* duplicate_account( const std::string& oldacctname, const std::string& newacctname );
+	Account* find_account( const char* acctname );
+	int delete_account( const char* acctname );
+	void write_account_data();
+	void reload_account_data();
+    void write_account_data_task();
+  }
 }
 #endif

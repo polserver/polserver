@@ -18,138 +18,135 @@
 #include <string>
 
 #ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )
+#pragma warning(push)
+#pragma warning(disable:4996)
 #endif
 
-namespace Pol
-{
-namespace Bscript
-{
-class Executor;
-class Token;
-class String;
-class ExecutorModule;
+namespace Pol {
+  namespace Bscript {
 
-typedef BObject* ( ExecutorModule::*ExecutorModuleFn )();
+	class Executor;
+	class Token;
+	class String;
+	class ExecutorModule;
 
-class ExecutorModule
-{
-public:
-  virtual ~ExecutorModule(){};
+	typedef BObject * ( ExecutorModule::*ExecutorModuleFn )( );
 
-  BObjectImp* getParamImp( unsigned param );
-  BObjectImp* getParamImp( unsigned param, BObjectImp::BObjectType type );
-  bool getParamImp( unsigned param, BObjectImp*& imp );
+	class ExecutorModule
+	{
+	public:
+	  virtual ~ExecutorModule() {};
 
-  const String* getStringParam( unsigned param );
-  void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
-  BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
-  bool getStringParam( unsigned param, const String*& pstr );
-  bool getRealParam( unsigned param, double& value );
-  bool getObjArrayParam( unsigned param, ObjArray*& pobjarr );
+	  BObjectImp* getParamImp( unsigned param );
+	  BObjectImp* getParamImp( unsigned param, BObjectImp::BObjectType type );
+	  bool getParamImp( unsigned param, BObjectImp*& imp );
 
-  bool getParam( unsigned param, int& value );
-  bool getParam( unsigned param, int& value, int maxval );
-  bool getParam( unsigned param, int& value, int minval, int maxval );
+	  const String* getStringParam( unsigned param );
+	  void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
+	  BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
+	  bool getStringParam( unsigned param, const String*& pstr );
+	  bool getRealParam( unsigned param, double& value );
+	  bool getObjArrayParam( unsigned param, ObjArray*& pobjarr );
 
-  bool getParam( unsigned param, unsigned& value );
+	  bool getParam( unsigned param, int& value );
+	  bool getParam( unsigned param, int& value, int maxval );
+	  bool getParam( unsigned param, int& value, int minval, int maxval );
 
-  bool getParam( unsigned param, short& value );
-  bool getParam( unsigned param, short& value, short maxval );
-  bool getParam( unsigned param, short& value, short minval, short maxval );
+	  bool getParam( unsigned param, unsigned& value );
 
-  bool getParam( unsigned param, unsigned short& value );
-  bool getParam( unsigned param, unsigned short& value, unsigned short maxval );
-  bool getParam( unsigned param, unsigned short& value, unsigned short minval,
-                 unsigned short maxval );
+	  bool getParam( unsigned param, short& value );
+	  bool getParam( unsigned param, short& value, short maxval );
+	  bool getParam( unsigned param, short& value, short minval, short maxval );
 
-  const std::string& scriptname() const;
-  Executor& exec;
+	  bool getParam( unsigned param, unsigned short& value );
+	  bool getParam( unsigned param, unsigned short& value, unsigned short maxval );
+	  bool getParam( unsigned param, unsigned short& value, unsigned short minval, unsigned short maxval );
 
-protected:
-  ExecutorModule( const char* moduleName, Executor& iExec );
+	  const std::string& scriptname() const;
+	  Executor& exec;
 
-  boost_utils::function_name_flystring moduleName;
+	protected:
+	  ExecutorModule( const char* moduleName, Executor& iExec );
 
-  friend class Executor;
+	  boost_utils::function_name_flystring moduleName;
 
-  virtual int functionIndex( const char* funcname ) = 0;  // returns -1 on not found
-  virtual BObjectImp* execFunc( unsigned idx ) = 0;
-  virtual std::string functionName( unsigned idx ) = 0;
+	  friend class Executor;
 
-private:  // not implemented
-  ExecutorModule( const ExecutorModule& exec );
-  ExecutorModule& operator=( const ExecutorModule& exec );
-};
+	  virtual int functionIndex( const char *funcname ) = 0; // returns -1 on not found
+	  virtual BObjectImp* execFunc( unsigned idx ) = 0;
+	  virtual std::string functionName( unsigned idx ) = 0;
 
-// FIXME: this function doesn't seem to work.
-template <class T>
-BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param,
-                                  const BApplicObjType* object_type )
-{
-  return static_cast<BApplicObj<T>*>( ex.getApplicObjParam( param, object_type ) );
-}
+	private: // not implemented
+	  ExecutorModule( const ExecutorModule& exec );
+	  ExecutorModule& operator=( const ExecutorModule& exec );
+	};
 
-#define callMemberFunction( object, ptrToMember ) ( ( object ).*( ptrToMember ) )
+	// FIXME: this function doesn't seem to work.
+	template<class T>
+	BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param, const BApplicObjType* object_type )
+	{
+	  return static_cast<BApplicObj<T>*>( ex.getApplicObjParam( param, object_type ) );
+	}
 
-template <class T>
-class TmplExecutorModule : public ExecutorModule
-{
-protected:
-  TmplExecutorModule( const char* modname, Executor& exec );
-  void register_function( const char* funcname, BObject ( T::*fptr )() );
+#define callMemberFunction(object,ptrToMember) ((object).*(ptrToMember))
 
-public:
-  struct FunctionDef
-  {
-    const char* funcname;
-    BObjectImp* ( T::*fptr )();
-  };
-  static FunctionDef function_table[];
-  static int function_table_size;
+	template<class T>
+	class TmplExecutorModule : public ExecutorModule
+	{
+	protected:
+	  TmplExecutorModule( const char* modname, Executor& exec );
+	  void register_function( const char *funcname, BObject( T::*fptr )( ) );
 
-private:
-  virtual int functionIndex( const char* funcname ) POL_OVERRIDE;
-  virtual BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
-  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
-};
+	public:
+	  struct FunctionDef
+	  {
+		const char *funcname;
+		BObjectImp* ( T::*fptr )( );
+	  };
+	  static FunctionDef function_table[];
+	  static int function_table_size;
 
-template <class T>
-TmplExecutorModule<T>::TmplExecutorModule( const char* modname, Executor& ex )
-    : ExecutorModule( modname, ex )
-{
-}
+	private:
+	  virtual int functionIndex( const char *funcname ) POL_OVERRIDE;
+	  virtual BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
+	  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
+	};
 
-template <class T>
-inline int TmplExecutorModule<T>::functionIndex( const char* name )
-{
-  for ( int idx = 0; idx < function_table_size; idx++ )
-  {
-    if ( stricmp( name, function_table[idx].funcname ) == 0 )
-      return idx;
+	template<class T>
+	TmplExecutorModule<T>::TmplExecutorModule( const char *modname, Executor& ex ) :
+	  ExecutorModule( modname, ex )
+	{}
+
+	template<class T>
+	inline int TmplExecutorModule<T>::functionIndex( const char *name )
+	{
+	  for ( int idx = 0; idx < function_table_size; idx++ )
+	  {
+		if ( stricmp( name, function_table[idx].funcname ) == 0 )
+		  return idx;
+	  }
+	  return -1;
+	}
+
+	template<class T>
+	inline BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
+	{
+	  T* derived = static_cast<T*>( this );
+
+	  return callMemberFunction( *derived, function_table[funcidx].fptr )( );
+	};
+
+	template<class T>
+	inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
+	{
+	  return function_table[idx].funcname;
+	}
+
   }
-  return -1;
-}
-
-template <class T>
-inline BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
-{
-  T* derived = static_cast<T*>( this );
-
-  return callMemberFunction ( *derived, function_table[funcidx].fptr )();
-};
-
-template <class T>
-inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
-{
-  return function_table[idx].funcname;
-}
-}
 }
 
 #ifdef _MSC_VER
-#pragma warning( pop )
+#pragma warning(pop)
 #endif
 
 #endif

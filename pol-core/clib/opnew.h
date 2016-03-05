@@ -6,12 +6,10 @@
 #ifndef CLIB_OPNEW_H
 #define CLIB_OPNEW_H
 
-namespace Pol
-{
-namespace Clib
-{
-void PrintHeapData();
-}
+namespace Pol {
+  namespace Clib {
+	  void PrintHeapData();
+  }
 }
 
-#endif  // CLIB_OPNEW_H
+#endif //CLIB_OPNEW_H

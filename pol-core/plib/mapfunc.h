@@ -11,21 +11,19 @@
 #include <string>
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-}
-namespace Plib
-{
-u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot,
-                             bool LOS_through_windows );
-u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags );
+namespace Pol {
+  namespace Clib {
+	class ConfigElem;
+  }
+  namespace Plib {
 
-unsigned int readflags( Clib::ConfigElem& elem );
-std::string flagstr( unsigned int flags );
-std::string flagdescs();
-}
+	u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows );
+	u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags );
+
+	unsigned int readflags( Clib::ConfigElem& elem );
+    std::string flagstr( unsigned int flags );
+    std::string flagdescs();
+  }
 }
 #endif
+

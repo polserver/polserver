@@ -12,34 +12,29 @@
 #include "boat.h"
 #include "../lockable.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-}
-namespace Multi
-{
-class UPlank : public Core::ULockable
-{
-  typedef Core::ULockable base;
+namespace Pol {
+  namespace Bscript {
+	class BObjectImp;
+  }
+  namespace Multi {
+	class UPlank : public Core::ULockable
+	{
+	  typedef Core::ULockable base;
+	public:
+	  void setboat( UBoat* boat );
+      virtual ~UPlank() {};
+      virtual size_t estimatedSize( ) const POL_OVERRIDE;
+	protected:
+	  explicit UPlank( const Items::ItemDesc& descriptor );
+	  friend Items::Item* Items::Item::create( const Items::ItemDesc& descriptor, u32 serial );
 
-public:
-  void setboat( UBoat* boat );
-  virtual ~UPlank(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+	  virtual void destroy() POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
+	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
 
-protected:
-  explicit UPlank( const Items::ItemDesc& descriptor );
-  friend Items::Item* Items::Item::create( const Items::ItemDesc& descriptor, u32 serial );
-
-  virtual void destroy() POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
-
-private:
-  ref_ptr<UBoat> boat_;
-};
-}
+	private:
+	  ref_ptr<UBoat> boat_;
+	};
+  }
 }
 #endif
