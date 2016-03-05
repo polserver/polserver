@@ -3,6 +3,7 @@
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/message_queue.h"
+#include "../../clib/weakptr.h"
 
 #include <boost/noncopyable.hpp>
 
@@ -16,12 +17,14 @@ namespace Pol {
 
 	struct TransmitData
 	{
-	  Client* client;
+      // store a weak_ptr as a guard for pkts after deleting
+      weak_ptr<Client> client;
 	  int len;
 	  std::vector<u8> data;
 	  bool disconnects;
+      bool remove;
 
-	  TransmitData() : client( nullptr ), len( 0 ), disconnects( false ) {};
+      TransmitData() : client( 0 ), len( 0 ), disconnects( false ), remove( false ){};
 	};
 
 	typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
@@ -35,6 +38,9 @@ namespace Pol {
 
       void AddToQueue(Client* client, const void* data, int len);
       void QueueDisconnection(Client* client);
+      // queue delete and perform it in transmitthread, to be sure
+      // that the weak_ptr stays valid without PolLock
+      void QueueDelete( Client* client );
       void Cancel();
 
       TransmitDataSPtr NextQueueEntry();

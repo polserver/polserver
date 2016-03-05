@@ -268,9 +268,7 @@ namespace Pol
                 {
                     CLIENT_CHECKPOINT(9);
                     PolLock lck;
-                    networkManager.clients.erase(std::find(networkManager.clients.begin(), networkManager.clients.end(), client));
-                    std::lock_guard<std::mutex> lock(client->_SocketMutex);
-                    client->closeConnection();
+                    client->unregister();
                     INFO_PRINT << "Client disconnected from " << Network::AddressToString(&client->ipaddr)
                         << " (" << networkManager.clients.size() << " connections)\n";
 
@@ -287,19 +285,22 @@ namespace Pol
                         CLIENT_CHECKPOINT(11);
                         PolLock lck;
 
-                        client->chr->disconnect_cleanup();
-                        client->gd->clear();
-                        client->chr->connected = false;
-                        ScriptDef sd;
-                        sd.quickconfig("scripts/misc/logofftest.ecl");
-                        if (sd.exists())
-                        {
-                            CLIENT_CHECKPOINT(12);
-                            Bscript::BObject bobj(run_script_to_completion(sd, new Module::ECharacterRefObjImp(client->chr)));
-                            if (bobj.isa(Bscript::BObjectImp::OTLong))
+                        if ( client->chr ) {
+
+                            client->chr->disconnect_cleanup();
+                            client->gd->clear();
+                            client->chr->connected = false;
+                            ScriptDef sd;
+                            sd.quickconfig( "scripts/misc/logofftest.ecl" );
+                            if ( sd.exists() )
                             {
-                                const Bscript::BLong* blong = static_cast<const Bscript::BLong*>(bobj.impptr());
-                                seconds_wait = blong->value();
+                                CLIENT_CHECKPOINT( 12 );
+                                Bscript::BObject bobj(run_script_to_completion(sd, new Module::ECharacterRefObjImp(client->chr)));
+                                if (bobj.isa(Bscript::BObjectImp::OTLong))
+                                {
+                                    const Bscript::BLong* blong = static_cast<const Bscript::BLong*>(bobj.impptr());
+                                    seconds_wait = blong->value();
+                                }
                             }
                         }
                     }
@@ -340,13 +341,8 @@ namespace Pol
                     << client->instance_ << checkpoint << ex.what();
             }
 
-            //if (1)
-              {
-                  PolLock lck;
-                  CLIENT_CHECKPOINT(17);
-                  Network::Client::Delete(client);
-                  client = NULL;
-              }
+              // queue delete of client ptr see method doc for reason
+              Core::networkManager.clientTransmit->QueueDelete( client );
               return false;
         }
 

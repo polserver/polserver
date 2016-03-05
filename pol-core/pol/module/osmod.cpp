@@ -661,6 +661,10 @@ namespace Pol {
         return new BError("Invalid parameter type");
     }
 
+
+    // signal_event() takes ownership of the pointer which is passed to it.
+    // Objects must not be touched or deleted after being sent here! 
+    // TODO: Find a better way to enforce this in the codebase.
     bool OSExecutorModule::signal_event(BObjectImp* imp)
     {
         INC_PROFILEVAR(events);
@@ -708,12 +712,12 @@ namespace Pol {
 
                         INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
                     }
-                    return false;
+                    return false; // Event-queue is full
                 }
             }
         }
 
-        return true;
+        return true; // Event was successfully sent (perhaps by discarding old events)
     }
 
     void OSExecutorModule::SleepFor(int nsecs)

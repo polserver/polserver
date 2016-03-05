@@ -29,7 +29,7 @@ namespace Pol {
 #define REFTYPE_DEBUG 0
 #else
 	// debug mode
-#define REFTYPE_DEBUG 1
+#define REFTYPE_DEBUG 0
 #endif
 
 	class UObject;
