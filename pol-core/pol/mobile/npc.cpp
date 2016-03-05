@@ -1034,7 +1034,10 @@ namespace Pol {
 		if (ex->os_module->signal_event( event ))
 		  return true;
 	  }
-	  Bscript::BObject bo( event );
+      else {
+        // There's no executor, so we must delete it ourselves.
+        Bscript::BObject bo( event );
+      }
 	  return false;
 	}
 
@@ -1046,12 +1049,12 @@ namespace Pol {
           return new Bscript::BLong( 1 );
 		else
 		{
-			Bscript::BObject bo( event ); // to be sure the rawpointer gets deleted, signal_event should guard it (but only currently)
 			return new Bscript::BError( "Event queue is full, discarding event" );
 		}
 	  }
 	  else
 	  {
+    // Because there is no control script, we must delete it ourselves.
         Bscript::BObject bo( event );
         return new Bscript::BError( "That NPC doesn't have a control script" );
 	  }
