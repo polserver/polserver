@@ -218,6 +218,7 @@ namespace Pol {
 
 	  bool SpeedHackPrevention( bool add = true );
 	  Bscript::BObjectImp* make_ref();
+      weak_ptr<Client> getWeakPtr() const;
 
 	protected:
 

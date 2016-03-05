@@ -1069,12 +1069,12 @@ namespace Pol {
 	//    if (MSB not set)
 	//      Bit 0 T2A upgrade, enables chatbutton, 
 	//      Bit 1 enables LBR update.  (of course LBR installation is required)
-	//             (plays MP3 instead of midis, 2D LBR client shows new LBR monsters,…)
+	//             (plays MP3 instead of midis, 2D LBR client shows new LBR monsters,)
 	//    if (MSB set)
 	//      Bit 2 T2A upgrade, enables chatbutton, 
 	//      Bit 3 enables LBR update.  
 	//      Bit 4 enables Age of Shadows update (AoS monsters/map (AOS installation required for that), 
-	//              AOS skills/necro/paladin/fight book stuff  – works for ALL clients 4.0 and above)
+	//              AOS skills/necro/paladin/fight book stuff works for ALL clients 4.0 and above)
 	//      Bit 5 enables use of up to 6 Characters (not only 5)
 	//      Bit 6 enables Samurai Empire update (SE map (SE installation required for that))
 	//	  Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
@@ -1169,7 +1169,7 @@ namespace Pol {
 	//	u16 explode_effect_num; //0 if no explosion
 	//	u16 explode_sound_num; //for moving effects, 0 otherwise
 	//	u32 itemid; //if target is item (type 2), 0 otherwise 
-	//	u8 layer; //(of the character, e.g left hand, right hand, … 0-5,7, 0xff: moving effect or target is no char) 
+	//	u8 layer; //(of the character, e.g left hand, right hand, 0-5,7, 0xff: moving effect or target is no char) 
 	//	u16 unk_effect; //for moving effect, 0 otherwise
 	//};
 

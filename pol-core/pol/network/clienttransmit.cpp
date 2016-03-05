@@ -2,6 +2,7 @@
 #include "client.h"
 #include "../globals/network.h"
 #include "../../clib/esignal.h"
+#include "../polsem.h"
 
 namespace Pol {
   namespace Network {
@@ -17,7 +18,7 @@ namespace Pol {
 	{
 	  const u8* message = static_cast<const u8*>( data );
 	  auto transmitdata = TransmitDataSPtr( new TransmitData );
-	  transmitdata->client = client;
+      transmitdata->client = client->getWeakPtr();
 	  transmitdata->len = len;
 	  transmitdata->data.assign( message, message + len );
 	  transmitdata->disconnects = false;
@@ -28,7 +29,15 @@ namespace Pol {
 	{
 	  auto transmitdata = TransmitDataSPtr( new TransmitData );
 	  transmitdata->disconnects = true;
-	  transmitdata->client = client;
+      transmitdata->client = client->getWeakPtr();
+      _transmitqueue.push_move( std::move( transmitdata ) );
+    }
+
+    void ClientTransmit::QueueDelete( Client* client )
+    {
+      auto transmitdata = TransmitDataSPtr( new TransmitData );
+      transmitdata->remove = true;
+      transmitdata->client = client->getWeakPtr();
 	  _transmitqueue.push_move( std::move( transmitdata ) );
 	}
 
@@ -47,9 +56,14 @@ namespace Pol {
 		try
 		{
 		  auto data = transmit_instance->NextQueueEntry();
-		  if ( data->client != nullptr )
+          if ( data->client.exists() )
 		  {
-			if ( data->disconnects )
+            if ( data->remove )
+            {
+              Core::PolLock lock;
+              Client::Delete( data->client.get_weakptr() );
+            }
+            else if ( data->disconnects )
 			  data->client->forceDisconnect();
 			else if ( data->client->isReallyConnected() )
 			  data->client->transmit(
