@@ -3766,6 +3766,7 @@ namespace Pol {
     {
       return "ClientRef";
     }
+
     u8 EClientRefObjImp::typeOfInt() const
     {
       return OTClientRef;
@@ -3773,28 +3774,32 @@ namespace Pol {
 
     BObjectImp* EClientRefObjImp::copy() const
     {
-      return new EClientRefObjImp( obj_ );
+      if ( value().exists() )
+        return value()->make_ref();
+      else
+        return new BError( "Client is disconnected" );
     }
 
     bool EClientRefObjImp::isTrue() const
     {
-      return ( ( obj_.ConstPtr() != NULL ) && obj_->isConnected() );
+      return ( value().exists() && value()->isConnected() );
     }
 
     bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
     {
       if ( objimp.isa( BObjectImp::OTApplicObj ) )
       {
-        const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+        const BApplicObjBase* aob =
+            Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
         if ( aob->object_type() == &eclientrefobjimp_type )
         {
           const EClientRefObjImp* clientref_imp =
-            Clib::explicit_cast<const EClientRefObjImp*, const BApplicObjBase*>( aob );
+              Clib::explicit_cast<const EClientRefObjImp*, const BApplicObjBase*>( aob );
 
-          if ( ( clientref_imp->obj_.ConstPtr() != NULL ) && ( obj_.ConstPtr() != NULL )
-               && ( clientref_imp->obj_->chr != NULL ) && ( obj_->chr != NULL ) )
-               return ( clientref_imp->obj_->chr->serial == obj_->chr->serial );
+          if ( clientref_imp->value().exists() && value().exists() &&
+               ( clientref_imp->value()->chr != NULL ) && ( value()->chr != NULL ) )
+            return ( clientref_imp->value()->chr->serial == value()->chr->serial );
           else
             return false;
         }
@@ -3807,7 +3812,7 @@ namespace Pol {
 
     BObjectRef EClientRefObjImp::get_member_id( const int id )
     {
-      if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
+      if ( ( !obj_.exists() ) || ( !obj_->isConnected() ) )
         return BObjectRef( new BError( "Client not ready or disconnected" ) );
 
       switch ( id )
@@ -3834,7 +3839,7 @@ namespace Pol {
           info->addMember( "patch", new BLong( version.patch ) );
           return BObjectRef( info.release() );
         }
-          break;
+        break;
         case MBR_CLIENTINFO:
           return BObjectRef( obj_->getclientinfo() );
           break;
@@ -3852,12 +3857,12 @@ namespace Pol {
           break;
       }
 
-      return base::get_member_id(id);
+      return base::get_member_id( id );
     }
 
     BObjectRef EClientRefObjImp::get_member( const char* membername )
     {
-      if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
+      if ( ( !obj_.exists() ) || ( !obj_->isConnected() ) )
         return BObjectRef( new BError( "Client not ready or disconnected" ) );
       ObjMember* objmember = getKnownObjMember( membername );
       if ( objmember != NULL )
@@ -3868,7 +3873,7 @@ namespace Pol {
 
     BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* value, bool copy )
     {
-      if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
+      if ( !obj_.exists() || !obj_->isConnected() )
         return BObjectRef( new BError( "Client not ready or disconnected" ) );
       ObjMember* objmember = getKnownObjMember( membername );
       if ( objmember != NULL )
@@ -3877,16 +3882,17 @@ namespace Pol {
         return BObjectRef( UninitObject::create() );
     }
 
-    BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*value*/, bool /*copy*/ )
+    BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*value*/,
+                                                bool /*copy*/ )
     {
-      if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
+      if ( !obj_.exists() || !obj_->isConnected() )
         return BObjectRef( new BError( "Client not ready or disconnected" ) );
       return BObjectRef( UninitObject::create() );
     }
 
     BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex )
     {
-      if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
+      if ( !obj_.exists() || !obj_->isConnected() )
         return new BError( "Client not ready or disconnected" );
       ObjMethod* objmethod = getKnownObjMethod( methodname );
       if ( objmethod != NULL )
@@ -3894,28 +3900,27 @@ namespace Pol {
       return NULL;
     }
 
-    BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+    BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex,
+                                                  bool /*forcebuiltin*/ )
     {
-      if ( ( obj_.ConstPtr() == NULL ) || ( !obj_->isConnected() ) )
+      if ( !obj_.exists() || !obj_->isConnected() )
         return new BError( "Client not ready or disconnected" );
 
       switch ( id )
       {
         case MTH_COMPAREVERSION:
         {
-		  if ( !ex.hasParams( 1 ) )
-			return new BError( "Not enough parameters" );
-		  const String* pstr;
-		  if ( ex.getStringParam( 0, pstr ) )
-			return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
-  		  return new BError( "Invalid parameter type" );
+          if ( !ex.hasParams( 1 ) )
+            return new BError( "Not enough parameters" );
+          const String* pstr;
+          if ( ex.getStringParam( 0, pstr ) )
+            return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
+          return new BError( "Invalid parameter type" );
         }
       }
 
       return base::call_method_id( id, ex );
     }
-
-
 
     SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
     {

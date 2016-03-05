@@ -1344,7 +1344,7 @@ namespace Pol {
 	  z = newz;
 
 
-	  NPCRef npc;
+	  NpcRef npc;
 	  // readProperties can throw, if stuff is missing.
 	  try
 	  {

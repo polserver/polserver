@@ -52,7 +52,7 @@ namespace Pol {
       NPCExecutorModule( Bscript::Executor& ex, Mobile::NPC& npc );
 	  virtual ~NPCExecutorModule();
 
-	  Core::NPCRef npcref;
+	  Core::NpcRef npcref;
 	  Mobile::NPC& npc;
 
 	protected:

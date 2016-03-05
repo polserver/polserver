@@ -4,7 +4,7 @@
  * - 2005/04/02 Shinigami: move_offline_mobiles - added realm param
  * - 2005/08/22 Shinigami: do_tellmoves - bugfix - sometimes we've destroyed objects because of control scripts
  * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
- * - 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: cassert removed
  *                         STLport-5.2.1 fix: boat_components changed little bit
  * - 2009/09/03 MuadDib:   Changes for account related source file relocation
  *                         Changes for multi related source file relocation

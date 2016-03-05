@@ -131,7 +131,7 @@ namespace Pol {
 	}
 
 
-	NPCRef::NPCRef( Mobile::NPC* ptr ) : ref_ptr<Mobile::NPC>(ptr)
+	NpcRef::NpcRef( Mobile::NPC* ptr ) : ref_ptr<Mobile::NPC>(ptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -139,7 +139,7 @@ namespace Pol {
 	  }
 	  ++npcrefs;
 	}
-	NPCRef::NPCRef( const NPCRef& rptr ) : ref_ptr<Mobile::NPC>(rptr)
+	NpcRef::NpcRef( const NpcRef& rptr ) : ref_ptr<Mobile::NPC>(rptr)
 	{
 	  if (get() && get()->serial_ext == 0x619d1300)
 	  {
@@ -148,7 +148,7 @@ namespace Pol {
 	  ++npcrefs;
 	}
 
-	NPCRef::~NPCRef()
+	NpcRef::~NpcRef()
 	{
 	  --npcrefs;
 	  if (get() && get()->serial_ext == 0x619d1300)

@@ -19,57 +19,66 @@
 #include <ctime>
 #include "rawtypes.h"
 
-    /* explicit cast: use instead of c-style (type) casts.
-       Specify what you want to cast to, and 
-       what you think you're casting from.
-    */
+/**
+ * use instead of c-style (type) casts.
+ *
+ * Specify what you want to cast to, and 
+ * what you think you're casting from.
+ */
 #define EXPLICIT_CAST(totype,fromtype) (totype)
 
 #define ms_to_clocks(ms) (ms * CLOCKS_PER_SEC / 1000)
 namespace Pol {
+
+  /**
+   * CLib namespace is for functions that a general app may need,
+   * not necessarily related to POL at all (string manipulation, for example)
+   */
   namespace Clib {
-    /* how many file handles are available? */
+    /** how many file handles are available? */
     int favail( void );
 
-    /* make a space-padded string */
+    /** make a space-padded string */
     char *strpcpy( char *dest, const char *src, size_t maxlen );
 
-    /* make an always null terminated string in maxlen characters */
+    /** make an always null terminated string in maxlen characters */
     char *stracpy( char *dest, const char *src, size_t maxlen );
 
 
-    /* do first strlen(b) chars of a and b match? match(s, "tag") */
+    /** do first strlen(b) chars of a and b match? match(s, "tag") */
     int match( char *a, char *b );
 
     /* strip leading, trailing spaces, trim multile whitespace to single space */
     char *strip( char *s );
 
-    /* open a unique file in a directory, no sharing allowed, "w+b" */
 #ifdef __STDIO_H    /* well there you go, not portable... why not standard the idempotent mechanism? */
+    /** open a unique file in a directory, no sharing allowed, "w+b" */
     FILE *uniqfile(char *directory, char *pathname);
 #endif
-    /* perform a function on all files meeting a file spec */
+    /** perform a function on all files meeting a file spec */
     int forspec( const char *spec, void( *func )( const char *pathname ) );
 
-    /* make a char** array suitable for call to exec() or spawn().
-       return the argc in *pargc.
-       */
+    /**
+     * make a char** array suitable for call to exec() or spawn()
+     *
+     * @return the argc in *pargc.
+     */
     char **decompose1( char *cmdline, int *pargc );
 
-    /* remove all occurrences of  characters not in allowed from s */
+    /** remove all occurrences of  characters not in allowed from s */
     void legalize( char *s, const char *allowed );
 
-    /* how many words in s? nondestructive, assumes s is strip()ed */
+    /** how many words in s? nondestructive, assumes s is strip()ed */
     int nwords( const char *s );
 
-    /* return nbits binary representation of val, in static buffer */
+    /** return nbits binary representation of val, in static buffer */
     char *binary( unsigned int val, int nbits );
 
-    /* take a string, increment alphas, 'ZZZZ' converts to 'AAAA', etc */
+    /** take a string, increment alphas, 'ZZZZ' converts to 'AAAA', etc */
     void incStr( char *str );
 
 
-    /* GCCC is soo weak... */
+/* GCCC is soo weak... */
 #ifdef __GNUC__
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
@@ -89,7 +98,7 @@ namespace Pol {
        */
     void interrupt newcrit(PARAMS);
 #endif
-    // returns the current process size in bytes
+    /// returns the current process size in bytes
     size_t getCurrentMemoryUsage();
 
 
@@ -114,8 +123,9 @@ namespace Pol {
 		*value = min;
 	}
 
-    // Class to calculate online statistics: mean, variance and max
-    // ref Knuth
+    /**
+     * Class to calculate online statistics: mean, variance and max ref Knuth
+     */
     class OnlineStatistics
     {
     public:
@@ -133,7 +143,7 @@ namespace Pol {
     };
 
 
-    // threadsafe version of localtime
+    /// threadsafe version of localtime
     inline std::tm localtime( std::time_t t )
     {
 #ifdef _MSC_VER

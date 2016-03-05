@@ -1,7 +1,7 @@
 /** @file
  *
  * @par History
- * - 2009/08/25 Shinigami: STLport-5.2.1 fix: <cassert> removed
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: cassert removed
  * - 2009/09/03 MuadDib:   Changes for account related source file relocation
  *                         Changes for multi related source file relocation
  * - 2009/12/21 Turley:    ._method() call fix
@@ -170,45 +170,32 @@ namespace Pol {
 	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
-	class ClientPtrHolder
-	{
-	public:
-	  explicit ClientPtrHolder( Core::ClientRef i_client ) : client( i_client ) {}
-	  Network::Client* operator->( ) { return client.get(); }
-	  const Network::Client* operator->( ) const { return client.get(); }
-	  /*bool operator!=(const ClientPtrHolder& a) const	{ return ConstPtr() != a.ConstPtr(); }
-	  bool operator==(const ClientPtrHolder& a) const	{ return ConstPtr() == a.ConstPtr(); }
-	  bool operator!=(const ClientPtrHolder a) const	{ return ConstPtr() != a.ConstPtr(); }
-	  bool operator==(const ClientPtrHolder a) const	{ return ConstPtr() == a.ConstPtr(); }*/
-
-	  Network::Client* Ptr( ) { return client.get( ); }
-	  const Network::Client* ConstPtr( ) const { return client.get( ); }
-	private:
-	  Core::ClientRef client;
-	};
-
+    typedef weak_ptr<Network::Client> ClientPtrHolder;
 	class EClientRefObjImp : public Bscript::BApplicObj < ClientPtrHolder >
 	{
 	  typedef Bscript::BApplicObj< ClientPtrHolder > base;
 	public:
-	  explicit EClientRefObjImp( const ClientPtrHolder& client ) :
-		Bscript::BApplicObj< ClientPtrHolder >( &eclientrefobjimp_type, client )
-	  {}
-	  virtual ~EClientRefObjImp() {};
+     explicit EClientRefObjImp( ClientPtrHolder client )
+         : Bscript::BApplicObj<ClientPtrHolder>( &eclientrefobjimp_type, client )
+     {}
+     virtual ~EClientRefObjImp(){};
 
+     virtual const char* typeOf() const POL_OVERRIDE;
+     virtual u8 typeOfInt() const POL_OVERRIDE;
+     virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+     virtual Bscript::BObjectImp* call_method( const char* methodname,
+                                               Bscript::Executor& ex ) POL_OVERRIDE;
+     virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
+                                                  bool forcebuiltin = false ) POL_OVERRIDE;
+     virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+     virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
+     virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value,
+                                             bool copy ) POL_OVERRIDE;
+     virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value,
+                                                bool copy ) POL_OVERRIDE;  // id test
 
-	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual u8 typeOfInt() const POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* copy( ) const POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
-	  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-	  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
-	  virtual Bscript::BObjectRef set_member( const char* membername, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE;
-	  virtual Bscript::BObjectRef set_member_id( const int id, Bscript::BObjectImp* value, bool copy ) POL_OVERRIDE; //id test
-
-	  virtual bool isTrue() const POL_OVERRIDE;
-	  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+     virtual bool isTrue() const POL_OVERRIDE;
+     virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
 	};
 
 	// EMenuObjImp defined on UOEMOD.CPP

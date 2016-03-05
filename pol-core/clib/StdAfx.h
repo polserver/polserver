@@ -60,5 +60,6 @@
 #include "rawtypes.h"
 #include "fixalloc.h"
 #include "refptr.h"
+#include "weakptr.h"
 
 #endif // _CLIB_STDAFX_H

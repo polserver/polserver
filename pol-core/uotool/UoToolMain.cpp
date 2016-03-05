@@ -1261,129 +1261,136 @@ int UoToolMain::main()
 	else
       Plib::systemstate.config.max_tile_id = max_tile;
 
-	if ( s_argv[1][0] == '/' || s_argv[1][1] == ':' )
+    std::string argvalue = binArgs[1];
+	if ( argvalue[0] == '/' || argvalue[0] == ':' )
 	{
-      Plib::systemstate.config.uo_datafile_root = s_argv[1];
-	  --s_argc;
-	  ++s_argv;
+      Plib::systemstate.config.uo_datafile_root = argvalue;
+      if (binArgs.size() < 3)
+      {
+        showHelp();
+        return 0;
+      }
+	  argvalue = binArgs[2];
 	}
 
-	if ( stricmp( s_argv[1], "tiledump" ) == 0 )
+    std::transform(argvalue.begin(), argvalue.end(), argvalue.begin(), ::tolower);
+
+	if ( argvalue == "tiledump" )
 	{
 	  return UoTool::tiledump( s_argc, s_argv );
 	}
-	else if ( stricmp( s_argv[1], "vertile" ) == 0 )
+	else if ( argvalue == "vertile" )
 	{
 	  return UoTool::vertile();
 	}
-	else if ( stricmp( s_argv[1], "verlandtile" ) == 0 )
+	else if ( argvalue == "verlandtile" )
 	{
 	  return UoTool::verlandtile();
 	}
-	else if ( stricmp( s_argv[1], "landtilehist" ) == 0 )
+	else if ( argvalue == "landtilehist" )
 	{
 	  return UoTool::landtilehist();
 	}
-	else if ( stricmp( s_argv[1], "flagsearch" ) == 0 )
+	else if ( argvalue == "flagsearch" )
 	{
 	  return UoTool::flagsearch( s_argc, s_argv );
 	}
-	else if ( stricmp( s_argv[1], "landtileflagsearch" ) == 0 )
+	else if ( argvalue == "landtileflagsearch" )
 	{
 	  return UoTool::landtileflagsearch( s_argc, s_argv );
 	}
-	else if ( stricmp( s_argv[1], "loschange" ) == 0 )
+	else if ( argvalue == "loschange" )
 	{
 	  return UoTool::loschange( s_argc, s_argv );
 	}
-	else if ( stricmp( s_argv[1], "rawdump" ) == 0 )
+	else if ( argvalue == "rawdump" )
 	{
 	  return UoTool::rawdump( s_argc, s_argv );
 	}
-	else if ( stricmp( s_argv[1], "ctable" ) == 0 )
+	else if ( argvalue == "ctable" )
 	{
 	  return UoTool::print_ctable();
 	}
-	else if ( stricmp( s_argv[1], "sndlist" ) == 0 )
+	else if ( argvalue == "sndlist" )
 	{
 	  return UoTool::print_sndlist();
 	}
-	else if ( stricmp( s_argv[1], "statics" ) == 0 )
+	else if ( argvalue == "statics" )
 	{
 	  return UoTool::print_statics();
 	}
-	else if ( stricmp( s_argv[1], "verdata" ) == 0 )
+	else if ( argvalue == "verdata" )
 	{
 	  return UoTool::print_verdata_info();
 	}
-	else if ( stricmp( s_argv[1], "multis" ) == 0 )
+	else if ( argvalue == "multis" )
 	{
 	  return UoTool::print_multis();
 	}
-	else if ( stricmp( s_argv[1], "water" ) == 0 )
+	else if ( argvalue == "water" )
 	{
 	  return UoTool::print_water_data();
 	}
-	else if ( stricmp( s_argv[1], "newstatics" ) == 0 )
+	else if ( argvalue == "newstatics" )
 	{
 	  return Core::write_pol_static_files( "main" );
 	}
-	else if ( stricmp( s_argv[1], "staticsmax" ) == 0 )
+	else if ( argvalue == "staticsmax" )
 	{
 	  Core::open_uo_data_files();
 	  Core::staticsmax();
 	  return 0;
 	}
-	else if ( stricmp( s_argv[1], "watersearch" ) == 0 )
+	else if ( argvalue == "watersearch" )
 	{
 	  return UoTool::water_search();
 	}
-	else if ( stricmp( s_argv[1], "zhist" ) == 0 )
+	else if ( argvalue == "zhist" )
 	{
 	  return UoTool::z_histogram();
 	}
-	else if ( stricmp( s_argv[1], "staticshist" ) == 0 )
+	else if ( argvalue == "staticshist" )
 	{
 	  return UoTool::statics_histogram();
 	}
-	else if ( stricmp( s_argv[1], "writedungmap" ) == 0 )
+	else if ( argvalue == "writedungmap" )
 	{
 	  return UoTool::write_polmap();
 	}
-	else if ( stricmp( s_argv[1], "writekeys" ) == 0 )
+	else if ( argvalue == "writekeys" )
 	{
       INFO_PRINT << "Keys written to current.key\n";
 	  return 0;
 	}
-	else if ( stricmp( s_argv[1], "mapdump" ) == 0 )
+	else if ( argvalue == "mapdump" )
 	{
 	  return UoTool::mapdump( s_argc, s_argv );
 	}
-	else if ( stricmp( s_argv[1], "contour" ) == 0 )
+	else if ( argvalue == "contour" )
 	{
 	  return UoTool::contour();
 	}
-	else if ( stricmp( s_argv[1], "findlandtile" ) == 0 )
+	else if ( argvalue == "findlandtile" )
 	{
 	  return UoTool::findlandtile( s_argc - 1, s_argv + 1 );
 	}
-	else if ( stricmp( s_argv[1], "findlandtileflags" ) == 0 )
+	else if ( argvalue == "findlandtileflags" )
 	{
 	  return UoTool::findlandtileflags( s_argc - 1, s_argv + 1 );
 	}
-	else if ( stricmp( s_argv[1], "findgraphic" ) == 0 )
+	else if ( argvalue == "findgraphic" )
 	{
 	  return UoTool::findgraphic( s_argc - 1, s_argv + 1 );
 	}
-	else if ( stricmp( s_argv[1], "defragstatics" ) == 0 )
+	else if ( argvalue == "defragstatics" )
 	{
 	  return UoTool::defragstatics( s_argc - 1, s_argv + 1 );
 	}
-	else if ( stricmp( s_argv[1], "formatdesc" ) == 0 )
+	else if ( argvalue == "formatdesc" )
 	{
 	  return UoTool::format_description( s_argc - 1, s_argv + 1 );
 	}
-	else if ( stricmp( s_argv[1], "checkmultis" ) == 0 )
+	else if ( argvalue == "checkmultis" )
 	{
 	  return UoTool::checkmultis();
 	}

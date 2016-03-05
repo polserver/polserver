@@ -78,7 +78,8 @@ namespace Pol {
 		  EClientRefObjImp* clientref_imp =
             Clib::explicit_cast<EClientRefObjImp*, BApplicObjBase*>( aob );
 
-		  clientptr = clientref_imp->value().Ptr();
+		  clientptr = clientref_imp->value().exists() ? 
+            clientref_imp->value().get_weakptr() : NULL;
 
 		  if ( ( clientptr != NULL ) && clientptr->isConnected() )
 		  {

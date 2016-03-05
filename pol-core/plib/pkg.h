@@ -13,6 +13,10 @@ namespace Pol {
   namespace Clib {
 	class ConfigElem;
   }
+
+  /**
+   * Plib namespace is for pol-related functions and classes, like reading a map file or keeping track of realms
+   */
   namespace Plib {
 	
 	class PackageList

@@ -183,10 +183,10 @@ namespace Pol {
 		void convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm );
 
 		// plain coords
-        int xL;
-        int yL;
-        int xH;
-        int yH;
+        int _xL;
+        int _yL;
+        int _xH;
+        int _yH;
       };
     }
 	///////////////
@@ -195,29 +195,29 @@ namespace Pol {
 	  CoordsArea::CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range )
 	  {
 		convert( x - range, y - range, x + range, y + range, realm );
-		xL = x - range;
-		if ( xL < 0 )
-		  xL = 0;
-		yL = y - range;
-		if ( yL < 0 )
-		  yL = 0;
-		xH = x + range;
-		yH = y + range;
+		_xL = x - range;
+		if ( _xL < 0 )
+		  _xL = 0;
+		_yL = y - range;
+		if ( _yL < 0 )
+		  _yL = 0;
+		_xH = x + range;
+		_yH = y + range;
 	  }
 
 	  CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm )
 	  {
 		convert( x1, y1, x2, y2, realm );
-		xL = x1;
-		yL = y1;
-		xH = x2;
-		yH = y2;
+		_xL = x1;
+		_yL = y1;
+		_xH = x2;
+		_yH = y2;
 	  }
 
 	  bool CoordsArea::inRange( const UObject *obj) const
 	  {
-		return ( obj->x >= xL && obj->x <= xH &&
-				 obj->y >= yL && obj->y <= yH );
+		return ( obj->x >= _xL && obj->x <= _xH &&
+				 obj->y >= _yL && obj->y <= _yH );
 	  }
 
 	  void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )

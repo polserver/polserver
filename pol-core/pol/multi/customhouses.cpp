@@ -2,7 +2,7 @@
  *
  * @par History
  * - 2005/08/19 Shinigami: ZLib functionality linked directly into Core
- * - 2005/09/26 Shinigami: wrong styled break condition in ::Compress
+ * - 2005/09/26 Shinigami: wrong styled break condition in CustomHouseDesign::Compress
  * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
  * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
  *
@@ -194,8 +194,8 @@ namespace Pol {
 			itrend = column->end();
 			itr != itrend; ++itr )
 	  {
-        char height = Core::tileheight( itr->graphic );
-		if ( ( itr->z == z ) && ( height >= minheight ) )
+        char t_height = Core::tileheight( itr->graphic );
+		if ( ( itr->z == z ) && (t_height >= minheight ) )
 		{
 		  column->erase( itr );
 		  floor_sizes[floor_num]--;
