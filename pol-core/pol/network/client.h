@@ -139,6 +139,7 @@ namespace Pol {
 	  bool isReallyConnected() const;
 	  bool isConnected() const;
 
+      void unregister(); // removes updater for vitals and takes client away from clientlist
 	  void closeConnection();
 	  void transmit( const void *data, int len, bool needslock = false ); // for entire message or header only
 	  void transmitmore( const void *data, int len ); // for stuff after a header
@@ -232,7 +233,6 @@ namespace Pol {
 	  void queue_data( const void *data, unsigned short datalen );
 	  void transmit_encrypted( const void *data, int len );
 	  void xmit( const void *data, unsigned short datalen );
-
 	public:
 	  ClientGameData* gd;
 	  unsigned int instance_;
@@ -273,6 +273,7 @@ namespace Pol {
 	inline void Client::forceDisconnect()
 	{
 	  this->disconnect = true;
+      closeConnection();
 	}
 
 	// Checks whether the client is disconnected, and not only marked for disconnection

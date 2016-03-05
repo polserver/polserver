@@ -268,9 +268,7 @@ namespace Pol
                 {
                     CLIENT_CHECKPOINT(9);
                     PolLock lck;
-                    networkManager.clients.erase(std::find(networkManager.clients.begin(), networkManager.clients.end(), client));
-                    std::lock_guard<std::mutex> lock(client->_SocketMutex);
-                    client->closeConnection();
+                    client->unregister();
                     INFO_PRINT << "Client disconnected from " << Network::AddressToString(&client->ipaddr)
                         << " (" << networkManager.clients.size() << " connections)\n";
 

@@ -39,6 +39,7 @@
 #include "../uoclient.h"
 #include "../globals/uvars.h"
 #include "../globals/state.h"
+#include "../globals/network.h"
 #include "../uworld.h"
 #include "../xbuffer.h"
 #include "../uoscrobj.h"
@@ -134,9 +135,17 @@ namespace Pol {
 	Client::~Client()
 	{}
 
-	void Client::closeConnection()
+    void Client::unregister()
 	{
+      auto findClient = std::find( Core::networkManager.clients.begin(),
+                                   Core::networkManager.clients.end(),
+                                   this );
+      Core::networkManager.clients.erase(findClient); // TODO: Make networkManager more OO
 	  Interface.deregister_client( this );
+    }
+
+    void Client::closeConnection()
+    {
 	  //std::lock_guard<std::mutex> lock (_SocketMutex);
 	  if ( csocket != INVALID_SOCKET )//>= 0)
 	  {
