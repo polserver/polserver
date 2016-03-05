@@ -43,6 +43,7 @@
 
 namespace Pol
 {
+
 namespace Core
 {
 // See comment in boost_utils::flyweight_initializers
@@ -57,7 +58,7 @@ using namespace Pol::Module;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RunEclMain::RunEclMain() : ProgramMain()
+RunEclMain::RunEclMain(): ProgramMain()
 {
 }
 RunEclMain::~RunEclMain()
@@ -74,35 +75,35 @@ void RunEclMain::showHelp()
               << "            -q    Quiet\n"
               << "            -d    Debug output\n"
               << "            -p    Profile\n";
-  // TODO: what about "-v" and "-a"?
+  //TODO: what about "-v" and "-a"?
 }
 
-void RunEclMain::dumpScript( std::string fileName )
+void RunEclMain::dumpScript(std::string fileName)
 {
-  if ( fileName.size() >= 4 )
-    fileName.replace( fileName.size() - 4, 4, ".ecl" );
+  if (fileName.size() >= 4)
+    fileName.replace(fileName.size() - 4, 4, ".ecl");
 
   Executor exe;
-  exe.setViewMode( true );
-  exe.addModule( new BasicExecutorModule( exe ) );
-  exe.addModule( new BasicIoExecutorModule( exe ) );
-  exe.addModule( new MathExecutorModule( exe ) );
-  // E.addModule( new SQLExecutorModule(exe));
-  exe.addModule( new UtilExecutorModule( exe ) );
-  exe.addModule( new FileAccessExecutorModule( exe ) );
-  exe.addModule( new ConfigFileExecutorModule( exe ) );
-  exe.addModule( new DataFileExecutorModule( exe ) );
+  exe.setViewMode(true);
+  exe.addModule(new BasicExecutorModule(exe));
+  exe.addModule(new BasicIoExecutorModule(exe));
+  exe.addModule(new MathExecutorModule(exe));
+  //E.addModule( new SQLExecutorModule(exe));
+  exe.addModule(new UtilExecutorModule(exe));
+  exe.addModule(new FileAccessExecutorModule(exe));
+  exe.addModule(new ConfigFileExecutorModule(exe));
+  exe.addModule(new DataFileExecutorModule(exe));
 
-  ref_ptr<EScriptProgram> program( new EScriptProgram );
-  program->read( fileName.c_str() );
-  exe.setProgram( program.get() );
+  ref_ptr<EScriptProgram> program(new EScriptProgram);
+  program->read(fileName.c_str());
+  exe.setProgram(program.get());
 
   std::ostringstream os;
-  program->dump( os );
-  INFO_PRINT << os.str();
+  program->dump(os);
+  INFO_PRINT<< os.str();
 }
 
-int RunEclMain::runeclScript( std::string fileName )
+int RunEclMain::runeclScript(std::string fileName)
 {
   // TODO: autoconvert to .ecl ?
   bool exres;
@@ -116,24 +117,24 @@ int RunEclMain::runeclScript( std::string fileName )
 #endif
 
   Executor exe;
-  exe.addModule( new BasicExecutorModule( exe ) );
-  exe.addModule( new BasicIoExecutorModule( exe ) );
-  exe.addModule( new MathExecutorModule( exe ) );
-  // E.addModule( new SQLExecutorModule( E ) );
-  exe.addModule( new UtilExecutorModule( exe ) );
-  exe.addModule( new FileAccessExecutorModule( exe ) );
-  exe.addModule( new ConfigFileExecutorModule( exe ) );
-  exe.addModule( new DataFileExecutorModule( exe ) );
+  exe.addModule(new BasicExecutorModule(exe));
+  exe.addModule(new BasicIoExecutorModule(exe));
+  exe.addModule(new MathExecutorModule(exe));
+  //E.addModule( new SQLExecutorModule( E ) );
+  exe.addModule(new UtilExecutorModule(exe));
+  exe.addModule(new FileAccessExecutorModule(exe));
+  exe.addModule(new ConfigFileExecutorModule(exe));
+  exe.addModule(new DataFileExecutorModule(exe));
 
-  ref_ptr<EScriptProgram> program( new EScriptProgram );
-  if ( program->read( fileName.c_str() ) )
+  ref_ptr<EScriptProgram> program(new EScriptProgram);
+  if (program->read(fileName.c_str()))
   {
-    ERROR_PRINT << "Error reading " << fileName << "\n";
+    ERROR_PRINT<< "Error reading " << fileName << "\n";
     return 1;
   }
-  exe.setProgram( program.get() );
+  exe.setProgram(program.get());
 
-  exe.setDebugLevel( m_debug ? Executor::INSTRUCTIONS : Executor::NONE );
+  exe.setDebugLevel(m_debug ? Executor::INSTRUCTIONS : Executor::NONE);
   clock_t start = clock();
 #ifdef _WIN32
   GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelStart, &userStart );
@@ -145,16 +146,16 @@ int RunEclMain::runeclScript( std::string fileName )
   GetThreadTimes( GetCurrentThread(), &dummy, &dummy, &kernelEnd, &userEnd );
 #endif
   clocks = clock() - start;
-  seconds = static_cast<double>( clocks ) / CLOCKS_PER_SEC;
+  seconds = static_cast<double>(clocks) / CLOCKS_PER_SEC;
 
   memory_used = exe.sizeEstimate();
 
-  if ( m_profile )
+  if (m_profile)
   {
     fmt::Writer tmp;
     tmp << "Profiling information: \n"
         << "\tEObjectImp constructions: " << eobject_imp_constructions << "\n";
-    if ( eobject_imp_count )
+    if (eobject_imp_count)
       tmp << "\tRemaining BObjectImps: " << eobject_imp_count << "\n";
     tmp << "\tInstruction cycles: " << escript_instr_cycles << "\n"
         << "\tInnerExec calls: " << escript_execinstr_calls << "\n"
@@ -172,15 +173,23 @@ int RunEclMain::runeclScript( std::string fileName )
 #endif
 #ifdef ESCRIPT_PROFILE
     tmp << "FuncName,Count,Min,Max,Sum,Avarage\n";
-    for ( escript_profile_map::iterator itr = EscriptProfileMap.begin();
-          itr != EscriptProfileMap.end(); ++itr )
+    for (escript_profile_map::iterator itr = EscriptProfileMap.begin(); itr != EscriptProfileMap.end(); ++itr)
     {
-      tmp << itr->first << "," << itr->second.count << "," << itr->second.min << ","
-          << itr->second.max << "," << itr->second.sum << ","
-          << ( itr->second.sum / itr->second.count ) << "\n";
+      tmp << itr->first
+          << ","
+          << itr->second.count
+          << ","
+          << itr->second.min
+          << ","
+          << itr->second.max
+          << ","
+          << itr->second.sum
+          << ","
+          << (itr->second.sum / itr->second.count)
+          << "\n";
     }
 #endif
-    INFO_PRINT << tmp.str();
+    INFO_PRINT<< tmp.str();
   }
   return exres ? 0 : 1;
 }
@@ -189,13 +198,13 @@ int RunEclMain::runecl()
 {
   const std::vector<std::string> binArgs = programArgs();
 
-  for ( int i = 1; i < (int)binArgs.size(); i++ )
+  for (int i = 1; i < (int)binArgs.size(); i++)
   {
-    switch ( binArgs[i][0] )
+    switch(binArgs[i][0])
     {
     case '/':
     case '-':
-      switch ( binArgs[i][1] )
+      switch (binArgs[i][1])
       {
       case 'a':
       case 'A':
@@ -214,7 +223,7 @@ int RunEclMain::runecl()
       }
       break;
     default:
-      return runeclScript( binArgs[i] );
+      return runeclScript(binArgs[i]);
     }
   }
   return 0;
@@ -224,17 +233,17 @@ int RunEclMain::main()
 {
   const std::vector<std::string> binArgs = programArgs();
   Pol::Bscript::escript_config.max_call_depth = 100;
-  m_quiet = programArgsFind( "q" ) != "";
-  m_debug = programArgsFind( "d" ) != "";
-  m_profile = programArgsFind( "p" ) != "";
-  Clib::passert_disabled = !programArgsFind( "a" ).empty() ? false : true;
+  m_quiet = programArgsFind("q") != "";
+  m_debug = programArgsFind("d") != "";
+  m_profile = programArgsFind("p") != "";
+  Clib::passert_disabled = !programArgsFind("a").empty() ? false : true;
 
   /**********************************************
    * show copyright
    **********************************************/
-  if ( !m_quiet )
+  if (!m_quiet)
   {
-    double vernum = 1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
+    double vernum = 1 + (double)(ESCRIPT_FILE_VER_CURRENT / 100.0f);
     ERROR_PRINT << "EScript Executor v" << vernum << "\n"
                 << "Copyright (C) 1993-2016 Eric N. Swanson\n\n";
   }
@@ -242,20 +251,20 @@ int RunEclMain::main()
   /**********************************************
    * show help
    **********************************************/
-  if ( binArgs.size() == 1 )
+  if (binArgs.size() == 1)
   {
     showHelp();
-    return 0;  // return "okay"
+    return 0; // return "okay"
   }
 
   /**********************************************
    * dump script
    **********************************************/
-  std::string fileName = programArgsFind( "v" );
-  if ( fileName != "" )
+  std::string fileName = programArgsFind("v");
+  if (fileName != "")
   {
-    dumpScript( fileName );
-    return 0;  // return "okay"
+    dumpScript(fileName);
+    return 0; // return "okay"
   }
 
   /**********************************************
@@ -263,8 +272,9 @@ int RunEclMain::main()
    **********************************************/
   return runecl();
 }
+
 }
-}  // namespaces
+} // namespaces
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -273,5 +283,6 @@ int RunEclMain::main()
 int main( int argc, char* argv[] )
 {
   Pol::Clib::RunEclMain* RunEclMain = new Pol::Clib::RunEclMain();
-  RunEclMain->start( argc, argv );
+  RunEclMain->start(argc, argv);
 }
+

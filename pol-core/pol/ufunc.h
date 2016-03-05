@@ -81,28 +81,24 @@ bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj );
 bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 );
 
 unsigned short pol_distance( const Mobile::Character* c1, const UObject* obj );
-unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2,
-                             unsigned short y2 );
+unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 );
 
 bool in_say_range( const Mobile::Character* c1, const Mobile::Character* c2 );
 bool in_yell_range( const Mobile::Character* c1, const Mobile::Character* c2 );
 bool in_whisper_range( const Mobile::Character* c1, const Mobile::Character* c2 );
 
 void send_owncreate( Network::Client* client, const Mobile::Character* chr );
-void send_owncreate( Network::Client* client, const Mobile::Character* chr,
-                     Network::PktOut_78* owncreate );
+void send_owncreate( Network::Client* client, const Mobile::Character* chr, Network::PktOut_78* owncreate);
 void build_owncreate( const Mobile::Character* chr, Network::PktOut_78* msg );
 
-void send_item( Network::Client* client, const Items::Item* item );
-void send_corpse( Network::Client* client, const Items::Item* item );
-void send_full_corpse( Network::Client* client, const Items::Item* item );
+void send_item(Network::Client* client, const Items::Item* item);
+void send_corpse(Network::Client* client, const Items::Item* item);
+void send_full_corpse(Network::Client* client, const Items::Item* item);
 
-void send_wornitem( Network::Client* client, const Mobile::Character* chr,
-                    const Items::Item* item );
+void send_wornitem( Network::Client* client, const Mobile::Character* chr, const Items::Item* item );
 
 void send_move( Network::Client* client, const Mobile::Character* chr );
-void send_move( Network::Client* client, const Mobile::Character* chr,
-                Network::PktOut_77* movebuffer );
+void send_move( Network::Client* client, const Mobile::Character* chr, Network::PktOut_77* movebuffer );
 void send_objdesc( Network::Client* client, Items::Item* item );
 
 void send_poisonhealthbar( Network::Client* client, const Mobile::Character* chr );
@@ -114,7 +110,7 @@ void send_put_in_container( Network::Client* client, const Items::Item* item );
 void send_put_in_container_to_inrange( const Items::Item* item );
 void send_wornitem_to_inrange( const Mobile::Character* chr, const Items::Item* item );
 void update_wornitem_to_inrange( const Mobile::Character* chr, const Items::Item* item );
-void send_corpse_equip_inrange( const Items::Item* item );
+void send_corpse_equip_inrange(const Items::Item* item);
 
 void send_midi( Network::Client* client, unsigned short midi );
 Mobile::Character* find_character( u32 serial );
@@ -124,13 +120,11 @@ void setrealm( Items::Item* item, void* arg );
 void setrealmif( Items::Item* item, void* arg );
 
 // TODO: 9 global functions for remove pkt???
-void send_remove_character( Network::Client* client, const Mobile::Character* chr,
-                            Network::RemoveObjectPkt& pkt );
+void send_remove_character( Network::Client* client, const Mobile::Character* chr, Network::RemoveObjectPkt& pkt );
 void send_remove_character( Network::Client* client, const Mobile::Character* chr );
 void send_remove_object_if_inrange( Network::Client* client, const Items::Item* obj );
 void send_remove_object_to_inrange( const UObject* centerObject );
-void send_remove_object( Network::Client* client, const UObject* item,
-                         Network::RemoveObjectPkt& pkt );
+void send_remove_object( Network::Client* client, const UObject* item, Network::RemoveObjectPkt& pkt );
 void send_remove_object( Network::Client* client, const UObject* obj );
 void send_remove_character_to_nearby( const Mobile::Character* chr );
 void send_remove_character_to_nearby_cantsee( const Mobile::Character* chr );
@@ -139,8 +133,7 @@ void remove_objects_inrange( Network::Client* client );
 
 void send_goxyz( Network::Client* client, const Mobile::Character* chr );
 void send_light( Network::Client* client, int lightlevel );
-void send_weather( Network::Client* client, unsigned char type, unsigned char severity,
-                   unsigned char aux );
+void send_weather( Network::Client* client, unsigned char type, unsigned char severity, unsigned char aux );
 void send_mode( Network::Client* client );
 void send_item_move_failure( Network::Client* client, u8 reason );
 u16 convert_objtype_to_spellnum( u32 objtype, int school );
@@ -154,55 +147,77 @@ void play_sound_effect( const UObject* center, u16 effect );
 void play_sound_effect_private( const UObject* center, u16 effect, Mobile::Character* forchr );
 void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Realms::Realm* realm );
 void play_lightning_bolt_effect( const UObject* center );
-void play_moving_effect( const UObject* src, const UObject* dst, u16 effect, u8 speed, u8 loop,
+void play_moving_effect( const UObject* src, const UObject* dst,
+                         u16 effect,
+                         u8 speed,
+                         u8 loop,
                          u8 explode );
-void play_moving_effect2( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, u16 effect, u8 speed,
-                          u8 loop, u8 explode, Realms::Realm* realm );
-void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u8 loop );
+void play_moving_effect2( u16 xs, u16 ys, s8 zs,
+                          u16 xd, u16 yd, s8 zd,
+                          u16 effect,
+                          u8 speed,
+                          u8 loop,
+                          u8 explode,
+                          Realms::Realm* realm );
+void play_object_centered_effect( const UObject* center,
+                                  u16 effect,
+                                  u8 speed,
+                                  u8 loop );
 
-void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode,
-                             Realms::Realm* realm );
+void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode, Realms::Realm* realm );
 
-void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed,
-                                u8 duration, u32 hue, u32 render, u16 effect3d );
-void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration,
-                                     u32 hue, u32 render, u8 layer, u16 effect3d );
-void play_moving_effect_ex( const UObject* src, const UObject* dst, u16 effect, u8 speed,
-                            u8 duration, u32 hue, u32 render, u8 direction, u8 explode,
-                            u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
-void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
-                             u16 effect, u8 speed, u8 duration, u32 hue, u32 render, u8 direction,
-                             u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
+void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed, u8 duration, u32 hue,
+                                u32 render, u16 effect3d );
+void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration, u32 hue,
+                                     u32 render, u8 layer, u16 effect3d );
+void play_moving_effect_ex( const UObject* src, const UObject* dst,
+                            u16 effect, u8 speed, u8 duration, u32 hue,
+                            u32 render, u8 direction, u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
+void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs,
+                             u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
+                             u16 effect, u8 speed, u8 duration, u32 hue,
+                             u32 render, u8 direction, u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
 
 
 // find_legal_item: search worn items, including backpack recursively, and
 // items on the ground, recursively, for an item of a given serial.
-Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = NULL,
-                              bool* isRemoteContainer = NULL );
+Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = NULL, bool* isRemoteContainer = NULL );
 
-void send_sysmessage( Network::Client* client, const char* text,
+void send_sysmessage( Network::Client* client,
+                      const char* text,
                       unsigned short font = DEFAULT_TEXT_FONT,
                       unsigned short color = DEFAULT_TEXT_COLOR );
-void send_sysmessage( Network::Client* client, const u16* wtext, const char lang[4],
+void send_sysmessage( Network::Client* client,
+                      const u16* wtext, const char lang[4],
                       unsigned short font = DEFAULT_TEXT_FONT,
                       unsigned short color = DEFAULT_TEXT_COLOR );
-void broadcast( const char* text, unsigned short font = DEFAULT_TEXT_FONT,
+void broadcast( const char* text,
+                unsigned short font = DEFAULT_TEXT_FONT,
                 unsigned short color = DEFAULT_TEXT_COLOR );
-void broadcast( const u16* wtext, const char lang[4], unsigned short font = DEFAULT_TEXT_FONT,
+void broadcast( const u16* wtext, const char lang[4],
+                unsigned short font = DEFAULT_TEXT_FONT,
                 unsigned short color = DEFAULT_TEXT_COLOR );
-bool say_above( const UObject* obj, const char* text, unsigned short font = DEFAULT_TEXT_FONT,
+bool say_above( const UObject* obj,
+                const char* text,
+                unsigned short font = DEFAULT_TEXT_FONT,
                 unsigned short color = DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
-bool say_above( const UObject* obj, const u16* wtext, const char lang[4],
-                unsigned short font = DEFAULT_TEXT_FONT, unsigned short color = DEFAULT_TEXT_COLOR,
+bool say_above( const UObject* obj,
+                const u16* wtext, const char lang[4],
+                unsigned short font = DEFAULT_TEXT_FONT,
+                unsigned short color = DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
 
-bool private_say_above( Mobile::Character* chr, const UObject* obj, const char* text,
+bool private_say_above( Mobile::Character* chr,
+                        const UObject* obj,
+                        const char* text,
                         unsigned short font = DEFAULT_TEXT_FONT,
                         unsigned short color = DEFAULT_TEXT_COLOR,
                         unsigned int journal_print = JOURNAL_PRINT_NAME );
-bool private_say_above( Mobile::Character* chr, const UObject* obj, const u16* wtext,
-                        const char lang[4], unsigned short font = DEFAULT_TEXT_FONT,
+bool private_say_above( Mobile::Character* chr,
+                        const UObject* obj,
+                        const u16* wtext, const char lang[4],
+                        unsigned short font = DEFAULT_TEXT_FONT,
                         unsigned short color = DEFAULT_TEXT_COLOR,
                         unsigned int journal_print = JOURNAL_PRINT_NAME );
 
@@ -222,8 +237,7 @@ void destroy_item( Items::Item* item );
 void world_delete( UObject* uobj );
 
 void move_item( Items::Item* item, UFACING facing );
-void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* oldrealm );
+void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz, Realms::Realm* oldrealm );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client );
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client );
@@ -258,12 +272,9 @@ void send_season_info( Network::Client* client );
 void send_new_subserver( Network::Client* client );
 void send_fight_occuring( Network::Client* client, Mobile::Character* opponent );
 void send_damage( Mobile::Character* attacker, Mobile::Character* defender, u16 damage );
-void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const char* title,
-                      const u16* utext, const u16* etext );
+void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const char* title, const u16* utext, const u16* etext );
 
-void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0,
-                        u32 cl_name = 0, u32 cl_descr = 0,
-                        std::vector<u32> arguments = std::vector<u32>() );
+void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0, u32 cl_name = 0, u32 cl_descr = 0, std::vector<u32> arguments = std::vector<u32>() );
 }
 }
 #endif

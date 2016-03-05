@@ -49,8 +49,8 @@ protected:
 #endif
 
 private:  // not implemented
-  ref_counted& operator=( const ref_counted& );
-  ref_counted( const ref_counted& );
+  ref_counted& operator=( const ref_counted&);
+  ref_counted( const ref_counted&);
 };
 
 // **** ref_ptr class, assuming T implements ref_counted interface
@@ -101,11 +101,11 @@ private:
 };
 
 inline ref_counted::ref_counted()
-    : _count( 0 )
+  : _count( 0 )
 #if REFPTR_DEBUG
-      ,
-      _cumulative_references( 0 ),
-      _instance( ++_ctor_calls )
+  ,
+  _cumulative_references( 0 ),
+  _instance( ++_ctor_calls )
 #endif
 {
 }
@@ -133,8 +133,7 @@ inline unsigned int ref_counted::instance() const
 #endif
 
 template <class T>
-ref_ptr<T>::ref_ptr( T* ptr )
-    : _ptr( ptr )
+ref_ptr<T>::ref_ptr( T* ptr ) : _ptr( ptr )
 {
   add_ref();
 #if REFPTR_DEBUG
@@ -142,8 +141,7 @@ ref_ptr<T>::ref_ptr( T* ptr )
 #endif
 }
 template <class T>
-ref_ptr<T>::ref_ptr( const ref_ptr& rptr )
-  : _ptr(rptr.get())
+ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr.get() )
 {
   add_ref();
 #if REFPTR_DEBUG

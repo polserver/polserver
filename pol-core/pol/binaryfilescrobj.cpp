@@ -24,20 +24,19 @@ namespace Pol
 {
 namespace Core
 {
-BBinaryfile::BBinaryfile()
-    : Bscript::BObjectImp( OTBinaryFile ),
-      _filename( "" ),
-      openmode( std::ios::in ),
-      bigendian( true )
-{
-}
+BBinaryfile::BBinaryfile() : Bscript::BObjectImp( OTBinaryFile ),
+  _filename( "" ),
+  openmode( std::ios::in ),
+  bigendian( true )
+{}
 
-BBinaryfile::BBinaryfile( std::string filename, unsigned short mode, bool _bigendian )
-    : Bscript::BObjectImp( OTBinaryFile ), _filename( filename ), bigendian( _bigendian )
+BBinaryfile::BBinaryfile(std::string filename, unsigned short mode, bool _bigendian) : Bscript::BObjectImp(OTBinaryFile),
+  _filename( filename ),
+  bigendian( _bigendian )
 {
   using std::ios;
 
-  // FIXME: ms::stl has different flag values then stlport :(
+  //FIXME: ms::stl has different flag values then stlport :(
   openmode = static_cast<ios::openmode>( 0x0 );
   if ( mode & 0x01 )
     openmode |= ios::in;
@@ -59,12 +58,12 @@ BBinaryfile::~BBinaryfile()
   file.Close();
 }
 
-size_t BBinaryfile::sizeEstimate() const
+size_t BBinaryfile::sizeEstimate( ) const
 {
   return sizeof( *this ) + _filename.capacity();
 }
 
-Bscript::BObjectRef BBinaryfile::get_member_id( const int /*id*/ )  // id test
+Bscript::BObjectRef BBinaryfile::get_member_id( const int /*id*/ )//id test
 {
   return Bscript::BObjectRef( new Bscript::BLong( 0 ) );
 }
@@ -74,7 +73,7 @@ Bscript::BObjectRef BBinaryfile::get_member( const char* membername )
   if ( objmember != NULL )
     return this->get_member_id( objmember->id );
   else
-    return Bscript::BObjectRef( Bscript::UninitObject::create() );
+    return Bscript::BObjectRef( Bscript::UninitObject::create( ) );
 }
 
 Bscript::BObjectImp* BBinaryfile::call_method( const char* methodname, Bscript::Executor& ex )
@@ -86,8 +85,7 @@ Bscript::BObjectImp* BBinaryfile::call_method( const char* methodname, Bscript::
     return NULL;
 }
 
-Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executor& ex,
-                                                  bool /*forcebuiltin*/ )
+Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 {
   using namespace Bscript;
   switch ( id )
@@ -104,7 +102,8 @@ Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executo
     if ( ex.numParams() != 2 )
       return new BError( "Seek requires 2 parameter." );
     int value, type;
-    if ( ( !ex.getParam( 0, value ) ) || ( !ex.getParam( 1, type ) ) )
+    if ( ( !ex.getParam( 0, value ) ) ||
+         ( !ex.getParam( 1, type ) ) )
       return new BError( "Invalid parameter" );
     // FIXME: ms::stl has different flag values then stlport :(
     ios::seekdir seekdir;
@@ -283,7 +282,8 @@ Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executo
       return new BError( "SetString requires 2 parameters." );
     int value;
     const String* text;
-    if ( ( !ex.getStringParam( 0, text ) ) || ( !ex.getParam( 1, value ) ) )
+    if ( ( !ex.getStringParam( 0, text ) ) ||
+         ( !ex.getParam( 1, value ) ) )
       return new BError( "Invalid parameter" );
     u32 len = static_cast<u32>( text->value().length() );
     if ( value == 1 )
@@ -327,10 +327,9 @@ bool BBinaryfile::operator==( const Bscript::BObjectImp& objimp ) const
 
 
 BinFile::BinFile()
-{
-}
+{}
 
-BinFile::BinFile( const std::string& filename, std::ios::openmode mode )
+BinFile::BinFile(const std::string& filename, std::ios::openmode mode)
 {
   Open( filename, mode );
 }
@@ -340,12 +339,12 @@ BinFile::~BinFile()
   Close();
 }
 
-bool BinFile::Open( const std::string& filename, std::ios::openmode mode )
+bool BinFile::Open(const std::string& filename, std::ios::openmode mode)
 {
   if ( _file.is_open() )
     return true;
 
-  _file.open( filename.c_str(), mode | std::ios::binary );
+  _file.open(filename.c_str(), mode | std::ios::binary);
   if ( !_file.is_open() )
     return false;
   return true;
@@ -364,7 +363,7 @@ void BinFile::Close()
   _file.close();
 }
 
-bool BinFile::Seek( std::fstream::pos_type abs_offset, std::ios::seekdir origin )
+bool BinFile::Seek(std::fstream::pos_type abs_offset, std::ios::seekdir origin)
 {
   if ( !_file.is_open() )
     return false;
@@ -374,14 +373,14 @@ bool BinFile::Seek( std::fstream::pos_type abs_offset, std::ios::seekdir origin 
   return true;
 }
 
-bool BinFile::ReadBuffer( void* buffer, std::streamsize length )
+bool BinFile::ReadBuffer(void* buffer, std::streamsize length)
 {
   if ( !_file.read( reinterpret_cast<char*>( buffer ), length ) )
     return false;
   return true;
 }
 
-bool BinFile::WriteBuffer( void* buffer, std::streamsize length )
+bool BinFile::WriteBuffer(void* buffer, std::streamsize length)
 {
   if ( !_file.write( reinterpret_cast<char*>( buffer ), length ) )
     return false;
@@ -395,34 +394,32 @@ bool BinFile::WriteString( const char* chr, unsigned len )
   return true;
 }
 
-std::fstream::pos_type BinFile::FileSize( Bscript::Executor& exec )
+std::fstream::pos_type BinFile::FileSize(Bscript::Executor& exec)
 {
   if ( !_file.is_open() )
     return std::fstream::pos_type( 0 );
 
   std::fstream::pos_type save_pos = _file.tellg();
-  if ( save_pos == std::fstream::pos_type( -1 ) )
+  if (save_pos == std::fstream::pos_type(-1))
   {
-    exec.setFunctionResult(
-        new Bscript::BError( "FileSize failed to determine current position." ) );
-    return std::fstream::pos_type( 0 );
+    exec.setFunctionResult( new Bscript::BError( "FileSize failed to determine current position." ) );
+    return std::fstream::pos_type(0);
   }
-  if ( !_file.seekg( 0, std::ios::end ) )
+  if (!_file.seekg(0, std::ios::end))
   {
     exec.setFunctionResult( new Bscript::BError( "FileSize failed to seek to end of file." ) );
-    return std::fstream::pos_type( 0 );
+    return std::fstream::pos_type(0);
   }
   std::fstream::pos_type size = _file.tellg();
-  if ( size == std::fstream::pos_type( -1 ) )
+  if (size == std::fstream::pos_type(-1))
   {
     exec.setFunctionResult( new Bscript::BError( "FileSize could not determine file size." ) );
-    return std::fstream::pos_type( 0 );
+    return std::fstream::pos_type(0);
   }
   if ( !_file.seekg( save_pos ) )
   {
-    exec.setFunctionResult(
-        new Bscript::BError( "FileSize failed to seek to original position." ) );
-    return std::fstream::pos_type( 0 );
+    exec.setFunctionResult( new Bscript::BError( "FileSize failed to seek to original position." ) );
+    return std::fstream::pos_type(0);
   }
   return size;
 }

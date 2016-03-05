@@ -56,7 +56,7 @@ public:
   unsigned short delay;
 
   // unsigned short magery_req_;
-  // unsigned short magery_auto_success_;
+  //unsigned short magery_auto_success_;
 };
 
 class SpellCircle
@@ -69,8 +69,8 @@ public:
 
 private:
   // not implemented:
-  SpellCircle( const SpellCircle& );
-  SpellCircle& operator=( const SpellCircle& );
+  SpellCircle( const SpellCircle&);
+  SpellCircle& operator=( const SpellCircle&);
 };
 
 
@@ -90,13 +90,14 @@ public:
   bool consume_reagents( Mobile::Character* chr );
   bool check_mana( Mobile::Character* chr );
   bool check_skill( Mobile::Character* chr );
-  void consume_mana( Mobile::Character* chr );  // assumes check_mana has returned true
+  void consume_mana( Mobile::Character* chr ); // assumes check_mana has returned true
   void speak_power_words( Mobile::Character* chr, unsigned short font, unsigned short color );
   UACTION animation() const;
 
   friend void register_spell( USpell* spell, unsigned short spellid );
 
 protected:
+
   Plib::Package* pkg_;
 
   unsigned short spellid_;
@@ -111,10 +112,10 @@ protected:
   /* Only one of these will be set. */
   ScriptDef scriptdef_;
   /*
-      string script_;
-      void (*f_)(Character* caster);
-      TargetCursor *tcursor_;
-      */
+    string script_;
+    void (*f_)(Character* caster);
+    TargetCursor *tcursor_;
+    */
 
   static void register_spell( USpell* spell );
 };
@@ -154,14 +155,14 @@ void clean_spells();
 class SpellTask : public OneShotTask
 {
 public:
-  SpellTask( OneShotTask** handle, polclock_t run_when, Mobile::Character* caster, USpell* spell,
-             bool dummy );
+  SpellTask( OneShotTask** handle, polclock_t run_when, Mobile::Character* caster, USpell* spell, bool dummy );
   virtual void on_run() POL_OVERRIDE;
 
 private:
   CharacterRef caster_;
   USpell* spell_;
 };
+
 }
 }
 #endif

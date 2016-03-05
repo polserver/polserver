@@ -37,13 +37,14 @@
 #include <cstdio>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning fopen
+#pragma warning(disable:4996) // disable deprecation warning fopen
 #endif
 
 namespace Pol
 {
 namespace Core
 {
+
 bool cfg_show_illegal_graphic_warning = 1;
 
 bool newstat_dont_add( std::vector<Plib::STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
@@ -54,11 +55,14 @@ bool newstat_dont_add( std::vector<Plib::STATIC_ENTRY>& vec, USTRUCT_STATIC* pst
   {
     Plib::STATIC_ENTRY& prec = vec[i];
     passert_always( prec.objtype <= Plib::systemstate.config.max_tile_id );
-    char height = tileheight( prec.objtype );  // TODO read from itemdesc?
+    char height = tileheight( prec.objtype ); // TODO read from itemdesc?
     unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
-    if (                                   // flags == pflags &&
-        prec.objtype == pstat->graphic &&  // TODO map objtype->graphic from itemdesc
-        height == pheight && prec.xy == xy && prec.z == pstat->z && prec.hue == pstat->hue )
+    if (// flags == pflags &&
+      prec.objtype == pstat->graphic && // TODO map objtype->graphic from itemdesc
+      height == pheight &&
+      prec.xy == xy &&
+      prec.z == pstat->z &&
+      prec.hue == pstat->hue )
     {
       return true;
     }
@@ -119,7 +123,7 @@ int write_pol_static_files( const std::string& realm )
           {
             Plib::STATIC_ENTRY nrec;
 
-            nrec.objtype = pstat[i].graphic;  // TODO map these?
+            nrec.objtype = pstat[i].graphic; // TODO map these?
             nrec.xy = ( pstat[i].x_offset << 4 ) | pstat[i].y_offset;
             nrec.z = pstat[i].z;
             nrec.hue = pstat[i].hue;
@@ -136,7 +140,7 @@ int write_pol_static_files( const std::string& realm )
           ++illegales;
 
           if ( cfg_show_illegal_graphic_warning )
-            INFO_PRINT << " Warning: Item with illegal Graphic 0x" << fmt::hexu( pstat[i].graphic )
+            INFO_PRINT << " Warning: Item with illegal Graphic 0x" << fmt::hexu(pstat[i].graphic)
                        << " in Area " << x << " " << y << " " << ( x + Plib::STATICBLOCK_CHUNK - 1 )
                        << " " << ( y + Plib::STATICBLOCK_CHUNK - 1 ) << "\n";
         }
@@ -174,9 +178,12 @@ int write_pol_static_files( const std::string& realm )
 
 
 #ifndef NDEBUG
-  INFO_PRINT << statics << " statics written\n" << duplicates << " duplicates eliminated\n"
-             << illegales << " illegales eliminated\n" << empties << " empties\n" << nonempties
-             << " nonempties\n" << maxcount << " was the highest count\n";
+  INFO_PRINT << statics << " statics written\n"
+             << duplicates << " duplicates eliminated\n"
+             << illegales << " illegales eliminated\n"
+             << empties << " empties\n"
+             << nonempties << " nonempties\n"
+             << maxcount << " was the highest count\n";
 #endif
   return 0;
 }

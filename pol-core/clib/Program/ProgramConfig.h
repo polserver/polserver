@@ -7,6 +7,7 @@ namespace Pol
 {
 namespace Clib
 {
+
 class ProgramConfig
 {
 public:
@@ -26,15 +27,16 @@ public:
   /**
    * @brief Configures the bug reporting system
    */
-  static void configureProgramEnvironment( std::string programName );
+  static void configureProgramEnvironment(std::string programName);
 
 private:
-  static std::string m_programName;
-  static std::string m_programDir;
+  static std::string       m_programName;
+  static std::string       m_programDir;
 };
+
 }
-}  // namespaces
+} // namespaces
 
-#define PROG_CONFIG Pol::Clib::ProgramConfig
+#define PROG_CONFIG           Pol::Clib::ProgramConfig
 
-#endif  // CLIB_PROGRAM_CONFIG_H
+#endif // CLIB_PROGRAM_CONFIG_H

@@ -40,12 +40,12 @@ bool send_menu( Client* client, Menu* menu )
 
   PktHelper::PacketOut<PktOut_7C> msg;
   msg->offset += 2;
-  msg->offset += 4;  // used_item_serial
+  msg->offset += 4; //used_item_serial
   msg->WriteFlipped<u16>( menu->menu_id );
   size_t stringlen = strlen( menu->title );
   if ( stringlen > 80 )
     stringlen = 80;
-  msg->Write<u8>( stringlen );  // NOTE null-term not included!
+  msg->Write<u8>( stringlen );// NOTE null-term not included!
   msg->Write( menu->title, static_cast<u16>( stringlen ), false );
   msg->Write<u8>( menu->menuitems_.size() );
 
@@ -61,7 +61,7 @@ bool send_menu( Client* client, Menu* menu )
     stringlen = strlen( mi->title );
     if ( stringlen > 80 )
       stringlen = 80;
-    msg->Write<u8>( stringlen );  // NOTE null-term not included!
+    msg->Write<u8>( stringlen );// NOTE null-term not included!
     msg->Write( mi->title, static_cast<u16>( stringlen ), false );
   }
   u16 len = msg->offset;
@@ -81,11 +81,11 @@ void send_open_gump( Client* client, const UContainer& cont )
   msg.Send( client );
 }
 
-// dave changed 11/9/3, don't send invis items to those who can't see invis
+//dave changed 11/9/3, don't send invis items to those who can't see invis
 void send_container_contents( Client* client, const UContainer& cont )
 {
   PktHelper::PacketOut<PktOut_3C> msg;
-  msg->offset += 4;  // msglen+count
+  msg->offset += 4; //msglen+count
   u16 count = 0;
   for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
   {
@@ -94,20 +94,19 @@ void send_container_contents( Client* client, const UContainer& cont )
     {
       msg->Write<u32>( item->serial_ext );
       msg->WriteFlipped<u16>( item->graphic );
-      msg->offset++;  // unk6
+      msg->offset++; //unk6
       msg->WriteFlipped<u16>( item->get_senditem_amount() );
       msg->WriteFlipped<u16>( item->x );
       msg->WriteFlipped<u16>( item->y );
       if ( client->ClientType & CLIENTTYPE_6017 )
         msg->Write<u8>( item->slot_index() );
       msg->Write<u32>( cont.serial_ext );
-      msg->WriteFlipped<u16>( item->color );  // color
+      msg->WriteFlipped<u16>( item->color ); //color
       ++count;
     }
     else
     {
-      send_remove_object(
-          client, item );  // TODO: Doesn't this send a list of invisible items on the corpse?
+      send_remove_object( client, item ); // TODO: Doesn't this send a list of invisible items on the corpse?
     }
   }
   u16 len = msg->offset;
@@ -118,8 +117,7 @@ void send_container_contents( Client* client, const UContainer& cont )
 
   if ( client->UOExpansionFlag & AOS )
   {
-    // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send
-    // revision
+    // 07/11/09 Turley: moved to bottom first the client needs to know the item then we can send revision
     for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
     {
       const Items::Item* item = GET_ITEM_PTR( itr );

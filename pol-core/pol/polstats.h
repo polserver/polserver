@@ -20,8 +20,8 @@ public:
   std::atomic<u64> bytes_received;
   std::atomic<u64> bytes_sent;
 };
-// extern PolStats auxstats; (Not yet... -- Nando)
-// extern PolStats webstats;
+//extern PolStats auxstats; (Not yet... -- Nando)
+//extern PolStats webstats;
 }
 }
 #endif

@@ -31,11 +31,11 @@ enum URACE : u8
 };
 
 /* Character Facings:
-    N^
-    7	0	1
-    6	*	2
-    5	4	3
-    */
+  N^
+  7 0 1
+  6 * 2
+  5 4 3
+  */
 
 enum UFACING : u8
 {
@@ -69,8 +69,8 @@ enum UTEXTTYPE : u8
    Simple rectangular distance is used - if the x's differ by <= 18, and the y's differ
    by <= 18, you're in range.  If either is out of range, you're out.
    */
-#define RANGE_VISUAL 18
-#define RANGE_VISUAL_LARGE_BUILDINGS 18  // 31?
+#define RANGE_VISUAL                    18
+#define RANGE_VISUAL_LARGE_BUILDINGS    18 // 31?
 
 
 const unsigned VALID_ITEM_COLOR_MASK = 0x0FFF;
@@ -87,11 +87,11 @@ enum MOVEMODE : u8
 
 #define MAXBUFFER 2560
 
-#define MAX_CONTAINER_ITEMS 3200  // 0x3C packet maxsize 5+3200*20 ~= 0xFFFF
+#define MAX_CONTAINER_ITEMS 3200 //0x3C packet maxsize 5+3200*20 ~= 0xFFFF
 #define MAX_SLOTS 255
 
-#define MAX_STACK_ITEMS 60000L
-#define MAX_WEIGHT 65535L
+#define MAX_STACK_ITEMS   60000L
+#define MAX_WEIGHT          65535L
 
 const unsigned short DEFAULT_TEXT_FONT = 3;
 const unsigned short DEFAULT_TEXT_COLOR = 0x3B2;

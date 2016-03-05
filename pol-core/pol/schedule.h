@@ -5,6 +5,7 @@
  */
 
 
+
 #ifndef __SCHEDULE_H
 #define __SCHEDULE_H
 
@@ -28,9 +29,18 @@ public:
 class TaskScheduler
 {
 public:
-  static bool is_dirty() { return dirty_; }
-  static void cleanse() { dirty_ = false; }
-  static void mark_dirty() { dirty_ = true; }
+  static bool is_dirty()
+  {
+    return dirty_;
+  }
+  static void cleanse()
+  {
+    dirty_ = false;
+  }
+  static void mark_dirty()
+  {
+    dirty_ = true;
+  }
 private:
   static bool dirty_;
 };
@@ -51,7 +61,6 @@ public:
   virtual void execute( polclock_t now ) = 0;
 
   virtual void cancel( void );
-
 protected:
   bool cancelled;
   polclock_t next_run_clock_;
@@ -74,10 +83,9 @@ polclock_t calc_scheduler_clocksleft( polclock_t now );
 class PeriodicTask : public ScheduledTask
 {
 public:
-  PeriodicTask( void ( *f )( void ), int n_secs, const char* name );
-  PeriodicTask( void ( *f )( void ), int initial_wait_seconds, int periodic_seconds,
-                const char* name );
-  virtual ~PeriodicTask(){};
+  PeriodicTask( void( *f )( void ), int n_secs, const char* name );
+  PeriodicTask( void( *f )( void ), int initial_wait_seconds, int periodic_seconds, const char* name );
+  virtual ~PeriodicTask() {};
 
   void set_secs( int n_secs );
 
@@ -87,7 +95,7 @@ public:
 private:
   polclock_t n_initial_clocks;
   polclock_t n_clocks;
-  void ( *f )( void );
+  void( *f )( void );
   const char* name_;
 };
 
@@ -103,7 +111,6 @@ protected:
   virtual void execute( polclock_t now ) POL_OVERRIDE;
 
   virtual void on_run() = 0;
-
 private:
   OneShotTask** handle;
 };
@@ -113,24 +120,23 @@ template <class T>
 class OneShotTaskInst : public OneShotTask
 {
 public:
-  OneShotTaskInst( OneShotTask** handle, polclock_t run_when, void ( *f )( T data ), T data )
-      : OneShotTask( handle, run_when ), data_( data ), f_( f )
-  {
-  }
-  virtual ~OneShotTaskInst(){};
+  OneShotTaskInst( OneShotTask** handle, polclock_t run_when, void( *f )( T data ), T data ) :
+    OneShotTask( handle, run_when ), data_( data ), f_( f )
+  {}
+  virtual ~OneShotTaskInst() {};
 
   virtual void on_run() POL_OVERRIDE;
-
 private:
   T data_;
-  void ( *f_ )( T data );
+  void( *f_ )( T data );
 };
 
-template <class T>
+template<class T>
 void OneShotTaskInst<T>::on_run()
 {
   ( *f_ )( data_ );
 }
+
 }
 }
 #endif

@@ -4,6 +4,7 @@
  */
 
 
+
 #include "execmodl.h"
 
 #include "../clib/clib.h"
@@ -19,8 +20,9 @@ namespace Pol
 {
 namespace Bscript
 {
-ExecutorModule::ExecutorModule( const char* moduleName, Executor& iExec )
-    : exec( iExec ), moduleName( moduleName )
+ExecutorModule::ExecutorModule( const char* moduleName, Executor& iExec ) :
+  exec( iExec ),
+  moduleName( moduleName )
 {
 }
 
@@ -46,8 +48,7 @@ void* ExecutorModule::getApplicPtrParam( unsigned param, const BApplicObjType* p
 {
   return exec.getApplicPtrParam( param, pointer_type );
 }
-BApplicObjBase* ExecutorModule::getApplicObjParam( unsigned param,
-                                                   const BApplicObjType* object_type )
+BApplicObjBase* ExecutorModule::getApplicObjParam( unsigned param, const BApplicObjType* object_type )
 {
   return exec.getApplicObjParam( param, object_type );
 }
@@ -103,8 +104,7 @@ bool ExecutorModule::getParam( unsigned param, unsigned short& value, unsigned s
 {
   return exec.getParam( param, value, maxval );
 }
-bool ExecutorModule::getParam( unsigned param, unsigned short& value, unsigned short minval,
-                               unsigned short maxval )
+bool ExecutorModule::getParam( unsigned param, unsigned short& value, unsigned short minval, unsigned short maxval )
 {
   return exec.getParam( param, value, minval, maxval );
 }

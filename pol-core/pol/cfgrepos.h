@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file
- * modification
+ * - 2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file modification
  * - 2005/07/04 Shinigami: added StoredConfigFile::reload to check for file modification
  *                         added ConfigFiles_log_stuff for memory logging
  */
@@ -37,11 +36,11 @@ class ConfigElem;
 }
 namespace Core
 {
+
 class StoredConfigElem : public ref_counted
 {
 private:
-  typedef std::multimap<boost_utils::cfg_key_flystring, ref_ptr<Bscript::BObjectImp>,
-                        Clib::ci_cmp_pred> PropImpList;
+  typedef std::multimap<boost_utils::cfg_key_flystring, ref_ptr<Bscript::BObjectImp>, Clib::ci_cmp_pred > PropImpList;
 
 public:
   StoredConfigElem( Clib::ConfigElem& elem );
@@ -54,14 +53,13 @@ public:
   void addprop( const std::string& propname, Bscript::BObjectImp* imp );
 
   typedef StoredConfigElem::PropImpList::const_iterator const_iterator;
-  std::pair<const_iterator, const_iterator> equal_range( const std::string& propname ) const;
-
+  std::pair<const_iterator, const_iterator> equal_range(const std::string& propname) const;
 private:
   PropImpList propimps_;
 
   // not implemented:
   StoredConfigElem( const StoredConfigElem& elem );
-  StoredConfigElem& operator=( const StoredConfigElem& );
+  StoredConfigElem& operator=( const StoredConfigElem&);
 };
 
 class StoredConfigFile : public ref_counted
@@ -81,22 +79,36 @@ public:
   time_t modified() const;
 
   typedef std::map<std::string, ElemRef, Clib::ci_cmp_pred> ElementsByName;
-  ElementsByName::const_iterator byname_begin() { return elements_byname_.begin(); }
-  ElementsByName::const_iterator byname_end() { return elements_byname_.end(); }
+  ElementsByName::const_iterator byname_begin()
+  {
+    return elements_byname_.begin();
+  }
+  ElementsByName::const_iterator byname_end()
+  {
+    return elements_byname_.end();
+  }
+
   typedef std::map<int, ElemRef> ElementsByNum;
-  ElementsByNum::const_iterator bynum_begin() { return elements_bynum_.begin(); }
-  ElementsByNum::const_iterator bynum_end() { return elements_bynum_.end(); }
-  bool reload;  // try to reload cfg file?
+  ElementsByNum::const_iterator bynum_begin()
+  {
+    return elements_bynum_.begin();
+  }
+  ElementsByNum::const_iterator bynum_end()
+  {
+    return elements_bynum_.end();
+  }
+
+  bool reload; // try to reload cfg file?
 private:
   ElementsByName elements_byname_;
 
   ElementsByNum elements_bynum_;
 
-  time_t modified_;  // used to detect modification
+  time_t modified_; // used to detect modification
 
   // not implemented:
-  StoredConfigFile( const StoredConfigFile& );
-  StoredConfigFile& operator=( const StoredConfigFile& );
+  StoredConfigFile( const StoredConfigFile&);
+  StoredConfigFile& operator=( const StoredConfigFile&);
 };
 
 typedef ref_ptr<StoredConfigFile> ConfigFileRef;

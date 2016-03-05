@@ -5,8 +5,7 @@
  * - 2005/11/25 Shinigami: MTH_GET_MEMBER/"get_member" - GCC fix
  * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
  * - 2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
- * - 2006/09/17 Shinigami: Script.sendevent() will return error "Event queue is full, discarding
- * event"
+ * - 2006/09/17 Shinigami: Script.sendevent() will return error "Event queue is full, discarding event"
  * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
  * - 2009/12/21 Turley:    ._method() call fix
  */
@@ -37,10 +36,9 @@ using namespace Bscript;
 
 BApplicObjType scriptexobjimp_type;
 
-ScriptExObjImp::ScriptExObjImp( UOExecutor* uoexec )
-    : BApplicObj<ScriptExPtr>( &scriptexobjimp_type, uoexec->weakptr )
-{
-}
+ScriptExObjImp::ScriptExObjImp( UOExecutor* uoexec ) :
+  BApplicObj< ScriptExPtr >( &scriptexobjimp_type, uoexec->weakptr )
+{}
 
 const char* ScriptExObjImp::typeOf() const
 {
@@ -85,8 +83,7 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
       ret = ret->copy();
       if ( ret->isa( OTUninit ) )
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        std::string message = std::string("Member ") + std::string(mname->value()) + std::string(" not found on that object");
         return new BError( message );
       }
       else
@@ -125,7 +122,7 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
     return new BLong( !res );
   }
 
-  case MTH_CLEAR_EVENT_QUEUE:  // DAVE added this 11/20
+  case MTH_CLEAR_EVENT_QUEUE://DAVE added this 11/20
     return ( osemod->clear_event_queue() );
 
   default:
@@ -167,8 +164,7 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
 
   UOExecutor* uoexec = value().get_weakptr();
   Module::OSExecutorModule* osemod = uoexec->os_module;
-  Module::UOExecutorModule* uoemod =
-      static_cast<Module::UOExecutorModule*>( uoexec->findModule( "UO" ) );
+  Module::UOExecutorModule* uoemod = static_cast<Module::UOExecutorModule*>( uoexec->findModule( "UO" ) );
 
   switch ( id )
   {
@@ -184,10 +180,10 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
     return BObjectRef( new Double( static_cast<double>( uoexec->sleep_cycles ) ) );
   case MBR_CONSEC_CYCLES:
   {
-    u64 consec_cycles =
-        uoexec->instr_cycles -
-        ( uoexec->warn_runaway_on_cycle - Plib::systemstate.config.runaway_script_threshold ) +
-        uoexec->runaway_cycles;
+    u64 consec_cycles = uoexec->instr_cycles
+                        - ( uoexec->warn_runaway_on_cycle
+                            - Plib::systemstate.config.runaway_script_threshold )
+                        + uoexec->runaway_cycles;
     return BObjectRef( new Double( static_cast<double>( consec_cycles ) ) );
   }
   case MBR_PC:

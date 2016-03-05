@@ -8,7 +8,7 @@
  * - 2005-09-07 Folko:     No longer warn about unused variables in BASIC style for loops
  * - 2005/09/08 Shinigami: Will warn about unused variables in BASIC style for loops on -v5 only
  * - 2005/09/25 Shinigami: BugFix inside FileCheck for multiple include of same File
- *                         e.g.: inside scripts	extcmd	est	extcmd.src:
+ *                         e.g.: inside scripts extcmd  est extcmd.src:
  *                         Include "../../../pkg/std/housing/include/test";
  *                         Include ":housing:test";
  *                         Include ":housing:include/test";
@@ -49,11 +49,11 @@
 #include <ostream>
 
 #ifdef __unix__
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp, fopen
+#pragma warning(disable:4996) // disable deprecation warning for stricmp, fopen
 #endif
 
 namespace Pol
@@ -83,10 +83,9 @@ bool Scope::varexists( const std::string& varname, unsigned& idx ) const
     {
       if ( variables_[i].unused && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
       {
-        INFO_PRINT << "Warning: variable '" << variables_[i].name
-                   << "' declared as unused but used.\n";
+        INFO_PRINT << "Warning: variable '" << variables_[i].name << "' declared as unused but used.\n";
         if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
+          throw std::runtime_error("Warnings treated as errors.");
       }
       variables_[i].used = true;
       idx = i;
@@ -118,32 +117,30 @@ void Scope::popblock( bool varsOnly = false )
 {
   BlockDesc& bd = blockdescs_.back();
 
-  for ( ; bd.varcount; bd.varcount-- )  // To enable popping variables only
+  for ( ; bd.varcount; bd.varcount-- ) // To enable popping variables only
   {
     Variable& bk = variables_.back();
     if ( !bk.used && !bk.unused && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
     {
       INFO_PRINT << "Warning: local variable '" << bk.name << "' not used.\n";
       if ( compilercfg.ErrorOnWarning )
-        throw std::runtime_error( "Warnings treated as errors." );
+        throw std::runtime_error("Warnings treated as errors.");
       else
         INFO_PRINT << bk.ctx;
     }
     variables_.pop_back();
   }
 
-  if ( !varsOnly )
-    blockdescs_.pop_back();
+  if ( !varsOnly ) blockdescs_.pop_back();
 }
 
-void Scope::addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused,
-                    bool unused )
+void Scope::addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused, bool unused )
 {
   for ( size_t i = variables_.size() - blockdescs_.back().varcount; i < variables_.size(); ++i )
   {
     if ( Clib::stringicmp( varname, variables_[i].name ) == 0 )
     {
-      throw std::runtime_error( "Variable " + varname + " is already in scope." );
+      throw std::runtime_error("Variable " + varname + " is already in scope.");
     }
   }
   Variable newvar;
@@ -220,7 +217,7 @@ Token* optimize_long_operation( Token* left, Token* oper, Token* right )
     break;
   case TOK_DIV:
     if ( right->lval == 0 )
-      throw std::runtime_error( "Program would divide by zero" );
+      throw std::runtime_error("Program would divide by zero");
     lval = left->lval / right->lval;
     break;
 
@@ -294,7 +291,7 @@ Token* optimize_double_operation( Token* left, Token* oper, Token* right )
     break;
   case TOK_DIV:
     if ( right->dval == 0.0 )
-      throw std::runtime_error( "Program would divide by zero" );
+      throw std::runtime_error("Program would divide by zero");
     dval = left->dval / right->dval;
     break;
 
@@ -381,7 +378,7 @@ void Expression::optimize_binary_operations()
       continue;
     }
     if ( i < 2 )
-      throw std::runtime_error( "Unbalanced binary operator: " + Clib::tostring( *oper ) );
+      throw std::runtime_error("Unbalanced binary operator: " + Clib::tostring(*oper));
 
     Token* left = tokens[i - 2];
     Token* right = tokens[i - 1];
@@ -433,7 +430,7 @@ void Expression::optimize_unary_operations()
       continue;
     }
     if ( i < 1 )
-      throw std::runtime_error( "Unbalanced unary operator: " + Clib::tostring( *oper ) );
+      throw std::runtime_error("Unbalanced unary operator: " + Clib::tostring(*oper));
 
     Token* value = tokens[i - 1];
 
@@ -478,15 +475,15 @@ int Expression::get_num_tokens( int idx ) const
   Token* tkn = tokens[idx];
   int children = 0;
 
-  if ( tkn->type == TYP_OPERAND )  // constant
+  if ( tkn->type == TYP_OPERAND ) // constant
   {
     // "anonymous" struct definitions inside array/dict/...
-    if ( tkn->id == INS_ADDMEMBER_ASSIGN )  // struct{a:=1}
+    if ( tkn->id == INS_ADDMEMBER_ASSIGN ) //struct{a:=1}
       children = 2;
-    else if ( tkn->id == INS_ADDMEMBER2 )  // struct{a}
+    else if ( tkn->id == INS_ADDMEMBER2 ) // struct{a}
       children = 1;
     else
-      children = 0;  // just myself
+      children = 0; // just myself
   }
   else if ( tkn->id == INS_ADDMEMBER_ASSIGN )
   {
@@ -504,7 +501,7 @@ int Expression::get_num_tokens( int idx ) const
   {
     children = 1 + tkn->lval;
   }
-  else if ( tkn->type == TYP_OPERATOR )  // binary operator
+  else if ( tkn->type == TYP_OPERATOR ) // binary operator
   {
     children = 2;
   }
@@ -556,9 +553,9 @@ bool Expression::optimize_token( int i )
     int left_idx = right_idx - get_num_tokens( i - 1 );
     if ( right_idx < 0 || left_idx < 0 )
     {
-      throw std::runtime_error( "Unbalanced operator: " + Clib::tostring( *oper ) );
+      throw std::runtime_error("Unbalanced operator: " + Clib::tostring(*oper));
     }
-    // Token* right = tokens[ right_idx ];
+    //Token* right = tokens[ right_idx ];
     Token* left = tokens[left_idx];
     if ( left->id == TOK_ARRAY_SUBSCRIPT )
     {
@@ -605,12 +602,11 @@ bool Expression::optimize_token( int i )
   {
     int right_idx = i - 1;
     int left_idx = right_idx - get_num_tokens( i - 1 );
-    // Token* right = tokens[ right_idx ];
+    //Token* right = tokens[ right_idx ];
     Token* left = tokens[left_idx];
     if ( left->id == TOK_LOCALVAR || left->id == TOK_GLOBALVAR )
     {
-      // FIXME: assigning to a global/local, then consuming. we can do better, for this special
-      // case.
+      // FIXME: assigning to a global/local, then consuming. we can do better, for this special case.
       if ( left->id == TOK_LOCALVAR )
         oper->id = INS_ASSIGN_LOCALVAR;
       else if ( left->id == TOK_GLOBALVAR )
@@ -670,26 +666,28 @@ bool Expression::optimize_token( int i )
 
         delete operand;
         tokens.erase( tokens.begin() + i - 1, tokens.begin() + i );
-        // 1: local #0
-        // 2: get member id 'warmode' (27)
-        // 3: 1L
-        // 4: +=
-        // 5: #
-        if ( i < 3 )  // has to be the first op
+        //1: local #0
+        //2: get member id 'warmode' (27)
+        //3: 1L
+        //4: +=
+        //5: #
+        if ( i < 3 ) // has to be the first op
         {
           if ( tokens[tokens.size() - 1]->id == TOK_CONSUMER )
             operand = tokens[tokens.size() - 2];
           else
             operand = tokens[tokens.size() - 1];
-          if ( operand->id == TOK_PLUSEQUAL || operand->id == TOK_MINUSEQUAL ||
-               operand->id == TOK_TIMESEQUAL || operand->id == TOK_DIVIDEEQUAL ||
+          if ( operand->id == TOK_PLUSEQUAL ||
+               operand->id == TOK_MINUSEQUAL ||
+               operand->id == TOK_TIMESEQUAL ||
+               operand->id == TOK_DIVIDEEQUAL ||
                operand->id == TOK_MODULUSEQUAL )
           {
-            // 12: local #0
-            // 13: 1L
-            // 14: set member id 'warmode' (27) += #
+            //12: local #0
+            //13: 1L
+            //14: set member id 'warmode' (27) += #
             if ( tokens[tokens.size() - 1]->id == TOK_CONSUMER )
-              tokens.pop_back();  // delete consumer
+              tokens.pop_back(); // delete consumer
 
             if ( operand->id == TOK_PLUSEQUAL )
               oper->id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;
@@ -702,9 +700,9 @@ bool Expression::optimize_token( int i )
             else if ( operand->id == TOK_MODULUSEQUAL )
               oper->id = INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL;
             delete operand;
-            tokens.pop_back();                                           // delete +=
-            tokens.erase( tokens.begin() + i - 1, tokens.begin() + i );  // remove setmember
-            tokens.insert( tokens.end(), oper );                         // and append it
+            tokens.pop_back(); // delete +=
+            tokens.erase( tokens.begin() + i - 1, tokens.begin() + i ); // remove setmember
+            tokens.insert( tokens.end(), oper ); // and append it
             OSTRINGSTREAM os;
             os << oper->lval;
             oper->copyStr( OSTRINGSTREAM_STR( os ).c_str() );
@@ -742,49 +740,52 @@ void Expression::optimize_assignments()
 }
 
 /*
-    TODO:
-    add options to:
-    a) disable all optimization
-    b) disable optimization on doubles
-    OPTIMIZATIONS PERFORMED:
-    Constant Long Arithmetic:	(+ - * /)
-    5 + 7   ->   5 7 +   ->  12
-    Constant Double Arithmetic: (+ - * /)
-    5.5 + 6.5  ->  5.5 6.5 +   -> 12.0
-    String Concatenation:		(+)
-    "hello" + " world" -> "hello" " world" + -> "hello world"
-    OPTIMIZATIONS TO BE CONSIDERED:
-    More efficient constructs: (+=, -=, *=, /=)
-    A := A + 5 -> A A 5 + := -> A 5 +=
-    Note, this is harder for things like:
-    A[5] := A[5] + 4;
-    which requires reversing your way up the expression
-    and searching for like operands.
+  TODO:
+  add options to:
+  a) disable all optimization
+  b) disable optimization on doubles
+  OPTIMIZATIONS PERFORMED:
+  Constant Long Arithmetic: (+ - * /)
+  5 + 7   ->   5 7 +   ->  12
+  Constant Double Arithmetic: (+ - * /)
+  5.5 + 6.5  ->  5.5 6.5 +   -> 12.0
+  String Concatenation:   (+)
+  "hello" + " world" -> "hello" " world" + -> "hello world"
+  OPTIMIZATIONS TO BE CONSIDERED:
+  More efficient constructs: (+=, -=, *=, /=)
+  A := A + 5 -> A A 5 + := -> A 5 +=
+  Note, this is harder for things like:
+  A[5] := A[5] + 4;
+  which requires reversing your way up the expression
+  and searching for like operands.
 
-    Optimizations that must take place at a different level:
-    0  IFFALSE -> GOTO
-    1  IFFALSE -> NOP
-    0  IF		-> NOP
-    1  IF		-> GOTO
-    34: GOTO 56
-    56: GOTO 78		--> 34: GOTO 78  56: GOTO 78
-    NOP		-> (null) (compress NOPs)
-    */
+  Optimizations that must take place at a different level:
+  0  IFFALSE -> GOTO
+  1  IFFALSE -> NOP
+  0  IF   -> NOP
+  1  IF   -> GOTO
+  34: GOTO 56
+  56: GOTO 78   --> 34: GOTO 78  56: GOTO 78
+  NOP   -> (null) (compress NOPs)
+  */
 void Expression::optimize()
 {
   size_t starting_size;
   do
   {
+
     starting_size = tokens.size();
     optimize_binary_operations();
     optimize_unary_operations();
     optimize_assignments();
 
-  } while ( tokens.size() != starting_size );
+  }
+  while ( tokens.size() != starting_size );
 }
 
 void Compiler::enterblock( eb_label_ok eblabel, eb_break_ok ebbreak, eb_continue_ok ebcontinue )
 {
+
   program->enterblock();
 
   BlockDesc& bd = localscope.pushblock();
@@ -815,7 +816,7 @@ void Compiler::patchblock_breaks( unsigned breakPC )
   const BlockDesc& bd = localscope.blockdesc();
   for ( auto patchip : bd.break_tokens )
   {
-    patchoffset( patchip, breakPC );  // program->tokens.next()
+    patchoffset( patchip, breakPC ); // program->tokens.next()
   }
 }
 
@@ -826,19 +827,24 @@ void Compiler::patchblock_continues( unsigned continuePC )
   {
     patchoffset( patchip, continuePC );
   }
+
 }
 
 void Compiler::emit_leaveblock()
 {
   if ( localscope.numVarsInBlock() )
-  {  // local variables were declared in this scope.  We need to kill 'em.
-    program->append(
-        StoredToken( Mod_Basic, CTRL_LEAVE_BLOCK, TYP_CONTROL, localscope.numVarsInBlock() ) );
+  {
+    // local variables were declared in this scope.  We need to kill 'em.
+    program->append( StoredToken( Mod_Basic,
+                                  CTRL_LEAVE_BLOCK,
+                                  TYP_CONTROL,
+                                  localscope.numVarsInBlock() ) );
   }
 }
 
 void Compiler::leaveblock( unsigned breakPC, unsigned continuePC )
 {
+
   emit_leaveblock();
   patchblock_breaks( breakPC );
   patchblock_continues( continuePC );
@@ -847,21 +853,21 @@ void Compiler::leaveblock( unsigned breakPC, unsigned continuePC )
   program->leaveblock();
 }
 
-Compiler::Compiler()
-    : SmartParser(),
-      current_file_path( "" ),
-      curSourceFile( 0 ),
-      inExpr( 0 ),
-      inFunction( 0 ),
-      haveProgram( false ),
-      compiling_include( false ),
-      programPos( 0 ),
-      nProgramArgs( 0 ),
-      program_ctx(),
-      program_source( NULL ),
-      included(),
-      referencedPathnames(),
-      program( new EScriptProgram )
+Compiler::Compiler() :
+  SmartParser(),
+  current_file_path( "" ),
+  curSourceFile( 0 ),
+  inExpr( 0 ),
+  inFunction( 0 ),
+  haveProgram( false ),
+  compiling_include( false ),
+  programPos( 0 ),
+  nProgramArgs( 0 ),
+  program_ctx(),
+  program_source( NULL ),
+  included(),
+  referencedPathnames(),
+  program( new EScriptProgram )
 {
   setQuiet( 1 );
   err = PERR_NONE;
@@ -878,7 +884,9 @@ Compiler::~Compiler()
 }
 
 
-bool Compiler::globalexists( const std::string& varname, unsigned& idx, CompilerContext* ctx ) const
+bool Compiler::globalexists( const std::string& varname,
+                             unsigned& idx,
+                             CompilerContext* ctx ) const
 {
   for ( unsigned i = 0; i < static_cast<unsigned>( globals_.size() ); ++i )
   {
@@ -903,6 +911,7 @@ bool Compiler::varexists( const std::string& varname ) const
     return true;
 
   return false;
+
 }
 
 int Compiler::isLegal( Token& token )
@@ -918,12 +927,12 @@ int Compiler::isLegal( Token& token )
     }
   }
 
-  return 1;  // assignments valid everywhere.  back to simple parser
+  return 1; // assignments valid everywhere.  back to simple parser
 }
 
 struct Candidate
 {
-  Candidate( int module, int funcidx ) : module( module ), funcidx( funcidx ), modfunc( nullptr ) {}
+  Candidate( int module, int funcidx ) : module( module ), funcidx( funcidx ), modfunc(nullptr) {}
   int module;
   int funcidx;
   ModuleFunction* modfunc;
@@ -938,7 +947,7 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
 
   if ( const char* colon = strchr( token.tokval(), ':' ) )
   {
-    std::string tmp( token.tokval(), colon );
+    std::string tmp(token.tokval(), colon);
     if ( tmp.length() >= 9 )
     {
       INFO_PRINT << "'" << tmp << "' is too long to be a module name.\n";
@@ -956,7 +965,7 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
   for ( unsigned i = 0; i < program->modules.size(); i++ )
   {
     if ( !modulename.empty() &&
-         !( modulename == program->modules[i]->modulename ) )  // STLport doesn't like != here
+         !( modulename == program->modules[i]->modulename ) ) // STLport doesn't like != here
     {
       continue;
     }
@@ -974,8 +983,7 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
   }
   else if ( candidates.size() == 1 )
   {
-    token.module =
-        static_cast<unsigned char>( candidates[0].module );  // WAS module,we're using relative now
+    token.module = static_cast<unsigned char>( candidates[0].module ); // WAS module,we're using relative now
     token.type = TYP_FUNC;
     token.id = TOK_FUNC;
     token.lval = candidates[0].funcidx;
@@ -984,9 +992,10 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
   }
   else
   {
-    INFO_PRINT << "Function '" << funcname
-               << "' exists in more than module.  It must be qualified.\n";
-    for ( Candidates::const_iterator itr = candidates.begin(); itr != candidates.end(); ++itr )
+    INFO_PRINT << "Function '" << funcname << "' exists in more than module.  It must be qualified.\n";
+    for ( Candidates::const_iterator itr = candidates.begin();
+          itr != candidates.end();
+          ++itr )
     {
       INFO_PRINT << "\t" << program->modules[itr->module]->modulename.get() << "\n";
     }
@@ -1003,8 +1012,7 @@ void Compiler::addModule( FunctionalityModule* module )
 
 int Compiler::isUserFunc( Token& token, UserFunction** f )
 {
-  if ( token.id != TOK_IDENT )
-    return 0;
+  if ( token.id != TOK_IDENT ) return 0;
   passert( token.tokval() );
 
   auto itr = userFunctions.find( token.tokval() );
@@ -1048,14 +1056,13 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
     if ( res < 0 )
       return res;
     /*
-        if we get an rparen HERE, it means the script has something like
-        var x := array ( 2, 3, );
-        report this as an error.
-        */
+      if we get an rparen HERE, it means the script has something like
+      var x := array ( 2, 3, );
+      report this as an error.
+      */
     if ( token.id == TOK_RPAREN )
     {
-      INFO_PRINT
-          << "Expected expression following comma before right-brace in array initializer list\n";
+      INFO_PRINT << "Expected expression following comma before right-brace in array initializer list\n";
       return -1;
     }
     if ( token.id == TOK_COMMA )
@@ -1064,7 +1071,8 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
       return -1;
     }
     Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
+                    EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -1073,16 +1081,14 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
     expr.CA.push( new Token( TOK_INSERTINTO, TYP_OPERATOR ) );
 
     res = getToken( ctx, token );
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
     if ( token.id == TOK_COMMA )
     {
       continue;
     }
     else if ( token.id == TOK_RPAREN )
     {
-      return 0;
-      ;
+      return 0;;
     }
     else
     {
@@ -1120,8 +1126,7 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
     // report this as an error.
     if ( token.id == TOK_RBRACE )
     {
-      INFO_PRINT
-          << "Expected expression following comma before right-brace in array initializer list\n";
+      INFO_PRINT << "Expected expression following comma before right-brace in array initializer list\n";
       return -1;
     }
     // we're expecting an expression, not a comma, at this point
@@ -1131,7 +1136,8 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
       return -1;
     }
     Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
+                    EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -1141,8 +1147,7 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
 
     // the element can be followed by a comma, or by a rightbrace. eat either.
     res = getToken( ctx, token );
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
     if ( token.id == TOK_COMMA )
     {
       continue;
@@ -1191,8 +1196,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
     // report this as an error.
     if ( token.id == TOK_RBRACE )
     {
-      INFO_PRINT
-          << "Expected expression following comma before right-brace in struct initializer list\n";
+      INFO_PRINT << "Expected expression following comma before right-brace in struct initializer list\n";
       return -1;
     }
     if ( token.id == TOK_COMMA )
@@ -1212,8 +1216,8 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
         getToken( ctx, token );
         // something like struct { a := 5 };
         Expression eex;
-        res =
-            readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+        res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
+                        EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
         if ( res < 0 )
           return res;
 
@@ -1222,6 +1226,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
 
         expr.eat2( eex );
         expr.CA.push( addmem );
+
       }
       else if ( token.id == TOK_EQUAL1 )
       {
@@ -1243,8 +1248,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
 
 
     res = getToken( ctx, token );
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
     if ( token.id == TOK_COMMA )
     {
       continue;
@@ -1294,8 +1298,7 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     // report this as an error.
     if ( token.id == TOK_RBRACE )
     {
-      INFO_PRINT << "Expected expression following comma before right-brace in dictionary "
-                    "initializer list\n";
+      INFO_PRINT << "Expected expression following comma before right-brace in dictionary initializer list\n";
       return -1;
     }
     if ( token.id == TOK_COMMA )
@@ -1308,9 +1311,10 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     // first get the key expression.
 
     Expression key_expression;
-    res = readexpr( key_expression, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
-                                             EXPR_FLAG_DICTKEY_TERM_ALLOWED |
-                                             EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = readexpr( key_expression, ctx,
+                    EXPR_FLAG_COMMA_TERM_ALLOWED |
+                    EXPR_FLAG_DICTKEY_TERM_ALLOWED |
+                    EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -1326,8 +1330,8 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
       // get the value expression
 
       Expression value_expression;
-      res = readexpr( value_expression, ctx,
-                      EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+      res = readexpr( value_expression, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
+                      EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
       if ( res < 0 )
         return res;
 
@@ -1342,8 +1346,7 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     expr.CA.push( new Token( INS_DICTIONARY_ADDMEMBER, TYP_OPERATOR ) );
 
     res = getToken( ctx, token );
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
     if ( token.id == TOK_COMMA )
     {
       continue;
@@ -1385,7 +1388,8 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
       return -1;
     }
     Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
+                    EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -1394,16 +1398,14 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     ++nargs;
 
     res = getToken( ctx, token );
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
     if ( token.id == TOK_COMMA )
     {
       continue;
     }
     else if ( token.id == TOK_RPAREN )
     {
-      return 0;
-      ;
+      return 0;;
     }
     else
     {
@@ -1446,7 +1448,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
   typedef std::map<std::string, Expression> ParamList;
   ParamList params_passed;
-  // std::vector<std::string> func_params;
+  //std::vector<std::string> func_params;
 
   int any_named = 0;
   UserFunction* userfunc = userfunc_;
@@ -1468,8 +1470,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     CompilerContext tctx( ctx );
 
     res = getToken( tctx, tk );
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
     if ( tk.id == TOK_RPAREN )
     {
       if ( params_passed.empty() )
@@ -1493,8 +1494,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     {
       Token tk2;
       res = getToken( tctx, tk2 );
-      if ( res < 0 )
-        return res;
+      if ( res < 0 ) return res;
       if ( tk2.id == TOK_ASSIGN )
       {
         any_named = 1;
@@ -1519,21 +1519,21 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     // FIXME case sensitivity!
     if ( params_passed.find( varname ) != params_passed.end() )
     {
-      INFO_PRINT << "Variable " << varname << " passed more than once to " << userfunc->name
-                 << "\n";
+      INFO_PRINT << "Variable " << varname << " passed more than once to " << userfunc->name << "\n";
       return -1;
     }
 
     Expression& arg_expr = params_passed[varname];
 
-    res = IIP( arg_expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
-    if ( res < 0 )
-      return res;
+    res = IIP( arg_expr,
+               ctx,
+               EXPR_FLAG_COMMA_TERM_ALLOWED |
+               EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    if ( res < 0 ) return res;
 
     Token tmp;
     res = peekToken( ctx, tmp );
-    if ( res )
-      return res;
+    if ( res ) return res;
     if ( tmp.id == TOK_COMMA )
     {
       getToken( ctx, tmp );
@@ -1547,12 +1547,14 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
       INFO_PRINT << "Token '" << token << "' unexpected (expected comma or right-paren)\n";
       return -1;
     }
+
   }
 
   for ( UserFunction::Parameters::const_iterator itr = userfunc->parameters.begin();
-        itr != userfunc->parameters.end(); ++itr )
+        itr != userfunc->parameters.end();
+        ++itr )
   {
-    if ( params_passed.find( itr->name ) == params_passed.end() )  // not passed
+    if ( params_passed.find( itr->name ) == params_passed.end() ) // not passed
     {
       if ( itr->have_default )
       {
@@ -1577,8 +1579,8 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
   {
     for ( const auto& elem : params_passed )
     {
-      INFO_PRINT << "Parameter '" << elem.first << "' passed by name to " << userfunc->name
-                 << ", which takes no such parameter.\n";
+      INFO_PRINT << "Parameter '" << elem.first << "' passed by name to "
+                 << userfunc->name << ", which takes no such parameter.\n";
     }
 
     return -1;
@@ -1646,7 +1648,8 @@ int Compiler::validate( const Expression& expr, CompilerContext& ctx ) const
       if ( !varexists( tkn->tokval() ) )
       {
         INFO_PRINT << "Variable " << tkn->tokval() << " has not been declared"
-                   << " on line " << ctx.line << ".\n";
+                   << " on line " << ctx.line
+                   << ".\n";
         return -1;
       }
     }
@@ -1660,9 +1663,10 @@ int Compiler::validate( const Expression& expr, CompilerContext& ctx ) const
     if ( tkn->deprecated && ( compilercfg.ErrorOnWarning || compilercfg.DisplayWarnings ) )
     {
       INFO_PRINT << "Warning: Found deprecated "
-                 << ( tkn->type == TYP_OPERATOR ? "operator " : "token " ) << "'" << tkn->tokval()
-                 << "'"
-                 << " on line " << ctx.line << " of " << ctx.filename << "\n";
+                 << ( tkn->type == TYP_OPERATOR ? "operator " : "token " )
+                 << "'" << tkn->tokval() << "'"
+                 << " on line " << ctx.line
+                 << " of " << ctx.filename << "\n";
       // warning only; doesn't bail out.
       if ( compilercfg.ErrorOnWarning )
         throw std::runtime_error( "Warnings treated as errors." );
@@ -1723,7 +1727,9 @@ void Compiler::substitute_constants( Expression& expr ) const
   }
 }
 
-int Compiler::readexpr( Expression& expr, CompilerContext& ctx, unsigned flags )
+int Compiler::readexpr( Expression& expr,
+                        CompilerContext& ctx,
+                        unsigned flags )
 {
   int res;
   reinit( expr );
@@ -1752,7 +1758,8 @@ int Compiler::readexpr( Expression& expr, CompilerContext& ctx, unsigned flags )
 
 void Compiler::inject( Expression& expr )
 {
-  for ( Expression::Tokens::const_iterator itr = expr.tokens.begin(); itr != expr.tokens.end();
+  for ( Expression::Tokens::const_iterator itr = expr.tokens.begin();
+        itr != expr.tokens.end();
         ++itr )
   {
     addToken( *( *itr ) );
@@ -1806,8 +1813,7 @@ int Compiler::getExprInParens( CompilerContext& ctx, Expression* pex )
   }
 
   int res = getExpr2( ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED, pex );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
 
   err = PERR_NONE;
   getToken( ctx, token );
@@ -1831,8 +1837,11 @@ int Compiler::getSimpleExpr( CompilerContext& ctx )
     if ( res < 0 )
       return res;
   }
-  else if ( token.id == TOK_IDENT || token.id == TOK_FUNC || token.id == TOK_USERFUNC ||
-            token.id == TOK_ARRAY || token.id == TOK_LBRACE )
+  else if ( token.id == TOK_IDENT ||
+            token.id == TOK_FUNC ||
+            token.id == TOK_USERFUNC ||
+            token.id == TOK_ARRAY ||
+            token.id == TOK_LBRACE )
   {
     res = getExpr2( ctx, EXPR_FLAG_SINGLE_ELEMENT );
     if ( res < 0 )
@@ -1840,8 +1849,7 @@ int Compiler::getSimpleExpr( CompilerContext& ctx )
   }
   else
   {
-    INFO_PRINT << "Expected variable, function or parenthesized expression, got '" << token
-               << "'\n";
+    INFO_PRINT << "Expected variable, function or parenthesized expression, got '" << token << "'\n";
     return -1;
   }
   return 0;
@@ -1853,13 +1861,15 @@ int Compiler::eatToken( CompilerContext& ctx, BTokenId tokenid )
   int res = getToken( ctx, token );
   if ( res < 0 )
   {
-    INFO_PRINT << ctx << "Error reading token, expected " << Token( tokenid, TYP_RESERVED ) << "\n";
+    INFO_PRINT << ctx
+               << "Error reading token, expected " << Token( tokenid, TYP_RESERVED ) << "\n";
     return res;
   }
 
   if ( token.id != tokenid )
   {
-    INFO_PRINT << ctx << "Expected " << Token( tokenid, TYP_RESERVED ) << ", got " << token << "\n";
+    INFO_PRINT << ctx
+               << "Expected " << Token( tokenid, TYP_RESERVED ) << ", got " << token << "\n";
     return -1;
   }
   return 0;
@@ -1867,8 +1877,7 @@ int Compiler::eatToken( CompilerContext& ctx, BTokenId tokenid )
 
 int Compiler::handleDoClause( CompilerContext& ctx, int level )
 {
-  if ( !quiet )
-    INFO_PRINT << "DO clause..\n";
+  if ( !quiet ) INFO_PRINT << "DO clause..\n";
   StoredTokenContainer* prog_tokens = &program->tokens;
   unsigned body_start = prog_tokens->next();
   enterblock( CanBeLabelled );
@@ -1876,8 +1885,7 @@ int Compiler::handleDoClause( CompilerContext& ctx, int level )
   Token endblock_tkn;
   int res;
   res = readblock( ctx, level, RSV_DOWHILE, NULL, &endblock_tkn );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
 
   emit_leaveblock();
 
@@ -1888,16 +1896,16 @@ int Compiler::handleDoClause( CompilerContext& ctx, int level )
   patchblock_continues( prog_tokens->next() );
   program->setstatementbegin();
 
-  localscope.popblock( true );  // Pop only variables.
+  localscope.popblock( true ); // Pop only variables.
   res = getExpr( ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
   program->append( StoredToken( Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, body_start ) );
   // break should completely exit, of course.
   patchblock_breaks( prog_tokens->next() );
-  localscope.popblock();  // Pop block.
+  localscope.popblock(); // Pop block.
 
   // do-while loops until its expression evaluates to false.
+
 
 
   program->leaveblock();
@@ -1908,8 +1916,7 @@ int Compiler::handleDoClause( CompilerContext& ctx, int level )
 
 int Compiler::handleRepeatUntil( CompilerContext& ctx, int level )
 {
-  if ( !quiet )
-    INFO_PRINT << "REPEAT clause..\n";
+  if ( !quiet ) INFO_PRINT << "REPEAT clause..\n";
   StoredTokenContainer* prog_tokens = &program->tokens;
   unsigned body_start = prog_tokens->next();
   enterblock( CanBeLabelled );
@@ -1930,8 +1937,7 @@ int Compiler::handleRepeatUntil( CompilerContext& ctx, int level )
   program->setstatementbegin();
   localscope.popblock( true );
   res = getExpr( ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
   // repeat-until loops until its expression evaluates to true.
   program->append( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, body_start ) );
   // break should completely exit, of course.
@@ -1946,9 +1952,8 @@ int Compiler::handleRepeatUntil( CompilerContext& ctx, int level )
 
 int Compiler::handleSwitch( CompilerContext& ctx, int level )
 {
-  int res = getExprInParens( ctx );  // (expr) (parens required)
-  if ( res < 0 )
-    return res;
+  int res = getExprInParens( ctx ); // (expr) (parens required)
+  if ( res < 0 ) return res;
 
   unsigned default_posn = 0;
   unsigned casecmp_posn = 0;
@@ -1976,11 +1981,12 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
       if ( token.id == TOK_LONG || token.id == CTRL_LABEL || token.id == TOK_STRING )
       {
         /*
-            Okay, some trickery.  First, we'll handle the 'default' label, 'cause
-            it isn't tricky.
-            The complication is that sometimes a label is actually a constant.
-            */
-        if ( token.id == CTRL_LABEL && stricmp( token.tokval(), "default" ) == 0 )
+          Okay, some trickery.  First, we'll handle the 'default' label, 'cause
+          it isn't tricky.
+          The complication is that sometimes a label is actually a constant.
+          */
+        if ( token.id == CTRL_LABEL &&
+             stricmp( token.tokval(), "default" ) == 0 )
         {
           getToken( ctx, token );
           if ( default_posn != 0 )
@@ -1994,34 +2000,33 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
         }
 
         /*
-            A label may be a constant, say CONST_VAR:  If it is, substitute that value.
-            */
+          A label may be a constant, say CONST_VAR:  If it is, substitute that value.
+          */
         if ( token.id == CTRL_LABEL )
         {
           substitute_constant( &token );
           /*
-              A label that wasn't a constant can't be used in a CASE statement.
-              If it's followed by a while, etc, it won't be flagged illegal, though.
-              this may be a Bad Thing.
-              */
+            A label that wasn't a constant can't be used in a CASE statement.
+            If it's followed by a while, etc, it won't be flagged illegal, though.
+            this may be a Bad Thing.
+            */
           if ( token.id == CTRL_LABEL )
           {
             break;
           }
-          Token dummy;  // don't overwrite the token we just substituted
+          Token dummy; // don't overwrite the token we just substituted
           getToken( ctx, dummy );
         }
         else if ( token.id == TOK_LONG || token.id == TOK_STRING )
         {
           /*
-              If we read a Long or a String, it'll be followed by a colon.
-              If it was a label, the colon is gone.
-              */
+            If we read a Long or a String, it'll be followed by a colon.
+            If it was a label, the colon is gone.
+            */
           getToken( ctx, token );
 
           res = eatToken( ctx, RSV_COLON );
-          if ( res < 0 )
-            return res;
+          if ( res < 0 ) return res;
         }
 
         anycases = true;
@@ -2032,7 +2037,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
           unsigned char* tmppch = reinterpret_cast<unsigned char*>( &offset );
           caseblock.push_back( tmppch[0] );
           caseblock.push_back( tmppch[1] );
-          caseblock.push_back( CASE_TYPE_LONG );  // FIXME hardcoded
+          caseblock.push_back( CASE_TYPE_LONG ); // FIXME hardcoded
           tmppch = reinterpret_cast<unsigned char*>( &token.lval );
           caseblock.push_back( tmppch[0] );
           caseblock.push_back( tmppch[1] );
@@ -2044,8 +2049,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
           if ( strlen( token.tokval() ) >= 254 )
           {
             INFO_PRINT << "String expressions in CASE statements must be <= 253 characters.\n";
-            return -1;
-            ;
+            return -1;;
           }
           unsigned short offset = static_cast<unsigned short>( prog_tokens->next() );
           unsigned char* tmppch = reinterpret_cast<unsigned char*>( &offset );
@@ -2059,14 +2063,15 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
             caseblock.push_back( str[i] );
         }
       }
-      else if ( token.id == RSV_ENDSWITCH && anycases )  // only accept if OPTIONs exist!
+      else if ( token.id == RSV_ENDSWITCH && anycases ) // only accept if OPTIONs exist!
       {
         getToken( ctx, token );
         done = true;
         break;
       }
       else
-      {  // something else.  we'll assume a statement.
+      {
+        // something else.  we'll assume a statement.
         break;
       }
     }
@@ -2104,6 +2109,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
         substitute_constant( &token );
         if ( token.id != CTRL_LABEL )
           break;
+
       }
       else if ( token.id == TOK_STRING )
       {
@@ -2114,9 +2120,10 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
       if ( !anycases )
       {
         INFO_PRINT << "CASE statement with no options!\n"
-                   << "Found '" << token.tokval() << "'"
-                   << ( token.id == CTRL_LABEL ? " but no such constant is defined.\n"
-                                               : " prematurely.\n" );
+                   << "Found '" << token.tokval() << "'" << (
+                     token.id == CTRL_LABEL ?
+                     " but no such constant is defined.\n" :
+                     " prematurely.\n" );
         return -1;
       }
 
@@ -2140,8 +2147,8 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
     }
   }
 
-  // patchblock_breaks( program->tokens.next() );
-  // program->leaveblock();
+  //patchblock_breaks( program->tokens.next() );
+  //program->leaveblock();
 
   // if only a 'default' block was defined, print a warning
   if ( onlydefault && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
@@ -2159,7 +2166,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
     default_posn = prog_tokens->next();
 
   // the default case must go at the end.
-  //	if (1)
+  //  if (1)
   {
     unsigned char* tmppch = reinterpret_cast<unsigned char*>( &default_posn );
     caseblock.push_back( tmppch[0] );
@@ -2179,8 +2186,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
   auto casecmp_raw = new unsigned char[caseblock.size()];
   for ( size_t i = 0; i < caseblock.size(); ++i )
     casecmp_raw[i] = caseblock[i];
-  program->symbols.append( casecmp_raw, static_cast<unsigned int>( caseblock.size() ),
-                           caseblock_posn );
+  program->symbols.append( casecmp_raw, static_cast<unsigned int>( caseblock.size() ), caseblock_posn );
   delete[] casecmp_raw;
   patchoffset( casecmp_posn, caseblock_posn );
   return 0;
@@ -2207,27 +2213,28 @@ int Compiler::handleForEach( CompilerContext& ctx, int level )
     return res;
 
   /*
-      The outer block is a hidden block.  It can't be labelled, but the
-      inner one can.  This way, 'break' and 'continue' won't touch
-      the iterator variable, expression, and counter that we have in
-      this hidden block.
-      */
+    The outer block is a hidden block.  It can't be labelled, but the
+    inner one can.  This way, 'break' and 'continue' won't touch
+    the iterator variable, expression, and counter that we have in
+    this hidden block.
+    */
 
   res = getSimpleExpr( ctx );
   if ( res < 0 )
     return res;
   /*
-      When these are evaluated, the value stack should look like this:
-      (result of EXPR)
-      */
+    When these are evaluated, the value stack should look like this:
+    (result of EXPR)
+    */
   enterblock( CanNotBeLabelled );
 
   unsigned initforeach_posn;
-  program->append( StoredToken( Mod_Basic, INS_INITFOREACH, TYP_RESERVED, 0 ), &initforeach_posn );
+  program->append( StoredToken( Mod_Basic, INS_INITFOREACH, TYP_RESERVED, 0 ),
+                   &initforeach_posn );
   /*
-      INITFOREACH creates three local variables, placeholders for the iterator,
-      expression, and counter.  Only the iterator can be accessed, for now.
-      */
+    INITFOREACH creates three local variables, placeholders for the iterator,
+    expression, and counter.  Only the iterator can be accessed, for now.
+    */
   program->addlocalvar( itrvar.tokval() );
   localscope.addvar( itrvar.tokval(), foreach_ctx );
   program->addlocalvar( "_" + std::string( itrvar.tokval() ) + "_expr" );
@@ -2240,15 +2247,13 @@ int Compiler::handleForEach( CompilerContext& ctx, int level )
   enterblock( CanBeLabelled );
   Token endforeach_token;
   res = readblock( ctx, level, RSV_ENDFOREACH, NULL, &endforeach_token );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
 
   emit_leaveblock();
 
   unsigned stepforeach_posn;
   program->update_dbg_pos( endforeach_token );
-  program->append( StoredToken( Mod_Basic, INS_STEPFOREACH, TYP_RESERVED, iter_posn ),
-                   &stepforeach_posn );
+  program->append( StoredToken( Mod_Basic, INS_STEPFOREACH, TYP_RESERVED, iter_posn ), &stepforeach_posn );
   patchoffset( initforeach_posn, stepforeach_posn );
 
   patchblock_continues( stepforeach_posn );
@@ -2268,8 +2273,7 @@ int Compiler::handleReturn( CompilerContext& ctx )
 {
   Token token;
   int res = peekToken( ctx, token );
-  if ( res )
-    return res;
+  if ( res ) return res;
   if ( token.id == TOK_SEMICOLON )
   {
     getToken( ctx, token );
@@ -2280,8 +2284,7 @@ int Compiler::handleReturn( CompilerContext& ctx )
   else
   {
     res = getExpr2( ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
   }
 
   if ( res < 0 )
@@ -2316,22 +2319,18 @@ int Compiler::handleBlock( CompilerContext& ctx, int level )
 {
   Token token;
 
-  if ( !quiet )
-    INFO_PRINT << "BEGIN block..\n";
+  if ( !quiet ) INFO_PRINT << "BEGIN block..\n";
 
   enterblock( CanNotBeLabelled );
 
   while ( ctx.s[0] )
   {
     peekToken( ctx, token );
-    if ( token.id == RSV_ENDB )
-      break;
+    if ( token.id == RSV_ENDB ) break;
 
-    if ( getStatement( ctx, level ) == -1 )
-      return -1;
+    if ( getStatement( ctx, level ) == -1 ) return -1;
   }
-  if ( !ctx.s[0] )
-    return -1;
+  if ( !ctx.s[0] ) return -1;
 
   getToken( ctx, token );
   if ( token.id != RSV_ENDB )
@@ -2345,7 +2344,9 @@ int Compiler::handleBlock( CompilerContext& ctx, int level )
   return 0;
 }
 
-int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userfunc )
+int Compiler::readFunctionDeclaration( CompilerContext& ctx,
+                                       UserFunction& userfunc
+                                     )
 {
   Token token;
   Token funcName;
@@ -2354,8 +2355,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
   userfunc.ctx = ctx;
 
   res = getToken( ctx, funcName );
-  if ( res )
-    return res;
+  if ( res ) return res;
   bool first_time = true;
   if ( first_time )
   {
@@ -2364,13 +2364,15 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
       if ( funcName.id == TOK_FUNC )
       {
         INFO_PRINT << "'" << funcName.tokval() << "' is already defined as a function.\n"
-                   << "Near: " << curLine << "\n" << ctx;
+                   << "Near: " << curLine << "\n"
+                   << ctx;
         return -1;
       }
       else
       {
         INFO_PRINT << "Expected an identifier, got " << funcName << " instead.\n"
-                   << "Near: " << curLine << "\n" << ctx;
+                   << "Near: " << curLine << "\n"
+                   << ctx;
         return -1;
       }
     }
@@ -2378,42 +2380,37 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
   userfunc.name = funcName.tokval();
   Token lparen;
   res = getToken( ctx, lparen );
-  if ( res )
-    return res;
+  if ( res ) return res;
   if ( lparen.id != TOK_LPAREN )
   {
     return -1;
   }
   /*
-      We have eaten the left paren.  Next follows:
-      RIGHT_PAREN, OR  ( [refto] varname [:= default ] { COMMA or RIGHT_PAREN })
-      */
+    We have eaten the left paren.  Next follows:
+    RIGHT_PAREN, OR  ( [refto] varname [:= default ] { COMMA or RIGHT_PAREN })
+    */
   peekToken( ctx, token );
   for ( ;; )
   {
     Token paramName;
     res = getToken( ctx, token );
-    if ( res )
-      return -1;
+    if ( res ) return -1;
 
     bool pass_by_reference = false;
     bool unused = false;
 
-    if ( token.id == TOK_RPAREN )
-      break;
+    if ( token.id == TOK_RPAREN ) break;
     if ( token.id == TOK_REFTO )
     {
       pass_by_reference = true;
       res = getToken( ctx, token );
-      if ( res )
-        return -1;
+      if ( res ) return -1;
     }
-    if ( token.id == TOK_UNUSED )
+    if (token.id == TOK_UNUSED)
     {
       unused = true;
-      res = getToken( ctx, token );
-      if ( res )
-        return -1;
+      res = getToken(ctx, token);
+      if (res) return -1;
     }
     if ( token.id != TOK_IDENT )
     {
@@ -2428,18 +2425,17 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
     if ( token.id == TOK_ASSIGN )
     {
       // We have a default argument.
-      if ( unused )
+      if (unused)
       {
         INFO_PRINT << "Default arguments are not allowed in unused parameters\n";
         return -1;
       }
 
       param.have_default = 1;
-      getToken( ctx, token );  // Eat the assignment operator
+      getToken( ctx, token ); // Eat the assignment operator
 
       Expression ex;
-      if ( readexpr( ex, ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED ) !=
-           1 )
+      if ( readexpr( ex, ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED ) != 1 )
       {
         INFO_PRINT << "Error reading expression in const declaration\n";
         return -1;
@@ -2454,9 +2450,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
       param.dflt_value = *( ex.tokens.back() );
       if ( param.dflt_value.type != TYP_OPERAND )
       {
-        INFO_PRINT << "[" << funcName.tokval()
-                   << "]: Only simple operands are allowed as default arguments (" << token
-                   << " is not allowed)\n";
+        INFO_PRINT << "[" << funcName.tokval() << "]: Only simple operands are allowed as default arguments (" << token << " is not allowed)\n";
         return -1;
       }
       peekToken( ctx, token );
@@ -2480,8 +2474,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
     {
       continue;
     }
-    else
-      return -1;
+    else return -1;
   }
   return 0;
 }
@@ -2491,24 +2484,21 @@ int Compiler::handleDeclare( CompilerContext& ctx )
   int res;
   Token token;
   res = getToken( ctx, token );
-  if ( res )
-    return res;
+  if ( res ) return res;
   if ( token.id != RSV_FUNCTION )
   {
     return -1;
   }
   Token funcName;
   res = getToken( ctx, funcName );
-  if ( res )
-    return res;
+  if ( res ) return res;
   if ( funcName.id != TOK_IDENT )
   {
     throw std::runtime_error( "Tried to declare a non-identifier" );
   }
   Token lparen;
   res = getToken( ctx, lparen );
-  if ( res )
-    return res;
+  if ( res ) return res;
   if ( lparen.id != TOK_LPAREN )
   {
     return -1;
@@ -2517,8 +2507,7 @@ int Compiler::handleDeclare( CompilerContext& ctx )
   for ( ;; )
   {
     res = getToken( ctx, token );
-    if ( res )
-      return -1;
+    if ( res ) return -1;
     if ( token.id == TOK_RPAREN )
     {
       break;
@@ -2551,34 +2540,33 @@ int Compiler::handleDeclare( CompilerContext& ctx )
   }
   INFO_PRINT << "func decl: " << curLine << "\n"
              << "nParams: " << nParams << "\n";
-  // addUserFunc(funcName.tokval(), nParams);
+  //addUserFunc(funcName.tokval(), nParams);
   return 0;
 }
 
 int Compiler::handleIf( CompilerContext& ctx, int level )
 {
-  // unsigned if_begin;
+  //unsigned if_begin;
   unsigned jump_false;
   Token token;
-  // if_begin = program->tokens.next();
+  //if_begin = program->tokens.next();
   jump_false = 0;
-  if ( !quiet )
-    INFO_PRINT << "if clause..\n";
+  if ( !quiet ) INFO_PRINT << "if clause..\n";
 
 
-  int res = getExprInParens( ctx );  // (expr) (parens required)
-  if ( res < 0 )
-    return res;
+  int res = getExprInParens( ctx ); // (expr) (parens required)
+  if ( res < 0 ) return res;
 
   unsigned if_token_posn;
-  program->append( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, 0 ), &if_token_posn );
+  program->append(
+    StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, 0 ),
+    &if_token_posn );
 
   // THEN is optional, currently.
   peekToken( ctx, token );
   if ( token.id == RSV_THEN )
-    getToken( ctx, token );  // 'then'
-  if ( !quiet )
-    INFO_PRINT << "then clause..\n";
+    getToken( ctx, token ); // 'then'
+  if ( !quiet ) INFO_PRINT << "then clause..\n";
 
   // get the part we do
   res = getStatement( ctx, level );
@@ -2592,16 +2580,18 @@ int Compiler::handleIf( CompilerContext& ctx, int level )
   {
     unsigned else_token_posn;
     // this GOTO makes execution skip the ELSE part if the IF was true
-    program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &else_token_posn );
+    program->append(
+      StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ),
+      &else_token_posn );
     jump_false = prog_tokens->next();
     getToken( ctx, token );  // eat the else
-    if ( !quiet )
-      INFO_PRINT << "else clause..\n";
+    if ( !quiet ) INFO_PRINT << "else clause..\n";
     getStatement( ctx, level );
     // now that we know where the ELSE part ends, patch in the address
     // which skips past it.
-    prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, prog_tokens->next() ),
-                         else_token_posn );
+    prog_tokens->atPut1(
+      StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, prog_tokens->next() ),
+      else_token_posn );
   }
   else
   {
@@ -2610,8 +2600,9 @@ int Compiler::handleIf( CompilerContext& ctx, int level )
 
 
   // patch up orig. IF token to skip past if false
-  prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, jump_false ),
-                       if_token_posn );
+  prog_tokens->atPut1(
+    StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, jump_false ),
+    if_token_posn );
   return 0;
 }
 
@@ -2621,11 +2612,17 @@ bool mismatched_end( const Token& token, BTokenId correct )
   {
     return false;
   }
-  else if ( token.id == RSV_ENDFOREACH || token.id == RSV_ENDIF ||
-            // token.id == RSV_ENDB ||
-            token.id == RSV_DOWHILE || token.id == RSV_ENDWHILE || token.id == RSV_UNTIL ||
-            token.id == RSV_ENDFOR || token.id == RSV_ENDFUNCTION || token.id == RSV_ENDSWITCH ||
-            token.id == RSV_ENDPROGRAM || token.id == RSV_ENDENUM )
+  else if ( token.id == RSV_ENDFOREACH ||
+            token.id == RSV_ENDIF ||
+            //token.id == RSV_ENDB ||
+            token.id == RSV_DOWHILE ||
+            token.id == RSV_ENDWHILE ||
+            token.id == RSV_UNTIL ||
+            token.id == RSV_ENDFOR ||
+            token.id == RSV_ENDFUNCTION ||
+            token.id == RSV_ENDSWITCH ||
+            token.id == RSV_ENDPROGRAM ||
+            token.id == RSV_ENDENUM )
   {
     Token t( correct, TYP_RESERVED );
     INFO_PRINT << "Expected " << t << " before " << token << "\n";
@@ -2644,8 +2641,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
   std::vector<unsigned> jumpend;
 
   Token token;
-  if ( !quiet )
-    INFO_PRINT << "if clause..\n";
+  if ( !quiet ) INFO_PRINT << "if clause..\n";
 
   token.id = RSV_ST_IF;
 
@@ -2653,7 +2649,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
   size_t jumpend_size = jumpend.size();
 
   bool discard_rest = false;
-  // bool discarded_all = true;
+  //bool discarded_all = true;
   bool included_any_tests = false;
   unsigned last_if_token_posn = static_cast<unsigned>( -1 );
   unsigned if_token_posn = static_cast<unsigned>( -1 );
@@ -2661,24 +2657,26 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
   while ( token.id == RSV_ST_IF || token.id == RSV_ELSEIF )
   {
     EScriptProgramCheckpoint checkpt_expr( *program );
-    // dump(cout);
+    //dump(cout);
     program->setstatementbegin();
     Expression ex;
-    int res = getExprInParens( ctx, &ex );  // (expr) (parens required)
-    if ( res < 0 )
-      return res;
-    // dump(cout);
+    int res = getExprInParens( ctx, &ex ); // (expr) (parens required)
+    if ( res < 0 ) return res;
+    //dump(cout);
     bool patch_if_token = true;
     last_if_token_posn = if_token_posn;
     if ( ex.tokens.back()->id == TOK_LOG_NOT )
     {
       if_token_posn = prog_tokens->count() - 1;
-      prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, 0 ),
-                           if_token_posn );
+      prog_tokens->atPut1(
+        StoredToken( Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, 0 ),
+        if_token_posn );
     }
     else
     {
-      program->append( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, 0 ), &if_token_posn );
+      program->append(
+        StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, 0 ),
+        &if_token_posn );
     }
 
     bool discard_this = discard_rest;
@@ -2693,26 +2691,26 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       {
         discard_this = true;
       }
-      rollback( *program, checkpt_expr );  // don't need the expression or the jump,
+      rollback( *program, checkpt_expr ); // don't need the expression or the jump,
       // even if we're keeping the block
       patch_if_token = false;
     }
     else
     {
-      // discarded_all = discard_rest;
+      //discarded_all = discard_rest;
       if ( !discard_rest )
         included_any_tests = true;
     }
 
 
+
     // THEN is optional, currently.
     peekToken( ctx, token );
     if ( token.id == RSV_THEN )
-      getToken( ctx, token );  // 'then'
-    if ( !quiet )
-      INFO_PRINT << "then clause..\n";
+      getToken( ctx, token ); // 'then'
+    if ( !quiet ) INFO_PRINT << "then clause..\n";
 
-    // dump(cout);
+    //dump(cout);
     // get the part we do
     enterblock( CanNotBeLabelled );
     while ( ctx.s[0] )
@@ -2726,30 +2724,32 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       res = getStatement( ctx, level );
       if ( res < 0 )
       {
-        INFO_PRINT << "Error in IF statement starting at " << save_ctx;
+        INFO_PRINT << "Error in IF statement starting at "
+                   << save_ctx;
 
         return res;
       }
     }
     leaveblock( 0, 0 );
-    if ( !ctx.s[0] )
-      return -1;
+    if ( !ctx.s[0] ) return -1;
 
-    // dump(cout);
+    //dump(cout);
     if ( !discard_this )
     {
       checkpt.commit( *program );
       jumpend_size = jumpend.size();
     }
-    // dump(cout);
-    // dump(cout);
+    //dump(cout);
+    //dump(cout);
 
     // this will be committed only when the next ELSEIF or ELSE is committed
     if ( token.id == RSV_ELSEIF || token.id == RSV_ELSE )
     {
       unsigned temp_posn;
       program->update_dbg_pos( token );
-      program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &temp_posn );
+      program->append(
+        StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ),
+        &temp_posn );
       jumpend.push_back( temp_posn );
 
       if ( token.id == RSV_ELSEIF )
@@ -2767,7 +2767,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       prog_tokens->atPut1( tkn, if_token_posn );
     }
 
-    // dump(cout);
+    //dump(cout);
     if ( discard_this )
     {
       rollback( *program, checkpt );
@@ -2783,7 +2783,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
         prog_tokens->atPut1( tkn, last_if_token_posn );
       }
     }
-    // dump(cout);
+    //dump(cout);
   }
 
   peekToken( ctx, token );
@@ -2798,8 +2798,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
   if ( token.id == RSV_ELSE )
   {
     getToken( ctx, token );  // eat the else
-    if ( !quiet )
-      INFO_PRINT << "else clause..\n";
+    if ( !quiet ) INFO_PRINT << "else clause..\n";
     enterblock( CanNotBeLabelled );
     while ( ctx.s[0] )
     {
@@ -2816,11 +2815,9 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
     leaveblock( 0, 0 );
   }
   // eat the ENDIF
-  if ( !ctx.s[0] )
-    return -1;
+  if ( !ctx.s[0] ) return -1;
   getToken( ctx, token );
-  if ( token.id != RSV_ENDIF )
-    return -1;
+  if ( token.id != RSV_ENDIF ) return -1;
 
   if ( discard_rest && !included_any_tests )
   {
@@ -2836,16 +2833,20 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
     jumpend.pop_back();
     // patch up orig. IF token to skip past if false
 
-    prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, prog_tokens->next() ),
-                         pc );
+    prog_tokens->atPut1(
+      StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, prog_tokens->next() ),
+      pc );
   }
 
   return 0;
 }
 
 
-int Compiler::readblock( CompilerContext& ctx, int level, BTokenId endtokenid,
-                         BTokenId* last_statement_id, Token* pBlockEndToken )
+int Compiler::readblock( CompilerContext& ctx,
+                         int level,
+                         BTokenId endtokenid,
+                         BTokenId* last_statement_id,
+                         Token* pBlockEndToken )
 {
   CompilerContext tctx( ctx );
   int res;
@@ -2860,7 +2861,7 @@ int Compiler::readblock( CompilerContext& ctx, int level, BTokenId endtokenid,
       if ( pBlockEndToken != NULL )
         getToken( ctx, *pBlockEndToken );
       else
-        getToken( ctx, token );  // eat the end-token
+        getToken( ctx, token ); // eat the end-token
       return 0;
     }
     if ( last_statement_id != NULL )
@@ -2869,24 +2870,23 @@ int Compiler::readblock( CompilerContext& ctx, int level, BTokenId endtokenid,
     if ( res < 0 )
       return res;
   }
-  INFO_PRINT << "Error in block beginning at " << tctx << "End-of-File detected, expected '"
-             << Token( Mod_Basic, endtokenid, TYP_RESERVED ) << "'\n";
+  INFO_PRINT << "Error in block beginning at " << tctx
+             << "End-of-File detected, expected '" << Token( Mod_Basic, endtokenid, TYP_RESERVED ) << "'\n";
   return -1;
 }
 
 int Compiler::handleBracketedWhile( CompilerContext& ctx, int level )
 {
-  if ( !quiet )
-    INFO_PRINT << "while clause..\n";
+  if ( !quiet ) INFO_PRINT << "while clause..\n";
   StoredTokenContainer* prog_tokens = &program->tokens;
   unsigned conditional_expr_posn = prog_tokens->next();
-  int res = getExprInParens( ctx );  // (expr) (parens required)
-  if ( res < 0 )
-    return res;
+  int res = getExprInParens( ctx ); // (expr) (parens required)
+  if ( res < 0 ) return res;
 
   unsigned test_expr_token_posn;
-  program->append( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, 0 ),
-                   &test_expr_token_posn );
+  program->append(
+    StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, 0 ),
+    &test_expr_token_posn );
 
   enterblock( CanBeLabelled );
 
@@ -2899,11 +2899,15 @@ int Compiler::handleBracketedWhile( CompilerContext& ctx, int level )
   emit_leaveblock();
 
   // jump back to conditional expression
-  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, conditional_expr_posn ), 0 );
+  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED,
+                                conditional_expr_posn ), 0 );
 
   // Control should jump past the loop when the expr evaluates to false.
   unsigned exit_loop_posn = prog_tokens->next();
-  prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, exit_loop_posn ),
+  prog_tokens->atPut1( StoredToken( Mod_Basic,
+                                    RSV_JMPIFFALSE,
+                                    TYP_RESERVED,
+                                    exit_loop_posn ),
                        test_expr_token_posn );
 
   // continues re-test the expression, which is at the top of the loop.
@@ -2945,10 +2949,10 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
   do
   {
     /*
-        formats: varname followed by comma or semicolon
-        varname followed by "array", then by comma/semicolon
-        varname followed by ':=', then an initializer, then comma/semicolon.
-        */
+      formats: varname followed by comma or semicolon
+      varname followed by "array", then by comma/semicolon
+      varname followed by ':=', then an initializer, then comma/semicolon.
+      */
     CompilerContext thisctx( ctx );
 
     getToken( ctx, tk_varname );
@@ -2985,16 +2989,14 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
       }
       else
       {
-        INFO_PRINT << "Global Variable '" << tk_varname.tokval() << "' is already declared at "
-                   << gctx;
+        INFO_PRINT << "Global Variable '" << tk_varname.tokval( ) << "' is already declared at " << gctx;
         return -1;
       }
     }
     else
     {
       unsigned idx;
-      if ( ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) &&
-           globalexists( tk_varname.tokval(), idx ) )
+      if ( ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) && globalexists( tk_varname.tokval(), idx ) )
       {
         INFO_PRINT << "Warning: Local variable '" << tk_varname.tokval()
                    << "' hides Global variable of same name.\n";
@@ -3002,6 +3004,7 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
           throw std::runtime_error( "Warnings treated as errors." );
         else
           INFO_PRINT << ctx;
+
       }
       varindex = localscope.numVariables();
       program->addlocalvar( tk_varname.tokval() );
@@ -3034,9 +3037,9 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
     else if ( tk_delim.id == TOK_ASSIGN )
     {
       int res;
-      res = getExpr( ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED );
-      if ( res <= 0 )
-        return res;
+      res = getExpr( ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED |
+                     EXPR_FLAG_COMMA_TERM_ALLOWED );
+      if ( res <= 0 ) return res;
       program->append( StoredToken( Mod_Basic, TOK_ASSIGN, TYP_OPERATOR, 0 ) );
 
       getToken( ctx, tk_delim );
@@ -3061,13 +3064,15 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
       INFO_PRINT << "Unexpected token: " << tk_delim << "\n";
       return -1;
     }
-  } while ( !done );
+  }
+  while ( !done );
 
   return 0;
 
   // insert a consumer to eat the evaluated result from the expr.
   program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
   return 0;
+
 }
 
 /*
@@ -3077,14 +3082,14 @@ const a := expr;
 int Compiler::handleConstDeclare( CompilerContext& ctx )
 {
   Token tk_varname, tk_assign;
-  // int done = 0;
+  //int done = 0;
 
 
   /*
-      formats:	varname followed by comma or semicolon
-      varname followed by "array", then by comma/semicolon
-      varname followed by ':=', then an initializer, then comma/semicolon.
-      */
+    formats:  varname followed by comma or semicolon
+    varname followed by "array", then by comma/semicolon
+    varname followed by ':=', then an initializer, then comma/semicolon.
+    */
   getToken( ctx, tk_varname );
   if ( tk_varname.id != TOK_IDENT )
   {
@@ -3189,7 +3194,8 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
         return -1;
       }
       if ( !peekToken( ctx, _tmp ) )
-      {  // might be a comma, or an endenum
+      {
+        // might be a comma, or an endenum
         if ( _tmp.id == TOK_COMMA )
           getToken( ctx, _tmp );
       }
@@ -3237,6 +3243,7 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
 
 int Compiler::useModule( const char* modulename )
 {
+
   for ( const auto& elem : program->modules )
   {
     if ( modulename == elem->modulename )
@@ -3262,7 +3269,7 @@ int Compiler::useModule( const char* modulename )
     {
       if ( verbosity_level_ >= 10 )
         INFO_PRINT << "Found " << try_filename_full << "\n";
-      // cout << "Using " << try_filename << endl;
+      //cout << "Using " << try_filename << endl;
       filename_full = try_filename_full;
     }
   }
@@ -3305,6 +3312,7 @@ int Compiler::useModule( const char* modulename )
       free( orig_mt );
       res = 0;
       break;
+
     }
     if ( tk_dummy.id == RSV_CONST )
     {
@@ -3344,7 +3352,9 @@ int Compiler::useModule( const char* modulename )
     }
 
     UserFunction* uf = puserfunc.release();
-    compmodl->addFunction( uf->name.c_str(), static_cast<int>( uf->parameters.size() ), uf );
+    compmodl->addFunction( uf->name.c_str(),
+                           static_cast<int>( uf->parameters.size() ),
+                           uf );
   }
   current_file_path = save;
   return res;
@@ -3370,7 +3380,8 @@ int Compiler::handleUse( CompilerContext& ctx )
   }
   if ( tk_module_name.id != TOK_IDENT )
   {
-    INFO_PRINT << "Error in USE statement: Expected identifier, got '" << tk_module_name << "'\n";
+    INFO_PRINT << "Error in USE statement: Expected identifier, got '"
+               << tk_module_name << "'\n";
     return -1;
   }
 
@@ -3399,12 +3410,12 @@ int Compiler::handleUse( CompilerContext& ctx )
 
 int Compiler::includeModule( const std::string& modulename )
 {
-  //	cout << "includeModule(" << modulename << "). includes(" << included.size() << "):";
-  //	for( INCLUDES::const_iterator citr = included.begin(); citr != included.end(); ++citr )
-  //	{
-  //		cout << " " << (*citr);
-  //	}
-  //	cout << endl;
+  //  cout << "includeModule(" << modulename << "). includes(" << included.size() << "):";
+  //  for( INCLUDES::const_iterator citr = included.begin(); citr != included.end(); ++citr )
+  //  {
+  //    cout << " " << (*citr);
+  //  }
+  //  cout << endl;
 
   std::string filename_part = modulename;
   filename_part += ".inc";
@@ -3480,7 +3491,7 @@ int Compiler::includeModule( const std::string& modulename )
         if ( verbosity_level_ >= 10 )
           INFO_PRINT << "Found " << try_filename_full << "\n";
 
-        // cout << "Using " << try_filename << endl;
+        //cout << "Using " << try_filename << endl;
         filename_full = try_filename_full;
       }
     }
@@ -3534,8 +3545,8 @@ int Compiler::handleInclude( CompilerContext& ctx )
   }
   if ( tk_module_name.id != TOK_IDENT && tk_module_name.id != TOK_STRING )
   {
-    INFO_PRINT << "Error in INCLUDE statement: Expected identifier, got '" << tk_module_name
-               << "'\n";
+    INFO_PRINT << "Error in INCLUDE statement: Expected identifier, got '"
+               << tk_module_name << "'\n";
     return -1;
   }
 
@@ -3553,6 +3564,7 @@ int Compiler::handleInclude( CompilerContext& ctx )
   }
 
   return includeModule( tk_module_name.tokval() );
+
 }
 
 
@@ -3567,20 +3579,27 @@ int Compiler::insertBreak( const std::string& label )
 
     numVarsToKill += bd.varcount;
 
-    if ( bd.break_ok && ( label == "" ||         // we didn't pick, and this is closest
-                          label == bd.label ) )  // this is the one we picked
+    if ( bd.break_ok &&
+         ( label == "" ||      // we didn't pick, and this is closest
+           label == bd.label ) )     // this is the one we picked
     {
       if ( numVarsToKill )
-      {  // local variables were declared in this scope.  We need to kill 'em.
+      {
+        // local variables were declared in this scope.  We need to kill 'em.
 
-        program->append( StoredToken( Mod_Basic, CTRL_LEAVE_BLOCK, TYP_CONTROL, numVarsToKill ),
+        program->append( StoredToken( Mod_Basic,
+                                      CTRL_LEAVE_BLOCK,
+                                      TYP_CONTROL,
+                                      numVarsToKill ),
                          0 );
       }
 
       unsigned goto_posn;
-      program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &goto_posn );
+      program->append(
+        StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &goto_posn );
       bd.break_tokens.push_back( goto_posn );
       return 0;
+
     }
   }
   INFO_PRINT << "Couldn't find an appropriate break point";
@@ -3593,8 +3612,8 @@ int Compiler::insertBreak( const std::string& label )
 
 
 // break statements come in the following forms:
-//	  break;
-//	  break label;
+//    break;
+//    break label;
 // we'll emit a LEAVE_BLOCK token if necessary, and
 // a GOTO which will be patched in when the block
 // is completed.
@@ -3603,7 +3622,8 @@ int Compiler::handleBreak( CompilerContext& ctx )
   Token tk;
   std::string label;
 
-  if ( getToken( ctx, tk ) || ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
+  if ( getToken( ctx, tk ) ||
+       ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
   {
     INFO_PRINT << "break statement: expected 'break;' or 'break label;'\n";
     return -1;
@@ -3627,8 +3647,8 @@ int Compiler::handleBreak( CompilerContext& ctx )
 }
 
 // continue statements come in the following forms:
-//	  continue;
-//	  continue label;
+//    continue;
+//    continue label;
 // we'll emit a LEAVE_BLOCK token if necessary, and
 // a GOTO which will point at the continuePC of the block.
 int Compiler::handleContinue( CompilerContext& ctx )
@@ -3636,7 +3656,8 @@ int Compiler::handleContinue( CompilerContext& ctx )
   Token tk;
   std::string label;
 
-  if ( getToken( ctx, tk ) || ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
+  if ( getToken( ctx, tk ) ||
+       ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
   {
     INFO_PRINT << "continue statement: expected 'continue;' or 'continue label;'\n";
     return -1;
@@ -3664,20 +3685,27 @@ int Compiler::handleContinue( CompilerContext& ctx )
     BlockDesc& bd = localscope.blockdescs_[i];
     numVarsToKill += bd.varcount;
 
-    if ( bd.continue_ok && ( label == "" ||         // we didn't pick, and this is closest
-                             label == bd.label ) )  // this is the one we picked
+    if ( bd.continue_ok &&
+         ( label == "" ||      // we didn't pick, and this is closest
+           label == bd.label ) )     // this is the one we picked
     {
       if ( numVarsToKill )
-      {  // local variables were declared in this scope.  We need to kill 'em.
+      {
+        // local variables were declared in this scope.  We need to kill 'em.
 
-        program->append( StoredToken( Mod_Basic, CTRL_LEAVE_BLOCK, TYP_CONTROL, numVarsToKill ),
+        program->append( StoredToken( Mod_Basic,
+                                      CTRL_LEAVE_BLOCK,
+                                      TYP_CONTROL,
+                                      numVarsToKill ),
                          0 );
       }
 
       unsigned goto_posn;
-      program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &goto_posn );
+      program->append(
+        StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &goto_posn );
       bd.continue_tokens.push_back( goto_posn );
       return 0;
+
     }
   }
   INFO_PRINT << "Couldn't find an appropriate continue point";
@@ -3742,12 +3770,13 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
 
   enterblock( CanNotBeLabelled );
   unsigned initfor_posn;
-  program->append( StoredToken( Mod_Basic, INS_INITFOR, TYP_RESERVED, 0 ), &initfor_posn );
+  program->append( StoredToken( Mod_Basic, INS_INITFOR, TYP_RESERVED, 0 ),
+                   &initfor_posn );
 
   /*
-      INITFOR creates two local variables, placeholders for the iterator
-      and end value.  Only the iterator can be accessed, for now.
-      */
+    INITFOR creates two local variables, placeholders for the iterator
+    and end value.  Only the iterator can be accessed, for now.
+    */
   program->addlocalvar( itrvar.tokval() );
   if ( verbosity_level_ >= 5 )
     localscope.addvar( itrvar.tokval(), for_ctx );
@@ -3768,7 +3797,8 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
 
   program->update_dbg_pos( endblock_tkn );
   unsigned nextfor_posn;
-  program->append( StoredToken( Mod_Basic, INS_NEXTFOR, TYP_RESERVED, again_posn ), &nextfor_posn );
+  program->append( StoredToken( Mod_Basic, INS_NEXTFOR, TYP_RESERVED, again_posn ),
+                   &nextfor_posn );
 
   patchblock_continues( nextfor_posn );
   patchblock_breaks( prog_tokens->next() );
@@ -3816,20 +3846,20 @@ int Compiler::handleFor_c( CompilerContext& ctx )
   }
 
   /*
-      The c-style 'for' statement gets generated as follows:
-      given:
-      for( initial; predicate; iterate ) statement;
-      initial;
-      again:
-      predicate;
-      if true goto statement_part;
-      break;
-      statement_part:
-      statement;
-      iterate_part:
-      iterate;
-      goto again;
-      */
+    The c-style 'for' statement gets generated as follows:
+    given:
+    for( initial; predicate; iterate ) statement;
+    initial;
+    again:
+    predicate;
+    if true goto statement_part;
+    break;
+    statement_part:
+    statement;
+    iterate_part:
+    iterate;
+    goto again;
+    */
 
 
   inject( initial_expr );
@@ -3892,20 +3922,20 @@ int Compiler::handleBracketedFor_c( CompilerContext& ctx )
   }
 
   /*
-      The c-style 'for' statement gets generated as follows:
-      given:
-      for( initial; predicate; iterate ) statement;
-      initial;
-      again:
-      predicate;
-      if true goto statement_part;
-      break;
-      statement_part:
-      statement;
-      iterate_part:
-      iterate;
-      goto again;
-      */
+    The c-style 'for' statement gets generated as follows:
+    given:
+    for( initial; predicate; iterate ) statement;
+    initial;
+    again:
+    predicate;
+    if true goto statement_part;
+    break;
+    statement_part:
+    statement;
+    iterate_part:
+    iterate;
+    goto again;
+    */
 
 
   inject( initial_expr );
@@ -3958,8 +3988,7 @@ void Compiler::emitFileLine( CompilerContext& ctx )
 {
   int cnt = program->tokens.count();
   program->fileline.resize( cnt + 1 );
-  program->fileline[cnt] =
-      ctx.filename + ", Line " + Clib::decint( static_cast<unsigned int>( ctx.line ) );
+  program->fileline[cnt] = ctx.filename + ", Line " + Clib::decint( static_cast<unsigned int>( ctx.line ) );
 }
 void Compiler::emitFileLineIfFileChanged( CompilerContext& ctx )
 {
@@ -3967,7 +3996,8 @@ void Compiler::emitFileLineIfFileChanged( CompilerContext& ctx )
   if ( program->fileline.size() )
     last = program->fileline.back();
 
-  if ( program->fileline.size() == program->tokens.count() + 1 || last.empty() ||
+  if ( program->fileline.size() == program->tokens.count() + 1 ||
+       last.empty() ||
        last.substr( 0, ctx.filename.size() ) != ctx.filename )
   {
     emitFileLine( ctx );
@@ -4006,8 +4036,8 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
 
   if ( peekToken( ctx, token ) == 1 )
   {
-    getToken( ctx, token );  // trailing whitespace can hurt.
-    return 1;                // all done!
+    getToken( ctx, token ); // trailing whitespace can hurt.
+    return 1; // all done!
   }
 
   if ( token.id != RSV_FUNCTION && token.id != RSV_PROGRAM )
@@ -4025,7 +4055,8 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
   {
     INFO_PRINT << "Warning: Found deprecated token "
                << "'" << token.tokval() << "'"
-               << " on line " << ctx.line << " of " << ctx.filename << "\n";
+               << " on line " << ctx.line
+               << " of " << ctx.filename << "\n";
     if ( compilercfg.ErrorOnWarning )
       throw std::runtime_error( "Warnings treated as errors." );
     // warning only; doesn't bail out.
@@ -4087,31 +4118,33 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
     case RSV_ENUM:
       return handleEnumDeclare( ctx );
 
-    // DEPRECATED:
-    //	case RSV_BEGIN:		 return handleBlock(ctx, level+1);
+    //DEPRECATED:
+    //  case RSV_BEGIN:    return handleBlock(ctx, level+1);
 
     default:
       INFO_PRINT << "Unhandled reserved word: " << token << "\n";
       return -1;
-      //			   assert(0);
+      //         assert(0);
       break;
     }
   }
   else if ( token.type == TYP_LABEL )
   {
-    if ( !quiet )
-      INFO_PRINT << "Label found! " << token << "\n";
+    if ( !quiet ) INFO_PRINT << "Label found! " << token << "\n";
     getToken( ctx, token );
 
     Token precedes;
     res = peekToken( ctx, precedes );
     if ( res != 0 ||
-         ( precedes.id != RSV_SWITCH && precedes.id != RSV_FOREACH && precedes.id != RSV_REPEAT &&
-           precedes.id != RSV_WHILE && precedes.id != RSV_DO && precedes.id != RSV_FOR ) )
+         ( precedes.id != RSV_SWITCH &&
+           precedes.id != RSV_FOREACH &&
+           precedes.id != RSV_REPEAT &&
+           precedes.id != RSV_WHILE &&
+           precedes.id != RSV_DO &&
+           precedes.id != RSV_FOR ) )
     {
-      INFO_PRINT
-          << "Illegal location for label: " << token.tokval() << "\n"
-          << "Labels can only come before DO, WHILE, FOR, FOREACH, REPEAT, and CASE statements.\n";
+      INFO_PRINT << "Illegal location for label: " << token.tokval() << "\n"
+                 << "Labels can only come before DO, WHILE, FOR, FOREACH, REPEAT, and CASE statements.\n";
       return -1;
     }
     latest_label = token.tokval();
@@ -4134,22 +4167,35 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       prog_tokens->atGet1( prog_tokens->count() - 2, tmptoken );
     }
 
-    if ( tmptoken.id == TOK_ASSIGN || tmptoken.id == TOK_PLUSEQUAL ||
-         tmptoken.id == TOK_MINUSEQUAL || tmptoken.id == TOK_TIMESEQUAL ||
-         tmptoken.id == TOK_DIVIDEEQUAL || tmptoken.id == TOK_MODULUSEQUAL ||
-         tmptoken.id == INS_SUBSCRIPT_ASSIGN || tmptoken.id == INS_SUBSCRIPT_ASSIGN_CONSUME ||
-         tmptoken.id == INS_MULTISUBSCRIPT_ASSIGN || tmptoken.id == INS_ASSIGN_CONSUME ||
-         tmptoken.id == TOK_ADDMEMBER || tmptoken.id == TOK_DELMEMBER || tmptoken.id == TOK_FUNC ||
-         tmptoken.id == INS_CALL_METHOD || tmptoken.id == TOK_USERFUNC ||
-         tmptoken.id == CTRL_JSR_USERFUNC || tmptoken.id == INS_ASSIGN_LOCALVAR ||
-         tmptoken.id == INS_ASSIGN_GLOBALVAR || tmptoken.id == INS_SET_MEMBER ||
-         tmptoken.id == INS_SET_MEMBER_CONSUME || tmptoken.id == INS_SET_MEMBER_ID ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME || tmptoken.id == INS_CALL_METHOD_ID ||
+    if ( tmptoken.id == TOK_ASSIGN ||
+         tmptoken.id == TOK_PLUSEQUAL ||
+         tmptoken.id == TOK_MINUSEQUAL ||
+         tmptoken.id == TOK_TIMESEQUAL ||
+         tmptoken.id == TOK_DIVIDEEQUAL ||
+         tmptoken.id == TOK_MODULUSEQUAL ||
+         tmptoken.id == INS_SUBSCRIPT_ASSIGN ||
+         tmptoken.id == INS_SUBSCRIPT_ASSIGN_CONSUME ||
+         tmptoken.id == INS_MULTISUBSCRIPT_ASSIGN ||
+         tmptoken.id == INS_ASSIGN_CONSUME ||
+         tmptoken.id == TOK_ADDMEMBER ||
+         tmptoken.id == TOK_DELMEMBER ||
+         tmptoken.id == TOK_FUNC ||
+         tmptoken.id == INS_CALL_METHOD ||
+         tmptoken.id == TOK_USERFUNC ||
+         tmptoken.id == CTRL_JSR_USERFUNC ||
+         tmptoken.id == INS_ASSIGN_LOCALVAR ||
+         tmptoken.id == INS_ASSIGN_GLOBALVAR ||
+         tmptoken.id == INS_SET_MEMBER ||
+         tmptoken.id == INS_SET_MEMBER_CONSUME ||
+         tmptoken.id == INS_SET_MEMBER_ID ||
+         tmptoken.id == INS_SET_MEMBER_ID_CONSUME ||
+         tmptoken.id == INS_CALL_METHOD_ID ||
          tmptoken.id == INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL ||
          tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL ||
          tmptoken.id == INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL ||
          tmptoken.id == INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL )
+         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL
+       )
     {
       // ok! These operators actually accomplish something.
     }
@@ -4176,7 +4222,7 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
           INFO_PRINT << ctx;
       }
     }
-    //	cout << "Statement: " << Parser.CA << endl;
+    //  cout << "Statement: " << Parser.CA << endl;
   }
   return res;
 }
@@ -4211,6 +4257,7 @@ int Compiler::getStatement( CompilerContext& ctx, int level )
     res = -1;
   }
   return res;
+
 }
 
 int Compiler::handleFunction( CompilerContext& ctx )
@@ -4235,14 +4282,14 @@ int Compiler::handleFunction( CompilerContext& ctx )
   }
   userFunctions[userfunc.name] = userfunc;
   /*
-      should be begin, then statements while peektoken != end, then eat end.
+    should be begin, then statements while peektoken != end, then eat end.
 
-      getToken(s, token);
-      if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
-      err = PERR_MISSINGDELIM;
-      return -1;
-      }
-      */
+    getToken(s, token);
+    if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
+    err = PERR_MISSINGDELIM;
+    return -1;
+    }
+    */
   // woo-hoo! recursive calls should work.
   // cout << "func decl: " << curLine << endl;
   unsigned posn = 0;
@@ -4253,24 +4300,24 @@ int Compiler::handleFunction( CompilerContext& ctx )
   if ( include_debug )
   {
     /*
-        A bit of explanation:
-        We want to end up with this:
-        GOTO (skip)
-        STATEMENT BEGIN (function declaration) <-- user func address
-        User Function (Foo)
-        But right now we have:
-        STATEMENT_BEGIN (line info)
-        and adding the goto and function would end up adding:
-        GOTO (skip)
-        (User Function (Foo) will soon go here) <-- user func address
-        So, we append a copy of the statement_begin, then put a goto
-        in its original position.
-        */
+      A bit of explanation:
+      We want to end up with this:
+      GOTO (skip)
+      STATEMENT BEGIN (function declaration) <-- user func address
+      User Function (Foo)
+      But right now we have:
+      STATEMENT_BEGIN (line info)
+      and adding the goto and function would end up adding:
+      GOTO (skip)
+      (User Function (Foo) will soon go here) <-- user func address
+      So, we append a copy of the statement_begin, then put a goto
+      in its original position.
+      */
 
     // STATEMENT
     StoredToken tmptoken;
     prog_tokens->atGet1( prog_tokens->count() - 1, tmptoken );
-    program->append( tmptoken, &userfunc.position );  // STATEMENT, STATEMENT
+    program->append( tmptoken, &userfunc.position ); // STATEMENT, STATEMENT
 
     // skip_goto_posn: a goto is inserted, so prog ctrl will skip over this function
     skip_goto_posn = prog_tokens->count() - 2;
@@ -4287,14 +4334,13 @@ int Compiler::handleFunction( CompilerContext& ctx )
   }
 
   res = getToken( ctx, token );
-  if ( res )
-    return res;
+  if ( res ) return res;
   if ( token.id != RSV_BEGIN )
   {
     INFO_PRINT << "Error reading function definition for " << userfunc.name << "()\n"
                << "Expected BEGIN .. END block, got token: '" << token << "'\n";
 
-    // cout << "Functions must contain a BEGIN .. END block." << endl;
+    //cout << "Functions must contain a BEGIN .. END block." << endl;
     return -1;
   }
 
@@ -4305,18 +4351,16 @@ int Compiler::handleFunction( CompilerContext& ctx )
   {
     UserParam* user_param = &userfunc.parameters[i];
     program->symbols.append( user_param->name.c_str(), posn );
-    program->append(
-        StoredToken( Mod_Basic, user_param->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
-                     TYP_OPERATOR, posn ),
-        0 );
+    program->append( StoredToken( Mod_Basic,
+                                  user_param->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
+                                  TYP_OPERATOR, posn ), 0 );
     program->addlocalvar( user_param->name );
 
     localscope.addvar( user_param->name, ctx, true, user_param->unused );
   }
 
   res = handleBlock( ctx, 1 /* level */ );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
 
   StoredToken tmp;
   prog_tokens->atGet1( prog_tokens->count() - 1, tmp );
@@ -4359,16 +4403,16 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
   }
   userFunctions[userfunc.name] = userfunc;
   /*
-      should be begin, then statements while peektoken != end, then eat end.
+    should be begin, then statements while peektoken != end, then eat end.
 
-      getToken(s, token);
-      if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
-      err = PERR_MISSINGDELIM;
-      return -1;
-      }
-      */
+    getToken(s, token);
+    if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
+    err = PERR_MISSINGDELIM;
+    return -1;
+    }
+    */
   /* woo-hoo! recursive calls should work. */
-  // cout << "func decl: " << curLine << endl;
+  //cout << "func decl: " << curLine << endl;
   unsigned posn = 0;
 
   unsigned skip_goto_posn;
@@ -4377,19 +4421,19 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
   if ( include_debug )
   {
     /*
-        A bit of explanation:
-        We want to end up with this:
-        GOTO (skip)
-        STATEMENT BEGIN (function declaration) <-- user func address
-        User Function (Foo)
-        But right now we have:
-        STATEMENT_BEGIN (line info)
-        and adding the goto and function would end up adding:
-        GOTO (skip)
-        (User Function (Foo) will soon go here) <-- user func address
-        So, we append a copy of the statement_begin, then put a goto
-        in its original position.
-        */
+      A bit of explanation:
+      We want to end up with this:
+      GOTO (skip)
+      STATEMENT BEGIN (function declaration) <-- user func address
+      User Function (Foo)
+      But right now we have:
+      STATEMENT_BEGIN (line info)
+      and adding the goto and function would end up adding:
+      GOTO (skip)
+      (User Function (Foo) will soon go here) <-- user func address
+      So, we append a copy of the statement_begin, then put a goto
+      in its original position.
+      */
     /* STATEMENT */
     StoredToken tmptoken;
     prog_tokens->atGet1( prog_tokens->count() - 1, tmptoken );
@@ -4416,10 +4460,9 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
   {
     UserParam* params = &userfunc.parameters[i];
     program->symbols.append( params->name.c_str(), posn );
-    program->append(
-        StoredToken( Mod_Basic, params->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
-                     TYP_OPERATOR, posn ),
-        0 );
+    program->append( StoredToken( Mod_Basic,
+                                  params->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
+                                  TYP_OPERATOR, posn ), 0 );
 
     program->addlocalvar( params->name );
     localscope.addvar( params->name, ctx, true, params->unused );
@@ -4430,7 +4473,8 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
   if ( res < 0 )
   {
     INFO_PRINT << "Error occurred reading function body for '" << userfunc.name << "'\n"
-               << "Function location: " << save_ctx << "Error location: \n";
+               << "Function location: " << save_ctx
+               << "Error location: \n";
     return res;
   }
 
@@ -4466,8 +4510,7 @@ int Compiler::handleBracketedFunction2( CompilerContext& ctx, int /*level*/, int
   {
     Token tk_function;
     res = getToken( ctx, tk_function );
-    if ( res )
-      return res;
+    if ( res ) return res;
     if ( tk_function.id != RSV_FUNCTION )
     {
       INFO_PRINT << "Expected 'function' after 'exported'.\n";
@@ -4502,7 +4545,8 @@ int Compiler::handleBracketedFunction2( CompilerContext& ctx, int /*level*/, int
   if ( res < 0 )
   {
     INFO_PRINT << "Error occurred reading function body for '" << tk_funcname.tokval() << "'\n"
-               << "Function location: " << save_ctx << "Error location: \n";
+               << "Function location: " << save_ctx
+               << "Error location: \n";
     return res;
   }
 
@@ -4541,6 +4585,7 @@ int Compiler::handleProgram( CompilerContext& ctx, int /*level*/ )
       program_ctx.s = program_ctx.s_begin = program_source;
       return 0;
     }
+
   }
   INFO_PRINT << "End of file detected, expected 'endprogram'\n";
   return -1;
@@ -4555,8 +4600,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
   program->program_PC = program->tokens.count();
 
   res = getToken( ctx, tk_progname );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
   if ( tk_progname.id != TOK_IDENT )
   {
     INFO_PRINT << "Error: expected identified after 'program', got '" << tk_progname << "'\n";
@@ -4567,26 +4611,23 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
   enterblock( CanNotBeLabelled );
 
   res = eatToken( ctx, TOK_LPAREN );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
   for ( ;; )
   {
     Token token;
     res = getToken( ctx, token );
     bool unused = false;
-    if ( res < 0 )
-      return res;
+    if ( res < 0 ) return res;
     if ( res > 0 )
     {
       INFO_PRINT << "End-of-file reached reading program argument list\n";
       return -1;
     }
-    if ( token.id == TOK_UNUSED )
+    if (token.id == TOK_UNUSED)
     {
       unused = true;
-      res = getToken( ctx, token );
-      if ( res )
-        return -1;
+      res = getToken(ctx, token);
+      if (res) return -1;
     }
     if ( token.id == TOK_RPAREN )
     {
@@ -4607,8 +4648,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
       localscope.addvar( token.tokval(), ctx, true, unused );
 
       res = peekToken( ctx, token );
-      if ( res < 0 )
-        return res;
+      if ( res < 0 ) return res;
       if ( token.id == TOK_COMMA )
         getToken( ctx, token );
       ++nProgramArgs;
@@ -4623,8 +4663,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
   program->expectedArgs = nProgramArgs;
   Token endblock_tkn;
   res = readblock( ctx, level, RSV_ENDPROGRAM, NULL, &endblock_tkn );
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
 
   program->update_dbg_pos( endblock_tkn );
   leaveblock( 0, 0 );
@@ -4647,16 +4686,16 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
 
   inFunction = 1;
   /*
-      should be begin, then statements while peektoken != end, then eat end.
+    should be begin, then statements while peektoken != end, then eat end.
 
-      getToken(s, token);
-      if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
-      err = PERR_MISSINGDELIM;
-      return -1;
-      }
-      */
+    getToken(s, token);
+    if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
+    err = PERR_MISSINGDELIM;
+    return -1;
+    }
+    */
   /* woo-hoo! recursive calls should work. */
-  // cout << "func decl: " << curLine << endl;
+  //cout << "func decl: " << curLine << endl;
   unsigned posn = 0;
 
   if ( userfunc.exported )
@@ -4683,10 +4722,12 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
   {
     UserParam* params = &userfunc.parameters[i];
     program->symbols.append( params->name.c_str(), posn );
-    program->append(
-        StoredToken( Mod_Basic, params->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
-                     TYP_OPERATOR, posn ),
-        save_ctx, 0 );
+    program->append( StoredToken( Mod_Basic,
+                                  params->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
+                                  TYP_OPERATOR,
+                                  posn ),
+                     save_ctx,
+                     0 );
     program->addlocalvar( params->name );
     localscope.addvar( params->name, ctx, true, params->unused );
   }
@@ -4705,14 +4746,14 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
   program_tokens->atGet1( program_tokens->count() - 1, tmp );
 
   /*
-      This used to check to see if the last instruction was a RETURN;
-      however, if that's in an ELSE block, that return won't get executed.
-      This means if the function really does end in a return, this will
-      generate extra code.  The optimizer will have to take care of this,
-      if it can.
-      Also note, the "leaveblock" at the end will also generate an instruction
-      that will never get executed (NEVER!)
-      */
+    This used to check to see if the last instruction was a RETURN;
+    however, if that's in an ELSE block, that return won't get executed.
+    This means if the function really does end in a return, this will
+    generate extra code.  The optimizer will have to take care of this,
+    if it can.
+    Also note, the "leaveblock" at the end will also generate an instruction
+    that will never get executed (NEVER!)
+    */
   if ( last_statement_id != RSV_RETURN )
   {
     program->symbols.append( int( 0 ), posn );
@@ -4742,14 +4783,12 @@ int Compiler::forward_read_function( CompilerContext& ctx )
   userfunc.declaration = curLine;
 
   res = getToken( ctx, token );
-  if ( res )
-    return res;
+  if ( res ) return res;
   if ( token.id == RSV_EXPORTED )
   {
     userfunc.exported = true;
     res = getToken( ctx, token );
-    if ( res )
-      return res;
+    if ( res ) return res;
     if ( token.id != RSV_FUNCTION )
     {
       INFO_PRINT << "Expected 'function' after 'exported'\n";
@@ -4787,14 +4826,16 @@ int Compiler::forward_read_function( CompilerContext& ctx )
   }
   if ( !ctx.s[0] )
   {
-    INFO_PRINT << "End-of-File detected, expected 'ENDFUNCTION'\n" << save_ctx;
+    INFO_PRINT << "End-of-File detected, expected 'ENDFUNCTION'\n"
+               << save_ctx;
     return -1;
   }
 
   if ( res < 0 )
   {
     INFO_PRINT << "Error occurred reading function body for '" << userfunc.name << "'\n"
-               << "Function location: " << save_ctx << "Error location: \n";
+               << "Function location: " << save_ctx
+               << "Error location: \n";
     return res;
   }
   return res;
@@ -4814,7 +4855,7 @@ void Compiler::patchoffset( unsigned instruc, unsigned newoffset )
 int Compiler::compileContext( CompilerContext& ctx )
 {
   int res = 0;
-  // scopes.push( LocalScope() );
+  //scopes.push( LocalScope() );
   // currentscope = &scopes.top();
   // currentscope = &scope_;
 
@@ -4826,23 +4867,23 @@ int Compiler::compileContext( CompilerContext& ctx )
       res = getStatement( ctx, 0 );
     }
   }
-  catch ( std::exception& )
+  catch ( std::exception&)
   {
-    INFO_PRINT << "Exception detected during compilation.\n" << ctx;
+    INFO_PRINT << "Exception detected during compilation.\n"
+               << ctx;
     throw;
   }
 
   // currentscope = NULL;
-  // scopes.pop();
-  // assert( scopes.empty() );
+  //scopes.pop();
+  //assert( scopes.empty() );
 
   if ( res == -1 )
   {
     if ( err || ext_err[0] )
     {
       INFO_PRINT << "Parse Error: " << ParseErrorStr[err];
-      if ( ext_err[0] )
-        INFO_PRINT << " " << ext_err;
+      if ( ext_err[0] ) INFO_PRINT << " " << ext_err;
       INFO_PRINT << "\n";
       err = PERR_NONE;
       ext_err[0] = '\0';
@@ -4876,21 +4917,20 @@ int Compiler::compile( CompilerContext& ctx )
   int res = 0;
   res = compileContext( ctx );
 
-  if ( res < 0 )
-    return res;
+  if ( res < 0 ) return res;
   // reinit();
 
   if ( haveProgram )
   {
     // the local frame should be empty, so we can use it.
-    // program->append( StoredToken( Mod_Basic, CTRL_MAKELOCAL, TYP_CONTROL, 0 ) );
+    //program->append( StoredToken( Mod_Basic, CTRL_MAKELOCAL, TYP_CONTROL, 0 ) );
     try
     {
       res = handleProgram2( program_ctx, 1 );
     }
-    catch ( std::runtime_error& excep )
+    catch (std::runtime_error& excep)
     {
-      INFO_PRINT << excep.what() << "\n";
+      INFO_PRINT << excep.what( ) << "\n";
       res = -1;
     }
     catch ( ... )
@@ -4908,7 +4948,7 @@ int Compiler::compile( CompilerContext& ctx )
       return res;
     }
 
-    // program->append( StoredToken( Mod_Basic, CTRL_JSR_USERFUNC, TYP_CONTROL, programPos ) );
+    //program->append( StoredToken( Mod_Basic, CTRL_JSR_USERFUNC, TYP_CONTROL, programPos ) );
   }
 
   unsigned last_posn;
@@ -4931,8 +4971,8 @@ int Compiler::getFileContents( const char* file, char** iv )
     if ( truename != filepart && Clib::FileExists( file ) )
     {
       INFO_PRINT << "Case mismatch: \n"
-                 << "  Specified:  " << filepart << "\n"
-                 << "  Filesystem: " << truename << "\n";
+      << "  Specified:  " << filepart << "\n"
+      << "  Filesystem: " << truename << "\n";
     }
   }
 #endif
@@ -4945,24 +4985,24 @@ int Compiler::getFileContents( const char* file, char** iv )
     return -1;
 
   // Goes to the end of file
-  if ( fseek( fp, 0, SEEK_END ) != 0 )
+  if (fseek(fp, 0, SEEK_END) != 0)
   {
-    fclose( fp );
+    fclose(fp);
     return -1;
   }
 
   // in order to measure its size
   int filelen = ftell( fp );
-  if ( filelen < 0 )
+  if (filelen < 0)
   {
-    fclose( fp );
+    fclose(fp);
     return -1;
   }
 
   // and then return to beginning
-  if ( fseek( fp, 0, SEEK_SET ) != 0 )
+  if (fseek(fp, 0, SEEK_SET) != 0)
   {
-    fclose( fp );
+    fclose(fp);
     return -1;
   }
 
@@ -5101,11 +5141,9 @@ void Compiler::readCurLine( CompilerContext& ctx )
 
   char* t;
   t = strchr( curLine, '\r' );
-  if ( t )
-    t[0] = '\0';
+  if ( t ) t[0] = '\0';
   t = strchr( curLine, '\n' );
-  if ( t )
-    t[0] = '\0';
+  if ( t ) t[0] = '\0';
 }
 
 bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
@@ -5125,7 +5163,8 @@ bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
     {
       if ( handleConstDeclare( tctx ) )
       {
-        INFO_PRINT << "Error in const declaration\n" << tctx;
+        INFO_PRINT << "Error in const declaration\n"
+                   << tctx;
         return false;
       }
     }
@@ -5133,7 +5172,8 @@ bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
     {
       if ( handleEnumDeclare( tctx ) )
       {
-        INFO_PRINT << "Error in enum declaration\n" << tctx;
+        INFO_PRINT << "Error in enum declaration\n"
+                   << tctx;
         return false;
       }
     }
@@ -5142,7 +5182,8 @@ bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
       tctx = save_ctx;
       if ( forward_read_function( tctx ) )
       {
-        INFO_PRINT << "Error reading function\n" << tctx;
+        INFO_PRINT << "Error reading function\n"
+                   << tctx;
         return false;
       }
     }
@@ -5191,7 +5232,8 @@ int Compiler::emit_function( UserFunction& uf )
   int res = handleBracketedFunction3( uf, ctx );
   if ( res < 0 )
   {
-    INFO_PRINT << "Error in function '" << uf.name << "'.\n" << ctx;
+    INFO_PRINT << "Error in function '" << uf.name << "'.\n"
+               << ctx;
   }
   return res;
 }
@@ -5213,15 +5255,16 @@ int Compiler::emit_functions()
     for ( auto& elem : userFunctions )
     {
       UserFunction& uf = elem.second;
-      if ( ( uf.exported || compiling_include || !uf.forward_callers.empty() ) && !uf.emitted )
+      if ( ( uf.exported || compiling_include || !uf.forward_callers.empty() ) &&
+           !uf.emitted )
       {
         int res = emit_function( uf );
-        if ( res < 0 )
-          return res;
+        if ( res < 0 ) return res;
         uf.emitted = any = true;
       }
     }
-  } while ( any );
+  }
+  while ( any );
 
   for ( auto& elem : userFunctions )
   {
@@ -5263,7 +5306,8 @@ void Compiler::rollback( EScriptProgram& prog, const EScriptProgramCheckpoint& c
   for ( auto& elem : userFunctions )
   {
     UserFunction& uf = elem.second;
-    while ( !uf.forward_callers.empty() && uf.forward_callers.back() >= checkpoint.tokens_count )
+    while ( !uf.forward_callers.empty() &&
+            uf.forward_callers.back() >= checkpoint.tokens_count )
     {
       uf.forward_callers.pop_back();
     }
@@ -5384,7 +5428,8 @@ int Compiler::compileFile( const char* in_file )
     }
     else
     {
-      res = compile( ctx ) || emit_functions();
+      res = compile( ctx ) ||
+            emit_functions();
     }
   }
   catch ( const char* s )
@@ -5392,25 +5437,27 @@ int Compiler::compileFile( const char* in_file )
     INFO_PRINT << "Exception Detected:" << s << "\n";
     res = -1;
   }
-  catch ( std::exception& ex )
+  catch (std::exception& ex)
   {
-    INFO_PRINT << "Exception Detected:\n" << ex.what() << "\n";
+    INFO_PRINT << "Exception Detected:\n"
+               << ex.what( ) << "\n";
     res = -1;
   }
-  //	catch(...)
-  //	{
-  //		cout << "Generic Exception" << endl;
-  //		res = -1;
-  //	}
+  //  catch(...)
+  //  {
+  //    cout << "Generic Exception" << endl;
+  //    res = -1;
+  //  }
 
   if ( res < 0 )
     INFO_PRINT << "Compilation failed.\n";
 
-  // if (contains_tabs && Compiler.warnings_)
-  //	cout << "Warning! Source contains TAB characters" << endl;
+  //if (contains_tabs && Compiler.warnings_)
+  //  cout << "Warning! Source contains TAB characters" << endl;
 
   return res;
 }
+
 
 
 int Compiler::write( const char* fname )
@@ -5425,58 +5472,60 @@ int Compiler::write_dbg( const char* fname, bool gen_txt )
 
 void Compiler::writeIncludedFilenames( const char* fname ) const
 {
-  std::ofstream ofs( fname, std::ios::out | std::ios::trunc );
-  //	ofs << current_file_path << endl;
+  std::ofstream ofs(fname, std::ios::out | std::ios::trunc);
+  //  ofs << current_file_path << endl;
   for ( const auto& elem : referencedPathnames )
   {
     ofs << elem << std::endl;
   }
 }
 
-void Compiler::dump( std::ostream& os )
+void Compiler::dump(std::ostream& os)
 {
   program->dump( os );
 }
+
 }
 }
 /*
-    local x;			[ "x", RSV_LOCAL, # ]
-    local x:=5;			[ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
-    local x,y:=5;		[ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
-    local x:=5,y;
+  local x;      [ "x", RSV_LOCAL, # ]
+  local x:=5;     [ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
+  local x,y:=5;   [ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
+  local x:=5,y;
 
-    x := 5;
+  x := 5;
 
-    declare function foo(a,b,c,d);
+  declare function foo(a,b,c,d);
 
-    function foo(a,b,c,d)
-    begin
-    return
-    or
-    return "hey"
-    end
+  function foo(a,b,c,d)
+  begin
+  return
+  or
+  return "hey"
+  end
 
-    statements:
+  statements:
 
-    if expr [then] statement [else statement];
+  if expr [then] statement [else statement];
 
-    do
-    statement;
-    while expr;
+  do
+  statement;
+  while expr;
 
-    begin
-    statements;
-    end
-
-
-    while expr
-    statement;
+  begin
+  statements;
+  end
 
 
-    Alternative:
-    if expr
-    statments;
-    [else
-    statements; ]
-    endif;
-    */
+  while expr
+  statement;
+
+
+  Alternative:
+  if expr
+  statments;
+  [else
+  statements; ]
+  endif;
+  */
+

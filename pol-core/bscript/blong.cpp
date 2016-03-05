@@ -18,15 +18,17 @@ namespace Pol
 {
 namespace Bscript
 {
+
 #if BOBJECTIMP_DEBUG
-BLong::BLong( int lval ) : BObjectImp( OTLong ), lval_( static_cast<int>( lval ) )
+BLong::BLong(int lval) : BObjectImp( OTLong ), lval_(static_cast<int>(lval))
 {
 }
 
-BLong::BLong( const BLong& L ) : BObjectImp( OTLong ), lval_( L.lval_ )
+BLong::BLong(const BLong& L) : BObjectImp( OTLong ), lval_(L.lval_)
 {
 }
 #endif
+
 
 
 std::string BLong::pack() const
@@ -44,7 +46,7 @@ std::string BLong::pack( int val )
 }
 
 
-void BLong::packonto( std::ostream& os ) const
+void BLong::packonto(std::ostream& os) const
 {
   os << "i" << lval_;
 }
@@ -63,7 +65,7 @@ BObjectImp* BLong::unpack( const char* pstr )
   }
 }
 
-BObjectImp* BLong::unpack( std::istream& is )
+BObjectImp* BLong::unpack(std::istream& is)
 {
   int lv;
   if ( is >> lv )
@@ -147,7 +149,7 @@ BObjectImp* BLong::selfPlusObj( const String& objimp ) const
   return new String( getStringRep() + objimp.data() );
 }
 
-void BLong::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
+void BLong::selfPlusObjImp( BObjectImp&  objimp, BObject& obj )
 {
   objimp.selfPlusObj( *this, obj );
 }
@@ -336,7 +338,7 @@ BObjectImp* BLong::selfBitAndObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BLong::selfBitAndObj( const BLong& objimp ) const
 {
-  return new BLong( lval_ & objimp.lval_ );
+  return new BLong( lval_ &  objimp.lval_ );
 }
 void BLong::selfBitAndObjImp( BObjectImp& objimp, BObject& obj )
 {
@@ -370,7 +372,7 @@ BObjectImp* BLong::selfBitXorObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BLong::selfBitXorObj( const BLong& objimp ) const
 {
-  return new BLong( lval_ ^ objimp.lval_ );
+  return new BLong( lval_ ^  objimp.lval_ );
 }
 void BLong::selfBitXorObjImp( BObjectImp& objimp, BObject& obj )
 {

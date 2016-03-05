@@ -28,7 +28,7 @@ public:
 
   // Member Functions
 public:
-  virtual int Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+  virtual int  Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
   virtual void Init( void* pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
 };
 
@@ -48,7 +48,7 @@ public:
 
   // Member Functions
 public:
-  virtual int Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+  virtual int  Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
   virtual void Init( void* pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
   virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
 
@@ -97,7 +97,7 @@ public:
   TwoFish tfish;
 
 public:
-  virtual int Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+  virtual int  Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
   virtual void Init( void* pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
   virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
 
@@ -118,7 +118,7 @@ public:
   MD5Crypt md5;
 
 public:
-  virtual int Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
+  virtual int  Receive( void* buffer, int max_expected, SOCKET socket ) POL_OVERRIDE;
   virtual void Init( void* pvSeed, int type = CCryptBase::typeAuto ) POL_OVERRIDE;
   virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) POL_OVERRIDE;
   virtual void Encrypt( void* pvIn, void* pvOut, int len ) POL_OVERRIDE;
@@ -129,4 +129,4 @@ protected:
 }
 }
 
-#endif  //__CRYPT_H__
+#endif //__CRYPT_H__

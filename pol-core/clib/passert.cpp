@@ -52,39 +52,36 @@ void force_backtrace( bool /*complete*/ )
     int* p = 0;
     *p = 7;  // dump the stack
   }
-  __except ( ( HiddenMiniDumper::TopLevelFilter( GetExceptionInformation() ) ),
-             EXCEPTION_EXECUTE_HANDLER )
-  {
-  }
+  __except( ( HiddenMiniDumper::TopLevelFilter( GetExceptionInformation() ) ), EXCEPTION_EXECUTE_HANDLER )
+  {}
 }
 #else
-void force_backtrace( bool complete )
+void force_backtrace(bool complete)
 {
   std::string stack_trace = Clib::ExceptionParser::getTrace();
   fmt::Writer tmp;
   tmp << "=== Stack Backtrace ===\n" << stack_trace;
 
   POLLOG_ERROR << tmp.str() << "\n";
-  if ( complete )
+  if (complete)
     ExceptionParser::logAllStackTraces();
 }
 #endif
 
 void passert_failed( const char* expr, const char* file, unsigned line )
 {
-  passert_failed( expr, "", file, line );
+  passert_failed(expr, "", file, line);
 }
 
-void passert_failed( const char* expr, const std::string& reason, const char* file, unsigned line )
+void passert_failed(const char* expr, const std::string& reason, const char* file, unsigned line)
 {
-  if ( reason != "" )
-    POLLOG_ERROR << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line "
-                 << line << "\n";
+  if(reason != "")
+    POLLOG_ERROR << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line " << line << "\n";
   else
     POLLOG_ERROR << "Assertion Failed: " << expr << ", " << file << ", line " << line << "\n";
 
 
-  if ( passert_dump_stack )
+  if( passert_dump_stack )
   {
     POLLOG_ERROR << "Forcing stack backtrace.\n";
     force_backtrace();
@@ -99,40 +96,42 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
   /**
    * use the program abort reporting system
    */
-  if ( Pol::Clib::ExceptionParser::programAbortReporting() )
+  if(Pol::Clib::ExceptionParser::programAbortReporting())
   {
     char reportedReason[512];
-    if ( sprintf( reportedReason, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr,
-                  reason.c_str(), file, line ) > 0 )
-      ExceptionParser::reportProgramAbort( ExceptionParser::getTrace(),
-                                           std::string( reportedReason ) );
+    if(sprintf(reportedReason, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr, reason.c_str(),file, line) > 0)
+      ExceptionParser::reportProgramAbort(ExceptionParser::getTrace(), std::string(reportedReason));
     else
-      ExceptionParser::reportProgramAbort( ExceptionParser::getTrace(), "ASSERT failed" );
+      ExceptionParser::reportProgramAbort(ExceptionParser::getTrace(), "ASSERT failed");
   }
 
 
-  if ( passert_shutdown )
+  if( passert_shutdown )
   {
     POLLOG_ERROR << "Shutting down due to assertion failure.\n";
     exit_signalled = true;
     passert_shutdown_due_to_assertion = true;
   }
-  if ( passert_abort )
+  if( passert_abort )
   {
     POLLOG_ERROR << "Aborting due to assertion failure.\n";
     abort();
   }
 
-  if ( reason != "" )
+  if(reason != "")
   {
-    throw std::runtime_error( "Assertion Failed: " + std::string( expr ) + " (" +
-                              std::string( reason ) + "), " + std::string( file ) + ", line " +
-                              tostring( line ) );
+    throw std::runtime_error("Assertion Failed: "
+                             + std::string(expr) + " ("
+                             + std::string(reason) + "), "
+                             + std::string(file) + ", line "
+                             + tostring(line));
   }
   else
   {
-    throw std::runtime_error( "Assertion Failed: " + std::string( expr ) + ", " +
-                              std::string( file ) + ", line " + tostring( line ) );
+    throw std::runtime_error("Assertion Failed: "
+                             + std::string(expr) + ", "
+                             + std::string(file) + ", line "
+                             + tostring(line));
   }
 }
 }

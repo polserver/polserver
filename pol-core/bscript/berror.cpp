@@ -18,28 +18,33 @@ unsigned int BError::creations()
   return creations_;
 }
 
-BError::BError() : BStruct( OTError )
+BError::BError() :
+  BStruct( OTError )
 {
   ++creations_;
 }
 
-BError::BError( const BError& other ) : BStruct( other, OTError )
+BError::BError( const BError& other ) :
+  BStruct( other, OTError )
 {
   ++creations_;
 }
 
-BError::BError( std::istream& is, unsigned size ) : BStruct( is, size, OTError )
+BError::BError( std::istream& is, unsigned size ) :
+  BStruct( is, size, OTError )
 {
   ++creations_;
 }
 
-BError::BError( const char* err ) : BStruct( OTError )
+BError::BError( const char* err ) :
+  BStruct( OTError )
 {
   ++creations_;
   addMember( "errortext", new String( err ) );
 }
 
-BError::BError( const std::string& err ) : BStruct( OTError )
+BError::BError( const std::string& err ) :
+  BStruct( OTError )
 {
   ++creations_;
   addMember( "errortext", new String( err ) );
@@ -71,7 +76,7 @@ u8 BError::typeOfInt() const
   return OTError;
 }
 
-BObjectImp* BError::unpack( std::istream& is )
+BObjectImp* BError::unpack(std::istream& is)
 {
   unsigned size;
   char colon;
@@ -81,8 +86,7 @@ BObjectImp* BError::unpack( std::istream& is )
   }
   if ( (int)size <= 0 )
   {
-    return new BError(
-        "Unable to unpack struct elemcount. Length given must be positive integer!" );
+    return new BError( "Unable to unpack struct elemcount. Length given must be positive integer!" );
   }
   if ( colon != ':' )
   {
@@ -107,7 +111,7 @@ bool BError::operator==( const BObjectImp& imp ) const
 bool BError::operator<( const BObjectImp& imp ) const
 {
   if ( imp.isa( OTError ) || imp.isa( OTUninit ) )
-    return false;  // Because it's equal can't be lesser
+    return false; // Because it's equal can't be lesser
 
   return true;
 }
@@ -126,5 +130,6 @@ BObjectImp* BError::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/, b
 {
   return this;
 }
+
 }
 }

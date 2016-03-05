@@ -32,11 +32,11 @@ public:
   bool contains( unsigned short x, unsigned short y ) const;
   bool read( std::string areadesc );
   void addarea( const Area& area );
-
 private:
   typedef std::vector<Area> Areas;
   Areas areas;
 };
 }
 }
-#endif  // BOUNDBOX_H
+#endif // BOUNDBOX_H
+

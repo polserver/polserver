@@ -1,10 +1,8 @@
 /** @file
  *
  * @par History
- * - 2005/05/28 Shinigami: now u can call open_trade_window without item and splitted (for use with
- * uo::SecureTradeWin)
- *                         place_item_in_secure_trade_container splitted (for use with
- * uo::MoveItemToSecureTradeWin)
+ * - 2005/05/28 Shinigami: now u can call open_trade_window without item and splitted (for use with uo::SecureTradeWin)
+ *                         place_item_in_secure_trade_container splitted (for use with uo::MoveItemToSecureTradeWin)
  * - 2005/06/01 Shinigami: return_traded_items - added realm support
  * - 2005/11/28 MuadDib:   Added 2 more send_trade_statuses() for freshing of chr and droped_on
  *                         in sending of secure trade windows. This was per packet checks on
@@ -13,8 +11,7 @@
  * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
  * - 2009/08/06 MuadDib:   Added gotten_by code for items.
  * - 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
- * - 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return NULL to reject
- * move instead of a crash.
+ * - 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return NULL to reject move instead of a crash.
  *                         Added slot support to find_giveitem_container()
  * - 2009/09/03 MuadDib:   Changes for account related source file relocation
  *                         Changes for multi related source file relocation
@@ -75,11 +72,11 @@ namespace Core
 {
 void send_trade_statuses( Mobile::Character* chr );
 
-bool place_item_in_container( Network::Client* client, Items::Item* item, UContainer* cont, u16 x,
-                              u16 y, u8 slotIndex )
+bool place_item_in_container( Network::Client* client, Items::Item* item, UContainer* cont, u16 x, u16 y, u8 slotIndex )
 {
   ItemRef itemref( item );
-  if ( ( cont->serial == item->serial ) || is_a_parent( cont, item->serial ) )
+  if ( ( cont->serial == item->serial ) ||
+       is_a_parent( cont, item->serial ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -136,11 +133,8 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
   return true;
 }
 
-bool do_place_item_in_secure_trade_container( Network::Client* client, Items::Item* item,
-                                              UContainer* cont, Mobile::Character* dropon, u16 x,
-                                              u16 y, u8 move_type );
-bool place_item_in_secure_trade_container( Network::Client* client, Items::Item* item, u16 x,
-                                           u16 y )
+bool do_place_item_in_secure_trade_container( Network::Client* client, Items::Item* item, UContainer* cont, Mobile::Character* dropon, u16 x, u16 y, u8 move_type );
+bool place_item_in_secure_trade_container( Network::Client* client, Items::Item* item, u16 x, u16 y )
 {
   UContainer* cont = client->chr->trade_container();
   Mobile::Character* dropon = client->chr->trading_with.get();
@@ -151,9 +145,7 @@ bool place_item_in_secure_trade_container( Network::Client* client, Items::Item*
   }
   if ( gamestate.system_hooks.can_trade )
   {
-    if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ),
-                                                  new Module::ECharacterRefObjImp( dropon ),
-                                                  new Module::EItemRefObjImp( item ) ) )
+    if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
       return false;
@@ -177,8 +169,7 @@ bool place_item_in_secure_trade_container( Network::Client* client, Items::Item*
   return do_place_item_in_secure_trade_container( client, item, cont, dropon, x, y, 0 );
 }
 
-Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* client,
-                                                           Items::Item* item )
+Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* client, Items::Item* item )
 {
   UContainer* cont = client->chr->trade_container();
   Mobile::Character* dropon = client->chr->trading_with.get();
@@ -188,9 +179,7 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
   }
   if ( gamestate.system_hooks.can_trade )
   {
-    if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ),
-                                                  new Module::ECharacterRefObjImp( dropon ),
-                                                  new Module::EItemRefObjImp( item ) ) )
+    if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
       return new Bscript::BError( "Could not insert item into container." );
@@ -209,17 +198,14 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
   // FIXME : Add Grid Index Default Location Checks here.
   // Remember, if index fails, move to the ground.
 
-  if ( do_place_item_in_secure_trade_container(
-           client, item, cont, dropon, 5 + static_cast<u16>( Clib::random_int( 44 ) ),
-           5 + static_cast<u16>( Clib::random_int( 44 ) ), 1 ) )
+  if ( do_place_item_in_secure_trade_container( client, item, cont, dropon, 5 + static_cast<u16>( Clib::random_int( 44 ) ), 5 + static_cast<u16>( Clib::random_int( 44 ) ), 1 ) )
     return new Bscript::BLong( 1 );
   else
     return new Bscript::BError( "Something went wrong with trade window." );
+
 }
 
-bool do_place_item_in_secure_trade_container( Network::Client* client, Items::Item* item,
-                                              UContainer* cont, Mobile::Character* dropon, u16 x,
-                                              u16 y, u8 move_type )
+bool do_place_item_in_secure_trade_container( Network::Client* client, Items::Item* item, UContainer* cont, Mobile::Character* dropon, u16 x, u16 y, u8 move_type )
 {
   client->pause();
 
@@ -258,9 +244,7 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
 
   ItemRef itemref( item );
   if ( ( !target_item->stackable() ) || ( !target_item->can_add_to_self( *item, false ) ) ||
-       ( target_item->container &&
-         !target_item->container->can_insert_increase_stack(
-             client->chr, UContainer::MT_PLAYER, target_item, item->getamount(), item ) ) )
+       ( target_item->container && !target_item->container->can_insert_increase_stack( client->chr, UContainer::MT_PLAYER, target_item, item->getamount(), item ) ) )
   {
     send_sysmessage( client, "Could not add item to stack." );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
@@ -272,11 +256,11 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
     return false;
 
   /* At this point, we know:
-       the object types match
-       the combined stack isn't 'too large'
-       We don't know: (FIXME)
-       if a container that the target_item is in will overfill from this
-       */
+     the object types match
+     the combined stack isn't 'too large'
+     We don't know: (FIXME)
+     if a container that the target_item is in will overfill from this
+     */
 
   send_remove_object_to_inrange( item );
 
@@ -287,15 +271,13 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
 
   if ( target_item->container )
   {
-    target_item->container->on_insert_increase_stack( client->chr, UContainer::MT_PLAYER,
-                                                      target_item, amtadded );
+    target_item->container->on_insert_increase_stack( client->chr, UContainer::MT_PLAYER, target_item, amtadded );
     target_item->container->restart_decay_timer();
   }
   return true;
 }
 
-bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, u16 x, u16 y,
-                 u8 slotIndex )
+bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, u16 x, u16 y, u8 slotIndex )
 {
   Items::Item* target_item = find_legal_item( client->chr, target_serial );
 
@@ -326,14 +308,14 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
   }
 
 
+
   if ( target_item->isa( UObject::CLASS_ITEM ) )
   {
     return add_item_to_stack( client, item, target_item );
   }
   else if ( target_item->isa( UObject::CLASS_CONTAINER ) )
   {
-    return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), x, y,
-                                    slotIndex );
+    return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), x, y, slotIndex );
   }
   else
   {
@@ -352,17 +334,14 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
   short newz;
   if ( !inrangex( chr, x, y, 2 ) && !client->chr->can_moveanydist() )
   {
-    POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item out of range.\n" )
-        << client->chr->name();
+    POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item out of range.\n" ) << client->chr->name();
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
   if ( !chr->realm->dropheight( x, y, z, client->chr->z, &newz, &multi ) )
   {
-    POLLOG_ERROR.Format(
-        "Client (Character {}) tried to drop an item at ({},{},{}), which is a blocked "
-        "location.\n" )
+    POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item at ({},{},{}), which is a blocked location.\n" )
         << client->chr->name() << x << y << (int)z;
     return false;
   }
@@ -436,11 +415,12 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
   return NULL;
 }
 
-void send_trade_container( Network::Client* client, Mobile::Character* whos, UContainer* cont )
+void send_trade_container( Network::Client* client,
+                           Mobile::Character* whos,
+                           UContainer* cont )
 {
-  auto msg =
-      Network::AddItemContainerMsg( cont->serial_ext, cont->graphic, 1 /*amount*/, 0 /*x*/, 0 /*y*/,
-                                    cont->slot_index(), whos->serial_ext, cont->color );
+  auto msg = Network::AddItemContainerMsg( cont->serial_ext, cont->graphic, 1/*amount*/,
+             0/*x*/, 0/*y*/, cont->slot_index(), whos->serial_ext, cont->color );
   msg.Send( client );
 }
 
@@ -561,7 +541,7 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   msg->Write<u32>( client->chr->serial_ext );
   msg->Write<u32>( dropon->trade_container()->serial_ext );
   msg->Write<u32>( client->chr->trade_container()->serial_ext );
-  msg->offset++;  // u8 havename same as above
+  msg->offset++; // u8 havename same as above
   msg->Write( client->chr->name().c_str(), 30, false );
   msg.Send( dropon->client );
 
@@ -571,8 +551,7 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
     return true;
 }
 
-bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target_serial,
-                          u8 slotIndex )
+bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target_serial, u8 slotIndex )
 {
   Mobile::Character* dropon = find_character( target_serial );
 
@@ -597,9 +576,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
   {
     if ( gamestate.system_hooks.can_trade )
     {
-      if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ),
-                                                    new Module::ECharacterRefObjImp( dropon ),
-                                                    new Module::EItemRefObjImp( item ) ) )
+      if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ), new Module::ECharacterRefObjImp( dropon ), new Module::EItemRefObjImp( item ) ) )
       {
         send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
         return false;
@@ -650,11 +627,11 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
   client->restart();
 
   return true;
+
 }
 
 // target_serial should indicate a character, or a container, but not a pile.
-bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target_serial,
-                          u8 slotIndex )
+bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target_serial, u8 slotIndex )
 {
   ItemRef itemref( item );
   UContainer* cont = NULL;
@@ -700,8 +677,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
       {
         if ( cont->can_add( *item ) )
         {
-          if ( cont->can_insert_increase_stack( client->chr, UContainer::MT_PLAYER, exitem,
-                                                item->getamount(), item ) )
+          if ( cont->can_insert_increase_stack( client->chr, UContainer::MT_PLAYER, exitem, item->getamount(), item ) )
           {
             if ( item->orphan() )
             {
@@ -729,34 +705,34 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
 
 /* DROP_ITEM messages come in a couple varieties:
 
-    1)	Dropping an item on another object, or a person:
-    item_serial: serial number of item to drop
-    x: 0xFFFF
-    y: 0xFFFF
-    z: 0
-    target_serial: serial number of item or character to drop on.
+  1)  Dropping an item on another object, or a person:
+  item_serial: serial number of item to drop
+  x: 0xFFFF
+  y: 0xFFFF
+  z: 0
+  target_serial: serial number of item or character to drop on.
 
-    2)  Dropping an item on the ground:
-    item_serial: serial number of item to drop
-    x,y,z: position
-    target_serial: 0xFFFFFFFF
+  2)  Dropping an item on the ground:
+  item_serial: serial number of item to drop
+  x,y,z: position
+  target_serial: 0xFFFFFFFF
 
-    3)	Placing an item in a container, or in an existing pile:
-    item_serial: serial number of item to drop
-    x: x-position
-    y: y-position
-    z: 0
-    target_serial: serial number of item or character or pile to drop on.
-    */
+  3)  Placing an item in a container, or in an existing pile:
+  item_serial: serial number of item to drop
+  x: x-position
+  y: y-position
+  z: 0
+  target_serial: serial number of item or character or pile to drop on.
+  */
 
 /*
-    Name:       drop_item
-    Details:    Original version of packet is supported by this function.
-    Access:     public
-    Qualifier:
-    Parameter:	Client * client
-    Parameter:	PKTIN_08_V1 * msg
-    */
+  Name:       drop_item
+  Details:    Original version of packet is supported by this function.
+  Access:     public
+  Qualifier:
+  Parameter:  Client * client
+  Parameter:  PKTIN_08_V1 * msg
+  */
 void drop_item( Network::Client* client, PKTIN_08_V1* msg )
 {
   u32 item_serial = cfBEu32( msg->item_serial );
@@ -768,22 +744,23 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   Items::Item* item = client->chr->gotten_item();
   if ( item == nullptr )
   {
-    POLLOG_ERROR.Format(
-        "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
-        << client->chr->serial << item_serial;
+    POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
+        << client->chr->serial
+        << item_serial;
     return;
   }
   if ( item->serial != item_serial )
   {
-    POLLOG_ERROR.Format(
-        "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
-        << client->chr->serial << item_serial << item->serial;
-    item->gotten_by( nullptr );
+    POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
+        << client->chr->serial
+        << item_serial
+        << item->serial;
+    item->gotten_by(nullptr);
     return;
   }
   item->inuse( false );
-  item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  item->gotten_by(nullptr);
+  client->chr->gotten_item(nullptr);
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
@@ -818,14 +795,13 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
 
 
 /*
-    Name:       drop_item_v2
-    Details:    This is used for the version of the packet introduced in clients 6.0.1.7 2D and
-   UO:KR+ to support Slots
-    Access:     public
-    Qualifier:
-    Parameter:	Client * client
-    Parameter:	PKTIN_08_V2 * msg
-    */
+  Name:       drop_item_v2
+  Details:    This is used for the version of the packet introduced in clients 6.0.1.7 2D and UO:KR+ to support Slots
+  Access:     public
+  Qualifier:
+  Parameter:  Client * client
+  Parameter:  PKTIN_08_V2 * msg
+  */
 void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
 {
   u32 item_serial = cfBEu32( msg->item_serial );
@@ -838,22 +814,23 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   Items::Item* item = client->chr->gotten_item();
   if ( item == nullptr )
   {
-    POLLOG_ERROR.Format(
-        "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
-        << client->chr->serial << item_serial;
+    POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
+        << client->chr->serial
+        << item_serial;
     return;
   }
   if ( item->serial != item_serial )
   {
-    POLLOG_ERROR.Format(
-        "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
-        << client->chr->serial << item_serial << item->serial;
-    item->gotten_by( nullptr );
+    POLLOG_ERROR.Format( "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
+        << client->chr->serial
+        << item_serial
+        << item->serial;
+    item->gotten_by(nullptr);
     return;
   }
   item->inuse( false );
-  item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  item->gotten_by(nullptr);
+  client->chr->gotten_item(nullptr);
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
@@ -941,6 +918,7 @@ void return_traded_items( Mobile::Character* chr )
       move_item( item, chr->x, chr->y, chr->z, NULL );
     }
   }
+
 }
 
 
@@ -954,10 +932,10 @@ void cancel_trade( Mobile::Character* chr1 )
   if ( chr1->client )
   {
     Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
-    msg->WriteFlipped<u16>( 17u );  // no name
+    msg->WriteFlipped<u16>( 17u ); // no name
     msg->Write<u8>( PKTBI_6F::ACTION_CANCEL );
     msg->Write<u32>( chr1->trade_container()->serial_ext );
-    msg->offset += 9;  // u32 cont1_serial, cont2_serial, u8 havename
+    msg->offset += 9; // u32 cont1_serial, cont2_serial, u8 havename
     msg.Send( chr1->client );
     send_full_statmsg( chr1->client, chr1 );
   }
@@ -969,10 +947,10 @@ void cancel_trade( Mobile::Character* chr1 )
     if ( chr2->client )
     {
       Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
-      msg->WriteFlipped<u16>( 17u );  // no name
+      msg->WriteFlipped<u16>( 17u ); // no name
       msg->Write<u8>( PKTBI_6F::ACTION_CANCEL );
       msg->Write<u32>( chr2->trade_container()->serial_ext );
-      msg->offset += 9;  // u32 cont1_serial, cont2_serial, u8 havename
+      msg->offset += 9; // u32 cont1_serial, cont2_serial, u8 havename
       msg.Send( chr2->client );
       send_full_statmsg( chr2->client, chr2 );
     }
@@ -985,12 +963,12 @@ void send_trade_statuses( Mobile::Character* chr )
   unsigned int stat2 = chr->trading_with->trade_accepted ? 1 : 0;
 
   Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
-  msg->WriteFlipped<u16>( 17u );  // no name
+  msg->WriteFlipped<u16>( 17u ); // no name
   msg->Write<u8>( PKTBI_6F::ACTION_STATUS );
   msg->Write<u32>( chr->trade_container()->serial_ext );
   msg->WriteFlipped<u32>( stat1 );
   msg->WriteFlipped<u32>( stat2 );
-  msg->offset++;  // u8 havename
+  msg->offset++; // u8 havename
   Network::transmit( chr->client, &msg->buffer, msg->offset );
   msg->offset = 4;
   msg->Write<u32>( chr->trading_with->trade_container()->serial_ext );
@@ -1004,7 +982,8 @@ void change_trade_status( Mobile::Character* chr, bool set )
 {
   chr->trade_accepted = set;
   send_trade_statuses( chr );
-  if ( chr->trade_accepted && chr->trading_with->trade_accepted )
+  if ( chr->trade_accepted &&
+       chr->trading_with->trade_accepted )
 
   {
     UContainer* cont0 = chr->trade_container();
@@ -1017,7 +996,10 @@ void change_trade_status( Mobile::Character* chr, bool set )
     else
     {
       POLLOG_ERROR.Format( "Can't swap trade containers: ic0={},w0={}, ic1={},w1={}\n" )
-          << cont0->item_count() << cont0->weight() << cont1->item_count() << cont1->weight();
+          << cont0->item_count()
+          << cont0->weight()
+          << cont1->item_count()
+          << cont1->weight();
     }
   }
 }

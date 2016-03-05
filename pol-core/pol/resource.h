@@ -27,13 +27,17 @@ namespace Core
 {
 class ResourceDef;
 
-Bscript::BObjectImp* get_harvest_difficulty( const char* resource, xcoord x, ycoord y,
-                                             Realms::Realm* realm, unsigned short marker );
-Bscript::BObjectImp* harvest_resource( const char* resource, xcoord x, ycoord y,
-                                       Realms::Realm* realm, int b, int n );
+Bscript::BObjectImp* get_harvest_difficulty( const char* resource,
+    xcoord x,
+    ycoord y, Realms::Realm* realm,
+    unsigned short marker );
+Bscript::BObjectImp* harvest_resource( const char* resource,
+                                       xcoord x, ycoord y, Realms::Realm* realm,
+                                       int b, int n );
 
-Bscript::BObjectImp* get_region_string( const char* resource, xcoord x, ycoord y,
-                                        Realms::Realm* realm, const std::string& propname );
+Bscript::BObjectImp* get_region_string( const char* resource,
+                                        xcoord x, ycoord y, Realms::Realm* realm,
+                                        const std::string& propname );
 
 ResourceDef* find_resource_def( const std::string& rname );
 void write_resources_dat( Clib::StreamWriter& sw_resource );
@@ -57,8 +61,8 @@ public:
 
   unsigned int tilecount_;
   friend class ResourceDef;
-
 private:
+
   //
   // These are only used for depletion levels.
   //
@@ -72,8 +76,8 @@ private:
   //
   // the following are used if resource banks are implemented.
   //
-  unsigned int capacity_;  // config
-  unsigned int units_;     // data
+  unsigned int capacity_;        // config
+  unsigned int units_;           // data
 };
 
 
@@ -92,8 +96,8 @@ public:
   void produce( unsigned amount );
   void counttiles();
   void write( Clib::StreamWriter& sw ) const;
-
 protected:
+
 private:
   unsigned int initial_units_;
   int current_units_;
@@ -103,4 +107,4 @@ private:
 };
 }
 }
-#endif  // RESOURCE_H
+#endif // RESOURCE_H

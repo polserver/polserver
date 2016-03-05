@@ -38,6 +38,7 @@
 
 namespace Pol
 {
+
 /// Guild Object
 ///  Properties:
 ///   guild.guildid : integer
@@ -65,16 +66,18 @@ namespace Pol
 namespace Bscript
 {
 using namespace Module;
-template <>
+template<>
 TmplExecutorModule<GuildExecutorModule>::FunctionDef
-    TmplExecutorModule<GuildExecutorModule>::function_table[] = {
-        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds},
-        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild},
-        {"FindGuild", &GuildExecutorModule::mf_FindGuild},
-        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
+TmplExecutorModule<GuildExecutorModule>::function_table[] =
+{
+  { "ListGuilds", &GuildExecutorModule::mf_ListGuilds },
+  { "CreateGuild", &GuildExecutorModule::mf_CreateGuild },
+  { "FindGuild", &GuildExecutorModule::mf_FindGuild },
+  { "DestroyGuild", &GuildExecutorModule::mf_DestroyGuild },
 };
-template <>
-int TmplExecutorModule<GuildExecutorModule>::function_table_size = arsize( function_table );
+template<>
+int TmplExecutorModule<GuildExecutorModule>::function_table_size =
+  arsize( function_table );
 }
 namespace Module
 {
@@ -91,17 +94,16 @@ public:
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
+  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
+  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
 };
 
 BApplicObjType guild_type;
 
 
-EGuildRefObjImp::EGuildRefObjImp( Core::GuildRef gref )
-    : BApplicObj<Core::GuildRef>( &guild_type, gref ){};
+EGuildRefObjImp::EGuildRefObjImp( Core::GuildRef gref ) : BApplicObj<Core::GuildRef>( &guild_type, gref )
+{};
 
 const char* EGuildRefObjImp::typeOf() const
 {
@@ -126,13 +128,12 @@ bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &guild_type )
     {
       const EGuildRefObjImp* guildref_imp =
-          Clib::explicit_cast<const EGuildRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const EGuildRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( guildref_imp->obj_->_guildid == obj_->_guildid );
     }
@@ -148,7 +149,10 @@ BObjectImp* GuildExecutorModule::CreateGuildRefObjImp( Core::Guild* guild )
   return new EGuildRefObjImp( ref_ptr<Core::Guild>( guild ) );
 }
 
-bool getGuildParam( Executor& exec, unsigned param, Core::Guild*& guild, BError*& err )
+bool getGuildParam( Executor& exec,
+                    unsigned param,
+                    Core::Guild*& guild,
+                    BError*& err )
 {
   BApplicObjBase* aob = NULL;
   if ( exec.hasParams( param + 1 ) )
@@ -170,7 +174,7 @@ bool getGuildParam( Executor& exec, unsigned param, Core::Guild*& guild, BError*
   return true;
 }
 
-BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
+BObjectRef EGuildRefObjImp::get_member_id( const int id ) //id test
 {
   if ( obj_->_disbanded )
     return BObjectRef( new BError( "Guild has disbanded" ) );
@@ -297,8 +301,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool /*
     Core::Guild* allyguild;
     BError* err;
     if ( getGuildParam( ex, 0, allyguild, err ) )
-      return new BLong(
-          static_cast<int>( obj_->_allyguild_serials.count( allyguild->guildid() ) ) );
+      return new BLong( static_cast<int>( obj_->_allyguild_serials.count( allyguild->guildid() ) ) );
     else
       return err;
   }
@@ -310,8 +313,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool /*
     Core::Guild* enemyguild;
     BError* err;
     if ( getGuildParam( ex, 0, enemyguild, err ) )
-      return new BLong(
-          static_cast<int>( obj_->_enemyguild_serials.count( enemyguild->guildid() ) ) );
+      return new BLong( static_cast<int>( obj_->_enemyguild_serials.count( enemyguild->guildid() ) ) );
     else
       return err;
   }
@@ -482,9 +484,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 BObjectImp* GuildExecutorModule::mf_ListGuilds()
 {
   std::unique_ptr<ObjArray> result( new ObjArray );
-  for ( Core::Guilds::iterator itr = Core::gamestate.guilds.begin(),
-                               end = Core::gamestate.guilds.end();
-        itr != end; ++itr )
+  for ( Core::Guilds::iterator itr = Core::gamestate.guilds.begin(), end = Core::gamestate.guilds.end(); itr != end; ++itr )
   {
     Core::Guild* guild = ( *itr ).second.get();
     result->addElement( new EGuildRefObjImp( Core::GuildRef( guild ) ) );
@@ -542,5 +542,9 @@ BObjectImp* GuildExecutorModule::mf_FindGuild()
     return new BError( "Invalid parameter type" );
   }
 }
+
+
+
 }
+
 }

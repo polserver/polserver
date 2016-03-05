@@ -19,6 +19,7 @@
  */
 
 
+
 #include "network/client.h"
 #include "network/packets.h"
 #include "network/msghandl.h"
@@ -94,12 +95,11 @@ bool server_applies( Network::Client* client, int i )
     unsigned int addr1part, addr2part;
     struct sockaddr_in* sockin = reinterpret_cast<struct sockaddr_in*>( &client->ipaddr );
 
-    addr1part =
-        networkManager.servers[i]->ip_match[j] & networkManager.servers[i]->ip_match_mask[j];
+    addr1part = networkManager.servers[i]->ip_match[j] & networkManager.servers[i]->ip_match_mask[j];
 #ifdef _WIN32
     addr2part = sockin->sin_addr.S_un.S_addr & networkManager.servers[i]->ip_match_mask[j];
 #else
-    addr2part = sockin->sin_addr.s_addr & networkManager.servers[i]->ip_match_mask[j];
+    addr2part = sockin->sin_addr.s_addr      & networkManager.servers[i]->ip_match_mask[j];
 #endif
     if ( addr1part == addr2part )
       return true;
@@ -137,7 +137,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
   std::string msgpass = msg->password;
   std::string acctname = acct->name();
   std::string temp;
-  Clib::MD5_Encrypt( acctname + msgpass, temp );  // MD5
+  Clib::MD5_Encrypt( acctname + msgpass, temp ); //MD5
   correct_password = Clib::MD5_Compare( acct->passwordhash(), temp );
 
   if ( !correct_password )
@@ -145,7 +145,8 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
     client->Disconnect();
     POLLOG.Format( "Incorrect password for account {} from {}\n" )
-        << acct->name() << Network::AddressToString( &client->ipaddr );
+        << acct->name()
+        << Network::AddressToString( &client->ipaddr );
     return;
   }
   else
@@ -165,16 +166,18 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
   }
 
   POLLOG_INFO.Format( "Account {} logged in from {}\n" )
-      << acct->name() << Network::AddressToString( &client->ipaddr );
+      << acct->name()
+      << Network::AddressToString( &client->ipaddr );
 
   client->acct = acct;
 
   Network::PktHelper::PacketOut<Network::PktOut_A8> msgA8;
   msgA8->offset += 2;
   msgA8->Write<u8>( 0xFFu );
-  msgA8->offset += 2;  // servcount
+  msgA8->offset += 2; //servcount
 
   unsigned short servcount = 0;
+
 
 
   for ( idx = 0; idx < networkManager.servers.size(); idx++ )
@@ -183,8 +186,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
 
     if ( !server->hostname.empty() )
     {
-      struct hostent* he =
-          gethostbyname( server->hostname.c_str() );  // FIXME: here is a potential server lockup
+      struct hostent* he = gethostbyname( server->hostname.c_str() ); // FIXME: here is a potential server lockup
       if ( he != NULL && he->h_addr_list[0] )
       {
         char* addr = he->h_addr_list[0];
@@ -195,8 +197,9 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
       }
       else
       {
-        POLLOG.Format( "gethostbyname(\"{}\") failed for server {}\n" ) << server->hostname
-                                                                        << server->name;
+        POLLOG.Format( "gethostbyname(\"{}\") failed for server {}\n" )
+            << server->hostname
+            << server->name;
         continue;
       }
     }
@@ -207,7 +210,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
       msgA8->WriteFlipped<u16>( idx + 1u );
       msgA8->Write( server->name.c_str(), 30 );
       msgA8->WriteFlipped<u16>( idx + 1u );
-      msgA8->offset += 2;  // u8 percentfull, s8 timezone
+      msgA8->offset += 2; //u8 percentfull, s8 timezone
       msgA8->Write( server->ip, 4 );
     }
   }
@@ -221,49 +224,45 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
 
   if ( servcount == 0 )
   {
-    POLLOG.Format( "No applicable servers for client connecting from {}\n" )
-        << Network::AddressToString( &client->ipaddr );
+    POLLOG.Format( "No applicable servers for client connecting from {}\n" ) << Network::AddressToString( &client->ipaddr );
   }
 }
 
 void handle_A4( Network::Client* /*client*/, PKTIN_A4* /*msg*/ )
-{
-}
+{}
 
 void handle_D9( Network::Client* client, PKTIN_D9* msg )
 {
-  PKTIN_D9 _msg;  // got crashes here under *nix -> modify a new local instance
+  PKTIN_D9 _msg; // got crashes here under *nix -> modify a new local instance
   // Transform Little-Endian <-> Big-Endian
-  _msg.instance = cfBEu32( msg->instance );              // Unique Instance ID of UO
-  _msg.os_major = cfBEu32( msg->os_major );              // OS Major
-  _msg.os_minor = cfBEu32( msg->os_minor );              // OS Minor
-  _msg.os_revision = cfBEu32( msg->os_revision );        // OS Revision
-  _msg.cpu_family = cfBEu32( msg->cpu_family );          // CPU Family
-  _msg.cpu_model = cfBEu32( msg->cpu_model );            // CPU Model
-  _msg.cpu_clockspeed = cfBEu32( msg->cpu_clockspeed );  // CPU Clock Speed [Mhz]
-  _msg.memory = cfBEu32( msg->memory );                  // Memory [MB]
-  _msg.screen_width = cfBEu32( msg->screen_width );      // Screen Width
-  _msg.screen_height = cfBEu32( msg->screen_height );    // Screen Height
-  _msg.screen_depth = cfBEu32( msg->screen_depth );      // Screen Depth [Bit]
-  _msg.directx_major = cfBEu16( msg->directx_major );    // DirectX Major
-  _msg.directx_minor = cfBEu16( msg->directx_minor );    // DirectX Minor
+  _msg.instance = cfBEu32( msg->instance );       // Unique Instance ID of UO
+  _msg.os_major = cfBEu32( msg->os_major );       // OS Major
+  _msg.os_minor = cfBEu32( msg->os_minor );       // OS Minor
+  _msg.os_revision = cfBEu32( msg->os_revision );    // OS Revision
+  _msg.cpu_family = cfBEu32( msg->cpu_family );     // CPU Family
+  _msg.cpu_model = cfBEu32( msg->cpu_model );      // CPU Model
+  _msg.cpu_clockspeed = cfBEu32( msg->cpu_clockspeed ); // CPU Clock Speed [Mhz]
+  _msg.memory = cfBEu32( msg->memory );         // Memory [MB]
+  _msg.screen_width = cfBEu32( msg->screen_width );   // Screen Width
+  _msg.screen_height = cfBEu32( msg->screen_height );  // Screen Height
+  _msg.screen_depth = cfBEu32( msg->screen_depth );   // Screen Depth [Bit]
+  _msg.directx_major = cfBEu16( msg->directx_major );  // DirectX Major
+  _msg.directx_minor = cfBEu16( msg->directx_minor );  // DirectX Minor
 
-  for ( unsigned i = 0; i < sizeof( msg->video_description ) / sizeof( msg->video_description[0] );
-        ++i )
-    _msg.video_description[i] =
-        cfBEu16( msg->video_description[i] );  // Video Card Description [wide-character]
+  for ( unsigned i = 0; i < sizeof( msg->video_description ) / sizeof( msg->video_description[0] ); ++i )
+    _msg.video_description[i] = cfBEu16( msg->video_description[i] ); // Video Card Description [wide-character]
 
-  _msg.video_vendor = cfBEu32( msg->video_vendor );  // Video Card Vendor ID
-  _msg.video_device = cfBEu32( msg->video_device );  // Video Card Device ID
-  _msg.video_memory = cfBEu32( msg->video_memory );  // Video Card Memory [MB]
+  _msg.video_vendor = cfBEu32( msg->video_vendor );   // Video Card Vendor ID
+  _msg.video_device = cfBEu32( msg->video_device );   // Video Card Device ID
+  _msg.video_memory = cfBEu32( msg->video_memory );   // Video Card Memory [MB]
 
   for ( unsigned i = 0; i < sizeof( msg->langcode ) / sizeof( msg->langcode[0] ); ++i )
-    _msg.langcode[i] = cfBEu16( msg->langcode[i] );  // Language Code [wide-character]
+    _msg.langcode[i] = cfBEu16( msg->langcode[i] ); // Language Code [wide-character]
 
   client->setclientinfo( &_msg );
 }
 
-void select_server( Network::Client* client, PKTIN_A0* msg )  // Relay player to a certain IP
+void select_server( Network::Client* client, PKTIN_A0* msg ) // Relay player to a certain IP
 {
   unsigned servernum = cfBEu16( msg->servernum ) - 1;
 
@@ -285,15 +284,12 @@ void select_server( Network::Client* client, PKTIN_A0* msg )  // Relay player to
     rsp->WriteFlipped<u16>( client->listen_port );
   else
     rsp->WriteFlipped<u16>( svr->port );
-  // MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from
-  // loginserver
-  // to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017
-  // and kr
+  // MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
+  // to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
   // packets.
 
   unsigned int nseed = 0xFEFE0000 | client->ClientType;
-  rsp->WriteFlipped<u32>( nseed );  // This was set to 0xffffffff in the past but this will conflict
-                                    // with UO:KR detection
+  rsp->WriteFlipped<u32>( nseed ); // This was set to 0xffffffff in the past but this will conflict with UO:KR detection
 
   rsp.Send( client );
 
@@ -302,25 +298,22 @@ void select_server( Network::Client* client, PKTIN_A0* msg )  // Relay player to
 
 void send_start( Network::Client* client )
 {
-  send_feature_enable(
-      client );  // Shinigami: moved from start_client_char() to send before char selection
+  send_feature_enable( client ); // Shinigami: moved from start_client_char() to send before char selection
 
   unsigned i;
-  u32 clientflag;            // sets client flags
-  unsigned char char_slots;  // number of slots according to expansion, avoids crashing people
-  unsigned char char_count;  // number of chars to send: Max(char_slots, 5)
+  u32 clientflag; // sets client flags
+  unsigned char char_slots; // number of slots according to expansion, avoids crashing people
+  unsigned char char_count; // number of chars to send: Max(char_slots, 5)
 
-  char_slots = static_cast<u8>(
-      Plib::systemstate.config
-          .character_slots );  // sets it first to be the number defined in the config
+  char_slots = static_cast<u8>( Plib::systemstate.config.character_slots ); // sets it first to be the number defined in the config
   // TODO: Per account character slots? (With the actual character_slots defining maximum)
 
   // If more than 6 chars and no AOS, only send 5. Client is so boring sometimes...
   if ( char_slots >= 6 && !( client->UOExpansionFlag & Network::AOS ) )
     char_slots = 5;
 
-  char_count = 5;                 // UO always expects a minimum of 5? What a kludge...
-  if ( char_slots > char_count )  // Max(char_slots, 5)
+  char_count = 5; // UO always expects a minimum of 5? What a kludge...
+  if ( char_slots > char_count ) // Max(char_slots, 5)
     char_count = char_slots;
 
   Network::PktHelper::PacketOut<Network::PktOut_A9> msg;
@@ -329,14 +322,14 @@ void send_start( Network::Client* client )
 
   for ( i = 0; i < char_count; i++ )
   {
-    if ( i < char_slots )  // Small kludge to have a minimum of 5 chars in the packet
+    if ( i < char_slots ) // Small kludge to have a minimum of 5 chars in the packet
     {
       // name only 30 long rest is password seems to fix the password promt problem
       Mobile::Character* chr = client->acct->get_character( i );
       if ( chr )
       {
         msg->Write( chr->name().c_str(), 30, false );
-        msg->offset += 30;  // password
+        msg->offset += 30; //password
       }
       else
         msg->offset += 60;
@@ -360,8 +353,8 @@ void send_start( Network::Client* client )
       msg->WriteFlipped<u32>( coord.x );
       msg->WriteFlipped<u32>( coord.y );
       msg->WriteFlipped<s32>( coord.z );
-      msg->WriteFlipped<u32>( gamestate.startlocations[i]->mapid );        // MapID
-      msg->WriteFlipped<u32>( gamestate.startlocations[i]->cliloc_desc );  // Cliloc Description
+      msg->WriteFlipped<u32>( gamestate.startlocations[i]->mapid ); // MapID
+      msg->WriteFlipped<u32>( gamestate.startlocations[i]->cliloc_desc ); // Cliloc Description
       msg->offset += 4;
     }
     else
@@ -371,18 +364,17 @@ void send_start( Network::Client* client )
     }
   }
 
-  clientflag = settingsManager.ssopt.uo_feature_enable;  // 'default' flags. Maybe auto-enable them
-                                                         // according to the expansion?
+  clientflag = settingsManager.ssopt.uo_feature_enable; // 'default' flags. Maybe auto-enable them according to the expansion?
 
-  clientflag |= PKTOUT_A9::FLAG_SEND_UO3D_TYPE;  // Let UO3D (KR,SA) send 0xE1 packet
+  clientflag |= PKTOUT_A9::FLAG_SEND_UO3D_TYPE; // Let UO3D (KR,SA) send 0xE1 packet
 
   // Change this to a function for clarity? -- Nando
   if ( char_slots == 7 )
-    clientflag |= PKTOUT_A9::FLAG_UPTO_SEVEN_CHARACTERS;  // 7th Character flag
+    clientflag |= PKTOUT_A9::FLAG_UPTO_SEVEN_CHARACTERS; // 7th Character flag
   else if ( char_slots == 6 )
-    clientflag |= PKTOUT_A9::FLAG_UPTO_SIX_CHARACTERS;  // 6th Character Flag
+    clientflag |= PKTOUT_A9::FLAG_UPTO_SIX_CHARACTERS; // 6th Character Flag
   else if ( char_slots == 1 )
-    clientflag |= 0x14;  // Only one character (SIEGE (0x04) + LIMIT_CHAR (0x10))
+    clientflag |= 0x14; // Only one character (SIEGE (0x04) + LIMIT_CHAR (0x10))
 
   msg->WriteFlipped<u32>( clientflag );
   u16 len = msg->offset;
@@ -391,7 +383,7 @@ void send_start( Network::Client* client )
   msg.Send( client, len );
 }
 
-void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and character listing
+void login2( Network::Client* client, PKTIN_91* msg ) // Gameserver login and character listing
 {
   client->encrypt_server_stream = 1;
 
@@ -403,8 +395,8 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   }
 
   /* Hmm, might have to re-search for account.
-     For now, we already have the account in client->acct.
-     Might work different if real loginservers were used. */
+   For now, we already have the account in client->acct.
+   Might work different if real loginservers were used. */
   Accounts::Account* acct = Accounts::find_account( msg->name );
   if ( acct == NULL )
   {
@@ -416,24 +408,25 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   // First check the password - if wrong, you can't find out anything else.
   bool correct_password = false;
 
-  // dave changed 6/5/3, always authenticate with hashed user+pass
+  //dave changed 6/5/3, always authenticate with hashed user+pass
   std::string msgpass = msg->password;
   std::string acctname = acct->name();
   std::string temp;
-  Clib::MD5_Encrypt( acctname + msgpass, temp );  // MD5
-  correct_password = Clib::MD5_Compare( acct->passwordhash(), temp );
+  Clib::MD5_Encrypt( acctname + msgpass, temp ); //MD5
+  correct_password = Clib::MD5_Compare( acct->passwordhash( ), temp );
 
   if ( !correct_password )
   {
     send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
     client->Disconnect();
     POLLOG.Format( "Incorrect password for account {} from {}\n" )
-        << acct->name() << Network::AddressToString( &client->ipaddr );
+        << acct->name()
+        << Network::AddressToString( &client->ipaddr );
     return;
   }
   else
   {
-    // write out cleartext if necessary
+    //write out cleartext if necessary
     if ( Plib::systemstate.config.retain_cleartext_passwords )
     {
       if ( acct->password().empty() )
@@ -449,26 +442,25 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   }
 
   //
-  // Dave moved the max_clients check to pol.cpp so character cmdlevel could be checked.
+  //Dave moved the max_clients check to pol.cpp so character cmdlevel could be checked.
   //
 
-  POLLOG.Format( "Account {} logged in from {}\n" ) << acct->name()
-                                                    << Network::AddressToString( &client->ipaddr );
+  POLLOG.Format( "Account {} logged in from {}\n" )
+      << acct->name()
+      << Network::AddressToString( &client->ipaddr );
 
   // ENHANCEMENT: could authenticate with real loginservers.
 
   client->acct = acct;
   /* NOTE: acct->client is not set here.  It is possible that another client
-     is still connected, or a connection is stuck open, or similar.  When
-     a character is selected, if another client is connected, measures will
-     be taken. */
+   is still connected, or a connection is stuck open, or similar.  When
+   a character is selected, if another client is connected, measures will
+   be taken. */
 
   // Tell the client about the starting locations and his characters (up to 5).
 
-  // MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from
-  // loginserver
-  // to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017
-  // and kr
+  // MuadDib Added new seed system. This is for transferring KR/6017/Normal client detection from loginserver
+  // to the gameserver. Allows keeping client flags from remote loginserver to gameserver for 6017 and kr
   // packets.
   client->ClientType = cfBEu16( msg->unk3_4_ClientType );
 
@@ -493,7 +485,8 @@ void handle_delete_character( Network::Client* client, PKTIN_83* msg )
 {
   u32 charidx = cfBEu32( msg->charidx );
 
-  if ( ( charidx >= Plib::systemstate.config.character_slots ) || ( client->acct == NULL ) ||
+  if ( ( charidx >= Plib::systemstate.config.character_slots ) ||
+       ( client->acct == NULL ) ||
        ( client->acct->get_character( charidx ) == NULL ) )
   {
     send_login_error( client, LOGIN_ERROR_MISC );
@@ -503,8 +496,7 @@ void handle_delete_character( Network::Client* client, PKTIN_83* msg )
 
   Accounts::Account* acct = client->acct;
   Mobile::Character* chr = acct->get_character( charidx );
-  if ( chr->client != NULL || ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-                                acct->has_active_characters() ) )
+  if ( chr->client != NULL || ( ! Plib::systemstate.config.allow_multi_clients_per_account && acct->has_active_characters() ) )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -524,5 +516,6 @@ void KR_Verifier_Response( Network::Client* /*client*/, PKTIN_E4* /*msg*/ )
 {
   //
 }
+
 }
 }

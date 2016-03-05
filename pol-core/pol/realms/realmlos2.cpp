@@ -44,5 +44,6 @@ bool Realm::has_los( const Mobile::Character& iatt, const Core::UObject& itgt ) 
   Core::LosObj tgt( itgt );
   return has_los( att, tgt );
 }
+
 }
 }

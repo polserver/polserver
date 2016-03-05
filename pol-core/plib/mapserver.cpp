@@ -23,7 +23,8 @@ namespace Pol
 {
 namespace Plib
 {
-MapServer::MapServer( const RealmDescriptor& descriptor ) : _descriptor( descriptor )
+MapServer::MapServer( const RealmDescriptor& descriptor ) :
+  _descriptor( descriptor )
 {
   LoadSolids();
 
@@ -34,30 +35,28 @@ MapServer::MapServer( const RealmDescriptor& descriptor ) : _descriptor( descrip
 }
 
 MapServer::~MapServer()
-{
-}
+{}
 
 void MapServer::LoadSolids()
 {
   std::string filename = _descriptor.path( "solids.dat" );
 
-  Clib::BinaryFile infile( filename, std::ios::in );
+  Clib::BinaryFile infile(filename, std::ios::in);
   infile.ReadVector( _shapedata );
 }
 
 void MapServer::LoadSecondLevelIndex()
 {
-  std::string filename = _descriptor.path( "solidx2.dat" );
+  std::string filename = _descriptor.path("solidx2.dat");
 
-  Clib::BinaryFile infile( filename, std::ios::in );
+  Clib::BinaryFile infile(filename, std::ios::in);
   std::fstream::pos_type filesize = infile.FileSize();
-  if ( filesize < std::fstream::pos_type( SOLIDX2_FILLER_SIZE ) )
-    throw std::runtime_error( filename + " must have size of at least " +
-                              Clib::decint( SOLIDX2_FILLER_SIZE ) + " bytes." );
+  if (filesize < std::fstream::pos_type(SOLIDX2_FILLER_SIZE))
+    throw std::runtime_error(filename + " must have size of at least " + Clib::decint(SOLIDX2_FILLER_SIZE) + " bytes.");
 
-  std::fstream::pos_type databytes = filesize - std::fstream::pos_type( SOLIDX2_FILLER_SIZE );
+  std::fstream::pos_type databytes = filesize - std::fstream::pos_type(SOLIDX2_FILLER_SIZE);
   if ( ( databytes % sizeof( SOLIDX2_ELEM ) ) != 0 )
-    throw std::runtime_error( filename + " does not contain an integral number of elements." );
+    throw std::runtime_error(filename + " does not contain an integral number of elements.");
 
   size_t count = static_cast<size_t>( databytes / sizeof( SOLIDX2_ELEM ) );
   _index2.resize( count );
@@ -82,9 +81,9 @@ void MapServer::LoadSecondLevelIndex()
 
 void MapServer::LoadFirstLevelIndex()
 {
-  std::string filename = _descriptor.path( "solidx1.dat" );
+  std::string filename = _descriptor.path("solidx1.dat");
 
-  Clib::BinaryFile infile( filename, std::ios::in );
+  Clib::BinaryFile infile(filename, std::ios::in);
 
   size_t n_blocks = ( _descriptor.width / SOLIDX_X_SIZE ) * ( _descriptor.height / SOLIDX_Y_SIZE );
   _index1.resize( n_blocks );
@@ -106,8 +105,7 @@ void MapServer::LoadFirstLevelIndex()
   }
 }
 
-void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned short y,
-                              unsigned int anyflags ) const
+void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const
 {
   passert( x < _descriptor.width && y < _descriptor.height );
 
@@ -117,7 +115,7 @@ void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned s
   if ( cell.flags & anyflags )
   {
     shape.flags = cell.flags;
-    shape.z = cell.z - 1;  // assume now map is at z-1 with height 1 for solidity
+    shape.z = cell.z - 1; //assume now map is at z-1 with height 1 for solidity
     shape.height = 1;
     shapes.push_back( shape );
   }
@@ -125,9 +123,9 @@ void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned s
   if ( cell.flags & FLAG::MORE_SOLIDS )
   {
     unsigned short xblock = x >> SOLIDX_X_SHIFT;
-    unsigned short xcell = x & SOLIDX_X_CELLMASK;
+    unsigned short xcell = x &   SOLIDX_X_CELLMASK;
     unsigned short yblock = y >> SOLIDX_Y_SHIFT;
-    unsigned short ycell = y & SOLIDX_Y_CELLMASK;
+    unsigned short ycell = y &   SOLIDX_Y_CELLMASK;
 
     size_t block = yblock * ( _descriptor.width >> SOLIDX_X_SHIFT ) + xblock;
     SOLIDX2_ELEM* pIndex2 = _index1[block];
@@ -162,7 +160,7 @@ MapServer* MapServer::Create( const RealmDescriptor& descriptor )
   }
   else
   {
-    throw std::runtime_error( "Undefined mapserver type: " + descriptor.mapserver_type );
+    throw std::runtime_error("Undefined mapserver type: " + descriptor.mapserver_type);
   }
 }
 
@@ -170,9 +168,9 @@ size_t MapServer::sizeEstimate() const
 {
   size_t size = sizeof( *this );
   size += _descriptor.sizeEstimate();
-  size += 3 * sizeof( SOLIDX2_ELEM** ) + _index1.capacity() * sizeof( SOLIDX2_ELEM* );
-  size += 3 * sizeof( SOLIDX2_ELEM* ) + _index2.capacity() * sizeof( SOLIDX2_ELEM );
-  size += 3 * sizeof( SOLIDS_ELEM* ) + _shapedata.capacity() * sizeof( SOLIDS_ELEM );
+  size += 3 * sizeof(SOLIDX2_ELEM**)+_index1.capacity() * sizeof( SOLIDX2_ELEM*);
+  size += 3 * sizeof(SOLIDX2_ELEM*)+_index2.capacity() * sizeof( SOLIDX2_ELEM );
+  size += 3 * sizeof(SOLIDS_ELEM*)+_shapedata.capacity() * sizeof( SOLIDS_ELEM );
   return size;
 }
 }

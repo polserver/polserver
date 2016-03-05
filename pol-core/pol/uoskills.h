@@ -24,6 +24,7 @@ class Attribute;
 }
 namespace Core
 {
+
 class UOSkill
 {
 public:

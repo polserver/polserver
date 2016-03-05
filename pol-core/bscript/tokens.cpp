@@ -5,7 +5,8 @@
  */
 
 
-#include "tokens.h"
+
+# include "tokens.h"
 
 
 namespace Pol
@@ -18,7 +19,7 @@ namespace Clib
 template <>
 std::string tostring( const Bscript::BTokenType& v )
 {
-  return tostring( static_cast<int>( v ) );
+  return tostring(static_cast<int>(v));
 }
 
 /**
@@ -27,7 +28,7 @@ std::string tostring( const Bscript::BTokenType& v )
 template <>
 std::string tostring( const Bscript::BTokenId& v )
 {
-  return tostring( static_cast<int>( v ) );
+  return tostring(static_cast<int>(v));
 }
 }
 }

@@ -40,21 +40,21 @@
 
 /* How get_item works:
    when the client drags an item off the ground,
-     a GET_ITEM message is generated.
+   a GET_ITEM message is generated.
    when this item is dropped on the paperdoll,
-     an EQUIP_ITEM message is generated.
+   an EQUIP_ITEM message is generated.
    when this item is dropped on the ground,
-     a DROP_ITEM message is generated
+   a DROP_ITEM message is generated
    when this item is placed in a container,
-     a DROP_ITEM message is generated.
+   a DROP_ITEM message is generated.
 
 
    if the item requested cannot be 'gotten', a ITEM_MOVE_FAILURE message is sent (0x27),
-       reason code 0 (you cannot pick that up).  The client automatically places the
-       item back where it was. (what do the real servers do?)
+     reason code 0 (you cannot pick that up).  The client automatically places the
+     item back where it was. (what do the real servers do?)
 
    if on equip, the item cannot be placed, an ITEM_MOVE_FAILURE(0x27,0x05) is sent.
-       the client just beeps, and does not release the object.
+     the client just beeps, and does not release the object.
 
 */
 namespace Pol
@@ -87,7 +87,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
     return;
   }
-  ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  ItemRef itemref( item ); //dave 1/28/3 prevent item from being destroyed before function ends
 
   u8 oldSlot = item->slot_index();
 
@@ -121,7 +121,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
     return;
   }
-  if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+  if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
   {
     return;
   }
@@ -133,7 +133,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
       send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
       return;
     }
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+    if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
     {
       return;
     }
@@ -161,30 +161,30 @@ void get_item( Network::Client* client, PKTIN_07* msg )
     remove_item_from_world( item );
   }
 
-  client->chr->gotten_item( item );
+  client->chr->gotten_item(item);
   item->inuse( true );
   item->gotten_by( client->chr );
-  item->x = item->y = item->z = 0;  // don't let a boat carry it around
+  item->x = item->y = item->z = 0; // don't let a boat carry it around
 
   if ( orig_container != NULL )
   {
     orig_container->on_remove( client->chr, item );
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+    if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
     {
       return;
     }
   }
 
   /* Check for moving part of a stack.  Here are the possibilities:
-      1) Client specified more amount than was in the stack.
-      2) Client specified exactly what was in the stack.
-      These are handled identically.  The amount specified is ignored, and
-      the item is effectively treated as normal unstackable atomic object.
-      (the stack is moved as a whole)
-      3) Client specified less than is in the stack.
-      In this case, a new object is created at the same location as the old object,
-      with the balance of the amount not removed.
-      */
+    1) Client specified more amount than was in the stack.
+    2) Client specified exactly what was in the stack.
+    These are handled identically.  The amount specified is ignored, and
+    the item is effectively treated as normal unstackable atomic object.
+    (the stack is moved as a whole)
+    3) Client specified less than is in the stack.
+    In this case, a new object is created at the same location as the old object,
+    with the balance of the amount not removed.
+    */
   if ( item->amount_to_remove_is_partial( amount ) )
   {
     Items::Item* new_item = item->slice_stacked_item( amount );
@@ -268,16 +268,17 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
   // item needs to be returned to where it was..  either on
   // the ground, or equipped on the current character,
   // or in whatever it used to be in.
-  ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  ItemRef itemref( item ); //dave 1/28/3 prevent item from being destroyed before function ends
   item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
 
   item->gotten_by( nullptr );
   if ( chr->gotten_item_source == Mobile::Character::GOTTEN_ITEM_EQUIPPED_ON_SELF )
   {
-    if ( chr->equippable( item ) && item->check_equiptest_scripts( chr ) &&
+    if ( chr->equippable( item ) &&
+         item->check_equiptest_scripts( chr ) &&
          item->check_equip_script( chr, false ) )
     {
-      if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+      if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
       {
         return;
       }
@@ -286,7 +287,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
       send_wornitem_to_inrange( chr, item );
       return;
     }
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+    if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
     {
       return;
     }
@@ -344,8 +345,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
 
     // Attempt to place the item in the player's backpack.
     UContainer* bp = chr->backpack();
-    if ( bp != NULL && bp->can_add( *item ) &&
-         bp->can_insert_add_item( chr, UContainer::MT_PLAYER, item ) )
+    if ( bp != NULL && bp->can_add( *item ) && bp->can_insert_add_item( chr, UContainer::MT_PLAYER, item ) )
     {
       if ( item->orphan() )
         return;
@@ -403,5 +403,6 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
   register_with_supporting_multi( item );
   send_item_to_inrange( item );
 }
+
 }
 }

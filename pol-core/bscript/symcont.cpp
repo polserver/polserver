@@ -5,6 +5,7 @@
  */
 
 
+
 #include "symcont.h"
 
 #include "tokens.h"
@@ -19,7 +20,7 @@
 #include <stdexcept>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for strcpy, fopen
+#pragma warning(disable:4996) // deprecation warning for strcpy, fopen
 #endif
 
 namespace Pol
@@ -34,15 +35,13 @@ SymbolContainer::SymbolContainer( int PgrowBy )
 }
 SymbolContainer::~SymbolContainer()
 {
-  if ( s )
-    free( s );
+  if ( s ) free( s );
   s = NULL;
 }
 
 void SymbolContainer::erase()
 {
-  if ( s )
-    free( s );
+  if ( s ) free( s );
   s = NULL;
   usedLen = allocLen = 0;
 }
@@ -63,8 +62,7 @@ void SymbolContainer::resize( unsigned lengthToAdd )
       if ( t )
         s = t;
       else
-        throw std::runtime_error( "allocation failure in SymbolContainer::resize(" +
-                                  Clib::decint( allocLen ) + ")" );
+        throw std::runtime_error( "allocation failure in SymbolContainer::resize(" + Clib::decint( allocLen ) + ")" );
     }
   }
 }
@@ -138,8 +136,7 @@ unsigned int SymbolContainer::get_write_length() const
 void SymbolContainer::write( char* fname )
 {
   FILE* fp = fopen( fname, "wb" );
-  if ( !fp )
-    throw std::runtime_error( std::string( "Unable to open " ) + fname + " for writing." );
+  if ( !fp ) throw std::runtime_error( std::string( "Unable to open " ) + fname + " for writing." );
   write( fp );
   fclose( fp );
 }
@@ -150,8 +147,7 @@ void SymbolContainer::read( FILE* fp )
   if ( fread_res != 1 )
     throw std::runtime_error( "failed to read in SymbolContainer::read()." );
   char* new_s = (char*)realloc( s, usedLen );
-  if ( !new_s )
-    throw std::runtime_error( "allocation failure in SymbolContainer::read()." );
+  if ( !new_s ) throw std::runtime_error( "allocation failure in SymbolContainer::read()." );
   s = new_s;
   fread_res = fread( s, usedLen, 1, fp );
   if ( fread_res != 1 )
@@ -168,8 +164,7 @@ void StoredTokenContainer::read( FILE* fp )
 void SymbolContainer::read( char* fname )
 {
   FILE* fp = fopen( fname, "rb" );
-  if ( !fp )
-    throw std::runtime_error( std::string( "Unable to open " ) + fname + " for reading." );
+  if ( !fp ) throw std::runtime_error( std::string( "Unable to open " ) + fname + " for reading." );
   read( fp );
   fclose( fp );
 }
@@ -180,15 +175,13 @@ void StoredTokenContainer::append_tok( const StoredToken& sToken, unsigned* ppos
   unsigned position = usedLen / sizeof( StoredToken );
   usedLen += sizeof sToken;
   atPut1( sToken, position );
-  if ( pposition )
-    *pposition = position;
+  if ( pposition ) *pposition = position;
 }
 
 void StoredTokenContainer::atPut1( const StoredToken& sToken, unsigned position )
 {
   if ( position >= count() )
-    throw std::runtime_error( "Assigning token at invalid position " + Clib::decint( position ) +
-                              ", range is 0.." + Clib::decint( count() - 1 ) );
+    throw std::runtime_error( "Assigning token at invalid position " + Clib::decint( position ) + ", range is 0.." + Clib::decint( count() - 1 ) );
 
   char* dst = s + position * sizeof( StoredToken );
   StoredToken* st = (StoredToken*)dst;
@@ -198,8 +191,7 @@ void StoredTokenContainer::atPut1( const StoredToken& sToken, unsigned position 
 void StoredTokenContainer::atGet1( unsigned position, StoredToken& sToken ) const
 {
   if ( position >= count() )
-    throw std::runtime_error( "Retrieving token at invalid position " + Clib::decint( position ) +
-                              ", range is 0.." + Clib::decint( count() - 1 ) );
+    throw std::runtime_error( "Retrieving token at invalid position " + Clib::decint( position ) + ", range is 0.." + Clib::decint( count() - 1 ) );
 
   char* src = s + position * sizeof( StoredToken );
   StoredToken* st = (StoredToken*)src;
@@ -226,11 +218,14 @@ void StoredTokenContainer::resize( unsigned lengthToAdd )
   ST = (StoredToken*)s;
 }
 
-StoredToken::StoredToken( unsigned char aModule, int aID, BTokenType aType, unsigned aOffset )
-    : type( static_cast<unsigned char>( aType ) ),
-      id( static_cast<unsigned char>( aID ) ),
-      offset( static_cast<unsigned short>( aOffset ) ),
-      module( aModule )
+StoredToken::StoredToken( unsigned char aModule,
+                          int aID,
+                          BTokenType aType,
+                          unsigned aOffset ) :
+  type( static_cast<unsigned char>( aType ) ),
+  id( static_cast<unsigned char>( aID ) ),
+  offset( static_cast<unsigned short>( aOffset ) ),
+  module( aModule )
 {
   if ( offset != aOffset )
   {

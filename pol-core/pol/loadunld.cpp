@@ -37,37 +37,38 @@ namespace Pol
 {
 namespace Plib
 {
-void load_packages();
+void load_packages( );
 }
 namespace Items
 {
-void preload_test_scripts();
-void unload_itemdesc();
-void load_itemdesc();
+void preload_test_scripts( );
+void unload_itemdesc( );
+void load_itemdesc( );
 }
 namespace Mobile
 {
-void unload_armor_zones();
-void load_armor_zones();
-void load_attributes_cfg();
+void unload_armor_zones( );
+void load_armor_zones( );
+void load_attributes_cfg( );
 }
 namespace Multi
 {
 void load_special_storedconfig( std::string cfgname );
-void read_multidefs();
-void read_boat_cfg();
+void read_multidefs( );
+void read_boat_cfg( );
 }
 namespace Network
 {
 void read_bannedips_config( bool initial_load );
-void initialize_client_interfaces();
+void initialize_client_interfaces( );
 }
 namespace Module
 {
-void load_fileaccess_cfg();
+void load_fileaccess_cfg( );
 }
 namespace Core
 {
+
 void load_stacking_cfg();
 void load_repsys_cfg( bool reload );
 void unload_repsys_cfg();
@@ -106,44 +107,35 @@ void load_party_cfg( bool reload );
 
 void load_movecost( bool reload );
 
-void unload_party();
-void read_npc_templates();
+void unload_party( );
+void read_npc_templates( );
 
 void check_config()
 {
   // Check if secure trading is enabled and that the container for it is setup.
   if ( Plib::systemstate.config.enable_secure_trading )
   {
-    const Items::ItemDesc& stid =
-        Items::find_itemdesc( settingsManager.extobj.secure_trade_container );
+    const Items::ItemDesc& stid = Items::find_itemdesc( settingsManager.extobj.secure_trade_container );
     if ( stid.type != Items::ItemDesc::CONTAINERDESC )
-      throw std::runtime_error( "Secure trade container (" +
-                                Clib::hexint( settingsManager.extobj.secure_trade_container ) +
-                                ") must be defined in itemdesc.cfg as a container." );
+      throw std::runtime_error( "Secure trade container (" + Clib::hexint( settingsManager.extobj.secure_trade_container ) + ") must be defined in itemdesc.cfg as a container." );
   }
 
   // Make sure backpack container is defined.
   const Items::ItemDesc& backpackid = Items::find_itemdesc( UOBJ_BACKPACK );
   if ( backpackid.type != Items::ItemDesc::CONTAINERDESC )
-    throw std::runtime_error( "Backpack container (" + Clib::hexint( UOBJ_BACKPACK ) +
-                              ") must be defined in itemdesc.cfg as a container." );
+    throw std::runtime_error("Backpack container (" + Clib::hexint(UOBJ_BACKPACK) + ") must be defined in itemdesc.cfg as a container.");
 
   // Make sure corpse container is defined.
   const Items::ItemDesc& corpseid = Items::find_itemdesc( UOBJ_CORPSE );
   if ( corpseid.type != Items::ItemDesc::CONTAINERDESC )
-    throw std::runtime_error( "Corpse container (" + Clib::hexint( UOBJ_CORPSE ) +
-                              ") must be defined in itemdesc.cfg as a container." );
+    throw std::runtime_error("Corpse container (" + Clib::hexint(UOBJ_CORPSE) + ") must be defined in itemdesc.cfg as a container.");
 
   // Make sure the WornItems container is defined.
-  const Items::ItemDesc& wic_id =
-      Items::find_itemdesc( settingsManager.extobj.wornitems_container );
+  const Items::ItemDesc& wic_id = Items::find_itemdesc( settingsManager.extobj.wornitems_container );
   if ( wic_id.type != Items::ItemDesc::CONTAINERDESC )
-    throw std::runtime_error( "WornItems container (" +
-                              Clib::hexint( settingsManager.extobj.wornitems_container ) +
-                              ") must be defined in itemdesc.cfg as a container." );
+    throw std::runtime_error("WornItems container (" + Clib::hexint(settingsManager.extobj.wornitems_container) + ") must be defined in itemdesc.cfg as a container.");
 
-  const Items::ContainerDesc& cd =
-      Items::find_container_desc( settingsManager.extobj.wornitems_container );
+  const Items::ContainerDesc& cd = Items::find_container_desc( settingsManager.extobj.wornitems_container );
   Items::getgraphic( cd.objtype );
 }
 
@@ -164,8 +156,8 @@ void load_config( bool reload )
 
 void load_data()
 {
-  //	checkpoint( "read_translations" );
-  //	read_translations();
+  //  checkpoint( "read_translations" );
+  //  read_translations();
 
   checkpoint( "load_cmdlevels" );
   load_cmdlevels();
@@ -240,13 +232,13 @@ void load_data()
   Multi::load_special_storedconfig( "spells" );
 
   checkpoint( "load_npc_intrinsic_equip" );
-  Items::load_npc_intrinsic_equip();
+  Items::load_npc_intrinsic_equip( );
 
   checkpoint( "load_npc_templates" );
   load_npc_templates();
 
   checkpoint( "preload_test_scripts" );
-  Items::preload_test_scripts();
+  Items::preload_test_scripts( );
 
   checkpoint( "load_spell_data" );
   load_spell_data();
@@ -254,7 +246,7 @@ void load_data()
   checkpoint( "load_tips" );
   load_tips();
 
-  checkpoint( "load stacking cfg" );  // dave 1/26/3
+  checkpoint( "load stacking cfg" ); //dave 1/26/3
   load_stacking_cfg();
 
   load_config( false );
@@ -271,6 +263,7 @@ void load_data()
 
   checkpoint( "check configuration" );
   check_config();
+
 }
 
 void reload_configuration()
@@ -278,7 +271,7 @@ void reload_configuration()
   PolConfig::read_pol_config( false );
   Network::read_bannedips_config( false );
   load_npc_templates();
-  read_npc_templates();  // dave 1/12/3 npc template data wasn't actually being read, just names.
+  read_npc_templates(); //dave 1/12/3 npc template data wasn't actually being read, just names.
   ConsoleCommand::load_console_commands();
   Module::load_fileaccess_cfg();
 }
@@ -287,7 +280,7 @@ void unload_data()
 {
   Mobile::unload_armor_zones();
 
-  unload_repsys_cfg();  // Any better place?
+  unload_repsys_cfg(); // Any better place?
 
   Items::unload_itemdesc();
 

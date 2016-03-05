@@ -15,11 +15,11 @@
 #include "../clib/tracebuf.h"
 
 #ifdef _WIN32
-#include <process.h>
+#   include <process.h>
 #else
-#include <pthread.h>
-#include <sys/time.h>
-#include <unistd.h>
+#   include <pthread.h>
+#   include <sys/time.h>
+#   include <unistd.h>
 #endif
 
 namespace Pol
@@ -30,7 +30,7 @@ size_t locker;
 #ifdef _WIN32
 void polsem_lock()
 {
-  size_t tid = threadhelp::thread_pid();
+  size_t tid =  threadhelp::thread_pid();
   EnterCriticalSection( &cs );
   passert_always( locker == 0 );
   locker = tid;
@@ -48,9 +48,9 @@ void polsem_lock()
 {
   size_t tid = threadhelp::thread_pid();
   int res = pthread_mutex_lock( &polsem );
-  if ( res != 0 || locker != 0 )
+  if (res != 0 || locker != 0)
   {
-    POLLOG.Format( "pthread_mutex_lock: res={}, tid={}, locker={}\n" ) << res << tid << locker;
+    POLLOG.Format( "pthread_mutex_lock: res={}, tid={}, locker={}\n")<< res<< tid<< locker;
   }
   passert_always( res == 0 );
   passert_always( locker == 0 );
@@ -62,9 +62,9 @@ void polsem_unlock()
   passert_always( locker == tid );
   locker = 0;
   int res = pthread_mutex_unlock( &polsem );
-  if ( res != 0 )
+  if (res != 0)
   {
-    POLLOG.Format( "pthread_mutex_unlock: res={},tid={}" ) << res << tid;
+    POLLOG.Format( "pthread_mutex_unlock: res={},tid={}") << res << tid;
   }
   passert_always( res == 0 );
 }
@@ -142,7 +142,7 @@ void wait_for_ClientTransmit_pulse( unsigned int millis )
 
 pthread_mutexattr_t polsem_attr;
 pthread_mutex_t polsem;
-// pthread_mutex_t polsem = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t polsem = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t polsem = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
 
 pthread_mutex_t pulse_mut = PTHREAD_MUTEX_INITIALIZER;
@@ -171,12 +171,12 @@ void init_ipc_vars()
   passert_always( res == 0 );
 
   /*
-      res = pthread_mutexattr_setkind_np( &polsem_attr, PTHREAD_MUTEX_ERRORCHECK_NP );
-      passert_always( res == 0 );
+    res = pthread_mutexattr_setkind_np( &polsem_attr, PTHREAD_MUTEX_ERRORCHECK_NP );
+    passert_always( res == 0 );
 
-      res = pthread_mutexattr_settype( &polsem_attr, PTHREAD_MUTEX_ERRORCHECK );
-      passert_always( res == 0 );
-      */
+    res = pthread_mutexattr_settype( &polsem_attr, PTHREAD_MUTEX_ERRORCHECK );
+    passert_always( res == 0 );
+    */
 
   res = pthread_mutex_init( &polsem, &polsem_attr );
   passert_always( res == 0 );
@@ -201,17 +201,17 @@ void calc_abs_timeout( struct timespec* ptimeout, unsigned int millis )
   struct timeval now;
   struct timezone tz;
 
-  gettimeofday( &now, &tz );
+  gettimeofday(&now, &tz);
   int add_sec = 0;
-  if ( millis > 1000 )
+  if (millis > 1000)
   {
     add_sec = millis / 1000;
-    millis -= ( add_sec * 1000 );
+    millis -= (add_sec * 1000);
   }
   ptimeout->tv_sec = now.tv_sec + add_sec;
 
   ptimeout->tv_nsec = now.tv_usec * 1000 + millis * 1000000L;
-  if ( ptimeout->tv_nsec >= 1000000000 )
+  if (ptimeout->tv_nsec >= 1000000000)
   {
     ++ptimeout->tv_sec;
     ptimeout->tv_nsec -= 1000000000;
@@ -222,13 +222,13 @@ void wait_for_pulse( unsigned int millis )
 {
   struct timespec timeout;
 
-  pthread_mutex_lock( &pulse_mut );
+  pthread_mutex_lock(&pulse_mut);
 
   calc_abs_timeout( &timeout, millis );
 
-  pthread_cond_timedwait( &pulse_cond, &pulse_mut, &timeout );
+  pthread_cond_timedwait(&pulse_cond, &pulse_mut, &timeout);
 
-  pthread_mutex_unlock( &pulse_mut );
+  pthread_mutex_unlock(&pulse_mut);
 }
 
 void wake_tasks_thread()
@@ -242,13 +242,13 @@ void tasks_thread_sleep( unsigned int millis )
 {
   struct timespec timeout;
 
-  pthread_mutex_lock( &task_pulse_mut );
+  pthread_mutex_lock(&task_pulse_mut);
 
   calc_abs_timeout( &timeout, millis );
 
-  pthread_cond_timedwait( &task_pulse_cond, &task_pulse_mut, &timeout );
+  pthread_cond_timedwait(&task_pulse_cond, &task_pulse_mut, &timeout);
 
-  pthread_mutex_unlock( &task_pulse_mut );
+  pthread_mutex_unlock(&task_pulse_mut);
 }
 
 void send_ClientTransmit_pulse()
@@ -262,13 +262,13 @@ void wait_for_ClientTransmit_pulse( unsigned int millis )
 {
   struct timespec timeout;
 
-  pthread_mutex_lock( &clienttransmit_pulse_mut );
+  pthread_mutex_lock(&clienttransmit_pulse_mut);
 
   calc_abs_timeout( &timeout, millis );
 
-  pthread_cond_timedwait( &clienttransmit_pulse_cond, &clienttransmit_pulse_mut, &timeout );
+  pthread_cond_timedwait(&clienttransmit_pulse_cond, &clienttransmit_pulse_mut, &timeout);
 
-  pthread_mutex_unlock( &clienttransmit_pulse_mut );
+  pthread_mutex_unlock(&clienttransmit_pulse_mut);
 }
 
 #endif

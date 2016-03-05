@@ -41,7 +41,7 @@
 #include <fstream>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation warning
+#pragma warning(disable:4996) // stricmp deprecation warning
 #endif
 
 namespace Pol
@@ -51,98 +51,39 @@ namespace Core
 using namespace Bscript;
 
 // 14 members
-const char* poldbg_base_members[] = {"x",       "y",      "z",     "name",   "objtype",
-                                     "graphic", "serial", "color", "facing", "height",
-                                     "weight",  "multi",  "realm", "dirty"};
+const char* poldbg_base_members[] = { "x", "y", "z", "name", "objtype", "graphic",
+                                      "serial", "color", "facing", "height", "weight",
+                                      "multi", "realm", "dirty"
+                                    };
 // 28 members
-const char* poldbg_itemref_members[] = {"amount",
-                                        "layer",
-                                        "container",
-                                        "usescript",
-                                        "equipscript",
-                                        "desc",
-                                        "movable",
-                                        "invisible",
-                                        "decayat",
-                                        "sellprice",
-                                        "buyprice",
-                                        "newbie",
-                                        "insured",
-                                        "tile_layer",
-                                        "unequipscript",
-                                        "item_count",
-                                        "stackable",
-                                        "saveonexit",
-                                        "resist_fire",
-                                        "resist_cold",
-                                        "resist_energy",
-                                        "resist_poison",
-                                        "resist_physical",
-                                        "resist_fire_mod",
-                                        "resist_cold_mod",
-                                        "resist_energy_mod",
-                                        "resist_poison_mod",
-                                        "resist_physical_mod"};
+const char* poldbg_itemref_members[] = { "amount", "layer", "container", "usescript",
+                                         "equipscript", "desc", "movable", "invisible",
+                                         "decayat", "sellprice", "buyprice", "newbie", "insured",
+                                         "tile_layer", "unequipscript", "item_count",
+                                         "stackable", "saveonexit", "resist_fire",
+                                         "resist_cold", "resist_energy", "resist_poison",
+                                         "resist_physical", "resist_fire_mod", "resist_cold_mod",
+                                         "resist_energy_mod", "resist_poison_mod",
+                                         "resist_physical_mod"
+                                       };
 // 59 members
-const char* poldbg_mobileref_members[] = {"warmode",
-                                          "gender",
-                                          "race",
-                                          "trueobjtype",
-                                          "truecolor",
-                                          "ar_mod",
-                                          "hidden",
-                                          "concealed",
-                                          "frozen",
-                                          "paralyzed",
-                                          "poisoned",
-                                          "stealthsteps",
-                                          "squelched",
-                                          "dead",
-                                          "ar",
-                                          "backpack",
-                                          "weapon",
-                                          "acctname",
-                                          "acct",
-                                          "cmdlevel",
-                                          "cmdlevelstr",
-                                          "criminal",
-                                          "ip",
-                                          "gold",
-                                          "title_prefix",
-                                          "title_suffix",
-                                          "title_guild",
-                                          "title_race",
-                                          "guildid",
-                                          "guild",
-                                          "murderer",
-                                          "attached",
-                                          "reportables",
-                                          "clientversion",
-                                          "delay_mod",
-                                          "shield",
-                                          "uclang",
-                                          "clientver_detail",
-                                          "clientinfo",
-                                          "createdat",
-                                          "opponent",
-                                          "connected",
-                                          "trading_with",
-                                          "cursor",
-                                          "gump",
-                                          "prompt",
-                                          "movemode",
-                                          "hitchance_mod",
-                                          "evasionchance_mod",
-                                          "resist_fire",
-                                          "resist_cold",
-                                          "resist_energy",
-                                          "resist_poison",
-                                          "resist_physical",
-                                          "resist_fire_mod",
-                                          "resist_cold_mod",
-                                          "resist_energy_mod",
-                                          "resist_poison_mod",
-                                          "resist_physical_mod"};
+const char* poldbg_mobileref_members[] = { "warmode", "gender", "race", "trueobjtype",
+                                           "truecolor", "ar_mod", "hidden", "concealed",
+                                           "frozen", "paralyzed", "poisoned", "stealthsteps",
+                                           "squelched", "dead", "ar", "backpack", "weapon",
+                                           "acctname", "acct", "cmdlevel", "cmdlevelstr",
+                                           "criminal", "ip", "gold", "title_prefix",
+                                           "title_suffix", "title_guild", "title_race",
+                                           "guildid", "guild", "murderer", "attached",
+                                           "reportables", "clientversion", "delay_mod",
+                                           "shield", "uclang", "clientver_detail", "clientinfo",
+                                           "createdat", "opponent", "connected", "trading_with",
+                                           "cursor", "gump", "prompt", "movemode",
+                                           "hitchance_mod", "evasionchance_mod", "resist_fire",
+                                           "resist_cold", "resist_energy", "resist_poison",
+                                           "resist_physical", "resist_fire_mod", "resist_cold_mod",
+                                           "resist_energy_mod", "resist_poison_mod", "resist_physical_mod"
+                                         };
 
 class DebugContext : public ref_counted
 {
@@ -153,7 +94,10 @@ public:
   std::string prompt() const;
   typedef std::vector<std::string> Results;
   bool process( const std::string& cmd, Results& results );
-  bool done() const { return _done; }
+  bool done() const
+  {
+    return _done;
+  }
 protected:
   std::string cmd_attach( unsigned pid );
   std::string cmd_kill( unsigned pid );
@@ -203,12 +147,12 @@ private:
   ref_ptr<EScriptProgram> _script;
 
   // not implemented:
-  DebugContext( const DebugContext& );
-  DebugContext& operator=( const DebugContext& );
+  DebugContext( const DebugContext&);
+  DebugContext& operator=( const DebugContext&);
 };
 
 BApplicObjType debugcontextobjimp_type;
-typedef BApplicObj<ref_ptr<DebugContext>> DebugContextObjImpBase;
+typedef BApplicObj< ref_ptr<DebugContext> > DebugContextObjImpBase;
 class DebugContextObjImp : public DebugContextObjImpBase
 {
 public:
@@ -219,10 +163,9 @@ public:
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 };
-DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx )
-    : DebugContextObjImpBase( &debugcontextobjimp_type, rcdctx )
-{
-}
+DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx ) :
+  DebugContextObjImpBase( &debugcontextobjimp_type, rcdctx )
+{}
 const char* DebugContextObjImp::typeOf() const
 {
   return "DebugContext";
@@ -276,12 +219,11 @@ BObjectImp* create_debug_context()
   return new DebugContextObjImp( ref_ptr<DebugContext>( dctx ) );
 }
 
-DebugContext::DebugContext()
-    : _authorized( Plib::systemstate.config.debug_password.empty() ),
-      _done( false ),
-      uoexec_wptr( 0 )
-{
-}
+DebugContext::DebugContext() :
+  _authorized( Plib::systemstate.config.debug_password.empty() ),
+  _done( false ),
+  uoexec_wptr( 0 )
+{}
 
 DebugContext::~DebugContext()
 {
@@ -339,92 +281,51 @@ bool DebugContext::process( const std::string& cmdline, std::vector<std::string>
       if ( cmd == "password" )
       {
         _authorized = ( rest == Plib::systemstate.config.debug_password );
-        results.push_back( std::string( "Password" ) + ( _authorized ? "" : " not" ) +
-                           " recognized." );
+        results.push_back( std::string( "Password" ) + ( _authorized ? "" : " not" ) + " recognized." );
       }
       return _authorized;
     }
 
-    if ( cmd == "attach" )
-      result = cmd_attach( atoi( rest.c_str() ) );
-    else if ( cmd == "stacktrace" )
-      result = cmd_stacktrace( results );
-    else if ( cmd == "quit" )
-      result = cmd_quit();
-    else if ( cmd == "detach" )
-      result = cmd_detach();
-    else if ( cmd == "start" )
-      result = cmd_start( rest );
-    else if ( cmd == "call" )
-      result = cmd_call( rest, results );
-    else if ( cmd == "state" )
-      result = cmd_state();
-    else if ( cmd == "pc" )
-      result = cmd_pc();
-    else if ( cmd == "ins" )
-      result = cmd_ins( results );
-    else if ( cmd == "instrace" )
-      result = cmd_instrace();
-    else if ( cmd == "stepinto" )
-      result = cmd_stepinto();
-    else if ( cmd == "stepover" )
-      result = cmd_stepover();
-    else if ( cmd == "run" )
-      result = cmd_run();
-    else if ( cmd == "break" )
-      result = cmd_break();
-    else if ( cmd == "setbp" )
-      result = cmd_setbp( rest );
-    else if ( cmd == "clrbp" )
-      result = cmd_clrbp( rest );
-    else if ( cmd == "clrallbp" )
-      result = cmd_clrallbp();
-    else if ( cmd == "fileline" )
-      result = cmd_fileline( rest );
-    else if ( cmd == "files" )
-      result = cmd_files( results );
-    else if ( cmd == "filecont" )
-      result = cmd_filecont( rest, results );
-    else if ( cmd == "localvars" )
-      result = cmd_localvars( results );
-    else if ( cmd == "globalvars" )
-      result = cmd_globalvars( results );
-    else if ( cmd == "localvar" )
-      result = cmd_localvar( rest );
-    else if ( cmd == "localvarmembers" )
-      result = cmd_localvarmembers( rest, results );
-    else if ( cmd == "inslist" )
-      result = cmd_inslist( rest, results );
-    else if ( cmd == "pidlist" )
-      result = cmd_pidlist( rest, results );
-    else if ( cmd == "scriptlist" )
-      result = cmd_scriptlist( rest, results );
-    else if ( cmd == "scriptprofile" )
-      result = cmd_scriptprofile( rest, results );
-    else if ( cmd == "scriptins" )
-      result = cmd_scriptins( rest, results );
-    else if ( cmd == "scriptsrc" )
-      result = cmd_scriptsrc( rest, results );
-    else if ( cmd == "srcprof" )
-      result = cmd_srcprof( rest, results );
-    else if ( cmd == "funclist" )
-      result = cmd_funclist( rest, results );
-    else if ( cmd == "setscript" )
-      result = cmd_setscript( rest, results );
-    else if ( cmd == "getlocalpacked" )
-      result = cmd_getlocalpacked( rest );
-    else if ( cmd == "getglobalpacked" )
-      result = cmd_getglobalpacked( rest );
-    else if ( cmd == "setlocalpacked" )
-      result = cmd_setlocalpacked( rest );
-    else if ( cmd == "setglobalpacked" )
-      result = cmd_setglobalpacked( rest );
-    else if ( cmd == "kill" )
-      result = cmd_kill( atoi( rest.c_str() ) );
-    else if ( cmd == "loadsym" )
-      result = cmd_loadsym( atoi( rest.c_str() ) );
-    else
-      result = "Command '" + cmdline + "' not recognized.";
+    if ( cmd == "attach" )        result = cmd_attach( atoi( rest.c_str() ) );
+    else if ( cmd == "stacktrace" ) result = cmd_stacktrace( results );
+    else if ( cmd == "quit" )     result = cmd_quit();
+    else if ( cmd == "detach" )   result = cmd_detach();
+    else if ( cmd == "start" )    result = cmd_start( rest );
+    else if ( cmd == "call" )     result = cmd_call( rest, results );
+    else if ( cmd == "state" )    result = cmd_state();
+    else if ( cmd == "pc" )   result = cmd_pc();
+    else if ( cmd == "ins" )      result = cmd_ins( results );
+    else if ( cmd == "instrace" ) result = cmd_instrace();
+    else if ( cmd == "stepinto" ) result = cmd_stepinto();
+    else if ( cmd == "stepover" ) result = cmd_stepover();
+    else if ( cmd == "run" )      result = cmd_run();
+    else if ( cmd == "break" )    result = cmd_break();
+    else if ( cmd == "setbp" )    result = cmd_setbp( rest );
+    else if ( cmd == "clrbp" )    result = cmd_clrbp( rest );
+    else if ( cmd == "clrallbp" ) result = cmd_clrallbp();
+    else if ( cmd == "fileline" ) result = cmd_fileline( rest );
+    else if ( cmd == "files" )    result = cmd_files( results );
+    else if ( cmd == "filecont" ) result = cmd_filecont( rest, results );
+    else if ( cmd == "localvars" )result = cmd_localvars( results );
+    else if ( cmd == "globalvars" ) result = cmd_globalvars( results );
+    else if ( cmd == "localvar" ) result = cmd_localvar( rest );
+    else if ( cmd == "localvarmembers" ) result = cmd_localvarmembers( rest, results );
+    else if ( cmd == "inslist" )  result = cmd_inslist( rest, results );
+    else if ( cmd == "pidlist" )  result = cmd_pidlist( rest, results );
+    else if ( cmd == "scriptlist" ) result = cmd_scriptlist( rest, results );
+    else if ( cmd == "scriptprofile" ) result = cmd_scriptprofile( rest, results );
+    else if ( cmd == "scriptins" ) result = cmd_scriptins( rest, results );
+    else if ( cmd == "scriptsrc" ) result = cmd_scriptsrc( rest, results );
+    else if ( cmd == "srcprof" ) result = cmd_srcprof( rest, results );
+    else if ( cmd == "funclist" ) result = cmd_funclist( rest, results );
+    else if ( cmd == "setscript" ) result = cmd_setscript( rest, results );
+    else if ( cmd == "getlocalpacked" )  result = cmd_getlocalpacked( rest );
+    else if ( cmd == "getglobalpacked" ) result = cmd_getglobalpacked( rest );
+    else if ( cmd == "setlocalpacked" )  result = cmd_setlocalpacked( rest );
+    else if ( cmd == "setglobalpacked" ) result = cmd_setglobalpacked( rest );
+    else if ( cmd == "kill" )     result = cmd_kill( atoi( rest.c_str() ) );
+    else if ( cmd == "loadsym" )  result = cmd_loadsym( atoi( rest.c_str() ) );
+    else                        result = "Command '" + cmdline + "' not recognized.";
 
     if ( !result.empty() )
     {
@@ -432,7 +333,7 @@ bool DebugContext::process( const std::string& cmdline, std::vector<std::string>
     }
     return true;
   }
-  catch ( std::exception& ex )
+  catch (std::exception& ex)
   {
     std::string text = "Exception thrown while processing command: ";
     text += ex.what();
@@ -441,7 +342,7 @@ bool DebugContext::process( const std::string& cmdline, std::vector<std::string>
   }
 }
 
-std::string DebugContext::cmd_stacktrace( Results& results )
+std::string DebugContext::cmd_stacktrace(Results& results)
 {
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
@@ -471,15 +372,15 @@ std::string DebugContext::cmd_stacktrace( Results& results )
 
   upperLocals2.push_back( exec->Locals2 );
 
-  results.push_back( Clib::decint( stack.size() ) );
+  results.push_back( Clib::decint( stack.size( ) ) );
 
   while ( !stack.empty() )
   {
-    ReturnContext& rc = stack.back();
-    BObjectRefVec* Locals2 = upperLocals2.back();
+    ReturnContext& rc = stack.back( );
+    BObjectRefVec* Locals2 = upperLocals2.back( );
     PC = rc.PC;
-    stack.pop_back();
-    upperLocals2.pop_back();
+    stack.pop_back( );
+    upperLocals2.pop_back( );
 
     BStruct stackEntry;
 
@@ -504,14 +405,15 @@ std::string DebugContext::cmd_stacktrace( Results& results )
 
       results2.push_back( progblock.localvarnames[varidx] + " " + ptr->pack() );
     }
-    results.push_back( Clib::decint( results2.size() ) );
+    results.push_back( Clib::decint( results2.size( ) ) );
 
     for ( std::vector<std::string>::iterator it = results2.begin(); it < results2.end(); ++it )
       results.push_back( *it );
   }
   return "";
+
 }
-std::string DebugContext::cmd_attach( unsigned pid )
+std::string DebugContext::cmd_attach(unsigned pid)
 {
   UOExecutor* uoexec;
   if ( find_uoexec( pid, &uoexec ) )
@@ -529,7 +431,7 @@ std::string DebugContext::cmd_attach( unsigned pid )
   }
 }
 
-std::string DebugContext::cmd_loadsym( unsigned pid )
+std::string DebugContext::cmd_loadsym(unsigned pid)
 {
   UOExecutor* uoexec;
   if ( find_uoexec( pid, &uoexec ) )
@@ -597,7 +499,7 @@ std::string DebugContext::cmd_start( const std::string& rest )
 
   UOExecutor* uoexec = static_cast<UOExecutor*>( &new_uoemod->exec );
 
-  return "PID " + Clib::tostring( uoexec->os_module->pid() );
+  return "PID " + Clib::tostring( uoexec->os_module->pid( ) );
 }
 
 BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script );
@@ -643,14 +545,13 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
 {
   std::string match = Clib::strlower( rest );
 
-  for ( PidList::const_iterator citr = scriptEngineInternalManager.pidlist.begin();
-        citr != scriptEngineInternalManager.pidlist.end(); ++citr )
+  for ( PidList::const_iterator citr = scriptEngineInternalManager.pidlist.begin(); citr != scriptEngineInternalManager.pidlist.end(); ++citr )
   {
     UOExecutor* uoexec = ( *citr ).second;
-    std::string name = Clib::strlower( uoexec->scriptname() );
+    std::string name = Clib::strlower( uoexec->scriptname( ) );
     if ( strstr( name.c_str(), match.c_str() ) != NULL )
     {
-      results.push_back( Clib::decint( ( *citr ).first ) + " " + uoexec->scriptname() );
+      results.push_back( Clib::decint( ( *citr ).first ) + " " + uoexec->scriptname( ) );
     }
   }
 
@@ -659,8 +560,7 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
 
 std::string DebugContext::cmd_scriptlist( const std::string& /*rest*/, Results& results )
 {
-  for ( ScriptStorage::const_iterator citr = scriptEngineInternalManager.scrstore.begin();
-        citr != scriptEngineInternalManager.scrstore.end(); ++citr )
+  for ( ScriptStorage::const_iterator citr = scriptEngineInternalManager.scrstore.begin(); citr != scriptEngineInternalManager.scrstore.end(); ++citr )
   {
     const char* nm = ( ( *citr ).first ).c_str();
     EScriptProgram* eprog = ( ( *citr ).second ).get();
@@ -674,7 +574,7 @@ std::string DebugContext::cmd_setscript( const std::string& rest, Results& /*res
 {
   _script.clear();
 
-  // const char* fn = rest.c_str();
+  //const char* fn = rest.c_str();
   ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest );
   if ( itr == scriptEngineInternalManager.scrstore.end() )
     return "No such script.";
@@ -706,8 +606,10 @@ std::string DebugContext::cmd_funclist( const std::string& /*rest*/, Results& re
       cycles += ins.cycles;
     }
 
-    std::string result = func.name + " " + Clib::decint( func.firstPC ) + " " +
-                         Clib::decint( func.lastPC ) + " " + Clib::decint( cycles );
+    std::string result = func.name + " "
+                         + Clib::decint( func.firstPC ) + " "
+                         + Clib::decint( func.lastPC ) + " "
+                         + Clib::decint( cycles );
     results.push_back( result );
   }
 
@@ -722,8 +624,8 @@ std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results
   // parameter: file#
   int fileno = atoi( rest.c_str() );
 
-  typedef std::map<unsigned int, unsigned int> Cycles;
-  Cycles cycle_counts;  // key is line#, val is cycles
+  typedef std::map< unsigned int, unsigned int > Cycles;
+  Cycles cycle_counts; // key is line#, val is cycles
 
   size_t count = _script->instr.size();
 
@@ -795,11 +697,11 @@ std::string DebugContext::cmd_scriptins( const std::string& rest, Results& resul
   return "";
 }
 
-std::string get_fileline( EScriptProgram* prog, int filenum, int linenum )
+std::string get_fileline(EScriptProgram* prog, int filenum, int linenum)
 {
   if ( filenum == 0 || filenum >= static_cast<int>( prog->dbg_filenames.size() ) )
     return "";
-  std::ifstream ifs( prog->dbg_filenames[filenum].c_str() );
+  std::ifstream ifs(prog->dbg_filenames[filenum].c_str());
   std::string tmp;
   for ( int skip = 1; skip < linenum; ++skip )
   {
@@ -833,7 +735,7 @@ std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& resul
     if ( filenum == last_filenum && linenum == last_linenum )
       continue;
 
-    std::string result = get_fileline( eprog, filenum, linenum );
+    std::string result = get_fileline(eprog, filenum, linenum);
     if ( result != "" )
       results.push_back( Clib::decint( ins ) + " " + result );
 
@@ -854,7 +756,7 @@ std::string DebugContext::cmd_pc()
 {
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
-  return Clib::tostring( uoexec_wptr.get_weakptr()->PC );
+  return Clib::tostring( uoexec_wptr.get_weakptr( )->PC );
 }
 
 std::string DebugContext::cmd_ins( std::vector<std::string>& results )
@@ -864,10 +766,8 @@ std::string DebugContext::cmd_ins( std::vector<std::string>& results )
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
   int start = uoexec->PC - 5;
   int end = uoexec->PC + 5;
-  if ( start < 0 )
-    start = 0;
-  if ( end >= static_cast<int>( uoexec->nLines ) )
-    end = uoexec->nLines - 1;
+  if ( start < 0 ) start = 0;
+  if ( end >= static_cast<int>( uoexec->nLines ) ) end = uoexec->nLines - 1;
   for ( int i = start; i <= end; ++i )
   {
     results.push_back( uoexec->dbg_get_instruction( i ) );
@@ -931,7 +831,7 @@ std::string DebugContext::cmd_break()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  // if (!uoexec->os_module->in_debugger_holdlist())
+  //if (!uoexec->os_module->in_debugger_holdlist())
   //    return "Script not ready to trace.";
 
   uoexec->dbg_break();
@@ -1025,14 +925,14 @@ std::string DebugContext::cmd_filecont( const std::string& rest, Results& result
   if ( !( is >> filenum ) )
     return "File # must be specified";
   if ( !( is >> firstline ) )
-    firstline = 1;  // start at beginning
+    firstline = 1; // start at beginning
   if ( !( is >> lastline ) )
-    lastline = 0;  // all lines
+    lastline = 0; // all lines
 
   if ( filenum >= prog->dbg_filenames.size() )
     return "File # out of range";
 
-  std::ifstream ifs( prog->dbg_filenames[filenum].c_str() );
+  std::ifstream ifs(prog->dbg_filenames[filenum].c_str());
   std::string tmp;
   for ( unsigned skip = 1; skip < firstline; ++skip )
   {
@@ -1088,7 +988,7 @@ std::string DebugContext::cmd_globalvars( Results& results )
     if ( prog->globalvarnames.size() > idx )
       results.push_back( prog->globalvarnames[idx].c_str() );
     else
-      results.push_back( Clib::decint( idx ).c_str() );
+      results.push_back( Clib::decint( idx ).c_str( ) );
   }
   return "";
 }
@@ -1101,7 +1001,7 @@ std::string DebugContext::cmd_localvar( const std::string& rest )
 
   unsigned varidx = atoi( rest.c_str() );
   if ( varidx >= uoexec->Locals2->size() )
-    return "Error: Index out of range";  // vector
+    return "Error: Index out of range"; // vector
   return "Value: " + ( *uoexec->Locals2 )[varidx]->impref().getStringRep();
 }
 
@@ -1113,7 +1013,7 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
 
   unsigned varidx = atoi( rest.c_str() );
   if ( varidx >= uoexec->Locals2->size() )
-    return "Error: Index out of range";  // vector
+    return "Error: Index out of range"; // vector
   BObjectImp& var = ( *uoexec->Locals2 )[varidx]->impref();
 
   std::string strrep = var.getStringRep();
@@ -1122,7 +1022,7 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
   OSTRINGSTREAM os;
   if ( strrep.find( "ItemRef" ) != std::string::npos )
   {
-    for ( i = 0; i < 14; i++ )  // i = member count for poldbg_base_members
+    for ( i = 0; i < 14; i++ ) // i = member count for poldbg_base_members
     {
       memname = poldbg_base_members[i];
       os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
@@ -1131,7 +1031,7 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
       os.str( "" );
     }
 
-    for ( i = 0; i < 27; i++ )  // i = 27 members
+    for ( i = 0; i < 27; i++ ) // i = 27 members
     {
       memname = poldbg_itemref_members[i];
       os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
@@ -1143,7 +1043,7 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
 
   else if ( strrep.find( "MobileRef" ) != std::string::npos )
   {
-    for ( i = 0; i < 14; i++ )  // i = member count for poldbg_base_members
+    for ( i = 0; i < 14; i++ ) // i = member count for poldbg_base_members
     {
       memname = poldbg_base_members[i];
       os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
@@ -1152,7 +1052,7 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
       os.str( "" );
     }
 
-    for ( i = 0; i < 59; i++ )  // i = 59 members
+    for ( i = 0; i < 59; i++ ) // i = 59 members
     {
       memname = poldbg_mobileref_members[i];
       os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
@@ -1185,7 +1085,8 @@ std::string DebugContext::cmd_inslist( const std::string& rest, Results& results
 
   for ( unsigned i = 0; i < prog->dbg_filenum.size(); ++i )
   {
-    if ( prog->dbg_filenum[i] == filenum && prog->dbg_linenum[i] == linenum )
+    if ( prog->dbg_filenum[i] == filenum &&
+         prog->dbg_linenum[i] == linenum )
     {
       results.push_back( Clib::decint( i ) );
     }
@@ -1234,9 +1135,9 @@ std::string DebugContext::cmd_setlocalpacked( const std::string& rest )
   if ( !( is >> varidx ) )
     return "format: setlocalpacked [varidx] [packedvalue]";
 
-  is.unsetf( std::ios::skipws );
+  is.unsetf(std::ios::skipws);
   is >> space;
-  is.setf( std::ios::skipws );
+  is.setf(std::ios::skipws);
 
   if ( varidx >= uoexec->Locals2->size() )
     return "Error: Index out of range";
@@ -1262,9 +1163,9 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
   char space;
   if ( !( is >> varidx ) )
     return "format: setglobalpacked [varidx] [packedvalue]";
-  is.unsetf( std::ios::skipws );
+  is.unsetf(std::ios::skipws);
   is >> space;
-  is.setf( std::ios::skipws );
+  is.setf(std::ios::skipws);
 
   if ( varidx >= uoexec->Globals2.size() )
     return "Error: Index out of range";
@@ -1279,6 +1180,7 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
 
   return "Value: " + uoexec->Globals2[varidx]->impref().pack();
 }
+
 
 
 class DebugClientThread : public Clib::SocketClientThread
@@ -1303,15 +1205,15 @@ void DebugClientThread::run()
   std::vector<std::string> results;
   while ( !dctx.done() )
   {
-    Clib::writeline( _sck, dctx.prompt() );
+    Clib::writeline( _sck, dctx.prompt( ) );
     if ( !readline( _sck, cmdline ) )
       break;
 
     bool ret = dctx.process( cmdline, results );
     if ( ret )
-      Clib::writeline( _sck, "Results: " + Clib::tostring( results.size() ) );
+      Clib::writeline( _sck, "Results: " + Clib::tostring( results.size( ) ) );
     else
-      Clib::writeline( _sck, "Failure: " + Clib::tostring( results.size() ) );
+      Clib::writeline( _sck, "Failure: " + Clib::tostring( results.size( ) ) );
     for ( unsigned i = 0; i < results.size(); ++i )
     {
       Clib::writeline( _sck, results[i] );
@@ -1334,5 +1236,6 @@ void debug_listen_thread( void )
     }
   }
 }
+
 }
 }

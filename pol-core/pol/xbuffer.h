@@ -19,8 +19,8 @@ namespace Core
 struct XmitBuffer
 {
   XmitBuffer* next;
-  unsigned short nsent;    // how many bytes sent already
-  unsigned short lenleft;  // how many bytes left to send
+  unsigned short nsent;   // how many bytes sent already
+  unsigned short lenleft;   // how many bytes left to send
   unsigned char data[1];
 };
 }

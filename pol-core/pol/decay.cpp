@@ -1,10 +1,8 @@
 /** @file
  *
  * @par History
- * - 2005/01/23 Shinigami: decay_items & decay_thread - Tokuno MapDimension doesn't fit blocks of
- * 64x64 (WGRID_SIZE)
- * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within
- * decay_thread_shadow
+ * - 2005/01/23 Shinigami: decay_items & decay_thread - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
  */
 
 
@@ -59,20 +57,21 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
   for ( ZoneItems::size_type idx = 0; idx < zone.items.size(); ++idx )
   {
     Items::Item* item = zone.items[idx];
-    if ( statistics )
+    if (statistics)
     {
-      if ( item->can_decay() )
+      if (item->can_decay())
       {
         const Items::ItemDesc& descriptor = item->itemdesc();
-        if ( !descriptor.decays_on_multis )
+        if (!descriptor.decays_on_multis)
         {
           Multi::UMulti* multi = realm->find_supporting_multi( item->x, item->y, item->z );
-          if ( multi == NULL )
+          if (multi == NULL)
             stateManager.decay_statistics.temp_count_active++;
         }
         else
           stateManager.decay_statistics.temp_count_active++;
       }
+
     }
     if ( item->should_decay( now ) )
     {
@@ -90,7 +89,7 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
       if ( multi != NULL && !descriptor.decays_on_multis )
         continue;
 
-      if ( statistics )
+      if (statistics)
         stateManager.decay_statistics.temp_count_decayed++;
 
       if ( !descriptor.destroy_script.empty() && !item->inuse() )
@@ -115,7 +114,7 @@ void decay_items()
   static unsigned wy = 0;
 
   Realms::Realm* realm;
-  for ( auto itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
+  for (auto itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
   {
     realm = *itr;
     if ( !--stateManager.cycles_until_decay_worldzone )
@@ -144,8 +143,7 @@ void decay_items()
 ///     once every 10 minutes
 ///
 
-void decay_single_zone( Realms::Realm* realm, unsigned gridx, unsigned gridy, unsigned& wx,
-                        unsigned& wy )
+void decay_single_zone( Realms::Realm* realm, unsigned gridx, unsigned gridy, unsigned& wx, unsigned& wy )
 {
   if ( ++wx >= gridx )
   {
@@ -158,7 +156,7 @@ void decay_single_zone( Realms::Realm* realm, unsigned gridx, unsigned gridy, un
   decay_worldzone( wx, wy, realm );
 }
 
-void decay_thread( void* arg )  // Realm*
+void decay_thread( void* arg ) //Realm*
 {
   unsigned wx = ~0u;
   unsigned wy = 0;
@@ -183,7 +181,7 @@ void decay_thread( void* arg )  // Realm*
   }
 }
 
-void decay_thread_shadow( void* arg )  // Realm*
+void decay_thread_shadow( void* arg ) //Realm*
 {
   unsigned wx = ~0u;
   unsigned wy = 0;
@@ -200,7 +198,7 @@ void decay_thread_shadow( void* arg )  // Realm*
     {
       PolLock lck;
       polclock_checkin();
-      if ( gamestate.shadowrealms_by_id[id] == NULL )  // is realm still there?
+      if ( gamestate.shadowrealms_by_id[id] == NULL ) // is realm still there?
         break;
       decay_single_zone( gamestate.shadowrealms_by_id[id], gridwidth, gridheight, wx, wy );
       restart_all_clients();
@@ -212,20 +210,20 @@ void decay_thread_shadow( void* arg )  // Realm*
   }
 }
 
-bool should_switch_realm( size_t index, unsigned x, unsigned y, unsigned* gridx, unsigned* gridy )
+bool should_switch_realm(size_t index, unsigned x, unsigned y, unsigned* gridx, unsigned* gridy)
 {
   (void)x;
-  if ( index >= gamestate.Realms.size() )
+  if (index >= gamestate.Realms.size())
     return true;
   Realms::Realm* realm = gamestate.Realms[index];
-  if ( realm == nullptr )
+  if (realm == nullptr)
     return true;
 
-  ( *gridx ) = realm->grid_width();
-  ( *gridy ) = realm->grid_height();
+  (*gridx) = realm->grid_width();
+  (*gridy) = realm->grid_height();
 
   // check if ++y would result in reset
-  if ( y + 1 >= ( *gridy ) )
+  if (y + 1 >= (*gridy))
     return true;
   return false;
 }
@@ -235,15 +233,15 @@ void decay_single_thread( void* arg )
   (void)arg;
   // calculate total grid count, based on current realms
   unsigned total_grid_count = 0;
-  for ( const auto& realm : gamestate.Realms )
+  for (const auto& realm : gamestate.Realms)
   {
-    total_grid_count += ( realm->grid_width() * realm->grid_height() );
+    total_grid_count += (realm->grid_width() * realm->grid_height());
   }
   // sweep every realm ~10minutes -> 36ms for 6 realms
   unsigned sleeptime = ( 60 * 10L * 1000 ) / total_grid_count;
-  sleeptime = std::max( sleeptime, 30u );  // limit to 30ms
-  bool init = true;
-  size_t realm_index = ~0u;
+  sleeptime = std::max( sleeptime, 30u ); // limit to 30ms
+  bool init=true;
+  size_t realm_index=~0u;
   unsigned wx = 0;
   unsigned wy = 0;
   unsigned gridx = 0;
@@ -254,23 +252,19 @@ void decay_single_thread( void* arg )
       PolLock lck;
       polclock_checkin();
       // check if realm_index is still valid and if y is still in valid range
-      if ( should_switch_realm( realm_index, wx, wy, &gridx, &gridy ) )
+      if (should_switch_realm(realm_index, wx, wy, &gridx, &gridy))
       {
         ++realm_index;
-        if ( realm_index >= gamestate.Realms.size() )
+        if (realm_index >= gamestate.Realms.size())
         {
           realm_index = 0;
-          if ( !init && Plib::systemstate.config.thread_decay_statistics )
+          if (!init && Plib::systemstate.config.thread_decay_statistics)
           {
-            stateManager.decay_statistics.decayed.update(
-                stateManager.decay_statistics.temp_count_decayed );
-            stateManager.decay_statistics.active_decay.update(
-                stateManager.decay_statistics.temp_count_active );
+            stateManager.decay_statistics.decayed.update(stateManager.decay_statistics.temp_count_decayed);
+            stateManager.decay_statistics.active_decay.update(stateManager.decay_statistics.temp_count_active);
             stateManager.decay_statistics.temp_count_decayed = 0;
             stateManager.decay_statistics.temp_count_active = 0;
-            POLLOG_INFO.Format(
-                "DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} mean "
-                "{} variance {} runs {}\n" )
+            POLLOG_INFO.Format("DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} mean {} variance {} runs {}\n")
                 << stateManager.decay_statistics.decayed.max()
                 << stateManager.decay_statistics.decayed.mean()
                 << stateManager.decay_statistics.decayed.variance()
@@ -280,7 +274,7 @@ void decay_single_thread( void* arg )
                 << stateManager.decay_statistics.active_decay.variance()
                 << stateManager.decay_statistics.active_decay.count();
           }
-          init = false;
+          init=false;
         }
         wx = 0;
         wy = 0;
@@ -303,5 +297,6 @@ void decay_single_thread( void* arg )
     pol_sleep_ms( sleeptime );
   }
 }
+
 }
 }

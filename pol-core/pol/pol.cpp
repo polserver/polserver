@@ -5,8 +5,7 @@
  * - 2005/04/03 Shinigami: send_feature_enable() call moved from start_client_char()
  *                         to send_start() to send before char selection
  * - 2005/04/04 Shinigami: added can_delete_character( chr, delete_by )
- * - 2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation
- * Heap
+ * - 2005/06/15 Shinigami: ServSpecOpt UseWinLFH to enable/disable Windows XP/2003 low-fragmentation Heap
  *                         added Check_for_WinXP_or_Win2003() and low_fragmentation_Heap()
  * - 2005/06/20 Shinigami: added llog (needs defined MEMORYLEAK)
  * - 2005/07/01 Shinigami: removed Check_for_WinXP_or_Win2003() and transformed call of
@@ -30,16 +29,12 @@
  * - 2008/07/08 Turley:    removed Checkpoint "initializing random number generator"
  * - 2008/12/17 MuadDub:   Added check when loading Realms for no realms existing.
  * - 2009/01/19 Nando:     added unload_aux_services() and unload_packages() to the shutdown cleanup
- * - 2009/1/24  MuadDib:   Added read_bannedips_config() and checkpoint for it after loading of
- * pol.cfg
+ * - 2009/1/24  MuadDib:   Added read_bannedips_config() and checkpoint for it after loading of pol.cfg
  * - 2009/07/23 MuadDib:   Updates for MSGOUT naming.
- * - 2009/07/31 MuadDib:   xmain_inner(): Force Client Disconnect to initiate cleanup of clients and
- * chars, after shutdown,
+ * - 2009/07/31 MuadDib:   xmain_inner(): Force Client Disconnect to initiate cleanup of clients and chars, after shutdown,
  *                         before other cleanups.
- * - 2009/08/01 MuadDib:   Removed send_tech_stuff(), send_betaclient_BF(), just_ignore_message(),
- * and ignore_69() due to not used or obsolete.
- * - 2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better
- * description
+ * - 2009/08/01 MuadDib:   Removed send_tech_stuff(), send_betaclient_BF(), just_ignore_message(), and ignore_69() due to not used or obsolete.
+ * - 2009/08/03 MuadDib:   Renaming of MSG_HANDLER_6017 and related, to MSG_HANDLER_V2 for better description
  *                         Renamed secondary handler class to *_V2 for naming convention
  * - 2009/08/14 Turley:    fixed definition of PKTIN_5D
  * - 2009/08/19 Turley:    PKTIN_5D clientflag saved in client->UOExpansionFlagClient
@@ -51,9 +46,8 @@
  * - 2009/11/19 Turley:    ssopt.core_sends_season & .core_handled_tags - Tomi
  * - 2009/12/04 Turley:    Crypto cleanup - Tomi
  * - 2010/01/22 Turley:    Speedhack Prevention System
- * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within
- * decay_thread_shadow
- * - 2011/11/12 Tomi:	  Added extobj.cfg
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
+ * - 2011/11/12 Tomi:   Added extobj.cfg
  */
 
 
@@ -179,7 +173,7 @@
 #include <stdexcept>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
+#pragma warning(disable: 4127) // conditional expression is constant (needed because of FD_SET)
 #endif
 
 namespace Pol
@@ -213,44 +207,44 @@ void start_tasks();
 
 using namespace threadhelp;
 
-#define CLIENT_CHECKPOINT( x ) client->checkpoint = x
+#define CLIENT_CHECKPOINT(x) client->checkpoint = x
 
 void send_startup( Network::Client* client )
 {
   Mobile::Character* chr = client->chr;
   Network::PktHelper::PacketOut<Network::PktOut_1B> msg;
   msg->Write<u32>( chr->serial_ext );
-  msg->offset += 4;  // u8 unk5, unk6, unk7, unk8
+  msg->offset += 4; //u8 unk5, unk6, unk7, unk8
   msg->WriteFlipped<u16>( chr->graphic );
   msg->WriteFlipped<u16>( chr->x );
   msg->WriteFlipped<u16>( chr->y );
-  msg->offset++;  // u8 unk_15
+  msg->offset++; // u8 unk_15
   msg->Write<s8>( chr->z );
   msg->Write<u8>( chr->facing );
-  msg->offset += 3;  // u8 unk18,unk19,unk20
+  msg->offset += 3; //u8 unk18,unk19,unk20
   msg->Write<u8>( 0x7Fu );
-  msg->offset++;     // u8 unk22
-  msg->offset += 4;  // u16 map_startx, map_starty
+  msg->offset++; // u8 unk22
+  msg->offset += 4; // u16 map_startx, map_starty
   msg->WriteFlipped<u16>( client->chr->realm->width() );
   msg->WriteFlipped<u16>( client->chr->realm->height() );
-  msg->offset += 6;  // u8 unk31, unk32, unk33, unk34, unk35, unk36
+  msg->offset += 6; // u8 unk31, unk32, unk33, unk34, unk35, unk36
   msg.Send( client );
 }
 
 void send_inrange_items( Network::Client* client )
 {
   WorldIterator<ItemFilter>::InVisualRange( client->chr, [&]( Items::Item* item )
-                                            {
-                                              send_item( client, item );
-                                            } );
+  {
+    send_item( client, item );
+  } );
 }
 
 void send_inrange_multis( Network::Client* client )
 {
   WorldIterator<MultiFilter>::InVisualRange( client->chr, [&]( Multi::UMulti* multi )
-                                             {
-                                               send_multi( client, multi );
-                                             } );
+  {
+    send_multi( client, multi );
+  } );
 }
 
 void textcmd_startlog( Network::Client* client );
@@ -342,32 +336,28 @@ void start_client_char( Network::Client* client )
   //  Moved login_complete higher to prevent weather regions from messing up client
   //  spell icon packets(made it look like it was raining spell icons from spellbook if logged
   //  into a weather region with rain.
-  //	login_complete(client);
+  //  login_complete(client);
 }
 
 
-void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ecl,
-                       const std::string& pkg_script_ecl, bool offline = false )
+void call_chr_scripts(Mobile::Character* chr, const std::string& root_script_ecl, const std::string& pkg_script_ecl, bool offline = false)
 {
   ScriptDef sd;
   sd.quickconfig( root_script_ecl );
 
   if ( sd.exists() )
   {
-    call_script( sd, offline ? new Module::EOfflineCharacterRefObjImp( chr )
-                             : new Module::ECharacterRefObjImp( chr ) );
+    call_script( sd, offline ? new Module::EOfflineCharacterRefObjImp( chr ) : new Module::ECharacterRefObjImp( chr ) );
   }
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin(); itr != Plib::systemstate.packages.end(); ++itr )
   {
     Plib::Package* pkg = *itr;
 
     sd.quickconfig( pkg, pkg_script_ecl );
     if ( sd.exists() )
     {
-      call_script( sd, offline ? new Module::EOfflineCharacterRefObjImp( chr )
-                               : new Module::ECharacterRefObjImp( chr ) );
+      call_script( sd, offline ? new Module::EOfflineCharacterRefObjImp( chr ) : new Module::ECharacterRefObjImp( chr ) );
     }
   }
 }
@@ -387,8 +377,7 @@ bool can_delete_character( Mobile::Character* chr, int delete_by )
 
   if ( sd.exists() )
   {
-    return call_script( sd, new Module::EOfflineCharacterRefObjImp( chr ),
-                        new Bscript::BLong( delete_by ) );
+    return call_script( sd, new Module::EOfflineCharacterRefObjImp( chr ), new Bscript::BLong( delete_by ) );
   }
   else
   {
@@ -406,7 +395,8 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 {
   bool reconnecting = false;
   int charidx = cfBEu32( msg->charidx );
-  if ( ( charidx >= Plib::systemstate.config.character_slots ) || ( client->acct == NULL ) ||
+  if ( ( charidx >= Plib::systemstate.config.character_slots ) ||
+       ( client->acct == NULL ) ||
        ( client->acct->get_character( charidx ) == NULL ) )
   {
     send_login_error( client, LOGIN_ERROR_MISC );
@@ -416,30 +406,28 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 
   Mobile::Character* chosen_char = client->acct->get_character( charidx );
 
-  POLLOG.Format( "Account {} selecting character {}\n" ) << client->acct->name()
-                                                         << chosen_char->name();
+  POLLOG.Format( "Account {} selecting character {}\n" )
+      << client->acct->name()
+      << chosen_char->name();
 
   if ( Plib::systemstate.config.min_cmdlevel_to_login > chosen_char->cmdlevel() )
   {
-    POLLOG.Format(
-        "Account {} with character {} doesn't fit MinCmdlevelToLogin from pol.cfg. Client "
-        "disconnected by Core.\n" )
-        << client->acct->name() << chosen_char->name();
+    POLLOG.Format( "Account {} with character {} doesn't fit MinCmdlevelToLogin from pol.cfg. Client disconnected by Core.\n" )
+        << client->acct->name()
+        << chosen_char->name();
 
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
   }
 
-  // Dave moved this from login.cpp so client cmdlevel can be checked before denying login
-  if ( ( ( std::count_if( networkManager.clients.begin(), networkManager.clients.end(),
-                          clientHasCharacter ) ) >= Plib::systemstate.config.max_clients ) &&
+  //Dave moved this from login.cpp so client cmdlevel can be checked before denying login
+  if ( ( ( std::count_if( networkManager.clients.begin(), networkManager.clients.end(), clientHasCharacter ) ) >= Plib::systemstate.config.max_clients ) &&
        ( chosen_char->cmdlevel() < Plib::systemstate.config.max_clients_bypass_cmdlevel ) )
   {
-    POLLOG.Format(
-        "To much clients connected. Check MaximumClients and/or MaximumClientsBypassCmdLevel in "
-        "pol.cfg.\nAccount {} with character {} Client disconnected by Core.\n" )
-        << client->acct->name() << chosen_char->name();
+    POLLOG.Format( "To much clients connected. Check MaximumClients and/or MaximumClientsBypassCmdLevel in pol.cfg.\nAccount {} with character {} Client disconnected by Core.\n" )
+        << client->acct->name()
+        << chosen_char->name();
 
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
@@ -463,8 +451,7 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
     chosen_char->client = NULL;
     reconnecting = true;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
   {
     // We are trying to attach a new character, but AllowMultiCharacters is not set
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
@@ -474,7 +461,7 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
   else
   {
     // logging in a character that's offline.
-    SetCharacterWorldPosition( chosen_char, Realms::WorldChangeReason::PlayerEnter );
+    SetCharacterWorldPosition(chosen_char, Realms::WorldChangeReason::PlayerEnter);
     chosen_char->logged_in = true;
   }
 
@@ -497,6 +484,7 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
     run_logon_script( chosen_char );
   else
     run_reconnect_script( chosen_char );
+
 }
 
 void send_client_char_data( Mobile::Character* chr, Network::Client* client );
@@ -504,19 +492,17 @@ void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
 {
   send_goxyz( client, client->chr );
 
-  client->send_pause();  // dave removed force=true 5/10/3, let uoclient.cfg option determine xflow
-                         // packets (else this hangs 4.0.0e clients)
+  client->send_pause(); //dave removed force=true 5/10/3, let uoclient.cfg option determine xflow packets (else this hangs 4.0.0e clients)
 
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr, [&]( Mobile::Character* zonechr )
-      {
-        send_client_char_data( zonechr, client );
-      } );
+  Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Mobile::Character* zonechr )
+  {
+    send_client_char_data( zonechr, client );
+  } );
 
   send_inrange_items( client );
   send_inrange_multis( client );
 
-  client->send_restart();  // dave removed force=true 5/10/3
+  client->send_restart();//dave removed force=true 5/10/3
 }
 
 void handle_keep_alive( Network::Client* client, PKTBI_73* msg )
@@ -529,7 +515,8 @@ void restart_all_clients()
   if ( !networkManager.uoclient_protocol.EnableFlowControlPackets )
     return;
   for ( Clients::iterator itr = networkManager.clients.begin(), end = networkManager.clients.end();
-        itr != end; ++itr )
+        itr != end;
+        ++itr )
   {
     Network::Client* client = ( *itr );
     if ( client->pause_count )
@@ -544,7 +531,7 @@ void polclock_checkin()
   stateManager.checkin_clock_times_out_at = polclock() + 30 * POLCLOCKS_PER_SEC;
 }
 
-#define clock_t_to_ms( x ) ( x )
+#define clock_t_to_ms(x) (x)
 
 void tasks_thread( void )
 {
@@ -588,12 +575,12 @@ void tasks_thread( void )
     POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << msg;
     throw;
   }
-  catch ( std::string& str )
+  catch (std::string& str)
   {
     POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << str;
     throw;
   }
-  catch ( std::exception& ex )
+  catch (std::exception& ex)
   {
     POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << ex.what();
     throw;
@@ -673,27 +660,31 @@ void combined_thread( void )
         sleep_clocks = script_clocksleft;
       else
         sleep_clocks = scheduler_clocksleft;
-    } while ( sleep_clocks <= 0 );
+    }
+    while ( sleep_clocks <= 0 );
 
     wait_for_pulse( clock_t_to_ms( sleep_clocks ) );
   }
 }
 
-void decay_thread( void* );
-void decay_thread_shadow( void* );
-void decay_single_thread( void* );
+void decay_thread( void*);
+void decay_thread_shadow( void*);
+void decay_single_thread( void*);
 
-template <class T>
+template<class T>
 inline void Delete( T* p )
 {
   delete p;
 }
 
-template <class T>
+template<class T>
 class delete_ob
 {
 public:
-  void operator()( T* p ) { delete p; }
+  void operator()( T* p )
+  {
+    delete p;
+  }
 };
 
 void reap_thread( void )
@@ -744,26 +735,19 @@ void threadstatus_thread( void )
       Pol::Clib::ExceptionParser::logAllStackTraces();
 
       tmp << "Scripts Thread Checkpoint: " << stateManager.polsig.scripts_thread_checkpoint << "\n";
-      tmp << "Last Script: " << Clib::scripts_thread_script
-          << " PC: " << Clib::scripts_thread_scriptPC << "\n";
+      tmp << "Last Script: " << Clib::scripts_thread_script << " PC: " << Clib::scripts_thread_scriptPC << "\n";
       tmp << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << "\n";
       tmp << "Tasks Thread Checkpoint: " << stateManager.polsig.tasks_thread_checkpoint << "\n";
-      tmp << "Active Client Thread Checkpoint: "
-          << stateManager.polsig.active_client_thread_checkpoint << "\n";
-      tmp << "Number of clients: " << Core::networkManager.clients.size() << "\n";
-      for ( const auto& client : Core::networkManager.clients )
-        tmp << " " << Network::AddressToString( &client->ipaddr ) << " "
-            << ( client->acct == NULL ? "prelogin " : client->acct->name() ) << " "
-            << client->checkpoint << "\n";
+      tmp << "Active Client Thread Checkpoint: " << stateManager.polsig.active_client_thread_checkpoint << "\n";
+      tmp << "Number of clients: " <<  Core::networkManager.clients.size() << "\n";
+      for (const auto& client : Core::networkManager.clients)
+        tmp << " " << Network::AddressToString(&client->ipaddr) << " " << (client->acct == NULL ? "prelogin " : client->acct->name()) << " " << client->checkpoint << "\n";
       if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
-        tmp << "check_attack_after_move() Checkpoint: "
-            << stateManager.polsig.check_attack_after_move_function_checkpoint << "\n";
-      tmp << "Current Threads:"
-          << "\n";
+        tmp << "check_attack_after_move() Checkpoint: " << stateManager.polsig.check_attack_after_move_function_checkpoint << "\n";
+      tmp << "Current Threads:" << "\n";
       ThreadMap::Contents contents;
       threadmap.CopyContents( contents );
-      for ( ThreadMap::Contents::const_iterator citr = contents.begin(); citr != contents.end();
-            ++citr )
+      for ( ThreadMap::Contents::const_iterator citr = contents.begin(); citr != contents.end(); ++citr )
       {
         tmp << ( *citr ).first << " - " << ( *citr ).second << "\n";
       }
@@ -794,7 +778,7 @@ void threadstatus_thread( void )
     }
     pol_sleep_ms( 1000 );
   }
-  // cerr << "threadstatus thread exits." << endl;
+  //cerr << "threadstatus thread exits." << endl;
   signal_catch_thread();
 }
 
@@ -804,7 +788,7 @@ void reload_configuration();
 void console_thread( void )
 {
 #ifndef _WIN32
-  Clib::KeyboardHook kb;  // local to have a defined deconstruction to uninstall the hook
+  Clib::KeyboardHook kb; // local to have a defined deconstruction to uninstall the hook
 #endif
   while ( !Clib::exit_signalled )
   {
@@ -812,13 +796,13 @@ void console_thread( void )
 #ifdef _WIN32
     ConsoleCommand::check_console_commands();
 #else
-    ConsoleCommand::check_console_commands( &kb );
+    ConsoleCommand::check_console_commands(&kb);
     if ( stateManager.polsig.reload_configuration_signalled )
     {
       PolLock lck;
       INFO_PRINT << "Reloading configuration...";
       stateManager.polsig.reload_configuration_signalled = false;
-      reload_configuration();
+      reload_configuration( );
       INFO_PRINT << "Done.\n";
     }
 #endif
@@ -848,7 +832,7 @@ void start_threads()
   if ( settingsManager.ssopt.decay_items )
   {
     checkpoint( "start decay thread" );
-    if ( Plib::systemstate.config.single_thread_decay )
+    if (Plib::systemstate.config.single_thread_decay)
     {
       threadhelp::start_thread( decay_single_thread, "Decay", nullptr );
     }
@@ -889,8 +873,8 @@ void start_threads()
 #endif
 
 #ifndef _WIN32
-// checkpoint( "start catch_signals thread" );
-// start_thread( catch_signals_thread, "CatchSignals" );
+  //checkpoint( "start catch_signals thread" );
+  //start_thread( catch_signals_thread, "CatchSignals" );
 #endif
 }
 
@@ -916,7 +900,7 @@ void check_incoming_data( void )
     if ( client->have_queued_data() )
       FD_SET( client->csocket, &networkManager.polsocket.send_fd );
 
-    if ( ( SOCKET )( client->csocket + 1 ) > nfds )
+    if ( (SOCKET)( client->csocket + 1 ) > nfds )
       nfds = client->csocket + 1;
   }
 
@@ -925,10 +909,9 @@ void check_incoming_data( void )
   {
     networkManager.polsocket.select_timeout.tv_sec = 0;
     networkManager.polsocket.select_timeout.tv_usec = Plib::systemstate.config.select_timeout_usecs;
-    res = select( static_cast<int>( nfds ), &networkManager.polsocket.recv_fd,
-                  &networkManager.polsocket.send_fd, &networkManager.polsocket.err_fd,
-                  &networkManager.polsocket.select_timeout );
-  } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+    res = select( static_cast<int>( nfds ), &networkManager.polsocket.recv_fd, &networkManager.polsocket.send_fd, &networkManager.polsocket.err_fd, &networkManager.polsocket.select_timeout );
+  }
+  while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
 
   if ( res <= 0 )
@@ -951,8 +934,7 @@ void check_incoming_data( void )
       process_data( client );
     }
 
-    if ( client->have_queued_data() &&
-         FD_ISSET( client->csocket, &networkManager.polsocket.send_fd ) )
+    if ( client->have_queued_data() && FD_ISSET( client->csocket, &networkManager.polsocket.send_fd ) )
     {
       client->send_queued_data();
     }
@@ -962,7 +944,7 @@ void check_incoming_data( void )
 
   if ( FD_ISSET( networkManager.polsocket.listen_socket, &networkManager.polsocket.recv_fd ) )
   {
-    struct sockaddr client_addr;  // inet_addr
+    struct sockaddr client_addr; // inet_addr
     socklen_t addrlen = sizeof client_addr;
     SOCKET client_socket = accept( networkManager.polsocket.listen_socket, &client_addr, &addrlen );
     if ( client_socket == INVALID_SOCKET )
@@ -980,9 +962,7 @@ void check_incoming_data( void )
     if ( Plib::systemstate.config.loglevel >= 2 )
       POLLOG << tmp.str();
 
-    Network::Client* client =
-        new Network::Client( *Core::networkManager.uo_client_interface.get(),
-                             Plib::systemstate.config.client_encryption_version );
+    Network::Client* client = new Network::Client( *Core::networkManager.uo_client_interface.get(), Plib::systemstate.config.client_encryption_version );
     client->csocket = client_socket;
     memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
     // Added null setting for pre-char selection checks using NULL validation
@@ -1005,7 +985,7 @@ void display_leftover_objects()
   Bscript::display_executor_instances();
   display_unreaped_orphan_instances();
 #if BOBJECTIMP_DEBUG
-  Bscript::display_bobjectimp_instances();
+  Bscript::display_bobjectimp_instances( );
 #endif
   display_reftypes();
   std::ofstream ofs;
@@ -1052,10 +1032,12 @@ void run_start_scripts()
 }
 
 #ifdef _WIN32
-typedef BOOL( WINAPI* DynHeapSetInformation )( PVOID HeapHandle,
-                                               HEAP_INFORMATION_CLASS HeapInformationClass,
-                                               PVOID HeapInformation,
-                                               SIZE_T HeapInformationLength );
+typedef BOOL( WINAPI* DynHeapSetInformation ) (
+  PVOID HeapHandle,
+  HEAP_INFORMATION_CLASS HeapInformationClass,
+  PVOID HeapInformation,
+  SIZE_T HeapInformationLength
+);
 
 const char* Use_low_fragmentation_Heap()
 {
@@ -1072,8 +1054,7 @@ const char* Use_low_fragmentation_Heap()
       {
         ULONG HeapFragValue = 2;
 
-        if ( ( ProcAdd )( GetProcessHeap(), HeapCompatibilityInformation, &HeapFragValue,
-                          sizeof( HeapFragValue ) ) )
+        if ( (ProcAdd)( GetProcessHeap(), HeapCompatibilityInformation, &HeapFragValue, sizeof( HeapFragValue ) ) )
         {
           FreeLibrary( hKernel32 );
           return "low-fragmentation Heap ...activated";
@@ -1099,9 +1080,9 @@ const char* Use_low_fragmentation_Heap()
 #endif
 
 #ifdef __linux__
-void Check_libc_version()
+void Check_libc_version( )
 {
-  const char* libc_version = gnu_get_libc_version();
+  const char* libc_version = gnu_get_libc_version( );
 
   int main_version = 0;
   int sub_version = 0;
@@ -1117,8 +1098,7 @@ void Check_libc_version()
     }
   }
   else
-    POLLOG_ERROR << "Error in analyzing libc version string [" << libc_version
-                 << "]. Please contact Core-Team.\n";
+    POLLOG_ERROR << "Error in analyzing libc version string [" << libc_version << "]. Please contact Core-Team.\n";
 
   if ( main_version * 100000000 + sub_version * 10000 + build >= 2 * 100000000 + 3 * 10000 + 2 )
     POLLOG_INFO << "Found libc " << libc_version << " - ok\n";
@@ -1128,7 +1108,7 @@ void Check_libc_version()
 #endif
 
 
-}  // namespace Core
+} // namespace Core
 
 int xmain_inner()
 {
@@ -1141,15 +1121,14 @@ int xmain_inner()
 #ifdef __linux__
   std::ofstream polpid;
 
-  polpid.open( ( Plib::systemstate.config.pidfile_path + "pol.pid" ).c_str(),
-               std::ios::out | std::ios::trunc );
+  polpid.open( ( Plib::systemstate.config.pidfile_path + "pol.pid" ).c_str( ), std::ios::out | std::ios::trunc );
 
-  if ( polpid.is_open() )
-    polpid << Clib::decint( getpid() );
+  if ( polpid.is_open( ) )
+    polpid << Clib::decint( getpid( ) );
   else
     INFO_PRINT << "Cannot create pid file in " << Plib::systemstate.config.pidfile_path << "\n";
 
-  polpid.close();
+  polpid.close( );
 #endif
 #endif
 
@@ -1161,8 +1140,9 @@ int xmain_inner()
 
   Clib::MakeDirectory( "log" );
 
-  POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET << "\ncompiled on " << POL_BUILD_DATE
-              << " " << POL_BUILD_TIME << "\nCopyright (C) 1993-2016 Eric N. Swanson"
+  POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET
+              << "\ncompiled on " << POL_BUILD_DATETIME
+              << "\nCopyright (C) 1993-2016 Eric N. Swanson"
               << "\n\n";
 
 #ifndef NDEBUG
@@ -1188,8 +1168,7 @@ int xmain_inner()
     max_threads /= 2;
     max_threads = std::max( 2, max_threads );
   }
-  POLLOG_INFO << "Using " << max_threads << " out of " << omp_get_max_threads()
-              << " worldsave threads\n";
+  POLLOG_INFO << "Using " << max_threads << " out of " << omp_get_max_threads() << " worldsave threads\n";
 #endif
 
   Core::checkpoint( "installing signal handlers" );
@@ -1221,19 +1200,17 @@ int xmain_inner()
 
 #ifdef __linux__
   Core::checkpoint( "checking libc version" );
-  Core::Check_libc_version();
+  Core::Check_libc_version( );
 #endif
 
   Core::checkpoint( "init default itemdesc defaults" );
-  Core::gamestate.empty_itemdesc->doubleclick_range =
-      Core::settingsManager.ssopt.default_doubleclick_range;
+  Core::gamestate.empty_itemdesc->doubleclick_range = Core::settingsManager.ssopt.default_doubleclick_range;
   Core::gamestate.empty_itemdesc->decay_time = Core::settingsManager.ssopt.default_decay_time;
 
   Core::checkpoint( "loading POL map file" );
   if ( !Core::load_realms() )
   {
-    POLLOG_ERROR << "Unable to load Realms. Please make sure your Realms have been generated by "
-                    "UOConvert and your RealmDataPath is set correctly in Pol.cfg.\n";
+    POLLOG_ERROR << "Unable to load Realms. Please make sure your Realms have been generated by UOConvert and your RealmDataPath is set correctly in Pol.cfg.\n";
     return 1;
   }
 
@@ -1279,14 +1256,14 @@ int xmain_inner()
   Core::checkpoint( "reading starting locations" );
   Core::read_starting_locations();
 
-  // TODO: remove the following because it is not used anymore
+  //TODO: remove the following because it is not used anymore
   //    if ( argc > 1 )
   //    {
   //      POLLOG_INFO << "Running POL test suite.\n";
   //      Core::run_pol_tests();
   //      Core::cancel_all_trades();
   //      Core::stop_gameclock();
-  //	  Core::gamestate.deinitialize();
+  //    Core::gamestate.deinitialize();
   //      return 0;
   //    }
 
@@ -1308,7 +1285,7 @@ int xmain_inner()
 
   // PrintAllocationData();
 
-  // onetime_create_stubdata();
+  //onetime_create_stubdata();
 
   Core::checkpoint( "running start scripts" );
   Core::run_start_scripts();
@@ -1330,12 +1307,10 @@ int xmain_inner()
                    << "+----------------------------------------------------------------------+\n"
                    << "\n\n";
 
-      throw std::runtime_error(
-          "ListenPort is no longer used for multithreading programs (Multithread == 1)." );
+      throw std::runtime_error("ListenPort is no longer used for multithreading programs (Multithread == 1).");
     }
     Core::checkpoint( "opening listen socket" );
-    Core::networkManager.polsocket.listen_socket =
-        Network::open_listen_socket( Plib::systemstate.config.listen_port );
+    Core::networkManager.polsocket.listen_socket = Network::open_listen_socket( Plib::systemstate.config.listen_port );
     if ( Core::networkManager.polsocket.listen_socket == INVALID_SOCKET )
     {
       POLLOG_ERROR << "Unable to listen on socket " << Plib::systemstate.config.listen_port << "\n";
@@ -1343,42 +1318,42 @@ int xmain_inner()
     }
   }
 
-  //	if( 1 )
+  //  if( 1 )
   {
     POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
   }
-  // if( 1 )
+  //if( 1 )
   {
     DEINIT_STARTLOG();
   }
-  POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" )
-      << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
-  // if( 1 )
+  POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} running.\n" ) << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATETIME;
+  //if( 1 )
   {
-    if ( Plib::systemstate.config.multithread == 0 ) {
+    if ( Plib::systemstate.config.multithread == 0 )
+    {
       POLLOG_INFO <<
-        "\n"
-        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-        "WARNING: Threading is disabled (Multithread==0 in pol.cfg).    \n"
-        "         This setting is deprecated and will be removed from   \n"
-        "         the next version of POL. It may not even work now!    \n"
-        "         Only use this option if you really know what you are  \n"
-        "         doing. And you probably don't.                        \n"
-        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-        "\n";
+                  "\n"
+                  "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                  "WARNING: Threading is disabled (Multithread==0 in pol.cfg).    \n"
+                  "         This setting is deprecated and will be removed from   \n"
+                  "         the next version of POL. It may not even work now!    \n"
+                  "         Only use this option if you really know what you are  \n"
+                  "         doing. And you probably don't.                        \n"
+                  "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                  "\n";
     }
     POLLOG_INFO << "Game is active.\n";
   }
   Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
-  // goto skip;
+  //goto skip;
 
   Core::restart_pol_clocks();
   Core::polclock_checkin();
 
   // this is done right after reading globals from pol.txt:
-  // checkpoint( "starting game clock" );
-  // start_gameclock();
+  //checkpoint( "starting game clock" );
+  //start_gameclock();
 
   Core::checkpoint( "starting periodic tasks" );
   Core::start_tasks();
@@ -1394,12 +1369,11 @@ int xmain_inner()
     Core::checkpoint( "exit signal detected" );
     Core::CoreSetSysTrayToolTip( "Shutting down", Core::ToolTipPriorityShutdown );
 #else
-    // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're
-    // supposed to.
+    // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're supposed to.
     // therefore, we have to do this signal checking in this thread.
     threadhelp::start_thread( Core::console_thread, "Console" );
 
-    Core::catch_signals_thread();
+    Core::catch_signals_thread( );
 #endif
     Core::checkpoint( "waiting for child threads to exit" );
     // NOTE that it's possible that the thread_status thread not have exited yet..
@@ -1463,8 +1437,7 @@ int xmain_inner()
     else
       Core::save_incremental( dirty, clean, elapsed_ms );
     Core::SaveContext::ready();
-    POLLOG_INFO << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed()
-                << " total.\n";
+    POLLOG_INFO << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed() << " total.\n";
   }
   else
   {
@@ -1483,12 +1456,12 @@ int xmain_outer()
   {
     return xmain_inner();
   }
-  catch ( std::exception& )
+  catch ( std::exception&)
   {
     if ( Core::stateManager.last_checkpoint != NULL )
     {
       POLLOG_INFO << "Server Shutdown: " << Core::stateManager.last_checkpoint << "\n";
-      // pol_sleep_ms( 10000 );
+      //pol_sleep_ms( 10000 );
     }
     Core::gamestate.deinitialize();
 
@@ -1496,3 +1469,4 @@ int xmain_outer()
   }
 }
 }
+

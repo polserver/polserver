@@ -29,37 +29,42 @@ namespace Pol
 namespace Bscript
 {
 using namespace Module;
-template <>
+template<>
 TmplExecutorModule<Module::UBoatExecutorModule>::FunctionDef
-    TmplExecutorModule<Module::UBoatExecutorModule>::function_table[] = {
-        {"MoveBoat", &UBoatExecutorModule::mf_MoveBoat},
-        {"MoveBoatRelative", &UBoatExecutorModule::mf_MoveBoatRelative},
-        {"MoveBoatXY", &UBoatExecutorModule::mf_MoveBoatXY},
-        {"TurnBoat", &UBoatExecutorModule::mf_TurnBoat},
-        {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat},
-        {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem},
-        {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial}};
+TmplExecutorModule<Module::UBoatExecutorModule>::function_table[] =
+{
+  { "MoveBoat", &UBoatExecutorModule::mf_MoveBoat },
+  { "MoveBoatRelative", &UBoatExecutorModule::mf_MoveBoatRelative },
+  { "MoveBoatXY", &UBoatExecutorModule::mf_MoveBoatXY },
+  { "TurnBoat", &UBoatExecutorModule::mf_TurnBoat },
+  { "RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat },
+  { "BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem },
+  { "SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial }
+};
 
-template <>
-int TmplExecutorModule<UBoatExecutorModule>::function_table_size = arsize( function_table );
+template<>
+int TmplExecutorModule<UBoatExecutorModule>::function_table_size =
+  arsize( function_table );
 }
 namespace Module
 {
-Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
+
+Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat( )
 {
   Multi::UBoat* boat = NULL;
   int direction, speed;
-  if ( getUBoatParam( exec, 0, boat ) && getParam( 1, direction, 0, 7 ) &&
+  if ( getUBoatParam( exec, 0, boat ) &&
+       getParam( 1, direction, 0, 7 ) &&
        getParam( 2, speed, 1, 4 ) )
   {
     Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
-    boat->move( move_dir, static_cast<u8>( speed ), false );
+    boat->move( move_dir, static_cast<u8>(speed), false );
     return new Bscript::BLong( 1 );
   }
   return NULL;
 }
 
-Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
+Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY( )
 {
   Multi::UBoat* boat = NULL;
   unsigned short x, y;
@@ -75,15 +80,15 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
   }
 }
 
-Bscript::BObjectImp* UBoatExecutorModule::mf_TurnBoat()
+Bscript::BObjectImp* UBoatExecutorModule::mf_TurnBoat( )
 {
   Multi::UBoat* boat = NULL;
   int relative_dir;
-  if ( getUBoatParam( exec, 0, boat ) && getParam( 1, relative_dir ) )
+  if ( getUBoatParam( exec, 0, boat ) &&
+       getParam( 1, relative_dir ) )
   {
     relative_dir &= 3;
-    return new Bscript::BLong(
-        boat->turn( static_cast<Multi::UBoat::RELATIVE_DIR>( relative_dir ) ) );
+    return new Bscript::BLong( boat->turn( static_cast<Multi::UBoat::RELATIVE_DIR>( relative_dir ) ) );
   }
   else
   {
@@ -91,25 +96,27 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_TurnBoat()
   }
 }
 
-Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative()
+Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative( )
 {
   Multi::UBoat* boat = NULL;
   int direction, speed;
-  if ( getUBoatParam( exec, 0, boat ) && getParam( 1, direction, 0, 7 ) &&
+  if ( getUBoatParam( exec, 0, boat ) &&
+       getParam( 1, direction, 0, 7 ) &&
        getParam( 2, speed, 1, 4 ) )
   {
     Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
-    boat->move( move_dir, static_cast<u8>( speed ), true );
+    boat->move( move_dir, static_cast<u8>(speed), true );
     return new Bscript::BLong( 1 );
   }
   return NULL;
 }
 
-Bscript::BObjectImp* UBoatExecutorModule::mf_RegisterItemWithBoat()
+Bscript::BObjectImp* UBoatExecutorModule::mf_RegisterItemWithBoat( )
 {
   Multi::UBoat* boat = NULL;
   Core::UObject* obj = NULL;
-  if ( getUBoatParam( exec, 0, boat ) && getUObjectParam( exec, 1, obj ) )
+  if ( getUBoatParam( exec, 0, boat ) &&
+       getUObjectParam( exec, 1, obj ) )
   {
     boat->register_object( obj );
     return new Bscript::BLong( 1 );
@@ -117,7 +124,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_RegisterItemWithBoat()
   return NULL;
 }
 
-Bscript::BObjectImp* UBoatExecutorModule::mf_SystemFindBoatBySerial()
+Bscript::BObjectImp* UBoatExecutorModule::mf_SystemFindBoatBySerial( )
 {
   Multi::UBoat* boat = NULL;
   if ( getUBoatParam( exec, 0, boat ) )
@@ -130,7 +137,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_SystemFindBoatBySerial()
   }
 }
 
-Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem()
+Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem( )
 {
   Items::Item* item = NULL;
   if ( getItemParam( exec, 0, item ) )

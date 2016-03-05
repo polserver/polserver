@@ -59,8 +59,14 @@ inline polticks_t polticks_t_to_ms( polticks_t ticks )
 class PolClockPauser
 {
 public:
-  PolClockPauser() { pause_pol_clocks(); }
-  ~PolClockPauser() { restart_pol_clocks(); }
+  PolClockPauser()
+  {
+    pause_pol_clocks();
+  }
+  ~PolClockPauser()
+  {
+    restart_pol_clocks();
+  }
 };
 
 void polclock_checkin();

@@ -6,6 +6,7 @@
  */
 
 
+
 #ifndef VITALEMOD_H
 #define VITALEMOD_H
 
@@ -23,22 +24,20 @@ namespace Module
 class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule>
 {
 public:
-  VitalExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec )
-  {
-  }
+  VitalExecutorModule( Bscript::Executor& exec ) :
+    Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec ) {}
 
-  Bscript::BObjectImp* mf_ApplyRawDamage();
-  Bscript::BObjectImp* mf_ApplyDamage();
+  Bscript::BObjectImp* mf_ApplyRawDamage( );
+  Bscript::BObjectImp* mf_ApplyDamage( );
 
-  Bscript::BObjectImp* mf_HealDamage();
+  Bscript::BObjectImp* mf_HealDamage( );
 
-  Bscript::BObjectImp* mf_ConsumeMana();
+  Bscript::BObjectImp* mf_ConsumeMana( );
 
   Bscript::BObjectImp* mf_ConsumeVital( /* mob, vital, hundredths */ );
   Bscript::BObjectImp* mf_RecalcVitals( /* mob, attributes, vitals */ );
 
-  Bscript::BObjectImp* mf_GetVitalName( /*alias_name*/ );
+  Bscript::BObjectImp* mf_GetVitalName(/*alias_name*/ );
 
   Bscript::BObjectImp* mf_GetVital( /* mob, vitalid */ );
   Bscript::BObjectImp* mf_GetVitalMaximumValue( /* mob, vitalid */ );

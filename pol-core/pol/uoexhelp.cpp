@@ -39,8 +39,7 @@ namespace Core
 using namespace Bscript;
 using namespace Module;
 
-bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Character*& chrptr,
-                                Network::Client*& clientptr )
+bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Character*& chrptr, Network::Client*& clientptr )
 {
   BObjectImp* imp = exec.getParamImp( param );
   if ( imp == NULL )
@@ -55,7 +54,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
     if ( ( aob != NULL ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
     {
       ECharacterRefObjImp* chrref_imp =
-          Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
+        Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
 
       chrptr = chrref_imp->value().get();
 
@@ -65,7 +64,8 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
         return false;
       }
 
-      if ( chrptr->logged_in || chrref_imp->offline_access_ok() )
+      if ( chrptr->logged_in ||
+           chrref_imp->offline_access_ok() )
       {
         return true;
       }
@@ -78,9 +78,10 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
     else if ( ( aob != NULL ) && ( aob->object_type() == &eclientrefobjimp_type ) )
     {
       EClientRefObjImp* clientref_imp =
-          Clib::explicit_cast<EClientRefObjImp*, BApplicObjBase*>( aob );
+        Clib::explicit_cast<EClientRefObjImp*, BApplicObjBase*>( aob );
 
-      clientptr = clientref_imp->value().exists() ? clientref_imp->value().get_weakptr() : NULL;
+      clientptr = clientref_imp->value().exists() ?
+                  clientref_imp->value().get_weakptr() : NULL;
 
       if ( ( clientptr != NULL ) && clientptr->isConnected() )
       {
@@ -91,6 +92,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
         exec.setFunctionResult( new BError( "Client is disconnected" ) );
         return false;
       }
+
     }
     else
     {
@@ -151,7 +153,7 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
     if ( ( aob != NULL ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
     {
       ECharacterRefObjImp* chrref_imp =
-          Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
+        Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
 
       chrptr = chrref_imp->value().get();
 
@@ -161,7 +163,8 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
         return false;
       }
 
-      if ( chrptr->logged_in || chrref_imp->offline_access_ok() )
+      if ( chrptr->logged_in ||
+           chrref_imp->offline_access_ok() )
       {
         return true;
       }
@@ -228,7 +231,8 @@ bool getItemParam( Executor& exec, unsigned param, Items::Item*& itemptr )
 
     if ( ( aob != NULL ) && ( aob->object_type() == &eitemrefobjimp_type ) )
     {
-      EItemRefObjImp* itemref_imp = Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
+      EItemRefObjImp* itemref_imp =
+        Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
 
       itemptr = itemref_imp->value().get();
       return ( !itemptr->orphan() );
@@ -271,14 +275,16 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
 
     if ( aob->object_type() == &euboatrefobjimp_type )
     {
-      EUBoatRefObjImp* boatref_imp = Clib::explicit_cast<EUBoatRefObjImp*, BApplicObjBase*>( aob );
+      EUBoatRefObjImp* boatref_imp =
+        Clib::explicit_cast<EUBoatRefObjImp*, BApplicObjBase*>( aob );
 
       boatptr = boatref_imp->value().get();
       return ( !boatptr->orphan() );
     }
     else if ( aob->object_type() == &eitemrefobjimp_type )
     {
-      EItemRefObjImp* itemref_imp = Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
+      EItemRefObjImp* itemref_imp =
+        Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
 
       Items::Item* item = itemref_imp->value().get();
       if ( item->isa( UObject::CLASS_MULTI ) )
@@ -289,11 +295,13 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
           return false;
         else
           return ( !boatptr->orphan() );
+
       }
       else
       {
         return false;
       }
+
     }
     else
     {
@@ -319,6 +327,8 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
 }
 
 
+
+
 bool getMultiParam( Executor& exec, unsigned param, Multi::UMulti*& multiptr )
 {
   BObjectImp* imp = exec.getParamImp( param );
@@ -332,14 +342,16 @@ bool getMultiParam( Executor& exec, unsigned param, Multi::UMulti*& multiptr )
 
     if ( aob->object_type() == &emultirefobjimp_type )
     {
-      EMultiRefObjImp* multiref_imp = Clib::explicit_cast<EMultiRefObjImp*, BApplicObjBase*>( aob );
+      EMultiRefObjImp* multiref_imp =
+        Clib::explicit_cast<EMultiRefObjImp*, BApplicObjBase*>( aob );
 
       multiptr = multiref_imp->value().get();
       return ( !multiptr->orphan() );
     }
     else if ( aob->object_type() == &euboatrefobjimp_type )
     {
-      EUBoatRefObjImp* boatref_imp = Clib::explicit_cast<EUBoatRefObjImp*, BApplicObjBase*>( aob );
+      EUBoatRefObjImp* boatref_imp =
+        Clib::explicit_cast<EUBoatRefObjImp*, BApplicObjBase*>( aob );
 
       multiptr = boatref_imp->value().get();
       return ( !multiptr->orphan() );
@@ -424,8 +436,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
       }
       else
       {
-        exec.setFunctionResult(
-            new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
+        exec.setFunctionResult( new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;
       }
@@ -445,8 +456,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
     return false;
   }
 
-  if ( ( objtype_long > Plib::systemstate.config.max_tile_id ) &&
-       ( objtype_long <= Plib::systemstate.config.max_objtype ) )
+  if ( ( objtype_long > Plib::systemstate.config.max_tile_id ) && ( objtype_long <= Plib::systemstate.config.max_objtype ) )
   {
     objtype = objtype_long;
     if ( Items::has_itemdesc( objtype ) )
@@ -455,10 +465,10 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
     }
     else
     {
-      exec.setFunctionResult(
-          new BError( "Objtype " + Clib::hexint( objtype_long ) + " is not defined." ) );
+      exec.setFunctionResult( new BError( "Objtype " + Clib::hexint( objtype_long ) + " is not defined." ) );
       return false;
     }
+
   }
   else if ( objtype_long <= Plib::systemstate.config.max_tile_id )
   {
@@ -469,11 +479,8 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
   {
     DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function " << exec.current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Value " << objtype_long
-             << " is out of range for an objtype\n";
-    exec.setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " +
-                                        Clib::hexint( Plib::systemstate.config.max_objtype ) +
-                                        " )" ) );
+             << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype\n";
+    exec.setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " + Clib::hexint( Plib::systemstate.config.max_objtype ) + " )" ) );
     return false;
   }
 }
@@ -499,7 +506,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
     const char* ot_str = pstring->data();
     if ( !isdigit( ot_str[0] ) )
     {
-      unsigned int objtype = Items::get_objtype_byname( pstring->data() );
+      unsigned int objtype = Items::get_objtype_byname( pstring->data( ) );
       if ( objtype != 0 )
       {
         itemdesc_out = &Items::find_itemdesc( objtype );
@@ -507,8 +514,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
       }
       else
       {
-        exec.setFunctionResult(
-            new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
+        exec.setFunctionResult(new BError(std::string("Objtype not defined: ") + pstring->data()));
 
         return false;
       }
@@ -543,10 +549,8 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
     return false;
   }
 
-  // we get here if the value passed was an integer - either a BLong, or a String containing a
-  // number.
-  if ( ( objtype_long > Plib::systemstate.config.max_tile_id ) &&
-       ( objtype_long <= Plib::systemstate.config.max_objtype ) )
+  // we get here if the value passed was an integer - either a BLong, or a String containing a number.
+  if ( ( objtype_long > Plib::systemstate.config.max_tile_id ) && ( objtype_long <= Plib::systemstate.config.max_objtype ) )
   {
     const Items::ItemDesc* itemdesc = &Items::find_itemdesc( objtype_long );
 
@@ -557,10 +561,10 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
     }
     else
     {
-      exec.setFunctionResult(
-          new BError( "Objtype " + Clib::hexint( objtype_long ) + " is not defined." ) );
+      exec.setFunctionResult( new BError( "Objtype " + Clib::hexint( objtype_long ) + " is not defined." ) );
       return false;
     }
+
   }
   else if ( objtype_long <= Plib::systemstate.config.max_tile_id )
   {
@@ -573,8 +577,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
       Core::gamestate.temp_itemdesc->objtype = objtype;
       Core::gamestate.temp_itemdesc->graphic = static_cast<u16>( objtype );
       Core::gamestate.temp_itemdesc->decay_time = settingsManager.ssopt.default_decay_time;
-      Core::gamestate.temp_itemdesc->doubleclick_range =
-          settingsManager.ssopt.default_doubleclick_range;
+      Core::gamestate.temp_itemdesc->doubleclick_range = settingsManager.ssopt.default_doubleclick_range;
     }
 
     return true;
@@ -583,8 +586,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
   {
     DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function " << exec.current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Value " << objtype_long
-             << " is out of range for an objtype\n";
+             << "\tParameter " << param << ": Value " << objtype_long << " is out of range for an objtype\n";
     exec.setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
     return false;
   }
@@ -593,8 +595,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
 bool getSkillIdParam( Executor& exec, unsigned param, USKILLID& skillid )
 {
   int skillval;
-  if ( exec.getParam( param, skillval, SKILLID__LOWEST,
-                      networkManager.uoclient_general.maxskills ) )
+  if ( exec.getParam( param, skillval, SKILLID__LOWEST, networkManager.uoclient_general.maxskills ) )
   {
     skillid = static_cast<USKILLID>( skillval );
     return true;
@@ -612,11 +613,11 @@ bool getAttributeParam( Executor& exec, unsigned param, const Mobile::Attribute*
   if ( !exec.getStringParam( param, attrname ) )
     return false;
 
-  attr = Mobile::Attribute::FindAttribute( attrname->value() );
+  attr = Mobile::Attribute::FindAttribute( attrname->value( ) );
   if ( !attr )
   {
     exec.setFunctionResult( new BError( "Attribute not defined: " + attrname->value() ) );
-    return false;  // new BError( "Attribute not found" );
+    return false; // new BError( "Attribute not found" );
   }
 
   return true;

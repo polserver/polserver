@@ -18,10 +18,10 @@ namespace Core
 {
 #ifdef _MSC_VER
 /* Visual C++ 4.0 and above */
-#pragma pack( push, 1 )
+# pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
+# pragma pack(1)
 #endif
 
 struct PKTNI_3D
@@ -242,11 +242,12 @@ struct PKTNI_64
 asserteql( sizeof( PKTNI_64 ), 1 );
 
 
-#ifdef _MSC_VER /* Visual C++ 4.0 + */
-#pragma pack( pop )
+
+#ifdef _MSC_VER     /* Visual C++ 4.0 + */
+# pragma pack( pop )
 #else
-#pragma pack()
+# pragma pack()
 #endif
 }
 }
-#endif  // PKTNI_H
+#endif // PKTNI_H

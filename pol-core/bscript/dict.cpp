@@ -26,15 +26,14 @@ namespace Pol
 namespace Bscript
 {
 BDictionary::BDictionary() : BObjectImp( OTDictionary ), contents_()
-{
-}
+{}
 
 BDictionary::BDictionary( BObjectType type ) : BObjectImp( type ), contents_()
-{
-}
+{}
 
-BDictionary::BDictionary( const BDictionary& dict, BObjectType type )
-    : BObjectImp( type ), contents_()
+BDictionary::BDictionary( const BDictionary& dict, BObjectType type ) :
+  BObjectImp( type ),
+  contents_()
 {
   for ( const auto& elem : dict.contents_ )
   {
@@ -45,8 +44,9 @@ BDictionary::BDictionary( const BDictionary& dict, BObjectType type )
   }
 }
 
-BDictionary::BDictionary( std::istream& is, unsigned size, BObjectType type )
-    : BObjectImp( type ), contents_()
+BDictionary::BDictionary( std::istream& is, unsigned size, BObjectType type ) :
+  BObjectImp( type ),
+  contents_()
 {
   for ( unsigned i = 0; i < size; ++i )
   {
@@ -80,15 +80,14 @@ private:
   BObject m_Key;
   bool m_First;
 };
-BDictionaryIterator::BDictionaryIterator( BDictionary* pDict, BObject* pIterVal )
-    : ContIterator(),
-      m_DictObj( pDict ),
-      m_pDict( pDict ),
-      m_IterVal( pIterVal ),
-      m_Key( UninitObject::create() ),
-      m_First( true )
-{
-}
+BDictionaryIterator::BDictionaryIterator( BDictionary* pDict, BObject* pIterVal ) :
+  ContIterator(),
+  m_DictObj( pDict ),
+  m_pDict( pDict ),
+  m_IterVal( pIterVal ),
+  m_Key( UninitObject::create() ),
+  m_First( true )
+{}
 
 BObject* BDictionaryIterator::step()
 {
@@ -141,7 +140,7 @@ size_t BDictionary::sizeEstimate() const
   {
     const BObject& bkeyobj = elem.first;
     const BObjectRef& bvalref = elem.second;
-    size += bkeyobj.sizeEstimate() + bvalref.sizeEstimate() + ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += bkeyobj.sizeEstimate() + bvalref.sizeEstimate() + ( sizeof(void*)* 3 + 1 ) / 2;
   }
   return size;
 }
@@ -189,8 +188,7 @@ BObjectRef BDictionary::get_member( const char* membername )
 
 BObjectRef BDictionary::OperSubscript( const BObject& obj )
 {
-  if ( obj->isa( OTString ) || obj->isa( OTLong ) || obj->isa( OTDouble ) ||
-       obj->isa( OTApplicObj ) )
+  if ( obj->isa( OTString ) || obj->isa( OTLong ) || obj->isa( OTDouble ) || obj->isa( OTApplicObj ) )
   {
     auto itr = contents_.find( obj );
     if ( itr != contents_.end() )
@@ -211,8 +209,7 @@ BObjectRef BDictionary::OperSubscript( const BObject& obj )
 
 BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
 {
-  if ( idx->isa( OTString ) || idx->isa( OTLong ) || idx->isa( OTDouble ) ||
-       idx->isa( OTApplicObj ) )
+  if ( idx->isa( OTString ) || idx->isa( OTLong ) || idx->isa( OTDouble ) || idx->isa( OTApplicObj ) )
   {
     BObjectImp* new_target = copy ? target->copy() : target;
 
@@ -267,10 +264,10 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
       return new BError( "dictionary.size() doesn't take parameters." );
     break;
   case MTH_ERASE:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 &&
+         ( keyobj = ex.getParamObj( 0 ) ) != NULL )
     {
-      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
-              keyobj->isa( OTApplicObj ) ) )
+      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj ) ) )
         return new BError( "Dictionary keys must be integer, real, or string" );
       int nremove = static_cast<int>( contents_.erase( *keyobj ) );
       return new BLong( nremove );
@@ -281,11 +278,11 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
     }
     break;
   case MTH_INSERT:
-    if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != NULL &&
+    if ( ex.numParams() == 2 &&
+         ( keyobj = ex.getParamObj( 0 ) ) != NULL &&
          ( valobj = ex.getParamObj( 1 ) ) != NULL )
     {
-      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
-              keyobj->isa( OTApplicObj ) ) )
+      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj ) ) )
         return new BError( "Dictionary keys must be integer, real, or string" );
       BObject key( keyobj->impptr()->copy() );
       contents_[key] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
@@ -297,10 +294,10 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
     }
     break;
   case MTH_EXISTS:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 &&
+         ( keyobj = ex.getParamObj( 0 ) ) != NULL )
     {
-      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
-              keyobj->isa( OTApplicObj ) ) )
+      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) || keyobj->isa( OTApplicObj ) ) )
         return new BError( "Dictionary keys must be integer, real, or string" );
       int count = static_cast<int>( contents_.count( *keyobj ) );
       return new BLong( count );
@@ -382,8 +379,7 @@ BObjectImp* BDictionary::unpack( std::istream& is )
   }
   if ( (int)size < 0 )
   {
-    return new BError(
-        "Unable to unpack dictionary elemcount. Length given must be positive integer!" );
+    return new BError( "Unable to unpack dictionary elemcount. Length given must be positive integer!" );
   }
   if ( colon != ':' )
   {
@@ -416,10 +412,12 @@ std::string BDictionary::getStringRep() const
   return OSTRINGSTREAM_STR( os );
 }
 
-void BDictionary::FormatForStringRep( std::ostream& os, const BObject& bkeyobj,
+void BDictionary::FormatForStringRep( std::ostream& os,
+                                      const BObject& bkeyobj,
                                       const BObjectRef& bvalref ) const
 {
-  os << bkeyobj.impref().getFormattedStringRep() << " -> "
+  os << bkeyobj.impref().getFormattedStringRep()
+     << " -> "
      << bvalref->impref().getFormattedStringRep();
 }
 
@@ -443,5 +441,7 @@ const BDictionary::Contents& BDictionary::contents() const
 {
   return contents_;
 }
+
 }
 }
+

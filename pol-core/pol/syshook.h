@@ -36,22 +36,18 @@ public:
   ~ExportedFunction();
   const std::string& scriptname() const;
 
-  bool call( Bscript::BObjectImp* p0 );                           // throw()
-  bool call( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );  // throw()
-  bool call( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1,
-             Bscript::BObjectImp* p2 );  // throw()
-  bool call( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2,
-             Bscript::BObjectImp* p3 );  // throw()
+  bool call( Bscript::BObjectImp* p0 ); // throw()
+  bool call( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
+  bool call( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
+  bool call( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2, Bscript::BObjectImp* p3 ); // throw()
 
-  std::string call_string( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );  // throw()
-  std::string call_string( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1,
-                           Bscript::BObjectImp* p2 );  // throw()
+  std::string call_string( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
+  std::string call_string( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
 
-  int call_long( Bscript::BObjectImp* p0 );                           // throw()
-  int call_long( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );  // throw()
+  int call_long( Bscript::BObjectImp* p0 ); // throw()
+  int call_long( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
   Bscript::BObject call_object( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );
-  Bscript::BObject call_object( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1,
-                                Bscript::BObjectImp* p2 );
+  Bscript::BObject call_object( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 );
 
 private:
   ExportScript* export_script;
@@ -83,9 +79,12 @@ public:
   ExportedFunction* can_trade;
 };
 
-ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Package* pkg,
-                                        const std::string& descriptor, unsigned nargs,
+ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem,
+                                        const Plib::Package* pkg,
+                                        const std::string& descriptor,
+                                        unsigned nargs,
                                         bool complain_if_missing = true );
+
 }
 }
 #endif

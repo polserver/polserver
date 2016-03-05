@@ -23,6 +23,7 @@ namespace Pol
 
 namespace Core
 {
+
 extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );
 extern void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void rawmapfullread();
@@ -30,8 +31,7 @@ void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* 
 void readtile( unsigned short tilenum, USTRUCT_TILE* tile );
 void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile );
 void clear_tiledata();
-void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x,
-                      unsigned short y );
+void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x, unsigned short y );
 void rawstaticfullread();
 
 

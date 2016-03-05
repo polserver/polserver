@@ -19,6 +19,7 @@ namespace Pol
 {
 namespace Core
 {
+
 void invoke( Network::Client* client, const char* spellidstr )
 {
   u16 spellnum = static_cast<u16>( strtoul( spellidstr, NULL, 0 ) );
@@ -38,7 +39,7 @@ bool process_tildecommand( Network::Client* client, const char* textbuf )
 {
   if ( textbuf[0] == 'I' && textbuf[1] == 'N' )
   {
-    INFO_PRINT_TRACE( 6 ) << "INVOKE: " << textbuf << "\n";
+    INFO_PRINT_TRACE(6) << "INVOKE: " << textbuf << "\n";
 
     invoke( client, textbuf + 2 );
     return true;

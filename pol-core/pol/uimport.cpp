@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2005/01/23 Shinigami: for_all_mobiles, write_items & write_multis - Tokuno MapDimension doesn't
- * fit blocks of 64x64 (WGRID_SIZE)
+ * - 2005/01/23 Shinigami: for_all_mobiles, write_items & write_multis - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
  * - 2007/06/17 Shinigami: added config.world_data_path
  * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
  *                         Relocation of multi related cpp/h
@@ -68,7 +67,7 @@
 #include <stdexcept>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable warning deprecation of stricmp
+#pragma warning(disable:4996) // disable warning deprecation of stricmp
 #endif
 
 namespace Pol
@@ -89,7 +88,7 @@ void write_guilds( Clib::StreamWriter& sw );
 std::shared_future<bool> SaveContext::finished;
 
 /****************** POL Native Files *******************/
-// Dave changed 3/8/3 to use objecthash
+//Dave changed 3/8/3 to use objecthash
 void read_character( Clib::ConfigElem& elem )
 {
   // if this object is modified in a subsequent incremental save,
@@ -107,14 +106,14 @@ void read_character( Clib::ConfigElem& elem )
     chr->readProperties( elem );
 
     // Allows the realm to recognize this char as offline
-    chr->realm->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    chr->realm->add_mobile(*chr, Realms::WorldChangeReason::PlayerLoad);
 
     chr->clear_dirty();
 
     // readProperties gets the serial, so we can't add to the objecthash until now.
     objStorageManager.objecthash.Insert( chr.get() );
   }
-  catch ( std::exception& )
+  catch ( std::exception&)
   {
     if ( chr.get() != NULL )
       chr->destroy();
@@ -122,7 +121,7 @@ void read_character( Clib::ConfigElem& elem )
   }
 }
 
-// Dave changed 3/8/3 to use objecthash
+//Dave changed 3/8/3 to use objecthash
 void read_npc( Clib::ConfigElem& elem )
 {
   // if this object is modified in a subsequent incremental save,
@@ -145,7 +144,7 @@ void read_npc( Clib::ConfigElem& elem )
     objStorageManager.objecthash.Insert( npc.get() );
     ////
   }
-  catch ( std::exception& )
+  catch (std::exception&)
   {
     if ( npc.get() != NULL )
       npc->destroy();
@@ -170,13 +169,12 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     return NULL;
   }
 
-  if ( !IsItem( serial ) )
+  if (!IsItem(serial))
   {
-    elem.warn_with_line(
-        "Item element does not have an item serial\n(should be larger than 0x40000000)" );
-    if ( Plib::systemstate.config.check_integrity )
+    elem.warn_with_line("Item element does not have an item serial\n(should be larger than 0x40000000)");
+    if (Plib::systemstate.config.check_integrity)
     {
-      throw std::runtime_error( "Data integrity error" );
+      throw std::runtime_error("Data integrity error");
     }
     return NULL;
   }
@@ -185,8 +183,9 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   {
     if ( system_find_item( serial ) )
     {
-      ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" ) << serial;
-      throw std::runtime_error( "Data integrity error" );
+      ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" )
+          << serial;
+      throw std::runtime_error("Data integrity error");
     }
   }
   if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
@@ -200,10 +199,9 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   Items::Item* item = Items::Item::create( objtype, serial );
   if ( item == NULL )
   {
-    ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" ) << objtype
-                                                                                 << serial;
+    ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" ) << objtype << serial;
     if ( !Plib::systemstate.config.ignore_load_errors )
-      throw std::runtime_error( "Item::create failed!" );
+      throw std::runtime_error("Item::create failed!");
     else
       return NULL;
   }
@@ -231,19 +229,18 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
     return;
 
 
-  u32 container_serial = 0;  // defaults to item in the world's top-level
-  (void)elem.remove_prop( "CONTAINER",
-                          &container_serial );  // therefore we don't need to check the return value
+  u32 container_serial = 0;                                   // defaults to item in the world's top-level
+  (void)elem.remove_prop( "CONTAINER", &container_serial );   // therefore we don't need to check the return value
 
   Items::Item* item = read_item( elem );
-  // dave added 1/15/3, protect against further crash if item is null. Should throw instead?
+  //dave added 1/15/3, protect against further crash if item is null. Should throw instead?
   if ( item == NULL )
   {
     elem.warn_with_line( "Error reading item SERIAL or OBJTYPE." );
     return;
   }
 
-  ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  ItemRef itemref( item ); //dave 1/28/3 prevent item from being destroyed before function ends
   if ( container_serial == 0 )
   {
     add_item_to_world( item );
@@ -252,7 +249,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   }
   else
   {
-    if ( IsCharacter( container_serial ) )  // it's equipped on a character
+    if ( IsCharacter( container_serial ) ) // it's equipped on a character
     {
       Mobile::Character* chr = system_find_mobile( container_serial );
       if ( chr != NULL )
@@ -266,7 +263,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       return;
     }
     Items::Item* cont_item = NULL;
-    // bool new_parent_cont = false;
+    //bool new_parent_cont = false;
 
     while ( !parent_conts.empty() )
     {
@@ -285,7 +282,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
     if ( cont_item == NULL )
     {
       cont_item = system_find_item( container_serial );
-      // new_parent_cont = true;
+      //new_parent_cont = true;
     }
 
     if ( cont_item )
@@ -302,10 +299,8 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 void read_system_vars( Clib::ConfigElem& elem )
 {
   settingsManager.polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
-  stateManager.stored_last_item_serial =
-      elem.remove_ulong( "LastItemSerialNumber", UINT_MAX );  // dave 3/9/3
-  stateManager.stored_last_char_serial =
-      elem.remove_ulong( "LastCharSerialNumber", UINT_MAX );  // dave 3/9/3
+  stateManager.stored_last_item_serial = elem.remove_ulong( "LastItemSerialNumber", UINT_MAX ); //dave 3/9/3
+  stateManager.stored_last_char_serial = elem.remove_ulong( "LastCharSerialNumber", UINT_MAX ); //dave 3/9/3
 }
 
 void read_shadow_realms( Clib::ConfigElem& elem )
@@ -333,12 +328,13 @@ void read_multi( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "SERIAL", &serial ) == false )
   {
     ERROR_PRINT << "A Multi has no SERIAL property.\n";
-    throw std::runtime_error( "Config File error." );
+    throw std::runtime_error("Config File error.");
   }
   if ( system_find_multi( serial ) || system_find_item( serial ) )
   {
-    ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" ) << serial;
-    throw std::runtime_error( "Data integrity error" );
+    ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" )
+        << serial;
+    throw std::runtime_error("Data integrity error");
   }
   if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
   {
@@ -351,16 +347,15 @@ void read_multi( Clib::ConfigElem& elem )
   Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
   if ( multi == NULL )
   {
-    ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" ) << objtype
-                                                                                    << serial;
-    throw std::runtime_error( "Multi::create failed!" );
+    ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" ) << objtype << serial;
+    throw std::runtime_error("Multi::create failed!");
   }
   multi->readProperties( elem );
 
   add_multi_to_world( multi );
 }
 
-std::string elapsed( clock_t start, clock_t end )
+std::string elapsed(clock_t start, clock_t end)
 {
   size_t ms = static_cast<size_t>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
   return Clib::decint( ms ) + " ms";
@@ -404,15 +399,16 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
         {
           StorageArea* storage_area = gamestate.storage.create_area( elem );
           // this will be followed by an item
-          if ( !cf.read( elem ) )
-            throw std::runtime_error( "Expected an item to exist after the storagearea." );
+          if (!cf.read(elem))
+            throw std::runtime_error("Expected an item to exist after the storagearea.");
 
           storage_area->load_item( elem );
         }
         else if ( elem.type_is( "REALM" ) )
           read_shadow_realms( elem );
+
       }
-      catch ( std::exception& )
+      catch ( std::exception&)
       {
         if ( !Plib::systemstate.config.ignore_load_errors )
           throw;
@@ -434,46 +430,40 @@ void read_pol_dat()
 
   if ( settingsManager.polvar.DataWrittenBy == 0 )
   {
-    ERROR_PRINT
-        << "CoreVersion not found in " << polfile << "\n\n" << polfile
-        << " must contain a section similar to: \n"
-        << "System\n"
-        << "{\n"
-        << "	CoreVersion 99\n"
-        << "}\n\n"
-        << "Ensure that the CoreVersion matches the version that created your data files!\n";
-    throw std::runtime_error( "Data file error" );
+    ERROR_PRINT << "CoreVersion not found in " << polfile << "\n\n"
+                << polfile << " must contain a section similar to: \n"
+                << "System\n"
+                << "{\n"
+                << "	CoreVersion 99\n"
+                << "}\n\n"
+                << "Ensure that the CoreVersion matches the version that created your data files!\n";
+    throw std::runtime_error("Data file error");
   }
 }
 
 void read_objects_dat()
 {
-  slurp( ( Plib::systemstate.config.world_data_path + "objects.txt" ).c_str(),
-         "CHARACTER NPC ITEM GLOBALPROPERTIES" );
+  slurp( ( Plib::systemstate.config.world_data_path + "objects.txt" ).c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES" );
 }
 
 void read_pcs_dat()
 {
-  slurp( ( Plib::systemstate.config.world_data_path + "pcs.txt" ).c_str(), "CHARACTER ITEM",
-         SYSFIND_SKIP_WORLD );
+  slurp( ( Plib::systemstate.config.world_data_path + "pcs.txt" ).c_str(), "CHARACTER ITEM", SYSFIND_SKIP_WORLD );
 }
 
 void read_pcequip_dat()
 {
-  slurp( ( Plib::systemstate.config.world_data_path + "pcequip.txt" ).c_str(), "ITEM",
-         SYSFIND_SKIP_WORLD );
+  slurp( ( Plib::systemstate.config.world_data_path + "pcequip.txt" ).c_str(), "ITEM", SYSFIND_SKIP_WORLD );
 }
 
 void read_npcs_dat()
 {
-  slurp( ( Plib::systemstate.config.world_data_path + "npcs.txt" ).c_str(), "NPC ITEM",
-         SYSFIND_SKIP_WORLD );
+  slurp( ( Plib::systemstate.config.world_data_path + "npcs.txt" ).c_str(), "NPC ITEM", SYSFIND_SKIP_WORLD );
 }
 
 void read_npcequip_dat()
 {
-  slurp( ( Plib::systemstate.config.world_data_path + "npcequip.txt" ).c_str(), "ITEM",
-         SYSFIND_SKIP_WORLD );
+  slurp( ( Plib::systemstate.config.world_data_path + "npcequip.txt" ).c_str(), "ITEM", SYSFIND_SKIP_WORLD );
 }
 
 void read_items_dat()
@@ -484,20 +474,20 @@ void read_items_dat()
 void read_multis_dat()
 {
   slurp( ( Plib::systemstate.config.world_data_path + "multis.txt" ).c_str(), "MULTI" );
-  //	string multisfile = config.world_data_path + "multis.txt";
-  //	if (FileExists( multisfile ))
-  //	{
-  //		cout << multisfile << ":";
-  //		ConfigFile cf( multisfile, "MULTI" );
-  //		ConfigElem elem;
-  //		while( cf.read( elem ))
-  //		{
-  //			UMulti* multi = read_multi( elem );
-  //			if (multi == NULL) throw runtime_error( "multi creation returned NULL!" );
+  //  string multisfile = config.world_data_path + "multis.txt";
+  //  if (FileExists( multisfile ))
+  //  {
+  //    cout << multisfile << ":";
+  //    ConfigFile cf( multisfile, "MULTI" );
+  //    ConfigElem elem;
+  //    while( cf.read( elem ))
+  //    {
+  //      UMulti* multi = read_multi( elem );
+  //      if (multi == NULL) throw runtime_error( "multi creation returned NULL!" );
   //
-  //			add_multi_to_world( multi );
-  //		}
-  //	}
+  //      add_multi_to_world( multi );
+  //    }
+  //  }
 }
 
 void read_storage_dat()
@@ -519,7 +509,10 @@ Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm*
   for ( auto& item : realm->zone[wx][wy].items )
   {
     // FIXME won't find doors which have been perturbed
-    if ( item->objtype_ == objtype && item->x == x && item->y == y && item->z == z )
+    if ( item->objtype_ == objtype &&
+         item->x == x &&
+         item->y == y &&
+         item->z == z )
     {
       return item;
     }
@@ -537,15 +530,15 @@ void import( Clib::ConfigElem& elem )
   if ( objtype > Plib::systemstate.config.max_tile_id )
   {
     ERROR_PRINT.Format( "Importing file: 0x{:X} is out of range.\n" ) << objtype;
-    throw std::runtime_error( "Error while importing file." );
+    throw std::runtime_error("Error while importing file.");
   }
 
-  Items::Item* item = Items::Item::create( objtype, 0x40000000 );  // dummy serial
+  Items::Item* item = Items::Item::create( objtype, 0x40000000 ); // dummy serial
 
   if ( item == NULL )
   {
     ERROR_PRINT.Format( "Unable to import item: objtype=0x{:X}\n" ) << objtype;
-    throw std::runtime_error( "Item::create failed!" );
+    throw std::runtime_error("Item::create failed!");
   }
 
   item->readProperties( elem );
@@ -565,6 +558,7 @@ void import( Clib::ConfigElem& elem )
     register_with_supporting_multi( item );
     ++import_count;
   }
+
 }
 
 void import_new_data()
@@ -580,12 +574,11 @@ void import_new_data()
       import( elem );
     }
     unlink( importfile.c_str() );
-    INFO_PRINT << "Import Results: " << import_count << " imported, " << dupe_count
-               << " duplicates.\n";
+    INFO_PRINT << "Import Results: " << import_count << " imported, " << dupe_count << " duplicates.\n";
   }
 }
 
-void rndat( const std::string& basename )
+void rndat(const std::string& basename)
 {
   std::string datname = Plib::systemstate.config.world_data_path + basename + ".dat";
   std::string txtname = Plib::systemstate.config.world_data_path + basename + ".txt";
@@ -625,7 +618,7 @@ int read_data()
                 << "'" << objectsndtfile << " exists.  This probably means the system\n"
                 << "exited while writing its state.  To avoid loss of data,\n"
                 << "forcing human intervention.\n";
-    throw std::runtime_error( "Human intervention required." );
+    throw std::runtime_error("Human intervention required.");
   }
   if ( Clib::FileExists( storagendtfile ) )
   {
@@ -633,7 +626,7 @@ int read_data()
                 << "'" << storagendtfile << " exists.  This probably means the system\n"
                 << "exited while writing its state.  To avoid loss of data,\n"
                 << "forcing human intervention.\n";
-    throw std::runtime_error( "Human intervention required." );
+    throw std::runtime_error("Human intervention required.");
   }
 
   rename_dat_files();
@@ -665,9 +658,9 @@ int read_data()
   clear_save_index();
 
   import_new_data();
-  //	import_wsc();
+  //  import_wsc();
 
-  // dave 3/9/3
+  //dave 3/9/3
   if ( stateManager.stored_last_item_serial < GetCurrentItemSerialNumber() )
     SetCurrentItemSerialNumber( stateManager.stored_last_item_serial );
   if ( stateManager.stored_last_char_serial < GetCurrentCharSerialNumber() )
@@ -676,9 +669,7 @@ int read_data()
   while ( !parent_conts.empty() )
     parent_conts.pop();
 
-  for ( ObjectHash::hs::const_iterator citr = objStorageManager.objecthash.begin(),
-                                       citrend = objStorageManager.objecthash.end();
-        citr != citrend; ++citr )
+  for ( ObjectHash::hs::const_iterator citr = objStorageManager.objecthash.begin(), citrend = objStorageManager.objecthash.end(); citr != citrend; ++citr )
   {
     UObject* obj = ( *citr ).second.get();
     if ( obj->ismobile() )
@@ -695,33 +686,34 @@ int read_data()
 }
 
 
-SaveContext::SaveContext()
-    : _pol(),
-      _objects(),
-      _pcs(),
-      _pcequip(),
-      _npcs(),
-      _npcequip(),
-      _items(),
-      _multis(),
-      _storage(),
-      _resource(),
-      _guilds(),
-      _datastore(),
-      _party(),
-      pol( &_pol ),
-      objects( &_objects ),
-      pcs( &_pcs ),
-      pcequip( &_pcequip ),
-      npcs( &_npcs ),
-      npcequip( &_npcequip ),
-      items( &_items ),
-      multis( &_multis ),
-      storage( &_storage ),
-      resource( &_resource ),
-      guilds( &_guilds ),
-      datastore( &_datastore ),
-      party( &_party )
+
+SaveContext::SaveContext() :
+  _pol(),
+  _objects(),
+  _pcs(),
+  _pcequip(),
+  _npcs(),
+  _npcequip(),
+  _items(),
+  _multis(),
+  _storage(),
+  _resource(),
+  _guilds(),
+  _datastore(),
+  _party(),
+  pol( &_pol ),
+  objects( &_objects ),
+  pcs( &_pcs ),
+  pcequip( &_pcequip ),
+  npcs( &_npcs ),
+  npcequip( &_npcequip ),
+  items( &_items ),
+  multis( &_multis ),
+  storage( &_storage ),
+  resource( &_resource ),
+  guilds( &_guilds ),
+  datastore( &_datastore ),
+  party( &_party )
 {
   pol.init( Plib::systemstate.config.world_data_path + "pol.ndt" );
   objects.init( Plib::systemstate.config.world_data_path + "objects.ndt" );
@@ -737,50 +729,89 @@ SaveContext::SaveContext()
   datastore.init( Plib::systemstate.config.world_data_path + "datastore.ndt" );
   party.init( Plib::systemstate.config.world_data_path + "parties.ndt" );
 
-  pcs() << "#" << pf_endl << "#  PCS.TXT: Player-Character Data" << pf_endl << "#" << pf_endl
-        << "#  In addition to PC data, this also contains hair, beards, death shrouds," << pf_endl
-        << "#  and backpacks, but not the contents of each backpack." << pf_endl << "#" << pf_endl
-        << pf_endl;
+  pcs()
+      << "#" << pf_endl
+      << "#  PCS.TXT: Player-Character Data" << pf_endl
+      << "#" << pf_endl
+      << "#  In addition to PC data, this also contains hair, beards, death shrouds," << pf_endl
+      << "#  and backpacks, but not the contents of each backpack." << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  pcequip() << "#" << pf_endl << "#  PCEQUIP.TXT: Player-Character Equipment Data" << pf_endl << "#"
-            << pf_endl
-            << "#  This file can be deleted to wipe all items held/equipped by characters"
-            << pf_endl
-            << "#  Note that hair, beards, empty backpacks, and death shrouds are in PCS.TXT."
-            << pf_endl << "#" << pf_endl << pf_endl;
+  pcequip()
+      << "#" << pf_endl
+      << "#  PCEQUIP.TXT: Player-Character Equipment Data" << pf_endl
+      << "#" << pf_endl
+      << "#  This file can be deleted to wipe all items held/equipped by characters" << pf_endl
+      << "#  Note that hair, beards, empty backpacks, and death shrouds are in PCS.TXT." << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  npcs() << "#" << pf_endl << "#  NPCS.TXT: Nonplayer-Character Data" << pf_endl << "#" << pf_endl
-         << "#  If you delete this file to perform an NPC wipe," << pf_endl
-         << "#  be sure to also delete NPCEQUIP.TXT" << pf_endl << "#" << pf_endl << pf_endl;
+  npcs()
+      << "#" << pf_endl
+      << "#  NPCS.TXT: Nonplayer-Character Data" << pf_endl
+      << "#" << pf_endl
+      << "#  If you delete this file to perform an NPC wipe," << pf_endl
+      << "#  be sure to also delete NPCEQUIP.TXT" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  npcequip() << "#" << pf_endl << "#  NPCEQUIP.TXT: Nonplayer-Character Equipment Data" << pf_endl
-             << "#" << pf_endl << "#  Delete this file along with NPCS.TXT to perform an NPC wipe"
-             << pf_endl << "#" << pf_endl << pf_endl;
+  npcequip()
+      << "#" << pf_endl
+      << "#  NPCEQUIP.TXT: Nonplayer-Character Equipment Data" << pf_endl
+      << "#" << pf_endl
+      << "#  Delete this file along with NPCS.TXT to perform an NPC wipe" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  items() << "#" << pf_endl << "#  ITEMS.TXT: Item data" << pf_endl << "#" << pf_endl
-          << "#  This file also contains ship and house components (doors, planks etc)" << pf_endl
-          << "#" << pf_endl << pf_endl;
+  items()
+      << "#" << pf_endl
+      << "#  ITEMS.TXT: Item data" << pf_endl
+      << "#" << pf_endl
+      << "#  This file also contains ship and house components (doors, planks etc)" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  multis() << "#" << pf_endl << "#  MULTIS.TXT: Ship and House data" << pf_endl << "#" << pf_endl
-           << "#  Deleting this file will not properly wipe houses and ships," << pf_endl
-           << "#  because doors, planks, and tillermen will be left in the world." << pf_endl << "#"
-           << pf_endl << pf_endl;
+  multis()
+      << "#" << pf_endl
+      << "#  MULTIS.TXT: Ship and House data" << pf_endl
+      << "#" << pf_endl
+      << "#  Deleting this file will not properly wipe houses and ships," << pf_endl
+      << "#  because doors, planks, and tillermen will be left in the world." << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  storage() << "#" << pf_endl
-            << "#  STORAGE.TXT: Contains bank boxes, vendor inventories, and other data." << pf_endl
-            << "#" << pf_endl
-            << "#  This file can safely be deleted to wipe bank boxes and vendor inventories."
-            << pf_endl << "#  Note that scripts may use this for other types of storage as well"
-            << pf_endl << "#" << pf_endl << pf_endl;
+  storage()
+      << "#" << pf_endl
+      << "#  STORAGE.TXT: Contains bank boxes, vendor inventories, and other data." << pf_endl
+      << "#" << pf_endl
+      << "#  This file can safely be deleted to wipe bank boxes and vendor inventories." << pf_endl
+      << "#  Note that scripts may use this for other types of storage as well" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  resource() << "#" << pf_endl << "#  RESOURCE.TXT: Resource System Data" << pf_endl << "#"
-             << pf_endl << pf_endl;
+  resource()
+      << "#" << pf_endl
+      << "#  RESOURCE.TXT: Resource System Data" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  guilds() << "#" << pf_endl << "#  GUILDS.TXT: Guild Data" << pf_endl << "#" << pf_endl << pf_endl;
+  guilds()
+      << "#" << pf_endl
+      << "#  GUILDS.TXT: Guild Data" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 
-  datastore() << "#" << pf_endl << "#  DATASTORE.TXT: DataStore Data" << pf_endl << "#" << pf_endl
-              << pf_endl;
-  party() << "#" << pf_endl << "#  PARTIES.TXT: Party Data" << pf_endl << "#" << pf_endl << pf_endl;
+  datastore()
+      << "#" << pf_endl
+      << "#  DATASTORE.TXT: DataStore Data" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
+  party()
+      << "#" << pf_endl
+      << "#  PARTIES.TXT: Party Data" << pf_endl
+      << "#" << pf_endl
+      << pf_endl;
 }
 
 SaveContext::~SaveContext()
@@ -805,7 +836,7 @@ void SaveContext::ready()
 {
   if ( SaveContext::finished.valid() )
   {
-    // Tools::Timer<Tools::DebugT> t("future");
+    //Tools::Timer<Tools::DebugT> t("future");
     SaveContext::finished.wait();
   }
 }
@@ -813,21 +844,29 @@ void SaveContext::ready()
 
 void write_global_properties( Clib::StreamWriter& sw )
 {
-  sw() << "GlobalProperties" << pf_endl << "{" << pf_endl;
+  sw()
+      << "GlobalProperties" << pf_endl
+      << "{" << pf_endl;
   gamestate.global_properties->printProperties( sw );
-  sw() << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw()
+      << "}" << pf_endl
+      << pf_endl;
+  //sw.flush();
 }
 
 void write_system_data( Clib::StreamWriter& sw )
 {
-  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
-       << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl << "\tCompileDate\t"
-       << POL_BUILD_DATE << pf_endl << "\tCompileTime\t" << POL_BUILD_TIME << pf_endl
-       << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl  // dave 3/9/3
-       << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl  // dave 3/9/3
-       << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw()
+      << "System" << pf_endl
+      << "{" << pf_endl
+      << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
+      << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl
+      << "\tCompileDateTime\t" << POL_BUILD_DATETIME << pf_endl
+      << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl //dave 3/9/3
+      << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl //dave 3/9/3
+      << "}" << pf_endl
+      << pf_endl;
+  //sw.flush();
 }
 
 void write_shadow_realms( Clib::StreamWriter& sw )
@@ -836,18 +875,23 @@ void write_shadow_realms( Clib::StreamWriter& sw )
   {
     if ( realm->is_shadowrealm )
     {
-      sw() << "Realm" << pf_endl << "{" << pf_endl << "\tName\t" << realm->shadowname << pf_endl
-           << "\tBaseRealm\t" << realm->baserealm->name() << pf_endl << "}" << pf_endl << pf_endl;
+      sw()
+          << "Realm" << pf_endl
+          << "{" << pf_endl
+          << "\tName\t" << realm->shadowname << pf_endl
+          << "\tBaseRealm\t" << realm->baserealm->name() << pf_endl
+          << "}" << pf_endl
+          << pf_endl;
     }
   }
-  // sw.flush();
+  //sw.flush();
 }
 
 // Austin (Oct. 17, 2006)
 // Added to handle gotten item saving.
 inline void WriteGottenItem( Mobile::Character* chr, Items::Item* item, Clib::StreamWriter& sw )
 {
-  if ( item == nullptr || item->orphan() )
+  if (item == nullptr || item->orphan())
     return;
   // For now, it just saves the item in items.txt
   item->x = chr->x;
@@ -951,7 +995,7 @@ void write_multis( Clib::StreamWriter& ofs )
       {
         for ( auto& multi : realm->zone[wx][wy].multis )
         {
-          if ( Clib::exit_signalled )  // drop waiting commit on shutdown
+          if ( Clib::exit_signalled ) // drop waiting commit on shutdown
           {
             Multi::UHouse* house = multi->as_house();
             if ( house != NULL )
@@ -971,7 +1015,7 @@ void write_multis( Clib::StreamWriter& ofs )
   }
 }
 
-bool commit( const std::string& basename )
+bool commit(const std::string& basename)
 {
   std::string bakfile = Plib::systemstate.config.world_data_path + basename + ".bak";
   std::string datfile = Plib::systemstate.config.world_data_path + basename + ".txt";
@@ -988,8 +1032,7 @@ bool commit( const std::string& basename )
     if ( unlink( bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to remove {}: {} ({})\n" ) << bakfile_c << strerror( err )
-                                                              << err;
+      POLLOG_ERROR.Format( "Unable to remove {}: {} ({})\n" ) << bakfile_c << strerror( err ) << err;
     }
   }
 
@@ -999,8 +1042,7 @@ bool commit( const std::string& basename )
     if ( rename( datfile_c, bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << datfile_c << bakfile_c
-                                                                    << strerror( err ) << err;
+      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << datfile_c << bakfile_c << strerror( err ) << err;
     }
   }
 
@@ -1010,8 +1052,7 @@ bool commit( const std::string& basename )
     if ( rename( ndtfile_c, datfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << ndtfile_c << datfile_c
-                                                                    << strerror( err ) << err;
+      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << ndtfile_c << datfile_c << strerror( err ) << err;
     }
   }
 
@@ -1028,7 +1069,8 @@ bool should_write_data()
   return true;
 }
 
-int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long long& elapsed_ms )
+int write_data( unsigned int& dirty_writes, unsigned int& clean_writes,
+                long long& elapsed_ms )
 {
   SaveContext::ready();  // allow only one active
   if ( !should_write_data() )
@@ -1048,202 +1090,204 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
   // the remaining operations are only pure buffered i/o
   auto critical_promise = std::make_shared<std::promise<bool>>();
   auto critical_future = critical_promise->get_future();
-  SaveContext::finished = std::async(
-      std::launch::async, [&, critical_promise]() -> bool
-      {
-// limit the used thread
+  SaveContext::finished =
+    std::async( std::launch::async, [&, critical_promise]()->bool
+  {
+    // limit the used thread
 #ifndef __clang__
-        int max_threads = omp_get_max_threads();
-        if ( max_threads > 1 )
-        {
-          max_threads /= 2;
-          max_threads = std::max( 2, max_threads );
-        }
-        omp_set_num_threads( max_threads );
+    int max_threads = omp_get_max_threads();
+    if ( max_threads > 1 )
+    {
+      max_threads /= 2;
+      max_threads = std::max( 2, max_threads );
+    }
+    omp_set_num_threads( max_threads );
 #endif
-        try
+    try
+    {
+      SaveContext sc;
+      bool result = true;
+      #pragma omp parallel sections
+      {
+        #pragma omp section
         {
-          SaveContext sc;
-          bool result = true;
-#pragma omp parallel sections
+          threadhelp::ThreadRegister register_thread( "SaveSection: pol" );
+          try
           {
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: pol" );
-              try
-              {
-                sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID << pf_endl
-                         << "#  Mobiles:		 " << get_mobile_count() << pf_endl
-                         << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl << "#"
-                         << pf_endl << pf_endl;
+            sc.pol() << "#" << pf_endl
+            << "#  Created by Version: " << POL_VERSION_ID
+            << pf_endl
+            << "#  Mobiles:		 " << get_mobile_count()
+            << pf_endl << "#  Top-level Items: "
+            << get_toplevel_item_count() << pf_endl << "#"
+            << pf_endl << pf_endl;
 
-                write_system_data( sc.pol );
-                write_global_properties( sc.pol );
-                write_shadow_realms( sc.pol );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store pol datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: items" );
-              try
-              {
-                write_items( sc.items );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store items datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: chars" );
-              try
-              {
-                write_characters( sc );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store character datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: npcs" );
-              try
-              {
-                write_npcs( sc );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store npcs datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: multis" );
-              try
-              {
-                write_multis( sc.multis );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store multis datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: storage" );
-              try
-              {
-                gamestate.storage.print( sc.storage );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store storage datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: resource" );
-              try
-              {
-                write_resources_dat( sc.resource );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store resource datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: guilds" );
-              try
-              {
-                write_guilds( sc.guilds );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store guilds datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: datastore" );
-              try
-              {
-                Module::write_datastore( sc.datastore );
-                // Atomically (hopefully) perform the switch.
-                Module::commit_datastore();
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store datastore datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
-#pragma omp section
-            {
-              threadhelp::ThreadRegister register_thread( "SaveSection: party" );
-              try
-              {
-                write_party( sc.party );
-              }
-              catch ( ... )
-              {
-                POLLOG_ERROR << "failed to store party datafile!\n";
-                Clib::force_backtrace();
-                result = false;
-              }
-            }
+            write_system_data( sc.pol );
+            write_global_properties( sc.pol );
+            write_shadow_realms( sc.pol );
           }
-          critical_promise->set_value( result );  // critical part end
-        }  // deconstructor of the SaveContext flushes and joins the queues
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to save datafiles!\n";
-          Clib::force_backtrace();
-          critical_promise->set_value( false );  // critical part end
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store pol datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
         }
-        commit( "pol" );
-        commit( "objects" );
-        commit( "pcs" );
-        commit( "pcequip" );
-        commit( "npcs" );
-        commit( "npcequip" );
-        commit( "items" );
-        commit( "multis" );
-        commit( "storage" );
-        commit( "resource" );
-        commit( "guilds" );
-        commit( "datastore" );
-        commit( "parties" );
-        return true;
-      } );
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: items" );
+          try
+          {
+            write_items( sc.items );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store items datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: chars" );
+          try
+          {
+            write_characters( sc );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store character datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: npcs" );
+          try
+          {
+            write_npcs( sc );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store npcs datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: multis" );
+          try
+          {
+            write_multis( sc.multis );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store multis datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: storage" );
+          try
+          {
+            gamestate.storage.print( sc.storage );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store storage datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: resource" );
+          try
+          {
+            write_resources_dat( sc.resource );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store resource datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: guilds" );
+          try
+          {
+            write_guilds( sc.guilds );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store guilds datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: datastore" );
+          try
+          {
+            Module::write_datastore( sc.datastore );
+            // Atomically (hopefully) perform the switch.
+            Module::commit_datastore();
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store datastore datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+        #pragma omp section
+        {
+          threadhelp::ThreadRegister register_thread( "SaveSection: party" );
+          try
+          {
+            write_party( sc.party );
+          }
+          catch ( ... )
+          {
+            POLLOG_ERROR << "failed to store party datafile!\n";
+            Clib::force_backtrace();
+            result = false;
+          }
+        }
+      }
+      critical_promise->set_value( result );  // critical part end
+    } // deconstructor of the SaveContext flushes and joins the queues
+    catch ( ... )
+    {
+      POLLOG_ERROR << "failed to save datafiles!\n";
+      Clib::force_backtrace();
+      critical_promise->set_value( false );  // critical part end
+    }
+    commit( "pol" );
+    commit( "objects" );
+    commit( "pcs" );
+    commit( "pcequip" );
+    commit( "npcs" );
+    commit( "npcequip" );
+    commit( "items" );
+    commit( "multis" );
+    commit( "storage" );
+    commit( "resource" );
+    commit( "guilds" );
+    commit( "datastore" );
+    commit( "parties" );
+    return true;
+  } );
   critical_future.wait();  // wait for end of critical part
 
-  if ( Plib::systemstate.accounts_txt_dirty )  // write accounts extra, since it uses extra thread
-                                               // for io operations would be to many threads working
+  if ( Plib::systemstate.accounts_txt_dirty ) // write accounts extra, since it uses extra thread for io operations would be to many threads working
   {
     Accounts::write_account_data();
   }
@@ -1252,7 +1296,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
   objStorageManager.incremental_save_count = 0;
   timer.stop();
   objStorageManager.objecthash.ClearDeleted();
-  // optimize_zones(); // shrink zone vectors TODO this takes way to much time!
+  //optimize_zones(); // shrink zone vectors TODO this takes way to much time!
 
   // cout << "Clean: " << UObject::clean_writes << " Dirty: " <<
   // UObject::dirty_writes << endl;
@@ -1274,7 +1318,7 @@ void read_starting_locations()
     if ( stricmp( elem.type(), "StartingLocation" ) != 0 )
     {
       ERROR_PRINT << "Unknown element type in startloc.cfg: " << elem.type() << "\n";
-      throw std::runtime_error( "Error in configuration file." );
+      throw std::runtime_error("Error in configuration file.");
     }
 
     std::unique_ptr<StartingLocation> loc( new StartingLocation );
@@ -1282,7 +1326,7 @@ void read_starting_locations()
     loc->desc = elem.remove_string( "DESCRIPTION" );
     loc->mapid = elem.remove_ushort( "MAPID", 0 );
     loc->cliloc_desc = elem.remove_unsigned( "CLILOC", 1075072 );
-    loc->realm = find_realm( elem.remove_string( "REALM", "britannia" ) );
+    loc->realm = find_realm( elem.remove_string( "REALM", "britannia" ));
 
     std::string coord;
     while ( elem.remove_prop( "Coordinate", &coord ) )
@@ -1290,44 +1334,55 @@ void read_starting_locations()
       int x, y, z;
       if ( sscanf( coord.c_str(), "%d,%d,%d", &x, &y, &z ) == 3 )
       {
-        loc->coords.push_back(
-            Coordinate( static_cast<u16>( x ), static_cast<u16>( y ), static_cast<s8>( z ) ) );
+        loc->coords.push_back( Coordinate( static_cast<u16>( x ), static_cast<u16>( y ), static_cast<s8>( z ) ) );
       }
       else
       {
-        ERROR_PRINT << "Poorly formed coordinate in startloc.cfg: '" << coord << "' for city "
-                    << loc->city << ", description " << loc->desc << "\n";
-        throw std::runtime_error( "Configuration file error in startloc.cfg." );
+        ERROR_PRINT << "Poorly formed coordinate in startloc.cfg: '"
+                    << coord
+                    << "' for city "
+                    << loc->city
+                    << ", description "
+                    << loc->desc
+                    << "\n";
+        throw std::runtime_error("Configuration file error in startloc.cfg.");
       }
     }
     if ( loc->coords.size() == 0 )
     {
-      ERROR_PRINT << "STARTLOC.CFG: StartingLocation (" << loc->city << "," << loc->desc
+      ERROR_PRINT << "STARTLOC.CFG: StartingLocation ("
+                  << loc->city
+                  << ","
+                  << loc->desc
                   << ") has no Coordinate properties."
                   << "\n";
-      throw std::runtime_error( "Configuration file error." );
+      throw std::runtime_error("Configuration file error.");
     }
     gamestate.startlocations.push_back( loc.release() );
   }
 
   if ( gamestate.startlocations.empty() )
-    throw std::runtime_error(
-        "STARTLOC.CFG: No starting locations found.  Clients will crash on character creation." );
+    throw std::runtime_error("STARTLOC.CFG: No starting locations found.  Clients will crash on character creation.");
 }
 
-ServerDescription::ServerDescription() : name( "" ), port( 0 ), hostname( "" )
+ServerDescription::ServerDescription() :
+  name( "" ),
+  port( 0 ),
+  hostname( "" )
 {
   memset( ip, 0, sizeof ip );
 }
 
 size_t ServerDescription::estimateSize() const
 {
-  size_t size = name.capacity() + 4 * sizeof( unsigned char ) /*ip*/
-                + sizeof( unsigned short )                    /*port*/
-                + 3 * sizeof( unsigned int* ) + ip_match.capacity() * sizeof( unsigned int ) +
-                3 * sizeof( unsigned int* ) + ip_match_mask.capacity() * sizeof( unsigned int ) +
-                3 * sizeof( std::string* ) + hostname.capacity();
-  for ( const auto& s : acct_match )
+  size_t size = name.capacity()
+                + 4*sizeof(unsigned char) /*ip*/
+                + sizeof(unsigned short) /*port*/
+                + 3 * sizeof(unsigned int*) + ip_match.capacity() * sizeof( unsigned int )
+                + 3 * sizeof(unsigned int*) + ip_match_mask.capacity() * sizeof( unsigned int )
+                + 3 * sizeof (std::string*)
+                + hostname.capacity();
+  for (const auto& s : acct_match)
     size += s.capacity();
   return size;
 }
@@ -1356,8 +1411,7 @@ void read_gameservers()
       iptext = networkManager.ipaddr_str;
       if ( iptext == "" )
       {
-        INFO_PRINT << "Skipping server " << svr->name
-                   << " because there is no Internet IP address.\n";
+        INFO_PRINT << "Skipping server " << svr->name << " because there is no Internet IP address.\n";
         continue;
       }
     }
@@ -1375,9 +1429,12 @@ void read_gameservers()
     {
       if ( sscanf( iptext.c_str(), "%d.%d.%d.%d", &ip0, &ip1, &ip2, &ip3 ) != 4 )
       {
-        ERROR_PRINT << "SERVERS.CFG: Poorly formed IP (" << iptext << ") for GameServer '"
-                    << svr->name << "'.\n";
-        throw std::runtime_error( "Configuration file error." );
+        ERROR_PRINT << "SERVERS.CFG: Poorly formed IP ("
+                    << iptext
+                    << ") for GameServer '"
+                    << svr->name
+                    << "'.\n";
+        throw std::runtime_error("Configuration file error.");
       }
       svr->ip[0] = static_cast<unsigned char>( ip3 );
       svr->ip[1] = static_cast<unsigned char>( ip2 );
@@ -1392,11 +1449,10 @@ void read_gameservers()
       /* try to look up */
       struct hostent host_ret;
       struct hostent* host_result = NULL;
-      char tmp_buf[1024];
+      char tmp_buf[ 1024 ];
       int my_h_errno;
-      int res = gethostbyname_r( svr->hostname.c_str(), &host_ret, tmp_buf, sizeof tmp_buf,
-                                 &host_result, &my_h_errno );
-      if ( res == 0 && host_result && host_result->h_addr_list[0] )
+      int res = gethostbyname_r( svr->hostname.c_str(), &host_ret, tmp_buf, sizeof tmp_buf, &host_result, &my_h_errno );
+      if (res == 0 && host_result && host_result->h_addr_list[0])
       {
         char* addr = host_result->h_addr_list[0];
         svr->ip[0] = addr[3];
@@ -1414,10 +1470,11 @@ void read_gameservers()
       }
       else
       {
-        POLLOG_ERROR.Format( "Warning: gethostbyname_r failed for server {} ({}): {}\n" )
+        POLLOG_ERROR.Format( "Warning: gethostbyname_r failed for server {} ({}): {}\n")
             << svr->name << svr->hostname << my_h_errno;
       }
 #endif
+
     }
 
     svr->port = elem.remove_ushort( "PORT" );
@@ -1425,10 +1482,10 @@ void read_gameservers()
     while ( elem.remove_prop( "IPMATCH", &iptext ) )
     {
       auto delim = iptext.find_first_of( "/" );
-      if ( delim != std::string::npos )
+      if (delim != std::string::npos)
       {
-        std::string ipaddr_str = iptext.substr( 0, delim );
-        std::string ipmask_str = iptext.substr( delim + 1 );
+        std::string ipaddr_str = iptext.substr(0, delim);
+        std::string ipmask_str = iptext.substr(delim + 1);
         unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
         unsigned int ipmask = inet_addr( ipmask_str.c_str() );
         svr->ip_match.push_back( ipaddr );
@@ -1452,5 +1509,8 @@ void read_gameservers()
   if ( networkManager.servers.empty() )
     throw std::runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
 }
+
+
+
 }
 }

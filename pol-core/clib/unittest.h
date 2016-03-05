@@ -7,7 +7,10 @@ namespace Clib
 class UnitTest
 {
 public:
-  UnitTest( void ( *testfunc )() ) { ( *testfunc )(); }
+  UnitTest( void( *testfunc )( ) )
+  {
+    ( *testfunc )( );
+  }
 };
 }
 }

@@ -28,18 +28,21 @@ namespace Pol
 {
 namespace Core
 {
-ObjectHash::ObjectHash() : hash(), reap_iterator( hash.end() ){};
+ObjectHash::ObjectHash() :
+  hash(),
+  reap_iterator( hash.end() )
+{};
 
-ObjectHash::~ObjectHash(){};
+ObjectHash::~ObjectHash()
+{};
 
 bool ObjectHash::Insert( UObject* obj )
 {
   OH_iterator itr = hash.find( obj->serial );
   if ( itr != hash.end() )
   {
-    if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOG.Format( "ObjectHash insert failed for object serial 0x{:X}. (duplicate serial?)\n" )
-          << obj->serial;
+    if (Plib::systemstate.config.loglevel >= 5 )
+      POLLOG.Format( "ObjectHash insert failed for object serial 0x{:X}. (duplicate serial?)\n" ) << obj->serial;
     return false;
   }
   hash.insert( hash.end(), std::make_pair( obj->serial, UObjectRef( obj ) ) );
@@ -48,8 +51,8 @@ bool ObjectHash::Insert( UObject* obj )
 
 bool ObjectHash::Remove( u32 /*serial*/ )
 {
-  //	unsigned int num_erased = hash.erase( serial );
-  //	return (num_erased>0);
+  //  unsigned int num_erased = hash.erase( serial );
+  //  return (num_erased>0);
   return true;
 }
 
@@ -70,8 +73,7 @@ u32 ObjectHash::GetNextUnusedItemSerial()
 
   for ( ;; )
   {
-    // recycle time. when we roll over the max serial, start from the beginning. now the find()
-    // below may take some time to get the next unused.
+    //recycle time. when we roll over the max serial, start from the beginning. now the find() below may take some time to get the next unused.
     if ( tempserial < ITEMSERIAL_START || tempserial > ITEMSERIAL_END )
       tempserial = ITEMSERIAL_START;
 
@@ -105,8 +107,7 @@ u32 ObjectHash::GetNextUnusedCharSerial()
 
   for ( ;; )
   {
-    // recycle time. when we roll over the max serial, start from the beginning. now the find()
-    // below may take some time to get the next unused.
+    //recycle time. when we roll over the max serial, start from the beginning. now the find() below may take some time to get the next unused.
     if ( tempserial < CHARACTERSERIAL_START || tempserial > CHARACTERSERIAL_END )
       tempserial = CHARACTERSERIAL_START;
 
@@ -139,10 +140,10 @@ void ObjectHash::PrintContents( Clib::StreamWriter& sw ) const
   sw() << "Object Count: " << hash.size() << "\n";
   for ( itr = hash.begin(), itrend = hash.end(); itr != itrend; ++itr )
   {
-    sw() << "type: " << itr->second->classname() << " serial: 0x"
-         << fmt::hexu( itr->second->serial ) << " name: " << itr->second->name() << "\n";
-    // itr->second->printOn( sw ); // its no more safe to try to print the complete object
+    sw() << "type: " << itr->second->classname() << " serial: 0x" << fmt::hexu( itr->second->serial ) << " name: " << itr->second->name() << "\n";
+    //itr->second->printOn( sw ); // its no more safe to try to print the complete object
   }
+
 }
 
 void ObjectHash::Reap()
@@ -207,7 +208,8 @@ void ObjectHash::Clear()
         ++itr;
       }
     }
-  } while ( any );
+  }
+  while ( any );
   if ( !hash.empty() )
   {
     INFO_PRINT << "Leftover objects in objecthash: " << hash.size() << "\n";
@@ -230,9 +232,9 @@ void ObjectHash::ClearCharacterAccountReferences()
     if ( !obj->orphan() && obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      // if (!chr->logged_in)
+      //if (!chr->logged_in)
       //{
-      chr->acct.clear();  // dave added 9/27/03, accounts and player characters have a mutual
+      chr->acct.clear(); //dave added 9/27/03, accounts and player characters have a mutual
       // reference that prevents them getting cleaned up
       // properly. So clear the reference now.
       chr->destroy();

@@ -1,12 +1,9 @@
 /** @file
  *
  * @par History
- * - 2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte
- * Order)
- * - 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and
- * packet.SetUnicodeStringFlipped (Byte Order)
- * - 2006/09/16 Shinigami: fixed Memory Overwrite Bug in packet.SetUnicodeString* ->
- * convertArrayToUC
+ * - 2005/09/12 Shinigami: added ObjMethods packet.GetIntxxFlipped and packet.SetIntxxFlipped (Byte Order)
+ * - 2006/09/16 Shinigami: added ObjMethods packet.GetUnicodeStringFlipped and packet.SetUnicodeStringFlipped (Byte Order)
+ * - 2006/09/16 Shinigami: fixed Memory Overwrite Bug in packet.SetUnicodeString* -> convertArrayToUC
  * - 2008/12/17 MuadDib:   fixed Memory Leak in SetSize() where it returns BObjects back
  * - to calling Methods where they do not handle a return value.
  * - 2009/08/25 Shinigami: STLport-5.2.1 fix: oldsize not used
@@ -43,17 +40,16 @@ namespace Pol
 {
 namespace Core
 {
+
 using namespace Bscript;
 
-BPacket::BPacket() : BObjectImp( OTPacket ), is_variable_length( false )
-{
-}
-BPacket::BPacket( const BPacket& copyfrom )
-    : BObjectImp( OTPacket ),
-      buffer( copyfrom.buffer ),
-      is_variable_length( copyfrom.is_variable_length )
-{
-}
+BPacket::BPacket() : BObjectImp( OTPacket ),
+  is_variable_length( false )
+{}
+BPacket::BPacket( const BPacket& copyfrom ) : BObjectImp( OTPacket ),
+  buffer( copyfrom.buffer ),
+  is_variable_length( copyfrom.is_variable_length )
+{}
 BPacket::BPacket( u8 type, signed short length ) : BObjectImp( OTPacket )
 {
   if ( length == -1 )
@@ -71,16 +67,15 @@ BPacket::BPacket( u8 type, signed short length ) : BObjectImp( OTPacket )
     }
   }
 }
-BPacket::BPacket( const unsigned char* data, unsigned short length, bool variable_len )
-    : BObjectImp( OTPacket ), buffer( data, data + length )
+BPacket::BPacket( const unsigned char* data, unsigned short length, bool variable_len ) : BObjectImp( OTPacket ),
+  buffer( data, data + length )
 {
   is_variable_length = variable_len;
 }
 BPacket::~BPacket()
-{
-}
+{}
 
-BObjectRef BPacket::get_member_id( const int /*id*/ )  // id test
+BObjectRef BPacket::get_member_id( const int /*id*/ )//id test
 {
   return BObjectRef( new BLong( 0 ) );
 }
@@ -118,8 +113,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       {
         if ( client->isConnected() )
         {
-          Core::networkManager.clientTransmit->AddToQueue( client, (void*)( &buffer[0] ),
-                                                           static_cast<int>( buffer.size() ) );
+          Core::networkManager.clientTransmit->AddToQueue( client, (void*)( &buffer[0] ), static_cast<int>( buffer.size() ) );
           return new BLong( 1 );
         }
         else
@@ -135,23 +129,21 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "SendAreaPacket requires 4 parameters." );
     unsigned short x, y, range;
     const String* strrealm;
-    if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) && ex.getParam( 2, range ) &&
+    if ( ex.getParam( 0, x ) &&
+         ex.getParam( 1, y ) &&
+         ex.getParam( 2, range ) &&
          ex.getStringParam( 3, strrealm ) )
     {
       Realms::Realm* realm = find_realm( strrealm->value() );
-      if ( !realm )
-        return new BError( "Realm not found" );
-      if ( !realm->valid( x, y, 0 ) )
-        return new BError( "Invalid Coordinates for realm" );
+      if ( !realm ) return new BError( "Realm not found" );
+      if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for realm" );
 
       unsigned short num_sent_to = 0;
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          x, y, realm, range, [&]( Mobile::Character* chr )
-          {
-            Core::networkManager.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ),
-                                                             static_cast<int>( buffer.size() ) );
-            num_sent_to++;
-          } );
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( x, y, realm, range, [&]( Mobile::Character *chr )
+      {
+        Core::networkManager.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ), static_cast<int>( buffer.size( ) ) );
+        num_sent_to++;
+      } );
       return new BLong( num_sent_to );
     }
     break;
@@ -164,7 +156,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset >= buffer.size() )  // don't allow getting bytes past end of buffer
+      if ( offset >= buffer.size() ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u8* data = reinterpret_cast<u8*>( &buffer[offset] );
       return new BLong( *data );
@@ -179,7 +171,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u16 ) )  // don't allow getting bytes past end of buffer
+      if ( offset > buffer.size() - sizeof( u16 ) ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u16* data = reinterpret_cast<u16*>( &buffer[offset] );
       return new BLong( cfBEu16( *data ) );
@@ -194,7 +186,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u32 ) )  // don't allow getting bytes past end of buffer
+      if ( offset > buffer.size() - sizeof( u32 ) ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u32* data = reinterpret_cast<u32*>( &buffer[offset] );
       return new BLong( cfBEu32( *data ) );
@@ -209,7 +201,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u16 ) )  // don't allow getting bytes past end of buffer
+      if ( offset > buffer.size() - sizeof( u16 ) ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u16* data = reinterpret_cast<u16*>( &buffer[offset] );
       return new BLong( cfLEu16( *data ) );
@@ -224,7 +216,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u32 ) )  // don't allow getting bytes past end of buffer
+      if ( offset > buffer.size() - sizeof( u32 ) ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u32* data = reinterpret_cast<u32*>( &buffer[offset] );
       return new BLong( cfLEu32( *data ) );
@@ -237,11 +229,10 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 2 )
       return new BError( "GetString requires 2 parameter." );
     unsigned short offset, len;
-    if ( ex.getParam( 0, offset ) && ex.getParam( 1, len ) )
+    if ( ex.getParam( 0, offset ) &&
+         ex.getParam( 1, len ) )
     {
-      if ( ( offset >= buffer.size() ) ||
-           ( static_cast<u16>( offset + len ) >
-             buffer.size() ) )  // don't allow getting bytes past end of buffer
+      if ( ( offset >= buffer.size() ) || ( static_cast<u16>( offset + len ) > buffer.size() ) ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
 
       const char* str_offset = reinterpret_cast<const char*>( &buffer[offset] );
@@ -262,11 +253,9 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "GetUnicodeString requires 2 parameter." );
     unsigned short offset, len;
     if ( ex.getParam( 0, offset ) &&
-         ex.getParam( 1, len ) )  // len is in unicode characters, not bytes
+         ex.getParam( 1, len ) ) //len is in unicode characters, not bytes
     {
-      if ( ( offset >= buffer.size() ) ||
-           ( static_cast<u16>( offset + len * 2 ) >
-             buffer.size() ) )  // don't allow getting bytes past end of buffer
+      if ( ( offset >= buffer.size() ) || ( static_cast<u16>( offset + len * 2 ) > buffer.size() ) ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
 
       ObjArray* arr;
@@ -282,11 +271,9 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "GetUnicodeStringFlipped requires 2 parameter." );
     unsigned short offset, len;
     if ( ex.getParam( 0, offset ) &&
-         ex.getParam( 1, len ) )  // len is in unicode characters, not bytes
+         ex.getParam( 1, len ) ) //len is in unicode characters, not bytes
     {
-      if ( ( offset >= buffer.size() ) ||
-           ( static_cast<u16>( offset + len * 2 ) >
-             buffer.size() ) )  // don't allow getting bytes past end of buffer
+      if ( ( offset >= buffer.size() ) || ( static_cast<u16>( offset + len * 2 ) > buffer.size() ) ) //don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
 
       ObjArray* arr;
@@ -316,15 +303,15 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 2 )
       return new BError( "SetInt8 requires 2 parameters." );
     unsigned short offset, value;
-    if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
+    if ( ex.getParam( 0, offset ) &&
+         ex.getParam( 1, value ) )
     {
       if ( is_variable_length )
         if ( offset >= buffer.size() )
         {
           if ( !SetSize( ( offset + sizeof( u8 ) ) ) )
           {
-            return new BError( "Offset value out of range on a fixed length packet" );
-            ;
+            return new BError( "Offset value out of range on a fixed length packet" );;
           }
         }
       buffer[offset] = static_cast<u8>( value );
@@ -338,14 +325,14 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 2 )
       return new BError( "SetInt16 requires 2 parameters." );
     unsigned short offset, value;
-    if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
+    if ( ex.getParam( 0, offset ) &&
+         ex.getParam( 1, value ) )
     {
       if ( static_cast<u16>( offset + sizeof( u16 ) ) > buffer.size() )
       {
         if ( !SetSize( ( offset + sizeof( u16 ) ) ) )
         {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+          return new BError( "Offset value out of range on a fixed length packet" );;
         }
       }
 
@@ -362,14 +349,14 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "SetInt32 requires 2 parameters." );
     unsigned short offset;
     int lvalue;
-    if ( ex.getParam( 0, offset ) && ex.getParam( 1, lvalue ) )
+    if ( ex.getParam( 0, offset ) &&
+         ex.getParam( 1, lvalue ) )
     {
       if ( static_cast<u32>( offset + sizeof( u32 ) ) > buffer.size() )
       {
         if ( !SetSize( offset + sizeof( u32 ) ) )
         {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+          return new BError( "Offset value out of range on a fixed length packet" );;
         }
       }
 
@@ -385,14 +372,14 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 2 )
       return new BError( "SetInt16Flipped requires 2 parameters." );
     unsigned short offset, value;
-    if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
+    if ( ex.getParam( 0, offset ) &&
+         ex.getParam( 1, value ) )
     {
       if ( static_cast<u16>( offset + sizeof( u16 ) ) > buffer.size() )
       {
         if ( !SetSize( ( offset + sizeof( u16 ) ) ) )
         {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+          return new BError( "Offset value out of range on a fixed length packet" );;
         }
       }
 
@@ -409,14 +396,14 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "SetInt32Flipped requires 2 parameters." );
     unsigned short offset;
     int lvalue;
-    if ( ex.getParam( 0, offset ) && ex.getParam( 1, lvalue ) )
+    if ( ex.getParam( 0, offset ) &&
+         ex.getParam( 1, lvalue ) )
     {
       if ( static_cast<u32>( offset + sizeof( u32 ) ) > buffer.size() )
       {
         if ( !SetSize( ( offset + sizeof( u32 ) ) ) )
         {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+          return new BError( "Offset value out of range on a fixed length packet" );;
         }
       }
       u32* bufptr = reinterpret_cast<u32*>( &buffer[offset] );
@@ -432,15 +419,16 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "SetString requires 3 parameters." );
     unsigned short offset, nullterm;
     const String* text;
-    if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, text ) && ex.getParam( 2, nullterm ) )
+    if ( ex.getParam( 0, offset ) &&
+         ex.getStringParam( 1, text ) &&
+         ex.getParam( 2, nullterm ) )
     {
       u16 textlen = static_cast<u16>( text->length() );
       if ( static_cast<u16>( offset + textlen + nullterm ) > buffer.size() )
       {
         if ( !SetSize( ( offset + textlen + nullterm ) ) )
         {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+          return new BError( "Offset value out of range on a fixed length packet" );;
         }
       }
 
@@ -462,23 +450,21 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "SetUnicodeString requires 3 parameters." );
     unsigned short offset, nullterm;
     ObjArray* unitext;
-    if ( ex.getParam( 0, offset ) && ex.getObjArrayParam( 1, unitext ) &&
+    if ( ex.getParam( 0, offset ) &&
+         ex.getObjArrayParam( 1, unitext ) &&
          ex.getParam( 2, nullterm ) )
     {
-      u16 textlen =
-          static_cast<u16>( unitext->ref_arr.size() );  // number of unicode chars, not bytes
+      u16 textlen = static_cast<u16>( unitext->ref_arr.size() ); //number of unicode chars, not bytes
       u16 nulltermlen = nullterm ? 2 : 0;
       if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
       {
         if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
         {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+          return new BError( "Offset value out of range on a fixed length packet" );;
         }
       }
-      if ( !Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen,
-                                    true, nullterm ? true : false ) )
-        return new BError( "Invalid value in Unicode array." );
+      if (!Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen, true, nullterm ? true : false ))
+        return new BError("Invalid value in Unicode array.");
 
       return new BLong( 1 );
     }
@@ -490,23 +476,21 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "SetUnicodeStringFlipped requires 3 parameters." );
     unsigned short offset, nullterm;
     ObjArray* unitext;
-    if ( ex.getParam( 0, offset ) && ex.getObjArrayParam( 1, unitext ) &&
+    if ( ex.getParam( 0, offset ) &&
+         ex.getObjArrayParam( 1, unitext ) &&
          ex.getParam( 2, nullterm ) )
     {
-      u16 textlen =
-          static_cast<u16>( unitext->ref_arr.size() );  // number of unicode chars, not bytes
+      u16 textlen = static_cast<u16>( unitext->ref_arr.size() ); //number of unicode chars, not bytes
       u16 nulltermlen = nullterm ? 2 : 0;
       if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
       {
         if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
         {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+          return new BError( "Offset value out of range on a fixed length packet" );;
         }
       }
-      if ( !Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen,
-                                    false, nullterm ? true : false ) )
-        return new BError( "Invalid value in Unicode array." );
+      if (!Core::convertArrayToUC(unitext, reinterpret_cast<u16*>(&buffer[offset]), textlen, false, nullterm ? true : false))
+        return new BError("Invalid value in Unicode array.");
       return new BLong( 1 );
     }
     break;
@@ -533,7 +517,7 @@ BObjectImp* BPacket::copy() const
 std::string BPacket::getStringRep() const
 {
   OSTRINGSTREAM os;
-  for ( auto itr = buffer.begin(); itr != buffer.end(); ++itr )
+  for (auto itr = buffer.begin(); itr != buffer.end(); ++itr )
     os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << static_cast<u16>( *itr );
 
   return OSTRINGSTREAM_STR( os );
@@ -543,7 +527,7 @@ bool BPacket::SetSize( u16 newsize )
 {
   if ( !is_variable_length )
     return false;
-  // unsigned short oldsize = buffer.size();
+  //unsigned short oldsize = buffer.size();
   buffer.resize( newsize );
   u16* sizeptr = reinterpret_cast<u16*>( &buffer[1] );
   *sizeptr = ctBEu16( newsize );

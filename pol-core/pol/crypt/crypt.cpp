@@ -11,12 +11,10 @@ namespace Pol
 namespace Crypt
 {
 CCryptNoCrypt::CCryptNoCrypt() : CCryptBase()
-{
-}
+{}
 
 CCryptNoCrypt::~CCryptNoCrypt()
-{
-}
+{}
 
 int CCryptNoCrypt::Receive( void* buffer, int max_expected, SOCKET socket )
 {
@@ -33,12 +31,10 @@ void CCryptNoCrypt::Init( void* pvSeed, int type )
 // BLOWFISH
 
 CCryptBlowfish::CCryptBlowfish() : CCryptBaseCrypt(), bfish()
-{
-}
+{}
 
 CCryptBlowfish::~CCryptBlowfish()
-{
-}
+{}
 
 CCryptBlowfish::CCryptBlowfish( unsigned int masterKey1, unsigned int masterKey2 )
 {
@@ -81,10 +77,8 @@ void CCryptBlowfish::Decrypt( void* pvIn, void* pvOut, int len )
 
   if ( m_type == CCryptBase::typeAuto )
   {
-    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE )
-      m_type = CCryptBase::typeLogin;
-    else
-      m_type = CCryptBase::typeGame;
+    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE ) m_type = CCryptBase::typeLogin;
+    else m_type = CCryptBase::typeGame;
   }
 
   if ( m_type == CCryptBase::typeLogin )
@@ -100,12 +94,10 @@ void CCryptBlowfish::Decrypt( void* pvIn, void* pvOut, int len )
 // BLOWFISH OLD
 
 CCryptBlowfishOld::CCryptBlowfishOld() : CCryptBlowfish()
-{
-}
+{}
 
 CCryptBlowfishOld::~CCryptBlowfishOld()
-{
-}
+{}
 
 CCryptBlowfishOld::CCryptBlowfishOld( unsigned int masterKey1, unsigned int masterKey2 )
 {
@@ -119,10 +111,8 @@ void CCryptBlowfishOld::Decrypt( void* pvIn, void* pvOut, int len )
 
   if ( m_type == CCryptBase::typeAuto )
   {
-    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE )
-      m_type = CCryptBase::typeLogin;
-    else
-      m_type = CCryptBase::typeGame;
+    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE ) m_type = CCryptBase::typeLogin;
+    else m_type = CCryptBase::typeGame;
   }
 
   if ( m_type == CCryptBase::typeLogin )
@@ -138,12 +128,10 @@ void CCryptBlowfishOld::Decrypt( void* pvIn, void* pvOut, int len )
 // BLOWFISH 1.25.36
 
 CCrypt12536::CCrypt12536() : CCryptBlowfish()
-{
-}
+{}
 
 CCrypt12536::~CCrypt12536()
-{
-}
+{}
 
 CCrypt12536::CCrypt12536( unsigned int masterKey1, unsigned int masterKey2 )
 {
@@ -157,10 +145,8 @@ void CCrypt12536::Decrypt( void* pvIn, void* pvOut, int len )
 
   if ( m_type == CCryptBase::typeAuto )
   {
-    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE )
-      m_type = CCryptBase::typeLogin;
-    else
-      m_type = CCryptBase::typeGame;
+    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE ) m_type = CCryptBase::typeLogin;
+    else m_type = CCryptBase::typeGame;
   }
 
   if ( m_type == CCryptBase::typeLogin )
@@ -176,12 +162,10 @@ void CCrypt12536::Decrypt( void* pvIn, void* pvOut, int len )
 // BLOWFISH + TWOFISH
 
 CCryptBlowfishTwofish::CCryptBlowfishTwofish() : CCryptBaseCrypt(), bfish(), tfish()
-{
-}
+{}
 
 CCryptBlowfishTwofish::~CCryptBlowfishTwofish()
-{
-}
+{}
 
 CCryptBlowfishTwofish::CCryptBlowfishTwofish( unsigned int masterKey1, unsigned int masterKey2 )
 {
@@ -225,10 +209,8 @@ void CCryptBlowfishTwofish::Decrypt( void* pvIn, void* pvOut, int len )
 
   if ( m_type == CCryptBase::typeAuto )
   {
-    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE )
-      m_type = CCryptBase::typeLogin;
-    else
-      m_type = CCryptBase::typeGame;
+    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE ) m_type = CCryptBase::typeLogin;
+    else m_type = CCryptBase::typeGame;
   }
 
   if ( m_type == CCryptBase::typeLogin )
@@ -245,12 +227,10 @@ void CCryptBlowfishTwofish::Decrypt( void* pvIn, void* pvOut, int len )
 // TWOFISH
 
 CCryptTwofish::CCryptTwofish() : CCryptBaseCrypt(), tfish(), md5()
-{
-}
+{}
 
 CCryptTwofish::~CCryptTwofish()
-{
-}
+{}
 
 CCryptTwofish::CCryptTwofish( unsigned int masterKey1, unsigned int masterKey2 )
 {
@@ -302,10 +282,8 @@ void CCryptTwofish::Decrypt( void* pvIn, void* pvOut, int len )
 
   if ( m_type == CCryptBase::typeAuto )
   {
-    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE )
-      m_type = CCryptBase::typeLogin;
-    else
-      m_type = CCryptBase::typeGame;
+    if ( ( *pIn ^ (unsigned char)lcrypt.lkey[0] ) == CRYPT_AUTO_VALUE ) m_type = CCryptBase::typeLogin;
+    else m_type = CCryptBase::typeGame;
   }
 
   if ( m_type == CCryptBase::typeLogin )

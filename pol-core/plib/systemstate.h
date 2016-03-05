@@ -5,7 +5,7 @@
 #include <boost/noncopyable.hpp>
 #include <map>
 #include <vector>
-#if !defined( _WIN32 )
+#if !defined(_WIN32)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -48,6 +48,7 @@ public:
   size_t estimatedSize() const;
 
 private:
+
 };
 
 extern SystemState systemstate;

@@ -35,37 +35,42 @@
 
 namespace Pol
 {
+
 namespace Bscript
 {
-template <>
+template<>
 TmplExecutorModule<Module::DataFileExecutorModule>::FunctionDef
-    TmplExecutorModule<Module::DataFileExecutorModule>::function_table[] = {
-        {"ListDataFiles", &Module::DataFileExecutorModule::mf_ListDataFiles},
-        {"CreateDataFile", &Module::DataFileExecutorModule::mf_CreateDataFile},
-        {"OpenDataFile", &Module::DataFileExecutorModule::mf_OpenDataFile},
-        {"UnloadDataFile", &Module::DataFileExecutorModule::mf_UnloadDataFile}};
+TmplExecutorModule<Module::DataFileExecutorModule>::function_table[] =
+{
+  { "ListDataFiles", &Module::DataFileExecutorModule::mf_ListDataFiles },
+  { "CreateDataFile", &Module::DataFileExecutorModule::mf_CreateDataFile },
+  { "OpenDataFile", &Module::DataFileExecutorModule::mf_OpenDataFile },
+  { "UnloadDataFile", &Module::DataFileExecutorModule::mf_UnloadDataFile }
+};
 
-template <>
+template<>
 int TmplExecutorModule<Module::DataFileExecutorModule>::function_table_size =
-    arsize( function_table );
+  arsize( function_table );
 }
 
 namespace Module
 {
+
 ///
 /// Datastore
 ///
 ///  datastore files are stored in
-///	   config.world_data_path + ds/fname.txt
-///	   config.world_data_path + ds/{pkgname}/fname.txt
+///    config.world_data_path + ds/fname.txt
+///    config.world_data_path + ds/{pkgname}/fname.txt
 ///
 
 Bscript::BApplicObjType datafileref_type;
 Bscript::BApplicObjType datafileelem_type;
 
-DataFileContents::DataFileContents( DataStoreFile* dsf ) : dsf( dsf ), dirty( false )
-{
-}
+DataFileContents::DataFileContents( DataStoreFile* dsf ) :
+  dsf( dsf ),
+  dirty( false )
+{}
 
 DataFileContents::~DataFileContents()
 {
@@ -75,17 +80,16 @@ DataFileContents::~DataFileContents()
 
 size_t DataFileContents::estimateSize() const
 {
-  size_t size = sizeof( DataStoreFile* ) /*dsf*/
-                + sizeof( bool );        /*dirty*/
+  size_t size = sizeof(DataStoreFile*) /*dsf*/
+                + sizeof(bool); /*dirty*/
 
-  for ( const auto& ele : elements_by_string )
+  for (const auto& ele : elements_by_string)
   {
-    size += ele.first.capacity() + sizeof( DataFileElementRef ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-    if ( ele.second.get() != nullptr )
+    size += ele.first.capacity() +sizeof( DataFileElementRef ) + ( sizeof(void*) * 3 + 1 ) / 2;
+    if (ele.second.get() != nullptr)
       size += ele.second->proplist.estimatedSize();
   }
-  size += ( sizeof( int ) + sizeof( DataFileElementRef ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-          elements_by_integer.size();
+  size += ( sizeof(int)+sizeof( DataFileElementRef ) + ( sizeof(void*) * 3 + 1 ) / 2 ) * elements_by_integer.size();
   return size;
 }
 
@@ -116,7 +120,7 @@ void DataFileContents::save( Clib::StreamWriter& sw )
          << "{\n";
     element.second->printOn( sw );
     sw() << "}\n\n";
-    // sw.flush();
+    //sw.flush();
   }
 
   for ( const auto& element : elements_by_integer )
@@ -125,7 +129,7 @@ void DataFileContents::save( Clib::StreamWriter& sw )
          << "{\n";
     element.second->printOn( sw );
     sw() << "}\n\n";
-    // sw.flush();
+    //sw.flush();
   }
 }
 
@@ -146,7 +150,7 @@ Bscript::BObjectImp* DataFileContents::methodCreateElement( int key )
   return new DataElemRefObjImp( DataFileContentsRef( this ), dfelem );
 }
 
-Bscript::BObjectImp* DataFileContents::methodCreateElement( const std::string& key )
+Bscript::BObjectImp* DataFileContents::methodCreateElement(const std::string& key)
 {
   ElementsByString::iterator itr = elements_by_string.find( key );
   DataFileElementRef dfelem;
@@ -178,7 +182,7 @@ Bscript::BObjectImp* DataFileContents::methodFindElement( int key )
   }
 }
 
-Bscript::BObjectImp* DataFileContents::methodFindElement( const std::string& key )
+Bscript::BObjectImp* DataFileContents::methodFindElement(const std::string& key)
 {
   ElementsByString::iterator itr = elements_by_string.find( key );
   if ( itr != elements_by_string.end() )
@@ -204,7 +208,7 @@ Bscript::BObjectImp* DataFileContents::methodDeleteElement( int key )
     return new Bscript::BError( "Element not found" );
 }
 
-Bscript::BObjectImp* DataFileContents::methodDeleteElement( const std::string& key )
+Bscript::BObjectImp* DataFileContents::methodDeleteElement(const std::string& key)
 {
   if ( elements_by_string.erase( key ) )
   {
@@ -220,13 +224,15 @@ Bscript::BObjectImp* DataFileContents::methodKeys() const
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
 
   for ( ElementsByString::const_iterator citr = elements_by_string.begin();
-        citr != elements_by_string.end(); ++citr )
+        citr != elements_by_string.end();
+        ++citr )
   {
     arr->addElement( new Bscript::String( ( *citr ).first ) );
   }
 
   for ( ElementsByInteger::const_iterator citr = elements_by_integer.begin();
-        citr != elements_by_integer.end(); ++citr )
+        citr != elements_by_integer.end();
+        ++citr )
   {
     arr->addElement( new Bscript::BLong( ( *citr ).first ) );
   }
@@ -235,10 +241,10 @@ Bscript::BObjectImp* DataFileContents::methodKeys() const
 }
 
 
-DataFileRefObjImp::DataFileRefObjImp( DataFileContentsRef dfcontents )
-    : DataFileRefObjImpBase( &datafileref_type, dfcontents )
-{
-}
+
+DataFileRefObjImp::DataFileRefObjImp( DataFileContentsRef dfcontents ) :
+  DataFileRefObjImpBase( &datafileref_type, dfcontents )
+{}
 
 const char* DataFileRefObjImp::typeOf() const
 {
@@ -254,8 +260,7 @@ Bscript::BObjectImp* DataFileRefObjImp::copy() const
   return new DataFileRefObjImp( obj_ );
 }
 
-Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::Executor& ex,
-                                                        bool /*forcebuiltin*/ )
+Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 {
   switch ( id )
   {
@@ -348,10 +353,10 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method( const char* methodname, Bsc
 }
 
 
-DataElemRefObjImp::DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dfelem )
-    : DataElemRefObjImpBase( &datafileelem_type, DataFileElemObj( dfcontents, dfelem ) )
-{
-}
+
+DataElemRefObjImp::DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dfelem ) :
+  DataElemRefObjImpBase( &datafileelem_type, DataFileElemObj( dfcontents, dfelem ) )
+{}
 const char* DataElemRefObjImp::typeOf() const
 {
   return "DataElemRef";
@@ -365,8 +370,7 @@ Bscript::BObjectImp* DataElemRefObjImp::copy() const
   return new DataElemRefObjImp( obj_.dfcontents, obj_.dfelem );
 }
 
-Bscript::BObjectImp* DataElemRefObjImp::call_method_id( const int id, Bscript::Executor& ex,
-                                                        bool /*forcebuiltin*/ )
+Bscript::BObjectImp* DataElemRefObjImp::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 {
   bool changed = false;
   Bscript::BObjectImp* res = CallPropertyListMethod_id( obj_.dfelem->proplist, id, ex, changed );
@@ -378,8 +382,7 @@ Bscript::BObjectImp* DataElemRefObjImp::call_method_id( const int id, Bscript::E
 Bscript::BObjectImp* DataElemRefObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
   bool changed = false;
-  Bscript::BObjectImp* res =
-      CallPropertyListMethod( obj_.dfelem->proplist, methodname, ex, changed );
+  Bscript::BObjectImp* res = CallPropertyListMethod( obj_.dfelem->proplist, methodname, ex, changed );
   if ( changed )
     obj_.dfcontents->dirty = true;
   return res;
@@ -391,9 +394,10 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
 
   const Plib::Package* spec_pkg = NULL;
   std::string spec_filename;
-  if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg, &spec_pkg, &spec_filename ) )
+  if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg,
+                            &spec_pkg, &spec_filename ) )
   {
-    return NULL;  // new BError( "Error in descriptor" );
+    return NULL; //new BError( "Error in descriptor" );
   }
   if ( spec_pkg == NULL )
   {
@@ -421,8 +425,7 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
 Bscript::BObjectImp* DataFileExecutorModule::mf_ListDataFiles()
 {
   std::unique_ptr<Bscript::ObjArray> file_list( new Bscript::ObjArray );
-  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin();
-        itr != Core::configurationbuffer.datastore.end(); ++itr )
+  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin(); itr != Core::configurationbuffer.datastore.end(); ++itr )
   {
     DataStoreFile* dsf = ( *itr ).second;
     std::unique_ptr<Bscript::BStruct> file_name( new Bscript::BStruct );
@@ -439,7 +442,8 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_CreateDataFile()
 {
   const Bscript::String* strob;
   int flags;
-  if ( getStringParam( 0, strob ) && getParam( 1, flags ) )
+  if ( getStringParam( 0, strob ) &&
+       getParam( 1, flags ) )
   {
     try
     {
@@ -450,7 +454,8 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_CreateDataFile()
 
       const Plib::Package* spec_pkg = NULL;
       std::string spec_filename;
-      if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg, &spec_pkg, &spec_filename ) )
+      if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg,
+                                &spec_pkg, &spec_filename ) )
       {
         return new Bscript::BError( "Error in descriptor" );
       }
@@ -496,7 +501,7 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_CreateDataFile()
     }
     catch ( std::exception& ex )
     {
-      std::string message = std::string( "An exception occurred: " ) + ex.what();
+      std::string message = std::string("An exception occurred: ") + ex.what();
       return new Bscript::BError( message );
     }
   }
@@ -514,12 +519,13 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_OpenDataFile()
     try
     {
       std::string descriptor;
-      //			string directory;
+      //      string directory;
       const std::string& inspec = strob->value();
 
       const Plib::Package* spec_pkg = NULL;
       std::string spec_filename;
-      if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg, &spec_pkg, &spec_filename ) )
+      if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg,
+                                &spec_pkg, &spec_filename ) )
       {
         return new Bscript::BError( "Error in descriptor" );
       }
@@ -548,9 +554,9 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_OpenDataFile()
         return new Bscript::BError( "Datafile does not exist" );
       }
     }
-    catch ( std::exception& ex )
+    catch (std::exception& ex)
     {
-      return new Bscript::BError( std::string( "An exception occurred" ) + ex.what() );
+      return new Bscript::BError(std::string("An exception occurred") + ex.what());
     }
   }
   else
@@ -577,30 +583,31 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_UnloadDataFile()
   }
 }
 
-DataStoreFile::DataStoreFile( Clib::ConfigElem& elem )
-    : descriptor( elem.remove_string( "Descriptor" ) ),
-      name( elem.remove_string( "name" ) ),
-      pkgname( elem.remove_string( "package", "" ) ),
-      pkg( Plib::find_package( pkgname ) ),
-      version( elem.remove_ushort( "Version" ) ),
-      oldversion( elem.remove_ushort( "OldVersion" ) ),
-      flags( elem.remove_ulong( "Flags" ) ),
-      unload( false ),
-      delversion( 0 )
-{
-}
+DataStoreFile::DataStoreFile( Clib::ConfigElem& elem ) :
+  descriptor( elem.remove_string( "Descriptor" ) ),
+  name( elem.remove_string( "name" ) ),
+  pkgname( elem.remove_string( "package", "" ) ),
+  pkg( Plib::find_package( pkgname ) ),
+  version( elem.remove_ushort( "Version" ) ),
+  oldversion( elem.remove_ushort( "OldVersion" ) ),
+  flags( elem.remove_ulong( "Flags" ) ),
+  unload( false ),
+  delversion( 0 )
+{}
 
-DataStoreFile::DataStoreFile( const std::string& descriptor, const Plib::Package* pkg,
-                              const std::string& name, int flags )
-    : descriptor( descriptor ),
-      name( name ),
-      pkgname( "" ),
-      pkg( pkg ),
-      version( 0 ),
-      oldversion( 0 ),
-      flags( flags ),
-      unload( false ),
-      delversion( 0 )
+DataStoreFile::DataStoreFile( const std::string& descriptor,
+                              const Plib::Package* pkg,
+                              const std::string& name,
+                              int flags ) :
+  descriptor( descriptor ),
+  name( name ),
+  pkgname( "" ),
+  pkg( pkg ),
+  version( 0 ),
+  oldversion( 0 ),
+  flags( flags ),
+  unload( false ),
+  delversion( 0 )
 {
   if ( pkg != NULL )
     pkgname = pkg->name();
@@ -634,6 +641,7 @@ void DataStoreFile::load()
 DataStoreFile::~DataStoreFile()
 {
   dfcontents.clear();
+
 }
 
 void DataStoreFile::printOn( Clib::StreamWriter& sw ) const
@@ -669,31 +677,35 @@ std::string DataStoreFile::filename() const
 void DataStoreFile::save() const
 {
   std::string fname = filename();
-  std::ofstream ofs( fname.c_str(), std::ios::out );
+  std::ofstream ofs(fname.c_str(), std::ios::out);
   Clib::OFStreamWriter sw( &ofs );
   dfcontents->save( sw );
 }
 
 size_t DataStoreFile::estimateSize() const
 {
-  size_t size = descriptor.capacity() + name.capacity() + pkgname.capacity() +
-                sizeof( Plib::Package* ) /*pkg*/
-                + 3 * sizeof( unsigned ) /*version oldversion delversion*/
-                + sizeof( int )          /*flags*/
-                + sizeof( bool )         /*unload*/
-                + sizeof( DataFileContentsRef );
-  if ( dfcontents.get() )
+  size_t size = descriptor.capacity()
+                + name.capacity()
+                + pkgname.capacity()
+                + sizeof(Plib::Package*) /*pkg*/
+                + 3 * sizeof(unsigned) /*version oldversion delversion*/
+                + sizeof(int) /*flags*/
+                + sizeof (bool) /*unload*/
+                + sizeof(DataFileContentsRef);
+  if (dfcontents.get())
     size += dfcontents->estimateSize();
   return size;
 }
 
 
-DataFileElement::DataFileElement() : proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )
-{
-}
 
-DataFileElement::DataFileElement( Clib::ConfigElem& elem )
-    : proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )
+
+DataFileElement::DataFileElement() :
+  proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )
+{}
+
+DataFileElement::DataFileElement( Clib::ConfigElem& elem ) :
+  proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )
 {
   proplist.readRemainingPropertiesAsStrings( elem );
 }
@@ -722,8 +734,7 @@ void read_datastore_dat()
 
 void write_datastore( Clib::StreamWriter& sw )
 {
-  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin();
-        itr != Core::configurationbuffer.datastore.end(); ++itr )
+  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin(); itr != Core::configurationbuffer.datastore.end(); ++itr )
   {
     DataStoreFile* dsf = ( *itr ).second;
 
@@ -741,18 +752,18 @@ void write_datastore( Clib::StreamWriter& sw )
     }
 
     dsf->printOn( sw );
-    // sw.flush();
+    //sw.flush();
   }
 }
 
 void commit_datastore()
 {
-  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin();
-        itr != Core::configurationbuffer.datastore.end(); ++itr )
+  for ( Core::DataStore::iterator itr = Core::configurationbuffer.datastore.begin(); itr != Core::configurationbuffer.datastore.end(); ++itr )
   {
     DataStoreFile* dsf = ( *itr ).second;
 
-    if ( dsf->delversion != dsf->version && dsf->delversion != dsf->oldversion )
+    if ( dsf->delversion != dsf->version &&
+         dsf->delversion != dsf->oldversion )
     {
       Clib::RemoveFile( dsf->filename( dsf->delversion ) );
     }

@@ -6,6 +6,7 @@
  */
 
 
+
 #include "spells.h"
 
 #include "spelbook.h"
@@ -61,7 +62,7 @@ static bool nocast_here( Mobile::Character* chr )
 
 bool knows_spell( Mobile::Character* chr, u16 spellid )
 {
-  // copied code from Character::spellbook to support multiple spellbooks in the pack
+  //copied code from Character::spellbook to support multiple spellbooks in the pack
   Items::Item* item = chr->wornitem( LAYER_HAND1 );
   if ( item != NULL && item->script_isa( POLCLASS_SPELLBOOK ) )
   {
@@ -96,7 +97,7 @@ bool hands_are_free( Mobile::Character* chr )
   item = chr->wornitem( LAYER_HAND1 );
   if ( item != NULL )
   {
-    const Items::ItemDesc& id = item->itemdesc();
+    const Items::ItemDesc& id = item->itemdesc( );
     if ( id.blocks_casting_if_in_hand )
       return false;
   }
@@ -104,7 +105,7 @@ bool hands_are_free( Mobile::Character* chr )
   item = chr->wornitem( LAYER_HAND2 );
   if ( item != NULL )
   {
-    const Items::ItemDesc& id = item->itemdesc();
+    const Items::ItemDesc& id = item->itemdesc( );
     if ( id.blocks_casting_if_in_hand )
       return false;
   }
@@ -112,29 +113,31 @@ bool hands_are_free( Mobile::Character* chr )
   return true;
 }
 
-USpellParams::USpellParams() : manacost( 0 ), difficulty( 0 ), pointvalue( 0 ), delay( 0 )
-{
-}
+USpellParams::USpellParams() :
+  manacost( 0 ),
+  difficulty( 0 ),
+  pointvalue( 0 ),
+  delay( 0 )
+{}
 
-USpellParams::USpellParams( Clib::ConfigElem& elem )
-    : manacost( elem.remove_ushort( "MANA" ) ),
-      difficulty( elem.remove_ushort( "DIFFICULTY" ) ),
-      pointvalue( elem.remove_ushort( "POINTVALUE" ) ),
-      delay( elem.remove_ushort( "DELAY" ) )
-{
-}
+USpellParams::USpellParams( Clib::ConfigElem& elem ) :
+  manacost( elem.remove_ushort( "MANA" ) ),
+  difficulty( elem.remove_ushort( "DIFFICULTY" ) ),
+  pointvalue( elem.remove_ushort( "POINTVALUE" ) ),
+  delay( elem.remove_ushort( "DELAY" ) )
+{}
 
 
-SpellCircle::SpellCircle( Clib::ConfigElem& elem ) : params( elem )
-{
-}
+SpellCircle::SpellCircle( Clib::ConfigElem& elem ) :
+  params( elem )
+{}
 
-USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg )
-    : pkg_( pkg ),
-      spellid_( elem.remove_ushort( "SPELLID" ) ),
-      name_( elem.remove_string( "NAME" ) ),
-      power_words_( elem.remove_string( "POWERWORDS" ) ),
-      scriptdef_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/" )
+USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg ) :
+  pkg_( pkg ),
+  spellid_( elem.remove_ushort( "SPELLID" ) ),
+  name_( elem.remove_string( "NAME" ) ),
+  power_words_( elem.remove_string( "POWERWORDS" ) ),
+  scriptdef_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/" )
 {
   unsigned short action;
   if ( elem.remove_prop( "ANIMATION", &action ) )
@@ -159,8 +162,8 @@ USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg )
     if ( circle < 1 || circle > gamestate.spellcircles.size() ||
          gamestate.spellcircles[circle - 1] == NULL )
     {
-      ERROR_PRINT << "Error reading spell " << name_ << ": Circle " << circle
-                  << " is not defined.\n";
+      ERROR_PRINT << "Error reading spell " << name_
+                  << ": Circle " << circle << " is not defined.\n";
       throw std::runtime_error( "Config file error" );
     }
 
@@ -182,11 +185,13 @@ USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg )
 
 size_t USpell::estimateSize() const
 {
-  size_t size = sizeof( Plib::Package* )                                         /*pkg_*/
-                + sizeof( unsigned short )                                       /*spellid_*/
-                + name_.capacity() + power_words_.capacity() + sizeof( UACTION ) /*action_*/
-                + 3 * sizeof( unsigned int* ) + reglist_.capacity() * sizeof( unsigned int ) +
-                sizeof( USpellParams ) /*params_*/
+  size_t size = sizeof(Plib::Package*) /*pkg_*/
+                + sizeof(unsigned short) /*spellid_*/
+                + name_.capacity()
+                + power_words_.capacity()
+                + sizeof(UACTION) /*action_*/
+                + 3 * sizeof(unsigned int*) + reglist_.capacity() * sizeof( unsigned int )
+                + sizeof (USpellParams) /*params_*/
                 + scriptdef_.estimatedSize();
   return size;
 }
@@ -202,14 +207,16 @@ void USpell::cast( Mobile::Character* chr )
 
   if ( !scriptdef_.empty() )
   {
-    ref_ptr<Bscript::EScriptProgram> prog =
-        find_script2( scriptdef_, true, Plib::systemstate.config.cache_interactive_scripts );
+    ref_ptr<Bscript::EScriptProgram> prog = find_script2( scriptdef_,
+                                            true,
+                                            Plib::systemstate.config.cache_interactive_scripts );
 
     if ( prog.get() != NULL )
     {
       if ( chr->start_spell_script( prog.get(), this ) )
         return;
     }
+
   }
 
   if ( chr->client != NULL )
@@ -222,7 +229,9 @@ bool USpell::consume_reagents( Mobile::Character* chr )
   if ( bp == NULL )
     return false;
 
-  for ( RegList::iterator itr = reglist_.begin(), end = reglist_.end(); itr != end; ++itr )
+  for ( RegList::iterator itr = reglist_.begin(), end = reglist_.end();
+        itr != end;
+        ++itr )
   {
     Items::Item* item = bp->find_objtype_noninuse( *itr );
     if ( item == NULL )
@@ -245,8 +254,7 @@ bool USpell::check_skill( Mobile::Character* chr )
 
 void USpell::consume_mana( Mobile::Character* chr )
 {
-  chr->consume( gamestate.pVitalMana, chr->vital( gamestate.pVitalMana->vitalid ),
-                manacost() * 100 );
+  chr->consume( gamestate.pVitalMana, chr->vital( gamestate.pVitalMana->vitalid ), manacost() * 100 );
 }
 
 void USpell::speak_power_words( Mobile::Character* chr, unsigned short font, unsigned short color )
@@ -261,11 +269,11 @@ void USpell::speak_power_words( Mobile::Character* chr, unsigned short font, uns
   }
 }
 
-SpellTask::SpellTask( OneShotTask** handle, polclock_t run_when_clock, Mobile::Character* caster,
-                      USpell* spell, bool /*dummy*/ )
-    : OneShotTask( handle, run_when_clock ), caster_( caster ), spell_( spell )
-{
-}
+SpellTask::SpellTask( OneShotTask** handle, polclock_t run_when_clock, Mobile::Character* caster, USpell* spell, bool /*dummy*/ ) :
+  OneShotTask( handle, run_when_clock ),
+  caster_( caster ),
+  spell_( spell )
+{}
 
 void SpellTask::on_run()
 {
@@ -284,8 +292,7 @@ void do_cast( Network::Client* client, u16 spellid )
 {
   if ( gamestate.system_hooks.on_cast_hook != NULL )
   {
-    if ( gamestate.system_hooks.on_cast_hook->call( make_mobileref( client->chr ),
-                                                    new Bscript::BLong( spellid ) ) )
+    if ( gamestate.system_hooks.on_cast_hook->call( make_mobileref( client->chr ), new Bscript::BLong( spellid ) ) )
       return;
   }
   // CHECKME should this look at spellnum, instead? static_cast behavior undefined if out of range.
@@ -301,8 +308,8 @@ void do_cast( Network::Client* client, u16 spellid )
   }
 
   // Let scripts handle this.
-  //	if (client->chr->hidden())
-  //		client->chr->unhide();
+  //  if (client->chr->hidden())
+  //    client->chr->unhide();
 
   if ( client->chr->frozen() )
   {
@@ -411,8 +418,8 @@ void register_spell( USpell* spell, unsigned short spellid )
     tmp << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined\n";
     if ( origspell->pkg_ != NULL )
     {
-      tmp << "	Spell originally defined in package '" << origspell->pkg_->name() << "' ("
-          << origspell->pkg_->dir() << ")\n";
+      tmp << "	Spell originally defined in package '"
+          << origspell->pkg_->name() << "' (" << origspell->pkg_->dir() << ")\n";
     }
     else
     {
@@ -420,8 +427,8 @@ void register_spell( USpell* spell, unsigned short spellid )
     }
     if ( spell->pkg_ != NULL )
     {
-      tmp << "	Spell redefined in package '" << spell->pkg_->name() << "' (" << spell->pkg_->dir()
-          << ")\n";
+      tmp << "	Spell redefined in package '"
+          << spell->pkg_->name() << "' (" << spell->pkg_->dir() << ")\n";
     }
     else
     {
@@ -433,6 +440,8 @@ void register_spell( USpell* spell, unsigned short spellid )
 
   gamestate.spells[spellid] = spell;
 }
+
+
 
 
 void load_circle_data()
@@ -492,12 +501,11 @@ void load_spell_data()
   else if ( Plib::systemstate.config.loglevel > 1 )
     INFO_PRINT << "File config/spells.cfg not found, skipping\n";
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
   {
     Plib::Package* pkg = ( *itr );
     std::string filename = Plib::GetPackageCfgPath( pkg, "spells.cfg" );
-    if ( Clib::FileExists( filename.c_str() ) )
+    if ( Clib::FileExists( filename.c_str( ) ) )
     {
       load_spells_cfg( filename.c_str(), pkg );
     }
@@ -521,5 +529,6 @@ void clean_spells()
   }
   gamestate.spells.clear();
 }
+
 }
 }

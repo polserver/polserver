@@ -68,7 +68,7 @@ Item* Item::create( u32 objtype, u32 serial )
   {
     Core::gamestate.temp_itemdesc->objtype = objtype;
     Core::gamestate.temp_itemdesc->graphic = static_cast<u16>( objtype );
-    return create( *( Core::gamestate.temp_itemdesc.get() ), serial );
+    return create( *(Core::gamestate.temp_itemdesc.get()), serial );
   }
   else
   {
@@ -115,11 +115,11 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   {
     item = new Core::USpellScroll( id );
   }
-  else if ( objtype == UOBJ_CORPSE )  // ITEMDESCTODO make new ItemDesc type
+  else if ( objtype == UOBJ_CORPSE ) // ITEMDESCTODO make new ItemDesc type
   {
     item = new Core::UCorpse( static_cast<const ContainerDesc&>( id ) );
   }
-  else if ( id.type == ItemDesc::SPELLBOOKDESC )  // ITEMDESCTODO make new ItemDesc type
+  else if ( id.type == ItemDesc::SPELLBOOKDESC ) // ITEMDESCTODO make new ItemDesc type
   {
     item = new Core::Spellbook( static_cast<const SpellbookDesc&>( id ) );
   }
@@ -131,24 +131,19 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   {
     // we call find_itemdesc here because the item descriptor passed in may not
     // be the "real" one - it may be a temporary descriptor.
-    const WeaponDesc* permanent_descriptor =
-        static_cast<const WeaponDesc*>( &find_itemdesc( objtype ) );
+    const WeaponDesc* permanent_descriptor = static_cast<const WeaponDesc*>( &find_itemdesc( objtype ) );
     item = new UWeapon( static_cast<const WeaponDesc&>( id ), permanent_descriptor );
   }
   else if ( id.type == ItemDesc::ARMORDESC )
   {
-    const ArmorDesc* permanent_descriptor =
-        static_cast<const ArmorDesc*>( &find_itemdesc( objtype ) );
+    const ArmorDesc* permanent_descriptor = static_cast<const ArmorDesc*>( &find_itemdesc( objtype ) );
     item = new UArmor( static_cast<const ArmorDesc&>( id ), permanent_descriptor );
   }
   else if ( id.type == ItemDesc::MAPDESC )  // (graphic >= UOBJ_MAP1 && graphic <= UOBJ_ROLLED_MAP2)
   {
     item = new Core::Map( static_cast<const MapDesc&>( id ) );
   }
-  else if ( objtype == Core::settingsManager.extobj.port_plank ||
-            objtype ==
-                Core::settingsManager.extobj
-                    .starboard_plank )  // ITEMDESCTODO make new ItemDesc type
+  else if ( objtype == Core::settingsManager.extobj.port_plank || objtype == Core::settingsManager.extobj.starboard_plank )// ITEMDESCTODO make new ItemDesc type
   {
     item = new Multi::UPlank( id );
   }
@@ -161,8 +156,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     item = new Item( id, CLASS_ITEM );
   }
 
-  // 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer
-  // useage.
+  // 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer useage.
   item->tile_layer = Core::tilelayer( graphic );
 
   // Have to be set after the item is created, because item graphic changes
@@ -175,17 +169,17 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     item->serial = Core::UseItemSerialNumber( serial );
     item->clear_dirty();
   }
-  else if ( !find_itemdesc( objtype ).save_on_exit )  // get the real itemdesc
+  else if ( !find_itemdesc( objtype ).save_on_exit ) // get the real itemdesc
   {
     item->set_dirty();
 
-    item->serial = Core::GetNewItemSerialNumber();
+    item->serial = Core::GetNewItemSerialNumber( );
   }
-  else  // creating something new
+  else // creating something new
   {
     item->set_dirty();
     remove_resources( objtype, 1 );
-    item->serial = Core::GetNewItemSerialNumber();
+    item->serial = Core::GetNewItemSerialNumber( );
   }
 
   ////HASH
@@ -200,17 +194,13 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 
   // If item already has a serial (eg. an existing item loaded from a save),
   // then do not assign CProps from descriptor
-  if ( !serial )
+  if( ! serial )
     item->copyprops( id.props );
 
 #ifdef PERGON
   std::string value_self;
-  if ( !item->getprop( "ct", value_self ) )  // Pergon: Check if Prop still exist - prevents
-                                             // Overwrite on Server-Restart
-    item->setprop(
-        "ct",
-        "i" + Clib::decint(
-                  Core::read_gameclock() ) );  // Pergon: Init Property CreateTime for a new Item
+  if (!item->getprop( "ct", value_self )) // Pergon: Check if Prop still exist - prevents Overwrite on Server-Restart
+    item->setprop("ct", "i" + Clib::decint( Core::read_gameclock() )); // Pergon: Init Property CreateTime for a new Item
 #endif
 
   if ( !id.control_script.empty() )
@@ -221,12 +211,11 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     if ( uoemod )
     {
       uoemod->attached_item_ = item;
-      item->process( uoemod );
+      item->process(uoemod);
     }
     else
     {
-      POLLOG << "Unable to start control script " << id.control_script.name() << " for "
-             << id.objtype_description() << "\n";
+      POLLOG << "Unable to start control script " << id.control_script.name() << " for " << id.objtype_description() << "\n";
     }
   }
 
@@ -235,24 +224,24 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     switch ( element )
     {
     case Core::ELEMENTAL_FIRE:
-      item->fire_resist( item->fire_resist().addToValue( id.element_resist.fire ) );
-      item->fire_damage( item->fire_damage().addToValue( id.element_damage.fire ) );
+      item->fire_resist(item->fire_resist().addToValue(id.element_resist.fire));
+      item->fire_damage(item->fire_damage().addToValue(id.element_damage.fire));
       break;
     case Core::ELEMENTAL_COLD:
-      item->cold_resist( item->cold_resist().addToValue( id.element_resist.cold ) );
-      item->cold_damage( item->cold_damage().addToValue( id.element_damage.cold ) );
+      item->cold_resist(item->cold_resist().addToValue(id.element_resist.cold));
+      item->cold_damage(item->cold_damage().addToValue(id.element_damage.cold));
       break;
     case Core::ELEMENTAL_ENERGY:
-      item->energy_resist( item->energy_resist().addToValue( id.element_resist.energy ) );
-      item->energy_damage( item->energy_damage().addToValue( id.element_damage.energy ) );
+      item->energy_resist(item->energy_resist().addToValue(id.element_resist.energy));
+      item->energy_damage(item->energy_damage().addToValue(id.element_damage.energy));
       break;
     case Core::ELEMENTAL_POISON:
-      item->poison_resist( item->poison_resist().addToValue( id.element_resist.poison ) );
-      item->poison_damage( item->poison_damage().addToValue( id.element_damage.poison ) );
+      item->poison_resist(item->poison_resist().addToValue(id.element_resist.poison));
+      item->poison_damage(item->poison_damage().addToValue(id.element_damage.poison));
       break;
     case Core::ELEMENTAL_PHYSICAL:
-      item->physical_resist( item->physical_resist().addToValue( id.element_resist.physical ) );
-      item->physical_damage( item->physical_damage().addToValue( id.element_damage.physical ) );
+      item->physical_resist(item->physical_resist().addToValue(id.element_resist.physical));
+      item->physical_damage(item->physical_damage().addToValue(id.element_damage.physical));
       break;
     }
   }
@@ -266,3 +255,4 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 }
 }
 }
+

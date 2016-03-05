@@ -1,11 +1,9 @@
 /** @file
  *
  * @par History
- * - 2005/06/20 Shinigami: added log_stuff and everything needed to analyze a little bit (needs
- * defined MEMORYLEAK)
+ * - 2005/06/20 Shinigami: added log_stuff and everything needed to analyze a little bit (needs defined MEMORYLEAK)
  * - 2006/10/06 Shinigami: malloc.h -> stdlib.h
- * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format
- * too (leak.log)
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
  *
  * @note ATTENTION
  * This header is part of the PCH
@@ -33,7 +31,7 @@ namespace Pol
 {
 namespace Clib
 {
-template <size_t N, size_t B>
+template<size_t N, size_t B>
 class fixed_allocator
 {
 public:
@@ -43,7 +41,7 @@ public:
     char data[N];
   };
   void* allocate();
-  void deallocate( void* );
+  void deallocate( void*);
 
   void* allocate( size_t size );
   void deallocate( void* size, size_t n );
@@ -51,12 +49,11 @@ public:
 #ifdef MEMORYLEAK
   fixed_allocator();
   ~fixed_allocator();
-  void log_stuff( const std::string& detail );
+  void log_stuff(const std::string& detail);
 #endif
 
 protected:
   void* refill( void );
-
 private:
   Buffer* freelist_;
 #ifdef MEMORYLEAK
@@ -67,8 +64,8 @@ private:
 };
 
 #ifdef MEMORYLEAK
-template <size_t N, size_t B>
-fixed_allocator<N, B>::fixed_allocator()
+template<size_t N, size_t B>
+fixed_allocator<N,B>::fixed_allocator()
 {
   freelist_ = NULL;
   buffers = 0;
@@ -76,37 +73,36 @@ fixed_allocator<N, B>::fixed_allocator()
   max_requests = 0;
 };
 
-template <size_t N, size_t B>
-fixed_allocator<N, B>::~fixed_allocator()
+template<size_t N, size_t B>
+fixed_allocator<N,B>::~fixed_allocator()
 {
-  log_stuff( "destructor" );
+  log_stuff("destructor");
 }
 
-template <size_t N, size_t B>
-void fixed_allocator<N, B>::log_stuff( const std::string& detail )
+template<size_t N, size_t B>
+void fixed_allocator<N,B>::log_stuff(const std::string& detail)
 {
-  DEBUGLOG << "fixed_allocator[" << detail << "]: " << buffers << " Buffer with "
-           << sizeof( Buffer[B] ) << " Bytes allocated [" << requests << " Requests of "
-           << max_requests << "]\n";
+  DEBUGLOG << "fixed_allocator[" << detail << "]: " << buffers << " Buffer with " << sizeof( Buffer[B] ) <<
+           " Bytes allocated [" << requests << " Requests of " << max_requests << "]\n";
 
   LEAKLOG << buffers << ";" << sizeof( Buffer[B] ) << ";" << requests << ";" << max_requests << ";";
 }
 #endif
 
-template <size_t N, size_t B>
+template<size_t N, size_t B>
 void* fixed_allocator<N, B>::allocate()
 {
 #ifdef LEAK_DEBUG
-  return ::operator new( N );
+  return ::operator new(N);
 #endif
 #ifdef MEMORYLEAK
   requests++;
-  if ( max_requests < requests )
+  if (max_requests < requests)
     max_requests = requests;
 #endif
 
   Buffer* p = freelist_;
-  if ( p != NULL )
+  if( p != NULL )
   {
     freelist_ = p->next;
     return p;
@@ -117,12 +113,12 @@ void* fixed_allocator<N, B>::allocate()
   }
 }
 
-template <size_t N, size_t B>
+template<size_t N, size_t B>
 void* fixed_allocator<N, B>::refill()
 {
   size_t nbytes = sizeof( Buffer[B] );
 
-  Buffer* morebuf = static_cast<Buffer*>(::operator new( nbytes ) );
+  Buffer* morebuf = static_cast<Buffer*>( ::operator new( nbytes ) );
 
 #ifdef MEMORYLEAK
   buffers++;
@@ -130,7 +126,7 @@ void* fixed_allocator<N, B>::refill()
 
   Buffer* walk = morebuf + 1;
   int count = B - 2;
-  while ( count-- )
+  while( count-- )
   {
     Buffer* next = walk + 1;
     walk->next = next;
@@ -141,11 +137,11 @@ void* fixed_allocator<N, B>::refill()
   return morebuf;
 }
 
-template <size_t N, size_t B>
+template<size_t N, size_t B>
 void fixed_allocator<N, B>::deallocate( void* vp )
 {
 #ifdef LEAK_DEBUG
-  return ::operator delete( vp );
+  return ::operator delete(vp);
 #endif
 #ifdef MEMORYLEAK
   requests--;
@@ -156,27 +152,27 @@ void fixed_allocator<N, B>::deallocate( void* vp )
   freelist_ = buf;
 }
 
-template <size_t N, size_t B>
+template<size_t N, size_t B>
 void* fixed_allocator<N, B>::allocate( size_t size )
 {
 #ifdef LEAK_DEBUG
-  return ::operator new( size );
+  return ::operator new(size);
 #endif
   assert( size == B );
-  if ( size == B )
+  if( size == B )
     return allocate();
   else
     return ::operator new( size );
 }
 
-template <size_t N, size_t B>
+template<size_t N, size_t B>
 void fixed_allocator<N, B>::deallocate( void* vp, size_t size )
 {
 #ifdef LEAK_DEBUG
-  return ::operator delete( vp );
+  return ::operator delete(vp);
 #endif
   assert( size == B );
-  if ( size == B )
+  if( size == B )
     deallocate( vp );
   else
     ::operator delete( vp );

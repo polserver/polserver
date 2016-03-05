@@ -9,15 +9,16 @@
  */
 
 
+
 #ifndef __UOBJECT_H
 #define __UOBJECT_H
 
 #ifndef __UCONST_H
-#include "uconst.h"
+# include "uconst.h"
 #endif
 
 #ifndef __CLIB_RAWTYPES_H
-#include "../clib/rawtypes.h"
+# include "../clib/rawtypes.h"
 #endif
 
 #include "../clib/refptr.h"
@@ -80,14 +81,13 @@ class WornItemsContainer;
 // Should contain minimal data structures (and no virtuals)
 // Note, not yet needed, so nothing has been moved here.
 class ULWObject
-{
-};
+{};
 
 
 #ifdef _MSC_VER
-#pragma pack( push, 1 )
+# pragma pack( push, 1 )
 #else
-#pragma pack( 1 )
+# pragma pack(1)
 #endif
 struct Resistances
 {
@@ -118,9 +118,9 @@ struct ElementDamages
 };
 
 #ifdef _MSC_VER
-#pragma pack( pop )
+# pragma pack( pop )
 #else
-#pragma pack()
+# pragma pack()
 #endif
 
 /**
@@ -129,6 +129,7 @@ struct ElementDamages
 class UObject : protected ref_counted, public DynamicPropsHolder
 {
 public:
+
   /**
    * This is meant to be coarse-grained. It's meant as an alternative to dynamic_cast.
    *
@@ -152,14 +153,14 @@ public:
   virtual std::string description() const;
 
   bool specific_name() const;
-  void setname( const std::string& );
+  void setname( const std::string&);
 
   bool getprop( const std::string& propname, std::string& propvalue ) const;
   void setprop( const std::string& propname, const std::string& propvalue );
   void eraseprop( const std::string& propname );
   void copyprops( const UObject& obj );
   void copyprops( const PropertyList& proplist );
-  void getpropnames( std::vector<std::string>& propnames ) const;
+  void getpropnames( std::vector< std::string >& propnames ) const;
   const PropertyList& getprops() const;
 
   bool orphan() const;
@@ -170,7 +171,7 @@ public:
   virtual unsigned int weight() const = 0;
 
 
-  virtual UObject* toplevel_owner();  // this isn't really right, it returns the WornItemsContainer
+  virtual UObject* toplevel_owner(); // this isn't really right, it returns the WornItemsContainer
   virtual UObject* owner();
   virtual const UObject* owner() const;
   virtual UObject* self_as_owner();
@@ -186,19 +187,18 @@ public:
   virtual bool saveonexit() const;
   virtual void saveonexit( bool newvalue );
 
-  virtual void printOn( Clib::StreamWriter& ) const;
+  virtual void printOn( Clib::StreamWriter&) const;
   virtual void printSelfOn( Clib::StreamWriter& sw ) const;
 
   virtual void printOnDebug( Clib::StreamWriter& sw ) const;
   virtual void fixInvalidGraphic();
   virtual void readProperties( Clib::ConfigElem& elem );
-  // virtual Bscript::BObjectImp* script_member( const char *membername );
+  //virtual Bscript::BObjectImp* script_member( const char *membername );
   virtual Bscript::BObjectImp* make_ref() = 0;
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const;  /// id test
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
 
-  virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value );
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, const std::string& value );
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value );
   virtual Bscript::BObjectImp* set_script_member_double( const char* membername, double value );
 
@@ -209,8 +209,7 @@ public:
   virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex );
   virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
 
-  virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Bscript::Executor& ex );
+  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex );
   virtual bool script_isa( unsigned isatype ) const;
   virtual const char* target_tag() const;
 
@@ -227,16 +226,31 @@ public:
   void ref_counted_add_ref();
   void ref_counted_release();
   unsigned ref_counted_count() const;
-  ref_counted* as_ref_counted() { return this; }
-  inline void increv() { _rev++; };
-  inline u32 rev() const { return _rev; };
+  ref_counted* as_ref_counted()
+  {
+    return this;
+  }
+
+  inline void increv()
+  {
+    _rev++;
+  };
+  inline u32 rev() const
+  {
+    return _rev;
+  };
+
   bool dirty() const;
-  void set_dirty() { dirty_ = true; }
+  void set_dirty()
+  {
+    dirty_ = true;
+  }
   void clear_dirty() const;
   static std::atomic<unsigned int> dirty_writes;
-  static std::atomic<unsigned int> clean_writes;
+  static std::atomic<unsigned int>  clean_writes;
 
 protected:
+
   virtual void printProperties( Clib::StreamWriter& sw ) const;
   virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
 
@@ -268,26 +282,26 @@ public:
   s8 z;
   u8 height;
 
-  u8 facing;  // not always used for items.
+  u8 facing; // not always used for items.
   // always used for characters
   Realms::Realm* realm;
 
-  bool saveonexit_;  // 1-25-2009 MuadDib added. So far only items will make use of this.
-                     // Another possibility is adding this to NPCs for WoW style Instances.
+  bool saveonexit_; // 1-25-2009 MuadDib added. So far only items will make use of this.
+  // Another possibility is adding this to NPCs for WoW style Instances.
 
-  DYN_PROPERTY( maxhp_mod, s16, PROP_MAXHP_MOD, 0 );
+  DYN_PROPERTY(maxhp_mod, s16, PROP_MAXHP_MOD, 0);
   static AosValuePack DEFAULT_AOSVALUEPACK;
-  DYN_PROPERTY( fire_resist, AosValuePack, PROP_RESIST_FIRE, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( cold_resist, AosValuePack, PROP_RESIST_COLD, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( energy_resist, AosValuePack, PROP_RESIST_ENERGY, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( poison_resist, AosValuePack, PROP_RESIST_POISON, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( physical_resist, AosValuePack, PROP_RESIST_PHYSICAL, DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY(fire_resist,     AosValuePack, PROP_RESIST_FIRE,     DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(cold_resist,     AosValuePack, PROP_RESIST_COLD,     DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(energy_resist,   AosValuePack, PROP_RESIST_ENERGY,   DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(poison_resist,   AosValuePack, PROP_RESIST_POISON,   DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(physical_resist, AosValuePack, PROP_RESIST_PHYSICAL, DEFAULT_AOSVALUEPACK);
 
-  DYN_PROPERTY( fire_damage, AosValuePack, PROP_DAMAGE_FIRE, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( cold_damage, AosValuePack, PROP_DAMAGE_COLD, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( energy_damage, AosValuePack, PROP_DAMAGE_ENERGY, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( poison_damage, AosValuePack, PROP_DAMAGE_POISON, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY(fire_damage,     AosValuePack, PROP_DAMAGE_FIRE,     DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(cold_damage,     AosValuePack, PROP_DAMAGE_COLD,     DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(energy_damage,   AosValuePack, PROP_DAMAGE_ENERGY,   DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(poison_damage,   AosValuePack, PROP_DAMAGE_POISON,   DEFAULT_AOSVALUEPACK);
+  DYN_PROPERTY(physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK);
 
 private:
   const u8 uobj_class_;
@@ -302,7 +316,7 @@ private:
   /** Given an UOBJ_CLASS, returns the corresponding Type for profiling */
   inline static CPropProfiler::Type class_to_type( const UOBJ_CLASS oclass )
   {
-    switch ( oclass )
+    switch( oclass )
     {
     case UObject::UOBJ_CLASS::CLASS_ITEM:
     case UObject::UOBJ_CLASS::CLASS_ARMOR:
@@ -321,12 +335,12 @@ private:
     return CPropProfiler::Type::UNKNOWN;
   }
 
-private:  // not implemented:
-  UObject( const UObject& );
-  UObject& operator=( const UObject& );
+private: // not implemented:
+  UObject( const UObject&);
+  UObject& operator=( const UObject&);
 };
 
-extern Clib::StreamWriter& operator<<( Clib::StreamWriter&, const UObject& );
+extern Clib::StreamWriter& operator << ( Clib::StreamWriter&, const UObject&);
 
 inline bool UObject::specific_name() const
 {
@@ -340,7 +354,8 @@ inline bool UObject::isa( UOBJ_CLASS uobj_class ) const
 
 inline bool UObject::ismobile() const
 {
-  return ( uobj_class_ == CLASS_CHARACTER || uobj_class_ == CLASS_NPC );
+  return ( uobj_class_ == CLASS_CHARACTER ||
+           uobj_class_ == CLASS_NPC );
 }
 
 inline bool UObject::isitem() const

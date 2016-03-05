@@ -27,19 +27,19 @@ namespace Plib
 extern unsigned int num_map_patches;
 extern unsigned int num_static_patches;
 
-MapWriter::MapWriter()
-    : _realm_name( "" ),
-      _width( 0 ),
-      _height( 0 ),
-      _ofs_base(),
-      _cur_mapblock_index( -1 ),
-      _ofs_solidx1(),
-      _ofs_solidx2(),
-      _ofs_solids(),
-      _ofs_maptile(),
-      _cur_maptile_index( -1 ),
-      solidx2_offset( 0 ),
-      solids_offset( 0 )
+MapWriter::MapWriter() :
+  _realm_name( "" ),
+  _width( 0 ),
+  _height( 0 ),
+  _ofs_base(),
+  _cur_mapblock_index( -1 ),
+  _ofs_solidx1(),
+  _ofs_solidx2(),
+  _ofs_solids(),
+  _ofs_maptile(),
+  _cur_maptile_index( -1 ),
+  solidx2_offset( 0 ),
+  solids_offset( 0 )
 {
   _ofs_base.exceptions( std::ios_base::failbit | std::ios_base::badbit );
   _ofs_solidx1.exceptions( std::ios_base::failbit | std::ios_base::badbit );
@@ -69,7 +69,7 @@ void MapWriter::WriteConfigFile()
   ofs_cfg << "}" << std::endl;
 }
 
-void MapWriter::CreateBaseDat( const std::string& /*realm_name*/, const std::string& directory )
+void MapWriter::CreateBaseDat(const std::string& /*realm_name*/, const std::string& directory)
 {
   using std::ios;
 
@@ -103,16 +103,16 @@ void MapWriter::CreateSolidx2Dat( const std::string& /*realm_name*/, const std::
   _ofs_solidx2.write( "fill", 4 );
   solidx2_offset = 4;
 }
-void MapWriter::CreateSolidsDat( const std::string& /*realm_name*/, const std::string& directory )
+void MapWriter::CreateSolidsDat(const std::string& /*realm_name*/, const std::string& directory)
 {
   using std::ios;
 
   std::string filename = directory + "solids.dat";
   Clib::open_file( _ofs_solids, filename, ios::trunc | ios::in | ios::out | ios::binary );
-  _ofs_solids.write( "filler", 6 );  // multiple of 3
+  _ofs_solids.write( "filler", 6 ); // multiple of 3
   solids_offset = 6;
 }
-void MapWriter::CreateMaptileDat( const std::string& /*realm_name*/, const std::string& directory )
+void MapWriter::CreateMaptileDat(const std::string& /*realm_name*/, const std::string& directory)
 {
   using std::ios;
 
@@ -126,15 +126,14 @@ void MapWriter::CreateMaptileDat( const std::string& /*realm_name*/, const std::
   }
 }
 
-void MapWriter::CreateNewFiles( const std::string& realm_name, unsigned short width,
-                                unsigned short height )
+void MapWriter::CreateNewFiles( const std::string& realm_name, unsigned short width, unsigned short height )
 {
   _realm_name = realm_name;
   _width = width;
   _height = height;
 
   std::string directory = "realm/" + _realm_name + "/";
-  Clib::make_dir( directory.c_str() );
+  Clib::make_dir( directory.c_str( ) );
 
   CreateBaseDat( realm_name, directory );
   // First-level Solids index (solidx1)
@@ -147,7 +146,7 @@ void MapWriter::CreateNewFiles( const std::string& realm_name, unsigned short wi
   CreateMaptileDat( realm_name, directory );
 }
 
-void MapWriter::OpenExistingFiles( const std::string& realm_name )
+void MapWriter::OpenExistingFiles(const std::string& realm_name)
 {
   using std::ios;
 
@@ -159,7 +158,7 @@ void MapWriter::OpenExistingFiles( const std::string& realm_name )
   Clib::ConfigFile cf( realm_cfg_filename, "REALM" );
   Clib::ConfigElem elem;
   if ( !cf.read( elem ) )
-    throw std::runtime_error( "Unable to read realm from " + realm_cfg_filename );
+    throw std::runtime_error("Unable to read realm from " + realm_cfg_filename);
   _width = elem.remove_ushort( "width" );
   _height = elem.remove_ushort( "height" );
 
@@ -220,9 +219,9 @@ unsigned int MapWriter::total_maptile_blocks()
 void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
 {
   unsigned short xblock = x >> MAPBLOCK_SHIFT;
-  unsigned short xcell = x & MAPBLOCK_CELLMASK;
+  unsigned short xcell = x &   MAPBLOCK_CELLMASK;
   unsigned short yblock = y >> MAPBLOCK_SHIFT;
-  unsigned short ycell = y & MAPBLOCK_CELLMASK;
+  unsigned short ycell = y &   MAPBLOCK_CELLMASK;
 
   // doh, need to know map geometry here.
   int blockIdx = yblock * ( _width >> MAPBLOCK_SHIFT ) + xblock;
@@ -244,9 +243,9 @@ void MapWriter::SetMapCell( unsigned short x, unsigned short y, MAPCELL cell )
 void MapWriter::SetMapTile( unsigned short x, unsigned short y, MAPTILE_CELL cell )
 {
   unsigned short xblock = x >> MAPTILE_SHIFT;
-  unsigned short xcell = x & MAPTILE_CELLMASK;
+  unsigned short xcell = x &  MAPTILE_CELLMASK;
   unsigned short yblock = y >> MAPTILE_SHIFT;
-  unsigned short ycell = y & MAPTILE_CELLMASK;
+  unsigned short ycell = y &  MAPTILE_CELLMASK;
 
   // doh, need to know map geometry here.
   int blockIdx = yblock * ( _width >> MAPTILE_SHIFT ) + xblock;
@@ -311,11 +310,11 @@ void MapWriter::AppendSolidx2Elem( const SOLIDX2_ELEM& elem )
   solidx2_offset += sizeof elem;
 }
 
-void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base,
-                                  unsigned int offset )
+void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned int offset )
 {
   unsigned int elems_per_row = ( _width / SOLIDX_X_SIZE );
-  unsigned int index = ( y_base / SOLIDX_Y_SIZE ) * elems_per_row + ( x_base / SOLIDX_X_SIZE );
+  unsigned int index = ( y_base / SOLIDX_Y_SIZE ) * elems_per_row
+                       + ( x_base / SOLIDX_X_SIZE );
   size_t file_offset = index * sizeof( SOLIDX1_ELEM );
 
   _ofs_solidx1.seekp( file_offset, std::ios_base::beg );

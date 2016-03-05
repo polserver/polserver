@@ -5,8 +5,7 @@
  */
 
 
-// TODO: consider joining this file with landtile.cpp, tiles.cpp and clidata.h and renaming it all
-// to something consistent.
+// TODO: consider joining this file with landtile.cpp, tiles.cpp and clidata.h and renaming it all to something consistent.
 // TODO: encapsulate the tile[] vector here
 #include "clidata.h"
 
@@ -80,7 +79,7 @@ std::string tile_desc( unsigned short tilenum )
   {
     return Plib::systemstate.tile[tilenum].desc;
   }
-  else  // a multi, probably
+  else // a multi, probably
   {
     return "multi";
   }

@@ -13,6 +13,7 @@ namespace Pol
 {
 namespace Clib
 {
+
 void dump16( fmt::Writer& writer, const unsigned char* s, int len )
 {
   int i;
@@ -32,7 +33,7 @@ void dump16( fmt::Writer& writer, const unsigned char* s, int len )
     if ( i >= len || !isprint( s[i] ) )
       writer << '.';
     else
-      writer.Format( "{}" ) << s[i];
+      writer.Format("{}") << s[i];
 
     if ( i == 7 )
       writer << ' ';
@@ -48,8 +49,7 @@ void fdump( fmt::Writer& writer, const void* data, int len )
   for ( i = 0; i < len; i += 16 )
   {
     int nprint = len - i;
-    if ( nprint > 16 )
-      nprint = 16;
+    if ( nprint > 16 ) nprint = 16;
     writer.Format( "{:04x} " ) << i;
     dump16( writer, &s[i], nprint );
   }

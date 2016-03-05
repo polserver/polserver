@@ -4,10 +4,10 @@
 #include <string>
 #include "Header_Windows.h"
 #ifndef WINDOWS
-#include <sys/socket.h>
+# include <sys/socket.h>
 typedef int SOCKET;
 #ifndef INVALID_SOCKET
-#define INVALID_SOCKET ( SOCKET )( -1 )
+#define INVALID_SOCKET (SOCKET)(-1)
 #endif
 #endif
 
@@ -27,7 +27,7 @@ public:
 
   Socket();
   explicit Socket( SOCKET sock );
-  Socket( Socket& sck );  // takes ownership
+  Socket( Socket& sck ); // takes ownership
   virtual ~Socket();
 
   void write( const std::string& str );
@@ -60,7 +60,6 @@ public:
   void set_options( option opt );
 
   void disable_nagle();
-
 protected:
   void apply_socket_options( SOCKET sck );
   void apply_prebind_socket_options( SOCKET sck );
@@ -75,4 +74,4 @@ private:
 };
 }
 }
-#endif  // CLIB_WNSCKT_H
+#endif //CLIB_WNSCKT_H

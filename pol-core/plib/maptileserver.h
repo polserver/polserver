@@ -23,7 +23,6 @@ public:
 
   MAPTILE_CELL GetMapTile( unsigned short x, unsigned short y );
   size_t sizeEstimate() const;
-
 private:
   const RealmDescriptor _descriptor;
 

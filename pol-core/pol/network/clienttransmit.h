@@ -26,7 +26,7 @@ struct TransmitData
   bool disconnects;
   bool remove;
 
-  TransmitData() : client( 0 ), len( 0 ), disconnects( false ), remove( false ){};
+  TransmitData() : client( 0 ), len( 0 ), disconnects( false ), remove( false ) {};
 };
 
 typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
@@ -38,8 +38,8 @@ public:
   ClientTransmit();
   ~ClientTransmit();
 
-  void AddToQueue( Client* client, const void* data, int len );
-  void QueueDisconnection( Client* client );
+  void AddToQueue(Client* client, const void* data, int len);
+  void QueueDisconnection(Client* client);
   // queue delete and perform it in transmitthread, to be sure
   // that the weak_ptr stays valid without PolLock
   void QueueDelete( Client* client );

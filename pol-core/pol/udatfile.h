@@ -22,27 +22,20 @@ struct StaticRec
   signed char z;
   char height;
 
-  StaticRec( unsigned short graphic, signed char z )
-      : flags( tile_uoflags( graphic ) ),
-        graphic( graphic ),
-        z( z ),
-        height( tileheight( graphic ) )
-  {
-  }
-  StaticRec( unsigned short graphic, signed char z, unsigned int flags, char height )
-      : flags( flags ), graphic( graphic ), z( z ), height( height )
-  {
-  }
+  StaticRec( unsigned short graphic, signed char z ) : flags( tile_uoflags( graphic ) ), graphic( graphic ), z( z ), height( tileheight( graphic ) ) {}
+  StaticRec( unsigned short graphic, signed char z, unsigned int flags, char height ) :
+    flags( flags ), graphic( graphic ), z( z ), height( height )
+  {}
 };
 
 typedef std::vector<StaticRec> StaticList;
 
-// TODO: the functions below are only used for uotool or uoconvert. Consider moving to a separate
-// include.
+//TODO: the functions below are only used for uotool or uoconvert. Consider moving to a separate include.
 void readstatics( StaticList& vec, unsigned short x, unsigned short y );
 void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned int flags );
 void readallstatics( StaticList& vec, unsigned short x, unsigned short y );
 bool findstatic( unsigned short x, unsigned short y, unsigned short graphic );
+
 }
 }
 #endif

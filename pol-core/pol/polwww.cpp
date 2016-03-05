@@ -7,9 +7,9 @@
  * - 2009/02/22 Nando:     send_binary() was sending the wrong size on sck.send().
  * - 2009/02/25 Nando:     removed a stray "\n" that was being sent at the end of send_binary(),
  *                         probably causing some corrupted images to be loaded in browsers.
- * - 2010/04/05 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within
- * start_http_conn_thread and http_conn_thread_stub
+ * - 2010/04/05 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within start_http_conn_thread and http_conn_thread_stub
  */
+
 
 
 #include "polwww.h"
@@ -54,7 +54,7 @@
 #include <string>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
+#pragma warning(disable: 4127) // conditional expression is constant (needed because of FD_SET)
 #endif
 
 namespace Pol
@@ -84,7 +84,8 @@ void load_mime_config( void )
   {
     Clib::ConfigFile cf( "config/www.cfg" );
     if ( cf.modified() <= last_load )
-    {  // not modified
+    {
+      // not modified
       return;
     }
     last_load = cf.modified();
@@ -106,8 +107,7 @@ void load_mime_config( void )
 
 void config_web_server()
 {
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
   {
     Plib::Package* pkg = ( *itr );
     if ( pkg->provides_system_home_page() )
@@ -142,7 +142,7 @@ bool http_readline( Clib::Socket& sck, std::string& s )
       if ( s.length() > 3000 )
       {
         sck.close();
-        break;  // return false;
+        break;// return false;
       }
     }
     else
@@ -174,7 +174,7 @@ void http_forbidden( Clib::Socket& sck )
   http_writeline( sck, "</BODY></HTML>" );
 }
 
-void http_forbidden( Clib::Socket& sck, const std::string& filename )
+void http_forbidden(Clib::Socket& sck, const std::string& filename)
 {
   http_writeline( sck, "HTTP/1.1 403 Forbidden" );
   http_writeline( sck, "Content-Type: text/html" );
@@ -185,7 +185,7 @@ void http_forbidden( Clib::Socket& sck, const std::string& filename )
   http_writeline( sck, "</BODY></HTML>" );
 }
 
-void http_not_authorized( Clib::Socket& sck, const std::string& /*filename*/ )
+void http_not_authorized(Clib::Socket& sck, const std::string& /*filename*/)
 {
   http_writeline( sck, "HTTP/1.1 401 Unauthorized" );
   http_writeline( sck, "WWW-Authenticate: Basic realm=\"pol\"" );
@@ -223,10 +223,10 @@ void http_redirect( Clib::Socket& sck, const std::string& new_url )
 }
 // http_decodestr: turn all those %2F etc into what they represent
 // rules:
-//	'+'   ->   ' '
-//	%HH   ->   (hex value)
-//	other ->   itself
-std::string http_decodestr( const std::string& s )
+//  '+'   ->   ' '
+//  %HH   ->   (hex value)
+//  other ->   itself
+std::string http_decodestr(const std::string& s)
 {
   std::string decoded;
   const char* t = s.c_str();
@@ -263,7 +263,7 @@ std::string http_decodestr( const std::string& s )
 
         decoded.append( 1, ch );
       }
-      else  // garbage - just return what we have so far.
+      else // garbage - just return what we have so far.
       {
         return decoded;
       }
@@ -285,12 +285,12 @@ unsigned char cvt_8to6( char ch )
   else if ( ch == '/' )
     return 63;
   else if ( ch == '=' )
-    return 0x40;  // pad
+    return 0x40; // pad
   else
-    return 0x80;  // error
+    return 0x80; // error
 }
 
-std::string decode_base64( const std::string& b64s )
+std::string decode_base64(const std::string& b64s)
 {
   std::string s;
   const char* t = b64s.c_str();
@@ -313,12 +313,9 @@ std::string decode_base64( const std::string& b64s )
     x[1] = ( ( b[1] << 4 ) & 0xF0 ) | ( ( b[2] >> 2 ) & 0x0F );
     x[2] = ( ( b[2] << 6 ) & 0xC0 ) | ( b[3] & 0x3F );
 
-    if ( x[0] )
-      s.append( 1, x[0] );
-    if ( x[1] )
-      s.append( 1, x[1] );
-    if ( x[2] )
-      s.append( 1, x[2] );
+    if ( x[0] ) s.append( 1, x[0] );
+    if ( x[1] ) s.append( 1, x[1] );
+    if ( x[2] ) s.append( 1, x[2] );
   }
   return s;
 }
@@ -346,10 +343,10 @@ bool legal_pagename( const std::string& page )
 }
 
 // get_pagetype: extract the extension, basically
-std::string get_pagetype( const std::string& page )
+std::string get_pagetype(const std::string& page)
 {
   std::string::size_type lastslash = page.rfind( '/' );
-  std::string::size_type dotpos = page.rfind( '.' );
+  std::string::size_type dotpos = page.rfind('.');
 
   if ( lastslash != std::string::npos && dotpos != std::string::npos && lastslash > dotpos )
     return "";
@@ -400,8 +397,10 @@ bool get_script_page_filename( const std::string& page, ScriptDef& sd )
 // FIXME this is just ugly!  The HttpExecutorModule takes ownership of the
 // socket, through the Socket copy-constructor..  But sometimes, after we've
 // built it, we need to send data (on errors).
-bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Package* pkg,
-                        const std::string& file_ecl, const std::string& query_string )
+bool start_http_script( Clib::Socket& sck,
+                        const std::string& page,
+                        Plib::Package* pkg, const std::string& file_ecl,
+                        const std::string& query_string )
 {
   bool res = true;
 
@@ -420,12 +419,11 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
 
   PolLock2 lck;
 
-  ref_ptr<Bscript::EScriptProgram> program =
-      find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
-  // find_script( filename, true, config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> program = find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
+  //find_script( filename, true, config.cache_interactive_scripts );
   if ( program.get() == NULL )
   {
-    ERROR_PRINT << "Error reading script " << page_sd.name() << "\n";
+    ERROR_PRINT << "Error reading script " << page_sd.name( ) << "\n";
     res = false;
     lck.unlock();
     http_not_found( sck, page );
@@ -460,19 +458,22 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
       schedule_executor( ex );
     }
   }
-  program.clear();  // do this so deletion happens while we're locked
+  program.clear(); // do this so deletion happens while we're locked
   lck.unlock();
   return res;
 }
 
-std::string get_page_filename( const std::string& page )
+std::string get_page_filename(const std::string& page)
 {
   std::string filename = "scripts/www" + page;
   return filename;
 }
 
-bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* pfilename,
-                  std::string* ppagetype, std::string* redirect_to )
+bool decode_page( const std::string& ipage,
+                  Plib::Package** ppkg,
+                  std::string* pfilename,
+                  std::string* ppagetype,
+                  std::string* redirect_to)
 {
   std::string page = ipage;
   Plib::Package* pkg = NULL;
@@ -482,9 +483,9 @@ bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* p
   if ( page.substr( 0, 5 ) == "/pkg/" )
   {
     // cerr << "package page: " << page << endl;
-    std::string::size_type pkgname_end = page.find_first_of( '/', 5 );
+    std::string::size_type pkgname_end = page.find_first_of('/', 5);
     std::string pkgname;
-    if ( pkgname_end != std::string::npos )
+    if (pkgname_end != std::string::npos)
     {
       pkgname = page.substr( 5, pkgname_end - 5 );
       page = page.substr( pkgname_end );
@@ -504,7 +505,7 @@ bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* p
   }
   else
   {
-    if ( gamestate.wwwroot_pkg != nullptr )
+    if (gamestate.wwwroot_pkg != nullptr )
     {
       filedir = gamestate.wwwroot_pkg->dir() + "www";
       retdir = gamestate.wwwroot_pkg->dir() + "www";
@@ -518,20 +519,21 @@ bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* p
 
   std::string filename = filedir + page;
 
-  std::string pagetype = get_pagetype( page );
+  std::string pagetype = get_pagetype(page);
 
-  if ( pagetype == "" )  // didn't specify, so assume it's a directory.
-  {                      // have to redirect...
+  if ( pagetype == "" ) // didn't specify, so assume it's a directory.
+  {
+    // have to redirect...
     page = ipage;
     if ( page.empty() || page[page.size() - 1] != '/' )
     {
       page += "/";
-      // filename += "/";
+      //filename += "/";
     }
 
     std::string test;
     test = filename + "index.ecl";
-    if ( Clib::FileExists( test.c_str() ) )
+    if ( Clib::FileExists( test.c_str( ) ) )
     {
       page += "index.ecl";
     }
@@ -564,7 +566,7 @@ bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* p
 
 void send_html( Clib::Socket& sck, const std::string& page, const std::string& filename )
 {
-  std::ifstream ifs( filename.c_str() );
+  std::ifstream ifs(filename.c_str());
   if ( ifs.is_open() )
   {
     http_writeline( sck, "HTTP/1.1 200 OK" );
@@ -582,12 +584,11 @@ void send_html( Clib::Socket& sck, const std::string& page, const std::string& f
   }
 }
 
-void send_binary( Clib::Socket& sck, const std::string& page, const std::string& filename,
-                  const std::string& content_type )
+void send_binary( Clib::Socket& sck, const std::string& page, const std::string& filename, const std::string& content_type )
 {
-  // string filename = get_page_filename( page );
+  //string filename = get_page_filename( page );
   unsigned int fsize = Clib::filesize( filename.c_str() );
-  std::ifstream ifs( filename.c_str(), std::ios::binary );
+  std::ifstream ifs(filename.c_str(), std::ios::binary);
   if ( ifs.is_open() )
   {
     http_writeline( sck, "HTTP/1.1 200 OK" );
@@ -603,9 +604,7 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
     {
       ifs.read( bfr, sizeof( bfr ) );
       cur_read += static_cast<unsigned int>( ifs.gcount() );
-      sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) );  // This was sizeof bfr, which
-                                                                   // would send garbage... fixed --
-                                                                   // Nando, 2009-02-22
+      sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) );  // This was sizeof bfr, which would send garbage... fixed -- Nando, 2009-02-22
     }
     // -------------
   }
@@ -636,8 +635,7 @@ void http_func( SOCKET client_socket )
   {
     if ( Plib::systemstate.config.web_server_debug )
       INFO_PRINT << "http(" << sck.handle() << "): '" << tmpstr << "'\n";
-    if ( tmpstr.empty() )
-      break;
+    if ( tmpstr.empty() ) break;
     if ( strncmp( tmpstr.c_str(), "GET", 3 ) == 0 )
       get = tmpstr;
     if ( strncmp( tmpstr.c_str(), "Authorization:", 14 ) == 0 )
@@ -650,10 +648,10 @@ void http_func( SOCKET client_socket )
 
   ISTRINGSTREAM is( get );
 
-  std::string cmd;           // GET, POST  (we only handle GET)
-  std::string url;           // The whole URL (xx.ecl?a=b&c=d)
-  std::string proto;         // HTTP/1.1
-  std::string page;          // xx.ecl
+  std::string cmd;   // GET, POST  (we only handle GET)
+  std::string url;   // The whole URL (xx.ecl?a=b&c=d)
+  std::string proto;   // HTTP/1.1
+  std::string page; // xx.ecl
   std::string query_string;  // a=b&c=d
 
   is >> cmd >> url >> proto;
@@ -666,8 +664,8 @@ void http_func( SOCKET client_socket )
                << "http-proto: '" << proto << "'\n";
   }
 
-  //	if (url == "/")
-  //		url = "/index.htm";
+  //  if (url == "/")
+  //    url = "/index.htm";
 
   // spliturl( url, page, params ); ??
   std::string::size_type ques = url.find( '?' );
@@ -708,6 +706,7 @@ void http_func( SOCKET client_socket )
         http_not_authorized( sck, url );
         return;
       }
+
     }
     else
     {
@@ -768,8 +767,7 @@ void http_func( SOCKET client_socket )
 
 #ifdef _WIN32
 void init_http_thread_support()
-{
-}
+{}
 #else
 pthread_attr_t http_attr;
 void init_http_thread_support()
@@ -779,8 +777,11 @@ void init_http_thread_support()
 }
 #endif
 
-void test_decode( const char* page, bool result_expected, Plib::Package* pkg_expected,
-                  const char* filename_expected, const char* pagetype_expected,
+void test_decode( const char* page,
+                  bool result_expected,
+                  Plib::Package* pkg_expected,
+                  const char* filename_expected,
+                  const char* pagetype_expected,
                   const char* redirect_to_expected )
 {
   Plib::Package* pkg;
@@ -807,19 +808,19 @@ void test_decode( const char* page, bool result_expected, Plib::Package* pkg_exp
 void test_decode()
 {
   /*
-      lock();
-      if (find_package( "testwww" ))
-      {
-      test_decode( "/", true, NULL, "scripts/www/index.htm", "htm" );
-      test_decode( "/pkg/testwww1",
-      true, find_package( "testwww1" ), "pkg/test/testwww1/www/index.htm", "htm", "" );
-      test_decode( "/pkg/testwww1/noexist.ecl",
-      true, find_package( "testwww1" ), "www/noexist.ecl", "ecl", "" );
-      test_decode( "/pkg/testwww3",
-      true, find_package( "testwww3" ), "www/index.ecl", "ecl" );
-      }
-      unlock();
-      */
+    lock();
+    if (find_package( "testwww" ))
+    {
+    test_decode( "/", true, NULL, "scripts/www/index.htm", "htm" );
+    test_decode( "/pkg/testwww1",
+    true, find_package( "testwww1" ), "pkg/test/testwww1/www/index.htm", "htm", "" );
+    test_decode( "/pkg/testwww1/noexist.ecl",
+    true, find_package( "testwww1" ), "www/noexist.ecl", "ecl", "" );
+    test_decode( "/pkg/testwww3",
+    true, find_package( "testwww3" ), "www/index.ecl", "ecl" );
+    }
+    unlock();
+    */
 }
 
 
@@ -831,9 +832,8 @@ void http_thread( void )
   config_web_server();
   init_http_thread_support();
 
-  // if (1)
-  INFO_PRINT << "Listening for HTTP requests on port " << Plib::systemstate.config.web_server_port
-             << "\n";
+  //if (1)
+  INFO_PRINT << "Listening for HTTP requests on port " << Plib::systemstate.config.web_server_port << "\n";
 
   SOCKET http_socket = Network::open_listen_socket( Plib::systemstate.config.web_server_port );
   if ( http_socket == INVALID_SOCKET )
@@ -842,9 +842,9 @@ void http_thread( void )
     return;
   }
   fd_set listen_fd;
-  struct timeval listen_timeout = {0, 0};
+  struct timeval listen_timeout = { 0, 0 };
 
-  Pol::threadhelp::TaskThreadPool worker_threads( 2, "http" );  // two threads should be enough
+  Pol::threadhelp::TaskThreadPool worker_threads( 2, "http" ); // two threads should be enough
   while ( !Clib::exit_signalled )
   {
     int nfds = 0;
@@ -861,7 +861,8 @@ void http_thread( void )
       listen_timeout.tv_sec = 5;
       listen_timeout.tv_usec = 0;
       res = select( nfds, &listen_fd, NULL, NULL, &listen_timeout );
-    } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+    }
+    while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
     if ( res <= 0 )
     {
@@ -874,7 +875,7 @@ void http_thread( void )
       if ( Plib::systemstate.config.web_server_debug )
         INFO_PRINT << "Accepting connection..\n";
 
-      struct sockaddr client_addr;  // inet_addr
+      struct sockaddr client_addr; // inet_addr
       socklen_t addrlen = sizeof client_addr;
       SOCKET client_socket = accept( http_socket, &client_addr, &addrlen );
       if ( client_socket == INVALID_SOCKET )
@@ -882,16 +883,16 @@ void http_thread( void )
 
       Network::apply_socket_options( client_socket );
 
-      std::string addrstr = Network::AddressToString( &client_addr );
+      std::string addrstr = Network::AddressToString(&client_addr);
       INFO_PRINT << "HTTP client connected from " << addrstr << "\n";
 
       worker_threads.push( [=]()
-                           {
-                             http_func( client_socket );
-                           } );  // copy socket into queue to keep it valid
+      {
+        http_func( client_socket );
+      } ); // copy socket into queue to keep it valid
     }
   }
-  gamestate.mime_types.clear();  // cleanup on exit
+  gamestate.mime_types.clear(); // cleanup on exit
 #ifdef _WIN32
   closesocket( http_socket );
 #else

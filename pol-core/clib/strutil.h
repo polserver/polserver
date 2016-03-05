@@ -47,4 +47,4 @@ std::string strlower( const std::string& str );
 std::string strupper( const std::string& str );
 }
 }
-#endif  // CLIB_STRUTIL_H
+#endif //CLIB_STRUTIL_H

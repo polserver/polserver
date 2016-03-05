@@ -20,19 +20,19 @@ namespace Pol
 {
 namespace Core
 {
-std::string full_scriptname( const std::string& spec, const Plib::Package* pkg,
-                             const char* mainpfx )
+std::string full_scriptname(const std::string& spec, const Plib::Package* pkg, const char* mainpfx)
 {
   if ( spec.empty() )
     return spec;
 
   if ( pkg != NULL )
-    return Bscript::normalize_ecl_filename( pkg->dir() + spec );
+    return Bscript::normalize_ecl_filename( pkg->dir( ) + spec );
 
-  if ( spec.find( '/' ) == std::string::npos )
+  if (spec.find('/') == std::string::npos)
     return Bscript::normalize_ecl_filename( mainpfx + spec );
   else
     return Bscript::normalize_ecl_filename( "scripts/" + spec );
+
 }
 
 ScriptDef::ScriptDef( const std::string& iname, const Plib::Package* ipkg, const char* mainpfx )
@@ -50,14 +50,17 @@ bool ScriptDef::operator==( const ScriptDef& other ) const
   if ( empty() && other.empty() )
     return true;
 
-  return pkg_ == other.pkg_ && name_ == other.name_;
+  return pkg_ == other.pkg_ &&
+         name_ == other.name_;
 }
-bool ScriptDef::operator!=( const ScriptDef& other ) const
+bool ScriptDef::operator!=(const ScriptDef& other) const
 {
-  return !( *this == other );
+  return !(*this == other);
 }
 
-void ScriptDef::config( const std::string& iname, const Plib::Package* ipkg, const char* mainpfx,
+void ScriptDef::config( const std::string& iname,
+                        const Plib::Package* ipkg,
+                        const char* mainpfx,
                         bool warn_if_not_found )
 {
   std::string path;
@@ -65,7 +68,7 @@ void ScriptDef::config( const std::string& iname, const Plib::Package* ipkg, con
   if ( !Plib::pkgdef_split( iname, ipkg, &npkg, &path ) )
   {
     ERROR_PRINT << "Error reading script descriptor '" << iname << "'\n";
-    throw std::runtime_error( "Error reading script descriptor" );
+    throw std::runtime_error("Error reading script descriptor");
   }
 
   localname_ = path;
@@ -81,12 +84,14 @@ void ScriptDef::config( const std::string& iname, const Plib::Package* ipkg, con
   }
 }
 
-void ScriptDef::config( const std::string& iname, const Plib::Package* ipkg )
+void ScriptDef::config( const std::string& iname,
+                        const Plib::Package* ipkg )
 {
   config( iname, ipkg, "", true );
 }
 
-bool ScriptDef::config_nodie( const std::string& iname, const Plib::Package* ipkg,
+bool ScriptDef::config_nodie( const std::string& iname,
+                              const Plib::Package* ipkg,
                               const char* mainpfx )
 {
   std::string path;
@@ -114,7 +119,8 @@ std::string ScriptDef::relativename( const Plib::Package* pkg ) const
     return ":" + ( pkg_ ? pkg_->name() : "" ) + ":" + localname_.get();
 }
 
-void ScriptDef::quickconfig( const Plib::Package* pkg, const std::string& name_ecl )
+void ScriptDef::quickconfig( const Plib::Package* pkg,
+                             const std::string& name_ecl )
 {
   localname_ = "unknown";
   name_ = pkg->dir() + name_ecl;
@@ -131,8 +137,8 @@ void ScriptDef::quickconfig( const std::string& name_ecl )
 bool ScriptDef::exists() const
 {
   return !empty() && Clib::FileExists( c_str() );
-  // ref_ptr<EScriptProgram> prog = find_script2( *this, false, true );
-  // return (prog.get() != NULL);
+  //ref_ptr<EScriptProgram> prog = find_script2( *this, false, true );
+  //return (prog.get() != NULL);
 }
 
 void ScriptDef::clear()
@@ -146,5 +152,6 @@ size_t ScriptDef::estimatedSize() const
 {
   return sizeof( ScriptDef );
 }
+
 }
 }

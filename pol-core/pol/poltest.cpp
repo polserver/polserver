@@ -31,18 +31,18 @@ namespace Pol
 {
 namespace Plib
 {
-// void pol_walk_test();
-// void pol_drop_test();
-// void pol_los_test();
-// void pol_test_multiwalk();
-// void display_test_results();
-// void create_test_environment( );
+//void pol_walk_test();
+//void pol_drop_test();
+//void pol_los_test();
+//void pol_test_multiwalk();
+//void display_test_results();
+//void create_test_environment( );
 void inc_failures();
-void inc_successes();
+void inc_successes( );
 }
 namespace Multi
 {
-void read_multidefs();
+void read_multidefs( );
 }
 namespace Core
 {
@@ -65,15 +65,15 @@ void test_skilladv( unsigned int raw, unsigned short base )
   if ( raw_to_base( raw ) != base )
   {
     INFO_PRINT << "raw_to_base failed!\n";
-    Plib::inc_failures();
+    Plib::inc_failures( );
   }
   if ( base_to_raw( base ) != raw )
   {
     INFO_PRINT << "base_to_raw failed!\n";
-    Plib::inc_failures();
+    Plib::inc_failures( );
   }
   INFO_PRINT << "Passed\n";
-  Plib::inc_successes();
+  Plib::inc_successes( );
 }
 
 void skilladv_test()
@@ -115,12 +115,12 @@ void skilladv_test()
     if ( calcbase != base )
     {
       INFO_PRINT << "Failed (" << calcbase << ")\n";
-      Plib::inc_failures();
+      Plib::inc_failures( );
     }
     else
     {
       INFO_PRINT << "Passed\n";
-      Plib::inc_successes();
+      Plib::inc_successes( );
     }
   }
 
@@ -133,12 +133,12 @@ void skilladv_test()
     if ( calcraw != raw )
     {
       INFO_PRINT << "Failed (" << calcraw << ")\n";
-      Plib::inc_failures();
+      Plib::inc_failures( );
     }
     else
     {
       INFO_PRINT << "Passed\n";
-      Plib::inc_successes();
+      Plib::inc_successes( );
     }
   }
 }
@@ -148,28 +148,28 @@ void run_pol_tests()
   class Test : public DynamicPropsHolder
   {
   public:
-    DYN_PROPERTY( armod, s16, PROP_AR_MOD, 0 );
-    DYN_PROPERTY( max_items, u32, PROP_MAX_ITEMS_MOD, 0 );
-    DYN_PROPERTY( itemname, std::string, PROP_NAME_SUFFIX, "" );
+    DYN_PROPERTY(armod, s16, PROP_AR_MOD, 0);
+    DYN_PROPERTY(max_items, u32, PROP_MAX_ITEMS_MOD, 0);
+    DYN_PROPERTY(itemname, std::string, PROP_NAME_SUFFIX, "");
   };
   Test h;
   INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
   INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
-  h.armod( 10 );
-  INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
-  h.armod( 0 );
-  INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
+  h.armod(10);
+  INFO_PRINT << "ar " << h.armod()<<" " << h.has_armod() << "\n";
+  h.armod(0);
+  INFO_PRINT << "ar " << h.armod()<<" " << h.has_armod() << "\n";
   INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
   INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
-  h.itemname( "hello world" );
+  h.itemname("hello world");
   INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
-  h.itemname( "" );
+  h.itemname("");
   INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
   INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
   return;
   //   Plib::create_test_environment();
 
-  // Plib::pol_drop_test();
+  //Plib::pol_drop_test();
   //   Plib::pol_walk_test( );
   //   Plib::pol_los_test( );
   //   Plib::pol_test_multiwalk( );
@@ -188,34 +188,33 @@ void run_pol_tests()
 Item* Item::create( u32 objtype, u32 serial )
 {
   passert( objtype <= config.max_tile_id );
-  return new Item( objtype, CLASS_ITEM );
+  return new Item(objtype, CLASS_ITEM);
 }
 
-UMulti* UMulti::create( u32 objtype, u32 serial )
+UMulti* UMulti::create(  u32 objtype, u32 serial )
 {
   UMulti* multi = NULL;
-  if ( objtype <= config.max_tile_id )
+  if ( objtype <= config.max_tile_id)
     return NULL;
 
-  if ( defs[objtype] != NULL )
+  if (defs[objtype] != NULL)
   {
     multi = new UMulti( objtype );
   }
   else
   {
-    ERROR_PRINT << "Tried to create multi " << objtype
-                << " but no definition exists in MULTI.MUL\n";
+    ERROR_PRINT << "Tried to create multi " << objtype << " but no definition exists in MULTI.MUL\n";
     return NULL;
   }
 
   /*
-      if (serial)
-      multi->serial = UseItemSerialNumber( serial );
-      else
-      multi->serial = GetNewItemSerialNumber();
+    if (serial)
+    multi->serial = UseItemSerialNumber( serial );
+    else
+    multi->serial = GetNewItemSerialNumber();
 
-      multi->serial_ext = ctBEu32( multi->serial );
-      */
+    multi->serial_ext = ctBEu32( multi->serial );
+    */
 
   return multi;
 }

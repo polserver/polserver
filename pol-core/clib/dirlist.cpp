@@ -26,14 +26,15 @@ DirList::DirList( const char* dirname )
 
   hfd_ = FindFirstFile( srch.c_str(), &fd_ );
 }
-DirList::DirList() : hfd_( INVALID_HANDLE_VALUE )
+DirList::DirList() :
+  hfd_( INVALID_HANDLE_VALUE )
 {
   memset( &fd_, 0, sizeof( fd_ ) );
 }
 
 DirList::~DirList()
 {
-  if ( hfd_ != INVALID_HANDLE_VALUE )
+  if( hfd_ != INVALID_HANDLE_VALUE )
   {
     FindClose( hfd_ );
     hfd_ = INVALID_HANDLE_VALUE;
@@ -42,7 +43,7 @@ DirList::~DirList()
 
 void DirList::open( const char* filespec )
 {
-  if ( hfd_ != INVALID_HANDLE_VALUE )
+  if( hfd_ != INVALID_HANDLE_VALUE )
     FindClose( hfd_ );
 
   hfd_ = FindFirstFile( filespec, &fd_ );
@@ -60,9 +61,9 @@ std::string DirList::name() const
 
 void DirList::next()
 {
-  if ( hfd_ != INVALID_HANDLE_VALUE )
+  if( hfd_ != INVALID_HANDLE_VALUE )
   {
-    if ( !FindNextFile( hfd_, &fd_ ) )
+    if( !FindNextFile( hfd_, &fd_ ) )
     {
       FindClose( hfd_ );
       hfd_ = INVALID_HANDLE_VALUE;
@@ -71,7 +72,7 @@ void DirList::next()
 }
 }
 }
-#else  // non-brain dead places where we can use POSIX functions
+#else // non-brain dead places where we can use POSIX functions
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -84,12 +85,13 @@ DirList::DirList( const char* dirname )
   dir_ = opendir( dirname );
   next();
 }
-DirList::DirList() : dir_( NULL )
+DirList::DirList() :
+  dir_( NULL )
 {
 }
 DirList::~DirList()
 {
-  if ( dir_ != NULL )
+  if (dir_ != NULL)
   {
     closedir( dir_ );
     dir_ = NULL;
@@ -101,7 +103,7 @@ void DirList::open( const char* /*filespec*/ )
 }
 bool DirList::at_end() const
 {
-  return ( dir_ == NULL );
+  return (dir_ == NULL);
 }
 
 std::string DirList::name() const
@@ -111,10 +113,10 @@ std::string DirList::name() const
 
 void DirList::next()
 {
-  if ( dir_ != NULL )
+  if (dir_ != NULL)
   {
     struct dirent* de = readdir( dir_ );
-    if ( de != NULL )
+    if (de != NULL)
     {
       cur_name_ = de->d_name;
     }
@@ -138,7 +140,7 @@ namespace Clib
 {
 PushDir::PushDir( const char* dir )
 {
-  if ( getcwd( savedir_, sizeof savedir_ ) == NULL )
+  if( getcwd( savedir_, sizeof savedir_ ) == NULL )
     ok_ = ( chdir( dir ) == 0 );
   else
     ok_ = false;
@@ -146,7 +148,7 @@ PushDir::PushDir( const char* dir )
 
 PushDir::~PushDir()
 {
-  if ( ok_ )
+  if( ok_ )
   {
     ok_ = ( chdir( savedir_ ) == 0 );
   }
@@ -162,11 +164,12 @@ std::string curdir()
 #ifdef MAX_PATH
   char cdir[_MAX_PATH];
 #else
-  char cdir[256];
+  char cdir[ 256 ];
 #endif
-  if ( getcwd( cdir, sizeof cdir ) == NULL )
+  if( getcwd( cdir, sizeof cdir ) == NULL )
     return normalized_dir_form( cdir );
   return "";
 }
+
 }
 }

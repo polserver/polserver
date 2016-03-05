@@ -12,8 +12,11 @@ namespace Core
 {
 class WeatherRegion;
 
-void SetRegionWeatherLevel( WeatherRegion* weatherregion, unsigned type, unsigned severity,
-                            unsigned aux, int lightoverride );
+void SetRegionWeatherLevel( WeatherRegion* weatherregion,
+                            unsigned type,
+                            unsigned severity,
+                            unsigned aux,
+                            int lightoverride );
 }
 }
 #endif

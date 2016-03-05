@@ -14,7 +14,7 @@
 #include <string>
 #include "crypt/cryptkey.h"
 #include "../clib/Debugging/ExceptionParser.h"
-#if !defined( _WIN32 )
+#if !defined(_WIN32)
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
@@ -30,7 +30,7 @@ struct PolConfig
   std::string pidfile_path;
   unsigned short listen_port;
   bool verbose;
-  unsigned short loglevel;  // 0=nothing 10=lots
+  unsigned short loglevel; // 0=nothing 10=lots
   unsigned short select_timeout_usecs;
   bool watch_rpm;
   bool watch_sysload;
@@ -80,7 +80,7 @@ struct PolConfig
   bool retain_cleartext_passwords;
   bool discard_old_events;
 
-  int shutdown_save_type;  // either SAVE_FULL or SAVE_INCREMENTAL
+  int shutdown_save_type; // either SAVE_FULL or SAVE_INCREMENTAL
   int assertion_shutdown_save_type;
 
   std::string minidump_type;
@@ -97,7 +97,11 @@ struct PolConfig
   /**
    * @brief Returns true if program aborts are reported
    */
-  bool report_program_aborts() { return Pol::Clib::ExceptionParser::programAbortReporting(); }
+  bool report_program_aborts()
+  {
+    return Pol::Clib::ExceptionParser::programAbortReporting();
+  }
+
   /**
    * crash reporting system with some early default values
    */

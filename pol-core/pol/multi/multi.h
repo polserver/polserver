@@ -6,6 +6,7 @@
  */
 
 
+
 #ifndef MULTI_H
 #define MULTI_H
 
@@ -51,14 +52,13 @@ const int CRMULTI_FACING_SHIFT = 8;
 class UMulti : public Items::Item
 {
   typedef Items::Item base;
-
 public:
+
   u16 multiid;
 
   static UMulti* create( const Items::ItemDesc& descriptor, u32 serial = 0 );
 
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags );
 
   virtual void double_click( Network::Client* client ) POL_OVERRIDE;
   virtual void register_object( UObject* obj );
@@ -77,8 +77,7 @@ public:
   virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase );
 
   virtual ~UMulti();
-  virtual size_t estimatedSize() const POL_OVERRIDE;
-
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 protected:
   explicit UMulti( const Items::ItemDesc& itemdesc );
 
@@ -86,18 +85,20 @@ protected:
   friend class ref_ptr<UMulti>;
 
 private:
-  // virtual void destroy(void);
+
+  //virtual void destroy(void);
 };
 
 /* Default implementations */
-inline bool UMulti::readshapes( Plib::MapShapeList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
+inline bool UMulti::readshapes(Plib::MapShapeList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/)
 {
   return false;
 };
-inline bool UMulti::readobjects( Core::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
+inline bool UMulti::readobjects(Core::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/)
 {
   return false;
 };
+
 }
 namespace Core
 {

@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-02-2016</datemodified>
+		<datemodified>03-05-2016</datemodified>
 	</header>
 	<version name="POL099">
 		<entry>
@@ -24,6 +24,12 @@ be removed in the next version.</change>
 			<author>Nando &amp; Turley:</author>
 			<change type="Fixed">Data races when dealing with clients. Some other not-reproducible crashes<br/>
 should also go away now.</change>
+		</entry>
+		<entry>
+			<date>02-23-2016</date>
+			<author>Bodom:</author>
+			<change type="Removed">polcore().compiledate and polcore().compiletime</change>
+			<change type="Added">polcore().compiledatetime</change>
 		</entry>
 		<entry>
 			<date>02-15-2016</date>

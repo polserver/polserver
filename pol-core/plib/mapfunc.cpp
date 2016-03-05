@@ -27,6 +27,7 @@ bool cfg_show_roof_and_platform_warning = 1;
 }
 namespace Plib
 {
+
 std::string flagstr( unsigned int flags )
 {
   std::string tmp;
@@ -50,7 +51,7 @@ std::string flagstr( unsigned int flags )
     tmp += "S";
   if ( flags & FLAG::MOVABLE )
     tmp += "M";
-  // if (flags & FLAG::DOOR)
+  //if (flags & FLAG::DOOR)
   //    tmp += "D";
   if ( flags & FLAG::EQUIPPABLE )
     tmp += "E";
@@ -58,9 +59,7 @@ std::string flagstr( unsigned int flags )
 }
 std::string flagdescs()
 {
-  static std::string out =
-      "L=move land, S=move sea, V=block sight, f=overflight, d=allow drop, g=gradual, +=more "
-      "solids, B=blocking, S=stackable, M=movable, E=equippable";
+  static std::string out = "L=move land, S=move sea, V=block sight, f=overflight, d=allow drop, g=gradual, +=more solids, B=blocking, S=stackable, M=movable, E=equippable";
   return out;
 }
 
@@ -74,8 +73,7 @@ bool flags_clear( u32 value, u32 flags )
   return ( ~value & flags ) == flags;
 }
 
-u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot,
-                             bool LOS_through_windows )
+u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows )
 {
   u32 mapflags = 0;
 
@@ -91,7 +89,8 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   }
 
   // GRADUAL only makes sense if also STANDABLE.
-  if ( ( mapflags & FLAG::MOVELAND ) && ( uoflags & Core::USTRUCT_TILE::FLAG_HALF_HEIGHT ) )
+  if ( ( mapflags & FLAG::MOVELAND ) &&
+       ( uoflags & Core::USTRUCT_TILE::FLAG_HALF_HEIGHT ) )
   {
     mapflags |= FLAG::GRADUAL;
   }
@@ -129,13 +128,15 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   if ( use_no_shoot )
 
   {
+
     if ( ( uoflags & Core::USTRUCT_TILE::FLAG_WALL ) &&
 
          ( uoflags & ( Core::USTRUCT_TILE::FLAG_BLOCKING | Core::USTRUCT_TILE::FLAG_DOOR ) )
 
-             )
+       )
 
       mapflags |= FLAG::BLOCKSIGHT;
+
 
 
     if ( uoflags & Core::USTRUCT_TILE::FLAG_NO_SHOOT )
@@ -143,29 +144,36 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
       mapflags |= FLAG::BLOCKSIGHT;
 
 
+
     if ( !LOS_through_windows )
 
     {
+
       if ( ( uoflags & Core::USTRUCT_TILE::FLAG_WINDOW ) &&
 
            ( uoflags & Core::USTRUCT_TILE::FLAG_WALL )
 
-               )
+         )
 
         mapflags |= FLAG::BLOCKSIGHT;
+
     }
     else
 
     {
+
       if ( uoflags & Core::USTRUCT_TILE::FLAG_WINDOW )
 
         mapflags &= ~FLAG::BLOCKSIGHT;
+
     }
+
   }
 
   else
 
   {
+
     if ( ( uoflags & Core::USTRUCT_TILE::FLAG_WALL ) &&
          ( ~uoflags & Core::USTRUCT_TILE::FLAG_BLOCKING ) &&
          ( uoflags & Core::USTRUCT_TILE::FLAG_DOOR ) )
@@ -178,15 +186,15 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
     {
       // example: 0x245 dungeon arch
     }
-    else if ( uoflags & ( Core::USTRUCT_TILE::FLAG_BLOCKING | Core::USTRUCT_TILE::FLAG_PLATFORM |
+    else if ( uoflags & ( Core::USTRUCT_TILE::FLAG_BLOCKING |
+                          Core::USTRUCT_TILE::FLAG_PLATFORM |
                           Core::USTRUCT_TILE::FLAG_HALF_HEIGHT ) )
     {
       mapflags |= FLAG::BLOCKSIGHT;
     }
   }
 
-  if ( flags_set( uoflags, Core::USTRUCT_TILE::FLAG_FLOOR | Core::USTRUCT_TILE::FLAG_LIQUID |
-                               Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+  if ( flags_set( uoflags, Core::USTRUCT_TILE::FLAG_FLOOR | Core::USTRUCT_TILE::FLAG_LIQUID | Core::USTRUCT_TILE::FLAG_BLOCKING ) )
   {
     // not blocking
   }
@@ -207,12 +215,11 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   // the following flags are probably not useful:
 
   // everything allows overflight above it.
-  // mapflags |= FLAG::OVERFLIGHT;
+  //mapflags |= FLAG::OVERFLIGHT;
 
   if ( Core::cfg_show_roof_and_platform_warning )
     if ( ( mapflags & FLAG::BLOCKING ) && ( mapflags & ( FLAG::MOVELAND | FLAG::MOVESEA ) ) )
-      INFO_PRINT << " Warning: Tile 0x" << fmt::hexu( tile )
-                 << " uses Roof- and Platform-Flag at same time.\n";
+      INFO_PRINT << " Warning: Tile 0x" << fmt::hexu( tile ) << " uses Roof- and Platform-Flag at same time.\n";
 
   return mapflags;
 }
@@ -220,15 +227,15 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
 u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags )
 {
   if ( ~lt_flags & Core::USTRUCT_TILE::FLAG_BLOCKING )
-  {  // this seems to be the default.
+  {
+    // this seems to be the default.
     // used to set FLOOR here only.
     lt_flags |= Core::USTRUCT_TILE::FLAG_PLATFORM;
   }
   lt_flags |= Core::USTRUCT_TILE::FLAG_FLOOR;
-  lt_flags |= Core::USTRUCT_TILE::FLAG_HALF_HEIGHT;  // the entire map is this way
+  lt_flags |= Core::USTRUCT_TILE::FLAG_HALF_HEIGHT; // the entire map is this way
 
-  unsigned int flags = polflags_from_tileflags(
-      tile, lt_flags, 0, 0 );  // Land tiles shouldn't worry about noshoot or windows
+  unsigned int flags = polflags_from_tileflags( tile, lt_flags, 0, 0 );  // Land tiles shouldn't worry about noshoot or windows
   return flags;
 }
 
@@ -248,32 +255,21 @@ unsigned int readflags( Clib::ConfigElem& elem )
   bool flag_prepend_an = elem.remove_bool( "DescPrependAn", false );
   unsigned int flags = 0;
 
-  if ( flag_moveland )
-    flags |= FLAG::MOVELAND;
-  if ( flag_movesea )
-    flags |= FLAG::MOVESEA;
-  if ( flag_blocksight )
-    flags |= FLAG::BLOCKSIGHT;
-  if ( flag_overflight )
-    flags |= FLAG::OVERFLIGHT;
-  if ( flag_allowdropon )
-    flags |= FLAG::ALLOWDROPON;
-  if ( flag_gradual )
-    flags |= FLAG::GRADUAL;
-  if ( flag_stackable )
-    flags |= FLAG::STACKABLE;
-  if ( flag_blocking )
-    flags |= FLAG::BLOCKING;
-  if ( flag_movable )
-    flags |= FLAG::MOVABLE;
-  if ( flag_equippable )
-    flags |= FLAG::EQUIPPABLE;
-  if ( flag_prepend_a )
-    flags |= FLAG::DESC_PREPEND_A;
-  if ( flag_prepend_an )
-    flags |= FLAG::DESC_PREPEND_AN;
+  if ( flag_moveland )      flags |= FLAG::MOVELAND;
+  if ( flag_movesea )       flags |= FLAG::MOVESEA;
+  if ( flag_blocksight )    flags |= FLAG::BLOCKSIGHT;
+  if ( flag_overflight )    flags |= FLAG::OVERFLIGHT;
+  if ( flag_allowdropon )   flags |= FLAG::ALLOWDROPON;
+  if ( flag_gradual )       flags |= FLAG::GRADUAL;
+  if ( flag_stackable )     flags |= FLAG::STACKABLE;
+  if ( flag_blocking )      flags |= FLAG::BLOCKING;
+  if ( flag_movable )       flags |= FLAG::MOVABLE;
+  if ( flag_equippable )    flags |= FLAG::EQUIPPABLE;
+  if ( flag_prepend_a )     flags |= FLAG::DESC_PREPEND_A;
+  if ( flag_prepend_an )    flags |= FLAG::DESC_PREPEND_AN;
 
   return flags;
 }
+
 }
 }

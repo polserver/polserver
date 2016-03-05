@@ -41,34 +41,24 @@
 #ifndef __CRYPTBASE_H__
 #define __CRYPTBASE_H__
 
-#define CRYPT_AUTO_VALUE 0x80
+#define CRYPT_AUTO_VALUE    0x80
 
-#define CRYPT_GAMEKEY_LENGTH 6
-#define CRYPT_GAMEKEY_COUNT 25
+#define CRYPT_GAMEKEY_LENGTH  6
+#define CRYPT_GAMEKEY_COUNT   25
 
 #define CRYPT_GAMESEED_LENGTH 8
-#define CRYPT_GAMESEED_COUNT 25
+#define CRYPT_GAMESEED_COUNT  25
 
 #define CRYPT_GAMETABLE_START 1
-#define CRYPT_GAMETABLE_STEP 3
-#define CRYPT_GAMETABLE_MODULO 11
+#define CRYPT_GAMETABLE_STEP  3
+#define CRYPT_GAMETABLE_MODULO  11
 #define CRYPT_GAMETABLE_TRIGGER 21036
 
 // Macro Definitions ( to avoid big-/little-endian problems )
 
-#define N2L( C, LL )                                                                             \
-  LL = ( (unsigned int)( *( ( C )++ ) ) ) << 24, LL |= ( (unsigned int)( *( ( C )++ ) ) ) << 16, \
-  LL |= ( (unsigned int)( *( ( C )++ ) ) ) << 8, LL |= ( (unsigned int)( *( ( C )++ ) ) )
-#define L2N( LL, C )                                                    \
-  *( ( C )++ ) = (unsigned char)( ( ( LL ) >> 24 ) & 0xff ),            \
-             *( ( C )++ ) = (unsigned char)( ( ( LL ) >> 16 ) & 0xff ), \
-             *( ( C )++ ) = (unsigned char)( ( ( LL ) >> 8 ) & 0xff ),  \
-             *( ( C )++ ) = (unsigned char)( ( ( LL ) ) & 0xff )
-#define ROUND( LL, R, S, P )                                        \
-  LL ^= P;                                                          \
-  LL ^= ( ( S[( R >> 24 )] + S[0x0100 + ( ( R >> 16 ) & 0xff )] ) ^ \
-          S[0x0200 + ( ( R >> 8 ) & 0xff )] ) +                     \
-        S[0x0300 + ( (R)&0xff )]
+#define N2L(C, LL) LL  = ((unsigned int)(*((C)++))) << 24, LL |= ((unsigned int)(*((C)++))) << 16, LL |= ((unsigned int)(*((C)++))) << 8, LL |= ((unsigned int)(*((C)++)))
+#define L2N(LL, C) *((C)++) = (unsigned char)(((LL) >> 24) & 0xff), *((C)++) = (unsigned char)(((LL) >> 16) & 0xff), *((C)++) = (unsigned char)(((LL) >> 8) & 0xff), *((C)++) = (unsigned char)(((LL)) & 0xff)
+#define ROUND(LL, R, S, P) LL ^= P; LL ^= ((S[(R >> 24)]  + S[0x0100 + ((R >> 16) & 0xff)]) ^ S[0x0200 + ((R >> 8) & 0xff)]) + S[0x0300 + ((R) & 0xff)]
 
 
 #include "../sockets.h"
@@ -79,7 +69,7 @@ namespace Pol
 {
 namespace Crypt
 {
-// basic class only used directly by NoCrypt
+//basic class only used directly by NoCrypt
 class CCryptBase
 {
   // Constructor / Destructor
@@ -87,16 +77,11 @@ public:
   CCryptBase();
   virtual ~CCryptBase();
 
-  enum e_crypttype
-  {
-    typeLogin,
-    typeGame,
-    typeAuto
-  };
+  enum e_crypttype { typeLogin, typeGame, typeAuto };
 
   // Member Functions
 public:
-  virtual int Receive( void* buffer, int max_expected, SOCKET socket ) = 0;
+  virtual int  Receive( void* buffer, int max_expected, SOCKET socket ) = 0;
   virtual void Init( void* pvSeed, int type = typeAuto ) = 0;
   virtual void Encrypt( void* pvIn, void* pvOut, int len )
   {
@@ -107,7 +92,7 @@ public:
   };
 };
 
-// crypt class
+//crypt class
 
 class CCryptBaseCrypt : public CCryptBase
 {
@@ -120,8 +105,8 @@ public:
 
   // Member Variables
 protected:
-  int m_type;
-  unsigned int m_masterKey[2];
+  int           m_type;
+  unsigned int  m_masterKey[2];
   unsigned char encrypted_data[MAXBUFFER];
 
   // Member Functions
@@ -133,4 +118,4 @@ protected:
 };
 }
 }
-#endif  //__CRYPTBASE_H__
+#endif //__CRYPTBASE_H__

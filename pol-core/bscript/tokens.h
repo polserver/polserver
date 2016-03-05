@@ -13,6 +13,7 @@
 
 namespace Pol
 {
+
 namespace Bscript
 {
 /**
@@ -31,7 +32,7 @@ enum BTokenType : u8
 {
   TYP_TERMINATOR = 0x00,
   TYP_OPERAND = 0x01,
-  TYP_OPERATOR = 0x02,  // BINARY implied
+  TYP_OPERATOR = 0x02, // BINARY implied
   TYP_UNARY_OPERATOR = 0x03,
   TYP_LEFTPAREN = 0x04,
   TYP_RIGHTPAREN = 0x05,
@@ -42,10 +43,10 @@ enum BTokenType : u8
 
   TYP_RESERVED = 0x08,
 
-  TYP_LABEL = 0x09,  // a GOTO/GOSUB label
+  TYP_LABEL = 0x09, // a GOTO/GOSUB label
 
-  TYP_FUNC = 0x10,    // func returning something
-  TYP_METHOD = 0x1a,  // object method
+  TYP_FUNC = 0x10, // func returning something
+  TYP_METHOD = 0x1a, // object method
 
   TYP_USERFUNC = 0x1b,
 
@@ -62,7 +63,7 @@ enum BTokenType : u8
 
 inline std::ostream& operator<<( std::ostream& out, const BTokenType& tok )
 {
-  return out << static_cast<int>( tok );
+  return out << static_cast<int>(tok);
 }
 
 /**
@@ -82,9 +83,9 @@ enum BTokenId : u16
   // --- LOWER SPACE 0x00-0xFF: TOKENS OUTPUTTED TO THE BYTECODE ---
   TOK_LONG = 0x00,
   TOK_DOUBLE = 0x01,
-  TOK_STRING = 0x02,  //  "string literal"
+  TOK_STRING = 0x02, //  "string literal"
 
-  TOK_IDENT = 0x03,  // variable identifier, i.e. A, AB, A$ */
+  TOK_IDENT = 0x03, // variable identifier, i.e. A, AB, A$ */
 
   TOK_ADD = 0x04,
   TOK_SUBTRACT = 0x05,
@@ -133,7 +134,7 @@ enum BTokenId : u16
   CTRL_MAKELOCAL = 0x23,
   CTRL_JSR_USERFUNC = 0x24,
   INS_POP_PARAM = 0x25,
-  CTRL_LEAVE_BLOCK = 0x26,  // offset is number of variables to remove
+  CTRL_LEAVE_BLOCK = 0x26, // offset is number of variables to remove
 
   RSV_JMPIFFALSE = 0x27,
   RSV_JMPIFTRUE = 0x28,
@@ -216,14 +217,14 @@ enum BTokenId : u16
   TOK_COMMA,
   TOK_LPAREN,
   TOK_RPAREN,
-  TOK_TERM,  // terminator, ';', etc.
+  TOK_TERM, // terminator, ';', etc.
   TOK_LBRACKET,
   TOK_RBRACKET,
   TOK_LBRACE,
   TOK_RBRACE,
 
   RSV_FOREACH,
-  RSV_ENDFOREACH,  // RSV_IN: use TOK_IN
+  RSV_ENDFOREACH, // RSV_IN: use TOK_IN
 
   RSV_DECLARE,
   RSV_FUTURE,
@@ -248,7 +249,7 @@ enum BTokenId : u16
   RSV_WHILE,
   RSV_OPTION_BRACKETED,
 
-  CTRL_LABEL,  // LABEL:
+  CTRL_LABEL, // LABEL:
   CTRL_NOTHING,
   RSV_CONST,
   RSV_ENDWHILE,
@@ -277,7 +278,7 @@ enum BTokenId : u16
 
 inline std::ostream& operator<<( std::ostream& out, const BTokenId& tok )
 {
-  return out << static_cast<int>( tok );
+  return out << static_cast<int>(tok);
 }
 
 enum ESCRIPT_CASE_TYPES : u8
@@ -290,10 +291,9 @@ enum ESCRIPT_CASE_TYPES : u8
 
 namespace Clib
 {
-template <>
-std::string tostring( const Bscript::BTokenType& v );
-template <>
-std::string tostring( const Bscript::BTokenId& v );
+template <> std::string tostring( const Bscript::BTokenType& v );
+template <> std::string tostring( const Bscript::BTokenId& v );
 }
+
 }
 #endif

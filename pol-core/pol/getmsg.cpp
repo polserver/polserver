@@ -33,7 +33,7 @@ void send_prompt( Network::Client* client, u32 serial )
   msg->WriteFlipped<u16>( sizeof msg->buffer );
   msg->Write<u32>( serial );
   msg->WriteFlipped<u32>( 0x15u );
-  msg->offset += 5;  // u32 type u8 text[0]
+  msg->offset += 5; // u32 type u8 text[0]
   msg.Send( client );
 }
 
@@ -48,7 +48,7 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
     if ( textlen <= 120 && msg->text[textlen - 1] == '\0' )
     {
       bool ok = true;
-      --textlen;  // don't include null terminator (already checked)
+      --textlen; // don't include null terminator (already checked)
       for ( int i = 0; i < textlen; ++i )
       {
         if ( !isprint( msg->text[i] ) )
@@ -71,12 +71,13 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
 }
 namespace Module
 {
-Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
+Bscript::BObjectImp* UOExecutorModule::mf_PromptInput( )
 {
   Mobile::Character* chr;
   Items::Item* item;
   const Bscript::String* prompt;
-  if ( !getCharacterParam( exec, 0, chr ) || !getItemParam( exec, 1, item ) ||
+  if ( !getCharacterParam( exec, 0, chr ) ||
+       !getItemParam( exec, 1, item ) ||
        !exec.getStringParam( 2, prompt ) )
   {
     return new Bscript::BError( "Invalid parameter" );

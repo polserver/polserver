@@ -19,6 +19,7 @@ namespace Pol
 {
 namespace Core
 {
+
 std::set<unsigned int> water;
 
 bool iswater( u16 objtype )
@@ -56,10 +57,12 @@ void readwater()
             unsigned int xy = x << 16 | y;
             water.insert( xy );
           }
+
         }
       }
     }
   }
 }
+
 }
 }

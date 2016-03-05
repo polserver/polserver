@@ -1,11 +1,9 @@
 /** @file
  *
  * @par History
- * - 2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy
- * on Client 2)
+ * - 2005/01/24 Shinigami: added ObjMember character.spyonclient2 to get data from packet 0xd9 (Spy on Client 2)
  * - 2005/03/09 Shinigami: Added Prop Character::Delay_Mod [ms] for WeaponDelay
- * - 2005/04/02 Shinigami: UBoat::script_method_id & UBoat::script_method - added optional realm
- * param
+ * - 2005/04/02 Shinigami: UBoat::script_method_id & UBoat::script_method - added optional realm param
  * - 2005/04/04 Shinigami: Added Prop Character::CreatedAt [PolClock]
  * - 2005/08/29 Shinigami: get-/setspyonclient2 renamed to get-/setclientinfo
  * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
@@ -24,13 +22,11 @@
  * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
  *                         Relocation of multi related cpp/h
  * - 2009/09/06 Turley:    Removed isUOKR added ClientType
- * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue)
- * virtuals.
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
  * - 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
  * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
  * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
- * -            MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect
- * till.
+ * -            MuadDib:   Squelch and Deaf members set to return the gameclock they are in effect till.
  * - 2009/10/17 Turley:    Moved PrivUpdater to charactr.cpp - Tomi
  * - 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
  * - 2009/12/02 Turley:    gargoyle race support
@@ -39,8 +35,7 @@
  *                         multi support of methodscripts
  * - 2010/01/15 Turley:    (Tomi) season stuff
  * - 2010/02/03 Turley:    MethodScript support for mobiles
- * - 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL,
- * MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
+ * - 2011/12/13 Tomi:      Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL, MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
  * - 2012/02/02 Tomi:      Added boat member MBR_MULTIID
  * - 2012/03/26 Tomi:      Added MBR_LASTCOORD
  * - 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
@@ -187,7 +182,7 @@ BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* 
 
 BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
-  // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
+  //MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
   if ( !obj_->orphan() )
   {
@@ -210,7 +205,7 @@ BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, boo
 
 BObjectImp* ECharacterRefObjImp::call_method( const char* methodname, Executor& ex )
 {
-  // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
+  //MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
   bool forcebuiltin;
   if ( methodname[0] == '_' )
@@ -242,13 +237,12 @@ bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &echaracterrefobjimp_type )
     {
       const ECharacterRefObjImp* chrref_imp =
-          Clib::explicit_cast<const ECharacterRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const ECharacterRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( chrref_imp->obj_->serial == obj_->serial );
     }
@@ -263,13 +257,12 @@ bool ECharacterRefObjImp::operator<( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &echaracterrefobjimp_type )
     {
       const ECharacterRefObjImp* chrref_imp =
-          Clib::explicit_cast<const ECharacterRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const ECharacterRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( chrref_imp->obj_->serial < obj_->serial );
     }
@@ -424,13 +417,12 @@ bool EItemRefObjImp::operator==( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &eitemrefobjimp_type )
     {
       const EItemRefObjImp* itemref_imp =
-          Clib::explicit_cast<const EItemRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const EItemRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( itemref_imp->obj_->serial == obj_->serial );
     }
@@ -445,13 +437,12 @@ bool EItemRefObjImp::operator<( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &eitemrefobjimp_type )
     {
       const EItemRefObjImp* itemref_imp =
-          Clib::explicit_cast<const EItemRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const EItemRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( itemref_imp->obj_->serial < obj_->serial );
     }
@@ -559,13 +550,12 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &euboatrefobjimp_type )
     {
       const EUBoatRefObjImp* boatref_imp =
-          Clib::explicit_cast<const EUBoatRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const EUBoatRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( boatref_imp->obj_->serial == obj_->serial );
     }
@@ -699,13 +689,12 @@ bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &emultirefobjimp_type )
     {
       const EMultiRefObjImp* multiref_imp =
-          Clib::explicit_cast<const EMultiRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const EMultiRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( multiref_imp->obj_->serial == obj_->serial );
     }
@@ -837,7 +826,7 @@ BObjectImp* UObject::set_script_member_id( const int id, int value )
   case MBR_COLOR:
   {
     bool res = setcolor( static_cast<unsigned short>( value ) );
-    if ( !res )  // TODO log?
+    if ( !res ) // TODO log?
       return new BError( "Invalid color value " + Clib::hexint( value ) );
     else
       return new BLong( color );
@@ -1119,10 +1108,10 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     decayat_gameclock_ = value;
     return new BLong( decayat_gameclock_ );
   case MBR_SELLPRICE:
-    sellprice( value );
+    sellprice(value);
     return new BLong( value );
   case MBR_BUYPRICE:
-    buyprice( value );
+    buyprice(value);
     return new BLong( value );
   case MBR_NEWBIE:
     restart_decay_timer();
@@ -1141,7 +1130,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     saveonexit( value ? true : false );
     return new BLong( saveonexit() );
   case MBR_FIRE_RESIST_MOD:
-    fire_resist( fire_resist().setAsMod( static_cast<short>( value ) ) );
+    fire_resist(fire_resist().setAsMod(static_cast<short>( value )));
     if ( container != NULL )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1154,7 +1143,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( fire_resist().mod );
     break;
   case MBR_COLD_RESIST_MOD:
-    cold_resist( cold_resist().setAsMod( static_cast<short>( value ) ) );
+    cold_resist(cold_resist().setAsMod(static_cast<short>( value )));
     if ( container != NULL )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1167,7 +1156,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( cold_resist().mod );
     break;
   case MBR_ENERGY_RESIST_MOD:
-    energy_resist( energy_resist().setAsMod( static_cast<short>( value ) ) );
+    energy_resist(energy_resist().setAsMod(static_cast<short>( value )));
     if ( container != NULL )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1180,7 +1169,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( energy_resist().mod );
     break;
   case MBR_POISON_RESIST_MOD:
-    poison_resist( poison_resist().setAsMod( static_cast<short>( value ) ) );
+    poison_resist(poison_resist().setAsMod(static_cast<short>( value )));
     if ( container != NULL )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1193,7 +1182,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( poison_resist().mod );
     break;
   case MBR_PHYSICAL_RESIST_MOD:
-    physical_resist( physical_resist().setAsMod( static_cast<short>( value ) ) );
+    physical_resist(physical_resist().setAsMod(static_cast<short>( value )));
     if ( container != NULL )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1206,27 +1195,27 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( physical_resist().mod );
     break;
   case MBR_FIRE_DAMAGE_MOD:
-    fire_damage( fire_damage().setAsMod( static_cast<short>( value ) ) );
+    fire_damage(fire_damage().setAsMod(static_cast<short>( value )));
     return new BLong( static_cast<short>( value ) );
     break;
   case MBR_COLD_DAMAGE_MOD:
-    cold_damage( cold_damage().setAsMod( static_cast<short>( value ) ) );
+    cold_damage(cold_damage().setAsMod(static_cast<short>( value )));
     return new BLong( static_cast<short>( value ) );
     break;
   case MBR_ENERGY_DAMAGE_MOD:
-    energy_damage( energy_damage().setAsMod( static_cast<short>( value ) ) );
+    energy_damage(energy_damage().setAsMod(static_cast<short>( value )));
     return new BLong( static_cast<short>( value ) );
     break;
   case MBR_POISON_DAMAGE_MOD:
-    poison_damage( poison_damage().setAsMod( static_cast<short>( value ) ) );
+    poison_damage(poison_damage().setAsMod(static_cast<short>( value )));
     return new BLong( static_cast<short>( value ) );
     break;
   case MBR_PHYSICAL_DAMAGE_MOD:
-    physical_damage( physical_damage().setAsMod( static_cast<short>( value ) ) );
+    physical_damage(physical_damage().setAsMod(static_cast<short>( value )));
     return new BLong( static_cast<short>( value ) );
     break;
   case MBR_QUALITY:
-    setQuality( double( value ) );
+    setQuality(double( value ) );
     return new Double( double( value ) );
     break;
   case MBR_HP:
@@ -1282,7 +1271,7 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
   switch ( id )
   {
   case MBR_QUALITY:
-    setQuality( value );
+    setQuality(value);
     return new Double( value );
   default:
     return NULL;
@@ -1311,13 +1300,12 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     unsigned short x, y;
     short z;
     const String* realm_name;
-    Item* new_stack( nullptr );
+    Item* new_stack(nullptr);
     u16 item_amount = this->getamount();
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
-    else if ( !ex.getParam( 0, x ) || !ex.getParam( 1, y ) || !ex.getParam( 2, z ) ||
-              !ex.getStringParam( 3, realm_name ) )
+    else if ( !ex.getParam( 0, x ) || !ex.getParam( 1, y ) || !ex.getParam( 2, z ) || !ex.getStringParam( 3, realm_name ) )
       return new BError( "Invalid parameter type" );
     else if ( !ex.getParam( 4, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1342,6 +1330,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
       for ( i = 1; i <= amt; i++ )
       {
+
         if ( this->getamount() == 1 )
           new_stack = this->clone();
         else
@@ -1360,7 +1349,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
         destroy_item( this );
       else
         update_item_to_inrange( this );
-      if ( new_stack != nullptr )
+      if (new_stack != nullptr)
         return new Module::EItemRefObjImp( new_stack );
       else
         return nullptr;
@@ -1414,7 +1403,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
 
-    Item* new_stack( nullptr );
+    Item* new_stack(nullptr);
     u16 item_amount = this->getamount();
 
     if ( !this->stackable() && amt > 1 )
@@ -1426,8 +1415,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
         else
           new_stack = this->remove_part_of_stack( 1 );
 
-        bool can_insert =
-            container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+        bool can_insert = container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
         if ( !can_insert )
         {
           // Put new_stack back with the original stack
@@ -1446,7 +1434,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
         destroy_item( this );
       else
         update_item_to_inrange( this );
-      if ( new_stack != nullptr )
+      if (new_stack != nullptr)
         return new Module::EItemRefObjImp( new_stack );
       else
         return nullptr;
@@ -1457,10 +1445,9 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    auto create_new_stack = [&]() -> BObjectImp*
+    auto create_new_stack = [&]( ) -> BObjectImp*
     {
-      bool can_insert =
-          container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+      bool can_insert = container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
       if ( !can_insert )
       {
         // Put newstack back with the original stack
@@ -1483,15 +1470,12 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     };
 
     int add_to_existing_stack;
-    if ( !ex.hasParams( 3 ) ||
-         ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 ) )
+    if ( !ex.hasParams( 3 ) || ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 ) )
     {
       Item* existing_stack = container->find_addable_stack( new_stack );
       if ( existing_stack != NULL && new_stack->stackable() )
       {
-        if ( !container->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED,
-                                                    existing_stack, new_stack->getamount(),
-                                                    new_stack ) )
+        if ( !container->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack, new_stack->getamount(), new_stack ) )
         {
           if ( new_stack != this )
             this->add_to_self( new_stack );
@@ -1507,8 +1491,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
       UpdateCharacterWeight( existing_stack );
 
-      container->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack,
-                                           amount );
+      container->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack, amount );
 
       if ( amt == item_amount )
         destroy_item( this );
@@ -1566,8 +1549,7 @@ BObjectImp* Item::custom_script_method( const char* methodname, Executor& ex )
   if ( id.method_script != NULL )
   {
     unsigned PC;
-    if ( id.method_script->FindExportedFunction(
-             methodname, static_cast<unsigned int>( ex.numParams() + 1 ), PC ) )
+    if ( id.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams() + 1 ), PC ) )
       return id.method_script->call( PC, make_ref(), ex.fparams );
   }
   return NULL;
@@ -1585,15 +1567,18 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
   if ( id.method_script != NULL )
   {
     unsigned PC;
-    if ( id.method_script->FindExportedFunction(
-             methodname, static_cast<unsigned int>( pmore.size() + 1 ), PC ) )
+    if ( id.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( pmore.size() + 1 ), PC ) )
       return id.method_script->call( PC, new Module::EItemRefObjImp( this ), pmore );
     else
     {
       std::string message;
-      message = "Method script for objtype " + id.objtype_description() +
-                " does not export function " + std::string( methodname ) + " taking " +
-                Clib::decint( pmore.size() + 1 ) + " parameters";
+      message = "Method script for objtype "
+                + id.objtype_description()
+                + " does not export function "
+                + std::string( methodname )
+                + " taking "
+                + Clib::decint( pmore.size() + 1 )
+                + " parameters";
       BError* err = new BError( message );
       return BObject( err );
     }
@@ -1602,7 +1587,7 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
     return BObject( new BError( "No method script defined for " + id.objtype_description() ) );
 }
 
-BObjectImp* Item::make_ref()
+BObjectImp* Item::make_ref( )
 {
   return new Module::EItemRefObjImp( this );
 }
@@ -1616,10 +1601,10 @@ class ARUpdater
 public:
   static void on_change( Character* chr )
   {
-    chr->refresh_ar();  // FIXME inefficient
-    // if (chr->client != NULL) // already send in refresh_ar()
+    chr->refresh_ar(); // FIXME inefficient
+    //if (chr->client != NULL) // already send in refresh_ar()
     //{
-    //	send_full_statmsg( chr->client, chr );
+    //  send_full_statmsg( chr->client, chr );
     //}
   }
 };
@@ -2062,19 +2047,19 @@ BObjectImp* Character::set_script_member_id( const int id, const std::string& va
   switch ( id )
   {
   case MBR_TITLE_PREFIX:
-    title_prefix( value );
+    title_prefix(value);
     ret = new String( value );
     break;
   case MBR_TITLE_SUFFIX:
-    title_suffix( value );
+    title_suffix(value);
     ret = new String( value );
     break;
   case MBR_TITLE_GUILD:
-    title_guild( value );
+    title_guild(value);
     ret = new String( value );
     break;
   case MBR_TITLE_RACE:
-    title_race( value );
+    title_race(value);
     ret = new String( value );
     break;
   default:
@@ -2117,9 +2102,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
       race = Core::RACE_ELF;
     else if ( value == Core::RACE_GARGOYLE )
       race = Core::RACE_GARGOYLE;
-    if ( ( race != Core::RACE_GARGOYLE ) &&
-         ( movemode & Core::MOVEMODE_FLY ) )  // FIXME graphic based maybe?
-      movemode = ( Core::MOVEMODE )( movemode ^ Core::MOVEMODE_FLY );  // remove flying
+    if ( ( race != Core::RACE_GARGOYLE ) && ( movemode & Core::MOVEMODE_FLY ) ) // FIXME graphic based maybe?
+      movemode = ( Core::MOVEMODE )( movemode ^ Core::MOVEMODE_FLY ); //remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = static_cast<unsigned int>( value ) );
@@ -2130,11 +2114,11 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     refresh_ar();
     return new BLong( ar_mod() );
   case MBR_DELAY_MOD:
-    delay_mod( static_cast<short>( value ) );
+    delay_mod(static_cast<short>( value ));
     return new BLong( delay_mod() );
   case MBR_HIDDEN:
   {
-    // FIXME: don't call on_change unless the value actually changed?
+    //FIXME: don't call on_change unless the value actually changed?
     hidden( value ? true : false );
     return new BLong( hidden() );
   }
@@ -2163,15 +2147,16 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     make_murderer( value ? true : false );
     return new BLong( murderer_ );
   case MBR_HITCHANCE_MOD:
-    hitchance_mod( static_cast<short>( value ) );
+    hitchance_mod(static_cast<short>( value ));
     return new BLong( hitchance_mod() );
   case MBR_EVASIONCHANCE_MOD:
-    evasionchance_mod( static_cast<short>( value ) );
+    evasionchance_mod(static_cast<short>( value ));
     return new BLong( evasionchance_mod() );
   case MBR_CARRYINGCAPACITY_MOD:
-    carrying_capacity_mod( static_cast<short>( value ) );
+    carrying_capacity_mod(static_cast<short>( value ));
     if ( client != NULL )
-    {  // CHECKME consider sending less frequently
+    {
+      // CHECKME consider sending less frequently
       send_full_statmsg( client, this );
     }
     return new BLong( carrying_capacity_mod() );
@@ -2181,27 +2166,27 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     on_facing_changed();
     return new BLong( 1 );
   case MBR_FIRE_RESIST_MOD:
-    fire_resist( fire_resist().setAsMod( static_cast<short>( value ) ) );
+    fire_resist(fire_resist().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( fire_resist().mod );
     break;
   case MBR_COLD_RESIST_MOD:
-    cold_resist( cold_resist().setAsMod( static_cast<short>( value ) ) );
+    cold_resist(cold_resist().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( cold_resist().mod );
     break;
   case MBR_ENERGY_RESIST_MOD:
-    energy_resist( energy_resist().setAsMod( static_cast<short>( value ) ) );
+    energy_resist(energy_resist().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( energy_resist().mod );
     break;
   case MBR_POISON_RESIST_MOD:
-    poison_resist( poison_resist().setAsMod( static_cast<short>( value ) ) );
+    poison_resist(poison_resist().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( poison_resist().mod );
     break;
   case MBR_PHYSICAL_RESIST_MOD:
-    physical_resist( physical_resist().setAsMod( static_cast<short>( value ) ) );
+    physical_resist(physical_resist().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( physical_resist().mod );
     break;
@@ -2209,7 +2194,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   {
     auto val = skillstatcap();
     val.statcap = static_cast<short>( value );
-    skillstatcap( val );
+    skillstatcap(val);
     if ( !this->isa( UObject::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( skillstatcap().statcap );
@@ -2218,7 +2203,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   {
     auto val = skillstatcap();
     val.skillcap = static_cast<u16>( value );
-    skillstatcap( val );
+    skillstatcap(val);
     return new BLong( skillstatcap().skillcap );
   }
   case MBR_LUCK:
@@ -2231,7 +2216,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   {
     auto val = followers();
     val.followers_max = static_cast<u8>( value );
-    followers( val );
+    followers(val);
     if ( !this->isa( UObject::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( followers().followers_max );
@@ -2246,33 +2231,33 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   {
     auto val = followers();
     val.followers = static_cast<u8>( value );
-    followers( val );
+    followers(val);
     if ( !this->isa( UObject::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( followers().followers );
   }
   case MBR_FIRE_DAMAGE_MOD:
-    fire_damage( fire_damage().setAsMod( static_cast<short>( value ) ) );
+    fire_damage(fire_damage().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( fire_damage().mod );
     break;
   case MBR_COLD_DAMAGE_MOD:
-    cold_damage( cold_damage().setAsMod( static_cast<short>( value ) ) );
+    cold_damage(cold_damage().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( cold_damage().mod );
     break;
   case MBR_ENERGY_DAMAGE_MOD:
-    energy_damage( energy_damage().setAsMod( static_cast<short>( value ) ) );
+    energy_damage(energy_damage().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( energy_damage().mod );
     break;
   case MBR_POISON_DAMAGE_MOD:
-    poison_damage( poison_damage().setAsMod( static_cast<short>( value ) ) );
+    poison_damage(poison_damage().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( poison_damage().mod );
     break;
   case MBR_PHYSICAL_DAMAGE_MOD:
-    physical_damage( physical_damage().setAsMod( static_cast<short>( value ) ) );
+    physical_damage(physical_damage().setAsMod(static_cast<short>( value )));
     refresh_ar();
     return new BLong( physical_damage().mod );
     break;
@@ -2280,28 +2265,28 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   {
     auto val = movement_cost();
     val.walk = static_cast<double>( value );
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().walk );
   }
   case MBR_MOVECOST_RUN:
   {
     auto val = movement_cost();
     val.run = static_cast<double>( value );
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().run );
   }
   case MBR_MOVECOST_WALK_MOUNTED:
   {
     auto val = movement_cost();
     val.walk_mounted = static_cast<double>( value );
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().walk_mounted );
   }
   case MBR_MOVECOST_RUN_MOUNTED:
   {
     auto val = movement_cost();
     val.run_mounted = static_cast<double>( value );
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().run_mounted );
   }
   default:
@@ -2317,33 +2302,34 @@ BObjectImp* Character::set_script_member_id_double( const int id, double value )
   {
     auto val = movement_cost();
     val.walk = value;
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().walk );
   }
   case MBR_MOVECOST_RUN:
   {
     auto val = movement_cost();
     val.run = value;
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().run );
   }
   case MBR_MOVECOST_WALK_MOUNTED:
   {
     auto val = movement_cost();
     val.walk_mounted = value;
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().walk_mounted );
   }
   case MBR_MOVECOST_RUN_MOUNTED:
   {
     auto val = movement_cost();
     val.run_mounted = value;
-    movement_cost( val );
+    movement_cost(val);
     return new Double( movement_cost().run_mounted );
   }
   default:
     return NULL;
   }
+
 }
 
 BObjectImp* Character::set_script_member( const char* membername, int value )
@@ -2388,8 +2374,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       set_dirty();
       poisoned( newval );
       check_undamaged();
-      Module::UOExecutorModule* uoexec =
-          static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
+      Module::UOExecutorModule* uoexec = static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
       if ( uoexec != NULL && uoexec->controller_.get() )
       {
         Character* attacker = uoexec->controller_.get();
@@ -2430,8 +2415,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       set_dirty();
       paralyzed_ = newval;
       check_undamaged();
-      Module::UOExecutorModule* uoexec =
-          static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
+      Module::UOExecutorModule* uoexec = static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
       if ( uoexec != NULL && uoexec->controller_.get() )
       {
         Character* attacker = uoexec->controller_.get();
@@ -2472,16 +2456,17 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     int level, duration;
     if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
-    if ( ex.getParam( 0, level ) && ex.getParam( 1, duration ) )
+    if ( ex.getParam( 0, level ) &&
+         ex.getParam( 1, duration ) )
     {
-      lightoverride( level );
+      lightoverride(level);
 
       if ( duration == -1 )
-        lightoverride_until( ~0u );
+        lightoverride_until(~0u);
       else if ( duration == 0 )
-        lightoverride_until( 0 );
+        lightoverride_until(0);
       else
-        lightoverride_until( Core::read_gameclock() + duration );
+        lightoverride_until(Core::read_gameclock() + duration);
 
       check_region_changes();
       if ( duration == -1 )
@@ -2497,7 +2482,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 
     if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
-    if ( ex.getParam( 0, season_id ) && ex.getParam( 1, playsound ) )
+    if ( ex.getParam( 0, season_id ) &&
+         ex.getParam( 1, playsound ) )
     {
       if ( season_id < 0 || season_id > 4 )
         return new BError( "Invalid season id" );
@@ -2505,8 +2491,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       if ( client && client->getversiondetail().major >= 1 )
       {
         Network::PktHelper::PacketOut<Network::PktOut_BC> msg;
-        msg->Write<u8>( static_cast<u16>( season_id ) );
-        msg->Write<u8>( static_cast<u16>( playsound ) );
+        msg->Write<u8>( static_cast<u16>(season_id) );
+        msg->Write<u8>( static_cast<u16>(playsound) );
         msg.Send( client );
         return new BLong( 1 );
       }
@@ -2523,13 +2509,13 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       set_dirty();
       if ( duration == -1 )
       {
-        squelched_until( ~0u );
+        squelched_until(~0u);
         return new BLong( -1 );
       }
       else if ( duration == 0 )
-        squelched_until( 0 );
+        squelched_until(0);
       else
-        squelched_until( Core::read_gameclock() + duration );
+        squelched_until(Core::read_gameclock() + duration);
       return new BLong( squelched_until() );
     }
     break;
@@ -2612,7 +2598,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
   case MTH_SPENDGOLD:
   {
     int amt;
-    if ( ex.numParams() != 1 || !ex.getParam( 0, amt ) )
+    if ( ex.numParams() != 1 ||
+         !ex.getParam( 0, amt ) )
       return new BError( "Invalid parameter type" );
 
     if ( gold_carried() < static_cast<unsigned int>( amt ) )
@@ -2640,7 +2627,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
     int serial, gameclock;
-    if ( ex.getParam( 0, serial ) && ex.getParam( 1, gameclock ) )
+    if ( ex.getParam( 0, serial ) &&
+         ex.getParam( 1, gameclock ) )
     {
       set_dirty();
       clear_reportable( serial, gameclock );
@@ -2680,8 +2668,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
   }
   case MTH_GETCORPSE:
   {
-    Core::UCorpse* corpse_obj =
-        static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
+    Core::UCorpse* corpse_obj = static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
     if ( corpse_obj != NULL && !corpse_obj->orphan() )
       return new Module::EItemRefObjImp( corpse_obj );
     else
@@ -2743,8 +2730,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       if ( getCharacterParam( ex, 0, chr ) )
         chr->repsys_on_damage( this );
     }
-    if ( dead() )
-      return new BError( "That is already dead!" );
+    if (dead())
+      return new BError("That is already dead!");
 
     die();
     return new BLong( 1 );
@@ -2865,13 +2852,13 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       set_dirty();
       if ( duration == -1 )
       {
-        deafened_until( ~0u );
+        deafened_until(~0u);
         return new BLong( -1 );
       }
       else if ( duration == 0 )
-        deafened_until( 0 );
+        deafened_until(0);
       else
-        deafened_until( Core::read_gameclock() + duration );
+        deafened_until(Core::read_gameclock() + duration);
       return new BLong( deafened_until() );
     }
     break;
@@ -2885,8 +2872,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     {
       if ( duration < 0 )
         return new BError( "Duration must be >= 0" );
-      disable_skills_until( Core::poltime() + duration );
-      return new BLong( static_cast<int>( disable_skills_until() ) );
+      disable_skills_until(Core::poltime() + duration);
+      return new BLong( static_cast<int>(disable_skills_until()) );
     }
     break;
   }
@@ -2898,28 +2885,27 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     u32 cl_descr;
     ObjArray* oText;
 
-    if ( !ex.hasParams( 5 ) )
+    if( ! ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
-    if ( ex.getParam( 0, icon ) && ex.getParam( 1, duration ) && ex.getParam( 2, cl_name ) &&
-         ex.getParam( 3, cl_descr ) && ex.getObjArrayParam( 4, oText ) )
+    if( ex.getParam( 0, icon ) && ex.getParam( 1, duration ) && ex.getParam( 2, cl_name ) && ex.getParam( 3, cl_descr ) && ex.getObjArrayParam( 4, oText ) )
     {
-      if ( !( icon && cl_name && cl_descr ) )
+      if( ! ( icon && cl_name && cl_descr ) )
         return new BError( "Invalid parameters" );
 
       // Retrieve and validate the unicode text as an array of u16
-      if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      u16 cltext[( SPEECH_MAX_LEN + 1 )];
+      if( oText->ref_arr.size() > SPEECH_MAX_LEN )
+        return new BError("Unicode array exceeds maximum size.");
+      u16 cltext[(SPEECH_MAX_LEN + 1)];
       size_t textlen = oText->ref_arr.size();
-      if ( !Core::convertArrayToUC( oText, cltext, textlen, false ) )
-        return new BError( "Invalid value in Unicode array." );
+      if( ! Core::convertArrayToUC(oText, cltext, textlen, false) )
+        return new BError("Invalid value in Unicode array.");
 
       // Now convert it into a vector of u32
       // TODO: use a unicode string class or something bettwer when it will be ready
       std::vector<u32> arguments;
-      arguments.reserve( textlen );
-      for ( size_t i = 0; i < textlen; i++ )
-        arguments.insert( arguments.end(), cltext[i] );
+      arguments.reserve(textlen);
+      for( size_t i = 0; i < textlen; i++ )
+        arguments.insert(arguments.end(), cltext[i]);
 
       addBuff( icon, duration, cl_name, cl_descr, arguments );
       return new BLong( 1 );
@@ -2937,14 +2923,14 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
   {
     u16 icon;
 
-    if ( !ex.hasParams( 1 ) )
+    if( ! ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( ex.getParam( 0, icon ) )
+    if( ex.getParam( 0, icon ) )
     {
-      if ( !icon )
+      if( ! icon )
         return new BError( "Invalid parameter" );
 
-      if ( !delBuff( icon ) )
+      if( ! delBuff( icon ) )
         return new BError( "Buff not found" );
 
       return new BLong( 1 );
@@ -2972,10 +2958,8 @@ BObjectImp* Character::custom_script_method( const char* methodname, Executor& e
   if ( Core::networkManager.uoclient_general.method_script != NULL )
   {
     unsigned PC;
-    if ( Core::networkManager.uoclient_general.method_script->FindExportedFunction(
-             methodname, static_cast<unsigned int>( ex.numParams() + 1 ), PC ) )
-      return Core::networkManager.uoclient_general.method_script->call( PC, make_ref(),
-                                                                        ex.fparams );
+    if ( Core::networkManager.uoclient_general.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams( ) + 1 ), PC ) )
+      return Core::networkManager.uoclient_general.method_script->call( PC, make_ref( ), ex.fparams );
   }
   return NULL;
 }
@@ -3010,8 +2994,7 @@ ObjArray* Character::GetAggressorTo() const
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
 
-  for ( Character::MobileCont::const_iterator itr = aggressor_to_.begin(),
-                                              end = aggressor_to_.end();
+  for ( Character::MobileCont::const_iterator itr = aggressor_to_.begin(), end = aggressor_to_.end();
         itr != end; ++itr )
   {
     std::unique_ptr<BObjectImp> member( nullptr );
@@ -3024,8 +3007,7 @@ ObjArray* Character::GetAggressorTo() const
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );
     elem->addMember( "ref", member.release() );
-    elem->addMember(
-        "seconds", new BLong( ( ( *itr ).second - Core::polclock() ) / Core::POLCLOCKS_PER_SEC ) );
+    elem->addMember( "seconds", new BLong( ( ( *itr ).second - Core::polclock( ) ) / Core::POLCLOCKS_PER_SEC ) );
 
     arr->addElement( elem.release() );
   }
@@ -3036,8 +3018,7 @@ ObjArray* Character::GetLawFullyDamaged() const
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
 
-  for ( Character::MobileCont::const_iterator itr = lawfully_damaged_.begin(),
-                                              end = lawfully_damaged_.end();
+  for ( Character::MobileCont::const_iterator itr = lawfully_damaged_.begin(), end = lawfully_damaged_.end();
         itr != end; ++itr )
   {
     std::unique_ptr<BObjectImp> member( nullptr );
@@ -3050,8 +3031,7 @@ ObjArray* Character::GetLawFullyDamaged() const
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );
     elem->addMember( "ref", member.release() );
-    elem->addMember(
-        "seconds", new BLong( ( ( *itr ).second - Core::polclock() ) / Core::POLCLOCKS_PER_SEC ) );
+    elem->addMember( "seconds", new BLong( ( ( *itr ).second - Core::polclock( ) ) / Core::POLCLOCKS_PER_SEC ) );
 
     arr->addElement( elem.release() );
   }
@@ -3159,10 +3139,10 @@ BObjectImp* NPC::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_SPEECH_COLOR:
-    speech_color( static_cast<unsigned short>( value ) );
+    speech_color(static_cast<unsigned short>( value ));
     return new BLong( speech_color() );
   case MBR_SPEECH_FONT:
-    speech_font( static_cast<unsigned short>( value ) );
+    speech_font(static_cast<unsigned short>( value ));
     return new BLong( speech_font() );
   case MBR_USE_ADJUSTMENTS:
     return new BLong( use_adjustments = value ? true : false );
@@ -3229,12 +3209,12 @@ BObjectImp* NPC::custom_script_method( const char* methodname, Executor& ex )
   if ( template_.method_script != NULL )
   {
     unsigned PC;
-    if ( template_.method_script->FindExportedFunction(
-             methodname, static_cast<unsigned int>( ex.numParams() + 1 ), PC ) )
+    if ( template_.method_script->FindExportedFunction( methodname, static_cast<unsigned int>( ex.numParams() + 1 ), PC ) )
       return template_.method_script->call( PC, make_ref(), ex.fparams );
   }
   return NULL;
 }
+
 }
 namespace Core
 {
@@ -3297,13 +3277,13 @@ BObjectImp* UContainer::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_MAX_ITEMS_MOD:
-    return new BLong( max_items_mod() );
+    return new BLong(max_items_mod());
     break;
   case MBR_MAX_WEIGHT_MOD:
-    return new BLong( max_weight_mod() );
+    return new BLong(max_weight_mod());
     break;
   case MBR_MAX_SLOTS_MOD:
-    return new BLong( max_slots_mod() );
+    return new BLong(max_slots_mod());
     break;
   default:
     return NULL;
@@ -3506,7 +3486,7 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
     if ( cp != NULL )
       return new Module::EItemRefObjImp( cp );
     else
-      return new BError( std::string( "This ship doesn't have that component" ) );
+      return new BError(std::string("This ship doesn't have that component"));
     break;
   }
   case MBR_STARBOARDPLANK:
@@ -3515,7 +3495,7 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
     if ( cp != NULL )
       return new Module::EItemRefObjImp( cp );
     else
-      return new BError( std::string( "This ship doesn't have that component" ) );
+      return new BError(std::string("This ship doesn't have that component"));
     break;
   }
   case MBR_HOLD:
@@ -3524,7 +3504,7 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
     if ( cp != NULL )
       return new Module::EItemRefObjImp( cp );
     else
-      return new BError( std::string( "This ship doesn't have that component" ) );
+      return new BError(std::string("This ship doesn't have that component"));
     break;
   }
   case MBR_ROPE:
@@ -3596,7 +3576,8 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
 
     if ( ex.numParams() == 3 )
     {
-      if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) &&
+      if ( ex.getParam( 0, x ) &&
+           ex.getParam( 1, y ) &&
            ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
       {
         if ( !realm->valid( x, y, z ) )
@@ -3614,7 +3595,8 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
       if ( ex.numParams() == 4 )
       {
         const String* strrealm;
-        if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) &&
+        if ( ex.getParam( 0, x ) &&
+             ex.getParam( 1, y ) &&
              ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
              ex.getStringParam( 3, strrealm ) )
         {
@@ -3780,7 +3762,8 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
       return new BError( "Not enough parameters" );
     BObjectImp* objimp;
     const String* mname;
-    if ( ex.getStringParam( 0, mname ) && ( objimp = ex.getParamImp( 1 ) ) != NULL )
+    if ( ex.getStringParam( 0, mname ) &&
+         ( objimp = ex.getParamImp( 1 ) ) != NULL )
     {
       BObjectImp* ret;
       if ( objimp->isa( BObjectImp::OTLong ) )
@@ -3805,10 +3788,10 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
         return ret;
       else
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        std::string message = std::string("Member ") + std::string(mname->value()) + std::string(" not found on that object");
         return new BError( message );
       }
+
     }
     break;
   }
@@ -3825,8 +3808,7 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
         return ret;
       else
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        std::string message = std::string( "Member " ) + std::string( mname->value() ) + std::string( " not found on that object" );
         return new BError( message );
       }
     }
@@ -3937,7 +3919,7 @@ BObjectImp* Equipment::get_script_member_id( const int id ) const
   if ( imp != NULL )
     return imp;
 
-  switch ( id )
+  switch(id)
   {
   case MBR_INTRINSIC:
     return new BLong( is_intrinsic() );
@@ -4011,10 +3993,10 @@ BObjectImp* UWeapon::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_DMG_MOD:
-    return new BLong( damage_mod() );
+    return new BLong(damage_mod());
     break;
   case MBR_SPEED_MOD:
-    return new BLong( speed_mod() );
+    return new BLong(speed_mod());
     break;
   case MBR_ATTRIBUTE:
     return new String( attribute().name );
@@ -4062,10 +4044,7 @@ BObjectImp* UWeapon::set_script_member( const char* membername, const std::strin
 BObjectImp* UWeapon::set_script_member_id( const int id, int value )
 {
   if ( is_intrinsic() )
-    return new BError( "Cannot alter an instrinsic NPC weapon member values" );  // executor won't
-                                                                                 // return this to
-                                                                                 // the script
-                                                                                 // currently.
+    return new BError( "Cannot alter an instrinsic NPC weapon member values" ); //executor won't return this to the script currently.
 
   BObjectImp* imp = Equipment::set_script_member_id( id, value );
   if ( imp != NULL )
@@ -4097,10 +4076,7 @@ BObjectImp* UWeapon::set_script_member( const char* membername, int value )
 BObjectImp* UWeapon::set_script_member_id_double( const int id, double value )
 {
   if ( is_intrinsic() )
-    return new BError( "Cannot alter an instrinsic NPC weapon member values" );  // executor won't
-                                                                                 // return this to
-                                                                                 // the script
-                                                                                 // currently.
+    return new BError( "Cannot alter an instrinsic NPC weapon member values" ); //executor won't return this to the script currently.
   return base::set_script_member_id_double( id, value );
 }
 
@@ -4122,7 +4098,7 @@ BObjectImp* UArmor::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_AR_MOD:
-    return new BLong( ar_mod() );
+    return new BLong(ar_mod());
     break;
   case MBR_AR:
     return new BLong( ar() );
@@ -4237,12 +4213,12 @@ bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
     const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+      Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &eclientrefobjimp_type )
     {
       const EClientRefObjImp* clientref_imp =
-          Clib::explicit_cast<const EClientRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const EClientRefObjImp*, const BApplicObjBase*>( aob );
 
       if ( clientref_imp->value().exists() && value().exists() &&
            ( clientref_imp->value()->chr != NULL ) && ( value()->chr != NULL ) )
@@ -4329,7 +4305,8 @@ BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* val
     return BObjectRef( UninitObject::create() );
 }
 
-BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*value*/, bool /*copy*/ )
+BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*value*/,
+    bool /*copy*/ )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return BObjectRef( new BError( "Client not ready or disconnected" ) );
@@ -4346,7 +4323,8 @@ BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex 
   return NULL;
 }
 
-BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex,
+    bool /*forcebuiltin*/ )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return new BError( "Client not ready or disconnected" );
@@ -4388,8 +4366,7 @@ SpeechEvent::SpeechEvent( Mobile::Character* speaker, const char* speech, const 
 }
 
 UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech,
-                                        const u16* wspeech, const char lang[4],
-                                        ObjArray* speechtokens )
+                                        const u16* wspeech, const char lang[4], ObjArray* speechtokens )
 {
   ObjArray* arr;
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
@@ -4408,9 +4385,8 @@ UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* 
   if ( speechtokens != NULL )
     addMember( "tokens", speechtokens );
 }
-UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech,
-                                        const char* texttype, const u16* wspeech,
-                                        const char lang[4], ObjArray* speechtokens )
+UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech, const char* texttype,
+                                        const u16* wspeech, const char lang[4], ObjArray* speechtokens )
 {
   ObjArray* arr;
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
@@ -4443,9 +4419,9 @@ DamageEvent::DamageEvent( Mobile::Character* source, unsigned short damage )
   addMember( "damage", new BLong( damage ) );
 }
 
-ItemGivenEvent::ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given,
-                                Mobile::NPC* chr_givento )
-    : SourcedEvent( Core::EVID_ITEM_GIVEN, chr_givenby ), given_by_( NULL )
+ItemGivenEvent::ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* item_given, Mobile::NPC* chr_givento ) :
+  SourcedEvent( Core::EVID_ITEM_GIVEN, chr_givenby ),
+  given_by_( NULL )
 {
   addMember( "item", new EItemRefObjImp( item_given ) );
 
@@ -4476,7 +4452,7 @@ ItemGivenEvent::~ItemGivenEvent()
   item->eraseprop( "GivenTo" );
   item->eraseprop( "GivenTime" );
 
-  Bscript::BObject given_value( BObjectImp::unpack( given_time_str.c_str() ) );
+  Bscript::BObject given_value( BObjectImp::unpack( given_time_str.c_str() ));
   int gts = static_cast<BLong*>( given_value.impptr() )->value();
 
   if ( item->orphan() || cont->orphan() || chr->orphan() )

@@ -54,7 +54,8 @@ void send_paperdoll( Network::Client* client, Mobile::Character* chr )
 
   if ( ( !settingsManager.ssopt.privacy_paperdoll ) || ( client->chr == chr ) )
   {
-    std::string name = ( !chr->has_title_prefix() ? "" : chr->title_prefix() + " " ) + chr->name() +
+    std::string name = ( !chr->has_title_prefix() ? "" : chr->title_prefix() + " " ) +
+                       chr->name() +
                        ( !chr->has_title_suffix() ? "" : " " + chr->title_suffix() );
     if ( chr->has_title_race() )
       name += " (" + chr->title_race() + ")";
@@ -85,12 +86,12 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   u32 paperdoll_macro_flag = serial & 0x80000000Lu;
-  serial &= ~0x80000000Lu;  // keypress versus doubleclick switch?
+  serial &= ~0x80000000Lu; // keypress versus doubleclick switch?
 
   // the find_character would find this, but most of the time it's your own paperdoll.
   // this is special-cased for two reasons:
-  //	  1) it's commonly done
-  //	  2) ghosts can doubleclick ONLY their paperdoll.
+  //    1) it's commonly done
+  //    2) ghosts can doubleclick ONLY their paperdoll.
   if ( serial == client->chr->serial )
   {
     if ( !paperdoll_macro_flag )
@@ -117,7 +118,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     return;
   }
   else
-    client->chr->dblclick_wait( read_gameclock() + settingsManager.ssopt.dblclick_wait );
+    client->chr->dblclick_wait(read_gameclock() + settingsManager.ssopt.dblclick_wait);
 
   if ( IsCharacter( serial ) )
   {
@@ -145,8 +146,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       ref_ptr<Bscript::EScriptProgram> prog;
       prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
       if ( prog.get() != NULL )
-        script_ran =
-            client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( chr ) );
+        script_ran = client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( chr ) );
     }
     if ( !script_ran && inrange( client->chr, chr ) )
     {
@@ -175,13 +175,13 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     }
     return;
   }
-  else  // doubleclicked an item
+  else // doubleclicked an item
   {
     // next, search worn items, items in the backpack, and items in the world.
     Items::Item* item = find_legal_item( client->chr, serial );
 
     // next, check people's backpacks. (don't recurse down)
-    //	  (not done yet)
+    //    (not done yet)
 
     if ( item != NULL )
     {
@@ -204,15 +204,15 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       }
 
       unsigned short dst = pol_distance( client->chr, item );
-      if ( dst > id.doubleclick_range && !client->chr->can_dblclickany() )
+      if ( dst > id.doubleclick_range &&
+           !client->chr->can_dblclickany() )
       {
         private_say_above( client->chr, item, "That is too far away." );
         return;
       }
       UObject* obj = item->toplevel_owner();
       obj = obj->self_as_owner();
-      if ( id.use_requires_los && !client->chr->realm->has_los( *client->chr, *obj ) )  // DAVE
-                                                                                        // 11/24
+      if ( id.use_requires_los && !client->chr->realm->has_los( *client->chr, *obj ) ) //DAVE 11/24
       {
         private_say_above( client->chr, item, "I can't see that." );
         return;

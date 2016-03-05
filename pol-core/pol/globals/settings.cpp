@@ -12,19 +12,20 @@ namespace Core
 {
 SettingsManager settingsManager;
 
-SettingsManager::SettingsManager()
-    : combat_config(),
-      watch(),
-      extobj(),
-      party_cfg(),
-      ssopt(),
-      polvar(),
-      movecost_walking(),
-      movecost_running(),
-      movecost_walking_mounted(),
-      movecost_running_mounted(),
-      repsys_cfg()
+SettingsManager::SettingsManager() :
+  combat_config(),
+  watch(),
+  extobj(),
+  party_cfg(),
+  ssopt(),
+  polvar(),
+  movecost_walking(),
+  movecost_running(),
+  movecost_walking_mounted(),
+  movecost_running_mounted(),
+  repsys_cfg()
 {
+
 }
 
 SettingsManager::~SettingsManager()
@@ -34,13 +35,15 @@ SettingsManager::~SettingsManager()
 
 void SettingsManager::deinitialize()
 {
+
 }
 
 size_t SettingsManager::estimateSize() const
 {
-  size_t size = sizeof( SettingsManager );
+  size_t size = sizeof(SettingsManager);
   return size;
 }
+
 
 
 void set_watch_vars()

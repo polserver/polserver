@@ -63,7 +63,7 @@ struct profile_instr
   unsigned long min;
   unsigned long count;
 };
-typedef map<std::string, profile_instr> escript_profile_map;
+typedef map< std::string,profile_instr > escript_profile_map;
 extern escript_profile_map EscriptProfileMap;
 #endif
 
@@ -96,14 +96,9 @@ public:
   bool halt_;
   bool run_ok_;
 
-  enum DEBUG_LEVEL
-  {
-    NONE,
-    SOURCELINES,
-    INSTRUCTIONS
-  };
+  enum DEBUG_LEVEL { NONE, SOURCELINES, INSTRUCTIONS };
   DEBUG_LEVEL debug_level;
-  unsigned PC;  // program counter
+  unsigned PC; // program counter
 
   bool AttachFunctionalityModules();
 
@@ -126,12 +121,12 @@ public:
   static ExecInstrFunc GetInstrFunc( const Token& token );
 
   /*
-      These must both be deleted.  instr references _symbols, so it should be deleted first.
-      FIXME: there should be a separate object, called EProgram or something,
-      that owns both the instructions and the symbols.  It should be ref_counted,
-      so a code repository can store programs that multiple Executors use.
-      That means debugger stuff has to come out of Instruction.
-      */
+    These must both be deleted.  instr references _symbols, so it should be deleted first.
+    FIXME: there should be a separate object, called EProgram or something,
+    that owns both the instructions and the symbols.  It should be ref_counted,
+    so a code repository can store programs that multiple Executors use.
+    That means debugger stuff has to come out of Instruction.
+    */
   unsigned nLines;
 
   std::vector<BObjectRef> fparams;
@@ -145,8 +140,14 @@ protected:
 
 public:
   int makeString( unsigned param );
-  bool hasParams( unsigned howmany ) const { return ( fparams.size() >= howmany ); }
-  size_t numParams() const { return fparams.size(); }
+  bool hasParams( unsigned howmany ) const
+  {
+    return ( fparams.size() >= howmany );
+  }
+  size_t numParams() const
+  {
+    return fparams.size();
+  }
   BObjectImp* getParamImp( unsigned param );
   BObjectImp* getParamImp( unsigned param, BObjectImp::BObjectType type );
   BObjectImp* getParamImp2( unsigned param, BObjectImp::BObjectType type );
@@ -166,8 +167,7 @@ public:
 
   bool getParam( unsigned param, unsigned short& value );
   bool getParam( unsigned param, unsigned short& value, unsigned short maxval );
-  bool getParam( unsigned param, unsigned short& value, unsigned short minval,
-                 unsigned short maxval );
+  bool getParam( unsigned param, unsigned short& value, unsigned short minval, unsigned short maxval );
 
   bool getParam( unsigned param, short& value );
   bool getParam( unsigned param, short& value, short maxval );
@@ -207,16 +207,15 @@ public:
   static BObjectRef checkmember( BObject& left, const BObject& right );
   void addmember2( BObject& left, const BObject& right );
 
-  // execmodules: modules associated with the current program.  References modules owned by
-  // availmodules.
+  // execmodules: modules associated with the current program.  References modules owned by availmodules.
   std::vector<ExecutorModule*> execmodules;
-  std::vector<ExecutorModule*> availmodules;  // owns
+  std::vector<ExecutorModule*> availmodules; // owns
 
 public:
   Executor();
   virtual ~Executor();
 
-  void addModule( ExecutorModule* module );  // NOTE, executor deletes its modules when done
+  void addModule( ExecutorModule* module ); // NOTE, executor deletes its modules when done
   ExecutorModule* findModule( const std::string& name );
 
   ModuleFunction* current_module_function;
@@ -252,14 +251,14 @@ public:
   void ins_set_member( const Instruction& ins );
   void ins_set_member_consume( const Instruction& ins );
   void ins_get_member( const Instruction& ins );
-  void ins_get_member_id( const Instruction& ins );  // test id
-  void ins_set_member_id( const Instruction& ins );  // test id
-  void ins_set_member_id_consume( const Instruction& ins );  // test id
-  void ins_set_member_id_consume_plusequal( const Instruction& ins );     // test id
-  void ins_set_member_id_consume_minusequal( const Instruction& ins );    // test id
-  void ins_set_member_id_consume_timesequal( const Instruction& ins );    // test id
-  void ins_set_member_id_consume_divideequal( const Instruction& ins );   // test id
-  void ins_set_member_id_consume_modulusequal( const Instruction& ins );  // test id
+  void ins_get_member_id( const Instruction& ins ); //test id
+  void ins_set_member_id( const Instruction& ins ); //test id
+  void ins_set_member_id_consume( const Instruction& ins ); //test id
+  void ins_set_member_id_consume_plusequal( const Instruction& ins ); // test id
+  void ins_set_member_id_consume_minusequal( const Instruction& ins ); // test id
+  void ins_set_member_id_consume_timesequal( const Instruction& ins ); // test id
+  void ins_set_member_id_consume_divideequal( const Instruction& ins ); // test id
+  void ins_set_member_id_consume_modulusequal( const Instruction& ins ); // test id
 
   void ins_assign_localvar( const Instruction& ins );
   void ins_assign_globalvar( const Instruction& ins );
@@ -366,9 +365,18 @@ public:
   void show_context( unsigned atPC );
   void show_context( fmt::Writer& os, unsigned atPC );
 
-  int getDebugLevel() { return debug_level; }
-  void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }
-  void setViewMode( bool vm ) { viewmode_ = vm; }
+  int getDebugLevel()
+  {
+    return debug_level;
+  }
+  void setDebugLevel( DEBUG_LEVEL level )
+  {
+    debug_level = level;
+  }
+  void setViewMode( bool vm )
+  {
+    viewmode_ = vm;
+  }
   const std::string& scriptname() const;
   bool empty_scriptname();
   const EScriptProgram* prog() const;
@@ -400,7 +408,7 @@ private:
 
   BObjectImp* func_result_;
 
-private:  // not implemented
+private: // not implemented
   Executor( const Executor& exec );
   Executor& operator=( const Executor& exec );
 #ifdef ESCRIPT_PROFILE

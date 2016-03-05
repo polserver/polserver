@@ -18,14 +18,14 @@ namespace Module
 class AttributeExecutorModule : public Bscript::TmplExecutorModule<AttributeExecutorModule>
 {
 public:
-  AttributeExecutorModule( Bscript::Executor& exec )
-      : TmplExecutorModule<AttributeExecutorModule>( "attributes", exec ){};
+  AttributeExecutorModule( Bscript::Executor& exec ) :
+    TmplExecutorModule<AttributeExecutorModule>( "attributes", exec ) {};
 
-  Bscript::BObjectImp* mf_CheckSkill();  // Character, SkillId, Difficulty, Points
+  Bscript::BObjectImp* mf_CheckSkill( ); // Character, SkillId, Difficulty, Points
 
-  Bscript::BObjectImp* mf_GetAttributeName( /* alias name */ );
+  Bscript::BObjectImp* mf_GetAttributeName(/* alias name */ );
 
-  Bscript::BObjectImp* mf_GetAttributeDefaultCap( /* alias name */ );
+  Bscript::BObjectImp* mf_GetAttributeDefaultCap(/* alias name */ );
 
   Bscript::BObjectImp* mf_GetAttribute( /* mob, attrname */ );
   Bscript::BObjectImp* mf_GetAttributeBaseValue( /* mob, attrname */ );
@@ -41,9 +41,10 @@ public:
   Bscript::BObjectImp* mf_AlterAttributeTemporaryMod( /* mob, attributeid, temporary_mod */ );
   Bscript::BObjectImp* mf_SetAttributeIntrinsicMod( /* mob, attributeid, intrinsic_mod */ );
 
-  Bscript::BObjectImp* mf_RawSkillToBase();
-  Bscript::BObjectImp* mf_BaseSkillToRaw();
+  Bscript::BObjectImp* mf_RawSkillToBase( );
+  Bscript::BObjectImp* mf_BaseSkillToRaw( );
 };
+
 }
 }
 #endif

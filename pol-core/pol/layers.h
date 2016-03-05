@@ -16,6 +16,7 @@ namespace Pol
 {
 namespace Core
 {
+
 struct ArmorZone
 {
   std::string name;
@@ -50,7 +51,7 @@ enum LAYER_DETAILED
   LAYER_HALFAPRON = 12,
   LAYER_CHEST_ARMOR = 13,
   LAYER_BRACELET = 14,
-  LAYER_FACE = 15,  // UO:KR/SA Face item
+  LAYER_FACE = 15, // UO:KR/SA Face item
   LAYER_BEARD = 16,
   LAYER_TUNIC = 17,
   LAYER_EARRINGS = 18,

@@ -12,19 +12,17 @@ namespace Pol
 {
 namespace Clib
 {
-const std::size_t flush_limit = 10000;  // 500;
+const std::size_t flush_limit = 10000;// 500;
 
 /// BaseClass implements only writer operator logic
 StreamWriter::StreamWriter() : _writer( new fmt::Writer )
-{
-}
+{}
 StreamWriter::~StreamWriter()
-{
-}
+{}
 
 fmt::Writer& StreamWriter::operator()()
 {
-  if ( _writer->size() >= flush_limit )  // guard against to big objects
+  if( _writer->size() >= flush_limit )  // guard against to big objects
   {
     this->flush();
   }
@@ -32,39 +30,36 @@ fmt::Writer& StreamWriter::operator()()
 }
 
 /// ofstream implementation (simple non threaded)
-OFStreamWriter::OFStreamWriter()
-    : StreamWriter(),
-      _stream(),
+OFStreamWriter::OFStreamWriter( ) :
+  StreamWriter(),
+  _stream(),
 #if 0
-      _fs_time( 0 ),
+  _fs_time( 0 ),
 #endif
-      _stream_name()
-{
-}
+  _stream_name()
+{}
 
 OFStreamWriter::OFStreamWriter( std::ofstream* stream )
-    : StreamWriter(),
-      _stream( stream ),
+  : StreamWriter(),
+    _stream( stream ),
 #if 0
-      _fs_time( 0 ),
+    _fs_time( 0 ),
 #endif
-      _stream_name()
-{
-}
+    _stream_name()
+{}
 
 OFStreamWriter::~OFStreamWriter()
 {
 #if 0
-      if ( _writer->size() )
-      {
-        Tools::HighPerfTimer t;
-        *_stream << _writer->c_str();
-        _fs_time += t.ellapsed();
-      }
-      ERROR_PRINT << "streamwriter " << _stream_name << " io time " << _fs_time.count( ) << "\n";
-#else
   if ( _writer->size() )
-    *_stream << _writer->str();
+  {
+    Tools::HighPerfTimer t;
+    *_stream << _writer->c_str();
+    _fs_time += t.ellapsed();
+  }
+  ERROR_PRINT << "streamwriter " << _stream_name << " io time " << _fs_time.count( ) << "\n";
+#else
+  if ( _writer->size( ) ) *_stream << _writer->str( );
 #endif
 }
 
@@ -78,15 +73,15 @@ void OFStreamWriter::init( const std::string& filepath )
 void OFStreamWriter::flush()
 {
 #if 0
-      Tools::HighPerfTimer t;
+  Tools::HighPerfTimer t;
 #endif
-  if ( _writer->size() )
+  if( _writer->size() )
   {
     *_stream << _writer->str();
     _writer->Clear();
   }
 #if 0
-      _fs_time += t.ellapsed( );
+  _fs_time += t.ellapsed( );
 #endif
 }
 
@@ -98,26 +93,23 @@ void OFStreamWriter::flush_file()
 
 /// ostream implementation (non threaded)
 OStreamWriter::OStreamWriter() : StreamWriter(), _stream()
-{
-}
+{}
 
-OStreamWriter::OStreamWriter( std::ostream* stream ) : StreamWriter(), _stream( stream )
-{
-}
+OStreamWriter::OStreamWriter( std::ostream* stream )
+  : StreamWriter(), _stream( stream )
+{}
 
 OStreamWriter::~OStreamWriter()
 {
-  if ( _writer->size() )
-    *_stream << _writer->str();
+  if( _writer->size() ) *_stream << _writer->str();
 }
 
-void OStreamWriter::init( const std::string& )
-{
-}
+void OStreamWriter::init( const std::string&)
+{}
 
 void OStreamWriter::flush()
 {
-  if ( _writer->size() )
+  if( _writer->size() )
   {
     *_stream << _writer->str();
     _writer.reset( new fmt::Writer );
@@ -132,52 +124,47 @@ void OStreamWriter::flush_file()
 
 /// ofstream implementation with worker thread for file io
 ThreadedOFStreamWriter::ThreadedOFStreamWriter()
-    : StreamWriter(), _stream(), _msg_queue(), _writethread(), _writers_hold(), _stream_name()
+  : StreamWriter( ), _stream( ), _msg_queue( ), _writethread( ), _writers_hold( ), _stream_name()
 {
   start_worker();
 }
 
 ThreadedOFStreamWriter::ThreadedOFStreamWriter( std::ofstream* stream )
-    : StreamWriter(),
-      _stream( stream ),
-      _msg_queue(),
-      _writethread(),
-      _writers_hold(),
-      _stream_name()
+  : StreamWriter( ), _stream( stream ), _msg_queue( ), _writethread( ), _writers_hold( ), _stream_name()
 {
   start_worker();
 }
 void ThreadedOFStreamWriter::start_worker()
 {
   _writethread = std::thread( [this]()
-                              {
-                                std::list<WriterPtr> writers;
-                                // small helper lambda to write into stream
-                                auto _write_to_stream = [&]( std::list<WriterPtr>& l )
-                                {
-                                  for ( const auto& _w : l )
-                                  {
-                                    if ( _w->size() )
-                                      *_stream << _w->str();
-                                  }
-                                };
-                                try
-                                {
-                                  for ( ;; )
-                                  {
-                                    writers.clear();
-                                    _msg_queue.pop_wait( &writers );
-                                    _write_to_stream( writers );
-                                  }
-                                }
-                                catch ( writer_queue::Canceled& )
-                                {
-                                }
-                                writers.clear();
-                                _msg_queue.pop_remaining( &writers );
-                                _write_to_stream( writers );
-                                _stream->flush();
-                              } );
+  {
+    std::list<WriterPtr> writers;
+    // small helper lambda to write into stream
+    auto _write_to_stream = [&]( std::list<WriterPtr>& l )
+    {
+      for( const auto& _w : l )
+      {
+        if( _w->size() )
+          *_stream << _w->str();
+      }
+    };
+    try
+    {
+      for (;;)
+      {
+        writers.clear();
+        _msg_queue.pop_wait( &writers );
+        _write_to_stream( writers );
+      }
+    }
+    catch( writer_queue::Canceled&)
+    {
+    }
+    writers.clear();
+    _msg_queue.pop_remaining( &writers );
+    _write_to_stream( writers );
+    _stream->flush();
+  } );
 }
 
 ThreadedOFStreamWriter::~ThreadedOFStreamWriter()
@@ -194,7 +181,7 @@ void ThreadedOFStreamWriter::init( const std::string& filepath )
 
 void ThreadedOFStreamWriter::flush()
 {
-  if ( _writer->size() )
+  if( _writer->size() )
   {
     _writers_hold.emplace_back( std::move( _writer ) );
     if ( _writers_hold.size() > 10 )

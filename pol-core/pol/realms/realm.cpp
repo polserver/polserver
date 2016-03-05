@@ -1,10 +1,8 @@
 /** @file
  *
  * @par History
- * - 2005/01/23 Shinigami: Realm::Con-/Destructor - Tokuno MapDimension doesn't fit blocks of 64x64
- * (WGRID_SIZE)
- * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of is_shadowrealm, baserealm and
- * shadowname
+ * - 2005/01/23 Shinigami: Realm::Con-/Destructor - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
+ * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of is_shadowrealm, baserealm and shadowname
  */
 
 
@@ -26,18 +24,18 @@ namespace Pol
 {
 namespace Realms
 {
-Realm::Realm( const std::string& realm_name, const std::string& realm_path )
-    : is_shadowrealm( false ),
-      shadowid( 0 ),
-      baserealm( nullptr ),
-      _descriptor( Plib::RealmDescriptor::Load( realm_name, realm_path ) ),
-      _mobile_count( 0 ),
-      _offline_count( 0 ),
-      _toplevel_item_count( 0 ),
-      _multi_count( 0 ),
-      _mapserver( Plib::MapServer::Create( _descriptor ) ),
-      _staticserver( new Plib::StaticServer( _descriptor ) ),
-      _maptileserver( new Plib::MapTileServer( _descriptor ) )
+Realm::Realm(const std::string& realm_name, const std::string& realm_path) :
+  is_shadowrealm( false ),
+  shadowid( 0 ),
+  baserealm( nullptr ),
+  _descriptor( Plib::RealmDescriptor::Load( realm_name, realm_path ) ),
+  _mobile_count( 0 ),
+  _offline_count( 0 ),
+  _toplevel_item_count( 0 ),
+  _multi_count( 0 ),
+  _mapserver( Plib::MapServer::Create( _descriptor ) ),
+  _staticserver( new Plib::StaticServer( _descriptor ) ),
+  _maptileserver( new Plib::MapTileServer( _descriptor ) )
 {
   size_t gridwidth = grid_width();
   size_t gridheight = grid_height();
@@ -48,16 +46,16 @@ Realm::Realm( const std::string& realm_name, const std::string& realm_path )
     zone[i] = new Core::Zone[gridheight];
 }
 
-Realm::Realm( const std::string& realm_name, Realm* realm )
-    : is_shadowrealm( true ),
-      shadowid( 0 ),
-      baserealm( realm ),
-      shadowname( realm_name ),
-      _descriptor( realm->_descriptor ),
-      _mobile_count( 0 ),
-      _offline_count( 0 ),
-      _toplevel_item_count( 0 ),
-      _multi_count( 0 )
+Realm::Realm(const std::string& realm_name, Realm* realm) :
+  is_shadowrealm( true ),
+  shadowid( 0 ),
+  baserealm( realm ),
+  shadowname( realm_name ),
+  _descriptor(realm->_descriptor),
+  _mobile_count( 0 ),
+  _offline_count( 0 ),
+  _toplevel_item_count( 0 ),
+  _multi_count( 0 )
 {
   size_t gridwidth = grid_width();
   size_t gridheight = grid_height();
@@ -88,19 +86,19 @@ size_t Realm::sizeEstimate() const
   {
     for ( unsigned y = 0; y < gridheight; ++y )
     {
-      size += 3 * sizeof( void** ) + zone[x][y].characters.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].npcs.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].items.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].multis.capacity() * sizeof( void* );
+      size += 3 * sizeof(void**)+zone[x][y].characters.capacity() * sizeof( void*);
+      size += 3 * sizeof(void**)+zone[x][y].npcs.capacity() * sizeof( void*);
+      size += 3 * sizeof(void**)+zone[x][y].items.capacity() * sizeof( void*);
+      size += 3 * sizeof(void**)+zone[x][y].multis.capacity() * sizeof( void*);
     }
   }
 
   // estimated set footprint
-  size +=
-      3 * sizeof( void* ) + global_hulls.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) );
-  size += _descriptor.sizeEstimate() + ( ( !_mapserver ) ? 0 : _mapserver->sizeEstimate() ) +
-          ( ( !_staticserver ) ? 0 : _staticserver->sizeEstimate() ) +
-          ( ( !_maptileserver ) ? 0 : _maptileserver->sizeEstimate() );
+  size += 3 * sizeof(void*)+global_hulls.size( ) * ( sizeof(unsigned int)+3 * sizeof( void*) );
+  size += _descriptor.sizeEstimate()
+          + ((!_mapserver) ? 0 : _mapserver->sizeEstimate())
+          + ((!_staticserver) ? 0 : _staticserver->sizeEstimate())
+          + ((!_maptileserver) ? 0 : _maptileserver->sizeEstimate());
   return size;
 }
 
@@ -120,7 +118,8 @@ unsigned Realm::season() const
 
 bool Realm::valid( unsigned short x, unsigned short y, short z ) const
 {
-  return ( x < width() && y < height() && z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
+  return ( x < width() && y < height() &&
+           z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
 }
 
 const std::string Realm::name() const
@@ -139,12 +138,12 @@ const std::string Realm::name() const
 //      - a player character connects,
 //      - a player or npc gets moved from one realm to another
 //
-void Realm::add_mobile( const Mobile::Character& chr, WorldChangeReason reason )
+void Realm::add_mobile(const Mobile::Character& chr, WorldChangeReason reason)
 {
-  switch ( reason )
+  switch (reason)
   {
   case WorldChangeReason::Moved:
-    if ( !chr.logged_in )
+    if (!chr.logged_in)
       ++_offline_count;
     break;
 
@@ -165,8 +164,8 @@ void Realm::add_mobile( const Mobile::Character& chr, WorldChangeReason reason )
   //
   // Of course, to make life harder, when PlayerEnter calls here the logged_in is still false. Yay!
   //
-  if ( reason != WorldChangeReason::PlayerLoad &&
-       ( reason == WorldChangeReason::PlayerEnter || chr.logged_in ) )
+  if (reason != WorldChangeReason::PlayerLoad &&
+      (reason == WorldChangeReason::PlayerEnter || chr.logged_in))
     ++_mobile_count;
 }
 
@@ -177,9 +176,9 @@ void Realm::add_mobile( const Mobile::Character& chr, WorldChangeReason reason )
 //      - a player character is deleted
 //      - a player or npc gets moved from one realm to another
 //
-void Realm::remove_mobile( const Mobile::Character& chr, WorldChangeReason reason )
+void Realm::remove_mobile(const Mobile::Character& chr, WorldChangeReason reason)
 {
-  switch ( reason )
+  switch (reason)
   {
   case WorldChangeReason::PlayerExit:
     ++_offline_count;
@@ -187,7 +186,7 @@ void Realm::remove_mobile( const Mobile::Character& chr, WorldChangeReason reaso
 
   case WorldChangeReason::Moved:
   case WorldChangeReason::PlayerDeleted:
-    if ( !chr.logged_in )
+    if (!chr.logged_in)
     {
       --_offline_count;
     }
@@ -197,7 +196,7 @@ void Realm::remove_mobile( const Mobile::Character& chr, WorldChangeReason reaso
     break;
   }
 
-  if ( chr.logged_in )
+  if (chr.logged_in)
     --_mobile_count;
 }
 }

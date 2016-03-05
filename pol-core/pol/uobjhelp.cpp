@@ -20,7 +20,8 @@ namespace Core
 void UObjectHelper::ShowProperties( Network::Client* client, PropertyList& proplist )
 {
   for ( PropertyList::Properties::iterator itr = proplist.properties.begin();
-        itr != proplist.properties.end(); ++itr )
+        itr != proplist.properties.end();
+        ++itr )
   {
     OSTRINGSTREAM os;
     os << ( *itr ).first << ": " << ( *itr ).second;

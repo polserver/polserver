@@ -19,8 +19,8 @@ class ConfigElem;
 }
 namespace Plib
 {
-u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot,
-                             bool LOS_through_windows );
+
+u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot, bool LOS_through_windows );
 u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags );
 
 unsigned int readflags( Clib::ConfigElem& elem );
@@ -29,3 +29,4 @@ std::string flagdescs();
 }
 }
 #endif
+

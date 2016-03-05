@@ -18,9 +18,9 @@ namespace Pol
 {
 namespace Core
 {
-UDoor::UDoor( const Items::DoorDesc& descriptor ) : ULockable( descriptor, CLASS_ITEM )
-{
-}
+UDoor::UDoor( const Items::DoorDesc& descriptor ) :
+  ULockable( descriptor, CLASS_ITEM )
+{}
 
 void UDoor::builtin_on_use( Network::Client* client )
 {
@@ -36,7 +36,7 @@ void UDoor::builtin_on_use( Network::Client* client )
 
 void UDoor::toggle()
 {
-  const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc() );
+  const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc( ) );
 
   unsigned short oldx = x, oldy = y;
 
@@ -64,7 +64,7 @@ void UDoor::toggle()
 
 bool UDoor::is_open() const
 {
-  const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc() );
+  const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc( ) );
   if ( graphic == dd->open_graphic )
     return true;
   else

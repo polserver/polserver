@@ -79,7 +79,7 @@ enum USKILLID
 
   // additional skills, that the client can't directly know about, go here.
   SKILLID__HIGHEST = 57,
-  SKILLID__COUNT  // use for array sizes, etc.
+  SKILLID__COUNT // use for array sizes, etc.
 };
 }
 }

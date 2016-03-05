@@ -17,9 +17,8 @@ struct MapShape
   unsigned int flags;
 };
 
-class MapShapeList : public std::vector<MapShape>
-{
-};
+class MapShapeList : public std::vector<MapShape> {};
+
 }
 }
 #endif

@@ -19,7 +19,7 @@
 #include <stdexcept>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecated POSIX fopen warning
+#pragma warning(disable:4996) // deprecated POSIX fopen warning
 #endif
 
 namespace Pol
@@ -40,6 +40,7 @@ void EScriptProgram::erase()
   dbg_functions.clear();
   dbg_ins_blocks.clear();
   dbg_ins_statementbegin.clear();
+
 }
 
 void EScriptProgram::update_dbg_pos( const Token& token )
@@ -111,7 +112,7 @@ void EScriptProgram::addToken( const Token& token )
 
   switch ( token.type )
   {
-  case TYP_OPERAND:  // is variable name, long, double, string lit
+  case TYP_OPERAND: // is variable name, long, double, string lit
   {
     unsigned sympos = 0;
     switch ( token.id )
@@ -122,7 +123,7 @@ void EScriptProgram::addToken( const Token& token )
     case TOK_DOUBLE:
       symbols.append( token.dval, sympos );
       break;
-    case TOK_STRING:  // string literal
+    case TOK_STRING: // string literal
       symbols.append( token.tokval(), sympos );
       break;
     case INS_ADDMEMBER2:
@@ -138,11 +139,12 @@ void EScriptProgram::addToken( const Token& token )
     default:
       break;
     }
-    tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ), &tokpos );
+    tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ),
+                       &tokpos );
   }
   break;
 
-  case TYP_USERFUNC:  // these don't do anything.
+  case TYP_USERFUNC: // these don't do anything.
     return;
 
   case TYP_METHOD:
@@ -155,18 +157,22 @@ void EScriptProgram::addToken( const Token& token )
       symbols.append( token.tokval(), sympos );
 
       tokens.append_tok(
-          StoredToken(
-              token.module, token.id,
-              static_cast<BTokenType>(
-                  token.lval ),  // # of params, stored in Token.lval, saved in StoredToken.type
-              sympos ),
-          &tokpos );
+        StoredToken( token.module,
+                     token.id,
+                     static_cast<BTokenType>( token.lval ),// # of params, stored in Token.lval, saved in StoredToken.type
+                     sympos ),
+        &tokpos );
     }
     else
     {
-      tokens.append_tok( StoredToken( token.module, token.id, static_cast<BTokenType>( token.lval ),
-                                      static_cast<unsigned>( token.dval ) ),
-                         &tokpos );
+
+      tokens.append_tok(
+        StoredToken( token.module,
+                     token.id,
+                     static_cast<BTokenType>( token.lval ),
+                     static_cast<unsigned>( token.dval ) ),
+        &tokpos );
+
     }
   }
   break;
@@ -179,12 +185,12 @@ void EScriptProgram::addToken( const Token& token )
         symbols.append( token.tokval(), sympos );
     }
     tokens.append_tok(
-        StoredToken(
-            token.module, token.id,
-            static_cast<BTokenType>(
-                token.lval ),  // function index, stored in Token.lval, saved in StoredToken.type
-            sympos ),
-        &tokpos );
+      StoredToken( token.module,
+                   token.id,
+                   static_cast<BTokenType>( token.lval ),// function index, stored in Token.lval, saved in StoredToken.type
+                   sympos ),
+      &tokpos );
+
   }
   break;
 
@@ -195,29 +201,50 @@ void EScriptProgram::addToken( const Token& token )
     {
       // array subscript operators store their
       // array index number in offset
-      tokens.append_tok( StoredToken( token.module, token.id, token.type, token.lval ) );
+      tokens.append_tok(
+        StoredToken( token.module,
+                     token.id,
+                     token.type,
+                     token.lval ) );
     }
-    else if ( token.id == INS_GET_MEMBER || token.id == INS_SET_MEMBER ||
+    else if ( token.id == INS_GET_MEMBER ||
+              token.id == INS_SET_MEMBER ||
               token.id == INS_SET_MEMBER_CONSUME )
     {
       unsigned sympos = 0;
       symbols.append( token.tokval(), sympos );
-      tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ), &tokpos );
+      tokens.append_tok(
+        StoredToken( token.module,
+                     token.id,
+                     token.type,
+                     sympos ),
+        &tokpos );
+
     }
     else
     {
-      tokens.append_tok( StoredToken( token.module, token.id, token.type, token.lval ), &tokpos );
+      tokens.append_tok(
+        StoredToken( token.module,
+                     token.id,
+                     token.type,
+                     token.lval ),
+        &tokpos );
     }
     break;
   case TYP_CONTROL:
     switch ( token.id )
     {
     case CTRL_MAKELOCAL:
-      tokens.append_tok( StoredToken( token.module, token.id, token.type ) );
+      tokens.append_tok( StoredToken( token.module,
+                                      token.id,
+                                      token.type ) );
       break;
 
     case CTRL_JSR_USERFUNC:
-      tokens.append_tok( StoredToken( token.module, token.id, token.type, 0 ), &tokpos );
+      tokens.append_tok( StoredToken( token.module,
+                                      token.id,
+                                      token.type,
+                                      0 ), &tokpos );
       token.userfunc->forward_callers.push_back( tokpos );
       break;
 
@@ -238,7 +265,7 @@ void EScriptProgram::addToken( const Token& token )
     break;
   default:
     ERROR_PRINT << "AddToken: Can't handle " << token << "\n";
-    throw std::runtime_error( "Unexpected Token passed to AddToken() (2)" );
+    throw std::runtime_error("Unexpected Token passed to AddToken() (2)");
     break;
   }
 
@@ -255,7 +282,7 @@ int EScriptProgram::write( const char* fname )
   BSCRIPT_FILE_HDR hdr;
   hdr.magic2[0] = BSCRIPT_FILE_MAGIC0;
   hdr.magic2[1] = BSCRIPT_FILE_MAGIC1;
-  hdr.version = ESCRIPT_FILE_VER_CURRENT;  // auto-set to latest version (see filefmt.h)
+  hdr.version = ESCRIPT_FILE_VER_CURRENT; // auto-set to latest version (see filefmt.h)
   hdr.globals = static_cast<unsigned short>( globalvarnames.size() );
   fwrite( &hdr, sizeof hdr, 1, fp );
 
@@ -366,7 +393,7 @@ int EScriptProgram::write_dbg( const char* fname, bool gen_txt )
 
   FILE* fptext = NULL;
   if ( gen_txt )
-    fptext = fopen( ( std::string( fname ) + ".txt" ).c_str(), "wt" );
+    fptext = fopen((std::string(fname) + ".txt").c_str(), "wt");
 
   u32 count;
 
@@ -399,8 +426,13 @@ int EScriptProgram::write_dbg( const char* fname, bool gen_txt )
   for ( unsigned i = 0; i < tokens.count(); ++i )
   {
     if ( fptext )
-      fprintf( fptext, "Ins %u: File %u, Line %u, Block %u %s\n", i, dbg_filenum[i], dbg_linenum[i],
-               dbg_ins_blocks[i], ( dbg_ins_statementbegin[i] ? "StatementBegin" : "" ) );
+      fprintf( fptext,
+               "Ins %u: File %u, Line %u, Block %u %s\n",
+               i,
+               dbg_filenum[i],
+               dbg_linenum[i],
+               dbg_ins_blocks[i],
+               ( dbg_ins_statementbegin[i] ? "StatementBegin" : "" ) );
     BSCRIPT_DBG_INSTRUCTION ins;
     ins.filenum = dbg_filenum[i];
     ins.linenum = dbg_linenum[i];
@@ -442,9 +474,9 @@ int EScriptProgram::write_dbg( const char* fname, bool gen_txt )
         if ( fptext )
           fprintf( fptext, "      %u: %s\n", varfirst + j, varname.c_str() );
 
-        count = static_cast<unsigned int>( varname.size() + 1 );
+        count = static_cast<unsigned int>(varname.size() + 1 );
         fwrite( &count, sizeof count, 1, fp );
-        fwrite( varname.c_str(), count, 1, fp );
+        fwrite(varname.c_str(), count, 1, fp );
       }
     }
   }
@@ -493,7 +525,7 @@ int EScriptProgram::add_dbg_filename( const std::string& filename )
   return static_cast<int>( dbg_filenames.size() - 1 );
 }
 
-std::string EScriptProgram::dbg_get_instruction( size_t atPC ) const
+std::string EScriptProgram::dbg_get_instruction(size_t atPC) const
 {
   OSTRINGSTREAM os;
   os << instr[atPC].token;
@@ -534,7 +566,8 @@ void EScriptProgram::enterblock()
 void EScriptProgram::leaveblock()
 {
   passert( curblock );
-  bool remove = blocks[curblock].localvarnames.empty() && curblock == blocks.size() - 1;
+  bool remove = blocks[curblock].localvarnames.empty() &&
+                curblock == blocks.size() - 1;
   curblock = blocks[curblock].parentblockidx;
   if ( remove )
   {
@@ -546,11 +579,11 @@ void EScriptProgram::leaveblock()
     }
   }
 }
-void EScriptProgram::addlocalvar( const std::string& localvarname )
+void EScriptProgram::addlocalvar(const std::string& localvarname)
 {
   blocks[curblock].localvarnames.push_back( localvarname );
 }
-void EScriptProgram::addfunction( std::string funcname, unsigned firstPC, unsigned lastPC )
+void EScriptProgram::addfunction(std::string funcname, unsigned firstPC, unsigned lastPC)
 {
   EPDbgFunction func;
   func.name = funcname;
@@ -561,36 +594,36 @@ void EScriptProgram::addfunction( std::string funcname, unsigned firstPC, unsign
 
 size_t EScriptProgram::sizeEstimate() const
 {
-  size_t size = sizeof( EScriptProgram ) + program_decl.capacity();
-  size += 3 * sizeof( std::string* ) + sourcelines.capacity() * sizeof( std::string );
+  size_t size = sizeof(EScriptProgram)
+                + program_decl.capacity();
+  size += 3 * sizeof( std::string*) + sourcelines.capacity() * sizeof( std::string );
   for ( const auto& l : sourcelines )
     size += l.capacity();
-  size += 3 * sizeof( std::string* ) + fileline.capacity() * sizeof( std::string );
+  size += 3 * sizeof( std::string*) + fileline.capacity() * sizeof( std::string );
   for ( const auto& l : fileline )
     size += l.capacity();
-  size += 3 * sizeof( std::string* ) + function_decls.capacity() * sizeof( std::string );
+  size += 3 * sizeof( std::string*) + function_decls.capacity() * sizeof( std::string );
   for ( const auto& l : function_decls )
     size += l.capacity();
-  size += 3 * sizeof( std::string* ) + globalvarnames.capacity() * sizeof( std::string );
+  size += 3 * sizeof( std::string*) + globalvarnames.capacity() * sizeof( std::string );
   for ( const auto& l : globalvarnames )
     size += l.capacity();
-  size += 3 * sizeof( std::string* ) + dbg_filenames.capacity() * sizeof( std::string );
+  size += 3 * sizeof( std::string*) + dbg_filenames.capacity() * sizeof( std::string );
   for ( const auto& l : dbg_filenames )
     size += l.capacity();
-  size += 3 * sizeof( unsigned* ) + dbg_filenum.capacity() * sizeof( unsigned );
-  size += 3 * sizeof( unsigned* ) + dbg_linenum.capacity() * sizeof( unsigned );
-  size += 3 * sizeof( unsigned* ) + dbg_ins_blocks.capacity() * sizeof( unsigned );
-  size += 3 * sizeof( bool* ) + dbg_ins_statementbegin.capacity() * sizeof( bool );
+  size += 3 * sizeof(unsigned*)+dbg_filenum.capacity() * sizeof( unsigned );
+  size += 3 * sizeof(unsigned*)+dbg_linenum.capacity() * sizeof( unsigned );
+  size += 3 * sizeof(unsigned*)+dbg_ins_blocks.capacity() * sizeof( unsigned );
+  size += 3 * sizeof(bool*)+dbg_ins_statementbegin.capacity() * sizeof( bool );
 
-  size += 3 * sizeof( FunctionalityModule** ) + modules.capacity() * sizeof( FunctionalityModule* );
-  size += 3 * sizeof( EPExportedFunction* ) +
-          exported_functions.capacity() * sizeof( EPExportedFunction );
+  size += 3 * sizeof(FunctionalityModule**)+modules.capacity() * sizeof( FunctionalityModule*);
+  size += 3 * sizeof(EPExportedFunction*)+exported_functions.capacity() * sizeof( EPExportedFunction );
 
 
-  size += 3 * sizeof( Instruction* ) + instr.capacity() * sizeof( Instruction );
+  size += 3 * sizeof(Instruction*)+instr.capacity() * sizeof( Instruction );
 
-  size += 3 * sizeof( EPDbgBlock* ) + blocks.capacity() * sizeof( EPDbgBlock );
-  size += 3 * sizeof( EPDbgFunction* ) + dbg_functions.capacity() * sizeof( EPDbgFunction );
+  size += 3 * sizeof(EPDbgBlock*)+blocks.capacity() * sizeof( EPDbgBlock );
+  size += 3 * sizeof(EPDbgFunction*)+dbg_functions.capacity() * sizeof( EPDbgFunction );
 
   return size;
 }

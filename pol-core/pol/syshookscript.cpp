@@ -17,7 +17,7 @@
 #include <string>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp
+#pragma warning(disable:4996) // disable deprecation warning for stricmp
 #endif
 
 namespace Pol
@@ -32,9 +32,9 @@ ExportScript::ExportScript( const Plib::Package* pkg, std::string scriptname )
   sd.config( scriptname, pkg, "", true );
 }
 
-ExportScript::ExportScript( const ScriptDef& isd ) : sd( isd )
-{
-}
+ExportScript::ExportScript( const ScriptDef& isd ) :
+  sd( isd )
+{}
 
 bool ExportScript::Initialize()
 {
@@ -47,8 +47,7 @@ const std::string& ExportScript::scriptname() const
   return sd.name();
 }
 
-bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
-                                         unsigned& PC ) const
+bool ExportScript::FindExportedFunction( const std::string& name, unsigned args, unsigned& PC ) const
 {
   const EScriptProgram* prog = uoexec.prog();
   for ( unsigned i = 0; i < prog->exported_functions.size(); ++i )
@@ -58,8 +57,10 @@ bool ExportScript::FindExportedFunction( const std::string& name, unsigned args,
     {
       if ( args != exportedfunc->nargs )
       {
-        INFO_PRINT << "Exported function " << name << " in script " << scriptname() << " takes "
-                   << exportedfunc->nargs << " parameters, expected " << args << "\n";
+        INFO_PRINT << "Exported function " << name
+                   << " in script " << scriptname()
+                   << " takes " << exportedfunc->nargs
+                   << " parameters, expected " << args << "\n";
         return false;
       }
       PC = exportedfunc->PC;
@@ -79,8 +80,10 @@ bool ExportScript::FindExportedFunction( const char* name, unsigned args, unsign
     {
       if ( args != exportedfunc->nargs )
       {
-        INFO_PRINT << "Exported function " << name << " in script " << scriptname() << " takes "
-                   << exportedfunc->nargs << " parameters, expected " << args << "\n";
+        INFO_PRINT << "Exported function " << name
+                   << " in script " << scriptname()
+                   << " takes " << exportedfunc->nargs
+                   << " parameters, expected " << args << "\n";
         return false;
       }
       PC = exportedfunc->PC;
@@ -91,12 +94,15 @@ bool ExportScript::FindExportedFunction( const char* name, unsigned args, unsign
 }
 
 
-bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2,
+bool ExportScript::call( unsigned PC,
+                         BObjectImp* p0,
+                         BObjectImp* p1,
+                         BObjectImp* p2,
                          BObjectImp* p3 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -126,17 +132,20 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp
 
     return istrue;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
 
-bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
+bool ExportScript::call( unsigned PC,
+                         BObjectImp* p0,
+                         BObjectImp* p1,
+                         BObjectImp* p2 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -165,17 +174,19 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp
 
     return istrue;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
 
-bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
+bool ExportScript::call( unsigned PC,
+                         BObjectImp* p0,
+                         BObjectImp* p1 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -203,17 +214,18 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     return istrue;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
 
-bool ExportScript::call( unsigned PC, BObjectImp* p0 )
+bool ExportScript::call( unsigned PC,
+                         BObjectImp* p0 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -240,16 +252,18 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0 )
 
     return istrue;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
-std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
+std::string ExportScript::call_string(
+  unsigned PC,
+  BObjectImp* p0, BObjectImp* p1 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -277,17 +291,19 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
 
     return ret;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return "exception";
   }
 }
 
-std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
+std::string ExportScript::call_string(
+  unsigned PC,
+  BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -316,17 +332,19 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
 
     return ret;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return "exception";
   }
 }
 
-int ExportScript::call_long( unsigned PC, BObjectImp* p0 )
+int ExportScript::call_long(
+  unsigned PC,
+  BObjectImp* p0 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -362,17 +380,19 @@ int ExportScript::call_long( unsigned PC, BObjectImp* p0 )
 
     return ret;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return 0;
   }
 }
 
-int ExportScript::call_long( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
+int ExportScript::call_long(
+  unsigned PC,
+  BObjectImp* p0, BObjectImp* p1 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -409,17 +429,19 @@ int ExportScript::call_long( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     return ret;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return 0;
   }
 }
 
-BObjectImp* ExportScript::call( unsigned PC, BObjectImp* p0, std::vector<BObjectRef>& pmore )
+BObjectImp* ExportScript::call( unsigned PC,
+                                BObjectImp* p0,
+                                std::vector<BObjectRef>& pmore )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -428,7 +450,8 @@ BObjectImp* ExportScript::call( unsigned PC, BObjectImp* p0, std::vector<BObject
     uoexec.pushArg( p0 );
     size_t n = pmore.size();
     for ( size_t i = 0; i < n; ++i )
-    {  // push BObjectRef so params can be pass-by-ref
+    {
+      // push BObjectRef so params can be pass-by-ref
       uoexec.pushArg( pmore[i] );
     }
 
@@ -451,17 +474,19 @@ BObjectImp* ExportScript::call( unsigned PC, BObjectImp* p0, std::vector<BObject
 
     return ret;
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return new BError( "Exception during execution" );
   }
 }
 
-BObject ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImpRefVec& pmore )
+BObject ExportScript::call( unsigned PC,
+                            BObjectImp* p0,
+                            BObjectImpRefVec& pmore )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -492,17 +517,19 @@ BObject ExportScript::call( unsigned PC, BObjectImp* p0, BObjectImpRefVec& pmore
 
     return BObject( ret );
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return BObject( new BError( "Exception during execution" ) );
   }
 }
 
-BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
+BObject ExportScript::call_object(
+  unsigned PC,
+  BObjectImp* p0, BObjectImp* p1 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -530,17 +557,19 @@ BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
 
     return BObject( ret );
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return BObject( new BError( "Exception during execution" ) );
   }
 }
 
-BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
+BObject ExportScript::call_object(
+  unsigned PC,
+  BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
 {
   try
   {
-    // build backup if function is called inside the same script
+    //build backup if function is called inside the same script
     BackupStruct backup;
     SaveStack( backup );
 
@@ -568,7 +597,7 @@ BObject ExportScript::call_object( unsigned PC, BObjectImp* p0, BObjectImp* p1, 
 
     return BObject( ret );
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return BObject( new BError( "Exception during execution" ) );
   }

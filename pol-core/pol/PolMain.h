@@ -7,6 +7,7 @@ namespace Pol
 {
 namespace Clib
 {
+
 class PolMain : public ProgramMain
 {
 public:
@@ -19,7 +20,8 @@ protected:
 private:
   virtual void showHelp();
 };
-}
-}  // namespaces
 
-#endif  // POL_MAIN_H
+}
+} // namespaces
+
+#endif // POL_MAIN_H

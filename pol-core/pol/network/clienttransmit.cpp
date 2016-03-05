@@ -8,13 +8,9 @@ namespace Pol
 {
 namespace Network
 {
-ClientTransmit::ClientTransmit() : _transmitqueue()
-{
-}
+ClientTransmit::ClientTransmit() : _transmitqueue() {}
 
-ClientTransmit::~ClientTransmit()
-{
-}
+ClientTransmit::~ClientTransmit() {}
 
 void ClientTransmit::Cancel()
 {
@@ -69,14 +65,16 @@ void ClientTransmitThread()
           Core::PolLock lock;
           Client::Delete( data->client.get_weakptr() );
         }
-        else if ( data->disconnects ) {
+        else if ( data->disconnects )
+        {
           data->client->forceDisconnect();
         }
         else if ( data->client->isReallyConnected() )
-          data->client->transmit( static_cast<void*>( &data->data[0] ), data->len, true );
+          data->client->transmit(
+            static_cast<void*>( &data->data[0] ), data->len, true );
       }
     }
-    catch ( ClientTransmitQueue::Canceled& )
+    catch ( ClientTransmitQueue::Canceled&)
     {
       return;
     }

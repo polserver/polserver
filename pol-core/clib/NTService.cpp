@@ -11,12 +11,12 @@
 #include "NTService.h"
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )
+#pragma warning( disable: 4996 )
 #endif
 
 // Custom Controls Below Here
-#define SERVICE_CONTROL_BEEP 0x000004B0
-#define SERVICE_CONTROL_STOP_POL 0x000004B1
+#define SERVICE_CONTROL_BEEP                   0x000004B0
+#define SERVICE_CONTROL_STOP_POL               0x000004B1
 namespace Pol
 {
 namespace Clib
@@ -32,7 +32,7 @@ CNTService::CNTService( const char* szServiceName )
   m_pThis = this;
 
   // Set the default service name and version
-  strncpy( m_szServiceName, szServiceName, sizeof( m_szServiceName ) - 1 );
+  strncpy( m_szServiceName, szServiceName, sizeof(m_szServiceName)-1 );
   m_iMajorVersion = 1;
   m_iMinorVersion = 0;
   m_hEventSource = NULL;
@@ -52,7 +52,7 @@ CNTService::CNTService( const char* szServiceName )
 CNTService::~CNTService()
 {
   DebugMsg( "CNTService::~CNTService()" );
-  if ( m_hEventSource )
+  if( m_hEventSource )
   {
     ::DeregisterEventSource( m_hEventSource );
   }
@@ -66,27 +66,31 @@ CNTService::~CNTService()
 BOOL CNTService::ParseStandardArgs( int argc, char* argv[] )
 {
   // See if we have any command line args we recognise
-  if ( argc <= 1 )
-    return FALSE;
+  if( argc <= 1 ) return FALSE;
 
-  if ( _stricmp( argv[1], "-v" ) == 0 )
+  if( _stricmp( argv[1], "-v" ) == 0 )
   {
+
     // Spit out version info
-    printf( "%s Version %d.%d\n", m_szServiceName, m_iMajorVersion, m_iMinorVersion );
-    printf( "The service is %s installed\n", IsInstalled() ? "currently" : "not" );
-    return TRUE;  // say we processed the argument
+    printf( "%s Version %d.%d\n",
+            m_szServiceName, m_iMajorVersion, m_iMinorVersion );
+    printf( "The service is %s installed\n",
+            IsInstalled() ? "currently" : "not" );
+    return TRUE; // say we processed the argument
+
   }
-  else if ( _stricmp( argv[1], "-i" ) == 0 )
+  else if( _stricmp( argv[1], "-i" ) == 0 )
   {
+
     // Request to install.
-    if ( IsInstalled() )
+    if( IsInstalled() )
     {
       printf( "%s is already installed\n", m_szServiceName );
     }
     else
     {
       // Try and install the copy that's running
-      if ( Install() )
+      if( Install() )
       {
         printf( "%s installed\n", m_szServiceName );
       }
@@ -95,39 +99,41 @@ BOOL CNTService::ParseStandardArgs( int argc, char* argv[] )
         printf( "%s failed to install. Error %u\n", m_szServiceName, GetLastError() );
       }
     }
-    return TRUE;  // say we processed the argument
+    return TRUE; // say we processed the argument
+
   }
-  else if ( _stricmp( argv[1], "-u" ) == 0 )
+  else if( _stricmp( argv[1], "-u" ) == 0 )
   {
+
     // Request to uninstall.
-    if ( !IsInstalled() )
+    if( !IsInstalled() )
     {
       printf( "%s is not installed\n", m_szServiceName );
     }
     else
     {
       // Try and remove the copy that's installed
-      if ( Uninstall() )
+      if( Uninstall() )
       {
         // Get the executable file path
         char szFilePath[MAX_PATH];
         ::GetModuleFileName( NULL, szFilePath, sizeof( szFilePath ) );
-        printf( "%s removed. (You must delete the file (%s) yourself.)\n", m_szServiceName,
-                szFilePath );
+        printf( "%s removed. (You must delete the file (%s) yourself.)\n",
+                m_szServiceName, szFilePath );
       }
       else
       {
         printf( "Could not remove %s. Error %u\n", m_szServiceName, GetLastError() );
       }
     }
-    return TRUE;  // say we processed the argument
+    return TRUE; // say we processed the argument
   }
-  else if ( _stricmp( argv[1], "-s" ) == 0 )
+  else if( _stricmp( argv[1], "-s" ) == 0 )
   {
     // run as a service
     printf( "Running as a service.\n" );
 
-    if ( !StartService() )
+    if( !StartService() )
     {
       printf( "Unable to run as a service.\n" );
     }
@@ -149,14 +155,17 @@ BOOL CNTService::IsInstalled()
   BOOL bResult = FALSE;
 
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( NULL,                     // local machine
-                                    NULL,                     // ServicesActive database
-                                    SC_MANAGER_ALL_ACCESS );  // full access
-  if ( hSCM )
+  SC_HANDLE hSCM = ::OpenSCManager( NULL, // local machine
+                                    NULL, // ServicesActive database
+                                    SC_MANAGER_ALL_ACCESS ); // full access
+  if( hSCM )
   {
+
     // Try to open the service
-    SC_HANDLE hService = ::OpenService( hSCM, m_szServiceName, SERVICE_QUERY_CONFIG );
-    if ( hService )
+    SC_HANDLE hService = ::OpenService( hSCM,
+                                        m_szServiceName,
+                                        SERVICE_QUERY_CONFIG );
+    if( hService )
     {
       bResult = TRUE;
       ::CloseServiceHandle( hService );
@@ -171,11 +180,10 @@ BOOL CNTService::IsInstalled()
 BOOL CNTService::Install()
 {
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( NULL,                     // local machine
-                                    NULL,                     // ServicesActive database
-                                    SC_MANAGER_ALL_ACCESS );  // full access
-  if ( !hSCM )
-    return FALSE;
+  SC_HANDLE hSCM = ::OpenSCManager( NULL, // local machine
+                                    NULL, // ServicesActive database
+                                    SC_MANAGER_ALL_ACCESS ); // full access
+  if( !hSCM ) return FALSE;
 
   // Get the executable file path
   char szFilePath[MAX_PATH];
@@ -183,12 +191,20 @@ BOOL CNTService::Install()
   strcat( szFilePath, " -s" );
 
   // Create the service
-  SC_HANDLE hService =
-      ::CreateService( hSCM, m_szServiceName, m_szServiceName, SERVICE_ALL_ACCESS,
-                       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS,
-                       SERVICE_DEMAND_START,  // start condition
-                       SERVICE_ERROR_NORMAL, szFilePath, NULL, NULL, NULL, NULL, NULL );
-  if ( !hService )
+  SC_HANDLE hService = ::CreateService( hSCM,
+                                        m_szServiceName,
+                                        m_szServiceName,
+                                        SERVICE_ALL_ACCESS,
+                                        SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS,
+                                        SERVICE_DEMAND_START,        // start condition
+                                        SERVICE_ERROR_NORMAL,
+                                        szFilePath,
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        NULL );
+  if( !hService )
   {
     ::CloseServiceHandle( hSCM );
     return FALSE;
@@ -201,7 +217,7 @@ BOOL CNTService::Install()
   HKEY hKey = NULL;
   strcpy( szKey, "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" );
   strcat( szKey, m_szServiceName );
-  if (::RegCreateKey( HKEY_LOCAL_MACHINE, szKey, &hKey ) != ERROR_SUCCESS )
+  if( ::RegCreateKey( HKEY_LOCAL_MACHINE, szKey, &hKey ) != ERROR_SUCCESS )
   {
     ::CloseServiceHandle( hService );
     ::CloseServiceHandle( hSCM );
@@ -209,12 +225,21 @@ BOOL CNTService::Install()
   }
 
   // Add the Event ID message-file name to the 'EventMessageFile' subkey.
-  ::RegSetValueEx( hKey, "EventMessageFile", 0, REG_EXPAND_SZ, (CONST BYTE*)szFilePath,
+  ::RegSetValueEx( hKey,
+                   "EventMessageFile",
+                   0,
+                   REG_EXPAND_SZ,
+                   ( CONST BYTE*)szFilePath,
                    static_cast<DWORD>( strlen( szFilePath ) + 1 ) );
 
   // Set the supported types flags.
   DWORD dwData = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-  ::RegSetValueEx( hKey, "TypesSupported", 0, REG_DWORD, (CONST BYTE*)&dwData, sizeof( DWORD ) );
+  ::RegSetValueEx( hKey,
+                   "TypesSupported",
+                   0,
+                   REG_DWORD,
+                   ( CONST BYTE*)&dwData,
+                   sizeof( DWORD ) );
   ::RegCloseKey( hKey );
 
   LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_INSTALLED, m_szServiceName );
@@ -228,17 +253,18 @@ BOOL CNTService::Install()
 BOOL CNTService::Uninstall()
 {
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( NULL,                     // local machine
-                                    NULL,                     // ServicesActive database
-                                    SC_MANAGER_ALL_ACCESS );  // full access
-  if ( !hSCM )
-    return FALSE;
+  SC_HANDLE hSCM = ::OpenSCManager( NULL, // local machine
+                                    NULL, // ServicesActive database
+                                    SC_MANAGER_ALL_ACCESS ); // full access
+  if( !hSCM ) return FALSE;
 
   BOOL bResult = FALSE;
-  SC_HANDLE hService = ::OpenService( hSCM, m_szServiceName, DELETE );
-  if ( hService )
+  SC_HANDLE hService = ::OpenService( hSCM,
+                                      m_szServiceName,
+                                      DELETE );
+  if( hService )
   {
-    if (::DeleteService( hService ) )
+    if( ::DeleteService( hService ) )
     {
       LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_REMOVED, m_szServiceName );
       bResult = TRUE;
@@ -258,7 +284,9 @@ BOOL CNTService::Uninstall()
 // Logging functions
 
 // This function makes an entry into the application event log
-void CNTService::LogEvent( WORD wType, DWORD dwID, const char* pszS1, const char* pszS2,
+void CNTService::LogEvent( WORD wType, DWORD dwID,
+                           const char* pszS1,
+                           const char* pszS2,
                            const char* pszS3 )
 {
   const char* ps[3];
@@ -267,25 +295,30 @@ void CNTService::LogEvent( WORD wType, DWORD dwID, const char* pszS1, const char
   ps[2] = pszS3;
 
   WORD iStr = 0;
-  for ( WORD i = 0; i < 3; i++ )
+  for( WORD i = 0; i < 3; i++ )
   {
-    if ( ps[i] != NULL )
-      iStr++;
+    if( ps[i] != NULL ) iStr++;
   }
 
   // Check the event source has been registered and if
   // not then register it now
-  if ( !m_hEventSource )
+  if( !m_hEventSource )
   {
-    m_hEventSource = ::RegisterEventSource( NULL,               // local machine
-                                            m_szServiceName );  // source name
+    m_hEventSource = ::RegisterEventSource( NULL,  // local machine
+                                            m_szServiceName ); // source name
   }
 
-  if ( m_hEventSource )
+  if( m_hEventSource )
   {
-    ::ReportEvent( m_hEventSource, wType, 0, dwID,
-                   NULL,  // sid
-                   iStr, 0, ps, NULL );
+    ::ReportEvent( m_hEventSource,
+                   wType,
+                   0,
+                   dwID,
+                   NULL, // sid
+                   iStr,
+                   0,
+                   ps,
+                   NULL );
   }
 }
 
@@ -294,14 +327,19 @@ void CNTService::LogEvent( WORD wType, DWORD dwID, const char* pszS1, const char
 
 BOOL CNTService::StartService()
 {
-  SERVICE_TABLE_ENTRY st[] = {{m_szServiceName, ServiceMain}, {NULL, NULL}};
+  SERVICE_TABLE_ENTRY st[] =
+  {
+    { m_szServiceName, ServiceMain },
+    { NULL, NULL }
+  };
 
   DebugMsg( "Calling StartServiceCtrlDispatcher()" );
   BOOL b = ::StartServiceCtrlDispatcher( st );
-  if ( !b )
+  if( !b )
   {
     DWORD rc = GetLastError();
     DebugMsg( "StartServiceCtrlDispatcher returned false: %d", rc );
+
   }
   DebugMsg( "Returned from StartServiceCtrlDispatcher()" );
   return b;
@@ -316,16 +354,18 @@ void CNTService::ServiceMain( DWORD /*dwArgc*/, LPTSTR* /*lpszArgv*/ )
   pService->DebugMsg( "Entering CNTService::ServiceMain()" );
   // Register the control request handler
   pService->m_Status.dwCurrentState = SERVICE_START_PENDING;
-  pService->m_hServiceStatus = RegisterServiceCtrlHandler( pService->m_szServiceName, Handler );
-  if ( pService->m_hServiceStatus == NULL )
+  pService->m_hServiceStatus = RegisterServiceCtrlHandler( pService->m_szServiceName,
+                               Handler );
+  if( pService->m_hServiceStatus == NULL )
   {
     pService->LogEvent( EVENTLOG_ERROR_TYPE, EVMSG_CTRLHANDLERNOTINSTALLED );
     return;
   }
 
   // Start the initialisation
-  if ( pService->Initialize() )
+  if( pService->Initialize() )
   {
+
     // Do the real work.
     // When the Run function returns, the service has stopped.
     pService->m_bIsRunning = TRUE;
@@ -368,7 +408,7 @@ BOOL CNTService::Initialize()
   m_Status.dwWin32ExitCode = GetLastError();
   m_Status.dwCheckPoint = 0;
   m_Status.dwWaitHint = 0;
-  if ( !bResult )
+  if( !bResult )
   {
     LogEvent( EVENTLOG_ERROR_TYPE, EVMSG_FAILEDINIT );
     SetStatus( SERVICE_STOPPED );
@@ -391,7 +431,7 @@ void CNTService::Run()
 {
   DebugMsg( "Entering CNTService::Run()" );
 
-  while ( m_bIsRunning )
+  while( m_bIsRunning )
   {
     DebugMsg( "Sleeping..." );
     Sleep( 5000 );
@@ -412,35 +452,35 @@ void CNTService::Handler( DWORD dwOpcode )
   CNTService* pService = m_pThis;
 
   pService->DebugMsg( "CNTService::Handler(%lu)", dwOpcode );
-  switch ( dwOpcode )
+  switch( dwOpcode )
   {
-  case SERVICE_CONTROL_STOP:  // 1
+  case SERVICE_CONTROL_STOP: // 1
     pService->SetStatus( SERVICE_STOP_PENDING );
     pService->OnStop();
     pService->m_bIsRunning = FALSE;
     pService->LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_STOPPED );
     break;
 
-  case SERVICE_CONTROL_PAUSE:  // 2
+  case SERVICE_CONTROL_PAUSE: // 2
     pService->OnPause();
     break;
 
-  case SERVICE_CONTROL_CONTINUE:  // 3
+  case SERVICE_CONTROL_CONTINUE: // 3
     pService->OnContinue();
     break;
 
-  case SERVICE_CONTROL_INTERROGATE:  // 4
+  case SERVICE_CONTROL_INTERROGATE: // 4
     pService->OnInterrogate();
     break;
 
-  case SERVICE_CONTROL_SHUTDOWN:  // 5
+  case SERVICE_CONTROL_SHUTDOWN: // 5
     pService->OnShutdown();
     break;
 
   default:
-    if ( dwOpcode >= SERVICE_CONTROL_USER )
+    if( dwOpcode >= SERVICE_CONTROL_USER )
     {
-      if ( !pService->OnUserControl( dwOpcode ) )
+      if( !pService->OnUserControl( dwOpcode ) )
       {
         pService->LogEvent( EVENTLOG_ERROR_TYPE, EVMSG_BADREQUEST );
       }
@@ -453,7 +493,8 @@ void CNTService::Handler( DWORD dwOpcode )
   }
 
   // Report current status
-  pService->DebugMsg( "Updating status (%lu, %lu)", pService->m_hServiceStatus,
+  pService->DebugMsg( "Updating status (%lu, %lu)",
+                      pService->m_hServiceStatus,
                       pService->m_Status.dwCurrentState );
   ::SetServiceStatus( pService->m_hServiceStatus, &pService->m_Status );
 }
@@ -500,12 +541,12 @@ BOOL CNTService::OnUserControl( DWORD dwOpcode )
 {
   CNTService* pService = m_pThis;
 
-  switch ( dwOpcode )
+  switch( dwOpcode )
   {
-  case SERVICE_CONTROL_BEEP:  // 1200
+  case SERVICE_CONTROL_BEEP: // 1200
     Beep( 1200, 200 );
     break;
-  case SERVICE_CONTROL_STOP_POL:  // 1201
+  case SERVICE_CONTROL_STOP_POL: // 1201
     pService->SetStatus( SERVICE_STOP_PENDING );
     pService->OnStop();
     pService->m_bIsRunning = FALSE;
@@ -513,14 +554,14 @@ BOOL CNTService::OnUserControl( DWORD dwOpcode )
     break;
   default:
     DebugMsg( "CNTService::OnUserControl(%8.8lXH)", dwOpcode );
-    return FALSE;  // say not handled
+    return FALSE; // say not handled
     break;
   }
 
   // if it makes it this far, something's wrong anyway.
   // left in for contrivance
   DebugMsg( "CNTService::OnUserControl(%8.8lXH)", dwOpcode );
-  return FALSE;  // say not handled
+  return FALSE; // say not handled
 }
 
 

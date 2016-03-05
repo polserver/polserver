@@ -13,8 +13,7 @@ namespace Pol
 namespace Multi
 {
 UPlank::UPlank( const Items::ItemDesc& descriptor ) : Core::ULockable( descriptor, CLASS_ITEM )
-{
-}
+{}
 
 void UPlank::setboat( UBoat* boat )
 {
@@ -27,9 +26,9 @@ void UPlank::destroy()
   base::destroy();
 }
 
-size_t UPlank::estimatedSize() const
+size_t UPlank::estimatedSize( ) const
 {
-  return base::estimatedSize() + sizeof( ref_ptr<UBoat> );
+  return base::estimatedSize( ) + sizeof( ref_ptr<UBoat> );
 }
 }
 }

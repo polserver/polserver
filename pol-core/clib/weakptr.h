@@ -25,8 +25,7 @@
 //    weak_ptr<T> ref_ptr to -------------+
 //
 
-template <class T>
-class weak_ptr_owner;
+template<class T> class weak_ptr_owner;
 
 template <class T>
 class weak_ptr_link : public ref_counted
@@ -47,10 +46,10 @@ class weak_ptr : protected ref_ptr<weak_ptr_link<T>>
   typedef ref_ptr<weak_ptr_link<T>> base;
 
 public:
-  explicit weak_ptr( weak_ptr_link<T>* wpl );
+  explicit weak_ptr(weak_ptr_link<T>* wpl);
 
-  weak_ptr& operator=( const weak_ptr_link<T>* wpl );
-  weak_ptr& operator=( const weak_ptr_owner<T>& wpo );
+  weak_ptr& operator=(const weak_ptr_link<T>* wpl);
+  weak_ptr& operator=(const weak_ptr_owner<T>& wpo);
 
   T* get_weakptr() const;
   bool exists() const;
@@ -66,12 +65,11 @@ class weak_ptr_owner : public weak_ptr<T>
 public:
   weak_ptr_owner();
   ~weak_ptr_owner();
-  void set( T* obptr );
+  void set(T* obptr);
 };
 
 template <class T>
-weak_ptr_link<T>::weak_ptr_link()
-    : _ptr( 0 )
+weak_ptr_link<T>::weak_ptr_link() : _ptr( 0 )
 {
 }
 template <class T>
@@ -91,8 +89,7 @@ void weak_ptr_link<T>::set_weakptr( T* ptr )
 }
 
 template <class T>
-weak_ptr<T>::weak_ptr( weak_ptr_link<T>* wpl )
-    : ref_ptr<weak_ptr_link<T>>( wpl )
+weak_ptr<T>::weak_ptr( weak_ptr_link<T>* wpl ) : ref_ptr<weak_ptr_link<T>>( wpl )
 {
 }
 template <class T>
@@ -134,8 +131,7 @@ T& weak_ptr<T>::operator*() const
 }
 
 template <class T>
-weak_ptr_owner<T>::weak_ptr_owner()
-    : weak_ptr<T>(new weak_ptr_link<T>)
+weak_ptr_owner<T>::weak_ptr_owner() : weak_ptr<T>( new weak_ptr_link<T> )
 {
 }
 template <class T>

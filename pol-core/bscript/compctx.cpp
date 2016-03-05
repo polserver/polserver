@@ -13,26 +13,31 @@ namespace Pol
 {
 namespace Bscript
 {
-CompilerContext::CompilerContext()
-    : s( NULL ), line( 1 ), filename( "" ), s_begin( NULL ), dbg_filenum( 0 )
-{
-}
+CompilerContext::CompilerContext() :
+  s( NULL ),
+  line( 1 ),
+  filename( "" ),
+  s_begin( NULL ),
+  dbg_filenum( 0 )
+{}
 
-CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const char* s )
-    : s( s ), line( 1 ), filename( filename ), s_begin( s ), dbg_filenum( dbg_filenum )
-{
-}
+CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const char* s ) :
+  s( s ),
+  line( 1 ),
+  filename( filename ),
+  s_begin( s ),
+  dbg_filenum( dbg_filenum )
+{}
 
-CompilerContext::CompilerContext( const CompilerContext& ctx )
-    : s( ctx.s ),
-      line( ctx.line ),
-      filename( ctx.filename ),
-      s_begin( ctx.s_begin ),
-      dbg_filenum( ctx.dbg_filenum )
-{
-}
+CompilerContext::CompilerContext( const CompilerContext& ctx ) :
+  s( ctx.s ),
+  line( ctx.line ),
+  filename( ctx.filename ),
+  s_begin( ctx.s_begin ),
+  dbg_filenum( ctx.dbg_filenum )
+{}
 
-CompilerContext& CompilerContext::operator=( const CompilerContext& rhs )
+CompilerContext& CompilerContext::operator =( const CompilerContext& rhs )
 {
   filename = rhs.filename;
   s = rhs.s;
@@ -70,7 +75,7 @@ int CompilerContext::skipcomments()
       // FIXME:     contains_tabs = true;
       if ( tctx.s[0] == '\n' )
         ++tctx.line;
-      tctx.s++;  // wow neat, already take care of newlines
+      tctx.s++; // wow neat, already take care of newlines
     }
 
     if ( !tctx.s[0] )
@@ -80,20 +85,18 @@ int CompilerContext::skipcomments()
     }
 
     // look for comments
-    if ( strncmp( tctx.s, "/*", 2 ) == 0 )  // got a start of comment
+    if ( strncmp( tctx.s, "/*", 2 ) == 0 )    // got a start of comment
     {
       int res;
       tctx.s += 2;
       res = eatToCommentEnd( tctx );
-      if ( res )
-        return res;
+      if ( res ) return res;
     }
-    else if ( strncmp( tctx.s, "//", 2 ) == 0 )  // comment, one line only
+    else if ( strncmp( tctx.s, "//", 2 ) == 0 ) // comment, one line only
     {
       int res;
       res = eatToEndOfLine( tctx );
-      if ( res )
-        return res;
+      if ( res ) return res;
     }
     else
     {
@@ -157,18 +160,16 @@ int eatToCommentEnd( CompilerContext& ctx )
       ctx = tmp;
       return 0;
     }
-    else if ( strncmp( tmp.s, "/*", 2 ) == 0 )  // nested comment
+    else if ( strncmp( tmp.s, "/*", 2 ) == 0 ) // nested comment
     {
       tmp.s += 2;
       int res = eatToCommentEnd( tmp );
-      if ( res )
-        return res;
+      if ( res ) return res;
     }
-    else if ( strncmp( tmp.s, "//", 2 ) == 0 )  // nested eol-comment
+    else if ( strncmp( tmp.s, "//", 2 ) == 0 ) // nested eol-comment
     {
       int res = eatToEndOfLine( tmp );
-      if ( res )
-        return res;
+      if ( res ) return res;
     }
     if ( tmp.s[0] == '\n' )
       ++tmp.line;
@@ -176,5 +177,6 @@ int eatToCommentEnd( CompilerContext& ctx )
   }
   return -1;
 }
+
 }
 }

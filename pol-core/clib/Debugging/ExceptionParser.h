@@ -7,6 +7,7 @@ namespace Pol
 {
 namespace Clib
 {
+
 class ExceptionParser
 {
 public:
@@ -24,7 +25,7 @@ public:
    * @param stackTrace the stack trace of the abort
    * @param reason a descriptive text about the reason for the abort
    */
-  static void reportProgramAbort( std::string stackTrace, std::string reason );
+  static void reportProgramAbort(std::string stackTrace, std::string reason);
 
   /**
    * @brief Logs stack traces of all threads to stdout and error output
@@ -39,8 +40,7 @@ public:
   /**
    * @brief Configures the bug reporting system
    */
-  static void configureProgramAbortReportingSystem( bool active, std::string server,
-                                                    std::string url, std::string reporter );
+  static void configureProgramAbortReportingSystem(bool active, std::string server, std::string url, std::string reporter);
 
   /**
    * @brief Returns true if the bug reporting is active
@@ -50,16 +50,17 @@ public:
   /**
    * @brief Handles exceptions
    */
-  static void handleExceptionSignal( int signal );
+  static void handleExceptionSignal(int signal);
 
 private:
-  static bool m_programAbortReporting;
-  static std::string m_programAbortReportingServer;
-  static std::string m_programAbortReportingUrl;
-  static std::string m_programAbortReportingReporter;
-  static std::string m_programStart;
+  static bool              m_programAbortReporting;
+  static std::string       m_programAbortReportingServer;
+  static std::string       m_programAbortReportingUrl;
+  static std::string       m_programAbortReportingReporter;
+  static std::string       m_programStart;
 };
+
 }
-}  // namespaces
+} // namespaces
 
 #endif

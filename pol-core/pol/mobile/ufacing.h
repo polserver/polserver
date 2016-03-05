@@ -32,12 +32,12 @@ const char* FacingStr( Core::UFACING facing );
 
 Core::UFACING direction_toward( const Character* src, const Core::UObject* idst );
 Core::UFACING direction_toward( const Character* src, Core::xcoord to_x, Core::ycoord to_y );
-Core::UFACING direction_toward( Core::xcoord from_x, Core::ycoord from_y, Core::xcoord to_x,
-                                Core::ycoord to_y );
+Core::UFACING direction_toward( Core::xcoord from_x, Core::ycoord from_y, Core::xcoord to_x, Core::ycoord to_y );
 
 Core::UFACING direction_away( const Character* src, const Core::UObject* idst );
 Core::UFACING direction_away( const Character* src, Core::xcoord from_x, Core::ycoord from_y );
 }
 }
 
-#endif  // UFACING_H
+#endif // UFACING_H
+

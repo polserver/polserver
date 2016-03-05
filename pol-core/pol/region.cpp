@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2005/01/23 Shinigami: RegionGroupBase::Con-/Destructor - Tokuno MapDimension doesn't fit blocks
- * of 32x32 (ZONE_SIZE)
+ * - 2005/01/23 Shinigami: RegionGroupBase::Con-/Destructor - Tokuno MapDimension doesn't fit blocks of 32x32 (ZONE_SIZE)
  */
 
 #include "region.h"
@@ -23,18 +22,20 @@ namespace Pol
 {
 namespace Core
 {
-Region::Region( Clib::ConfigElem& elem, RegionId id )
-    : name_( elem.rest() ), regionid_( id ), proplist_( Core::CPropProfiler::Type::REGION )
-{
-}
+Region::Region( Clib::ConfigElem& elem, RegionId id ) :
+  name_( elem.rest() ),
+  regionid_( id ),
+  proplist_( Core::CPropProfiler::Type::REGION )
+{}
 
 Region::~Region()
-{
-}
+{}
 
 size_t Region::estimateSize() const
 {
-  return name_.capacity() + sizeof( RegionId ) + proplist_.estimatedSize();
+  return name_.capacity()
+         + sizeof(RegionId)
+         + proplist_.estimatedSize();
 }
 
 void Region::read_custom_config( Clib::ConfigElem& elem )
@@ -56,13 +57,15 @@ Bscript::BObjectImp* Region::get_region_string( const std::string& propname )
 }
 
 
-RegionGroupBase::RegionGroupBase( const char* name ) : name_( name )
+
+RegionGroupBase::RegionGroupBase( const char* name ) :
+  name_( name )
 {
-  // memset( &regionidx_, 0, sizeof regionidx_ );
-  for ( const auto& realm : gamestate.Realms )
+  //memset( &regionidx_, 0, sizeof regionidx_ );
+  for ( const auto& realm : gamestate.Realms)
   {
-    unsigned int gridwidth = realm->width() / ZONE_SIZE;
-    unsigned int gridheight = realm->height() / ZONE_SIZE;
+    unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
+    unsigned int gridheight = realm->height( ) / ZONE_SIZE;
 
     RegionId** zone = new RegionId*[gridwidth];
 
@@ -74,12 +77,12 @@ RegionGroupBase::RegionGroupBase( const char* name ) : name_( name )
         zone[i][j] = 0;
       }
     }
-    regionrealms.insert( std::make_pair( realm, zone ) );
+    regionrealms.insert(std::make_pair(realm, zone));
   }
 }
 RegionGroupBase::~RegionGroupBase()
 {
-  for ( auto& realm : regionrealms )
+  for ( auto& realm : regionrealms)
   {
     unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
 
@@ -98,6 +101,7 @@ RegionGroupBase::~RegionGroupBase()
     delete region;
   }
   regions_.clear();
+
 }
 
 void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
@@ -168,7 +172,7 @@ Region* RegionGroupBase::getregion_byloc( xcoord x, ycoord y, Realms::Realm* rea
 {
   RegionId ridx = getregionid( x, y, realm );
 
-  // dave 12-22 return null if no regions, don't throw
+  //dave 12-22 return null if no regions, don't throw
   std::vector<Region*>::iterator itr = regions_.begin();
   if ( ( itr += ridx ) >= regions_.end() )
     return NULL;
@@ -202,25 +206,26 @@ size_t RegionGroupBase::estimateSize() const
   {
     size += region->estimateSize();
   }
-  for ( const auto& realm : regionrealms )
+  for ( const auto& realm : regionrealms)
   {
-    if ( realm.first != nullptr )
+    if (realm.first != nullptr)
     {
       unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
-      size += gridwidth * sizeof( RegionId ) + sizeof( Realms::Realm* ) +
-              ( sizeof( void* ) * 3 + 1 ) / 2;
+      size+=gridwidth*sizeof(RegionId) + sizeof(Realms::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
     }
   }
   size += name_.capacity();
-  for ( const auto& realm : regions_byname_ )
+  for ( const auto& realm : regions_byname_)
   {
-    size += realm.first.capacity() + sizeof( Region* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += realm.first.capacity() + sizeof(Region*) + ( sizeof(void*) * 3 + 1 ) / 2;
   }
   return size;
 }
 
-void read_region_data( RegionGroupBase& grp, const char* preferred_filename,
-                       const char* other_filename, const char* tags_expected )
+void read_region_data( RegionGroupBase& grp,
+                       const char* preferred_filename,
+                       const char* other_filename,
+                       const char* tags_expected )
 {
   const char* filename;
   if ( Clib::FileExists( preferred_filename ) )

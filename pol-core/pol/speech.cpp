@@ -55,11 +55,10 @@ namespace Pol
 {
 namespace Core
 {
-void handle_processed_speech( Network::Client* client, char* textbuf, int textbuflen,
-                              char firstchar, u8 type, u16 color, u16 font )
+
+void handle_processed_speech( Network::Client* client, char* textbuf, int textbuflen, char firstchar, u8 type, u16 color, u16 font )
 {
-  // ENHANCE: if (intextlen+1) != textbuflen, then the input line was 'dirty'.  May want to log this
-  // fact.
+  // ENHANCE: if (intextlen+1) != textbuflen, then the input line was 'dirty'.  May want to log this fact.
 
   if ( textbuflen == 1 )
     return;
@@ -81,7 +80,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
     return;
   }
 
-  if ( firstchar == '~' )  // we strip tildes out
+  if ( firstchar == '~' ) // we strip tildes out
   {
     process_tildecommand( client, textbuf );
     return;
@@ -95,7 +94,8 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
 
   if ( Plib::systemstate.config.show_speech_colors )
   {
-    INFO_PRINT << chr->name() << " speaking w/ color 0x" << fmt::hexu( cfBEu16( color ) ) << "\n";
+    INFO_PRINT << chr->name( ) << " speaking w/ color 0x"
+               << fmt::hexu( cfBEu16( color ) ) << "\n";
   }
 
   u16 textlen = static_cast<u16>( textbuflen + 1 );
@@ -106,7 +106,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   talkmsg->offset += 2;
   talkmsg->Write<u32>( chr->serial_ext );
   talkmsg->WriteFlipped<u16>( chr->graphic );
-  talkmsg->Write<u8>( type );  // FIXME authorize
+  talkmsg->Write<u8>( type ); // FIXME authorize
   talkmsg->WriteFlipped<u16>( textcol );
   talkmsg->WriteFlipped<u16>( font );
   talkmsg->Write( chr->name().c_str(), 30 );
@@ -143,49 +143,46 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* other_chr )
-      {
-        Network::Client* client2 = other_chr->client;
-        if ( client == client2 )
-          return;
-        if ( !other_chr->is_visible_to_me( chr ) )
-          return;
-        if ( other_chr->deafened() )
-          return;
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *other_chr )
+  {
+    Network::Client* client2 = other_chr->client;
+    if ( client == client2 ) return;
+    if ( !other_chr->is_visible_to_me( chr ) ) return;
+    if ( other_chr->deafened( ) ) return;
 
-        if ( !chr->dead() || other_chr->dead() || other_chr->can_hearghosts() ||
-             chr->can_be_heard_as_ghost() )
-        {
-          talkmsg.Send( client2, len );
-        }
-        else
-        {
-          ghostmsg.Send( client2, len );
-        }
-      } );
+    if ( !chr->dead() ||
+         other_chr->dead() ||
+         other_chr->can_hearghosts() ||
+         chr->can_be_heard_as_ghost() )
+    {
+      talkmsg.Send( client2, len );
+    }
+    else
+    {
+      ghostmsg.Send( client2, len );
+    }
+  } );
 
   if ( !chr->dead() )
   {
-    Core::WorldIterator<Core::NPCFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-        {
-          Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-          npc->on_pc_spoke( chr, textbuf, type );
-        } );
+    Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+    {
+      Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+      npc->on_pc_spoke( chr, textbuf, type );
+    } );
   }
   else
   {
-    Core::WorldIterator<Core::NPCFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-        {
-          Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-          npc->on_ghost_pc_spoke( chr, textbuf, type );
-        } );
+    Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+    {
+      Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+      npc->on_ghost_pc_spoke( chr, textbuf, type );
+    } );
   }
 
   sayto_listening_points( client->chr, textbuf, textbuflen, type );
 }
+
 
 
 void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
@@ -202,16 +199,14 @@ void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
   if ( intextlen < 0 )
     intextlen = 0;
   if ( intextlen > SPEECH_MAX_LEN )
-    intextlen = SPEECH_MAX_LEN;  // ENHANCE: May want to log this
+    intextlen = SPEECH_MAX_LEN; // ENHANCE: May want to log this
 
   for ( i = 0, textbuflen = 0; i < intextlen; i++ )
   {
     char ch = mymsg->text[i];
 
-    if ( ch == 0 )
-      break;
-    if ( ch == '~' )
-      continue;  // skip unprintable tildes.  Probably not a reportable offense.
+    if ( ch == 0 ) break;
+    if ( ch == '~' ) continue;  // skip unprintable tildes.  Probably not a reportable offense.
 
     if ( isprint( ch ) )
       textbuf[textbuflen++] = ch;
@@ -219,12 +214,10 @@ void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
   }
   textbuf[textbuflen++] = 0;
 
-  handle_processed_speech( client, textbuf, textbuflen, mymsg->text[0], mymsg->type, mymsg->color,
-                           mymsg->font );
+  handle_processed_speech( client, textbuf, textbuflen, mymsg->text[0], mymsg->type, mymsg->color, mymsg->font );
 }
 
-void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, size_t wtextlen,
-                        char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
+void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, size_t wtextlen, char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
 {
   // validate text color
   u16 textcol = cfBEu16( msgin->color );
@@ -253,7 +246,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
     return;
   }
 
-  if ( cfBEu16( msgin->wtext[0] ) == L'~' )  // we strip tildes out
+  if ( cfBEu16( msgin->wtext[0] ) == L'~' ) // we strip tildes out
   {
     process_tildecommand( client, wtext );
     return;
@@ -267,8 +260,8 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
 
   if ( Plib::systemstate.config.show_speech_colors )
   {
-    INFO_PRINT << chr->name() << " speaking w/ color 0x" << fmt::hexu( cfBEu16( msgin->color ) )
-               << "\n";
+    INFO_PRINT << chr->name( ) << " speaking w/ color 0x"
+               << fmt::hexu( cfBEu16( msgin->color ) ) << "\n";
   }
 
   Network::PktHelper::PacketOut<Network::PktOut_AE> ghostmsg;
@@ -276,12 +269,12 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
   talkmsg->offset += 2;
   talkmsg->Write<u32>( chr->serial_ext );
   talkmsg->WriteFlipped<u16>( chr->graphic );
-  talkmsg->Write<u8>( msgin->type );  // FIXME authorize
+  talkmsg->Write<u8>( msgin->type ); // FIXME authorize
   talkmsg->WriteFlipped<u16>( textcol );
   talkmsg->WriteFlipped<u16>( msgin->font );
   talkmsg->Write( msgin->lang, 4 );
   talkmsg->Write( chr->name().c_str(), 30 );
-  talkmsg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );  // nullterm already included
+  talkmsg->Write( &wtext[0], static_cast<u16>( wtextlen ), false ); //nullterm already included
   u16 len = talkmsg->offset;
   talkmsg->offset = 1;
   talkmsg->WriteFlipped<u16>( len );
@@ -295,8 +288,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
       {
         Network::Client* client2 = networkManager.clients[cli];
-        if ( !client2->ready )
-          continue;
+        if ( !client2->ready ) continue;
         if ( thisguild->guildid() == client2->chr->guildid() )
           talkmsg.Send( client2, len );
       }
@@ -310,13 +302,11 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       for ( unsigned cli = 0; cli < networkManager.clients.size(); cli++ )
       {
         Network::Client* client2 = networkManager.clients[cli];
-        if ( !client2->ready )
-          continue;
+        if ( !client2->ready ) continue;
         auto otherguild = client2->chr->guild();
-        if ( otherguild != nullptr )
+        if (otherguild != nullptr)
         {
-          if ( thisguild->guildid() == otherguild->guildid() ||
-               ( thisguild->hasAlly( otherguild ) ) )
+          if ( thisguild->guildid() == otherguild->guildid() || ( thisguild->hasAlly( otherguild ) ) )
             talkmsg.Send( client2, len );
         }
       }
@@ -324,14 +314,14 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
   }
   else
   {
-    talkmsg.Send( client, len );  // self
+    talkmsg.Send( client, len ); // self
     if ( chr->dead() && !chr->can_be_heard_as_ghost() )
     {
       memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
 
       ghostmsg->offset = 48;
       u16* t = ( (u16*)&ghostmsg->buffer[ghostmsg->offset] );
-      while ( ghostmsg->offset < len - 2 )  // dont convert nullterm
+      while ( ghostmsg->offset < len - 2 ) // dont convert nullterm
       {
         wchar_t wch = ( *t );
         if ( !iswspace( wch ) )
@@ -353,48 +343,44 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-        {
-          Network::Client* client2 = otherchr->client;
-          if ( client == client2 )
-            return;
-          if ( !otherchr->is_visible_to_me( chr ) )
-            return;
-          if ( otherchr->deafened() )
-            return;
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+    {
+      Network::Client* client2 = otherchr->client;
+      if ( client == client2 ) return;
+      if ( !otherchr->is_visible_to_me( chr ) ) return;
+      if ( otherchr->deafened() ) return;
 
-          if ( !chr->dead() || otherchr->dead() || otherchr->can_hearghosts() ||
-               chr->can_be_heard_as_ghost() )
-          {
-            talkmsg.Send( client2, len );
-          }
-          else
-          {
-            ghostmsg.Send( client2, len );
-          }
-        } );
+      if ( !chr->dead( ) ||
+           otherchr->dead( ) ||
+           otherchr->can_hearghosts( ) ||
+           chr->can_be_heard_as_ghost( ) )
+      {
+        talkmsg.Send( client2, len );
+      }
+      else
+      {
+        ghostmsg.Send( client2, len );
+      }
+    } );
 
     if ( !chr->dead() )
     {
-      Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-          {
-            Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
-          } );
+      Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+      {
+        Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+        npc->on_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+      } );
     }
     else
     {
-      Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-          {
-            Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_ghost_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
-          } );
+      Core::WorldIterator<Core::NPCFilter>::InRange( chr->x, chr->y, chr->realm, range, [&]( Mobile::Character *otherchr )
+      {
+        Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
+        npc->on_ghost_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+      } );
     }
-    sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type, wtext,
-                            msgin->lang, static_cast<int>( wtextlen ), speechtokens );
+    sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type,
+                            wtext, msgin->lang, static_cast<int>( wtextlen ), speechtokens );
   }
 }
 u16 Get12BitNumber( u8* thearray, u16 theindex )
@@ -432,10 +418,11 @@ int GetNextUTF8( u8* bytemsg, int i, u16& unicodeChar )
   else if ( ( bytemsg[i] & 0xF0 ) == 0xE0 )
   {
     // three byte sequence
-    if ( ( ( bytemsg[i + 1] & 0xC0 ) == 0x80 ) && ( ( bytemsg[i + 2] & 0xC0 ) == 0x80 ) )
+    if ( ( ( bytemsg[i + 1] & 0xC0 ) == 0x80 ) &&
+         ( ( bytemsg[i + 2] & 0xC0 ) == 0x80 )
+       )
     {
-      result = ( ( bytemsg[i] & 0x0F ) << 12 ) | ( ( bytemsg[i + 1] & 0x3F ) < 6 ) |
-               ( bytemsg[i + 2] & 0x3F );
+      result = ( ( bytemsg[i] & 0x0F ) << 12 ) | ( ( bytemsg[i + 1] & 0x3F ) < 6 ) | ( bytemsg[i + 2] & 0x3F );
       unicodeChar = result;
       return i + 3;
     }
@@ -448,12 +435,12 @@ int GetNextUTF8( u8* bytemsg, int i, u16& unicodeChar )
 
 void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
 {
-  using std::wcout;  // wcout.narrow() function r0x! :-)
+  using std::wcout; // wcout.narrow() function r0x! :-)
 
   int intextlen;
   u16 numtokens = 0;
   u16* themsg = msgin->wtext;
-  u8* bytemsg;
+  u8*   bytemsg;
   int wtextoffset = 0;
   std::unique_ptr<Bscript::ObjArray> speechtokens( nullptr );
   int i;
@@ -487,14 +474,14 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
     themsg = tempbuf;
   }
   else
-    intextlen =
-        ( cfBEu16( msgin->msglen ) - offsetof( PKTIN_AD, wtext ) ) / sizeof( msgin->wtext[0] ) - 1;
+    intextlen = ( cfBEu16( msgin->msglen ) - offsetof( PKTIN_AD, wtext ) )
+                / sizeof( msgin->wtext[0] ) - 1;
 
   // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
   if ( intextlen < 0 )
     intextlen = 0;
   if ( intextlen > SPEECH_MAX_LEN )
-    intextlen = SPEECH_MAX_LEN;  // ENHANCE: May want to log this
+    intextlen = SPEECH_MAX_LEN; // ENHANCE: May want to log this
 
   // Preprocess the text into a sanity-checked, printable, null-terminated form
   // in 'wtextbuf' and 'ntextbuf'
@@ -503,10 +490,8 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
   for ( i = 0; i < intextlen; i++ )
   {
     u16 wc = cfBEu16( themsg[i] );
-    if ( wc == 0 )
-      break;  // quit early on embedded nulls
-    if ( wc == L'~' )
-      continue;  // skip unprintable tildes.
+    if ( wc == 0 ) break;   // quit early on embedded nulls
+    if ( wc == L'~' ) continue; // skip unprintable tildes.
     wtextbuf[wtextbuflen++] = ctBEu16( wc );
     ntextbuf[ntextbuflen++] = wcout.narrow( (wchar_t)wc, '?' );
   }
@@ -517,7 +502,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
   {
     Bscript::BLong* atoken = NULL;
     if ( speechtokens.get() == nullptr )
-      speechtokens.reset( new Bscript::ObjArray() );
+      speechtokens.reset( new Bscript::ObjArray( ) );
     for ( u16 j = 0; j < numtokens; j++ )
     {
       atoken = new Bscript::BLong( Get12BitNumber( (u8*)( msgin->wtext ), j + 1 ) );
@@ -525,15 +510,12 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
     }
     if ( gamestate.system_hooks.speechmul_hook != NULL )
     {
-      gamestate.system_hooks.speechmul_hook->call( make_mobileref( client->chr ),
-                                                   new Bscript::ObjArray( *speechtokens.get() ),
-                                                   new Bscript::String( ntextbuf ) );
+      gamestate.system_hooks.speechmul_hook->call( make_mobileref( client->chr ), new Bscript::ObjArray( *speechtokens.get( ) ), new Bscript::String( ntextbuf ) );
     }
     msgin->type &= ( ~0xC0 );  // Client won't accept C0 text type messages, so must set to 0
   }
 
-  SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen,
-                     speechtokens.release() );
+  SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen, speechtokens.release() );
 }
 }
 }

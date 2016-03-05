@@ -45,7 +45,7 @@ public:
   Addresses forward_callers;
 
   CompilerContext ctx;
-  char* function_body;  // FIXME: this is leaked
+  char* function_body; // FIXME: this is leaked
   bool exported;
   bool emitted;
   std::string declaration;
@@ -53,7 +53,6 @@ public:
 public:
   static unsigned int instances();
   static void show_instances();
-
 protected:
   static unsigned int _instances;
   static std::set<UserFunction*> _instancelist;

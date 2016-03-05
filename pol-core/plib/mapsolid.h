@@ -23,6 +23,7 @@ namespace Pol
 {
 namespace Plib
 {
+
 struct SOLIDX1_ELEM
 {
   unsigned int offset;

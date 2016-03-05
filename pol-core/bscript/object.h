@@ -9,4 +9,4 @@ extern void display_bobjectimp_instances();
 }
 }
 
-#endif  // BSCRIPT_OBJECT_H
+#endif // BSCRIPT_OBJECT_H

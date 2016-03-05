@@ -41,6 +41,7 @@ struct RepSys_Cfg
     ExportedFunction* OnDamage;
     ExportedFunction* OnHelp;
   } Hooks;
+
 };
 }
 }

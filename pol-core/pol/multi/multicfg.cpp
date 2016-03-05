@@ -5,6 +5,7 @@
  */
 
 
+
 #include "../cfgrepos.h"
 
 #include "../../plib/pkg.h"
@@ -23,21 +24,20 @@ void load_special_storedconfig( std::string cfgname )
 
   Core::CreateEmptyStoredConfigFile( main_cfg );
   ref_ptr<Core::StoredConfigFile> scfg = Core::FindConfigFile( main_cfg, "" );
-  if ( Clib::FileExists( main_cfg.c_str() ) )
+  if ( Clib::FileExists( main_cfg.c_str( ) ) )
   {
-    Clib::ConfigFile cf_main( main_cfg.c_str() );
+    Clib::ConfigFile cf_main( main_cfg.c_str( ) );
     scfg->load( cf_main );
   }
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
   {
     Plib::Package* pkg = ( *itr );
-    // string filename = pkg->dir() + cfgname + ".cfg";
-    std::string filename = Plib::GetPackageCfgPath( pkg, cfgname + ".cfg" );
-    if ( Clib::FileExists( filename.c_str() ) )
+    //string filename = pkg->dir() + cfgname + ".cfg";
+    std::string filename = Plib::GetPackageCfgPath(pkg, cfgname + ".cfg");
+    if ( Clib::FileExists( filename.c_str( ) ) )
     {
-      Clib::ConfigFile cf( filename.c_str() );
+      Clib::ConfigFile cf( filename.c_str( ) );
       scfg->load( cf );
     }
   }

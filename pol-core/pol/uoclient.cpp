@@ -23,19 +23,19 @@ namespace Pol
 {
 namespace Core
 {
-UoClientProtocol::UoClientProtocol() : EnableFlowControlPackets( false )
-{
-}
+UoClientProtocol::UoClientProtocol() :
+  EnableFlowControlPackets(false)
+{}
 size_t UoClientProtocol::estimateSize() const
 {
-  return sizeof( UoClientProtocol );
+  return sizeof(UoClientProtocol);
 }
 
 
-UoClientListener::UoClientListener( Clib::ConfigElem& elem )
-    : port( elem.remove_ushort( "PORT" ) ),
-      aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
-      sticky( elem.remove_bool( "KeepClients", false ) )
+UoClientListener::UoClientListener( Clib::ConfigElem& elem ) :
+  port( elem.remove_ushort( "PORT" ) ),
+  aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
+  sticky( elem.remove_bool( "KeepClients", false ) )
 
 {
   CalculateCryptKeys( elem.remove_string( "ENCRYPTION", "none" ), encryption );
@@ -43,7 +43,7 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
 
 size_t UoClientListener::estimateSize() const
 {
-  return sizeof( UoClientListener );
+  return sizeof(UoClientListener);
 }
 
 void checka( Clib::ConfigElem& elem, UoClientGeneral::Mapping& mapping, const char* tag )
@@ -85,13 +85,25 @@ void checkv( Clib::ConfigElem& elem, UoClientGeneral::Mapping& mapping, const ch
 // Dexterity
 void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 {
-  checka( elem, networkManager.uoclient_general.strength, "Strength" );
-  checka( elem, networkManager.uoclient_general.intelligence, "Intelligence" );
-  checka( elem, networkManager.uoclient_general.dexterity, "Dexterity" );
-  checkv( elem, networkManager.uoclient_general.hits, "Hits" );
-  checkv( elem, networkManager.uoclient_general.stamina, "Stamina" );
-  checkv( elem, networkManager.uoclient_general.mana, "Mana" );
-  // dave changed 3/15/03, support configurable max skillid
+  checka( elem,
+          networkManager.uoclient_general.strength,
+          "Strength" );
+  checka( elem,
+          networkManager.uoclient_general.intelligence,
+          "Intelligence" );
+  checka( elem,
+          networkManager.uoclient_general.dexterity,
+          "Dexterity" );
+  checkv( elem,
+          networkManager.uoclient_general.hits,
+          "Hits" );
+  checkv( elem,
+          networkManager.uoclient_general.stamina,
+          "Stamina" );
+  checkv( elem,
+          networkManager.uoclient_general.mana,
+          "Mana" );
+  //dave changed 3/15/03, support configurable max skillid
   networkManager.uoclient_general.maxskills = elem.remove_ushort( "MaxSkillID", SKILLID__HIGHEST );
   std::string temp;
   if ( elem.remove_prop( "MethodScript", &temp ) )
@@ -109,8 +121,7 @@ void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 
 void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
-  networkManager.uoclient_protocol.EnableFlowControlPackets =
-      elem.remove_bool( "EnableFlowControlPackets" );
+  networkManager.uoclient_protocol.EnableFlowControlPackets = elem.remove_bool( "EnableFlowControlPackets" );
 }
 
 void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
@@ -130,7 +141,9 @@ void load_uoclient_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 
 void load_uoclient_cfg()
 {
-  load_packaged_cfgs( "uoclient.cfg", "general protocol listener", load_uoclient_entry );
+  load_packaged_cfgs( "uoclient.cfg",
+                      "general protocol listener",
+                      load_uoclient_entry );
 }
 
 UoClientGeneral::~UoClientGeneral()
@@ -144,15 +157,21 @@ UoClientGeneral::~UoClientGeneral()
 
 size_t UoClientGeneral::Mapping::estimateSize() const
 {
-  return sizeof( bool ) + name.capacity() + sizeof( unsigned );
+  return sizeof(bool)
+         + name.capacity()
+         + sizeof(unsigned);
 }
 size_t UoClientGeneral::estimateSize() const
 {
-  size_t size = strength.estimateSize() + intelligence.estimateSize() + dexterity.estimateSize() +
-                hits.estimateSize() + stamina.estimateSize() + mana.estimateSize() +
-                sizeof( unsigned short ) /*maxskills*/
-                + sizeof( ExportScript* );
-  if ( method_script != nullptr )
+  size_t size = strength.estimateSize()
+                + intelligence.estimateSize()
+                + dexterity.estimateSize()
+                + hits.estimateSize()
+                + stamina.estimateSize()
+                + mana.estimateSize()
+                + sizeof(unsigned short) /*maxskills*/
+                + sizeof(ExportScript*);
+  if (method_script != nullptr)
     size += method_script->estimateSize();
   return size;
 }

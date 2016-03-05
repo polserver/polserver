@@ -26,8 +26,9 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
 {
   if ( client->chr->menu == NULL )
   {
-    POLLOG.Format( "{}/{} tried to use a menu, but none was active.\n" ) << client->acct->name()
-                                                                         << client->chr->name();
+    POLLOG.Format( "{}/{} tried to use a menu, but none was active.\n" )
+        << client->acct->name()
+        << client->chr->name();
     return;
   }
 
@@ -44,7 +45,7 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
 
   client->chr->menu = NULL;
 
-  if ( msg->choice == 0 )  // client cancelled menu
+  if ( msg->choice == 0 ) // client cancelled menu
   {
     client->chr->cancel_menu();
     return;
@@ -72,6 +73,7 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
   }
   else
   {
+
     passert( client->chr->on_menu_selection );
 
     client->chr->on_menu_selection( client, mi, msg );

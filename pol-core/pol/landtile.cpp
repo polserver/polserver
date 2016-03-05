@@ -19,6 +19,7 @@ namespace Pol
 {
 namespace Core
 {
+
 void load_landtile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
   unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), NULL, 0 ) );
@@ -49,5 +50,6 @@ unsigned int landtile_flags( unsigned short landtile )
   passert_always( landtile < LANDTILE_COUNT );
   return gamestate.landtiles[landtile].flags;
 }
+
 }
 }

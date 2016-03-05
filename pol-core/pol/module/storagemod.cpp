@@ -23,21 +23,24 @@ namespace Pol
 namespace Bscript
 {
 using namespace Module;
-template <>
+template<>
 TmplExecutorModule<StorageExecutorModule>::FunctionDef
-    TmplExecutorModule<StorageExecutorModule>::function_table[] = {
-        {"StorageAreas", &StorageExecutorModule::mf_StorageAreas},
-        {"FindStorageArea", &StorageExecutorModule::mf_FindStorageArea},
-        {"CreateStorageArea", &StorageExecutorModule::mf_CreateStorageArea},
-        {"FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea},
-        {"CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea},
-        {"DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea}};
-template <>
-int TmplExecutorModule<StorageExecutorModule>::function_table_size = arsize( function_table );
+TmplExecutorModule<StorageExecutorModule>::function_table[] =
+{
+  { "StorageAreas", &StorageExecutorModule::mf_StorageAreas },
+  { "FindStorageArea", &StorageExecutorModule::mf_FindStorageArea },
+  { "CreateStorageArea", &StorageExecutorModule::mf_CreateStorageArea },
+  { "FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea },
+  { "CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea },
+  { "DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea }
+};
+template<>
+int TmplExecutorModule<StorageExecutorModule>::function_table_size =
+  arsize( function_table );
 }
 namespace Core
 {
-Bscript::BObjectImp* CreateStorageAreasImp();
+Bscript::BObjectImp* CreateStorageAreasImp( );
 }
 namespace Module
 {
@@ -54,30 +57,29 @@ BObjectImp* StorageExecutorModule::mf_FindStorageArea()
   const String* str = getStringParam( 0 );
   if ( str != NULL )
   {
-    Core::StorageArea* area = Core::gamestate.storage.find_area( str->value() );
+    Core::StorageArea* area = Core::gamestate.storage.find_area( str->value( ) );
 
     if ( area )
       return new BApplicPtr( &storage_area_type, area );
   }
-  return new BLong( 0 );  // non-string passed, or not found.
+  return new BLong( 0 ); // non-string passed, or not found.
 }
 
 BObjectImp* StorageExecutorModule::mf_CreateStorageArea()
 {
-  String* name = EXPLICIT_CAST(String*, BObjectImp*)( getParamImp( 0, BObjectImp::OTString ) );
+  String* name = EXPLICIT_CAST( String*, BObjectImp*)( getParamImp( 0, BObjectImp::OTString ) );
   if ( name )
   {
-    Core::StorageArea* area = Core::gamestate.storage.create_area( name->value() );
+    Core::StorageArea* area = Core::gamestate.storage.create_area( name->value( ) );
     if ( area )
       return new BApplicPtr( &storage_area_type, area );
   }
-  return new BLong( 0 );  // non-string passed, or not found.
+  return new BLong( 0 ); // non-string passed, or not found.
 }
 
 BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 {
-  Core::StorageArea* area =
-      EXPLICIT_CAST(Core::StorageArea*, void*)( exec.getApplicPtrParam( 0, &storage_area_type ) );
+  Core::StorageArea* area = EXPLICIT_CAST( Core::StorageArea*, void*)( exec.getApplicPtrParam( 0, &storage_area_type ) );
   const String* name = getStringParam( 1 );
 
   if ( !area || !name )
@@ -93,8 +95,7 @@ BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 
 BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
 {
-  Core::StorageArea* area =
-      EXPLICIT_CAST(Core::StorageArea*, void*)( getApplicPtrParam( 0, &storage_area_type ) );
+  Core::StorageArea* area = EXPLICIT_CAST( Core::StorageArea*, void*)( getApplicPtrParam( 0, &storage_area_type ) );
   const String* name = getStringParam( 1 );
 
   if ( !area || !name )
@@ -106,8 +107,7 @@ BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
 
 BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 {
-  Core::StorageArea* area =
-      EXPLICIT_CAST(Core::StorageArea*, void*)( getApplicPtrParam( 0, &storage_area_type ) );
+  Core::StorageArea* area = EXPLICIT_CAST( Core::StorageArea*, void*)( getApplicPtrParam( 0, &storage_area_type ) );
   const String* name;
   const Items::ItemDesc* descriptor;
 
@@ -127,5 +127,7 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 
   return new EItemRefObjImp( item );
 }
+
+
 }
 }

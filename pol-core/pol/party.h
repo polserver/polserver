@@ -61,8 +61,7 @@ public:
   void set_leader( u32 serial );
   void send_remove_member( Mobile::Character* chr, bool* disband );
   void send_member_list( Mobile::Character* to_chr );
-  void send_msg_to_all( unsigned int clilocnr, const char* affix = 0,
-                        Mobile::Character* exeptchr = NULL ) const;
+  void send_msg_to_all( unsigned int clilocnr, const char* affix = 0, Mobile::Character* exeptchr = NULL ) const;
   bool test_size() const;
   bool can_add() const;
   void disband();
@@ -71,8 +70,7 @@ public:
   void on_mana_changed( Mobile::Character* chr ) const;
   void on_stam_changed( Mobile::Character* chr ) const;
   void send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const;
-  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext,
-                                size_t wtextlen ) const;
+  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext, size_t wtextlen ) const;
   u32 leader() const;
   void printOn( Clib::StreamWriter& sw ) const;
   u32 get_member_at( unsigned short pos ) const;

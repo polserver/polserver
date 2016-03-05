@@ -25,12 +25,12 @@ class Character;
 
 namespace Core
 {
+
 void read_justice_zones();
 
 class JusticeRegion : public Region
 {
   typedef Region base;
-
 public:
   JusticeRegion( Clib::ConfigElem& elem, RegionId id );
 

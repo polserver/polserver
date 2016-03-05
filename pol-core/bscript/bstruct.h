@@ -48,8 +48,7 @@ protected:
 
   virtual char packtype() const;
   virtual const char* typetag() const;
-  virtual void FormatForStringRep( std::ostream& os, const std::string& key,
-                                   const BObjectRef& bvalref ) const;
+  virtual void FormatForStringRep( std::ostream& os, const std::string& key, const BObjectRef& bvalref ) const;
 
   virtual std::string getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
@@ -61,10 +60,8 @@ protected:
 
   virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
-  virtual BObjectRef set_member( const char* membername, BObjectImp* value,
-                                 bool copy ) POL_OVERRIDE;
+  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) POL_OVERRIDE;
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
   virtual BObjectRef operDotPlus( const char* name ) POL_OVERRIDE;
   virtual BObjectRef operDotMinus( const char* name ) POL_OVERRIDE;
@@ -75,7 +72,7 @@ protected:
 
 private:
   Contents contents_;
-  BStruct& operator=( const BStruct& );  // not implemented
+  BStruct& operator=( const BStruct&);  // not implemented
 };
 }
 }

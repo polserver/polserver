@@ -19,13 +19,14 @@
 #include <stdexcept>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecated POSIX fopen warning
+#pragma warning(disable:4996) // deprecated POSIX fopen warning
 #endif
 
 namespace Pol
 {
 namespace Bscript
 {
+
 /**
  * Opens and ECL file containing bytecode and reads it
  *
@@ -46,22 +47,24 @@ int EScriptProgram::read( const char* fname )
     BSCRIPT_FILE_HDR hdr;
     if ( fread( &hdr, sizeof hdr, 1, fp ) != 1 )
     {
-      ERROR_PRINT << "Error loading script " << fname << ": error reading header\n";
+      ERROR_PRINT << "Error loading script " << fname
+                  << ": error reading header\n";
       fclose( fp );
       return -1;
     }
-    if ( hdr.magic2[0] != BSCRIPT_FILE_MAGIC0 || hdr.magic2[1] != BSCRIPT_FILE_MAGIC1 )
+    if ( hdr.magic2[0] != BSCRIPT_FILE_MAGIC0 ||
+         hdr.magic2[1] != BSCRIPT_FILE_MAGIC1 )
     {
-      ERROR_PRINT << "Error loading script " << fname << ": bad magic value '" << hdr.magic2[0]
-                  << hdr.magic2[1] << "'\n";
+      ERROR_PRINT << "Error loading script " << fname
+                  << ": bad magic value '" << hdr.magic2[0] << hdr.magic2[1] << "'\n";
       fclose( fp );
       return -1;
     }
     // auto-check for latest version (see filefmt.h for setting)
     if ( hdr.version != ESCRIPT_FILE_VER_CURRENT )
     {
-      ERROR_PRINT << "Error loading script " << fname << ": Recompile required. Bad version number "
-                  << hdr.version << "\n";
+      ERROR_PRINT << "Error loading script " << fname
+                  << ": Recompile required. Bad version number " << hdr.version << "\n";
       fclose( fp );
       return -1;
     }
@@ -75,7 +78,8 @@ int EScriptProgram::read( const char* fname )
       case BSCRIPT_SECTION_PROGDEF:
         if ( read_progdef_hdr( fp ) )
         {
-          ERROR_PRINT << "Error loading script " << fname << ": error reading progdef section\n";
+          ERROR_PRINT << "Error loading script " << fname
+                      << ": error reading progdef section\n";
           fclose( fp );
           return -1;
         }
@@ -84,7 +88,8 @@ int EScriptProgram::read( const char* fname )
       case BSCRIPT_SECTION_MODULE:
         if ( read_module( fp ) )
         {
-          ERROR_PRINT << "Error loading script " << fname << ": error reading module section\n";
+          ERROR_PRINT << "Error loading script " << fname
+                      << ": error reading module section\n";
           fclose( fp );
           return -1;
         }
@@ -114,8 +119,8 @@ int EScriptProgram::read( const char* fname )
         }
         break;
       default:
-        ERROR_PRINT << "Error loading script " << fname << ": unknown section type " << sechdr.type
-                    << "\n";
+        ERROR_PRINT << "Error loading script " << fname
+                    << ": unknown section type " << sechdr.type << "\n";
         fclose( fp );
         return -1;
       }
@@ -126,17 +131,17 @@ int EScriptProgram::read( const char* fname )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "Exception caught while loading script " << fname << ": " << ex.what() << "\n";
+    ERROR_PRINT << "Exception caught while loading script " << fname << ": " << ex.what( ) << "\n";
     if ( fp != NULL )
       fclose( fp );
     return -1;
   }
 #ifndef WIN32
-  catch ( ... )
+  catch(...)
   {
     ERROR_PRINT << "Exception caught while loading script " << fname << "\n";
-    if ( fp != NULL )
-      fclose( fp );
+    if (fp != NULL)
+      fclose(fp);
     return -1;
   }
 #endif
@@ -144,7 +149,7 @@ int EScriptProgram::read( const char* fname )
 int EScriptProgram::create_instructions()
 {
   int nLines = tokens.length() / sizeof( StoredToken );
-  instr.resize( nLines );  // = new Instruction[ nLines ];
+  instr.resize( nLines ); // = new Instruction[ nLines ];
 
   for ( int i = 0; i < nLines; i++ )
   {
@@ -216,27 +221,21 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_CASEJMP:
     if ( st.offset >= symbols.length() )
     {
-      throw std::runtime_error(
-          "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-          Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+      throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
     }
     token.dataptr = reinterpret_cast<const unsigned char*>( symbols.array() + st.offset );
     return 0;
   case TOK_LONG:
     if ( st.offset >= symbols.length() )
     {
-      throw std::runtime_error(
-          "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-          Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+      throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
     }
     token.lval = *(int*)( symbols.array() + st.offset );
     return 0;
   case TOK_DOUBLE:
     if ( st.offset >= symbols.length() )
     {
-      throw std::runtime_error(
-          "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-          Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+      throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
     }
     token.dval = *(double*)( symbols.array() + st.offset );
     return 0;
@@ -246,9 +245,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     {
       if ( st.offset >= symbols.length() )
       {
-        throw std::runtime_error(
-            "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-            Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+        throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
         return -1;
       }
       DebugToken* dt = (DebugToken*)( symbols.array() + st.offset );
@@ -257,14 +254,10 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
 
       if ( dt->strOffset >= symbols.length() )
       {
-        throw std::runtime_error( "Symbol offset of " + Clib::decint( dt->strOffset ) +
-                                  " exceeds symbol store length of " +
-                                  Clib::decint( symbols.length() ) + " at PC=" +
-                                  Clib::decint( position ) );
+        throw std::runtime_error( "Symbol offset of " + Clib::decint( dt->strOffset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
         return -1;
       }
-      if ( dt->strOffset )
-        token.setStr( symbols.array() + dt->strOffset );
+      if ( dt->strOffset ) token.setStr( symbols.array() + dt->strOffset );
     }
     return 0;
 
@@ -305,9 +298,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     {
       if ( st.offset >= symbols.length() )
       {
-        throw std::runtime_error(
-            "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-            Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+        throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
       }
       token.setStr( symbols.array() + st.offset );
     }
@@ -328,9 +319,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     {
       if ( st.offset >= symbols.length() )
       {
-        throw std::runtime_error(
-            "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-            Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+        throw std::runtime_error( "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " + Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
       }
       token.setStr( symbols.array() + st.offset );
     }
@@ -411,8 +400,7 @@ int EScriptProgram::read_dbg_file()
   size_t fread_res = fread( &version, sizeof version, 1, fp );
   if ( version != 2 && version != 3 )
   {
-    ERROR_PRINT << "Recompile required. Bad version " << version << " in " << mname
-                << ", expected version 2\n";
+    ERROR_PRINT << "Recompile required. Bad version " << version << " in " << mname << ", expected version 2\n";
     fclose( fp );
     return -1;
   }
@@ -523,7 +511,7 @@ int EScriptProgram::read_dbg_file()
 
   fclose( fp );
   debug_loaded = true;
-  if ( fread_res )  // FIXME senseless check so fread_res is used
+  if ( fread_res ) // FIXME senseless check so fread_res is used
     res = 0;
   return res;
 }

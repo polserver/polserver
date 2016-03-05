@@ -122,7 +122,7 @@ void handle_rename_char( Client* client, PKTIN_75* msg )
           POLLOG_INFO << tmp.str();
           *p = '\0';
           send_sysmessage( client, "Invalid name!" );
-          return;  // dave 12/26 if invalid name, do not apply to chr!
+          return; //dave 12/26 if invalid name, do not apply to chr!
         }
       }
       chr->setname( msg->name );
@@ -145,8 +145,9 @@ void handle_msg_B5( Client* client, PKTIN_B5* /*msg*/ )
 
 void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
-      find_script( "misc/charprofile", true, Plib::systemstate.config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/charprofile",
+                                          true,
+                                          Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != NULL )
   {
     Mobile::Character* mobile;
@@ -154,15 +155,14 @@ void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
     if ( msg->mode == msg->MODE_REQUEST )
     {
       mobile = system_find_mobile( cfBEu32( msg->profile_request.serial ) );
-      if ( mobile == nullptr )
+      if (mobile == nullptr)
         return;
-      client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( mobile ),
-                                 new Bscript::BLong( msg->mode ), new Bscript::BLong( 0 ) );
+      client->chr->start_script( prog.get( ), false, new Module::ECharacterRefObjImp( mobile ), new Bscript::BLong( msg->mode ), new Bscript::BLong( 0 ) );
     }
     else if ( msg->mode == msg->MODE_UPDATE )
     {
       mobile = system_find_mobile( cfBEu32( msg->profile_update.serial ) );
-      if ( mobile == nullptr )
+      if (mobile == nullptr)
         return;
       u16* themsg = msg->profile_update.wtext;
       int intextlen = ( cfBEu16( msg->msglen ) - 12 ) / sizeof( msg->profile_update.wtext[0] );
@@ -182,19 +182,15 @@ void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
       for ( i = 0; i < intextlen; i++ )
       {
         u16 wc = cfBEu16( themsg[i] );
-        if ( wc == 0 )
-          break;  // quit early on embedded nulls
-        if ( wc == L'~' )
-          continue;  // skip unprintable tildes.
+        if ( wc == 0 ) break;   // quit early on embedded nulls
+        if ( wc == L'~' ) continue; // skip unprintable tildes.
         wtextbuf[wtextbuflen++] = ctBEu16( wc );
       }
 
       Bscript::ObjArray* arr;
 
-      if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                   true ) )  // convert back with ctBEu16()
-        client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( mobile ),
-                                   new Bscript::BLong( msg->mode ), arr );
+      if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+        client->chr->start_script( prog.get( ), false, new Module::ECharacterRefObjImp( mobile ), new Bscript::BLong( msg->mode ), arr );
     }
   }
 }
@@ -215,8 +211,7 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
     while ( c < len )
     {
       ch = msg->version[c];
-      if ( ch == 0 )
-        break;  // seems to be null-terminated
+      if ( ch == 0 ) break; // seems to be null-terminated
       ver2 += ch;
       ++c;
     }
@@ -238,7 +233,7 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
       client->setClientType( CLIENTTYPE_7000 );
     else if ( client->compareVersion( CLIENT_VER_60142 ) )
       client->setClientType( CLIENTTYPE_60142 );
-    else if ( client->compareVersion( CLIENT_VER_6017 ) )  // Grid-loc support
+    else if ( client->compareVersion( CLIENT_VER_6017 ) ) //Grid-loc support
       client->setClientType( CLIENTTYPE_6017 );
     else if ( client->compareVersion( CLIENT_VER_5020 ) )
       client->setClientType( CLIENTTYPE_5020 );
@@ -250,12 +245,10 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
       client->setClientType( CLIENTTYPE_4000 );
 
     if ( settingsManager.ssopt.core_sends_season )
-      send_season_info(
-          client );  // Scott 10/11/2007 added for login fixes and handling 1.x clients.
-                     // Season info needs to check client version to keep from crashing 1.x
-                     // version not set until shortly after login complete.
-    // send_feature_enable(client); //dave commented out 8/21/03, unexpected problems with people
-    // sending B9 via script with this too.
+      send_season_info( client ); // Scott 10/11/2007 added for login fixes and handling 1.x clients.
+    // Season info needs to check client version to keep from crashing 1.x
+    // version not set until shortly after login complete.
+    //send_feature_enable(client); //dave commented out 8/21/03, unexpected problems with people sending B9 via script with this too.
     if ( ( client->UOExpansionFlag & AOS ) )
     {
       send_object_cache( client, client->chr );
@@ -283,15 +276,15 @@ void ext_stats_in( Client* client, PKTBI_BF* msg )
     case PKTBI_BF_1A::STAT_INT:
       attrib = gamestate.pAttrIntelligence;
       break;
-    default:  // sent an illegal stat. Should report to console?
+    default: // sent an illegal stat. Should report to console?
       return;
     }
 
-    if ( attrib == NULL )  // there's no attribute for this (?)
+    if ( attrib == NULL ) // there's no attribute for this (?)
       return;
 
     u8 state = msg->extstatin.mode;
-    if ( state > 2 )  // FIXME hard-coded value
+    if ( state > 2 ) // FIXME hard-coded value
       return;
 
     client->chr->attribute( attrib->attrid ).lock( state );
@@ -321,7 +314,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
         {
           send_object_cache( client, (UObject*)( house ) );
         }
-        // consider sending working design to certain players, to assist building, or GM help
+        //consider sending working design to certain players, to assist building, or GM help
         CustomHousesSendFull( house, client, Multi::HOUSE_DESIGN_CURRENT );
       }
     }
@@ -360,7 +353,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     if ( client->chr->race == RACE_GARGOYLE )
     {
       // FIXME: add checks if its possible to stand with new movemode
-      client->chr->movemode = ( MOVEMODE )( client->chr->movemode ^ MOVEMODE_FLY );
+      client->chr->movemode = (MOVEMODE)( client->chr->movemode ^ MOVEMODE_FLY );
       send_move_mobile_to_nearby_cansee( client->chr );
       send_goxyz( client, client->chr );
     }
@@ -370,8 +363,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     break;
   case PKTBI_BF::TYPE_POPUP_MENU_REQUEST:
   {
-    ref_ptr<Bscript::EScriptProgram> prog =
-        find_script( "misc/popupmenu", true, Plib::systemstate.config.cache_interactive_scripts );
+    ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/popupmenu", true, Plib::systemstate.config.cache_interactive_scripts );
     if ( prog.get() == NULL )
       break;
     u32 serial = cfBEu32( msg->serial_request_popup_menu );
@@ -396,7 +388,8 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     if ( client->chr->on_popup_menu_selection == NULL )
     {
       POLLOG_INFO.Format( "{}/{} tried to use a popup menu, but none was active.\n" )
-          << client->acct->name() << client->chr->name();
+          << client->acct->name()
+          << client->chr->name();
       break;
     }
 
@@ -422,6 +415,7 @@ void handle_update_range_change( Client* client, PKTBI_C8* /*msg*/ )
 
 void handle_allnames( Client* client, PKTBI_98_IN* msg )
 {
+
   u32 serial = cfBEu32( msg->serial );
   Mobile::Character* the_mob = find_character( serial );
   if ( the_mob != NULL )
@@ -436,7 +430,7 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
     }
 
     PktHelper::PacketOut<PktOut_98> msgOut;
-    msgOut->WriteFlipped<u16>( 37u );  // static length
+    msgOut->WriteFlipped<u16>( 37u ); // static length
     msgOut->Write<u32>( the_mob->serial_ext );
     msgOut->Write( the_mob->name().c_str(), 30, false );
     msgOut.Send( client );
@@ -483,7 +477,7 @@ void handle_ef_seed( Client* client, PKTIN_EF* msg )
     client->setClientType( CLIENTTYPE_7000 );
   else if ( client->compareVersion( CLIENT_VER_60142 ) )
     client->setClientType( CLIENTTYPE_60142 );
-  else if ( client->compareVersion( CLIENT_VER_6017 ) )  // Grid-loc support
+  else if ( client->compareVersion( CLIENT_VER_6017 ) ) //Grid-loc support
     client->setClientType( CLIENTTYPE_6017 );
   else if ( client->compareVersion( CLIENT_VER_5020 ) )
     client->setClientType( CLIENTTYPE_5020 );
@@ -511,8 +505,7 @@ void handle_e1_clienttype( Client* client, PKTIN_E1* msg )
     client->setClientType( CLIENTTYPE_UOSA );
     break;
   default:
-    INFO_PRINT << "Unknown client type send with packet 0xE1 : 0x"
-               << fmt::hexu( static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) ) << "\n";
+    INFO_PRINT << "Unknown client type send with packet 0xE1 : 0x" << fmt::hexu(static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) ) << "\n";
     break;
   }
 }
@@ -524,16 +517,14 @@ void handle_e1_clienttype( Client* client, PKTIN_E1* msg )
 void handle_aos_commands( Client* client, PKTBI_D7* msg )
 {
   // nullptr prevention, no need to disturb if client or character is not found
-  if ( client == nullptr || client->chr == nullptr )
+  if( client == nullptr || client->chr == nullptr )
     return;
 
   /// Checks that serial written inside packet matches sending character's serial
   u32 serial = cfBEu32( msg->serial );
-  if ( client && client->chr && client->chr->serial != serial )
+  if( client && client->chr && client->chr->serial != serial )
   {
-    INFO_PRINT << "Ignoring spoofed packet 0xD7 from character 0x"
-               << fmt::hexu( client->chr->serial ) << " trying to spoof 0x" << fmt::hexu( serial )
-               << "\n";
+    INFO_PRINT << "Ignoring spoofed packet 0xD7 from character 0x" << fmt::hexu(client->chr->serial) << " trying to spoof 0x" << fmt::hexu(serial) << "\n";
     return;
   }
 
@@ -594,7 +585,7 @@ void handle_aos_commands( Client* client, PKTBI_D7* msg )
   case PKTBI_D7::QUEST_BUTTON:
     OnQuestButton( client );
     break;
-  // missing combat book abilities
+  //missing combat book abilities
   default:
     handle_unknown_packet( client );
   }
@@ -602,8 +593,9 @@ void handle_aos_commands( Client* client, PKTBI_D7* msg )
 
 void OnGuildButton( Client* client )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
-      find_script( "misc/guildbutton", true, Plib::systemstate.config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/guildbutton",
+                                          true,
+                                          Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != NULL )
   {
     client->chr->start_script( prog.get(), false );
@@ -612,8 +604,9 @@ void OnGuildButton( Client* client )
 
 void OnQuestButton( Client* client )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
-      find_script( "misc/questbutton", true, Plib::systemstate.config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/questbutton",
+                                          true,
+                                          Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != NULL )
   {
     client->chr->start_script( prog.get(), false );
@@ -622,12 +615,14 @@ void OnQuestButton( Client* client )
 
 void OnChatButton( Client* client )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
-      find_script( "misc/chatbutton", true, Plib::systemstate.config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/chatbutton",
+                                          true,
+                                          Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != NULL )
   {
     client->chr->start_script( prog.get(), false );
   }
 }
+
 }
 }

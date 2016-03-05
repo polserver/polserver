@@ -22,7 +22,7 @@ enum PKTOUTID
 {
   PKTOUT_0B_ID = 0x0B,  // Newer client damage display packet. since 4.0.7a client
 
-  PKTOUT_11_ID = 0x11,  // Status Message
+  PKTOUT_11_ID = 0x11,    // Status Message
   PKTOUT_17_ID = 0x17,  // Health bar status update (KR)
   PKTOUT_1A_ID = 0x1A,  // Object Information
   PKTOUT_1B_ID = 0x1B,  // Character Startup - Login actually completed.
@@ -32,8 +32,7 @@ enum PKTOUTID
 
   PKTOUT_20_ID = 0x20,  // Draw Mobile
   PKTOUT_21_ID = 0x21,  // Move Rejection
-  PKTOUT_23_ID = 0x23,  // Item Drag Animation - used to make client side animation of an itemID
-                        // going up from xyz, to down at xyz
+  PKTOUT_23_ID = 0x23,  // Item Drag Animation - used to make client side animation of an itemID going up from xyz, to down at xyz
   PKTOUT_24_ID = 0x24,  // Open Gump ID
   PKTOUT_25_ID = 0x25,  // Container
   PKTOUT_26_ID = 0x26,  // TODO: What clients even support this packet?
@@ -102,12 +101,12 @@ enum PKTOUTID
   PKTOUT_AE_ID = 0xAE,  // Unicode Message
   PKTOUT_AF_ID = 0xAF,  // Death Action
 
-  PKTOUT_B0_ID = 0xB0,     // Send Gump
-  PKTOUT_B7_ID = 0xB7,     // Tooltip/Help Data - Old school tooltip
-  PKTOUT_B9_ID = 0xB9,     // Client Features Enable
-  PKTOUT_B9_V2_ID = 0xB9,  // Client Features Enable newer... Version 2 of packet
-  PKTOUT_BA_ID = 0xBA,     // Quest Arrow
-  PKTOUT_BC_ID = 0xBC,     // Season
+  PKTOUT_B0_ID = 0xB0,  // Send Gump
+  PKTOUT_B7_ID = 0xB7,  // Tooltip/Help Data - Old school tooltip
+  PKTOUT_B9_ID = 0xB9,  // Client Features Enable
+  PKTOUT_B9_V2_ID = 0xB9, // Client Features Enable newer... Version 2 of packet
+  PKTOUT_BA_ID = 0xBA,  // Quest Arrow
+  PKTOUT_BC_ID = 0xBC,  // Season
 
   PKTOUT_C0_ID = 0xC0,  // Graphical Effect
   PKTOUT_C1_ID = 0xC1,  // Cliloc Message
@@ -117,7 +116,7 @@ enum PKTOUTID
 
   PKTOUT_D8_ID = 0xD8,  // Custom Housing
   PKTOUT_DC_ID = 0xDC,  // Object Cahce/Revision (SE Introduced version)
-  PKTOUT_DD_ID = 0xDD,  // Compressed Gump
+  PKTOUT_DD_ID = 0xDD,    // Compressed Gump
   PKTOUT_DF_ID = 0xDF,  // Buff/Debuff System
 
   PKTOUT_E2_ID = 0xE2,  // HSA MobileAnimation
@@ -125,8 +124,9 @@ enum PKTOUTID
   PKTOUT_F3_ID = 0xF3,  // SA Object Information
   PKTOUT_F5_ID = 0xF5,  // New Map Message
   PKTOUT_F6_ID = 0xF6,  // Boat Smooth Move
-  PKTOUT_F7_ID = 0xF7   // Display Multi HSA
+  PKTOUT_F7_ID = 0xF7 // Display Multi HSA
 };
 }
 }
 #endif
+

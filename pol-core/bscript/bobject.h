@@ -10,7 +10,7 @@
 #define BSCRIPT_BOBJECT_H
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4786 )
+#pragma warning(disable:4786)
 #endif
 
 #include "../../lib/format/format.h"
@@ -29,6 +29,7 @@
 
 namespace Pol
 {
+
 /**
  * Bscript namespace is for escript stuff, like compiler and basic modules
  */
@@ -119,8 +120,12 @@ public:
   {
     ++eobject_imp_count;
     ++eobject_imp_constructions;
+
   }
-  virtual ~BObjectImp() { --eobject_imp_count; }
+  virtual ~BObjectImp()
+  {
+    --eobject_imp_count;
+  }
 #else
   explicit BObjectImp( BObjectType type );
   virtual ~BObjectImp();
@@ -133,7 +138,10 @@ public:
   bool isa( BObjectType type ) const;
   BObjectType type() const;
 #if BOBJECTIMP_DEBUG
-  unsigned int instance() const { return instance_; }
+  unsigned int instance() const
+  {
+    return instance_;
+  }
 #endif
   static const char* typestr( BObjectType typ );
 
@@ -148,7 +156,7 @@ public:
 
   virtual std::string pack() const;
   virtual void packonto( std::ostream& os ) const;
-  virtual void printOn( std::ostream& ) const;
+  virtual void printOn( std::ostream&) const;
 
   virtual bool operator==( const BObjectImp& objimp ) const;
   virtual bool operator<( const BObjectImp& objimp ) const;
@@ -301,22 +309,21 @@ public:
   virtual void operDivideEqual( BObject& obj, BObjectImp& objimp );
   virtual void operModulusEqual( BObject& obj, BObjectImp& objimp );
 
-  virtual BObject operator-() const;
+  virtual BObject operator-( ) const;
 
-  virtual char /*BObjectRef */ member( const BObject& obj ) const;
-  virtual char /*BObjectImp* */ str_member( const std::string& membername ) const;
+  virtual char /*BObjectRef */member(const BObject& obj) const;
+  virtual char /*BObjectImp* */ str_member(const std::string& membername) const;
 
   virtual BObjectImp* call_method( const char* methodname, Executor& ex );
   virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false );
   virtual BObjectRef set_member( const char* membername, BObjectImp* valueimp, bool copy );
   virtual BObjectRef get_member( const char* membername );
-  virtual BObjectRef get_member_id( const int id );  // test id
-  virtual BObjectRef set_member_id( const int id, BObjectImp* valueimp, bool copy );  // test id
+  virtual BObjectRef get_member_id( const int id ); //test id
+  virtual BObjectRef set_member_id( const int id, BObjectImp* valueimp, bool copy ); //test id
 
   virtual BObjectRef OperSubscript( const BObject& obj );
   virtual BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices );
-  virtual BObjectRef OperMultiSubscriptAssign( std::stack<BObjectRef>& indices,
-                                               BObjectImp* target );
+  virtual BObjectRef OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target);
 
   virtual bool isTrue() const;
   virtual long contains( const BObjectImp& objimp ) const;
@@ -327,9 +334,8 @@ public:
 
   virtual ContIterator* createIterator( BObject* pIterVal );
 
-  friend std::ostream& operator<<( std::ostream&, const BObjectImp& );
-  friend fmt::Writer& operator<<( fmt::Writer&, const BObjectImp& );
-
+  friend std::ostream& operator << ( std::ostream&, const BObjectImp&);
+  friend fmt::Writer& operator << ( fmt::Writer&, const BObjectImp&);
 private:
   BObjectType type_;
 #if BOBJECTIMP_DEBUG
@@ -339,11 +345,11 @@ private:
 #endif
 };
 
-inline char /*BObjectRef */ BObjectImp::member( const BObject& ) const
+inline char /*BObjectRef */BObjectImp::member(const BObject&) const
 {
   return 0;
 }
-inline char /*BObjectImp* */ BObjectImp::str_member( const std::string& ) const
+inline char /*BObjectImp* */ BObjectImp::str_member(const std::string&) const
 {
   return 0;
 }
@@ -362,7 +368,10 @@ inline BObjectImp::BObjectType BObjectImp::type() const
 class BObject : public ref_counted
 {
 public:
-  explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp ) { passert( objimp ); }
+  explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp )
+  {
+    passert( objimp );
+  }
   BObject( const BObject& obj ) : ref_counted(), objimp( obj.objimp ) {}
   ~BObject();
   // NOTE: BObject should not be derived from!
@@ -370,17 +379,25 @@ public:
   size_t sizeEstimate() const;
 
   void* operator new( std::size_t len );
-  void operator delete( void* );
+  void operator delete( void*);
 
   bool operator!=( const BObject& obj ) const;
   bool operator==( const BObject& obj ) const;
-  bool operator<( const BObject& obj ) const;
+  bool operator<( const BObject& obj )  const;
   bool operator<=( const BObject& obj ) const;
   bool operator>( const BObject& obj ) const;
   bool operator>=( const BObject& obj ) const;
 
-  BObjectImp* operator->() const { return objimp.get(); }
-  bool isTrue() const { return objimp->isTrue(); }
+  BObjectImp* operator->( ) const
+  {
+    return objimp.get();
+  }
+
+  bool isTrue() const
+  {
+    return objimp->isTrue();
+  }
+
   void assign( const BObjectImp& objimp );
 
   BObject* clone() const;
@@ -388,9 +405,9 @@ public:
   bool isa( BObjectImp::BObjectType type ) const;
 
   //   friend StreamWriter& operator << (StreamWriter&, const BObject& );
-  friend std::ostream& operator<<( std::ostream&, const BObject& );
-  friend fmt::Writer& operator<<( fmt::Writer&, const BObject& );
-  void printOn( std::ostream& ) const;
+  friend std::ostream& operator << ( std::ostream&, const BObject&);
+  friend fmt::Writer& operator << ( fmt::Writer&, const BObject&);
+  void printOn( std::ostream&) const;
 
   BObjectImp* impptr();
   const BObjectImp* impptr() const;
@@ -405,7 +422,7 @@ private:
   BObject& operator=( const BObject& obj );
 };
 
-typedef std::vector<ref_ptr<BObjectImp>> BObjectImpRefVec;
+typedef std::vector< ref_ptr<BObjectImp> > BObjectImpRefVec;
 
 extern Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
 
@@ -452,7 +469,10 @@ class BObjectRef : public ref_ptr<BObject>
 public:
   explicit BObjectRef( BObject* pobj = NULL ) : ref_ptr<BObject>( pobj ) {}
   explicit BObjectRef( BObjectImp* pimp ) : ref_ptr<BObject>( new BObject( pimp ) ) {}
-  void set( BObject* obj ) { ref_ptr<BObject>::set( obj ); }
+  void set( BObject* obj )
+  {
+    ref_ptr<BObject>::set( obj );
+  }
   size_t sizeEstimate() const;
 };
 
@@ -468,7 +488,10 @@ public:
 
   virtual BObjectImp* copy() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE { return "<uninitialized object>"; }
+  virtual std::string getStringRep() const POL_OVERRIDE
+  {
+    return "<uninitialized object>";
+  }
   virtual void printOn( std::ostream& os ) const POL_OVERRIDE;
 
   virtual bool isTrue() const POL_OVERRIDE;
@@ -476,9 +499,12 @@ public:
   virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
 
   void* operator new( std::size_t len );
-  void operator delete( void* );
+  void operator delete( void*);
 
-  static UninitObject* create() { return SharedInstance; }
+  static UninitObject* create()
+  {
+    return SharedInstance;
+  }
   static void ReleaseSharedInstance()
   {
     SharedInstanceOwner.clear();
@@ -511,7 +537,7 @@ public:
   Cont ref_arr;
 
   ObjArray();
-  ObjArray( const ObjArray& i );  // copy constructor
+  ObjArray( const ObjArray& i ); // copy constructor
 
   virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
   static BObjectImp* unpack( std::istream& is );
@@ -535,15 +561,13 @@ public:
   virtual void selfPlusObj( ObjArray& objimp, BObject& obj ) POL_OVERRIDE;
 
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
-  virtual BObjectRef set_member( const char* membername, BObjectImp* value,
-                                 bool copy ) POL_OVERRIDE;
+  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) POL_OVERRIDE;
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 
   void addElement( BObjectImp* imp );
 
-  const BObjectImp* imp_at( unsigned index ) const;  // 1-based
+  const BObjectImp* imp_at( unsigned index ) const; // 1-based
 
   virtual std::string getStringRep() const POL_OVERRIDE;
   virtual void printOn( std::ostream& os ) const POL_OVERRIDE;
@@ -555,7 +579,6 @@ public:
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
   virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
-
 protected:
   explicit ObjArray( BObjectType type );
   void deepcopy();
@@ -575,9 +598,11 @@ public:
 #endif
 private:
   ~BLong() {}
+
 public:
+
   void* operator new( std::size_t len );
-  void operator delete( void* );
+  void operator delete( void*);
   void operator delete( void*, size_t );
 
   static BObjectImp* unpack( const char* pstr );
@@ -587,12 +612,27 @@ public:
   virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
 
-  int value() const { return lval_; }
-  int increment() { return ++lval_; }
-public:  // Class Machinery
+  int value() const
+  {
+    return lval_;
+  }
+  int increment()
+  {
+    return ++lval_;
+  }
+
+public: // Class Machinery
   virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual BObjectImp* inverse() const POL_OVERRIDE { return new BLong( -lval_ ); }
-  void copyvalue( const BLong& ni ) { lval_ = ni.lval_; }
+  virtual BObjectImp* inverse() const POL_OVERRIDE
+  {
+    return new BLong( -lval_ );
+  }
+  void copyvalue( const BLong& ni )
+  {
+    lval_ = ni.lval_;
+  }
+
+
   virtual bool isTrue() const POL_OVERRIDE;
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
   virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
@@ -664,7 +704,7 @@ public:  // Class Machinery
   virtual BObjectImp* bitnot() const POL_OVERRIDE;
 
   virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
+  virtual void printOn( std::ostream&) const POL_OVERRIDE;
 
 protected:
   int lval_;
@@ -693,16 +733,18 @@ class Double : public BObjectImp
 public:
   explicit Double( double dval = 0.0 ) : BObjectImp( OTDouble ), dval_( dval ) {}
   Double( const Double& dbl ) : BObjectImp( OTDouble ), dval_( dbl.dval_ ) {}
-// FIXME: 2008 Upgrades needed here? Still valid, or why the hell we even do this anyway???
-#if defined( __GNUC__ ) || ( defined( _WIN32 ) && _MSC_VER >= 1300 )
+
+  // FIXME: 2008 Upgrades needed here? Still valid, or why the hell we even do this anyway???
+#if defined(__GNUC__) || (defined(_WIN32) && _MSC_VER >= 1300)
 protected:
 #else
 private:
 #endif
   ~Double() {}
+
 public:
   void* operator new( std::size_t len );
-  void operator delete( void* );
+  void operator delete( void*);
 
 
   static BObjectImp* unpack( const char* pstr );
@@ -711,12 +753,30 @@ public:
   virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
 
-  double value() const { return dval_; }
-  void copyvalue( const Double& dbl ) { dval_ = dbl.dval_; }
-  double increment() { return ++dval_; }
-public:  // Class Machinery
-  virtual bool isTrue() const POL_OVERRIDE { return ( dval_ != 0.0 ); }
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new Double( *this ); }
+  double value() const
+  {
+    return dval_;
+  }
+  void copyvalue( const Double& dbl )
+  {
+    dval_ = dbl.dval_;
+  }
+  double increment()
+  {
+    return ++dval_;
+  }
+
+public:    // Class Machinery
+  virtual bool isTrue() const POL_OVERRIDE
+  {
+    return ( dval_ != 0.0 );
+  }
+
+  virtual BObjectImp* copy() const POL_OVERRIDE
+  {
+    return new Double( *this );
+  }
+
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
   virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;
 
@@ -752,10 +812,13 @@ public:  // Class Machinery
   virtual void selfDividedByObj( BLong& objimp, BObject& obj ) POL_OVERRIDE;
   virtual void selfDividedByObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
 
-  virtual BObjectImp* inverse() const POL_OVERRIDE { return new Double( -dval_ ); }
-  virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
+  virtual BObjectImp* inverse() const POL_OVERRIDE
+  {
+    return new Double( -dval_ );
+  }
 
+  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual void printOn( std::ostream&) const POL_OVERRIDE;
 private:
   double dval_;
 };
@@ -773,8 +836,7 @@ inline void Double::operator delete( void* p )
 }
 
 class BApplicObjType
-{
-};
+{};
 
 /**
  * Application Pointer object.  Meant to point to some application data.
@@ -791,11 +853,11 @@ public:
   const BApplicObjType* pointer_type() const;
   void* ptr() const;
 
-public:  // Class Machinery
+public: // Class Machinery
   virtual BObjectImp* copy() const POL_OVERRIDE;
 
   virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
+  virtual void printOn( std::ostream&) const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 private:
@@ -810,22 +872,21 @@ public:
   explicit BApplicObjBase( const BApplicObjType* object_type );
 
   const BApplicObjType* object_type() const;
-
-public:  // Class Machinery
+public: // Class Machinery
   virtual BObjectImp* copy() const POL_OVERRIDE = 0;
 
   virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual void printOn( std::ostream& ) const POL_OVERRIDE;
+  virtual void printOn( std::ostream&) const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE = 0;
 
 private:
   const BApplicObjType* object_type_;
 };
 
-inline BApplicObjBase::BApplicObjBase( const BApplicObjType* object_type )
-    : BObjectImp( OTApplicObj ), object_type_( object_type )
-{
-}
+inline BApplicObjBase::BApplicObjBase( const BApplicObjType* object_type ) :
+  BObjectImp( OTApplicObj ),
+  object_type_( object_type )
+{}
 
 inline const BApplicObjType* BApplicObjBase::object_type() const
 {
@@ -833,16 +894,16 @@ inline const BApplicObjType* BApplicObjBase::object_type() const
 }
 
 
-template <class T>
+template<class T>
 class BApplicObj : public BApplicObjBase
 {
 public:
   explicit BApplicObj( const BApplicObjType* object_type );
-  BApplicObj( const BApplicObjType*, const T& );
+  BApplicObj( const BApplicObjType*, const T&);
 
   T& value();
   const T& value() const;
-  T* operator->();
+  T* operator->( );
 
   virtual const char* typeOf() const POL_OVERRIDE = 0;
   virtual u8 typeOfInt() const POL_OVERRIDE = 0;
@@ -853,38 +914,37 @@ protected:
   T obj_;
 };
 
-template <class T>
-BApplicObj<T>::BApplicObj( const BApplicObjType* object_type )
-    : BApplicObjBase( object_type )
-{
-}
+template<class T>
+BApplicObj<T>::BApplicObj( const BApplicObjType* object_type ) :
+  BApplicObjBase( object_type )
+{}
 
-template <class T>
-BApplicObj<T>::BApplicObj( const BApplicObjType* object_type, const T& obj )
-    : BApplicObjBase( object_type ), obj_( obj )
-{
-}
+template<class T>
+BApplicObj<T>::BApplicObj( const BApplicObjType* object_type, const T& obj ) :
+  BApplicObjBase( object_type ),
+  obj_( obj )
+{}
 
-template <class T>
+template<class T>
 inline size_t BApplicObj<T>::sizeEstimate() const
 {
   return sizeof( BApplicObj<T> );
 }
 
-template <class T>
+template<class T>
 T& BApplicObj<T>::value()
 {
   return obj_;
 }
 
-template <class T>
+template<class T>
 const T& BApplicObj<T>::value() const
 {
   return obj_;
 }
 
-template <class T>
-T* BApplicObj<T>::operator->()
+template<class T>
+T* BApplicObj<T>::operator->( )
 {
   return &obj_;
 }

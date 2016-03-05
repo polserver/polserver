@@ -37,7 +37,7 @@ namespace Pol
 namespace Core
 {
 std::set<UObject*> unreaped_orphan_instances;
-std::ofstream orphans_txt( "orphans.txt", std::ios::out | std::ios::trunc );
+std::ofstream orphans_txt("orphans.txt", std::ios::out | std::ios::trunc);
 
 int display_orphan( UObject* o )
 {
@@ -47,7 +47,7 @@ int display_orphan( UObject* o )
   o->printOn( sw );
   o->printOnDebug( sw_orphan );
   INFO_PRINT << sw().str();
-  // ref_ptr<UObject>::display_referers( o->as_ref_counted() );
+  //ref_ptr<UObject>::display_referers( o->as_ref_counted() );
 
   return 0;
 }
@@ -59,31 +59,30 @@ void display_unreaped_orphan_instances()
   {
     display_orphan( obj );
   }
-  // for( std::set<UObject*>::iterator itr = unreaped_orphan_instances.begin();
+  //for( std::set<UObject*>::iterator itr = unreaped_orphan_instances.begin();
 }
 
 std::atomic<unsigned int> UObject::dirty_writes;
 std::atomic<unsigned int> UObject::clean_writes;
 AosValuePack UObject::DEFAULT_AOSVALUEPACK = AosValuePack();
 
-UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
-    : DynamicPropsHolder(),
-      serial( 0 ),
-      serial_ext( 0 ),
-      objtype_( objtype ),
-      graphic( static_cast<u16>( objtype ) ),
-      color( 0 ),
-      x( 0 ),
-      y( 0 ),
-      z( 0 ),
-      facing( FACING_N ),
-      realm( NULL ),
-      saveonexit_( true ),
-      uobj_class_( static_cast<const u8>( i_uobj_class ) ),
-      dirty_( true ),
-      _rev( 0 ),
-      name_( "" ),
-      proplist_( class_to_type( i_uobj_class ) )
+UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class ) : DynamicPropsHolder(),
+  serial( 0 ),
+  serial_ext( 0 ),
+  objtype_( objtype ),
+  graphic( static_cast<u16>( objtype ) ),
+  color( 0 ),
+  x( 0 ),
+  y( 0 ),
+  z( 0 ),
+  facing( FACING_N ),
+  realm( NULL ),
+  saveonexit_( true ),
+  uobj_class_( static_cast<const u8>( i_uobj_class ) ),
+  dirty_( true ),
+  _rev( 0 ),
+  name_( "" ),
+  proplist_( class_to_type(i_uobj_class) )
 {
   graphic = Items::getgraphic( objtype );
 
@@ -107,7 +106,7 @@ UObject::~UObject()
 
 size_t UObject::estimatedSize() const
 {
-  size_t size = sizeof( UObject ) + proplist_.estimatedSize();
+  size_t size = sizeof(UObject) + proplist_.estimatedSize();
   size += estimateSizeDynProps();
   return size;
 }
@@ -130,10 +129,9 @@ void UObject::destroy()
       POLLOG_INFO << "Ouch! UObject::destroy() with count()==" << ref_counted::count() << "\n";
     }
 
-    set_dirty();  // we will have to write a 'object deleted' directive once
+    set_dirty(); // we will have to write a 'object deleted' directive once
 
-    serial =
-        0;  // used to set serial_ext to 0.  This way, if debugging, one can find out the old serial
+    serial = 0; // used to set serial_ext to 0.  This way, if debugging, one can find out the old serial
     passert( ref_counted::count() >= 1 );
 
     ++stateManager.uobjcount.unreaped_orphans;
@@ -163,14 +161,14 @@ void UObject::setprop( const std::string& propname, const std::string& propvalue
 {
   if ( propname[0] != '#' )
     set_dirty();
-  proplist_.setprop( propname, propvalue );  // VOID_RETURN
+  proplist_.setprop( propname, propvalue ); // VOID_RETURN
 }
 
 void UObject::eraseprop( const std::string& propname )
 {
   if ( propname[0] != '#' )
     set_dirty();
-  proplist_.eraseprop( propname );  // VOID_RETURN
+  proplist_.eraseprop( propname ); // VOID_RETURN
 }
 
 void UObject::copyprops( const UObject& from )
@@ -185,9 +183,10 @@ void UObject::copyprops( const PropertyList& proplist )
   proplist_.copyprops( proplist );
 }
 
-void UObject::getpropnames( std::vector<std::string>& propnames ) const
+void UObject::getpropnames( std::vector< std::string >& propnames ) const
 {
   proplist_.getpropnames( propnames );
+
 }
 
 const PropertyList& UObject::getprops() const
@@ -205,7 +204,7 @@ std::string UObject::description() const
   return name_;
 }
 
-void UObject::setname( const std::string& newname )
+void UObject::setname(const std::string& newname)
 {
   set_dirty();
   increv();
@@ -299,12 +298,11 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   color = elem.remove_ushort( "COLOR", 0 );
 
 
-  std::string realmstr = elem.remove_string( "Realm", "britannia" );
+  std::string realmstr = elem.remove_string("Realm", "britannia");
   realm = find_realm( realmstr );
   if ( !realm )
   {
-    ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" )
-        << classname() << name() << serial << realmstr;
+    ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" ) << classname() << name() << serial << realmstr;
     throw std::runtime_error( "Data integrity error" );
   }
   x = elem.remove_ushort( "X" );
@@ -324,6 +322,7 @@ void UObject::readProperties( Clib::ConfigElem& elem )
 
 
   proplist_.readProperties( elem );
+
 }
 
 void UObject::printSelfOn( Clib::StreamWriter& sw ) const
@@ -338,7 +337,7 @@ void UObject::printOn( Clib::StreamWriter& sw ) const
   printProperties( sw );
   sw() << "}" << pf_endl;
   sw() << pf_endl;
-  // sw.flush();
+  //sw.flush();
 }
 
 void UObject::printOnDebug( Clib::StreamWriter& sw ) const
@@ -349,10 +348,10 @@ void UObject::printOnDebug( Clib::StreamWriter& sw ) const
   printDebugProperties( sw );
   sw() << "}" << pf_endl;
   sw() << pf_endl;
-  // sw.flush();
+  //sw.flush();
 }
 
-Clib::StreamWriter& operator<<( Clib::StreamWriter& writer, const UObject& obj )
+Clib::StreamWriter& operator << ( Clib::StreamWriter& writer, const UObject& obj )
 {
   obj.printOn( writer );
   return writer;
@@ -360,10 +359,7 @@ Clib::StreamWriter& operator<<( Clib::StreamWriter& writer, const UObject& obj )
 
 bool UObject::setgraphic( u16 /*newgraphic*/ )
 {
-  ERROR_PRINT.Format(
-      "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: "
-      "0x{:X}\n" )
-      << serial;
+  ERROR_PRINT.Format( "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: 0x{:X}\n" ) << serial;
   return false;
 }
 
@@ -381,12 +377,10 @@ bool UObject::setcolor( u16 newcolor )
 }
 
 void UObject::on_color_changed()
-{
-}
+{}
 
 void UObject::on_facing_changed()
-{
-}
+{}
 
 bool UObject::saveonexit() const
 {

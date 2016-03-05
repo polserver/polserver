@@ -3,7 +3,7 @@
  * @par History
  * - 2005/03/09 Shinigami: Added Prop Delay [ms]
  * - 2005/07/25 Shinigami: added MinDamage and MaxDamage in Weapon-Descriptor
- * - 2011/11/12 Tomi:	  added extobj.wrestling
+ * - 2011/11/12 Tomi:   added extobj.wrestling
  */
 
 
@@ -98,24 +98,24 @@ Core::UACTION default_anim( bool two_handed )
     return Core::ACTION_RIDINGHORSE4;
 }
 
-WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : EquipDesc( objtype, elem, WEAPONDESC, pkg ),
-      pAttr( NULL ),
-      delay( elem.remove_ushort( "DELAY", 0 ) ),
-      hit_script( elem.remove_string( "HITSCRIPT", "" ), pkg, "scripts/items/" ),
-      damage_dice(),
-      projectile( elem.remove_bool( "PROJECTILE", false ) ),
-      projectile_type( 0 ),
-      projectile_anim( 0 ),
-      projectile_sound( 0 ),
-      projectile_action( static_cast<Core::UACTION>( 0 ) ),
-      anim( remove_action( elem, "Anim", Core::ACTION_HUMAN_ATTACK ) ),
-      mounted_anim( remove_action( elem, "MountedAnim", anim ) ),
-      hit_sound( elem.remove_ushort( "HITSOUND", 0 ) ),
-      miss_sound( elem.remove_ushort( "MISSSOUND", 0 ) ),
-      two_handed( elem.remove_bool( "TWOHANDED", false ) ),
-      minrange( elem.remove_ushort( "MINRANGE", projectile ? 2 : 0 ) ),
-      maxrange( elem.remove_ushort( "MAXRANGE", projectile ? 20 : 1 ) )
+WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  EquipDesc( objtype, elem, WEAPONDESC, pkg ),
+  pAttr( NULL ),
+  delay( elem.remove_ushort( "DELAY", 0 ) ),
+  hit_script( elem.remove_string( "HITSCRIPT", "" ), pkg, "scripts/items/" ),
+  damage_dice(),
+  projectile( elem.remove_bool( "PROJECTILE", false ) ),
+  projectile_type( 0 ),
+  projectile_anim( 0 ),
+  projectile_sound( 0 ),
+  projectile_action( static_cast<Core::UACTION>( 0 ) ),
+  anim( remove_action( elem, "Anim", Core::ACTION_HUMAN_ATTACK ) ),
+  mounted_anim( remove_action( elem, "MountedAnim", anim ) ),
+  hit_sound( elem.remove_ushort( "HITSOUND", 0 ) ),
+  miss_sound( elem.remove_ushort( "MISSSOUND", 0 ) ),
+  two_handed( elem.remove_bool( "TWOHANDED", false ) ),
+  minrange( elem.remove_ushort( "MINRANGE", projectile ? 2 : 0 ) ),
+  maxrange( elem.remove_ushort( "MAXRANGE", projectile ? 20 : 1 ) )
 {
   if ( delay == 0 )
     speed = elem.remove_ushort( "SPEED" );
@@ -160,7 +160,7 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
     elem.throw_error( "Error parsing DAMAGE string for WeaponTemplate\n" + errmsg );
 
     /*cerr << "Error parsing DAMAGE string for WeaponTemplate " << objtype << endl;
-    cerr << "	" << errmsg << endl;
+    cerr << " " << errmsg << endl;
     throw runtime_error( "Configuration error" );*/
   }
 
@@ -196,7 +196,7 @@ void WeaponDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "MinRange", new BLong( minrange ) );
   descriptor->addMember( "MaxRange", new BLong( maxrange ) );
 
-  // descriptor->addMember( "Intrinsic", new BLong(is_intrinsic) );
+  //descriptor->addMember( "Intrinsic", new BLong(is_intrinsic) );
   descriptor->addMember( "TwoHanded", new BLong( two_handed ) );
 
   descriptor->addMember( "Anim", new BLong( anim ) );
@@ -210,27 +210,29 @@ void WeaponDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 
   descriptor->addMember( "HitScript", new String( hit_script.relativename( pkg ) ) );
   descriptor->addMember( "Attribute", new String( pAttr->name ) );
+
 }
 
 size_t WeaponDesc::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( const Mobile::Attribute* ) /*pAttr*/
-         + sizeof( unsigned short )                                 /*speed*/
-         + sizeof( unsigned short )                                 /*delay*/
-         + sizeof( Core::ScriptDef )                                /*hit_script*/
-         + sizeof( Core::Dice )                                     /*damage_dice*/
-         + sizeof( bool )                                           /*projectile*/
-         + sizeof( unsigned short )                                 /*projectile_type*/
-         + sizeof( unsigned short )                                 /*projectile_anim*/
-         + sizeof( unsigned short )                                 /*projectile_sound*/
-         + sizeof( Core::UACTION )                                  /*projectile_action*/
-         + sizeof( Core::UACTION )                                  /*anim*/
-         + sizeof( Core::UACTION )                                  /*mounted_anim*/
-         + sizeof( unsigned short )                                 /*hit_sound*/
-         + sizeof( unsigned short )                                 /*miss_sound*/
-         + sizeof( bool )                                           /*two_handed*/
-         + sizeof( unsigned short )                                 /*minrange*/
-         + sizeof( unsigned short )                                 /*maxrange*/
+  return base::estimatedSize()
+         +sizeof( const Mobile::Attribute*) /*pAttr*/
+         +sizeof(unsigned short)/*speed*/
+         +sizeof(unsigned short)/*delay*/
+         +sizeof( Core::ScriptDef )/*hit_script*/
+         + sizeof( Core::Dice )/*damage_dice*/
+         + sizeof(bool)/*projectile*/
+         +sizeof(unsigned short)/*projectile_type*/
+         +sizeof(unsigned short)/*projectile_anim*/
+         +sizeof(unsigned short)/*projectile_sound*/
+         +sizeof( Core::UACTION )/*projectile_action*/
+         + sizeof( Core::UACTION )/*anim*/
+         + sizeof( Core::UACTION )/*mounted_anim*/
+         + sizeof(unsigned short)/*hit_sound*/
+         +sizeof(unsigned short)/*miss_sound*/
+         +sizeof(bool)/*two_handed*/
+         +sizeof(unsigned short)/*minrange*/
+         +sizeof(unsigned short)/*maxrange*/
          + hit_script.estimatedSize();
 }
 
@@ -238,8 +240,7 @@ size_t WeaponDesc::estimatedSize() const
 /// @param name: the unique weapon's name
 /// @param elem: the config element to create from
 /// @param pkg: the package
-UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem,
-                                  const Plib::Package* pkg )
+UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg )
 {
   auto tmpl = new WeaponDesc( Core::settingsManager.extobj.wrestling, elem, pkg );
   tmpl->is_intrinsic = true;
@@ -258,9 +259,7 @@ void load_intrinsic_weapons()
 {
   const ItemDesc& id = find_itemdesc( Core::settingsManager.extobj.wrestling );
   if ( id.save_on_exit )
-    throw std::runtime_error( "Wrestling weapon " +
-                              Clib::hexint( Core::settingsManager.extobj.wrestling ) +
-                              " must specify SaveOnExit 0" );
+    throw std::runtime_error("Wrestling weapon " + Clib::hexint(Core::settingsManager.extobj.wrestling) + " must specify SaveOnExit 0");
 
   if ( id.type == ItemDesc::WEAPONDESC )
   {
@@ -281,15 +280,14 @@ void load_intrinsic_weapons()
 
   // wrestling_weapon = find_intrinsic_weapon( "Wrestling" );
   if ( Core::gamestate.wrestling_weapon == NULL )
-    throw std::runtime_error( "A WeaponTemplate for Wrestling is required in itemdesc.cfg" );
+    throw std::runtime_error("A WeaponTemplate for Wrestling is required in itemdesc.cfg");
 }
 
 /// Creates a new intrinic weapon for an NPC template and returns it
 /// @param elem: The conig element defining the NPC
 /// @param pkg: The package
 /// @returns The created weapon or NULL if none is defined in the template
-UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
-                                                   const Plib::Package* pkg )
+UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg )
 {
   std::string tmp;
   if ( elem.remove_prop( "AttackSpeed", &tmp ) )
@@ -331,7 +329,7 @@ UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
       wpnelem.add_prop( "ProjectileSound", elem.remove_string( "AttackProjectileSound" ).c_str() );
     }
 
-    while ( elem.remove_prop( "AttackCProp", &tmp ) )
+    while ( elem.remove_prop("AttackCProp", &tmp) )
       wpnelem.add_prop( "CProp", tmp.c_str() );
 
     return create_intrinsic_weapon( elem.rest(), wpnelem, pkg );
@@ -342,15 +340,15 @@ UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
   }
 }
 
-UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor )
-    : Equipment( descriptor, CLASS_WEAPON, permanent_descriptor ),
-      hit_script_( descriptor.hit_script )
-{
-}
+UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor ) :
+  Equipment( descriptor, CLASS_WEAPON, permanent_descriptor ),
+  hit_script_( descriptor.hit_script )
+{}
 
 size_t UWeapon::estimatedSize() const
 {
-  return base::estimatedSize() + hit_script_.estimatedSize();
+  return base::estimatedSize()
+         + hit_script_.estimatedSize();
 }
 
 unsigned short UWeapon::speed() const
@@ -389,19 +387,19 @@ unsigned short UWeapon::get_random_damage() const
 
 bool UWeapon::is_projectile() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return WEAPON_TMPL->projectile;
 }
 
 unsigned short UWeapon::projectile_sound() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return WEAPON_TMPL->projectile_sound;
 }
 
 unsigned short UWeapon::projectile_anim() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return WEAPON_TMPL->projectile_anim;
 }
 
@@ -414,37 +412,37 @@ return tmpl->projectile_action;
 
 Core::UACTION UWeapon::anim() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return WEAPON_TMPL->anim;
 }
 
 Core::UACTION UWeapon::mounted_anim() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return WEAPON_TMPL->mounted_anim;
 }
 
 unsigned short UWeapon::hit_sound() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return WEAPON_TMPL->hit_sound;
 }
 
 unsigned short UWeapon::miss_sound() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return WEAPON_TMPL->miss_sound;
 }
 
 const WeaponDesc& UWeapon::descriptor() const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return *WEAPON_TMPL;
 }
 
 bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
 
   Item* item = cont->find_objtype_noninuse( WEAPON_TMPL->projectile_type );
   if ( item != NULL )
@@ -458,16 +456,17 @@ bool UWeapon::consume_projectile( Core::UContainer* cont ) const
   }
 }
 
-bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const
+bool UWeapon::in_range( const Mobile::Character* wielder,
+                        const Mobile::Character* target ) const
 {
   unsigned short dist = pol_distance( wielder, target );
-  INFO_PRINT_TRACE( 22 ) << "in_range(0x" << fmt::hexu( wielder->serial ) << ",0x"
-                         << fmt::hexu( target->serial ) << "):\n"
+  INFO_PRINT_TRACE( 22 ) << "in_range(0x" << fmt::hexu(wielder->serial) << ",0x" << fmt::hexu(target->serial) << "):\n"
                          << "dist:	 " << dist << "\n"
                          << "minrange: " << WEAPON_TMPL->minrange << "\n"
                          << "maxrange: " << WEAPON_TMPL->maxrange << "\n"
                          << "has_los:  " << wielder->realm->has_los( *wielder, *target ) << "\n";
-  return ( dist >= WEAPON_TMPL->minrange && dist <= WEAPON_TMPL->maxrange &&
+  return ( dist >= WEAPON_TMPL->minrange &&
+           dist <= WEAPON_TMPL->maxrange &&
            wielder->realm->has_los( *wielder, *target ) );
 }
 
@@ -476,8 +475,8 @@ Item* UWeapon::clone() const
 {
   UWeapon* wpn = static_cast<UWeapon*>( base::clone() );
   wpn->hit_script_ = hit_script_;
-  wpn->damage_mod( this->damage_mod() );
-  wpn->speed_mod( this->speed_mod() );
+  wpn->damage_mod(this->damage_mod());
+  wpn->speed_mod(this->speed_mod());
 
   return wpn;
 }
@@ -509,7 +508,7 @@ void UWeapon::readProperties( Clib::ConfigElem& elem )
     set_hit_script( elem.remove_string( "HITSCRIPT" ) );
 }
 
-void UWeapon::set_hit_script( const std::string& scriptname )
+void UWeapon::set_hit_script(const std::string& scriptname)
 {
   if ( scriptname.empty() )
   {
@@ -517,8 +516,11 @@ void UWeapon::set_hit_script( const std::string& scriptname )
   }
   else
   {
-    passert( tmpl != NULL );
-    hit_script_.config( scriptname, tmpl->pkg, "scripts/items/", true );
+    passert(tmpl != NULL);
+    hit_script_.config( scriptname,
+                        tmpl->pkg,
+                        "scripts/items/",
+                        true );
   }
 }
 }

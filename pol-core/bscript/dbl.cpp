@@ -26,7 +26,7 @@ std::string Double::pack() const
   return OSTRINGSTREAM_STR( os );
 }
 
-void Double::packonto( std::ostream& os ) const
+void Double::packonto(std::ostream& os) const
 {
   os << "r" << dval_;
 }
@@ -45,7 +45,7 @@ BObjectImp* Double::unpack( const char* pstr )
   }
 }
 
-BObjectImp* Double::unpack( std::istream& is )
+BObjectImp* Double::unpack(std::istream& is)
 {
   double dv;
   if ( is >> dv )
@@ -121,7 +121,7 @@ BObjectImp* Double::selfPlusObj( const String& objimp ) const
 {
   return new String( getStringRep() + objimp.data() );
 }
-void Double::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
+void Double::selfPlusObjImp( BObjectImp&  objimp, BObject& obj )
 {
   objimp.selfPlusObj( *this, obj );
 }

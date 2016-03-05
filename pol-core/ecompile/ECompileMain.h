@@ -9,6 +9,7 @@ namespace Pol
 {
 namespace ECompile
 {
+
 class ECompileMain : public Pol::Clib::ProgramMain
 {
 public:
@@ -21,7 +22,8 @@ protected:
 private:
   virtual void showHelp();
 };
-}
-}  // namespaces
 
-#endif  // E_COMPILE_MAIN_H
+}
+} // namespaces
+
+#endif // E_COMPILE_MAIN_H

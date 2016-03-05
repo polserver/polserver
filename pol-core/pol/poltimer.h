@@ -17,7 +17,11 @@ class PolTimer
 {
 public:
   PolTimer() : start( polclock() ) {}
-  void printOn( std::ostream& os ) { os << "elapsed: " << polclock() - start << " polclocks\n"; }
+  void printOn( std::ostream& os )
+  {
+    os << "elapsed: " << polclock() - start << " polclocks\n";
+  }
+
 private:
   polclock_t start;
 };

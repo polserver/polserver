@@ -9,7 +9,7 @@
 #define __UOEXEC_H
 
 #ifndef __BSCRIPT_EXECUTOR_H
-#include "../bscript/executor.h"
+# include "../bscript/executor.h"
 #endif
 
 #include "../clib/weakptr.h"
@@ -26,7 +26,6 @@ namespace Core
 class UOExecutor : public Bscript::Executor
 {
   typedef Bscript::Executor base;
-
 public:
   Module::OSExecutorModule* os_module;
   UOExecutor();
@@ -50,7 +49,7 @@ public:
   bool auxsvc_assume_string;
   weak_ptr_owner<UOExecutor> weakptr;
 
-  UOExecutor *pParent, *pChild;
+  UOExecutor*  pParent, *pChild;
 };
 }
 }

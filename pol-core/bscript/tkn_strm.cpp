@@ -19,6 +19,7 @@ namespace Bscript
 {
 void Token::printOn( std::ostream& os ) const
 {
+
   switch ( id )
   {
   case TOK_LONG:
@@ -94,14 +95,12 @@ void Token::printOn( std::ostream& os ) const
     break;
   case INS_ASSIGN_LOCALVAR:
     os << "local" << lval;
-    if ( token )
-      os << " (" << token << ")";
+    if ( token ) os << " (" << token << ")";
     os << " := ";
     break;
   case INS_ASSIGN_GLOBALVAR:
     os << "global" << lval;
-    if ( token )
-      os << " (" << token << ")";
+    if ( token ) os << " (" << token << ")";
     os << " := ";
     break;
   case INS_ASSIGN_CONSUME:
@@ -202,8 +201,7 @@ void Token::printOn( std::ostream& os ) const
     break;
 
   case INS_CALL_METHOD_ID:
-    os << "Call Method id " << getObjMethod( (int)lval )->code << " (#" << lval << ", " << type
-       << " params)";
+    os << "Call Method id " << getObjMethod( (int)lval )->code << " (#" << lval << ", " << type << " params)";
     break;
   case TOK_IN:
     os << "in";
@@ -454,20 +452,19 @@ void Token::printOn( std::ostream& os ) const
 
   default:
     os << "Unknown Token: (" << int( id ) << "," << int( type );
-    if ( token )
-      os << ",'" << token << "'";
+    if ( token ) os << ",'" << token << "'";
     os << ")";
     break;
   }
 }
 
-std::ostream& operator<<( std::ostream& os, const Token& tok )
+std::ostream& operator << (std::ostream& os, const Token& tok)
 {
   tok.printOn( os );
   return os;
 }
 
-fmt::Writer& operator<<( fmt::Writer& w, const Token& tok )
+fmt::Writer& operator << ( fmt::Writer& w, const Token& tok )
 {
   std::ostringstream os;
   tok.printOn( os );

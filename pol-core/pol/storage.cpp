@@ -32,18 +32,19 @@
 #include <stdexcept>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
+#pragma warning(disable:4996) // deprecation warning for stricmp
 #endif
 
 namespace Pol
 {
 namespace Core
 {
+
 using namespace Bscript;
 
-StorageArea::StorageArea( std::string name ) : _name( name )
-{
-}
+StorageArea::StorageArea( std::string name ) :
+  _name( name )
+{}
 
 StorageArea::~StorageArea()
 {
@@ -59,13 +60,13 @@ StorageArea::~StorageArea()
 size_t StorageArea::estimateSize() const
 {
   size_t size = _name.capacity();
-  for ( const auto& item : _items )
-    size += item.first.capacity() + sizeof( Items::Item* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+  for (const auto& item : _items)
+    size+=item.first.capacity()+sizeof( Items::Item*) + ( sizeof(void*) * 3 + 1 ) / 2;
   return size;
 }
 
 
-Items::Item* StorageArea::find_root_item( const std::string& name )
+Items::Item* StorageArea::find_root_item(const std::string& name)
 {
   // LINEAR_SEARCH
   Cont::iterator itr = _items.find( name );
@@ -76,7 +77,7 @@ Items::Item* StorageArea::find_root_item( const std::string& name )
   return NULL;
 }
 
-bool StorageArea::delete_root_item( const std::string& name )
+bool StorageArea::delete_root_item(const std::string& name)
 {
   Cont::iterator itr = _items.find( name );
   if ( itr != _items.end() )
@@ -96,7 +97,7 @@ void StorageArea::insert_root_item( Items::Item* item )
   _items.insert( make_pair( item->name(), item ) );
 }
 
-extern Items::Item* read_item( Clib::ConfigElem& elem );  // from UIMPORT.CPP
+extern Items::Item* read_item( Clib::ConfigElem& elem ); // from UIMPORT.CPP
 
 void StorageArea::load_item( Clib::ConfigElem& elem )
 {
@@ -107,11 +108,11 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
   if ( get_save_index( serial ) > objStorageManager.current_incremental_save )
     return;
 
-  u32 container_serial = 0;                                  // defaults to item at storage root,
-  (void)elem.remove_prop( "CONTAINER", &container_serial );  // so the return value can be ignored
+  u32 container_serial = 0;                                 // defaults to item at storage root,
+  (void)elem.remove_prop( "CONTAINER", &container_serial ); // so the return value can be ignored
 
   Items::Item* item = read_item( elem );
-  // Austin added 8/10/2006, protect against further crash if item is null. Should throw instead?
+  //Austin added 8/10/2006, protect against further crash if item is null. Should throw instead?
   if ( item == NULL )
   {
     elem.warn_with_line( "Error reading item SERIAL or OBJTYPE." );
@@ -135,7 +136,7 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
     }
   }
 }
-StorageArea* Storage::find_area( const std::string& name )
+StorageArea* Storage::find_area(const std::string& name)
 {
   AreaCont::iterator itr = areas.find( name );
   if ( itr == areas.end() )
@@ -144,7 +145,7 @@ StorageArea* Storage::find_area( const std::string& name )
     return ( *itr ).second;
 }
 
-StorageArea* Storage::create_area( const std::string& name )
+StorageArea* Storage::create_area(const std::string& name)
 {
   AreaCont::iterator itr = areas.find( name );
   if ( itr == areas.end() )
@@ -186,7 +187,9 @@ void StorageArea::print( Clib::StreamWriter& sw ) const
 
 void StorageArea::on_delete_realm( Realms::Realm* realm )
 {
-  for ( Cont::const_iterator itr = _items.begin(), itrend = _items.end(); itr != itrend; ++itr )
+  for ( Cont::const_iterator itr = _items.begin(), itrend = _items.end();
+        itr != itrend;
+        ++itr )
   {
     Items::Item* item = ( *itr ).second;
     if ( item )
@@ -203,7 +206,9 @@ void StorageArea::on_delete_realm( Realms::Realm* realm )
 
 void Storage::on_delete_realm( Realms::Realm* realm )
 {
-  for ( AreaCont::const_iterator itr = areas.begin(), itrend = areas.end(); itr != itrend; ++itr )
+  for ( AreaCont::const_iterator itr = areas.begin(), itrend = areas.end();
+        itr != itrend;
+        ++itr )
   {
     itr->second->on_delete_realm( realm );
   }
@@ -238,7 +243,7 @@ void Storage::read( Clib::ConfigFile& cf )
         {
           area->load_item( elem );
         }
-        catch ( std::exception& )
+        catch ( std::exception&)
         {
           if ( !Plib::systemstate.config.ignore_load_errors )
             throw;
@@ -247,7 +252,7 @@ void Storage::read( Clib::ConfigFile& cf )
       else
       {
         ERROR_PRINT << "Storage: Got an ITEM element, but don't have a StorageArea to put it.\n";
-        throw std::runtime_error( "Data file integrity error" );
+        throw std::runtime_error("Data file integrity error");
       }
     }
     else
@@ -268,7 +273,10 @@ void Storage::print( Clib::StreamWriter& sw ) const
 {
   for ( const auto& area : areas )
   {
-    sw() << "StorageArea" << '\n' << "{" << '\n' << "\tName\t" << area.first << '\n' << "}" << '\n'
+    sw() << "StorageArea" << '\n'
+         << "{" << '\n'
+         << "\tName\t" << area.first << '\n'
+         << "}" << '\n'
          << '\n';
     area.second->print( sw );
     sw() << '\n';
@@ -286,11 +294,11 @@ void Storage::clear()
 
 size_t Storage::estimateSize() const
 {
-  size_t size = 0;
-  for ( const auto& area : areas )
+  size_t size =0;
+  for (const auto& area : areas)
   {
-    size += area.first.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
-    if ( area.second != nullptr )
+    size+=area.first.capacity() + ( sizeof(void*) * 3 + 1 ) / 2;
+    if (area.second != nullptr)
       size += area.second->estimateSize();
   }
   return size;
@@ -301,17 +309,18 @@ class StorageAreaIterator : public ContIterator
 public:
   StorageAreaIterator( StorageArea* area, BObject* pIter );
   virtual BObject* step() POL_OVERRIDE;
-
 private:
   BObject* m_pIterVal;
   std::string key;
   StorageArea* _area;
 };
 
-StorageAreaIterator::StorageAreaIterator( StorageArea* area, BObject* pIter )
-    : ContIterator(), m_pIterVal( pIter ), key( "" ), _area( area )
-{
-}
+StorageAreaIterator::StorageAreaIterator( StorageArea* area, BObject* pIter ) :
+  ContIterator(),
+  m_pIterVal( pIter ),
+  key( "" ),
+  _area( area )
+{}
 
 BObject* StorageAreaIterator::step()
 {
@@ -335,9 +344,22 @@ class StorageAreaImp : public BObjectImp
 {
 public:
   StorageAreaImp( StorageArea* area ) : BObjectImp( BObjectImp::OTUnknown ), _area( area ) {}
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreaImp( _area ); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return _area->_name; }
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
+
+  virtual BObjectImp* copy() const POL_OVERRIDE
+  {
+    return new StorageAreaImp( _area );
+  }
+
+  virtual std::string getStringRep() const POL_OVERRIDE
+  {
+    return _area->_name;
+  }
+
+  virtual size_t sizeEstimate() const POL_OVERRIDE
+  {
+    return sizeof( *this );
+  }
+
   ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
   {
     return new StorageAreaIterator( _area, pIterVal );
@@ -357,8 +379,7 @@ BObjectRef StorageAreaImp::get_member( const char* membername )
   else if ( stricmp( membername, "totalcount" ) == 0 )
   {
     unsigned int total = 0;
-    for ( StorageArea::Cont::iterator itr = _area->_items.begin(); itr != _area->_items.end();
-          ++itr )
+    for ( StorageArea::Cont::iterator itr = _area->_items.begin(); itr != _area->_items.end(); ++itr )
     {
       Items::Item* item = ( *itr ).second;
       total += item->item_count();
@@ -374,16 +395,16 @@ class StorageAreasIterator : public ContIterator
 public:
   StorageAreasIterator( BObject* pIter );
   virtual BObject* step() POL_OVERRIDE;
-
 private:
   BObject* m_pIterVal;
   std::string key;
 };
 
-StorageAreasIterator::StorageAreasIterator( BObject* pIter )
-    : ContIterator(), m_pIterVal( pIter ), key( "" )
-{
-}
+StorageAreasIterator::StorageAreasIterator( BObject* pIter ) :
+  ContIterator(),
+  m_pIterVal( pIter ),
+  key( "" )
+{}
 
 BObject* StorageAreasIterator::step()
 {
@@ -406,9 +427,22 @@ class StorageAreasImp : public BObjectImp
 {
 public:
   StorageAreasImp() : BObjectImp( BObjectImp::OTUnknown ) {}
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreasImp(); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return "<StorageAreas>"; }
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
+
+  virtual BObjectImp* copy() const POL_OVERRIDE
+  {
+    return new StorageAreasImp();
+  }
+
+  virtual std::string getStringRep() const POL_OVERRIDE
+  {
+    return "<StorageAreas>";
+  }
+
+  virtual size_t sizeEstimate() const POL_OVERRIDE
+  {
+    return sizeof( *this );
+  }
+
   ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
   {
     return new StorageAreasIterator( pIterVal );
@@ -417,6 +451,7 @@ public:
   BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 
   BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
+
 };
 
 BObjectImp* CreateStorageAreasImp()
@@ -451,5 +486,6 @@ BObjectRef StorageAreasImp::OperSubscript( const BObject& obj )
   }
   return BObjectRef( new BObject( new BError( "Invalid parameter type" ) ) );
 }
+
 }
 }

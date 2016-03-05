@@ -10,6 +10,7 @@ class MemoryUsage
 public:
   static void log();
 };
+
 }
 }
 

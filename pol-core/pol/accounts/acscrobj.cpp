@@ -58,6 +58,7 @@ void createchar2( Accounts::Account* acct, unsigned index );
 }
 namespace Accounts
 {
+
 Bscript::BApplicObjType accountobjimp_type;
 
 const char* AccountObjImp::typeOf() const
@@ -69,7 +70,7 @@ u8 AccountObjImp::typeOfInt() const
   return OTAccountRef;
 }
 
-Bscript::BObjectImp* AccountObjImp::copy() const
+Bscript::BObjectImp* AccountObjImp::copy( ) const
 {
   return new AccountObjImp( obj_ );
 }
@@ -77,13 +78,12 @@ Bscript::BObjectImp* AccountObjImp::copy() const
 ///
 /// [1] Account Scripting Object Methods
 ///
-///	 All methods except GetProp and GetCharacter return 1 on success
-///	 All methods except GetProp and GetCharacter write the accounts.txt file on success.
-///	 All methods return Error("Not enough parameters") if too few parameters were passed.
-///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
+///  All methods except GetProp and GetCharacter return 1 on success
+///  All methods except GetProp and GetCharacter write the accounts.txt file on success.
+///  All methods return Error("Not enough parameters") if too few parameters were passed.
+///  All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
-Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Executor& ex,
-                                                    bool /*forcebuiltin*/ )
+Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Executor& ex, bool /*forcebuiltin*/ )
 {
   using namespace Bscript;
   BObjectImp* result = NULL;
@@ -105,8 +105,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       ret = ret->copy();
       if ( ret->isa( OTUninit ) )
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        std::string message = std::string("Member ") + std::string(mname->value()) + std::string(" not found on that object");
         return new BError( message );
       }
       else
@@ -127,8 +126,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       obj_->banned_ = true;
       for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
       {
-        Mobile::Character* chr = obj_->get_character( i );
-        if ( chr && chr->client )
+        Mobile::Character* chr = obj_->get_character(i);
+        if( chr && chr->client )
           chr->client->Disconnect();
       }
     }
@@ -162,8 +161,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       obj_->enabled_ = false;
       for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
       {
-        Mobile::Character* chr = obj_->get_character( i );
-        if ( chr && chr->client )
+        Mobile::Character* chr = obj_->get_character(i);
+        if( chr && chr->client )
           chr->client->Disconnect();
       }
       break;
@@ -184,7 +183,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 
         std::string temp;
         Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );
-        obj_->passwordhash_ = temp;  // MD5
+        obj_->passwordhash_ = temp; //MD5
         break;
       }
       else
@@ -206,7 +205,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
         bool ret;
         std::string temp;
 
-        Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );  // MD5
+        Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );//MD5
         ret = Clib::MD5_Compare( obj_->passwordhash_, temp );
 
         result = new BLong( ret );
@@ -221,14 +220,14 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   ///
   /// account.SetAcctName( newname : string ) : changes the account name
-  ///	- deprecated in favor of:
+  /// - deprecated in favor of:
   /// account.SetName( newname : string ) : changes the account name
   ///  ACK, bug - since account data is saved immediately,
   ///  a crash w/o save will result in a server that can't start
   ///  because account names in accounts.txt will refer to the old name
   ///
   case MTH_SETNAME:
-    // passed only new account name, and cleartext password is saved
+    //passed only new account name, and cleartext password is saved
     if ( ( ex.numParams() == 1 ) && Plib::systemstate.config.retain_cleartext_passwords )
     {
       const String* nmstr;
@@ -237,33 +236,34 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
         if ( nmstr->value().empty() )
           return new BError( "Account name must not be empty." );
         std::string temp;
-        // passing the new name, and recalc name+pass hash (pass only hash is unchanged)
+        //passing the new name, and recalc name+pass hash (pass only hash is unchanged)
         obj_->name_ = nmstr->value();
         Clib::MD5_Encrypt( obj_->name_ + obj_->password_, temp );
-        obj_->passwordhash_ = temp;  // MD5
+        obj_->passwordhash_ = temp; //MD5
       }
       else
       {
         return new BError( "Invalid parameter type" );
       }
     }
-    // passed new account name and password
+    //passed new account name and password
     else if ( ex.numParams() == 2 )
     {
       const String* nmstr;
       const String* pwstr;
-      if ( ex.getStringParam( 0, nmstr ) && ex.getStringParam( 1, pwstr ) )
+      if ( ex.getStringParam( 0, nmstr ) &&
+           ex.getStringParam( 1, pwstr ) )
       {
         if ( nmstr->value().empty() )
           return new BError( "Account name must not be empty." );
         obj_->name_ = nmstr->value();
-        // this is the same as the "setpassword" code above
+        //this is the same as the "setpassword" code above
         if ( Plib::systemstate.config.retain_cleartext_passwords )
           obj_->password_ = pwstr->value();
 
         std::string temp;
         Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );
-        obj_->passwordhash_ = temp;  // MD5
+        obj_->passwordhash_ = temp; //MD5
       }
       else
       {
@@ -277,7 +277,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   ///
   /// account.GetProp( propname : string ) : gets a custom account property
-  ///	 returns Error( "Property not found" ) if property does not exist.
+  ///  returns Error( "Property not found" ) if property does not exist.
   ///
   ///
   /// account.SetProp( propname : string, propval : packable ) : sets a custom account property
@@ -315,9 +315,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   }
   ///
-  /// account.GetCharacter( index : 1..5 ) : retrieve a reference to a character belonging to this
-  /// account.
-  ///	This reference may be used even if the character is offline.
+  /// account.GetCharacter( index : 1..5 ) : retrieve a reference to a character belonging to this account.
+  /// This reference may be used even if the character is offline.
   case MTH_GETCHARACTER:
   {
     if ( ex.numParams() != 1 )
@@ -370,8 +369,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     const String* expansion_str;
     if ( ex.getStringParam( 0, expansion_str ) )
     {
-      if ( expansion_str->value().empty() || ( expansion_str->value() == "HSA" ) ||
-           ( expansion_str->value() == "SA" ) || ( expansion_str->value() == "KR" ) ||
+      if ( expansion_str->value().empty() || ( expansion_str->value() == "HSA" ) || ( expansion_str->value() == "SA" ) || ( expansion_str->value() == "KR" ) ||
            ( expansion_str->value() == "ML" ) || ( expansion_str->value() == "SE" ) ||
            ( expansion_str->value() == "AOS" ) || ( expansion_str->value() == "LBR" ) ||
            ( expansion_str->value() == "T2A" ) )
@@ -379,14 +377,13 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
         obj_->uo_expansion_ = obj_->convert_uo_expansion( expansion_str->value() );
         for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
         {
-          Mobile::Character* chr = obj_->get_character( i );
-          if ( chr && chr->has_active_client() )
+          Mobile::Character* chr = obj_->get_character(i);
+          if( chr && chr->has_active_client() )
             Core::send_feature_enable( chr->client );
         }
       }
       else
-        return new BError(
-            "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA" );
+        return new BError( "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA" );
     }
     else
       return new BError( "Invalid Parameter Type" );
@@ -400,15 +397,14 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       int _result = delete_account( obj_->name() );
       if ( _result == -1 )
         return new BError( "You must delete all Character first." );
-      else if ( _result == -2 )  // Should never happen ;o)
+      else if ( _result == -2 ) // Should never happen ;o)
         return new BError( "Invalid Account Name." );
     }
     else
       return new BError( "account.Delete() doesn't take parameters." );
     break;
   ///
-  /// account.Split( newacctname : string, index : 1..5 ) : create a new account and move character
-  /// to it
+  /// account.Split( newacctname : string, index : 1..5 ) : create a new account and move character to it
   ///
   case MTH_SPLIT:
     if ( ex.numParams() == 2 )
@@ -448,8 +444,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       return new BError( "account.Split requires two parameters." );
     break;
   ///
-  /// account.Move_Char( destacctname : string, index : 1..5 ) : move character from this account to
-  /// destaccount
+  /// account.Move_Char( destacctname : string, index : 1..5 ) : move character from this account to destaccount
   ///
   case MTH_MOVE_CHAR:
     if ( ex.numParams() == 2 )
@@ -513,9 +508,9 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 
     result = new BLong( index + 1 );
     Account* acct = find_account( obj_->name_.c_str() );
-    if ( acct == NULL )
+    if (acct == NULL)
     {
-      return new BError( "Account doesn't exist." );
+      return new BError("Account doesn't exist.");
     }
     Core::createchar2( acct, unsigned( index ) );
 
@@ -537,10 +532,10 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 ///
 /// [1] Account Scripting Object Methods
 ///
-///	 All methods except GetProp and GetCharacter return 1 on success
-///	 All methods except GetProp and GetCharacter write the accounts.txt file on success.
-///	 All methods return Error("Not enough parameters") if too few parameters were passed.
-///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
+///  All methods except GetProp and GetCharacter return 1 on success
+///  All methods except GetProp and GetCharacter write the accounts.txt file on success.
+///  All methods return Error("Not enough parameters") if too few parameters were passed.
+///  All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
 Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
@@ -553,13 +548,13 @@ Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript
 
 ///
 /// [2] Account Scripting Object Members
-///	 MemberName	  Type		Access
-///	 name			string	  read-only
-///	 enabled		 boolean	 read-only
-///	 banned		  boolean	 read-only
+///  MemberName   Type    Access
+///  name     string    read-only
+///  enabled     boolean   read-only
+///  banned     boolean  read-only
 ///
 
-Bscript::BObjectRef AccountObjImp::get_member_id( const int id )  // id test
+Bscript::BObjectRef AccountObjImp::get_member_id( const int id ) //id test
 {
   using namespace Bscript;
   switch ( id )
@@ -597,5 +592,6 @@ Bscript::BObjectRef AccountObjImp::get_member( const char* membername )
   else
     return BObjectRef( UninitObject::create() );
 }
+
 }
 }

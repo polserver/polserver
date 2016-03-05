@@ -19,11 +19,11 @@ class Tile
 {
 public:
   std::string desc;
-  unsigned int uoflags;  // USTRUCT_TILE::*
-  unsigned int flags;    // FLAG::*
+  unsigned int uoflags; // USTRUCT_TILE::*
+  unsigned int flags; // FLAG::*
   u8 layer;
   u8 height;
-  u8 weight;  // todo mult, div
+  u8 weight; // todo mult, div
 };
 }
 }

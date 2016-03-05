@@ -13,6 +13,7 @@ namespace Pol
 {
 namespace Core
 {
+
 const u32 CHARACTERSERIAL_START = 0x00000001Lu;
 const u32 CHARACTERSERIAL_END = 0x3FFFFFFFLu;
 const u32 ITEMSERIAL_START = 0x40000000Lu;
@@ -60,6 +61,8 @@ public:
   } decay_statistics;
 
   std::atomic<int> checkin_clock_times_out_at;
+
+
 };
 
 extern StateManager stateManager;

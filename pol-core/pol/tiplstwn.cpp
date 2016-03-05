@@ -4,6 +4,7 @@
  */
 
 
+
 #include "tiplist.h"
 
 #include "../clib/dirlist.h"
@@ -22,8 +23,7 @@ void load_tips()
   for ( Clib::DirList dl( "tips/" ); !dl.at_end(); dl.next() )
   {
     std::string name = dl.name();
-    if ( name[0] == '.' )
-      continue;
+    if ( name[0] == '.' ) continue;
     if ( name.find( ".txt" ) != std::string::npos )
     {
       gamestate.tipfilenames.push_back( name.c_str() );

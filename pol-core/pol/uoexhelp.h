@@ -51,8 +51,7 @@ bool getUBoatParam( Bscript::Executor& exec, unsigned param, Multi::UBoat*& boat
 bool getMultiParam( Bscript::Executor& exec, unsigned param, Multi::UMulti*& multi );
 bool getAttributeParam( Bscript::Executor& exec, unsigned param, const Mobile::Attribute*& attr );
 bool getVitalParam( Bscript::Executor& exec, unsigned param, const Vital*& vital );
-bool getCharacterOrClientParam( Bscript::Executor& exec, unsigned param, Mobile::Character*& chrptr,
-                                Network::Client*& clientptr );
+bool getCharacterOrClientParam( Bscript::Executor& exec, unsigned param, Mobile::Character*& chrptr, Network::Client*& clientptr );
 }
 }
 #endif

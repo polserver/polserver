@@ -8,7 +8,7 @@
 #include "allocd.h"
 
 #ifdef _WIN32
-#include <malloc.h>
+# include <malloc.h>
 #endif
 
 #include <cstddef>
@@ -48,8 +48,10 @@ void PrintAllocationData()
   _tmp.Format( "Heap:  Used {} blocks, {} bytes, Free {} blocks, {} bytes\n" )
       << blocks_used << bytes_used << blocks_free << bytes_free;
   _tmp.Format( "Delta: Used {} blocks, {} bytes, Free {} blocks, {} bytes\n" )
-      << ( blocks_used - last_blocks_used ) << ( bytes_used - last_bytes_used )
-      << ( blocks_free - last_blocks_free ) << ( bytes_free - last_bytes_free );
+      << ( blocks_used - last_blocks_used )
+      << ( bytes_used - last_bytes_used )
+      << ( blocks_free - last_blocks_free )
+      << ( bytes_free - last_bytes_free );
   last_blocks_used = blocks_used;
   last_bytes_used = bytes_used;
   last_blocks_free = blocks_free;

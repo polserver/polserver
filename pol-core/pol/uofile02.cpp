@@ -45,7 +45,7 @@ int cfg_max_statics_per_block = 1000;
 int cfg_warning_statics_per_block = 1000;
 bool cfg_use_new_hsa_format = 0;
 
-typedef std::map<unsigned int, unsigned int> StaticDifBlockIndex;
+typedef std::map< unsigned int, unsigned int > StaticDifBlockIndex;
 StaticDifBlockIndex stadifl;
 
 struct USTRUCT_STATIC_BUFFER
@@ -71,10 +71,9 @@ void read_static_diffs()
   Plib::num_static_patches = index;
 }
 
-void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x,
-                      unsigned short y )
+void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x, unsigned short y )
 {
-  if ( !rawstatic_init )  // FIXME just for safety cause I'm lazy
+  if ( !rawstatic_init ) // FIXME just for safety cause I'm lazy
     rawstaticfullread();
   if ( x >= uo_map_width || y >= uo_map_height )
   {
@@ -102,31 +101,26 @@ void rawstaticfullread()
       {
         if ( fseek( statfile, idx.offset, SEEK_SET ) != 0 )
         {
-          throw std::runtime_error( "readstaticblock: fseek(statfile) to " +
-                                    Clib::tostring( idx.offset ) + " failed." );
+          throw std::runtime_error( "readstaticblock: fseek(statfile) to " + Clib::tostring( idx.offset ) + " failed." );
         }
         srec_count = idx.length / sizeof srecs[0];
-        int x = block / uo_map_width;  // FIXME is this correct?
+        int x = block / uo_map_width; // FIXME is this correct?
         int y = ( block % uo_map_width ) / 8;
         passert_always_r( srec_count <= cfg_max_statics_per_block,
-                          "to many static items in area " + Clib::tostring( x ) + " " +
-                              Clib::tostring( y ) + " " + Clib::tostring( x + 7 ) + " " +
-                              Clib::tostring( y + 7 ) +
-                              " - maybe double items... you've to reduce amount of " +
-                              Clib::tostring( srec_count ) + " items below " +
-                              Clib::tostring( cfg_max_statics_per_block ) + " items" );
+                          "to many static items in area " + Clib::tostring( x ) + " " + Clib::tostring( y ) + " " + Clib::tostring( x + 7 ) +
+                          " " + Clib::tostring( y + 7 ) + " - maybe double items... you've to reduce amount of " +
+                          Clib::tostring( srec_count ) + " items below " + Clib::tostring( cfg_max_statics_per_block ) + " items" );
 
-        // dave 9/8/3, Austin's statics had a normal offset but a length of 0. badly written tool?
+        //dave 9/8/3, Austin's statics had a normal offset but a length of 0. badly written tool?
         if ( idx.length != 0 && fread( srecs, idx.length, 1, statfile ) != 1 )
         {
-          throw std::runtime_error( "readstaticblock: fread(statfile) failed." +
-                                    Clib::tostring( block ) );
+          throw std::runtime_error("readstaticblock: fread(statfile) failed." + Clib::tostring(block));
         }
 
 
         if ( srec_count > cfg_warning_statics_per_block )
-          INFO_PRINT << " Warning: " << srec_count << " items found in area " << x << " " << y
-                     << " " << ( x + 7 ) << " " << ( y + 7 ) << "\n";
+          INFO_PRINT << " Warning: " << srec_count << " items found in area "
+                     << x << " " << y << " " << ( x + 7 ) << " " << ( y + 7 ) << "\n";
 
         buf.count = srec_count;
       }
@@ -142,8 +136,7 @@ void rawstaticfullread()
       int offset = dif_index * sizeof idx;
       if ( fseek( stadifi_file, offset, SEEK_SET ) != 0 )
       {
-        throw std::runtime_error( "readstaticblock: fseek(stadifi) to " + Clib::tostring( offset ) +
-                                  " failed." );
+        throw std::runtime_error( "readstaticblock: fseek(stadifi) to " + Clib::tostring( offset ) + " failed." );
       }
 
       if ( fread( &idx, sizeof idx, 1, stadifi_file ) != 1 )
@@ -155,20 +148,16 @@ void rawstaticfullread()
       {
         if ( fseek( stadif_file, idx.offset, SEEK_SET ) != 0 )
         {
-          throw std::runtime_error( "readstaticblock: fseek(stadif) to " +
-                                    Clib::tostring( idx.offset ) + " failed." );
+          throw std::runtime_error( "readstaticblock: fseek(stadif) to " + Clib::tostring( idx.offset ) + " failed." );
         }
 
         srec_count = idx.length / sizeof srecs[0];
         int x = block / uo_map_width;
         int y = ( block % uo_map_width ) / ( uo_map_height / 8 );
         passert_always_r( srec_count <= cfg_max_statics_per_block,
-                          "to many static items in area " + Clib::tostring( x ) + " " +
-                              Clib::tostring( y ) + " " + Clib::tostring( x + 7 ) + " " +
-                              Clib::tostring( y + 7 ) +
-                              " - maybe double items... you've to reduce amount of " +
-                              Clib::tostring( srec_count ) + " items below " +
-                              Clib::tostring( cfg_max_statics_per_block ) + " items" );
+                          "to many static items in area " + Clib::tostring( x ) + " " + Clib::tostring( y ) + " " + Clib::tostring( x + 7 ) +
+                          " " + Clib::tostring( y + 7 ) + " - maybe double items... you've to reduce amount of " +
+                          Clib::tostring( srec_count ) + " items below " + Clib::tostring( cfg_max_statics_per_block ) + " items" );
 
         if ( fread( srecs, idx.length, 1, stadif_file ) != 1 )
         {
@@ -176,8 +165,8 @@ void rawstaticfullread()
         }
 
         if ( srec_count > cfg_warning_statics_per_block )
-          INFO_PRINT << " Warning: " << srec_count << " items found in dif-area " << x << " " << y
-                     << " " << ( x + 7 ) << " " << ( y + 7 ) << "\n";
+          INFO_PRINT << " Warning: " << srec_count << " items found in dif-area "
+                     << x << " " << y << " " << ( x + 7 ) << " " << ( y + 7 ) << "\n";
 
         buf.count = srec_count;
       }

@@ -1,15 +1,13 @@
 /** @file
  *
  * @par History
- * - 2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file
- * modification
+ * - 2005/07/01 Shinigami: added StoredConfigFile::modified_ (stat.st_mtime) to detect cfg file modification
  *                         added oldcfgfiles - holds all references to "removed" cfg files
  *                         UnloadConfigFile will reload file if modified only
  * - 2005/07/04 Shinigami: added StoredConfigFile::reload to check for file modification
  *                         moved file modification check from UnloadConfigFile to FindConfigFile
  *                         added ConfigFiles_log_stuff for memory logging
- * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format
- * too (leak.log)
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
  *
  * @note Configuration File Repository
  */
@@ -35,7 +33,7 @@
 #include "globals/ucfg.h"
 
 #include <sys/stat.h>
-#if !defined( _WIN32 )
+#if !defined(_WIN32)
 #include <sys/types.h>
 #endif
 
@@ -59,23 +57,21 @@ StoredConfigElem::StoredConfigElem( Clib::ConfigElem& elem )
 }
 
 StoredConfigElem::StoredConfigElem()
-{
-}
+{}
 
 // ToDo: we have to think over... it's a problem with script-inside references
 StoredConfigElem::~StoredConfigElem()
 {
-  //	while (!propimps_.empty())
-  //	{
-  //		delete ((*propimps_.begin()).second);
-  //		propimps_.erase( propimps_.begin() );
-  //	}
+  //  while (!propimps_.empty())
+  //  {
+  //    delete ((*propimps_.begin()).second);
+  //    propimps_.erase( propimps_.begin() );
+  //  }
 }
 
 void StoredConfigElem::addprop( const std::string& propname, Bscript::BObjectImp* imp )
 {
-  propimps_.insert( PropImpList::value_type( boost_utils::cfg_key_flystring( propname ),
-                                             ref_ptr<class Bscript::BObjectImp>( imp ) ) );
+  propimps_.insert( PropImpList::value_type( boost_utils::cfg_key_flystring(propname), ref_ptr<class Bscript::BObjectImp>( imp ) ) );
 }
 
 Bscript::BObjectImp* StoredConfigElem::getimp( const std::string& propname ) const
@@ -85,6 +81,7 @@ Bscript::BObjectImp* StoredConfigElem::getimp( const std::string& propname ) con
     return NULL;
   else
     return ( *itr ).second.get();
+
 }
 
 Bscript::BObjectImp* StoredConfigElem::listprops() const
@@ -93,15 +90,14 @@ Bscript::BObjectImp* StoredConfigElem::listprops() const
   PropImpList::const_iterator itr;
   for ( itr = propimps_.begin(); itr != propimps_.end(); ++itr )
   {
-    Bscript::String propname( ( *itr ).first );
+    Bscript::String propname (( *itr ).first);
     if ( !objarr->contains( propname ) )
       objarr->addElement( propname.copy() );
   }
   return objarr;
 }
 
-std::pair<StoredConfigElem::const_iterator, StoredConfigElem::const_iterator>
-StoredConfigElem::equal_range( const std::string& propname ) const
+std::pair<StoredConfigElem::const_iterator, StoredConfigElem::const_iterator> StoredConfigElem::equal_range( const std::string& propname ) const
 {
   return propimps_.equal_range( boost_utils::cfg_key_flystring( propname ) );
 }
@@ -114,29 +110,30 @@ size_t StoredConfigElem::estimateSize() const
     size_t elemsize = sizeof( ref_ptr<Bscript::BObjectImp> );
     if ( pair.second.get() != nullptr )
       elemsize = pair.second->sizeEstimate();
-    size += ( sizeof( pair.first ) + elemsize ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += ( sizeof(pair.first) + elemsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
   }
   return size;
 }
 
-StoredConfigFile::StoredConfigFile() : reload( false ), modified_( 0 )
-{
-}
+StoredConfigFile::StoredConfigFile() :
+  reload( false ),
+  modified_( 0 )
+{}
 
 // ToDo: we have to think over... it's a problem with script-inside references
-// StoredConfigFile::~StoredConfigFile( )
+//StoredConfigFile::~StoredConfigFile( )
 //{
-//	while (!elements_bynum_.empty())
-//	{
-//		delete ((*elements_bynum_.begin()).second);
-//		elements_bynum_.erase( elements_bynum_.begin() );
-//	}
+//  while (!elements_bynum_.empty())
+//  {
+//    delete ((*elements_bynum_.begin()).second);
+//    elements_bynum_.erase( elements_bynum_.begin() );
+//  }
 //
-//	while (!elements_byname_.empty())
-//	{
-//		delete ((*elements_byname_.begin()).second);
-//		elements_byname_.erase( elements_byname_.begin() );
-//	}
+//  while (!elements_byname_.empty())
+//  {
+//    delete ((*elements_byname_.begin()).second);
+//    elements_byname_.erase( elements_byname_.begin() );
+//  }
 //}
 
 void StoredConfigFile::load( Clib::ConfigFile& cf )
@@ -169,7 +166,7 @@ StoredConfigFile::ElemRef StoredConfigFile::findelem( int key )
     return ( *itr ).second;
 }
 
-StoredConfigFile::ElemRef StoredConfigFile::findelem( const std::string& key )
+StoredConfigFile::ElemRef StoredConfigFile::findelem(const std::string& key)
 {
   ElementsByName::const_iterator itr = elements_byname_.find( key );
   if ( itr == elements_byname_.end() )
@@ -198,16 +195,16 @@ time_t StoredConfigFile::modified() const
 }
 
 //  From "[some stuff]" return "some stuff"
-std::string extractkey( const std::string& istr )
+std::string extractkey(const std::string& istr)
 {
-  std::string::size_type vstart = istr.find_first_not_of( " [" );
-  std::string::size_type vend = istr.find_last_not_of( "] " );
+  std::string::size_type vstart = istr.find_first_not_of(" [");
+  std::string::size_type vend = istr.find_last_not_of("] ");
   return istr.substr( vstart, vend );
 }
 
 void StoredConfigFile::load_tus_scp( const std::string& filename )
 {
-  std::ifstream ifs( filename.c_str() );
+  std::ifstream ifs(filename.c_str());
 
   int count = 0;
   ElemRef elemref( new StoredConfigElem() );
@@ -238,28 +235,27 @@ void StoredConfigFile::load_tus_scp( const std::string& filename )
 
 size_t StoredConfigFile::estimateSize() const
 {
-  size_t size = sizeof( bool )      /* bool reload*/
-                + sizeof( time_t ); /* time_t modified_*/
+  size_t size = sizeof(bool) /* bool reload*/
+                +sizeof( time_t ); /* time_t modified_*/
 
   for ( const auto& pair : elements_byname_ )
   {
     size_t elemsize = sizeof( ElemRef );
     if ( pair.second.get() != nullptr )
       elemsize = pair.second->estimateSize();
-    size += ( pair.first.capacity() + elemsize ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += ( pair.first.capacity( ) + elemsize ) + ( sizeof(void*)* 3 + 1 ) / 2;
   }
   // both maps share the same ref
-  size += ( ( sizeof( int ) + sizeof( ElemRef ) ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-          elements_bynum_.size();
+  size += ( ( sizeof(int)+sizeof( ElemRef ) ) + ( sizeof(void*)* 3 + 1 ) / 2 )*elements_bynum_.size();
   return size;
 }
 
-ConfigFileRef FindConfigFile( const std::string& filename, const std::string& allpkgbase )
+ConfigFileRef FindConfigFile(const std::string& filename, const std::string& allpkgbase)
 {
   CfgFiles::iterator itr = Core::configurationbuffer.cfgfiles.find( filename );
   if ( itr != Core::configurationbuffer.cfgfiles.end() )
   {
-    if ( ( *itr ).second->reload )  // check cfg file modification?
+    if ( ( *itr ).second->reload ) // check cfg file modification?
     {
       struct stat newcfgstat;
       stat( filename.c_str(), &newcfgstat );
@@ -288,13 +284,11 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
         scfg->load( cf_main );
         any = true;
       }
-      for ( Plib::Packages::iterator pitr = Plib::systemstate.packages.begin(),
-                                     pitrend = Plib::systemstate.packages.end();
-            pitr != pitrend; ++pitr )
+      for ( Plib::Packages::iterator pitr = Plib::systemstate.packages.begin( ), pitrend = Plib::systemstate.packages.end( ); pitr != pitrend; ++pitr )
       {
         Plib::Package* pkg = ( *pitr );
-        // string pkgfilename = pkg->dir() + allpkgbase + ".cfg";
-        std::string pkgfilename = GetPackageCfgPath( pkg, allpkgbase + ".cfg" );
+        //string pkgfilename = pkg->dir() + allpkgbase + ".cfg";
+        std::string pkgfilename = GetPackageCfgPath(pkg, allpkgbase + ".cfg");
         if ( Clib::FileExists( pkgfilename.c_str() ) )
         {
           Clib::ConfigFile cf( pkgfilename.c_str() );
@@ -326,16 +320,15 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
       return scfg;
     }
   }
-  catch ( std::exception& ex )
+  catch (std::exception& ex)
   {
     // There was some weird problem reading the config file.
-    DEBUGLOG << "An exception was encountered while reading " << filename << ": " << ex.what()
-             << "\n";
+    DEBUGLOG << "An exception was encountered while reading " << filename << ": " << ex.what() << "\n";
     return ConfigFileRef( 0 );
   }
 }
 
-ConfigFileRef LoadTusScpFile( const std::string& filename )
+ConfigFileRef LoadTusScpFile(const std::string& filename)
 {
   if ( !Clib::FileExists( filename.c_str() ) )
   {
@@ -347,18 +340,18 @@ ConfigFileRef LoadTusScpFile( const std::string& filename )
   return scfg;
 }
 
-void CreateEmptyStoredConfigFile( const std::string& filename )
+void CreateEmptyStoredConfigFile(const std::string& filename)
 {
   ref_ptr<StoredConfigFile> scfg( new StoredConfigFile() );
   Core::configurationbuffer.cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
 }
 
-int UnloadConfigFile( const std::string& filename )
+int UnloadConfigFile(const std::string& filename)
 {
   CfgFiles::iterator itr = Core::configurationbuffer.cfgfiles.find( filename );
   if ( itr != Core::configurationbuffer.cfgfiles.end() )
   {
-    ( *itr ).second->reload = true;  // check cfg file modification on FindConfigFile
+    ( *itr ).second->reload = true; // check cfg file modification on FindConfigFile
 
     return ( *itr ).second->count() - 1;
   }
@@ -374,8 +367,7 @@ void ConfigFiles_log_stuff()
   DEBUGLOG << "ConfigFiles: " << Core::configurationbuffer.cfgfiles.size() << " files loaded and "
            << Core::configurationbuffer.oldcfgfiles.size() << " files 'removed'\n";
 
-  LEAKLOG << Core::configurationbuffer.cfgfiles.size() << ";"
-          << Core::configurationbuffer.oldcfgfiles.size() << ";";
+  LEAKLOG << Core::configurationbuffer.cfgfiles.size() << ";" << Core::configurationbuffer.oldcfgfiles.size() << ";";
 }
 #endif
 }

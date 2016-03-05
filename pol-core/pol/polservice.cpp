@@ -16,12 +16,11 @@
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/Header_Windows.h"
 
-#include "../clib/ntservice.h"  // This needs to be after the windows includes, otherwise it'll complain about windows types.
+#include "../clib/ntservice.h" // This needs to be after the windows includes, otherwise it'll complain about windows types.
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#pragma warning( disable : 4189 )  // local variable is initialized but not referenced. TODO: check
-                                   // if TrackPopupMenu() returns an error on line 146.
+#pragma warning(disable:4996)
+#pragma warning(disable:4189) // local variable is initialized but not referenced. TODO: check if TrackPopupMenu() returns an error on line 146. 
 #endif
 
 namespace Pol
@@ -46,9 +45,9 @@ public:
   virtual void OnStop() POL_OVERRIDE;
 };
 
-PolService::PolService() : Clib::CNTService( "POL" )
-{
-}
+PolService::PolService()
+  :Clib::CNTService( "POL" )
+{}
 
 void PolService::Run()
 {
@@ -61,7 +60,7 @@ void PolService::Run()
     rc = GetCurrentDirectory( sizeof buffer, buffer );
     LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, buffer );
     LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, PROG_CONFIG::programDir().c_str() );
-    rc = SetCurrentDirectory( PROG_CONFIG::programDir().c_str() );
+    rc = SetCurrentDirectory(PROG_CONFIG::programDir().c_str());
 
     xmain_outer();
   }
@@ -94,9 +93,10 @@ int RunWindowsService( int argc, char** argv )
 }
 
 
-#define WM_ICON_NOTIFY WM_USER + 1
+
+#define WM_ICON_NOTIFY  WM_USER+1
 unsigned WM_TASKBARCREATED;
-HWND hwnd;
+HWND          hwnd;
 NOTIFYICONDATA ndata;
 
 #define DLG_MODELESS 1
@@ -104,7 +104,7 @@ NOTIFYICONDATA ndata;
 #ifdef _M_X64
 INT_PTR CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
 #else
-BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam )
+BOOL CALLBACK DialogProc(  HWND hwndDlg,UINT uMsg,WPARAM wParam,LPARAM lParam)
 #endif
 {
   if ( uMsg == WM_TASKBARCREATED )
@@ -112,7 +112,7 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
 
   switch ( uMsg )
   {
-  // case WM_TASKBARCREATED:
+  //case WM_TASKBARCREATED:
   case WM_INITDIALOG:
     ndata.hWnd = hwndDlg;
 
@@ -126,7 +126,7 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
 
     if ( lParam == WM_RBUTTONDOWN )
     {
-      // Beep(200,200); // Removed beep... ! (Debugging POLLaunch made me hate this :/)
+      //Beep(200,200); // Removed beep... ! (Debugging POLLaunch made me hate this :/)
       HMENU m = LoadMenu( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDR_POPUP ) );
       HMENU subm = GetSubMenu( m, 0 );
       POINT p;
@@ -220,11 +220,11 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
   return FALSE;
 }
 
-void SystemTrayDialogThread( void* )
-// DWORD WINAPI Thread(  LPVOID lpParameter)
-// void SystemTrayDialogThread( void )
+void SystemTrayDialogThread( void*)
+//DWORD WINAPI Thread(  LPVOID lpParameter)
+//void SystemTrayDialogThread( void )
 {
-// modeless:
+  // modeless:
 #if DLG_MODELESS
   hwnd = CreateDialog( NULL, MAKEINTRESOURCE( IDD_DIALOG1 ), NULL, DialogProc );
   ShowWindow( hwnd, SW_HIDE );
@@ -247,14 +247,14 @@ void SystemTrayDialogThread( void* )
   }
 #else
   // modal:
-  DialogBox( NULL, MAKEINTRESOURCE( IDD_DIALOG1 ), NULL, DialogProc );
+  DialogBox(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,DialogProc);
 #endif
 }
 
 void SetSysTrayPopupText( const char* text )
 {
-  strncpy( ndata.szTip, text, sizeof( ndata.szTip ) - 1 );
-  ndata.szTip[sizeof( ndata.szTip ) - 1] = '\0';
+  strncpy( ndata.szTip, text, sizeof(ndata.szTip)-1 );
+  ndata.szTip[sizeof(ndata.szTip) - 1] = '\0';
 
   if ( hwnd )
     SendMessage( hwnd, WM_COMMAND, ID_UPDATE_NOTIFYDATA, 0 );
@@ -264,7 +264,7 @@ BOOL WINAPI control_handler_SystemTray( DWORD dwCtrlType )
 {
   switch ( dwCtrlType )
   {
-  case CTRL_CLOSE_EVENT:  // console window closing
+  case CTRL_CLOSE_EVENT:    // console window closing
     Shell_NotifyIcon( NIM_DELETE, &ndata );
 #if DLG_MODELESS
     DestroyWindow( hwnd );
@@ -280,7 +280,7 @@ void InitializeSystemTrayHandling()
   WM_TASKBARCREATED = RegisterWindowMessage( "TaskbarCreated" );
 
   ndata.cbSize = sizeof( NOTIFYICONDATA );
-  //	ndata.hWnd=hwndDlg;
+  //  ndata.hWnd=hwndDlg;
   ndata.uID = 2000;
   ndata.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
   ndata.uCallbackMessage = WM_ICON_NOTIFY;

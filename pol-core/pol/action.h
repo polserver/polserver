@@ -5,6 +5,7 @@
  */
 
 
+
 #ifndef ACTION_H
 #define ACTION_H
 
@@ -21,6 +22,7 @@ class Character;
 }
 namespace Core
 {
+
 enum UACTION
 {
   ACTION__LOWEST = 0x00,
@@ -36,7 +38,7 @@ enum UACTION
   ACTION_HUMAN_ATTACK = 0x9, /* hand to hand or sword, not bow */
   ACTION_HUMAN_ATACK_THRUST = 0x0A,
   ACTION_HUMAN_ATTACK_BIGSWING = 0x0B, /* big overhead swing */
-  ACTION_ATTACK4 = 0x0C,               /* hmm, sort of up/down */
+  ACTION_ATTACK4 = 0x0C, /* hmm, sort of up/down */
   ACTION_ATTACK5 = 0x0D,
   ACTION_ATTACK6 = 0x0E,
   ACTION_READY2 = 0x0F,
@@ -70,20 +72,14 @@ inline bool UACTION_IS_VALID( unsigned short action )
   return ( action <= ACTION__HIGHEST );
 }
 
-enum DIRECTION_FLAG_OLD
-{
-  BACKWARD = 1,
-  FORWARD = 0
-};
-enum REPEAT_FLAG_OLD
-{
-  REPEAT = 1,
-  NOREPEAT = 0
-};
+enum DIRECTION_FLAG_OLD { BACKWARD = 1, FORWARD = 0 };
+enum REPEAT_FLAG_OLD { REPEAT = 1, NOREPEAT = 0 };
 void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
-                             unsigned short framecount = 0x05, unsigned short repeatcount = 0x01,
+                             unsigned short framecount = 0x05,
+                             unsigned short repeatcount = 0x01,
                              DIRECTION_FLAG_OLD backward = FORWARD,
-                             REPEAT_FLAG_OLD repeatflag = NOREPEAT, unsigned char delay = 0x01 );
+                             REPEAT_FLAG_OLD repeatflag = NOREPEAT,
+                             unsigned char delay = 0x01 );
 
 struct MobileTranslate
 {
@@ -114,6 +110,7 @@ struct MobileTranslate
   bool has_graphic( u16 graphic ) const;
   size_t estimateSize() const;
 };
+
 }
 }
 #endif

@@ -11,7 +11,7 @@ class Client;
 }
 namespace Core
 {
-void singleclick( Network::Client* client, u32 serial );
+void singleclick(Network::Client* client, u32 serial);
 }
 }
 

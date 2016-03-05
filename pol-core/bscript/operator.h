@@ -40,7 +40,7 @@ typedef struct
   BTokenId id;
   Precedence precedence;
   BTokenType type;
-  bool ambig;  // if true, part of it matches part of another
+  bool ambig; // if true, part of it matches part of another
   bool deprecated;
 } Operator;
 }

@@ -9,7 +9,7 @@
 
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disables POSIX deprecation warning for unlink / stricmp
+#pragma warning(disable: 4996) // disables POSIX deprecation warning for unlink / stricmp
 #endif
 
 #include "accounts.h"
@@ -38,6 +38,7 @@ namespace Pol
 {
 namespace Accounts
 {
+
 void read_account_data()
 {
   unsigned int naccounts = 0;
@@ -70,7 +71,7 @@ void read_account_data()
     write_account_data();
   }
 
-  INFO_PRINT << " " << naccounts << " elements in " << timer.ellapsed() << " ms.\n";
+  INFO_PRINT << " " << naccounts << " elements in " << timer.ellapsed( ) << " ms.\n";
 }
 
 void write_account_data()
@@ -87,7 +88,7 @@ void write_account_data()
 
   try
   {
-    std::ofstream ofs( accountsndtfile_c, std::ios::trunc | std::ios::out );
+    std::ofstream ofs(accountsndtfile_c, std::ios::trunc | std::ios::out);
     Clib::OFStreamWriter sw( &ofs );
     for ( const auto& account : Core::gamestate.accounts )
     {
@@ -106,13 +107,11 @@ void write_account_data()
 
   struct stat newst;
   stat( accountstxtfile_c, &newst );
-  memcpy( &Plib::systemstate.accounts_txt_stat, &newst,
-          sizeof Plib::systemstate.accounts_txt_stat );
+  memcpy( &Plib::systemstate.accounts_txt_stat, &newst, sizeof Plib::systemstate.accounts_txt_stat );
   Plib::systemstate.accounts_txt_dirty = false;
 }
 
-Account* create_new_account( const std::string& acctname, const std::string& password,
-                             bool enabled )
+Account* create_new_account(const std::string& acctname, const std::string& password, bool enabled)
 {
   passert( !find_account( acctname.c_str() ) );
 
@@ -130,7 +129,7 @@ Account* create_new_account( const std::string& acctname, const std::string& pas
   return acct;
 }
 
-Account* duplicate_account( const std::string& oldacctname, const std::string& newacctname )
+Account* duplicate_account(const std::string& oldacctname, const std::string& newacctname)
 {
   passert( !find_account( newacctname.c_str() ) );
 
@@ -167,8 +166,7 @@ Account* find_account( const char* acctname )
 
 int delete_account( const char* acctname )
 {
-  for ( auto itr = Core::gamestate.accounts.begin(), end = Core::gamestate.accounts.end();
-        itr != end; ++itr )
+  for ( auto itr = Core::gamestate.accounts.begin( ), end = Core::gamestate.accounts.end( ); itr != end; ++itr )
   {
     Account* account = ( *itr ).get();
     if ( stricmp( account->name(), acctname ) == 0 )
@@ -191,7 +189,7 @@ int delete_account( const char* acctname )
 
 void reread_account( Clib::ConfigElem& elem )
 {
-  std::string name = elem.remove_string( "NAME" );
+  std::string name = elem.remove_string("NAME");
   Account* existing = find_account( name.c_str() );
   if ( existing != NULL )
   {
@@ -217,8 +215,7 @@ void reload_account_data( void )
          ( newst.st_mtime < time( NULL ) - 10 ) )
     {
       INFO_PRINT << "Reloading accounts.txt...";
-      memcpy( &Plib::systemstate.accounts_txt_stat, &newst,
-              sizeof Plib::systemstate.accounts_txt_stat );
+      memcpy( &Plib::systemstate.accounts_txt_stat, &newst, sizeof Plib::systemstate.accounts_txt_stat );
 
       {
         Clib::ConfigFile cf( accountsfile, "Account" );
@@ -247,5 +244,6 @@ void write_account_data_task( void )
   if ( Plib::systemstate.accounts_txt_dirty )
     write_account_data();
 }
+
 }
 }

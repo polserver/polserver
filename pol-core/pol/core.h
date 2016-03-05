@@ -3,8 +3,7 @@
  * @par History
  * - 2006/09/15 austin:    added ENUMERATE_ROOT_ONLY flag
  * - 2005/04/04 Shinigami: added constant for use with can_delete_character( chr, delete_by )
- * - 2005/04/28 Shinigami: added constant for use with EnumerateItemsInContainer( container, flags
- * := 0 )
+ * - 2005/04/28 Shinigami: added constant for use with EnumerateItemsInContainer( container, flags := 0 )
  * - 2005/04/31 Shinigami: added constant for use with LogToFile( filename, line, flags := 0 )
  * - 2005/06/06 Shinigami: added constant for use with ListStatics*
  * - 2005/07/04 Shinigami: added constant for use with List[Statics/Items]*, List* constants renamed
@@ -12,6 +11,7 @@
  * - 2006/05/07 Shinigami: added constant for use with Send*Window
  * - 2008/10/29 Luth:      added constant for use with PrintTextAbove
  */
+
 
 
 #ifndef CORE_H
@@ -45,8 +45,12 @@ enum Priority
 };
 void CoreSetSysTrayToolTip( const std::string& text, Priority pri );
 
-bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short y, short z,
-                        int flags, Realms::Realm* oldrealm );
+bool move_character_to( Mobile::Character* chr,
+                        unsigned short x,
+                        unsigned short y,
+                        short z,
+                        int flags,
+                        Realms::Realm* oldrealm );
 
 const int MOVEITEM_IGNOREMOVABLE = 0x20000000L;
 const int MOVEITEM_FORCELOCATION = 0x40000000L;

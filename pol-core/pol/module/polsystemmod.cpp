@@ -6,8 +6,7 @@
  * - 2007/04/08 MuadDib:   Changed Realms() to get BObject IMP, and check for string
  *                         explicitly.
  * - 2009/11/30 Turley:    added MD5Encrypt(string)
- * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within
- * decay_thread_shadow
+ * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within decay_thread_shadow
  */
 
 
@@ -48,15 +47,15 @@
 #include <ctime>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
+#pragma warning(disable:4996) // deprecation warning for stricmp
 #endif
 
 namespace Pol
 {
 namespace Core
 {
-void decay_thread_shadow( void* );
-void reload_configuration();
+void decay_thread_shadow( void*);
+void reload_configuration( );
 }
 namespace Module
 {
@@ -64,61 +63,73 @@ class PackagePtrHolder
 {
 public:
   explicit PackagePtrHolder( Plib::Package* pkg ) : m_pPkg( pkg ) {}
-  Plib::Package* operator->() { return m_pPkg; }
-  const Plib::Package* operator->() const { return m_pPkg; }
-  Plib::Package* Ptr() { return m_pPkg; }
-  const Plib::Package* Ptr() const { return m_pPkg; }
+  Plib::Package* operator->( )
+  {
+    return m_pPkg;
+  }
+  const Plib::Package* operator->( ) const
+  {
+    return m_pPkg;
+  }
+
+  Plib::Package* Ptr()
+  {
+    return m_pPkg;
+  }
+  const Plib::Package* Ptr() const
+  {
+    return m_pPkg;
+  }
 private:
   Plib::Package* m_pPkg;
 };
 
 Bscript::BApplicObjType packageobjimp_type;
-// typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
-typedef Bscript::BApplicObj<PackagePtrHolder> PackageObjImpBase;
+//typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
+typedef Bscript::BApplicObj< PackagePtrHolder > PackageObjImpBase;
 class PackageObjImp : public PackageObjImpBase
 {
   typedef PackageObjImpBase base;
-
 public:
   explicit PackageObjImp( const PackagePtrHolder& other );
   virtual const char* typeOf() const POL_OVERRIDE;
   virtual u8 typeOfInt() const POL_OVERRIDE;
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* call_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
   virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
 };
-PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
-    : PackageObjImpBase( &packageobjimp_type, other )
-{
-}
+PackageObjImp::PackageObjImp( const PackagePtrHolder& other ) :
+  PackageObjImpBase( &packageobjimp_type, other )
+{}
+
 }
 namespace Bscript
 {
 using namespace Module;
-template <>
+template<>
 TmplExecutorModule<PolSystemExecutorModule>::FunctionDef
-    TmplExecutorModule<PolSystemExecutorModule>::function_table[] = {
-        {"IncRevision", &PolSystemExecutorModule::mf_IncRevision},
-        {"GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName},
-        {"GetCmdLevelNumber", &PolSystemExecutorModule::mf_GetCmdLevelNumber},
-        {"Packages", &PolSystemExecutorModule::mf_Packages},
-        {"GetPackageByName", &PolSystemExecutorModule::mf_GetPackageByName},
-        {"ListTextCommands", &PolSystemExecutorModule::mf_ListTextCommands},
-        {"Realms", &PolSystemExecutorModule::mf_Realms},
-        {"ReloadConfiguration", &PolSystemExecutorModule::mf_ReloadConfiguration},
-        {"ReadMillisecondClock", &PolSystemExecutorModule::mf_ReadMillisecondClock},
-        {"ListenPoints", &PolSystemExecutorModule::mf_ListenPoints},
-        {"SetSysTrayPopupText", &PolSystemExecutorModule::mf_SetSysTrayPopupText},
-        {"GetItemDescriptor", &PolSystemExecutorModule::mf_GetItemDescriptor},
-        {"FormatItemDescription", &PolSystemExecutorModule::mf_FormatItemDescription},
-        {"CreatePacket", &PolSystemExecutorModule::mf_CreatePacket},
-        {"AddRealm", &PolSystemExecutorModule::mf_AddRealm},
-        {"DeleteRealm", &PolSystemExecutorModule::mf_DeleteRealm},
-        {"MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt},
-        {"LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile},
+TmplExecutorModule<PolSystemExecutorModule>::function_table[] =
+{
+  { "IncRevision", &PolSystemExecutorModule::mf_IncRevision },
+  { "GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName },
+  { "GetCmdLevelNumber", &PolSystemExecutorModule::mf_GetCmdLevelNumber },
+  { "Packages", &PolSystemExecutorModule::mf_Packages },
+  { "GetPackageByName", &PolSystemExecutorModule::mf_GetPackageByName },
+  { "ListTextCommands", &PolSystemExecutorModule::mf_ListTextCommands },
+  { "Realms", &PolSystemExecutorModule::mf_Realms },
+  { "ReloadConfiguration", &PolSystemExecutorModule::mf_ReloadConfiguration },
+  { "ReadMillisecondClock", &PolSystemExecutorModule::mf_ReadMillisecondClock },
+  { "ListenPoints", &PolSystemExecutorModule::mf_ListenPoints },
+  { "SetSysTrayPopupText", &PolSystemExecutorModule::mf_SetSysTrayPopupText },
+  { "GetItemDescriptor", &PolSystemExecutorModule::mf_GetItemDescriptor },
+  { "FormatItemDescription", &PolSystemExecutorModule::mf_FormatItemDescription },
+  { "CreatePacket", &PolSystemExecutorModule::mf_CreatePacket },
+  { "AddRealm", &PolSystemExecutorModule::mf_AddRealm },
+  { "DeleteRealm", &PolSystemExecutorModule::mf_DeleteRealm },
+  { "MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt },
+  { "LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile },
 };
-template <>
+template<>
 int TmplExecutorModule<PolSystemExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
@@ -158,7 +169,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   }
   else if ( stricmp( membername, "npcdesc" ) == 0 )
   {
-    Plib::Package* pkg = value().Ptr();
+    Plib::Package* pkg = value( ).Ptr( );
     std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
     return BObjectRef( new BLong( Clib::FileExists( filepath ) ) );
   }
@@ -199,7 +210,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
   }
   else if ( getStringParam( 0, cmdlevel_alias ) )
   {
-    Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data() );
+    Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data( ) );
     if ( cmdlevel == NULL )
       return new BError( "Could not find a command level with that alias." );
     else
@@ -207,6 +218,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
   }
   else
     return new BError( "Invalid parameter type." );
+
 }
 
 BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
@@ -215,7 +227,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
   if ( !getStringParam( 0, cmdlvlname ) )
     return new BError( "Invalid parameter type." );
 
-  Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdlvlname->data() );
+  Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdlvlname->data( ) );
   if ( cmdlevel_search == NULL )
     return new BError( "Could not find a command level with that name." );
 
@@ -239,8 +251,8 @@ BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
   if ( !getStringParam( 0, pkgname ) )
     return new BError( "Invalid parameter type." );
 
-  // pkgname->toLower();
-  Plib::Package* pkg = Plib::find_package( pkgname->value() );
+  //pkgname->toLower();
+  Plib::Package* pkg = Plib::find_package( pkgname->value( ) );
   if ( !pkg )
     return new BError( "No package found by that name." );
   else
@@ -266,8 +278,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
   }
   //
   // Sets up packaged text commands.
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
   {
     Plib::Package* pkg = ( *itr );
     std::unique_ptr<BDictionary> cmd_lvl_list( new BDictionary );
@@ -294,12 +305,12 @@ BObjectImp* PolSystemExecutorModule::mf_ReloadConfiguration()
 
 BObjectImp* PolSystemExecutorModule::mf_ReadMillisecondClock()
 {
-  return new BLong( Core::polticks_t_to_ms( Core::polclock() ) );
+  return new BLong( Core::polticks_t_to_ms( Core::polclock( ) ) );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_ListenPoints()
 {
-  return Core::GetListenPoints();
+  return Core::GetListenPoints( );
 }
 
 BStruct* SetupRealmDetails( Realms::Realm* realm )
@@ -320,7 +331,7 @@ BStruct* SetupRealmDetails( Realms::Realm* realm )
 BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
 {
   const String* realm_name;
-  //	getStringParam(0, realm_name);
+  //  getStringParam(0, realm_name);
   BObjectImp* imp = getParamImp( 0 );
   if ( imp->isa( BObjectImp::OTString ) )
   {
@@ -328,13 +339,12 @@ BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
   }
   else
   {
-    return new BError( std::string( "Parameter must be a String or empty, got " ) +
-                       BObjectImp::typestr( imp->type() ) );
+    return new BError(std::string("Parameter must be a String or empty, got ") + BObjectImp::typestr(imp->type()));
   }
 
   if ( realm_name->length() > 0 )
   {
-    Realms::Realm* realm = Core::find_realm( realm_name->value() );
+    Realms::Realm* realm = Core::find_realm( realm_name->value( ) );
     if ( !realm )
       return new BError( "Realm not found." );
     else
@@ -344,7 +354,7 @@ BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
   {
     BDictionary* dict = new BDictionary;
     std::vector<Realms::Realm*>::iterator itr;
-    for ( itr = Core::gamestate.Realms.begin(); itr != Core::gamestate.Realms.end(); ++itr )
+    for ( itr = Core::gamestate.Realms.begin( ); itr != Core::gamestate.Realms.end( ); ++itr )
     {
       dict->addMember( ( *itr )->name().c_str(), SetupRealmDetails( *itr ) );
     }
@@ -370,8 +380,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
   {
     const Items::ItemDesc& id = Items::find_itemdesc( objtype );
     if ( id.objtype == 0 && id.graphic == 0 )
-      return new BError( "Itemdesc.cfg entry for objtype " + Clib::hexint( objtype ) +
-                         " not found." );
+      return new BError( "Itemdesc.cfg entry for objtype " + Clib::hexint( objtype ) + " not found." );
 
     std::unique_ptr<BStruct> descriptor( new BStruct() );
 
@@ -405,7 +414,8 @@ BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
 {
   int size;
   unsigned short type;
-  if ( exec.getParam( 0, type ) && exec.getParam( 1, size ) )
+  if ( exec.getParam( 0, type ) &&
+       exec.getParam( 1, size ) )
   {
     if ( type > 0xFF )
       return new BError( "Packet type too high" );
@@ -418,11 +428,12 @@ BObjectImp* PolSystemExecutorModule::mf_CreatePacket()
   }
 }
 
-BObjectImp* PolSystemExecutorModule::mf_AddRealm( /*name,base*/ )
+BObjectImp* PolSystemExecutorModule::mf_AddRealm(/*name,base*/ )
 {
   const String* realm_name;
   const String* base;
-  if ( !( getStringParam( 0, realm_name ) && getStringParam( 1, base ) ) )
+  if ( !( getStringParam( 0, realm_name ) &&
+          getStringParam( 1, base ) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -431,29 +442,28 @@ BObjectImp* PolSystemExecutorModule::mf_AddRealm( /*name,base*/ )
     return new BError( "BaseRealm not found." );
   if ( baserealm->is_shadowrealm )
     return new BError( "BaseRealm is a ShadowRealm." );
-  if ( Core::defined_realm( realm_name->value() ) )
+  if ( Core::defined_realm( realm_name->value( ) ) )
     return new BError( "Realmname already defined." );
-  Core::add_realm( realm_name->value(), baserealm );
+  Core::add_realm( realm_name->value( ), baserealm );
   if ( Core::settingsManager.ssopt.decay_items )
   {
-    if ( !Plib::systemstate.config.single_thread_decay )
+    if (!Plib::systemstate.config.single_thread_decay)
     {
       std::ostringstream thname;
       thname << "Decay_" << realm_name->value();
-      threadhelp::start_thread( Core::decay_thread_shadow, thname.str().c_str(),
-                                (void*)Core::find_realm( realm_name->value() ) );
+      threadhelp::start_thread( Core::decay_thread_shadow, thname.str( ).c_str( ), (void*)Core::find_realm( realm_name->value( ) ) );
     }
   }
   return new BLong( 1 );
 }
 
-BObjectImp* PolSystemExecutorModule::mf_DeleteRealm( /*name*/ )
+BObjectImp* PolSystemExecutorModule::mf_DeleteRealm(/*name*/ )
 {
   const String* realm_name;
   if ( !( getStringParam( 0, realm_name ) ) )
     return new BError( "Invalid parameter" );
 
-  Realms::Realm* realm = Core::find_realm( realm_name->value() );
+  Realms::Realm* realm = Core::find_realm( realm_name->value( ) );
 
   if ( !realm )
     return new BError( "Realm not found." );
@@ -461,18 +471,18 @@ BObjectImp* PolSystemExecutorModule::mf_DeleteRealm( /*name*/ )
     return new BError( "Realm is not a ShadowRealm." );
   if ( realm->mobile_count() > 0 )
     return new BError( "Mobiles in Realm." );
-  if ( realm->offline_mobile_count() > 0 )
-    return new BError( "Offline characters in Realm" );
+  if (realm->offline_mobile_count() > 0)
+    return new BError("Offline characters in Realm");
   if ( realm->toplevel_item_count() > 0 )
     return new BError( "Items in Realm." );
-  if ( realm->multi_count() > 0 )
-    return new BError( "Multis in Realm." );
+  if (realm->multi_count() > 0)
+    return new BError("Multis in Realm.");
 
-  Core::remove_realm( realm_name->value() );
+  Core::remove_realm( realm_name->value( ) );
   return new BLong( 1 );
 }
 
-BObjectImp* PolSystemExecutorModule::mf_MD5Encrypt( /*string*/ )
+BObjectImp* PolSystemExecutorModule::mf_MD5Encrypt(/*string*/ )
 {
   const String* string;
   if ( !( getStringParam( 0, string ) ) )
@@ -493,33 +503,32 @@ BObjectImp* PolSystemExecutorModule::mf_MD5Encrypt( /*string*/ )
 BObjectImp* PolSystemExecutorModule::mf_LogCPropProfile()
 {
   const std::string filepath = "log/cpprofile.log";
-  std::ofstream ofs( filepath.c_str(), std::ios::out | std::ios::app );
+  std::ofstream ofs(filepath.c_str(), std::ios::out | std::ios::app);
 
-  if ( !ofs.is_open() )
+  if( ! ofs.is_open() )
     return new BError( "Unable to open file: " + filepath );
 
   // Write the header
-  auto t = std::time( nullptr );
-  auto tm = std::localtime( &t );
-  ofs << std::string( 80, '=' ) << std::endl;
-  ofs << "CProp profiling information dumped on " << std::asctime( tm ) << std::endl;
-  ofs << "the profiler is using an estimated amount of "
-      << Core::CPropProfiler::instance().estimateSize() << " Bytes of memory." << std::endl;
-  ofs << "the profiler is currently "
-      << ( Plib::systemstate.config.profile_cprops ? "enabled" : "disabled" ) << "." << std::endl;
+  auto t = std::time(nullptr);
+  auto tm = std::localtime(&t);
+  ofs << std::string(80, '=') << std::endl;
+  ofs << "CProp profiling information dumped on " << std::asctime(tm) << std::endl;
+  ofs << "the profiler is using an estimated amount of " << Core::CPropProfiler::instance().estimateSize() << " Bytes of memory." << std::endl;
+  ofs << "the profiler is currently " << (Plib::systemstate.config.profile_cprops?"enabled":"disabled") << "." << std::endl;
   ofs << std::endl;
 
   // Write the body
-  Core::CPropProfiler::instance().dumpProfile( ofs );
+  Core::CPropProfiler::instance().dumpProfile(ofs);
 
   // Write the footer
-  ofs << std::string( 80, '=' ) << std::endl;
+  ofs << std::string(80, '=') << std::endl;
 
-  if ( ofs.fail() )
+  if( ofs.fail() )
     return new BError( "Error during write." );
 
   ofs.close();
   return new BLong( 1 );
 }
+
 }
 }

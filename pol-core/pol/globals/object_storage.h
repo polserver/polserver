@@ -17,6 +17,7 @@ namespace Pol
 {
 namespace Core
 {
+
 // if index is UINT_MAX, has been deleted
 typedef std::unordered_map<pol_serial_t, unsigned> SerialIndexMap;
 typedef std::multimap<pol_serial_t, UObject*> DeferList;
@@ -35,8 +36,8 @@ public:
   unsigned current_incremental_save;
   SerialIndexMap incremental_serial_index;
   DeferList deferred_insertions;
-  std::vector<u32> modified_serials;
-  std::vector<u32> deleted_serials;
+  std::vector< u32 > modified_serials;
+  std::vector< u32 > deleted_serials;
   unsigned int clean_objects;
   unsigned int dirty_objects;
   bool incremental_saves_disabled;
@@ -65,6 +66,7 @@ public:
     size_t obj_armor_count;
     size_t obj_multi_count;
   };
+
 };
 
 extern ObjectStorageManager objStorageManager;

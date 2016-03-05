@@ -2,8 +2,7 @@
  *
  * @par History
  * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
- * - 2008/02/11 Turley:    ObjArray::unpack() will accept zero length Arrays and Erros from
- * Array-Elements
+ * - 2008/02/11 Turley:    ObjArray::unpack() will accept zero length Arrays and Erros from Array-Elements
  * - 2009/09/05 Turley:    Added struct .? and .- as shortcut for .exists() and .erase()
  * - 2009/12/21 Turley:    ._method() call fix
  */
@@ -34,7 +33,7 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
+#pragma warning(disable:4996) // deprecation warning for stricmp
 #endif
 
 namespace Pol
@@ -49,14 +48,14 @@ Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
 size_t BObjectRef::sizeEstimate() const
 {
   if ( get() )
-    return sizeof( BObjectRef ) + get()->sizeEstimate();
+    return sizeof(BObjectRef)+get()->sizeEstimate();
   else
     return sizeof( BObjectRef );
 }
 size_t BObject::sizeEstimate() const
 {
   if ( objimp.get() )
-    return sizeof( BObject ) + objimp.get()->sizeEstimate();
+    return sizeof(BObject)+objimp.get()->sizeEstimate();
   else
     return sizeof( BObject );
 }
@@ -79,7 +78,7 @@ size_t BObject::sizeEstimate() const
  * - { 5, "hey" }    a2:i5S3:hey
  * - { 5, "hey", 7 } a3:i5S3:heyi7
  */
-BObjectImp* BObjectImp::unpack( std::istream& is )
+BObjectImp* BObjectImp::unpack(std::istream& is)
 {
   char typech;
   if ( is >> typech )
@@ -124,8 +123,8 @@ BObjectImp* BObjectImp::unpack( const char* pstr )
 }
 
 BObject::~BObject()
-{
-}
+{}
+
 
 
 BObject* BObject::clone() const
@@ -135,27 +134,27 @@ BObject* BObject::clone() const
 
 bool BObject::operator!=( const BObject& obj ) const
 {
-  return *objimp != *( obj.objimp );
+  return *objimp != *(obj.objimp);
 }
 bool BObject::operator==( const BObject& obj ) const
 {
-  return *objimp == *( obj.objimp );
+  return *objimp == *(obj.objimp);
 }
 bool BObject::operator<( const BObject& obj ) const
 {
-  return *objimp < *( obj.objimp );
+  return *objimp < *(obj.objimp);
 }
 bool BObject::operator<=( const BObject& obj ) const
 {
-  return *objimp <= *( obj.objimp );
+  return *objimp <= *(obj.objimp);
 }
 bool BObject::operator>( const BObject& obj ) const
 {
-  return *objimp > *( obj.objimp );
+  return *objimp > *(obj.objimp);
 }
 bool BObject::operator>=( const BObject& obj ) const
 {
-  return *objimp >= *( obj.objimp );
+  return *objimp >= *(obj.objimp);
 }
 
 ////////////////////// BObjectImp //////////////////////
@@ -166,16 +165,15 @@ typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
 bobjectimps bobjectimp_instances;
 int display_bobjectimp_instance( BObjectImp* imp )
 {
-  INFO_PRINT << imp->instance() << ": " << imp->getStringRep() << "\n";
+  INFO_PRINT << imp->instance( ) << ": " << imp->getStringRep( ) << "\n";
   return 0;
 }
 void display_bobjectimp_instances()
 {
-  INFO_PRINT << "bobjectimp instances: " << bobjectimp_instances.size() << "\n";
-  for ( bobjectimps::iterator itr = bobjectimp_instances.begin(); itr != bobjectimp_instances.end();
-        ++itr )
+  INFO_PRINT << "bobjectimp instances: " << bobjectimp_instances.size( ) << "\n";
+  for( bobjectimps::iterator itr = bobjectimp_instances.begin(); itr != bobjectimp_instances.end(); ++itr )
   {
-    display_bobjectimp_instance( ( *itr ).second );
+    display_bobjectimp_instance( (*itr).second );
   }
 }
 #endif
@@ -183,18 +181,20 @@ void display_bobjectimp_instances()
 #if !INLINE_BOBJECTIMP_CTOR
 unsigned int BObjectImp::instances_ = 0;
 Clib::SpinLock BObjectImp::bobjectimp_lock;
-BObjectImp::BObjectImp( BObjectType type ) : type_( type ), instance_( 0 )
+BObjectImp::BObjectImp( BObjectType type ) :
+  type_(type),
+  instance_(0)
 {
-  Clib::SpinLockGuard lock( bobjectimp_lock );
-  instance_ = instances_++;
+  Clib::SpinLockGuard lock (bobjectimp_lock);
+  instance_=instances_++;
   ++eobject_imp_count;
   ++eobject_imp_constructions;
-  bobjectimp_instances[instance_] = this;
+  bobjectimp_instances[ instance_ ] = this;
 }
 
 BObjectImp::~BObjectImp()
 {
-  Clib::SpinLockGuard lock( bobjectimp_lock );
+  Clib::SpinLockGuard lock (bobjectimp_lock);
   bobjectimp_instances.erase( instance_ );
   --eobject_imp_count;
 }
@@ -207,7 +207,7 @@ std::string BObjectImp::pack() const
   return OSTRINGSTREAM_STR( os );
 }
 
-void BObjectImp::packonto( std::ostream& os ) const
+void BObjectImp::packonto(std::ostream& os) const
 {
   os << "u";
 }
@@ -281,11 +281,10 @@ bool BObjectImp::operator==( const BObjectImp& objimp ) const
 bool BObjectImp::operator<( const BObjectImp& objimp ) const
 {
   // Error an uninit are always lesser than any other type
-  if ( ( objimp.type_ == OTError || objimp.type_ == OTUninit ) && type_ != OTError &&
-       type_ != OTUninit )
+  if( (objimp.type_ == OTError || objimp.type_ == OTUninit) && type_ != OTError && type_ != OTUninit )
     return false;
 
-  if ( type_ == objimp.type_ )
+  if( type_ == objimp.type_ )
   {
     // This is "undefined behavior" and should be avoided by implementing
     // comparison in child class
@@ -306,21 +305,21 @@ bool BObjectImp::operator<=( const BObjectImp& objimp ) const
  */
 bool BObjectImp::operator>( const BObjectImp& objimp ) const
 {
-  return !( *this == objimp || *this < objimp );
+  return ! ( *this == objimp || *this < objimp );
 }
 /**
  * Can be overridden. By default uses <
  */
 bool BObjectImp::operator>=( const BObjectImp& objimp ) const
 {
-  return !( *this < objimp );
+  return ! ( *this < objimp );
 }
 /**
  * Can be overridden. By default uses ==
  */
 bool BObjectImp::operator!=( const BObjectImp& objimp ) const
 {
-  return !( *this == objimp );
+  return ! ( *this == objimp );
 }
 
 BObjectImp* BObjectImp::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*/, bool /*copy*/ )
@@ -328,7 +327,7 @@ BObjectImp* BObjectImp::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*
   return this;
 }
 
-BObjectRef BObjectImp::OperMultiSubscript( std::stack<BObjectRef>& indices )
+BObjectRef BObjectImp::OperMultiSubscript(std::stack<BObjectRef>& indices)
 {
   BObjectRef index = indices.top();
   indices.pop();
@@ -339,8 +338,7 @@ BObjectRef BObjectImp::OperMultiSubscript( std::stack<BObjectRef>& indices )
     return ( *ref ).impptr()->OperMultiSubscript( indices );
 }
 
-BObjectRef BObjectImp::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices,
-                                                 BObjectImp* target )
+BObjectRef BObjectImp::OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target)
 {
   BObjectRef index = indices.top();
   indices.pop();
@@ -356,7 +354,7 @@ BObjectRef BObjectImp::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices
   }
 }
 
-BObjectImp* BObjectImp::selfPlusObjImp( const BObjectImp& objimp ) const
+BObjectImp* BObjectImp::selfPlusObjImp( const BObjectImp&  objimp ) const
 {
   return objimp.selfPlusObj( *this );
 }
@@ -394,15 +392,15 @@ void BObjectImp::selfPlusObj( BLong& /*objimp*/, BObject& /*obj*/ )
 }
 void BObjectImp::selfPlusObj( Double& /*objimp*/, BObject& /*obj*/ )
 {
-  // obj.setimp( selfPlusObj(objimp) );
+  //obj.setimp( selfPlusObj(objimp) );
 }
 void BObjectImp::selfPlusObj( String& /*objimp*/, BObject& /*obj*/ )
 {
-  // obj.setimp( selfPlusObj(objimp) );
+  //obj.setimp( selfPlusObj(objimp) );
 }
 void BObjectImp::selfPlusObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
 {
-  // obj.setimp( selfPlusObj(objimp) );
+  //obj.setimp( selfPlusObj(objimp) );
 }
 
 BObjectImp* BObjectImp::selfMinusObjImp( const BObjectImp& objimp ) const
@@ -860,31 +858,31 @@ void BObjectImp::operInsertInto( BObject& obj, const BObjectImp& /*objimp*/ )
 void BObjectImp::operPlusEqual( BObject& obj, BObjectImp& objimp )
 {
   objimp.selfPlusObjImp( *this, obj );
-  // obj.setimp( objimp.selfPlusObjImp( *this ) );
+  //obj.setimp( objimp.selfPlusObjImp( *this ) );
 }
 
 void BObjectImp::operMinusEqual( BObject& obj, BObjectImp& objimp )
 {
   objimp.selfMinusObjImp( *this, obj );
-  // obj.setimp( selfMinusObjImp( objimp ) );
+  //obj.setimp( selfMinusObjImp( objimp ) );
 }
 
 void BObjectImp::operTimesEqual( BObject& obj, BObjectImp& objimp )
 {
   objimp.selfTimesObjImp( *this, obj );
-  // obj.setimp( selfTimesObjImp( objimp ) );
+  //obj.setimp( selfTimesObjImp( objimp ) );
 }
 
 void BObjectImp::operDivideEqual( BObject& obj, BObjectImp& objimp )
 {
   objimp.selfDividedByObjImp( *this, obj );
-  // obj.setimp( selfDividedByObjImp( objimp ) );
+  //obj.setimp( selfDividedByObjImp( objimp ) );
 }
 
 void BObjectImp::operModulusEqual( BObject& obj, BObjectImp& objimp )
 {
   objimp.selfModulusObjImp( *this, obj );
-  // obj.setimp( selfModulusObjImp( objimp ) );
+  //obj.setimp( selfModulusObjImp( objimp ) );
 }
 
 BObject BObjectImp::operator-( void ) const
@@ -913,17 +911,17 @@ bool BObjectImp::isTrue( void ) const
 
 BObjectImp* BObjectImp::call_method( const char* methodname, Executor& /*ex*/ )
 {
-  return new BError( std::string( "Method '" ) + methodname + "' not found" );
+  return new BError(std::string("Method '") + methodname + "' not found");
 }
 BObjectImp* BObjectImp::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
 {
   OSTRINGSTREAM os;
   os << "Method id '" << id << "' (" << getObjMethod( id )->code << ") not found";
-  return new BError( std::string( OSTRINGSTREAM_STR( os ) ) );
+  return new BError(std::string(OSTRINGSTREAM_STR(os)));
 }
 BObjectRef BObjectImp::set_member( const char* membername, BObjectImp* /*valueimp*/, bool /*copy*/ )
 {
-  return BObjectRef( new BError( std::string( "Member '" ) + membername + "' not found" ) );
+  return BObjectRef(new BError(std::string("Member '") + membername + "' not found"));
 }
 BObjectRef BObjectImp::get_member( const char* /*membername*/ )
 {
@@ -965,8 +963,7 @@ UninitObject* UninitObject::SharedInstance;
 ref_ptr<BObjectImp> UninitObject::SharedInstanceOwner;
 
 UninitObject::UninitObject() : BObjectImp( OTUninit )
-{
-}
+{}
 
 BObjectImp* UninitObject::copy( void ) const
 {
@@ -994,22 +991,22 @@ bool UninitObject::operator==( const BObjectImp& imp ) const
 bool UninitObject::operator<( const BObjectImp& imp ) const
 {
   if ( imp.isa( OTError ) || imp.isa( OTUninit ) )
-    return false;  // Because it's equal can't be lesser
+    return false; // Because it's equal can't be lesser
 
   return true;
 }
 
 
 ObjArray::ObjArray() : BObjectImp( OTArray ), name_arr(), ref_arr()
-{
-}
+{}
 
 ObjArray::ObjArray( BObjectType type ) : BObjectImp( type ), name_arr(), ref_arr()
-{
-}
+{}
 
-ObjArray::ObjArray( const ObjArray& copyfrom )
-    : BObjectImp( copyfrom.type() ), name_arr( copyfrom.name_arr ), ref_arr( copyfrom.ref_arr )
+ObjArray::ObjArray( const ObjArray& copyfrom ) :
+  BObjectImp( copyfrom.type() ),
+  name_arr( copyfrom.name_arr ),
+  ref_arr( copyfrom.ref_arr )
 {
   deepcopy();
 }
@@ -1021,11 +1018,11 @@ void ObjArray::deepcopy()
     if ( elem.get() )
     {
       /*
-          NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
-          HMMM, can this BNamedObject get destructed before we're done with it?
-          No, we're making a copy, leaving the original be.
-          (SO, bno's refcount should be >1 here)
-          */
+        NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
+        HMMM, can this BNamedObject get destructed before we're done with it?
+        No, we're making a copy, leaving the original be.
+        (SO, bno's refcount should be >1 here)
+        */
 
       BObject* bo = elem.get();
       elem.set( new BObject( bo->impptr()->copy() ) );
@@ -1042,12 +1039,12 @@ BObjectImp* ObjArray::copy( void ) const
 size_t ObjArray::sizeEstimate() const
 {
   size_t size = sizeof( ObjArray );
-  size += 3 * sizeof( BObjectRef* ) + ref_arr.capacity() * sizeof( BObjectRef );
+  size += 3 * sizeof(BObjectRef*)+ref_arr.capacity( ) * sizeof( BObjectRef );
   for ( const auto& elem : ref_arr )
   {
     size += elem.sizeEstimate();
   }
-  size += 3 * sizeof( std::string* ) + name_arr.capacity() * sizeof( std::string );
+  size += 3 * sizeof(std::string*) + name_arr.capacity() * sizeof(std::string);
   for ( const auto& elem : name_arr )
   {
     size += elem.capacity();
@@ -1184,11 +1181,11 @@ BObjectImp* ObjArray::selfPlusObj( const ObjArray& objimp ) const
     if ( elem.get() )
     {
       /*
-          NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
-          HMMM, can this BNamedObject get destructed before we're done with it?
-          No, we're making a copy, leaving the original be.
-          (SO, bno's refcount should be >1 here)
-          */
+        NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
+        HMMM, can this BNamedObject get destructed before we're done with it?
+        No, we're making a copy, leaving the original be.
+        (SO, bno's refcount should be >1 here)
+        */
       BObject* bo = elem.get();
 
       result->ref_arr.push_back( BObjectRef( new BObject( ( *bo )->copy() ) ) );
@@ -1205,7 +1202,7 @@ BObjectImp* ObjArray::selfPlusObjImp( const BObjectImp& other ) const
 {
   return other.selfPlusObj( *this );
 }
-void ObjArray::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
+void ObjArray::selfPlusObjImp( BObjectImp&  objimp, BObject& obj )
 {
   objimp.selfPlusObj( *this, obj );
 }
@@ -1227,17 +1224,16 @@ void ObjArray::selfPlusObj( String& objimp, BObject& /*obj*/ )
 }
 void ObjArray::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 {
-  for ( const_iterator itr = objimp.ref_arr.begin(), itrend = objimp.ref_arr.end(); itr != itrend;
-        ++itr )
+  for ( const_iterator itr = objimp.ref_arr.begin(), itrend = objimp.ref_arr.end(); itr != itrend; ++itr )
   {
     if ( itr->get() )
     {
       /*
-          NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
-          HMMM, can this BNamedObject get destructed before we're done with it?
-          No, we're making a copy, leaving the original be.
-          (SO, bno's refcount should be >1 here)
-          */
+        NOTE: all BObjectRefs in an ObjArray reference BNamedObjects not BObjects
+        HMMM, can this BNamedObject get destructed before we're done with it?
+        No, we're making a copy, leaving the original be.
+        (SO, bno's refcount should be >1 here)
+        */
       BObject* bo = itr->get();
 
       ref_arr.push_back( BObjectRef( new BObject( ( *bo )->copy() ) ) );
@@ -1249,7 +1245,7 @@ void ObjArray::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
   }
 }
 
-BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
+BObjectRef ObjArray::OperMultiSubscript(std::stack<BObjectRef>& indices)
 {
   BObjectRef start_ref = indices.top();
   indices.pop();
@@ -1263,7 +1259,7 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
   BObjectImp& start = start_obj.impref();
 
   // first deal with the start position.
-  // return BObjectRef(new BError( "Subscript out of range" ));
+  //return BObjectRef(new BError( "Subscript out of range" ));
 
   unsigned index;
   if ( start.isa( OTLong ) )
@@ -1273,8 +1269,7 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
     if ( index == 0 || index > ref_arr.size() )
       return BObjectRef( new BError( "Array start index out of bounds" ) );
   }
-  else
-    return BObjectRef( copy() );
+  else return BObjectRef( copy() );
 
   // now the end index
 
@@ -1286,20 +1281,17 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
     if ( end == 0 || end > ref_arr.size() )
       return BObjectRef( new BError( "Array end index out of bounds" ) );
   }
-  else
-    return BObjectRef( copy() );
+  else return BObjectRef( copy() );
 
   auto str = new ObjArray();
 
 
-  // std::unique_ptr<ObjArray> result (new ObjArray());
+  //std::unique_ptr<ObjArray> result (new ObjArray());
   unsigned i = 0;
   for ( const_iterator itr = ref_arr.begin(), itrend = ref_arr.end(); itr != itrend; ++itr )
   {
-    if ( ++i < index )
-      continue;
-    if ( i > end )
-      break;
+    if ( ++i < index ) continue;
+    if ( i > end ) break;
     if ( itr->get() )
     {
       BObject* bo = itr->get();
@@ -1318,14 +1310,14 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
   else
   result->ref_arr.push_back( BObjectRef() );
   } */
-  //	return result.release();
+  //  return result.release();
   return BObjectRef( str );
 }
 
 BObjectRef ObjArray::OperSubscript( const BObject& rightobj )
 {
   const BObjectImp& right = rightobj.impref();
-  if ( right.isa( OTLong ) )  // vector
+  if ( right.isa( OTLong ) ) // vector
   {
     BLong& lng = (BLong&)right;
 
@@ -1357,9 +1349,11 @@ BObjectRef ObjArray::OperSubscript( const BObject& rightobj )
 BObjectRef ObjArray::get_member( const char* membername )
 {
   int i = 0;
-  for ( const_name_iterator itr = name_arr.begin(), end = name_arr.end(); itr != end; ++itr, ++i )
+  for ( const_name_iterator itr = name_arr.begin(), end = name_arr.end();
+        itr != end;
+        ++itr, ++i )
   {
-    const std::string& name = ( *itr );
+    const std::string& name = (*itr);
     if ( stricmp( name.c_str(), membername ) == 0 )
     {
       return ref_arr[i];
@@ -1372,9 +1366,11 @@ BObjectRef ObjArray::get_member( const char* membername )
 BObjectRef ObjArray::set_member( const char* membername, BObjectImp* valueimp, bool copy )
 {
   int i = 0;
-  for ( const_name_iterator itr = name_arr.begin(), end = name_arr.end(); itr != end; ++itr, ++i )
+  for ( const_name_iterator itr = name_arr.begin(), end = name_arr.end();
+        itr != end;
+        ++itr, ++i )
   {
-    const std::string& name = ( *itr );
+    const std::string& name = (*itr);
     if ( stricmp( name.c_str(), membername ) == 0 )
     {
       BObjectImp* target = copy ? valueimp->copy() : valueimp;
@@ -1439,12 +1435,10 @@ long ObjArray::contains( const BObjectImp& imp ) const
       BObject* bo = ( itr->get() );
       if ( bo == NULL )
       {
-        INFO_PRINT << Clib::scripts_thread_script << " - '" << imp
-                   << " in array{}' check. Invalid data at index " << ( itr - ref_arr.begin() ) + 1
-                   << "\n";
+        INFO_PRINT << Clib::scripts_thread_script << " - '" << imp << " in array{}' check. Invalid data at index " << ( itr - ref_arr.begin( ) ) + 1 << "\n";
         continue;
       }
-      else if ( *( bo->impptr() ) == imp )
+      else if ( *(bo->impptr()) == imp )
       {
         return ( static_cast<long>( ( itr - ref_arr.begin() ) + 1 ) );
       }
@@ -1467,6 +1461,7 @@ public:
     const BObject& r2 = *b2;
     return ( r1 < r2 );
   }
+
 };
 
 BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
@@ -1530,7 +1525,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
              imp != NULL )  // 1-based index
         {
           --idx;
-// FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
+          // FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
 #if ( defined( _WIN32 ) && _MSC_VER >= 1300 ) || ( !defined( USE_STLPORT ) && __GNUC__ )
           BObjectRef tmp;
           ref_arr.insert( ref_arr.begin() + idx, tmp );
@@ -1622,7 +1617,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         if ( !ref_arr.empty() )
         {
           const BObjectRef& ref =
-              ref_arr[Clib::random_int( static_cast<int>( ref_arr.size() ) - 1 )];
+            ref_arr[Clib::random_int( static_cast<int>( ref_arr.size() ) - 1 )];
           if ( ref.get() == NULL )
             return NULL;
           return ref.get()->impptr();
@@ -1647,13 +1642,13 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       else
         shift_by = 1;
 
-      if ( ref_arr.empty() || std::abs( shift_by ) > (int)ref_arr.size() )
+      if ( ref_arr.empty() || std::abs(shift_by) > (int)ref_arr.size())
         return new BLong( 0 );
 
-      if ( shift_by > 0 )
-        std::rotate( ref_arr.begin(), ref_arr.end() - shift_by, ref_arr.end() );
+      if (shift_by>0)
+        std::rotate(ref_arr.begin(), ref_arr.end() - shift_by, ref_arr.end());
       else
-        std::rotate( ref_arr.begin(), ref_arr.begin() - shift_by, ref_arr.end() );
+        std::rotate(ref_arr.begin(), ref_arr.begin() - shift_by, ref_arr.end());
 
       return new BLong( 1 );
     }
@@ -1674,7 +1669,7 @@ BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
     return NULL;
 }
 
-void ObjArray::packonto( std::ostream& os ) const
+void ObjArray::packonto(std::ostream& os) const
 {
   os << "a" << ref_arr.size() << ":";
   for ( const auto& elem : ref_arr )
@@ -1691,7 +1686,7 @@ void ObjArray::packonto( std::ostream& os ) const
   }
 }
 
-BObjectImp* ObjArray::unpack( std::istream& is )
+BObjectImp* ObjArray::unpack(std::istream& is)
 {
   unsigned arrsize;
   char colon;
@@ -1720,10 +1715,11 @@ BObjectImp* ObjArray::unpack( std::istream& is )
   return arr.release();
 }
 
-BApplicPtr::BApplicPtr( const BApplicObjType* pointer_type, void* ptr )
-    : BObjectImp( OTApplicPtr ), ptr_( ptr ), pointer_type_( pointer_type )
-{
-}
+BApplicPtr::BApplicPtr( const BApplicObjType* pointer_type, void* ptr ) :
+  BObjectImp( OTApplicPtr ),
+  ptr_( ptr ),
+  pointer_type_( pointer_type )
+{}
 
 BObjectImp* BApplicPtr::copy() const
 {
@@ -1751,19 +1747,20 @@ std::string BApplicPtr::getStringRep() const
 }
 
 
-void BApplicPtr::printOn( std::ostream& os ) const
+void BApplicPtr::printOn(std::ostream& os) const
 {
   os << "<appptr>";
 }
 
 std::string BApplicObjBase::getStringRep() const
 {
-  return std::string( "<appobj:" ) + typeOf() + ">";
+  return std::string("<appobj:") + typeOf() + ">";
 }
 
-void BApplicObjBase::printOn( std::ostream& os ) const
+void BApplicObjBase::printOn(std::ostream& os) const
 {
   os << getStringRep();
 }
+
 }
 }

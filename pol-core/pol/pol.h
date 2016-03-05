@@ -6,4 +6,4 @@ namespace Pol
 extern int xmain_outer();
 }
 
-#endif  // POL_H
+#endif // POL_H

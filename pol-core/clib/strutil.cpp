@@ -1,10 +1,8 @@
 /** @file
  *
  * @par History
- * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no
- * sense.
- * - 2014/06/10 Nando:	Removed pragma that disabled 4244. (tolower()/toupper() used ints because -1
- * is a valid output).
+ * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
+ * - 2014/06/10 Nando:  Removed pragma that disabled 4244. (tolower()/toupper() used ints because -1 is a valid output).
  */
 
 
@@ -104,20 +102,22 @@ std::string decint( size_t v )
 }
 #endif
 
-void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue )
+void splitnamevalue(const std::string& istr,
+                    std::string& propname,
+                    std::string& propvalue)
 {
-  std::string::size_type start = istr.find_first_not_of( " \t\r\n" );
-  if ( start != std::string::npos )
+  std::string::size_type start = istr.find_first_not_of(" \t\r\n");
+  if (start != std::string::npos)
   {
-    std::string::size_type delimpos = istr.find_first_of( " \t\r\n=", start + 1 );
-    if ( delimpos != std::string::npos )
+    std::string::size_type delimpos = istr.find_first_of(" \t\r\n=", start + 1);
+    if (delimpos != std::string::npos)
     {
-      std::string::size_type valuestart = istr.find_first_not_of( " \t\r\n", delimpos + 1 );
-      std::string::size_type valueend = istr.find_last_not_of( " \t\r\n" );
-      propname = istr.substr( start, delimpos - start );
-      if ( valuestart != std::string::npos && valueend != std::string::npos )
+      std::string::size_type valuestart = istr.find_first_not_of(" \t\r\n", delimpos + 1);
+      std::string::size_type valueend = istr.find_last_not_of(" \t\r\n");
+      propname = istr.substr(start, delimpos - start);
+      if (valuestart != std::string::npos && valueend != std::string::npos)
       {
-        propvalue = istr.substr( valuestart, valueend - valuestart + 1 );
+        propvalue = istr.substr(valuestart, valueend - valuestart + 1);
       }
       else
       {
@@ -126,7 +126,7 @@ void splitnamevalue( const std::string& istr, std::string& propname, std::string
     }
     else
     {
-      propname = istr.substr( start, std::string::npos );
+      propname = istr.substr(start, std::string::npos);
       propvalue = "";
     }
   }
@@ -137,12 +137,11 @@ void splitnamevalue( const std::string& istr, std::string& propname, std::string
   }
 }
 
-void test_splitnamevalue( const std::string& istr, const std::string& exp_pn,
-                          const std::string& exp_pv )
+void test_splitnamevalue(const std::string& istr, const std::string& exp_pn, const std::string& exp_pv)
 {
   std::string pn, pv;
-  splitnamevalue( istr, pn, pv );
-  if ( pn != exp_pn || pv != exp_pv )
+  splitnamevalue(istr, pn, pv);
+  if (pn != exp_pn || pv != exp_pv)
   {
     INFO_PRINT << "splitnamevalue( \"" << istr << "\" ) fails!\n";
   }
@@ -164,29 +163,29 @@ void test_splitnamevalue()
 }
 UnitTest test_splitnamevalue_obj( test_splitnamevalue );
 
-void decodequotedstring( std::string& str )
+void decodequotedstring(std::string& str)
 {
   std::string tmp;
   tmp.swap( str );
   const char* s = tmp.c_str();
   str.reserve( tmp.size() );
   ++s;
-  while ( *s )
+  while( *s )
   {
     char ch = *s++;
 
-    switch ( ch )
+    switch( ch )
     {
     case '\\':
       ch = *s++;
-      switch ( ch )
+      switch( ch )
       {
       case '\0':
         return;
-      case 'n':  // newline
+      case 'n':               // newline
         str += "\n";
         break;
-      default:  // slash, quote, etc
+      default:                // slash, quote, etc
         str += ch;
         break;
       }
@@ -201,7 +200,7 @@ void decodequotedstring( std::string& str )
     }
   }
 }
-void encodequotedstring( std::string& str )
+void encodequotedstring(std::string& str)
 {
   std::string tmp;
   tmp.swap( str );
@@ -209,10 +208,10 @@ void encodequotedstring( std::string& str )
   str.reserve( tmp.size() + 2 );
   str += "\"";
 
-  while ( *s )
+  while( *s )
   {
     char ch = *s++;
-    switch ( ch )
+    switch( ch )
     {
     case '\\':
       str += "\\\\";
@@ -232,22 +231,22 @@ void encodequotedstring( std::string& str )
   str += "\"";
 }
 
-std::string getencodedquotedstring( const std::string& in )
+std::string getencodedquotedstring(const std::string& in)
 {
   std::string tmp = in;
   encodequotedstring( tmp );
   return tmp;
 }
-void test_dqs( const std::string& in, const std::string& out )
+void test_dqs(const std::string& in, const std::string& out)
 {
   std::string tmp = in;
   decodequotedstring( tmp );
-  if ( tmp != out )
+  if( tmp != out )
   {
     INFO_PRINT << "decodequotedstring( " << in << " ) fails!\n";
   }
   encodequotedstring( tmp );
-  if ( tmp != in )
+  if( tmp != in )
   {
     INFO_PRINT << "encodequotedstring( " << out << " ) fails!\n";
   }
@@ -263,24 +262,24 @@ void test_convertquotedstring()
 UnitTest test_convertquotedstring_obj( test_convertquotedstring );
 
 // If we have boost, I think we should use it...
-void mklower( std::string& str )
+void mklower(std::string& str)
 {
-  boost::to_lower( str );
+  boost::to_lower(str);
 }
 
-void mkupper( std::string& str )
+void mkupper(std::string& str)
 {
-  boost::to_upper( str );
+  boost::to_upper(str);
 }
 
-std::string strlower( const std::string& str )
+std::string strlower(const std::string& str)
 {
-  return boost::to_lower_copy( str );
+  return boost::to_lower_copy(str);
 }
 
-std::string strupper( const std::string& str )
+std::string strupper(const std::string& str)
 {
-  return boost::to_upper_copy( str );
+  return boost::to_upper_copy(str);
 }
 }
 }

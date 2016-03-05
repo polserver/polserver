@@ -32,12 +32,10 @@ class UObject;
 class TargetCursor
 {
   friend struct Cursors;
-
 protected:
   explicit TargetCursor( bool inform_on_cancel );
-
 public:
-  virtual ~TargetCursor(){};
+  virtual ~TargetCursor() {};
 
   bool send_object_cursor( Network::Client* client,
                            PKTBI_6C::CURSOR_TYPE crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL );
@@ -56,100 +54,90 @@ protected:
 class FullMsgTargetCursor : public TargetCursor
 {
   friend struct Cursors;
-
 protected:
-  FullMsgTargetCursor( void ( *func )( Mobile::Character*, PKTBI_6C* ) );
-
+  FullMsgTargetCursor( void( *func )( Mobile::Character*, PKTBI_6C*) );
 public:
-  virtual ~FullMsgTargetCursor(){};
+  virtual ~FullMsgTargetCursor() {};
 
   virtual void on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msg ) POL_OVERRIDE;
-
 private:
-  void ( *func )( Mobile::Character* targetter, PKTBI_6C* msg );
+  void( *func )( Mobile::Character* targetter, PKTBI_6C* msg );
 };
+
 
 
 /******************************************************/
 class LosCheckedTargetCursor : public TargetCursor
 {
   friend struct Cursors;
-
 protected:
-  LosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
+  LosCheckedTargetCursor( void( *func )( Mobile::Character*, UObject*),
                           bool inform_on_cancel = false );
-
 public:
-  virtual ~LosCheckedTargetCursor(){};
+  virtual ~LosCheckedTargetCursor() {};
 
   virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
-
 private:
-  void ( *func )( Mobile::Character*, UObject* targetted );
+  void( *func )( Mobile::Character*, UObject* targetted );
 };
 /******************************************************/
+
 
 
 /******************************************************/
 class NoLosCheckedTargetCursor : public TargetCursor
 {
   friend struct Cursors;
-
 protected:
-  NoLosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
+  NoLosCheckedTargetCursor( void( *func )( Mobile::Character*, UObject*),
                             bool inform_on_cancel = false );
-
 public:
-  virtual ~NoLosCheckedTargetCursor(){};
+  virtual ~NoLosCheckedTargetCursor() {};
 
   virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
-
 private:
-  void ( *func )( Mobile::Character*, UObject* targetted );
+  void( *func )( Mobile::Character*, UObject* targetted );
 };
 /******************************************************/
+
 
 
 /******************************************************/
 class LosCheckedCoordCursor : public TargetCursor
 {
   friend struct Cursors;
-
 protected:
-  LosCheckedCoordCursor( void ( *func )( Mobile::Character*, PKTBI_6C* msg ),
+  LosCheckedCoordCursor( void( *func )( Mobile::Character*, PKTBI_6C* msg ),
                          bool inform_on_cancel = false );
-
 public:
-  virtual ~LosCheckedCoordCursor(){};
+  virtual ~LosCheckedCoordCursor() {};
 
   bool send_coord_cursor( Network::Client* client );
   virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
-
 private:
-  void ( *func_ )( Mobile::Character*, PKTBI_6C* );
+  void( *func_ )( Mobile::Character*, PKTBI_6C*);
 };
 /*******************************************************/
+
 
 
 /******************************************************/
 class MultiPlacementCursor : public TargetCursor
 {
   friend struct Cursors;
-
 protected:
-  MultiPlacementCursor( void ( *func )( Mobile::Character*, PKTBI_6C* msg ) );
-
+  MultiPlacementCursor( void( *func )( Mobile::Character*, PKTBI_6C* msg ) );
 public:
-  virtual ~MultiPlacementCursor(){};
+  virtual ~MultiPlacementCursor() {};
 
-  void send_placemulti( Network::Client* client, unsigned int objtype, int flags, s16 xoffset,
-                        s16 yoffset, u32 hue );
+  void send_placemulti( Network::Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset, u32 hue );
   virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
-
 private:
-  void ( *func_ )( Mobile::Character*, PKTBI_6C* );
+  void( *func_ )( Mobile::Character*, PKTBI_6C*);
 };
 /*******************************************************/
+
+
 
 
 /******************************************************/
@@ -157,40 +145,35 @@ private:
 class NoLosCharacterCursor : public TargetCursor
 {
   friend struct Cursors;
-
 protected:
-  NoLosCharacterCursor( void ( *func )( Mobile::Character* targetter,
-                                        Mobile::Character* targetted ) );
-
+  NoLosCharacterCursor( void( *func )( Mobile::Character* targetter, Mobile::Character* targetted ) );
 public:
-  virtual ~NoLosCharacterCursor(){};
+  virtual ~NoLosCharacterCursor() {};
   virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
-
 private:
-  void ( *func )( Mobile::Character* targetter, Mobile::Character* targetted );
+  void( *func )( Mobile::Character* targetter, Mobile::Character* targetted );
 };
 /******************************************************/
+
+
 
 
 /******************************************************/
 class NoLosUObjectCursor : public TargetCursor
 {
   friend struct Cursors;
-
 protected:
-  NoLosUObjectCursor( void ( *func )( Mobile::Character*, UObject* ),
+  NoLosUObjectCursor( void( *func )( Mobile::Character*, UObject*),
                       bool inform_on_cancel = false );
-
 public:
-  virtual ~NoLosUObjectCursor(){};
+  virtual ~NoLosUObjectCursor() {};
   virtual void on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg ) POL_OVERRIDE;
-
 private:
-  void ( *func )( Mobile::Character*, UObject* obj );
+  void( *func )( Mobile::Character*, UObject* obj );
 };
 /******************************************************/
 
-}  // namespace Core
+} // namespace Core
 namespace Module
 {
 void handle_script_cursor( Mobile::Character* chr, Core::UObject* obj );
@@ -217,10 +200,8 @@ private:
   friend class TargetCursor;
   friend void handle_target_cursor( Network::Client* client, PKTBI_6C* msg );
   friend class GameState;
-
 protected:
   Cursors();
-
 public:
   LosCheckedTargetCursor los_checked_script_cursor;
   NoLosCheckedTargetCursor nolos_checked_script_cursor;
@@ -235,6 +216,8 @@ public:
   NoLosCharacterCursor repdata_cursor;
   NoLosCharacterCursor startlog_cursor;
   NoLosCharacterCursor stoplog_cursor;
+
+
 };
 }
 }

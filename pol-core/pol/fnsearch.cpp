@@ -38,7 +38,7 @@ Mobile::Character* system_find_mobile( u32 serial /*, int sysfind_flags*/ )
     return NULL;
 }
 
-Items::Item* system_find_item( u32 serial /*, int sysfind_flags */ )
+Items::Item* system_find_item( u32 serial/*, int sysfind_flags */ )
 {
   UObject* obj = objStorageManager.objecthash.Find( serial );
   if ( obj != NULL && obj->isitem() && !obj->orphan() )

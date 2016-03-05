@@ -1,4 +1,4 @@
-// TODO: remove this ugly hack again after code cleanup
+//TODO: remove this ugly hack again after code cleanup
 #ifndef UOFILE2_H
 #define UOFILE2_H
 

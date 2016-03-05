@@ -14,6 +14,7 @@ namespace Pol
 {
 namespace Bscript
 {
+
 /**
  * Represents a single compile context.
  *
@@ -25,8 +26,8 @@ class CompilerContext
 public:
   CompilerContext();
   CompilerContext( const std::string& filename, int dbg_filenum, const char* s );
-  CompilerContext( const CompilerContext& );
-  CompilerContext& operator=( const CompilerContext& );
+  CompilerContext( const CompilerContext&);
+  CompilerContext& operator=( const CompilerContext&);
 
   void printOn( std::ostream& os ) const;
   void printOn( fmt::Writer& writer ) const;

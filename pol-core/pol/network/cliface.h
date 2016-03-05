@@ -31,9 +31,8 @@ struct ClientVitalUpdaters
 public:
   ClientVitalUpdaters();
 
-  void ( *my_vital_changed )( Client* client, Mobile::Character* me, const Core::Vital* vital );
-  void ( *others_vital_changed )( Client* client, Mobile::Character* him,
-                                  const Core::Vital* vital );
+  void( *my_vital_changed )( Client* client, Mobile::Character* me, const Core::Vital* vital );
+  void( *others_vital_changed )( Client* client, Mobile::Character* him, const Core::Vital* vital );
 };
 
 struct ClientAttributeUpdaters
@@ -41,7 +40,7 @@ struct ClientAttributeUpdaters
 public:
   ClientAttributeUpdaters();
 
-  void ( *my_attr_changed )( Client* client, Mobile::Character* me, const Mobile::Attribute* attr );
+  void( *my_attr_changed )( Client* client, Mobile::Character* me, const Mobile::Attribute* attr );
 
   const Core::UOSkill* pUOSkill;
 };
@@ -50,6 +49,7 @@ class ClientInterface
 {
 public:
   virtual ~ClientInterface() {}
+
   void register_client( Client* client );
   void deregister_client( Client* client );
 
@@ -67,6 +67,7 @@ protected:
   std::vector<Client*> clients;
 
   friend void send_uo_skill( Client* client, Mobile::Character* me, const Mobile::Attribute* attr );
+
 };
 
 class UOClientInterface : public ClientInterface
@@ -76,8 +77,7 @@ public:
 
 protected:
   friend class ClientInterface;
-  virtual void bcast_vital_changed( Mobile::Character* who,
-                                    const Core::Vital* vital ) const POL_OVERRIDE;
+  virtual void bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const POL_OVERRIDE;
 };
 }
 }

@@ -22,7 +22,6 @@ public:
   void die_string( std::string& str ) const;
   unsigned short min_value( void ) const;
   unsigned short max_value( void ) const;
-
 private:
   unsigned die_count;
   unsigned die_type;
@@ -31,3 +30,4 @@ private:
 }
 }
 #endif
+

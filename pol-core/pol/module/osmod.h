@@ -34,13 +34,13 @@ namespace Module
 {
 class OSExecutorModule;
 
-typedef Bscript::BObjectImp* ( OSExecutorModule::*OSExecutorModuleFn )();
+typedef Bscript::BObjectImp* ( OSExecutorModule::*OSExecutorModuleFn )( );
 
 #ifdef _MSC_VER
-#pragma pack( push, 1 )
+# pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
+# pragma pack(1)
 #endif
 struct OSFunctionDef
 {
@@ -48,9 +48,9 @@ struct OSFunctionDef
   OSExecutorModuleFn fptr;
 };
 #ifdef _MSC_VER
-#pragma pack( pop )
+# pragma pack( pop )
 #else
-#pragma pack()
+# pragma pack()
 #endif
 
 class OSExecutorModule : public Bscript::ExecutorModule
@@ -75,47 +75,41 @@ public:
 
   bool in_debugger_holdlist() const;
   void revive_debugged();
-  Bscript::BObjectImp* clear_event_queue();  // DAVE
+  Bscript::BObjectImp* clear_event_queue( ); //DAVE
 
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
-  Bscript::BObjectImp* create_debug_context();
-  Bscript::BObjectImp* getpid();
-  Bscript::BObjectImp* getprocess();
-  Bscript::BObjectImp* sleep();
-  Bscript::BObjectImp* sleepms();
-  Bscript::BObjectImp* wait_for_event();
-  Bscript::BObjectImp* events_waiting();
-  Bscript::BObjectImp* set_critical();
-  Bscript::BObjectImp* is_critical();
+  Bscript::BObjectImp* create_debug_context( );
+  Bscript::BObjectImp* getpid( );
+  Bscript::BObjectImp* getprocess( );
+  Bscript::BObjectImp* sleep( );
+  Bscript::BObjectImp* sleepms( );
+  Bscript::BObjectImp* wait_for_event( );
+  Bscript::BObjectImp* events_waiting( );
+  Bscript::BObjectImp* set_critical( );
+  Bscript::BObjectImp* is_critical( );
 
-  Bscript::BObjectImp* start_script();
-  Bscript::BObjectImp* start_skill_script();
-  Bscript::BObjectImp* run_script_to_completion();
-  Bscript::BObjectImp* run_script();
-  Bscript::BObjectImp* mf_parameter();
-  Bscript::BObjectImp* mf_set_debug();
-  Bscript::BObjectImp* mf_Log();
-  Bscript::BObjectImp* mf_system_rpm();
-  Bscript::BObjectImp* mf_set_priority();
-  Bscript::BObjectImp* mf_unload_scripts();
-  Bscript::BObjectImp* mf_set_script_option();
-  Bscript::BObjectImp* mf_set_event_queue_size();  // DAVE 11/24
-  Bscript::BObjectImp* mf_OpenURL();
-  Bscript::BObjectImp* mf_OpenConnection();
-  Bscript::BObjectImp* mf_debugger();
+  Bscript::BObjectImp* start_script( );
+  Bscript::BObjectImp* start_skill_script( );
+  Bscript::BObjectImp* run_script_to_completion( );
+  Bscript::BObjectImp* run_script( );
+  Bscript::BObjectImp* mf_parameter( );
+  Bscript::BObjectImp* mf_set_debug( );
+  Bscript::BObjectImp* mf_Log( );
+  Bscript::BObjectImp* mf_system_rpm( );
+  Bscript::BObjectImp* mf_set_priority( );
+  Bscript::BObjectImp* mf_unload_scripts( );
+  Bscript::BObjectImp* mf_set_script_option( );
+  Bscript::BObjectImp* mf_set_event_queue_size( ); //DAVE 11/24
+  Bscript::BObjectImp* mf_OpenURL( );
+  Bscript::BObjectImp* mf_OpenConnection( );
+  Bscript::BObjectImp* mf_debugger( );
 
-  Bscript::BObjectImp* mf_clear_event_queue();  // DAVE
+  Bscript::BObjectImp* mf_clear_event_queue( ); //DAVE
   bool blocked_;
-  Core::polclock_t sleep_until_clock_;  // 0 if wait forever
+  Core::polclock_t sleep_until_clock_; // 0 if wait forever
 
-  enum
-  {
-    NO_LIST,
-    TIMEOUT_LIST,
-    NOTIMEOUT_LIST,
-    DEBUGGER_LIST
-  } in_hold_list_;
+  enum { NO_LIST, TIMEOUT_LIST, NOTIMEOUT_LIST, DEBUGGER_LIST } in_hold_list_;
   Core::HoldList::iterator hold_itr_;
 
   unsigned int pid_;
@@ -127,11 +121,8 @@ protected:
     WAIT_UNKNOWN
   } wait_type;
 
-  enum
-  {
-    MAX_EVENTQUEUE_SIZE = 20
-  };
-  unsigned short max_eventqueue_size;  // DAVE 11/24
+  enum { MAX_EVENTQUEUE_SIZE = 20 };
+  unsigned short max_eventqueue_size; //DAVE 11/24
   std::queue<Bscript::BObjectImp*> events_;
 
 

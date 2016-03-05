@@ -23,16 +23,17 @@ struct TraceBufferElem
   unsigned int value;
 };
 
-extern TraceBufferElem tracebuffer[TRACEBUF_DEPTH];
+extern TraceBufferElem tracebuffer[ TRACEBUF_DEPTH ];
 extern unsigned tracebuffer_insertpoint;
 
 inline void _tracebuffer_addelem( const char* tag, unsigned int value )
 {
-  tracebuffer[tracebuffer_insertpoint].tag = tag;
-  tracebuffer[tracebuffer_insertpoint].value = value;
+  tracebuffer[ tracebuffer_insertpoint ].tag   = tag;
+  tracebuffer[ tracebuffer_insertpoint ].value = value;
   ++tracebuffer_insertpoint;
-  if ( tracebuffer_insertpoint >= TRACEBUF_DEPTH )
+  if (tracebuffer_insertpoint >= TRACEBUF_DEPTH)
     tracebuffer_insertpoint = 0;
+
 }
 #endif
 
@@ -40,10 +41,10 @@ void LogTraceBuffer();
 }
 
 #ifdef NDEBUG
-#define TRACEBUF_ADDELEM( tag, value ) /**/
+#define TRACEBUF_ADDELEM(tag,value) /**/
 #else
-#define TRACEBUF_ADDELEM( tag, value ) Clib::_tracebuffer_addelem( tag, value )
+#define TRACEBUF_ADDELEM(tag,value) Clib::_tracebuffer_addelem(tag, value)
 #endif
 }
 
-#endif  // CLIB_TRACEBUF_H
+#endif //CLIB_TRACEBUF_H

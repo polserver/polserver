@@ -13,10 +13,10 @@ namespace Pol
 {
 namespace Core
 {
-ULockable::ULockable( const Items::ItemDesc& itemdesc, UOBJ_CLASS uobj_class )
-    : Item( itemdesc, uobj_class ), locked_( false )
-{
-}
+ULockable::ULockable( const Items::ItemDesc& itemdesc, UOBJ_CLASS uobj_class ) :
+  Item( itemdesc, uobj_class ),
+  locked_( false )
+{}
 
 void ULockable::readProperties( Clib::ConfigElem& elem )
 {
@@ -32,7 +32,7 @@ void ULockable::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tLocked\t" << locked_ << pf_endl;
 }
 
-// dave 12-20
+//dave 12-20
 Items::Item* ULockable::clone() const
 {
   ULockable* item = static_cast<ULockable*>( base::clone() );
@@ -43,7 +43,7 @@ Items::Item* ULockable::clone() const
 
 size_t ULockable::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( bool ) /* locked_*/;
+  return base::estimatedSize( ) + sizeof( bool )/* locked_*/;
 }
 }
 }

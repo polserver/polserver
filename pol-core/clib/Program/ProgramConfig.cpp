@@ -23,21 +23,21 @@ ProgramConfig::~ProgramConfig()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ProgramConfig::configureProgramEnvironment( std::string programName )
+void ProgramConfig::configureProgramEnvironment(std::string programName)
 {
   m_programName = programName;
 
   std::string exeDir = programName;
   std::string::size_type bslashpos;
-  while ( std::string::npos != ( bslashpos = exeDir.find( '\\' ) ) )
+  while (std::string::npos != (bslashpos = exeDir.find('\\')))
   {
-    exeDir.replace( bslashpos, 1, 1, '/' );
+    exeDir.replace(bslashpos, 1, 1, '/');
   }
 
-  std::string::size_type pos = exeDir.find_last_of( "/" );
-  if ( pos != std::string::npos )
+  std::string::size_type pos = exeDir.find_last_of("/");
+  if (pos != std::string::npos)
   {
-    exeDir.erase( pos );
+    exeDir.erase(pos);
     exeDir += "/";
   }
   m_programDir = exeDir;
@@ -54,5 +54,6 @@ std::string ProgramConfig::programDir()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
 }
-}  // namespaces
+} // namespaces

@@ -21,10 +21,10 @@ namespace Core
 {
 #ifdef _MSC_VER
 /* Visual C++ 4.0 and above */
-#pragma pack( push, 1 )
+# pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
+# pragma pack(1)
 #endif
 
 // Walk Approved
@@ -69,21 +69,21 @@ struct PKTBI_98_IN
 asserteql( sizeof( PKTBI_98_IN ), 7 );
 
 // All Names
-// struct PKTBI_98_OUT
+//struct PKTBI_98_OUT
 //{
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial;
 //    char name[30];
 //};
-// asserteql( sizeof(PKTBI_98_OUT), 37 );
+//asserteql( sizeof(PKTBI_98_OUT), 37 );
 
 /* NOTE on MSG3A:
-    send the header, plus skills[] for each skill,
-    plus two zeros in 'skillid' after all the skills
-    sent.
-    I'm not sure if it's OK to only send a few skills.
-    */
+  send the header, plus skills[] for each skill,
+  plus two zeros in 'skillid' after all the skills
+  sent.
+  I'm not sure if it's OK to only send a few skills.
+  */
 struct PKTBI_3A_VALUES
 {
   u8 msgtype;
@@ -96,24 +96,13 @@ struct PKTBI_3A_VALUES
     u16 value_unmod;
     u8 lock_mode;
   } skills[100];
-  enum
-  {
-    LOCK_NONE = 0,
-    LOCK_DOWN = 1,
-    LOCK_LOCKED = 2
-  };
-  enum
-  {
-    FULL_LIST = 0x00,
-    FULL_LIST_CAP = 0x02,
-    SINGLE_SKILL = 0xFF,
-    SINGLE_SKILL_CAP = 0xDF
-  };
+  enum { LOCK_NONE = 0, LOCK_DOWN = 1, LOCK_LOCKED = 2 };
+  enum { FULL_LIST = 0x00, FULL_LIST_CAP = 0x02, SINGLE_SKILL = 0xFF, SINGLE_SKILL_CAP = 0xDF };
   u16 terminator;
 };
 
 //// FIXME: Join this with the one up there, with some buffer or something... -- Nando, 2009-03-17
-// struct PKTBI_3A_CAPS
+//struct PKTBI_3A_CAPS
 //{
 //    u8 msgtype;
 //    u16 msglen;
@@ -124,7 +113,7 @@ struct PKTBI_3A_VALUES
 //        u16 value;
 //        u16 value_unmod;
 //        u8 lock_mode;
-//		u16 cap;
+//    u16 cap;
 //    } skills[100];//SKILLID__CLIENT_HIGHEST - SKILLID__CLIENT_LOWEST + 1 ];
 //    enum { LOCK_NONE = 0, LOCK_DOWN = 1, LOCK_LOCKED = 2 };
 //    //u16 terminator;
@@ -141,7 +130,7 @@ asserteql( sizeof( PKTBI_3A_LOCKS ), 6 );
 
 struct PKTBI_3B
 {
-  u8 msgtype;
+  u8  msgtype;
   u16 msglen;
   u32 vendor_serial;
   u8 status;
@@ -155,7 +144,7 @@ struct PKTBI_3B
     u8 layer;
     u32 item_serial;
     u16 number_bought;
-  } items[1]; /* Dunno how many it should be */
+  } items[1];  /* Dunno how many it should be */
 };
 asserteql( sizeof( PKTBI_3B ), 15 );
 
@@ -192,26 +181,26 @@ struct PKTBI_66
 };
 assertsize( PKTBI_66, 14 );
 
-// struct PKTBI_66_HDR
+//struct PKTBI_66_HDR
 //{
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 book_serial;
-//	u16 pages;
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 book_serial;
+//  u16 pages;
 //};
-// assertsize( PKTBI_66_HDR, 9 );
+//assertsize( PKTBI_66_HDR, 9 );
 //
-// struct PKTBI_66_CONTENTS
+//struct PKTBI_66_CONTENTS
 //{
-//	u16 page;
-//	u16 lines;
+//  u16 page;
+//  u16 lines;
 //};
-// assertsize( PKTBI_66_CONTENTS, 4 );
+//assertsize( PKTBI_66_CONTENTS, 4 );
 
 struct PKTBI_6C
 {
   u8 msgtype;
-  u8 unk1;  // TARGET_CURSOR_CREATE / _DELETE ??
+  u8 unk1;        // TARGET_CURSOR_CREATE / _DELETE ??
   u32 target_cursor_serial;
   u8 cursor_type;
   u32 selected_serial;
@@ -220,11 +209,7 @@ struct PKTBI_6C
   u8 unk15;
   s8 z;
   u16 graphic;
-  enum
-  {
-    UNK1_00,
-    UNK1_01
-  };
+  enum { UNK1_00, UNK1_01 };
   enum CURSOR_TYPE
   {
     CURSOR_TYPE_OBJECT = 0,
@@ -283,29 +268,29 @@ struct PKTBI_71
   {
     u32 board_id;
     char name[22];
-    u32 id;      // always 0x402000FF ?
-    u32 unk_00;  // always 0x00
+    u32 id;   // always 0x402000FF ?
+    u32 unk_00; // always 0x00
   };
 
   struct SUBCMD_OUT_1_MESSAGE_SUMMARY
   {
     u32 board_id;
     u32 msg_id;
-    u32 parent_id;  // 0 if top-level
+    u32 parent_id; // 0 if top-level
     struct POSTER
     {
       u8 post_len;
-      char poster[1];  // post_len bytes long (null term)
+      char poster[1]; // post_len bytes long (null term)
     };
     struct SUBJECT
     {
       u8 subj_len;
-      char subject[1];  // subj_len bytes long (null term)
+      char subject[1]; // subj_len bytes long (null term)
     };
     struct TIME
     {
       u8 time_len;
-      char time[1];  // time_len bytes long (null term)
+      char time[1]; // time_len bytes long (null term)
     };
   };
 
@@ -316,29 +301,29 @@ struct PKTBI_71
     struct POSTER
     {
       u8 post_len;
-      char poster[1];  // post_len bytes long (NULL term)
+      char poster[1]; // post_len bytes long (NULL term)
     };
     struct SUBJECT
     {
       u8 subj_len;
-      char subject[1];  // subj_len bytes long (null term)
+      char subject[1]; // subj_len bytes long (null term)
     };
     struct TIME
     {
       u8 time_len;
-      char time[1];  // time_len bytes long (null term)
+      char time[1]; // time_len bytes long (null term)
     };
     struct LINE_HEADER
     {
       // 01 91 84 0A 06 1E FD 01 0B 15 2E 01 0B 17 0B
       // 01 BB 20 46 04 66 13 F8 00 00 0E 75 00 00
-      u8 constant_hdr[29];  // use MSG71_SUBCMD_2_CONSTANT to initialise
+      u8 constant_hdr[29]; // use MSG71_SUBCMD_2_CONSTANT to initialise
       u8 numlines;
     };
     struct LINES
     {
       u8 line_len;
-      char body[1];  // line_len bytes long (null term)
+      char body[1]; // line_len bytes long (null term)
     };
   };
 
@@ -357,11 +342,11 @@ struct PKTBI_71
   struct SUBCMD_IN_5_POST_MESSAGE
   {
     u32 board_id;
-    u32 reply_id;  // 0 for top-level or if not a reply
+    u32 reply_id; // 0 for top-level or if not a reply
     struct SUBJECT
     {
       u8 subj_len;
-      char subject[1];  // subj_len bytes long (null term)
+      char subject[1]; // subj_len bytes long (null term)
     };
     struct LINE_HEADER
     {
@@ -370,7 +355,7 @@ struct PKTBI_71
     struct LINES
     {
       u8 line_len;
-      char body[1];  // line_len bytes long (null term)
+      char body[1]; // line_len bytes long (null term)
     };
   };
 
@@ -491,14 +476,13 @@ struct PKTBI_B8_IN
   };
 };
 
-// struct PKTBI_B8_OUT {
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial;
-//	char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode
-//variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16.
+//struct PKTBI_B8_OUT {
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial;
+//  char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16.
 //};
-// asserteql( sizeof(PKTBI_B8_OUT), 1012 );
+//asserteql( sizeof(PKTBI_B8_OUT), 1012 );
 
 struct PKTBI_BB
 {
@@ -519,12 +503,12 @@ assertsize( PKTBI_BD, 4 );
 struct PKTBI_BF_04
 {
   u32 gumpid;
-  u32 buttonid;  // response for 0xB1
+  u32 buttonid; //response for 0xB1
 };
 
 struct PKTBI_BF_05
 {
-  u16 unk1;  // always 0
+  u16 unk1; //always 0
   u16 x;
   u16 y;
   u16 unk2;
@@ -536,73 +520,69 @@ struct PKTBI_BF_06_01_IN
 };
 asserteql( sizeof( PKTBI_BF_06_01_IN ), 4 );
 
-// struct PKTBI_BF_06_01_OUT
+//struct PKTBI_BF_06_01_OUT
 //{
-//	u8 nummembers;
-//	struct {
-//		u32 memberid;
-//	} serials[ 1 ];
+//  u8 nummembers;
+//  struct {
+//    u32 memberid;
+//  } serials[ 1 ];
 //};
-// asserteql( sizeof(PKTBI_BF_06_01_OUT), 5 );
+//asserteql( sizeof(PKTBI_BF_06_01_OUT), 5 );
 
 struct PKTBI_BF_06_02_IN
 {
   u32 memberid;
 };
 
-// struct PKTBI_BF_06_02_OUT
+//struct PKTBI_BF_06_02_OUT
 //{
-//	u8 nummembers; //total nr of new party
-//	u32 remmemberid;  //removed Player
-//	struct {
-//		u32 memberid;
-//	} serials[ 1 ]; //party members
+//  u8 nummembers; //total nr of new party
+//  u32 remmemberid;  //removed Player
+//  struct {
+//    u32 memberid;
+//  } serials[ 1 ]; //party members
 //};
-// asserteql( sizeof(PKTBI_BF_06_02_OUT), 9 );
+//asserteql( sizeof(PKTBI_BF_06_02_OUT), 9 );
 
-// struct PKTBI_BF_06_02_LIST
+//struct PKTBI_BF_06_02_LIST
 //{
-//	u8 nummembers;
-//	u32 remmemberid;
+//  u8 nummembers;
+//  u32 remmemberid;
 //};
-// asserteql( sizeof(PKTBI_BF_06_02_LIST), 5 );
+//asserteql( sizeof(PKTBI_BF_06_02_LIST), 5 );
 
 struct PKTBI_BF_06_03
 {
-  u32 memberid;  //(of target, from client, of source, from server)
-  u16 wtext[2];  // wide-character, double-null terminated
+  u32 memberid; //(of target, from client, of source, from server)
+  u16 wtext[2]; // wide-character, double-null terminated
 };
 asserteql( sizeof( PKTBI_BF_06_03 ), 8 );
 
 struct PKTBI_BF_06_04_IN
 {
-  u16 wtext[2];  // wide-character, double-null terminated
+  u16 wtext[2]; // wide-character, double-null terminated
 };
 asserteql( sizeof( PKTBI_BF_06_04_IN ), 4 );
 
-// struct PKTBI_BF_06_04_OUT
+//struct PKTBI_BF_06_04_OUT
 //{
-//	u32 memberid;
-//	u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
+//  u32 memberid;
+//  u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
 //};
-// asserteql( sizeof(PKTBI_BF_06_04_OUT), 406 );
+//asserteql( sizeof(PKTBI_BF_06_04_OUT), 406 );
 
 struct PKTBI_BF_06_06
 {
-  u8 canloot;  // 0,1
-  enum
-  {
-    CANLOOT_YES = 1,
-    CANLOOT_NO = 0
-  };
+  u8 canloot; //0,1
+  enum { CANLOOT_YES = 1, CANLOOT_NO = 0 };
 };
 asserteql( sizeof( PKTBI_BF_06_06 ), 1 );
 
-// struct PKTBI_BF_06_07
+//struct PKTBI_BF_06_07
 //{
-//	u32 leaderid;
+//  u32 leaderid;
 //};
-// asserteql( sizeof(PKTBI_BF_06_07), 4 );
+//asserteql( sizeof(PKTBI_BF_06_07), 4 );
 
 struct PKTBI_BF_06_08
 {
@@ -621,18 +601,18 @@ struct PKTBI_BF_06
   u8 partycmd;
   union
   {
-    PKTBI_BF_06_01_IN partyadd;  // client
-    // PKTBI_BF_06_01_OUT partyaddout; //server
-    PKTBI_BF_06_02_IN partyremove;  // client
-    // PKTBI_BF_06_02_OUT partyremoveout; //server
-    // PKTBI_BF_06_02_LIST partyemptylist; //server
-    PKTBI_BF_06_03 partymembermsg;  // client/server
-    PKTBI_BF_06_04_IN partymsg;  // client
-    // PKTBI_BF_06_04_OUT partymsgout; //server
-    PKTBI_BF_06_06 partylootperm;  // client
-    // PKTBI_BF_06_07 invitemember; //server
-    PKTBI_BF_06_08 partyaccinvite;  // client
-    PKTBI_BF_06_09 partydecinvite;  // client
+    PKTBI_BF_06_01_IN partyadd; //client
+    //PKTBI_BF_06_01_OUT partyaddout; //server
+    PKTBI_BF_06_02_IN partyremove; //client
+    //PKTBI_BF_06_02_OUT partyremoveout; //server
+    //PKTBI_BF_06_02_LIST partyemptylist; //server
+    PKTBI_BF_06_03 partymembermsg; //client/server
+    PKTBI_BF_06_04_IN partymsg; //client
+    //PKTBI_BF_06_04_OUT partymsgout; //server
+    PKTBI_BF_06_06 partylootperm; //client
+    //PKTBI_BF_06_07 invitemember; //server
+    PKTBI_BF_06_08 partyaccinvite; //client
+    PKTBI_BF_06_09 partydecinvite; //client
   };
   enum
   {
@@ -649,7 +629,7 @@ struct PKTBI_BF_06
 
 struct PKTBI_BF_0F
 {
-  u8 unk1;  // 0x0a
+  u8 unk1; // 0x0a
   u32 clientflag;
 };
 
@@ -659,18 +639,17 @@ struct PKTBI_BF_10
   u32 listid;
 };
 
-// TextID is broken into two decimal parts:
-// stringID / 1000: intloc fileID
-// stringID % 1000: text index
-// So, say you want the 123rd text entry of intloc06, the stringID would be 6123
+//TextID is broken into two decimal parts:
+//stringID / 1000: intloc fileID
+//stringID % 1000: text index
+//So, say you want the 123rd text entry of intloc06, the stringID would be 6123
 struct PKTBI_BF_14_ENTRIES
 {
   u16 entry_tag;
   u16 text_id;
   u16 flags;
-  // if flags & 0x20:
-  u16 color;  // rgb 1555 color (ex, 0 = transparent, 0x8000 = solid black, 0x1F = blue, 0x3E0 =
-              // green, 0x7C00 = red)
+  //if flags & 0x20:
+  u16 color;// rgb 1555 color (ex, 0 = transparent, 0x8000 = solid black, 0x1F = blue, 0x3E0 = green, 0x7C00 = red)
 
   enum
   {
@@ -682,7 +661,7 @@ struct PKTBI_BF_14_ENTRIES
 
 struct PKTBI_BF_14
 {
-  u16 unk;  // always 00 01
+  u16 unk; //always 00 01
   u32 serial;
   u8 numentries;
   PKTBI_BF_14_ENTRIES entries[1];
@@ -694,99 +673,87 @@ struct PKTBI_BF_15
   u16 entry_tag;
 };
 
-// struct PKTBI_BF_16
+//struct PKTBI_BF_16
 //{
-//	u32 window_id;
-//	u32 serial; // Char serial ( if window_id = CONTAINER this is container serial )
+//  u32 window_id;
+//  u32 serial; // Char serial ( if window_id = CONTAINER this is container serial )
 //
-//	enum
-//	{
-//		PAPERDOLL	= 0x1,
-//		STATUS		= 0x2,
-//		CHARPROFILE	= 0x8,
-//		CONTAINER	= 0xC
-//	};
+//  enum
+//  {
+//    PAPERDOLL = 0x1,
+//    STATUS    = 0x2,
+//    CHARPROFILE = 0x8,
+//    CONTAINER = 0xC
+//  };
 //};
 
-// Shows codex of wisdom's text #msg.  (msg is linearised (including sub indices) index number
-// starting with 1)
+//Shows codex of wisdom's text #msg.  (msg is linearised (including sub indices) index number starting with 1)
 struct PKTBI_BF_17
 {
-  u8 unk;  // always 1
+  u8 unk; //always 1
   u32 msgnum;
-  u8 mode;  //(0: "?" flashing, 1: directly opening)
+  u8 mode; //(0: "?" flashing, 1: directly opening)
 };
 
-// struct PKTBI_BF_18_ELEM
+//struct PKTBI_BF_18_ELEM
 //{
-//	u32 num_static_patches;
-//	u32 num_map_patches;
+//  u32 num_static_patches;
+//  u32 num_map_patches;
 //};
 //
 //
-// struct PKTBI_BF_18
+//struct PKTBI_BF_18
 //{
-//	u32 num_maps;
-//	PKTBI_BF_18_ELEM elems[MAX_NUMER_REALMS];
+//  u32 num_maps;
+//  PKTBI_BF_18_ELEM elems[MAX_NUMER_REALMS];
 //};
 
-// struct PKTBI_BF_19
+//struct PKTBI_BF_19
 //{
-//	u8 type; //always 2?
-//	u32 serial;
-//	u8 unk; //always 0?
-//	u8 lockbits; //Bits: XXSS DDII (s=strength, d=dex, i=int), 0 = up, 1 = down, 2 = locked
-//	enum
-//	{
-//		STR_MASK = 0x30,
-//		DEX_MASK = 0x0C,
-//		INT_MASK = 0x03
-//	};
-//	enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
+//  u8 type; //always 2?
+//  u32 serial;
+//  u8 unk; //always 0?
+//  u8 lockbits; //Bits: XXSS DDII (s=strength, d=dex, i=int), 0 = up, 1 = down, 2 = locked
+//  enum
+//  {
+//    STR_MASK = 0x30,
+//    DEX_MASK = 0x0C,
+//    INT_MASK = 0x03
+//  };
+//  enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
 //};
 
 struct PKTBI_BF_1A
 {
   u8 stat;
   u8 mode;
-  enum
-  {
-    STAT_STR,
-    STAT_DEX,
-    STAT_INT
-  };
-  enum
-  {
-    MODE_UP,
-    MODE_DOWN,
-    MODE_LOCKED
-  };
+  enum { STAT_STR, STAT_DEX, STAT_INT };
+  enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
 };
 
-// struct PKTBI_BF_1B
+//struct PKTBI_BF_1B
 //{
-//	u16 unk; //always 1
-//	u32 book_serial;
-//	u16 graphic;
-//	u16 scroll_offset;
-//	u8 content[8];// first bit of first byte = spell #1, second bit of first byte = spell #2, first
-//bit of second byte = spell #8, etc
+//  u16 unk; //always 1
+//  u32 book_serial;
+//  u16 graphic;
+//  u16 scroll_offset;
+//  u8 content[8];// first bit of first byte = spell #1, second bit of first byte = spell #2, first bit of second byte = spell #8, etc
 //
-//	enum { SCROLL_OFFSET_REGULAR = 1,
-//		SCROLL_OFFSET_NECRO = 101,
-//		SCROLL_OFFSET_PALADIN = 201 };
+//  enum { SCROLL_OFFSET_REGULAR = 1,
+//    SCROLL_OFFSET_NECRO = 101,
+//    SCROLL_OFFSET_PALADIN = 201 };
 //};
 
 struct PKTBI_BF_1C
 {
-  u16 unk2;  // 00 02
-  u16 selected_spell;  // absolute spell number. 1-64, 101-etc
+  u16 unk2; //00 02
+  u16 selected_spell; //absolute spell number. 1-64, 101-etc
 };
 
-// struct PKTBI_BF_1D
+//struct PKTBI_BF_1D
 //{
-//	u32 house_serial;
-//	u32 revision;
+//  u32 house_serial;
+//  u32 revision;
 //};
 
 struct PKTBI_BF_1E
@@ -794,33 +761,33 @@ struct PKTBI_BF_1E
   u32 house_serial;
 };
 
-// struct PKTBI_BF_20
+//struct PKTBI_BF_20
 //{
-//	u32 house_serial;
-//	u8 unk1; //0x4 for begin 0x5 for end
-//	u16 unk2; //0
-//	u32 unk3; //all FF
-//	u8 unk4; // FF
+//  u32 house_serial;
+//  u8 unk1; //0x4 for begin 0x5 for end
+//  u16 unk2; //0
+//  u32 unk3; //all FF
+//  u8 unk4; // FF
 //};
 
-// displays damage amount over head
-// struct PKTBI_BF_22
+//displays damage amount over head
+//struct PKTBI_BF_22
 //{
-//	u8 unk; //always 1
-//	u32 serial;
-//	u8 damage_amt;
+//  u8 unk; //always 1
+//  u32 serial;
+//  u8 damage_amt;
 //};
 
-// no clue what this spam does.
+//no clue what this spam does.
 struct PKTBI_BF_24_UNKNOWN
 {
   u8 spam_byte;
 };
 
-// struct PKTBI_BF_2A_CALL_RACE_CHANGER
+//struct PKTBI_BF_2A_CALL_RACE_CHANGER
 //{
-//	u8 gender; // 0 = Male, 1 = Female
-//	u8 race;   // 1 = Human, 2 = Elf
+//  u8 gender; // 0 = Male, 1 = Female
+//  u8 race;   // 1 = Human, 2 = Elf
 //};
 
 struct PKTBI_BF_2A_RESULT
@@ -837,7 +804,7 @@ struct PKTBI_BF_RACE_CHANGER_RESULT
 {
   union
   {
-    // PKTBI_BF_2A_CALL_RACE_CHANGER call;
+    //PKTBI_BF_2A_CALL_RACE_CHANGER call;
     PKTBI_BF_2A_RESULT result;
   };
 };
@@ -845,8 +812,8 @@ struct PKTBI_BF_RACE_CHANGER_RESULT
 // Toggle gargoyle flying
 struct PKTBI_BF_32
 {
-  u16 unk1;  // always 0x0100 in my tests
-  u32 unk2;  // always 0x0 in my tests
+  u16 unk1; // always 0x0100 in my tests
+  u32 unk2; // always 0x0 in my tests
 };
 
 struct PKTBI_BF
@@ -858,31 +825,31 @@ struct PKTBI_BF
   {
     u32 keys[6];  // BF.1: Cycling key-stack
     u32 addkey;   // BF.2: Adding key to top of stack
-    // PKTBI_BF_04 closegump; //BF.4
-    PKTBI_BF_05 screensize;  // BF.5
-    PKTBI_BF_06 partydata;  // BF.6
-    // u8 cursorhue;	// BF.8: Cursor Hue (0=Felucca,1=Trammel)
-    char client_lang[3];  // BF.B Client language (client message, sent once at login)
-    u32 serial_closed_status_gump;  // BF.C closed status gump
-    PKTBI_BF_0F clienttype;  // BF.F clienttype (like char create/select)
-    PKTBI_BF_10 objectcache;  // BF.10
-    u32 serial_request_popup_menu;  // BF.13
-    PKTBI_BF_14 displaypopup;  // BF.14
-    PKTBI_BF_15 popupselect;  // BF.15
-    // PKTBI_BF_16 closewindow; //BF.16
-    PKTBI_BF_17 codex;  // BF.17
-    // PKTBI_BF_18 mapdiffs; //BF.18
-    // PKTBI_BF_19 extstatsout; //BF.19
-    PKTBI_BF_1A extstatin;  // BF.1A
-    // PKTBI_BF_1B newspellbook; //BF.1B
-    PKTBI_BF_1C spellselect;  // BF.1C
-    // PKTBI_BF_1D customhouseshort;
+    //PKTBI_BF_04 closegump; //BF.4
+    PKTBI_BF_05 screensize; //BF.5
+    PKTBI_BF_06 partydata; //BF.6
+    //u8 cursorhue; // BF.8: Cursor Hue (0=Felucca,1=Trammel)
+    char client_lang[3]; // BF.B Client language (client message, sent once at login)
+    u32 serial_closed_status_gump; //BF.C closed status gump
+    PKTBI_BF_0F clienttype; // BF.F clienttype (like char create/select)
+    PKTBI_BF_10 objectcache; //BF.10
+    u32 serial_request_popup_menu; //BF.13
+    PKTBI_BF_14 displaypopup; //BF.14
+    PKTBI_BF_15 popupselect; //BF.15
+    //PKTBI_BF_16 closewindow; //BF.16
+    PKTBI_BF_17 codex; //BF.17
+    //PKTBI_BF_18 mapdiffs; //BF.18
+    //PKTBI_BF_19 extstatsout; //BF.19
+    PKTBI_BF_1A extstatin; //BF.1A
+    //PKTBI_BF_1B newspellbook; //BF.1B
+    PKTBI_BF_1C spellselect; //BF.1C
+    //PKTBI_BF_1D customhouseshort;
     PKTBI_BF_1E reqfullcustomhouse;
-    // PKTBI_BF_20 activatehousetool; //BF.20
-    // PKTBI_BF_22 damage; //BF.22
-    u8 se_spam;  // BF.24
-    PKTBI_BF_RACE_CHANGER_RESULT characterracechanger;  // BF.2A
-    PKTBI_BF_32 toggleflying;  // BF.32
+    //PKTBI_BF_20 activatehousetool; //BF.20
+    //PKTBI_BF_22 damage; //BF.22
+    u8 se_spam; //BF.24
+    PKTBI_BF_RACE_CHANGER_RESULT characterracechanger; //BF.2A
+    PKTBI_BF_32 toggleflying; // BF.32
   };
 
   enum
@@ -931,9 +898,9 @@ struct PKTBI_C2
   u32 serial;
   u32 msg_id;
   // When a server-sent message, these next 10+ bytes must all be 0x00.
-  u32 unk;       // unknown -- always 0 0 0 1 (from client)
-  char lang[4];  // "enu" - US english
-  u16 wtext[2];  // wide-character, double-null terminated
+  u32 unk; // unknown -- always 0 0 0 1 (from client)
+  char lang[4]; // "enu" - US english
+  u16 wtext[2]; // wide-character, double-null terminated
 
   enum
   {
@@ -967,98 +934,98 @@ struct PKTBI_D6_IN
 };
 asserteql( sizeof( PKTBI_D6_IN ), 7 );
 
-// struct AOS_OBJECT_PROPERTY_LIST_ELEM
+//struct AOS_OBJECT_PROPERTY_LIST_ELEM
 //{
-//	u32 localization_num;
-//	u16 textlen;
-//	u16 text; //little endian Unicode text, not 0 terminated
+//  u32 localization_num;
+//  u16 textlen;
+//  u16 text; //little endian Unicode text, not 0 terminated
 //};
 
 /*
 Big-Endian for u16/32 unless otherwise noted.
 This is the AOS Version of the packet
 */
-// struct PKTBI_D6_OUT
+//struct PKTBI_D6_OUT
 //{
-//	u8 msgtype;
-//	u16 msglen;
-//	u16 unk1; //always 1
-//	u32 serial;
-//	u8 unk2; //always 0
-//	u8 unk3; //always 0
-//	u32 listid;
-//	AOS_OBJECT_PROPERTY_LIST_ELEM data[1];
+//  u8 msgtype;
+//  u16 msglen;
+//  u16 unk1; //always 1
+//  u32 serial;
+//  u8 unk2; //always 0
+//  u8 unk3; //always 0
+//  u32 listid;
+//  AOS_OBJECT_PROPERTY_LIST_ELEM data[1];
 //};
 
-// fixme: which 0 is z?
+//fixme: which 0 is z?
 struct CH_ERASE
 {
-  u8 unk1;  // 0x00
-  u8 unk2;  // 0x00
-  u8 unk3;  // 0x00
+  u8 unk1; // 0x00
+  u8 unk2; // 0x00
+  u8 unk3; // 0x00
   u16 tileID;
-  u8 unk4;      // 0x00
-  u32 xoffset;  // from multi object center
-  u8 unk5;      // 0x00
-  u32 yoffset;  // from multi object center
-  u8 unk6;      // 0x00
-  u32 z;        // 0x00
+  u8 unk4; // 0x00
+  u32 xoffset; // from multi object center
+  u8 unk5; // 0x00
+  u32 yoffset; // from multi object center
+  u8 unk6; // 0x00
+  u32 z; // 0x00
 };
 
 struct CH_ADD
 {
-  u8 unk1;  // 0x00
-  u8 unk2;  // 0x00
-  u8 unk3;  // 0x00
+  u8 unk1; // 0x00
+  u8 unk2; // 0x00
+  u8 unk3; // 0x00
   u16 tileID;
-  u8 unk4;      // 0x00
-  u32 xoffset;  // from multi object center
-  u8 unk5;      // 0x00
-  u32 yoffset;  // from multi object center
+  u8 unk4; // 0x00
+  u32 xoffset;// from multi object center
+  u8 unk5; // 0x00
+  u32 yoffset;// from multi object center
 };
 
 struct CH_ADD_MULTI
 {
-  u8 unk1;  // 0x00
-  u8 unk2;  // 0x00
-  u8 unk3;  // 0x00
+  u8 unk1; // 0x00
+  u8 unk2; // 0x00
+  u8 unk3; // 0x00
   u16 multiID;
-  u8 unk4;      // 0x00
-  u32 xoffset;  // from multi object center
-  u8 unk5;      // 0x00
-  u32 yoffset;  // from multi object center
+  u8 unk4; // 0x00
+  u32 xoffset;// from multi object center
+  u8 unk5; // 0x00
+  u32 yoffset;// from multi object center
 };
 
 struct CH_SELECT_FLOOR
 {
-  u32 unk1;  // (0x00)
+  u32 unk1; // (0x00)
   u8 floornumber;
 };
 
 struct CH_SELECT_ROOF
 {
-  u8 unk1;  // 0x00
-  u8 unk2;  // 0x00
-  u8 unk3;  // 0x00
+  u8 unk1; // 0x00
+  u8 unk2; // 0x00
+  u8 unk3; // 0x00
   u16 tileID;
-  u8 unk4;      // 0x00
-  u32 xoffset;  // from multi object center
-  u8 unk5;      // 0x00
-  u32 yoffset;  // from multi object center
+  u8 unk4; // 0x00
+  u32 xoffset;// from multi object center
+  u8 unk5; // 0x00
+  u32 yoffset;// from multi object center
   u8 unk6;
   u32 zoffset;
 };
 
 struct CH_DELETE_ROOF
 {
-  u8 unk1;  // 0x00
-  u8 unk2;  // 0x00
-  u8 unk3;  // 0x00
+  u8 unk1; // 0x00
+  u8 unk2; // 0x00
+  u8 unk3; // 0x00
   u16 tileID;
-  u8 unk4;      // 0x00
-  u32 xoffset;  // from multi object center
-  u8 unk5;      // 0x00
-  u32 yoffset;  // from multi object center
+  u8 unk4; // 0x00
+  u32 xoffset;// from multi object center
+  u8 unk5; // 0x00
+  u32 yoffset;// from multi object center
   u8 unk6;
   u32 zoffset;
 };
@@ -1066,8 +1033,8 @@ struct CH_DELETE_ROOF
 
 struct FIGHT_BOOK_ABILITY
 {
-  u32 unk1;    // (0x00)
-  u8 ability;  // 1 armor ignore, 2 bleed attack � 13 whirlwind attack
+  u32 unk1; // (0x00)
+  u8 ability; // 1 armor ignore, 2 bleed attack � 13 whirlwind attack
 };
 
 
@@ -1089,7 +1056,7 @@ struct CUSTOM_HOUSE_DATA_TYPE2
   u16 itemid;
 };
 
-// must send msg A9 with flags | 0x20
+//must send msg A9 with flags | 0x20
 // Remember, with any housing change, you must increment the
 // House Revision number. Probably good to make a multi Revision
 // number for this, seperate from revision that Tooltips use. :x
@@ -1110,7 +1077,7 @@ struct PKTBI_D7
     CH_SELECT_ROOF ch_select_roof;
     CH_DELETE_ROOF ch_delete_roof;
   };
-  u8 unk;  // Not always 07, no clue what this is for just yet.
+  u8 unk;   // Not always 07, no clue what this is for just yet.
   enum
   {
     CUSTOM_HOUSE_BACKUP = 0x02,
@@ -1133,11 +1100,12 @@ struct PKTBI_D7
 };
 
 
-#ifdef _MSC_VER /* Visual C++ 4.0 + */
-#pragma pack( pop )
+#ifdef _MSC_VER     /* Visual C++ 4.0 + */
+# pragma pack( pop )
 #else
-#pragma pack()
+# pragma pack()
 #endif
 }
 }
 #endif
+

@@ -8,7 +8,7 @@
 #define __MENU_H
 
 #ifndef __CLIB_RAWTYPES_H
-#include "../clib/rawtypes.h"
+# include "../clib/rawtypes.h"
 #endif
 
 #include <vector>
@@ -27,8 +27,8 @@ public:
   MenuItem();
 
   // memberwise copy is okay for these:
-  // MenuItem( const MenuItem& );
-  // MenuItem& operator=( const MenuItem& );
+  //MenuItem( const MenuItem& );
+  //MenuItem& operator=( const MenuItem& );
 
   u32 objtype_;
   u16 graphic_;
@@ -37,7 +37,7 @@ public:
   char submenu_name[80];
   unsigned short submenu_id;
 
-private:  // not implemented
+private: // not implemented
 };
 
 class Menu
@@ -45,9 +45,9 @@ class Menu
 public:
   Menu();
 
-  // memberwise copy is fine for these:
-  // Menu( const Menu& );
-  // Menu& operator=( const Menu& );
+  //memberwise copy is fine for these:
+  //Menu( const Menu& );
+  //Menu& operator=( const Menu& );
 
   unsigned short menu_id;
   char name[80];

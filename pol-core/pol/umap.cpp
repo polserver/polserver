@@ -3,8 +3,7 @@
  * @par History
  * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
  * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
- * - 2012/04/14 Tomi:      added new map message packet 0xF5 for new clients >= 7.0.13.0 and facetid
- * member for maps
+ * - 2012/04/14 Tomi:      added new map message packet 0xF5 for new clients >= 7.0.13.0 and facetid member for maps
  */
 
 #include "umap.h"
@@ -32,7 +31,7 @@
 #include "../clib/streamsaver.h"
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning sprintf, sscanf
+#pragma warning(disable:4996) // disable deprecation warning sprintf, sscanf
 #endif
 
 
@@ -40,24 +39,22 @@ namespace Pol
 {
 namespace Core
 {
-Map::Map( const Items::MapDesc& mapdesc )
-    : Item( mapdesc, CLASS_ITEM ),
-      gumpwidth( 0 ),
-      gumpheight( 0 ),
-      editable( mapdesc.editable ),
-      plotting( false ),
-      pin_points( 0 ),
-      xwest( 0 ),
-      xeast( 0 ),
-      ynorth( 0 ),
-      ysouth( 0 ),
-      facetid( 0 )
-{
-}
+Map::Map( const Items::MapDesc& mapdesc ) :
+  Item( mapdesc, CLASS_ITEM ),
+  gumpwidth( 0 ),
+  gumpheight( 0 ),
+  editable( mapdesc.editable ),
+  plotting( false ),
+  pin_points( 0 ),
+  xwest( 0 ),
+  xeast( 0 ),
+  ynorth( 0 ),
+  ysouth( 0 ),
+  facetid( 0 )
+{}
 
 Map::~Map()
-{
-}
+{}
 
 void Map::printProperties( Clib::StreamWriter& sw ) const
 {
@@ -76,6 +73,7 @@ void Map::printProperties( Clib::StreamWriter& sw ) const
   printPinPoints( sw );
 
   sw() << pf_endl;
+
 }
 
 void Map::printPinPoints( Clib::StreamWriter& sw ) const
@@ -120,6 +118,7 @@ void Map::readProperties( Clib::ConfigElem& elem )
 
     pin_points.push_back( pp );
   }
+
 }
 
 void Map::builtin_on_use( Network::Client* client )
@@ -159,20 +158,20 @@ void Map::builtin_on_use( Network::Client* client )
     Network::PktHelper::PacketOut<Network::PktOut_56> msg56;
     msg56->Write<u32>( serial_ext );
     msg56->Write<u8>( PKTBI_56::TYPE_REMOVE_ALL );
-    msg56->offset += 5;  // u8 pinidx,u16 pinx,piny
+    msg56->offset += 5; // u8 pinidx,u16 pinx,piny
     msg56.Send( client );
 
-    // need to send each point to the client
+    //need to send each point to the client
 
     if ( !pin_points.empty() )
     {
-      msg56->offset = 5;  // msgtype+serial_ext
+      msg56->offset = 5; //msgtype+serial_ext
       msg56->Write<u8>( PKTBI_56::TYPE_ADD );
       // u8 pinidx still 0
 
       for ( pin_points_itr itr = pin_points.begin(), end = pin_points.end(); itr != end; ++itr )
       {
-        msg56->offset = 7;  // msgtype+serial_ext+type,pinidx
+        msg56->offset = 7; //msgtype+serial_ext+type,pinidx
         msg56->WriteFlipped<u16>( worldXtoGumpX( itr->x ) );
         msg56->WriteFlipped<u16>( worldYtoGumpY( itr->y ) );
         msg56.Send( client );
@@ -195,6 +194,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
     std::unique_ptr<ObjArray> arr( new ObjArray );
     for ( PinPoints::iterator itr = pin_points.begin(); itr != pin_points.end(); ++itr )
     {
+
       std::unique_ptr<BStruct> struc( new BStruct );
       struc->addMember( "x", new BLong( itr->x ) );
       struc->addMember( "y", new BLong( itr->y ) );
@@ -208,14 +208,14 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
   {
     int idx;
     unsigned short x, y;
-    if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) && ex.getParam( 1, x ) &&
+    if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) &&
+         ex.getParam( 1, x ) &&
          ex.getParam( 2, y ) )
     {
       struct PinPoint pp;
       pin_points_itr itr;
 
-      if ( !realm->valid( x, y, 0 ) )
-        return new BError( "Invalid Coordinates for Realm" );
+      if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for Realm" );
       pp.x = x;
       pp.y = y;
 
@@ -236,11 +236,11 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
   case MTH_APPENDPIN:
   {
     unsigned short x, y;
-    if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) )
+    if ( ex.getParam( 0, x ) &&
+         ex.getParam( 1, y ) )
     {
       struct PinPoint pp;
-      if ( !realm->valid( x, y, 0 ) )
-        return new BError( "Invalid Coordinates for Realm" );
+      if ( !realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for Realm" );
       pp.x = x;
       pp.y = y;
       set_dirty();
@@ -320,32 +320,32 @@ bool Map::msgCoordsInBounds( PKTBI_56* msg )
 u16 Map::gumpXtoWorldX( u16 gumpx )
 {
   float world_xtiles_per_pixel = (float)( get_xeast() - get_xwest() ) / (float)gumpwidth;
-  u16 ret = ( u16 )( get_xwest() + ( world_xtiles_per_pixel * gumpx ) );
+  u16 ret = (u16)( get_xwest() + ( world_xtiles_per_pixel * gumpx ) );
   return ret;
 }
 
 u16 Map::gumpYtoWorldY( u16 gumpy )
 {
   float world_ytiles_per_pixel = (float)( get_ysouth() - get_ynorth() ) / (float)gumpheight;
-  u16 ret = ( u16 )( get_ynorth() + ( world_ytiles_per_pixel * gumpy ) );
+  u16 ret = (u16)( get_ynorth() + ( world_ytiles_per_pixel * gumpy ) );
   return ret;
 }
 
 u16 Map::worldXtoGumpX( u16 worldx )
 {
   float world_xtiles_per_pixel = (float)( get_xeast() - get_xwest() ) / (float)gumpwidth;
-  u16 ret = ( u16 )( ( worldx - get_xwest() ) / world_xtiles_per_pixel );
+  u16 ret = (u16)( ( worldx - get_xwest() ) / world_xtiles_per_pixel );
   return ret;
 }
 
 u16 Map::worldYtoGumpY( u16 worldy )
 {
   float world_ytiles_per_pixel = (float)( get_ysouth() - get_ynorth() ) / (float)gumpheight;
-  u16 ret = ( u16 )( ( worldy - get_ynorth() ) / world_ytiles_per_pixel );
+  u16 ret = (u16)( ( worldy - get_ynorth() ) / world_ytiles_per_pixel );
   return ret;
 }
 
-// dave 12-20
+//dave 12-20
 Items::Item* Map::clone() const
 {
   Map* map = static_cast<Map*>( base::clone() );
@@ -365,16 +365,17 @@ Items::Item* Map::clone() const
 
 size_t Map::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( u16 ) /*gumpwidth*/
-         + sizeof( u16 )                       /*gumpheight*/
-         + sizeof( bool )                      /*editable*/
-         + sizeof( bool )                      /*plotting*/
-         + sizeof( u16 )                       /*xwest*/
-         + sizeof( u16 )                       /*xeast*/
-         + sizeof( u16 )                       /*ynorth*/
-         + sizeof( u16 )                       /*ysouth*/
-         + sizeof( u16 )                       /*facetid*/
-         + 3 * sizeof( PinPoint* ) + pin_points.capacity() * sizeof( PinPoint );
+  return base::estimatedSize()
+         + sizeof(u16)/*gumpwidth*/
+         +sizeof(u16)/*gumpheight*/
+         +sizeof(bool)/*editable*/
+         +sizeof(bool)/*plotting*/
+         +sizeof(u16)/*xwest*/
+         +sizeof(u16)/*xeast*/
+         +sizeof(u16)/*ynorth*/
+         +sizeof(u16)/*ysouth*/
+         +sizeof(u16)/*facetid*/
+         + 3 * sizeof(PinPoint*)+pin_points.capacity() * sizeof( PinPoint );
 }
 
 void handle_map_pin( Network::Client* client, PKTBI_56* msg )
@@ -395,7 +396,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   {
   case PKTBI_56::TYPE_TOGGLE_EDIT:
   {
-    // hmm msg->plotstate never seems to be 1 when type is 6
+    //hmm msg->plotstate never seems to be 1 when type is 6
     my_map->plotting = my_map->plotting ? 0 : 1;
     Network::PktHelper::PacketOut<Network::PktOut_56> msg56;
     msg56->Write<u32>( msg->serial );
@@ -421,7 +422,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   case PKTBI_56::TYPE_INSERT:
     if ( !( my_map->plotting ) )
       return;
-    if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
+    if ( msg->pinidx >= my_map->pin_points.size() ) //pinidx out of range
       return;
     if ( !my_map->msgCoordsInBounds( msg ) )
       return;
@@ -438,7 +439,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   case PKTBI_56::TYPE_CHANGE:
     if ( !( my_map->plotting ) )
       return;
-    if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
+    if ( msg->pinidx >= my_map->pin_points.size() ) //pinidx out of range
       return;
     if ( !my_map->msgCoordsInBounds( msg ) )
       return;
@@ -454,7 +455,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   case PKTBI_56::TYPE_REMOVE:
     if ( !( my_map->plotting ) )
       return;
-    if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
+    if ( msg->pinidx >= my_map->pin_points.size() ) //pinidx out of range
       return;
 
     itr = my_map->pin_points.begin();
@@ -471,6 +472,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
     my_map->pin_points.clear();
 
     break;
+
   }
 }
 }

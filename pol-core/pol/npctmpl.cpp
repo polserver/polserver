@@ -5,6 +5,7 @@
  */
 
 
+
 #include "npctmpl.h"
 
 #include "item/weapon.h"
@@ -51,22 +52,22 @@ int translate( const std::string& name, TRANSLATION* table )
   return 0;
 }
 
-TRANSLATION xlate_align[] = {{"good", NpcTemplate::GOOD},
-                             {"neutral", NpcTemplate::NEUTRAL},
-                             {"evil", NpcTemplate::EVIL},
-                             {0, 0}};
+TRANSLATION xlate_align[] =
+{
+  { "good", NpcTemplate::GOOD },
+  { "neutral", NpcTemplate::NEUTRAL },
+  { "evil", NpcTemplate::EVIL },
+  { 0, 0 }
+};
 
 
-NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : intrinsic_weapon( static_cast<Items::UWeapon*>(
-          Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND1 ) ) ),
-      intrinsic_shield( static_cast<Items::UArmor*>(
-          Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND2 ) ) ),
-      pkg( pkg ),
-      // script( elem.read_string( "SCRIPT" ) ),
-      alignment( static_cast<ALIGNMENT>(
-          translate( elem.read_string( "ALIGNMENT", "neutral" ), xlate_align ) ) ),
-      method_script( NULL )
+NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  intrinsic_weapon( static_cast<Items::UWeapon*>( Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND1 )) ),
+  intrinsic_shield( static_cast<Items::UArmor*>( Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND2 )) ),
+  pkg( pkg ),
+  // script( elem.read_string( "SCRIPT" ) ),
+  alignment( static_cast<ALIGNMENT>( translate( elem.read_string( "ALIGNMENT", "neutral" ), xlate_align ) ) ),
+  method_script( NULL )
 {
   if ( pkg == NULL )
   {
@@ -109,9 +110,9 @@ NpcTemplate::~NpcTemplate()
 
 size_t NpcTemplate::estimateSize() const
 {
-  size_t size = sizeof( NpcTemplate );
+  size_t size = sizeof(NpcTemplate);
   size += name.capacity();
-  if ( method_script != nullptr )
+  if (method_script != nullptr)
     size += method_script->estimateSize();
   return size;
 }
@@ -135,15 +136,14 @@ void load_npc_templates()
     }
   }
 
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
   {
     Plib::Package* pkg = ( *itr );
     std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
 
-    if ( Clib::FileExists( filename.c_str() ) )
+    if ( Clib::FileExists( filename.c_str( ) ) )
     {
-      Clib::ConfigFile cf( filename.c_str() );
+      Clib::ConfigFile cf( filename.c_str( ) );
       Clib::ConfigElem elem;
       while ( cf.read( elem ) )
       {
@@ -164,15 +164,17 @@ const NpcTemplate& find_npc_template( const Clib::ConfigElem& elem )
   {
     const Plib::Package* pkg;
     std::string path;
-    if ( Plib::pkgdef_split( elem.rest(), NULL, &pkg, &path ) )
+    if ( Plib::pkgdef_split( elem.rest( ), NULL, &pkg, &path ) )
     {
       return create_npc_template( elem, pkg );
     }
     else
     {
-      throw std::runtime_error( std::string( "Error reading NPC template name " ) + elem.rest() );
+      throw std::runtime_error(std::string("Error reading NPC template name ") + elem.rest());
     }
   }
 }
+
+
 }
 }

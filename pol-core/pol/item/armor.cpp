@@ -38,14 +38,14 @@ unsigned short zone_name_to_zone( const char* zname );
 }
 namespace Items
 {
+
 /// Since the constructor is doing some wrong guessing to tell when an armor is a shield,
 /// forceShield will force to consider it a shield
-ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg,
-                      bool forceShield )
-    : EquipDesc( objtype, elem, ARMORDESC, pkg ),
-      ar( elem.remove_ushort( "AR", 0 ) ),
-      zones(),
-      on_hit_script( elem.remove_string( "ONHITSCRIPT", "" ), pkg, "scripts/items/" )
+ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg, bool forceShield ) :
+  EquipDesc( objtype, elem, ARMORDESC, pkg ),
+  ar( elem.remove_ushort( "AR", 0 ) ),
+  zones(),
+  on_hit_script( elem.remove_string( "ONHITSCRIPT", "" ), pkg, "scripts/items/" )
 {
   std::string coverage;
   while ( elem.remove_prop( "COVERAGE", &coverage ) )
@@ -54,14 +54,14 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
     {
       zones.insert( Mobile::zone_name_to_zone( coverage.c_str() ) );
     }
-    catch ( std::runtime_error& )
+    catch (std::runtime_error&)
     {
       fmt::Writer tmp;
       tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
       if ( pkg == NULL )
         tmp << "config/itemdesc.cfg\n";
       else
-        tmp << pkg->dir() << "itemdesc.cfg\n";
+        tmp << pkg->dir( ) << "itemdesc.cfg\n";
 
       ERROR_PRINT << tmp.str();
       throw;
@@ -74,20 +74,20 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
     // default coverage based on object type/layer
     unsigned short layer = Plib::systemstate.tile[graphic].layer;
     // special case for shields - they effectively have no coverage.
-    if ( !forceShield && layer != Core::LAYER_HAND1 && layer != Core::LAYER_HAND2 )
+    if ( ! forceShield && layer != Core::LAYER_HAND1 && layer != Core::LAYER_HAND2 )
     {
       try
       {
         zones.insert( Mobile::layer_to_zone( layer ) );
       }
-      catch ( std::runtime_error& )
+      catch (std::runtime_error&)
       {
         fmt::Writer tmp;
         tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
         if ( pkg == NULL )
           tmp << "config/itemdesc.cfg\n";
         else
-          tmp << pkg->dir() << "itemdesc.cfg\n";
+          tmp << pkg->dir( ) << "itemdesc.cfg\n";
 
         ERROR_PRINT << tmp.str();
         throw;
@@ -102,7 +102,7 @@ void ArmorDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "OnHitScript", new Bscript::String( on_hit_script.relativename( pkg ) ) );
   descriptor->addMember( "AR", new Bscript::BLong( ar ) );
 
-  std::unique_ptr<Bscript::ObjArray> arr_zones( new Bscript::ObjArray() );
+  std::unique_ptr<Bscript::ObjArray> arr_zones( new Bscript::ObjArray( ) );
   std::set<unsigned short>::const_iterator itr;
   for ( itr = zones.begin(); itr != zones.end(); ++itr )
     arr_zones->addElement( new Bscript::String( Mobile::zone_to_zone_name( *itr ) ) );
@@ -114,17 +114,17 @@ void ArmorDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 
 size_t ArmorDesc::estimatedSize() const
 {
-  size_t size = base::estimatedSize() + sizeof( unsigned short ) /*ar*/
+  size_t size = base::estimatedSize()
+                + sizeof(unsigned short) /*ar*/
                 + on_hit_script.estimatedSize();
-  size += 3 * sizeof( void* ) + zones.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) );
+  size += 3 * sizeof(void*)+zones.size( ) * ( sizeof(unsigned short)+3 * sizeof( void*) );
   return size;
 }
 
-UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor )
-    : Equipment( descriptor, CLASS_ARMOR, permanent_descriptor ),
-      onhitscript_( descriptor.on_hit_script )
-{
-}
+UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor ) :
+  Equipment( descriptor, CLASS_ARMOR, permanent_descriptor ),
+  onhitscript_( descriptor.on_hit_script )
+{}
 
 unsigned short UArmor::ar() const
 {
@@ -150,7 +150,7 @@ unsigned short UArmor::ar_base() const
 
 bool UArmor::covers( unsigned short layer ) const
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return ARMOR_TMPL->zones.find( layer ) != ARMOR_TMPL->zones.end();
 }
 
@@ -175,11 +175,11 @@ void UArmor::printProperties( Clib::StreamWriter& sw ) const
 void UArmor::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
-  this->ar_mod( static_cast<s16>( elem.remove_int( "AR_MOD", 0 ) ) );
+  this->ar_mod(static_cast<s16>( elem.remove_int( "AR_MOD", 0 ) ) );
   set_onhitscript( elem.remove_string( "ONHITSCRIPT", "" ) );
 }
 
-void UArmor::set_onhitscript( const std::string& scriptname )
+void UArmor::set_onhitscript(const std::string& scriptname)
 {
   if ( scriptname.empty() )
   {
@@ -187,12 +187,15 @@ void UArmor::set_onhitscript( const std::string& scriptname )
   }
   else
   {
-    onhitscript_.config( scriptname, itemdesc().pkg, "scripts/items/", true );
+    onhitscript_.config( scriptname,
+                         itemdesc().pkg,
+                         "scripts/items/",
+                         true );
   }
 }
-std::set<unsigned short> UArmor::tmplzones()
+std::set<unsigned short> UArmor::tmplzones( )
 {
-  passert( tmpl != NULL );
+  passert(tmpl != NULL);
   return ARMOR_TMPL->zones;
 }
 
@@ -201,21 +204,17 @@ void validate_intrinsic_shield_template()
 {
   const ItemDesc& id = find_itemdesc( Core::settingsManager.extobj.shield );
   if ( id.save_on_exit )
-    throw std::runtime_error( "Intrinsic Shield " +
-                              Clib::hexint( Core::settingsManager.extobj.shield ) +
-                              " must specify SaveOnExit 0" );
+    throw std::runtime_error("Intrinsic Shield " + Clib::hexint(Core::settingsManager.extobj.shield) + " must specify SaveOnExit 0");
 
   if ( id.type != ItemDesc::ARMORDESC )
-    throw std::runtime_error(
-        "An Armor template for Intrinsic Shield is required in itemdesc.cfg" );
+    throw std::runtime_error("An Armor template for Intrinsic Shield is required in itemdesc.cfg");
 }
 
 /// Creates a new intrinsic shield and returns it
 /// @param name: the unique shield's name
 /// @param elem: the config element to create from
 /// @param pkg: the package
-UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem,
-                                 const Plib::Package* pkg )
+UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg )
 {
   auto tmpl = new ArmorDesc( Core::settingsManager.extobj.shield, elem, pkg, true );
   tmpl->is_intrinsic = true;
@@ -254,7 +253,7 @@ UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const 
     if ( elem.remove_prop( "ShieldOnHitScript", &tmp ) )
       shieldelem.add_prop( "OnHitScript", tmp.c_str() );
 
-    while ( elem.remove_prop( "ShieldCProp", &tmp ) )
+    while ( elem.remove_prop("ShieldCProp", &tmp) )
       shieldelem.add_prop( "CProp", tmp.c_str() );
 
     return create_intrinsic_shield( elem.rest(), shieldelem, pkg );
@@ -267,7 +266,8 @@ UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const 
 
 size_t UArmor::estimatedSize() const
 {
-  size_t size = base::estimatedSize() + onhitscript_.estimatedSize();
+  size_t size = base::estimatedSize()
+                + onhitscript_.estimatedSize();
   return size;
 }
 }

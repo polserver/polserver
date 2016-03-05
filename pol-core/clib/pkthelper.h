@@ -28,4 +28,4 @@ void WritetoCharBufferFlipped( char* buffer, u16 x, unsigned int* offset );
 void WritetoCharBufferFlipped( char* buffer, s16 x, unsigned int* offset );
 }
 }
-#endif  // CLIB_PKTHELPER_H
+#endif //CLIB_PKTHELPER_H

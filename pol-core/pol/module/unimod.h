@@ -8,7 +8,7 @@
 #define H_UNIEMOD_H
 
 #ifndef BSCRIPT_EXECMODL_H
-#include "../../bscript/execmodl.h"
+# include "../../bscript/execmodl.h"
 #endif
 
 #include "../pktdef.h"
@@ -28,14 +28,14 @@ public:
 
   OSExecutorModule* os_module;
 
-  Bscript::BObjectImp* mf_PrintTextAboveUC();    // OverObject, Text, Font, Color
-  Bscript::BObjectImp* mf_PrivateTextAboveUC();  // OverObject, Text, ToChar, Font, Color
+  Bscript::BObjectImp* mf_PrintTextAboveUC( );    // OverObject, Text, Font, Color
+  Bscript::BObjectImp* mf_PrivateTextAboveUC( );  // OverObject, Text, ToChar, Font, Color
 
-  Bscript::BObjectImp* mf_BroadcastUC();       // Text
-  Bscript::BObjectImp* mf_SendSysMessageUC();  // Character, Text
+  Bscript::BObjectImp* mf_BroadcastUC( );     // Text
+  Bscript::BObjectImp* mf_SendSysMessageUC( );    // Character, Text
 
-  Bscript::BObjectImp* mf_RequestInputUC();       // ToChar, Item, TextPrompt
-  Bscript::BObjectImp* mf_SendTextEntryGumpUC();  // ToChar, Text1, Cancel, Style, MaxLen, Text2
+  Bscript::BObjectImp* mf_RequestInputUC( );    // ToChar, Item, TextPrompt
+  Bscript::BObjectImp* mf_SendTextEntryGumpUC( ); // ToChar, Text1, Cancel, Style, MaxLen, Text2
 
   Mobile::Character* prompt_chr;
 

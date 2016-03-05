@@ -48,8 +48,12 @@ void CoreSetSysTrayToolTip( const std::string& text, Priority priority )
 #endif
 }
 
-bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short y, short z,
-                        int flags, Realms::Realm* oldrealm )
+bool move_character_to( Mobile::Character* chr,
+                        unsigned short x,
+                        unsigned short y,
+                        short z,
+                        int flags,
+                        Realms::Realm* oldrealm )
 {
   // FIXME consider consolidating with similar code in CHARACTER.CPP
   short newz;
@@ -64,14 +68,12 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
       return false;
     }
 
-    chr->realm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode,
-                            &new_boost );
+    chr->realm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode, &new_boost );
     newz = z;
   }
   else
   {
-    if ( !chr->realm->walkheight( chr, x, y, z, &newz, &supporting_multi, &walkon_item,
-                                  &new_boost ) )
+    if ( !chr->realm->walkheight( chr, x, y, z, &newz, &supporting_multi, &walkon_item, &new_boost ) )
     {
       return false;
     }
@@ -127,8 +129,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
   // teleport( chr );
   if ( chr->has_active_client() )
   {
-    passert_assume( chr->client !=
-                    NULL );  // tells compiler to assume this is true during static code analysis
+    passert_assume( chr->client != NULL ); // tells compiler to assume this is true during static code analysis
 
     if ( oldrealm != chr->realm )
     {
@@ -140,8 +141,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     // send_goxyz seems to stop the weather.  This will force a refresh, if the client cooperates.
     chr->client->gd->weather_region = NULL;
   }
-  if ( chr->isa( UObject::CLASS_NPC ) ||
-       chr->client )  // dave 3/26/3 dont' tell moves of offline PCs
+  if ( chr->isa( UObject::CLASS_NPC ) || chr->client ) //dave 3/26/3 dont' tell moves of offline PCs
   {
     chr->tellmove();
   }
@@ -169,7 +169,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
 
 Items::Item* find_walkon_item( ItemsVector& ivec, short z )
 {
-  for ( ItemsVector::const_iterator itr = ivec.begin(), end = ivec.end(); itr != end; ++itr )
+  for ( ItemsVector::const_iterator itr = ivec.begin( ), end = ivec.end( ); itr != end; ++itr )
   {
     Items::Item* item = ( *itr );
     if ( z == item->z || z == item->z + 1 )

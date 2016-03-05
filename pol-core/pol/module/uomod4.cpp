@@ -1,9 +1,9 @@
 /** @file
  *
  * @par History
- * - 2005/12/06 Shinigami: fixed <un-/signed>(z)-bug inside internal_MoveCharacter() to fix z<0
- * problem
+ * - 2005/12/06 Shinigami: fixed <un-/signed>(z)-bug inside internal_MoveCharacter() to fix z<0 problem
  */
+
 
 
 /*
@@ -37,7 +37,7 @@ using namespace Bscript;
 using namespace Mobile;
 using namespace Core;
 using namespace Items;
-BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm, flags*/ )
+BObjectImp* UOExecutorModule::mf_MoveObjectToLocation(/*object, x, y, z, realm, flags*/ )
 {
   UObject* obj;
   unsigned short x, y;
@@ -46,8 +46,11 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
   const String* realm_name;
 
   // Initialize variables
-  if ( !( getUObjectParam( exec, 0, obj ) && getParam( 1, x ) && getParam( 2, y ) &&
-          getParam( 3, z, ZCOORD_MIN, ZCOORD_MAX ) && getStringParam( 4, realm_name ) &&
+  if ( !( getUObjectParam( exec, 0, obj ) &&
+          getParam( 1, x ) &&
+          getParam( 2, y ) &&
+          getParam( 3, z, ZCOORD_MIN, ZCOORD_MAX ) &&
+          getStringParam( 4, realm_name ) &&
           getParam( 5, flags ) ) )
   {
     return new BError( "Invalid parameter" );
@@ -72,8 +75,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
     return new BError( "Can't handle that object type." );
 }
 
-BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, ycoord y, zcoord z,
-                                                      int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 {
   short newz;
   Multi::UMulti* supporting_multi = NULL;
@@ -83,8 +85,7 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
   {
     if ( newrealm != NULL )
     {
-      if ( !newrealm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true,
-                                  chr->movemode ) )
+      if ( !newrealm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode ) )
         return new BError( "Can't go there" );
     }
   }
@@ -92,18 +93,19 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
 
   bool ok;
   if ( newrealm == NULL || oldrealm == newrealm )
-  {  // Realm is staying the same, just changing X Y Z coordinates.
+  {
+    //Realm is staying the same, just changing X Y Z coordinates.
     ok = move_character_to( chr, x, y, z, flags, NULL );
   }
   else
-  {  // Realm and X Y Z change.
-     // 8-26-05  Austin
-     // Notify NPCs in the old realm that the player left the realm.
-    WorldIterator<MobileFilter>::InRange( chr->lastx, chr->lasty, oldrealm, 32,
-                                          [&]( Character* zonechr )
-                                          {
-                                            NpcPropagateLeftArea( zonechr, chr );
-                                          } );
+  {
+    // Realm and X Y Z change.
+    // 8-26-05  Austin
+    // Notify NPCs in the old realm that the player left the realm.
+    WorldIterator<MobileFilter>::InRange( chr->lastx, chr->lasty, oldrealm, 32, [&]( Character* zonechr )
+    {
+      NpcPropagateLeftArea( zonechr, chr );
+    } );
 
     send_remove_character_to_nearby( chr );
     if ( chr->client != NULL )
@@ -119,19 +121,18 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
     return new BError( "Can't go there" );
 }
 
-BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z,
-                                                 int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 {
   Realms::Realm* oldrealm = boat->realm;
-  {  // local scope for reg/unreg guard
+  {
+    // local scope for reg/unreg guard
     Multi::UBoat::BoatMoveGuard registerguard( boat );
     if ( !boat->navigable( boat->multidef(), x, y, z, newrealm ) )
     {
       return new BError( "Position indicated is impassable" );
     }
   }
-  if ( newrealm !=
-       boat->realm )  // boat->move_xy removes on xy change so only realm change check is needed
+  if ( newrealm != boat->realm ) //boat->move_xy removes on xy change so only realm change check is needed
   {
     send_remove_object_to_inrange( boat );
   }
@@ -145,8 +146,7 @@ BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, y
   return new BLong( ok );
 }
 
-BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xcoord x, ycoord y,
-                                                      zcoord z, int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 {
   Realms::Realm* oldrealm = container->realm;
 
@@ -161,10 +161,9 @@ BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xco
   return ok;
 }
 
-BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y, zcoord z,
-                                                 int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y, zcoord z, int flags, Realms::Realm* newrealm )
 {
-  ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  ItemRef itemref( item ); //dave 1/28/3 prevent item from being destroyed before function ends
   if ( !( flags & MOVEITEM_IGNOREMOVABLE ) && !item->movable() )
   {
     Character* chr = controller_.get();
@@ -179,10 +178,10 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
   Realms::Realm* oldrealm = item->realm;
   item->realm = newrealm;
   if ( !item->realm->valid( x, y, z ) )
-  {  // Should probably have checked this already.
+  {
+    // Should probably have checked this already.
     item->realm = oldrealm;
-    std::string message = "Location (" + Clib::tostring( x ) + "," + Clib::tostring( y ) + "," +
-                          Clib::tostring( z ) + ") is out of bounds";
+    std::string message = "Location (" + Clib::tostring( x ) + "," + Clib::tostring( y ) + "," + Clib::tostring( z ) + ") is out of bounds";
     return new BError( message );
   }
 
@@ -208,7 +207,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
 
   if ( item->container != NULL )
   {
-    // DAVE added this 12/04, call can/onRemove scripts for the old container
+    //DAVE added this 12/04, call can/onRemove scripts for the old container
     UObject* oldroot = item->toplevel_owner();
     UContainer* oldcont = item->container;
     Character* chr_owner = oldcont->GetCharacterOwner();
@@ -216,13 +215,13 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
       if ( controller_.get() != NULL )
         chr_owner = controller_.get();
 
-    // dave changed 1/26/3 order of scripts to call. added unequip/test script call
+    //dave changed 1/26/3 order of scripts to call. added unequip/test script call
     if ( !oldcont->check_can_remove_script( chr_owner, item, UContainer::MT_CORE_MOVED ) )
     {
       item->realm = oldrealm;
       return new BError( "Could not remove item from its container." );
     }
-    else if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+    else if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
     {
       return new BError( "Item was destroyed in CanRemove script" );
     }
@@ -232,11 +231,11 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
       item->realm = oldrealm;
       return new BError( "Item cannot be unequipped" );
     }
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+    if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
       return new BError( "Item was destroyed in Equip script" );
 
     oldcont->on_remove( chr_owner, item, UContainer::MT_CORE_MOVED );
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+    if ( item->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
     {
       return new BError( "Item was destroyed in OnRemove script" );
     }
@@ -255,7 +254,10 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     item->realm = newrealm;
   }
 
-  move_item( item, x, y, static_cast<signed char>( z ), oldrealm );
+  move_item( item,
+             x,
+             y,
+             static_cast<signed char>( z ), oldrealm );
 
   if ( multi != NULL )
   {

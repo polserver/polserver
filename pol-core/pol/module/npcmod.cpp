@@ -64,7 +64,7 @@
 #include <iostream>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
+#pragma warning(disable:4996) // deprecation warning for stricmp
 #endif
 
 namespace Pol
@@ -72,8 +72,10 @@ namespace Pol
 namespace Module
 {
 using namespace Bscript;
-NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
-    : ExecutorModule( "NPC", ex ), npcref( &npc ), npc( npc )
+NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc ) :
+  ExecutorModule( "NPC", ex ),
+  npcref( &npc ),
+  npc( npc )
 {
   os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
   if ( os_module == NULL )
@@ -86,40 +88,41 @@ NPCExecutorModule::~NPCExecutorModule()
     npc.ex = NULL;
 }
 
-NPCFunctionDef NPCExecutorModule::function_table[] = {
-    {"Wander", &NPCExecutorModule::mf_Wander},
-    {"self", &NPCExecutorModule::mf_Self},
-    {"face", &NPCExecutorModule::face},
-    {"move", &NPCExecutorModule::move},
-    {"WalkToward", &NPCExecutorModule::mf_WalkToward},
-    {"RunToward", &NPCExecutorModule::mf_RunToward},
-    {"WalkAwayFrom", &NPCExecutorModule::mf_WalkAwayFrom},
-    {"RunAwayFrom", &NPCExecutorModule::mf_RunAwayFrom},
-    {"TurnToward", &NPCExecutorModule::mf_TurnToward},
-    {"TurnAwayFrom", &NPCExecutorModule::mf_TurnAwayFrom},
+NPCFunctionDef NPCExecutorModule::function_table[] =
+{
+  { "Wander", &NPCExecutorModule::mf_Wander },
+  { "self", &NPCExecutorModule::mf_Self },
+  { "face", &NPCExecutorModule::face },
+  { "move", &NPCExecutorModule::move },
+  { "WalkToward", &NPCExecutorModule::mf_WalkToward },
+  { "RunToward", &NPCExecutorModule::mf_RunToward },
+  { "WalkAwayFrom", &NPCExecutorModule::mf_WalkAwayFrom },
+  { "RunAwayFrom", &NPCExecutorModule::mf_RunAwayFrom },
+  { "TurnToward", &NPCExecutorModule::mf_TurnToward },
+  { "TurnAwayFrom", &NPCExecutorModule::mf_TurnAwayFrom },
 
-    {"WalkTowardLocation", &NPCExecutorModule::mf_WalkTowardLocation},
-    {"RunTowardLocation", &NPCExecutorModule::mf_RunTowardLocation},
-    {"WalkAwayFromLocation", &NPCExecutorModule::mf_WalkAwayFromLocation},
-    {"RunAwayFromLocation", &NPCExecutorModule::mf_RunAwayFromLocation},
-    {"TurnTowardLocation", &NPCExecutorModule::mf_TurnTowardLocation},
-    {"TurnAwayFromLocation", &NPCExecutorModule::mf_TurnAwayFromLocation},
+  { "WalkTowardLocation", &NPCExecutorModule::mf_WalkTowardLocation },
+  { "RunTowardLocation", &NPCExecutorModule::mf_RunTowardLocation },
+  { "WalkAwayFromLocation", &NPCExecutorModule::mf_WalkAwayFromLocation },
+  { "RunAwayFromLocation", &NPCExecutorModule::mf_RunAwayFromLocation },
+  { "TurnTowardLocation", &NPCExecutorModule::mf_TurnTowardLocation },
+  { "TurnAwayFromLocation", &NPCExecutorModule::mf_TurnAwayFromLocation },
 
 
-    {"say", &NPCExecutorModule::say},
-    {"SayUC", &NPCExecutorModule::SayUC},
-    {"SetOpponent", &NPCExecutorModule::mf_SetOpponent},
-    {"SetWarMode", &NPCExecutorModule::mf_SetWarMode},
-    {"SetAnchor", &NPCExecutorModule::mf_SetAnchor},
-    {"position", &NPCExecutorModule::position},
-    {"facing", &NPCExecutorModule::facing},
-    {"IsLegalMove", &NPCExecutorModule::IsLegalMove},
-    {"CanMove", &NPCExecutorModule::CanMove},
-    {"getproperty", &NPCExecutorModule::getproperty},
-    {"setproperty", &NPCExecutorModule::setproperty},
-    {"makeboundingbox", &NPCExecutorModule::makeboundingbox}
-    // { "CreateBackpack", CreateBackpack },
-    // { "CreateItem", CreateItem }
+  { "say", &NPCExecutorModule::say },
+  { "SayUC", &NPCExecutorModule::SayUC },
+  { "SetOpponent", &NPCExecutorModule::mf_SetOpponent },
+  { "SetWarMode", &NPCExecutorModule::mf_SetWarMode },
+  { "SetAnchor", &NPCExecutorModule::mf_SetAnchor },
+  { "position", &NPCExecutorModule::position },
+  { "facing", &NPCExecutorModule::facing },
+  { "IsLegalMove", &NPCExecutorModule::IsLegalMove },
+  { "CanMove", &NPCExecutorModule::CanMove },
+  { "getproperty", &NPCExecutorModule::getproperty },
+  { "setproperty", &NPCExecutorModule::setproperty },
+  { "makeboundingbox", &NPCExecutorModule::makeboundingbox }
+  // { "CreateBackpack", CreateBackpack },
+  // { "CreateItem", CreateItem }
 };
 
 int NPCExecutorModule::functionIndex( const char* name )
@@ -134,7 +137,7 @@ int NPCExecutorModule::functionIndex( const char* name )
 
 BObjectImp* NPCExecutorModule::execFunc( unsigned funcidx )
 {
-  return callMemberFunction ( *this, function_table[funcidx].fptr )();
+  return callMemberFunction( *this, function_table[funcidx].fptr )( );
 };
 
 std::string NPCExecutorModule::functionName( unsigned idx )
@@ -147,30 +150,37 @@ BApplicObjType bounding_box_type;
 class BoundingBoxObjImp : public BApplicObj<Mobile::BoundingBox>
 {
 public:
-  BoundingBoxObjImp() : BApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
-  explicit BoundingBoxObjImp( const Mobile::BoundingBox& b )
-      : BApplicObj<Mobile::BoundingBox>( &bounding_box_type, b )
+  BoundingBoxObjImp( ) : BApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
+  explicit BoundingBoxObjImp( const Mobile::BoundingBox& b ) : BApplicObj<Mobile::BoundingBox>( &bounding_box_type, b ) {}
+  virtual const char* typeOf() const POL_OVERRIDE
   {
+    return "BoundingBox";
   }
-  virtual const char* typeOf() const POL_OVERRIDE { return "BoundingBox"; }
-  virtual u8 typeOfInt() const POL_OVERRIDE { return OTBoundingBox; }
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new BoundingBoxObjImp( value() ); }
+  virtual u8 typeOfInt() const POL_OVERRIDE
+  {
+    return OTBoundingBox;
+  }
+  virtual BObjectImp* copy() const POL_OVERRIDE
+  {
+    return new BoundingBoxObjImp( value() );
+  }
+
 };
 
 /* IsLegalMove: parameters (move, bounding box)*/
 BObjectImp* NPCExecutorModule::IsLegalMove()
 {
   String* facing_str = static_cast<String*>( exec.getParamImp( 0, BObjectImp::OTString ) );
-  BApplicObjBase* appobj =
-      static_cast<BApplicObjBase*>( exec.getParamImp( 1, BObjectImp::OTApplicObj ) );
-  if ( facing_str == NULL || appobj == NULL || appobj->object_type() != &bounding_box_type )
+  BApplicObjBase* appobj = static_cast<BApplicObjBase*>( exec.getParamImp( 1, BObjectImp::OTApplicObj ) );
+  if ( facing_str == NULL ||
+       appobj == NULL ||
+       appobj->object_type() != &bounding_box_type )
   {
     return new BLong( 0 );
   }
 
-  BApplicObj<Mobile::BoundingBox>* ao_bbox =
-      static_cast<BApplicObj<Mobile::BoundingBox>*>( appobj );
-  const Mobile::BoundingBox& bbox = ao_bbox->value();
+  BApplicObj<Mobile::BoundingBox>* ao_bbox = static_cast<BApplicObj<Mobile::BoundingBox>*>( appobj );
+  const Mobile::BoundingBox& bbox = ao_bbox->value( );
 
   Core::UFACING facing;
   if ( Mobile::DecodeFacing( facing_str->value().c_str(), facing ) == false )
@@ -207,7 +217,7 @@ BObjectImp* NPCExecutorModule::CanMove()
     else if ( param0->isa( BObjectImp::OTLong ) )
     {
       BLong* blong = static_cast<BLong*>( param0 );
-      Core::UFACING facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+      Core::UFACING facing = static_cast<Core::UFACING>( blong->value( ) & PKTIN_02_FACING_MASK );
       return new BLong( npc.could_move( facing ) ? 1 : 0 );
     }
     else
@@ -233,10 +243,12 @@ BObjectImp* NPCExecutorModule::mf_SetAnchor()
   Core::xcoord x;
   Core::ycoord y;
   int dstart, psub;
-  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, dstart ) && getParam( 3, psub ) )
+  if ( getParam( 0, x ) &&
+       getParam( 1, y ) &&
+       getParam( 2, dstart ) &&
+       getParam( 3, psub ) )
   {
-    if ( !npc.realm->valid( x, y, 0 ) )
-      return new BError( "Invalid Coordinates for Realm" );
+    if ( !npc.realm->valid( x, y, 0 ) ) return new BError( "Invalid Coordinates for Realm" );
     if ( dstart )
     {
       npc.anchor.enabled = true;
@@ -259,25 +271,25 @@ BObjectImp* NPCExecutorModule::mf_SetAnchor()
 }
 
 
+
 bool NPCExecutorModule::_internal_move( Core::UFACING facing, int run )
 {
   bool success = false;
   int dir = facing;
   if ( run )
-    dir |= 0x80;  // FIXME HARDCODE
+    dir |= 0x80; // FIXME HARDCODE
 
   if ( npc.could_move( facing ) )
   {
-    if ( npc.move(
-             static_cast<unsigned char>( dir ) ) )  // this could still fail, if paralyzed or frozen
+    if ( npc.move( static_cast<unsigned char>( dir ) ) ) // this could still fail, if paralyzed or frozen
     {
       npc.tellmove();
-      // move was successful
+      //move was successful
       success = true;
     }
     // else, npc could move, but move failed.
   }
-  // else npc could not move
+  //else npc could not move
 
   return success;
 }
@@ -288,7 +300,7 @@ BObjectImp* NPCExecutorModule::move_self( Core::UFACING facing, bool run, bool a
   int dir = facing;
 
   if ( run )
-    dir |= 0x80;  // FIXME HARDCODE
+    dir |= 0x80; // FIXME HARDCODE
 
   if ( adjust_ok )
   {
@@ -317,13 +329,12 @@ BObjectImp* NPCExecutorModule::move_self( Core::UFACING facing, bool run, bool a
     }
   }
 
-  // int base = 1000 - npc.dexterity() * 3;
+  //int base = 1000 - npc.dexterity() * 3;
   int base = 1000 - npc.run_speed * 3;
-  if ( base < 250 )
-    base = 250;
+  if ( base < 250 ) base = 250;
   os_module->SleepForMs( run ? ( base / 2 ) : base );
 
-  // return new String( FacingStr(facing) );
+  //return new String( FacingStr(facing) );
   return new BLong( success ? 1 : 0 );
 }
 
@@ -358,8 +369,8 @@ BObjectImp* NPCExecutorModule::face()
   BObjectImp* param0 = exec.getParamImp( 0 );
   int flags;
 
-  if ( param0 == NULL || !exec.getParam( 1, flags ) )
-    return new BError( "Invalid parameter type." );
+  if (param0 == NULL || !exec.getParam(1, flags))
+    return new BError("Invalid parameter type.");
 
   Core::UFACING i_facing;
 
@@ -378,11 +389,11 @@ BObjectImp* NPCExecutorModule::face()
   else if ( param0->isa( BObjectImp::OTLong ) )
   {
     BLong* blong = static_cast<BLong*>( param0 );
-    i_facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+    i_facing = static_cast<Core::UFACING>( blong->value( ) & PKTIN_02_FACING_MASK );
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+    DEBUGLOG << "Script Error in '" << scriptname( ) << "' PC=" << exec.PC << ": \n"
              << "\tCall to function npc::face():\n"
              << "\tParameter 0: Expected direction, "
              << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
@@ -415,11 +426,12 @@ BObjectImp* NPCExecutorModule::move()
     }
 
     return move_self( facing, false );
+
   }
   else if ( param0->isa( BObjectImp::OTLong ) )
   {
     BLong* blong = static_cast<BLong*>( param0 );
-    Core::UFACING facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+    Core::UFACING facing = static_cast<Core::UFACING>( blong->value( ) & PKTIN_02_FACING_MASK );
     return move_self( facing, false );
   }
   else if ( param0->isa( BObjectImp::OTApplicObj ) )
@@ -427,10 +439,9 @@ BObjectImp* NPCExecutorModule::move()
     BApplicObjBase* appobj = static_cast<BApplicObjBase*>( param0 );
     if ( appobj->object_type() == &bounding_box_type )
     {
-      BApplicObj<Mobile::BoundingBox>* ao_bbox =
-          static_cast<BApplicObj<Mobile::BoundingBox>*>( appobj );
-      const Mobile::BoundingBox& bbox = ao_bbox->value();
-      Core::UFACING facing = Mobile::GetRandomFacing();
+      BApplicObj<Mobile::BoundingBox>* ao_bbox = static_cast<BApplicObj<Mobile::BoundingBox>*>( appobj );
+      const Mobile::BoundingBox& bbox = ao_bbox->value( );
+      Core::UFACING facing = Mobile::GetRandomFacing( );
 
       unsigned short x, y;
       npc.getpos_ifmove( facing, &x, &y );
@@ -549,27 +560,27 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
   Core::UObject* obj;
   int flags;
 
-  if ( !getUObjectParam( exec, 0, obj ) || !exec.getParam( 1, flags ) )
+  if (!getUObjectParam(exec, 0, obj) || !exec.getParam(1, flags))
   {
-    return new BError( "Invalid parameter type" );
+    return new BError("Invalid parameter type");
   }
 
-  if ( obj->ismobile() )
+  if (obj->ismobile())
   {
-    Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-    if ( !npc.is_visible_to_me( chr ) )
-      return new BError( "Mobile specified cannot be seen" );
+    Mobile::Character* chr = static_cast<Mobile::Character*>(obj);
+    if (!npc.is_visible_to_me(chr))
+      return new BError("Mobile specified cannot be seen");
   }
 
-  Core::UFACING facing = direction_toward( &npc, obj );
-  if ( facing == npc.facing )
-    return new BLong( 0 );  // nothing to do here, I'm already facing that direction
+  Core::UFACING facing = direction_toward(&npc, obj);
+  if (facing == npc.facing)
+    return new BLong(0); // nothing to do here, I'm already facing that direction
 
-  if ( !npc.face( facing, flags ) )
-    return new BLong( 0 );  // Uh-oh, seems that I can't move to face that
+  if (!npc.face(facing, flags))
+    return new BLong(0); // Uh-oh, seems that I can't move to face that
 
   npc.on_facing_changed();
-  return new BLong( 1 );
+  return new BLong(1);
 }
 
 BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
@@ -577,38 +588,38 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
   Core::UObject* obj;
   int flags;
 
-  if ( !getUObjectParam( exec, 0, obj ) || !exec.getParam( 1, flags ) )
+  if (!getUObjectParam(exec, 0, obj) || !exec.getParam(1, flags))
   {
-    return new BError( "Invalid parameter type" );
+    return new BError("Invalid parameter type");
   }
 
 
-  if ( obj->ismobile() )
+  if (obj->ismobile())
   {
-    Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-    if ( !npc.is_visible_to_me( chr ) )
-      return new BError( "Mobile specified cannot be seen" );
+    Mobile::Character* chr = static_cast<Mobile::Character*>(obj);
+    if (!npc.is_visible_to_me(chr))
+      return new BError("Mobile specified cannot be seen");
   }
 
-  Core::UFACING facing = direction_away( &npc, obj );
-  if ( facing == npc.facing )
-    return new BLong( 0 );  // nothing to do here
+  Core::UFACING facing = direction_away(&npc, obj);
+  if (facing == npc.facing)
+    return new BLong(0); // nothing to do here
 
-  if ( !npc.face( facing, flags ) )
-    return new BLong( 0 );  // couldn't move for some reason
+  if (!npc.face(facing, flags))
+    return new BLong(0); // couldn't move for some reason
 
   npc.on_facing_changed();
-  return new BLong( 1 );
+  return new BLong(1);
 }
 
 BObjectImp* NPCExecutorModule::mf_WalkTowardLocation()
 {
   Core::xcoord x;
   Core::ycoord y;
-  if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
+  if ( exec.getParam( 0, x ) &&
+       exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
-      return new BError( "Invalid Coordinates for Realm" );
+    if ( !npc.realm->valid( x, y, npc.z ) ) return new BError( "Invalid Coordinates for Realm" );
     Core::UFACING fac = direction_toward( &npc, x, y );
     return move_self( fac, false, true );
   }
@@ -623,10 +634,10 @@ BObjectImp* NPCExecutorModule::mf_RunTowardLocation()
   Core::xcoord x;
   Core::ycoord y;
 
-  if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
+  if ( exec.getParam( 0, x ) &&
+       exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
-      return new BError( "Invalid Coordinates for Realm" );
+    if ( !npc.realm->valid( x, y, npc.z ) ) return new BError( "Invalid Coordinates for Realm" );
     Core::UFACING fac = direction_toward( &npc, x, y );
     return move_self( fac, true, true );
   }
@@ -640,10 +651,10 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFromLocation()
 {
   Core::xcoord x;
   Core::ycoord y;
-  if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
+  if ( exec.getParam( 0, x ) &&
+       exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
-      return new BError( "Invalid Coordinates for Realm" );
+    if ( !npc.realm->valid( x, y, npc.z ) ) return new BError( "Invalid Coordinates for Realm" );
     Core::UFACING fac = direction_away( &npc, x, y );
     return move_self( fac, false, true );
   }
@@ -657,10 +668,10 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFromLocation()
 {
   Core::xcoord x;
   Core::ycoord y;
-  if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
+  if ( exec.getParam( 0, x ) &&
+       exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
-      return new BError( "Invalid Coordinates for Realm" );
+    if ( !npc.realm->valid( x, y, npc.z ) ) return new BError( "Invalid Coordinates for Realm" );
     Core::UFACING fac = direction_away( &npc, x, y );
     return move_self( fac, true, true );
   }
@@ -676,22 +687,23 @@ BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
   Core::ycoord y;
   int flags;
 
-  if ( !exec.getParam( 0, x ) || !exec.getParam( 1, y ) || !exec.getParam( 2, flags ) )
+  if (!exec.getParam(0, x) ||
+      !exec.getParam(1, y) ||
+      !exec.getParam(2, flags))
   {
-    return new BError( "Invalid parameter type" );
+    return new BError("Invalid parameter type");
   }
 
-  if ( !npc.realm->valid( x, y, npc.z ) )
-    return new BError( "Invalid Coordinates for Realm" );
-  Core::UFACING fac = direction_toward( &npc, x, y );
-  if ( npc.facing == fac )
-    return new BLong( 0 );  // nothing to do here
+  if (!npc.realm->valid(x, y, npc.z)) return new BError("Invalid Coordinates for Realm");
+  Core::UFACING fac = direction_toward(&npc, x, y);
+  if (npc.facing == fac)
+    return new BLong(0); // nothing to do here
 
-  if ( !npc.face( fac, flags ) )
-    return new BLong( 0 );  // I couldn't move!
+  if (!npc.face(fac, flags))
+    return new BLong(0); // I couldn't move!
 
   npc.on_facing_changed();
-  return new BLong( 1 );
+  return new BLong(1);
 }
 
 BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
@@ -700,22 +712,23 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
   Core::ycoord y;
   int flags;
 
-  if ( !exec.getParam( 0, x ) || !exec.getParam( 1, y ) || !exec.getParam( 2, flags ) )
+  if (!exec.getParam(0, x) ||
+      !exec.getParam(1, y) ||
+      !exec.getParam(2, flags))
   {
-    return new BError( "Invalid parameter type" );
+    return new BError("Invalid parameter type");
   }
 
-  if ( !npc.realm->valid( x, y, npc.z ) )
-    return new BError( "Invalid Coordinates for Realm" );
-  Core::UFACING fac = direction_away( &npc, x, y );
-  if ( npc.facing == fac )
-    return new BLong( 0 );  // nothing to do here
+  if (!npc.realm->valid(x, y, npc.z)) return new BError("Invalid Coordinates for Realm");
+  Core::UFACING fac = direction_away(&npc, x, y);
+  if (npc.facing == fac)
+    return new BLong(0); // nothing to do here
 
-  if ( !npc.face( fac, flags ) )
-    return new BLong( 0 );  // I couldn't move!
+  if (!npc.face(fac, flags))
+    return new BLong(0); // I couldn't move!
 
   npc.on_facing_changed();
-  return new BLong( 1 );
+  return new BLong(1);
 }
 
 
@@ -727,7 +740,7 @@ BObjectImp* NPCExecutorModule::say()
     npc.unhide();
 
   const char* text = exec.paramAsString( 0 );
-  std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+  std::string texttype_str = Clib::strlower(exec.paramAsString(1));
   int doevent;
   exec.getParam( 2, doevent );
   u8 texttype;
@@ -749,9 +762,7 @@ BObjectImp* NPCExecutorModule::say()
   msg->WriteFlipped<u16>( npc.speech_color() );
   msg->WriteFlipped<u16>( npc.speech_font() );
   msg->Write( npc.name().c_str(), 30 );
-  msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
-                        ? SPEECH_MAX_LEN + 1
-                        : static_cast<u16>( strlen( text ) + 1 ) );
+  msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 ) ? SPEECH_MAX_LEN + 1 : static_cast<u16>( strlen( text ) + 1 ) );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -764,23 +775,21 @@ BObjectImp* NPCExecutorModule::say()
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range,
-                                                          [&]( Mobile::Character* chr )
-                                                          {
-                                                            if ( !chr->is_visible_to_me( &npc ) )
-                                                              return;
-                                                            msg.Send( chr->client, len );
-                                                          } );
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+  {
+    if ( !chr->is_visible_to_me( &npc ) )
+      return;
+    msg.Send( chr->client, len );
+  } );
 
   if ( doevent >= 1 )
   {
-    Core::WorldIterator<Core::NPCFilter>::InRange(
-        npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr )
-        {
-          Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
-          if ( chr != &npc )
-            othernpc->on_pc_spoke( &npc, text, texttype );
-        } );
+    Core::WorldIterator<Core::NPCFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+    {
+      Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
+      if (chr != &npc)
+        othernpc->on_pc_spoke( &npc, text, texttype );
+    } );
   }
 
   return NULL;
@@ -797,10 +806,14 @@ BObjectImp* NPCExecutorModule::SayUC()
   const String* lang;
   int doevent;
 
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
+  if ( getObjArrayParam( 0, oText ) &&
+       getStringParam( 2, lang ) &&
+       getParam( 3, doevent ) )
   {
-    std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
-    if ( texttype_str != "default" && texttype_str != "whisper" && texttype_str != "yell" )
+    std::string texttype_str = Clib::strlower(exec.paramAsString(1));
+    if ( texttype_str != "default" &&
+         texttype_str != "whisper" &&
+         texttype_str != "yell" )
     {
       return new BError( "texttype string param must be either 'default', 'whisper', or 'yell'" );
     }
@@ -813,10 +826,10 @@ BObjectImp* NPCExecutorModule::SayUC()
     if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
       return new BError( "Invalid value in Unicode array." );
 
-    std::string languc = Clib::strupper( lang->value() );
+    std::string languc = Clib::strupper(lang->value());
     unsigned textlen = 0;
 
-    // textlen = wcslen((const wchar_t*)wtext) + 1;
+    //textlen = wcslen((const wchar_t*)wtext) + 1;
     while ( gwtext[textlen] != L'\0' )
       ++textlen;
     if ( textlen > SPEECH_MAX_LEN )
@@ -851,13 +864,12 @@ BObjectImp* NPCExecutorModule::SayUC()
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range,
-                                                            [&]( Mobile::Character* chr )
-                                                            {
-                                                              if ( !chr->is_visible_to_me( &npc ) )
-                                                                return;
-                                                              talkmsg.Send( chr->client, len );
-                                                            } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+    {
+      if ( !chr->is_visible_to_me( &npc ) )
+        return;
+      talkmsg.Send( chr->client, len );
+    } );
 
     if ( doevent >= 1 )
     {
@@ -868,13 +880,12 @@ BObjectImp* NPCExecutorModule::SayUC()
         ntextbuf[ntextbuflen++] = std::wcout.narrow( (wchar_t)gwtext[i], '?' );
       }
       ntextbuf[ntextbuflen++] = 0;
-      Core::WorldIterator<Core::NPCFilter>::InRange(
-          npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr )
-          {
-            Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
-            if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), NULL );
-          } );
+      Core::WorldIterator<Core::NPCFilter>::InRange( npc.x, npc.y, npc.realm, range, [&]( Mobile::Character *chr )
+      {
+        Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
+        if (othernpc != &npc)
+          othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), NULL );
+      } );
     }
   }
   else
@@ -933,6 +944,7 @@ BObjectImp* NPCExecutorModule::setproperty()
   else
   {
     return new BError( "Invalid parameter type" );
+
   }
 }
 
@@ -960,11 +972,11 @@ BObjectImp* NPCExecutorModule::CreateItem()
   if ( objtype == NULL )
     return new BLong( 0 );
 
-  Core::UContainer* backpack = npc.backpack();
+  Core::UContainer* backpack = npc.backpack( );
   if ( backpack == NULL )
     return new BLong( 0 );
 
-  Items::Item* i = Items::Item::create( static_cast<unsigned int>( objtype->value() ) );
+  Items::Item* i = Items::Item::create( static_cast<unsigned int>( objtype->value( ) ) );
   i->realm = npc.realm;
   std::unique_ptr<Items::Item> item( i );
   if ( item.get() == NULL )
@@ -989,12 +1001,12 @@ BObjectImp* NPCExecutorModule::CreateItem()
 
 BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
 {
-  String* arealist = EXPLICIT_CAST(String*, BObjectImp*)( getParamImp( 0, BObjectImp::OTString ) );
+  String* arealist = EXPLICIT_CAST( String*, BObjectImp*)( getParamImp( 0, BObjectImp::OTString ) );
   if ( arealist == NULL )
     return new String( "" );
 
   BoundingBoxObjImp* bbox = new BoundingBoxObjImp;
-  std::unique_ptr<BoundingBoxObjImp> bbox_owner( bbox );
+  std::unique_ptr< BoundingBoxObjImp > bbox_owner( bbox );
 
   //    const std::string& areas = arealist->value();
 
@@ -1013,7 +1025,8 @@ BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
 BObjectImp* NPCExecutorModule::mf_SetOpponent()
 {
   Mobile::Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) && chr != &npc )
+  if ( getCharacterParam( exec, 0, chr ) &&
+       chr != &npc )
   {
     npc.set_opponent( chr );
     return new BLong( 1 );
@@ -1038,5 +1051,6 @@ BObjectImp* NPCExecutorModule::mf_SetWarMode()
     return new BLong( 0 );
   }
 }
+
 }
 }

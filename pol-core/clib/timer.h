@@ -6,7 +6,7 @@
 
 namespace Pol
 {
-namespace Tools  // global ns is enough polluted
+namespace Tools // global ns is enough polluted
 {
 // automatically print into the console
 struct DebugT
@@ -16,7 +16,7 @@ struct DebugT
 // silent version
 struct SilentT
 {
-  static void print( const std::string& name, long long time );
+  static void print( const std::string& name, long long time);
 };
 
 
@@ -30,7 +30,6 @@ class Timer : protected printer
 {
   typedef std::chrono::high_resolution_clock Clock;
   typedef std::chrono::milliseconds ms;
-
 public:
   Timer( std::string name );
   Timer();
@@ -41,7 +40,6 @@ public:
   long long ellapsed() const;
   double ellapsed_s() const;
   void print() const;
-
 private:
   std::string _name;
   Clock::time_point _start;
@@ -63,4 +61,4 @@ private:
 }
 }
 
-#endif  // CLIB_TIMER_H
+#endif //CLIB_TIMER_H

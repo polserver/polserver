@@ -42,7 +42,6 @@ public:
 
   bool open( const char* filename );
   void close();
-
 protected:
   timestamp_streambuf* tsb();
 

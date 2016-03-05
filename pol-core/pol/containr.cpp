@@ -1,17 +1,12 @@
 /** @file
  *
  * @par History
- * - 10/22/2008 Luth:      on_insert_add_item() on_insert_script now called with all appropriate
- * parameters
+ * - 10/22/2008 Luth:      on_insert_add_item() on_insert_script now called with all appropriate parameters
  * - 2008/12/17 MuadDib:   unequipping item now resets item->layer to 0
- * - 2009/07/20 MuadDib:   find_addable_stack() now runs correct check to see if can add to an
- * existing stack.
- * - 2009/08/07 MuadDib:   Added Corpse checks in on_remove and on_insert_add to add to corpse
- * layers for equips.
- *                         Create vector for item storage called layer_list_ for corpses, to work as
- * storage to show
- *                         items listed as "equipped". Also created necessary functions to make use
- * of this like
+ * - 2009/07/20 MuadDib:   find_addable_stack() now runs correct check to see if can add to an existing stack.
+ * - 2009/08/07 MuadDib:   Added Corpse checks in on_remove and on_insert_add to add to corpse layers for equips.
+ *                         Create vector for item storage called layer_list_ for corpses, to work as storage to show
+ *                         items listed as "equipped". Also created necessary functions to make use of this like
  *                         WornItem Container has.
  * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
  * - 2009/11/12 Turley:    Changed "can add"-functions to only check weight recursive
@@ -58,13 +53,12 @@ namespace Pol
 {
 namespace Core
 {
-UContainer::UContainer( const Items::ContainerDesc& descriptor )
-    : ULockable( descriptor, CLASS_CONTAINER ),
-      desc( Items::find_container_desc( objtype_ ) ),  // NOTE still grabs the permanent descriptor.
-      held_weight_( 0 ),
-      held_item_count_( 0 )
-{
-}
+UContainer::UContainer( const Items::ContainerDesc& descriptor ) :
+  ULockable( descriptor, CLASS_CONTAINER ),
+  desc( Items::find_container_desc( objtype_ ) ), // NOTE still grabs the permanent descriptor.
+  held_weight_( 0 ),
+  held_item_count_( 0 )
+{}
 
 UContainer::~UContainer()
 {
@@ -73,10 +67,11 @@ UContainer::~UContainer()
 
 size_t UContainer::estimatedSize() const
 {
-  size_t size = base::estimatedSize() + sizeof( u16 ) /*held_weight_*/
-                + sizeof( unsigned int )              /*held_item_count_*/
+  size_t size = base::estimatedSize()
+                + sizeof(u16)/*held_weight_*/
+                +sizeof(unsigned int)/*held_item_count_*/
                 // no estimateSize here element is in objhash
-                + 3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
+                +3 * sizeof( Items::Item**) + contents_.capacity() * sizeof( Items::Item*);
   return size;
 }
 
@@ -223,8 +218,7 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
 {
   held_item_count_ += item_count_delta;
 
-  // passert( !stateManager.gflag_enforce_container_limits || (held_weight_ + weight_delta <=
-  // MAX_WEIGHT) );
+  // passert( !stateManager.gflag_enforce_container_limits || (held_weight_ + weight_delta <= MAX_WEIGHT) );
 
   held_weight_ += static_cast<unsigned short>( weight_delta );
   if ( container != NULL )
@@ -311,12 +305,11 @@ void UContainer::enumerate_contents( Bscript::ObjArray* arr, int flags )
 {
   for ( auto& item : contents_ )
   {
-    if ( item )  // dave 1/1/03, wornitemscontainer can have null items!
+    if ( item ) //dave 1/1/03, wornitemscontainer can have null items!
     {
       arr->addElement( new Module::EItemRefObjImp( item ) );
       // Austin 9-15-2006, added flag to not enumerate sub-containers.
-      if ( !( flags & ENUMERATE_ROOT_ONLY ) &&
-           ( item->isa( CLASS_CONTAINER ) ) )  // FIXME check locks
+      if ( !( flags & ENUMERATE_ROOT_ONLY ) && ( item->isa( CLASS_CONTAINER ) ) ) // FIXME check locks
       {
         UContainer* cont = static_cast<UContainer*>( item );
         if ( !cont->locked_ || ( flags & ENUMERATE_IGNORE_LOCKED ) )
@@ -395,13 +388,11 @@ Items::Item* UContainer::find_toplevel_objtype( u32 objtype, unsigned short maxa
   }
   return NULL;
 }
-Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype,
-                                                         unsigned short maxamount ) const
+Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype, unsigned short maxamount ) const
 {
   for ( auto& item : contents_ )
   {
-    if ( item && ( item->objtype_ == objtype ) && ( item->getamount() <= maxamount ) &&
-         !item->inuse() )
+    if ( item && ( item->objtype_ == objtype ) && ( item->getamount() <= maxamount ) && !item->inuse() )
       return item;
   }
   return NULL;
@@ -409,7 +400,7 @@ Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype,
 
 Items::Item* UContainer::find_addable_stack( const Items::Item* adding_item ) const
 {
-  if ( !adding_item->stackable() )
+  if( ! adding_item->stackable() )
     return NULL;
 
   unsigned short maxamount = adding_item->itemdesc().stack_limit - adding_item->getamount();
@@ -437,7 +428,9 @@ Items::Item* UContainer::find_objtype_noninuse( u32 objtype ) const
 
   for ( const auto& item : contents_ )
   {
-    if ( item && item->isa( UObject::CLASS_CONTAINER ) && !item->inuse() )
+    if ( item &&
+         item->isa( UObject::CLASS_CONTAINER ) &&
+         !item->inuse() )
     {
       UContainer* cont = static_cast<UContainer*>( item );
       if ( !cont->locked_ )
@@ -457,7 +450,8 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype ) const
 
   for ( auto& item : contents_ )
   {
-    if ( item && !item->inuse() )
+    if ( item &&
+         !item->inuse() )
     {
       if ( item->objtype_ == objtype )
         amt += item->getamount();
@@ -495,7 +489,7 @@ Items::Item* UContainer::remove( u32 objserial, UContainer** found_in )
   Items::Item* item;
   iterator itr;
 
-  item = find( objserial, itr );
+  item = find(objserial, itr );
   if ( item != NULL )
   {
     if ( found_in != NULL )
@@ -517,10 +511,10 @@ void UContainer::remove( Items::Item* item )
     *p = 6;
   }
 
-  iterator itr = std::find( contents_.begin(), contents_.end(), item );
+  iterator itr = std::find(contents_.begin(),contents_.end(), item );
   passert_always( itr != contents_.end() );
 
-  // DAVE added this 11/17. refresh owner's weight on delete
+  //DAVE added this 11/17. refresh owner's weight on delete
   Mobile::Character* chr_owner = item->GetCharacterOwner();
 
   if ( chr_owner != NULL && chr_owner->client != NULL )
@@ -532,16 +526,14 @@ void UContainer::remove( Items::Item* item )
   if ( chr_owner != NULL && chr_owner->client != NULL )
   {
     send_full_statmsg( chr_owner->client, chr_owner );
-    // chr_owner->refresh_ar();
+    //chr_owner->refresh_ar();
   }
 }
 
 // This is the only function that actually removes the item from the container. This could be
 // inlined into UContainer::remove(Item *item) if we change UContainer::remove(u32 serial, ...)
-// to call remove(*itr) instead of remove(itr). The code would be cleaner at the cost of an extra
-// find.
-// As I don't have time to test if that would make a big difference, I leave this note for the
-// future.
+// to call remove(*itr) instead of remove(itr). The code would be cleaner at the cost of an extra find.
+// As I don't have time to test if that would make a big difference, I leave this note for the future.
 // I wish you luck. (Nando, 2014/10/30)
 void UContainer::remove( iterator itr )
 {
@@ -555,16 +547,17 @@ void UContainer::remove( iterator itr )
 }
 
 // FIXME this is depth-first.  Not sure I like that.
-UContainer* UContainer::find_container( u32 objserial ) const
+UContainer* UContainer::find_container( u32 objserial) const
 {
   for ( auto& item : contents_ )
   {
-    if ( item && item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item &&
+         item->isa( UObject::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
-      if ( cont->serial == objserial )
+      if ( cont->serial == objserial)
         return cont;
-      cont = cont->find_container( objserial );
+      cont = cont->find_container(objserial);
       if ( cont != NULL )
         return cont;
     }
@@ -580,7 +573,7 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
     passert( item != NULL );
     if ( item != NULL )
     {
-      if ( item->serial == objserial )
+      if ( item->serial == objserial)
       {
         where_in_container = itr;
         return item;
@@ -590,7 +583,7 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
         UContainer* cont = static_cast<UContainer*>( item );
         if ( !cont->locked_ )
         {
-          item = cont->find( objserial, where_in_container );
+          item = cont->find(objserial, where_in_container );
           if ( item != NULL )
             return item;
         }
@@ -600,14 +593,14 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
   return NULL;
 }
 
-Items::Item* UContainer::find( u32 objserial ) const
+Items::Item* UContainer::find( u32 objserial) const
 {
   for ( const auto& item : contents_ )
   {
     passert( item != NULL );
     if ( item != NULL )
     {
-      if ( item->serial == objserial )
+      if ( item->serial == objserial)
         return item;
 
       if ( item->isa( UObject::CLASS_CONTAINER ) )
@@ -615,7 +608,7 @@ Items::Item* UContainer::find( u32 objserial ) const
         UContainer* cont = static_cast<UContainer*>( item );
         if ( !cont->locked_ )
         {
-          auto child_item = cont->find( objserial );
+          auto child_item = cont->find(objserial);
           if ( child_item != NULL )
             return child_item;
         }
@@ -625,24 +618,26 @@ Items::Item* UContainer::find( u32 objserial ) const
   return NULL;
 }
 
-Items::Item* UContainer::find_toplevel( u32 objserial ) const
+Items::Item* UContainer::find_toplevel( u32 objserial) const
 {
   for ( auto& item : contents_ )
   {
     passert( item != NULL );
     if ( item != NULL )
     {
-      if ( item->serial == objserial )
+      if ( item->serial == objserial)
         return item;
+
     }
   }
   return NULL;
 }
 
-void UContainer::for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg )
+void UContainer::for_each_item( void( *f )( Items::Item* item, void* a ), void* arg )
 {
   for ( auto& item : contents_ )
   {
+
     if ( item->isa( UObject::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
@@ -696,7 +691,7 @@ void UContainer::get_random_location( u16* px, u16* py ) const
 {
   if ( desc.minx < desc.maxx )
   {
-    *px = desc.minx + static_cast<u16>( Clib::random_int( desc.maxx - desc.minx - 1 ) );
+    *px = desc.minx + static_cast<u16>( Clib::random_int( desc.maxx - desc.minx-1 ) );
   }
   else
   {
@@ -705,7 +700,7 @@ void UContainer::get_random_location( u16* px, u16* py ) const
 
   if ( desc.miny < desc.maxy )
   {
-    *py = desc.miny + static_cast<u16>( Clib::random_int( desc.maxy - desc.miny - 1 ) );
+    *py = desc.miny + static_cast<u16>( Clib::random_int( desc.maxy - desc.miny -1) );
   }
   else
   {
@@ -715,7 +710,8 @@ void UContainer::get_random_location( u16* px, u16* py ) const
 
 bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) const
 {
-  return ( px >= desc.minx && px <= desc.maxx && py >= desc.miny && py <= desc.maxy );
+  return ( px >= desc.minx && px <= desc.maxx &&
+           py >= desc.miny && py <= desc.maxy );
 }
 
 void UContainer::spill_contents( Multi::UMulti* multi )
@@ -751,33 +747,42 @@ void UContainer::spill_contents( Multi::UMulti* multi )
 
 void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType move )
 {
+
   if ( !desc.on_remove_script.empty() )
   {
     // static code analysis indicates (C6211) that this might leak, but I can't use an auto_ptr<>
     // because of UninitObject::create() ... ideas? Nando - 2010-07-10
     Bscript::BObjectImp* chrParam = NULL;
-    if ( chr )  // consider: move this into make_mobileref
+    if ( chr )// consider: move this into make_mobileref
       chrParam = new Module::ECharacterRefObjImp( chr );
     else
-      chrParam = Bscript::UninitObject::create();
-    // Luth: 10/22/2008 - on_remove_script now called with all appropriate parameters
-    call_script( desc.on_remove_script, chrParam, new Module::EItemRefObjImp( this ),
-                 new Module::EItemRefObjImp( item ), new Bscript::BLong( item->getamount() ),
+      chrParam = Bscript::UninitObject::create( );
+    //Luth: 10/22/2008 - on_remove_script now called with all appropriate parameters
+    call_script( desc.on_remove_script,
+                 chrParam,
+                 new Module::EItemRefObjImp( this ),
+                 new Module::EItemRefObjImp( item ),
+                 new Bscript::BLong( item->getamount( ) ),
                  new Bscript::BLong( move ) );
   }
 }
 
-bool UContainer::can_insert_increase_stack( Mobile::Character* mob, MoveType movetype,
-                                            Items::Item* existing_item, unsigned short amt_to_add,
-                                            Items::Item* adding_item )
+bool UContainer::can_insert_increase_stack( Mobile::Character* mob,
+    MoveType movetype,
+    Items::Item* existing_item,
+    unsigned short amt_to_add,
+    Items::Item* adding_item )
 {
   if ( !desc.can_insert_script.empty() )
   {
     return call_script( desc.can_insert_script,
-                        mob ? mob->make_ref() : Bscript::UninitObject::create(), make_ref(),
-                        new Bscript::BLong( movetype ), new Bscript::BLong( INSERT_INCREASE_STACK ),
-                        adding_item ? adding_item->make_ref() : Bscript::UninitObject::create(),
-                        existing_item->make_ref(), new Bscript::BLong( amt_to_add ) );
+                        mob ? mob->make_ref( ) : Bscript::UninitObject::create( ),
+                        make_ref(),
+                        new Bscript::BLong( movetype ),
+                        new Bscript::BLong( INSERT_INCREASE_STACK ),
+                        adding_item ? adding_item->make_ref( ) : Bscript::UninitObject::create( ),
+                        existing_item->make_ref(),
+                        new Bscript::BLong( amt_to_add ) );
   }
   else
   {
@@ -785,26 +790,33 @@ bool UContainer::can_insert_increase_stack( Mobile::Character* mob, MoveType mov
   }
 }
 
-void UContainer::on_insert_increase_stack( Mobile::Character* mob, MoveType movetype,
-                                           Items::Item* existing_item, unsigned short amt_to_add )
+void UContainer::on_insert_increase_stack( Mobile::Character* mob,
+    MoveType movetype,
+    Items::Item* existing_item,
+    unsigned short amt_to_add )
 {
   if ( !desc.on_insert_script.empty() )
   {
-    call_script( desc.on_insert_script, mob ? mob->make_ref() : Bscript::UninitObject::create(),
-                 make_ref(), new Bscript::BLong( movetype ),
-                 new Bscript::BLong( INSERT_INCREASE_STACK ), Bscript::UninitObject::create(),
-                 existing_item->make_ref(), new Bscript::BLong( amt_to_add ) );
+    call_script( desc.on_insert_script,
+                 mob ? mob->make_ref( ) : Bscript::UninitObject::create( ),
+                 make_ref(),
+                 new Bscript::BLong( movetype ),
+                 new Bscript::BLong( INSERT_INCREASE_STACK ),
+                 Bscript::UninitObject::create( ),
+                 existing_item->make_ref(),
+                 new Bscript::BLong( amt_to_add ) );
   }
 }
 
-bool UContainer::can_insert_add_item( Mobile::Character* mob, MoveType movetype,
-                                      Items::Item* new_item )
+bool UContainer::can_insert_add_item( Mobile::Character* mob, MoveType movetype, Items::Item* new_item )
 {
   if ( !desc.can_insert_script.empty() )
   {
     return call_script( desc.can_insert_script,
-                        mob ? mob->make_ref() : Bscript::UninitObject::create(), make_ref(),
-                        new Bscript::BLong( movetype ), new Bscript::BLong( INSERT_ADD_ITEM ),
+                        mob ? mob->make_ref( ) : Bscript::UninitObject::create( ),
+                        make_ref(),
+                        new Bscript::BLong( movetype ),
+                        new Bscript::BLong( INSERT_ADD_ITEM ),
                         new_item->make_ref() );
   }
   else
@@ -813,18 +825,21 @@ bool UContainer::can_insert_add_item( Mobile::Character* mob, MoveType movetype,
   }
 }
 
-void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype,
-                                     Items::Item* new_item )
+void UContainer::on_insert_add_item( Mobile::Character* mob, MoveType movetype, Items::Item* new_item )
 {
   if ( !desc.on_insert_script.empty() )
   {
     Items::Item* existing_stack = find_addable_stack( new_item );
 
-    call_script( desc.on_insert_script, mob ? mob->make_ref() : Bscript::UninitObject::create(),
-                 make_ref(), new Bscript::BLong( movetype ), new Bscript::BLong( INSERT_ADD_ITEM ),
+    call_script( desc.on_insert_script,
+                 mob ? mob->make_ref( ) : Bscript::UninitObject::create( ),
+                 make_ref(),
+                 new Bscript::BLong( movetype ),
+                 new Bscript::BLong( INSERT_ADD_ITEM ),
                  new_item->make_ref(),
-                 existing_stack ? existing_stack->make_ref() : Bscript::UninitObject::create(),
-                 new Bscript::BLong( new_item->getamount() ) );
+                 existing_stack ? existing_stack->make_ref( ) : Bscript::UninitObject::create( ),
+                 new Bscript::BLong( new_item->getamount( ) )
+               );
   }
 }
 
@@ -833,11 +848,14 @@ bool UContainer::check_can_remove_script( Mobile::Character* chr, Items::Item* i
   if ( !desc.can_remove_script.empty() )
   {
     Bscript::BObjectImp* chrParam = NULL;
-    if ( chr != NULL )  // TODO: consider moving this into make_mobileref
+    if ( chr != NULL ) // TODO: consider moving this into make_mobileref
       chrParam = chr->make_ref();
     else
-      chrParam = Bscript::UninitObject::create();
-    return call_script( desc.can_remove_script, chrParam, make_ref(), item->make_ref(),
+      chrParam = Bscript::UninitObject::create( );
+    return call_script( desc.can_remove_script,
+                        chrParam,
+                        make_ref(),
+                        item->make_ref(),
                         new Bscript::BLong( move ) );
   }
   else
@@ -861,19 +879,19 @@ void UContainer::printProperties( Clib::StreamWriter& sw ) const
 void UContainer::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
-  max_items_mod( static_cast<s16>( elem.remove_int( "MAX_ITEMS_MOD", 0 ) ) );
-  max_weight_mod( static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ) );
-  max_slots_mod( static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ) );
+  max_items_mod( static_cast<s16>( elem.remove_int( "MAX_ITEMS_MOD", 0 ) ));
+  max_weight_mod( static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ));
+  max_slots_mod( static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ));
 }
 
-unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
-                                                      Contents& saveItemsTo, int flags ) const
+unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo, int flags ) const
 {
   unsigned int amt = 0;
 
   for ( auto& item : contents_ )
   {
-    if ( item && !item->inuse() )
+    if ( item &&
+         !item->inuse() )
     {
       if ( item->objtype_ == objtype )
       {
@@ -902,9 +920,9 @@ Items::Item* UContainer::clone() const
 {
   UContainer* item = static_cast<UContainer*>( base::clone() );
 
-  item->max_items_mod( this->max_items_mod() );
-  item->max_weight_mod( this->max_weight_mod() );
-  item->max_slots_mod( this->max_slots_mod() );
+  item->max_items_mod(this->max_items_mod());
+  item->max_weight_mod(this->max_weight_mod());
+  item->max_slots_mod(this->max_slots_mod());
 
   return item;
 }
@@ -944,5 +962,7 @@ u8 UContainer::max_slots() const
   else
     return MAX_SLOTS;
 }
+
+
 }
 }

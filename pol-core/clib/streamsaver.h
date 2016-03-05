@@ -24,7 +24,6 @@ public:
   virtual void init( const std::string& filepath ) = 0;
   virtual void flush() = 0;
   virtual void flush_file() = 0;
-
 protected:
   std::unique_ptr<fmt::Writer> _writer;
 };
@@ -32,11 +31,11 @@ protected:
 class FMTStreamWriter : public StreamWriter
 {
 public:
-  FMTStreamWriter() : StreamWriter(){};
-  virtual ~FMTStreamWriter(){};
-  virtual void init( const std::string& ) POL_OVERRIDE{};  // argument is not used
-  virtual void flush() POL_OVERRIDE{};
-  virtual void flush_file() POL_OVERRIDE{};
+  FMTStreamWriter() : StreamWriter() {};
+  virtual ~FMTStreamWriter() {};
+  virtual void init( const std::string&) POL_OVERRIDE {};  // argument is not used
+  virtual void flush() POL_OVERRIDE {};
+  virtual void flush_file() POL_OVERRIDE {};
 };
 
 class OFStreamWriter : public StreamWriter
@@ -48,11 +47,10 @@ public:
   virtual void init( const std::string& filepath ) POL_OVERRIDE;
   virtual void flush() POL_OVERRIDE;
   virtual void flush_file() POL_OVERRIDE;
-
 private:
   std::ofstream* _stream;
 #if 0
-      Tools::HighPerfTimer::time_mu _fs_time;
+  Tools::HighPerfTimer::time_mu _fs_time;
 #endif
   std::string _stream_name;
 };
@@ -66,7 +64,6 @@ public:
   virtual void init( const std::string& filepath ) POL_OVERRIDE;
   virtual void flush() POL_OVERRIDE;
   virtual void flush_file() POL_OVERRIDE;
-
 private:
   std::ostream* _stream;
 };
@@ -76,7 +73,6 @@ class ThreadedOFStreamWriter : public StreamWriter
 {
   typedef std::unique_ptr<fmt::Writer> WriterPtr;
   typedef message_queue<WriterPtr> writer_queue;
-
 public:
   ThreadedOFStreamWriter();
   ThreadedOFStreamWriter( std::ofstream* stream );
@@ -84,7 +80,6 @@ public:
   virtual void init( const std::string& filepath ) POL_OVERRIDE;
   virtual void flush() POL_OVERRIDE;
   virtual void flush_file() POL_OVERRIDE;
-
 private:
   void start_worker();
   std::ofstream* _stream;
@@ -93,6 +88,7 @@ private:
   std::list<WriterPtr> _writers_hold;
   std::string _stream_name;
 };
+
 }
 }
-#endif  // CLIB_STREAMSAVER_H
+#endif // CLIB_STREAMSAVER_H

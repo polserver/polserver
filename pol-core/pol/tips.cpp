@@ -24,6 +24,7 @@ namespace Pol
 {
 namespace Core
 {
+
 bool send_tip( Network::Client* client, const char* tipname, unsigned short tipnum )
 {
   size_t textlen = strlen( tipname );
@@ -32,7 +33,7 @@ bool send_tip( Network::Client* client, const char* tipname, unsigned short tipn
     Network::PktHelper::PacketOut<Network::PktOut_A6> msg;
     msg->WriteFlipped<u16>( textlen + 11 );
     msg->Write<u8>( PKTOUT_A6_TYPE_TIP );
-    msg->offset += 2;  // unk4,5
+    msg->offset += 2; //unk4,5
     msg->WriteFlipped<u16>( tipnum );
     msg->WriteFlipped<u16>( textlen + 1 );
     msg->Write( tipname, static_cast<u16>( textlen + 1 ) );
@@ -54,8 +55,8 @@ void send_tip( Network::Client* client, const std::string& tiptext )
   Network::PktHelper::PacketOut<Network::PktOut_A6> msg;
   msg->WriteFlipped<u16>( textlen + 11 );
   msg->Write<u8>( PKTOUT_A6_TYPE_TIP );
-  msg->offset += 2;  // unk4,5
-  msg->offset += 2;  // tipnum
+  msg->offset += 2; //unk4,5
+  msg->offset += 2; //tipnum
   msg->WriteFlipped<u16>( textlen + 1 );
   msg->Write( tiptext.c_str(), static_cast<u16>( textlen + 1 ) );
   msg.Send( client );

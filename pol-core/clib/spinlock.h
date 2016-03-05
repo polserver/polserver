@@ -8,6 +8,7 @@ namespace Pol
 {
 namespace Clib
 {
+
 /**
  * This is a much faster replacement for mutex when locking very small
  * and fast running protected parts. It is based on a busy loop.
@@ -45,9 +46,8 @@ inline SpinLock::~SpinLock()
  */
 inline void SpinLock::lock()
 {
-  while ( _lck.test_and_set( std::memory_order_acquire ) )
-  {
-  }
+  while(_lck.test_and_set(std::memory_order_acquire))
+  {}
 }
 
 /**
@@ -55,9 +55,9 @@ inline void SpinLock::lock()
  */
 inline void SpinLock::unlock()
 {
-  _lck.clear( std::memory_order_release );
+  _lck.clear(std::memory_order_release);
 }
 
-}  // namespace Clib
-}  // namespace Pol
+} // namespace Clib
+} // namespace Pol
 #endif

@@ -31,12 +31,13 @@ public:
 #ifdef _WIN32
   static void check_console_commands();
 #else
-  static void check_console_commands( Clib::KeyboardHook* kb );
+  static void check_console_commands(Clib::KeyboardHook* kb);
 #endif
 
   static bool console_locked;
   static char unlock_char;
 };
+
 }
 }
 

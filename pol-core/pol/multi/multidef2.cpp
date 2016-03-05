@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2006/12/05 Shinigami: removed dummy floor creation in MultiDef::readobjects and
- * MultiDef::readshapes
+ * - 2006/12/05 Shinigami: removed dummy floor creation in MultiDef::readobjects and MultiDef::readshapes
  * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
  */
 
@@ -40,8 +39,7 @@ bool MultiDef::readobjects( Core::StaticList& vec, short x, short y, short zbase
         {
           if ( elem->is_static )
           {
-            vec.push_back(
-                Core::StaticRec( graphic, static_cast<signed char>( elem->z + zbase ) ) );
+            vec.push_back( Core::StaticRec( graphic, static_cast<signed char>( elem->z + zbase ) ) );
             result = true;
           }
           // Shinigami: removed. doesn't make sense. non-static
@@ -58,8 +56,7 @@ bool MultiDef::readobjects( Core::StaticList& vec, short x, short y, short zbase
   return result;
 }
 
-bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbase,
-                           unsigned int anyflags ) const
+bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbase, unsigned int anyflags ) const
 {
   bool result = false;
   if ( x >= minrx && x <= maxrx && y >= minry && y <= maxry )
@@ -78,7 +75,7 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
             Plib::MapShape shape;
             shape.z = elem->z + zbase;
             shape.height = Core::tileheight( graphic );
-            shape.flags = Plib::systemstate.tile[graphic].flags;  // pol_flags_by_tile( graphic );
+            shape.flags = Plib::systemstate.tile[graphic].flags; // pol_flags_by_tile( graphic );
             if ( !shape.height )
             {
               ++shape.height;
@@ -90,12 +87,14 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
           // Shinigami: removed. doesn't make sense. non-static
           //            items are normal items an can be removed etc.
           // Turley: BOAT added so hold count as boat item (who.multi) (and walkable)
-          else if ( type == BOAT )  // put a dummy floor there
+          else if ( type == BOAT ) // put a dummy floor there
           {
             Plib::MapShape shape;
             shape.z = elem->z + zbase - 1;
             shape.height = 1;
-            shape.flags = Plib::FLAG::MOVELAND | Plib::FLAG::ALLOWDROPON | Plib::FLAG::BLOCKSIGHT |
+            shape.flags = Plib::FLAG::MOVELAND |
+                          Plib::FLAG::ALLOWDROPON |
+                          Plib::FLAG::BLOCKSIGHT |
                           Plib::FLAG::OVERFLIGHT;
             vec.push_back( shape );
             result = true;
@@ -106,5 +105,6 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
   }
   return result;
 }
+
 }
 }

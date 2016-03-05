@@ -10,6 +10,7 @@
  */
 
 
+
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/logfacility.h"
@@ -78,47 +79,47 @@ short validhaircolor( u16 /*color*/ )
    */
 
 /* hair can be:
-    0x203B  Short Hair		  // Human
-    0x203C  Long Hair
-    0x203D  PonyTail
-    0x2044  Mohawk
-    0x2045  Pageboy Hair
-    0x2046  Buns Hair
-    0x2047  Afro
-    0x2048  Receeding Hair
-    0x2049  Two Pig Tails
-    0x204A  Krisna Hair
+  0x203B  Short Hair      // Human
+  0x203C  Long Hair
+  0x203D  PonyTail
+  0x2044  Mohawk
+  0x2045  Pageboy Hair
+  0x2046  Buns Hair
+  0x2047  Afro
+  0x2048  Receeding Hair
+  0x2049  Two Pig Tails
+  0x204A  Krisna Hair
 
-    0x2FBF  Mid Long Hair	   // Elf (Mondain's Legacy)
-    0x2FC0  Long Feather Hair
-    0x2FC1  Short Elf Hair
-    0x2FC2  Mullet
-    0x2FCC  Flower Hair
-    0x2FCD  Long Elf Hair
-    0x2FCE  Long Big Knob Hair
-    0x2FCF  Long Big Braid Hair
-    0x2FD0  Long Big Bun Hair
-    0x2FD1  Spiked Hair
-    0x2FD2  Long Elf Two Hair
+  0x2FBF  Mid Long Hair    // Elf (Mondain's Legacy)
+  0x2FC0  Long Feather Hair
+  0x2FC1  Short Elf Hair
+  0x2FC2  Mullet
+  0x2FCC  Flower Hair
+  0x2FCD  Long Elf Hair
+  0x2FCE  Long Big Knob Hair
+  0x2FCF  Long Big Braid Hair
+  0x2FD0  Long Big Bun Hair
+  0x2FD1  Spiked Hair
+  0x2FD2  Long Elf Two Hair
 
-    0x4258  Horn Style 1       // Gargoyle Male (SA)
-    0x4259  Horn Style 2
-    0x425a  Horn Style 3
-    0x425b  Horn Style 4
-    0x425c  Horn Style 5
-    0x425d  Horn Style 6
-    0x425e  Horn Style 7
-    0x425f  Horn Style 8
+  0x4258  Horn Style 1       // Gargoyle Male (SA)
+  0x4259  Horn Style 2
+  0x425a  Horn Style 3
+  0x425b  Horn Style 4
+  0x425c  Horn Style 5
+  0x425d  Horn Style 6
+  0x425e  Horn Style 7
+  0x425f  Horn Style 8
 
-    0x4261	Female Horn Style 1  // Gargoyle Female (SA)
-    0x4262  Female Horn Style 2
-    0x4273  Female Horn Style 3
-    0x4274  Female Horn Style 4
-    0x4275  Female Horn Style 5
-    0x42aa  Female Horn Style 6
-    0x42ab  Female Horn Style 7
-    0x42b1  Femaly Horn Style 8
-    */
+  0x4261  Female Horn Style 1  // Gargoyle Female (SA)
+  0x4262  Female Horn Style 2
+  0x4273  Female Horn Style 3
+  0x4274  Female Horn Style 4
+  0x4275  Female Horn Style 5
+  0x42aa  Female Horn Style 6
+  0x42ab  Female Horn Style 7
+  0x42b1  Femaly Horn Style 8
+  */
 bool validhair( u16 HairStyle )
 {
   if ( Plib::systemstate.config.max_tile_id < HairStyle )
@@ -134,7 +135,8 @@ bool validhair( u16 HairStyle )
          ( ( 0x4258 <= HairStyle ) && ( HairStyle <= 0x425F ) ) ||
          ( ( 0x4261 <= HairStyle ) && ( HairStyle <= 0x4262 ) ) ||
          ( ( 0x4273 <= HairStyle ) && ( HairStyle <= 0x4275 ) ) ||
-         ( ( 0x42aa <= HairStyle ) && ( HairStyle <= 0x42ab ) ) || ( HairStyle == 0x42B1 ) )
+         ( ( 0x42aa <= HairStyle ) && ( HairStyle <= 0x42ab ) ) ||
+         ( HairStyle == 0x42B1 ) )
       return true;
     else
       return false;
@@ -142,52 +144,51 @@ bool validhair( u16 HairStyle )
 }
 
 /* beard can be:
-    0x203E  Long Beard		 // Human
-    0x203F  Short Beard
-    0x2040  Goatee
-    0x2041  Mustache
-    0x204B  Medium Short Beard
-    0x204C  Medium Long Beard
-    0x204D  Vandyke
+  0x203E  Long Beard     // Human
+  0x203F  Short Beard
+  0x2040  Goatee
+  0x2041  Mustache
+  0x204B  Medium Short Beard
+  0x204C  Medium Long Beard
+  0x204D  Vandyke
 
-    0x42ad  facial horn style 1 // Gargoyle (SA)
-    0x42ae  facial horn style 2
-    0x42af  facial horn style 3
-    0x42b0  facial horn style 4
-    */
+  0x42ad  facial horn style 1 // Gargoyle (SA)
+  0x42ae  facial horn style 2
+  0x42af  facial horn style 3
+  0x42b0  facial horn style 4
+  */
 bool validbeard( u16 BeardStyle )
 {
   if ( ( ( 0x203E <= BeardStyle ) && ( BeardStyle <= 0x2041 ) ) ||
        ( ( 0x204B <= BeardStyle ) && ( BeardStyle <= 0x204D ) ) ||
-       ( ( 0x42AD <= BeardStyle ) && ( BeardStyle <= 0x42B0 ) &&
-         ( Plib::systemstate.config.max_tile_id > BeardStyle ) ) )
+       ( ( 0x42AD <= BeardStyle ) && ( BeardStyle <= 0x42B0 ) && ( Plib::systemstate.config.max_tile_id > BeardStyle ) ) )
     return true;
   else
     return false;
 }
 
 /* face can be:
-    0x3B44  face 1
-    0x3B45  face 2
-    0x3B46  face 3
-    0x3B47  face 4
-    0x3B48  face 5
-    0x3B49  face 6
-    0x3B4A  face 7
-    0x3B4B  face 8
-    0x3B4C  face 9
-    0x3B4D  face 10
-    0x3B4E  anime     //roleplay faces
-    0x3B4F  hellian
-    0x3B50  juka
-    0x3B51  undead
-    0x3B52  meer
-    0x3B53  elder
-    0x3B54  orc
-    0x3B55  pirate
-    0x3B56  native papuan
-    0x3B57  vampire
-    */
+  0x3B44  face 1
+  0x3B45  face 2
+  0x3B46  face 3
+  0x3B47  face 4
+  0x3B48  face 5
+  0x3B49  face 6
+  0x3B4A  face 7
+  0x3B4B  face 8
+  0x3B4C  face 9
+  0x3B4D  face 10
+  0x3B4E  anime     //roleplay faces
+  0x3B4F  hellian
+  0x3B50  juka
+  0x3B51  undead
+  0x3B52  meer
+  0x3B53  elder
+  0x3B54  orc
+  0x3B55  pirate
+  0x3B56  native papuan
+  0x3B57  vampire
+  */
 bool validface( u16 FaceStyle )
 {
   if ( settingsManager.ssopt.support_faces > 0 )
@@ -207,8 +208,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 {
   if ( client->acct == NULL )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
-                << " tried to create a character without an account!\n";
+    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!\n";
     client->forceDisconnect();
     return;
   }
@@ -227,8 +227,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -237,8 +236,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
   unsigned short graphic;
   URACE race;
-  UGENDER gender =
-      ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER ) ? GENDER_FEMALE : GENDER_MALE;
+  UGENDER gender = ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER ) ? GENDER_FEMALE : GENDER_MALE;
   if ( client->ClientType & Network::CLIENTTYPE_7000 )
   {
     /*
@@ -301,9 +299,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
         continue;
     }
 
-    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '"
-                << i << "' in name '" << tstr << "'. Client IP: " << client->ipaddrAsString()
-                << " Client Name: " << client->acct->name() << "\n";
+    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
+                << client->ipaddrAsString() << " Client Name: " << client->acct->name() << "\n";
     client->forceDisconnect();
     return;
   }
@@ -337,8 +334,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   unsigned int stat_min, stat_max;
   char* maxpos;
   std::vector<std::string>::size_type sidx;
-  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size();
-        ++sidx )
+  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
   {
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
@@ -350,7 +346,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   if ( !valid_stats )
   {
     fmt::Writer tmp;
-    tmp << "Create Character: Stats sum to " << stat_total << ".\n"
+    tmp << "Create Character: Stats sum to "
+        << stat_total << ".\n"
         << "Valid values/ranges are: ";
     for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
     {
@@ -365,8 +362,10 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
   {
     ERROR_PRINT << "Create Character: A stat was too small."
-                << " Str=" << msg->Strength << " Int=" << msg->Intelligence
-                << " Dex=" << msg->Dexterity << "\n";
+                << " Str=" << msg->Strength
+                << " Int=" << msg->Intelligence
+                << " Dex=" << msg->Dexterity
+                << "\n";
 
     client->forceDisconnect();
     return;
@@ -386,11 +385,11 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     client->forceDisconnect();
     return;
   }
-  bool noskills =
-      ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 == 0 ) && msg->profession;
-  if ( ( !noskills ) &&
-       ( ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 != 100 ) ||
-         msg->SkillValue1 > 50 || msg->SkillValue2 > 50 || msg->SkillValue3 > 50 ) )
+  bool noskills = ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 == 0 ) && msg->profession;
+  if ( ( !noskills ) && ( ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 != 100 ) ||
+                          msg->SkillValue1 > 50 ||
+                          msg->SkillValue2 > 50 ||
+                          msg->SkillValue3 > 50 ) )
   {
     ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
     client->forceDisconnect();
@@ -398,7 +397,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   }
 
   ////HASH
-  // moved down here, after all error checking passes, else we get a half-created PC in the save.
+  //moved down here, after all error checking passes, else we get a half-created PC in the save.
   objStorageManager.objecthash.Insert( chr );
   ////
 
@@ -406,14 +405,11 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   {
     const Mobile::Attribute* pAttr;
     pAttr = GetUOSkill( msg->SkillNumber1 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->SkillValue1 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->SkillValue1 * 10 );
     pAttr = GetUOSkill( msg->SkillNumber2 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->SkillValue2 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->SkillValue2 * 10 );
     pAttr = GetUOSkill( msg->SkillNumber3 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->SkillValue3 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->SkillValue3 * 10 );
   }
 
   chr->calc_vital_stuff();
@@ -429,7 +425,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
     tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    if ( chr->equippable( tmpitem ) ) // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -444,7 +440,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
     tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    if ( chr->equippable( tmpitem ) ) // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -480,8 +476,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       backpack->add( tmpitem );
   }
 
-  if ( chr->race == RACE_HUMAN ||
-       chr->race == RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
+  if ( chr->race == RACE_HUMAN || chr->race == RACE_ELF ) // Gargoyles dont have shirts, pants, shoes and daggers.
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -511,7 +506,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = tilelayer( pantstype );
-    tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
+    tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
 
@@ -522,7 +517,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
   }
-  else if ( chr->race == RACE_GARGOYLE )  // Gargoyles have Robes.
+  else if ( chr->race == RACE_GARGOYLE ) // Gargoyles have Robes.
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -543,8 +538,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   // FIXME : Shouldn't this be triggered at the end of creation?
   run_logon_script( chr );
 
-  ref_ptr<Bscript::EScriptProgram> prog =
-      find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != NULL )
   {
     std::unique_ptr<UOExecutor> ex( create_script_executor() );
@@ -602,8 +596,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   int charslot = ctBEu32( msg->char_slot );
   if ( client->acct == NULL )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
-                << " tried to create a character without an account!\n";
+    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!\n";
     client->Disconnect();
     return;
   }
@@ -621,8 +614,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -630,7 +622,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   unsigned short graphic;
-  URACE race = ( URACE )( msg->race - 1 );
+  URACE race = (URACE)( msg->race - 1 );
   UGENDER gender = ( msg->gender & GENDER_FEMALE ) ? GENDER_FEMALE : GENDER_MALE;
   if ( race == RACE_HUMAN )
     graphic = ( gender == GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
@@ -660,9 +652,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
         continue;
     }
 
-    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '"
-                << i << "' in name '" << tstr << "'. Client IP: " << client->ipaddrAsString()
-                << " Client Name: " << client->acct->name() << "\n";
+    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
+                << client->ipaddrAsString() << " Client Name: " << client->acct->name() << "\n";
     client->forceDisconnect();
     return;
   }
@@ -696,8 +687,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   unsigned int stat_min, stat_max;
   char* maxpos;
   std::vector<std::string>::size_type sidx;
-  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size();
-        ++sidx )
+  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
   {
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
@@ -709,7 +699,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( !valid_stats )
   {
     fmt::Writer tmp;
-    tmp << "Create Character: Stats sum to " << stat_total << ".\n"
+    tmp << "Create Character: Stats sum to "
+        << stat_total << ".\n"
         << "Valid values/ranges are: ";
     for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
     {
@@ -724,8 +715,10 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( msg->strength < 10 || msg->intelligence < 10 || msg->dexterity < 10 )
   {
     ERROR_PRINT << "Create Character: A stat was too small."
-                << " Str=" << msg->strength << " Int=" << msg->intelligence
-                << " Dex=" << msg->dexterity << "\n";
+                << " Str=" << msg->strength
+                << " Int=" << msg->intelligence
+                << " Dex=" << msg->dexterity
+                << "\n";
 
     client->forceDisconnect();
     return;
@@ -748,13 +741,12 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     return;
   }
 
-  bool noskills =
-      ( msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 == 0 ) &&
-      msg->profession;
-  if ( ( !noskills ) &&
-       ( ( msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 != 120 ) ||
-         msg->skillvalue1 > 50 || msg->skillvalue2 > 50 || msg->skillvalue3 > 50 ||
-         msg->skillvalue4 > 50 ) )
+  bool noskills = ( msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 == 0 ) && msg->profession;
+  if ( ( !noskills ) && ( ( msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 != 120 ) ||
+                          msg->skillvalue1 > 50 ||
+                          msg->skillvalue2 > 50 ||
+                          msg->skillvalue3 > 50 ||
+                          msg->skillvalue4 > 50 ) )
   {
     ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
     client->forceDisconnect();
@@ -762,7 +754,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   ////HASH
-  // moved down here, after all error checking passes, else we get a half-created PC in the save.
+  //moved down here, after all error checking passes, else we get a half-created PC in the save.
   objStorageManager.objecthash.Insert( chr );
   ////
 
@@ -770,17 +762,13 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   {
     const Mobile::Attribute* pAttr;
     pAttr = GetUOSkill( msg->skillnumber1 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->skillvalue1 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->skillvalue1 * 10 );
     pAttr = GetUOSkill( msg->skillnumber2 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->skillvalue2 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->skillvalue2 * 10 );
     pAttr = GetUOSkill( msg->skillnumber3 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->skillvalue3 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->skillvalue3 * 10 );
     pAttr = GetUOSkill( msg->skillnumber4 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->skillvalue4 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->skillvalue4 * 10 );
   }
 
   chr->calc_vital_stuff();
@@ -796,7 +784,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->haircolor );
     tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    if ( chr->equippable( tmpitem ) ) // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -811,7 +799,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->beardcolor );
     tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    if ( chr->equippable( tmpitem ) ) // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -826,7 +814,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem->layer = LAYER_FACE;
     tmpitem->color = cfBEu16( msg->face_color );
     tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    if ( chr->equippable( tmpitem ) ) // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -862,8 +850,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       backpack->add( tmpitem );
   }
 
-  if ( chr->race == RACE_HUMAN ||
-       chr->race == RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
+  if ( chr->race == RACE_HUMAN || chr->race == RACE_ELF ) // Gargoyles dont have shirts, pants, shoes and daggers.
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -893,7 +880,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = tilelayer( pantstype );
-    tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
+    tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
 
@@ -904,7 +891,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
   }
-  else if ( chr->race == RACE_GARGOYLE )  // Gargoyles have Robes.
+  else if ( chr->race == RACE_GARGOYLE ) // Gargoyles have Robes.
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -918,15 +905,14 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   client->acct->set_character( charslot, client->chr );
 
   POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-  SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
+  SetCharacterWorldPosition(chr, Realms::WorldChangeReason::PlayerEnter);
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
 
   // FIXME : Shouldn't this be triggered at the end of creation?
   run_logon_script( chr );
 
-  ref_ptr<Bscript::EScriptProgram> prog =
-      find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != NULL )
   {
     std::unique_ptr<UOExecutor> ex( create_script_executor() );
@@ -959,8 +945,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 {
   if ( client->acct == NULL )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
-                << " tried to create a character without an account!\n";
+    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr ) << " tried to create a character without an account!\n";
     client->forceDisconnect();
     return;
   }
@@ -979,8 +964,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     client->Disconnect();
     return;
   }
-  else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-            client->acct->has_active_characters() )
+  else if ( ! Plib::systemstate.config.allow_multi_clients_per_account && client->acct->has_active_characters() )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -989,8 +973,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
   unsigned short graphic;
   URACE race;
-  UGENDER gender =
-      ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER ) ? GENDER_FEMALE : GENDER_MALE;
+  UGENDER gender = ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER ) ? GENDER_FEMALE : GENDER_MALE;
   if ( client->ClientType & Network::CLIENTTYPE_7000 )
   {
     /*
@@ -1053,9 +1036,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
         continue;
     }
 
-    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '"
-                << i << "' in name '" << tstr << "'. Client IP: " << client->ipaddrAsString()
-                << " Client Name: " << client->acct->name() << "\n";
+    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '" << i << "' in name '" << tstr << "'. Client IP: "
+                << client->ipaddrAsString() << " Client Name: " << client->acct->name() << "\n";
     client->Disconnect();
     return;
   }
@@ -1089,8 +1071,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   unsigned int stat_min, stat_max;
   char* maxpos;
   std::vector<std::string>::size_type sidx;
-  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size();
-        ++sidx )
+  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
   {
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
@@ -1102,7 +1083,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   if ( !valid_stats )
   {
     fmt::Writer tmp;
-    tmp << "Create Character: Stats sum to " << stat_total << ".\n"
+    tmp << "Create Character: Stats sum to "
+        << stat_total << ".\n"
         << "Valid values/ranges are: ";
     for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
     {
@@ -1117,8 +1099,10 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
   {
     ERROR_PRINT << "Create Character: A stat was too small."
-                << " Str=" << msg->Strength << " Int=" << msg->Intelligence
-                << " Dex=" << msg->Dexterity << "\n";
+                << " Str=" << msg->Strength
+                << " Int=" << msg->Intelligence
+                << " Dex=" << msg->Dexterity
+                << "\n";
 
     client->forceDisconnect();
     return;
@@ -1130,20 +1114,17 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   if ( gamestate.pAttrDexterity )
     chr->attribute( gamestate.pAttrDexterity->attrid ).base( msg->Dexterity * 10 );
 
-  // With latest clients EA broke the prof.txt, added Evaluating Intelligence and Spirit Speak which
-  // returns SkillNumber 0xFF
+  // With latest clients EA broke the prof.txt, added Evaluating Intelligence and Spirit Speak which returns SkillNumber 0xFF
   // Check for it here to not crash the client during char creation
-  bool broken_prof = ( msg->SkillNumber1 == 0xFF || msg->SkillNumber2 == 0xFF ||
-                       msg->SkillNumber3 == 0xFF || msg->SkillNumber4 == 0xFF ) &&
-                     msg->profession;
+  bool broken_prof = ( msg->SkillNumber1 == 0xFF || msg->SkillNumber2 == 0xFF || msg->SkillNumber3 == 0xFF || msg->SkillNumber4 == 0xFF ) && msg->profession;
 
   if ( broken_prof )
   {
     unsigned char temp_skillid = 0;
 
-    if ( msg->profession == 2 )  // Mage profession
+    if ( msg->profession == 2 ) // Mage profession
       temp_skillid = SKILLID_EVALUATINGINTEL;
-    if ( msg->profession == 4 )  // Necromancy profession
+    if ( msg->profession == 4 ) // Necromancy profession
       temp_skillid = SKILLID_SPIRITSPEAK;
 
 
@@ -1180,14 +1161,13 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     return;
   }
 
-  bool noskills =
-      ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 == 0 ) &&
-      msg->profession;
+  bool noskills = ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 == 0 ) && msg->profession;
 
-  if ( ( !noskills ) &&
-       ( ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 != 120 ) ||
-         msg->SkillValue1 > 50 || msg->SkillValue2 > 50 || msg->SkillValue3 > 50 ||
-         msg->SkillValue4 > 50 ) )
+  if ( ( !noskills ) && ( ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 != 120 ) ||
+                          msg->SkillValue1 > 50 ||
+                          msg->SkillValue2 > 50 ||
+                          msg->SkillValue3 > 50 ||
+                          msg->SkillValue4 > 50 ) )
   {
     ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
     client->forceDisconnect();
@@ -1195,7 +1175,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   }
 
   ////HASH
-  // moved down here, after all error checking passes, else we get a half-created PC in the save.
+  //moved down here, after all error checking passes, else we get a half-created PC in the save.
   objStorageManager.objecthash.Insert( chr );
   ////
 
@@ -1203,17 +1183,13 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   {
     const Mobile::Attribute* pAttr;
     pAttr = GetUOSkill( msg->SkillNumber1 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->SkillValue1 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->SkillValue1 * 10 );
     pAttr = GetUOSkill( msg->SkillNumber2 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->SkillValue2 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->SkillValue2 * 10 );
     pAttr = GetUOSkill( msg->SkillNumber3 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->SkillValue3 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->SkillValue3 * 10 );
     pAttr = GetUOSkill( msg->SkillNumber4 ).pAttr;
-    if ( pAttr )
-      chr->attribute( pAttr->attrid ).base( msg->SkillValue4 * 10 );
+    if ( pAttr ) chr->attribute( pAttr->attrid ).base( msg->SkillValue4 * 10 );
   }
 
   chr->calc_vital_stuff();
@@ -1229,7 +1205,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
     tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    if ( chr->equippable( tmpitem ) ) // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -1244,7 +1220,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
     tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    if ( chr->equippable( tmpitem ) ) // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -1280,8 +1256,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       backpack->add( tmpitem );
   }
 
-  if ( chr->race == RACE_HUMAN ||
-       chr->race == RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
+  if ( chr->race == RACE_HUMAN || chr->race == RACE_ELF ) // Gargoyles dont have shirts, pants, shoes and daggers.
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -1311,7 +1286,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = tilelayer( pantstype );
-    tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
+    tmpitem->color = cfBEu16( msg->pantscolor ); // 0x0284;
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
 
@@ -1322,7 +1297,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
   }
-  else if ( chr->race == RACE_GARGOYLE )  // Gargoyles have Robes.
+  else if ( chr->race == RACE_GARGOYLE ) // Gargoyles have Robes.
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -1336,15 +1311,14 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   client->acct->set_character( msg->CharNumber, client->chr );
 
   POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
-  SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
+  SetCharacterWorldPosition(chr, Realms::WorldChangeReason::PlayerEnter);
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
 
   // FIXME : Shouldn't this be triggered at the end of creation?
   run_logon_script( chr );
 
-  ref_ptr<Bscript::EScriptProgram> prog =
-      find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
+  ref_ptr<Bscript::EScriptProgram> prog = find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != NULL )
   {
     std::unique_ptr<UOExecutor> ex( create_script_executor() );

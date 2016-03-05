@@ -35,8 +35,9 @@ namespace Pol
 {
 namespace Core
 {
-Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
-    : UContainer( descriptor ), spell_school( 0 )
+Spellbook::Spellbook( const Items::SpellbookDesc& descriptor ) :
+  UContainer( descriptor ),
+  spell_school( 0 )
 {
   if ( descriptor.spelltype == "Magic" )
     spell_school = 0;
@@ -44,8 +45,7 @@ Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
     spell_school = 1;
   else if ( descriptor.spelltype == "Paladin" )
     spell_school = 2;
-  // Use spell school 3 for Mysticism with spellid 678+ because on OSI nothing uses this so we can
-  // use this here.
+  // Use spell school 3 for Mysticism with spellid 678+ because on OSI nothing uses this so we can use this here.
   else if ( descriptor.spelltype == "Mysticism" )
     spell_school = 3;
   else if ( descriptor.spelltype == "Bushido" )
@@ -61,14 +61,13 @@ Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
 }
 
 Spellbook::~Spellbook()
-{
-}
+{}
 
-size_t Spellbook::estimatedSize() const
+size_t Spellbook::estimatedSize( ) const
 {
-  return sizeof( u8 ) * 8 /* bitwise_contents*/
-         + sizeof( u8 )   /*spell_school*/
-         + base::estimatedSize();
+  return sizeof( u8)*8/* bitwise_contents*/
+         + sizeof( u8 )/*spell_school*/
+         + base::estimatedSize( );
 }
 
 void Spellbook::double_click( Network::Client* client )
@@ -86,10 +85,11 @@ void Spellbook::double_click( Network::Client* client )
     return;
   }
 
-  if ( bitwise_contents[0] == 0 )  // assume never been clicked using the new bitwise spell scheme
+  if ( bitwise_contents[0] == 0 ) //assume never been clicked using the new bitwise spell scheme
     calc_current_bitwise_contents();
 
-  if ( !( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 ) )
+  if ( !( client->UOExpansionFlag & Network::AOS ) &&
+       ( spell_school == 0 ) )
   {
     send_book_old( client );
   }
@@ -105,13 +105,13 @@ void Spellbook::double_click( Network::Client* client )
     send_sysmessage( client, "This item requires at least the Samurai Empire Expansion." );
     return;
   }
-  else if ( !( client->UOExpansionFlag & Network::ML ) && spell_school == 6 )
+  else if ( !( client->UOExpansionFlag & Network::ML ) &&
+            spell_school == 6 )
   {
     send_sysmessage( client, "This item requires at least the Mondain's Legacy Expansion." );
     return;
   }
-  else if ( !( client->UOExpansionFlag & Network::SA ) &&
-            ( spell_school == 3 || spell_school == 7 ) )
+  else if ( !( client->UOExpansionFlag & Network::SA ) && ( spell_school == 3 || spell_school == 7 ) )
   {
     send_sysmessage( client, "This item requires at least the Stygian Abyss Expansion." );
     return;
@@ -121,12 +121,11 @@ void Spellbook::double_click( Network::Client* client )
     // Ok, now we do a strange check. This is for those people who have no idea that you
     // must have AOS Features Enabled on an acct with AOS Expansion to view Magery book.
     // All newer spellbooks will bug out if you use this method though.
-    if ( ( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 ) &&
-         !( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
+    if ( ( client->UOExpansionFlag & Network::AOS ) && ( spell_school == 0 )
+         && !( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
     {
       if ( Plib::systemstate.config.loglevel > 1 )
-        INFO_PRINT << "Client with AOS Expansion Account using spellbook without UOFeatureEnable "
-                      "0x20 Bitflag.\n";
+        INFO_PRINT << "Client with AOS Expansion Account using spellbook without UOFeatureEnable 0x20 Bitflag.\n";
       send_book_old( client );
       return;
     }
@@ -135,7 +134,7 @@ void Spellbook::double_click( Network::Client* client )
 
     Network::PktHelper::PacketOut<Network::PktOut_BF_Sub1B> msg;
     msg->WriteFlipped<u16>( 23u );
-    msg->offset += 2;  // sub
+    msg->offset += 2; //sub
     msg->WriteFlipped<u16>( 1u );
     msg->Write<u32>( serial_ext );
     msg->WriteFlipped<u16>( graphic );
@@ -173,12 +172,10 @@ bool Spellbook::has_spellid( unsigned int spellid ) const
 
     // Limits spellnumber to be between 1-64
     spellnumber = spellnumber & 63;
-    if ( spellnumber == 0 )
-      spellnumber = 64;
+    if ( spellnumber == 0 ) spellnumber = 64;
 
-    u8 spellslot = spellnumber & 7;
-    if ( spellslot == 0 )
-      spellslot = 8;
+    u8  spellslot = spellnumber & 7;
+    if ( spellslot == 0 ) spellslot = 8;
 
     if ( ( ( bitwise_contents[( spellnumber - 1 ) >> 3] ) & ( 1 << ( spellslot - 1 ) ) ) != 0 )
       return true;
@@ -200,12 +197,10 @@ bool Spellbook::remove_spellid( unsigned int spellid )
 
     // Limits spellnumber to be between 1-64
     spellnumber = spellnumber & 63;
-    if ( spellnumber == 0 )
-      spellnumber = 64;
+    if ( spellnumber == 0 ) spellnumber = 64;
 
-    u8 spellslot = spellnumber & 7;
-    if ( spellslot == 0 )
-      spellslot = 8;
+    u8  spellslot = spellnumber & 7;
+    if ( spellslot == 0 ) spellslot = 8;
     bitwise_contents[( spellnumber - 1 ) >> 3] &= ~( 1 << ( spellslot - 1 ) );
     return true;
   }
@@ -226,12 +221,10 @@ bool Spellbook::add_spellid( unsigned int spellid )
 
     // Limits spellnumber to be between 1-64
     spellnumber = spellnumber & 63;
-    if ( spellnumber == 0 )
-      spellnumber = 64;
+    if ( spellnumber == 0 ) spellnumber = 64;
 
-    u8 spellslot = spellnumber & 7;
-    if ( spellslot == 0 )
-      spellslot = 8;
+    u8  spellslot = spellnumber & 7;
+    if ( spellslot == 0 ) spellslot = 8;
     bitwise_contents[( spellnumber - 1 ) >> 3] |= 1 << ( spellslot - 1 );
     return true;
   }
@@ -251,9 +244,8 @@ bool Spellbook::can_add( const Item& item ) const
 
   // you can only add one of each kind of scroll to a spellbook.
   u16 spellnum = USpellScroll::convert_objtype_to_spellnum( item.objtype_, spell_school );
-  u8 spellslot = spellnum & 7;
-  if ( spellslot == 0 )
-    spellslot = 8;
+  u8  spellslot = spellnum & 7;
+  if ( spellslot == 0 ) spellslot = 8;
   if ( bitwise_contents[( spellnum - 1 ) >> 3] & ( 1 << ( spellslot - 1 ) ) )
     return false;
 
@@ -268,14 +260,13 @@ void Spellbook::add_bulk( int /* item_count_delta */, int /* weight_delta */ )
 
 void Spellbook::add( Item* item )
 {
-  //	UContainer::add(item);
+  //  UContainer::add(item);
   u16 spellnum = USpellScroll::convert_objtype_to_spellnum( item->objtype_, spell_school );
-  u8 spellslot = spellnum & 7;
-  if ( spellslot == 0 )
-    spellslot = 8;
+  u8  spellslot = spellnum & 7;
+  if ( spellslot == 0 ) spellslot = 8;
   bitwise_contents[( spellnum - 1 ) >> 3] |= 1 << ( spellslot - 1 );
   item->destroy();
-  //	item->saveonexit(0);
+  //  item->saveonexit(0);
 }
 
 void Spellbook::printProperties( Clib::StreamWriter& sw ) const
@@ -318,9 +309,8 @@ void Spellbook::calc_current_bitwise_contents()
   {
     const Item* scroll = GET_ITEM_PTR( itr );
     u16 spellnum = USpellScroll::convert_objtype_to_spellnum( scroll->objtype_, spell_school );
-    u8 spellslot = spellnum & 7;
-    if ( spellslot == 0 )
-      spellslot = 8;
+    u8  spellslot = spellnum & 7;
+    if ( spellslot == 0 ) spellslot = 8;
     bitwise_contents[( spellnum - 1 ) >> 3] |= 1 << ( spellslot - 1 );
   }
 
@@ -332,14 +322,14 @@ void Spellbook::calc_current_bitwise_contents()
   }
 }
 
-USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc ) : Item( itemdesc, CLASS_ITEM )
-{
-}
+USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc ) :
+  Item( itemdesc, CLASS_ITEM )
+{}
 
 u16 USpellScroll::convert_objtype_to_spellnum( u32 objtype, u8 school )
 {
   u16 spellnum = static_cast<u16>( objtype - gamestate.spell_scroll_objtype_limits[school][0] + 1 );
-  if ( school == 0 )  // weirdness in order of original spells
+  if ( school == 0 ) //weirdness in order of original spells
   {
     if ( spellnum == 1 )
       spellnum = 7;
@@ -358,14 +348,14 @@ u16 USpellScroll::get_senditem_amount() const
     Spellbook* book = static_cast<Spellbook*>( container );
     return convert_objtype_to_spellnum( objtype_, book->spell_school );
   }
-  else  // not contained, or not in a spellbook
+  else // not contained, or not in a spellbook
   {
     return amount_;
   }
 }
-size_t USpellScroll::estimatedSize() const
+size_t USpellScroll::estimatedSize( ) const
 {
-  return base::estimatedSize();
+  return base::estimatedSize( );
 }
 
 void Spellbook::send_book_old( Network::Client* client )
@@ -388,28 +378,26 @@ void Spellbook::send_book_old( Network::Client* client )
 void send_spellbook_contents( Network::Client* client, Spellbook& spellbook )
 {
   Network::PktHelper::PacketOut<Network::PktOut_3C> msg;
-  msg->offset += 4;  // msglen+count
+  msg->offset += 4; //msglen+count
   u16 count = 0;
   for ( u16 i = 0; i < 64; ++i )
   {
     u32 objtype = gamestate.spell_scroll_objtype_limits[0][0] + i;
     u16 spellnumber = USpellScroll::convert_objtype_to_spellnum( objtype, spellbook.spell_school );
-    u8 spellpos = spellnumber & 7;  // spellpos is the spell's position it it's circle's array.
-    if ( spellpos == 0 )
-      spellpos = 8;
-    if ( ( ( spellbook.bitwise_contents[( ( spellnumber - 1 ) >> 3 )] ) &
-           ( 1 << ( spellpos - 1 ) ) ) != 0 )
+    u8  spellpos = spellnumber & 7; // spellpos is the spell's position it it's circle's array.
+    if ( spellpos == 0 ) spellpos = 8;
+    if ( ( ( spellbook.bitwise_contents[( ( spellnumber - 1 ) >> 3 )] ) & ( 1 << ( spellpos - 1 ) ) ) != 0 )
     {
       msg->Write<u32>( 0x7FFFFFFFu - spellnumber );
       msg->WriteFlipped<u16>( objtype );
-      msg->offset++;  // unk6
-      msg->WriteFlipped<u16>( spellnumber );  // amount
-      msg->WriteFlipped<u16>( 1u );  // x
-      msg->WriteFlipped<u16>( 1u );  // y
+      msg->offset++; //unk6
+      msg->WriteFlipped<u16>( spellnumber ); //amount
+      msg->WriteFlipped<u16>( 1u ); //x
+      msg->WriteFlipped<u16>( 1u ); //y
       if ( client->ClientType & Network::CLIENTTYPE_6017 )
-        msg->Write<u8>( 0u );  // slotindex
+        msg->Write<u8>( 0u ); //slotindex
       msg->Write<u32>( spellbook.serial_ext );
-      msg->WriteFlipped<u16>( 0u );  // color
+      msg->WriteFlipped<u16>( 0u ); //color
       ++count;
     }
   }

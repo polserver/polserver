@@ -20,28 +20,28 @@ class Client;
 
 enum class PacketVersion
 {
-  V1 = 1,  // The default, used by the earlier client versions
-  V2 = 2,  // Used to handle packets which were redefined after 6.0.1.7
+  V1 = 1, // The default, used by the earlier client versions
+  V2 = 2, // Used to handle packets which were redefined after 6.0.1.7
   Default = V1
 };
 
-typedef void ( *PktHandlerFunc )( Client* client, void* msg );
+typedef void(*PktHandlerFunc)(Client* client, void* msg);
 
 typedef struct
 {
-  int msglen;  // if 0, no message handler defined.
+  int msglen; // if 0, no message handler defined.
   PktHandlerFunc func;
 } MSG_HANDLER;
 
 // extended cmds (0x12)
 enum UEXTMSGID
 {
-  EXTMSGID_SKILL = 0x24,       // Form: "SkillId parameter" (SkillId 0-based, param usu. 0)
-  EXTMSGID_CASTSPELL1 = 0x27,  // Form: "SpellId SpellBookSerial"
-  EXTMSGID_SPELLBOOK = 0x43,   // Form: (empty)
-  EXTMSGID_CASTSPELL2 = 0x56,  // Form: "SpellId"
-  EXTMSGID_OPENDOOR = 0x58,    // Form: (empty)
-  EXTMSGID_ACTION = 0xC7       // Form: "action_name"
+  EXTMSGID_SKILL = 0x24,  // Form: "SkillId parameter" (SkillId 0-based, param usu. 0)
+  EXTMSGID_CASTSPELL1 = 0x27, // Form: "SpellId SpellBookSerial"
+  EXTMSGID_SPELLBOOK = 0x43,  // Form: (empty)
+  EXTMSGID_CASTSPELL2 = 0x56, // Form: "SpellId"
+  EXTMSGID_OPENDOOR = 0x58, // Form: (empty)
+  EXTMSGID_ACTION = 0xC7  // Form: "action_name"
 };
 // Extended messages come in the form of a null-terminated string.  The
 // "Extended Message" message handler validates that the string is in
@@ -50,7 +50,7 @@ enum UEXTMSGID
 // only contains printables.
 struct ExtMsgHandler
 {
-  void ( *func )( Client* client, Core::PKTIN_12* msg );
+  void( *func )( Client* client, Core::PKTIN_12* msg );
 };
 
 // Class for keeping the message handlers
@@ -58,46 +58,45 @@ class PacketRegistry
 {
 public:
   // Returns true if the message is defined in either original or v2 packet handlers
-  static bool is_defined( unsigned char msgid );
+  static bool is_defined(unsigned char msgid);
 
   // Returns the message length (or 0 if undefined)
-  static int msglen( unsigned char msgid );
+  static int msglen(unsigned char msgid);
 
   // Returns the message length (or 0 if undefined) for a v2 packet
-  static int msglen_v2( unsigned char msgid );
+  static int msglen_v2(unsigned char msgid);
 
   // Registers a handler for a certain message type
-  static void set_handler( unsigned char msgid, int len, PktHandlerFunc func,
-                           PacketVersion version = PacketVersion::V1 );
+  static void set_handler(unsigned char msgid, int len, PktHandlerFunc func, PacketVersion version = PacketVersion::V1);
 
   // Returns the callback function for the handler of a certain message type
-  static PktHandlerFunc get_callback( unsigned char msgid,
-                                      PacketVersion version = PacketVersion::V1 );
+  static PktHandlerFunc get_callback(unsigned char msgid, PacketVersion version = PacketVersion::V1);
 
   // Finds the appropriate handler for a message type according to client version
-  static MSG_HANDLER find_handler( unsigned char msgid, const Client* client );
+  static MSG_HANDLER find_handler(unsigned char msgid, const Client* client);
 
   // Handles the specific message type by invoking the callback according to client version
-  static void handle_msg( unsigned char msgid, Client* client, void* data );
+  static void handle_msg(unsigned char msgid, Client* client, void* data);
 
   // registers all pkts, called once on startup
   static void initialize_msg_handlers();
 
   // handler for pkt 12 to call sub handlers
   static void handle_extended_cmd( Client* client, Core::PKTIN_12* msg );
-
 private:
   // registers all externed handlers (0x12)
   static void initialize_extended_handlers();
-  static void set_extended_handler( UEXTMSGID submsgtype,
-                                    void ( *func )( Client* client, Core::PKTIN_12* msg ) );
+  static void set_extended_handler(UEXTMSGID submsgtype,
+                                   void( *func )( Client* client, Core::PKTIN_12* msg ));
+
 };
+
 
 
 #define MSGLEN_2BYTELEN_DATA -2
 
 
-}  // namspace Network
+} // namspace Network
 namespace Mobile
 {
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg );

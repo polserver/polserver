@@ -47,9 +47,9 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
         msg->offset += 2;
         msg->Write<u32>( item->serial_ext );
         const char* string = id.tooltip.c_str();
-        while ( *string )  // unicode
-          msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
-        msg->offset += 2;  // nullterm
+        while ( *string ) //unicode
+          msg->Write<u16>( static_cast<u16>(( *string++ ) << 8) );
+        msg->offset += 2; //nullterm
         u16 len = msg->offset;
         msg->offset = 1;
         msg->WriteFlipped<u16>( len );
@@ -59,14 +59,13 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
   }
 }
 
-// needed if A9 flag is sent with 0x20, single click no longer works. see about text# 1042971 for
-// 0xD6
+//needed if A9 flag is sent with 0x20, single click no longer works. see about text# 1042971 for 0xD6
 void send_object_cache( Network::Client* client, const UObject* obj )
 {
   if ( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
   {
-    auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
-    pkt_rev.Send( client );
+    auto pkt_rev = Network::ObjRevisionPkt(obj->serial_ext, obj->rev());
+    pkt_rev.Send(client);
   }
 }
 
@@ -74,15 +73,13 @@ void send_object_cache_to_inrange( const UObject* obj )
 {
   if ( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES )
   {
-    auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
+    auto pkt_rev = Network::ObjRevisionPkt(obj->serial_ext, obj->rev());
 
-    WorldIterator<OnlinePlayerFilter>::InVisualRange( obj->toplevel_owner(),
-                                                      [&]( Mobile::Character* chr )
-                                                      {
-                                                        pkt_rev.Send( chr->client );
-                                                        // FIXME need to check character's
-                                                        // additional_legal_items.
-                                                      } );
+    WorldIterator<OnlinePlayerFilter>::InVisualRange( obj->toplevel_owner(), [&]( Mobile::Character *chr )
+    {
+      pkt_rev.Send(chr->client);
+      // FIXME need to check character's additional_legal_items.
+    } );
   }
 }
 
@@ -110,14 +107,14 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
 
   PacketOut<Network::PktOut_D6> msg;
   msg->offset += 2;
-  msg->WriteFlipped<u16>( 1u );  // u16 unk1
+  msg->WriteFlipped<u16>( 1u ); //u16 unk1
   msg->Write<u32>( obj->serial_ext );
-  msg->offset += 2;  // u8 unk2,unk3
+  msg->offset += 2; // u8 unk2,unk3
   msg->WriteFlipped<u32>( obj->rev() );
   if ( obj->isa( UObject::CLASS_CHARACTER ) )
-    msg->WriteFlipped<u32>( 1050045u );  // 1 text argument only
+    msg->WriteFlipped<u32>( 1050045u );   //1 text argument only
   else
-    msg->WriteFlipped<u32>( 1042971u );  // 1 text argument only
+    msg->WriteFlipped<u32>( 1042971u );   //1 text argument only
 
   u16 textlen = static_cast<u16>( desc.size() );
   if ( ( textlen * 2 ) > ( 0xFFFF - 22 ) )
@@ -127,13 +124,14 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   msg->WriteFlipped<u16>( textlen * 2u );
   const char* string = desc.c_str();
 
-  while ( *string && textlen-- )  // unicode
-    msg->Write<u16>( static_cast<u16>( *string++ ) );
-  msg->offset += 4;  // indicates end of property list
+  while ( *string && textlen-- ) //unicode
+    msg->Write<u16>( static_cast<u16>(*string++) );
+  msg->offset += 4; // indicates end of property list
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
   msg.Send( client, len );
 }
+
 }
 }

@@ -25,11 +25,11 @@ namespace threadhelp
 extern std::atomic<unsigned int> child_threads;
 
 void init_threadhelp();
-void run_thread( void ( *threadf )( void ) );
-void run_thread( void ( *threadf )( void* ), void* arg );
+void run_thread( void( *threadf )( void ) );
+void run_thread( void( *threadf )( void*), void* arg );
 
-void start_thread( void ( *entry )( void* ), const char* thread_name, void* arg );
-void start_thread( void ( *entry )( void ), const char* thread_name );
+void start_thread( void( *entry )( void*), const char* thread_name, void* arg );
+void start_thread( void( *entry )( void ), const char* thread_name );
 
 void thread_sleep_ms( unsigned milliseconds );
 size_t thread_pid();
@@ -47,7 +47,6 @@ public:
   void CopyContents( Contents& out ) const;
 
   ThreadMap();
-
 private:
   mutable Clib::SpinLock _spinlock;
   Contents _contents;
@@ -63,23 +62,22 @@ void SetThreadName( int dwThreadID, std::string threadName );
 class ThreadRegister
 {
 public:
-  ThreadRegister( const std::string& name );
+  ThreadRegister(const std::string& name);
   ~ThreadRegister();
 };
+
 
 
 class TaskThreadPool : boost::noncopyable
 {
   typedef std::function<void()> msg;
   typedef Clib::message_queue<msg> msg_queue;
-
 public:
   TaskThreadPool( const std::string& name );
   TaskThreadPool( unsigned int max_count, const std::string& name );
   ~TaskThreadPool();
   void push( msg msg );
   std::future<bool> checked_push( msg msg );
-
 private:
   void init( unsigned int max_count, const std::string& name );
   bool _done;
@@ -93,17 +91,14 @@ class DynTaskThreadPool : boost::noncopyable
   friend class PoolWorker;
   typedef std::function<void()> msg;
   typedef Clib::message_queue<msg> msg_queue;
-
 public:
   DynTaskThreadPool( const std::string& name );
   ~DynTaskThreadPool();
   void push( msg msg );
   std::future<bool> checked_push( msg msg );
   size_t threadpoolsize() const;
-
 protected:
   bool _done;
-
 private:
   void create_thread();
   msg_queue _msg_queue;
@@ -113,6 +108,6 @@ private:
 };
 
 
-}  // namespace threadhelp
+} // namespace threadhelp
 }
-#endif  // CLIB_THREADHELP_H
+#endif //CLIB_THREADHELP_H

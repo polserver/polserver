@@ -37,20 +37,18 @@ unsigned int UserFunction::instances()
 {
   return _instances;
 }
-UserFunction::UserFunction()
-    : name( "" ),
-      parameters(),
-      position( 0 ),
-      forward_callers(),
-      ctx(),
-      function_body( NULL ),
-      exported( false ),
-      emitted( false )
-{
-}
+UserFunction::UserFunction() :
+  name( "" ),
+  parameters(),
+  position( 0 ),
+  forward_callers(),
+  ctx(),
+  function_body( NULL ),
+  exported( false ),
+  emitted( false )
+{}
 
 UserFunction::~UserFunction()
-{
-}
+{}
 }
 }

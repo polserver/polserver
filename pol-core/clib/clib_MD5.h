@@ -18,4 +18,4 @@ bool MD5_Compare( const std::string& a, const std::string& b );
 void MD5_Cleanup();
 }
 }
-#endif  // CLIB_MD5_H
+#endif //CLIB_MD5_H

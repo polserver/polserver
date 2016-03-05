@@ -35,6 +35,7 @@ public:
 
 
 private:
+
 #ifdef _WIN32
   WIN32_FIND_DATA fd_;
   HANDLE hfd_;
@@ -44,9 +45,9 @@ private:
 #endif
 
 
-private:  // not implemented
-  DirList( const DirList& );
-  DirList& operator=( const DirList& );
+private: // not implemented
+  DirList( const DirList&);
+  DirList& operator=( const DirList&);
 };
 
 std::string normalized_dir_form( const std::string& str );
@@ -65,7 +66,7 @@ private:
 #ifdef MAX_PATH
   char savedir_[MAX_PATH];
 #else
-  char savedir_[256];
+  char savedir_[ 256 ];
 #endif
 };
 }

@@ -22,20 +22,20 @@ namespace Pol
 {
 namespace Items
 {
-Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class )
-    : UObject( id.objtype, uobj_class ),
-      container( NULL ),
-      decayat_gameclock_( 0 ),
-      amount_( 1 ),
-      newbie_( id.newbie ),
-      insured_( id.insured ),
-      movable_( id.default_movable() ),
-      inuse_( false ),
-      invisible_( id.invisible ),
-      slot_index_( 0 ),
-      _itemdesc( nullptr ),
-      layer( 0 ),
-      hp_( id.maxhp )
+Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class ) :
+  UObject( id.objtype, uobj_class ),
+  container( NULL ),
+  decayat_gameclock_( 0 ),
+  amount_( 1 ),
+  newbie_( id.newbie ),
+  insured_( id.insured ),
+  movable_( id.default_movable() ),
+  inuse_( false ),
+  invisible_( id.invisible ),
+  slot_index_( 0 ),
+  _itemdesc( nullptr ),
+  layer( 0 ),
+  hp_( id.maxhp )
 {
   graphic = id.graphic;
   color = id.color;
@@ -46,7 +46,7 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class )
   ++Core::stateManager.uobjcount.uitem_count;
 
   // hmm, doesn't quite work right with items created on startup..
-  decayat_gameclock_ = Core::read_gameclock() + id.decay_time * 60;
+  decayat_gameclock_ = Core::read_gameclock( ) + id.decay_time * 60;
 }
 
 Item::~Item()
@@ -57,22 +57,23 @@ Item::~Item()
 
 size_t Item::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( Core::UContainer* ) /* container*/
-         + sizeof( int )                                     /* decayat_gameclock_*/
-         + sizeof( u16 )                                     /* amount_*/
-         + sizeof( bool )                                    /* newbie_*/
-         + sizeof( bool )                                    /* insured */
-         + sizeof( bool )                                    /* movable_*/
-         + sizeof( bool )                                    /* inuse_*/
-         + sizeof( bool )                                    /* invisible_*/
-         + sizeof( u8 )                                      /* slot_index_*/
-         + sizeof( const ItemDesc* )                         /* _itemdesc*/
-         + sizeof( u8 )                                      /* layer*/
-         + sizeof( u8 )                                      /* tile_layer*/
-         + sizeof( unsigned short )                          /* hp_*/
-         + sizeof( boost_utils::script_name_flystring )      /*on_use_script_*/
-         + sizeof( boost_utils::script_name_flystring )      /*equip_script_*/
-         + sizeof( boost_utils::script_name_flystring );     /*unequip_script_*/
+  return base::estimatedSize()
+         + sizeof( Core::UContainer*) /* container*/
+         + sizeof(int)/* decayat_gameclock_*/
+         +sizeof(u16)/* amount_*/
+         +sizeof(bool)/* newbie_*/
+         +sizeof(bool)/* insured */
+         +sizeof(bool)/* movable_*/
+         +sizeof(bool)/* inuse_*/
+         +sizeof(bool)/* invisible_*/
+         +sizeof(u8)/* slot_index_*/
+         +sizeof(const ItemDesc*) /* _itemdesc*/
+         +sizeof(u8)/* layer*/
+         +sizeof(u8)/* tile_layer*/
+         +sizeof(unsigned short)/* hp_*/
+         +sizeof( boost_utils::script_name_flystring ) /*on_use_script_*/
+         +sizeof( boost_utils::script_name_flystring ) /*equip_script_*/
+         +sizeof( boost_utils::script_name_flystring ); /*unequip_script_*/
 }
 }
 }

@@ -18,6 +18,7 @@ namespace Pol
 {
 namespace Bscript
 {
+
 unsigned int Token::_instances = 0;
 
 #if STORE_INSTANCELIST
@@ -31,11 +32,10 @@ unsigned int Token::instances()
 void Token::show_instances()
 {
 #if STORE_INSTANCELIST
-  for ( Instances::iterator itr = _instancelist.begin(), end = _instancelist.end(); itr != end;
-        ++itr )
+  for( Instances::iterator itr = _instancelist.begin(), end = _instancelist.end(); itr != end; ++itr )
   {
-    Token* tkn = ( *itr );
-    cout << tkn << ": " << ( *tkn ) << endl;
+    Token* tkn = (*itr);
+    cout << tkn << ": " << (*tkn) << endl;
   }
 #endif
 }
@@ -50,11 +50,11 @@ void Token::register_instance()
 
 void Token::unregister_instance()
 {
-#if defined( _DEBUG ) && defined( _DBG_TRYING_TO_FIND_WIN32_SHUTDOWN_ASSERTION )
-  if ( exit_signalled )
+#if defined(_DEBUG) && defined(_DBG_TRYING_TO_FIND_WIN32_SHUTDOWN_ASSERTION)
+  if (exit_signalled)
   {
-    cout << "TOK/unreginst: " << ( token ? token : "<unknown>" ) << endl;
-    printOn( cout );
+    cout << "TOK/unreginst: " << (token?token:"<unknown>") << endl;
+    printOn(cout);
     cout << "----" << endl;
   }
 #endif
@@ -67,19 +67,19 @@ void Token::unregister_instance()
 /**
  * Initializes an empty token
  */
-Token::Token()
-    : id( TOK_TERM ),
-      type( TYP_TERMINATOR ),
-      dval( 0.0 ),
-      precedence( -1 ),
-      dbg_filenum( 0 ),
-      dbg_linenum( 0 ),
-      lval( 0 ),
-      userfunc( NULL ),
-      deprecated( false ),
-      ownsStr( false ),
-      module( Mod_Basic ),
-      token( NULL )
+Token::Token() :
+  id( TOK_TERM ),
+  type( TYP_TERMINATOR ),
+  dval( 0.0 ),
+  precedence( -1 ),
+  dbg_filenum( 0 ),
+  dbg_linenum( 0 ),
+  lval( 0 ),
+  userfunc( NULL ),
+  deprecated( false ),
+  ownsStr( false ),
+  module( Mod_Basic ),
+  token( NULL )
 {
   register_instance();
 }
@@ -87,19 +87,19 @@ Token::Token()
 /**
  * Initializes a token copying data from a given one
  */
-Token::Token( const Token& tok )
-    : id( tok.id ),
-      type( tok.type ),
-      dval( tok.dval ),
-      precedence( tok.precedence ),
-      dbg_filenum( tok.dbg_filenum ),
-      dbg_linenum( tok.dbg_linenum ),
-      lval( tok.lval ),
-      userfunc( tok.userfunc ),
-      deprecated( tok.deprecated ),
-      ownsStr( false ),
-      module( tok.module ),
-      token( NULL )
+Token::Token( const Token& tok ) :
+  id( tok.id ),
+  type( tok.type ),
+  dval( tok.dval ),
+  precedence( tok.precedence ),
+  dbg_filenum( tok.dbg_filenum ),
+  dbg_linenum( tok.dbg_linenum ),
+  lval( tok.lval ),
+  userfunc( tok.userfunc ),
+  deprecated( tok.deprecated ),
+  ownsStr( false ),
+  module( tok.module ),
+  token( NULL )
 {
   register_instance();
   if ( tok.token )
@@ -142,53 +142,59 @@ Token& Token::operator=( const Token& tok )
   return *this;
 }
 
-Token::Token( ModuleID i_module, BTokenId i_id, BTokenType i_type )
-    : id( i_id ),
-      type( i_type ),
-      dval( 0.0 ),
-      precedence( -1 ),
-      dbg_filenum( 0 ),
-      dbg_linenum( 0 ),
-      lval( 0 ),
-      userfunc( NULL ),
-      deprecated( false ),
-      ownsStr( false ),
-      module( static_cast<unsigned char>( i_module ) ),
-      token( NULL )
+Token::Token( ModuleID i_module,
+              BTokenId i_id,
+              BTokenType i_type ) :
+  id( i_id ),
+  type( i_type ),
+  dval( 0.0 ),
+  precedence( -1 ),
+  dbg_filenum( 0 ),
+  dbg_linenum( 0 ),
+  lval( 0 ),
+  userfunc( NULL ),
+  deprecated( false ),
+  ownsStr( false ),
+  module( static_cast<unsigned char>( i_module ) ),
+  token( NULL )
 {
   register_instance();
 }
 
-Token::Token( BTokenId i_id, BTokenType i_type )
-    : id( i_id ),
-      type( i_type ),
-      dval( 0.0 ),
-      precedence( -1 ),
-      dbg_filenum( 0 ),
-      dbg_linenum( 0 ),
-      lval( 0 ),
-      userfunc( NULL ),
-      deprecated( false ),
-      ownsStr( false ),
-      module( Mod_Basic ),
-      token( NULL )
+Token::Token( BTokenId i_id,
+              BTokenType i_type ) :
+  id( i_id ),
+  type( i_type ),
+  dval( 0.0 ),
+  precedence( -1 ),
+  dbg_filenum( 0 ),
+  dbg_linenum( 0 ),
+  lval( 0 ),
+  userfunc( NULL ),
+  deprecated( false ),
+  ownsStr( false ),
+  module( Mod_Basic ),
+  token( NULL )
 {
   register_instance();
 }
 
-Token::Token( ModuleID i_module, BTokenId i_id, BTokenType i_type, UserFunction* i_userfunc )
-    : id( i_id ),
-      type( i_type ),
-      dval( 0.0 ),
-      precedence( -1 ),
-      dbg_filenum( 0 ),
-      dbg_linenum( 0 ),
-      lval( 0 ),
-      userfunc( i_userfunc ),
-      deprecated( false ),
-      ownsStr( false ),
-      module( static_cast<unsigned char>( i_module ) ),
-      token( NULL )
+Token::Token( ModuleID i_module,
+              BTokenId i_id,
+              BTokenType i_type,
+              UserFunction* i_userfunc ) :
+  id( i_id ),
+  type( i_type ),
+  dval( 0.0 ),
+  precedence( -1 ),
+  dbg_filenum( 0 ),
+  dbg_linenum( 0 ),
+  lval( 0 ),
+  userfunc( i_userfunc ),
+  deprecated( false ),
+  ownsStr( false ),
+  module( static_cast<unsigned char>( i_module ) ),
+  token( NULL )
 {
   register_instance();
 }

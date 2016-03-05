@@ -2,7 +2,7 @@
 
 #define __DIRFUNC_H
 
-#if defined( WINDOWS )
+#if defined(WINDOWS)
 #include <stdlib.h>
 #include "Header_Windows.h"
 #else
@@ -12,9 +12,10 @@ namespace Pol
 {
 namespace Clib
 {
-#define MAXFULLDIR ( MAXDRIVE + MAXDIR - 1 )
 
-#define MAXFNAME ( MAXFILE + MAXEXT - 1 )
+#define MAXFULLDIR (MAXDRIVE+MAXDIR-1)
+
+#define MAXFNAME (MAXFILE+MAXEXT-1)
 
 typedef char Directory[MAXFULLDIR];
 typedef char File1[MAXFILE];
@@ -56,6 +57,8 @@ int moveFile( const char* src, const char* dst );
 int moveFileNoRep( const char* src, const char* dst );
 
 int chddir( const char* directory );
+
+
 }
 }
 #endif

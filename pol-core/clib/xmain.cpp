@@ -1,18 +1,17 @@
 /** @file
  *
  * @par History
- * - 2009/07/20 MuadDib: Removed calls and use of StackWalker for leak detection. vld is now used,
- * much better.
+ * - 2009/07/20 MuadDib: Removed calls and use of StackWalker for leak detection. vld is now used, much better.
  *                       Removed StackWalker.cpp/.h from the vcproj files also.
  */
 
 
-#if defined( WINDOWS )
+#if defined(WINDOWS)
 #include "Header_Windows.h"
-#pragma comment( lib, "psapi.lib" )  // 32bit is a bit dumb..
+#pragma comment(lib, "psapi.lib") // 32bit is a bit dumb..
 #else
-#include <unistd.h>
-#include <sys/resource.h>
+#   include <unistd.h>
+#   include <sys/resource.h>
 #endif
 #include <stdexcept>
 
@@ -21,24 +20,24 @@ namespace Pol
 {
 namespace Clib
 {
-// TODO: create a system.cpp/h and put the following function with some other features in a separate
-// static class "system"
-size_t getCurrentMemoryUsage()
+
+//TODO: create a system.cpp/h and put the following function with some other features in a separate static class "system"
+size_t getCurrentMemoryUsage( )
 {
-#if defined( _WIN32 )
+#if defined(_WIN32)
   PROCESS_MEMORY_COUNTERS info;
-  GetProcessMemoryInfo( GetCurrentProcess(), &info, sizeof( info ) );
+  GetProcessMemoryInfo( GetCurrentProcess( ), &info, sizeof( info ) );
   return (size_t)info.WorkingSetSize;
 
 #else
   long rss = 0L;
   FILE* fp = NULL;
   if ( ( fp = fopen( "/proc/self/statm", "r" ) ) == NULL )
-    return (size_t)0L; /* Can't open? */
+    return (size_t)0L;    /* Can't open? */
   if ( fscanf( fp, "%*s%ld", &rss ) != 1 )
   {
     fclose( fp );
-    return (size_t)0L; /* Can't read? */
+    return (size_t)0L;    /* Can't read? */
   }
   fclose( fp );
   return (size_t)rss * (size_t)sysconf( _SC_PAGESIZE );

@@ -1,10 +1,10 @@
 /** @file
  *
  * @par History
- * - 2006/09/27 Shinigami: GCC 3.4.x fix - added "#include "charactr.h" because of
- * ForEachMobileInVisualRange
+ * - 2006/09/27 Shinigami: GCC 3.4.x fix - added "#include "charactr.h" because of ForEachMobileInVisualRange
  * - 2009/10/17 Turley:    added ForEachItemInRange & ForEachItemInVisualRange
  */
+
 
 
 #ifndef UWORLD_H
@@ -45,24 +45,26 @@ class Item;
 }
 namespace Core
 {
+
 void add_item_to_world( Items::Item* item );
 void remove_item_from_world( Items::Item* item );
 
 void add_multi_to_world( Multi::UMulti* multi );
 void remove_multi_from_world( Multi::UMulti* multi );
-void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                          unsigned short newy, Multi::UMulti* multi, Realms::Realm* oldrealm );
+void move_multi_in_world( unsigned short oldx, unsigned short oldy,
+                          unsigned short newx, unsigned short newy,
+                          Multi::UMulti* multi, Realms::Realm* oldrealm );
 
-void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
-void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
-void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                                 unsigned short newy, Mobile::Character* chr,
-                                 Realms::Realm* oldrealm );
+void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason);
+void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason);
+void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy,
+                                 unsigned short newx, unsigned short newy,
+                                 Mobile::Character* chr, Realms::Realm* oldrealm );
 
 void SetItemWorldPosition( Items::Item* item );
 void ClrItemWorldPosition( Items::Item* item );
-void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Item* item,
-                            Realms::Realm* oldrealm );
+void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy,
+                            Items::Item* item, Realms::Realm* oldrealm );
 
 int get_toplevel_item_count();
 int get_mobile_count();
@@ -81,18 +83,16 @@ struct Zone
   ZoneMultis multis;
 };
 
-inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx,
-                          unsigned short* wy, const Realms::Realm* realm )
+inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx, unsigned short* wy, const Realms::Realm* realm )
 {
   passert( x < realm->width() );
   passert( y < realm->height() );
 
-  ( *wx ) = x >> Plib::WGRID_SHIFT;
-  ( *wy ) = y >> Plib::WGRID_SHIFT;
+  (*wx) = x >> Plib::WGRID_SHIFT;
+  (*wy) = y >> Plib::WGRID_SHIFT;
 }
 
-inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigned short* wx,
-                               unsigned short* wy )
+inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigned short* wx, unsigned short* wy )
 {
   if ( x < 0 )
     x = 0;
@@ -103,8 +103,8 @@ inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigne
   if ( (unsigned)y >= realm->height() )
     y = realm->height() - 1;
 
-  ( *wx ) = static_cast<unsigned short>( x >> Plib::WGRID_SHIFT );
-  ( *wy ) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
+  (*wx) = static_cast<unsigned short>( x >> Plib::WGRID_SHIFT );
+  (*wy) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
 }
 
 inline Zone& getzone( unsigned short x, unsigned short y, Realms::Realm* realm )
@@ -136,7 +136,6 @@ struct WorldIterator
   static void InVisualRange( const UObject* obj, F&& f );
   template <typename F>
   static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm, F&& f );
-
 protected:
   template <typename F>
   static void _forEach( const CoordsArea& coords, const Realms::Realm* realm, F&& f );
@@ -144,12 +143,12 @@ protected:
 
 enum class FilterType
 {
-  Mobile,        // iterator over npcs and players
-  Player,        // iterator over player
-  OnlinePlayer,  // iterator over online player
-  NPC,           // iterator over npcs
-  Item,          // iterator over items
-  Multi          // iterator over multis
+  Mobile,   // iterator over npcs and players
+  Player,   // iterator over player
+  OnlinePlayer, // iterator over online player
+  NPC,      // iterator over npcs
+  Item,     // iterator over items
+  Multi     // iterator over multis
 };
 
 // Filter implementation struct,
@@ -158,19 +157,18 @@ template <FilterType T>
 struct FilterImp
 {
   friend struct WorldIterator<FilterImp<T>>;
-
 protected:
   template <typename F>
   static void call( Core::Zone& zone, const CoordsArea& coords, F&& f );
 };
 
 // shortcuts for filtering
-typedef FilterImp<FilterType::Mobile> MobileFilter;
-typedef FilterImp<FilterType::Player> PlayerFilter;
-typedef FilterImp<FilterType::OnlinePlayer> OnlinePlayerFilter;
-typedef FilterImp<FilterType::NPC> NPCFilter;
-typedef FilterImp<FilterType::Item> ItemFilter;
-typedef FilterImp<FilterType::Multi> MultiFilter;
+typedef FilterImp < FilterType::Mobile >    MobileFilter;
+typedef FilterImp < FilterType::Player >    PlayerFilter;
+typedef FilterImp < FilterType::OnlinePlayer >  OnlinePlayerFilter;
+typedef FilterImp < FilterType::NPC >     NPCFilter;
+typedef FilterImp < FilterType::Item >      ItemFilter;
+typedef FilterImp < FilterType::Multi >     MultiFilter;
 
 namespace
 {
@@ -178,8 +176,8 @@ namespace
 struct CoordsArea
 {
   // structure to hold the world and shifted coords
-  CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range );    // create from range
-  CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm );  // create from box
+  CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range); // create from range
+  CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm ); // create from box
   bool inRange( const UObject* obj ) const;
 
   // shifted coords
@@ -224,9 +222,10 @@ CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* rea
   _yH = y2;
 }
 
-bool CoordsArea::inRange( const UObject* obj ) const
+bool CoordsArea::inRange( const UObject* obj) const
 {
-  return ( obj->x >= _xL && obj->x <= _xH && obj->y >= _yL && obj->y <= _yH );
+  return ( obj->x >= _xL && obj->x <= _xH &&
+           obj->y >= _yL && obj->y <= _yH );
 }
 
 void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )
@@ -236,29 +235,26 @@ void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* r
   passert( wxL <= wxH );
   passert( wyL <= wyH );
 }
-}  // namespace
+} // namespace
 
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range,
-                                     F&& f )
+void WorldIterator<Filter>::InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range, F&& f )
 {
   if ( realm == nullptr )
     return;
-  CoordsArea coords( x, y, realm, range );
+  CoordsArea coords(x, y, realm, range);
   _forEach( coords, realm, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
-  InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm,
-           RANGE_VISUAL, std::forward<F>( f ) );
+  InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm, RANGE_VISUAL, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm,
-                                   F&& f )
+void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm, F&& f )
 {
   if ( realm == nullptr )
     return;
@@ -268,7 +264,8 @@ void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms:
 
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::_forEach( const CoordsArea& coords, const Realms::Realm* realm, F&& f )
+void WorldIterator<Filter>::_forEach( const CoordsArea& coords,
+                                      const Realms::Realm* realm, F&& f )
 {
   for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
   {
@@ -281,7 +278,7 @@ void WorldIterator<Filter>::_forEach( const CoordsArea& coords, const Realms::Re
 
 // specializations of FilterImp
 
-template <>
+template<>
 template <typename F>
 void FilterImp<FilterType::Mobile>::call( Core::Zone& zone, const CoordsArea& coords, F&& f )
 {
@@ -297,7 +294,7 @@ void FilterImp<FilterType::Mobile>::call( Core::Zone& zone, const CoordsArea& co
   }
 }
 
-template <>
+template<>
 template <typename F>
 void FilterImp<FilterType::Player>::call( Core::Zone& zone, const CoordsArea& coords, F&& f )
 {
@@ -308,7 +305,7 @@ void FilterImp<FilterType::Player>::call( Core::Zone& zone, const CoordsArea& co
   }
 }
 
-template <>
+template<>
 template <typename F>
 void FilterImp<FilterType::OnlinePlayer>::call( Core::Zone& zone, const CoordsArea& coords, F&& f )
 {
@@ -322,7 +319,7 @@ void FilterImp<FilterType::OnlinePlayer>::call( Core::Zone& zone, const CoordsAr
   }
 }
 
-template <>
+template<>
 template <typename F>
 void FilterImp<FilterType::NPC>::call( Core::Zone& zone, const CoordsArea& coords, F&& f )
 {
@@ -333,7 +330,7 @@ void FilterImp<FilterType::NPC>::call( Core::Zone& zone, const CoordsArea& coord
   }
 }
 
-template <>
+template<>
 template <typename F>
 void FilterImp<FilterType::Item>::call( Core::Zone& zone, const CoordsArea& coords, F&& f )
 {
@@ -344,7 +341,7 @@ void FilterImp<FilterType::Item>::call( Core::Zone& zone, const CoordsArea& coor
   }
 }
 
-template <>
+template<>
 template <typename F>
 void FilterImp<FilterType::Multi>::call( Core::Zone& zone, const CoordsArea& coords, F&& f )
 {

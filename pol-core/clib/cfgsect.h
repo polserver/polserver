@@ -23,10 +23,12 @@ const unsigned CST_UNIQUE = 2;
 class ConfigSection
 {
 public:
-  ConfigSection( ConfigFile& cf, const std::string& sectname,
-                 unsigned flags = CST_MANDATORY | CST_UNIQUE );
+  ConfigSection( ConfigFile& cf, const std::string& sectname, unsigned flags = CST_MANDATORY | CST_UNIQUE );
   ~ConfigSection();
-  ConfigSection& operator=( const ConfigSection& ) { return *this; }
+  ConfigSection& operator=( const ConfigSection&)
+  {
+    return *this;
+  }
   bool matches( const ConfigElem& elem );
 
 private:

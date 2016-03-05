@@ -34,11 +34,11 @@ bool StringSet::empty() const
 
 void StringSet::readfrom( const std::string& str )
 {
-  if ( !str.empty() )
+  if( !str.empty() )
   {
     std::string temp;
     ISTRINGSTREAM is( str );
-    while ( is >> temp )
+    while( is >> temp )
     {
       strings_.insert( temp );
     }
@@ -48,7 +48,7 @@ void StringSet::readfrom( const std::string& str )
 std::string StringSet::extract() const
 {
   std::string temp;
-  for ( const auto& elem : strings_ )
+  for( const auto& elem : strings_ )
   {
     temp += elem;
     temp += " ";
@@ -78,10 +78,11 @@ StringSet::const_iterator StringSet::end() const
 
 size_t StringSet::estimatedSize() const
 {
-  size_t size = sizeof( StringSet ) + 3 * sizeof( void* );
+  size_t size = sizeof( StringSet )
+                +3 * sizeof( void*);
   for ( const auto& str : strings_ )
   {
-    size += str.capacity() + 3 * sizeof( void* );
+    size += str.capacity() + 3 * sizeof( void*);
   }
   return size;
 }

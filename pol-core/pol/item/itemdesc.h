@@ -28,6 +28,7 @@ class ResourceDef;
 }
 namespace Items
 {
+
 struct ResourceComponent
 {
   Core::ResourceDef* rd;
@@ -71,7 +72,7 @@ public:
   u32 objtype;
   u16 graphic;
   u16 color;
-  // u16 weight;
+  //u16 weight;
   u8 facing;
   int weightmult;
   int weightdiv;
@@ -89,15 +90,10 @@ public:
   unsigned int vendor_sells_for;
   unsigned int vendor_buys_for;
   unsigned decay_time;
-  enum Movable : u8
-  {
-    UNMOVABLE,
-    MOVABLE,
-    DEFAULT
-  } movable;
+  enum Movable : u8 { UNMOVABLE, MOVABLE, DEFAULT } movable;
   unsigned short doubleclick_range;
-  bool use_requires_los;  // DAVE 11/24
-  bool ghosts_can_use;    // DAVE 11/24
+  bool use_requires_los; //DAVE 11/24
+  bool ghosts_can_use; //DAVE 11/24
   bool can_use_while_paralyzed;
   bool can_use_while_frozen;
   bool newbie;
@@ -119,7 +115,7 @@ public:
   std::vector<ResourceComponent> resources;
 
   Core::PropertyList props;
-  std::set<std::string> ignore_cprops;  // dave added 1/26/3
+  std::set<std::string> ignore_cprops;  //dave added 1/26/3
 
   Core::ExportScript* method_script;
 
@@ -131,12 +127,11 @@ public:
 class ContainerDesc : public ItemDesc
 {
   typedef ItemDesc base;
-
 public:
   ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~ContainerDesc(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual ~ContainerDesc() {};
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
   // string name;
   // u16 objtype;
@@ -158,12 +153,11 @@ public:
 class DoorDesc : public ItemDesc
 {
   typedef ItemDesc base;
-
 public:
   DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~DoorDesc(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual ~DoorDesc( ) {};
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
   s16 xmod;
   s16 ymod;
   u16 open_graphic;
@@ -172,12 +166,11 @@ public:
 class SpellbookDesc : public ContainerDesc
 {
   typedef ContainerDesc base;
-
 public:
   SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~SpellbookDesc(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual ~SpellbookDesc( ) {};
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
   std::string spelltype;
 };
@@ -185,12 +178,11 @@ public:
 class SpellScrollDesc : public ItemDesc
 {
   typedef ItemDesc base;
-
 public:
   SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~SpellScrollDesc(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual ~SpellScrollDesc() {};
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
   std::string spelltype;
 };
@@ -198,44 +190,40 @@ public:
 class MultiDesc : public ItemDesc
 {
   typedef ItemDesc base;
-
 public:
   MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~MultiDesc(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual ~MultiDesc() {};
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 };
 
 class BoatDesc : public MultiDesc
 {
   typedef MultiDesc base;
-
 public:
   BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~BoatDesc(){};
+  virtual ~BoatDesc() {};
   virtual size_t estimatedSize() const POL_OVERRIDE;
 };
 
 class HouseDesc : public MultiDesc
 {
   typedef MultiDesc base;
-
 public:
   HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~HouseDesc(){};
+  virtual ~HouseDesc() {};
   virtual size_t estimatedSize() const POL_OVERRIDE;
 };
 
 class MapDesc : public ItemDesc
 {
   typedef ItemDesc base;
-
 public:
   MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual ~MapDesc(){};
+  virtual ~MapDesc( ) {};
   virtual size_t estimatedSize() const POL_OVERRIDE;
   bool editable;
 };

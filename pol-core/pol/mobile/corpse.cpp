@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2009/08/07 MuadDib:   Added layer_list_ and functions like WornItems to corpse class. Used to
- * handle showing equippable items
+ * - 2009/08/07 MuadDib:   Added layer_list_ and functions like WornItems to corpse class. Used to handle showing equippable items
  *                         on a corpse.
  */
 
@@ -20,40 +19,45 @@ namespace Pol
 {
 namespace Core
 {
-UCorpse::UCorpse( const Items::ContainerDesc& descriptor )
-    : UContainer( descriptor ), corpsetype( 0 ), take_contents_to_grave( false ), ownerserial( 0 )
+UCorpse::UCorpse( const Items::ContainerDesc& descriptor ) :
+  UContainer( descriptor ),
+  corpsetype( 0 ),
+  take_contents_to_grave( false ),
+  ownerserial(0)
 {
   movable_ = false;
   layer_list_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
 }
 
-void UCorpse::add( Item* item )
+void UCorpse::add(Item* item)
 {
+
   // When an item is added, check if it's equippable and add to the appropriate layer
-  if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == EMPTY_ELEM )
+  if (Items::valid_equip_layer(item) && GetItemOnLayer(item->tile_layer) == EMPTY_ELEM)
   {
-    PutItemOnLayer( item );
+    PutItemOnLayer(item);
   }
 
   // plus the defaults from UContainer
-  base::add( item );
+  base::add(item);
 }
 
-void UCorpse::remove( iterator itr )
+void UCorpse::remove(iterator itr)
 {
-  Item* item = GET_ITEM_PTR( itr );
+  Item* item = GET_ITEM_PTR(itr);
 
-  if ( Items::valid_equip_layer( item ) )
+  if (Items::valid_equip_layer(item))
   {
-    Item* item_on_layer = GetItemOnLayer( item->tile_layer );
+    Item* item_on_layer = GetItemOnLayer(item->tile_layer);
 
-    if ( item_on_layer != EMPTY_ELEM && item_on_layer->serial == item->serial )
+    if (item_on_layer != EMPTY_ELEM && item_on_layer->serial == item->serial)
     {
-      RemoveItemFromLayer( item );
+      RemoveItemFromLayer(item);
     }
   }
-  base::remove( itr );
+  base::remove(itr);
 }
+
 
 
 u16 UCorpse::get_senditem_amount() const
@@ -70,15 +74,15 @@ void UCorpse::spill_contents( Multi::UMulti* multi )
     for ( iterator itr = begin(); itr != end(); ++itr )
     {
       Item* item = GET_ITEM_PTR( itr );
-      if ( item->tile_layer == LAYER_HAIR || item->tile_layer == LAYER_BEARD ||
-           item->tile_layer == LAYER_FACE || item->movable() == false )
+      if ( item->tile_layer == LAYER_HAIR || item->tile_layer == LAYER_BEARD || item->tile_layer == LAYER_FACE || item->movable() == false )
       {
         Core::destroy_item( item );
         any = true;
-        break;  // our iterators are now useless, so start over
+        break; // our iterators are now useless, so start over
       }
     }
-  } while ( any );
+  }
+  while ( any );
 
   if ( !take_contents_to_grave )
     base::spill_contents( multi );
@@ -86,8 +90,7 @@ void UCorpse::spill_contents( Multi::UMulti* multi )
 
 void UCorpse::PutItemOnLayer( Item* item )
 {
-  passert( Items::valid_equip_layer(
-      item ) );  // Calling code must make sure that item->tile_layer is valid!
+  passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
   set_dirty();
@@ -98,8 +101,7 @@ void UCorpse::PutItemOnLayer( Item* item )
 
 void UCorpse::RemoveItemFromLayer( Item* item )
 {
-  passert( Items::valid_equip_layer(
-      item ) );  // Calling code must make sure that item->tile_layer is valid!
+  passert(Items::valid_equip_layer(item)); // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
   set_dirty();
@@ -130,31 +132,33 @@ void UCorpse::readProperties( Clib::ConfigElem& elem )
   movable_ = false;
 }
 
-size_t UCorpse::estimatedSize() const
+size_t UCorpse::estimatedSize( ) const
 {
-  size_t size = base::estimatedSize() + sizeof( u16 ) /*corpsetype*/
-                + sizeof( bool )                      /*take_contents_to_grave*/
-                + sizeof( u32 )                       /*ownerserial*/
+  size_t size = base::estimatedSize( )
+                + sizeof(u16)/*corpsetype*/
+                +sizeof(bool)/*take_contents_to_grave*/
+                +sizeof(u32)/*ownerserial*/
                 // no estimateSize here element is in objhash
-                + 3 * sizeof( Items::Item** ) + layer_list_.capacity() * sizeof( Items::Item* );
+                +3 * sizeof( Items::Item**) + layer_list_.capacity( ) * sizeof( Items::Item*);
   return size;
 }
 
-void UCorpse::on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item )
+void UCorpse::on_insert_add_item(Mobile::Character* mob, MoveType move, Items::Item* new_item)
 {
-  // If we are a corpse and the item has a valid_equip_layer, we equipped it and need to send an
-  // update
-  if ( Items::valid_equip_layer( new_item ) )
+  // If we are a corpse and the item has a valid_equip_layer, we equipped it and need to send an update
+  if (Items::valid_equip_layer(new_item))
   {
-    UCorpse* corpse = static_cast<UCorpse*>( this );
-    Item* item_on_layer = corpse->GetItemOnLayer( new_item->tile_layer );
-    if ( item_on_layer != NULL && item_on_layer->serial == new_item->serial )
+    UCorpse* corpse = static_cast<UCorpse*>(this);
+    Item* item_on_layer = corpse->GetItemOnLayer(new_item->tile_layer);
+    if (item_on_layer != NULL && item_on_layer->serial == new_item->serial)
     {
-      send_corpse_equip_inrange( corpse );
+      send_corpse_equip_inrange(corpse);
     }
   }
 
-  base::on_insert_add_item( mob, move, new_item );
+  base::on_insert_add_item(mob, move, new_item);
+}
+
 }
 }
-}
+

@@ -14,4 +14,4 @@ void PrintHeapData();
 }
 }
 
-#endif  // CLIB_OPNEW_H
+#endif //CLIB_OPNEW_H

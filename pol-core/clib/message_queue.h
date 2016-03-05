@@ -48,9 +48,7 @@ public:
 
   void cancel();
   struct Canceled
-  {
-  };
-
+  {};
 private:
   std::list<Message> _queue;
   mutable std::mutex _mutex;
@@ -59,10 +57,9 @@ private:
 };
 
 template <typename Message>
-message_queue<Message>::message_queue()
-    : _queue(), _mutex(), _notifier(), _cancel( false )
-{
-}
+message_queue<Message>::message_queue() :
+  _queue(), _mutex(), _notifier(), _cancel( false )
+{}
 
 template <typename Message>
 message_queue<Message>::~message_queue()
@@ -75,13 +72,13 @@ void message_queue<Message>::push( Message const& msg )
 {
   std::list<Message> tmp;
   tmp.push_back( msg );  // costly pushback outside the lock
-  bool signal = false;
+  bool signal=false;
   {
     std::lock_guard<std::mutex> lock( _mutex );
     signal = _queue.empty();
     _queue.splice( _queue.end(), tmp );  // fast splice inside
   }
-  if ( signal )
+  if (signal)
     _notifier.notify_one();
 }
 
@@ -90,26 +87,26 @@ void message_queue<Message>::push_move( Message&& msg )
 {
   std::list<Message> tmp;
   tmp.emplace_back( std::move( msg ) );  // costly pushback outside the lock
-  bool signal = false;
+  bool signal=false;
   {
     std::lock_guard<std::mutex> lock( _mutex );
     signal = _queue.empty();
     _queue.splice( _queue.end(), tmp );  // fast splice inside
   }
-  if ( signal )
+  if (signal)
     _notifier.notify_one();
 }
 
 template <typename Message>
 void message_queue<Message>::push( std::list<Message>& msg_list )
 {
-  bool signal = false;
+  bool signal=false;
   {
     std::lock_guard<std::mutex> lock( _mutex );
     signal = _queue.empty();
     _queue.splice( _queue.end(), msg_list );  // fast splice inside
   }
-  if ( signal )
+  if (signal)
     _notifier.notify_one();
 }
 
@@ -132,8 +129,7 @@ template <typename Message>
 bool message_queue<Message>::try_pop( Message* msg )
 {
   std::lock_guard<std::mutex> lock( _mutex );
-  if ( _queue.empty() )
-    return false;
+  if( _queue.empty() ) return false;
   *msg = std::move( _queue.front() );
   _queue.pop_front();
   return true;
@@ -143,10 +139,9 @@ template <typename Message>
 void message_queue<Message>::pop_wait( Message* msg )
 {
   std::unique_lock<std::mutex> lock( _mutex );
-  while ( _queue.empty() && !_cancel )
+  while( _queue.empty() && !_cancel )
     _notifier.wait( lock );  // will unlock mutex during wait
-  if ( _cancel )
-    throw Canceled();
+  if( _cancel ) throw Canceled();
   *msg = std::move( _queue.front() );
   _queue.pop_front();
 }
@@ -155,10 +150,9 @@ template <typename Message>
 void message_queue<Message>::pop_wait( std::list<Message>* msgs )
 {
   std::unique_lock<std::mutex> lock( _mutex );
-  while ( _queue.empty() && !_cancel )
+  while( _queue.empty() && !_cancel )
     _notifier.wait( lock );  // will unlock mutex during wait
-  if ( _cancel )
-    throw Canceled();
+  if( _cancel ) throw Canceled();
   msgs->splice( msgs->end(), _queue );
 }
 

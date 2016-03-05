@@ -39,13 +39,14 @@ namespace Pol
 {
 namespace Core
 {
-void load_incremental_indexes()  // indices is such a stupid word
+
+
+void load_incremental_indexes() // indices is such a stupid word
 {
   for ( ;; )
   {
     unsigned next_incremental_counter = objStorageManager.incremental_save_count + 1;
-    std::string filename = Plib::systemstate.config.world_data_path + "incr-index-" +
-                           Clib::decint( next_incremental_counter ) + ".txt";
+    std::string filename = Plib::systemstate.config.world_data_path + "incr-index-" + Clib::decint(next_incremental_counter) + ".txt";
     if ( !Clib::FileExists( filename ) )
       break;
 
@@ -83,11 +84,11 @@ void read_incremental_saves()
 {
   for ( unsigned i = 1; i <= objStorageManager.incremental_save_count; ++i )
   {
-    std::string filename =
-        Plib::systemstate.config.world_data_path + "incr-data-" + Clib::decint( i ) + ".txt";
+    std::string filename = Plib::systemstate.config.world_data_path + "incr-data-" + Clib::decint(i) + ".txt";
     objStorageManager.current_incremental_save = i;
 
     slurp( filename.c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES SYSTEM MULTI STORAGEAREA" );
+
   }
 }
 
@@ -96,8 +97,7 @@ void register_deleted_serials()
   // we have to store the deleted serials as 'clean deletes' so that we don't start
   // creating objects with the same serials.
   // after a full save, these will be cleared.
-  for ( SerialIndexMap::const_iterator citr = objStorageManager.incremental_serial_index.begin();
-        citr != objStorageManager.incremental_serial_index.end(); ++citr )
+  for ( SerialIndexMap::const_iterator citr = objStorageManager.incremental_serial_index.begin(); citr != objStorageManager.incremental_serial_index.end(); ++citr )
   {
     pol_serial_t serial = ( *citr ).first;
     unsigned index = ( *citr ).second;
@@ -114,7 +114,7 @@ void clear_save_index()
 
 void defer_item_insertion( Items::Item* item, pol_serial_t container_serial )
 {
-  objStorageManager.deferred_insertions.insert( std::make_pair( container_serial, item ) );
+  objStorageManager.deferred_insertions.insert(std::make_pair(container_serial, item));
 }
 
 void insert_deferred_items()
@@ -128,8 +128,7 @@ void insert_deferred_items()
 
   INFO_PRINT << "  deferred inserts:";
 
-  for ( DeferList::iterator itr = objStorageManager.deferred_insertions.begin();
-        itr != objStorageManager.deferred_insertions.end(); ++itr )
+  for ( DeferList::iterator itr = objStorageManager.deferred_insertions.begin(); itr != objStorageManager.deferred_insertions.end(); ++itr )
   {
     if ( --num_until_dot == 0 )
     {
@@ -150,20 +149,19 @@ void insert_deferred_items()
       }
       else
       {
-        ERROR_PRINT.Format(
-            "Item 0x{:X} is supposed to be on Character 0x{:X}, but that character cannot be "
-            "found.\n" )
-            << item->serial << container_serial;
+        ERROR_PRINT.Format( "Item 0x{:X} is supposed to be on Character 0x{:X}, but that character cannot be found.\n" ) << item->serial
+            << container_serial;
 
         // Austin - Aug. 10, 2006
         // Removes the object if ignore_load_errors is enabled and the character can't be found.
         if ( !Plib::systemstate.config.ignore_load_errors )
-          throw std::runtime_error( "Data file integrity error" );
+          throw std::runtime_error("Data file integrity error");
         else
         {
           ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
           obj->destroy();
         }
+
       }
     }
     else
@@ -183,7 +181,7 @@ void insert_deferred_items()
         // Austin - Aug. 10, 2006
         // Removes the object if ignore_load_errors is enabled and the character can't be found.
         if ( !Plib::systemstate.config.ignore_load_errors )
-          throw std::runtime_error( "Data file integrity error" );
+          throw std::runtime_error("Data file integrity error");
         else
         {
           ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
@@ -201,21 +199,23 @@ void insert_deferred_items()
 
 void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
 {
-  item->layer = tilelayer( item->graphic );  // adjust for tiledata changes
-  item->tile_layer = item->layer;            // adjust for tiledata changes
+  item->layer = tilelayer( item->graphic ); // adjust for tiledata changes
+  item->tile_layer = item->layer; // adjust for tiledata changes
 
-  if ( chr->equippable( item ) && item->check_equiptest_scripts( chr, true ) &&
+  if ( chr->equippable( item ) &&
+       item->check_equiptest_scripts( chr, true ) &&
        item->check_equip_script( chr, true ) &&
-       !item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+       !item->orphan() )//dave added 1/28/3, item might be destroyed in RTC script
   {
     chr->equip( item );
-    item->clear_dirty();  // equipping sets dirty
+    item->clear_dirty(); // equipping sets dirty
     return;
   }
   else
   {
     ERROR_PRINT << "Item 0x" << fmt::hexu( item->serial )
-                << " is supposed to be equipped on Character " << fmt::hexu( chr->serial )
+                << " is supposed to be equipped on Character "
+                << fmt::hexu( chr->serial )
                 << ", but is not 'equippable' on that character.\n";
     UContainer* bp = chr->backpack();
     if ( bp )
@@ -244,7 +244,7 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
       ERROR_PRINT << "Tried to put it in the character's backpack, "
                   << "but there isn't one.  That's naughty...\n";
     }
-    throw std::runtime_error( "Data file integrity error" );
+    throw std::runtime_error("Data file integrity error");
   }
 }
 
@@ -267,11 +267,9 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
       // and handle for the first time before destroying the scrolls.
       Spellbook* book = static_cast<Spellbook*>( cont );
 
-      u16 spellnum =
-          USpellScroll::convert_objtype_to_spellnum( item->objtype_, book->spell_school );
-      u8 spellslot = spellnum & 7;
-      if ( spellslot == 0 )
-        spellslot = 8;
+      u16 spellnum = USpellScroll::convert_objtype_to_spellnum( item->objtype_, book->spell_school );
+      u8  spellslot = spellnum & 7;
+      if ( spellslot == 0 ) spellslot = 8;
       book->bitwise_contents[( spellnum - 1 ) >> 3] |= 1 << ( spellslot - 1 );
       item->destroy();
       return;
@@ -283,34 +281,36 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     bool add_to_slot = cont->can_add_to_slot( slotIndex );
     if ( !canadd )
     {
-      ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial ) << " to container 0x"
-                  << fmt::hexu( cont->serial ) << "\n";
-      throw std::runtime_error( "Data file error" );
+      ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial )
+                  << " to container 0x" << fmt::hexu( cont->serial ) << "\n";
+      throw std::runtime_error("Data file error");
     }
 
     if ( !add_to_slot || !item->slot_index( slotIndex ) )
     {
-      ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial ) << " to container 0x"
-                  << fmt::hexu( cont->serial ) << " at slot 0x" << fmt::hexu( slotIndex ) << "\n";
-      throw std::runtime_error( "Data file error" );
+      ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial )
+                  << " to container 0x" << fmt::hexu( cont->serial )
+                  << " at slot 0x" << fmt::hexu( slotIndex ) << "\n";
+      throw std::runtime_error("Data file error");
     }
 
     cont->add( item );
-    item->clear_dirty();  // adding sets dirty
+    item->clear_dirty(); // adding sets dirty
 
     stateManager.gflag_enforce_container_limits = true;
 
-    // if (new_parent_cont)
-    //	parent_conts.push( cont );
-    // if (item->isa( UObject::CLASS_CONTAINER ))
-    //	parent_conts.push( static_cast<UContainer*>(item) );
+    //if (new_parent_cont)
+    //  parent_conts.push( cont );
+    //if (item->isa( UObject::CLASS_CONTAINER ))
+    //  parent_conts.push( static_cast<UContainer*>(item) );
   }
   else
   {
     INFO_PRINT << "Container type 0x" << fmt::hexu( cont_item->objtype_ )
                << " contains items, but is not a container class\n";
-    throw std::runtime_error( "Config file error" );
+    throw std::runtime_error("Config file error");
   }
 }
+
 }
 }

@@ -2,8 +2,7 @@
  *
  * @par History
  * - 2005/11/24 Shinigami: added itoa for Linux because it is not ANSI C/C++
- * - 2005/11/29 Shinigami: mf_SplitWords will now accept each type of to-split-value as same as in
- * the past
+ * - 2005/11/29 Shinigami: mf_SplitWords will now accept each type of to-split-value as same as in the past
  * - 2006/10/07 Shinigami: FreeBSD fix - changed __linux__ to __unix__
  * - 2006/12/29 Shinigami: mf_SplitWords will not hang server on queue of delimiter
  */
@@ -26,7 +25,7 @@
 #include <cstring>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp, itoa and sprintf warnings
+#pragma warning(disable:4996) // stricmp, itoa and sprintf warnings
 #endif
 
 namespace Pol
@@ -109,8 +108,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_StrReplace()
   String* to_replace = static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
   if ( !to_replace )
     return new BError( "Invalid parameter type" );
-  String* replace_with =
-      static_cast<String*>( exec.getParamImp( 2, Bscript::BObjectImp::OTString ) );
+  String* replace_with = static_cast<String*>( exec.getParamImp( 2, Bscript::BObjectImp::OTString ) );
   if ( !replace_with )
     return new BError( "Invalid parameter type" );
 
@@ -129,8 +127,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   std::unique_ptr<String> string( new String( imp->getStringRep().c_str() ) );
-  String* replace_with =
-      static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
+  String* replace_with = static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
   if ( !replace_with )
     return new BError( "Invalid parameter type" );
   int index = static_cast<int>( exec.paramAsLong( 2 ) );
@@ -153,8 +150,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
   if ( !len )
     len = static_cast<int>( replace_with->length() - index );
 
-  string->ESubStrReplace( replace_with, static_cast<unsigned>( index ),
-                          static_cast<unsigned>( len ) );
+  string->ESubStrReplace( replace_with, static_cast<unsigned>( index ), static_cast<unsigned>( len ) );
 
   return string.release();
 }
@@ -188,11 +184,11 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
 
   if ( pos1_len < 0 )
     return new BError( "Length must not be negative for param 1" );
-  if ( static_cast<unsigned>( pos1_len ) > ( str1.length() - pos1_index ) )
+  if ( static_cast<unsigned>( pos1_len ) >( str1.length() - pos1_index ) )
     return new BError( "Length out of range for param 1" );
   if ( pos2_len < 0 )
     return new BError( "Length must not be negative for param 2" );
-  if ( static_cast<unsigned>( pos2_len ) > ( str2.length() - pos2_index ) )
+  if ( static_cast<unsigned>( pos2_len ) >( str2.length() - pos2_index ) )
     return new BError( "Length out of range for param 2" );
 
 
@@ -337,13 +333,11 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChr()
 Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
 {
   std::string res;
-  Bscript::ObjArray* arr =
-      static_cast<Bscript::ObjArray*>( exec.getParamImp( 0, Bscript::BObjectImp::OTArray ) );
+  Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( exec.getParamImp( 0, Bscript::BObjectImp::OTArray ) );
   int break_first_null = static_cast<int>( exec.paramAsLong( 1 ) );
   if ( !arr )
     return new BError( "Invalid parameter type" );
-  for ( Bscript::ObjArray::const_iterator itr = arr->ref_arr.begin(), itrend = arr->ref_arr.end();
-        itr != itrend; ++itr )
+  for ( Bscript::ObjArray::const_iterator itr = arr->ref_arr.begin(), itrend = arr->ref_arr.end(); itr != itrend; ++itr )
   {
     BObject* bo = ( itr->get() );
     if ( bo == NULL )
@@ -362,8 +356,10 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
         res += s;
       }
     }
+
   }
   return new String( res );
+
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
@@ -387,7 +383,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
   {
     String* str = static_cast<String*>( imp );
     char s[20];
-    sprintf( s, "0x%X", static_cast<unsigned int>( strtoul( str->data(), NULL, 0 ) ) );
+    sprintf( s, "0x%X", static_cast<unsigned int>(strtoul( str->data(), NULL, 0 ) ) );
     return new String( s );
   }
   else
@@ -400,7 +396,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
 char* itoa( int value, char* result, int base )
 {
   // check that the base is valid
-  if ( base < 2 || base > 16 )
+  if (base < 2 || base > 16)
   {
     *result = 0;
     return result;
@@ -411,14 +407,14 @@ char* itoa( int value, char* result, int base )
 
   do
   {
-    *out = "0123456789abcdef"[std::abs( quotient % base )];
+    *out = "0123456789abcdef"[ std::abs( quotient % base ) ];
     ++out;
     quotient /= base;
-  } while ( quotient );
+  }
+  while ( quotient );
 
   // Only apply negative sign for base 10
-  if ( value < 0 && base == 10 )
-    *out++ = '-';
+  if ( value < 0 && base == 10) *out++ = '-';
 
   std::reverse( result, out );
   *out = 0;
@@ -433,7 +429,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Bin()
   {
     BLong* plong = static_cast<BLong*>( imp );
     int number = plong->value();
-    char buffer[sizeof( int ) * 8 + 1];
+    char buffer[sizeof(int)* 8 + 1];
     return new String( itoa( number, buffer, 2 ) );
   }
   else
@@ -478,7 +474,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
     {
       tellg = is.tellg();
       if ( count == max_split && tellg != -1 )
-      {  // added max_split parameter
+      {
+        // added max_split parameter
         splitted = true;
         break;
       }
@@ -504,10 +501,11 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
   do
   {
     found = new_string.find( delimiter, 0 );
-    if ( found == std::string::npos )
+    if (found == std::string::npos)
       break;
     else if ( count == max_split )
-    {  // added max_split parameter
+    {
+      // added max_split parameter
       break;
     }
 
@@ -515,13 +513,14 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 
     // Shinigami: will not hang server on queue of delimiter
     // if ( add_string.empty() )
-    //	continue;
+    //  continue;
 
     objarr->addElement( new String( add_string ) );
-    std::string tmp_string = new_string.substr( found + delimiter.length(), new_string.length() );
+    std::string tmp_string = new_string.substr(found + delimiter.length(), new_string.length());
     new_string = tmp_string;
     count += 1;
-  } while ( found != std::string::npos );
+  }
+  while (found != std::string::npos);
 
   // Catch leftovers here.
   if ( !new_string.empty() )
@@ -565,31 +564,33 @@ Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
   return new BLong( imp->typeOfInt() );
 }
 
-BasicFunctionDef BasicExecutorModule::function_table[] = {
-    {"find", &BasicExecutorModule::find},
-    {"len", &BasicExecutorModule::len},
-    {"upper", &BasicExecutorModule::upper},
-    {"lower", &BasicExecutorModule::lower},
-    {"Substr", &BasicExecutorModule::mf_substr},
-    {"Trim", &BasicExecutorModule::mf_Trim},
-    {"StrReplace", &BasicExecutorModule::mf_StrReplace},
-    {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace},
-    {"Compare", &BasicExecutorModule::mf_Compare},
-    {"CInt", &BasicExecutorModule::mf_CInt},
-    {"CStr", &BasicExecutorModule::mf_CStr},
-    {"CDbl", &BasicExecutorModule::mf_CDbl},
-    {"CAsc", &BasicExecutorModule::mf_CAsc},
-    {"CChr", &BasicExecutorModule::mf_CChr},
-    {"CAscZ", &BasicExecutorModule::mf_CAscZ},
-    {"CChrZ", &BasicExecutorModule::mf_CChrZ},
-    {"Bin", &BasicExecutorModule::mf_Bin},
-    {"Hex", &BasicExecutorModule::mf_Hex},
-    {"SplitWords", &BasicExecutorModule::mf_SplitWords},
-    {"Pack", &BasicExecutorModule::mf_Pack},
-    {"Unpack", &BasicExecutorModule::mf_Unpack},
-    {"TypeOf", &BasicExecutorModule::mf_TypeOf},
-    {"SizeOf", &BasicExecutorModule::mf_SizeOf},
-    {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt}};
+BasicFunctionDef BasicExecutorModule::function_table[] =
+{
+  { "find", &BasicExecutorModule::find },
+  { "len", &BasicExecutorModule::len },
+  { "upper", &BasicExecutorModule::upper },
+  { "lower", &BasicExecutorModule::lower },
+  { "Substr", &BasicExecutorModule::mf_substr },
+  { "Trim", &BasicExecutorModule::mf_Trim },
+  { "StrReplace", &BasicExecutorModule::mf_StrReplace },
+  { "SubStrReplace", &BasicExecutorModule::mf_SubStrReplace },
+  { "Compare", &BasicExecutorModule::mf_Compare },
+  { "CInt", &BasicExecutorModule::mf_CInt },
+  { "CStr", &BasicExecutorModule::mf_CStr },
+  { "CDbl", &BasicExecutorModule::mf_CDbl },
+  { "CAsc", &BasicExecutorModule::mf_CAsc },
+  { "CChr", &BasicExecutorModule::mf_CChr },
+  { "CAscZ", &BasicExecutorModule::mf_CAscZ },
+  { "CChrZ", &BasicExecutorModule::mf_CChrZ },
+  { "Bin", &BasicExecutorModule::mf_Bin },
+  { "Hex", &BasicExecutorModule::mf_Hex },
+  { "SplitWords", &BasicExecutorModule::mf_SplitWords },
+  { "Pack", &BasicExecutorModule::mf_Pack },
+  { "Unpack", &BasicExecutorModule::mf_Unpack },
+  { "TypeOf", &BasicExecutorModule::mf_TypeOf },
+  { "SizeOf", &BasicExecutorModule::mf_SizeOf },
+  { "TypeOfInt", &BasicExecutorModule::mf_TypeOfInt }
+};
 
 int BasicExecutorModule::functionIndex( const char* name )
 {
@@ -603,7 +604,7 @@ int BasicExecutorModule::functionIndex( const char* name )
 
 Bscript::BObjectImp* BasicExecutorModule::execFunc( unsigned funcidx )
 {
-  return callMemberFunction ( *this, function_table[funcidx].fptr )();
+  return callMemberFunction( *this, function_table[funcidx].fptr )( );
 };
 
 std::string BasicExecutorModule::functionName( unsigned idx )

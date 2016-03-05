@@ -26,15 +26,17 @@
 #include <memory>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp POSIX deprecation warning
+#pragma warning(disable:4996) // stricmp POSIX deprecation warning
 #endif
 
 namespace Pol
 {
 namespace Core
 {
-CmdLevel::CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum )
-    : name( elem.rest() ), cmdlevel( static_cast<unsigned char>( cmdlevelnum ) )
+
+CmdLevel::CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum ) :
+  name( elem.rest() ),
+  cmdlevel( static_cast<unsigned char>( cmdlevelnum ) )
 {
   Clib::mklower( name );
   std::string tmp;
@@ -78,16 +80,18 @@ void CmdLevel::add_searchdir_front( Plib::Package* pkg, const std::string& dir )
 
 size_t CmdLevel::estimateSize() const
 {
-  size_t size = name.capacity() + sizeof( unsigned char ); /*cmdlevel*/
+  size_t size = name.capacity()
+                + sizeof(unsigned char); /*cmdlevel*/
 
-  size += 3 * sizeof( SearchDir* );
-  for ( const auto& ele : searchlist )
-    size += sizeof( Plib::Package* ) + ele.dir.capacity();
-  size += 3 * sizeof( std::string* );
-  for ( const auto& ele : aliases )
+  size+= 3 * sizeof(SearchDir*);
+  for (const auto& ele : searchlist)
+    size += sizeof(Plib::Package*) + ele.dir.capacity();
+  size+= 3 * sizeof(std::string*);
+  for (const auto& ele : aliases)
     size += ele.capacity();
   return size;
 }
+
 
 
 CmdLevel* find_cmdlevel( const char* name )
@@ -137,8 +141,7 @@ Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
     for ( Clib::DirList dl( dir_name.c_str() ); !dl.at_end(); dl.next() )
     {
       std::string name = dl.name(), ext;
-      if ( name[0] == '.' )
-        continue;
+      if ( name[0] == '.' ) continue;
 
       std::string::size_type pos = name.rfind( "." );
       if ( pos != std::string::npos )
@@ -148,7 +151,7 @@ Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
       {
         std::unique_ptr<Bscript::BStruct> cmdinfo( new Bscript::BStruct );
         cmdinfo->addMember( "dir", new Bscript::String( search_dir->dir ) );
-        cmdinfo->addMember( "script", new Bscript::String( name.c_str() ) );
+        cmdinfo->addMember( "script", new Bscript::String( name.c_str( ) ) );
         script_names->addElement( cmdinfo.release() );
       }
     }
@@ -169,12 +172,13 @@ void load_cmdlevels()
     CmdLevel cmdlevel( elem, static_cast<int>( gamestate.cmdlevels.size() ) );
     gamestate.cmdlevels.push_back( cmdlevel );
   }
+
 }
 
 void process_package_cmds_cfg( Plib::Package* pkg )
 {
-  // ConfigFile cf( (pkg->dir() + "cmds.cfg").c_str(), "Commands" );
-  Clib::ConfigFile cf( GetPackageCfgPath( pkg, "cmds.cfg" ).c_str(), "Commands" );
+  //ConfigFile cf( (pkg->dir() + "cmds.cfg").c_str(), "Commands" );
+  Clib::ConfigFile cf( GetPackageCfgPath( pkg, "cmds.cfg" ).c_str( ), "Commands" );
   Clib::ConfigElem elem;
   while ( cf.read( elem ) )
   {
@@ -188,7 +192,7 @@ void process_package_cmds_cfg( Plib::Package* pkg )
     while ( elem.remove_prop( "DIR", &tmp ) )
     {
       Clib::mklower( tmp );
-      cmdlevel->add_searchdir_front( pkg, Clib::normalized_dir_form( pkg->dir() + tmp ) );
+      cmdlevel->add_searchdir_front( pkg, Clib::normalized_dir_form( pkg->dir( ) + tmp ) );
     }
   }
 }
@@ -204,26 +208,27 @@ void implicit_package_cmds_cfg( Plib::Package* pkg )
     // first check for the package name
     part = "textcmd/" + cmdlevel.name + "/";
     dir = pkg->dir() + part;
-    if ( Clib::FileExists( dir.c_str() ) )
+    if ( Clib::FileExists( dir.c_str( ) ) )
       cmdlevel.add_searchdir_front( pkg, part );
 
     part = "commands/" + cmdlevel.name + "/";
     dir = pkg->dir() + part;
-    if ( Clib::FileExists( dir.c_str() ) )
+    if ( Clib::FileExists( dir.c_str( ) ) )
       cmdlevel.add_searchdir_front( pkg, part );
 
     // then each alias
-    for ( CmdLevel::Aliases::iterator itr = cmdlevel.aliases.begin(); itr != cmdlevel.aliases.end();
+    for ( CmdLevel::Aliases::iterator itr = cmdlevel.aliases.begin();
+          itr != cmdlevel.aliases.end();
           ++itr )
     {
       part = "textcmd/" + *itr + "/";
       dir = pkg->dir() + part;
-      if ( Clib::FileExists( dir.c_str() ) )
+      if ( Clib::FileExists( dir.c_str( ) ) )
         cmdlevel.add_searchdir_front( pkg, part );
 
       part = "commands/" + *itr + "/";
       dir = pkg->dir() + part;
-      if ( Clib::FileExists( dir.c_str() ) )
+      if ( Clib::FileExists( dir.c_str( ) ) )
         cmdlevel.add_searchdir_front( pkg, part );
     }
   }
@@ -231,12 +236,11 @@ void implicit_package_cmds_cfg( Plib::Package* pkg )
 
 void load_package_cmdlevels()
 {
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
   {
     Plib::Package* pkg = ( *itr );
     std::string filename = Plib::GetPackageCfgPath( pkg, "cmds.cfg" );
-    if ( Clib::FileExists( filename.c_str() ) )
+    if ( Clib::FileExists( filename.c_str( ) ) )
     {
       process_package_cmds_cfg( pkg );
     }
@@ -248,3 +252,4 @@ void load_package_cmdlevels()
 }
 }
 }
+

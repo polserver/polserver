@@ -17,12 +17,12 @@ PacketInterface* GetPacket( u8 id, u16 sub = 0 );
 template <class T>
 inline T* RequestPacket( u8 id, u16 sub = 0 )
 {
-  return static_cast<T*>( Core::networkManager.packetsSingleton->getPacket( id, sub ) );
+  return static_cast<T*>(Core::networkManager.packetsSingleton->getPacket(id, sub));
 };
 
 inline void ReAddPacket( PacketInterface* msg )
 {
-  Core::networkManager.packetsSingleton->ReAddPacket( msg );
+  Core::networkManager.packetsSingleton->ReAddPacket(msg);
 };
 
 template <class T>
@@ -39,52 +39,52 @@ public:
   // be really really careful with this function
   // needs PolLock
   void SendDirect( Client* client, int len = -1 ) const;
-  T* operator->( void ) const;
+  T* operator->(void) const;
   T* Get();
 };
 
 template <class T>
 PacketOut<T>::PacketOut()
 {
-  pkt = RequestPacket<T>( T::ID, T::SUB );
+  pkt = RequestPacket<T>(T::ID, T::SUB);
 }
 
 template <class T>
 PacketOut<T>::~PacketOut()
 {
-  if ( pkt != 0 )
-    ReAddPacket( pkt );
+  if (pkt != 0)
+    ReAddPacket(pkt);
 }
 
 template <class T>
 void PacketOut<T>::Release()
 {
-  ReAddPacket( pkt );
+  ReAddPacket(pkt);
   pkt = 0;
 }
 
 template <class T>
-void PacketOut<T>::Send( Client* client, int len ) const
+void PacketOut<T>::Send(Client* client, int len) const
 {
-  if ( pkt == 0 )
+  if (pkt == 0)
     return;
-  if ( len == -1 )
+  if (len == -1)
     len = pkt->offset;
-  Core::networkManager.clientTransmit->AddToQueue( client, &pkt->buffer, len );
+  Core::networkManager.clientTransmit->AddToQueue(client, &pkt->buffer, len);
 }
 
 template <class T>
-void PacketOut<T>::SendDirect( Client* client, int len ) const
+void PacketOut<T>::SendDirect(Client* client, int len) const
 {
-  if ( pkt == 0 )
+  if (pkt == 0)
     return;
-  if ( len == -1 )
+  if (len == -1)
     len = pkt->offset;
-  client->transmit( &pkt->buffer, len );
+  client->transmit(&pkt->buffer, len);
 }
 
 template <class T>
-T* PacketOut<T>::operator->( void ) const
+T* PacketOut<T>::operator->(void) const
 {
   return pkt;
 }

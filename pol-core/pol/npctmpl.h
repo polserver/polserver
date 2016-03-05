@@ -43,12 +43,7 @@ public:
   const Plib::Package* pkg;
 
   // std::string script;
-  enum ALIGNMENT : u8
-  {
-    NEUTRAL,
-    EVIL,
-    GOOD
-  } alignment;
+  enum ALIGNMENT : u8 { NEUTRAL, EVIL, GOOD } alignment;
 
   ExportScript* method_script;
 
@@ -65,10 +60,10 @@ public:
   NpcTemplateConfigSource();
   NpcTemplateConfigSource( const Clib::ConfigFile& cf );
   size_t estimateSize() const;
-  virtual void display_error( const std::string& msg, bool show_curline = true,
+  virtual void display_error( const std::string& msg,
+                              bool show_curline = true,
                               const Clib::ConfigElemBase* elem = NULL,
                               bool error = true ) const POL_OVERRIDE;
-
 private:
   std::string _filename;
   unsigned _fileline;
@@ -81,7 +76,6 @@ public:
   NpcTemplateElem( const Clib::ConfigFile& cf, const Clib::ConfigElem& elem );
   size_t estimateSize() const;
   void copyto( Clib::ConfigElem& elem ) const;
-
 private:
   NpcTemplateConfigSource _source;
   Clib::ConfigElem _elem;

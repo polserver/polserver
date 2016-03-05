@@ -25,6 +25,7 @@ class Package;
 }
 namespace Core
 {
+
 class CmdLevel
 {
 public:
@@ -44,10 +45,10 @@ public:
     std::string dir;
   };
 
-  typedef std::vector<SearchDir> SearchList;
+  typedef std::vector< SearchDir > SearchList;
   SearchList searchlist;
 
-  typedef std::vector<std::string> Aliases;
+  typedef std::vector< std::string > Aliases;
   Aliases aliases;
 };
 
@@ -55,6 +56,7 @@ CmdLevel* find_cmdlevel( const char* name );
 CmdLevel* FindCmdLevelByAlias( const std::string& str );
 
 Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num );
+
 }
 }
 #endif

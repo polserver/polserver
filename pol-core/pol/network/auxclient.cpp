@@ -38,7 +38,7 @@
 #include <memory>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation
+#pragma warning(disable:4996) // stricmp deprecation
 #endif
 
 namespace Pol
@@ -57,7 +57,7 @@ std::string AuxConnection::getStringRep() const
 
 size_t AuxConnection::sizeEstimate() const
 {
-  return sizeof( AuxConnection ) + _ip.capacity();
+  return sizeof(AuxConnection)+_ip.capacity();
 }
 
 bool AuxConnection::isTrue() const
@@ -71,7 +71,7 @@ Bscript::BObjectRef AuxConnection::get_member( const char* membername )
   {
     return Bscript::BObjectRef( new Bscript::String( _ip ) );
   }
-  return Bscript::BObjectRef( Bscript::UninitObject::create() );
+  return Bscript::BObjectRef( Bscript::UninitObject::create( ) );
 }
 
 Bscript::BObjectImp* AuxConnection::call_method( const char* methodname, Bscript::Executor& ex )
@@ -104,14 +104,17 @@ void AuxConnection::disconnect()
   _auxclientthread = NULL;
 }
 
-AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener )
-    : SocketClientThread( listener ), _auxservice( auxsvc ), _uoexec( 0 )
-{
-}
-AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock )
-    : SocketClientThread( sock ), _auxservice( 0 ), _scriptdef( scriptdef ), _uoexec( 0 )
-{
-}
+AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener ) :
+  SocketClientThread( listener ),
+  _auxservice( auxsvc ),
+  _uoexec( 0 )
+{}
+AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock ) :
+  SocketClientThread( sock ),
+  _auxservice( 0 ),
+  _scriptdef( scriptdef ),
+  _uoexec( 0 )
+{}
 
 bool AuxClientThread::init()
 {
@@ -149,7 +152,7 @@ bool AuxClientThread::ipAllowed( sockaddr MyPeer )
 #ifdef _WIN32
     addr2part = sockin->sin_addr.S_un.S_addr & _auxservice->_aux_ip_match_mask[j];
 #else
-    addr2part = sockin->sin_addr.s_addr & _auxservice->_aux_ip_match_mask[j];
+    addr2part = sockin->sin_addr.s_addr      & _auxservice->_aux_ip_match_mask[j];
 #endif
     if ( addr1part == addr2part )
       return true;
@@ -183,10 +186,8 @@ void AuxClientThread::run()
     {
       if ( result )
       {
-        std::istringstream is( tmp );
-        std::unique_ptr<Bscript::BObjectImp> value( _uoexec->auxsvc_assume_string
-                                                        ? new Bscript::String( tmp )
-                                                        : Bscript::BObjectImp::unpack( is ) );
+        std::istringstream is(tmp);
+        std::unique_ptr<Bscript::BObjectImp> value( _uoexec->auxsvc_assume_string ? new Bscript::String( tmp ) : Bscript::BObjectImp::unpack( is ) );
 
         std::unique_ptr<Bscript::BStruct> event( new Bscript::BStruct );
         event->addMember( "type", new Bscript::String( "recv" ) );
@@ -195,7 +196,8 @@ void AuxClientThread::run()
       }
     }
     else
-    {  // the controlling script dropped its last reference to the connection,
+    {
+      // the controlling script dropped its last reference to the connection,
       // by exiting or otherwise.
       break;
     }
@@ -215,19 +217,19 @@ void AuxClientThread::transmit( const Bscript::BObjectImp* value )
   writeline( _sck, tmp );
 }
 
-AuxService::AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem )
-    : _pkg( pkg ),
-      _scriptdef( elem.remove_string( "SCRIPT" ), _pkg ),
-      _port( elem.remove_ushort( "PORT" ) )
+AuxService::AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem ) :
+  _pkg( pkg ),
+  _scriptdef( elem.remove_string( "SCRIPT" ), _pkg ),
+  _port( elem.remove_ushort( "PORT" ) )
 {
   std::string iptext;
   while ( elem.remove_prop( "IPMATCH", &iptext ) )
   {
-    auto delim = iptext.find_first_of( "/" );
-    if ( delim != std::string::npos )
+    auto delim = iptext.find_first_of("/");
+    if (delim != std::string::npos)
     {
-      std::string ipaddr_str = iptext.substr( 0, delim );
-      std::string ipmask_str = iptext.substr( delim + 1 );
+      std::string ipaddr_str = iptext.substr(0, delim);
+      std::string ipmask_str = iptext.substr(delim + 1);
       unsigned int ipaddr = inet_addr( ipaddr_str.c_str() );
       unsigned int ipmask = inet_addr( ipmask_str.c_str() );
       _aux_ip_match.push_back( ipaddr );
@@ -244,8 +246,7 @@ AuxService::AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem )
 
 void AuxService::run()
 {
-  INFO_PRINT << "Starting Aux Listener (" << _scriptdef.relativename() << ", port " << _port
-             << ")\n";
+  INFO_PRINT << "Starting Aux Listener (" << _scriptdef.relativename() << ", port " << _port << ")\n";
 
   Clib::SocketListener listener( _port );
   while ( !Clib::exit_signalled )
@@ -256,16 +257,15 @@ void AuxService::run()
 #ifdef PERGON
       // TODO remove the ifdef it works..
       AuxClientThread* client( new AuxClientThread( this, listener ) );
-      Core::networkManager.auxthreadpool->push(
-          [client]()
-          {
-            std::unique_ptr<AuxClientThread> _clientptr( client );
-            _clientptr->run();
-          } );
+      Core::networkManager.auxthreadpool->push( [client]()
+      {
+        std::unique_ptr<AuxClientThread> _clientptr( client );
+        _clientptr->run();
+      } );
 #else
       Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
       clientthread->start();
-// note SocketClientThread::start deletes the SocketClientThread upon thread exit.
+      // note SocketClientThread::start deletes the SocketClientThread upon thread exit.
 #endif
     }
   }
@@ -273,10 +273,11 @@ void AuxService::run()
 
 size_t AuxService::estimateSize() const
 {
-  size_t size =
-      sizeof( Plib::Package* ) + _scriptdef.estimatedSize() + sizeof( unsigned short ) /*_port*/
-      + 3 * sizeof( unsigned int* ) + _aux_ip_match.capacity() * sizeof( unsigned int ) +
-      3 * sizeof( unsigned int* ) + _aux_ip_match_mask.capacity() * sizeof( unsigned int );
+  size_t size = sizeof(Plib::Package*)
+                +_scriptdef.estimatedSize()
+                + sizeof(unsigned short) /*_port*/
+                + 3 * sizeof(unsigned int*) + _aux_ip_match.capacity() * sizeof( unsigned int )
+                + 3 * sizeof(unsigned int*) + _aux_ip_match_mask.capacity() * sizeof( unsigned int );
   return size;
 }
 
@@ -290,8 +291,7 @@ void start_aux_services()
 {
   for ( unsigned i = 0; i < Core::networkManager.auxservices.size(); ++i )
   {
-    threadhelp::start_thread( aux_service_thread_stub, "AuxService",
-                              Core::networkManager.auxservices[i] );
+    threadhelp::start_thread( aux_service_thread_stub, "AuxService", Core::networkManager.auxservices[i] );
   }
 }
 

@@ -4,6 +4,7 @@
  */
 
 
+
 #include "logfacility.h"
 #include "socketsvc.h"
 
@@ -17,20 +18,22 @@ namespace Pol
 {
 namespace Clib
 {
-SocketListener::SocketListener( unsigned short port ) : _listen_sck()
+SocketListener::SocketListener( unsigned short port ) :
+  _listen_sck()
 {
-  if ( !_listen_sck.listen( port ) )
+  if( !_listen_sck.listen( port ) )
   {
     POLLOG_ERROR << "Unable to open listen port " + decint( port );
     abort();
   }
 }
 
-SocketListener::SocketListener( unsigned short port, Socket::option opt ) : _listen_sck()
+SocketListener::SocketListener( unsigned short port, Socket::option opt ) :
+  _listen_sck()
 {
   _listen_sck.set_options( opt );
 
-  if ( !_listen_sck.listen( port ) )
+  if( !_listen_sck.listen( port ) )
   {
     POLLOG_ERROR << "Unable to open listen port " + decint( port );
     abort();
@@ -44,17 +47,18 @@ bool SocketListener::GetConnection( unsigned int timeout_sec )
 
 void SocketListener::accept( Socket& newsck )
 {
-  _listen_sck.accept( newsck );  // FIXME return ignored
+  _listen_sck.accept( newsck ); // FIXME return ignored
 }
 
 
-SocketClientThread::SocketClientThread( SocketListener& SL ) : _sck()
+SocketClientThread::SocketClientThread( SocketListener& SL ) :
+  _sck()
 {
   SL.accept( _sck );
 }
-SocketClientThread::SocketClientThread( Socket& S ) : _sck( S )
-{
-}
+SocketClientThread::SocketClientThread( Socket& S ) :
+  _sck( S )
+{}
 
 static void _thread_stub2( void* arg )
 {

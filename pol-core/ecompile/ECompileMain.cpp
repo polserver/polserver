@@ -48,9 +48,11 @@ using namespace Pol::Bscript;
 ///////////////////////////////////////////////////////////////////////////////
 
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
-ECompileMain::ECompileMain() : Pol::Clib::ProgramMain()
+ECompileMain::ECompileMain(): Pol::Clib::ProgramMain()
 {
 }
 ECompileMain::~ECompileMain()
@@ -117,9 +119,9 @@ bool show_timing_details = false;
 bool timing_quiet_override = false;
 bool expect_compile_failure = false;
 bool dont_optimize_object_members = false;
-std::string EmPathEnv;   // "ECOMPILE_PATH_EM=xxx"
-std::string IncPathEnv;  // ECOMPILE_PATH_INC=yyy"
-std::string CfgPathEnv;  // ECOMPILE_CFG_PATH=zzz"
+std::string EmPathEnv; // "ECOMPILE_PATH_EM=xxx"
+std::string IncPathEnv; // ECOMPILE_PATH_INC=yyy"
+std::string CfgPathEnv; // ECOMPILE_CFG_PATH=zzz"
 
 struct Summary
 {
@@ -131,7 +133,7 @@ struct Summary
 void generate_wordlist()
 {
   INFO_PRINT << "Writing word list to wordlist.txt\n";
-  std::ofstream ofs( "wordlist.txt", std::ios::out | std::ios::trunc );
+  std::ofstream ofs("wordlist.txt", std::ios::out | std::ios::trunc);
   Parser::write_words( ofs );
 }
 
@@ -147,7 +149,7 @@ void compile_inc( const char* path )
   int res = C.compileFile( path );
 
   if ( res )
-    throw std::runtime_error( "Error compiling file" );
+    throw std::runtime_error("Error compiling file");
 }
 
 /**
@@ -160,11 +162,11 @@ void compile_inc( const char* path )
  */
 bool compile_file( const char* path )
 {
-  std::string fname( path );
-  std::string filename_src = fname, ext( "" );
+  std::string fname(path);
+  std::string filename_src = fname, ext("");
 
-  std::string::size_type pos = fname.rfind( "." );
-  if ( pos != std::string::npos )
+  std::string::size_type pos = fname.rfind(".");
+  if (pos != std::string::npos)
     ext = fname.substr( pos );
 
   if ( !ext.compare( ".inc" ) )
@@ -173,22 +175,24 @@ bool compile_file( const char* path )
     return true;
   }
 
-  if ( ext.compare( ".src" ) != 0 && ext.compare( ".hsr" ) != 0 && ext.compare( ".asp" ) != 0 )
+  if ( ext.compare( ".src" ) != 0 &&
+       ext.compare( ".hsr" ) != 0 &&
+       ext.compare( ".asp" ) != 0 )
   {
-    INFO_PRINT << "Didn't find '.src', '.hsr', or '.asp' extension on source filename '" << path
-               << "'!\n";
-    throw std::runtime_error( "Error in source filename" );
+    INFO_PRINT << "Didn't find '.src', '.hsr', or '.asp' extension on source filename '"
+               << path << "'!\n";
+    throw std::runtime_error("Error in source filename");
   }
-  std::string filename_ecl = fname.replace( pos, 4, ".ecl" );
-  std::string filename_lst = fname.replace( pos, 4, ".lst" );
-  std::string filename_dep = fname.replace( pos, 4, ".dep" );
-  std::string filename_dbg = fname.replace( pos, 4, ".dbg" );
+  std::string filename_ecl = fname.replace(pos, 4, ".ecl");
+  std::string filename_lst = fname.replace(pos, 4, ".lst");
+  std::string filename_dep = fname.replace(pos, 4, ".dep");
+  std::string filename_dbg = fname.replace(pos, 4, ".dbg");
 
   if ( compilercfg.OnlyCompileUpdatedScripts && !force_update )
   {
     bool all_old = true;
     unsigned int ecl_timestamp = Clib::GetFileTimestamp( filename_ecl.c_str() );
-    if ( Clib::GetFileTimestamp( filename_src.c_str() ) >= ecl_timestamp )
+    if ( Clib::GetFileTimestamp( filename_src.c_str( ) ) >= ecl_timestamp )
     {
       if ( verbose )
         INFO_PRINT << filename_src << " is newer than " << filename_ecl << "\n";
@@ -197,14 +201,14 @@ bool compile_file( const char* path )
 
     if ( all_old )
     {
-      std::ifstream ifs( filename_dep.c_str() );
+      std::ifstream ifs(filename_dep.c_str());
       // if the file doesn't exist, gotta build.
       if ( ifs.is_open() )
       {
         std::string depname;
         while ( getline( ifs, depname ) )
         {
-          if ( Clib::GetFileTimestamp( depname.c_str() ) >= ecl_timestamp )
+          if ( Clib::GetFileTimestamp( depname.c_str( ) ) >= ecl_timestamp )
           {
             if ( verbose )
               INFO_PRINT << depname << " is newer than " << filename_ecl << "\n";
@@ -216,18 +220,17 @@ bool compile_file( const char* path )
       else
       {
         if ( verbose )
-          INFO_PRINT << filename_dep << " does not exist."
-                     << "\n";
+          INFO_PRINT << filename_dep << " does not exist." << "\n";
         all_old = false;
       }
     }
     if ( all_old )
     {
       if ( !quiet && compilercfg.DisplayUpToDateScripts )
-        INFO_PRINT << filename_ecl << " is up-to-date."
-                   << "\n";
+        INFO_PRINT << filename_ecl << " is up-to-date." << "\n";
       return false;
     }
+
   }
 
   {
@@ -241,21 +244,21 @@ bool compile_file( const char* path )
 
     if ( expect_compile_failure )
     {
-      if ( res )  // good, it failed
+      if ( res )        // good, it failed
       {
         if ( !quiet )
-          INFO_PRINT << "Compilation failed as expected."
-                     << "\n";
+          INFO_PRINT << "Compilation failed as expected." << "\n";
         return true;
       }
       else
       {
-        throw std::runtime_error( "Compilation succeeded (-e indicates failure was expected)" );
+        throw std::runtime_error("Compilation succeeded (-e indicates failure was expected)");
       }
     }
 
     if ( res )
-      throw std::runtime_error( "Error compiling file" );
+      throw std::runtime_error("Error compiling file");
+
 
 
     if ( !quiet )
@@ -263,20 +266,19 @@ bool compile_file( const char* path )
 
     if ( C.write( filename_ecl.c_str() ) )
     {
-      throw std::runtime_error( "Error writing output file" );
+      throw std::runtime_error("Error writing output file");
     }
 
     if ( compilercfg.GenerateListing )
     {
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_lst << "\n";
-      std::ofstream ofs( filename_lst.c_str() );
+      std::ofstream ofs(filename_lst.c_str());
       C.dump( ofs );
     }
-    else if ( Clib::FileExists( filename_lst.c_str() ) )
+    else if ( Clib::FileExists( filename_lst.c_str( ) ) )
     {
-      if ( !quiet )
-        INFO_PRINT << "Deleting:  " << filename_lst << "\n";
+      if ( !quiet ) INFO_PRINT << "Deleting:  " << filename_lst << "\n";
       Clib::RemoveFile( filename_lst );
     }
 
@@ -286,15 +288,13 @@ bool compile_file( const char* path )
       {
         INFO_PRINT << "Writing:   " << filename_dbg << "\n";
         if ( compilercfg.GenerateDebugTextInfo )
-          INFO_PRINT << "Writing:   " << filename_dbg << ".txt"
-                     << "\n";
+          INFO_PRINT << "Writing:   " << filename_dbg << ".txt" << "\n";
       }
       C.write_dbg( filename_dbg.c_str(), compilercfg.GenerateDebugTextInfo );
     }
-    else if ( Clib::FileExists( filename_dbg.c_str() ) )
+    else if ( Clib::FileExists( filename_dbg.c_str( ) ) )
     {
-      if ( !quiet )
-        INFO_PRINT << "Deleting:  " << filename_dbg << "\n";
+      if ( !quiet ) INFO_PRINT << "Deleting:  " << filename_dbg << "\n";
       Clib::RemoveFile( filename_dbg );
     }
 
@@ -304,12 +304,12 @@ bool compile_file( const char* path )
         INFO_PRINT << "Writing:   " << filename_dep << "\n";
       C.writeIncludedFilenames( filename_dep.c_str() );
     }
-    else if ( Clib::FileExists( filename_dep.c_str() ) )
+    else if ( Clib::FileExists( filename_dep.c_str( ) ) )
     {
-      if ( !quiet )
-        INFO_PRINT << "Deleting:  " << filename_dep << "\n";
+      if ( !quiet ) INFO_PRINT << "Deleting:  " << filename_dep << "\n";
       Clib::RemoveFile( filename_dep );
     }
+
   }
   return true;
 }
@@ -323,7 +323,7 @@ void compile_file_wrapper( const char* path )
     else
       ++summary.UpToDateScripts;
   }
-  catch ( std::exception& )
+  catch ( std::exception&)
   {
     ++summary.CompiledScripts;
     ++summary.ScriptsWithCompileErrors;
@@ -361,11 +361,11 @@ int readargs( int argc, char** argv )
     {
       switch ( arg[1] )
       {
-      case 'A':  // skip it at this point.
+      case 'A': // skip it at this point.
         break;
 
-      case 'C':  // skip it at this point.
-        ++i;     // and skip its parameter.
+      case 'C': // skip it at this point.
+        ++i; // and skip its parameter.
         break;
 
       case 'd':
@@ -411,7 +411,7 @@ int readargs( int argc, char** argv )
         include_debug = 1;
         break;
 
-      case 'r':  // -r[i] [dir] is okay
+      case 'r': // -r[i] [dir] is okay
         // Only suboption allowed is '-ri' (.inc recurse)
         if ( argv[i][2] && argv[i][2] != 'i' )
         {
@@ -420,9 +420,9 @@ int readargs( int argc, char** argv )
           break;
         }
 
-// Only skip next parameter if it's not an option!!
+        // Only skip next parameter if it's not an option!!
 #ifdef __linux__
-        if ( i + 1 < argc && argv[i + 1][0] != '-' )
+        if ( i+1<argc && argv[i+1][0] != '-' )
 #else
         if ( i + 1 < argc && argv[i + 1][0] != '/' && argv[i + 1][0] != '-' )
 #endif
@@ -516,31 +516,31 @@ int readargs( int argc, char** argv )
  * @param basedir Path of the folder to recurse into
  * @param files
  */
-void recurse_compile( const std::string& basedir, std::vector<std::string>* files )
+void recurse_compile(const std::string& basedir, std::vector<std::string>* files)
 {
   int s_compiled, s_uptodate, s_errors;
   clock_t start, finish;
 
-  if ( !Clib::IsDirectory( basedir.c_str() ) )
+  if ( !Clib::IsDirectory( basedir.c_str( ) ) )
     return;
 
   s_compiled = s_uptodate = s_errors = 0;
   start = clock();
-  for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
+  for ( Clib::DirList dl( basedir.c_str( ) ); !dl.at_end( ); dl.next( ) )
   {
     std::string name = dl.name(), ext;
-    if ( name[0] == '.' )
-      continue;
+    if ( name[0] == '.' ) continue;
 
-    std::string::size_type pos = name.rfind( "." );
-    if ( pos != std::string::npos )
+    std::string::size_type pos = name.rfind(".");
+    if (pos != std::string::npos)
       ext = name.substr( pos );
 
     try
     {
-      if ( pos != std::string::npos &&
-           ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
-             ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) ) )
+      if (pos != std::string::npos &&
+          ( !ext.compare( ".src" ) ||
+            !ext.compare( ".hsr" ) ||
+            ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) ) )
       {
         s_compiled++;
         if ( files == NULL )
@@ -563,7 +563,7 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
         recurse_compile( basedir + name + "/", files );
       }
     }
-    catch ( std::exception& )
+    catch ( std::exception&)
     {
       ++summary.CompiledScripts;
       ++summary.ScriptsWithCompileErrors;
@@ -576,12 +576,11 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
     return;
   finish = clock();
 
-  if ( ( !quiet || timing_quiet_override ) && show_timing_details && s_compiled > 0 &&
-       files == NULL )
+  if ( ( !quiet || timing_quiet_override ) && show_timing_details && s_compiled > 0 && files == NULL )
   {
-    INFO_PRINT << "Compiled " << s_compiled << " script" << ( s_compiled == 1 ? "" : "s" ) << " in "
-               << basedir << " in " << (int)( ( finish - start ) / CLOCKS_PER_SEC )
-               << " second(s)\n";
+    INFO_PRINT << "Compiled " << s_compiled << " script" << ( s_compiled == 1 ? "" : "s" )
+               << " in " << basedir
+               << " in " << (int)( ( finish - start ) / CLOCKS_PER_SEC ) << " second(s)\n";
     if ( s_uptodate > 0 )
       INFO_PRINT << "    " << s_uptodate << " script" << ( s_uptodate == 1 ? " was" : "s were" )
                  << " already up-to-date.\n";
@@ -590,19 +589,18 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
                  << " had errors.\n";
   }
 }
-void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* files )
+void recurse_compile_inc(const std::string& basedir, std::vector<std::string>* files)
 {
-  for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
+  for ( Clib::DirList dl( basedir.c_str( ) ); !dl.at_end( ); dl.next( ) )
   {
     std::string name = dl.name(), ext;
-    if ( name[0] == '.' )
-      continue;
+    if ( name[0] == '.' ) continue;
 
-    std::string::size_type pos = name.rfind( "." );
-    if ( pos != std::string::npos )
+    std::string::size_type pos = name.rfind(".");
+    if (pos != std::string::npos)
       ext = name.substr( pos );
 
-    if ( pos != std::string::npos && !ext.compare( ".inc" ) )
+    if (pos != std::string::npos && !ext.compare(".inc"))
     {
       if ( files == NULL )
         compile_file( ( basedir + name ).c_str() );
@@ -616,17 +614,16 @@ void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* 
   }
 }
 
-void parallel_compile( const std::vector<std::string>& files )
+void parallel_compile(const std::vector<std::string>& files)
 {
   unsigned compiled_scripts = 0;
   unsigned uptodate_scripts = 0;
   unsigned error_scripts = 0;
   bool omp_keep_building = true;
-#pragma omp parallel for reduction( + : compiled_scripts, uptodate_scripts, \
-                                    error_scripts ) shared( omp_keep_building )
+  #pragma omp parallel for reduction(+ : compiled_scripts, uptodate_scripts, error_scripts) shared(omp_keep_building)
   for ( int i = 0; i < (int)files.size(); ++i )
   {
-#pragma omp flush( omp_keep_building )
+    #pragma omp flush(omp_keep_building)
     if ( omp_keep_building )
     {
       try
@@ -643,17 +640,18 @@ void parallel_compile( const std::vector<std::string>& files )
         ERROR_PRINT << "failed to compile " << files[i].c_str() << ": " << e.what() << "\n";
         if ( !keep_building )
         {
-#pragma omp critical( building_break )
+          #pragma omp critical(building_break)
           omp_keep_building = false;
-          // Clib::force_backtrace();
+          //Clib::force_backtrace();
         }
       }
       catch ( ... )
       {
-#pragma omp critical( building_break )
+        #pragma omp critical(building_break)
         omp_keep_building = false;
-        Clib::force_backtrace();
+        Clib::force_backtrace( );
       }
+
     }
   }
   summary.CompiledScripts = compiled_scripts;
@@ -675,7 +673,7 @@ void AutoCompile()
     recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), &files );
     for ( const auto& pkg : Plib::systemstate.packages )
     {
-      recurse_compile( Clib::normalized_dir_form( pkg->dir() ), &files );
+      recurse_compile( Clib::normalized_dir_form( pkg->dir( ) ), &files );
     }
     parallel_compile( files );
   }
@@ -710,7 +708,7 @@ bool run( int argc, char** argv )
   for ( int i = 1; i < argc; i++ )
   {
 #ifdef __linux__
-    if ( argv[i][0] == '-' )
+    if (argv[i][0] == '-')
 #else
     if ( argv[i][0] == '/' || argv[i][0] == '-' )
 #endif
@@ -726,8 +724,8 @@ bool run( int argc, char** argv )
       else if ( argv[i][1] == 'r' )
       {
         any = true;
-        std::string dir( "." );
-        bool compile_inc = ( argv[i][2] == 'i' );  // compile .inc files
+        std::string dir(".");
+        bool compile_inc = ( argv[i][2] == 'i' ); // compile .inc files
 
         ++i;
         if ( i < argc && argv[i] && argv[i][0] != '-' )
@@ -752,7 +750,7 @@ bool run( int argc, char** argv )
       }
       else if ( argv[i][1] == 'C' )
       {
-        ++i;  // skip the config file pathname
+        ++i; // skip the config file pathname
       }
       // and skip any other option.
     }
@@ -783,16 +781,16 @@ bool run( int argc, char** argv )
     fmt::Writer tmp;
     tmp << "Compilation Summary:\n";
     if ( summary.CompiledScripts )
-      tmp << "    Compiled " << summary.CompiledScripts << " script"
-          << ( summary.CompiledScripts == 1 ? "" : "s" ) << " in " << timer.ellapsed() << " ms.\n";
+      tmp << "    Compiled " << summary.CompiledScripts << " script" << ( summary.CompiledScripts == 1 ? "" : "s" )
+          << " in " << timer.ellapsed() << " ms.\n";
 
     if ( summary.ScriptsWithCompileErrors )
-      tmp << "    " << summary.ScriptsWithCompileErrors << " of those script"
-          << ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" ) << " had errors.\n";
+      tmp << "    " << summary.ScriptsWithCompileErrors << " of those script" << ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" )
+          << " had errors.\n";
 
     if ( summary.UpToDateScripts )
-      tmp << "    " << summary.UpToDateScripts << " script"
-          << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
+      tmp << "    " << summary.UpToDateScripts << " script" << ( summary.UpToDateScripts == 1 ? " was" : "s were" )
+          << " already up-to-date.\n";
     INFO_PRINT << tmp.str();
   }
 
@@ -810,9 +808,9 @@ void read_config_file( int argc, char* argv[] )
       {
         ++i;
         if ( i == argc )
-          throw std::runtime_error( "-C specified without pathname" );
+          throw std::runtime_error("-C specified without pathname");
 
-        compilercfg.Read( std::string( argv[i] ) );
+        compilercfg.Read(std::string(argv[i]));
         return;
       }
     }
@@ -822,7 +820,7 @@ void read_config_file( int argc, char* argv[] )
   const char* env_ecompile_cfg_path = getenv( "ECOMPILE_CFG_PATH" );
   if ( env_ecompile_cfg_path != NULL )
   {
-    compilercfg.Read( std::string( env_ecompile_cfg_path ) );
+    compilercfg.Read(std::string(env_ecompile_cfg_path));
     return;
   }
 
@@ -853,15 +851,15 @@ int ECompileMain::main()
   /**********************************************
    * show help
    **********************************************/
-  if ( binArgs.size() == 1 )
+  if (binArgs.size() == 1)
   {
     showHelp();
-    return 0;  // return "okay"
+    return 0; // return "okay"
   }
 
-/**********************************************
- * TODO: rework the following cruft from former uotool.cpp
- **********************************************/
+  /**********************************************
+   * TODO: rework the following cruft from former uotool.cpp
+   **********************************************/
 #ifdef _WIN32
   Clib::MiniDumper::Initialize();
 #endif
@@ -882,7 +880,7 @@ int ECompileMain::main()
 
   if ( ECompile::opt_generate_wordlist )
   {
-    ECompile::generate_wordlist();
+    ECompile::generate_wordlist( );
     return 0;
   }
 
@@ -898,8 +896,9 @@ int ECompileMain::main()
     return 0;
   }
 }
+
 }
-}  // namespaces
+} // namespaces
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -911,5 +910,6 @@ int main( int argc, char* argv[] )
   Pol::ECompile::s_argv = argv;
 
   Pol::ECompile::ECompileMain* ECompileMain = new Pol::ECompile::ECompileMain();
-  ECompileMain->start( argc, argv );
+  ECompileMain->start(argc, argv);
 }
+

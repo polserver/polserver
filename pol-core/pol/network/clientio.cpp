@@ -59,7 +59,7 @@ void Client::recv_remaining( int total_expected )
     counters.bytes_received += count;
     Core::networkManager.polstats.bytes_received += count;
   }
-  else if ( count == 0 )  // graceful close
+  else if ( count == 0 ) // graceful close
   {
     disconnect = true;
   }
@@ -77,7 +77,9 @@ void Client::recv_remaining_nocrypt( int total_expected )
 
   {
     std::lock_guard<std::mutex> lock( _SocketMutex );
-    count = recv( csocket, (char*)&buffer[bytes_received], total_expected - bytes_received, 0 );
+    count = recv( csocket,
+                  (char*)&buffer[bytes_received],
+                  total_expected - bytes_received, 0 );
   }
   if ( count > 0 )
   {
@@ -85,7 +87,7 @@ void Client::recv_remaining_nocrypt( int total_expected )
     counters.bytes_received += count;
     Core::networkManager.polstats.bytes_received += count;
   }
-  else if ( count == 0 )  // graceful close
+  else if ( count == 0 ) // graceful close
   {
     disconnect = true;
   }
@@ -107,9 +109,8 @@ void Client::transmit_encrypted( const void* data, int len )
   const unsigned char* cdata = (const unsigned char*)data;
   unsigned char* pch;
   int i;
-  int bidx;  // Offset in output byte
-  EncryptedPktBuffer* outbuffer =
-      PktHelper::RequestPacket<EncryptedPktBuffer>( ENCRYPTEDPKTBUFFER );
+  int bidx; // Offset in output byte
+  EncryptedPktBuffer* outbuffer = PktHelper::RequestPacket<EncryptedPktBuffer>( ENCRYPTEDPKTBUFFER );
   pch = reinterpret_cast<unsigned char*>( outbuffer->getBuffer() );
   bidx = 0;
   THREAD_CHECKPOINT( active_client, 101 );
@@ -126,8 +127,7 @@ void Client::transmit_encrypted( const void* data, int len )
     {
       THREAD_CHECKPOINT( active_client, 104 );
       *pch <<= 1;
-      if ( inval & 1 )
-        *pch |= 1;
+      if ( inval & 1 ) *pch |= 1;
       bidx++;
       if ( bidx == 8 )
       {
@@ -140,6 +140,7 @@ void Client::transmit_encrypted( const void* data, int len )
       inval >>= 1;
     }
     THREAD_CHECKPOINT( active_client, 107 );
+
   }
   THREAD_CHECKPOINT( active_client, 108 );
 
@@ -153,8 +154,7 @@ void Client::transmit_encrypted( const void* data, int len )
     {
       THREAD_CHECKPOINT( active_client, 110 );
       *pch <<= 1;
-      if ( inval & 1 )
-        *pch |= 1;
+      if ( inval & 1 ) *pch |= 1;
       bidx++;
       THREAD_CHECKPOINT( active_client, 111 );
       if ( bidx == 8 )
@@ -179,11 +179,9 @@ void Client::transmit_encrypted( const void* data, int len )
   }
   THREAD_CHECKPOINT( active_client, 114 );
 
-  passert_always( pch - reinterpret_cast<unsigned char*>( outbuffer->buffer ) + 1 <=
-                  int( sizeof outbuffer->buffer ) );
+  passert_always( pch - reinterpret_cast<unsigned char*>( outbuffer->buffer ) + 1 <= int( sizeof outbuffer->buffer ) );
   THREAD_CHECKPOINT( active_client, 115 );
-  xmit( &outbuffer->buffer, static_cast<unsigned short>(
-                                pch - reinterpret_cast<unsigned char*>( outbuffer->buffer ) + 1 ) );
+  xmit( &outbuffer->buffer, static_cast<unsigned short>( pch - reinterpret_cast<unsigned char*>( outbuffer->buffer ) + 1 ) );
   PktHelper::ReAddPacket( outbuffer );
   THREAD_CHECKPOINT( active_client, 116 );
 }
@@ -192,13 +190,12 @@ void Client::transmit( const void* data, int len, bool needslock )
 {
   ref_ptr<Core::BPacket> p;
   bool handled = false;
-  // see if the outgoing packet has a SendFunction installed. If so call it. It may or may not
-  // want us to continue sending the packet. If it does, handled will be false, and data, len, and p
-  // will be altered. data has the new packet data to send, len the new length, and p, a ref counted
-  // pointer to the packet object.
+  //see if the outgoing packet has a SendFunction installed. If so call it. It may or may not
+  //want us to continue sending the packet. If it does, handled will be false, and data, len, and p
+  //will be altered. data has the new packet data to send, len the new length, and p, a ref counted
+  //pointer to the packet object.
   //
-  // If there is no outgoing packet script, handled will be false, and the passed params will be
-  // unchanged.
+  //If there is no outgoing packet script, handled will be false, and the passed params will be unchanged.
   {
     PacketHookData* phd = NULL;
     handled = GetAndCheckPacketHooked( this, data, phd );
@@ -224,7 +221,7 @@ void Client::transmit( const void* data, int len, bool needslock )
   unsigned char msgtype = *(const char*)data;
 
   {
-    Clib::SpinLockGuard guard( _fpLog_lock );
+    Clib::SpinLockGuard guard(_fpLog_lock);
     if ( !fpLog.empty() )
     {
       fmt::Writer tmp;
@@ -239,8 +236,8 @@ void Client::transmit( const void* data, int len, bool needslock )
   {
     POLLOG_INFO << "Warning: Trying to send to a disconnected client! \n";
     fmt::Writer tmp;
-    tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
-    Clib::fdump( tmp, data, len );
+    tmp << "Server -> Client: 0x" << fmt::hexu(msgtype) << ", " << len << " bytes\n";
+    Clib::fdump(tmp, data, len);
     POLLOG_INFO << tmp.str() << "\n";
     return;
   }
@@ -268,7 +265,7 @@ void Client::transmit( const void* data, int len, bool needslock )
 void Client::transmitmore( const void* data, int len )
 {
   {
-    Clib::SpinLockGuard guard( _fpLog_lock );
+    Clib::SpinLockGuard guard(_fpLog_lock);
     if ( !fpLog.empty() )
     {
       fmt::Writer tmp;

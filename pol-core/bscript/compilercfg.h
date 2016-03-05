@@ -16,7 +16,7 @@ namespace Bscript
 {
 struct CompilerConfig
 {
-  std::vector<std::string> PackageRoot;
+  std::vector< std::string > PackageRoot;
   std::string IncludeDirectory;
   std::string ModuleDirectory;
   std::string PolScriptRoot;

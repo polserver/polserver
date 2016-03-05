@@ -16,6 +16,7 @@ namespace Pol
 {
 namespace Bscript
 {
+
 class BError : public BStruct
 {
 public:

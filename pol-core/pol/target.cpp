@@ -41,23 +41,22 @@ namespace Pol
 {
 namespace Core
 {
+
 void handle_target_cursor( Network::Client* client, PKTBI_6C* msg )
 {
   Mobile::Character* targetter = client->chr;
   u32 target_cursor_serial = cfBEu32( msg->target_cursor_serial );
 
   // does target cursor even exist? (NOTE 1-based)
-  if ( target_cursor_serial == 0 ||
-       target_cursor_serial > gamestate.target_cursors._cursorid_count )
+  if ( target_cursor_serial== 0 || target_cursor_serial > gamestate.target_cursors._cursorid_count )
   {
     return;
   }
 
-  TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial - 1];
+  TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial-1];
   if ( tcursor != targetter->tcursor2 )
   {
-    POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name()
-                 << " used out of sequence cursor.\n";
+    POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name() << " used out of sequence cursor.\n";
 
     targetter->tcursor2 = NULL;
     return;
@@ -119,7 +118,8 @@ void (*func)(Client *client, PKTBI_6C *msg);
 } target_handlers[ MAX_CURSORS ];
 */
 
-TargetCursor::TargetCursor( bool inform_on_cancel ) : inform_on_cancel_( inform_on_cancel )
+TargetCursor::TargetCursor( bool inform_on_cancel ) :
+  inform_on_cancel_( inform_on_cancel )
 {
   if ( gamestate.target_cursors._cursorid_count > gamestate.target_cursors._target_cursors.size() )
   {
@@ -128,7 +128,7 @@ TargetCursor::TargetCursor( bool inform_on_cancel ) : inform_on_cancel_( inform_
 
   cursorid_ = gamestate.target_cursors._cursorid_count;
 
-  gamestate.target_cursors._target_cursors[cursorid_ - 1] = this;
+  gamestate.target_cursors._target_cursors[cursorid_-1] = this;
 
   gamestate.target_cursors._cursorid_count++;
 }
@@ -137,7 +137,8 @@ TargetCursor::TargetCursor( bool inform_on_cancel ) : inform_on_cancel_( inform_
 // to make sure that he client has any business using this menu - in this
 // case, we need to make sure the client is supposed to have an active cursor.
 
-bool TargetCursor::send_object_cursor( Network::Client* client, PKTBI_6C::CURSOR_TYPE crstype )
+bool TargetCursor::send_object_cursor( Network::Client* client,
+                                       PKTBI_6C::CURSOR_TYPE crstype )
 {
   if ( !client->chr->target_cursor_busy() )
   {
@@ -165,12 +166,12 @@ void TargetCursor::cancel( Mobile::Character* chr )
 
 void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 {
-  if ( msg->selected_serial != 0 )  // targetted something
+  if ( msg->selected_serial != 0 )   // targetted something
   {
-    if ( chr->dead() )  // but is dead
+
+    if ( chr->dead() )            // but is dead
     {
-      if ( chr->client != NULL )
-        send_sysmessage( chr->client, "I am dead and cannot do that." );
+      if ( chr->client != NULL ) send_sysmessage( chr->client, "I am dead and cannot do that." );
       cancel( chr );
       return;
     }
@@ -190,7 +191,8 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 
     u32 selected_serial = cfBEu32( msg->selected_serial );
     UObject* obj = system_find_object( selected_serial );
-    if ( obj != NULL && obj->script_isa( POLCLASS_MOBILE ) && !obj->script_isa( POLCLASS_NPC ) )
+    if ( obj != NULL && obj->script_isa( POLCLASS_MOBILE ) &&
+         !obj->script_isa( POLCLASS_NPC ) )
     {
       Mobile::Character* targeted = find_character( selected_serial );
       // check for when char is not logged on
@@ -204,8 +206,8 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 
         if ( msg->cursor_type == 1 )
         {
-          if ( ( JusticeRegion::RunNoCombatCheck( chr->client ) == true ) ||
-               ( JusticeRegion::RunNoCombatCheck( targeted->client ) == true ) )
+          if ( ( JusticeRegion::RunNoCombatCheck( chr->client ) == true )
+               || ( JusticeRegion::RunNoCombatCheck( targeted->client ) == true ) )
           {
             send_sysmessage( chr->client, "Combat is not allowed in this area." );
             cancel( chr );
@@ -222,10 +224,10 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
     cancel( chr );
 }
 
-FullMsgTargetCursor::FullMsgTargetCursor( void ( *func )( Mobile::Character*, PKTBI_6C* ) )
-    : TargetCursor( false /* don't inform on cancel */ ), func( func )
-{
-}
+FullMsgTargetCursor::FullMsgTargetCursor( void( *func )( Mobile::Character*, PKTBI_6C*) ) :
+  TargetCursor( false /* don't inform on cancel */ ),
+  func( func )
+{}
 
 void FullMsgTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 {
@@ -233,12 +235,14 @@ void FullMsgTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* ms
 }
 
 
+
 /******************************************************/
-LosCheckedTargetCursor::LosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                                                bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func( func )
-{
-}
+LosCheckedTargetCursor::LosCheckedTargetCursor(
+  void( *func )( Mobile::Character*, UObject*),
+  bool inform_on_cancel ) :
+  TargetCursor( inform_on_cancel ),
+  func( func )
+{}
 
 void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 {
@@ -261,8 +265,7 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
 
   if ( uobj == NULL )
   {
-    if ( chr->client != NULL )
-      send_sysmessage( chr->client, "What you selected does not seem to exist." );
+    if ( chr->client != NULL ) send_sysmessage( chr->client, "What you selected does not seem to exist." );
     if ( inform_on_cancel_ )
       ( *func )( chr, NULL );
     return;
@@ -270,8 +273,7 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
 
   if ( !additlegal && !chr->realm->has_los( *chr, *uobj->toplevel_owner() ) )
   {
-    if ( chr->client != NULL )
-      send_sysmessage( chr->client, "That is not within your line of sight." );
+    if ( chr->client != NULL ) send_sysmessage( chr->client, "That is not within your line of sight." );
     if ( inform_on_cancel_ )
       ( *func )( chr, NULL );
     return;
@@ -282,12 +284,14 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
 /******************************************************/
 
 
+
 /******************************************************/
-NoLosCheckedTargetCursor::NoLosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                                                    bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func( func )
-{
-}
+NoLosCheckedTargetCursor::NoLosCheckedTargetCursor(
+  void( *func )( Mobile::Character*, UObject*),
+  bool inform_on_cancel ) :
+  TargetCursor( inform_on_cancel ),
+  func( func )
+{}
 
 void NoLosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 {
@@ -310,8 +314,7 @@ void NoLosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6
 
   if ( uobj == NULL )
   {
-    if ( chr->client != NULL )
-      send_sysmessage( chr->client, "What you selected does not seem to exist." );
+    if ( chr->client != NULL ) send_sysmessage( chr->client, "What you selected does not seem to exist." );
     if ( inform_on_cancel_ )
       ( *func )( chr, NULL );
     return;
@@ -322,11 +325,18 @@ void NoLosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6
 /******************************************************/
 
 
-LosCheckedCoordCursor::LosCheckedCoordCursor( void ( *func )( Mobile::Character*, PKTBI_6C* ),
-                                              bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func_( func )
-{
-}
+
+
+
+
+
+
+LosCheckedCoordCursor::LosCheckedCoordCursor(
+  void( *func )( Mobile::Character*, PKTBI_6C*),
+  bool inform_on_cancel ) :
+  TargetCursor( inform_on_cancel ),
+  func_( func )
+{}
 
 bool LosCheckedCoordCursor::send_coord_cursor( Network::Client* client )
 {
@@ -345,6 +355,7 @@ bool LosCheckedCoordCursor::send_coord_cursor( Network::Client* client )
   {
     return false;
   }
+
 }
 
 void LosCheckedCoordCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
@@ -353,25 +364,24 @@ void LosCheckedCoordCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* 
 }
 
 
-MultiPlacementCursor::MultiPlacementCursor( void ( *func )( Mobile::Character*, PKTBI_6C* ) )
-    : TargetCursor( true ), func_( func )
-{
-}
 
-void MultiPlacementCursor::send_placemulti( Network::Client* client, unsigned int objtype,
-                                            int flags, s16 xoffset, s16 yoffset, u32 hue )
+MultiPlacementCursor::MultiPlacementCursor( void( *func )( Mobile::Character*, PKTBI_6C*) ) :
+  TargetCursor( true ),
+  func_( func )
+{}
+
+void MultiPlacementCursor::send_placemulti( Network::Client* client, unsigned int objtype, int flags, s16 xoffset, s16 yoffset, u32 hue )
 {
   Network::PktHelper::PacketOut<Network::PktOut_99> msg;
   msg->Write<u8>( 0x1u );
   msg->WriteFlipped<u32>( cursorid_ );
-  msg->offset += 12;  // 12x u8 unk
+  msg->offset += 12; // 12x u8 unk
   u16 multiid = Items::find_multidesc( objtype ).multiid;
-  multiid +=
-      static_cast<u16>( ( flags & Multi::CRMULTI_FACING_MASK ) >> Multi::CRMULTI_FACING_SHIFT );
+  multiid += static_cast<u16>( ( flags & Multi::CRMULTI_FACING_MASK ) >> Multi::CRMULTI_FACING_SHIFT );
   msg->WriteFlipped<u16>( multiid );
   msg->WriteFlipped<s16>( xoffset );
   msg->WriteFlipped<s16>( yoffset );
-  msg->offset += 2;  // u16 maybe_zoffset
+  msg->offset += 2; // u16 maybe_zoffset
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
     msg->WriteFlipped<u32>( hue );
   msg.Send( client );
@@ -384,11 +394,12 @@ void MultiPlacementCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* m
 }
 
 
-NoLosCharacterCursor::NoLosCharacterCursor( void ( *func )( Mobile::Character*,
-                                                            Mobile::Character* ) )
-    : TargetCursor( false /* don't inform on cancel */ ), func( func )
-{
-}
+
+
+NoLosCharacterCursor::NoLosCharacterCursor( void( *func )( Mobile::Character*, Mobile::Character*) ) :
+  TargetCursor( false /* don't inform on cancel */ ),
+  func( func )
+{}
 
 void NoLosCharacterCursor::on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msgin )
 {
@@ -400,11 +411,11 @@ void NoLosCharacterCursor::on_target_cursor( Mobile::Character* targetter, PKTBI
     ( *func )( targetter, chr );
 }
 
-NoLosUObjectCursor::NoLosUObjectCursor( void ( *func )( Mobile::Character*, UObject* ),
-                                        bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func( func )
-{
-}
+NoLosUObjectCursor::NoLosUObjectCursor( void( *func )( Mobile::Character*, UObject*),
+                                        bool inform_on_cancel ) :
+  TargetCursor( inform_on_cancel ),
+  func( func )
+{}
 
 void NoLosUObjectCursor::on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msgin )
 {
@@ -426,23 +437,20 @@ void NoLosUObjectCursor::on_target_cursor( Mobile::Character* targetter, PKTBI_6
   }
 }
 
-Cursors::Cursors()
-    : _target_cursors(),  // NOTE: the id is 1-based (seems that the stealth client has problem with
-                          // serial==0)
-      _cursorid_count(
-          1 ),  // array and index needs to be initialized before registering the cursors
-      los_checked_script_cursor( Module::handle_script_cursor, true ),
-      nolos_checked_script_cursor( Module::handle_script_cursor, true ),
+Cursors::Cursors() :
+  _target_cursors(), // NOTE: the id is 1-based (seems that the stealth client has problem with serial==0)
+  _cursorid_count(1), // array and index needs to be initialized before registering the cursors
+  los_checked_script_cursor( Module::handle_script_cursor, true ),
+  nolos_checked_script_cursor( Module::handle_script_cursor, true ),
 
-      add_member_cursor( handle_add_member_cursor ),
-      remove_member_cursor( handle_remove_member_cursor ),
-      ident_cursor( handle_ident_cursor ),
-      script_cursor2( Module::handle_coord_cursor, true ),
-      multi_placement_cursor( Module::handle_coord_cursor ),
-      repdata_cursor( show_repdata ),
-      startlog_cursor( start_packetlog ),
-      stoplog_cursor( stop_packetlog )
-{
-}
+  add_member_cursor( handle_add_member_cursor ),
+  remove_member_cursor( handle_remove_member_cursor ),
+  ident_cursor( handle_ident_cursor ),
+  script_cursor2( Module::handle_coord_cursor, true ),
+  multi_placement_cursor( Module::handle_coord_cursor ),
+  repdata_cursor( show_repdata ),
+  startlog_cursor( start_packetlog ),
+  stoplog_cursor( stop_packetlog )
+{}
 }
 }

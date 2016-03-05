@@ -3,8 +3,7 @@
  * @par History
  * - 2009/08/03 MuadDib:   Upgraded ph6017 and is6017 to version, and integer instead of bool.
  *
- * @note Version member: Positive Integer. This is used to translate the "version" of the packet
- * structure
+ * @note Version member: Positive Integer. This is used to translate the "version" of the packet structure
  * to the correct internal core Message Handler (Default 1, which translates to use handler[]). Each
  * new Handler added to the core needs a new Version number here. As of 8/3/09 there is only 2.
  */
@@ -38,7 +37,7 @@ public:
   ~PacketHookData();
   size_t estimateSize() const;
 
-  int length;  // if MSGLEN_2BYTELEN_DATA, variable length
+  int length; // if MSGLEN_2BYTELEN_DATA, variable length
   Core::ExportedFunction* function;
   Core::ExportedFunction* outgoing_function;
 
@@ -48,16 +47,14 @@ public:
   unsigned short sub_command_length;
   PacketVersion version;
   VersionDetailStruct client_ver;
-  std::map<u32, PacketHookData*> SubCommands;
+  std::map<u32, PacketHookData*>SubCommands;
 
-  static void initializeGameData( std::vector<std::unique_ptr<PacketHookData>>* data );
+  static void initializeGameData(std::vector<std::unique_ptr<PacketHookData>>* data);
 };
 
 void load_packet_hooks();
 void ExportedPacketHookHandler( Client* client, void* data );
-void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int& inlength,
-                                         ref_ptr<Core::BPacket>& outpacket, PacketHookData* phd,
-                                         bool& handled );
+void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int& inlength, ref_ptr<Core::BPacket>& outpacket, PacketHookData* phd, bool& handled );
 bool GetAndCheckPacketHooked( Client* client, const void*& data, PacketHookData*& phd );
 void clean_packethooks();
 

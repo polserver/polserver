@@ -5,6 +5,7 @@
  */
 
 
+
 #ifndef WEPNTMPL_H
 #define WEPNTMPL_H
 
@@ -22,15 +23,16 @@ class Attribute;
 }
 namespace Items
 {
+
 class WeaponDesc : public Core::EquipDesc
 {
 public:
   typedef EquipDesc base;
   WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-  WeaponDesc();  // for dummy template
-  virtual ~WeaponDesc(){};
+  WeaponDesc(); // for dummy template
+  virtual ~WeaponDesc() {};
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
   unsigned short get_random_damage() const;
 

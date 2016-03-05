@@ -7,6 +7,7 @@
  */
 
 
+
 #ifndef BOAT_H
 #define BOAT_H
 
@@ -45,8 +46,8 @@ struct BoatShape
     unsigned short xdelta;
     unsigned short ydelta;
     signed short zdelta;
-    ComponentShape( const std::string& str, const std::string& altstr, unsigned char type );
-    ComponentShape( const std::string& str, unsigned char type );
+    ComponentShape(const std::string& str, const std::string& altstr, unsigned char type);
+    ComponentShape(const std::string& str, unsigned char type);
   };
   std::vector<ComponentShape> Componentshapes;
 
@@ -67,51 +68,43 @@ class UBoat : public UMulti
     unsigned short x;
     unsigned short y;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), x( ub.x ), y( ub.y ){};
+    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), x( ub.x ), y( ub.y ) {};
     friend class UBoat;
-    BoatContext& operator=( const BoatContext& ) { return *this; }
+    BoatContext& operator=( const BoatContext&)
+    {
+      return *this;
+    }
   };
-
 public:
   struct BoatMoveGuard
   {
     UBoat* _boat;
-    BoatMoveGuard( UBoat* boat ) : _boat( boat )
+    BoatMoveGuard( UBoat* boat ) :_boat( boat )
     {
-      if ( boat != nullptr )
-        boat->unregself();
+      if ( boat != nullptr ) boat->unregself( );
     };
-    ~BoatMoveGuard()
+    ~BoatMoveGuard( )
     {
-      if ( _boat != nullptr )
-        _boat->regself();
+      if ( _boat != nullptr ) _boat->regself( );
     };
   };
 
   virtual UBoat* as_boat() POL_OVERRIDE;
-  virtual ~UBoat(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual ~UBoat() {};
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
   bool move_xy( unsigned short x, unsigned short y, int flags, Realms::Realm* oldrealm );
 
-  enum RELATIVE_DIR
-  {
-    NO_TURN,
-    RIGHT,
-    AROUND,
-    LEFT
-  };
+  enum RELATIVE_DIR { NO_TURN, RIGHT, AROUND, LEFT };
   bool turn( RELATIVE_DIR dir );
 
   virtual void register_object( Core::UObject* obj ) POL_OVERRIDE;
   virtual void unregister_object( Core::UObject* obj ) POL_OVERRIDE;
   Core::UFACING boat_facing() const;
 
-  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx,
-                         u16 newy, bool relative );
-  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy,
-                                    bool relative );
+  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative );
+  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy, bool relative );
   void send_display_boat( Network::Client* client );
   void send_display_boat_to_inrange( u16 oldx = USHRT_MAX, u16 oldy = USHRT_MAX );
   void send_boat( Network::Client* client );
@@ -128,12 +121,10 @@ public:
   void regself();
   void unregself();
 
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags );
 
   virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
-  static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z,
-                         Realms::Realm* realm );
+  static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z, Realms::Realm* realm );
   void realm_changed();
   void adjust_traveller_z( s8 delta_z );
 
@@ -147,9 +138,7 @@ public:
   Items::Item* hold;
 
 protected:
-  void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation,
-                        unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX,
-                        Realms::Realm* oldrealm = NULL );
+  void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation, unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX, Realms::Realm* oldrealm = NULL );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
@@ -172,9 +161,8 @@ protected:
   friend class UMulti;
 
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
-  virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
+  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
   virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
   Bscript::BObjectImp* items_list() const;
@@ -183,11 +171,10 @@ protected:
 
   friend class Module::EUBoatRefObjImp;
   friend struct BoatMoveGuard;
-
 private:
   void create_components();
   typedef Core::UObjectRef Traveller;
-  typedef std::vector<Traveller> Travellers;
+  typedef std::vector< Traveller > Travellers;
   Travellers travellers_;
 
   std::vector<Items::Item*> Components;

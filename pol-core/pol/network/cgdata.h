@@ -31,6 +31,7 @@ class UContainer;
 }
 namespace Network
 {
+
 class ClientGameData
 {
 public:
@@ -49,7 +50,7 @@ public:
 
   void add_gumpmod( Module::UOExecutorModule*, u32 gumpid );
   Module::UOExecutorModule* find_gumpmod( u32 gumpid );
-  void remove_gumpmods( Module::UOExecutorModule* );
+  void remove_gumpmods( Module::UOExecutorModule*);
 
   Module::UOExecutorModule* textentry_uoemod;
 
@@ -66,7 +67,7 @@ public:
   Module::UOExecutorModule* resurrect_uoemod;
   Module::UOExecutorModule* selcolor_uoemod;
 
-  Module::UnicodeExecutorModule* prompt_uniemod;  // UNIemod, not UOemod!!!
+  Module::UnicodeExecutorModule* prompt_uniemod; // UNIemod, not UOemod!!!
 
   Core::JusticeRegion* justice_region;
 

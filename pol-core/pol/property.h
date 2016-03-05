@@ -21,42 +21,42 @@
 */
 struct NoConstraint
 {
-  template <class T>
-  static T apply( const T x )
+  template<class T>
+  static T apply(const T x)
   {
     return x;
   }
 };
 
-template <int min>
+template<int min>
 struct MinValue
 {
-  template <class T>
-  static T apply( const T x )
+  template<class T>
+  static T apply(const T x)
   {
-    return ( x < min ) ? min : x;
+    return (x < min) ? min : x;
   }
 };
 
-template <int max>
+template<int max>
 struct MaxValue
 {
-  template <class T>
-  static T apply( const T x )
+  template<class T>
+  static T apply(const T x)
   {
-    return ( x > max ) ? max : x;
+    return (x > max) ? max : x;
   }
 };
 
-template <int min, int max>
+template<int min,int max>
 struct MinMaxValue
 {
-  template <class T>
-  static T apply( const T x )
+  template<class T>
+  static T apply(const T x)
   {
-    if ( x < min )
+    if (x < min)
       return min;
-    else if ( x > max )
+    else if (x > max)
       return max;
     else
       return x;
@@ -76,7 +76,7 @@ struct MinMaxValue
 
    class X {
        ...
-       Property<u16> ar;
+     Property<u16> ar;
    }
 
    X obj;
@@ -92,60 +92,85 @@ private:
   T _value;
 
 public:
-  Property( T x ) { _value = x; }
-  Property() { _value = 0; }
-#ifdef USE_SAFEINT
-  SafeInt<T> operator()() const { return SafeInt<T>( _value ); }
-  SafeInt<T> operator()( const T newValue )
+  Property(T x)
   {
-    _value = constraint::apply<T>( newValue );
-    return SafeInt<T>( _value );
+    _value = x;
+  }
+  Property()
+  {
+    _value = 0;
+  }
+
+#ifdef USE_SAFEINT
+  SafeInt<T> operator()() const
+  {
+    return SafeInt<T>(_value);
+  }
+
+  SafeInt<T> operator()(const T newValue)
+  {
+    _value = constraint::apply<T>(newValue);
+    return SafeInt<T>(_value);
   }
 #else
-  T operator()() const { return _value; }
-  T operator()( const T newValue )
+  T operator()() const
   {
-    _value = constraint::apply<T>( newValue );
+    return _value;
+  }
+
+  T operator()(const T newValue)
+  {
+    _value = constraint::apply<T>(newValue);
     return _value;
   }
 #endif
 
-  T unsafe() const { return _value; }
+  T unsafe() const
+  {
+    return _value;
+  }
 };
 
 
-/*
-     Preprocessor macro for defining get/set of dynamic properties. This requires the object
-     to have the functions this->getProp<T,key>() and this->setProp<T,key>(newValue).
 
-     Example:
-        PROPERTY_MAP( ar_mod, s16, MBR_AR_MOD );
+
+
+/*
+   Preprocessor macro for defining get/set of dynamic properties. This requires the object
+   to have the functions this->getProp<T,key>() and this->setProp<T,key>(newValue).
+
+   Example:
+    PROPERTY_MAP( ar_mod, s16, MBR_AR_MOD );
 
  */
-#define PROPERTY_MAP( propName, type, key )                      \
-  type propName() const { return this->getmember<type, key>(); } \
-  type propName( type tmp )                                      \
-  {                                                              \
-    this->setmember<type, key>( tmp );                           \
-    return tmp;                                                  \
+#define PROPERTY_MAP(propName,type,key) \
+  type propName () const {\
+    return this->getmember<type,key>();\
+  }\
+  type propName (type tmp) {\
+    this->setmember<type,key>(tmp);\
+    return tmp;\
   }
 
 #endif
 
 #ifdef USE_SAFEINT
 /*
-    The code below should go somewhere else. Right now (2013), property.h is the only thing to use
-   SafeInts.
+  The code below should go somewhere else. Right now (2013), property.h is the only thing to use SafeInts.
 */
 struct PropertyHelper
 {
-  static const char* stringFromError( SafeIntError x )
+  static const char* stringFromError(SafeIntError x)
   {
     const int numberOfErrors = 3;
-    const char* SafeIntErrorString[numberOfErrors] = {"No error", "Arithmetic overflow",
-                                                      "Divide by zero"};
+    const char* SafeIntErrorString[numberOfErrors] =
+    {
+      "No error",
+      "Arithmetic overflow",
+      "Divide by zero"
+    };
 
-    if ( x < numberOfErrors )
+    if (x < numberOfErrors)
     {
       return SafeIntErrorString[x];
     }
@@ -154,5 +179,6 @@ struct PropertyHelper
       return "";
     }
   }
+
 };
 #endif

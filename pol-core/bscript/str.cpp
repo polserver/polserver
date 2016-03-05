@@ -4,8 +4,7 @@
  * - 2007/12/09 Shinigami: removed ( is.peek() != EOF ) check from String::unpackWithLen()
  *                         will not work with Strings in Arrays, Dicts, etc.
  * - 2008/02/08 Turley:    String::unpackWithLen() will accept zero length Strings
- * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no
- * sense.
+ * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no sense.
  */
 
 #include "impstr.h"
@@ -20,23 +19,25 @@
 #include <cstring>
 
 #ifdef __GNUG__
-#include <streambuf>
+# include <streambuf>
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4244 )
+# pragma warning( disable: 4244 )
 #endif
 namespace Pol
 {
 namespace Bscript
 {
-String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() )
-{
-}
+String::String( BObjectImp& objimp ) :
+  BObjectImp( OTString ),
+  value_( objimp.getStringRep() )
+{}
 
-String::String( const char* s, int len ) : BObjectImp( OTString ), value_( s, len )
-{
-}
+String::String( const char* s, int len ) :
+  BObjectImp( OTString ),
+  value_( s, len )
+{}
 
 String* String::StrStr( int begin, int len )
 {
@@ -47,7 +48,7 @@ String* String::ETrim( const char* CRSet, int type )
 {
   std::string tmp = value_;
 
-  if ( type == 1 )  // This is for Leading Only.
+  if ( type == 1 ) // This is for Leading Only.
   {
     // Find the first character position after excluding leading blank spaces
     size_t startpos = tmp.find_first_not_of( CRSet );
@@ -57,11 +58,11 @@ String* String::ETrim( const char* CRSet, int type )
       tmp = "";
     return new String( tmp );
   }
-  else if ( type == 2 )  // This is for Trailing Only.
+  else if ( type == 2 ) // This is for Trailing Only.
   {
     // Find the first character position from reverse
     size_t endpos = tmp.find_last_not_of( CRSet );
-    if ( std::string::npos != endpos )
+    if (std::string::npos != endpos)
       tmp = tmp.substr( 0, endpos + 1 );
     else
       tmp = "";
@@ -75,7 +76,7 @@ String* String::ETrim( const char* CRSet, int type )
     size_t endpos = tmp.find_last_not_of( CRSet );
 
     // if all spaces or empty return on empty string
-    if ( ( std::string::npos == startpos ) || ( std::string::npos == endpos ) )
+    if ((std::string::npos == startpos) || (std::string::npos == endpos))
       tmp = "";
     else
       tmp = tmp.substr( startpos, endpos - startpos + 1 );
@@ -88,7 +89,7 @@ String* String::ETrim( const char* CRSet, int type )
 void String::EStrReplace( String* str1, String* str2 )
 {
   std::string::size_type valpos = 0;
-  while ( std::string::npos != ( valpos = value_.find( str1->value_, valpos ) ) )
+  while (std::string::npos != (valpos = value_.find(str1->value_, valpos)))
   {
     value_.replace( valpos, str1->length(), str2->value_ );
     valpos += str2->length();
@@ -105,11 +106,11 @@ std::string String::pack() const
   return "s" + value_;
 }
 
-void String::packonto( std::ostream& os ) const
+void String::packonto(std::ostream& os) const
 {
   os << "S" << value_.size() << ":" << value_;
 }
-void String::packonto( std::ostream& os, const std::string& value )
+void String::packonto(std::ostream& os, const std::string& value)
 {
   os << "S" << value.size() << ":" << value;
 }
@@ -119,7 +120,7 @@ BObjectImp* String::unpack( const char* pstr )
   return new String( pstr );
 }
 
-BObjectImp* String::unpack( std::istream& is )
+BObjectImp* String::unpack(std::istream& is)
 {
   std::string tmp;
   getline( is, tmp );
@@ -127,7 +128,7 @@ BObjectImp* String::unpack( std::istream& is )
   return new String( tmp );
 }
 
-BObjectImp* String::unpackWithLen( std::istream& is )
+BObjectImp* String::unpackWithLen(std::istream& is)
 {
   unsigned len;
   char colon;
@@ -144,7 +145,7 @@ BObjectImp* String::unpackWithLen( std::istream& is )
     return new BError( "Unable to unpack string length. Bad format. Colon not found!" );
   }
 
-  is.unsetf( std::ios::skipws );
+  is.unsetf(std::ios::skipws);
   std::string tmp;
   tmp.reserve( len );
   while ( len-- )
@@ -157,26 +158,26 @@ BObjectImp* String::unpackWithLen( std::istream& is )
     tmp += ch;
   }
 
-  is.setf( std::ios::skipws );
+  is.setf(std::ios::skipws);
   return new String( tmp );
 }
 
 size_t String::sizeEstimate() const
 {
-  return sizeof( String ) + value_.capacity();
+  return sizeof(String)+value_.capacity();
 }
 
 /*
-    0-based string find
-    find( "str srch", 2, "srch"):
-    01^-- start
-    */
+  0-based string find
+  find( "str srch", 2, "srch"):
+  01^-- start
+  */
 int String::find( int begin, const char* target )
 {
   // TODO: check what happens in string if begin position is out of range
   std::string::size_type pos;
   pos = value_.find( target, begin );
-  if ( pos == std::string::npos )
+  if (pos == std::string::npos)
     return -1;
   else
     return static_cast<int>( pos );
@@ -199,9 +200,9 @@ unsigned int String::SafeCharAmt() const
   for ( int i = 0; i < strlen; i++ )
   {
     unsigned char tmp = value_[i];
-    if ( isalnum( tmp ) )  // a-z A-Z 0-9
+    if ( isalnum( tmp ) ) // a-z A-Z 0-9
       continue;
-    else if ( ispunct( tmp ) )  // !"#$%&'()*+,-./:;<=>?@{|}~
+    else if ( ispunct( tmp ) ) // !"#$%&'()*+,-./:;<=>?@{|}~
     {
       if ( tmp == '{' || tmp == '}' )
         return i;
@@ -218,7 +219,7 @@ unsigned int String::SafeCharAmt() const
 
 void String::reverse( void )
 {
-  std::reverse( value_.begin(), value_.end() );
+  std::reverse(value_.begin(), value_.end());
 }
 
 void String::set( char* newstr )
@@ -282,8 +283,8 @@ void String::remove( const char* rm )
 {
   size_t len = strlen( rm );
 
-  auto pos = value_.find( rm );
-  if ( pos != std::string::npos )
+  auto pos = value_.find(rm);
+  if (pos != std::string::npos)
     value_.erase( pos, len );
 }
 
@@ -369,7 +370,7 @@ String* String::midstring( int begin, int len ) const
 
 void String::toUpper( void )
 {
-  for ( char& c : value_ )
+  for( char& c : value_ )
   {
     c = toupper( c );
   }
@@ -377,7 +378,7 @@ void String::toUpper( void )
 
 void String::toLower( void )
 {
-  for ( char& c : value_ )
+  for( char& c : value_ )
   {
     c = tolower( c );
   }
@@ -403,7 +404,7 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
   else if ( idx->isa( OTDouble ) )
   {
     Double& dbl = (Double&)*idx;
-    pos = static_cast<std::string::size_type>( dbl.value() );
+    pos = static_cast<std::string::size_type>(dbl.value());
     len = 1;
   }
   else
@@ -411,7 +412,7 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
     return UninitObject::create();
   }
 
-  if ( pos != std::string::npos )
+  if (pos != std::string::npos)
   {
     if ( target->isa( OTString ) )
     {
@@ -426,7 +427,7 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
   }
 }
 
-BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BObjectImp* target )
+BObjectRef String::OperMultiSubscriptAssign(std::stack<BObjectRef>& indices, BObjectImp* target)
 {
   BObjectRef start_ref = indices.top();
   indices.pop();
@@ -447,12 +448,13 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
     index = (unsigned)lng.value();
     if ( index == 0 || index > value_.size() )
       return BObjectRef( new BError( "Subscript out of range" ) );
+
   }
   else if ( start.isa( OTString ) )
   {
     String& rtstr = (String&)start;
-    std::string::size_type pos = value_.find( rtstr.value_ );
-    if ( pos != std::string::npos )
+    std::string::size_type pos = value_.find(rtstr.value_);
+    if (pos != std::string::npos)
       index = static_cast<unsigned int>( pos + 1 );
     else
       return BObjectRef( new UninitObject );
@@ -495,7 +497,7 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
 }
 
 
-BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
+BObjectRef String::OperMultiSubscript(std::stack<BObjectRef>& indices)
 {
   BObjectRef start_ref = indices.top();
   indices.pop();
@@ -516,12 +518,13 @@ BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
     index = (unsigned)lng.value();
     if ( index == 0 || index > value_.size() )
       return BObjectRef( new BError( "Subscript out of range" ) );
+
   }
   else if ( start.isa( OTString ) )
   {
     String& rtstr = (String&)start;
-    std::string::size_type pos = value_.find( rtstr.value_ );
-    if ( pos != std::string::npos )
+    std::string::size_type pos = value_.find(rtstr.value_);
+    if (pos != std::string::npos)
       index = static_cast<unsigned int>( pos + 1 );
     else
       return BObjectRef( new UninitObject );
@@ -582,8 +585,8 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
   else if ( right.isa( OTString ) )
   {
     String& rtstr = (String&)right;
-    auto pos = value_.find( rtstr.value_ );
-    if ( pos != std::string::npos )
+    auto pos = value_.find(rtstr.value_);
+    if (pos != std::string::npos)
       return BObjectRef( new BObject( new String( value_, pos, 1 ) ) );
     else
       return BObjectRef( new UninitObject );
@@ -596,7 +599,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
 
 // -- format related stuff --
 
-bool s_parse_int( int& i, std::string const& s )
+bool s_parse_int(int& i, std::string const& s)
 {
   if ( s.empty() )
     return false;
@@ -615,7 +618,7 @@ bool s_parse_int( int& i, std::string const& s )
 }
 
 // remove leading/trailing spaces
-void s_trim( std::string& s )
+void s_trim(std::string& s)
 {
   std::stringstream trimmer;
   trimmer << s;
@@ -782,7 +785,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 
       int tag_param_idx;
 
-      size_t str_pos = 0;               // current string position
+      size_t str_pos = 0;         // current string position
       unsigned int next_param_idx = 0;  // next index of .format() parameter
 
       char w_spaces[] = "\t ";
@@ -798,7 +801,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
           str_pos = tag_stop_pos + 1;
 
           std::string tag_body =
-              value_.substr( tag_start_pos + 1, ( tag_stop_pos - tag_start_pos ) - 1 );
+            value_.substr( tag_start_pos + 1, ( tag_stop_pos - tag_start_pos ) - 1 );
 
           tag_start_pos = tag_body.find_first_not_of( w_spaces );
           tag_stop_pos = tag_body.find_last_not_of( w_spaces );
@@ -885,7 +888,8 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
           BObjectImp* imp = ex.getParamImp( tag_param_idx );
 
           if ( !prop_name.empty() )
-          {  // accesing object
+          {
+            // accesing object
             BObjectRef obj_member = imp->get_member( prop_name.c_str() );
             BObjectImp* member_imp = obj_member->impptr();
             try_to_format( result, member_imp, frmt );

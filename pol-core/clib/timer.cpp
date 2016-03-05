@@ -10,7 +10,8 @@ namespace Tools
 {
 void DebugT::print( const std::string& name, long long time )
 {
-  INFO_PRINT << "\n----------------------------------\n" << name << ": " << time << " ms\n"
+  INFO_PRINT << "\n----------------------------------\n"
+             << name << ": " << time << " ms\n"
              << "----------------------------------\n";
 }
 void SilentT::print( const std::string&, long long )
@@ -18,21 +19,19 @@ void SilentT::print( const std::string&, long long )
 }
 
 template <class printer>
-Timer<printer>::Timer( std::string name )
-    : _name( name )
+Timer<printer>::Timer( std::string name ) : _name( name )
 {
   start();
 }
 template <class printer>
-Timer<printer>::Timer()
-    : _name( "" )
+Timer<printer>::Timer() : _name( "" )
 {
   start();
 }
 template <class printer>
 Timer<printer>::~Timer()
 {
-  if ( _start == _end )
+  if( _start == _end )
     stop();
   printer::print( _name, ellapsed() );
 }
@@ -51,7 +50,7 @@ template <class printer>
 long long Timer<printer>::ellapsed() const
 {
   Clock::time_point _now = Clock::now();
-  if ( _start != _end )  // already stopped
+  if( _start != _end ) // already stopped
     _now = _end;
   return std::chrono::duration_cast<ms>( _now - _start ).count();
 }
@@ -67,9 +66,9 @@ void Timer<printer>::print() const
 }
 
 
-HighPerfTimer::HighPerfTimer() : _start( Clock::now() )
-{
-}
+HighPerfTimer::HighPerfTimer() :
+  _start( Clock::now() )
+{}
 
 HighPerfTimer::time_mu HighPerfTimer::ellapsed() const
 {
@@ -82,3 +81,4 @@ template class Timer<DebugT>;
 template class Timer<SilentT>;
 }
 }
+

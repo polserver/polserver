@@ -31,9 +31,9 @@ namespace Pol
 {
 namespace Plib
 {
-template <class USER_TYPE>
-class FixedSizeAllocator
+template <class USER_TYPE> class FixedSizeAllocator
 {
+
 public:
   // Constants
   enum
@@ -52,9 +52,10 @@ public:
     FSA_ELEMENT* pNext;
   };
 
-public:  // methods
-  FixedSizeAllocator( size_t MaxElements = FSA_DEFAULT_SIZE )
-      : m_pFirstUsed( NULL ), m_MaxElements( MaxElements )
+public: // methods
+  FixedSizeAllocator( size_t MaxElements = FSA_DEFAULT_SIZE ) :
+    m_pFirstUsed( NULL ),
+    m_MaxElements( MaxElements )
   {
     // Allocate enough memory for the maximum number of elements
 
@@ -66,7 +67,7 @@ public:  // methods
     m_pFirstFree = m_pMemory;
 
     // Clear the memory
-    memset( m_pMemory, 0, sizeof( FSA_ELEMENT ) * m_MaxElements );
+    memset( m_pMemory, 0, sizeof(FSA_ELEMENT)* m_MaxElements );
 
     // Point at first element
     FSA_ELEMENT* pElement = m_pFirstFree;
@@ -84,6 +85,7 @@ public:  // methods
     m_pFirstFree->pPrev = NULL;
     // last element should have a null next
     ( pElement - 1 )->pNext = NULL;
+
   }
 
 
@@ -96,6 +98,7 @@ public:  // methods
   // Allocate a new USER_TYPE and return a pointer to it
   USER_TYPE* alloc()
   {
+
     FSA_ELEMENT* pNewNode = NULL;
 
     if ( !m_pFirstFree )
@@ -116,15 +119,15 @@ public:  // methods
 
       // node is now on the used list
 
-      pNewNode->pPrev = NULL;  // the allocated node is always first in the list
+      pNewNode->pPrev = NULL; // the allocated node is always first in the list
 
       if ( m_pFirstUsed == NULL )
       {
-        pNewNode->pNext = NULL;  // no other nodes
+        pNewNode->pNext = NULL; // no other nodes
       }
       else
       {
-        m_pFirstUsed->pPrev = pNewNode;  // insert this at the head of the used list
+        m_pFirstUsed->pPrev = pNewNode; // insert this at the head of the used list
         pNewNode->pNext = m_pFirstUsed;
       }
 
@@ -174,6 +177,7 @@ public:  // methods
       pNode->pNext = m_pFirstFree;
       m_pFirstFree = pNode;
     }
+
   }
 
   // For debugging this displays both lists (using the prev/next list pointers)
@@ -200,25 +204,36 @@ public:  // methods
       p = p->pNext;
     }
     _tmp << "\n";
-    INFO_PRINT << _tmp.str();
+    INFO_PRINT << _tmp.str( );
   }
 
   // Iterators
 
-  USER_TYPE* GetFirst() { return reinterpret_cast<USER_TYPE*>( m_pFirstUsed ); }
-  USER_TYPE* GetNext( USER_TYPE* node )
+  USER_TYPE* GetFirst()
   {
-    return reinterpret_cast<USER_TYPE*>( ( reinterpret_cast<FSA_ELEMENT*>( node ) )->pNext );
+    return reinterpret_cast<USER_TYPE*>( m_pFirstUsed );
   }
 
-public:   // data
-private:  // methods
-private:  // data
+  USER_TYPE* GetNext( USER_TYPE* node )
+  {
+    return reinterpret_cast<USER_TYPE*>
+           (
+             ( reinterpret_cast<FSA_ELEMENT*>( node ) )->pNext
+           );
+  }
+
+public: // data
+
+private: // methods
+
+private: // data
+
   FSA_ELEMENT* m_pFirstFree;
   FSA_ELEMENT* m_pFirstUsed;
   size_t m_MaxElements;
   FSA_ELEMENT* m_pMemory;
+
 };
 }
 }
-#endif  // defined FSA_H
+#endif // defined FSA_H

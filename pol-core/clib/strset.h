@@ -42,4 +42,4 @@ private:
 };
 }
 }
-#endif  // CLIB_STRSET_H
+#endif //CLIB_STRSET_H

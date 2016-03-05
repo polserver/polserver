@@ -26,7 +26,6 @@ public:
   ConfigProperty( std::string* pname, std::string* pvalue );
 
   ~ConfigProperty();
-
 protected:
   std::string name_;
   std::string value_;
@@ -39,15 +38,13 @@ class ConfigSource;
 class ConfigElemBase
 {
 public:
-  virtual ~ConfigElemBase(){};
+  virtual ~ConfigElemBase() {};
   bool type_is( const char* name ) const;
   const char* type() const;
   const char* rest() const;
   virtual size_t estimateSize() const;
-
 protected:
   ConfigElemBase();
-
 protected:
   std::string type_;
   std::string rest_;
@@ -115,7 +112,6 @@ public:
   void set_type( const char* newtype );
   void set_source( const ConfigElem& elem );
   void set_source( const ConfigSource* source );
-
 protected:
   POL_NORETURN void prop_not_found( const char* propname ) const;
   typedef std::multimap<std::string, std::string, ci_cmp_pred> Props;
@@ -174,7 +170,6 @@ public:
 
   void set_rest( const char* newrest );
   void set_source( const ConfigElem& elem );
-
 protected:
   POL_NORETURN void prop_not_found( const char* propname ) const;
   std::string type_;

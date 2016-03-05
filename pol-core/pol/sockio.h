@@ -18,7 +18,7 @@ int deinit_sockets_library( void );
 
 SOCKET open_listen_socket( unsigned short port );
 void apply_socket_options( SOCKET client_socket );
-void disable_nagle( SOCKET client_socket );
+void disable_nagle (SOCKET client_socket );
 
 // These probably don't belong here, but better than POL.CPP.
 class Client;

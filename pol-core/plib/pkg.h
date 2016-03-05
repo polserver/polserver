@@ -17,11 +17,11 @@ class ConfigElem;
 }
 
 /**
- * Plib namespace is for pol-related functions and classes, like reading a map file or keeping track
- * of realms
+ * Plib namespace is for pol-related functions and classes, like reading a map file or keeping track of realms
  */
 namespace Plib
 {
+
 class PackageList
 {
 private:
@@ -69,9 +69,9 @@ private:
 
   bool provides_system_home_page_;
 
-private:  // not implemented:
-  Package( const Package& );
-  Package& operator=( const Package& );
+private: // not implemented:
+  Package( const Package&);
+  Package& operator=( const Package&);
 };
 
 
@@ -89,13 +89,15 @@ inline const std::string& Package::version() const
 }
 Package* find_package( const std::string& pkgname );
 
-bool pkgdef_split( const std::string& spec, const Package* inpkg, const Package** outpkg,
-                   std::string* path );
+bool pkgdef_split( const std::string& spec, const Package* inpkg,
+                   const Package** outpkg, std::string* path );
 
-void load_packaged_cfgs( const char* cfgname, const char* taglist,
-                         void ( *loadentry )( const Package*, Clib::ConfigElem& ) );
-void load_all_cfgs( const char* cfgname, const char* taglist,
-                    void ( *loadentry )( const Package*, Clib::ConfigElem& ) );
+void load_packaged_cfgs( const char* cfgname,
+                         const char* taglist,
+                         void( *loadentry )( const Package*, Clib::ConfigElem&) );
+void load_all_cfgs( const char* cfgname,
+                    const char* taglist,
+                    void( *loadentry )( const Package*, Clib::ConfigElem&) );
 
 void load_packages( const std::string& basedir, bool quiet = false );
 void replace_packages();

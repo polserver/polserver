@@ -4,6 +4,7 @@
  */
 
 
+
 #include "wallclock.h"
 
 #ifndef _WIN32
@@ -34,7 +35,7 @@ wallclock_t wallclock()
   struct timeval tmv;
   struct timezone tz;
   gettimeofday( &tmv, &tz );
-  return ( tmv.tv_sec ) * 1000 + tmv.tv_usec / 1000L;
+  return (tmv.tv_sec) * 1000 + tmv.tv_usec /1000L;
 }
 wallclock_diff_t wallclock_diff_ms( wallclock_t start, wallclock_t finish )
 {

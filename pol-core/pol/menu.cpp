@@ -23,20 +23,26 @@
 #include <cstring>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning stricmp
+#pragma warning(disable:4996) // deprecation warning stricmp
 #endif
 
 namespace Pol
 {
 namespace Core
 {
-MenuItem::MenuItem() : objtype_( 0 ), graphic_( 0 ), color_( 0 ), submenu_id( 0 )
+
+MenuItem::MenuItem() :
+  objtype_( 0 ),
+  graphic_( 0 ),
+  color_( 0 ),
+  submenu_id( 0 )
 {
   title[0] = '\0';
   submenu_name[0] = '\0';
 }
 
-Menu::Menu() : menu_id( 0 )
+Menu::Menu() :
+  menu_id( 0 )
 {
   name[0] = '\0';
   title[0] = '\0';
@@ -44,7 +50,7 @@ Menu::Menu() : menu_id( 0 )
 size_t Menu::estimateSize() const
 {
   size_t size = sizeof( Menu );
-  size += 3 * sizeof( MenuItem* ) + menuitems_.capacity() * sizeof( MenuItem );
+  size += 3*sizeof(MenuItem*)+menuitems_.capacity()*sizeof( MenuItem );
   return size;
 }
 
@@ -135,17 +141,17 @@ void Menu::read_menus()
           // skipws
           // is.eatwhite();
 
-          std::getline( is, title );  // title.getline( is );
+          std::getline( is, title ); // title.getline( is );
 
           // FIXME: remove leading spaces (better way? please? anyone?)
           while ( isspace( title[0] ) )
             title.erase( 0, 1 );
 
-          // char s[100];
-          // is.ignore( std::numeric_limits<int>::max(), ' ' );
-          // is.ignore( std::numeric_limits<int>::max(), '\t' );
-          // is.getline( s, sizeof s );
-          // title = s;
+          //char s[100];
+          //is.ignore( std::numeric_limits<int>::max(), ' ' );
+          //is.ignore( std::numeric_limits<int>::max(), '\t' );
+          //is.getline( s, sizeof s );
+          //title = s;
           /*
           submenu_name = strtok( value, " \t," );
           objtype_str = strtok( NULL, " \t," );
@@ -154,11 +160,11 @@ void Menu::read_menus()
           title++;
           */
         }
-        else  // Entry
+        else // Entry
         {
           submenu_name = "";
           ISTRINGSTREAM is( value );
-          is >> objtype_str;  // FIXME objtype_str ends up having the "," on the end
+          is >> objtype_str; // FIXME objtype_str ends up having the "," on the end
 
           std::getline( is, title );
           // FIXME: remove leading spaces (better way? please? anyone?)
@@ -173,23 +179,25 @@ void Menu::read_menus()
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
         u32 objtype = (u32)strtoul( objtype_str.c_str(), NULL, 0 );
-        if ( objtype == 0 )  // 0 specified, or text
+        if ( objtype == 0 ) // 0 specified, or text
         {
-          ERROR_PRINT << "Entry in menu " << menu->name << " cannot specify [" << objtype_str
-                      << "] as an Object Type.\n";
+          ERROR_PRINT << "Entry in menu " << menu->name
+                      << " cannot specify [" << objtype_str << "] as an Object Type.\n";
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
-        if ( ( stricmp( propname.c_str(), "SubMenu" ) == 0 ) && ( submenu_name == "" ) )
+        if ( ( stricmp( propname.c_str(), "SubMenu" ) == 0 ) &&
+             ( submenu_name == "" ) )
         {
           ERROR_PRINT << "SubMenu in menu " << menu->name
                       << " needs format: Objtype, Title, SubMenuName [got '" << value << "']\n";
-          throw std::runtime_error( "Data error in MENUS.CFG" );
+          throw std::runtime_error("Data error in MENUS.CFG");
         }
-        if ( ( stricmp( propname.c_str(), "Entry" ) == 0 ) && ( submenu_name != "" ) )
+        if ( ( stricmp( propname.c_str(), "Entry" ) == 0 ) &&
+             ( submenu_name != "" ) )
         {
-          ERROR_PRINT << "Entry in menu " << menu->name << " must not specify SubMenuName [got '"
-                      << value << "']\n";
-          throw std::runtime_error( "Data error in MENUS.CFG" );
+          ERROR_PRINT << "Entry in menu " << menu->name
+                      << " must not specify SubMenuName [got '" << value << "']\n";
+          throw std::runtime_error("Data error in MENUS.CFG");
         }
 
         menu->menuitems_.push_back( MenuItem() );
@@ -214,7 +222,7 @@ void Menu::read_menus()
       else
       {
         ERROR_PRINT << "Unexpected property in menu " << menu->name << ": " << propname << "\n";
-        throw std::runtime_error( "Data error in MENUS.CFG" );
+        throw std::runtime_error("Data error in MENUS.CFG");
       }
     }
   }

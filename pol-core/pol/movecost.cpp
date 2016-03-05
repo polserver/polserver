@@ -6,6 +6,7 @@
  */
 
 
+
 #include "movecost.h"
 
 #include "mobile/charactr.h"
@@ -25,10 +26,9 @@ namespace Pol
 {
 namespace Core
 {
-// dave messed with this function 1/26/3 - remove_first_prop was reading carrying percentages in
-// lexographic order, not
-// numerical order so it would interpolate first 1 to 100, then to 25, etc. costs were processed in
-// this kind of
+
+//dave messed with this function 1/26/3 - remove_first_prop was reading carrying percentages in lexographic order, not
+//numerical order so it would interpolate first 1 to 100, then to 25, etc. costs were processed in this kind of
 // order: 1,10,100,2,3,4,...
 // So first read into a Map<percentage,cost>, and build from that.
 void read_movecost( Clib::ConfigElem& elem, MovementCost& movecost )
@@ -76,7 +76,7 @@ void read_movecost( Clib::ConfigElem& elem, MovementCost& movecost )
 
       movecost.cost[i] = i * m + b;
 
-      // last_end + (mult - last_mult) *
+      //last_end + (mult - last_mult) *
     }
     last_perc = perc;
     last_mult = mult;
@@ -86,18 +86,17 @@ void read_movecost( Clib::ConfigElem& elem, MovementCost& movecost )
 unsigned short movecost( const Mobile::Character* chr, int carry_perc, bool running, bool mounted )
 {
   MovementCost* mc;
-  double costmod( 1.0 );
+  double costmod(1.0);
   if ( mounted )
   {
-    mc = running ? &settingsManager.movecost_running_mounted
-                 : &settingsManager.movecost_walking_mounted;
-    if ( chr->has_movement_cost() )
+    mc = running ? &settingsManager.movecost_running_mounted : &settingsManager.movecost_walking_mounted;
+    if (chr->has_movement_cost())
       costmod = running ? chr->movement_cost().run_mounted : chr->movement_cost().walk_mounted;
   }
   else
   {
     mc = running ? &settingsManager.movecost_running : &settingsManager.movecost_walking;
-    if ( chr->has_movement_cost() )
+    if (chr->has_movement_cost())
       costmod = running ? chr->movement_cost().run : chr->movement_cost().walk;
   }
 
@@ -123,8 +122,7 @@ void load_movecost( bool reload )
     return;
   }
 
-  Clib::ConfigFile cf( "config/movecost.cfg",
-                       "MovementCost Walking Running Walking_Mounted Running_Mounted" );
+  Clib::ConfigFile cf( "config/movecost.cfg", "MovementCost Walking Running Walking_Mounted Running_Mounted" );
   Clib::ConfigElem elem;
 
   bool walking_mounted_set = false;
@@ -135,8 +133,7 @@ void load_movecost( bool reload )
     if ( elem.type_is( "MovementCost" ) )
     {
       read_movecost( elem, settingsManager.movecost_running );
-      memcpy( &settingsManager.movecost_walking, &settingsManager.movecost_running,
-              sizeof settingsManager.movecost_walking );
+      memcpy( &settingsManager.movecost_walking, &settingsManager.movecost_running, sizeof settingsManager.movecost_walking );
     }
     else if ( elem.type_is( "Walking" ) )
     {
@@ -159,11 +156,9 @@ void load_movecost( bool reload )
   }
 
   if ( !walking_mounted_set )
-    memcpy( &settingsManager.movecost_walking_mounted, &settingsManager.movecost_walking,
-            sizeof settingsManager.movecost_walking );
+    memcpy( &settingsManager.movecost_walking_mounted, &settingsManager.movecost_walking, sizeof settingsManager.movecost_walking );
   if ( !running_mounted_set )
-    memcpy( &settingsManager.movecost_running_mounted, &settingsManager.movecost_running,
-            sizeof settingsManager.movecost_running );
+    memcpy( &settingsManager.movecost_running_mounted, &settingsManager.movecost_running, sizeof settingsManager.movecost_running );
 }
 }
 }

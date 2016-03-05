@@ -4,6 +4,7 @@
  */
 
 
+
 #include "sockio.h"
 
 #include "sockets.h"
@@ -40,7 +41,7 @@ void set_lan_address( const char* ip )
 
 void search_name( const char* hostname )
 {
-  struct sockaddr_in server;
+  struct    sockaddr_in server;
   POLLOG_INFO << "hostname is " << hostname << "\n";
   struct hostent* he = gethostbyname( hostname );
   for ( int i = 0; ( he != NULL ) && ( he->h_addr_list[i] != NULL ); ++i )
@@ -57,14 +58,14 @@ void search_name( const char* hostname )
     const unsigned long ip = ad.s_addr;
 #endif
     // Careful: IPs are reversed (i.e. 1.0.168.192)
-    if ( ( ip & 0x0000ffff ) == 0x0000a8c0 ||  // 192.168.0.0/16
-         ( ip & 0x0000f0ff ) == 0x000010ac ||  // 172.16.0.0/12
-         ( ip & 0x000000ff ) == 0x0000000a )   // 10.0.0.0/8
+    if ( ( ip & 0x0000ffff ) == 0x0000a8c0 || // 192.168.0.0/16
+         ( ip & 0x0000f0ff ) == 0x000010ac || // 172.16.0.0/12
+         ( ip & 0x000000ff ) == 0x0000000a )  // 10.0.0.0/8
     {
       if ( !Core::networkManager.lanaddr_str[0] )
         set_lan_address( adstr );
     }
-    else if ( ( ip & 0x000000ff ) == 0x0000007f )  // 127.0.0.0/8
+    else if ( ( ip & 0x000000ff ) == 0x0000007f ) // 127.0.0.0/8
     {
       ;
     }
@@ -128,12 +129,10 @@ int deinit_sockets_library( void )
 void disable_nagle( SOCKET sck )
 {
   int tcp_nodelay = 1;
-  int res =
-      setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char*)&tcp_nodelay, sizeof( tcp_nodelay ) );
-  if ( res < 0 )
+  int res = setsockopt( sck, IPPROTO_TCP, TCP_NODELAY, (const char*) &tcp_nodelay, sizeof(tcp_nodelay) );
+  if (res < 0)
   {
-    throw std::runtime_error( "Unable to setsockopt (TCP_NODELAY) on listening socket, res=" +
-                              Clib::decint( res ) );
+    throw std::runtime_error("Unable to setsockopt (TCP_NODELAY) on listening socket, res=" + Clib::decint(res));
   }
 }
 
@@ -149,8 +148,7 @@ void apply_socket_options( SOCKET sck )
 #endif
   if ( res < 0 )
   {
-    throw std::runtime_error( "Unable to set socket to nonblocking mode, res=" +
-                              Clib::decint( res ) );
+    throw std::runtime_error("Unable to set socket to nonblocking mode, res=" + Clib::decint(res));
   }
 }
 SOCKET open_listen_socket( unsigned short port )
@@ -161,7 +159,7 @@ SOCKET open_listen_socket( unsigned short port )
   sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
   if ( sck == INVALID_SOCKET )
   {
-    throw std::runtime_error( "Unable to create listening socket" );
+    throw std::runtime_error("Unable to create listening socket");
     return INVALID_SOCKET;
   }
 
@@ -169,11 +167,10 @@ SOCKET open_listen_socket( unsigned short port )
 
 #ifndef WIN32
   int reuse_opt = 1;
-  res = setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse_opt, sizeof( reuse_opt ) );
-  if ( res < 0 )
+  res = setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*) &reuse_opt, sizeof(reuse_opt) );
+  if (res < 0)
   {
-    throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " +
-                              Clib::decint( res ) );
+    throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " + Clib::decint(res) );
   }
 #endif
 
@@ -186,22 +183,21 @@ SOCKET open_listen_socket( unsigned short port )
   connection.sin_family = AF_INET;
   connection.sin_addr.s_addr = INADDR_ANY;
   connection.sin_port = ctBEu16( port );
-  memset( connection.sin_zero, 0, sizeof( connection.sin_zero ) );  // for completeness
+  memset(connection.sin_zero, 0, sizeof(connection.sin_zero)); // for completeness
 
-  res = bind( sck, (struct sockaddr*)&connection, sizeof connection );
+  res = bind( sck, ( struct sockaddr*) &connection, sizeof connection );
   if ( res < 0 )
   {
     // Aug. 16, 2006. Austin
     //   Added the port number that failed.
-    std::string tmp_error = "Unable to bind listening socket. Port(" + Clib::decint( port ) +
-                            ") Res=" + Clib::decint( res );
+    std::string tmp_error = "Unable to bind listening socket. Port(" + Clib::decint( port ) + ") Res=" + Clib::decint( res );
     throw std::runtime_error( tmp_error );
   }
 
   res = listen( sck, SOMAXCONN );
   if ( res < 0 )
   {
-    throw std::runtime_error( "Listen failed, res=" + Clib::decint( res ) );
+    throw std::runtime_error("Listen failed, res=" + Clib::decint(res));
   }
 
   return sck;
@@ -209,22 +205,22 @@ SOCKET open_listen_socket( unsigned short port )
 
 const char* AddressToString( struct sockaddr* addr )
 {
-#if 0 && defined( _WIN32 )
-	  // this requires Winsock 2! Ouch.
-	  static char buf[ 80 ];
-	  DWORD len = sizeof buf;
-	  if (WSAAddressToString( addr, sizeof *addr, 
-		NULL, // protocol
-		buf, &len ) != SOCKET_ERROR)
-	  {
-		return buf;
-	  }
-	  else
-	  {
-		return "(display error)";
-	  }
+#if 0 && defined(_WIN32)
+  // this requires Winsock 2! Ouch.
+  static char buf[ 80 ];
+  DWORD len = sizeof buf;
+  if (WSAAddressToString( addr, sizeof *addr,
+                          NULL, // protocol
+                          buf, &len ) != SOCKET_ERROR)
+  {
+    return buf;
+  }
+  else
+  {
+    return "(display error)";
+  }
 #else
-  struct sockaddr_in* in_addr = (struct sockaddr_in*)addr;
+  struct sockaddr_in* in_addr = ( struct sockaddr_in*) addr;
   if ( addr->sa_family == AF_INET )
     return inet_ntoa( in_addr->sin_addr );
   else
@@ -232,9 +228,10 @@ const char* AddressToString( struct sockaddr* addr )
 #endif
 }
 
-PolSocket::PolSocket()
-    : listen_socket( INVALID_SOCKET ), listen_timeout( {0, 0} ), select_timeout( {0, 0} )
-{
-}
+PolSocket::PolSocket() :
+  listen_socket (INVALID_SOCKET),
+  listen_timeout ( { 0, 0 } ),
+               select_timeout ({ 0, 0 })
+{}
 }
 }

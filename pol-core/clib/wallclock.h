@@ -12,4 +12,4 @@ wallclock_t wallclock();
 wallclock_diff_t wallclock_diff_ms( wallclock_t start, wallclock_t finish );
 }
 }
-#endif  // CLIB_WALLCLOCK_H
+#endif //CLIB_WALLCLOCK_H

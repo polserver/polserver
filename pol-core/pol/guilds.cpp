@@ -36,24 +36,24 @@ void SerialSet::writeOn( Clib::StreamWriter& os, const char* tag ) const
   }
 }
 
-Guild::Guild( Clib::ConfigElem& elem )
-    : _guildid( elem.remove_ushort( "GUILDID" ) ),
-      _member_serials( elem, "MEMBER" ),
-      _allyguild_serials( elem, "ALLYGUILD" ),
-      _enemyguild_serials( elem, "ENEMYGUILD" ),
-      _proplist( Core::CPropProfiler::Type::GUILD ),
-      _disbanded( false )
+Guild::Guild( Clib::ConfigElem& elem ) :
+  _guildid( elem.remove_ushort( "GUILDID" ) ),
+  _member_serials( elem, "MEMBER" ),
+  _allyguild_serials( elem, "ALLYGUILD" ),
+  _enemyguild_serials( elem, "ENEMYGUILD" ),
+  _proplist( Core::CPropProfiler::Type::GUILD ),
+  _disbanded( false )
 {
   _proplist.readProperties( elem );
 }
 
-Guild::Guild( unsigned int guildid )
-    : _guildid( guildid ),
-      _member_serials(),
-      _allyguild_serials(),
-      _enemyguild_serials(),
-      _proplist( Core::CPropProfiler::Type::GUILD ),
-      _disbanded( false )
+Guild::Guild( unsigned int guildid ) :
+  _guildid( guildid ),
+  _member_serials(),
+  _allyguild_serials(),
+  _enemyguild_serials(),
+  _proplist( Core::CPropProfiler::Type::GUILD ),
+  _disbanded( false )
 {
   if ( _guildid >= Core::gamestate.nextguildid )
     Core::gamestate.nextguildid = _guildid + 1;
@@ -83,10 +83,8 @@ void Guild::update_online_members()
 {
   // FIXME : All of guilds.cpp iterator's need rewritten. Turley found a much better method
   // used in the party system.
-  // NOTE: stlport seems to not return save itr on erase, but with a list container the iterator
-  // should stay valid
-  for ( SerialSet::iterator itr = _member_serials.begin(), end = _member_serials.end(); itr != end;
-        /* */ )
+  // NOTE: stlport seems to not return save itr on erase, but with a list container the iterator should stay valid
+  for ( SerialSet::iterator itr = _member_serials.begin(), end = _member_serials.end(); itr != end; /* */ )
   {
     unsigned int mserial = ( *itr );
     SerialSet::iterator last_itr = itr;
@@ -160,13 +158,16 @@ bool Guild::hasEnemy( const Guild* g2 ) const
 
 void Guild::printOn( Clib::StreamWriter& sw ) const
 {
-  sw() << "Guild" << pf_endl << "{" << pf_endl << "\tGuildId\t" << _guildid << pf_endl;
+  sw() << "Guild" << pf_endl
+       << "{" << pf_endl
+       << "\tGuildId\t" << _guildid << pf_endl;
   _member_serials.writeOn( sw, "Member" );
   _allyguild_serials.writeOn( sw, "AllyGuild" );
   _enemyguild_serials.writeOn( sw, "EnemyGuild" );
   _proplist.printProperties( sw );
-  sw() << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw() << "}" << pf_endl
+       << pf_endl;
+  //sw.flush();
 }
 
 void Guild::addMember( unsigned int serial )
@@ -176,7 +177,8 @@ void Guild::addMember( unsigned int serial )
 
 bool Guild::AreAllies( Guild* g1, Guild* g2 )
 {
-  return ( g1 == g2 || g1->hasAlly( g2 ) );
+  return ( g1 == g2 ||
+           g1->hasAlly( g2 ) );
 }
 bool Guild::AreEnemies( Guild* g1, Guild* g2 )
 {
@@ -185,8 +187,7 @@ bool Guild::AreEnemies( Guild* g1, Guild* g2 )
 
 void register_guilds()
 {
-  for ( Guilds::iterator itr = Core::gamestate.guilds.begin(); itr != Core::gamestate.guilds.end();
-        ++itr )
+  for ( Guilds::iterator itr = Core::gamestate.guilds.begin(); itr != Core::gamestate.guilds.end(); ++itr )
   {
     Guild* guild = ( *itr ).second.get();
     guild->registerWithMembers();
@@ -222,8 +223,11 @@ void read_guilds_dat()
 
 void write_guilds( Clib::StreamWriter& sw )
 {
-  sw() << "General" << pf_endl << "{" << pf_endl << "\tNextGuildId\t" << Core::gamestate.nextguildid
-       << pf_endl << "}" << pf_endl << pf_endl;
+  sw() << "General" << pf_endl
+       << "{" << pf_endl
+       << "\tNextGuildId\t" << Core::gamestate.nextguildid << pf_endl
+       << "}" << pf_endl
+       << pf_endl;
 
   for ( const auto& _guild : Core::gamestate.guilds )
   {
@@ -263,14 +267,14 @@ Guild* Guild::FindGuild( unsigned int guildid )
 
 size_t Guild::estimateSize() const
 {
-  return sizeof( unsigned int ) /*_guildid*/
-         + 3 * sizeof( void* ) +
-         _member_serials.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) ) +
-         3 * sizeof( void* ) +
-         _allyguild_serials.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) ) +
-         3 * sizeof( void* ) +
-         _enemyguild_serials.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) ) +
-         _proplist.estimatedSize() + sizeof( bool ); /*_disbanded*/
+  return sizeof(unsigned int) /*_guildid*/
+         + 3 * sizeof( void*) + _member_serials.size() * ( sizeof(unsigned int)+3 * sizeof( void*) )
+         + 3 * sizeof( void*) + _allyguild_serials.size() * ( sizeof(unsigned int)+3 * sizeof( void*) )
+         + 3 * sizeof( void*) + _enemyguild_serials.size() * ( sizeof(unsigned int)+3 * sizeof( void*) )
+         + _proplist.estimatedSize()
+         + sizeof(bool); /*_disbanded*/
 }
 }
+
+
 }

@@ -78,7 +78,6 @@ public:
   void create_bgnd_region( Clib::ConfigElem& elem );
 
   const std::string& name() const;
-
 protected:
   Region* getregion_byname( const std::string& regionname );
   Region* getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm );
@@ -87,7 +86,6 @@ protected:
 
   typedef std::map<Realms::Realm*, RegionId**> RegionRealms;
   RegionRealms regionrealms;
-
 private:
   virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const = 0;
 
@@ -114,34 +112,37 @@ public:
 
 protected:
   virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const POL_OVERRIDE;
+
+
 };
 
-template <class T>
-RegionGroup<T>::RegionGroup( const char* name )
-    : RegionGroupBase( name )
-{
-}
+template<class T>
+RegionGroup<T>::RegionGroup( const char* name ) :
+  RegionGroupBase( name )
+{}
 
-template <class T>
+template<class T>
 inline T* RegionGroup<T>::getregion( xcoord x, ycoord y, Realms::Realm* realm )
 {
   return static_cast<T*>( getregion_byloc( x, y, realm ) );
 }
 
-template <class T>
+template<class T>
 inline T* RegionGroup<T>::getregion( const std::string& regionname )
 {
   return static_cast<T*>( getregion_byname( regionname ) );
 }
 
-template <class T>
+template<class T>
 inline Region* RegionGroup<T>::create_region( Clib::ConfigElem& elem, RegionId id ) const
 {
   return new T( elem, id );
 }
 
-void read_region_data( RegionGroupBase& grp, const char* preferred_filename,
-                       const char* other_filename, const char* tags_expected );
+void read_region_data( RegionGroupBase& grp,
+                       const char* preferred_filename,
+                       const char* other_filename,
+                       const char* tags_expected );
 }
 }
 #endif

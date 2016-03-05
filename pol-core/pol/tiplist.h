@@ -21,6 +21,7 @@ namespace Core
 void load_tips();
 
 bool send_tip( Network::Client* client, const char* tipname );
+
 }
 }
 #endif

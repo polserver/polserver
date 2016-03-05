@@ -16,6 +16,8 @@ namespace Pol
 {
 namespace Core
 {
+
+
 class SettingsManager : boost::noncopyable
 {
 public:

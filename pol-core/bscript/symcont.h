@@ -22,7 +22,7 @@ namespace Pol
 namespace Bscript
 {
 #ifdef _MSC_VER
-#pragma pack( push, 1 )
+#pragma pack(push,1)
 #endif
 
 // bitfields
@@ -34,14 +34,15 @@ public:
   unsigned short offset;
   unsigned char module;
 
-  explicit StoredToken( unsigned char aModule = 0, int aID = CTRL_STATEMENTBEGIN,
+  explicit StoredToken( unsigned char aModule = 0,
+                        int aID = CTRL_STATEMENTBEGIN,
                         BTokenType aType = TYP_CONTROL,
-                        unsigned aOffset = 0  //,
-                        // unsigned aNargs = 0
-                        );
+                        unsigned aOffset = 0//,
+                            //unsigned aNargs = 0
+                      );
 } POSTSTRUCT_PACK;
 #ifdef _MSC_VER
-#pragma pack( pop )
+#pragma pack(pop)
 #endif
 
 class SymbolContainer
@@ -51,7 +52,6 @@ protected:
   unsigned usedLen;
   unsigned allocLen;
   unsigned growBy;
-
 public:
   explicit SymbolContainer( int growBy = 512 );
   virtual ~SymbolContainer();
@@ -65,9 +65,18 @@ public:
   void append( double dvalue, unsigned& position );
   void append( void* data, unsigned datalen, unsigned& position );
 
-  unsigned length( void ) const { return usedLen; }
-  void setlength( unsigned newLen ) { usedLen = newLen; }
-  const char* array( void ) const { return s; }
+  unsigned length( void ) const
+  {
+    return usedLen;
+  }
+  void setlength( unsigned newLen )
+  {
+    usedLen = newLen;
+  }
+  const char* array( void ) const
+  {
+    return s;
+  }
   virtual void* detach( void )
   {
     char* t = s;
@@ -91,12 +100,21 @@ public:
   virtual void pack( void ) POL_OVERRIDE;
   virtual void* detach( void ) POL_OVERRIDE;
   virtual void resize( unsigned lengthToAdd ) POL_OVERRIDE;
-  void setcount( unsigned newCount ) { usedLen = newCount * sizeof( StoredToken ); }
-  unsigned count( void ) const { return usedLen / sizeof( StoredToken ); }
+  void setcount( unsigned newCount )
+  {
+    usedLen = newCount * sizeof( StoredToken );
+  }
+  unsigned count( void ) const
+  {
+    return usedLen / sizeof( StoredToken );
+  }
   void append_tok( const StoredToken& token, unsigned* position = NULL );
   void atPut1( const StoredToken& token, unsigned position );
   void atGet1( unsigned position, StoredToken& token ) const;
-  unsigned next( void ) { return length() / sizeof( StoredToken ); }
+  unsigned next( void )
+  {
+    return length() / sizeof( StoredToken );
+  }
   virtual void read( FILE* fp ) POL_OVERRIDE;
 };
 }

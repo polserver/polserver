@@ -32,18 +32,18 @@ namespace Bscript
 typedef enum
 {
   PERR_NONE,
-  PERR_UNEXRPAREN,  // unexpected RIGHT Paren
+  PERR_UNEXRPAREN,   // unexpected RIGHT Paren
   PERR_MISSLPAREN,
-  PERR_MISSRPAREN,    // missing RPAREN
-  PERR_BADTOKEN,      // bad token ??
-  PERR_BADOPER,       // unknown operator..
-  PERR_WAAH,          // god knows what happened
-  PERR_UNTERMSTRING,  // "abcd  (not terminated with '"')
-  PERR_INVESCAPE,     // an invalid escape sequence (eg. \xFG)
+  PERR_MISSRPAREN,   // missing RPAREN
+  PERR_BADTOKEN,     // bad token ??
+  PERR_BADOPER,      // unknown operator..
+  PERR_WAAH,         // god knows what happened
+  PERR_UNTERMSTRING, // "abcd  (not terminated with '"')
+  PERR_INVESCAPE,    // an invalid escape sequence (eg. \xFG)
   PERR_TOOFEWARGS,
   PERR_TOOMANYARGS,
   PERR_UNEXPCOMMA,
-  PERR_ILLEGALCONS,  // illegal construction
+  PERR_ILLEGALCONS,   // illegal construction
   PERR_MISSINGDELIM,
   PERR_NOTLEGALHERE,
   PERR_PROCNOTALLOWED,
@@ -73,7 +73,6 @@ public:
 
   typedef std::vector<Token*> Tokens;
   Tokens tokens;
-
 public:
   std::stack<Token*> TX;
   std::queue<Token*> CA;
@@ -97,7 +96,11 @@ class Parser
 public:
   Parser();
   virtual ~Parser() {}
-  Parser& operator=( const Parser& ) { return *this; }
+  Parser& operator=( const Parser&)
+  {
+    return *this;
+  }
+
   int quiet;
   ParseError err;
 
@@ -105,7 +108,6 @@ public:
   char buffer[51];
 
   bool contains_tabs;
-
 public:
 public:
   void reinit( Expression& ex );
@@ -116,7 +118,9 @@ public:
   virtual int recognize( Token& tok, const char* buf, const char** s );
   virtual bool recognize_reserved_word( Token& tok, const char* buf );
 
-  virtual int tryOperator( Token& tok, const char* buf, const char** s, Operator* opList, int n_ops,
+  virtual int tryOperator( Token& tok,
+                           const char* buf, const char** s,
+                           Operator* opList, int n_ops,
                            char* opbuf );
   virtual int tryBinaryOperator( Token& tok, CompilerContext& ctx );
   virtual int tryUnaryOperator( Token& tok, CompilerContext& ctx );
@@ -131,7 +135,10 @@ public:
   virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* token ) = 0;
   int IP( Expression& expr, char* s );
 
-  void setQuiet( int x ) { quiet = x; }
+  void setQuiet( int x )
+  {
+    quiet = x;
+  }
 };
 
 
@@ -146,16 +153,21 @@ protected:
   UserFunction* userfunc_;
 
 public:
-  SmartParser() : Parser(), modfunc_( nullptr ), userfunc_( nullptr ) {}
-  SmartParser& operator=( const SmartParser& ) { return *this; }
-  virtual int isLegal( Token& tok );
+
+  SmartParser() : Parser(), modfunc_(nullptr), userfunc_(nullptr) {}
+  SmartParser& operator=( const SmartParser&)
+  {
+    return *this;
+  }
+
+  virtual int isLegal(Token& tok);
   virtual int isOkay( const Token& token, BTokenType last_type );
 
   virtual int isFunc( Token& tok, ModuleFunction** v ) = 0;
 
-  virtual int isUserFunc( Token& tok, UserFunction** userfunc );
+  virtual int isUserFunc(Token& tok, UserFunction** userfunc);
 
-  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* ) POL_OVERRIDE;
+  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token*) POL_OVERRIDE;
   virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL ) POL_OVERRIDE;
 
   bool callingMethod( CompilerContext& ctx );
@@ -173,11 +185,11 @@ public:
   int IP( Expression& expr, CompilerContext& ctx );
 };
 
-inline int SmartParser::isLegal( Token& )
+inline int SmartParser::isLegal(Token&)
 {
   return 1;
 }
-inline int SmartParser::isUserFunc( Token&, UserFunction** )
+inline int SmartParser::isUserFunc(Token&, UserFunction**)
 {
   return 0;
 }

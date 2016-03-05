@@ -57,7 +57,6 @@ public:
 
   static unsigned int instances();
   static void show_instances();
-
 protected:
   const char* token;
 #if STORE_INSTANCELIST
@@ -69,7 +68,11 @@ protected:
   void unregister_instance();
 
 public:
-  const char* tokval() const { return token; }
+  const char* tokval() const
+  {
+    return token;
+  }
+
   Token();
   Token( const Token& tok );
   Token& operator=( const Token& tok );
@@ -87,8 +90,8 @@ public:
   void printOn( std::ostream& outputStream ) const;
 };
 
-std::ostream& operator<<( std::ostream&, const Token& );
-fmt::Writer& operator<<( fmt::Writer&, const Token& );
+std::ostream& operator << ( std::ostream&, const Token&);
+fmt::Writer& operator << ( fmt::Writer&, const Token&);
 }
 }
 #endif

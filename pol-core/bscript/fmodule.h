@@ -27,11 +27,11 @@ class ModuleFunction
 public:
   boost_utils::function_name_flystring name;
   unsigned nargs;
-  int funcidx;  // according to the executor, what's its function index
+  int funcidx; // according to the executor, what's its function index
 
   // compiler only:
-  UserFunction* uf;  // compiler only
-  bool used;         // compiler only
+  UserFunction* uf; // compiler only
+  bool used;          // compiler only
 
   ModuleFunction( const char* fname, int nargs, UserFunction* uf );
   ~ModuleFunction();
@@ -59,7 +59,7 @@ public:
   void fillFunctionsByName();
 
 private:
-  FunctionalityModule( const FunctionalityModule& );
+  FunctionalityModule( const FunctionalityModule&);
 };
 }
 }

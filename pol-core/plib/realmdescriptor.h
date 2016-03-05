@@ -18,6 +18,7 @@ class ConfigElem;
 }
 namespace Plib
 {
+
 const unsigned WGRID_SIZE = 64;
 const unsigned WGRID_SHIFT = 6;
 
@@ -30,12 +31,12 @@ public:
   std::string file_path;
   unsigned short width;
   unsigned short height;
-  unsigned uomapid;  // map[n].mul, need to be able to tell the client this.
-  bool uodif;        // use the *dif files?
+  unsigned uomapid;         // map[n].mul, need to be able to tell the client this.
+  bool uodif;               // use the *dif files?
   unsigned num_map_patches;
   unsigned num_static_patches;
   unsigned season;
-  std::string mapserver_type;  // "memory" or "file"
+  std::string mapserver_type;    // "memory" or "file"
   unsigned short grid_width;
   unsigned short grid_height;
 
@@ -45,10 +46,8 @@ public:
     return ( name == rdesc.name && uomapid == rdesc.uomapid );
   }
   size_t sizeEstimate() const;
-
 private:
-  RealmDescriptor( const std::string& realm_name, const std::string& realm_path,
-                   Clib::ConfigElem& elem );
+  RealmDescriptor( const std::string& realm_name, const std::string& realm_path, Clib::ConfigElem& elem );
 };
 }
 }

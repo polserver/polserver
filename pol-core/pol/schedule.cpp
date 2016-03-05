@@ -26,6 +26,7 @@ namespace Pol
 {
 namespace Core
 {
+
 bool SchComparer::operator()( const ScheduledTask* x, const ScheduledTask* y ) const
 {
   if ( x->next_run_clock_ == y->next_run_clock_ )
@@ -42,14 +43,14 @@ static void add_task( ScheduledTask* task )
   gamestate.task_queue.push( task );
 }
 
-ScheduledTask::ScheduledTask( polclock_t next_run_clock )
-    : cancelled( false ), next_run_clock_( next_run_clock ), last_run_clock_( 0 )
-{
-}
+ScheduledTask::ScheduledTask( polclock_t next_run_clock ) :
+  cancelled( false ),
+  next_run_clock_( next_run_clock ),
+  last_run_clock_( 0 )
+{}
 
 ScheduledTask::~ScheduledTask()
-{
-}
+{}
 
 void ScheduledTask::cancel()
 {
@@ -74,30 +75,27 @@ polclock_t ScheduledTask::clocksleft( polclock_t now_clock )
   return next_run_clock_ - now_clock;
 }
 
-PeriodicTask::PeriodicTask( void ( *i_f )( void ), int initial_wait_seconds, const char* name )
-    : ScheduledTask( 0 ),
-      n_initial_clocks( initial_wait_seconds * POLCLOCKS_PER_SEC ),
-      n_clocks( initial_wait_seconds * POLCLOCKS_PER_SEC ),
-      f( i_f ),
-      name_( name )
-{
-}
+PeriodicTask::PeriodicTask( void( *i_f )( void ), int initial_wait_seconds, const char* name ) :
+  ScheduledTask( 0 ),
+  n_initial_clocks( initial_wait_seconds* POLCLOCKS_PER_SEC ),
+  n_clocks( initial_wait_seconds* POLCLOCKS_PER_SEC ),
+  f( i_f ),
+  name_( name )
+{}
 
-PeriodicTask::PeriodicTask( void ( *i_f )( void ), int initial_wait_seconds, int periodic_seconds,
-                            const char* name )
-    : ScheduledTask( 0 ),
-      n_initial_clocks( initial_wait_seconds * POLCLOCKS_PER_SEC ),
-      n_clocks( periodic_seconds * POLCLOCKS_PER_SEC ),
-      f( i_f ),
-      name_( name )
-{
-}
+PeriodicTask::PeriodicTask( void( *i_f )( void ), int initial_wait_seconds, int periodic_seconds, const char* name ) :
+  ScheduledTask( 0 ),
+  n_initial_clocks( initial_wait_seconds* POLCLOCKS_PER_SEC ),
+  n_clocks( periodic_seconds* POLCLOCKS_PER_SEC ),
+  f( i_f ),
+  name_( name )
+{}
 
 
 void PeriodicTask::set_secs( int n_secs )
 {
   n_clocks = n_secs * POLCLOCKS_PER_SEC;
-  n_initial_clocks = n_secs * POLCLOCKS_PER_SEC;
+  n_initial_clocks = n_secs  *POLCLOCKS_PER_SEC;
 }
 void PeriodicTask::start()
 {
@@ -118,18 +116,19 @@ void PeriodicTask::execute( polclock_t now )
   next_run_clock_ += n_clocks;
 
   /*
-      cout << name_ << ": last=" << last_run_clock_
-      << ", next=" << next_run_clock_
-      << ", n_clocks=" << n_clocks
-      << ", now=" << now
-      << endl;
-      */
+    cout << name_ << ": last=" << last_run_clock_
+    << ", next=" << next_run_clock_
+    << ", n_clocks=" << n_clocks
+    << ", now=" << now
+    << endl;
+    */
 
-  ( *f )();
+  ( *f )( );
 }
 
-OneShotTask::OneShotTask( OneShotTask** handle, polclock_t run_when_clock )
-    : ScheduledTask( run_when_clock ), handle( handle )
+OneShotTask::OneShotTask( OneShotTask** handle, polclock_t run_when_clock ) :
+  ScheduledTask( run_when_clock ),
+  handle( handle )
 {
   if ( handle != NULL )
   {
@@ -252,14 +251,14 @@ polclock_t calc_scheduler_clocksleft( polclock_t now )
   ScheduledTask* task = gamestate.task_queue.top();
   if ( !task->ready( now ) )
   {
-    INFO_PRINT_TRACE( 20 ) << "Task " << (long long)( reinterpret_cast<const void*>( task ) )
-                           << ": " << task->clocksleft( now ) << " clocks left\n";
+    INFO_PRINT_TRACE( 20 ) << "Task " << (long long)(reinterpret_cast<const void*>(task)) << ": " << task->clocksleft( now ) << " clocks left\n";
     return task->clocksleft( now );
   }
   else
   {
-    return 0;  // it's ready now!
+    return 0; // it's ready now!
   }
 }
+
 }
 }

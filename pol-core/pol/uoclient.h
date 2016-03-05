@@ -2,8 +2,7 @@
  *
  * @par History
  * - 2010/02/03 Turley:    MethodScript support for mobiles
- * - 2011/12/01 MuadDib:   Changed max_skills to unsigned short. 0xFF max in packets anyway.
- * Probably never need to support over 255 skills anyway.
+ * - 2011/12/01 MuadDib:   Changed max_skills to unsigned short. 0xFF max in packets anyway. Probably never need to support over 255 skills anyway.
  */
 
 
@@ -50,7 +49,7 @@ public:
   Mapping hits;
   Mapping stamina;
   Mapping mana;
-  unsigned short maxskills;  // dave changed 3/15/03, support configurable max skillid
+  unsigned short maxskills; //dave changed 3/15/03, support configurable max skillid
   ExportScript* method_script;
 };
 

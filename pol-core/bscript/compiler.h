@@ -33,37 +33,25 @@ namespace Pol
 namespace Bscript
 {
 /*
-    ack, this is a misnomer.
-    "CanBeLabelled" means "break or continue can happen here."
-    enum eb_type { CanBeLabelled = true, CanNotBeLabelled = false };
-    */
+  ack, this is a misnomer.
+  "CanBeLabelled" means "break or continue can happen here."
+  enum eb_type { CanBeLabelled = true, CanNotBeLabelled = false };
+  */
 
-enum eb_label_ok
-{
-  CanBeLabelled = true,
-  CanNotBeLabelled = false
-};
-enum eb_break_ok
-{
-  BreakOk = true,
-  BreakNotOk = false
-};
-enum eb_continue_ok
-{
-  ContinueOk = true,
-  ContinueNotOk = false
-};
+enum eb_label_ok { CanBeLabelled = true, CanNotBeLabelled = false };
+enum eb_break_ok { BreakOk = true, BreakNotOk = false };
+enum eb_continue_ok { ContinueOk = true, ContinueNotOk = false };
 
 struct BlockDesc
 {
-  unsigned varcount;  // how many variables in this block?
-  unsigned valcount;  // how many values on the stack should be removed?
+  unsigned varcount;                  // how many variables in this block?
+  unsigned valcount;                  // how many values on the stack should be removed?
 
   eb_label_ok label_ok;
   eb_break_ok break_ok;
   eb_continue_ok continue_ok;
 
-  std::string label;  // label of construct
+  std::string label;                  // label of construct
 
   // addresses of tokens whos offset needs to be patched with
   // the final break/continue jump addresses.
@@ -88,16 +76,28 @@ class Scope
 public:
   BlockDesc& pushblock();
   void popblock( bool varsOnly );
-  void addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused = true,
-               bool unused = false );
+  void addvar( const std::string& varname, const CompilerContext& ctx, bool warn_on_notused = true, bool unused = false );
   void addvalue();
-  bool inblock() const { return !blockdescs_.empty(); }
-  unsigned numVarsInBlock() const { return blockdescs_.back().varcount; }
-  const BlockDesc& blockdesc() const { return blockdescs_.back(); }
+  bool inblock() const
+  {
+    return !blockdescs_.empty();
+  }
+  unsigned numVarsInBlock() const
+  {
+    return blockdescs_.back().varcount;
+  }
+  const BlockDesc& blockdesc() const
+  {
+    return blockdescs_.back();
+  }
   bool varexists( const std::string& varname, unsigned& idx ) const;
   bool varexists( const std::string& varname ) const;
-  unsigned int numVariables() const { return static_cast<unsigned int>( variables_.size() ); }
+  unsigned int numVariables() const
+  {
+    return static_cast<unsigned int>( variables_.size() );
+  }
 private:
+
   Variables variables_;
 
   // we may need a blocktag, too, in which case this
@@ -111,10 +111,18 @@ class Compiler : public SmartParser
 public:
   static bool check_filecase_;
   static int verbosity_level_;
-  static void setCheckFileCase( bool check ) { check_filecase_ = check; }
-  static void setVerbosityLevel( int vlev ) { verbosity_level_ = vlev; }
+  static void setCheckFileCase( bool check )
+  {
+    check_filecase_ = check;
+  }
+  static void setVerbosityLevel( int vlev )
+  {
+    verbosity_level_ = vlev;
+  }
+
 private:
   std::string current_file_path;
+
 
 
   int curSourceFile;
@@ -155,14 +163,19 @@ private:
   */
   Variables globals_;
 
-  bool globalexists( const std::string& varname, unsigned& idx,
+  bool globalexists( const std::string& varname,
+                     unsigned& idx,
                      CompilerContext* atctx = NULL ) const;
 
   Scope localscope;
 
   bool varexists( const std::string& varname ) const;
 
-  bool inGlobalScope() const { return localscope.inblock() == false; }
+  bool inGlobalScope() const
+  {
+    return localscope.inblock() == false;
+  }
+
   /*
   special note on latest_label, enterblock, and leaveblock
   latest_label is a hidden parameter to enterblock, set up
@@ -173,28 +186,31 @@ private:
   std::string latest_label;
   void enterblock( eb_label_ok eblabel, eb_break_ok ebbreak, eb_continue_ok ebcontinue );
   void enterblock( eb_label_ok et );
-  int readblock( CompilerContext& ctx, int level, BTokenId endtokenid,
-                 BTokenId* last_statement_id = NULL, Token* block_end = NULL );
+  int readblock( CompilerContext& ctx, int level, BTokenId endtokenid, BTokenId* last_statement_id = NULL, Token* block_end = NULL );
   void leaveblock( unsigned breakPC, unsigned continuePC );
   void emit_leaveblock();
   void patchblock_continues( unsigned continuePC );
   void patchblock_breaks( unsigned breakPC );
 
   void rollback( EScriptProgram& prog, const EScriptProgramCheckpoint& checkpoint );
-  bool substitute_constant( Token* tkn ) const;  // returns true if a constant was found.
+  bool substitute_constant( Token* tkn ) const; // returns true if a constant was found.
   void substitute_constants( Expression& expr ) const;
   void convert_variables( Expression& expr ) const;
   int validate( const Expression& expr, CompilerContext& ctx ) const;
   int readexpr( Expression& expr, CompilerContext& ctx, unsigned flags );
   void inject( Expression& expr );
   int insertBreak( const std::string& label );
-
 public:
+
   Compiler();
   ~Compiler();
 
   void dump( std::ostream& os );
-  void setIncludeCompileMode() { compiling_include = true; }
+  void setIncludeCompileMode()
+  {
+    compiling_include = true;
+  }
+
   void addModule( FunctionalityModule* module );
   int useModule( const char* modulename );
   int includeModule( const std::string& modulename );
@@ -214,7 +230,9 @@ public:
   virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) POL_OVERRIDE;
 
   int eatToken( CompilerContext& ctx, BTokenId tokenid );
-  int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = NULL,
+  int getExpr( CompilerContext& ctx,
+               unsigned expr_flags,
+               size_t* exprlen = NULL,
                Expression* ex = NULL );
   int getExpr2( CompilerContext& ctx, unsigned expr_flags, Expression* ex = NULL );
   int getExprInParens( CompilerContext& ctx, Expression* ex = NULL );
@@ -289,6 +307,7 @@ public:
 private:
   std::vector<char*> delete_these_arrays;
 };
+
 }
 }
-#endif  // H_COMPILER_H
+#endif // H_COMPILER_H

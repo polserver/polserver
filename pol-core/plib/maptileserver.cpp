@@ -13,25 +13,24 @@ namespace Pol
 {
 namespace Plib
 {
-MapTileServer::MapTileServer( const RealmDescriptor& descriptor )
-    : _descriptor( descriptor ),
-      _file( _descriptor.path( "maptile.dat" ), std::ios::in ),
-      _cur_block_index( -1L )
+MapTileServer::MapTileServer( const RealmDescriptor& descriptor ) :
+  _descriptor( descriptor ),
+  _file( _descriptor.path( "maptile.dat" ), std::ios::in ),
+  _cur_block_index( -1L )
 {
   _file.Read( _cur_block );
   _cur_block_index = 0;
 }
 
 MapTileServer::~MapTileServer()
-{
-}
+{}
 
 MAPTILE_CELL MapTileServer::GetMapTile( unsigned short x, unsigned short y )
 {
   unsigned short xblock = x >> MAPTILE_SHIFT;
-  unsigned short xcell = x & MAPTILE_CELLMASK;
+  unsigned short xcell = x &   MAPTILE_CELLMASK;
   unsigned short yblock = y >> MAPTILE_SHIFT;
-  unsigned short ycell = y & MAPTILE_CELLMASK;
+  unsigned short ycell = y &   MAPTILE_CELLMASK;
 
   int block_index = yblock * ( _descriptor.width >> MAPTILE_SHIFT ) + xblock;
   if ( block_index != _cur_block_index )
@@ -49,7 +48,9 @@ MAPTILE_CELL MapTileServer::GetMapTile( unsigned short x, unsigned short y )
 
 size_t MapTileServer::sizeEstimate() const
 {
-  return sizeof( *this ) + _descriptor.sizeEstimate() + _file.sizeEstimate();
+  return sizeof( *this )
+         + _descriptor.sizeEstimate()
+         + _file.sizeEstimate();
 }
 }
 }

@@ -5,6 +5,7 @@
  */
 
 
+
 #include "cgdata.h"
 #include "../fnsearch.h"
 
@@ -26,25 +27,25 @@ namespace Pol
 {
 namespace Network
 {
-ClientGameData::ClientGameData()
-    : vendor( NULL ),
-      gumpmods(),
-      textentry_uoemod( NULL ),
-      target_cursor_uoemod( NULL ),
-      menu_selection_uoemod( NULL ),
-      popup_menu_selection_uoemod( NULL ),
-      prompt_uoemod( NULL ),
-      resurrect_uoemod( NULL ),
-      selcolor_uoemod( NULL ),
-      prompt_uniemod( NULL ),
-      justice_region( NULL ),
-      lightlevel( 0 ),
-      // light_region(NULL),
-      music_region( NULL ),
-      weather_region( NULL ),
-      custom_house_serial( 0 )
-{
-}
+
+ClientGameData::ClientGameData() :
+  vendor( NULL ),
+  gumpmods(),
+  textentry_uoemod( NULL ),
+  target_cursor_uoemod( NULL ),
+  menu_selection_uoemod( NULL ),
+  popup_menu_selection_uoemod( NULL ),
+  prompt_uoemod( NULL ),
+  resurrect_uoemod( NULL ),
+  selcolor_uoemod( NULL ),
+  prompt_uniemod( NULL ),
+  justice_region( NULL ),
+  lightlevel( 0 ),
+  // light_region(NULL),
+  music_region( NULL ),
+  weather_region( NULL ),
+  custom_house_serial( 0 )
+{}
 
 ClientGameData::~ClientGameData()
 {
@@ -127,7 +128,7 @@ void ClientGameData::clear()
       if ( house != NULL )
       {
         house->CurrentDesign.FillComponents( house );
-        house->WorkingDesign.FillComponents( house, false );  // keep in sync
+        house->WorkingDesign.FillComponents( house, false ); // keep in sync
         house->revision++;
         std::vector<u8> newvec;
         house->WorkingCompressed.swap( newvec );
@@ -139,6 +140,7 @@ void ClientGameData::clear()
     }
     custom_house_serial = 0;
   }
+
 }
 
 /// Registers a gumpid for the given module
@@ -151,7 +153,7 @@ void ClientGameData::add_gumpmod( Module::UOExecutorModule* uoemod, u32 gumpid )
 Module::UOExecutorModule* ClientGameData::find_gumpmod( u32 gumpid )
 {
   GumpMods::iterator it = gumpmods.find( gumpid );
-  if ( it == gumpmods.end() )
+  if( it == gumpmods.end() )
     return NULL;
   return it->second;
 }
@@ -159,8 +161,8 @@ Module::UOExecutorModule* ClientGameData::find_gumpmod( u32 gumpid )
 /// Removes all the registered gumpids for a given module
 void ClientGameData::remove_gumpmods( Module::UOExecutorModule* uoemod )
 {
-  for ( GumpMods::const_iterator it = gumpmods.cbegin(); it != gumpmods.cend(); /* no inc here */ )
-    if ( it->second == uoemod )
+  for( GumpMods::const_iterator it = gumpmods.cbegin(); it != gumpmods.cend(); /* no inc here */ )
+    if( it->second == uoemod )
       gumpmods.erase( it++ );
     else
       ++it;
@@ -169,8 +171,7 @@ void ClientGameData::remove_gumpmods( Module::UOExecutorModule* uoemod )
 size_t ClientGameData::estimatedSize() const
 {
   size_t size = sizeof( ClientGameData );
-  size += 3 * sizeof( void* ) +
-          gumpmods.size() * ( sizeof( Module::UOExecutorModule* ) + 3 * sizeof( void* ) );
+  size += 3 * sizeof(void*)+gumpmods.size( ) * ( sizeof( Module::UOExecutorModule*) + 3 * sizeof( void*) );
   return size;
 }
 }

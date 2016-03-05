@@ -31,7 +31,7 @@
 #include <fstream>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for unlink, strerror
+#pragma warning(disable:4996) // disable deprecation warning for unlink, strerror 
 #endif
 
 namespace Pol
@@ -70,12 +70,14 @@ void write_dirty_storage( Clib::StreamWriter& sw_data )
   // they'll be clean then.  So we'll have to fudge the counters a little.
 
   for ( Storage::AreaCont::const_iterator area_itr = gamestate.storage.areas.begin();
-        area_itr != gamestate.storage.areas.end(); ++area_itr )
+        area_itr != gamestate.storage.areas.end();
+        ++area_itr )
   {
     const StorageArea* area = ( *area_itr ).second;
 
     for ( StorageArea::Cont::const_iterator item_itr = area->_items.begin();
-          item_itr != area->_items.end(); ++item_itr )
+          item_itr != area->_items.end();
+          ++item_itr )
     {
       const Items::Item* item = ( *item_itr ).second;
       if ( !item->dirty() )
@@ -84,12 +86,14 @@ void write_dirty_storage( Clib::StreamWriter& sw_data )
       }
 
       ++objStorageManager.dirty_objects;
-      --objStorageManager.clean_objects;  // because this will be counted again
+      --objStorageManager.clean_objects; // because this will be counted again
 
       if ( !item->orphan() )
       {
         // write the storage area header, and the item (but not any contents)
-        sw_data() << "StorageArea " << area->_name << pf_endl << "{" << pf_endl << "}" << pf_endl
+        sw_data() << "StorageArea " << area->_name << pf_endl
+                  << "{" << pf_endl
+                  << "}" << pf_endl
                   << pf_endl;
 
         item->printSelfOn( sw_data );
@@ -105,14 +109,14 @@ void write_dirty_storage( Clib::StreamWriter& sw_data )
 }
 
 
-void write_object_dirty_owners( Clib::StreamWriter& sw_data, const UObject* obj,
-                                bool& has_nonsaved_owner )
+void write_object_dirty_owners( Clib::StreamWriter& sw_data, const UObject* obj, bool& has_nonsaved_owner )
 {
   const UObject* owner = obj->owner();
   if ( owner )
   {
     auto id = Items::find_itemdesc( owner->objtype_ );
-    if ( !id.save_on_exit || owner->orphan() || !owner->saveonexit() )
+    if ( !id.save_on_exit ||
+         owner->orphan() || !owner->saveonexit() )
     {
       has_nonsaved_owner = true;
       return;
@@ -140,8 +144,7 @@ void write_dirty_data( Clib::StreamWriter& sw_data )
   // iterate over the object hash, writing dirty elements.
   // the only tricky bit here is we want to write dirty containers first.
   // this includes Characters.
-  ObjectHash::hs::const_iterator citr = objStorageManager.objecthash.begin(),
-                                 end = objStorageManager.objecthash.end();
+  ObjectHash::hs::const_iterator citr = objStorageManager.objecthash.begin(), end = objStorageManager.objecthash.end();
   for ( ; citr != end; ++citr )
   {
     const UObjectRef& ref = ( *citr ).second;
@@ -175,8 +178,7 @@ void write_dirty_data( Clib::StreamWriter& sw_data )
     obj->clear_dirty();
   }
 
-  ObjectHash::ds::const_iterator deleted_citr = objStorageManager.objecthash.dirty_deleted_begin(),
-                                 deleted_end = objStorageManager.objecthash.dirty_deleted_end();
+  ObjectHash::ds::const_iterator deleted_citr = objStorageManager.objecthash.dirty_deleted_begin(), deleted_end = objStorageManager.objecthash.dirty_deleted_end();
   for ( ; deleted_citr != deleted_end; ++deleted_citr )
   {
     u32 serial = ( *deleted_citr );
@@ -185,24 +187,28 @@ void write_dirty_data( Clib::StreamWriter& sw_data )
   objStorageManager.objecthash.CleanDeleted();
 }
 
-void write_index( std::ostream& ofs )
+void write_index(std::ostream& ofs)
 {
-  ofs << "Modified" << pf_endl << "{" << pf_endl;
+  ofs << "Modified" << pf_endl
+      << "{" << pf_endl;
   for ( unsigned i = 0; i < objStorageManager.modified_serials.size(); ++i )
   {
     ofs << "\t0x" << std::hex << objStorageManager.modified_serials[i] << std::dec << pf_endl;
   }
-  ofs << "}" << pf_endl << pf_endl;
+  ofs << "}" << pf_endl
+      << pf_endl;
 
-  ofs << "Deleted" << pf_endl << "{" << pf_endl;
+  ofs << "Deleted" << pf_endl
+      << "{" << pf_endl;
   for ( unsigned i = 0; i < objStorageManager.deleted_serials.size(); ++i )
   {
     ofs << "\t0x" << std::hex << objStorageManager.deleted_serials[i] << std::dec << pf_endl;
   }
-  ofs << "}" << pf_endl << pf_endl;
+  ofs << "}" << pf_endl
+      << pf_endl;
 }
 
-bool commit_incremental( const std::string& basename )
+bool commit_incremental(const std::string& basename)
 {
   std::string datfile = Plib::systemstate.config.world_data_path + basename + ".txt";
   std::string ndtfile = Plib::systemstate.config.world_data_path + basename + ".ndt";
@@ -224,8 +230,7 @@ bool commit_incremental( const std::string& basename )
     if ( rename( ndtfile.c_str(), datfile.c_str() ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << ndtfile << datfile
-                                                                    << strerror( err ) << err;
+      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << ndtfile << datfile << strerror( err ) << err;
     }
   }
 
@@ -242,9 +247,7 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elaps
   }
 
   if ( objStorageManager.incremental_saves_disabled )
-    throw std::runtime_error(
-        "Incremental saves are disabled until the next full save, due to a previous incremental "
-        "save failure (dirty flags are inconsistent)" );
+    throw std::runtime_error( "Incremental saves are disabled until the next full save, due to a previous incremental save failure (dirty flags are inconsistent)" );
 
   try
   {
@@ -261,12 +264,12 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elaps
     ofs_index.exceptions( std::ios_base::failbit | std::ios_base::badbit );
 
     unsigned save_index = objStorageManager.incremental_save_count + 1;
-    std::string data_basename = "incr-data-" + Clib::decint( save_index );
-    std::string index_basename = "incr-index-" + Clib::decint( save_index );
+    std::string data_basename = "incr-data-" + Clib::decint(save_index);
+    std::string index_basename = "incr-index-" + Clib::decint(save_index);
     std::string data_pathname = Plib::systemstate.config.world_data_path + data_basename + ".ndt";
     std::string index_pathname = Plib::systemstate.config.world_data_path + index_basename + ".ndt";
-    Clib::open_file( ofs_data, data_pathname, std::ios::out );
-    Clib::open_file( ofs_index, index_pathname, std::ios::out );
+    Clib::open_file(ofs_data, data_pathname, std::ios::out);
+    Clib::open_file(ofs_index, index_pathname, std::ios::out);
     Clib::OFStreamWriter sw_data( &ofs_data );
     write_system_data( sw_data );
     write_global_properties( sw_data );
@@ -310,7 +313,7 @@ void commit_incremental_saves()
   for ( unsigned save_index = 1;; ++save_index )
   {
     std::string data_basename = "incr-data-" + Clib::decint( save_index );
-    std::string index_basename = "incr-index-" + Clib::decint( save_index );
+    std::string index_basename = "incr-index-" + Clib::decint(save_index);
 
     bool res1 = commit( data_basename );
     bool res2 = commit( index_basename );

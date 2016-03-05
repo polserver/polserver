@@ -23,13 +23,12 @@ public:
 
   virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
-
 private:
   std::vector<MAPBLOCK> _mapblocks;
 
   // not implemented:
-  InMemoryMapServer& operator=( const InMemoryMapServer& );
-  InMemoryMapServer( const InMemoryMapServer& );
+  InMemoryMapServer& operator=( const InMemoryMapServer&);
+  InMemoryMapServer( const InMemoryMapServer&);
 };
 }
 }

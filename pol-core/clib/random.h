@@ -19,4 +19,4 @@ int random_int( int i );
 int random_int_range( int minI, int maxI );
 }
 }
-#endif  // RANDOM_H
+#endif //RANDOM_H

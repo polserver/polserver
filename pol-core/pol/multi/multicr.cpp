@@ -35,7 +35,7 @@ bool ishouse( u32 objtype )
 }
 
 // scripted_create duplicates some of this work
-// Dave changed 3/8/3 to use objecthash
+//Dave changed 3/8/3 to use objecthash
 UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
 {
   UMulti* multi = NULL;
@@ -50,15 +50,14 @@ UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
   }
   else
   {
-    ERROR_PRINT << "Tried to create multi 0x" << fmt::hexu( descriptor.objtype )
-                << " but no definition exists in itemdesc.cfg\n";
+    ERROR_PRINT << "Tried to create multi 0x" << fmt::hexu( descriptor.objtype ) << " but no definition exists in itemdesc.cfg\n";
     return NULL;
   }
 
   if ( serial )
     multi->serial = Core::UseItemSerialNumber( serial );
   else
-    multi->serial = Core::GetNewItemSerialNumber();
+    multi->serial = Core::GetNewItemSerialNumber( );
 
   multi->serial_ext = ctBEu32( multi->serial );
 
@@ -70,8 +69,7 @@ UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
 }
 
 
-Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
-                                              Realms::Realm* realm, int flags )
+Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z, Realms::Realm* realm, int flags )
 {
   if ( descriptor.type == Items::ItemDesc::BOATDESC )
     return UBoat::scripted_create( descriptor, x, y, z, realm, flags );

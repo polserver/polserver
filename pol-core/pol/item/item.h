@@ -35,8 +35,7 @@ namespace Core
 {
 struct USTRUCT_TILE;
 class UContainer;
-std::string format_description( unsigned int polflags, const std::string& descdef,
-                                unsigned short amount, const std::string suffix );
+std::string format_description( unsigned int polflags, const std::string& descdef, unsigned short amount, const std::string suffix );
 }
 namespace Mobile
 {
@@ -62,12 +61,11 @@ class ItemDesc;
 class Item : public Core::UObject
 {
   typedef Core::UObject base;
-
 public:
   bool stackable() const;
 
   virtual ~Item();
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
   virtual void double_click( Network::Client* client );
   virtual void builtin_on_use( Network::Client* client );
@@ -119,9 +117,9 @@ public:
 
   std::string get_use_script_name() const;
   u32 sellprice() const;
-  void sellprice( u32 );
+  void sellprice(u32);
   u32 buyprice() const;
-  void buyprice( u32 );
+  void buyprice(u32);
   bool getbuyprice( u32& buyprice ) const;
 
   bool newbie() const;
@@ -151,13 +149,11 @@ public:
   bool can_add_to_self( unsigned short amount, bool force_stacking ) const;
   bool can_add_to_self( const Item& item, bool force_stacking ) const;
   bool has_only_default_cprops( const ItemDesc* compare = NULL ) const;
-  void add_to_self( Item*& item );  // deletes the item passed
+  void add_to_self( Item*& item ); // deletes the item passed
 
 #ifdef PERGON
-  void ct_merge_stacks_pergon(
-      Item*& item_sub );  // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
-  void ct_merge_stacks_pergon(
-      u16 amount_sub );  // Pergon: Re-Calculate Property CreateTime after Adding Items to a Stack
+  void ct_merge_stacks_pergon( Item*& item_sub ); // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
+  void ct_merge_stacks_pergon( u16 amount_sub );  // Pergon: Re-Calculate Property CreateTime after Adding Items to a Stack
 #endif
 
   bool amount_to_remove_is_partial( u16 amount_to_remove ) const;
@@ -189,7 +185,7 @@ public:
    *
    * @author DAVE, 11/17
    */
-  Mobile::Character* GetCharacterOwner();
+  Mobile::Character* GetCharacterOwner( );
   /**
    * I'm using the named constructor idiom for creation,
    * so that the right kind of object gets created
@@ -200,34 +196,27 @@ public:
   static Item* create( const ItemDesc& itemdesc, u32 serial = 0 );
   virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
   virtual Item* clone() const;
-  // virtual class BObjectImp* script_member( const char *membername );
-  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
+  //virtual class BObjectImp* script_member( const char *membername );
+  virtual Bscript::BObjectImp* make_ref( ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
-  virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, const std::string& value ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      POL_OVERRIDE;  /// id test
-  virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  /// id test
-  virtual Bscript::BObjectImp* set_script_member_double( const char* membername,
-                                                         double value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) POL_OVERRIDE;  // id test
-  virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ) POL_OVERRIDE;///id test
+  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;///id test
+  virtual Bscript::BObjectImp* set_script_member_double( const char* membername, double value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) POL_OVERRIDE; //id test
+  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
 
   virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
   virtual const char* target_tag() const POL_OVERRIDE;
   virtual const char* classname() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Bscript::Executor& ex ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
   Bscript::BObject call_custom_method( const char* methodname, Bscript::BObjectImpRefVec& pmore );
   Bscript::BObject call_custom_method( const char* methodname );
 
-protected:  // only derived classes need the constructor
+protected: // only derived classes need the constructor
   virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
   virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 
@@ -235,10 +224,8 @@ protected:  // only derived classes need the constructor
 
 private:
   double getItemdescQuality() const;
-
 public:
   Core::UContainer* container;
-
 protected:
   unsigned int decayat_gameclock_;
   u16 amount_;
@@ -254,7 +241,6 @@ protected:
   boost_utils::script_name_flystring equip_script_;
   boost_utils::script_name_flystring unequip_script_;
   mutable const ItemDesc* _itemdesc;
-
 public:
   u8 layer;
   u8 tile_layer;
@@ -266,24 +252,23 @@ public:
   bool has_resistance( Mobile::Character* chr );
   bool has_element_damage();
 
-  DYN_PROPERTY( maxhp_mod, s16, Core::PROP_MAXHP_MOD, 0 );
-  DYN_PROPERTY( name_suffix, std::string, Core::PROP_NAME_SUFFIX, "" );
-  DYN_PROPERTY_POINTER( gotten_by, Mobile::Character*, Core::PROP_GOTTEN_BY );
-  DYN_PROPERTY_POINTER( process, Module::UOExecutorModule*, Core::PROP_PROCESS );
+  DYN_PROPERTY        (maxhp_mod,   s16,                       Core::PROP_MAXHP_MOD,   0);
+  DYN_PROPERTY        (name_suffix, std::string,               Core::PROP_NAME_SUFFIX, "");
+  DYN_PROPERTY_POINTER(gotten_by,   Mobile::Character*,        Core::PROP_GOTTEN_BY);
+  DYN_PROPERTY_POINTER(process,     Module::UOExecutorModule*, Core::PROP_PROCESS);
   /** Tells of which house this item is a component, if any */
-  DYN_PROPERTY_POINTER( house, Multi::UHouse*, Core::PROP_HOUSE );
+  DYN_PROPERTY_POINTER(house,       Multi::UHouse*,            Core::PROP_HOUSE);
   virtual double getQuality() const;
-  virtual void setQuality( double value );
-
+  virtual void setQuality(double value);
 private:
   /// sell and buyprice generated functions only private! (additional logic needed)
-  DYN_PROPERTY( sellprice_, u32, Core::PROP_SELLPRICE, SELLPRICE_DEFAULT );
-  DYN_PROPERTY( buyprice_, u32, Core::PROP_BUYPRICE, BUYPRICE_DEFAULT );
+  DYN_PROPERTY(sellprice_, u32,    Core::PROP_SELLPRICE, SELLPRICE_DEFAULT);
+  DYN_PROPERTY(buyprice_,  u32,    Core::PROP_BUYPRICE,  BUYPRICE_DEFAULT);
   /// equipment has a fixed member see get/setQuality
-  DYN_PROPERTY( quality, double, Core::PROP_QUALITY, getItemdescQuality() );
+  DYN_PROPERTY(quality,    double, Core::PROP_QUALITY,   getItemdescQuality());
 
 protected:
-  static const u32 SELLPRICE_DEFAULT;  // means use the itemdesc value
+  static const u32 SELLPRICE_DEFAULT; // means use the itemdesc value
   static const u32 BUYPRICE_DEFAULT;
 };
 
@@ -375,14 +360,14 @@ inline bool Item::slot_index( u8 newvalue )
   return true;
 }
 
-inline bool valid_equip_layer( int layer )
+inline bool valid_equip_layer(int layer)
 {
   return layer >= Core::LAYER_INFO::LOWEST_LAYER && layer <= Core::LAYER_INFO::HIGHEST_LAYER;
 }
 
-inline bool valid_equip_layer( const Item* item )
+inline bool valid_equip_layer(const Item* item)
 {
-  return valid_equip_layer( item->tile_layer );
+  return valid_equip_layer(item->tile_layer);
 }
 }
 }

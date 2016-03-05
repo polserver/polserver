@@ -15,7 +15,7 @@
 #include <cmath>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning sprintf
+#pragma warning(disable:4996) // disable deprecation warning sprintf
 #endif
 
 namespace Pol
@@ -24,37 +24,39 @@ namespace Bscript
 {
 using namespace Module;
 
-template <>
+template<>
 TmplExecutorModule<MathExecutorModule>::FunctionDef
-    TmplExecutorModule<MathExecutorModule>::function_table[] = {
-        {"Sin", &MathExecutorModule::mf_Sin},
-        {"Cos", &MathExecutorModule::mf_Cos},
-        {"Tan", &MathExecutorModule::mf_Tan},
-        {"ASin", &MathExecutorModule::mf_ASin},
-        {"ACos", &MathExecutorModule::mf_ACos},
-        {"ATan", &MathExecutorModule::mf_ATan},
+TmplExecutorModule<MathExecutorModule>::function_table[] =
+{
+  { "Sin", &MathExecutorModule::mf_Sin },
+  { "Cos", &MathExecutorModule::mf_Cos },
+  { "Tan", &MathExecutorModule::mf_Tan },
+  { "ASin", &MathExecutorModule::mf_ASin },
+  { "ACos", &MathExecutorModule::mf_ACos },
+  { "ATan", &MathExecutorModule::mf_ATan },
 
-        {"Min", &MathExecutorModule::mf_Min},
-        {"Max", &MathExecutorModule::mf_Max},
-        {"Pow", &MathExecutorModule::mf_Pow},
-        {"Sqrt", &MathExecutorModule::mf_Sqrt},
-        {"Root", &MathExecutorModule::mf_Root},
-        {"Abs", &MathExecutorModule::mf_Abs},
-        {"Log10", &MathExecutorModule::mf_Log10},
-        {"LogE", &MathExecutorModule::mf_LogE},
+  { "Min", &MathExecutorModule::mf_Min },
+  { "Max", &MathExecutorModule::mf_Max },
+  { "Pow", &MathExecutorModule::mf_Pow },
+  { "Sqrt", &MathExecutorModule::mf_Sqrt },
+  { "Root", &MathExecutorModule::mf_Root },
+  { "Abs", &MathExecutorModule::mf_Abs },
+  { "Log10", &MathExecutorModule::mf_Log10 },
+  { "LogE", &MathExecutorModule::mf_LogE },
 
-        {"DegToRad", &MathExecutorModule::mf_DegToRad},
-        {"RadToDeg", &MathExecutorModule::mf_RadToDeg},
+  { "DegToRad", &MathExecutorModule::mf_DegToRad },
+  { "RadToDeg", &MathExecutorModule::mf_RadToDeg },
 
-        {"Ceil", &MathExecutorModule::mf_Ceil},
-        {"Floor", &MathExecutorModule::mf_Floor},
+  { "Ceil", &MathExecutorModule::mf_Ceil },
+  { "Floor", &MathExecutorModule::mf_Floor },
 
-        {"ConstPi", &MathExecutorModule::mf_ConstPi},
-        {"ConstE", &MathExecutorModule::mf_ConstE},
+  { "ConstPi", &MathExecutorModule::mf_ConstPi },
+  { "ConstE", &MathExecutorModule::mf_ConstE },
 
-        {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString}};
+  { "FormatRealToString", &MathExecutorModule::mf_FormatRealToString }
+};
 
-template <>
+template<>
 int TmplExecutorModule<MathExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
@@ -67,9 +69,9 @@ static double const_e;
 class initer
 {
 public:
-  initer();
+  initer( );
 };
-initer::initer()
+initer::initer( )
 {
   const_pi = acos( double( -1 ) );
   const_e = exp( double( 1 ) );
@@ -160,7 +162,8 @@ math::Pow(2,5) = 2^5 = 32
 Bscript::BObjectImp* MathExecutorModule::mf_Pow()
 {
   double x, y;
-  if ( getRealParam( 0, x ) && getRealParam( 1, y ) )
+  if ( getRealParam( 0, x ) &&
+       getRealParam( 1, y ) )
   {
     return new Double( pow( x, y ) );
   }
@@ -194,7 +197,8 @@ Function: calculates y Root of x as a Real
 Bscript::BObjectImp* MathExecutorModule::mf_Root()
 {
   double x, y;
-  if ( getRealParam( 0, x ) && getRealParam( 1, y ) )
+  if ( getRealParam( 0, x ) &&
+       getRealParam( 1, y ) )
   {
     return new Bscript::Double( pow( x, 1.0 / y ) );
   }
@@ -208,10 +212,8 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
 {
   Bscript::BObjectImp* impX = getParamImp( 0 );
   Bscript::BObjectImp* impY = getParamImp( 1 );
-  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impX->isa( Bscript::BObjectImp::OTLong ) ) ) &&
-       ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
+  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) || ( impX->isa( Bscript::BObjectImp::OTLong ) ) )
+       && ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) || ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
   {
     if ( *impX < *impY )
       return impX->copy();
@@ -225,27 +227,25 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
       return new Bscript::BError( "Array empty" );
 
     Bscript::BObjectImp* compare = NULL;
-    for ( std::vector<Bscript::BObjectRef>::iterator itr = value->ref_arr.begin();
-          itr != value->ref_arr.end(); ++itr )
+    for ( std::vector<Bscript::BObjectRef>::iterator itr = value->ref_arr.begin( ); itr != value->ref_arr.end( ); ++itr )
     {
       if ( itr->get() )
       {
-        Bscript::BObject* bo = ( itr->get() );
+        Bscript::BObject* bo = ( itr->get( ) );
 
         if ( bo == NULL )
           continue;
-        if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
-             ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
+        if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) || ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
         {
           if ( compare == NULL )
             compare = bo->impptr();
-          else if ( *( bo->impptr() ) < *compare )
+          else if ( *(bo->impptr()) < *compare )
             compare = bo->impptr();
         }
       }
     }
     if ( compare != NULL )
-      return ( compare->copy() );
+      return( compare->copy() );
     else
       return new Bscript::BError( "No Integer/Double elements" );
   }
@@ -257,10 +257,8 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
 {
   Bscript::BObjectImp* impX = getParamImp( 0 );
   Bscript::BObjectImp* impY = getParamImp( 1 );
-  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impX->isa( Bscript::BObjectImp::OTLong ) ) ) &&
-       ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) ||
-         ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
+  if ( ( ( impX->isa( Bscript::BObjectImp::OTDouble ) ) || ( impX->isa( Bscript::BObjectImp::OTLong ) ) )
+       && ( ( impY->isa( Bscript::BObjectImp::OTDouble ) ) || ( impY->isa( Bscript::BObjectImp::OTLong ) ) ) )
   {
     if ( *impX < *impY )
       return impY->copy();
@@ -274,27 +272,25 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
       return new Bscript::BError( "Array empty" );
 
     Bscript::BObjectImp* compare = NULL;
-    for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin();
-          itr != value->ref_arr.end(); ++itr )
+    for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin(); itr != value->ref_arr.end(); ++itr )
     {
       if ( itr->get() )
       {
-        Bscript::BObject* bo = ( itr->get() );
+        Bscript::BObject* bo = ( itr->get( ) );
 
         if ( bo == NULL )
           continue;
-        if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
-             ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
+        if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) || ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
         {
           if ( compare == NULL )
             compare = bo->impptr();
-          else if ( *( bo->impptr() ) >= *compare )
+          else if ( *(bo->impptr()) >= *compare )
             compare = bo->impptr();
         }
       }
     }
     if ( compare != NULL )
-      return ( compare->copy() );
+      return( compare->copy() );
     else
       return new Bscript::BError( "No Integer/Double elements" );
   }
@@ -371,7 +367,8 @@ Bscript::BObjectImp* MathExecutorModule::mf_FormatRealToString()
 {
   double x;
   int digits;
-  if ( getRealParam( 0, x ) && getParam( 1, digits ) )
+  if ( getRealParam( 0, x ) &&
+       getParam( 1, digits ) )
   {
     char buffer[200];
     /// @todo: sprintf produces different output on some doubles (eg. M_PI)
@@ -392,11 +389,11 @@ Bscript::BObjectImp* MathExecutorModule::mf_RadToDeg()
     return new BError( "Invalid parameter type" );
 
   /*
-      360 degrees <~> 2*pi radians
-      <=> deg/360 = rad / 2*pi
-      <=> deg = 360*rad / 2*pi
-      <=> deg = 180*rad / pi
-      */
+    360 degrees <~> 2*pi radians
+    <=> deg/360 = rad / 2*pi
+    <=> deg = 360*rad / 2*pi
+    <=> deg = 180*rad / pi
+    */
 
   return new Double( ( rad * 180.0 ) / const_pi );
 }
@@ -408,11 +405,11 @@ Bscript::BObjectImp* MathExecutorModule::mf_DegToRad()
     return new BError( "Invalid parameter type" );
 
   /*
-      2*pi radians <~> 360 degrees
-      <=> rad / 2*pi = deg / 360
-      <=> rad = 2*pi*deg / 360
-      <=> rad = deg * pi / 180
-      */
+    2*pi radians <~> 360 degrees
+    <=> rad / 2*pi = deg / 360
+    <=> rad = 2*pi*deg / 360
+    <=> rad = deg * pi / 180
+    */
   return new Double( ( deg * const_pi ) / 180.0 );
 }
 
@@ -440,5 +437,6 @@ Bscript::BObjectImp* MathExecutorModule::mf_Floor()
     return new BError( "Invalid parameter type" );
   }
 }
+
 }
 }

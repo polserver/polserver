@@ -8,7 +8,7 @@
 #define H_STORAGE_H
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4786 )
+#pragma warning(disable:4786)
 #endif
 
 #include "../clib/maputil.h"
@@ -48,17 +48,17 @@ public:
   void print( Clib::StreamWriter& sw ) const;
   void load_item( Clib::ConfigElem& elem );
   size_t estimateSize() const;
-
 private:
+
   std::string _name;
 
   // TODO: ref_ptr<Item> ?
-  typedef std::map<std::string, Items::Item*, Clib::ci_cmp_pred> Cont;
-  Cont _items;  // owns its items.
+  typedef std::map< std::string, Items::Item*, Clib::ci_cmp_pred > Cont;
+  Cont _items; // owns its items.
 
   friend class StorageAreaImp;
   friend class StorageAreaIterator;
-  friend void write_dirty_storage( Clib::StreamWriter& );
+  friend void write_dirty_storage( Clib::StreamWriter&);
 };
 
 class Storage
@@ -73,7 +73,6 @@ public:
   void read( Clib::ConfigFile& cf );
   void clear();
   size_t estimateSize() const;
-
 private:
   // TODO: investigate if this could store objects. Does find()
   // return object copies, or references?
@@ -82,7 +81,7 @@ private:
 
   friend class StorageAreasImp;
   friend class StorageAreasIterator;
-  friend void write_dirty_storage( Clib::StreamWriter& );
+  friend void write_dirty_storage( Clib::StreamWriter&);
 };
 }
 }

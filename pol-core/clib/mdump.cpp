@@ -6,6 +6,7 @@
  */
 
 
+
 #include "mdump.h"
 #include "strexcpt.h"
 #include "passert.h"
@@ -20,36 +21,30 @@
 
 // FIXME: 2008 Upgrades needed here? Need to check dbg headers to ensure compatibility
 #if _MSC_VER < 1300
-#define DECLSPEC_DEPRECATED
+# define DECLSPEC_DEPRECATED
 // VC6: change this path to your Platform SDK headers
-#include "C:\\Program Files\\Microsoft Visual Studio\\PlatformSDK\\include\\dbghelp.h"  // must be XP version of file
+# include "C:\\Program Files\\Microsoft Visual Studio\\PlatformSDK\\include\\dbghelp.h"     // must be XP version of file
 #else
 // VC7: ships with updated headers
-#include "dbghelp.h"
+# include "dbghelp.h"
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for localtime, strcpy
-#pragma warning( disable : 4100 )  // TODO: This file needs some serious rewrite, so I'm just
-                                   // ignoring the unreferenced parameters for now
+#pragma warning(disable:4996) // deprecation warning for localtime, strcpy
+#pragma warning(disable:4100) // TODO: This file needs some serious rewrite, so I'm just ignoring the unreferenced parameters for now
 #endif
 
 // based on dbghelp.h
-typedef BOOL( WINAPI* MINIDUMPWRITEDUMP )( HANDLE hProcess, DWORD dwPid, HANDLE hFile,
-                                           MINIDUMP_TYPE DumpType,
-                                           CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
-                                           CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-                                           CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam );
-typedef BOOL( WINAPI* __SymInitialize )( _In_ HANDLE hProcess, _In_opt_ PCSTR UserSearchPath,
-                                         _In_ BOOL fInvadeProcess );
-typedef BOOL( WINAPI* __SymFromAddr )( _In_ HANDLE hProcess, _In_ DWORD64 Address,
-                                       _Out_opt_ PDWORD64 Displacement,
-                                       _Inout_ PSYMBOL_INFO Symbol );
+typedef BOOL (WINAPI* MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
+    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+    CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+    CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam
+                                        );
+typedef BOOL( WINAPI* __SymInitialize )( _In_ HANDLE hProcess, _In_opt_ PCSTR UserSearchPath, _In_ BOOL fInvadeProcess );
+typedef BOOL( WINAPI* __SymFromAddr )( _In_ HANDLE hProcess, _In_ DWORD64 Address, _Out_opt_ PDWORD64 Displacement, _Inout_ PSYMBOL_INFO Symbol);
 typedef DWORD( WINAPI* __SymGetOptions )( VOID );
-typedef DWORD( WINAPI* __SymSetOptions )( _In_ DWORD SymOptions );
-typedef BOOL( WINAPI* __SymGetLineFromAddr64 )( _In_ HANDLE hProcess, _In_ DWORD64 qwAddr,
-                                                _Out_ PDWORD pdwDisplacement,
-                                                _Out_ PIMAGEHLP_LINE64 Line64 );
+typedef DWORD( WINAPI* __SymSetOptions )( _In_ DWORD   SymOptions);
+typedef BOOL( WINAPI* __SymGetLineFromAddr64 )( _In_ HANDLE hProcess, _In_ DWORD64 qwAddr, _Out_ PDWORD pdwDisplacement, _Out_ PIMAGEHLP_LINE64 Line64 );
 
 #include "mdumpimp.h"
 namespace Pol
@@ -75,47 +70,46 @@ HMODULE hDbgHelpDll;
 void HiddenMiniDumper::Initialize()
 {
   /*
-      if this assert fires then you have initialized HiddenMiniDumper twice
-      which is not allowed
-      */
+    if this assert fires then you have initialized HiddenMiniDumper twice
+    which is not allowed
+    */
   assert( !_Initialized );
   _Initialized = true;
 
-  auto time_tm = Clib::localtime( time( NULL ) );
+  auto time_tm = Clib::localtime(time( NULL ));
   strftime( _StartTimestamp, sizeof _StartTimestamp, "%Y%m%d%H%M%S", &time_tm );
 
   // appname will be obtained from progver
 
   // find a better value for your app
-  // HWND hParent = NULL;
+  //HWND hParent = NULL;
 
   /*
-      firstly see if dbghelp.dll is around and has the function we need
-      look next to the EXE first, as the one in System32 might be old
-      (e.g. Windows 2000)
-      */
+    firstly see if dbghelp.dll is around and has the function we need
+    look next to the EXE first, as the one in System32 might be old
+    (e.g. Windows 2000)
+    */
   char szDbgHelpPath[_MAX_PATH];
   char* szResult = NULL;
 
-  if ( GetModuleFileName( NULL, szDbgHelpPath, _MAX_PATH ) )
+  if( GetModuleFileName( NULL, szDbgHelpPath, _MAX_PATH ) )
   {
     char* pSlash = strchr( szDbgHelpPath, '\\' );
-    if ( pSlash )
+    if( pSlash )
     {
       strcpy( pSlash + 1, "DBGHELP.DLL" );
       hDbgHelpDll = ::LoadLibrary( szDbgHelpPath );
     }
   }
 
-  if ( hDbgHelpDll == NULL )
+  if( hDbgHelpDll == NULL )
   {
     // load any version we can
     hDbgHelpDll = ::LoadLibrary( "DBGHELP.DLL" );
   }
-  if ( hDbgHelpDll )
+  if( hDbgHelpDll )
   {
-    MINIDUMPWRITEDUMP pDump =
-        ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
+    MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
     if ( pDump )
       ::SetUnhandledExceptionFilter( TopLevelFilter );
     else
@@ -124,7 +118,7 @@ void HiddenMiniDumper::Initialize()
   else
     szResult = "Warning: DBGHELP.DLL not found, version 5.1+ required in POL directory.";
 
-  if ( szResult )
+  if( szResult )
   {
     POLLOG_INFO << szResult << "\n";
     InstallOldStructuredExceptionHandler();
@@ -140,16 +134,15 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
   if ( !_Initialized )
     Initialize();
 
-  MINIDUMPWRITEDUMP pDump =
-      ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
-  if ( pDump )
+  MINIDUMPWRITEDUMP pDump = ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
+  if( pDump )
   {
     dumppath << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
 
-    HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL,
-                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+    HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS,
+                                 FILE_ATTRIBUTE_NORMAL, NULL );
 
-    if ( hFile != INVALID_HANDLE_VALUE )
+    if( hFile != INVALID_HANDLE_VALUE )
     {
       _MINIDUMP_EXCEPTION_INFORMATION ExInfo;
 
@@ -159,36 +152,29 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
       // write the dump
       MINIDUMP_TYPE dumptype;
-      if ( _MiniDumpType == "large" )
+      if( _MiniDumpType == "large" )
         dumptype = MiniDumpWithFullMemory;
-      else if ( _MiniDumpType == "variable" )
+      else if( _MiniDumpType == "variable" )
         dumptype = MiniDumpWithDataSegs;
       else
         dumptype = MiniDumpNormal;
 
       ERROR_PRINT << "Unhandled Exception! Minidump started...\n";
-      BOOL bOK =
-          pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo, NULL, NULL );
-      if ( bOK )
+      BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo, NULL, NULL );
+      if( bOK )
       {
-        result.Format(
-            "Unhandled Exception! Writing Minidump file. \nPost this file with explanation and "
-            "last lines from log files on http://forums.polserver.com/tracker.php for the "
-            "development team.\nSaved dump file to '{}'\n" )
-            << dumppath.str();
+        result.Format("Unhandled Exception! Writing Minidump file. \nPost this file with explanation and last lines from log files on http://forums.polserver.com/tracker.php for the development team.\nSaved dump file to '{}'\n") << dumppath.str();
         retval = EXCEPTION_EXECUTE_HANDLER;
       }
       else
       {
-        result.Format( "Failed to save dump file to '{}' (error {})" ) << dumppath.str()
-                                                                       << GetLastError();
+        result.Format( "Failed to save dump file to '{}' (error {})" ) << dumppath.str() << GetLastError();
       }
       ::CloseHandle( hFile );
     }
     else
     {
-      result.Format( "Failed to create dump file '{}' (error {})" ) << dumppath.str()
-                                                                    << GetLastError();
+      result.Format( "Failed to create dump file '{}' (error {})" ) << dumppath.str() << GetLastError();
     }
   }
   print_backtrace();
@@ -197,37 +183,35 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
   if ( result.size() > 0 )
   {
-    POLLOG_ERROR << "##########################################################\n" << result.str()
-                 << "\n"
+    POLLOG_ERROR << "##########################################################\n"
+                 << result.str() << "\n"
                  << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC
                  << "\n##########################################################\n";
   }
   if ( Clib::Logging::global_logger )
-    Clib::Logging::global_logger->wait_for_empty_queue();  // wait here for logging facility to make
-                                                           // sure everything was printed
+    Clib::Logging::global_logger->wait_for_empty_queue(); // wait here for logging facility to make sure everything was printed
   return retval;
 }
 
 class StackWalkerLogger : public StackWalker
 {
 public:
-  StackWalkerLogger( int options ) : StackWalker( options ){};
+  StackWalkerLogger( int options ) :StackWalker( options ) {};
   virtual ~StackWalkerLogger()
   {
     if ( _log.size() > 0 )
       POLLOG_ERROR << _log.str();
   }
   fmt::Writer _log;
-
 protected:
   // no output
   virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) POL_OVERRIDE {}
-  virtual void OnLoadModule( LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result,
-                             LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) POL_OVERRIDE
+  virtual void OnLoadModule( LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) POL_OVERRIDE { }
+  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) POL_OVERRIDE {};
+  virtual void OnOutput( LPCSTR szText ) POL_OVERRIDE
   {
+    _log << szText;
   }
-  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) POL_OVERRIDE{};
-  virtual void OnOutput( LPCSTR szText ) POL_OVERRIDE { _log << szText; }
   virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry& entry ) POL_OVERRIDE
   {
     try
@@ -263,12 +247,11 @@ void HiddenMiniDumper::print_backtrace()
 {
   {
     StackWalkerLogger sw( StackWalker::RetrieveLine );
-    sw._log
-        << "\n##########################################################\nCurrent StackBackTrace\n";
+    sw._log << "\n##########################################################\nCurrent StackBackTrace\n";
     sw.ShowCallstack();
-    // threadhelp::ThreadMap::Contents contents;
-    // threadhelp::threadmap.CopyContents( contents );
-    // for ( auto &content : contents )
+    //threadhelp::ThreadMap::Contents contents;
+    //threadhelp::threadmap.CopyContents( contents );
+    //for ( auto &content : contents )
     //{
     //  if ( content.second == "Main" ) // fixme main thread seems to be not suspendable
     //    continue;

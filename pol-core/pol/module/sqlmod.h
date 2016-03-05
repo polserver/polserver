@@ -4,6 +4,7 @@
  */
 
 
+
 #ifndef SQLMOD_H
 #define SQLMOD_H
 
@@ -21,9 +22,10 @@ namespace Module
 class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule>
 {
 public:
-  SQLExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<SQLExecutorModule>( "sql", exec ),
-        uoexec( static_cast<Core::UOExecutor&>( exec ) ){};
+  SQLExecutorModule( Bscript::Executor& exec ) :
+    Bscript::TmplExecutorModule<SQLExecutorModule>( "sql", exec ),
+    uoexec( static_cast<Core::UOExecutor&>( exec ) )
+  {};
 
   Bscript::BObjectImp* mf_ConnectToDB();
   Bscript::BObjectImp* mf_Query();
@@ -36,14 +38,16 @@ public:
   Bscript::BObjectImp* mf_FieldName();
 
   static Bscript::BObjectImp* background_connect( weak_ptr<Core::UOExecutor> uoexec,
-                                                  const std::string host,
-                                                  const std::string username,
-                                                  const std::string password );
+      const std::string host,
+      const std::string username,
+      const std::string password );
   static Bscript::BObjectImp* background_select( weak_ptr<Core::UOExecutor> uoexec,
-                                                 Core::BSQLConnection* sql, const std::string db );
+      Core::BSQLConnection* sql,
+      const std::string db );
   static Bscript::BObjectImp* background_query( weak_ptr<Core::UOExecutor> uoexec,
-                                                Core::BSQLConnection* sql, const std::string query,
-                                                const Bscript::ObjArray* params );
+      Core::BSQLConnection* sql,
+      const std::string query,
+      const Bscript::ObjArray* params );
 
 private:
   Core::UOExecutor& uoexec;

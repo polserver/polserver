@@ -23,10 +23,8 @@ namespace Module
 class FileAccessExecutorModule : public Bscript::TmplExecutorModule<FileAccessExecutorModule>
 {
 public:
-  FileAccessExecutorModule( Bscript::Executor& exec )
-      : TmplExecutorModule<FileAccessExecutorModule>( "file", exec )
-  {
-  }
+  FileAccessExecutorModule( Bscript::Executor& exec ) :
+    TmplExecutorModule<FileAccessExecutorModule>( "file", exec ) {}
 
   Bscript::BObjectImp* mf_FileExists();
   Bscript::BObjectImp* mf_ReadFile();

@@ -4,6 +4,7 @@
  */
 
 
+
 #include "xmlfilescrobj.h"
 
 #include "module/fileaccess.h"
@@ -29,28 +30,29 @@ namespace Pol
 namespace Core
 {
 using namespace Bscript;
-BXMLfile::BXMLfile() : Bscript::BObjectImp( OTXMLFile ), file(), _filename( "" )
-{
-}
+BXMLfile::BXMLfile() : Bscript::BObjectImp( OTXMLFile ),
+  file(),
+  _filename( "" )
+{}
 
-BXMLfile::BXMLfile( std::string filename )
-    : Bscript::BObjectImp( OTXMLFile ), file( filename.c_str() ), _filename( filename )
+BXMLfile::BXMLfile( std::string filename ) : Bscript::BObjectImp( OTXMLFile ),
+  file( filename.c_str() ),
+  _filename( filename )
 {
   if ( !file.LoadFile() )
     return;
 }
 
 BXMLfile::~BXMLfile()
-{
-}
+{}
 
-BObjectRef BXMLfile::get_member_id( const int /*id*/ )  // id test
+BObjectRef BXMLfile::get_member_id( const int /*id*/ )//id test
 {
   return BObjectRef( UninitObject::create() );
-  // switch(id)
+  //switch(id)
   //{
 
-  //	default: return BObjectRef(UninitObject::create());
+  //  default: return BObjectRef(UninitObject::create());
   //}
 }
 BObjectRef BXMLfile::get_member( const char* membername )
@@ -82,15 +84,15 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     const String* version;
     const String* encoding;
     const String* standalone;
-    if ( ex.getStringParam( 0, version ) && ex.getStringParam( 1, encoding ) &&
+    if ( ex.getStringParam( 0, version ) &&
+         ex.getStringParam( 1, encoding ) &&
          ex.getStringParam( 2, standalone ) )
     {
-      TiXmlDeclaration* decl =
-          new TiXmlDeclaration( version->value(), encoding->value(), standalone->value() );
-      if ( !file.NoChildren() )  // in case its not the first method used
+      TiXmlDeclaration* decl = new TiXmlDeclaration( version->value(), encoding->value(), standalone->value() );
+      if ( !file.NoChildren() ) // in case its not the first method used
       {
         if ( file.FirstChild()->Type() == TiXmlNode::TINYXML_DECLARATION )
-          file.RemoveChild( file.FirstChild() );  // remove old declaration
+          file.RemoveChild( file.FirstChild() ); // remove old declaration
         if ( !file.NoChildren() )
           file.InsertBeforeChild( file.FirstChild(), *decl );
         else
@@ -116,9 +118,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
         BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
         if ( attr )
         {
-          for ( BStruct::Contents::const_iterator citr = attr->contents().begin(),
-                                                  end = attr->contents().end();
-                citr != end; ++citr )
+          for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
           {
             const std::string& name = ( *citr ).first;
             Bscript::BObjectImp* ref = ( *citr ).second->impptr();
@@ -132,7 +132,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
         }
       }
 
-      file.LinkEndChild( elem.release() );
+      file.LinkEndChild(elem.release());
       return new BLong( 1 );
     }
     break;
@@ -193,10 +193,10 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
       if ( !pkgdef_split( pstr->value(), ex.prog()->pkg, &outpkg, &path ) )
         return new BError( "Error in filename descriptor" );
 
-      if ( path.find( ".." ) != std::string::npos )
+      if (path.find("..") != std::string::npos)
         return new BError( "No parent path traversal please." );
 
-      if ( !Module::HasWriteAccess( ex.prog()->pkg, outpkg, path ) )
+      if ( !Module::HasWriteAccess( ex.prog( )->pkg, outpkg, path ) )
         return new BError( "Access denied" );
 
       std::string filepath;
@@ -267,8 +267,7 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
   {
     BLong& keyint = (BLong&)obj.impref();
     TiXmlHandle handle( &file );
-    TiXmlNode* node = handle.Child( keyint.value() - 1 )
-                          .ToNode();  // keep escript 1based index and change it to 0based
+    TiXmlNode* node = handle.Child( keyint.value() - 1 ).ToNode(); //keep escript 1based index and change it to 0based
     if ( node )
       return BObjectRef( new BXmlNode( node ) );
     else
@@ -280,7 +279,7 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
   }
 }
 
-BObjectRef BXmlNode::get_member_id( const int id )  // id test
+BObjectRef BXmlNode::get_member_id( const int id )//id test
 {
   switch ( id )
   {
@@ -293,19 +292,19 @@ BObjectRef BXmlNode::get_member_id( const int id )  // id test
   case MBR_TYPE:
     switch ( node->Type() )
     {
-    case ( TiXmlNode::TINYXML_COMMENT ):
+    case ( TiXmlNode::TINYXML_COMMENT ) :
       return BObjectRef( new String( "XMLComment" ) );
-    case ( TiXmlNode::TINYXML_DECLARATION ):
+    case ( TiXmlNode::TINYXML_DECLARATION ) :
       return BObjectRef( new String( "XMLDeclaration" ) );
-    case ( TiXmlNode::TINYXML_DOCUMENT ):
+    case ( TiXmlNode::TINYXML_DOCUMENT ) :
       return BObjectRef( new String( "XMLDocument" ) );
-    case ( TiXmlNode::TINYXML_ELEMENT ):
+    case ( TiXmlNode::TINYXML_ELEMENT ) :
       return BObjectRef( new String( "XMLElement" ) );
-    case ( TiXmlNode::TINYXML_TEXT ):
+    case ( TiXmlNode::TINYXML_TEXT ) :
       return BObjectRef( new String( "XMLText" ) );
-    case ( TiXmlNode::TINYXML_TYPECOUNT ):
+    case ( TiXmlNode::TINYXML_TYPECOUNT ) :
       return BObjectRef( new String( "XMLTypeCount" ) );
-    case ( TiXmlNode::TINYXML_UNKNOWN ):
+    case ( TiXmlNode::TINYXML_UNKNOWN ) :
       return BObjectRef( new String( "XMLUnknown" ) );
     default:
       return BObjectRef( new String( "XMLUnknown" ) );
@@ -314,6 +313,7 @@ BObjectRef BXmlNode::get_member_id( const int id )  // id test
   default:
     return BObjectRef( UninitObject::create() );
   }
+
 }
 BObjectRef BXmlNode::get_member( const char* membername )
 {
@@ -400,9 +400,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         BStruct* attr = static_cast<BStruct*>( ex.getParamImp( 1, Bscript::BObjectImp::OTStruct ) );
         if ( attr )
         {
-          for ( BStruct::Contents::const_iterator citr = attr->contents().begin(),
-                                                  end = attr->contents().end();
-                citr != end; ++citr )
+          for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
           {
             const std::string& name = ( *citr ).first;
             Bscript::BObjectImp* ref = ( *citr ).second->impptr();
@@ -417,7 +415,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       }
 
       TiXmlElement* nodeelem = node->ToElement();
-      nodeelem->LinkEndChild( elem.release() );
+      nodeelem->LinkEndChild(elem.release());
       return new BLong( 1 );
     }
     break;
@@ -443,9 +441,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( attr )
     {
       TiXmlElement* elem = node->ToElement();
-      for ( BStruct::Contents::const_iterator citr = attr->contents().begin(),
-                                              end = attr->contents().end();
-            citr != end; ++citr )
+      for ( BStruct::Contents::const_iterator citr = attr->contents().begin(), end = attr->contents().end(); citr != end; ++citr )
       {
         const std::string& name = ( *citr ).first;
         Bscript::BObjectImp* ref = ( *citr ).second->impptr();
@@ -491,8 +487,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     {
       const BLong* keyint = Clib::explicit_cast<BLong*, Bscript::BObjectImp*>( imp );
       TiXmlHandle handle( node );
-      TiXmlNode* child = handle.Child( keyint->value() - 1 )
-                             .ToNode();  // keep escript 1based index and change it to 0based
+      TiXmlNode* child = handle.Child( keyint->value() - 1 ).ToNode(); //keep escript 1based index and change it to 0based
       if ( child )
         return new BLong( node->RemoveChild( child ) ? 1 : 0 );
       else
@@ -519,6 +514,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       return new BLong( 1 );
     }
     break;
+
   }
   case MTH_CLONENODE:
   {
@@ -545,8 +541,7 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
   {
     BLong& keyint = (BLong&)obj.impref();
     TiXmlHandle handle( node );
-    TiXmlNode* child = handle.Child( keyint.value() - 1 )
-                           .ToNode();  // keep escript 1based index and change it to 0based
+    TiXmlNode* child = handle.Child( keyint.value() - 1 ).ToNode(); //keep escript 1based index and change it to 0based
     if ( child )
       return BObjectRef( new BXmlNode( child ) );
     else
@@ -560,14 +555,14 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
 
 std::string BXmlNode::getStringRep() const
 {
-  if ( node->Type() == TiXmlNode::TINYXML_TEXT )
+  if (node->Type() == TiXmlNode::TINYXML_TEXT)
     return node->ToText()->Value();
-  else if ( node->Type() == TiXmlNode::TINYXML_DECLARATION )
+  else if (node->Type() == TiXmlNode::TINYXML_DECLARATION)
   {
     TiXmlDeclaration* dec = node->ToDeclaration();
     OSTRINGSTREAM os;
     os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
-    return OSTRINGSTREAM_STR( os );
+    return OSTRINGSTREAM_STR(os);
   }
   return node->Value();
 }
@@ -581,8 +576,7 @@ Bscript::BObjectImp* BXmlAttribute::call_method( const char* methodname, Executo
     return NULL;
 }
 
-Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex*/,
-                                                    bool /*forcebuiltin*/ )
+Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
 {
   if ( !node )
     return NULL;
@@ -609,7 +603,7 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
   if ( obj->isa( OTString ) )
   {
     const String* keystr = static_cast<const String*>( obj.impptr() );
-    const std::string* attrib = node->Attribute( keystr->value() );
+    const std::string* attrib = node->Attribute(keystr->value());
     if ( attrib )
       return BObjectRef( new String( attrib->c_str() ) );
     else
@@ -621,23 +615,21 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
   }
 }
 
-BXMLNodeIterator::BXMLNodeIterator( TiXmlDocument* file, BObject* pIter )
-    :  // root elements
-      node( NULL ),
-      _file( file ),
-      _init( false ),
-      m_IterVal( pIter ),
-      m_pIterVal( new BLong( 0 ) )
+BXMLNodeIterator::BXMLNodeIterator( TiXmlDocument* file, BObject* pIter ) : //root elements
+  node( NULL ),
+  _file( file ),
+  _init( false ),
+  m_IterVal( pIter ),
+  m_pIterVal( new BLong( 0 ) )
 {
   m_IterVal.get()->setimp( m_pIterVal );
 }
-BXMLNodeIterator::BXMLNodeIterator( TiXmlNode* _node, BObject* pIter )
-    :  // child elements
-      node( _node ),
-      _file( NULL ),
-      _init( false ),
-      m_IterVal( pIter ),
-      m_pIterVal( new BLong( 0 ) )
+BXMLNodeIterator::BXMLNodeIterator( TiXmlNode* _node, BObject* pIter ) : // child elements
+  node( _node ),
+  _file( NULL ),
+  _init( false ),
+  m_IterVal( pIter ),
+  m_pIterVal( new BLong( 0 ) )
 {
   m_IterVal.get()->setimp( m_pIterVal );
 }
@@ -645,9 +637,9 @@ BXMLNodeIterator::BXMLNodeIterator( TiXmlNode* _node, BObject* pIter )
 BObject* BXMLNodeIterator::step()
 {
   m_pIterVal->increment();
-  if ( node == NULL )  // root elements (iter over BXmlFile)
+  if ( node == NULL ) //root elements (iter over BXmlFile)
     node = _file->FirstChild();
-  else if ( _file == NULL )  // child elements (iter over BXmlNode)
+  else if ( _file == NULL ) //child elements (iter over BXmlNode)
   {
     if ( !_init )
     {
@@ -657,7 +649,7 @@ BObject* BXMLNodeIterator::step()
     else
       node = node->NextSiblingElement();
   }
-  else  // root elements (iter over BXmlFile)
+  else //root elements (iter over BXmlFile)
     node = node->NextSibling();
   if ( !node )
     return NULL;
@@ -665,8 +657,11 @@ BObject* BXMLNodeIterator::step()
   return new BObject( new BXmlNode( node ) );
 }
 
-BXMLAttributeIterator::BXMLAttributeIterator( TiXmlElement* _node, BObject* pIter )
-    : node( _node ), nodeAttrib( NULL ), m_IterVal( pIter ), m_pIterVal( new BLong( 0 ) )
+BXMLAttributeIterator::BXMLAttributeIterator( TiXmlElement* _node, BObject* pIter ) :
+  node( _node ),
+  nodeAttrib( NULL ),
+  m_IterVal( pIter ),
+  m_pIterVal( new BLong( 0 ) )
 {
   m_IterVal.get()->setimp( m_pIterVal );
 }

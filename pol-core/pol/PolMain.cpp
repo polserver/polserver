@@ -1,6 +1,6 @@
 #include "PolMain.h"
 
-#include "pol.h"  //TODO: remove this ugly hack asap again
+#include "pol.h" //TODO: remove this ugly hack asap again
 
 namespace Pol
 {
@@ -10,7 +10,7 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PolMain::PolMain() : ProgramMain()
+PolMain::PolMain(): ProgramMain()
 {
 }
 PolMain::~PolMain()
@@ -24,11 +24,12 @@ void PolMain::showHelp()
 
 int PolMain::main()
 {
-  // TODO: merge the following with all the other xmain* functions
+  //TODO: merge the following with all the other xmain* functions
   return Pol::xmain_outer();
 }
+
 }
-}  // namespaces
+} // namespaces
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,5 +38,6 @@ int PolMain::main()
 int main( int argc, char* argv[] )
 {
   Pol::Clib::PolMain* polMain = new Pol::Clib::PolMain();
-  polMain->start( argc, argv );
+  polMain->start(argc, argv);
 }
+

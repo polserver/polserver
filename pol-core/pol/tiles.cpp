@@ -23,6 +23,7 @@ namespace Pol
 {
 namespace Core
 {
+
 void load_tile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
   unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), NULL, 0 ) );
@@ -40,8 +41,7 @@ void load_tile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 
 void load_tiles_cfg()
 {
-  Plib::systemstate.tile =
-      new Tile[static_cast<size_t>( Plib::systemstate.config.max_tile_id + 1 )];
+  Plib::systemstate.tile = new Tile[static_cast<size_t>( Plib::systemstate.config.max_tile_id + 1 )];
 
   load_all_cfgs( "tiles.cfg", "TILE", load_tile_entry );
 

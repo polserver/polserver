@@ -36,8 +36,12 @@ class Executor;
 class Instruction
 {
 public:
-  Instruction( ExecInstrFunc f ) : token(), func( f ), cycles( 0 ) {}
-  Instruction() : token(), func( 0 ), cycles( 0 ) {}
+
+  Instruction( ExecInstrFunc f ) : token(), func( f ), cycles( 0 )
+  {}
+  Instruction() : token(), func( 0 ), cycles( 0 )
+  {}
+
   Token token;
   ExecInstrFunc func;
   mutable unsigned int cycles;
@@ -57,7 +61,7 @@ struct EPDbgBlock
 {
   unsigned parentblockidx;
   unsigned parentvariables;
-  std::vector<std::string> localvarnames;
+  std::vector< std::string > localvarnames;
 };
 
 struct EPExportedFunction
@@ -91,7 +95,7 @@ public:
   unsigned expectedArgs;
   bool haveProgram;
   boost_utils::script_name_flystring name;
-  std::vector<FunctionalityModule*> modules;
+  std::vector< FunctionalityModule* > modules;
   StoredTokenContainer tokens;
   SymbolContainer symbols;
 
@@ -121,7 +125,7 @@ public:
   // executor only:
   unsigned short version;
   unsigned int invocations;
-  u64 instr_cycles;  // FIXME need an enable-profiling flag
+  u64 instr_cycles; // FIXME need an enable-profiling flag
   Plib::Package const* pkg;
   std::vector<Instruction> instr;
 
@@ -132,16 +136,16 @@ public:
   unsigned curfile;
   unsigned curline;
   bool statementbegin;
-  std::vector<std::string> globalvarnames;
-  std::vector<EPDbgBlock> blocks;
-  std::vector<EPDbgFunction> dbg_functions;
-  std::vector<std::string> dbg_filenames;
+  std::vector< std::string > globalvarnames;
+  std::vector< EPDbgBlock > blocks;
+  std::vector< EPDbgFunction > dbg_functions;
+  std::vector< std::string > dbg_filenames;
 
   // per instruction:
-  std::vector<unsigned> dbg_filenum;
-  std::vector<unsigned> dbg_linenum;
-  std::vector<unsigned> dbg_ins_blocks;
-  std::vector<bool> dbg_ins_statementbegin;
+  std::vector< unsigned > dbg_filenum;
+  std::vector< unsigned > dbg_linenum;
+  std::vector< unsigned > dbg_ins_blocks;
+  std::vector< bool > dbg_ins_statementbegin;
   void setcontext( const CompilerContext& ctx );
   void setstatementbegin();
 
@@ -160,7 +164,6 @@ public:
   unsigned varcount( unsigned block );
   unsigned parentvariables( unsigned parent );
   size_t sizeEstimate() const;
-
 private:
   friend class EScriptProgramCheckpoint;
   ~EScriptProgram();
@@ -170,7 +173,7 @@ private:
 class EScriptProgramCheckpoint
 {
 public:
-  explicit EScriptProgramCheckpoint( const EScriptProgram& );
+  explicit EScriptProgramCheckpoint( const EScriptProgram&);
   void commit( const EScriptProgram& prog );
   void rollback( EScriptProgram& prog ) const;
 

@@ -39,7 +39,7 @@ extern size_t locker;
 extern CRITICAL_SECTION cs;
 #else
 extern pthread_mutex_t polsem;
-#endif  // not _WIN32
+#endif // not _WIN32
 
 void polsem_lock();
 void polsem_unlock();
@@ -47,18 +47,26 @@ void polsem_unlock();
 class PolLock
 {
 public:
-  PolLock() { polsem_lock(); }
-  ~PolLock() { polsem_unlock(); }
+  PolLock()
+  {
+    polsem_lock();
+  }
+  ~PolLock()
+  {
+    polsem_unlock();
+  }
 };
 
 class PolLock2
 {
 public:
-  PolLock2() : locked_( true ) { polsem_lock(); }
+  PolLock2() : locked_( true )
+  {
+    polsem_lock();
+  }
   ~PolLock2()
   {
-    if ( locked_ )
-      polsem_unlock();
+    if ( locked_ ) polsem_unlock();
     locked_ = false;
   }
 
@@ -72,10 +80,9 @@ public:
     polsem_lock();
     locked_ = true;
   }
-
 private:
   bool locked_;
 };
 }
 }
-#endif  // POLSEM_H
+#endif // POLSEM_H

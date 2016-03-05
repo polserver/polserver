@@ -18,6 +18,7 @@ namespace Pol
 {
 namespace Plib
 {
+
 struct SOLIDS_ELEM;
 struct SOLIDX2_ELEM;
 struct MAPCELL;
@@ -38,7 +39,7 @@ public:
   void OpenExistingFiles( const std::string& realm_name );
   void WriteConfigFile();
 
-  void CreateBaseDat( const std::string& realm_name, const std::string& directory );
+  void CreateBaseDat(const std::string& realm_name, const std::string& directory);
   void CreateSolidx1Dat( const std::string& realm_name, const std::string& directory );
   void CreateSolidx2Dat( const std::string& realm_name, const std::string& directory );
   void CreateSolidsDat( const std::string& realm_name, const std::string& directory );
@@ -53,8 +54,14 @@ public:
   void AppendSolidx2Elem( const SOLIDX2_ELEM& elem );
   void SetSolidx2Offset( unsigned short x_base, unsigned short y_base, unsigned int offset );
 
-  unsigned width() const { return _width; }
-  unsigned height() const { return _height; }
+  unsigned width() const
+  {
+    return _width;
+  }
+  unsigned height() const
+  {
+    return _height;
+  }
 private:
   std::fstream::pos_type total_size();
 

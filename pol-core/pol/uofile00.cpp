@@ -21,7 +21,7 @@
 #include <cstring>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for fopen, etc
+#pragma warning(disable:4996) // disable deprecation warning for fopen, etc
 #endif
 
 namespace Pol
@@ -46,8 +46,7 @@ FILE* open_uo_file( const std::string& filename_part )
   if ( !fp )
   {
     ERROR_PRINT << "Unable to open UO datafile: " << filename << "\n"
-                << "POL.CFG specifies UODataFileRoot as '"
-                << Plib::systemstate.config.uo_datafile_root << "'.  Is this correct?\n"
+                << "POL.CFG specifies UODataFileRoot as '" << Plib::systemstate.config.uo_datafile_root << "'.  Is this correct?\n"
                 << "  The following files must be present in that directory:\n"
                 << "      map0.mul\n"
                 << "      multi.idx\n"
@@ -57,20 +56,19 @@ FILE* open_uo_file( const std::string& filename_part )
                 << "      tiledata.mul\n"
                 << "      verdata.mul    (optional - only if present on client install)\n";
 
-    throw std::runtime_error( "Error opening UO datafile." );
+    throw std::runtime_error("Error opening UO datafile.");
   }
   return fp;
 }
 
-FILE* open_map_file( std::string name, int map_id )
+FILE* open_map_file(std::string name, int map_id)
 {
   std::string filename;
 
   filename = name + Clib::tostring( map_id ) + ".mul";
   if ( uo_mapid == 1 && !Clib::FileExists( Plib::systemstate.config.uo_datafile_root + filename ) )
   {
-    ERROR_PRINT << "Unable to find UO file: " << filename
-                << ", reading " + name + "0.mul instead.\n";
+    ERROR_PRINT << "Unable to find UO file: " << filename << ", reading " + name + "0.mul instead.\n";
     filename = name + "0.mul";
   }
 
@@ -90,7 +88,7 @@ void open_uo_data_files( void )
   sidxfile = open_map_file( "staidx", uo_mapid );
   statfile = open_map_file( "statics", uo_mapid );
 
-  if ( Clib::FileExists( ( Plib::systemstate.config.uo_datafile_root + "verdata.mul" ).c_str() ) )
+  if ( Clib::FileExists( ( Plib::systemstate.config.uo_datafile_root + "verdata.mul" ).c_str( ) ) )
   {
     verfile = open_uo_file( "verdata.mul" );
   }

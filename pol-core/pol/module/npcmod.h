@@ -2,8 +2,7 @@
  *
  * @par History
  * - 2005/06/15 Shinigami: added CanMove - checks if an NPC can move in given direction
- *                         (IsLegalMove works in a different way and is used for bounding boxes
- * only)
+ *                         (IsLegalMove works in a different way and is used for bounding boxes only)
  */
 
 
@@ -32,13 +31,13 @@ namespace Module
 class OSExecutorModule;
 class NPCExecutorModule;
 
-typedef Bscript::BObjectImp* ( NPCExecutorModule::*NPCExecutorModuleFn )();
+typedef Bscript::BObjectImp* ( NPCExecutorModule::*NPCExecutorModuleFn )( );
 
 #ifdef _MSC_VER
-#pragma pack( push, 1 )
+# pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
+# pragma pack(1)
 #endif
 struct NPCFunctionDef
 {
@@ -46,9 +45,9 @@ struct NPCFunctionDef
   NPCExecutorModuleFn fptr;
 };
 #ifdef _MSC_VER
-#pragma pack( pop )
+# pragma pack( pop )
 #else
-#pragma pack()
+# pragma pack()
 #endif
 
 class NPCExecutorModule : public Bscript::ExecutorModule
@@ -104,7 +103,7 @@ protected:
   virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
   static NPCFunctionDef function_table[];
 
-  inline bool _internal_move( Core::UFACING facing, int run );  // DAVE
+  inline bool _internal_move( Core::UFACING facing, int run ); //DAVE
 };
 }
 }

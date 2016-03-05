@@ -35,28 +35,29 @@ namespace Multi
 {
 bool BoatShapeExists( u16 graphic );
 
-MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
-    : multiid( multiid ),
-      type( UNKNOWN ),
-      elems(),
+MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid ) :
+  multiid( multiid ),
+  type( UNKNOWN ),
+  elems(),
 
-      xbase( 0 ),
-      xsize( 0 ),
-      ybase( 0 ),
-      ysize( 0 ),
+  xbase( 0 ),
+  xsize( 0 ),
+  ybase( 0 ),
+  ysize( 0 ),
 
-      minrx( 0 ),
-      minry( 0 ),
-      minrz( 0 ),
-      maxrx( 0 ),
-      maxry( 0 ),
-      maxrz( 0 )
+  minrx( 0 ),
+  minry( 0 ),
+  minrz( 0 ),
+  maxrx( 0 ),
+  maxry( 0 ),
+  maxrz( 0 )
 {
   if ( elem.type_is( "BOAT" ) )
   {
     if ( !BoatShapeExists( multiid ) )
-      elem.throw_error( "Entry for Boat (multiid " + Clib::hexint( multiid ) +
-                        ") not found in boats.cfg" );
+      elem.throw_error( "Entry for Boat (multiid "
+                        + Clib::hexint( multiid )
+                        + ") not found in boats.cfg" );
     type = BOAT;
   }
   else if ( elem.type_is( "HOUSE" ) )
@@ -71,11 +72,10 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
   std::string tmp;
   while ( elem.remove_prop( "static", &tmp ) )
   {
-    std::istringstream is( tmp );
+    std::istringstream is(tmp);
     MULTI_ELEM multielem;
     multielem.is_static = true;
-    if ( is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >>
-         multielem.z )
+    if (is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >> multielem.z)
     {
       elems.push_back( multielem );
     }
@@ -87,11 +87,10 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
   }
   while ( elem.remove_prop( "dynamic", &tmp ) )
   {
-    std::istringstream is( tmp );
+    std::istringstream is(tmp);
     MULTI_ELEM multielem;
     multielem.is_static = false;
-    if ( is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >>
-         multielem.z )
+    if (is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >> multielem.z)
     {
       elems.push_back( multielem );
     }
@@ -104,12 +103,12 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
 }
 
 MultiDef::~MultiDef()
-{
-}
+{}
 
 bool MultiDef::findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
                                short rx, short ry ) const
 {
+
   ItrPair pr = components.equal_range( getkey( rx, ry ) );
   if ( pr.first == components.end() )
   {
@@ -149,7 +148,7 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
   if ( type == BOAT )
   {
     short int_rx = elem->x, int_ry = elem->y;
-    if ( ( multiid & 1 ) == 0 )  // N/S hull, so squeeze X
+    if ( ( multiid & 1 ) == 0 ) // N/S hull, so squeeze X
     {
       if ( elem->x == minrx )
         int_rx = minrx + 1;
@@ -167,6 +166,7 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
     if ( elem )
       add_to_internal_hull( elem );
   }
+
 }
 
 void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
@@ -239,33 +239,21 @@ void MultiDef::computehull()
 
 void MultiDef::addrec( const MULTI_ELEM* elem )
 {
-  if ( elem->x < minrx )
-    minrx = elem->x;
-  if ( elem->y < minry )
-    minry = elem->y;
-  if ( elem->z < minrz )
-    minrz = elem->z;
+  if ( elem->x < minrx ) minrx = elem->x;
+  if ( elem->y < minry ) minry = elem->y;
+  if ( elem->z < minrz ) minrz = elem->z;
 
-  if ( elem->x > maxrx )
-    maxrx = elem->x;
-  if ( elem->y > maxry )
-    maxry = elem->y;
-  if ( elem->z > maxrz )
-    maxrz = elem->z;
+  if ( elem->x > maxrx ) maxrx = elem->x;
+  if ( elem->y > maxry ) maxry = elem->y;
+  if ( elem->z > maxrz ) maxrz = elem->z;
 
-  if ( elem->x < global_minrx )
-    global_minrx = elem->x;
-  if ( elem->y < global_minry )
-    global_minry = elem->y;
-  if ( elem->z < global_minrz )
-    global_minrz = elem->z;
+  if ( elem->x < global_minrx ) global_minrx = elem->x;
+  if ( elem->y < global_minry ) global_minry = elem->y;
+  if ( elem->z < global_minrz ) global_minrz = elem->z;
 
-  if ( elem->x > global_maxrx )
-    global_maxrx = elem->x;
-  if ( elem->y > global_maxry )
-    global_maxry = elem->y;
-  if ( elem->z > global_maxrz )
-    global_maxrz = elem->z;
+  if ( elem->x > global_maxrx ) global_maxrx = elem->x;
+  if ( elem->y > global_maxry ) global_maxry = elem->y;
+  if ( elem->z > global_maxrz ) global_maxrz = elem->z;
 
   components.insert( Components::value_type( getkey( elem->x, elem->y ), elem ) );
 }
@@ -281,17 +269,15 @@ void MultiDef::init()
 
 size_t MultiDef::estimateSize() const
 {
-  size_t size = sizeof( MultiDef );
-  size += 3 * sizeof( MULTI_ELEM* ) + elems.capacity() * sizeof( MULTI_ELEM );
-  size += 3 * sizeof( MULTI_ELEM** ) + hull.capacity() * sizeof( MULTI_ELEM* );
-  size += 3 * sizeof( MULTI_ELEM** ) + internal_hull.capacity() * sizeof( MULTI_ELEM* );
+  size_t size = sizeof(MultiDef);
+  size += 3 * sizeof(MULTI_ELEM*) + elems.capacity() * sizeof( MULTI_ELEM);
+  size += 3 * sizeof(MULTI_ELEM**) + hull.capacity() * sizeof( MULTI_ELEM*);
+  size += 3 * sizeof(MULTI_ELEM**) + internal_hull.capacity() * sizeof( MULTI_ELEM*);
 
-  size += 3 * sizeof( void* ) + hull2.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) );
-  size += 3 * sizeof( void* ) +
-          internal_hull2.size() * ( sizeof( unsigned short ) + 3 * sizeof( void* ) );
+  size +=  3 * sizeof( void*) + hull2.size() * ( sizeof(unsigned short)+3 * sizeof( void*) );
+  size +=  3 * sizeof( void*) + internal_hull2.size() * ( sizeof(unsigned short)+3 * sizeof( void*) );
 
-  size += ( sizeof( unsigned short ) + sizeof( MULTI_ELEM* ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-          components.size();
+  size += ( sizeof(unsigned short)+sizeof( MULTI_ELEM*) + ( sizeof(void*) * 3 + 1 ) / 2 ) * components.size();
   return size;
 }
 

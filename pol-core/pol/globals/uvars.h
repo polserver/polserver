@@ -84,44 +84,42 @@ class ListenPoint;
 class Party;
 class Guild;
 
-typedef std::vector<Core::CmdLevel> CmdLevels;
+typedef std::vector< Core::CmdLevel > CmdLevels;
 
-typedef std::vector<AccountRef> AccountsVector;
-class ItemsVector : public std::vector<Items::Item*>
-{
-};
+typedef std::vector<AccountRef>           AccountsVector;
+class ItemsVector : public std::vector<Items::Item*> {};
 
-typedef std::vector<StartingLocation*> StartingLocations;
+typedef std::vector<StartingLocation*>  StartingLocations;
 typedef RegionGroup<JusticeRegion> JusticeDef;
 typedef RegionGroup<NoCastRegion> NoCastDef;
 typedef RegionGroup<LightRegion> LightDef;
 typedef RegionGroup<MusicRegion> MusicDef;
 
-typedef std::map<std::string, NpcTemplateElem, Clib::ci_cmp_pred> NpcTemplatesElems;
-typedef std::map<std::string, NpcTemplate*> NpcTemplates;
+typedef std::map< std::string, NpcTemplateElem, Clib::ci_cmp_pred > NpcTemplatesElems;
+typedef std::map< std::string, NpcTemplate* > NpcTemplates;
 
 typedef ref_ptr<Party> PartyRef;
-typedef std::vector<PartyRef> Parties;
+typedef std::vector <PartyRef> Parties;
 typedef ref_ptr<Guild> GuildRef;
 typedef std::map<unsigned int, GuildRef> Guilds;
 
-typedef std::map<std::string, Mobile::Attribute*, Clib::ci_cmp_pred> AttributesByName;
+typedef std::map< std::string, Mobile::Attribute*, Clib::ci_cmp_pred > AttributesByName;
 
 typedef std::vector<ArmorZone> ArmorZones;
-typedef std::map<std::string, Vital*, Clib::ci_cmp_pred> VitalsByName;
+typedef std::map< std::string, Vital*, Clib::ci_cmp_pred > VitalsByName;
 typedef std::map<unsigned int, unsigned int> OldObjtypeConversions;
 typedef std::map<std::string, u32, Clib::ci_cmp_pred> ObjtypeByNameMap;
 typedef std::map<std::string, ResourceDef*> ResourceDefs;
 typedef std::pair<std::string /* name */, u8 /* layer */> NameAndLayer;
 typedef std::map<NameAndLayer, Items::Equipment*> IntrinsicEquipments;
-typedef std::map<u16 /* graphic */, Multi::BoatShape*> BoatShapes;
+typedef std::map< u16 /* graphic */, Multi::BoatShape* > BoatShapes;
 typedef std::map<UOExecutor*, ListenPoint*> ListenPoints;
-typedef std::priority_queue<ScheduledTask*, std::vector<ScheduledTask*>, SchComparer> TaskQueue;
+typedef std::priority_queue< ScheduledTask*, std::vector<ScheduledTask*>, SchComparer > TaskQueue;
 typedef std::set<std::string> PropSet;
 
-typedef void ( *TextCmdFunc )( Network::Client* );
+typedef void( *TextCmdFunc )( Network::Client*);
 typedef std::map<std::string, TextCmdFunc, Clib::ci_cmp_pred> TextCmds;
-typedef void ( *ParamTextCmdFunc )( Network::Client*, const char* );
+typedef void( *ParamTextCmdFunc )( Network::Client*, const char*);
 typedef std::map<std::string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
 
 
@@ -174,7 +172,7 @@ public:
   std::unique_ptr<PeriodicTask> update_sysload_task;
   std::unique_ptr<PeriodicTask> reload_pol_cfg_task;
 
-  std::vector<Mobile::Attribute*> attributes;
+  std::vector< Mobile::Attribute* > attributes;
   unsigned numAttributes;
   AttributesByName attributes_byname;
   const Mobile::Attribute* pAttrStrength;
@@ -195,7 +193,7 @@ public:
   ArmorZones armorzones;
   double armor_zone_chance_sum;
 
-  std::vector<Vital*> vitals;
+  std::vector< Vital* > vitals;
   unsigned numVitals;
   const Vital* pVitalLife;
   const Vital* pVitalStamina;
@@ -204,7 +202,7 @@ public:
 
   std::map<u32, Items::ItemDesc*> desctable;
   OldObjtypeConversions old_objtype_conversions;
-  std::vector<Items::ItemDesc*> dynamic_item_descriptors;
+  std::vector< Items::ItemDesc* > dynamic_item_descriptors;
   ObjtypeByNameMap objtype_byname;
   std::unique_ptr<Items::ItemDesc> empty_itemdesc;
   std::unique_ptr<Items::ItemDesc> temp_itemdesc;
@@ -218,7 +216,7 @@ public:
   UACTION mount_action_xlate[ACTION__HIGHEST + 1];
   std::map<std::string, MobileTranslate> animation_translates;
 
-  std::vector<ConsoleCommand> console_commands;
+  std::vector< ConsoleCommand > console_commands;
 
   std::array<LandTile, LANDTILE_COUNT> landtiles;
   bool landtiles_loaded;
@@ -246,7 +244,6 @@ public:
     size_t realm_size;
     size_t misc;
   };
-
 private:
   void cleanup_vars();
   void cleanup_scripts();
@@ -256,6 +253,7 @@ private:
   void unload_npc_templates();
 };
 extern GameState gamestate;
+
 }
 }
 #endif

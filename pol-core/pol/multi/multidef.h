@@ -57,17 +57,11 @@ public:
   ~MultiDef();
 
   u16 multiid;
-  enum HOUSETYPE : u8
-  {
-    UNKNOWN,
-    BOAT,
-    HOUSE,
-    STAIRS
-  } type;
+  enum HOUSETYPE : u8 { UNKNOWN, BOAT, HOUSE, STAIRS } type;
 
-  std::vector<MULTI_ELEM> elems;
+  std::vector< MULTI_ELEM > elems;
 
-  short xbase;  // x[0] is really x[xbase]
+  short xbase;          // x[0] is really x[xbase]
   short xsize;
   short ybase;
   short ysize;
@@ -82,7 +76,7 @@ public:
   typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
   typedef std::pair<Components::const_iterator, Components::const_iterator> ItrPair;
 
-  short minrx, minry, minrz;  // minimum relative distances
+  short minrx, minry, minrz; // minimum relative distances
   short maxrx, maxry, maxrz;
   Components components;
 
@@ -95,15 +89,14 @@ public:
 
   ItrPair findcomponents( short rx, short ry );
 
-  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end, short rx,
-                       short ry ) const;
+  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
+                       short rx, short ry ) const;
 
   static unsigned short getkey( short rx, short ry );
 
   // returns true if it finds anything at this rx,ry
   bool readobjects( Core::StaticList& vec, short rx, short ry, short zbase ) const;
-  bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase,
-                   unsigned int anyflags ) const;
+  bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase, unsigned int anyflags ) const;
 
   bool body_contains( short rx, short ry ) const;
   const MULTI_ELEM* find_component( short rx, short ry ) const;

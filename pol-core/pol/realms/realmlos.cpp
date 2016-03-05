@@ -9,7 +9,7 @@
 #include "../../plib/inmemorymapserver.h"
 #include "../../plib/mapshape.h"
 
-#include "../uworld.h"  // TODO move 'world' into Realm
+#include "../uworld.h" // TODO move 'world' into Realm
 #include "../item/item.h"
 #include "../los.h"
 #include "../clidata.h"
@@ -19,7 +19,7 @@ namespace Pol
 namespace Realms
 {
 const int los_range = 20;
-// const int z_los_range = 60; // unused as yet
+//const int z_los_range = 60; // unused as yet
 
 /**
  * @defgroup los3d 3D LOS CHECKING
@@ -65,18 +65,20 @@ bool Realm::dynamic_item_blocks_los( const Core::LosObj& att, const Core::LosObj
 
   for ( const auto& item : witems )
   {
-    if ( ( item->x == x ) && ( item->y == y ) )
+    if ( ( item->x == x ) &&
+         ( item->y == y ) )
     {
       u32 flags = Core::tile_flags( item->graphic );
 
       if ( flags & Plib::FLAG::BLOCKSIGHT )
       {
-        if ( item->z <= z && z < item->z + item->height )
+        if ( item->z <= z &&
+             z < item->z + item->height )
         {
           if ( item->serial != target.serial && item->serial != att.serial )
           {
 #if ENABLE_POLTEST_OUTPUT
-            INFO_PRINT << "LOS blocked by " << item->description() << "\n";
+            INFO_PRINT << "LOS blocked by " << item->description( ) << "\n";
 #endif
             return true;
           }
@@ -97,26 +99,27 @@ bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z 
 
   getmapshapes( shapes, x, y, Plib::FLAG::BLOCKSIGHT );
   readmultis( shapes, x, y, Plib::FLAG::BLOCKSIGHT );
-  for ( Plib::MapShapeList::const_iterator itr = shapes.begin(), end = shapes.end(); itr != end;
-        ++itr )
+  for ( Plib::MapShapeList::const_iterator itr = shapes.begin(), end = shapes.end(); itr != end; ++itr )
   {
     const Plib::MapShape& shape = ( *itr );
     short ob_ht = shape.height;
     short ob_z = shape.z;
 #if ENABLE_POLTEST_OUTPUT
-    INFO_PRINT << "static type 0x" << fmt::hexu( itr->graphic ) << " (flags 0x"
-               << fmt::hexu( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
+    INFO_PRINT << "static type 0x" << fmt::hexu(itr->graphic)
+               << " (flags 0x" << fmt::hexu( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
                << " at z-coord " << (int)itr->z << "\n";
 #endif
 
-    if ( ob_ht == 0 )  // treat a 0-height object as a 1-height object at position z-1
+    if ( ob_ht == 0 ) // treat a 0-height object as a 1-height object at position z-1
     {
       --ob_z;
       ++ob_ht;
     }
 
 
-    if ( ob_z <= z && z < ob_z + ob_ht )
+
+    if ( ob_z <= z &&
+         z < ob_z + ob_ht )
     {
 #if ENABLE_POLTEST_OUTPUT
       INFO_PRINT << "LOS blocked by static object\n";
@@ -132,44 +135,50 @@ bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z 
  *
  * @ingroup los3d
  */
-bool Realm::los_blocked( const Core::LosObj& att, const Core::LosObj& target, unsigned short x,
-                         unsigned short y, short z ) const
+bool Realm::los_blocked( const Core::LosObj& att, const Core::LosObj& target,
+                         unsigned short x, unsigned short y, short z ) const
 {
   // if the target inhabits the location, LOS can't be blocked:
-  if ( att.x == x && att.y == y && att.z <= z &&
-       z <= att.z + att.obj_height )  // LE to allow for 0-height target
+  if ( att.x == x &&
+       att.y == y &&
+       att.z <= z &&
+       z <= att.z + att.obj_height ) // LE to allow for 0-height target
   {
     return false;
   }
-  if ( target.x == x && target.y == y && target.z <= z &&
-       z <= target.z + target.obj_height )  // LE to allow for 0-height target
+  if ( target.x == x &&
+       target.y == y &&
+       target.z <= z &&
+       z <= target.z + target.obj_height ) // LE to allow for 0-height target
   {
     return false;
   }
 
-  return dynamic_item_blocks_los( att, target, x, y, z ) || static_item_blocks_los( x, y, z );
+  return dynamic_item_blocks_los( att, target, x, y, z ) ||
+         static_item_blocks_los( x, y, z );
 }
 
 /// absolute value of a
-#define ABS( a ) ( ( ( a ) < 0 ) ? -( a ) : ( a ) )
+#define ABS(a) (((a)<0) ? -(a) : (a))
 
 /// take sign of a, either -1, 0, or 1
-#define ZSGN( a ) ( ( ( a ) < 0 ) ? -1 : ( a ) > 0 ? 1 : 0 )
+#define ZSGN(a) (((a)<0) ? -1 : (a)>0 ? 1 : 0)
 
 /**
 * @ingroup los3d
 */
 bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
 {
-  short x1, y1, z1;  // one of the endpoints
-  short x2, y2, z2;  // the other endpoint
+  short x1, y1, z1; // one of the endpoints
+  short x2, y2, z2; // the other endpoint
   short xd, yd, zd;
   short x, y, z;
   short ax, ay, az;
   short sx, sy, sz;
   short dx, dy, dz;
 
-  if ( ( att.y < tgt.y ) || ( att.y == tgt.y && att.z < tgt.z ) )
+  if ( ( att.y < tgt.y ) ||
+       ( att.y == tgt.y && att.z < tgt.z ) )
   {
     x1 = att.x;
     y1 = att.y;
@@ -199,11 +208,13 @@ bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
   {
     if ( !dz )
       return true;
-    if ( att.z <= tgt.z && tgt.z <= att.z + att.obj_height )
+    if ( att.z <= tgt.z &&
+         tgt.z <= att.z + att.obj_height )
     {
       return true;
     }
-    if ( att.z <= tgt.z + tgt.look_height && tgt.z + tgt.look_height <= att.z + att.obj_height )
+    if ( att.z <= tgt.z + tgt.look_height &&
+         tgt.z + tgt.look_height <= att.z + att.obj_height )
     {
       return true;
     }
@@ -221,7 +232,7 @@ bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
   y = y1;
   z = z1;
 
-  if ( ax >= ay && ax >= az )  // x dominant
+  if ( ax >= ay && ax >= az )            // x dominant
   {
     yd = ay - ( ax >> 1 );
     zd = az - ( ax >> 1 );
@@ -251,9 +262,10 @@ bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
       x += sx;
       yd += ay;
       zd += az;
+
     }
   }
-  else if ( ay >= ax && ay >= az )  // y dominant
+  else if ( ay >= ax && ay >= az )            //y dominant
   {
     xd = ax - ( ay >> 1 );
     zd = az - ( ay >> 1 );
@@ -283,9 +295,10 @@ bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
       y += sy;
       xd += ax;
       zd += az;
+
     }
   }
-  else  // z dominant
+  else           // z dominant
   {
     xd = ax - ( az >> 1 );
     yd = ay - ( az >> 1 );
@@ -315,6 +328,7 @@ bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
       z += sz;
       xd += ax;
       yd += ay;
+
     }
   }
   return true;

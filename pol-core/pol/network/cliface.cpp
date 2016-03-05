@@ -34,13 +34,15 @@ void initialize_client_interfaces()
   Core::networkManager.uo_client_interface->Initialize();
 }
 
-ClientVitalUpdaters::ClientVitalUpdaters() : my_vital_changed( NULL ), others_vital_changed( NULL )
-{
-}
+ClientVitalUpdaters::ClientVitalUpdaters() :
+  my_vital_changed( NULL ),
+  others_vital_changed( NULL )
+{}
 
-ClientAttributeUpdaters::ClientAttributeUpdaters() : my_attr_changed( NULL ), pUOSkill( nullptr )
-{
-}
+ClientAttributeUpdaters::ClientAttributeUpdaters() :
+  my_attr_changed( NULL ),
+  pUOSkill(nullptr)
+{}
 
 void ClientInterface::register_client( Client* client )
 {
@@ -73,8 +75,7 @@ void ClientInterface::tell_vital_changed( Mobile::Character* who, const Core::Vi
   // on all the client interfaces, for their connected clients, possibly tell them
   Core::networkManager.uo_client_interface->bcast_vital_changed( who, vital );
 }
-void ClientInterface::tell_attribute_changed( Mobile::Character* who,
-                                              const Mobile::Attribute* attr )
+void ClientInterface::tell_attribute_changed( Mobile::Character* who, const Mobile::Attribute* attr )
 {
   Client* client = who->client;
   if ( client && client->ready )
@@ -86,13 +87,13 @@ void ClientInterface::tell_attribute_changed( Mobile::Character* who,
 }
 
 /// Just like send_uo_hits, but sends hits on a 1000-basis instead
-void send_fake_hits( Client* client, Mobile::Character* me, const Core::Vital* vital )
+void send_fake_hits(Client* client, Mobile::Character* me, const Core::Vital* vital)
 {
   PktHelper::PacketOut<PktOut_A1> msg;
-  msg->Write<u32>( me->serial_ext );
-  msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( me->vital( vital->vitalid ).current_thousands() ) );
-  msg.Send( client );
+  msg->Write<u32>(me->serial_ext);
+  msg->WriteFlipped<u16>(1000u);
+  msg->WriteFlipped<u16>(static_cast<u16>(me->vital(vital->vitalid).current_thousands()));
+  msg.Send(client);
 }
 
 void send_uo_hits( Client* client, Mobile::Character* me, const Core::Vital* vital )
@@ -156,8 +157,7 @@ void send_uo_dexterity( Client* client, Mobile::Character* me, const Mobile::Att
 {
   Core::send_full_statmsg( client, me );
 }
-void send_uo_intelligence( Client* client, Mobile::Character* me,
-                           const Mobile::Attribute* /*attr*/ )
+void send_uo_intelligence( Client* client, Mobile::Character* me, const Mobile::Attribute* /*attr*/ )
 {
   Core::send_full_statmsg( client, me );
 }
@@ -173,9 +173,8 @@ void send_uo_skill( Client* client, Mobile::Character* me, const Mobile::Attribu
     msg->Write<u8>( Core::PKTBI_3A_VALUES::SINGLE_SKILL_CAP );
   msg->WriteFlipped<u16>( cau.pUOSkill->skillid );
   const Mobile::AttributeValue& av = me->attribute( attr->attrid );
-  msg->WriteFlipped<u16>( static_cast<u16>( av.effective_tenths() ) );  // value
-  msg->WriteFlipped<u16>(
-      static_cast<u16>( av.base() ) );  // value_unmod base is always in tenths...
+  msg->WriteFlipped<u16>( static_cast<u16>(av.effective_tenths()) ); //value
+  msg->WriteFlipped<u16>( static_cast<u16>(av.base()) ); //value_unmod base is always in tenths...
   msg->Write<u8>( av.lock() );
   if ( Core::settingsManager.ssopt.core_sends_caps )
     msg->WriteFlipped<u16>( av.cap() );
@@ -198,8 +197,7 @@ void UOClientInterface::Initialize()
   if ( Core::networkManager.uoclient_general.hits.any )
   {
     vital_updaters[Core::networkManager.uoclient_general.hits.id].my_vital_changed = send_uo_hits;
-    vital_updaters[Core::networkManager.uoclient_general.hits.id].others_vital_changed =
-        send_fake_hits;
+    vital_updaters[Core::networkManager.uoclient_general.hits.id].others_vital_changed = send_fake_hits;
   }
   if ( Core::networkManager.uoclient_general.mana.any )
   {
@@ -207,24 +205,20 @@ void UOClientInterface::Initialize()
   }
   if ( Core::networkManager.uoclient_general.stamina.any )
   {
-    vital_updaters[Core::networkManager.uoclient_general.stamina.id].my_vital_changed =
-        send_uo_stamina;
+    vital_updaters[Core::networkManager.uoclient_general.stamina.id].my_vital_changed = send_uo_stamina;
   }
 
   if ( Core::networkManager.uoclient_general.strength.any )
   {
-    attribute_updaters[Core::networkManager.uoclient_general.strength.id].my_attr_changed =
-        send_uo_strength;
+    attribute_updaters[Core::networkManager.uoclient_general.strength.id].my_attr_changed = send_uo_strength;
   }
   if ( Core::networkManager.uoclient_general.intelligence.any )
   {
-    attribute_updaters[Core::networkManager.uoclient_general.intelligence.id].my_attr_changed =
-        send_uo_intelligence;
+    attribute_updaters[Core::networkManager.uoclient_general.intelligence.id].my_attr_changed = send_uo_intelligence;
   }
   if ( Core::networkManager.uoclient_general.dexterity.any )
   {
-    attribute_updaters[Core::networkManager.uoclient_general.dexterity.id].my_attr_changed =
-        send_uo_dexterity;
+    attribute_updaters[Core::networkManager.uoclient_general.dexterity.id].my_attr_changed = send_uo_dexterity;
   }
 
   for ( unsigned short i = 0; i < Core::networkManager.uoclient_general.maxskills + 1; ++i )
@@ -238,8 +232,7 @@ void UOClientInterface::Initialize()
   }
 }
 
-void UOClientInterface::bcast_vital_changed( Mobile::Character* who,
-                                             const Core::Vital* vital ) const
+void UOClientInterface::bcast_vital_changed( Mobile::Character* who, const Core::Vital* vital ) const
 {
   const ClientVitalUpdaters& cvu = vital_updaters[vital->vitalid];
   if ( cvu.others_vital_changed != NULL )

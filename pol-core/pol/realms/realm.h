@@ -55,6 +55,7 @@ class StaticServer;
 }
 namespace Realms
 {
+
 typedef std::vector<Multi::UMulti*> MultiList;
 
 class Realm
@@ -78,32 +79,43 @@ public:
   bool valid( unsigned short x, unsigned short y, short z ) const;
   const std::string name() const;
 
-  void add_mobile( const Mobile::Character& chr, WorldChangeReason reason );
-  void remove_mobile( const Mobile::Character& chr, WorldChangeReason reason );
+  void add_mobile(const Mobile::Character& chr, WorldChangeReason reason);
+  void remove_mobile(const Mobile::Character& chr, WorldChangeReason reason);
 
-  void add_toplevel_item( const Items::Item& item );
-  void remove_toplevel_item( const Items::Item& item );
+  void add_toplevel_item(const Items::Item& item);
+  void remove_toplevel_item(const Items::Item& item);
 
-  void add_multi( const Multi::UMulti& multi );
-  void remove_multi( const Multi::UMulti& multi );
+  void add_multi(const Multi::UMulti& multi);
+  void remove_multi(const Multi::UMulti& multi);
 
   unsigned int mobile_count() const;
   unsigned int offline_mobile_count() const;
   unsigned int toplevel_item_count() const;
   unsigned int multi_count() const;
 
-  bool walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
-                   Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                   Core::MOVEMODE movemode, short* gradual_boost = NULL );
+  bool walkheight( unsigned short x, unsigned short y, short oldz,
+                   short* newz,
+                   Multi::UMulti** pmulti, Items::Item** pwalkon,
+                   bool doors_block,
+                   Core::MOVEMODE movemode,
+                   short* gradual_boost = NULL );
   bool walkheight( const Mobile::Character* chr, unsigned short x, unsigned short y, short oldz,
-                   short* newz, Multi::UMulti** pmulti, Items::Item** pwalkon,
+                   short* newz,
+                   Multi::UMulti** pmulti, Items::Item** pwalkon,
                    short* gradual_boost = NULL );
 
-  bool lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
-                          Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                          Core::MOVEMODE movemode, short* gradual_boost = NULL );
+  bool lowest_walkheight( unsigned short x, unsigned short y, short oldz,
+                          short* newz,
+                          Multi::UMulti** pmulti, Items::Item** pwalkon,
+                          bool doors_block,
+                          Core::MOVEMODE movemode,
+                          short* gradual_boost = NULL );
 
-  bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
+  bool dropheight( unsigned short dropx,
+                   unsigned short dropy,
+                   short dropz,
+                   short chrz,
+                   short* newz,
                    Multi::UMulti** pmulti );
 
   bool has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const;
@@ -119,39 +131,47 @@ public:
   void getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const;
   bool groundheight( unsigned short x, unsigned short y, short* z ) const;
   Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
-  void getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y,
-                     unsigned int anyflags ) const;
-  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
-                   unsigned int flags ) const;
-  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags,
-                   MultiList& mvec ) const;
+  void getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y, unsigned int anyflags ) const;
+  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags ) const;
+  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags, MultiList& mvec ) const;
   void readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const;
 
   Core::Zone** zone;
-  std::set<unsigned int> global_hulls;  // xy-smashed together
+  std::set<unsigned int> global_hulls; //xy-smashed together
   unsigned getUOMapID() const;
   unsigned getNumStaticPatches() const;
   unsigned getNumMapPatches() const;
   static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );
-
 protected:
-  static void standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
-                           bool* result, short* newz, short* gradual_boost = NULL );
+  static void standheight( Core::MOVEMODE movemode,
+                           Plib::MapShapeList& shapes,
+                           short oldz, bool* result,
+                           short* newz,
+                           short* gradual_boost = NULL );
 
-  static void lowest_standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
-                                  bool* result, short* newz, short* gradual_boost = NULL );
+  static void lowest_standheight( Core::MOVEMODE movemode,
+                                  Plib::MapShapeList& shapes,
+                                  short oldz, bool* result,
+                                  short* newz,
+                                  short* gradual_boost = NULL );
 
-  static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );
+  static bool dropheight( Plib::MapShapeList& shapes,
+                          short dropz,
+                          short chrz,
+                          short* newz );
 
-  void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
-                     Core::ItemsVector& walkon_items, bool doors_block );
+  void readdynamics( Plib::MapShapeList& vec,
+                     unsigned short x,
+                     unsigned short y,
+                     Core::ItemsVector& walkon_items,
+                     bool doors_block );
 
   bool dynamic_item_blocks_los( const Core::LosObj& att, const Core::LosObj& target,
                                 unsigned short x, unsigned short y, short z ) const;
 
   bool static_item_blocks_los( unsigned short x, unsigned short y, short z ) const;
-  bool los_blocked( const Core::LosObj& att, const Core::LosObj& target, unsigned short x,
-                    unsigned short y, short z ) const;
+  bool los_blocked( const Core::LosObj& att, const Core::LosObj& target,
+                    unsigned short x, unsigned short y, short z ) const;
 
   Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;
 
@@ -167,45 +187,44 @@ private:
 
 private:
   // not implemented:
-  Realm& operator=( const Realm& );
-  Realm( const Realm& );
-
+  Realm& operator=( const Realm&);
+  Realm( const Realm&);
 public:
   size_t sizeEstimate() const;
 };
 
 
-inline unsigned int Realm::mobile_count() const
+inline unsigned int Realm::mobile_count()  const
 {
   return _mobile_count;
 }
-inline unsigned int Realm::offline_mobile_count() const
+inline unsigned int Realm::offline_mobile_count()  const
 {
   return _offline_count;
 }
-inline unsigned int Realm::toplevel_item_count() const
+inline unsigned int Realm::toplevel_item_count()  const
 {
   return _toplevel_item_count;
 }
-inline unsigned int Realm::multi_count() const
+inline unsigned int Realm::multi_count()  const
 {
   return _multi_count;
 }
 
-inline void Realm::add_toplevel_item( const Items::Item& /*item*/ )
+inline void Realm::add_toplevel_item(const Items::Item& /*item*/)
 {
   ++_toplevel_item_count;
 }
-inline void Realm::remove_toplevel_item( const Items::Item& /*item*/ )
+inline void Realm::remove_toplevel_item(const Items::Item& /*item*/)
 {
   --_toplevel_item_count;
 }
 
-inline void Realm::add_multi( const Multi::UMulti& /*multi*/ )
+inline void Realm::add_multi(const Multi::UMulti& /*multi*/)
 {
   ++_multi_count;
 }
-inline void Realm::remove_multi( const Multi::UMulti& /*multi*/ )
+inline void Realm::remove_multi(const Multi::UMulti& /*multi*/)
 {
   --_multi_count;
 }
@@ -235,6 +254,7 @@ inline unsigned short Realm::height() const
 {
   return _descriptor.height;
 }
+
 }
 }
 #endif

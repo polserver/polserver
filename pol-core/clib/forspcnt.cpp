@@ -12,7 +12,7 @@ namespace Pol
 {
 namespace Clib
 {
-int forspec( const char* spec, void ( *func )( const char* pathname ) )
+int forspec( const char* spec, void( *func )( const char* pathname ) )
 {
   int nProc = 0;
   HANDLE hFind;
@@ -25,15 +25,16 @@ int forspec( const char* spec, void ( *func )( const char* pathname ) )
   lenleft = sizeof fullpath - ( fname - fullpath );
 
   hFind = FindFirstFile( spec, &find );
-  if ( hFind != INVALID_HANDLE_VALUE )
+  if( hFind != INVALID_HANDLE_VALUE )
   {
     do
     {
       ++nProc;
       strzcpy( fname, find.cFileName, lenleft );
-      if ( func != NULL )
+      if( func != NULL )
         ( *func )( fullpath );
-    } while ( FindNextFile( hFind, &find ) );
+    }
+    while( FindNextFile( hFind, &find ) );
     FindClose( hFind );
   }
   return nProc;

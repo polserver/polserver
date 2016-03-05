@@ -7,8 +7,8 @@
 #include "polclock.h"
 
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
 #else
 #include <sys/time.h>
 #include <unistd.h>
@@ -21,14 +21,15 @@ namespace Pol
 {
 namespace Core
 {
+
 #ifdef _WIN32
 typedef clock_t polclock_base_type;
 #else
 typedef int polclock_base_type;
 #endif
-static std::atomic<polclock_base_type> polclock_base( 0 );
-static std::atomic<time_t> poltime_base( 0 );
-static std::atomic<time_t> poltime_paused_at( 0 );
+static std::atomic<polclock_base_type> polclock_base(0);
+static std::atomic<time_t> poltime_base(0);
+static std::atomic<time_t> poltime_paused_at(0);
 
 polclock_base_type getCurrentPolClockSeconds()
 {
@@ -74,13 +75,13 @@ polclock_t polclock()
 #ifndef POLCLOCK_STRETCH
   return ( clock() - polclock_base ) / POLCLOCK_DIV;
 #else
-  return ( clock() - polclock_base ) / ( POLCLOCK_DIV * POLCLOCK_STRETCH );
+  return (clock() - polclock_base) / (POLCLOCK_DIV * POLCLOCK_STRETCH);
 #endif
 #else
   struct timeval tmv;
   struct timezone tz;
   gettimeofday( &tmv, &tz );
-  return ( tmv.tv_sec - polclock_base ) * 100 + tmv.tv_usec / ( 1000L * 10L );
+  return (tmv.tv_sec - polclock_base) * 100 + tmv.tv_usec /(1000L * 10L);
 #endif
 }
 
@@ -103,7 +104,7 @@ time_t poltime()
 #ifndef POLCLOCK_STRETCH
   return time( NULL ) - poltime_base;
 #else
-  return ( time( NULL ) - poltime_base ) / POLCLOCK_STRETCH;
+  return (time(NULL) - poltime_base) / POLCLOCK_STRETCH;
 #endif
 }
 

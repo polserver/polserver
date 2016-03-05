@@ -9,7 +9,7 @@
 #define BSCRIPT_DICT_H
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4786 )
+#pragma warning(disable:4786)
 #endif
 
 #ifndef BSCRIPT_BOBJECT_H
@@ -53,15 +53,12 @@ protected:
 
   virtual char packtype() const;
   virtual const char* typetag() const;
-  virtual void FormatForStringRep( std::ostream& os, const BObject& bkeyobj,
-                                   const BObjectRef& bvalref ) const;
+  virtual void FormatForStringRep( std::ostream& os, const BObject& bkeyobj, const BObjectRef& bvalref ) const;
 
   virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
-  virtual BObjectRef set_member( const char* membername, BObjectImp* value,
-                                 bool copy ) POL_OVERRIDE;
+  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
+  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) POL_OVERRIDE;
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
   virtual BObjectRef operDotPlus( const char* name ) POL_OVERRIDE;
   virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
@@ -75,7 +72,7 @@ private:
   Contents contents_;
 
   // not implemented:
-  BDictionary& operator=( const BDictionary& );
+  BDictionary& operator=( const BDictionary&);
 };
 }
 }

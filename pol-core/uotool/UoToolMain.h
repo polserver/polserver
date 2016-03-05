@@ -9,6 +9,7 @@ namespace Pol
 {
 namespace UoTool
 {
+
 class UoToolMain : public Pol::Clib::ProgramMain
 {
 public:
@@ -21,8 +22,10 @@ protected:
 private:
   virtual void showHelp();
   int uotool();
-};
-}
-}  // namespaces
 
-#endif  // UO_TOOL_MAIN_H
+};
+
+}
+} // namespaces
+
+#endif // UO_TOOL_MAIN_H

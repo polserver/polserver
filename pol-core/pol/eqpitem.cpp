@@ -2,9 +2,9 @@
  *
  * @par History
  * - 2009/08/06 MuadDib:   Added gotten_by code for items.
- * - 2009/08/07 MuadDib:   Altered Layer code in equip_item() to use tile_layer prop instead.
- * Cleaner, less vars, less execution.
+ * - 2009/08/07 MuadDib:   Altered Layer code in equip_item() to use tile_layer prop instead. Cleaner, less vars, less execution.
  */
+
 
 
 #include "../bscript/bobject.h"
@@ -43,20 +43,20 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
 
   if ( item == nullptr )
   {
-    POLLOG_ERROR.Format(
-        "Character 0x{:X} tried to equip item 0x{:X}, which did not exist in gotten_items.\n" )
+    POLLOG_ERROR.Format( "Character 0x{:X} tried to equip item 0x{:X}, which did not exist in gotten_items.\n" )
         << client->chr->serial << serial;
-    send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );  // 5
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP ); // 5
     return;
   }
 
   if ( item->serial != serial )
   {
-    POLLOG_ERROR.Format(
-        "Character 0x{:X} tried to equip item 0x{:X}, but had gotten item 0x{:X}\n" )
-        << client->chr->serial << serial << item->serial;
-    send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );  // 5
-    item->gotten_by( nullptr );
+    POLLOG_ERROR.Format( "Character 0x{:X} tried to equip item 0x{:X}, but had gotten item 0x{:X}\n" )
+        << client->chr->serial
+        << serial
+        << item->serial;
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP ); // 5
+    item->gotten_by(nullptr);
     return;
   }
 
@@ -64,8 +64,8 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
 
   item->layer = item->tile_layer;
   item->inuse( false );
-  item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  item->gotten_by(nullptr);
+  client->chr->gotten_item(nullptr);
 
   Mobile::Character* equip_on = NULL;
   if ( equip_on_serial == client->chr->serial )
@@ -75,7 +75,8 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   else
   {
     equip_on = find_character( equip_on_serial );
-    if ( equip_on == NULL || !client->chr->can_clothe( equip_on ) )
+    if ( equip_on == NULL ||
+         !client->chr->can_clothe( equip_on ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );
 
@@ -91,7 +92,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
     // 3D Client doesn't check for this!
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ALREADY_WORN );
 
-    undo_get_item( client->chr, item );  // added 11/01/03 for 3d client
+    undo_get_item( client->chr, item ); //added 11/01/03 for 3d client
     return;
   }
 
@@ -113,7 +114,8 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
     return;
   }
 
-  if ( !equip_on->equippable( item ) || !item->check_equiptest_scripts( equip_on ) ||
+  if ( !equip_on->equippable( item ) ||
+       !item->check_equiptest_scripts( equip_on ) ||
        !item->check_equip_script( equip_on, false ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );
@@ -142,5 +144,6 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   equip_on->equip( item );
   send_wornitem_to_inrange( equip_on, item );
 }
+
 }
 }

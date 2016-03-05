@@ -23,40 +23,38 @@ namespace Pol
 {
 namespace Core
 {
+
 NetworkManager networkManager;
 
-NetworkManager::NetworkManager()
-    : clients(),
-      servers(),
-      polstats(),
+NetworkManager::NetworkManager() :
+  clients(),
+  servers(),
+  polstats(),
 #ifdef HAVE_MYSQL
-      sql_service( new SQLService ),
+  sql_service(new SQLService),
 #endif
-      uo_client_interface( new Network::UOClientInterface() ),
-      auxservices(),
-      uoclient_general(),
-      uoclient_protocol(),
-      uoclient_listeners(),
-      iostats(),
-      queuedmode_iostats(),
-      login_filter( nullptr ),
-      game_filter( nullptr ),
-      disconnected_filter( nullptr ),
-      packet_hook_data(),
-      packet_hook_data_v2(),
-      handler(),
-      handler_v2(),
-      ext_handler_table(),
-      packetsSingleton( new Network::PacketsSingleton() ),
-      clientTransmit( new Network::ClientTransmit() ),
+  uo_client_interface(new Network::UOClientInterface()),
+  auxservices(),
+  uoclient_general(),
+  uoclient_protocol(),
+  uoclient_listeners(),
+  iostats(),
+  queuedmode_iostats(),
+  login_filter(nullptr),
+  game_filter(nullptr),
+  disconnected_filter(nullptr),
+  packet_hook_data(),
+  packet_hook_data_v2(),
+  handler(),
+  handler_v2(),
+  ext_handler_table(),
+  packetsSingleton(new Network::PacketsSingleton()),
+  clientTransmit(new Network::ClientTransmit()),
 #ifdef PERGON
-      auxthreadpool( new threadhelp::DynTaskThreadPool( "AuxPool" ) ),  // TODO: seems to work
-                                                                        // activate by default?
-                                                                        // maybe add a cfg entry for
-                                                                        // max number of threads
+  auxthreadpool(new threadhelp::DynTaskThreadPool("AuxPool")),  // TODO: seems to work activate by default? maybe add a cfg entry for max number of threads
 #endif
-      banned_ips(),
-      polsocket()
+  banned_ips(),
+  polsocket()
 {
   memset( ipaddr_str, 0, sizeof ipaddr_str );
   memset( lanaddr_str, 0, sizeof lanaddr_str );
@@ -69,8 +67,7 @@ NetworkManager::NetworkManager()
 }
 
 NetworkManager::~NetworkManager()
-{
-}
+{}
 void NetworkManager::kill_disconnected_clients()
 {
   Clients::iterator itr = clients.begin();
@@ -81,7 +78,8 @@ void NetworkManager::kill_disconnected_clients()
     {
       fmt::Writer tmp;
       tmp.Format( "Disconnecting Client#{} ({}/{})" )
-          << client->instance_ << ( client->acct ? client->acct->name() : "[no account]" )
+          << client->instance_
+          << ( client->acct ? client->acct->name() : "[no account]" )
           << ( client->chr ? client->chr->name() : "[no character]" );
       ERROR_PRINT << tmp.str() << "\n";
       if ( Plib::systemstate.config.loglevel >= 4 )
@@ -105,7 +103,7 @@ void NetworkManager::deinialize()
     client->forceDisconnect();
   }
   kill_disconnected_clients();
-  for ( auto& client : clients )
+  for (auto& client : clients)
   {
     Network::Client::Delete( client );
   }
@@ -122,7 +120,7 @@ void NetworkManager::deinialize()
 #ifdef _WIN32
   closesocket( polsocket.listen_socket );
 #else
-  close( polsocket.listen_socket );  // shutdown( polsocket.listen_socket, 2 ); ??
+  close( polsocket.listen_socket ); // shutdown( polsocket.listen_socket, 2 ); ??
 #endif
   Network::deinit_sockets_library();
   Network::clean_packethooks();
@@ -132,64 +130,58 @@ NetworkManager::Memory NetworkManager::estimateSize() const
 {
   Memory usage;
   memset( &usage, 0, sizeof( usage ) );
-  usage.misc = sizeof( NetworkManager );
+  usage.misc = sizeof(NetworkManager);
 
-  usage.client_size =
-      3 * sizeof( Network::Client** ) + clients.capacity() * sizeof( Network::Client* );
+  usage.client_size = 3 * sizeof( Network::Client**) + clients.capacity() * sizeof( Network::Client*);
   usage.client_count = clients.size();
   for ( const auto& client : clients )
   {
-    if ( client != nullptr )
+    if (client != nullptr)
       usage.client_size += client->estimatedSize();
   }
 
-  usage.misc +=
-      3 * sizeof( ServerDescription** ) + servers.capacity() * sizeof( ServerDescription* );
-  for ( const auto& server : servers )
-    if ( server != nullptr )
-      usage.misc += server->estimateSize();
+  usage.misc += 3 * sizeof(ServerDescription**) + servers.capacity() * sizeof( ServerDescription*);
+  for (const auto& server : servers)
+    if (server != nullptr)
+      usage.misc+=server->estimateSize();
 
 #ifdef HAVE_MYSQL
-  usage.misc += sizeof( SQLService ); /* sql_service */
+  usage.misc += sizeof(SQLService); /* sql_service */
 #endif
-  usage.misc += sizeof( Network::UOClientInterface ); /*uo_client_interface*/
-  usage.misc +=
-      3 * sizeof( Network::AuxService** ) + auxservices.capacity() * sizeof( Network::AuxService* );
-  for ( const auto& aux : auxservices )
-    if ( aux != nullptr )
+  usage.misc += sizeof(Network::UOClientInterface); /*uo_client_interface*/
+  usage.misc += 3 * sizeof(Network::AuxService**) + auxservices.capacity() * sizeof( Network::AuxService*);
+  for (const auto& aux : auxservices)
+    if (aux != nullptr)
       usage.misc += aux->estimateSize();
 
   usage.misc += uoclient_general.estimateSize();
   usage.misc += uoclient_protocol.estimateSize();
-  usage.misc += 3 * sizeof( UoClientListener* );
-  for ( const auto& listener : uoclient_listeners )
+  usage.misc += 3 * sizeof(UoClientListener*);
+  for (const auto& listener : uoclient_listeners)
     usage.misc += listener.estimateSize();
 
-  usage.misc +=
-      3 * ( sizeof( MessageTypeFilter ) ); /*login_filter, game_filter, disconnected_filter*/
+  usage.misc += 3*(sizeof(MessageTypeFilter)); /*login_filter, game_filter, disconnected_filter*/
 
-  usage.misc += 3 * sizeof( std::unique_ptr<Network::PacketHookData>* ) +
-                packet_hook_data.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
-  usage.misc += 3 * sizeof( std::unique_ptr<Network::PacketHookData>* ) +
-                packet_hook_data_v2.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
-  for ( const auto& hook : packet_hook_data )
+  usage.misc += 3 * sizeof(std::unique_ptr<Network::PacketHookData>*) + packet_hook_data.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
+  usage.misc += 3 * sizeof(std::unique_ptr<Network::PacketHookData>*) + packet_hook_data_v2.capacity() * sizeof( std::unique_ptr<Network::PacketHookData> );
+  for (const auto& hook : packet_hook_data)
   {
-    if ( hook != nullptr )
-      usage.misc += hook->estimateSize();
+    if (hook != nullptr)
+      usage.misc+=hook->estimateSize();
   }
-  for ( const auto& hook : packet_hook_data_v2 )
+  for (const auto& hook : packet_hook_data_v2)
   {
-    if ( hook != nullptr )
-      usage.misc += hook->estimateSize();
+    if (hook != nullptr)
+      usage.misc+=hook->estimateSize();
   }
 
   usage.misc += packetsSingleton->estimateSize();
-  usage.misc += sizeof( Network::ClientTransmit );
+  usage.misc += sizeof(Network::ClientTransmit);
 #ifdef PERGON
-  usage.misc += sizeof( threadhelp::DynTaskThreadPool );
+  usage.misc += sizeof(threadhelp::DynTaskThreadPool);
 #endif
 
-  usage.misc += 3 * sizeof( Network::IPRule* ) + banned_ips.capacity() * sizeof( Network::IPRule );
+  usage.misc += 3 * sizeof(Network::IPRule*) + banned_ips.capacity() * sizeof( Network::IPRule );
 
   return usage;
 }

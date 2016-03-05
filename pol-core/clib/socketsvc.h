@@ -23,7 +23,6 @@ public:
   void accept( Socket& newsck );
 
   friend class SocketClientThread;
-
 private:
   Socket _listen_sck;
 };
@@ -37,7 +36,6 @@ public:
   void start();
   virtual void run() = 0;
   static void start_thread( SocketClientThread* instance );
-
 protected:
   Socket _sck;
 };

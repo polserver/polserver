@@ -16,19 +16,23 @@ namespace Pol
 {
 namespace Bscript
 {
-ModuleFunction::ModuleFunction( const char* fname, int i_nargs, UserFunction* i_uf )
-    : name( fname ), nargs( i_nargs ), funcidx( -1 ), uf( i_uf ), used( false )
-{
-}
+ModuleFunction::ModuleFunction( const char* fname,
+                                int i_nargs,
+                                UserFunction* i_uf ) :
+  name( fname ),
+  nargs( i_nargs ),
+  funcidx( -1 ),
+  uf( i_uf ),
+  used( false )
+{}
 
 ModuleFunction::~ModuleFunction()
-{
-}
+{}
 
-FunctionalityModule::FunctionalityModule( const char* i_modname )
-    : have_indexes( false ), modulename( i_modname )
-{
-}
+FunctionalityModule::FunctionalityModule( const char* i_modname ) :
+  have_indexes( false ),
+  modulename( i_modname )
+{}
 
 FunctionalityModule::~FunctionalityModule()
 {
@@ -45,7 +49,9 @@ FunctionalityModule::~FunctionalityModule()
   }
 }
 
-void FunctionalityModule::addFunction( const char* funcname, int nparams, UserFunction* uf )
+void FunctionalityModule::addFunction( const char* funcname,
+                                       int nparams,
+                                       UserFunction* uf )
 {
   auto mf = new ModuleFunction( funcname, nparams, uf );
   mf->funcidx = static_cast<unsigned int>( functions.size() );
@@ -62,8 +68,7 @@ bool FunctionalityModule::isFunc( const char* funcName, ModuleFunction** pmf, in
   auto itr = functionsByName.find( funcName );
   if ( itr != functionsByName.end() )
   {
-    ModuleFunction* mf = ( *itr ).second;
-    ;
+    ModuleFunction* mf = ( *itr ).second;;
 
     if ( !mf->used )
     {

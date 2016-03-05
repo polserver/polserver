@@ -26,20 +26,21 @@
 #include "globals/state.h"
 
 #ifdef _WIN32
-#include <conio.h>
+# include <conio.h>
 #endif
 
 #include <string>
 #include <stdexcept>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // POSIX deprecation warning getch()
+#pragma warning(disable:4996) // POSIX deprecation warning getch()
 #endif
 
 namespace Pol
 {
 namespace Core
 {
+
 bool ConsoleCommand::console_locked = true;
 char ConsoleCommand::unlock_char;
 
@@ -75,10 +76,12 @@ ConsoleCommand::ConsoleCommand( Clib::ConfigElem& elem, const std::string& cmd )
 
 size_t ConsoleCommand::estimateSize() const
 {
-  return sizeof( char ) + script.capacity() + description.capacity();
+  return sizeof(char)
+         + script.capacity()
+         + description.capacity();
 }
 
-std::string getcmdstr( char ch )
+std::string getcmdstr(char ch)
 {
   if ( iscntrl( ch ) )
   {
@@ -146,9 +149,8 @@ void ConsoleCommand::exec_console_cmd( char ch )
     for ( unsigned i = 0; i < gamestate.console_commands.size(); ++i )
     {
       ConsoleCommand& cmd = gamestate.console_commands[i];
-      std::string sc = getcmdstr( cmd.ch );
-      if ( sc.size() == 1 )
-        tmp << " ";
+      std::string sc = getcmdstr(cmd.ch);
+      if ( sc.size() == 1 ) tmp << " ";
       tmp << " " << sc << ": ";
       tmp << cmd.description << "\n";
     }
@@ -209,8 +211,7 @@ void ConsoleCommand::exec_console_cmd( char ch )
     PolLock lck;
     ScriptDef sd;
     sd.quickconfig( filename + ".ecl" );
-    ref_ptr<Bscript::EScriptProgram> prog =
-        find_script2( sd, true, Plib::systemstate.config.cache_interactive_scripts );
+    ref_ptr<Bscript::EScriptProgram> prog = find_script2( sd, true, Plib::systemstate.config.cache_interactive_scripts );
     if ( prog.get() != NULL )
       start_script( prog, new Bscript::String( getcmdstr( ch ) ) );
   }
@@ -221,14 +222,14 @@ void ConsoleCommand::exec_console_cmd( char ch )
   catch ( std::string& str )
   {
     ERROR_PRINT << "Command aborted due to: " << str << "\n";
-  }                                 // egcs has some trouble realizing 'exception' should catch
-  catch ( std::runtime_error& re )  // runtime_errors, so...
+  }       // egcs has some trouble realizing 'exception' should catch
+  catch (std::runtime_error& re)   // runtime_errors, so...
   {
-    ERROR_PRINT << "Command aborted due to: " << re.what() << "\n";
+    ERROR_PRINT << "Command aborted due to: " << re.what( ) << "\n";
   }
-  catch ( std::exception& ex )
+  catch (std::exception& ex)
   {
-    ERROR_PRINT << "Command aborted due to: " << ex.what() << "\n";
+    ERROR_PRINT << "Command aborted due to: " << ex.what( ) << "\n";
   }
   catch ( int xn )
   {
@@ -245,9 +246,9 @@ void ConsoleCommand::check_console_commands()
   }
 }
 #else
-void ConsoleCommand::check_console_commands( Clib::KeyboardHook* kb )
+void ConsoleCommand::check_console_commands(Clib::KeyboardHook* kb)
 {
-  if ( kb->kbhit() )
+  if (kb->kbhit())
   {
     exec_console_cmd( kb->getch() );
   }

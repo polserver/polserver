@@ -13,11 +13,12 @@ namespace Pol
 {
 namespace Core
 {
+
 #ifdef _MSC_VER
-#pragma pack( push, 1 )
+# pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
+# pragma pack(1)
 #endif
 
 struct USTRUCT_VERSION
@@ -126,8 +127,7 @@ asserteql( sizeof( USTRUCT_TILE_HSA ), 41 );
   flag1:
   bit 0x80: liquid? wet? (blood, water, water troughs, swamp,
   bit 0x40: block? (tileblock)
-  bit 0x20: damaging?. palisade, bees, muck, cactus, lava, fire, spell fields, brambles, campfire,
-  forged metal
+  bit 0x20: damaging?. palisade, bees, muck, cactus, lava, fire, spell fields, brambles, campfire, forged metal
   bit 0x10: unknown.
   bit 0x08: unknown.
   bit 0x04:
@@ -168,13 +168,13 @@ asserteql( sizeof( USTRUCT_TILE_HSA ), 41 );
   weight: 255 is unmoveable
   */
 
-//#define UOBJ_FLAG2_DESC_NEEDS_AN	0x80
-//#define UOBJ_FLAG2_DESC_NEEDS_A		0x40
+//#define UOBJ_FLAG2_DESC_NEEDS_AN  0x80
+//#define UOBJ_FLAG2_DESC_NEEDS_A   0x40
 
 struct USTRUCT_LAND_TILE
 {
   u32 flags;
-  u16 unk;  // texid
+  u16 unk; //texid
   char name[20];
 };
 
@@ -182,7 +182,7 @@ struct USTRUCT_LAND_TILE_HSA
 {
   u32 flags;
   u32 unk1;
-  u16 unk;  // texid
+  u16 unk; //texid
   char name[20];
 };
 
@@ -235,7 +235,7 @@ asserteql( sizeof( USTRUCT_MAPINFO_BLOCK ), 196 );
 struct USTRUCT_POL_MAPINFO_BLOCK
 {
   signed char z[8][8];
-  unsigned char walkok[8];  // x=index, y=bit
+  unsigned char walkok[8]; // x=index, y=bit
   unsigned char water[8];
 };
 asserteql( sizeof( USTRUCT_POL_MAPINFO_BLOCK ), 8 * 8 + 16 );
@@ -246,6 +246,7 @@ asserteql( sizeof( USTRUCT_POL_MAPINFO_BLOCK ), 8 * 8 + 16 );
 #else
 #pragma pack()
 #endif
+
 }
 }
 #endif /* __USTRUCT_H */

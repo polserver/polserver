@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2005/06/01 Shinigami: added StaticEntryList for use with getstatics - to fill a list with
- * statics
+ * - 2005/06/01 Shinigami: added StaticEntryList for use with getstatics - to fill a list with statics
  */
 
 
@@ -25,14 +24,12 @@ struct STATIC_INDEX
 struct STATIC_ENTRY
 {
   u16 objtype;
-  u8 xy;  // high nibble: x, low nibble: y (0x80, 0x40 bits unused)
+  u8 xy;              // high nibble: x, low nibble: y (0x80, 0x40 bits unused)
   s8 z;
   u16 hue;
 };
 
-class StaticEntryList : public std::vector<STATIC_ENTRY>
-{
-};
+class StaticEntryList : public std::vector<STATIC_ENTRY> {};
 
 const unsigned STATICBLOCK_CHUNK = 8;
 const unsigned STATICBLOCK_SHIFT = 3;

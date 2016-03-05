@@ -14,13 +14,14 @@ namespace Crypt
 
 typedef struct tagmd5_state
 {
-  unsigned int count[2];
-  unsigned int abcd[4];
+  unsigned int  count[2];
+  unsigned int  abcd[4];
   unsigned char buf[64];
 } md5_state;
 
 class MD5Crypt
 {
+
   // Constructor / Destructor
 public:
   MD5Crypt();
@@ -38,9 +39,9 @@ protected:
   static void append( md5_state* pms, const unsigned char* data, int nbytes );
   static void finish( md5_state* pms, unsigned char digest[16] );
 
-  unsigned int TableIdx;
+  unsigned int  TableIdx;
   unsigned char Digest[16];
 };
 }
 }
-#endif  //__MD5_H__
+#endif //__MD5_H__

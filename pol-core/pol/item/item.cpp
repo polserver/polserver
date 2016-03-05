@@ -46,6 +46,7 @@ namespace Pol
 {
 namespace Items
 {
+
 const u32 Item::SELLPRICE_DEFAULT = UINT_MAX;
 const u32 Item::BUYPRICE_DEFAULT = UINT_MAX;
 
@@ -67,20 +68,20 @@ Item* Item::clone() const
   item->setamount( amount_ );
   item->layer = layer;
   item->tile_layer = tile_layer;
-  item->container = NULL;  // was container
-  item->sellprice_( sellprice_() );
-  item->buyprice_( buyprice_() );
+  item->container = NULL; // was container
+  item->sellprice_(sellprice_());
+  item->buyprice_(buyprice_());
   item->newbie_ = newbie_;
   item->insured_ = insured_;
 
-  item->invisible_ = invisible_;  // dave 12-20
-  item->movable_ = movable_;      // dave 12-20
+  item->invisible_ = invisible_;  //dave 12-20
+  item->movable_ = movable_;    //dave 12-20
   item->hp_ = hp_;
-  item->setQuality( getQuality() );
+  item->setQuality(getQuality());
 
-  item->on_use_script_ = on_use_script_;    // dave 12-20
-  item->equip_script_ = equip_script_;      // dave 12-20
-  item->unequip_script_ = unequip_script_;  // dave 12-20
+  item->on_use_script_ = on_use_script_;  //dave 12-20
+  item->equip_script_ = equip_script_;  //dave 12-20
+  item->unequip_script_ = unequip_script_;  //dave 12-20
 
   item->name_ = name_;
   item->increv();
@@ -89,17 +90,17 @@ Item* Item::clone() const
 
   item->saveonexit( saveonexit() );
 
-  item->fire_resist( fire_resist() );
-  item->cold_resist( cold_resist() );
-  item->energy_resist( energy_resist() );
-  item->poison_resist( poison_resist() );
-  item->physical_resist( physical_resist() );
+  item->fire_resist(fire_resist());
+  item->cold_resist(cold_resist());
+  item->energy_resist(energy_resist());
+  item->poison_resist(poison_resist());
+  item->physical_resist(physical_resist());
 
-  item->fire_damage( fire_damage() );
-  item->cold_damage( cold_damage() );
-  item->energy_damage( energy_damage() );
-  item->poison_damage( poison_damage() );
-  item->physical_damage( physical_damage() );
+  item->fire_damage(fire_damage());
+  item->cold_damage(cold_damage());
+  item->energy_damage(energy_damage());
+  item->poison_damage(poison_damage());
+  item->physical_damage(physical_damage());
 
   item->maxhp_mod( maxhp_mod() );
   item->name_suffix( name_suffix() );
@@ -152,15 +153,14 @@ std::string Item::description() const
   std::string suffix = name_suffix();
   if ( specific_name() )
   {
-    return Core::format_description( 0, name(), amount_, suffix );  // dave monkeyed with this 2/4/3
+    return Core::format_description( 0, name( ), amount_, suffix ); //dave monkeyed with this 2/4/3
   }
   else
   {
     const ItemDesc& id = this->itemdesc();
     if ( id.desc.get().empty() )
     {
-      return Core::format_description( Core::tile_flags( graphic ), Core::tile_desc( graphic ),
-                                       amount_, suffix );
+      return Core::format_description( Core::tile_flags( graphic ), Core::tile_desc( graphic ), amount_, suffix );
     }
     else
     {
@@ -198,30 +198,30 @@ std::string Item::merchant_description() const
 u32 Item::sellprice() const
 {
   u32 price = sellprice_();
-  if ( price == SELLPRICE_DEFAULT )
+  if (price == SELLPRICE_DEFAULT)
     return itemdesc().vendor_sells_for;
   return price;
 }
-void Item::sellprice( u32 value )
+void Item::sellprice(u32 value)
 {
-  sellprice_( value );
+  sellprice_(value);
 }
 
-// Dave add buyprice() 11/28. Dont know wtf getbuyprice() is trying to do.
+//Dave add buyprice() 11/28. Dont know wtf getbuyprice() is trying to do.
 //  Dave, getbuyprice() was trying to return false if the vendor wasn't interested in buying.
 //        it would return true if the vendor was interested in buying.
 //   -Eric
 u32 Item::buyprice() const
 {
   u32 price = buyprice_();
-  if ( price == BUYPRICE_DEFAULT )
+  if (price == BUYPRICE_DEFAULT)
     return itemdesc().vendor_buys_for;
   return price;
 }
 
-void Item::buyprice( u32 value )
+void Item::buyprice(u32 value)
 {
-  buyprice_( value );
+  buyprice_(value);
 }
 
 bool Item::getbuyprice( u32& bp ) const
@@ -237,14 +237,14 @@ u8 Item::los_height() const
 {
   return height / 2;
   /*
-      if (height)
-      return height-1;
-      else
-      return 0;
-      */
+    if (height)
+    return height-1;
+    else
+    return 0;
+    */
 }
 
-Core::UObject* Item::owner()
+Core::UObject* Item::owner( )
 {
   if ( container != NULL )
     return container->self_as_owner();
@@ -252,7 +252,7 @@ Core::UObject* Item::owner()
     return NULL;
 }
 
-const Core::UObject* Item::owner() const
+const Core::UObject* Item::owner( ) const
 {
   if ( container != NULL )
     return container->self_as_owner();
@@ -260,7 +260,7 @@ const Core::UObject* Item::owner() const
     return NULL;
 }
 
-Core::UObject* Item::toplevel_owner()
+Core::UObject* Item::toplevel_owner( )
 {
   Item* item = this;
   while ( item->container != NULL )
@@ -269,7 +269,7 @@ Core::UObject* Item::toplevel_owner()
   return item;
 }
 
-const Core::UObject* Item::toplevel_owner() const
+const Core::UObject* Item::toplevel_owner( ) const
 {
   const Item* item = this;
   while ( item->container != NULL )
@@ -353,35 +353,35 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
 
   s16 value = fire_resist().mod;
   if ( value != 0 )
-    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
   value = cold_resist().mod;
   if ( value != 0 )
-    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
   value = energy_resist().mod;
   if ( value != 0 )
-    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
   value = poison_resist().mod;
   if ( value != 0 )
-    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
   value = physical_resist().mod;
   if ( value != 0 )
-    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
 
   value = fire_damage().mod;
   if ( value != 0 )
-    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
   value = cold_damage().mod;
   if ( value != 0 )
-    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
   value = energy_damage().mod;
   if ( value != 0 )
-    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
   value = poison_damage().mod;
   if ( value != 0 )
-    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
   value = physical_damage().mod;
   if ( value != 0 )
-    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw( ) << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
 
   if ( container != NULL )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
@@ -444,55 +444,56 @@ void Item::readProperties( Clib::ConfigElem& elem )
   unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
 
   decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
-  sellprice_( elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ) );
-  buyprice_( elem.remove_ulong( "BUYPRICE", BUYPRICE_DEFAULT ) );
+  sellprice_(elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ));
+  buyprice_(elem.remove_ulong( "BUYPRICE", BUYPRICE_DEFAULT ));
 
   // buyprice used to be read in with remove_int (which was wrong).
   // the UINT_MAX values used to be written out (which was wrong).
   // when UINT_MAX is read in by atoi, it returned 2147483647 (0x7FFFFFFF)
   // correct for this.
   if ( buyprice_() == 2147483647 )
-    buyprice_( BUYPRICE_DEFAULT );
+    buyprice_(BUYPRICE_DEFAULT);
   newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
   insured_ = elem.remove_bool( "INSURED", default_insured() );
   hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
-  setQuality( elem.remove_double( "QUALITY", itemdesc().quality ) );
+  setQuality(elem.remove_double( "QUALITY", itemdesc().quality ));
 
   s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_resist( fire_resist().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    fire_resist(fire_resist().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_resist( cold_resist().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    cold_resist(cold_resist().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_resist( energy_resist().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    energy_resist(energy_resist().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_resist( poison_resist().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    poison_resist(poison_resist().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_resist( physical_resist().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    physical_resist(physical_resist().setAsMod(mod_value));
 
   mod_value = static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_damage( fire_damage().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    fire_damage(fire_damage().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_damage( cold_damage().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    cold_damage(cold_damage().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_damage( energy_damage().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    energy_damage(energy_damage().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_damage( poison_damage().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    poison_damage(poison_damage().setAsMod(mod_value));
   mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_damage( physical_damage().setAsMod( mod_value ) );
+  if (mod_value != 0)
+    physical_damage(physical_damage().setAsMod(mod_value));
 
 
-  maxhp_mod( static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
+  maxhp_mod(static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
   name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
+
 }
 
 void Item::builtin_on_use( Network::Client* client )
@@ -504,8 +505,8 @@ void Item::double_click( Network::Client* client )
 {
   const ItemDesc& itemdesc = this->itemdesc();
 
-  if ( itemdesc.requires_attention &&
-       ( client->chr->skill_ex_active() || client->chr->casting_spell() ) )
+  if ( itemdesc.requires_attention && ( client->chr->skill_ex_active() ||
+                                        client->chr->casting_spell() ) )
   {
     Core::send_sysmessage( client, "I am already doing something else." );
     return;
@@ -516,16 +517,17 @@ void Item::double_click( Network::Client* client )
 
   ref_ptr<Bscript::EScriptProgram> prog;
 
-  if ( !on_use_script_.get().empty() )
+  if ( !on_use_script_.get().empty( ) )
   {
     Core::ScriptDef sd( on_use_script_, NULL, "" );
     prog = find_script2( sd,
-                         true,  // complain if not found
+                         true, // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
   }
   else if ( !itemdesc.on_use_script.empty() )
   {
-    prog = find_script2( itemdesc.on_use_script, true,
+    prog = find_script2( itemdesc.on_use_script,
+                         true,
                          Plib::systemstate.config.cache_interactive_scripts );
   }
 
@@ -570,7 +572,7 @@ void Item::setamount( u16 amount )
   set_dirty();
   int oldweight = weight();
 
-  if ( amount > amount_ )  // adding stuff
+  if ( amount > amount_ ) // adding stuff
     remove_resources( objtype_, amount - amount_ );
   else
     return_resources( objtype_, amount_ - amount );
@@ -593,8 +595,7 @@ void Item::subamount( u16 amount_subtract )
 void Item::add_to_self( Item*& item )
 {
 #ifdef PERGON
-  ct_merge_stacks_pergon(
-      item );  // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
+  ct_merge_stacks_pergon( item ); // Pergon: Re-Calculate Property CreateTime after Merging of two Stacks
 #endif
 
   setamount( amount_ + item->amount_ );
@@ -617,11 +618,11 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   std::string value_self, value_sub;
 
   // get "ct" of first stack - if error, init
-  if ( getprop( "ct", value_self ) )
+  if (getprop( "ct", value_self ))
   {
-    Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
-      time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
+    Bscript::BObject imp(  Bscript::BObjectImp::unpack( value_self.c_str() ) );
+    if (imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ))
+      time_self = static_cast<Bscript::BLong*>(imp.impptr())->value();
     else
       time_self = Core::read_gameclock();
   }
@@ -629,11 +630,11 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
     time_self = Core::read_gameclock();
 
   // get "ct" of second stack - if error, init
-  if ( item_sub->getprop( "ct", value_sub ) )
+  if (item_sub->getprop( "ct", value_sub ))
   {
-    Bscript::BObject imp( Bscript::BObjectImp::unpack( value_sub.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
-      time_sub = static_cast<Bscript::BLong*>( imp.impptr() )->value();
+    Bscript::BObject imp( Bscript::BObjectImp::unpack( value_sub.c_str() ));
+    if (imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ))
+      time_sub = static_cast<Bscript::BLong*>(imp.impptr())->value();
     else
       time_sub = Core::read_gameclock();
   }
@@ -641,20 +642,20 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
     time_sub = Core::read_gameclock();
 
   // calculate new time
-  if ( time_self < time_sub )
+  if (time_self < time_sub)
   {
-    double factor = ( item_sub->amount_ * 1.0 ) / ( amount_ + item_sub->amount_ );
-    time = int( ( time_sub - time_self ) * factor + time_self );
+    double factor = (item_sub->amount_ * 1.0) / (amount_ + item_sub->amount_);
+    time = int((time_sub - time_self) * factor + time_self);
   }
-  else if ( time_self > time_sub )
+  else if (time_self > time_sub)
   {
-    double factor = ( amount_ * 1.0 ) / ( amount_ + item_sub->amount_ );
-    time = int( ( time_self - time_sub ) * factor + time_sub );
+    double factor = (amount_ * 1.0) / (amount_ + item_sub->amount_);
+    time = int((time_self - time_sub) * factor + time_sub);
   }
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop("ct", "i" + Clib::decint( time ));
   increv();
 }
 
@@ -665,11 +666,11 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   std::string value_self;
 
   // get "ct" of first stack - if error, init
-  if ( getprop( "ct", value_self ) )
+  if (getprop( "ct", value_self ))
   {
-    Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
-      time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
+    Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ));
+    if (imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ))
+      time_self = static_cast<Bscript::BLong*>(imp.impptr())->value();
     else
       time_self = Core::read_gameclock();
   }
@@ -680,22 +681,22 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   time_sub = Core::read_gameclock();
 
   // calculate new time
-  if ( time_self != time_sub )
+  if (time_self != time_sub)
   {
-    double factor = ( amount_sub * 1.0 ) / ( amount_ + amount_sub );
-    time = int( ( time_sub - time_self ) * factor + time_self );
+    double factor = (amount_sub * 1.0) / (amount_ + amount_sub);
+    time = int((time_sub - time_self) * factor + time_self);
   }
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop("ct", "i" + Clib::decint( time ));
   increv();
 }
 #endif
 
 bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
 {
-  if ( !force_stacking && !stackable() )
+  if( ! force_stacking && ! stackable() )
     return false;
 
   unsigned int amount1 = (unsigned int)amount_;
@@ -707,7 +708,7 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
   if ( container != NULL )
   {
     int more_weight = weight_of( amount_ + amount ) - weight_of( amount_ );
-    if ( more_weight > USHRT_MAX /*std::numeric_limits<unsigned short>::max()*/ )
+    if ( more_weight > USHRT_MAX/*std::numeric_limits<unsigned short>::max()*/ )
       return false;
     return container->can_add( static_cast<unsigned short>( more_weight ) );
   }
@@ -715,26 +716,29 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
   return true;
 }
 
-bool Item::can_add_to_self( const Item& item, bool force_stacking )
-    const  // dave 1/26/03 totally changed this function to handle the cprop comparisons.
+bool Item::can_add_to_self( const Item& item, bool force_stacking ) const //dave 1/26/03 totally changed this function to handle the cprop comparisons.
 {
-  bool res =
-      ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
-        ( item.insured() == insured() ) && ( item.graphic == graphic ) && ( item.color == color ) &&
-        ( !inuse() ) && ( can_add_to_self( item.amount_, force_stacking ) ) );
+  bool res = ( ( item.objtype_ == objtype_ ) &&
+               ( item.newbie() == newbie() ) &&
+               ( item.insured() == insured() ) &&
+               ( item.graphic == graphic ) &&
+               ( item.color == color ) &&
+               ( !inuse() ) &&
+               ( can_add_to_self( item.amount_, force_stacking ) )
+             );
   if ( res == true )
   {
-    // NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes
-    // there too
-    Core::PropertyList myprops( getprops() );  // make a copy :(
+    //NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes there too
+    Core::PropertyList myprops( getprops( ) ); //make a copy :(
     myprops -= itemdesc().ignore_cprops;
     myprops -= Core::gamestate.Global_Ignore_CProps;
 
-    Core::PropertyList yourprops( item.getprops() );  // make a copy :(
+    Core::PropertyList yourprops( item.getprops( ) ); //make a copy :(
     yourprops -= item.itemdesc().ignore_cprops;
     yourprops -= Core::gamestate.Global_Ignore_CProps;
 
     res = ( myprops == yourprops );
+
   }
   return res;
 }
@@ -746,12 +750,12 @@ bool Item::has_only_default_cprops( const ItemDesc* compare ) const
 {
   if ( compare == NULL )
     compare = &( itemdesc() );
-  // logic same as Item::can_add_to_self()
-  Core::PropertyList myprops( getprops() );  // make a copy :(
+  //logic same as Item::can_add_to_self()
+  Core::PropertyList myprops( getprops( ) ); //make a copy :(
   myprops -= itemdesc().ignore_cprops;
   myprops -= Core::gamestate.Global_Ignore_CProps;
 
-  Core::PropertyList yourprops( compare->props );  // make a copy :(
+  Core::PropertyList yourprops( compare->props ); //make a copy :(
   yourprops -= compare->ignore_cprops;
   yourprops -= Core::gamestate.Global_Ignore_CProps;
 
@@ -761,8 +765,8 @@ bool Item::has_only_default_cprops( const ItemDesc* compare ) const
 bool Item::amount_to_remove_is_partial( u16 this_item_new_amount ) const
 {
   return ( ( this_item_new_amount < amount_ ) &&  // less than what we have
-           ( amount_ > 1 ) &&                     // we are a stack
-           ( this_item_new_amount > 0 ) );        // if new size 0, assume whole stack
+           ( amount_ > 1 ) &&          // we are a stack
+           ( this_item_new_amount > 0 ) );    // if new size 0, assume whole stack
 }
 
 /**
@@ -803,6 +807,7 @@ Item* Item::remove_part_of_stack( u16 amount_to_remove )
 }
 
 
+
 void Item::set_use_script( const std::string& scriptname )
 {
   set_dirty();
@@ -822,13 +827,12 @@ void Item::saveonexit( bool newvalue )
 bool Item::setgraphic( u16 newgraphic )
 {
   /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
-  if ( layer && layer != Core::tilelayer( newgraphic ) )
+  if (layer && layer != Core::tilelayer(newgraphic))
   {
     return false;
   }
 
-  if ( graphic <= Plib::systemstate.config.max_tile_id &&
-       newgraphic <= Plib::systemstate.config.max_tile_id )
+  if ( graphic <= Plib::systemstate.config.max_tile_id && newgraphic <= Plib::systemstate.config.max_tile_id )
   {
     set_dirty();
     graphic = newgraphic;
@@ -857,7 +861,7 @@ bool Item::setcolor( u16 newcolor )
 {
   /// return false if the color is invalid (high nibble set)
   bool res = true;
-  u16 theMask = (u16)Core::settingsManager.ssopt.item_color_mask;
+  u16  theMask = (u16)Core::settingsManager.ssopt.item_color_mask;
   if ( ( newcolor & ( ~theMask ) ) != 0 )
     res = false;
 
@@ -914,21 +918,20 @@ void Item::extricate()
     if ( Core::IsCharacter( container->serial ) )
     {
       Mobile::Character* chr = chr_from_wornitems( container );
-      passert_always( chr != NULL );  // PRODFIXME linux-crash
+      passert_always( chr != NULL ); // PRODFIXME linux-crash
       passert_always( chr->is_equipped( this ) );
 
-      chr->unequip( this );  // FIXME: should run unequip script
+      chr->unequip( this ); //FIXME: should run unequip script
     }
     else
     {
-      container->remove( this );  // FIXME: should probably call can/onRemove for the container
+      container->remove( this );//FIXME: should probably call can/onRemove for the container
     }
   }
 }
 
 void Item::spill_contents( Multi::UMulti* /*multi*/ )
-{
-}
+{}
 
 unsigned int Item::weight_of( unsigned short amount ) const
 {
@@ -962,18 +965,21 @@ void Item::set_decay_after( unsigned int seconds )
   // Why alter it, if it should not have it to begin with??
   if ( decayat_gameclock_ != 0 )
   {
-    decayat_gameclock_ = Core::read_gameclock() + seconds;
+    decayat_gameclock_ = Core::read_gameclock( ) + seconds;
   }
 }
 
 bool Item::can_decay() const
 {
-  return !inuse() && ( movable_ || ( objtype_ == UOBJ_CORPSE ) ) && decayat_gameclock_;
+  return !inuse() &&
+         ( movable_ || ( objtype_ == UOBJ_CORPSE ) ) &&
+         decayat_gameclock_;
 }
 
 bool Item::should_decay( unsigned int gameclock ) const
 {
-  return can_decay() && ( gameclock > decayat_gameclock_ );
+  return can_decay() &&
+         ( gameclock > decayat_gameclock_ );
 }
 
 void Item::restart_decay_timer()
@@ -1018,13 +1024,14 @@ Bscript::BObjectImp* Item::run_equip_script( Mobile::Character* who, bool startu
 
   try
   {
-    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( who ),
+    return Core::run_script_to_completion( sd,
+                                           new Module::ECharacterRefObjImp( who ),
                                            new Module::EItemRefObjImp( this ),
                                            new Bscript::BLong( startup ? 1 : 0 ) );
   }
   catch ( std::exception& ex )
   {
-    return new Bscript::BError( std::string( "Script execution error" ) + ex.what() );
+    return new Bscript::BError( std::string( "Script execution error" ) + ex.what( ) );
   }
 }
 
@@ -1038,12 +1045,13 @@ Bscript::BObjectImp* Item::run_unequip_script( Mobile::Character* who )
   }
   catch ( std::exception& ex )
   {
-    return new Bscript::BError( std::string( "Script descriptor error: " ) + ex.what() );
+    return new Bscript::BError( std::string( "Script descriptor error: " ) + ex.what( ) );
   }
 
   try
   {
-    return Core::run_script_to_completion( sd, new Module::ECharacterRefObjImp( who ),
+    return Core::run_script_to_completion( sd,
+                                           new Module::ECharacterRefObjImp( who ),
                                            new Module::EItemRefObjImp( this ) );
   }
   catch ( std::exception& ex )
@@ -1068,7 +1076,8 @@ bool Item::check_equip_script( Mobile::Character* chr, bool startup )
 
 bool Item::check_unequip_script()
 {
-  if ( !unequip_script_.get().empty() && container != NULL &&
+  if ( !unequip_script_.get().empty() &&
+       container != NULL &&
        Core::IsCharacter( container->serial ) )
   {
     Mobile::Character* chr = chr_from_wornitems( container );
@@ -1114,9 +1123,11 @@ bool Item::check_test_scripts( Mobile::Character* chr, const std::string& script
   this->inuse( true );
   if ( script_loaded( sd ) )
   {
-    bool res =
-        Core::call_script( sd, new Module::ECharacterRefObjImp( chr ),
-                           new Module::EItemRefObjImp( this ), new Bscript::BLong( startup ) );
+
+    bool res = Core::call_script( sd,
+                                  new Module::ECharacterRefObjImp( chr ),
+                                  new Module::EItemRefObjImp( this ),
+                                  new Bscript::BLong( startup ) );
     this->inuse( false );
     if ( !res )
       return false;
@@ -1126,9 +1137,10 @@ bool Item::check_test_scripts( Mobile::Character* chr, const std::string& script
     sd.quickconfig( pkg, script_ecl );
     if ( script_loaded( sd ) )
     {
-      bool res =
-          Core::call_script( sd, new Module::ECharacterRefObjImp( chr ),
-                             new Module::EItemRefObjImp( this ), new Bscript::BLong( startup ) );
+      bool res = Core::call_script( sd,
+                                    new Module::ECharacterRefObjImp( chr ),
+                                    new Module::EItemRefObjImp( this ),
+                                    new Bscript::BLong( startup ) );
       this->inuse( false );
       if ( !res )
         return false;
@@ -1151,7 +1163,8 @@ bool Item::check_unequiptest_scripts( Mobile::Character* chr )
 
 bool Item::check_unequiptest_scripts()
 {
-  if ( container != NULL && Core::IsCharacter( container->serial ) )
+  if ( container != NULL &&
+       Core::IsCharacter( container->serial ) )
   {
     Mobile::Character* chr = chr_from_wornitems( container );
     passert_always( chr != NULL );
@@ -1168,7 +1181,7 @@ bool Item::check_unequiptest_scripts()
 s16 Item::calc_element_resist( Core::ElementalType element ) const
 {
   Core::AosValuePack curr;
-  switch ( element )
+  switch (element)
   {
   case Core::ELEMENTAL_FIRE:
     curr = fire_resist();
@@ -1192,7 +1205,7 @@ s16 Item::calc_element_resist( Core::ElementalType element ) const
 s16 Item::calc_element_damage( Core::ElementalType element ) const
 {
   Core::AosValuePack curr;
-  switch ( element )
+  switch (element)
   {
   case Core::ELEMENTAL_FIRE:
     curr = fire_damage();
@@ -1215,15 +1228,13 @@ s16 Item::calc_element_damage( Core::ElementalType element ) const
 
 bool Item::has_resistance( Mobile::Character* /*chr*/ )
 {
-  if ( ( calc_element_resist( Core::ELEMENTAL_FIRE ) != 0 ) ||
-       ( calc_element_resist( Core::ELEMENTAL_COLD ) != 0 ) ||
-       ( calc_element_resist( Core::ELEMENTAL_ENERGY ) != 0 ) ||
-       ( calc_element_resist( Core::ELEMENTAL_POISON ) != 0 ) ||
+  if ( ( calc_element_resist( Core::ELEMENTAL_FIRE ) != 0 ) || ( calc_element_resist( Core::ELEMENTAL_COLD ) != 0 ) ||
+       ( calc_element_resist( Core::ELEMENTAL_ENERGY ) != 0 ) || ( calc_element_resist( Core::ELEMENTAL_POISON ) != 0 ) ||
        ( calc_element_resist( Core::ELEMENTAL_PHYSICAL ) != 0 ) )
     return true;
   else
   {
-    // double new_ar = 0.0;
+    //double new_ar = 0.0;
     UArmor* armor = static_cast<UArmor*>( this );  // Not sure if I like this method.
     if ( armor != NULL )
     {
@@ -1236,10 +1247,8 @@ bool Item::has_resistance( Mobile::Character* /*chr*/ )
 
 bool Item::has_element_damage()
 {
-  if ( ( calc_element_damage( Core::ELEMENTAL_FIRE ) != 0 ) ||
-       ( calc_element_damage( Core::ELEMENTAL_COLD ) != 0 ) ||
-       ( calc_element_damage( Core::ELEMENTAL_ENERGY ) != 0 ) ||
-       ( calc_element_damage( Core::ELEMENTAL_POISON ) != 0 ) ||
+  if ( ( calc_element_damage( Core::ELEMENTAL_FIRE ) != 0 ) || ( calc_element_damage( Core::ELEMENTAL_COLD ) != 0 ) ||
+       ( calc_element_damage( Core::ELEMENTAL_ENERGY ) != 0 ) || ( calc_element_damage( Core::ELEMENTAL_POISON ) != 0 ) ||
        ( calc_element_damage( Core::ELEMENTAL_PHYSICAL ) != 0 ) )
   {
     return true;
@@ -1252,13 +1261,12 @@ bool Item::has_element_damage()
  *
  * @author DAVE 11/17
  */
-Mobile::Character* Item::GetCharacterOwner()
+Mobile::Character* Item::GetCharacterOwner( )
 {
   UObject* top_level_item = toplevel_owner();
   if ( top_level_item->isa( CLASS_CONTAINER ) )
   {
-    Mobile::Character* chr_owner =
-        Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
+    Mobile::Character* chr_owner = Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
     if ( chr_owner != NULL )
     {
       return chr_owner;
@@ -1284,9 +1292,9 @@ double Item::getQuality() const
 {
   return quality();
 }
-void Item::setQuality( double value )
+void Item::setQuality(double value)
 {
-  quality( value );
+  quality(value);
 }
 }
 }

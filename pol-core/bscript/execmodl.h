@@ -18,25 +18,26 @@
 #include <string>
 
 #ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )
+#pragma warning(push)
+#pragma warning(disable:4996)
 #endif
 
 namespace Pol
 {
 namespace Bscript
 {
+
 class Executor;
 class Token;
 class String;
 class ExecutorModule;
 
-typedef BObject* ( ExecutorModule::*ExecutorModuleFn )();
+typedef BObject* ( ExecutorModule::*ExecutorModuleFn )( );
 
 class ExecutorModule
 {
 public:
-  virtual ~ExecutorModule(){};
+  virtual ~ExecutorModule() {};
 
   BObjectImp* getParamImp( unsigned param );
   BObjectImp* getParamImp( unsigned param, BObjectImp::BObjectType type );
@@ -61,8 +62,7 @@ public:
 
   bool getParam( unsigned param, unsigned short& value );
   bool getParam( unsigned param, unsigned short& value, unsigned short maxval );
-  bool getParam( unsigned param, unsigned short& value, unsigned short minval,
-                 unsigned short maxval );
+  bool getParam( unsigned param, unsigned short& value, unsigned short minval, unsigned short maxval );
 
   const std::string& scriptname() const;
   Executor& exec;
@@ -74,37 +74,36 @@ protected:
 
   friend class Executor;
 
-  virtual int functionIndex( const char* funcname ) = 0;  // returns -1 on not found
+  virtual int functionIndex( const char* funcname ) = 0; // returns -1 on not found
   virtual BObjectImp* execFunc( unsigned idx ) = 0;
   virtual std::string functionName( unsigned idx ) = 0;
 
-private:  // not implemented
+private: // not implemented
   ExecutorModule( const ExecutorModule& exec );
   ExecutorModule& operator=( const ExecutorModule& exec );
 };
 
 // FIXME: this function doesn't seem to work.
-template <class T>
-BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param,
-                                  const BApplicObjType* object_type )
+template<class T>
+BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param, const BApplicObjType* object_type )
 {
   return static_cast<BApplicObj<T>*>( ex.getApplicObjParam( param, object_type ) );
 }
 
-#define callMemberFunction( object, ptrToMember ) ( ( object ).*( ptrToMember ) )
+#define callMemberFunction(object,ptrToMember) ((object).*(ptrToMember))
 
-template <class T>
+template<class T>
 class TmplExecutorModule : public ExecutorModule
 {
 protected:
   TmplExecutorModule( const char* modname, Executor& exec );
-  void register_function( const char* funcname, BObject ( T::*fptr )() );
+  void register_function( const char* funcname, BObject( T::*fptr )( ) );
 
 public:
   struct FunctionDef
   {
     const char* funcname;
-    BObjectImp* ( T::*fptr )();
+    BObjectImp* ( T::*fptr )( );
   };
   static FunctionDef function_table[];
   static int function_table_size;
@@ -115,13 +114,12 @@ private:
   virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
 };
 
-template <class T>
-TmplExecutorModule<T>::TmplExecutorModule( const char* modname, Executor& ex )
-    : ExecutorModule( modname, ex )
-{
-}
+template<class T>
+TmplExecutorModule<T>::TmplExecutorModule( const char* modname, Executor& ex ) :
+  ExecutorModule( modname, ex )
+{}
 
-template <class T>
+template<class T>
 inline int TmplExecutorModule<T>::functionIndex( const char* name )
 {
   for ( int idx = 0; idx < function_table_size; idx++ )
@@ -132,24 +130,25 @@ inline int TmplExecutorModule<T>::functionIndex( const char* name )
   return -1;
 }
 
-template <class T>
+template<class T>
 inline BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
 {
   T* derived = static_cast<T*>( this );
 
-  return callMemberFunction ( *derived, function_table[funcidx].fptr )();
+  return callMemberFunction( *derived, function_table[funcidx].fptr )( );
 };
 
-template <class T>
+template<class T>
 inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
 {
   return function_table[idx].funcname;
 }
+
 }
 }
 
 #ifdef _MSC_VER
-#pragma warning( pop )
+#pragma warning(pop)
 #endif
 
 #endif

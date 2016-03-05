@@ -67,22 +67,22 @@ namespace Core
 {
 void handle_unknown_packet( Network::Client* client );
 
-Party::Party( u32 serial )
-    : _member_serials(),
-      _candidates_serials(),
-      _offlinemember_serials(),
-      _leaderserial( serial ),
-      _proplist( Core::CPropProfiler::Type::PARTY )
+Party::Party( u32 serial ) :
+  _member_serials(),
+  _candidates_serials(),
+  _offlinemember_serials(),
+  _leaderserial( serial ),
+  _proplist( Core::CPropProfiler::Type::PARTY )
 {
   _member_serials.push_back( serial );
 }
 
-Party::Party( Clib::ConfigElem& elem )
-    : _member_serials(),
-      _candidates_serials(),
-      _offlinemember_serials(),
-      _leaderserial( 0 ),
-      _proplist( Core::CPropProfiler::Type::PARTY )
+Party::Party( Clib::ConfigElem& elem ) :
+  _member_serials(),
+  _candidates_serials(),
+  _offlinemember_serials(),
+  _leaderserial( 0 ),
+  _proplist( Core::CPropProfiler::Type::PARTY )
 {
   _leaderserial = elem.remove_ulong( "LEADER" );
   unsigned int tmp;
@@ -96,14 +96,11 @@ Party::Party( Clib::ConfigElem& elem )
 void load_party_cfg_general( Clib::ConfigElem& elem )
 {
   settingsManager.party_cfg.General.MaxPartyMembers = elem.remove_ushort( "MaxPartyMembers", 10 );
-  settingsManager.party_cfg.General.TreatNoAsPrivate =
-      elem.remove_bool( "TreatNoAsPrivate", false );
+  settingsManager.party_cfg.General.TreatNoAsPrivate = elem.remove_bool( "TreatNoAsPrivate", false );
   settingsManager.party_cfg.General.DeclineTimeout = elem.remove_ushort( "DeclineTimeout", 10 );
-  settingsManager.party_cfg.General.RemoveMemberOnLogoff =
-      elem.remove_bool( "RemoveMemberOnLogoff", false );
+  settingsManager.party_cfg.General.RemoveMemberOnLogoff = elem.remove_bool( "RemoveMemberOnLogoff", false );
   if ( settingsManager.party_cfg.General.RemoveMemberOnLogoff )
-    settingsManager.party_cfg.General.RejoinPartyOnLogon =
-        elem.remove_bool( "RejoinPartyOnLogon", false );
+    settingsManager.party_cfg.General.RejoinPartyOnLogon = elem.remove_bool( "RejoinPartyOnLogon", false );
   else
     settingsManager.party_cfg.General.RejoinPartyOnLogon = false;
   std::string tmp = elem.remove_string( "PrivateMsgPrefix", "" );
@@ -118,12 +115,11 @@ void load_party_cfg_general( Clib::ConfigElem& elem )
       arr->addElement( new Bscript::BLong( static_cast<unsigned char>( tmp[i] ) ) );
     }
     settingsManager.party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
-    if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen > SPEECH_MAX_LEN )
+    if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen>SPEECH_MAX_LEN )
       settingsManager.party_cfg.General.PrivateMsgPrefixLen = SPEECH_MAX_LEN;
 
-    Bscript::ObjArray* arrPtr = arr.get();
-    if ( !Core::convertArrayToUC( arrPtr, settingsManager.party_cfg.General.PrivateMsgPrefix,
-                                  settingsManager.party_cfg.General.PrivateMsgPrefixLen, true ) )
+    Bscript::ObjArray* arrPtr = arr.get( );
+    if ( !Core::convertArrayToUC( arrPtr, settingsManager.party_cfg.General.PrivateMsgPrefix, settingsManager.party_cfg.General.PrivateMsgPrefixLen, true ) )
       settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
   }
 }
@@ -281,14 +277,12 @@ u32 Party::leader() const
 
 bool Party::is_member( u32 serial ) const
 {
-  return std::find( _member_serials.begin(), _member_serials.end(), serial ) !=
-         _member_serials.end();
+  return std::find( _member_serials.begin(), _member_serials.end(), serial ) != _member_serials.end();
 }
 
 bool Party::is_candidate( u32 serial ) const
 {
-  return std::find( _candidates_serials.begin(), _candidates_serials.end(), serial ) !=
-         _candidates_serials.end();
+  return std::find( _candidates_serials.begin(), _candidates_serials.end(), serial ) != _candidates_serials.end();
 }
 
 bool Party::register_with_members()
@@ -306,9 +300,9 @@ bool Party::register_with_members()
       itr = _member_serials.erase( itr );
   }
   if ( _member_serials.empty() )
-    return ( false );
+    return( false );
   if ( !test_size() )
-    return ( false );
+    return( false );
   if ( system_find_mobile( _leaderserial ) == NULL )
     _leaderserial = *_member_serials.begin();
 
@@ -325,12 +319,12 @@ u32 Party::get_member_at( unsigned short pos ) const
   if ( _member_serials.size() < pos )
     return 0;
   return _member_serials[pos];
+
 }
 
 bool Party::add_candidate( u32 serial )
 {
-  if ( ( _member_serials.size() + _candidates_serials.size() ) >=
-       settingsManager.party_cfg.General.MaxPartyMembers )
+  if ( ( _member_serials.size() + _candidates_serials.size() ) >= settingsManager.party_cfg.General.MaxPartyMembers )
     return false;
   _candidates_serials.push_back( serial );
   return true;
@@ -338,8 +332,7 @@ bool Party::add_candidate( u32 serial )
 
 bool Party::add_member( u32 serial )
 {
-  if ( ( _member_serials.size() + _candidates_serials.size() ) >=
-       settingsManager.party_cfg.General.MaxPartyMembers )
+  if ( ( _member_serials.size() + _candidates_serials.size() ) >= settingsManager.party_cfg.General.MaxPartyMembers )
     return false;
   _member_serials.push_back( serial );
   return true;
@@ -352,10 +345,10 @@ void Party::add_offline_mem( u32 serial )
 
 bool Party::remove_candidate( u32 serial )
 {
-  auto itr = std::find_if( _candidates_serials.begin(), _candidates_serials.end(), [&]( u32& i )
-                           {
-                             return i == serial;
-                           } );
+  auto itr = std::find_if( _candidates_serials.begin(), _candidates_serials.end(), [&]( u32 &i )
+  {
+    return i == serial;
+  } );
   if ( itr != _candidates_serials.end() )
   {
     _candidates_serials.erase( itr );
@@ -366,10 +359,10 @@ bool Party::remove_candidate( u32 serial )
 
 bool Party::remove_member( u32 serial )
 {
-  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32& i )
-                           {
-                             return i == serial;
-                           } );
+  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32 &i )
+  {
+    return i == serial;
+  } );
   if ( itr != _member_serials.end() )
   {
     _member_serials.erase( itr );
@@ -380,11 +373,10 @@ bool Party::remove_member( u32 serial )
 
 bool Party::remove_offline_mem( u32 serial )
 {
-  auto itr =
-      std::find_if( _offlinemember_serials.begin(), _offlinemember_serials.end(), [&]( u32& i )
-                    {
-                      return i == serial;
-                    } );
+  auto itr = std::find_if( _offlinemember_serials.begin(), _offlinemember_serials.end(), [&]( u32 &i )
+  {
+    return i == serial;
+  } );
   if ( itr != _offlinemember_serials.end() )
   {
     _offlinemember_serials.erase( itr );
@@ -395,10 +387,10 @@ bool Party::remove_offline_mem( u32 serial )
 
 void Party::set_leader( u32 serial )
 {
-  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32& i )
-                           {
-                             return i == serial;
-                           } );
+  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32 &i )
+  {
+    return i == serial;
+  } );
   if ( itr != _member_serials.end() )
   {
     _member_serials.erase( itr );
@@ -416,8 +408,7 @@ bool Party::test_size() const
 
 bool Party::can_add() const
 {
-  if ( ( _member_serials.size() + _candidates_serials.size() ) >=
-       settingsManager.party_cfg.General.MaxPartyMembers )
+  if ( ( _member_serials.size() + _candidates_serials.size() ) >= settingsManager.party_cfg.General.MaxPartyMembers )
     return false;
   return true;
 }
@@ -425,9 +416,9 @@ bool Party::can_add() const
 void Party::send_member_list( Mobile::Character* to_chr )
 {
   Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
-  msg->offset += 4;  // len+sub
+  msg->offset += 4; //len+sub
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_ADD );
-  msg->offset++;  // nummembers
+  msg->offset++; //nummembers
 
   // TODO: refactor the loop below to use std::remove_if() + extract a method
   auto itr = _member_serials.begin();
@@ -451,7 +442,7 @@ void Party::send_member_list( Mobile::Character* to_chr )
 
   if ( to_chr == NULL )
   {
-    for ( const auto& serial : _member_serials )
+    for ( const auto& serial : _member_serials)
     {
       Mobile::Character* chr = system_find_mobile( serial );
       if ( chr != NULL )
@@ -479,7 +470,7 @@ void Party::disband()
       if ( chr->has_active_client() )
       {
         send_empty_party( chr );
-        send_sysmessage_cl( chr->client, CLP_Disbanded );  // Your party has disbanded.
+        send_sysmessage_cl( chr->client, CLP_Disbanded ); // Your party has disbanded.
       }
     }
   }
@@ -512,9 +503,9 @@ void Party::send_remove_member( Mobile::Character* remchr, bool* disband )
   else
   {
     Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
-    msg->offset += 4;  // len+sub
+    msg->offset += 4; //len+sub
     msg->Write<u8>( PKTBI_BF_06::PARTYCMD_REMOVE );
-    msg->offset++;  // nummembers
+    msg->offset++; // nummembers
     msg->Write<u32>( remchr->serial_ext );
 
     // TODO: refactor the loop below to use std::remove_if() + extract a method
@@ -545,17 +536,16 @@ void Party::send_remove_member( Mobile::Character* remchr, bool* disband )
           msg.Send( chr->client, len );
       }
     }
-    send_msg_to_all( CLP_Player_Removed );  // A player has been removed from your party.
+    send_msg_to_all( CLP_Player_Removed );//A player has been removed from your party.
     if ( !test_size() )
     {
-      send_msg_to_all( CLP_Last_Person );  // The last person has left the party...
+      send_msg_to_all( CLP_Last_Person ); //The last person has left the party...
       *disband = true;
     }
   }
 }
 
-void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
-                             Mobile::Character* exeptchr ) const
+void Party::send_msg_to_all( unsigned int clilocnr, const char* affix, Mobile::Character* exeptchr ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_C1> msgc1;
   Network::PktHelper::PacketOut<Network::PktOut_CC> msgcc;
@@ -585,8 +575,8 @@ void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
 
 void Party::send_stat_to( Mobile::Character* chr, Mobile::Character* bob ) const
 {
-  if ( ( chr != bob ) && ( is_member( bob->serial ) ) && ( chr->realm == bob->realm ) &&
-       ( pol_distance( chr->x, chr->y, bob->x, bob->y ) < 20 ) )
+  if ( ( chr != bob ) && ( is_member( bob->serial ) ) && ( chr->realm == bob->realm )
+       && ( pol_distance( chr->x, chr->y, bob->x, bob->y ) < 20 ) )
   {
     if ( !chr->is_visible_to_me( bob ) )
       send_short_statmsg( chr->client, bob );
@@ -597,8 +587,7 @@ void Party::send_stat_to( Mobile::Character* chr, Mobile::Character* bob ) const
 
 void Party::send_stats_on_add( Mobile::Character* newmember ) const
 {
-  if ( newmember == NULL )
-    return;
+  if ( newmember == NULL ) return;
   for ( const auto& serial : _member_serials )
   {
     Mobile::Character* chr = system_find_mobile( serial );
@@ -634,7 +623,7 @@ void Party::on_mana_changed( Mobile::Character* chr ) const
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
   for ( const auto& serial : _member_serials )
   {
@@ -662,7 +651,7 @@ void Party::on_stam_changed( Mobile::Character* chr ) const
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
   for ( const auto& serial : _member_serials )
   {
@@ -681,21 +670,19 @@ void Party::on_stam_changed( Mobile::Character* chr ) const
 void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
-  msg->offset += 4;  // len+sub
+  msg->offset += 4; //len+sub
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_PARTY_MSG );
   msg->Write<u32>( chr->serial_ext );
 
   if ( settingsManager.party_cfg.Hooks.ChangePublicChat )
   {
     Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
+    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
       return;
-    Bscript::BObject obj =
-        settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref(), arr );
+    Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref( ), arr );
     if ( obj->isa( Bscript::BObjectImp::OTArray ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
+      arr = static_cast<Bscript::ObjArray*>( obj.impptr( ) );
       unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
       if ( len > SPEECH_MAX_LEN )
         len = SPEECH_MAX_LEN;
@@ -703,7 +690,7 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
         return;
       wtextlen = len + 1;
     }
-    else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
+    else if ( obj->isa( Bscript::BObjectImp::OTLong ) ) // break on return(0)
     {
       if ( !obj->isTrue() )
         return;
@@ -725,27 +712,24 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
   }
 }
 
-void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext,
-                                     size_t wtextlen ) const
+void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext, size_t wtextlen ) const
 {
   if ( !tochr->has_active_client() )
     return;
   Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
-  msg->offset += 4;  // len+sub
+  msg->offset += 4; //len+sub
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_MEMBER_MSG );
   msg->Write<u32>( chr->serial_ext );
 
   if ( settingsManager.party_cfg.Hooks.ChangePrivateChat )
   {
     Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
+    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ), true ) ) // convert back with ctBEu16()
       return;
-    Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object(
-        chr->make_ref(), tochr->make_ref(), arr );
+    Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object( chr->make_ref( ), tochr->make_ref( ), arr );
     if ( obj->isa( Bscript::BObjectImp::OTArray ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
+      arr = static_cast<Bscript::ObjArray*>( obj.impptr( ) );
       unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
       if ( len > SPEECH_MAX_LEN )
         len = SPEECH_MAX_LEN;
@@ -753,7 +737,7 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
         return;
       wtextlen = len + 1;
     }
-    else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
+    else if ( obj->isa( Bscript::BObjectImp::OTLong ) ) // break on return(0)
     {
       if ( !obj->isTrue() )
         return;
@@ -762,8 +746,7 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
   if ( ( wtextlen + settingsManager.party_cfg.General.PrivateMsgPrefixLen ) > SPEECH_MAX_LEN )
     wtextlen = SPEECH_MAX_LEN - settingsManager.party_cfg.General.PrivateMsgPrefixLen;
   if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen )
-    msg->Write( &settingsManager.party_cfg.General.PrivateMsgPrefix[0],
-                settingsManager.party_cfg.General.PrivateMsgPrefixLen, false );
+    msg->Write( &settingsManager.party_cfg.General.PrivateMsgPrefix[0], settingsManager.party_cfg.General.PrivateMsgPrefixLen, false );
 
   msg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );
   u16 len = msg->offset;
@@ -780,8 +763,9 @@ void Party::printOn( Clib::StreamWriter& sw ) const
   if ( system_find_mobile( _leaderserial ) == NULL )
     return;
 
-  sw() << "Party" << pf_endl << "{" << pf_endl << "\tLeader\t0x" << fmt::hex( _leaderserial )
-       << pf_endl;
+  sw() << "Party" << pf_endl
+       << "{" << pf_endl
+       << "\tLeader\t0x" << fmt::hex( _leaderserial ) << pf_endl;
 
   for ( const auto& mserial : _member_serials )
   {
@@ -790,15 +774,17 @@ void Party::printOn( Clib::StreamWriter& sw ) const
       sw() << "\tMember\t0x" << fmt::hex( mserial ) << pf_endl;
   }
   _proplist.printProperties( sw );
-  sw() << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw() << "}" << pf_endl
+       << pf_endl;
+  //sw.flush();
 }
 
 size_t Party::estimateSize() const
 {
-  return 3 * sizeof( u32* ) + _member_serials.capacity() * sizeof( u32 ) + 3 * sizeof( u32* ) +
-         _candidates_serials.capacity() * sizeof( u32 ) + 3 * sizeof( u32* ) +
-         _offlinemember_serials.capacity() * sizeof( u32 ) + sizeof( u32 ) /*_leaderserial*/
+  return 3 * sizeof(u32*) + _member_serials.capacity() * sizeof( u32 )
+         + 3 * sizeof(u32*) + _candidates_serials.capacity() * sizeof( u32 )
+         + 3 * sizeof(u32*) + _offlinemember_serials.capacity() * sizeof( u32 )
+         + sizeof(u32) /*_leaderserial*/
          + _proplist.estimatedSize();
 }
 
@@ -808,9 +794,9 @@ void send_empty_party( Mobile::Character* chr )
   {
     Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
     msg->WriteFlipped<u16>( 11u );
-    msg->offset += 2;  // sub
+    msg->offset += 2; //sub
     msg->Write<u8>( PKTBI_BF_06::PARTYCMD_REMOVE );
-    msg->offset++;  // nummembers
+    msg->offset++; //nummembers
     msg->Write<u32>( chr->serial_ext );
     msg.Send( chr->client );
   }
@@ -833,12 +819,11 @@ void register_party_members()
 
 void disband_party( u32 leader )
 {
-  auto itr =
-      std::find_if( gamestate.parties.begin(), gamestate.parties.end(), [&]( PartyRef& party )
-                    {
-                      return party->is_leader( leader );
-                    } );
-  if ( itr != gamestate.parties.end() )
+  auto itr = std::find_if( gamestate.parties.begin(), gamestate.parties.end(), [&]( PartyRef &party )
+  {
+    return party->is_leader( leader );
+  } );
+  if (itr != gamestate.parties.end() )
   {
     ( *itr )->disband();
     gamestate.parties.erase( itr );
@@ -907,8 +892,7 @@ void on_loggoff_party( Mobile::Character* chr )
             return;
           }
           party->set_leader( party->get_member_at( 0 ) );
-          party->send_msg_to_all(
-              CLP_Player_Removed );  // A player has been removed from your party.
+          party->send_msg_to_all( CLP_Player_Removed );//A player has been removed from your party.
           party->send_member_list( NULL );
         }
         else
@@ -943,11 +927,10 @@ void on_loggon_party( Mobile::Character* chr )
       if ( party->add_member( chr->serial ) )
       {
         chr->party( party );
-        send_sysmessage_cl( chr->client, CLP_Rejoined );  // You have rejoined the party.
+        send_sysmessage_cl( chr->client, CLP_Rejoined ); //You have rejoined the party.
         party->send_member_list( NULL );
         party->send_stats_on_add( chr );
-        party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(),
-                                chr );  //: rejoined the party.
+        party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(), chr ); //: rejoined the party.
       }
     }
     chr->offline_mem_of( nullptr );
@@ -957,11 +940,10 @@ void on_loggon_party( Mobile::Character* chr )
   else
   {
     Party* party = chr->party();
-    send_sysmessage_cl( chr->client, CLP_Rejoined );  // You have rejoined the party.
+    send_sysmessage_cl( chr->client, CLP_Rejoined ); //You have rejoined the party.
     party->send_member_list( chr );
     party->send_stats_on_add( chr );
-    party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(),
-                            chr );  //: rejoined the party.
+    party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(), chr ); //: rejoined the party.
   }
 }
 
@@ -1009,7 +991,7 @@ void handle_add( Network::Client* client, PKTBI_BF* msg )
 {
   if ( msg->partydata.partyadd.memberid == 0x0 )
   {
-    send_sysmessage_cl( client, CLP_Who_To_Add );  // Who would you like to add to your party?
+    send_sysmessage_cl( client, CLP_Who_To_Add ); //Who would you like to add to your party?
     gamestate.target_cursors.add_member_cursor.send_object_cursor( client );
   }
   else
@@ -1027,21 +1009,17 @@ void handle_remove_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
     if ( rem != NULL )
     {
       Party* party = chr->party();
-      if ( ( party == nullptr ) || ( !party->is_leader( chr->serial ) ) ||
-           ( !party->is_member( rem->serial ) ) )
+      if ( ( party == nullptr ) || ( !party->is_leader( chr->serial ) ) || ( !party->is_member( rem->serial ) ) )
         return;
       if ( chr == rem )
-        send_sysmessage_cl( chr->client, CLP_Cannot_Remove_Self );  // You may only remove yourself
-                                                                    // from a party if you are not
-                                                                    // the leader.
+        send_sysmessage_cl( chr->client, CLP_Cannot_Remove_Self ); //You may only remove yourself from a party if you are not the leader.
       else
       {
         if ( settingsManager.party_cfg.Hooks.CanRemoveMember )
         {
-          if ( !settingsManager.party_cfg.Hooks.CanRemoveMember->call( chr->make_ref(),
-                                                                       rem->make_ref() ) )
+          if ( !settingsManager.party_cfg.Hooks.CanRemoveMember->call( chr->make_ref(), rem->make_ref() ) )
           {
-            party->send_member_list( chr );  // resend list
+            party->send_member_list( chr ); //resend list
             return;
           }
         }
@@ -1053,7 +1031,7 @@ void handle_remove_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
           if ( settingsManager.party_cfg.Hooks.OnLeaveParty )
             settingsManager.party_cfg.Hooks.OnLeaveParty->call( rem->make_ref(), chr->make_ref() );
 
-          send_sysmessage_cl( rem->client, CLP_Removed );  // You have been removed from the party.
+          send_sysmessage_cl( rem->client, CLP_Removed ); //You have been removed from the party.
           send_empty_party( rem );
           if ( disband )
             disband_party( party->leader() );
@@ -1068,20 +1046,18 @@ void handle_remove( Network::Client* client, PKTBI_BF* msg )
   Party* party = client->chr->party();
   if ( party == nullptr )
   {
-    send_sysmessage_cl( client, CLP_No_Party );  // You are not in a party.
+    send_sysmessage_cl( client, CLP_No_Party ); //You are not in a party.
     return;
   }
   Mobile::Character* member = system_find_mobile( cfBEu32( msg->partydata.partyremove.memberid ) );
   // leader wants target
   if ( ( party->is_leader( client->chr->serial ) ) && ( member == NULL ) )
   {
-    send_sysmessage_cl( client,
-                        CLP_Who_to_Remove );  // Who would you like to remove from your party?
+    send_sysmessage_cl( client, CLP_Who_to_Remove ); //Who would you like to remove from your party?
     gamestate.target_cursors.remove_member_cursor.send_object_cursor( client );
   }
   // leader kicks member, or member kicks himself
-  else if ( ( ( party->is_leader( client->chr->serial ) ) || ( client->chr == member ) ) &&
-            ( party->is_member( member->serial ) ) )
+  else if ( ( ( party->is_leader( client->chr->serial ) ) || ( client->chr == member ) ) && ( party->is_member( member->serial ) ) )
   {
     if ( client->chr == member )
     {
@@ -1089,7 +1065,7 @@ void handle_remove( Network::Client* client, PKTBI_BF* msg )
       {
         if ( !settingsManager.party_cfg.Hooks.CanLeaveParty->call( client->chr->make_ref() ) )
         {
-          party->send_member_list( client->chr );  // resend list
+          party->send_member_list( client->chr ); //resend list
           return;
         }
       }
@@ -1098,10 +1074,9 @@ void handle_remove( Network::Client* client, PKTBI_BF* msg )
     {
       if ( settingsManager.party_cfg.Hooks.CanRemoveMember )
       {
-        if ( !settingsManager.party_cfg.Hooks.CanRemoveMember->call( client->chr->make_ref(),
-                                                                     member->make_ref() ) )
+        if ( !settingsManager.party_cfg.Hooks.CanRemoveMember->call( client->chr->make_ref(), member->make_ref() ) )
         {
-          party->send_member_list( client->chr );  // resend list
+          party->send_member_list( client->chr ); //resend list
           return;
         }
       }
@@ -1112,11 +1087,10 @@ void handle_remove( Network::Client* client, PKTBI_BF* msg )
       member->party( nullptr );
       party->send_remove_member( member, &disband );
       if ( settingsManager.party_cfg.Hooks.OnLeaveParty )
-        settingsManager.party_cfg.Hooks.OnLeaveParty->call( member->make_ref(),
-                                                            client->chr->make_ref() );
+        settingsManager.party_cfg.Hooks.OnLeaveParty->call( member->make_ref(), client->chr->make_ref() );
       if ( member->has_active_client() )
       {
-        send_sysmessage_cl( member->client, CLP_Removed );  // You have been removed from the party.
+        send_sysmessage_cl( member->client, CLP_Removed ); //You have been removed from the party.
         send_empty_party( member );
       }
       if ( disband )
@@ -1128,8 +1102,7 @@ void handle_remove( Network::Client* client, PKTBI_BF* msg )
 void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
 {
   using std::wcout;
-  Mobile::Character* member =
-      system_find_mobile( cfBEu32( msg->partydata.partymembermsg.memberid ) );
+  Mobile::Character* member = system_find_mobile( cfBEu32( msg->partydata.partymembermsg.memberid ) );
   if ( member != NULL )
   {
     Party* party = client->chr->party();
@@ -1138,17 +1111,17 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
     {
       int intextlen;
       u16* themsg = msg->partydata.partymembermsg.wtext;
-      // u8 *  bytemsg = ((u8 *) themsg);
-      // int wtextoffset = 0;
+      //u8 *  bytemsg = ((u8 *) themsg);
+      //int wtextoffset = 0;
       int i;
 
       u16 wtextbuf[SPEECH_MAX_LEN + 1];
       size_t wtextbuflen;
 
-      intextlen =
-          ( cfBEu16( msg->msglen ) - 10 ) / sizeof( msg->partydata.partymembermsg.wtext[0] ) - 1;
+      intextlen = ( cfBEu16( msg->msglen ) - 10 )
+                  / sizeof( msg->partydata.partymembermsg.wtext[0] ) - 1;
 
-      //	intextlen does not include the null terminator.
+      //  intextlen does not include the null terminator.
 
       // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
       if ( intextlen < 0 )
@@ -1160,10 +1133,8 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       for ( i = 0; i < intextlen; i++ )
       {
         u16 wc = cfBEu16( themsg[i] );
-        if ( wc == 0 )
-          break;  // quit early on embedded nulls
-        if ( wc == L'~' )
-          continue;  // skip unprintable tildes.
+        if ( wc == 0 ) break;   // quit early on embedded nulls
+        if ( wc == L'~' ) continue; // skip unprintable tildes.
         wtextbuf[wtextbuflen++] = ctBEu16( wc );
       }
       wtextbuf[wtextbuflen++] = (u16)0;
@@ -1171,38 +1142,37 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
         Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
       }
 
       party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
     }
     else
-      send_sysmessage_cl( client, CLP_No_Party );  // You are not in a party.
+      send_sysmessage_cl( client, CLP_No_Party );//You are not in a party.
   }
 }
 
 void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
 {
-  using std::wcout;  // wcout.narrow() function r0x! :-)
+  using std::wcout; // wcout.narrow() function r0x! :-)
   Party* party = client->chr->party();
   if ( party != nullptr )
   {
     int intextlen;
     u16* themsg = msg->partydata.partymsg.wtext;
-    // u8 *  bytemsg = ((u8 *) themsg);
-    // int wtextoffset = 0;
+    //u8 *  bytemsg = ((u8 *) themsg);
+    //int wtextoffset = 0;
     int i, starti;
     Mobile::Character* member = nullptr;
 
     u16 wtextbuf[SPEECH_MAX_LEN + 1];
     size_t wtextbuflen;
 
-    intextlen = ( cfBEu16( msg->msglen ) - 6 ) / sizeof( msg->partydata.partymsg.wtext[0] ) - 1;
+    intextlen = ( cfBEu16( msg->msglen ) - 6 )
+                / sizeof( msg->partydata.partymsg.wtext[0] ) - 1;
 
-    //	intextlen does not include the null terminator.
+    //  intextlen does not include the null terminator.
 
     // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
     if ( intextlen < 0 )
@@ -1235,23 +1205,19 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     for ( i = starti; i < intextlen; i++ )
     {
       u16 wc = cfBEu16( themsg[i] );
-      if ( wc == 0 )
-        break;  // quit early on embedded nulls
-      if ( wc == L'~' )
-        continue;  // skip unprintable tildes.
+      if ( wc == 0 ) break;   // quit early on embedded nulls
+      if ( wc == L'~' ) continue; // skip unprintable tildes.
       wtextbuf[wtextbuflen++] = ctBEu16( wc );
     }
     wtextbuf[wtextbuflen++] = (u16)0;
 
-    if ( starti == 2 )  // private chat
+    if ( starti == 2 ) //private chat
     {
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
         Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
+          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(), member->make_ref(), arr );
       }
       party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
     }
@@ -1260,8 +1226,7 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
       if ( settingsManager.party_cfg.Hooks.OnPublicChat )
       {
         Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
+        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen, true ) ) // convert back with ctBEu16()
           settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
       }
 
@@ -1269,29 +1234,28 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     }
   }
   else
-    send_sysmessage_cl( client, CLP_No_Party );  // You are not in a party.
+    send_sysmessage_cl( client, CLP_No_Party );//You are not in a party.
 }
 
 void handle_loot_perm( Network::Client* client, PKTBI_BF* msg )
 {
   if ( !client->chr->has_party() )
-    send_sysmessage_cl( client, CLP_No_Party );  // You are not in a party.
+    send_sysmessage_cl( client, CLP_No_Party ); //You are not in a party.
   else
   {
     bool loot = msg->partydata.partylootperm.canloot ? true : false;
     client->chr->set_party_can_loot( loot );
     if ( settingsManager.party_cfg.Hooks.OnLootPermChange )
       settingsManager.party_cfg.Hooks.OnLootPermChange->call( client->chr->make_ref() );
-    // You have chosen to allow your party to loot your corpse.
-    // You have chosen to prevent your party from looting your corpse.
+    //You have chosen to allow your party to loot your corpse.
+    //You have chosen to prevent your party from looting your corpse.
     send_sysmessage_cl( client, loot ? CLP_Allow_Loot : CLP_Prevent_Loot );
   }
 }
 
 void handle_accept_invite( Network::Client* client, PKTBI_BF* msg )
 {
-  Mobile::Character* leader =
-      system_find_mobile( cfBEu32( msg->partydata.partyaccinvite.leaderid ) );
+  Mobile::Character* leader = system_find_mobile( cfBEu32( msg->partydata.partyaccinvite.leaderid ) );
   if ( leader != NULL )
   {
     Party* party = leader->party();
@@ -1306,24 +1270,22 @@ void handle_accept_invite( Network::Client* client, PKTBI_BF* msg )
           client->chr->party( party );
           if ( settingsManager.party_cfg.Hooks.OnAddToParty )
             settingsManager.party_cfg.Hooks.OnAddToParty->call( client->chr->make_ref() );
-          send_sysmessage_cl( client, CLP_Added );  // You have been added to the party.
+          send_sysmessage_cl( client, CLP_Added ); // You have been added to the party.
 
-          party->send_msg_to_all( CLP_Joined, client->chr->name().c_str(),
-                                  client->chr );  //  : joined the party.
+          party->send_msg_to_all( CLP_Joined, client->chr->name().c_str(), client->chr );//  : joined the party.
           party->send_member_list( NULL );
           party->send_stats_on_add( client->chr );
         }
       }
     }
     else
-      send_sysmessage_cl( client, CLP_No_Invite );  // No one has invited you to be in a party.
+      send_sysmessage_cl( client, CLP_No_Invite ); //No one has invited you to be in a party.
   }
 }
 
 void handle_decline_invite( Network::Client* client, PKTBI_BF* msg )
 {
-  Mobile::Character* leader =
-      system_find_mobile( cfBEu32( msg->partydata.partydecinvite.leaderid ) );
+  Mobile::Character* leader = system_find_mobile( cfBEu32( msg->partydata.partydecinvite.leaderid ) );
   if ( leader != NULL )
   {
     Party* party = leader->party();
@@ -1333,68 +1295,55 @@ void handle_decline_invite( Network::Client* client, PKTBI_BF* msg )
       {
         client->chr->cancel_party_invite_timeout();
         client->chr->candidate_of( nullptr );
-        send_sysmessage_cl(
-            client, CLP_Decline );  // You notify them that you do not wish to join the party.
+        send_sysmessage_cl( client, CLP_Decline ); // You notify them that you do not wish to join the party.
         if ( leader->has_active_client() )
-          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name().c_str(),
-                                    true );  //: Does not wish to join the party.
+          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name().c_str(), true ); //: Does not wish to join the party.
         if ( settingsManager.party_cfg.Hooks.OnDecline )
           settingsManager.party_cfg.Hooks.OnDecline->call( client->chr->make_ref() );
         if ( !party->test_size() )
           disband_party( leader->serial );
       }
       else if ( party->is_member( client->chr->serial ) )
-        send_sysmessage_cl( client, CLP_Too_Late_Decline );  // Too late to decline, you are already
-                                                             // in the party. Try /quit.
+        send_sysmessage_cl( client, CLP_Too_Late_Decline ); // Too late to decline, you are already in the party. Try /quit.
     }
     else
-      send_sysmessage_cl( client, CLP_No_Invite );  // No one has invited you to be in a party.
+      send_sysmessage_cl( client, CLP_No_Invite ); //No one has invited you to be in a party.
   }
 }
 
 void add_candidate( Mobile::Character* member, Mobile::Character* leader )
 {
-  if ( leader == nullptr )
+  if (leader == nullptr)
     return;
   if ( member == nullptr )
   {
-    send_sysmessage_cl( leader->client,
-                        CLP_Add_Living );  // You may only add living things to your party!
+    send_sysmessage_cl( leader->client, CLP_Add_Living ); //You may only add living things to your party!
     return;
   }
   Party* party = leader->party();
   if ( member == leader )
-    send_sysmessage_cl( leader->client, CLP_Add_Yourself );  // You cannot add yourself to a party.
+    send_sysmessage_cl( leader->client, CLP_Add_Yourself ); //You cannot add yourself to a party.
   else if ( ( party != nullptr ) && ( !party->is_leader( leader->serial ) ) )
-    send_sysmessage_cl(
-        leader->client,
-        CLP_Add_No_Leader );  // You may only add members to the party if you are the leader.
+    send_sysmessage_cl( leader->client, CLP_Add_No_Leader ); //You may only add members to the party if you are the leader.
   else if ( ( party != nullptr ) && ( !party->can_add() ) )
-    send_sysmessage_cl(
-        leader->client,
-        CLP_Max_Size );  // You may only have 10 in your party (this includes candidates).
+    send_sysmessage_cl( leader->client, CLP_Max_Size ); //You may only have 10 in your party (this includes candidates).
   else if ( member->isa( UObject::CLASS_NPC ) )
-    send_sysmessage_cl( leader->client, CLP_Ignore_Offer );  // The creature ignores your offer.
+    send_sysmessage_cl( leader->client, CLP_Ignore_Offer ); //The creature ignores your offer.
   else if ( ( party != nullptr ) && ( party->is_member( member->serial ) ) )
-    send_sysmessage_cl( leader->client,
-                        CLP_Already_Your_Party );  // This person is already in your party!
+    send_sysmessage_cl( leader->client, CLP_Already_Your_Party ); //This person is already in your party!
   else if ( ( party != nullptr ) && ( party->is_candidate( member->serial ) ) )
-    send_sysmessage_cl( leader->client,
-                        CLP_Already_Your_Party );  // This person is already in your party!
+    send_sysmessage_cl( leader->client, CLP_Already_Your_Party ); //This person is already in your party!
   else if ( member->has_party() )
-    send_sysmessage_cl( leader->client,
-                        CLP_Already_in_a_Party );  // This person is already in a party!
+    send_sysmessage_cl( leader->client, CLP_Already_in_a_Party ); //This person is already in a party!
   else
   {
     if ( member->has_candidate_of() )
-      send_sysmessage_cl( leader->client,
-                          CLP_Already_in_a_Party );  // This person is already in a party!
+      send_sysmessage_cl( leader->client, CLP_Already_in_a_Party ); //This person is already in a party!
     else
     {
       if ( settingsManager.party_cfg.Hooks.CanAddToParty )
       {
-        if ( !settingsManager.party_cfg.Hooks.CanAddToParty->call( leader->make_ref(),
-                                                                   member->make_ref() ) )
+        if ( !settingsManager.party_cfg.Hooks.CanAddToParty->call( leader->make_ref(), member->make_ref() ) )
           return;
       }
       if ( settingsManager.party_cfg.General.DeclineTimeout > 0 )
@@ -1406,8 +1355,7 @@ void add_candidate( Mobile::Character* member, Mobile::Character* leader )
         gamestate.parties.push_back( ref_ptr<Party>( party ) );
         leader->party( party );
         if ( settingsManager.party_cfg.Hooks.OnPartyCreate )
-          settingsManager.party_cfg.Hooks.OnPartyCreate->call(
-              Module::CreatePartyRefObjImp( party ) );
+          settingsManager.party_cfg.Hooks.OnPartyCreate->call( Module::CreatePartyRefObjImp( party ) );
       }
       if ( party->add_candidate( member->serial ) )
       {
@@ -1415,9 +1363,7 @@ void add_candidate( Mobile::Character* member, Mobile::Character* leader )
         send_invite( member, leader );
       }
       else
-        send_sysmessage_cl(
-            leader->client,
-            CLP_Max_Size );  // You may only have 10 in your party (this includes candidates).
+        send_sysmessage_cl( leader->client, CLP_Max_Size ); //You may only have 10 in your party (this includes candidates).
     }
   }
 }
@@ -1430,16 +1376,14 @@ void invite_timeout( Mobile::Character* mem )
     if ( party->remove_candidate( mem->serial ) )
     {
       if ( mem->has_active_client() )
-        send_sysmessage_cl(
-            mem->client, CLP_Decline );  // You notify them that you do not wish to join the party.
+        send_sysmessage_cl( mem->client, CLP_Decline ); // You notify them that you do not wish to join the party.
       Mobile::Character* leader = system_find_mobile( party->leader() );
       if ( settingsManager.party_cfg.Hooks.OnDecline )
         settingsManager.party_cfg.Hooks.OnDecline->call( mem->make_ref() );
       if ( leader != NULL )
       {
         if ( leader->has_active_client() )
-          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, mem->name().c_str(),
-                                    true );  //: Does not wish to join the party.
+          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, mem->name().c_str(), true ); //: Does not wish to join the party.
         if ( !party->test_size() )
           disband_party( leader->serial );
       }
@@ -1452,14 +1396,14 @@ void send_invite( Mobile::Character* member, Mobile::Character* leader )
 {
   Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
   msg->WriteFlipped<u16>( 10u );
-  msg->offset += 2;  // sub
+  msg->offset += 2; //sub
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_INVITE_MEMBER );
   msg->Write<u32>( leader->serial_ext );
   msg.Send( member->client );
 
   // : You are invited to join the party. Type /accept to join or /decline to decline the offer.
   send_sysmessage_cl_affix( member->client, CLP_Invite, leader->name().c_str(), true );
-  send_sysmessage_cl( leader->client, CLP_Invited );  // You have invited them to join the party.
+  send_sysmessage_cl( leader->client, CLP_Invited ); // You have invited them to join the party.
 }
 
 void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob )
@@ -1475,7 +1419,7 @@ void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob 
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
   h = bob->vital( networkManager.uoclient_general.mana.id ).current_ones();
   if ( h > 0xFFFF )
@@ -1484,7 +1428,7 @@ void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob 
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
   h = bob->vital( networkManager.uoclient_general.stamina.id ).current_ones();
   if ( h > 0xFFFF )
@@ -1493,10 +1437,12 @@ void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob 
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( static_cast<u16>(h * 1000 / mh) );
 
   msg.Send( chr->client );
 }
+
+
 }
 namespace Mobile
 {
@@ -1514,11 +1460,11 @@ void Character::set_party_invite_timeout()
 {
   if ( this->party_decline_timeout_ != NULL )
     this->party_decline_timeout_->cancel();
-  Core::polclock_t timeout =
-      Core::polclock() +
-      Core::settingsManager.party_cfg.General.DeclineTimeout * Core::POLCLOCKS_PER_SEC;
-  new Core::OneShotTaskInst<Character*>( &this->party_decline_timeout_, timeout,
-                                         Core::invite_timeout, this );
+  Core::polclock_t timeout = Core::polclock( ) + Core::settingsManager.party_cfg.General.DeclineTimeout*Core::POLCLOCKS_PER_SEC;
+  new Core::OneShotTaskInst<Character*>( &this->party_decline_timeout_,
+                                         timeout,
+                                         Core::invite_timeout,
+                                         this );
 }
 
 bool Character::has_party_invite_timeout() const

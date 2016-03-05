@@ -1,8 +1,7 @@
 /** @file
  *
  * @par History
- * - 2005/01/23 Shinigami: regen_stats - Tokuno MapDimension doesn't fit blocks of 64x64
- * (WGRID_SIZE)
+ * - 2005/01/23 Shinigami: regen_stats - Tokuno MapDimension doesn't fit blocks of 64x64 (WGRID_SIZE)
  * - 2005/09/14 Shinigami: regen_stats - Vital.regen_while_dead implemented
  * - 2006/09/23 Shinigami: wrong data type correction
  * - 2009/11/19 Turley:    lightlevel now supports endless duration - Tomi
@@ -40,8 +39,7 @@
 #include "../clib/logfacility.h"
 
 #ifdef _MSC_VER
-#pragma warning( \
-    disable : 4127 )  // conditional expression is constant (needed because of TICK_PROFILEVAR)
+#pragma warning(disable: 4127) // conditional expression is constant (needed because of TICK_PROFILEVAR)
 #endif
 
 namespace Pol
@@ -69,22 +67,22 @@ void regen_stats()
       auto light_until = chr->lightoverride_until();
       if ( light_until < now_gameclock && light_until != ~0u )
       {
-        chr->lightoverride( -1 );
-        chr->lightoverride_until( 0 );
+        chr->lightoverride(-1);
+        chr->lightoverride_until(0);
         THREAD_CHECKPOINT( tasks, 403 );
-        chr->check_region_changes();
+        chr->check_region_changes( );
       }
     }
 
-    if ( chr->has_dblclick_wait() )
+    if ( chr->has_dblclick_wait())
     {
-      if ( chr->dblclick_wait() < now_gameclock )
-        chr->dblclick_wait( 0 );
+      if (chr->dblclick_wait() < now_gameclock)
+        chr->dblclick_wait(0);
     }
-    if ( chr->has_disable_skills_until() )
+    if ( chr->has_disable_skills_until())
     {
-      if ( chr->disable_skills_until() < now )
-        chr->disable_skills_until( 0 );
+      if (chr->disable_skills_until() < now)
+        chr->disable_skills_until(0);
     }
     THREAD_CHECKPOINT( tasks, 404 );
 
@@ -100,21 +98,21 @@ void regen_stats()
     for ( const Vital* pVital = FindVital( 0 ); pVital; pVital = pVital->next )
     {
       THREAD_CHECKPOINT( tasks, 406 );
-      if ( !chr->dead() || pVital->regen_while_dead )
+      if ( !chr->dead( ) || pVital->regen_while_dead )
         chr->regen_vital( pVital );
       THREAD_CHECKPOINT( tasks, 407 );
     }
 
-    if ( !chr->dead() )
+    if ( !chr->dead( ) )
     {
       THREAD_CHECKPOINT( tasks, 408 );
-      chr->check_undamaged();
+      chr->check_undamaged( );
       THREAD_CHECKPOINT( tasks, 409 );
     }
   };
 
 
-  for ( auto& realm : gamestate.Realms )
+  for ( auto& realm : gamestate.Realms)
   {
     wgridx = realm->grid_width();
     wgridy = realm->grid_height();
@@ -156,7 +154,7 @@ void setup_update_rpm( void )
   GetProcessTimes( m_CurrentProcessHandle, &d1, &d2, &k, &u );
   __int64 kt = *(__int64*)&k;
   __int64 ut = *(__int64*)&u;
-  __int64 tot = ( kt + ut ) / 10;  // convert to microseconds
+  __int64 tot = ( kt + ut ) / 10; // convert to microseconds
   stateManager.profilevars.last_cputime = 0;
   stateManager.profilevars.last_cpu_total = tot;
 #endif
@@ -165,19 +163,15 @@ void setup_update_rpm( void )
 void update_rpm( void )
 {
   THREAD_CHECKPOINT( tasks, 300 );
-  stateManager.profilevars.last_sipm = static_cast<unsigned int>(
-      Bscript::escript_instr_cycles - stateManager.profilevars.last_instructions );
+  stateManager.profilevars.last_sipm = static_cast<unsigned int>( Bscript::escript_instr_cycles - stateManager.profilevars.last_instructions );
   stateManager.profilevars.last_instructions = Bscript::escript_instr_cycles;
 
-  stateManager.profilevars.last_scpm = static_cast<unsigned int>(
-      stateManager.profilevars.sleep_cycles - stateManager.profilevars.last_sleep_cycles );
+  stateManager.profilevars.last_scpm = static_cast<unsigned int>( stateManager.profilevars.sleep_cycles - stateManager.profilevars.last_sleep_cycles );
   stateManager.profilevars.last_sleep_cycles = stateManager.profilevars.sleep_cycles;
 
-  stateManager.profilevars.last_script_passes_activity =
-      stateManager.profilevars.script_passes_activity;
+  stateManager.profilevars.last_script_passes_activity = stateManager.profilevars.script_passes_activity;
   stateManager.profilevars.script_passes_activity = 0;
-  stateManager.profilevars.last_script_passes_noactivity =
-      stateManager.profilevars.script_passes_noactivity;
+  stateManager.profilevars.last_script_passes_noactivity = stateManager.profilevars.script_passes_noactivity;
   stateManager.profilevars.script_passes_noactivity = 0;
 
   TICK_PROFILEVAR( events );
@@ -211,63 +205,47 @@ void update_rpm( void )
   GetProcessTimes( m_CurrentProcessHandle, &d1, &d2, &k, &u );
   __int64 kt = *(__int64*)&k;
   __int64 ut = *(__int64*)&u;
-  __int64 tot = ( kt + ut ) / 10;  // convert to microseconds
-  stateManager.profilevars.last_cputime =
-      static_cast<unsigned int>( tot - stateManager.profilevars.last_cpu_total );
+  __int64 tot = ( kt + ut ) / 10; // convert to microseconds
+  stateManager.profilevars.last_cputime = static_cast<unsigned int>( tot - stateManager.profilevars.last_cpu_total );
   stateManager.profilevars.last_cpu_total = tot;
 #endif
 
   stateManager.profilevars.last_busy_sysload_cycles = stateManager.profilevars.busy_sysload_cycles;
-  stateManager.profilevars.last_nonbusy_sysload_cycles =
-      stateManager.profilevars.nonbusy_sysload_cycles;
-  size_t total_cycles = stateManager.profilevars.busy_sysload_cycles +
-                        stateManager.profilevars.nonbusy_sysload_cycles;
+  stateManager.profilevars.last_nonbusy_sysload_cycles = stateManager.profilevars.nonbusy_sysload_cycles;
+  size_t total_cycles = stateManager.profilevars.busy_sysload_cycles + stateManager.profilevars.nonbusy_sysload_cycles;
   if ( total_cycles )
   {
-    stateManager.profilevars.last_sysload =
-        stateManager.profilevars.busy_sysload_cycles * 100 / total_cycles;
-    stateManager.profilevars.last_sysload_nprocs =
-        stateManager.profilevars.sysload_nprocs * 10 / total_cycles;
+    stateManager.profilevars.last_sysload = stateManager.profilevars.busy_sysload_cycles * 100 / total_cycles;
+    stateManager.profilevars.last_sysload_nprocs = stateManager.profilevars.sysload_nprocs * 10 / total_cycles;
   }
   // else don't adjust
   stateManager.profilevars.busy_sysload_cycles = 0;
   stateManager.profilevars.nonbusy_sysload_cycles = 0;
   stateManager.profilevars.sysload_nprocs = 0;
   if ( Plib::systemstate.config.watch_sysload )
-    INFO_PRINT.Format( "sysload={} ({}) cputime={}\n" )
-        << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs
-        << stateManager.profilevars.last_cputime;
+    INFO_PRINT.Format( "sysload={} ({}) cputime={}\n" ) << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs << stateManager.profilevars.last_cputime;
   if ( Plib::systemstate.config.log_sysload )
-    POLLOG.Format( "sysload={} ({}) cputime={}\n" ) << stateManager.profilevars.last_sysload
-                                                    << stateManager.profilevars.last_sysload_nprocs
-                                                    << stateManager.profilevars.last_cputime;
-// cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " <<
-// GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
-// cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;
-// cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
+    POLLOG.Format( "sysload={} ({}) cputime={}\n" ) << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs << stateManager.profilevars.last_cputime;
+  //cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " << GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
+  //cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;
+  //cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
 
 #ifndef NDEBUG
   INFO_PRINT << "activity: " << stateManager.profilevars.last_script_passes_activity
-             << "  noactivity: " << stateManager.profilevars.last_script_passes_noactivity << "\n";
+             << "  noactivity: " << stateManager.profilevars.last_script_passes_noactivity
+             << "\n";
 #endif
   stateManager.profilevars.last_mapcache_hits = stateManager.profilevars.mapcache_hits;
   stateManager.profilevars.last_mapcache_misses = stateManager.profilevars.mapcache_misses;
   if ( Plib::systemstate.config.watch_mapcache )
-    INFO_PRINT << "mapcache: hits=" << stateManager.profilevars.mapcache_hits
-               << ", misses=" << stateManager.profilevars.mapcache_misses
-               << ", rate=" << ( stateManager.profilevars.mapcache_hits
-                                     ? ( stateManager.profilevars.mapcache_hits * 100 /
-                                         ( stateManager.profilevars.mapcache_hits +
-                                           stateManager.profilevars.mapcache_misses ) )
-                                     : 0 )
-               << "%\n";
+    INFO_PRINT << "mapcache: hits=" << stateManager.profilevars.mapcache_hits << ", misses=" << stateManager.profilevars.mapcache_misses
+               << ", rate=" << ( stateManager.profilevars.mapcache_hits ? ( stateManager.profilevars.mapcache_hits * 100 / ( stateManager.profilevars.mapcache_hits + stateManager.profilevars.mapcache_misses ) ) : 0 ) << "%\n";
   stateManager.profilevars.mapcache_hits = 0;
   stateManager.profilevars.mapcache_misses = 0;
 
   if ( Plib::systemstate.config.multithread )
   {
-    stateManager.profilevars.last_sppm = static_cast<unsigned int>(
-        stateManager.profilevars.script_passes - stateManager.profilevars.last_script_passes );
+    stateManager.profilevars.last_sppm = static_cast<unsigned int>( stateManager.profilevars.script_passes - stateManager.profilevars.last_script_passes );
     stateManager.profilevars.last_script_passes = stateManager.profilevars.script_passes;
 
     TICK_PROFILEVAR( scheduler_passes );
@@ -275,37 +253,38 @@ void update_rpm( void )
 
     if ( Plib::systemstate.config.watch_rpm )
       INFO_PRINT << "scpt: " << stateManager.profilevars.last_sppm
-                 << "  task: " << ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) ) << "("
-                 << ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ) << ")"
+                 << "  task: " << ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) )
+                 << "(" << ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ) << ")"
                  << "  scin: " << stateManager.profilevars.last_sipm
                  << "  scsl: " << stateManager.profilevars.last_scpm
-                 << "  MOB: " << get_mobile_count() << "  TLI: " << get_toplevel_item_count()
+                 << "  MOB: " << get_mobile_count()
+                 << "  TLI: " << get_toplevel_item_count()
                  << "\n";
 
-    if ( Plib::systemstate.config.show_realm_info )
+    if (Plib::systemstate.config.show_realm_info)
     {
       INFO_PRINT << "\nRealm info: \n";
-      for ( auto realm : gamestate.Realms )
+      for (auto realm : gamestate.Realms)
       {
-        INFO_PRINT << "    - " << realm->name() << " (mob: " << realm->mobile_count()
+        INFO_PRINT << "    - " << realm->name()
+                   << " (mob: " << realm->mobile_count()
                    << ", off: " << realm->offline_mobile_count()
-                   << ", tli: " << realm->toplevel_item_count() << ", mlt: " << realm->multi_count()
+                   << ", tli: " << realm->toplevel_item_count()
+                   << ", mlt: " << realm->multi_count()
                    << ")\n";
       }
     }
   }
   else
   {
-    stateManager.profilevars.last_rpm =
-        stateManager.profilevars.rotations - stateManager.profilevars.last_rotations;
+    stateManager.profilevars.last_rpm = stateManager.profilevars.rotations - stateManager.profilevars.last_rotations;
     stateManager.profilevars.last_rotations = stateManager.profilevars.rotations;
 
-    // fixme realms
+    //fixme realms
     // fixme max realm size?
     unsigned int grid_x = gamestate.main_realm->grid_width();
     unsigned int grid_y = gamestate.main_realm->grid_height();
-    stateManager.cycles_per_decay_worldzone =
-        stateManager.profilevars.last_rpm / ( grid_x * grid_y / 10 );
+    stateManager.cycles_per_decay_worldzone = stateManager.profilevars.last_rpm / ( grid_x * grid_y / 10 );
     if ( stateManager.cycles_per_decay_worldzone < 1 )
       stateManager.cycles_per_decay_worldzone = 1;
     stateManager.cycles_until_decay_worldzone = stateManager.cycles_per_decay_worldzone;
@@ -313,14 +292,9 @@ void update_rpm( void )
     if ( Plib::systemstate.config.watch_rpm )
       INFO_PRINT << "RPM: " << stateManager.profilevars.last_rpm
                  << "   SIPM: " << stateManager.profilevars.last_sipm
-                 << "   SCPM: " << stateManager.profilevars.last_scpm << "   SI/R: "
-                 << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_sipm /
-                                                            stateManager.profilevars.last_rpm )
-                                                        : 0 )
-                 << "   SC/R: " << ( stateManager.profilevars.last_rpm
-                                         ? ( stateManager.profilevars.last_scpm /
-                                             stateManager.profilevars.last_rpm )
-                                         : 0 )
+                 << "   SCPM: " << stateManager.profilevars.last_scpm
+                 << "   SI/R: " << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_sipm / stateManager.profilevars.last_rpm ) : 0 )
+                 << "   SC/R: " << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_scpm / stateManager.profilevars.last_rpm ) : 0 )
                  << "\n";
   }
   THREAD_CHECKPOINT( tasks, 399 );

@@ -27,9 +27,8 @@ public:
   virtual ~MapServer();
 
   virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const = 0;
-  void GetMapShapes( MapShapeList& list, unsigned short x, unsigned short y,
-                     unsigned int anyflags ) const;
-  virtual size_t sizeEstimate() const;
+  void GetMapShapes( MapShapeList& list, unsigned short x, unsigned short y, unsigned int anyflags ) const;
+  virtual size_t sizeEstimate( ) const;
 
 protected:
   explicit MapServer( const RealmDescriptor& descriptor );
@@ -38,17 +37,17 @@ protected:
 
 private:
   // the indexes and shape data are always loaded into memory.
-  std::vector<SOLIDX2_ELEM*> _index1;  // points into _index2
-  std::vector<SOLIDX2_ELEM> _index2;
-  std::vector<SOLIDS_ELEM> _shapedata;
+  std::vector< SOLIDX2_ELEM* > _index1; // points into _index2
+  std::vector< SOLIDX2_ELEM > _index2;
+  std::vector< SOLIDS_ELEM > _shapedata;
 
   void LoadSolids();
   void LoadSecondLevelIndex();
   void LoadFirstLevelIndex();
 
   // not implemented:
-  MapServer& operator=( const MapServer& );
-  MapServer( const MapServer& );
+  MapServer& operator=( const MapServer&);
+  MapServer( const MapServer&);
 };
 }
 }

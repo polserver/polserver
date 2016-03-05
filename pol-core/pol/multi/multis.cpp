@@ -29,7 +29,8 @@ namespace Pol
 {
 namespace Multi
 {
-UMulti::UMulti( const Items::ItemDesc& itemdesc ) : Item( itemdesc, CLASS_MULTI )
+UMulti::UMulti( const Items::ItemDesc& itemdesc )
+  : Item( itemdesc, CLASS_MULTI )
 {
   multiid = itemdesc.multiid;
 
@@ -46,7 +47,7 @@ UMulti::~UMulti()
   --Core::stateManager.uobjcount.umulti_count;
 }
 
-void UMulti::double_click( Network::Client* /*client*/ )
+void UMulti::double_click( Network::Client* /*client*/)
 {
   ERROR_PRINT << "Ack! You can't double-click a multi!\n";
   throw std::runtime_error( "double_click() on a multi should not be possible." );
@@ -61,13 +62,11 @@ UHouse* UMulti::as_house()
   return NULL;
 }
 
-void UMulti::register_object( UObject* /*obj*/ )
-{
-}
+void UMulti::register_object(UObject* /*obj*/)
+{}
 
 void UMulti::unregister_object( UObject* /*obj*/ )
-{
-}
+{}
 
 const char* UMulti::classname() const
 {
@@ -92,7 +91,7 @@ Bscript::BStruct* UMulti::footprint() const
   return ret.release();
 }
 
-Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id test
+Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const ///id test
 {
   Bscript::BObjectImp* imp = base::get_script_member_id( id );
   if ( imp )
@@ -101,7 +100,7 @@ Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id 
   switch ( id )
   {
   case Bscript::MBR_FOOTPRINT:
-    return footprint();
+    return footprint( );
     break;
   default:
     return NULL;
@@ -119,8 +118,9 @@ Bscript::BObjectImp* UMulti::get_script_member( const char* membername ) const
 
 size_t UMulti::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( u16 ) /*multiid*/
-      ;
+  return base::estimatedSize()
+         + sizeof( u16 )/*multiid*/
+         ;
 }
 }
 }

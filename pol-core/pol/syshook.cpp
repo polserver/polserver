@@ -27,17 +27,17 @@
 #include <string>
 
 /// SystemHookScript functions:
-///	CheckSkill( who, skillid, difficulty, points )
+/// CheckSkill( who, skillid, difficulty, points )
 namespace Pol
 {
 namespace Core
 {
 using namespace Bscript;
 
-ExportedFunction::ExportedFunction( ExportScript* shs, unsigned in_PC )
-    : export_script( shs ), PC( in_PC )
-{
-}
+ExportedFunction::ExportedFunction( ExportScript* shs, unsigned in_PC ) :
+  export_script( shs ),
+  PC( in_PC )
+{}
 ExportedFunction::~ExportedFunction()
 {
   export_script = NULL;
@@ -87,35 +87,36 @@ int ExportedFunction::call_long( BObjectImp* p0, BObjectImp* p1 )
 BObject ExportedFunction::call_object( BObjectImp* p0, BObjectImp* p1 )
 {
   return export_script->call_object( PC, p0, p1 );
+
 }
 
 BObject ExportedFunction::call_object( BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
 {
   return export_script->call_object( PC, p0, p1, p2 );
+
 }
 
-SystemHooks::SystemHooks()
-    : check_skill_hook( NULL ),
-      open_spellbook_hook( NULL ),
-      get_book_page_hook( NULL ),
-      combat_advancement_hook( NULL ),
-      parry_advancement_hook( NULL ),
-      attack_hook( NULL ),
-      pushthrough_hook( NULL ),
-      speechmul_hook( NULL ),
-      hitmiss_hook( NULL ),
-      on_cast_hook( NULL ),
-      can_decay( NULL ),
-      ouch_hook( NULL ),
-      can_die( NULL ),
-      un_hide( NULL ),
-      close_customhouse_hook( NULL ),
-      warmode_change( NULL ),
-      can_trade( NULL )
-{
-}
+SystemHooks::SystemHooks() :
+  check_skill_hook( NULL ),
+  open_spellbook_hook( NULL ),
+  get_book_page_hook( NULL ),
+  combat_advancement_hook( NULL ),
+  parry_advancement_hook( NULL ),
+  attack_hook( NULL ),
+  pushthrough_hook( NULL ),
+  speechmul_hook( NULL ),
+  hitmiss_hook( NULL ),
+  on_cast_hook( NULL ),
+  can_decay( NULL ),
+  ouch_hook( NULL ),
+  can_die( NULL ),
+  un_hide( NULL ),
+  close_customhouse_hook( NULL ),
+  warmode_change( NULL ),
+  can_trade( NULL )
+{}
 
-void hook( ExportScript* shs, const std::string& hookname, const std::string& exfuncname )
+void hook(ExportScript* shs, const std::string& hookname, const std::string& exfuncname)
 {
   ExportedFunction** pphook = NULL;
   unsigned nargs;
@@ -213,8 +214,7 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
   if ( *pphook != NULL )
   {
     INFO_PRINT << "SystemHook " << hookname << " multiply defined\n"
-               << "  Already found in: " << gamestate.system_hooks.check_skill_hook->scriptname()
-               << "\n"
+               << "  Already found in: " << gamestate.system_hooks.check_skill_hook->scriptname() << "\n"
                << "  Also defined in:  " << shs->scriptname() << "\n";
     return;
   }
@@ -222,8 +222,7 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
   unsigned PC;
   if ( !shs->FindExportedFunction( exfuncname, nargs, PC ) )
   {
-    INFO_PRINT << "Exported Function " << exfuncname << " not found in " << shs->scriptname()
-               << "\n";
+    INFO_PRINT << "Exported Function " << exfuncname << " not found in " << shs->scriptname( ) << "\n";
     return;
   }
 
@@ -233,22 +232,21 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
 void load_system_hooks()
 {
   /*
-      system_hooks.clear();
-      while (!export_scripts.empty())
-      {
-      delete export_scripts.back();
-      export_scripts.pop_back();
-      }
-      */
-  for ( Plib::Packages::const_iterator citr = Plib::systemstate.packages.begin();
-        citr != Plib::systemstate.packages.end(); ++citr )
+    system_hooks.clear();
+    while (!export_scripts.empty())
+    {
+    delete export_scripts.back();
+    export_scripts.pop_back();
+    }
+    */
+  for ( Plib::Packages::const_iterator citr = Plib::systemstate.packages.begin( ); citr != Plib::systemstate.packages.end( ); ++citr )
   {
     Plib::Package* pkg = ( *citr );
-    // string fname = pkg->dir() + "syshook.cfg";
-    std::string fname = Plib::GetPackageCfgPath( pkg, "syshook.cfg" );
+    //string fname = pkg->dir() + "syshook.cfg";
+    std::string fname = Plib::GetPackageCfgPath(pkg, "syshook.cfg");
     if ( Clib::FileExists( fname.c_str() ) )
     {
-      Clib::ConfigFile cf( fname.c_str(), "SystemHookScript" );
+      Clib::ConfigFile cf( fname.c_str( ), "SystemHookScript" );
       Clib::ConfigElem elem;
       while ( cf.read( elem ) )
       {
@@ -340,17 +338,19 @@ ExportScript* FindExportScript( const ScriptDef& sd )
 }
 
 // descriptor is script:function (or :pkg:script:function, or ::script:function?)
-ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Package* pkg,
-                                        const std::string& descriptor, unsigned nargs,
+ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem,
+                                        const Plib::Package* pkg,
+                                        const std::string& descriptor,
+                                        unsigned nargs,
                                         bool complain_if_missing )
 {
   // first, split up script and functionname
-  auto colon_pos = descriptor.find_last_of( ':' );
+  auto colon_pos = descriptor.find_last_of(':');
   if ( colon_pos == std::string::npos )
     elem.throw_error( "Expected ':' in exported function descriptor (" + descriptor + ")" );
 
-  std::string scriptname = descriptor.substr( 0, colon_pos );
-  std::string functionname = descriptor.substr( colon_pos + 1, std::string::npos );
+  std::string scriptname = descriptor.substr(0, colon_pos);
+  std::string functionname = descriptor.substr(colon_pos + 1, std::string::npos);
 
   ScriptDef sd( scriptname, pkg, "" );
 
@@ -367,8 +367,7 @@ ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Pack
   if ( !export_script->FindExportedFunction( functionname, nargs, PC ) )
   {
     if ( complain_if_missing )
-      elem.throw_error( "Exported Function " + functionname + " not found in " +
-                        export_script->scriptname() );
+      elem.throw_error( "Exported Function " + functionname + " not found in " + export_script->scriptname() );
     else
       return NULL;
   }

@@ -81,13 +81,14 @@ unsigned int get_objtype_from_string( const std::string& str )
   return objtype;
 }
 
-ResourceComponent::ResourceComponent( const std::string& rname, unsigned amount )
-    : rd( Core::find_resource_def( rname ) ), amount( amount )
+ResourceComponent::ResourceComponent( const std::string& rname, unsigned amount ) :
+  rd( Core::find_resource_def( rname ) ),
+  amount( amount )
 {
   if ( rd == NULL )
   {
     ERROR_PRINT << "itemdesc.cfg: Resource '" << rname << "' not found\n";
-    throw std::runtime_error( "Configuration error" );
+    throw std::runtime_error("Configuration error");
   }
 }
 
@@ -102,9 +103,8 @@ ItemDesc* ItemDesc::create( Clib::ConfigElem& elem, const Plib::Package* pkg )
 
   if ( Core::gamestate.old_objtype_conversions.count( objtype ) )
   {
-    elem.throw_error(
-        "Objtype is defined as an OldObjtype of " +
-        find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
+    elem.throw_error( "Objtype is defined as an OldObjtype of "
+                      + find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
   }
 
   ItemDesc* descriptor = NULL;
@@ -130,7 +130,7 @@ ItemDesc* ItemDesc::create( Clib::ConfigElem& elem, const Plib::Package* pkg )
   else if ( elem.type_is( "Armor" ) )
   {
     // Ugly but effective workaround, needed to avoid coverage error
-    bool forceShield = ( objtype == Core::settingsManager.extobj.shield );
+    bool forceShield = (objtype == Core::settingsManager.extobj.shield);
     descriptor = new ArmorDesc( objtype, elem, pkg, forceShield );
   }
   else if ( elem.type_is( "Boat" ) )
@@ -155,51 +155,49 @@ ItemDesc* ItemDesc::create( Clib::ConfigElem& elem, const Plib::Package* pkg )
   }
   else
   {
-    elem.throw_error( std::string( "Unexpected element type: " ) + elem.type() );
+    elem.throw_error(std::string("Unexpected element type: ") + elem.type());
   }
   return descriptor;
 }
 
-ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg )
-    : type( type ),
-      pkg( pkg ),
-      objtype( objtype ),
-      graphic( elem.remove_ushort( "GRAPHIC", 0 ) ),
-      // Changed from Valid Color Mask to cfg mask in ssopt.
-      color( elem.remove_ushort( "COLOR", 0 ) & Core::settingsManager.ssopt.item_color_mask ),
-      facing( static_cast<unsigned char>( elem.remove_ushort( "FACING", 127 ) ) ),
-      desc( elem.remove_string( "DESC", "" ) ),
-      tooltip( elem.remove_string( "TOOLTIP", "" ) ),
-      walk_on_script( elem.remove_string( "WALKONSCRIPT", "" ), pkg, "scripts/items/" ),
-      on_use_script( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/items/" ),
-      equip_script( elem.remove_string( "EQUIPSCRIPT", "" ) ),
-      unequip_script( elem.remove_string( "UNEQUIPSCRIPT", "" ) ),
-      control_script( elem.remove_string( "CONTROLSCRIPT", "" ), pkg, "scripts/control/" ),
-      create_script( elem.remove_string( "CREATESCRIPT", "" ), pkg, "scripts/control/" ),
-      destroy_script( elem.remove_string( "DESTROYSCRIPT", "" ), pkg, "scripts/control/" ),
-      requires_attention( elem.remove_bool( "REQUIRESATTENTION", true ) ),
-      lockable( elem.remove_bool( "LOCKABLE", false ) ),
-      vendor_sells_for( elem.remove_ulong( "VENDORSELLSFOR", 0 ) ),
-      vendor_buys_for( elem.remove_ulong( "VENDORBUYSFOR", 0 ) ),
-      decay_time(
-          elem.remove_ulong( "DECAYTIME", Core::settingsManager.ssopt.default_decay_time ) ),
-      movable( DEFAULT ),
-      doubleclick_range( elem.remove_ushort(
-          "DoubleclickRange", Core::settingsManager.ssopt.default_doubleclick_range ) ),
-      use_requires_los( elem.remove_bool( "UseRequiresLOS", true ) ),  // Dave 11/24
-      ghosts_can_use( elem.remove_bool( "GhostsCanUse", false ) ),     // Dave 11/24
-      can_use_while_paralyzed( elem.remove_bool( "CanUseWhileParalyzed", false ) ),
-      can_use_while_frozen( elem.remove_bool( "CanUseWhileFrozen", false ) ),
-      newbie( elem.remove_bool( "NEWBIE", false ) ),
-      insured( elem.remove_bool( "INSURED", false ) ),
-      invisible( elem.remove_bool( "INVISIBLE", false ) ),
-      decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
-      blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
-      base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
-      quality( elem.remove_double( "QUALITY", 1.0 ) ),
-      props( Core::CPropProfiler::Type::ITEM ),
-      method_script( NULL ),
-      save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
+ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg ) :
+  type( type ),
+  pkg( pkg ),
+  objtype( objtype ),
+  graphic( elem.remove_ushort( "GRAPHIC", 0 ) ),
+  // Changed from Valid Color Mask to cfg mask in ssopt.
+  color( elem.remove_ushort( "COLOR", 0 ) & Core::settingsManager.ssopt.item_color_mask ),
+  facing( static_cast<unsigned char>( elem.remove_ushort( "FACING", 127 ) ) ),
+  desc( elem.remove_string( "DESC", "" ) ),
+  tooltip( elem.remove_string( "TOOLTIP", "" ) ),
+  walk_on_script( elem.remove_string( "WALKONSCRIPT", "" ), pkg, "scripts/items/" ),
+  on_use_script( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/items/" ),
+  equip_script( elem.remove_string( "EQUIPSCRIPT", "" ) ),
+  unequip_script( elem.remove_string( "UNEQUIPSCRIPT", "" ) ),
+  control_script( elem.remove_string( "CONTROLSCRIPT", "" ), pkg, "scripts/control/" ),
+  create_script( elem.remove_string( "CREATESCRIPT", "" ), pkg, "scripts/control/" ),
+  destroy_script( elem.remove_string( "DESTROYSCRIPT", "" ), pkg, "scripts/control/" ),
+  requires_attention( elem.remove_bool( "REQUIRESATTENTION", true ) ),
+  lockable( elem.remove_bool( "LOCKABLE", false ) ),
+  vendor_sells_for( elem.remove_ulong( "VENDORSELLSFOR", 0 ) ),
+  vendor_buys_for( elem.remove_ulong( "VENDORBUYSFOR", 0 ) ),
+  decay_time( elem.remove_ulong( "DECAYTIME", Core::settingsManager.ssopt.default_decay_time ) ),
+  movable( DEFAULT ),
+  doubleclick_range( elem.remove_ushort( "DoubleclickRange", Core::settingsManager.ssopt.default_doubleclick_range ) ),
+  use_requires_los( elem.remove_bool( "UseRequiresLOS", true ) ), //Dave 11/24
+  ghosts_can_use( elem.remove_bool( "GhostsCanUse", false ) ), //Dave 11/24
+  can_use_while_paralyzed( elem.remove_bool( "CanUseWhileParalyzed", false ) ),
+  can_use_while_frozen( elem.remove_bool( "CanUseWhileFrozen", false ) ),
+  newbie( elem.remove_bool( "NEWBIE", false ) ),
+  insured( elem.remove_bool("INSURED", false) ),
+  invisible( elem.remove_bool( "INVISIBLE", false ) ),
+  decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
+  blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
+  base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
+  quality( elem.remove_double( "QUALITY", 1.0 ) ),
+  props( Core::CPropProfiler::Type::ITEM ),
+  method_script( NULL ),
+  save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
 {
   if ( type == BOATDESC || type == HOUSEDESC )
   {
@@ -246,7 +244,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   if ( tooltip.length() > PKTOUT_B7_MAX_CHARACTERS )
   {
-    tooltip.erase( PKTOUT_B7_MAX_CHARACTERS, std::string::npos );
+    tooltip.erase(PKTOUT_B7_MAX_CHARACTERS, std::string::npos);
   }
 
   unsigned short in_movable;
@@ -300,19 +298,19 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     }
     else
     {
-      ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X} : Resource '{}' is malformed.\n" )
-          << objtype << temp;
-      throw std::runtime_error( "Configuration file error" );
+      ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X} : Resource '{}' is malformed.\n" ) << objtype << temp;
+      throw std::runtime_error("Configuration file error");
     }
   }
 
-  while ( elem.remove_prop( "Name", &temp ) || elem.remove_prop( "ObjtypeName", &temp ) )
+  while ( elem.remove_prop( "Name", &temp ) ||
+          elem.remove_prop( "ObjtypeName", &temp ) )
   {
+
     if ( Core::gamestate.objtype_byname.count( temp.c_str() ) )
     {
-      ERROR_PRINT.Format(
-          "Warning! objtype 0x{:X} : ObjtypeName '{}' is the same as objtype {:#X}\n" )
-          << objtype << temp << Core::gamestate.objtype_byname[temp.c_str()];
+      ERROR_PRINT.Format( "Warning! objtype 0x{:X} : ObjtypeName '{}' is the same as objtype {:#X}\n" ) << objtype
+          << temp << Core::gamestate.objtype_byname[temp.c_str()];
       // throw runtime_error( "Configuration file error" );
     }
     else
@@ -324,16 +322,16 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       objtypename = temp;
 
     /*
-            if (objtype_byname.count( temp.c_str() ))
-            {
-            cerr << "itemdesc.cfg, objtype 0x" << hex << objtype << dec
-            << ": Name '" << temp << "' has already been specified for objtype 0x"
-            << hex << objtype_byname[ temp.c_str() ] << dec << endl;
-            throw runtime_error( "Configuration file error" );
-            }
-            */
-    // if (!objtype_byname.count( temp.c_str() ))
-    //	objtype_byname[ temp.c_str() ] = objtype;
+        if (objtype_byname.count( temp.c_str() ))
+        {
+        cerr << "itemdesc.cfg, objtype 0x" << hex << objtype << dec
+        << ": Name '" << temp << "' has already been specified for objtype 0x"
+        << hex << objtype_byname[ temp.c_str() ] << dec << endl;
+        throw runtime_error( "Configuration file error" );
+        }
+        */
+    //if (!objtype_byname.count( temp.c_str() ))
+    //  objtype_byname[ temp.c_str() ] = objtype;
   }
 
   props.readProperties( elem );
@@ -341,7 +339,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   if ( elem.remove_prop( "MethodScript", &temp ) )
   {
     if ( pkg == NULL )
-      throw std::runtime_error( "MethodScripts can only be specified in a package" );
+      throw std::runtime_error("MethodScripts can only be specified in a package");
     if ( !temp.empty() )
     {
       Core::ExportScript* shs = new Core::ExportScript( pkg, temp );
@@ -357,17 +355,14 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   {
     if ( Core::gamestate.old_objtype_conversions.count( old_objtype ) )
     {
-      elem.throw_error( objtype_description() + " specifies OldObjtype " +
-                        Clib::hexint( old_objtype ) + " which is already mapped to " +
-                        find_itemdesc( Core::gamestate.old_objtype_conversions[old_objtype] )
-                            .objtype_description() );
+      elem.throw_error( objtype_description() + " specifies OldObjtype " + Clib::hexint( old_objtype )
+                        + " which is already mapped to " +
+                        find_itemdesc( Core::gamestate.old_objtype_conversions[old_objtype] ).objtype_description() );
     }
     if ( has_itemdesc( old_objtype ) )
     {
-      elem.throw_error(
-          objtype_description() + " specifies OldObjtype " + Clib::hexint( old_objtype ) +
-          " which is already defined as " +
-          find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
+      elem.throw_error( objtype_description() + " specifies OldObjtype " + Clib::hexint( old_objtype )
+                        + " which is already defined as " + find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
     }
     Core::gamestate.old_objtype_conversions[old_objtype] = objtype;
   }
@@ -414,26 +409,25 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       std::string errmsg;
       if ( !dice.load( tmp.c_str(), &errmsg ) )
       {
-        ERROR_PRINT << "Error loading itemdesc.cfg Elemental Resistances for "
-                    << objtype_description() << " : " << errmsg << "\n";
-        throw std::runtime_error( "Error loading Item Elemental Resistances" );
+        ERROR_PRINT << "Error loading itemdesc.cfg Elemental Resistances for " << objtype_description() << " : " << errmsg << "\n";
+        throw std::runtime_error("Error loading Item Elemental Resistances");
       }
       switch ( resist )
       {
       case Core::ELEMENTAL_FIRE:
-        element_resist.fire = dice.roll();
+        element_resist.fire = dice.roll( );
         break;
       case Core::ELEMENTAL_COLD:
-        element_resist.cold = dice.roll();
+        element_resist.cold = dice.roll( );
         break;
       case Core::ELEMENTAL_ENERGY:
-        element_resist.energy = dice.roll();
+        element_resist.energy = dice.roll( );
         break;
       case Core::ELEMENTAL_POISON:
-        element_resist.poison = dice.roll();
+        element_resist.poison = dice.roll( );
         break;
       case Core::ELEMENTAL_PHYSICAL:
-        element_resist.physical = dice.roll();
+        element_resist.physical = dice.roll( );
         break;
       }
     }
@@ -469,72 +463,71 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       std::string errmsg;
       if ( !dice.load( tmp.c_str(), &errmsg ) )
       {
-        ERROR_PRINT << "Error loading itemdesc.cfg elemental damages for " << objtype_description()
-                    << " : " << errmsg << "\n";
-        throw std::runtime_error( "Error loading Item Elemental Damages" );
+        ERROR_PRINT << "Error loading itemdesc.cfg elemental damages for " << objtype_description() << " : " << errmsg << "\n";
+        throw std::runtime_error("Error loading Item Elemental Damages");
       }
       switch ( edamage )
       {
       case Core::ELEMENTAL_FIRE:
-        element_damage.fire = dice.roll();
+        element_damage.fire = dice.roll( );
         break;
       case Core::ELEMENTAL_COLD:
-        element_damage.cold = dice.roll();
+        element_damage.cold = dice.roll( );
         break;
       case Core::ELEMENTAL_ENERGY:
-        element_damage.energy = dice.roll();
+        element_damage.energy = dice.roll( );
         break;
       case Core::ELEMENTAL_POISON:
-        element_damage.poison = dice.roll();
+        element_damage.poison = dice.roll( );
         break;
       case Core::ELEMENTAL_PHYSICAL:
-        element_damage.physical = dice.roll();
+        element_damage.physical = dice.roll( );
         break;
       }
     }
   }
 }
 
-ItemDesc::ItemDesc( Type type )
-    : type( type ),
-      pkg( NULL ),
-      objtype( 0 ),
-      graphic( 0 ),
-      color( 0 ),
-      facing( 127 ),
-      weightmult( 1 ),
-      weightdiv( 1 ),
-      desc( "" ),
-      tooltip( "" ),
-      // walk_on_script2(""),
-      // on_use_script2(""),
-      // control_script2(""),
-      // create_script2(""),
-      // destroy_script2(""),
-      requires_attention( false ),
-      lockable( false ),
-      vendor_sells_for( 0 ),
-      vendor_buys_for( 0 ),
-      decay_time( Core::settingsManager.ssopt.default_decay_time ),
-      movable( DEFAULT ),
-      doubleclick_range( Core::settingsManager.ssopt.default_doubleclick_range ),
-      use_requires_los( true ),
-      ghosts_can_use( false ),
-      can_use_while_paralyzed( false ),
-      can_use_while_frozen( false ),
-      newbie( false ),
-      insured( false ),
-      invisible( false ),
-      decays_on_multis( false ),
-      blocks_casting_if_in_hand( true ),
-      base_str_req( 0 ),
-      stack_limit( MAX_STACK_ITEMS ),
-      quality( 1.0 ),
-      multiid( 0xFFFF ),
-      maxhp( 0 ),
-      props( Core::CPropProfiler::Type::ITEM ),
-      method_script( NULL ),
-      save_on_exit( true )
+ItemDesc::ItemDesc( Type type ) :
+  type( type ),
+  pkg( NULL ),
+  objtype( 0 ),
+  graphic( 0 ),
+  color( 0 ),
+  facing( 127 ),
+  weightmult( 1 ),
+  weightdiv( 1 ),
+  desc( "" ),
+  tooltip( "" ),
+  //walk_on_script2(""),
+  //on_use_script2(""),
+  //control_script2(""),
+  //create_script2(""),
+  //destroy_script2(""),
+  requires_attention( false ),
+  lockable( false ),
+  vendor_sells_for( 0 ),
+  vendor_buys_for( 0 ),
+  decay_time( Core::settingsManager.ssopt.default_decay_time ),
+  movable( DEFAULT ),
+  doubleclick_range( Core::settingsManager.ssopt.default_doubleclick_range ),
+  use_requires_los( true ),
+  ghosts_can_use( false ),
+  can_use_while_paralyzed ( false ),
+  can_use_while_frozen ( false ),
+  newbie( false ),
+  insured( false ),
+  invisible( false ),
+  decays_on_multis( false ),
+  blocks_casting_if_in_hand( true ),
+  base_str_req( 0 ),
+  stack_limit( MAX_STACK_ITEMS ),
+  quality( 1.0 ),
+  multiid( 0xFFFF ),
+  maxhp( 0 ),
+  props( Core::CPropProfiler::Type::ITEM ),
+  method_script( NULL ),
+  save_on_exit( true )
 {
   memset( &element_resist, 0, sizeof( element_resist ) );
   memset( &element_damage, 0, sizeof( element_damage ) );
@@ -600,8 +593,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "ControlScript", new String( control_script.relativename( pkg ) ) );
   descriptor->addMember( "CreateScript", new String( create_script.relativename( pkg ) ) );
   descriptor->addMember( "DestroyScript", new String( destroy_script.relativename( pkg ) ) );
-  descriptor->addMember( "MethodScript",
-                         new String( method_script ? method_script->scriptname() : "" ) );
+  descriptor->addMember( "MethodScript", new String( method_script ? method_script->scriptname() : "" ) );
   descriptor->addMember( "RequiresAttention", new BLong( requires_attention ) );
   descriptor->addMember( "Lockable", new BLong( lockable ) );
   descriptor->addMember( "VendorSellsFor", new BLong( vendor_sells_for ) );
@@ -659,9 +651,9 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   std::vector<ResourceComponent>::const_iterator resource_itr;
   for ( resource_itr = resources.begin(); resource_itr != resources.end(); ++resource_itr )
   {
-    descriptor->addMember( "Resource", new String( resource_itr->rd->name() + " " +
-                                                   Clib::decint( resource_itr->amount ) ) );
+    descriptor->addMember( "Resource", new String( resource_itr->rd->name() + " " + Clib::decint( resource_itr->amount ) ) );
   }
+
 }
 
 void ItemDesc::unload_scripts()
@@ -692,46 +684,46 @@ bool ItemDesc::default_movable() const
 
 size_t ItemDesc::estimatedSize() const
 {
-  size_t size = sizeof( ItemDesc ) + objtypename.capacity() + tooltip.capacity() +
-                walk_on_script.estimatedSize() + on_use_script.estimatedSize() +
-                control_script.estimatedSize() + create_script.estimatedSize() +
-                destroy_script.estimatedSize() + 3 * sizeof( ResourceComponent* ) +
-                resources.capacity() * sizeof( ResourceComponent ) + props.estimatedSize();
-  size += 3 * sizeof( void* );
+  size_t size = sizeof(ItemDesc)
+                +objtypename.capacity()
+                + tooltip.capacity()
+                + walk_on_script.estimatedSize()
+                + on_use_script.estimatedSize()
+                + control_script.estimatedSize()
+                + create_script.estimatedSize()
+                + destroy_script.estimatedSize()
+                + 3 * sizeof(ResourceComponent*)+resources.capacity() * sizeof(ResourceComponent)
+                +props.estimatedSize();
+  size += 3 * sizeof( void*);
   for ( const auto& ignore : ignore_cprops )
   {
-    size += ignore.capacity() + 3 * sizeof( void* );
+    size += ignore.capacity( ) + 3 * sizeof( void*);
   }
   return size;
 }
 
-ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : ItemDesc( objtype, elem, CONTAINERDESC, pkg ),
-      gump( elem.remove_ushort( "GUMP" ) ),
-      minx( elem.remove_ushort( "MINX" ) ),
-      maxx( elem.remove_ushort( "MAXX" ) ),
-      miny( elem.remove_ushort( "MINY" ) ),
-      maxy( elem.remove_ushort( "MAXY" ) ),
-      max_weight( elem.remove_ushort( "MAXWEIGHT",
-                                      Core::settingsManager.ssopt.default_container_max_weight ) ),
-      max_items( elem.remove_ushort( "MAXITEMS",
-                                     Core::settingsManager.ssopt.default_container_max_items ) ),
-      max_slots( static_cast<u8>(
-          elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
-      can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
-      on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
-      can_remove_script( elem.remove_string( "CANREMOVESCRIPT", "" ), pkg, "scripts/control/" ),
-      on_remove_script( elem.remove_string( "ONREMOVESCRIPT", "" ), pkg, "scripts/control/" )
+ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  ItemDesc( objtype, elem, CONTAINERDESC, pkg ),
+  gump( elem.remove_ushort( "GUMP" ) ),
+  minx( elem.remove_ushort( "MINX" ) ),
+  maxx( elem.remove_ushort( "MAXX" ) ),
+  miny( elem.remove_ushort( "MINY" ) ),
+  maxy( elem.remove_ushort( "MAXY" ) ),
+  max_weight( elem.remove_ushort( "MAXWEIGHT", Core::settingsManager.ssopt.default_container_max_weight ) ),
+  max_items( elem.remove_ushort( "MAXITEMS", Core::settingsManager.ssopt.default_container_max_items ) ),
+  max_slots( static_cast<u8>( elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
+  can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
+  on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
+  can_remove_script( elem.remove_string( "CANREMOVESCRIPT", "" ), pkg, "scripts/control/" ),
+  on_remove_script( elem.remove_string( "ONREMOVESCRIPT", "" ), pkg, "scripts/control/" )
 {
-  // FIXME: in theory, should never happen due to conversion to u8. Maybe here as note during
-  // rewrite. Add a remove_uchar/remove_char for allowing
+  // FIXME: in theory, should never happen due to conversion to u8. Maybe here as note during rewrite. Add a remove_uchar/remove_char for allowing
   // use of max 0-255 integers control due to packet limits, in configuration files. Yay.
-  //	if ( max_slots > 255 )
-  //	{
-  //			cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined.
-  // MaxSlots max value is 255. Setting to 255." << endl;
-  //			max_slots = 255;
-  //	}
+  //  if ( max_slots > 255 )
+  //  {
+  //      cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined. MaxSlots max value is 255. Setting to 255." << endl;
+  //      max_slots = 255;
+  //  }
 }
 
 void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
@@ -754,25 +746,27 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 
 size_t ContainerDesc::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( u16 ) /*gump*/
-         + sizeof( u16 )                       /*minx*/
-         + sizeof( u16 )                       /*maxx*/
-         + sizeof( u16 )                       /*miny*/
-         + sizeof( u16 )                       /*maxy*/
-         + sizeof( u16 )                       /*max_weight*/
-         + sizeof( u16 )                       /*max_items*/
-         + sizeof( u8 )                        /*max_slots*/
-         + can_insert_script.estimatedSize() + on_insert_script.estimatedSize() +
-         can_remove_script.estimatedSize() + on_remove_script.estimatedSize();
+  return base::estimatedSize()
+         + sizeof(u16) /*gump*/
+         +sizeof(u16) /*minx*/
+         +sizeof(u16) /*maxx*/
+         +sizeof(u16) /*miny*/
+         +sizeof(u16) /*maxy*/
+         +sizeof(u16) /*max_weight*/
+         +sizeof(u16) /*max_items*/
+         +sizeof(u8) /*max_slots*/
+         +can_insert_script.estimatedSize()
+         + on_insert_script.estimatedSize()
+         + can_remove_script.estimatedSize()
+         + on_remove_script.estimatedSize();
 }
 
-DoorDesc::DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : ItemDesc( objtype, elem, DOORDESC, pkg ),
-      xmod( static_cast<s16>( elem.remove_int( "XMOD" ) ) ),
-      ymod( static_cast<s16>( elem.remove_int( "YMOD" ) ) ),
-      open_graphic( elem.remove_ushort( "OPENGRAPHIC", 0 ) )
-{
-}
+DoorDesc::DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  ItemDesc( objtype, elem, DOORDESC, pkg ),
+  xmod( static_cast<s16>( elem.remove_int( "XMOD" ) ) ),
+  ymod( static_cast<s16>( elem.remove_int( "YMOD" ) ) ),
+  open_graphic( elem.remove_ushort( "OPENGRAPHIC", 0 ) )
+{}
 
 void DoorDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
@@ -781,16 +775,18 @@ void DoorDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "YMod", new Bscript::BLong( ymod ) );
   descriptor->addMember( "OpenGraphic", new Bscript::BLong( open_graphic ) );
 }
-size_t DoorDesc::estimatedSize() const
+size_t DoorDesc::estimatedSize( ) const
 {
-  return base::estimatedSize() + sizeof( s16 ) /*xmod*/
-         + sizeof( s16 )                       /*ymod*/
-         + sizeof( u16 )                       /*open_graphic*/
-      ;
+  return base::estimatedSize()
+         + sizeof(s16)/*xmod*/
+         +sizeof(s16)/*ymod*/
+         +sizeof( u16 )/*open_graphic*/
+         ;
 }
 
-SpellbookDesc::SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : ContainerDesc( objtype, elem, pkg ), spelltype( elem.remove_string( "SPELLTYPE" ) )
+SpellbookDesc::SpellbookDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  ContainerDesc( objtype, elem, pkg ),
+  spelltype( elem.remove_string( "SPELLTYPE" ) )
 {
   type = SPELLBOOKDESC;
 }
@@ -801,16 +797,15 @@ void SpellbookDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "Spelltype", new Bscript::String( spelltype ) );
 }
 
-size_t SpellbookDesc::estimatedSize() const
+size_t SpellbookDesc::estimatedSize( ) const
 {
-  return base::estimatedSize() + spelltype.capacity();
+  return base::estimatedSize( ) + spelltype.capacity();
 }
 
-SpellScrollDesc::SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : ItemDesc( objtype, elem, SPELLSCROLLDESC, pkg ),
-      spelltype( elem.remove_string( "SPELLTYPE" ) )
-{
-}
+SpellScrollDesc::SpellScrollDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  ItemDesc( objtype, elem, SPELLSCROLLDESC, pkg ),
+  spelltype( elem.remove_string( "SPELLTYPE" ) )
+{}
 
 void SpellScrollDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
@@ -823,42 +818,42 @@ size_t SpellScrollDesc::estimatedSize() const
   return base::estimatedSize() + spelltype.capacity();
 }
 
-MultiDesc::MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg )
-    : ItemDesc( objtype, elem, type, pkg )
+MultiDesc::MultiDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::Package* pkg ) :
+  ItemDesc( objtype, elem, type, pkg )
 {
   if ( !Multi::MultiDefByMultiIDExists( multiid ) )
   {
-    elem.throw_error( "Multi definition not found.  Objtype=" + Clib::hexint( objtype ) +
-                      ", multiid=" + Clib::hexint( multiid ) );
+    elem.throw_error( "Multi definition not found.  Objtype="
+                      + Clib::hexint( objtype )
+                      + ", multiid="
+                      + Clib::hexint( multiid ) );
   }
 }
 void MultiDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
 }
-size_t MultiDesc::estimatedSize() const
+size_t MultiDesc::estimatedSize( ) const
 {
   return base::estimatedSize();
 }
 
-BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : MultiDesc( objtype, elem, BOATDESC, pkg )
-{
-}
+BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  MultiDesc( objtype, elem, BOATDESC, pkg )
+{}
 
 void BoatDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
 }
-size_t BoatDesc::estimatedSize() const
+size_t BoatDesc::estimatedSize( ) const
 {
-  return base::estimatedSize();
+  return base::estimatedSize( );
 }
 
-HouseDesc::HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : MultiDesc( objtype, elem, HOUSEDESC, pkg )
-{
-}
+HouseDesc::HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  MultiDesc( objtype, elem, HOUSEDESC, pkg )
+{}
 
 void HouseDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
@@ -869,10 +864,10 @@ size_t HouseDesc::estimatedSize() const
   return base::estimatedSize();
 }
 
-MapDesc::MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : ItemDesc( objtype, elem, MAPDESC, pkg ), editable( elem.remove_bool( "EDITABLE", true ) )
-{
-}
+MapDesc::MapDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg ) :
+  ItemDesc( objtype, elem, MAPDESC, pkg ),
+  editable( elem.remove_bool( "EDITABLE", true ) )
+{}
 
 void MapDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
@@ -881,7 +876,7 @@ void MapDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 }
 size_t MapDesc::estimatedSize() const
 {
-  return sizeof( bool ) /*editable*/ + base::estimatedSize();
+  return sizeof(bool)/*editable*/+base::estimatedSize( );
 }
 
 bool has_itemdesc( u32 objtype )
@@ -913,7 +908,7 @@ unsigned short getgraphic( u32 objtype )
   }
   else
   {
-    // Log( "Objtype "  + hexint(objtype) + " must define a graphic\n" );
+    //Log( "Objtype "  + hexint(objtype) + " must define a graphic\n" );
     throw std::runtime_error( "Objtype " + Clib::hexint( objtype ) + " must define a graphic" );
     passert( 0 );
     return 0;
@@ -931,15 +926,14 @@ const ItemDesc& find_itemdesc( unsigned int objtype )
   if ( obj != Core::gamestate.desctable.end() )
     return *( obj->second );
   else
-    return *( Core::gamestate.empty_itemdesc.get() );
+    return *(Core::gamestate.empty_itemdesc.get());
 }
 
 const ContainerDesc& find_container_desc( u32 objtype )
 {
   const ContainerDesc* cd = static_cast<const ContainerDesc*>( &find_itemdesc( objtype ) );
   passert_r( ( cd->type == ItemDesc::CONTAINERDESC ) || ( cd->type == ItemDesc::SPELLBOOKDESC ),
-             "ObjType " + Clib::hexint( objtype ) +
-                 " should be defined as container or spellbook, but is not" );
+             "ObjType " + Clib::hexint( objtype ) + " should be defined as container or spellbook, but is not" );
   return *cd;
 }
 
@@ -967,27 +961,24 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
   Bscript::BStruct::Contents::const_iterator itr;
   for ( itr = struct_cont.begin(); itr != struct_cont.end(); ++itr )
   {
-    const std::string& key = ( *itr ).first;
-    Bscript::BObjectImp* val_imp = ( *itr ).second->impptr();
+    const std::string& key = (*itr).first;
+    Bscript::BObjectImp* val_imp = ( *itr ).second->impptr( );
 
     if ( key == "CProps" )
     {
       if ( val_imp->isa( Bscript::BObjectImp::OTDictionary ) )
       {
         Bscript::BDictionary* cpropdict = static_cast<Bscript::BDictionary*>( val_imp );
-        const Bscript::BDictionary::Contents& cprop_cont = cpropdict->contents();
+        const Bscript::BDictionary::Contents& cprop_cont = cpropdict->contents( );
         Bscript::BDictionary::Contents::const_iterator ditr;
         for ( ditr = cprop_cont.begin(); ditr != cprop_cont.end(); ++ditr )
         {
-          elem.add_prop( "cprop", ( ( *ditr ).first->getStringRep() + "\t" +
-                                    ( *ditr ).second->impptr()->pack() )
-                                      .c_str() );
+          elem.add_prop( "cprop", ( ( *ditr ).first->getStringRep() + "\t" + ( *ditr ).second->impptr()->pack() ).c_str() );
         }
       }
       else
       {
-        throw std::runtime_error( "CreateItemDescriptor: CProps must be a dictionary, but is: " +
-                                  std::string( val_imp->typeOf() ) );
+        throw std::runtime_error("CreateItemDescriptor: CProps must be a dictionary, but is: " + std::string(val_imp->typeOf()));
       }
     }
     else if ( key == "StackingIgnoresCProps" )
@@ -996,7 +987,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       {
         OSTRINGSTREAM os;
         // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* ignorecp = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
+        Bscript::ObjArray* ignorecp = static_cast<Bscript::ObjArray*>( itr->second->impptr( ) );
         const Bscript::ObjArray::Cont& conts = ignorecp->ref_arr;
         Bscript::ObjArray::Cont::const_iterator aitr;
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
@@ -1007,17 +998,15 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       }
       else
       {
-        throw std::runtime_error(
-            "CreateItemDescriptor: StackingIgnoresCProps must be an array, but is: " +
-            std::string( val_imp->typeOf() ) );
+        throw std::runtime_error("CreateItemDescriptor: StackingIgnoresCProps must be an array, but is: " + std::string(val_imp->typeOf()));
       }
     }
-    else if ( key == "Coverage" )  // Dave 7/13 needs to be parsed out into individual lines
+    else if ( key == "Coverage" ) //Dave 7/13 needs to be parsed out into individual lines
     {
       if ( val_imp->isa( Bscript::BObjectImp::OTArray ) )
       {
         // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* coverage = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
+        Bscript::ObjArray* coverage = static_cast<Bscript::ObjArray*>( itr->second->impptr( ) );
         const Bscript::ObjArray::Cont& conts = coverage->ref_arr;
         Bscript::ObjArray::Cont::const_iterator aitr;
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
@@ -1029,8 +1018,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       }
       else
       {
-        throw std::runtime_error( "CreateItemDescriptor: Coverage must be an array, but is: " +
-                                  std::string( val_imp->typeOf() ) );
+        throw std::runtime_error("CreateItemDescriptor: Coverage must be an array, but is: " + std::string(val_imp->typeOf()));
       }
     }
     else if ( key == "ObjClass" )
@@ -1043,8 +1031,10 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       std::string value = val_imp->getStringRep();
       elem.set_rest( value.c_str() );
     }
-    else if ( Clib::strlower( key ) == "name" || Clib::strlower( key ) == "objtypename" ||
-              Clib::strlower( key ) == "oldobjtype" || Clib::strlower( key ) == "methodscript" ||
+    else if ( Clib::strlower( key ) == "name" ||
+              Clib::strlower( key ) == "objtypename" ||
+              Clib::strlower( key ) == "oldobjtype" ||
+              Clib::strlower( key ) == "methodscript" ||
               Clib::strlower( key ) == "weight" )
     {
       // all of these only affect the main descriptor, so they're left out.
@@ -1069,18 +1059,19 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
 }
 
 
+
+
 void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
 {
   /*
-      if (1)
-      {
-      ref_ptr<StoredConfigFile> scfg = FindConfigFile( "config/itemdesc.cfg" );
-      ConfigFile cf( filename );
-      scfg->load( cf );
-      }
-      */
-  Clib::ConfigFile cf( filename,
-                       "CONTAINER ITEM DOOR WEAPON ARMOR BOAT HOUSE SPELLBOOK SPELLSCROLL MAP" );
+    if (1)
+    {
+    ref_ptr<StoredConfigFile> scfg = FindConfigFile( "config/itemdesc.cfg" );
+    ConfigFile cf( filename );
+    scfg->load( cf );
+    }
+    */
+  Clib::ConfigFile cf( filename, "CONTAINER ITEM DOOR WEAPON ARMOR BOAT HOUSE SPELLBOOK SPELLSCROLL MAP" );
 
   Clib::ConfigElem elem;
   while ( cf.read( elem ) )
@@ -1088,11 +1079,10 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
     ItemDesc* descriptor = ItemDesc::create( elem, pkg );
 
 
-    // string unused_name, unused_value;
-    // while (elem.remove_first_prop( &unused_name, &unused_value ))
+    //string unused_name, unused_value;
+    //while (elem.remove_first_prop( &unused_name, &unused_value ))
     //{
-    //	elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is
-    // unused." );
+    //  elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is unused." );
     //}
 
     if ( has_itemdesc( descriptor->objtype ) )
@@ -1102,11 +1092,10 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
       if ( find_itemdesc( descriptor->objtype ).pkg == NULL )
         tmp << "config/itemdesc.cfg\n";
       else
-        tmp << find_itemdesc( descriptor->objtype ).pkg->dir() << "itemdesc.cfg\n";
+        tmp << find_itemdesc( descriptor->objtype ).pkg->dir( ) << "itemdesc.cfg\n";
       ERROR_PRINT << tmp.str();
 
-      elem.throw_error( "ObjType " + Clib::hexint( descriptor->objtype ) +
-                        " defined more than once." );
+      elem.throw_error( "ObjType " + Clib::hexint( descriptor->objtype ) + " defined more than once." );
     }
     Core::gamestate.desctable[descriptor->objtype] = descriptor;
 
@@ -1117,8 +1106,8 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
 
 void load_package_itemdesc( Plib::Package* pkg )
 {
-  // string filename = pkg->dir() + "itemdesc.cfg";
-  std::string filename = GetPackageCfgPath( pkg, "itemdesc.cfg" );
+  //string filename = pkg->dir() + "itemdesc.cfg";
+  std::string filename = GetPackageCfgPath(pkg, "itemdesc.cfg");
   if ( Clib::FileExists( filename.c_str() ) )
   {
     read_itemdesc_file( filename.c_str(), pkg );
@@ -1127,7 +1116,7 @@ void load_package_itemdesc( Plib::Package* pkg )
 
 void write_objtypes_txt()
 {
-  std::ofstream ofs( "objtypes.txt" );
+  std::ofstream ofs("objtypes.txt");
   unsigned int last_objtype = 0;
   for ( const auto& elem : Core::gamestate.desctable )
   {
@@ -1159,10 +1148,12 @@ void write_objtypes_txt()
         ofs << " " << itemdesc->pkg->name();
       ofs << '\n';
     }
-    else  // it's converted
+    else // it's converted
     {
-      ofs << "# " << Clib::hexint( i ) << " converts to "
-          << Clib::hexint( (int)Core::gamestate.old_objtype_conversions[i] ) << '\n';
+      ofs << "# " << Clib::hexint( i )
+          << " converts to "
+          << Clib::hexint( (int)Core::gamestate.old_objtype_conversions[i] )
+          << '\n';
     }
 
     last_objtype = i;
@@ -1185,13 +1176,13 @@ void write_objtypes_txt()
 
 void load_itemdesc()
 {
-  //	CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
+  //  CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
   if ( Clib::FileExists( "config/itemdesc.cfg" ) )
     read_itemdesc_file( "config/itemdesc.cfg" );
-  //	read_itemdesc_file( "config/wepndesc.cfg" );
-  //	read_itemdesc_file( "config/armrdesc.cfg" );
-  for ( auto& pkg : Plib::systemstate.packages )
-    load_package_itemdesc( pkg );
+  //  read_itemdesc_file( "config/wepndesc.cfg" );
+  //  read_itemdesc_file( "config/armrdesc.cfg" );
+  for (auto& pkg: Plib::systemstate.packages )
+    load_package_itemdesc(pkg);
 
   write_objtypes_txt();
 }
@@ -1214,6 +1205,7 @@ void unload_itemdesc()
     delete item;
   }
   Core::gamestate.dynamic_item_descriptors.clear();
+
 }
 
 void remove_resources( u32 objtype, u16 /*amount*/ )

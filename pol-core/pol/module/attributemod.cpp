@@ -19,30 +19,33 @@
 
 namespace Pol
 {
+
 namespace Bscript
 {
-template <>
-TmplExecutorModule<Module::AttributeExecutorModule>::FunctionDef TmplExecutorModule<
-    Module::AttributeExecutorModule>::function_table[] = {
-    {"CheckSkill", &Module::AttributeExecutorModule::mf_CheckSkill},
-    {"GetAttributeName", &Module::AttributeExecutorModule::mf_GetAttributeName},
-    {"GetAttributeDefaultCap", &Module::AttributeExecutorModule::mf_GetAttributeDefaultCap},
-    {"GetAttribute", &Module::AttributeExecutorModule::mf_GetAttribute},
-    {"GetAttributeBaseValue", &Module::AttributeExecutorModule::mf_GetAttributeBaseValue},
-    {"GetAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_GetAttributeTemporaryMod},
-    {"GetAttributeIntrinsicMod", &Module::AttributeExecutorModule::mf_GetAttributeIntrinsicMod},
-    {"GetAttributeLock", &Module::AttributeExecutorModule::mf_GetAttributeLock},
-    {"GetAttributeCap", &Module::AttributeExecutorModule::mf_GetAttributeCap},
-    {"SetAttributeCap", &Module::AttributeExecutorModule::mf_SetAttributeCap},
-    {"SetAttributeLock", &Module::AttributeExecutorModule::mf_SetAttributeLock},
-    {"SetAttributeBaseValue", &Module::AttributeExecutorModule::mf_SetAttributeBaseValue},
-    {"SetAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_SetAttributeTemporaryMod},
-    {"AlterAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
-    {"RawSkillToBaseSkill", &Module::AttributeExecutorModule::mf_RawSkillToBase},
-    {"BaseSkillToRawSkill", &Module::AttributeExecutorModule::mf_BaseSkillToRaw}};
-template <>
+template<>
+TmplExecutorModule<Module::AttributeExecutorModule>::FunctionDef
+TmplExecutorModule<Module::AttributeExecutorModule>::function_table[] =
+{
+  { "CheckSkill", &Module::AttributeExecutorModule::mf_CheckSkill },
+  { "GetAttributeName", &Module::AttributeExecutorModule::mf_GetAttributeName },
+  { "GetAttributeDefaultCap", &Module::AttributeExecutorModule::mf_GetAttributeDefaultCap },
+  { "GetAttribute", &Module::AttributeExecutorModule::mf_GetAttribute },
+  { "GetAttributeBaseValue", &Module::AttributeExecutorModule::mf_GetAttributeBaseValue },
+  { "GetAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_GetAttributeTemporaryMod },
+  { "GetAttributeIntrinsicMod", &Module::AttributeExecutorModule::mf_GetAttributeIntrinsicMod },
+  { "GetAttributeLock", &Module::AttributeExecutorModule::mf_GetAttributeLock },
+  { "GetAttributeCap", &Module::AttributeExecutorModule::mf_GetAttributeCap },
+  { "SetAttributeCap", &Module::AttributeExecutorModule::mf_SetAttributeCap },
+  { "SetAttributeLock", &Module::AttributeExecutorModule::mf_SetAttributeLock },
+  { "SetAttributeBaseValue", &Module::AttributeExecutorModule::mf_SetAttributeBaseValue },
+  { "SetAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_SetAttributeTemporaryMod },
+  { "AlterAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_AlterAttributeTemporaryMod },
+  { "RawSkillToBaseSkill", &Module::AttributeExecutorModule::mf_RawSkillToBase },
+  { "BaseSkillToRawSkill", &Module::AttributeExecutorModule::mf_BaseSkillToRaw }
+};
+template<>
 int TmplExecutorModule<Module::AttributeExecutorModule>::function_table_size =
-    arsize( function_table );
+  arsize( function_table );
 }
 namespace Module
 {
@@ -55,8 +58,10 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_CheckSkill()
   int difficulty;
   unsigned short points;
 
-  if ( Core::getCharacterParam( exec, 0, chr ) && getSkillIdParam( exec, 1, skillid ) &&
-       getParam( 2, difficulty ) && getParam( 3, points ) )
+  if ( Core::getCharacterParam( exec, 0, chr ) &&
+       getSkillIdParam( exec, 1, skillid ) &&
+       getParam( 2, difficulty ) &&
+       getParam( 3, points ) )
   {
     return new Bscript::BLong( chr->check_skill( skillid, difficulty, points ) );
   }
@@ -95,10 +100,11 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname 
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.effective() );
+    return new Bscript::BLong( av.effective( ) );
   }
   else
   {
@@ -111,10 +117,11 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeBaseValue( /* mob, 
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.base() );
+    return new Bscript::BLong( av.base( ) );
   }
   else
   {
@@ -127,10 +134,11 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeTemporaryMod( /* mo
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.temp_mod() );
+    return new Bscript::BLong( av.temp_mod( ) );
   }
   else
   {
@@ -143,10 +151,11 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeIntrinsicMod( /* mo
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.intrinsic_mod() );
+    return new Bscript::BLong( av.intrinsic_mod( ) );
   }
   else
   {
@@ -159,10 +168,11 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeLock( /* mob, attrn
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.lock() );
+    return new Bscript::BLong( av.lock( ) );
   }
   else
   {
@@ -174,10 +184,11 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeCap( /* mob, attrna
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.cap() );
+    return new Bscript::BLong( av.cap( ) );
   }
   else
   {
@@ -193,7 +204,8 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeCap( /* mob, attrib
 
   // FIXME: SetAttributeCap(mob, attributeid) should reset cap to default value :)
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) &&
        getParam( 2, capvalue, ATTRIBUTE_MIN_BASE, ATTRIBUTE_MAX_BASE ) )
   {
     chr->set_dirty();
@@ -214,16 +226,15 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeCap( /* mob, attrib
   }
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeLock(
-    /* mob, attributeid, lockstate */ )
+Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeLock( /* mob, attributeid, lockstate */ )
 {
   Character* chr;
   const Attribute* attr;
   unsigned short lockstate;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
-       getParam( 2, lockstate, 0,
-                 2 ) )  // FIXME: hard-coded lock states min and max (0 and 2) -- Nando
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) &&
+       getParam( 2, lockstate, 0, 2 ) ) // FIXME: hard-coded lock states min and max (0 and 2) -- Nando
   {
     chr->set_dirty();
     AttributeValue& av = chr->attribute( attr->attrid );
@@ -244,14 +255,14 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeLock(
   }
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeBaseValue(
-    /* mob, attributeid, basevalue */ )
+Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeBaseValue( /* mob, attributeid, basevalue */ )
 {
   Character* chr;
   const Attribute* attr;
   unsigned short basevalue;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) &&
        getParam( 2, basevalue, ATTRIBUTE_MIN_BASE, ATTRIBUTE_MAX_BASE ) )
   {
     chr->set_dirty();
@@ -277,14 +288,14 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeBaseValue(
   }
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeTemporaryMod(
-    /* mob, attributeid, temporary_mod */ )
+Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeTemporaryMod( /* mob, attributeid, temporary_mod */ )
 {
   Character* chr;
   const Attribute* attr;
   int tempmod;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) &&
        getParam( 2, tempmod, ATTRIBUTE_MIN_TEMP_MOD, ATTRIBUTE_MAX_TEMP_MOD ) )
   {
     AttributeValue& av = chr->attribute( attr->attrid );
@@ -309,14 +320,14 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeTemporaryMod(
   }
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
-    /* mob, attributeid, temporary_mod */ )
+Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod( /* mob, attributeid, temporary_mod */ )
 {
   Character* chr;
   const Attribute* attr;
   int delta;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( exec, 0, chr ) &&
+       Core::getAttributeParam( exec, 1, attr ) &&
        getParam( 2, delta ) )
   {
     AttributeValue& av = chr->attribute( attr->attrid );
@@ -347,7 +358,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
 }
 
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBase()
+Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBase( )
 {
   int rawskill;
   if ( getParam( 0, rawskill ) )
@@ -362,7 +373,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBase()
   }
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRaw()
+Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRaw( )
 {
   unsigned short baseskill;
   if ( getParam( 0, baseskill ) )

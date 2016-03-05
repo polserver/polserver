@@ -6,7 +6,7 @@
 #include "osmod.h"
 
 #include "uomod.h"
-#include "npcmod.h"  // necessary for reporting which npc is discarding events when the queue is full
+#include "npcmod.h" // necessary for reporting which npc is discarding events when the queue is full
 
 #include "../uoexec.h"
 
@@ -21,7 +21,7 @@
 
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
-#include "../mobile/npc.h"  // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
+#include "../mobile/npc.h" // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
 
 #include "../exscrobj.h"
 #include "../globals/script_internals.h"
@@ -47,7 +47,7 @@
 #include <ctime>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp POSIX deprecation warning
+#pragma warning(disable:4996) // stricmp POSIX deprecation warning
 #endif
 
 namespace Pol
@@ -61,12 +61,10 @@ unsigned int getnewpid( Core::UOExecutor* uoexec )
   for ( ;; )
   {
     unsigned int newpid = Core::scriptEngineInternalManager.next_pid++;
-    if ( newpid < Core::ScriptEngineInternalManager::PID_MIN )
+    if( newpid < Core::ScriptEngineInternalManager::PID_MIN )
       newpid = Core::ScriptEngineInternalManager::PID_MIN;
-    if ( newpid != 0 &&  // newpid=0 should now never happen but leaving this check in place for
-                         // extra code robustness
-         Core::scriptEngineInternalManager.pidlist.find( newpid ) ==
-             Core::scriptEngineInternalManager.pidlist.end() )
+    if ( newpid != 0 && // newpid=0 should now never happen but leaving this check in place for extra code robustness
+         Core::scriptEngineInternalManager.pidlist.find( newpid ) == Core::scriptEngineInternalManager.pidlist.end() )
     {
       Core::scriptEngineInternalManager.pidlist[newpid] = uoexec;
       return newpid;
@@ -78,21 +76,20 @@ void freepid( unsigned int pid )
   Core::scriptEngineInternalManager.pidlist.erase( pid );
 }
 
-OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
-    : ExecutorModule( "OS", exec ),
-      critical( false ),
-      priority( 1 ),
-      warn_on_runaway( true ),
-      blocked_( false ),
-      sleep_until_clock_( 0 ),
-      in_hold_list_( NO_LIST ),
-      hold_itr_(),
-      pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
-      wait_type( WAIT_UNKNOWN ),
-      max_eventqueue_size( MAX_EVENTQUEUE_SIZE ),
-      events_()
-{
-}
+OSExecutorModule::OSExecutorModule( Bscript::Executor& exec ) :
+  ExecutorModule( "OS", exec ),
+  critical( false ),
+  priority( 1 ),
+  warn_on_runaway( true ),
+  blocked_( false ),
+  sleep_until_clock_( 0 ),
+  in_hold_list_( NO_LIST ),
+  hold_itr_(),
+  pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
+  wait_type( WAIT_UNKNOWN ),
+  max_eventqueue_size( MAX_EVENTQUEUE_SIZE ),
+  events_()
+{}
 
 OSExecutorModule::~OSExecutorModule()
 {
@@ -100,7 +97,7 @@ OSExecutorModule::~OSExecutorModule()
   pid_ = 0;
   while ( !events_.empty() )
   {
-    Bscript::BObject ob( events_.front() );
+    Bscript::BObject ob( events_.front( ) );
     events_.pop();
   }
 }
@@ -115,32 +112,34 @@ bool OSExecutorModule::blocked() const
   return blocked_;
 }
 
-OSFunctionDef OSExecutorModule::function_table[] = {
-    {"create_debug_context", &OSExecutorModule::create_debug_context},
-    {"getprocess", &OSExecutorModule::getprocess},
-    {"get_process", &OSExecutorModule::getprocess},
-    {"getpid", &OSExecutorModule::getpid},
-    {"sleep", &OSExecutorModule::sleep},
-    {"sleepms", &OSExecutorModule::sleepms},
-    {"wait_for_event", &OSExecutorModule::wait_for_event},
-    {"events_waiting", &OSExecutorModule::events_waiting},
-    {"start_script", &OSExecutorModule::start_script},
-    {"start_skill_script", &OSExecutorModule::start_skill_script},
-    {"set_critical", &OSExecutorModule::set_critical},
-    {"is_critical", &OSExecutorModule::is_critical},
-    {"run_script_to_completion", &OSExecutorModule::run_script_to_completion},
-    {"run_script", &OSExecutorModule::run_script},
-    {"set_debug", &OSExecutorModule::mf_set_debug},
-    {"syslog", &OSExecutorModule::mf_Log},
-    {"system_rpm", &OSExecutorModule::mf_system_rpm},
-    {"set_priority", &OSExecutorModule::mf_set_priority},
-    {"unload_scripts", &OSExecutorModule::mf_unload_scripts},
-    {"set_script_option", &OSExecutorModule::mf_set_script_option},
-    {"clear_event_queue", &OSExecutorModule::mf_clear_event_queue},
-    {"set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size},
-    {"OpenURL", &OSExecutorModule::mf_OpenURL},
-    {"OpenConnection", &OSExecutorModule::mf_OpenConnection},
-    {"Debugger", &OSExecutorModule::mf_debugger}};
+OSFunctionDef OSExecutorModule::function_table[] =
+{
+  { "create_debug_context", &OSExecutorModule::create_debug_context },
+  { "getprocess", &OSExecutorModule::getprocess },
+  { "get_process", &OSExecutorModule::getprocess },
+  { "getpid", &OSExecutorModule::getpid },
+  { "sleep", &OSExecutorModule::sleep },
+  { "sleepms", &OSExecutorModule::sleepms },
+  { "wait_for_event", &OSExecutorModule::wait_for_event },
+  { "events_waiting", &OSExecutorModule::events_waiting },
+  { "start_script", &OSExecutorModule::start_script },
+  { "start_skill_script", &OSExecutorModule::start_skill_script },
+  { "set_critical", &OSExecutorModule::set_critical },
+  { "is_critical", &OSExecutorModule::is_critical },
+  { "run_script_to_completion", &OSExecutorModule::run_script_to_completion },
+  { "run_script", &OSExecutorModule::run_script },
+  { "set_debug", &OSExecutorModule::mf_set_debug },
+  { "syslog", &OSExecutorModule::mf_Log },
+  { "system_rpm", &OSExecutorModule::mf_system_rpm },
+  { "set_priority", &OSExecutorModule::mf_set_priority },
+  { "unload_scripts", &OSExecutorModule::mf_unload_scripts },
+  { "set_script_option", &OSExecutorModule::mf_set_script_option },
+  { "clear_event_queue", &OSExecutorModule::mf_clear_event_queue },
+  { "set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size },
+  { "OpenURL", &OSExecutorModule::mf_OpenURL },
+  { "OpenConnection", &OSExecutorModule::mf_OpenConnection },
+  { "Debugger", &OSExecutorModule::mf_debugger }
+};
 
 int OSExecutorModule::functionIndex( const char* name )
 {
@@ -154,7 +153,7 @@ int OSExecutorModule::functionIndex( const char* name )
 
 BObjectImp* OSExecutorModule::execFunc( unsigned funcidx )
 {
-  return callMemberFunction ( *this, function_table[funcidx].fptr )();
+  return callMemberFunction( *this, function_table[funcidx].fptr )( );
 };
 
 std::string OSExecutorModule::functionName( unsigned idx )
@@ -177,6 +176,7 @@ BObjectImp* OSExecutorModule::mf_debugger()
   }
   else
     return new BError( "Could not find UOExecutor for current process." );
+
 }
 
 BObjectImp* OSExecutorModule::getprocess()
@@ -189,6 +189,7 @@ BObjectImp* OSExecutorModule::getprocess()
       return new Core::ScriptExObjImp( uoexec );
     else
       return new BError( "Process not found" );
+
   }
   else
   {
@@ -200,7 +201,7 @@ BObjectImp* OSExecutorModule::getpid()
 {
   return new BLong( pid_ );
 }
-/*	Ok, this is going to be fun.  In the case where we block,
+/*  Ok, this is going to be fun.  In the case where we block,
 the caller is going to take our return value and push
 it on the value stack.
 
@@ -252,7 +253,7 @@ BObjectImp* OSExecutorModule::wait_for_event()
     {
       wait_type = WAIT_EVENT;
       blocked_ = true;
-      sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
+      sleep_until_clock_ = Core::polclock( ) + nsecs * Core::POLCLOCKS_PER_SEC;
     }
     return new BLong( 0 );
   }
@@ -280,7 +281,7 @@ BObjectImp* OSExecutorModule::start_script()
     {
       return new BError( "Script " + sd.name() + " does not exist." );
     }
-    UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy() );
+    UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy( ) );
     if ( new_uoemod == NULL )
     {
       return new BError( "Unable to start script" );
@@ -333,9 +334,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
           return new BError( "No script defined for attribute " + attr->name + "." );
       }
 
-      ref_ptr<EScriptProgram> prog = find_script2(
-          script, true,
-          /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
+      ref_ptr<EScriptProgram> prog = find_script2( script, true, /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 
       if ( prog.get() != NULL )
       {
@@ -347,7 +346,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
             if ( chr->hidden() && attr->unhides )
               chr->unhide();
             if ( attr->delay_seconds )
-              chr->disable_skills_until( Core::poltime() + attr->delay_seconds );
+              chr->disable_skills_until(Core::poltime() + attr->delay_seconds);
           }
         }
         else
@@ -357,7 +356,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
             if ( chr->hidden() && attr->unhides )
               chr->unhide();
             if ( attr->delay_seconds )
-              chr->disable_skills_until( Core::poltime() + attr->delay_seconds );
+              chr->disable_skills_until(Core::poltime() + attr->delay_seconds);
           }
         }
       }
@@ -365,7 +364,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
       {
         std::string msg = "Unable to start skill script:";
         msg += script.c_str();
-        Core::send_sysmessage( chr->client, msg.c_str() );
+        Core::send_sysmessage( chr->client, msg.c_str( ) );
 
         return new BLong( 0 );
       }
@@ -440,7 +439,7 @@ BObjectImp* OSExecutorModule::run_script()
       {
         return new BError( "Script " + sd.name() + " does not exist." );
       }
-      UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy() );
+      UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy( ) );
       if ( new_uoemod == NULL )
       {
         return new BError( "Unable to run script" );
@@ -450,14 +449,13 @@ BObjectImp* OSExecutorModule::run_script()
         new_uoemod->controller_ = this_uoemod->controller_;
       }
       Core::UOExecutor* new_uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
-      //			OSExecutorModule* osemod = uoexec->os_module;
+      //      OSExecutorModule* osemod = uoexec->os_module;
       new_uoexec->pParent = this_uoexec;
       this_uoexec->pChild = new_uoexec;
 
       // we want to forcefully do this instruction over again:
-      this_uoexec->PC--;  // run_script(
-      this_uoexec->ValueStack.push_back(
-          BObjectRef( new BObject( UninitObject::create() ) ) );  //   script_name,
+      this_uoexec->PC--;                                // run_script(
+      this_uoexec->ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) ); //   script_name,
       // No need to push on "param" since the new BLong(0) below will take care of it.//   param )
 
       // Put me on hold until my child is done.
@@ -477,7 +475,7 @@ BObjectImp* OSExecutorModule::run_script()
   if ( this_uoexec->pChild->ValueStack.empty() )
     ret = new BLong( 1 );
   else
-    ret = this_uoexec->pChild->ValueStack.back().get()->impptr()->copy();
+    ret = this_uoexec->pChild->ValueStack.back( ).get( )->impptr( )->copy( );
 
   this_uoexec->pChild->pParent = NULL;
   this_uoexec->pChild = NULL;
@@ -507,14 +505,14 @@ BObjectImp* OSExecutorModule::mf_Log()
   {
     String* str = static_cast<String*>( imp );
     POLLOG << "[" << exec.scriptname() << "]: " << str->data() << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << str->data() << "\n";
+    INFO_PRINT << "syslog [" << exec.scriptname( ) << "]: " << str->data( ) << "\n";
     return new BLong( 1 );
   }
   else
   {
     std::string strval = imp->getStringRep();
-    POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
+    POLLOG << "[" << exec.scriptname( ) << "]: " << strval << "\n";
+    INFO_PRINT << "syslog [" << exec.scriptname( ) << "]: " << strval << "\n";
     return new BLong( 1 );
   }
 }
@@ -540,6 +538,8 @@ BObjectImp* OSExecutorModule::mf_set_priority()
 }
 
 
+
+
 BObjectImp* OSExecutorModule::mf_unload_scripts()
 {
   const String* str;
@@ -547,9 +547,9 @@ BObjectImp* OSExecutorModule::mf_unload_scripts()
   {
     int n;
     if ( str->length() == 0 )
-      n = Core::unload_all_scripts();
+      n = Core::unload_all_scripts( );
     else
-      n = Core::unload_script( str->data() );
+      n = Core::unload_script( str->data( ) );
     return new BLong( n );
   }
   else
@@ -558,158 +558,158 @@ BObjectImp* OSExecutorModule::mf_unload_scripts()
   }
 }
 
-BObjectImp* OSExecutorModule::clear_event_queue()  // DAVE
+BObjectImp* OSExecutorModule::clear_event_queue() //DAVE
 {
-  while ( !events_.empty() )
+  while (!events_.empty())
   {
-    BObject ob( events_.front() );
+    BObject ob(events_.front());
     events_.pop();
   }
-  return new BLong( 1 );
+  return new BLong(1);
 }
 
-BObjectImp* OSExecutorModule::mf_set_event_queue_size()  // DAVE 11/24
+BObjectImp* OSExecutorModule::mf_set_event_queue_size() //DAVE 11/24
 {
   unsigned short param;
-  if ( getParam( 0, param ) )
+  if (getParam(0, param))
   {
     unsigned short oldsize = max_eventqueue_size;
     max_eventqueue_size = param;
-    return new BLong( oldsize );
+    return new BLong(oldsize);
   }
   else
-    return new BError( "Invalid parameter type" );
+    return new BError("Invalid parameter type");
 }
 
 BObjectImp* OSExecutorModule::mf_OpenURL()
 {
   Mobile::Character* chr;
   const String* str;
-  if ( getCharacterParam( 0, chr ) && ( ( str = getStringParam( 1 ) ) != NULL ) )
+  if (getCharacterParam(0, chr) &&
+      ((str = getStringParam(1)) != NULL))
   {
-    if ( chr->has_active_client() )
+    if (chr->has_active_client())
     {
       Network::PktHelper::PacketOut<Network::PktOut_A5> msg;
       unsigned urllen;
       const char* url = str->data();
 
-      urllen = static_cast<unsigned int>( strlen( url ) );
-      if ( urllen > URL_MAX_LEN )
+      urllen = static_cast<unsigned int>(strlen(url));
+      if (urllen > URL_MAX_LEN)
         urllen = URL_MAX_LEN;
 
-      msg->WriteFlipped<u16>( urllen + 4u );
-      msg->Write( url, static_cast<u16>( urllen + 1 ) );
-      msg.Send( chr->client );
-      return new BLong( 1 );
+      msg->WriteFlipped<u16>(urllen + 4u);
+      msg->Write(url, static_cast<u16>(urllen + 1));
+      msg.Send(chr->client);
+      return new BLong(1);
     }
     else
     {
-      return new BError( "No client attached" );
+      return new BError("No client attached");
     }
   }
   else
   {
-    return new BError( "Invalid parameter type" );
+    return new BError("Invalid parameter type");
   }
 }
 
 
 BObjectImp* OSExecutorModule::mf_OpenConnection()
 {
-  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
-  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule("uo"));
+  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>(&this_uoemod->exec);
 
-  if ( this_uoexec->pChild == NULL )
+  if (this_uoexec->pChild == NULL)
   {
     const String* host;
     const String* scriptname_str;
     unsigned short port;
-    if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) &&
-         ( scriptname_str = getStringParam( 2 ) ) != NULL )
+    if ((host = getStringParam(0)) != NULL && getParam(1, port) && (scriptname_str = getStringParam(2)) != NULL)
     {
       // FIXME needs to inherit available modules?
-      Core::ScriptDef sd;  // = new ScriptDef();
+      Core::ScriptDef sd;// = new ScriptDef();
       INFO_PRINT << "Starting connection script " << scriptname_str->value() << "\n";
-      if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+      if (!sd.config_nodie(scriptname_str->value(), exec.prog()->pkg, "scripts/"))
       {
-        return new BError( "Error in script name" );
+        return new BError("Error in script name");
       }
-      if ( !sd.exists() )
+      if (!sd.exists())
       {
-        return new BError( "Script " + sd.name() + " does not exist." );
+        return new BError("Script " + sd.name() + " does not exist.");
       }
 
-      // Socket* s = new Socket();
-      // bool success_open = s->open(host->value().c_str(),30);
+      //Socket* s = new Socket();
+      //bool success_open = s->open(host->value().c_str(),30);
       Clib::Socket s;
-      bool success_open = s.open( host->value().c_str(), port );
+      bool success_open = s.open(host->value().c_str(), port);
 
-      if ( !success_open )
+      if (!success_open)
       {
-        // delete s;
-        return new BError( "Error connecting to client" );
+        //delete s;
+        return new BError("Error connecting to client");
       }
-      Clib::SocketClientThread* clientthread = new Network::AuxClientThread( sd, s );
+      Clib::SocketClientThread* clientthread = new Network::AuxClientThread(sd, s);
       clientthread->start();
 
-      return new BLong( 1 );
+      return new BLong(1);
     }
     else
     {
-      return new BError( "Invalid parameter type" );
+      return new BError("Invalid parameter type");
     }
   }
 
-  return new BError( "Invalid parameter type" );
+  return new BError("Invalid parameter type");
 }
 
 
 // signal_event() takes ownership of the pointer which is passed to it.
-// Objects must not be touched or deleted after being sent here! 
+// Objects must not be touched or deleted after being sent here!
 // TODO: Find a better way to enforce this in the codebase.
-bool OSExecutorModule::signal_event( BObjectImp* imp )
+bool OSExecutorModule::signal_event(BObjectImp* imp)
 {
-  INC_PROFILEVAR( events );
+  INC_PROFILEVAR(events);
 
-  if ( blocked_ && ( wait_type == WAIT_EVENT ) )  // already being waited for
+  if (blocked_ && (wait_type == WAIT_EVENT)) // already being waited for
   {
     /* Now, the tricky part.  The value to return on an error or
     completion condition has already been pushed onto the value
     stack - so, we need to replace it with the real result.
     */
-    exec.ValueStack.back().set( new BObject( imp ) );
+    exec.ValueStack.back().set(new BObject(imp));
     /* This executor will get moved to the run queue at the
     next step_scripts(), where blocked is checked looking
     for timed out or completed operations. */
 
     revive();
   }
-  else  // not being waited for, so queue for later.
+  else        // not being waited for, so queue for later.
   {
-    if ( events_.size() < max_eventqueue_size )
+    if (events_.size() < max_eventqueue_size)
     {
-      events_.push( imp );
+      events_.push(imp);
     }
     else
     {
-      if ( Plib::systemstate.config.discard_old_events )
+      if (Plib::systemstate.config.discard_old_events)
       {
-        BObject ob( events_.front() );
+        BObject ob(events_.front());
         events_.pop();
-        events_.push( imp );
+        events_.push(imp);
       }
       else
       {
-        BObject ob( imp );
-        if ( Plib::systemstate.config.loglevel >= 11 )
+        BObject ob(imp);
+        if (Plib::systemstate.config.loglevel >= 11)
         {
           INFO_PRINT << "Event queue for " << exec.scriptname() << " is full, discarding event.\n";
-          ExecutorModule* em = exec.findModule( "npc" );
-          if ( em )
+          ExecutorModule* em = exec.findModule("npc");
+          if (em)
           {
-            NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>( em );
-            INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->npc.serial ) << " ("
-                       << npcemod->npc.x << " " << npcemod->npc.y << " " << npcemod->npc.z << ")\n";
+            NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>(em);
+            INFO_PRINT << "NPC Serial: " << fmt::hexu(npcemod->npc.serial) <<
+                       " (" << npcemod->npc.x << " " << npcemod->npc.y << " " << npcemod->npc.z << ")\n";
           }
 
           INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
@@ -722,9 +722,9 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
   return true; // Event was successfully sent (perhaps by discarding old events)
 }
 
-void OSExecutorModule::SleepFor( int nsecs )
+void OSExecutorModule::SleepFor(int nsecs)
 {
-  if ( nsecs )
+  if (nsecs)
   {
     blocked_ = true;
     wait_type = WAIT_SLEEP;
@@ -732,9 +732,9 @@ void OSExecutorModule::SleepFor( int nsecs )
   }
 }
 
-void OSExecutorModule::SleepForMs( int msecs )
+void OSExecutorModule::SleepForMs(int msecs)
 {
-  if ( msecs )
+  if (msecs)
   {
     blocked_ = true;
     wait_type = WAIT_SLEEP;
@@ -746,40 +746,38 @@ void OSExecutorModule::suspend()
 {
   blocked_ = true;
   wait_type = WAIT_SLEEP;
-  sleep_until_clock_ = 0;  // wait forever
+  sleep_until_clock_ = 0; // wait forever
 }
 
 void OSExecutorModule::revive()
 {
   blocked_ = false;
-  if ( in_hold_list_ == TIMEOUT_LIST )
+  if (in_hold_list_ == TIMEOUT_LIST)
   {
-    Core::scriptEngineInternalManager.holdlist.erase( hold_itr_ );
+    Core::scriptEngineInternalManager.holdlist.erase(hold_itr_);
     in_hold_list_ = NO_LIST;
-    Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+    Core::scriptEngineInternalManager.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
   }
-  else if ( in_hold_list_ == NOTIMEOUT_LIST )
+  else if (in_hold_list_ == NOTIMEOUT_LIST)
   {
-    Core::scriptEngineInternalManager.notimeoutholdlist.erase(
-        static_cast<Core::UOExecutor*>( &exec ) );
+    Core::scriptEngineInternalManager.notimeoutholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
     in_hold_list_ = NO_LIST;
-    Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+    Core::scriptEngineInternalManager.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
   }
-  else if ( in_hold_list_ == DEBUGGER_LIST )
+  else if (in_hold_list_ == DEBUGGER_LIST)
   {
     // stays right where it is.
   }
 }
 bool OSExecutorModule::in_debugger_holdlist() const
 {
-  return ( in_hold_list_ == DEBUGGER_LIST );
+  return (in_hold_list_ == DEBUGGER_LIST);
 }
 void OSExecutorModule::revive_debugged()
 {
-  Core::scriptEngineInternalManager.debuggerholdlist.erase(
-      static_cast<Core::UOExecutor*>( &exec ) );
+  Core::scriptEngineInternalManager.debuggerholdlist.erase(static_cast<Core::UOExecutor*>(&exec));
   in_hold_list_ = NO_LIST;
-  Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+  Core::scriptEngineInternalManager.runlist.push_back(static_cast<Core::UOExecutor*>(&exec));
 }
 
 const int SCRIPTOPT_NO_INTERRUPT = 1;
@@ -837,9 +835,9 @@ BObjectImp* OSExecutorModule::mf_set_script_option()
   }
 }
 
-BObjectImp* OSExecutorModule::mf_clear_event_queue()  // DAVE
+BObjectImp* OSExecutorModule::mf_clear_event_queue() //DAVE
 {
-  return ( clear_event_queue() );
+  return( clear_event_queue() );
 }
 }
 }

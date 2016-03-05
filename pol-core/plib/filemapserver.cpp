@@ -12,8 +12,10 @@ namespace Pol
 {
 namespace Plib
 {
-FileMapServer::FileMapServer( const RealmDescriptor& descriptor )
-    : MapServer( descriptor ), _mapfile(), _cur_mapblock_index( -1L )
+FileMapServer::FileMapServer( const RealmDescriptor& descriptor ) :
+  MapServer( descriptor ),
+  _mapfile(),
+  _cur_mapblock_index( -1L )
 {
   std::string filename = _descriptor.path( "base.dat" );
 
@@ -28,15 +30,15 @@ MAPCELL FileMapServer::GetMapCell( unsigned short x, unsigned short y ) const
   passert( x < _descriptor.width && y < _descriptor.height );
 
   unsigned short xblock = x >> MAPBLOCK_SHIFT;
-  unsigned short xcell = x & MAPBLOCK_CELLMASK;
+  unsigned short xcell = x &   MAPBLOCK_CELLMASK;
   unsigned short yblock = y >> MAPBLOCK_SHIFT;
-  unsigned short ycell = y & MAPBLOCK_CELLMASK;
+  unsigned short ycell = y &   MAPBLOCK_CELLMASK;
 
   int block_index = yblock * ( _descriptor.width >> MAPBLOCK_SHIFT ) + xblock;
   if ( block_index != _cur_mapblock_index )
   {
     // read the existing block in
-    std::fstream::pos_type offset = block_index * sizeof( _cur_mapblock );
+    std::fstream::pos_type offset = block_index * sizeof(_cur_mapblock);
     _mapfile.Seek( offset );
     _mapfile.Read( _cur_mapblock );
 

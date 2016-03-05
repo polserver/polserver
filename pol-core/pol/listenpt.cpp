@@ -23,14 +23,16 @@ namespace Pol
 {
 namespace Core
 {
-ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags )
-    : object( obj ), uoexec( uoexec ), range( range ), flags( flags )
-{
-}
+
+ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags ) :
+  object( obj ),
+  uoexec( uoexec ),
+  range( range ),
+  flags( flags )
+{}
 
 ListenPoint::~ListenPoint()
-{
-}
+{}
 
 const char* TextTypeToString( u8 texttype )
 {
@@ -47,14 +49,11 @@ const char* TextTypeToString( u8 texttype )
   }
 }
 
-void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int /*p_textlen*/,
-                             u8 texttype,  // DAVE
+void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int /*p_textlen*/, u8 texttype, //DAVE
                              const u16* p_wtext /*=nullptr*/, const char* p_lang /*=nullptr*/,
                              int p_wtextlen /*=0*/, Bscript::ObjArray* speechtokens /*=nullptr*/ )
 {
-  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(),
-                               end = gamestate.listen_points.end();
-        itr != end; )
+  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(), end = gamestate.listen_points.end(); itr != end; )
   {
     ListenPoint* lp = ( *itr ).second;
     if ( lp->object->orphan() )
@@ -68,7 +67,7 @@ void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int
     }
     else
     {
-      if ( !speaker->dead() || ( lp->flags & LISTENPT_HEAR_GHOSTS ) )
+      if ( !speaker->dead() || ( lp->flags&LISTENPT_HEAR_GHOSTS ) )
       {
         if ( settingsManager.ssopt.seperate_speechtoken )
         {
@@ -84,15 +83,15 @@ void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int
           }
         }
         const UObject* toplevel = lp->object->toplevel_owner();
-        if ( ( speaker->realm == toplevel->realm ) &&
-             ( inrangex( speaker, toplevel->x, toplevel->y, lp->range ) ) )
+        if ( ( speaker->realm == toplevel->realm ) && ( inrangex( speaker, toplevel->x, toplevel->y, lp->range ) ) )
         {
           if ( p_wtext && p_lang && p_wtextlen > 0 )
-            lp->uoexec->os_module->signal_event( new Module::UnicodeSpeechEvent(
-                speaker, p_text, TextTypeToString( texttype ), p_wtext, p_lang, speechtokens ) );
+            lp->uoexec->os_module->signal_event( new Module::UnicodeSpeechEvent( speaker, p_text,
+                                                 TextTypeToString( texttype ),
+                                                 p_wtext, p_lang, speechtokens ) );
           else
-            lp->uoexec->os_module->signal_event(
-                new Module::SpeechEvent( speaker, p_text, TextTypeToString( texttype ) ) );
+            lp->uoexec->os_module->signal_event( new Module::SpeechEvent( speaker, p_text,
+                                                 TextTypeToString( texttype ) ) );
         }
       }
       ++itr;
@@ -102,10 +101,9 @@ void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int
 
 void deregister_from_speech_events( UOExecutor* uoexec )
 {
-  // ListenPoint lp( NULL, uoexec, 0, 0 );
+  //ListenPoint lp( NULL, uoexec, 0, 0 );
   ListenPoints::iterator itr = gamestate.listen_points.find( uoexec );
-  if ( itr !=
-       gamestate.listen_points.end() )  // could have been cleaned up in sayto_listening_points
+  if ( itr != gamestate.listen_points.end() ) // could have been cleaned up in sayto_listening_points
   {
     ListenPoint* lp = ( *itr ).second;
     gamestate.listen_points.erase( uoexec );
@@ -121,9 +119,7 @@ void register_for_speech_events( UObject* obj, UOExecutor* uoexec, int range, in
 Bscript::BObjectImp* GetListenPoints()
 {
   Bscript::ObjArray* arr = new Bscript::ObjArray;
-  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(),
-                               end = gamestate.listen_points.end();
-        itr != end; )
+  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(), end = gamestate.listen_points.end(); itr != end; )
   {
     ListenPoint* lp = ( *itr ).second;
     if ( lp == NULL || lp->object->orphan() )

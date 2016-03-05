@@ -18,7 +18,7 @@ namespace Bscript
 {
 bool could_be_a_number( const char* s )
 {
-  if ( s[0] == '0' && ( s[1] == 'x' || s[1] == 'X' ) )  // Hex number
+  if ( s[0] == '0' && ( s[1] == 'x' || s[1] == 'X' ) ) // Hex number
   {
     s += 2;
     while ( *s )
@@ -34,13 +34,15 @@ bool could_be_a_number( const char* s )
     }
     return true;
   }
-  else  // expect -, +, 0-9, . only
+  else // expect -, +, 0-9, . only
   {
     while ( *s )
     {
       char ch = *s;
       ++s;
-      if ( ch == '-' || ch == '+' || ( ch >= '0' && ch <= '9' ) || ch == '.' )
+      if ( ch == '-' || ch == '+' ||
+           ( ch >= '0' && ch <= '9' ) ||
+           ch == '.' )
       {
         continue;
       }
@@ -59,7 +61,8 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
   int ch = static_cast<unsigned char>( s[0] );
   if ( isdigit( ch ) || ch == '.' || ch == '+' || ch == '-' )
   {
-    char *endptr = NULL, *endptr2 = NULL;
+
+    char* endptr = NULL, *endptr2 = NULL;
     int l = strtol( s, &endptr, radix );
     double d = strtod( s, &endptr2 );
 
@@ -75,7 +78,8 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
             if ( !isspace( *endptr ) )
             {
               if ( *endptr == '/' && *( endptr + 1 ) == '/' )
-              {  // what follows is a comment
+              {
+                // what follows is a comment
                 break;
               }
               return NULL;
@@ -84,7 +88,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
           }
         }
         else
-          return NULL;  // overflow, read it as string
+          return NULL; // overflow, read it as string
       }
       return new BLong( l );
     }
@@ -111,7 +115,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
           }
         }
         else
-          return NULL;  // overflow, read it as string
+          return NULL; // overflow, read it as string
       }
       return new Double( d );
     }
@@ -121,6 +125,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
 
 BObjectImp* bobject_from_string( const std::string& str, int radix )
 {
+
   BObjectImp* imp = convert_numeric( str, radix );
   if ( imp )
     return imp;
@@ -131,7 +136,7 @@ BObjectImp* bobject_from_string( const std::string& str, int radix )
 
 std::string normalize_ecl_filename( const std::string& filename )
 {
-  if ( filename.find( ".ecl" ) == std::string::npos )
+  if (filename.find(".ecl") == std::string::npos)
     return filename + ".ecl";
   else
     return filename;

@@ -28,17 +28,20 @@ namespace Pol
 namespace Bscript
 {
 using namespace Module;
-template <>
+template<>
 TmplExecutorModule<UtilExecutorModule>::FunctionDef
-    TmplExecutorModule<UtilExecutorModule>::function_table[] = {
-        {"RandomInt", &UtilExecutorModule::mf_RandomInt},
-        {"RandomFloat", &UtilExecutorModule::mf_RandomFloat},
-        {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll},
-        {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime},
-        {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax}};
+TmplExecutorModule<UtilExecutorModule>::function_table[] =
+{
+  { "RandomInt", &UtilExecutorModule::mf_RandomInt },
+  { "RandomFloat", &UtilExecutorModule::mf_RandomFloat },
+  { "RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll },
+  { "StrFormatTime", &UtilExecutorModule::mf_StrFormatTime },
+  { "RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax }
+};
 
-template <>
-int TmplExecutorModule<UtilExecutorModule>::function_table_size = arsize( function_table );
+template<>
+int TmplExecutorModule<UtilExecutorModule>::function_table_size =
+  arsize( function_table );
 }
 namespace Module
 {
@@ -50,7 +53,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomInt()
   if ( exec.getParam( 0, value, 1, INT_MAX ) )
   {
     if ( value > 0 )
-      return new BLong( Clib::random_int( value - 1 ) );
+      return new BLong( Clib::random_int( value-1 ) );
     else
       return new BError( "RandomInt() expects a positive integer" );
   }
@@ -122,7 +125,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
     return new BError( "Format string exceeded 100 characters." );
 
   int time_stamp;
-  if ( !getParam( 1, time_stamp, 0, INT_MAX ) )
+  if (!getParam(1, time_stamp, 0, INT_MAX))
     time_stamp = 0;
 
   time_t seconds;
@@ -135,7 +138,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 
   auto time_struct = Clib::localtime( seconds );
 
-  // strftime uses assert check for invalid format -> precheck it
+  //strftime uses assert check for invalid format -> precheck it
   size_t len = format_string->length();
   const char* str = format_string->data();
   while ( len-- > 0 )
@@ -146,30 +149,30 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
         return new BError( "Invalid Format string." );
       switch ( *str++ )
       {
-      case ( '%' ):
-      case ( 'a' ):
-      case ( 'A' ):
-      case ( 'b' ):
-      case ( 'B' ):
-      case ( 'c' ):
-      case ( 'd' ):
-      case ( 'H' ):
-      case ( 'I' ):
-      case ( 'j' ):
-      case ( 'm' ):
-      case ( 'M' ):
-      case ( 'p' ):
-      case ( 'S' ):
-      case ( 'U' ):
-      case ( 'w' ):
-      case ( 'W' ):
-      case ( 'x' ):
-      case ( 'X' ):
-      case ( 'y' ):
-      case ( 'Y' ):
-      case ( 'Z' ):
+      case( '%' ) :
+      case( 'a' ) :
+      case( 'A' ) :
+      case( 'b' ) :
+      case( 'B' ) :
+      case( 'c' ) :
+      case( 'd' ) :
+      case( 'H' ) :
+      case( 'I' ) :
+      case( 'j' ) :
+      case( 'm' ) :
+      case( 'M' ) :
+      case( 'p' ) :
+      case( 'S' ) :
+      case( 'U' ) :
+      case( 'w' ) :
+      case( 'W' ) :
+      case( 'x' ) :
+      case( 'X' ) :
+      case( 'y' ) :
+      case( 'Y' ) :
+      case( 'Z' ) :
         continue;
-      case ( '\0' ):
+      case ( '\0' ) :
         len = 0;
         break;
       default:
@@ -178,7 +181,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
     }
   }
 
-  char buffer[102];  // +2 for the \0 termination.
+  char buffer[102]; // +2 for the \0 termination.
   if ( strftime( buffer, sizeof buffer, format_string->data(), &time_struct ) > 0 )
     return new String( buffer );
   else

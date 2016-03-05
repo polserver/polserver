@@ -42,7 +42,7 @@ class MessageTypeFilter;
 class ServerDescription;
 class SQLService;
 
-typedef std::vector<Network::Client*> Clients;
+typedef std::vector<Network::Client*>            Clients;
 typedef std::vector<ServerDescription*> Servers;
 
 class NetworkManager : boost::noncopyable
@@ -67,11 +67,11 @@ public:
 #endif
   std::unique_ptr<Network::UOClientInterface> uo_client_interface;
 
-  std::vector<Network::AuxService*> auxservices;
+  std::vector< Network::AuxService* > auxservices;
 
   UoClientGeneral uoclient_general;
   UoClientProtocol uoclient_protocol;
-  std::vector<UoClientListener> uoclient_listeners;
+  std::vector< UoClientListener > uoclient_listeners;
 
   Network::IOStats iostats;
   Network::IOStats queuedmode_iostats;
@@ -79,19 +79,19 @@ public:
   std::unique_ptr<MessageTypeFilter> game_filter;
   std::unique_ptr<MessageTypeFilter> disconnected_filter;
 
-  // stores information about each packet and its script & default handler
+  //stores information about each packet and its script & default handler
   std::vector<std::unique_ptr<Network::PacketHookData>> packet_hook_data;
   std::vector<std::unique_ptr<Network::PacketHookData>> packet_hook_data_v2;
   // handler[] is used for storing the core MSG_HANDLER calls.
-  std::array<Network::MSG_HANDLER, 256> handler;
+  std::array<Network::MSG_HANDLER,256> handler;
   /*
   handler_v2[] is used for storing the core MSG_HANDLER calls for packets that
   were changed in client 6.0.1.7 (or any newer version where a second handler is
   required due to changed incoming packet structure).
   */
-  std::array<Network::MSG_HANDLER, 256> handler_v2;
+  std::array<Network::MSG_HANDLER,256> handler_v2;
 
-  std::array<Network::ExtMsgHandler, 256> ext_handler_table;
+  std::array<Network::ExtMsgHandler,256> ext_handler_table;
 
   char ipaddr_str[64];
   char lanaddr_str[64];
@@ -105,7 +105,7 @@ public:
   std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
 #endif
 
-  std::vector<Network::IPRule> banned_ips;
+  std::vector< Network::IPRule > banned_ips;
 
   Network::PolSocket polsocket;
 
@@ -116,7 +116,6 @@ public:
     size_t client_count;
     size_t misc;
   };
-
 private:
 };
 

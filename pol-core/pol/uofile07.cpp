@@ -44,14 +44,17 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y )
       USTRUCT_STATIC* srec = &srecarr[i];
 
 #if ENABLE_POLTEST_OUTPUT
-      if ( static_debug_on )
+      if (static_debug_on)
       {
-        INFO_PRINT << "static: " << int( srec->x_offset ) << " " << int( srec->y_offset ) << " "
-                   << int( srec->z ) << " 0x" << fmt::hexu( srec->graphic ) << "\n";
+        INFO_PRINT << "static: " << int( srec->x_offset )
+                   << " " << int(srec->y_offset)
+                   << " " << int(srec->z)
+                   << " 0x" << fmt::hexu( srec->graphic) << "\n";
       }
 #endif
 
-      if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) &&
+      if ( ( srec->x_offset == x_offset ) &&
+           ( srec->y_offset == y_offset ) &&
            ( tile_uoflags( srec->graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
       {
         vec.push_back( StaticRec( srec->graphic, srec->z ) );
@@ -76,14 +79,17 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned 
       USTRUCT_STATIC* srec = &srecarr[i];
 
 #if ENABLE_POLTEST_OUTPUT
-      if ( static_debug_on )
+      if (static_debug_on)
       {
-        INFO_PRINT << "static: " << int( srec->x_offset ) << " " << int( srec->y_offset ) << " "
-                   << int( srec->z ) << " 0x" << fmt::hexu( srec->graphic ) << "\n";
+        INFO_PRINT << "static: " << int(srec->x_offset)
+                   << " " << int(srec->y_offset)
+                   << " " << int(srec->z)
+                   << " 0x" << fmt::hexu( srec->graphic ) << "\n";
       }
 #endif
 
-      if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) &&
+      if ( ( srec->x_offset == x_offset ) &&
+           ( srec->y_offset == y_offset ) &&
            ( tile_uoflags( srec->graphic ) & flags ) )
       {
         vec.push_back( StaticRec( srec->graphic, srec->z ) );
@@ -108,14 +114,17 @@ void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
       USTRUCT_STATIC* srec = &srecarr[i];
 
 #if ENABLE_POLTEST_OUTPUT
-      if ( static_debug_on )
+      if (static_debug_on)
       {
-        INFO_PRINT << "static: " << int( srec->x_offset ) << " " << int( srec->y_offset ) << " "
-                   << int( srec->z ) << " 0x" << fmt::hexu( srec->graphic ) << "\n";
+        INFO_PRINT << "static: " << int(srec->x_offset)
+                   << " " << int(srec->y_offset)
+                   << " " << int(srec->z)
+                   << " 0x" << fmt::hexu( srec->graphic) << "\n";
       }
 #endif
 
-      if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) )
+      if ( ( srec->x_offset == x_offset ) &&
+           ( srec->y_offset == y_offset ) )
       {
         vec.push_back( StaticRec( srec->graphic, srec->z ) );
       }

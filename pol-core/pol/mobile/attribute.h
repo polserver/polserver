@@ -28,6 +28,7 @@ class ExportedFunction;
 }
 namespace Mobile
 {
+
 class Attribute
 {
 public:
@@ -40,7 +41,7 @@ public:
   std::string name;
   unsigned attrid;
 
-  std::vector<std::string> aliases;  // aliases[0] is always name
+  std::vector< std::string > aliases; // aliases[0] is always name
 
   Attribute* next;
 
@@ -51,7 +52,7 @@ public:
   bool unhides;
   bool disable_core_checks;
 
-  // Default cap
+  //Default cap
   unsigned short default_cap;
 
   Core::ScriptDef script_;

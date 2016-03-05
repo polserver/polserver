@@ -15,9 +15,9 @@
 #include <cstring>
 
 
-#if defined( WINDOWS )
+#if defined(WINDOWS)
 #include "Header_Windows.h"
-#define SOCKET_ERRNO( x ) WSA##x
+#define SOCKET_ERRNO(x) WSA##x
 #define socket_errno WSAGetLastError()
 typedef int socklen_t;
 
@@ -34,7 +34,7 @@ typedef int socklen_t;
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#define SOCKET_ERRNO( x ) x
+#define SOCKET_ERRNO(x) x
 #define socket_errno errno
 
 #endif
@@ -48,12 +48,14 @@ namespace Pol
 {
 namespace Clib
 {
-Socket::Socket() : _sck( INVALID_SOCKET ), _options( none )
+Socket::Socket() :
+  _sck( INVALID_SOCKET ),
+  _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
 #ifdef _WIN32
   static bool init;
-  if ( !init )
+  if( !init )
   {
     init = true;
     WSADATA dummy;
@@ -62,12 +64,16 @@ Socket::Socket() : _sck( INVALID_SOCKET ), _options( none )
 #endif
 }
 
-Socket::Socket( SOCKET sock ) : _sck( sock ), _options( none )
+Socket::Socket( SOCKET sock ) :
+  _sck( sock ),
+  _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
 }
 
-Socket::Socket( Socket& sock ) : _sck( sock._sck ), _options( none )
+Socket::Socket( Socket& sock ) :
+  _sck( sock._sck ),
+  _options( none )
 {
   memset( &_peer, 0, sizeof( _peer ) );
   sock._sck = INVALID_SOCKET;
@@ -97,12 +103,12 @@ void Socket::setpeer( struct sockaddr peer )
 
 std::string Socket::getpeername() const
 {
-  struct sockaddr client_addr;  // inet_addr
+  struct sockaddr client_addr; // inet_addr
   socklen_t addrlen = sizeof client_addr;
-  if (::getpeername( _sck, &client_addr, &addrlen ) == 0 )
+  if( ::getpeername( _sck, &client_addr, &addrlen ) == 0 )
   {
-    struct sockaddr_in* in_addr = (struct sockaddr_in*)&client_addr;
-    if ( client_addr.sa_family == AF_INET )
+    struct sockaddr_in* in_addr = ( struct sockaddr_in*) &client_addr;
+    if( client_addr.sa_family == AF_INET )
       return inet_ntoa( in_addr->sin_addr );
     else
       return "(display error)";
@@ -132,7 +138,7 @@ bool Socket::open( const char* ipaddr, unsigned short port )
 {
   close();
   _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( _sck == INVALID_SOCKET || _sck < 0 )
+  if (_sck == INVALID_SOCKET || _sck < 0)
   {
     INFO_PRINT << "Unable to open socket in Socket::open()\n";
     return false;
@@ -145,9 +151,9 @@ bool Socket::open( const char* ipaddr, unsigned short port )
   sin.sin_port = htons( port );
 
 
-  int res = connect( _sck, (struct sockaddr*)&sin, sizeof sin );
+  int res = connect( _sck, ( struct sockaddr*)&sin, sizeof sin );
 
-  if ( res == 0 )
+  if( res == 0 )
   {
     return true;
   }
@@ -165,51 +171,46 @@ bool Socket::open( const char* ipaddr, unsigned short port )
 
 void Socket::disable_nagle()
 {
-  if ( _sck == INVALID_SOCKET )
+  if (_sck == INVALID_SOCKET)
     return;
 
   int tcp_nodelay = 1;
-  int res = setsockopt( _sck, IPPROTO_TCP, TCP_NODELAY, (const char*)&tcp_nodelay,
-                        sizeof( tcp_nodelay ) );
-  if ( res < 0 )
+  int res = setsockopt( _sck, IPPROTO_TCP, TCP_NODELAY, (const char*) &tcp_nodelay, sizeof(tcp_nodelay) );
+  if (res < 0)
   {
-    throw std::runtime_error( "Unable to setsockopt (TCP_NODELAY) on socket, res=" +
-                              Clib::decint( res ) );
+    throw std::runtime_error("Unable to setsockopt (TCP_NODELAY) on socket, res=" + Clib::decint(res));
   }
 }
 
 void Socket::apply_socket_options( SOCKET sck )
 {
-  if ( _options & nonblocking )
+  if( _options & nonblocking )
   {
 #ifdef _WIN32
     u_long nonblocking = 1;
     int res = ioctlsocket( sck, FIONBIO, &nonblocking );
 #else
-    int flags = fcntl( sck, F_GETFL );
+    int flags= fcntl( sck, F_GETFL );
     flags |= O_NONBLOCK;
     int res = fcntl( sck, F_SETFL, O_NONBLOCK );
 #endif
-    if ( res < 0 )
+    if( res < 0 )
     {
-      throw std::runtime_error( "Unable to set listening socket to nonblocking mode, res=" +
-                                decint( res ) );
+      throw std::runtime_error( "Unable to set listening socket to nonblocking mode, res=" + decint( res ) );
     }
   }
 }
 
 void Socket::apply_prebind_socket_options( SOCKET sck )
 {
-  if ( sck != INVALID_SOCKET && _options & reuseaddr )
+  if (sck != INVALID_SOCKET && _options & reuseaddr)
   {
 #ifndef WIN32
     int reuse_opt = 1;
-    int res =
-        setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse_opt, sizeof( reuse_opt ) );
-    if ( res < 0 )
+    int res = setsockopt( sck, SOL_SOCKET, SO_REUSEADDR, (const char*) &reuse_opt, sizeof(reuse_opt) );
+    if (res < 0)
     {
-      throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " +
-                                decint( res ) );
+      throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " + decint(res) );
     }
 #endif
   }
@@ -224,10 +225,10 @@ bool Socket::listen( unsigned short port )
   local.sin_addr.s_addr = INADDR_ANY;
   /* Port MUST be in Network Byte Order */
   local.sin_port = htons( port );
-  memset( local.sin_zero, 0, sizeof( local.sin_zero ) );  // not needed, but for completeness
+  memset(local.sin_zero, 0, sizeof(local.sin_zero)); // not needed, but for completeness
 
   _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( _sck == INVALID_SOCKET )
+  if( _sck == INVALID_SOCKET )
   {
     close();
     return false;
@@ -236,12 +237,12 @@ bool Socket::listen( unsigned short port )
   apply_socket_options( _sck );
   apply_prebind_socket_options( _sck );
 
-  if ( bind( _sck, (struct sockaddr*)&local, sizeof( local ) ) == -1 )
+  if( bind( _sck, ( struct sockaddr*)&local, sizeof( local ) ) == -1 )
   {
     HandleError();
     return false;
   }
-  if (::listen( _sck, SOMAXCONN ) == -1 )
+  if( ::listen( _sck, SOMAXCONN ) == -1 )
   {
     HandleError();
     return false;
@@ -252,12 +253,12 @@ bool Socket::listen( unsigned short port )
 bool Socket::select( unsigned int seconds, unsigned int useconds )
 {
   fd_set fd;
-  struct timeval timeout = {0, 0};
+  struct timeval timeout = { 0, 0 };
   int nfds = 0;
   FD_ZERO( &fd );
   FD_SET( _sck, &fd );
 #ifndef _WIN32
-  nfds = _sck + 1;
+  nfds = _sck+1;
 #endif
 
   int res;
@@ -267,7 +268,8 @@ bool Socket::select( unsigned int seconds, unsigned int useconds )
     timeout.tv_sec = seconds;
     timeout.tv_usec = useconds;
     res = ::select( nfds, &fd, NULL, NULL, &timeout );
-  } while ( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+  }
+  while( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
   return ( res > 0 && FD_ISSET( _sck, &fd ) );
 }
@@ -275,7 +277,7 @@ bool Socket::select( unsigned int seconds, unsigned int useconds )
 bool Socket::accept( SOCKET* s, unsigned int /*mstimeout*/ )
 {
   *s = ::accept( _sck, NULL, NULL );
-  if ( *s != INVALID_SOCKET )
+  if( *s != INVALID_SOCKET )
   {
     apply_socket_options( *s );
     return true;
@@ -292,7 +294,7 @@ bool Socket::accept( Socket& newsocket )
   struct sockaddr client_addr;
   socklen_t addrlen = sizeof client_addr;
   SOCKET s = ::accept( _sck, &client_addr, &addrlen );
-  if ( s != INVALID_SOCKET )
+  if( s != INVALID_SOCKET )
   {
     apply_socket_options( s );
     newsocket.setsocket( s );
@@ -320,29 +322,33 @@ void Socket::HandleError()
   ErrVal = WSAGetLastError();
   WSASetLastError( 0 );
 
-  switch ( ErrVal )
+  switch( ErrVal )
   {
-  case WSAENOTSOCK:   /* Software caused connection to abort */
+  case WSAENOTSOCK: /* Software caused connection to abort */
   case WSAECONNRESET: /* Arg list too long */
     close();
     break;
 
   default:
-    close(); /*
-                   gee, we'll close here,too.
-                   if you want to _not_ close for _specific_ error codes,
-                   feel more than free to make exceptions; but the general
-                   rule should be, close on error.
-                   */
+    close();  /*
+              gee, we'll close here,too.
+              if you want to _not_ close for _specific_ error codes,
+              feel more than free to make exceptions; but the general
+              rule should be, close on error.
+              */
     break;
   }
 
 #if SCK_WATCH
-  if ( FormatMessage( FORMAT_MESSAGE_FROM_HMODULE, GetModuleHandle( TEXT( "wsock32" ) ), ErrVal,
-                      MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), ErrorBuffer, sizeof ErrorBuffer,
-                      NULL ) == 0 )
+  if (FormatMessage( FORMAT_MESSAGE_FROM_HMODULE,
+                     GetModuleHandle(TEXT("wsock32")),
+                     ErrVal,
+                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                     ErrorBuffer,
+                     sizeof ErrorBuffer,
+                     NULL) == 0)
   {
-    sprintf( ErrorBuffer, "Unknown error code 0x%08x", ErrVal );
+    sprintf(ErrorBuffer, "Unknown error code 0x%08x", ErrVal);
   }
   INFO_PRINT << ErrorBuffer << "\n";
 #endif
@@ -372,30 +378,31 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
     tv.tv_sec = 0;
     tv.tv_usec = waitms * 1000;
     res = ::select( nfds, &fd, NULL, NULL, &tv );
-  } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+  }
+  while( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
-  if ( res == 0 )
+  if( res == 0 )
   {
 #if SCK_WATCH
     INFO_PRINT << "{TO}\n";
 #endif
     return false;
   }
-  else if ( res == -1 )
+  else if( res == -1 )
   {
     HandleError();
     close(); /* FIXME: very likely unrecoverable */
   }
 
   res = recv( _sck, (char*)ch, 1, 0 );
-  if ( res == 1 )
+  if( res == 1 )
   {
 #if SCK_WATCH
-    INFO_PRINT.Format( "\{{:#X}\}\n" ) << ch;
+    INFO_PRINT.Format("\{{:#X}\}\n") << ch;
 #endif
     return true;
   }
-  else if ( res == 0 )
+  else if( res == 0 )
   {
 #if SCK_WATCH
     INFO_PRINT << "{CLOSE}\n";
@@ -409,16 +416,17 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
     HandleError();
     return false;
   }
+
 }
 
 bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 {
   fd_set fd;
   char* pdest = (char*)vdest;
-  while ( len )
+  while( len )
   {
 #if SCK_WATCH
-    INFO_PRINT << "{L:" << len << "}\n";
+    INFO_PRINT << "{L:" << len <<"}\n";
 #endif
     FD_ZERO( &fd );
     FD_SET( _sck, &fd );
@@ -429,16 +437,17 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
       tv.tv_sec = 0;
       tv.tv_usec = waitms * 1000;
       res = ::select( 0, &fd, NULL, NULL, &tv );
-    } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+    }
+    while( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
-    if ( res == 0 )
+    if( res == 0 )
     {
 #if SCK_WATCH
       INFO_PRINT << "{TO}\n";
 #endif
       return false;
     }
-    else if ( res == -1 )
+    else if( res == -1 )
     {
       HandleError();
       close(); /* FIXME: very likely unrecoverable */
@@ -446,21 +455,22 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 
 
     res = ::recv( _sck, pdest, len, 0 );
-    if ( res > 0 )
+    if( res > 0 )
     {
+
 #if SCK_WATCH
       char* tmp = pdest;
-      INFO_PRINT.Format( "\{R:{}[{}]\}\n" ) << res << len;
+      INFO_PRINT.Format("\{R:{}[{}]\}\n") << res<<len;
 #endif
       len -= res;
       pdest += res;
 
 #if SCK_WATCH
-      while ( res-- )
-        INFO_PRINT.Format( "\{{:#X}\}\n" ) << (unsigned char)( *tmp++ );
+      while (res--)
+        INFO_PRINT.Format("\{{:#X}\}\n") << (unsigned char)(*tmp++);
 #endif
     }
-    else if ( res == 0 )
+    else if( res == 0 )
     {
 #if SCK_WATCH
       INFO_PRINT << "{CLOSE}\n";
@@ -484,7 +494,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   char* pdest = (char*)vdest;
 
 #if SCK_WATCH
-  INFO_PRINT << "{L:" << len << "}\n";
+  INFO_PRINT << "{L:"<< len << "}\n";
 #endif
   FD_ZERO( &fd );
   FD_SET( _sck, &fd );
@@ -496,16 +506,17 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
     tv.tv_sec = wait_sec;
     tv.tv_usec = 0;
     res = ::select( 0, &fd, NULL, NULL, &tv );
-  } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+  }
+  while( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
-  if ( res == 0 )
+  if( res == 0 )
   {
 #if SCK_WATCH
     INFO_PRINT << "{TO}\n";
 #endif
     return 0;
   }
-  else if ( res == -1 )
+  else if( res == -1 )
   {
     HandleError();
     close(); /* FIXME: very likely unrecoverable */
@@ -514,11 +525,11 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
 
 
   res = ::recv( _sck, pdest, len, MSG_PEEK );
-  if ( res > 0 )
+  if( res > 0 )
   {
     return res;
   }
-  else if ( res == 0 )
+  else if( res == 0 )
   {
 #if SCK_WATCH
     INFO_PRINT << "{CLOSE}\n";
@@ -538,19 +549,20 @@ void Socket::send( const void* vdata, unsigned datalen )
 {
   const char* cdata = static_cast<const char*>( vdata );
 
-  while ( datalen )
+  while( datalen )
   {
     int res = ::send( _sck, cdata, datalen, 0 );
-    if ( res < 0 )
+    if( res < 0 )
     {
       int sckerr = socket_errno;
-      if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
+      if( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
       {
         // FIXME sleep
         continue;
       }
       else
       {
+
         INFO_PRINT << "Socket::send() error: " << sckerr << "\n";
         HandleError();
         return;
@@ -570,13 +582,13 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
 
   *nsent = 0;
 
-  while ( datalen )
+  while( datalen )
   {
     int res = ::send( _sck, cdata, datalen, 0 );
-    if ( res < 0 )
+    if( res < 0 )
     {
       int sckerr = socket_errno;
-      if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
+      if( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
       {
         // FIXME sleep
         return false;
@@ -598,7 +610,7 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
   return true;
 }
 
-void Socket::write( const std::string& s )
+void Socket::write(const std::string& s)
 {
   send( (void*)s.c_str(), static_cast<unsigned int>( s.length() ) );
 }
@@ -606,13 +618,13 @@ void Socket::write( const std::string& s )
 
 void Socket::close()
 {
-  if ( _sck != INVALID_SOCKET )
+  if( _sck != INVALID_SOCKET )
   {
 #ifdef _WIN32
-    shutdown( _sck, 2 );  // 2 is both sides. defined in winsock2.h ...
+    shutdown( _sck, 2 ); //2 is both sides. defined in winsock2.h ...
     closesocket( _sck );
 #else
-    shutdown( _sck, SHUT_RDWR );
+    shutdown( _sck,SHUT_RDWR );
     ::close( _sck );
 #endif
     _sck = INVALID_SOCKET;

@@ -5,6 +5,7 @@
  */
 
 
+
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
@@ -18,7 +19,7 @@
 #pragma hdrstop
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )
+#pragma warning( disable: 4996 )
 #endif
 
 #include "clib.h"
@@ -38,30 +39,37 @@ char temp_ext[MAXEXT];
 int fullsplit( const char* path )
 {
 #ifdef _WIN32
-// FIXME: 2008 Upgrades needed here?
-#if defined( _MSC_VER ) && ( _MSC_VER <= 1310 )  // up to VS2003
+  // FIXME: 2008 Upgrades needed here?
+#if defined(_MSC_VER) && (_MSC_VER <= 1310) // up to VS2003
   _splitpath( path, temp_drive, temp_dir, temp_fname, temp_ext );
-#else  // VS2005 using MS STL, boooooo
-  _splitpath_s( path, temp_drive, MAXDRIVE, temp_dir, MAXDIR, temp_fname, MAXFILE, temp_ext,
-                MAXEXT );
+#else // VS2005 using MS STL, boooooo
+  _splitpath_s( path, temp_drive, MAXDRIVE, temp_dir, MAXDIR, temp_fname, MAXFILE, temp_ext, MAXEXT );
 #endif
   return 0;
 #else
-  return fnsplit( path, temp_drive, temp_dir, temp_fname, temp_ext );
+  return fnsplit(path,
+                 temp_drive,
+                 temp_dir,
+                 temp_fname,
+                 temp_ext);
 #endif
 }
 
 char* fullmerge( char* path )
 {
 #ifdef _WIN32
-// FIXME: 2008 Upgrades needed here?
-#if defined( _MSC_VER ) && ( _MSC_VER <= 1310 )  // up to VS2003
+  // FIXME: 2008 Upgrades needed here?
+#if defined(_MSC_VER) && (_MSC_VER <= 1310) // up to VS2003
   _makepath( path, temp_drive, temp_dir, temp_fname, temp_ext );
-#else  // VS2005 using MS STL, booooo
+#else // VS2005 using MS STL, booooo
   _makepath_s( path, MAXPATH, temp_drive, temp_dir, temp_fname, temp_ext );
 #endif
 #else
-  fnmerge( path, temp_drive, temp_dir, temp_fname, temp_ext );
+  fnmerge(path,
+          temp_drive,
+          temp_dir,
+          temp_fname,
+          temp_ext);
 #endif
   return path;
 }
@@ -77,21 +85,20 @@ char* mergeFnExt( char* fname )
 static Pathname workspace2, fullpath2;
 
 #ifndef _WIN32
-int chddir( const char* dir )
+int chddir(const char* dir)
 {
   // assume: drive is full pathname.
-  int ch = toupper( dir[0] );
-  if ( isalpha( ch ) )
-    setdisk( ch - 'A' );
-  return chdir( dir );
+  int ch = toupper(dir[0]);
+  if (isalpha(ch)) setdisk(ch-'A');
+  return chdir(dir);
 }
 #endif
 /*
-    the build directory functions:
-    params: directory, filename, node
-    directory: should not include trailing backslash
+  the build directory functions:
+  params: directory, filename, node
+  directory: should not include trailing backslash
 
-    */
+  */
 const char* use_dir;
 const char* use_fname;
 const char* use_template;
@@ -99,12 +106,12 @@ const char* use_template;
 void find_usefns( const char* dir, const char* fname )
 {
   /* first, the directory. */
-  if ( dir && dir[0] ) /* this is not null */
+  if( dir && dir[0] ) /* this is not null */
     use_dir = dir;
   else
-    use_dir = ".";  // current directory.
+    use_dir = "."; // current directory.
 
-  if ( fname && fname[0] )
+  if( fname && fname[0] )
     use_fname = fname;
   else
     use_fname = ".";
@@ -112,10 +119,10 @@ void find_usefns( const char* dir, const char* fname )
   // now, if dir has a trailing backslash, we use %s%s
   // else, we use %s\\%s
   const char* s = strrchr( use_dir, '\\' );
-  if ( s == NULL )
+  if( s == NULL )
     s = strrchr( use_dir, '/' );
 
-  if ( s != NULL && ( s[1] == '\0' ) )  // is trailing
+  if( s != NULL && ( s[1] == '\0' ) ) // is trailing
     use_template = "%s%s";
   else
     use_template = "%s\\%s";
@@ -155,90 +162,89 @@ char* buildfnext( const char* directory, const char* filename, const char* exten
 
 
 /*
-    normalize_dir: strip a trailin backslash from a directory.
-    */
+  normalize_dir: strip a trailin backslash from a directory.
+  */
 void normalize_dir( char* dir )
 {
   char* s = strrchr( dir, '\\' );
-  if ( s == NULL )
-    return;
-  if ( *( s + 1 ) == '\0' )
-    *s = '\0';
+  if( s == NULL ) return;
+  if( *( s + 1 ) == '\0' ) *s = '\0';
 }
 
 
 int mydir_errno;
 
 #ifndef _WIN32
-static int inner_copy( const char* src, const char* dst, int replaceOk )
+static int inner_copy(
+  const char* src,
+  const char* dst,
+  int replaceOk)
 {
-  int in = -1, out = -1;  // file handles
-  int result = -1;        // default to error
+  int in = -1, out = -1;                  // file handles
+  int result = -1;                // default to error
 
   int bufsize = 0;
   void* buf = NULL;
 
-  for ( bufsize = 0x4000; buf == NULL && bufsize >= 128; bufsize /= 2 )
-    buf = malloc( bufsize );
-  if ( buf == NULL )
-  { /* no errors allowed here! */
+  for(bufsize=0x4000; buf == NULL && bufsize >= 128; bufsize /= 2)
+    buf = malloc(bufsize);
+  if (buf==NULL)   /* no errors allowed here! */
+  {
     static char dummy[4];
     buf = dummy;
     bufsize = 4;
   }
 
 
-  in = open( src, O_RDONLY | O_BINARY );
-  if ( in >= 0 )
+  in = open(src,O_RDONLY|O_BINARY);
+  if (in >= 0)
   {
-    out = open( dst, O_BINARY | O_CREAT | O_RDWR | ( replaceOk ? O_TRUNC : O_EXCL ),
-                S_IREAD | S_IWRITE );
-    if ( out >= 0 )
+    out = open(dst, O_BINARY | O_CREAT | O_RDWR |
+               (replaceOk ? O_TRUNC : O_EXCL),
+               S_IREAD|S_IWRITE);
+    if (out >= 0)
     {
       int lastwrite, nbytes;
-      while ( ( nbytes = read( in, buf, bufsize ) ) > 0 )
+      while ((nbytes = read(in, buf, bufsize)) > 0)
       {
-        lastwrite = write( out, buf, nbytes );
-        if ( lastwrite == -1 )
-          break;
+        lastwrite = write(out, buf, nbytes);
+        if (lastwrite==-1) break;
       }
-      if ( lastwrite >= 0 )
+      if (lastwrite>=0)
       {
 #ifdef _WIN32
         struct _timeb ftime;
 #else
         struct ftime ftime;
 #endif
-        getftime( in, &ftime );
-        setftime( out, &ftime );
+        getftime(in,&ftime);
+        setftime(out,&ftime);
         result = 0;
       }
-      else
-        mydir_errno = WRITE_ERROR;
+      else mydir_errno = WRITE_ERROR;
 
-      close( out );
+      close(out);
       // put this here so if fail 'cause of existence,
       // we don't remove the unreplaced file!
       // also, the file must be closed to remove
-      if ( result )
-        remove( dst );
+      if (result) remove(dst);
     }
     else
     {
       mydir_errno = DST_OPEN_ERROR;
-      switch ( errno )
+      switch(errno)
       {
       case EEXIST:
         mydir_errno = DST_ALREADY_EXIST;
         break;
       }
     }
-    close( in );
+    close(in);
   }
   else
   {
     mydir_errno = SRC_OPEN_ERROR;
-    switch ( errno )
+    switch(errno)
     {
     case ENOENT:
       mydir_errno = SRC_NO_EXIST;
@@ -246,50 +252,47 @@ static int inner_copy( const char* src, const char* dst, int replaceOk )
     }
   }
 
-  assert( buf );
-  if ( bufsize != 4 )
-    free( buf );
+  assert(buf);
+  if (bufsize != 4) free(buf);
 
   return result;
 }
 
-int copyFile( const char* src, const char* dst )
+int copyFile(const char* src, const char* dst)
 {
   int replaceOk = 1;
-  return inner_copy( src, dst, replaceOk );
+  return inner_copy(src, dst, replaceOk);
 }
 
-int copyFileNoRep( const char* src, const char* dst )
+int copyFileNoRep(const char* src, const char* dst)
 {
   int replaceOk = 0;
-  return inner_copy( src, dst, replaceOk );
+  return inner_copy(src, dst, replaceOk);
 }
 
-static int inner_move( const char* src, const char* dst, int replaceOk )
+static int inner_move(const char* src, const char* dst, int replaceOk)
 {
-  if ( replaceOk && access( dst, 0 ) == 0 )
-    remove( dst );  // let rename work
-  if ( rename( src, dst ) == 0 )
-    return 0;  // same drive, no replace.
-  else if ( inner_copy( src, dst, replaceOk ) == 0 )
+  if (replaceOk && access(dst, 0) == 0) remove(dst); // let rename work
+  if (rename(src, dst)==0) return 0; // same drive, no replace.
+  else if (inner_copy(src, dst, replaceOk)==0)
   {
-    remove( src );
+    remove(src);
     return 0;
   }
-  else
-    return -1;
+  else return -1;
 }
 
-int moveFile( const char* src, const char* dst )
+int moveFile(const char* src, const char* dst)
 {
   int replaceOk = 1;
-  return inner_move( src, dst, replaceOk );
+  return inner_move(src, dst, replaceOk);
 }
-int moveFileNoRep( const char* src, const char* dst )
+int moveFileNoRep(const char* src, const char* dst)
 {
   int replaceOk = 0;
-  return inner_move( src, dst, replaceOk );
+  return inner_move(src, dst, replaceOk);
 }
 #endif
+
 }
 }

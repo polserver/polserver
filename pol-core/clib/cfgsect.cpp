@@ -15,15 +15,18 @@ namespace Pol
 {
 namespace Clib
 {
-ConfigSection::ConfigSection( ConfigFile& cf, const std::string& sectname, unsigned flags )
-    : _cf( cf ), _sectname( sectname ), _found( false ), _flags( flags )
+ConfigSection::ConfigSection( ConfigFile& cf, const std::string& sectname, unsigned flags ) :
+  _cf( cf ),
+  _sectname( sectname ),
+  _found( false ),
+  _flags( flags )
 {
   _cf.allowed_types_.insert( sectname.c_str() );
 }
 
 ConfigSection::~ConfigSection()
 {
-  if ( !_found && ( _flags & CST_MANDATORY ) )
+  if( !_found && ( _flags & CST_MANDATORY ) )
   {
     _cf.display_error( "Mandatory section type '" + _sectname + "' not found", false );
     throw std::runtime_error( "Mandatory section type '" + _sectname +
@@ -33,9 +36,9 @@ ConfigSection::~ConfigSection()
 
 bool ConfigSection::matches( const ConfigElem& elem )
 {
-  if ( elem.type_is( _sectname.c_str() ) )
+  if( elem.type_is( _sectname.c_str() ) )
   {
-    if ( _found && ( _flags & CST_UNIQUE ) )
+    if( _found && ( _flags & CST_UNIQUE ) )
     {
       elem.throw_error( "Section type " + _sectname + " found more than once" );
     }

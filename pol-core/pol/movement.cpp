@@ -38,8 +38,7 @@ void cancel_trade( Mobile::Character* chr1 );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client )
 {
-  if ( inrange( chr, client->chr ) &&
-       !inrange( chr->x, chr->y, client->chr->lastx, client->chr->lasty ) &&
+  if ( inrange( chr, client->chr ) && !inrange( chr->x, chr->y, client->chr->lastx, client->chr->lasty ) &&
        client->chr->is_visible_to_me( chr ) && client->chr != chr )
   {
     send_owncreate( client, chr );
@@ -48,8 +47,7 @@ void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client
 
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client )
 {
-  if ( inrange( client->chr, item ) &&
-       !inrange( item->x, item->y, client->chr->lastx, client->chr->lasty ) )
+  if ( inrange( client->chr, item ) && !inrange( item->x, item->y, client->chr->lastx, client->chr->lasty ) )
   {
     send_item( client, item );
   }
@@ -57,8 +55,7 @@ void send_item_if_newly_inrange( Items::Item* item, Network::Client* client )
 
 void send_multi_if_newly_inrange( Multi::UMulti* multi, Network::Client* client )
 {
-  if ( multi_inrange( client->chr, multi ) &&
-       !multi_inrange( multi->x, multi->y, client->chr->lastx, client->chr->lasty ) )
+  if ( multi_inrange( client->chr, multi ) && !multi_inrange( multi->x, multi->y, client->chr->lastx, client->chr->lasty ) )
   {
     send_multi( client, multi );
     Multi::UHouse* house = multi->as_house();
@@ -72,18 +69,17 @@ void send_objects_newly_inrange( Network::Client* client )
   Mobile::Character* chr = client->chr;
 
   WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
-                                              {
-                                                send_char_if_newly_inrange( zonechr, client );
-                                              } );
+  {
+    send_char_if_newly_inrange( zonechr, client );
+  } );
   WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
-                                            {
-                                              send_item_if_newly_inrange( zoneitem, client );
-                                            } );
-  WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-                                       [&]( Multi::UMulti* zonemulti )
-                                       {
-                                         send_multi_if_newly_inrange( zonemulti, client );
-                                       } );
+  {
+    send_item_if_newly_inrange( zoneitem, client );
+  } );
+  WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
+  {
+    send_multi_if_newly_inrange( zonemulti, client );
+  } );
 }
 
 void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
@@ -92,52 +88,47 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
   {
+
     WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
-                                                {
-                                                  Multi::UMulti* multi =
-                                                      zonechr->realm->find_supporting_multi(
-                                                          zonechr->x, zonechr->y, zonechr->z );
+    {
+      Multi::UMulti* multi = zonechr->realm->find_supporting_multi( zonechr->x, zonechr->y, zonechr->z );
 
-                                                  if ( multi != NULL && multi->serial == serial )
-                                                    return;
+      if ( multi != NULL && multi->serial == serial )
+        return;
 
-                                                  send_char_if_newly_inrange( zonechr, client );
-                                                } );
+      send_char_if_newly_inrange( zonechr, client );
+    } );
     WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
-                                              {
-                                                Multi::UMulti* multi =
-                                                    zoneitem->realm->find_supporting_multi(
-                                                        zoneitem->x, zoneitem->y, zoneitem->z );
+    {
+      Multi::UMulti* multi = zoneitem->realm->find_supporting_multi( zoneitem->x, zoneitem->y, zoneitem->z );
 
-                                                if ( multi != NULL && multi->serial == serial )
-                                                  return;
+      if ( multi != NULL && multi->serial == serial )
+        return;
 
-                                                send_item_if_newly_inrange( zoneitem, client );
-                                              } );
-    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-                                         [&]( Multi::UMulti* zonemulti )
-                                         {
-                                           if ( zonemulti->serial == serial )
-                                             return;
+      send_item_if_newly_inrange( zoneitem, client );
+    } );
+    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
+    {
+      if ( zonemulti->serial == serial )
+        return;
 
-                                           send_multi_if_newly_inrange( zonemulti, client );
-                                         } );
+      send_multi_if_newly_inrange( zonemulti, client );
+    } );
   }
   else
   {
     WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
-                                                {
-                                                  send_char_if_newly_inrange( zonechr, client );
-                                                } );
+    {
+      send_char_if_newly_inrange( zonechr, client );
+    } );
     WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
-                                              {
-                                                send_item_if_newly_inrange( zoneitem, client );
-                                              } );
-    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-                                         [&]( Multi::UMulti* zonemulti )
-                                         {
-                                           send_multi_if_newly_inrange( zonemulti, client );
-                                         } );
+    {
+      send_item_if_newly_inrange( zoneitem, client );
+    } );
+    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti* zonemulti )
+    {
+      send_multi_if_newly_inrange( zonemulti, client );
+    } );
   }
 }
 
@@ -147,19 +138,17 @@ void remove_objects_inrange( Network::Client* client )
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
 
   WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechar )
-                                              {
-                                                send_remove_character( client, zonechar,
-                                                                       msgremove );
-                                              } );
-  WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* item )
-                                            {
-                                              send_remove_object( client, item, msgremove );
-                                            } );
-  WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-                                       [&]( Multi::UMulti* multi )
-                                       {
-                                         send_remove_object( client, multi, msgremove );
-                                       } );
+  {
+    send_remove_character( client, zonechar, msgremove );
+  } );
+  WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item *item )
+  {
+    send_remove_object( client, item, msgremove );
+  } );
+  WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Multi::UMulti *multi )
+  {
+    send_remove_object( client, multi, msgremove );
+  } );
 }
 
 
@@ -169,7 +158,7 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
 
   if ( ( client->movementsequence == 0 ) && ( msg02->movenum != 0 ) )
   {
-    // drop pkt if last request was denied, should fix the "client hopping"
+    //drop pkt if last request was denied, should fix the "client hopping"
 
     /*PktHelper::PacketOut<PktOut_21> msg;
     msg->Write<u8>(msg02->movenum);
@@ -193,8 +182,7 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
       {
         if ( chr->is_trading() )
         {
-          if ( ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) ) &&
-               ( pol_distance( chr->x, chr->y, chr->trading_with->x, chr->trading_with->y ) > 3 ) )
+          if ( ( oldfacing == ( msg02->dir& PKTIN_02_FACING_MASK ) ) && ( pol_distance( chr->x, chr->y, chr->trading_with->x, chr->trading_with->y ) > 3 ) )
           {
             cancel_trade( chr );
           }
@@ -224,15 +212,11 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
       if ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) )
       {
         if ( client->chr->on_mount() )
-          client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT )
-                                       ? settingsManager.ssopt.speedhack_mountrundelay
-                                       : settingsManager.ssopt.speedhack_mountwalkdelay;
+          client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? settingsManager.ssopt.speedhack_mountrundelay : settingsManager.ssopt.speedhack_mountwalkdelay;
         else
-          client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT )
-                                       ? settingsManager.ssopt.speedhack_footrundelay
-                                       : settingsManager.ssopt.speedhack_footwalkdelay;
+          client->next_movement += ( msg02->dir & PKTIN_02_DIR_RUNNING_BIT ) ? settingsManager.ssopt.speedhack_footrundelay : settingsManager.ssopt.speedhack_footwalkdelay;
       }
-      else  // changing only facing is fast
+      else // changing only facing is fast
         client->next_movement += settingsManager.ssopt.speedhack_mountrundelay;
     }
     else

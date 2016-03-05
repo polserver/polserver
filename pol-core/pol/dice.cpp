@@ -19,9 +19,11 @@ namespace Pol
 {
 namespace Core
 {
-Dice::Dice() : die_count( 0 ), die_type( 0 ), plus_damage( 0 )
-{
-}
+Dice::Dice() :
+  die_count( 0 ),
+  die_type( 0 ),
+  plus_damage( 0 )
+{}
 
 unsigned short Dice::roll() const
 {
@@ -29,7 +31,7 @@ unsigned short Dice::roll() const
   for ( unsigned i = 0; i < die_count; i++ )
   {
     // random_int produces [0,die_type]
-    total += Clib::random_int( die_type - 1 ) + 1;
+    total += Clib::random_int( die_type-1 )+1;
   }
   total += plus_damage;
 
@@ -48,7 +50,8 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
 
 
     if ( strchr( str, 'D' ) || strchr( str, 'd' ) )
-    {  // xdy or xdy+n or dy + nform
+    {
+      // xdy or xdy+n or dy + nform
       if ( toupper( *str ) == 'D' )
       {
         str += 1;
@@ -137,7 +140,7 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
           plus_damage = -plus_damage;
       }
     }
-    else  // just a number
+    else    // just a number
     {
       if ( !isdigit( *str ) )
       {

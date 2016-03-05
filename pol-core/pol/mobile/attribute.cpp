@@ -19,6 +19,7 @@ namespace Pol
 {
 namespace Mobile
 {
+
 Attribute* Attribute::FindAttribute( const std::string& str )
 {
   Core::AttributesByName::const_iterator citr = Core::gamestate.attributes_byname.find( str );
@@ -36,19 +37,18 @@ Attribute* Attribute::FindAttribute( unsigned attrid )
     return NULL;
 }
 
-Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem )
-    : pkg( pkg ),
-      name( elem.rest() ),
-      attrid( 0 ),
-      aliases(),
-      next( NULL ),
-      getintrinsicmod_func( nullptr ),
-      delay_seconds( elem.remove_ushort( "DELAY", 0 ) ),
-      unhides( elem.remove_bool( "UNHIDES", true ) ),
-      disable_core_checks( elem.remove_bool( "DisableCoreChecks", false ) ),
-      default_cap(
-          elem.remove_ushort( "DefaultCap", Core::settingsManager.ssopt.default_attribute_cap ) ),
-      script_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/skills/" )
+Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem ) :
+  pkg( pkg ),
+  name( elem.rest() ),
+  attrid( 0 ),
+  aliases(),
+  next( NULL ),
+  getintrinsicmod_func( nullptr ),
+  delay_seconds( elem.remove_ushort( "DELAY", 0 ) ),
+  unhides( elem.remove_bool( "UNHIDES", true ) ),
+  disable_core_checks( elem.remove_bool( "DisableCoreChecks", false ) ),
+  default_cap( elem.remove_ushort( "DefaultCap", Core::settingsManager.ssopt.default_attribute_cap ) ),
+  script_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/skills/" )
 {
   aliases.push_back( name );
   std::string tmp;
@@ -62,17 +62,17 @@ Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem )
 }
 Attribute::~Attribute()
 {
-  if ( getintrinsicmod_func != nullptr )
+  if (getintrinsicmod_func != nullptr)
     delete getintrinsicmod_func;
 }
 
 size_t Attribute::estimateSize() const
 {
-  size_t size = sizeof( Attribute );
+  size_t size = sizeof(Attribute);
   size += name.capacity();
-  for ( const auto& alias : aliases )
+  for (const auto& alias : aliases)
     size += alias.capacity();
-  size += sizeof( Core::ExportedFunction );
+  size += sizeof(Core::ExportedFunction);
   size += script_.estimatedSize();
   return size;
 }
@@ -84,7 +84,8 @@ void load_attribute_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
   const Attribute* existing = Attribute::FindAttribute( attr->name );
   if ( existing )
   {
-    elem.throw_error( "Attribute " + attr->name + " already defined by " + existing->pkg->desc() );
+    elem.throw_error( "Attribute " + attr->name + " already defined by "
+                      + existing->pkg->desc() );
   }
   attr->attrid = static_cast<unsigned int>( Core::gamestate.attributes.size() );
   if ( !Core::gamestate.attributes.empty() )
@@ -126,5 +127,6 @@ void clean_attributes()
   Core::gamestate.attributes.clear();
   Core::gamestate.attributes_byname.clear();
 }
+
 }
 }

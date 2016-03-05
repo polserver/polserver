@@ -20,7 +20,7 @@ namespace Multi
 class MultiDef;
 
 
-typedef std::map<u16, MultiDef*> MultiDefs;
+typedef std::map< u16, MultiDef* > MultiDefs;
 
 // used for POL and uotool
 class MultiDefBuffer : boost::noncopyable

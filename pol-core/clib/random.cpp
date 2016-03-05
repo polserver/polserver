@@ -6,6 +6,7 @@
  */
 
 
+
 #include <chrono>
 #include <random>
 
@@ -17,8 +18,7 @@ namespace Clib
 {
 namespace
 {
-static std::mt19937 generator(
-    static_cast<unsigned>( std::chrono::system_clock::now().time_since_epoch().count() ) );
+static std::mt19937 generator( static_cast<unsigned>( std::chrono::system_clock::now().time_since_epoch().count() ) );
 }
 
 // returns [0,f]

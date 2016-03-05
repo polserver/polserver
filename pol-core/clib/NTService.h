@@ -9,7 +9,7 @@
 #ifndef _NTSERVICE_H_
 #define _NTSERVICE_H_
 
-#include "ntservmsg.h"  // Event message ids
+#include "ntservmsg.h" // Event message ids
 
 #define SERVICE_CONTROL_USER 128
 namespace Pol
@@ -25,7 +25,9 @@ public:
   BOOL IsInstalled();
   BOOL Install();
   BOOL Uninstall();
-  void LogEvent( WORD wType, DWORD dwID, const char* pszS1 = NULL, const char* pszS2 = NULL,
+  void LogEvent( WORD wType, DWORD dwID,
+                 const char* pszS1 = NULL,
+                 const char* pszS2 = NULL,
                  const char* pszS3 = NULL );
   BOOL StartService();
   void SetStatus( DWORD dwState );
@@ -53,11 +55,12 @@ public:
   BOOL m_bIsRunning;
 
   // static data
-  static CNTService* m_pThis;  // nasty hack to get object ptr
+  static CNTService* m_pThis; // nasty hack to get object ptr
 
 private:
   HANDLE m_hEventSource;
+
 };
 }
 }
-#endif  // _NTSERVICE_H_
+#endif // _NTSERVICE_H_

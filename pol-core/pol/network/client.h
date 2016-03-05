@@ -75,14 +75,11 @@ class UOClientInterface;
 const u16 T2A = 0x01;
 const u16 LBR = 0x02;
 const u16 AOS = 0x04;
-const u16 SE = 0x08;  // set AOS-Flag in send_feature_enable() too for needed checks
-const u16 ML = 0x10;  // set SE- and AOS-Flag in send_feature_enable() too for needed checks
-const u16 KR =
-    0x20;  // set KR- and ML- and SE- and AOS-Flag in send_feature_enable() too for needed checks
-const u16 SA =
-    0x40;  // set SA- and KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
-const u16 HSA = 0x80;  // set HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too
-                       // for needed checks
+const u16 SE = 0x08; // set AOS-Flag in send_feature_enable() too for needed checks
+const u16 ML = 0x10; // set SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 KR = 0x20; // set KR- and ML- and SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 SA = 0x40; // set SA- and KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 HSA = 0x80; // set HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
 
 const u8 FLAG_GENDER = 0x01;
 const u8 FLAG_RACE = 0x02;
@@ -95,17 +92,17 @@ struct VersionDetailStruct
   int patch;
 };
 
-const struct VersionDetailStruct CLIENT_VER_4000 = {4, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_4070 = {4, 0, 7, 0};
-const struct VersionDetailStruct CLIENT_VER_5000 = {5, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_5020 = {5, 0, 2, 0};
-const struct VersionDetailStruct CLIENT_VER_6017 = {6, 0, 1, 7};
-const struct VersionDetailStruct CLIENT_VER_60142 = {6, 0, 14, 2};
-const struct VersionDetailStruct CLIENT_VER_7000 = {7, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_7090 = {7, 0, 9, 0};
-const struct VersionDetailStruct CLIENT_VER_70130 = {7, 0, 13, 0};
-const struct VersionDetailStruct CLIENT_VER_70300 = {7, 0, 30, 0};
-const struct VersionDetailStruct CLIENT_VER_70331 = {7, 0, 33, 1};
+const struct VersionDetailStruct CLIENT_VER_4000 = { 4, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_4070 = { 4, 0, 7, 0 };
+const struct VersionDetailStruct CLIENT_VER_5000 = { 5, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_5020 = { 5, 0, 2, 0 };
+const struct VersionDetailStruct CLIENT_VER_6017 = { 6, 0, 1, 7 };
+const struct VersionDetailStruct CLIENT_VER_60142 = { 6, 0, 14, 2 };
+const struct VersionDetailStruct CLIENT_VER_7000 = { 7, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_7090 = { 7, 0, 9, 0 };
+const struct VersionDetailStruct CLIENT_VER_70130 = { 7, 0, 13, 0 };
+const struct VersionDetailStruct CLIENT_VER_70300 = { 7, 0, 30, 0 };
+const struct VersionDetailStruct CLIENT_VER_70331 = { 7, 0, 33, 1 };
 
 enum ClientTypeFlag
 {
@@ -116,11 +113,11 @@ enum ClientTypeFlag
   CLIENTTYPE_6017 = 0x10,   // 6.0.1.7  (Grid locs)
   CLIENTTYPE_60142 = 0x20,  // 6.0.14.2 (feature enable 0xb9 size change)
   CLIENTTYPE_UOKR = 0x40,
-  CLIENTTYPE_7000 = 0x80,  // 7.0.0.0  (Gargoyle race)
+  CLIENTTYPE_7000 = 0x80,   // 7.0.0.0  (Gargoyle race)
   CLIENTTYPE_UOSA = 0x100,
-  CLIENTTYPE_7090 = 0x200,   // 7.0.9.0 (High Sea Adventures)
-  CLIENTTYPE_70130 = 0x400,  // 7.0.13.0 (New 0xA9 packet)
-  CLIENTTYPE_70300 = 0x800,  // 7.0.30.0 (New Status entries for classic client)
+  CLIENTTYPE_7090 = 0x200,  // 7.0.9.0 (High Sea Adventures)
+  CLIENTTYPE_70130 = 0x400, // 7.0.13.0 (New 0xA9 packet)
+  CLIENTTYPE_70300 = 0x800, // 7.0.30.0 (New Status entries for classic client)
   CLIENTTYPE_70331 = 0x1000  // 7.0.33.1 new mobile incoming
 };
 
@@ -140,7 +137,7 @@ private:
   void PreDelete();
   virtual ~Client();
   bool preDisconnect;
-  bool disconnect;  // if 1, disconnect this client
+  bool disconnect;    // if 1, disconnect this client
 
 public:
   void Disconnect();
@@ -151,17 +148,28 @@ public:
 
   void unregister(); // removes updater for vitals and takes client away from clientlist
   void closeConnection();
-  void transmit( const void* data, int len,
-                 bool needslock = false );         // for entire message or header only
-  void transmitmore( const void* data, int len );  // for stuff after a header
+  void transmit( const void* data, int len, bool needslock = false ); // for entire message or header only
+  void transmitmore( const void* data, int len ); // for stuff after a header
 
   void recv_remaining( int total_expected );
   void recv_remaining_nocrypt( int total_expected );
 
-  void setversion( const std::string& ver ) { version_ = ver; }
-  const std::string& getversion() const { return version_; }
-  VersionDetailStruct getversiondetail() const { return versiondetail_; }
-  void setversiondetail( VersionDetailStruct& detail ) { versiondetail_ = detail; }
+  void setversion( const std::string& ver )
+  {
+    version_ = ver;
+  }
+  const std::string& getversion() const
+  {
+    return version_;
+  }
+  VersionDetailStruct getversiondetail() const
+  {
+    return versiondetail_;
+  }
+  void setversiondetail( VersionDetailStruct& detail )
+  {
+    versiondetail_ = detail;
+  }
   static void itemizeclientversion( const std::string& ver, VersionDetailStruct& detail );
   bool compareVersion( const std::string& ver );
   bool compareVersion( const VersionDetailStruct& ver2 );
@@ -181,17 +189,17 @@ public:
   Mobile::Character* chr;
   ClientInterface& Interface;
 
-  bool ready;  // all initialization stuff has been sent, ready for general use.
+  bool ready;     // all initialization stuff has been sent, ready for general use.
 
 
   //
   bool have_queued_data() const;
   void send_queued_data();
 
-  SOCKET csocket;  // socket to client ACK  - requires header inclusion.
+  SOCKET csocket;   // socket to client ACK  - requires header inclusion.
   static std::mutex _SocketMutex;
   unsigned short listen_port;
-  bool aosresist;  // UOClient.Cfg Entry
+  bool aosresist; // UOClient.Cfg Entry
 
 
   enum e_recv_states
@@ -206,14 +214,14 @@ public:
   unsigned char bufcheck1_AA;
   unsigned char buffer[MAXBUFFER];
   unsigned char bufcheck2_55;
-  unsigned int bytes_received;  // how many bytes have been received into the buffer.
-  unsigned int message_length;  // how many bytes are expected for this message
+  unsigned int bytes_received;    // how many bytes have been received into the buffer.
+  unsigned int message_length;    // how many bytes are expected for this message
 
   sockaddr ipaddr;
 
   Crypt::CCryptBase* cryptengine;
 
-  bool encrypt_server_stream;  // encrypt the server stream (data sent to client)?
+  bool encrypt_server_stream;       // encrypt the server stream (data sent to client)?
 
   const Core::MessageTypeFilter* msgtype_filter;
 
@@ -236,10 +244,11 @@ public:
   weak_ptr<Client> getWeakPtr() const;
 
 protected:
+
   Core::XmitBuffer* first_xmit_buffer;
   Core::XmitBuffer* last_xmit_buffer;
   int n_queued;
-  int queued_bytes_counter;  // only used for monitoring
+  int queued_bytes_counter; // only used for monitoring
 
   // we may want to track how many bytes total are outstanding,
   // and boot clients that are too far behind.
@@ -250,7 +259,7 @@ public:
   ClientGameData* gd;
   unsigned int instance_;
   static unsigned int instance_counter_;
-  int checkpoint;  // CNXBUG
+  int checkpoint;//CNXBUG
   unsigned char last_msgtype;
   size_t thread_pid;
   u16 UOExpansionFlag;
@@ -308,7 +317,7 @@ inline bool Client::isActive() const
 
 inline bool Client::might_use_v2_handler() const
 {
-  return ( this->ClientType & Network::CLIENTTYPE_6017 ) != 0;
+  return (this->ClientType & Network::CLIENTTYPE_6017) != 0;
 }
 }
 }

@@ -11,16 +11,13 @@
  * - 2009/02/01 MuadDib:   Resistance storage added.
  * - 2009/09/15 MuadDib:   Cleanup from registered houses on destroy
  *                         u32 registered_house added to store serial of registered multi.
- * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue)
- * virtuals.
+ * - 2009/09/22 MuadDib:   Rewrite for Character/NPC to use ar(), ar_mod(), ar_mod(newvalue) virtuals.
  * - 2009/09/22 Turley:    repsys param to applydamage
  * - 2009/10/14 Turley:    new priv canbeheardasghost
  * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
- * - 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" -
- * Tomi
+ * - 2009/10/17 Turley:    PrivUpdater for "seehidden", "seeghosts", "seeinvisitems" and "invul" - Tomi
  *                         fixed "all" priv
- * - 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on
- * resurrection
+ * - 2009/11/16 Turley:    added NpcPropagateEnteredArea()/inform_enteredarea() for event on resurrection
  * - 2009/11/20 Turley:    RecalcVitals can update single Attributes/Vitals - based on Tomi
  * - 2010/01/15 Turley:    (Tomi) priv runwhilestealth
  * - 2010/01/22 Turley:    Speedhack Prevention System
@@ -112,6 +109,7 @@ class UOExecutorModule;
 }
 namespace Mobile
 {
+
 class Attribute;
 class Character;
 
@@ -119,6 +117,7 @@ class AttributeValue
 {
 public:
   AttributeValue() : _base( 0 ), _temp( 0 ), _intrinsic( 0 ), _lockstate( 0 ), _cap( 0 ) {}
+
   int effective() const
   {
     int v = _base;
@@ -134,25 +133,57 @@ public:
     return ( v > 0 ) ? v : 0;
   }
 
-  int base() const { return _base; }
+  int base() const
+  {
+    return _base;
+  }
+
   void base( unsigned short base )
   {
     passert( base <= ATTRIBUTE_MAX_BASE );
     _base = base;
   }
 
-  int temp_mod() const { return _temp; }
-  void temp_mod( short temp ) { _temp = temp; }
-  int intrinsic_mod() const { return _intrinsic; }
-  void intrinsic_mod( short val ) { _intrinsic = val; }
-  unsigned char lock() const { return _lockstate; }
-  void lock( unsigned char lockstate ) { _lockstate = lockstate; }
-  unsigned short cap() const { return _cap; }
-  void cap( unsigned short cap ) { _cap = cap; }
+  int temp_mod() const
+  {
+    return _temp;
+  }
+  void temp_mod( short temp )
+  {
+    _temp = temp;
+  }
+
+  int intrinsic_mod() const
+  {
+    return _intrinsic;
+  }
+  void intrinsic_mod( short val )
+  {
+    _intrinsic = val;
+  }
+
+  unsigned char lock() const
+  {
+    return _lockstate;
+  }
+  void lock( unsigned char lockstate )
+  {
+    _lockstate = lockstate;
+  }
+
+  unsigned short cap() const
+  {
+    return _cap;
+  }
+  void cap( unsigned short cap )
+  {
+    _cap = cap;
+  }
+
 private:
   unsigned short _base;
   short _temp;
-  short _intrinsic;  // humm, a vector here?
+  short _intrinsic; // humm, a vector here?
   unsigned char _lockstate;
   unsigned short _cap;
 };
@@ -161,18 +192,38 @@ class VitalValue
 {
 public:
   VitalValue() : _current( 0 ), _maximum( 0 ), _regenrate( 0 ) {}
+
   // accessors:
-  int current() const { return _current; }
-  int current_ones() const { return _current / 100; }
+  int current() const
+  {
+    return _current;
+  }
+  int current_ones() const
+  {
+    return _current / 100;
+  }
   int current_thousands() const
   {
     // use division to prevent overflow
-    return ( _current / 100 ) * 1000 / ( _maximum / 100 );
+    return (_current / 100) * 1000 / (_maximum/100);
   }
-  int maximum() const { return _maximum; }
-  int maximum_ones() const { return _maximum / 100; }
-  bool is_at_maximum() const { return ( _current >= _maximum ); }
-  int regenrate() const { return _regenrate; }
+  int maximum() const
+  {
+    return _maximum;
+  }
+  int maximum_ones() const
+  {
+    return _maximum / 100;
+  }
+  bool is_at_maximum() const
+  {
+    return ( _current >= _maximum );
+  }
+  int regenrate() const
+  {
+    return _regenrate;
+  }
+
   // mutators:
 protected:
   friend class Character;
@@ -194,7 +245,10 @@ protected:
     if ( _current > _maximum )
       current( _maximum );
   }
-  void regenrate( int rate ) { _regenrate = rate; }
+  void regenrate( int rate )
+  {
+    _regenrate = rate;
+  }
   bool consume( unsigned int hamt )
   {
     if ( _current >= hamt )
@@ -211,7 +265,8 @@ protected:
   void produce( unsigned int hamt )
   {
     unsigned newcur = _current + hamt;
-    if ( newcur > _maximum || newcur < _current )
+    if ( newcur > _maximum ||
+         newcur < _current )
     {
       _current = _maximum;
     }
@@ -222,9 +277,9 @@ protected:
   }
 
 private:
-  unsigned int _current;  // 0 to 10000000 [0 to 100000.00]
+  unsigned int _current;     // 0 to 10000000 [0 to 100000.00]
   unsigned int _maximum;
-  int _regenrate;  // in hundredths of points per minute
+  int _regenrate; // in hundredths of points per minute
 };
 
 /**
@@ -248,37 +303,40 @@ struct reportable_t
   u32 serial;
   Core::polclock_t polclock;
 };
-inline bool operator<( const reportable_t& lhs, const reportable_t& rhs )
+inline bool operator < ( const reportable_t& lhs, const reportable_t& rhs )
 {
-  return ( lhs.serial < rhs.serial ) || ( lhs.serial == rhs.serial && lhs.polclock < rhs.polclock );
+  return ( lhs.serial < rhs.serial ) ||
+         ( lhs.serial == rhs.serial && lhs.polclock < rhs.polclock );
 }
 
 struct CachedSettings
 {
-  CachedSettings()
-      : all( false ),
-        moveany( false ),
-        moveanydist( false ),
-        renameany( false ),
-        clotheany( false ),
-        invul( false ),
-        seehidden( false ),
-        seeghosts( false ),
-        hearghosts( false ),
-        seeinvisitems( false ),
-        dblclickany( false ),
-        losany( false ),
-        ignoredoors( false ),
-        freemove( false ),
-        firewhilemoving( false ),
-        attackhidden( false ),
-        hiddenattack( false ),
-        plogany( false ),
-        canbeheardasghost( false ),
-        runwhilestealth( false ),
-        speedhack( false ){};
+  CachedSettings() :
+    all( false ),
+    moveany( false ),
+    moveanydist( false ),
+    renameany( false ),
+    clotheany( false ),
+    invul( false ),
+    seehidden( false ),
+    seeghosts( false ),
+    hearghosts( false ),
+    seeinvisitems( false ),
+    dblclickany( false ),
+    losany( false ),
+    ignoredoors( false ),
+    freemove( false ),
+    firewhilemoving( false ),
+    attackhidden( false ),
+    hiddenattack( false ),
+    plogany( false ),
+    canbeheardasghost( false ),
+    runwhilestealth( false ),
+    speedhack( false )
+  {
+  };
   bool all;
-  bool moveany;  // should everything be moveable?
+  bool moveany;    // should everything be moveable?
   bool moveanydist;
   bool renameany;  // should everything be renameable?
   bool clotheany;
@@ -288,7 +346,7 @@ struct CachedSettings
   bool hearghosts;
   bool seeinvisitems;
   bool dblclickany;
-  bool losany;  // all targetting ignore LOS?
+  bool losany;    // all targetting ignore LOS?
   bool ignoredoors;
   bool freemove;
   bool firewhilemoving;
@@ -317,15 +375,14 @@ class Character : public Core::UObject
 public:
   explicit Character( u32 objtype, UOBJ_CLASS uobj_class = CLASS_CHARACTER );
   virtual ~Character();
-
 private:
   // non-implemented functions:
-  Character( const Character& );
-  Character& operator=( const Character& );
+  Character( const Character&);
+  Character& operator=( const Character&);
 
   // UOBJECT INTERFACE
 public:
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
   virtual void destroy() POL_OVERRIDE;
   virtual u8 los_height() const POL_OVERRIDE;
@@ -341,24 +398,17 @@ public:
   virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
 
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  // id test
-  virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; //id test
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, const std::string& value ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      POL_OVERRIDE;  // id test
-  virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
-  virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ) POL_OVERRIDE;//id test
+  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;//id test
+  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Bscript::Executor& ex ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex ) POL_OVERRIDE;
   virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
   virtual const char* target_tag() const POL_OVERRIDE;
-
 protected:
   virtual const char* classname() const POL_OVERRIDE;
   virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
@@ -371,7 +421,7 @@ public:
 
   // NPC INTERFACE
 public:
-  virtual Items::UWeapon* intrinsic_weapon();
+  virtual Items::UWeapon* intrinsic_weapon( );
 
   virtual void inform_disengaged( Character* disengaged );
   virtual void inform_engaged( Character* engaged );
@@ -381,14 +431,13 @@ public:
   virtual void inform_moved( Character* moved );
   virtual void inform_imoved( Character* chr );
   virtual double armor_absorb_damage( double damage );
-  virtual void get_hitscript_params( double damage, Items::UArmor** parmor,
+  virtual void get_hitscript_params( double damage,
+                                     Items::UArmor** parmor,
                                      unsigned short* rawdamage );
   virtual unsigned short ar() const;
   virtual void refresh_ar();
 
-  virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source,
-                                            bool userepsys = true,
-                                            bool send_damage_packet = false );
+  virtual void apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys = true, bool send_damage_packet = false );
   void on_swing_failure( Character* attacker );
   virtual void on_death( Items::Item* corpse );
 
@@ -399,7 +448,6 @@ public:
   virtual void repsys_on_help( Character* recipient );
   virtual unsigned char hilite_color_idx( const Character* seen_by ) const;
   virtual unsigned short name_color( const Character* seen_by ) const;
-
 protected:
   virtual u16 get_damaged_sound() const;
 
@@ -411,19 +459,19 @@ public:
   bool strong_enough_to_equip( const Items::Item* item ) const;
   bool equippable( const Items::Item* item ) const;
   bool is_equipped( const Items::Item* item ) const;
-  void equip( Items::Item* item );  // You MUST check equippable() before calling this
+  void equip( Items::Item* item ); // You MUST check equippable() before calling this
   void unequip( Items::Item* item );
 
   Core::Spellbook* spellbook( u8 school ) const;
-  Core::UContainer* backpack() const;
+  Core::UContainer* backpack( ) const;
   Items::Item* wornitem( int layer ) const;
   unsigned int gold_carried() const;
   void spend_gold( unsigned int amount );
 
-  DYN_PROPERTY_POINTER( gotten_item, Items::Item*, Core::PROP_GOTTEN_BY );
+  DYN_PROPERTY_POINTER(gotten_item, Items::Item*, Core::PROP_GOTTEN_BY);
   void clear_gotten_item();
 
-  void add_remote_container( Items::Item* );
+  void add_remote_container( Items::Item*);
   Items::Item* search_remote_containers( u32 serial, bool* isRemoteContainer ) const;
   bool mightsee( const Items::Item* item ) const;
 
@@ -480,7 +528,7 @@ public:
   Character* get_opponent() const;
   Character* get_attackable_opponent() const;
 
-  Items::UArmor* choose_armor() const;
+  Items::UArmor* choose_armor( ) const;
 
   void showarmor() const;
 
@@ -519,8 +567,7 @@ public:
   void set_dexterity( u16 dexterity );
   void validate_stat_ranges();
 
-  double apply_damage( double damage, Character* source = NULL, bool userepsys = true,
-                       bool send_damage_packet = false );
+  double apply_damage( double damage, Character* source = NULL, bool userepsys = true, bool send_damage_packet = false );
   void heal_damage_hundredths( unsigned int damage );
 
   void resurrect();
@@ -541,11 +588,11 @@ public:
 
   const VitalValue& vital( unsigned vitalid ) const;
   VitalValue& vital( unsigned vitalid );
-  void regen_vital( const Core::Vital* );                         // throw()
-  void calc_vital_stuff( bool i_mod = true, bool v_mod = true );  // throw()
+  void regen_vital( const Core::Vital*);  // throw()
+  void calc_vital_stuff( bool i_mod = true, bool v_mod = true ); // throw()
   void calc_single_vital( const Core::Vital* pVital );
   void calc_single_attribute( const Attribute* pAttr );
-  void set_vitals_to_maximum();  // throw();
+  void set_vitals_to_maximum(); // throw();
   void produce( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
   bool consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
   void set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
@@ -556,8 +603,8 @@ public:
   friend class Core::RepSystem;
 
   Bscript::ObjArray* GetReportables() const;
-  Bscript::ObjArray* GetAggressorTo() const;
-  Bscript::ObjArray* GetLawFullyDamaged() const;
+  Bscript::ObjArray* GetAggressorTo( ) const;
+  Bscript::ObjArray* GetLawFullyDamaged( ) const;
 
   bool is_aggressor_to( const Character* chr ) const;
   void restart_aggressor_timer( Character* chr, Core::polclock_t until );
@@ -594,16 +641,16 @@ public:
 
   // GUILD
 public:
-  DYN_PROPERTY_POINTER( guild, Core::Guild*, Core::PROP_GUILD );
+  DYN_PROPERTY_POINTER(guild, Core::Guild*, Core::PROP_GUILD);
   unsigned int guildid() const;
   bool is_guild_ally( const Character* chr ) const;
   bool is_guild_enemy( const Character* chr ) const;
 
   // PARTY
 public:
-  DYN_PROPERTY_POINTER( party, Core::Party*, Core::PROP_PARTY );
-  DYN_PROPERTY_POINTER( candidate_of, Core::Party*, Core::PROP_PARTY_CANDIDATE );
-  DYN_PROPERTY_POINTER( offline_mem_of, Core::Party*, Core::PROP_PARTY_OFFLINE );
+  DYN_PROPERTY_POINTER(party,          Core::Party*, Core::PROP_PARTY);
+  DYN_PROPERTY_POINTER(candidate_of,   Core::Party*, Core::PROP_PARTY_CANDIDATE);
+  DYN_PROPERTY_POINTER(offline_mem_of, Core::Party*, Core::PROP_PARTY_OFFLINE);
   bool party_can_loot() const;
   void set_party_can_loot( bool );
   void set_party_invite_timeout();
@@ -614,26 +661,25 @@ public:
 public:
   bool is_trading() const;
   void create_trade_container();
-  Core::UContainer* trade_container();
+  Core::UContainer* trade_container( );
 
   // SCRIPT
 public:
-  void schedule_spell( Core::USpell* );
+  void schedule_spell( Core::USpell*);
   bool casting_spell() const;
   bool skill_ex_active() const;
-  bool start_script( Bscript::EScriptProgram* prog, bool start_attached,
-                     Bscript::BObjectImp* param2 = NULL, Bscript::BObjectImp* param3 = NULL,
+  bool start_script( Bscript::EScriptProgram* prog,
+                     bool start_attached,
+                     Bscript::BObjectImp* param2 = NULL,
+                     Bscript::BObjectImp* param3 = NULL,
                      Bscript::BObjectImp* param4 = NULL );
   bool start_skill_script( Bscript::EScriptProgram* prog );
-  bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
-                             bool start_attached );
+  bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item, bool start_attached );
   bool start_spell_script( Bscript::EScriptProgram* prog, Core::USpell* spell );
   void cancel_menu();
-
 private:
   friend void handle_script_cursor( Character* chr, UObject* obj );
-  friend void menu_selection_made( Network::Client* client, Core::MenuItem* mi,
-                                   Core::PKTIN_7D* msg );
+  friend void menu_selection_made( Network::Client* client, Core::MenuItem* mi, Core::PKTIN_7D* msg );
   friend class Module::UOExecutorModule;
   void stop_skill_script();
 
@@ -662,7 +708,7 @@ public:
   bool doors_block() const;
   bool ignores_line_of_sight() const;
 
-  bool is_visible() const;  // meant to combine "hiding", "concealed", "invisible" etc.
+  bool is_visible() const; // meant to combine "hiding", "concealed", "invisible" etc.
   bool is_visible_to_me( const Character* chr ) const;
   bool hidden() const;
   void hidden( bool value );
@@ -701,7 +747,6 @@ public:
   void set_privs( const std::string& privlist );
 
   void check_concealment_level();
-
 private:
   void refresh_cached_settings( bool update = true );
 
@@ -709,7 +754,6 @@ private:
 public:
   void readCommonProperties( Clib::ConfigElem& elem );
   void readAttributesAndVitals( Clib::ConfigElem& elem );
-
 protected:
   friend void Core::write_characters( Core::SaveContext& sc );
   friend void Core::write_npcs( Core::SaveContext& sc );
@@ -727,12 +771,10 @@ private:
 public:
   void removal_cleanup();
   void disconnect_cleanup();
-  int charindex() const;  // find account character index, or -1 if not found.
+  int charindex() const; // find account character index, or -1 if not found.
   void on_delete_from_account();
-
 protected:
-  friend void Core::undo_get_item( Character* chr,
-                                   Items::Item* item );  // this just gets uglier and uglier.
+  friend void Core::undo_get_item( Character* chr, Items::Item* item ); // this just gets uglier and uglier.
 
   // BUFF/DEBUFF BAR
 public:
@@ -740,9 +782,8 @@ public:
   bool delBuff( u16 icon );
   void clearBuffs();
   void send_buffs();
-
 protected:
-  std::map<u16, Buff> buffs_;  // indexed by icon ID
+  std::map<u16, Buff> buffs_; // indexed by icon ID
 
   // ==========================================================
   // DATA:
@@ -753,7 +794,7 @@ protected:
 protected:
   // EQUIPMENT / ITEMS
 protected:
-  DYN_PROPERTY( carrying_capacity_mod, s16, Core::PROP_CARRY_CAPACITY_MOD, 0 );
+  DYN_PROPERTY(carrying_capacity_mod, s16, Core::PROP_CARRY_CAPACITY_MOD, 0);
 
   Items::UWeapon* weapon;
   Items::UArmor* shield;
@@ -761,7 +802,6 @@ protected:
 
   ref_ptr<Core::WornItemsContainer> wornitems_ref;
   Core::WornItemsContainer& wornitems;
-
 public:
   enum GOTTEN_ITEM_TYPE : u8
   {
@@ -770,37 +810,30 @@ public:
     GOTTEN_ITEM_IN_CONTAINER
   } gotten_item_source;
 
-  std::vector<Core::ItemRef> remote_containers_;  // does not own its objects
+  std::vector< Core::ItemRef > remote_containers_; // does not own its objects
   // MOVEMENT
 public:
-  u8 dir;  // the entire 'dir' from their last MSG02_WALK
-  short gradual_boost;
-  u16 lastx, lasty;  // position before their last MSG02_WALK
+  u8 dir;       // the entire 'dir' from their last MSG02_WALK
+  short  gradual_boost;
+  u16 lastx, lasty; // position before their last MSG02_WALK
   s8 lastz;
 
-  enum MOVEREASON : u8
-  {
-    WALKED = 0,
-    OTHER = 0,
-    MULTIMOVE = 1
-  } move_reason;
+  enum MOVEREASON : u8 { WALKED = 0, OTHER = 0, MULTIMOVE = 1 } move_reason;
   Core::MOVEMODE movemode;
-  DYN_PROPERTY( lightoverride, int, Core::PROP_LIGHTOVERRIDE, -1 );
-  DYN_PROPERTY( lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0 );
+  DYN_PROPERTY(lightoverride,       int,               Core::PROP_LIGHTOVERRIDE,       -1);
+  DYN_PROPERTY(lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0);
 
   static const Core::MovementCostMod DEFAULT_MOVEMENTCOSTMOD;
-  DYN_PROPERTY( movement_cost, Core::MovementCostMod, Core::PROP_MOVEMENTCOST_MOD,
-                DEFAULT_MOVEMENTCOSTMOD );
+  DYN_PROPERTY(movement_cost, Core::MovementCostMod, Core::PROP_MOVEMENTCOST_MOD, DEFAULT_MOVEMENTCOSTMOD);
   // COMBAT
 public:
   u32 warmode_wait;
-
 protected:
   u16 ar_;
-  DYN_PROPERTY( ar_mod, s16, Core::PROP_AR_MOD, 0 );
-  DYN_PROPERTY( delay_mod, s16, Core::PROP_DELAY_MOD, 0 );
-  DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HITCHANCE_MOD, 0 );
-  DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
+  DYN_PROPERTY(ar_mod,            s16, Core::PROP_AR_MOD,            0);
+  DYN_PROPERTY(delay_mod,         s16, Core::PROP_DELAY_MOD,         0);
+  DYN_PROPERTY(hitchance_mod,     s16, Core::PROP_HITCHANCE_MOD,     0);
+  DYN_PROPERTY(evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0);
 
   Character* opponent_;
   CharacterSet opponent_of;
@@ -814,7 +847,7 @@ public:
   std::vector<VitalValue> vitals;
   // REPUTATION
 private:
-  typedef std::map<Core::CharacterRef, Core::polclock_t> MobileCont;
+  typedef std::map< Core::CharacterRef, Core::polclock_t > MobileCont;
   typedef std::set<reportable_t> ReportableList;
   typedef std::set<USERIAL> ToBeReportableList;
   bool murderer_;
@@ -838,22 +871,20 @@ public:
   bool trade_accepted;
   // SCRIPT
 public:
-  DYN_PROPERTY( disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0 );
+  DYN_PROPERTY(disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0);
   Core::TargetCursor* tcursor2;
   Core::Menu* menu;
-  void ( *on_menu_selection )( Network::Client* client, Core::MenuItem* mi, Core::PKTIN_7D* msg );
-  void ( *on_popup_menu_selection )( Network::Client* client, u32 serial, u16 id );
-
+  void( *on_menu_selection )( Network::Client* client, Core::MenuItem* mi, Core::PKTIN_7D* msg );
+  void( *on_popup_menu_selection )( Network::Client* client, u32 serial, u16 id );
 protected:
   Core::UOExecutor* script_ex;
   Core::OneShotTask* spell_task;
   // CLIENT
 public:
   Network::Client* client;
-  bool logged_in;  // for NPCs, this is always true.
+  bool logged_in;   // for NPCs, this is always true.
   bool connected;
   std::string uclang;
-
 private:
   u16 _last_textcolor;
   // PRIVS SETTINGS STATUS
@@ -864,17 +895,15 @@ public:
 
   static const Core::ExtStatBarFollowers DEFAULT_EXTSTATBARFOLLOWERS;
   static const Core::SkillStatCap DEFAULT_SKILLSTATCAP;
-  DYN_PROPERTY( skillstatcap, Core::SkillStatCap, Core::PROP_STATCAP_SKILLCAP,
-                DEFAULT_SKILLSTATCAP );
-  DYN_PROPERTY( luck, s16, Core::PROP_EXT_STATBAR_LUCK, 0 );
-  DYN_PROPERTY( followers, Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS,
-                DEFAULT_EXTSTATBARFOLLOWERS );
-  DYN_PROPERTY( tithing, s32, Core::PROP_EXT_STATBAR_TITHING, 0 );
+  DYN_PROPERTY(skillstatcap, Core::SkillStatCap,        Core::PROP_STATCAP_SKILLCAP,      DEFAULT_SKILLSTATCAP);
+  DYN_PROPERTY(luck,         s16,                       Core::PROP_EXT_STATBAR_LUCK,      0);
+  DYN_PROPERTY(followers,    Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS, DEFAULT_EXTSTATBARFOLLOWERS);
+  DYN_PROPERTY(tithing,      s32,                       Core::PROP_EXT_STATBAR_TITHING,   0);
 
 protected:
   bool dead_;
   bool hidden_;
-  u8 concealed_;  // 0 to cmdlevel
+  u8 concealed_; // 0 to cmdlevel
   bool frozen_;
   bool paralyzed_;
   u16 stealthsteps_;
@@ -884,9 +913,8 @@ protected:
   Clib::StringSet settings;
   CachedSettings cached_settings;
 
-  DYN_PROPERTY( squelched_until, Core::gameclock_t, Core::PROP_SQUELCHED_UNTIL, 0 );
-  DYN_PROPERTY( deafened_until, Core::gameclock_t, Core::PROP_DEAFENED_UNTIL, 0 );
-
+  DYN_PROPERTY(squelched_until, Core::gameclock_t, Core::PROP_SQUELCHED_UNTIL, 0);
+  DYN_PROPERTY(deafened_until,  Core::gameclock_t, Core::PROP_DEAFENED_UNTIL,  0);
 private:
   // SERIALIZATION
 
@@ -903,13 +931,14 @@ public:
   Core::URACE race;
   u32 last_corpse;
 
-  DYN_PROPERTY( dblclick_wait, u32, Core::PROP_DOUBLECLICK_WAIT, 0 );
+  DYN_PROPERTY(dblclick_wait, u32, Core::PROP_DOUBLECLICK_WAIT, 0);
 
-  DYN_PROPERTY( title_prefix, std::string, Core::PROP_TITLE_PREFIX, "" );
-  DYN_PROPERTY( title_suffix, std::string, Core::PROP_TITLE_SUFFIX, "" );
-  DYN_PROPERTY( title_guild, std::string, Core::PROP_TITLE_GUILD, "" );
-  DYN_PROPERTY( title_race, std::string, Core::PROP_TITLE_RACE, "" );
+  DYN_PROPERTY(title_prefix, std::string, Core::PROP_TITLE_PREFIX, "");
+  DYN_PROPERTY(title_suffix, std::string, Core::PROP_TITLE_SUFFIX, "");
+  DYN_PROPERTY(title_guild,  std::string, Core::PROP_TITLE_GUILD,  "");
+  DYN_PROPERTY(title_race,   std::string, Core::PROP_TITLE_RACE,   "");
 };
+
 
 
 inline bool Character::dead() const
@@ -1024,7 +1053,7 @@ inline bool Character::can_dblclickany() const
 
 inline bool Character::has_shield() const
 {
-  return ( shield != NULL );
+  return (shield != NULL);
 }
 
 inline Items::UArmor* Character::get_shield() const
@@ -1053,7 +1082,7 @@ inline VitalValue& Character::vital( unsigned vitalid )
   return vitals[vitalid];
 }
 
-// dave moved this here from .cpp 2/3/3 so i can use it in uoemod.cpp
+//dave moved this here from .cpp 2/3/3 so i can use it in uoemod.cpp
 inline void NpcPropagateMove( Character* chr, Character* moved )
 {
   if ( chr != moved )

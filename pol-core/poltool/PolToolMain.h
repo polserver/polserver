@@ -7,6 +7,7 @@ namespace Pol
 {
 namespace Clib
 {
+
 class PolToolMain : public ProgramMain
 {
 public:
@@ -20,7 +21,8 @@ private:
   virtual void showHelp();
   int poltool();
 };
-}
-}  // namespaces
 
-#endif  // POL_TOOL_MAIN_H
+}
+} // namespaces
+
+#endif // POL_TOOL_MAIN_H

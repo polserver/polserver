@@ -11,7 +11,7 @@
 #include "../clib/dirlist.h"
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // POSIX deprecation warnings for stricmp, getenv
+#pragma warning(disable:4996) // POSIX deprecation warnings for stricmp, getenv
 #endif
 
 namespace Pol
@@ -55,8 +55,8 @@ void CompilerConfig::Read( const std::string& path )
   ThreadedCompilation = elem.remove_bool( "ThreadedCompilation", false );
   ParanoiaWarnings = elem.remove_bool( "ParanoiaWarnings", false );
 
-// This is where we TRY to validate full paths from what was provided in the
-// ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
+  // This is where we TRY to validate full paths from what was provided in the
+  // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
 #ifdef WIN32
   std::string MyPath = path.c_str();
   // If it's just "ecompile.cfg", let's change it to the exe's path which it SHOULD be
@@ -70,35 +70,32 @@ void CompilerConfig::Read( const std::string& path )
     MyPath = workingDir.substr( 0, workingDir.length() - 1 );
     MyPath = MyPath.substr( 0, MyPath.find_last_of( '/' ) + 1 );
   }
-  if ( IncludeDirectory.find( ':' ) == std::string::npos )
+  if (IncludeDirectory.find(':') == std::string::npos)
   {
-    if ( IncludeDirectory.substr( 0, 1 ) !=
-         "." )  // Let's make sure they didn't try using this method
+    if ( IncludeDirectory.substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
     {
       IncludeDirectory = MyPath + IncludeDirectory;
     }
   }
-  if ( ModuleDirectory.find( ':' ) == std::string::npos )
+  if (ModuleDirectory.find(':') == std::string::npos)
   {
-    if ( ModuleDirectory.substr( 0, 1 ) !=
-         "." )  // Let's make sure they didn't try using this method
+    if ( ModuleDirectory.substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
     {
       ModuleDirectory = MyPath + ModuleDirectory;
     }
   }
-  if ( PolScriptRoot.find( ':' ) == std::string::npos )
+  if (PolScriptRoot.find(':') == std::string::npos)
   {
-    if ( PolScriptRoot.substr( 0, 1 ) != "." )  // Let's make sure they didn't try using this method
+    if ( PolScriptRoot.substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
     {
       PolScriptRoot = MyPath + PolScriptRoot;
     }
   }
   for ( unsigned pr = 0; pr < PackageRoot.size(); ++pr )
   {
-    if ( PackageRoot[pr].find( ':' ) == std::string::npos )
+    if (PackageRoot[pr].find(':') == std::string::npos)
     {
-      if ( PackageRoot[pr].substr( 0, 1 ) !=
-           "." )  // Let's make sure they didn't try using this method
+      if ( PackageRoot[pr].substr( 0, 1 ) != "." ) // Let's make sure they didn't try using this method
       {
         PackageRoot[pr] = MyPath + PackageRoot[pr];
       }

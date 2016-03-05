@@ -33,19 +33,16 @@ namespace Core
 class UoClientThread : public Clib::SocketClientThread
 {
 public:
-  UoClientThread( UoClientListener* def, Clib::SocketListener& SL )
-      : Clib::SocketClientThread( SL ), _def( *def ), client( NULL )
-  {
-  }
-  UoClientThread( UoClientThread& copy )
-      : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ){};
+  UoClientThread( UoClientListener* def, Clib::SocketListener& SL ) :
+    Clib::SocketClientThread( SL ), _def( *def ), client( NULL )
+  {}
+  UoClientThread( UoClientThread& copy ) : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ) {};
   virtual void run() POL_OVERRIDE;
   void create();
-  virtual ~UoClientThread(){};
+  virtual ~UoClientThread() {};
 
 private:
   UoClientListener _def;
-
 public:
   Network::Client* client;
 };
@@ -54,6 +51,7 @@ bool client_io_thread( Network::Client* client, bool login = false );
 
 void UoClientThread::run()
 {
+
   if ( !Plib::systemstate.config.use_single_thread_login )
   {
     create();
@@ -67,30 +65,29 @@ void UoClientThread::create()
   {
     if ( Plib::systemstate.config.disable_nagle )
     {
-      _sck.disable_nagle();
+      _sck.disable_nagle( );
     }
     struct sockaddr client_addr = _sck.peer_address();
     struct sockaddr host_addr;
     socklen_t host_addrlen = sizeof host_addr;
 
     PolLock lck;
-    client =
-        new Network::Client( *Core::networkManager.uo_client_interface.get(), _def.encryption );
-    client->csocket = _sck.release_handle();  // client cleans up its socket.
+    client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def.encryption );
+    client->csocket = _sck.release_handle(); // client cleans up its socket.
     if ( _def.sticky )
       client->listen_port = _def.port;
     if ( _def.aosresist )
-      client->aosresist = true;  // UOCLient.cfg Entry
+      client->aosresist = true; // UOCLient.cfg Entry
     // Added null setting for pre-char selection checks using NULL validation
     client->acct = NULL;
     memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
 
     networkManager.clients.push_back( client );
-    CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
-                           ToolTipPrioritySystem );
+    CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected", ToolTipPrioritySystem );
     fmt::Writer tmp;
     tmp.Format( "Client#{} connected from {} ({} connections)" )
-        << client->instance_ << Network::AddressToString( &client_addr )
+        << client->instance_
+        << Network::AddressToString( &client_addr )
         << networkManager.clients.size();
     if ( getsockname( client->csocket, &host_addr, &host_addrlen ) == 0 )
     {
@@ -105,12 +102,9 @@ void uo_client_listener_thread( void* arg )
 {
   UoClientListener* ls = static_cast<UoClientListener*>( arg );
   INFO_PRINT << "Listening for UO clients on port " << ls->port
-             << " (encryption: " << ls->encryption.eType << ",0x"
-             << fmt::hexu( ls->encryption.uiKey1 ) << ",0x" << fmt::hexu( ls->encryption.uiKey2 )
-             << ")\n";
+             << " (encryption: " << ls->encryption.eType << ",0x" << fmt::hexu( ls->encryption.uiKey1 ) << ",0x" << fmt::hexu( ls->encryption.uiKey2 ) << ")\n";
 
-  Clib::SocketListener SL(
-      ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
+  Clib::SocketListener SL( ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
   std::list<std::unique_ptr<UoClientThread>> login_clients;
   while ( !Clib::exit_signalled )
   {
@@ -122,10 +116,10 @@ void uo_client_listener_thread( void* arg )
       // create an appropriate Client object
       if ( Plib::systemstate.config.use_single_thread_login )
       {
-        std::unique_ptr<UoClientThread> thread( new UoClientThread( ls, SL ) );
+        std::unique_ptr<UoClientThread> thread (new UoClientThread( ls, SL ));
         thread->create();
         client_io_thread( thread->client, true );
-        login_clients.push_back( std::move( thread ) );
+        login_clients.push_back( std::move(thread) );
       }
       else
       {

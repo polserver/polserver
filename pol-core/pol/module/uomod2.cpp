@@ -7,15 +7,13 @@
  * - 2005/07/25 Shinigami: doubled Msg size in mf_SendGumpMenu to use larger Gumps
  * - 2005/10/16 Shinigami: added x- and y-offset to mf_SendGumpMenu
  * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
- * - 2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item
- * Description using AoS Tooltips
+ * - 2006/05/07 Shinigami: mf_SendBuyWindow & mf_SendSellWindow - added Flags to send Item Description using AoS Tooltips
  * - 2006/05/24 Shinigami: added mf_SendCharacterRaceChanger - change Hair, Beard and Color
  *                         added character_race_changer_handler()
  * - 2006/05/30 Shinigami: Changed params of character_race_changer_handler()
  *                         Fixed Bug with detection of Gump-Cancel in uo::SendCharacterRaceChanger()
  * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
- * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format
- * too (leak.log)
+ * - 2007/04/28 Shinigami: polcore().internal information will be logged in excel-friendly format too (leak.log)
  * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
  * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
  * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
@@ -27,8 +25,8 @@
 
 
 /*
-    UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
-    */
+  UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
+  */
 
 #ifdef WINDOWS
 #include "../../clib/pol_global_config_win.h"
@@ -42,7 +40,7 @@
 
 
 #ifdef MEMORYLEAK
-#include "../../bscript/bobject.h"
+# include "../../bscript/bobject.h"
 #endif
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
@@ -54,7 +52,7 @@
 #include "../../clib/fileutil.h"
 
 #ifdef MEMORYLEAK
-#include "../../clib/opnew.h"
+# include "../../clib/opnew.h"
 #endif
 
 #include "../../clib/strutil.h"
@@ -66,7 +64,7 @@
 #include "../accounts/account.h"
 
 #ifdef MEMORYLEAK
-#include "../cfgrepos.h"
+# include "../cfgrepos.h"
 #endif
 
 #include "../../plib/pkg.h"
@@ -116,13 +114,13 @@
 #include "../unicode.h"
 
 #ifdef USE_SYSTEM_ZLIB
-#include <zlib.h>
+# include <zlib.h>
 #else
-#include "../../../lib/zlib/zlib.h"
+# include "../../../lib/zlib/zlib.h"
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp
+#pragma warning(disable:4996) // disable deprecation warning for stricmp
 #endif
 
 namespace Pol
@@ -143,7 +141,7 @@ using namespace Core;
 0000: 74 02 70 40 29 ca d8 28  00 00 00 03 0b 53 65 77   t.p@)..( .....Sew
 0010: 69 6e 67 20 6b 69 74 00  00 00 00 0d 09 53 63 69   ing kit. .....Sci
 0020: 73 73 6f 72 73 00 00 00  00 09 0a 44 79 69 6e 67   ssors... ...Dying
-0030: 20 74 75 62 00 00 00 00  09 05 44 79 65 73 00 00	tub.... ..Dyes..
+0030: 20 74 75 62 00 00 00 00  09 05 44 79 65 73 00 00  tub.... ..Dyes..
 0040: 00 00 1b 08 44 6f 75 62  6c 65 74 00 00 00 00 1a   ....Doub let.....
 0050: 0c 53 68 6f 72 74 20 70  61 6e 74 73 00 00 00 00   .Short p ants....
 0060: 37 0c 46 61 6e 63 79 20  73 68 69 72 74 00 00 00   7.Fancy  shirt...
@@ -185,9 +183,9 @@ using namespace Core;
 bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send_aos_tooltip )
 {
   PktHelper::PacketOut<PktOut_74> msg;
-  msg->offset += 2;  // msglen
+  msg->offset += 2; //msglen
   msg->Write<u32>( for_sale->serial_ext );
-  msg->offset++;  // num_items
+  msg->offset++; //num_items
   u8 num_items = 0;
   // FIXME: ick! apparently we need to iterate backwards... WTF?
   for ( int i = for_sale->count() - 1; i >= 0; --i )
@@ -201,7 +199,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
       return false;
     }
     msg->WriteFlipped<u32>( item->sellprice() );
-    msg->Write<u8>( desc.size() + 1 );  // Don't forget the NULL
+    msg->Write<u8>( desc.size() + 1 ); //Don't forget the NULL
     msg->Write( desc.c_str(), static_cast<u16>( desc.size() + 1 ) );
     ++num_items;
 
@@ -217,17 +215,19 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
   return true;
 }
 
-BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor, items, flags */ )
+BObjectImp* UOExecutorModule::mf_SendBuyWindow(/* character, container, vendor, items, flags */ )
 {
-  Character *chr, *mrchnt;
-  Item *item, *item2;
+  Character* chr, *mrchnt;
+  Item* item, *item2;
   NPC* merchant;
   int flags;
-  UContainer *for_sale, *bought;
+  UContainer* for_sale, *bought;
   unsigned char save_layer_one, save_layer_two;
 
-  if ( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, item ) &&
-       getCharacterParam( exec, 2, mrchnt ) && getItemParam( exec, 3, item2 ) &&
+  if ( getCharacterParam( exec, 0, chr ) &&
+       getItemParam( exec, 1, item ) &&
+       getCharacterParam( exec, 2, mrchnt ) &&
+       getItemParam( exec, 3, item2 ) &&
        getParam( 4, flags ) )
   {
     if ( !chr->has_active_client() )
@@ -262,7 +262,8 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
       return new BError( "Parameter 3 invalid" );
     }
 
-    //	  say_above(merchant, "How may I help you?" );
+    //    say_above(merchant, "How may I help you?" );
+
   }
   else
   {
@@ -270,7 +271,7 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   }
 
 
-  // try this
+  //try this
   save_layer_one = for_sale->layer;
   for_sale->layer = LAYER_VENDOR_FOR_SALE;
   send_wornitem( chr->client, merchant, for_sale );
@@ -315,10 +316,10 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
     return new BError( "Too much crap in vendor's inventory!" );
   }
 
-  // This looks good
+  //This looks good
   PktHelper::PacketOut<PktOut_24> open_window;
   open_window->Write<u32>( merchant->serial_ext );
-  open_window->WriteFlipped<u16>( 0x0030u );  // FIXME: Serial of buy gump needs #define or enum?
+  open_window->WriteFlipped<u16>( 0x0030u ); // FIXME: Serial of buy gump needs #define or enum?
   if ( chr->client->ClientType & CLIENTTYPE_7090 )
     open_window->WriteFlipped<u16>( 0x00u );
   open_window.Send( chr->client );
@@ -340,12 +341,12 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
   msg->Write<u8>( PKTBI_3B::STATUS_NOTHING_BOUGHT );
   msg.Send( client );
 }
-unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UContainer* bought,
-                             PKTBI_3B* msg )
+unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UContainer* bought, PKTBI_3B* msg )
 {
   unsigned int amt = 0;
 
-  int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) / sizeof msg->items[0];
+  int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) /
+               sizeof msg->items[0];
 
   for ( int i = 0; i < nitems; ++i )
   {
@@ -357,7 +358,7 @@ unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UConta
       if ( item == NULL )
         continue;
     }
-    // const ItemDesc& id = find_itemdesc(item->objtype_);
+    //const ItemDesc& id = find_itemdesc(item->objtype_);
     amt += cfBEu16( msg->items[i].number_bought ) * item->sellprice();
   }
   return amt;
@@ -365,7 +366,7 @@ unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UConta
 
 void oldBuyHandler( Client* client, PKTBI_3B* msg )
 {
-  // Close the gump
+  //Close the gump
 
   if ( msg->status == PKTBI_3B::STATUS_NOTHING_BOUGHT )
     return;
@@ -376,7 +377,8 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
 
   NPC* vendor = client->gd->vendor.get();
 
-  if ( vendor == NULL || vendor->orphan() || vendor->serial_ext != msg->vendor_serial )
+  if ( vendor == NULL || vendor->orphan() ||
+       vendor->serial_ext != msg->vendor_serial )
   {
     return;
   }
@@ -408,7 +410,8 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
   // buy each item individually
   // note, we know the buyer can afford it all.
   // the question is, can it all fit in his backpack?
-  int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) / sizeof msg->items[0];
+  int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) /
+               sizeof msg->items[0];
 
   bool from_bought;
   for ( int i = 0; i < nitems; ++i )
@@ -431,7 +434,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
     while ( numleft )
     {
       unsigned short num;
-      if ( fs_item == NULL )
+      if (fs_item == NULL)
         break;
       if ( fs_item->stackable() )
       {
@@ -457,33 +460,31 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
       }
 
       // move the whole item
-      ItemRef itemref(
-          tobuy );  // dave 1/28/3 prevent item from being destroyed before function ends
+      ItemRef itemref( tobuy ); //dave 1/28/3 prevent item from being destroyed before function ends
       Item* existing_stack;
       if ( tobuy->stackable() &&
            ( existing_stack = backpack->find_addable_stack( tobuy ) ) != NULL )
       {
-        // dave 1-14-3 check backpack's insert scripts before moving.
-        if ( backpack->can_insert_increase_stack( client->chr, UContainer::MT_CORE_MOVED,
-                                                  existing_stack, tobuy->getamount(), tobuy ) )
+        //dave 1-14-3 check backpack's insert scripts before moving.
+        if ( backpack->can_insert_increase_stack( client->chr, UContainer::MT_CORE_MOVED, existing_stack, tobuy->getamount(), tobuy ) )
         {
-          if ( tobuy->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+          if ( tobuy->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
           {
             continue;
           }
         }
-        else  // put the item back just as if the pack had too many/too heavy items.
+        else // put the item back just as if the pack had too many/too heavy items.
         {
           numleft = 0;
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
         numleft -= num;
@@ -492,33 +493,31 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
         existing_stack->add_to_self( tobuy );
         update_item_to_inrange( existing_stack );
 
-        backpack->on_insert_increase_stack( client->chr, UContainer::MT_CORE_MOVED, existing_stack,
-                                            amtadded );
+        backpack->on_insert_increase_stack( client->chr, UContainer::MT_CORE_MOVED, existing_stack, amtadded );
       }
       else if ( backpack->can_add( *tobuy ) )
       {
         numleft -= num;
 
-        // dave 12-20 check backpack's insert scripts before moving.
-        bool canInsert =
-            backpack->can_insert_add_item( client->chr, UContainer::MT_CORE_MOVED, tobuy );
-        if ( tobuy->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+        //dave 12-20 check backpack's insert scripts before moving.
+        bool canInsert = backpack->can_insert_add_item( client->chr, UContainer::MT_CORE_MOVED, tobuy );
+        if ( tobuy->orphan() ) //dave added 1/28/3, item might be destroyed in RTC script
         {
           continue;
         }
 
-        if ( !canInsert )  // put the item back just as if the pack had too many/too heavy items.
+        if ( !canInsert ) // put the item back just as if the pack had too many/too heavy items.
         {
           numleft = 0;
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
 
@@ -564,7 +563,7 @@ void buyhandler( Client* client, PKTBI_3B* msg )
     oldBuyHandler( client, msg );
     return;
   }
-  // Close the gump
+  //Close the gump
 
   if ( msg->status == PKTBI_3B::STATUS_NOTHING_BOUGHT )
     return;
@@ -629,14 +628,13 @@ void buyhandler( Client* client, PKTBI_3B* msg )
   send_clear_vendorwindow( client, vendor );
 }
 
-bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UContainer* buyable,
-                      bool send_aos_tooltip )
+bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UContainer* buyable, bool send_aos_tooltip )
 {
   unsigned short num_items = 0;
   PktHelper::PacketOut<PktOut_9E> msg;
   msg->offset += 2;
   msg->Write<u32>( merchant->serial_ext );
-  msg->offset += 2;  // numitems
+  msg->offset += 2; //numitems
 
   UContainer::iterator buyable_itr, buyable_end;
   if ( buyable != NULL )
@@ -682,7 +680,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       msg->WriteFlipped<u16>( item->getamount() );
       msg->WriteFlipped<u16>( buyprice );
       msg->WriteFlipped<u16>( desc.size() );
-      msg->Write( desc.c_str(), static_cast<u16>( desc.size() ), false );  // No null term
+      msg->Write( desc.c_str(), static_cast<u16>( desc.size() ), false ); //No null term
       ++num_items;
 
       if ( send_aos_tooltip )
@@ -700,9 +698,9 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
   return true;
 }
 
-BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i3, flags */ )
+BObjectImp* UOExecutorModule::mf_SendSellWindow(/* character, vendor, i1, i2, i3, flags */ )
 {
-  Character *chr, *mrchnt;
+  Character* chr, *mrchnt;
   NPC* merchant;
   Item* wi1a;
   Item* wi1b;
@@ -711,9 +709,12 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
   UContainer* merchant_bought;
   UContainer* merchant_buyable = NULL;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, mrchnt ) &&
-          getItemParam( exec, 2, wi1a ) && getItemParam( exec, 3, wi1b ) &&
-          getItemParam( exec, 4, wi1c ) && getParam( 5, flags ) ) )
+  if ( !( getCharacterParam( exec, 0, chr ) &&
+          getCharacterParam( exec, 1, mrchnt ) &&
+          getItemParam( exec, 2, wi1a ) &&
+          getItemParam( exec, 3, wi1b ) &&
+          getItemParam( exec, 4, wi1c ) &&
+          getParam( 5, flags ) ) )
   {
     return new BError( "A parameter was invalid" );
   }
@@ -782,9 +783,11 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
   return new BLong( 1 );
 }
 
-extern BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
-                                              unsigned short amount, bool force_stacking,
-                                              UOExecutorModule* uoemod );
+extern BObjectImp* _create_item_in_container( UContainer* cont,
+    const ItemDesc* descriptor,
+    unsigned short amount,
+    bool force_stacking,
+    UOExecutorModule* uoemod );
 // player selling to vendor
 void oldSellHandler( Client* client, PKTIN_9F* msg )
 {
@@ -794,7 +797,8 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
   NPC* vendor = client->gd->vendor.get();
 
-  if ( vendor == NULL || vendor->orphan() || vendor->serial_ext != msg->vendor_serial )
+  if ( vendor == NULL || vendor->orphan() ||
+       vendor->serial_ext != msg->vendor_serial )
   {
     client->gd->vendor.clear();
     client->gd->vendor_bought.clear();
@@ -811,7 +815,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
   unsigned int cost = 0;
   int num_items = cfBEu16( msg->num_items );
-  Clib::sanitize_upperlimit( &num_items, ( 0xFFFF - 9 ) / 6 );
+  Clib::sanitize_upperlimit( &num_items, (0xFFFF - 9) / 6 );
 
   for ( int i = 0; i < num_items; ++i )
   {
@@ -865,22 +869,19 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
     }
   }
 
-  // dave added 12-19. If no items are sold don't create any gold in the player's pack!
+  //dave added 12-19. If no items are sold don't create any gold in the player's pack!
   if ( cost > 0 )
   {
-    // dave added 12-21, create stacks of 60k gold instead of one huge, invalid stack.
+    //dave added 12-21, create stacks of 60k gold instead of one huge, invalid stack.
     unsigned int temp_cost = cost;
     while ( temp_cost > 60000 )
     {
-      BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( 60000 ), false, NULL ) );
+      BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ), static_cast<unsigned short>( 60000 ), false, NULL ) );
       temp_cost -= 60000;
     }
     if ( temp_cost > 0 )
     {
-      BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( temp_cost ), false,
-                                            NULL ) );
+      BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ), static_cast<unsigned short>( temp_cost ), false, NULL ) );
     }
   }
   std::unique_ptr<SourcedEvent> sale_event( new SourcedEvent( EVID_MERCHANT_BOUGHT, client->chr ) );
@@ -927,7 +928,7 @@ void sellhandler( Client* client, PKTIN_9F* msg )
 
   int num_items = cfBEu16( msg->num_items );
   std::unique_ptr<ObjArray> items_sold( new ObjArray );
-  Clib::sanitize_upperlimit( &num_items, ( 0xFFFF - 9 ) / 6 );
+  Clib::sanitize_upperlimit( &num_items, (0xFFFF - 9) / 6 );
   for ( int i = 0; i < num_items; ++i )
   {
     u32 serial = cfBEu32( msg->items[i].serial );
@@ -973,9 +974,13 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu()
   Character* chr;
   ObjArray* layout_arr;
   ObjArray* data_arr;
-  if ( !( getCharacterParam( exec, 0, chr ) && exec.getObjArrayParam( 1, layout_arr ) &&
-          exec.getObjArrayParam( 2, data_arr ) && exec.getParam( 3, x ) && exec.getParam( 4, y ) &&
-          exec.getParam( 5, flags ) && exec.getParam( 6, gump_id ) ) )
+  if ( !( getCharacterParam( exec, 0, chr ) &&
+          exec.getObjArrayParam( 1, layout_arr ) &&
+          exec.getObjArrayParam( 2, data_arr ) &&
+          exec.getParam( 3, x ) &&
+          exec.getParam( 4, y ) &&
+          exec.getParam( 5, flags ) &&
+          exec.getParam( 6, gump_id ) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -992,7 +997,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu()
     if ( gump_id < 1 )
       return new BError( "GumpID out of range" );
     gumpid = (u32)gump_id;
-    if ( gumpid >= ScriptEngineInternalManager::PID_MIN )
+    if( gumpid >= ScriptEngineInternalManager::PID_MIN )
       return new BError( "GumpID out of range" );
   }
   else
@@ -1008,28 +1013,23 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu()
   return new BError( "Client already has an active gump" );
   }
   */
-  if ( ( chr->client->ClientType & CLIENTTYPE_UOSA ) || ( chr->client->IsUOKRClient() ) ||
-       ( ( !( flags & SENDDIALOGMENU_FORCE_OLD ) ) &&
-         ( chr->client->compareVersion( CLIENT_VER_5000 ) ) ) )
+  if ( ( chr->client->ClientType & CLIENTTYPE_UOSA ) || ( chr->client->IsUOKRClient() ) || ( ( !( flags & SENDDIALOGMENU_FORCE_OLD ) ) && ( chr->client->compareVersion( CLIENT_VER_5000 ) ) ) )
     return internal_SendCompressedGumpMenu( chr, layout_arr, data_arr, x, y, gumpid );
   else
     return internal_SendUnCompressedGumpMenu( chr, layout_arr, data_arr, x, y, gumpid );
 }
 
 
-BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
-                                                                 ObjArray* layout_arr,
-                                                                 ObjArray* data_arr, int x, int y,
-                                                                 u32 gumpid )
+BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x, int y, u32 gumpid )
 {
   PktHelper::PacketOut<PktOut_B0> msg;
   msg->offset += 2;
   msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u32>( gumpid );
-  msg->WriteFlipped<u32>( static_cast<u32>( x ) );
-  msg->WriteFlipped<u32>( static_cast<u32>( y ) );
+  msg->WriteFlipped<u32>( static_cast<u32>(x) );
+  msg->WriteFlipped<u32>( static_cast<u32>(y) );
   u16 pos = msg->offset;
-  msg->offset += 2;  // layoutlen
+  msg->offset += 2; //layoutlen
   size_t layoutlen = 0;
   for ( unsigned i = 0; i < layout_arr->ref_arr.size(); ++i )
   {
@@ -1054,7 +1054,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
   {
     return new BError( "Buffer length exceeded" );
   }
-  msg->offset++;  // nullterm
+  msg->offset++; // nullterm
   layoutlen++;
 
   u16 len = msg->offset;
@@ -1068,7 +1068,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
   {
     return new BError( "Buffer length exceeded" );
   }
-  msg->offset += 2;  // numlines
+  msg->offset += 2; //numlines
 
   u16 numlines = 0;
   for ( unsigned i = 0; i < data_arr->ref_arr.size(); ++i )
@@ -1090,15 +1090,15 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
 
     msg->WriteFlipped<u16>( textlen );
 
-    while ( *string )  // unicode
-      msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+    while ( *string ) //unicode
+      msg->Write<u16>( static_cast<u16>(( *string++ ) << 8 ));
   }
 
   if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
   {
     return new BError( "Buffer length exceeded" );
   }
-  msg->offset++;  // nullterm
+  msg->offset++; // nullterm
 
   len = msg->offset;
   msg->offset = pos;
@@ -1107,25 +1107,23 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
   msg->WriteFlipped<u16>( len );
   msg.Send( chr->client, len );
   chr->client->gd->add_gumpmod( this, gumpid );
-  // old_gump_uoemod = this;
+  //old_gump_uoemod = this;
   gump_chr = chr;
   uoexec.os_module->suspend();
   return new BLong( 0 );
 }
 
-BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, ObjArray* layout_arr,
-                                                               ObjArray* data_arr, int x, int y,
-                                                               u32 gumpid )
+BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, ObjArray* layout_arr, ObjArray* data_arr, int x, int y, u32 gumpid )
 {
   PktHelper::PacketOut<PktOut_DD> msg;
-  PktHelper::PacketOut<PktOut_DD> bfr;  // compress buffer
+  PktHelper::PacketOut<PktOut_DD> bfr; // compress buffer
   bfr->offset = 0;
   msg->offset += 2;
   msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u32>( gumpid );
-  msg->WriteFlipped<u32>( static_cast<u16>( x ) );
-  msg->WriteFlipped<u32>( static_cast<u16>( y ) );
-  msg->offset += 8;  // u32 layout_clen,layout_dlen
+  msg->WriteFlipped<u32>( static_cast<u16>(x) );
+  msg->WriteFlipped<u32>( static_cast<u16>(y) );
+  msg->offset += 8; //u32 layout_clen,layout_dlen
 
   u32 layoutdlen = 0;
 
@@ -1152,18 +1150,15 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     return new BError( "Buffer length exceeded" );
   }
   layoutdlen++;
-  bfr->offset++;  // nullterm
+  bfr->offset++; //nullterm
 
-  unsigned long cbuflen =
-      ( ( (unsigned long)( ( (float)( layoutdlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
+  unsigned long cbuflen = ( ( (unsigned long)( ( (float)( layoutdlen ) )*1.001f ) ) + 12 );//as per zlib spec
   if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
   {
     return new BError( "Compression error" );
   }
 
-  if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
-                  reinterpret_cast<unsigned char*>( &bfr->buffer ), layoutdlen,
-                  Z_DEFAULT_COMPRESSION ) != Z_OK )
+  if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen, reinterpret_cast<unsigned char*>( &bfr->buffer ), layoutdlen, Z_DEFAULT_COMPRESSION ) != Z_OK )
   {
     return new BError( "Compression error" );
   }
@@ -1194,22 +1189,20 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     }
     datadlen += static_cast<u32>( addlen );
     bfr->WriteFlipped<u16>( s.length() );
-    while ( *string )  // unicode
-      bfr->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+    while ( *string ) //unicode
+      bfr->Write<u16>( static_cast<u16>(( *string++ ) << 8) );
   }
   msg->WriteFlipped<u32>( numlines );
   if ( numlines != 0 )
   {
-    msg->offset += 8;  // u32 text_clen, text_dlen
+    msg->offset += 8; //u32 text_clen, text_dlen
 
-    cbuflen = ( ( (unsigned long)( ( (float)( datadlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
+    cbuflen = ( ( (unsigned long)( ( (float)( datadlen ) )*1.001f ) ) + 12 );//as per zlib spec
     if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
     {
       return new BError( "Compression error" );
     }
-    if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
-                    reinterpret_cast<unsigned char*>( &bfr->buffer ), datadlen,
-                    Z_DEFAULT_COMPRESSION ) != Z_OK )
+    if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen, reinterpret_cast<unsigned char*>( &bfr->buffer ), datadlen, Z_DEFAULT_COMPRESSION ) != Z_OK )
     {
       return new BError( "Compression error" );
     }
@@ -1227,7 +1220,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
 
   msg.Send( chr->client, len );
   chr->client->gd->add_gumpmod( this, gumpid );
-  // old_gump_uoemod = this;
+  //old_gump_uoemod = this;
   gump_chr = chr;
   uoexec.os_module->suspend();
   return new BLong( 0 );
@@ -1237,29 +1230,30 @@ class BIntHash : public BObjectImp
 {
 public:
   BIntHash();
-  BIntHash( const BIntHash& );
+  BIntHash( const BIntHash&);
   void add( int key, BObjectImp* value );
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
   virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
   virtual BObjectImp* copy() const POL_OVERRIDE;
   virtual std::string getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
-
 private:
   typedef std::map<int, BObjectRef> Contents;
   Contents contents_;
 
   // not implemented:
-  BIntHash& operator=( const BIntHash& );
+  BIntHash& operator=( const BIntHash&);
 };
 
-BIntHash::BIntHash() : BObjectImp( OTUnknown ), contents_()
-{
-}
+BIntHash::BIntHash() :
+  BObjectImp( OTUnknown ),
+  contents_()
+{}
 
-BIntHash::BIntHash( const BIntHash& ih ) : BObjectImp( OTUnknown ), contents_( ih.contents_ )
-{
-}
+BIntHash::BIntHash( const BIntHash& ih ) :
+  BObjectImp( OTUnknown ),
+  contents_( ih.contents_ )
+{}
 
 BObjectImp* BIntHash::copy() const
 {
@@ -1268,9 +1262,8 @@ BObjectImp* BIntHash::copy() const
 
 size_t BIntHash::sizeEstimate() const
 {
-  size_t size =
-      sizeof( BIntHash ) +
-      ( sizeof( int ) + sizeof( BObjectRef ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) * contents_.size();
+  size_t size = sizeof(BIntHash)+
+                ( sizeof(int)+sizeof(BObjectRef)+( sizeof(void*)* 3 + 1 ) / 2 ) * contents_.size();
   for ( const auto& p : contents_ )
   {
     size += p.second.sizeEstimate();
@@ -1341,13 +1334,14 @@ void clear_gumphandler( Client* client, UOExecutorModule* uoemod )
   client->gd->remove_gumpmods( uoemod );
 }
 
-BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
+BObjectImp* UOExecutorModule::mf_CloseGump(/* who, pid, response := 0 */ )
 {
   Character* chr;
   unsigned int pid;
   BObjectImp* resp;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && exec.getParam( 1, pid ) &&
+  if ( !( getCharacterParam( exec, 0, chr ) &&
+          exec.getParam( 1, pid ) &&
           ( getParamImp( 2, resp ) ) ) )
   {
     return new BError( "Invalid parameter" );
@@ -1368,7 +1362,7 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
   msg->WriteFlipped<u16>( 13u );
   msg->offset += 2;
   msg->WriteFlipped<u32>( pid );
-  msg->offset += 4;  // buttonid
+  msg->offset += 4; //buttonid
 
   msg.Send( client );
 
@@ -1378,14 +1372,13 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
   return new BLong( 1 );
 }
 
-BObjectImp* UOExecutorModule::mf_CloseWindow( /* chr, type, obj */ )
+BObjectImp* UOExecutorModule::mf_CloseWindow(/* chr, type, obj */ )
 {
   Character* chr;
   unsigned int type;
   UObject* obj;
 
-  if ( !getCharacterParam( exec, 0, chr ) || !getParam( 1, type ) ||
-       !getUObjectParam( exec, 2, obj ) )
+  if ( !getCharacterParam( exec, 0, chr ) || !getParam( 1, type ) || !getUObjectParam( exec, 2, obj ) )
     return new BError( "Invalid parameter" );
 
   if ( !chr->has_active_client() )
@@ -1396,8 +1389,7 @@ BObjectImp* UOExecutorModule::mf_CloseWindow( /* chr, type, obj */ )
     if ( !obj->script_isa( POLCLASS_CONTAINER ) )
       return new BError( "Invalid object, has to be a containerRef" );
   }
-  else if ( type == PKTBI_BF_16::PAPERDOLL || type == PKTBI_BF_16::STATUS ||
-            type == PKTBI_BF_16::CHARPROFILE )
+  else if ( type == PKTBI_BF_16::PAPERDOLL || type == PKTBI_BF_16::STATUS || type == PKTBI_BF_16::CHARPROFILE )
   {
     if ( !obj->script_isa( POLCLASS_MOBILE ) )
       return new BError( "Invalid object, has to be a mobRef" );
@@ -1407,7 +1399,7 @@ BObjectImp* UOExecutorModule::mf_CloseWindow( /* chr, type, obj */ )
 
   PktHelper::PacketOut<PktOut_BF_Sub16> msg;
   msg->WriteFlipped<u16>( 13u );
-  msg->offset += 2;  // sub
+  msg->offset += 2; //sub
   msg->WriteFlipped<u32>( type );
   msg->Write<u32>( obj->serial_ext );
 
@@ -1441,8 +1433,9 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
           PKTIN_B1::INT_ENTRY* intentries_ = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr_ + 1 );
           if ( intentries_->value == client->chr->serial_ext )
           {
-            ref_ptr<EScriptProgram> prog = find_script(
-                "misc/virtuebutton", true, Plib::systemstate.config.cache_interactive_scripts );
+            ref_ptr<EScriptProgram> prog = find_script( "misc/virtuebutton",
+                                           true,
+                                           Plib::systemstate.config.cache_interactive_scripts );
             if ( prog.get() != NULL )
               client->chr->start_script( prog.get(), false );
             return;
@@ -1456,21 +1449,17 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   UOExecutorModule* uoemod = client->gd->find_gumpmod( gumpid );
   if ( uoemod == NULL )
   {
-    POLLOG_INFO.Format(
-        "\nWarning: Character 0x{:X} sent an unexpected gump menu selection. Gump ID 0x{:X}, "
-        "button ID 0x{:X}\n" )
-        << client->chr->serial << gumpid << buttonid;
+    POLLOG_INFO.Format("\nWarning: Character 0x{:X} sent an unexpected gump menu selection. Gump ID 0x{:X}, button ID 0x{:X}\n") << client->chr->serial << gumpid << buttonid;
     return;
   }
 
 
-  if ( msglen <=
-       0x0f )  // Using == instead of <= should do the trick, but i think <= is more robust
+  if( msglen <= 0x0f ) // Using == instead of <= should do the trick, but i think <= is more robust
   {
     // The virtue button packet is 15 bytes long: it will not carry a switchcount/INTS_HEADER,
     // so prevent full processing code to overflow and save some CPU cycles meanwhile.
     // Maybe other packets could be that short too?
-    if ( buttonid == 0 )
+    if( buttonid == 0 )
     {
       uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( 0 ) ) );
     }
@@ -1487,7 +1476,8 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
     // Process rest of the packet
     PKTIN_B1::INTS_HEADER* intshdr = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
     u32 ints_count = cfBEu32( intshdr->count );
-    unsigned stridx = sizeof( PKTIN_B1::HEADER ) + sizeof( PKTIN_B1::INTS_HEADER ) +
+    unsigned stridx = sizeof( PKTIN_B1::HEADER ) +
+                      sizeof( PKTIN_B1::INTS_HEADER ) +
                       sizeof( PKTIN_B1::INT_ENTRY ) * ints_count +
                       sizeof( PKTIN_B1::STRINGS_HEADER );
     if ( stridx > msglen )
@@ -1497,17 +1487,13 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
       return;
     }
     PKTIN_B1::INT_ENTRY* intentries = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr + 1 );
-    PKTIN_B1::STRINGS_HEADER* strhdr =
-        reinterpret_cast<PKTIN_B1::STRINGS_HEADER*>( intentries + ints_count );
+    PKTIN_B1::STRINGS_HEADER* strhdr = reinterpret_cast<PKTIN_B1::STRINGS_HEADER*>( intentries + ints_count );
     u32 strings_count = cfBEu32( strhdr->count );
     // even if this is ok, it could still overflow.  Have to check each string.
     if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 1 ) * strings_count > msglen + 1u )
     {
-      ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                  << client->chr->name()
-                  << ") Blech! B1 message specified too many ints and/or strings!\n";
-      uoemod->uoexec.ValueStack.back().set(
-          new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
+      ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message specified too many ints and/or strings!\n";
+      uoemod->uoexec.ValueStack.back().set( new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
       clear_gumphandler( client, uoemod );
       return;
     }
@@ -1527,27 +1513,22 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
       }
       for ( unsigned i = 0; i < strings_count; ++i )
       {
-        PKTIN_B1::STRING_ENTRY* strentry =
-            reinterpret_cast<PKTIN_B1::STRING_ENTRY*>( msgbuf + stridx );
+        PKTIN_B1::STRING_ENTRY* strentry = reinterpret_cast<PKTIN_B1::STRING_ENTRY*>( msgbuf + stridx );
         unsigned short length = cfBEu16( strentry->length );
         stridx += offsetof( PKTIN_B1::STRING_ENTRY, data ) + length * 2;
         if ( stridx > msglen )
         {
-          ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                      << client->chr->name()
-                      << ") Blech! B1 message strings overflow message buffer!\n";
+          ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name() << ") Blech! B1 message strings overflow message buffer!\n";
           break;
         }
         std::string str;
         str = Clib::decint( cfBEu16( strentry->tag ) ) + ": ";
         str.reserve( length + str.size() );
         u8 c;
-        for ( int si = 0; si < length; ++si )  // ENHANCE: Handle Unicode strings properly (add a
-                                               // "uc" member somewhere for each returned string
-                                               // that doesn't break existing code)
+        for ( int si = 0; si < length; ++si ) //ENHANCE: Handle Unicode strings properly (add a "uc" member somewhere for each returned string that doesn't break existing code)
         {
           c = strentry->data[si * 2 + 1];
-          if ( c >= 0x20 )  // dave added 4/13/3, strip control characters
+          if ( c >= 0x20 ) //dave added 4/13/3, strip control characters
             str.append( 1, c );
         }
         // oops we're throwing away tag!
@@ -1569,8 +1550,11 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   int maximum;
   const String* line2;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && exec.getStringParam( 1, line1 ) &&
-          exec.getParam( 2, cancel ) && exec.getParam( 3, style ) && exec.getParam( 4, maximum ) &&
+  if ( !( getCharacterParam( exec, 0, chr ) &&
+          exec.getStringParam( 1, line1 ) &&
+          exec.getParam( 2, cancel ) &&
+          exec.getParam( 3, style ) &&
+          exec.getParam( 4, maximum ) &&
           exec.getStringParam( 5, line2 ) ) )
   {
     return new BError( "Invalid parameter" );
@@ -1583,22 +1567,22 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   PktHelper::PacketOut<PktOut_AB> msg;
   msg->offset += 2;
   msg->Write<u32>( chr->serial_ext );
-  msg->offset += 2;  // u8 type,index
+  msg->offset += 2; // u8 type,index
 
   size_t numbytes = line1->length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line1->data(), static_cast<u16>( numbytes ) );  // null-terminated
+  msg->Write( line1->data(), static_cast<u16>( numbytes ) ); // null-terminated
 
-  msg->Write<u8>( static_cast<u8>( cancel ) );
-  msg->Write<u8>( static_cast<u8>( style ) );
+  msg->Write<u8>( static_cast<u8>(cancel) );
+  msg->Write<u8>( static_cast<u8>(style) );
   msg->WriteFlipped<s32>( maximum );
   numbytes = line2->length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line2->data(), static_cast<u16>( numbytes ) );  // null-terminated
+  msg->Write( line2->data(), static_cast<u16>( numbytes ) ); // null-terminated
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1613,19 +1597,19 @@ void handle_textentry( Client* client, PKTIN_AC* msg )
 {
   if ( client->gd->textentry_uoemod == NULL )
   {
-    ERROR_PRINT << "Client (Account " << client->chr->acct->name() << ", Character "
-                << client->chr->name() << ")used out-of-sequence textentry command?\n";
+    ERROR_PRINT << "Client (Account " << client->chr->acct->name() << ", Character " << client->chr->name() << ")used out-of-sequence textentry command?\n";
     return;
   }
   BObjectImp* resimp = new BLong( 0 );
   if ( msg->retcode == PKTIN_AC::RETCODE_OKAY )
   {
     unsigned short datalen = cfBEu16( msg->datalen );
-    if ( datalen >= 1 && datalen <= 256 && msg->data[datalen - 1] == '\0' )
+    if ( datalen >= 1 && datalen <= 256 &&
+         msg->data[datalen - 1] == '\0' )
     {
-      // dave added isprint checking 4/13/3
+      //dave added isprint checking 4/13/3
       bool ok = true;
-      --datalen;  // don't include null terminator (already checked)
+      --datalen; // don't include null terminator (already checked)
       for ( int i = 0; i < datalen; ++i )
       {
         if ( !isprint( msg->data[i] ) )
@@ -1639,12 +1623,14 @@ void handle_textentry( Client* client, PKTIN_AC* msg )
         resimp = new String( msg->data, datalen );
       }
     }
+
   }
 
   client->gd->textentry_uoemod->uoexec.ValueStack.back().set( new BObject( resimp ) );
   client->gd->textentry_uoemod->uoexec.os_module->revive();
   client->gd->textentry_uoemod->textentry_chr = NULL;
   client->gd->textentry_uoemod = NULL;
+
 }
 
 class PolCore : public BObjectImp
@@ -1655,18 +1641,19 @@ public:
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
   virtual BObjectImp* copy() const POL_OVERRIDE;
   virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( PolCore ); }
+  virtual size_t sizeEstimate() const POL_OVERRIDE
+  {
+    return sizeof( PolCore );
+  }
   virtual const char* typeOf() const POL_OVERRIDE;
   virtual u8 typeOfInt() const POL_OVERRIDE;
-
 private:
   // not implemented:
-  PolCore& operator=( const PolCore& );
+  PolCore& operator=( const PolCore&);
 };
 
 PolCore::PolCore() : BObjectImp( OTPolCoreRef )
-{
-}
+{}
 
 BObjectImp* PolCore::copy() const
 {
@@ -1690,8 +1677,7 @@ u8 PolCore::typeOfInt() const
 BObjectImp* GetPackageList()
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
-  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
-        itr != Plib::systemstate.packages.end(); ++itr )
+  for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin( ); itr != Plib::systemstate.packages.end( ); ++itr )
   {
     Plib::Package* pkg = ( *itr );
     arr->addElement( new String( pkg->name() ) );
@@ -1707,13 +1693,11 @@ void add_script( ObjArray* arr, UOExecutor* uoexec, const char* /*state*/ )
 BObjectImp* GetRunningScriptList()
 {
   ObjArray* arr = new ObjArray;
-  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin();
-        itr != scriptEngineInternalManager.ranlist.end(); ++itr )
+  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(); itr != scriptEngineInternalManager.ranlist.end(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
-  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
-        itr != scriptEngineInternalManager.runlist.end(); ++itr )
+  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(); itr != scriptEngineInternalManager.runlist.end(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
@@ -1723,23 +1707,19 @@ BObjectImp* GetRunningScriptList()
 BObjectImp* GetAllScriptList()
 {
   ObjArray* arr = new ObjArray;
-  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin();
-        itr != scriptEngineInternalManager.ranlist.end(); ++itr )
+  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(); itr != scriptEngineInternalManager.ranlist.end(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
-  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
-        itr != scriptEngineInternalManager.runlist.end(); ++itr )
+  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(); itr != scriptEngineInternalManager.runlist.end(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
-  for ( HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin();
-        itr != scriptEngineInternalManager.holdlist.end(); ++itr )
+  for ( HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin(); itr != scriptEngineInternalManager.holdlist.end(); ++itr )
   {
     add_script( arr, ( *itr ).second, "Sleeping" );
   }
-  for ( NoTimeoutHoldList::iterator itr = scriptEngineInternalManager.notimeoutholdlist.begin();
-        itr != scriptEngineInternalManager.notimeoutholdlist.end(); ++itr )
+  for ( NoTimeoutHoldList::iterator itr = scriptEngineInternalManager.notimeoutholdlist.begin(); itr != scriptEngineInternalManager.notimeoutholdlist.end(); ++itr )
   {
     add_script( arr, *itr, "Sleeping" );
   }
@@ -1750,8 +1730,7 @@ BObjectImp* GetScriptProfiles()
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
 
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.begin(),
-                          end = scriptEngineInternalManager.scrstore.end();
+  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.begin(), end = scriptEngineInternalManager.scrstore.end();
   u64 total_instr = 0;
   for ( ; itr != end; ++itr )
   {
@@ -1773,11 +1752,13 @@ BObjectImp* GetScriptProfiles()
     elem->addMember( "invocations", new BLong( eprog->invocations ) );
     u64 cycles_per_invoc = eprog->instr_cycles / ( eprog->invocations ? eprog->invocations : 1 );
     elem->addMember( "instr_per_invoc", new Double( static_cast<double>( cycles_per_invoc ) ) );
-    double cycle_percent =
-        total_instr != 0 ? ( static_cast<double>( eprog->instr_cycles ) / total_instr * 100.0 ) : 0;
+    double cycle_percent = total_instr != 0 ?
+                           (static_cast<double>(eprog->instr_cycles) / total_instr * 100.0)
+                           : 0;
     elem->addMember( "instr_percent", new Double( cycle_percent ) );
 
     arr->addElement( elem.release() );
+
   }
   return arr.release();
 }
@@ -1835,8 +1816,7 @@ BObjectImp* GetPktStatusObj()
     if ( it->second->HasSubs() )
     {
       PacketInterfaceQueueMap* submap = it->second->GetSubs();
-      for ( PacketInterfaceQueueMap::iterator s_it = submap->begin(); s_it != submap->end();
-            ++s_it )
+      for ( PacketInterfaceQueueMap::iterator s_it = submap->begin(); s_it != submap->end(); ++s_it )
       {
         std::unique_ptr<BStruct> elemsub( new BStruct );
         elemsub->addMember( "pkt", new BLong( it->first ) );
@@ -1851,25 +1831,19 @@ BObjectImp* GetPktStatusObj()
 
 BObjectImp* GetCoreVariable( const char* corevar )
 {
-#define LONG_COREVAR( name, expr )      \
-  if ( stricmp( corevar, #name ) == 0 ) \
-    return new BLong( static_cast<int>( expr ) );
+#define LONG_COREVAR(name,expr) if (stricmp( corevar, #name ) == 0) return new BLong( static_cast<int>(expr) );
 
-  if ( stricmp( corevar, "itemcount" ) == 0 )
-    return new BLong( get_toplevel_item_count() );
-  if ( stricmp( corevar, "mobilecount" ) == 0 )
-    return new BLong( get_mobile_count() );
+  if ( stricmp( corevar, "itemcount" ) == 0 ) return new BLong( get_toplevel_item_count() );
+  if ( stricmp( corevar, "mobilecount" ) == 0 ) return new BLong( get_mobile_count() );
 
-  if ( stricmp( corevar, "bytes_sent" ) == 0 )
-    return new Double( static_cast<double>( networkManager.polstats.bytes_sent ) );
-  if ( stricmp( corevar, "bytes_received" ) == 0 )
-    return new Double( static_cast<double>( networkManager.polstats.bytes_received ) );
+  if ( stricmp( corevar, "bytes_sent" ) == 0 ) return new Double( static_cast<double>( networkManager.polstats.bytes_sent ) );
+  if ( stricmp( corevar, "bytes_received" ) == 0 ) return new Double( static_cast<double>( networkManager.polstats.bytes_received ) );
 
   LONG_COREVAR( uptime, polclock() / POLCLOCKS_PER_SEC );
   LONG_COREVAR( sysload, stateManager.profilevars.last_sysload );
   LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
-  //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
-  //	LONG_COREVAR( bytes_received, polstats.bytes_received );
+  //  LONG_COREVAR( bytes_sent, polstats.bytes_sent );
+  //  LONG_COREVAR( bytes_received, polstats.bytes_received );
   LONG_COREVAR( version, POL_VERSION_MAJOR );
   LONG_COREVAR( systime, time( NULL ) );
   LONG_COREVAR( events_per_min, GET_PROFILEVAR_PER_MIN( events ) );
@@ -1886,30 +1860,18 @@ BObjectImp* GetCoreVariable( const char* corevar )
 
   LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
   LONG_COREVAR( priority_divide, scriptEngineInternalManager.priority_divide );
-  if ( stricmp( corevar, "verstr" ) == 0 )
-    return new String( POL_VERSION_ID );
-  if ( stricmp( corevar, "compiledate" ) == 0 )
-    return new String( POL_BUILD_DATE );
-  if ( stricmp( corevar, "compiletime" ) == 0 )
-    return new String( POL_BUILD_TIME );
-  if ( stricmp( corevar, "packages" ) == 0 )
-    return GetPackageList();
-  if ( stricmp( corevar, "running_scripts" ) == 0 )
-    return GetRunningScriptList();
-  if ( stricmp( corevar, "all_scripts" ) == 0 )
-    return GetAllScriptList();
-  if ( stricmp( corevar, "script_profiles" ) == 0 )
-    return GetScriptProfiles();
-  if ( stricmp( corevar, "iostats" ) == 0 )
-    return GetIoStats();
-  if ( stricmp( corevar, "queued_iostats" ) == 0 )
-    return GetQueuedIoStats();
-  if ( stricmp( corevar, "pkt_status" ) == 0 )
-    return GetPktStatusObj();
-  if ( stricmp( corevar, "memory_usage" ) == 0 )
-    return new BLong( static_cast<int>( Clib::getCurrentMemoryUsage() / 1024 ) );
+  if ( stricmp( corevar, "verstr" ) == 0 ) return new String( POL_VERSION_ID );
+  if ( stricmp( corevar, "compiledatetime" ) == 0 ) return new String( POL_BUILD_DATETIME );
+  if ( stricmp( corevar, "packages" ) == 0 ) return GetPackageList();
+  if ( stricmp( corevar, "running_scripts" ) == 0 ) return GetRunningScriptList();
+  if ( stricmp( corevar, "all_scripts" ) == 0 ) return GetAllScriptList();
+  if ( stricmp( corevar, "script_profiles" ) == 0 ) return GetScriptProfiles();
+  if ( stricmp( corevar, "iostats" ) == 0 ) return GetIoStats();
+  if ( stricmp( corevar, "queued_iostats" ) == 0 ) return GetQueuedIoStats();
+  if ( stricmp( corevar, "pkt_status" ) == 0 ) return GetPktStatusObj();
+  if ( stricmp( corevar, "memory_usage") == 0 ) return new BLong(static_cast<int>(Clib::getCurrentMemoryUsage()/1024));
 
-  return new BError( std::string( "Unknown core variable " ) + corevar );
+  return new BError(std::string("Unknown core variable ") + corevar);
 }
 
 BObjectRef PolCore::get_member( const char* membername )
@@ -1928,6 +1890,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
     {
       log_all_script_cycle_counts( clear ? true : false );
       return new BLong( 1 );
+
     }
   }
   else if ( stricmp( methodname, "set_priority_divide" ) == 0 )
@@ -1952,37 +1915,35 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
     clear_script_profile_counters();
     return new BLong( 1 );
   }
-  else if ( stricmp( methodname, "internal" ) == 0 )  // Just for internal Development...
+  else if ( stricmp( methodname, "internal" ) == 0 ) // Just for internal Development...
   {
     int type;
     if ( ex.getParam( 0, type ) )
     {
 #ifdef MEMORYLEAK
-      if ( type == 1 )
+      if (type == 1)
       {
         char buffer[30];
-        auto time_tm = Clib::localtime( time( NULL ) );
+        auto time_tm = Clib::localtime(time( NULL ));
 
         strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", &time_tm );
         DEBUGLOG << "[" << buffer << "] polcore().internal\n";
         LEAKLOG << buffer << ";";
 
-        bobject_alloc.log_stuff( "bobject" );
-        uninit_alloc.log_stuff( "uninit" );
-        blong_alloc.log_stuff( "blong" );
-        double_alloc.log_stuff( "double" );
+        bobject_alloc.log_stuff("bobject");
+        uninit_alloc.log_stuff("uninit");
+        blong_alloc.log_stuff("blong");
+        double_alloc.log_stuff("double");
         ConfigFiles_log_stuff();
-        Clib::PrintHeapData();  // Will print endl in llog
+        Clib::PrintHeapData(); // Will print endl in llog
       }
 #endif
 #ifdef ESCRIPT_PROFILE
-      DEBUGLOG << "FuncName,Count,Min,Max,Sum,Avarage\n";
-      for ( escript_profile_map::iterator itr = EscriptProfileMap.begin();
-            itr != EscriptProfileMap.end(); ++itr )
+      DEBUGLOG<< "FuncName,Count,Min,Max,Sum,Avarage\n";
+      for (escript_profile_map::iterator itr=EscriptProfileMap.begin(); itr!=EscriptProfileMap.end(); ++itr)
       {
-        DEBUGLOG << itr->first << "," << itr->second.count << "," << itr->second.min << ","
-                 << itr->second.max << "," << itr->second.sum << ","
-                 << ( itr->second.sum / itr->second.count ) << "\n";
+        DEBUGLOG << itr->first << "," << itr->second.count << "," << itr->second.min << "," << itr->second.max << "," << itr->second.sum << ","
+                 << (itr->second.sum / itr->second.count) << "\n";
       }
 #endif
       if ( type == 2 )
@@ -1992,13 +1953,13 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
       else if ( type == 3 )
       {
         POLLOG_ERROR << "Forcing crash\n";
-        int* i = 0;
-        *i = 1;
+        int* i=0;
+        *i=1;
       }
       else if ( type == 4 )
       {
         POLLOG_ERROR << "Forcing assert crash\n";
-        passert_always( false );
+        passert_always(false);
       }
       return new BLong( 1 );
     }
@@ -2025,17 +1986,17 @@ BObjectImp* UOExecutorModule::mf_CreateAccount()
   const String* acctname;
   const String* password;
   int enabled;
-  if ( getStringParam( 0, acctname ) && getStringParam( 1, password ) && getParam( 2, enabled ) )
+  if ( getStringParam( 0, acctname ) &&
+       getStringParam( 1, password ) &&
+       getParam( 2, enabled ) )
   {
     if ( acctname->SafeCharAmt() < acctname->length() )
     {
-      return new BError(
-          "Attempted to use username in account creation with non-allowed characters." );
+      return new BError( "Attempted to use username in account creation with non-allowed characters." );
     }
     if ( password->SafeCharAmt() < password->length() )
     {
-      return new BError(
-          "Attempted to use password in account creation with non-allowed characters." );
+      return new BError( "Attempted to use password in account creation with non-allowed characters." );
     }
 
     if ( Accounts::find_account( acctname->data() ) )
@@ -2043,9 +2004,8 @@ BObjectImp* UOExecutorModule::mf_CreateAccount()
       return new BError( "Account already exists" );
     }
 
-    // Dave 6/5/3 let this function handle the hashing (Account ctor does it)
-    Accounts::Account* acct = Accounts::create_new_account( acctname->value(), password->value(),
-                                                            enabled ? true : false );  // MD5
+    //Dave 6/5/3 let this function handle the hashing (Account ctor does it)
+    Accounts::Account* acct = Accounts::create_new_account( acctname->value( ), password->value( ), enabled ? true : false ); //MD5
 
     return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( AccountRef( acct ) ) );
   }
@@ -2060,7 +2020,7 @@ BObjectImp* UOExecutorModule::mf_FindAccount()
   const String* acctname;
   if ( getStringParam( 0, acctname ) )
   {
-    Accounts::Account* acct = Accounts::find_account( acctname->data() );
+    Accounts::Account* acct = Accounts::find_account( acctname->data( ) );
     if ( acct != NULL )
     {
       return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( AccountRef( acct ) ) );
@@ -2094,10 +2054,11 @@ void handle_resurrect_menu( Client* client, PKTBI_2C* msg )
     // transmit( client, msg, sizeof *msg );
   }
 
-  if ( client->chr != NULL && client->gd != NULL && client->gd->resurrect_uoemod != NULL )
+  if ( client->chr != NULL &&
+       client->gd != NULL &&
+       client->gd->resurrect_uoemod != NULL )
   {
-    client->gd->resurrect_uoemod->uoexec.ValueStack.back().set(
-        new BObject( new BLong( msg->choice ) ) );
+    client->gd->resurrect_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( msg->choice ) ) );
     client->gd->resurrect_uoemod->uoexec.os_module->revive();
     client->gd->resurrect_uoemod->resurrect_chr = NULL;
     client->gd->resurrect_uoemod = NULL;
@@ -2125,7 +2086,9 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 
 void handle_selcolor( Client* client, PKTBI_95* msg )
 {
-  if ( client->chr != NULL && client->gd != NULL && client->gd->selcolor_uoemod != NULL )
+  if ( client->chr != NULL &&
+       client->gd != NULL &&
+       client->gd->selcolor_uoemod != NULL )
   {
     unsigned short color = cfBEu16( msg->graphic_or_color ) & VALID_ITEM_COLOR_MASK;
     BObject* valstack;
@@ -2137,14 +2100,14 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
     {
       valstack = new BObject( new BError( "Client selected an out-of-range color" ) );
 
-      // unsigned short newcolor = ((color - 2) % 1000) + 2;
+      //unsigned short newcolor = ((color - 2) % 1000) + 2;
       POLLOG_ERROR.Format( "Client #{:d} (account {}) selected an out-of-range color 0x{:X}\n" )
           << static_cast<unsigned long>( client->instance_ )
-          << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" ) << color;
+          << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" )
+          << color;
     }
 
-    // client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color ) )
-    // );
+    //client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color ) ) );
     client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( valstack );
     client->gd->selcolor_uoemod->uoexec.os_module->revive();
     client->gd->selcolor_uoemod->selcolor_chr = NULL;
@@ -2157,7 +2120,8 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 {
   Character* chr;
   Item* item;
-  if ( !getCharacterParam( exec, 0, chr ) || !getItemParam( exec, 1, item ) )
+  if ( !getCharacterParam( exec, 0, chr ) ||
+       !getItemParam( exec, 1, item ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -2168,7 +2132,7 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 
   PktHelper::PacketOut<PktOut_95> msg;
   msg->Write<u32>( item->serial_ext );
-  msg->offset += 2;  // u16 unk
+  msg->offset += 2; // u16 unk
   msg->WriteFlipped<u16>( item->graphic );
   msg.Send( chr->client );
 
@@ -2183,7 +2147,8 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   Character* chr;
   Item* book;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, book ) ) )
+  if ( !( getCharacterParam( exec, 0, chr ) &&
+          getItemParam( exec, 1, book ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -2204,8 +2169,8 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   {
     return new BError( "book.GetNumLines() did not return an Integer" );
   }
-  std::string title = book->call_custom_method( "gettitle" )->getStringRep();
-  std::string author = book->call_custom_method( "getauthor" )->getStringRep();
+  std::string title = book->call_custom_method("gettitle")->getStringRep();
+  std::string author = book->call_custom_method("getauthor")->getStringRep();
 
   int npages = ( nlines + 7 ) / 8;
 
@@ -2226,7 +2191,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   msg93->Write<u32>( book->serial_ext );
   msg93->Write<u8>( writable ? 1u : 0u );
   msg93->Write<u8>( 1u );
-  msg93->WriteFlipped<u16>( static_cast<u16>( npages ) );
+  msg93->WriteFlipped<u16>( static_cast<u16>(npages) );
   msg93->Write( title.c_str(), 60, false );
   msg93->Write( author.c_str(), 30, false );
   msg93.Send( chr->client );
@@ -2236,7 +2201,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
     PktHelper::PacketOut<PktOut_66> msg;
     msg->offset += 2;
     msg->Write<u32>( book->serial_ext );
-    msg->WriteFlipped<u16>( static_cast<u16>( npages ) );
+    msg->WriteFlipped<u16>( static_cast<u16>(npages) );
 
     ObjArray* arr = static_cast<ObjArray*>( contents_ob.impptr() );
 
@@ -2247,7 +2212,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
       {
         return new BError( "Buffer overflow" );
       }
-      msg->WriteFlipped<u16>( static_cast<u16>( page ) );
+      msg->WriteFlipped<u16>( static_cast<u16>(page) );
       u16 offset = msg->offset;
       msg->offset += 2;
 
@@ -2266,39 +2231,39 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
       }
       u16 len = msg->offset;
       msg->offset = offset;
-      msg->WriteFlipped<u16>( static_cast<u16>( pagelines ) );
+      msg->WriteFlipped<u16>( static_cast<u16>(pagelines) );
       msg->offset = len;
     }
 
     /*
-            int linenum = 1;
-            for( int page = 1; page <= npages; ++page )
-            {
-            PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
-            msglen += sizeof(*ppage);
-            if (msglen > sizeof buffer)
-            return new BError( "Buffer overflow" );
-            ppage->page = ctBEu16( page );
+        int linenum = 1;
+        for( int page = 1; page <= npages; ++page )
+        {
+        PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
+        msglen += sizeof(*ppage);
+        if (msglen > sizeof buffer)
+        return new BError( "Buffer overflow" );
+        ppage->page = ctBEu16( page );
 
-            int pagelines;
-            for( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
-            {
-            string linetext;
+        int pagelines;
+        for( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
+        {
+        string linetext;
 
-            BObjectVec params;
-            params.push_back( BObject(new BLong(linenum)) );
-            BObject line_ob = book->call_custom_method( "getline", params );
-            linetext = line_ob->getStringRep();
+        BObjectVec params;
+        params.push_back( BObject(new BLong(linenum)) );
+        BObject line_ob = book->call_custom_method( "getline", params );
+        linetext = line_ob->getStringRep();
 
-            char* linebuf = reinterpret_cast<char*>(&buffer[msglen]);
-            msglen += linetext.size()+1;
-            if (msglen > sizeof buffer)
-            return new BError( "Buffer overflow" );
-            memcpy( linebuf, linetext.c_str(), linetext.size()+1 );
-            }
-            ppage->lines = ctBEu16( pagelines );
-            }
-            */
+        char* linebuf = reinterpret_cast<char*>(&buffer[msglen]);
+        msglen += linetext.size()+1;
+        if (msglen > sizeof buffer)
+        return new BError( "Buffer overflow" );
+        memcpy( linebuf, linetext.c_str(), linetext.size()+1 );
+        }
+        ppage->lines = ctBEu16( pagelines );
+        }
+        */
     u16 len = msg->offset;
     msg->offset = 1;
     msg->WriteFlipped<u16>( len );
@@ -2315,8 +2280,8 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == NULL )
   {
-    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" ) << book_serial
-                                                                         << client->chr->serial;
+    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
+        << book_serial << client->chr->serial;
     return;
   }
 
@@ -2364,7 +2329,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
 
     u16 len = msgOut->offset;
     msgOut->offset = offset;
-    msgOut->WriteFlipped<u16>( static_cast<u16>( pagelines ) );
+    msgOut->WriteFlipped<u16>( static_cast<u16>(pagelines) );
     msgOut->offset = 1;
     msgOut->WriteFlipped<u16>( len );
     msgOut.Send( client, len );
@@ -2387,7 +2352,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
         }
         else
         {
-          ++ptext;  // skip null terminator
+          ++ptext; // skip null terminator
           break;
         }
       }
@@ -2411,19 +2376,18 @@ char strip_ctrl_chars( char c )
 
 void open_book_handler( Client* client, PKTBI_93* msg )
 {
-  // fdump( stdout, msg, sizeof *msg );
+  //fdump( stdout, msg, sizeof *msg );
 
-  // string title( msg->title, sizeof msg->title );
-  // string author( msg->author, sizeof msg->author );
+  //string title( msg->title, sizeof msg->title );
+  //string author( msg->author, sizeof msg->author );
 
-  // Dave changed this 12/19 from sizeof msg->title. The protocol defines garbage after the
-  // terminator for
-  // the title and author strings, so we were writing this garbage into save files. This caused some
+  //Dave changed this 12/19 from sizeof msg->title. The protocol defines garbage after the terminator for
+  //the title and author strings, so we were writing this garbage into save files. This caused some
   //"No SERIAL property" bugs, because the parser barfed on the bad characters.
   std::string title( msg->title, strlen( msg->title ) );
   std::string author( msg->author, strlen( msg->author ) );
 
-  // dave 1/20/3 cheaters insert cntrl chars into books causing severe problems
+  //dave 1/20/3 cheaters insert cntrl chars into books causing severe problems
   std::transform( title.begin(), title.end(), title.begin(), strip_ctrl_chars );
   std::transform( author.begin(), author.end(), author.begin(), strip_ctrl_chars );
 
@@ -2432,8 +2396,8 @@ void open_book_handler( Client* client, PKTBI_93* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == NULL )
   {
-    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" ) << book_serial
-                                                                         << client->chr->serial;
+    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
+        << book_serial << client->chr->serial;
     return;
   }
   BObjectImpRefVec params;
@@ -2449,7 +2413,8 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   Character* chr;
   Multi::UMulti* multi;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && getMultiParam( exec, 1, multi ) ) )
+  if ( !( getCharacterParam( exec, 0, chr ) &&
+          getMultiParam( exec, 1, multi ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -2480,17 +2445,17 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     PktHelper::PacketOut<PktOut_BF_Sub20> msg;
     msg->WriteFlipped<u16>( 17u );
-    msg->offset += 2;  // sub
+    msg->offset += 2; //sub
     msg->Write<u32>( house->serial_ext );
-    msg->Write<u8>( 0x4u );          // begin
-    msg->offset += 2;                // u16 unk2 FIXME what's the meaning
-    msg->Write<u32>( 0xFFFFFFFFu );  // fixme
-    msg->Write<u8>( 0xFFu );         // fixme
+    msg->Write<u8>( 0x4u ); //begin
+    msg->offset += 2; // u16 unk2 FIXME what's the meaning
+    msg->Write<u32>( 0xFFFFFFFFu ); // fixme
+    msg->Write<u8>( 0xFFu ); // fixme
     msg.Send( chr->client );
   }
   move_character_to( chr, house->x, house->y, house->z + 7, MOVEITEM_FORCELOCATION, NULL );
-  // chr->set_script_member("hidden",1);
-  // chr->set_script_member("frozen",1);
+  //chr->set_script_member("hidden",1);
+  //chr->set_script_member("frozen",1);
 
   house->WorkingDesign.AddComponents( house );
   house->CurrentDesign.AddComponents( house );
@@ -2498,7 +2463,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   Multi::ItemList itemlist;
   Multi::MobileList moblist;
   Multi::UHouse::list_contents( house, itemlist, moblist );
-  const Multi::MultiDef& def = house->multidef();
+  const Multi::MultiDef& def = house->multidef( );
   while ( !itemlist.empty() )
   {
     Item* item = itemlist.front();
@@ -2510,8 +2475,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     Character* multichr = moblist.back();
     if ( multichr != chr )
-      move_character_to( multichr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
-                         MOVEITEM_FORCELOCATION, NULL );
+      move_character_to( multichr, house->x + def.minrx, house->y + def.maxry + 1, house->z, MOVEITEM_FORCELOCATION, NULL );
     moblist.pop_back();
   }
 
@@ -2520,16 +2484,17 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   CustomHousesSendFull( house, chr->client, Multi::HOUSE_DESIGN_WORKING );
 
   return new BLong( 1 );
+
 }
 
-BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger( /* Character */ )
+BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger(/* Character */ )
 {
   Character* chr;
   if ( getCharacterParam( exec, 0, chr ) )
   {
     PktHelper::PacketOut<PktOut_BF_Sub2A> msg;
     msg->WriteFlipped<u16>( 7u );
-    msg->offset += 2;  // sub
+    msg->offset += 2; //sub
     msg->Write<u8>( chr->gender );
     msg->Write<u8>( chr->race + 1u );
     msg.Send( chr->client );
@@ -2538,6 +2503,7 @@ BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger( /* Character */ )
   else
     return new BError( "Invalid parameter" );
 }
+
 
 
 void character_race_changer_handler( Client* client, PKTBI_BF* msg )
@@ -2591,27 +2557,26 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
 // Called when selection made or when selection canceled with NULL parameters
 void popup_menu_selection_made( Network::Client* client, u32 serial, u16 id )
 {
-  if ( client == NULL )
+  if( client == NULL )
     return;
 
   Character* chr = client->chr;
-  if ( chr == NULL || chr->client->gd->popup_menu_selection_uoemod == NULL )
+  if( chr == NULL || chr->client->gd->popup_menu_selection_uoemod == NULL )
     return;
 
   // The function sending the PopUp menu is responsible to set this
-  passert_always_r(
-      chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL,
-      "Bug in handling PopUp menu selection. Please report this on the forums." );
+  passert_always_r( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above != NULL,
+                    "Bug in handling PopUp menu selection. Please report this on the forums." );
 
-  if ( id && serial )
+  if( id && serial )
   {
-    if ( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above->serial ==
-         serial )
-      chr->client->gd->popup_menu_selection_uoemod->uoexec.ValueStack.back().set(
-          new BObject( new BLong( id ) ) );
+    if( chr->client->gd->popup_menu_selection_uoemod->popup_menu_selection_above->serial == serial )
+      chr->client->gd->popup_menu_selection_uoemod->uoexec.ValueStack.back().set( new BObject(new BLong(id)) );
     else
       POLLOG_INFO.Format( "{}/{} send an unexpected popup reply for {}.\n" )
-          << client->acct->name() << client->chr->name() << serial;
+          << client->acct->name()
+          << client->chr->name()
+          << serial;
   }
 
   chr->client->gd->popup_menu_selection_uoemod->uoexec.os_module->revive();
@@ -2626,37 +2591,38 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   Character* chr;
   UObject* above;
   ObjArray* menu_arr;
-  if ( !( getCharacterParam( exec, 0, chr ) && getUObjectParam( exec, 1, above ) &&
+  if( ! ( getCharacterParam( exec, 0, chr ) &&
+          getUObjectParam( exec, 1, above ) &&
           exec.getObjArrayParam( 2, menu_arr ) ) )
   {
     return new BError( "Invalid parameter" );
   }
-  if ( !chr->has_active_client() )
+  if( ! chr->has_active_client() )
     return new BError( "No client attached" );
-  if ( !menu_arr->ref_arr.size() )
+  if( ! menu_arr->ref_arr.size() )
     return new BError( "Can't send empty menu" );
-  if ( menu_arr->ref_arr.size() > 0xfffe )
+  if( menu_arr->ref_arr.size() > 0xfffe )
     return new BError( "Too many entries in menu" );
 
-  // Prepare packet
-  // TODO: add KR support?
+  //Prepare packet
+  //TODO: add KR support?
   PktHelper::PacketOut<PktOut_BF_Sub14> msg;
   msg->offset += 4;
-  msg->Write<u8>( 0u );                  // unknown
-  msg->Write<u8>( 1u );                  // 1=2D, 2=KR
+  msg->Write<u8>( 0u ); //unknown
+  msg->Write<u8>( 1u ); //1=2D, 2=KR
   msg->Write<u32>( above->serial_ext );  // Above serial
   u16 offset_num_entries = msg->offset;
-  msg->offset += 1;  // Skip num entries now, write it later
+  msg->offset += 1; // Skip num entries now, write it later
 
   u8 num_entries = 0;
-  for ( u16 i = 0; i < menu_arr->ref_arr.size(); ++i )
+  for( u16 i = 0; i < menu_arr->ref_arr.size(); ++i )
   {
     BObject* bo = menu_arr->ref_arr[i].get();
-    if ( bo == NULL )
+    if( bo == NULL )
       continue;
     BObjectImp* imp = bo->impptr();
 
-    if ( !++num_entries )  // overflow
+    if( ! ++num_entries ) // overflow
       return new BError( "Too many entries in menu" );
 
     int cliloc;
@@ -2664,35 +2630,35 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     bool arrow = false;
     u16 color = 0;
     bool use_color = false;
-    if ( imp->isa( BObjectImp::OTLong ) )
+    if( imp->isa(BObjectImp::OTLong) )
     {
-      // Short form: meu is just an int
+      //Short form: meu is just an int
       const BLong* lng = static_cast<BLong*>( imp );
       cliloc = lng->value();
     }
-    else if ( imp->isa( BObjectImp::OTStruct ) )
+    else if( imp->isa(BObjectImp::OTStruct) )
     {
-      // Full form: menu is a struct
+      //Full form: menu is a struct
       BStruct* elem = static_cast<BStruct*>( imp );
 
-      BObjectImp* cl = const_cast<BObjectImp*>( elem->FindMember( "cliloc" ) );
-      if ( cl == NULL )
+      BObjectImp* cl = const_cast<BObjectImp*>( elem->FindMember("cliloc") );
+      if( cl == NULL )
         return new BError( "Missing cliloc for menu element" );
-      if ( !cl->isa( BObjectImp::OTLong ) )
+      if( ! cl->isa(BObjectImp::OTLong) )
         return new BError( "Invalid cliloc for menu element" );
       const BLong* lng = static_cast<BLong*>( cl );
       cliloc = lng->value();
 
-      const BObjectImp* ds = elem->FindMember( "disabled" );
-      if ( ds != NULL )
+      const BObjectImp* ds = elem->FindMember("disabled");
+      if( ds != NULL )
         disabled = ds->isTrue();
 
-      const BObjectImp* ar = elem->FindMember( "arrow" );
-      if ( ar != NULL )
+      const BObjectImp* ar = elem->FindMember("arrow");
+      if( ar != NULL )
         arrow = ar->isTrue();
 
-      BObjectImp* co = const_cast<BObjectImp*>( elem->FindMember( "color" ) );
-      if ( co != NULL && co->isa( BObjectImp::OTLong ) )
+      BObjectImp* co = const_cast<BObjectImp*>( elem->FindMember("color") );
+      if( co != NULL && co->isa(BObjectImp::OTLong) )
       {
         const BLong* colng = static_cast<BLong*>( co );
         color = static_cast<u16>( colng->value() );
@@ -2702,21 +2668,21 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     else
       return new BError( "Menu elements must be int or struct" );
 
-    if ( cliloc < 3000000 || cliloc > 3065535 )
+    if( cliloc < 3000000 || cliloc > 3065535 )
       return new BError( "Cliloc out of range in menu" );
 
     u16 flags = 0x00;
-    if ( disabled )
+    if( disabled )
       flags |= 0x01;
-    if ( arrow )
+    if( arrow )
       flags |= 0x02;
-    if ( use_color )
+    if( use_color )
       flags |= 0x20;
-    msg->WriteFlipped<u16>( static_cast<u16>( i + 1 ) );             // Menu element ID
-    msg->WriteFlipped<u16>( static_cast<u16>( cliloc - 3000000 ) );  // Cliloc ID, adjusted
-    msg->WriteFlipped<u16>( flags );                                 // Flags
-    if ( use_color )
-      msg->WriteFlipped<u16>( static_cast<u16>( color ) );
+    msg->WriteFlipped<u16>( static_cast<u16>(i + 1) ); // Menu element ID
+    msg->WriteFlipped<u16>( static_cast<u16>(cliloc - 3000000) ); // Cliloc ID, adjusted
+    msg->WriteFlipped<u16>( flags ); // Flags
+    if( use_color )
+      msg->WriteFlipped<u16>( static_cast<u16>(color) );
   }
 
   // Add lengths and send
@@ -2728,7 +2694,7 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   msg.Send( chr->client, len );
 
   // Cancel any previously waiting popup response and suspend the script waiting for return value
-  if ( chr->client->gd->popup_menu_selection_uoemod != NULL )
+  if( chr->client->gd->popup_menu_selection_uoemod != NULL )
     chr->client->gd->popup_menu_selection_uoemod->uoexec.os_module->revive();
   chr->on_popup_menu_selection = popup_menu_selection_made;
   chr->client->gd->popup_menu_selection_uoemod = this;
@@ -2743,17 +2709,17 @@ BObjectImp* UOExecutorModule::mf_SingleClick()
   Character* chr = nullptr;
   UObject* what = nullptr;
 
-  if ( !getCharacterParam( exec, 0, chr ) || !getUObjectParam( exec, 1, what ) )
-    return new BError( "Invalid parameter" );
+  if (!getCharacterParam(exec, 0, chr) || !getUObjectParam(exec, 1, what))
+    return new BError("Invalid parameter");
 
-  if ( !chr->has_active_client() )
-    return new BError( "Mobile has no active client" );
+  if (!chr->has_active_client())
+    return new BError("Mobile has no active client");
 
   // If it got here, clear any errors from getUObjectParam/getCharacterParam
-  exec.setFunctionResult( nullptr );
+  exec.setFunctionResult(nullptr);
 
-  singleclick( chr->client, what->serial );
-  return new BLong( 1 );
+  singleclick(chr->client, what->serial);
+  return new BLong(1);
 }
 }
 }

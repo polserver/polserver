@@ -30,9 +30,9 @@ class StoredConfigFile;
 typedef ref_ptr<StoredConfigFile> ConfigFileRef;
 
 typedef std::map<std::string, ConfigFileRef> CfgFiles;
-typedef std::vector<std::string> OldCfgFiles;  // we've multiple older instances
+typedef std::vector<std::string> OldCfgFiles; // we've multiple older instances
 
-typedef std::map<std::string, Module::DataStoreFile*, Clib::ci_cmp_pred> DataStore;
+typedef std::map< std::string, Module::DataStoreFile*, Clib::ci_cmp_pred > DataStore;
 // used for Pol and RunEcl
 
 class ConfigurationBuffer : boost::noncopyable
@@ -58,7 +58,6 @@ public:
     size_t datastore_size;
     size_t misc;
   };
-
 private:
 };
 

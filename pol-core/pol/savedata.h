@@ -19,9 +19,8 @@ namespace Core
 {
 class SaveContext : boost::noncopyable
 {
-  // typedef Clib::ThreadedOFStreamWriter SaveStrategy; // too many context switches!
+  //typedef Clib::ThreadedOFStreamWriter SaveStrategy; // too many context switches!
   typedef Clib::OFStreamWriter SaveStrategy;
-
 private:
   std::ofstream _pol;
   std::ofstream _objects;
@@ -36,7 +35,6 @@ private:
   std::ofstream _guilds;
   std::ofstream _datastore;
   std::ofstream _party;
-
 public:
   SaveContext();
   ~SaveContext();
@@ -57,8 +55,7 @@ public:
   static void ready();
 };
 
-int save_incremental( unsigned int& dirty_writes, unsigned int& clean_objects,
-                      long long& elapsed_ms );
+int save_incremental( unsigned int& dirty_writes, unsigned int& clean_objects, long long& elapsed_ms );
 
 void write_system_data( Clib::StreamWriter& sw );
 void write_global_properties( Clib::StreamWriter& sw );

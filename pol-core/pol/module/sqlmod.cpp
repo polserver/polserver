@@ -22,19 +22,21 @@ namespace Pol
 namespace Bscript
 {
 using namespace Module;
-template <>
+template<>
 TmplExecutorModule<SQLExecutorModule>::FunctionDef
-    TmplExecutorModule<SQLExecutorModule>::function_table[] = {
-        {"MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB},
-        {"MySQL_Query", &SQLExecutorModule::mf_Query},
-        {"MySQL_Close", &SQLExecutorModule::mf_Close},
-        {"MySQL_Num_Fields", &SQLExecutorModule::mf_NumFields},
-        {"MySQL_Fetch_Row", &SQLExecutorModule::mf_FetchRow},
-        {"MySQL_Affected_Rows", &SQLExecutorModule::mf_AffectedRows},
-        {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows},
-        {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb},
-        {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName}};
-template <>
+TmplExecutorModule<SQLExecutorModule>::function_table[] =
+{
+  { "MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB },
+  { "MySQL_Query", &SQLExecutorModule::mf_Query },
+  { "MySQL_Close", &SQLExecutorModule::mf_Close },
+  { "MySQL_Num_Fields", &SQLExecutorModule::mf_NumFields },
+  { "MySQL_Fetch_Row", &SQLExecutorModule::mf_FetchRow },
+  { "MySQL_Affected_Rows", &SQLExecutorModule::mf_AffectedRows },
+  { "MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows },
+  { "MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb },
+  { "MySQL_Field_Name", &SQLExecutorModule::mf_FieldName }
+};
+template<>
 int TmplExecutorModule<SQLExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
@@ -43,9 +45,9 @@ using namespace Bscript;
 #ifdef HAVE_MYSQL
 
 BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uoexec,
-                                                   const std::string host,
-                                                   const std::string username,
-                                                   const std::string password )
+    const std::string host,
+    const std::string username,
+    const std::string password )
 {
   auto msg = [uoexec, host, username, password]()
   {
@@ -62,7 +64,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Insufficient memory" ) ) );
+          new BObject( new BError( "Insufficient memory" ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -74,7 +76,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
+          new BObject( new BError( sql->getLastError() ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -97,7 +99,8 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
 }
 
 BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoexec,
-                                                  Core::BSQLConnection* sql, const std::string db )
+    Core::BSQLConnection* sql,
+    const std::string db )
 {
   auto msg = [uoexec, sql, db]()
   {
@@ -109,7 +112,7 @@ BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoe
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Invalid parameters" ) ) );
+          new BObject( new BError( "Invalid parameters" ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -121,7 +124,7 @@ BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoe
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
+          new BObject( new BError( sql->getLastError() ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -143,8 +146,9 @@ BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoe
 }
 
 BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoexec,
-                                                 Core::BSQLConnection* sql, const std::string query,
-                                                 const Bscript::ObjArray* params )
+    Core::BSQLConnection* sql,
+    const std::string query,
+    const Bscript::ObjArray* params )
 {
   // Copy and parse params before they will be deleted by this thread (go out of scope)
   Core::QueryParams sharedParams( nullptr );
@@ -171,7 +175,7 @@ BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoex
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Invalid parameters" ) ) );
+          new BObject( new BError( "Invalid parameters" ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -183,7 +187,7 @@ BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoex
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
+          new BObject( new BError( sql->getLastError() ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -213,13 +217,11 @@ Bscript::BObjectImp* SQLExecutorModule::mf_ConnectToDB()
   {
     return new BError( "Invalid parameters" );
   }
-  return background_connect( uoexec.weakptr, host->getStringRep(), username->getStringRep(),
-                             password->getStringRep() );
+  return background_connect( uoexec.weakptr, host->getStringRep(), username->getStringRep(), password->getStringRep() );
 }
 Bscript::BObjectImp* SQLExecutorModule::mf_SelectDb()
 {
-  Core::BSQLConnection* sql =
-      static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
+  Core::BSQLConnection* sql = static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
   const String* db = getStringParam( 1 );
   if ( !sql || !db )
   {
@@ -230,8 +232,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_SelectDb()
 
 Bscript::BObjectImp* SQLExecutorModule::mf_Query()
 {
-  Core::BSQLConnection* sql =
-      static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
+  Core::BSQLConnection* sql = static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
   const String* query = getStringParam( 1 );
   ObjArray* params;
   bool use_parameters = getObjArrayParam( 2, params );
@@ -240,14 +241,12 @@ Bscript::BObjectImp* SQLExecutorModule::mf_Query()
     return new BError( "Invalid parameters" );
   }
 
-  return background_query( uoexec.weakptr, sql, query->getStringRep(),
-                           use_parameters ? params : nullptr );
+  return background_query( uoexec.weakptr, sql, query->getStringRep(), use_parameters ? params : nullptr );
 }
 
 Bscript::BObjectImp* SQLExecutorModule::mf_NumFields()
 {
-  Core::BSQLResultSet* result =
-      static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
+  Core::BSQLResultSet* result = static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ));
   if ( !result )
   {
     return new BError( "Invalid parameters" );
@@ -257,10 +256,9 @@ Bscript::BObjectImp* SQLExecutorModule::mf_NumFields()
 
 Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
 {
-  Core::BSQLResultSet* result =
-      static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
+  Core::BSQLResultSet* result = static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
   int index;
-  if ( !getParam( 1, index ) )
+  if (!getParam( 1, index ))
     return new BError( "Invalid parameters" );
 
   if ( !result || !index )
@@ -275,9 +273,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
 
 Bscript::BObjectImp* SQLExecutorModule::mf_AffectedRows()
 {
-  Core::BSQLResultSet* result =
-      static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
-  ;
+  Core::BSQLResultSet* result = static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );;
   if ( !result )
   {
     return new BError( "Invalid parameters" );
@@ -287,9 +283,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_AffectedRows()
 
 Bscript::BObjectImp* SQLExecutorModule::mf_NumRows()
 {
-  Core::BSQLResultSet* result =
-      static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
-  ;
+  Core::BSQLResultSet* result = static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );;
   if ( !result )
   {
     return new BError( "Invalid parameters" );
@@ -299,8 +293,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_NumRows()
 
 Bscript::BObjectImp* SQLExecutorModule::mf_Close()
 {
-  Core::BSQLConnection* sql =
-      static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
+  Core::BSQLConnection* sql = static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
   if ( !sql )
     return new BError( "Invalid parameters" );
   sql->close();
@@ -309,8 +302,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_Close()
 
 Bscript::BObjectImp* SQLExecutorModule::mf_FetchRow()
 {
-  Core::BSQLResultSet* result =
-      static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
+  Core::BSQLResultSet* result = static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
   if ( !result )
   {
     return new BError( "Invalid parameters" );
@@ -320,11 +312,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FetchRow()
 
 #else
 
-#define MF_NO_MYSQL( funcName )                                      \
-  BObjectImp* SQLExecutorModule::funcName()                          \
-  {                                                                  \
-    return new BError( "POL was not compiled with MySQL support." ); \
-  }
+#define MF_NO_MYSQL(funcName) BObjectImp* SQLExecutorModule::funcName() { return new BError("POL was not compiled with MySQL support."); }
 MF_NO_MYSQL( mf_ConnectToDB )
 MF_NO_MYSQL( mf_SelectDb )
 MF_NO_MYSQL( mf_Query )

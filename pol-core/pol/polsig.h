@@ -40,14 +40,12 @@ struct PolSig
   // 100-199: transmit_encrypted
   // 200-299: Client::xmit
   // 300-399: Client::queue_data
-  unsigned active_client_thread_checkpoint;  // only set this in guarded code
+  unsigned active_client_thread_checkpoint; // only set this in guarded code
 
   unsigned check_attack_after_move_function_checkpoint;
 };
 }
-#define THREAD_CHECKPOINT( thread, check ) \
-  Core::stateManager.polsig.thread##_thread_checkpoint = check
-#define FUNCTION_CHECKPOINT( func, check ) \
-  Core::stateManager.polsig.func##_function_checkpoint = check
+#define THREAD_CHECKPOINT(thread,check) Core::stateManager.polsig.thread##_thread_checkpoint = check
+#define FUNCTION_CHECKPOINT(func,check) Core::stateManager.polsig.func##_function_checkpoint = check
 }
 #endif

@@ -4,6 +4,8 @@
  */
 
 
+
+
 #include "charactr.h"
 
 #include "../../clib/logfacility.h"
@@ -24,8 +26,11 @@ namespace Pol
 {
 namespace Mobile
 {
-bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached,
-                              Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
+
+bool Character::start_script( Bscript::EScriptProgram* prog,
+                              bool start_attached,
+                              Bscript::BObjectImp* param2,
+                              Bscript::BObjectImp* param3,
                               Bscript::BObjectImp* param4 )
 {
   if ( !( !start_attached || ( script_ex == NULL ) ) )
@@ -33,7 +38,7 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
     POLLOG << "Character::start_script hiccup\n"
            << "Trying to start script " << prog->name.get() << "\n"
            << "Script " << script_ex->scriptname() << " is already running\n";
-    return false;  // if it's going to have a passert() error, just return false.
+    return false; // if it's going to have a passert() error, just return false.
   }
   passert( !start_attached || ( script_ex == NULL ) );
 
@@ -47,12 +52,9 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
 
   if ( prog->haveProgram )
   {
-    if ( param4 )
-      ex->pushArg( param4 );
-    if ( param3 )
-      ex->pushArg( param3 );
-    if ( param2 )
-      ex->pushArg( param2 );
+    if ( param4 ) ex->pushArg( param4 );
+    if ( param3 ) ex->pushArg( param3 );
+    if ( param2 ) ex->pushArg( param2 );
     ex->pushArg( new Module::ECharacterRefObjImp( this ) );
   }
 
@@ -76,14 +78,17 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
   }
 }
 
-bool Character::start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
-                                      bool start_attached )
+bool Character::start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item, bool start_attached )
 {
-  return start_script( prog, start_attached, new Module::EItemRefObjImp( item ) );
+  return start_script( prog,
+                       start_attached,
+                       new Module::EItemRefObjImp( item ) );
 }
+
 }
 namespace Items
 {
+
 void Item::walk_on( Mobile::Character* chr )
 {
   const Items::ItemDesc& itemdesc = this->itemdesc();
@@ -91,7 +96,7 @@ void Item::walk_on( Mobile::Character* chr )
   {
     ref_ptr<Bscript::EScriptProgram> prog;
     prog = find_script2( itemdesc.walk_on_script,
-                         true,  // complain if not found
+                         true, // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
     if ( prog.get() != NULL )
     {

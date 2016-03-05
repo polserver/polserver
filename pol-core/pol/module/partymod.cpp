@@ -39,16 +39,18 @@ namespace Pol
 namespace Bscript
 {
 using namespace Module;
-template <>
+template<>
 TmplExecutorModule<PartyExecutorModule>::FunctionDef
-    TmplExecutorModule<PartyExecutorModule>::function_table[] = {
-        {"CreateParty", &PartyExecutorModule::mf_CreateParty},
-        {"DisbandParty", &PartyExecutorModule::mf_DisbandParty},
-        {"SendPartyMsg", &PartyExecutorModule::mf_SendPartyMsg},
-        {"SendPrivatePartyMsg", &PartyExecutorModule::mf_SendPrivatePartyMsg},
+TmplExecutorModule<PartyExecutorModule>::function_table[] =
+{
+  { "CreateParty", &PartyExecutorModule::mf_CreateParty },
+  { "DisbandParty", &PartyExecutorModule::mf_DisbandParty },
+  { "SendPartyMsg", &PartyExecutorModule::mf_SendPartyMsg },
+  { "SendPrivatePartyMsg", &PartyExecutorModule::mf_SendPrivatePartyMsg },
 };
-template <>
-int TmplExecutorModule<PartyExecutorModule>::function_table_size = arsize( function_table );
+template<>
+int TmplExecutorModule<PartyExecutorModule>::function_table_size =
+  arsize( function_table );
 }
 namespace Module
 {
@@ -65,14 +67,13 @@ public:
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
+  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE; //id test
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
+  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
 };
 BApplicObjType party_type;
-EPartyRefObjImp::EPartyRefObjImp( Core::PartyRef pref )
-    : BApplicObj<Core::PartyRef>( &party_type, pref ){};
+EPartyRefObjImp::EPartyRefObjImp( Core::PartyRef pref ) : BApplicObj<Core::PartyRef>( &party_type, pref )
+{};
 
 const char* EPartyRefObjImp::typeOf() const
 {
@@ -97,13 +98,12 @@ bool EPartyRefObjImp::operator==( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( BObjectImp::OTApplicObj ) )
   {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
+    const BApplicObjBase* aob = Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
 
     if ( aob->object_type() == &party_type )
     {
       const EPartyRefObjImp* partyref_imp =
-          Clib::explicit_cast<const EPartyRefObjImp*, const BApplicObjBase*>( aob );
+        Clib::explicit_cast<const EPartyRefObjImp*, const BApplicObjBase*>( aob );
 
       return ( partyref_imp->obj_->leader() == obj_->leader() );
     }
@@ -219,8 +219,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
       if ( Core::settingsManager.party_cfg.Hooks.OnAddToParty )
         Core::settingsManager.party_cfg.Hooks.OnAddToParty->call( chr->make_ref() );
       if ( chr->has_active_client() )
-        Core::send_sysmessage_cl( chr->client,
-                                  Core::CLP_Added );  // You have been added to the party.
+        Core::send_sysmessage_cl( chr->client, Core::CLP_Added );  // You have been added to the party.
       obj_->send_msg_to_all( Core::CLP_Joined, chr->name().c_str(), chr );  //  : joined the party.
       obj_->send_member_list( NULL );
       obj_->send_stats_on_add( chr );
@@ -250,8 +249,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
         Core::settingsManager.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref(), new BLong( 0 ) );
       if ( chr->has_active_client() )
       {
-        Core::send_sysmessage_cl( chr->client,
-                                  Core::CLP_Removed );  // You have been removed from the party.
+        Core::send_sysmessage_cl( chr->client, Core::CLP_Removed );  // You have been removed from the party.
         Core::send_empty_party( chr );
       }
       if ( disband )
@@ -329,9 +327,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
       Mobile::Character* leader = Core::system_find_mobile( obj_->leader() );
       chr->candidate_of( nullptr );
       if ( chr->has_active_client() )
-        Core::send_sysmessage_cl(
-            chr->client,
-            Core::CLP_Decline );  // You notify them that you do not wish to join the party.
+        Core::send_sysmessage_cl( chr->client, Core::CLP_Decline );  // You notify them that you do not wish to join the party.
       if ( leader != NULL )
       {
         if ( leader->has_active_client() )
@@ -354,7 +350,10 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
 }
 
 // party.em Functions:
-bool getPartyParam( Executor& exec, unsigned param, Core::Party*& party, BError*& err )
+bool getPartyParam( Executor& exec,
+                    unsigned param,
+                    Core::Party*& party,
+                    BError*& err )
 {
   BApplicObjBase* aob = NULL;
   if ( exec.hasParams( param + 1 ) )
@@ -368,7 +367,7 @@ bool getPartyParam( Executor& exec, unsigned param, Core::Party*& party, BError*
 
   EPartyRefObjImp* pr = static_cast<EPartyRefObjImp*>( aob );
   party = pr->value().get();
-  if ( Core::system_find_mobile( party->leader() ) == NULL )
+  if ( Core::system_find_mobile( party->leader( ) ) == NULL )
   {
     err = new BError( "Party has no leader" );
     return false;
@@ -380,7 +379,8 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
 {
   Mobile::Character* leader;
   Mobile::Character* firstmem;
-  if ( ( getCharacterParam( exec, 0, leader ) ) && ( getCharacterParam( exec, 1, firstmem ) ) )
+  if ( ( getCharacterParam( exec, 0, leader ) ) &&
+       ( getCharacterParam( exec, 1, firstmem ) ) )
   {
     if ( leader->has_party() )
       return new BError( "Leader is already in a party" );
@@ -406,13 +406,11 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
       firstmem->party( party );
       if ( Core::settingsManager.party_cfg.Hooks.OnPartyCreate )
         Core::settingsManager.party_cfg.Hooks.OnPartyCreate->call( CreatePartyRefObjImp( party ) );
-      party->send_msg_to_all( Core::CLP_Added );  // You have been added to the party.
+      party->send_msg_to_all( Core::CLP_Added );// You have been added to the party.
       if ( leader->has_active_client() )
-        Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Joined, firstmem->name().c_str(),
-                                        true );  //  : joined the party.
+        Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Joined, firstmem->name( ).c_str( ), true );//  : joined the party.
       if ( firstmem->has_active_client() )
-        Core::send_sysmessage_cl_affix( firstmem->client, Core::CLP_Joined, leader->name().c_str(),
-                                        true );
+        Core::send_sysmessage_cl_affix( firstmem->client, Core::CLP_Joined, leader->name( ).c_str( ), true );
       party->send_member_list( NULL );
       party->send_stats_on_add( firstmem );
     }
@@ -429,7 +427,7 @@ BObjectImp* PartyExecutorModule::mf_DisbandParty()
   BError* err;
   if ( getPartyParam( exec, 0, party, err ) )
   {
-    Core::disband_party( party->leader() );
+    Core::disband_party( party->leader( ) );
     return new BLong( 1 );
   }
   else
@@ -444,7 +442,8 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
   {
     ObjArray* oText;
     Mobile::Character* chr;
-    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getObjArrayParam( 2, oText ) ) )
+    if ( ( getCharacterParam( exec, 1, chr ) ) &&
+         ( getObjArrayParam( 2, oText ) ) )
     {
       size_t textlen = oText->ref_arr.size();
       u16 gwtext[( SPEECH_MAX_LEN + 1 )];
@@ -454,7 +453,7 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
         return new BError( "Invalid value in Unicode array." );
 
       if ( Core::settingsManager.party_cfg.Hooks.OnPublicChat )
-        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref(), oText );
+        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref( ), oText );
 
       party->send_member_msg_public( chr, gwtext, textlen );
       return new BLong( 1 );
@@ -475,7 +474,8 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
     ObjArray* oText;
     Mobile::Character* chr;
     Mobile::Character* tochr;
-    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getCharacterParam( exec, 2, tochr ) ) &&
+    if ( ( getCharacterParam( exec, 1, chr ) ) &&
+         ( getCharacterParam( exec, 2, tochr ) ) &&
          ( getObjArrayParam( 3, oText ) ) )
     {
       size_t textlen = oText->ref_arr.size();
@@ -486,8 +486,7 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
         return new BError( "Invalid value in Unicode array." );
 
       if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )
-        Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call( chr->make_ref(),
-                                                                   tochr->make_ref(), oText );
+        Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call( chr->make_ref( ), tochr->make_ref( ), oText );
 
       party->send_member_msg_private( chr, tochr, gwtext, textlen );
       return new BLong( 1 );

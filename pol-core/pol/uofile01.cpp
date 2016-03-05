@@ -22,7 +22,7 @@
 #include <cmath>
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for sprintf
+#pragma warning(disable:4996) // deprecation warning for sprintf
 #endif
 
 namespace Pol
@@ -54,7 +54,7 @@ unsigned int landtile_uoflags( unsigned short landtile )
 struct VerdataIndexes
 {
   typedef std::map<unsigned int, Core::USTRUCT_VERSION> VRecList;
-  VRecList vrecs;  // key is the block
+  VRecList vrecs; // key is the block
 
   void insert( const Core::USTRUCT_VERSION& vrec );
   bool find( unsigned int block, const Core::USTRUCT_VERSION*& vrec );
@@ -71,6 +71,7 @@ bool VerdataIndexes::find( unsigned int block, const Core::USTRUCT_VERSION*& vre
 
   vrec = &( ( *itr ).second );
   return true;
+
 }
 
 
@@ -94,11 +95,12 @@ static bool seekto_newer_version( unsigned int file, unsigned int block )
   {
     return false;
   }
+
 }
 
 void readtile( unsigned short tilenum, Core::USTRUCT_TILE* tile )
 {
-  memset( tile, 0, sizeof *tile );
+  memset(tile, 0, sizeof *tile);
 
   if ( tilenum > Plib::systemstate.config.max_tile_id )
   {
@@ -112,31 +114,33 @@ void readtile( unsigned short tilenum, Core::USTRUCT_TILE* tile )
     if ( seekto_newer_version( VERFILE_TILEDATA, block + 0x200 ) )
     {
       int filepos;
-      filepos = 4 + ( sizeof *tile ) * ( tilenum & 0x1F );
+      filepos = 4 +
+                ( sizeof *tile ) * ( tilenum & 0x1F );
       fseek( Core::verfile, filepos, SEEK_CUR );
       fread( tile, sizeof *tile, 1, Core::verfile );
     }
     else
     {
-      // 512 blocks
+      //512 blocks
       // header 4
       // 32*size (30)
       int filepos;
-      filepos = TILEDATA_TILES + ( block * 4 ) +  // skip headers of all previous blocks
-                4 +                               // skip my header
-                ( sizeof( Core::USTRUCT_TILE ) * tilenum );
+      filepos = TILEDATA_TILES +
+                ( block * 4 ) +         // skip headers of all previous blocks
+                4 +                   // skip my header
+                ( sizeof( Core::USTRUCT_TILE )*tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
       fread( tile, sizeof *tile, 1, Core::tilefile );
     }
   }
 
   // ensure string is null-terminated
-  tile->name[sizeof( tile->name ) - 1] = '\0';
+  tile->name[sizeof(tile->name) - 1] = '\0';
 }
 
 void readtile( unsigned short tilenum, Core::USTRUCT_TILE_HSA* tile )
 {
-  memset( tile, 0, sizeof *tile );
+  memset(tile, 0, sizeof *tile);
 
   if ( tilenum > Plib::systemstate.config.max_tile_id )
   {
@@ -150,29 +154,31 @@ void readtile( unsigned short tilenum, Core::USTRUCT_TILE_HSA* tile )
     if ( seekto_newer_version( VERFILE_TILEDATA, block + 0x200 ) )
     {
       int filepos;
-      filepos = 4 + ( sizeof *tile ) * ( tilenum & 0x1F );
+      filepos = 4 +
+                ( sizeof *tile ) * ( tilenum & 0x1F );
       fseek( Core::verfile, filepos, SEEK_CUR );
       fread( tile, sizeof *tile, 1, Core::verfile );
     }
     else
     {
       int filepos;
-      filepos = TILEDATA_TILES_HSA + ( block * 4 ) +  // skip headers of all previous blocks
-                4 +                                   // skip my header
-                ( sizeof( Core::USTRUCT_TILE_HSA ) * tilenum );
+      filepos = TILEDATA_TILES_HSA +
+                ( block * 4 ) +         // skip headers of all previous blocks
+                4 +                   // skip my header
+                ( sizeof( Core::USTRUCT_TILE_HSA )*tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
       fread( tile, sizeof *tile, 1, Core::tilefile );
     }
   }
 
   // ensure string is null-terminated
-  tile->name[sizeof( tile->name ) - 1] = '\0';
+  tile->name[sizeof(tile->name) - 1] = '\0';
 }
 
 
 void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE* landtile )
 {
-  memset( landtile, 0, sizeof( *landtile ) );
+  memset(landtile, 0, sizeof(*landtile));
 
   if ( tilenum <= 0x3FFF )
   {
@@ -188,21 +194,21 @@ void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE* landtile )
     else
     {
       int filepos;
-      filepos = ( block * 4 ) +  // skip headers of all previous blocks
-                4 +              // skip my header
-                ( sizeof( Core::USTRUCT_LAND_TILE ) * tilenum );
+      filepos = ( block * 4 ) +         // skip headers of all previous blocks
+                4 +                   // skip my header
+                ( sizeof( Core::USTRUCT_LAND_TILE )* tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
       fread( landtile, sizeof *landtile, 1, Core::tilefile );
     }
   }
 
   // ensure string is null-terminated
-  landtile->name[sizeof( landtile->name ) - 1] = '\0';
+  landtile->name[sizeof(landtile->name) - 1] = '\0';
 }
 
 void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE_HSA* landtile )
 {
-  memset( landtile, 0, sizeof( *landtile ) );
+  memset(landtile, 0, sizeof(*landtile));
 
   if ( tilenum <= 0x3FFF )
   {
@@ -218,16 +224,16 @@ void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE_HSA* landtile
     else
     {
       int filepos;
-      filepos = ( block * 4 ) +  // skip headers of all previous blocks
-                4 +              // skip my header
-                ( sizeof( Core::USTRUCT_LAND_TILE_HSA ) * tilenum );
+      filepos = ( block * 4 ) +         // skip headers of all previous blocks
+                4 +                   // skip my header
+                ( sizeof( Core::USTRUCT_LAND_TILE_HSA )* tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
       fread( landtile, sizeof *landtile, 1, Core::tilefile );
     }
   }
 
   // ensure string is null-terminated
-  landtile->name[sizeof( landtile->name ) - 1] = '\0';
+  landtile->name[sizeof(landtile->name) - 1] = '\0';
 }
 
 void read_objinfo( u16 graphic, Core::USTRUCT_TILE& objinfo )
@@ -352,7 +358,7 @@ static void read_veridx()
   {
     // FIXME: should read this once per run, per file.
     fseek( verfile, 0, SEEK_SET );
-    fread( &num_version_records, sizeof num_version_records, 1, verfile );  // ENDIAN-BROKEN
+    fread( &num_version_records, sizeof num_version_records, 1, verfile ); // ENDIAN-BROKEN
 
     for ( int i = 0; i < num_version_records; i++ )
     {
@@ -362,6 +368,7 @@ static void read_veridx()
       {
         vidx[vrec.file].insert( vrec );
       }
+
     }
   }
 }

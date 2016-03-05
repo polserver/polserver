@@ -6,6 +6,7 @@ namespace Pol
 {
 namespace Clib
 {
+
 /**
  * Simple class to read a whole file as a char array
  */
@@ -16,10 +17,10 @@ public:
 
   const char* contents() const;
   void set_contents( const std::string& str );
-
 private:
   std::string contents_;
 };
+
 }
 }
 #endif

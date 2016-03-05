@@ -27,14 +27,14 @@ namespace Pol
 namespace Bscript
 {
 BStruct::BStruct() : BObjectImp( OTStruct ), contents_()
-{
-}
+{}
 
 BStruct::BStruct( BObjectType type ) : BObjectImp( type ), contents_()
-{
-}
+{}
 
-BStruct::BStruct( const BStruct& other, BObjectType type ) : BObjectImp( type ), contents_()
+BStruct::BStruct( const BStruct& other, BObjectType type ) :
+  BObjectImp( type ),
+  contents_()
 {
   for ( const auto& elem : other.contents_ )
   {
@@ -45,14 +45,16 @@ BStruct::BStruct( const BStruct& other, BObjectType type ) : BObjectImp( type ),
   }
 }
 
-BStruct::BStruct( std::istream& is, unsigned size, BObjectType type )
-    : BObjectImp( type ), contents_()
+BStruct::BStruct( std::istream& is, unsigned size, BObjectType type ) :
+  BObjectImp( type ),
+  contents_()
 {
   for ( unsigned i = 0; i < size; ++i )
   {
     BObjectImp* keyimp = BObjectImp::unpack( is );
     BObjectImp* valimp = BObjectImp::unpack( is );
-    if ( keyimp != NULL && valimp != NULL && keyimp->isa( OTString ) )
+    if ( keyimp != NULL && valimp != NULL &&
+         keyimp->isa( OTString ) )
     {
       String* str = static_cast<String*>( keyimp );
 
@@ -105,8 +107,7 @@ BObjectImp* BStruct::unpack( std::istream& is )
   }
   if ( (int)size < 0 )
   {
-    return new BError(
-        "Unable to unpack struct elemcount. Length given must be positive integer!" );
+    return new BError( "Unable to unpack struct elemcount. Length given must be positive integer!" );
   }
   if ( colon != ':' )
   {
@@ -115,10 +116,13 @@ BObjectImp* BStruct::unpack( std::istream& is )
   return new BStruct( is, size, OTStruct );
 }
 
-void BStruct::FormatForStringRep( std::ostream& os, const std::string& key,
-                                  const BObjectRef& bvalref ) const
+void BStruct::FormatForStringRep(std::ostream& os,
+                                 const std::string& key,
+                                 const BObjectRef& bvalref ) const
 {
-  os << key << " = " << bvalref->impref().getFormattedStringRep();
+  os << key
+     << " = "
+     << bvalref->impref().getFormattedStringRep();
 }
 
 class BStructIterator : public ContIterator
@@ -134,14 +138,13 @@ private:
   std::string key;
   bool m_First;
 };
-BStructIterator::BStructIterator( BStruct* pStruct, BObject* pIterVal )
-    : m_StructObj( pStruct ),
-      m_pStruct( pStruct ),
-      m_IterVal( pIterVal ),
-      key( "" ),
-      m_First( true )
-{
-}
+BStructIterator::BStructIterator( BStruct* pStruct, BObject* pIterVal ) :
+  m_StructObj( pStruct ),
+  m_pStruct( pStruct ),
+  m_IterVal( pIterVal ),
+  key( "" ),
+  m_First( true )
+{}
 
 BObject* BStructIterator::step()
 {
@@ -187,7 +190,7 @@ size_t BStruct::sizeEstimate() const
   {
     const std::string& bkey = elem.first;
     const BObjectRef& bvalref = elem.second;
-    size += bkey.capacity() + bvalref.sizeEstimate() + ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += bkey.capacity( ) + bvalref.sizeEstimate( ) + ( sizeof(void*)* 3 + 1 ) / 2;
   }
   return size;
 }
@@ -200,7 +203,7 @@ size_t BStruct::mapcount() const
 
 BObjectRef BStruct::set_member( const char* membername, BObjectImp* value, bool copy )
 {
-  std::string key( membername );
+  std::string key(membername);
   BObjectImp* target = copy ? value->copy() : value;
   auto itr = contents_.find( key );
   if ( itr != contents_.end() )
@@ -220,7 +223,7 @@ BObjectRef BStruct::set_member( const char* membername, BObjectImp* value, bool 
 // used programmatically
 const BObjectImp* BStruct::FindMember( const char* name )
 {
-  std::string key( name );
+  std::string key(name);
 
   auto itr = contents_.find( key );
   if ( itr != contents_.end() )
@@ -235,7 +238,7 @@ const BObjectImp* BStruct::FindMember( const char* name )
 
 BObjectRef BStruct::get_member( const char* membername )
 {
-  std::string key( membername );
+  std::string key(membername);
 
   auto itr = contents_.find( key );
   if ( itr != contents_.end() )
@@ -267,7 +270,7 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
   }
   else if ( obj->isa( OTLong ) )
   {
-    throw std::runtime_error( "some fool used operator[] on a struct, with an Integer index" );
+    throw std::runtime_error("some fool used operator[] on a struct, with an Integer index");
   }
   else
   {
@@ -298,8 +301,7 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
   }
   else if ( idx->isa( OTLong ) )
   {
-    throw std::runtime_error(
-        "some fool tried to use operator[] := on a struct, with an Integer index" );
+    throw std::runtime_error("some fool tried to use operator[] := on a struct, with an Integer index");
   }
   else
   {
@@ -309,13 +311,13 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
 
 void BStruct::addMember( const char* name, BObjectRef val )
 {
-  std::string key( name );
+  std::string key(name);
   contents_[key] = val;
 }
 
 void BStruct::addMember( const char* name, BObjectImp* imp )
 {
-  std::string key( name );
+  std::string key(name);
   contents_[key] = BObjectRef( imp );
 }
 
@@ -332,7 +334,8 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "struct.size() doesn't take parameters." );
 
   case MTH_ERASE:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 &&
+         ( keyobj = ex.getParamObj( 0 ) ) != NULL )
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
@@ -346,7 +349,8 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     }
     break;
   case MTH_INSERT:
-    if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != NULL &&
+    if ( ex.numParams() == 2 &&
+         ( keyobj = ex.getParamObj( 0 ) ) != NULL &&
          ( valobj = ex.getParamObj( 1 ) ) != NULL )
     {
       if ( !keyobj->isa( OTString ) )
@@ -361,7 +365,8 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     }
     break;
   case MTH_EXISTS:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 &&
+         ( keyobj = ex.getParamObj( 0 ) ) != NULL )
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
@@ -378,7 +383,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() == 0 )
     {
       std::unique_ptr<ObjArray> arr( new ObjArray );
-      for ( const auto& content : contents_ )
+      for ( const auto& content : contents_)
       {
         arr->addElement( new String( content.first ) );
       }
@@ -401,7 +406,7 @@ BObjectImp* BStruct::call_method( const char* methodname, Executor& ex )
     return NULL;
 }
 
-void BStruct::packonto( std::ostream& os ) const
+void BStruct::packonto(std::ostream& os) const
 {
   os << packtype() << contents_.size() << ":";
   for ( const auto& content : contents_ )
@@ -441,7 +446,7 @@ std::string BStruct::getStringRep() const
 
 BObjectRef BStruct::operDotPlus( const char* name )
 {
-  std::string key( name );
+  std::string key(name);
   if ( contents_.count( key ) == 0 )
   {
     auto pnewobj = new BObject( new UninitObject );
@@ -456,14 +461,14 @@ BObjectRef BStruct::operDotPlus( const char* name )
 
 BObjectRef BStruct::operDotMinus( const char* name )
 {
-  std::string key( name );
+  std::string key(name);
   contents_.erase( key );
   return BObjectRef( new BLong( 1 ) );
 }
 
 BObjectRef BStruct::operDotQMark( const char* name )
 {
-  std::string key( name );
+  std::string key(name);
   int count = static_cast<int>( contents_.count( key ) );
   return BObjectRef( new BLong( count ) );
 }
@@ -472,5 +477,6 @@ const BStruct::Contents& BStruct::contents() const
 {
   return contents_;
 }
+
 }
 }

@@ -23,6 +23,7 @@ namespace Pol
 {
 namespace Core
 {
+
 void MemoryUsage::log()
 {
   // std::string footprint is ~ string.capacity()
@@ -42,54 +43,54 @@ void MemoryUsage::log()
   auto cprop_profiler_size = CPropProfiler::instance().estimateSize();
 
   std::vector<std::pair<std::string, size_t>> logs;
-  logs.push_back( std::make_pair( "ProcessSize", Clib::getCurrentMemoryUsage() ) );
-  logs.push_back( std::make_pair( "CPProfilerSize", cprop_profiler_size ) );
-  logs.push_back( std::make_pair( "GameStateSize", gamestate_size.misc ) );
-  logs.push_back( std::make_pair( "RealmSize", gamestate_size.realm_size ) );
-  logs.push_back( std::make_pair( "SystemStateSize", systemstate_size ) );
-  logs.push_back( std::make_pair( "MultiBufferSize", multibuffer_size ) );
-  logs.push_back( std::make_pair( "SettingsSize", settings_size ) );
-  logs.push_back( std::make_pair( "StateSize", state_size ) );
-  logs.push_back( std::make_pair( "ScriptCount", script_sizes.script_count ) );
-  logs.push_back( std::make_pair( "ScriptSize", script_sizes.script_size ) );
+  logs.push_back( std::make_pair( "ProcessSize",      Clib::getCurrentMemoryUsage() ) );
+  logs.push_back( std::make_pair( "CPProfilerSize",   cprop_profiler_size ) );
+  logs.push_back( std::make_pair( "GameStateSize",    gamestate_size.misc ) );
+  logs.push_back( std::make_pair( "RealmSize",        gamestate_size.realm_size ) );
+  logs.push_back( std::make_pair( "SystemStateSize",  systemstate_size ) );
+  logs.push_back( std::make_pair( "MultiBufferSize",  multibuffer_size ) );
+  logs.push_back( std::make_pair( "SettingsSize",     settings_size ) );
+  logs.push_back( std::make_pair( "StateSize",        state_size ) );
+  logs.push_back( std::make_pair( "ScriptCount",      script_sizes.script_count ) );
+  logs.push_back( std::make_pair( "ScriptSize",       script_sizes.script_size ) );
   logs.push_back( std::make_pair( "ScriptStoreCount", script_sizes.scriptstorage_count ) );
-  logs.push_back( std::make_pair( "ScriptStoreSize", script_sizes.scriptstorage_size ) );
-  logs.push_back( std::make_pair( "ConfigCount", config_sizes.cfg_count ) );
-  logs.push_back( std::make_pair( "ConfigSize", config_sizes.cfg_size ) );
-  logs.push_back( std::make_pair( "DataStoreCount", config_sizes.datastore_count ) );
-  logs.push_back( std::make_pair( "DataStoreSize", config_sizes.datastore_size ) );
+  logs.push_back( std::make_pair( "ScriptStoreSize",  script_sizes.scriptstorage_size ) );
+  logs.push_back( std::make_pair( "ConfigCount",      config_sizes.cfg_count ) );
+  logs.push_back( std::make_pair( "ConfigSize",       config_sizes.cfg_size ) );
+  logs.push_back( std::make_pair( "DataStoreCount",   config_sizes.datastore_count ) );
+  logs.push_back( std::make_pair( "DataStoreSize",    config_sizes.datastore_size ) );
   logs.push_back( std::make_pair( "ConfigBufferSize", config_sizes.misc ) );
-  logs.push_back( std::make_pair( "AccountCount", gamestate_size.account_count ) );
-  logs.push_back( std::make_pair( "AccountSize", gamestate_size.account_size ) );
-  logs.push_back( std::make_pair( "ClientCount", network_size.client_count ) );
-  logs.push_back( std::make_pair( "ClientSize", network_size.client_size ) );
-  logs.push_back( std::make_pair( "NetworkSize", network_size.misc ) );
-  logs.push_back( std::make_pair( "ObjectStorage", object_sizes.misc ) );
+  logs.push_back( std::make_pair( "AccountCount",     gamestate_size.account_count ) );
+  logs.push_back( std::make_pair( "AccountSize",      gamestate_size.account_size ) );
+  logs.push_back( std::make_pair( "ClientCount",      network_size.client_count ) );
+  logs.push_back( std::make_pair( "ClientSize",       network_size.client_size ) );
+  logs.push_back( std::make_pair( "NetworkSize",      network_size.misc ) );
+  logs.push_back( std::make_pair( "ObjectStorage",    object_sizes.misc ) );
 
-  logs.push_back( std::make_pair( "ObjItemCount", object_sizes.obj_item_count ) );
-  logs.push_back( std::make_pair( "ObjItemSize", object_sizes.obj_item_size ) );
-  logs.push_back( std::make_pair( "ObjContCount", object_sizes.obj_cont_count ) );
-  logs.push_back( std::make_pair( "ObjContSize", object_sizes.obj_cont_size ) );
-  logs.push_back( std::make_pair( "ObjCharCount", object_sizes.obj_char_count ) );
-  logs.push_back( std::make_pair( "ObjCharSize", object_sizes.obj_char_size ) );
-  logs.push_back( std::make_pair( "ObjNpcCount", object_sizes.obj_npc_count ) );
-  logs.push_back( std::make_pair( "ObjNpcSize", object_sizes.obj_npc_size ) );
-  logs.push_back( std::make_pair( "ObjWeaponCount", object_sizes.obj_weapon_count ) );
-  logs.push_back( std::make_pair( "ObjWeaponSize", object_sizes.obj_weapon_size ) );
-  logs.push_back( std::make_pair( "ObjArmorCount", object_sizes.obj_armor_count ) );
-  logs.push_back( std::make_pair( "ObjArmorSize", object_sizes.obj_armor_size ) );
-  logs.push_back( std::make_pair( "ObjMultiCount", object_sizes.obj_multi_count ) );
-  logs.push_back( std::make_pair( "ObjMultiSize", object_sizes.obj_multi_size ) );
+  logs.push_back( std::make_pair( "ObjItemCount",     object_sizes.obj_item_count ) );
+  logs.push_back( std::make_pair( "ObjItemSize",      object_sizes.obj_item_size ) );
+  logs.push_back( std::make_pair( "ObjContCount",     object_sizes.obj_cont_count ) );
+  logs.push_back( std::make_pair( "ObjContSize",      object_sizes.obj_cont_size ) );
+  logs.push_back( std::make_pair( "ObjCharCount",     object_sizes.obj_char_count ) );
+  logs.push_back( std::make_pair( "ObjCharSize",      object_sizes.obj_char_size ) );
+  logs.push_back( std::make_pair( "ObjNpcCount",      object_sizes.obj_npc_count ) );
+  logs.push_back( std::make_pair( "ObjNpcSize",       object_sizes.obj_npc_size ) );
+  logs.push_back( std::make_pair( "ObjWeaponCount",   object_sizes.obj_weapon_count ) );
+  logs.push_back( std::make_pair( "ObjWeaponSize",    object_sizes.obj_weapon_size ) );
+  logs.push_back( std::make_pair( "ObjArmorCount",    object_sizes.obj_armor_count ) );
+  logs.push_back( std::make_pair( "ObjArmorSize",     object_sizes.obj_armor_size ) );
+  logs.push_back( std::make_pair( "ObjMultiCount",    object_sizes.obj_multi_count ) );
+  logs.push_back( std::make_pair( "ObjMultiSize",     object_sizes.obj_multi_size ) );
 
 #ifdef DEBUG_FLYWEIGHT
   for ( size_t i = 0; i < boost_utils::debug_flyweight_queries.size(); ++i )
   {
     auto ptr = boost_utils::debug_flyweight_queries[i];
-    if ( ptr == nullptr )
+    if (ptr == nullptr)
       continue;
-    auto str = std::to_string( i );
+    auto str = std::to_string(i);
     logs.push_back( std::make_pair( "FlyWeightBucket" + str + "Count", ptr->bucket_count() ) );
-    logs.push_back( std::make_pair( "FlyWeightBucket" + str + "Size", ptr->estimateSize() ) );
+    logs.push_back( std::make_pair( "FlyWeightBucket" + str + "Size",  ptr->estimateSize() ) );
   }
 #endif
   bool needs_header = !Clib::FileExists( "log/memoryusage.log" );
@@ -98,7 +99,7 @@ void MemoryUsage::log()
   {
     fmt::Writer header;
     header << "Time";
-    for ( const auto& entry : logs )
+    for (const auto& entry : logs)
       header << " ;" << entry.first;
     FLEXLOG( log ) << header.str() << "\n";
   }
@@ -106,11 +107,12 @@ void MemoryUsage::log()
 
   fmt::Writer line;
   line << GET_LOG_FILESTAMP;
-  for ( const auto& entry : logs )
+  for (const auto& entry : logs)
     line << " ;" << entry.second;
   FLEXLOG( log ) << line.str() << "\n";
 
   CLOSE_FLEXLOG( log );
 }
+
 }
 }

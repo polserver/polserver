@@ -13,8 +13,8 @@
 #include <vector>
 #include <list>
 #include <string>
-#include <cstddef>  // for size_t
-#include <iosfwd>   // for testprint()
+#include <cstddef> // for size_t
+#include <iosfwd> // for testprint()
 
 namespace Pol
 {
@@ -72,8 +72,8 @@ struct CUSTOM_HOUSE_ELEMENT
   s32 yoffset;
 };
 
-typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;  // vector of N-S rows
-typedef std::vector<std::list<CUSTOM_HOUSE_ELEMENT>> HouseFloorRow;  // vector of Z columns
+typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;//vector of N-S rows
+typedef std::vector<std::list<CUSTOM_HOUSE_ELEMENT>> HouseFloorRow;//vector of Z columns
 typedef std::list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
 // [][][][][][] - Xoffset vector
 // | | | | | |  - vec of yoffsets
@@ -98,6 +98,7 @@ public:
   HouseFloor data;
   u32 height, width;
   s32 xoff, yoff;
+
 };
 
 class CustomHouseDesign
@@ -133,17 +134,21 @@ public:
 
   bool DeleteStairs( u16 id, s32 x, s32 y, s8 z );
 
-  // assumes x,y already added with xoff and yoff
-  inline bool ValidLocation( u32 xidx, u32 yidx ) { return !( xidx >= width || yidx >= height ); }
+  //assumes x,y already added with xoff and yoff
+  inline bool ValidLocation( u32 xidx, u32 yidx )
+  {
+    return !( xidx >= width || yidx >= height );
+  }
+
   static bool IsStair( u16 id, int& dir );
   static bool IsStairBlock( u16 id );
 
-  u32 height, width;  // total sizes including front steps
-  s32 xoff, yoff;     // offsets from center west-most and north-most indicies are 0
-  CustomHouseElements Elements[CUSTOM_HOUSE_NUM_PLANES];  // 5 planes
+  u32 height, width; //total sizes including front steps
+  s32 xoff, yoff;      //offsets from center west-most and north-most indicies are 0
+  CustomHouseElements Elements[CUSTOM_HOUSE_NUM_PLANES]; //5 planes
 
   static const char custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];
-  // for testing
+  //for testing
   void testprint( std::ostream& os ) const;
 
   void AddComponents( UHouse* house );
@@ -156,7 +161,7 @@ private:
   static char z_to_custom_house_table( char z );
 };
 
-// House Tool Command Implementations:
+//House Tool Command Implementations:
 void CustomHousesAdd( Core::PKTBI_D7* msg );
 void CustomHousesAddMulti( Core::PKTBI_D7* msg );
 void CustomHousesErase( Core::PKTBI_D7* msg );
@@ -170,8 +175,7 @@ void CustomHousesSynch( Core::PKTBI_D7* msg );
 void CustomHousesRevert( Core::PKTBI_D7* msg );
 void CustomHousesRoofSelect( Core::PKTBI_D7* msg );
 void CustomHousesRoofRemove( Core::PKTBI_D7* msg );
-void CustomHousesSendFull( UHouse* house, Network::Client* client,
-                           int design = HOUSE_DESIGN_CURRENT );
+void CustomHousesSendFull( UHouse* house, Network::Client* client, int design = HOUSE_DESIGN_CURRENT );
 void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
 void CustomHousesSendShort( UHouse* house, Network::Client* client );
 void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house );

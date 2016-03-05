@@ -22,7 +22,9 @@ void EScriptProgram::dump( std::ostream& os )
     os << "   PC  Args  Name" << std::endl;
     for ( auto& elem : exported_functions )
     {
-      os << std::setw( 5 ) << elem.PC << std::setw( 6 ) << elem.nargs << "  " << elem.name
+      os << std::setw( 5 ) << elem.PC
+         << std::setw( 6 ) << elem.nargs
+         << "  " << elem.name
          << std::endl;
     }
   }
@@ -73,8 +75,9 @@ void EScriptProgram::dump_casejmp( std::ostream& os, const Token& token )
       break;
     }
     else
-    {  // type is the length of the string, otherwise
-      os << "\t\"" << std::string( (const char*)dataptr, type ) << "\": @" << offset << std::endl;
+    {
+      // type is the length of the string, otherwise
+      os << "\t\"" << std::string((const char*)dataptr, type) << "\": @" << offset << std::endl;
       dataptr += type;
     }
   }

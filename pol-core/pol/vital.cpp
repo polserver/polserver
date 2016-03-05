@@ -26,18 +26,17 @@ namespace Pol
 {
 namespace Core
 {
-Vital::Vital( const Plib::Package* pkg, Clib::ConfigElem& elem )
-    : pkg( pkg ),
-      name( elem.rest() ),
-      aliases(),
-      vitalid( 0 ),
-      next( NULL ),
-      get_regenrate_func(
-          FindExportedFunction( elem, pkg, elem.remove_string( "RegenRateFunction" ), 1 ) ),
-      get_maximum_func(
-          FindExportedFunction( elem, pkg, elem.remove_string( "MaximumFunction" ), 1 ) ),
-      underflow_func( NULL ),
-      regen_while_dead( elem.remove_bool( "RegenWhileDead", false ) )
+
+Vital::Vital( const Plib::Package* pkg, Clib::ConfigElem& elem ) :
+  pkg( pkg ),
+  name( elem.rest() ),
+  aliases(),
+  vitalid( 0 ),
+  next( NULL ),
+  get_regenrate_func( FindExportedFunction( elem, pkg, elem.remove_string( "RegenRateFunction" ), 1 ) ),
+  get_maximum_func( FindExportedFunction( elem, pkg, elem.remove_string( "MaximumFunction" ), 1 ) ),
+  underflow_func( NULL ),
+  regen_while_dead( elem.remove_bool( "RegenWhileDead", false ) )
 {
   aliases.push_back( name );
   std::string tmp;
@@ -68,8 +67,10 @@ Vital::~Vital()
 
 size_t Vital::estimateSize() const
 {
-  size_t size = sizeof( Vital ) + name.capacity() + 3 * sizeof( ExportedFunction );
-  for ( const auto& alias : aliases )
+  size_t size = sizeof(Vital)
+                + name.capacity()
+                + 3*sizeof(ExportedFunction);
+  for (const auto& alias : aliases)
     size += alias.capacity();
   return size;
 }
@@ -110,7 +111,8 @@ void load_vital_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
   const Vital* existing = FindVital( vital->name );
   if ( existing )
   {
-    elem.throw_error( "Vital " + vital->name + " already defined by " + existing->pkg->desc() );
+    elem.throw_error( "Vital " + vital->name + " already defined by "
+                      + existing->pkg->desc() );
   }
   vital->vitalid = static_cast<unsigned int>( gamestate.vitals.size() );
   if ( !gamestate.vitals.empty() )

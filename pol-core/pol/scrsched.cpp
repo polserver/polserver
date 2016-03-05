@@ -73,8 +73,7 @@ namespace Core
 {
 bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
 {
-  std::map<unsigned int, UOExecutor*>::iterator itr =
-      scriptEngineInternalManager.pidlist.find( pid );
+  std::map<unsigned int, UOExecutor*>::iterator itr = scriptEngineInternalManager.pidlist.find( pid );
   if ( itr != scriptEngineInternalManager.pidlist.end() )
   {
     *pp_uoexec = ( *itr ).second;
@@ -94,8 +93,7 @@ void run_ready()
   {
     ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
     UOExecutor* ex = *itr;
-    scriptEngineInternalManager.runlist
-        .pop_front();  // remove it directly, since itr can get invalid during execution
+    scriptEngineInternalManager.runlist.pop_front(); // remove it directly, since itr can get invalid during execution
     Module::OSExecutorModule* os_module = ex->os_module;
     Clib::scripts_thread_script = ex->scriptname();
     int inscount = 0;
@@ -117,8 +115,7 @@ void run_ready()
 
       if ( os_module->blocked_ )
       {
-        ex->warn_runaway_on_cycle =
-            ex->instr_cycles + Plib::systemstate.config.runaway_script_threshold;
+        ex->warn_runaway_on_cycle = ex->instr_cycles + Plib::systemstate.config.runaway_script_threshold;
         ex->runaway_cycles = 0;
         break;
       }
@@ -129,8 +126,8 @@ void run_ready()
         if ( os_module->warn_on_runaway )
         {
           fmt::Writer tmp;
-          tmp << "Runaway script[" << os_module->pid() << "]: " << ex->scriptname() << " ("
-              << ex->runaway_cycles << " cycles)\n";
+          tmp << "Runaway script[" << os_module->pid( ) << "]: " << ex->scriptname( )
+              << " (" << ex->runaway_cycles << " cycles)\n";
           ex->show_context( tmp, ex->PC );
           SCRIPTLOG << tmp.str();
         }
@@ -147,8 +144,7 @@ void run_ready()
           if ( Plib::systemstate.config.report_critical_scripts )
           {
             fmt::Writer tmp;
-            tmp << "Critical script " << ex->scriptname() << " has run for " << totcount
-                << " instructions\n";
+            tmp << "Critical script " << ex->scriptname() << " has run for " << totcount << " instructions\n";
             ex->show_context( tmp, ex->PC );
             ERROR_PRINT << tmp.str();
           }
@@ -174,15 +170,14 @@ void run_ready()
         if ( ( ex->pParent != NULL ) && ex->pParent->runnable() )
         {
           scriptEngineInternalManager.ranlist.push_back( ex );
-          // ranlist.splice( ranlist.end(), runlist, itr );
+          //ranlist.splice( ranlist.end(), runlist, itr );
           ex->pParent->os_module->revive();
         }
         else
         {
-          // runlist.erase( itr );
+          //runlist.erase( itr );
           // Check if the script has a child script running
-          // Set the parent of the child script NULL to stop crashing when trying to return to
-          // parent script
+          // Set the parent of the child script NULL to stop crashing when trying to return to parent script
           if ( ex->pChild != NULL )
             ex->pChild->pParent = NULL;
 
@@ -194,7 +189,7 @@ void run_ready()
       {
         THREAD_CHECKPOINT( scripts, 115 );
 
-        // runlist.erase( itr );
+        //runlist.erase( itr );
         ex->os_module->in_hold_list_ = Module::OSExecutorModule::DEBUGGER_LIST;
         scriptEngineInternalManager.debuggerholdlist.insert( ex );
         continue;
@@ -208,8 +203,7 @@ void run_ready()
       if ( ex->os_module->sleep_until_clock_ )
       {
         ex->os_module->in_hold_list_ = Module::OSExecutorModule::TIMEOUT_LIST;
-        ex->os_module->hold_itr_ = scriptEngineInternalManager.holdlist.insert(
-            HoldList::value_type( ex->os_module->sleep_until_clock_, ex ) );
+        ex->os_module->hold_itr_ = scriptEngineInternalManager.holdlist.insert( HoldList::value_type( ex->os_module->sleep_until_clock_, ex ) );
       }
       else
       {
@@ -217,8 +211,8 @@ void run_ready()
         scriptEngineInternalManager.notimeoutholdlist.insert( ex );
       }
 
-      // runlist.erase( itr );
-      --ex->sleep_cycles;  // it'd get counted twice otherwise
+      //runlist.erase( itr );
+      --ex->sleep_cycles; // it'd get counted twice otherwise
       --stateManager.profilevars.sleep_cycles;
 
       THREAD_CHECKPOINT( scripts, 117 );
@@ -226,7 +220,7 @@ void run_ready()
     else
     {
       scriptEngineInternalManager.ranlist.push_back( ex );
-      // ranlist.splice( ranlist.end(), runlist, itr );
+      //ranlist.splice( ranlist.end(), runlist, itr );
     }
   }
   THREAD_CHECKPOINT( scripts, 118 );
@@ -239,14 +233,13 @@ void run_ready()
 void check_blocked( polclock_t* pclocksleft )
 {
   polclock_t now_clock = polclock();
-  stateManager.profilevars.sleep_cycles += scriptEngineInternalManager.holdlist.size() +
-                                           scriptEngineInternalManager.notimeoutholdlist.size();
+  stateManager.profilevars.sleep_cycles += scriptEngineInternalManager.holdlist.size() + scriptEngineInternalManager.notimeoutholdlist.size();
   polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
   for ( ;; )
   {
     THREAD_CHECKPOINT( scripts, 131 );
 
-    HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin();
+    HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin( );
     if ( itr == scriptEngineInternalManager.holdlist.end() )
       break;
 
@@ -280,17 +273,18 @@ polclock_t calc_script_clocksleft( polclock_t now )
 {
   if ( !scriptEngineInternalManager.runlist.empty() )
   {
-    return 0;  // we want to run immediately
+    return 0; // we want to run immediately
   }
   else if ( !scriptEngineInternalManager.holdlist.empty() )
   {
-    HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin();
+    HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin( );
     UOExecutor* ex = ( *itr ).second;
     polclock_t clocksleft = ex->os_module->sleep_until_clock_ - now;
     if ( clocksleft >= 0 )
       return clocksleft;
     else
       return 0;
+
   }
   else
   {
@@ -315,10 +309,12 @@ void step_scripts( polclock_t* clocksleft, bool* pactivity )
   THREAD_CHECKPOINT( scripts, 106 );
 }
 
-void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1 )
+void start_script( const char* filename,
+                   Bscript::BObjectImp* param0,
+                   Bscript::BObjectImp* param1 )
 {
-  Bscript::BObject bobj0( param0 );  // just to delete if it doesn't go somewhere else
-  Bscript::BObject bobj1( param1 ? param1 : Bscript::UninitObject::create() );
+  Bscript::BObject bobj0( param0 ); // just to delete if it doesn't go somewhere else
+  Bscript::BObject bobj1( param1 ? param1 : Bscript::UninitObject::create( ) );
 
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
   if ( program.get() == NULL )
@@ -335,7 +331,7 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
     if ( param0 )
       ex->pushArg( param0 );
   }
-  // ex->addModule( new FileExecutorModule( *ex ) );
+  //ex->addModule( new FileExecutorModule( *ex ) );
   ex->addModule( new Module::UOExecutorModule( *ex ) );
 
   if ( !ex->setProgram( program.get() ) )
@@ -349,13 +345,11 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
 // EXACTLY the same as start_script, except uses find_script2
 Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param )
 {
-  Bscript::BObject bobj(
-      param ? param
-            : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
+  Bscript::BObject bobj( param ? param : Bscript::UninitObject::create( ) ); // just to delete if it doesn't go somewhere else
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == NULL )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINT << "Error reading script " << script.name( ) << "\n";
     // throw runtime_error( "Error starting script" );
     return NULL;
   }
@@ -365,14 +359,14 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   {
     ex->pushArg( param );
   }
-  // ex->addModule( new FileExecutorModule( *ex ) );
+  //ex->addModule( new FileExecutorModule( *ex ) );
   Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
   ex->addModule( uoemod );
 
   if ( !ex->setProgram( program.get() ) )
   {
     return NULL;
-    // throw runtime_error( "Error starting script." );
+    //throw runtime_error( "Error starting script." );
   }
 
   ex->setDebugLevel( Bscript::Executor::NONE );
@@ -383,19 +377,21 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   return uoemod;
 }
 
-Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param0,
-                                        Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
+Module::UOExecutorModule* start_script( const ScriptDef& script,
+                                        Bscript::BObjectImp* param0,
+                                        Bscript::BObjectImp* param1,
+                                        Bscript::BObjectImp* param2,
                                         Bscript::BObjectImp* param3 )
 {
-  Bscript::BObject bobj0( param0 );  // just to delete if it doesn't go somewhere else
+  Bscript::BObject bobj0( param0 ); // just to delete if it doesn't go somewhere else
   Bscript::BObject bobj1( param1 );
-  Bscript::BObject bobj2( param2 ? param2 : Bscript::UninitObject::create() );
-  Bscript::BObject bobj3( param3 ? param3 : Bscript::UninitObject::create() );
+  Bscript::BObject bobj2( param2 ? param2 : Bscript::UninitObject::create( ) );
+  Bscript::BObject bobj3( param3 ? param3 : Bscript::UninitObject::create( ) );
 
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == NULL )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINT << "Error reading script " << script.name( ) << "\n";
     // throw runtime_error( "Error starting script" );
     return NULL;
   }
@@ -412,14 +408,14 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
     if ( param0 != NULL )
       ex->pushArg( param0 );
   }
-  // ex->addModule( new FileExecutorModule( *ex ) );
+  //ex->addModule( new FileExecutorModule( *ex ) );
   Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
   ex->addModule( uoemod );
 
   if ( !ex->setProgram( program.get() ) )
   {
     return NULL;
-    // throw runtime_error( "Error starting script." );
+    //throw runtime_error( "Error starting script." );
   }
 
   ex->setDebugLevel( Bscript::Executor::NONE );
@@ -431,19 +427,16 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
 }
 
 // EXACTLY the same as start_script, except uses find_script2
-Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program,
-                                        Bscript::BObjectImp* param )
+Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program, Bscript::BObjectImp* param )
 {
-  Bscript::BObject bobj(
-      param ? param
-            : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
+  Bscript::BObject bobj( param ? param : Bscript::UninitObject::create( ) ); // just to delete if it doesn't go somewhere else
 
   UOExecutor* ex = create_script_executor();
   if ( program->haveProgram && ( param != NULL ) )
   {
     ex->pushArg( param );
   }
-  // ex->addModule( new FileExecutorModule( *ex ) );
+  //ex->addModule( new FileExecutorModule( *ex ) );
   Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
   ex->addModule( uoemod );
 
@@ -465,7 +458,7 @@ void add_common_exmods( Bscript::Executor& ex )
   ex.addModule( new ClilocExecutorModule( ex ) );
   ex.addModule( new MathExecutorModule( ex ) );
   ex.addModule( new UtilExecutorModule( ex ) );
-  // ex.addModule( new FileExecutorModule( ex ) );
+  //ex.addModule( new FileExecutorModule( ex ) );
   ex.addModule( new ConfigFileExecutorModule( ex ) );
   ex.addModule( new UBoatExecutorModule( ex ) );
   ex.addModule( new DataFileExecutorModule( ex ) );
@@ -492,7 +485,7 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* p
   Clib::scripts_thread_script = ex.scriptname();
 
   if ( Plib::systemstate.config.report_rtc_scripts )
-    INFO_PRINT << "Script " << ex.scriptname() << " running..";
+    INFO_PRINT << "Script " << ex.scriptname( ) << " running..";
 
   while ( ex.runnable() )
   {
@@ -546,7 +539,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == NULL )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINT << "Error reading script " << script.name( ) << "\n";
     return new Bscript::BError( "Unable to read script" );
   }
 
@@ -575,7 +568,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
       {
         if ( Plib::systemstate.config.report_rtc_scripts )
         {
-          INFO_PRINT << "Script " << script.name() << " running.." << ex.PC;
+          INFO_PRINT << "Script " << script.name( ) << " running.." << ex.PC;
           reported = true;
         }
       }
@@ -602,7 +595,7 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script )
 
 
 Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
-                                               Bscript::BObjectImp* param1 )
+    Bscript::BObjectImp* param1 )
 {
   //??    BObject bobj1( param1 );
 
@@ -614,8 +607,9 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
 }
 
 
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2 )
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
+    Bscript::BObjectImp* param1,
+    Bscript::BObjectImp* param2 )
 {
   //?? BObject bobj1( param1 ), bobj2( param2 );
 
@@ -627,9 +621,10 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
   return run_executor_to_completion( ex, script );
 }
 
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3 )
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
+    Bscript::BObjectImp* param1,
+    Bscript::BObjectImp* param2,
+    Bscript::BObjectImp* param3 )
 {
   //??    BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 );
 
@@ -642,10 +637,11 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
   return run_executor_to_completion( ex, script );
 }
 
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4 )
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
+    Bscript::BObjectImp* param1,
+    Bscript::BObjectImp* param2,
+    Bscript::BObjectImp* param3,
+    Bscript::BObjectImp* param4 )
 {
   //??BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ), bobj4( param4 );
 
@@ -659,14 +655,15 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
   return run_executor_to_completion( ex, script );
 }
 
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4,
-                                               Bscript::BObjectImp* param5 )
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
+    Bscript::BObjectImp* param1,
+    Bscript::BObjectImp* param2,
+    Bscript::BObjectImp* param3,
+    Bscript::BObjectImp* param4,
+    Bscript::BObjectImp* param5 )
 {
   //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
-  //??		bobj4( param4 ), bobj5( param5 );
+  //??    bobj4( param4 ), bobj5( param5 );
 
   UOExecutor ex;
 
@@ -679,15 +676,16 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
   return run_executor_to_completion( ex, script );
 }
 
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4,
-                                               Bscript::BObjectImp* param5,
-                                               Bscript::BObjectImp* param6 )
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
+    Bscript::BObjectImp* param1,
+    Bscript::BObjectImp* param2,
+    Bscript::BObjectImp* param3,
+    Bscript::BObjectImp* param4,
+    Bscript::BObjectImp* param5,
+    Bscript::BObjectImp* param6 )
 {
   //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
-  //??		bobj4( param4 ), bobj5( param5 );
+  //??    bobj4( param4 ), bobj5( param5 );
 
   UOExecutor ex;
 
@@ -701,10 +699,14 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
   return run_executor_to_completion( ex, script );
 }
 
-Bscript::BObjectImp* run_script_to_completion(
-    const ScriptDef& script, Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-    Bscript::BObjectImp* param3, Bscript::BObjectImp* param4, Bscript::BObjectImp* param5,
-    Bscript::BObjectImp* param6, Bscript::BObjectImp* param7 )
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
+    Bscript::BObjectImp* param1,
+    Bscript::BObjectImp* param2,
+    Bscript::BObjectImp* param3,
+    Bscript::BObjectImp* param4,
+    Bscript::BObjectImp* param5,
+    Bscript::BObjectImp* param6,
+    Bscript::BObjectImp* param7 )
 {
   UOExecutor ex;
 
@@ -719,19 +721,21 @@ Bscript::BObjectImp* run_script_to_completion(
   return run_executor_to_completion( ex, script );
 }
 
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0 )
+bool call_script( const ScriptDef& script,
+                  Bscript::BObjectImp* param0 )
 {
   try
   {
     Bscript::BObject ob( run_script_to_completion( script, param0 ) );
     return ob.isTrue();
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0,
+bool call_script( const ScriptDef& script,
+                  Bscript::BObjectImp* param0,
                   Bscript::BObjectImp* param1 )
 {
   try
@@ -739,12 +743,14 @@ bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0,
     Bscript::BObject ob( run_script_to_completion( script, param0, param1 ) );
     return ob.isTrue();
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
+bool call_script( const ScriptDef& script,
+                  Bscript::BObjectImp* param0,
+                  Bscript::BObjectImp* param1,
                   Bscript::BObjectImp* param2 )
 {
   try
@@ -752,66 +758,77 @@ bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript:
     Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2 ) );
     return ob.isTrue();
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3 )
+bool call_script( const ScriptDef& script,
+                  Bscript::BObjectImp* param0,
+                  Bscript::BObjectImp* param1,
+                  Bscript::BObjectImp* param2,
+                  Bscript::BObjectImp* param3 )
 {
   try
   {
     Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2, param3 ) );
     return ob.isTrue();
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
+bool call_script( const ScriptDef& script,
+                  Bscript::BObjectImp* param0,
+                  Bscript::BObjectImp* param1,
+                  Bscript::BObjectImp* param2,
+                  Bscript::BObjectImp* param3,
                   Bscript::BObjectImp* param4 )
 {
   try
   {
-    Bscript::BObject ob(
-        run_script_to_completion( script, param0, param1, param2, param3, param4 ) );
+    Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2, param3, param4 ) );
     return ob.isTrue();
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
-                  Bscript::BObjectImp* param4, Bscript::BObjectImp* param5 )
+bool call_script( const ScriptDef& script,
+                  Bscript::BObjectImp* param0,
+                  Bscript::BObjectImp* param1,
+                  Bscript::BObjectImp* param2,
+                  Bscript::BObjectImp* param3,
+                  Bscript::BObjectImp* param4,
+                  Bscript::BObjectImp* param5 )
 {
   try
   {
-    Bscript::BObject ob(
-        run_script_to_completion( script, param0, param1, param2, param3, param4, param5 ) );
+    Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2, param3, param4, param5 ) );
     return ob.isTrue();
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
 }
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
-                  Bscript::BObjectImp* param4, Bscript::BObjectImp* param5,
+bool call_script( const ScriptDef& script,
+                  Bscript::BObjectImp* param0,
+                  Bscript::BObjectImp* param1,
+                  Bscript::BObjectImp* param2,
+                  Bscript::BObjectImp* param3,
+                  Bscript::BObjectImp* param4,
+                  Bscript::BObjectImp* param5,
                   Bscript::BObjectImp* param6 )
 {
   try
   {
-    Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2, param3, param4,
-                                                   param5, param6 ) );
+    Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2, param3, param4, param5, param6 ) );
     return ob.isTrue();
   }
-  catch ( std::exception& )  //...
+  catch ( std::exception&) //...
   {
     return false;
   }
@@ -822,7 +839,7 @@ UOExecutor* create_script_executor()
   UOExecutor* ex = new UOExecutor();
 
   add_common_exmods( *ex );
-  // ex->addModule( new UOExecutorModule( *ex ) );
+  //ex->addModule( new UOExecutorModule( *ex ) );
   return ex;
 }
 
@@ -856,9 +873,7 @@ void schedule_executor( UOExecutor* ex )
 
 void deschedule_executor( UOExecutor* ex )
 {
-  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(),
-                           itrend = scriptEngineInternalManager.runlist.end();
-        itr != itrend; ++itr )
+  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin(), itrend = scriptEngineInternalManager.runlist.end(); itr != itrend; ++itr )
   {
     if ( *itr == ex )
     {
@@ -866,9 +881,7 @@ void deschedule_executor( UOExecutor* ex )
       break;
     }
   }
-  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(),
-                           itrend = scriptEngineInternalManager.ranlist.end();
-        itr != itrend; ++itr )
+  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin(), itrend = scriptEngineInternalManager.ranlist.end(); itr != itrend; ++itr )
   {
     if ( *itr == ex )
     {
@@ -905,11 +918,11 @@ void list_script( UOExecutor* uoexec )
   if ( uoexec->Locals2 && !uoexec->Locals2->empty() )
     tmp << " Lc=" << uoexec->Locals2->size();
   if ( !uoexec->ValueStack.empty() )
-    tmp << " VS=" << uoexec->ValueStack.size();
+    tmp << " VS=" << uoexec->ValueStack.size( );
   if ( !uoexec->upperLocals2.empty() )
-    tmp << " UL=" << uoexec->upperLocals2.size();
+    tmp << " UL=" << uoexec->upperLocals2.size( );
   if ( !uoexec->ControlStack.empty() )
-    tmp << " CS=" << uoexec->ControlStack.size();
+    tmp << " CS=" << uoexec->ControlStack.size( );
   INFO_PRINT << tmp.str() << "\n";
 }
 
@@ -946,7 +959,7 @@ void list_crit_scripts( const char* desc, ExecList& ls )
 void list_crit_scripts()
 {
   list_crit_scripts( "running", scriptEngineInternalManager.runlist );
-  // list_crit_scripts( "holding", holdlist );
+  //list_crit_scripts( "holding", holdlist );
   list_crit_scripts( "ran", scriptEngineInternalManager.ranlist );
 }
 }

@@ -42,5 +42,6 @@ BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
   else
     return new BError( "Invalid parameter type" );
 }
+
 }
 }

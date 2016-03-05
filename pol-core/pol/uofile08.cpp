@@ -34,7 +34,7 @@ unsigned int num_map_patches = 0;
 }
 namespace Core
 {
-typedef std::map<unsigned int, unsigned int> MapBlockIndex;
+typedef std::map< unsigned int, unsigned int > MapBlockIndex;
 MapBlockIndex mapdifl;
 
 
@@ -58,7 +58,7 @@ static bool rawmap_init = false;
 
 signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
-  if ( !rawmap_init )  // FIXME just for safety cause I'm lazy
+  if ( !rawmap_init ) // FIXME just for safety cause I'm lazy
     rawmapfullread();
   passert( x < uo_map_width && y < uo_map_height );
 
@@ -117,7 +117,7 @@ void rawmapfullread()
 bool groundheight( unsigned short x, unsigned short y, short* z )
 {
   USTRUCT_MAPINFO md, mi;
-  short z1, z2, z3, z4;  // quadrants
+  short z1, z2, z3, z4; // quadrants
 
   z1 = rawmapinfo( x + 1, y, &md );
   z2 = rawmapinfo( x, y, &mi );
@@ -129,7 +129,7 @@ bool groundheight( unsigned short x, unsigned short y, short* z )
   else
     *z = ( z2 + z4 ) / 2;
 
-  if ( mi.landtile == 0x2 )  // it's a nodraw tile
+  if ( mi.landtile == 0x2 ) // it's a nodraw tile
     *z = Core::ZCOORD_MIN;
 
   return ( ( mi.landtile < 0x4000 ) &&
@@ -139,7 +139,7 @@ bool groundheight( unsigned short x, unsigned short y, short* z )
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi )
 {
   USTRUCT_MAPINFO md;
-  short z1, z2, z3, z4;  // quadrants
+  short z1, z2, z3, z4; // quadrants
 
   z1 = rawmapinfo( x + 1, y, &md );
   z2 = rawmapinfo( x, y, mi );
@@ -169,7 +169,7 @@ void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* 
 void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi )
 {
   USTRUCT_MAPINFO md;
-  short z1, z2, z3, z4;  // quadrants
+  short z1, z2, z3, z4; // quadrants
 
   if ( x >= uo_map_width )
     x = uo_map_width - 1;

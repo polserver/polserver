@@ -30,11 +30,11 @@ namespace Pol
 {
 namespace Items
 {
-Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class,
-                      const Core::EquipDesc* permanent_descriptor )
-    : Item( itemdesc, uobj_class ), tmpl( permanent_descriptor ), _quality( itemdesc.quality )
-{
-}
+Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class, const Core::EquipDesc* permanent_descriptor ) :
+  Item( itemdesc, uobj_class ),
+  tmpl( permanent_descriptor ),
+  _quality(itemdesc.quality)
+{}
 
 Equipment::~Equipment()
 {
@@ -103,8 +103,9 @@ bool Equipment::is_intrinsic() const
 
 size_t Equipment::estimatedSize() const
 {
-  size_t size = base::estimatedSize() + sizeof( double ) /*_quality*/
-                + sizeof( const Core::EquipDesc* );      /*tmpl*/
+  size_t size = base::estimatedSize()
+                + sizeof(double) /*_quality*/
+                + sizeof(const Core::EquipDesc*); /*tmpl*/
   if ( is_intrinsic() && !tmpl->is_pc_intrinsic )
     size += tmpl->estimatedSize();
   return size;
@@ -114,7 +115,7 @@ double Equipment::getQuality() const
 {
   return _quality;
 }
-void Equipment::setQuality( double value )
+void Equipment::setQuality(double value)
 {
   _quality = value;
 }
@@ -122,8 +123,8 @@ void Equipment::setQuality( double value )
 /// Looks up for an existing intrinsic equipment and return it or NULL if not found
 Equipment* find_intrinsic_equipment( const std::string& name, u8 layer )
 {
-  auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndLayer( name, layer ) );
-  if ( itr == Core::gamestate.intrinsic_equipments.end() )
+  auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndLayer(name,layer) );
+  if( itr == Core::gamestate.intrinsic_equipments.end() )
     return NULL;
   return itr->second;
 }
@@ -135,34 +136,28 @@ void register_intrinsic_equipment( const std::string& name, Equipment* equip )
 
   // during system startup, defer serial allocation in order to avoid clashes with
   // saved items.
-  if ( !Core::stateManager.gflag_in_system_startup )
+  if ( ! Core::stateManager.gflag_in_system_startup )
   {
-    equip->serial = Core::GetNewItemSerialNumber();
+    equip->serial = Core::GetNewItemSerialNumber( );
     equip->serial_ext = ctBEu32( equip->serial );
     Core::objStorageManager.objecthash.Insert( equip );
   }
 
-  insert_intrinsic_equipment( name, equip );
+  insert_intrinsic_equipment(name, equip);
 }
 
 /// Adds a new intrisinc equipment to the map of known ones
 void insert_intrinsic_equipment( const std::string& name, Equipment* equip )
 {
-  passert_always_r( equip->layer,
-                    "Trying to use register equipment without a layer as intrinsic. Please report "
-                    "this bug on the forums." );
-  passert_always_r(
-      equip->is_intrinsic(),
-      "Trying to register non-intrinsic equipment. Please report this bug on the forums." );
-  Core::gamestate.intrinsic_equipments.insert(
-      Core::IntrinsicEquipments::value_type( Core::NameAndLayer( name, equip->layer ), equip ) );
+  passert_always_r( equip->layer, "Trying to use register equipment without a layer as intrinsic. Please report this bug on the forums." );
+  passert_always_r( equip->is_intrinsic(), "Trying to register non-intrinsic equipment. Please report this bug on the forums." );
+  Core::gamestate.intrinsic_equipments.insert( Core::IntrinsicEquipments::value_type( Core::NameAndLayer(name, equip->layer), equip ) );
 }
 
 /// Deferred allocator for serials during startup, see comments in register_intrinsic_equipment()
 void allocate_intrinsic_equipment_serials()
 {
-  for ( auto it = Core::gamestate.intrinsic_equipments.begin();
-        it != Core::gamestate.intrinsic_equipments.end(); ++it )
+  for( auto it = Core::gamestate.intrinsic_equipments.begin(); it != Core::gamestate.intrinsic_equipments.end(); ++it )
   {
     Equipment* eqp = it->second;
     eqp->serial = Core::GetNewItemSerialNumber();
@@ -187,11 +182,11 @@ void load_npc_intrinsic_equip()
   }
   for ( const auto& pkg : Plib::systemstate.packages )
   {
-    std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
+    std::string filename = Plib::GetPackageCfgPath(pkg, "npcdesc.cfg");
 
-    if ( Clib::FileExists( filename.c_str() ) )
+    if ( Clib::FileExists( filename.c_str( ) ) )
     {
-      Clib::ConfigFile cf( filename.c_str() );
+      Clib::ConfigFile cf( filename.c_str( ) );
       Clib::ConfigElem elem;
       while ( cf.read( elem ) )
       {
@@ -204,5 +199,6 @@ void load_npc_intrinsic_equip()
     }
   }
 }
+
 }
 }

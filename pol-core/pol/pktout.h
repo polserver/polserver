@@ -1,13 +1,11 @@
 /** @file
  *
  * @par History
- * - 2009/07/23 MuadDib:   Initial creation. This file is for packet structs who sent by server
- * only.
+ * - 2009/07/23 MuadDib:   Initial creation. This file is for packet structs who sent by server only.
  * - 2009/07/24 MuadDib:   Rewrote packet 0x1C structure to remove secondary struct.
  * - 2009/07/26 MuadDib:   Added packet 0x0B
  * - 2009/07/27 MuadDib:   Added packet 0x97
- * - 2009/08/01 MuadDib:   Added packet 0x86, 0x9C. Completed moving all "Outbound only" Packet
- * structs to here.
+ * - 2009/08/01 MuadDib:   Added packet 0x86, 0x9C. Completed moving all "Outbound only" Packet structs to here.
  * - 2009/08/09 MuadDib:   Re factor of Packet 0x25, 0x11 for naming convention
  * - 2009/08/14 Turley:    PKTOUT_B9_V2 removed unk u16 and changed flag to u32
  * - 2009/09/10 Turley:    CompressedGump support (Grin)
@@ -31,20 +29,20 @@ namespace Core
 {
 #ifdef _MSC_VER
 /* Visual C++ 4.0 and above */
-#pragma pack( push, 1 )
+# pragma pack( push, 1 )
 #else
 /* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
+# pragma pack(1)
 #endif
 
-// struct PKTOUT_0B {
-//	u8 msgtype;
-//	u32 serial;
-//	u16 damage;
+//struct PKTOUT_0B {
+//  u8 msgtype;
+//  u32 serial;
+//  u16 damage;
 //};
-// asserteql( sizeof(PKTOUT_0B), 7 );
+//asserteql( sizeof(PKTOUT_0B), 7 );
 //
-// struct PKTOUT_11_V1 {
+//struct PKTOUT_11_V1 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial;
@@ -67,23 +65,23 @@ namespace Core
 //    u32 gold;
 //    u16 AR;
 //    u16 weight;
-//	// If moreinfo is 3 or 4
-//	u16 statcap;
-//	u8 followers;
-//	u8 followers_max;
-//	// If moreinfo is 4
-//	u16 fireresist;
-//	u16 coldresist;
-//	u16 poisonresist;
-//	u16 energyresist;
-//	u16 luck;
-//	u16 damage_min;
-//	u16 damage_max;
-//	u32 titching;
+//  // If moreinfo is 3 or 4
+//  u16 statcap;
+//  u8 followers;
+//  u8 followers_max;
+//  // If moreinfo is 4
+//  u16 fireresist;
+//  u16 coldresist;
+//  u16 poisonresist;
+//  u16 energyresist;
+//  u16 luck;
+//  u16 damage_min;
+//  u16 damage_max;
+//  u32 titching;
 //};
-// asserteql( sizeof(PKTOUT_11_V1), 88 );
+//asserteql( sizeof(PKTOUT_11_V1), 88 );
 //
-// struct PKTOUT_11_V2 {
+//struct PKTOUT_11_V2 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial;
@@ -106,37 +104,37 @@ namespace Core
 //    u32 gold;
 //    u16 AR;
 //    u16 weight;
-//	// If moreinfo is 5 or higher (ML Introduced this mid-packet
-//	u16 max_weight;
-//	u8 race;
-//	// If moreinfo is 3 or higher
-//	u16 statcap;
-//	u8 followers;
-//	u8 followers_max;
-//	// If moreinfo is 4 or higher
-//	u16 fireresist;
-//	u16 coldresist;
-//	u16 poisonresist;
-//	u16 energyresist;
-//	u16 luck;
-//	u16 damage_min;
-//	u16 damage_max;
-//	u32 titching;
+//  // If moreinfo is 5 or higher (ML Introduced this mid-packet
+//  u16 max_weight;
+//  u8 race;
+//  // If moreinfo is 3 or higher
+//  u16 statcap;
+//  u8 followers;
+//  u8 followers_max;
+//  // If moreinfo is 4 or higher
+//  u16 fireresist;
+//  u16 coldresist;
+//  u16 poisonresist;
+//  u16 energyresist;
+//  u16 luck;
+//  u16 damage_min;
+//  u16 damage_max;
+//  u32 titching;
 //};
-// asserteql( sizeof(PKTOUT_11_V2), 91 );
+//asserteql( sizeof(PKTOUT_11_V2), 91 );
 
 // Health bar status update (KR)
-// struct PKTOUT_17 {
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial;
-//	u16 unk;
-//	u16 status_type;
-//	u8 flag;
+//struct PKTOUT_17 {
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial;
+//  u16 unk;
+//  u16 status_type;
+//  u8 flag;
 //};
-// asserteql( sizeof(PKTOUT_17), 12 );
+//asserteql( sizeof(PKTOUT_17), 12 );
 
-// struct PKTOUT_1A_A {
+//struct PKTOUT_1A_A {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial; // bit 0x80000000 enables piles
@@ -148,10 +146,10 @@ namespace Core
 //    u16 color;
 //    u8 flags;
 //};
-// asserteql( sizeof(PKTOUT_1A_A), 19 );
+//asserteql( sizeof(PKTOUT_1A_A), 19 );
 
 // use message type B if facing of an item is nonzero
-// struct PKTOUT_1A_B {
+//struct PKTOUT_1A_B {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial; // bit 0x80000000 enables piles
@@ -164,9 +162,9 @@ namespace Core
 //    u16 color;
 //    u8 flags;
 //};
-// asserteql( sizeof(PKTOUT_1A_B), 20 );
+//asserteql( sizeof(PKTOUT_1A_B), 20 );
 
-// struct PKTOUT_1A_C {
+//struct PKTOUT_1A_C {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial;
@@ -175,24 +173,24 @@ namespace Core
 //    u16 y;
 //    u8 z;
 //};
-// asserteql( sizeof(PKTOUT_1A_C), 0x0E );
+//asserteql( sizeof(PKTOUT_1A_C), 0x0E );
 
 // use message type D when?
 struct PKTOUT_1A_D
 {
   u8 msgtype;
   u16 msglen;
-  u32 serial;  // bit 0x80000000 enables piles
+  u32 serial; // bit 0x80000000 enables piles
   u16 graphic;
-  u16 amount;  // or is this color?
+  u16 amount; // or is this color?
   u16 x;
-  u16 y;  // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
+  u16 y; // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
   u8 z;
 };
 assertsize( PKTOUT_1A_D, 0x10 );
 
 // Character Startup - Login actually completed.
-// struct PKTOUT_1B {
+//struct PKTOUT_1B {
 //    u8 msgtype;
 //    u32 serial;
 //    u8 unk5, unk6, unk7, unk8;
@@ -211,7 +209,7 @@ assertsize( PKTOUT_1A_D, 0x10 );
 //    u16 map_startx;
 //    u16 map_starty;
 //    u16 map_width;
-//	u16 map_height;
+//  u16 map_height;
 //    u8 unk31;
 //    u8 unk32;
 //    u8 unk33;
@@ -219,10 +217,10 @@ assertsize( PKTOUT_1A_D, 0x10 );
 //    u8 unk35;
 //    u8 unk36;
 //};
-// asserteql( sizeof(PKTOUT_1B), 37 );
+//asserteql( sizeof(PKTOUT_1B), 37 );
 
 // Send ASCII Speech
-// struct PKTOUT_1C {
+//struct PKTOUT_1C {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 source_serial;
@@ -233,13 +231,13 @@ assertsize( PKTOUT_1A_D, 0x10 );
 //    char speaker_name[ 30 ];
 //    char text[ SPEECH_MAX_LEN + 1 ];
 //};
-// asserteql( sizeof(PKTOUT_1C), 44 + SPEECH_MAX_LEN + 1 );
+//asserteql( sizeof(PKTOUT_1C), 44 + SPEECH_MAX_LEN + 1 );
 
-// struct PKTOUT_1D {
+//struct PKTOUT_1D {
 //    u8 msgtype;
 //    u32 serial;
 //};
-// asserteql( sizeof(PKTOUT_1D), 5 );
+//asserteql( sizeof(PKTOUT_1D), 5 );
 
 struct PKTOUT_1F
 {
@@ -248,7 +246,7 @@ struct PKTOUT_1F
 };
 asserteql( sizeof( PKTOUT_1F ), 8 );
 
-// struct PKTOUT_20 {
+//struct PKTOUT_20 {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 graphic;
@@ -269,9 +267,9 @@ asserteql( sizeof( PKTOUT_1F ), 8 );
 //    };
 //    */
 //};
-// asserteql( sizeof(PKTOUT_20), 19 );
+//asserteql( sizeof(PKTOUT_20), 19 );
 
-// struct PKTOUT_21 {
+//struct PKTOUT_21 {
 //    u8 msgtype;
 //    u8 sequence;
 //    u16 x;
@@ -279,7 +277,7 @@ asserteql( sizeof( PKTOUT_1F ), 8 );
 //    u8 facing;
 //    u8 z;
 //};
-// asserteql( sizeof(PKTOUT_21), 8 );
+//asserteql( sizeof(PKTOUT_21), 8 );
 
 struct PKTOUT_23
 {
@@ -287,7 +285,7 @@ struct PKTOUT_23
   u16 itemid;
   u8 zero1;
   u16 zero2;
-  u16 amount;  // item amount
+  u16 amount; // item amount
   u32 src_serial;
   u16 src_x;
   u16 src_y;
@@ -301,14 +299,14 @@ asserteql( sizeof( PKTOUT_23 ), 26 );
 
 // NOTE: Msg Type 24 followed by message type 3C.
 // (for opening containers)
-// struct PKTOUT_24 {
+//struct PKTOUT_24 {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 gump; // ugh. 0x0009 is the corpse gump...
 //};
-// asserteql( sizeof(PKTOUT_24), 7 );
+//asserteql( sizeof(PKTOUT_24), 7 );
 
-// struct PKTOUT_25_V1 {
+//struct PKTOUT_25_V1 {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 graphic;
@@ -319,9 +317,9 @@ asserteql( sizeof( PKTOUT_23 ), 26 );
 //    u32 container_serial;
 //    u16 color;
 //};
-// asserteql( sizeof( PKTOUT_25_V1 ), 20);
+//asserteql( sizeof( PKTOUT_25_V1 ), 20);
 //
-// struct PKTOUT_25_V2 {
+//struct PKTOUT_25_V2 {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 graphic;
@@ -329,11 +327,11 @@ asserteql( sizeof( PKTOUT_23 ), 26 );
 //    u16 amount; // ??
 //    u16 x;
 //    u16 y;
-//	u8 slotindex;
+//  u8 slotindex;
 //    u32 container_serial;
 //    u16 color;
 //};
-// asserteql( sizeof( PKTOUT_25_V2 ), 21);
+//asserteql( sizeof( PKTOUT_25_V2 ), 21);
 
 struct PKTOUT_26
 {
@@ -342,11 +340,11 @@ struct PKTOUT_26
 };
 asserteql( sizeof( PKTOUT_26 ), 5 );
 
-// struct PKTOUT_27 {
+//struct PKTOUT_27 {
 //    u8 msgtype;
 //    u8 reason;
 //};
-// asserteql( sizeof(PKTOUT_27), 2 );
+//asserteql( sizeof(PKTOUT_27), 2 );
 
 struct PKTOUT_28
 {
@@ -355,10 +353,10 @@ struct PKTOUT_28
 };
 asserteql( sizeof( PKTOUT_28 ), 5 );
 
-// struct PKTOUT_29 {
-//	u8 msgtype;
+//struct PKTOUT_29 {
+//  u8 msgtype;
 //};
-// asserteql( sizeof(PKTOUT_29), 1 );
+//asserteql( sizeof(PKTOUT_29), 1 );
 
 struct PKTOUT_2A
 {
@@ -370,23 +368,23 @@ asserteql( sizeof( PKTOUT_2A ), 5 );
 struct PKTOUT_2B
 {
   u8 msgtype;
-  u8 mode;  // on/off. 0/1?
+  u8 mode; // on/off. 0/1?
 };
 asserteql( sizeof( PKTOUT_2B ), 2 );
 
-// struct PKTOUT_2D {
-//	u8 msgtype;
-//	u32 serial;
-//	u16 hitsmax;
-//	u16 hitscurrent;
-//	u16 manamax;
-//	u16 manacurrent;
-//	u16 stammax;
-//	u16 stamcurrent;
+//struct PKTOUT_2D {
+//  u8 msgtype;
+//  u32 serial;
+//  u16 hitsmax;
+//  u16 hitscurrent;
+//  u16 manamax;
+//  u16 manacurrent;
+//  u16 stammax;
+//  u16 stamcurrent;
 //};
-// asserteql( sizeof(PKTOUT_2D), 17 );
+//asserteql( sizeof(PKTOUT_2D), 17 );
 
-// struct PKTOUT_2E {
+//struct PKTOUT_2E {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 graphic;
@@ -395,15 +393,15 @@ asserteql( sizeof( PKTOUT_2B ), 2 );
 //    u32 worn_by;
 //    u16 color;
 //};
-// asserteql( sizeof(PKTOUT_2E), 15 );
+//asserteql( sizeof(PKTOUT_2E), 15 );
 
-// struct PKTOUT_2F {
+//struct PKTOUT_2F {
 //    u8 msgtype;
 //    u8 zero1;
 //    u32 attacker_serial;
 //    u32 defender_serial;
 //};
-// asserteql( sizeof(PKTOUT_2F), 10 );
+//asserteql( sizeof(PKTOUT_2F), 10 );
 
 struct PKTOUT_30
 {
@@ -439,7 +437,7 @@ struct PKTOUT_36
 };
 
 // msg 3C: be sure to not send the whole structure, just as many 'items' as you insert
-// struct PKTOUT_3C {
+//struct PKTOUT_3C {
 //    u8 msgtype;
 //    u16 msglen;
 //    u16 count;
@@ -454,9 +452,9 @@ struct PKTOUT_36
 //        u16 color;
 //    } items[ MAX_CONTAINER_ITEMS ];
 //};
-// asserteql( sizeof(PKTOUT_3C), 5 + MAX_CONTAINER_ITEMS * 19 );
+//asserteql( sizeof(PKTOUT_3C), 5 + MAX_CONTAINER_ITEMS * 19 );
 //
-// struct PKTOUT_3C_6017 {
+//struct PKTOUT_3C_6017 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u16 count;
@@ -467,12 +465,12 @@ struct PKTOUT_36
 //        u16 amount;
 //        u16 x;
 //        u16 y;
-//		u8 slot_index;
+//    u8 slot_index;
 //        u32 container_serial;
 //        u16 color;
 //    } items[ MAX_CONTAINER_ITEMS ];
 //};
-// asserteql( sizeof(PKTOUT_3C_6017), 5 + MAX_CONTAINER_ITEMS * 20 );
+//asserteql( sizeof(PKTOUT_3C_6017), 5 + MAX_CONTAINER_ITEMS * 20 );
 
 struct PKTOUT_3E
 {
@@ -495,7 +493,7 @@ struct PKTOUT_41
   u16 msglen;
   u16 tileid;
   u8 tiledata[37];
-  u16 unk;  // F777
+  u16 unk; // F777
 };
 
 // Server->Client
@@ -530,30 +528,30 @@ struct PKTOUT_4E
 };
 asserteql( sizeof( PKTOUT_4E ), 6 );
 
-// struct PKTOUT_4F {
+//struct PKTOUT_4F {
 //    u8 msgtype;
 //    u8 lightlevel;
 //};
-// asserteql( sizeof(PKTOUT_4F), 2 );
+//asserteql( sizeof(PKTOUT_4F), 2 );
 
-// struct PKTOUT_53
+//struct PKTOUT_53
 //{
 //    u8 msgtype;
 //    u8 warning;
 //
-//	enum {
-//		WARN_NO_CHARACTER = 1,
-//		WARN_CHARACTER_EXISTS = 2,
-//		WARN_CANT_CONNECT_1 = 3,
-//		WARN_CANT_CONNECT_2 = 4,
-//		WARN_CHARACTER_IN_WORLD = 5,
-//		WARN_LOGIN_PROBLEM = 6,
-//		WARN_CHARACTER_IDLE = 7,
-//		WARN_CANT_CONNECT_3 = 8
-//	};
+//  enum {
+//    WARN_NO_CHARACTER = 1,
+//    WARN_CHARACTER_EXISTS = 2,
+//    WARN_CANT_CONNECT_1 = 3,
+//    WARN_CANT_CONNECT_2 = 4,
+//    WARN_CHARACTER_IN_WORLD = 5,
+//    WARN_LOGIN_PROBLEM = 6,
+//    WARN_CHARACTER_IDLE = 7,
+//    WARN_CANT_CONNECT_3 = 8
+//  };
 //};
 
-// struct PKTOUT_54 {
+//struct PKTOUT_54 {
 //    u8 msgtype;
 //    u8 flags; // 0 = repeating, 1 = single play
 //    u16 effect; // SOUND_EFFECT_XX, see sfx.h
@@ -561,14 +559,14 @@ asserteql( sizeof( PKTOUT_4E ), 6 );
 //    u16 x;
 //    u16 y;
 //    s16 z;
-//	enum { FLAG_REPEAT = 0, FLAG_SINGLEPLAY = 1 };
+//  enum { FLAG_REPEAT = 0, FLAG_SINGLEPLAY = 1 };
 //};
-// asserteql( sizeof(PKTOUT_54), 12 );
+//asserteql( sizeof(PKTOUT_54), 12 );
 
-// struct PKTOUT_55 {
-//	u8 msgtype;
+//struct PKTOUT_55 {
+//  u8 msgtype;
 //};
-// asserteql( sizeof(PKTOUT_55), 1 );
+//asserteql( sizeof(PKTOUT_55), 1 );
 
 struct PKTOUT_5B
 {
@@ -579,30 +577,30 @@ struct PKTOUT_5B
 };
 asserteql( sizeof( PKTOUT_5B ), 4 );
 
-// struct PKTOUT_65 {
+//struct PKTOUT_65 {
 //    u8 msgtype;
 //    u8 type;
 //    u8 severity;
 //    u8 aux;
 //    enum { TYPE_NONE = 0, TYPE_RAIN = 1, TYPE_SNOW = 2 };
-//	enum { //TODO:FIX//
-//		WTYPE_START_TO_RAIN = 0x00,
-//		WTYPE_FIERCE_STORM = 0x01,
-//		WTYPE_BEGIN_TO_SNOW = 0x02,
-//		WTYPE_STORM_BREWING = 0x03,
-//		WTYPE_STOP_WEATHER = 0xFF
-//	};
+//  enum { //TODO:FIX//
+//    WTYPE_START_TO_RAIN = 0x00,
+//    WTYPE_FIERCE_STORM = 0x01,
+//    WTYPE_BEGIN_TO_SNOW = 0x02,
+//    WTYPE_STORM_BREWING = 0x03,
+//    WTYPE_STOP_WEATHER = 0xFF
+//  };
 //};
-// asserteql( sizeof(PKTOUT_65), 4 );
+//asserteql( sizeof(PKTOUT_65), 4 );
 
-// struct PKTOUT_6D
+//struct PKTOUT_6D
 //{
 //    u8 msgtype;
 //    u16 midi;
 //};
-// asserteql( sizeof(PKTOUT_6D), 3 );
+//asserteql( sizeof(PKTOUT_6D), 3 );
 
-// struct PKTOUT_6E {
+//struct PKTOUT_6E {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 action;
@@ -616,7 +614,7 @@ asserteql( sizeof( PKTOUT_5B ), 4 );
 //    enum REPEAT_FLAG { REPEAT = 1,
 //                       NOREPEAT = 0 };
 //};
-// asserteql( sizeof(PKTOUT_6E), 14 );
+//asserteql( sizeof(PKTOUT_6E), 14 );
 
 /*
 Okay, this just sucks.  If, in a client, you click on someone with
@@ -627,7 +625,7 @@ NOW under your cursor, rather than what WAS under it.
 On the plus side, it seems you can target an effect from an x/y/z coord
 to another x/y/z coordinate.
 */
-// struct PKTOUT_70 {
+//struct PKTOUT_70 {
 //    u8 msgtype;
 //    u8 effect_type;     // EFFECT_TYPE_xx
 //    u32 source_serial;
@@ -646,39 +644,39 @@ to another x/y/z coordinate.
 //    u8 unk26;
 //    u8 explode;/* not sure what to put here */
 //};
-// asserteql( sizeof(PKTOUT_70), 28 );
+//asserteql( sizeof(PKTOUT_70), 28 );
 
-// struct PKTOUT_74 {
-//	struct HEADER {
-//		u8  msgtype;
-//		u16 msglen;
-//		u32 container;  /* container serial # */
-//		u8  num_items;
-//	};
-//	struct ELEMENT {
-//		u32 price;
-//		u8 desc_len;			/* including null terminator */
-//		char description[1];  /* No idea what max len should be null term string len includes null*/
-//	};
+//struct PKTOUT_74 {
+//  struct HEADER {
+//    u8  msgtype;
+//    u16 msglen;
+//    u32 container;  /* container serial # */
+//    u8  num_items;
+//  };
+//  struct ELEMENT {
+//    u32 price;
+//    u8 desc_len;      /* including null terminator */
+//    char description[1];  /* No idea what max len should be null term string len includes null*/
+//  };
 //};
-// asserteql( sizeof(PKTOUT_74::HEADER), 8 );
-// asserteql( sizeof(PKTOUT_74::ELEMENT), 6 );
+//asserteql( sizeof(PKTOUT_74::HEADER), 8 );
+//asserteql( sizeof(PKTOUT_74::ELEMENT), 6 );
 
-// struct PKTOUT_76
+//struct PKTOUT_76
 //{
-//	u8 msgtype;
-//	u16 xloc;
-//	u16 yloc;
-//	u16 zloc;
-//	u8 unk0;
-//	u16 x1;
-//	u16 y1;
-//	u16 x2;
-//	u16 y2;
+//  u8 msgtype;
+//  u16 xloc;
+//  u16 yloc;
+//  u16 zloc;
+//  u8 unk0;
+//  u16 x1;
+//  u16 y1;
+//  u16 x2;
+//  u16 y2;
 //};
-// assertsize( PKTOUT_76, 16 );
+//assertsize( PKTOUT_76, 16 );
 
-// struct PKTOUT_77 {
+//struct PKTOUT_77 {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 graphic;
@@ -688,12 +686,11 @@ to another x/y/z coordinate.
 //    u8 dir;
 //    u16 skin;
 //    u8 flag1; /* bit 0x80 seems to be invis (and self hidden), bit 0x40 is war mode */
-//    u8 hilite; /* only 1 to 7 seem to be valid. any other value in the entire byte causes white
-//    highlighting */
+//    u8 hilite; /* only 1 to 7 seem to be valid. any other value in the entire byte causes white highlighting */
 //};
-// asserteql( sizeof(PKTOUT_77), 17 );
+//asserteql( sizeof(PKTOUT_77), 17 );
 
-// struct PKTOUT_78 {
+//struct PKTOUT_78 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial;
@@ -708,20 +705,20 @@ to another x/y/z coordinate.
 //    u8 wornitems[ 9 * HIGHEST_LAYER + 4 ];
 //};
 //
-// struct PKTOUT_78_NOCOLOR {
+//struct PKTOUT_78_NOCOLOR {
 //    u32 serial;
 //    u16 graphic;
 //    u8 layer;
 //};
-// asserteql( sizeof( PKTOUT_78_NOCOLOR ), 7 );
+//asserteql( sizeof( PKTOUT_78_NOCOLOR ), 7 );
 //
-// struct PKTOUT_78_COLOR {
+//struct PKTOUT_78_COLOR {
 //    u32 serial;
 //    u16 graphic;
 //    u8 layer;
 //    u16 color;
 //};
-// asserteql( sizeof( PKTOUT_78_COLOR ), 9 );
+//asserteql( sizeof( PKTOUT_78_COLOR ), 9 );
 /*
   FIXME: msg type 78 is incompletely understood.  I believe item/clothing data can be sent in it.
   NOTE on wornitems: each layer is sent.  The format seems to be:
@@ -734,34 +731,34 @@ to another x/y/z coordinate.
 
   */
 
-// struct PKTOUT_7C {
+//struct PKTOUT_7C {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 used_item_serial;
 //    u16 menu_id;
 //};
 //
-// struct PKTOUT_7C_TITLE {
+//struct PKTOUT_7C_TITLE {
 //    u8 titlelen;
 //    char title[ 80 ]; /* don't know what this should be */
 //};
 //
-// struct PKTOUT_7C_COUNT {
+//struct PKTOUT_7C_COUNT {
 //    u8 item_count;
 //};
 //
-// struct PKTOUT_7C_ELEM {
+//struct PKTOUT_7C_ELEM {
 //    u16 graphic;
 //    u16 color; // ?? they were all grey.
 //    u8 desclen;
 //    char desc[ 80 ]; // also not sure what the max is
 //};
 
-// struct PKTOUT_82 {
+//struct PKTOUT_82 {
 //    u8 msgtype;
 //    u8 error;
 //};
-// asserteql( sizeof(PKTOUT_82), 2 );
+//asserteql( sizeof(PKTOUT_82), 2 );
 
 struct PKTOUT_86
 {
@@ -778,18 +775,18 @@ struct PKTOUT_86_CHARACTERS
 };
 asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
 
-// struct PKTOUT_88 {
+//struct PKTOUT_88 {
 //    u8 msgtype;
 //    u32 serial;
 //    u8 text[ 60 ];
 //    u8 flag1;
 //};
-// asserteql( sizeof(PKTOUT_88), 66 );
+//asserteql( sizeof(PKTOUT_88), 66 );
 
 // after all layers inserted, set the 'layer' value
 // in the next array elem to 0.  length should include this byte.
 // Example, for an empty corpse: 89 00 08 40 75 13 f9 00
-// struct PKTOUT_89 {
+//struct PKTOUT_89 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial;
@@ -799,7 +796,7 @@ asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
 //    } layers[ NUM_LAYERS +1 ];
 //};
 
-// struct PKTOUT_8C {
+//struct PKTOUT_8C {
 //    u8 msgtype;
 //    u8 ip[4];
 //    u16 port;
@@ -807,9 +804,9 @@ asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
 //    u8 unk8_03;
 //    u16 unk9_10_ClientType;
 //};
-// asserteql( sizeof(PKTOUT_8C), 11 );
+//asserteql( sizeof(PKTOUT_8C), 11 );
 
-// struct PKTOUT_90
+//struct PKTOUT_90
 //{
 //    u8 msgtype;
 //    u32 serial;
@@ -822,7 +819,7 @@ asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
 //    u16 xsize;
 //    u16 ysize;
 //};
-// asserteql( sizeof(PKTOUT_90), 19 );
+//asserteql( sizeof(PKTOUT_90), 19 );
 
 struct PKTOUT_97
 {
@@ -834,62 +831,62 @@ asserteql( sizeof( PKTOUT_97 ), 2 );
 struct PKTOUT_9C
 {
   u8 msgtype;
-  char response[52];  // Unknown at this time.
+  char response[52]; // Unknown at this time.
 };
 
-// struct PKTOUT_9E {
-//	struct HEADER {
-//		u8 msgtype;
-//		u16 msglen;
-//		u32 vendor_serial;
-//		u16 num_items;
-//	};
-//	struct ELEMENT {
-//		u32 serial;
-//		u16 graphic;
-//		u16 color;
-//		u16 amount;
-//		u16 price;
-//		u16 desc_len;
-//		char description[1];
-//	};
+//struct PKTOUT_9E {
+//  struct HEADER {
+//    u8 msgtype;
+//    u16 msglen;
+//    u32 vendor_serial;
+//    u16 num_items;
+//  };
+//  struct ELEMENT {
+//    u32 serial;
+//    u16 graphic;
+//    u16 color;
+//    u16 amount;
+//    u16 price;
+//    u16 desc_len;
+//    char description[1];
+//  };
 //};
-// asserteql( sizeof(PKTOUT_9E::HEADER), 9 );
-// asserteql( sizeof(PKTOUT_9E::ELEMENT), 15 );
+//asserteql( sizeof(PKTOUT_9E::HEADER), 9 );
+//asserteql( sizeof(PKTOUT_9E::ELEMENT), 15 );
 
-// struct PKTOUT_A1
+//struct PKTOUT_A1
 //{
 //    u8 msgtype;
 //    u32 serial;
 //    u16 max_hits; // str
 //    u16 hits;
 //};
-// asserteql( sizeof(PKTOUT_A1), 9 );
+//asserteql( sizeof(PKTOUT_A1), 9 );
 
-// struct PKTOUT_A2 {
+//struct PKTOUT_A2 {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 max_mana; // intel;
 //    u16 mana;
 //};
-// asserteql( sizeof(PKTOUT_A2), 9 );
+//asserteql( sizeof(PKTOUT_A2), 9 );
 
-// struct PKTOUT_A3 {
+//struct PKTOUT_A3 {
 //    u8 msgtype;
 //    u32 serial;
 //    u16 max_stamina; // dex;
 //    u16 stamina;
 //};
-// asserteql( sizeof(PKTOUT_A3), 9 );
+//asserteql( sizeof(PKTOUT_A3), 9 );
 
-// struct PKTOUT_A5 {
+//struct PKTOUT_A5 {
 //    u8 msgtype;
 //    u16 msglen;
-//	char address[ URL_MAX_LEN + 1 ];
-//	u8 null_term;
+//  char address[ URL_MAX_LEN + 1 ];
+//  u8 null_term;
 //};
 
-// struct PKTOUT_A6 {
+//struct PKTOUT_A6 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u8 type;
@@ -901,17 +898,17 @@ struct PKTOUT_9C
 //    enum { TYPE_TIP = 0,
 //           TYPE_UPDATE = 1 };
 //};
-// asserteql( sizeof(PKTOUT_A6), 10010);
+//asserteql( sizeof(PKTOUT_A6), 10010);
 
-// struct PKTOUT_A8 {
+//struct PKTOUT_A8 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u8 unk3_FF;
 //    u16 servcount;
 //};
-// asserteql( sizeof(PKTOUT_A8), 6 );
+//asserteql( sizeof(PKTOUT_A8), 6 );
 //
-// struct PKTOUT_A8_SERVER {
+//struct PKTOUT_A8_SERVER {
 //    u16 servernum;
 //    char servername[30]; // think the last two bytes are the sorting amounts.
 //    u16 servernum2;
@@ -919,66 +916,66 @@ struct PKTOUT_9C
 //    s8 timezone;
 //    char ip[4];
 //};
-// asserteql( sizeof(PKTOUT_A8_SERVER), 40 );
+//asserteql( sizeof(PKTOUT_A8_SERVER), 40 );
 
-// struct PKTOUT_A9 {
+//struct PKTOUT_A9 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u8 numchars;
 //};
-// asserteql( sizeof(PKTOUT_A9), 4 );
+//asserteql( sizeof(PKTOUT_A9), 4 );
 //
 //// I don't think all of this is the name.  At on point, some garbage was
 //// being left in the structure, and a password was prompted for - seems
 //// one of these bytes is a password flag.
-// struct PKTOUT_A9_CHARACTERS {
+//struct PKTOUT_A9_CHARACTERS {
 //    char name[60];
 //};
-// asserteql( sizeof(PKTOUT_A9_CHARACTERS), 60 );
+//asserteql( sizeof(PKTOUT_A9_CHARACTERS), 60 );
 //
-// struct PKTOUT_A9_START_LEN {
+//struct PKTOUT_A9_START_LEN {
 //    u8 startcount;
 //};
-// asserteql( sizeof(PKTOUT_A9_START_LEN), 1 );
+//asserteql( sizeof(PKTOUT_A9_START_LEN), 1 );
 //
-// struct PKTOUT_A9_START_ELEM {
+//struct PKTOUT_A9_START_ELEM {
 //    u8 startnum;
 //    char city[31];
 //    char desc[31];
 //};
-// asserteql( sizeof(PKTOUT_A9_START_ELEM), 63 );
+//asserteql( sizeof(PKTOUT_A9_START_ELEM), 63 );
 //
-// struct PKTOUT_A9_START_FLAGS {
-//	u32 flags;
-//	enum {
-//		FLAG_UNK_0x0001             = 0x0001, // ?
-//		FLAG_SEND_CONFIG_REQ_LOGOUT = 0x0002, // Sends Configuration to Server
-//		FLAG_SINGLE_CHARACTER_SIEGE = 0x0004, // ?
-//		FLAG_ENABLE_NPC_POPUP_MENUS = 0x0008, // Enable NPC PopUp Menus
-//		FLAG_SINGLE_CHARACTER       = 0x0010, // Use 1 Character only
-//		FLAG_AOS_FEATURES           = 0x0020, // Age of Shadows
-//		FLAG_UPTO_SIX_CHARACTERS    = 0x0040, // Use up to 6 Characters (not only 5)
-//		FLAG_SE_FEATURES            = 0x0080, // Samurai Empire
-//		FLAG_ML_FEATURES            = 0x0100, // Mondain's Legacy
-//		FLAG_SEND_UO3D_TYPE         = 0x0400, // KR and UO:SA will send 0xE1 packet
-//		FLAG_UNK_0x0800             = 0x0800, // ?
-//		FLAG_UPTO_SEVEN_CHARACTERS  = 0x1000, // Use up to 7 Characters
-//		FLAG_UNK_0x2000             = 0x2000  // ?
-//	};
+//struct PKTOUT_A9_START_FLAGS {
+//  u32 flags;
+//  enum {
+//    FLAG_UNK_0x0001             = 0x0001, // ?
+//    FLAG_SEND_CONFIG_REQ_LOGOUT = 0x0002, // Sends Configuration to Server
+//    FLAG_SINGLE_CHARACTER_SIEGE = 0x0004, // ?
+//    FLAG_ENABLE_NPC_POPUP_MENUS = 0x0008, // Enable NPC PopUp Menus
+//    FLAG_SINGLE_CHARACTER       = 0x0010, // Use 1 Character only
+//    FLAG_AOS_FEATURES           = 0x0020, // Age of Shadows
+//    FLAG_UPTO_SIX_CHARACTERS    = 0x0040, // Use up to 6 Characters (not only 5)
+//    FLAG_SE_FEATURES            = 0x0080, // Samurai Empire
+//    FLAG_ML_FEATURES            = 0x0100, // Mondain's Legacy
+//    FLAG_SEND_UO3D_TYPE         = 0x0400, // KR and UO:SA will send 0xE1 packet
+//    FLAG_UNK_0x0800             = 0x0800, // ?
+//    FLAG_UPTO_SEVEN_CHARACTERS  = 0x1000, // Use up to 7 Characters
+//    FLAG_UNK_0x2000             = 0x2000  // ?
+//  };
 //};
 
 /* AA message - Sets Opponent - the always-highlighted being.
-    Setting to 0 clears.
-    Sent to you when you die (serial=0), or when others target you if you
-    have noone targetted.
-    */
-// struct PKTOUT_AA {
+  Setting to 0 clears.
+  Sent to you when you die (serial=0), or when others target you if you
+  have noone targetted.
+  */
+//struct PKTOUT_AA {
 //    u8 msgtype;
 //    u32 serial;
 //};
-// asserteql( sizeof(PKTOUT_AA), 5 );
+//asserteql( sizeof(PKTOUT_AA), 5 );
 
-// struct PKTOUT_AB
+//struct PKTOUT_AB
 //{
 //    struct HEADER {
 //        u8 msgtype;
@@ -1000,11 +997,11 @@ struct PKTOUT_9C
 //    };
 //
 //};
-// asserteql( sizeof(PKTOUT_AB::HEADER), 9 );
-// asserteql( sizeof(PKTOUT_AB::TEXTLINE1), 258 );
-// asserteql( sizeof(PKTOUT_AB::TEXTLINE2), 264 );
+//asserteql( sizeof(PKTOUT_AB::HEADER), 9 );
+//asserteql( sizeof(PKTOUT_AB::TEXTLINE1), 258 );
+//asserteql( sizeof(PKTOUT_AB::TEXTLINE2), 264 );
 
-// struct PKTOUT_AE
+//struct PKTOUT_AE
 //{
 //    u8 msgtype;
 //    u16 msglen;
@@ -1017,17 +1014,17 @@ struct PKTOUT_9C
 //    char speaker_name[ 30 ];
 //    u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
 //};
-// assertsize( PKTOUT_AE, 450 );
+//assertsize( PKTOUT_AE, 450 );
 
-// struct PKTOUT_AF {
+//struct PKTOUT_AF {
 //    u8 msgtype;
 //    u32 player_id;
 //    u32 corpse_id;
 //    u32 unk4_zero; // 0x00000000
 //};
-// asserteql( sizeof(PKTOUT_AF), 13 );
+//asserteql( sizeof(PKTOUT_AF), 13 );
 
-// struct PKTOUT_B0
+//struct PKTOUT_B0
 //{
 //// one of these:
 //    struct HEADER {
@@ -1053,21 +1050,21 @@ struct PKTOUT_9C
 //        char text[ 1 ];
 //    };
 //};
-// asserteql( sizeof(PKTOUT_B0::HEADER), 19 );
-// asserteql( sizeof(PKTOUT_B0::LAYOUT), 3 );
-// asserteql( sizeof(PKTOUT_B0::DATA_HEADER), 2 );
-// asserteql( sizeof(PKTOUT_B0::DATA), 3 );
+//asserteql( sizeof(PKTOUT_B0::HEADER), 19 );
+//asserteql( sizeof(PKTOUT_B0::LAYOUT), 3 );
+//asserteql( sizeof(PKTOUT_B0::DATA_HEADER), 2 );
+//asserteql( sizeof(PKTOUT_B0::DATA), 3 );
 
-// struct PKTOUT_B7 {
+//struct PKTOUT_B7 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u32 serial;
 //    enum { MAX_CHARACTERS=256 };
 //    char text[MAX_CHARACTERS*2+2]; // null-terminated unicode string
 //};
-// asserteql( sizeof(PKTOUT_B7), 521 );
+//asserteql( sizeof(PKTOUT_B7), 521 );
 
-// struct PKTOUT_B9 {
+//struct PKTOUT_B9 {
 //    u8 msgtype;
 //    u16 enable;
 //    /*
@@ -1082,84 +1079,82 @@ struct PKTOUT_9C
 //              AOS skills/necro/paladin/fight book stuff works for ALL clients 4.0 and above)
 //      Bit 5 enables use of up to 6 Characters (not only 5)
 //      Bit 6 enables Samurai Empire update (SE map (SE installation required for that))
-//	  Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
+//    Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
 //    */
 //};
-// asserteql( sizeof(PKTOUT_B9), 3 );
+//asserteql( sizeof(PKTOUT_B9), 3 );
 //
-// struct PKTOUT_B9_V2 {
+//struct PKTOUT_B9_V2 {
 //    u8 msgtype;
-//	u32 enable;
+//  u32 enable;
 //};
-// asserteql( sizeof(PKTOUT_B9_V2), 5 );
+//asserteql( sizeof(PKTOUT_B9_V2), 5 );
 
-// struct PKTOUT_BA {
-//	u8 msgtype;
-//	u8 active; enum { ARROW_OFF = 0, ARROW_ON = 1 };
-//	u16 x_tgt;
-//	u16 y_tgt;
+//struct PKTOUT_BA {
+//  u8 msgtype;
+//  u8 active; enum { ARROW_OFF = 0, ARROW_ON = 1 };
+//  u16 x_tgt;
+//  u16 y_tgt;
 //};
-// asserteql( sizeof(PKTOUT_BA), 6);
+//asserteql( sizeof(PKTOUT_BA), 6);
 
-// struct PKTOUT_BC {
+//struct PKTOUT_BC {
 //    u8 msgtype;
-//	u8 season; enum { SEASON_SPRING = 0, SEASON_SUMMER, SEASON_FALL, SEASON_WINTER,
-//SEASON_DESOLATION };
-//	u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
+//  u8 season; enum { SEASON_SPRING = 0, SEASON_SUMMER, SEASON_FALL, SEASON_WINTER, SEASON_DESOLATION };
+//  u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
 //};
-// asserteql( sizeof(PKTOUT_BC), 3 );
+//asserteql( sizeof(PKTOUT_BC), 3 );
 
 // Big-Endian for u16/32 unless otherwise noted.
-// struct PKTOUT_C0
+//struct PKTOUT_C0
 //{
-//	u8 msgtype;
-//	u8 type;
-//	u32 source_serial;
-//	u32 target_serial;
-//	u16 itemid;
-//	u16 x_source;
-//	u16 y_source;
-//	u8 z_source;
-//	u16 x_target;
-//	u16 y_target;
-//	u8 z_target;
-//	u8 speed;
-//	u8 duration;
-//	u16 unk; //On OSI, flamestrikes are 0x0100
-//	u8 fixed_direction;
-//	u8 explodes;
-//	u32 hue;
-//	u32 render_mode;
-//	enum {
-//		EFFECT_MOVING  = 0x00,
-//		EFFECT_LIGHTNING = 0x01,
-//		EFFECT_FIXEDXYZ = 0x02,
-//		EFFECT_FIXEDFROM = 0x03
-//	};
+//  u8 msgtype;
+//  u8 type;
+//  u32 source_serial;
+//  u32 target_serial;
+//  u16 itemid;
+//  u16 x_source;
+//  u16 y_source;
+//  u8 z_source;
+//  u16 x_target;
+//  u16 y_target;
+//  u8 z_target;
+//  u8 speed;
+//  u8 duration;
+//  u16 unk; //On OSI, flamestrikes are 0x0100
+//  u8 fixed_direction;
+//  u8 explodes;
+//  u32 hue;
+//  u32 render_mode;
+//  enum {
+//    EFFECT_MOVING  = 0x00,
+//    EFFECT_LIGHTNING = 0x01,
+//    EFFECT_FIXEDXYZ = 0x02,
+//    EFFECT_FIXEDFROM = 0x03
+//  };
 //};
 
-// Argument example:
-// take number 1042762:
+//Argument example:
+//take number 1042762:
 //"Only ~1_AMOUNT~ gold could be deposited. A check for ~2_CHECK_AMOUNT~ gold was returned to you."
-// the arguments string may have "100 thousand\t25 hundred", which in turn would modify the string:
+//the arguments string may have "100 thousand\t25 hundred", which in turn would modify the string:
 //"Only 100 thousand gold could be deposited. A check for 25 hundred gold was returned to you."
 // Big-Endian for u16/32 unless otherwise noted.
-// struct PKTOUT_C1 {
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial; //0xFFffFFff for system message
-//	u16 body; //0xFFff for system message
-//	u8 type; //6 lower left, 7 on player
-//	u16 hue;
-//	u16 font;
-//	u32 msgnumber;
-//	char name[30];
-//	u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the
-//arguments
+//struct PKTOUT_C1 {
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial; //0xFFffFFff for system message
+//  u16 body; //0xFFff for system message
+//  u8 type; //6 lower left, 7 on player
+//  u16 hue;
+//  u16 font;
+//  u32 msgnumber;
+//  char name[30];
+//  u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the arguments
 //};
-// assertsize( PKTOUT_C1, 450 );
+//assertsize( PKTOUT_C1, 450 );
 
-// not used:
+//not used:
 // Big-Endian for u16/32 unless otherwise noted.
 struct PKTOUT_C4
 {
@@ -1169,44 +1164,40 @@ struct PKTOUT_C4
 };
 
 // Big-Endian for u16/32 unless otherwise noted.
-// struct PKTOUT_C7
+//struct PKTOUT_C7
 //{
-//	PKTOUT_C0 header;
-//	u16 effect_num; //see particleffect subdir
-//	u16 explode_effect_num; //0 if no explosion
-//	u16 explode_sound_num; //for moving effects, 0 otherwise
-//	u32 itemid; //if target is item (type 2), 0 otherwise
-//	u8 layer; //(of the character, e.g left hand, right hand,  0-5,7, 0xff: moving effect or target
-//is no char)
-//	u16 unk_effect; //for moving effect, 0 otherwise
+//  PKTOUT_C0 header;
+//  u16 effect_num; //see particleffect subdir
+//  u16 explode_effect_num; //0 if no explosion
+//  u16 explode_sound_num; //for moving effects, 0 otherwise
+//  u32 itemid; //if target is item (type 2), 0 otherwise
+//  u8 layer; //(of the character, e.g left hand, right hand, 0-5,7, 0xff: moving effect or target is no char)
+//  u16 unk_effect; //for moving effect, 0 otherwise
 //};
 
 // Big-Endian for u16/32 unless otherwise noted.
-// struct PKTOUT_CC
+//struct PKTOUT_CC
 //{
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial; //0xFFffFFff for system message
-//	u16 body; //0xFFff for system message
-//	u8 type; //6-lowerleft, 7-on player
-//	u16 hue;
-//	u16 font;
-//	u32 msgnumber;
-//	u8 flags; //0x2 unk, 0x4 message doesn't move,
-//	//(flags & 0x1) == 0 signals affix is appended to the localization string, (flags & 0x1) == 1
-//signals to prepend.
-//	char name[30]; //u8 name[32];
-//	char affix[1]; //nullterminated, uh not just 1 byte
-//	u16 arguments[1]; // _big-endian_ unicode string, tabs ('\t') seperate arguments, see 0xC1 for
-//argument example
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial; //0xFFffFFff for system message
+//  u16 body; //0xFFff for system message
+//  u8 type; //6-lowerleft, 7-on player
+//  u16 hue;
+//  u16 font;
+//  u32 msgnumber;
+//  u8 flags; //0x2 unk, 0x4 message doesn't move,
+//  //(flags & 0x1) == 0 signals affix is appended to the localization string, (flags & 0x1) == 1 signals to prepend.
+//  char name[30]; //u8 name[32];
+//  char affix[1]; //nullterminated, uh not just 1 byte
+//  u16 arguments[1]; // _big-endian_ unicode string, tabs ('\t') seperate arguments, see 0xC1 for argument example
 //};
 
 struct CUSTOM_HOUSE_PLANE
 {
-  u32 header;  // bitpacked: TTTTZZZZ UUUUUUUU LLLLLLLL UUUULLLL
+  u32 header; // bitpacked: TTTTZZZZ UUUUUUUU LLLLLLLL UUUULLLL
   // T : numeric type value from 0-2, determines how to process 'data'
-  // Z : encoded Z offset value used in type 1 and 2, actual Z value translated from table in
-  // customhouses.cpp
+  // Z : encoded Z offset value used in type 1 and 2, actual Z value translated from table in customhouses.cpp
   // U : uncompressed length of 'data'
   // L : compressed length of 'data'
   u8 data[1];
@@ -1221,25 +1212,25 @@ struct CUSTOM_HOUSE_PLANE_BUFFER
 struct PKTOUT_D8
 {
   u8 msgtype;
-  u16 msglen;  // flipped
-  u8 compressiontype;  // 0x03 currently supported for zlib compression type
-  u8 unk;  // usually 0
+  u16 msglen; //flipped
+  u8 compressiontype; //0x03 currently supported for zlib compression type
+  u8 unk; //usually 0
   u32 serial;
-  u32 revision;  // incremented whenever content changes
+  u32 revision; //incremented whenever content changes
   u16 numtiles;
-  u16 planebuffer_len;  // length of remaining packet data
+  u16 planebuffer_len; //length of remaining packet data
   CUSTOM_HOUSE_PLANE_BUFFER buffer[1];
 };
 
 // If send clients request with 0xd6 list
-// struct PKTOUT_DC {
-//	u8 msgtype;
-//	u32 serial;
-//	u32 revision;
+//struct PKTOUT_DC {
+//  u8 msgtype;
+//  u32 serial;
+//  u32 revision;
 //};
-// asserteql( sizeof(PKTOUT_DC), 9);
+//asserteql( sizeof(PKTOUT_DC), 9);
 
-// struct PKTOUT_DD {
+//struct PKTOUT_DD {
 //   struct HEADER {
 //      u8  msgtype;
 //      u16 msglen;
@@ -1260,49 +1251,50 @@ struct PKTOUT_D8
 //      u8  text_cdata;
 //   };
 //};
-// asserteql( sizeof(PKTOUT_DD::HEADER), 19 );
-// asserteql( sizeof(PKTOUT_DD::LAYOUT), 9 );
-// asserteql( sizeof(PKTOUT_DD::TEXT), 13 );
+//asserteql( sizeof(PKTOUT_DD::HEADER), 19 );
+//asserteql( sizeof(PKTOUT_DD::LAYOUT), 9 );
+//asserteql( sizeof(PKTOUT_DD::TEXT), 13 );
 
-// struct PKTOUT_E3 {
-//	u8  msgtype;
-//	u16 msglen;
-//	u32 unknown_A_length; //  3 Bytes
-//	u8  unknown_A[3];
-//	u32 unknown_B_length; // 19 Bytes
-//	u8  unknown_B[19];
-//	u32 unknown_C_length; // 16 Bytes
-//	u8  unknown_C[16];
-//	u32 unknown_D;
-//	u32 unknown_E_length; // 16 Bytes
-//	u8  unknown_E[16];
+//struct PKTOUT_E3 {
+//  u8  msgtype;
+//  u16 msglen;
+//  u32 unknown_A_length; //  3 Bytes
+//  u8  unknown_A[3];
+//  u32 unknown_B_length; // 19 Bytes
+//  u8  unknown_B[19];
+//  u32 unknown_C_length; // 16 Bytes
+//  u8  unknown_C[16];
+//  u32 unknown_D;
+//  u32 unknown_E_length; // 16 Bytes
+//  u8  unknown_E[16];
 //};
-// asserteql( sizeof(PKTOUT_E3), 77 );
+//asserteql( sizeof(PKTOUT_E3), 77 );
 
-// struct PKTOUT_F3 {
+//struct PKTOUT_F3 {
 //    u8 msgtype;
 //    u16 unknown; // always 0x1
-//	u8	datatype; // 0x00 for item and 0x02 for multi
+//  u8  datatype; // 0x00 for item and 0x02 for multi
 //    u32 serial;
 //    u16 graphic;
-//	u8	facing; // 0x00 if multi
+//  u8  facing; // 0x00 if multi
 //    u16 amount; // 0x1 if multi
-//	u16 amount_2; // 0x1 if multi
+//  u16 amount_2; // 0x1 if multi
 //    u16 x;
 //    u16 y;
-//    u8	z;
-//	u8	layer; // 0x00 if multi
+//    u8  z;
+//  u8  layer; // 0x00 if multi
 //    u16 color; // 0x00 if multi
-//    u8	flags; // 0x00 if multi
+//    u8  flags; // 0x00 if multi
 //};
-// asserteql( sizeof(PKTOUT_F3), 24 );
+//asserteql( sizeof(PKTOUT_F3), 24 );
 
-#ifdef _MSC_VER /* Visual C++ 4.0 + */
-#pragma pack( pop )
+#ifdef _MSC_VER     /* Visual C++ 4.0 + */
+# pragma pack( pop )
 #else
-#pragma pack()
+# pragma pack()
 #endif
 }
 }
 
 #endif
+

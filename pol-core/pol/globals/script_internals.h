@@ -21,7 +21,7 @@ class UOExecutor;
 typedef std::deque<UOExecutor*> ExecList;
 typedef std::set<UOExecutor*> NoTimeoutHoldList;
 typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
-typedef std::map<std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred> ScriptStorage;
+typedef std::map< std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred > ScriptStorage;
 typedef std::map<unsigned int, UOExecutor*> PidList;
 
 class ScriptEngineInternalManager : boost::noncopyable

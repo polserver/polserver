@@ -33,38 +33,38 @@ PacketsSingleton::PacketsSingleton()
 {
   using namespace Core;
   // insert packet queues at first creation
-  packets.insert( PacketQueuePair( ENCRYPTEDPKTBUFFER, new PacketQueueSingle() ) );
+  packets.insert(PacketQueuePair(ENCRYPTEDPKTBUFFER, new PacketQueueSingle()));
 
-  packets.insert( PacketQueuePair( PKTOUT_0B_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_11_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_17_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_1A_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_1B_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_1C_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_1D_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_20_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_21_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_22_APPROVED_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_24_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_25_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_27_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_29_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_2C_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_2D_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_2E_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_2F_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_3A_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_3B_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_3C_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_4F_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_53_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_54_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_55_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_56_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_65_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_66_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_6C_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_6D_ID, new PacketQueueSingle() ) );
+  packets.insert(PacketQueuePair(PKTOUT_0B_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_11_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_17_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_1A_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_1B_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_1C_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_1D_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_20_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_21_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTBI_22_APPROVED_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_24_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_25_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_27_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_29_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTBI_2C_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_2D_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_2E_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_2F_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTBI_3A_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTBI_3B_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_3C_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_4F_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_53_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_54_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_55_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTBI_56_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_65_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTBI_66_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTBI_6C_ID, new PacketQueueSingle()));
+  packets.insert(PacketQueuePair(PKTOUT_6D_ID, new PacketQueueSingle()));
   packets.insert( PacketQueuePair( PKTOUT_6E_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTBI_6F_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_70_ID, new PacketQueueSingle() ) );
@@ -113,7 +113,7 @@ PacketsSingleton::PacketsSingleton()
   packets.insert( PacketQueuePair( PKTOUT_DC_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_DD_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_DF_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTOUT_E2_ID, new PacketQueueSingle() ) );
+  packets.insert( PacketQueuePair( PKTOUT_E2_ID, new PacketQueueSingle( ) ) );
   packets.insert( PacketQueuePair( PKTOUT_E3_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_F3_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_F5_ID, new PacketQueueSingle() ) );
@@ -123,7 +123,7 @@ PacketsSingleton::PacketsSingleton()
 
 PacketsSingleton::~PacketsSingleton()
 {
-  for ( auto& pkts : packets )
+  for (auto& pkts : packets )
   {
     delete pkts.second;
   }
@@ -135,8 +135,7 @@ PacketInterface* PacketsSingleton::getPacket( u8 id, u16 sub )
   PacketQueueMap::iterator itr = packets.find( id );
   if ( itr != packets.end() )
     return itr->second->GetNext( id, sub );
-  throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
-                            Clib::hexint( sub ) );
+  throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" + Clib::hexint( sub ) );
   return NULL;
 }
 
@@ -151,39 +150,40 @@ void PacketsSingleton::ReAddPacket( PacketInterface* pkt )
 
 size_t PacketsSingleton::estimateSize() const
 {
-  size_t size = sizeof( PacketsSingleton );
-  for ( const auto& pkts : packets )
+  size_t size = sizeof(PacketsSingleton);
+  for (const auto& pkts : packets)
   {
-    size += sizeof( pkts.first ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+    size += sizeof(pkts.first) + (sizeof(void*) * 3 + 1) / 2;
     size += pkts.second->estimateSize();
   }
   return size;
 }
 
-PacketQueueSingle::PacketQueueSingle() : _packets(), _lock()
-{
-}
-PacketInterface* PacketQueueSingle::GetNext( u8 id, u16 /*sub*/ )
+PacketQueueSingle::PacketQueueSingle() :
+  _packets(),
+  _lock()
+{}
+PacketInterface* PacketQueueSingle::GetNext(u8 id, u16 /*sub*/)
 {
   // critical start
-  Clib::SpinLockGuard lock( _lock );
+  Clib::SpinLockGuard lock(_lock);
   PacketInterface* pkt;
-  if ( !_packets.empty() )
+  if (!_packets.empty())
   {
     pkt = _packets.front();  // get next one
     _packets.pop();          // and remove it from queue
     pkt->ReSetBuffer();
   }
   else
-    pkt = GetPacket( id );
+    pkt = GetPacket(id);
   return pkt;
   // critical end
 }
 
 PacketQueueSingle::~PacketQueueSingle()
 {
-  Clib::SpinLockGuard lock( _lock );
-  while ( !_packets.empty() )
+  Clib::SpinLockGuard lock(_lock);
+  while (!_packets.empty())
   {
     PacketInterface* pkt = _packets.front();
     _packets.pop();
@@ -191,38 +191,39 @@ PacketQueueSingle::~PacketQueueSingle()
   }
 }
 
-void PacketQueueSingle::Add( PacketInterface* pkt )
+void PacketQueueSingle::Add(PacketInterface* pkt)
 {
-  Clib::SpinLockGuard lock( _lock );
-  if ( _packets.size() > MAX_PACKETS_INSTANCES )  // enough?
+  Clib::SpinLockGuard lock(_lock);
+  if (_packets.size() > MAX_PACKETS_INSTANCES)  // enough?
     delete pkt;
   else
   {
-    _packets.push( pkt );  // readd it
+    _packets.push(pkt);  // readd it
   }
 }
 
 size_t PacketQueueSingle::estimateSize() const
 {
-  Clib::SpinLockGuard lock( _lock );
-  size_t size = sizeof( PacketQueueSingle );
-  if ( !_packets.empty() )
+  Clib::SpinLockGuard lock(_lock);
+  size_t size = sizeof(PacketQueueSingle);
+  if (!_packets.empty())
     size += _packets.front()->estimateSize() * _packets.size();
   return size;
 }
 
-PacketQueueSubs::PacketQueueSubs() : _packets(), _lock()
-{
-}
+PacketQueueSubs::PacketQueueSubs() :
+  _packets(),
+  _lock()
+{}
 PacketQueueSubs::~PacketQueueSubs()
 {
-  Clib::SpinLockGuard lock( _lock );
+  Clib::SpinLockGuard lock(_lock);
   for ( auto& pkts : _packets )
   {
-    while ( !pkts.second.empty() )
+    while ( !pkts.second.empty( ) )
     {
-      PacketInterface* pkt = pkts.second.front();
-      pkts.second.pop();
+      PacketInterface* pkt = pkts.second.front( );
+      pkts.second.pop( );
       delete pkt;
     }
   }
@@ -231,8 +232,8 @@ PacketQueueSubs::~PacketQueueSubs()
 
 PacketInterface* PacketQueueSubs::GetNext( u8 id, u16 sub )
 {
-  // critical start
-  Clib::SpinLockGuard lock( _lock );
+  //critical start
+  Clib::SpinLockGuard lock(_lock);
   PacketInterface* pkt;
   if ( !_packets.empty() )
   {
@@ -241,8 +242,8 @@ PacketInterface* PacketQueueSubs::GetNext( u8 id, u16 sub )
     {
       if ( !itr->second.empty() )
       {
-        pkt = itr->second.front();  // get next one
-        itr->second.pop();          // and remove it from queue
+        pkt = itr->second.front(); // get next one
+        itr->second.pop();  // and remove it from queue
         pkt->ReSetBuffer();
         return pkt;
       }
@@ -250,34 +251,34 @@ PacketInterface* PacketQueueSubs::GetNext( u8 id, u16 sub )
   }
   pkt = GetPacket( id, sub );
   return pkt;
-  // critical end
+  //critical end
 }
 
 void PacketQueueSubs::Add( PacketInterface* pkt )
 {
   u16 sub = pkt->getSubID();
-  // critical start
-  Clib::SpinLockGuard lock( _lock );
+  //critical start
+  Clib::SpinLockGuard lock(_lock);
   PacketInterfaceQueueMap::iterator itr = _packets.find( sub );
   if ( itr != _packets.end() )
   {
-    if ( itr->second.size() > MAX_PACKETS_INSTANCES )  // enough?
+    if ( itr->second.size() > MAX_PACKETS_INSTANCES ) // enough?
       delete pkt;
     else
-      itr->second.push( pkt );  // readd it
+      itr->second.push( pkt ); // readd it
   }
-  else  // new sub
+  else // new sub
   {
     PacketInterfaceQueue qu;
     qu.push( pkt );
     _packets.insert( PacketInterfaceQueuePair( sub, qu ) );
   }
-  // critical end
+  //critical end
 }
 
 size_t PacketQueueSubs::Count() const
 {
-  Clib::SpinLockGuard lock( _lock );
+  Clib::SpinLockGuard lock(_lock);
   size_t count = 0;
   for ( const auto& pkts : _packets )
   {
@@ -288,12 +289,12 @@ size_t PacketQueueSubs::Count() const
 
 size_t PacketQueueSubs::estimateSize() const
 {
-  Clib::SpinLockGuard lock( _lock );
-  size_t size = sizeof( PacketQueueSubs );
-  for ( const auto& pkts : _packets )
+  Clib::SpinLockGuard lock(_lock);
+  size_t size = sizeof(PacketQueueSubs);
+  for (const auto& pkts : _packets)
   {
-    size += sizeof( pkts.first ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-    if ( pkts.second.size() )
+    size += sizeof(pkts.first) + (sizeof(void*) * 3 + 1) / 2;
+    if (pkts.second.size())
       size += pkts.second.front()->estimateSize() * pkts.second.size();
   }
   return size;
@@ -305,7 +306,7 @@ namespace PktHelper
 PacketInterface* GetPacket( u8 id, u16 sub )
 {
   using namespace Core;
-  switch ( id )
+  switch (id)
   {
   case ENCRYPTEDPKTBUFFER:
     return new EncryptedPktBuffer();
@@ -475,8 +476,7 @@ PacketInterface* GetPacket( u8 id, u16 sub )
     case Core::PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER:
       return new PktOut_BF_Sub2A();
     default:
-      throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
-                                Clib::hexint( sub ) );
+      throw std::runtime_error("Request of undefined Packet: " + Clib::hexint(id) + "-" + Clib::hexint(sub));
       return NULL;
     }
   }
@@ -497,7 +497,7 @@ PacketInterface* GetPacket( u8 id, u16 sub )
   case PKTOUT_DF_ID:
     return new PktOut_DF();
   case PKTOUT_E2_ID:
-    return new PktOut_E2();
+    return new PktOut_E2( );
   case PKTOUT_E3_ID:
     return new PktOut_E3();
   case PKTOUT_F3_ID:
@@ -509,8 +509,7 @@ PacketInterface* GetPacket( u8 id, u16 sub )
   case PKTOUT_F7_ID:
     return new PktOut_F7();
   default:
-    throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
-                              Clib::hexint( sub ) );
+    throw std::runtime_error("Request of undefined Packet: " + Clib::hexint(id) + "-" + Clib::hexint(sub));
     return NULL;
   }
 }
