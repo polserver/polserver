@@ -662,9 +662,9 @@ namespace Pol {
     }
 
 
-// signal_event() takes ownership of the pointer which is passed to it.
-// Objects must not be touched or deleted after being sent here! 
-// TODO: Find a better way to enforce this in the codebase.
+    // signal_event() takes ownership of the pointer which is passed to it.
+    // Objects must not be touched or deleted after being sent here! 
+    // TODO: Find a better way to enforce this in the codebase.
     bool OSExecutorModule::signal_event(BObjectImp* imp)
     {
         INC_PROFILEVAR(events);
@@ -717,7 +717,7 @@ namespace Pol {
             }
         }
 
-      return true; // Event was successfully sent (perhaps by discarding old events)
+        return true; // Event was successfully sent (perhaps by discarding old events)
     }
 
     void OSExecutorModule::SleepFor(int nsecs)

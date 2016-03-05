@@ -1054,7 +1054,7 @@ namespace Pol {
 	  }
 	  else
 	  {
-    // Because there is no control script, we must delete it ourselves.
+        // Because there is no control script, we must delete it ourselves.
         Bscript::BObject bo( event );
         return new Bscript::BError( "That NPC doesn't have a control script" );
 	  }
