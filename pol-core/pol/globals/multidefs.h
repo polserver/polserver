@@ -13,29 +13,31 @@
 #include <cstddef>
 #include <boost/noncopyable.hpp>
 
-namespace Pol {
-  namespace Multi {
-	class MultiDef;
+namespace Pol
+{
+namespace Multi
+{
+class MultiDef;
 
 
-	typedef std::map< u16, MultiDef* > MultiDefs;
+typedef std::map< u16, MultiDef* > MultiDefs;
 
-	// used for POL and uotool
-	class MultiDefBuffer : boost::noncopyable
-	{
-	  public:
-		MultiDefBuffer();
-		~MultiDefBuffer();
+// used for POL and uotool
+class MultiDefBuffer : boost::noncopyable
+{
+public:
+  MultiDefBuffer();
+  ~MultiDefBuffer();
 
-		void deinitialize();
-        size_t estimateSize() const;
+  void deinitialize();
+  size_t estimateSize() const;
 
-		MultiDefs multidefs_by_multiid;
-		
-	  private:
-	};
+  MultiDefs multidefs_by_multiid;
 
-	extern MultiDefBuffer multidef_buffer;
-  }
+private:
+};
+
+extern MultiDefBuffer multidef_buffer;
+}
 }
 #endif

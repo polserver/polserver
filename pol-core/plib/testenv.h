@@ -10,16 +10,16 @@
 // TODO: REWORK ME!
 //namespace Pol {
 //  namespace Mobile {
-//	class NPC;
+//  class NPC;
 //  }
 //  namespace Items {
-//	class Item;
+//  class Item;
 //  }
 //  namespace Plib {
-//	extern Mobile::NPC* test_banker2;
+//  extern Mobile::NPC* test_banker2;
 //    extern Mobile::NPC* test_banker3;
-//	extern Items::Item* test_chest1;
-//	extern Items::Item* test_chest2;
+//  extern Items::Item* test_chest1;
+//  extern Items::Item* test_chest2;
 //    extern Mobile::NPC* test_orclord;
 //  }
 //}

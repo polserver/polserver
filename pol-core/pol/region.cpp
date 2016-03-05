@@ -18,231 +18,233 @@
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
 
-namespace Pol {
-  namespace Core {
-	Region::Region( Clib::ConfigElem& elem, RegionId id ) :
-	  name_( elem.rest() ),
-	  regionid_( id ),
-      proplist_( Core::CPropProfiler::Type::REGION )
-	{}
+namespace Pol
+{
+namespace Core
+{
+Region::Region( Clib::ConfigElem& elem, RegionId id ) :
+  name_( elem.rest() ),
+  regionid_( id ),
+  proplist_( Core::CPropProfiler::Type::REGION )
+{}
 
-	Region::~Region()
-	{}
+Region::~Region()
+{}
 
-    size_t Region::estimateSize() const
-    {
-      return name_.capacity()
-        + sizeof(RegionId)
-        + proplist_.estimatedSize();
-    }
+size_t Region::estimateSize() const
+{
+  return name_.capacity()
+         + sizeof(RegionId)
+         + proplist_.estimatedSize();
+}
 
-    void Region::read_custom_config( Clib::ConfigElem& elem )
-	{
-	  proplist_.readRemainingPropertiesAsStrings( elem );
-	}
+void Region::read_custom_config( Clib::ConfigElem& elem )
+{
+  proplist_.readRemainingPropertiesAsStrings( elem );
+}
 
-	Bscript::BObjectImp* Region::get_region_string( const std::string& propname )
-	{
-	  std::string propvalue;
-	  if ( proplist_.getprop( propname, propvalue ) )
-	  {
-        return new Bscript::String( propvalue );
-	  }
-	  else
-	  {
-        return new Bscript::BError( "Property not found" );
-	  }
-	}
-
-
-
-	RegionGroupBase::RegionGroupBase( const char* name ) :
-	  name_( name )
-	{
-	  //memset( &regionidx_, 0, sizeof regionidx_ );
-	  for ( const auto& realm : gamestate.Realms)
-	  {
-        unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
-        unsigned int gridheight = realm->height( ) / ZONE_SIZE;
-
-		RegionId** zone = new RegionId*[gridwidth];
-
-		for ( unsigned int i = 0; i < gridwidth; i++ )
-		{
-		  zone[i] = new RegionId[gridheight];
-		  for ( unsigned int j = 0; j < gridheight; j++ )
-		  {
-			zone[i][j] = 0;
-		  }
-		}
-        regionrealms.insert(std::make_pair(realm, zone));
-	  }
-	}
-	RegionGroupBase::~RegionGroupBase()
-	{
-	  for ( auto &realm : regionrealms)
-	  {
-		unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
-
-		// Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
-		/*if (gridwidth * ZONE_SIZE < itr->first->width())
-		  gridwidth++;*/
-
-		for ( unsigned int i = 0; i < gridwidth; i++ )
-		  delete[] realm.second[i];
-		delete[] realm.second;
-	  }
-
-	  // cleans the regions_ vector...
-	  for ( auto &region : regions_ )
-	  {
-        delete region;
-	  }
-	  regions_.clear();
-
-	}
-
-    void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
-	{
-      std::string zonestr, strrealm;
-
-	  strrealm = elem.remove_string( "Realm", "britannia" );
-      Realms::Realm* realm = find_realm( strrealm );
-	  if ( !realm )
-		elem.throw_error( "Realm not found" );
-	  while ( elem.remove_prop( "Range", &zonestr ) )
-	  {
-		unsigned short xwest, ynorth, xeast, ysouth;
-		ISTRINGSTREAM is( zonestr );
-		if ( is >> xwest >> ynorth >> xeast >> ysouth )
-		{
-		  if ( xeast >= realm->width() || ysouth >= realm->height() )
-		  {
-			elem.throw_error( "Zone range is out of bounds for realm" );
-		  }
-		  unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-		  XyToZone( xwest, ynorth, &zone_xwest, &zone_ynorth );
-		  XyToZone( xeast, ysouth, &zone_xeast, &zone_ysouth );
-		  unsigned zx, zy;
-		  for ( zx = zone_xwest; zx <= zone_xeast; ++zx )
-		  {
-			for ( zy = zone_ynorth; zy <= zone_ysouth; ++zy )
-			{
-			  /*
-			  if (zones[zx][zy].regions[regiontype])
-			  {
-			  elem.throw_error( "Zone is already allocated" );
-			  }
-			  */
-			  regionrealms[realm][zx][zy] = ridx;
-			}
-		  }
-		}
-		else
-		{
-		  elem.throw_error( "Poorly formed zone range: " + zonestr );
-		}
-	  }
-	}
-
-    RegionId RegionGroupBase::getregionid( xcoord x, ycoord y, Realms::Realm* realm )
-	{
-	  unsigned zx, zy;
-	  XyToZone( x, y, &zx, &zy );
-	  RegionId** regiongrp;
-	  if ( realm->is_shadowrealm )
-		regiongrp = regionrealms[realm->baserealm];
-	  else
-		regiongrp = regionrealms[realm];
-	  return regiongrp[zx][zy];
-	}
-
-	Region* RegionGroupBase::getregion_byname( const std::string& regionname )
-	{
-	  RegionsByName::iterator itr = regions_byname_.find( regionname );
-	  if ( itr == regions_byname_.end() )
-		return NULL;
-	  else
-		return ( *itr ).second;
-	}
-
-	Region* RegionGroupBase::getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm )
-	{
-	  RegionId ridx = getregionid( x, y, realm );
-
-	  //dave 12-22 return null if no regions, don't throw
-	  std::vector<Region*>::iterator itr = regions_.begin();
-	  if ( ( itr += ridx ) >= regions_.end() )
-		return NULL;
-	  else
-		return regions_[ridx];
-	}
-
-    void RegionGroupBase::read_region( Clib::ConfigElem& elem )
-	{
-	  Region* rgn = create_region( elem, static_cast<RegionId>( regions_.size() ) );
-	  regions_.push_back( rgn );
-	  regions_byname_.insert( RegionsByName::value_type( elem.rest(), rgn ) );
-
-	  paint_zones( elem, static_cast<RegionId>( regions_.size() - 1 ) );
-	  rgn->read_custom_config( elem );
-	}
-
-    void RegionGroupBase::create_bgnd_region( Clib::ConfigElem& elem )
-	{
-	  Region* rgn = create_region( elem, static_cast<RegionId>( regions_.size() ) );
-
-	  regions_.push_back( rgn );
-	  regions_byname_.insert( RegionsByName::value_type( "_background_", rgn ) );
-	  rgn->read_custom_config( elem );
-	}
-
-    size_t RegionGroupBase::estimateSize() const
-    {
-      size_t size = 0;
-	  for ( const auto &region : regions_ )
-	  {
-        size += region->estimateSize();
-	  }
-      for ( const auto &realm : regionrealms)
-	  {
-        if (realm.first != nullptr)
-        {
-		  unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
-          size+=gridwidth*sizeof(RegionId) + sizeof(Realms::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
-        }
-	  }
-      size += name_.capacity();
-      for ( const auto &realm : regions_byname_)
-      {
-        size += realm.first.capacity() + sizeof(Region*) + ( sizeof(void*) * 3 + 1 ) / 2;
-      }
-      return size;
-    }
-
-	void read_region_data( RegionGroupBase& grp,
-						   const char* preferred_filename,
-						   const char* other_filename,
-						   const char* tags_expected )
-	{
-	  const char* filename;
-      if ( Clib::FileExists( preferred_filename ) )
-		filename = preferred_filename;
-	  else
-		filename = other_filename;
-
-	  if ( Clib::FileExists( filename ) )
-	  {
-        Clib::ConfigFile cf( filename, tags_expected );
-        Clib::ConfigElem elem;
-
-		grp.create_bgnd_region( elem );
-
-		while ( cf.read( elem ) )
-		{
-		  grp.read_region( elem );
-		}
-	  }
-	}
+Bscript::BObjectImp* Region::get_region_string( const std::string& propname )
+{
+  std::string propvalue;
+  if ( proplist_.getprop( propname, propvalue ) )
+  {
+    return new Bscript::String( propvalue );
   }
+  else
+  {
+    return new Bscript::BError( "Property not found" );
+  }
+}
+
+
+
+RegionGroupBase::RegionGroupBase( const char* name ) :
+  name_( name )
+{
+  //memset( &regionidx_, 0, sizeof regionidx_ );
+  for ( const auto& realm : gamestate.Realms)
+  {
+    unsigned int gridwidth = realm->width( ) / ZONE_SIZE;
+    unsigned int gridheight = realm->height( ) / ZONE_SIZE;
+
+    RegionId** zone = new RegionId*[gridwidth];
+
+    for ( unsigned int i = 0; i < gridwidth; i++ )
+    {
+      zone[i] = new RegionId[gridheight];
+      for ( unsigned int j = 0; j < gridheight; j++ )
+      {
+        zone[i][j] = 0;
+      }
+    }
+    regionrealms.insert(std::make_pair(realm, zone));
+  }
+}
+RegionGroupBase::~RegionGroupBase()
+{
+  for ( auto& realm : regionrealms)
+  {
+    unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
+
+    // Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
+    /*if (gridwidth * ZONE_SIZE < itr->first->width())
+      gridwidth++;*/
+
+    for ( unsigned int i = 0; i < gridwidth; i++ )
+      delete[] realm.second[i];
+    delete[] realm.second;
+  }
+
+  // cleans the regions_ vector...
+  for ( auto& region : regions_ )
+  {
+    delete region;
+  }
+  regions_.clear();
+
+}
+
+void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
+{
+  std::string zonestr, strrealm;
+
+  strrealm = elem.remove_string( "Realm", "britannia" );
+  Realms::Realm* realm = find_realm( strrealm );
+  if ( !realm )
+    elem.throw_error( "Realm not found" );
+  while ( elem.remove_prop( "Range", &zonestr ) )
+  {
+    unsigned short xwest, ynorth, xeast, ysouth;
+    ISTRINGSTREAM is( zonestr );
+    if ( is >> xwest >> ynorth >> xeast >> ysouth )
+    {
+      if ( xeast >= realm->width() || ysouth >= realm->height() )
+      {
+        elem.throw_error( "Zone range is out of bounds for realm" );
+      }
+      unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
+      XyToZone( xwest, ynorth, &zone_xwest, &zone_ynorth );
+      XyToZone( xeast, ysouth, &zone_xeast, &zone_ysouth );
+      unsigned zx, zy;
+      for ( zx = zone_xwest; zx <= zone_xeast; ++zx )
+      {
+        for ( zy = zone_ynorth; zy <= zone_ysouth; ++zy )
+        {
+          /*
+          if (zones[zx][zy].regions[regiontype])
+          {
+          elem.throw_error( "Zone is already allocated" );
+          }
+          */
+          regionrealms[realm][zx][zy] = ridx;
+        }
+      }
+    }
+    else
+    {
+      elem.throw_error( "Poorly formed zone range: " + zonestr );
+    }
+  }
+}
+
+RegionId RegionGroupBase::getregionid( xcoord x, ycoord y, Realms::Realm* realm )
+{
+  unsigned zx, zy;
+  XyToZone( x, y, &zx, &zy );
+  RegionId** regiongrp;
+  if ( realm->is_shadowrealm )
+    regiongrp = regionrealms[realm->baserealm];
+  else
+    regiongrp = regionrealms[realm];
+  return regiongrp[zx][zy];
+}
+
+Region* RegionGroupBase::getregion_byname( const std::string& regionname )
+{
+  RegionsByName::iterator itr = regions_byname_.find( regionname );
+  if ( itr == regions_byname_.end() )
+    return NULL;
+  else
+    return ( *itr ).second;
+}
+
+Region* RegionGroupBase::getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm )
+{
+  RegionId ridx = getregionid( x, y, realm );
+
+  //dave 12-22 return null if no regions, don't throw
+  std::vector<Region*>::iterator itr = regions_.begin();
+  if ( ( itr += ridx ) >= regions_.end() )
+    return NULL;
+  else
+    return regions_[ridx];
+}
+
+void RegionGroupBase::read_region( Clib::ConfigElem& elem )
+{
+  Region* rgn = create_region( elem, static_cast<RegionId>( regions_.size() ) );
+  regions_.push_back( rgn );
+  regions_byname_.insert( RegionsByName::value_type( elem.rest(), rgn ) );
+
+  paint_zones( elem, static_cast<RegionId>( regions_.size() - 1 ) );
+  rgn->read_custom_config( elem );
+}
+
+void RegionGroupBase::create_bgnd_region( Clib::ConfigElem& elem )
+{
+  Region* rgn = create_region( elem, static_cast<RegionId>( regions_.size() ) );
+
+  regions_.push_back( rgn );
+  regions_byname_.insert( RegionsByName::value_type( "_background_", rgn ) );
+  rgn->read_custom_config( elem );
+}
+
+size_t RegionGroupBase::estimateSize() const
+{
+  size_t size = 0;
+  for ( const auto& region : regions_ )
+  {
+    size += region->estimateSize();
+  }
+  for ( const auto& realm : regionrealms)
+  {
+    if (realm.first != nullptr)
+    {
+      unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
+      size+=gridwidth*sizeof(RegionId) + sizeof(Realms::Realm*)+ ( sizeof(void*) * 3 + 1 ) / 2;
+    }
+  }
+  size += name_.capacity();
+  for ( const auto& realm : regions_byname_)
+  {
+    size += realm.first.capacity() + sizeof(Region*) + ( sizeof(void*) * 3 + 1 ) / 2;
+  }
+  return size;
+}
+
+void read_region_data( RegionGroupBase& grp,
+                       const char* preferred_filename,
+                       const char* other_filename,
+                       const char* tags_expected )
+{
+  const char* filename;
+  if ( Clib::FileExists( preferred_filename ) )
+    filename = preferred_filename;
+  else
+    filename = other_filename;
+
+  if ( Clib::FileExists( filename ) )
+  {
+    Clib::ConfigFile cf( filename, tags_expected );
+    Clib::ConfigElem elem;
+
+    grp.create_bgnd_region( elem );
+
+    while ( cf.read( elem ) )
+    {
+      grp.read_region( elem );
+    }
+  }
+}
+}
 }

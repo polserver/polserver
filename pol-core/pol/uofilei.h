@@ -10,30 +10,32 @@
 #include <stdio.h>
 #include "uconst.h"
 #include "udatfile.h"
-namespace Pol {
-  namespace Core {
-	extern FILE *mapfile;
-	extern FILE *sidxfile;
-	extern FILE *statfile;
-	extern FILE *verfile;
-	extern FILE *tilefile;
-	extern FILE *stadifl_file;
-	extern FILE *stadifi_file;
-	extern FILE *stadif_file;
-	extern FILE *mapdifl_file;
-	extern FILE *mapdif_file;
+namespace Pol
+{
+namespace Core
+{
+extern FILE* mapfile;
+extern FILE* sidxfile;
+extern FILE* statfile;
+extern FILE* verfile;
+extern FILE* tilefile;
+extern FILE* stadifl_file;
+extern FILE* stadifi_file;
+extern FILE* stadif_file;
+extern FILE* mapdifl_file;
+extern FILE* mapdif_file;
 
-	struct USTRUCT_VERSION;
+struct USTRUCT_VERSION;
 
-	FILE *open_uo_file( const std::string& filename_part );
+FILE* open_uo_file( const std::string& filename_part );
 
-	bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
-	bool statics_height( unsigned short x, unsigned short y, short oldz, short* newz );
+bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
+bool statics_height( unsigned short x, unsigned short y, short oldz, short* newz );
 
 
-	void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result, short* newz );
-	void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout );
-	void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout );
+void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result, short* newz );
+void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout );
+void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, short oldz, bool* result_inout, short* newz_inout );
 
 #define VERFILE_MAP0_MUL        0x00
 #define VERFILE_STAIDX0_MUL     0x01
@@ -55,8 +57,8 @@ namespace Pol {
 #define VERFILE_TILEDATA_MUL    0x1E
 #define VERFILE_ANIMDATA_MUL    0x1F
 
-	void read_static_diffs();
-	void read_map_difs();
-  }
+void read_static_diffs();
+void read_map_difs();
+}
 }
 #endif

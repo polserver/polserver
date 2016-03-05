@@ -30,13 +30,13 @@ template<class T> class weak_ptr_owner;
 template <class T>
 class weak_ptr_link : public ref_counted
 {
- public:
+public:
   weak_ptr_link();
   void clear_weakptr();
   T* get_weakptr() const;
   void set_weakptr( T* ptr );
 
- private:
+private:
   std::atomic<T*> _ptr;
 };
 
@@ -145,4 +145,4 @@ void weak_ptr_owner<T>::set( T* obptr )
   this->ref_ptr<weak_ptr_link<T>>::get()->set_weakptr( obptr );
 }
 
-#endif	// __WEAKPTR_H
+#endif  // __WEAKPTR_H

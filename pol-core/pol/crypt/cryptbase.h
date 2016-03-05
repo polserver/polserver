@@ -41,18 +41,18 @@
 #ifndef __CRYPTBASE_H__
 #define __CRYPTBASE_H__
 
-#define CRYPT_AUTO_VALUE		0x80
+#define CRYPT_AUTO_VALUE    0x80
 
-#define CRYPT_GAMEKEY_LENGTH	6
-#define CRYPT_GAMEKEY_COUNT		25
+#define CRYPT_GAMEKEY_LENGTH  6
+#define CRYPT_GAMEKEY_COUNT   25
 
-#define CRYPT_GAMESEED_LENGTH	8
-#define CRYPT_GAMESEED_COUNT	25
+#define CRYPT_GAMESEED_LENGTH 8
+#define CRYPT_GAMESEED_COUNT  25
 
-#define CRYPT_GAMETABLE_START	1
-#define CRYPT_GAMETABLE_STEP	3
-#define CRYPT_GAMETABLE_MODULO	11
-#define CRYPT_GAMETABLE_TRIGGER	21036
+#define CRYPT_GAMETABLE_START 1
+#define CRYPT_GAMETABLE_STEP  3
+#define CRYPT_GAMETABLE_MODULO  11
+#define CRYPT_GAMETABLE_TRIGGER 21036
 
 // Macro Definitions ( to avoid big-/little-endian problems )
 
@@ -65,52 +65,57 @@
 #include "../uconst.h"
 #include "../../clib/passert.h"
 #include "logincrypt.h"
-namespace Pol {
-  namespace Crypt {
-	//basic class only used directly by NoCrypt
-	class CCryptBase
-	{
-	  // Constructor / Destructor
-	public:
-	  CCryptBase();
-	  virtual ~CCryptBase();
+namespace Pol
+{
+namespace Crypt
+{
+//basic class only used directly by NoCrypt
+class CCryptBase
+{
+  // Constructor / Destructor
+public:
+  CCryptBase();
+  virtual ~CCryptBase();
 
-	  enum e_crypttype { typeLogin, typeGame, typeAuto };
+  enum e_crypttype { typeLogin, typeGame, typeAuto };
 
-	  // Member Functions
-	public:
-	  virtual int  Receive( void *buffer, int max_expected, SOCKET socket ) = 0;
-	  virtual void Init( void *pvSeed, int type = typeAuto ) = 0;
-	  virtual void Encrypt( void *pvIn, void *pvOut, int len ) {
-          /* Do nothing. */
-          (void)pvIn; (void)pvOut; (void)len;
-      };
-	};
+  // Member Functions
+public:
+  virtual int  Receive( void* buffer, int max_expected, SOCKET socket ) = 0;
+  virtual void Init( void* pvSeed, int type = typeAuto ) = 0;
+  virtual void Encrypt( void* pvIn, void* pvOut, int len )
+  {
+    /* Do nothing. */
+    (void)pvIn;
+    (void)pvOut;
+    (void)len;
+  };
+};
 
-	//crypt class
+//crypt class
 
-	class CCryptBaseCrypt : public CCryptBase
-	{
-	  // Constructor / Destructor
-	public:
-	  CCryptBaseCrypt();
-	  virtual ~CCryptBaseCrypt();
+class CCryptBaseCrypt : public CCryptBase
+{
+  // Constructor / Destructor
+public:
+  CCryptBaseCrypt();
+  virtual ~CCryptBaseCrypt();
 
-	  LoginCrypt lcrypt;
+  LoginCrypt lcrypt;
 
-	  // Member Variables
-	protected:
-	  int           m_type;
-	  unsigned int  m_masterKey[2];
-	  unsigned char encrypted_data[MAXBUFFER];
+  // Member Variables
+protected:
+  int           m_type;
+  unsigned int  m_masterKey[2];
+  unsigned char encrypted_data[MAXBUFFER];
 
-	  // Member Functions
-	public:
-	  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) = 0;
+  // Member Functions
+public:
+  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) = 0;
 
-	protected:
-	  virtual void Decrypt( void *pvIn, void *pvOut, int len ) = 0;
-	};
-  }
+protected:
+  virtual void Decrypt( void* pvIn, void* pvOut, int len ) = 0;
+};
+}
 }
 #endif //__CRYPTBASE_H__

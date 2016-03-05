@@ -10,15 +10,18 @@
 #include <vector>
 #include <string>
 
-namespace Pol {
-  namespace Network {
-    class Client;
-  }
-  namespace Core {
-	void load_tips();
+namespace Pol
+{
+namespace Network
+{
+class Client;
+}
+namespace Core
+{
+void load_tips();
 
-	bool send_tip( Network::Client* client, const char* tipname );
+bool send_tip( Network::Client* client, const char* tipname );
 
-  }
+}
 }
 #endif

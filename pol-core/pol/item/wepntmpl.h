@@ -15,48 +15,51 @@
 #include "../dice.h"
 #include "../equipdsc.h"
 
-namespace Pol {
-  namespace Mobile {
-	class Attribute;
-  }
-  namespace Items {
-	
-	class WeaponDesc : public Core::EquipDesc
-	{
-	public:
-	  typedef EquipDesc base;
-	  WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
-	  WeaponDesc(); // for dummy template
-      virtual ~WeaponDesc() {};
-	  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-      virtual size_t estimatedSize( ) const POL_OVERRIDE;
+namespace Pol
+{
+namespace Mobile
+{
+class Attribute;
+}
+namespace Items
+{
 
-	  unsigned short get_random_damage() const;
+class WeaponDesc : public Core::EquipDesc
+{
+public:
+  typedef EquipDesc base;
+  WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg );
+  WeaponDesc(); // for dummy template
+  virtual ~WeaponDesc() {};
+  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
+  virtual size_t estimatedSize( ) const POL_OVERRIDE;
 
-	  const Mobile::Attribute* pAttr;
+  unsigned short get_random_damage() const;
 
-	  unsigned short speed;
-	  unsigned short delay;
+  const Mobile::Attribute* pAttr;
 
-	  Core::ScriptDef hit_script;
+  unsigned short speed;
+  unsigned short delay;
 
-	  Core::Dice damage_dice;
+  Core::ScriptDef hit_script;
 
-	  bool projectile;
-	  unsigned short projectile_type;
-	  unsigned short projectile_anim;
-	  unsigned short projectile_sound;
-	  Core::UACTION projectile_action;
-	  Core::UACTION anim;
-	  Core::UACTION mounted_anim;
-	  unsigned short hit_sound;
-	  unsigned short miss_sound;
+  Core::Dice damage_dice;
 
-	  bool two_handed;
+  bool projectile;
+  unsigned short projectile_type;
+  unsigned short projectile_anim;
+  unsigned short projectile_sound;
+  Core::UACTION projectile_action;
+  Core::UACTION anim;
+  Core::UACTION mounted_anim;
+  unsigned short hit_sound;
+  unsigned short miss_sound;
 
-	  unsigned short minrange;
-	  unsigned short maxrange;
-	};
-  }
+  bool two_handed;
+
+  unsigned short minrange;
+  unsigned short maxrange;
+};
+}
 }
 #endif

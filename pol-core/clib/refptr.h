@@ -28,10 +28,10 @@
 class ref_counted
 {
   // Construction
- protected:
+protected:
   ref_counted();
 
- public:
+public:
   // Operations
   unsigned int add_ref();
   unsigned int release();
@@ -40,7 +40,7 @@ class ref_counted
   unsigned int instance() const;
 #endif
   // Representation
- protected:
+protected:
   std::atomic<unsigned int> _count;
 #if REFPTR_DEBUG
   unsigned int _cumulative_references;
@@ -48,9 +48,9 @@ class ref_counted
   static unsigned int _ctor_calls;
 #endif
 
- private:  // not implemented
-  ref_counted& operator=( const ref_counted& );
-  ref_counted( const ref_counted& );
+private:  // not implemented
+  ref_counted& operator=( const ref_counted&);
+  ref_counted( const ref_counted&);
 };
 
 // **** ref_ptr class, assuming T implements ref_counted interface
@@ -62,7 +62,7 @@ template <class T>
 class ref_ptr
 {
   // Construction
- public:
+public:
   explicit ref_ptr( T* ptr = 0 );
   ref_ptr( const ref_ptr& rptr );
   ~ref_ptr();
@@ -91,21 +91,21 @@ class ref_ptr
   void set( T* ptr );
   void clear();
 
- protected:
+protected:
   void add_ref();
   void release();
 
   // Representation
- private:
+private:
   std::atomic<T*> _ptr;
 };
 
 inline ref_counted::ref_counted()
-    : _count( 0 )
+  : _count( 0 )
 #if REFPTR_DEBUG
-      ,
-      _cumulative_references( 0 ),
-      _instance( ++_ctor_calls )
+  ,
+  _cumulative_references( 0 ),
+  _instance( ++_ctor_calls )
 #endif
 {
 }

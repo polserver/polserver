@@ -14,61 +14,64 @@
 #include <string>
 #include <vector>
 
-namespace Pol {
-  namespace Clib {
-	class ConfigElem;
-  }
-  namespace Core {
-	class ExportScript;
+namespace Pol
+{
+namespace Clib
+{
+class ConfigElem;
+}
+namespace Core
+{
+class ExportScript;
 
-	class UoClientGeneral
-	{
-	public:
-	  void check( std::string& var, const char* tag, const char* deflt );
-      size_t estimateSize() const;
+class UoClientGeneral
+{
+public:
+  void check( std::string& var, const char* tag, const char* deflt );
+  size_t estimateSize() const;
 
-	public:
-	  ~UoClientGeneral();
+public:
+  ~UoClientGeneral();
 
-	  class Mapping
-	  {
-	  public:
-		bool any;
-		std::string name;
-		unsigned id;
-        size_t estimateSize() const;
-	  };
+  class Mapping
+  {
+  public:
+    bool any;
+    std::string name;
+    unsigned id;
+    size_t estimateSize() const;
+  };
 
-	  Mapping strength;
-	  Mapping intelligence;
-	  Mapping dexterity;
+  Mapping strength;
+  Mapping intelligence;
+  Mapping dexterity;
 
-	  Mapping hits;
-	  Mapping stamina;
-	  Mapping mana;
-	  unsigned short maxskills; //dave changed 3/15/03, support configurable max skillid
-	  ExportScript* method_script;
-	};
+  Mapping hits;
+  Mapping stamina;
+  Mapping mana;
+  unsigned short maxskills; //dave changed 3/15/03, support configurable max skillid
+  ExportScript* method_script;
+};
 
-	class UoClientProtocol
-	{
-	public:
-	  UoClientProtocol();
-      size_t estimateSize() const;
-	  bool EnableFlowControlPackets;
-	};
+class UoClientProtocol
+{
+public:
+  UoClientProtocol();
+  size_t estimateSize() const;
+  bool EnableFlowControlPackets;
+};
 
-	class UoClientListener
-	{
-	public:
-	  UoClientListener( Clib::ConfigElem& elem );
-      size_t estimateSize() const;
+class UoClientListener
+{
+public:
+  UoClientListener( Clib::ConfigElem& elem );
+  size_t estimateSize() const;
 
-	  Crypt::TCryptInfo encryption;
-	  unsigned short port;
-	  bool aosresist;
-	  bool sticky;
-	};
-  }
+  Crypt::TCryptInfo encryption;
+  unsigned short port;
+  bool aosresist;
+  bool sticky;
+};
+}
 }
 #endif

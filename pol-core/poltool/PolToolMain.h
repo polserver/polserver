@@ -3,22 +3,26 @@
 
 #include <clib/Program/ProgramMain.h>
 
-namespace Pol{ namespace Clib{
+namespace Pol
+{
+namespace Clib
+{
 
 class PolToolMain : public ProgramMain
 {
 public:
-	PolToolMain();
-    virtual ~PolToolMain();
+  PolToolMain();
+  virtual ~PolToolMain();
 
 protected:
-    virtual int main();
+  virtual int main();
 
 private:
-    virtual void showHelp();
-    int poltool();
+  virtual void showHelp();
+  int poltool();
 };
 
-}} // namespaces
+}
+} // namespaces
 
 #endif // POL_TOOL_MAIN_H

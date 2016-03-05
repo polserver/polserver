@@ -12,35 +12,37 @@
 
 #include <boost/noncopyable.hpp>
 
-namespace Pol {
-namespace Core {
+namespace Pol
+{
+namespace Core
+{
 
 
-  class SettingsManager : boost::noncopyable
-  {
-  public:
-	  SettingsManager();
-	  ~SettingsManager();
+class SettingsManager : boost::noncopyable
+{
+public:
+  SettingsManager();
+  ~SettingsManager();
 
-	  void deinitialize();
-      size_t estimateSize() const;
+  void deinitialize();
+  size_t estimateSize() const;
 
-	  CombatConfig combat_config;
-	  Watch watch;
-	  ExternalObject extobj;
-	  Party_Cfg party_cfg;
-	  ServSpecOpt ssopt;
-	  PolVar polvar;
+  CombatConfig combat_config;
+  Watch watch;
+  ExternalObject extobj;
+  Party_Cfg party_cfg;
+  ServSpecOpt ssopt;
+  PolVar polvar;
 
-	  MovementCost movecost_walking;
-	  MovementCost movecost_running;
-	  MovementCost movecost_walking_mounted;
-	  MovementCost movecost_running_mounted;
+  MovementCost movecost_walking;
+  MovementCost movecost_running;
+  MovementCost movecost_walking_mounted;
+  MovementCost movecost_running_mounted;
 
-	  RepSys_Cfg repsys_cfg;
-  };
+  RepSys_Cfg repsys_cfg;
+};
 
-  extern SettingsManager settingsManager;
+extern SettingsManager settingsManager;
 }
 }
 #endif

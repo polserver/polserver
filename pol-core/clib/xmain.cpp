@@ -16,30 +16,32 @@
 #include <stdexcept>
 
 
-namespace Pol {
-  namespace Clib  {
+namespace Pol
+{
+namespace Clib
+{
 
-    //TODO: create a system.cpp/h and put the following function with some other features in a separate static class "system"
-    size_t getCurrentMemoryUsage( )
-    {
+//TODO: create a system.cpp/h and put the following function with some other features in a separate static class "system"
+size_t getCurrentMemoryUsage( )
+{
 #if defined(_WIN32)
-      PROCESS_MEMORY_COUNTERS info;
-      GetProcessMemoryInfo( GetCurrentProcess( ), &info, sizeof( info ) );
-      return (size_t)info.WorkingSetSize;
+  PROCESS_MEMORY_COUNTERS info;
+  GetProcessMemoryInfo( GetCurrentProcess( ), &info, sizeof( info ) );
+  return (size_t)info.WorkingSetSize;
 
 #else
-      long rss = 0L;
-      FILE* fp = NULL;
-      if ( ( fp = fopen( "/proc/self/statm", "r" ) ) == NULL )
-        return (size_t)0L;		/* Can't open? */
-      if ( fscanf( fp, "%*s%ld", &rss ) != 1 )
-      {
-        fclose( fp );
-        return (size_t)0L;		/* Can't read? */
-      }
-      fclose( fp );
-      return (size_t)rss * (size_t)sysconf( _SC_PAGESIZE );
-#endif
-    }
+  long rss = 0L;
+  FILE* fp = NULL;
+  if ( ( fp = fopen( "/proc/self/statm", "r" ) ) == NULL )
+    return (size_t)0L;    /* Can't open? */
+  if ( fscanf( fp, "%*s%ld", &rss ) != 1 )
+  {
+    fclose( fp );
+    return (size_t)0L;    /* Can't read? */
   }
+  fclose( fp );
+  return (size_t)rss * (size_t)sysconf( _SC_PAGESIZE );
+#endif
+}
+}
 }

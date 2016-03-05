@@ -16,57 +16,59 @@
 #include <dirent.h>
 #endif
 
-namespace Pol {
-  namespace Clib {
-    class DirList
-	{
-	public:
-	  explicit DirList( const char* path );
-	  explicit DirList();
-	  ~DirList();
+namespace Pol
+{
+namespace Clib
+{
+class DirList
+{
+public:
+  explicit DirList( const char* path );
+  explicit DirList();
+  ~DirList();
 
-	  void open( const char* filespec );
+  void open( const char* filespec );
 
-	  bool at_end() const;
-	  std::string name() const;
-	  void next();
+  bool at_end() const;
+  std::string name() const;
+  void next();
 
 
-	private:
+private:
 
 #ifdef _WIN32
-	  WIN32_FIND_DATA fd_;
-	  HANDLE hfd_;
+  WIN32_FIND_DATA fd_;
+  HANDLE hfd_;
 #else
-	  DIR* dir_;
-	  std::string cur_name_;
+  DIR* dir_;
+  std::string cur_name_;
 #endif
 
 
-	private: // not implemented
-	  DirList( const DirList& );
-	  DirList& operator=( const DirList& );
-	};
+private: // not implemented
+  DirList( const DirList&);
+  DirList& operator=( const DirList&);
+};
 
-	std::string normalized_dir_form( const std::string& str );
-	std::string curdir();
+std::string normalized_dir_form( const std::string& str );
+std::string curdir();
 
-	class PushDir
-	{
-	public:
-	  PushDir( const char* dir );
-	  ~PushDir();
+class PushDir
+{
+public:
+  PushDir( const char* dir );
+  ~PushDir();
 
-	  bool ok() const;
+  bool ok() const;
 
-	private:
-	  bool ok_;
+private:
+  bool ok_;
 #ifdef MAX_PATH
-	  char savedir_[MAX_PATH];
+  char savedir_[MAX_PATH];
 #else
-	  char savedir_[ 256 ];
+  char savedir_[ 256 ];
 #endif
-	};
-  }
+};
+}
 }
 #endif

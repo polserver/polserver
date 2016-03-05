@@ -13,56 +13,59 @@
 #include <string>
 #include <vector>
 
-namespace Pol {
-  namespace Plib {
-	class Package;
-  }
-  namespace Core {
-	
-	class ExportScript
-	{
-	public:
-	  ExportScript( const Plib::Package* pkg, std::string scriptname );
-	  ExportScript( const ScriptDef& isd );
-	  bool Initialize();
-	  const std::string& scriptname() const;
-	  bool FindExportedFunction( const std::string& name, unsigned args, unsigned& PC ) const;
-	  bool FindExportedFunction( const char* name, unsigned args, unsigned& PC ) const;
+namespace Pol
+{
+namespace Plib
+{
+class Package;
+}
+namespace Core
+{
 
-	  bool call( unsigned PC,
-				 Bscript::BObjectImp* p0 ); // throw()
-	  bool call( unsigned PC,
-				 Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
-	  bool call( unsigned PC,
-				 Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
-	  bool call( unsigned PC,
-				 Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2, Bscript::BObjectImp* p3 ); // throw()
+class ExportScript
+{
+public:
+  ExportScript( const Plib::Package* pkg, std::string scriptname );
+  ExportScript( const ScriptDef& isd );
+  bool Initialize();
+  const std::string& scriptname() const;
+  bool FindExportedFunction( const std::string& name, unsigned args, unsigned& PC ) const;
+  bool FindExportedFunction( const char* name, unsigned args, unsigned& PC ) const;
 
-	  std::string call_string( unsigned PC,
-							   Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
-	  std::string call_string( unsigned PC,
-							   Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
+  bool call( unsigned PC,
+             Bscript::BObjectImp* p0 ); // throw()
+  bool call( unsigned PC,
+             Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
+  bool call( unsigned PC,
+             Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
+  bool call( unsigned PC,
+             Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2, Bscript::BObjectImp* p3 ); // throw()
 
-	  int call_long( unsigned PC, Bscript::BObjectImp* p0 ); // throw()
-	  int call_long( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
+  std::string call_string( unsigned PC,
+                           Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
+  std::string call_string( unsigned PC,
+                           Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 ); // throw()
 
-	  Bscript::BObjectImp* call( unsigned PC, Bscript::BObjectImp* p0, std::vector<Bscript::BObjectRef>& pmore );
-	  Bscript::BObject call( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImpRefVec& pmore );
+  int call_long( unsigned PC, Bscript::BObjectImp* p0 ); // throw()
+  int call_long( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 ); // throw()
 
-	  Bscript::BObject call_object( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );
-	  Bscript::BObject call_object( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 );
+  Bscript::BObjectImp* call( unsigned PC, Bscript::BObjectImp* p0, std::vector<Bscript::BObjectRef>& pmore );
+  Bscript::BObject call( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImpRefVec& pmore );
 
-	  void SaveStack( Bscript::BackupStruct& backup );
-	  void LoadStack( Bscript::BackupStruct& backup );
+  Bscript::BObject call_object( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );
+  Bscript::BObject call_object( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2 );
 
-      size_t estimateSize() const;
-	  friend class SystemHook;
+  void SaveStack( Bscript::BackupStruct& backup );
+  void LoadStack( Bscript::BackupStruct& backup );
 
-	private:
-	  ScriptDef sd;
-	  UOExecutor uoexec;
-	};
-  }
+  size_t estimateSize() const;
+  friend class SystemHook;
+
+private:
+  ScriptDef sd;
+  UOExecutor uoexec;
+};
+}
 }
 
 #endif

@@ -10,43 +10,45 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-namespace Pol {
-  namespace Clib {
-	class timestamp_streambuf : public std::streambuf
-	{
-	public:
-	  timestamp_streambuf( const char* tag );
-	  void set_streambuf( streambuf* isb );
+namespace Pol
+{
+namespace Clib
+{
+class timestamp_streambuf : public std::streambuf
+{
+public:
+  timestamp_streambuf( const char* tag );
+  void set_streambuf( streambuf* isb );
 
-	protected:
-	  virtual int overflow( int ch ) POL_OVERRIDE;
-	  virtual int sync() POL_OVERRIDE;
+protected:
+  virtual int overflow( int ch ) POL_OVERRIDE;
+  virtual int sync() POL_OVERRIDE;
 
-	private:
-	  streambuf* sb;
-	  bool at_newline;
-	  time_t last_timestamp;
-	  std::string tag;
-	  bool tee_cout;
+private:
+  streambuf* sb;
+  bool at_newline;
+  time_t last_timestamp;
+  std::string tag;
+  bool tee_cout;
 
-	  friend class LogFile;
-	};
+  friend class LogFile;
+};
 
-	class LogFile : public std::ostream
-	{
-	public:
-	  LogFile( const char* tag );
-	  ~LogFile();
+class LogFile : public std::ostream
+{
+public:
+  LogFile( const char* tag );
+  ~LogFile();
 
-	  bool open( const char* filename );
-	  void close();
-	protected:
-	  timestamp_streambuf* tsb();
+  bool open( const char* filename );
+  void close();
+protected:
+  timestamp_streambuf* tsb();
 
-	private:
-	  filebuf fb;
-	};
-  }
+private:
+  filebuf fb;
+};
+}
 }
 
 #endif

@@ -9,49 +9,54 @@
 #include <string>
 #include <vector>
 
-namespace Pol {
-  namespace Bscript {
-    class ObjArray;
-  }
-  namespace Clib {
-	class ConfigElem;
-  }
-  namespace Plib {
-	class Package;
-  }
-  namespace Core {
-	
-	class CmdLevel
-	{
-	public:
-	  CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum );
-      size_t estimateSize() const;
+namespace Pol
+{
+namespace Bscript
+{
+class ObjArray;
+}
+namespace Clib
+{
+class ConfigElem;
+}
+namespace Plib
+{
+class Package;
+}
+namespace Core
+{
 
-	  bool matches( const std::string& name ) const;
-	  void add_searchdir( Plib::Package* pkg, const std::string& dir );
-	  void add_searchdir_front( Plib::Package* pkg, const std::string& dir );
+class CmdLevel
+{
+public:
+  CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum );
+  size_t estimateSize() const;
 
-	  std::string name;
-	  unsigned char cmdlevel;
+  bool matches( const std::string& name ) const;
+  void add_searchdir( Plib::Package* pkg, const std::string& dir );
+  void add_searchdir_front( Plib::Package* pkg, const std::string& dir );
 
-	  struct SearchDir
-	  {
-		Plib::Package* pkg;
-		std::string dir;
-	  };
+  std::string name;
+  unsigned char cmdlevel;
 
-	  typedef std::vector< SearchDir > SearchList;
-	  SearchList searchlist;
+  struct SearchDir
+  {
+    Plib::Package* pkg;
+    std::string dir;
+  };
 
-	  typedef std::vector< std::string > Aliases;
-	  Aliases aliases;
-	};
+  typedef std::vector< SearchDir > SearchList;
+  SearchList searchlist;
 
-	CmdLevel* find_cmdlevel( const char* name );
-	CmdLevel* FindCmdLevelByAlias( const std::string& str );
+  typedef std::vector< std::string > Aliases;
+  Aliases aliases;
+};
 
-	Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num );
+CmdLevel* find_cmdlevel( const char* name );
+CmdLevel* FindCmdLevelByAlias( const std::string& str );
 
-  }
+Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num );
+
+}
 }
 #endif

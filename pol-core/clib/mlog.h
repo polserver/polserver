@@ -12,11 +12,13 @@
 #include "pol_global_config.h"
 #endif
 
-namespace Pol {
-  namespace Clib {
+namespace Pol
+{
+namespace Clib
+{
 #ifdef MEMORYLEAK
-	extern bool memoryleak_debug;
+extern bool memoryleak_debug;
 #endif
 
-  }
+}
 }

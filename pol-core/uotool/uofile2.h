@@ -4,11 +4,13 @@
 
 #include "../clib/rawtypes.h"
 
-namespace Pol {
-  namespace Core {
-  	  extern void staticsmax();
-  	  extern bool iswater( u16 objtype );
-  }
+namespace Pol
+{
+namespace Core
+{
+extern void staticsmax();
+extern bool iswater( u16 objtype );
+}
 }
 
 

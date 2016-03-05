@@ -15,43 +15,45 @@
 #include <string>
 
 #ifndef INC_PASSERT
-#	define INC_PASSERT 0
+# define INC_PASSERT 0
 #endif
 
 #ifndef INC_PASSERT_PARANOID
-#	ifdef NDEBUG
-#		define INC_PASSERT_PARANOID 0
-#	else
-#		define INC_PASSERT_PARANOID INC_PASSERT
-#	endif
+# ifdef NDEBUG
+#   define INC_PASSERT_PARANOID 0
+# else
+#   define INC_PASSERT_PARANOID INC_PASSERT
+# endif
 #endif
-namespace Pol {
-  namespace Clib {
-    extern bool passert_disabled;
+namespace Pol
+{
+namespace Clib
+{
+extern bool passert_disabled;
 
-    // what to do on an assertion failure:
-    extern bool passert_dump_stack;
-    extern bool passert_shutdown;
-    extern bool passert_abort;
-    extern bool passert_nosave;
-    extern bool passert_shutdown_due_to_assertion;
+// what to do on an assertion failure:
+extern bool passert_dump_stack;
+extern bool passert_shutdown;
+extern bool passert_abort;
+extern bool passert_nosave;
+extern bool passert_shutdown_due_to_assertion;
 
-    extern std::string scripts_thread_script;
-    extern unsigned scripts_thread_scriptPC;
+extern std::string scripts_thread_script;
+extern unsigned scripts_thread_scriptPC;
 
-    //#if !defined(INC_PASSERT) && defined(NDEBUG)
-    //#define INC_PASSERT 0
-    //#elif !defined(INC_PASSERT) && !defined(NDEBUG)
-    //#define INC_PASSERT 1
-    //#endif
+//#if !defined(INC_PASSERT) && defined(NDEBUG)
+//#define INC_PASSERT 0
+//#elif !defined(INC_PASSERT) && !defined(NDEBUG)
+//#define INC_PASSERT 1
+//#endif
 
 #undef  passert
 
-	void force_backtrace(bool complete = false);
+void force_backtrace(bool complete = false);
 
-    POL_NORETURN void passert_failed( const char *expr, const char *file, unsigned line );
-    POL_NORETURN void passert_failed( const char *expr, const std::string& reason, const char *file, unsigned line );
-  }
+POL_NORETURN void passert_failed( const char* expr, const char* file, unsigned line );
+POL_NORETURN void passert_failed( const char* expr, const std::string& reason, const char* file, unsigned line );
+}
 #if  INC_PASSERT
 
 /**

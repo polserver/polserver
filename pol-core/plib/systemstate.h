@@ -15,40 +15,43 @@
 #include "../pol/polcfg.h"
 
 
-namespace Pol {
-  namespace Core {
-	class Tile;
-  }
-  namespace Plib {
-	class Package;
+namespace Pol
+{
+namespace Core
+{
+class Tile;
+}
+namespace Plib
+{
+class Package;
 
-	typedef std::vector<Package*> Packages;
-	typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
+typedef std::vector<Package*> Packages;
+typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
 
-	class SystemState : boost::noncopyable
-	{
-	public:
-	  SystemState();
-	  ~SystemState();
-	  void deinitialize();
+class SystemState : boost::noncopyable
+{
+public:
+  SystemState();
+  ~SystemState();
+  void deinitialize();
 
-	  Packages packages;
-	  PackagesByName packages_byname;
+  Packages packages;
+  PackagesByName packages_byname;
 
-	  bool accounts_txt_dirty;
-	  struct stat accounts_txt_stat;
-	  
-	  Core::PolConfig config;
-	  Core::Tile *tile;
-	  bool tiles_loaded;
+  bool accounts_txt_dirty;
+  struct stat accounts_txt_stat;
 
-      size_t estimatedSize() const;
+  Core::PolConfig config;
+  Core::Tile* tile;
+  bool tiles_loaded;
 
-	private:
-	
-	};
+  size_t estimatedSize() const;
 
-	extern SystemState systemstate;
-  }
+private:
+
+};
+
+extern SystemState systemstate;
+}
 }
 #endif

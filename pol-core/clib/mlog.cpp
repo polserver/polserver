@@ -8,11 +8,13 @@
 
 
 #include "mlog.h"
-namespace Pol {
-  namespace Clib {
+namespace Pol
+{
+namespace Clib
+{
 #ifdef MEMORYLEAK
-	bool memoryleak_debug = false;
+bool memoryleak_debug = false;
 #endif
-  }
+}
 }
 

@@ -12,9 +12,9 @@
 #ifndef __UOBJ_H
 #define __UOBJ_H
 
-#define UOBJ_HSA_MAX			0xFFFF
-#define UOBJ_SA_MAX				0x7FFF
-#define UOBJ_DEFAULT_MAX		0x3FFF
+#define UOBJ_HSA_MAX      0xFFFF
+#define UOBJ_SA_MAX       0x7FFF
+#define UOBJ_DEFAULT_MAX    0x3FFF
 
 #define GRAPHIC_NODRAW          0x0001
 
@@ -78,7 +78,7 @@
 #define UOBJ_RED_DRAGON          0x003B
 #define UOBJ_SMALL_GREEN_DRAGON  0x003C
 #define UOBJ_SMALL_RED_DRAGON    0x003D
- 
+
 #define UOBJ_SEA_SERPENT         0x0096
 #define UOBJ_DOLPHIN             0x0097
 
@@ -162,16 +162,16 @@
 #define UOBJ_TROUSERS_SHORT      0x01AE
 #define UOBJ_TROUSERS_LONG       0x01AF
 
-#define UOBJ_FLOATING_SHIRT      0x01b2 
-#define UOBJ_FLOATING_SUIT       0x01b3 
+#define UOBJ_FLOATING_SHIRT      0x01b2
+#define UOBJ_FLOATING_SUIT       0x01b3
 
-#define UOBJ_WALKING_DRESS       0x01bf 
+#define UOBJ_WALKING_DRESS       0x01bf
 #define UOBJ_WALKING_FANCY_DRESS 0x01c0
- 
-#define UOBJ_WALKING_KILT        0x01c7 
 
-#define UOBJ_WALKING_FULL_APRON  0x01d1 
-#define UOBJ_WALKING_HALF_APRON  0x01d2 
+#define UOBJ_WALKING_KILT        0x01c7
+
+#define UOBJ_WALKING_FULL_APRON  0x01d1
+#define UOBJ_WALKING_HALF_APRON  0x01d2
 /*
 01 f4 - Lit Lantern
 01 f5 - Lit Torch
@@ -194,20 +194,20 @@
 #define UOBJ_ROLLED_MAP1            0x14ED
 #define UOBJ_ROLLED_MAP2            0x14EE
 
-#define UOBJ_SCROLL__LOWEST			0x1F2D
-#define UOBJ_SCROLL__HIGHEST		0x1F6C
+#define UOBJ_SCROLL__LOWEST     0x1F2D
+#define UOBJ_SCROLL__HIGHEST    0x1F6C
 
-#define UOBJ_GAMEMASTER			 0x03DB
+#define UOBJ_GAMEMASTER      0x03DB
 
-#define UOBJ_BACKPACK				0x0E75
-#define UOBJ_BARREL					0x0E77
-#define UOBJ_SILVER_CHEST			0x0E7C
-#define UOBJ_BRASS_BOX				0x0E80
+#define UOBJ_BACKPACK       0x0E75
+#define UOBJ_BARREL         0x0E77
+#define UOBJ_SILVER_CHEST     0x0E7C
+#define UOBJ_BRASS_BOX        0x0E80
 
 
-#define UOBJ_MORTAR_AND_PESTLE		0x0E9B
-#define UOBJ_GOLD_COIN				0x0EED
-#define UOBJ_SPELLBOOK				0x0EFA
+#define UOBJ_MORTAR_AND_PESTLE    0x0E9B
+#define UOBJ_GOLD_COIN        0x0EED
+#define UOBJ_SPELLBOOK        0x0EFA
 
 // Weapons
 #define UOBJ_LONGSWORD              0x0F5E
@@ -215,8 +215,8 @@
 
 
 #define UOBJ_DEATH_ROBE             0x1F03
-#define UOBJ_CORPSE					0x2006
-#define UOBJ_DEATH_SHROUD			0x204E
+#define UOBJ_CORPSE         0x2006
+#define UOBJ_DEATH_SHROUD     0x204E
 
 
 
@@ -224,7 +224,7 @@
 #define UOBJ_ITEM__LOWEST           0x0002
 
 // Define the Default ( also minimun max_objtype allowed ) pol.cfg now uses max_objtype to let people define the maximum
-#define EXTOBJ_HIGHEST_DEFAULT		0x20000
+#define EXTOBJ_HIGHEST_DEFAULT    0x20000
 
 
 #endif

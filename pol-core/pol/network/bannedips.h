@@ -10,14 +10,16 @@
 #ifndef BANNEDIPS_H
 #define BANNEDIPS_H
 
-namespace Pol {
-  namespace Network {
-	struct IPRule
-	{
-	  unsigned int ipMatch;
-	  unsigned int ipMask;
-	};
-  }
+namespace Pol
+{
+namespace Network
+{
+struct IPRule
+{
+  unsigned int ipMatch;
+  unsigned int ipMask;
+};
+}
 }
 
 #endif

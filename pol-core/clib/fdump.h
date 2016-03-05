@@ -9,11 +9,13 @@
 
 #include "../../lib/format/format.h"
 
-namespace Pol {
-  namespace Clib {
+namespace Pol
+{
+namespace Clib
+{
 
-    void fdump( fmt::Writer& writer, const void *data, int len );
-  }
+void fdump( fmt::Writer& writer, const void* data, int len );
+}
 }
 
 

@@ -8,42 +8,44 @@
 #include "../clib/strutil.h"
 #include "../clib/passert.h"
 
-namespace Pol {
-  namespace Plib {
-	InMemoryMapServer::InMemoryMapServer( const RealmDescriptor& descriptor ) :
-	  MapServer( descriptor )
-	{
-	  unsigned n_blocks = ( _descriptor.width >> MAPBLOCK_SHIFT ) * ( _descriptor.height >> MAPBLOCK_SHIFT );
+namespace Pol
+{
+namespace Plib
+{
+InMemoryMapServer::InMemoryMapServer( const RealmDescriptor& descriptor ) :
+  MapServer( descriptor )
+{
+  unsigned n_blocks = ( _descriptor.width >> MAPBLOCK_SHIFT ) * ( _descriptor.height >> MAPBLOCK_SHIFT );
 
-	  Clib::BinaryFile mapfile( descriptor.path( "base.dat" ), std::ios::in );
+  Clib::BinaryFile mapfile( descriptor.path( "base.dat" ), std::ios::in );
 
-	  _mapblocks.resize( n_blocks );
+  _mapblocks.resize( n_blocks );
 
-	  mapfile.Read( &_mapblocks[0], n_blocks );
-	}
+  mapfile.Read( &_mapblocks[0], n_blocks );
+}
 
-	InMemoryMapServer::~InMemoryMapServer()
-	{}
+InMemoryMapServer::~InMemoryMapServer()
+{}
 
-	MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) const
-	{
-	  passert( x < _descriptor.width && y < _descriptor.height );
+MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) const
+{
+  passert( x < _descriptor.width && y < _descriptor.height );
 
-	  unsigned short xblock = x >> MAPBLOCK_SHIFT;
-	  unsigned short xcell = x &   MAPBLOCK_CELLMASK;
-	  unsigned short yblock = y >> MAPBLOCK_SHIFT;
-	  unsigned short ycell = y &   MAPBLOCK_CELLMASK;
+  unsigned short xblock = x >> MAPBLOCK_SHIFT;
+  unsigned short xcell = x &   MAPBLOCK_CELLMASK;
+  unsigned short yblock = y >> MAPBLOCK_SHIFT;
+  unsigned short ycell = y &   MAPBLOCK_CELLMASK;
 
-	  int block_index = yblock * ( _descriptor.width >> MAPBLOCK_SHIFT ) + xblock;
-	  const MAPBLOCK& mapblock = _mapblocks[block_index];
-	  return mapblock.cell[xcell][ycell];
-	}
+  int block_index = yblock * ( _descriptor.width >> MAPBLOCK_SHIFT ) + xblock;
+  const MAPBLOCK& mapblock = _mapblocks[block_index];
+  return mapblock.cell[xcell][ycell];
+}
 
-    size_t InMemoryMapServer::sizeEstimate( ) const
-    {
-      size_t size = sizeof( *this ) + MapServer::sizeEstimate();
-      size += 3 * sizeof(MAPBLOCK*)+_mapblocks.capacity() * sizeof( MAPBLOCK );
-      return size;
-    }
-  }
+size_t InMemoryMapServer::sizeEstimate( ) const
+{
+  size_t size = sizeof( *this ) + MapServer::sizeEstimate();
+  size += 3 * sizeof(MAPBLOCK*)+_mapblocks.capacity() * sizeof( MAPBLOCK );
+  return size;
+}
+}
 }

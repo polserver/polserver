@@ -49,7 +49,7 @@
 
 // explicit included since needed anyway for later includes
 #include "compileassert.h"
-#include "compilerspecifics.h" 
+#include "compilerspecifics.h"
 #include "Debugging/LogSink.h"
 #include "message_queue.h"
 
