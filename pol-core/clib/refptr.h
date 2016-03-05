@@ -17,6 +17,8 @@
 #ifndef __REFPTR_H
 #define __REFPTR_H
 
+#include <atomic>
+
 // **** base class for ref counted classes
 
 #define REFPTR_DEBUG 0
@@ -39,7 +41,7 @@ class ref_counted
 #endif
   // Representation
  protected:
-  unsigned int _count;
+  std::atomic<unsigned int> _count;
 #if REFPTR_DEBUG
   unsigned int _cumulative_references;
   unsigned int _instance;
@@ -95,7 +97,7 @@ class ref_ptr
 
   // Representation
  private:
-  T* _ptr;
+  std::atomic<T*> _ptr;
 };
 
 inline ref_counted::ref_counted()
@@ -139,7 +141,7 @@ ref_ptr<T>::ref_ptr( T* ptr ) : _ptr( ptr )
 #endif
 }
 template <class T>
-ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr._ptr )
+ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr.get() )
 {
   add_ref();
 #if REFPTR_DEBUG
@@ -241,7 +243,7 @@ template <class T>
 ref_ptr<T>& ref_ptr<T>::operator=( const ref_ptr<T>& rptr )
 {
   release();
-  _ptr = rptr._ptr;
+  _ptr = rptr.get();
   add_ref();
 
   return *this;
@@ -262,21 +264,22 @@ void ref_ptr<T>::clear()
 template <class T>
 void ref_ptr<T>::add_ref()
 {
-  if ( _ptr )
+  if ( _ptr.load() )
   {
-    _ptr->add_ref( REFERER_PARAM( this ) );
+    _ptr.load()->add_ref( REFERER_PARAM( this ) );
   }
 }
 template <class T>
 void ref_ptr<T>::release()
 {
-  if ( _ptr )
+  T* Pointee = _ptr.load();
+  if ( Pointee )
   {
-    if ( 0 == _ptr->release( REFERER_PARAM( this ) ) )
+    if ( 0 == Pointee->release( REFERER_PARAM( this ) ) )
     {
-      delete _ptr;
+      _ptr = 0;
+      delete Pointee;
     }
-    _ptr = 0;
   }
 }
 

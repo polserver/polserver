@@ -287,19 +287,22 @@ namespace Pol
                         CLIENT_CHECKPOINT(11);
                         PolLock lck;
 
-                        client->chr->disconnect_cleanup();
-                        client->gd->clear();
-                        client->chr->connected = false;
-                        ScriptDef sd;
-                        sd.quickconfig("scripts/misc/logofftest.ecl");
-                        if (sd.exists())
-                        {
-                            CLIENT_CHECKPOINT(12);
-                            Bscript::BObject bobj(run_script_to_completion(sd, new Module::ECharacterRefObjImp(client->chr)));
-                            if (bobj.isa(Bscript::BObjectImp::OTLong))
+                        if ( client->chr ) {
+
+                            client->chr->disconnect_cleanup();
+                            client->gd->clear();
+                            client->chr->connected = false;
+                            ScriptDef sd;
+                            sd.quickconfig( "scripts/misc/logofftest.ecl" );
+                            if ( sd.exists() )
                             {
-                                const Bscript::BLong* blong = static_cast<const Bscript::BLong*>(bobj.impptr());
-                                seconds_wait = blong->value();
+                                CLIENT_CHECKPOINT( 12 );
+                                Bscript::BObject bobj(run_script_to_completion(sd, new Module::ECharacterRefObjImp(client->chr)));
+                                if (bobj.isa(Bscript::BObjectImp::OTLong))
+                                {
+                                    const Bscript::BLong* blong = static_cast<const Bscript::BLong*>(bobj.impptr());
+                                    seconds_wait = blong->value();
+                                }
                             }
                         }
                     }
@@ -341,7 +344,7 @@ namespace Pol
             }
 
               // queue delete of client ptr see method doc for reason
-              Core::networkManager.clientTransmit->QueueDisconnection( client );
+              Core::networkManager.clientTransmit->QueueDelete( client );
               return false;
         }
 

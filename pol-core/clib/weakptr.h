@@ -11,6 +11,7 @@
 #define __WEAKPTR_H
 
 #include "refptr.h"
+#include <atomic>
 
 //
 //    weak_ptr_owner<T>
@@ -36,7 +37,7 @@ class weak_ptr_link : public ref_counted
   void set_weakptr( T* ptr );
 
  private:
-  T* _ptr;
+  std::atomic<T*> _ptr;
 };
 
 template <class T>
