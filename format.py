@@ -17,6 +17,7 @@ class Formatter:
 
 	ASTYLE_OPTIONS = (
 		'--indent=spaces=2',
+		'--indent-col1-comments',
 		'--convert-tabs',
 		'--style=allman',
 		'--align-pointer=type',
