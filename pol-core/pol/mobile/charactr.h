@@ -528,13 +528,6 @@ public:
   void die();
   bool dead() const;
   bool check_skill( Core::USKILLID skillid, int difficulty, unsigned short pointvalue );
-  void award_raw_skillpoints( Core::USKILLID skillid, unsigned short points );
-  unsigned short get_skill( Core::USKILLID skillid ) const;
-  unsigned short get_base_skill( Core::USKILLID skillid ) const;
-  unsigned int get_raw_skill( Core::USKILLID skillid ) const;
-  void set_raw_skill( Core::USKILLID skillid, unsigned int raw_value );
-
-  void recalc_skill( int skillnum );
 
   const AttributeValue& attribute( unsigned attrid ) const;
   AttributeValue& attribute( unsigned attrid );
