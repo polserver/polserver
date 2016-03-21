@@ -24,15 +24,23 @@ namespace Core
 {
 void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
 {
-  if ( client->chr->menu == NULL )
+  passert_paranoid( client );
+
+  Menu* active_menu = nullptr;
+  if ( client->chr && client->chr->menu.exists() )
+  {
+    active_menu = client->chr->menu.get_weakptr();
+  }
+
+  if ( active_menu == nullptr )
   {
     POLLOG.Format( "{}/{} tried to use a menu, but none was active.\n" ) << client->acct->name()
                                                                          << client->chr->name();
     return;
   }
-
+  
   u16 menu_id = cfBEu16( msg->menu_id );
-  if ( client->chr->menu->menu_id != menu_id )
+  if ( active_menu->menu_id != menu_id )
   {
     INFO_PRINT << "Client tried to use a menu he wasn't entitled to\n";
     // LOGME illegal menu selection
@@ -40,9 +48,7 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
     return;
   }
 
-  Menu* menu = client->chr->menu;
-
-  client->chr->menu = NULL;
+  client->chr->menu.clear();
 
   if ( msg->choice == 0 )  // client cancelled menu
   {
@@ -51,7 +57,7 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
   }
 
   u16 choice = cfBEu16( msg->choice );
-  if ( choice == 0 || choice > menu->menuitems_.size() )
+  if ( choice == 0 || choice > active_menu->menuitems_.size() )
   {
     INFO_PRINT << "Client menu choice out of range\n";
     client->chr->cancel_menu();
@@ -64,16 +70,16 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
   // If this turns out not to be workable, we'll have to validate those
   // input fields, too.
 
-  MenuItem* mi = &menu->menuitems_[choice - 1];
+  MenuItem* mi = &active_menu->menuitems_[choice - 1];
   if ( mi->submenu_id )
   {
-    client->chr->menu = Menu::find_menu( mi->submenu_id );
-    send_menu( client, client->chr->menu );
+    Menu* submenu = Menu::find_menu( mi->submenu_id );
+    client->chr->menu = submenu->weakptr;
+    send_menu( client, client->chr->menu.get_weakptr() );
   }
   else
   {
     passert( client->chr->on_menu_selection );
-
     client->chr->on_menu_selection( client, mi, msg );
   }
 }

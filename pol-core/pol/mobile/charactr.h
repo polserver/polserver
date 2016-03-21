@@ -41,6 +41,7 @@
 #include "../skillid.h"
 #include "../utype.h"
 
+#include "../../clib/weakptr.h"
 #include "../../clib/strset.h"
 #include "../reftypes.h"
 #include "../pktboth.h"
@@ -840,7 +841,7 @@ public:
 public:
   DYN_PROPERTY( disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0 );
   Core::TargetCursor* tcursor2;
-  Core::Menu* menu;
+  weak_ptr<Core::Menu> menu; // TODO: Move this into the client's gamedata
   void ( *on_menu_selection )( Network::Client* client, Core::MenuItem* mi, Core::PKTIN_7D* msg );
   void ( *on_popup_menu_selection )( Network::Client* client, u32 serial, u16 id );
 

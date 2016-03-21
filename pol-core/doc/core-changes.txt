@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+03-21-2016 Nando:
+  Fixed:   Possible crashes when handling a client's response to menus
+           created with CreateMenu()
 03-02-2016 Nando:
   Changed: POL will default to use multithreading (Multithread = 1 in pol.cfg).
      Note: Multithread=0 is deprecated and likely buggy. It's possible that it doesn't

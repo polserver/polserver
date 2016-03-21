@@ -1631,7 +1631,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
     {
       if ( send_menu( chr->client, menu ) )
       {
-        chr->menu = menu;
+        chr->menu = menu->weakptr;
         chr->on_menu_selection = menu_selection_made;
         chr->client->gd->menu_selection_uoemod = this;
         menu_selection_chr = chr;

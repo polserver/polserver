@@ -4243,7 +4243,7 @@ bool Character::target_cursor_busy() const
 
 void Character::cancel_menu()
 {
-  menu = NULL;
+  menu.clear();
   if ( on_menu_selection != NULL )
     on_menu_selection( client, NULL, NULL );
   on_menu_selection = NULL;
@@ -4400,7 +4400,7 @@ size_t Character::estimatedSize() const
                 + sizeof( u32 )                                       /*last_corpse*/
                 + sizeof( GOTTEN_ITEM_TYPE )                          /*gotten_item_source*/
                 + sizeof( Core::TargetCursor* )                       /*tcursor2*/
-                + sizeof( Core::Menu* )                               /*menu*/
+                + sizeof( weak_ptr<Core::Menu> )                      /*menu*/
                 + sizeof( u16 )                                       /*_last_textcolor*/
                 + sizeof( ref_ptr<Core::WornItemsContainer> )         /*wornitems_ref*/
                 + sizeof( unsigned short )                            /*ar_*/

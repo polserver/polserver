@@ -10,6 +10,7 @@
 #ifndef __CLIB_RAWTYPES_H
 #include "../clib/rawtypes.h"
 #endif
+#include "../clib/weakptr.h"
 
 #include <vector>
 #include <cstddef>
@@ -59,6 +60,8 @@ public:
   static void read_menus();
   static Menu* find_menu( const char* name );
   static Menu* find_menu( unsigned short menu_id );
+
+  weak_ptr_owner<Menu> weakptr;
 };
 }
 }
