@@ -61,6 +61,9 @@ public:
   static Menu* find_menu( const char* name );
   static Menu* find_menu( unsigned short menu_id );
 
+  weak_ptr<Menu> getWeakPtr() { return weakptr; }
+
+private:
   weak_ptr_owner<Menu> weakptr;
 };
 }

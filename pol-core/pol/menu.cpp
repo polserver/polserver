@@ -38,6 +38,8 @@ MenuItem::MenuItem() : objtype_( 0 ), graphic_( 0 ), color_( 0 ), submenu_id( 0 
 
 Menu::Menu() : menu_id( 0 )
 {
+  weakptr.set( this );
+
   name[0] = '\0';
   title[0] = '\0';
 }

@@ -74,8 +74,8 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
   if ( mi->submenu_id )
   {
     Menu* submenu = Menu::find_menu( mi->submenu_id );
-    client->chr->menu = submenu->weakptr;
-    send_menu( client, client->chr->menu.get_weakptr() );
+    client->chr->menu = submenu->getWeakPtr();
+    send_menu( client, submenu );
   }
   else
   {
