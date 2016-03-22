@@ -11,6 +11,7 @@
 #define __WEAKPTR_H
 
 #include "refptr.h"
+#include <boost/noncopyable.hpp>
 #include <atomic>
 
 //
@@ -61,7 +62,7 @@ public:
 };
 
 template <class T>
-class weak_ptr_owner : public weak_ptr<T>
+class weak_ptr_owner : public weak_ptr<T>, boost::noncopyable
 {
 public:
   weak_ptr_owner();

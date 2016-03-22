@@ -153,7 +153,7 @@
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../clib/RefPtr.h"
+#include "../../clib/refptr.h"
 #include "../../clib/weakptr.h"
 
 #include "../../plib/systemstate.h"
