@@ -46,9 +46,9 @@ class Menu
 public:
   Menu();
 
-  // memberwise copy is fine for these:
-  // Menu( const Menu& );
-  // Menu& operator=( const Menu& );
+  // Those are needed to update the weak_ptr_owner
+  Menu( const Menu& );
+  Menu& operator=( const Menu& );
 
   unsigned short menu_id;
   char name[80];
@@ -61,7 +61,7 @@ public:
   static Menu* find_menu( const char* name );
   static Menu* find_menu( unsigned short menu_id );
 
-  weak_ptr<Menu> getWeakPtr() { return weakptr; }
+  weak_ptr<Menu> getWeakPtr() const { return weakptr; }
 
 private:
   weak_ptr_owner<Menu> weakptr;

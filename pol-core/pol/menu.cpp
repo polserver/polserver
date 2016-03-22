@@ -43,6 +43,29 @@ Menu::Menu() : menu_id( 0 )
   name[0] = '\0';
   title[0] = '\0';
 }
+
+Menu::Menu(const Menu& other) 
+  : menu_id(other.menu_id), menuitems_(other.menuitems_)
+{
+  strzcpy( name, other.name, sizeof name );
+  strzcpy( title, other.title, sizeof title );
+  
+  weakptr.set( this );
+}
+Menu& Menu::operator=(const Menu &rhs)
+{
+  Menu tmpMenu( rhs );
+
+  std::swap( menu_id, tmpMenu.menu_id );
+  std::swap( name, tmpMenu.name );
+  std::swap( title, tmpMenu.title );
+  std::swap( menuitems_, tmpMenu.menuitems_ );
+
+  weakptr.set( this );
+
+  return *this;
+}
+
 size_t Menu::estimateSize() const
 {
   size_t size = sizeof( Menu );
