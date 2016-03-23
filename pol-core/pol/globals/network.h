@@ -11,7 +11,6 @@
 #include "../network/msghandl.h"
 #include "../network/bannedips.h"
 #include "../polstats.h"
-#include "../sqlscrobj.h"
 #include "../sockio.h"
 #include "../uoclient.h"
 
