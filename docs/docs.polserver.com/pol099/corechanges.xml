@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-21-2016</datemodified>
+		<datemodified>03-23-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>03-23-2016</date>
+			<author>Nando:</author>
+			<change type="Fixed">Possible crashes when a script teminates while executing a SQL command.</change>
+		</entry>
 		<entry>
 			<date>03-21-2016</date>
 			<author>Nando:</author>

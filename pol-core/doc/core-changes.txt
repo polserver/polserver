@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+03-23-2016 Nando:
+  Fixed:   Possible crashes when a script teminates while executing a SQL command.
 03-21-2016 Nando:
   Fixed:   Possible crashes when handling a client's response to menus
            created with CreateMenu()
