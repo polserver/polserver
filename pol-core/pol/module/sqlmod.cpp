@@ -96,12 +96,15 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
   return new BLong( 0 );
 }
 
-BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoexec,
+Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoexec,
                                                   Core::BSQLConnection* sql, const std::string db )
-{
-  auto msg = [uoexec, sql, db]()
+{  
+  
+  // The BSQLConnection shouldn't be destroyed before the lambda runs
+  ref_ptr<Core::BSQLConnection> sqlRef( sql );
+  auto msg = [uoexec, sqlRef, db]()
   {
-    if ( sql == nullptr )
+    if ( sqlRef == nullptr )
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
@@ -113,7 +116,7 @@ BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoe
         uoexec.get_weakptr()->os_module->revive();
       }
     }
-    else if ( !sql->select_db( db.c_str() ) )
+    else if ( !sqlRef->select_db( db.c_str() ) )
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
@@ -121,7 +124,7 @@ BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoe
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
+          new BObject( new BError( sqlRef->getLastError() ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -142,7 +145,7 @@ BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoe
   return new BLong( 0 );
 }
 
-BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoexec,
+Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoexec,
                                                  Core::BSQLConnection* sql, const std::string query,
                                                  const Bscript::ObjArray* params )
 {
@@ -161,9 +164,11 @@ BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoex
     }
   }
 
-  auto msg = [uoexec, sql, query, sharedParams]()
+  // The BSQLConnection shouldn't be destroyed before the lambda runs
+  ref_ptr<Core::BSQLConnection> sqlRef( sql ); 
+  auto msg = [uoexec, sqlRef, query, sharedParams]()
   {
-    if ( sql == nullptr )
+    if ( sqlRef == nullptr ) // TODO: this doesn't make any sense and should be checked before the lambda. Same happens in background_select(). 
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
@@ -175,7 +180,7 @@ BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoex
         uoexec.get_weakptr()->os_module->revive();
       }
     }
-    else if ( !sql->query( query, sharedParams ) )
+    else if ( !sqlRef->query( query, sharedParams ) )
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
@@ -183,7 +188,7 @@ BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoex
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
+          new BObject( new BError( sqlRef->getLastError() ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -194,7 +199,7 @@ BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoex
         INFO_PRINT << "Script has been destroyed\n";
       else
       {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql->getResultSet() ) );
+        uoexec.get_weakptr()->ValueStack.back().set( new BObject( sqlRef->getResultSet() ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
