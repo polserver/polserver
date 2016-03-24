@@ -518,7 +518,7 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
   for ( auto& component : Components )
   {
     if ( component != NULL && !component->orphan() )
-      send_item( client, component );
+      send_item( client, component.get() );
   }
 }
 
@@ -1341,18 +1341,17 @@ const BoatShape& UBoat::boatshape() const
 void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm )
 {
   const BoatShape& bshape = boatshape();
-  std::vector<Items::Item*>::iterator itr;
-  std::vector<Items::Item*>::iterator end = Components.end();
-  std::vector<BoatShape::ComponentShape>::const_iterator itr2;
-  std::vector<BoatShape::ComponentShape>::const_iterator old_itr;
-  std::vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
-  std::vector<BoatShape::ComponentShape>::const_iterator old_end =
-      old_boatshape.Componentshapes.end();
-  for ( itr = Components.begin(), itr2 = bshape.Componentshapes.begin(),
-        old_itr = old_boatshape.Componentshapes.begin();
-        itr != end && itr2 != end2 && old_itr != old_end; ++itr, ++itr2, ++old_itr )
+  auto end = Components.end();
+  auto end2 = bshape.Componentshapes.end();
+  auto old_end = old_boatshape.Componentshapes.end();
+
+  auto itr = Components.begin();
+  auto itr2 = bshape.Componentshapes.begin();
+  auto old_itr = old_boatshape.Componentshapes.begin();
+
+  for ( ; itr != end && itr2 != end2 && old_itr != old_end; ++itr, ++itr2, ++old_itr )
   {
-    Items::Item* item = *itr;
+    Items::Item* item = itr->get();
     if ( item != NULL )
     {
       if ( item->orphan() )
@@ -1415,14 +1414,14 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
 void UBoat::move_components( Realms::Realm* oldrealm )
 {
   const BoatShape& bshape = boatshape();
-  std::vector<Items::Item*>::iterator itr;
-  std::vector<Items::Item*>::iterator end = Components.end();
-  std::vector<BoatShape::ComponentShape>::const_iterator itr2;
-  std::vector<BoatShape::ComponentShape>::const_iterator end2 = bshape.Componentshapes.end();
-  for ( itr = Components.begin(), itr2 = bshape.Componentshapes.begin(); itr != end && itr2 != end2;
+  auto itr = Components.begin();
+  auto end = Components.end();
+  auto itr2 = bshape.Componentshapes.begin();
+  auto end2 = bshape.Componentshapes.end();
+  for ( ; itr != end && itr2 != end2;
         ++itr, ++itr2 )
   {
-    Items::Item* item = *itr;
+    Items::Item* item = itr->get();
     if ( item != NULL )
     {
       if ( item->orphan() )
@@ -1552,14 +1551,14 @@ void UBoat::reread_components()
       continue;
     // check boat members here
     if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == NULL )
-      tillerman = component;
+      tillerman = component.get();
     if ( component->objtype_ == Core::settingsManager.extobj.port_plank && portplank == NULL )
-      portplank = component;
+      portplank = component.get();
     if ( component->objtype_ == Core::settingsManager.extobj.starboard_plank &&
          starboardplank == NULL )
-      starboardplank = component;
+      starboardplank = component.get();
     if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == NULL )
-      hold = component;
+      hold = component.get();
   }
 }
 
@@ -1596,7 +1595,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
       {
         if ( BoatShape::objtype_is_component( item->objtype_ ) )
         {
-          Components.push_back( item );
+          Components.push_back( Component(item) );
         }
         else if ( on_ship( bc, item ) )
         {
@@ -1622,7 +1621,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
     {
       if ( BoatShape::objtype_is_component( item->objtype_ ) )
       {
-        Components.push_back( item );
+        Components.push_back( Component(item) );
       }
     }
   }
@@ -1745,7 +1744,7 @@ void UBoat::create_components()
     component->realm = realm;
     add_item_to_world( component );
     update_item_to_inrange( component );
-    Components.push_back( component );
+    Components.push_back( Component(component) );
   }
 }
 
@@ -1792,12 +1791,12 @@ Bscript::BObjectImp* UBoat::component_list( unsigned char type ) const
     {
       if ( type == COMPONENT_ALL )
       {
-        arr->addElement( make_itemref( component ) );
+        arr->addElement( component->make_ref() );
       }
       else
       {
         if ( component->objtype_ == get_component_objtype( type ) )
-          arr->addElement( make_itemref( component ) );
+          arr->addElement( component->make_ref() );
       }
     }
   }
@@ -1810,7 +1809,7 @@ void UBoat::destroy_components()
   {
     if ( component != NULL && !component->orphan() )
     {
-      Core::destroy_item( component );
+      Core::destroy_item( component.get() );
     }
   }
   Components.clear();

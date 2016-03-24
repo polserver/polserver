@@ -190,7 +190,8 @@ private:
   typedef std::vector<Traveller> Travellers;
   Travellers travellers_;
 
-  std::vector<Items::Item*> Components;
+  typedef Core::ItemRef Component;
+  std::vector<Component> Components;
 };
 
 enum BOAT_COMPONENT
