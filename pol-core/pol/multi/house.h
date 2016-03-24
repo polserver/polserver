@@ -26,6 +26,9 @@ typedef std::list<Mobile::Character*> MobileList;
 class UHouse : public UMulti
 {
   typedef UMulti base;
+
+  // Components are not removed from the list when destroyed by the core,
+  // so you should always check if the component is an orphan.
   typedef Core::ItemRef Component;
   typedef std::vector<Component> Components;
 

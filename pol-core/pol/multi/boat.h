@@ -190,6 +190,8 @@ private:
   typedef std::vector<Traveller> Travellers;
   Travellers travellers_;
 
+  // Components are not removed from the list when destroyed by the core,
+  // so you should always check if the component is an orphan.
   typedef Core::ItemRef Component;
   std::vector<Component> Components;
 };
