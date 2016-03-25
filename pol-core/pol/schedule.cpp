@@ -203,6 +203,7 @@ void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity )
   {
     THREAD_CHECKPOINT( tasks, 103 );
     ScheduledTask* task = gamestate.task_queue.top();
+    passert_paranoid( task != nullptr );
     TRACEBUF_ADDELEM( "check_scheduled_tasks toptask->nextrun", task->next_run_clock() );
     THREAD_CHECKPOINT( tasks, 104 );
     if ( !task->ready( now_clock ) )

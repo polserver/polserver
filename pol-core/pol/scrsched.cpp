@@ -94,6 +94,7 @@ void run_ready()
   {
     ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
     UOExecutor* ex = *itr;
+    passert_paranoid( ex != nullptr );
     scriptEngineInternalManager.runlist
         .pop_front();  // remove it directly, since itr can get invalid during execution
     Module::OSExecutorModule* os_module = ex->os_module;
