@@ -131,19 +131,10 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
       HMENU subm = GetSubMenu( m, 0 );
       POINT p;
       GetCursorPos( &p );
-      RECT r;
-      r.bottom = r.top = r.left = r.right = 0;
+
       SetForegroundWindow( hwndDlg );
-      BOOL rc = TrackPopupMenu( subm, TPM_LEFTALIGN, p.x, p.y, 0, hwndDlg, &r );
+      BOOL rc = TrackPopupMenu( subm, TPM_LEFTALIGN, p.x, p.y, 0, hwndDlg, NULL );
       PostMessage( hwndDlg, WM_NULL, 0, 0 );
-      /*
-      CMenu menu;
-      menu.LoadMenu(IDR_POPUP);
-      CMenu* popup=menu.GetSubMenu(0);
-      CPoint pt;
-      GetCursorPos(&pt);
-      popup->TrackPopupMenu(TPM_LEFTALIGN,pt.x,pt.y,CWnd::FromHandle(hwndDlg),CRect(0,0,0,0));
-      */
     }
     break;
   case WM_COMMAND:
