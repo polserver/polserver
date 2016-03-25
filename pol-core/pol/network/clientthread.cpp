@@ -46,6 +46,9 @@ namespace Core
 void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ecl,
                        const std::string& pkg_script_ecl, bool offline = false );
 
+
+void report_weird_packet( Network::Client* client, std::string why ); // Defined below
+
 bool client_io_thread( Network::Client* client, bool login )
 {
   fd_set c_recv_fd;
@@ -355,6 +358,20 @@ bool client_io_thread( Network::Client* client, bool login )
   return false;
 }
 
+bool valid_message_length( Network::Client* client, int length )
+{
+  if ( length > sizeof client->buffer )
+  {
+    handle_humongous_packet( client, client->message_length );
+    return false;
+  }
+  if ( length < 3 )
+  {
+    report_weird_packet( client, "Too-short message" );
+    return false;
+  }
+  return true;
+}
 
 // bool - return true when a message was processed.
 bool process_data( Network::Client* client )
@@ -411,17 +428,14 @@ bool process_data( Network::Client* client )
     {
       // MSG is [MSGTYPE] [LENHI] [LENLO] [DATA ... ]
       client->message_length = ( client->buffer[1] << 8 ) + client->buffer[2];
-      if ( client->message_length > sizeof client->buffer )
+
+      if (!valid_message_length(client, client->message_length))
       {
-        POLLOG_INFO.Format( "Client#{}: Too-long message type 0x{:X} length {}\n" )
-            << client->instance_ << (int)client->buffer[0] << client->message_length;
-        client->message_length = sizeof client->buffer;
-      }
-      else if ( client->message_length < 3 )
-      {
-        POLLOG_INFO.Format( "Client#{}: Too-short message length of {}\n" )
-            << client->instance_ << client->message_length;
-        client->message_length = 3;
+        // If the reported length is too short (less than 3 bytes) or
+        // too big (larger than the client buffer), something very odd
+        // happened.
+        client->forceDisconnect();
+        return false;
       }
       client->recv_state = Network::Client::RECV_STATE_MSGDATA_WAIT;
     }
@@ -652,49 +666,14 @@ bool check_inactivity( Network::Client* client )
   return false;
 }
 
-
-void handle_unknown_packet( Network::Client* client )
+void report_weird_packet( Network::Client* client, std::string why )
 {
-  if ( Plib::systemstate.config.display_unknown_packets )
-  {
-    fmt::Writer tmp;
-    tmp.Format( "Unknown packet type 0x{:X}: {} bytes (IP:{}, Account:{})\n" )
-        << (int)client->buffer[0] << client->bytes_received << client->ipaddrAsString()
-        << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
-
-    if ( client->bytes_received <= 64 )
-    {
-      Clib::fdump( tmp, &client->buffer, client->bytes_received );
-      POLLOG_INFO << tmp.str() << "\n";
-    }
-    else
-    {
-      INFO_PRINT << tmp.str() << "\n";
-      Clib::fdump( tmp, &client->buffer, client->bytes_received );
-      POLLOG << tmp.str() << "\n";
-    }
-  }
-}
-
-void handle_undefined_packet( Network::Client* client )
-{
-  int msgtype = (int)client->buffer[0];
-
-  INFO_PRINT.Format( "Undefined message type 0x{:X}\n" ) << msgtype;
-  client->recv_remaining( sizeof client->buffer / 2 );
-
-  // TODO: Check if the code below shouldn't just be removed and call handle_unknown_packet()
-  // instead...
-  //
-  //       The only extra information is the client # and the fact that it's an *unexpected*
-  //       message,
-  //       because the handle_unknown_packet() is called when the packet is registered but doesn't
-  //       have a proper
-  //       handler.
   fmt::Writer tmp;
-  tmp.Format( "Client#{}: Unexpected message type 0x{:X}, {} bytes( IP : {}, Account : {} )\n" )
-      << client->instance_ << msgtype << client->bytes_received << client->ipaddrAsString()
-      << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
+  tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )
+    << client->instance_ << why << (int)client->buffer[0] 
+    << client->bytes_received << client->ipaddrAsString()
+    << ((client->acct != NULL) ? client->acct->name() : "None");
+
   if ( client->bytes_received <= 64 )
   {
     Clib::fdump( tmp, client->buffer, client->bytes_received );
@@ -707,5 +686,43 @@ void handle_undefined_packet( Network::Client* client )
     POLLOG << tmp.str() << "\n";
   }
 }
+
+// Called when a packet size is registered but the
+// packet has no handler in the core
+void handle_unknown_packet( Network::Client* client )
+{
+  if ( Plib::systemstate.config.display_unknown_packets )
+    report_weird_packet( client, "Unknown packet" );
+}
+
+// Called when POL receives an undefined packet. 
+// Those have no registered size, so we must guess.
+void handle_undefined_packet( Network::Client* client )
+{
+  int msgtype = (int)client->buffer[0];
+  INFO_PRINT.Format( "Undefined message type 0x{:X}\n" ) << msgtype;
+
+  // Tries to read as much of it out as possible
+  client->recv_remaining( sizeof client->buffer / 2 );
+  
+  report_weird_packet( client, "Unexpected message" );
+}
+
+// Handles variable-sized packets whose declared size is much larger than
+// the receive buffer. This packet is most likely a client error, because 
+// the buffer should be big enough to handle anything sent by the known
+// clients.
+void handle_humongous_packet( Network::Client* client, unsigned int reported_size )
+{
+  // Tries to read as much of it out as possible 
+  // (the client will be disconnected, but this may
+  // be useful for debugging)
+  client->recv_remaining( sizeof client->buffer / 2 );
+
+  fmt::Writer tmp;
+  tmp.Format( "Humongous packet (length {})", reported_size );
+  report_weird_packet( client, tmp.str() );
+}
+
 }
 }

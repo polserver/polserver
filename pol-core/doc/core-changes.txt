@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+03-25-2016 Nando:
+  Fixed:   Crashes when receiving very big packets.
 03-24-2016 Nando:
   Fixed:   Crashes after deleting a component (hold, tillerman, plank) of a boat
 03-23-2016 Nando:

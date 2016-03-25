@@ -15,6 +15,8 @@ bool check_inactivity( Network::Client* client );
 
 void handle_unknown_packet( Network::Client* client );
 void handle_undefined_packet( Network::Client* client );
+void handle_humongous_packet( Network::Client* client, unsigned int reported_size );
+
 }
 }
 
