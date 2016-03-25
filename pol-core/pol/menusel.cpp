@@ -26,8 +26,14 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
 {
   passert_paranoid( client );
 
+  if ( !client->chr ) {
+    POLLOG.Format( "{} tried to use a menu without being in the game.\n" ) << client->acct->name();
+    return;
+  }
+
+
   Menu* active_menu = nullptr;
-  if ( client->chr && client->chr->menu.exists() )
+  if ( client->chr->menu.exists() )
   {
     active_menu = client->chr->menu.get_weakptr();
   }
