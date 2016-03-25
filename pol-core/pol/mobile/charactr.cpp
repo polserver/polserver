@@ -633,15 +633,15 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
 
   if ( has_movement_cost() )
   {
-    auto value = movement_cost();
-    if ( value.walk != DEFAULT_MOVEMENTCOSTMOD.walk )
-      sw() << "\tMovementWalkMod\t" << static_cast<double>( value.walk ) << pf_endl;
-    if ( value.run != DEFAULT_MOVEMENTCOSTMOD.run )
-      sw() << "\tMovementRunMod\t" << static_cast<double>( value.run ) << pf_endl;
-    if ( value.walk_mounted != DEFAULT_MOVEMENTCOSTMOD.walk_mounted )
-      sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( value.walk_mounted ) << pf_endl;
-    if ( value.run_mounted != DEFAULT_MOVEMENTCOSTMOD.run_mounted )
-      sw() << "\tMovementRunMountedMod\t" << static_cast<double>( value.run_mounted ) << pf_endl;
+    auto movecost_value = movement_cost();
+    if ( movecost_value.walk != DEFAULT_MOVEMENTCOSTMOD.walk )
+      sw() << "\tMovementWalkMod\t" << static_cast<double>( movecost_value.walk ) << pf_endl;
+    if ( movecost_value.run != DEFAULT_MOVEMENTCOSTMOD.run )
+      sw() << "\tMovementRunMod\t" << static_cast<double>( movecost_value.run ) << pf_endl;
+    if ( movecost_value.walk_mounted != DEFAULT_MOVEMENTCOSTMOD.walk_mounted )
+      sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( movecost_value.walk_mounted ) << pf_endl;
+    if ( movecost_value.run_mounted != DEFAULT_MOVEMENTCOSTMOD.run_mounted )
+      sw() << "\tMovementRunMountedMod\t" << static_cast<double>( movecost_value.run_mounted ) << pf_endl;
   }
   if ( has_carrying_capacity_mod() )
     sw() << "\tCarryingCapacityMod\t" << static_cast<int>( carrying_capacity_mod() ) << pf_endl;
@@ -692,22 +692,22 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
 
   if ( has_skillstatcap() )
   {
-    auto value = skillstatcap();
-    if ( value.statcap != DEFAULT_SKILLSTATCAP.statcap )
-      sw() << "\tStatcap\t" << static_cast<int>( value.statcap ) << pf_endl;
-    if ( value.skillcap != DEFAULT_SKILLSTATCAP.skillcap )
-      sw() << "\tSkillcap\t" << static_cast<int>( value.skillcap ) << pf_endl;
+    auto cap_value = skillstatcap();
+    if ( cap_value.statcap != DEFAULT_SKILLSTATCAP.statcap )
+      sw() << "\tStatcap\t" << static_cast<int>(cap_value.statcap) << pf_endl;
+    if ( cap_value.skillcap != DEFAULT_SKILLSTATCAP.skillcap )
+      sw() << "\tSkillcap\t" << static_cast<int>(cap_value.skillcap) << pf_endl;
   }
 
   if ( has_luck() )
     sw() << "\tLuck\t" << static_cast<int>( luck() ) << pf_endl;
   if ( has_followers() )
   {
-    auto value = followers();
-    if ( value.followers_max != DEFAULT_EXTSTATBARFOLLOWERS.followers_max )
-      sw() << "\tFollowersMax\t" << static_cast<int>( value.followers_max ) << pf_endl;
-    if ( value.followers != DEFAULT_EXTSTATBARFOLLOWERS.followers )
-      sw() << "\tFollowers\t" << static_cast<int>( value.followers ) << pf_endl;
+    auto followers_value = followers();
+    if ( followers_value.followers_max != DEFAULT_EXTSTATBARFOLLOWERS.followers_max )
+      sw() << "\tFollowersMax\t" << static_cast<int>(followers_value.followers_max) << pf_endl;
+    if ( followers_value.followers != DEFAULT_EXTSTATBARFOLLOWERS.followers )
+      sw() << "\tFollowers\t" << static_cast<int>(followers_value.followers) << pf_endl;
   }
   if ( has_tithing() )
     sw() << "\tTithing\t" << static_cast<int>( tithing() ) << pf_endl;
