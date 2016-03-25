@@ -112,14 +112,12 @@ void config_web_server()
     Plib::Package* pkg = ( *itr );
     if ( pkg->provides_system_home_page() )
     {
-      if ( gamestate.wwwroot_pkg != nullptr )
-      {
-        POLLOG.Format( "Package {} also provides a wwwroot, ignoring\n" ) << pkg->desc();
-      }
-      else
-      {
+      if ( gamestate.wwwroot_pkg == nullptr ) {
         POLLOG.Format( "wwwroot package is {}\n" ) << pkg->desc();
         gamestate.wwwroot_pkg = pkg;
+      }
+      else {
+        POLLOG.Format( "Package {} also provides a wwwroot, ignoring\n" ) << pkg->desc();
       }
     }
   }
