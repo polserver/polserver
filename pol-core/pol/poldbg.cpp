@@ -464,11 +464,12 @@ std::string DebugContext::cmd_stacktrace( Results& results )
 
   unsigned int PC;
 
-  ReturnContext rc;
-  rc.PC = exec->PC;
-  rc.ValueStackDepth = static_cast<unsigned int>( exec->ValueStack.size() );
-  stack.push_back( rc );
-
+  {
+    ReturnContext rc;
+    rc.PC = exec->PC;
+    rc.ValueStackDepth = static_cast<unsigned int>(exec->ValueStack.size());
+    stack.push_back( rc );
+  }
   upperLocals2.push_back( exec->Locals2 );
 
   results.push_back( Clib::decint( stack.size() ) );
