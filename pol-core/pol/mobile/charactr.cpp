@@ -400,14 +400,13 @@ Character::~Character()
 
   removal_cleanup();
 
-  //
-  // this lets normal destroy() stuff happen (like destroying stuff in containers)
-  // but still lets the Character destructor delete the wornitems object.
-  //
-  // wornitems.ref_counted_add_ref();
+  // clean up wornitems, so it can be reaped by the objecthash later 
   wornitems.destroy();
-  // wornitems.ref_counted_release();
 
+  // clean up trade container if it exists
+  if ( trading_cont != nullptr )
+    trading_cont->destroy();
+  
   if ( repsys_task_ != NULL )
     repsys_task_->cancel();
 
