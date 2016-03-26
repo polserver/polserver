@@ -358,7 +358,7 @@ bool client_io_thread( Network::Client* client, bool login )
   return false;
 }
 
-bool valid_message_length( Network::Client* client, int length )
+bool valid_message_length( Network::Client* client, unsigned int length )
 {
   if ( length > sizeof client->buffer )
   {

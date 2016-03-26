@@ -283,7 +283,7 @@ void GameState::cleanup_vars()
       {
         for ( auto& item : realm->zone[wx][wy].items )
         {
-          world_delete( item );
+          item->destroy();
         }
         realm->zone[wx][wy].items.clear();
       }
@@ -296,13 +296,13 @@ void GameState::cleanup_vars()
         for ( auto& chr : realm->zone[wx][wy].characters )
         {
           chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          world_delete( chr );
+          chr->destroy();
         }
         realm->zone[wx][wy].characters.clear();
         for ( auto& chr : realm->zone[wx][wy].npcs )
         {
           chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          world_delete( chr );
+          chr->destroy();
         }
         realm->zone[wx][wy].npcs.clear();
       }
@@ -314,7 +314,7 @@ void GameState::cleanup_vars()
       {
         for ( auto& multi : realm->zone[wx][wy].multis )
         {
-          world_delete( multi );
+          multi->destroy();
         }
         realm->zone[wx][wy].multis.clear();
       }

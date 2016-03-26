@@ -1644,21 +1644,6 @@ void setrealmif( Item* item, void* arg )
     item->realm = realm->baserealm;
 }
 
-void world_delete( UObject* uobj )
-{
-  uobj->destroy();
-  /* moved to UObject::destroy()
-      uobj->serial = 0;
-      uobj->serial_ext = 0;
-
-      passert( uobj->count() >= 1 );
-
-      ref_ptr<UObject> ref( uobj );
-
-      uobj->release();
-      */
-}
-
 void subtract_amount_from_item( Item* item, unsigned short amount )
 {
   if ( amount >= item->getamount() )

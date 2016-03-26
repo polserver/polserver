@@ -219,7 +219,6 @@ void transmit_to_inrange( const UObject* center, const void* msg, unsigned msgle
 void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen );
 
 void destroy_item( Items::Item* item );
-void world_delete( UObject* uobj );
 
 void move_item( Items::Item* item, UFACING facing );
 void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz,
