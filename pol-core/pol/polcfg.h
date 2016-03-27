@@ -73,6 +73,8 @@ struct PolConfig
   std::string debug_password;
   bool debug_local_only;
 
+  bool log_traces_when_stuck;
+
   unsigned short debug_level;
   bool report_rtc_scripts;
   bool report_critical_scripts;

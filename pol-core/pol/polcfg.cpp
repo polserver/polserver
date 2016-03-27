@@ -223,6 +223,8 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.debug_password = elem.remove_string( "DebugPassword", "" );
   Plib::systemstate.config.debug_local_only = elem.remove_bool( "DebugLocalOnly", true );
 
+  Plib::systemstate.config.log_traces_when_stuck = elem.remove_bool( "ThreadStacktracesWhenStuck", false );
+
   Plib::systemstate.config.report_rtc_scripts =
       elem.remove_bool( "ReportRunToCompletionScripts", true );
   Plib::systemstate.config.report_critical_scripts =

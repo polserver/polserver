@@ -912,6 +912,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [MinCmdlevelToLogin=(int level {default 0})]
 [MinCmdLvlToIgnoreInactivity=(int level {default 1})]
 [MaxCallDepth=(int depth {default 100})]
+[ThreadStacktracesWhenStuck=(1/0 {default 0})]
 [EnableAssertions=(1/0 {default 1})]
 [DumpStackOnAssertionFailure=(1/0 {default 0})]
 [DisplayUnknownPackets=(1/0 {default 0})]

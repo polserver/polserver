@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+03-27-2016 Nando:
+  Added:   Option "ThreadStacktracesWhenStuck" to pol.cfg. Useful to debug the core when
+           no clock movement occurs for more than 30 seconds. Defaults to false.
 03-25-2016 Nando:
   Fixed:   Crashes when receiving very big packets.
 03-24-2016 Nando:

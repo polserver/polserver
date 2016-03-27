@@ -741,7 +741,8 @@ void threadstatus_thread( void )
       tmp << "*Thread Info*\n";
       tmp << "Semaphore TID: " << locker << "\n";
 
-      Pol::Clib::ExceptionParser::logAllStackTraces();
+      if (Plib::systemstate.config.log_traces_when_stuck)
+        Pol::Clib::ExceptionParser::logAllStackTraces();
 
       tmp << "Scripts Thread Checkpoint: " << stateManager.polsig.scripts_thread_checkpoint << "\n";
       tmp << "Last Script: " << Clib::scripts_thread_script

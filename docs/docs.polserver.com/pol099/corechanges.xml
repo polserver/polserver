@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-25-2016</datemodified>
+		<datemodified>03-27-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>03-27-2016</date>
+			<author>Nando:</author>
+			<change type="Added">Option &quot;ThreadStacktracesWhenStuck&quot; to pol.cfg. Useful to debug the core when<br/>
+no clock movement occurs for more than 30 seconds. Defaults to false.</change>
+		</entry>
 		<entry>
 			<date>03-25-2016</date>
 			<author>Nando:</author>
