@@ -144,7 +144,7 @@ void NPC::stop_scripts()
 void NPC::destroy()
 {
   // stop_scripts();
-  wornitems.destroy_contents();
+  wornitems->destroy_contents();
   if ( registered_house > 0 )
   {
     Multi::UMulti* multi = Core::system_find_multi( registered_house );

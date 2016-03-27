@@ -281,9 +281,8 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class )
       weapon( Core::gamestate.wrestling_weapon ),
       shield( NULL ),
       armor_( Core::gamestate.armorzones.size() ),
-      wornitems_ref( new Core::WornItemsContainer ),  // default objtype is in containr.cpp,
+      wornitems( new Core::WornItemsContainer ),  // default objtype is in containr.cpp,
                                                       // WornItemsContainer class
-      wornitems( *wornitems_ref ),
       gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
       remote_containers_(),
       // MOVEMENT
@@ -365,7 +364,7 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class )
 {
   height = Core::settingsManager.ssopt
                .default_character_height;  // this gets overwritten in UObject::readProperties!
-  wornitems.chr_owner = this;              // FIXME, dangerous.
+  wornitems->chr_owner = this;              // FIXME, dangerous.
 
   set_caps_to_default();
 
@@ -401,7 +400,7 @@ Character::~Character()
   removal_cleanup();
 
   // clean up wornitems, so it can be reaped by the objecthash later 
-  wornitems.destroy();
+  wornitems->destroy();
 
   // clean up trade container if it exists
   if ( trading_cont != nullptr )
@@ -524,7 +523,7 @@ u8 Character::los_height() const
 ///
 unsigned int Character::weight() const
 {
-  unsigned int wt = 10 + wornitems.weight();
+  unsigned int wt = 10 + wornitems->weight();
   if ( has_gotten_item() )
     wt += gotten_item()->weight();
   if ( trading_cont.get() )
@@ -775,7 +774,7 @@ void Character::printOn( Clib::StreamWriter& sw ) const
 }
 void Character::printWornItems( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const
 {
-  wornitems.print( sw_pc, sw_equip );
+  wornitems->print( sw_pc, sw_equip );
 }
 
 Core::MOVEMODE Character::decode_movemode( const std::string& str )
@@ -867,8 +866,8 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
     ERROR_PRINT << "Character '0x" << fmt::hexu( serial ) << "' has no name!\n";
     throw std::runtime_error( "Data integrity error" );
   }
-  wornitems.serial = serial;
-  wornitems.serial_ext = serial_ext;
+  wornitems->serial = serial;
+  wornitems->serial_ext = serial_ext;
   position_changed();
 
   std::string cmdaccstr = elem.remove_string( "CMDLEVEL", "player" );
@@ -1239,7 +1238,7 @@ bool Character::can_speedhack() const
 
 Core::UContainer* Character::backpack() const
 {
-  return static_cast<Core::UContainer*>( wornitems.GetItemOnLayer( Core::LAYER_BACKPACK ) );
+  return static_cast<Core::UContainer*>( wornitems->GetItemOnLayer( Core::LAYER_BACKPACK ) );
 }
 
 Core::Spellbook* Character::spellbook( u8 school ) const
@@ -1295,12 +1294,12 @@ void Character::spend_gold( unsigned int amount )
 
 Items::Item* Character::wornitem( int layer ) const
 {
-  return wornitems.GetItemOnLayer( layer );
+  return wornitems->GetItemOnLayer( layer );
 }
 
 bool Character::layer_is_equipped( int layer ) const
 {
-  return ( wornitems.GetItemOnLayer( layer ) != NULL );
+  return ( wornitems->GetItemOnLayer( layer ) != NULL );
 }
 
 bool Character::is_equipped( const Items::Item* item ) const
@@ -1308,7 +1307,7 @@ bool Character::is_equipped( const Items::Item* item ) const
   if ( !Items::valid_equip_layer( item ) )
     return false;
 
-  return ( wornitems.GetItemOnLayer( item->tile_layer ) == item );
+  return ( wornitems->GetItemOnLayer( item->tile_layer ) == item );
 }
 
 bool Character::strong_enough_to_equip( const Items::Item* item ) const
@@ -1398,7 +1397,7 @@ void Character::equip( Items::Item* item )
   passert_r( equippable( item ),
              "It is impossible to equip Item with ObjType " + Clib::hexint( item->objtype_ ) );
 
-  wornitems.PutItemOnLayer( item );
+  wornitems->PutItemOnLayer( item );
 
   // PutItemOnLayer sets the layer, so we can go on now
   // checking item->layer instead of item->tile_layer
@@ -1428,10 +1427,10 @@ void Character::unequip( Items::Item* item )
 {
   passert( Items::valid_equip_layer( item ) );
   // assume any item being de-equipped is in fact being worn.
-  passert( item->container == &wornitems );
+  passert( item->container == wornitems.get() );
   passert( is_equipped( item ) );
 
-  wornitems.RemoveItemFromLayer( item );
+  wornitems->RemoveItemFromLayer( item );
 
   if ( item == weapon )
   {
@@ -1463,7 +1462,7 @@ Items::Item* Character::find_wornitem( u32 serial ) const
 {
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; layer++ )
   {
-    Items::Item* item = wornitems.GetItemOnLayer( layer );
+    Items::Item* item = wornitems->GetItemOnLayer( layer );
     if ( item )
     {
       if ( item->serial == serial )
@@ -2056,7 +2055,7 @@ void Character::resurrect()
   bool equip_death_robe = true;
   if ( layer_is_equipped( Core::LAYER_ROBE_DRESS ) )
   {
-    Items::Item* death_shroud = wornitems.GetItemOnLayer( Core::LAYER_ROBE_DRESS );
+    Items::Item* death_shroud = wornitems->GetItemOnLayer( Core::LAYER_ROBE_DRESS );
     if ( death_shroud->objtype_ == UOBJ_DEATH_SHROUD )
     {
       unequip( death_shroud );
@@ -2273,7 +2272,7 @@ void Character::die()
   // WARNING: never ever touch or be 10000% sure what you are doing!!!!
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
   {
-    Items::Item* item = wornitems.GetItemOnLayer( layer );
+    Items::Item* item = wornitems->GetItemOnLayer( layer );
     if ( item == NULL )
       continue;
     if ( item->layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
@@ -2385,7 +2384,7 @@ void Character::die()
 
     for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
     {
-      Items::Item* item = wornitems.GetItemOnLayer( layer );
+      Items::Item* item = wornitems->GetItemOnLayer( layer );
       if ( item == NULL )
         continue;
       if ( item->layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
@@ -2470,7 +2469,7 @@ void Character::refresh_ar()
 
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
   {
-    Items::Item* item = wornitems.GetItemOnLayer( layer );
+    Items::Item* item = wornitems->GetItemOnLayer( layer );
     if ( item == NULL )
       continue;
     // Let's check all items as base, and handle their element_resists.
@@ -3365,7 +3364,7 @@ void Character::attack( Character* opponent )
       for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST;
             layer++ )
       {
-        Items::Item* item = wornitems.GetItemOnLayer( layer );
+        Items::Item* item = wornitems->GetItemOnLayer( layer );
         if ( item )
         {
           if ( item != NULL && item->script_isa( Core::POLCLASS_CONTAINER ) )
@@ -3700,10 +3699,10 @@ void Character::check_region_changes()
 
 void Character::position_changed()
 {
-  wornitems.x = x;
-  wornitems.y = y;
-  wornitems.z = z;
-  wornitems.realm = realm;
+  wornitems->x = x;
+  wornitems->y = y;
+  wornitems->z = z;
+  wornitems->realm = realm;
 }
 
 void Character::unhide()
@@ -4036,7 +4035,7 @@ void Character::realm_changed()
   // not be a worn item?  If this is the case, that will be broken.
   //	backpack()->realm = realm;
   //	backpack()->for_each_item(setrealm, (void*)realm);
-  wornitems.for_each_item( Core::setrealm, (void*)realm );
+  wornitems->for_each_item( Core::setrealm, (void*)realm );
   if ( has_gotten_item() )
     gotten_item()->realm = realm;
   if ( trading_cont.get() )

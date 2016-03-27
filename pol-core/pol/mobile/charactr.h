@@ -753,8 +753,7 @@ protected:
   Items::UArmor* shield;
   std::vector<Items::UArmor*> armor_;
 
-  ref_ptr<Core::WornItemsContainer> wornitems_ref;
-  Core::WornItemsContainer& wornitems;
+  ref_ptr<Core::WornItemsContainer> wornitems;
 
 public:
   enum GOTTEN_ITEM_TYPE : u8
