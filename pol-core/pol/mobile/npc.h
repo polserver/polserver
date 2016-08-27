@@ -171,26 +171,26 @@ private:
 
   // ATTRIBUTES / VITALS
 private:
-  DYN_PROPERTY( curr_fire_resist, Core::AosValuePack, Core::PROP_RESIST_FIRE,
+  DYN_PROPERTY( curr_fire_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_FIRE,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_cold_resist, Core::AosValuePack, Core::PROP_RESIST_COLD,
+  DYN_PROPERTY( curr_cold_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_COLD,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_energy_resist, Core::AosValuePack, Core::PROP_RESIST_ENERGY,
+  DYN_PROPERTY( curr_energy_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_ENERGY,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_poison_resist, Core::AosValuePack, Core::PROP_RESIST_POISON,
+  DYN_PROPERTY( curr_poison_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_POISON,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_physical_resist, Core::AosValuePack, Core::PROP_RESIST_PHYSICAL,
+  DYN_PROPERTY( curr_physical_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_PHYSICAL,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
 
-  DYN_PROPERTY( curr_fire_damage, Core::AosValuePack, Core::PROP_DAMAGE_FIRE,
+  DYN_PROPERTY( curr_fire_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_FIRE,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_cold_damage, Core::AosValuePack, Core::PROP_DAMAGE_COLD,
+  DYN_PROPERTY( curr_cold_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_COLD,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_energy_damage, Core::AosValuePack, Core::PROP_DAMAGE_ENERGY,
+  DYN_PROPERTY( curr_energy_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_ENERGY,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_poison_damage, Core::AosValuePack, Core::PROP_DAMAGE_POISON,
+  DYN_PROPERTY( curr_poison_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_POISON,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_physical_damage, Core::AosValuePack, Core::PROP_DAMAGE_PHYSICAL,
+  DYN_PROPERTY( curr_physical_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_PHYSICAL,
                 Core::UObject::DEFAULT_AOSVALUEPACK );
 
   void reset_element_resist( Core::ElementalType resist );
