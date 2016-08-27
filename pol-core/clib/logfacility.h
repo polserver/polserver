@@ -7,6 +7,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
+#include <vector>
 #include <map>
 #include <thread>
 #include <future>
