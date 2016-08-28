@@ -263,7 +263,7 @@ if __name__ == '__main__':
 
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
-        if not os.path.exists(args.ecompile) or not os.path.exists(args.runecl):
+	if not os.path.exists(args.ecompile) or not os.path.exists(args.runecl):
 		print('Executables not found!')
 		sys.exit(1)
 
