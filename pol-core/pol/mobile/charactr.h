@@ -425,10 +425,10 @@ public:
   void clear_gotten_item();
 
   void add_remote_container( Items::Item* );
-  Items::Item* search_remote_containers( u32 serial, bool* isRemoteContainer ) const;
+  Items::Item* search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const;
   bool mightsee( const Items::Item* item ) const;
 
-  Items::Item* find_wornitem( u32 serial ) const;
+  Items::Item* find_wornitem( u32 find_serial ) const;
   bool has_shield() const;
   Items::UArmor* get_shield() const;
 
@@ -457,7 +457,7 @@ public:
 
   // COMBAT
 public:
-  void select_opponent( u32 serial );
+  void select_opponent( u32 opp_serial );
   void set_opponent( Character* opponent, bool inform_old_opponent = true );
 
   void clear_opponent_of();
@@ -639,9 +639,9 @@ public:
   bool is_house_editing() const;
   bool target_cursor_busy() const;
   u16 last_textcolor() const;
-  void last_textcolor( u16 color );
+  void last_textcolor( u16 new_color );
 
-  u8 get_flag1( Network::Client* client ) const;
+  u8 get_flag1( Network::Client* other_client ) const;
 
   // PRIVS SETTINGS STATUS
 public:

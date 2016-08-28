@@ -1308,15 +1308,15 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
   case MTH_SPLITSTACK_AT:
   {
     unsigned short amt;
-    unsigned short x, y;
-    short z;
+    unsigned short newx, newy;
+    short newz;
     const String* realm_name;
     Item* new_stack( nullptr );
     u16 item_amount = this->getamount();
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
-    else if ( !ex.getParam( 0, x ) || !ex.getParam( 1, y ) || !ex.getParam( 2, z ) ||
+    else if ( !ex.getParam( 0, newx ) || !ex.getParam( 1, newy ) || !ex.getParam( 2, newz ) ||
               !ex.getStringParam( 3, realm_name ) )
       return new BError( "Invalid parameter type" );
     else if ( !ex.getParam( 4, amt ) )
@@ -1329,10 +1329,10 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
       return new BError( "Item is in use" );
 
     // Validate where things are going
-    Realms::Realm* realm = Core::find_realm( realm_name->value() );
-    if ( !realm )
+    Realms::Realm* newrealm = Core::find_realm( realm_name->value() );
+    if ( !newrealm )
       return new BError( "Realm not found" );
-    else if ( !realm->valid( x, y, z ) )
+    else if ( !newrealm->valid( newx, newy, newz ) )
       return new BError( "Invalid coordinates for realm" );
 
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
@@ -1347,12 +1347,12 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
         else
           new_stack = this->remove_part_of_stack( 1 );
 
-        new_stack->x = x;
-        new_stack->y = y;
-        new_stack->z = static_cast<s8>( z );
-        new_stack->realm = realm;
+        new_stack->x = newx;
+        new_stack->y = newy;
+        new_stack->z = static_cast<s8>( newz );
+        new_stack->realm = newrealm;
         add_item_to_world( new_stack );
-        move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
+        move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
         update_item_to_inrange( new_stack );
       }
 
@@ -1372,13 +1372,13 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    new_stack->x = x;
-    new_stack->y = y;
-    new_stack->z = static_cast<s8>( z );
-    new_stack->realm = realm;
+    new_stack->x = newx;
+    new_stack->y = newy;
+    new_stack->z = static_cast<s8>( newz );
+    new_stack->realm = newrealm;
     new_stack->setamount( amt );
     add_item_to_world( new_stack );
-    move_item( new_stack, x, y, static_cast<signed char>( z ), realm );
+    move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
     update_item_to_inrange( new_stack );
 
     if ( amt == item_amount )
@@ -1410,7 +1410,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     else if ( !cont_item->isa( UObject::CLASS_CONTAINER ) )
       return new BError( "Non-container selected as target" );
 
-    Core::UContainer* container = static_cast<Core::UContainer*>( cont_item );
+    Core::UContainer* newcontainer = static_cast<Core::UContainer*>( cont_item );
 
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
 
@@ -1427,7 +1427,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
           new_stack = this->remove_part_of_stack( 1 );
 
         bool can_insert =
-            container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+            newcontainer->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
         if ( !can_insert )
         {
           // Put new_stack back with the original stack
@@ -1436,10 +1436,10 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
           return new BError( "Could not insert new stack into container" );
         }
 
-        container->add_at_random_location( new_stack );
+        newcontainer->add_at_random_location( new_stack );
         update_item_to_inrange( new_stack );
         UpdateCharacterWeight( new_stack );
-        container->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+        newcontainer->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
       }
 
       if ( this->getamount() == 1 )
@@ -1460,7 +1460,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     auto create_new_stack = [&]() -> BObjectImp*
     {
       bool can_insert =
-          container->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+          newcontainer->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
       if ( !can_insert )
       {
         // Put newstack back with the original stack
@@ -1468,11 +1468,11 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
           this->add_to_self( new_stack );
         return new BError( "Could not insert new stack into container" );
       }
-      container->add_at_random_location( new_stack );
+      newcontainer->add_at_random_location( new_stack );
       new_stack->setamount( amt );
       update_item_to_inrange( new_stack );
       UpdateCharacterWeight( new_stack );
-      container->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
+      newcontainer->on_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
 
       if ( amt == item_amount )
         destroy_item( this );
@@ -1486,10 +1486,10 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     if ( !ex.hasParams( 3 ) ||
          ( ex.getParam( 2, add_to_existing_stack ) && add_to_existing_stack != 0 ) )
     {
-      Item* existing_stack = container->find_addable_stack( new_stack );
+      Item* existing_stack = newcontainer->find_addable_stack( new_stack );
       if ( existing_stack != NULL && new_stack->stackable() )
       {
-        if ( !container->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED,
+        if ( !newcontainer->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED,
                                                     existing_stack, new_stack->getamount(),
                                                     new_stack ) )
         {
@@ -1507,7 +1507,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
       UpdateCharacterWeight( existing_stack );
 
-      container->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack,
+      newcontainer->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack,
                                            amount );
 
       if ( amt == item_amount )
@@ -1535,9 +1535,9 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     else if ( !cont->isa( UObject::CLASS_CONTAINER ) )
       return new BError( "Non-container selected as target" );
 
-    Core::UContainer* container = static_cast<Core::UContainer*>( cont );
+    Core::UContainer* stackcontainer = static_cast<Core::UContainer*>( cont );
 
-    Item* existing_stack = container->find_addable_stack( this );
+    Item* existing_stack = stackcontainer->find_addable_stack( this );
 
     if ( existing_stack != NULL )
       return new Module::EItemRefObjImp( existing_stack );
@@ -2639,11 +2639,11 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
   {
     if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
-    int serial, gameclock;
-    if ( ex.getParam( 0, serial ) && ex.getParam( 1, gameclock ) )
+    int repserial, gameclock;
+    if ( ex.getParam( 0, repserial ) && ex.getParam( 1, gameclock ) )
     {
       set_dirty();
-      clear_reportable( serial, gameclock );
+      clear_reportable( repserial, gameclock );
       return new BLong( 1 );
     }
     break;
@@ -3184,9 +3184,9 @@ BObjectImp* NPC::set_script_member( const char* membername, int value )
     return NULL;
 }
 
-BObjectImp* NPC::script_method_id( const int id, Executor& ex )
+BObjectImp* NPC::script_method_id( const int id, Executor& executor )
 {
-  BObjectImp* imp = base::script_method_id( id, ex );
+  BObjectImp* imp = base::script_method_id( id, executor );
   if ( imp != NULL )
     return imp;
 
@@ -3194,11 +3194,11 @@ BObjectImp* NPC::script_method_id( const int id, Executor& ex )
   {
   case MTH_SETMASTER:
   {
-    if ( ex.numParams() != 1 )
+    if ( executor.numParams() != 1 )
       return new BError( "Not enough parameters" );
     Character* chr;
     set_dirty();
-    if ( getCharacterParam( ex, 0, chr ) )
+    if ( getCharacterParam( executor, 0, chr ) )
     {
       master_.set( chr );
       return new BLong( 1 );
@@ -3215,23 +3215,23 @@ BObjectImp* NPC::script_method_id( const int id, Executor& ex )
   }
 }
 
-BObjectImp* NPC::script_method( const char* methodname, Executor& ex )
+BObjectImp* NPC::script_method( const char* methodname, Executor& executor )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != NULL )
-    return this->script_method_id( objmethod->id, ex );
+    return this->script_method_id( objmethod->id, executor );
   else
     return NULL;
 }
 
-BObjectImp* NPC::custom_script_method( const char* methodname, Executor& ex )
+BObjectImp* NPC::custom_script_method( const char* methodname, Executor& executor )
 {
   if ( template_.method_script != NULL )
   {
     unsigned PC;
     if ( template_.method_script->FindExportedFunction(
-             methodname, static_cast<unsigned int>( ex.numParams() + 1 ), PC ) )
-      return template_.method_script->call( PC, make_ref(), ex.fparams );
+             methodname, static_cast<unsigned int>( executor.numParams() + 1 ), PC ) )
+      return template_.method_script->call( PC, make_ref(), executor.fparams );
   }
   return NULL;
 }
@@ -3590,20 +3590,20 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
   {
   case MTH_MOVE_OFFLINE_MOBILES:
   {
-    Core::xcoord x;
-    Core::ycoord y;
-    Core::zcoord z;
+    Core::xcoord newx;
+    Core::ycoord newy;
+    Core::zcoord newz;
 
     if ( ex.numParams() == 3 )
     {
-      if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) &&
-           ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
+      if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
+           ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
       {
-        if ( !realm->valid( x, y, z ) )
+        if ( !realm->valid( newx, newy, newz ) )
           return new BError( "Coordinates are out of range" );
 
         set_dirty();
-        move_offline_mobiles( x, y, z, realm );
+        move_offline_mobiles( newx, newy, newz, realm );
         return new BLong( 1 );
       }
       else
@@ -3614,19 +3614,19 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
       if ( ex.numParams() == 4 )
       {
         const String* strrealm;
-        if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) &&
-             ex.getParam( 2, z, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
+        if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
+             ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
              ex.getStringParam( 3, strrealm ) )
         {
-          Realms::Realm* realm = Core::find_realm( strrealm->value() );
-          if ( !realm )
+          Realms::Realm* newrealm = Core::find_realm( strrealm->value() );
+          if ( !newrealm )
             return new BError( "Realm not found" );
 
-          if ( !realm->valid( x, y, z ) )
+          if ( !newrealm->valid( newx, newy, newz ) )
             return new BError( "Coordinates are out of range" );
 
           set_dirty();
-          move_offline_mobiles( x, y, z, realm );
+          move_offline_mobiles( newx, newy, newz, newrealm );
           return new BLong( 1 );
         }
         else

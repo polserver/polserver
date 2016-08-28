@@ -1458,14 +1458,14 @@ bool Character::on_mount() const
 }
 
 
-Items::Item* Character::find_wornitem( u32 serial ) const
+Items::Item* Character::find_wornitem( u32 find_serial ) const
 {
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; layer++ )
   {
     Items::Item* item = wornitems->GetItemOnLayer( layer );
     if ( item )
     {
-      if ( item->serial == serial )
+      if ( item->serial == find_serial )
         return item;
       // 4/2007 - MuadDib
       // Added cont check and using cont->find to check here
@@ -1478,7 +1478,7 @@ Items::Item* Character::find_wornitem( u32 serial ) const
         {
           Core::UContainer* cont = static_cast<Core::UContainer*>( item );
           item = NULL;
-          item = cont->find( serial );
+          item = cont->find( find_serial );
           if ( item != NULL )
             return item;
         }
@@ -1732,17 +1732,17 @@ void Character::setfacing( u8 newfacing )
   facing = newfacing & 7;
 }
 
-u8 Character::get_flag1( Network::Client* client ) const
+u8 Character::get_flag1( Network::Client* other_client ) const
 {
   // Breaks paperdoll
   u8 flag1 = 0;
   if ( gender )
     flag1 |= Core::CHAR_FLAG1_GENDER;
   if ( ( poisoned() ) &&
-       ( ~client->ClientType &
+       ( ~other_client->ClientType &
          Network::CLIENTTYPE_7000 ) )  // client >=7 receive the poisonflag with 0x17
     flag1 |= Core::CHAR_FLAG1_POISONED;
-  if ( ( movemode & Core::MOVEMODE_FLY ) && ( client->ClientType & Network::CLIENTTYPE_7000 ) )
+  if ( ( movemode & Core::MOVEMODE_FLY ) && ( other_client->ClientType & Network::CLIENTTYPE_7000 ) )
     flag1 |= Core::CHAR_FLAG1_FLYING;
   if ( ( Core::settingsManager.ssopt.invul_tag == 2 ) && ( invul() ) )
     flag1 |= Core::CHAR_FLAG1_YELLOWHEALTH;
@@ -3162,13 +3162,13 @@ void Character::set_opponent( Character* new_opponent, bool inform_old_opponent 
   }
 }
 
-void Character::select_opponent( u32 serial )
+void Character::select_opponent( u32 opp_serial )
 {
   // test for setting to same so swing timer doesn't reset
   // if you double-click the same guy over and over
-  if ( opponent_ == NULL || opponent_->serial != serial )
+  if ( opponent_ == NULL || opponent_->serial != opp_serial )
   {
-    Character* new_opponent = Core::find_character( serial );
+    Character* new_opponent = Core::find_character( opp_serial );
     if ( new_opponent != NULL )
     {
       if ( realm != new_opponent->realm )
@@ -3639,9 +3639,6 @@ void Character::check_music_region_change()
   }
 }
 
-bool move_character_to(
-    Character* chr, unsigned short x, unsigned short y, int z,
-    int flags );  // for some reason send_goxyz doesn't work well for this (see below)
 void Character::check_weather_region_change( bool force )  // dave changed 5/26/03 - use force
                                                            // boolean if current weather region
                                                            // changed type/intensity
@@ -4126,7 +4123,7 @@ void Character::add_remote_container( Items::Item* item )
   remote_containers_.push_back( Core::ItemRef( item ) );
 }
 
-Items::Item* Character::search_remote_containers( u32 serial, bool* isRemoteContainer ) const
+Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const
 {
   if ( isRemoteContainer )
     *isRemoteContainer = false;
@@ -4135,7 +4132,7 @@ Items::Item* Character::search_remote_containers( u32 serial, bool* isRemoteCont
     Items::Item* item = elem.get();
     if ( item->orphan() )
       continue;  // it'll be cleaned up when they move
-    if ( item->serial == serial )
+    if ( item->serial == find_serial )
     {
       if ( isRemoteContainer )
         *isRemoteContainer = true;
@@ -4143,7 +4140,7 @@ Items::Item* Character::search_remote_containers( u32 serial, bool* isRemoteCont
     }
     if ( item->isa( UObject::CLASS_CONTAINER ) )
     {
-      item = ( (Core::UContainer*)item )->find( serial );
+      item = ( (Core::UContainer*)item )->find( find_serial );
       if ( item )
       {
         if ( isRemoteContainer )
@@ -4291,9 +4288,9 @@ u16 Character::last_textcolor() const
   return _last_textcolor;
 }
 
-void Character::last_textcolor( u16 color )
+void Character::last_textcolor( u16 new_color )
 {
-  _last_textcolor = color;
+  _last_textcolor = new_color;
 }
 
 unsigned int Character::guildid() const

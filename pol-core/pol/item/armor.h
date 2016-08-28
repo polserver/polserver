@@ -33,7 +33,7 @@ public:
   virtual ~UArmor(){};
   virtual unsigned short ar() const;
   virtual unsigned short ar_base() const;
-  virtual bool covers( unsigned short layer ) const;
+  virtual bool covers( unsigned short zlayer ) const;
   virtual Item* clone() const POL_OVERRIDE;
   virtual size_t estimatedSize() const POL_OVERRIDE;
 

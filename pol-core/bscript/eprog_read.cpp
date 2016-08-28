@@ -407,11 +407,11 @@ int EScriptProgram::read_dbg_file()
     return -1;
   }
 
-  u32 version;
-  size_t fread_res = fread( &version, sizeof version, 1, fp );
-  if ( version != 2 && version != 3 )
+  u32 dbgversion;
+  size_t fread_res = fread( &dbgversion, sizeof dbgversion, 1, fp );
+  if ( dbgversion != 2 && dbgversion != 3 )
   {
-    ERROR_PRINT << "Recompile required. Bad version " << version << " in " << mname
+    ERROR_PRINT << "Recompile required. Bad version " << dbgversion << " in " << mname
                 << ", expected version 2\n";
     fclose( fp );
     return -1;
@@ -494,7 +494,7 @@ int EScriptProgram::read_dbg_file()
       elem = buffer;
     }
   }
-  if ( version >= 3 )
+  if ( dbgversion >= 3 )
   {
     fread_res = fread( &count, sizeof count, 1, fp );
     dbg_functions.resize( count );

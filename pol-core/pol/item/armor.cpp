@@ -148,10 +148,10 @@ unsigned short UArmor::ar_base() const
   return ARMOR_TMPL->ar;
 }
 
-bool UArmor::covers( unsigned short layer ) const
+bool UArmor::covers( unsigned short zlayer ) const
 {
   passert( tmpl != NULL );
-  return ARMOR_TMPL->zones.find( layer ) != ARMOR_TMPL->zones.end();
+  return ARMOR_TMPL->zones.find( zlayer ) != ARMOR_TMPL->zones.end();
 }
 
 Item* UArmor::clone() const
