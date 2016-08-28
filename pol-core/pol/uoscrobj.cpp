@@ -781,6 +781,8 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     else
       return new BError( "object does not belong to a realm." );
     break;
+  case MBR_SPECIFIC_NAME:
+    return new BLong( specific_name() );
   default:
     return NULL;
   }
