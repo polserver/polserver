@@ -365,16 +365,16 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
       return new BError( "House is currently been edited" );
     else if ( !ex.hasParams( 4 ) )
       return new BError( "Not enough parameters" );
-    u16 graphic;
-    int xoff, yoff, z;
-    if ( ex.getParam( 0, graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
-         ex.getParam( 3, z ) )
+    u16 item_graphic;
+    int xoff, yoff, item_z;
+    if ( ex.getParam( 0, item_graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
+         ex.getParam( 3, item_z ) )
     {
       CUSTOM_HOUSE_ELEMENT elem;
-      elem.graphic = graphic;
+      elem.graphic = item_graphic;
       elem.xoffset = xoff;
       elem.yoffset = yoff;
-      elem.z = static_cast<u8>( z );
+      elem.z = static_cast<u8>( item_z );
       CurrentDesign.Add( elem );
       // invalidate
       // invalidate
@@ -397,13 +397,13 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
       return new BError( "House is currently been edited" );
     else if ( !ex.hasParams( 4 ) )
       return new BError( "Not enough parameters" );
-    int graphic, xoff, yoff, z;
-    if ( ex.getParam( 0, graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
-         ex.getParam( 3, z ) )
+    int item_graphic, xoff, yoff, item_z;
+    if ( ex.getParam( 0, item_graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
+         ex.getParam( 3, item_z ) )
     {
       bool ret =
-          CurrentDesign.EraseGraphicAt( static_cast<u16>( graphic ), static_cast<u32>( xoff ),
-                                        static_cast<u32>( yoff ), static_cast<u8>( z ) );
+          CurrentDesign.EraseGraphicAt( static_cast<u16>( item_graphic ), static_cast<u32>( xoff ),
+                                        static_cast<u32>( yoff ), static_cast<u8>( item_z ) );
       if ( ret )
       {
         // invalidate
@@ -568,7 +568,7 @@ void UHouse::destroy_components()
   }
 }
 
-bool UHouse::readshapes( Plib::MapShapeList& vec, short x, short y, short zbase )
+bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, short zbase )
 {
   if ( !custom )
     return false;
@@ -582,12 +582,12 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short x, short y, short zbase 
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
 
-  if ( x + design->xoff < 0 || x + design->xoff >= static_cast<s32>( design->width ) ||
-       y + design->yoff < 0 || y + design->yoff >= static_cast<s32>( design->height ) )
+  if ( shape_x + design->xoff < 0 || shape_x + design->xoff >= static_cast<s32>( design->width ) ||
+       shape_y + design->yoff < 0 || shape_y + design->yoff >= static_cast<s32>( design->height ) )
     return false;
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    elems = design->Elements[i].GetElementsAt( x, y );
+    elems = design->Elements[i].GetElementsAt( shape_x, shape_y );
     for ( itr = elems->begin(); itr != elems->end(); ++itr )
     {
       Plib::MapShape shape;
@@ -606,7 +606,7 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short x, short y, short zbase 
   return result;
 }
 
-bool UHouse::readobjects( Core::StaticList& vec, short x, short y, short zbase )
+bool UHouse::readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase )
 {
   if ( !custom )
     return false;
@@ -620,12 +620,12 @@ bool UHouse::readobjects( Core::StaticList& vec, short x, short y, short zbase )
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
 
-  if ( x + design->xoff < 0 || x + design->xoff >= static_cast<s32>( design->width ) ||
-       y + design->yoff < 0 || y + design->yoff >= static_cast<s32>( design->height ) )
+  if ( obj_x + design->xoff < 0 || obj_x + design->xoff >= static_cast<s32>( design->width ) ||
+       obj_y + design->yoff < 0 || obj_y + design->yoff >= static_cast<s32>( design->height ) )
     return false;
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    elems = design->Elements[i].GetElementsAt( x, y );
+    elems = design->Elements[i].GetElementsAt( obj_x, obj_y );
     for ( itr = elems->begin(); itr != elems->end(); ++itr )
     {
       Core::StaticRec rec( itr->graphic, static_cast<signed char>( itr->z + zbase ),

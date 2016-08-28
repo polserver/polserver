@@ -294,17 +294,17 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
 
   u16 xmod = newx - x;
   u16 ymod = newy - y;
-  Core::UFACING facing = boat_facing();
+  Core::UFACING b_facing = boat_facing();
 
   if ( relative == false )
-    move_dir = static_cast<Core::UFACING>( ( facing + move_dir ) * 7 );
+    move_dir = static_cast<Core::UFACING>( ( b_facing + move_dir ) * 7 );
 
   msg->offset += 2;  // Length
   msg->Write<u32>( serial_ext );
   msg->Write<u8>( speed );
 
   msg->Write<u8>( move_dir );
-  msg->Write<u8>( facing );
+  msg->Write<u8>( b_facing );
 
   msg->WriteFlipped<u16>( newx );
   msg->WriteFlipped<u16>( newy );
@@ -572,9 +572,9 @@ void UBoat::send_boat_old( Network::Client* client )
 {
   Network::PktHelper::PacketOut<Network::PktOut_1A> msg;
   msg->offset += 2;
-  u16 graphic = this->multidef().multiid | 0x4000;
+  u16 b_graphic = this->multidef().multiid | 0x4000;
   msg->Write<u32>( this->serial_ext );
-  msg->WriteFlipped<u16>( graphic );
+  msg->WriteFlipped<u16>( b_graphic );
   msg->WriteFlipped<u16>( this->x );
   msg->WriteFlipped<u16>( this->y );
   msg->Write<s8>( this->z );
@@ -1083,8 +1083,8 @@ bool UBoat::has_offline_mobiles() const
   return false;
 }
 
-void UBoat::move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z,
-                                  Realms::Realm* realm )
+void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z,
+                                  Realms::Realm* new_realm )
 {
   BoatContext bc( *this );
 
@@ -1099,10 +1099,10 @@ void UBoat::move_offline_mobiles( Core::xcoord x, Core::ycoord y, Core::zcoord z
       if ( !chr->logged_in )
       {
         chr->set_dirty();
-        chr->x = x;
-        chr->y = y;
-        chr->z = static_cast<signed char>( z );
-        chr->realm = realm;
+        chr->x = new_x;
+        chr->y = new_y;
+        chr->z = static_cast<signed char>( new_z );
+        chr->realm = new_realm;
         chr->realm_changed();  // not sure if neccessary...
         travellerRef.clear();
       }
@@ -1321,9 +1321,9 @@ inline unsigned short UBoat::multiid_ifturn( RELATIVE_DIR dir )
 
 const MultiDef& UBoat::multi_ifturn( RELATIVE_DIR dir )
 {
-  unsigned short multiid = multiid_ifturn( dir );
-  passert( MultiDefByMultiIDExists( multiid ) );
-  return *MultiDefByMultiID( multiid );
+  unsigned short multiid_dir = multiid_ifturn( dir );
+  passert( MultiDefByMultiIDExists( multiid_dir ) );
+  return *MultiDefByMultiID( multiid_dir );
 }
 
 Core::UFACING UBoat::boat_facing() const

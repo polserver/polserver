@@ -921,9 +921,9 @@ bool ConfigFile::_read( ConfigElem& elem )
         OSTRINGSTREAM os;
         os << "Unexpected type '" << type << "'" << std::endl;
         os << "\tValid types are:";
-        for ( const auto& elem : allowed_types_ )
+        for ( const auto& allowed : allowed_types_ )
         {
-          os << " " << elem.c_str();
+          os << " " << allowed.c_str();
         }
         throw std::runtime_error( OSTRINGSTREAM_STR( os ) );
       }
@@ -986,9 +986,9 @@ bool ConfigFile::_read( VectorConfigElem& elem )
         OSTRINGSTREAM os;
         os << "Unexpected type '" << type << "'" << std::endl;
         os << "\tValid types are:";
-        for ( const auto& elem : allowed_types_ )
+        for ( const auto& allowed : allowed_types_ )
         {
-          os << " " << elem.c_str();
+          os << " " << allowed.c_str();
         }
         throw std::runtime_error( OSTRINGSTREAM_STR( os ) );
       }

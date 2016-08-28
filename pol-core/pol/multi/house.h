@@ -82,8 +82,8 @@ protected:
   virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
   virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
   virtual class UHouse* as_house() POL_OVERRIDE;
-  virtual bool readshapes( Plib::MapShapeList& vec, short x, short y, short zbase ) POL_OVERRIDE;
-  virtual bool readobjects( Core::StaticList& vec, short x, short y, short zbase ) POL_OVERRIDE;
+  virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, short zbase ) POL_OVERRIDE;
+  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase ) POL_OVERRIDE;
   Bscript::ObjArray* component_list() const;
   Bscript::ObjArray* items_list() const;
   Bscript::ObjArray* mobiles_list() const;

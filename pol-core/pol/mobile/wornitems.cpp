@@ -82,21 +82,21 @@ void WornItemsContainer::print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& s
   {
     return;
   }
-  for ( unsigned layer = 0; layer < contents_.size(); ++layer )
+  for ( unsigned clayer = 0; clayer < contents_.size(); ++clayer )
   {
-    const Items::Item* item = contents_[layer];
+    const Items::Item* item = contents_[clayer];
     if ( item )
     {
       if ( !item->itemdesc().save_on_exit || !item->saveonexit() )
         continue;
 
-      if ( ( layer == LAYER_HAIR ) || ( layer == LAYER_BEARD ) || ( layer == LAYER_FACE ) ||
-           ( layer == LAYER_ROBE_DRESS && item->objtype_ == UOBJ_DEATH_SHROUD ) )
+      if ( ( clayer == LAYER_HAIR ) || ( clayer == LAYER_BEARD ) || ( clayer == LAYER_FACE ) ||
+           ( clayer == LAYER_ROBE_DRESS && item->objtype_ == UOBJ_DEATH_SHROUD ) )
       {
         sw_pc << *item;
         item->clear_dirty();
       }
-      else if ( layer == LAYER_BACKPACK )
+      else if ( clayer == LAYER_BACKPACK )
       {
         // write the backpack to the PC file,
         // and the backpack contents to the PCEQUIP file

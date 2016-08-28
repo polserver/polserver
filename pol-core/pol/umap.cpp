@@ -106,17 +106,17 @@ void Map::readProperties( Clib::ConfigElem& elem )
   unsigned short numpins = elem.remove_ushort( "NumPins", 0 );
   std::string pinval;
   char search_string[6];
-  int i, x, y;
+  int i, px, py;
   struct PinPoint pp;
 
   for ( i = 0; i < numpins; i++ )
   {
     sprintf( search_string, "Pin%i", i );
     pinval = elem.remove_string( search_string );
-    sscanf( pinval.c_str(), "%i,%i", &x, &y );
+    sscanf( pinval.c_str(), "%i,%i", &px, &py );
 
-    pp.x = static_cast<unsigned short>( x );
-    pp.y = static_cast<unsigned short>( y );
+    pp.x = static_cast<unsigned short>( px );
+    pp.y = static_cast<unsigned short>( py );
 
     pin_points.push_back( pp );
   }
@@ -207,17 +207,17 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
   case MTH_INSERTPIN:
   {
     int idx;
-    unsigned short x, y;
-    if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) && ex.getParam( 1, x ) &&
-         ex.getParam( 2, y ) )
+    unsigned short px, py;
+    if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) && ex.getParam( 1, px ) &&
+         ex.getParam( 2, py ) )
     {
       struct PinPoint pp;
       pin_points_itr itr;
 
-      if ( !realm->valid( x, y, 0 ) )
+      if ( !realm->valid( px, py, 0 ) )
         return new BError( "Invalid Coordinates for Realm" );
-      pp.x = x;
-      pp.y = y;
+      pp.x = px;
+      pp.y = py;
 
       itr = pin_points.begin();
       itr += idx;
@@ -235,14 +235,14 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
 
   case MTH_APPENDPIN:
   {
-    unsigned short x, y;
-    if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) )
+    unsigned short px, py;
+    if ( ex.getParam( 0, px ) && ex.getParam( 1, py ) )
     {
       struct PinPoint pp;
-      if ( !realm->valid( x, y, 0 ) )
+      if ( !realm->valid( px, py, 0 ) )
         return new BError( "Invalid Coordinates for Realm" );
-      pp.x = x;
-      pp.y = y;
+      pp.x = px;
+      pp.y = py;
       set_dirty();
       pin_points.push_back( pp );
       return new BLong( 1 );
