@@ -75,4 +75,26 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #endif
 #endif
 
+
+// the following code to handle NOEXCEPT was obtained
+// from http://stackoverflow.com/questions/18387640/how-to-deal-with-noexcept-in-visual-studio
+#if !defined(HAS_NOEXCEPT)
+#if defined(__clang__)
+#if __has_feature(cxx_noexcept)
+#define HAS_NOEXCEPT
+#endif
+#else
+#if defined(__GXX_EXPERIMENTAL_CXX0X__) && __GNUC__ * 10 + __GNUC_MINOR__ >= 46 || \
+    defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 190023026
+#define HAS_NOEXCEPT
+#endif
+#endif
+
+#ifdef HAS_NOEXCEPT
+#define POL_NOEXCEPT noexcept
+#else
+#define POL_NOEXCEPT
+#endif
+#endif
+
 #endif

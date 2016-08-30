@@ -17,6 +17,8 @@
 #ifndef __REFPTR_H
 #define __REFPTR_H
 
+#include "compilerspecifics.h"
+
 #include <atomic>
 
 // **** base class for ref counted classes
@@ -65,6 +67,7 @@ class ref_ptr
 public:
   explicit ref_ptr( T* ptr = 0 );
   ref_ptr( const ref_ptr& rptr );
+  ref_ptr( ref_ptr&& rptr ) POL_NOEXCEPT;
   ~ref_ptr();
 
   // Operations
@@ -88,6 +91,8 @@ public:
   bool operator>=( T* ptr ) const;
 
   ref_ptr& operator=( const ref_ptr& rptr );
+  ref_ptr& operator=( ref_ptr&& rptr );
+
   void set( T* ptr );
   void clear();
 
@@ -150,6 +155,16 @@ ref_ptr<T>::ref_ptr( const ref_ptr& rptr )
   ++refptr_count;
 #endif
 }
+
+template <class T>
+ref_ptr<T>::ref_ptr(ref_ptr&& rptr) POL_NOEXCEPT
+	: _ptr(rptr._ptr.exchange(nullptr))
+{
+#if REFPTR_DEBUG
+	--refptr_count;
+#endif
+}
+
 template <class T>
 ref_ptr<T>::~ref_ptr()
 {
@@ -250,6 +265,15 @@ ref_ptr<T>& ref_ptr<T>::operator=( const ref_ptr<T>& rptr )
 
   return *this;
 }
+
+template <class T>
+ref_ptr<T>& ref_ptr<T>::operator=(ref_ptr<T>&& rptr)
+{
+	release();
+	_ptr = rptr._ptr.exchange(nullptr);
+	return *this;
+}
+
 template <class T>
 void ref_ptr<T>::set( T* ptr )
 {
