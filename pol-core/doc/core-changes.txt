@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+08-28-2016 Turley:
+  Fixed:   Calculation of NPC AOS resistance/damage values
+  Added:   Member object.specific_name
+           returns 1 if a custom name is set. if its still the original (eg itemdesc) returns 0
 03-27-2016 Nando:
   Added:   Option "ThreadStacktracesWhenStuck" to pol.cfg. Useful to debug the core when
            no clock movement occurs for more than 30 seconds. Defaults to false.

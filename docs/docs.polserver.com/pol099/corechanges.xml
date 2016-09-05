@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-27-2016</datemodified>
+		<datemodified>09-05-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>08-28-2016</date>
+			<author>Turley:</author>
+			<change type="Fixed">Calculation of NPC AOS resistance/damage values</change>
+			<change type="Added">Member object.specific_name<br/>
+returns 1 if a custom name is set. if its still the original (eg itemdesc) returns 0</change>
+		</entry>
 		<entry>
 			<date>03-27-2016</date>
 			<author>Nando:</author>
