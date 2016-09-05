@@ -73,6 +73,7 @@
 <member mname="dirty" type="Boolean" access="r/o" mdesc="This is set when anything on the object changes, and cleared on world save" />
 <member mname="weight" type="Integer" access="r/o" mdesc="weight of the graphic as defined in tiledata.mul" />
 <member mname="multi" type="Multi" access="r/o" mdesc="MultiRef for the Multi the object is on" />
+<member mname="specific_name" type="Boolean" access="r/o" mdesc="Set if a specific name is set, otherwise like itemdesc name false." />
 
 <method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, array arguments)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string (array of int); separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, CAscZ(&quot;1234 5678&quot;));" />
 <method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
@@ -84,7 +85,7 @@
 <method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
 <method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 <method desc="Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;u suck&quot;) is the same as obj.name := &quot;u suck&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error" />
-<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername" returns="object, value of member or error" />
+<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
 
 
