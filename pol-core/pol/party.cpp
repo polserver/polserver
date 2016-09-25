@@ -626,11 +626,11 @@ void Party::on_mana_changed( Mobile::Character* chr ) const
   Network::PktHelper::PacketOut<Network::PktOut_A2> msg;
   msg->Write<u32>( chr->serial_ext );
 
-  int h, mh;
-  h = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
+  const auto& vital = chr->vital( networkManager.uoclient_general.mana.id );
+  int h = vital.current_ones();
   if ( h > 0xFFFF )
     h = 0xFFFF;
-  mh = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
+  int mh = vital.maximum_ones();
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
@@ -654,11 +654,11 @@ void Party::on_stam_changed( Mobile::Character* chr ) const
   Network::PktHelper::PacketOut<Network::PktOut_A3> msg;
   msg->Write<u32>( chr->serial_ext );
 
-  int h, mh;
-  h = chr->vital( networkManager.uoclient_general.mana.id ).current_ones();
+  const auto& vital = chr->vital( networkManager.uoclient_general.stamina.id );
+  int h = vital.current_ones();
   if ( h > 0xFFFF )
     h = 0xFFFF;
-  mh = chr->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
+  int mh = vital.maximum_ones();
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
@@ -1466,30 +1466,32 @@ void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob 
 {
   Network::PktHelper::PacketOut<Network::PktOut_2D> msg;
   msg->Write<u32>( bob->serial_ext );
-  int h, mh;
 
-  h = bob->vital( networkManager.uoclient_general.hits.id ).current_ones();
+  const auto& hits = bob->vital( networkManager.uoclient_general.hits.id );
+  int h = hits.current_ones();
   if ( h > 0xFFFF )
     h = 0xFFFF;
-  mh = bob->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
+  int mh = hits.maximum_ones();
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
   msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
 
-  h = bob->vital( networkManager.uoclient_general.mana.id ).current_ones();
+  const auto& mana = bob->vital( networkManager.uoclient_general.mana.id );
+  h = mana.current_ones();
   if ( h > 0xFFFF )
     h = 0xFFFF;
-  mh = bob->vital( networkManager.uoclient_general.mana.id ).maximum_ones();
+  mh = mana.maximum_ones();
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
   msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
 
-  h = bob->vital( networkManager.uoclient_general.stamina.id ).current_ones();
+  const auto& stam = bob->vital( networkManager.uoclient_general.stamina.id );
+  h = stam.current_ones();
   if ( h > 0xFFFF )
     h = 0xFFFF;
-  mh = bob->vital( networkManager.uoclient_general.stamina.id ).maximum_ones();
+  mh = stam.maximum_ones();
   if ( mh > 0xFFFF )
     mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
