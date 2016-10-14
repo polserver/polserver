@@ -1080,14 +1080,14 @@ int UoConvertMain::main()
     Plib::systemstate.config.uo_datafile_root =
         Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
 
-    unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
+    unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x0 );
 
     if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
       Plib::systemstate.config.max_tile_id = max_tile;
   }
 
   unsigned short max_tile =
-      static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", UOBJ_DEFAULT_MAX, true ) );
+      static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", 0x0, true ) );
   if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
     Plib::systemstate.config.max_tile_id = max_tile;
 
