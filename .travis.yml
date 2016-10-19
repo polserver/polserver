@@ -29,6 +29,7 @@ before_install:
   - chmod a+x build_linux.sh
 
 script:
+  - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
   - export TRAVIS_CI=1
   - if [ "$CXX" = "g++" ]; then 
       export CXX="g++-5" CC="gcc-5";
@@ -36,11 +37,17 @@ script:
   - if [ "$CXX" = "clang++" ]; then 
       export CXX="clang++-3.7" CC="clang-3.7";
     fi
-  - ./build_linux.sh
+  - echo -en 'travis_fold:end:script.configure\\r'
 
+  - echo 'Build...' && echo -en 'travis_fold:start:script.build\\r'
+  - ./build_linux.sh
+  - echo -en 'travis_fold:end:script.build\\r'
+
+  - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
   - cd ../../testsuite/escript
   - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
-  
+  - echo -en 'travis_fold:end:script.tests\\r'
+
 notifications:
   email:
     - polteam@polserver.com
