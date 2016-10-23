@@ -75,9 +75,6 @@
 <member mname="multi" type="Multi" access="r/o" mdesc="MultiRef for the Multi the object is on" />
 <member mname="specific_name" type="Boolean" access="r/o" mdesc="Set if a specific name is set, otherwise like itemdesc name false." />
 
-<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, array arguments)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string (array of int); separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, CAscZ(&quot;1234 5678&quot;));" />
-<method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
-<method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
 <method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 <method proto="isa(POLCLASS_*)" returns="boolean" desc="True if the derived class is the same as the passed class type (see uo.em for all constants)" />
 <method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
@@ -300,6 +297,9 @@
 <method proto="clearLawfullydamagedTo(MobileRef chr)" returns="true/error" desc="clears lawfullydamaged entry for given chr" />
 <method proto="deaf(int duration)" returns="int/error" desc="character cannot hear for 'duration' seconds. -1 means forever. 0 clears the deaf" />
 <method proto="setseason(int season_id,int playsound )" returns="int/error" desc="Used to send the Season packet 0xBC to a single character, doesnt resend the lightlevel or weather." />
+<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, array arguments)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string (array of int); separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, CAscZ(&quot;1234 5678&quot;));" />
+<method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
+<method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
 </class>
 
 
