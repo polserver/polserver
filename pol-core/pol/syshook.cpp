@@ -26,8 +26,6 @@
 
 #include <string>
 
-/// SystemHookScript functions:
-///	CheckSkill( who, skillid, difficulty, points )
 namespace Pol
 {
 namespace Core
