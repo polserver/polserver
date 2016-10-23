@@ -133,7 +133,7 @@ Listener
     <numberallowed>1</numberallowed>
     <requiredtostart>Yes</requiredtostart>
     <requiredby>UOConvert</requiredby>
-    <purpose>Defining what Multi IDs are what type (Boat, House, Stairs). Defining what Item IDs are Mounts. Configures options for UOConvert.</purpose>
+    <purpose>Defines options for uoconvert. Lists the MultiID of boats, houses and decorations ("stairs"). Defines which ItemIDs are valid mounts.</purpose>
     <structure>
 #
 # UseNoShoot:         means uoconvert will determine whether or not something blocks LOS by use of
@@ -195,8 +195,8 @@ ClientOptions
   UseNewHSAFormat (integer 0/1 {default 0})
 }
 </structure>
-    <explain>MultiIDs depends on your multi.mul/idx.</explain>
-    <explain>ItemIDs depends on your anim.mul and tiledata.mul.</explain>
+    <explain>MultiIDs are defined in multi.mul/idx. A multi can either be a "house", "boat" or "stairs" (decorations such as stairs, curtains, carpets, etc).</explain>
+    <explain>ItemIDs are defined in anim.mul and tiledata.mul.</explain>
 </cfgfile>
 
 
