@@ -532,7 +532,7 @@ unsigned int Character::weight() const
 }
 
 ///
-/// A Mobile's carrying capacity is 40 + STR * 3.5 stones.
+/// A Mobile's carrying capacity is (40 + 3.5*STR + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod stones.
 ///
 unsigned short Character::carrying_capacity() const
 {

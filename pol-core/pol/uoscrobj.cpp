@@ -1895,6 +1895,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_CARRYINGCAPACITY_MOD:
     return new BLong( carrying_capacity_mod() );
     break;
+  case MBR_CARRYINGCAPACITY:
+    return new BLong( carrying_capacity() );
+    break;
   case MBR_FIRE_RESIST:
     return new BLong( fire_resist().value );
     break;

@@ -1,4 +1,11 @@
 ﻿-- POL099 --
+10-23-2016 Nando:
+  Added:   Member character.carrying_capacity (read only)
+           Returns the current carrying capacity of a character, defined as:
+              (40 + 3.5*STR + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod
+   Note:   Characters can go above their carrying_capacity, but they will spend
+           much more stamina to move according to movecost.cfg. Don't treat this
+           as max_weight.
 08-28-2016 Turley:
   Fixed:   Calculation of NPC AOS resistance/damage values
   Added:   Member object.specific_name

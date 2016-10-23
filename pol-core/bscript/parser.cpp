@@ -265,8 +265,7 @@ Operator unary_operators[] = {
 int n_unary = sizeof unary_operators / sizeof unary_operators[0];
 
 ObjMember object_members[] = {
-    // MBR_*, "name", fits into another member name
-    // Example of true/false -> ('ar' vs 'warmode', 'ar' must be true)
+    // MBR_*, "name", read_only
     {MBR_X, "x", true},  // 0
     {MBR_Y, "y", true},  // 1
     {MBR_Z, "z", true},
@@ -486,6 +485,7 @@ ObjMember object_members[] = {
     {MBR_LAST_PACKET_AT, "last_packet_at", false},
     {MBR_HOUSE, "house", true},  // 215, Item
     {MBR_SPECIFIC_NAME, "specific_name", true},
+	{MBR_CARRYINGCAPACITY, "carrying_capacity", true},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

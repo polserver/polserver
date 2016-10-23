@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-05-2016</datemodified>
+		<datemodified>10-23-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>10-23-2016</date>
+			<author>Nando:</author>
+			<change type="Added">Member character.carrying_capacity (read only)<br/>
+Returns the current carrying capacity of a character, defined as:<br/>
+   (40 + 3.5*STR + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod</change>
+			<change type="Note">Characters can go above their carrying_capacity, but they will spend<br/>
+much more stamina to move according to movecost.cfg. Don't treat this<br/>
+as max_weight.</change>
+		</entry>
 		<entry>
 			<date>08-28-2016</date>
 			<author>Turley:</author>
