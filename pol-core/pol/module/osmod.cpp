@@ -110,11 +110,6 @@ unsigned int OSExecutorModule::pid() const
   return pid_;
 }
 
-bool OSExecutorModule::blocked() const
-{
-  return blocked_;
-}
-
 OSFunctionDef OSExecutorModule::function_table[] = {
     {"create_debug_context", &OSExecutorModule::create_debug_context},
     {"getprocess", &OSExecutorModule::getprocess},
@@ -754,16 +749,13 @@ void OSExecutorModule::revive()
   blocked_ = false;
   if ( in_hold_list_ == TIMEOUT_LIST )
   {
-    Core::scriptEngineInternalManager.holdlist.erase( hold_itr_ );
-    in_hold_list_ = NO_LIST;
-    Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+	in_hold_list_ = NO_LIST;
+	Core::scriptEngineInternalManager.revive_timeout(static_cast<Core::UOExecutor*>(&exec), hold_itr_);
   }
   else if ( in_hold_list_ == NOTIMEOUT_LIST )
   {
-    Core::scriptEngineInternalManager.notimeoutholdlist.erase(
-        static_cast<Core::UOExecutor*>( &exec ) );
     in_hold_list_ = NO_LIST;
-    Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+	Core::scriptEngineInternalManager.revive_notimeout(static_cast<Core::UOExecutor*>(&exec));
   }
   else if ( in_hold_list_ == DEBUGGER_LIST )
   {
@@ -776,10 +768,8 @@ bool OSExecutorModule::in_debugger_holdlist() const
 }
 void OSExecutorModule::revive_debugged()
 {
-  Core::scriptEngineInternalManager.debuggerholdlist.erase(
-      static_cast<Core::UOExecutor*>( &exec ) );
   in_hold_list_ = NO_LIST;
-  Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+  Core::scriptEngineInternalManager.revive_debugged(static_cast<Core::UOExecutor*>(&exec));
 }
 
 const int SCRIPTOPT_NO_INTERRUPT = 1;

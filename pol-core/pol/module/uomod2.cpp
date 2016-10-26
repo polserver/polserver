@@ -1707,13 +1707,15 @@ void add_script( ObjArray* arr, UOExecutor* uoexec, const char* /*state*/ )
 BObjectImp* GetRunningScriptList()
 {
   ObjArray* arr = new ObjArray;
-  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin();
-        itr != scriptEngineInternalManager.ranlist.end(); ++itr )
+
+  const ExecList& runlist = scriptEngineInternalManager.getRunlist();
+  const ExecList& ranlist = scriptEngineInternalManager.getRanlist();
+
+  for ( auto itr = ranlist.cbegin(); itr != ranlist.cend(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
-  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
-        itr != scriptEngineInternalManager.runlist.end(); ++itr )
+  for ( auto itr = runlist.cbegin(); itr != runlist.cend(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
@@ -1723,23 +1725,25 @@ BObjectImp* GetRunningScriptList()
 BObjectImp* GetAllScriptList()
 {
   ObjArray* arr = new ObjArray;
-  for ( ExecList::iterator itr = scriptEngineInternalManager.ranlist.begin();
-        itr != scriptEngineInternalManager.ranlist.end(); ++itr )
+  
+  const ExecList& runlist = scriptEngineInternalManager.getRunlist();
+  const ExecList& ranlist = scriptEngineInternalManager.getRanlist();
+  const HoldList& holdlist = scriptEngineInternalManager.getHoldlist();
+  const NoTimeoutHoldList& notimeoutholdlist = scriptEngineInternalManager.getNoTimeoutHoldlist();
+
+  for ( auto itr = ranlist.cbegin(); itr != ranlist.cend(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
-  for ( ExecList::iterator itr = scriptEngineInternalManager.runlist.begin();
-        itr != scriptEngineInternalManager.runlist.end(); ++itr )
+  for ( auto itr = runlist.cbegin(); itr != runlist.cend(); ++itr )
   {
     add_script( arr, *itr, "Running" );
   }
-  for ( HoldList::iterator itr = scriptEngineInternalManager.holdlist.begin();
-        itr != scriptEngineInternalManager.holdlist.end(); ++itr )
+  for ( auto itr = holdlist.cbegin(); itr != holdlist.cend(); ++itr )
   {
     add_script( arr, ( *itr ).second, "Sleeping" );
   }
-  for ( NoTimeoutHoldList::iterator itr = scriptEngineInternalManager.notimeoutholdlist.begin();
-        itr != scriptEngineInternalManager.notimeoutholdlist.end(); ++itr )
+  for ( auto itr = notimeoutholdlist.begin(); itr != notimeoutholdlist.end(); ++itr )
   {
     add_script( arr, *itr, "Sleeping" );
   }

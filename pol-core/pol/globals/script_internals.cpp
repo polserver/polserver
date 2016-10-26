@@ -2,7 +2,15 @@
 
 #include "../../clib/stlutil.h"
 
+
+#include "../../plib/systemstate.h" // needed for config
+#include "state.h" // needed for thread checkpoint
+
+#include "../module/osmod.h"
+
 #include "../uoexec.h"
+#include "../polsig.h"
+#include "../../clib/logfacility.h"
 
 namespace Pol
 {
@@ -123,5 +131,158 @@ ScriptEngineInternalManager::Memory ScriptEngineInternalManager::estimateSize() 
 
   return usage;
 }
+
+void ScriptEngineInternalManager::run_ready() {
+
+	THREAD_CHECKPOINT(scripts, 110);
+	while (!runlist.empty())
+	{
+		ExecList::iterator itr = runlist.begin();
+		UOExecutor* ex = *itr;
+		passert_paranoid(ex != nullptr);
+		runlist.pop_front();  // remove it directly, since itr can get invalid during execution
+
+		Module::OSExecutorModule* os_module = ex->os_module;
+		Clib::scripts_thread_script = ex->scriptname();
+		
+		int inscount = 0;
+		int totcount = 0;
+		int insleft = os_module->priority / priority_divide;
+		if (insleft == 0)
+			insleft = 1;
+
+		THREAD_CHECKPOINT(scripts, 111);
+
+		while (ex->runnable())
+		{
+			++ex->instr_cycles;
+			THREAD_CHECKPOINT(scripts, 112);
+			Clib::scripts_thread_scriptPC = ex->PC;
+			ex->execInstr();
+
+			THREAD_CHECKPOINT(scripts, 113);
+
+			if (os_module->blocked())
+			{
+				ex->warn_runaway_on_cycle =
+					ex->instr_cycles + Plib::systemstate.config.runaway_script_threshold;
+				ex->runaway_cycles = 0;
+				break;
+			}
+
+			if (ex->instr_cycles == ex->warn_runaway_on_cycle)
+			{
+				ex->runaway_cycles += Plib::systemstate.config.runaway_script_threshold;
+				if (os_module->warn_on_runaway)
+				{
+					fmt::Writer tmp;
+					tmp << "Runaway script[" << os_module->pid() << "]: " << ex->scriptname() << " ("
+						<< ex->runaway_cycles << " cycles)\n";
+					ex->show_context(tmp, ex->PC);
+					SCRIPTLOG << tmp.str();
+				}
+				ex->warn_runaway_on_cycle += Plib::systemstate.config.runaway_script_threshold;
+			}
+
+			if (os_module->critical)
+			{
+				++inscount;
+				++totcount;
+				if (inscount > 1000)
+				{
+					inscount = 0;
+					if (Plib::systemstate.config.report_critical_scripts)
+					{
+						fmt::Writer tmp;
+						tmp << "Critical script " << ex->scriptname() << " has run for " << totcount
+							<< " instructions\n";
+						ex->show_context(tmp, ex->PC);
+						ERROR_PRINT << tmp.str();
+					}
+				}
+				continue;
+			}
+
+			if (!--insleft)
+			{
+				break;
+			}
+		}
+
+		// hmm, this new terminology (runnable()) is confusing
+		// in this case.  Technically, something that is blocked
+		// isn't runnable.
+		if (!ex->runnable())
+		{
+			if (ex->error() || ex->done)
+			{
+				THREAD_CHECKPOINT(scripts, 114);
+
+				if ((ex->pParent != NULL) && ex->pParent->runnable())
+				{
+					ranlist.push_back(ex);
+					// ranlist.splice( ranlist.end(), runlist, itr );
+					ex->pParent->os_module->revive();
+				}
+				else
+				{
+					// runlist.erase( itr );
+					// Check if the script has a child script running
+					// Set the parent of the child script NULL to stop crashing when trying to return to
+					// parent script
+					if (ex->pChild != NULL)
+						ex->pChild->pParent = NULL;
+
+					delete ex;
+				}
+				continue;
+			}
+			else if (!ex->os_module->blocked())
+			{
+				THREAD_CHECKPOINT(scripts, 115);
+
+				// runlist.erase( itr );
+				ex->os_module->in_hold_list_ = Module::OSExecutorModule::DEBUGGER_LIST;
+				debuggerholdlist.insert(ex);
+				continue;
+			}
+		}
+
+		if (ex->os_module->blocked())
+		{
+			THREAD_CHECKPOINT(scripts, 116);
+
+			if (ex->os_module->sleep_until_clock_)
+			{
+				ex->os_module->in_hold_list_ = Module::OSExecutorModule::TIMEOUT_LIST;
+				ex->os_module->hold_itr_ = holdlist.insert(
+					HoldList::value_type(ex->os_module->sleep_until_clock_, ex));
+			}
+			else
+			{
+				ex->os_module->in_hold_list_ = Module::OSExecutorModule::NOTIMEOUT_LIST;
+				notimeoutholdlist.insert(ex);
+			}
+
+			// runlist.erase( itr );
+			--ex->sleep_cycles;  // it'd get counted twice otherwise
+			--stateManager.profilevars.sleep_cycles;
+
+			THREAD_CHECKPOINT(scripts, 117);
+		}
+		else
+		{
+			ranlist.push_back(ex);
+			// ranlist.splice( ranlist.end(), runlist, itr );
+		}
+	}
+	THREAD_CHECKPOINT(scripts, 118);
+
+	runlist.swap(ranlist);
+	THREAD_CHECKPOINT(scripts, 119);
+}
+
+
+
 }
 }

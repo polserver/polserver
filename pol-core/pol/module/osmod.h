@@ -137,7 +137,8 @@ protected:
 
   friend class NPCExecutorModule;
   friend void step_scripts( void );
-  friend void Core::run_ready( void );
+ // friend void Core::run_ready( void );
+  friend class Core::ScriptEngineInternalManager; // TODO: REMOVE THIS AS SOON AS POSSIBLE!!!
   friend void Core::check_blocked( Core::polclock_t* pclocksleft );
   friend void new_check_blocked( void );
   friend void Core::deschedule_executor( Core::UOExecutor* ex );
@@ -158,6 +159,12 @@ inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Charact
 {
   return Core::getCharacterParam( exec, param, chrptr );
 }
+
+inline bool OSExecutorModule::blocked() const
+{
+	return blocked_;
+}
+
 }
 }
 
