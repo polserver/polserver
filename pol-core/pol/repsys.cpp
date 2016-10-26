@@ -39,16 +39,16 @@
 //  opponent.
 //
 
-
-///$TITLE=Reputation System
-
-/// [1] Reputation System Configuration
-/// Reputation System Configuration is read from config/repsys.cfg
-/// This file is re-read on a config reload.
 namespace Pol
 {
 namespace Core
 {
+
+///Reputation System
+
+/// [1] Reputation System Configuration
+/// Reputation System Configuration is read from config/repsys.cfg
+/// This file is re-read on a config reload.
 /// [1.1] General Configuration
 ///  Settings are defined in the General section:
 ///	CriminalFlagInterval	 Time, in seconds, for which you will be marked criminal

@@ -35,11 +35,12 @@
 
 #include <stdexcept>
 
-///$TITLE=Resource Management
 namespace Pol
 {
 namespace Core
 {
+
+///Resource Management
 ResourceRegion::ResourceRegion( Clib::ConfigElem& elem, RegionId id )
     : Region( elem, id ),
       tilecount_( 0 ),

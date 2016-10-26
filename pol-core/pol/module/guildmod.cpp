@@ -38,6 +38,24 @@
 
 namespace Pol
 {
+namespace Bscript
+{
+using namespace Module;
+template <>
+TmplExecutorModule<GuildExecutorModule>::FunctionDef
+    TmplExecutorModule<GuildExecutorModule>::function_table[] = {
+        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds},
+        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild},
+        {"FindGuild", &GuildExecutorModule::mf_FindGuild},
+        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
+};
+template <>
+int TmplExecutorModule<GuildExecutorModule>::function_table_size = arsize( function_table );
+}
+namespace Module
+{
+using namespace Bscript;
+
 /// Guild Object
 ///  Properties:
 ///   guild.guildid : integer
@@ -62,24 +80,6 @@ namespace Pol
 ///   guild.setprop( propname, propvalue )
 ///   guild.eraseprop( propname )
 ///
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<GuildExecutorModule>::FunctionDef
-    TmplExecutorModule<GuildExecutorModule>::function_table[] = {
-        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds},
-        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild},
-        {"FindGuild", &GuildExecutorModule::mf_FindGuild},
-        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
-};
-template <>
-int TmplExecutorModule<GuildExecutorModule>::function_table_size = arsize( function_table );
-}
-namespace Module
-{
-using namespace Bscript;
-
 class EGuildRefObjImp : public BApplicObj<Core::GuildRef>
 {
 public:
@@ -477,8 +477,9 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 }
 
 
-/// uo.em functions:
-///  ListGuilds(); // returns an array of Guild objects
+// uo.em functions:
+
+///  ListGuilds returns an array of Guild objects
 BObjectImp* GuildExecutorModule::mf_ListGuilds()
 {
   std::unique_ptr<ObjArray> result( new ObjArray );
@@ -492,7 +493,7 @@ BObjectImp* GuildExecutorModule::mf_ListGuilds()
   return result.release();
 }
 
-///  CreateGuild(); // returns a new Guild object
+///  CreateGuild returns a new Guild object
 BObjectImp* GuildExecutorModule::mf_CreateGuild()
 {
   Core::Guild* guild = new Core::Guild( Core::gamestate.nextguildid++ );
