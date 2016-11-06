@@ -116,7 +116,7 @@ protected:
     NOTIMEOUT_LIST,
     DEBUGGER_LIST
   } in_hold_list_;
-  Core::HoldList::iterator hold_itr_;
+  Core::TimeoutHandle hold_itr_;
 
   unsigned int pid_;
 
@@ -138,7 +138,7 @@ protected:
   friend class NPCExecutorModule;
   friend void step_scripts( void );
  // friend void Core::run_ready( void );
-  friend class Core::ScriptEngineInternalManager; // TODO: REMOVE THIS AS SOON AS POSSIBLE!!!
+  friend class Core::ScriptScheduler; // TODO: REMOVE THIS AS SOON AS POSSIBLE!!!
   friend void Core::check_blocked( Core::polclock_t* pclocksleft );
   friend void new_check_blocked( void );
   friend void Core::deschedule_executor( Core::UOExecutor* ex );

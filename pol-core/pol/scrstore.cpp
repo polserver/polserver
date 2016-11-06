@@ -31,15 +31,15 @@ namespace Core
 {
 bool script_loaded( ScriptDef& sd )
 {
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( sd.name().c_str() );
-  return ( itr != scriptEngineInternalManager.scrstore.end() );
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( sd.name().c_str() );
+  return ( itr != scriptScheduler.scrstore.end() );
 }
 
 ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool complain_if_not_found,
                                               bool cache_script )
 {
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( name.c_str() );
-  if ( itr != scriptEngineInternalManager.scrstore.end() )
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( name.c_str() );
+  if ( itr != scriptScheduler.scrstore.end() )
   {
     if ( cache_script )
     {
@@ -48,7 +48,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
     else
     {
       ref_ptr<Bscript::EScriptProgram> res( ( *itr ).second );
-      scriptEngineInternalManager.scrstore.erase( itr );
+      scriptScheduler.scrstore.erase( itr );
       return res;
     }
   }
@@ -72,7 +72,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
   {
     std::string tmpname = name;
     Clib::mklower( tmpname );
-    scriptEngineInternalManager.scrstore.insert(
+    scriptScheduler.scrstore.insert(
         ScriptStorage::value_type( tmpname.c_str(), program ) );
   }
 
@@ -84,8 +84,8 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
 ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool complain_if_not_found,
                                                bool cache_script )
 {
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( script.c_str() );
-  if ( itr != scriptEngineInternalManager.scrstore.end() )
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( script.c_str() );
+  if ( itr != scriptScheduler.scrstore.end() )
     return ( *itr ).second;
 
   ref_ptr<Bscript::EScriptProgram> program( new Bscript::EScriptProgram );
@@ -104,7 +104,7 @@ ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool com
   {
     std::string tmpname = script.name();
     Clib::mklower( tmpname );
-    scriptEngineInternalManager.scrstore.insert(
+    scriptScheduler.scrstore.insert(
         ScriptStorage::value_type( tmpname.c_str(), program ) );
   }
 
@@ -115,8 +115,8 @@ ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool com
 int unload_script( const std::string& name_in )
 {
   int n = 0;
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.begin();
-  while ( itr != scriptEngineInternalManager.scrstore.end() )
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.begin();
+  while ( itr != scriptScheduler.scrstore.end() )
   {
     ScriptStorage::iterator cur = itr;
     ++itr;
@@ -126,7 +126,7 @@ int unload_script( const std::string& name_in )
     if ( strstr( nm_cstr, name_in.c_str() ) )
     {
       INFO_PRINT << "Unloading " << nm_cstr << "\n";
-      scriptEngineInternalManager.scrstore.erase( cur );
+      scriptScheduler.scrstore.erase( cur );
       ++n;
 
       // dave added 1/30/3, FIXME: if in the future we have to add any other scripts to
@@ -149,8 +149,8 @@ int unload_script( const std::string& name_in )
 
 int unload_all_scripts()
 {
-  int n = static_cast<int>( scriptEngineInternalManager.scrstore.size() );
-  scriptEngineInternalManager.scrstore.clear();
+  int n = static_cast<int>( scriptScheduler.scrstore.size() );
+  scriptScheduler.scrstore.clear();
   Items::preload_test_scripts();  // dave added 1/30/3, no other time do we reload unequiptest and
                                   // equiptest
   return n;
@@ -159,7 +159,7 @@ int unload_all_scripts()
 void log_all_script_cycle_counts( bool clear_counters )
 {
   u64 total_instr = 0;
-  for ( const auto& scr : scriptEngineInternalManager.scrstore )
+  for ( const auto& scr : scriptScheduler.scrstore )
   {
     total_instr += scr.second->instr_cycles;
   }
@@ -180,7 +180,7 @@ void log_all_script_cycle_counts( bool clear_counters )
                                                      << "incov"
                                                      << "cyc/invoc"
                                                      << "%";
-  for ( const auto& scr : scriptEngineInternalManager.scrstore )
+  for ( const auto& scr : scriptScheduler.scrstore )
   {
     Bscript::EScriptProgram* eprog = scr.second.get();
     double cycle_percent =
@@ -203,7 +203,7 @@ void log_all_script_cycle_counts( bool clear_counters )
 
 void clear_script_profile_counters()
 {
-  for ( const auto& scr : scriptEngineInternalManager.scrstore )
+  for ( const auto& scr : scriptScheduler.scrstore )
   {
     Bscript::EScriptProgram* eprog = scr.second.get();
     eprog->instr_cycles = 0;

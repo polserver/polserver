@@ -16,15 +16,15 @@ namespace Pol
 {
 namespace Core
 {
-ScriptEngineInternalManager scriptEngineInternalManager;
+ScriptScheduler scriptScheduler;
 
 // This number is intended so that PID and custom GUMPIDS will never clash together
 // and to avoid breaking the old assumption that gumpid == pid when gumpid has been
 // automatically generated (for backward compatibility).
 // Custom gumpids must always be < PID_MIN.
-const unsigned int ScriptEngineInternalManager::PID_MIN = 0x01000000;
+const unsigned int ScriptScheduler::PID_MIN = 0x01000000;
 
-ScriptEngineInternalManager::ScriptEngineInternalManager()
+ScriptScheduler::ScriptScheduler()
     : runlist(),
       ranlist(),
       holdlist(),
@@ -37,7 +37,7 @@ ScriptEngineInternalManager::ScriptEngineInternalManager()
 {
 }
 
-ScriptEngineInternalManager::~ScriptEngineInternalManager()
+ScriptScheduler::~ScriptScheduler()
 {
 }
 
@@ -45,7 +45,7 @@ ScriptEngineInternalManager::~ScriptEngineInternalManager()
 // will be deleted by cleanup_scripts()
 // Therefore, any object that owns an executor must be destroyed
 // before cleanup_scripts() is called.
-void ScriptEngineInternalManager::deinitialize()
+void ScriptScheduler::deinitialize()
 {
   scrstore.clear();
   Clib::delete_all( runlist );
@@ -66,7 +66,7 @@ void ScriptEngineInternalManager::deinitialize()
   }
 }
 
-ScriptEngineInternalManager::Memory ScriptEngineInternalManager::estimateSize() const
+ScriptScheduler::Memory ScriptScheduler::estimateSize() const
 {
   Memory usage;
   memset( &usage, 0, sizeof( usage ) );
@@ -132,7 +132,8 @@ ScriptEngineInternalManager::Memory ScriptEngineInternalManager::estimateSize() 
   return usage;
 }
 
-void ScriptEngineInternalManager::run_ready() {
+
+void ScriptScheduler::run_ready() {
 
 	THREAD_CHECKPOINT(scripts, 110);
 	while (!runlist.empty())
@@ -282,6 +283,11 @@ void ScriptEngineInternalManager::run_ready() {
 	THREAD_CHECKPOINT(scripts, 119);
 }
 
+void ScriptScheduler::schedule(UOExecutor* exec)
+{
+	exec->setDebugLevel(Bscript::Executor::NONE);
+	enqueue(exec);
+}
 
 
 }

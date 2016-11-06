@@ -992,7 +992,7 @@ BObjectImp* UOExecutorModule::mf_SendGumpMenu()
     if ( gump_id < 1 )
       return new BError( "GumpID out of range" );
     gumpid = (u32)gump_id;
-    if ( gumpid >= ScriptEngineInternalManager::PID_MIN )
+    if ( gumpid >= ScriptScheduler::PID_MIN )
       return new BError( "GumpID out of range" );
   }
   else
@@ -1708,8 +1708,8 @@ BObjectImp* GetRunningScriptList()
 {
   ObjArray* arr = new ObjArray;
 
-  const ExecList& runlist = scriptEngineInternalManager.getRunlist();
-  const ExecList& ranlist = scriptEngineInternalManager.getRanlist();
+  const ExecList& runlist = scriptScheduler.getRunlist();
+  const ExecList& ranlist = scriptScheduler.getRanlist();
 
   for ( auto itr = ranlist.cbegin(); itr != ranlist.cend(); ++itr )
   {
@@ -1726,10 +1726,10 @@ BObjectImp* GetAllScriptList()
 {
   ObjArray* arr = new ObjArray;
   
-  const ExecList& runlist = scriptEngineInternalManager.getRunlist();
-  const ExecList& ranlist = scriptEngineInternalManager.getRanlist();
-  const HoldList& holdlist = scriptEngineInternalManager.getHoldlist();
-  const NoTimeoutHoldList& notimeoutholdlist = scriptEngineInternalManager.getNoTimeoutHoldlist();
+  const ExecList& runlist = scriptScheduler.getRunlist();
+  const ExecList& ranlist = scriptScheduler.getRanlist();
+  const HoldList& holdlist = scriptScheduler.getHoldlist();
+  const NoTimeoutHoldList& notimeoutholdlist = scriptScheduler.getNoTimeoutHoldlist();
 
   for ( auto itr = ranlist.cbegin(); itr != ranlist.cend(); ++itr )
   {
@@ -1754,8 +1754,8 @@ BObjectImp* GetScriptProfiles()
 {
   std::unique_ptr<ObjArray> arr( new ObjArray );
 
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.begin(),
-                          end = scriptEngineInternalManager.scrstore.end();
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.begin(),
+                          end = scriptScheduler.scrstore.end();
   u64 total_instr = 0;
   for ( ; itr != end; ++itr )
   {
@@ -1763,8 +1763,8 @@ BObjectImp* GetScriptProfiles()
     total_instr += eprog->instr_cycles;
   }
 
-  itr = scriptEngineInternalManager.scrstore.begin();
-  end = scriptEngineInternalManager.scrstore.end();
+  itr = scriptScheduler.scrstore.begin();
+  end = scriptScheduler.scrstore.end();
 
   for ( ; itr != end; ++itr )
   {
@@ -1889,7 +1889,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( scripts_ontime_per_min, GET_PROFILEVAR_PER_MIN( scripts_ontime ) );
 
   LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
-  LONG_COREVAR( priority_divide, scriptEngineInternalManager.priority_divide );
+  LONG_COREVAR( priority_divide, scriptScheduler.priority_divide );
   if ( stricmp( corevar, "verstr" ) == 0 )
     return new String( POL_VERSION_ID );
   if ( stricmp( corevar, "compiledate" ) == 0 )
@@ -1941,7 +1941,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
     int div;
     if ( ex.getParam( 0, div, 1, 1000 ) )
     {
-      scriptEngineInternalManager.priority_divide = div;
+      scriptScheduler.priority_divide = div;
       return new BLong( 1 );
     }
     else

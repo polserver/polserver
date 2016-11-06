@@ -23,8 +23,9 @@ typedef std::set<UOExecutor*> NoTimeoutHoldList;
 typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
 typedef std::map<std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred> ScriptStorage;
 typedef std::map<unsigned int, UOExecutor*> PidList;
+typedef HoldList::iterator TimeoutHandle;
 
-class ScriptEngineInternalManager : boost::noncopyable
+class ScriptScheduler : boost::noncopyable
 {
 public:
   static const unsigned int PID_MIN;
@@ -33,8 +34,8 @@ public:
   PidList pidlist;
   unsigned int next_pid;
 
-  ScriptEngineInternalManager();
-  ~ScriptEngineInternalManager();
+  ScriptScheduler();
+  ~ScriptScheduler();
   void deinitialize();
 
   struct Memory
@@ -54,50 +55,61 @@ public:
   const NoTimeoutHoldList& getNoTimeoutHoldlist();
 
   //void revive_timeout(UOExecutor* exec);
-  void revive_timeout(UOExecutor* exec, HoldList::iterator hold_itr);
+  void revive_timeout(UOExecutor* exec, TimeoutHandle hold_itr);
   void revive_notimeout(UOExecutor* exec);
   void revive_debugged(UOExecutor* exec);
+
+  // Adds a new executor to the queue directly
+  void enqueue(UOExecutor* exec);
+
+  // Sets up the executor before adding to the queue
+  void schedule(UOExecutor* exec);
   
-  ExecList runlist;
 private:
+	ExecList runlist;
 	ExecList ranlist;
 	HoldList holdlist;
 	NoTimeoutHoldList notimeoutholdlist;
 	NoTimeoutHoldList debuggerholdlist;
 };
 
-const inline ExecList& ScriptEngineInternalManager::getRanlist() {
+const inline ExecList& ScriptScheduler::getRanlist() {
 	return ranlist;
 }
-const inline ExecList& ScriptEngineInternalManager::getRunlist() {
+const inline ExecList& ScriptScheduler::getRunlist() {
 	return runlist;
 }
-const inline HoldList& ScriptEngineInternalManager::getHoldlist() {
+const inline HoldList& ScriptScheduler::getHoldlist() {
 	return holdlist;
 }
-const inline NoTimeoutHoldList& ScriptEngineInternalManager::getNoTimeoutHoldlist() {
+const inline NoTimeoutHoldList& ScriptScheduler::getNoTimeoutHoldlist() {
 	return notimeoutholdlist;
 }
 
-inline void ScriptEngineInternalManager::revive_debugged(UOExecutor* exec) {
+inline void ScriptScheduler::revive_debugged(UOExecutor* exec) {
 	debuggerholdlist.erase(exec);
-	runlist.push_back(exec);
+	enqueue(exec);
 }
 
-inline void ScriptEngineInternalManager::revive_timeout(UOExecutor* exec, HoldList::iterator hold_itr)
+inline void ScriptScheduler::revive_timeout(UOExecutor* exec, TimeoutHandle hold_itr)
 {
 	holdlist.erase(hold_itr);
-	runlist.push_back(exec);
+	enqueue(exec);
 }
 
-inline void ScriptEngineInternalManager::revive_notimeout(UOExecutor* exec)
+inline void ScriptScheduler::revive_notimeout(UOExecutor* exec)
 {
 	notimeoutholdlist.erase(exec);
+	enqueue(exec);
+}
+
+inline void ScriptScheduler::enqueue(UOExecutor* exec)
+{
 	runlist.push_back(exec);
 }
 
 
-extern ScriptEngineInternalManager scriptEngineInternalManager;
+extern ScriptScheduler scriptScheduler;
 }
 }
 #endif

@@ -457,10 +457,10 @@ void textcmd_procs( Network::Client* client )
 
   send_sysmessage(
       client,
-      "Running: " + Clib::decint( (unsigned int)( scriptEngineInternalManager.getRunlist().size() ) ) );
+      "Running: " + Clib::decint( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
   send_sysmessage(
       client,
-      "Blocked: " + Clib::decint( (unsigned int)( scriptEngineInternalManager.getHoldlist().size() ) ) );
+      "Blocked: " + Clib::decint( (unsigned int)( scriptScheduler.getHoldlist().size() ) ) );
 }
 
 void textcmd_log_profile( Network::Client* client )

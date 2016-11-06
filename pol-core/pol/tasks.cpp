@@ -329,14 +329,14 @@ void update_rpm( void )
 void update_sysload()
 {
   THREAD_CHECKPOINT( tasks, 201 );
-  if ( scriptEngineInternalManager.runlist.empty() )
+  if ( scriptScheduler.getRunlist().empty() )
   {
     ++stateManager.profilevars.nonbusy_sysload_cycles;
   }
   else
   {
     ++stateManager.profilevars.busy_sysload_cycles;
-    stateManager.profilevars.sysload_nprocs += scriptEngineInternalManager.runlist.size();
+	stateManager.profilevars.sysload_nprocs += scriptScheduler.getRunlist().size();
   }
   THREAD_CHECKPOINT( tasks, 299 );
 }

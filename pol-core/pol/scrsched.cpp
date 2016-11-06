@@ -74,8 +74,8 @@ namespace Core
 bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
 {
   std::map<unsigned int, UOExecutor*>::iterator itr =
-      scriptEngineInternalManager.pidlist.find( pid );
-  if ( itr != scriptEngineInternalManager.pidlist.end() )
+      scriptScheduler.pidlist.find( pid );
+  if ( itr != scriptScheduler.pidlist.end() )
   {
     *pp_uoexec = ( *itr ).second;
     return true;
@@ -89,22 +89,22 @@ bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
 
 void run_ready()
 {
-	scriptEngineInternalManager.run_ready();
+	scriptScheduler.run_ready();
 }
 
 
 void check_blocked( polclock_t* pclocksleft )
 {
   polclock_t now_clock = polclock();
-  stateManager.profilevars.sleep_cycles += scriptEngineInternalManager.getHoldlist().size() +
-                                           scriptEngineInternalManager.getNoTimeoutHoldlist().size();
+  stateManager.profilevars.sleep_cycles += scriptScheduler.getHoldlist().size() +
+                                           scriptScheduler.getNoTimeoutHoldlist().size();
   polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
   for ( ;; )
   {
     THREAD_CHECKPOINT( scripts, 131 );
 
-    auto itr = scriptEngineInternalManager.getHoldlist().cbegin();
-    if ( itr == scriptEngineInternalManager.getHoldlist().cend() )
+    auto itr = scriptScheduler.getHoldlist().cbegin();
+    if ( itr == scriptScheduler.getHoldlist().cend() )
       break;
 
     UOExecutor* ex = ( *itr ).second;
@@ -135,13 +135,13 @@ void check_blocked( polclock_t* pclocksleft )
 
 polclock_t calc_script_clocksleft( polclock_t now )
 {
-  if ( !scriptEngineInternalManager.getRunlist().empty() )
+  if ( !scriptScheduler.getRunlist().empty() )
   {
     return 0;  // we want to run immediately
   }
-  else if ( !scriptEngineInternalManager.getHoldlist().empty() )
+  else if ( !scriptScheduler.getHoldlist().empty() )
   {
-    auto itr = scriptEngineInternalManager.getHoldlist().cbegin();
+    auto itr = scriptScheduler.getHoldlist().cbegin();
     UOExecutor* ex = ( *itr ).second;
     polclock_t clocksleft = ex->os_module->sleep_until_clock_ - now;
     if ( clocksleft >= 0 )
@@ -158,7 +158,7 @@ polclock_t calc_script_clocksleft( polclock_t now )
 void step_scripts( polclock_t* clocksleft, bool* pactivity )
 {
   THREAD_CHECKPOINT( scripts, 102 );
-  *pactivity = ( !scriptEngineInternalManager.runlist.empty() );
+  *pactivity = ( !scriptScheduler.getRunlist().empty() );
   THREAD_CHECKPOINT( scripts, 103 );
 
   run_ready();
@@ -167,7 +167,7 @@ void step_scripts( polclock_t* clocksleft, bool* pactivity )
 
   check_blocked( clocksleft );
   THREAD_CHECKPOINT( scripts, 105 );
-  if ( !scriptEngineInternalManager.runlist.empty() )
+  if ( !scriptScheduler.getRunlist().empty() )
     *clocksleft = 0;
   THREAD_CHECKPOINT( scripts, 106 );
 }
@@ -198,10 +198,7 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
   if ( !ex->setProgram( program.get() ) )
     throw std::runtime_error( "Error starting script." );
 
-  ex->setDebugLevel( Bscript::Executor::NONE );
-
-
-  scriptEngineInternalManager.runlist.push_back( ex );
+  scriptScheduler.schedule( ex );
 }
 // EXACTLY the same as start_script, except uses find_script2
 Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param )
@@ -232,10 +229,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
     // throw runtime_error( "Error starting script." );
   }
 
-  ex->setDebugLevel( Bscript::Executor::NONE );
-
-
-  scriptEngineInternalManager.runlist.push_back( ex.release() );
+  scriptScheduler.schedule( ex.release() );
 
   return uoemod;
 }
@@ -279,10 +273,8 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
     // throw runtime_error( "Error starting script." );
   }
 
-  ex->setDebugLevel( Bscript::Executor::NONE );
-
-
-  scriptEngineInternalManager.runlist.push_back( ex.release() );
+ 
+  scriptScheduler.schedule( ex.release() );
 
   return uoemod;
 }
@@ -307,9 +299,7 @@ Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program
   if ( !ex->setProgram( program.get() ) )
     throw std::runtime_error( "Error starting script." );
 
-  ex->setDebugLevel( Bscript::Executor::NONE );
-
-  scriptEngineInternalManager.runlist.push_back( ex );
+  scriptScheduler.schedule( ex );
 
   return uoemod;
 }
@@ -694,20 +684,13 @@ UOExecutor* create_full_script_executor()
 
 void schedule_executor( UOExecutor* ex )
 {
-  ex->setDebugLevel( Bscript::Executor::NONE );
-  // ex->initExec();
-
   if ( ex->runnable() )
   {
-    scriptEngineInternalManager.runlist.push_back( ex );
+    scriptScheduler.schedule( ex );
   }
   else
   {
     delete ex;
-    /*
-      deadlist.push_back( ex );
-      script_done( ex );
-      */
   }
 }
 
@@ -783,9 +766,9 @@ void list_scripts( const char* desc, const ExecList& ls )
 
 void list_scripts()
 {
-  list_scripts( "running", scriptEngineInternalManager.getRunlist() );
+  list_scripts( "running", scriptScheduler.getRunlist() );
   // list_scripts( "holding", holdlist );
-  list_scripts( "ran", scriptEngineInternalManager.getRanlist() );
+  list_scripts( "ran", scriptScheduler.getRanlist() );
 }
 
 void list_crit_script( UOExecutor* uoexec )
@@ -804,9 +787,9 @@ void list_crit_scripts( const char* desc, const ExecList& ls )
 
 void list_crit_scripts()
 {
-  list_crit_scripts( "running", scriptEngineInternalManager.getRunlist() );
+  list_crit_scripts( "running", scriptScheduler.getRunlist() );
   // list_crit_scripts( "holding", holdlist );
-  list_crit_scripts( "ran", scriptEngineInternalManager.getRanlist() );
+  list_crit_scripts( "ran", scriptScheduler.getRanlist() );
 }
 }
 }

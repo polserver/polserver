@@ -60,22 +60,22 @@ unsigned int getnewpid( Core::UOExecutor* uoexec )
 {
   for ( ;; )
   {
-    unsigned int newpid = Core::scriptEngineInternalManager.next_pid++;
-    if ( newpid < Core::ScriptEngineInternalManager::PID_MIN )
-      newpid = Core::ScriptEngineInternalManager::PID_MIN;
+    unsigned int newpid = Core::scriptScheduler.next_pid++;
+    if ( newpid < Core::ScriptScheduler::PID_MIN )
+      newpid = Core::ScriptScheduler::PID_MIN;
     if ( newpid != 0 &&  // newpid=0 should now never happen but leaving this check in place for
                          // extra code robustness
-         Core::scriptEngineInternalManager.pidlist.find( newpid ) ==
-             Core::scriptEngineInternalManager.pidlist.end() )
+         Core::scriptScheduler.pidlist.find( newpid ) ==
+             Core::scriptScheduler.pidlist.end() )
     {
-      Core::scriptEngineInternalManager.pidlist[newpid] = uoexec;
+      Core::scriptScheduler.pidlist[newpid] = uoexec;
       return newpid;
     }
   }
 }
 void freepid( unsigned int pid )
 {
-  Core::scriptEngineInternalManager.pidlist.erase( pid );
+  Core::scriptScheduler.pidlist.erase( pid );
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
@@ -750,12 +750,12 @@ void OSExecutorModule::revive()
   if ( in_hold_list_ == TIMEOUT_LIST )
   {
 	in_hold_list_ = NO_LIST;
-	Core::scriptEngineInternalManager.revive_timeout(static_cast<Core::UOExecutor*>(&exec), hold_itr_);
+	Core::scriptScheduler.revive_timeout(static_cast<Core::UOExecutor*>(&exec), hold_itr_);
   }
   else if ( in_hold_list_ == NOTIMEOUT_LIST )
   {
     in_hold_list_ = NO_LIST;
-	Core::scriptEngineInternalManager.revive_notimeout(static_cast<Core::UOExecutor*>(&exec));
+	Core::scriptScheduler.revive_notimeout(static_cast<Core::UOExecutor*>(&exec));
   }
   else if ( in_hold_list_ == DEBUGGER_LIST )
   {
@@ -769,7 +769,7 @@ bool OSExecutorModule::in_debugger_holdlist() const
 void OSExecutorModule::revive_debugged()
 {
   in_hold_list_ = NO_LIST;
-  Core::scriptEngineInternalManager.revive_debugged(static_cast<Core::UOExecutor*>(&exec));
+  Core::scriptScheduler.revive_debugged(static_cast<Core::UOExecutor*>(&exec));
 }
 
 const int SCRIPTOPT_NO_INTERRUPT = 1;
