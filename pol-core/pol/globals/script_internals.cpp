@@ -25,13 +25,13 @@ ScriptScheduler scriptScheduler;
 const unsigned int ScriptScheduler::PID_MIN = 0x01000000;
 
 ScriptScheduler::ScriptScheduler()
-    : runlist(),
+    : priority_divide(1),
+      scrstore(), 
+      runlist(),
       ranlist(),
       holdlist(),
       notimeoutholdlist(),
       debuggerholdlist(),
-      priority_divide( 1 ),
-      scrstore(),
       pidlist(),
       next_pid( PID_MIN )
 {
@@ -289,6 +289,39 @@ void ScriptScheduler::schedule(UOExecutor* exec)
 	enqueue(exec);
 }
 
+unsigned int ScriptScheduler::get_new_pid(UOExecutor* exec)
+{
+	for (;;)
+	{
+		unsigned int newpid = next_pid++;
+		if (newpid < PID_MIN)
+			newpid = PID_MIN;
+
+		// NOTE: The code below is pessimistic, is there a way to avoid checking the pidlist every time? (Nando, 06-Nov-2016)
+
+		// newpid=0 should now never happen but leaving this
+		// check in place for extra code robustness
+		if (newpid != 0 && (pidlist.find(newpid) == pidlist.end()))
+		{
+			pidlist[newpid] = exec;
+			return newpid;
+		}
+	}
+}
+
+bool ScriptScheduler::find_exec(unsigned int pid, UOExecutor** exec) {
+	auto itr = pidlist.find(pid);
+	if (itr != pidlist.end())
+	{
+		*exec = (*itr).second;
+		return true;
+	}
+	else
+	{
+		*exec = NULL;
+		return false;
+	}
+}
 
 }
 }

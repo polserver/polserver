@@ -644,8 +644,8 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
 {
   std::string match = Clib::strlower( rest );
 
-  for ( PidList::const_iterator citr = scriptScheduler.pidlist.begin();
-        citr != scriptScheduler.pidlist.end(); ++citr )
+  for ( PidList::const_iterator citr = scriptScheduler.getPidlist().begin();
+        citr != scriptScheduler.getPidlist().end(); ++citr )
   {
     UOExecutor* uoexec = ( *citr ).second;
     std::string name = Clib::strlower( uoexec->scriptname() );

@@ -58,24 +58,11 @@ using namespace Bscript;
 
 unsigned int getnewpid( Core::UOExecutor* uoexec )
 {
-  for ( ;; )
-  {
-    unsigned int newpid = Core::scriptScheduler.next_pid++;
-    if ( newpid < Core::ScriptScheduler::PID_MIN )
-      newpid = Core::ScriptScheduler::PID_MIN;
-    if ( newpid != 0 &&  // newpid=0 should now never happen but leaving this check in place for
-                         // extra code robustness
-         Core::scriptScheduler.pidlist.find( newpid ) ==
-             Core::scriptScheduler.pidlist.end() )
-    {
-      Core::scriptScheduler.pidlist[newpid] = uoexec;
-      return newpid;
-    }
-  }
+  return Core::scriptScheduler.get_new_pid(uoexec);
 }
 void freepid( unsigned int pid )
 {
-  Core::scriptScheduler.pidlist.erase( pid );
+  Core::scriptScheduler.free_pid( pid );
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )

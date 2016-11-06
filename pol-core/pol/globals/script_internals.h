@@ -29,10 +29,12 @@ class ScriptScheduler : boost::noncopyable
 {
 public:
   static const unsigned int PID_MIN;
+
   int priority_divide;
-  ScriptStorage scrstore;
-  PidList pidlist;
-  unsigned int next_pid;
+  
+  // Consider moving the ScriptStorage to a different class.
+  // It's not even used here besides to calculate how much memory is used.
+  ScriptStorage scrstore; 
 
   ScriptScheduler();
   ~ScriptScheduler();
@@ -54,6 +56,8 @@ public:
   const HoldList& getHoldlist();
   const NoTimeoutHoldList& getNoTimeoutHoldlist();
 
+  const PidList& getPidlist();
+
   //void revive_timeout(UOExecutor* exec);
   void revive_timeout(UOExecutor* exec, TimeoutHandle hold_itr);
   void revive_notimeout(UOExecutor* exec);
@@ -64,6 +68,19 @@ public:
 
   // Sets up the executor before adding to the queue
   void schedule(UOExecutor* exec);
+
+
+  // The following methods should go to a different class,
+  // together with the pidlist and new_pid.
+  
+  // Gets new PID and store the executor in the pidlist
+  unsigned int get_new_pid(UOExecutor* exec);
+  
+  void free_pid(unsigned int pid);
+
+  // Finds an UOExecutor from a pid. Returns false if not found.
+  bool find_exec(unsigned int pid, UOExecutor** exec);
+
   
 private:
 	ExecList runlist;
@@ -71,6 +88,9 @@ private:
 	HoldList holdlist;
 	NoTimeoutHoldList notimeoutholdlist;
 	NoTimeoutHoldList debuggerholdlist;
+
+	PidList pidlist;
+	unsigned int next_pid;
 };
 
 const inline ExecList& ScriptScheduler::getRanlist() {
@@ -84,6 +104,9 @@ const inline HoldList& ScriptScheduler::getHoldlist() {
 }
 const inline NoTimeoutHoldList& ScriptScheduler::getNoTimeoutHoldlist() {
 	return notimeoutholdlist;
+}
+const inline PidList& ScriptScheduler::getPidlist() {
+	return pidlist;
 }
 
 inline void ScriptScheduler::revive_debugged(UOExecutor* exec) {
@@ -108,6 +131,9 @@ inline void ScriptScheduler::enqueue(UOExecutor* exec)
 	runlist.push_back(exec);
 }
 
+inline void ScriptScheduler::free_pid(unsigned int pid) {
+	pidlist.erase(pid);
+}
 
 extern ScriptScheduler scriptScheduler;
 }

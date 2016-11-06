@@ -73,18 +73,7 @@ namespace Core
 {
 bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
 {
-  std::map<unsigned int, UOExecutor*>::iterator itr =
-      scriptScheduler.pidlist.find( pid );
-  if ( itr != scriptScheduler.pidlist.end() )
-  {
-    *pp_uoexec = ( *itr ).second;
-    return true;
-  }
-  else
-  {
-    *pp_uoexec = NULL;
-    return false;
-  }
+	return scriptScheduler.find_exec(pid, pp_uoexec);
 }
 
 void run_ready()
