@@ -147,16 +147,15 @@ private:
 
 
 /// threadsafe version of localtime
-inline std::tm localtime( std::time_t t )
+inline std::tm localtime( const std::time_t &t )
 {
+  std::tm result;
 #ifdef _MSC_VER
-  std::tm temp;
-  localtime_s( &temp, &t );
-  return temp;
+  localtime_s( &result, &t );
 #else
-  std::tm temp;
-  return *localtime_r( &t, &temp );
+  localtime_r( &t, &result );
 #endif
+  return result;
 }
 }
 #define strzcpy Clib::stracpy

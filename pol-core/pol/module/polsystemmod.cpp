@@ -40,6 +40,7 @@
 
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
+#include "../../clib/clib.h"
 #include "../../clib/clib_MD5.h"
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
@@ -500,9 +501,9 @@ BObjectImp* PolSystemExecutorModule::mf_LogCPropProfile()
 
   // Write the header
   auto t = std::time( nullptr );
-  auto tm = std::localtime( &t );
+  auto tm = Clib::localtime( t );
   ofs << std::string( 80, '=' ) << std::endl;
-  ofs << "CProp profiling information dumped on " << std::asctime( tm ) << std::endl;
+  ofs << "CProp profiling information dumped on " << std::asctime( &tm ) << std::endl;
   ofs << "the profiler is using an estimated amount of "
       << Core::CPropProfiler::instance().estimateSize() << " Bytes of memory." << std::endl;
   ofs << "the profiler is currently "
