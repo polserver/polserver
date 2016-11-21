@@ -360,7 +360,7 @@ void GameState::cleanup_vars()
 
 void GameState::cleanup_scripts()
 {
-  scriptEngineInternalManager.deinitialize();
+  scriptScheduler.deinitialize();
 }
 
 void GameState::clear_listen_points()

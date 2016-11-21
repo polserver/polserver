@@ -58,24 +58,11 @@ using namespace Bscript;
 
 unsigned int getnewpid( Core::UOExecutor* uoexec )
 {
-  for ( ;; )
-  {
-    unsigned int newpid = Core::scriptEngineInternalManager.next_pid++;
-    if ( newpid < Core::ScriptEngineInternalManager::PID_MIN )
-      newpid = Core::ScriptEngineInternalManager::PID_MIN;
-    if ( newpid != 0 &&  // newpid=0 should now never happen but leaving this check in place for
-                         // extra code robustness
-         Core::scriptEngineInternalManager.pidlist.find( newpid ) ==
-             Core::scriptEngineInternalManager.pidlist.end() )
-    {
-      Core::scriptEngineInternalManager.pidlist[newpid] = uoexec;
-      return newpid;
-    }
-  }
+  return Core::scriptScheduler.get_new_pid(uoexec);
 }
 void freepid( unsigned int pid )
 {
-  Core::scriptEngineInternalManager.pidlist.erase( pid );
+  Core::scriptScheduler.free_pid( pid );
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
@@ -108,11 +95,6 @@ OSExecutorModule::~OSExecutorModule()
 unsigned int OSExecutorModule::pid() const
 {
   return pid_;
-}
-
-bool OSExecutorModule::blocked() const
-{
-  return blocked_;
 }
 
 OSFunctionDef OSExecutorModule::function_table[] = {
@@ -754,16 +736,13 @@ void OSExecutorModule::revive()
   blocked_ = false;
   if ( in_hold_list_ == TIMEOUT_LIST )
   {
-    Core::scriptEngineInternalManager.holdlist.erase( hold_itr_ );
-    in_hold_list_ = NO_LIST;
-    Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+	in_hold_list_ = NO_LIST;
+	Core::scriptScheduler.revive_timeout(static_cast<Core::UOExecutor*>(&exec), hold_itr_);
   }
   else if ( in_hold_list_ == NOTIMEOUT_LIST )
   {
-    Core::scriptEngineInternalManager.notimeoutholdlist.erase(
-        static_cast<Core::UOExecutor*>( &exec ) );
     in_hold_list_ = NO_LIST;
-    Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+	Core::scriptScheduler.revive_notimeout(static_cast<Core::UOExecutor*>(&exec));
   }
   else if ( in_hold_list_ == DEBUGGER_LIST )
   {
@@ -776,10 +755,8 @@ bool OSExecutorModule::in_debugger_holdlist() const
 }
 void OSExecutorModule::revive_debugged()
 {
-  Core::scriptEngineInternalManager.debuggerholdlist.erase(
-      static_cast<Core::UOExecutor*>( &exec ) );
   in_hold_list_ = NO_LIST;
-  Core::scriptEngineInternalManager.runlist.push_back( static_cast<Core::UOExecutor*>( &exec ) );
+  Core::scriptScheduler.revive_debugged(static_cast<Core::UOExecutor*>(&exec));
 }
 
 const int SCRIPTOPT_NO_INTERRUPT = 1;

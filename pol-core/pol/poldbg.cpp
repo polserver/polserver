@@ -644,8 +644,8 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
 {
   std::string match = Clib::strlower( rest );
 
-  for ( PidList::const_iterator citr = scriptEngineInternalManager.pidlist.begin();
-        citr != scriptEngineInternalManager.pidlist.end(); ++citr )
+  for ( PidList::const_iterator citr = scriptScheduler.getPidlist().begin();
+        citr != scriptScheduler.getPidlist().end(); ++citr )
   {
     UOExecutor* uoexec = ( *citr ).second;
     std::string name = Clib::strlower( uoexec->scriptname() );
@@ -660,8 +660,8 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
 
 std::string DebugContext::cmd_scriptlist( const std::string& /*rest*/, Results& results )
 {
-  for ( ScriptStorage::const_iterator citr = scriptEngineInternalManager.scrstore.begin();
-        citr != scriptEngineInternalManager.scrstore.end(); ++citr )
+  for ( ScriptStorage::const_iterator citr = scriptScheduler.scrstore.begin();
+        citr != scriptScheduler.scrstore.end(); ++citr )
   {
     const char* nm = ( ( *citr ).first ).c_str();
     EScriptProgram* eprog = ( ( *citr ).second ).get();
@@ -676,8 +676,8 @@ std::string DebugContext::cmd_setscript( const std::string& rest, Results& /*res
   _script.clear();
 
   // const char* fn = rest.c_str();
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest );
-  if ( itr == scriptEngineInternalManager.scrstore.end() )
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( rest );
+  if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
   ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -760,8 +760,8 @@ std::string DebugContext::cmd_funcprof( const std::string& /*rest*/, Results& /*
 
 std::string DebugContext::cmd_scriptprofile( const std::string& rest, Results& results )
 {
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest.c_str() );
-  if ( itr == scriptEngineInternalManager.scrstore.end() )
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( rest.c_str() );
+  if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
   ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -778,8 +778,8 @@ std::string DebugContext::cmd_scriptprofile( const std::string& rest, Results& r
 
 std::string DebugContext::cmd_scriptins( const std::string& rest, Results& results )
 {
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest.c_str() );
-  if ( itr == scriptEngineInternalManager.scrstore.end() )
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( rest.c_str() );
+  if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
   ref_ptr<EScriptProgram> res( ( *itr ).second );
@@ -815,8 +815,8 @@ std::string get_fileline( EScriptProgram* prog, int filenum, int linenum )
 
 std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& results )
 {
-  ScriptStorage::iterator itr = scriptEngineInternalManager.scrstore.find( rest.c_str() );
-  if ( itr == scriptEngineInternalManager.scrstore.end() )
+  ScriptStorage::iterator itr = scriptScheduler.scrstore.find( rest.c_str() );
+  if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
   ref_ptr<EScriptProgram> res( ( *itr ).second );
