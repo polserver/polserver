@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-23-2016</datemodified>
+		<datemodified>11-29-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>11-29-2016</date>
+			<author>Boberski:</author>
+			<change type="Added">Support for TOL (Time of Legends) expantion.</change>
+		</entry>
 		<entry>
 			<date>10-23-2016</date>
 			<author>Nando:</author>

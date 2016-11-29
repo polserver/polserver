@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+11-29-2016 Boberski:
+  Added:   Support for TOL (Time of Legends) expantion.
 10-23-2016 Nando:
   Added:   Member character.carrying_capacity (read only)
            Returns the current carrying capacity of a character, defined as:
