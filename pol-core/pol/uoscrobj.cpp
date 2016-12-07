@@ -235,7 +235,7 @@ BObjectImp* ECharacterRefObjImp::call_method( const char* methodname, Executor& 
 
 bool ECharacterRefObjImp::isTrue() const
 {
-  return ( !obj_->orphan() && obj_->logged_in );
+  return ( !obj_->orphan() && obj_->logged_in() );
 }
 
 bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
@@ -758,7 +758,7 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     return new BLong( facing );
     break;
   case MBR_DIRTY:
-    return new BLong( dirty_ ? 1 : 0 );
+    return new BLong( dirty() ? 1 : 0 );
     break;
   case MBR_WEIGHT:
     return new BLong( weight() );
@@ -1644,7 +1644,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_WARMODE:
-    return new BLong( warmode );
+    return new BLong( warmode() );
     break;
   case MBR_GENDER:
     return new BLong( gender );
@@ -1785,7 +1785,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     break;
 
   case MBR_MURDERER:
-    return new BLong( murderer_ ? 1 : 0 );
+    return new BLong( is_murderer() ? 1 : 0 );
     break;
   case MBR_ATTACHED:
     if ( script_ex == NULL )
@@ -1843,7 +1843,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       return new BError( "Mobile does not have any opponent selected." );
     break;
   case MBR_CONNECTED:
-    return new BLong( connected ? 1 : 0 );
+    return new BLong( connected() ? 1 : 0 );
     break;
   case MBR_TRADING_WITH:
     if ( trading_with != NULL )
@@ -2147,9 +2147,11 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     concealed( static_cast<unsigned char>( value ) );
     return new BLong( concealed() );
   case MBR_FROZEN:
-    return new BLong( frozen_ = value ? true : false );
+    mob_flags_.change( MOB_FLAGS::FROZEN, value ? true : false );
+    return new BLong ( frozen() );
   case MBR_PARALYZED:
-    return new BLong( paralyzed_ = value ? true : false );
+    mob_flags_.change( MOB_FLAGS::PARALYZED, value ? true : false );
+    return new BLong( paralyzed() );
   case MBR_POISONED:
     poisoned( value ? true : false );
     return new BLong( poisoned() );
@@ -2166,7 +2168,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   case MBR_MURDERER:
     // make_murderer handles the updating
     make_murderer( value ? true : false );
-    return new BLong( murderer_ );
+    return new BLong( is_murderer() );
   case MBR_HITCHANCE_MOD:
     hitchance_mod( static_cast<short>( value ) );
     return new BLong( hitchance_mod() );
@@ -2430,10 +2432,10 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
         newval = false;
     }
 
-    if ( newval != paralyzed_ )
+    if ( newval != paralyzed() )
     {
       set_dirty();
-      paralyzed_ = newval;
+      mob_flags_.change( MOB_FLAGS::PARALYZED, newval );
       check_undamaged();
       Module::UOExecutorModule* uoexec =
           static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
@@ -2442,7 +2444,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
         Character* attacker = uoexec->controller_.get();
         if ( !attacker->orphan() )
         {
-          if ( paralyzed_ )
+          if ( paralyzed() )
             attacker->repsys_on_damage( this );
           else
             attacker->repsys_on_help( this );
@@ -2679,7 +2681,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       // FIXME: Additional checks needed?
       if ( client )
         send_warmode();
-      return new BLong( warmode );
+      return new BLong( warmode() );
     }
     break;
   }
@@ -2715,7 +2717,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     {
       if ( getCharacterParam( ex, 0, chr ) )
       {
-        if ( dead_ )
+        if ( dead() )
           return new BError( "Character is dead" );
         if ( is_attackable( chr ) )
           attack( chr );
@@ -2730,7 +2732,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       chr = get_attackable_opponent();
       if ( chr != NULL )
       {
-        if ( !dead_ )
+        if ( !dead() )
           attack( chr );
         else
           return new BError( "Character is dead" );
@@ -3108,7 +3110,7 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
     return new BLong( speech_font() );
     break;
   case MBR_USE_ADJUSTMENTS:
-    return new BLong( use_adjustments ? 1 : 0 );
+    return new BLong( use_adjustments() ? 1 : 0 );
     break;
   case MBR_RUN_SPEED:
     return new BLong( run_speed );
@@ -3170,7 +3172,8 @@ BObjectImp* NPC::set_script_member_id( const int id, int value )
     speech_font( static_cast<unsigned short>( value ) );
     return new BLong( speech_font() );
   case MBR_USE_ADJUSTMENTS:
-    return new BLong( use_adjustments = value ? true : false );
+    use_adjustments( value ? true : false );
+    return new BLong( use_adjustments() );
   case MBR_RUN_SPEED:
     return new BLong( run_speed = static_cast<unsigned short>( value ) );
   case MBR_SAVEONEXIT:
@@ -3254,7 +3257,7 @@ BObjectImp* ULockable::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_LOCKED:
-    return new BLong( locked_ ? 1 : 0 );
+    return new BLong( locked() ? 1 : 0 );
     break;
   default:
     return NULL;
@@ -3278,7 +3281,8 @@ BObjectImp* ULockable::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_LOCKED:
-    return new BLong( locked_ = value ? true : false );
+    locked( value ? true : false );
+    return new BLong( locked() );
   default:
     return NULL;
   }

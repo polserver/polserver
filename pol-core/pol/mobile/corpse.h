@@ -23,9 +23,9 @@ public:
 
   virtual void on_insert_add_item( Mobile::Character* mob, MoveType move,
                                    Items::Item* new_item ) POL_OVERRIDE;
-
+  bool take_contents_to_grave() const;
+  void take_contents_to_grave( bool newvalue );
   u16 corpsetype;
-  bool take_contents_to_grave;
   u32 ownerserial;  // NPCs get deleted on death, so serial is used.
   Items::Item* GetItemOnLayer( unsigned idx ) const;
 

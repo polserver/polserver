@@ -241,7 +241,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
 
   if ( getCharacterParam( exec, 0, chr ) && param1 != NULL && param2 != NULL )
   {
-    if ( chr->logged_in )
+    if ( chr->logged_in() )
     {
       bool calc_attr = false;
       bool calc_vital = false;

@@ -144,7 +144,7 @@ void Realm::add_mobile( const Mobile::Character& chr, WorldChangeReason reason )
   switch ( reason )
   {
   case WorldChangeReason::Moved:
-    if ( !chr.logged_in )
+    if ( !chr.logged_in() )
       ++_offline_count;
     break;
 
@@ -166,7 +166,7 @@ void Realm::add_mobile( const Mobile::Character& chr, WorldChangeReason reason )
   // Of course, to make life harder, when PlayerEnter calls here the logged_in is still false. Yay!
   //
   if ( reason != WorldChangeReason::PlayerLoad &&
-       ( reason == WorldChangeReason::PlayerEnter || chr.logged_in ) )
+       ( reason == WorldChangeReason::PlayerEnter || chr.logged_in() ) )
     ++_mobile_count;
 }
 
@@ -187,7 +187,7 @@ void Realm::remove_mobile( const Mobile::Character& chr, WorldChangeReason reaso
 
   case WorldChangeReason::Moved:
   case WorldChangeReason::PlayerDeleted:
-    if ( !chr.logged_in )
+    if ( !chr.logged_in() )
     {
       --_offline_count;
     }
@@ -197,7 +197,7 @@ void Realm::remove_mobile( const Mobile::Character& chr, WorldChangeReason reaso
     break;
   }
 
-  if ( chr.logged_in )
+  if ( chr.logged_in() )
     --_mobile_count;
 }
 }

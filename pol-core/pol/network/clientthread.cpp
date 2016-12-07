@@ -296,7 +296,7 @@ bool client_io_thread( Network::Client* client, bool login )
 
           client->chr->disconnect_cleanup();
           client->gd->clear();
-          client->chr->connected = false;
+          client->chr->connected( false );
           ScriptDef sd;
           sd.quickconfig( "scripts/misc/logofftest.ecl" );
           if ( sd.exists() )

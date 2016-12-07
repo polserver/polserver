@@ -686,7 +686,7 @@ int read_data()
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
       if ( chr->acct != NULL )
-        chr->logged_in = false;
+        chr->logged_in( false );
     }
   }
 

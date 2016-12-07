@@ -747,7 +747,7 @@ void Character::restart_lawfully_damaged_timer( Mobile::Character* amy, Core::po
 ///
 bool Character::is_criminal() const
 {
-  return is_temporally_criminal() || murderer_;
+  return is_temporally_criminal() || is_murderer();
 }
 bool Character::is_temporally_criminal() const
 {
@@ -776,7 +776,7 @@ void Character::clear_criminal_timer()
 
 bool Character::is_murderer() const
 {
-  return murderer_;
+  return mob_flags_.get( MOB_FLAGS::MURDERER );
 }
 
 
@@ -1121,10 +1121,10 @@ void Character::make_criminal( int level )
 
 void Character::make_murderer( bool newval )
 {
-  bool refresh = ( murderer_ != newval );
+  bool refresh = ( mob_flags_.get ( MOB_FLAGS::MURDERER ) != newval );
 
   set_dirty();
-  murderer_ = newval;
+  mob_flags_.change( MOB_FLAGS::MURDERER, newval );
 
   if ( !orphan() && refresh )
   {

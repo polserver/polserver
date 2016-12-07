@@ -115,6 +115,7 @@ namespace Mobile
 {
 class Attribute;
 class Character;
+class PrivUpdater;
 
 class AttributeValue
 {
@@ -254,53 +255,49 @@ inline bool operator<( const reportable_t& lhs, const reportable_t& rhs )
   return ( lhs.serial < rhs.serial ) || ( lhs.serial == rhs.serial && lhs.polclock < rhs.polclock );
 }
 
-struct CachedSettings
+enum class PRIV_FLAGS : u32
 {
-  CachedSettings()
-      : all( false ),
-        moveany( false ),
-        moveanydist( false ),
-        renameany( false ),
-        clotheany( false ),
-        invul( false ),
-        seehidden( false ),
-        seeghosts( false ),
-        hearghosts( false ),
-        seeinvisitems( false ),
-        dblclickany( false ),
-        losany( false ),
-        ignoredoors( false ),
-        freemove( false ),
-        firewhilemoving( false ),
-        attackhidden( false ),
-        hiddenattack( false ),
-        plogany( false ),
-        canbeheardasghost( false ),
-        runwhilestealth( false ),
-        speedhack( false ){};
-  bool all;
-  bool moveany;  // should everything be moveable?
-  bool moveanydist;
-  bool renameany;  // should everything be renameable?
-  bool clotheany;
-  bool invul;
-  bool seehidden;
-  bool seeghosts;
-  bool hearghosts;
-  bool seeinvisitems;
-  bool dblclickany;
-  bool losany;  // all targetting ignore LOS?
-  bool ignoredoors;
-  bool freemove;
-  bool firewhilemoving;
-  bool attackhidden;
-  bool hiddenattack;
-  bool plogany;
-  bool canbeheardasghost;
-  bool runwhilestealth;
-  bool speedhack;
+  MOVE_ANY              = 1 << 0,  // should everything be moveable?
+  MOVE_ANY_DIST         = 1 << 1,
+  RENAME_ANY            = 1 << 2,  // should everything be renameable?
+  CLOTHE_ANY            = 1 << 3,
+  INVUL                 = 1 << 4,
+  SEE_HIDDEN            = 1 << 5,
+  SEE_GHOSTS            = 1 << 6,
+  HEAR_GHOSTS           = 1 << 7,
+  SEE_INVIS_ITEMS       = 1 << 8,
+  DBLCLICK_ANY          = 1 << 9,
+  LOS_ANY               = 1 << 19,  // all targetting ignore LOS?
+  IGNORE_DOORS          = 1 << 11,
+  FREEMOVE              = 1 << 12,
+  FIRE_WHILE_MOVING     = 1 << 13,
+  ATTACK_HIDDEN         = 1 << 14,
+  HIDDEN_ATTACK         = 1 << 15,
+  PLOG_ANY              = 1 << 16,
+  CAN_BE_HEARD_AS_GHOST = 1 << 17,
+  RUN_WHILE_STEALTH     = 1 << 18,
+  SPEEDHACK             = 1 << 19,
+
+  ALL                   = ~0u,  // all bits set
 };
 
+
+enum class MOB_FLAGS : u16
+{
+  READY_TO_SWING = 1 << 0,
+  MURDERER       = 1 << 1,
+  PARTY_CAN_LOOT = 1 << 2,
+  TRADE_ACCEPTED = 1 << 3,
+  DEAD           = 1 << 4,
+  HIDDEN         = 1 << 5,
+  FROZEN         = 1 << 6,
+  PARALYZED      = 1 << 7,
+  WARMODE        = 1 << 8,
+  POISONED       = 1 << 9,
+  LOGGED_IN      = 1 << 10,  // for NPCs, this is always true.
+  CONNECTED      = 1 << 11,
+  USE_ADJUSTMENTS = 1 << 12, // NPCs
+};
 
 // NOTES:
 //  The location of the wornitems container MUST be updated whenever the character
@@ -609,6 +606,8 @@ public:
   bool is_trading() const;
   void create_trade_container();
   Core::UContainer* trade_container();
+  bool trade_accepted() const;
+  void trade_accepted( bool newvalue );
 
   // SCRIPT
 public:
@@ -633,6 +632,10 @@ private:
 
   // CLIENT
 public:
+  bool logged_in() const;
+  void logged_in( bool newvalue );
+  bool connected() const;
+  void connected( bool newvalue );
   bool has_active_client() const;
   bool has_active_prompt() const;
   bool has_active_gump() const;
@@ -651,6 +654,7 @@ public:
   void on_hidden_changed();
   void on_concealed_changed();
 
+  bool warmode() const;
   void set_warmode( bool warmode );
   void set_stealthsteps( unsigned short newval );
   bool doors_block() const;
@@ -684,6 +688,7 @@ public:
   bool can_moveanydist() const;
   bool can_plogany() const;
   bool can_speedhack() const;
+  bool can_freemove() const;
 
   bool has_privilege( const char* priv ) const;
   bool setting_enabled( const char* setting ) const;
@@ -734,9 +739,6 @@ public:
   bool delBuff( u16 icon );
   void clearBuffs();
   void send_buffs();
-
-protected:
-  std::map<u16, Buff> buffs_;  // indexed by icon ID
 
   // ==========================================================
   // DATA:
@@ -798,7 +800,6 @@ protected:
   Character* opponent_;
   CharacterSet opponent_of;
   Core::polclock_t swing_timer_start_clock_;
-  bool ready_to_swing;
   Core::OneShotTask* swing_task;
   // ATTRIBUTES / VITALS
 public:
@@ -810,7 +811,6 @@ private:
   typedef std::map<Core::CharacterRef, Core::polclock_t> MobileCont;
   typedef std::set<reportable_t> ReportableList;
   typedef std::set<USERIAL> ToBeReportableList;
-  bool murderer_;
 
   mutable MobileCont aggressor_to_;
   mutable MobileCont lawfully_damaged_;
@@ -822,13 +822,11 @@ private:
 private:
   // PARTY
 private:
-  bool party_can_loot_;
   Core::OneShotTask* party_decline_timeout_;
   // SECURE TRADING
 public:
   ref_ptr<Core::UContainer> trading_cont;
   Core::CharacterRef trading_with;
-  bool trade_accepted;
   // SCRIPT
 public:
   DYN_PROPERTY( disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0 );
@@ -843,8 +841,6 @@ protected:
   // CLIENT
 public:
   Network::Client* client;
-  bool logged_in;  // for NPCs, this is always true.
-  bool connected;
   std::string uclang;
 
 private:
@@ -852,8 +848,6 @@ private:
   // PRIVS SETTINGS STATUS
 public:
   u8 cmdlevel_;
-  bool warmode;
-  bool poisoned_;
 
   static const Core::ExtStatBarFollowers DEFAULT_EXTSTATBARFOLLOWERS;
   static const Core::SkillStatCap DEFAULT_SKILLSTATCAP;
@@ -865,17 +859,15 @@ public:
   DYN_PROPERTY( tithing, s32, Core::PROP_EXT_STATBAR_TITHING, 0 );
 
 protected:
-  bool dead_;
-  bool hidden_;
   u8 concealed_;  // 0 to cmdlevel
-  bool frozen_;
-  bool paralyzed_;
   u16 stealthsteps_;
   u32 mountedsteps_;
 
   Clib::StringSet privs;
   Clib::StringSet settings;
-  CachedSettings cached_settings;
+  friend class PrivUpdater;
+  Core::AttributeFlags<PRIV_FLAGS> cached_settings;
+  Core::AttributeFlags<MOB_FLAGS> mob_flags_;
 
   DYN_PROPERTY( squelched_until, Core::gameclock_t, Core::PROP_SQUELCHED_UNTIL, 0 );
   DYN_PROPERTY( deafened_until, Core::gameclock_t, Core::PROP_DEAFENED_UNTIL, 0 );
@@ -886,6 +878,11 @@ private:
   // CREATION
 protected:
   Core::gameclock_t created_at;
+
+  // BUFF/DEBUFF BAR
+protected:
+  std::map<u16, Buff> buffs_;  // indexed by icon ID
+
   // MISC
 public:
   Core::AccountRef acct;
@@ -907,24 +904,24 @@ public:
 
 inline bool Character::dead() const
 {
-  return dead_;
+  return mob_flags_.get( MOB_FLAGS::DEAD );
 }
 
 inline bool Character::is_visible() const
 {
-  return !( hidden_ || concealed_ );
+  return !( hidden() || concealed_ );
 }
 
 inline bool Character::hidden() const
 {
-  return hidden_;
+  return mob_flags_.get( MOB_FLAGS::HIDDEN );
 }
 
 inline void Character::hidden( bool value )
 {
-  if ( value != hidden_ )
+  if ( value != hidden() )
   {
-    hidden_ = value;
+    mob_flags_.change( MOB_FLAGS::HIDDEN, value );
     on_hidden_changed();
   }
 }
@@ -945,24 +942,24 @@ inline void Character::concealed( unsigned char value )
 
 inline bool Character::frozen() const
 {
-  return frozen_;
+  return mob_flags_.get( MOB_FLAGS::FROZEN );
 }
 
 inline bool Character::paralyzed() const
 {
-  return paralyzed_;
+  return mob_flags_.get( MOB_FLAGS::PARALYZED );
 }
 
 inline bool Character::poisoned() const
 {
-  return poisoned_;
+  return mob_flags_.get( MOB_FLAGS::POISONED );
 }
 
 inline void Character::poisoned( bool value )
 {
-  if ( value != poisoned_ )
+  if ( value != poisoned() )
   {
-    poisoned_ = value;
+    mob_flags_.change( MOB_FLAGS::POISONED, value );
     on_poison_changed();
   }
 }
@@ -1004,15 +1001,15 @@ inline const Character::CharacterSet& Character::hostiles() const
 
 inline bool Character::ignores_line_of_sight() const
 {
-  return cached_settings.losany;
+  return cached_settings.get( PRIV_FLAGS::LOS_ANY );
 }
 inline bool Character::can_seeinvisitems() const
 {
-  return cached_settings.seeinvisitems;
+  return cached_settings.get( PRIV_FLAGS::SEE_INVIS_ITEMS );
 }
 inline bool Character::can_dblclickany() const
 {
-  return cached_settings.dblclickany;
+  return cached_settings.get( PRIV_FLAGS::DBLCLICK_ANY );
 }
 
 inline bool Character::has_shield() const

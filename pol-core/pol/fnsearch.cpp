@@ -60,7 +60,7 @@ Multi::UMulti* system_find_multi( u32 serial )
 Mobile::Character* find_character( u32 serial )
 {
   Mobile::Character* chr = system_find_mobile( serial );
-  if ( chr != NULL && chr->logged_in )
+  if ( chr != NULL && chr->logged_in() )
     return chr;
   else
     return NULL;

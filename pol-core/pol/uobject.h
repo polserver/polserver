@@ -34,6 +34,7 @@
 #include <string>
 #include <atomic>
 #include <set>
+#include <type_traits>
 
 #include "../../lib/format/format.h"
 
@@ -123,6 +124,44 @@ struct ElementDamages
 #pragma pack()
 #endif
 
+template <typename ENUM>
+struct AttributeFlags
+{
+  typedef typename std::underlying_type<ENUM>::type enum_t;
+  AttributeFlags() : flags_( 0 ){};
+
+  bool get( ENUM flag ) const
+  {
+    // no implicit conversion to bool, to be able to check against all bits set
+    return ( flags_ & static_cast<enum_t>( flag ) ) == static_cast<enum_t>( flag );
+  };
+  void set( ENUM flag ) { flags_ |= static_cast<enum_t>( flag ); };
+  void remove( ENUM flag ) { flags_ &= ~static_cast<enum_t>( flag ); };
+  void change( ENUM flag, bool value )
+  {
+    if ( value )
+      set( flag );
+    else
+      remove( flag );
+  }
+  void reset() { flags_ = 0; };
+private:
+  enum_t flags_;
+};
+
+enum class OBJ_FLAGS : u16
+{
+  DIRTY        = 1 << 0,  // UObject flags
+  SAVE_ON_EXIT = 1 << 1,
+  NEWBIE       = 1 << 2,  // Item flags
+  INSURED      = 1 << 3,
+  MOVABLE      = 1 << 4,
+  IN_USE       = 1 << 5,
+  INVISIBLE    = 1 << 6,
+  LOCKED       = 1 << 7,  // ULockable flag
+  CONTENT_TO_GRAVE = 1 << 8,  // UCorpse flag
+};
+
 /**
  * @warning if you add fields, be sure to update Items::create().
  */
@@ -183,8 +222,8 @@ public:
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
 
-  virtual bool saveonexit() const;
-  virtual void saveonexit( bool newvalue );
+  bool saveonexit() const;
+  void saveonexit( bool newvalue );
 
   virtual void printOn( Clib::StreamWriter& ) const;
   virtual void printSelfOn( Clib::StreamWriter& sw ) const;
@@ -231,7 +270,7 @@ public:
   inline void increv() { _rev++; };
   inline u32 rev() const { return _rev; };
   bool dirty() const;
-  void set_dirty() { dirty_ = true; }
+  void set_dirty();
   void clear_dirty() const;
   static std::atomic<unsigned int> dirty_writes;
   static std::atomic<unsigned int> clean_writes;
@@ -272,9 +311,6 @@ public:
   // always used for characters
   Realms::Realm* realm;
 
-  bool saveonexit_;  // 1-25-2009 MuadDib added. So far only items will make use of this.
-                     // Another possibility is adding this to NPCs for WoW style Instances.
-
   DYN_PROPERTY( maxhp_mod, s16, PROP_MAXHP_MOD, 0 );
   static AosValuePack DEFAULT_AOSVALUEPACK;
   DYN_PROPERTY( fire_resist, AosValuePack, PROP_RESIST_FIRE, DEFAULT_AOSVALUEPACK );
@@ -291,11 +327,12 @@ public:
 
 private:
   const u8 uobj_class_;
-  mutable bool dirty_;
   u32 _rev;
 
 protected:
   boost_utils::object_name_flystring name_;
+  // mutable due to dirty flag
+  mutable AttributeFlags<OBJ_FLAGS> flags_;
 
 private:
   PropertyList proplist_;
@@ -336,6 +373,11 @@ inline bool UObject::specific_name() const
 inline bool UObject::isa( UOBJ_CLASS uobj_class ) const
 {
   return uobj_class_ == uobj_class;
+}
+
+inline void UObject::set_dirty()
+{
+  flags_.set( OBJ_FLAGS::DIRTY );
 }
 
 inline bool UObject::ismobile() const
@@ -381,6 +423,7 @@ inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
 }
+
 }
 }
 

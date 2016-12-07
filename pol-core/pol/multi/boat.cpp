@@ -731,7 +731,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
       {
         chr->lastx = chr->x;
         chr->lasty = chr->y;
@@ -919,7 +919,7 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
       {
         // send_remove_character_to_nearby( chr );
 
@@ -1074,7 +1074,7 @@ bool UBoat::has_offline_mobiles() const
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
-      if ( !chr->logged_in )
+      if ( !chr->logged_in() )
       {
         return true;
       }
@@ -1096,7 +1096,7 @@ void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
-      if ( !chr->logged_in )
+      if ( !chr->logged_in() )
       {
         chr->set_dirty();
         chr->x = new_x;
@@ -1775,7 +1775,7 @@ Bscript::BObjectImp* UBoat::mobiles_list() const
     if ( !obj->orphan() && on_ship( bc, obj ) && obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
         arr->addElement( make_mobileref( chr ) );
     }
   }

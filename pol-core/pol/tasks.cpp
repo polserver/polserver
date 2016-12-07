@@ -90,7 +90,7 @@ void regen_stats()
 
     // If in warmode, don't regenerate.
     // If regeneration is currently disabled, don't do it either.
-    if ( ( chr->warmode && settingsManager.combat_config.warmode_inhibits_regen ) ||
+    if ( ( chr->warmode() && settingsManager.combat_config.warmode_inhibits_regen ) ||
          ( now <= chr->disable_regeneration_until ) )
     {
       return;

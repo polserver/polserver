@@ -9,6 +9,7 @@
 #include "npc.h"  // At some point, npc.h should be removed. The only dependence is to send leftarea/enteredarea events.
 #endif
 
+#include "../../clib/passert.h"
 #include "../uworld.h"
 #include "../ufunc.h"
 
@@ -17,8 +18,17 @@ namespace Pol
 namespace Mobile
 {
 // This class deal with the side effects of activating/revoking privileges
+// it can be used as a watcher by instanciating or directly via the statics
 class PrivUpdater
 {
+public:
+  PrivUpdater( Character* chr, PRIV_FLAGS flag );
+  ~PrivUpdater();
+private:
+  Character* chr_;
+  PRIV_FLAGS flag_;
+  bool oldvalue_;
+
 public:
   static void on_change_see_hidden( Character* chr, bool enable );
   static void on_change_see_ghosts( Character* chr, bool enable );
@@ -42,6 +52,40 @@ private:
   static void disable_invul( Character* in_range_chr, Character* chr,
                              Network::HealthBarStatusUpdate& msg );
 };
+
+
+PrivUpdater::PrivUpdater( Character* chr, PRIV_FLAGS flag )
+  : chr_( chr ),
+    flag_( flag ),
+    oldvalue_( chr_ != nullptr ? chr_->cached_settings.get( flag_ ) : false )
+{}
+
+PrivUpdater::~PrivUpdater()
+{
+  if ( chr_ == nullptr )
+    return;
+  bool newvalue = chr_->cached_settings.get( flag_ );
+  if ( oldvalue_ == newvalue )
+    return;
+  switch ( flag_ )
+  {
+    case PRIV_FLAGS::INVUL:
+      on_change_invul( chr_, newvalue );
+      break;
+    case PRIV_FLAGS::SEE_GHOSTS:
+      on_change_see_ghosts( chr_, newvalue );
+      break;
+    case PRIV_FLAGS::SEE_HIDDEN:
+      on_change_see_hidden( chr_, newvalue );
+      break;
+    case PRIV_FLAGS::SEE_INVIS_ITEMS:
+      on_change_see_invis_items( chr_, newvalue );
+      break;
+    default:
+      passert_always(0);
+      break;
+  }
+}
 
 void PrivUpdater::on_change_see_hidden( Character* chr, bool enable )
 {

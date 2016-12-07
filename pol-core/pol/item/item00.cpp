@@ -27,11 +27,6 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class )
       container( NULL ),
       decayat_gameclock_( 0 ),
       amount_( 1 ),
-      newbie_( id.newbie ),
-      insured_( id.insured ),
-      movable_( id.default_movable() ),
-      inuse_( false ),
-      invisible_( id.invisible ),
       slot_index_( 0 ),
       _itemdesc( nullptr ),
       layer( 0 ),
@@ -42,6 +37,11 @@ Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class )
   setfacing( id.facing );
   equip_script_ = id.equip_script;
   unequip_script_ = id.unequip_script;
+  newbie( id.newbie );
+  insured( id.insured );
+  movable( id.default_movable() );
+  inuse( false );
+  invisible( id.invisible );
 
   ++Core::stateManager.uobjcount.uitem_count;
 
@@ -60,11 +60,6 @@ size_t Item::estimatedSize() const
   return base::estimatedSize() + sizeof( Core::UContainer* ) /* container*/
          + sizeof( int )                                     /* decayat_gameclock_*/
          + sizeof( u16 )                                     /* amount_*/
-         + sizeof( bool )                                    /* newbie_*/
-         + sizeof( bool )                                    /* insured */
-         + sizeof( bool )                                    /* movable_*/
-         + sizeof( bool )                                    /* inuse_*/
-         + sizeof( bool )                                    /* invisible_*/
          + sizeof( u8 )                                      /* slot_index_*/
          + sizeof( const ItemDesc* )                         /* _itemdesc*/
          + sizeof( u8 )                                      /* layer*/

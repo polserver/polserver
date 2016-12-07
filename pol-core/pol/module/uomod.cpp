@@ -2780,7 +2780,7 @@ BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm( /*realm*/ )
         continue;
 
       Character* chr = static_cast<Character*>( obj );
-      if ( chr->logged_in || chr->realm != realm || chr->orphan() )
+      if ( chr->logged_in() || chr->realm != realm || chr->orphan() )
         continue;
 
       newarr->addElement( new EOfflineCharacterRefObjImp( chr ) );
@@ -3090,7 +3090,7 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
     if ( ~flags & RESURRECT_FORCELOCATION )
     {
       // we want doors to block ghosts in this case.
-      bool doors_block = !( chr->graphic == UOBJ_GAMEMASTER || chr->cached_settings.ignoredoors );
+      bool doors_block = !( chr->graphic == UOBJ_GAMEMASTER || chr->cached_settings.get( PRIV_FLAGS::IGNORE_DOORS ) );
       short newz;
       Multi::UMulti* supporting_multi;
       Item* walkon_item;
@@ -3819,7 +3819,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
     {
       Character* chr = static_cast<Character*>( obj );
 
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
         justice_region = chr->client->gd->justice_region;
       else
         justice_region = gamestate.justicedef->getregion( chr->x, chr->y, chr->realm );
@@ -5467,7 +5467,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
   if ( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, of_who ) &&
        getStringParam( 2, title ) && getObjArrayParam( 3, uText ) && getObjArrayParam( 4, eText ) )
   {
-    if ( chr->logged_in && of_who->logged_in )
+    if ( chr->logged_in() && of_who->logged_in() )
     {
       // Get The Unicode message lengths and convert the arrays to UC
       u16 uwtext[( SPEECH_MAX_LEN + 1 )];
@@ -5515,7 +5515,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*
           itr != end; ++itr )
     {
       Network::Client* client = *itr;
-      if ( !client->chr->logged_in || client->getversiondetail().major < 1 )
+      if ( !client->chr->logged_in() || client->getversiondetail().major < 1 )
         continue;
       msg.Send( client );
     }

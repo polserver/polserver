@@ -133,6 +133,8 @@ protected:
   virtual u16 get_damaged_sound() const POL_OVERRIDE;
   // MOVEMENT
 public:
+  bool use_adjustments() const;
+  void use_adjustments( bool newvalue );
   bool could_move( Core::UFACING dir ) const;
   bool anchor_allows_move( Core::UFACING dir ) const;
   bool npc_path_blocked( Core::UFACING dir ) const;
@@ -215,7 +217,6 @@ private:
   // MOVEMENT
 public:
   unsigned short run_speed;
-  bool use_adjustments;
 
 private:
   Anchor anchor;

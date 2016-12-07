@@ -319,7 +319,7 @@ void UContainer::enumerate_contents( Bscript::ObjArray* arr, int flags )
            ( item->isa( CLASS_CONTAINER ) ) )  // FIXME check locks
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ || ( flags & ENUMERATE_IGNORE_LOCKED ) )
+        if ( !cont->locked() || ( flags & ENUMERATE_IGNORE_LOCKED ) )
           cont->enumerate_contents( arr, flags );
       }
     }
@@ -440,7 +440,7 @@ Items::Item* UContainer::find_objtype_noninuse( u32 objtype ) const
     if ( item && item->isa( UObject::CLASS_CONTAINER ) && !item->inuse() )
     {
       UContainer* cont = static_cast<UContainer*>( item );
-      if ( !cont->locked_ )
+      if ( !cont->locked() )
       {
         auto child_item = cont->find_objtype_noninuse( objtype );
         if ( child_item != NULL )
@@ -465,7 +465,7 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype ) const
       if ( item->isa( UObject::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ )
+        if ( !cont->locked() )
         {
           amt += cont->find_sumof_objtype_noninuse( objtype );
         }
@@ -588,7 +588,7 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
       if ( item->isa( UObject::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ )
+        if ( !cont->locked() )
         {
           item = cont->find( objserial, where_in_container );
           if ( item != NULL )
@@ -613,7 +613,7 @@ Items::Item* UContainer::find( u32 objserial ) const
       if ( item->isa( UObject::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ )
+        if ( !cont->locked() )
         {
           auto child_item = cont->find( objserial );
           if ( child_item != NULL )
@@ -674,7 +674,7 @@ void UContainer::builtin_on_use( Network::Client* client )
 {
   client->pause();
 
-  if ( !locked_ )
+  if ( !locked() )
   {
     send_open_gump( client, *this );
     send_container_contents( client, *this );
@@ -721,7 +721,7 @@ bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) co
 void UContainer::spill_contents( Multi::UMulti* multi )
 {
   passert( container == NULL );
-  if ( !locked_ )
+  if ( !locked() )
   {
     while ( !contents_.empty() )
     {
@@ -883,7 +883,7 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
       if ( !( flags & FINDSUBSTANCE_ROOT_ONLY ) && ( item->isa( UObject::CLASS_CONTAINER ) ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ || ( flags & FINDSUBSTANCE_IGNORE_LOCKED ) )
+        if ( !cont->locked() || ( flags & FINDSUBSTANCE_IGNORE_LOCKED ) )
         {
           amt += cont->find_sumof_objtype_noninuse( objtype, amtToGet - amt, saveItemsTo, flags );
         }

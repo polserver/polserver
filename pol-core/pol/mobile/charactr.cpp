@@ -299,14 +299,12 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class )
       opponent_( NULL ),
       opponent_of(),
       swing_timer_start_clock_( 0 ),
-      ready_to_swing( false ),
       swing_task( NULL ),
       // ATTRIBUTES / VITALS
       disable_regeneration_until( 0 ),
       attributes( Core::gamestate.numAttributes ),
       vitals( Core::gamestate.numVitals ),
       // REPUTATION
-      murderer_( false ),
       aggressor_to_(),
       lawfully_damaged_(),
       criminal_until_( 0 ),
@@ -315,12 +313,10 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class )
       reportable_(),
       // GUILD
       // PARTY
-      party_can_loot_( false ),
       party_decline_timeout_( NULL ),
       // SECURE TRADING
       trading_cont(),
       trading_with( NULL ),
-      trade_accepted( false ),
       // SCRIPT
       tcursor2( NULL ),
       menu( NULL ),
@@ -330,27 +326,22 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class )
       spell_task( NULL ),
       // CLIENT
       client( NULL ),
-      logged_in( true ),   // so initialization scripts etc can see
-      connected( false ),  // but EScript "check"value false
       uclang( "enu" ),
       _last_textcolor( 0 ),
       // PRIVS SETTINGS STATUS
       cmdlevel_( 0 ),
-      warmode( false ),
-      poisoned_( false ),
-      dead_( false ),
-      hidden_( false ),
       concealed_( 0 ),
-      frozen_( false ),
-      paralyzed_( false ),
       stealthsteps_( 0 ),
       mountedsteps_( 0 ),
       privs(),
       settings(),
       cached_settings(),
+      mob_flags_(),
       // SERIALIZATION
       // CREATION
       created_at( 0 ),
+      // BUFFS
+      buffs_(),
       // MISC
       acct( NULL ),
       registered_house( 0 ),
@@ -362,6 +353,8 @@ Character::Character( u32 objtype, UOBJ_CLASS uobj_class )
       race( Core::RACE_HUMAN ),
       last_corpse( 0 )
 {
+  logged_in( true ); // so initialization scripts etc can see
+
   height = Core::settingsManager.ssopt
                .default_character_height;  // this gets overwritten in UObject::readProperties!
   wornitems->chr_owner = this;              // FIXME, dangerous.
@@ -450,6 +443,26 @@ void Character::disconnect_cleanup()
   on_loggoff_party( this );
 }
 
+bool Character::logged_in() const
+{
+  return mob_flags_.get( MOB_FLAGS::LOGGED_IN );
+}
+
+void Character::logged_in( bool newvalue )
+{
+  mob_flags_.change( MOB_FLAGS::LOGGED_IN, newvalue );
+}
+
+bool Character::connected() const
+{
+  return mob_flags_.get( MOB_FLAGS::CONNECTED );
+}
+
+void Character::connected( bool newvalue )
+{
+  mob_flags_.change( MOB_FLAGS::CONNECTED, newvalue );
+}
+
 bool Character::has_active_client() const
 {
   return ( client != NULL && client->isActive() );
@@ -478,7 +491,7 @@ void Character::clear_gotten_item()
   {
     gotten_item( nullptr );
     item->inuse( false );
-    if ( connected )
+    if ( connected() )
       Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     undo_get_item( this, item );
   }
@@ -585,17 +598,17 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   sw() << "\tGender\t" << static_cast<int>( gender ) << pf_endl;
   sw() << "\tRace\t" << static_cast<int>( race ) << pf_endl;
 
-  if ( dead_ )
-    sw() << "\tDead\t" << static_cast<int>( dead_ ) << pf_endl;
+  if ( dead() )
+    sw() << "\tDead\t" << static_cast<int>( dead() ) << pf_endl;
 
   if ( mountedsteps_ )
     sw() << "\tMountedSteps\t" << static_cast<unsigned int>( mountedsteps_ ) << pf_endl;
 
-  if ( hidden_ )
-    sw() << "\tHidden\t" << static_cast<int>( hidden_ ) << pf_endl;
+  if ( hidden() )
+    sw() << "\tHidden\t" << static_cast<int>( hidden() ) << pf_endl;
 
-  if ( frozen_ )
-    sw() << "\tFrozen\t" << static_cast<int>( frozen_ ) << pf_endl;
+  if ( frozen() )
+    sw() << "\tFrozen\t" << static_cast<int>( frozen() ) << pf_endl;
 
   s16 value = fire_resist().mod;
   if ( value != 0 )
@@ -739,10 +752,10 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( has_title_race() )
     sw() << "\tTitleRace\t" << Clib::getencodedquotedstring( title_race() ) << pf_endl;
 
-  if ( murderer_ )
-    sw() << "\tMurderer\t" << murderer_ << pf_endl;
-  if ( party_can_loot_ )
-    sw() << "\tPartyCanLoot\t" << party_can_loot_ << pf_endl;
+  if ( is_murderer() )
+    sw() << "\tMurderer\t" << is_murderer() << pf_endl;
+  if ( party_can_loot() )
+    sw() << "\tPartyCanLoot\t" << party_can_loot() << pf_endl;
   for ( const auto& rt : reportable_ )
   {
     sw() << "\tReportable\t" << Clib::hexint( rt.serial ) << " " << rt.polclock << pf_endl;
@@ -889,9 +902,12 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   gender = static_cast<Core::UGENDER>( elem.remove_ushort( "GENDER" ) );
   race = static_cast<Core::URACE>( elem.remove_ushort( "RACE", Core::RACE_HUMAN ) );
 
-  dead_ = elem.remove_bool( "DEAD", false );
-  hidden_ = elem.remove_bool( "HIDDEN", false );
-  frozen_ = elem.remove_bool( "FROZEN", false );
+  if ( elem.remove_bool( "DEAD", false ) )
+    mob_flags_.set( MOB_FLAGS::DEAD );
+  if ( elem.remove_bool( "HIDDEN", false ) )
+    mob_flags_.set( MOB_FLAGS::HIDDEN );
+  if ( elem.remove_bool( "FROZEN", false ) )
+    mob_flags_.set( MOB_FLAGS::FROZEN );
 
   s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
   if ( mod_value != 0 )
@@ -948,8 +964,11 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "GUILDID", &tmp_guildid ) )
     guild( Core::Guild::FindOrCreateGuild( tmp_guildid, serial ) );
 
-  murderer_ = elem.remove_bool( "MURDERER", false );
-  party_can_loot_ = elem.remove_bool( "PARTYCANLOOT", false );
+  if ( elem.remove_bool( "MURDERER", false ) )
+    mob_flags_.set( MOB_FLAGS::MURDERER );
+  if ( elem.remove_bool( "PARTYCANLOOT", false ) )
+    mob_flags_.set( MOB_FLAGS::PARTY_CAN_LOOT );
+
   std::string rt;
   while ( elem.remove_prop( "REPORTABLE", &rt ) )
   {
@@ -1096,47 +1115,63 @@ bool Character::has_privilege( const char* priv ) const
 
 bool Character::setting_enabled( const char* setting ) const
 {
-  return settings.contains( setting ) || cached_settings.all;
+  return cached_settings.get( PRIV_FLAGS::ALL ) || settings.contains( setting );
 }
 
 void Character::refresh_cached_settings( bool update )
 {
-  bool oldvalue;
-  cached_settings.all = false;  // set it to false so setting_enabled() doesnt use the old value
-  cached_settings.all = setting_enabled( "all" );  // its essential to be the first value
+  PrivUpdater invulwatch( update ? this : nullptr, PRIV_FLAGS::INVUL );
+  PrivUpdater seeghostswatch( update ? this : nullptr, PRIV_FLAGS::SEE_GHOSTS );
+  PrivUpdater seehiddenwatch( update ? this : nullptr, PRIV_FLAGS::SEE_HIDDEN );
+  PrivUpdater seeinvisitemswatch( update ? this : nullptr, PRIV_FLAGS::SEE_INVIS_ITEMS );
 
-  cached_settings.clotheany = setting_enabled( "clotheany" );
-  cached_settings.dblclickany = setting_enabled( "dblclickany" );
-  cached_settings.hearghosts = setting_enabled( "hearghosts" );
-  oldvalue = cached_settings.invul;
-  cached_settings.invul = setting_enabled( "invul" );
-  if ( update && oldvalue != cached_settings.invul )
-    PrivUpdater::on_change_invul( this, cached_settings.invul );
-  cached_settings.losany = setting_enabled( "losany" );
-  cached_settings.moveany = setting_enabled( "moveany" );
-  cached_settings.renameany = setting_enabled( "renameany" );
-  oldvalue = cached_settings.seeghosts;
-  cached_settings.seeghosts = setting_enabled( "seeghosts" );
-  if ( update && oldvalue != cached_settings.seeghosts )
-    PrivUpdater::on_change_see_ghosts( this, cached_settings.seeghosts );
-  oldvalue = cached_settings.seehidden;
-  cached_settings.seehidden = setting_enabled( "seehidden" );
-  if ( update && oldvalue != cached_settings.seehidden )
-    PrivUpdater::on_change_see_hidden( this, cached_settings.seehidden );
-  oldvalue = cached_settings.seeinvisitems;
-  cached_settings.seeinvisitems = setting_enabled( "seeinvisitems" );
-  if ( update && oldvalue != cached_settings.seeinvisitems )
-    PrivUpdater::on_change_see_invis_items( this, cached_settings.seeinvisitems );
-  cached_settings.ignoredoors = setting_enabled( "ignoredoors" );
-  cached_settings.freemove = setting_enabled( "freemove" );
-  cached_settings.firewhilemoving = setting_enabled( "firewhilemoving" );
-  cached_settings.attackhidden = setting_enabled( "attackhidden" );
-  cached_settings.hiddenattack = setting_enabled( "hiddenattack" );
-  cached_settings.plogany = setting_enabled( "plogany" );
-  cached_settings.moveanydist = setting_enabled( "moveanydist" );
-  cached_settings.canbeheardasghost = setting_enabled( "canbeheardasghost" );
-  cached_settings.runwhilestealth = setting_enabled( "runwhilestealth" );
-  cached_settings.speedhack = setting_enabled( "speedhack" );
+  cached_settings.reset();
+
+  if ( setting_enabled( "all" ) )
+  {
+    cached_settings.set( PRIV_FLAGS::ALL );
+    return;
+  }
+  if ( setting_enabled( "clotheany" ) )
+    cached_settings.set( PRIV_FLAGS::CLOTHE_ANY );
+  if ( setting_enabled( "dblclickany" ) )
+    cached_settings.set( PRIV_FLAGS::DBLCLICK_ANY );
+  if ( setting_enabled( "hearghosts" ) )
+    cached_settings.set( PRIV_FLAGS::HEAR_GHOSTS );
+  if ( setting_enabled( "invul" ) )
+    cached_settings.set( PRIV_FLAGS::INVUL );
+  if ( setting_enabled( "losany" ) )
+    cached_settings.set( PRIV_FLAGS::LOS_ANY );
+  if ( setting_enabled( "moveany" ) )
+    cached_settings.set( PRIV_FLAGS::MOVE_ANY );
+  if ( setting_enabled( "renameany" ) )
+    cached_settings.set( PRIV_FLAGS::RENAME_ANY );
+  if ( setting_enabled( "seeghosts" ) )
+    cached_settings.set( PRIV_FLAGS::SEE_GHOSTS );
+  if ( setting_enabled( "seehidden" ) )
+    cached_settings.set( PRIV_FLAGS::SEE_HIDDEN );
+  if ( setting_enabled( "seeinvisitems" ) )
+    cached_settings.set( PRIV_FLAGS::SEE_INVIS_ITEMS );
+  if ( setting_enabled( "ignoredoors" ) )
+    cached_settings.set( PRIV_FLAGS::IGNORE_DOORS );
+  if ( setting_enabled( "freemove" ) )
+    cached_settings.set( PRIV_FLAGS::FREEMOVE );
+  if ( setting_enabled( "firewhilemoving" ) )
+    cached_settings.set( PRIV_FLAGS::FIRE_WHILE_MOVING );
+  if ( setting_enabled( "attackhidden" ) )
+    cached_settings.set( PRIV_FLAGS::ATTACK_HIDDEN );
+  if ( setting_enabled( "hiddenattack" ) )
+    cached_settings.set( PRIV_FLAGS::HIDDEN_ATTACK );
+  if ( setting_enabled( "plogany" ) )
+    cached_settings.set( PRIV_FLAGS::PLOG_ANY );
+  if ( setting_enabled( "moveanydist" ) )
+    cached_settings.set( PRIV_FLAGS::MOVE_ANY_DIST );
+  if ( setting_enabled( "canbeheardasghost" ) )
+    cached_settings.set( PRIV_FLAGS::CAN_BE_HEARD_AS_GHOST );
+  if ( setting_enabled( "runwhilestealth" ) )
+    cached_settings.set( PRIV_FLAGS::RUN_WHILE_STEALTH );
+  if ( setting_enabled( "speedhack" ) )
+    cached_settings.set( PRIV_FLAGS::SPEEDHACK );
 }
 
 void Character::set_setting( const char* setting, bool value )
@@ -1187,7 +1222,7 @@ bool Character::can_move( const Items::Item* item ) const
 {
   if ( item->objtype_ != UOBJ_CORPSE )
   {
-    return cached_settings.moveany || item->movable();
+    return cached_settings.get( PRIV_FLAGS::MOVE_ANY ) || item->movable();
   }
   else
   {
@@ -1203,37 +1238,42 @@ bool Character::can_be_renamed_by( const Character* /*chr*/ ) const
 
 bool Character::can_rename( const Character* chr ) const
 {
-  return cached_settings.renameany || chr->can_be_renamed_by( this );
+  return cached_settings.get( PRIV_FLAGS::RENAME_ANY ) || chr->can_be_renamed_by( this );
 }
 
 bool Character::can_clothe( const Character* chr ) const
 {
-  return ( ( chr == this ) || cached_settings.clotheany );
+  return ( ( chr == this ) || cached_settings.get( PRIV_FLAGS::CLOTHE_ANY ) );
 }
 
 bool Character::can_hearghosts() const
 {
-  return cached_settings.hearghosts;
+  return cached_settings.get( PRIV_FLAGS::HEAR_GHOSTS );
 }
 
 bool Character::can_be_heard_as_ghost() const
 {
-  return cached_settings.canbeheardasghost;
+  return cached_settings.get( PRIV_FLAGS::CAN_BE_HEARD_AS_GHOST );
 }
 
 bool Character::can_moveanydist() const
 {
-  return cached_settings.moveanydist;
+  return cached_settings.get( PRIV_FLAGS::MOVE_ANY_DIST );
 }
 
 bool Character::can_plogany() const
 {
-  return cached_settings.plogany;
+  return cached_settings.get( PRIV_FLAGS::PLOG_ANY );
 }
 
 bool Character::can_speedhack() const
 {
-  return cached_settings.speedhack;
+  return cached_settings.get( PRIV_FLAGS::SPEEDHACK );
+}
+
+bool Character::can_freemove() const
+{
+  return cached_settings.get( PRIV_FLAGS::FREEMOVE );
 }
 
 Core::UContainer* Character::backpack() const
@@ -1746,7 +1786,7 @@ u8 Character::get_flag1( Network::Client* other_client ) const
     flag1 |= Core::CHAR_FLAG1_FLYING;
   if ( ( Core::settingsManager.ssopt.invul_tag == 2 ) && ( invul() ) )
     flag1 |= Core::CHAR_FLAG1_YELLOWHEALTH;
-  if ( warmode )
+  if ( warmode() )
     flag1 |= Core::CHAR_FLAG1_WARMODE;
   if ( !is_visible() )
     flag1 |= Core::CHAR_FLAG1_INVISIBLE;
@@ -1767,7 +1807,7 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
   if ( ( source ) && ( userepsys ) )
     source->repsys_on_attack( this );
 
-  if ( ( amount == 0 ) || cached_settings.invul )
+  if ( ( amount == 0 ) || cached_settings.get( PRIV_FLAGS::INVUL ) )
     return;
 
   set_dirty();
@@ -1784,7 +1824,8 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
     send_damage( source, this, showdmg );
   }
 
-  paralyzed_ = false;
+  if ( paralyzed() )
+    mob_flags_.remove ( MOB_FLAGS::PARALYZED );
 
   disable_regeneration_for( 2 );  // FIXME depend on amount?
 
@@ -1979,7 +2020,7 @@ Items::Item* create_backpack()
 void Character::send_warmode()
 {
   Network::PktHelper::PacketOut<Network::PktOut_72> msg;
-  msg->Write<u8>( warmode ? 1u : 0u );
+  msg->Write<u8>( warmode() ? 1u : 0u );
   msg->offset++;  // u8 unk2
   msg->Write<u8>( 0x32u );
   msg->offset++;  // u8 unk4
@@ -2028,10 +2069,10 @@ void Character::resurrect()
   else if ( graphic == UOBJ_GARGOYLE_FEMALE_GHOST )
     graphic = UOBJ_GARGOYLE_FEMALE;
 
-  dead_ = false;
-  warmode = false;
-  frozen_ = false;
-  paralyzed_ = false;
+  mob_flags_.remove( MOB_FLAGS::DEAD );
+  mob_flags_.remove( MOB_FLAGS::WARMODE );
+  mob_flags_.remove( MOB_FLAGS::FROZEN );
+  mob_flags_.remove( MOB_FLAGS::PARALYZED );
 
   color = truecolor;
 
@@ -2197,10 +2238,10 @@ void Character::die()
   }
   DECLARE_CHECKPOINT;
 
-  dead_ = true;
-  warmode = false;
-  frozen_ = false;
-  paralyzed_ = false;
+  mob_flags_.set( MOB_FLAGS::DEAD );
+  mob_flags_.remove( MOB_FLAGS::WARMODE );
+  mob_flags_.remove( MOB_FLAGS::FROZEN );
+  mob_flags_.remove( MOB_FLAGS::PARALYZED );
 
   UPDATE_CHECKPOINT();
   /* FIXME: corpse container difficulties.
@@ -2226,7 +2267,7 @@ void Character::die()
 
   corpse->ownerserial = this->serial;
   corpse->setname( "A corpse of " + name_.get() );
-  corpse->take_contents_to_grave = ( acct == NULL );
+  corpse->take_contents_to_grave( acct == NULL );
 
   UPDATE_CHECKPOINT();
 
@@ -2782,15 +2823,15 @@ bool Character::is_visible_to_me( const Character* chr ) const
 
   if ( chr->realm != this->realm )
     return false;  // noone can see across different realms.
-  if ( !chr->logged_in )
+  if ( !chr->logged_in() )
     return false;
-  if ( chr->hidden() && !cached_settings.seehidden )
+  if ( chr->hidden() && !cached_settings.get( PRIV_FLAGS::SEE_HIDDEN ) )
     return false;  // noone can see anyone hidden.
   if ( dead() )
     return true;  // If I'm dead, I can see anything
-  if ( !chr->dead() || cached_settings.seeghosts )
+  if ( !chr->dead() || cached_settings.get( PRIV_FLAGS::SEE_GHOSTS ) )
     return true;  // Anyone can see the living
-  if ( chr->warmode )
+  if ( chr->warmode() )
     return true;  // Anyone can see someone in warmode
   return false;
 };
@@ -2896,7 +2937,7 @@ void Character::swing_task_func( Character* chr )
 {
   THREAD_CHECKPOINT( tasks, 800 );
   INFO_PRINT_TRACE( 20 ) << "swing_task_func(0x" << fmt::hexu( chr->serial ) << ")\n";
-  chr->ready_to_swing = true;
+  chr->mob_flags_.set( MOB_FLAGS::READY_TO_SWING );
   chr->check_attack_after_move();
   THREAD_CHECKPOINT( tasks, 899 );
 }
@@ -2947,7 +2988,7 @@ void Character::schedule_attack()
 void Character::reset_swing_timer()
 {
   INFO_PRINT_TRACE( 15 ) << "reset_swing_timer(0x" << fmt::hexu( this->serial ) << ")\n";
-  ready_to_swing = false;
+  mob_flags_.remove( MOB_FLAGS::READY_TO_SWING );
 
   swing_timer_start_clock_ = Core::polclock();
   if ( swing_task )
@@ -2963,7 +3004,7 @@ bool Character::manual_set_swing_timer( Core::polclock_t clocks )
 {
   INFO_PRINT_TRACE( 15 ) << "manual_set_swing_timer(0x" << fmt::hexu( this->serial )
                          << ") delay: " << clocks << "\n";
-  ready_to_swing = false;
+  mob_flags_.remove( MOB_FLAGS::READY_TO_SWING );
 
   swing_timer_start_clock_ = Core::polclock();
   if ( swing_task )
@@ -3007,7 +3048,7 @@ bool Character::is_attackable( Character* who ) const
   {
     INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
                            << fmt::hexu( who->serial ) << "):\n"
-                           << "  who->dead:	" << who->dead_ << "\n"
+                           << "  who->dead:	" << who->dead() << "\n"
                            << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
                            << "  hidden:	   " << hidden() << "\n"
                            << "  who->hidden:  " << who->hidden() << "\n"
@@ -3016,9 +3057,9 @@ bool Character::is_attackable( Character* who ) const
       return false;
     else if ( !weapon->in_range( this, who ) )
       return false;
-    else if ( ( hidden() ) && ( !cached_settings.hiddenattack ) )
+    else if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
       return false;
-    else if ( ( who->hidden() ) && ( !cached_settings.attackhidden ) )
+    else if ( who->hidden() && !cached_settings.get( PRIV_FLAGS::ATTACK_HIDDEN ) )
       return false;
     else if ( is_concealed_from_me( who ) )
       return false;
@@ -3121,7 +3162,7 @@ void Character::set_opponent( Character* new_opponent, bool inform_old_opponent 
     if ( new_opponent->dead() )
       return;
 
-    if ( !warmode && ( script_isa( Core::POLCLASS_NPC ) || has_active_client() ) )
+    if ( !warmode() && ( script_isa( Core::POLCLASS_NPC ) || has_active_client() ) )
       set_warmode( true );
   }
 
@@ -3185,19 +3226,24 @@ void Character::disable_regeneration_for( int seconds )
     disable_regeneration_until = new_disable_time;
 }
 
+bool Character::warmode() const
+{
+  return mob_flags_.get( MOB_FLAGS::WARMODE );
+}
+
 void Character::set_warmode( bool i_warmode )
 {
   if ( Core::gamestate.system_hooks.warmode_change )
     Core::gamestate.system_hooks.warmode_change->call( new Module::ECharacterRefObjImp( this ),
                                                        new Bscript::BLong( i_warmode ) );
 
-  if ( warmode != i_warmode )
+  if ( warmode() != i_warmode )
   {
     disable_regeneration_for( 2 );
   }
 
-  warmode = i_warmode;
-  if ( warmode == false )
+  mob_flags_.change( MOB_FLAGS::WARMODE, i_warmode );
+  if ( i_warmode == false )
   {
     set_opponent( NULL );
   }
@@ -3205,7 +3251,7 @@ void Character::set_warmode( bool i_warmode )
 
   if ( dead() )
   {
-    if ( warmode )  // if entered warmode, display me now
+    if ( warmode() )  // if entered warmode, display me now
     {
       send_create_mobile_to_nearby_cansee( this );
     }
@@ -3493,12 +3539,12 @@ void Character::check_attack_after_move()
   INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
                          << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
   if ( opponent != NULL &&  // and I have an opponent
-       !dead_ &&            // If I'm not dead
+       !dead() &&            // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
          ( !paralyzed() && !frozen() ) ) )
   {
     FUNCTION_CHECKPOINT( check_attack_after_move, 3 );
-    if ( ready_to_swing )  // and I can swing now,
+    if ( mob_flags_.get( MOB_FLAGS::READY_TO_SWING ) )  // and I can swing now,
     {                      // do so.
       FUNCTION_CHECKPOINT( check_attack_after_move, 4 );
       if ( Core::settingsManager.combat_config.send_swing_packet && client != NULL )
@@ -3751,7 +3797,8 @@ bool Character::doors_block() const
   return !( graphic == UOBJ_GAMEMASTER || graphic == UOBJ_HUMAN_MALE_GHOST ||
             graphic == UOBJ_HUMAN_FEMALE_GHOST || graphic == UOBJ_ELF_MALE_GHOST ||
             graphic == UOBJ_ELF_FEMALE_GHOST || graphic == UOBJ_GARGOYLE_MALE_GHOST ||
-            graphic == UOBJ_GARGOYLE_FEMALE_GHOST || cached_settings.ignoredoors );
+            graphic == UOBJ_GARGOYLE_FEMALE_GHOST ||
+            cached_settings.get( PRIV_FLAGS::IGNORE_DOORS ) );
 }
 
 /*
@@ -3768,7 +3815,7 @@ bool Character::doors_block() const
 
 bool Character::can_face( Core::UFACING /*i_facing*/ )
 {
-  if ( cached_settings.freemove )
+  if ( can_freemove() )
     return true;
 
   if ( frozen() || paralyzed() )
@@ -3807,7 +3854,8 @@ bool Character::face( Core::UFACING i_facing, int flags )
     setfacing( static_cast<u8>( i_facing ) );
 
     if ( Core::settingsManager.combat_config.reset_swing_onturn &&
-         !cached_settings.firewhilemoving && weapon->is_projectile() )
+         !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) &&
+         weapon->is_projectile() )
       reset_swing_timer();
     if ( hidden() && ( Core::settingsManager.ssopt.hidden_turns_count ) )
     {
@@ -3929,7 +3977,7 @@ bool Character::move( unsigned char i_dir )
     if ( !CheckPushthrough() )
       return false;
 
-    if ( !cached_settings.freemove && Core::settingsManager.ssopt.movement_uses_stamina && !dead() )
+    if ( !can_freemove() && Core::settingsManager.ssopt.movement_uses_stamina && !dead() )
     {
       int carry_perc = weight() * 100 / carrying_capacity();
       unsigned short tmv = movecost(
@@ -3944,7 +3992,7 @@ bool Character::move( unsigned char i_dir )
     }
 
     // Maybe have a flag for this in servspecopt?
-    if ( !cached_settings.firewhilemoving && weapon->is_projectile() )
+    if ( !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
 
     x = static_cast<u16>( newx );
@@ -3992,7 +4040,7 @@ bool Character::move( unsigned char i_dir )
 
     if ( hidden() )
     {
-      if ( ( ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) && !cached_settings.runwhilestealth ) ||
+      if ( ( ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) && !cached_settings.get( PRIV_FLAGS::RUN_WHILE_STEALTH ) ) ||
            ( stealthsteps_ == 0 ) )
         unhide();
       else if ( stealthsteps_ )
@@ -4052,7 +4100,7 @@ void Character::realm_changed()
 
 bool Character::CheckPushthrough()
 {
-  if ( !cached_settings.freemove && Core::gamestate.system_hooks.pushthrough_hook != NULL )
+  if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook != NULL )
   {
     unsigned short newx = x + Core::move_delta[facing].xmove;
     unsigned short newy = y + Core::move_delta[facing].ymove;
@@ -4209,7 +4257,7 @@ bool Character::deafened() const
 
 bool Character::invul() const
 {
-  return cached_settings.invul;
+  return cached_settings.get( PRIV_FLAGS::INVUL );
 }
 
 u16 Character::strength() const
@@ -4247,6 +4295,16 @@ void Character::cancel_menu()
 bool Character::is_trading() const
 {
   return ( trading_with.get() != NULL );
+}
+
+bool Character::trade_accepted() const
+{
+  return mob_flags_.get( MOB_FLAGS::TRADE_ACCEPTED );
+}
+
+void Character::trade_accepted( bool newvalue )
+{
+  mob_flags_.change( MOB_FLAGS::TRADE_ACCEPTED, newvalue );
 }
 
 void Character::create_trade_container()
@@ -4377,9 +4435,6 @@ size_t Character::estimatedSize() const
                 + sizeof( u32 )                                       /*registered_house*/
                 + sizeof( unsigned char )                             /*cmdlevel_*/
                 + sizeof( u8 )                                        /*dir*/
-                + sizeof( bool )                                      /*warmode*/
-                + sizeof( bool )                                      /*logged_in*/
-                + sizeof( bool )                                      /*connected*/
                 + sizeof( u16 )                                       /*lastx*/
                 + sizeof( u16 )                                       /*lasty*/
                 + sizeof( s8 )                                        /*lastz*/
@@ -4390,7 +4445,6 @@ size_t Character::estimatedSize() const
                 + sizeof( u32 )                                       /*trueobjtype*/
                 + sizeof( Core::UGENDER )                             /*gender*/
                 + sizeof( Core::URACE )                               /*race*/
-                + sizeof( bool )                                      /*poisoned_*/
                 + sizeof( short )                                     /*gradual_boost*/
                 + sizeof( u32 )                                       /*last_corpse*/
                 + sizeof( GOTTEN_ITEM_TYPE )                          /*gotten_item_source*/
@@ -4401,26 +4455,21 @@ size_t Character::estimatedSize() const
                 + sizeof( unsigned short )                            /*ar_*/
                 + sizeof( Items::UWeapon* )                           /*weapon*/
                 + sizeof( Items::UArmor* )                            /*shield*/
-                + sizeof( bool )                                      /*dead_*/
-                + sizeof( bool )                                      /*hidden_*/
                 + sizeof( unsigned char )                             /*concealed_*/
-                + sizeof( bool )                                      /*frozen_*/
-                + sizeof( bool )                                      /*paralyzed_*/
                 + sizeof( unsigned short )                            /*stealthsteps_*/
                 + sizeof( unsigned int )                              /*mountedsteps_*/
-                + privs.estimatedSize() + settings.estimatedSize() + sizeof( cached_settings ) +
-                sizeof( Core::UOExecutor* )    /*script_ex*/
-                + sizeof( Character* )         /*opponent_*/
-                + sizeof( Core::polclock_t )   /*swing_timer_start_clock_*/
-                + sizeof( bool )               /*ready_to_swing*/
-                + sizeof( Core::OneShotTask* ) /*swing_task*/
-                + sizeof( Core::OneShotTask* ) /*spell_task*/
-                + sizeof( Core::gameclock_t )  /*created_at*/
-                + sizeof( Core::polclock_t )   /*criminal_until_*/
-                + sizeof( Core::OneShotTask* ) /*repsys_task_*/
-                + sizeof( bool )               /*party_can_loot_*/
-                + sizeof( Core::OneShotTask* ) /*party_decline_timeout_*/
-                + sizeof( bool )               /*murderer_*/
+                + privs.estimatedSize() + settings.estimatedSize() +
+                sizeof( Core::UOExecutor* )                  /*script_ex*/
+                + sizeof( Character* )                       /*opponent_*/
+                + sizeof( Core::polclock_t )                 /*swing_timer_start_clock_*/
+                + sizeof( Core::OneShotTask* )               /*swing_task*/
+                + sizeof( Core::OneShotTask* )               /*spell_task*/
+                + sizeof( Core::gameclock_t )                /*created_at*/
+                + sizeof( Core::polclock_t )                 /*criminal_until_*/
+                + sizeof( Core::OneShotTask* )               /*repsys_task_*/
+                + sizeof( Core::OneShotTask* )               /*party_decline_timeout_*/
+                + sizeof( Core::AttributeFlags<PRIV_FLAGS> ) /*cached_settings*/
+                + sizeof( Core::AttributeFlags<MOB_FLAGS> )  /*mob_flags_*/
       ;
 
   size += 3 * sizeof( AttributeValue* ) + attributes.capacity() * sizeof( AttributeValue );

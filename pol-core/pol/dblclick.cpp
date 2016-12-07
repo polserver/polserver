@@ -67,15 +67,9 @@ void send_paperdoll( Network::Client* client, Mobile::Character* chr )
   // MuadDib changed to reflect true status for 0x20 packet. 1/4/2007
   // Paperdoll Appears different type Status byte than other walk/update
   // packets. Using poison/hidden here will break peace/war button.
-  u8 flag1;
-  if ( client->UOExpansionFlag & Network::AOS )
-  {
-    flag1 = chr->warmode ? 1 : 0;
-    if ( client->chr->serial_ext == chr->serial_ext )
-      flag1 |= CHAR_FLAG1_CANALTER;
-  }
-  else
-    flag1 = chr->warmode ? 1 : 0;
+  u8 flag1 = chr->warmode() ? 1 : 0;
+  if ( client->UOExpansionFlag & Network::AOS && client->chr->serial_ext == chr->serial_ext )
+    flag1 |= CHAR_FLAG1_CANALTER;
   msg->Write<u8>( flag1 );
 
   msg.Send( client );

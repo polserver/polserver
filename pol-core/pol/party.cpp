@@ -1504,12 +1504,12 @@ namespace Mobile
 {
 bool Character::party_can_loot() const
 {
-  return party_can_loot_;
+  return mob_flags_.get( MOB_FLAGS::PARTY_CAN_LOOT );
 }
 
 void Character::set_party_can_loot( bool b )
 {
-  party_can_loot_ = b;
+  mob_flags_.change( MOB_FLAGS::PARTY_CAN_LOOT, b );
 }
 
 void Character::set_party_invite_timeout()

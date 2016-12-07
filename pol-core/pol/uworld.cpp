@@ -182,7 +182,7 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
 
   // If the char is logged in (logged_in is always true for NPCs), update its position
   // in the world zones
-  if ( chr->logged_in )
+  if ( chr->logged_in() )
   {
     Zone& oldzone = getzone( oldx, oldy, oldrealm );
     Zone& newzone = getzone( newx, newy, chr->realm );

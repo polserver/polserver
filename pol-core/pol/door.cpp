@@ -24,7 +24,7 @@ UDoor::UDoor( const Items::DoorDesc& descriptor ) : ULockable( descriptor, CLASS
 
 void UDoor::builtin_on_use( Network::Client* client )
 {
-  if ( locked_ )
+  if ( locked() )
   {
     private_say_above( client->chr, this, "That is locked." );
   }

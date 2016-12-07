@@ -95,9 +95,6 @@ public:
   void invisible( bool newvalue );
   void on_invisible_changed();
 
-  virtual bool saveonexit() const POL_OVERRIDE;
-  virtual void saveonexit( bool newvalue ) POL_OVERRIDE;
-
   void set_decay_after( unsigned int seconds );
   bool should_decay( unsigned int gameclock ) const;
   void restart_decay_timer();
@@ -242,12 +239,6 @@ public:
 protected:
   unsigned int decayat_gameclock_;
   u16 amount_;
-  bool newbie_;
-  bool insured_;
-  bool movable_;
-  bool inuse_;
-  bool invisible_;
-
   u8 slot_index_;
 
   boost_utils::script_name_flystring on_use_script_;
@@ -294,60 +285,60 @@ inline u16 Item::getamount() const
 
 inline bool Item::movable() const
 {
-  return movable_;
+  return flags_.get( Core::OBJ_FLAGS::MOVABLE );
 }
 
 inline void Item::movable( bool newvalue )
 {
-  if ( movable_ != newvalue )
+  if ( movable() != newvalue )
   {
-    movable_ = newvalue;
+    flags_.change( Core::OBJ_FLAGS::MOVABLE, newvalue );
     on_movable_changed();
   }
 }
 
 inline bool Item::inuse() const
 {
-  return inuse_;
+  return flags_.get( Core::OBJ_FLAGS::IN_USE );
 }
 
 inline void Item::inuse( bool newvalue )
 {
-  inuse_ = newvalue;
+  flags_.change( Core::OBJ_FLAGS::IN_USE, newvalue );
 }
 
 inline bool Item::invisible() const
 {
-  return invisible_;
+  return flags_.get( Core::OBJ_FLAGS::INVISIBLE );
 }
 
 inline void Item::invisible( bool newvalue )
 {
-  if ( invisible_ != newvalue )
+  if ( invisible() != newvalue )
   {
-    invisible_ = newvalue;
+    flags_.change( Core::OBJ_FLAGS::INVISIBLE, newvalue );
     on_invisible_changed();
   }
 }
 
 inline bool Item::newbie() const
 {
-  return newbie_;
+  return flags_.get( Core::OBJ_FLAGS::NEWBIE );
 }
 
 inline void Item::newbie( bool newvalue )
 {
-  newbie_ = newvalue;
+  flags_.change( Core::OBJ_FLAGS::NEWBIE, newvalue );
 }
 
 inline bool Item::insured() const
 {
-  return insured_;
+  return flags_.get( Core::OBJ_FLAGS::INSURED );
 }
 
 inline void Item::insured( bool newvalue )
 {
-  insured_ = newvalue;
+  flags_.change( Core::OBJ_FLAGS::INSURED, newvalue );
 }
 
 inline u8 Item::slot_index() const

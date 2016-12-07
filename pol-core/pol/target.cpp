@@ -175,7 +175,7 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
       return;
     }
 
-    if ( ( chr->frozen() || chr->paralyzed() ) && !chr->setting_enabled( "freemove" ) )
+    if ( ( chr->frozen() || chr->paralyzed() ) && !chr->can_freemove() )
     {
       if ( chr->client != NULL )
       {

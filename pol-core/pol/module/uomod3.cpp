@@ -31,7 +31,7 @@ BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
 
-    if ( chr->logged_in )
+    if ( chr->logged_in() )
     {
       send_full_statmsg( chr->client, chr );
       return new BLong( 1 );

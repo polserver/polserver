@@ -40,16 +40,6 @@ void WornItemsContainer::for_each_item( void ( *f )( Items::Item* item, void* a 
   }
 }
 
-bool WornItemsContainer::saveonexit() const
-{
-  return saveonexit_;
-}
-
-void WornItemsContainer::saveonexit( bool newvalue )
-{
-  saveonexit_ = newvalue;
-}
-
 void WornItemsContainer::PutItemOnLayer( Items::Item* item )
 {
   passert( Items::valid_equip_layer(

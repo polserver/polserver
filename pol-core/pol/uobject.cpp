@@ -78,15 +78,15 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
       z( 0 ),
       facing( FACING_N ),
       realm( NULL ),
-      saveonexit_( true ),
       uobj_class_( static_cast<const u8>( i_uobj_class ) ),
-      dirty_( true ),
       _rev( 0 ),
       name_( "" ),
+      flags_(),
       proplist_( class_to_type( i_uobj_class ) )
 {
   graphic = Items::getgraphic( objtype );
-
+  flags_.set( OBJ_FLAGS::DIRTY );
+  flags_.set( OBJ_FLAGS::SAVE_ON_EXIT );
   height = tileheight( graphic );
   ++stateManager.uobjcount.uobject_count;
 }
@@ -142,16 +142,16 @@ void UObject::destroy()
 
 bool UObject::dirty() const
 {
-  return dirty_;
+  return flags_.get( OBJ_FLAGS::DIRTY );
 }
 
 void UObject::clear_dirty() const
 {
-  if ( dirty_ )
+  if ( dirty() )
     ++dirty_writes;
   else
     ++clean_writes;
-  dirty_ = false;
+  flags_.remove( OBJ_FLAGS::DIRTY );
 }
 
 bool UObject::getprop( const std::string& propname, std::string& propval ) const
@@ -390,12 +390,12 @@ void UObject::on_facing_changed()
 
 bool UObject::saveonexit() const
 {
-  return saveonexit_;
+  return flags_.get( OBJ_FLAGS::SAVE_ON_EXIT );
 }
 
 void UObject::saveonexit( bool newvalue )
 {
-  saveonexit_ = newvalue;
+  flags_.change( OBJ_FLAGS::SAVE_ON_EXIT, newvalue );
 }
 
 const char* UObject::target_tag() const

@@ -27,7 +27,7 @@ public:
   bool locked() const;
 
 protected:
-  bool locked_;
+  void locked( bool newvalue );
 
   virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
   virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
@@ -49,7 +49,11 @@ protected:
 
 inline bool ULockable::locked() const
 {
-  return locked_;
+  return flags_.get( OBJ_FLAGS::LOCKED );
+}
+inline void ULockable::locked( bool newvalue )
+{
+  flags_.change( OBJ_FLAGS::LOCKED, newvalue );
 }
 }
 }

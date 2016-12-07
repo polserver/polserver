@@ -335,7 +335,7 @@ void textcmd_repdata( Network::Client* client )
 
 void start_packetlog( Mobile::Character* looker, Mobile::Character* mob )
 {
-  if ( mob->connected )  // gotta be connected to get packets right?
+  if ( mob->connected() )  // gotta be connected to get packets right?
   {
     Clib::SpinLockGuard guard( mob->client->_fpLog_lock );
     if ( mob->client->fpLog.empty() )
@@ -386,7 +386,7 @@ void textcmd_startlog( Network::Client* client )
 
 void stop_packetlog( Mobile::Character* looker, Mobile::Character* mob )
 {
-  if ( mob->connected )  // gotta be connected to already have packets right?
+  if ( mob->connected() )  // gotta be connected to already have packets right?
   {
     Clib::SpinLockGuard guard( mob->client->_fpLog_lock );
     if ( !mob->client->fpLog.empty() )

@@ -372,7 +372,7 @@ void Spellbook::send_book_old( Network::Client* client )
 {
   client->pause();
 
-  if ( !locked_ )
+  if ( !locked() )
   {
     send_open_gump( client, *this );
     send_spellbook_contents( client, *this );

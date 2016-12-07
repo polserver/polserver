@@ -258,7 +258,7 @@ void textcmd_stoplog( Network::Client* client );
 void start_client_char( Network::Client* client )
 {
   client->ready = 1;
-  client->chr->connected = true;
+  client->chr->connected( true );
 
   // even if this stuff just gets queued, we still want the client to start
   // getting data now.
@@ -475,7 +475,7 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
   {
     // logging in a character that's offline.
     SetCharacterWorldPosition( chosen_char, Realms::WorldChangeReason::PlayerEnter );
-    chosen_char->logged_in = true;
+    chosen_char->logged_in( true );
   }
 
   client->chr = chosen_char;
