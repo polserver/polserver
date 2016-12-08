@@ -124,7 +124,10 @@ struct ElementDamages
 #pragma pack()
 #endif
 
-template <typename ENUM>
+template <typename ENUM,
+          typename std::enable_if<
+          std::is_enum<ENUM>{} && !std::is_convertible<ENUM, int>{}
+          , int>::type = 0 >
 struct AttributeFlags
 {
   typedef typename std::underlying_type<ENUM>::type enum_t;
