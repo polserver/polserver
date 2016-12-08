@@ -126,7 +126,7 @@ struct ElementDamages
 
 template <typename ENUM,
           typename std::enable_if<
-          std::is_enum<ENUM>{} && !std::is_convertible<ENUM, int>{}
+          std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value
           , int>::type = 0 >
 struct AttributeFlags
 {
