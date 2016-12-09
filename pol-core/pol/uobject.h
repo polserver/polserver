@@ -80,8 +80,39 @@ class WornItemsContainer;
 // ULWObject: Lightweight object.
 // Should contain minimal data structures (and no virtuals)
 // Note, not yet needed, so nothing has been moved here.
+// TODO: nothing done yet, but this could be used as baseclass
+// in addition this class can be used as a LosObj replacement
+// currently this gets created each time los gets checked....
+// look_height will be missing, but since only items and mobiles are different
+// with uobj_class_ this can easily be implemented
+// and still its lightweight enough to be able to create it for arbitrary coords
 class ULWObject
 {
+public:
+  u32 serial;
+  u16 graphic;
+  u16 x;
+  u16 y;
+  s8 z;
+
+  u8 height;
+  Realms::Realm* realm;
+
+private:
+  const u8 uobj_class_; // forward declare nested enums does not work, move enum here once finished
+
+protected:
+  ULWObject( u8 uobj_class )
+      : serial( 0 ),
+        graphic( 0 ),
+        x( 0 ),
+        y( 0 ),
+        z( 0 ),
+        height( 0 ),
+        realm( nullptr ),
+        uobj_class_( uobj_class ){};
+
+  ~ULWObject(){};
 };
 
 

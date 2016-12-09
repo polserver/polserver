@@ -302,6 +302,8 @@ public:
   void setmemberPointer( DynPropTypes member, V value );
   size_t estimateSizeDynProps() const;
 
+protected:
+  ~DynamicPropsHolder();
 private:
   void initProps();
   std::unique_ptr<DynProps> _dynprops;
@@ -650,6 +652,9 @@ inline size_t DynProps::estimateSize() const
 inline DynamicPropsHolder::DynamicPropsHolder() : _dynprops( nullptr )
 {
 }
+
+inline DynamicPropsHolder::~DynamicPropsHolder()
+{}
 
 inline void DynamicPropsHolder::initProps()
 {
