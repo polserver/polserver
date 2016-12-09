@@ -314,10 +314,13 @@ void read_shadow_realms( Clib::ConfigElem& elem )
   Realms::Realm* baserealm = find_realm( elem.remove_string( "BaseRealm" ) );
   if ( !baserealm )
     elem.warn_with_line( "BaseRealm not found." );
-  if ( defined_realm( name ) )
+  else if ( defined_realm( name ) )
     elem.warn_with_line( "Realmname already defined" );
-  add_realm( name, baserealm );
-  INFO_PRINT << "\nShadowrealm " << name << "\n";
+  else
+  {
+    add_realm( name, baserealm );
+    INFO_PRINT << "\nShadowrealm " << name << "\n";
+  }
 }
 
 void read_multi( Clib::ConfigElem& elem )
