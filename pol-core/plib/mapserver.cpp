@@ -129,7 +129,7 @@ void MapServer::GetMapShapes( MapShapeList& shapes, unsigned short x, unsigned s
     unsigned short yblock = y >> SOLIDX_Y_SHIFT;
     unsigned short ycell = y & SOLIDX_Y_CELLMASK;
 
-    size_t block = yblock * ( _descriptor.width >> SOLIDX_X_SHIFT ) + xblock;
+    size_t block = static_cast<size_t>( yblock ) * ( _descriptor.width >> SOLIDX_X_SHIFT ) + xblock;
     SOLIDX2_ELEM* pIndex2 = _index1[block];
     unsigned int index = pIndex2->baseindex + pIndex2->addindex[xcell][ycell];
     const SOLIDS_ELEM* pElem = &_shapedata[index];

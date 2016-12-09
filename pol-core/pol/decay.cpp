@@ -239,6 +239,11 @@ void decay_single_thread( void* arg )
   {
     total_grid_count += ( realm->grid_width() * realm->grid_height() );
   }
+  if ( !total_grid_count )
+  {
+    POLLOG_ERROR << "No realm grids?!\n";
+    return;
+  }
   // sweep every realm ~10minutes -> 36ms for 6 realms
   unsigned sleeptime = ( 60 * 10L * 1000 ) / total_grid_count;
   sleeptime = std::max( sleeptime, 30u );  // limit to 30ms
