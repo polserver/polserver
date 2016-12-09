@@ -673,7 +673,7 @@ bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string&
     int n = plong->value();
     if ( frmt.find( '#' ) != std::string::npos )
       to_stream << "0x";
-    to_stream << std::hex << n;
+    to_stream << std::hex << n << std::dec;
   }
   else if ( frmt.find( 'o' ) != std::string::npos )
   {
@@ -686,7 +686,7 @@ bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string&
     int n = plong->value();
     if ( frmt.find( '#' ) != std::string::npos )
       to_stream << "0o";
-    to_stream << std::oct << n;
+    to_stream << std::oct << n << std::dec;
   }
   else if ( frmt.find( 'd' ) != std::string::npos )
   {
