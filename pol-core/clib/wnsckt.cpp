@@ -132,7 +132,11 @@ bool Socket::open( const char* ipaddr, unsigned short port )
 {
   close();
   _sck = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-  if ( _sck == INVALID_SOCKET || _sck < 0 )
+  if ( _sck == INVALID_SOCKET
+#ifndef WINDOWS
+       || _sck < 0
+#endif
+       )
   {
     INFO_PRINT << "Unable to open socket in Socket::open()\n";
     return false;
