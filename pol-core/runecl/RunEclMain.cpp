@@ -57,7 +57,7 @@ using namespace Pol::Module;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RunEclMain::RunEclMain() : ProgramMain()
+RunEclMain::RunEclMain() : ProgramMain(), m_quiet( false ), m_debug( false ), m_profile( false )
 {
 }
 RunEclMain::~RunEclMain()
