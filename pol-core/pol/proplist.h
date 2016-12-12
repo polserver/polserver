@@ -36,6 +36,7 @@ class ConfigElem;
 namespace Core
 {
 class PropertyList;
+enum class UOBJ_CLASS : u8;
 
 /**
  * Profiler for CProps: stores usage information and computes statistics
@@ -67,26 +68,23 @@ public:
     UNKNOWN,
   };
 
+  static Type class_to_type( UOBJ_CLASS oclass );
+
   /** Returns an instance of the profiler, instantiate it on first need */
-  inline static CPropProfiler& instance()
-  {
-    static CPropProfiler instance;
-    return instance;
-  };
+  static CPropProfiler& instance();
 
   /** No copies allowed */
   CPropProfiler( const CPropProfiler& ) = delete;
   /** No copies allowed */
-  void operator=( const CPropProfiler& ) = delete;
+  CPropProfiler& operator=( const CPropProfiler& ) = delete;
 
   void registerProplist( const PropertyList* proplist, const Type type );
   void registerProplist( const PropertyList* proplist, const PropertyList* copiedFrom );
   void unregisterProplist( const PropertyList* proplist );
 
   void clear();
-  void dumpProfile( std::ostream& os );
-
-  size_t estimateSize();
+  void dumpProfile( std::ostream& os ) const;
+  size_t estimateSize() const;
 
 private:
   class HitsCounter
@@ -96,10 +94,10 @@ private:
     static const size_t WRITE = 1;
     static const size_t ERASE = 2;
 
-    inline HitsCounter() : hits( std::array<u64, 3>{{0, 0, 0}} ){};
-    inline u64& operator[]( size_t idx ) { return hits[idx]; };
-    inline const u64& operator[]( size_t idx ) const { return hits[idx]; };
-    inline size_t sizeEstimate() const { return sizeof( void* ) + sizeof( u64 ) * hits.size(); };
+    HitsCounter();
+    u64& operator[]( size_t idx );
+    const u64& operator[]( size_t idx ) const;
+    size_t sizeEstimate() const;
   private:
     /// 0=read, 1=write, 2=erase
     std::array<u64, 3> hits;
@@ -108,79 +106,21 @@ private:
   typedef std::map<const std::string, HitsCounter> HitsEntries;
   typedef std::map<const Type, HitsEntries> Hits;
 
-  CPropProfiler() : _proplists( new PropLists() ), _hits( new Hits() ){};
+  CPropProfiler();
 
-  /**
-   * Returns proplist type, internal usage
-   */
-  inline Type getProplistType( const PropertyList* proplist )
-  {
-    PropLists::iterator el;
-    {
-      Clib::SpinLockGuard lock( _proplistsLock );
-      el = _proplists->find( proplist );
-    }
-
-    if ( el == _proplists->end() )
-    {
-      /// Unknown should happen only when the profiler has been disabled and
-      /// then re-enabled (including when it was disabled at startup and enabled
-      /// later). In any other case, it's a bug.
-      return Type::UNKNOWN;
-    }
-
-    return el->second;
-  };
-
-  /**
-   * Returns wether a given type should be ignored, intenal usage
-   */
-  inline bool isIgnored( Type type )
-  {
-    if ( type == Type::DATAFILEELEMENT || type == Type::REGION )
-      return true;
-    return false;
-  };
-
+  Type getProplistType( const PropertyList* proplist ) const;
+  bool isIgnored( Type type ) const;
   void cpropAction( const PropertyList* proplist, const std::string& name, const size_t key );
 
   std::unique_ptr<PropLists> _proplists;
   std::unique_ptr<Hits> _hits;
-  Clib::SpinLock _proplistsLock;
-  Clib::SpinLock _hitsLock;
+  mutable Clib::SpinLock _proplistsLock;
+  mutable Clib::SpinLock _hitsLock;
 
 public:
-  /**
-   * Register a cprop read
-   *
-   * @param proplist Pointer to the registered list where this cprop resides
-   * @param name Name of the cprop
-   */
-  inline void cpropRead( const PropertyList* proplist, const std::string& name )
-  {
-    cpropAction( proplist, name, HitsCounter::READ );
-  };
-  /**
-   * Register a cprop write
-   *
-   * @param proplist Pointer to the registered list where this cprop resides
-   * @param name Name of the cprop
-   */
-  inline void cpropWrite( const PropertyList* proplist, const std::string& name )
-  {
-    cpropAction( proplist, name, HitsCounter::WRITE );
-  };
-  /**
-   * Register a cprop erase
-   *
-   * @param proplist Pointer to the registered list where this cprop resides
-   * @param name Name of the cprop
-   * @throws std::runtime_error When proplist is not registered
-   */
-  inline void cpropErase( const PropertyList* proplist, const std::string& name )
-  {
-    cpropAction( proplist, name, HitsCounter::ERASE );
-  };
+  void cpropRead( const PropertyList* proplist, const std::string& name );
+  void cpropWrite( const PropertyList* proplist, const std::string& name );
+  void cpropErase( const PropertyList* proplist, const std::string& name );
 };
 
 
@@ -191,8 +131,8 @@ class PropertyList
 {
 public:
   PropertyList() = delete;
-  PropertyList( const CPropProfiler::Type& type );
-  PropertyList( const CPropProfiler::Type& type, bool force );
+  PropertyList( CPropProfiler::Type type );
+  PropertyList( CPropProfiler::Type type, bool force );
   PropertyList( const PropertyList& );  // dave added 1/26/3
   bool getprop( const std::string& propname, std::string& propvalue ) const;
   void setprop( const std::string& propname, const std::string& propvalue );
@@ -219,10 +159,8 @@ protected:
   Properties properties;
 
 private:
-  friend class UObjectHelper;
-
   // not implemented
-  PropertyList& operator=( const PropertyList& );
+  PropertyList& operator=( const PropertyList& ) = delete;
 };
 
 Bscript::BObjectImp* CallPropertyListMethod( PropertyList& proplist, const char* methodname,

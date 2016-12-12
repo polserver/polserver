@@ -178,7 +178,7 @@ void PrivUpdater::on_change_invul( Character* chr, bool enable )
 
 bool PrivUpdater::is_active_or_npc( Character* chr )
 {
-  return chr != NULL && ( chr->has_active_client() || chr->isa( Core::UObject::CLASS_NPC ) );
+  return chr != NULL && ( chr->has_active_client() || chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) );
 }
 
 void PrivUpdater::enable_see_hidden( Character* in_range_chr, Character* chr )
@@ -187,7 +187,7 @@ void PrivUpdater::enable_see_hidden( Character* in_range_chr, Character* chr )
   {
     if ( chr->client )
       send_owncreate( chr->client, in_range_chr );
-    else if ( chr->isa( Core::UObject::CLASS_NPC ) )
+    else if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
       if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
@@ -202,7 +202,7 @@ void PrivUpdater::disable_see_hidden( Character* in_range_chr, Character* chr )
   {
     if ( chr->client )
       send_remove_character( chr->client, in_range_chr );
-    else if ( chr->isa( Core::UObject::CLASS_NPC ) )
+    else if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
       if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
@@ -217,7 +217,7 @@ void PrivUpdater::enable_see_ghosts( Character* in_range_chr, Character* chr )
   {
     if ( chr->client )
       send_owncreate( chr->client, in_range_chr );
-    else if ( chr->isa( Core::UObject::CLASS_NPC ) )
+    else if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
       if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
@@ -232,7 +232,7 @@ void PrivUpdater::disable_see_ghosts( Character* in_range_chr, Character* chr )
   {
     if ( chr->client )
       send_remove_character( chr->client, in_range_chr );
-    else if ( chr->isa( Core::UObject::CLASS_NPC ) )
+    else if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
       if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )

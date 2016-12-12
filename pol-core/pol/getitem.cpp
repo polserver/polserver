@@ -21,7 +21,6 @@
 #include "network/client.h"
 #include "network/msghandl.h"
 
-#include "los.h"
 #include "pktin.h"
 #include "realms.h"
 #include "statmsg.h"
@@ -239,7 +238,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
     // Item was equipped, let's send the full update for ar and statmsg.
     client->chr->refresh_ar();
   }
-  else if ( my_owner->isa( UObject::CLASS_CONTAINER ) )
+  else if ( my_owner->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     // Toplevel owner was a container (not a character). Only update weight.
     send_full_statmsg( client, client->chr );

@@ -121,7 +121,7 @@ size_t ArmorDesc::estimatedSize() const
 }
 
 UArmor::UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor )
-    : Equipment( descriptor, CLASS_ARMOR, permanent_descriptor ),
+    : Equipment( descriptor, Core::UOBJ_CLASS::CLASS_ARMOR, permanent_descriptor ),
       onhitscript_( descriptor.on_hit_script )
 {
 }

@@ -233,17 +233,6 @@ bool Item::getbuyprice( u32& bp ) const
     return false;
 }
 
-u8 Item::los_height() const
-{
-  return height / 2;
-  /*
-      if (height)
-      return height-1;
-      else
-      return 0;
-      */
-}
-
 Core::UObject* Item::owner()
 {
   if ( container != NULL )
@@ -1245,7 +1234,7 @@ bool Item::has_element_damage()
 Mobile::Character* Item::GetCharacterOwner()
 {
   UObject* top_level_item = toplevel_owner();
-  if ( top_level_item->isa( CLASS_CONTAINER ) )
+  if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     Mobile::Character* chr_owner =
         Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );

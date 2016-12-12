@@ -72,7 +72,6 @@ public:
   virtual void double_click( Network::Client* client );
   virtual void builtin_on_use( Network::Client* client );
   virtual void walk_on( Mobile::Character* chr );
-  virtual u8 los_height() const POL_OVERRIDE;
 
   const ItemDesc& itemdesc() const;
 
@@ -228,7 +227,7 @@ protected:  // only derived classes need the constructor
   virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
   virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
 
-  Item( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
+  Item( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class );
 
 private:
   double getItemdescQuality() const;

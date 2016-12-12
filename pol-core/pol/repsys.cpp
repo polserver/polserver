@@ -817,7 +817,7 @@ void Character::repsys_on_attack( Character* defender )
   }
 
   // consider double-dispatch here.
-  if ( defender->isa( CLASS_CHARACTER ) )
+  if ( defender->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     Core::RepSystem::on_pc_attacks_pc( this, defender );
   }
@@ -879,7 +879,7 @@ void Character::repsys_on_damage( Character* defender )
       return;
   }
 
-  if ( defender->isa( CLASS_CHARACTER ) )
+  if ( defender->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     Core::RepSystem::on_pc_damages_pc( this, defender );
   }
@@ -940,7 +940,7 @@ void Character::repsys_on_help( Character* helped )
   }
 
   // repsys_on_pc_helps( helped );
-  if ( helped->isa( CLASS_CHARACTER ) )
+  if ( helped->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     Core::RepSystem::on_pc_helps_pc( this, helped );
   }

@@ -43,7 +43,7 @@ protected:
   virtual size_t estimatedSize() const POL_OVERRIDE;
 
 protected:
-  explicit ULockable( const Items::ItemDesc& itemdesc, UObject::UOBJ_CLASS uobj_class );
+  explicit ULockable( const Items::ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
   friend class Items::Item;
 };
 

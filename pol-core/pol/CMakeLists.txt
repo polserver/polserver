@@ -170,7 +170,6 @@ SET (SOURCES  # sorted !
     realms/realm.cpp
     realms/realmfunc.cpp
     realms/realmlos.cpp 
-    realms/realmlos2.cpp
     reftypes.cpp 
     region.cpp 
     repsys.cpp
@@ -210,7 +209,6 @@ SET (SOURCES  # sorted !
     unicode.cpp
     uobjcnt.cpp 
     uobject.cpp 
-    uobjhelp.cpp 
     uoclient.cpp
     uoexec.cpp
     uoexhelp.cpp

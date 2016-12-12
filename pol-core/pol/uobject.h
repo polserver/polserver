@@ -21,6 +21,7 @@
 #endif
 
 #include "../clib/refptr.h"
+#include "baseobject.h"
 #include "dynproperties.h"
 #include "proplist.h"
 
@@ -76,45 +77,6 @@ namespace Core
 {
 class UContainer;
 class WornItemsContainer;
-
-// ULWObject: Lightweight object.
-// Should contain minimal data structures (and no virtuals)
-// Note, not yet needed, so nothing has been moved here.
-// TODO: nothing done yet, but this could be used as baseclass
-// in addition this class can be used as a LosObj replacement
-// currently this gets created each time los gets checked....
-// look_height will be missing, but since only items and mobiles are different
-// with uobj_class_ this can easily be implemented
-// and still its lightweight enough to be able to create it for arbitrary coords
-class ULWObject
-{
-public:
-  u32 serial;
-  u16 graphic;
-  u16 x;
-  u16 y;
-  s8 z;
-
-  u8 height;
-  Realms::Realm* realm;
-
-private:
-  const u8 uobj_class_; // forward declare nested enums does not work, move enum here once finished
-
-protected:
-  ULWObject( u8 uobj_class )
-      : serial( 0 ),
-        graphic( 0 ),
-        x( 0 ),
-        y( 0 ),
-        z( 0 ),
-        height( 0 ),
-        realm( nullptr ),
-        uobj_class_( uobj_class ){};
-
-  ~ULWObject(){};
-};
-
 
 #ifdef _MSC_VER
 #pragma pack( push, 1 )
@@ -199,28 +161,9 @@ enum class OBJ_FLAGS : u16
 /**
  * @warning if you add fields, be sure to update Items::create().
  */
-class UObject : protected ref_counted, public DynamicPropsHolder
+class UObject : protected ref_counted, public ULWObject, public DynamicPropsHolder
 {
 public:
-  /**
-   * This is meant to be coarse-grained. It's meant as an alternative to dynamic_cast.
-   *
-   * Mostly used to go from UItem to UContainer.
-   *
-   * @warning When adding a class, be sure to to also update class_to_type static method
-   */
-  enum UOBJ_CLASS : u8
-  {
-    CLASS_ITEM,
-    CLASS_CONTAINER,
-    CLASS_CHARACTER,
-    CLASS_NPC,
-    CLASS_WEAPON,
-    CLASS_ARMOR,
-    CLASS_MULTI,
-  };
-
-
   virtual std::string name() const;
   virtual std::string description() const;
 
@@ -235,13 +178,9 @@ public:
   void getpropnames( std::vector<std::string>& propnames ) const;
   const PropertyList& getprops() const;
 
-  bool orphan() const;
-
   virtual void destroy();
 
-  virtual u8 los_height() const = 0;
   virtual unsigned int weight() const = 0;
-
 
   virtual UObject* toplevel_owner();  // this isn't really right, it returns the WornItemsContainer
   virtual UObject* owner();
@@ -291,12 +230,6 @@ public:
 
   virtual size_t estimatedSize() const;
 
-
-  bool isa( UOBJ_CLASS uobj_class ) const;
-  bool ismobile() const;
-  bool isitem() const;
-  bool ismulti() const;
-
   void ref_counted_add_ref();
   void ref_counted_release();
   unsigned ref_counted_count() const;
@@ -327,23 +260,15 @@ protected:
   friend class ref_ptr<Items::UArmor>;
   friend class ref_ptr<WornItemsContainer>;
 
-  friend class UObjectHelper;
-
-
   // DATA:
 public:
-  u32 serial, serial_ext;
+  u32 serial_ext;
 
   const u32 objtype_;
-  u16 graphic;
   u16 color;
-  u16 x, y;
-  s8 z;
-  u8 height;
 
   u8 facing;  // not always used for items.
   // always used for characters
-  Realms::Realm* realm;
 
   DYN_PROPERTY( maxhp_mod, s16, PROP_MAXHP_MOD, 0 );
   static AosValuePack DEFAULT_AOSVALUEPACK;
@@ -360,7 +285,6 @@ public:
   DYN_PROPERTY( physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK );
 
 private:
-  const u8 uobj_class_;
   u32 _rev;
 
 protected:
@@ -370,27 +294,6 @@ protected:
 
 private:
   PropertyList proplist_;
-  /** Given an UOBJ_CLASS, returns the corresponding Type for profiling */
-  inline static CPropProfiler::Type class_to_type( const UOBJ_CLASS oclass )
-  {
-    switch ( oclass )
-    {
-    case UObject::UOBJ_CLASS::CLASS_ITEM:
-    case UObject::UOBJ_CLASS::CLASS_ARMOR:
-    case UObject::UOBJ_CLASS::CLASS_CONTAINER:
-    case UObject::UOBJ_CLASS::CLASS_WEAPON:
-      return CPropProfiler::Type::ITEM;
-    case UObject::UOBJ_CLASS::CLASS_CHARACTER:
-    case UObject::UOBJ_CLASS::CLASS_NPC:
-      return CPropProfiler::Type::MOBILE;
-    case UObject::UOBJ_CLASS::CLASS_MULTI:
-      return CPropProfiler::Type::MULTI;
-    }
-
-    /// Must compute all cases, relying on GCC's -wSwitch option to check it
-    /// but placing a safe fallback anyway.
-    return CPropProfiler::Type::UNKNOWN;
-  }
 
 private:  // not implemented:
   UObject( const UObject& );
@@ -404,33 +307,9 @@ inline bool UObject::specific_name() const
   return !name_.get().empty();
 }
 
-inline bool UObject::isa( UOBJ_CLASS uobj_class ) const
-{
-  return uobj_class_ == uobj_class;
-}
-
 inline void UObject::set_dirty()
 {
   flags_.set( OBJ_FLAGS::DIRTY );
-}
-
-inline bool UObject::ismobile() const
-{
-  return ( uobj_class_ == CLASS_CHARACTER || uobj_class_ == CLASS_NPC );
-}
-
-inline bool UObject::isitem() const
-{
-  return !ismobile();
-}
-inline bool UObject::ismulti() const
-{
-  return ( uobj_class_ == CLASS_MULTI );
-}
-
-inline bool UObject::orphan() const
-{
-  return ( serial == 0 );
 }
 
 inline void UObject::ref_counted_add_ref()

@@ -30,7 +30,7 @@ namespace Pol
 {
 namespace Items
 {
-Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class,
+Equipment::Equipment( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class,
                       const Core::EquipDesc* permanent_descriptor )
     : Item( itemdesc, uobj_class ), tmpl( permanent_descriptor ), _quality( itemdesc.quality )
 {
@@ -83,7 +83,7 @@ void Equipment::reduce_hp_from_hit()
     set_dirty();
     --hp_;
     increv();
-    if ( isa( CLASS_ARMOR ) )
+    if ( isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Mobile::Character* chr = GetCharacterOwner();
       if ( chr != NULL )

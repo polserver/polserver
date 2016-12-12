@@ -1148,7 +1148,7 @@ void UBoat::realm_changed()
     {
       Items::Item* item = static_cast<Items::Item*>( obj );
       item->realm = realm;
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         Core::UContainer* cont = static_cast<Core::UContainer*>( item );
         cont->for_each_item( Core::setrealm, (void*)realm );
@@ -1191,7 +1191,7 @@ void UBoat::do_tellmoves()
       if ( obj->ismobile() )
       {
         Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-        if ( chr->isa( UObject::CLASS_NPC ) ||
+        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) ||
              chr->has_active_client() )  // dave 3/27/3, dont tell moves of offline PCs
           chr->tellmove();
       }

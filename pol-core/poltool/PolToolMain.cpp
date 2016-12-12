@@ -12,8 +12,6 @@
 #include "../plib/maptile.h"
 #include "../plib/maptileserver.h"
 
-#include "../pol/realms/realm.h"
-
 #include <string>
 #include <fstream>
 

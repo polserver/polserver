@@ -30,7 +30,7 @@ void WornItemsContainer::for_each_item( void ( *f )( Items::Item* item, void* a 
   {
     if ( item != NULL )
     {
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
         cont->for_each_item( f, arg );

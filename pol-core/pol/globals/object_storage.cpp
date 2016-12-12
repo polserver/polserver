@@ -53,37 +53,37 @@ ObjectStorageManager::MemoryUsage ObjectStorageManager::estimateSize() const
     const UObjectRef& ref = ( *hs_citr ).second;
     size += ref->estimatedSize();
     usage.objsize += size;
-    if ( ref->isa( UObject::CLASS_ITEM ) )
+    if ( ref->isa( UOBJ_CLASS::CLASS_ITEM ) )
     {
       usage.obj_item_size += size;
       usage.obj_item_count++;
     }
-    else if ( ref->isa( UObject::CLASS_CONTAINER ) )
+    else if ( ref->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       usage.obj_cont_size += size;
       usage.obj_cont_count++;
     }
-    else if ( ref->isa( UObject::CLASS_CHARACTER ) )
+    else if ( ref->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
     {
       usage.obj_char_size += size;
       usage.obj_char_count++;
     }
-    else if ( ref->isa( UObject::CLASS_NPC ) )
+    else if ( ref->isa( UOBJ_CLASS::CLASS_NPC ) )
     {
       usage.obj_npc_size += size;
       usage.obj_npc_count++;
     }
-    else if ( ref->isa( UObject::CLASS_WEAPON ) )
+    else if ( ref->isa( UOBJ_CLASS::CLASS_WEAPON ) )
     {
       usage.obj_weapon_size += size;
       usage.obj_weapon_count++;
     }
-    else if ( ref->isa( UObject::CLASS_ARMOR ) )
+    else if ( ref->isa( UOBJ_CLASS::CLASS_ARMOR ) )
     {
       usage.obj_armor_size += size;
       usage.obj_armor_count++;
     }
-    else if ( ref->isa( UObject::CLASS_MULTI ) )
+    else if ( ref->isa( UOBJ_CLASS::CLASS_MULTI ) )
     {
       usage.obj_multi_size += size;
       usage.obj_multi_count++;

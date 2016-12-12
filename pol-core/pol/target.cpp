@@ -21,7 +21,6 @@
 #include "network/msghandl.h"
 
 #include "fnsearch.h"
-#include "los.h"
 #include "objtype.h"
 #include "pktboth.h"
 #include "realms.h"

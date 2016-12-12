@@ -1234,7 +1234,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
   case MBR_HP:
     hp_ = static_cast<unsigned short>( value );
 
-    if ( this->isa( CLASS_ARMOR ) )
+    if ( this->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       if ( container != NULL )
       {
@@ -1249,7 +1249,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( hp_ );
   case MBR_MAXHP_MOD:
     this->maxhp_mod( static_cast<s16>( value ) );
-    if ( this->isa( CLASS_ARMOR ) )
+    if ( this->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       if ( container != NULL )
       {
@@ -1409,7 +1409,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
       return new BError( "Amount was less than 1" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
-    else if ( !cont_item->isa( UObject::CLASS_CONTAINER ) )
+    else if ( !cont_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "Non-container selected as target" );
 
     Core::UContainer* newcontainer = static_cast<Core::UContainer*>( cont_item );
@@ -1534,7 +1534,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
       return new BError( "No container specified" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
-    else if ( !cont->isa( UObject::CLASS_CONTAINER ) )
+    else if ( !cont->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "Non-container selected as target" );
 
     Core::UContainer* stackcontainer = static_cast<Core::UContainer*>( cont );
@@ -2217,7 +2217,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     auto val = skillstatcap();
     val.statcap = static_cast<short>( value );
     skillstatcap( val );
-    if ( !this->isa( UObject::CLASS_NPC ) )
+    if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( skillstatcap().statcap );
   }
@@ -2230,7 +2230,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   }
   case MBR_LUCK:
     luck( static_cast<short>( value ) );
-    if ( !this->isa( UObject::CLASS_NPC ) )
+    if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( luck() );
     break;
@@ -2239,13 +2239,13 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     auto val = followers();
     val.followers_max = static_cast<u8>( value );
     followers( val );
-    if ( !this->isa( UObject::CLASS_NPC ) )
+    if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( followers().followers_max );
   }
   case MBR_TITHING:
     tithing( static_cast<s32>( value ) );
-    if ( !this->isa( UObject::CLASS_NPC ) )
+    if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( tithing() );
     break;
@@ -2254,7 +2254,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     auto val = followers();
     val.followers = static_cast<u8>( value );
     followers( val );
-    if ( !this->isa( UObject::CLASS_NPC ) )
+    if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( followers().followers );
   }

@@ -18,7 +18,7 @@ namespace Pol
 {
 namespace Core
 {
-UDoor::UDoor( const Items::DoorDesc& descriptor ) : ULockable( descriptor, CLASS_ITEM )
+UDoor::UDoor( const Items::DoorDesc& descriptor ) : ULockable( descriptor, UOBJ_CLASS::CLASS_ITEM )
 {
 }
 

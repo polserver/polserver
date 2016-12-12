@@ -332,7 +332,7 @@ void Spellbook::calc_current_bitwise_contents()
   }
 }
 
-USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc ) : Item( itemdesc, CLASS_ITEM )
+USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc ) : Item( itemdesc, UOBJ_CLASS::CLASS_ITEM )
 {
 }
 

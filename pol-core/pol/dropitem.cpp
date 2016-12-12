@@ -326,11 +326,11 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
   }
 
 
-  if ( target_item->isa( UObject::CLASS_ITEM ) )
+  if ( target_item->isa( UOBJ_CLASS::CLASS_ITEM ) )
   {
     return add_item_to_stack( client, item, target_item );
   }
-  else if ( target_item->isa( UObject::CLASS_CONTAINER ) )
+  else if ( target_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), x, y,
                                     slotIndex );
@@ -367,9 +367,8 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
     return false;
   }
 
-  LosObj att( *client->chr );
-  LosObj tgt( x, y, static_cast<s8>( newz ) );
-  if ( !chr->realm->has_los( att, tgt ) )
+  LosObj tgt( x, y, static_cast<s8>( newz ), chr->realm );
+  if ( !chr->realm->has_los( *client->chr, tgt ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -382,7 +381,7 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
   item->z = static_cast<s8>( newz );
   if ( item->realm != chr->realm )
   {
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
       cont->for_each_item( setrealm, (void*)chr->realm );
@@ -419,7 +418,7 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
       area->insert_root_item( item );
     }
     // Changed this from a passert to return null.
-    if ( !( item->isa( UObject::CLASS_CONTAINER ) ) )
+    if ( !( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) ) )
       return NULL;
     UContainer* cont = static_cast<UContainer*>( item );
     if ( !cont->can_add_to_slot( slotIndex ) )
@@ -593,7 +592,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     return false;
   }
 
-  if ( !dropon->isa( UObject::CLASS_NPC ) )
+  if ( !dropon->isa( UOBJ_CLASS::CLASS_NPC ) )
   {
     if ( gamestate.system_hooks.can_trade )
     {

@@ -388,7 +388,6 @@
     <ClCompile Include="umap.cpp" />
     <ClCompile Include="uobjcnt.cpp" />
     <ClCompile Include="uobject.cpp" />
-    <ClCompile Include="uobjhelp.cpp" />
     <ClCompile Include="uoclient.cpp" />
     <ClCompile Include="uoexec.cpp" />
     <ClCompile Include="uoexhelp.cpp" />
@@ -618,7 +617,6 @@
     <ClInclude Include="umap.h" />
     <ClInclude Include="uobjcnt.h" />
     <ClInclude Include="uobject.h" />
-    <ClInclude Include="uobjhelp.h" />
     <ClInclude Include="uoclient.h" />
     <ClInclude Include="uoexec.h" />
     <ClInclude Include="uoexhelp.h" />

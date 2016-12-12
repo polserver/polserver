@@ -1373,7 +1373,7 @@ void add_candidate( Mobile::Character* member, Mobile::Character* leader )
     send_sysmessage_cl(
         leader->client,
         CLP_Max_Size );  // You may only have 10 in your party (this includes candidates).
-  else if ( member->isa( UObject::CLASS_NPC ) )
+  else if ( member->isa( UOBJ_CLASS::CLASS_NPC ) )
     send_sysmessage_cl( leader->client, CLP_Ignore_Offer );  // The creature ignores your offer.
   else if ( ( party != nullptr ) && ( party->is_member( member->serial ) ) )
     send_sysmessage_cl( leader->client,

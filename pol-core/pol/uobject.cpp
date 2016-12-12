@@ -62,27 +62,23 @@ void display_unreaped_orphan_instances()
   // for( std::set<UObject*>::iterator itr = unreaped_orphan_instances.begin();
 }
 
+
 std::atomic<unsigned int> UObject::dirty_writes;
 std::atomic<unsigned int> UObject::clean_writes;
 AosValuePack UObject::DEFAULT_AOSVALUEPACK = AosValuePack();
 
 UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
-    : DynamicPropsHolder(),
-      serial( 0 ),
+    : ref_counted(),
+      ULWObject( i_uobj_class ),
+      DynamicPropsHolder(),
       serial_ext( 0 ),
       objtype_( objtype ),
-      graphic( static_cast<u16>( objtype ) ),
       color( 0 ),
-      x( 0 ),
-      y( 0 ),
-      z( 0 ),
       facing( FACING_N ),
-      realm( NULL ),
-      uobj_class_( static_cast<const u8>( i_uobj_class ) ),
       _rev( 0 ),
       name_( "" ),
       flags_(),
-      proplist_( class_to_type( i_uobj_class ) )
+      proplist_( CPropProfiler::class_to_type( i_uobj_class ) )
 {
   graphic = Items::getgraphic( objtype );
   flags_.set( OBJ_FLAGS::DIRTY );

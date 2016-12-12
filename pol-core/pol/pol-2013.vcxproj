@@ -369,7 +369,6 @@
     <ClCompile Include="realms\realm.cpp" />
     <ClCompile Include="realms\realmfunc.cpp" />
     <ClCompile Include="realms\realmlos.cpp" />
-    <ClCompile Include="realms\realmlos2.cpp" />
     <ClCompile Include="reftypes.cpp" />
     <ClCompile Include="region.cpp" />
     <ClCompile Include="repsys.cpp" />
@@ -412,7 +411,6 @@
     <ClCompile Include="unicode.cpp" />
     <ClCompile Include="uobjcnt.cpp" />
     <ClCompile Include="uobject.cpp" />
-    <ClCompile Include="uobjhelp.cpp" />
     <ClCompile Include="uoclient.cpp" />
     <ClCompile Include="uoexec.cpp" />
     <ClCompile Include="uoexhelp.cpp" />
@@ -673,7 +671,6 @@
     <ClInclude Include="unicode.h" />
     <ClInclude Include="uobjcnt.h" />
     <ClInclude Include="uobject.h" />
-    <ClInclude Include="uobjhelp.h" />
     <ClInclude Include="uoclient.h" />
     <ClInclude Include="uoexec.h" />
     <ClInclude Include="uoexhelp.h" />

@@ -123,7 +123,6 @@
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
 #include "../lightlvl.h"
-#include "../los.h"
 #include "../mdelta.h"
 #include "../miscrgn.h"
 #include "../mkscrobj.h"
@@ -274,7 +273,7 @@ const Core::ExtStatBarFollowers Character::DEFAULT_EXTSTATBARFOLLOWERS =
     Core::ExtStatBarFollowers( 0, 0 );
 const Core::SkillStatCap Character::DEFAULT_SKILLSTATCAP = Core::SkillStatCap( 225, 700 );
 
-Character::Character( u32 objtype, UOBJ_CLASS uobj_class )
+Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
     : UObject( objtype, uobj_class ),
       // NPC
       // EQUIPMENT / ITEMS
@@ -523,12 +522,6 @@ void Character::stop_skill_script()
     if ( script_ex->os_module->in_debugger_holdlist() )
       script_ex->os_module->revive_debugged();
   }
-}
-
-
-u8 Character::los_height() const
-{
-  return height;
 }
 
 ///
@@ -1375,7 +1368,7 @@ bool Character::equippable( const Items::Item* item ) const
   {
     return false;
   }
-  if ( ( item->tile_layer == Core::LAYER_BACKPACK ) && !item->isa( CLASS_CONTAINER ) )
+  if ( ( item->tile_layer == Core::LAYER_BACKPACK ) && !item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return false;
   }
@@ -1416,7 +1409,7 @@ bool Character::equippable( const Items::Item* item ) const
         return false;
       }
     }
-    if ( item->isa( CLASS_WEAPON ) )
+    if ( item->isa( Core::UOBJ_CLASS::CLASS_WEAPON ) )
     {
       const Items::UWeapon* wpn_item = static_cast<const Items::UWeapon*>( item );
       if ( wpn_item->descriptor().two_handed )
@@ -1441,13 +1434,13 @@ void Character::equip( Items::Item* item )
 
   // PutItemOnLayer sets the layer, so we can go on now
   // checking item->layer instead of item->tile_layer
-  if ( item->isa( CLASS_WEAPON ) &&
+  if ( item->isa( Core::UOBJ_CLASS::CLASS_WEAPON ) &&
        ( item->layer == Core::LAYER_HAND1 || item->layer == Core::LAYER_HAND2 ) )
   {
     weapon = static_cast<Items::UWeapon*>( item );
     reset_swing_timer();
   }
-  else if ( item->isa( CLASS_ARMOR ) )
+  else if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
   {
     if ( item->layer == Core::LAYER_HAND1 || item->layer == Core::LAYER_HAND2 )
     {
@@ -1688,7 +1681,7 @@ void Character::on_poison_changed()
   send_move_mobile_to_nearby_cansee( this );
 
   // only if client is active or for npcs
-  if ( ( client ) || ( this->isa( UObject::CLASS_NPC ) ) )
+  if ( ( client ) || ( this->isa( Core::UOBJ_CLASS::CLASS_NPC ) ) )
   {
     if ( client )
     {
@@ -2518,7 +2511,7 @@ void Character::refresh_ar()
     {
       update_element( (Core::ElementalType)element, item );
     }
-    if ( item->isa( CLASS_ARMOR ) )
+    if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Items::UArmor* armor = static_cast<Items::UArmor*>( item );
       std::set<unsigned short> tmplzones = armor->tmplzones();
@@ -4186,7 +4179,7 @@ Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemot
         *isRemoteContainer = true;
       return item;
     }
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       item = ( (Core::UContainer*)item )->find( find_serial );
       if ( item )

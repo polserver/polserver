@@ -247,7 +247,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   if ( container_serial == 0 )
   {
     add_item_to_world( item );
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       parent_conts.push( static_cast<UContainer*>( item ) );
   }
   else
@@ -871,7 +871,7 @@ void write_characters( Core::SaveContext& sc )
     if ( obj->ismobile() && !obj->orphan() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !chr->isa( UObject::CLASS_NPC ) )
+      if ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) )
       {
         chr->printOn( sc.pcs );
         chr->clear_dirty();
@@ -889,7 +889,7 @@ void write_npcs( Core::SaveContext& sc )
     if ( obj->ismobile() && !obj->orphan() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( chr->isa( UObject::CLASS_NPC ) )
+      if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
       {
         if ( chr->saveonexit() )
         {
@@ -931,7 +931,7 @@ void write_items( Clib::StreamWriter& sw_items )
     if ( obj->ismobile() && !obj->orphan() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !chr->isa( UObject::CLASS_NPC ) )
+      if ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) )
       {
         // Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
         if ( chr->has_gotten_item() )

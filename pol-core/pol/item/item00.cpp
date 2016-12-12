@@ -22,7 +22,7 @@ namespace Pol
 {
 namespace Items
 {
-Item::Item( const ItemDesc& id, UOBJ_CLASS uobj_class )
+Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
     : UObject( id.objtype, uobj_class ),
       container( NULL ),
       decayat_gameclock_( 0 ),

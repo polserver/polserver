@@ -16,7 +16,6 @@
 #include "realms.h"
 
 #include "item/item.h"
-#include "los.h"
 #include "mobile/npc.h"
 #include "polcfg.h"
 #include "globals/uvars.h"

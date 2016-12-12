@@ -99,7 +99,7 @@ namespace Mobile
 unsigned short calc_thru_damage( double damage, unsigned short ar );
 
 NPC::NPC( u32 objtype, const Clib::ConfigElem& elem )
-    : Character( objtype, CLASS_NPC ),
+    : Character( objtype, Core::UOBJ_CLASS::CLASS_NPC ),
       // UOBJECT INTERFACE
       // NPC INTERFACE
       npc_ar_( 0 ),

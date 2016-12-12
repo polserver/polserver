@@ -28,8 +28,7 @@ namespace Pol
 {
 namespace Core
 {
-class UObject;
-struct LosObj;
+class ULWObject;
 struct Zone;
 class ItemsVector;
 }
@@ -106,9 +105,7 @@ public:
   bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
                    Multi::UMulti** pmulti );
 
-  bool has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const;
-  bool has_los( const Core::UObject& iatt, const Core::UObject& itgt ) const;
-  bool has_los( const Mobile::Character& iatt, const Core::UObject& itgt ) const;
+  bool has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const;
 
   bool navigable( unsigned short x, unsigned short y, short z, short height ) const;
 
@@ -146,11 +143,11 @@ protected:
   void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
                      Core::ItemsVector& walkon_items, bool doors_block );
 
-  bool dynamic_item_blocks_los( const Core::LosObj& att, const Core::LosObj& target,
+  bool dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULWObject& target,
                                 unsigned short x, unsigned short y, short z ) const;
 
   bool static_item_blocks_los( unsigned short x, unsigned short y, short z ) const;
-  bool los_blocked( const Core::LosObj& att, const Core::LosObj& target, unsigned short x,
+  bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
                     unsigned short y, short z ) const;
 
   Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;

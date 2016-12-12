@@ -338,9 +338,6 @@
     <ClCompile Include="uobject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="uobjhelp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="uoclient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -995,9 +992,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uobject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uobjhelp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uoclient.h">

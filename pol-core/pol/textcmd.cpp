@@ -27,7 +27,6 @@
 
 #include "action.h"
 #include "allocd.h"
-#include "los.h"
 #include "menu.h"
 #include "mobile/npc.h"
 #include "pktboth.h"
@@ -44,7 +43,6 @@
 #include "uobject.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
-#include "uobjhelp.h"
 #include "uoscrobj.h"
 #include "globals/uvars.h"
 #include "globals/state.h"

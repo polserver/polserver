@@ -26,7 +26,6 @@
 #include "item/itemdesc.h"
 #include "network/msghandl.h"
 #include "mobile/charactr.h"
-#include "los.h"
 #include "mobile/npc.h"
 #include "pktin.h"
 #include "polcfg.h"
@@ -121,7 +120,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     if ( !chr )
       return;
 
-    if ( chr->isa( UObject::CLASS_NPC ) )
+    if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
     {
       Mobile::NPC* npc = static_cast<Mobile::NPC*>( chr );
       if ( npc->can_accept_event( EVID_DOUBLECLICKED ) )

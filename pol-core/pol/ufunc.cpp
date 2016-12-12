@@ -964,7 +964,7 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
     {
       for ( auto& item : chr->realm->zone[wx][wy].items )
       {
-        if ( item->isa( UObject::CLASS_CONTAINER ) )
+        if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
         {
           cont = (UContainer*)item;
           if ( serial == cont->serial )
@@ -979,7 +979,7 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 
   Item* item =
       chr->search_remote_containers( serial, NULL /* don't care if it's a remote container */ );
-  if ( item != NULL && item->isa( UObject::CLASS_CONTAINER ) )
+  if ( item != NULL && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     return static_cast<UContainer*>( item );
   else
     return NULL;
@@ -1028,7 +1028,7 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
           passert_always( _item->container == NULL );
           return _item;
         }
-        if ( _item->isa( UObject::CLASS_CONTAINER ) )
+        if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
         {
           item = ( (const UContainer*)_item )->find( serial );
           if ( item != NULL )

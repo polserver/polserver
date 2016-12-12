@@ -281,7 +281,7 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
       EItemRefObjImp* itemref_imp = Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
 
       Items::Item* item = itemref_imp->value().get();
-      if ( item->isa( UObject::CLASS_MULTI ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_MULTI ) )
       {
         Multi::UMulti* multi = static_cast<Multi::UMulti*>( item );
         boatptr = multi->as_boat();

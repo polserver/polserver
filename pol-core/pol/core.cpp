@@ -140,7 +140,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     // send_goxyz seems to stop the weather.  This will force a refresh, if the client cooperates.
     chr->client->gd->weather_region = NULL;
   }
-  if ( chr->isa( UObject::CLASS_NPC ) ||
+  if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) ||
        chr->client )  // dave 3/26/3 dont' tell moves of offline PCs
   {
     chr->tellmove();

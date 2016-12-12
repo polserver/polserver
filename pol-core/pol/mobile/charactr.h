@@ -313,7 +313,7 @@ class Character : public Core::UObject
   typedef std::set<Character*> CharacterSet;
 
 public:
-  explicit Character( u32 objtype, UOBJ_CLASS uobj_class = CLASS_CHARACTER );
+  explicit Character( u32 objtype, Core::UOBJ_CLASS uobj_class = Core::UOBJ_CLASS::CLASS_CHARACTER );
   virtual ~Character();
 
 private:
@@ -326,7 +326,6 @@ public:
   virtual size_t estimatedSize() const POL_OVERRIDE;
 
   virtual void destroy() POL_OVERRIDE;
-  virtual u8 los_height() const POL_OVERRIDE;
   virtual unsigned int weight() const POL_OVERRIDE;
 
   virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
