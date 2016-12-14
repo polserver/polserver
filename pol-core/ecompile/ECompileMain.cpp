@@ -848,7 +848,7 @@ void read_config_file( int argc, char* argv[] )
  */
 int ECompileMain::main()
 {
-  const std::vector<std::string> binArgs = programArgs();
+  const std::vector<std::string>& binArgs = programArgs();
 
   /**********************************************
    * show help

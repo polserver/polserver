@@ -1190,7 +1190,7 @@ static char** s_argv;
 
 int UoToolMain::main()
 {
-  const std::vector<std::string> binArgs = programArgs();
+  const std::vector<std::string>& binArgs = programArgs();
 
   /**********************************************
    * show help

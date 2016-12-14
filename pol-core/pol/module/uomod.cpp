@@ -179,8 +179,6 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );
 Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
-bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cfile, Clib::ConfigElem& elem );
-bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem );
 }
 namespace Module
 {
@@ -1305,10 +1303,8 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   if ( !realm->valid( x, y, z ) )
     return new BError( "Invalid Coordinates for Realm" );
 
-  // ConfigFile cfile;
   Clib::ConfigElem elem;
   START_PROFILECLOCK( npc_search );
-  // bool found = FindNpcTemplate( tmplname->data(), cfile, elem );
   bool found = FindNpcTemplate( tmplname->data(), elem );
   STOP_PROFILECLOCK( npc_search );
   INC_PROFILEVAR( npc_searches );

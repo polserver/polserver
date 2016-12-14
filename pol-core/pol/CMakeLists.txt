@@ -163,7 +163,6 @@ SET (SOURCES  # sorted !
     polsem.cpp 
     polsig.cpp 
     polstats.cpp
-    poltest.cpp 
     polwww.cpp 
     proplist.cpp
     realms.cpp
@@ -194,7 +193,14 @@ SET (SOURCES  # sorted !
     syshook.cpp
     syshookscript.cpp
     target.cpp 
-    tasks.cpp 
+    tasks.cpp
+    testing/poltest.cpp
+    testing/testdrop.cpp
+    testing/testenv.cpp 
+    testing/testlos.cpp
+    testing/testmisc.cpp
+    testing/testskill.cpp
+    testing/testwalk.cpp
     textcmd.cpp
     tildecmd.cpp 
     tiles.cpp 

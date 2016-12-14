@@ -43,7 +43,7 @@ void PolToolMain::showHelp()
 int PolToolMain::poltool()
 {
   short wxl = 5485, wxh = 5500, wyl = 0, wyh = 30;
-  const std::vector<std::string> binArgs = programArgs();
+  const std::vector<std::string>& binArgs = programArgs();
 
   std::string realmname = "britannia";
   if ( binArgs.size() >= 6 )
@@ -112,7 +112,7 @@ int PolToolMain::poltool()
 
 int PolToolMain::main()
 {
-  const std::vector<std::string> binArgs = programArgs();
+  const std::vector<std::string>& binArgs = programArgs();
 
   /**********************************************
    * show help
