@@ -20,8 +20,7 @@ namespace Module
 class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule>
 {
 public:
-  PartyExecutorModule( Bscript::Executor& exec )
-      : TmplExecutorModule<PartyExecutorModule>( "Party", exec ){};
+  PartyExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_CreateParty();
   Bscript::BObjectImp* mf_DisbandParty();

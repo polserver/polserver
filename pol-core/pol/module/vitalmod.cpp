@@ -54,6 +54,12 @@ int TmplExecutorModule<VitalExecutorModule>::function_table_size = arsize( funct
 namespace Module
 {
 using namespace Bscript;
+
+VitalExecutorModule::VitalExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec )
+{
+}
+
 BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 {
   Mobile::Character* chr;

@@ -17,8 +17,7 @@ namespace Module
 class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule>
 {
 public:
-  UBoatExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<UBoatExecutorModule>( "boat", exec ){};
+  UBoatExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_MoveBoat();
   Bscript::BObjectImp* mf_MoveBoatRelative();

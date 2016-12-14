@@ -54,6 +54,11 @@ namespace Module
 {
 using namespace Bscript;
 
+PartyExecutorModule::PartyExecutorModule( Executor& exec )
+    : TmplExecutorModule<PartyExecutorModule>( "Party", exec )
+{
+}
+
 class EPartyRefObjImp : public BApplicObj<Core::PartyRef>
 {
 public:

@@ -76,6 +76,11 @@ initer::initer()
 }
 initer _initer;
 
+MathExecutorModule::MathExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<MathExecutorModule>( "math", exec )
+{
+}
+
 Bscript::BObjectImp* MathExecutorModule::mf_Sin()
 {
   double x;

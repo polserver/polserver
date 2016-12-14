@@ -48,6 +48,12 @@ namespace Module
 {
 using namespace Bscript;
 using namespace Mobile;
+
+AttributeExecutorModule::AttributeExecutorModule( Executor& exec )
+    : TmplExecutorModule<AttributeExecutorModule>( "attributes", exec )
+{
+}
+
 Bscript::BObjectImp* AttributeExecutorModule::mf_CheckSkill()
 {
   Mobile::Character* chr;

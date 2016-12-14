@@ -477,7 +477,10 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 }
 
 
-// uo.em functions:
+GuildExecutorModule::GuildExecutorModule( Bscript::Executor& exec )
+    : TmplExecutorModule<GuildExecutorModule>( "Guilds", exec )
+{
+}
 
 ///  ListGuilds returns an array of Guild objects
 BObjectImp* GuildExecutorModule::mf_ListGuilds()

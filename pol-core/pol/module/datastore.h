@@ -18,11 +18,7 @@ class DataStoreFile;
 class DataFileExecutorModule : public Bscript::TmplExecutorModule<DataFileExecutorModule>
 {
 public:
-  DataFileExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<DataFileExecutorModule>( "datafile", exec )
-  {
-  }
-
+  DataFileExecutorModule( Bscript::Executor& exec );
   Bscript::BObjectImp* mf_ListDataFiles();
   Bscript::BObjectImp* mf_CreateDataFile();
   Bscript::BObjectImp* mf_OpenDataFile();

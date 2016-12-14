@@ -43,6 +43,11 @@ namespace Module
 {
 using namespace Bscript;
 
+StorageExecutorModule::StorageExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<StorageExecutorModule>( "Storage", exec )
+{
+}
+
 BObjectImp* StorageExecutorModule::mf_StorageAreas()
 {
   return Core::CreateStorageAreasImp();

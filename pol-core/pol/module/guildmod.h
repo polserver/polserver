@@ -21,8 +21,7 @@ namespace Module
 class GuildExecutorModule : public Bscript::TmplExecutorModule<GuildExecutorModule>
 {
 public:
-  GuildExecutorModule( Bscript::Executor& exec )
-      : TmplExecutorModule<GuildExecutorModule>( "Guilds", exec ){};
+  GuildExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_ListGuilds();
   Bscript::BObjectImp* mf_CreateGuild();

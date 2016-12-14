@@ -23,10 +23,7 @@ namespace Module
 class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule>
 {
 public:
-  VitalExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec )
-  {
-  }
+  VitalExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_ApplyRawDamage();
   Bscript::BObjectImp* mf_ApplyDamage();

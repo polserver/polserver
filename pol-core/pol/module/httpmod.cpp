@@ -40,6 +40,15 @@ int TmplExecutorModule<HttpExecutorModule>::function_table_size = arsize( functi
 namespace Module
 {
 using namespace Bscript;
+
+HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck )
+    : Bscript::TmplExecutorModule<HttpExecutorModule>( "http", exec ),
+      sck_( isck ),
+      continuing_offset( 0 ),
+      uoexec( static_cast<Core::UOExecutor&>( exec ) )
+{
+}
+
 BObjectImp* HttpExecutorModule::mf_WriteHtml()
 {
   const String* str;

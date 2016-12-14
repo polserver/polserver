@@ -45,6 +45,11 @@ int TmplExecutorModule<UBoatExecutorModule>::function_table_size = arsize( funct
 }
 namespace Module
 {
+UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<UBoatExecutorModule>( "boat", exec )
+{
+}
+
 Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
 {
   Multi::UBoat* boat = NULL;

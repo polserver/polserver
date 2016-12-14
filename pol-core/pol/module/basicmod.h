@@ -70,7 +70,7 @@ public:
   Bscript::BObjectImp* mf_SizeOf();
   Bscript::BObjectImp* mf_TypeOfInt();
 
-  BasicExecutorModule( Bscript::Executor& exec ) : ExecutorModule( "Basic", exec ) {}
+  BasicExecutorModule( Bscript::Executor& exec );
   // class machinery
 protected:
   virtual Bscript::BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;

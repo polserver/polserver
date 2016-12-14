@@ -17,8 +17,7 @@ namespace Module
 class ConfigFileExecutorModule : public Bscript::TmplExecutorModule<ConfigFileExecutorModule>
 {
 public:
-  ConfigFileExecutorModule( Bscript::Executor& exec )
-      : TmplExecutorModule<ConfigFileExecutorModule>( "cfgfile", exec ){};
+  ConfigFileExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_ConfigFile();
   Bscript::BObjectImp* mf_FindConfigElement();
