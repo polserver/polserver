@@ -140,7 +140,7 @@ Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
       if ( name[0] == '.' )
         continue;
 
-      std::string::size_type pos = name.rfind( "." );
+      std::string::size_type pos = name.rfind( '.' );
       if ( pos != std::string::npos )
         ext = name.substr( pos );
 

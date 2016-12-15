@@ -790,9 +790,9 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       // Tells whether last found tag was an integer
       bool last_tag_was_int = true;
 
-      while ( ( tag_start_pos = value_.find( "{", str_pos ) ) != std::string::npos )
+      while ( ( tag_start_pos = value_.find( '{', str_pos ) ) != std::string::npos )
       {
-        if ( ( tag_stop_pos = value_.find( "}", tag_start_pos ) ) != std::string::npos )
+        if ( ( tag_stop_pos = value_.find( '}', tag_start_pos ) ) != std::string::npos )
         {
           result << value_.substr( str_pos, tag_start_pos - str_pos );
           str_pos = tag_stop_pos + 1;
@@ -828,7 +828,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 
           std::string prop_name;
           // parsing {1.this_part}
-          tag_dot_pos = tag_body.find( ".", 0 );
+          tag_dot_pos = tag_body.find( '.', 0 );
 
           // '.' is found within the tag, there is a property name
           if ( tag_dot_pos != std::string::npos )

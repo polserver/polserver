@@ -1427,7 +1427,7 @@ void read_gameservers()
 
     while ( elem.remove_prop( "IPMATCH", &iptext ) )
     {
-      auto delim = iptext.find_first_of( "/" );
+      auto delim = iptext.find_first_of( '/' );
       if ( delim != std::string::npos )
       {
         std::string ipaddr_str = iptext.substr( 0, delim );

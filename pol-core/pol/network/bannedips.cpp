@@ -56,7 +56,7 @@ void read_bannedips_config( bool initial_load )
   {
     IPRule CurrentEntry;
     std::string iptext = elem.remove_string( "IPMatch" );
-    std::string::size_type delim = iptext.find_first_of( "/" );
+    std::string::size_type delim = iptext.find_first_of( '/' );
     if ( delim != std::string::npos )
     {
       std::string ipaddr_str = iptext.substr( 0, delim );

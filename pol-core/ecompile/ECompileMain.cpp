@@ -163,7 +163,7 @@ bool compile_file( const char* path )
   std::string fname( path );
   std::string filename_src = fname, ext( "" );
 
-  std::string::size_type pos = fname.rfind( "." );
+  std::string::size_type pos = fname.rfind( '.' );
   if ( pos != std::string::npos )
     ext = fname.substr( pos );
 
@@ -532,7 +532,7 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
     if ( name[0] == '.' )
       continue;
 
-    std::string::size_type pos = name.rfind( "." );
+    std::string::size_type pos = name.rfind( '.' );
     if ( pos != std::string::npos )
       ext = name.substr( pos );
 
@@ -598,7 +598,7 @@ void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* 
     if ( name[0] == '.' )
       continue;
 
-    std::string::size_type pos = name.rfind( "." );
+    std::string::size_type pos = name.rfind( '.' );
     if ( pos != std::string::npos )
       ext = name.substr( pos );
 
