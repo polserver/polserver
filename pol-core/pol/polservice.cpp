@@ -15,7 +15,7 @@
 
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/Header_Windows.h"
-
+#include "pol.h"
 #include "../clib/ntservice.h"  // This needs to be after the windows includes, otherwise it'll complain about windows types.
 
 #ifdef _MSC_VER
@@ -30,7 +30,6 @@ namespace Core
 {
 int RunWindowsService( int argc, char** argv );
 }
-int xmain_outer();
 
 int xmain( int argc, char* argv[] )
 {
@@ -63,7 +62,7 @@ void PolService::Run()
     LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, PROG_CONFIG::programDir().c_str() );
     rc = SetCurrentDirectory( PROG_CONFIG::programDir().c_str() );
 
-    xmain_outer();
+    xmain_outer( false /*testing*/ );
   }
   catch ( std::exception& ex )
   {
@@ -85,7 +84,7 @@ int RunWindowsService( int argc, char** argv )
   if ( !MyService.ParseStandardArgs( argc, argv ) )
   {
     // no service-related parameters
-    return xmain_outer();
+    return xmain_outer( false /*testing*/ );
   }
   else
   {
