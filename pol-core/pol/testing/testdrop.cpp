@@ -5,8 +5,8 @@
 
 #include "testenv.h"
 
+#include "../../clib/logfacility.h"
 #include "../../plib/mapserver.h"
-#include "../clib/logfacility.h"
 #include "../globals/uvars.h"
 #include "../multi/multi.h"
 #include "../realms/realm.h"
