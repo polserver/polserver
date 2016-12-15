@@ -44,7 +44,7 @@ public:
   void open_log_file( bool open_timestamp );
   void setBehaviour( const LogFileBehaviour* behaviour, std::string filename );
   virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, std::string id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
 
 protected:
   bool test_for_rollover( std::chrono::time_point<std::chrono::system_clock>& now );
@@ -67,7 +67,7 @@ public:
   LogSink_cout();
   virtual ~LogSink_cout(){};
   virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, std::string id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
 };
 
 // std::cerr sink
@@ -77,7 +77,7 @@ public:
   LogSink_cerr();
   virtual ~LogSink_cerr(){};
   virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, std::string id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
 };
 
 // pol.log (and start.log) file sink
@@ -104,7 +104,7 @@ public:
   LogSink_debuglog();
   virtual ~LogSink_debuglog(){};
   virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, std::string id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
   void disable();
   static bool Disabled;
 };
@@ -124,8 +124,8 @@ public:
   virtual ~LogSink_flexlog();
   std::string create( std::string logfilename, bool open_timestamp );
   virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, std::string id ) POL_OVERRIDE;
-  void close( std::string id );
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  void close( const std::string& id );
 
 private:
   std::map<std::string, std::shared_ptr<LogSinkGenericFile>> _logfiles;
@@ -138,7 +138,7 @@ public:
   LogSink_dual();
   virtual ~LogSink_dual(){};
   virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, std::string id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
 };
 
 // main class which starts the logging
@@ -148,12 +148,12 @@ public:
   LogFacility();
   ~LogFacility();
   template <typename Sink>
-  void save( fmt::Writer* message, std::string id );
+  void save( fmt::Writer* message, const std::string& id );
   void registerSink( LogSink* sink );
   void disableDebugLog();
   void deinitializeStartLog();
-  void closeFlexLog( std::string id );
-  std::string registerFlexLogger( std::string logfilename, bool open_timestamp );
+  void closeFlexLog( const std::string& id );
+  std::string registerFlexLogger( const std::string& logfilename, bool open_timestamp );
   void wait_for_empty_queue();
 
 private:

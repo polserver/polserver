@@ -53,7 +53,7 @@ void load_attributes_cfg();
 }
 namespace Multi
 {
-void load_special_storedconfig( std::string cfgname );
+void load_special_storedconfig( const std::string& cfgname );
 void read_multidefs();
 void read_boat_cfg();
 }

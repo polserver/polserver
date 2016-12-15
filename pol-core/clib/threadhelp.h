@@ -77,8 +77,8 @@ public:
   TaskThreadPool( const std::string& name );
   TaskThreadPool( unsigned int max_count, const std::string& name );
   ~TaskThreadPool();
-  void push( msg msg );
-  std::future<bool> checked_push( msg msg );
+  void push( const msg& msg );
+  std::future<bool> checked_push( const msg& msg );
 
 private:
   void init( unsigned int max_count, const std::string& name );
@@ -97,8 +97,8 @@ class DynTaskThreadPool : boost::noncopyable
 public:
   DynTaskThreadPool( const std::string& name );
   ~DynTaskThreadPool();
-  void push( msg msg );
-  std::future<bool> checked_push( msg msg );
+  void push( const msg& msg );
+  std::future<bool> checked_push( const msg& msg );
   size_t threadpoolsize() const;
 
 protected:

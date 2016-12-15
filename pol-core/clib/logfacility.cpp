@@ -85,7 +85,7 @@ public:
     _work_thread.join();  // wait for it
   }
   // send msg into queue
-  void send( msg msg_ ) { _queue.push( msg_ ); }
+  void send( const msg& msg_ ) { _queue.push( msg_ ); }
 private:
   // endless loop in thread
   void run()
@@ -128,7 +128,7 @@ LogFacility::~LogFacility()
 
 // send logsink as a lambda to the worker
 template <typename Sink>
-void LogFacility::save( fmt::Writer* message, std::string id )
+void LogFacility::save( fmt::Writer* message, const std::string& id )
 {
   _worker->send( [message, id]()
                  {
@@ -169,7 +169,7 @@ void LogFacility::deinitializeStartLog()
 }
 
 // closes flex sink of given id
-void LogFacility::closeFlexLog( std::string id )
+void LogFacility::closeFlexLog( const std::string& id )
 {
   _worker->send( [id]()
                  {
@@ -179,12 +179,12 @@ void LogFacility::closeFlexLog( std::string id )
 
 // register new flex sink with given filename
 // blocks to return unique identifier
-std::string LogFacility::registerFlexLogger( std::string logfilename, bool open_timestamp )
+std::string LogFacility::registerFlexLogger( const std::string& logfilename, bool open_timestamp )
 {
   auto promise = std::make_shared<std::promise<std::string>>();
   auto ret = promise->get_future();
   _worker->send(
-      [=, &logfilename]()
+      [=]()
       {
         try
         {
@@ -296,7 +296,7 @@ LogSinkGenericFile::~LogSinkGenericFile()
 void LogSinkGenericFile::setBehaviour( const LogFileBehaviour* behaviour, std::string filename )
 {
   _behaviour = behaviour;
-  _log_filename = filename;
+  _log_filename = std::move( filename );
 }
 
 // open file
@@ -346,7 +346,7 @@ void LogSinkGenericFile::addMessage( fmt::Writer* msg )
   _filestream << msg->str();
   _filestream.flush();
 }
-void LogSinkGenericFile::addMessage( fmt::Writer* msg, std::string )
+void LogSinkGenericFile::addMessage( fmt::Writer* msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -387,7 +387,7 @@ void LogSink_cout::addMessage( fmt::Writer* msg )
   std::cout << msg->str();
   std::cout.flush();
 }
-void LogSink_cout::addMessage( fmt::Writer* msg, std::string )
+void LogSink_cout::addMessage( fmt::Writer* msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -401,7 +401,7 @@ void LogSink_cerr::addMessage( fmt::Writer* msg )
   std::cerr << msg->str();
   std::cerr.flush();
 }
-void LogSink_cerr::addMessage( fmt::Writer* msg, std::string )
+void LogSink_cerr::addMessage( fmt::Writer* msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -447,7 +447,7 @@ void LogSink_debuglog::addMessage( fmt::Writer* msg )
   if ( !Disabled )
     LogSinkGenericFile::addMessage( msg );
 }
-void LogSink_debuglog::addMessage( fmt::Writer* msg, std::string )
+void LogSink_debuglog::addMessage( fmt::Writer* msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -478,7 +478,7 @@ std::string LogSink_flexlog::create( std::string logfilename, bool open_timestam
 }
 
 // sink msg into sink of given id
-void LogSink_flexlog::addMessage( fmt::Writer* msg, std::string id )
+void LogSink_flexlog::addMessage( fmt::Writer* msg, const std::string& id )
 {
   auto itr = _logfiles.find( id );
   if ( itr != _logfiles.end() )
@@ -492,7 +492,7 @@ void LogSink_flexlog::addMessage( fmt::Writer* /*msg*/ )
 }
 
 // closes logfile of given id
-void LogSink_flexlog::close( std::string id )
+void LogSink_flexlog::close( const std::string& id )
 {
   auto itr = _logfiles.find( id );
   if ( itr != _logfiles.end() )
@@ -512,7 +512,7 @@ void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg )
   getSink<log2>()->addMessage( msg );
 }
 template <typename log1, typename log2>
-void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg, std::string )
+void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -529,7 +529,7 @@ bool Clib::Logging::LogSink_debuglog::Disabled = false;
   template class Pol::Clib::Logging::Message<Pol::Clib::Logging::sink>;                       \
   template Pol::Clib::Logging::sink* Pol::Clib::Logging::getSink<Pol::Clib::Logging::sink>(); \
   template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::sink>(              \
-      fmt::Writer * message, std::string id );
+      fmt::Writer * message, const std::string& id );
 
 #define SINK_TEMPLATE_DEFINES_DUAL( sink1, sink2 )                                                 \
   template class Pol::Clib::Logging::Message<                                                      \
@@ -539,7 +539,7 @@ bool Clib::Logging::LogSink_debuglog::Disabled = false;
       Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>();   \
   template void Pol::Clib::Logging::LogFacility::save<                                             \
       Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>(     \
-      fmt::Writer * message, std::string id );
+      fmt::Writer * message, const std::string& id );
 
 
 SINK_TEMPLATE_DEFINES( LogSink_cout )

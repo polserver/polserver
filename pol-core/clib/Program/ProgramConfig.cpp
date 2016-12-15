@@ -23,7 +23,7 @@ ProgramConfig::~ProgramConfig()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ProgramConfig::configureProgramEnvironment( std::string programName )
+void ProgramConfig::configureProgramEnvironment( const std::string& programName )
 {
   m_programName = programName;
 

@@ -388,13 +388,13 @@ TaskThreadPool::~TaskThreadPool()
 }
 
 /// simply fire and forget only the deconstructor ensures the msg to be finished
-void TaskThreadPool::push( msg msg )
+void TaskThreadPool::push( const msg& msg )
 {
   _msg_queue.push( msg );
 }
 
 /// returns a future which will be set once the msg is processed
-std::future<bool> TaskThreadPool::checked_push( msg msg )
+std::future<bool> TaskThreadPool::checked_push( const msg& msg )
 {
   auto promise = std::make_shared<std::promise<bool>>();
   auto ret = promise->get_future();
@@ -524,14 +524,14 @@ DynTaskThreadPool::~DynTaskThreadPool()
 }
 
 /// simply fire and forget only the deconstructor ensures the msg to be finished
-void DynTaskThreadPool::push( msg msg )
+void DynTaskThreadPool::push( const msg& msg )
 {
   create_thread();
   _msg_queue.push( msg );
 }
 
 /// returns a future which will be set once the msg is processed
-std::future<bool> DynTaskThreadPool::checked_push( msg msg )
+std::future<bool> DynTaskThreadPool::checked_push( const msg& msg )
 {
   auto promise = std::make_shared<std::promise<bool>>();
   auto ret = promise->get_future();

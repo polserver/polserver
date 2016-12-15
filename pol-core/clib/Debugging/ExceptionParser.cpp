@@ -201,7 +201,7 @@ string getCompilerVersion()
   return result;
 }
 
-void doHttpPOST( string host, string url, string content )
+void doHttpPOST( const string& host, const string& url, const string& content )
 {
 #define MAXLINE 4096
   char request[MAXLINE + 1];
@@ -312,7 +312,7 @@ void doHttpPOST( string host, string url, string content )
 #endif
 }
 
-void ExceptionParser::reportProgramAbort( string stackTrace, string reason )
+void ExceptionParser::reportProgramAbort( const string& stackTrace, const string& reason )
 {
   /**
    * set some default values if the abort occurs too early and pol.cfg wasn't parsed yet
@@ -671,9 +671,9 @@ void ExceptionParser::configureProgramAbortReportingSystem( bool active, std::st
                                                             std::string url, std::string reporter )
 {
   m_programAbortReporting = active;
-  m_programAbortReportingServer = server;
-  m_programAbortReportingUrl = url;
-  m_programAbortReportingReporter = reporter;
+  m_programAbortReportingServer = std::move( server );
+  m_programAbortReportingUrl = std::move( url );
+  m_programAbortReportingReporter = std::move( reporter );
 }
 
 bool ExceptionParser::programAbortReporting()

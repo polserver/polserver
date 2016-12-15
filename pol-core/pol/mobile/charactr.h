@@ -734,7 +734,7 @@ protected:
 
   // BUFF/DEBUFF BAR
 public:
-  void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, std::vector<u32> arguments );
+  void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, const std::vector<u32>& arguments );
   bool delBuff( u16 icon );
   void clearBuffs();
   void send_buffs();
