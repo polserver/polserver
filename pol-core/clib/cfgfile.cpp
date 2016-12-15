@@ -806,7 +806,7 @@ bool ConfigFile::readline( std::string& strbuf )
     char* nl = strchr( buffer, '\n' );
     if ( nl )
     {
-      if ( nl != buffer && nl[-1] == '\r' )
+      if ( nl != buffer && *(nl-1) == '\r' )
         --nl;
       *nl = '\0';
       strbuf += buffer;
