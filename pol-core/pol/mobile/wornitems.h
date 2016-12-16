@@ -31,9 +31,6 @@ public:
   void PutItemOnLayer( Item* item );
   void RemoveItemFromLayer( Item* item );
 
-  virtual bool saveonexit() const POL_OVERRIDE;
-  virtual void saveonexit( bool newvalue ) POL_OVERRIDE;
-
   void print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
 };
 

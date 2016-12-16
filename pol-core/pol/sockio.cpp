@@ -233,8 +233,20 @@ const char* AddressToString( struct sockaddr* addr )
 }
 
 PolSocket::PolSocket()
-    : listen_socket( INVALID_SOCKET ), listen_timeout( {0, 0} ), select_timeout( {0, 0} )
+    : listen_socket( INVALID_SOCKET ),
+      listen_fd(),
+      listen_timeout( {0, 0} ),
+      recv_fd(),
+      err_fd(),
+      send_fd(),
+      select_timeout( {0, 0} )
 {
+  FD_ZERO( &listen_fd );
+  FD_ZERO( &recv_fd );
+  FD_ZERO( &err_fd );
+  FD_ZERO( &send_fd );
 }
+
+
 }
 }

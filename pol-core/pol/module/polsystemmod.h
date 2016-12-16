@@ -16,8 +16,7 @@ namespace Module
 class PolSystemExecutorModule : public Bscript::TmplExecutorModule<PolSystemExecutorModule>
 {
 public:
-  PolSystemExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<PolSystemExecutorModule>( "polsys", exec ){};
+  PolSystemExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_IncRevision( /* uobject */ );
   Bscript::BObjectImp* mf_Packages();

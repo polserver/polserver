@@ -21,10 +21,20 @@ namespace Pol
 namespace Core
 {
 UCorpse::UCorpse( const Items::ContainerDesc& descriptor )
-    : UContainer( descriptor ), corpsetype( 0 ), take_contents_to_grave( false ), ownerserial( 0 )
+    : UContainer( descriptor ), corpsetype( 0 ), ownerserial( 0 )
 {
-  movable_ = false;
+  movable( false );
   layer_list_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
+}
+
+bool UCorpse::take_contents_to_grave() const
+{
+  return flags_.get( OBJ_FLAGS::CONTENT_TO_GRAVE );
+}
+
+void UCorpse::take_contents_to_grave( bool newvalue )
+{
+  flags_.change( OBJ_FLAGS::CONTENT_TO_GRAVE, newvalue );
 }
 
 void UCorpse::add( Item* item )
@@ -80,7 +90,7 @@ void UCorpse::spill_contents( Multi::UMulti* multi )
     }
   } while ( any );
 
-  if ( !take_contents_to_grave )
+  if ( !take_contents_to_grave() )
     base::spill_contents( multi );
 }
 
@@ -112,7 +122,7 @@ void UCorpse::printProperties( Clib::StreamWriter& sw ) const
   base::printProperties( sw );
   sw() << "\tCorpseType\t" << corpsetype << pf_endl;
   sw() << "\tOwnerSerial\t" << ownerserial << pf_endl;
-  sw() << "\tTakeContentsToGrave\t" << take_contents_to_grave << pf_endl;
+  sw() << "\tTakeContentsToGrave\t" << take_contents_to_grave() << pf_endl;
 }
 
 void UCorpse::readProperties( Clib::ConfigElem& elem )
@@ -126,14 +136,13 @@ void UCorpse::readProperties( Clib::ConfigElem& elem )
 
   elem.remove_prop( "CorpseType", &corpsetype );
   elem.remove_prop( "OwnerSerial", &ownerserial );
-  take_contents_to_grave = elem.remove_bool( "TakeContentsToGrave", false );
-  movable_ = false;
+  take_contents_to_grave( elem.remove_bool( "TakeContentsToGrave", false ) );
+  movable( false );
 }
 
 size_t UCorpse::estimatedSize() const
 {
   size_t size = base::estimatedSize() + sizeof( u16 ) /*corpsetype*/
-                + sizeof( bool )                      /*take_contents_to_grave*/
                 + sizeof( u32 )                       /*ownerserial*/
                 // no estimateSize here element is in objhash
                 + 3 * sizeof( Items::Item** ) + layer_list_.capacity() * sizeof( Items::Item* );

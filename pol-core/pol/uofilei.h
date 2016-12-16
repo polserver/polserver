@@ -30,15 +30,9 @@ struct USTRUCT_VERSION;
 FILE* open_uo_file( const std::string& filename_part );
 
 bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
-bool statics_height( unsigned short x, unsigned short y, short oldz, short* newz );
-
 
 void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
                   short oldz, bool* result, short* newz );
-void statics_standheight( StaticList& statics, unsigned short x, unsigned short y, short oldz,
-                          bool* result_inout, short* newz_inout );
-void statics_dropheight( StaticList& statics, unsigned short x, unsigned short y, short oldz,
-                         bool* result_inout, short* newz_inout );
 
 #define VERFILE_MAP0_MUL 0x00
 #define VERFILE_STAIDX0_MUL 0x01

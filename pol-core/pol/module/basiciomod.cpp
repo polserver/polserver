@@ -26,6 +26,11 @@ namespace Pol
 {
 namespace Module
 {
+BasicIoExecutorModule::BasicIoExecutorModule( Bscript::Executor& exec )
+    : Bscript::ExecutorModule( "BasicIo", exec )
+{
+}
+
 Bscript::BObjectImp* BasicIoExecutorModule::print()
 {
   INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";

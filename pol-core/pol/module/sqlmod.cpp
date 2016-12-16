@@ -40,6 +40,13 @@ int TmplExecutorModule<SQLExecutorModule>::function_table_size = arsize( functio
 namespace Module
 {
 using namespace Bscript;
+
+SQLExecutorModule::SQLExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<SQLExecutorModule>( "sql", exec ),
+      uoexec( static_cast<Core::UOExecutor&>( exec ) )
+{
+}
+
 #ifdef HAVE_MYSQL
 
 BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uoexec,

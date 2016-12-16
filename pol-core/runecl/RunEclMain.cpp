@@ -57,7 +57,7 @@ using namespace Pol::Module;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RunEclMain::RunEclMain() : ProgramMain()
+RunEclMain::RunEclMain() : ProgramMain(), m_quiet( false ), m_debug( false ), m_profile( false )
 {
 }
 RunEclMain::~RunEclMain()
@@ -187,9 +187,9 @@ int RunEclMain::runeclScript( std::string fileName )
 
 int RunEclMain::runecl()
 {
-  const std::vector<std::string> binArgs = programArgs();
+  const std::vector<std::string>& binArgs = programArgs();
 
-  for ( int i = 1; i < (int)binArgs.size(); i++ )
+  for ( size_t i = 1; i < binArgs.size(); i++ )
   {
     switch ( binArgs[i][0] )
     {
@@ -222,12 +222,12 @@ int RunEclMain::runecl()
 
 int RunEclMain::main()
 {
-  const std::vector<std::string> binArgs = programArgs();
+  const std::vector<std::string>& binArgs = programArgs();
   Pol::Bscript::escript_config.max_call_depth = 100;
-  m_quiet = programArgsFind( "q" ) != "";
-  m_debug = programArgsFind( "d" ) != "";
-  m_profile = programArgsFind( "p" ) != "";
-  Clib::passert_disabled = !programArgsFind( "a" ).empty() ? false : true;
+  m_quiet = programArgsFind( "q" );
+  m_debug = programArgsFind( "d" );
+  m_profile = programArgsFind( "p" );
+  Clib::passert_disabled = !programArgsFind( "a" );
 
   /**********************************************
    * show copyright
@@ -251,8 +251,8 @@ int RunEclMain::main()
   /**********************************************
    * dump script
    **********************************************/
-  std::string fileName = programArgsFind( "v" );
-  if ( fileName != "" )
+  std::string fileName;
+  if ( programArgsFind( "v", &fileName ) && fileName != "" )
   {
     dumpScript( fileName );
     return 0;  // return "okay"

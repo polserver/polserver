@@ -38,6 +38,11 @@ namespace Module
 {
 using namespace Bscript;
 
+ClilocExecutorModule::ClilocExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<ClilocExecutorModule>( "cliloc", exec )
+{
+}
+
 BObjectImp* ClilocExecutorModule::mf_SendSysMessageCL()
 {
   Mobile::Character* chr;

@@ -385,6 +385,11 @@ Bscript::BObjectImp* DataElemRefObjImp::call_method( const char* methodname, Bsc
   return res;
 }
 
+DataFileExecutorModule::DataFileExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<DataFileExecutorModule>( "datafile", exec )
+{
+}
+
 DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& inspec )
 {
   std::string descriptor;

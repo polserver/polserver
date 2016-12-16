@@ -20,11 +20,7 @@ namespace Module
 class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>
 {
 public:
-  HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck )
-      : Bscript::TmplExecutorModule<HttpExecutorModule>( "http", exec ),
-        sck_( isck ),
-        continuing_offset( 0 ),
-        uoexec( static_cast<Core::UOExecutor&>( exec ) ){};
+  HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck );
 
   Bscript::BObjectImp* mf_WriteHtml();
   Bscript::BObjectImp* mf_WriteHtmlRaw();

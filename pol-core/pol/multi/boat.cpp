@@ -731,7 +731,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
       {
         chr->lastx = chr->x;
         chr->lasty = chr->y;
@@ -919,7 +919,7 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
       {
         // send_remove_character_to_nearby( chr );
 
@@ -1074,7 +1074,7 @@ bool UBoat::has_offline_mobiles() const
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
-      if ( !chr->logged_in )
+      if ( !chr->logged_in() )
       {
         return true;
       }
@@ -1096,7 +1096,7 @@ void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
-      if ( !chr->logged_in )
+      if ( !chr->logged_in() )
       {
         chr->set_dirty();
         chr->x = new_x;
@@ -1148,7 +1148,7 @@ void UBoat::realm_changed()
     {
       Items::Item* item = static_cast<Items::Item*>( obj );
       item->realm = realm;
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         Core::UContainer* cont = static_cast<Core::UContainer*>( item );
         cont->for_each_item( Core::setrealm, (void*)realm );
@@ -1191,7 +1191,7 @@ void UBoat::do_tellmoves()
       if ( obj->ismobile() )
       {
         Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-        if ( chr->isa( UObject::CLASS_NPC ) ||
+        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) ||
              chr->has_active_client() )  // dave 3/27/3, dont tell moves of offline PCs
           chr->tellmove();
       }
@@ -1775,7 +1775,7 @@ Bscript::BObjectImp* UBoat::mobiles_list() const
     if ( !obj->orphan() && on_ship( bc, obj ) && obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
         arr->addElement( make_mobileref( chr ) );
     }
   }

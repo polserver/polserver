@@ -169,6 +169,11 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   }
 }
 
+PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( "polsys", exec )
+{
+}
+
 BObjectImp* PolSystemExecutorModule::mf_IncRevision( /* uobject */ )
 {
   Core::UObject* uobj;

@@ -23,7 +23,7 @@ ProgramConfig::~ProgramConfig()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ProgramConfig::configureProgramEnvironment( std::string programName )
+void ProgramConfig::configureProgramEnvironment( const std::string& programName )
 {
   m_programName = programName;
 
@@ -34,7 +34,7 @@ void ProgramConfig::configureProgramEnvironment( std::string programName )
     exeDir.replace( bslashpos, 1, 1, '/' );
   }
 
-  std::string::size_type pos = exeDir.find_last_of( "/" );
+  std::string::size_type pos = exeDir.find_last_of( '/' );
   if ( pos != std::string::npos )
   {
     exeDir.erase( pos );

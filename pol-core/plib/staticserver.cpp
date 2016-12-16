@@ -67,7 +67,8 @@ void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const
   unsigned short x_block = x / STATICBLOCK_CHUNK;
   unsigned short y_block = y / STATICBLOCK_CHUNK;
 
-  size_t block_index = y_block * ( _descriptor.width >> STATICBLOCK_SHIFT ) + x_block;
+  size_t block_index =
+      static_cast<size_t>( y_block ) * ( _descriptor.width >> STATICBLOCK_SHIFT ) + x_block;
   if ( block_index + 1 >= _index.size() )
   {
     std::string message =

@@ -346,7 +346,13 @@
     <ClCompile Include="polservice.cpp" />
     <ClCompile Include="polsig.cpp" />
     <ClCompile Include="polstats.cpp" />
-    <ClCompile Include="poltest.cpp" />
+    <ClCompile Include="testing\poltest.cpp" />
+    <ClCompile Include="testing\testdrop.cpp" />
+    <ClCompile Include="testing\testenv.cpp" />
+    <ClCompile Include="testing\testlos.cpp" />
+    <ClCompile Include="testing\testmisc.cpp" />
+    <ClCompile Include="testing\testskill.cpp" />
+    <ClCompile Include="testing\testwalk.cpp" />
     <ClCompile Include="polwww.cpp" />
     <ClCompile Include="proplist.cpp" />
     <ClCompile Include="realms.cpp" />
@@ -388,7 +394,6 @@
     <ClCompile Include="umap.cpp" />
     <ClCompile Include="uobjcnt.cpp" />
     <ClCompile Include="uobject.cpp" />
-    <ClCompile Include="uobjhelp.cpp" />
     <ClCompile Include="uoclient.cpp" />
     <ClCompile Include="uoexec.cpp" />
     <ClCompile Include="uoexhelp.cpp" />
@@ -564,7 +569,8 @@
     <ClInclude Include="polsem.h" />
     <ClInclude Include="polsig.h" />
     <ClInclude Include="polstats.h" />
-    <ClInclude Include="poltest.h" />
+    <ClInclude Include="testing\poltest.h" />
+    <ClInclude Include="testing\testenv.h" />
     <ClInclude Include="poltimer.h" />
     <ClInclude Include="poltype.h" />
     <ClInclude Include="polvar.h" />
@@ -618,7 +624,6 @@
     <ClInclude Include="umap.h" />
     <ClInclude Include="uobjcnt.h" />
     <ClInclude Include="uobject.h" />
-    <ClInclude Include="uobjhelp.h" />
     <ClInclude Include="uoclient.h" />
     <ClInclude Include="uoexec.h" />
     <ClInclude Include="uoexhelp.h" />

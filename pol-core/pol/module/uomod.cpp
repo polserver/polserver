@@ -179,8 +179,6 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );
 Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
-bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cfile, Clib::ConfigElem& elem );
-bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem );
 }
 namespace Module
 {
@@ -507,7 +505,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
   if ( getItemParam( exec, 0, item ) && getObjtypeParam( exec, 1, descriptor ) &&
        getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
   {
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
                                         static_cast<unsigned short>( amount ), false, this );
@@ -532,7 +530,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
   if ( getItemParam( exec, 0, item ) && getObjtypeParam( exec, 1, descriptor ) &&
        getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
   {
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
                                         static_cast<unsigned short>( amount ), true, this );
@@ -589,7 +587,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenSpecialContainer()
   {
     return new BError( "No client attached" );
   }
-  if ( !item->isa( UObject::CLASS_CONTAINER ) )
+  if ( !item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return new BError( "That isn't a container" );
   }
@@ -661,7 +659,7 @@ BObjectImp* UOExecutorModule::mf_SendViewContainer()
   {
     return new BError( "No client attached" );
   }
-  if ( !item->isa( UObject::CLASS_CONTAINER ) )
+  if ( !item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return new BError( "That isn't a container" );
   }
@@ -681,7 +679,7 @@ BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
   {
     return new BError( "Invalid parameter type" );
   }
-  if ( !item->isa( UObject::CLASS_CONTAINER ) )
+  if ( !item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return new BError( "That is not a container" );
   }
@@ -1305,10 +1303,8 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   if ( !realm->valid( x, y, z ) )
     return new BError( "Invalid Coordinates for Realm" );
 
-  // ConfigFile cfile;
   Clib::ConfigElem elem;
   START_PROFILECLOCK( npc_search );
-  // bool found = FindNpcTemplate( tmplname->data(), cfile, elem );
   bool found = FindNpcTemplate( tmplname->data(), elem );
   STOP_PROFILECLOCK( npc_search );
   INC_PROFILEVAR( npc_searches );
@@ -2666,7 +2662,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx( /* x, y, z, range, f
             newarr->addElement( _chr->make_ref() );
           else if ( inc_players_only && _chr->client )
             newarr->addElement( _chr->make_ref() );
-          else if ( inc_npc_only && _chr->isa( UObject::CLASS_NPC ) )
+          else if ( inc_npc_only && _chr->isa( UOBJ_CLASS::CLASS_NPC ) )
             newarr->addElement( _chr->make_ref() );
         }
       }
@@ -2776,11 +2772,11 @@ BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm( /*realm*/ )
     for ( const auto& objitr : Pol::Core::objStorageManager.objecthash )
     {
       UObject* obj = objitr.second.get();
-      if ( !obj->ismobile() || obj->isa( UObject::CLASS_NPC ) )
+      if ( !obj->ismobile() || obj->isa( UOBJ_CLASS::CLASS_NPC ) )
         continue;
 
       Character* chr = static_cast<Character*>( obj );
-      if ( chr->logged_in || chr->realm != realm || chr->orphan() )
+      if ( chr->logged_in() || chr->realm != realm || chr->orphan() )
         continue;
 
       newarr->addElement( new EOfflineCharacterRefObjImp( chr ) );
@@ -2852,9 +2848,8 @@ BObjectImp* UOExecutorModule::mf_CheckLosAt()
   {
     if ( !src->realm->valid( x, y, z ) )
       return new BError( "Invalid Coordinates for realm" );
-    LosObj att( *src );
-    LosObj tgt( x, y, static_cast<signed char>( z ) );
-    return new BLong( src->realm->has_los( att, tgt ) );
+    LosObj tgt( x, y, static_cast<s8>( z ), src->realm );
+    return new BLong( src->realm->has_los( *src, tgt ) );
   }
   else
   {
@@ -2878,8 +2873,8 @@ BObjectImp* UOExecutorModule::mf_CheckLosBetween()
     if ( ( !realm->valid( x1, y1, z1 ) ) || ( !realm->valid( x2, y2, z2 ) ) )
       return new BError( "Invalid Coordinates for Realm" );
 
-    LosObj att( x1, y1, static_cast<signed char>( z1 ) );
-    LosObj tgt( x2, y2, static_cast<signed char>( z2 ) );
+    LosObj att( x1, y1, static_cast<s8>( z1 ), realm );
+    LosObj tgt( x2, y2, static_cast<s8>( z2 ), realm );
     return new BLong( realm->has_los( att, tgt ) );
   }
   else
@@ -2968,7 +2963,7 @@ BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
         return new BError( "Invalid parameter type" );
     }
 
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       std::unique_ptr<ObjArray> newarr( new ObjArray );
 
@@ -3090,7 +3085,7 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
     if ( ~flags & RESURRECT_FORCELOCATION )
     {
       // we want doors to block ghosts in this case.
-      bool doors_block = !( chr->graphic == UOBJ_GAMEMASTER || chr->cached_settings.ignoredoors );
+      bool doors_block = !( chr->graphic == UOBJ_GAMEMASTER || chr->cached_settings.get( PRIV_FLAGS::IGNORE_DOORS ) );
       short newz;
       Multi::UMulti* supporting_multi;
       Item* walkon_item;
@@ -3480,7 +3475,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
   }
 
 
-  if ( !cont_item->isa( UObject::CLASS_CONTAINER ) )
+  if ( !cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return new BError( "Non-container selected as target" );
   }
@@ -3734,7 +3729,7 @@ BObjectImp* UOExecutorModule::mf_RestartScript()
   Character* chr;
   if ( getCharacterParam( exec, 0, chr ) )
   {
-    if ( chr->isa( UObject::CLASS_NPC ) )
+    if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
       npc->restart_script();
@@ -3812,14 +3807,14 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
   if ( getUObjectParam( exec, 0, obj ) )
   {
     JusticeRegion* justice_region;
-    if ( obj->isa( UObject::CLASS_ITEM ) )
+    if ( obj->isa( UOBJ_CLASS::CLASS_ITEM ) )
       obj = obj->toplevel_owner();
 
-    if ( obj->isa( UObject::CLASS_CHARACTER ) )
+    if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
     {
       Character* chr = static_cast<Character*>( obj );
 
-      if ( chr->logged_in )
+      if ( chr->logged_in() )
         justice_region = chr->client->gd->justice_region;
       else
         justice_region = gamestate.justicedef->getregion( chr->x, chr->y, chr->realm );
@@ -4342,7 +4337,7 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
     BObjectImp* event = exec.getParamImp( 1 );
     if ( event != NULL )
     {
-      if ( chr->isa( UObject::CLASS_NPC ) )
+      if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
       {
         NPC* npc = static_cast<NPC*>( chr );
         // event->add_ref(); // UNTESTED
@@ -4660,7 +4655,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
   if ( getItemParam( exec, 0, cont_item ) && getObjtypeParam( exec, 1, objtype ) &&
        getParam( 2, amount ) )
   {
-    if ( !cont_item->isa( UObject::CLASS_CONTAINER ) )
+    if ( !cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "That is not a container" );
     if ( amount < 0 )
       return new BError( "Amount cannot be negative" );
@@ -5287,7 +5282,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
     if ( !getParam( 4, flags ) )
       flags = 0;
 
-    if ( !cont_item->isa( UObject::CLASS_CONTAINER ) )
+    if ( !cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "That is not a container" );
     if ( amount < 0 )
       return new BError( "Amount cannot be negative" );
@@ -5354,18 +5349,18 @@ BObjectImp* UOExecutorModule::mf_UpdateMobile()
   {
     if ( flags == 1 )
     {
-      if ( ( !chr->isa( UObject::CLASS_NPC ) ) && ( chr->client ) )  // no npc and active client
+      if ( ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) ) && ( chr->client ) )  // no npc and active client
         send_owncreate( chr->client, chr );                          // inform self
-      if ( ( chr->isa( UObject::CLASS_NPC ) ) || ( chr->client ) )   // npc or active client
+      if ( ( chr->isa( UOBJ_CLASS::CLASS_NPC ) ) || ( chr->client ) )   // npc or active client
         send_create_mobile_to_nearby_cansee( chr );                  // inform other
       else
         return new BError( "Mobile is offline" );
     }
     else
     {
-      if ( ( !chr->isa( UObject::CLASS_NPC ) ) && ( chr->client ) )  // no npc and active client
+      if ( ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) ) && ( chr->client ) )  // no npc and active client
         send_move( chr->client, chr );                               // inform self
-      if ( ( chr->isa( UObject::CLASS_NPC ) ) || ( chr->client ) )   // npc or active client
+      if ( ( chr->isa( UOBJ_CLASS::CLASS_NPC ) ) || ( chr->client ) )   // npc or active client
         send_move_mobile_to_nearby_cansee( chr );                    // inform other
       else
         return new BError( "Mobile is offline" );
@@ -5467,7 +5462,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
   if ( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, of_who ) &&
        getStringParam( 2, title ) && getObjArrayParam( 3, uText ) && getObjArrayParam( 4, eText ) )
   {
-    if ( chr->logged_in && of_who->logged_in )
+    if ( chr->logged_in() && of_who->logged_in() )
     {
       // Get The Unicode message lengths and convert the arrays to UC
       u16 uwtext[( SPEECH_MAX_LEN + 1 )];
@@ -5515,7 +5510,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*
           itr != end; ++itr )
     {
       Network::Client* client = *itr;
-      if ( !client->chr->logged_in || client->getversiondetail().major < 1 )
+      if ( !client->chr->logged_in() || client->getversiondetail().major < 1 )
         continue;
       msg.Send( client );
     }

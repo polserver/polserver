@@ -17,10 +17,7 @@ namespace Module
 class UtilExecutorModule : public Bscript::TmplExecutorModule<UtilExecutorModule>
 {
 public:
-  UtilExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<UtilExecutorModule>( "util", exec )
-  {
-  }
+  UtilExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_RandomInt();
   Bscript::BObjectImp* mf_RandomFloat();

@@ -14,7 +14,7 @@ SET (SOURCES  # sorted !
 	../pol/uofile02.cpp
 	../uotool/uofile04.cpp 
 	../uotool/uofile05.cpp
-	../pol/uofile06.cpp
+    ../pol/uofile06.cpp
 	../pol/uofile07.cpp
 	../pol/uofile08.cpp
 	filemapserver.cpp 
@@ -27,10 +27,6 @@ SET (SOURCES  # sorted !
 	realmdescriptor.cpp 
 	staticserver.cpp
 	systemstate.cpp
-	testdrop1.cpp 
-	testenv.cpp
-	testlos1.cpp 
-	testwalk1.cpp
 )
 
 ##############################################################

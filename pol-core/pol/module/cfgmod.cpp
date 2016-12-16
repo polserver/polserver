@@ -142,6 +142,11 @@ Bscript::BObjectRef EConfigElemRefObjImp::get_member( const char* membername )
   return Bscript::BObjectRef( new Bscript::UninitObject );
 }
 
+ConfigFileExecutorModule::ConfigFileExecutorModule( Bscript::Executor& exec )
+    : TmplExecutorModule<ConfigFileExecutorModule>( "cfgfile", exec )
+{
+}
+
 bool ConfigFileExecutorModule::get_cfgfilename( const std::string& cfgdesc, std::string* cfgfile,
                                                 std::string* errmsg, std::string* allpkgbase )
 {

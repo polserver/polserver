@@ -125,10 +125,10 @@ const std::vector<std::string>& ProgramMain::programArgs() const
   return m_programArguments;
 }
 
-std::string ProgramMain::programArgsFind( const std::string& filter ) const
+bool ProgramMain::programArgsFind( const std::string& filter, std::string* rest ) const
 {
-  const std::vector<std::string> binArgs = programArgs();
-  for ( int i = 1; i < (int)binArgs.size(); i++ )
+  const std::vector<std::string>& binArgs = programArgs();
+  for ( size_t i = 1; i < binArgs.size(); i++ )
   {
     const std::string& param = binArgs[i];
     switch ( param[0] )
@@ -136,13 +136,17 @@ std::string ProgramMain::programArgsFind( const std::string& filter ) const
     case '/':
     case '-':
       if ( param.substr( 1, filter.size() ) == filter )
-        return param.substr( 1 + filter.size(), param.size() - ( 1 + filter.size() ) );
+      {
+        if (rest != nullptr )
+         *rest = param.substr( 1 + filter.size(), param.size() - ( 1 + filter.size() ) );
+        return true;
+      }
       break;
     default:
       break;
     }
   }
-  return "";
+  return false;
 }
 
 std::string ProgramMain::programArgsFindEquals( const std::string& filter,

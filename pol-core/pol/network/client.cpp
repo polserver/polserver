@@ -171,11 +171,11 @@ void Client::PreDelete()
 
   if ( chr != NULL && chr->client == this )
   {
-    if ( chr->logged_in )
+    if ( chr->logged_in() )
     {
       ClrCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerExit );
       send_remove_character_to_nearby( chr );
-      chr->logged_in = false;
+      chr->logged_in( false );
 
       chr->set_opponent( NULL );
       chr->removal_cleanup();

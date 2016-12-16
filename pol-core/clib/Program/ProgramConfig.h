@@ -26,7 +26,7 @@ public:
   /**
    * @brief Configures the bug reporting system
    */
-  static void configureProgramEnvironment( std::string programName );
+  static void configureProgramEnvironment( const std::string& programName );
 
 private:
   static std::string m_programName;

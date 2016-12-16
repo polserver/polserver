@@ -477,7 +477,7 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
 
 void delete_character( Accounts::Account* acct, Mobile::Character* chr, int charidx )
 {
-  if ( !chr->logged_in )
+  if ( !chr->logged_in() )
   {
     POLLOG.Format( "Account {} deleting character 0x{:X}\n" ) << acct->name() << chr->serial;
 

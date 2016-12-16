@@ -502,7 +502,7 @@ void load_all_cfgs( const char* cfgname, const char* taglist,
 }
 
 
-std::string GetPackageCfgPath( const Package* pkg, const std::string filename )
+std::string GetPackageCfgPath( const Package* pkg, const std::string& filename )
 {
   std::string filepath;
   if ( pkg == NULL )

@@ -54,6 +54,12 @@ int TmplExecutorModule<VitalExecutorModule>::function_table_size = arsize( funct
 namespace Module
 {
 using namespace Bscript;
+
+VitalExecutorModule::VitalExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec )
+{
+}
+
 BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
 {
   Mobile::Character* chr;
@@ -241,7 +247,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
 
   if ( getCharacterParam( exec, 0, chr ) && param1 != NULL && param2 != NULL )
   {
-    if ( chr->logged_in )
+    if ( chr->logged_in() )
     {
       bool calc_attr = false;
       bool calc_vital = false;

@@ -34,6 +34,11 @@ namespace Pol
 namespace Module
 {
 using namespace Bscript;
+
+BasicExecutorModule::BasicExecutorModule( Executor& exec ) : ExecutorModule( "Basic", exec )
+{
+}
+
 Bscript::BObjectImp* BasicExecutorModule::len()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );

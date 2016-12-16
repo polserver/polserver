@@ -44,6 +44,11 @@ namespace Module
 {
 using namespace Bscript;
 
+UtilExecutorModule::UtilExecutorModule( Bscript::Executor& exec )
+    : Bscript::TmplExecutorModule<UtilExecutorModule>( "util", exec )
+{
+}
+
 Bscript::BObjectImp* UtilExecutorModule::mf_RandomInt()
 {
   int value;

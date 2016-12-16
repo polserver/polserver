@@ -154,11 +154,11 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   }
   else if ( objtype_is_lockable( objtype ) )
   {
-    item = new Core::ULockable( id, CLASS_ITEM );
+    item = new Core::ULockable( id, Core::UOBJ_CLASS::CLASS_ITEM );
   }
   else
   {
-    item = new Item( id, CLASS_ITEM );
+    item = new Item( id, Core::UOBJ_CLASS::CLASS_ITEM );
   }
 
   // 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer

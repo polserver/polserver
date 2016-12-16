@@ -223,8 +223,8 @@ bool do_place_item_in_secure_trade_container( Network::Client* client, Items::It
 {
   client->pause();
 
-  client->chr->trade_accepted = false;
-  dropon->trade_accepted = false;
+  client->chr->trade_accepted( false );
+  dropon->trade_accepted( false );
   send_trade_statuses( client->chr );
 
   send_remove_object_to_inrange( item );
@@ -326,11 +326,11 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
   }
 
 
-  if ( target_item->isa( UObject::CLASS_ITEM ) )
+  if ( target_item->isa( UOBJ_CLASS::CLASS_ITEM ) )
   {
     return add_item_to_stack( client, item, target_item );
   }
-  else if ( target_item->isa( UObject::CLASS_CONTAINER ) )
+  else if ( target_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), x, y,
                                     slotIndex );
@@ -367,9 +367,8 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
     return false;
   }
 
-  LosObj att( *client->chr );
-  LosObj tgt( x, y, static_cast<s8>( newz ) );
-  if ( !chr->realm->has_los( att, tgt ) )
+  LosObj tgt( x, y, static_cast<s8>( newz ), chr->realm );
+  if ( !chr->realm->has_los( *client->chr, tgt ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -382,7 +381,7 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
   item->z = static_cast<s8>( newz );
   if ( item->realm != chr->realm )
   {
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
       cont->for_each_item( setrealm, (void*)chr->realm );
@@ -419,7 +418,7 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
       area->insert_root_item( item );
     }
     // Changed this from a passert to return null.
-    if ( !( item->isa( UObject::CLASS_CONTAINER ) ) )
+    if ( !( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) ) )
       return NULL;
     UContainer* cont = static_cast<UContainer*>( item );
     if ( !cont->can_add_to_slot( slotIndex ) )
@@ -455,12 +454,12 @@ bool open_trade_window( Network::Client* client, Items::Item* item, Mobile::Char
 
   if ( !settingsManager.ssopt.allow_secure_trading_in_warmode )
   {
-    if ( dropon->warmode )
+    if ( dropon->warmode() )
     {
       send_sysmessage( client, "You cannot trade with someone in war mode." );
       return false;
     }
-    if ( client->chr->warmode )
+    if ( client->chr->warmode() )
     {
       send_sysmessage( client, "You cannot trade while in war mode." );
       return false;
@@ -499,11 +498,11 @@ Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Charact
 
   if ( !settingsManager.ssopt.allow_secure_trading_in_warmode )
   {
-    if ( dropon->warmode )
+    if ( dropon->warmode() )
     {
       return new Bscript::BError( "You cannot trade with someone in war mode." );
     }
-    if ( client->chr->warmode )
+    if ( client->chr->warmode() )
     {
       return new Bscript::BError( "You cannot trade while in war mode." );
     }
@@ -537,9 +536,9 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   client->chr->create_trade_container();
 
   dropon->trading_with.set( client->chr );
-  dropon->trade_accepted = false;
+  dropon->trade_accepted( false );
   client->chr->trading_with.set( dropon );
-  client->chr->trade_accepted = false;
+  client->chr->trade_accepted( false );
 
   send_trade_container( client, dropon, dropon->trade_container() );
   send_trade_container( dropon->client, dropon, dropon->trade_container() );
@@ -593,7 +592,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     return false;
   }
 
-  if ( !dropon->isa( UObject::CLASS_NPC ) )
+  if ( !dropon->isa( UOBJ_CLASS::CLASS_NPC ) )
   {
     if ( gamestate.system_hooks.can_trade )
     {
@@ -981,8 +980,8 @@ void cancel_trade( Mobile::Character* chr1 )
 
 void send_trade_statuses( Mobile::Character* chr )
 {
-  unsigned int stat1 = chr->trade_accepted ? 1 : 0;
-  unsigned int stat2 = chr->trading_with->trade_accepted ? 1 : 0;
+  unsigned int stat1 = chr->trade_accepted() ? 1 : 0;
+  unsigned int stat2 = chr->trading_with->trade_accepted() ? 1 : 0;
 
   Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
   msg->WriteFlipped<u16>( 17u );  // no name
@@ -1002,9 +1001,9 @@ void send_trade_statuses( Mobile::Character* chr )
 
 void change_trade_status( Mobile::Character* chr, bool set )
 {
-  chr->trade_accepted = set;
+  chr->trade_accepted( set );
   send_trade_statuses( chr );
-  if ( chr->trade_accepted && chr->trading_with->trade_accepted )
+  if ( chr->trade_accepted() && chr->trading_with->trade_accepted() )
 
   {
     UContainer* cont0 = chr->trade_container();

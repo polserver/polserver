@@ -65,7 +65,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
         return false;
       }
 
-      if ( chrptr->logged_in || chrref_imp->offline_access_ok() )
+      if ( chrptr->logged_in() || chrref_imp->offline_access_ok() )
       {
         return true;
       }
@@ -113,7 +113,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
 
     if ( chrptr != NULL )
     {
-      if ( chrptr->logged_in )
+      if ( chrptr->logged_in() )
       {
         return true;
       }
@@ -161,7 +161,7 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
         return false;
       }
 
-      if ( chrptr->logged_in || chrref_imp->offline_access_ok() )
+      if ( chrptr->logged_in() || chrref_imp->offline_access_ok() )
       {
         return true;
       }
@@ -192,7 +192,7 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
 
     if ( chrptr != NULL )
     {
-      if ( chrptr->logged_in )
+      if ( chrptr->logged_in() )
       {
         return true;
       }
@@ -281,7 +281,7 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
       EItemRefObjImp* itemref_imp = Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
 
       Items::Item* item = itemref_imp->value().get();
-      if ( item->isa( UObject::CLASS_MULTI ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_MULTI ) )
       {
         Multi::UMulti* multi = static_cast<Multi::UMulti*>( item );
         boatptr = multi->as_boat();

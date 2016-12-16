@@ -27,7 +27,7 @@ public:
   bool locked() const;
 
 protected:
-  bool locked_;
+  void locked( bool newvalue );
 
   virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
   virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
@@ -43,13 +43,17 @@ protected:
   virtual size_t estimatedSize() const POL_OVERRIDE;
 
 protected:
-  explicit ULockable( const Items::ItemDesc& itemdesc, UObject::UOBJ_CLASS uobj_class );
+  explicit ULockable( const Items::ItemDesc& itemdesc, UOBJ_CLASS uobj_class );
   friend class Items::Item;
 };
 
 inline bool ULockable::locked() const
 {
-  return locked_;
+  return flags_.get( OBJ_FLAGS::LOCKED );
+}
+inline void ULockable::locked( bool newvalue )
+{
+  flags_.change( OBJ_FLAGS::LOCKED, newvalue );
 }
 }
 }

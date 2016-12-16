@@ -138,7 +138,7 @@ void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
     set.push_back( chr );
   };
 
-  if ( chr->isa( Core::UObject::CLASS_NPC ) )
+  if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     set_pos( zone.npcs );
   else
     set_pos( zone.characters );
@@ -167,7 +167,7 @@ void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
     set.erase( itr );
   };
 
-  if ( !chr->isa( Core::UObject::CLASS_NPC ) )
+  if ( !chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     clear_pos( zone.characters );
   else
     clear_pos( zone.npcs );
@@ -182,7 +182,7 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
 
   // If the char is logged in (logged_in is always true for NPCs), update its position
   // in the world zones
-  if ( chr->logged_in )
+  if ( chr->logged_in() )
   {
     Zone& oldzone = getzone( oldx, oldy, oldrealm );
     Zone& newzone = getzone( newx, newy, chr->realm );
@@ -202,7 +202,7 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
         newset.push_back( chr );
       };
 
-      if ( !chr->isa( Core::UObject::CLASS_NPC ) )
+      if ( !chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
         move_pos( oldzone.characters, newzone.characters );
       else
         move_pos( oldzone.npcs, newzone.npcs );
@@ -280,7 +280,7 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
       "zone\n" )
       << msgreason << chr->serial << chr->serial_ext << chr->x << chr->y;
 
-  bool is_npc = chr->isa( Core::UObject::CLASS_NPC );
+  bool is_npc = chr->isa( Core::UOBJ_CLASS::CLASS_NPC );
   for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
   {
     for ( unsigned zoney = 0; zoney < wgridy; ++zoney )

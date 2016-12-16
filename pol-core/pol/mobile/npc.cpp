@@ -99,13 +99,12 @@ namespace Mobile
 unsigned short calc_thru_damage( double damage, unsigned short ar );
 
 NPC::NPC( u32 objtype, const Clib::ConfigElem& elem )
-    : Character( objtype, CLASS_NPC ),
+    : Character( objtype, Core::UOBJ_CLASS::CLASS_NPC ),
       // UOBJECT INTERFACE
       // NPC INTERFACE
       npc_ar_( 0 ),
       // MOVEMENT
       run_speed( dexterity() ),
-      use_adjustments( true ),
       anchor(),
       // EVENTS
       // SCRIPT
@@ -117,8 +116,9 @@ NPC::NPC( u32 objtype, const Clib::ConfigElem& elem )
       master_( NULL ),
       template_( Core::find_npc_template( elem ) )
 {
-  connected = 1;
-  logged_in = true;
+  connected( true );
+  logged_in( true );
+  use_adjustments( true );
   ++Core::stateManager.uobjcount.npc_count;
 }
 
@@ -173,7 +173,7 @@ bool NPC::anchor_allows_move( Core::UFACING fdir ) const
   unsigned short newx = x + Core::move_delta[fdir].xmove;
   unsigned short newy = y + Core::move_delta[fdir].ymove;
 
-  if ( anchor.enabled && !warmode )
+  if ( anchor.enabled && !warmode() )
   {
     unsigned short curdist = Core::pol_distance( x, y, anchor.x, anchor.y );
     unsigned short newdist = Core::pol_distance( newx, newy, anchor.x, anchor.y );
@@ -228,7 +228,7 @@ bool NPC::could_move( Core::UFACING fdir ) const
 
 bool NPC::npc_path_blocked( Core::UFACING fdir ) const
 {
-  if ( cached_settings.freemove ||
+  if ( can_freemove() ||
        ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )
     return false;
 
@@ -316,8 +316,8 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( run_speed != dexterity() )
     sw() << "\tRunSpeed\t" << run_speed << pf_endl;
 
-  if ( use_adjustments != true )
-    sw() << "\tUseAdjustments\t" << use_adjustments << pf_endl;
+  if ( use_adjustments() != true )
+    sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
 
   s16 value = curr_fire_resist().value;
   if ( value != 0 )
@@ -418,9 +418,9 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
 
   speech_color( elem.remove_ushort( "SpeechColor", Core::DEFAULT_TEXT_COLOR ) );
   speech_font( elem.remove_ushort( "SpeechFont", Core::DEFAULT_TEXT_FONT ) );
-  saveonexit_ = elem.remove_bool( "SaveOnExit", true );
+  saveonexit( elem.remove_bool( "SaveOnExit", true ) );
 
-  use_adjustments = elem.remove_bool( "UseAdjustments", true );
+  mob_flags_.change( MOB_FLAGS::USE_ADJUSTMENTS, elem.remove_bool( "UseAdjustments", true ) );
   run_speed = elem.remove_ushort( "RunSpeed", dexterity() );
 
   damaged_sound = elem.remove_ushort( "DamagedSound", 0 );
@@ -1291,7 +1291,6 @@ void NPC::reset_element_damage( Core::ElementalType damage )
 size_t NPC::estimatedSize() const
 {
   return base::estimatedSize() + sizeof( unsigned short )     /*damaged_sound*/
-         + sizeof( bool )                                     /*use_adjustments*/
          + sizeof( unsigned short )                           /*run_speed*/
          + sizeof( Core::UOExecutor* )                        /*ex*/
          + sizeof( unsigned short )                           /*npc_ar_*/
@@ -1307,5 +1306,16 @@ u16 NPC::get_damaged_sound() const
     return damaged_sound;
   return base::get_damaged_sound();
 }
+
+bool NPC::use_adjustments() const
+{
+  return mob_flags_.get( MOB_FLAGS::USE_ADJUSTMENTS );
+}
+
+void NPC::use_adjustments( bool newvalue )
+{
+  mob_flags_.change( MOB_FLAGS::USE_ADJUSTMENTS, newvalue );
+}
+
 }
 }

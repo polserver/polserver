@@ -29,7 +29,7 @@ namespace Pol
 {
 namespace Multi
 {
-UMulti::UMulti( const Items::ItemDesc& itemdesc ) : Item( itemdesc, CLASS_MULTI )
+UMulti::UMulti( const Items::ItemDesc& itemdesc ) : Item( itemdesc, Core::UOBJ_CLASS::CLASS_MULTI )
 {
   multiid = itemdesc.multiid;
 

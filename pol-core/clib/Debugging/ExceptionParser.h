@@ -24,7 +24,7 @@ public:
    * @param stackTrace the stack trace of the abort
    * @param reason a descriptive text about the reason for the abort
    */
-  static void reportProgramAbort( std::string stackTrace, std::string reason );
+  static void reportProgramAbort( const std::string& stackTrace, const std::string& reason );
 
   /**
    * @brief Logs stack traces of all threads to stdout and error output

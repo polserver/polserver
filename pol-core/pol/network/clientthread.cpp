@@ -47,7 +47,7 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
                        const std::string& pkg_script_ecl, bool offline = false );
 
 
-void report_weird_packet( Network::Client* client, std::string why ); // Defined below
+void report_weird_packet( Network::Client* client, const std::string& why ); // Defined below
 
 bool client_io_thread( Network::Client* client, bool login )
 {
@@ -296,7 +296,7 @@ bool client_io_thread( Network::Client* client, bool login )
 
           client->chr->disconnect_cleanup();
           client->gd->clear();
-          client->chr->connected = false;
+          client->chr->connected( false );
           ScriptDef sd;
           sd.quickconfig( "scripts/misc/logofftest.ecl" );
           if ( sd.exists() )
@@ -666,7 +666,7 @@ bool check_inactivity( Network::Client* client )
   return false;
 }
 
-void report_weird_packet( Network::Client* client, std::string why )
+void report_weird_packet( Network::Client* client, const std::string& why )
 {
   fmt::Writer tmp;
   tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )

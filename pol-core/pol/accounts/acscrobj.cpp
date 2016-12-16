@@ -346,7 +346,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 
     if ( chr == NULL )
       return new BError( "No such character on this account" );
-    if ( chr->client != NULL || chr->logged_in )
+    if ( chr->client != NULL || chr->logged_in() )
       return new BError( "That character is in use" );
 
     if ( can_delete_character( chr, Core::DELETE_BY_SCRIPT ) )
@@ -428,7 +428,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 
         if ( chr == NULL )
           return new BError( "No such character on this account." );
-        if ( chr->client != NULL || chr->logged_in )
+        if ( chr->client != NULL || chr->logged_in() )
           return new BError( "That character is in use." );
 
         Account* account = duplicate_account( obj_->name_, acctname->value() );
@@ -470,7 +470,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 
         if ( chr == NULL )
           return new BError( "No such character on this account." );
-        if ( chr->client != NULL || chr->logged_in )
+        if ( chr->client != NULL || chr->logged_in() )
           return new BError( "That character is in use." );
 
         int charid = account->getnextfreeslot();

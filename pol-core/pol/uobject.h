@@ -21,6 +21,7 @@
 #endif
 
 #include "../clib/refptr.h"
+#include "baseobject.h"
 #include "dynproperties.h"
 #include "proplist.h"
 
@@ -34,6 +35,7 @@
 #include <string>
 #include <atomic>
 #include <set>
+#include <type_traits>
 
 #include "../../lib/format/format.h"
 
@@ -76,14 +78,6 @@ namespace Core
 class UContainer;
 class WornItemsContainer;
 
-// ULWObject: Lightweight object.
-// Should contain minimal data structures (and no virtuals)
-// Note, not yet needed, so nothing has been moved here.
-class ULWObject
-{
-};
-
-
 #ifdef _MSC_VER
 #pragma pack( push, 1 )
 #else
@@ -123,31 +117,53 @@ struct ElementDamages
 #pragma pack()
 #endif
 
+template <typename ENUM,
+          typename std::enable_if<
+          std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value
+          , int>::type = 0 >
+struct AttributeFlags
+{
+  typedef typename std::underlying_type<ENUM>::type enum_t;
+  AttributeFlags() : flags_( 0 ){};
+
+  bool get( ENUM flag ) const
+  {
+    // no implicit conversion to bool, to be able to check against all bits set
+    return ( flags_ & static_cast<enum_t>( flag ) ) == static_cast<enum_t>( flag );
+  };
+  void set( ENUM flag ) { flags_ |= static_cast<enum_t>( flag ); };
+  void remove( ENUM flag ) { flags_ &= ~static_cast<enum_t>( flag ); };
+  void change( ENUM flag, bool value )
+  {
+    if ( value )
+      set( flag );
+    else
+      remove( flag );
+  }
+  void reset() { flags_ = 0; };
+private:
+  enum_t flags_;
+};
+
+enum class OBJ_FLAGS : u16
+{
+  DIRTY        = 1 << 0,  // UObject flags
+  SAVE_ON_EXIT = 1 << 1,
+  NEWBIE       = 1 << 2,  // Item flags
+  INSURED      = 1 << 3,
+  MOVABLE      = 1 << 4,
+  IN_USE       = 1 << 5,
+  INVISIBLE    = 1 << 6,
+  LOCKED       = 1 << 7,  // ULockable flag
+  CONTENT_TO_GRAVE = 1 << 8,  // UCorpse flag
+};
+
 /**
  * @warning if you add fields, be sure to update Items::create().
  */
-class UObject : protected ref_counted, public DynamicPropsHolder
+class UObject : protected ref_counted, public ULWObject, public DynamicPropsHolder
 {
 public:
-  /**
-   * This is meant to be coarse-grained. It's meant as an alternative to dynamic_cast.
-   *
-   * Mostly used to go from UItem to UContainer.
-   *
-   * @warning When adding a class, be sure to to also update class_to_type static method
-   */
-  enum UOBJ_CLASS : u8
-  {
-    CLASS_ITEM,
-    CLASS_CONTAINER,
-    CLASS_CHARACTER,
-    CLASS_NPC,
-    CLASS_WEAPON,
-    CLASS_ARMOR,
-    CLASS_MULTI,
-  };
-
-
   virtual std::string name() const;
   virtual std::string description() const;
 
@@ -162,13 +178,9 @@ public:
   void getpropnames( std::vector<std::string>& propnames ) const;
   const PropertyList& getprops() const;
 
-  bool orphan() const;
-
   virtual void destroy();
 
-  virtual u8 los_height() const = 0;
   virtual unsigned int weight() const = 0;
-
 
   virtual UObject* toplevel_owner();  // this isn't really right, it returns the WornItemsContainer
   virtual UObject* owner();
@@ -183,8 +195,8 @@ public:
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
 
-  virtual bool saveonexit() const;
-  virtual void saveonexit( bool newvalue );
+  bool saveonexit() const;
+  void saveonexit( bool newvalue );
 
   virtual void printOn( Clib::StreamWriter& ) const;
   virtual void printSelfOn( Clib::StreamWriter& sw ) const;
@@ -218,12 +230,6 @@ public:
 
   virtual size_t estimatedSize() const;
 
-
-  bool isa( UOBJ_CLASS uobj_class ) const;
-  bool ismobile() const;
-  bool isitem() const;
-  bool ismulti() const;
-
   void ref_counted_add_ref();
   void ref_counted_release();
   unsigned ref_counted_count() const;
@@ -231,7 +237,7 @@ public:
   inline void increv() { _rev++; };
   inline u32 rev() const { return _rev; };
   bool dirty() const;
-  void set_dirty() { dirty_ = true; }
+  void set_dirty();
   void clear_dirty() const;
   static std::atomic<unsigned int> dirty_writes;
   static std::atomic<unsigned int> clean_writes;
@@ -254,26 +260,15 @@ protected:
   friend class ref_ptr<Items::UArmor>;
   friend class ref_ptr<WornItemsContainer>;
 
-  friend class UObjectHelper;
-
-
   // DATA:
 public:
-  u32 serial, serial_ext;
+  u32 serial_ext;
 
   const u32 objtype_;
-  u16 graphic;
   u16 color;
-  u16 x, y;
-  s8 z;
-  u8 height;
 
   u8 facing;  // not always used for items.
   // always used for characters
-  Realms::Realm* realm;
-
-  bool saveonexit_;  // 1-25-2009 MuadDib added. So far only items will make use of this.
-                     // Another possibility is adding this to NPCs for WoW style Instances.
 
   DYN_PROPERTY( maxhp_mod, s16, PROP_MAXHP_MOD, 0 );
   static AosValuePack DEFAULT_AOSVALUEPACK;
@@ -290,36 +285,15 @@ public:
   DYN_PROPERTY( physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK );
 
 private:
-  const u8 uobj_class_;
-  mutable bool dirty_;
   u32 _rev;
 
 protected:
   boost_utils::object_name_flystring name_;
+  // mutable due to dirty flag
+  mutable AttributeFlags<OBJ_FLAGS> flags_;
 
 private:
   PropertyList proplist_;
-  /** Given an UOBJ_CLASS, returns the corresponding Type for profiling */
-  inline static CPropProfiler::Type class_to_type( const UOBJ_CLASS oclass )
-  {
-    switch ( oclass )
-    {
-    case UObject::UOBJ_CLASS::CLASS_ITEM:
-    case UObject::UOBJ_CLASS::CLASS_ARMOR:
-    case UObject::UOBJ_CLASS::CLASS_CONTAINER:
-    case UObject::UOBJ_CLASS::CLASS_WEAPON:
-      return CPropProfiler::Type::ITEM;
-    case UObject::UOBJ_CLASS::CLASS_CHARACTER:
-    case UObject::UOBJ_CLASS::CLASS_NPC:
-      return CPropProfiler::Type::MOBILE;
-    case UObject::UOBJ_CLASS::CLASS_MULTI:
-      return CPropProfiler::Type::MULTI;
-    }
-
-    /// Must compute all cases, relying on GCC's -wSwitch option to check it
-    /// but placing a safe fallback anyway.
-    return CPropProfiler::Type::UNKNOWN;
-  }
 
 private:  // not implemented:
   UObject( const UObject& );
@@ -333,28 +307,9 @@ inline bool UObject::specific_name() const
   return !name_.get().empty();
 }
 
-inline bool UObject::isa( UOBJ_CLASS uobj_class ) const
+inline void UObject::set_dirty()
 {
-  return uobj_class_ == uobj_class;
-}
-
-inline bool UObject::ismobile() const
-{
-  return ( uobj_class_ == CLASS_CHARACTER || uobj_class_ == CLASS_NPC );
-}
-
-inline bool UObject::isitem() const
-{
-  return !ismobile();
-}
-inline bool UObject::ismulti() const
-{
-  return ( uobj_class_ == CLASS_MULTI );
-}
-
-inline bool UObject::orphan() const
-{
-  return ( serial == 0 );
+  flags_.set( OBJ_FLAGS::DIRTY );
 }
 
 inline void UObject::ref_counted_add_ref()
@@ -381,6 +336,7 @@ inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
 }
+
 }
 }
 

@@ -2284,8 +2284,6 @@ int Compiler::handleReturn( CompilerContext& ctx )
       return res;
   }
 
-  if ( res < 0 )
-    return res;
   if ( inFunction )
   {
     program->append( StoredToken( Mod_Basic, RSV_RETURN, TYP_RESERVED, 0 ), 0 );
@@ -3065,9 +3063,10 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
 
   return 0;
 
-  // insert a consumer to eat the evaluated result from the expr.
-  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
-  return 0;
+// FIXME: Dead code since ages, left here because I have no idea if bug or feature...
+//  // insert a consumer to eat the evaluated result from the expr.
+//  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
+//  return 0;
 }
 
 /*

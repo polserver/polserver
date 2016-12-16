@@ -90,7 +90,7 @@ void send_object_cache_to_inrange( const UObject* obj )
 void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content )
 {
   std::string desc;
-  if ( obj->isa( UObject::CLASS_CHARACTER ) )
+  if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     Mobile::Character* chr = (Mobile::Character*)obj;
     desc = ( !chr->has_title_prefix() ? " \t" : chr->title_prefix() + " \t" ) + chr->name() +
@@ -114,7 +114,7 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   msg->Write<u32>( obj->serial_ext );
   msg->offset += 2;  // u8 unk2,unk3
   msg->WriteFlipped<u32>( obj->rev() );
-  if ( obj->isa( UObject::CLASS_CHARACTER ) )
+  if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
     msg->WriteFlipped<u32>( 1050045u );  // 1 text argument only
   else
     msg->WriteFlipped<u32>( 1042971u );  // 1 text argument only

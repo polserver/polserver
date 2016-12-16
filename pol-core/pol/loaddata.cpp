@@ -250,7 +250,7 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
 
 void add_loaded_item( Items::Item* cont_item, Items::Item* item )
 {
-  if ( cont_item->isa( UObject::CLASS_CONTAINER ) )
+  if ( cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     UContainer* cont = static_cast<UContainer*>( cont_item );
 

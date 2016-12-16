@@ -10,11 +10,9 @@
 #define ENABLE_POLTEST_OUTPUT 0
 namespace Pol
 {
-namespace Core
+namespace Testing
 {
 void run_pol_tests();
-void inc_failures();
-void inc_successes();
 }
 }
 #endif

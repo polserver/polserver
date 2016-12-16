@@ -192,7 +192,7 @@ void StorageArea::on_delete_realm( Realms::Realm* realm )
     if ( item )
     {
       setrealmif( item, (void*)realm );
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
         cont->for_each_item( setrealmif, (void*)realm );

@@ -17,7 +17,7 @@ namespace Pol
 {
 namespace Multi
 {
-void load_special_storedconfig( std::string cfgname )
+void load_special_storedconfig( const std::string& cfgname )
 {
   std::string main_cfg = "config/" + cfgname + ".cfg";
 

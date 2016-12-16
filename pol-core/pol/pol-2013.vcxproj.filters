@@ -218,7 +218,25 @@
     <ClCompile Include="polstats.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="poltest.cpp">
+    <ClCompile Include="testing\poltest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testdrop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testenv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testlos.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testmisc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testskill.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testwalk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="polwww.cpp">
@@ -336,9 +354,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="uobject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uobjhelp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="uoclient.cpp">
@@ -677,9 +692,6 @@
     <ClCompile Include="realms\realmlos.cpp">
       <Filter>realms</Filter>
     </ClCompile>
-    <ClCompile Include="realms\realmlos2.cpp">
-      <Filter>realms</Filter>
-    </ClCompile>
     <ClCompile Include="unicode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -865,7 +877,10 @@
     <ClInclude Include="polstats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="poltest.h">
+    <ClInclude Include="testing\poltest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="testing\testenv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="poltimer.h">
@@ -1016,9 +1031,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uobject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="uobjhelp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uoclient.h">

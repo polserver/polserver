@@ -44,7 +44,7 @@ class BasicIoExecutorModule : public Bscript::ExecutorModule
 public:
   Bscript::BObjectImp* print();
 
-  BasicIoExecutorModule( Bscript::Executor& exec ) : Bscript::ExecutorModule( "BasicIo", exec ) {}
+  BasicIoExecutorModule( Bscript::Executor& exec );
   // class machinery
 protected:
   virtual Bscript::BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;

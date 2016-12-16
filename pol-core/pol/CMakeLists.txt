@@ -163,14 +163,12 @@ SET (SOURCES  # sorted !
     polsem.cpp 
     polsig.cpp 
     polstats.cpp
-    poltest.cpp 
     polwww.cpp 
     proplist.cpp
     realms.cpp
     realms/realm.cpp
     realms/realmfunc.cpp
     realms/realmlos.cpp 
-    realms/realmlos2.cpp
     reftypes.cpp 
     region.cpp 
     repsys.cpp
@@ -195,7 +193,14 @@ SET (SOURCES  # sorted !
     syshook.cpp
     syshookscript.cpp
     target.cpp 
-    tasks.cpp 
+    tasks.cpp
+    testing/poltest.cpp
+    testing/testdrop.cpp
+    testing/testenv.cpp 
+    testing/testlos.cpp
+    testing/testmisc.cpp
+    testing/testskill.cpp
+    testing/testwalk.cpp
     textcmd.cpp
     tildecmd.cpp 
     tiles.cpp 
@@ -210,7 +215,6 @@ SET (SOURCES  # sorted !
     unicode.cpp
     uobjcnt.cpp 
     uobject.cpp 
-    uobjhelp.cpp 
     uoclient.cpp
     uoexec.cpp
     uoexhelp.cpp

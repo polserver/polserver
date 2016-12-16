@@ -332,7 +332,7 @@ void Spellbook::calc_current_bitwise_contents()
   }
 }
 
-USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc ) : Item( itemdesc, CLASS_ITEM )
+USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc ) : Item( itemdesc, UOBJ_CLASS::CLASS_ITEM )
 {
 }
 
@@ -372,7 +372,7 @@ void Spellbook::send_book_old( Network::Client* client )
 {
   client->pause();
 
-  if ( !locked_ )
+  if ( !locked() )
   {
     send_open_gump( client, *this );
     send_spellbook_contents( client, *this );

@@ -42,7 +42,7 @@ public:
   virtual void setQuality( double value ) POL_OVERRIDE;
 
 protected:
-  Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class,
+  Equipment( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class,
              const Core::EquipDesc* permanent_descriptor );
   virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
   virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;

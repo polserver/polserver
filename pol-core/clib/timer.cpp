@@ -19,7 +19,7 @@ void SilentT::print( const std::string&, long long )
 
 template <class printer>
 Timer<printer>::Timer( std::string name )
-    : _name( name )
+    : _name( std::move( name ) )
 {
   start();
 }

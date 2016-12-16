@@ -18,8 +18,7 @@ namespace Module
 class StorageExecutorModule : public Bscript::TmplExecutorModule<StorageExecutorModule>
 {
 public:
-  StorageExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<StorageExecutorModule>( "Storage", exec ){};
+  StorageExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_StorageAreas();
   Bscript::BObjectImp* mf_DestroyRootItemInStorageArea();

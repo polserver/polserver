@@ -21,6 +21,8 @@
 #include "../bscript/impstr.h"
 #include "../bscript/objmethods.h"
 
+#include "baseobject.h"
+
 #include <memory>
 
 #define pf_endl '\n'
@@ -28,6 +30,124 @@ namespace Pol
 {
 namespace Core
 {
+
+CPropProfiler::HitsCounter::HitsCounter() : hits( std::array<u64, 3>{{0, 0, 0}} )
+{
+}
+
+u64& CPropProfiler::HitsCounter::operator[]( size_t idx )
+{
+  return hits[idx];
+}
+
+const u64& CPropProfiler::HitsCounter::operator[]( size_t idx ) const
+{
+  return hits[idx];
+}
+
+size_t CPropProfiler::HitsCounter::sizeEstimate() const
+{
+  return sizeof( void* ) + sizeof( u64 ) * hits.size();
+}
+
+/** Given an UOBJ_CLASS, returns the corresponding Type for profiling */
+CPropProfiler::Type CPropProfiler::class_to_type( UOBJ_CLASS oclass )
+{
+  switch ( oclass )
+  {
+  case UOBJ_CLASS::CLASS_ITEM:
+  case UOBJ_CLASS::CLASS_ARMOR:
+  case UOBJ_CLASS::CLASS_CONTAINER:
+  case UOBJ_CLASS::CLASS_WEAPON:
+    return CPropProfiler::Type::ITEM;
+  case UOBJ_CLASS::CLASS_CHARACTER:
+  case UOBJ_CLASS::CLASS_NPC:
+    return CPropProfiler::Type::MOBILE;
+  case UOBJ_CLASS::CLASS_MULTI:
+    return CPropProfiler::Type::MULTI;
+  case UOBJ_CLASS::INVALID:
+    return CPropProfiler::Type::UNKNOWN;
+  }
+
+  /// Must compute all cases, relying on GCC's -wSwitch option to check it
+  /// but placing a safe fallback anyway.
+  return CPropProfiler::Type::UNKNOWN;
+}
+
+CPropProfiler& CPropProfiler::instance()
+{
+  static CPropProfiler instance;
+  return instance;
+}
+
+CPropProfiler::CPropProfiler() : _proplists( new PropLists() ), _hits( new Hits() )
+{
+}
+
+/**
+ * Returns proplist type, internal usage
+ */
+CPropProfiler::Type CPropProfiler::getProplistType( const PropertyList* proplist ) const
+{
+  PropLists::iterator el;
+  {
+    Clib::SpinLockGuard lock( _proplistsLock );
+    el = _proplists->find( proplist );
+  }
+
+  if ( el == _proplists->end() )
+  {
+    /// Unknown should happen only when the profiler has been disabled and
+    /// then re-enabled (including when it was disabled at startup and enabled
+    /// later). In any other case, it's a bug.
+    return Type::UNKNOWN;
+  }
+
+  return el->second;
+}
+
+/**
+ * Returns wether a given type should be ignored, intenal usage
+ */
+bool CPropProfiler::isIgnored( Type type ) const
+{
+  if ( type == Type::DATAFILEELEMENT || type == Type::REGION )
+    return true;
+  return false;
+}
+
+/**
+ * Register a cprop read
+ *
+ * @param proplist Pointer to the registered list where this cprop resides
+ * @param name Name of the cprop
+ */
+void CPropProfiler::cpropRead( const PropertyList* proplist, const std::string& name )
+{
+  cpropAction( proplist, name, HitsCounter::READ );
+}
+/**
+ * Register a cprop write
+ *
+ * @param proplist Pointer to the registered list where this cprop resides
+ * @param name Name of the cprop
+ */
+void CPropProfiler::cpropWrite( const PropertyList* proplist, const std::string& name )
+{
+  cpropAction( proplist, name, HitsCounter::WRITE );
+}
+/**
+ * Register a cprop erase
+ *
+ * @param proplist Pointer to the registered list where this cprop resides
+ * @param name Name of the cprop
+ * @throws std::runtime_error When proplist is not registered
+ */
+void CPropProfiler::cpropErase( const PropertyList* proplist, const std::string& name )
+{
+  cpropAction( proplist, name, HitsCounter::ERASE );
+}
+
 /**
  * Registers a property list address
  *
@@ -99,7 +219,7 @@ void CPropProfiler::clear()
  *
  * @param os The output stream to write into
  */
-void CPropProfiler::dumpProfile( std::ostream& os )
+void CPropProfiler::dumpProfile( std::ostream& os ) const
 {
   // First generate the data
 
@@ -188,14 +308,17 @@ void CPropProfiler::dumpProfile( std::ostream& os )
 /**
  * Returns the estimated in-memory size of the profiler
  */
-size_t CPropProfiler::estimateSize()
+size_t CPropProfiler::estimateSize() const
 {
   /// Size of base empty containers
   size_t ret = sizeof( Clib::SpinLock ) + sizeof( _proplistsLock ) + sizeof( _hits ) +
                sizeof( _proplists ) + sizeof( void* ) * 2;
 
   /// + size of proplists
-  ret += ( sizeof( PropertyList* ) + sizeof( Type ) ) * _proplists->size();
+  {
+    Clib::SpinLockGuard lock( _proplistsLock );
+    ret += ( sizeof( PropertyList* ) + sizeof( Type ) ) * _proplists->size();
+  }
 
   /// + size of hits
   {
@@ -217,7 +340,7 @@ size_t CPropProfiler::estimateSize()
  * Initialize and register this property list based on a given type
  * register only if the profile_cprops flag is set
  */
-PropertyList::PropertyList( const CPropProfiler::Type& type )
+PropertyList::PropertyList( CPropProfiler::Type type ) : properties()
 {
   if ( Plib::systemstate.config.profile_cprops )
     CPropProfiler::instance().registerProplist( this, type );
@@ -227,7 +350,7 @@ PropertyList::PropertyList( const CPropProfiler::Type& type )
  * Initialize and register this property list based on a given type,
  * always register if force flag is is true
  */
-PropertyList::PropertyList( const CPropProfiler::Type& type, bool force )
+PropertyList::PropertyList( CPropProfiler::Type type, bool force ) : properties()
 {
   if ( force || Plib::systemstate.config.profile_cprops )
     CPropProfiler::instance().registerProplist( this, type );
@@ -236,7 +359,7 @@ PropertyList::PropertyList( const CPropProfiler::Type& type, bool force )
 /**
  * Initialize by copying content and type from a given one
  */
-PropertyList::PropertyList( const PropertyList& props )  // dave added 1/26/3
+PropertyList::PropertyList( const PropertyList& props ) : properties()
 {
   copyprops( props );
 
@@ -289,9 +412,11 @@ void PropertyList::copyprops( const PropertyList& from )
 {
   // dave 4/25/3 map insert won't overwrite with new values, so remove those first and then
   // reinsert.
-  Properties::const_iterator itr;
-  for ( const auto& prop : from.properties )
-    properties.erase( prop.first );
+  if ( !properties.empty() )
+  {
+    for ( const auto& prop : from.properties )
+      properties.erase( prop.first );
+  }
 
   properties.insert( from.properties.begin(), from.properties.end() );
 }

@@ -235,7 +235,7 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
       return new BError( "No client connected to character" );
     }
 
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       for_sale = static_cast<UContainer*>( item );
     }
@@ -244,7 +244,7 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
       return new BError( "Parameter 1 invalid" );
     }
 
-    if ( mrchnt->isa( UObject::CLASS_NPC ) )
+    if ( mrchnt->isa( UOBJ_CLASS::CLASS_NPC ) )
     {
       merchant = static_cast<NPC*>( mrchnt );
     }
@@ -253,7 +253,7 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
       return new BError( "Parameter 2 invalid" );
     }
 
-    if ( item2->isa( UObject::CLASS_CONTAINER ) )
+    if ( item2->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       bought = static_cast<UContainer*>( item2 );
     }
@@ -648,7 +648,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
     for ( UContainer::iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
     {
       Item* item = GET_ITEM_PTR( itr );
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont2 = static_cast<UContainer*>( item );
         if ( cont2->count() )
@@ -723,7 +723,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
     return new BError( "No client connected to character" );
   }
 
-  if ( mrchnt->isa( UObject::CLASS_NPC ) )
+  if ( mrchnt->isa( UOBJ_CLASS::CLASS_NPC ) )
   {
     merchant = static_cast<NPC*>( mrchnt );
   }
@@ -731,7 +731,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
   {
     return new BError( "Parameter 1 invalid" );
   }
-  if ( wi1b->isa( UObject::CLASS_CONTAINER ) )
+  if ( wi1b->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     merchant_bought = static_cast<UContainer*>( wi1b );
   }
@@ -742,7 +742,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
 
   if ( flags & VENDOR_BUYABLE_CONTAINER_FILTER )
   {
-    if ( wi1c->isa( UObject::CLASS_CONTAINER ) )
+    if ( wi1c->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       merchant_buyable = static_cast<UContainer*>( wi1c );
     }

@@ -70,11 +70,11 @@ Item* Item::clone() const
   item->container = NULL;  // was container
   item->sellprice_( sellprice_() );
   item->buyprice_( buyprice_() );
-  item->newbie_ = newbie_;
-  item->insured_ = insured_;
+  item->newbie( newbie() );
+  item->insured( insured() );
 
-  item->invisible_ = invisible_;  // dave 12-20
-  item->movable_ = movable_;      // dave 12-20
+  item->invisible( invisible() );  // dave 12-20
+  item->movable( movable() );      // dave 12-20
   item->hp_ = hp_;
   item->setQuality( getQuality() );
 
@@ -233,17 +233,6 @@ bool Item::getbuyprice( u32& bp ) const
     return false;
 }
 
-u8 Item::los_height() const
-{
-  return height / 2;
-  /*
-      if (height)
-      return height-1;
-      else
-      return 0;
-      */
-}
-
 Core::UObject* Item::owner()
 {
   if ( container != NULL )
@@ -309,10 +298,10 @@ bool Item::default_insured() const
 /// Returns current insurance value and resets it to false
 bool Item::use_insurance()
 {
-  if ( insured_ )
+  if ( insured() )
   {
     set_dirty();
-    insured_ = false;
+    insured( false );
     return true;
   }
   return false;
@@ -345,11 +334,11 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( layer != 0 )
     sw() << "\tLayer\t" << (int)layer << pf_endl;
 
-  if ( movable_ != default_movable() )
-    sw() << "\tMovable\t" << movable_ << pf_endl;
+  if ( movable() != default_movable() )
+    sw() << "\tMovable\t" << movable() << pf_endl;
 
-  if ( invisible_ != default_invisible() )
-    sw() << "\tInvisible\t" << invisible_ << pf_endl;
+  if ( invisible() != default_invisible() )
+    sw() << "\tInvisible\t" << invisible() << pf_endl;
 
   s16 value = fire_resist().mod;
   if ( value != 0 )
@@ -403,11 +392,11 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( has_buyprice_() )
     sw() << "\tBuyPrice\t" << buyprice_() << pf_endl;
 
-  if ( newbie_ != default_newbie() )
-    sw() << "\tNewbie\t" << newbie_ << pf_endl;
+  if ( newbie() != default_newbie() )
+    sw() << "\tNewbie\t" << newbie() << pf_endl;
 
-  if ( insured_ != default_insured() )
-    sw() << "\tInsured\t" << insured_ << pf_endl;
+  if ( insured() != default_insured() )
+    sw() << "\tInsured\t" << insured() << pf_endl;
 
   if ( maxhp_mod_ )
     sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
@@ -434,8 +423,8 @@ void Item::readProperties( Clib::ConfigElem& elem )
 
   amount_ = elem.remove_ushort( "AMOUNT", 1 );
   layer = static_cast<unsigned char>( elem.remove_ushort( "LAYER", 0 ) );
-  movable_ = elem.remove_bool( "MOVABLE", default_movable() );
-  invisible_ = elem.remove_bool( "INVISIBLE", default_invisible() );
+  movable( elem.remove_bool( "MOVABLE", default_movable() ) );
+  invisible( elem.remove_bool( "INVISIBLE", default_invisible() ) );
 
   // NOTE, container is handled specially - it is extracted by the creator.
 
@@ -453,8 +442,8 @@ void Item::readProperties( Clib::ConfigElem& elem )
   // correct for this.
   if ( buyprice_() == 2147483647 )
     buyprice_( BUYPRICE_DEFAULT );
-  newbie_ = elem.remove_bool( "NEWBIE", default_newbie() );
-  insured_ = elem.remove_bool( "INSURED", default_insured() );
+  newbie( elem.remove_bool( "NEWBIE", default_newbie() ) );
+  insured( elem.remove_bool( "INSURED", default_insured() ) );
   hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
   setQuality( elem.remove_double( "QUALITY", itemdesc().quality ) );
 
@@ -600,10 +589,10 @@ void Item::add_to_self( Item*& item )
   setamount( amount_ + item->amount_ );
 
   if ( !item->newbie() )
-    newbie_ = false;
+    newbie( false );
 
   if ( !item->insured() )
-    insured_ = false;
+    insured( false );
 
   item->destroy();
   item = NULL;
@@ -809,16 +798,6 @@ void Item::set_use_script( const std::string& scriptname )
   on_use_script_ = scriptname;
 }
 
-bool Item::saveonexit() const
-{
-  return saveonexit_;
-}
-
-void Item::saveonexit( bool newvalue )
-{
-  saveonexit_ = newvalue;
-}
-
 bool Item::setgraphic( u16 newgraphic )
 {
   /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
@@ -968,7 +947,7 @@ void Item::set_decay_after( unsigned int seconds )
 
 bool Item::can_decay() const
 {
-  return !inuse() && ( movable_ || ( objtype_ == UOBJ_CORPSE ) ) && decayat_gameclock_;
+  return !inuse() && ( movable() || ( objtype_ == UOBJ_CORPSE ) ) && decayat_gameclock_;
 }
 
 bool Item::should_decay( unsigned int gameclock ) const
@@ -1255,7 +1234,7 @@ bool Item::has_element_damage()
 Mobile::Character* Item::GetCharacterOwner()
 {
   UObject* top_level_item = toplevel_owner();
-  if ( top_level_item->isa( CLASS_CONTAINER ) )
+  if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     Mobile::Character* chr_owner =
         Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );

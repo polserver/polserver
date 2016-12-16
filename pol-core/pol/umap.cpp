@@ -41,7 +41,7 @@ namespace Pol
 namespace Core
 {
 Map::Map( const Items::MapDesc& mapdesc )
-    : Item( mapdesc, CLASS_ITEM ),
+    : Item( mapdesc, UOBJ_CLASS::CLASS_ITEM ),
       gumpwidth( 0 ),
       gumpheight( 0 ),
       editable( mapdesc.editable ),

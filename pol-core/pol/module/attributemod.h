@@ -18,8 +18,7 @@ namespace Module
 class AttributeExecutorModule : public Bscript::TmplExecutorModule<AttributeExecutorModule>
 {
 public:
-  AttributeExecutorModule( Bscript::Executor& exec )
-      : TmplExecutorModule<AttributeExecutorModule>( "attributes", exec ){};
+  AttributeExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_CheckSkill();  // Character, SkillId, Difficulty, Points
 

@@ -59,7 +59,7 @@ namespace Pol
 namespace Core
 {
 UContainer::UContainer( const Items::ContainerDesc& descriptor )
-    : ULockable( descriptor, CLASS_CONTAINER ),
+    : ULockable( descriptor, UOBJ_CLASS::CLASS_CONTAINER ),
       desc( Items::find_container_desc( objtype_ ) ),  // NOTE still grabs the permanent descriptor.
       held_weight_( 0 ),
       held_item_count_( 0 )
@@ -316,10 +316,10 @@ void UContainer::enumerate_contents( Bscript::ObjArray* arr, int flags )
       arr->addElement( new Module::EItemRefObjImp( item ) );
       // Austin 9-15-2006, added flag to not enumerate sub-containers.
       if ( !( flags & ENUMERATE_ROOT_ONLY ) &&
-           ( item->isa( CLASS_CONTAINER ) ) )  // FIXME check locks
+           ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) ) )  // FIXME check locks
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ || ( flags & ENUMERATE_IGNORE_LOCKED ) )
+        if ( !cont->locked() || ( flags & ENUMERATE_IGNORE_LOCKED ) )
           cont->enumerate_contents( arr, flags );
       }
     }
@@ -437,10 +437,10 @@ Items::Item* UContainer::find_objtype_noninuse( u32 objtype ) const
 
   for ( const auto& item : contents_ )
   {
-    if ( item && item->isa( UObject::CLASS_CONTAINER ) && !item->inuse() )
+    if ( item && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) && !item->inuse() )
     {
       UContainer* cont = static_cast<UContainer*>( item );
-      if ( !cont->locked_ )
+      if ( !cont->locked() )
       {
         auto child_item = cont->find_objtype_noninuse( objtype );
         if ( child_item != NULL )
@@ -462,10 +462,10 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype ) const
       if ( item->objtype_ == objtype )
         amt += item->getamount();
 
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ )
+        if ( !cont->locked() )
         {
           amt += cont->find_sumof_objtype_noninuse( objtype );
         }
@@ -559,7 +559,7 @@ UContainer* UContainer::find_container( u32 objserial ) const
 {
   for ( auto& item : contents_ )
   {
-    if ( item && item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
       if ( cont->serial == objserial )
@@ -585,10 +585,10 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
         where_in_container = itr;
         return item;
       }
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ )
+        if ( !cont->locked() )
         {
           item = cont->find( objserial, where_in_container );
           if ( item != NULL )
@@ -610,10 +610,10 @@ Items::Item* UContainer::find( u32 objserial ) const
       if ( item->serial == objserial )
         return item;
 
-      if ( item->isa( UObject::CLASS_CONTAINER ) )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ )
+        if ( !cont->locked() )
         {
           auto child_item = cont->find( objserial );
           if ( child_item != NULL )
@@ -643,7 +643,7 @@ void UContainer::for_each_item( void ( *f )( Items::Item* item, void* a ), void*
 {
   for ( auto& item : contents_ )
   {
-    if ( item->isa( UObject::CLASS_CONTAINER ) )
+    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
       cont->for_each_item( f, arg );
@@ -674,7 +674,7 @@ void UContainer::builtin_on_use( Network::Client* client )
 {
   client->pause();
 
-  if ( !locked_ )
+  if ( !locked() )
   {
     send_open_gump( client, *this );
     send_container_contents( client, *this );
@@ -721,7 +721,7 @@ bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) co
 void UContainer::spill_contents( Multi::UMulti* multi )
 {
   passert( container == NULL );
-  if ( !locked_ )
+  if ( !locked() )
   {
     while ( !contents_.empty() )
     {
@@ -880,10 +880,10 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
         saveItemsTo.push_back( item );
         amt += item->getamount();
       }
-      if ( !( flags & FINDSUBSTANCE_ROOT_ONLY ) && ( item->isa( UObject::CLASS_CONTAINER ) ) )
+      if ( !( flags & FINDSUBSTANCE_ROOT_ONLY ) && ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) ) )
       {
         UContainer* cont = static_cast<UContainer*>( item );
-        if ( !cont->locked_ || ( flags & FINDSUBSTANCE_IGNORE_LOCKED ) )
+        if ( !cont->locked() || ( flags & FINDSUBSTANCE_IGNORE_LOCKED ) )
         {
           amt += cont->find_sumof_objtype_noninuse( objtype, amtToGet - amt, saveItemsTo, flags );
         }

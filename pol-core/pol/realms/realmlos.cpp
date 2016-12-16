@@ -9,9 +9,9 @@
 #include "../../plib/inmemorymapserver.h"
 #include "../../plib/mapshape.h"
 
+#include "../mobile/charactr.h"
 #include "../uworld.h"  // TODO move 'world' into Realm
 #include "../item/item.h"
-#include "../los.h"
 #include "../clidata.h"
 
 namespace Pol
@@ -56,7 +56,7 @@ const int los_range = 20;
 /**
  * @ingroup los3d
  */
-bool Realm::dynamic_item_blocks_los( const Core::LosObj& att, const Core::LosObj& target,
+bool Realm::dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULWObject& target,
                                      unsigned short x, unsigned short y, short z ) const
 {
   unsigned short wx, wy;
@@ -132,17 +132,17 @@ bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z 
  *
  * @ingroup los3d
  */
-bool Realm::los_blocked( const Core::LosObj& att, const Core::LosObj& target, unsigned short x,
+bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
                          unsigned short y, short z ) const
 {
   // if the target inhabits the location, LOS can't be blocked:
   if ( att.x == x && att.y == y && att.z <= z &&
-       z <= att.z + att.obj_height )  // LE to allow for 0-height target
+       z <= att.z + att.height )  // LE to allow for 0-height target
   {
     return false;
   }
   if ( target.x == x && target.y == y && target.z <= z &&
-       z <= target.z + target.obj_height )  // LE to allow for 0-height target
+       z <= target.z + target.height )  // LE to allow for 0-height target
   {
     return false;
   }
@@ -159,8 +159,24 @@ bool Realm::los_blocked( const Core::LosObj& att, const Core::LosObj& target, un
 /**
 * @ingroup los3d
 */
-bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
+bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const
 {
+  if ( att.realm != tgt.realm )
+    return false;
+  if ( att.isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
+  {
+    const Mobile::Character& chr = static_cast<const Mobile::Character&>( att );
+    if ( chr.ignores_line_of_sight() )
+      return true;
+    if ( tgt.serial )
+    {
+      bool remote;
+      Items::Item* remote_container = chr.search_remote_containers( tgt.serial, &remote );
+      if ( ( remote_container != NULL ) && remote )
+        return true;
+    }
+  }
+
   short x1, y1, z1;  // one of the endpoints
   short x2, y2, z2;  // the other endpoint
   short xd, yd, zd;
@@ -169,23 +185,26 @@ bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
   short sx, sy, sz;
   short dx, dy, dz;
 
+  const u8 att_look_height (att.look_height());
+  const u8 tgt_look_height (tgt.look_height());
+
   if ( ( att.y < tgt.y ) || ( att.y == tgt.y && att.z < tgt.z ) )
   {
     x1 = att.x;
     y1 = att.y;
-    z1 = att.z + att.look_height;
+    z1 = att.z + att_look_height;
     x2 = tgt.x;
     y2 = tgt.y;
-    z2 = tgt.z + tgt.look_height;
+    z2 = tgt.z + tgt_look_height;
   }
   else
   {
     x1 = tgt.x;
     y1 = tgt.y;
-    z1 = tgt.z + tgt.look_height;
+    z1 = tgt.z + tgt_look_height;
     x2 = att.x;
     y2 = att.y;
-    z2 = att.z + att.look_height;
+    z2 = att.z + att_look_height;
   }
 
   dx = x2 - x1;
@@ -199,11 +218,11 @@ bool Realm::has_los( const Core::LosObj& att, const Core::LosObj& tgt ) const
   {
     if ( !dz )
       return true;
-    if ( att.z <= tgt.z && tgt.z <= att.z + att.obj_height )
+    if ( att.z <= tgt.z && tgt.z <= att.z + att.height )
     {
       return true;
     }
-    if ( att.z <= tgt.z + tgt.look_height && tgt.z + tgt.look_height <= att.z + att.obj_height )
+    if ( att.z <= tgt.z + tgt_look_height && tgt.z + tgt_look_height <= att.z + att.height )
     {
       return true;
     }

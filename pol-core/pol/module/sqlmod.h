@@ -21,9 +21,7 @@ namespace Module
 class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule>
 {
 public:
-  SQLExecutorModule( Bscript::Executor& exec )
-      : Bscript::TmplExecutorModule<SQLExecutorModule>( "sql", exec ),
-        uoexec( static_cast<Core::UOExecutor&>( exec ) ){};
+  SQLExecutorModule( Bscript::Executor& exec );
 
   Bscript::BObjectImp* mf_ConnectToDB();
   Bscript::BObjectImp* mf_Query();

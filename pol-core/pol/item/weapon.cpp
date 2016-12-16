@@ -14,7 +14,6 @@
 #include "../mobile/charactr.h"
 
 #include "../action.h"
-#include "../los.h"
 #include "../polcfg.h"
 #include "../realms.h"
 #include "../skillid.h"
@@ -343,7 +342,7 @@ UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
 }
 
 UWeapon::UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor )
-    : Equipment( descriptor, CLASS_WEAPON, permanent_descriptor ),
+    : Equipment( descriptor, Core::UOBJ_CLASS::CLASS_WEAPON, permanent_descriptor ),
       hit_script_( descriptor.hit_script )
 {
 }

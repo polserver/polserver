@@ -99,7 +99,7 @@
 #include "polclock.h"
 #include "poldbg.h"
 #include "polsem.h"
-#include "poltest.h"
+#include "testing/poltest.h"
 #include "polwww.h"
 #include "realms.h"
 #include "realms/realm.h"
@@ -258,7 +258,7 @@ void textcmd_stoplog( Network::Client* client );
 void start_client_char( Network::Client* client )
 {
   client->ready = 1;
-  client->chr->connected = true;
+  client->chr->connected( true );
 
   // even if this stuff just gets queued, we still want the client to start
   // getting data now.
@@ -475,7 +475,7 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
   {
     // logging in a character that's offline.
     SetCharacterWorldPosition( chosen_char, Realms::WorldChangeReason::PlayerEnter );
-    chosen_char->logged_in = true;
+    chosen_char->logged_in( true );
   }
 
   client->chr = chosen_char;
@@ -1131,7 +1131,7 @@ void Check_libc_version()
 
 }  // namespace Core
 
-int xmain_inner()
+int xmain_inner( bool testing )
 {
 #ifdef _WIN32
   Clib::MiniDumper::Initialize();
@@ -1165,6 +1165,8 @@ int xmain_inner()
   POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET << "\ncompiled on " << POL_BUILD_DATE
               << " " << POL_BUILD_TIME << "\nCopyright (C) 1993-2016 Eric N. Swanson"
               << "\n\n";
+  if ( testing )
+    POLLOG_INFO << "TESTING MODE\n\n";
 
 #ifndef NDEBUG
   POLLOG_INFO << "Sizes: \n"
@@ -1280,16 +1282,15 @@ int xmain_inner()
   Core::checkpoint( "reading starting locations" );
   Core::read_starting_locations();
 
-  // TODO: remove the following because it is not used anymore
-  //    if ( argc > 1 )
-  //    {
-  //      POLLOG_INFO << "Running POL test suite.\n";
-  //      Core::run_pol_tests();
-  //      Core::cancel_all_trades();
-  //      Core::stop_gameclock();
-  //	  Core::gamestate.deinitialize();
-  //      return 0;
-  //    }
+  if ( testing )
+  {
+    POLLOG_INFO << "Running POL test suite.\n";
+    Testing::run_pol_tests();
+    Core::cancel_all_trades();
+    Core::stop_gameclock();
+    Core::gamestate.deinitialize();
+    return 0;
+  }
 
   // PrintAllocationData();
   POLLOG_INFO << "Reading data files:\n";
@@ -1478,11 +1479,11 @@ int xmain_inner()
   return 0;
 }
 
-int xmain_outer()
+int xmain_outer( bool testing )
 {
   try
   {
-    return xmain_inner();
+    return xmain_inner( testing );
   }
   catch ( std::exception& )
   {

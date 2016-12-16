@@ -781,7 +781,7 @@ void test_decode( const char* page, bool result_expected, Plib::Package* pkg_exp
                   const char* filename_expected, const char* pagetype_expected,
                   const char* redirect_to_expected )
 {
-  Plib::Package* pkg;
+  Plib::Package* pkg = nullptr;
   std::string filename;
   std::string pagetype;
   std::string redirect_to;

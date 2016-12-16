@@ -292,7 +292,7 @@ BObjectImp* NPCExecutorModule::move_self( Core::UFACING facing, bool run, bool a
 
   if ( adjust_ok )
   {
-    if ( npc.use_adjustments )
+    if ( npc.use_adjustments() )
     {
       for ( int i = 0; i < Core::N_ADJUST; ++i )
       {
