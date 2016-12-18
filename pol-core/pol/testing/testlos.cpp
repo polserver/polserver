@@ -155,6 +155,15 @@ static void BM_los( benchmark::State& state )
 }
 BENCHMARK( BM_los );
 
+static void BM_los100inside100outside( benchmark::State& state )
+{
+  while ( state.KeepRunning() )
+  {
+    test_los( 1373, 1625, 59, 1379, 1625, 30, true );
+  }
+}
+BENCHMARK( BM_los100inside100outside );
+
 #endif
 }  // namespace Testing
 }  // namespace Pol
