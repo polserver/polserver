@@ -2,7 +2,8 @@
  *
  * @par History
  */
-
+#include "../../clib/logfacility.h"
+#include "../../clib/compilerspecifics.h"
 #include "realm.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapserver.h"
@@ -90,17 +91,18 @@ bool Realm::dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULW
 /**
  * @ingroup los3d
  */
-bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z ) const
+bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache ) const
 {
-  static Plib::MapShapeList shapes;
-  shapes.clear();
-
-  getmapshapes( shapes, x, y, Plib::FLAG::BLOCKSIGHT );
-  readmultis( shapes, x, y, Plib::FLAG::BLOCKSIGHT );
-  for ( Plib::MapShapeList::const_iterator itr = shapes.begin(), end = shapes.end(); itr != end;
-        ++itr )
+  if ( cache.last_x != x || cache.last_y != y )
   {
-    const Plib::MapShape& shape = ( *itr );
+    cache.shapes.clear();
+    cache.last_x = x;
+    cache.last_y = y;
+    getmapshapes( cache.shapes, x, y, Plib::FLAG::BLOCKSIGHT );
+    readmultis( cache.shapes, x, y, Plib::FLAG::BLOCKSIGHT );
+  }
+  for ( const auto& shape : cache.shapes )
+  {
     short ob_ht = shape.height;
     short ob_z = shape.z;
 #if ENABLE_POLTEST_OUTPUT
@@ -114,7 +116,6 @@ bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z 
       --ob_z;
       ++ob_ht;
     }
-
 
     if ( ob_z <= z && z < ob_z + ob_ht )
     {
@@ -132,8 +133,8 @@ bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z 
  *
  * @ingroup los3d
  */
-bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
-                         unsigned short y, short z ) const
+bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& target,
+                         unsigned short x, unsigned short y, short z, LosCache& cache ) const
 {
   // if the target inhabits the location, LOS can't be blocked:
   if ( att.x == x && att.y == y && att.z <= z &&
@@ -147,7 +148,8 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
     return false;
   }
 
-  return dynamic_item_blocks_los( att, target, x, y, z ) || static_item_blocks_los( x, y, z );
+  return dynamic_item_blocks_los( att, target, x, y, z ) ||
+         static_item_blocks_los( x, y, z, cache );
 }
 
 /// absolute value of a
@@ -177,6 +179,12 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     }
   }
 
+  // due to the nature of los check the same x,y coordinates get checked, cache the last used coords
+  // to reduce the expensive map/multi read per coordinate
+  static THREADLOCAL LosCache cache;
+  cache.last_x = 0xFFFF;
+  cache.last_y = 0xFFFF;
+
   short x1, y1, z1;  // one of the endpoints
   short x2, y2, z2;  // the other endpoint
   short xd, yd, zd;
@@ -185,8 +193,8 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   short sx, sy, sz;
   short dx, dy, dz;
 
-  const u8 att_look_height (att.look_height());
-  const u8 tgt_look_height (tgt.look_height());
+  const u8 att_look_height( att.look_height() );
+  const u8 tgt_look_height( tgt.look_height() );
 
   if ( ( att.y < tgt.y ) || ( att.y == tgt.y && att.z < tgt.z ) )
   {
@@ -247,7 +255,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, x, y, z ) )
+      if ( los_blocked( att, tgt, x, y, z, cache ) )
         return false;
 
       if ( x == x2 )
@@ -279,7 +287,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, x, y, z ) )
+      if ( los_blocked( att, tgt, x, y, z, cache ) )
         return false;
 
       if ( y == y2 )
@@ -311,7 +319,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, x, y, z ) )
+      if ( los_blocked( att, tgt, x, y, z, cache ) )
         return false;
 
       if ( z == z2 )

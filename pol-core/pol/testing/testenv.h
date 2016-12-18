@@ -46,6 +46,7 @@ void multiwalk_test();
 void drop_test();
 void los_test();
 void dynprops_test();
+void dummy();
 }
 }
 #endif

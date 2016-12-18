@@ -6,6 +6,15 @@
 #include "../logfacility.h"
 #include "../strexcpt.h"
 
+#ifdef WINDOWS
+#include "pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
+#ifdef ENABLE_BENCHMARK
+#include <benchmark/benchmark.h>
+#endif
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>  // for GetModuleFileName
@@ -74,6 +83,10 @@ void ProgramMain::start( int argc, char* argv[] )
       binaryPath = modulePath;
 #endif
     PROG_CONFIG::configureProgramEnvironment( binaryPath );
+
+#ifdef ENABLE_BENCHMARK
+    benchmark::Initialize( &argc, argv );
+#endif
 
     /**********************************************
      * MAIN

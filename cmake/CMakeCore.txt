@@ -405,40 +405,44 @@ IF (DEFINED TARGET_NAME)
     ENDIF (WINDOWS)
 ENDIF()
 
-IF (APPLE)
-    # activate rpath
-    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-    SET(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+# if nothing is set dont do anything
+# workaround to use the same compiler flags defined above for google benchmark
+IF (DEFINED TARGET_LIB_NAME OR DEFINED TARGET_PROGRAM_NAME)
+
+    IF (APPLE)
+        # activate rpath
+        SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+        SET(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+        
+        MESSAGE("### Linking static Apple libraries: ${LIBS_APPLE_STATIC}")
+        SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-search_paths_first")
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE_STATIC})
     
-    MESSAGE("### Linking static Apple libraries: ${LIBS_APPLE_STATIC}")
-    SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-search_paths_first")
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE_STATIC})
-
-    MESSAGE("### Linking dynamic Apple libraries: ${LIBS_APPLE}")
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE})
-
-    MESSAGE("### Linking Apple frameworks: ${FRAMEWORKS_APPLE}")
-    FOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
-        TARGET_LINK_LIBRARIES(${TARGET_NAME} "-framework ${FRAMEWORKS_APPLE_ENTRY}" )
-    ENDFOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
-ENDIF (APPLE)
-
-IF (BSD)
-    MESSAGE("### Linking static BSD libraries: ${LIBS_BSD_STATIC}")
-#    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD_STATIC} )
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_BSD_STATIC} -Wl,-Bdynamic )
-
-    MESSAGE("### Linking dynamic BSD libraries: ${LIBS_BSD}")
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD})
-ENDIF (BSD)
-
-IF (LINUX)
-    MESSAGE("### Linking static Linux libraries: ${LIBS_LINUX_STATIC}")
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC} -Wl,-Bdynamic )
-    IF(${BUILD_STATIC} MATCHES "ON")
-    	TARGET_LINK_LIBRARIES(${TARGET_NAME}_static -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC_BIN_STATIC} -Wl,-Bdynamic )
-    ENDIF()
-
-    MESSAGE("### Linking dynamic Linux libraries: ${LIBS_LINUX}")
-    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_LINUX})
-ENDIF (LINUX)
+        MESSAGE("### Linking dynamic Apple libraries: ${LIBS_APPLE}")
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE})
+    
+        MESSAGE("### Linking Apple frameworks: ${FRAMEWORKS_APPLE}")
+        FOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
+            TARGET_LINK_LIBRARIES(${TARGET_NAME} "-framework ${FRAMEWORKS_APPLE_ENTRY}" )
+        ENDFOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
+    ENDIF (APPLE)
+    IF (BSD)
+        MESSAGE("### Linking static BSD libraries: ${LIBS_BSD_STATIC}")
+    #    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD_STATIC} )
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_BSD_STATIC} -Wl,-Bdynamic )
+    
+        MESSAGE("### Linking dynamic BSD libraries: ${LIBS_BSD}")
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD})
+    ENDIF (BSD)
+    
+    IF (LINUX)
+        MESSAGE("### Linking static Linux libraries: ${LIBS_LINUX_STATIC}")
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC} -Wl,-Bdynamic )
+        IF(${BUILD_STATIC} MATCHES "ON")
+        	TARGET_LINK_LIBRARIES(${TARGET_NAME}_static -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC_BIN_STATIC} -Wl,-Bdynamic )
+        ENDIF()
+    
+        MESSAGE("### Linking dynamic Linux libraries: ${LIBS_LINUX}")
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_LINUX})
+    ENDIF (LINUX)
+ENDIF()

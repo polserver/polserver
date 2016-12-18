@@ -36,6 +36,12 @@ case "$1" in
 		/usr/lib/llvm-3.7/share/clang/run-clang-tidy.py -clang-tidy-binary=clang-tidy-3.7 2>&1 | tee tidy.log
 		exit
 		;;
+	-b|-benchmark)
+		echo "BENCHMARK build.."
+		CMAKE_BIN='cmake -DENABLE_BENCHMARK=1'
+		`$CMAKE_BIN ../..`
+		exit
+		;;
 	*)
 		;;
 esac

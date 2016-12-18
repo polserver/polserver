@@ -9,6 +9,7 @@
 #cmakedefine GIT_REVISION
 #cmakedefine HAVE_OPENSSL
 #cmakedefine HAVE_MYSQL
+#cmakedefine ENABLE_BENCHMARK
 
 #define POL_VERSION_MAJOR           @BINARY_VERSION_MAJOR@
 #define POL_VERSION_MINOR           @BINARY_VERSION_MINOR@
