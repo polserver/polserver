@@ -10,6 +10,7 @@
 #ifndef POL_REALM_H
 #define POL_REALM_H
 
+#include "../../plib/mapshape.h"
 #include "../../plib/realmdescriptor.h"
 #include "../../plib/staticblock.h"
 #include "../uconst.h"
@@ -47,7 +48,6 @@ class UMulti;
 namespace Plib
 {
 class MapServer;
-class MapShapeList;
 struct MAPTILE_CELL;
 class MapTileServer;
 class StaticServer;
@@ -132,6 +132,14 @@ public:
   static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );
 
 protected:
+  struct LosCache
+  {
+    LosCache() : last_x( 0 ), last_y( 0 ){};
+    unsigned short last_x;
+    unsigned short last_y;
+    Plib::MapShapeList shapes;
+  };
+
   static void standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
                            bool* result, short* newz, short* gradual_boost = NULL );
 
@@ -146,9 +154,9 @@ protected:
   bool dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULWObject& target,
                                 unsigned short x, unsigned short y, short z ) const;
 
-  bool static_item_blocks_los( unsigned short x, unsigned short y, short z ) const;
+  bool static_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache ) const;
   bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
-                    unsigned short y, short z ) const;
+                    unsigned short y, short z, LosCache& cache ) const;
 
   Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;
 

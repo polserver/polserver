@@ -16,6 +16,11 @@ namespace Pol
 namespace Testing
 {
 
+void dummy()
+{
+
+}
+
 void map_test()
 {
   Plib::MAPTILE_CELL cell = Core::gamestate.main_realm->getmaptile( 1453, 1794 );

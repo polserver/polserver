@@ -1,0 +1,17 @@
+###############################################################################
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeEnvironment.txt)
+IF (DEFINED ENABLE_BENCHMARK)
+
+MESSAGE("####################################")
+MESSAGE("##### Building POL - GOOGLE BENCHMARK")
+MESSAGE("####################################")
+
+##############################################################
+# include CMake core
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeCore.txt)
+
+SET(BENCHMARK_ENABLE_TESTING OFF)
+
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../lib/google-benchmark/" "${CMAKE_CURRENT_BINARY_DIR}/lib/google-benchmark")
+
+ENDIF()

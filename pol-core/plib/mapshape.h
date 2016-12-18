@@ -6,6 +6,9 @@
 
 #ifndef PLIB_MAPSHAPE_H
 #define PLIB_MAPSHAPE_H
+
+#include <vector>
+
 namespace Pol
 {
 namespace Plib

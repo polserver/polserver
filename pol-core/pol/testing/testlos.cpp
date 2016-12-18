@@ -6,6 +6,16 @@
 
 #include "testenv.h"
 
+#ifdef WINDOWS
+#include "../../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
+
+#ifdef ENABLE_BENCHMARK
+#include <benchmark/benchmark.h>
+#endif
+
 #include "../../clib/logfacility.h"
 #include "../../plib/mapserver.h"
 #include "../globals/uvars.h"
@@ -24,9 +34,16 @@ namespace
 {
 void test_los( Core::UObject* src, Core::UObject* target, bool should_have_los )
 {
+#ifndef ENABLE_BENCHMARK
   INFO_PRINT << "LOS test: " << src->name() << " to " << target->name() << "(" << should_have_los
              << "):";
+#endif
+
   bool res = Core::gamestate.main_realm->has_los( *src, *target );
+#ifdef ENABLE_BENCHMARK
+  return;
+#endif
+
   INFO_PRINT << res << " ";
   if ( should_have_los == res )
   {
@@ -42,12 +59,18 @@ void test_los( Core::UObject* src, Core::UObject* target, bool should_have_los )
 
 void test_los( u16 x1, u16 y1, s8 z1, u16 x2, u16 y2, s8 z2, bool should_have_los )
 {
+#ifndef ENABLE_BENCHMARK
   INFO_PRINT << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ")"
              << " - (" << x2 << "," << y2 << "," << int( z2 ) << ")"
              << " (" << should_have_los << "):";
+#endif
   auto main_realm = Core::gamestate.main_realm;
   bool res = main_realm->has_los( Core::LosObj( x1, y1, z1, main_realm ),
-                                    Core::LosObj( x2, y2, z2, main_realm ) );
+                                  Core::LosObj( x2, y2, z2, main_realm ) );
+#ifdef ENABLE_BENCHMARK
+  return;
+#endif
+
   INFO_PRINT << res << " ";
   if ( should_have_los == res )
   {
@@ -61,15 +84,20 @@ void test_los( u16 x1, u16 y1, s8 z1, u16 x2, u16 y2, s8 z2, bool should_have_lo
   }
 }
 
-void test_los( u16 x1, u16 y1, s8 z1, u8 h1, u16 x2, u16 y2, s8 z2, u8 h2,
-                      bool should_have_los )
+void test_los( u16 x1, u16 y1, s8 z1, u8 h1, u16 x2, u16 y2, s8 z2, u8 h2, bool should_have_los )
 {
+#ifndef ENABLE_BENCHMARK
   INFO_PRINT << "LOS test: (" << x1 << "," << y1 << "," << int( z1 ) << ",ht=" << int( h1 ) << ")"
              << " - (" << x2 << "," << y2 << "," << int( z2 ) << ",ht=" << int( h2 ) << ")"
              << " (" << should_have_los << "):";
+#endif
   auto main_realm = Core::gamestate.main_realm;
   bool res = main_realm->has_los( Core::LosObj( x1, y1, z1, main_realm ),
-                                    Core::LosObj( x2, y2, z2, main_realm ) );
+                                  Core::LosObj( x2, y2, z2, main_realm ) );
+#ifdef ENABLE_BENCHMARK
+  return;
+#endif
+
   INFO_PRINT << res << " ";
   if ( should_have_los == res )
   {
@@ -82,12 +110,13 @@ void test_los( u16 x1, u16 y1, s8 z1, u8 h1, u16 x2, u16 y2, s8 z2, u8 h2,
     inc_failures();
   }
 }
-} // namespace
+}  // namespace
 
 void los_test()
 {
+#ifndef ENABLE_BENCHMARK
   INFO_PRINT << "POL datafile LOS tests:\n";
-
+#endif
   test_los( 5421, 78, 10, 5422, 89, 20, false );
   test_los( 1403, 1624, 28, 1402, 1625, 28, true );
 
@@ -114,5 +143,18 @@ void los_test()
   test_los( 862, 1691, 0, 1, 843, 1689, 0, 1, true );
   test_los( 1618, 3351, 3, 1, 1618, 3340, 4, 1, true );
 }
-} // namespace Testing
-} // namespace Pol
+
+#ifdef ENABLE_BENCHMARK
+
+static void BM_los( benchmark::State& state )
+{
+  while ( state.KeepRunning() )
+  {
+    los_test();
+  }
+}
+BENCHMARK( BM_los );
+
+#endif
+}  // namespace Testing
+}  // namespace Pol

@@ -81,8 +81,14 @@ SET (LIB_DIRS
 # Linux specific dependencies
 SET (LIBS_LINUX
 	crypto
-    pthread    
+    pthread
 )
+IF (DEFINED ENABLE_BENCHMARK)
+  SET (LIBS_LINUX
+       ${LIBS_LINUX}
+       benchmark
+  )
+ENDIF()
 
 ##############################################################
 # Windows specific dependencies
@@ -108,4 +114,3 @@ SET (TARGET_LIB_NAME
 ##############################################################
 # include CMake core
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
-
