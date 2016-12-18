@@ -7,7 +7,7 @@
 #include "testenv.h"
 
 #ifdef WINDOWS
-#include "pol_global_config_win.h"
+#include "../../clib/pol_global_config_win.h"
 #else
 #include "pol_global_config.h"
 #endif

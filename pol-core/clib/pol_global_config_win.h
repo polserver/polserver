@@ -9,6 +9,7 @@
 // #define GIT_REVISION
 // #define HAVE_OPENSSL
 // #define HAVE_MYSQL
+// #define ENABLE_BENCHMARK
 
 #define POL_VERSION_MAJOR 99
 #define POL_VERSION_MINOR 0
