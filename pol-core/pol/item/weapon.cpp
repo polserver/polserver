@@ -72,7 +72,6 @@ Core::UACTION remove_action( Clib::ConfigElem& elem, const char* name, Core::UAC
   else
   {
     elem.throw_error( std::string( name ) + " is out of range" );
-    return Core::ACTION__LOWEST;
   }
 }
 Core::UACTION remove_action( Clib::ConfigElem& elem, const char* name )
@@ -85,7 +84,6 @@ Core::UACTION remove_action( Clib::ConfigElem& elem, const char* name )
   else
   {
     elem.throw_error( std::string( name ) + " is out of range" );
-    return Core::ACTION__LOWEST;
   }
 }
 

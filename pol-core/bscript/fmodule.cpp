@@ -63,7 +63,6 @@ bool FunctionalityModule::isFunc( const char* funcName, ModuleFunction** pmf, in
   if ( itr != functionsByName.end() )
   {
     ModuleFunction* mf = ( *itr ).second;
-    ;
 
     if ( !mf->used )
     {
@@ -81,11 +80,6 @@ bool FunctionalityModule::isFunc( const char* funcName, ModuleFunction** pmf, in
     *funcidx = mf->funcidx;
     return true;
   }
-  else
-  {
-    return false;
-  }
-
   return false;
 }
 

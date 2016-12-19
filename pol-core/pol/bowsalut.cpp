@@ -76,7 +76,6 @@ UACTION str_to_action( Clib::ConfigElem& elem, const std::string& str )
   else
   {
     elem.throw_error( "Animation value of " + str + " is out of range" );
-    return ACTION__LOWEST;
   }
 }
 

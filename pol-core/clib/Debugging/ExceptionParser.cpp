@@ -188,12 +188,13 @@ string getCompilerVersion()
     result = "MSVC++ 5.0";
     break;
   default:
-    if ( _MSC_VER > 1800 )
-      result = "MSVC++ newer than version 12.0";
-    else if ( _MSC_VER < 1100 )
-      result = "MSVC++ older than version 5.0";
-    else
-      result = "MSVC++ (some unsupported version)";
+#if ( _MSC_VER > 1800 )
+    result = "MSVC++ newer than version 12.0";
+#elif ( _MSC_VER < 1100 )
+    result = "MSVC++ older than version 5.0";
+#else
+    result = "MSVC++ (some unsupported version)";
+#endif
     break;
   }
 #endif

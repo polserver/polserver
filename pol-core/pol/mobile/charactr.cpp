@@ -201,7 +201,6 @@ unsigned short layer_to_zone( unsigned short layer )
   }
   ERROR_PRINT << "Couldn't find an Armor Zone in armrzone.cfg for layer " << layer << "\n";
   throw std::runtime_error( "Configuration file error" );
-  return 0;
 }
 
 const char* zone_to_zone_name( unsigned short zone )
@@ -221,7 +220,6 @@ unsigned short zone_name_to_zone( const char* zname )
   ERROR_PRINT << "Couldn't find an armrzone.cfg config elem named '" << zname << "'\n";
 
   throw std::runtime_error( "Configuration file error" );
-  return 0;
 }
 void load_armor_zones()
 {

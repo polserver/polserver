@@ -2045,7 +2045,6 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   default:
     return NULL;
   }
-  return NULL;
 }
 
 BObjectImp* Character::get_script_member( const char* membername ) const

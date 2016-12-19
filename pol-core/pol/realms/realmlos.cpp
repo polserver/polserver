@@ -351,7 +351,6 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
       yd += ay;
     }
   }
-  return true;
 }
 }
 }
