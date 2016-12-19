@@ -56,9 +56,8 @@ const int los_range = 20;
 /**
  * @ingroup los3d
  */
-bool Realm::dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULWObject& target,
-                                     unsigned short x, unsigned short y, short z,
-                                     LosCache& cache ) const
+bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z,
+                                     LosCache& cache )
 {
   for ( const auto& item : cache.dyn_items )
   {
@@ -136,7 +135,7 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
     return false;
   }
 
-  return dynamic_item_blocks_los( att, target, x, y, z, cache ) ||
+  return dynamic_item_blocks_los( x, y, z, cache ) ||
          static_item_blocks_los( x, y, z, cache );
 }
 

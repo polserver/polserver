@@ -152,8 +152,8 @@ protected:
   void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
                      Core::ItemsVector& walkon_items, bool doors_block );
 
-  bool dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULWObject& target,
-                                unsigned short x, unsigned short y, short z, LosCache& cache ) const;
+  static bool dynamic_item_blocks_los( unsigned short x, unsigned short y, short z,
+                                       LosCache& cache );
   bool static_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache ) const;
   bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
                     unsigned short y, short z, LosCache& cache ) const;
