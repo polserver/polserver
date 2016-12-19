@@ -11,7 +11,7 @@ install:
 - cd ..
 cache: lib/boost_1_55_0
 build_script:
-- msbuild "pol-core/pol-2013.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
+- msbuild "pol-core/pol-2015.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
 test_script:
 - cd testsuite\\escript 
 - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\ecompile\\Release\\x64\\ecompile.exe ..\\..\\pol-core\\runecl\\Release\\x64\\runecl.exe -n 5
