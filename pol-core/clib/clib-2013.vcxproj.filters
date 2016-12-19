@@ -21,6 +21,9 @@
     <Filter Include="Debugging">
       <UniqueIdentifier>{de79a169-ffb0-4c0a-9e53-71afb0638fbd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Program">
+      <UniqueIdentifier>{c342a9aa-92f3-4546-abbf-82b4b2cd6abc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="binaryfile.cpp">
@@ -162,10 +165,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Program\ProgramConfig.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Program</Filter>
     </ClCompile>
     <ClCompile Include="Program\ProgramMain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Program</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -350,10 +353,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Program\ProgramConfig.h">
-      <Filter>Header Files</Filter>
+      <Filter>Program</Filter>
     </ClInclude>
     <ClInclude Include="Program\ProgramMain.h">
-      <Filter>Header Files</Filter>
+      <Filter>Program</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

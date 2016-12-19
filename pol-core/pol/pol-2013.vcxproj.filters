@@ -45,6 +45,9 @@
     <Filter Include="realms">
       <UniqueIdentifier>{ccd073ce-b056-49a6-99d2-1fdf44d87713}</UniqueIdentifier>
     </Filter>
+    <Filter Include="testing">
+      <UniqueIdentifier>{3bd223f7-9eb5-4ca7-82e3-be7b5efe80ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="allocd.cpp">
@@ -216,27 +219,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="polstats.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing\poltest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing\testdrop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing\testenv.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing\testlos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing\testmisc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing\testskill.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testing\testwalk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="polwww.cpp">
@@ -698,6 +680,27 @@
     <ClCompile Include="PolMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="testing\testdrop.cpp">
+      <Filter>testing</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testenv.cpp">
+      <Filter>testing</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testlos.cpp">
+      <Filter>testing</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testmisc.cpp">
+      <Filter>testing</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testskill.cpp">
+      <Filter>testing</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\testwalk.cpp">
+      <Filter>testing</Filter>
+    </ClCompile>
+    <ClCompile Include="testing\poltest.cpp">
+      <Filter>testing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="action.h">
@@ -875,12 +878,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="polstats.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="testing\poltest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="testing\testenv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="poltimer.h">
@@ -1362,6 +1359,12 @@
     </ClInclude>
     <ClInclude Include="sngclick.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="testing\poltest.h">
+      <Filter>testing</Filter>
+    </ClInclude>
+    <ClInclude Include="testing\testenv.h">
+      <Filter>testing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
