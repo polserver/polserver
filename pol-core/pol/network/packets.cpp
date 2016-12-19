@@ -137,7 +137,6 @@ PacketInterface* PacketsSingleton::getPacket( u8 id, u16 sub )
     return itr->second->GetNext( id, sub );
   throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
                             Clib::hexint( sub ) );
-  return NULL;
 }
 
 void PacketsSingleton::ReAddPacket( PacketInterface* pkt )
@@ -477,7 +476,6 @@ PacketInterface* GetPacket( u8 id, u16 sub )
     default:
       throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
                                 Clib::hexint( sub ) );
-      return NULL;
     }
   }
   case PKTOUT_C1_ID:
@@ -511,7 +509,6 @@ PacketInterface* GetPacket( u8 id, u16 sub )
   default:
     throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
                               Clib::hexint( sub ) );
-    return NULL;
   }
 }
 }

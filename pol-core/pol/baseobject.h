@@ -38,7 +38,10 @@ class ULWObject
 {
 protected:
   ULWObject( UOBJ_CLASS uobj_class );
-  ~ULWObject();
+  ULWObject( const ULWObject& ) = delete;
+  ULWObject& operator=( const ULWObject& ) = delete;
+  ~ULWObject() = default;
+  
 public:
   bool orphan() const;
 
@@ -72,10 +75,6 @@ inline ULWObject::ULWObject( UOBJ_CLASS uobj_class )
       height( 0 ),
       realm( nullptr ),
       uobj_class_( uobj_class )
-{
-}
-
-inline ULWObject::~ULWObject()
 {
 }
 
@@ -128,4 +127,3 @@ inline bool ULWObject::orphan() const
 }  // namespace Pol
 
 #endif
-

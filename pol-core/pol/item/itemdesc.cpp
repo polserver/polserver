@@ -913,10 +913,7 @@ unsigned short getgraphic( u32 objtype )
   }
   else
   {
-    // Log( "Objtype "  + hexint(objtype) + " must define a graphic\n" );
     throw std::runtime_error( "Objtype " + Clib::hexint( objtype ) + " must define a graphic" );
-    passert( 0 );
-    return 0;
   }
 }
 unsigned short getcolor( unsigned int objtype )

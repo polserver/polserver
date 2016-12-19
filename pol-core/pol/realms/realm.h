@@ -134,10 +134,11 @@ public:
 protected:
   struct LosCache
   {
-    LosCache() : last_x( 0 ), last_y( 0 ){};
+    LosCache() : last_x( 0 ), last_y( 0 ), shapes(), dyn_items(){};
     unsigned short last_x;
     unsigned short last_y;
     Plib::MapShapeList shapes;
+    std::vector<Items::Item*> dyn_items;
   };
 
   static void standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
@@ -151,9 +152,8 @@ protected:
   void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
                      Core::ItemsVector& walkon_items, bool doors_block );
 
-  bool dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULWObject& target,
-                                unsigned short x, unsigned short y, short z ) const;
-
+  static bool dynamic_item_blocks_los( unsigned short x, unsigned short y, short z,
+                                       LosCache& cache );
   bool static_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache ) const;
   bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
                     unsigned short y, short z, LosCache& cache ) const;

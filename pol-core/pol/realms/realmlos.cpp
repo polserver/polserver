@@ -15,6 +15,8 @@
 #include "../item/item.h"
 #include "../clidata.h"
 
+#include <algorithm>
+
 namespace Pol
 {
 namespace Realms
@@ -49,39 +51,24 @@ const int los_range = 20;
  * since both endpoints are checked.  This is actually unnecessary
  * when both attacker and defender are characters, which ends up
  * being all the time when it matters.
- *
- * @par Possible optimizations/improvements
- * Read statics file once per X/Y change, rather than each X/Y/Z change
  */
 
 /**
  * @ingroup los3d
  */
-bool Realm::dynamic_item_blocks_los( const Core::ULWObject& att, const Core::ULWObject& target,
-                                     unsigned short x, unsigned short y, short z ) const
+bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z,
+                                     LosCache& cache )
 {
-  unsigned short wx, wy;
-  Core::zone_convert_clip( x, y, this, &wx, &wy );
-  Core::ZoneItems& witems = zone[wx][wy].items;
-
-  for ( const auto& item : witems )
+  for ( const auto& item : cache.dyn_items )
   {
     if ( ( item->x == x ) && ( item->y == y ) )
     {
-      u32 flags = Core::tile_flags( item->graphic );
-
-      if ( flags & Plib::FLAG::BLOCKSIGHT )
+      if ( item->z <= z && z < item->z + item->height )
       {
-        if ( item->z <= z && z < item->z + item->height )
-        {
-          if ( item->serial != target.serial && item->serial != att.serial )
-          {
 #if ENABLE_POLTEST_OUTPUT
-            INFO_PRINT << "LOS blocked by " << item->description() << "\n";
+        INFO_PRINT << "LOS blocked by " << item->description() << "\n";
 #endif
-            return true;
-          }
-        }
+        return true;
       }
     }
   }
@@ -148,7 +135,7 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
     return false;
   }
 
-  return dynamic_item_blocks_los( att, target, x, y, z ) ||
+  return dynamic_item_blocks_los( x, y, z, cache ) ||
          static_item_blocks_los( x, y, z, cache );
 }
 
@@ -181,9 +168,29 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
   // due to the nature of los check the same x,y coordinates get checked, cache the last used coords
   // to reduce the expensive map/multi read per coordinate
+
+#if (!defined(_MSC_VER) || _MSC_VER >= 1900)
   static THREADLOCAL LosCache cache;
+#else // older ms support only primitive types :(
+  LosCache cache;
+#endif
   cache.last_x = 0xFFFF;
   cache.last_y = 0xFFFF;
+  cache.shapes.clear();
+  cache.dyn_items.clear();
+  // pre filter dynitems
+  Core::WorldIterator<Core::ItemFilter>::InBox(
+      std::min( att.x, tgt.x ), std::min( att.y, tgt.y ),
+      std::max( att.x, tgt.x ), std::max( att.y, tgt.y ),
+      att.realm, [&]( Items::Item* item )
+      {
+        u32 flags = Core::tile_flags( item->graphic );
+        if ( flags & Plib::FLAG::BLOCKSIGHT )
+        {
+          if ( item->serial != tgt.serial && item->serial != att.serial )
+            cache.dyn_items.push_back( item );
+        }
+      } );
 
   short x1, y1, z1;  // one of the endpoints
   short x2, y2, z2;  // the other endpoint
@@ -344,7 +351,6 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
       yd += ay;
     }
   }
-  return true;
 }
 }
 }

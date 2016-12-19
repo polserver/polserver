@@ -196,6 +196,14 @@ void create_test_environment()
   // couple of black pearls used for LOS checking
   add_item( 0xf7a, 1618, 3351, 3 );
   add_item( 0xf7a, 1618, 3340, 4 );
+
+  // create 100 items outside of one loscheck
+  // and 100 items inbetween
+  for ( int i = 0; i < 100; ++i )
+  {
+    add_item( 0xe42, 1370, 1629, 30 );
+    add_item( 0xe42, 1373, 1625, 30 );
+  }
 }
 }
 }

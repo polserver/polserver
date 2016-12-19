@@ -211,7 +211,7 @@ const std::string Account::uo_expansion() const
   switch ( uo_expansion_ )
   {
   case Network::TOL:
-	  return "TOL";
+    return "TOL";
   case Network::HSA:
     return "HSA";
   case Network::SA:
@@ -243,7 +243,7 @@ u16 Account::convert_uo_expansion( const std::string& expansion )
   const auto not_found = std::string::npos;
 
   if (expansion.find("TOL") != not_found)
-	  return Network::TOL;
+    return Network::TOL;
   else if ( expansion.find( "HSA" ) != not_found )
     return Network::HSA;
   else if ( expansion.find( "SA" ) != not_found )
@@ -260,8 +260,8 @@ u16 Account::convert_uo_expansion( const std::string& expansion )
     return Network::LBR;
   else if ( expansion.find( "T2A" ) != not_found )
     return Network::T2A;
-  else
-    return 0;
+
+  return 0;
 }
 
 

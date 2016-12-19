@@ -162,7 +162,6 @@ SOCKET open_listen_socket( unsigned short port )
   if ( sck == INVALID_SOCKET )
   {
     throw std::runtime_error( "Unable to create listening socket" );
-    return INVALID_SOCKET;
   }
 
   apply_socket_options( sck );
