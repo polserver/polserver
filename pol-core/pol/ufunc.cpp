@@ -2029,7 +2029,7 @@ void send_feature_enable( Client* client )
   switch ( client->acct->uo_expansion_flag() )
   {
   case TOL:
-	  clientflag = 0x387DF; //it's the one from HSA, we should change once more information is out about the new client
+	  clientflag = 0x7387DF;
 	  client->UOExpansionFlag =
 		  TOL | HSA | SA | KR | ML | SE |
 		  AOS;  // TOL needs HSA- SA- KR- ML- SE- and AOS- features (and used checks) too
