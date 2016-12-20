@@ -693,17 +693,11 @@ class Double : public BObjectImp
 public:
   explicit Double( double dval = 0.0 ) : BObjectImp( OTDouble ), dval_( dval ) {}
   Double( const Double& dbl ) : BObjectImp( OTDouble ), dval_( dbl.dval_ ) {}
-// FIXME: 2008 Upgrades needed here? Still valid, or why the hell we even do this anyway???
-#if defined( __GNUC__ ) || ( defined( _WIN32 ) && _MSC_VER >= 1300 )
 protected:
-#else
-private:
-#endif
   ~Double() {}
 public:
   void* operator new( std::size_t len );
   void operator delete( void* );
-
 
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );

@@ -9,8 +9,8 @@
 
 #include "mathmod.h"
 
-#include "../../bscript/impstr.h"
 #include "../../bscript/berror.h"
+#include "../../bscript/impstr.h"
 
 #include <cmath>
 
@@ -25,8 +25,8 @@ namespace Bscript
 using namespace Module;
 
 template <>
-TmplExecutorModule<MathExecutorModule>::FunctionDef
-    TmplExecutorModule<MathExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<MathExecutorModule>::FunctionDef>
+    TmplExecutorModule<MathExecutorModule>::function_table = {
         {"Sin", &MathExecutorModule::mf_Sin},
         {"Cos", &MathExecutorModule::mf_Cos},
         {"Tan", &MathExecutorModule::mf_Tan},
@@ -53,9 +53,6 @@ TmplExecutorModule<MathExecutorModule>::FunctionDef
         {"ConstE", &MathExecutorModule::mf_ConstE},
 
         {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString}};
-
-template <>
-int TmplExecutorModule<MathExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

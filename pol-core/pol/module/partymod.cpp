@@ -40,15 +40,13 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<PartyExecutorModule>::FunctionDef
-    TmplExecutorModule<PartyExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<PartyExecutorModule>::FunctionDef>
+    TmplExecutorModule<PartyExecutorModule>::function_table = {
         {"CreateParty", &PartyExecutorModule::mf_CreateParty},
         {"DisbandParty", &PartyExecutorModule::mf_DisbandParty},
         {"SendPartyMsg", &PartyExecutorModule::mf_SendPartyMsg},
         {"SendPrivatePartyMsg", &PartyExecutorModule::mf_SendPrivatePartyMsg},
 };
-template <>
-int TmplExecutorModule<PartyExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

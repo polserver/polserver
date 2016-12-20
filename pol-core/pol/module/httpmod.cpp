@@ -26,16 +26,13 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<HttpExecutorModule>::FunctionDef
-    TmplExecutorModule<HttpExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<HttpExecutorModule>::FunctionDef>
+    TmplExecutorModule<HttpExecutorModule>::function_table = {
         {"WriteHtml", &HttpExecutorModule::mf_WriteHtml},
         {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw},
         {"QueryParam", &HttpExecutorModule::mf_QueryParam},
         {"QueryIP", &HttpExecutorModule::mf_QueryIP},
 };
-
-template <>
-int TmplExecutorModule<HttpExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

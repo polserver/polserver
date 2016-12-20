@@ -32,28 +32,7 @@ polclock_t calc_script_clocksleft( polclock_t now );
 }
 namespace Module
 {
-class OSExecutorModule;
-
-typedef Bscript::BObjectImp* ( OSExecutorModule::*OSExecutorModuleFn )();
-
-#ifdef _MSC_VER
-#pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
-struct OSFunctionDef
-{
-  char funcname[33];
-  OSExecutorModuleFn fptr;
-};
-#ifdef _MSC_VER
-#pragma pack( pop )
-#else
-#pragma pack()
-#endif
-
-class OSExecutorModule : public Bscript::ExecutorModule
+class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>
 {
 public:
   bool signal_event( Bscript::BObjectImp* eventimp );
@@ -76,9 +55,11 @@ public:
   bool in_debugger_holdlist() const;
   void revive_debugged();
   Bscript::BObjectImp* clear_event_queue();  // DAVE
-
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
+
+  friend class Bscript::TmplExecutorModule<OSExecutorModule>;
+
   Bscript::BObjectImp* create_debug_context();
   Bscript::BObjectImp* getpid();
   Bscript::BObjectImp* getprocess();
@@ -106,6 +87,7 @@ protected:
   Bscript::BObjectImp* mf_debugger();
 
   Bscript::BObjectImp* mf_clear_event_queue();  // DAVE
+
   bool blocked_;
   Core::polclock_t sleep_until_clock_;  // 0 if wait forever
 
@@ -146,13 +128,6 @@ protected:
 
 
   void event_occurred( Bscript::BObject event );
-  // class machinery
-
-protected:
-  virtual Bscript::BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
-  virtual int functionIndex( const char* func ) POL_OVERRIDE;
-  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
-  static OSFunctionDef function_table[];
 };
 
 inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )

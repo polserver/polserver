@@ -10,22 +10,20 @@
 
 #include "vitalmod.h"
 
-#include "../vital.h"
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/impstr.h"
 
-#include "../mobile/charactr.h"
+#include "../cmbtcfg.h"
+#include "../globals/settings.h"
 #include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
 #include "../network/cliface.h"
 #include "../spells.h"
 #include "../statmsg.h"
 #include "../ufunc.h"
-#include "../cmbtcfg.h"
 #include "../uoexhelp.h"
-#include "../globals/settings.h"
-
-#include "../../bscript/bobject.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
-
+#include "../vital.h"
 
 #include <climits>
 
@@ -35,8 +33,8 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<VitalExecutorModule>::FunctionDef
-    TmplExecutorModule<VitalExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<VitalExecutorModule>::FunctionDef>
+    TmplExecutorModule<VitalExecutorModule>::function_table = {
         {"ApplyRawDamage", &VitalExecutorModule::mf_ApplyRawDamage},
         {"ApplyDamage", &VitalExecutorModule::mf_ApplyDamage},
         {"HealDamage", &VitalExecutorModule::mf_HealDamage},
@@ -48,8 +46,6 @@ TmplExecutorModule<VitalExecutorModule>::FunctionDef
         {"SetVital", &VitalExecutorModule::mf_SetVital},
         {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate},
         {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue}};
-template <>
-int TmplExecutorModule<VitalExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

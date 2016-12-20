@@ -5,21 +5,21 @@
  * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
  */
 
-
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
+#include "unimod.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
 
+#include "../../clib/clib_endian.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
+
+#include "../accounts/account.h"
 #include "../item/item.h"
 #include "../mobile/charactr.h"
-#include "../accounts/account.h"
-
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/msghandl.h"
@@ -27,9 +27,7 @@
 #include "../sockio.h"
 #include "../ufunc.h"
 #include "../unicode.h"
-
 #include "osmod.h"
-#include "unimod.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -134,16 +132,14 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<UnicodeExecutorModule>::FunctionDef
-    TmplExecutorModule<UnicodeExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<UnicodeExecutorModule>::FunctionDef>
+    TmplExecutorModule<UnicodeExecutorModule>::function_table = {
         {"BroadcastUC", &UnicodeExecutorModule::mf_BroadcastUC},
         {"PrintTextAboveUC", &UnicodeExecutorModule::mf_PrintTextAboveUC},
         {"PrintTextAbovePrivateUC", &UnicodeExecutorModule::mf_PrivateTextAboveUC},
         {"RequestInputUC", &UnicodeExecutorModule::mf_RequestInputUC},
         {"SendSysMessageUC", &UnicodeExecutorModule::mf_SendSysMessageUC},
         {"SendTextEntryGumpUC", &UnicodeExecutorModule::mf_SendTextEntryGumpUC}};
-template <>
-int TmplExecutorModule<UnicodeExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

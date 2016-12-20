@@ -16,29 +16,8 @@ namespace Pol
 {
 namespace Module
 {
-class BasicExecutorModule;
 
-typedef Bscript::BObjectImp* ( BasicExecutorModule::*BasicExecutorModuleFn )();
-
-#ifdef _MSC_VER
-#pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
-struct BasicFunctionDef
-{
-  char funcname[33];
-  BasicExecutorModuleFn fptr;
-};
-#ifdef _MSC_VER
-#pragma pack( pop )
-#else
-#pragma pack()
-#endif
-
-
-class BasicExecutorModule : public Bscript::ExecutorModule
+class BasicExecutorModule : public Bscript::TmplExecutorModule<BasicExecutorModule>
 {
 public:
   /* These probably belong in a string module */
@@ -71,12 +50,6 @@ public:
   Bscript::BObjectImp* mf_TypeOfInt();
 
   BasicExecutorModule( Bscript::Executor& exec );
-  // class machinery
-protected:
-  virtual Bscript::BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
-  virtual int functionIndex( const char* func ) POL_OVERRIDE;
-  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
-  static BasicFunctionDef function_table[];
 };
 }
 }

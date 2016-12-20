@@ -10,40 +10,34 @@
 #ifndef __PKTNI_H
 #define __PKTNI_H
 
-// Rawtypes is required when doing the Struct stuff, blah
 #include "../clib/rawtypes.h"
+
 namespace Pol
 {
 namespace Core
 {
-#ifdef _MSC_VER
-/* Visual C++ 4.0 and above */
 #pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
 
 struct PKTNI_3D
 {
   u8 msgtype;
   u8 unk1;
 };
-asserteql( sizeof( PKTNI_3D ), 2 );
+static_assert( sizeof( PKTNI_3D ) == 2, "size missmatch" );
 
 struct PKTNI_40
 {
   u8 msgtype;
   u8 unk1_xC8[0xC8];
 };
-asserteql( sizeof( PKTNI_40 ), 0xC9 );
+static_assert( sizeof( PKTNI_40 ) == 0xC9, "size missmatch" );
 
 struct PKTNI_45
 {
   u8 msgtype;
   u32 unk1;
 };
-asserteql( sizeof( PKTNI_45 ), 5 );
+static_assert( sizeof( PKTNI_45 ) == 5, "size missmatch" );
 
 struct PKTNI_46
 {
@@ -62,7 +56,7 @@ struct PKTNI_47
   u16 width;
   u16 height;
 };
-asserteql( sizeof( PKTNI_47 ), 11 );
+static_assert( sizeof( PKTNI_47 ) == 11, "size missmatch" );
 
 struct PKTNI_48
 {
@@ -74,7 +68,7 @@ struct PKTNI_48
   u8 frameinterval;
   u8 startinterval;
 };
-asserteql( sizeof( PKTNI_48 ), 73 );
+static_assert( sizeof( PKTNI_48 ) == 73, "size missmatch" );
 
 struct PKTNI_49
 {
@@ -85,21 +79,21 @@ struct PKTNI_49
   u16 end;
   char name[20];
 };
-asserteql( sizeof( PKTNI_49 ), 93 );
+static_assert( sizeof( PKTNI_49 ) == 93, "size missmatch" );
 
 struct PKTNI_4A
 {
   u8 msgtype;
   u32 artid;
 };
-asserteql( sizeof( PKTNI_4A ), 5 );
+static_assert( sizeof( PKTNI_4A ) == 5, "size missmatch" );
 
 struct PKTNI_4B
 {
   u8 msgtype;
   u8 unk1_8[8];
 };
-asserteql( sizeof( PKTNI_4B ), 9 );
+static_assert( sizeof( PKTNI_4B ) == 9, "size missmatch" );
 
 struct PKTNI_4C
 {
@@ -141,7 +135,7 @@ struct PKTNI_57
   u8 msgtype;
   u8 unk1_x6D[109];
 };
-asserteql( sizeof( PKTNI_57 ), 110 );
+static_assert( sizeof( PKTNI_57 ) == 110, "size missmatch" );
 
 struct PKTNI_58
 {
@@ -161,7 +155,7 @@ struct PKTNI_58
   u8 dungeon;
   u16 light;
 };
-asserteql( sizeof( PKTNI_58 ), 106 );
+static_assert( sizeof( PKTNI_58 ) == 106, "size missmatch" );
 
 struct PKTNI_59
 {
@@ -182,7 +176,7 @@ struct PKTNI_5C
   u8 msgtype;
   u8 unk1;
 };
-asserteql( sizeof( PKTNI_5C ), 2 );
+static_assert( sizeof( PKTNI_5C ) == 2, "size missmatch" );
 
 struct PKTNI_5E
 {
@@ -196,14 +190,14 @@ struct PKTNI_5F
   u8 msgtype;
   u8 unk1_x30[48];
 };
-asserteql( sizeof( PKTNI_5F ), 49 );
+static_assert( sizeof( PKTNI_5F ) == 49, "size missmatch" );
 
 struct PKTNI_60
 {
   u8 msgtype;
   u8 unk1_4[4];
 };
-asserteql( sizeof( PKTNI_60 ), 5 );
+static_assert( sizeof( PKTNI_60 ) == 5, "size missmatch" );
 
 struct PKTNI_61
 {
@@ -213,7 +207,7 @@ struct PKTNI_61
   u16 z;
   u16 id;
 };
-asserteql( sizeof( PKTNI_61 ), 9 );
+static_assert( sizeof( PKTNI_61 ) == 9, "size missmatch" );
 
 struct PKTNI_62
 {
@@ -226,27 +220,22 @@ struct PKTNI_62
   u16 y_offset;
   u16 x_offset;
 };
-asserteql( sizeof( PKTNI_62 ), 15 );
+static_assert( sizeof( PKTNI_62 ) == 15, "size missmatch" );
 
 struct PKTNI_63
 {
   u8 msgtype;
   u8 unk1_12[12];
 };
-asserteql( sizeof( PKTNI_63 ), 13 );
+static_assert( sizeof( PKTNI_63 ) == 13, "size missmatch" );
 
 struct PKTNI_64
 {
   u8 msgtype;
 };
-asserteql( sizeof( PKTNI_64 ), 1 );
+static_assert( sizeof( PKTNI_64 ) == 1, "size missmatch" );
 
-
-#ifdef _MSC_VER /* Visual C++ 4.0 + */
 #pragma pack( pop )
-#else
-#pragma pack()
-#endif
 }
 }
 #endif  // PKTNI_H

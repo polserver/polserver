@@ -88,9 +88,7 @@
 #include "charactr.h"
 
 #ifdef __GNUC__
-#ifndef USE_STLPORT
 #include <math.h>
-#endif
 #endif
 
 #include "../../clib/cfgelem.h"

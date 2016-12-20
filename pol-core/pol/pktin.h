@@ -24,13 +24,7 @@ namespace Pol
 {
 namespace Core
 {
-#ifdef _MSC_VER
-/* Visual C++ 4.0 and above */
 #pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
 
 struct PKTIN_00
 {
@@ -73,21 +67,21 @@ struct PKTIN_00
   u16 shirtcolor;
   u16 pantscolor;
 };
-asserteql( sizeof( PKTIN_00 ), 104 );
+static_assert( sizeof( PKTIN_00 ) == 104, "size missmatch" );
 
 struct PKTIN_01
 {
   u8 msgtype;
   u32 unk;  // 0xffffffff
 };
-asserteql( sizeof( PKTIN_01 ), 5 );
+static_assert( sizeof( PKTIN_01 ) == 5, "size missmatch" );
 
 struct PKTIN_1E
 {
   u8 msgtype;
   u8 unk1_3[3];
 };
-asserteql( sizeof( PKTIN_1E ), 4 );
+static_assert( sizeof( PKTIN_1E ) == 4, "size missmatch" );
 
 /* Message Type 02, WALK
 dir: low three bits are direction.
@@ -128,21 +122,21 @@ struct PKTIN_04
   u8 msgtype;
   u8 mode;  // on/off. 0/1?
 };
-asserteql( sizeof( PKTIN_04 ), 2 );
+static_assert( sizeof( PKTIN_04 ) == 2, "size missmatch" );
 
 struct PKTIN_05
 {
   u8 msgtype;
   u32 serial;
 };
-assertsize( PKTIN_05, 5 );
+static_assert( sizeof( PKTIN_05 ) == 5, "size missmatch" );
 
 struct PKTIN_06
 {
   u8 msgtype;
   u32 serial;  // 0x80000000 bit seems not to count.
 };
-asserteql( sizeof( PKTIN_06 ), 5 );
+static_assert( sizeof( PKTIN_06 ) == 5, "size missmatch" );
 
 
 struct PKTIN_07
@@ -151,7 +145,7 @@ struct PKTIN_07
   u32 serial;
   u16 amount;
 };
-asserteql( sizeof( PKTIN_07 ), 7 );
+static_assert( sizeof( PKTIN_07 ) == 7, "size missmatch" );
 
 struct PKTIN_08_V1
 {
@@ -162,7 +156,7 @@ struct PKTIN_08_V1
   s8 z;
   u32 target_serial;
 };
-asserteql( sizeof( PKTIN_08_V1 ), 14 );
+static_assert( sizeof( PKTIN_08_V1 ) == 14, "size missmatch" );
 
 struct PKTIN_08_V2
 {
@@ -174,14 +168,14 @@ struct PKTIN_08_V2
   u8 slotindex;
   u32 target_serial;
 };
-asserteql( sizeof( PKTIN_08_V2 ), 15 );
+static_assert( sizeof( PKTIN_08_V2 ) == 15, "size missmatch" );
 
 struct PKTIN_09
 {
   u8 msgtype;
   u32 serial;
 };
-asserteql( sizeof( PKTIN_09 ), 05 );
+static_assert( sizeof( PKTIN_09 ) == 05, "size missmatch" );
 
 struct PKTIN_12
 {
@@ -190,7 +184,7 @@ struct PKTIN_12
   u8 submsgtype;
   u8 data[300];
 };
-asserteql( sizeof( PKTIN_12 ), 304 );
+static_assert( sizeof( PKTIN_12 ) == 304, "size missmatch" );
 
 struct PKTIN_13
 {
@@ -199,7 +193,7 @@ struct PKTIN_13
   u8 layer;
   u32 equipped_on;
 };
-asserteql( sizeof( PKTIN_13 ), 10 );
+static_assert( sizeof( PKTIN_13 ) == 10, "size missmatch" );
 
 struct PKTIN_34
 {
@@ -208,7 +202,7 @@ struct PKTIN_34
   u8 stattype;
   u32 serial2;
 };
-asserteql( sizeof( PKTIN_34 ), 10 );
+static_assert( sizeof( PKTIN_34 ) == 10, "size missmatch" );
 
 struct PKTIN_5D
 {
@@ -239,7 +233,7 @@ struct PKTIN_5D
     FLAG_3DCLIENT = 0x100  // old 3D client
   };
 };
-asserteql( sizeof( PKTIN_5D ), 0x49 );
+static_assert( sizeof( PKTIN_5D ) == 0x49, "size missmatch" );
 
 struct PKTIN_75
 {
@@ -247,7 +241,7 @@ struct PKTIN_75
   u32 serial;
   char name[30];  // always null-terminated, or at least the client is supposed to.
 };
-asserteql( sizeof( PKTIN_75 ), 35 );
+static_assert( sizeof( PKTIN_75 ) == 35, "size missmatch" );
 
 struct PKTIN_7D
 {
@@ -266,7 +260,7 @@ struct PKTIN_80
   char password[30];
   u8 unk;
 };
-asserteql( sizeof( PKTIN_80 ), 62 );
+static_assert( sizeof( PKTIN_80 ) == 62, "size missmatch" );
 
 struct PKTIN_83
 {
@@ -275,7 +269,7 @@ struct PKTIN_83
   u32 charidx;
   u32 clientip;
 };
-asserteql( sizeof( PKTIN_83 ), 39 );
+static_assert( sizeof( PKTIN_83 ) == 39, "size missmatch" );
 
 // FIXME DO NOT USE YET. This is untested, not validated. Must find out
 // correct packet structure before moving forward. Different emus and diff documents
@@ -323,7 +317,7 @@ struct PKTIN_8D
   u16 beardcolor;  // 153
   u16 beardstyle;  // 154
 };
-asserteql( sizeof( PKTIN_8D ), 146 );
+static_assert( sizeof( PKTIN_8D ) == 146, "size missmatch" );
 
 struct PKTIN_91
 {
@@ -333,14 +327,14 @@ struct PKTIN_91
   char name[30];
   char password[30];
 };
-asserteql( sizeof( PKTIN_91 ), 65 );
+static_assert( sizeof( PKTIN_91 ) == 65, "size missmatch" );
 
 struct PKTIN_9B
 {
   u8 msgtype;
   u8 unk[0x101];
 };
-asserteql( sizeof( PKTIN_9B ), 258 );
+static_assert( sizeof( PKTIN_9B ) == 258, "size missmatch" );
 
 struct PKTIN_9F
 {
@@ -354,21 +348,21 @@ struct PKTIN_9F
     u16 amount;
   } items[1];
 };
-asserteql( sizeof( PKTIN_9F ), 15 );
+static_assert( sizeof( PKTIN_9F ) == 15, "size missmatch" );
 
 struct PKTIN_A0
 {
   u8 msgtype;
   u16 servernum;
 };
-asserteql( sizeof( PKTIN_A0 ), 3 );
+static_assert( sizeof( PKTIN_A0 ) == 3, "size missmatch" );
 
 struct PKTIN_A4
 {
   u8 msgtype;
   u8 unknown[0x94];
 };
-asserteql( sizeof( PKTIN_A4 ), 0x95 );
+static_assert( sizeof( PKTIN_A4 ) == 0x95, "size missmatch" );
 
 struct PKTIN_A7
 {
@@ -376,7 +370,7 @@ struct PKTIN_A7
   u16 lasttip;
   u8 prevnext;  // 0=prev 1=next
 };
-asserteql( sizeof( PKTIN_A7 ), 4 );
+static_assert( sizeof( PKTIN_A7 ) == 4, "size missmatch" );
 
 struct PKTIN_AC
 {
@@ -394,7 +388,7 @@ struct PKTIN_AC
   u16 datalen;
   char data[1];
 };
-asserteql( sizeof( PKTIN_AC ), 13 );
+static_assert( sizeof( PKTIN_AC ) == 13, "size missmatch" );
 
 struct PKTIN_AD
 {
@@ -406,7 +400,7 @@ struct PKTIN_AD
   char lang[4];  // "enu" - US English
   u16 wtext[2];  // wide-character, double-null terminated
 };
-assertsize( PKTIN_AD, 16 );
+static_assert( sizeof( PKTIN_AD ) == 16, "size missmatch" );
 
 struct PKTIN_B1
 {
@@ -437,18 +431,18 @@ struct PKTIN_B1
     u8 data[1];  // !@#!# Unicode
   };
 };
-asserteql( sizeof( PKTIN_B1::HEADER ), 15 );
-asserteql( sizeof( PKTIN_B1::INTS_HEADER ), 4 );
-asserteql( sizeof( PKTIN_B1::INT_ENTRY ), 4 );
-asserteql( sizeof( PKTIN_B1::STRINGS_HEADER ), 4 );
-asserteql( sizeof( PKTIN_B1::STRING_ENTRY ), 5 );
+static_assert( sizeof( PKTIN_B1::HEADER ) == 15, "size missmatch" );
+static_assert( sizeof( PKTIN_B1::INTS_HEADER ) == 4, "size missmatch" );
+static_assert( sizeof( PKTIN_B1::INT_ENTRY ) == 4, "size missmatch" );
+static_assert( sizeof( PKTIN_B1::STRINGS_HEADER ) == 4, "size missmatch" );
+static_assert( sizeof( PKTIN_B1::STRING_ENTRY ) == 5, "size missmatch" );
 
 struct PKTIN_B5
 {
   u8 msgtype;
   char chatname[63];  // in unicode
 };
-assertsize( PKTIN_B5, 64 );
+static_assert( sizeof( PKTIN_B5 ) == 64, "size missmatch" );
 
 struct PKTIN_B6
 {
@@ -457,7 +451,7 @@ struct PKTIN_B6
   u8 langid;
   char lang[3];
 };
-assertsize( PKTIN_B6, 9 );
+static_assert( sizeof( PKTIN_B6 ) == 9, "size missmatch" );
 
 struct PKTIN_D9
 {
@@ -489,7 +483,7 @@ struct PKTIN_D9
   u16 langcode[4];            // Language Code [wide-character]
   u8 unknown2[64];            // Unknown
 };
-asserteql( sizeof( PKTIN_D9 ), 0x10C );
+static_assert( sizeof( PKTIN_D9 ) == 0x10C, "size missmatch" );
 
 struct PKTIN_E1
 {
@@ -503,7 +497,7 @@ struct PKTIN_E1
     CLIENTTYPE_SA = 0x3
   };
 };
-asserteql( sizeof( PKTIN_E1 ), 0x09 );
+static_assert( sizeof( PKTIN_E1 ) == 0x09, "size missmatch" );
 
 struct PKTIN_E4
 {
@@ -522,7 +516,7 @@ struct PKTIN_EF
   u32 ver_Revision;
   u32 ver_Patch;
 };
-asserteql( sizeof( PKTIN_EF ), 0x15 );
+static_assert( sizeof( PKTIN_EF ) == 0x15, "size missmatch" );
 
 struct PKTIN_F8
 {
@@ -567,14 +561,10 @@ struct PKTIN_F8
   u16 shirtcolor;
   u16 pantscolor;
 };
-asserteql( sizeof( PKTIN_F8 ), 106 );
+static_assert( sizeof( PKTIN_F8 ) == 106, "size missmatch" );
 
 
-#ifdef _MSC_VER /* Visual C++ 4.0 + */
 #pragma pack( pop )
-#else
-#pragma pack()
-#endif
 }
 }
 #endif

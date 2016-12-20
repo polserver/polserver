@@ -29,20 +29,14 @@ namespace Pol
 {
 namespace Core
 {
-#ifdef _MSC_VER
-/* Visual C++ 4.0 and above */
 #pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
 
 // struct PKTOUT_0B {
 //	u8 msgtype;
 //	u32 serial;
 //	u16 damage;
 //};
-// asserteql( sizeof(PKTOUT_0B), 7 );
+// static_assert( sizeof(PKTOUT_0B) == 7, "size missmatch" );
 //
 // struct PKTOUT_11_V1 {
 //    u8 msgtype;
@@ -81,7 +75,7 @@ namespace Core
 //	u16 damage_max;
 //	u32 titching;
 //};
-// asserteql( sizeof(PKTOUT_11_V1), 88 );
+// static_assert( sizeof( PKTOUT_11_V1 ) == 88, "size missmatch" );
 //
 // struct PKTOUT_11_V2 {
 //    u8 msgtype;
@@ -123,7 +117,7 @@ namespace Core
 //	u16 damage_max;
 //	u32 titching;
 //};
-// asserteql( sizeof(PKTOUT_11_V2), 91 );
+// static_assert( sizeof( PKTOUT_11_V2 ) == 91, "size missmatch" );
 
 // Health bar status update (KR)
 // struct PKTOUT_17 {
@@ -134,7 +128,7 @@ namespace Core
 //	u16 status_type;
 //	u8 flag;
 //};
-// asserteql( sizeof(PKTOUT_17), 12 );
+// static_assert( sizeof(PKTOUT_17) == 12, "size missmatch" );
 
 // struct PKTOUT_1A_A {
 //    u8 msgtype;
@@ -148,7 +142,7 @@ namespace Core
 //    u16 color;
 //    u8 flags;
 //};
-// asserteql( sizeof(PKTOUT_1A_A), 19 );
+// static_assert( sizeof(PKTOUT_1A_A) == 19, "size missmatch" );
 
 // use message type B if facing of an item is nonzero
 // struct PKTOUT_1A_B {
@@ -164,7 +158,7 @@ namespace Core
 //    u16 color;
 //    u8 flags;
 //};
-// asserteql( sizeof(PKTOUT_1A_B), 20 );
+// static_assert( sizeof(PKTOUT_1A_B) == 20, "size missmatch" );
 
 // struct PKTOUT_1A_C {
 //    u8 msgtype;
@@ -175,7 +169,7 @@ namespace Core
 //    u16 y;
 //    u8 z;
 //};
-// asserteql( sizeof(PKTOUT_1A_C), 0x0E );
+// static_assert( sizeof(PKTOUT_1A_C) == 0x0E, "size missmatch" );
 
 // use message type D when?
 struct PKTOUT_1A_D
@@ -189,7 +183,7 @@ struct PKTOUT_1A_D
   u16 y;  // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
   u8 z;
 };
-assertsize( PKTOUT_1A_D, 0x10 );
+static_assert( sizeof( PKTOUT_1A_D ) == 0x10, "size missmatch" );
 
 // Character Startup - Login actually completed.
 // struct PKTOUT_1B {
@@ -219,7 +213,7 @@ assertsize( PKTOUT_1A_D, 0x10 );
 //    u8 unk35;
 //    u8 unk36;
 //};
-// asserteql( sizeof(PKTOUT_1B), 37 );
+// static_assert( sizeof(PKTOUT_1B) == 37, "size missmatch" );
 
 // Send ASCII Speech
 // struct PKTOUT_1C {
@@ -233,20 +227,20 @@ assertsize( PKTOUT_1A_D, 0x10 );
 //    char speaker_name[ 30 ];
 //    char text[ SPEECH_MAX_LEN + 1 ];
 //};
-// asserteql( sizeof(PKTOUT_1C), 44 + SPEECH_MAX_LEN + 1 );
+// static_assert( sizeof(PKTOUT_1C) == 44 + SPEECH_MAX_LEN + 1, "size missmatch" );
 
 // struct PKTOUT_1D {
 //    u8 msgtype;
 //    u32 serial;
 //};
-// asserteql( sizeof(PKTOUT_1D), 5 );
+// static_assert( sizeof(PKTOUT_1D) == 5, "size missmatch" );
 
 struct PKTOUT_1F
 {
   u8 msgtype;
   u8 unk1_7[7];
 };
-asserteql( sizeof( PKTOUT_1F ), 8 );
+static_assert( sizeof( PKTOUT_1F ) == 8, "size missmatch" );
 
 // struct PKTOUT_20 {
 //    u8 msgtype;
@@ -269,7 +263,7 @@ asserteql( sizeof( PKTOUT_1F ), 8 );
 //    };
 //    */
 //};
-// asserteql( sizeof(PKTOUT_20), 19 );
+// static_assert( sizeof(PKTOUT_20) == 19, "size missmatch" );
 
 // struct PKTOUT_21 {
 //    u8 msgtype;
@@ -279,7 +273,7 @@ asserteql( sizeof( PKTOUT_1F ), 8 );
 //    u8 facing;
 //    u8 z;
 //};
-// asserteql( sizeof(PKTOUT_21), 8 );
+// static_assert( sizeof(PKTOUT_21) == 8, "size missmatch" );
 
 struct PKTOUT_23
 {
@@ -297,7 +291,7 @@ struct PKTOUT_23
   u16 tgt_y;
   s8 tgt_z;
 };
-asserteql( sizeof( PKTOUT_23 ), 26 );
+static_assert( sizeof( PKTOUT_23 ) == 26, "size missmatch" );
 
 // NOTE: Msg Type 24 followed by message type 3C.
 // (for opening containers)
@@ -306,7 +300,7 @@ asserteql( sizeof( PKTOUT_23 ), 26 );
 //    u32 serial;
 //    u16 gump; // ugh. 0x0009 is the corpse gump...
 //};
-// asserteql( sizeof(PKTOUT_24), 7 );
+// static_assert( sizeof(PKTOUT_24) == 7, "size missmatch" );
 
 // struct PKTOUT_25_V1 {
 //    u8 msgtype;
@@ -319,7 +313,7 @@ asserteql( sizeof( PKTOUT_23 ), 26 );
 //    u32 container_serial;
 //    u16 color;
 //};
-// asserteql( sizeof( PKTOUT_25_V1 ), 20);
+// static_assert( sizeof( PKTOUT_25_V1 ) == 20, "size missmatch" );
 //
 // struct PKTOUT_25_V2 {
 //    u8 msgtype;
@@ -333,46 +327,46 @@ asserteql( sizeof( PKTOUT_23 ), 26 );
 //    u32 container_serial;
 //    u16 color;
 //};
-// asserteql( sizeof( PKTOUT_25_V2 ), 21);
+// static_assert( sizeof( PKTOUT_25_V2 ) == 21, "size missmatch" );
 
 struct PKTOUT_26
 {
   u8 msgtype;
   u32 gmserial;
 };
-asserteql( sizeof( PKTOUT_26 ), 5 );
+static_assert( sizeof( PKTOUT_26 ) == 5, "size missmatch" );
 
 // struct PKTOUT_27 {
 //    u8 msgtype;
 //    u8 reason;
 //};
-// asserteql( sizeof(PKTOUT_27), 2 );
+// static_assert( sizeof(PKTOUT_27) == 2, "size missmatch" );
 
 struct PKTOUT_28
 {
   u8 msgtype;
   u32 serial;
 };
-asserteql( sizeof( PKTOUT_28 ), 5 );
+static_assert( sizeof( PKTOUT_28 ) == 5, "size missmatch" );
 
 // struct PKTOUT_29 {
 //	u8 msgtype;
 //};
-// asserteql( sizeof(PKTOUT_29), 1 );
+// static_assert( sizeof(PKTOUT_29) == 1, "size missmatch" );
 
 struct PKTOUT_2A
 {
   u8 msgtype;
   u32 serial;
 };
-asserteql( sizeof( PKTOUT_2A ), 5 );
+static_assert( sizeof( PKTOUT_2A ) == 5, "size missmatch" );
 
 struct PKTOUT_2B
 {
   u8 msgtype;
   u8 mode;  // on/off. 0/1?
 };
-asserteql( sizeof( PKTOUT_2B ), 2 );
+static_assert( sizeof( PKTOUT_2B ) == 2, "size missmatch" );
 
 // struct PKTOUT_2D {
 //	u8 msgtype;
@@ -384,7 +378,7 @@ asserteql( sizeof( PKTOUT_2B ), 2 );
 //	u16 stammax;
 //	u16 stamcurrent;
 //};
-// asserteql( sizeof(PKTOUT_2D), 17 );
+// static_assert( sizeof(PKTOUT_2D) == 17, "size missmatch" );
 
 // struct PKTOUT_2E {
 //    u8 msgtype;
@@ -395,7 +389,7 @@ asserteql( sizeof( PKTOUT_2B ), 2 );
 //    u32 worn_by;
 //    u16 color;
 //};
-// asserteql( sizeof(PKTOUT_2E), 15 );
+// static_assert( sizeof(PKTOUT_2E) == 15, "size missmatch" );
 
 // struct PKTOUT_2F {
 //    u8 msgtype;
@@ -403,27 +397,27 @@ asserteql( sizeof( PKTOUT_2B ), 2 );
 //    u32 attacker_serial;
 //    u32 defender_serial;
 //};
-// asserteql( sizeof(PKTOUT_2F), 10 );
+// static_assert( sizeof(PKTOUT_2F) == 10, "size missmatch" );
 
 struct PKTOUT_30
 {
   u8 msgtype;
   u32 unk1;
 };
-asserteql( sizeof( PKTOUT_30 ), 5 );
+static_assert( sizeof( PKTOUT_30 ) == 5, "size missmatch" );
 
 struct PKTOUT_31
 {
   u8 msgtype;
 };
-asserteql( sizeof( PKTOUT_31 ), 1 );
+static_assert( sizeof( PKTOUT_31 ) == 1, "size missmatch" );
 
 struct PKTOUT_32
 {
   u8 msgtype;
   u8 unk1;
 };
-asserteql( sizeof( PKTOUT_32 ), 2 );
+static_assert( sizeof( PKTOUT_32 ) == 2, "size missmatch" );
 
 struct PKTOUT_33
 {
@@ -454,7 +448,7 @@ struct PKTOUT_36
 //        u16 color;
 //    } items[ MAX_CONTAINER_ITEMS ];
 //};
-// asserteql( sizeof(PKTOUT_3C), 5 + MAX_CONTAINER_ITEMS * 19 );
+// static_assert( sizeof(PKTOUT_3C) == 5 + MAX_CONTAINER_ITEMS * 19, "size missmatch" );
 //
 // struct PKTOUT_3C_6017 {
 //    u8 msgtype;
@@ -472,14 +466,14 @@ struct PKTOUT_36
 //        u16 color;
 //    } items[ MAX_CONTAINER_ITEMS ];
 //};
-// asserteql( sizeof(PKTOUT_3C_6017), 5 + MAX_CONTAINER_ITEMS * 20 );
+// static_assert( sizeof(PKTOUT_3C_6017) == 5 + MAX_CONTAINER_ITEMS * 20, "size missmatch" );
 
 struct PKTOUT_3E
 {
   u8 msgtype;
   u8 unk1_x24[0x24];
 };
-asserteql( sizeof( PKTOUT_3E ), 0x25 );
+static_assert( sizeof( PKTOUT_3E ) == 0x25, "size missmatch" );
 
 struct PKTOUT_3F
 {
@@ -512,7 +506,7 @@ struct PKTOUT_43
   u8 msgtype;
   u8 unk1_x28[0x28];
 };
-asserteql( sizeof( PKTOUT_43 ), 0x29 );
+static_assert( sizeof( PKTOUT_43 ) == 0x29, "size missmatch" );
 
 // Server->Client
 struct PKTOUT_44
@@ -520,7 +514,7 @@ struct PKTOUT_44
   u8 msgtype;
   u8 unk1_xC8[0xC8];
 };
-asserteql( sizeof( PKTOUT_44 ), 0xC9 );
+static_assert( sizeof( PKTOUT_44 ) == 0xC9, "size missmatch" );
 
 struct PKTOUT_4E
 {
@@ -528,13 +522,13 @@ struct PKTOUT_4E
   u32 mobile_serial;
   u8 lightlevel;
 };
-asserteql( sizeof( PKTOUT_4E ), 6 );
+static_assert( sizeof( PKTOUT_4E ) == 6, "size missmatch" );
 
 // struct PKTOUT_4F {
 //    u8 msgtype;
 //    u8 lightlevel;
 //};
-// asserteql( sizeof(PKTOUT_4F), 2 );
+// static_assert( sizeof(PKTOUT_4F) == 2, "size missmatch" );
 
 // struct PKTOUT_53
 //{
@@ -563,12 +557,12 @@ asserteql( sizeof( PKTOUT_4E ), 6 );
 //    s16 z;
 //	enum { FLAG_REPEAT = 0, FLAG_SINGLEPLAY = 1 };
 //};
-// asserteql( sizeof(PKTOUT_54), 12 );
+// static_assert( sizeof(PKTOUT_54) == 12, "size missmatch" );
 
 // struct PKTOUT_55 {
 //	u8 msgtype;
 //};
-// asserteql( sizeof(PKTOUT_55), 1 );
+// static_assert( sizeof(PKTOUT_55) == 1, "size missmatch" );
 
 struct PKTOUT_5B
 {
@@ -577,7 +571,7 @@ struct PKTOUT_5B
   u8 minutes;
   u8 seconds;
 };
-asserteql( sizeof( PKTOUT_5B ), 4 );
+static_assert( sizeof( PKTOUT_5B ) == 4, "size missmatch" );
 
 // struct PKTOUT_65 {
 //    u8 msgtype;
@@ -593,14 +587,14 @@ asserteql( sizeof( PKTOUT_5B ), 4 );
 //		WTYPE_STOP_WEATHER = 0xFF
 //	};
 //};
-// asserteql( sizeof(PKTOUT_65), 4 );
+// static_assert( sizeof(PKTOUT_65) == 4, "size missmatch" );
 
 // struct PKTOUT_6D
 //{
 //    u8 msgtype;
 //    u16 midi;
 //};
-// asserteql( sizeof(PKTOUT_6D), 3 );
+// static_assert( sizeof(PKTOUT_6D) == 3, "size missmatch" );
 
 // struct PKTOUT_6E {
 //    u8 msgtype;
@@ -616,7 +610,7 @@ asserteql( sizeof( PKTOUT_5B ), 4 );
 //    enum REPEAT_FLAG { REPEAT = 1,
 //                       NOREPEAT = 0 };
 //};
-// asserteql( sizeof(PKTOUT_6E), 14 );
+// static_assert( sizeof(PKTOUT_6E) == 14, "size missmatch" );
 
 /*
 Okay, this just sucks.  If, in a client, you click on someone with
@@ -646,7 +640,7 @@ to another x/y/z coordinate.
 //    u8 unk26;
 //    u8 explode;/* not sure what to put here */
 //};
-// asserteql( sizeof(PKTOUT_70), 28 );
+// static_assert( sizeof(PKTOUT_70) == 28, "size missmatch" );
 
 // struct PKTOUT_74 {
 //	struct HEADER {
@@ -661,8 +655,8 @@ to another x/y/z coordinate.
 //		char description[1];  /* No idea what max len should be null term string len includes null*/
 //	};
 //};
-// asserteql( sizeof(PKTOUT_74::HEADER), 8 );
-// asserteql( sizeof(PKTOUT_74::ELEMENT), 6 );
+// static_assert( sizeof(PKTOUT_74::HEADER) == 8, "size missmatch" );
+// static_assert( sizeof(PKTOUT_74::ELEMENT) == 6, "size missmatch" );
 
 // struct PKTOUT_76
 //{
@@ -676,7 +670,7 @@ to another x/y/z coordinate.
 //	u16 x2;
 //	u16 y2;
 //};
-// assertsize( PKTOUT_76, 16 );
+// static_assert( sizeof( PKTOUT_76 ) == 16, "size missmatch" );
 
 // struct PKTOUT_77 {
 //    u8 msgtype;
@@ -691,7 +685,7 @@ to another x/y/z coordinate.
 //    u8 hilite; /* only 1 to 7 seem to be valid. any other value in the entire byte causes white
 //    highlighting */
 //};
-// asserteql( sizeof(PKTOUT_77), 17 );
+// static_assert( sizeof(PKTOUT_77) == 17, "size missmatch" );
 
 // struct PKTOUT_78 {
 //    u8 msgtype;
@@ -713,7 +707,7 @@ to another x/y/z coordinate.
 //    u16 graphic;
 //    u8 layer;
 //};
-// asserteql( sizeof( PKTOUT_78_NOCOLOR ), 7 );
+// static_assert( sizeof( PKTOUT_78_NOCOLOR ) == 7, "size missmatch" );
 //
 // struct PKTOUT_78_COLOR {
 //    u32 serial;
@@ -721,7 +715,7 @@ to another x/y/z coordinate.
 //    u8 layer;
 //    u16 color;
 //};
-// asserteql( sizeof( PKTOUT_78_COLOR ), 9 );
+// static_assert( sizeof( PKTOUT_78_COLOR ) == 9, "size missmatch" );
 /*
   FIXME: msg type 78 is incompletely understood.  I believe item/clothing data can be sent in it.
   NOTE on wornitems: each layer is sent.  The format seems to be:
@@ -761,7 +755,7 @@ to another x/y/z coordinate.
 //    u8 msgtype;
 //    u8 error;
 //};
-// asserteql( sizeof(PKTOUT_82), 2 );
+// static_assert( sizeof(PKTOUT_82) == 2, "size missmatch" );
 
 struct PKTOUT_86
 {
@@ -769,14 +763,14 @@ struct PKTOUT_86
   u16 msglen;
   u8 numchars;
 };
-asserteql( sizeof( PKTOUT_86 ), 4 );
+static_assert( sizeof( PKTOUT_86 ) == 4, "size missmatch" );
 
 struct PKTOUT_86_CHARACTERS
 {
   char name[30];
   char password[30];
 };
-asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
+static_assert( sizeof( PKTOUT_86_CHARACTERS ) == 60, "size missmatch" );
 
 // struct PKTOUT_88 {
 //    u8 msgtype;
@@ -784,7 +778,7 @@ asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
 //    u8 text[ 60 ];
 //    u8 flag1;
 //};
-// asserteql( sizeof(PKTOUT_88), 66 );
+// static_assert( sizeof(PKTOUT_88) == 66, "size missmatch" );
 
 // after all layers inserted, set the 'layer' value
 // in the next array elem to 0.  length should include this byte.
@@ -807,7 +801,7 @@ asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
 //    u8 unk8_03;
 //    u16 unk9_10_ClientType;
 //};
-// asserteql( sizeof(PKTOUT_8C), 11 );
+// static_assert( sizeof(PKTOUT_8C) == 11, "size missmatch" );
 
 // struct PKTOUT_90
 //{
@@ -822,14 +816,14 @@ asserteql( sizeof( PKTOUT_86_CHARACTERS ), 60 );
 //    u16 xsize;
 //    u16 ysize;
 //};
-// asserteql( sizeof(PKTOUT_90), 19 );
+// static_assert( sizeof(PKTOUT_90) == 19, "size missmatch" );
 
 struct PKTOUT_97
 {
   u8 msgtype;
   u8 direction;
 };
-asserteql( sizeof( PKTOUT_97 ), 2 );
+static_assert( sizeof( PKTOUT_97 ) == 2, "size missmatch" );
 
 struct PKTOUT_9C
 {
@@ -854,8 +848,8 @@ struct PKTOUT_9C
 //		char description[1];
 //	};
 //};
-// asserteql( sizeof(PKTOUT_9E::HEADER), 9 );
-// asserteql( sizeof(PKTOUT_9E::ELEMENT), 15 );
+// static_assert( sizeof(PKTOUT_9E::HEADER) == 9, "size missmatch" );
+// static_assert( sizeof(PKTOUT_9E::ELEMENT) == 15, "size missmatch" );
 
 // struct PKTOUT_A1
 //{
@@ -864,7 +858,7 @@ struct PKTOUT_9C
 //    u16 max_hits; // str
 //    u16 hits;
 //};
-// asserteql( sizeof(PKTOUT_A1), 9 );
+// static_assert( sizeof(PKTOUT_A1) == 9, "size missmatch" );
 
 // struct PKTOUT_A2 {
 //    u8 msgtype;
@@ -872,7 +866,7 @@ struct PKTOUT_9C
 //    u16 max_mana; // intel;
 //    u16 mana;
 //};
-// asserteql( sizeof(PKTOUT_A2), 9 );
+// static_assert( sizeof(PKTOUT_A2) == 9, "size missmatch" );
 
 // struct PKTOUT_A3 {
 //    u8 msgtype;
@@ -880,7 +874,7 @@ struct PKTOUT_9C
 //    u16 max_stamina; // dex;
 //    u16 stamina;
 //};
-// asserteql( sizeof(PKTOUT_A3), 9 );
+// static_assert( sizeof(PKTOUT_A3) == 9, "size missmatch" );
 
 // struct PKTOUT_A5 {
 //    u8 msgtype;
@@ -901,7 +895,7 @@ struct PKTOUT_9C
 //    enum { TYPE_TIP = 0,
 //           TYPE_UPDATE = 1 };
 //};
-// asserteql( sizeof(PKTOUT_A6), 10010);
+// static_assert( sizeof(PKTOUT_A6) == 10010, "size missmatch" );
 
 // struct PKTOUT_A8 {
 //    u8 msgtype;
@@ -909,7 +903,7 @@ struct PKTOUT_9C
 //    u8 unk3_FF;
 //    u16 servcount;
 //};
-// asserteql( sizeof(PKTOUT_A8), 6 );
+// static_assert( sizeof(PKTOUT_A8) == 6, "size missmatch" );
 //
 // struct PKTOUT_A8_SERVER {
 //    u16 servernum;
@@ -919,14 +913,14 @@ struct PKTOUT_9C
 //    s8 timezone;
 //    char ip[4];
 //};
-// asserteql( sizeof(PKTOUT_A8_SERVER), 40 );
+// static_assert( sizeof(PKTOUT_A8_SERVER) == 40, "size missmatch" );
 
 // struct PKTOUT_A9 {
 //    u8 msgtype;
 //    u16 msglen;
 //    u8 numchars;
 //};
-// asserteql( sizeof(PKTOUT_A9), 4 );
+// static_assert( sizeof(PKTOUT_A9) == 4, "size missmatch" );
 //
 //// I don't think all of this is the name.  At on point, some garbage was
 //// being left in the structure, and a password was prompted for - seems
@@ -934,19 +928,19 @@ struct PKTOUT_9C
 // struct PKTOUT_A9_CHARACTERS {
 //    char name[60];
 //};
-// asserteql( sizeof(PKTOUT_A9_CHARACTERS), 60 );
+// static_assert( sizeof(PKTOUT_A9_CHARACTERS) == 60, "size missmatch" );
 //
 // struct PKTOUT_A9_START_LEN {
 //    u8 startcount;
 //};
-// asserteql( sizeof(PKTOUT_A9_START_LEN), 1 );
+// static_assert( sizeof(PKTOUT_A9_START_LEN) == 1, "size missmatch" );
 //
 // struct PKTOUT_A9_START_ELEM {
 //    u8 startnum;
 //    char city[31];
 //    char desc[31];
 //};
-// asserteql( sizeof(PKTOUT_A9_START_ELEM), 63 );
+// static_assert( sizeof(PKTOUT_A9_START_ELEM) == 63, "size missmatch" );
 //
 // struct PKTOUT_A9_START_FLAGS {
 //	u32 flags;
@@ -976,7 +970,7 @@ struct PKTOUT_9C
 //    u8 msgtype;
 //    u32 serial;
 //};
-// asserteql( sizeof(PKTOUT_AA), 5 );
+// static_assert( sizeof(PKTOUT_AA) == 5, "size missmatch" );
 
 // struct PKTOUT_AB
 //{
@@ -1000,9 +994,9 @@ struct PKTOUT_9C
 //    };
 //
 //};
-// asserteql( sizeof(PKTOUT_AB::HEADER), 9 );
-// asserteql( sizeof(PKTOUT_AB::TEXTLINE1), 258 );
-// asserteql( sizeof(PKTOUT_AB::TEXTLINE2), 264 );
+// static_assert( sizeof(PKTOUT_AB::HEADER) == 9, "size missmatch" );
+// static_assert( sizeof(PKTOUT_AB::TEXTLINE1) == 258, "size missmatch" );
+// static_assert( sizeof(PKTOUT_AB::TEXTLINE2) == 264, "size missmatch" );
 
 // struct PKTOUT_AE
 //{
@@ -1017,7 +1011,7 @@ struct PKTOUT_9C
 //    char speaker_name[ 30 ];
 //    u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
 //};
-// assertsize( PKTOUT_AE, 450 );
+// static_assert( sizeof( PKTOUT_AE ) == 450, "size missmatch" );
 
 // struct PKTOUT_AF {
 //    u8 msgtype;
@@ -1025,7 +1019,7 @@ struct PKTOUT_9C
 //    u32 corpse_id;
 //    u32 unk4_zero; // 0x00000000
 //};
-// asserteql( sizeof(PKTOUT_AF), 13 );
+// static_assert( sizeof(PKTOUT_AF) == 13, "size missmatch" );
 
 // struct PKTOUT_B0
 //{
@@ -1053,10 +1047,10 @@ struct PKTOUT_9C
 //        char text[ 1 ];
 //    };
 //};
-// asserteql( sizeof(PKTOUT_B0::HEADER), 19 );
-// asserteql( sizeof(PKTOUT_B0::LAYOUT), 3 );
-// asserteql( sizeof(PKTOUT_B0::DATA_HEADER), 2 );
-// asserteql( sizeof(PKTOUT_B0::DATA), 3 );
+// static_assert( sizeof(PKTOUT_B0::HEADER) == 19, "size missmatch" );
+// static_assert( sizeof(PKTOUT_B0::LAYOUT) == 3, "size missmatch" );
+// static_assert( sizeof(PKTOUT_B0::DATA_HEADER) == 2, "size missmatch" );
+// static_assert( sizeof(PKTOUT_B0::DATA) == 3, "size missmatch" );
 
 // struct PKTOUT_B7 {
 //    u8 msgtype;
@@ -1065,7 +1059,7 @@ struct PKTOUT_9C
 //    enum { MAX_CHARACTERS=256 };
 //    char text[MAX_CHARACTERS*2+2]; // null-terminated unicode string
 //};
-// asserteql( sizeof(PKTOUT_B7), 521 );
+// static_assert( sizeof(PKTOUT_B7) == 521, "size missmatch" );
 
 // struct PKTOUT_B9 {
 //    u8 msgtype;
@@ -1085,13 +1079,13 @@ struct PKTOUT_9C
 //	  Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
 //    */
 //};
-// asserteql( sizeof(PKTOUT_B9), 3 );
+// static_assert( sizeof(PKTOUT_B9) == 3, "size missmatch" );
 //
 // struct PKTOUT_B9_V2 {
 //    u8 msgtype;
 //	u32 enable;
 //};
-// asserteql( sizeof(PKTOUT_B9_V2), 5 );
+// static_assert( sizeof(PKTOUT_B9_V2) == 5, "size missmatch" );
 
 // struct PKTOUT_BA {
 //	u8 msgtype;
@@ -1099,7 +1093,7 @@ struct PKTOUT_9C
 //	u16 x_tgt;
 //	u16 y_tgt;
 //};
-// asserteql( sizeof(PKTOUT_BA), 6);
+// static_assert( sizeof(PKTOUT_BA) == 6, "size missmatch" );
 
 // struct PKTOUT_BC {
 //    u8 msgtype;
@@ -1107,7 +1101,7 @@ struct PKTOUT_9C
 //SEASON_DESOLATION };
 //	u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
 //};
-// asserteql( sizeof(PKTOUT_BC), 3 );
+// static_assert( sizeof(PKTOUT_BC) == 3, "size missmatch" );
 
 // Big-Endian for u16/32 unless otherwise noted.
 // struct PKTOUT_C0
@@ -1157,7 +1151,7 @@ struct PKTOUT_9C
 //	u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the
 //arguments
 //};
-// assertsize( PKTOUT_C1, 450 );
+// static_assert( sizeof( PKTOUT_C1 ) == 450, "size missmatch" );
 
 // not used:
 // Big-Endian for u16/32 unless otherwise noted.
@@ -1237,7 +1231,7 @@ struct PKTOUT_D8
 //	u32 serial;
 //	u32 revision;
 //};
-// asserteql( sizeof(PKTOUT_DC), 9);
+// static_assert( sizeof(PKTOUT_DC) == 9, "size missmatch" );
 
 // struct PKTOUT_DD {
 //   struct HEADER {
@@ -1260,9 +1254,9 @@ struct PKTOUT_D8
 //      u8  text_cdata;
 //   };
 //};
-// asserteql( sizeof(PKTOUT_DD::HEADER), 19 );
-// asserteql( sizeof(PKTOUT_DD::LAYOUT), 9 );
-// asserteql( sizeof(PKTOUT_DD::TEXT), 13 );
+// static_assert( sizeof(PKTOUT_DD::HEADER) == 19, "size missmatch" );
+// static_assert( sizeof(PKTOUT_DD::LAYOUT) == 9, "size missmatch" );
+// static_assert( sizeof(PKTOUT_DD::TEXT) == 13, "size missmatch" );
 
 // struct PKTOUT_E3 {
 //	u8  msgtype;
@@ -1277,7 +1271,7 @@ struct PKTOUT_D8
 //	u32 unknown_E_length; // 16 Bytes
 //	u8  unknown_E[16];
 //};
-// asserteql( sizeof(PKTOUT_E3), 77 );
+// static_assert( sizeof(PKTOUT_E3) == 77, "size missmatch" );
 
 // struct PKTOUT_F3 {
 //    u8 msgtype;
@@ -1295,13 +1289,9 @@ struct PKTOUT_D8
 //    u16 color; // 0x00 if multi
 //    u8	flags; // 0x00 if multi
 //};
-// asserteql( sizeof(PKTOUT_F3), 24 );
+// static_assert( sizeof(PKTOUT_F3) == 24, "size missmatch" );
 
-#ifdef _MSC_VER /* Visual C++ 4.0 + */
 #pragma pack( pop )
-#else
-#pragma pack()
-#endif
 }
 }
 

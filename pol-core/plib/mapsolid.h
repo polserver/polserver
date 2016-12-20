@@ -10,8 +10,6 @@
 #ifndef PLIB_MAPBLOB_H
 #define PLIB_MAPBLOB_H
 
-#include "../clib/compileassert.h"
-
 #define SOLIDX_X_SIZE 16
 #define SOLIDX_X_SHIFT 4
 #define SOLIDX_X_CELLMASK 0xF
@@ -35,7 +33,7 @@ struct SOLIDX2_ELEM
   unsigned int baseindex;
   unsigned short addindex[SOLIDX_X_SIZE][SOLIDX_Y_SIZE];
 };
-assertsize( SOLIDX2_ELEM, 516 );
+static_assert( sizeof( SOLIDX2_ELEM ) == 516, "size missmatch" );
 
 struct SOLIDS_ELEM
 {
@@ -43,7 +41,7 @@ struct SOLIDS_ELEM
   unsigned char height;
   unsigned char flags;
 };
-assertsize( SOLIDS_ELEM, 3 );
+static_assert( sizeof( SOLIDS_ELEM ) == 3, "size missmatch" );
 }
 }
 #endif

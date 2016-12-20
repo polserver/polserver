@@ -7,7 +7,6 @@
 #ifndef PLIB_MAPCELL_H
 #define PLIB_MAPCELL_H
 
-#include "../clib/compileassert.h"
 namespace Pol
 {
 namespace Plib
@@ -51,7 +50,7 @@ struct MAPCELL
   signed char z;
   unsigned char flags;
 };
-assertsize( MAPCELL, 2 );
+static_assert( sizeof( MAPCELL ) == 2, "size missmatch" );
 }
 }
 #endif

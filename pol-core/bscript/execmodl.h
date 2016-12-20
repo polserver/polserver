@@ -12,10 +12,13 @@
 #include "bobject.h"
 #endif
 
-#include "executor.h"
 #include "../clib/boostutils.h"
+#include "../clib/maputil.h"
+#include "executor.h"
 
+#include <map>
 #include <string>
+#include <vector>
 
 #ifdef _MSC_VER
 #pragma warning( push )
@@ -36,7 +39,7 @@ typedef BObject* ( ExecutorModule::*ExecutorModuleFn )();
 class ExecutorModule
 {
 public:
-  virtual ~ExecutorModule(){};
+  virtual ~ExecutorModule() = default;
 
   BObjectImp* getParamImp( unsigned param );
   BObjectImp* getParamImp( unsigned param, BObjectImp::BObjectType type );
@@ -74,13 +77,13 @@ protected:
 
   friend class Executor;
 
-  virtual int functionIndex( const char* funcname ) = 0;  // returns -1 on not found
+  virtual int functionIndex( const std::string& funcname ) = 0;  // returns -1 on not found
   virtual BObjectImp* execFunc( unsigned idx ) = 0;
   virtual std::string functionName( unsigned idx ) = 0;
 
 private:  // not implemented
-  ExecutorModule( const ExecutorModule& exec );
-  ExecutorModule& operator=( const ExecutorModule& exec );
+  ExecutorModule( const ExecutorModule& exec ) = delete;
+  ExecutorModule& operator=( const ExecutorModule& exec ) = delete;
 };
 
 // FIXME: this function doesn't seem to work.
@@ -91,44 +94,54 @@ BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param,
   return static_cast<BApplicObj<T>*>( ex.getApplicObjParam( param, object_type ) );
 }
 
-#define callMemberFunction( object, ptrToMember ) ( ( object ).*( ptrToMember ) )
-
 template <class T>
 class TmplExecutorModule : public ExecutorModule
 {
 protected:
   TmplExecutorModule( const char* modname, Executor& exec );
-  void register_function( const char* funcname, BObject ( T::*fptr )() );
 
 public:
   struct FunctionDef
   {
-    const char* funcname;
+    const std::string funcname;
     BObjectImp* ( T::*fptr )();
   };
-  static FunctionDef function_table[];
-  static int function_table_size;
-
+  static std::vector<FunctionDef> function_table;
 private:
-  virtual int functionIndex( const char* funcname ) POL_OVERRIDE;
+  static std::map<std::string, int, Clib::ci_cmp_pred> _func_idx_map;
+  static bool _func_map_init;
+protected:
+  virtual int functionIndex( const std::string& funcname ) POL_OVERRIDE;
   virtual BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
   virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
 };
 
 template <class T>
+std::map<std::string, int, Clib::ci_cmp_pred> TmplExecutorModule<T>::_func_idx_map;
+
+template <class T>
+bool TmplExecutorModule<T>::_func_map_init = false;
+
+template <class T>
 TmplExecutorModule<T>::TmplExecutorModule( const char* modname, Executor& ex )
     : ExecutorModule( modname, ex )
 {
+  if ( !_func_map_init )
+  {
+    for ( unsigned idx = 0; idx < function_table.size(); idx++ )
+    {
+      _func_idx_map[function_table[idx].funcname] = idx;
+    }
+    _func_map_init = true;
+  }
 }
 
 template <class T>
-inline int TmplExecutorModule<T>::functionIndex( const char* name )
+inline int TmplExecutorModule<T>::functionIndex( const std::string& name )
 {
-  for ( int idx = 0; idx < function_table_size; idx++ )
-  {
-    if ( stricmp( name, function_table[idx].funcname ) == 0 )
-      return idx;
-  }
+  auto itr = _func_idx_map.find( name );
+  if ( itr != _func_idx_map.end() )
+    return itr->second;
   return -1;
 }
 
@@ -136,8 +149,7 @@ template <class T>
 inline BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
 {
   T* derived = static_cast<T*>( this );
-
-  return callMemberFunction ( *derived, function_table[funcidx].fptr )();
+  return ( ( *derived ).*( function_table[funcidx].fptr ) )();
 };
 
 template <class T>

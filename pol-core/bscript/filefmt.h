@@ -17,11 +17,7 @@ namespace Pol
 {
 namespace Bscript
 {
-#ifdef _MSC_VER
 #pragma pack( push, 1 )
-#else
-#pragma pack( 1 )
-#endif
 
 #define BSCRIPT_FILE_MAGIC0 'C'
 #define BSCRIPT_FILE_MAGIC1 'E'
@@ -53,14 +49,14 @@ struct BSCRIPT_FILE_HDR
   unsigned short version;
   unsigned short globals;
 };
-asserteql( sizeof( BSCRIPT_FILE_HDR ), 6 );
+static_assert( sizeof( BSCRIPT_FILE_HDR ) == 6, "size missmatch" );
 
 struct BSCRIPT_SECTION_HDR
 {
   unsigned short type;
   unsigned int length;
 };
-asserteql( sizeof( BSCRIPT_SECTION_HDR ), 6 );
+static_assert( sizeof( BSCRIPT_SECTION_HDR ) == 6, "size missmatch" );
 
 enum BSCRIPT_SECTION
 {
@@ -78,32 +74,32 @@ struct BSCRIPT_MODULE_HDR
   char modulename[14];
   unsigned int nfuncs;
 };
-asserteql( sizeof( BSCRIPT_MODULE_HDR ), 18 );
+static_assert( sizeof( BSCRIPT_MODULE_HDR ) == 18, "size missmatch" );
 
 struct BSCRIPT_MODULE_FUNCTION
 {
   char funcname[33];
   unsigned char nargs;
 };
-asserteql( sizeof( BSCRIPT_MODULE_FUNCTION ), 34 );
+static_assert( sizeof( BSCRIPT_MODULE_FUNCTION ) == 34, "size missmatch" );
 
 struct BSCRIPT_PROGDEF_HDR
 {
   unsigned expectedArgs;
   unsigned char rfu[12];
 };
-asserteql( sizeof( BSCRIPT_PROGDEF_HDR ), 16 );
+static_assert( sizeof( BSCRIPT_PROGDEF_HDR ) == 16, "size missmatch" );
 
 struct BSCRIPT_GLOBALVARNAMES_HDR
 {
   unsigned nGlobalVars;
 };
-asserteql( sizeof( BSCRIPT_GLOBALVARNAMES_HDR ), 4 );
+static_assert( sizeof( BSCRIPT_GLOBALVARNAMES_HDR ) == 4, "size missmatch" );
 struct BSCRIPT_GLOBALVARNAME_HDR
 {
   unsigned namelen;
 };
-asserteql( sizeof( BSCRIPT_GLOBALVARNAME_HDR ), 4 );
+static_assert( sizeof( BSCRIPT_GLOBALVARNAME_HDR ) == 4, "size missmatch" );
 
 struct BSCRIPT_DBG_INSTRUCTION
 {
@@ -114,7 +110,7 @@ struct BSCRIPT_DBG_INSTRUCTION
   unsigned rfu1;
   unsigned rfu2;
 };
-asserteql( sizeof( BSCRIPT_DBG_INSTRUCTION ), 24 );
+static_assert( sizeof( BSCRIPT_DBG_INSTRUCTION ) == 24, "size missmatch" );
 
 struct BSCRIPT_EXPORTED_FUNCTION
 {
@@ -122,13 +118,9 @@ struct BSCRIPT_EXPORTED_FUNCTION
   unsigned nargs;
   unsigned PC;
 };
-asserteql( sizeof( BSCRIPT_EXPORTED_FUNCTION ), 41 );
+static_assert( sizeof( BSCRIPT_EXPORTED_FUNCTION ) == 41, "size missmatch" );
 
-#ifdef _MSC_VER
 #pragma pack( pop )
-#else
-#pragma pack()
-#endif
 }
 }
 #endif

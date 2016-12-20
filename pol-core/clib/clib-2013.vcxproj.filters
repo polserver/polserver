@@ -193,9 +193,6 @@
     <ClInclude Include="clibopt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="compileassert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dirlist.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -19,13 +19,7 @@ namespace Pol
 {
 namespace Core
 {
-#ifdef _MSC_VER
-/* Visual C++ 4.0 and above */
 #pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
 
 // Walk Approved
 struct PKTBI_22_APPROVED
@@ -34,7 +28,7 @@ struct PKTBI_22_APPROVED
   u8 movenum;
   u8 noto;
 };
-asserteql( sizeof( PKTBI_22_APPROVED ), 3 );
+static_assert( sizeof( PKTBI_22_APPROVED ) == 3, "size missmatch" );
 
 // Walk Resync Requested By Client
 struct PKTBI_22_SYNC
@@ -43,7 +37,7 @@ struct PKTBI_22_SYNC
   u8 zero1;
   u8 zero2;
 };
-asserteql( sizeof( PKTBI_22_SYNC ), 3 );
+static_assert( sizeof( PKTBI_22_SYNC ) == 3, "size missmatch" );
 
 /* Message 2C:  A little bit strange.
 First, the server sends "2C 00" to the client, to tell it it's dead.
@@ -57,7 +51,7 @@ struct PKTBI_2C
   u8 msgtype;
   u8 choice;
 };
-asserteql( sizeof( PKTBI_2C ), 2 );
+static_assert( sizeof( PKTBI_2C ) == 2, "size missmatch" );
 
 // All Names
 struct PKTBI_98_IN
@@ -66,7 +60,7 @@ struct PKTBI_98_IN
   u16 msglen;
   u32 serial;
 };
-asserteql( sizeof( PKTBI_98_IN ), 7 );
+static_assert( sizeof( PKTBI_98_IN ) == 7, "size missmatch" );
 
 // All Names
 // struct PKTBI_98_OUT
@@ -76,7 +70,7 @@ asserteql( sizeof( PKTBI_98_IN ), 7 );
 //    u32 serial;
 //    char name[30];
 //};
-// asserteql( sizeof(PKTBI_98_OUT), 37 );
+// static_assert( sizeof(PKTBI_98_OUT) == 37, "size missmatch" );
 
 /* NOTE on MSG3A:
     send the header, plus skills[] for each skill,
@@ -137,7 +131,7 @@ struct PKTBI_3A_LOCKS
   u16 skillid;
   u8 lock_mode;
 };
-asserteql( sizeof( PKTBI_3A_LOCKS ), 6 );
+static_assert( sizeof( PKTBI_3A_LOCKS ) == 6, "size missmatch" );
 
 struct PKTBI_3B
 {
@@ -157,7 +151,7 @@ struct PKTBI_3B
     u16 number_bought;
   } items[1]; /* Dunno how many it should be */
 };
-asserteql( sizeof( PKTBI_3B ), 15 );
+static_assert( sizeof( PKTBI_3B ) == 15, "size missmatch" );
 
 struct PKTBI_56
 {
@@ -178,7 +172,7 @@ struct PKTBI_56
     TYPE_TOGGLE_RESPONSE
   };
 };
-asserteql( sizeof( PKTBI_56 ), 11 );
+static_assert( sizeof( PKTBI_56 ) == 11, "size missmatch" );
 
 struct PKTBI_66
 {
@@ -190,7 +184,7 @@ struct PKTBI_66
   u16 lines;
   char text[1];
 };
-assertsize( PKTBI_66, 14 );
+static_assert( sizeof( PKTBI_66 ) == 14, "size missmatch" );
 
 // struct PKTBI_66_HDR
 //{
@@ -199,14 +193,14 @@ assertsize( PKTBI_66, 14 );
 //	u32 book_serial;
 //	u16 pages;
 //};
-// assertsize( PKTBI_66_HDR, 9 );
+// static_assert( sizeof( PKTBI_66_HDR ) == 9, "size missmatch" );
 //
 // struct PKTBI_66_CONTENTS
 //{
 //	u16 page;
 //	u16 lines;
 //};
-// assertsize( PKTBI_66_CONTENTS, 4 );
+// static_assert( sizeof( PKTBI_66_CONTENTS ) == 4, "size missmatch" );
 
 struct PKTBI_6C
 {
@@ -235,7 +229,7 @@ struct PKTBI_6C
     CURSOR_TYPE_HELPFUL = 2
   };
 };
-asserteql( sizeof( PKTBI_6C ), 19 );
+static_assert( sizeof( PKTBI_6C ) == 19, "size missmatch" );
 
 struct PKTBI_6F
 {
@@ -255,7 +249,7 @@ struct PKTBI_6F
     ACTION_STATUS = 2
   };
 };
-asserteql( sizeof( PKTBI_6F ), 47 );
+static_assert( sizeof( PKTBI_6F ) == 47, "size missmatch" );
 
 struct PKTBI_71
 {
@@ -380,22 +374,22 @@ struct PKTBI_71
     u32 msg_id;
   };
 };
-asserteql( sizeof( PKTBI_71::HEADER ), 4 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_0_DISPLAY_BOARD ), 34 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_1_MESSAGE_SUMMARY::POSTER ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_1_MESSAGE_SUMMARY::SUBJECT ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_1_MESSAGE_SUMMARY::TIME ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::POSTER ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::SUBJECT ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::TIME ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::LINE_HEADER ), 30 );
-asserteql( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::LINES ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_IN_3_REQ_MESSAGE ), 8 );
-asserteql( sizeof( PKTBI_71::SUBCMD_IN_4_REQ_MESSAGE_SUMMARY ), 8 );
-asserteql( sizeof( PKTBI_71::SUBCMD_IN_5_POST_MESSAGE::SUBJECT ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_IN_5_POST_MESSAGE::LINE_HEADER ), 1 );
-asserteql( sizeof( PKTBI_71::SUBCMD_IN_5_POST_MESSAGE::LINES ), 2 );
-asserteql( sizeof( PKTBI_71::SUBCMD_IN_6_REMOVE_MESSAGE ), 8 );
+static_assert( sizeof( PKTBI_71::HEADER ) == 4, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_0_DISPLAY_BOARD ) == 34, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_1_MESSAGE_SUMMARY::POSTER ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_1_MESSAGE_SUMMARY::SUBJECT ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_1_MESSAGE_SUMMARY::TIME ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::POSTER ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::SUBJECT ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::TIME ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::LINE_HEADER ) == 30, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_OUT_2_MESSAGE::LINES ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_IN_3_REQ_MESSAGE ) == 8, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_IN_4_REQ_MESSAGE_SUMMARY ) == 8, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_IN_5_POST_MESSAGE::SUBJECT ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_IN_5_POST_MESSAGE::LINE_HEADER ) == 1, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_IN_5_POST_MESSAGE::LINES ) == 2, "size missmatch" );
+static_assert( sizeof( PKTBI_71::SUBCMD_IN_6_REMOVE_MESSAGE ) == 8, "size missmatch" );
 
 struct PKTBI_72
 {
@@ -405,14 +399,14 @@ struct PKTBI_72
   u8 unk3_32;
   u8 unk4;
 };
-asserteql( sizeof( PKTBI_72 ), 5 );
+static_assert( sizeof( PKTBI_72 ) == 5, "size missmatch" );
 
 struct PKTBI_73
 {
   u8 msgtype;
   u8 unk1;
 };
-asserteql( sizeof( PKTBI_73 ), 2 );
+static_assert( sizeof( PKTBI_73 ) == 2, "size missmatch" );
 
 struct PKTBI_93
 {
@@ -424,7 +418,7 @@ struct PKTBI_93
   char title[60];
   char author[30];
 };
-assertsize( PKTBI_93, 99 );
+static_assert( sizeof( PKTBI_93 ) == 99, "size missmatch" );
 
 struct PKTBI_95
 {
@@ -433,7 +427,7 @@ struct PKTBI_95
   u16 unk;
   u16 graphic_or_color;
 };
-asserteql( sizeof( PKTBI_95 ), 9 );
+static_assert( sizeof( PKTBI_95 ) == 9, "size missmatch" );
 
 struct PKTBI_99
 {
@@ -446,7 +440,7 @@ struct PKTBI_99
   u16 yoffset;
   u16 maybe_zoffset;
 };
-asserteql( sizeof( PKTBI_99 ), 26 );
+static_assert( sizeof( PKTBI_99 ) == 26, "size missmatch" );
 
 struct PKTBI_9A
 {
@@ -457,13 +451,13 @@ struct PKTBI_9A
   u32 type;
   char text[1];
 };
-asserteql( sizeof( PKTBI_9A ), 16 );
+static_assert( sizeof( PKTBI_9A ) == 16, "size missmatch" );
 
 struct PKTBI_B8_IN_REQUEST
 {
   u32 serial;
 };
-asserteql( sizeof( PKTBI_B8_IN_REQUEST ), 4 );
+static_assert( sizeof( PKTBI_B8_IN_REQUEST ) == 4, "size missmatch" );
 
 struct PKTBI_B8_IN_UPDATE
 {
@@ -472,7 +466,7 @@ struct PKTBI_B8_IN_UPDATE
   u16 textlen;
   u16 wtext[2];
 };
-asserteql( sizeof( PKTBI_B8_IN_UPDATE ), 12 );
+static_assert( sizeof( PKTBI_B8_IN_UPDATE ) == 12, "size missmatch" );
 
 struct PKTBI_B8_IN
 {
@@ -498,7 +492,7 @@ struct PKTBI_B8_IN
 //	char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode
 //variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16.
 //};
-// asserteql( sizeof(PKTBI_B8_OUT), 1012 );
+// static_assert( sizeof(PKTBI_B8_OUT) == 1012, "size missmatch" );
 
 struct PKTBI_BB
 {
@@ -506,7 +500,7 @@ struct PKTBI_BB
   u32 serial1;
   u32 serial2;
 };
-asserteql( sizeof( PKTBI_BB ), 9 );
+static_assert( sizeof( PKTBI_BB ) == 9, "size missmatch" );
 
 struct PKTBI_BD
 {
@@ -514,7 +508,7 @@ struct PKTBI_BD
   u16 msglen;
   char version[1];
 };
-assertsize( PKTBI_BD, 4 );
+static_assert( sizeof( PKTBI_BD ) == 4, "size missmatch" );
 
 struct PKTBI_BF_04
 {
@@ -534,7 +528,7 @@ struct PKTBI_BF_06_01_IN
 {
   u32 memberid;
 };
-asserteql( sizeof( PKTBI_BF_06_01_IN ), 4 );
+static_assert( sizeof( PKTBI_BF_06_01_IN ) == 4, "size missmatch" );
 
 // struct PKTBI_BF_06_01_OUT
 //{
@@ -543,7 +537,7 @@ asserteql( sizeof( PKTBI_BF_06_01_IN ), 4 );
 //		u32 memberid;
 //	} serials[ 1 ];
 //};
-// asserteql( sizeof(PKTBI_BF_06_01_OUT), 5 );
+// static_assert( sizeof(PKTBI_BF_06_01_OUT) == 5, "size missmatch" );
 
 struct PKTBI_BF_06_02_IN
 {
@@ -558,34 +552,34 @@ struct PKTBI_BF_06_02_IN
 //		u32 memberid;
 //	} serials[ 1 ]; //party members
 //};
-// asserteql( sizeof(PKTBI_BF_06_02_OUT), 9 );
+// static_assert( sizeof(PKTBI_BF_06_02_OUT) == 9, "size missmatch" );
 
 // struct PKTBI_BF_06_02_LIST
 //{
 //	u8 nummembers;
 //	u32 remmemberid;
 //};
-// asserteql( sizeof(PKTBI_BF_06_02_LIST), 5 );
+// static_assert( sizeof(PKTBI_BF_06_02_LIST) == 5, "size missmatch" );
 
 struct PKTBI_BF_06_03
 {
   u32 memberid;  //(of target, from client, of source, from server)
   u16 wtext[2];  // wide-character, double-null terminated
 };
-asserteql( sizeof( PKTBI_BF_06_03 ), 8 );
+static_assert( sizeof( PKTBI_BF_06_03 ) == 8, "size missmatch" );
 
 struct PKTBI_BF_06_04_IN
 {
   u16 wtext[2];  // wide-character, double-null terminated
 };
-asserteql( sizeof( PKTBI_BF_06_04_IN ), 4 );
+static_assert( sizeof( PKTBI_BF_06_04_IN ) == 4, "size missmatch" );
 
 // struct PKTBI_BF_06_04_OUT
 //{
 //	u32 memberid;
 //	u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
 //};
-// asserteql( sizeof(PKTBI_BF_06_04_OUT), 406 );
+// static_assert( sizeof(PKTBI_BF_06_04_OUT) == 406, "size missmatch" );
 
 struct PKTBI_BF_06_06
 {
@@ -596,25 +590,25 @@ struct PKTBI_BF_06_06
     CANLOOT_NO = 0
   };
 };
-asserteql( sizeof( PKTBI_BF_06_06 ), 1 );
+static_assert( sizeof( PKTBI_BF_06_06 ) == 1, "size missmatch" );
 
 // struct PKTBI_BF_06_07
 //{
 //	u32 leaderid;
 //};
-// asserteql( sizeof(PKTBI_BF_06_07), 4 );
+// static_assert( sizeof(PKTBI_BF_06_07) == 4, "size missmatch" );
 
 struct PKTBI_BF_06_08
 {
   u32 leaderid;
 };
-asserteql( sizeof( PKTBI_BF_06_08 ), 4 );
+static_assert( sizeof( PKTBI_BF_06_08 ) == 4, "size missmatch" );
 
 struct PKTBI_BF_06_09
 {
   u32 leaderid;
 };
-asserteql( sizeof( PKTBI_BF_06_09 ), 4 );
+static_assert( sizeof( PKTBI_BF_06_09 ) == 4, "size missmatch" );
 
 struct PKTBI_BF_06
 {
@@ -940,21 +934,21 @@ struct PKTBI_C2
     SERVER_MSGLEN = 0x15
   };
 };
-asserteql( sizeof( PKTBI_C2 ), 23 );
+static_assert( sizeof( PKTBI_C2 ) == 23, "size missmatch" );
 
 struct PKTBI_C8
 {
   u8 msgtype;
   u8 range;
 };
-assertsize( PKTBI_C8, 2 );
+static_assert( sizeof( PKTBI_C8 ) == 2, "size missmatch" );
 
 struct PKTBI_D1
 {
   u8 msgtype;
   u8 unk_1;
 };
-assertsize( PKTBI_D1, 2 );
+static_assert( sizeof( PKTBI_D1 ) == 2, "size missmatch" );
 
 struct PKTBI_D6_IN
 {
@@ -965,7 +959,7 @@ struct PKTBI_D6_IN
     u32 serial;
   } serials[1];
 };
-asserteql( sizeof( PKTBI_D6_IN ), 7 );
+static_assert( sizeof( PKTBI_D6_IN ) == 7, "size missmatch" );
 
 // struct AOS_OBJECT_PROPERTY_LIST_ELEM
 //{
@@ -1132,12 +1126,7 @@ struct PKTBI_D7
   };
 };
 
-
-#ifdef _MSC_VER /* Visual C++ 4.0 + */
 #pragma pack( pop )
-#else
-#pragma pack()
-#endif
 }
 }
 #endif

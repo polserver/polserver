@@ -56,6 +56,7 @@ class BLong;
 class String;
 
 #ifdef ESCRIPT_PROFILE
+#include <map>
 struct profile_instr
 {
   unsigned long sum;
@@ -63,7 +64,7 @@ struct profile_instr
   unsigned long min;
   unsigned long count;
 };
-typedef map<std::string, profile_instr> escript_profile_map;
+typedef std::map<std::string, profile_instr> escript_profile_map;
 extern escript_profile_map EscriptProfileMap;
 #endif
 
