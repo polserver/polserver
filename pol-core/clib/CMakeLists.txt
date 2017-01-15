@@ -34,7 +34,6 @@ SET (SOURCES  # sorted !
 	mlog.cpp 
 	opnew.cpp
 	passert.cpp
-	pkthelper.cpp
 	random.cpp 
 	sckutil.cpp 
 	socketsvc.cpp 

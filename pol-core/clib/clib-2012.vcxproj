@@ -240,7 +240,6 @@
     <ClCompile Include="NTService.cpp" />
     <ClCompile Include="opnew.cpp" />
     <ClCompile Include="passert.cpp" />
-    <ClCompile Include="pkthelper.cpp" />
     <ClCompile Include="progver.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="sckutil.cpp" />
@@ -301,7 +300,6 @@
     <ClInclude Include="ntservmsg.h" />
     <ClInclude Include="opnew.h" />
     <ClInclude Include="passert.h" />
-    <ClInclude Include="pkthelper.h" />
     <ClInclude Include="progver.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="rawtypes.h" />

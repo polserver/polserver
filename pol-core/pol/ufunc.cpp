@@ -93,7 +93,6 @@
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
-#include "../clib/pkthelper.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 

@@ -252,7 +252,6 @@
     <ClCompile Include="NTService.cpp" />
     <ClCompile Include="opnew.cpp" />
     <ClCompile Include="passert.cpp" />
-    <ClCompile Include="pkthelper.cpp" />
     <ClCompile Include="Program\ProgramConfig.cpp" />
     <ClCompile Include="Program\ProgramMain.cpp" />
     <ClCompile Include="random.cpp" />
@@ -316,7 +315,6 @@
     <ClInclude Include="ntservmsg.h" />
     <ClInclude Include="opnew.h" />
     <ClInclude Include="passert.h" />
-    <ClInclude Include="pkthelper.h" />
     <ClInclude Include="pol_global_config_win.h" />
     <ClInclude Include="Program\ProgramConfig.h" />
     <ClInclude Include="Program\ProgramMain.h" />
