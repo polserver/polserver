@@ -4036,11 +4036,6 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       return new BError( "No client attached" );
 
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
-    if ( usesNewPktSize && !getUObjectParam( exec, 3, target ) )
-    {
-      exec.setFunctionResult( nullptr );
-      return new BError( "No valid target for HSA client" );
-    }
 
     Network::PktHelper::PacketOut<Network::PktOut_BA> msg;
     if ( x == -1 && y == -1 )
@@ -4059,9 +4054,15 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       msg->WriteFlipped<u16>( static_cast<u16>( x & 0xFFFF ) );
       msg->WriteFlipped<u16>( static_cast<u16>( y & 0xFFFF ) );
       if ( usesNewPktSize )
+      {
+        if ( !getUObjectParam( exec, 3, target ) )
+        {
+          exec.setFunctionResult( nullptr );
+          return new BError( "No valid target for HSA client" );
+        }
         msg->Write<u32>( static_cast<u32>( target->serial_ext & 0xFFFFFFFF ) );
+      }
     }
-
     msg.Send( chr->client );
     return new BLong( 1 );
   }
