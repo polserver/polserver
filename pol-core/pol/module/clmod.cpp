@@ -22,7 +22,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<ClilocExecutorModule>::FunctionDef>
+TmplExecutorModule<ClilocExecutorModule>::FunctionTable
     TmplExecutorModule<ClilocExecutorModule>::function_table = {
 
         {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL},

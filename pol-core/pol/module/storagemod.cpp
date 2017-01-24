@@ -24,7 +24,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<StorageExecutorModule>::FunctionDef>
+TmplExecutorModule<StorageExecutorModule>::FunctionTable
     TmplExecutorModule<StorageExecutorModule>::function_table = {
         {"StorageAreas", &StorageExecutorModule::mf_StorageAreas},
         {"FindStorageArea", &StorageExecutorModule::mf_FindStorageArea},

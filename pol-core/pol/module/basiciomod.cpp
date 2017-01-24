@@ -20,7 +20,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<BasicIoExecutorModule>::FunctionDef>
+TmplExecutorModule<BasicIoExecutorModule>::FunctionTable
     TmplExecutorModule<BasicIoExecutorModule>::function_table = {
         {"print", &BasicIoExecutorModule::print}};
 

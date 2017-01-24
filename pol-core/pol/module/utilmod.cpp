@@ -29,7 +29,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<UtilExecutorModule>::FunctionDef>
+TmplExecutorModule<UtilExecutorModule>::FunctionTable
     TmplExecutorModule<UtilExecutorModule>::function_table = {
         {"RandomInt", &UtilExecutorModule::mf_RandomInt},
         {"RandomFloat", &UtilExecutorModule::mf_RandomFloat},

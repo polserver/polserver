@@ -132,7 +132,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<UnicodeExecutorModule>::FunctionDef>
+TmplExecutorModule<UnicodeExecutorModule>::FunctionTable
     TmplExecutorModule<UnicodeExecutorModule>::function_table = {
         {"BroadcastUC", &UnicodeExecutorModule::mf_BroadcastUC},
         {"PrintTextAboveUC", &UnicodeExecutorModule::mf_PrintTextAboveUC},

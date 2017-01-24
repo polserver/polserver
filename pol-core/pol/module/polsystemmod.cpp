@@ -96,7 +96,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<PolSystemExecutorModule>::FunctionDef>
+TmplExecutorModule<PolSystemExecutorModule>::FunctionTable
     TmplExecutorModule<PolSystemExecutorModule>::function_table = {
         {"IncRevision", &PolSystemExecutorModule::mf_IncRevision},
         {"GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName},

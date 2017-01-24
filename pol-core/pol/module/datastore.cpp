@@ -37,13 +37,14 @@ namespace Pol
 {
 namespace Bscript
 {
+using namespace Module;
 template <>
-std::vector<TmplExecutorModule<Module::DataFileExecutorModule>::FunctionDef>
-    TmplExecutorModule<Module::DataFileExecutorModule>::function_table = {
-        {"ListDataFiles", &Module::DataFileExecutorModule::mf_ListDataFiles},
-        {"CreateDataFile", &Module::DataFileExecutorModule::mf_CreateDataFile},
-        {"OpenDataFile", &Module::DataFileExecutorModule::mf_OpenDataFile},
-        {"UnloadDataFile", &Module::DataFileExecutorModule::mf_UnloadDataFile}};
+TmplExecutorModule<DataFileExecutorModule>::FunctionTable
+    TmplExecutorModule<DataFileExecutorModule>::function_table = {
+        {"ListDataFiles", &DataFileExecutorModule::mf_ListDataFiles},
+        {"CreateDataFile", &DataFileExecutorModule::mf_CreateDataFile},
+        {"OpenDataFile", &DataFileExecutorModule::mf_OpenDataFile},
+        {"UnloadDataFile", &DataFileExecutorModule::mf_UnloadDataFile}};
 }
 
 namespace Module

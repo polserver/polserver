@@ -26,7 +26,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<HttpExecutorModule>::FunctionDef>
+TmplExecutorModule<HttpExecutorModule>::FunctionTable
     TmplExecutorModule<HttpExecutorModule>::function_table = {
         {"WriteHtml", &HttpExecutorModule::mf_WriteHtml},
         {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw},
