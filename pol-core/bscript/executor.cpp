@@ -168,7 +168,7 @@ bool Executor::AttachFunctionalityModules()
         // FIXME: should check number of params, blah.
         if ( !func->name.get().empty() )
         {
-          func->funcidx = em->functionIndex( func->name.get().c_str() );
+          func->funcidx = em->functionIndex( func->name.get() );
           if ( func->funcidx == -1 )
           {
             ERROR_PRINT << "Unable to find " << fm->modulename.get() << "::" << func->name.get()

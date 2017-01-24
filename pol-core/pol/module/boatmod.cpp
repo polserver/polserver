@@ -9,9 +9,6 @@
 
 #include "boatmod.h"
 
-#include "../multi/boat.h"
-#include "../item/item.h"
-
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/execmodl.h"
@@ -19,8 +16,10 @@
 #include "../../bscript/impstr.h"
 
 #include "../../clib/rawtypes.h"
-#include "../realms/realm.h"
 
+#include "../item/item.h"
+#include "../multi/boat.h"
+#include "../realms/realm.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
@@ -30,8 +29,8 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<Module::UBoatExecutorModule>::FunctionDef
-    TmplExecutorModule<Module::UBoatExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<Module::UBoatExecutorModule>::FunctionDef>
+    TmplExecutorModule<Module::UBoatExecutorModule>::function_table = {
         {"MoveBoat", &UBoatExecutorModule::mf_MoveBoat},
         {"MoveBoatRelative", &UBoatExecutorModule::mf_MoveBoatRelative},
         {"MoveBoatXY", &UBoatExecutorModule::mf_MoveBoatXY},
@@ -39,9 +38,6 @@ TmplExecutorModule<Module::UBoatExecutorModule>::FunctionDef
         {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat},
         {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem},
         {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial}};
-
-template <>
-int TmplExecutorModule<UBoatExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

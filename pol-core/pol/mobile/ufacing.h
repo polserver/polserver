@@ -10,6 +10,8 @@
 #include "../poltype.h"
 #include "../uconst.h"
 
+#include <array>
+
 namespace Pol
 {
 namespace Core
@@ -17,8 +19,7 @@ namespace Core
 class UObject;
 
 extern UFACING away_cvt[8];
-extern int adjustments[];
-extern const int N_ADJUST;
+extern std::array<int,7> adjustments;
 }
 namespace Mobile
 {

@@ -29,16 +29,13 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<UtilExecutorModule>::FunctionDef
-    TmplExecutorModule<UtilExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<UtilExecutorModule>::FunctionDef>
+    TmplExecutorModule<UtilExecutorModule>::function_table = {
         {"RandomInt", &UtilExecutorModule::mf_RandomInt},
         {"RandomFloat", &UtilExecutorModule::mf_RandomFloat},
         {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll},
         {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime},
         {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax}};
-
-template <>
-int TmplExecutorModule<UtilExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

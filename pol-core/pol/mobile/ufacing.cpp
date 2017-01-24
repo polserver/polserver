@@ -26,8 +26,7 @@ MoveDelta move_delta[8] = {{0, -1},   // 0 is N
 UFACING away_cvt[8] = {FACING_S, FACING_SW, FACING_W, FACING_NW,
                        FACING_N, FACING_NE, FACING_E, FACING_SE};
 
-int adjustments[] = {0, +1, -1, +2, -2, +3, -3};
-const int N_ADJUST = arsize( adjustments );
+std::array<int,7> adjustments = {0, +1, -1, +2, -2, +3, -3};
 }
 namespace Mobile
 {

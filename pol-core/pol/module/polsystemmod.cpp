@@ -13,37 +13,35 @@
 
 #include "polsystemmod.h"
 
-#include "../../bscript/bobject.h"
-
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 #include "../../bscript/dict.h"
 #include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
 
-#include "../../plib/pkg.h"
+#include "../../clib/clib.h"
+#include "../../clib/clib_MD5.h"
+#include "../../clib/dirlist.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/strutil.h"
+#include "../../clib/threadhelp.h"
 
+#include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
 
-#include "../core.h"
 #include "../cmdlevel.h"
+#include "../core.h"
+#include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../listenpt.h"
+#include "../packetscrobj.h"
 #include "../polclock.h"
 #include "../realms.h"
 #include "../realms/realm.h"
-#include "../uoexhelp.h"
-#include "../packetscrobj.h"
-#include "../uobject.h"
 #include "../tooltips.h"
-#include "../globals/uvars.h"
-
-#include "../../clib/dirlist.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/clib.h"
-#include "../../clib/clib_MD5.h"
-#include "../../clib/strutil.h"
-#include "../../clib/threadhelp.h"
+#include "../uobject.h"
+#include "../uoexhelp.h"
 
 #include <fstream>
 #include <ctime>
@@ -98,8 +96,8 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<PolSystemExecutorModule>::FunctionDef
-    TmplExecutorModule<PolSystemExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<PolSystemExecutorModule>::FunctionDef>
+    TmplExecutorModule<PolSystemExecutorModule>::function_table = {
         {"IncRevision", &PolSystemExecutorModule::mf_IncRevision},
         {"GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName},
         {"GetCmdLevelNumber", &PolSystemExecutorModule::mf_GetCmdLevelNumber},
@@ -119,8 +117,6 @@ TmplExecutorModule<PolSystemExecutorModule>::FunctionDef
         {"MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt},
         {"LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile},
 };
-template <>
-int TmplExecutorModule<PolSystemExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

@@ -11,10 +11,10 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 
+#include "../globals/uvars.h"
 #include "../realms.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
-#include "../globals/uvars.h"
 
 #include <string>
 
@@ -24,16 +24,14 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<StorageExecutorModule>::FunctionDef
-    TmplExecutorModule<StorageExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<StorageExecutorModule>::FunctionDef>
+    TmplExecutorModule<StorageExecutorModule>::function_table = {
         {"StorageAreas", &StorageExecutorModule::mf_StorageAreas},
         {"FindStorageArea", &StorageExecutorModule::mf_FindStorageArea},
         {"CreateStorageArea", &StorageExecutorModule::mf_CreateStorageArea},
         {"FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea},
         {"CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea},
         {"DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea}};
-template <>
-int TmplExecutorModule<StorageExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Core
 {

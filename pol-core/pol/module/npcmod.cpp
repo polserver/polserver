@@ -69,11 +69,52 @@
 
 namespace Pol
 {
+namespace Bscript
+{
+using namespace Module;
+template <>
+std::vector<TmplExecutorModule<NPCExecutorModule>::FunctionDef>
+    TmplExecutorModule<NPCExecutorModule>::function_table = {
+        {"Wander", &NPCExecutorModule::mf_Wander},
+        {"self", &NPCExecutorModule::mf_Self},
+        {"face", &NPCExecutorModule::face},
+        {"move", &NPCExecutorModule::move},
+        {"WalkToward", &NPCExecutorModule::mf_WalkToward},
+        {"RunToward", &NPCExecutorModule::mf_RunToward},
+        {"WalkAwayFrom", &NPCExecutorModule::mf_WalkAwayFrom},
+        {"RunAwayFrom", &NPCExecutorModule::mf_RunAwayFrom},
+        {"TurnToward", &NPCExecutorModule::mf_TurnToward},
+        {"TurnAwayFrom", &NPCExecutorModule::mf_TurnAwayFrom},
+
+        {"WalkTowardLocation", &NPCExecutorModule::mf_WalkTowardLocation},
+        {"RunTowardLocation", &NPCExecutorModule::mf_RunTowardLocation},
+        {"WalkAwayFromLocation", &NPCExecutorModule::mf_WalkAwayFromLocation},
+        {"RunAwayFromLocation", &NPCExecutorModule::mf_RunAwayFromLocation},
+        {"TurnTowardLocation", &NPCExecutorModule::mf_TurnTowardLocation},
+        {"TurnAwayFromLocation", &NPCExecutorModule::mf_TurnAwayFromLocation},
+
+        {"say", &NPCExecutorModule::say},
+        {"SayUC", &NPCExecutorModule::SayUC},
+        {"SetOpponent", &NPCExecutorModule::mf_SetOpponent},
+        {"SetWarMode", &NPCExecutorModule::mf_SetWarMode},
+        {"SetAnchor", &NPCExecutorModule::mf_SetAnchor},
+        {"position", &NPCExecutorModule::position},
+        {"facing", &NPCExecutorModule::facing},
+        {"IsLegalMove", &NPCExecutorModule::IsLegalMove},
+        {"CanMove", &NPCExecutorModule::CanMove},
+        {"getproperty", &NPCExecutorModule::getproperty},
+        {"setproperty", &NPCExecutorModule::setproperty},
+        {"makeboundingbox", &NPCExecutorModule::makeboundingbox}
+        // { "CreateBackpack", CreateBackpack },
+        // { "CreateItem", CreateItem }
+};
+}  // namespace Bscript
+
 namespace Module
 {
 using namespace Bscript;
 NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
-    : ExecutorModule( "NPC", ex ), npcref( &npc ), npc( npc )
+    : TmplExecutorModule<NPCExecutorModule>( "NPC", ex ), npcref( &npc ), npc( npc )
 {
   os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
   if ( os_module == NULL )
@@ -84,62 +125,6 @@ NPCExecutorModule::~NPCExecutorModule()
 {
   if ( npc.ex == &exec )
     npc.ex = NULL;
-}
-
-NPCFunctionDef NPCExecutorModule::function_table[] = {
-    {"Wander", &NPCExecutorModule::mf_Wander},
-    {"self", &NPCExecutorModule::mf_Self},
-    {"face", &NPCExecutorModule::face},
-    {"move", &NPCExecutorModule::move},
-    {"WalkToward", &NPCExecutorModule::mf_WalkToward},
-    {"RunToward", &NPCExecutorModule::mf_RunToward},
-    {"WalkAwayFrom", &NPCExecutorModule::mf_WalkAwayFrom},
-    {"RunAwayFrom", &NPCExecutorModule::mf_RunAwayFrom},
-    {"TurnToward", &NPCExecutorModule::mf_TurnToward},
-    {"TurnAwayFrom", &NPCExecutorModule::mf_TurnAwayFrom},
-
-    {"WalkTowardLocation", &NPCExecutorModule::mf_WalkTowardLocation},
-    {"RunTowardLocation", &NPCExecutorModule::mf_RunTowardLocation},
-    {"WalkAwayFromLocation", &NPCExecutorModule::mf_WalkAwayFromLocation},
-    {"RunAwayFromLocation", &NPCExecutorModule::mf_RunAwayFromLocation},
-    {"TurnTowardLocation", &NPCExecutorModule::mf_TurnTowardLocation},
-    {"TurnAwayFromLocation", &NPCExecutorModule::mf_TurnAwayFromLocation},
-
-
-    {"say", &NPCExecutorModule::say},
-    {"SayUC", &NPCExecutorModule::SayUC},
-    {"SetOpponent", &NPCExecutorModule::mf_SetOpponent},
-    {"SetWarMode", &NPCExecutorModule::mf_SetWarMode},
-    {"SetAnchor", &NPCExecutorModule::mf_SetAnchor},
-    {"position", &NPCExecutorModule::position},
-    {"facing", &NPCExecutorModule::facing},
-    {"IsLegalMove", &NPCExecutorModule::IsLegalMove},
-    {"CanMove", &NPCExecutorModule::CanMove},
-    {"getproperty", &NPCExecutorModule::getproperty},
-    {"setproperty", &NPCExecutorModule::setproperty},
-    {"makeboundingbox", &NPCExecutorModule::makeboundingbox}
-    // { "CreateBackpack", CreateBackpack },
-    // { "CreateItem", CreateItem }
-};
-
-int NPCExecutorModule::functionIndex( const char* name )
-{
-  for ( unsigned idx = 0; idx < arsize( function_table ); idx++ )
-  {
-    if ( stricmp( name, function_table[idx].funcname ) == 0 )
-      return idx;
-  }
-  return -1;
-}
-
-BObjectImp* NPCExecutorModule::execFunc( unsigned funcidx )
-{
-  return callMemberFunction ( *this, function_table[funcidx].fptr )();
-};
-
-std::string NPCExecutorModule::functionName( unsigned idx )
-{
-  return function_table[idx].funcname;
 }
 
 BApplicObjType bounding_box_type;
@@ -294,9 +279,9 @@ BObjectImp* NPCExecutorModule::move_self( Core::UFACING facing, bool run, bool a
   {
     if ( npc.use_adjustments() )
     {
-      for ( int i = 0; i < Core::N_ADJUST; ++i )
+      for ( int adjust : Core::adjustments )
       {
-        facing = static_cast<Core::UFACING>( ( dir + Core::adjustments[i] ) & 7 );
+        facing = static_cast<Core::UFACING>( ( dir + adjust ) & 7 );
 
         success = _internal_move( facing, run );
         if ( success == true )

@@ -2,6 +2,12 @@
 
 rem Attempts to find the most recent visual studio.
 
+:VS2015
+set VCVARSALL="%VS140COMNTOOLS%..\..\VC\vcvarsall.bat"
+set POLSOL="pol-2015.sln"
+if not exist %VCVARSALL% goto VS2013
+goto begin
+
 :VS2013
 set VCVARSALL="%VS120COMNTOOLS%..\..\VC\vcvarsall.bat"
 set POLSOL="pol-2013.sln"

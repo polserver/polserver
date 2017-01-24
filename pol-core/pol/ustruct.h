@@ -13,12 +13,7 @@ namespace Pol
 {
 namespace Core
 {
-#ifdef _MSC_VER
 #pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
 
 struct USTRUCT_VERSION
 {
@@ -28,7 +23,7 @@ struct USTRUCT_VERSION
   u32 length;
   u32 unknown;
 };
-asserteql( sizeof( USTRUCT_VERSION ), 20 );
+static_assert( sizeof( USTRUCT_VERSION ) == 20, "size missmatch" );
 
 struct USTRUCT_STATIC
 {
@@ -38,7 +33,7 @@ struct USTRUCT_STATIC
   s8 z;
   u16 hue;
 };
-asserteql( sizeof( USTRUCT_STATIC ), 7 );
+static_assert( sizeof( USTRUCT_STATIC ) == 7, "size missmatch" );
 
 struct USTRUCT_IDX
 {
@@ -46,7 +41,7 @@ struct USTRUCT_IDX
   u32 length;
   u32 unknown;
 };
-asserteql( sizeof( USTRUCT_IDX ), 12 );
+static_assert( sizeof( USTRUCT_IDX ) == 12, "size missmatch" );
 
 const unsigned STAIDX_CHUNK = 8;
 
@@ -103,7 +98,7 @@ struct USTRUCT_TILE
     FLAG_PASSABLE_WATER = FLAG_FLOOR | FLAG_LIQUID
   };
 };
-asserteql( sizeof( USTRUCT_TILE ), 37 );
+static_assert( sizeof( USTRUCT_TILE ) == 37, "size missmatch" );
 
 struct USTRUCT_TILE_HSA
 {
@@ -121,7 +116,7 @@ struct USTRUCT_TILE_HSA
   u8 height;
   char name[20];
 };
-asserteql( sizeof( USTRUCT_TILE_HSA ), 41 );
+static_assert( sizeof( USTRUCT_TILE_HSA ) == 41, "size missmatch" );
 /* notes:
   flag1:
   bit 0x80: liquid? wet? (blood, water, water troughs, swamp,
@@ -199,7 +194,7 @@ struct USTRUCT_MULTI_ELEMENT
   s16 z;
   u32 flags;
 };
-asserteql( sizeof( USTRUCT_MULTI_ELEMENT ), 12 );
+static_assert( sizeof( USTRUCT_MULTI_ELEMENT ) == 12, "size missmatch" );
 
 struct USTRUCT_MULTI_ELEMENT_HSA
 {
@@ -210,7 +205,7 @@ struct USTRUCT_MULTI_ELEMENT_HSA
   u32 flags;
   u32 unk;
 };
-asserteql( sizeof( USTRUCT_MULTI_ELEMENT_HSA ), 16 );
+static_assert( sizeof( USTRUCT_MULTI_ELEMENT_HSA ) == 16, "size missmatch" );
 
 struct USTRUCT_MAPINFO
 {
@@ -223,14 +218,14 @@ struct USTRUCT_MAPINFO
     WATER__HIGHEST = 0xAB
   };
 };
-asserteql( sizeof( USTRUCT_MAPINFO ), 3 );
+static_assert( sizeof( USTRUCT_MAPINFO ) == 3, "size missmatch" );
 
 struct USTRUCT_MAPINFO_BLOCK
 {
   unsigned int hdr;
   USTRUCT_MAPINFO cell[8][8];
 };
-asserteql( sizeof( USTRUCT_MAPINFO_BLOCK ), 196 );
+static_assert( sizeof( USTRUCT_MAPINFO_BLOCK ) == 196, "size missmatch" );
 
 struct USTRUCT_POL_MAPINFO_BLOCK
 {
@@ -238,14 +233,9 @@ struct USTRUCT_POL_MAPINFO_BLOCK
   unsigned char walkok[8];  // x=index, y=bit
   unsigned char water[8];
 };
-asserteql( sizeof( USTRUCT_POL_MAPINFO_BLOCK ), 8 * 8 + 16 );
+static_assert( sizeof( USTRUCT_POL_MAPINFO_BLOCK ) == 8 * 8 + 16, "size missmatch" );
 
-
-#ifdef _MSC_VER
 #pragma pack( pop )
-#else
-#pragma pack()
-#endif
 }
 }
 #endif /* __USTRUCT_H */

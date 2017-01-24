@@ -48,8 +48,8 @@ namespace Pol
 namespace Bscript
 {
 template <>
-TmplExecutorModule<Module::FileAccessExecutorModule>::FunctionDef
-    TmplExecutorModule<Module::FileAccessExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<Module::FileAccessExecutorModule>::FunctionDef>
+    TmplExecutorModule<Module::FileAccessExecutorModule>::function_table = {
         {"FileExists", &Module::FileAccessExecutorModule::mf_FileExists},
         {"ReadFile", &Module::FileAccessExecutorModule::mf_ReadFile},
         {"WriteFile", &Module::FileAccessExecutorModule::mf_WriteFile},
@@ -60,10 +60,6 @@ TmplExecutorModule<Module::FileAccessExecutorModule>::FunctionDef
         {"ListDirectory", &Module::FileAccessExecutorModule::mf_ListDirectory},
         {"OpenXMLFile", &Module::FileAccessExecutorModule::mf_OpenXMLFile},
         {"CreateXMLFile", &Module::FileAccessExecutorModule::mf_CreateXMLFile}};
-
-template <>
-int TmplExecutorModule<Module::FileAccessExecutorModule>::function_table_size =
-    arsize( function_table );
 }
 namespace Module
 {

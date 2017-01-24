@@ -78,11 +78,7 @@ namespace Core
 class UContainer;
 class WornItemsContainer;
 
-#ifdef _MSC_VER
 #pragma pack( push, 1 )
-#else
-#pragma pack( 1 )
-#endif
 struct Resistances
 {
   s16 fire;
@@ -111,11 +107,7 @@ struct ElementDamages
   s16 physical;
 };
 
-#ifdef _MSC_VER
 #pragma pack( pop )
-#else
-#pragma pack()
-#endif
 
 template <typename ENUM,
           typename std::enable_if<

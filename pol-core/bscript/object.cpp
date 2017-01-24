@@ -1530,13 +1530,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
              imp != NULL )  // 1-based index
         {
           --idx;
-// FIXME: 2008 Upgrades needed here? Make sure still working correctly under 2008
-#if ( defined( _WIN32 ) && _MSC_VER >= 1300 ) || ( !defined( USE_STLPORT ) && __GNUC__ )
           BObjectRef tmp;
           ref_arr.insert( ref_arr.begin() + idx, tmp );
-#else
-          ref_arr.insert( ref_arr.begin() + idx );
-#endif
           BObjectRef& ref = ref_arr[idx];
           ref.set( new BObject( imp->copy() ) );
         }

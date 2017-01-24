@@ -5,17 +5,17 @@
 
 #include "sqlmod.h"
 
-#include "../sqlscrobj.h"
-#include "../uoexec.h"
-#include "../polsem.h"
-#include "osmod.h"
-#include "../globals/network.h"
-
-#include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
+
 #include "../../clib/logfacility.h"
 
+#include "../globals/network.h"
+#include "../polsem.h"
+#include "../sqlscrobj.h"
+#include "../uoexec.h"
+#include "osmod.h"
 
 namespace Pol
 {
@@ -23,8 +23,8 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<SQLExecutorModule>::FunctionDef
-    TmplExecutorModule<SQLExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<SQLExecutorModule>::FunctionDef>
+    TmplExecutorModule<SQLExecutorModule>::function_table = {
         {"MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB},
         {"MySQL_Query", &SQLExecutorModule::mf_Query},
         {"MySQL_Close", &SQLExecutorModule::mf_Close},
@@ -34,8 +34,6 @@ TmplExecutorModule<SQLExecutorModule>::FunctionDef
         {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows},
         {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb},
         {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName}};
-template <>
-int TmplExecutorModule<SQLExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

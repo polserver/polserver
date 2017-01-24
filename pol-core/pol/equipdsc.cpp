@@ -24,7 +24,7 @@ void EquipDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 }
 size_t EquipDesc::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( bool ) /*is_intrinsic*/,
+  return base::estimatedSize() + sizeof( bool ) /*is_intrinsic*/
          +sizeof( bool ); /*is_pc_intrinsic*/
 }
 /*

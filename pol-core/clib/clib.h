@@ -93,13 +93,6 @@ void incStr( char* str );
 #define PARAMS
 #endif
 
-#if 0
-    /* critical error handler.  always returns failure. */
-    /* now fopen("A:\\test.txt", "rt") returns NULL if no disk in A.
-       without doing the abort retry fail crap
-       */
-    void interrupt newcrit(PARAMS);
-#endif
 /// returns the current process size in bytes
 size_t getCurrentMemoryUsage();
 

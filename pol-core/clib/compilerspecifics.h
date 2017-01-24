@@ -103,4 +103,9 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #define THREADLOCAL __declspec( thread )
 #endif
 
+#if (!defined(_MSC_VER) || _MSC_VER >= 1900)
+#define CONSTEXPR constexpr
+#else
+#define CONSTEXPR
+#endif
 #endif

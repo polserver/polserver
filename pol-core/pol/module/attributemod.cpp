@@ -7,23 +7,24 @@
 
 #include "attributemod.h"
 
-#include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
+
+#include "../globals/uvars.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../network/cliface.h"
 #include "../skilladv.h"
 #include "../uoexhelp.h"
-#include "../globals/uvars.h"
 
 namespace Pol
 {
 namespace Bscript
 {
 template <>
-TmplExecutorModule<Module::AttributeExecutorModule>::FunctionDef TmplExecutorModule<
-    Module::AttributeExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<Module::AttributeExecutorModule>::FunctionDef> TmplExecutorModule<
+    Module::AttributeExecutorModule>::function_table = {
     {"CheckSkill", &Module::AttributeExecutorModule::mf_CheckSkill},
     {"GetAttributeName", &Module::AttributeExecutorModule::mf_GetAttributeName},
     {"GetAttributeDefaultCap", &Module::AttributeExecutorModule::mf_GetAttributeDefaultCap},
@@ -40,9 +41,6 @@ TmplExecutorModule<Module::AttributeExecutorModule>::FunctionDef TmplExecutorMod
     {"AlterAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
     {"RawSkillToBaseSkill", &Module::AttributeExecutorModule::mf_RawSkillToBase},
     {"BaseSkillToRawSkill", &Module::AttributeExecutorModule::mf_BaseSkillToRaw}};
-template <>
-int TmplExecutorModule<Module::AttributeExecutorModule>::function_table_size =
-    arsize( function_table );
 }
 namespace Module
 {

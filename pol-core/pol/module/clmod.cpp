@@ -7,14 +7,14 @@
 
 #include "clmod.h"
 
-#include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 
+#include "../clfunc.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
-#include "../uoexhelp.h"
-#include "../clfunc.h"
 #include "../unicode.h"
+#include "../uoexhelp.h"
 
 namespace Pol
 {
@@ -22,17 +22,13 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<ClilocExecutorModule>::FunctionDef
-    TmplExecutorModule<ClilocExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<ClilocExecutorModule>::FunctionDef>
+    TmplExecutorModule<ClilocExecutorModule>::function_table = {
 
         {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL},
         {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL},
         {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL}
-
 };
-
-template <>
-int TmplExecutorModule<ClilocExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

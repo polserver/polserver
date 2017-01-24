@@ -36,7 +36,6 @@
 #include "../reftypes.h"
 #include "../poltype.h"
 
-// typedef BObject (UOExecutorModule::*UOExecutorModuleFn)();
 namespace Pol
 {
 namespace Realms
@@ -60,28 +59,8 @@ class Item;
 }
 namespace Module
 {
-class UOExecutorModule;
 
-#ifdef _MSC_VER
-#pragma pack( push, 1 )
-#else
-/* Ok, my build of GCC supports this, yay! */
-#pragma pack( 1 )
-#endif
-struct UOFunctionDef
-{
-  const char* funcname;
-  Bscript::BObjectImp* ( UOExecutorModule::*fptr )();
-  // UOExecutorModuleFn fptr;
-};
-#ifdef _MSC_VER
-#pragma pack( pop )
-#else
-#pragma pack()
-#endif
-
-
-class UOExecutorModule : public Bscript::ExecutorModule
+class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule>
 {
 public:
   Bscript::BObjectImp* mf_SendStatus( /* mob */ );
@@ -332,12 +311,7 @@ protected:
   bool getDynamicMenuParam( unsigned param, Core::Menu*& menu );
   bool getStaticOrDynamicMenuParam( unsigned param, Core::Menu*& menu );
 
-  // class machinery
 protected:
-  virtual Bscript::BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
-  virtual int functionIndex( const char* func ) POL_OVERRIDE;
-  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
-  static UOFunctionDef function_table[];
   Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y,
                                           Core::zcoord z, int flags, Realms::Realm* newrealm );
   Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x,

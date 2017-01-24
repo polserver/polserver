@@ -177,7 +177,7 @@ int RunEclMain::runeclScript( std::string fileName )
     {
       tmp << itr->first << "," << itr->second.count << "," << itr->second.min << ","
           << itr->second.max << "," << itr->second.sum << ","
-          << ( itr->second.sum / itr->second.count ) << "\n";
+          << ( itr->second.sum / ( 1.0 * itr->second.count ) ) << "\n";
     }
 #endif
     INFO_PRINT << tmp.str();

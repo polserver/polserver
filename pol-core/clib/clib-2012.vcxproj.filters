@@ -77,9 +77,6 @@
     <ClCompile Include="passert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pkthelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="progver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -187,9 +184,6 @@
     <ClInclude Include="clibopt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="compileassert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dirlist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -236,9 +230,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="passert.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pkthelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="progver.h">

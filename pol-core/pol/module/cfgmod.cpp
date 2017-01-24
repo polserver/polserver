@@ -36,8 +36,8 @@ class ConfigFileExecutorModule;
 namespace Bscript
 {
 template <>
-TmplExecutorModule<Module::ConfigFileExecutorModule>::FunctionDef TmplExecutorModule<
-    Module::ConfigFileExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<Module::ConfigFileExecutorModule>::FunctionDef> TmplExecutorModule<
+    Module::ConfigFileExecutorModule>::function_table = {
     {"ReadConfigFile", &Module::ConfigFileExecutorModule::mf_ConfigFile},
     {"FindConfigElem", &Module::ConfigFileExecutorModule::mf_FindConfigElement},
     {"GetElemProperty", &Module::ConfigFileExecutorModule::mf_GetConfigString},
@@ -55,9 +55,6 @@ TmplExecutorModule<Module::ConfigFileExecutorModule>::FunctionDef TmplExecutorMo
     {"UnloadConfigFile", &Module::ConfigFileExecutorModule::mf_UnloadConfigFile},
     {"LoadTusScpFile", &Module::ConfigFileExecutorModule::mf_LoadTusScpFile}};
 
-template <>
-int TmplExecutorModule<Module::ConfigFileExecutorModule>::function_table_size =
-    arsize( function_table );
 }
 namespace Module
 {

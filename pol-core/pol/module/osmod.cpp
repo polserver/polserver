@@ -52,6 +52,38 @@
 
 namespace Pol
 {
+namespace Bscript
+{
+using namespace Module;
+template <>
+std::vector<TmplExecutorModule<OSExecutorModule>::FunctionDef>
+    TmplExecutorModule<OSExecutorModule>::function_table = {
+        {"create_debug_context", &OSExecutorModule::create_debug_context},
+        {"getprocess", &OSExecutorModule::getprocess},
+        {"get_process", &OSExecutorModule::getprocess},
+        {"getpid", &OSExecutorModule::getpid},
+        {"sleep", &OSExecutorModule::sleep},
+        {"sleepms", &OSExecutorModule::sleepms},
+        {"wait_for_event", &OSExecutorModule::wait_for_event},
+        {"events_waiting", &OSExecutorModule::events_waiting},
+        {"start_script", &OSExecutorModule::start_script},
+        {"start_skill_script", &OSExecutorModule::start_skill_script},
+        {"set_critical", &OSExecutorModule::set_critical},
+        {"is_critical", &OSExecutorModule::is_critical},
+        {"run_script_to_completion", &OSExecutorModule::run_script_to_completion},
+        {"run_script", &OSExecutorModule::run_script},
+        {"set_debug", &OSExecutorModule::mf_set_debug},
+        {"syslog", &OSExecutorModule::mf_Log},
+        {"system_rpm", &OSExecutorModule::mf_system_rpm},
+        {"set_priority", &OSExecutorModule::mf_set_priority},
+        {"unload_scripts", &OSExecutorModule::mf_unload_scripts},
+        {"set_script_option", &OSExecutorModule::mf_set_script_option},
+        {"clear_event_queue", &OSExecutorModule::mf_clear_event_queue},
+        {"set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size},
+        {"OpenURL", &OSExecutorModule::mf_OpenURL},
+        {"OpenConnection", &OSExecutorModule::mf_OpenConnection},
+        {"Debugger", &OSExecutorModule::mf_debugger}};
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -66,7 +98,7 @@ void freepid( unsigned int pid )
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
-    : ExecutorModule( "OS", exec ),
+    : TmplExecutorModule<OSExecutorModule>( "OS", exec ),
       critical( false ),
       priority( 1 ),
       warn_on_runaway( true ),
@@ -95,53 +127,6 @@ OSExecutorModule::~OSExecutorModule()
 unsigned int OSExecutorModule::pid() const
 {
   return pid_;
-}
-
-OSFunctionDef OSExecutorModule::function_table[] = {
-    {"create_debug_context", &OSExecutorModule::create_debug_context},
-    {"getprocess", &OSExecutorModule::getprocess},
-    {"get_process", &OSExecutorModule::getprocess},
-    {"getpid", &OSExecutorModule::getpid},
-    {"sleep", &OSExecutorModule::sleep},
-    {"sleepms", &OSExecutorModule::sleepms},
-    {"wait_for_event", &OSExecutorModule::wait_for_event},
-    {"events_waiting", &OSExecutorModule::events_waiting},
-    {"start_script", &OSExecutorModule::start_script},
-    {"start_skill_script", &OSExecutorModule::start_skill_script},
-    {"set_critical", &OSExecutorModule::set_critical},
-    {"is_critical", &OSExecutorModule::is_critical},
-    {"run_script_to_completion", &OSExecutorModule::run_script_to_completion},
-    {"run_script", &OSExecutorModule::run_script},
-    {"set_debug", &OSExecutorModule::mf_set_debug},
-    {"syslog", &OSExecutorModule::mf_Log},
-    {"system_rpm", &OSExecutorModule::mf_system_rpm},
-    {"set_priority", &OSExecutorModule::mf_set_priority},
-    {"unload_scripts", &OSExecutorModule::mf_unload_scripts},
-    {"set_script_option", &OSExecutorModule::mf_set_script_option},
-    {"clear_event_queue", &OSExecutorModule::mf_clear_event_queue},
-    {"set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size},
-    {"OpenURL", &OSExecutorModule::mf_OpenURL},
-    {"OpenConnection", &OSExecutorModule::mf_OpenConnection},
-    {"Debugger", &OSExecutorModule::mf_debugger}};
-
-int OSExecutorModule::functionIndex( const char* name )
-{
-  for ( unsigned idx = 0; idx < arsize( function_table ); idx++ )
-  {
-    if ( stricmp( name, function_table[idx].funcname ) == 0 )
-      return idx;
-  }
-  return -1;
-}
-
-BObjectImp* OSExecutorModule::execFunc( unsigned funcidx )
-{
-  return callMemberFunction ( *this, function_table[funcidx].fptr )();
-};
-
-std::string OSExecutorModule::functionName( unsigned idx )
-{
-  return function_table[idx].funcname;
 }
 
 BObjectImp* OSExecutorModule::create_debug_context()

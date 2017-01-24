@@ -35,7 +35,8 @@ namespace Module
 {
 using namespace Bscript;
 
-BasicExecutorModule::BasicExecutorModule( Executor& exec ) : ExecutorModule( "Basic", exec )
+BasicExecutorModule::BasicExecutorModule( Executor& exec )
+    : Bscript::TmplExecutorModule<BasicExecutorModule>( "Basic", exec )
 {
 }
 
@@ -570,50 +571,37 @@ Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
   return new BLong( imp->typeOfInt() );
 }
 
-BasicFunctionDef BasicExecutorModule::function_table[] = {
-    {"find", &BasicExecutorModule::find},
-    {"len", &BasicExecutorModule::len},
-    {"upper", &BasicExecutorModule::upper},
-    {"lower", &BasicExecutorModule::lower},
-    {"Substr", &BasicExecutorModule::mf_substr},
-    {"Trim", &BasicExecutorModule::mf_Trim},
-    {"StrReplace", &BasicExecutorModule::mf_StrReplace},
-    {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace},
-    {"Compare", &BasicExecutorModule::mf_Compare},
-    {"CInt", &BasicExecutorModule::mf_CInt},
-    {"CStr", &BasicExecutorModule::mf_CStr},
-    {"CDbl", &BasicExecutorModule::mf_CDbl},
-    {"CAsc", &BasicExecutorModule::mf_CAsc},
-    {"CChr", &BasicExecutorModule::mf_CChr},
-    {"CAscZ", &BasicExecutorModule::mf_CAscZ},
-    {"CChrZ", &BasicExecutorModule::mf_CChrZ},
-    {"Bin", &BasicExecutorModule::mf_Bin},
-    {"Hex", &BasicExecutorModule::mf_Hex},
-    {"SplitWords", &BasicExecutorModule::mf_SplitWords},
-    {"Pack", &BasicExecutorModule::mf_Pack},
-    {"Unpack", &BasicExecutorModule::mf_Unpack},
-    {"TypeOf", &BasicExecutorModule::mf_TypeOf},
-    {"SizeOf", &BasicExecutorModule::mf_SizeOf},
-    {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt}};
+} // namespace Module
 
-int BasicExecutorModule::functionIndex( const char* name )
+namespace Bscript
 {
-  for ( unsigned idx = 0; idx < arsize( function_table ); idx++ )
-  {
-    if ( stricmp( name, function_table[idx].funcname ) == 0 )
-      return idx;
-  }
-  return -1;
-}
-
-Bscript::BObjectImp* BasicExecutorModule::execFunc( unsigned funcidx )
-{
-  return callMemberFunction ( *this, function_table[funcidx].fptr )();
-};
-
-std::string BasicExecutorModule::functionName( unsigned idx )
-{
-  return function_table[idx].funcname;
-}
+using namespace Module;
+template <>
+std::vector<TmplExecutorModule<BasicExecutorModule>::FunctionDef>
+    TmplExecutorModule<BasicExecutorModule>::function_table = {
+        {"find", &BasicExecutorModule::find},
+        {"len", &BasicExecutorModule::len},
+        {"upper", &BasicExecutorModule::upper},
+        {"lower", &BasicExecutorModule::lower},
+        {"Substr", &BasicExecutorModule::mf_substr},
+        {"Trim", &BasicExecutorModule::mf_Trim},
+        {"StrReplace", &BasicExecutorModule::mf_StrReplace},
+        {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace},
+        {"Compare", &BasicExecutorModule::mf_Compare},
+        {"CInt", &BasicExecutorModule::mf_CInt},
+        {"CStr", &BasicExecutorModule::mf_CStr},
+        {"CDbl", &BasicExecutorModule::mf_CDbl},
+        {"CAsc", &BasicExecutorModule::mf_CAsc},
+        {"CChr", &BasicExecutorModule::mf_CChr},
+        {"CAscZ", &BasicExecutorModule::mf_CAscZ},
+        {"CChrZ", &BasicExecutorModule::mf_CChrZ},
+        {"Bin", &BasicExecutorModule::mf_Bin},
+        {"Hex", &BasicExecutorModule::mf_Hex},
+        {"SplitWords", &BasicExecutorModule::mf_SplitWords},
+        {"Pack", &BasicExecutorModule::mf_Pack},
+        {"Unpack", &BasicExecutorModule::mf_Unpack},
+        {"TypeOf", &BasicExecutorModule::mf_TypeOf},
+        {"SizeOf", &BasicExecutorModule::mf_SizeOf},
+        {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt}};
 }
 }

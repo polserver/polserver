@@ -42,15 +42,13 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<GuildExecutorModule>::FunctionDef
-    TmplExecutorModule<GuildExecutorModule>::function_table[] = {
+std::vector<TmplExecutorModule<GuildExecutorModule>::FunctionDef>
+    TmplExecutorModule<GuildExecutorModule>::function_table = {
         {"ListGuilds", &GuildExecutorModule::mf_ListGuilds},
         {"CreateGuild", &GuildExecutorModule::mf_CreateGuild},
         {"FindGuild", &GuildExecutorModule::mf_FindGuild},
         {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
 };
-template <>
-int TmplExecutorModule<GuildExecutorModule>::function_table_size = arsize( function_table );
 }
 namespace Module
 {

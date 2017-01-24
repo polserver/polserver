@@ -162,7 +162,7 @@ struct AosValuePack
   AosValuePack& addToMod( s16 other );
   AosValuePack& setAsMod( s16 other );
 };
-asserteql( sizeof( AosValuePack ), sizeof( u32 ) );
+static_assert( sizeof( AosValuePack ) == sizeof( u32 ), "size missmatch" );
 
 // combination of skill and stat cap
 struct SkillStatCap
@@ -173,7 +173,7 @@ struct SkillStatCap
   SkillStatCap( s16 statcap_, u16 skillcap_ );
   bool operator==( const SkillStatCap& other ) const;
 };
-asserteql( sizeof( SkillStatCap ), sizeof( u32 ) );
+static_assert( sizeof( SkillStatCap ) == sizeof( u32 ), "size missmatch" );
 
 // combination of followers/followers_max
 struct ExtStatBarFollowers
@@ -184,7 +184,7 @@ struct ExtStatBarFollowers
   ExtStatBarFollowers( s8 followers_, s8 followers_max_ );
   bool operator==( const ExtStatBarFollowers& other ) const;
 };
-asserteql( sizeof( ExtStatBarFollowers ), sizeof( u16 ) );
+static_assert( sizeof( ExtStatBarFollowers ) == sizeof( u16 ), "size missmatch" );
 
 // movement cost mod (not in variant storage)
 struct MovementCostMod
