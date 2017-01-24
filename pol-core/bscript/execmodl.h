@@ -107,7 +107,7 @@ private:
     std::string funcname;
     BObjectImp* ( T::*fptr )();
   };
-  using FunctionTable = std::vector<FunctionDef>;
+  using FunctionTable = std::vector<const FunctionDef>;
 
   static FunctionTable function_table;
   static std::map<std::string, int, Clib::ci_cmp_pred> _func_idx_map;
