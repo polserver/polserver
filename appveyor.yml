@@ -9,7 +9,7 @@ install:
 - prepare_boost.bat > NUL
 - time /T
 - cd ..
-cache: lib/boost_1_55_0
+cache: lib/boost_1_63_0
 build_script:
 - msbuild "pol-core/pol-2015.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
 test_script:
