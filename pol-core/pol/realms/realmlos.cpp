@@ -150,22 +150,26 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
 */
 bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const
 {
-  if ( att.realm != tgt.realm )
-    return false;
   if ( att.isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     const Mobile::Character& chr = static_cast<const Mobile::Character&>( att );
-    if ( chr.ignores_line_of_sight() )
-      return true;
-    if ( tgt.serial )
+    if ( tgt.serial ) // remotes fail the realm check :(
     {
       bool remote;
       Items::Item* remote_container = chr.search_remote_containers( tgt.serial, &remote );
       if ( ( remote_container != NULL ) && remote )
         return true;
     }
+    if ( att.realm != tgt.realm )
+      return false;
+    if ( chr.ignores_line_of_sight() )
+      return true;
   }
-
+  else
+  {
+    if ( att.realm != tgt.realm )
+      return false;
+  }
   // due to the nature of los check the same x,y coordinates get checked, cache the last used coords
   // to reduce the expensive map/multi read per coordinate
 
