@@ -45,7 +45,7 @@ Compiling in Linux
 Make sure you have the required libraries installed: boost, zlib, tinyxml and the mysql client (if SQL supported is desired).
 Boost libraries are also shipped with the source. If you choose to use the provided version, unpack them with:
 * `cd lib`
-* `tar xjf boost_1_55_0.tar.bz2`
+* `tar xjf boost_1_63_0.tar.bz2`
 * `cd ..`
 
 Then run the following commands (you need at least CMake 2.8):
