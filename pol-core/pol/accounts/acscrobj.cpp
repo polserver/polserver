@@ -360,7 +360,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   }
   ///
-  /// account.Set_UO_Expansion( string ) : recognized values: ML, SE, AOS, LBR, T2A (default)
+  /// account.Set_UO_Expansion( string ) : recognized values: TOL, HSA, SA, ML, SE, AOS, LBR, T2A (default)
   ///  this determines what flag is sent with packet 0xB9 during login.
   ///
   case MTH_SET_UO_EXPANSION:
@@ -387,7 +387,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       }
       else
         return new BError(
-            "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA" );
+            "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, TOL" );
     }
     else
       return new BError( "Invalid Parameter Type" );
