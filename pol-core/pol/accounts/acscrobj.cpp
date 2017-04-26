@@ -370,7 +370,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     const String* expansion_str;
     if ( ex.getStringParam( 0, expansion_str ) )
     {
-      if ( expansion_str->value().empty() || ( expansion_str->value() == "HSA" ) ||
+      if ( expansion_str->value().empty() ||
+		   ( expansion_str->value() == "TOL" ) || ( expansion_str->value() == "HSA" ) ||
            ( expansion_str->value() == "SA" ) || ( expansion_str->value() == "KR" ) ||
            ( expansion_str->value() == "ML" ) || ( expansion_str->value() == "SE" ) ||
            ( expansion_str->value() == "AOS" ) || ( expansion_str->value() == "LBR" ) ||
