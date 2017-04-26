@@ -35,26 +35,26 @@ class ConfigFileExecutorModule;
 }
 namespace Bscript
 {
+using namespace Module;
 template <>
-std::vector<TmplExecutorModule<Module::ConfigFileExecutorModule>::FunctionDef> TmplExecutorModule<
-    Module::ConfigFileExecutorModule>::function_table = {
-    {"ReadConfigFile", &Module::ConfigFileExecutorModule::mf_ConfigFile},
-    {"FindConfigElem", &Module::ConfigFileExecutorModule::mf_FindConfigElement},
-    {"GetElemProperty", &Module::ConfigFileExecutorModule::mf_GetConfigString},
-    {"GetConfigString", &Module::ConfigFileExecutorModule::mf_GetConfigString},
-    {"GetConfigStringArray", &Module::ConfigFileExecutorModule::mf_GetConfigStringArray},
-    {"GetConfigStringDictionary", &Module::ConfigFileExecutorModule::mf_GetConfigStringDictionary},
-    {"GetConfigInt", &Module::ConfigFileExecutorModule::mf_GetConfigInt},
-    {"GetConfigIntArray", &Module::ConfigFileExecutorModule::mf_GetConfigIntArray},
-    {"GetConfigReal", &Module::ConfigFileExecutorModule::mf_GetConfigReal},
-    {"GetConfigMaxIntKey", &Module::ConfigFileExecutorModule::mf_GetConfigMaxIntKey},
-    {"GetConfigStringKeys", &Module::ConfigFileExecutorModule::mf_GetConfigStringKeys},
-    {"GetConfigIntKeys", &Module::ConfigFileExecutorModule::mf_GetConfigIntKeys},
-    {"ListConfigElemProps", &Module::ConfigFileExecutorModule::mf_ListConfigElemProps},
-    {"AppendConfigFileElem", &Module::ConfigFileExecutorModule::mf_AppendConfigFileElem},
-    {"UnloadConfigFile", &Module::ConfigFileExecutorModule::mf_UnloadConfigFile},
-    {"LoadTusScpFile", &Module::ConfigFileExecutorModule::mf_LoadTusScpFile}};
-
+TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
+TmplExecutorModule<ConfigFileExecutorModule>::function_table = {
+    {"ReadConfigFile", &ConfigFileExecutorModule::mf_ConfigFile},
+    {"FindConfigElem", &ConfigFileExecutorModule::mf_FindConfigElement},
+    {"GetElemProperty", &ConfigFileExecutorModule::mf_GetConfigString},
+    {"GetConfigString", &ConfigFileExecutorModule::mf_GetConfigString},
+    {"GetConfigStringArray", &ConfigFileExecutorModule::mf_GetConfigStringArray},
+    {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary},
+    {"GetConfigInt", &ConfigFileExecutorModule::mf_GetConfigInt},
+    {"GetConfigIntArray", &ConfigFileExecutorModule::mf_GetConfigIntArray},
+    {"GetConfigReal", &ConfigFileExecutorModule::mf_GetConfigReal},
+    {"GetConfigMaxIntKey", &ConfigFileExecutorModule::mf_GetConfigMaxIntKey},
+    {"GetConfigStringKeys", &ConfigFileExecutorModule::mf_GetConfigStringKeys},
+    {"GetConfigIntKeys", &ConfigFileExecutorModule::mf_GetConfigIntKeys},
+    {"ListConfigElemProps", &ConfigFileExecutorModule::mf_ListConfigElemProps},
+    {"AppendConfigFileElem", &ConfigFileExecutorModule::mf_AppendConfigFileElem},
+    {"UnloadConfigFile", &ConfigFileExecutorModule::mf_UnloadConfigFile},
+    {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile}};
 }
 namespace Module
 {

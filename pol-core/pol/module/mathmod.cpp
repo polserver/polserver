@@ -25,7 +25,7 @@ namespace Bscript
 using namespace Module;
 
 template <>
-std::vector<TmplExecutorModule<MathExecutorModule>::FunctionDef>
+TmplExecutorModule<MathExecutorModule>::FunctionTable
     TmplExecutorModule<MathExecutorModule>::function_table = {
         {"Sin", &MathExecutorModule::mf_Sin},
         {"Cos", &MathExecutorModule::mf_Cos},

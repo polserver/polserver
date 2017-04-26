@@ -47,19 +47,20 @@ namespace Pol
 {
 namespace Bscript
 {
+using namespace Module;
 template <>
-std::vector<TmplExecutorModule<Module::FileAccessExecutorModule>::FunctionDef>
-    TmplExecutorModule<Module::FileAccessExecutorModule>::function_table = {
-        {"FileExists", &Module::FileAccessExecutorModule::mf_FileExists},
-        {"ReadFile", &Module::FileAccessExecutorModule::mf_ReadFile},
-        {"WriteFile", &Module::FileAccessExecutorModule::mf_WriteFile},
-        {"AppendToFile", &Module::FileAccessExecutorModule::mf_AppendToFile},
-        {"LogToFile", &Module::FileAccessExecutorModule::mf_LogToFile},
-        {"OpenBinaryFile", &Module::FileAccessExecutorModule::mf_OpenBinaryFile},
-        {"CreateDirectory", &Module::FileAccessExecutorModule::mf_CreateDirectory},
-        {"ListDirectory", &Module::FileAccessExecutorModule::mf_ListDirectory},
-        {"OpenXMLFile", &Module::FileAccessExecutorModule::mf_OpenXMLFile},
-        {"CreateXMLFile", &Module::FileAccessExecutorModule::mf_CreateXMLFile}};
+TmplExecutorModule<FileAccessExecutorModule>::FunctionTable
+    TmplExecutorModule<FileAccessExecutorModule>::function_table = {
+        {"FileExists", &FileAccessExecutorModule::mf_FileExists},
+        {"ReadFile", &FileAccessExecutorModule::mf_ReadFile},
+        {"WriteFile", &FileAccessExecutorModule::mf_WriteFile},
+        {"AppendToFile", &FileAccessExecutorModule::mf_AppendToFile},
+        {"LogToFile", &FileAccessExecutorModule::mf_LogToFile},
+        {"OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile},
+        {"CreateDirectory", &FileAccessExecutorModule::mf_CreateDirectory},
+        {"ListDirectory", &FileAccessExecutorModule::mf_ListDirectory},
+        {"OpenXMLFile", &FileAccessExecutorModule::mf_OpenXMLFile},
+        {"CreateXMLFile", &FileAccessExecutorModule::mf_CreateXMLFile}};
 }
 namespace Module
 {

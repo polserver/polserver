@@ -23,7 +23,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<SQLExecutorModule>::FunctionDef>
+TmplExecutorModule<SQLExecutorModule>::FunctionTable
     TmplExecutorModule<SQLExecutorModule>::function_table = {
         {"MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB},
         {"MySQL_Query", &SQLExecutorModule::mf_Query},

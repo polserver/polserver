@@ -22,25 +22,26 @@ namespace Pol
 {
 namespace Bscript
 {
+using namespace Module;
 template <>
-std::vector<TmplExecutorModule<Module::AttributeExecutorModule>::FunctionDef> TmplExecutorModule<
-    Module::AttributeExecutorModule>::function_table = {
-    {"CheckSkill", &Module::AttributeExecutorModule::mf_CheckSkill},
-    {"GetAttributeName", &Module::AttributeExecutorModule::mf_GetAttributeName},
-    {"GetAttributeDefaultCap", &Module::AttributeExecutorModule::mf_GetAttributeDefaultCap},
-    {"GetAttribute", &Module::AttributeExecutorModule::mf_GetAttribute},
-    {"GetAttributeBaseValue", &Module::AttributeExecutorModule::mf_GetAttributeBaseValue},
-    {"GetAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_GetAttributeTemporaryMod},
-    {"GetAttributeIntrinsicMod", &Module::AttributeExecutorModule::mf_GetAttributeIntrinsicMod},
-    {"GetAttributeLock", &Module::AttributeExecutorModule::mf_GetAttributeLock},
-    {"GetAttributeCap", &Module::AttributeExecutorModule::mf_GetAttributeCap},
-    {"SetAttributeCap", &Module::AttributeExecutorModule::mf_SetAttributeCap},
-    {"SetAttributeLock", &Module::AttributeExecutorModule::mf_SetAttributeLock},
-    {"SetAttributeBaseValue", &Module::AttributeExecutorModule::mf_SetAttributeBaseValue},
-    {"SetAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_SetAttributeTemporaryMod},
-    {"AlterAttributeTemporaryMod", &Module::AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
-    {"RawSkillToBaseSkill", &Module::AttributeExecutorModule::mf_RawSkillToBase},
-    {"BaseSkillToRawSkill", &Module::AttributeExecutorModule::mf_BaseSkillToRaw}};
+TmplExecutorModule<AttributeExecutorModule>::FunctionTable 
+	TmplExecutorModule<AttributeExecutorModule>::function_table = {
+    {"CheckSkill", &AttributeExecutorModule::mf_CheckSkill},
+    {"GetAttributeName", &AttributeExecutorModule::mf_GetAttributeName},
+    {"GetAttributeDefaultCap", &AttributeExecutorModule::mf_GetAttributeDefaultCap},
+    {"GetAttribute", &AttributeExecutorModule::mf_GetAttribute},
+    {"GetAttributeBaseValue", &AttributeExecutorModule::mf_GetAttributeBaseValue},
+    {"GetAttributeTemporaryMod", &AttributeExecutorModule::mf_GetAttributeTemporaryMod},
+    {"GetAttributeIntrinsicMod", &AttributeExecutorModule::mf_GetAttributeIntrinsicMod},
+    {"GetAttributeLock", &AttributeExecutorModule::mf_GetAttributeLock},
+    {"GetAttributeCap", &AttributeExecutorModule::mf_GetAttributeCap},
+    {"SetAttributeCap", &AttributeExecutorModule::mf_SetAttributeCap},
+    {"SetAttributeLock", &AttributeExecutorModule::mf_SetAttributeLock},
+    {"SetAttributeBaseValue", &AttributeExecutorModule::mf_SetAttributeBaseValue},
+    {"SetAttributeTemporaryMod", &AttributeExecutorModule::mf_SetAttributeTemporaryMod},
+    {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
+    {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase},
+    {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw}};
 }
 namespace Module
 {

@@ -29,7 +29,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<Module::UBoatExecutorModule>::FunctionDef>
+TmplExecutorModule<Module::UBoatExecutorModule>::FunctionTable
     TmplExecutorModule<Module::UBoatExecutorModule>::function_table = {
         {"MoveBoat", &UBoatExecutorModule::mf_MoveBoat},
         {"MoveBoatRelative", &UBoatExecutorModule::mf_MoveBoatRelative},

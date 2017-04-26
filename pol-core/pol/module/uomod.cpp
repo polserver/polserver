@@ -5578,7 +5578,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<UOExecutorModule>::FunctionDef>
+TmplExecutorModule<UOExecutorModule>::FunctionTable
     TmplExecutorModule<UOExecutorModule>::function_table = {
         {"SendStatus", &UOExecutorModule::mf_SendStatus},
 

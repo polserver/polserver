@@ -73,7 +73,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<NPCExecutorModule>::FunctionDef>
+TmplExecutorModule<NPCExecutorModule>::FunctionTable
     TmplExecutorModule<NPCExecutorModule>::function_table = {
         {"Wander", &NPCExecutorModule::mf_Wander},
         {"self", &NPCExecutorModule::mf_Self},

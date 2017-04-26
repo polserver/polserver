@@ -56,7 +56,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<OSExecutorModule>::FunctionDef>
+TmplExecutorModule<OSExecutorModule>::FunctionTable
     TmplExecutorModule<OSExecutorModule>::function_table = {
         {"create_debug_context", &OSExecutorModule::create_debug_context},
         {"getprocess", &OSExecutorModule::getprocess},

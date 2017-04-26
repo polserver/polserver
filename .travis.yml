@@ -24,7 +24,7 @@ addons:
 
 before_install:
   - cd lib
-  - tar xjf boost_1_55_0.tar.bz2
+  - tar xjf boost_1_63_0.tar.bz2
   - cd ../pol-core/bin-build
   - chmod a+x build_linux.sh
 

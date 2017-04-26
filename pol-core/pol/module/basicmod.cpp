@@ -577,7 +577,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<BasicExecutorModule>::FunctionDef>
+TmplExecutorModule<BasicExecutorModule>::FunctionTable
     TmplExecutorModule<BasicExecutorModule>::function_table = {
         {"find", &BasicExecutorModule::find},
         {"len", &BasicExecutorModule::len},

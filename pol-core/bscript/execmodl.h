@@ -100,16 +100,19 @@ class TmplExecutorModule : public ExecutorModule
 protected:
   TmplExecutorModule( const char* modname, Executor& exec );
 
-public:
+
+private:
   struct FunctionDef
   {
-    const std::string funcname;
+    std::string funcname;
     BObjectImp* ( T::*fptr )();
   };
-  static std::vector<FunctionDef> function_table;
-private:
+  using FunctionTable = std::vector<FunctionDef>;
+
+  static FunctionTable function_table;
   static std::map<std::string, int, Clib::ci_cmp_pred> _func_idx_map;
   static bool _func_map_init;
+
 protected:
   virtual int functionIndex( const std::string& funcname ) POL_OVERRIDE;
   virtual BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;

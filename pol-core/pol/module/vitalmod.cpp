@@ -33,7 +33,7 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-std::vector<TmplExecutorModule<VitalExecutorModule>::FunctionDef>
+TmplExecutorModule<VitalExecutorModule>::FunctionTable
     TmplExecutorModule<VitalExecutorModule>::function_table = {
         {"ApplyRawDamage", &VitalExecutorModule::mf_ApplyRawDamage},
         {"ApplyDamage", &VitalExecutorModule::mf_ApplyDamage},

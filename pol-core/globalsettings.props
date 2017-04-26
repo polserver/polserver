@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>..\..\lib\boost_1_55_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>

@@ -1,0 +1,10 @@
+#!/bin/bash
+chmod +x bootstrap.sh
+chmod +x tools/build/v2/engine/build.sh
+
+./bootstrap.sh --prefix=build
+
+./bjam toolset=gcc link=static runtime-link=static address-model=64 variant=release --abbreviate-paths --stagedir=lib/x64 --build-dir=build/x64 --with-regex stage
+./bjam toolset=gcc link=shared runtime-link=shared address-model=64 variant=release --abbreviate-paths --stagedir=lib/x64 --build-dir=build/x64 --with-regex stage
+./bjam toolset=gcc link=static runtime-link=static address-model=64 variant=debug --abbreviate-paths --stagedir=lib/x64 --build-dir=build/x64 --with-regex stage
+./bjam toolset=gcc link=static runtime-link=shared address-model=64 variant=debug --abbreviate-paths --stagedir=lib/x64 --build-dir=build/x64 --with-regex stage
