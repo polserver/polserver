@@ -53,27 +53,26 @@ public:
   u8 look_height() const;  // where you're looking from, or to
 
 public:
+  Realms::Realm* realm;
   u32 serial;
   u16 graphic;
   u16 x;
   u16 y;
   s8 z;
-
   u8 height;
-  Realms::Realm* realm;
 
 protected:
   const UOBJ_CLASS uobj_class_;
 };
 
 inline ULWObject::ULWObject( UOBJ_CLASS uobj_class )
-    : serial( 0 ),
+    : realm( nullptr ),
+      serial( 0 ),
       graphic( 0 ),
       x( 0 ),
       y( 0 ),
       z( 0 ),
       height( 0 ),
-      realm( nullptr ),
       uobj_class_( uobj_class )
 {
 }
