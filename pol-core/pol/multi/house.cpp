@@ -349,7 +349,10 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
         Components::iterator pos;
         pos = find( components_.begin(), components_.end(), iref );
         if ( pos != components_.end() )
+        {
+          iref->house( nullptr );
           components_.erase( pos );
+        }
         else
           return new BError( "Component not found" );
         return new BLong( 1 );

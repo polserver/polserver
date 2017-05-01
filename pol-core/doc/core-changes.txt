@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+05-01-2017 Turley:
+  Fixed:   Item.house property gets now reset on component remove
 11-29-2016 Boberski:
   Added:   Support for TOL (Time of Legends) expantion.
 10-23-2016 Nando:

@@ -2,3 +2,4 @@
 /lib
 /pol-core
 /*.tar.gz
+/compile_commands.json
