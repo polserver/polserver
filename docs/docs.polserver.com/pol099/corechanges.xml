@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-01-2017</datemodified>
+		<datemodified>05-28-2017</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>05-28-2017</date>
+			<author>Nando:</author>
+			<change type="Fixed">Crash when using SplitWords() in a script that was compiled with outdated .em files.</change>
+		</entry>
 		<entry>
 			<date>05-01-2017</date>
 			<author>Turley:</author>

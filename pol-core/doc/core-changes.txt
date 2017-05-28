@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+05-28-2017 Nando:
+  Fixed:   Crash when using SplitWords() in a script that was compiled with outdated .em files.
 05-01-2017 Turley:
   Fixed:   Item.house property gets now reset on component remove
 11-29-2016 Boberski:
