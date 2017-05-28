@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+05-28-2017 Turley:
+  Removed: pol.cfg entry to disable assertions. A crash will anyway happen, thus it makes no sense and only hides the real reason.
 05-28-2017 Nando:
   Fixed:   Crash when using SplitWords() in a script that was compiled with outdated .em files.
 05-01-2017 Turley:

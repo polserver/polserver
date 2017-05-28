@@ -7,6 +7,11 @@
 	<version name="POL099">
 		<entry>
 			<date>05-28-2017</date>
+			<author>Turley:</author>
+			<change type="Removed">pol.cfg entry to disable assertions. A crash will anyway happen, thus it makes no sense and only hides the real reason.</change>
+		</entry>
+		<entry>
+			<date>05-28-2017</date>
 			<author>Nando:</author>
 			<change type="Fixed">Crash when using SplitWords() in a script that was compiled with outdated .em files.</change>
 		</entry>

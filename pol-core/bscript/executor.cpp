@@ -270,14 +270,20 @@ int Executor::paramAsLong( unsigned param )
 }
 BObject* Executor::getParam( unsigned param )
 {
-  passert( param < fparams.size() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" );
 
   return fparams[param].get();
 }
 
 BObjectImp* Executor::getParamImp( unsigned param )
 {
-  passert( param < fparams.size() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" );
 
   return fparams[param].get()->impptr();
 }

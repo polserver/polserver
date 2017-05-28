@@ -34,7 +34,6 @@ namespace Pol
 {
 namespace Clib
 {
-bool passert_disabled = true;
 bool passert_dump_stack = false;
 bool passert_shutdown = false;
 bool passert_abort = true;
@@ -82,7 +81,6 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
                  << line << "\n";
   else
     POLLOG_ERROR << "Assertion Failed: " << expr << ", " << file << ", line " << line << "\n";
-
 
   if ( passert_dump_stack )
   {
