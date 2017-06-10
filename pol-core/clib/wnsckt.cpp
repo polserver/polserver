@@ -9,6 +9,7 @@
 #include "esignal.h"
 #include "strutil.h"
 #include "logfacility.h"
+#include "passert.h"
 
 #include <cerrno>
 #include <cstdio>

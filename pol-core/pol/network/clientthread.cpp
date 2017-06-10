@@ -7,6 +7,8 @@
 #include "msghandl.h"
 #include "packethelper.h"
 
+#include "passert.h"
+
 #include "../accounts/account.h"
 #include "../mobile/charactr.h"  // This is mostly needed to check for the chr cmdlevel in the timeout, could also make a client->has_cmdlevel()?
 #include "../crypt/cryptengine.h"
