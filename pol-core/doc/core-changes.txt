@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+07-17-2017 Kevin:
+  Fixed:   PrintTextAbove*CL() now behaves similarly to PrintTextAbove*() functions, displaying the
+           object's description instead of "System".
 05-28-2017 Turley:
   Removed: pol.cfg entry to disable assertions. A crash will anyway happen, thus it makes no sense and only hides the real reason.
 05-28-2017 Nando:
