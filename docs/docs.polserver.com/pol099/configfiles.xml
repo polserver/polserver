@@ -1443,6 +1443,7 @@ Spellbook (objtype)
 Door (objtype)
 {
     {everything Item can have, plus: }
+    OpenGraphic    (int tile number, graphic when door is opened)
     XMod            (int x modification when door toggled)
     YMod            (int y modification when door toggled)
 }
