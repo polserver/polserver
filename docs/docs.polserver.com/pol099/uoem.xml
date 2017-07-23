@@ -184,6 +184,7 @@
 <constant>//  (and I don't know what for color)</constant>
 <constant>const _DEFAULT_TEXT_FONT     := 3;</constant>
 <constant>const _DEFAULT_TEXT_COLOR    := 1000;</constant>
+<constant>const _DEFAULT_TEXT_REQUIREDCMD    := 0;</constant>
 <constant> </constant>
 <constant>// Realms</constant>
 <constant>const _DEFAULT_REALM  := "britannia";</constant>
@@ -1159,11 +1160,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="Broadcast">
-  <prototype>Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR )</prototype>
+  <prototype>Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredCmdLevel := _DEFAULT_TEXT_REQUIREDCMD )</prototype>
   <parameter name="text" value="String" />
   <parameter name="font" value="Integer (optional)" />
   <parameter name="color" value=" Integer (optional)" />
-  <explain>Sends text as a System Message to every online player. </explain>
+  <parameter name="requiredcmdlevel" value=" Integer (optional)" />
+  <explain>Sends text as a System Message to every online player whos cmd level is above requiredcmdlevel. </explain>
   <explain>See client.inc for font and color values.</explain>
   <return>1 on success</return>
   <error>none (returns 0 on invalid parameter) </error>

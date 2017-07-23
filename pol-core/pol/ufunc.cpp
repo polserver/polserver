@@ -1269,22 +1269,22 @@ void send_sysmessage( Network::Client* client, const std::wstring& wtext, const 
   send_sysmessage( client, uctext, lang, font, color );
 }
 
-void broadcast( const char* text, unsigned short font, unsigned short color )
+void broadcast( const char* text, unsigned short font, unsigned short color, unsigned short requiredCmdLevel )
 {
   for ( auto& client : networkManager.clients )
   {
-    if ( !client->ready )
+    if ( !client->ready || client->chr->cmdlevel_ < requiredCmdLevel)
       continue;
 
     send_sysmessage( client, text, font, color );
   }
 }
 
-void broadcast( const u16* wtext, const char lang[4], unsigned short font, unsigned short color )
+void broadcast( const u16* wtext, const char lang[4], unsigned short font, unsigned short color, unsigned short requiredCmdLevel )
 {
   for ( auto& client : networkManager.clients )
   {
-    if ( !client->ready )
+    if ( !client->ready || client->chr->cmdlevel_ < requiredCmdLevel)
       continue;
 
     send_sysmessage( client, wtext, lang, font, color );

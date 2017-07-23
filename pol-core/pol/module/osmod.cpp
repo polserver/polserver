@@ -149,18 +149,15 @@ BObjectImp* OSExecutorModule::mf_debugger()
 BObjectImp* OSExecutorModule::getprocess()
 {
   int pid;
-  if ( getParam( 0, pid ) )
+  if ( !getParam( 0, pid ) )
   {
-    Core::UOExecutor* uoexec;
-    if ( find_uoexec( static_cast<unsigned int>( pid ), &uoexec ) )
-      return new Core::ScriptExObjImp( uoexec );
-    else
-      return new BError( "Process not found" );
+	  pid = pid_;
   }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+	  Core::UOExecutor* uoexec;
+	  if (find_uoexec(static_cast<unsigned int>(pid), &uoexec))
+		  return new Core::ScriptExObjImp(uoexec);
+	  else
+		  return new BError("Process not found");
 }
 
 BObjectImp* OSExecutorModule::getpid()
