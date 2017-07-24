@@ -171,9 +171,11 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
   const String* lang;
   unsigned short font;
   unsigned short color;
+  unsigned short requiredCmdLevel;
   if ( getObjArrayParam( 0, oText ) && getStringParam( 1, lang ) &&
        getParam( 2, font ) &&  // todo: getFontParam
-       getParam( 3, color ) )  // todo: getColorParam
+       getParam( 3, color ) &&					// todo: getColorParam
+	   getParam( 4, requiredCmdLevel ) )        // todo: getRequiredCmdLevelParam
   {
     size_t textlen = oText->ref_arr.size();
     if ( textlen > SPEECH_MAX_LEN )
@@ -183,7 +185,7 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
     // lang->toUpper(); // Language codes are in upper-case :)
     if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
       return new BError( "Invalid value in Unicode array." );
-    Core::broadcast( gwtext, Clib::strupper( lang->value() ).c_str(), font, color );
+    Core::broadcast( gwtext, Clib::strupper( lang->value() ).c_str(), font, color, requiredCmdLevel );
     return new BLong( 1 );
   }
   else

@@ -1,4 +1,10 @@
 ﻿-- POL099 --
+07-23-2017 DevGIB:
+  Added:   _DEFAULT_TEXT_REQUIREDCMD := 0 to uo.em which allows to set a minimum cmd level that broadcasts will be sent to.
+
+  Changed: Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD )
+           adding requiredcmdlevel argument which allows you to set a minimum cmd level that the broadcast will be sent to.
+  Changed: No longer require a PID for GetProcess( pid  := "" ), not selecting a PID will use the PID of the parent script.
 07-17-2017 Kevin:
   Fixed:   PrintTextAbove*CL() now behaves similarly to PrintTextAbove*() functions, displaying the
            object's description instead of "System".

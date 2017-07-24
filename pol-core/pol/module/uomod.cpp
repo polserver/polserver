@@ -549,11 +549,13 @@ BObjectImp* UOExecutorModule::broadcast()
   const char* text;
   unsigned short font;
   unsigned short color;
+  unsigned short requiredCmdLevel;
   text = exec.paramAsString( 0 );
-  if ( text && getParam( 1, font ) &&  // todo: getFontParam
-       getParam( 2, color ) )          // todo: getColorParam
+  if ( text && getParam( 1, font ) &&			// todo: getFontParam
+       getParam( 2, color ) &&					// todo: getColorParam
+	   getParam(3, requiredCmdLevel))          // todo: getRequiredCmdLevelParam
   {
-    Core::broadcast( text, font, color );
+    Core::broadcast( text, font, color, requiredCmdLevel);
     return new BLong( 1 );
   }
   else
