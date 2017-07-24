@@ -1,21 +1,23 @@
-﻿<?xml version="1.0" ?>
+<?xml version="1.0" ?>
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-28-2017</datemodified>
+		<datemodified>07-24-2017</datemodified>
 	</header>
 	<version name="POL099">
 		<entry>
 			<date>07-23-2017</date>
 			<author>DevGIB:</author>
 			<change type="Added">_DEFAULT_TEXT_REQUIREDCMD := 0 to uo.em which allows to set a minimum cmd level that broadcasts will be sent to.</change>
-			<change type="Changed">Changed Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD )<br/>
+			<change type="Changed">Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD )<br/>
 adding requiredcmdlevel argument which allows you to set a minimum cmd level that the broadcast will be sent to.</change>
+			<change type="Changed">No longer require a PID for GetProcess( pid  := &quot;&quot; ), not selecting a PID will use the PID of the parent script.</change>
 		</entry>
 		<entry>
-			<date>07-19-2017</date>
-			<author>DevGIB:</author>
-			<change type="Changed">No longer require a PID for GetProcess( pid  := &quot;&quot; ), not selecting a PID will use the PID of the parent script.</change>
+			<date>07-17-2017</date>
+			<author>Kevin:</author>
+			<change type="Fixed">PrintTextAbove*CL() now behaves similarly to PrintTextAbove*() functions, displaying the<br/>
+object's description instead of &quot;System&quot;.</change>
 		</entry>
 		<entry>
 			<date>05-28-2017</date>
