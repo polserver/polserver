@@ -90,7 +90,7 @@ using namespace Bscript;
 
 unsigned int getnewpid( Core::UOExecutor* uoexec )
 {
-  return Core::scriptScheduler.get_new_pid(uoexec);
+  return Core::scriptScheduler.get_new_pid( uoexec );
 }
 void freepid( unsigned int pid )
 {
@@ -148,16 +148,16 @@ BObjectImp* OSExecutorModule::mf_debugger()
 
 BObjectImp* OSExecutorModule::getprocess()
 {
-  int pid;
+  unsigned int pid;
   if ( !getParam( 0, pid ) )
   {
-	  pid = pid_;
+    pid = pid_;
   }
-	  Core::UOExecutor* uoexec;
-	  if (find_uoexec(static_cast<unsigned int>(pid), &uoexec))
-		  return new Core::ScriptExObjImp(uoexec);
-	  else
-		  return new BError("Process not found");
+  Core::UOExecutor* uoexec;
+  if ( find_uoexec( pid, &uoexec ) )
+    return new Core::ScriptExObjImp( uoexec );
+  else
+    return new BError( "Process not found" );
 }
 
 BObjectImp* OSExecutorModule::getpid()
@@ -629,7 +629,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
 
 
 // signal_event() takes ownership of the pointer which is passed to it.
-// Objects must not be touched or deleted after being sent here! 
+// Objects must not be touched or deleted after being sent here!
 // TODO: Find a better way to enforce this in the codebase.
 bool OSExecutorModule::signal_event( BObjectImp* imp )
 {
@@ -678,12 +678,12 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
 
           INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
         }
-        return false; // Event-queue is full
+        return false;  // Event-queue is full
       }
     }
   }
 
-  return true; // Event was successfully sent (perhaps by discarding old events)
+  return true;  // Event was successfully sent (perhaps by discarding old events)
 }
 
 void OSExecutorModule::SleepFor( int nsecs )
@@ -718,13 +718,13 @@ void OSExecutorModule::revive()
   blocked_ = false;
   if ( in_hold_list_ == TIMEOUT_LIST )
   {
-	in_hold_list_ = NO_LIST;
-	Core::scriptScheduler.revive_timeout(static_cast<Core::UOExecutor*>(&exec), hold_itr_);
+    in_hold_list_ = NO_LIST;
+    Core::scriptScheduler.revive_timeout( static_cast<Core::UOExecutor*>( &exec ), hold_itr_ );
   }
   else if ( in_hold_list_ == NOTIMEOUT_LIST )
   {
     in_hold_list_ = NO_LIST;
-	Core::scriptScheduler.revive_notimeout(static_cast<Core::UOExecutor*>(&exec));
+    Core::scriptScheduler.revive_notimeout( static_cast<Core::UOExecutor*>( &exec ) );
   }
   else if ( in_hold_list_ == DEBUGGER_LIST )
   {
@@ -738,7 +738,7 @@ bool OSExecutorModule::in_debugger_holdlist() const
 void OSExecutorModule::revive_debugged()
 {
   in_hold_list_ = NO_LIST;
-  Core::scriptScheduler.revive_debugged(static_cast<Core::UOExecutor*>(&exec));
+  Core::scriptScheduler.revive_debugged( static_cast<Core::UOExecutor*>( &exec ) );
 }
 
 const int SCRIPTOPT_NO_INTERRUPT = 1;
