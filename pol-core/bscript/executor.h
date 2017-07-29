@@ -37,7 +37,6 @@
 #include "../clib/spinlock.h"
 
 #include <stack>
-#include <deque>
 #include <vector>
 #include <exception>
 
@@ -68,7 +67,7 @@ typedef std::map<std::string, profile_instr> escript_profile_map;
 extern escript_profile_map EscriptProfileMap;
 #endif
 
-typedef std::deque<BObjectRef> ValueStackCont;
+typedef std::vector<BObjectRef> ValueStackCont;
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
@@ -113,9 +112,9 @@ public:
 
   BObjectRefVec Globals2;
 
-  std::deque<BObjectRefVec*> upperLocals2;
+  std::vector<BObjectRefVec*> upperLocals2;
 
-  std::deque<ReturnContext> ControlStack;
+  std::vector<ReturnContext> ControlStack;
 
   BObjectRefVec* Locals2;
 
