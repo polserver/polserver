@@ -2,9 +2,21 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-24-2017</datemodified>
+		<datemodified>07-31-2017</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>07-31-2017</date>
+			<author>Nando:</author>
+			<change type="Fixed">Interactive commands could cause a crash when used inside a run-to-completion script<br/>
+(e.g., syshooks, scripts ran via OS::run_script_to_completion() and method scripts). The<br/>
+interactive commands	will now return an error if the script can't be blocked.<br/>
+(Note: this does not apply to critical scripts, which *can* block).<br/>
+Affected commands:<br/>
+UO::Target(), UO::TargetCoordinates(), UO::TargetMultiPlacement(), UO::SelectMenuItem(),<br/>
+UO::SendDialogGump(), UO::SendGumpMenu(), UO::SendTextEntryGump(), UO::SendInstaResDialog(),<br/>
+UO::SelectColor(), UO::SendPopupMenu(), UO::RequestInput(), Unicode::RequestInputUC()</change>
+		</entry>
 		<entry>
 			<date>07-23-2017</date>
 			<author>DevGIB:</author>

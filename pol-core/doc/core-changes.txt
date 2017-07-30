@@ -1,4 +1,15 @@
 ﻿-- POL099 --
+07-31-2017 Nando:
+  Fixed:   Interactive commands could cause a crash when used inside a run-to-completion script
+           (e.g., syshooks, scripts ran via OS::run_script_to_completion() and method scripts). The 
+           interactive commands	will now return an error if the script can't be blocked. 
+		   (Note: this does not apply to critical scripts, which *can* block).
+		   
+		   Affected commands: 
+		   UO::Target(), UO::TargetCoordinates(), UO::TargetMultiPlacement(), UO::SelectMenuItem(),
+		   UO::SendDialogGump(), UO::SendGumpMenu(), UO::SendTextEntryGump(), UO::SendInstaResDialog(),
+		   UO::SelectColor(), UO::SendPopupMenu(), UO::RequestInput(), Unicode::RequestInputUC()		   
+
 07-23-2017 DevGIB:
   Added:   _DEFAULT_TEXT_REQUIREDCMD := 0 to uo.em which allows to set a minimum cmd level that broadcasts will be sent to.
 

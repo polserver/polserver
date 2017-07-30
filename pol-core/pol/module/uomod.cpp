@@ -821,6 +821,13 @@ BObjectImp* UOExecutorModule::mf_Target()
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
   
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::Target():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
   TargetCursor *tgt_cursor = nullptr;
 
   bool is_los_checked = (target_options & TGTOPT_CHECK_LOS) && !chr->ignores_line_of_sight();
@@ -832,19 +839,8 @@ BObjectImp* UOExecutorModule::mf_Target()
     tgt_cursor = &gamestate.target_cursors.nolos_checked_script_cursor;
   }
 
-  passert( tgt_cursor );
-  if ( !tgt_cursor->send_object_cursor( chr->client, crstype ) )
-  {
-    return new BError( "Client has an active target cursor" );
-  }
+  tgt_cursor->send_object_cursor( chr->client, crstype );
   
-  if ( !uoexec.suspend() ) {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-      << "\tCall to function UO::Target():\n"
-      << "\tThe execution of this script can't be blocked!\n";
-    return new Bscript::BError( "Script can't be blocked" );
-  }
-
   chr->client->gd->target_cursor_uoemod = this;
   target_cursor_chr = chr;
 
@@ -940,7 +936,7 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
   {
     return new BError( "Mobile has no active client" );
   }
-  if ( chr->target_cursor_busy() || !gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client ) )
+  if ( chr->target_cursor_busy() )
   {
     return new BError( "Client has an active target cursor" );
   }
@@ -952,6 +948,7 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     return new Bscript::BError( "Script can't be blocked" );
   }
 
+  gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client );
   chr->client->gd->target_cursor_uoemod = this;
   target_cursor_chr = chr;
   return new BLong( 0 );
