@@ -293,7 +293,7 @@ Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program
   return uoemod;
 }
 
-void add_common_exmods( Bscript::Executor& ex )
+void add_common_exmods( Core::UOExecutor& ex )
 {
   using namespace Module;
   ex.addModule( new BasicExecutorModule( ex ) );

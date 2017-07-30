@@ -23,11 +23,11 @@ extern u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 class UnicodeExecutorModule : public Bscript::TmplExecutorModule<UnicodeExecutorModule>
 {
 public:
-  explicit UnicodeExecutorModule( Bscript::Executor& exec );
+  explicit UnicodeExecutorModule( Core::UOExecutor& exec );
   ~UnicodeExecutorModule();
 
-  OSExecutorModule* os_module;
-
+  Core::UOExecutor& uoexec;
+  
   Bscript::BObjectImp* mf_PrintTextAboveUC();    // OverObject, Text, Font, Color
   Bscript::BObjectImp* mf_PrivateTextAboveUC();  // OverObject, Text, ToChar, Font, Color
 

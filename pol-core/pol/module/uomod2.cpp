@@ -1105,11 +1105,19 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
   msg->WriteFlipped<u16>( numlines );
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
+
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::SendDialogGump():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
   msg.Send( chr->client, len );
   chr->client->gd->add_gumpmod( this, gumpid );
   // old_gump_uoemod = this;
   gump_chr = chr;
-  uoexec.os_module->suspend();
+
   return new BLong( 0 );
 }
 
@@ -1225,11 +1233,18 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::SendDialogGump():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
   msg.Send( chr->client, len );
   chr->client->gd->add_gumpmod( this, gumpid );
   // old_gump_uoemod = this;
   gump_chr = chr;
-  uoexec.os_module->suspend();
+
   return new BLong( 0 );
 }
 
@@ -1602,10 +1617,18 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
+  
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::SendTextEntryGump():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+  
   msg.Send( chr->client, len );
   chr->client->gd->textentry_uoemod = this;
   textentry_chr = chr;
-  uoexec.os_module->suspend();
+
   return new BLong( 0 );
 }
 
@@ -2118,12 +2141,19 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
   if ( chr->client->gd->resurrect_uoemod != NULL )
     return new BError( "Client busy with another instares dialog" );
 
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::SendInstaResDialog():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+  
   PktHelper::PacketOut<PktOut_2C> msg;
   msg->Write<u8>( RESURRECT_CHOICE_SELECT );
   msg.Send( chr->client );
   chr->client->gd->resurrect_uoemod = this;
   resurrect_chr = chr;
-  uoexec.os_module->suspend();
+
   return new BLong( 0 );
 }
 
@@ -2174,11 +2204,18 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
   msg->Write<u32>( item->serial_ext );
   msg->offset += 2;  // u16 unk
   msg->WriteFlipped<u16>( item->graphic );
-  msg.Send( chr->client );
+  
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::SelectColor():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
 
+  msg.Send( chr->client );
+  
   chr->client->gd->selcolor_uoemod = this;
   selcolor_chr = chr;
-  uoexec.os_module->suspend();
   return new BLong( 0 );
 }
 
@@ -2731,14 +2768,28 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   msg->WriteFlipped<u16>( len );
   msg.Send( chr->client, len );
 
-  // Cancel any previously waiting popup response and suspend the script waiting for return value
-  if ( chr->client->gd->popup_menu_selection_uoemod != NULL )
+  // Cancel any previously waiting popup response
+  if ( chr->client->gd->popup_menu_selection_uoemod != NULL ) {
     chr->client->gd->popup_menu_selection_uoemod->uoexec.os_module->revive();
+
+    chr->client->gd->popup_menu_selection_uoemod = NULL;
+    chr->on_popup_menu_selection = NULL;
+  }
+
+  // Suspend the script first
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::SendPopupMenu():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+  
+  // Prepare to restart the script once the response arrives
   chr->on_popup_menu_selection = popup_menu_selection_made;
   chr->client->gd->popup_menu_selection_uoemod = this;
   popup_menu_selection_chr = chr;
   popup_menu_selection_above = above;
-  uoexec.os_module->suspend();
+
   return new BLong( 0 );
 }
 

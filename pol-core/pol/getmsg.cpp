@@ -92,13 +92,21 @@ Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
     return new Bscript::BError( "Another script has an active prompt" );
   }
 
+  if ( !uoexec.suspend() )
+  {
+	  DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+		  << "\tCall to function UO::RequestInput():\n"
+		  << "\tThe execution of this script can't be blocked!\n";
+	  return new Bscript::BError( "Script can't be blocked" );
+  }
+  
   Core::send_sysmessage( chr->client, prompt->data() );
 
   chr->client->gd->prompt_uoemod = this;
   prompt_chr = chr;
 
   Core::send_prompt( chr->client, ctBEu32( item->serial ) );
-  uoexec.os_module->suspend();
+
   return new Bscript::BLong( 0 );
 }
 }

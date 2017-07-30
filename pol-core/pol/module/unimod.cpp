@@ -121,7 +121,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
   }
 
   uniemod->exec.ValueStack.back().set( valstack );  // error or struct, regardless.
-  uniemod->os_module->revive();
+  uniemod->uoexec.os_module->revive();
   uniemod->prompt_chr = NULL;
   client->gd->prompt_uniemod = NULL;
 }
@@ -146,12 +146,10 @@ namespace Module
 using namespace Bscript;
 u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 
-UnicodeExecutorModule::UnicodeExecutorModule( Executor& exec )
-    : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ), prompt_chr( NULL )
+UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
+  : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
+  prompt_chr( NULL ), uoexec( exec )
 {
-  os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
-  if ( os_module == NULL )
-    throw std::runtime_error( "UnicodeExecutorModule needs OS module!" );
 }
 
 UnicodeExecutorModule::~UnicodeExecutorModule()
@@ -280,13 +278,21 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
     if ( !Core::convertArrayToUC( oPrompt, gwtext, textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
+    if ( !uoexec.suspend() )
+    {
+      DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+        << "\tCall to function Unicode::RequestInputUC():\n"
+        << "\tThe execution of this script can't be blocked!\n";
+      return new Bscript::BError( "Script can't be blocked" );
+    }
+
     Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->value() ).c_str() );
 
     chr->client->gd->prompt_uniemod = this;
     prompt_chr = chr;
 
     Core::send_unicode_prompt( chr->client, ctBEu32( item->serial ) );
-    os_module->suspend();
+    
     return new BLong( 0 );
   }
   else
