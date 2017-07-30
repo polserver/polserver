@@ -50,6 +50,18 @@ UOExecutor::~UOExecutor()
   pChild = NULL;
 }
 
+bool UOExecutor::suspend()
+{
+	os_module->suspend();
+	return true;
+}
+
+bool UOExecutor::revive()
+{
+	os_module->revive();
+	return true;
+}
+
 std::string UOExecutor::state()
 {
   if ( halt() )

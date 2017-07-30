@@ -27,11 +27,16 @@ class UOExecutor : public Bscript::Executor
 {
   typedef Bscript::Executor base;
 
+public: // soon to be private ;)
+	Module::OSExecutorModule* os_module;
+
 public:
-  Module::OSExecutorModule* os_module;
   UOExecutor();
   virtual ~UOExecutor();
   virtual size_t sizeEstimate() const POL_OVERRIDE;
+
+  bool suspend();
+  bool revive();
 
   std::string state();
 
