@@ -324,6 +324,7 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* p
   ex.setProgram( prog );
 
   ex.setDebugLevel( Bscript::Executor::NONE );
+  ex.set_running_to_completion( true );
 
   Clib::scripts_thread_script = ex.scriptname();
 
@@ -392,9 +393,10 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   ex.setProgram( program.get() );
 
   ex.setDebugLevel( Bscript::Executor::NONE );
+  ex.set_running_to_completion( true );
 
   Clib::scripts_thread_script = ex.scriptname();
-
+  
   int i = 0;
   bool reported = false;
   while ( ex.runnable() )

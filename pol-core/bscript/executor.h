@@ -338,6 +338,8 @@ public:
   static int ins_casejmp_findstring( const Token& token, String* bstringimp );
   static int ins_casejmp_finddefault( const Token& token );
 
+  bool running_to_completion() const;
+  void set_running_to_completion( bool to_completion );
 
   bool runnable() const;
   void calcrunnable();
@@ -377,6 +379,8 @@ private:
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;
   bool viewmode_;
+  
+  bool runs_to_completion_;
 
   bool debugging_;
   enum DEBUG_STATE
@@ -461,6 +465,17 @@ inline void Executor::setdebugging( bool debugging )
 {
   debugging_ = debugging;
 }
+
+
+inline bool Executor::running_to_completion() const
+{
+  return runs_to_completion_;
+}
+inline void Executor::set_running_to_completion( bool to_completion )
+{
+  runs_to_completion_ = to_completion;
+}
+
 }
 }
 #endif

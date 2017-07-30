@@ -98,6 +98,7 @@ Executor::Executor()
       current_module_function( NULL ),
       prog_ok_( false ),
       viewmode_( false ),
+      runs_to_completion_( false ),
       debugging_( false ),
       debug_state_( DEBUG_STATE_NONE ),
       breakpoints_(),
@@ -3448,7 +3449,8 @@ bool Executor::exec()
   passert( !error_ );
 
   Clib::scripts_thread_script = scriptname();
-
+  
+  set_running_to_completion( true );
   while ( runnable() )
   {
     Clib::scripts_thread_scriptPC = PC;

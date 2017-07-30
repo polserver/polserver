@@ -52,7 +52,11 @@ UOExecutor::~UOExecutor()
 
 bool UOExecutor::suspend()
 {
-	os_module->suspend();
+  // Run to completion scripts can't be suspended
+  if ( running_to_completion() )
+    return false;
+
+  os_module->suspend();
 	return true;
 }
 
