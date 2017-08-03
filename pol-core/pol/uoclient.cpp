@@ -135,11 +135,7 @@ void load_uoclient_cfg()
 
 UoClientGeneral::~UoClientGeneral()
 {
-  if ( method_script != NULL )
-  {
-    delete method_script;
-    method_script = NULL;
-  }
+	deinitialize();
 }
 
 size_t UoClientGeneral::Mapping::estimateSize() const
@@ -156,5 +152,15 @@ size_t UoClientGeneral::estimateSize() const
     size += method_script->estimateSize();
   return size;
 }
+
+void UoClientGeneral::deinitialize()
+{
+	if (method_script != nullptr)
+	{
+		delete method_script;
+		method_script = nullptr;
+	}
+}
+
 }
 }

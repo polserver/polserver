@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-31-2017</datemodified>
+		<datemodified>08-03-2017</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>08-03-2017</date>
+			<author>Nando:</author>
+			<change type="Fixed">Shutdown crash when using character method scripts.</change>
+		</entry>
 		<entry>
 			<date>07-31-2017</date>
 			<author>Nando:</author>

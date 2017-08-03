@@ -126,6 +126,8 @@ void NetworkManager::deinialize()
 #endif
   Network::deinit_sockets_library();
   Network::clean_packethooks();
+
+  uoclient_general.deinitialize();
 }
 
 NetworkManager::Memory NetworkManager::estimateSize() const

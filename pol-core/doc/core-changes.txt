@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+08-03-2017 Nando:
+  Fixed:   Shutdown crash when using character method scripts.
 07-31-2017 Nando:
   Fixed:   Interactive commands could cause a crash when used inside a run-to-completion script
            (e.g., syshooks, scripts ran via OS::run_script_to_completion() and method scripts). The 
