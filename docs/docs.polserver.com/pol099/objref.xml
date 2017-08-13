@@ -51,7 +51,7 @@
                                                                <a href="#StorageAreas">StorageArea</a>
 </pre>
 
-<datemodified>12/26/2015</datemodified>
+<datemodified>08/13/2017</datemodified>
 </fileheader>
 
 
@@ -406,7 +406,7 @@
 <method proto="setprop(string propname, propval)" returns="true" desc="SetObjProperty for account objects." />
 <method proto="eraseprop(string propname)" returns="true" desc="EraseObjProperty for account objects." />
 <method proto="propnames()" returns="Array" desc="returns an array of cprop names on this account" />
-<method proto="set_uo_expansion(string expansion)" returns="true/error" desc="This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: SA, KR, ML, SE, AOS, LBR, T2A (default)." />
+<method proto="set_uo_expansion(string expansion)" returns="true/error" desc="This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF / HSA -> 0x387DF / TOL -> 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default)." />
 <method proto="setdefaultcmdlevel(integer number)" returns="true/error" desc="Set the account's default command level." />
 </class>
 
