@@ -1179,7 +1179,7 @@ endfunction</example>
 	  <explain><code>SendFunction:</code></explain>
 	  <explain>params: CharRef character, Packet byref packet. When called: When the server will send a packet to the client. Return: 0 if you wish POL to perform its normal data processing on the packet (if any default packet handler exists for this packet ID), or 1 if you wish POL to do no processing on the packet (i.e. your script handled it fully). You MUST NOT use the SendPacket or SendAreaPacket methods on the passed-in packet with SendFunction. Rather, edit the packet as you wish, and return 0. POL will send the packet as normal. You may create and send a different packet (NOT the same Packet ID, else the send functions will loop) from within this function, but note the sending order will be created packet, then hooked packet (if you return 0).</explain>
     <explain><code>CloseCustomHouse:</code></explain>
-    <explain>params: CharRef mobile, MultiRef multi. When called: When mobiles quites house editing. Return: Ignored.</explain>
+    <explain>params: CharRef mobile, MultiRef multi. When called: When mobiles quits house editing. Return: Ignored.</explain>
     <explain><code>WarmodeChange:</code></explain>
     <explain>params: CharRef mobile, Integer new_status. When called: When mobile changes the warmode. Return: Ignored.</explain>
     <explain><code>CanTrade:</code></explain>
