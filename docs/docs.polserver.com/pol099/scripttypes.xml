@@ -825,7 +825,7 @@ endfunction
     <schedtype>Normal</schedtype>
     <def_prio>100</def_prio>
     <whencalled>When a player double clicks a item.</whencalled>
-    <wherelives>The 'program' in dblclickitrm.src file, only in /scripts/misc</wherelives>
+    <wherelives>The 'program' in dblclickitem.src file, only in /scripts/misc</wherelives>
     <todefine>If the compiled file exists it is automatically called on doubleclick.</todefine>
     <relatedobj>Character</relatedobj>
 </scripttype>
