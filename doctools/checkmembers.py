@@ -63,15 +63,18 @@ def parseFile(file,defs,members):
                 in_c=False
             if in_c:
                 continue
-            if l.startswith('return'):
+            if l.startswith('return') or l.startswith('#'):
                 continue
-            if not in_d and '::get_member_id' in l:
-                l=l[:l.find('::get_member_id')]
+            if not in_d and '::get_member' in l:
+                l=l[:l.find('::get_member')]
                 active=l.split()[-1]
                 in_d=True
             elif not in_d and '::get_script_member_id' in l:
                 l=l[:l.find('::get_script_member_id')]
                 active=l.split()[-1]
+                in_d=True
+            elif not in_d and 'GetCoreVariable' in l:
+                active='PolCore'
                 in_d=True
             elif in_d:
                 if '{' in l:
@@ -80,7 +83,10 @@ def parseFile(file,defs,members):
                     openb-=1
                     if not openb and in_d:
                         if len(supported):
-                            members[active]=supported
+                            if active in members:
+                                members[active]+=supported
+                            else:
+                                members[active]=supported
                         supported=[]
                         in_d=False
                 if l.startswith('case'):
@@ -99,6 +105,20 @@ def parseFile(file,defs,members):
                         print(linec)
                         continue
                         raise
+
+                elif 'if ( stricmp' in l:
+                    try:
+                        m=l.split('"')[1]
+                        supported.append(m)
+                    except Exception as e:
+                        print(e)
+                        print(file)
+                        print(l)
+                        print(linec)
+                        continue
+                elif active=='PolCore' and 'LONG_COREVAR' in l:
+                    m=l.split(',')[0].split()[1]
+                    supported.append(m)
     return members
 
 def checkDocs():
@@ -124,17 +144,17 @@ def checkDocs():
                 
 decs=parseMemberDec()
 defs =parseMemberDef(decs)
-pprint(defs)
+#pprint(defs)
 
 members=dict()
 for r,d,files in os.walk('../pol-core/'):
     for f in files:
         if f.endswith('.cpp'):
             parseFile(os.path.join(r,f),defs,members)
-pprint(members)
-pprint(members.keys())
+#pprint(members)
+#pprint(members.keys())
 docs=checkDocs()
-pprint(docs)
+#pprint(docs)
 
 for dc,dm in docs.items():
     pm=dc
@@ -180,6 +200,14 @@ for dc,dm in docs.items():
         pm='UMulti'
     elif pm=='Armor':
         pm='UArmor'
+    elif pm=='StorageAreas':
+        pm='StorageAreasImp'
+    elif pm=='StorageArea':
+        pm='StorageAreaImp'
+    elif pm=='Package':
+        pm='PackageObjImp'
+    elif pm=='Polcore':
+        pm='PolCore'
     
     if pm in members:
         print('checking {}'.format(dc))

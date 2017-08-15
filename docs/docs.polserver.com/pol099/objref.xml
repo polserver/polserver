@@ -408,6 +408,7 @@
 <method proto="propnames()" returns="Array" desc="returns an array of cprop names on this account" />
 <method proto="set_uo_expansion(string expansion)" returns="true/error" desc="This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF / HSA -> 0x387DF / TOL -> 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default)." />
 <method proto="setdefaultcmdlevel(integer number)" returns="true/error" desc="Set the account's default command level." />
+<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
 
 
@@ -517,16 +518,6 @@
 <!-- internal() method is useful for crashing the server... that's funny but it should probably be left undocumented ;) -->
 </class>
 
-
-<class name="Datastore">
-<explain>Functions for manipulating a datastore. Not an actual object, but funcs found in datafile.em, presented here for completeness.</explain>
-<method proto="ListDataFiles()" returns="Array" desc="Lists known datafiles" />
-<method proto="CreateDataFile(string name, int flags)" returns="DataFileRef/error" desc="Creates a datafile" />
-<method proto="OpenDataFile(string name)" returns="DataFileRef/error" desc="Opens a datafile" />
-<method proto="UnloadDataFile(string name)" returns="true/error" desc="Unloads a datafile"/>
-</class>
-
-
 <class name="Datafile">
 <explain>Object representing a data file in a data store</explain>
 <method proto="CreateElement(key)" returns="error/DataFileElemRef" desc="key is int or string, depending on datafile flags" />
@@ -569,6 +560,7 @@ Checks are made in the order above." />
 <method proto="kill()" returns="true" desc="Kills this script" />
 <method proto="loadsymbols()" returns="Boolean" desc="Loads the .dbg file" />
 <method proto="clear_event_queue()" returns="true" desc="clears the event queue of the script"/>
+<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
 
 
@@ -822,6 +814,7 @@ It supports the [] operator: its behavior is similar to FindStorageArea()</expla
 <explain>Object representing a storage area.
 It is iterable: iterates over Item objects (root items in storage area).</explain>
 <member mname="count" type="Integer" access="r/o" mdesc="Number of root items in this storage area" />
+<member mname="totalcount" type="Integer" access="r/o" mdesc="Number of items in this storage area" />
 </class>
 
 

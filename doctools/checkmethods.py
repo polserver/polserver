@@ -64,15 +64,16 @@ def parseFile(file,defs,methods):
                 in_c=False
             if in_c:
                 continue
-            if l.startswith('return'):
-                continue
-            if not in_d and '::call_method_id' in l:
-                l=l[:l.find('::call_method_id')]
+            if not in_d and '::call_method' in l:
+                l=l[:l.find('::call_method')]
                 active=l.split()[-1]
                 in_d=True
             elif not in_d and '::script_method_id' in l:
                 l=l[:l.find('::script_method_id')]
                 active=l.split()[-1]
+                in_d=True
+            elif not in_d and 'CallPropertyListMethod_id' in l:
+                active='!CPROP!'
                 in_d=True
             elif in_d:
                 if '{' in l:
@@ -80,8 +81,12 @@ def parseFile(file,defs,methods):
                 if '}' in l:
                     openb-=1
                     if not openb and in_d:
+
                         if len(supported):
-                            methods[active]=supported
+                            if active in methods:
+                                methods[active]+=supported
+                            else:
+                                methods[active]=supported
                         supported=[]
                         in_d=False
                 if l.startswith('case'):
@@ -98,6 +103,11 @@ def parseFile(file,defs,methods):
                         print(l)
                         print(linec)
                         raise
+                if 'if ( stricmp' in l:
+                    m=l.split('"')[1]
+                    supported.append(m)
+                if 'CallPropertyListMethod' in l:
+                    supported.append('!CPROP!')
     return methods
 
 def checkDocs(methods):
@@ -128,13 +138,15 @@ for r,d,files in os.walk('../pol-core/'):
     for f in files:
         if f.endswith('.cpp'):
             parseFile(os.path.join(r,f),defs,methods)
-pprint(methods)
-pprint(methods.keys())
+#pprint(methods)
+#pprint(methods.keys())
 docs=checkDocs(methods)
-pprint(docs)
+#pprint(docs)
 
 for dc,dm in docs.items():
     pm=dc
+    if dc =='!CPROP!':
+        continue
     if pm=='Struct':
         pm='BStruct'
     elif pm=='Dictionary':
@@ -157,6 +169,8 @@ for dc,dm in docs.items():
         pm='AccountObjImp'
     elif pm=='Datafile':
         pm='DataFileRefObjImp'
+    elif pm=='DataFileElement':
+        pm='DataElemRefObjImp'
     elif pm=='Guild':
         pm='EGuildRefObjImp'
     elif pm=='Party':
@@ -177,15 +191,26 @@ for dc,dm in docs.items():
         pm='UMulti'
     elif pm=='Armor':
         pm='UArmor'
+    elif pm=='Polcore':
+        pm='PolCore'
 
 
     if pm in methods:
+
         print('checking {}'.format(dc))
         for m in methods[pm]:
-            if m not in dm:
+            if m=='!CPROP!':
+                for mcprop in methods['!CPROP!']:
+                    if mcprop not in dm:
+                        print('   {} not in {}'.format(m,dc))
+            elif m not in dm:
                 print('   {} not in {}'.format(m,dc))
         for m in dm:
             if m not in methods[pm]:
+                #print(m,methods[pm])
+                if '!CPROP!' in methods[pm]:
+                    if m in methods['!CPROP!']:
+                        continue
                 print('   {} docentry not found'.format(m))
     else:
         print('Class {} not found'.format(pm))
