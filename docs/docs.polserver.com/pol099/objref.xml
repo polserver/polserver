@@ -51,7 +51,7 @@
                                                                <a href="#StorageAreas">StorageArea</a>
 </pre>
 
-<datemodified>08/13/2017</datemodified>
+<datemodified>08/14/2017</datemodified>
 </fileheader>
 
 
@@ -80,7 +80,6 @@
 <method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
 <method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
 <method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
-<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 <method desc="Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;u suck&quot;) is the same as obj.name := &quot;u suck&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error" />
 <method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
@@ -261,7 +260,7 @@
 <member mname="lawfullydamaged" type="Array" access="r/o" mdesc="list of mobiles this character is flagged as lawfully damaged on repsys" />
 <member mname="uo_expansion_client" type="Integer" access="r/o" mdesc="client send expansion info flag (deprecated, will be removed in next release, use Client instead)" />
 <member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield (deprecated, will be removed in next release, use Client instead)" />
-<member mname="deafened" type="Integer" access="r/o" mdesc="1 = player cannot hear" />
+<member mname="deafed" type="Integer" access="r/o" mdesc="1 = player cannot hear" />
 <member mname="client" type="Client" access="r/o" mdesc="returns ClientRef object or error" />
 <member mname="house_editing" type="Boolean" access="r/o" mdesc="1 if character is currently editing an house"/>
 <member mname="lastcoord" type="Struct" access="r/o" mdesc="position before the last walk packet as struct{lastx,lasty,lastz}"/>
@@ -300,6 +299,7 @@
 <method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, array arguments)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string (array of int); separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, CAscZ(&quot;1234 5678&quot;));" />
 <method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
 <method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
+<method proto="disableSkillsFor(int duration)" returns="duration/error" desc="Disables skill scripts for given seconds" />
 </class>
 
 
@@ -340,7 +340,7 @@
 <member mname="rudder" type="Array" access="r/o" mdesc="array of ItemRefs of all the rudder components on the boat, or empty array if none" />
 <member mname="sails" type="Array" access="r/o" mdesc="array of ItemRefs of all the sails components on the boat, or empty array if none" />
 <member mname="storage" type="Array" access="r/o" mdesc="array of ItemRefs of all the storage components on the boat, or empty array if none" />
-<member mname="waponslot" type="Array" access="r/o" mdesc="array of ItemRefs of all the weaponslot components on the boat, or empty array if none" />
+<member mname="weaponslot" type="Array" access="r/o" mdesc="array of ItemRefs of all the weaponslot components on the boat, or empty array if none" />
 <member mname="components" type="Array" access="r/o" mdesc="array of ItemRefs of all the components on the boat" />
 <member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
 
@@ -372,7 +372,7 @@
 <class name="Door">
 <parent>Lockable</parent>
 <explain>A door item that automatically closes.</explain>
-<member mname="isopen " type="Boolean" access="r/o" mdesc="true if the door is open" />
+<member mname="isopen" type="Boolean" access="r/o" mdesc="true if the door is open" />
 
 <method proto="open()" returns="true" desc="opens the door" />
 <method proto="close()" returns="true" desc="closes the door" />
