@@ -143,60 +143,43 @@ for r,d,files in os.walk('../pol-core/'):
 docs=checkDocs(methods)
 #pprint(docs)
 
+translate={
+    'Struct': 'BStruct',
+    'Dictionary': 'BDictionary',
+    'Array': 'ObjArray',
+    'BinaryFile': 'BBinaryfile',
+    'Script': 'ScriptExObjImp',
+    'Packet': 'BPacket',
+    'Boat': 'UBoat',
+    'Door': 'UDoor',
+    'Client': 'EClientRefObjImp',
+    'Account': 'AccountObjImp',
+    'Datafile': 'DataFileRefObjImp',
+    'DataFileElement': 'DataElemRefObjImp',
+    'Guild': 'EGuildRefObjImp',
+    'Party': 'EPartyRefObjImp',
+    'House': 'UHouse',
+    'Lockable': 'ULockable',
+    'Container': 'UContainer',
+    'Corpse': 'UCorpse',
+    'Plank': 'UPlank',
+    'Weapon': 'UWeapon',
+    'Multi': 'UMulti',
+    'Armor': 'UArmor',
+    'StorageAreas': 'StorageAreasImp',
+    'StorageArea': 'StorageAreaImp',
+    'Package': 'PackageObjImp',
+    'Polcore': 'PolCore',
+    }
+for k,v in list(translate.items()):
+    translate[v]=k
+
 for dc,dm in docs.items():
-    pm=dc
     if dc =='!CPROP!':
         continue
-    if pm=='Struct':
-        pm='BStruct'
-    elif pm=='Dictionary':
-        pm='BDictionary'
-    elif pm=='Array':
-        pm='ObjArray'
-    elif pm=='BinaryFile':
-        pm='BBinaryfile'
-    elif pm=='Script':
-        pm='ScriptExObjImp'
-    elif pm=='Packet':
-        pm='BPacket'
-    elif pm=='Boat':
-        pm='UBoat'
-    elif pm=='Door':
-        pm='UDoor'
-    elif pm=='Client':
-        pm='EClientRefObjImp'
-    elif pm=='Account':
-        pm='AccountObjImp'
-    elif pm=='Datafile':
-        pm='DataFileRefObjImp'
-    elif pm=='DataFileElement':
-        pm='DataElemRefObjImp'
-    elif pm=='Guild':
-        pm='EGuildRefObjImp'
-    elif pm=='Party':
-        pm='EPartyRefObjImp'
-    elif pm=='House':
-        pm='UHouse'
-    elif pm=='Lockable':
-        pm='ULockable'
-    elif pm=='Container':
-        pm='UContainer'
-    elif pm=='Corpse':
-        pm='UCorpse'
-    elif pm=='Plank':
-        pm='UPlank'
-    elif pm=='Weapon':
-        pm='UWeapon'
-    elif pm=='Multi':
-        pm='UMulti'
-    elif pm=='Armor':
-        pm='UArmor'
-    elif pm=='Polcore':
-        pm='PolCore'
-
+    pm=translate.get(dc,dc)
 
     if pm in methods:
-
         print('checking {}'.format(dc))
         for m in methods[pm]:
             if m=='!CPROP!':
@@ -213,6 +196,12 @@ for dc,dm in docs.items():
                         continue
                 print('   {} docentry not found'.format(m))
     else:
-        print('Class {} not found'.format(pm))
+        print('Class {} docentry not found'.format(pm))
 
+for pc, pm in methods.items():
+    if pc =='!CPROP!':
+        continue
+    dc=translate.get(pc,pc)
+    if dc not in docs:
+        print('Class {} not found with {}'.format(dc,pm))
 

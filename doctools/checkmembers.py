@@ -99,10 +99,10 @@ def parseFile(file,defs,members):
                         m=m.split(':')[0].split()[-1]
                         supported.append(defs[m])
                     except Exception as e:
-                        print(e)
-                        print(file)
-                        print(l)
-                        print(linec)
+                        #print(e)
+                        #print(file)
+                        #print(l)
+                        #print(linec)
                         continue
                         raise
 
@@ -111,10 +111,10 @@ def parseFile(file,defs,members):
                         m=l.split('"')[1]
                         supported.append(m)
                     except Exception as e:
-                        print(e)
-                        print(file)
-                        print(l)
-                        print(linec)
+                        #print(e)
+                        #print(file)
+                        #print(l)
+                        #print(linec)
                         continue
                 elif active=='PolCore' and 'LONG_COREVAR' in l:
                     m=l.split(',')[0].split()[1]
@@ -155,69 +155,52 @@ for r,d,files in os.walk('../pol-core/'):
 #pprint(members.keys())
 docs=checkDocs()
 #pprint(docs)
+translate={
+    'Struct': 'BStruct',
+    'Dictionary': 'BDictionary',
+    'Array': 'ObjArray',
+    'BinaryFile': 'BBinaryfile',
+    'Script': 'ScriptExObjImp',
+    'Packet': 'BPacket',
+    'Boat': 'UBoat',
+    'Door': 'UDoor',
+    'Client': 'EClientRefObjImp',
+    'Account': 'AccountObjImp',
+    'Datafile': 'DataFileRefObjImp',
+    'DataFileElement': 'DataElemRefObjImp',
+    'Guild': 'EGuildRefObjImp',
+    'Party': 'EPartyRefObjImp',
+    'House': 'UHouse',
+    'Lockable': 'ULockable',
+    'Container': 'UContainer',
+    'Corpse': 'UCorpse',
+    'Plank': 'UPlank',
+    'Weapon': 'UWeapon',
+    'Multi': 'UMulti',
+    'Armor': 'UArmor',
+    'StorageAreas': 'StorageAreasImp',
+    'StorageArea': 'StorageAreaImp',
+    'Package': 'PackageObjImp',
+    'Polcore': 'PolCore',
+    }
+for k,v in list(translate.items()):
+    translate[v]=k
 
 for dc,dm in docs.items():
-    pm=dc
-    if pm=='Struct':
-        pm='BStruct'
-    elif pm=='Dictionary':
-        pm='BDictionary'
-    elif pm=='Array':
-        pm='ObjArray'
-    elif pm=='BinaryFile':
-        pm='BBinaryfile'
-    elif pm=='Script':
-        pm='ScriptExObjImp'
-    elif pm=='Packet':
-        pm='BPacket'
-    elif pm=='Boat':
-        pm='UBoat'
-    elif pm=='Door':
-        pm='UDoor'
-    elif pm=='Client':
-        pm='EClientRefObjImp'
-    elif pm=='Account':
-        pm='AccountObjImp'
-    elif pm=='Datafile':
-        pm='DataFileRefObjImp'
-    elif pm=='Guild':
-        pm='EGuildRefObjImp'
-    elif pm=='Party':
-        pm='EPartyRefObjImp'
-    elif pm=='House':
-        pm='UHouse'
-    elif pm=='Lockable':
-        pm='ULockable'
-    elif pm=='Container':
-        pm='UContainer'
-    elif pm=='Corpse':
-        pm='UCorpse'
-    elif pm=='Plank':
-        pm='UPlank'
-    elif pm=='Weapon':
-        pm='UWeapon'
-    elif pm=='Multi':
-        pm='UMulti'
-    elif pm=='Armor':
-        pm='UArmor'
-    elif pm=='StorageAreas':
-        pm='StorageAreasImp'
-    elif pm=='StorageArea':
-        pm='StorageAreaImp'
-    elif pm=='Package':
-        pm='PackageObjImp'
-    elif pm=='Polcore':
-        pm='PolCore'
+    pc=translate.get(dc,dc)
     
-    if pm in members:
+    if pc in members:
         print('checking {}'.format(dc))
-        for m in members[pm]:
+        for m in members[pc]:
             if m not in dm:
                 print('   {} not in {}'.format(m,dc))
         for m in dm:
-            if m not in members[pm]:
+            if m not in members[pc]:
                 print('   {} docentry not found'.format(m))
     else:
-        print('Class {} not found'.format(pm))
+        print('Class {} docentry not found'.format(pc))
 
-
+for pc, pm in members.items():
+    dc=translate.get(pc,pc)
+    if dc not in docs:
+        print('Class {} not found with {}'.format(dc,pm))
