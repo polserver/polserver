@@ -98,6 +98,7 @@ Executor::Executor()
       current_module_function( NULL ),
       prog_ok_( false ),
       viewmode_( false ),
+      runs_to_completion_( false ),
       debugging_( false ),
       debug_state_( DEBUG_STATE_NONE ),
       breakpoints_(),
@@ -270,14 +271,20 @@ int Executor::paramAsLong( unsigned param )
 }
 BObject* Executor::getParam( unsigned param )
 {
-  passert( param < fparams.size() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" );
 
   return fparams[param].get();
 }
 
 BObjectImp* Executor::getParamImp( unsigned param )
 {
-  passert( param < fparams.size() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" );
 
   return fparams[param].get()->impptr();
 }
@@ -3442,7 +3449,8 @@ bool Executor::exec()
   passert( !error_ );
 
   Clib::scripts_thread_script = scriptname();
-
+  
+  set_running_to_completion( true );
   while ( runnable() )
   {
     Clib::scripts_thread_scriptPC = PC;

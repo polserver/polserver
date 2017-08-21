@@ -29,7 +29,6 @@ namespace Pol
 {
 namespace Clib
 {
-extern bool passert_disabled;
 
 // what to do on an assertion failure:
 extern bool passert_dump_stack;
@@ -62,12 +61,12 @@ POL_NORETURN void passert_failed( const char* expr, const std::string& reason, c
  * Use this for non-crucial assertions.
  */
 #define passert( exp )                                                 \
-  ( void )( Clib::passert_disabled || ( exp ) ||                       \
+  ( void )( ( exp ) ||                       \
             ( Clib::passert_failed( #exp, __FILE__, __LINE__ ), 0 ) ); \
   passert_assume( exp )
 /** Just like passert(), but allows to specify a reason as additional parameter */
 #define passert_r( exp, reason )                                               \
-  ( void )( Clib::passert_disabled || ( exp ) ||                               \
+  ( void )( ( exp ) ||                               \
             ( Clib::passert_failed( #exp, reason, __FILE__, __LINE__ ), 0 ) ); \
   passert_assume( exp )
 

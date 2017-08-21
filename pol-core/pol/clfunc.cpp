@@ -84,7 +84,7 @@ void say_above_cl( UObject* obj, unsigned int cliloc_num, const u16* arguments, 
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
-  msg->Write( "System", 30, false );
+  msg->Write( obj->description().c_str(), 30, false );
   if ( arguments != NULL )
     msg->Write( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
   else
@@ -118,7 +118,7 @@ void private_say_above_cl( Mobile::Character* chr, const UObject* obj, unsigned 
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
-  msg->Write( "System", 30, false );
+  msg->Write( obj->description().c_str(), 30, false );
   if ( arguments != NULL )
     msg->Write( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
   else
@@ -195,7 +195,7 @@ void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const char* affi
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
-  msg->Write( "System", 30, false );
+  msg->Write( obj->description().c_str(), 30, false );
   msg->Write( affix, static_cast<u16>( affix_len ) );
   if ( arguments != NULL )
     msg->WriteFlipped( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
@@ -236,7 +236,7 @@ void private_say_above_cl_affix( Mobile::Character* chr, const UObject* obj,
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
-  msg->Write( "System", 30, false );
+  msg->Write( obj->description().c_str(), 30, false );
   msg->Write( affix, static_cast<u16>( affix_len ) );
   if ( arguments != NULL )
     msg->WriteFlipped( arguments, static_cast<u16>( textlen ), true );

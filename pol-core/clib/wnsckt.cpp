@@ -9,6 +9,7 @@
 #include "esignal.h"
 #include "strutil.h"
 #include "logfacility.h"
+#include "passert.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -261,6 +262,7 @@ bool Socket::select( unsigned int seconds, unsigned int useconds )
   FD_ZERO( &fd );
   FD_SET( _sck, &fd );
 #ifndef _WIN32
+  passert_r(_sck < FD_SETSIZE, "Select() implementation in Linux cant handle this many sockets at the same time." )
   nfds = _sck + 1;
 #endif
 
@@ -359,6 +361,9 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
 {
   fd_set fd;
 
+  if (!connected())
+	  return false;
+
 #if SCK_WATCH
   INFO_PRINT << "{L;1}\n";
 #endif
@@ -419,20 +424,29 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 {
   fd_set fd;
   char* pdest = (char*)vdest;
+  int nfds = 0;
+
   while ( len )
   {
+	if (!connected())
+	  return false;
+
 #if SCK_WATCH
     INFO_PRINT << "{L:" << len << "}\n";
 #endif
     FD_ZERO( &fd );
     FD_SET( _sck, &fd );
+#ifndef _WIN32
+	nfds = _sck + 1;
+#endif
+
     struct timeval tv;
     int res;
     do
     {
       tv.tv_sec = 0;
       tv.tv_usec = waitms * 1000;
-      res = ::select( 0, &fd, NULL, NULL, &tv );
+      res = ::select( nfds, &fd, NULL, NULL, &tv );
     } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
     if ( res == 0 )
@@ -486,12 +500,16 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
 {
   fd_set fd;
   char* pdest = (char*)vdest;
+  int nfds = 0;
 
 #if SCK_WATCH
   INFO_PRINT << "{L:" << len << "}\n";
 #endif
   FD_ZERO( &fd );
   FD_SET( _sck, &fd );
+#ifndef _WIN32
+  nfds = _sck + 1;
+#endif
   struct timeval tv;
   int res;
 
@@ -499,7 +517,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   {
     tv.tv_sec = wait_sec;
     tv.tv_usec = 0;
-    res = ::select( 0, &fd, NULL, NULL, &tv );
+	res = ::select(nfds, &fd, NULL, NULL, &tv);
   } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
   if ( res == 0 )

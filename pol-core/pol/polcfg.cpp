@@ -135,7 +135,6 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.min_cmdlevel_to_login = elem.remove_ushort( "MinCmdlevelToLogin", 0 );
 
   Bscript::escript_config.max_call_depth = elem.remove_ulong( "MaxCallDepth", 100 );
-  Clib::passert_disabled = !elem.remove_bool( "EnableAssertions", true );
   Clib::passert_dump_stack = elem.remove_bool( "DumpStackOnAssertionFailure", false );
 
   std::string tmp = elem.remove_string( "AssertionFailureAction", "abort" );

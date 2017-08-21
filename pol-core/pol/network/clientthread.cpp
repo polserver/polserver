@@ -7,6 +7,8 @@
 #include "msghandl.h"
 #include "packethelper.h"
 
+#include "../../clib/passert.h"
+
 #include "../accounts/account.h"
 #include "../mobile/charactr.h"  // This is mostly needed to check for the chr cmdlevel in the timeout, could also make a client->has_cmdlevel()?
 #include "../crypt/cryptengine.h"
@@ -84,18 +86,27 @@ bool client_io_thread( Network::Client* client, bool login )
     while ( !Clib::exit_signalled && client->isReallyConnected() )
     {
       CLIENT_CHECKPOINT( 1 );
-      SOCKET nfds = 0;
+      int nfds = 0;
       FD_ZERO( &c_recv_fd );
       FD_ZERO( &c_err_fd );
       FD_ZERO( &c_send_fd );
       checkpoint = 1;
-      FD_SET( client->csocket, &c_recv_fd );
-      FD_SET( client->csocket, &c_err_fd );
+
+	  SOCKET clientSocket = client->csocket;
+	  if (clientSocket == INVALID_SOCKET)
+		  break;
+
+	  // Non-Winsock implementations require nfds to be the largest socket value + 1
+#ifndef _WIN32
+	  passert_r(clientSocket < FD_SETSIZE, "Select() implementation in Linux cant handle this many sockets at the same time." )
+	  nfds = clientSocket + 1;
+#endif
+
+      FD_SET( clientSocket, &c_recv_fd );
+      FD_SET( clientSocket, &c_err_fd );
       if ( client->have_queued_data() )
-        FD_SET( client->csocket, &c_send_fd );
+        FD_SET( clientSocket, &c_send_fd );
       checkpoint = 2;
-      if ( ( SOCKET )( client->csocket + 1 ) > nfds )
-        nfds = client->csocket + 1;
 
       int res;
       do
@@ -111,7 +122,7 @@ bool client_io_thread( Network::Client* client, bool login )
           c_select_timeout.tv_usec = 0;
         }
         CLIENT_CHECKPOINT( 2 );
-        res = select( static_cast<int>( nfds ), &c_recv_fd, &c_send_fd, &c_err_fd,
+        res = select( nfds, &c_recv_fd, &c_send_fd, &c_err_fd,
                       &c_select_timeout );
         CLIENT_CHECKPOINT( 3 );
       } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
@@ -155,7 +166,7 @@ bool client_io_thread( Network::Client* client, bool login )
       if ( !client->isReallyConnected() )
         break;
 
-      if ( FD_ISSET( client->csocket, &c_err_fd ) )
+      if ( FD_ISSET( clientSocket, &c_err_fd ) )
       {
         client->forceDisconnect();
         break;
@@ -199,7 +210,7 @@ bool client_io_thread( Network::Client* client, bool login )
       // endregion Speedhack
 
 
-      if ( FD_ISSET( client->csocket, &c_recv_fd ) )
+      if ( FD_ISSET( clientSocket, &c_recv_fd ) )
       {
         checkpoint = 4;
         CLIENT_CHECKPOINT( 6 );
@@ -232,7 +243,7 @@ bool client_io_thread( Network::Client* client, bool login )
         break;
       }
 
-      if ( client->have_queued_data() && FD_ISSET( client->csocket, &c_send_fd ) )
+      if ( client->have_queued_data() && FD_ISSET( clientSocket, &c_send_fd ) )
       {
         PolLock lck;
         CLIENT_CHECKPOINT( 8 );

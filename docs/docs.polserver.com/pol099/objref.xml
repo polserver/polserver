@@ -28,30 +28,30 @@
 
             <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>      <a href="#DataFileElement">DataFileElement</a>
                |
-               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datastore">Datastore</a>
+               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datafile">Datafile</a>
      +---------+--------+
-     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#Datafile">Datafile</a>
+     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#BinaryFile">BinaryFile</a>
    <a href="#Character">Character</a>           <a href="#Item">Item</a>
-     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#BinaryFile">BinaryFile</a>
+     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#Package">Package</a>
     <a href="#NPC">NPC</a>                 |
-                        |                                      <a href="#Package">Package</a>
+                        |                                      <a href="#Struct">Struct</a>
      +------------------+--------------+-----------+
-     |                  |              |           |           <a href="#Struct">Struct</a>
+     |                  |              |           |           <a href="#Array">Array</a>
  <a href="#Equipment">Equipment</a>           <a href="#Lockable">Lockable</a>         <a href="#Map">Map</a>        <a href="#Multi">Multi</a>
-     |                  |                          |           <a href="#Array">Array</a>
+     |                  |                          |           <a href="#Dictionary">Dictionary</a>
  +---+----+        +----+--------+            +----+----+
- |        |        |             |            |         |      <a href="#Dictionary">Dictionary</a>
+ |        |        |             |            |         |      <a href="#String">String</a>
 <a href="#Armor">Armor</a>  <a href="#Weapon">Weapon</a>     <a href="#Door">Door</a>        <a href="#Container">Container</a>      <a href="#Boat">Boat</a>     <a href="#House">House</a>
-                                 |                             <a href="#String">String</a>
+                                 |                             <a href="#Error">Error</a>
                             +----+----+
-                            |         |                        <a href="#Error">Error</a>
+                            |         |                        <a href="#StorageAreas">StorageAreas</a>
                          <a href="#Spellbook">Spellbook</a>   <a href="#Corpse">Corpse</a>
-                                                               <a href="#StorageAreas">StorageAreas</a>
+                                                               <a href="#StorageArea">StorageArea</a>
 
-                                                               <a href="#StorageAreas">StorageArea</a>
+                                                               
 </pre>
 
-<datemodified>12/26/2015</datemodified>
+<datemodified>08/14/2017</datemodified>
 </fileheader>
 
 
@@ -80,7 +80,6 @@
 <method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
 <method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
 <method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
-<method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
 <method desc="Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;u suck&quot;) is the same as obj.name := &quot;u suck&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error" />
 <method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
@@ -261,7 +260,7 @@
 <member mname="lawfullydamaged" type="Array" access="r/o" mdesc="list of mobiles this character is flagged as lawfully damaged on repsys" />
 <member mname="uo_expansion_client" type="Integer" access="r/o" mdesc="client send expansion info flag (deprecated, will be removed in next release, use Client instead)" />
 <member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield (deprecated, will be removed in next release, use Client instead)" />
-<member mname="deafened" type="Integer" access="r/o" mdesc="1 = player cannot hear" />
+<member mname="deafed" type="Integer" access="r/o" mdesc="1 = player cannot hear" />
 <member mname="client" type="Client" access="r/o" mdesc="returns ClientRef object or error" />
 <member mname="house_editing" type="Boolean" access="r/o" mdesc="1 if character is currently editing an house"/>
 <member mname="lastcoord" type="Struct" access="r/o" mdesc="position before the last walk packet as struct{lastx,lasty,lastz}"/>
@@ -300,6 +299,7 @@
 <method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, array arguments)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string (array of int); separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, CAscZ(&quot;1234 5678&quot;));" />
 <method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
 <method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
+<method proto="disableSkillsFor(int duration)" returns="duration/error" desc="Disables skill scripts for given seconds" />
 </class>
 
 
@@ -340,7 +340,7 @@
 <member mname="rudder" type="Array" access="r/o" mdesc="array of ItemRefs of all the rudder components on the boat, or empty array if none" />
 <member mname="sails" type="Array" access="r/o" mdesc="array of ItemRefs of all the sails components on the boat, or empty array if none" />
 <member mname="storage" type="Array" access="r/o" mdesc="array of ItemRefs of all the storage components on the boat, or empty array if none" />
-<member mname="waponslot" type="Array" access="r/o" mdesc="array of ItemRefs of all the weaponslot components on the boat, or empty array if none" />
+<member mname="weaponslot" type="Array" access="r/o" mdesc="array of ItemRefs of all the weaponslot components on the boat, or empty array if none" />
 <member mname="components" type="Array" access="r/o" mdesc="array of ItemRefs of all the components on the boat" />
 <member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
 
@@ -372,7 +372,7 @@
 <class name="Door">
 <parent>Lockable</parent>
 <explain>A door item that automatically closes.</explain>
-<member mname="isopen " type="Boolean" access="r/o" mdesc="true if the door is open" />
+<member mname="isopen" type="Boolean" access="r/o" mdesc="true if the door is open" />
 
 <method proto="open()" returns="true" desc="opens the door" />
 <method proto="close()" returns="true" desc="closes the door" />
@@ -406,8 +406,9 @@
 <method proto="setprop(string propname, propval)" returns="true" desc="SetObjProperty for account objects." />
 <method proto="eraseprop(string propname)" returns="true" desc="EraseObjProperty for account objects." />
 <method proto="propnames()" returns="Array" desc="returns an array of cprop names on this account" />
-<method proto="set_uo_expansion(string expansion)" returns="true/error" desc="This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: SA, KR, ML, SE, AOS, LBR, T2A (default)." />
+<method proto="set_uo_expansion(string expansion)" returns="true/error" desc="This determines what flag is sent with packet 0xB9 during login (Nothing -> 0x0000 / T2A -> 0x0001 / LBR -> 0x0002 / AOS -> 0x801b / SE -> 0x805b / ML -> 0x80db / KR -> 0x86DB / SA -> 0x187DF / HSA -> 0x387DF / TOL -> 0x7387DF). It's possible to hook 0xB9 but don't forget to set_uo_expansion anyway because core uses this for internal flags (e.g. AoS Tooltips). The servspecopt.cfg UOFeatureEnable is used with packet 0xA9 and is currently global to all clients. Recognized values: TOL, HSA, SA, KR, ML, SE, AOS, LBR, T2A (default)." />
 <method proto="setdefaultcmdlevel(integer number)" returns="true/error" desc="Set the account's default command level." />
+<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
 
 
@@ -517,16 +518,6 @@
 <!-- internal() method is useful for crashing the server... that's funny but it should probably be left undocumented ;) -->
 </class>
 
-
-<class name="Datastore">
-<explain>Functions for manipulating a datastore. Not an actual object, but funcs found in datafile.em, presented here for completeness.</explain>
-<method proto="ListDataFiles()" returns="Array" desc="Lists known datafiles" />
-<method proto="CreateDataFile(string name, int flags)" returns="DataFileRef/error" desc="Creates a datafile" />
-<method proto="OpenDataFile(string name)" returns="DataFileRef/error" desc="Opens a datafile" />
-<method proto="UnloadDataFile(string name)" returns="true/error" desc="Unloads a datafile"/>
-</class>
-
-
 <class name="Datafile">
 <explain>Object representing a data file in a data store</explain>
 <method proto="CreateElement(key)" returns="error/DataFileElemRef" desc="key is int or string, depending on datafile flags" />
@@ -569,6 +560,7 @@ Checks are made in the order above." />
 <method proto="kill()" returns="true" desc="Kills this script" />
 <method proto="loadsymbols()" returns="Boolean" desc="Loads the .dbg file" />
 <method proto="clear_event_queue()" returns="true" desc="clears the event queue of the script"/>
+<method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
 
 
@@ -822,6 +814,7 @@ It supports the [] operator: its behavior is similar to FindStorageArea()</expla
 <explain>Object representing a storage area.
 It is iterable: iterates over Item objects (root items in storage area).</explain>
 <member mname="count" type="Integer" access="r/o" mdesc="Number of root items in this storage area" />
+<member mname="totalcount" type="Integer" access="r/o" mdesc="Number of items in this storage area" />
 </class>
 
 

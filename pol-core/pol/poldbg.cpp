@@ -36,7 +36,6 @@
 
 #include <string>
 #include <vector>
-#include <deque>
 #include <map>
 #include <fstream>
 
@@ -459,8 +458,8 @@ std::string DebugContext::cmd_stacktrace( Results& results )
     return "No debugging information available.";
 
 
-  std::deque<BObjectRefVec*> upperLocals2 = exec->upperLocals2;
-  std::deque<ReturnContext> stack = exec->ControlStack;
+  std::vector<BObjectRefVec*> upperLocals2 = exec->upperLocals2;
+  std::vector<ReturnContext> stack = exec->ControlStack;
 
   unsigned int PC;
 

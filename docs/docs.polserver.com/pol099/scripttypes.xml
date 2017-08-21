@@ -4,7 +4,7 @@
 <ESCRIPT>
 <fileheader name="POL Script Types">
   <desc>This is a list of all the different script types used in the POL system. Some only pertain to specific objects, and/or specifc events, as described.</desc>
-  <datemodified>05/07/2015</datemodified>
+  <datemodified>08/13/2017</datemodified>
 </fileheader>
 
 
@@ -817,6 +817,19 @@ endfunction
     <relatedobj>Character</relatedobj>
 </scripttype>
 
+<scripttype name="DblClickItemScript">
+  <prototype>program dblclickitem(character, item_clicked)</prototype>
+    <parameter name="character" value="Character ref" />
+    <parameter name="item_clicked" value="Item ref" />
+    <return>return value ignored</return>
+    <schedtype>Normal</schedtype>
+    <def_prio>100</def_prio>
+    <whencalled>When a player double clicks a item.</whencalled>
+    <wherelives>The 'program' in dblclickitem.src file, only in /scripts/misc</wherelives>
+    <todefine>If the compiled file exists it is automatically called on doubleclick.</todefine>
+    <relatedobj>Character</relatedobj>
+</scripttype>
+
 <scripttype name="SkillWinScript">
     <prototype>program skillwin(character)</prototype>
     <parameter name="character" value="Character ref" />
@@ -1130,7 +1143,7 @@ endfunction</example>
     <wherelives>As exported functions in a .src, as defined in syshook.cfg or uopacket.cfg.</wherelives>
     <todefine>Define a system hook script in a syshook.cfg or a packet hook script in a uopacket.cfg.</todefine>
     <explain>The valid system hook names are:</explain>
-    <explain><code>CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide</code></explain>
+    <explain><code>CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide, CloseCustomHouse, WarmodeChange, CanTrade</code></explain>
     <explain>You can use any name in packet hook script (ReceiveFunction/SendFunction - you can find examples in packethooks.txt).</explain>
 	  <explain>Note: You must define a "program" named scriptname in the file scriptname. This program should perform any substantive initialization for supporting the individual hooks in the file. Return 1 to install the hooks, or 0 to disable. This will be run only once on startup.</explain>
     <explain><code>CheckSkill:</code></explain>
@@ -1165,6 +1178,12 @@ endfunction</example>
 	  <explain>params: CharRef character, Packet byref packet. When called: When the server receives a packet by client. Return: 0 if you wish POL to perform its normal data processing on the packet (if any default packet handler exists for this packet ID), or 1 if you wish POL to do no processing on the packet (i.e. your script handled it fully).</explain>
 	  <explain><code>SendFunction:</code></explain>
 	  <explain>params: CharRef character, Packet byref packet. When called: When the server will send a packet to the client. Return: 0 if you wish POL to perform its normal data processing on the packet (if any default packet handler exists for this packet ID), or 1 if you wish POL to do no processing on the packet (i.e. your script handled it fully). You MUST NOT use the SendPacket or SendAreaPacket methods on the passed-in packet with SendFunction. Rather, edit the packet as you wish, and return 0. POL will send the packet as normal. You may create and send a different packet (NOT the same Packet ID, else the send functions will loop) from within this function, but note the sending order will be created packet, then hooked packet (if you return 0).</explain>
+    <explain><code>CloseCustomHouse:</code></explain>
+    <explain>params: CharRef mobile, MultiRef multi. When called: When mobiles quits house editing. Return: Ignored.</explain>
+    <explain><code>WarmodeChange:</code></explain>
+    <explain>params: CharRef mobile, Integer new_status. When called: When mobile changes the warmode. Return: Ignored.</explain>
+    <explain><code>CanTrade:</code></explain>
+    <explain>params: CharRef mobile, CharRef drop_on, ItemRef item. When called: When dropping an item on a character or when trying to add an item to a tradewindow. Return: 0 disallow trade, 1 core will continue.</explain>
     <example>
 //Pushthrough hook example    
 //syshook.cfg defines: 

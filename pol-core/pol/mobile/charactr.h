@@ -499,8 +499,6 @@ public:
   void disable_regeneration_for( int seconds );
   void refresh_element( Core::ElementalType element );
   void update_element( Core::ElementalType element, Items::Item* item );
-  s16 calc_element_resist( Core::ElementalType resist ) const;
-  s16 calc_element_damage( Core::ElementalType element ) const;
 
   u16 strength() const;
   u16 intelligence() const;

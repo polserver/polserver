@@ -31,6 +31,8 @@ public:
   void check( std::string& var, const char* tag, const char* deflt );
   size_t estimateSize() const;
 
+  void deinitialize();
+
 public:
   ~UoClientGeneral();
 

@@ -50,6 +50,22 @@ UOExecutor::~UOExecutor()
   pChild = NULL;
 }
 
+bool UOExecutor::suspend()
+{
+  // Run to completion scripts can't be suspended
+  if ( running_to_completion() )
+    return false;
+
+  os_module->suspend();
+	return true;
+}
+
+bool UOExecutor::revive()
+{
+	os_module->revive();
+	return true;
+}
+
 std::string UOExecutor::state()
 {
   if ( halt() )

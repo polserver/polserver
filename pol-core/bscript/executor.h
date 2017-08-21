@@ -37,7 +37,6 @@
 #include "../clib/spinlock.h"
 
 #include <stack>
-#include <deque>
 #include <vector>
 #include <exception>
 
@@ -68,7 +67,7 @@ typedef std::map<std::string, profile_instr> escript_profile_map;
 extern escript_profile_map EscriptProfileMap;
 #endif
 
-typedef std::deque<BObjectRef> ValueStackCont;
+typedef std::vector<BObjectRef> ValueStackCont;
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
@@ -113,9 +112,9 @@ public:
 
   BObjectRefVec Globals2;
 
-  std::deque<BObjectRefVec*> upperLocals2;
+  std::vector<BObjectRefVec*> upperLocals2;
 
-  std::deque<ReturnContext> ControlStack;
+  std::vector<ReturnContext> ControlStack;
 
   BObjectRefVec* Locals2;
 
@@ -339,6 +338,8 @@ public:
   static int ins_casejmp_findstring( const Token& token, String* bstringimp );
   static int ins_casejmp_finddefault( const Token& token );
 
+  bool running_to_completion() const;
+  void set_running_to_completion( bool to_completion );
 
   bool runnable() const;
   void calcrunnable();
@@ -378,6 +379,8 @@ private:
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;
   bool viewmode_;
+  
+  bool runs_to_completion_;
 
   bool debugging_;
   enum DEBUG_STATE
@@ -462,6 +465,17 @@ inline void Executor::setdebugging( bool debugging )
 {
   debugging_ = debugging;
 }
+
+
+inline bool Executor::running_to_completion() const
+{
+  return runs_to_completion_;
+}
+inline void Executor::set_running_to_completion( bool to_completion )
+{
+  runs_to_completion_ = to_completion;
+}
+
 }
 }
 #endif

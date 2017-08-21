@@ -96,8 +96,14 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
     }
   };
 
+  if ( !uoexec->suspend() )
+  {
+    DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
   Core::networkManager.sql_service->push( std::move( msg ) );
-  uoexec->os_module->suspend();
   return new BLong( 0 );
 }
 
@@ -145,8 +151,14 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
       }
     }
   };
+
+  if ( !uoexec->suspend() )
+  {
+    DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
   Core::networkManager.sql_service->push( std::move( msg ) );
-  uoexec->os_module->suspend();
   return new BLong( 0 );
 }
 
@@ -209,8 +221,15 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       }
     }
   };
+  
+  if ( !uoexec->suspend() )
+  {
+    DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
   Core::networkManager.sql_service->push( std::move( msg ) );
-  uoexec->os_module->suspend();
   return new BLong( 0 );
 }
 

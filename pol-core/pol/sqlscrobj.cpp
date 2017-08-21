@@ -8,6 +8,8 @@
 
 #ifdef HAVE_MYSQL
 
+#include <limits>
+
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/clib_endian.h"
@@ -334,7 +336,7 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
       return false;
     }
 
-    if ( it->size() > ULONG_MAX )
+    if ( it->size() > ( std::numeric_limits<size_t>::max() - 5 ) / 2 )
     {
       _errno = -3;
       _error = "Parameter is too long.";

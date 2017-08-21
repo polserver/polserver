@@ -273,19 +273,6 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
     }
   }
 
-  case MTH_ISA:
-  {
-    int type;
-    if ( ex.getParam( 0, type ) )
-    {
-      return new BLong( script_isa( type ) );
-    }
-    else
-    {
-      return new BError( "Invalid Parameter" );
-    }
-  }
-
   default:
     return NULL;
   }

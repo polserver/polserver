@@ -549,11 +549,13 @@ BObjectImp* UOExecutorModule::broadcast()
   const char* text;
   unsigned short font;
   unsigned short color;
+  unsigned short requiredCmdLevel;
   text = exec.paramAsString( 0 );
-  if ( text && getParam( 1, font ) &&  // todo: getFontParam
-       getParam( 2, color ) )          // todo: getColorParam
+  if ( text && getParam( 1, font ) &&			// todo: getFontParam
+       getParam( 2, color ) &&					// todo: getColorParam
+	   getParam(3, requiredCmdLevel))          // todo: getRequiredCmdLevelParam
   {
-    Core::broadcast( text, font, color );
+    Core::broadcast( text, font, color, requiredCmdLevel);
     return new BLong( 1 );
   }
   else
@@ -794,66 +796,55 @@ void handle_script_cursor( Character* chr, UObject* obj )
 BObjectImp* UOExecutorModule::mf_Target()
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
-  {
-    if ( chr->has_active_client() )
-    {
-      if ( !chr->target_cursor_busy() )
-      {
-        if ( !getParam( 1, target_options ) )
-          target_options = TGTOPT_CHECK_LOS;
-
-        PKTBI_6C::CURSOR_TYPE crstype;
-
-        if ( target_options & TGTOPT_HARMFUL )
-          crstype = PKTBI_6C::CURSOR_TYPE_HARMFUL;
-        else if ( target_options & TGTOPT_HELPFUL )
-          crstype = PKTBI_6C::CURSOR_TYPE_HELPFUL;
-        else
-          crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
-
-        if ( ( target_options & TGTOPT_CHECK_LOS ) && !chr->ignores_line_of_sight() )
-        {
-          if ( gamestate.target_cursors.los_checked_script_cursor.send_object_cursor( chr->client,
-                                                                                      crstype ) )
-          {
-            chr->client->gd->target_cursor_uoemod = this;
-            target_cursor_chr = chr;
-            uoexec.os_module->suspend();
-            return new BLong( 0 );
-          }
-          else
-          {
-            return new BError( "Client has an active target cursor" );
-          }
-        }
-        else
-        {
-          if ( gamestate.target_cursors.nolos_checked_script_cursor.send_object_cursor( chr->client,
-                                                                                        crstype ) )
-          {
-            chr->client->gd->target_cursor_uoemod = this;
-            target_cursor_chr = chr;
-            uoexec.os_module->suspend();
-            return new BLong( 0 );
-          }
-          return new BError( "Client has an active target cursor" );
-        }
-      }
-      else
-      {
-        return new BError( "Client busy with another target cursor" );
-      }
-    }
-    else
-    {
-      return new BError( "No client connected" );
-    }
-  }
-  else
+  if ( !getCharacterParam( exec, 0, chr ) )
   {
     return new BError( "Invalid parameter type" );
   }
+  if ( !chr->has_active_client() )
+  {
+    return new BError( "No client connected" );
+  }
+  if ( chr->target_cursor_busy() )
+  {
+    return new BError( "Client busy with another target cursor" );
+  }
+
+  if ( !getParam( 1, target_options ) )
+    target_options = TGTOPT_CHECK_LOS;
+
+  PKTBI_6C::CURSOR_TYPE crstype;
+
+  if ( target_options & TGTOPT_HARMFUL )
+    crstype = PKTBI_6C::CURSOR_TYPE_HARMFUL;
+  else if ( target_options & TGTOPT_HELPFUL )
+    crstype = PKTBI_6C::CURSOR_TYPE_HELPFUL;
+  else
+    crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
+  
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::Target():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  TargetCursor *tgt_cursor = nullptr;
+
+  bool is_los_checked = (target_options & TGTOPT_CHECK_LOS) && !chr->ignores_line_of_sight();
+  if ( is_los_checked ) 
+  {
+    tgt_cursor = &gamestate.target_cursors.los_checked_script_cursor;
+  }
+  else {
+    tgt_cursor = &gamestate.target_cursors.nolos_checked_script_cursor;
+  }
+
+  tgt_cursor->send_object_cursor( chr->client, crstype );
+  
+  chr->client->gd->target_cursor_uoemod = this;
+  target_cursor_chr = chr;
+
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_TargetCancel()
@@ -937,38 +928,30 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 BObjectImp* UOExecutorModule::mf_TargetCoordinates()
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
-  {
-    if ( chr->has_active_client() )
-    {
-      if ( !chr->target_cursor_busy() )
-      {
-        if ( gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client ) )
-        {
-          chr->client->gd->target_cursor_uoemod = this;
-          target_cursor_chr = chr;
-          uoexec.os_module->suspend();
-          return new BLong( 0 );
-        }
-        else
-        {
-          return new BError( "Client has an active target cursor" );
-        }
-      }
-      else
-      {
-        return new BError( "Client has an active target cursor" );
-      }
-    }
-    else
-    {
-      return new BError( "Mobile has no active client" );
-    }
-  }
-  else
+  if ( !getCharacterParam( exec, 0, chr ) )
   {
     return new BError( "Invalid parameter type" );
   }
+  if ( !chr->has_active_client() )
+  {
+    return new BError( "Mobile has no active client" );
+  }
+  if ( chr->target_cursor_busy() )
+  {
+    return new BError( "Client has an active target cursor" );
+  }
+
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::TargetCoordinates():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client );
+  chr->client->gd->target_cursor_uoemod = this;
+  target_cursor_chr = chr;
+  return new BLong( 0 );
 }
 
 BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
@@ -1001,11 +984,19 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new BError( "Object Type is out of range for Multis" );
   }
 
+  if ( !uoexec.suspend() ) {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::TargetMultiPlacement():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
   chr->client->gd->target_cursor_uoemod = this;
   target_cursor_chr = chr;
+  
   gamestate.target_cursors.multi_placement_cursor.send_placemulti(
       chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
-  uoexec.os_module->suspend();
+
   return new BLong( 0 );
 }
 
@@ -1618,34 +1609,36 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   Character* chr;
   Menu* menu;
 
-  if ( getCharacterParam( exec, 0, chr ) && getStaticOrDynamicMenuParam( 1, menu ) &&
-       ( chr->client->gd->menu_selection_uoemod == NULL ) )
-  {
-    if ( menu != NULL && chr->has_active_client() && !menu->menuitems_.empty() )
-    {
-      if ( send_menu( chr->client, menu ) )
-      {
-        chr->menu = menu->getWeakPtr();
-        chr->on_menu_selection = menu_selection_made;
-        chr->client->gd->menu_selection_uoemod = this;
-        menu_selection_chr = chr;
-        uoexec.os_module->suspend();
-        return new BLong( 0 );
-      }
-      else
-      {
-        return new BError( "Menu too large" );
-      }
-    }
-    else
-    {
-      return new BError( "Client is busy, or menu is empty" );
-    }
-  }
-  else
+  if ( !getCharacterParam( exec, 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
+    (chr->client->gd->menu_selection_uoemod != NULL) )
   {
     return new BError( "Invalid parameter" );
   }
+
+  if ( menu == NULL || !chr->has_active_client() || menu->menuitems_.empty() )
+  {
+    return new BError( "Client is busy, or menu is empty" );
+  }
+
+  if ( !send_menu( chr->client, menu ) )
+  {
+    return new BError( "Menu too large" );
+  }
+    
+  if ( !uoexec.suspend() )
+  {
+    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+      << "\tCall to function UO::SelectMenuItem():\n"
+      << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  chr->menu = menu->getWeakPtr();
+  chr->on_menu_selection = menu_selection_made;
+  chr->client->gd->menu_selection_uoemod = this;
+  menu_selection_chr = chr;
+
+  return new BLong( 0 );
 }
 
 void append_objtypes( ObjArray* objarr, Menu* menu )

@@ -197,8 +197,6 @@ int RunEclMain::runecl()
     case '-':
       switch ( binArgs[i][1] )
       {
-      case 'a':
-      case 'A':
       case 'd':
       case 'D':
       case 'v':
@@ -227,7 +225,6 @@ int RunEclMain::main()
   m_quiet = programArgsFind( "q" );
   m_debug = programArgsFind( "d" );
   m_profile = programArgsFind( "p" );
-  Clib::passert_disabled = !programArgsFind( "a" );
 
   /**********************************************
    * show copyright

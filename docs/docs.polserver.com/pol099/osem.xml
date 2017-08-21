@@ -14,9 +14,10 @@
   </fileheader>
 
   <function name="GetProcess"> 
-    <prototype>GetProcess(pid)</prototype>
-    <parameter name="pid" value="Integer process ID of a script" />
+    <prototype>GetProcess(pid := 0)</prototype>
+    <parameter name="pid" value="Integer process ID of a script (optional)" />
     <explain>Gets a script process object for the given script's PID.</explain>
+    <explain>If no PID is supplied uses PID of parent script.</explain>
     <return>A Script object</return>
     <error>"Process not found"</error>
     <error>"Invalid parameter type"</error>

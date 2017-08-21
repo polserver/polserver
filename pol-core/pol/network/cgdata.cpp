@@ -114,7 +114,7 @@ void ClientGameData::clear()
 
   if ( prompt_uniemod != NULL )
   {
-    prompt_uniemod->os_module->revive();
+    prompt_uniemod->uoexec.os_module->revive();
     prompt_uniemod->prompt_chr = NULL;
     prompt_uniemod = NULL;
   }

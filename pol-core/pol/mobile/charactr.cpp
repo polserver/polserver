@@ -2700,54 +2700,6 @@ void Character::refresh_element( Core::ElementalType element )
   }
 }
 
-s16 Character::calc_element_resist( Core::ElementalType resist ) const
-{
-  Core::AosValuePack curr;
-  switch ( resist )
-  {
-  case Core::ELEMENTAL_FIRE:
-    curr = fire_resist();
-    break;
-  case Core::ELEMENTAL_COLD:
-    curr = cold_resist();
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    curr = energy_resist();
-    break;
-  case Core::ELEMENTAL_POISON:
-    curr = poison_resist();
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    curr = physical_resist();
-    break;
-  }
-  return curr.value + curr.mod;
-}
-
-s16 Character::calc_element_damage( Core::ElementalType element ) const
-{
-  Core::AosValuePack curr;
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    curr = fire_damage();
-    break;
-  case Core::ELEMENTAL_COLD:
-    curr = cold_damage();
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    curr = energy_damage();
-    break;
-  case Core::ELEMENTAL_POISON:
-    curr = poison_damage();
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    curr = physical_damage();
-    break;
-  }
-  return curr.value + curr.mod;
-}
-
 void Character::showarmor() const
 {
   if ( client != NULL )

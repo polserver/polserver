@@ -464,7 +464,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
   int max_split = -1;
   int count = 0;
 
-  if ( exec.hasParams( 2 ) )
+  if ( exec.hasParams( 3 ) )
   {
     max_split = static_cast<int>( exec.paramAsLong( 2 ) );
   }

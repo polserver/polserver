@@ -2,9 +2,50 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-01-2017</datemodified>
+		<datemodified>08-03-2017</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>08-03-2017</date>
+			<author>Nando:</author>
+			<change type="Fixed">Shutdown crash when using character method scripts.</change>
+		</entry>
+		<entry>
+			<date>07-31-2017</date>
+			<author>Nando:</author>
+			<change type="Fixed">Interactive commands could cause a crash when used inside a run-to-completion script<br/>
+(e.g., syshooks, scripts ran via OS::run_script_to_completion() and method scripts). The<br/>
+interactive commands	will now return an error if the script can't be blocked.<br/>
+(Note: this does not apply to critical scripts, which *can* block).<br/>
+Affected commands:<br/>
+UO::Target(), UO::TargetCoordinates(), UO::TargetMultiPlacement(), UO::SelectMenuItem(),<br/>
+UO::SendDialogGump(), UO::SendGumpMenu(), UO::SendTextEntryGump(), UO::SendInstaResDialog(),<br/>
+UO::SelectColor(), UO::SendPopupMenu(), UO::RequestInput(), Unicode::RequestInputUC()</change>
+		</entry>
+		<entry>
+			<date>07-23-2017</date>
+			<author>DevGIB:</author>
+			<change type="Added">_DEFAULT_TEXT_REQUIREDCMD := 0 to uo.em which allows to set a minimum cmd level that broadcasts will be sent to.</change>
+			<change type="Changed">Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD )<br/>
+adding requiredcmdlevel argument which allows you to set a minimum cmd level that the broadcast will be sent to.</change>
+			<change type="Changed">No longer require a PID for GetProcess( pid  := &quot;&quot; ), not selecting a PID will use the PID of the parent script.</change>
+		</entry>
+		<entry>
+			<date>07-17-2017</date>
+			<author>Kevin:</author>
+			<change type="Fixed">PrintTextAbove*CL() now behaves similarly to PrintTextAbove*() functions, displaying the<br/>
+object's description instead of &quot;System&quot;.</change>
+		</entry>
+		<entry>
+			<date>05-28-2017</date>
+			<author>Turley:</author>
+			<change type="Removed">pol.cfg entry to disable assertions. A crash will anyway happen, thus it makes no sense and only hides the real reason.</change>
+		</entry>
+		<entry>
+			<date>05-28-2017</date>
+			<author>Nando:</author>
+			<change type="Fixed">Crash when using SplitWords() in a script that was compiled with outdated .em files.</change>
+		</entry>
 		<entry>
 			<date>05-01-2017</date>
 			<author>Turley:</author>
