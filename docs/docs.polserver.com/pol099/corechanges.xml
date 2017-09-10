@@ -2,9 +2,21 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-03-2017</datemodified>
+		<datemodified>09-10-2017</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>09-10-2017</date>
+			<author>Turley:</author>
+			<change type="Added">poltool uncompressgump<br/>
+unpacks and prints content of a compressed gump<br/>
+only parameter is a filename, which needs to contain a single 0xDD packetlog</change>
+			<change type="Added">item member no_drop 1/0 r/w (itemdesc NoDrop)<br/>
+if set no drop of this item is allowed<br/>
+container/npc member no_drop_exception 1/0 r/w<br/>
+(itemdesc/npctemplate NoDropException)<br/>
+if set this container/npc is a valid target even if no_drop is set for the item</change>
+		</entry>
 		<entry>
 			<date>08-03-2017</date>
 			<author>Nando:</author>

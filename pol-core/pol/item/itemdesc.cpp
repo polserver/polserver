@@ -195,6 +195,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       invisible( elem.remove_bool( "INVISIBLE", false ) ),
       decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
       blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
+      no_drop( elem.remove_bool( "NoDrop", false ) ),
       base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
       quality( elem.remove_double( "QUALITY", 1.0 ) ),
       props( Core::CPropProfiler::Type::ITEM ),
@@ -527,6 +528,7 @@ ItemDesc::ItemDesc( Type type )
       invisible( false ),
       decays_on_multis( false ),
       blocks_casting_if_in_hand( true ),
+      no_drop( false ),
       base_str_req( 0 ),
       stack_limit( MAX_STACK_ITEMS ),
       quality( 1.0 ),
@@ -618,6 +620,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "Invisible", new BLong( invisible ) );
   descriptor->addMember( "DecaysOnMultis", new BLong( decays_on_multis ) );
   descriptor->addMember( "BlocksCastingIfInHand", new BLong( blocks_casting_if_in_hand ) );
+  descriptor->addMember( "NoDrop", new BLong( no_drop ) );
   descriptor->addMember( "StrRequired", new BLong( base_str_req ) );
   descriptor->addMember( "StackLimit", new BLong( stack_limit ) );
   descriptor->addMember( "Weight", new Double( static_cast<double>( weightmult ) / weightdiv ) );
@@ -718,6 +721,7 @@ ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::P
                                      Core::settingsManager.ssopt.default_container_max_items ) ),
       max_slots( static_cast<u8>(
           elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
+      no_drop_exception( elem.remove_bool( "NoDropException", false ) ),
       can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
       on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
       can_remove_script( elem.remove_string( "CANREMOVESCRIPT", "" ), pkg, "scripts/control/" ),
@@ -746,6 +750,7 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "MaxWeight", new BLong( max_weight ) );
   descriptor->addMember( "MaxItems", new BLong( max_items ) );
   descriptor->addMember( "MaxSlots", new BLong( max_slots ) );
+  descriptor->addMember( "NoDropException", new BLong( no_drop_exception ) );
   descriptor->addMember( "CanInsertScript", new String( can_insert_script.relativename( pkg ) ) );
   descriptor->addMember( "CanRemoveScript", new String( can_remove_script.relativename( pkg ) ) );
   descriptor->addMember( "OnInsertScript", new String( on_insert_script.relativename( pkg ) ) );
@@ -762,6 +767,7 @@ size_t ContainerDesc::estimatedSize() const
          + sizeof( u16 )                       /*max_weight*/
          + sizeof( u16 )                       /*max_items*/
          + sizeof( u8 )                        /*max_slots*/
+         + sizeof( bool )                      /*no_drop_exception*/
          + can_insert_script.estimatedSize() + on_insert_script.estimatedSize() +
          can_remove_script.estimatedSize() + on_remove_script.estimatedSize();
 }

@@ -104,6 +104,7 @@ Item* Item::clone() const
   item->maxhp_mod( maxhp_mod() );
   item->name_suffix( name_suffix() );
 
+  item->no_drop( no_drop() );
   return item;
 }
 
@@ -307,6 +308,21 @@ bool Item::use_insurance()
   return false;
 }
 
+bool Item::no_drop() const
+{
+  return flags_.get( Core::OBJ_FLAGS::NO_DROP );
+}
+
+void Item::no_drop( bool newvalue )
+{
+  flags_.change( Core::OBJ_FLAGS::NO_DROP, newvalue );
+}
+
+bool Item::default_no_drop() const
+{
+  return itemdesc().no_drop;
+}
+
 unsigned short Item::maxhp() const
 {
   int maxhp = itemdesc().maxhp + maxhp_mod();
@@ -407,6 +423,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tQuality\t" << quali << pf_endl;
   if ( !suffix.empty() )
     sw() << "\tNameSuffix\t" << suffix << pf_endl;
+  if ( no_drop() != default_no_drop() )
+    sw() << "\tNoDrop\t" << no_drop() << pf_endl;
 }
 
 void Item::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -482,6 +500,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
 
   maxhp_mod( static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
   name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
+  no_drop( elem.remove_bool( "NODROP", default_no_drop() ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )

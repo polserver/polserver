@@ -188,6 +188,10 @@ public:
   DYN_PROPERTY( max_slots_mod, s8, Core::PROP_MAX_SLOTS_MOD, 0 );
   DYN_PROPERTY( max_weight_mod, s16, Core::PROP_MAX_WEIGHT_MOD, 0 );
 
+  bool no_drop_exception() const;
+  void no_drop_exception( bool newvalue );
+  bool default_no_drop_exception() const;
+
 protected:
   Contents contents_;
 

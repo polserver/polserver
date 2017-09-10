@@ -129,6 +129,10 @@ public:
   void insured( bool newvalue );
   bool use_insurance();
 
+  bool no_drop() const;
+  bool default_no_drop() const;
+  void no_drop( bool newvalue );
+
   u8 slot_index() const;
   bool slot_index( u8 newvalue );
   void reset_slot();

@@ -856,6 +856,8 @@ void UContainer::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tMax_Weight_mod\t" << max_weight_mod() << pf_endl;
   if ( has_max_slots_mod() )
     sw() << "\tMax_Slots_mod\t" << max_slots_mod() << pf_endl;
+  if ( no_drop_exception() != default_no_drop_exception() )
+    sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
 
 void UContainer::readProperties( Clib::ConfigElem& elem )
@@ -864,6 +866,7 @@ void UContainer::readProperties( Clib::ConfigElem& elem )
   max_items_mod( static_cast<s16>( elem.remove_int( "MAX_ITEMS_MOD", 0 ) ) );
   max_weight_mod( static_cast<s16>( elem.remove_int( "MAX_WEIGHT_MOD", 0 ) ) );
   max_slots_mod( static_cast<s8>( elem.remove_int( "MAX_SLOTS_MOD", 0 ) ) );
+  no_drop_exception( elem.remove_bool( "NoDropException", default_no_drop_exception() ) );
 }
 
 unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
@@ -905,6 +908,7 @@ Items::Item* UContainer::clone() const
   item->max_items_mod( this->max_items_mod() );
   item->max_weight_mod( this->max_weight_mod() );
   item->max_slots_mod( this->max_slots_mod() );
+  item->no_drop_exception( no_drop_exception() );
 
   return item;
 }
@@ -943,6 +947,21 @@ u8 UContainer::max_slots() const
     return static_cast<u8>( max_slots );
   else
     return MAX_SLOTS;
+}
+
+bool UContainer::no_drop_exception() const
+{
+  return flags_.get( Core::OBJ_FLAGS::NO_DROP_EXCEPTION );
+}
+
+void UContainer::no_drop_exception( bool newvalue )
+{
+  flags_.change( Core::OBJ_FLAGS::NO_DROP_EXCEPTION, newvalue );
+}
+
+bool UContainer::default_no_drop_exception() const
+{
+  return desc.no_drop_exception;
 }
 }
 }

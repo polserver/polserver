@@ -346,6 +346,12 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
 
 bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16 y, s8 z )
 {
+  if ( item->no_drop() )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
+  }
+
   Mobile::Character* chr = client->chr;
 
   Multi::UMulti* multi;
@@ -594,6 +600,11 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   if ( !dropon->isa( UOBJ_CLASS::CLASS_NPC ) )
   {
+    if ( item->no_drop() )
+    {
+      send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+      return false;
+    }
     if ( gamestate.system_hooks.can_trade )
     {
       if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ),
@@ -612,6 +623,11 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   Mobile::NPC* npc = static_cast<Mobile::NPC*>( dropon );
   if ( !npc->can_accept_event( EVID_ITEM_GIVEN ) )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
+  }
+  if ( item->no_drop() && !npc->no_drop_exception() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -675,6 +691,11 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
   }
 
   if ( cont == NULL )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
+  }
+  if ( item->no_drop() && !cont->no_drop_exception() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;

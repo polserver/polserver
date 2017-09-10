@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>08/13/2017</datemodified>
+    <datemodified>09/10/2017</datemodified>
 </fileheader>
 
 
@@ -1323,6 +1323,7 @@ NpcTemplate (string unique templatename)
     [RunSpeed              (int 0-250 {default dexterity})]
     [SaveOnExit            (0/1 {default 1})]
     [MethodScript          (string scriptname)]
+    [NoDropException       (0/1 {default 0})]
 
     [CProp                  (string name, string value, will set a CProp on the npc at creation)]
     [Cprop                  (...)]
@@ -1410,6 +1411,7 @@ Item (objtype)
     [PoisonDamage           (int/(die-string value))]
     [PhysicalDamage         (int/(die-string value))]
     [StackLimit             (int {default 60000})]
+    [NoDrop                 (0/1 {default 0})]
 
     [CProp                  (string name, string value, will set a CProp on the item at creation)]
     [Cprop                  (...)]
@@ -1427,6 +1429,7 @@ Container (objtype)
     [MaxWeight      (int weight {default to servspecopt.cfg})]
     [MaxItems       (int number {default to servspecopt.cfg})]
     [MaxSlots       (int 1-255 {default to servspecopt.cfg})]
+    [NoDropException    (0/1 {default 0})]
     [CanInsertScript    (string scriptname)]
     [OnInsertScript     (string scriptname)]
     [CanRemoveScript    (string scriptname)]

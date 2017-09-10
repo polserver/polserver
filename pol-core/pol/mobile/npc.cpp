@@ -350,6 +350,8 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   value = curr_physical_damage().value;
   if ( value != 0 )
     sw() << "\tPhysicalDamage\t" << static_cast<int>( value ) << pf_endl;
+  if ( no_drop_exception() )
+    sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
 
 void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -424,6 +426,7 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
   run_speed = elem.remove_ushort( "RunSpeed", dexterity() );
 
   damaged_sound = elem.remove_ushort( "DamagedSound", 0 );
+  no_drop_exception( elem.remove_bool( "NoDropException", false ) );
 }
 
 // This now handles all resistances, including AR to simplify the code.
@@ -1079,7 +1082,8 @@ bool NPC::send_event( Bscript::BObjectImp* event )
     if ( ex->os_module->signal_event( event ) )
       return true;
   }
-  else {
+  else
+  {
     // There's no executor, so we must delete it ourselves.
     Bscript::BObject bo( event );
   }
@@ -1317,5 +1321,14 @@ void NPC::use_adjustments( bool newvalue )
   mob_flags_.change( MOB_FLAGS::USE_ADJUSTMENTS, newvalue );
 }
 
+bool NPC::no_drop_exception() const
+{
+  return flags_.get( Core::OBJ_FLAGS::NO_DROP_EXCEPTION );
+}
+
+void NPC::no_drop_exception( bool newvalue )
+{
+  flags_.change( Core::OBJ_FLAGS::NO_DROP_EXCEPTION, newvalue );
+}
 }
 }

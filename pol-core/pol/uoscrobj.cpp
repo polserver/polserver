@@ -1047,6 +1047,8 @@ BObjectImp* Item::get_script_member_id( const int id ) const
       return house()->make_ref();
     return new BError( "This is a not component of any house" );
     break;
+  case MBR_NO_DROP:
+    return new BLong( no_drop() );
   default:
     return NULL;
   }
@@ -1262,6 +1264,9 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       }
     }
     return new BLong( value );
+  case MBR_NO_DROP:
+    no_drop( value ? true : false );
+    return new BLong( no_drop() );
   default:
     return NULL;
   }
@@ -1492,8 +1497,8 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
       if ( existing_stack != NULL && new_stack->stackable() )
       {
         if ( !newcontainer->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED,
-                                                    existing_stack, new_stack->getamount(),
-                                                    new_stack ) )
+                                                       existing_stack, new_stack->getamount(),
+                                                       new_stack ) )
         {
           if ( new_stack != this )
             this->add_to_self( new_stack );
@@ -1510,7 +1515,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
       UpdateCharacterWeight( existing_stack );
 
       newcontainer->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack,
-                                           amount );
+                                              amount );
 
       if ( amt == item_amount )
         destroy_item( this );
@@ -2122,7 +2127,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Core::RACE_GARGOYLE )
       race = Core::RACE_GARGOYLE;
     if ( ( race != Core::RACE_GARGOYLE ) &&
-         ( movemode & Core::MOVEMODE_FLY ) )  // FIXME graphic based maybe?
+         ( movemode & Core::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
       movemode = ( Core::MOVEMODE )( movemode ^ Core::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
@@ -2147,7 +2152,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     return new BLong( concealed() );
   case MBR_FROZEN:
     mob_flags_.change( MOB_FLAGS::FROZEN, value ? true : false );
-    return new BLong ( frozen() );
+    return new BLong( frozen() );
   case MBR_PARALYZED:
     mob_flags_.change( MOB_FLAGS::PARALYZED, value ? true : false );
     return new BLong( paralyzed() );
@@ -3120,6 +3125,8 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
   case MBR_SAVEONEXIT:
     return new BLong( saveonexit() );
     break;
+  case MBR_NO_DROP_EXCEPTION:
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }
@@ -3178,6 +3185,9 @@ BObjectImp* NPC::set_script_member_id( const int id, int value )
   case MBR_SAVEONEXIT:
     saveonexit( value ? true : false );
     return new BLong( saveonexit() );
+  case MBR_NO_DROP_EXCEPTION:
+    no_drop_exception( value ? true : false );
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }
@@ -3313,6 +3323,8 @@ BObjectImp* UContainer::get_script_member_id( const int id ) const
   case MBR_MAX_SLOTS_MOD:
     return new BLong( max_slots_mod() );
     break;
+  case MBR_NO_DROP_EXCEPTION:
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }
@@ -3343,6 +3355,9 @@ BObjectImp* UContainer::set_script_member_id( const int id, int value )
   case MBR_MAX_SLOTS_MOD:
     max_slots_mod( static_cast<s8>( value ) );
     break;
+  case MBR_NO_DROP_EXCEPTION:
+    no_drop_exception( value ? true : false );
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }

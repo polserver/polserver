@@ -327,7 +327,7 @@ ObjMember object_members[] = {
     {MBR_ATTACHED, "attached", true},
     {MBR_CLIENTVERSION, "clientversion", true},
     {MBR_REPORTABLES, "reportables", true},  // 60
-    {MBR_SCRIPT, "script", false},  // npc
+    {MBR_SCRIPT, "script", false},           // npc
     {MBR_NPCTEMPLATE, "npctemplate", true},
     {MBR_MASTER, "master", true},
     {MBR_PROCESS, "process", true},
@@ -336,15 +336,15 @@ ObjMember object_members[] = {
     {MBR_SPEECH_FONT, "speech_font", false},
     {MBR_USE_ADJUSTMENTS, "use_adjustments", false},
     {MBR_RUN_SPEED, "run_speed", false},
-    {MBR_LOCKED, "locked", false},  // lockable //70
+    {MBR_LOCKED, "locked", false},         // lockable //70
     {MBR_CORPSETYPE, "corpsetype", true},  // corpse
-    {MBR_TILLERMAN, "tillerman", true},  // boat
+    {MBR_TILLERMAN, "tillerman", true},    // boat
     {MBR_PORTPLANK, "portplank", true},
     {MBR_STARBOARDPLANK, "starboardplank", true},
     {MBR_HOLD, "hold", true},  // 75
     {MBR_HAS_OFFLINE_MOBILES, "has_offline_mobiles", true},
     {MBR_COMPONENTS, "components", true},  // house
-    {MBR_ITEMS, "items", true},  // multi
+    {MBR_ITEMS, "items", true},            // multi
     {MBR_MOBILES, "mobiles", true},
     {MBR_XEAST, "xeast", false},  // map //80
     {MBR_XWEST, "xwest", false},
@@ -352,11 +352,11 @@ ObjMember object_members[] = {
     {MBR_YSOUTH, "ysouth", false},
     {MBR_GUMPWIDTH, "gumpwidth", false},
     {MBR_GUMPHEIGHT, "gumpheight", false},  // 85
-    {MBR_ISOPEN, "isopen", true},  // door
-    {MBR_QUALITY, "quality", false},  // equipment
+    {MBR_ISOPEN, "isopen", true},           // door
+    {MBR_QUALITY, "quality", false},        // equipment
     {MBR_HP, "hp", false},
     {MBR_MAXHP_MOD, "maxhp_mod", false},
-    {MBR_MAXHP, "maxhp", true},  // 90
+    {MBR_MAXHP, "maxhp", true},       // 90
     {MBR_DMG_MOD, "dmg_mod", false},  // weapon
     {MBR_ATTRIBUTE, "attribute", true},
     {MBR_INTRINSIC, "intrinsic", true},
@@ -380,7 +380,7 @@ ObjMember object_members[] = {
     {MBR_VAR_SIZE, "var_size", true},
     {MBR_REALM, "realm", true},
     {MBR_UO_EXPANSION, "uo_expansion", true},
-    {MBR_CUSTOM, "custom", true},  // house
+    {MBR_CUSTOM, "custom", true},    // house
     {MBR_GLOBALS, "globals", true},  // 115
     {MBR_FOOTPRINT, "footprint", true},
     {MBR_CLIENTINFO, "clientinfo", true},
@@ -486,6 +486,8 @@ ObjMember object_members[] = {
     {MBR_HOUSE, "house", true},  // 215, Item
     {MBR_SPECIFIC_NAME, "specific_name", true},
     {MBR_CARRYINGCAPACITY, "carrying_capacity", true},
+    {MBR_NO_DROP, "no_drop", false},
+    {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
@@ -508,7 +510,7 @@ ObjMember* getObjMember( int id )
 }
 
 ObjMethod object_methods[] = {
-    {MTH_ISA, "isa", false},  // 0
+    {MTH_ISA, "isa", false},                // 0
     {MTH_SET_MEMBER, "set_member", false},  // 1
     {MTH_GET_MEMBER, "get_member", false},
     {MTH_SETPOISONED, "setpoisoned", false},
@@ -526,10 +528,10 @@ ObjMethod object_methods[] = {
     {MTH_GETGOTTENITEM, "getgottenitem", false},  // 15
     {MTH_CLEARGOTTENITEM, "cleargottenitem", false},
     {MTH_SETWARMODE, "setwarmode", false},
-    {MTH_SETMASTER, "setmaster", false},  // npc
+    {MTH_SETMASTER, "setmaster", false},                        // npc
     {MTH_MOVE_OFFLINE_MOBILES, "move_offline_mobiles", false},  // boat
-    {MTH_SETCUSTOM, "setcustom", false},  // house			 //20
-    {MTH_GETPINS, "getpins", false},  // map
+    {MTH_SETCUSTOM, "setcustom", false},                        // house			 //20
+    {MTH_GETPINS, "getpins", false},                            // map
     {MTH_INSERTPIN, "insertpin", false},
     {MTH_APPENDPIN, "appendpin", false},
     {MTH_ERASEPIN, "erasepin", false},
@@ -547,7 +549,7 @@ ObjMethod object_methods[] = {
     {MTH_SETPROP, "setprop", false},
     {MTH_ERASEPROP, "eraseprop", false},
     {MTH_PROPNAMES, "propnames", false},
-    {MTH_ISMEMBER, "ismember", false},  // guild
+    {MTH_ISMEMBER, "ismember", false},        // guild
     {MTH_ISALLYGUILD, "isallyguild", false},  // 40
     {MTH_ISENEMYGUILD, "isenemyguild", false},
     {MTH_ADDMEMBER, "addmember", false},
@@ -562,7 +564,7 @@ ObjMethod object_methods[] = {
     {MTH_SHRINK, "shrink", false},
     {MTH_APPEND, "append", false},
     {MTH_REVERSE, "reverse", false},
-    {MTH_SORT, "sort", false},  // dict
+    {MTH_SORT, "sort", false},      // dict
     {MTH_EXISTS, "exists", false},  // 55
     {MTH_KEYS, "keys", false},
     {MTH_SENDPACKET, "sendpacket", false},  // packet
@@ -578,12 +580,12 @@ ObjMethod object_methods[] = {
     {MTH_SETSTRING, "setstring", false},
     {MTH_SETUNICODESTRING, "setunicodestring", false},
     {MTH_GETSIZE, "getsize", false},
-    {MTH_SETSIZE, "setsize", false},  // 70
+    {MTH_SETSIZE, "setsize", false},              // 70
     {MTH_CREATEELEMENT, "createelement", false},  // datastore
     {MTH_FINDELEMENT, "findelement", false},
     {MTH_DELETEELEMENT, "deleteelement", false},
     {MTH_SENDEVENT, "sendevent", false},  // script
-    {MTH_KILL, "kill", false},  // 75
+    {MTH_KILL, "kill", false},            // 75
     {MTH_LOADSYMBOLS, "loadsymbols", false},
     {MTH_SET_UO_EXPANSION, "set_uo_expansion", false},
     {MTH_CLEAR_EVENT_QUEUE, "clear_event_queue", false},

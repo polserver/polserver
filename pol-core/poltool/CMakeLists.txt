@@ -46,6 +46,7 @@ SET (LIBS_LINUX
     bscript
     clib
     plib
+    z
 )
 SET (LIBS_LINUX_STATIC_BIN_STATIC
     bscript_static

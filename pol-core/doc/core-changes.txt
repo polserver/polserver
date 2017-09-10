@@ -1,4 +1,13 @@
 ﻿-- POL099 --
+09-10-2017 Turley:
+  Added:   poltool uncompressgump
+           unpacks and prints content of a compressed gump
+           only parameter is a filename, which needs to contain a single 0xDD packetlog
+  Added:   item member no_drop 1/0 r/w (itemdesc NoDrop)
+           if set no drop of this item is allowed
+           container/npc member no_drop_exception 1/0 r/w
+           (itemdesc/npctemplate NoDropException)
+           if set this container/npc is a valid target even if no_drop is set for the item
 08-03-2017 Nando:
   Fixed:   Shutdown crash when using character method scripts.
 07-31-2017 Nando:

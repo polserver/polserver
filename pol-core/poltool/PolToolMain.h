@@ -18,7 +18,8 @@ protected:
 
 private:
   virtual void showHelp();
-  int poltool();
+  int mapdump();
+  int unpackCompressedGump();
 };
 }
 }  // namespaces

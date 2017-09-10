@@ -203,6 +203,9 @@ public:
   Character* master() const;
   Core::NpcTemplate::ALIGNMENT alignment() const;
 
+  bool no_drop_exception() const;
+  void no_drop_exception( bool newvalue );
+
   // ==========================================================
   // DATA:
   // ==========================================================

@@ -148,7 +148,7 @@ u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
   : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
-  prompt_chr( NULL ), uoexec( exec )
+  uoexec( exec ), prompt_chr( NULL )
 {
 }
 
