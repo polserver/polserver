@@ -14,6 +14,7 @@
 
 #include <string>
 #include <fstream>
+#include <memory>
 #ifdef USE_SYSTEM_ZLIB
 #include <zlib.h>
 #else
@@ -206,12 +207,12 @@ int PolToolMain::unpackCompressedGump()
   index += 4;
   auto datalen = static_cast<unsigned long>( toInt( index ) );
   index += 4;
-  unsigned char uncompressed[datalen];
-  int res = uncompress( uncompressed, &datalen, &bytes.data()[index], cbuflen );
+  std::unique_ptr<unsigned char[]> uncompressed(new unsigned char[datalen]);
+  int res = uncompress( uncompressed.get(), &datalen, &bytes.data()[index], cbuflen );
   if ( res < 0 )
     return 1;
   index += cbuflen;
-  std::string layout( uncompressed, uncompressed + datalen - 1 );
+  std::string layout( uncompressed.get(), uncompressed.get() + datalen - 1 );
   fmt::Writer layouttmp;
   layouttmp << '\n';
   for ( const auto& c : layout )
@@ -228,11 +229,11 @@ int PolToolMain::unpackCompressedGump()
   index += 4;
   datalen = static_cast<unsigned long>( toInt( index ) );
   index += 4;
-  unsigned char uncompressed2[datalen];
-  res = uncompress( uncompressed2, &datalen, &bytes.data()[index], cbuflen );
+  std::unique_ptr<unsigned char[]> uncompressed2(new unsigned char[datalen]);
+  res = uncompress( uncompressed2.get(), &datalen, &bytes.data()[index], cbuflen );
   if ( res < 0 )
     return 1;
-  std::string layout2( uncompressed2, uncompressed2 + datalen );
+  std::string layout2( uncompressed2.get(), uncompressed2.get() + datalen );
   INFO_PRINT << '\n';
   fmt::Writer datatmp;
   datatmp << '\n';
