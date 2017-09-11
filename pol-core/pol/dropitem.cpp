@@ -304,6 +304,11 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     UContainer* cont = client->chr->trade_container();
     if ( target_serial == cont->serial )
     {
+      if ( item->no_drop() )
+      {
+        send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+        return false;
+      }
       return place_item_in_secure_trade_container( client, item, x, y );
     }
   }
@@ -328,10 +333,23 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
 
   if ( target_item->isa( UOBJ_CLASS::CLASS_ITEM ) )
   {
+    if ( item->no_drop() )
+    {
+      if ( target_item->container == NULL || !target_item->container->no_drop_exception() )
+      {
+        send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+        return false;
+      }
+    }
     return add_item_to_stack( client, item, target_item );
   }
   else if ( target_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
+    if ( item->no_drop() && !( static_cast<UContainer*>( target_item )->no_drop_exception() ) )
+    {
+      send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+      return false;
+    }
     return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), x, y,
                                     slotIndex );
   }

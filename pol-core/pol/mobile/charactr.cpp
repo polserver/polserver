@@ -2317,7 +2317,7 @@ void Character::die()
       _copy_item( item );
       continue;
     }
-    if ( item->newbie() || item->insured() )
+    if ( item->newbie() || item->insured() || item->no_drop() )
       continue;
     else if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
               !item->movable() )  // dress layer needs to be unequipped for deathrobe
@@ -2378,7 +2378,7 @@ void Character::die()
       bp_item->container = NULL;
       bp_item->layer = 0;
       UPDATE_CHECKPOINT();
-      if ( ( bp_item->newbie() || bp_item->use_insurance() ) && bp->can_add( *bp_item ) )
+      if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) && bp->can_add( *bp_item ) )
       {
         if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
         {
@@ -2425,7 +2425,7 @@ void Character::die()
       if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
            !item->movable() )
         continue;
-      if ( ( item->newbie() || item->use_insurance() ) && bp->can_add( *item ) )
+      if ( ( item->newbie() || item->no_drop() || item->use_insurance() ) && bp->can_add( *item ) )
       {
         UPDATE_CHECKPOINT();
         if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
