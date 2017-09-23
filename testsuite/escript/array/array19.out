@@ -1,6 +1,5 @@
 sort with null entry
 1
-{ { 1, 2, , 2 }, { 0, 1, 2 } }
 sort with index too large
 error{ errortext = "Subindex to large" }
 { { 1, 2, , 2 }, { 0, 1, 2 } }
