@@ -12,6 +12,10 @@
 #include "pol_global_config.h"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4503 )  // decorated name length exceeded
+#endif
+
 #ifdef DEBUG_FLYWEIGHT
 #include <vector>
 #include <string>
