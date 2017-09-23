@@ -3,6 +3,7 @@ a[1][4]:=2;
 print("sort with null entry");
 print(a.sort(3));
 //print(a); // disabled due to non deterministic (ptr compare)
+a:={{1,2},{0,1,2}};
 
 print("sort with index too large");
 print(a.sort(4));
