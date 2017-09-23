@@ -51,18 +51,6 @@ void PolToolMain::showHelp()
 
 int PolToolMain::mapdump()
 {
-  int n = 10;
-  int m = 1;
-  for ( int avail_units = 1; avail_units < 30; avail_units++ )
-  {
-    int a = avail_units / n;
-    if ( a > m )
-      a = m;
-    short na = static_cast<short>( n * a );
-    INFO_PRINT << avail_units << " " << a << " " << na << "\n";
-  }
-  return 1;
-
   short wxl = 5485, wxh = 5500, wyl = 0, wyh = 30;
   const std::vector<std::string>& binArgs = programArgs();
 
