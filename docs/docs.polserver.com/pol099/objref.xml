@@ -614,7 +614,7 @@ Pre-intialize with var a := array { 53, 76, 32 };</explain>
 <method proto="shrink(index)" returns="true/error" desc="erases index to end of array"/>
 <method proto="append(object)" returns="true/error" desc="inserts object in the end of the array" />
 <method proto="reverse()" returns="true" desc="reverses the elements of the array" />
-<method proto="sort()" returns="true" desc="sorts the elements of the array" />
+<method proto="sort(int sub_index:=0)" returns="true/error" desc="sorts the elements of the array, or if sub_index is given sorts array of arrays using the given index for sorting" />
 <method proto="+ array" returns="array" desc="concatinates 2 arrays" />
 <method proto="randomentry()" returns="value/error" desc="returns random array entry" />
 <method proto="cycle([int count])" returns="true/error" desc="will move array [count] steps backwards or forwards in-place as it were a conveyor belt. {1, 2, 3}.cycle() Will make it: {3, 1, 2}. Accepts a negative value as a shift to move different direction" />

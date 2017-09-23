@@ -1,0 +1,220 @@
+/mnt/space/home/turley/newcore/testsuite/escript/array/array19.src, Line 1
+var a:={{1,2},{0,1,2}};
+0: decl global #0
+1: array
+2: array
+3: 1L
+4: init{}
+5: 2L
+6: init{}
+7: init{}
+8: array
+9: 0L
+10: init{}
+11: 1L
+12: init{}
+13: 2L
+14: init{}
+15: init{}
+16: :=
+17: #
+a[1][4]:=2;
+18: global #0
+19: 1L
+20: [] 1
+21: 4L
+22: 2L
+23: [] := (1) #
+print("sort with null entry");
+24: "sort with null entry"
+25: Func(1,0): Print
+26: #
+print(a.sort(3));
+27: global #0
+28: 3L
+29: Call Method id sort (#54, 1 params)
+30: Func(1,0): Print
+31: #
+print(a);
+32: global #0
+33: Func(1,0): Print
+34: #
+print("sort with index too large");
+35: "sort with index too large"
+36: Func(1,0): Print
+37: #
+print(a.sort(4));
+38: global #0
+39: 4L
+40: Call Method id sort (#54, 1 params)
+41: Func(1,0): Print
+42: #
+print(a);
+43: global #0
+44: Func(1,0): Print
+45: #
+print("sort strings");
+46: "sort strings"
+47: Func(1,0): Print
+48: #
+a[1][4]:="bb";
+49: global #0
+50: 1L
+51: [] 1
+52: 4L
+53: "bb"
+54: [] := (1) #
+a[2][4]:="aa";
+55: global #0
+56: 2L
+57: [] 1
+58: 4L
+59: "aa"
+60: [] := (1) #
+print(a.sort(4));
+61: global #0
+62: 4L
+63: Call Method id sort (#54, 1 params)
+64: Func(1,0): Print
+65: #
+print(a);
+66: global #0
+67: Func(1,0): Print
+68: #
+print("sort mixed");
+69: "sort mixed"
+70: Func(1,0): Print
+71: #
+a[1][5]:=5.6;
+72: global #0
+73: 1L
+74: [] 1
+75: 5L
+76: 5.6LF
+77: [] := (1) #
+a[2][5]:=5;
+78: global #0
+79: 2L
+80: [] 1
+81: 5L
+82: 5L
+83: [] := (1) #
+print(a.sort(5));
+84: global #0
+85: 5L
+86: Call Method id sort (#54, 1 params)
+87: Func(1,0): Print
+88: #
+print(a);
+89: global #0
+90: Func(1,0): Print
+91: #
+print("sort mixed");
+92: "sort mixed"
+93: Func(1,0): Print
+94: #
+a[1][6]:=5;
+95: global #0
+96: 1L
+97: [] 1
+98: 6L
+99: 5L
+100: [] := (1) #
+a[2][6]:="5a";
+101: global #0
+102: 2L
+103: [] 1
+104: 6L
+105: "5a"
+106: [] := (1) #
+print(a.sort(6));
+107: global #0
+108: 6L
+109: Call Method id sort (#54, 1 params)
+110: Func(1,0): Print
+111: #
+print(a);
+112: global #0
+113: Func(1,0): Print
+114: #
+print("sort invalid");
+115: "sort invalid"
+116: Func(1,0): Print
+117: #
+a.append(5);
+118: global #0
+119: 5L
+120: Call Method id append (#52, 1 params)
+121: #
+print(a.sort(6));
+122: global #0
+123: 6L
+124: Call Method id sort (#54, 1 params)
+125: Func(1,0): Print
+126: #
+print(a);
+127: global #0
+128: Func(1,0): Print
+129: #
+print("sort invalid");
+130: "sort invalid"
+131: Func(1,0): Print
+132: #
+print(a.sort(0));
+133: global #0
+134: 0L
+135: Call Method id sort (#54, 1 params)
+136: Func(1,0): Print
+137: #
+print(a);
+138: global #0
+139: Func(1,0): Print
+140: #
+print("sort invalid");
+141: "sort invalid"
+142: Func(1,0): Print
+143: #
+a[3]:={};
+144: global #0
+145: 3L
+146: array
+147: [] := (1) #
+print(a.sort(6));
+148: global #0
+149: 6L
+150: Call Method id sort (#54, 1 params)
+151: Func(1,0): Print
+152: #
+print(a);
+153: global #0
+154: Func(1,0): Print
+155: #
+print("sort invalid");
+156: "sort invalid"
+157: Func(1,0): Print
+158: #
+a[3]:={1};
+159: global #0
+160: 3L
+161: array
+162: 1L
+163: init{}
+164: [] := (1) #
+a[5]:={1};
+165: global #0
+166: 5L
+167: array
+168: 1L
+169: init{}
+170: [] := (1) #
+print(a.sort(1));
+171: global #0
+172: 1L
+173: Call Method id sort (#54, 1 params)
+174: Func(1,0): Print
+175: #
+print(a);
+176: global #0
+177: Func(1,0): Print
+178: #
+179: progend

@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+09-23-2017 Turley:
+  Added:   array.sort(int sub_index:=0) the optional parameter specifies the index used for sorting in the case of an array of arrays
 09-10-2017 Turley:
   Added:   poltool uncompressgump
            unpacks and prints content of a compressed gump

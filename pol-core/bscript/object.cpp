@@ -1605,8 +1605,38 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         sort( ref_arr.begin(), ref_arr.end(), objref_cmp() );
         return new BLong( 1 );
       }
+      else if ( ex.numParams() == 1 )
+      {
+        int sub_index;
+        if ( !ex.getParam( 0, sub_index ) )
+          return new BError( "Invalid parameter type" );
+        if ( sub_index < 1 )
+          return new BError( "Invalid sub_index value" );
+        for ( const auto& ref : ref_arr )
+        {
+          if ( ref.get() == nullptr || !ref.get()->isa( OTArray ) )
+            return new BError( "Invalid array" );
+          auto sub_arr = static_cast<ObjArray*>( ref.get()->impptr() );
+          if ( sub_arr->ref_arr.size() < static_cast<size_t>( sub_index ) )
+            return new BError( "Subindex to large" );
+        }
+        sort( ref_arr.begin(), ref_arr.end(),
+              [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool
+              {
+                auto sub_arr1 = static_cast<ObjArray*>( x1.get()->impptr() );
+                auto sub_arr2 = static_cast<ObjArray*>( x2.get()->impptr() );
+                auto sub1 = sub_arr1->ref_arr[sub_index - 1];
+                auto sub2 = sub_arr2->ref_arr[sub_index - 1];
+                const BObject* b1 = sub1.get();
+                const BObject* b2 = sub2.get();
+                if ( b1 == nullptr || b2 == nullptr )
+                  return ( &x1 < &x2 );
+                return ( *b1 < *b2 );
+              } );
+        return new BLong( 1 );
+      }
       else
-        return new BError( "array.sort() doesn't take parameters." );
+        return new BError( "array.sort(sub_index=0) takes at most one parameter." );
     }
     break;
   case MTH_RANDOMENTRY:

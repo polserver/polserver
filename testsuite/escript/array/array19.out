@@ -1,0 +1,27 @@
+sort with null entry
+1
+{ { 1, 2, , 2 }, { 0, 1, 2 } }
+sort with index too large
+error{ errortext = "Subindex to large" }
+{ { 1, 2, , 2 }, { 0, 1, 2 } }
+sort strings
+1
+{ { 0, 1, 2, aa }, { 1, 2, , bb } }
+sort mixed
+1
+{ { 1, 2, , bb, 5 }, { 0, 1, 2, aa, 5.6 } }
+sort mixed
+1
+{ { 0, 1, 2, aa, 5.6, 5a }, { 1, 2, , bb, 5, 5 } }
+sort invalid
+error{ errortext = "Invalid array" }
+{ { 0, 1, 2, aa, 5.6, 5a }, { 1, 2, , bb, 5, 5 }, 5 }
+sort invalid
+error{ errortext = "Invalid sub_index value" }
+{ { 0, 1, 2, aa, 5.6, 5a }, { 1, 2, , bb, 5, 5 }, 5 }
+sort invalid
+error{ errortext = "Subindex to large" }
+{ { 0, 1, 2, aa, 5.6, 5a }, { 1, 2, , bb, 5, 5 }, {  } }
+sort invalid
+error{ errortext = "Invalid array" }
+{ { 0, 1, 2, aa, 5.6, 5a }, { 1, 2, , bb, 5, 5 }, { 1 }, , { 1 } }
