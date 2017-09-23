@@ -6,7 +6,7 @@ print(a.sort(3));
 
 print("sort with index too large");
 print(a.sort(4));
-print(a);
+//print(a); // see above 
 
 print("sort strings");
 a[1][4]:="bb";
