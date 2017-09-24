@@ -98,7 +98,7 @@ DisplaySummary=1
 # Generate .dep files whether or not updating.
 # Default is 0
 #
-GenerateDependencyInfo=0
+GenerateDependencyInfo=1
 
 #
 # 
@@ -125,7 +125,7 @@ ErrorOnWarning=0
 # Uses multiple threads to speed up compilation.
 # Default is 0
 #
-ThreadedCompilation=0
+ThreadedCompilation=1
 
 #
 # ParanoiaWarnings
