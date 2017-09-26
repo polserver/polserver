@@ -8,6 +8,9 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#pragma warning( push )
+#pragma warning( disable : 4091 )  // unused typedef
+
 #define _WINSOCKAPI_
 
 #define _IMAGEHLP_
@@ -21,6 +24,8 @@
 #include <dbghelp.h>
 #include <crtdbg.h>
 #include <Shellapi.h>
+
+#pragma warning( pop ) // unused typedef in dbghelp.h
 
 //#define snprintf _snprintf
 

@@ -5,13 +5,14 @@
  * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
  */
 
-
 #include "mdump.h"
 #include "strexcpt.h"
 #include "passert.h"
 #include "logfacility.h"
 #include "threadhelp.h"
 #include "clib.h"
+
+#pragma warning( disable : 4091 )  // unused typedef
 #include "../../lib/StackWalker/StackWalker.h"
 
 #include "Header_Windows.h"
