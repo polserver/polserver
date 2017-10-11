@@ -108,7 +108,7 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& list
     : SocketClientThread( listener ), _auxservice( auxsvc ), _uoexec( 0 )
 {
 }
-AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock )
+AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params )
     : SocketClientThread( sock ), _auxservice( 0 ), _scriptdef( scriptdef ), _uoexec( 0 )
 {
 }
@@ -124,7 +124,7 @@ bool AuxClientThread::init()
     if ( _auxservice )
       uoemod = Core::start_script( _auxservice->scriptdef(), _auxconnection.get() );
     else
-      uoemod = Core::start_script( _scriptdef, _auxconnection.get() );
+      uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params);
     _uoexec = uoemod->uoexec.weakptr;
     return true;
   }

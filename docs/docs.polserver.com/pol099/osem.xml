@@ -226,10 +226,11 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="OpenConnection">
-    <prototype>OpenConnection( host, port, scriptdef )</prototype>
+    <prototype>OpenConnection( host, port, scriptdef, params )</prototype>
     <parameter name="host" value="Target host"/>
     <parameter name="port" value="Target port"/>
     <parameter name="scriptdef" value="Name of the script to be started when the connection is established"/>
+    <parameter name="params" value="A struct of parameters to be sent to the script"/>
     <explain>creates an outgoing TCP/IP connection</explain>
     <return>1 on success</return>
 </function>

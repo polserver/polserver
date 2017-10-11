@@ -104,5 +104,5 @@ Set_Event_Queue_Size(size);
 Is_Critical();
 
 OpenURL( character, url );
-OpenConnection( host, port, scriptdef);
+OpenConnection( host, port, scriptdef, params);
 Debugger(); // put script in debug state

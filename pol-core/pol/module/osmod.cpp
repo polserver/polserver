@@ -587,6 +587,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   {
     const String* host;
     const String* scriptname_str;
+	BObjectImp* imp = exec.getParamImp(3);
     unsigned short port;
     if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) &&
          ( scriptname_str = getStringParam( 2 ) ) != NULL )
@@ -613,7 +614,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
         // delete s;
         return new BError( "Error connecting to client" );
       }
-      Clib::SocketClientThread* clientthread = new Network::AuxClientThread( sd, s );
+      Clib::SocketClientThread* clientthread = new Network::AuxClientThread( sd, s, imp->copy());
       clientthread->start();
 
       return new BLong( 1 );
