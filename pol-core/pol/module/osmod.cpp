@@ -611,7 +611,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
 		  return new Bscript::BError("Script can't be blocked");
 	  }
 
-	  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec;
+	  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
 	  std::string hostname(host->value());
 
 	  Core::networkManager.auxthreadpool->push([uoexec_w, sd, hostname, port, imp]() {
