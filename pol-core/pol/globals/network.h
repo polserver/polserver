@@ -100,9 +100,7 @@ public:
 
   std::unique_ptr<Network::ClientTransmit> clientTransmit;
 
-#ifdef PERGON
   std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
-#endif
 
   std::vector<Network::IPRule> banned_ips;
 

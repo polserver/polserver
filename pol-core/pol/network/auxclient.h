@@ -85,6 +85,7 @@ class AuxClientThread : public Clib::SocketClientThread
 {
 public:
   AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
+  AuxClientThread(Core::ScriptDef scriptdef, Clib::Socket& sock);
   AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params);
   virtual void run() POL_OVERRIDE;
   void transmit( const Bscript::BObjectImp* imp );

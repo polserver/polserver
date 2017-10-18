@@ -49,12 +49,10 @@ NetworkManager::NetworkManager()
       ext_handler_table(),
       packetsSingleton( new Network::PacketsSingleton() ),
       clientTransmit( new Network::ClientTransmit() ),
-#ifdef PERGON
       auxthreadpool( new threadhelp::DynTaskThreadPool( "AuxPool" ) ),  // TODO: seems to work
                                                                         // activate by default?
                                                                         // maybe add a cfg entry for
                                                                         // max number of threads
-#endif
       banned_ips(),
       polsocket()
 {
@@ -115,9 +113,7 @@ void NetworkManager::deinialize()
 
   // unload_aux_service
   Clib::delete_all( auxservices );
-#ifdef PERGON
   auxthreadpool.reset();
-#endif
   banned_ips.clear();
 #ifdef _WIN32
   closesocket( polsocket.listen_socket );
@@ -187,9 +183,7 @@ NetworkManager::Memory NetworkManager::estimateSize() const
 
   usage.misc += packetsSingleton->estimateSize();
   usage.misc += sizeof( Network::ClientTransmit );
-#ifdef PERGON
   usage.misc += sizeof( threadhelp::DynTaskThreadPool );
-#endif
 
   usage.misc += 3 * sizeof( Network::IPRule* ) + banned_ips.capacity() * sizeof( Network::IPRule );
 
