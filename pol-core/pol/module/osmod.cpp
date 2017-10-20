@@ -589,9 +589,9 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     const String* scriptname_str;
 	BObjectImp* imp;
     unsigned short port;
-	int assume_string;
+	int escriptint;
     if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) &&
-         ( scriptname_str = getStringParam( 2 ) ) != NULL && (getParamImp(3, imp)) != NULL && (getParam(4, assume_string)) != NULL)
+         ( scriptname_str = getStringParam( 2 ) ) != NULL && (getParamImp(3, imp)) != NULL && (getParam(4, escriptint)) != NULL)
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;  // = new ScriptDef();
@@ -614,7 +614,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
 
 	  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
 	  std::string hostname(host->value());
-
+	  bool assume_string = escriptint != 0;
 	  Core::networkManager.auxthreadpool->push([uoexec_w, sd, hostname, port, imp, assume_string]() {
 		  Clib::Socket s;
 		  bool success_open = s.open(hostname.c_str(), port);

@@ -108,7 +108,7 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& list
     : SocketClientThread( listener ), _auxservice( auxsvc ), _uoexec( 0 )
 {
 }
-AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params, int assume_string )
+AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params, bool assume_string )
     : SocketClientThread( sock ), _auxservice( 0 ), _scriptdef( scriptdef ), _uoexec( 0 ), _params(params), _assume_string(assume_string)
 {
 }
