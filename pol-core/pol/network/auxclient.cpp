@@ -195,7 +195,6 @@ void AuxClientThread::run()
         std::unique_ptr<Bscript::BStruct> event( new Bscript::BStruct );
         event->addMember( "type", new Bscript::String( "recv" ) );
         event->addMember( "value", value.release() );
-		INFO_PRINT << "receive" << _uoexec->auxsvc_assume_string << "\n";
         _uoexec->os_module->signal_event( event.release() );
       }
     }
