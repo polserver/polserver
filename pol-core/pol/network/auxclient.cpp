@@ -108,8 +108,8 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& list
     : SocketClientThread( listener ), _auxservice( auxsvc ), _uoexec( 0 )
 {
 }
-AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params )
-    : SocketClientThread( sock ), _auxservice( 0 ), _scriptdef( scriptdef ), _uoexec( 0 ), _params(params)
+AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params, int assume_string )
+    : SocketClientThread( sock ), _auxservice( 0 ), _scriptdef( scriptdef ), _uoexec( 0 ), _params(params), _assume_string(assume_string)
 {
 }
 
@@ -126,6 +126,10 @@ bool AuxClientThread::init()
     else
       uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params);
     _uoexec = uoemod->uoexec.weakptr;
+	if (_assume_string == true)
+	{
+		uoemod->uoexec.auxsvc_assume_string = _assume_string;
+	}
     return true;
   }
   else
@@ -191,6 +195,7 @@ void AuxClientThread::run()
         std::unique_ptr<Bscript::BStruct> event( new Bscript::BStruct );
         event->addMember( "type", new Bscript::String( "recv" ) );
         event->addMember( "value", value.release() );
+		INFO_PRINT << "receive" << _uoexec->auxsvc_assume_string << "\n";
         _uoexec->os_module->signal_event( event.release() );
       }
     }

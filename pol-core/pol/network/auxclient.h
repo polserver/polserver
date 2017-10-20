@@ -86,7 +86,7 @@ class AuxClientThread : public Clib::SocketClientThread
 public:
   AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
   AuxClientThread(Core::ScriptDef scriptdef, Clib::Socket& sock);
-  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params);
+  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params, int assume_string);
   virtual void run() POL_OVERRIDE;
   void transmit( const Bscript::BObjectImp* imp );
   Bscript::BObjectImp* get_ip();
@@ -100,6 +100,7 @@ private:
   Bscript::BObjectImp* _params;
   ref_ptr<AuxConnection> _auxconnection;
   weak_ptr<Core::UOExecutor> _uoexec;
+  int _assume_string;
 };
 }
 }

@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-11-2017</datemodified>
+		<datemodified>10-20-2017</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>10-20-2017</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Added assume_string flag to OS::OpenConnection() to allow you to force the connection script to run as assume_string before the script loads in case of fast connections.</change>
+		</entry>
 		<entry>
 			<date>10-11-2017</date>
 			<author>DevGIB:</author>
