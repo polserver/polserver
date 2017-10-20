@@ -100,7 +100,7 @@ private:
   Bscript::BObjectImp* _params;
   ref_ptr<AuxConnection> _auxconnection;
   weak_ptr<Core::UOExecutor> _uoexec;
-  int _assume_string;
+  bool _assume_string;
 };
 }
 }

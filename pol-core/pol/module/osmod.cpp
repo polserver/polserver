@@ -591,7 +591,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     unsigned short port;
 	int escriptint;
     if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) &&
-         ( scriptname_str = getStringParam( 2 ) ) != NULL && (getParamImp(3, imp)) != NULL && (getParam(4, escriptint)) != NULL)
+         ( scriptname_str = getStringParam( 2 ) ) != NULL && (imp = getParamImp( 3 )) != NULL && getParam( 4, escriptint ))
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;  // = new ScriptDef();
