@@ -587,11 +587,11 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   {
     const String* host;
     const String* scriptname_str;
-	BObjectImp* scriptparam;
+    BObjectImp* scriptparam;
     unsigned short port;
-	int assume_string_int;
-    if ( getStringParam( 0, host ) && getParam( 1, port ) &&
-         getStringParam( 2, scriptname_str ) && getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ))
+    int assume_string_int;
+    if ( getStringParam( 0, host ) && getParam( 1, port ) && getStringParam( 2, scriptname_str ) &&
+         getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) )
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
@@ -603,42 +603,45 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       {
         return new BError( "Script " + sd.name() + " does not exist." );
       }
-	  if (!this_uoexec->suspend())
-	  {
-		  DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
-			  << ": \n"
-			  << "\tThe execution of this script can't be blocked!\n";
-		  return new Bscript::BError("Script can't be blocked");
-	  }
+      if ( !this_uoexec->suspend() )
+      {
+        DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+                 << ": \n"
+                 << "\tThe execution of this script can't be blocked!\n";
+        return new Bscript::BError( "Script can't be blocked" );
+      }
 
-	  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
-	  std::string hostname(host->value());
-	  bool assume_string = assume_string_int != 0;
-	  Core::networkManager.auxthreadpool->push([uoexec_w, sd, hostname, port, scriptparam, assume_string]() {
-		  Clib::Socket s;
-		  bool success_open = s.open(hostname.c_str(), port);
-		  {
-			  Core::PolLock lck;
-			  if (!uoexec_w.exists())
-			  {
-				  DEBUGLOG << "OpenConnection Script has been destroyed\n";
-				  s.close();
-				  return;
-			  }
-			  if (!success_open)
-			  {
-				  uoexec_w.get_weakptr()->ValueStack.back().set(
-					  new BObject(new BError("Error connecting to client")));
-			  }
-			  else
-			  {
-				  uoexec_w.get_weakptr()->ValueStack.back().set(new BObject(new BLong(1)));
-			  }
-			  uoexec_w.get_weakptr()->os_module->revive();
-		  }
-		  std::unique_ptr<Network::AuxClientThread> client(new Network::AuxClientThread(sd, s, scriptparam->copy(),assume_string));
-		  client->run();
-	  });
+      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+      std::string hostname( host->value() );
+      bool assume_string = assume_string_int != 0;
+      Core::networkManager.auxthreadpool->push(
+          [uoexec_w, sd, hostname, port, scriptparam, assume_string]()
+          {
+            Clib::Socket s;
+            bool success_open = s.open( hostname.c_str(), port );
+            {
+              Core::PolLock lck;
+              if ( !uoexec_w.exists() )
+              {
+                DEBUGLOG << "OpenConnection Script has been destroyed\n";
+                s.close();
+                return;
+              }
+              if ( !success_open )
+              {
+                uoexec_w.get_weakptr()->ValueStack.back().set(
+                    new BObject( new BError( "Error connecting to client" ) ) );
+              }
+              else
+              {
+                uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
+              }
+              uoexec_w.get_weakptr()->os_module->revive();
+            }
+            std::unique_ptr<Network::AuxClientThread> client(
+                new Network::AuxClientThread( sd, s, scriptparam->copy(), assume_string ) );
+            client->run();
+          } );
 
       return new BLong( 0 );
     }
