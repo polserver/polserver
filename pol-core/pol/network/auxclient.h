@@ -98,9 +98,9 @@ private:
   AuxService* _auxservice;
   Core::ScriptDef _scriptdef;
   Bscript::BObjectImp* _params;
+  bool _assume_string;
   ref_ptr<AuxConnection> _auxconnection;
   weak_ptr<Core::UOExecutor> _uoexec;
-  bool _assume_string;
 };
 }
 }
