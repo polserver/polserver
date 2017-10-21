@@ -20,6 +20,7 @@
 #include "../scrdef.h"
 #include "../uoexec.h"
 
+#include <atomic>
 #include <string>
 #include <vector>
 
@@ -94,13 +95,14 @@ public:
 private:
   bool init();
   bool ipAllowed( sockaddr MyPeer );
-
+  void transmit(const std::string& msg);
   AuxService* _auxservice;
   ref_ptr<AuxConnection> _auxconnection;
   weak_ptr<Core::UOExecutor> _uoexec;
   Core::ScriptDef _scriptdef;
   Bscript::BObjectImp* _params;
   bool _assume_string;
+  std::atomic<int> _transmit_counter;
 };
 }
 }

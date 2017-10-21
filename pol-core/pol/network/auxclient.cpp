@@ -35,7 +35,9 @@
 #include "../module/uomod.h"
 #include "../globals/network.h"
 
+#include <chrono>
 #include <memory>
+#include <thread>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp deprecation
@@ -83,7 +85,6 @@ Bscript::BObjectImp* AuxConnection::call_method( const char* methodname, Bscript
       if ( _auxclientthread != nullptr )
       {
         Bscript::BObjectImp* value = ex.getParamImp( 0 );
-        // FIXME this can block!
         _auxclientthread->transmit( value );
       }
       else
@@ -111,7 +112,8 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& list
       _uoexec( nullptr ),
       _scriptdef(),
       _params( nullptr ),
-      _assume_string( false )
+      _assume_string( false ),
+      _transmit_counter( 0 )
 {
 }
 AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock,
@@ -122,7 +124,8 @@ AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock,
       _uoexec( nullptr ),
       _scriptdef( scriptdef ),
       _params( params ),
-      _assume_string( assume_string )
+      _assume_string( assume_string ),
+      _transmit_counter( 0 )
 {
 }
 
@@ -217,6 +220,9 @@ void AuxClientThread::run()
       break;
     }
   }
+  // wait for all transmits to finish
+  while ( !Clib::exit_signalled && _transmit_counter > 0 )
+    std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
   Core::PolLock lock;
   _auxconnection->disconnect();
@@ -228,8 +234,20 @@ void AuxClientThread::run()
 
 void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 {
+  // defer transmit to not block server
   std::string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack();
-  writeline( _sck, tmp );
+  ++_transmit_counter;
+  Core::networkManager.auxthreadpool->push( [tmp, this]()
+                                            {
+                                              transmit( tmp );
+                                            } );
+}
+
+void AuxClientThread::transmit( const std::string& msg )
+{
+  if ( _sck.connected() )
+    writeline( _sck, msg );
+  --_transmit_counter;
 }
 
 AuxService::AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem )
