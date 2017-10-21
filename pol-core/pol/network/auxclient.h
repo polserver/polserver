@@ -85,7 +85,6 @@ class AuxClientThread : public Clib::SocketClientThread
 {
 public:
   AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
-  AuxClientThread(Core::ScriptDef scriptdef, Clib::Socket& sock);
   AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params, bool assume_string);
   virtual void run() POL_OVERRIDE;
   void transmit( const Bscript::BObjectImp* imp );
@@ -95,8 +94,8 @@ private:
   bool init();
   bool ipAllowed( sockaddr MyPeer );
 
-  AuxService* _auxservice;
   Core::ScriptDef _scriptdef;
+  AuxService* _auxservice;
   Bscript::BObjectImp* _params;
   bool _assume_string;
   ref_ptr<AuxConnection> _auxconnection;
