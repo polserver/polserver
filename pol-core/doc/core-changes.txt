@@ -1,4 +1,8 @@
 ﻿-- POL099 --
+10-20-2017 DevGIB:
+  Changed: Added assume_string flag to OS::OpenConnection() to allow you to force the connection script to run as AUXSVC_ASSUME_STRING script option before the script loads in case of fast responding connections.
+10-11-2017 DevGIB:
+  Changed: Added params to OS::OpenConnection() to allow you to pass parameters to the script that is run for the connection.
 09-23-2017 Turley:
   Added:   array.sort(int sub_index:=0) the optional parameter specifies the index used for sorting in the case of an array of arrays
 09-10-2017 Turley:

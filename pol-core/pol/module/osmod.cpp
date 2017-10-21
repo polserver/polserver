@@ -587,9 +587,11 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   {
     const String* host;
     const String* scriptname_str;
+	BObjectImp* imp;
     unsigned short port;
+	int escriptint;
     if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) &&
-         ( scriptname_str = getStringParam( 2 ) ) != NULL )
+         ( scriptname_str = getStringParam( 2 ) ) != NULL && (imp = getParamImp( 3 )) != NULL && getParam( 4, escriptint ))
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;  // = new ScriptDef();
@@ -602,21 +604,44 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       {
         return new BError( "Script " + sd.name() + " does not exist." );
       }
+	  if (!this_uoexec->suspend())
+	  {
+		  DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+			  << ": \n"
+			  << "\tThe execution of this script can't be blocked!\n";
+		  return new Bscript::BError("Script can't be blocked");
+	  }
 
-      // Socket* s = new Socket();
-      // bool success_open = s->open(host->value().c_str(),30);
-      Clib::Socket s;
-      bool success_open = s.open( host->value().c_str(), port );
+	  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+	  std::string hostname(host->value());
+	  bool assume_string = escriptint != 0;
+	  Core::networkManager.auxthreadpool->push([uoexec_w, sd, hostname, port, imp, assume_string]() {
+		  Clib::Socket s;
+		  bool success_open = s.open(hostname.c_str(), port);
+		  {
+			  Core::PolLock lck;
+			  if (!uoexec_w.exists())
+			  {
+				  INFO_PRINT << "Script has been destroyed\n";
+				  s.close();
+				  return;
+			  }
+			  if (!success_open)
+			  {
+				  uoexec_w.get_weakptr()->ValueStack.back().set(
+					  new BObject(new BError("Error connecting to client")));
+			  }
+			  else
+			  {
+				  uoexec_w.get_weakptr()->ValueStack.back().set(new BObject(new BLong(1)));
+			  }
+			  uoexec_w.get_weakptr()->os_module->revive();
+		  }
+		  std::unique_ptr<Network::AuxClientThread> client(new Network::AuxClientThread(sd, s, imp->copy(),assume_string));
+		  client->run();
+	  });
 
-      if ( !success_open )
-      {
-        // delete s;
-        return new BError( "Error connecting to client" );
-      }
-      Clib::SocketClientThread* clientthread = new Network::AuxClientThread( sd, s );
-      clientthread->start();
-
-      return new BLong( 1 );
+      return new BLong( 0 );
     }
     else
     {

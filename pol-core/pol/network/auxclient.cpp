@@ -108,8 +108,8 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& list
     : SocketClientThread( listener ), _auxservice( auxsvc ), _uoexec( 0 )
 {
 }
-AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock )
-    : SocketClientThread( sock ), _auxservice( 0 ), _scriptdef( scriptdef ), _uoexec( 0 )
+AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params, bool assume_string )
+    : SocketClientThread( sock ), _auxservice( 0 ), _uoexec(0), _scriptdef(scriptdef), _params(params), _assume_string(assume_string)
 {
 }
 
@@ -124,8 +124,12 @@ bool AuxClientThread::init()
     if ( _auxservice )
       uoemod = Core::start_script( _auxservice->scriptdef(), _auxconnection.get() );
     else
-      uoemod = Core::start_script( _scriptdef, _auxconnection.get() );
+      uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params);
     _uoexec = uoemod->uoexec.weakptr;
+	if (_assume_string == true)
+	{
+		uoemod->uoexec.auxsvc_assume_string = _assume_string;
+	}
     return true;
   }
   else
