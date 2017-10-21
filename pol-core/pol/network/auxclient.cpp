@@ -62,7 +62,7 @@ size_t AuxConnection::sizeEstimate() const
 
 bool AuxConnection::isTrue() const
 {
-  return ( _auxclientthread != NULL );
+  return ( _auxclientthread != nullptr );
 }
 
 Bscript::BObjectRef AuxConnection::get_member( const char* membername )
@@ -80,7 +80,7 @@ Bscript::BObjectImp* AuxConnection::call_method( const char* methodname, Bscript
   {
     if ( ex.numParams() == 1 )
     {
-      if ( _auxclientthread != NULL )
+      if ( _auxclientthread != nullptr )
       {
         Bscript::BObjectImp* value = ex.getParamImp( 0 );
         // FIXME this can block!
@@ -96,20 +96,20 @@ Bscript::BObjectImp* AuxConnection::call_method( const char* methodname, Bscript
       return new Bscript::BError( "1 parameter expected" );
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void AuxConnection::disconnect()
 {
-  _auxclientthread = NULL;
+  _auxclientthread = nullptr;
 }
 
 AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener )
-    : SocketClientThread( listener ), _auxservice( auxsvc ), _uoexec( 0 )
+    : SocketClientThread( listener ), _auxservice( auxsvc ), _auxconnection(), _uoexec(nullptr), _scriptdef(), _params(nullptr), _assume_string(false)
 {
 }
 AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params, bool assume_string )
-    : SocketClientThread( sock ), _auxservice( 0 ), _uoexec(0), _scriptdef(scriptdef), _params(params), _assume_string(assume_string)
+    : SocketClientThread( sock ), _auxservice(nullptr), _auxconnection(), _uoexec(nullptr), _scriptdef(scriptdef), _params(params), _assume_string(assume_string)
 {
 }
 
@@ -126,7 +126,7 @@ bool AuxClientThread::init()
     else
       uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params);
     _uoexec = uoemod->uoexec.weakptr;
-	if (_assume_string == true)
+	if (_assume_string)
 	{
 		uoemod->uoexec.auxsvc_assume_string = _assume_string;
 	}
@@ -257,8 +257,6 @@ void AuxService::run()
     if ( listener.GetConnection( 5 ) )
     {
       Core::PolLock lock;
-#ifdef PERGON
-      // TODO remove the ifdef it works..
       AuxClientThread* client( new AuxClientThread( this, listener ) );
       Core::networkManager.auxthreadpool->push(
           [client]()
@@ -266,11 +264,6 @@ void AuxService::run()
             std::unique_ptr<AuxClientThread> _clientptr( client );
             _clientptr->run();
           } );
-#else
-      Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
-      clientthread->start();
-// note SocketClientThread::start deletes the SocketClientThread upon thread exit.
-#endif
     }
   }
 }

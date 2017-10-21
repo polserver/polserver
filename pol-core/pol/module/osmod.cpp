@@ -587,15 +587,14 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   {
     const String* host;
     const String* scriptname_str;
-	BObjectImp* imp;
+	BObjectImp* scriptparam;
     unsigned short port;
-	int escriptint;
-    if ( ( host = getStringParam( 0 ) ) != NULL && getParam( 1, port ) &&
-         ( scriptname_str = getStringParam( 2 ) ) != NULL && (imp = getParamImp( 3 )) != NULL && getParam( 4, escriptint ))
+	int assume_string_int;
+    if ( getStringParam( 0, host ) && getParam( 1, port ) &&
+         getStringParam( 2, scriptname_str ) && getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ))
     {
       // FIXME needs to inherit available modules?
-      Core::ScriptDef sd;  // = new ScriptDef();
-      INFO_PRINT << "Starting connection script " << scriptname_str->value() << "\n";
+      Core::ScriptDef sd;
       if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
       {
         return new BError( "Error in script name" );
@@ -614,15 +613,15 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
 
 	  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
 	  std::string hostname(host->value());
-	  bool assume_string = escriptint != 0;
-	  Core::networkManager.auxthreadpool->push([uoexec_w, sd, hostname, port, imp, assume_string]() {
+	  bool assume_string = assume_string_int != 0;
+	  Core::networkManager.auxthreadpool->push([uoexec_w, sd, hostname, port, scriptparam, assume_string]() {
 		  Clib::Socket s;
 		  bool success_open = s.open(hostname.c_str(), port);
 		  {
 			  Core::PolLock lck;
 			  if (!uoexec_w.exists())
 			  {
-				  INFO_PRINT << "Script has been destroyed\n";
+				  DEBUGLOG << "OpenConnection Script has been destroyed\n";
 				  s.close();
 				  return;
 			  }
@@ -637,7 +636,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
 			  }
 			  uoexec_w.get_weakptr()->os_module->revive();
 		  }
-		  std::unique_ptr<Network::AuxClientThread> client(new Network::AuxClientThread(sd, s, imp->copy(),assume_string));
+		  std::unique_ptr<Network::AuxClientThread> client(new Network::AuxClientThread(sd, s, scriptparam->copy(),assume_string));
 		  client->run();
 	  });
 

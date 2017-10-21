@@ -94,12 +94,12 @@ private:
   bool init();
   bool ipAllowed( sockaddr MyPeer );
 
-  weak_ptr<Core::UOExecutor> _uoexec;
   AuxService* _auxservice;
+  ref_ptr<AuxConnection> _auxconnection;
+  weak_ptr<Core::UOExecutor> _uoexec;
   Core::ScriptDef _scriptdef;
   Bscript::BObjectImp* _params;
   bool _assume_string;
-  ref_ptr<AuxConnection> _auxconnection;
 };
 }
 }
