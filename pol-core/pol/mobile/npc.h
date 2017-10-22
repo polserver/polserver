@@ -167,36 +167,24 @@ public:
 
 private:
   void readNpcProperties( Clib::ConfigElem& elem );
-  void loadResistances( int resistanceType, Clib::ConfigElem& elem );
-  void loadDamages( int damageType, Clib::ConfigElem& elem );
+  void loadEquipablePropertiesNPC( Clib::ConfigElem& elem );
   void readNewNpcAttributes( Clib::ConfigElem& elem );
 
   // ATTRIBUTES / VITALS
 private:
-  DYN_PROPERTY( curr_fire_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_FIRE,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_cold_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_COLD,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_energy_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_ENERGY,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_poison_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_POISON,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_physical_resist, Core::AosValuePack, Core::PROP_CURR_RESIST_PHYSICAL,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY( orig_fire_resist, s16, Core::PROP_ORIG_RESIST_FIRE, 0 );
+  DYN_PROPERTY( orig_cold_resist, s16, Core::PROP_ORIG_RESIST_COLD, 0 );
+  DYN_PROPERTY( orig_energy_resist, s16, Core::PROP_ORIG_RESIST_ENERGY, 0 );
+  DYN_PROPERTY( orig_poison_resist, s16, Core::PROP_ORIG_RESIST_POISON, 0 );
+  DYN_PROPERTY( orig_physical_resist, s16, Core::PROP_ORIG_RESIST_PHYSICAL, 0 );
 
-  DYN_PROPERTY( curr_fire_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_FIRE,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_cold_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_COLD,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_energy_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_ENERGY,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_poison_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_POISON,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( curr_physical_damage, Core::AosValuePack, Core::PROP_CURR_DAMAGE_PHYSICAL,
-                Core::UObject::DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY( orig_fire_damage, s16, Core::PROP_ORIG_DAMAGE_FIRE, 0 );
+  DYN_PROPERTY( orig_cold_damage, s16, Core::PROP_ORIG_DAMAGE_COLD, 0 );
+  DYN_PROPERTY( orig_energy_damage, s16, Core::PROP_ORIG_DAMAGE_ENERGY, 0 );
+  DYN_PROPERTY( orig_poison_damage, s16, Core::PROP_ORIG_DAMAGE_POISON, 0 );
+  DYN_PROPERTY( orig_physical_damage, s16, Core::PROP_ORIG_DAMAGE_PHYSICAL, 0 );
 
-  void reset_element_resist( Core::ElementalType resist );
-  void reset_element_damage( Core::ElementalType damage );
+  void resetEquipablePropertiesNPC();
 
   // MISC
 public:

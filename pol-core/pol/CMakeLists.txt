@@ -48,6 +48,7 @@ SET (SOURCES  # sorted !
     dice.cpp
     door.cpp 
     dropitem.cpp
+	dynproperties.cpp
     eqpitem.cpp 
     equipdsc.cpp 
     exscrobj.cpp

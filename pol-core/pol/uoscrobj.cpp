@@ -944,19 +944,19 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( saveonexit() );
     break;
   case MBR_FIRE_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_FIRE ) );
+    return new BLong( fire_resist().sum() );
     break;
   case MBR_COLD_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_COLD ) );
+    return new BLong( cold_resist().sum());
     break;
   case MBR_ENERGY_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_ENERGY ) );
+    return new BLong( energy_resist().sum() );
     break;
   case MBR_POISON_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_POISON ) );
+    return new BLong( poison_resist().sum() );
     break;
   case MBR_PHYSICAL_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_PHYSICAL ) );
+    return new BLong( physical_resist().sum());
     break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
@@ -974,19 +974,19 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( physical_resist().mod );
     break;
   case MBR_FIRE_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_FIRE ) );
+    return new BLong( fire_damage().sum());
     break;
   case MBR_COLD_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_COLD ) );
+    return new BLong( cold_damage().sum());
     break;
   case MBR_ENERGY_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_ENERGY ) );
+    return new BLong(energy_damage().sum());
     break;
   case MBR_POISON_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_POISON ) );
+    return new BLong( poison_damage().sum());
     break;
   case MBR_PHYSICAL_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_PHYSICAL ) );
+    return new BLong( physical_damage().sum());
     break;
   case MBR_FIRE_DAMAGE_MOD:
     return new BLong( fire_damage().mod );

@@ -263,11 +263,6 @@ void unload_armor_zones()
   Core::gamestate.armor_zone_chance_sum = 0;
 }
 
-const Core::MovementCostMod Character::DEFAULT_MOVEMENTCOSTMOD =
-    Core::MovementCostMod( 1.0, 1.0, 1.0, 1.0 );
-const Core::ExtStatBarFollowers Character::DEFAULT_EXTSTATBARFOLLOWERS =
-    Core::ExtStatBarFollowers( 0, 0 );
-const Core::SkillStatCap Character::DEFAULT_SKILLSTATCAP = Core::SkillStatCap( 225, 700 );
 
 Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
     : UObject( objtype, uobj_class ),
@@ -277,7 +272,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       shield( NULL ),
       armor_( Core::gamestate.armorzones.size() ),
       wornitems( new Core::WornItemsContainer ),  // default objtype is in containr.cpp,
-                                                      // WornItemsContainer class
+                                                  // WornItemsContainer class
       gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
       remote_containers_(),
       // MOVEMENT
@@ -348,11 +343,11 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       race( Core::RACE_HUMAN ),
       last_corpse( 0 )
 {
-  logged_in( true ); // so initialization scripts etc can see
+  logged_in( true );  // so initialization scripts etc can see
 
   height = Core::settingsManager.ssopt
                .default_character_height;  // this gets overwritten in UObject::readProperties!
-  wornitems->chr_owner = this;              // FIXME, dangerous.
+  wornitems->chr_owner = this;             // FIXME, dangerous.
 
   set_caps_to_default();
 
@@ -387,13 +382,13 @@ Character::~Character()
 
   removal_cleanup();
 
-  // clean up wornitems, so it can be reaped by the objecthash later 
+  // clean up wornitems, so it can be reaped by the objecthash later
   wornitems->destroy();
 
   // clean up trade container if it exists
   if ( trading_cont != nullptr )
     trading_cont->destroy();
-  
+
   if ( repsys_task_ != NULL )
     repsys_task_->cancel();
 
@@ -534,7 +529,8 @@ unsigned int Character::weight() const
 }
 
 ///
-/// A Mobile's carrying capacity is (40 + 3.5*STR + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod stones.
+/// A Mobile's carrying capacity is (40 + 3.5*STR +
+/// chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod stones.
 ///
 unsigned short Character::carrying_capacity() const
 {
@@ -634,14 +630,16 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
-    if ( movecost_value.walk != DEFAULT_MOVEMENTCOSTMOD.walk )
+    if ( movecost_value.walk != Core::MovementCostMod::DEFAULT.walk )
       sw() << "\tMovementWalkMod\t" << static_cast<double>( movecost_value.walk ) << pf_endl;
-    if ( movecost_value.run != DEFAULT_MOVEMENTCOSTMOD.run )
+    if ( movecost_value.run != Core::MovementCostMod::DEFAULT.run )
       sw() << "\tMovementRunMod\t" << static_cast<double>( movecost_value.run ) << pf_endl;
-    if ( movecost_value.walk_mounted != DEFAULT_MOVEMENTCOSTMOD.walk_mounted )
-      sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( movecost_value.walk_mounted ) << pf_endl;
-    if ( movecost_value.run_mounted != DEFAULT_MOVEMENTCOSTMOD.run_mounted )
-      sw() << "\tMovementRunMountedMod\t" << static_cast<double>( movecost_value.run_mounted ) << pf_endl;
+    if ( movecost_value.walk_mounted != Core::MovementCostMod::DEFAULT.walk_mounted )
+      sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( movecost_value.walk_mounted )
+           << pf_endl;
+    if ( movecost_value.run_mounted != Core::MovementCostMod::DEFAULT.run_mounted )
+      sw() << "\tMovementRunMountedMod\t" << static_cast<double>( movecost_value.run_mounted )
+           << pf_endl;
   }
   if ( has_carrying_capacity_mod() )
     sw() << "\tCarryingCapacityMod\t" << static_cast<int>( carrying_capacity_mod() ) << pf_endl;
@@ -693,10 +691,10 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( has_skillstatcap() )
   {
     auto cap_value = skillstatcap();
-    if ( cap_value.statcap != DEFAULT_SKILLSTATCAP.statcap )
-      sw() << "\tStatcap\t" << static_cast<int>(cap_value.statcap) << pf_endl;
-    if ( cap_value.skillcap != DEFAULT_SKILLSTATCAP.skillcap )
-      sw() << "\tSkillcap\t" << static_cast<int>(cap_value.skillcap) << pf_endl;
+    if ( cap_value.statcap != Core::SkillStatCap::DEFAULT.statcap )
+      sw() << "\tStatcap\t" << static_cast<int>( cap_value.statcap ) << pf_endl;
+    if ( cap_value.skillcap != Core::SkillStatCap::DEFAULT.skillcap )
+      sw() << "\tSkillcap\t" << static_cast<int>( cap_value.skillcap ) << pf_endl;
   }
 
   if ( has_luck() )
@@ -704,10 +702,10 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( has_followers() )
   {
     auto followers_value = followers();
-    if ( followers_value.followers_max != DEFAULT_EXTSTATBARFOLLOWERS.followers_max )
-      sw() << "\tFollowersMax\t" << static_cast<int>(followers_value.followers_max) << pf_endl;
-    if ( followers_value.followers != DEFAULT_EXTSTATBARFOLLOWERS.followers )
-      sw() << "\tFollowers\t" << static_cast<int>(followers_value.followers) << pf_endl;
+    if ( followers_value.followers_max != Core::ExtStatBarFollowers::DEFAULT.followers_max )
+      sw() << "\tFollowersMax\t" << static_cast<int>( followers_value.followers_max ) << pf_endl;
+    if ( followers_value.followers != Core::ExtStatBarFollowers::DEFAULT.followers )
+      sw() << "\tFollowers\t" << static_cast<int>( followers_value.followers ) << pf_endl;
   }
   if ( has_tithing() )
     sw() << "\tTithing\t" << static_cast<int>( tithing() ) << pf_endl;
@@ -931,10 +929,10 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
     physical_damage( physical_damage().setAsMod( mod_value ) );
 
   movement_cost( Core::MovementCostMod(
-      elem.remove_double( "MovementWalkMod", DEFAULT_MOVEMENTCOSTMOD.walk ),
-      elem.remove_double( "MovementRunMod", DEFAULT_MOVEMENTCOSTMOD.run ),
-      elem.remove_double( "MovementWalkMountedMod", DEFAULT_MOVEMENTCOSTMOD.walk_mounted ),
-      elem.remove_double( "MovementRunMountedMod", DEFAULT_MOVEMENTCOSTMOD.run_mounted ) ) );
+      elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
+      elem.remove_double( "MovementRunMod", Core::MovementCostMod::DEFAULT.run ),
+      elem.remove_double( "MovementWalkMountedMod", Core::MovementCostMod::DEFAULT.walk_mounted ),
+      elem.remove_double( "MovementRunMountedMod", Core::MovementCostMod::DEFAULT.run_mounted ) ) );
 
   carrying_capacity_mod( static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) ) );
 
@@ -971,13 +969,13 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
   uclang = elem.remove_string( "UCLang", "enu" );
   skillstatcap( Core::SkillStatCap(
-      static_cast<s16>( elem.remove_int( "STATCAP", DEFAULT_SKILLSTATCAP.statcap ) ),
-      static_cast<u16>( elem.remove_int( "SKILLCAP", DEFAULT_SKILLSTATCAP.skillcap ) ) ) );
+      static_cast<s16>( elem.remove_int( "STATCAP", Core::SkillStatCap::DEFAULT.statcap ) ),
+      static_cast<u16>( elem.remove_int( "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) ) );
   luck( static_cast<s16>( elem.remove_int( "LUCK", 0 ) ) );
   followers( Core::ExtStatBarFollowers(
-      static_cast<s8>( elem.remove_int( "FOLLOWERS", DEFAULT_EXTSTATBARFOLLOWERS.followers ) ),
+      static_cast<s8>( elem.remove_int( "FOLLOWERS", Core::ExtStatBarFollowers::DEFAULT.followers ) ),
       static_cast<s8>(
-          elem.remove_int( "FOLLOWERSMAX", DEFAULT_EXTSTATBARFOLLOWERS.followers_max ) ) ) );
+          elem.remove_int( "FOLLOWERSMAX", Core::ExtStatBarFollowers::DEFAULT.followers_max ) ) ) );
   tithing( elem.remove_int( "TITHING", 0 ) );
 
   privs.readfrom( elem.remove_string( "Privs", "" ) );
@@ -1364,7 +1362,8 @@ bool Character::equippable( const Items::Item* item ) const
   {
     return false;
   }
-  if ( ( item->tile_layer == Core::LAYER_BACKPACK ) && !item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
+  if ( ( item->tile_layer == Core::LAYER_BACKPACK ) &&
+       !item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return false;
   }
@@ -1771,7 +1770,8 @@ u8 Character::get_flag1( Network::Client* other_client ) const
        ( ~other_client->ClientType &
          Network::CLIENTTYPE_7000 ) )  // client >=7 receive the poisonflag with 0x17
     flag1 |= Core::CHAR_FLAG1_POISONED;
-  if ( ( movemode & Core::MOVEMODE_FLY ) && ( other_client->ClientType & Network::CLIENTTYPE_7000 ) )
+  if ( ( movemode & Core::MOVEMODE_FLY ) &&
+       ( other_client->ClientType & Network::CLIENTTYPE_7000 ) )
     flag1 |= Core::CHAR_FLAG1_FLYING;
   if ( ( Core::settingsManager.ssopt.invul_tag == 2 ) && ( invul() ) )
     flag1 |= Core::CHAR_FLAG1_YELLOWHEALTH;
@@ -1814,7 +1814,7 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
   }
 
   if ( paralyzed() )
-    mob_flags_.remove ( MOB_FLAGS::PARALYZED );
+    mob_flags_.remove( MOB_FLAGS::PARALYZED );
 
   disable_regeneration_for( 2 );  // FIXME depend on amount?
 
@@ -2378,7 +2378,8 @@ void Character::die()
       bp_item->container = NULL;
       bp_item->layer = 0;
       UPDATE_CHECKPOINT();
-      if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) && bp->can_add( *bp_item ) )
+      if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
+           bp->can_add( *bp_item ) )
       {
         if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
         {
@@ -2492,10 +2493,7 @@ void Character::refresh_ar()
   for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
     armor_[zone] = NULL;
   // we need to reset each resist to 0, then add the base back using calc.
-  for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-  {
-    refresh_element( (Core::ElementalType)element );
-  }
+  resetEquipableProperties();
 
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
   {
@@ -2503,11 +2501,9 @@ void Character::refresh_ar()
     if ( item == NULL )
       continue;
     // Let's check all items as base, and handle their element_resists.
-    for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-    {
-      update_element( (Core::ElementalType)element, item );
-    }
-    if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
+	updateEquipableProperties( item );
+    
+	if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Items::UArmor* armor = static_cast<Items::UArmor*>( item );
       std::set<unsigned short> tmplzones = armor->tmplzones();
@@ -2558,146 +2554,54 @@ void Character::refresh_ar()
   }
 }
 
-void Character::update_element( Core::ElementalType element, Items::Item* item )
+void Character::updateEquipableProperties( Items::Item* item )
 {
-  Core::AosValuePack curr;
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( item->has_fire_resist() )
-      fire_resist( fire_resist().addToValue( item->fire_resist() ) );
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( item->has_cold_resist() )
-      cold_resist( cold_resist().addToValue( item->cold_resist() ) );
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( item->has_energy_resist() )
-      energy_resist( energy_resist().addToValue( item->energy_resist() ) );
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( item->has_poison_resist() )
-      poison_resist( poison_resist().addToValue( item->poison_resist() ) );
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( item->has_physical_resist() )
-      physical_resist( physical_resist().addToValue( item->physical_resist() ) );
-    break;
-  }
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( item->has_fire_damage() )
-      fire_damage( fire_damage().addToValue( item->fire_damage() ) );
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( item->has_cold_damage() )
-      cold_damage( cold_damage().addToValue( item->cold_damage() ) );
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( item->has_energy_damage() )
-      energy_damage( energy_damage().addToValue( item->energy_damage() ) );
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( item->has_poison_damage() )
-      poison_damage( poison_damage().addToValue( item->poison_damage() ) );
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( item->has_physical_damage() )
-      physical_damage( physical_damage().addToValue( item->physical_damage() ) );
-    break;
-  }
+  if ( item->has_fire_resist() )
+    fire_resist( fire_resist().addToValue( item->fire_resist() ) );
+  if ( item->has_cold_resist() )
+    cold_resist( cold_resist().addToValue( item->cold_resist() ) );
+  if ( item->has_energy_resist() )
+    energy_resist( energy_resist().addToValue( item->energy_resist() ) );
+  if ( item->has_poison_resist() )
+    poison_resist( poison_resist().addToValue( item->poison_resist() ) );
+  if ( item->has_physical_resist() )
+    physical_resist( physical_resist().addToValue( item->physical_resist() ) );
+
+  if ( item->has_fire_damage() )
+    fire_damage( fire_damage().addToValue( item->fire_damage() ) );
+  if ( item->has_cold_damage() )
+    cold_damage( cold_damage().addToValue( item->cold_damage() ) );
+  if ( item->has_energy_damage() )
+    energy_damage( energy_damage().addToValue( item->energy_damage() ) );
+  if ( item->has_poison_damage() )
+    poison_damage( poison_damage().addToValue( item->poison_damage() ) );
+  if ( item->has_physical_damage() )
+    physical_damage( physical_damage().addToValue( item->physical_damage() ) );
 }
 
-void Character::refresh_element( Core::ElementalType element )
+void Character::resetEquipableProperties()
 {
-  Core::AosValuePack curr;
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( has_fire_resist() )
-    {
-      curr = fire_resist();
-      curr.value = curr.mod;
-      fire_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( has_cold_resist() )
-    {
-      curr = cold_resist();
-      curr.value = curr.mod;
-      cold_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( has_energy_resist() )
-    {
-      curr = energy_resist();
-      curr.value = curr.mod;
-      energy_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( has_poison_resist() )
-    {
-      curr = poison_resist();
-      curr.value = curr.mod;
-      poison_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( has_physical_resist() )
-    {
-      curr = physical_resist();
-      curr.value = curr.mod;
-      physical_resist( curr );
-    }
-    break;
-  }
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( has_fire_damage() )
-    {
-      curr = fire_damage();
-      curr.value = curr.mod;
-      fire_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( has_cold_damage() )
-    {
-      curr = cold_damage();
-      curr.value = curr.mod;
-      cold_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( has_energy_damage() )
-    {
-      curr = energy_damage();
-      curr.value = curr.mod;
-      energy_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( has_poison_damage() )
-    {
-      curr = poison_damage();
-      curr.value = curr.mod;
-      poison_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( has_physical_damage() )
-    {
-      curr = physical_damage();
-      curr.value = curr.mod;
-      physical_damage( curr );
-    }
-    break;
-  }
+  if ( has_fire_resist() )
+    fire_resist( fire_resist().resetModAsValue() );
+  if ( has_cold_resist() )
+    cold_resist( cold_resist().resetModAsValue() );
+  if ( has_energy_resist() )
+    energy_resist( energy_resist().resetModAsValue() );
+  if ( has_poison_resist() )
+    poison_resist( poison_resist().resetModAsValue() );
+  if ( has_physical_resist() )
+    physical_resist( physical_resist().resetModAsValue() );
+
+  if ( has_fire_damage() )
+    fire_damage( fire_damage().resetModAsValue() );
+  if ( has_cold_damage() )
+    cold_damage( cold_damage().resetModAsValue() );
+  if ( has_energy_damage() )
+    energy_damage( energy_damage().resetModAsValue() );
+  if ( has_poison_damage() )
+    poison_damage( poison_damage().resetModAsValue() );
+  if ( has_physical_damage() )
+    physical_damage( physical_damage().resetModAsValue() );
 }
 
 void Character::showarmor() const
@@ -3480,13 +3384,13 @@ void Character::check_attack_after_move()
   INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
                          << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
   if ( opponent != NULL &&  // and I have an opponent
-       !dead() &&            // If I'm not dead
+       !dead() &&           // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
          ( !paralyzed() && !frozen() ) ) )
   {
     FUNCTION_CHECKPOINT( check_attack_after_move, 3 );
     if ( mob_flags_.get( MOB_FLAGS::READY_TO_SWING ) )  // and I can swing now,
-    {                      // do so.
+    {                                                   // do so.
       FUNCTION_CHECKPOINT( check_attack_after_move, 4 );
       if ( Core::settingsManager.combat_config.send_swing_packet && client != NULL )
         send_fight_occuring( client, opponent );
@@ -3795,8 +3699,7 @@ bool Character::face( Core::UFACING i_facing, int flags )
     setfacing( static_cast<u8>( i_facing ) );
 
     if ( Core::settingsManager.combat_config.reset_swing_onturn &&
-         !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) &&
-         weapon->is_projectile() )
+         !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
     if ( hidden() && ( Core::settingsManager.ssopt.hidden_turns_count ) )
     {
@@ -3981,7 +3884,8 @@ bool Character::move( unsigned char i_dir )
 
     if ( hidden() )
     {
-      if ( ( ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) && !cached_settings.get( PRIV_FLAGS::RUN_WHILE_STEALTH ) ) ||
+      if ( ( ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) &&
+             !cached_settings.get( PRIV_FLAGS::RUN_WHILE_STEALTH ) ) ||
            ( stealthsteps_ == 0 ) )
         unhide();
       else if ( stealthsteps_ )

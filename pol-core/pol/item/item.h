@@ -255,11 +255,6 @@ public:
   unsigned short hp_;
   unsigned short maxhp() const;
 
-  s16 calc_element_resist( Core::ElementalType element ) const;
-  s16 calc_element_damage( Core::ElementalType element ) const;
-  bool has_resistance( Mobile::Character* chr );
-  bool has_element_damage();
-
   DYN_PROPERTY( maxhp_mod, s16, Core::PROP_MAXHP_MOD, 0 );
   DYN_PROPERTY( name_suffix, std::string, Core::PROP_NAME_SUFFIX, "" );
   DYN_PROPERTY_POINTER( gotten_by, Mobile::Character*, Core::PROP_GOTTEN_BY );

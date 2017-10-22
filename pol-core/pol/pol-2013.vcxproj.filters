@@ -104,6 +104,9 @@
     <ClCompile Include="dropitem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dynproperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="eqpitem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
