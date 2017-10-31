@@ -300,6 +300,7 @@
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="door.cpp" />
     <ClCompile Include="dropitem.cpp" />
+    <ClCompile Include="dynproperties.cpp" />
     <ClCompile Include="eqpitem.cpp" />
     <ClCompile Include="equipdsc.cpp" />
     <ClCompile Include="exscrobj.cpp" />

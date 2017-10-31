@@ -265,18 +265,17 @@ public:
   // always used for characters
 
   DYN_PROPERTY( maxhp_mod, s16, PROP_MAXHP_MOD, 0 );
-  static AosValuePack DEFAULT_AOSVALUEPACK;
-  DYN_PROPERTY( fire_resist, AosValuePack, PROP_RESIST_FIRE, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( cold_resist, AosValuePack, PROP_RESIST_COLD, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( energy_resist, AosValuePack, PROP_RESIST_ENERGY, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( poison_resist, AosValuePack, PROP_RESIST_POISON, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( physical_resist, AosValuePack, PROP_RESIST_PHYSICAL, DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY( fire_resist, ValueModPack, PROP_RESIST_FIRE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( cold_resist, ValueModPack, PROP_RESIST_COLD, ValueModPack::DEFAULT );
+  DYN_PROPERTY( energy_resist, ValueModPack, PROP_RESIST_ENERGY, ValueModPack::DEFAULT );
+  DYN_PROPERTY( poison_resist, ValueModPack, PROP_RESIST_POISON, ValueModPack::DEFAULT );
+  DYN_PROPERTY( physical_resist, ValueModPack, PROP_RESIST_PHYSICAL, ValueModPack::DEFAULT );
 
-  DYN_PROPERTY( fire_damage, AosValuePack, PROP_DAMAGE_FIRE, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( cold_damage, AosValuePack, PROP_DAMAGE_COLD, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( energy_damage, AosValuePack, PROP_DAMAGE_ENERGY, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( poison_damage, AosValuePack, PROP_DAMAGE_POISON, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY( fire_damage, ValueModPack, PROP_DAMAGE_FIRE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( cold_damage, ValueModPack, PROP_DAMAGE_COLD, ValueModPack::DEFAULT );
+  DYN_PROPERTY( energy_damage, ValueModPack, PROP_DAMAGE_ENERGY, ValueModPack::DEFAULT );
+  DYN_PROPERTY( poison_damage, ValueModPack, PROP_DAMAGE_POISON, ValueModPack::DEFAULT );
+  DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
 private:
   u32 _rev;

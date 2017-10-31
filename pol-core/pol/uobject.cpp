@@ -65,7 +65,6 @@ void display_unreaped_orphan_instances()
 
 std::atomic<unsigned int> UObject::dirty_writes;
 std::atomic<unsigned int> UObject::clean_writes;
-AosValuePack UObject::DEFAULT_AOSVALUEPACK = AosValuePack();
 
 UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
     : ref_counted(),

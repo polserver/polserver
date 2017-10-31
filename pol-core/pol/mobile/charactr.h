@@ -497,8 +497,8 @@ private:
   // ATTRIBUTES / VITALS
 public:
   void disable_regeneration_for( int seconds );
-  void refresh_element( Core::ElementalType element );
-  void update_element( Core::ElementalType element, Items::Item* item );
+  void resetEquipableProperties();
+  void updateEquipableProperties( Items::Item* item );
 
   u16 strength() const;
   u16 intelligence() const;
@@ -780,9 +780,8 @@ public:
   DYN_PROPERTY( lightoverride, int, Core::PROP_LIGHTOVERRIDE, -1 );
   DYN_PROPERTY( lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0 );
 
-  static const Core::MovementCostMod DEFAULT_MOVEMENTCOSTMOD;
   DYN_PROPERTY( movement_cost, Core::MovementCostMod, Core::PROP_MOVEMENTCOST_MOD,
-                DEFAULT_MOVEMENTCOSTMOD );
+                Core::MovementCostMod::DEFAULT );
   // COMBAT
 public:
   u32 warmode_wait;
@@ -846,13 +845,11 @@ private:
 public:
   u8 cmdlevel_;
 
-  static const Core::ExtStatBarFollowers DEFAULT_EXTSTATBARFOLLOWERS;
-  static const Core::SkillStatCap DEFAULT_SKILLSTATCAP;
   DYN_PROPERTY( skillstatcap, Core::SkillStatCap, Core::PROP_STATCAP_SKILLCAP,
-                DEFAULT_SKILLSTATCAP );
+                Core::SkillStatCap::DEFAULT );
   DYN_PROPERTY( luck, s16, Core::PROP_EXT_STATBAR_LUCK, 0 );
   DYN_PROPERTY( followers, Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS,
-                DEFAULT_EXTSTATBARFOLLOWERS );
+                Core::ExtStatBarFollowers::DEFAULT );
   DYN_PROPERTY( tithing, s32, Core::PROP_EXT_STATBAR_TITHING, 0 );
 
 protected:
