@@ -145,6 +145,10 @@ enum DynPropTypes : u8
   PROP_GOTTEN_ITEM = 57,            // Character
   PROP_PROCESS = 58,                // Item
   PROP_HOUSE = 59,                  // House
+  PROP_LOWER_REAG_COST = 60,		// UObject
+  PROP_SPELL_DAMAGE_INCREASE = 61,	// UObject
+  PROP_FASTER_CASTING = 62,			// UObject
+  PROP_FASTER_CAST_RECOVERY = 63,	// UObject
 
   PROP_FLAG_SIZE  // used for bitset size
 };

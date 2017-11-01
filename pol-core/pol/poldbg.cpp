@@ -81,7 +81,15 @@ const char* poldbg_itemref_members[] = {"amount",
                                         "resist_cold_mod",
                                         "resist_energy_mod",
                                         "resist_poison_mod",
-                                        "resist_physical_mod"};
+                                        "resist_physical_mod",
+										"lower_reagent_cost",
+										"spell_damage_increase",
+										"faster_casting",
+										"faster_cast_recovery",
+										"lower_reagent_cost_mod",
+										"spell_damage_increase_mod",
+										"faster_casting_mod",
+										"faster_cast_recovery_mod" };
 // 59 members
 const char* poldbg_mobileref_members[] = {"warmode",
                                           "gender",
@@ -141,7 +149,15 @@ const char* poldbg_mobileref_members[] = {"warmode",
                                           "resist_cold_mod",
                                           "resist_energy_mod",
                                           "resist_poison_mod",
-                                          "resist_physical_mod"};
+                                          "resist_physical_mod",
+											"lower_reagent_cost",
+											"spell_damage_increase",
+											"faster_casting",
+											"faster_cast_recovery",
+											"lower_reagent_cost_mod",
+											"spell_damage_increase_mod",
+											"faster_casting_mod",
+											"faster_cast_recovery_mod" };
 
 class DebugContext : public ref_counted
 {
