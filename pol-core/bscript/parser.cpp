@@ -488,6 +488,14 @@ ObjMember object_members[] = {
     {MBR_CARRYINGCAPACITY, "carrying_capacity", true},
     {MBR_NO_DROP, "no_drop", false},
     {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
+	{MBR_LOWER_REAG_COST, "lower_reagent_cost",true},
+	{ MBR_SPELL_DAMAGE_INCREASE, "spell_damage_increase",true },
+	{ MBR_FASTER_CASTING, "faster_casting",true },
+	{ MBR_FASTER_CAST_RECOVERY, "faster_cast_recovery",true },
+	{ MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod",true },
+	{ MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod",true },
+	{ MBR_FASTER_CASTING_MOD, "faster_casting_mod",true },
+	{ MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod",true },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
