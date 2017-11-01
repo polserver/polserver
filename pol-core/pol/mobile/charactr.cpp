@@ -624,6 +624,19 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( value != 0 )
     sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
 
+  value = lower_reagent_cost().mod;
+  if (value != 0)
+	  sw() << "\tLowerReagentCostMod\t" << static_cast<int>(value) << pf_endl;
+  value = spell_damage_increase().mod;
+  if (value != 0)
+	  sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_casting().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastingMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_cast_recovery().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
+
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
@@ -924,6 +937,19 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
   if ( mod_value != 0 )
     physical_damage( physical_damage().setAsMod( mod_value ) );
+
+  mod_value = static_cast<s16>(elem.remove_int("LOWERREAGCOSTMOD", 0));
+  if (mod_value != 0)
+	  lower_reagent_cost(lower_reagent_cost().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("SPELLDAMAGEINCREASEMOD", 0));
+  if (mod_value != 0)
+	  spell_damage_increase(spell_damage_increase().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTMOD", 0));
+  if (mod_value != 0)
+	  faster_casting(faster_casting().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTRECOVERYMOD", 0));
+  if (mod_value != 0)
+	  faster_cast_recovery(faster_cast_recovery().setAsMod(mod_value));
 
   movement_cost( Core::MovementCostMod(
       elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
@@ -2582,6 +2608,16 @@ void Character::updateEquipableProperties( Items::Item* item )
     poison_damage( poison_damage().addToValue( item->poison_damage() ) );
   if ( item->has_physical_damage() )
     physical_damage( physical_damage().addToValue( item->physical_damage() ) );
+
+
+  if (item->has_lower_reagent_cost())
+	  lower_reagent_cost(lower_reagent_cost().addToValue(item->lower_reagent_cost()));
+  if (item->has_spell_damage_increase())
+	  spell_damage_increase(spell_damage_increase().addToValue(item->spell_damage_increase()));
+  if (item->has_faster_casting())
+	  faster_casting(faster_casting().addToValue(item->faster_casting()));
+  if (item->has_faster_cast_recovery())
+	  faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
 }
 
 void Character::resetEquipableProperties()
@@ -2607,6 +2643,15 @@ void Character::resetEquipableProperties()
     poison_damage( poison_damage().resetModAsValue() );
   if ( has_physical_damage() )
     physical_damage( physical_damage().resetModAsValue() );
+
+  if ( has_lower_reagent_cost() )
+	  lower_reagent_cost(lower_reagent_cost().resetModAsValue());
+  if ( has_spell_damage_increase() )
+	  spell_damage_increase(spell_damage_increase().resetModAsValue());
+  if ( has_faster_casting() )
+	  faster_casting(faster_casting().resetModAsValue());
+  if ( has_faster_cast_recovery() )
+	  faster_cast_recovery(faster_cast_recovery().resetModAsValue());
 }
 
 void Character::showarmor() const

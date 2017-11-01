@@ -265,6 +265,12 @@ public:
   DYN_PROPERTY( poison_damage, ValueModPack, PROP_DAMAGE_POISON, ValueModPack::DEFAULT );
   DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
+
+  DYN_PROPERTY(lower_reagent_cost, ValueModPack, PROP_LOWER_REAG_COST, ValueModPack::DEFAULT);
+  DYN_PROPERTY(spell_damage_increase, ValueModPack, PROP_SPELL_DAMAGE_INCREASE, ValueModPack::DEFAULT);
+  DYN_PROPERTY(faster_casting, ValueModPack, PROP_FASTER_CASTING, ValueModPack::DEFAULT);
+  DYN_PROPERTY(faster_cast_recovery, ValueModPack, PROP_FASTER_CAST_RECOVERY, ValueModPack::DEFAULT);
+
 private:
   u32 _rev;
 
