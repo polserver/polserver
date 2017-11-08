@@ -636,6 +636,39 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   value = faster_cast_recovery().mod;
   if (value != 0)
 	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
+  value = defence_increase_mod().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = defence_increase_cap_mod().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = lower_mana_cost_mod().mod;
+  if (value != 0)
+	  sw() << "\tLowerManaCostMod\t" << static_cast<int>(value) << pf_endl;
+  value = hitchance_mod().mod;
+  if (value != 0)
+	  sw() << "\tHitChanceMod\t" << static_cast<int>(value) << pf_endl;
+  value = speed_mod().mod;
+  if (value != 0)
+	  sw() << "\tSpeedMod\t" << static_cast<int>(value) << pf_endl;
+  value = dmg_mod().mod;
+  if (value != 0)
+	  sw() << "\tDamageMod\t" << static_cast<int>(value) << pf_endl;
+  value = fire_resist_cap_mod().mod;
+  if (value != 0)
+	  sw() << "\tFireResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = cold_resist_cap_mod().mod;
+  if (value != 0)
+	  sw() << "\tColdResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = energy_resist_cap_mod().mod;
+  if (value != 0)
+	  sw() << "\tEnergyResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = poison_resist_cap_mod().mod;
+  if (value != 0)
+	  sw() << "\tPoisonResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = physical_resist_cap_mod().mod;
+  if (value != 0)
+	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
 
   if ( has_movement_cost() )
   {
@@ -950,6 +983,8 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>(elem.remove_int("FASTERCASTRECOVERYMOD", 0));
   if (mod_value != 0)
 	  faster_cast_recovery(faster_cast_recovery().setAsMod(mod_value));
+
+  //ADD SOME HERE//
 
   movement_cost( Core::MovementCostMod(
       elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
@@ -2585,6 +2620,7 @@ void Character::refresh_ar()
   }
 }
 
+//ADD SOME HERE//
 void Character::updateEquipableProperties( Items::Item* item )
 {
   if ( item->has_fire_resist() )
@@ -3335,7 +3371,7 @@ void Character::attack( Character* opponent )
         new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
         new Module::ECharacterRefObjImp( opponent ) );
   }
-
+  //SOMETHING PROBABLY NEEDS TO CHANGE HERE//
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
   hit_chance += hitchance_mod() * 0.001f;
