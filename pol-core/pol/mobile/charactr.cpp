@@ -984,7 +984,40 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if (mod_value != 0)
 	  faster_cast_recovery(faster_cast_recovery().setAsMod(mod_value));
 
-  //ADD SOME HERE//
+  mod_value = static_cast<s16>(elem.remove_int("DEFENCEINCREASEMOD", 0));
+  if (mod_value != 0)
+	  defence_increase(defence_increase().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("DEFENCEINCREASECAPMOD", 0));
+  if (mod_value != 0)
+	  defence_increase_cap(defence_increase_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("LOWERMANACOSTMOD", 0));
+  if (mod_value != 0)
+	  lower_mana_cost(lower_mana_cost().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("HITCHANCEMOD", 0));
+  if (mod_value != 0)
+	  hitchance(hitchance().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("SWINGSPEEDMOD", 0));
+  if (mod_value != 0)
+	  swingspeed(swingspeed().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("DAMAGEINCREASEMOD", 0));
+  if (mod_value != 0)
+	  damage_increase(damage_increase().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("FIRERESISTCAPMOD", 0));
+  if (mod_value != 0)
+	  fire_resist_cap(fire_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("COLDRESISTCAPMOD", 0));
+  if (mod_value != 0)
+	  cold_resist_cap(cold_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("ENERGYRESISTCAPMOD", 0));
+  if (mod_value != 0)
+	  energy_resist_cap(energy_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("POISONRESISTCAPMOD", 0));
+  if (mod_value != 0)
+	  poison_resist_cap(poison_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("PHYSICALRESISTCAPMOD", 0));
+  if (mod_value != 0)
+	  physical_resist_cap(physical_resist_cap().setAsMod(mod_value));
+
 
   movement_cost( Core::MovementCostMod(
       elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
@@ -2652,6 +2685,8 @@ void Character::updateEquipableProperties( Items::Item* item )
 	  spell_damage_increase(spell_damage_increase().addToValue(item->spell_damage_increase()));
   if (item->has_faster_casting())
 	  faster_casting(faster_casting().addToValue(item->faster_casting()));
+  if (item->has_faster_cast_recovery())
+	  faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
   if (item->has_faster_cast_recovery())
 	  faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
 }
