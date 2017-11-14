@@ -100,6 +100,22 @@ Item* Item::clone() const
   item->energy_damage( energy_damage() );
   item->poison_damage( poison_damage() );
   item->physical_damage( physical_damage() );
+  item->lower_reagent_cost(lower_reagent_cost());
+  item->spell_damage_increase(spell_damage_increase());
+  item->faster_casting(faster_casting());
+  item->faster_cast_recovery(faster_cast_recovery());
+  item->defence_increase(defence_increase());
+  item->defence_increase_cap(defence_increase_cap());
+  item->lower_mana_cost(lower_mana_cost());
+  item->hitchance(hitchance());
+  item->swingspeed(swingspeed());
+  item->damage_increase(damage_increase());
+  item->fire_resist_cap(fire_resist_cap());
+  item->cold_resist_cap(cold_resist_cap());
+  item->energy_resist_cap(energy_resist_cap());
+  item->poison_resist_cap(poison_resist_cap());
+  item->physical_resist_cap(physical_resist_cap());
+
 
   item->maxhp_mod( maxhp_mod() );
   item->name_suffix( name_suffix() );

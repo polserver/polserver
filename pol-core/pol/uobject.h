@@ -278,10 +278,23 @@ public:
   DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
 
+  DYN_PROPERTY(fire_resist_cap, ValueModPack, PROP_FIRE_RESIST_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(cold_resist_cap, ValueModPack, PROP_COLD_RESIST_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(energy_resist_cap, ValueModPack, PROP_ENERGY_RESIST_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(poison_resist_cap, ValueModPack, PROP_POISON_RESIST_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(physical_resist_cap, ValueModPack, PROP_PHYSICAL_RESIST_CAP, ValueModPack::DEFAULT);
+
   DYN_PROPERTY(lower_reagent_cost, ValueModPack, PROP_LOWER_REAG_COST, ValueModPack::DEFAULT);
   DYN_PROPERTY(spell_damage_increase, ValueModPack, PROP_SPELL_DAMAGE_INCREASE, ValueModPack::DEFAULT);
   DYN_PROPERTY(faster_casting, ValueModPack, PROP_FASTER_CASTING, ValueModPack::DEFAULT);
   DYN_PROPERTY(faster_cast_recovery, ValueModPack, PROP_FASTER_CAST_RECOVERY, ValueModPack::DEFAULT);
+
+  DYN_PROPERTY(defence_increase, ValueModPack, PROP_DEFENCE_CHANCE_INCREASE, ValueModPack::DEFAULT);
+  DYN_PROPERTY(defence_increase_cap, ValueModPack, PROP_DEFENCE_CHANCE_INCREASE_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(lower_mana_cost, ValueModPack, PROP_LOWER_MANA_COST, ValueModPack::DEFAULT);
+  DYN_PROPERTY(hitchance, ValueModPack, PROP_HITCHANCE, ValueModPack::DEFAULT);
+  DYN_PROPERTY(swingspeed, ValueModPack, PROP_SWING_SPEED, ValueModPack::DEFAULT);
+  DYN_PROPERTY(damage_increase, ValueModPack, PROP_DAMAGE_INCREASE, ValueModPack::DEFAULT);
 
 private:
   u32 _rev;

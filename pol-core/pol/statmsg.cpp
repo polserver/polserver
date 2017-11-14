@@ -185,21 +185,21 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   {
     //msg->offset += 30;
     
-    msg->WriteFlipped<u16>( 0u ); // Physical resist cap
-    msg->WriteFlipped<u16>( 0u ); // Fire resist cap
-    msg->WriteFlipped<u16>( 0u ); // Cold resist cap
-    msg->WriteFlipped<u16>( 0u ); // Poison resist cap
-    msg->WriteFlipped<u16>( 0u ); // Energy resist cap
-    msg->WriteFlipped<u16>( 0u ); // Defense chance increase
-    msg->WriteFlipped<u16>( 0u ); // Defense chance cap increase
-    msg->WriteFlipped<u16>( 0u ); // Hit chance increase
-    msg->WriteFlipped<u16>( 0u ); // Swing speed increase
-    msg->WriteFlipped<u16>( 0u ); // Weapon damage increase
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->physical_resist_cap().value)); // Physical resist cap
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->fire_resist_cap().value)); // Fire resist cap
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->cold_resist_cap().value)); // Cold resist cap
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->poison_resist_cap().value)); // Poison resist cap
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->energy_resist_cap().value)); // Energy resist cap
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->defence_increase().value)); // Defense chance increase
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->defence_increase_cap().value)); // Defense chance cap increase
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->hitchance().value)); // Hit chance increase
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->swingspeed().value)); // Swing speed increase
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->damage_increase().value)); // Weapon damage increase
     msg->WriteFlipped<u16>(static_cast<u16>(chr->lower_reagent_cost().value)); // Lower reagent cost
     msg->WriteFlipped<u16>(static_cast<u16>(chr->spell_damage_increase().value)); // Spell damage increase
     msg->WriteFlipped<u16>(static_cast<u16>(chr->faster_cast_recovery().value)); // Faster cast recovery
     msg->WriteFlipped<u16>(static_cast<u16>(chr->faster_casting().value)); // Faster casting
-    msg->WriteFlipped<u16>( 0u ); // Lower mana cost
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->lower_mana_cost().value)); // Lower mana cost
   }
 
   u16 len = msg->offset;

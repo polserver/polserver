@@ -425,7 +425,7 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
       *value = atoi( dicestr.c_str() );
     else
       *value = dice.roll();
-    return value != 0;
+    return *value != 0;
   };
   auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack
   {

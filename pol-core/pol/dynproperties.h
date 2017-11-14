@@ -155,12 +155,11 @@ enum DynPropTypes : u8
   PROP_HITCHANCE = 67,                      //UObject
   PROP_SWING_SPEED = 68,                    //UObject
   PROP_DAMAGE_INCREASE = 69,                //UObject
-  PROP_LOWER_MANA_COST = 70,                //UObject
-  PROP_FIRE_RESIST_CAP = 71,                //Character
-  PROP_COLD_RESIST_CAP = 72,                //Character
-  PROP_ENERGY_RESIST_CAP = 73,              //Character
-  PROP_POISON_RESIST_CAP = 74,              //Character
-  PROP_PHYSICAL_RESIST_CAP = 75,            //Character
+  PROP_FIRE_RESIST_CAP = 70,                //Character
+  PROP_COLD_RESIST_CAP = 71,                //Character
+  PROP_ENERGY_RESIST_CAP = 72,              //Character
+  PROP_POISON_RESIST_CAP = 73,              //Character
+  PROP_PHYSICAL_RESIST_CAP = 74,            //Character
 
   PROP_FLAG_SIZE  // used for bitset size
 };
