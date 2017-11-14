@@ -636,37 +636,37 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   value = faster_cast_recovery().mod;
   if (value != 0)
 	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
-  value = defence_increase_mod().mod;
+  value = defence_increase().mod;
   if (value != 0)
 	  sw() << "\tDefenceIncreaseMod\t" << static_cast<int>(value) << pf_endl;
-  value = defence_increase_cap_mod().mod;
+  value = defence_increase_cap().mod;
   if (value != 0)
 	  sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = lower_mana_cost_mod().mod;
+  value = lower_mana_cost().mod;
   if (value != 0)
 	  sw() << "\tLowerManaCostMod\t" << static_cast<int>(value) << pf_endl;
-  value = hitchance_mod().mod;
+  value = hitchance().mod;
   if (value != 0)
 	  sw() << "\tHitChanceMod\t" << static_cast<int>(value) << pf_endl;
-  value = speed_mod().mod;
+  value = swingspeed().mod;
   if (value != 0)
 	  sw() << "\tSpeedMod\t" << static_cast<int>(value) << pf_endl;
-  value = dmg_mod().mod;
+  value = damage_increase().mod;
   if (value != 0)
 	  sw() << "\tDamageMod\t" << static_cast<int>(value) << pf_endl;
-  value = fire_resist_cap_mod().mod;
+  value = fire_resist_cap().mod;
   if (value != 0)
 	  sw() << "\tFireResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = cold_resist_cap_mod().mod;
+  value = cold_resist_cap().mod;
   if (value != 0)
 	  sw() << "\tColdResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = energy_resist_cap_mod().mod;
+  value = energy_resist_cap().mod;
   if (value != 0)
 	  sw() << "\tEnergyResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = poison_resist_cap_mod().mod;
+  value = poison_resist_cap().mod;
   if (value != 0)
 	  sw() << "\tPoisonResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = physical_resist_cap_mod().mod;
+  value = physical_resist_cap().mod;
   if (value != 0)
 	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
 
@@ -2653,19 +2653,28 @@ void Character::refresh_ar()
   }
 }
 
-//ADD SOME HERE//
 void Character::updateEquipableProperties( Items::Item* item )
 {
   if ( item->has_fire_resist() )
     fire_resist( fire_resist().addToValue( item->fire_resist() ) );
+  if (item->has_fire_resist_cap())
+	  fire_resist_cap(fire_resist_cap().addToValue(item->fire_resist_cap()));
   if ( item->has_cold_resist() )
     cold_resist( cold_resist().addToValue( item->cold_resist() ) );
+  if (item->has_cold_resist_cap())
+	  cold_resist(cold_resist_cap().addToValue(item->cold_resist_cap()));
   if ( item->has_energy_resist() )
     energy_resist( energy_resist().addToValue( item->energy_resist() ) );
+  if (item->has_energy_resist_cap())
+	  energy_resist(energy_resist_cap().addToValue(item->energy_resist()));
   if ( item->has_poison_resist() )
     poison_resist( poison_resist().addToValue( item->poison_resist() ) );
+  if (item->has_poison_resist_cap())
+	  poison_resist_cap(poison_resist_cap().addToValue(item->poison_resist_cap()));
   if ( item->has_physical_resist() )
     physical_resist( physical_resist().addToValue( item->physical_resist() ) );
+  if (item->has_physical_resist_cap())
+	  physical_resist_cap(physical_resist_cap().addToValue(item->physical_resist_cap()));
 
   if ( item->has_fire_damage() )
     fire_damage( fire_damage().addToValue( item->fire_damage() ) );
@@ -2687,8 +2696,18 @@ void Character::updateEquipableProperties( Items::Item* item )
 	  faster_casting(faster_casting().addToValue(item->faster_casting()));
   if (item->has_faster_cast_recovery())
 	  faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
-  if (item->has_faster_cast_recovery())
-	  faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
+  if (item->has_defence_increase())
+	  defence_increase(defence_increase().addToValue(item->defence_increase()));
+  if (item->has_defence_increase_cap())
+	  defence_increase_cap(defence_increase_cap().addToValue(item->defence_increase_cap()));
+  if (item->has_lower_mana_cost())
+	  lower_mana_cost(lower_mana_cost().addToValue(item->lower_mana_cost()));
+  if (item->has_hitchance())
+	  hitchance(hitchance().addToValue(item->hitchance()));
+  if (item->has_swingspeed())
+	  swingspeed(swingspeed().addToValue(item->swingspeed()));
+  if (item->has_damage_increase())
+	  damage_increase(damage_increase().addToValue(item->damage_increase()));
 }
 
 void Character::resetEquipableProperties()
@@ -2703,6 +2722,17 @@ void Character::resetEquipableProperties()
     poison_resist( poison_resist().resetModAsValue() );
   if ( has_physical_resist() )
     physical_resist( physical_resist().resetModAsValue() );
+
+  if (has_fire_resist_cap())
+	  fire_resist_cap(fire_resist_cap().resetModAsValue());
+  if (has_cold_resist_cap())
+	  cold_resist_cap(cold_resist_cap().resetModAsValue());
+  if (has_energy_resist_cap())
+	  energy_resist_cap(energy_resist_cap().resetModAsValue());
+  if (has_poison_resist_cap())
+	  poison_resist_cap(poison_resist_cap().resetModAsValue());
+  if (has_physical_resist_cap())
+	  physical_resist_cap(physical_resist_cap().resetModAsValue());
 
   if ( has_fire_damage() )
     fire_damage( fire_damage().resetModAsValue() );
@@ -2723,6 +2753,19 @@ void Character::resetEquipableProperties()
 	  faster_casting(faster_casting().resetModAsValue());
   if ( has_faster_cast_recovery() )
 	  faster_cast_recovery(faster_cast_recovery().resetModAsValue());
+
+  if (has_defence_increase())
+	  defence_increase(defence_increase().resetModAsValue());
+  if (has_defence_increase_cap())
+	  defence_increase_cap(defence_increase_cap().resetModAsValue());
+  if (has_lower_mana_cost())
+	  lower_mana_cost(lower_mana_cost().resetModAsValue());
+  if (has_hitchance())
+	  hitchance(hitchance().resetModAsValue());
+  if (has_swingspeed())
+	  swingspeed(swingspeed().resetModAsValue());
+  if (has_damage_increase())
+	  damage_increase(damage_increase().resetModAsValue());
 }
 
 void Character::showarmor() const
