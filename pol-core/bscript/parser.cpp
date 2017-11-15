@@ -505,16 +505,16 @@ ObjMember object_members[] = {
 	{ MBR_HITCHANCE, "hitchance", true },             //hitchance_mod
 	{ MBR_SWING_SPEED, "swingspeed", true },   //235  //speed_mod
 	{ MBR_DAMAGE_INCREASE, "damage_increase", false }, //dmg_mod
-	{ MBR_FIRE_RESIST_CAP, "fire_resist_cap", true },
-	{ MBR_COLD_RESIST_CAP, "cold_resist_cap", true },
-	{ MBR_ENERGY_RESIST_CAP, "energy_resist_cap", true },
-	{ MBR_POISON_RESIST_CAP, "poison_resist_cap", true },  //240
-	{ MBR_PHYSICAL_RESIST_CAP, "physical_resist_cap", true },
-	{ MBR_FIRE_RESIST_CAP_MOD, "fire_resist_cap_mod", false },
-	{ MBR_COLD_RESIST_CAP_MOD, "cold_resist_cap_mod", false },
-	{ MBR_ENERGY_RESIST_CAP_MOD, "energy_resist_cap_mod", false },
-	{ MBR_POISON_RESIST_CAP_MOD, "poison_resist_cap_mod", false },  //245
-	{ MBR_PHYSICAL_RESIST_CAP_MOD, "physical_resist_cap_mod", false },
+	{ MBR_FIRE_RESIST_CAP, "resist_fire_cap", true },
+	{ MBR_COLD_RESIST_CAP, "resist_cold_cap", true },
+	{ MBR_ENERGY_RESIST_CAP, "resist_energy_cap", true },
+	{ MBR_POISON_RESIST_CAP, "resist_poison_cap", true },  //240
+	{ MBR_PHYSICAL_RESIST_CAP, "resist_physical_cap", true },
+	{ MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false },
+	{ MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false },
+	{ MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false },
+	{ MBR_POISON_RESIST_CAP_MOD, "resist_poison_mod", false },  //245
+	{ MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false },
 
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
