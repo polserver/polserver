@@ -449,6 +449,7 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
     orig_fire_resist( static_cast<s16>( value ) );
   }
   if ( has_fire_resist() )
+	INFO_PRINT << "loading orig" << orig_fire_resist() << " curr" << fire_resist().value<<"\n";
     fire_resist( refresh( fire_resist() ) );
   if ( elem.remove_prop( "COLDRESIST", &tmp ) && diceValue( tmp, &value ) )
   {

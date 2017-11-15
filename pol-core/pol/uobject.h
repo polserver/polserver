@@ -278,11 +278,11 @@ public:
   DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
 
-  DYN_PROPERTY(fire_resist_cap, ValueModPack, PROP_FIRE_RESIST_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(cold_resist_cap, ValueModPack, PROP_COLD_RESIST_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(energy_resist_cap, ValueModPack, PROP_ENERGY_RESIST_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(poison_resist_cap, ValueModPack, PROP_POISON_RESIST_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(physical_resist_cap, ValueModPack, PROP_PHYSICAL_RESIST_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(fire_resist_cap, ValueModPack, PROP_RESIST_FIRE_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(cold_resist_cap, ValueModPack, PROP_RESIST_COLD_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(energy_resist_cap, ValueModPack, PROP_RESIST_ENERGY_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(poison_resist_cap, ValueModPack, PROP_RESIST_POISON_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(physical_resist_cap, ValueModPack, PROP_RESIST_PHYSICAL_CAP, ValueModPack::DEFAULT);
 
   DYN_PROPERTY(lower_reagent_cost, ValueModPack, PROP_LOWER_REAG_COST, ValueModPack::DEFAULT);
   DYN_PROPERTY(spell_damage_increase, ValueModPack, PROP_SPELL_DAMAGE_INCREASE, ValueModPack::DEFAULT);
