@@ -1014,6 +1014,72 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_FASTER_CAST_RECOVERY_MOD:
 	  return new BLong(faster_casting().mod);
 	  break;
+  case MBR_DEFENCE_CHANCE_INCREASE:
+	  return new BLong(defence_increase().sum());
+	  break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+	  return new BLong(defence_increase().mod);
+	  break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP:
+	  return new BLong(defence_increase_cap().sum());
+	  break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+	  return new BLong(defence_increase_cap().mod);
+	  break;
+  case MBR_LOWER_MANA_COST:
+	  return new BLong(lower_mana_cost().sum());
+	  break;
+  case MBR_LOWER_MANA_COST_MOD:
+	  return new BLong(lower_mana_cost().mod);
+	  break;
+  case MBR_HITCHANCE:
+	  return new BLong(hitchance().sum());
+	  break;
+  case MBR_HITCHANCE_MOD:
+	  return new BLong(hitchance().mod);
+	  break;
+  case MBR_SWING_SPEED:
+	  return new BLong(swingspeed().sum());
+	  break;
+  case MBR_SPEED_MOD:
+	  return new BLong(swingspeed().mod);
+	  break;
+  case MBR_DAMAGE_INCREASE:
+	  return new BLong(damage_increase().sum());
+	  break;
+  case MBR_DMG_MOD:
+	  return new BLong(damage_increase().mod);
+	  break;
+  case MBR_FIRE_RESIST_CAP:
+	  return new BLong(fire_resist_cap().sum());
+	  break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+	  return new BLong(fire_resist_cap().mod);
+	  break;
+  case MBR_COLD_RESIST_CAP:
+	  return new BLong(cold_resist_cap().sum());
+	  break;
+  case MBR_COLD_RESIST_CAP_MOD:
+	  return new BLong(cold_resist_cap().mod);
+	  break;
+  case MBR_ENERGY_RESIST_CAP:
+	  return new BLong(energy_resist_cap().sum());
+	  break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+	  return new BLong(energy_resist_cap().mod);
+	  break;
+  case MBR_POISON_RESIST_CAP:
+	  return new BLong(poison_resist_cap().sum());
+	  break;
+  case MBR_POISON_RESIST_CAP_MOD:
+	  return new BLong(poison_resist_cap().mod);
+	  break;
+  case MBR_PHYSICAL_RESIST_CAP:
+	  return new BLong(physical_resist_cap().sum());
+	  break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+	  return new BLong(physical_resist_cap().mod);
+	  break;
   case MBR_FIRE_DAMAGE:
     return new BLong( fire_damage().sum() );
     break;
@@ -1090,7 +1156,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_NO_DROP:
     return new BLong( no_drop() );
-  default:
+    default:
     return NULL;
   }
 }
