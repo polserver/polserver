@@ -402,6 +402,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   value = physical_damage().mod;
   if ( value != 0 )
     sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = lower_reagent_cost().mod;
+  if (value != 0)
+	  sw() << "\tLowerReagentCost\t" << static_cast<int>(value) << pf_endl;
 
   if ( container != NULL )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;

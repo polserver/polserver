@@ -127,6 +127,7 @@ public:
   double quality;
   unsigned short multiid;
   unsigned short maxhp;
+  unsigned short lower_reag_cost;
 
   Core::Dice resist_dice;
 
