@@ -230,7 +230,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     }
   }
 
-  for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
+  /*for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
   {
     switch ( element )
     {
@@ -255,7 +255,20 @@ Item* Item::create( const ItemDesc& id, u32 serial )
       item->physical_damage( item->physical_damage().addToValue( id.element_damage.physical ) );
       break;
     }
-  }
+  }*/
+  //removed for loop (old stuff)
+  item->fire_resist(item->fire_resist().addToValue(id.element_resist.fire));
+  item->fire_damage(item->fire_damage().addToValue(id.element_damage.fire));
+  item->cold_resist(item->cold_resist().addToValue(id.element_resist.cold));
+  item->cold_damage(item->cold_damage().addToValue(id.element_damage.cold));
+  item->energy_resist(item->energy_resist().addToValue(id.element_resist.energy));
+  item->energy_damage(item->energy_damage().addToValue(id.element_damage.energy));
+  item->poison_resist(item->poison_resist().addToValue(id.element_resist.poison));
+  item->poison_damage(item->poison_damage().addToValue(id.element_damage.poison));
+  item->physical_resist(item->physical_resist().addToValue(id.element_resist.physical));
+  item->physical_damage(item->physical_damage().addToValue(id.element_damage.physical));
+  // new stuff add here:
+  item->lower_reagent_cost(item->lower_reagent_cost().addToValue(id.lower_reag_cost));
 
   // if ItemDesc is a dynamic one desc could differ and would be lost
   const ItemDesc& origid = find_itemdesc( item->objtype_ );
