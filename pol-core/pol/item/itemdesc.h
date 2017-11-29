@@ -128,6 +128,7 @@ public:
   unsigned short multiid;
   unsigned short maxhp;
   unsigned short lower_reag_cost;
+  unsigned short damage_increase;
 
   Core::Dice resist_dice;
 

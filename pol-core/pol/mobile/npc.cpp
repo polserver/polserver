@@ -413,6 +413,12 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   int value;
   if ( elem.remove_prop( "AR", &tmp ) && diceValue( tmp, &value ) )
     npc_ar_ = static_cast<u16>( value );
+  if (elem.remove_prop("DAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
+  {
+	  damage_increase(apply(damage_increase(), value));
+  }
+  if (has_damage_increase())
+	  damage_increase(refresh(damage_increase()));
 
   // elemental start
   // first apply template value as value and if mod or value exist sum them
@@ -422,7 +428,6 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
     orig_fire_resist( static_cast<s16>( value ) );
   }
   if ( has_fire_resist() )
-	INFO_PRINT << "loading orig" << orig_fire_resist() << " curr" << fire_resist().value<<"\n";
     fire_resist( refresh( fire_resist() ) );
   if ( elem.remove_prop( "COLDRESIST", &tmp ) && diceValue( tmp, &value ) )
   {

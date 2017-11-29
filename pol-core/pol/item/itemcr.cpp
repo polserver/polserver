@@ -261,6 +261,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->physical_damage(item->physical_damage().addToValue(id.element_damage.physical));
   // new stuff add here:
   item->lower_reagent_cost(item->lower_reagent_cost().addToValue(id.lower_reag_cost));
+  item->damage_increase(item->damage_increase().addToValue(id.damage_increase));
 
   // if ItemDesc is a dynamic one desc could differ and would be lost
   const ItemDesc& origid = find_itemdesc( item->objtype_ );
