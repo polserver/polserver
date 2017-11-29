@@ -504,7 +504,7 @@ ObjMember object_members[] = {
 	{ MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod", false },
 	{ MBR_HITCHANCE, "hitchance", true },             //hitchance_mod
 	{ MBR_SWING_SPEED, "swingspeed", true },   //235  //speed_mod
-	{ MBR_DAMAGE_INCREASE, "damage_increase", false }, //dmg_mod
+	{ MBR_DAMAGE_INCREASE, "damage_increase", true }, //dmg_mod
 	{ MBR_FIRE_RESIST_CAP, "resist_fire_cap", true },
 	{ MBR_COLD_RESIST_CAP, "resist_cold_cap", true },
 	{ MBR_ENERGY_RESIST_CAP, "resist_energy_cap", true },

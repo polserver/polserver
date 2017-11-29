@@ -231,6 +231,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   maxhp = elem.remove_ushort( "MAXHP", 0 );
   lower_reag_cost = elem.remove_ushort("LOWERREAGENTCOST", 0);
+  damage_increase = elem.remove_ushort("DAMAGEINCREASE", 0);
 
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
   if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
@@ -550,7 +551,6 @@ ItemDesc::ItemDesc( Type type )
       quality( 1.0 ),
       multiid( 0xFFFF ),
       maxhp( 0 ),
-	  lower_reag_cost(0),
       props( Core::CPropProfiler::Type::ITEM ),
       method_script( NULL ),
       save_on_exit( true )
@@ -654,7 +654,9 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "Quality", new Double( quality ) );
   descriptor->addMember( "MultiID", new BLong( multiid ) );
   descriptor->addMember( "MaxHp", new BLong( maxhp ) );
+  //new props
   descriptor->addMember("LowerReagentCost", new BLong(lower_reag_cost));
+  descriptor->addMember("DamageIncrease", new BLong(damage_increase));
 
 
   std::set<std::string>::const_iterator set_itr;
