@@ -494,23 +494,17 @@ ObjMember object_members[] = {
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
 {
-  static auto cache = []() -> std::unordered_map<const char*, ObjMember> {
-    std::unordered_map<const char*, ObjMember> m;
+  static auto cache = []() -> std::unordered_map<std::string, ObjMember> {
+    std::unordered_map<std::string, ObjMember> m;
     for ( int i = 0; i < n_objmembers; ++i )
     {
       m[object_members[i].code] = object_members[i];
     }
     return m;
   }();
-  std::unique_ptr<char> temp( strdup( token ) );
-
-  auto tptr = reinterpret_cast<unsigned char*>( temp.get() );
-  while ( *tptr )
-  {
-    *tptr = tolower( *tptr );
-    ++tptr;
-  }
-  auto member = cache.find( token );
+  std::string temp( token );
+  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  auto member = cache.find( temp );
   if ( member != cache.end() )
     return &( member->second );
   return nullptr;
@@ -680,23 +674,17 @@ ObjMethod object_methods[] = {
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
 {
-  static auto cache = []() -> std::unordered_map<const char*, ObjMethod> {
-    std::unordered_map<const char*, ObjMethod> m;
+  static auto cache = []() -> std::unordered_map<std::string, ObjMethod> {
+    std::unordered_map<std::string, ObjMethod> m;
     for ( int i = 0; i < n_objmethods; ++i )
     {
       m[object_methods[i].code] = object_methods[i];
     }
     return m;
   }();
-  std::unique_ptr<char> temp( strdup( token ) );
-
-  auto tptr = reinterpret_cast<unsigned char*>( temp.get() );
-  while ( *tptr )
-  {
-    *tptr = tolower( *tptr );
-    ++tptr;
-  }
-  auto method = cache.find( temp.get() );
+  std::string temp( token );
+  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  auto method = cache.find( temp );
   if ( method != cache.end() )
     return &( method->second );
   return nullptr;
@@ -724,7 +712,7 @@ void testparserdefinitions()
       if ( *c != tolower( *c ) )
       {
         INFO_PRINT << "ERROR: Object Method definition of " << object_methods[i].code
-                  << " is not lowercase!\n";
+                   << " is not lowercase!\n";
         break;
       }
       ++c;
