@@ -1,4 +1,6 @@
 ﻿-- POL099 --
+12-20-2017 Turley:
+  Changed: Doubled the speed of custom method resolution.
 10-20-2017 DevGIB:
   Changed: Added assume_string flag to OS::OpenConnection() to allow you to force the connection script to run as AUXSVC_ASSUME_STRING script option before the script loads in case of fast responding connections.
 10-11-2017 DevGIB:
