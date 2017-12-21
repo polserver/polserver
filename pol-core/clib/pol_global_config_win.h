@@ -67,6 +67,14 @@
 #define POL_BUILD_TARGET                                                 \
   ( "VS2015" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
     "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
+#elif( _MSC_VER <= 2000 )
+#define POL_BUILD_TARGET                                                 \
+  ( "VS2017" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
+    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
+#else
+#define POL_BUILD_TARGET                                                    \
+  ( "[UNKNOWN]" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
+    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
 #endif
 #else
 #define POL_BUILD_TARGET                                                    \

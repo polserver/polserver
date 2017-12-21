@@ -35,9 +35,9 @@ popd
 call %VCVARSALL%
 if %errorlevel% neq 0 goto :error
 
-echo Building Win32-release from %POLSOL%...
-msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="Win32" > dist\buildlog_32.log
-if %errorlevel% neq 0 goto :error
+rem echo Building Win32-release from %POLSOL%...
+rem msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="Win32" > dist\buildlog_32.log
+rem if %errorlevel% neq 0 goto :error
 
 echo Building x64-release from %POLSOL%...
 msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" > dist\buildlog_64.log
@@ -47,20 +47,19 @@ echo Packing everything up...
 pushd dist
 call mkdist x64 clean
 call mkdist x64 dist 
-call mkdist x64 obj
+call mkdist x64 pdb
 if %errorlevel% neq 0 goto :error
 
-call mkdist x86 clean
-call mkdist x86 dist
-call mkdist x86 obj
+rem call mkdist x86 clean
+rem call mkdist x86 dist
+rem call mkdist x86 pdb
 if %errorlevel% neq 0 goto :error
 
 
 rem Removed debug because its contents are mostly in src, lib and obj.
 rem call mkdist x64 debug
-
-call mkdist x64 lib
-call mkdist x64 src
+rem call mkdist x64 lib
+rem call mkdist x64 src
 if %errorlevel% neq 0 goto :error
 
 popd
