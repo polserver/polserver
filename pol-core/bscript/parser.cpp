@@ -494,11 +494,11 @@ ObjMember object_members[] = {
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
 {
-  static auto cache = []() -> std::unordered_map<std::string, ObjMember> {
-    std::unordered_map<std::string, ObjMember> m;
+  static auto cache = []() -> std::unordered_map<std::string, ObjMember*> {
+    std::unordered_map<std::string, ObjMember*> m;
     for ( int i = 0; i < n_objmembers; ++i )
     {
-      m[object_members[i].code] = object_members[i];
+      m[object_members[i].code] = &object_members[i];
     }
     return m;
   }();
@@ -506,7 +506,7 @@ ObjMember* getKnownObjMember( const char* token )
   std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
   auto member = cache.find( temp );
   if ( member != cache.end() )
-    return &( member->second );
+    return member->second;
   return nullptr;
 }
 ObjMember* getObjMember( int id )
@@ -674,11 +674,12 @@ ObjMethod object_methods[] = {
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
 {
-  static auto cache = []() -> std::unordered_map<std::string, ObjMethod> {
-    std::unordered_map<std::string, ObjMethod> m;
+  // cache needs to hold a pointer to the original structure! eprog_read sets the override member
+  static auto cache = []() -> std::unordered_map<std::string, ObjMethod*> {
+    std::unordered_map<std::string, ObjMethod*> m;
     for ( int i = 0; i < n_objmethods; ++i )
     {
-      m[object_methods[i].code] = object_methods[i];
+      m[object_methods[i].code] = &object_methods[i];
     }
     return m;
   }();
@@ -686,7 +687,7 @@ ObjMethod* getKnownObjMethod( const char* token )
   std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
   auto method = cache.find( temp );
   if ( method != cache.end() )
-    return &( method->second );
+    return method->second;
   return nullptr;
 }
 ObjMethod* getObjMethod( int id )
