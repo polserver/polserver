@@ -2,9 +2,24 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-20-2017</datemodified>
+		<datemodified>12-23-2017</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>12-23-2017</date>
+			<author>Turley:</author>
+			<change type="Added">os:PerformanceMeasure(delta_seconds, max_scripts)<br/>
+Monitors for given number of seconds the instructions of all scripts. Returns:<br/>
+struct with the following members:<br/>
+total_number_observed - number of scripts alive in the timespan<br/>
+total_instructions - sum of all instructions of the observed scripts<br/>
+scripts - array of structs (max number is given max_scripts param) sorted by instructions amount<br/>
+each scripts entry has the following members:<br/>
+name - script name, if attached with name/npctemplate<br/>
+instructions - number of executed instructions<br/>
+pid - PID of the script<br/>
+percent - percent of the total instruction amount</change>
+		</entry>
 		<entry>
 			<date>12-20-2017</date>
 			<author>Turley:</author>

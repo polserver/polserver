@@ -1093,5 +1093,10 @@ void NPC::no_drop_exception( bool newvalue )
 {
   flags_.change( Core::OBJ_FLAGS::NO_DROP_EXCEPTION, newvalue );
 }
+
+std::string NPC::templatename() const
+{
+  return template_name;
+}
 }
 }
