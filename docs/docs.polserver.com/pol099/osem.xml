@@ -244,19 +244,19 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="PerformanceMeasure">
-    <prototype>PerformanceMeasure(delta_seconds, max_scripts)</prototype>
+    <prototype>PerformanceMeasure(delta_seconds := 10, max_scripts := 100)</prototype>
     <parameter name="delta_seconds" value="seconds to observe"/>
     <parameter name="max_scripts" value="maximum number of scripts to be returned"/>
 	<explain>Monitors for given number of seconds the instructions of all scripts.</explain>
-	<return>struct with the following members:<br/>
-           total_number_observed : number of scripts alive in the timespan<br/>
-           total_instructions : sum of all instructions of the observed scripts<br/>
-           scripts : array of structs (max number is given max_scripts param) sorted by instructions amount<br/>
-           each scripts entry has the following members:<br/>
-           name : script name, if attached with name/npctemplate<br/>
-           instructions : number of executed instructions<br/>
-           pid : PID of the script<br/>
-		   percent : percent of the total instruction amount
-    </return>
+	<explain>Returns struct with the following members:</explain>
+  <explain>total_number_observed : number of scripts alive in the timespan</explain>
+  <explain>total_instructions : sum of all instructions of the observed scripts</explain>
+  <explain>scripts : array of structs (max number is given max_scripts param) sorted by instructions amount</explain>
+  <explain>each scripts entry has the following members:</explain>
+  <explain>name : script name, if attached with name/npctemplate</explain>
+  <explain>instructions : number of executed instructions</explain>
+  <explain>pid : PID of the script</explain>
+	<explain>percent : percent of the total instruction amount</explain>
+  <return>see above</return>
 </function>
 </ESCRIPT>
