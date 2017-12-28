@@ -194,6 +194,7 @@ public:
   bool no_drop_exception() const;
   void no_drop_exception( bool newvalue );
 
+  std::string templatename() const;
   // ==========================================================
   // DATA:
   // ==========================================================

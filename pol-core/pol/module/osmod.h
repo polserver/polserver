@@ -89,6 +89,8 @@ protected:
 
   Bscript::BObjectImp* mf_clear_event_queue();  // DAVE
 
+  Bscript::BObjectImp* mf_performance_diff();
+
   bool blocked_;
   Core::polclock_t sleep_until_clock_;  // 0 if wait forever
 

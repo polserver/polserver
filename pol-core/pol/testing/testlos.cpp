@@ -16,6 +16,7 @@
 #include <benchmark/benchmark.h>
 #endif
 
+#include "../../bscript/objmembers.h"
 #include "../../clib/logfacility.h"
 #include "../../plib/mapserver.h"
 #include "../globals/uvars.h"
@@ -25,7 +26,9 @@
 #include "../realms/realm.h"
 #include "../uconst.h"
 #include "../uobject.h"
-
+#include "../uoscrobj.h"
+#include "../scrsched.h"
+#include "../module/uomod.h"
 namespace Pol
 {
 namespace Testing
@@ -153,7 +156,7 @@ static void BM_los( benchmark::State& state )
     los_test();
   }
 }
-BENCHMARK( BM_los );
+//BENCHMARK( BM_los );
 
 static void BM_los100inside100outside( benchmark::State& state )
 {
@@ -162,8 +165,39 @@ static void BM_los100inside100outside( benchmark::State& state )
     test_los( 1373, 1625, 59, 1379, 1625, 30, true );
   }
 }
-BENCHMARK( BM_los100inside100outside );
+//BENCHMARK( BM_los100inside100outside );
 
+static void BM_method( benchmark::State& state )
+{
+  std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor() );
+    auto uoemod = new Module::UOExecutorModule( *ex );
+	  ex->addModule( uoemod );
+  Items::Item* item = Items::Item::create( 0xffa1 );
+  auto ref=new Module::EItemRefObjImp(item);
+  
+  while ( state.KeepRunning() )
+  {
+	ref->call_method("test",*(ex.get()));
+//for (int i=0;i<Bscript::n_objmembers;++i)
+//  ref->get_member(Bscript::object_members[i].code);
+  //ref->get_member("x");
+  }
+}
+BENCHMARK( BM_method );
+static void BM_member_id( benchmark::State& state )
+{
+  Items::Item* item = Items::Item::create( 0xffa1 );
+  auto ref=new Module::EItemRefObjImp(item);
+  
+  while ( state.KeepRunning() )
+  {
+	ref->get_member_id(1);
+//for (int i=0;i<Bscript::n_objmembers;++i)
+//  ref->get_member(Bscript::object_members[i].code);
+  //ref->get_member("x");
+  }
+}
+BENCHMARK( BM_member_id );
 #endif
 }  // namespace Testing
 }  // namespace Pol

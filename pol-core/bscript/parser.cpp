@@ -48,8 +48,8 @@
 #include "symcont.h"
 #include "token.h"
 #include "tokens.h"
-#include "verbtbl.h"
 #include "userfunc.h"
+#include "verbtbl.h"
 
 #include "compilercfg.h"
 
@@ -57,20 +57,22 @@
 #include "objmethods.h"
 
 #include "../clib/clib.h"
+#include "../clib/logfacility.h"
 #include "../clib/maputil.h"
 #include "../clib/strutil.h"
 #include "../clib/unittest.h"
-#include "../clib/logfacility.h"
 
-#include <cstdlib>
 #include <cctype>
-#include <cstring>
 #include <cstddef>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include <map>
+#include <memory>
 #include <stack>
 #include <string>
+#include <unordered_map>
 
 #include <stdexcept>
 
@@ -492,19 +494,25 @@ ObjMember object_members[] = {
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
 {
-  for ( int i = 0; i < n_objmembers; i++ )
-  {
-    if ( stricmp( object_members[i].code, token ) == 0 )
+  static auto cache = []() -> std::unordered_map<std::string, ObjMember*> {
+    std::unordered_map<std::string, ObjMember*> m;
+    for ( int i = 0; i < n_objmembers; ++i )
     {
-      return &( object_members[i] );
+      m[object_members[i].code] = &object_members[i];
     }
-  }
-  return NULL;
+    return m;
+  }();
+  std::string temp( token );
+  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  auto member = cache.find( temp );
+  if ( member != cache.end() )
+    return member->second;
+  return nullptr;
 }
 ObjMember* getObjMember( int id )
 {
   if ( id >= n_objmembers )
-    return NULL;
+    return nullptr;
   else
     return &( object_members[id] );
 }
@@ -603,7 +611,7 @@ ObjMethod object_methods[] = {
     {MTH_PRIVILEGES, "privileges", false},  // 90
     {MTH_GETUNICODESTRINGFLIPPED, "getunicodestringflipped", false},
     {MTH_SETUNICODESTRINGFLIPPED, "setunicodestringflipped", false},
-    {MTH_ADD_CHARACTER, "AddCharacter", false},
+    {MTH_ADD_CHARACTER, "addcharacter", false},
     {MTH_SET_SWINGTIMER, "setswingtimer", false},
     {MTH_ATTACK_ONCE, "attack_once", false},  // 95
     {MTH_SETFACING, "setfacing", false},
@@ -666,19 +674,26 @@ ObjMethod object_methods[] = {
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
 {
-  for ( int i = 0; i < n_objmethods; i++ )
-  {
-    if ( stricmp( object_methods[i].code, token ) == 0 )
+  // cache needs to hold a pointer to the original structure! eprog_read sets the override member
+  static auto cache = []() -> std::unordered_map<std::string, ObjMethod*> {
+    std::unordered_map<std::string, ObjMethod*> m;
+    for ( int i = 0; i < n_objmethods; ++i )
     {
-      return &( object_methods[i] );
+      m[object_methods[i].code] = &object_methods[i];
     }
-  }
-  return NULL;
+    return m;
+  }();
+  std::string temp( token );
+  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  auto method = cache.find( temp );
+  if ( method != cache.end() )
+    return method->second;
+  return nullptr;
 }
 ObjMethod* getObjMethod( int id )
 {
   if ( id >= n_objmethods )
-    return NULL;
+    return nullptr;
   else
     return &( object_methods[id] );
 }
@@ -692,6 +707,17 @@ void testparserdefinitions()
       INFO_PRINT << "ERROR: Object Method definition of " << object_methods[i].code
                  << " has an invalid index!\n";
     }
+    auto c = reinterpret_cast<unsigned char*>( object_methods[i].code );
+    while ( *c )
+    {
+      if ( *c != tolower( *c ) )
+      {
+        INFO_PRINT << "ERROR: Object Method definition of " << object_methods[i].code
+                   << " is not lowercase!\n";
+        break;
+      }
+      ++c;
+    }
   }
   for ( int i = 0; i < n_objmembers; i++ )
   {
@@ -699,6 +725,17 @@ void testparserdefinitions()
     {
       INFO_PRINT << "ERROR: Object Member definition of " << object_members[i].code
                  << " has an invalid index!\n";
+    }
+    auto c = reinterpret_cast<unsigned char*>( object_members[i].code );
+    while ( *c )
+    {
+      if ( *c != tolower( *c ) )
+      {
+        INFO_PRINT << "ERROR: Object Member definition of " << object_members[i].code
+                   << " is not lowercase!\n";
+        break;
+      }
+      ++c;
     }
   }
 }
@@ -886,13 +923,12 @@ ReservedWords reservedWordsByName;
 static void init_tables()
 {
   static std::once_flag flag;
-  std::call_once( flag, []()
-                  {
-                    for ( unsigned i = 0; i < n_reserved; ++i )
-                    {
-                      reservedWordsByName[reserved_words[i].word] = &reserved_words[i];
-                    }
-                  } );
+  std::call_once( flag, []() {
+    for ( unsigned i = 0; i < n_reserved; ++i )
+    {
+      reservedWordsByName[reserved_words[i].word] = &reserved_words[i];
+    }
+  } );
 }
 
 void Parser::write_words( std::ostream& os )
@@ -950,12 +986,12 @@ void Parser::write_words( std::ostream& os )
 	}
 #endif
 
-/*
-  WTF is going on in this function?  It seems like it waits for a match, followed
-  by a nonmatch?  eh?
+  /*
+    WTF is going on in this function?  It seems like it waits for a match, followed
+    by a nonmatch?  eh?
 
-  What does this mean for variables like "IfDone" etc?
-  */
+    What does this mean for variables like "IfDone" etc?
+    */
 
 #if 0
 	int Parser::tryReservedWord(Token& tok, char *t, char **s)
@@ -1007,16 +1043,16 @@ void Parser::write_words( std::ostream& os )
 #endif
 
 /**
-* Tries to read a an operator from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param opList: The list of possible operators to look for, as Operator[]
-* @param n_ops: Number of operators in the list
-* @param t: todo
-* @param s: todo
-* @param opbuf: todo
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a an operator from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param opList: The list of possible operators to look for, as Operator[]
+ * @param n_ops: Number of operators in the list
+ * @param t: todo
+ * @param s: todo
+ * @param opbuf: todo
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* opList, int n_ops,
                          char* opbuf )
 {
@@ -1086,12 +1122,12 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
 }
 
 /**
-* Tries to read a binary operator from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a binary operator from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 {
   int res;
@@ -1103,12 +1139,12 @@ int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 }
 
 /**
-* Tries to read an unary operator from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read an unary operator from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 {
   int res;
@@ -1120,12 +1156,12 @@ int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 }
 
 /**
-* Tries to read a numeric value from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a numeric value from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 {
   if ( isdigit( ctx.s[0] ) || ctx.s[0] == '.' )
@@ -1178,12 +1214,12 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 }
 
 /**
-* Tries to read a literal (string/variable name) from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a literal (string/variable name) from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 {
   if ( ctx.s[0] == '\"' )
@@ -2228,8 +2264,8 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       res = getUserArgs( expr, ctx, false );
       if ( res < 0 )
       {
-        INFO_PRINT << "Error getting arguments for function " << token.tokval() << "\n" << ctx
-                   << "\n";
+        INFO_PRINT << "Error getting arguments for function " << token.tokval() << "\n"
+                   << ctx << "\n";
         return res;
       }
       ptok2 = new Token( token );

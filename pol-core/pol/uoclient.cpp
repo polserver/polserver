@@ -133,11 +133,6 @@ void load_uoclient_cfg()
   load_packaged_cfgs( "uoclient.cfg", "general protocol listener", load_uoclient_entry );
 }
 
-UoClientGeneral::~UoClientGeneral()
-{
-	deinitialize();
-}
-
 size_t UoClientGeneral::Mapping::estimateSize() const
 {
   return sizeof( bool ) + name.capacity() + sizeof( unsigned );

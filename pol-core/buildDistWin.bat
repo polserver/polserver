@@ -1,5 +1,6 @@
 @echo off
 
+set BUILD_X86=0
 rem Attempts to find the most recent visual studio.
 
 :VS2015
@@ -46,7 +47,6 @@ nmake /f Makefile-libcurl-polserver.vc mode=static machine=x64 VC=%VC% ENABLE_WI
 if %errorlevel% neq 0 goto :error
 popd
 
-
 echo Building x64-release from %POLSOL%...
 msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" > dist\buildlog_64.log
 if %errorlevel% neq 0 goto :error
@@ -54,12 +54,13 @@ if %errorlevel% neq 0 goto :error
 echo Packing everything up...
 pushd dist
 call mkdist x64 clean
-call mkdist x64 dist 
-call mkdist x64 obj
-call mkdist x64 lib
-call mkdist x64 src
+call mkdist x64 dist
+call mkdist x64 pdb
+
 if %errorlevel% neq 0 goto :error
 popd
+
+if %BUILD_X86% neq 1 goto :skipx86
 
 call %VCVARSALL% x86
 if %errorlevel% neq 0 goto :error
@@ -77,9 +78,11 @@ if %errorlevel% neq 0 goto :error
 pushd dist
 call mkdist x86 clean
 call mkdist x86 dist
-call mkdist x86 obj
+call mkdist x86 pdb
 if %errorlevel% neq 0 goto :error
 popd
+
+:skipx86
 
 goto end
 
