@@ -660,7 +660,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
 
 size_t curlWriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-	((std::string*)userp)->append((char*)contents, size * nmemb);
+	(static_cast<std::string*>(userp))->append(static_cast<char*>(contents), size * nmemb);
 	return size * nmemb;
 }
 
@@ -706,15 +706,11 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
 
 					if (headers_ != NULL && headers_->isa(BObjectImp::OTStruct)) {
 						const BStruct* headers = static_cast<const BStruct*>(headers_);
-						struct curl_slist *chunk = NULL;
+						struct curl_slist *chunk = nullptr;
 
-						for (BStruct::Contents::const_iterator citr = headers->contents().begin(),
-							end = headers->contents().end();
-							citr != end; ++citr)
-						{
-							// Create a "<key>: <value>" string and append it to the header list.
-							BObjectImp* ref = (*citr).second->impptr();
-							const std::string& header = (*citr).first + ": " + ref->getStringRep();
+						for (const auto& content : headers->contents()) {
+							BObjectImp* ref = content.second->impptr();
+							std::string header = content.first + ": " + ref->getStringRep();
 							chunk = curl_slist_append(chunk, header.c_str());
 						}
 						curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
@@ -734,6 +730,11 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
 					{
 						Core::PolLock lck;
 
+						if (!uoexec_w.exists())
+						{
+							DEBUGLOG << "OpenConnection Script has been destroyed\n";
+							return;
+						}
 						/* Check for errors */
 						if (res != CURLE_OK)
 							uoexec_w.get_weakptr()->ValueStack.back().set(new BObject(new BError(curl_easy_strerror(res))));
