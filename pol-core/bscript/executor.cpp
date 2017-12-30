@@ -3488,9 +3488,9 @@ void Executor::initForFnCall( unsigned in_PC )
   done = 0;
   seterror( false );
 
+#ifdef MEMORYLEAK
   while ( !ValueStack.empty() )
   {
-#ifdef MEMORYLEAK
     if ( Clib::memoryleak_debug )
     {
       if ( !data_shown )
@@ -3502,19 +3502,15 @@ void Executor::initForFnCall( unsigned in_PC )
       LEAKLOG << ValueStack.back()->impptr()->pack();
       LEAKLOG << " [" << ValueStack.back()->impptr()->sizeEstimate() << "] ";
     }
-#endif
-
     ValueStack.pop_back();
   }
-
-#ifdef MEMORYLEAK
   if ( Clib::memoryleak_debug )
     if ( data_shown )
       LEAKLOG << " ...deleted\n";
 #endif
 
-  delete Locals2;
-  Locals2 = new BObjectRefVec;
+  ValueStack.clear();
+  Locals2->clear();
 }
 
 void Executor::pushArg( BObjectImp* arg )

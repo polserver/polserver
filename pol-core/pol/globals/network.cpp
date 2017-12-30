@@ -19,6 +19,8 @@
 #include "../servdesc.h"
 #include "../sqlscrobj.h"
 
+#include <curl/curl.h>
+
 namespace Pol
 {
 namespace Core
@@ -64,6 +66,8 @@ NetworkManager::NetworkManager()
   Network::PacketHookData::initializeGameData( &packet_hook_data_v2 );
 
   Network::PacketRegistry::initialize_msg_handlers();
+
+  curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
 NetworkManager::~NetworkManager()
@@ -122,7 +126,7 @@ void NetworkManager::deinialize()
 #endif
   Network::deinit_sockets_library();
   Network::clean_packethooks();
-
+  curl_global_cleanup();
   uoclient_general.deinitialize();
 }
 

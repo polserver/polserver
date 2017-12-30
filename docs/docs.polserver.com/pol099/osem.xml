@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>12/23/2017</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -243,4 +243,20 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <return>1 on success</return>
 </function>
 
+<function name="PerformanceMeasure">
+    <prototype>PerformanceMeasure(delta_seconds := 10, max_scripts := 100)</prototype>
+    <parameter name="delta_seconds" value="seconds to observe"/>
+    <parameter name="max_scripts" value="maximum number of scripts to be returned"/>
+	<explain>Monitors for given number of seconds the instructions of all scripts.</explain>
+	<explain>Returns struct with the following members:</explain>
+  <explain>total_number_observed : number of scripts alive in the timespan</explain>
+  <explain>total_instructions : sum of all instructions of the observed scripts</explain>
+  <explain>scripts : array of structs (max number is given max_scripts param) sorted by instructions amount</explain>
+  <explain>each scripts entry has the following members:</explain>
+  <explain>name : script name, if attached with name/npctemplate</explain>
+  <explain>instructions : number of executed instructions</explain>
+  <explain>pid : PID of the script</explain>
+	<explain>percent : percent of the total instruction amount</explain>
+  <return>see above</return>
+</function>
 </ESCRIPT>
