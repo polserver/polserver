@@ -37,16 +37,6 @@ popd
 call %VCVARSALL% x64
 if %errorlevel% neq 0 goto :error
 
-pushd ..\lib\curl-7.57.0\winbuild
-
-rem Used in libcurl to statically link CRT
-set RTLIBCFG=static
-nmake /f Makefile-libcurl-polserver.vc mode=static machine=x64 VC=%VC% ENABLE_WINSSL=yes DEBUG=no
-if %errorlevel% neq 0 goto :error
-nmake /f Makefile-libcurl-polserver.vc mode=static machine=x64 VC=%VC% ENABLE_WINSSL=yes DEBUG=yes
-if %errorlevel% neq 0 goto :error
-popd
-
 echo Building x64-release from %POLSOL%...
 msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" > dist\buildlog_64.log
 if %errorlevel% neq 0 goto :error
