@@ -66,3 +66,7 @@ SET (TARGET_LIB_NAME
 # include CMake core
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
 
+IF(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
+ADD_DEPENDENCIES(plib boost)
+ENDIF()
+
