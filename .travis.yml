@@ -2,6 +2,10 @@ language: cpp
 
 sudo: false
 
+cache:
+  directories:
+    - lib/curl
+
 compiler:
   - gcc
   - clang
