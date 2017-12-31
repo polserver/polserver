@@ -20,6 +20,10 @@ ExternalProject_Add(libcurl
     BUILD_COMMAND make
     INSTALL_COMMAND make install
     BUILD_IN_SOURCE 1
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
 )
 
 ELSE()
