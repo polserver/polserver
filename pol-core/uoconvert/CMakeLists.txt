@@ -44,13 +44,11 @@ SET (LIB_DIRS
 ##############################################################
 # link to the needed libs
 SET (LIBS_LINUX
-    bscript
     clib
     plib
     pthread    
 )
 SET (LIBS_LINUX_STATIC_BIN_STATIC
-    bscript_static
     clib_static
     plib_static
 )

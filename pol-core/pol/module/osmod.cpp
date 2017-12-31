@@ -46,7 +46,7 @@
 
 #include "../../plib/systemstate.h"
 
-#pragma comment(lib, "crypt32.lib")
+#pragma comment( lib, "crypt32.lib" )
 #include <curl/curl.h>
 
 #include <ctime>
@@ -91,7 +91,7 @@ TmplExecutorModule<OSExecutorModule>::FunctionTable
         {"OpenConnection", &OSExecutorModule::mf_OpenConnection},
         {"Debugger", &OSExecutorModule::mf_debugger},
         {"PerformanceMeasure", &OSExecutorModule::mf_performance_diff},
-        { "HTTPRequest", &OSExecutorModule::mf_HTTPRequest }};
+        {"HTTPRequest", &OSExecutorModule::mf_HTTPRequest}};
 }  // namespace Bscript
 namespace Module
 {
@@ -662,107 +662,110 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   return new BError( "Invalid parameter type" );
 }
 
-size_t curlWriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+size_t curlWriteCallback( void* contents, size_t size, size_t nmemb, void* userp )
 {
-	(static_cast<std::string*>(userp))->append(static_cast<char*>(contents), size * nmemb);
-	return size * nmemb;
+  ( static_cast<std::string*>( userp ) )->append( static_cast<char*>( contents ), size * nmemb );
+  return size * nmemb;
 }
 
 BObjectImp* OSExecutorModule::mf_HTTPRequest()
 {
-	UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>(exec.findModule("uo"));
-	Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>(&this_uoemod->exec);
+  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
+  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
 
-	if (this_uoexec->pChild == NULL)
-	{
-		const String *url, *method;
-		BObjectImp* options;
-		if (getStringParam(0, url) && getStringParam(1, method) &&
-			getParamImp(2, options))
-		{
-			if (!this_uoexec->suspend())
-			{
-				DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
-					<< ": \n"
-					<< "\tThe execution of this script can't be blocked!\n";
-				return new Bscript::BError("Script can't be blocked");
-			}
+  if ( this_uoexec->pChild == nullptr )
+  {
+    const String *url, *method;
+    BObjectImp* options;
+    if ( getStringParam( 0, url ) && getStringParam( 1, method ) && getParamImp( 2, options ) )
+    {
+      if ( !this_uoexec->suspend() )
+      {
+        DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+                 << ": \n"
+                 << "\tThe execution of this script can't be blocked!\n";
+        return new Bscript::BError( "Script can't be blocked" );
+      }
 
-			weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
 
-			std::shared_ptr<CURL> curl_sp(curl_easy_init(), curl_easy_cleanup);
-			CURL *curl = curl_sp.get();
-			if (curl) {
+      std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
+      CURL* curl = curl_sp.get();
+      if ( curl )
+      {
+        curl_easy_setopt( curl, CURLOPT_URL, url->data() );
+        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
+        curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
 
-				curl_easy_setopt(curl, CURLOPT_URL, url->data());
-				curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method->data());
-				curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteCallback);
+        if ( options->isa( Bscript::BObjectImp::OTStruct ) )
+        {
+          Bscript::BStruct* opts = static_cast<Bscript::BStruct*>( options );
+          const BObjectImp* data = opts->FindMember( "data" );
+          if ( data != nullptr )
+          {
+            curl_easy_setopt( curl, CURLOPT_COPYPOSTFIELDS, data->getStringRep().c_str() );
+          }
 
-				if (options->isa(Bscript::BObjectImp::OTStruct))
-				{
-					Bscript::BStruct* opts = static_cast<Bscript::BStruct*>(options);
-					const BObjectImp* data = opts->FindMember("data");
-					if (data != NULL) {
-						curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, data->getStringRep().c_str() );
-					}
+          const BObjectImp* headers_ = opts->FindMember( "headers" );
 
-					const BObjectImp* headers_ = opts->FindMember("headers");
+          if ( headers_ != nullptr && headers_->isa( BObjectImp::OTStruct ) )
+          {
+            const BStruct* headers = static_cast<const BStruct*>( headers_ );
+            struct curl_slist* chunk = nullptr;
 
-					if (headers_ != NULL && headers_->isa(BObjectImp::OTStruct)) {
-						const BStruct* headers = static_cast<const BStruct*>(headers_);
-						struct curl_slist *chunk = nullptr;
+            for ( const auto& content : headers->contents() )
+            {
+              BObjectImp* ref = content.second->impptr();
+              std::string header = content.first + ": " + ref->getStringRep();
+              chunk = curl_slist_append( chunk, header.c_str() );
+            }
+            curl_easy_setopt( curl, CURLOPT_HTTPHEADER, chunk );
+          }
+        }
 
-						for (const auto& content : headers->contents()) {
-							BObjectImp* ref = content.second->impptr();
-							std::string header = content.first + ": " + ref->getStringRep();
-							chunk = curl_slist_append(chunk, header.c_str());
-						}
-						curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
-					}
-				}
-			
-				Core::networkManager.auxthreadpool->push(
-					[uoexec_w, curl_sp]()
-				{
-					CURL *curl = curl_sp.get();
-					CURLcode res;
-					std::string readBuffer;
-					curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-					
-					/* Perform the request, res will get the return code */
-					res = curl_easy_perform(curl);
-					{
-						Core::PolLock lck;
+        Core::networkManager.auxthreadpool->push( [uoexec_w, curl_sp]() {
+          CURL* curl = curl_sp.get();
+          CURLcode res;
+          std::string readBuffer;
+          curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
 
-						if (!uoexec_w.exists())
-						{
-							DEBUGLOG << "OpenConnection Script has been destroyed\n";
-							return;
-						}
-						/* Check for errors */
-						if (res != CURLE_OK)
-							uoexec_w.get_weakptr()->ValueStack.back().set(new BObject(new BError(curl_easy_strerror(res))));
-						else
-							uoexec_w.get_weakptr()->ValueStack.back().set(new BObject(new String(readBuffer)));
+          /* Perform the request, res will get the return code */
+          res = curl_easy_perform( curl );
+          {
+            Core::PolLock lck;
 
-						uoexec_w.get_weakptr()->os_module->revive();
-					}
+            if ( !uoexec_w.exists() )
+            {
+              DEBUGLOG << "OpenConnection Script has been destroyed\n";
+              return;
+            }
+            /* Check for errors */
+            if ( res != CURLE_OK )
+              uoexec_w.get_weakptr()->ValueStack.back().set(
+                  new BObject( new BError( curl_easy_strerror( res ) ) ) );
+            else
+              uoexec_w.get_weakptr()->ValueStack.back().set(
+                  new BObject( new String( readBuffer ) ) );
 
-					/* always cleanup */
-					// curl_easy_cleanup() is performed when the shared pointer deallocates
-				});
-			}
-			else {
-				return new BError("curl_easy_init() failed");
-			}	
-		}
-		else
-		{
-			return new BError("Invalid parameter type");
-		}
-	}
+            uoexec_w.get_weakptr()->os_module->revive();
+          }
 
-	return new BError("Invalid parameter type");
+          /* always cleanup */
+          // curl_easy_cleanup() is performed when the shared pointer deallocates
+        } );
+      }
+      else
+      {
+        return new BError( "curl_easy_init() failed" );
+      }
+    }
+    else
+    {
+      return new BError( "Invalid parameter type" );
+    }
+  }
+
+  return new BError( "Invalid parameter type" );
 }
 
 // signal_event() takes ownership of the pointer which is passed to it.
@@ -952,8 +955,7 @@ struct ScriptDiffData
   ScriptDiffData( Core::UOExecutor* ex, u64 instr ) : ScriptDiffData( ex )
   {
     instructions -= instr;
-    auto uoemod =
-        static_cast<Module::UOExecutorModule*>( ex->findModule( "uo" ) );
+    auto uoemod = static_cast<Module::UOExecutorModule*>( ex->findModule( "uo" ) );
     if ( uoemod->attached_chr_ != nullptr )
       name += " (" + uoemod->attached_chr_->name() + ")";
     else if ( uoemod->attached_npc_ != nullptr )
