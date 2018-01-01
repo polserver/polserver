@@ -5,7 +5,7 @@
 
 
 #include "dirlist.h"
-#include "Header_Windows.h"
+#include "fileutil.h"
 
 #ifdef __unix__
 #include <unistd.h>

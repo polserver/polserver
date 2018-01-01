@@ -7,9 +7,9 @@
 #ifndef CLIB_MAPUTIL_H
 #define CLIB_MAPUTIL_H
 
-#include "clib.h"
 #include <cstring>
 #include <string>
+#include "clib.h"
 
 #ifdef _MSC_VER
 #pragma warning( push )

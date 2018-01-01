@@ -15,7 +15,6 @@
 #include "globals/state.h"
 
 #include "../clib/logfacility.h"
-#include "../clib/refptr.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 

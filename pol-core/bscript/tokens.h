@@ -7,9 +7,8 @@
 #ifndef __TOKENS_H
 #define __TOKENS_H
 
-#include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
-
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {

@@ -21,6 +21,7 @@
 
 #include "../config.h"
 
+#include "../crypt/cryptbase.h"
 #include "../crypt/cryptengine.h"
 #include "../polstats.h"
 #include "../globals/ucfg.h"

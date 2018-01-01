@@ -17,7 +17,6 @@
 
 
 #if defined( WINDOWS )
-#include "Header_Windows.h"
 #define SOCKET_ERRNO( x ) WSA##x
 #define socket_errno WSAGetLastError()
 typedef int socklen_t;
@@ -31,7 +30,6 @@ typedef int socklen_t;
 #include <sys/time.h>
 #include <sys/types.h>
 #include <netdb.h>
-#include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>

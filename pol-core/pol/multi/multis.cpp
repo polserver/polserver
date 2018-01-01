@@ -7,6 +7,7 @@
 
 
 #include "multi.h"
+#include "multidef.h"
 
 #include "../../clib/passert.h"
 #include "../../clib/strutil.h"

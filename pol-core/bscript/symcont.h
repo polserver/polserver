@@ -9,14 +9,12 @@
 
 #include <cstdio>
 
-#include "../clib/passert.h"
 #include "../clib/rawtypes.h"
 
 #ifndef __TOKENS_H
 #include "tokens.h"
 #endif
 
-#include "modules.h"
 namespace Pol
 {
 namespace Bscript

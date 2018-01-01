@@ -13,12 +13,6 @@
  */
 
 
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
-#include "pol_global_config.h"
-#endif
-
 #include "executor.h"
 
 #include "berror.h"
@@ -28,22 +22,24 @@
 #include "bstruct.h"
 #include "dict.h"
 #include "escriptv.h"
+#include "eprog.h"
 #include "impstr.h"
 #include "modules.h"
-#include "tokens.h"
-#include "symcont.h"
-#include "eprog.h"
-#include "operator.h"
 #include "token.h"
+#include "tokens.h"
+#include "operator.h"
 #include "contiter.h"
 #include "filefmt.h"
+#include "fmodule.h"
 
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#ifdef MEMORYLEAK
 #include "../clib/mlog.h"
+#endif
 
 #include <climits>
 #include <cstdlib>

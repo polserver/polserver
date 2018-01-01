@@ -18,25 +18,19 @@
 #include "../clib/rawtypes.h"
 
 #include "uconst.h"
-#include "pktout.h"
 #include "network/packets.h"
-#include "network/packetdefs.h"
 
 #include "core.h"
 namespace Pol
 {
-namespace Bscript
-{
-class ObjArray;
-}
 namespace Network
 {
 class Client;
+class RemoveObjectPkt;
 }
 namespace Mobile
 {
 class Character;
-class NPC;
 }
 namespace Items
 {
@@ -55,7 +49,6 @@ namespace Core
 {
 class UContainer;
 class UObject;
-struct USTRUCT_TILE;
 class Menu;
 
 void SetCurrentItemSerialNumber( u32 serial );

@@ -10,13 +10,15 @@
 #include <list>
 #include <set>
 
-#include "module/osmod.h"
+#include "../clib/refptr.h"
+#include "polclock.h"
+
 namespace Pol
 {
 namespace Bscript
 {
 class BObjectImp;
-class Executor;
+class EScriptProgram;
 }
 namespace Module
 {

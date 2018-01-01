@@ -14,10 +14,6 @@ namespace Accounts
 {
 class Account;
 }
-namespace Network
-{
-class Client;
-}
 namespace Mobile
 {
 class Character;

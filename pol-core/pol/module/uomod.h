@@ -31,8 +31,6 @@
 #define H_UOMOD_H
 
 #include "../../bscript/execmodl.h"
-#include "../uoexec.h"
-#include "../uoexhelp.h"
 #include "../reftypes.h"
 #include "../poltype.h"
 
@@ -44,10 +42,10 @@ class Realm;
 }
 namespace Core
 {
-enum USKILLID;
 class Menu;
 class UObject;
 class UContainer;
+class UOExecutor;
 }
 namespace Mobile
 {
@@ -56,6 +54,10 @@ class Character;
 namespace Items
 {
 class Item;
+}
+namespace Multi
+{
+class UBoat;
 }
 namespace Module
 {

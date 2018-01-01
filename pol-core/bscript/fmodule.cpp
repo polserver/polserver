@@ -6,7 +6,6 @@
 #include "fmodule.h"
 
 #include "userfunc.h"
-#include "options.h"
 
 #include "../clib/clib.h"
 

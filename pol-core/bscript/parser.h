@@ -19,16 +19,15 @@
 #ifndef __OPERATOR_H
 #include "operator.h"
 #endif
-#include "compctx.h"
 
 #include <queue>
 #include <stack>
-#include <string>
 #include <vector>
 namespace Pol
 {
 namespace Bscript
 {
+class CompilerContext;
 typedef enum
 {
   PERR_NONE,

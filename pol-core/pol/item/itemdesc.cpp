@@ -36,6 +36,7 @@
 #include "../syshookscript.h"
 #include "../globals/ucfg.h"
 #include "../ustruct.h"
+#include "../uconst.h"
 #include "../globals/uvars.h"
 #include "../globals/settings.h"
 
@@ -44,7 +45,6 @@
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"

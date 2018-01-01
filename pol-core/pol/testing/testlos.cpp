@@ -26,6 +26,7 @@
 #include "../realms/realm.h"
 #include "../uconst.h"
 #include "../uobject.h"
+#include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../scrsched.h"
 #include "../module/uomod.h"

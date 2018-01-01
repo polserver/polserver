@@ -45,7 +45,6 @@
 #include "globals/state.h"
 #include "uworld.h"
 #include "objtype.h"
-#include "ufunc.h"
 #include "sockio.h"
 #include "scrsched.h"
 #include "uoscrobj.h"

@@ -6,10 +6,8 @@
 
 #include "mapwriter.h"
 
-#include "mapblock.h"
 #include "mapserver.h"
 #include "mapsolid.h"
-#include "maptile.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"

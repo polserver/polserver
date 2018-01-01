@@ -11,6 +11,7 @@
 #include "item/itemdesc.h"
 #include "mobile/attribute.h"
 #include "globals/uvars.h"
+#include "globals/network.h"
 
 #include "fnsearch.h"
 #include "polcfg.h"
@@ -21,6 +22,7 @@
 #include "../bscript/berror.h"
 #include "../bscript/execmodl.h"
 #include "../bscript/executor.h"
+#include "../bscript/fmodule.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmethods.h"
 

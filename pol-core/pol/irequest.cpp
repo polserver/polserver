@@ -12,6 +12,7 @@
 #include "network/client.h"
 #include "network/clienttransmit.h"
 #include "network/msghandl.h"
+#include "network/packethelper.h"
 
 #include "pktboth.h"
 #include "pktin.h"
@@ -26,6 +27,7 @@
 #include "ufunc.h"
 #include "party.h"
 
+#include "../bscript/eprog.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/clib.h"

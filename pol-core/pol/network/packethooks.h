@@ -13,8 +13,8 @@
 #ifndef PACKETHOOKS_H
 #define PACKETHOOKS_H
 
-#include "msghandl.h"
 #include "client.h"
+#include "msghandl.h"
 
 #include <map>
 #include <vector>
@@ -29,7 +29,6 @@ class BPacket;
 }
 namespace Network
 {
-class Client;
 
 class PacketHookData
 {

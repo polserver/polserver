@@ -29,8 +29,6 @@ namespace Pol
 {
 namespace Bscript
 {
-class Executor;
-class Token;
 class String;
 class ExecutorModule;
 

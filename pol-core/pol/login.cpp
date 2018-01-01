@@ -21,11 +21,14 @@
 
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "network/msghandl.h"
 #include "network/clienttransmit.h"
+#include "crypt/cryptbase.h"
 #include "crypt/cryptengine.h"
 
 #include "accounts/account.h"
+#include "accounts/accounts.h"
 #include "mobile/charactr.h"
 
 #include "core.h"

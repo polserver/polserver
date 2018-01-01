@@ -23,7 +23,6 @@
 #include "guilds.h"
 #include "mobile/npc.h"
 #include "npctmpl.h"
-#include "polclock.h"
 #include "schedule.h"
 #include "syshook.h"
 #include "ufunc.h"

@@ -9,6 +9,7 @@
 #include "Header_Windows.h"
 #include <stdio.h>
 #include "NTService.h"
+#include "ntservmsg.h"  // Event message ids
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )

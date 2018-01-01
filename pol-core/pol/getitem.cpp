@@ -13,6 +13,7 @@
  *                         Changes for multi related source file relocation
  */
 
+#include "getitem.h"
 
 #include "realms/realm.h"
 

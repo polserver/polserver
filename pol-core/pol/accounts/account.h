@@ -10,7 +10,6 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
-#include "../uconst.h"
 #include "../proplist.h"
 #include "../reftypes.h"
 
@@ -25,10 +24,6 @@ namespace Pol
 namespace Mobile
 {
 class Character;
-}
-namespace Network
-{
-class Client;
 }
 namespace Accounts
 {
@@ -84,7 +79,6 @@ private:
   Clib::StringSet options_;
 };
 
-Account* find_account( const char* acctname );
 }
 }
 #endif

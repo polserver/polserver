@@ -6,9 +6,8 @@
 
 #ifndef CLIB_CFGELEM_H
 #define CLIB_CFGELEM_H
-
+#include "compilerspecifics.h"
 #include "maputil.h"
-#include "passert.h"
 
 #include <map>
 #include <vector>

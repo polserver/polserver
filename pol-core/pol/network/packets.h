@@ -20,8 +20,6 @@
 #include "../pktoutid.h"
 #include "../realms.h"
 #include "../uconst.h"
-#include "client.h"
-#include "clienttransmit.h"
 #include "packetinterface.h"
 
 #include <queue>

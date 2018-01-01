@@ -19,9 +19,7 @@
 
 #include <cstring>
 
-#ifdef _WIN32
-#include "Header_Windows.h"
-#else
+#ifndef _WIN32
 #include <pthread.h>
 #include <unistd.h>
 #include <errno.h>

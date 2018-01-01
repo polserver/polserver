@@ -14,7 +14,6 @@
 #include "item/item.h"
 #include "polcfg.h"
 #include "polclass.h"
-#include "poltype.h"
 #include "loaddata.h"
 #include "spelbook.h"
 #include "uobject.h"

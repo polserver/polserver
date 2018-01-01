@@ -7,8 +7,7 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-#include "pktdef.h"
-#include "syshook.h"
+#include "../clib/refptr.h"
 #include "proplist.h"
 #include <vector>
 namespace Pol
@@ -33,7 +32,6 @@ class EPartyRefObjImp;
 namespace Core
 {
 struct PKTBI_BF;
-struct PKTBI_6C;
 
 void handle_add( Network::Client* client, PKTBI_BF* msg );
 void handle_remove( Network::Client* client, PKTBI_BF* msg );

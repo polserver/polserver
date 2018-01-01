@@ -6,15 +6,15 @@
  * - 2009/12/03 Turley:    added gargoyle flying flag (hoverover/overflight flag)
  */
 
-
+#include "mapfunc.h"
 #include "mapserver.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/passert.h"
 #include "../clib/logfacility.h"
 
-#include "../plib/mapcell.h"
-#include "../plib/mapshape.h"
+#include "mapcell.h"
+#include "mapshape.h"
 
 #include "../pol/uconst.h"
 #include "../pol/ustruct.h"

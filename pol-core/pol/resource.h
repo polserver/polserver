@@ -8,7 +8,6 @@
 #define RESOURCE_H
 
 #include "poltype.h"
-#include "proplist.h"
 #include "region.h"
 
 #include <iosfwd>

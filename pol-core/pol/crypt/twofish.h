@@ -7,7 +7,6 @@
 #ifndef __TWOFISH_H__
 #define __TWOFISH_H__
 
-#include "cryptbase.h"
 namespace Pol
 {
 namespace Crypt

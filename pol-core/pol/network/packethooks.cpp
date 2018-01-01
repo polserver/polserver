@@ -18,7 +18,6 @@
 
 
 #include "packethooks.h"
-#include "msghandl.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"

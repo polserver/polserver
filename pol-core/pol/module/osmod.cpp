@@ -9,6 +9,7 @@
 #include "uomod.h"
 
 #include "../uoexec.h"
+#include "../uoexhelp.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -24,10 +25,10 @@
 #include "../mobile/npc.h"  // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
 
 #include "../exscrobj.h"
-#include "../globals/script_internals.h"
 #include "../globals/state.h"
 #include "../polcfg.h"
 #include "../poldbg.h"
+#include "../polsem.h"
 #include "../schedule.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -38,6 +39,7 @@
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
+#include "../../clib/threadhelp.h"
 #include "../../clib/sckutil.h"
 #include "../../clib/socketsvc.h"
 #include "../../clib/stlutil.h"

@@ -25,6 +25,7 @@
 
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "network/clienttransmit.h"
 
 #include "../clib/cfgelem.h"
@@ -51,6 +52,7 @@
 #include "globals/uvars.h"
 #include "realms/realm.h"
 #include "unicode.h"
+#include "ufunc.h"
 
 #include "../bscript/berror.h"
 #ifdef MEMORYLEAK

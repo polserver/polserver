@@ -13,7 +13,6 @@
 
 #include <string>
 #include "crypt/cryptkey.h"
-#include "../clib/Debugging/ExceptionParser.h"
 #if !defined( _WIN32 )
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -99,7 +98,7 @@ struct PolConfig
   /**
    * @brief Returns true if program aborts are reported
    */
-  bool report_program_aborts() { return Pol::Clib::ExceptionParser::programAbortReporting(); }
+  bool report_program_aborts();
   /**
    * crash reporting system with some early default values
    */

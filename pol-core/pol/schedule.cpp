@@ -6,7 +6,6 @@
 
 #include "schedule.h"
 
-#include "polclock.h"
 #include "polcfg.h"
 #include "globals/uvars.h"
 #include "globals/state.h"

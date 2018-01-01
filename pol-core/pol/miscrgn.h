@@ -7,12 +7,15 @@
 #ifndef MISCRGN_H
 #define MISCRGN_H
 
-#include "realms/realm.h"
 
 #include "region.h"
 
 namespace Pol
 {
+namespace Realms
+{
+class Realm;
+}
 namespace Core
 {
 class NoCastRegion : public Region

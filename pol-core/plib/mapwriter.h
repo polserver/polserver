@@ -21,7 +21,6 @@ namespace Plib
 struct SOLIDS_ELEM;
 struct SOLIDX2_ELEM;
 struct MAPCELL;
-struct MAPTILE_CELL;
 
 class MapWriter
 {

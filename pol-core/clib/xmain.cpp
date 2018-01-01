@@ -15,7 +15,7 @@
 #include <sys/resource.h>
 #endif
 #include <stdexcept>
-
+#include "clib.h"
 
 namespace Pol
 {

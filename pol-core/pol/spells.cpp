@@ -15,19 +15,16 @@
 
 #include "polclass.h"
 
-#include "action.h"
 #include "miscrgn.h"
 #include "mkscrobj.h"
 #include "objtype.h"
 #include "pktin.h"
 #include "polcfg.h"
-#include "schedule.h"
 #include "scrstore.h"
 #include "syshook.h"
 #include "target.h"
 #include "ufunc.h"
 #include "umanip.h"
-#include "globals/uvars.h"
 #include "globals/state.h"
 #include "vital.h"
 
@@ -38,6 +35,7 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../bscript/eprog.h"
 
 #include <vector>
 #include <stdexcept>

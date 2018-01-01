@@ -22,8 +22,6 @@
 #include "lockable.h"
 #endif
 
-#include "reftypes.h"
-
 #define CONTAINER_STORES_ITEMREF 0
 
 #if CONTAINER_STORES_ITEMREF

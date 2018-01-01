@@ -5,7 +5,6 @@
 #include "../../clib/logfacility.h"
 #include "client.h"
 #include "../globals/network.h"
-#include "../pktin.h"
 #include "../pktinid.h"
 
 namespace Pol

@@ -18,6 +18,7 @@
 #include "scrstore.h"
 
 #include "module/uomod.h"
+#include "module/osmod.h"
 #include "uoexec.h"
 #include "globals/uvars.h"
 

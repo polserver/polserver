@@ -11,6 +11,7 @@
 #include "options.h"
 #include "executor.h"
 #include "objmethods.h"
+#include "fmodule.h"
 
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"

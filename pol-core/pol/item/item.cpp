@@ -19,7 +19,7 @@
 #include "../../clib/streamsaver.h"
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
+#include "../../bscript/eprog.h"
 
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"

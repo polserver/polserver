@@ -8,10 +8,8 @@
 #ifndef BSCRIPT_EPROG_H
 #define BSCRIPT_EPROG_H
 
-#include "options.h"
 #include "symcont.h"
 #include "token.h"
-#include "fmodule.h"
 
 #include "../clib/refptr.h"
 #include "../clib/boostutils.h"
@@ -31,7 +29,7 @@ class Package;
 namespace Bscript
 {
 class CompilerContext;
-class Executor;
+class FunctionalityModule;
 
 class Instruction
 {

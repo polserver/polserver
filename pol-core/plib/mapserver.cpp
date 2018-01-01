@@ -10,8 +10,6 @@
 #include "inmemorymapserver.h"
 #include "mapblock.h"
 #include "mapshape.h"
-#include "mapsolid.h"
-#include "realmdescriptor.h"
 
 #include "../clib/binaryfile.h"
 #include "../clib/passert.h"

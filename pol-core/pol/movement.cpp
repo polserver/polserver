@@ -16,6 +16,8 @@
 #include "network/client.h"
 #include "network/msghandl.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
+#include "network/packetdefs.h"
 #include "network/clienttransmit.h"
 
 #include "pktin.h"

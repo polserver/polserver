@@ -10,7 +10,6 @@
 
 #include "realm.h"
 
-#include "../../plib/realmdescriptor.h"
 
 #include "../../plib/mapserver.h"
 #include "../../plib/staticserver.h"
@@ -19,7 +18,6 @@
 #include "../uworld.h"
 #include "../mobile/charactr.h"
 #include "../poltype.h"
-#include "WorldChangeReasons.h"
 #include "../../clib/logfacility.h"
 
 namespace Pol
