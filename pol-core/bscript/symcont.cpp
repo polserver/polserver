@@ -7,8 +7,6 @@
 
 #include "symcont.h"
 
-#include "tokens.h"
-
 #include "../clib/strutil.h"
 #include "../clib/logfacility.h"
 

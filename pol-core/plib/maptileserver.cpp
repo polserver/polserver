@@ -6,9 +6,6 @@
 
 #include "maptileserver.h"
 
-#include "maptile.h"
-#include "realmdescriptor.h"
-
 namespace Pol
 {
 namespace Plib

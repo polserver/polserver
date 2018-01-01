@@ -13,6 +13,60 @@ namespace Pol
 {
 namespace Bscript
 {
+namespace
+{
+/**
+ * Skips to the end of the line (or to the end of the file, whathever comes first)
+ */
+int eatToEndOfLine( CompilerContext& ctx )
+{
+  const char* t = ctx.s;
+
+  while ( *t && ( *t != '\r' ) && ( *t != '\n' ) )
+    t++;
+
+  ctx.s = t;
+  return 0;
+}
+
+/**
+ * Skips to the end of a multiline comment, supports nested comments
+ *
+ * @return 0 on success
+ */
+int eatToCommentEnd( CompilerContext& ctx )
+{
+  CompilerContext tmp( ctx );
+
+  while ( tmp.s[0] )
+  {
+    if ( strncmp( tmp.s, "*/", 2 ) == 0 )
+    {
+      tmp.s += 2;
+      ctx = tmp;
+      return 0;
+    }
+    else if ( strncmp( tmp.s, "/*", 2 ) == 0 )  // nested comment
+    {
+      tmp.s += 2;
+      int res = eatToCommentEnd( tmp );
+      if ( res )
+        return res;
+    }
+    else if ( strncmp( tmp.s, "//", 2 ) == 0 )  // nested eol-comment
+    {
+      int res = eatToEndOfLine( tmp );
+      if ( res )
+        return res;
+    }
+    if ( tmp.s[0] == '\n' )
+      ++tmp.line;
+    tmp.s++;
+  }
+  return -1;
+}
+} // namespace
+
 CompilerContext::CompilerContext()
     : s( NULL ), line( 1 ), filename( "" ), s_begin( NULL ), dbg_filenum( 0 )
 {
@@ -55,9 +109,6 @@ void CompilerContext::skipws()
     s++;
   }
 }
-
-int eatToCommentEnd( CompilerContext& ctx );
-int eatToEndOfLine( CompilerContext& ctx );
 
 int CompilerContext::skipcomments()
 {
@@ -126,55 +177,5 @@ void CompilerContext::printOnShort( fmt::Writer& writer ) const
   writer << filename << ", Line " << line << "\n";
 }
 
-/**
- * Skips to the end of the line (or to the end of the file, whathever comes first)
- */
-int eatToEndOfLine( CompilerContext& ctx )
-{
-  const char* t = ctx.s;
-
-  while ( *t && ( *t != '\r' ) && ( *t != '\n' ) )
-    t++;
-
-  ctx.s = t;
-  return 0;
-}
-
-/**
- * Skips to the end of a multiline comment, supports nested comments
- *
- * @return 0 on success
- */
-int eatToCommentEnd( CompilerContext& ctx )
-{
-  CompilerContext tmp( ctx );
-
-  while ( tmp.s[0] )
-  {
-    if ( strncmp( tmp.s, "*/", 2 ) == 0 )
-    {
-      tmp.s += 2;
-      ctx = tmp;
-      return 0;
-    }
-    else if ( strncmp( tmp.s, "/*", 2 ) == 0 )  // nested comment
-    {
-      tmp.s += 2;
-      int res = eatToCommentEnd( tmp );
-      if ( res )
-        return res;
-    }
-    else if ( strncmp( tmp.s, "//", 2 ) == 0 )  // nested eol-comment
-    {
-      int res = eatToEndOfLine( tmp );
-      if ( res )
-        return res;
-    }
-    if ( tmp.s[0] == '\n' )
-      ++tmp.line;
-    tmp.s++;
-  }
-  return -1;
-}
 }
 }

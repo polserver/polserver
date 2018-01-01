@@ -15,6 +15,8 @@
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
+#include "network/packetdefs.h"
 #include "network/clienttransmit.h"
 #include "item/itemdesc.h"
 #include "item/item.h"

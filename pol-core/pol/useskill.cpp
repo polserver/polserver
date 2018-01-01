@@ -19,6 +19,7 @@
 #include "ufunc.h"
 #include "polclock.h"
 #include "globals/uvars.h"
+#include "globals/network.h"
 
 #include "../bscript/eprog.h"
 #include "../plib/systemstate.h"

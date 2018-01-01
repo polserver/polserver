@@ -7,11 +7,11 @@
 
 #include "syshook.h"
 
+#include "uoexec.h"
 #include "syshookscript.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "uoexec.h"
 #include "globals/uvars.h"
 
 #include "../plib/pkg.h"

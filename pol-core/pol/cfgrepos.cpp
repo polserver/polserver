@@ -26,7 +26,6 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/refptr.h"
 #include "../clib/strutil.h"
 
 #include "../plib/pkg.h"

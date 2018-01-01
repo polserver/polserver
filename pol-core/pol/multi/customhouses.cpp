@@ -40,6 +40,7 @@
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/packets.h"
+#include "../network/packethelper.h"
 #include "../network/clienttransmit.h"
 #include "../core.h"
 #include "../globals/uvars.h"

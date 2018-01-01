@@ -46,6 +46,7 @@
 #include "uoscrobj.h"
 #include "globals/uvars.h"
 #include "globals/state.h"
+#include "globals/network.h"
 #include "uworld.h"
 #include "repsys.h"
 #include "fnsearch.h"

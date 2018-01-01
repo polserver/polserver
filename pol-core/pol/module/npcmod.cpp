@@ -23,6 +23,7 @@
 #include "../mobile/ufacing.h"
 #include "../network/client.h"
 #include "../network/packets.h"
+#include "../network/packethelper.h"
 #include "../npctmpl.h"
 #include "../objtype.h"
 #include "../pktout.h"
@@ -35,7 +36,6 @@
 #include "../skills.h"
 #include "../sockio.h"
 #include "../ufunc.h"
-#include "../ufunc.h"
 #include "../ufuncinl.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
@@ -46,7 +46,6 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
 #include "../../bscript/executor.h"
-#include "../../bscript/execmodl.h"
 #include "../../bscript/modules.h"
 #include "../../bscript/impstr.h"
 

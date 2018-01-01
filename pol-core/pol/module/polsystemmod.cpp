@@ -16,7 +16,6 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/dict.h"
-#include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
 
 #include "../../clib/clib.h"

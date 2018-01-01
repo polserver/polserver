@@ -13,17 +13,11 @@
 
 #include "uworld.h"
 
-#include "mobile/charactr.h"
-#include "item/item.h"
-#include "multi/multi.h"
-
 #include "realms.h"
-#include "realms/realm.h"
 #include "globals/uvars.h"
 
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
-#include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 

@@ -13,7 +13,6 @@
 
 
 #include "../../clib/rawtypes.h"
-#include "../../bscript/bstruct.h"
 #include "../uobject.h"
 #include "../proplist.h"
 #include "../dice.h"
@@ -21,6 +20,10 @@
 
 namespace Pol
 {
+namespace Bscript
+{
+class BStruct;
+}
 namespace Core
 {
 class ExportScript;

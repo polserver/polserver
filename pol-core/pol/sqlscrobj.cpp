@@ -16,12 +16,10 @@
 #include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
 #include "../clib/esignal.h"
-#include "../clib/message_queue.h"
 
 #include "../bscript/executor.h"
 #include "../bscript/execmodl.h"
 #include "../bscript/berror.h"
-#include "../bscript/bobject.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"

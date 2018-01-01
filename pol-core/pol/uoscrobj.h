@@ -16,7 +16,6 @@
 #endif
 
 #include "../bscript/bstruct.h"
-#include "../bscript/parser.h"
 #include "../clib/passert.h"
 
 #include "mobile/charactr.h"
@@ -33,10 +32,6 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-class ExecutorModule;
-}
 namespace Module
 {
 extern Bscript::BApplicObjType eitemrefobjimp_type;

@@ -44,7 +44,6 @@
 #include "../../clib/weakptr.h"
 #include "../../clib/strset.h"
 #include "../reftypes.h"
-#include "../pktboth.h"
 
 #include "attribute.h"
 

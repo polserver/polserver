@@ -13,6 +13,7 @@
 #include "multi.h"
 #include "../poltype.h"
 #include "../reftypes.h"
+#include "../uconst.h"
 
 #include <climits>
 #include <vector>

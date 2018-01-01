@@ -14,7 +14,6 @@ namespace Pol
 {
 namespace Bscript
 {
-class ExecutorModule;
 class Executor;
 }
 

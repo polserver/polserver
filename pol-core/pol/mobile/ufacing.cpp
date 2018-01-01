@@ -2,7 +2,6 @@
 
 #include "charactr.h"
 
-#include "../poltype.h"
 #include "../uobject.h"
 #include "../mdelta.h"
 

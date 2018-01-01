@@ -27,6 +27,7 @@
 #include "globals/uvars.h"
 #include "globals/state.h"
 #include "globals/settings.h"
+#include "globals/script_internals.h"
 #include "uworld.h"
 #include "vital.h"
 #include "realms/realm.h"

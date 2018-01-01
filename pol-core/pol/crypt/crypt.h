@@ -11,6 +11,7 @@
 #include "twofish.h"
 #include "blowfish.h"
 #include "md5.h"
+#include "../../clib/compilerspecifics.h"
 
 // NOCRYPT
 namespace Pol

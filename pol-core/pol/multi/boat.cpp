@@ -18,7 +18,6 @@
 
 #include "boat.h"
 #include "boatcomp.h"
-#include "multi.h"
 #include "multidef.h"
 
 #include "../../bscript/berror.h"
@@ -37,6 +36,7 @@
 #include "../mobile/charactr.h"
 #include "../network/client.h"
 #include "../network/packets.h"
+#include "../network/packethelper.h"
 #include "../network/clienttransmit.h"
 #include "../core.h"
 #include "../fnsearch.h"

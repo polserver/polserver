@@ -13,7 +13,6 @@
 
 #include "auxclient.h"
 
-#include "../../bscript/bobject.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
@@ -21,11 +20,9 @@
 #include "../../clib/cfgelem.h"
 #include "../../clib/esignal.h"
 #include "../../clib/sckutil.h"
-#include "../../clib/socketsvc.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
-#include "../../clib/weakptr.h"
 #include "../../clib/logfacility.h"
 
 #include "../../plib/pkg.h"
@@ -33,6 +30,7 @@
 #include "../scrsched.h"
 #include "../sockets.h"
 #include "../module/uomod.h"
+#include "../module/osmod.h"
 #include "../globals/network.h"
 
 #include <chrono>

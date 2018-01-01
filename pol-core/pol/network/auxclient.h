@@ -14,7 +14,6 @@
 #endif
 
 #include "../../clib/socketsvc.h"
-#include "../../clib/threadhelp.h"
 #include "../../clib/weakptr.h"
 
 #include "../scrdef.h"

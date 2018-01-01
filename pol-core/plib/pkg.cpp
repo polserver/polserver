@@ -357,11 +357,6 @@ void load_packages( const std::string& basedir, bool quiet )
   }
 }
 
-void check_replaced_packages( const Package* pkg )
-{
-  pkg->check_replacements();
-}
-
 void check_deps_for_package( const Package* pkg )
 {
   pkg->check_dependencies();

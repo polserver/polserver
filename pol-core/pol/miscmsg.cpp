@@ -29,6 +29,7 @@
 #include "accounts/account.h"
 #include "network/client.h"
 #include "network/msghandl.h"
+#include "network/packethelper.h"
 
 #include "fnsearch.h"
 #include "cmbtcfg.h"
@@ -51,6 +52,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 #include "../clib/stlutil.h"
+#include "../bscript/eprog.h"
 #include "../plib/systemstate.h"
 
 

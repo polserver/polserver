@@ -12,6 +12,7 @@
 #include "objmembers.h"
 #include "objmethods.h"
 
+#include "object.h"
 #include "berror.h"
 #include "bstruct.h"
 #include "dict.h"

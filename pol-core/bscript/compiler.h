@@ -7,22 +7,14 @@
 #ifndef H_COMPILER_H
 #define H_COMPILER_H
 
-#include "escript.h"
 #include "userfunc.h"
-
-#ifndef __COMPMODL_H
-#include "compmodl.h"
-#endif
 
 #ifndef __PARSER_H
 #include "parser.h"
 #endif
-#ifndef __SYMCONT_H
-#include "symcont.h"
-#endif
 
-#include "eprog.h"
 #include "../clib/maputil.h"
+#include "../clib/refptr.h"
 
 #include <vector>
 #include <string>
@@ -32,6 +24,9 @@ namespace Pol
 {
 namespace Bscript
 {
+class EScriptProgram;
+class EScriptProgramCheckpoint;
+class FunctionalityModule;
 /*
     ack, this is a misnomer.
     "CanBeLabelled" means "break or continue can happen here."

@@ -4,15 +4,16 @@
  */
 
 #include "httpmod.h"
+#include "osmod.h"
 
 #include "../polcfg.h"
 #include "../scrsched.h"
+#include "../uoexec.h"
 
 #include "../../bscript/impstr.h"
 #include "../../bscript/berror.h"
 
 #include "../../clib/logfacility.h"
-#include "../../clib/wnsckt.h"
 
 #include "../../plib/systemstate.h"
 

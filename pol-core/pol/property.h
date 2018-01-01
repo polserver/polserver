@@ -8,7 +8,7 @@
 #define H_PROPERTY_ACCESSOR
 
 #ifdef USE_SAFEINT
-#include "SafeInt.hpp"
+#include "../../lib/safeint/SafeInt.hpp"
 #endif
 
 

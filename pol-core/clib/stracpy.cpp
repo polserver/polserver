@@ -8,6 +8,8 @@
 
 #include <assert.h>
 #include "string.h"
+#include "clib.h"
+
 namespace Pol
 {
 namespace Clib

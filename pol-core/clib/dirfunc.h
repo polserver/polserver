@@ -35,7 +35,6 @@ char* nodefile( const char* directory, const char* filename, int node );
 char* buildfn( const char* directory, const char* filename );
 char* buildfnext( const char* dir, const char* file, const char* ext );
 void normalize_dir( char* dir );
-int strip_one( char* direc );
 
 
 enum

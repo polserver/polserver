@@ -16,10 +16,6 @@
 
 namespace Pol
 {
-namespace Clib
-{
-class ConfigElem;
-}
 namespace Plib
 {
 class Package;

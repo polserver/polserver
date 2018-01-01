@@ -12,7 +12,6 @@
 #ifndef __BSCRIPT_FILEFMT_H
 #define __BSCRIPT_FILEFMT_H
 
-#include "../clib/rawtypes.h"
 namespace Pol
 {
 namespace Bscript

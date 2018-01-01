@@ -16,6 +16,7 @@
 
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "network/msghandl.h"
 #include "item/itemdesc.h"
 #include "fnsearch.h"

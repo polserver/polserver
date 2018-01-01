@@ -92,6 +92,8 @@ int chddir( const char* dir )
     directory: should not include trailing backslash
 
     */
+namespace
+{
 const char* use_dir;
 const char* use_fname;
 const char* use_template;
@@ -120,6 +122,7 @@ void find_usefns( const char* dir, const char* fname )
   else
     use_template = "%s\\%s";
 }
+} // namespace
 
 char* nodefile( const char* directory, const char* filename, int node )
 {

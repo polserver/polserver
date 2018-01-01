@@ -1,6 +1,8 @@
 #ifndef __PACKETHELPER_H
 #define __PACKETHELPER_H
 
+#include "client.h"
+#include "clienttransmit.h"
 #include "packets.h"
 #include "../globals/network.h"
 

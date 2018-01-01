@@ -7,12 +7,6 @@
 #ifndef DATASTOREIMP_H
 #define DATASTOREIMP_H
 
-
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/streamsaver.h"
-
 #include "../../bscript/bobject.h"
 
 #include "../proplist.h"
@@ -22,6 +16,12 @@
 
 namespace Pol
 {
+namespace Clib
+{
+  class ConfigElem;
+  class ConfigFile;
+  class StreamWriter;
+}
 namespace Plib
 {
 class Package;

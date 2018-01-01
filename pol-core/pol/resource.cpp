@@ -13,7 +13,6 @@
 #include "item/itemdesc.h"
 #include "polcfg.h"
 #include "polclock.h"
-#include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
 #include "schedule.h"

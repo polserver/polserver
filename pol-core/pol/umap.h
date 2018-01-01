@@ -11,8 +11,6 @@
 #include "item/item.h"
 #endif
 
-#include "pktboth.h"
-
 namespace Pol
 {
 namespace Bscript
@@ -25,6 +23,7 @@ class MapDesc;
 }
 namespace Core
 {
+struct PKTBI_56;
 struct PinPoint
 {
   unsigned short x;

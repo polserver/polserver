@@ -49,7 +49,6 @@ private:  // not implemented
   DirList& operator=( const DirList& );
 };
 
-std::string normalized_dir_form( const std::string& str );
 std::string curdir();
 
 class PushDir

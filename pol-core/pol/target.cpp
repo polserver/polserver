@@ -19,10 +19,10 @@
 #include "network/cgdata.h"
 #include "network/clienttransmit.h"
 #include "network/msghandl.h"
+#include "network/packethelper.h"
 
 #include "fnsearch.h"
 #include "objtype.h"
-#include "pktboth.h"
 #include "realms.h"
 #include "realms/realm.h"
 #include "ufunc.h"

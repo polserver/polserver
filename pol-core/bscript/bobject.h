@@ -13,15 +13,28 @@
 #pragma warning( disable : 4786 )
 #endif
 
+#ifdef NDEBUG
+#define BOBJECTIMP_DEBUG 0
+#else
+#define BOBJECTIMP_DEBUG 1
+#endif
+
+#if BOBJECTIMP_DEBUG
+#define INLINE_BOBJECTIMP_CTOR 0
+#else
+#define INLINE_BOBJECTIMP_CTOR 1
+#endif
+
 #include "../../lib/format/format.h"
 
-#include "../clib/clib.h"
 #include "../clib/fixalloc.h"
 #include "../clib/passert.h"
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
 
+#if INLINE_BOBJECTIMP_CTOR
 #include "escriptv.h"
+#endif
 
 #include <vector>
 #include <stack>
@@ -39,18 +52,6 @@ class BObject;
 class BObjectRef;
 class ContIterator;
 class Executor;
-
-#ifdef NDEBUG
-#define BOBJECTIMP_DEBUG 0
-#else
-#define BOBJECTIMP_DEBUG 1
-#endif
-
-#if BOBJECTIMP_DEBUG
-#define INLINE_BOBJECTIMP_CTOR 0
-#else
-#define INLINE_BOBJECTIMP_CTOR 1
-#endif
 
 class BLong;
 class Double;

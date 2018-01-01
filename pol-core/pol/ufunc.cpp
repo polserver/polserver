@@ -46,11 +46,11 @@
 #include "mobile/corpse.h"
 #include "item/equipmnt.h"
 #include "multi/multi.h"
+#include "multi/multidef.h"
 
 #include "containr.h"
 
 #include "network/client.h"
-#include "network/packets.h"
 #include "network/clienttransmit.h"
 #include "network/packetdefs.h"
 
@@ -68,7 +68,6 @@
 #include "statmsg.h"
 #include "tmpvars.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "uobject.h"
 #include "uoclient.h"
 #include "ustruct.h"

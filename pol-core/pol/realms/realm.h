@@ -12,13 +12,10 @@
 
 #include "../../plib/mapshape.h"
 #include "../../plib/realmdescriptor.h"
-#include "../../plib/staticblock.h"
 #include "../uconst.h"
 #include "../udatfile.h"
 
 #include "WorldChangeReasons.h"
-
-#include "../../clib/rawtypes.h"
 
 #include <set>
 #include <vector>
@@ -51,6 +48,7 @@ class MapServer;
 struct MAPTILE_CELL;
 class MapTileServer;
 class StaticServer;
+class StaticEntryList;
 }
 namespace Realms
 {

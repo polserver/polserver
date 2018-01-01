@@ -9,12 +9,15 @@
 
 #include "../../bscript/execmodl.h"
 #include "../../clib/wnsckt.h"
-#include "../uoexec.h"
 
 #include <string>
 
 namespace Pol
 {
+namespace Core
+{
+class UOExecutor;
+}
 namespace Module
 {
 class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>

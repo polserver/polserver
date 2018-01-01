@@ -48,6 +48,7 @@ std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTi
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
 void getSignalDescription( int signal, string& signalName, string& signalDescription )
 {
   switch ( signal )
@@ -312,6 +313,7 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   closesocket( socketFD );
 #endif
 }
+} // namespace
 
 void ExceptionParser::reportProgramAbort( const string& stackTrace, const string& reason )
 {

@@ -48,6 +48,7 @@
 #include "../ufunc.h"
 #include "../uoexec.h"
 #include "../module/uomod.h"
+#include "../module/osmod.h"
 #include "../uoscrobj.h"
 #include "../ustruct.h"
 #include "../globals/object_storage.h"
