@@ -17,6 +17,7 @@
 #include "../clib/Header_Windows.h"
 #include "pol.h"
 #include "../clib/NTService.h"  // This needs to be after the windows includes, otherwise it'll complain about windows types.
+#include "../clib/ntservmsg.h" 
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )
