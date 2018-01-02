@@ -7,7 +7,6 @@
 #ifndef BSCRIPT_USERFUNC_H
 #define BSCRIPT_USERFUNC_H
 
-#include "options.h"
 #include "compctx.h"
 #include "token.h"
 

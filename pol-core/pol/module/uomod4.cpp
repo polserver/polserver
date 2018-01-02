@@ -21,6 +21,7 @@
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../containr.h"
+#include "../uoexhelp.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"

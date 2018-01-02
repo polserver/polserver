@@ -31,7 +31,6 @@
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/wnsckt.h"
-#include "../clib/threadhelp.h"
 
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"

@@ -9,6 +9,7 @@
 #include "skillid.h"
 #include "mobile/attribute.h"
 #include "globals/uvars.h"
+#include "globals/network.h"
 
 #include "../plib/pkg.h"
 

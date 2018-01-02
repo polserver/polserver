@@ -33,7 +33,6 @@ class UOExecutorModule;
 }
 namespace Core
 {
-struct USTRUCT_TILE;
 class UContainer;
 std::string format_description( unsigned int polflags, const std::string& descdef,
                                 unsigned short amount, const std::string suffix );

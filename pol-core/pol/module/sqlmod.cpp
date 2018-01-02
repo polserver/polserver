@@ -14,7 +14,6 @@
 #include "../globals/network.h"
 #include "../polsem.h"
 #include "../sqlscrobj.h"
-#include "../uoexec.h"
 #include "osmod.h"
 
 namespace Pol

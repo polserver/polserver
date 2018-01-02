@@ -6,8 +6,6 @@
 
 #include "sockio.h"
 
-#include "sockets.h"
-
 #include "../clib/clib_endian.h"
 #include "../clib/clib.h"
 #include "../clib/strutil.h"

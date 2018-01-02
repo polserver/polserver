@@ -63,12 +63,6 @@
 
 #include "../realms/realm.h"
 
-#include "../accounts/account.h"
-
-#ifdef MEMORYLEAK
-#include "../cfgrepos.h"
-#endif
-
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
 
@@ -89,12 +83,14 @@
 #include "../mobile/charactr.h"
 #include "../mobile/npc.h"
 #include "../multi/house.h"
+#include "../multi/multidef.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/clienttransmit.h"
 #include "../network/iostats.h"
 #include "../network/msghandl.h"
 #include "../network/packets.h"
+#include "../network/packethelper.h"
 #include "../objtype.h"
 #include "../pktboth.h"
 #include "../pktin.h"

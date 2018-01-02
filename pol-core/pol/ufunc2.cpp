@@ -11,6 +11,7 @@
 
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "network/clienttransmit.h"
 #include "sockio.h"
 #include "menu.h"

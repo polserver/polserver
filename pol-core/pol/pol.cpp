@@ -56,6 +56,7 @@
  * - 2011/11/12 Tomi:	  Added extobj.cfg
  */
 
+#include "pol.h"
 
 #include "../plib/pkg.h"
 
@@ -90,6 +91,7 @@
 #include "network/msghandl.h"
 #include "network/packethooks.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "objtype.h"
 #include "party.h"
 #include "pktboth.h"

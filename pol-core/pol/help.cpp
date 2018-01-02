@@ -3,7 +3,7 @@
  * @par History
  */
 
-
+#include "../bscript/eprog.h"
 #include "../plib/systemstate.h"
 #include "mobile/charactr.h"
 #include "network/client.h"

@@ -5,9 +5,7 @@
 
 #include "eprog.h"
 #include "escriptv.h"
-#include "options.h"
-#include "executortype.h"
-
+#include "fmodule.h"
 #include "filefmt.h"
 
 #include "../clib/stlutil.h"

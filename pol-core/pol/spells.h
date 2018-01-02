@@ -11,8 +11,6 @@
 #include <vector>
 #include <time.h>
 
-#include "../clib/refptr.h"
-
 #include "action.h"
 #include "scrdef.h"
 #include "schedule.h"
@@ -39,7 +37,6 @@ class Client;
 }
 namespace Core
 {
-class TargetCursor;
 class USpell;
 
 class USpellParams

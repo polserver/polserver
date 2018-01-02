@@ -14,22 +14,23 @@
 #include "polcfg.h"
 
 #include "core.h"
+#include "globals/state.h"
+#include "globals/uvars.h"
 #include "objtype.h"
 #include "schedule.h"
 #include "tasks.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
 
 
 #include "../bscript/config.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/dirlist.h"
+#include "../clib/Debugging/ExceptionParser.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/mdump.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
-#include "../clib/logfacility.h"
 
 #include "../plib/systemstate.h"
 
@@ -222,7 +223,8 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.debug_password = elem.remove_string( "DebugPassword", "" );
   Plib::systemstate.config.debug_local_only = elem.remove_bool( "DebugLocalOnly", true );
 
-  Plib::systemstate.config.log_traces_when_stuck = elem.remove_bool( "ThreadStacktracesWhenStuck", false );
+  Plib::systemstate.config.log_traces_when_stuck =
+      elem.remove_bool( "ThreadStacktracesWhenStuck", false );
 
   Plib::systemstate.config.report_rtc_scripts =
       elem.remove_bool( "ReportRunToCompletionScripts", true );
@@ -299,6 +301,11 @@ void PolConfig::reload_pol_cfg()
     POLLOG_ERROR << "Error rereading pol.cfg: " << ex.what() << "\n";
   }
   THREAD_CHECKPOINT( tasks, 699 );
+}
+
+bool PolConfig::report_program_aborts()
+{
+  return Clib::ExceptionParser::programAbortReporting();
 }
 }
 }

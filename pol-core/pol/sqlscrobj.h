@@ -16,7 +16,6 @@
 #ifdef HAVE_MYSQL
 
 #include "../bscript/bobject.h"
-#include "../bscript/contiter.h"
 #ifdef _WIN32
 #include "../clib/Header_Windows.h"
 #include <mysql.h>

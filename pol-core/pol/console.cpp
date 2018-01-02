@@ -6,6 +6,7 @@
 
 #include "console.h"
 
+#include "../bscript/eprog.h"
 #include "../bscript/impstr.h"
 
 #include "../clib/cfgelem.h"

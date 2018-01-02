@@ -8,6 +8,7 @@
 #include "unicode.h"
 
 #include "../clib/clib_endian.h"
+#include "../bscript/bobject.h"
 namespace Pol
 {
 namespace Core

@@ -12,10 +12,6 @@
 #ifndef __UOBJECT_H
 #define __UOBJECT_H
 
-#ifndef __UCONST_H
-#include "uconst.h"
-#endif
-
 #ifndef __CLIB_RAWTYPES_H
 #include "../clib/rawtypes.h"
 #endif
@@ -37,8 +33,6 @@
 #include <set>
 #include <type_traits>
 
-#include "../../lib/format/format.h"
-
 #define pf_endl '\n'
 
 
@@ -52,10 +46,6 @@ class Executor;
 namespace Clib
 {
 class ConfigElem;
-}
-namespace Realms
-{
-class Realm;
 }
 namespace Items
 {

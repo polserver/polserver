@@ -13,7 +13,6 @@
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 
-#include "../action.h"
 #include "../polcfg.h"
 #include "../realms.h"
 #include "../skillid.h"

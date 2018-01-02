@@ -11,6 +11,7 @@
  * - 2011/11/28 MuadDib:   Removed last of uox referencing code.
  */
 
+#include "uimport.h"
 
 #include "loaddata.h"
 #include "accounts/account.h"
@@ -32,6 +33,7 @@
 #include "storage.h"
 #include "stubdata.h"
 #include "globals/uvars.h"
+#include "globals/network.h"
 #include "globals/object_storage.h"
 #include "globals/state.h"
 #include "globals/settings.h"

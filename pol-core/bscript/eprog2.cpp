@@ -8,6 +8,7 @@
 #include "eprog.h"
 #include "escriptv.h"
 #include "filefmt.h"
+#include "fmodule.h"
 #include "parser.h"
 #include "userfunc.h"
 

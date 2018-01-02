@@ -8,7 +8,6 @@
 
 #include "miscrgn.h"
 
-#include "region.h"
 #include "ufunc.h"
 #include "realms.h"
 #include "uworld.h"

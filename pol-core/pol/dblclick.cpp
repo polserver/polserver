@@ -16,11 +16,13 @@
 
 #include "../clib/clib.h"
 #include "../clib/clib_endian.h"
+#include "../bscript/eprog.h"
 
 #include "../plib/systemstate.h"
 
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "network/clienttransmit.h"
 #include "eventid.h"
 #include "item/itemdesc.h"

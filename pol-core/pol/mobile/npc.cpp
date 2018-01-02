@@ -25,7 +25,6 @@
  */
 
 #include "npc.h"
-#include "../npctmpl.h"
 #include "../module/npcmod.h"
 
 #include "attribute.h"
@@ -33,11 +32,9 @@
 
 #include "../containr.h"
 #include "../dice.h"
-#include "../eventid.h"
 #include "../fnsearch.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
-#include "../item/armor.h"
 #include "../item/weapon.h"
 #include "../listenpt.h"
 #include "../mdelta.h"
@@ -56,7 +53,6 @@
 #include "../skilladv.h"
 #include "../skills.h"
 #include "../sockio.h"
-#include "../ufunc.h"
 #include "../ufunc.h"
 #include "../ufuncinl.h"
 #include "../uoexec.h"

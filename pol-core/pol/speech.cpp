@@ -13,6 +13,7 @@
 #include "accounts/account.h"
 #include "network/client.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "network/msghandl.h"
 
 #include "mobile/npc.h"
@@ -27,6 +28,7 @@
 #include "textcmd.h"
 #include "tildecmd.h"
 #include "globals/uvars.h"
+#include "globals/network.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uworld.h"

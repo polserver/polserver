@@ -6,24 +6,24 @@
 
 #include "../clib/rawtypes.h"
 
-#include "ufunc.h"
-#include "uconst.h"
 #include "network/packets.h"
 
 // this is for NULLs found..
 #include <cstddef>
 namespace Pol
 {
+namespace Network
+{
+  class Client;
+}
+namespace Mobile
+{
+  class Character;
+}
 namespace Core
 {
-/*
-void send_sysmessage_cl(Client *client,                // System message (lower left corner)
-//						Character *chr_from,
-//						ObjArray* oText,
-unsigned int cliloc_num,
-unsigned short font = DEFAULT_TEXT_FONT,
-unsigned short color = DEFAULT_TEXT_COLOR);
-*/
+class UObject;
+
 void send_sysmessage_cl( Network::Client* client,  // System message (lower left corner)
                          //						Character *chr_from,
                          unsigned int cliloc_num, const u16* arguments = 0,

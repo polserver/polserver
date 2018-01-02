@@ -18,14 +18,9 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 #include "compilerspecifics.h"
 #include "Debugging/LogSink.h"
-#include "message_queue.h"
 
 namespace Pol
 {
-namespace Core
-{
-struct PolConfig;
-}
 namespace Clib
 {
 extern bool LogfileTimestampEveryLine;

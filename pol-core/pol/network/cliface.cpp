@@ -14,6 +14,7 @@
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../network/packets.h"
+#include "../network/packethelper.h"
 #include "../network/clienttransmit.h"
 
 #include "../party.h"
@@ -23,6 +24,7 @@
 #include "../uoclient.h"
 #include "../uoskills.h"
 #include "../globals/settings.h"
+#include "../globals/network.h"
 #include "../globals/uvars.h"
 #include "../vital.h"
 namespace Pol

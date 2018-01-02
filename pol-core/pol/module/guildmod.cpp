@@ -13,7 +13,6 @@
 
 #include "uomod.h"
 
-#include "../../bscript/execmodl.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
@@ -33,6 +32,7 @@
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoscrobj.h"
+#include "../uoexhelp.h"
 
 #include <map>
 

@@ -13,8 +13,6 @@
 #include "syshookscript.h"
 #include "globals/network.h"
 
-#include "crypt/cryptkey.h"
-
 #include "../plib/pkg.h"
 #include "../clib/cfgelem.h"
 

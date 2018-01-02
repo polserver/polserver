@@ -12,7 +12,6 @@
 
 #include "../bscript/executor.h"
 #include "../bscript/berror.h"
-#include "../bscript/bobject.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"

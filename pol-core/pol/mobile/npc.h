@@ -23,7 +23,6 @@
 
 #include "../eventid.h"
 #include "../npctmpl.h"
-#include "../uoscrobj.h"
 
 #include <iosfwd>
 #include <map>

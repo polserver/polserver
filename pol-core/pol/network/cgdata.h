@@ -24,7 +24,6 @@ class UOExecutorModule;
 namespace Core
 {
 class JusticeRegion;
-class LightRegion;
 class MusicRegion;
 class WeatherRegion;
 class UContainer;

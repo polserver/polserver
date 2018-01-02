@@ -23,7 +23,6 @@
 #define __CLIENT_H
 
 #include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/wallclock.h"
 #include "../../clib/weakptr.h"
@@ -31,9 +30,7 @@
 #include "../crypt/cryptkey.h"
 #include "../pktin.h"
 #include "../polclock.h"
-#include "../polsem.h"
 #include "../sockets.h"
-#include "../uconst.h"
 
 #include <memory>
 #include <cstring>
@@ -51,7 +48,6 @@ class BObjectImp;
 }
 namespace Core
 {
-class UContainer;
 class MessageTypeFilter;
 struct XmitBuffer;
 }
@@ -71,7 +67,6 @@ namespace Network
 {
 class ClientGameData;
 class ClientInterface;
-class UOClientInterface;
 
 const u16 T2A = 0x01;
 const u16 LBR = 0x02;

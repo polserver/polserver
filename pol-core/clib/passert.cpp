@@ -26,7 +26,6 @@
 #include <execinfo.h>
 #include <iostream>
 #include <cstdlib>
-#include <signal.h>
 #include <pthread.h>
 #endif
 

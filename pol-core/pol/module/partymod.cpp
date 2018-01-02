@@ -15,9 +15,6 @@
 #include "../party.h"
 #include "../unicode.h"
 
-#ifdef MEMORYLEAK
-#include "../../bscript/bobject.h"
-#endif
 #include "../../bscript/berror.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"

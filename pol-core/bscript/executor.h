@@ -15,30 +15,23 @@
 #include "pol_global_config.h"
 #endif
 
-#ifndef __SYMCONT_H
-#include "symcont.h"
-#endif
-
 #ifndef __EXECTYPE_H
 #include "exectype.h"
-#endif
-
-#ifndef __TOKEN_H
-#include "token.h"
 #endif
 
 #ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif
 
-#include "fmodule.h"
 #include "eprog.h"
 
 #include "../clib/spinlock.h"
 
 #include <stack>
+#include <set>
 #include <vector>
 #include <exception>
+#include <memory>
 
 namespace Pol
 {
@@ -50,10 +43,10 @@ void list_script( UOExecutor* uoexec );
 namespace Bscript
 {
 class Executor;
-class EScriptProgram;
-class BLong;
 class String;
-
+class Token;
+class ModuleFunction;
+class ExecutorModule;
 #ifdef ESCRIPT_PROFILE
 #include <map>
 struct profile_instr

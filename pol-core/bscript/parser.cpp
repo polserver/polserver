@@ -44,12 +44,11 @@
 
 #include "fmodule.h"
 #include "modules.h"
-#include "operator.h"
 #include "symcont.h"
-#include "token.h"
 #include "tokens.h"
 #include "userfunc.h"
 #include "verbtbl.h"
+#include "compctx.h"
 
 #include "compilercfg.h"
 
@@ -61,7 +60,7 @@
 #include "../clib/maputil.h"
 #include "../clib/strutil.h"
 #include "../clib/unittest.h"
-
+#include "../clib/passert.h"
 #include <cctype>
 #include <cstddef>
 #include <cstdio>

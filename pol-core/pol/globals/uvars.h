@@ -44,13 +44,8 @@ class Item;
 class ItemDesc;
 class Equipment;
 }
-namespace Accounts
-{
-class Account;
-}
 namespace Mobile
 {
-class Character;
 class Attribute;
 }
 namespace Network
@@ -59,13 +54,11 @@ class Client;
 }
 namespace Multi
 {
-class UMulti;
 struct BoatShape;
 }
 namespace Core
 {
 class StartingLocation;
-class UObject;
 class PropertyList;
 class NpcTemplate;
 class JusticeRegion;
@@ -73,7 +66,6 @@ class NoCastRegion;
 class LightRegion;
 class WeatherDef;
 class MusicRegion;
-class PeriodicTask;
 class USpell;
 class SpellCircle;
 class Vital;
@@ -83,6 +75,7 @@ class ConsoleCommand;
 class ListenPoint;
 class Party;
 class Guild;
+class UOExecutor;
 
 typedef std::vector<Core::CmdLevel> CmdLevels;
 

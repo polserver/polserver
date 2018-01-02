@@ -13,10 +13,6 @@
 
 namespace Pol
 {
-namespace Items
-{
-class Itemdesc;
-}
 namespace Core
 {
 class ULockable : public Items::Item

@@ -9,7 +9,7 @@
 #ifndef SYSHOOK_H
 #define SYSHOOK_H
 
-#include "uoexec.h"
+#include "../bscript/bobject.h"
 
 namespace Pol
 {

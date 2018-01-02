@@ -15,6 +15,7 @@
 #include "../network/cliface.h"
 #include "../skills.h"
 #include "../statmsg.h"
+#include "../uoexhelp.h"
 
 // f'ed packing:
 #include "../vital.h"

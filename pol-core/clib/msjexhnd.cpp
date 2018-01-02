@@ -12,7 +12,6 @@
 // Microsoft Systems Journal, May 1997
 // FILE: MSJEXHND.CPP
 //==========================================
-#include "Header_Windows.h"
 #include <tchar.h>
 #include <imagehlp.h>
 #include "msjexhnd.h"

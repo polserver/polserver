@@ -9,7 +9,6 @@
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
-#include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
 
 #include "../../clib/clib_endian.h"
@@ -23,6 +22,7 @@
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/msghandl.h"
+#include "../network/packethelper.h"
 #include "../pktboth.h"
 #include "../sockio.h"
 #include "../ufunc.h"
