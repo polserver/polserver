@@ -16,6 +16,7 @@ POLLOG.Format("hello {}") << "world";
 #include "message_queue.h"
 
 #include <fstream>
+#include <functional>
 #include <chrono>
 #include <iomanip>
 #include <iostream>

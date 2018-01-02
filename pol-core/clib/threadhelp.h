@@ -8,6 +8,7 @@
 #define CLIB_THREADHELP_H
 
 #include "Header_Windows.h"
+#include <functional>
 #include <vector>
 #include <thread>
 #include <future>
