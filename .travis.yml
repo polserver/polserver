@@ -28,9 +28,8 @@ addons:
 
 before_install:
   - cd pol-core/bin-build
-  - chmod a+x build_linux.sh
 
-script:
+before_script:
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
   - export TRAVIS_CI=1
   - if [ "$CXX" = "g++" ]; then 
@@ -39,10 +38,12 @@ script:
   - if [ "$CXX" = "clang++" ]; then 
       export CXX="clang++-5.0" CC="clang-5.0";
     fi
+  - cmake ../..
   - echo -en 'travis_fold:end:script.configure\\r'
 
+script:
   - echo 'Build...' && echo -en 'travis_fold:start:script.build\\r'
-  - ./build_linux.sh
+  - make -j 2
   - echo -en 'travis_fold:end:script.build\\r'
 
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
@@ -53,8 +54,3 @@ script:
 notifications:
   email:
     - polteam@polserver.com
-  irc:
-    channels:
-      - "ircs://irc.darkmyst.org:6697/#pol"
-    on_success: always # Those are the defaults. Should maybe use "change" afterwards.
-    on_failure: always
