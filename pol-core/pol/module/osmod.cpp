@@ -1016,13 +1016,13 @@ struct PerfData
       std::unique_ptr<BStruct> elem( new BStruct );
       elem->addMember( "name", new String( res[i].name ) );
       elem->addMember( "instructions", new Double( static_cast<double>( res[i].instructions ) ) );
-      elem->addMember( "pid", new BLong( res[i].pid ) );
+      elem->addMember( "pid", new BLong( static_cast<int>(res[i].pid) ) );
       elem->addMember( "percent", new Double( res[i].instructions / sum_instr * 100.0 ) );
       arr->addElement( elem.release() );
     }
     std::unique_ptr<BStruct> result( new BStruct );
     result->addMember( "scripts", arr.release() );
-    result->addMember( "total_number_observed", new BLong( res.size() ) );
+    result->addMember( "total_number_observed", new BLong( static_cast<int>(res.size()) ) );
     result->addMember( "total_instructions", new Double( sum_instr ) );
     data->uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( result.release() ) );
 
