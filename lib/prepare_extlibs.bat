@@ -24,7 +24,7 @@ if not exist %VCVARSALL% (
 )
 for /f "usebackq delims=." %%j in (`%VCWHERE% -prerelease -latest -legacy -property installationVersion`) do (
     set VC=%%j
-	set POLSOL=pol-2015.sln
+	set POLSOL=pol-2017.sln
 	if "%%j"=="14" (
 	  set POLSOL=pol-2015.sln
 	)
