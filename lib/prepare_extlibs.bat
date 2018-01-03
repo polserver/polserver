@@ -12,6 +12,7 @@ for /f "usebackq delims=" %%i in (`%VCWHERE% -prerelease -latest -legacy -proper
   if exist "%%i\Common7\Tools\vsdevcmd.bat" (
     set VCVARSALL="%%i\Common7\Tools\vsdevcmd.bat"
 	set ARCHPARAM=-arch=%POLARCH%
+	set VSCMD_START_DIR=%CD%
   )
     if exist "%%i\VC\vcvarsall.bat" (
 	  set VCVARSALL="%%i\VC\vcvarsall.bat"
