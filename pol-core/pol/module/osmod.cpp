@@ -39,11 +39,11 @@
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
-#include "../../clib/threadhelp.h"
 #include "../../clib/sckutil.h"
 #include "../../clib/socketsvc.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../clib/threadhelp.h"
 #include "../../clib/weakptr.h"
 
 #include "../../plib/systemstate.h"
@@ -699,6 +699,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
         curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
         curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
 
+        struct curl_slist* chunk = nullptr;
         if ( options->isa( Bscript::BObjectImp::OTStruct ) )
         {
           Bscript::BStruct* opts = static_cast<Bscript::BStruct*>( options );
@@ -713,7 +714,6 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
           if ( headers_ != nullptr && headers_->isa( BObjectImp::OTStruct ) )
           {
             const BStruct* headers = static_cast<const BStruct*>( headers_ );
-            struct curl_slist* chunk = nullptr;
 
             for ( const auto& content : headers->contents() )
             {
@@ -725,7 +725,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
           }
         }
 
-        Core::networkManager.auxthreadpool->push( [uoexec_w, curl_sp]() {
+        Core::networkManager.auxthreadpool->push( [uoexec_w, curl_sp, chunk]() {
           CURL* curl = curl_sp.get();
           CURLcode res;
           std::string readBuffer;
@@ -733,6 +733,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
 
           /* Perform the request, res will get the return code */
           res = curl_easy_perform( curl );
+          if ( chunk != nullptr )
+            curl_slist_free_all( chunk );
           {
             Core::PolLock lck;
 
