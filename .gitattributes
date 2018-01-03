@@ -12,4 +12,5 @@
 *.zip binary
 *.rar binary
 *.bz2 binary
+*.ico binary
 

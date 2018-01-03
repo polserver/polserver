@@ -6,7 +6,7 @@ platform: x64
 configuration: Release
 build:
   parallel: true
-  project: pol-core/pol-2015.sln
+  project: pol-core/pol-2017.sln
   verbosity: normal
 init:
 - git config --global core.autocrlf true

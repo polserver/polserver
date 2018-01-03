@@ -1,46 +1,58 @@
 @echo off
 
 rem Attempts to find the most recent visual studio.
-
-:VS2015
-set VCVARSALL="%VS140COMNTOOLS%..\..\VC\vcvarsall.bat"
-set POLSOL="pol-2015.sln"
-set VC=15
-if not exist %VCVARSALL% goto VS2013
-goto begin
-
-:VS2013
-set VCVARSALL="%VS120COMNTOOLS%..\..\VC\vcvarsall.bat"
-set POLSOL="pol-2013.sln"
-set VC=13
-if not exist %VCVARSALL% goto VS2012
-goto begin
-
-:VS2012
-set VCVARSALL="%VS110COMNTOOLS%..\..\VC\vcvarsall.bat"
-set POLSOL="pol-2012.sln"
-set VC=12
-if not exist %VCVARSALL% goto vserror
+if "%POLARCH%" == "" (
+set POLARCH=x64
+)
+set VCWHERE="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if not exist %VCWHERE% (
+  set VCWHERE="vswhere.exe"
+)
+for /f "usebackq delims=" %%i in (`%VCWHERE% -prerelease -latest -legacy -property installationPath`) do (
+  if exist "%%i\Common7\Tools\vsdevcmd.bat" (
+    set VCVARSALL="%%i\Common7\Tools\vsdevcmd.bat"
+	set ARCHPARAM=-arch=%POLARCH%
+  )
+    if exist "%%i\VC\vcvarsall.bat" (
+	  set VCVARSALL="%%i\VC\vcvarsall.bat"
+	  set ARCHPARAM=%POLARCH%
+	)
+  
+)
+if not exist %VCVARSALL% ( 
+  goto :vserror
+)
+for /f "usebackq delims=." %%j in (`%VCWHERE% -prerelease -latest -legacy -property installationVersion`) do (
+    set VC=%%j
+	set POLSOL=pol-2017.sln
+	if "%%j"=="14" (
+	  set POLSOL=pol-2015.sln
+	)
+	if "%%j"=="13" (
+	  set POLSOL=pol-2013.sln
+	)
+	goto :begin
+)
 
 :begin
+
+call %VCVARSALL% %ARCHPARAM%
+if %errorlevel% neq 0 goto :error
 
 if exist boost_1_63_0\boost goto extract_curl
 ..\pol-core\dist\7za.exe x -so boost_1_63_0.tar.bz2 | ..\pol-core\dist\7za.exe x -si -ttar
 
 :extract_curl
-if exist curl-7.57.0 goto done
+if exist curl-7.57.0 goto buildcurl
 ..\pol-core\dist\7za.exe x curl-7.57.0.zip
 
-call %VCVARSALL% x64
-if %errorlevel% neq 0 goto :error
-
+:buildcurl
+if exist curl-7.57.0\builds\libcurl-%POLARCH%-release-static goto done
 pushd ..\lib\curl-7.57.0\winbuild
 
 rem Used in libcurl to statically link CRT
 set RTLIBCFG=static
-nmake /f ..\..\Makefile-libcurl-polserver.vc mode=static machine=x64 VC=%VC% ENABLE_WINSSL=yes DEBUG=no
-if %errorlevel% neq 0 goto :error
-nmake /f ..\..\Makefile-libcurl-polserver.vc mode=static machine=x64 VC=%VC% ENABLE_WINSSL=yes DEBUG=yes
+nmake /f ..\..\Makefile-libcurl-polserver.vc mode=static machine=%POLARCH% VC=%VC% ENABLE_WINSSL=yes DEBUG=no
 if %errorlevel% neq 0 goto :error
 popd
 

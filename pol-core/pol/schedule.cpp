@@ -17,7 +17,6 @@
 #include "../plib/systemstate.h"
 
 #include <ctime>
-#include <functional>
 #include <vector>
 #include <queue>
 

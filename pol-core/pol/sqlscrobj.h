@@ -25,6 +25,7 @@
 
 #include "../clib/message_queue.h"
 
+#include <functional>
 #include <memory>
 
 namespace Pol

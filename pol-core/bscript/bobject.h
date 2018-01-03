@@ -31,6 +31,7 @@
 #include "../clib/passert.h"
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "../clib/rawtypes.h"
 
 #if INLINE_BOBJECTIMP_CTOR
 #include "escriptv.h"
