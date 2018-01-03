@@ -1,44 +1,29 @@
 @echo off
 
 set BUILD_X86=0
-rem Attempts to find the most recent visual studio.
 
-:VS2015
-set VCVARSALL="%VS140COMNTOOLS%..\..\VC\vcvarsall.bat"
-set POLSOL="pol-2015.sln"
-set VC=15
-if not exist %VCVARSALL% goto VS2013
-goto begin
-
-:VS2013
-set VCVARSALL="%VS120COMNTOOLS%..\..\VC\vcvarsall.bat"
-set POLSOL="pol-2013.sln"
-set VC=13
-if not exist %VCVARSALL% goto VS2012
-goto begin
-
-:VS2012
-set VCVARSALL="%VS110COMNTOOLS%..\..\VC\vcvarsall.bat"
-set POLSOL="pol-2012.sln"
-set VC=12
-if not exist %VCVARSALL% goto vserror
-goto begin
-
-
-:begin
 set STARTTIME=%TIME%
-
+set POLARCH=x64
 echo Extracting external libraries (boost, curl)
 pushd ..\lib
 call prepare_extlibs.bat
 if %errorlevel% neq 0 goto :error
 popd
 
-call %VCVARSALL% x64
-if %errorlevel% neq 0 goto :error
+set GITR="Unk Rev"
+where git>NUL
+if %errorlevel% equ 0 (
+  git log -n 1 --pretty="format:%%h" > tmp.log
+  set /p GITR=<tmp.log
+  del tmp.log
+) else (
+  echo git not found in PATH!
+)
+echo Building Revision %GITR%
+call :FindReplace "// #define GIT_REVISION" "#define GIT_REVISION `%GITR%`" clib\pol_global_config_win.h
 
 echo Building x64-release from %POLSOL%...
-msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" > dist\buildlog_64.log
+msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" /t:"Clean;Build" > dist\buildlog_64.log
 if %errorlevel% neq 0 goto :error
 
 echo Packing everything up...
@@ -51,19 +36,15 @@ if %errorlevel% neq 0 goto :error
 popd
 
 if %BUILD_X86% neq 1 goto :skipx86
-
-call %VCVARSALL% x86
-if %errorlevel% neq 0 goto :error
-
-pushd ..\lib\curl-7.57.0\winbuild
-nmake /f Makefile-libcurl-polserver.vc mode=static machine=x86 VC=%VC% ENABLE_WINSSL=yes DEBUG=no
-if %errorlevel% neq 0 goto :error
-nmake /f Makefile-libcurl-polserver.vc mode=static machine=x86 VC=%VC% ENABLE_WINSSL=yes DEBUG=yes
+set POLARCH=x86
+echo Extracting external libraries (boost, curl)
+pushd ..\lib
+call prepare_extlibs.bat
 if %errorlevel% neq 0 goto :error
 popd
 
 echo Building Win32-release from %POLSOL%...
-msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="Win32" > dist\buildlog_32.log
+msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="Win32" /t:"Clean;Build" > dist\buildlog_32.log
 if %errorlevel% neq 0 goto :error
 pushd dist
 call mkdist x86 clean
@@ -73,7 +54,8 @@ if %errorlevel% neq 0 goto :error
 popd
 
 :skipx86
-
+rem revert git revision modification
+call :FindReplace "#define GIT_REVISION `%GITR%`" "// #define GIT_REVISION" clib\pol_global_config_win.h
 goto end
 
 :vserror
@@ -91,6 +73,24 @@ echo Done. Started at %STARTTIME%, finished at %TIME%.
 pause
 goto exit
 
+rem vbs arguments strip "
+:FindReplace <findstr> <replstr> <file>
+set tmpf="%temp%\tmp.txt"
+If not exist %temp%\_pol.vbs call :MakeReplace
+for /f "tokens=*" %%a in ('dir "%3" /s /b /a-d /on') do (
+    <%%a cscript //nologo %temp%\_pol.vbs "'%~1'" "'%~2'">%tmpf%
+    if exist %tmpf% move /Y %tmpf% "%%~dpnxa">nul
+)
+del %temp%\_pol.vbs
+exit /b
+
+:MakeReplace
+>%temp%\_pol.vbs echo with Wscript
+>>%temp%\_pol.vbs echo set args=.arguments
+>>%temp%\_pol.vbs echo .StdOut.Write _
+>>%temp%\_pol.vbs echo Replace(.StdIn.ReadAll,replace(replace(args(0),"'",""),"`",""""),replace(replace(args(1),"'",""),"`",""""),1,-1,1)
+>>%temp%\_pol.vbs echo end with
+exit /b
 
 :exit
 
