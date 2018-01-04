@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-23-2017</datemodified>
+		<datemodified>01-04-2018</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>01-04-2017</date>
+			<author>Kevin:</author>
+			<change type="Added">os::HTTPRequest(url, method := &quot;GET&quot;, options := struct{})<br/>
+Creates an HTTP request, and returns the returned data as a string.</change>
+		</entry>
 		<entry>
 			<date>12-23-2017</date>
 			<author>Turley:</author>
