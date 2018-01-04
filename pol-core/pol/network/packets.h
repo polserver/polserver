@@ -351,7 +351,7 @@ public:
 
 // buffer for encrypted Data send with a dummy pktid
 // NOTE: redefine id if pkt 0x0 ever gets send
-#define ENCRYPTEDPKTBUFFER 0
+#define ENCRYPTEDPKTBUFFER static_cast<u8>(0)
 
 // Packet defs start
 typedef PacketWriterDefs::EmptyBufferTemplate<ENCRYPTEDPKTBUFFER, 0xFFFF> EncryptedPktBuffer;

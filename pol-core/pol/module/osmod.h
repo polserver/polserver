@@ -85,6 +85,7 @@ protected:
   Bscript::BObjectImp* mf_OpenURL();
   Bscript::BObjectImp* mf_OpenConnection();
   Bscript::BObjectImp* mf_debugger();
+  Bscript::BObjectImp* mf_HTTPRequest();
 
   Bscript::BObjectImp* mf_clear_event_queue();  // DAVE
 

@@ -1,5 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(polserver.com)
+INCLUDE(ExternalProject)
 INCLUDE(cmake/Benchmark.txt)
 ADD_SUBDIRECTORY(lib/tinyxml)
 ADD_SUBDIRECTORY(pol-core)

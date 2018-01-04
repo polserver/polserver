@@ -273,6 +273,7 @@ SET (LIBS_LINUX
     crypto
     pthread
     z
+	curl
 )
 IF(HAVE_MYSQL)
 	SET (LIBS_LINUX

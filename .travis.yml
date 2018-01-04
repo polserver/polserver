@@ -2,6 +2,13 @@ language: cpp
 
 sudo: false
 
+cache:
+  directories:
+    - lib/curl
+
+git:
+  depth: 1
+
 compiler:
   - gcc
   - clang
@@ -11,36 +18,32 @@ addons:
     #ref: https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
     sources:
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.8
-      - george-edison55-precise-backports # cmake 3.2.3
+      - llvm-toolchain-trusty-5.0
     #ref: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
     packages:
-      - gcc-5
-      - g++-5
-      - clang-3.8
-      - cmake
-      - cmake-data
+      - gcc-7
+      - g++-7
+      - clang-5.0
       - python3
 
 before_install:
-  - cd lib
-  - tar xjf boost_1_63_0.tar.bz2
-  - cd ../pol-core/bin-build
-  - chmod a+x build_linux.sh
+  - cd pol-core/bin-build
 
-script:
+before_script:
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
   - export TRAVIS_CI=1
   - if [ "$CXX" = "g++" ]; then 
-      export CXX="g++-5" CC="gcc-5";
+      export CXX="g++-7" CC="gcc-7";
     fi
   - if [ "$CXX" = "clang++" ]; then 
-      export CXX="clang++-3.8" CC="clang-3.8";
+      export CXX="clang++-5.0" CC="clang-5.0";
     fi
+  - cmake ../..
   - echo -en 'travis_fold:end:script.configure\\r'
 
+script:
   - echo 'Build...' && echo -en 'travis_fold:start:script.build\\r'
-  - ./build_linux.sh
+  - make -j 2
   - echo -en 'travis_fold:end:script.build\\r'
 
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
@@ -51,8 +54,3 @@ script:
 notifications:
   email:
     - polteam@polserver.com
-  irc:
-    channels:
-      - "ircs://irc.darkmyst.org:6697/#pol"
-    on_success: always # Those are the defaults. Should maybe use "change" afterwards.
-    on_failure: always
