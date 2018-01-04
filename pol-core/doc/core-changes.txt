@@ -1,4 +1,7 @@
 ﻿-- POL099 --
+01-04-2017 Kevin:
+  Added:   os::HTTPRequest(url, method := "GET", options := struct{})
+           Creates an HTTP request, and returns the returned data as a string.
 12-23-2017 Turley:
   Added:   os:PerformanceMeasure(delta_seconds, max_scripts)
            Monitors for given number of seconds the instructions of all scripts. Returns:
