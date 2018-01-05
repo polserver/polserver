@@ -275,6 +275,7 @@ Example: create a POST request to a REST endpoint with custom header:
     "Content-Type" := "application/json"
   }
 });
+</code>
   <return>Response data as a string.</return>
 </function>
 </ESCRIPT>
