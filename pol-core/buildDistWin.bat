@@ -23,7 +23,8 @@ echo Building Revision %GITR%
 call :FindReplace "// #define GIT_REVISION" "#define GIT_REVISION `%GITR%`" clib\pol_global_config_win.h
 
 echo Building x64-release from %POLSOL%...
-msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" /t:"Clean;Build" > dist\buildlog_64.log
+msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" /t:"Clean" > dist\buildlog_64.log
+msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="x64" /t:"Build" > dist\buildlog_64.log
 if %errorlevel% neq 0 goto :error
 
 echo Packing everything up...
@@ -44,7 +45,8 @@ if %errorlevel% neq 0 goto :error
 popd
 
 echo Building Win32-release from %POLSOL%...
-msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="Win32" /t:"Clean;Build" > dist\buildlog_32.log
+msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="Win32" /t:"Clean" > dist\buildlog_32.log
+msbuild %POLSOL% /m /p:Configuration=Release /p:Platform="Win32" /t:"Build" > dist\buildlog_32.log
 if %errorlevel% neq 0 goto :error
 pushd dist
 call mkdist x86 clean

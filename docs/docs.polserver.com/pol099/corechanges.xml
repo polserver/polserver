@@ -2,9 +2,22 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-23-2017</datemodified>
+		<datemodified>01-05-2018</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>01-05-2018</date>
+			<author>Turley:</author>
+			<change type="Added">fileaccess.cfg Directory entry<br/>
+Can be definied multiple times in package syntax.<br/>
+::config means config rootfolder, :mypkg:test means subfolder test of mypkg. Has only a meaning if AllowRemote is given. Limits the access to given folder and its subfolders.</change>
+		</entry>
+		<entry>
+			<date>01-04-2018</date>
+			<author>Kevin:</author>
+			<change type="Added">os::HTTPRequest(url, method := &quot;GET&quot;, options := struct{})<br/>
+Creates an HTTP request, and returns the returned data as a string.</change>
+		</entry>
 		<entry>
 			<date>12-23-2017</date>
 			<author>Turley:</author>

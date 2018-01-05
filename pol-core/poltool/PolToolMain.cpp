@@ -225,7 +225,6 @@ int PolToolMain::unpackCompressedGump()
   INFO_PRINT << '\n';
   fmt::Writer datatmp;
   datatmp << '\n';
-  size_t start = 0;
   size_t j = 0;
   for ( size_t i = 0; i < linecount; ++i )
   {

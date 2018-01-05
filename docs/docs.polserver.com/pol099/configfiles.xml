@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>09/10/2017</datemodified>
+    <datemodified>01/05/2018</datemodified>
 </fileheader>
 
 
@@ -1545,7 +1545,7 @@ Stacking
 FileAccess
 {
   [Package (string package name, or *)]...
-  [Directory (string directory name, or *)]...
+  [Directory (string directory name in pkg syntax, or *)]...
   [Extension (string file extension name, or *)]...
   [AllowRead (0/1 {default 0})]
   [AllowWrite (0/1 {default 0})]
@@ -1556,7 +1556,7 @@ FileAccess
   <explain>'*' above means it applies to all packages.</explain>
     <explain>AllowRemote means the package has access to other files, not just files in its package directory.</explain>
     <explain>Package matches the string name in a pkg.cfg. You can define multiple Package properties.</explain>
-    <explain>Directory not implimented yet</explain>
+    <explain>Directory in package syntax, can be defined multiple times. Example ::config means root folder config, :mypkg:test means subfolder test of mypkg. Limits the access to given directory and its subfolders.</explain>
     <explain>Extension examples are '.cfg', '.htm', etc. You can define multiple Extension properties.</explain>
     <explain>This config is reloadable on-demand. Use ReloadConfiguration() (polsys.em) or SIGHUP under linux.</explain>
 </cfgfile>

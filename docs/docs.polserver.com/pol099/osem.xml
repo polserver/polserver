@@ -259,4 +259,23 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 	<explain>percent : percent of the total instruction amount</explain>
   <return>see above</return>
 </function>
+
+<function name="HTTPRequest">
+    <prototype>HTTPRequest(url, method := "GET", options := struct{})</prototype>
+    <parameter name="url" value="URL"/>
+    <parameter name="method" value="HTTP Method to use for request (eg. GET, POST)"/>
+    <parameter name="options" value="A struct containing options for the request. Available options are: 'data', a string representing the POST data; 'headers', a struct containing headers to send, where the key is the header's name and value is the header's value" />
+	<explain>Creates an HTTP request, and returns the returned data as a string.</explain>
+	<code>
+Example: create a POST request to a REST endpoint with custom header:
+
+ HTTPRequest("http://localhost:3000/","POST", struct{ 
+  data := "{\"stuff1\":[1,2,35]}", 
+  headers := struct{
+    "Content-Type" := "application/json"
+  }
+});
+</code>
+  <return>Response data as a string.</return>
+</function>
 </ESCRIPT>
