@@ -115,7 +115,20 @@ public:
   unsigned short multiid;
   unsigned short maxhp;
   unsigned short lower_reag_cost;
+  unsigned short spell_damage_increase;
+  unsigned short faster_casting;
+  unsigned short faster_cast_recovery;
+  unsigned short defence_increase;
+  unsigned short defence_increase_cap;
+  unsigned short lower_mana_cost;
+  unsigned short hitchance;
+  unsigned short swingspeed;
   unsigned short damage_increase;
+  unsigned short resist_fire_cap;
+  unsigned short resist_cold_cap;
+  unsigned short resist_energy_cap;
+  unsigned short resist_physical_cap;
+  unsigned short resist_poison_cap;
 
   Core::Dice resist_dice;
 

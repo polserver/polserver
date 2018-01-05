@@ -149,8 +149,8 @@ enum DynPropTypes : u8
   PROP_SPELL_DAMAGE_INCREASE = 61,	// UObject
   PROP_FASTER_CASTING = 62,			// UObject
   PROP_FASTER_CAST_RECOVERY = 63,	// UObject
-  PROP_DEFENCE_CHANCE_INCREASE = 64,        //UObject
-  PROP_DEFENCE_CHANCE_INCREASE_CAP = 65,    //Character
+  PROP_DEFENCE_INCREASE = 64,        //UObject
+  PROP_DEFENCE_INCREASE_CAP = 65,    //Character
   PROP_LOWER_MANA_COST = 66,                //UObject
   PROP_HITCHANCE = 67,                      //UObject
   PROP_SWING_SPEED = 68,                    //UObject
@@ -160,6 +160,7 @@ enum DynPropTypes : u8
   PROP_RESIST_ENERGY_CAP = 72,              //Character
   PROP_RESIST_POISON_CAP = 73,              //Character
   PROP_RESIST_PHYSICAL_CAP = 74,            //Character
+  PROP_DEFENCE_INCREASE_MOD = 75,           //Character
 
   PROP_FLAG_SIZE  // used for bitset size
 };

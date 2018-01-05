@@ -514,7 +514,7 @@ ObjMember object_members[] = {
 	{ MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false },
 	{ MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false },
 	{ MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false },
-	{ MBR_POISON_RESIST_CAP_MOD, "resist_poison_mod", false },  //245
+	{ MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false },  //245
 	{ MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false },
 
 };

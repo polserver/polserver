@@ -279,8 +279,8 @@ public:
   DYN_PROPERTY(faster_casting, ValueModPack, PROP_FASTER_CASTING, ValueModPack::DEFAULT);
   DYN_PROPERTY(faster_cast_recovery, ValueModPack, PROP_FASTER_CAST_RECOVERY, ValueModPack::DEFAULT);
 
-  DYN_PROPERTY(defence_increase, ValueModPack, PROP_DEFENCE_CHANCE_INCREASE, ValueModPack::DEFAULT);
-  DYN_PROPERTY(defence_increase_cap, ValueModPack, PROP_DEFENCE_CHANCE_INCREASE_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY(defence_increase, ValueModPack, PROP_DEFENCE_INCREASE, ValueModPack::DEFAULT);
+  DYN_PROPERTY(defence_increase_cap, ValueModPack, PROP_DEFENCE_INCREASE_CAP, ValueModPack::DEFAULT);
   DYN_PROPERTY(lower_mana_cost, ValueModPack, PROP_LOWER_MANA_COST, ValueModPack::DEFAULT);
   DYN_PROPERTY(hitchance, ValueModPack, PROP_HITCHANCE, ValueModPack::DEFAULT);
   DYN_PROPERTY(swingspeed, ValueModPack, PROP_SWING_SPEED, ValueModPack::DEFAULT);

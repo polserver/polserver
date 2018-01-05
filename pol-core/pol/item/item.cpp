@@ -403,13 +403,53 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   value = physical_damage().mod;
   if ( value != 0 )
     sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  //new mod stuff
   value = lower_reagent_cost().mod;
   if (value != 0)
 	  sw() << "\tLowerReagentCostMod\t" << static_cast<int>(value) << pf_endl;
   value = damage_increase().mod;
   if (value != 0)
 	  sw() << "\tDamageIncrease\t" << static_cast<int>(value) << pf_endl;
-
+  value = defence_increase().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = defence_increase_cap().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = lower_mana_cost().mod;
+  if (value != 0)
+	  sw() << "\tLowerManaCostMod\t" << static_cast<int>(value) << pf_endl;
+  value = hitchance().mod;
+  if (value != 0)
+	  sw() << "\thitchance_mod\t" << static_cast<int>(value) << pf_endl;
+  value = swingspeed().mod;
+  if (value != 0)
+	  sw() << "\tspeed_mod\t" << static_cast<int>(value) << pf_endl;
+  value = fire_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tFireResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = cold_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tColdResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = energy_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tEnergyResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = physical_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = poison_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tPoisonResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = spell_damage_increase().mod;
+  if (value != 0)
+	  sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_casting().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastingMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_cast_recovery().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
+  //end new mod stuff
   if ( container != NULL )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
 
