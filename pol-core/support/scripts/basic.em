@@ -43,6 +43,8 @@ const OT_SQLCONN          := 35;
 const OT_SQLRESULT        := 36;
 const OT_SQLROW           := 37;
 
+const OT_BOOLEAN          := 38;
+
 	// returns the one-based index of Search within Str after position Start
 Find( Str, Search, Start );
 
@@ -101,3 +103,4 @@ SizeOf( expr ); // returns estimate of memory used
 TypeOfInt( expr ); // returns Integer representation of TypeOf string
 PackJSON( expr ); 
 UnpackJSON( jsonStr );
+Boolean( number ); // returns boolean instance

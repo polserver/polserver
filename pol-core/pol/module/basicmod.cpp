@@ -676,6 +676,23 @@ Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
 	}
 }
 
+Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
+{
+  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
+  if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+  {
+    BLong* plong = static_cast<BLong*>( imp );
+    return new BBoolean(plong->value() != 0);
+  }
+  else if ( imp->isa( Bscript::BObjectImp::OTBoolean ) )
+  {
+	return new BBoolean(*static_cast<BBoolean*>(imp));
+  }
+  else
+  {
+    return new BError( "Boolean() expects an Integer or Boolean" );
+  }
+}
 } // namespace Module
 
 namespace Bscript
@@ -710,5 +727,34 @@ TmplExecutorModule<BasicExecutorModule>::function_table = {
 	{"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt},
 	{"PackJSON", &BasicExecutorModule::mf_PackJSON},
 	{"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON } };
+
+    TmplExecutorModule<BasicExecutorModule>::function_table = {
+        {"find", &BasicExecutorModule::find},
+        {"len", &BasicExecutorModule::len},
+        {"upper", &BasicExecutorModule::upper},
+        {"lower", &BasicExecutorModule::lower},
+        {"Substr", &BasicExecutorModule::mf_substr},
+        {"Trim", &BasicExecutorModule::mf_Trim},
+        {"StrReplace", &BasicExecutorModule::mf_StrReplace},
+        {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace},
+        {"Compare", &BasicExecutorModule::mf_Compare},
+        {"CInt", &BasicExecutorModule::mf_CInt},
+        {"CStr", &BasicExecutorModule::mf_CStr},
+        {"CDbl", &BasicExecutorModule::mf_CDbl},
+        {"CAsc", &BasicExecutorModule::mf_CAsc},
+        {"CChr", &BasicExecutorModule::mf_CChr},
+        {"CAscZ", &BasicExecutorModule::mf_CAscZ},
+        {"CChrZ", &BasicExecutorModule::mf_CChrZ},
+        {"Bin", &BasicExecutorModule::mf_Bin},
+        {"Hex", &BasicExecutorModule::mf_Hex},
+        {"SplitWords", &BasicExecutorModule::mf_SplitWords},
+        {"Pack", &BasicExecutorModule::mf_Pack},
+        {"Unpack", &BasicExecutorModule::mf_Unpack},
+        {"TypeOf", &BasicExecutorModule::mf_TypeOf},
+        {"SizeOf", &BasicExecutorModule::mf_SizeOf},
+        {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt},
+        {"Boolean", &BasicExecutorModule::mf_Boolean},
+        {"PackJSON", &BasicExecutorModule::mf_PackJSON},
+        {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON }};
 }
 }

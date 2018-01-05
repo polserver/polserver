@@ -3,6 +3,10 @@
   Added:   fileaccess.cfg Directory entry
            Can be definied multiple times in package syntax.
            ::config means config rootfolder, :mypkg:test means subfolder test of mypkg. Has only a meaning if AllowRemote is given. Limits the access to given folder and its subfolders.
+  Added:   New type Boolean
+           == != ! operators are implemented
+           use new basic.em function Boolean(1/0) to create such type.
+           see testsuite/escript/boolean in the sources for detailed scripts of what is possible.
 01-04-2018 Kevin:
   Added:   os::HTTPRequest(url, method := "GET", options := struct{})
            Creates an HTTP request, and returns the returned data as a string.
