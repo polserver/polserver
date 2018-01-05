@@ -209,7 +209,7 @@ private:
   DYN_PROPERTY( orig_energy_damage, s16, Core::PROP_ORIG_DAMAGE_ENERGY, 0 );
   DYN_PROPERTY( orig_poison_damage, s16, Core::PROP_ORIG_DAMAGE_POISON, 0 );
   DYN_PROPERTY( orig_physical_damage, s16, Core::PROP_ORIG_DAMAGE_PHYSICAL, 0 );
-
+  
   void resetEquipablePropertiesNPC();
 
   // MISC

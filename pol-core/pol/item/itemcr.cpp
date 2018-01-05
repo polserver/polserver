@@ -261,7 +261,20 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->physical_damage(item->physical_damage().addToValue(id.element_damage.physical));
   // new stuff add here:
   item->lower_reagent_cost(item->lower_reagent_cost().addToValue(id.lower_reag_cost));
+  item->spell_damage_increase(item->spell_damage_increase().addToValue(id.spell_damage_increase));
+  item->faster_casting(item->faster_casting().addToValue(id.faster_casting));
+  item->faster_cast_recovery(item->faster_cast_recovery().addToValue(id.faster_cast_recovery));
+  item->defence_increase(item->defence_increase().addToValue(id.defence_increase));
+  item->defence_increase_cap(item->defence_increase_cap().addToValue(id.defence_increase_cap));
+  item->lower_mana_cost(item->lower_mana_cost().addToValue(id.lower_mana_cost));
+  item->hitchance(item->hitchance().addToValue(id.hitchance));
+  item->swingspeed(item->swingspeed().addToValue(id.swingspeed));
   item->damage_increase(item->damage_increase().addToValue(id.damage_increase));
+  item->fire_resist_cap(item->fire_resist_cap().addToValue(id.resist_fire_cap));
+  item->cold_resist_cap(item->cold_resist_cap().addToValue(id.resist_cold_cap));
+  item->energy_resist_cap(item->energy_resist_cap().addToValue(id.resist_energy_cap));
+  item->physical_resist_cap(item->physical_resist_cap().addToValue(id.resist_physical_cap));
+  item->poison_resist_cap(item->poison_resist_cap().addToValue(id.resist_poison_cap));
 
   // if ItemDesc is a dynamic one desc could differ and would be lost
   const ItemDesc& origid = find_itemdesc( item->objtype_ );

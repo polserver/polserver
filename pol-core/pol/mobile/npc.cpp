@@ -320,6 +320,54 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tPhysicalDamage\t" << orig_physical_damage() << pf_endl;
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
+
+  //new mods
+  s16 value = lower_reagent_cost().mod;
+  if (value != 0)
+	  sw() << "\tLowerReagentCostMod\t" << static_cast<int>(value) << pf_endl;
+  value = spell_damage_increase().mod;
+  if (value != 0)
+	  sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_casting().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastingMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_cast_recovery().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
+  value = defence_increase().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = defence_increase_cap().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = lower_mana_cost().mod;
+  if (value != 0)
+	  sw() << "\tLowerManaCostMod\t" << static_cast<int>(value) << pf_endl;
+  value = hitchance().mod;
+  if (value != 0)
+	  sw() << "\tHitChanceMod\t" << static_cast<int>(value) << pf_endl;
+  value = swingspeed().mod;
+  if (value != 0)
+	  sw() << "\tSpeedMod\t" << static_cast<int>(value) << pf_endl;
+  value = damage_increase().mod;
+  if (value != 0)
+	  sw() << "\tDamageMod\t" << static_cast<int>(value) << pf_endl;
+  value = fire_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tFireResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = cold_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tColdResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = energy_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tEnergyResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = poison_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tPoisonResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = physical_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
+
 }
 
 void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -1032,6 +1080,37 @@ void NPC::resetEquipablePropertiesNPC()
     poison_damage( poison_damage().resetModAsValue().addToValue( orig_poison_damage() ) );
   if ( has_physical_damage() || has_orig_physical_damage() )
     physical_damage( physical_damage().resetModAsValue().addToValue( orig_physical_damage() ) );
+
+  if ( has_lower_reagent_cost() )
+	  lower_reagent_cost(lower_reagent_cost().resetModAsValue().addToValue(lower_reagent_cost()));
+  if ( has_spell_damage_increase() )
+	  spell_damage_increase(spell_damage_increase().resetModAsValue().addToValue(spell_damage_increase()));
+  if ( has_faster_casting() )
+	  faster_casting(faster_casting().resetModAsValue().addToValue(faster_casting()));
+  if (has_faster_cast_recovery())
+	  faster_cast_recovery(faster_cast_recovery().resetModAsValue().addToValue(faster_cast_recovery()));
+  if (has_defence_increase())
+	  defence_increase(defence_increase().resetModAsValue().addToValue(defence_increase()));
+  if (has_defence_increase_cap())
+	  defence_increase_cap(defence_increase_cap().resetModAsValue().addToValue(defence_increase_cap()));
+  if (has_lower_mana_cost())
+	  lower_mana_cost(lower_mana_cost().resetModAsValue().addToValue(lower_mana_cost()));
+  if (has_hitchance())
+	  hitchance(hitchance().resetModAsValue().addToValue(hitchance()));
+  if (has_swingspeed())
+	  swingspeed(swingspeed().resetModAsValue().addToValue(swingspeed()));
+  if (has_damage_increase())
+	  damage_increase(damage_increase().resetModAsValue().addToValue(damage_increase()));
+  if (has_fire_resist_cap())
+	  fire_resist_cap(fire_resist_cap().resetModAsValue().addToValue(fire_resist_cap()));
+  if (has_cold_resist_cap())
+	  cold_resist_cap(cold_resist_cap().resetModAsValue().addToValue(cold_resist_cap()));
+  if (has_energy_resist_cap())
+	  energy_resist_cap(energy_resist_cap().resetModAsValue().addToValue(energy_resist_cap()));
+  if (has_physical_resist_cap())
+	  physical_resist_cap(physical_resist_cap().resetModAsValue().addToValue(physical_resist_cap()));
+  if (has_poison_resist_cap())
+	  poison_resist_cap(poison_resist_cap().resetModAsValue().addToValue(poison_resist_cap()));
 }
 
 size_t NPC::estimatedSize() const

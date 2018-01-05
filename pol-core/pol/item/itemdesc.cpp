@@ -234,6 +234,19 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   maxhp = elem.remove_ushort( "MAXHP", 0 );
   lower_reag_cost = elem.remove_ushort("LOWERREAGENTCOST", 0);
   damage_increase = elem.remove_ushort("DAMAGEINCREASE", 0);
+  spell_damage_increase = elem.remove_ushort("SPELLDAMAGEINCREASE", 0);
+  faster_casting = elem.remove_ushort("FASTERCASTING", 0);
+  faster_cast_recovery = elem.remove_ushort("FASTERCASTRECOVERY", 0);
+  defence_increase = elem.remove_ushort("DEFENCEINCREASE", 0);
+  defence_increase_cap = elem.remove_ushort("DEFENCEINCREASECAP", 0);
+  lower_mana_cost = elem.remove_ushort("LOWERMANACOST", 0);
+  hitchance = elem.remove_ushort("HITCHANCE", 0);
+  swingspeed = elem.remove_ushort("SWINGSPEED", 0);
+  resist_fire_cap = elem.remove_ushort("FIRERESISTCAP", 0);
+  resist_cold_cap = elem.remove_ushort("COLDRESISTCAP", 0);
+  resist_energy_cap = elem.remove_ushort("ENERGYRESISTCAP", 0);
+  resist_physical_cap = elem.remove_ushort("PHYSICALRESISTCAP", 0);
+  resist_poison_cap = elem.remove_ushort("POISONRESISTCAP", 0);
 
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
   if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
@@ -395,11 +408,191 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 	  {
 		  ERROR_PRINT << "Error loading itemdesc.cfg Lower Reagent Cost for "
 			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Elemental Resistances");
+		  throw std::runtime_error("Error loading Item Mods");
 	  }
-	  INFO_PRINT << "TEST1 " << temp << "\n";
 		  lower_reag_cost = dice.roll();
-		  INFO_PRINT << "TEST2 " << lower_reag_cost << "\n";
+  }
+
+  if (elem.remove_prop("SpellDamageIncrease", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg Spell Damage Increase for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  spell_damage_increase = dice.roll();
+  }
+
+  if (elem.remove_prop("FasterCasting", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg Faster Casting for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  faster_casting = dice.roll();
+  }
+
+  if (elem.remove_prop("FasterCastRecovery", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg Faster Cast Recovery for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  faster_cast_recovery = dice.roll();
+  }
+
+  if (elem.remove_prop("DefenceIncrease", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg Defence Increase for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  defence_increase = dice.roll();
+  }
+
+  if (elem.remove_prop("DefenceIncreaseCap", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg DefenceIncreaseCap for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  defence_increase_cap = dice.roll();
+  }
+
+  if (elem.remove_prop("LowerManaCost", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg LowerManaCost for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  lower_mana_cost = dice.roll();
+  }
+
+  if (elem.remove_prop("HitChance", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg HitChance for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  hitchance = dice.roll();
+  }
+
+  if (elem.remove_prop("SwingSpeed", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg SwingSpeed for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  swingspeed = dice.roll();
+  }
+
+  if (elem.remove_prop("DamageIncrease", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg DamageIncrease for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  damage_increase = dice.roll();
+  }
+
+  if (elem.remove_prop("FireResistCap", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg FireResistCap for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_fire_cap = dice.roll();
+  }
+
+  if (elem.remove_prop("ColdResistCap", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg ColdResistCap for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_cold_cap = dice.roll();
+  }
+
+  if (elem.remove_prop("EnergyResistCap", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg EnergyResistCap for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_energy_cap = dice.roll();
+  }
+
+  if (elem.remove_prop("PhysicalResistCap", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg PhysicalResistCap for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_physical_cap = dice.roll();
+  }
+
+  if (elem.remove_prop("PoisonResistCap", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg PoisonResistCap for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_poison_cap = dice.roll();
   }
 
   memset( &element_resist, 0, sizeof( element_resist ) );
@@ -658,7 +851,20 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "MaxHp", new BLong( maxhp ) );
   //new props
   descriptor->addMember("LowerReagentCost", new BLong(lower_reag_cost));
+  descriptor->addMember("SpellDamageIncrease", new BLong(spell_damage_increase));
+  descriptor->addMember("FasterCasting", new BLong(faster_casting));
+  descriptor->addMember("FasterCastRecovery", new BLong(faster_cast_recovery));
+  descriptor->addMember("DefenceIncrease", new BLong(defence_increase));
+  descriptor->addMember("DefenceIncreaseCap", new BLong(defence_increase_cap));
+  descriptor->addMember("LowerManaCost", new BLong(lower_mana_cost));
+  descriptor->addMember("HitChance", new BLong(hitchance));
+  descriptor->addMember("SwingSpeed", new BLong(swingspeed));
   descriptor->addMember("DamageIncrease", new BLong(damage_increase));
+  descriptor->addMember("FireResistCap", new BLong(resist_fire_cap));
+  descriptor->addMember("ColdResistCap", new BLong(resist_cold_cap));
+  descriptor->addMember("EnergyResistCap", new BLong(resist_energy_cap));
+  descriptor->addMember("PhysicalResistCap", new BLong(resist_physical_cap));
+  descriptor->addMember("PoisonResistCap", new BLong(resist_poison_cap));
 
 
   std::set<std::string>::const_iterator set_itr;
