@@ -137,6 +137,8 @@ bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( BObjectImp::OTBoolean ) )
+	return isTrue() == static_cast<const BBoolean&>(objimp).isTrue();
   else
     return false;
 }

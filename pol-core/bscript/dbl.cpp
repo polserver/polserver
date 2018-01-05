@@ -4,8 +4,8 @@
  */
 
 
-#include "bobject.h"
 #include "berror.h"
+#include "bobject.h"
 #include "impstr.h"
 
 #include "../clib/stlutil.h"
@@ -75,6 +75,10 @@ bool Double::operator==( const BObjectImp& objimp ) const
   {
     double diff = dval_ - ( (BLong&)objimp ).value();
     return fabs( diff ) < 0.00000001;
+  }
+  else if ( objimp.isa( OTBoolean ) )
+  {
+    return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   }
   else
   {

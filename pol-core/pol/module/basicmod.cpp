@@ -570,6 +570,23 @@ Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
   return new BLong( imp->typeOfInt() );
 }
 
+Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
+{
+  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
+  if ( imp->isa( Bscript::BObjectImp::OTLong ) )
+  {
+    BLong* plong = static_cast<BLong*>( imp );
+    return new BBoolean(plong->value() != 0);
+  }
+  else if ( imp->isa( Bscript::BObjectImp::OTBoolean ) )
+  {
+	return new BBoolean(*static_cast<BBoolean*>(imp));
+  }
+  else
+  {
+    return new BError( "Boolean() expects an Integer or Boolean" );
+  }
+}
 } // namespace Module
 
 namespace Bscript
@@ -601,6 +618,7 @@ TmplExecutorModule<BasicExecutorModule>::FunctionTable
         {"Unpack", &BasicExecutorModule::mf_Unpack},
         {"TypeOf", &BasicExecutorModule::mf_TypeOf},
         {"SizeOf", &BasicExecutorModule::mf_SizeOf},
-        {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt}};
+        {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt},
+        {"Boolean", &BasicExecutorModule::mf_Boolean}};
 }
 }

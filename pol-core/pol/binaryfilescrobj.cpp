@@ -321,6 +321,8 @@ bool BBinaryfile::operator==( const Bscript::BObjectImp& objimp ) const
     if ( ( (BBinaryfile&)objimp )._filename == _filename )
       return true;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
   return false;
 }
 
