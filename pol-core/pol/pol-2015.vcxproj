@@ -97,10 +97,16 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\lib\json-3.0.1\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\lib\json-3.0.1\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>..\..\lib\json-3.0.1\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>..\..\lib\json-3.0.1\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>

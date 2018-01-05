@@ -99,3 +99,5 @@ Unpack( str );
 TypeOf( expr ); // returns "Integer", "Real" etc
 SizeOf( expr ); // returns estimate of memory used
 TypeOfInt( expr ); // returns Integer representation of TypeOf string
+PackJSON( expr ); 
+UnpackJSON( jsonStr );

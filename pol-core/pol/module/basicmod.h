@@ -48,6 +48,9 @@ public:
   Bscript::BObjectImp* mf_TypeOf();
   Bscript::BObjectImp* mf_SizeOf();
   Bscript::BObjectImp* mf_TypeOfInt();
+  Bscript::BObjectImp* mf_PackJSON();
+  Bscript::BObjectImp* mf_UnpackJSON();
+
 
   BasicExecutorModule( Bscript::Executor& exec );
 };

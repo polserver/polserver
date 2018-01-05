@@ -18,9 +18,11 @@
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
+#include "../../bscript/dict.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 
+#include <picojson.h>
 #include <cstdio>
 #include <cstring>
 
@@ -570,6 +572,110 @@ Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
   return new BLong( imp->typeOfInt() );
 }
 
+picojson::value recurse2(Bscript::BObjectImp* v) {
+	if (v->isa(Bscript::BObjectImp::OTString)) {
+		return picojson::value(v->getStringRep());
+	} 
+	else if (v->isa(Bscript::BObjectImp::OTLong)) {
+		int intVal = static_cast<BLong*>(v)->value();
+		return picojson::value(static_cast<double>(intVal));
+	}
+	else if (v->isa(Bscript::BObjectImp::OTDouble)) {
+		return picojson::value(static_cast<Double*>(v)->value());
+	}
+	else if (v->isa(Bscript::BObjectImp::OTArray)) {
+		ObjArray *arr = static_cast<Bscript::ObjArray*>(v);
+		picojson::array jsonArr;
+
+		for (std::vector<BObjectRef>::iterator itr = arr->ref_arr.begin(); itr != arr->ref_arr.end(); ++itr)
+		{
+			BObject* bo = (itr->get());
+			if (bo == nullptr)
+				continue;
+			Bscript::BObjectImp* imp = bo->impptr();
+			jsonArr.push_back(recurse2(imp));
+		}
+		return picojson::value(jsonArr);
+	}
+	else if (v->isa(Bscript::BObjectImp::OTStruct)) {
+		BStruct *bstruct = static_cast<Bscript::BStruct*>(v);
+		picojson::object jsonObj;
+		for (const auto& content : bstruct->contents())
+		{
+			BObjectImp* imp = content.second->impptr();
+			jsonObj.insert(std::pair<std::string, picojson::value>( content.first , recurse2(imp)));
+
+		}
+		return picojson::value(jsonObj);
+	} 
+	else if (v->isa(Bscript::BObjectImp::OTDictionary)) {
+		
+		
+		Bscript::BDictionary* cpropdict = static_cast<Bscript::BDictionary*>(v);
+		picojson::object jsonObj;
+		for (const auto& content : cpropdict->contents())
+		{
+			BObjectImp* imp = content.second->impptr();
+			jsonObj.insert(std::pair<std::string, picojson::value>(content.first->getStringRep(), recurse2(imp)));
+
+		}
+		return picojson::value(jsonObj);
+	}
+	return picojson::value();
+}
+Bscript::BObjectImp* BasicExecutorModule::mf_PackJSON()
+{
+	Bscript::BObjectImp* imp = exec.getParamImp(0);
+	return new String(recurse2(imp).serialize());
+}
+
+
+Bscript::BObjectImp* recurse(picojson::value v) {
+	if (v.is<std::string>()) {
+		return new String(v.get<std::string>());
+	}
+	else if (v.is<double>()) {
+		// Possible improvement: separate into BLong and Double
+		return new Double(v.get<double>());
+	} 
+	else if (v.is<picojson::array>()) {
+		std::unique_ptr<ObjArray> objarr(new ObjArray);
+		picojson::array arr = v.get<picojson::array>();
+		for (auto elem : arr) {
+			objarr->addElement(recurse(elem));
+		}
+		return objarr.release();
+	} 
+	else if (v.is<picojson::object>()) {
+		std::unique_ptr<BStruct> objstruct(new BStruct);
+		for (const auto& content : v.get<picojson::object>())
+		{
+			objstruct->addMember(content.first.c_str(), recurse(content.second) );
+		}
+		return objstruct.release();
+	}
+	else return UninitObject::create();
+}
+
+Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
+{
+	const String* str;
+
+	if (exec.getStringParam(0, str))
+	{
+		picojson::value v;
+		std::string err = picojson::parse(v, str->data() );
+		if (!err.empty()) {
+			return new BError(err);
+		}
+		return recurse(v);
+	}
+	else
+	{
+		return new BError("Invalid parameter type");
+	}
+}
+
 } // namespace Module
 
 namespace Bscript
@@ -577,30 +683,32 @@ namespace Bscript
 using namespace Module;
 template <>
 TmplExecutorModule<BasicExecutorModule>::FunctionTable
-    TmplExecutorModule<BasicExecutorModule>::function_table = {
-        {"find", &BasicExecutorModule::find},
-        {"len", &BasicExecutorModule::len},
-        {"upper", &BasicExecutorModule::upper},
-        {"lower", &BasicExecutorModule::lower},
-        {"Substr", &BasicExecutorModule::mf_substr},
-        {"Trim", &BasicExecutorModule::mf_Trim},
-        {"StrReplace", &BasicExecutorModule::mf_StrReplace},
-        {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace},
-        {"Compare", &BasicExecutorModule::mf_Compare},
-        {"CInt", &BasicExecutorModule::mf_CInt},
-        {"CStr", &BasicExecutorModule::mf_CStr},
-        {"CDbl", &BasicExecutorModule::mf_CDbl},
-        {"CAsc", &BasicExecutorModule::mf_CAsc},
-        {"CChr", &BasicExecutorModule::mf_CChr},
-        {"CAscZ", &BasicExecutorModule::mf_CAscZ},
-        {"CChrZ", &BasicExecutorModule::mf_CChrZ},
-        {"Bin", &BasicExecutorModule::mf_Bin},
-        {"Hex", &BasicExecutorModule::mf_Hex},
-        {"SplitWords", &BasicExecutorModule::mf_SplitWords},
-        {"Pack", &BasicExecutorModule::mf_Pack},
-        {"Unpack", &BasicExecutorModule::mf_Unpack},
-        {"TypeOf", &BasicExecutorModule::mf_TypeOf},
-        {"SizeOf", &BasicExecutorModule::mf_SizeOf},
-        {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt}};
+TmplExecutorModule<BasicExecutorModule>::function_table = {
+	{"find", &BasicExecutorModule::find},
+	{"len", &BasicExecutorModule::len},
+	{"upper", &BasicExecutorModule::upper},
+	{"lower", &BasicExecutorModule::lower},
+	{"Substr", &BasicExecutorModule::mf_substr},
+	{"Trim", &BasicExecutorModule::mf_Trim},
+	{"StrReplace", &BasicExecutorModule::mf_StrReplace},
+	{"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace},
+	{"Compare", &BasicExecutorModule::mf_Compare},
+	{"CInt", &BasicExecutorModule::mf_CInt},
+	{"CStr", &BasicExecutorModule::mf_CStr},
+	{"CDbl", &BasicExecutorModule::mf_CDbl},
+	{"CAsc", &BasicExecutorModule::mf_CAsc},
+	{"CChr", &BasicExecutorModule::mf_CChr},
+	{"CAscZ", &BasicExecutorModule::mf_CAscZ},
+	{"CChrZ", &BasicExecutorModule::mf_CChrZ},
+	{"Bin", &BasicExecutorModule::mf_Bin},
+	{"Hex", &BasicExecutorModule::mf_Hex},
+	{"SplitWords", &BasicExecutorModule::mf_SplitWords},
+	{"Pack", &BasicExecutorModule::mf_Pack},
+	{"Unpack", &BasicExecutorModule::mf_Unpack},
+	{"TypeOf", &BasicExecutorModule::mf_TypeOf},
+	{"SizeOf", &BasicExecutorModule::mf_SizeOf},
+	{"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt},
+	{"PackJSON", &BasicExecutorModule::mf_PackJSON},
+	{"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON } };
 }
 }
