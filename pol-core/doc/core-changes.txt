@@ -1,5 +1,9 @@
 ﻿-- POL099 --
-01-04-2017 Kevin:
+01-05-2018 Turley:
+  Added:   fileaccess.cfg Directory entry
+           Can be definied multiple times in package syntax.
+           ::config means config rootfolder, :mypkg:test means subfolder test of mypkg. Has only a meaning if AllowRemote is given. Limits the access to given folder and its subfolders.
+01-04-2018 Kevin:
   Added:   os::HTTPRequest(url, method := "GET", options := struct{})
            Creates an HTTP request, and returns the returned data as a string.
 12-23-2017 Turley:

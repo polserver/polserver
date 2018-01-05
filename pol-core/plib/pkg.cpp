@@ -389,11 +389,11 @@ void check_package_deps()
     check_deps_for_package( pkg );
 }
 
-void load_packages()
+void load_packages( bool quiet )
 {
   test_check_version();
 
-  load_packages( "pkg/" );
+  load_packages( "pkg/", quiet );
 
   if ( Clib::FileExists( "config/pkgroots.cfg" ) )
   {
@@ -406,7 +406,7 @@ void load_packages()
       {
         dir = Clib::normalized_dir_form( dir );
         INFO_PRINT << "Searching for packages under " << dir << "\n";
-        load_packages( dir.c_str() );
+        load_packages( dir.c_str(), quiet );
       }
     }
   }

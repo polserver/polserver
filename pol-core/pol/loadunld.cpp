@@ -35,10 +35,6 @@
 
 namespace Pol
 {
-namespace Plib
-{
-void load_packages();
-}
 namespace Items
 {
 void preload_test_scripts();

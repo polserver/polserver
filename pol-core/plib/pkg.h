@@ -97,6 +97,7 @@ void load_packaged_cfgs( const char* cfgname, const char* taglist,
 void load_all_cfgs( const char* cfgname, const char* taglist,
                     void ( *loadentry )( const Package*, Clib::ConfigElem& ) );
 
+void load_packages( bool quiet = false );
 void load_packages( const std::string& basedir, bool quiet = false );
 void replace_packages();
 void check_package_deps();
