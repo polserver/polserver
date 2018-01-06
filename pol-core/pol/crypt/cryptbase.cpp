@@ -38,8 +38,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <memory.h>
+#include <string.h>
+
 #include "cryptbase.h"
+
 namespace Pol
 {
 namespace Crypt

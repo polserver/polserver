@@ -1,7 +1,13 @@
-#include <memory.h>
-#include "crypt.h"
-#include "logincrypt.h"
+#include <sys/socket.h>
+
 #include "../../clib/passert.h"
+#include "crypt.h"
+#include "../uconst.h"
+#include "blowfish.h"
+#include "cryptbase.h"
+#include "md5.h"
+#include "twofish.h"
+#include "logincrypt.h"
 
 // NOCRYPT
 namespace Pol

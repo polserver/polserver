@@ -7,17 +7,17 @@
 
 #include "binaryfilescrobj.h"
 
-#include "../clib/strutil.h"
-#include "../clib/clib_endian.h"
-
-#include "../bscript/executor.h"
-#include "../bscript/berror.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-
+#include <stddef.h>
 #include <fstream>
 
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
+#include "../clib/clib_endian.h"
+#include "../bscript/bobject.h"
+#include "../bscript/berror.h"
+#include "../bscript/executor.h"
+#include "../bscript/impstr.h"
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {

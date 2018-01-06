@@ -16,9 +16,10 @@
 
 #include "cryptkey.h"
 
+#include <cstring>
+
 #include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
-#include <cstring>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // strnicmp POSIX deprecation warning

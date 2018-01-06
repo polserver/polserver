@@ -17,12 +17,14 @@
 #include "pol_global_config.h"
 #endif
 
-#include "../clib/maputil.h"
-#include "../clib/refptr.h"
-#include "../clib/boostutils.h"
-
+#include <time.h>
 #include <map>
 #include <string>
+#include <utility>
+
+#include "../clib/boostutils.h"
+#include "../clib/maputil.h"
+#include "../clib/refptr.h"
 
 namespace Pol
 {
@@ -32,8 +34,8 @@ class BObjectImp;
 }
 namespace Clib
 {
-class ConfigFile;
 class ConfigElem;
+class ConfigFile;
 }
 namespace Core
 {

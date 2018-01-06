@@ -1,5 +1,7 @@
-#include <memory.h>
+#include <string.h>
+
 #include "blowfish.h"
+#include "cryptbase.h"
 
 // Crypt Boxes
 namespace Pol

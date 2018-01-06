@@ -1,8 +1,8 @@
-#include <memory.h>
 #include <string.h>
-#include "twofish.h"
-#include "cryptbase.h"
+
 #include "../../clib/passert.h"
+#include "twofish.h"
+
 namespace Pol
 {
 namespace Crypt

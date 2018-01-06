@@ -4,12 +4,13 @@
 #define __CLFUNC_H
 
 
-#include "../clib/rawtypes.h"
-
-#include "network/packets.h"
-
 // this is for NULLs found..
 #include <cstddef>
+
+#include "../clib/rawtypes.h"
+#include "network/packets.h"
+#include "uconst.h"
+
 namespace Pol
 {
 namespace Network

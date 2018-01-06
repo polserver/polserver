@@ -6,32 +6,35 @@
 
 #include "console.h"
 
-#include "../bscript/eprog.h"
-#include "../bscript/impstr.h"
+#include <ctype.h>
+#include <stddef.h>
 
 #include "../clib/cfgelem.h"
+#include "../bscript/eprog.h"
+#include "../bscript/impstr.h"
 #include "../clib/cfgfile.h"
-#include "../clib/kbhit.h"
 #include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
+#include "../clib/kbhit.h"
 #include "../clib/logfacility.h"
-
+#include "../clib/stlutil.h"
+#include "../../lib/format/format.h"
+#include "../clib/refptr.h"
 #include "../plib/systemstate.h"
-
-#include "polcfg.h"
+#include "polsig.h"
+#include "globals/state.h"
+#include "globals/uvars.h"
 #include "polsem.h"
 #include "scrdef.h"
-#include "scrsched.h"
 #include "scrstore.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
+#include "scrsched.h"
 
 #ifdef _WIN32
 #include <conio.h>
 #endif
 
-#include <string>
+#include <exception>
 #include <stdexcept>
+#include <string>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // POSIX deprecation warning getch()

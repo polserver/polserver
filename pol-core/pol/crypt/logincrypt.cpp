@@ -1,7 +1,6 @@
-#include <memory.h>
+#include <string.h>
+
 #include "logincrypt.h"
-#include "crypt.h"
-#include "cryptbase.h"
 
 namespace Pol
 {

@@ -6,9 +6,8 @@
 
 #include "checkpnt.h"
 
-#include "../plib/systemstate.h"
 #include "../clib/logfacility.h"
-
+#include "../plib/systemstate.h"
 #include "globals/state.h"
 
 namespace Pol

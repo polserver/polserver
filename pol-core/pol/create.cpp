@@ -10,52 +10,47 @@
  */
 
 
-#include "../clib/clib_endian.h"
-#include "../clib/fdump.h"
-#include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/strutil.h"
+#include <stdlib.h>
+#include <string>
 
 #include "../plib/systemstate.h"
-
 #include "accounts/account.h"
+#include "../../lib/format/format.h"
+#include "../clib/refptr.h"
+#include "gameclck.h"
+#include "../clib/rawtypes.h"
+#include "clidata.h"
+#include "uoclient.h"
+#include "uoexec.h"
+#include "uoskills.h"
+#include "globals/network.h"
+#include "globals/uvars.h"
+#include "layers.h"
+#include "item/item.h"
+#include "containr.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
-#include "clidata.h"
-#include "network/client.h"
-#include "gameclck.h"
-#include "layers.h"
+#include "../clib/clib_endian.h"
+#include "../clib/logfacility.h"
+#include "pktdef.h"
+#include "uconst.h"
 #include "mkscrobj.h"
-#include "network/msgfiltr.h"
-#include "network/msghandl.h"
+#include "network/client.h"
 #include "objtype.h"
 #include "pktin.h"
 #include "polcfg.h"
-#include "realms.h"
-#include "realms/realm.h"
-#include "scrdef.h"
-#include "skilladv.h"
-#include "sockio.h"
+#include "realms/WorldChangeReasons.h"
+#include "skillid.h"
 #include "startloc.h"
-#include "uconst.h"
 #include "ufunc.h"
-#include "uoskills.h"
-#include "globals/uvars.h"
-#include "globals/object_storage.h"
-#include "globals/network.h"
 #include "uworld.h"
-
-#include "../bscript/bobject.h"
-#include "module/osmod.h"
-#include "scrsched.h"
 #include "scrstore.h"
-#include "uoexec.h"
+#include "scrsched.h"
+#include "module/osmod.h"
 #include "module/uomod.h"
-#include "containr.h"
 #include "mobile/wornitems.h"
+#include "globals/object_storage.h"
 
-#include <iostream>
-#include <string>
 
 namespace Pol
 {

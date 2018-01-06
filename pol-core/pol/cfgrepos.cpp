@@ -16,30 +16,25 @@
 
 
 #include "cfgrepos.h"
-#include "polcfg.h"
+
+#include <ctype.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <exception>
+#include <iosfwd>
 
 #include "../bscript/bobject.h"
 #include "../bscript/escrutil.h"
 #include "../bscript/impstr.h"
-
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/strutil.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/strutil.h"
-
-#include "../plib/pkg.h"
 #include "../plib/systemstate.h"
-
+#include "../plib/pkg.h"
 #include "globals/ucfg.h"
-
-#include <sys/stat.h>
-#if !defined( _WIN32 )
-#include <sys/types.h>
-#endif
-
-#include <vector>
-#include <stdexcept>
+#include "polcfg.h"
 
 namespace Pol
 {

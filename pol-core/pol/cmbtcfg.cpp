@@ -10,14 +10,13 @@
 
 
 #include "cmbtcfg.h"
-#include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-
 #include "globals/settings.h"
+#include "../plib/systemstate.h"
 
 namespace Pol
 {

@@ -22,30 +22,25 @@
 
 #include "acscrobj.h"
 
-#include "account.h"
-#include "accounts.h"
+#include <stddef.h>
+#include <string>
 
-#include "../../clib/clib_MD5.h"
-
-#include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
+#include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-
 #include "../../plib/systemstate.h"
-
-#include "../mobile/charactr.h"
-#include "../network/client.h"
-#include "../cmdlevel.h"
-#include "../core.h"
-#include "../objecthash.h"
+#include "../../clib/clib_MD5.h"
 #include "../polcfg.h"
-#include "../realms.h"
 #include "../ufunc.h"
 #include "../uoscrobj.h"
-#include "../uoexhelp.h"
 #include "../globals/uvars.h"
+#include "account.h"
+#include "accounts.h"
+#include "../core.h"
+#include "../mobile/charactr.h"
+#include "../network/client.h"
 
 namespace Pol
 {

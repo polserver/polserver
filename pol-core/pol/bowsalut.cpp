@@ -6,27 +6,23 @@
  */
 
 
-#include "action.h"
+#include <string.h>
+#include <string>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
-#include "../clib/strutil.h"
 #include "../clib/stlutil.h"
-#include "../clib/logfacility.h"
-
+#include "../clib/rawtypes.h"
+#include "../clib/clib.h"
+#include "globals/uvars.h"
 #include "mobile/charactr.h"
+#include "../clib/logfacility.h"
+#include "action.h"
 #include "network/client.h"
-#include "network/packets.h"
 #include "network/packetdefs.h"
 #include "pktin.h"
-#include "pktdef.h"
-#include "uobject.h"
-#include "globals/uvars.h"
 #include "uworld.h"
-#include "ufunc.h"
-#include "sockio.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp deprecation warning

@@ -22,35 +22,28 @@
 
 #include "containr.h"
 
-#include "../clib/cfgfile.h"
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
-#include "../clib/streamsaver.h"
-#include "../clib/passert.h"
-#include "../clib/random.h"
-#include "../clib/stlutil.h"
+#include <assert.h>
+#include <cstddef>
 
-#include "network/client.h"
-#include "mobile/charactr.h"
-#include "core.h"
-#include "item/equipmnt.h"
+#include "../clib/cfgelem.h"
+#include "../clib/random.h"
+#include "../clib/streamsaver.h"
+#include "globals/state.h"
+#include "profile.h"
+#include "scrdef.h"
 #include "item/itemdesc.h"
-#include "multi/multi.h"
+#include "uobject.h"
+#include "mobile/charactr.h"
+#include "uconst.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "network/client.h"
 #include "statmsg.h"
-#include "globals/ucfg.h"
 #include "ufunc.h"
 #include "umanip.h"
-#include "globals/uvars.h"
-#include "globals/settings.h"
-#include "globals/state.h"
-#include "uworld.h"
-#include "objtype.h"
-#include "sockio.h"
-#include "scrsched.h"
 #include "uoscrobj.h"
-
-#include <climits>
-#include <cstddef>
+#include "uworld.h"
+#include "scrsched.h"
 
 
 namespace Pol

@@ -9,10 +9,18 @@
 #define ACSCROBJ_H
 
 #include "../reftypes.h"
+#include "../../clib/rawtypes.h"
+#include "../bscript/bobject.h"
+#include "../clib/compilerspecifics.h"
 
-#ifndef BSCRIPT_BOBJECT_H
-#include "../../bscript/bobject.h"
-#endif
+namespace Pol {
+namespace Accounts {
+class Account;
+}  // namespace Accounts
+namespace Bscript {
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {
