@@ -7,8 +7,8 @@
 #ifndef PLIB_REALMDESCRIPTOR_H
 #define PLIB_REALMDESCRIPTOR_H
 
-#include <string>
 #include <cstddef>
+#include <string>
 
 namespace Pol
 {

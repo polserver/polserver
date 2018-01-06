@@ -13,12 +13,12 @@
 // FILE: MSJEXHND.CPP
 //==========================================
 
-#include <tchar.h>
 #include "msjexhnd.h"
-#include <imagehlp.h>
-#include <algorithm>
-#include <stdio.h>
 #include "logfacility.h"
+#include <algorithm>
+#include <imagehlp.h>
+#include <stdio.h>
+#include <tchar.h>
 
 namespace Pol
 {

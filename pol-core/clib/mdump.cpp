@@ -6,11 +6,11 @@
  */
 
 #include "mdump.h"
-#include "strexcpt.h"
-#include "passert.h"
-#include "logfacility.h"
-#include "threadhelp.h"
 #include "clib.h"
+#include "logfacility.h"
+#include "passert.h"
+#include "strexcpt.h"
+#include "threadhelp.h"
 
 #pragma warning( disable : 4091 )  // unused typedef
 #include "../../lib/StackWalker/StackWalker.h"
@@ -181,15 +181,15 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
       }
       else
       {
-        result.Format( "Failed to save dump file to '{}' (error {})" ) << dumppath.str()
-                                                                       << GetLastError();
+        result.Format( "Failed to save dump file to '{}' (error {})" )
+            << dumppath.str() << GetLastError();
       }
       ::CloseHandle( hFile );
     }
     else
     {
-      result.Format( "Failed to create dump file '{}' (error {})" ) << dumppath.str()
-                                                                    << GetLastError();
+      result.Format( "Failed to create dump file '{}' (error {})" )
+          << dumppath.str() << GetLastError();
     }
   }
   print_backtrace();
@@ -198,8 +198,8 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
   if ( result.size() > 0 )
   {
-    POLLOG_ERROR << "##########################################################\n" << result.str()
-                 << "\n"
+    POLLOG_ERROR << "##########################################################\n"
+                 << result.str() << "\n"
                  << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC
                  << "\n##########################################################\n";
   }

@@ -16,8 +16,21 @@
 #include "bobject.h"
 #endif
 
-#include <map>
 #include <iosfwd>
+#include <map>
+#include <string>
+
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class ContIterator;
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {

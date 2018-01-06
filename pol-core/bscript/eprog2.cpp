@@ -4,20 +4,24 @@
  */
 
 
-// EPROG compiler-only functions
-#include "eprog.h"
-#include "escriptv.h"
-#include "filefmt.h"
-#include "fmodule.h"
-#include "parser.h"
-#include "userfunc.h"
+#include <stdio.h>
+#include <string.h>
+#include <string>
 
 #include "../clib/clib.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
-
-#include <stdexcept>
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
+#include "compctx.h"
+// EPROG compiler-only functions
+#include "eprog.h"
+#include "filefmt.h"
+#include "fmodule.h"
+#include "symcont.h"
+#include "token.h"
+#include "tokens.h"
+#include "userfunc.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecated POSIX fopen warning

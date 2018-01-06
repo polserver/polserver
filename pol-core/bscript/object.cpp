@@ -8,27 +8,27 @@
  * - 2009/12/21 Turley:    ._method() call fix
  */
 
-#include "bobject.h"
-#include "objmembers.h"
-#include "objmethods.h"
+#include <assert.h>
+#include <istream>
+#include <stddef.h>
+#include <string>
 
+#include "../clib/clib.h"
+#include "../clib/fixalloc.h"
+#include "../clib/logfacility.h"
+#include "../clib/random.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "../clib/stlutil.h"
 #include "berror.h"
+#include "bobject.h"
 #include "bstruct.h"
 #include "dict.h"
-#include "escriptv.h"
 #include "executor.h"
 #include "impstr.h"
 #include "object.h"
-
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/stlutil.h"
-
-#include <istream>
-#include <mutex>
-#include <ostream>
-#include <string>
+#include "objmembers.h"
+#include "objmethods.h"
 
 #if BOBJECTIMP_DEBUG
 #include <unordered_map>

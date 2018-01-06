@@ -15,36 +15,28 @@
 
 #include "executor.h"
 
-#include "berror.h"
-#include "config.h"
-#include "execmodl.h"
-
-#include "bstruct.h"
-#include "dict.h"
-#include "escriptv.h"
-#include "eprog.h"
-#include "impstr.h"
-#include "modules.h"
-#include "token.h"
-#include "tokens.h"
-#include "operator.h"
-#include "contiter.h"
-#include "filefmt.h"
-#include "fmodule.h"
-
 #include "../clib/clib.h"
+#include "../clib/compilerspecifics.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
-#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "berror.h"
+#include "config.h"
+#include "contiter.h"
+#include "dict.h"
+#include "eprog.h"
+#include "escriptv.h"
+#include "execmodl.h"
+#include "fmodule.h"
+#include "impstr.h"
+#include "token.h"
+#include "tokens.h"
 #ifdef MEMORYLEAK
 #include "../clib/mlog.h"
 #endif
 
-#include <climits>
 #include <cstdlib>
-#include <stdexcept>
-#include <stack>
+#include <exception>
 
 #ifdef ESCRIPT_PROFILE
 #ifdef _WIN32
@@ -476,7 +468,7 @@ bool Executor::getObjArrayParam( unsigned param, ObjArray*& pobjarr )
 void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type )
 {
   BApplicPtr* ap =
-      EXPLICIT_CAST(BApplicPtr*, BObjectImp*)( getParamImp( param, BObjectImp::OTApplicPtr ) );
+      EXPLICIT_CAST( BApplicPtr*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicPtr ) );
   if ( ap == NULL )
     return NULL;
 
@@ -499,8 +491,8 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
 
 BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjType* object_type )
 {
-  BApplicObjBase* aob =
-      EXPLICIT_CAST(BApplicObjBase*, BObjectImp*)( getParamImp( param, BObjectImp::OTApplicObj ) );
+  BApplicObjBase* aob = EXPLICIT_CAST(
+      BApplicObjBase*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicObj ) );
   if ( aob == NULL )
     return NULL;
 
@@ -955,9 +947,7 @@ BObjectRef Executor::checkmember( BObject& left, const BObject& right )
 }
 
 
-ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown )
-{
-}
+ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown ) {}
 BObject* ContIterator::step()
 {
   return NULL;
@@ -2544,8 +2534,8 @@ void Executor::innerExec( const Instruction& ins )
   const Token& token = ins.token;
 
   // this seems an ideal place for a table of function pointers ...
-  POLLOG.Format( "Script {} used undefined token {} at PC {}\n" ) << scriptname() << ins.token.id
-                                                                  << PC;
+  POLLOG.Format( "Script {} used undefined token {} at PC {}\n" )
+      << scriptname() << ins.token.id << PC;
 
   switch ( ins.token.id )
   {
@@ -3062,9 +3052,7 @@ void Executor::innerExec( const Instruction& ins )
   return;
 }
 
-void Executor::ins_nop( const Instruction& /*ins*/ )
-{
-}
+void Executor::ins_nop( const Instruction& /*ins*/ ) {}
 
 ExecInstrFunc Executor::GetInstrFunc( const Token& token )
 {
@@ -3445,7 +3433,7 @@ bool Executor::exec()
   passert( !error_ );
 
   Clib::scripts_thread_script = scriptname();
-  
+
   set_running_to_completion( true );
   while ( runnable() )
   {

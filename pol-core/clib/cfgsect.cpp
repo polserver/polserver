@@ -9,8 +9,6 @@
 #include "cfgelem.h"
 #include "cfgfile.h"
 
-#include <stdexcept>
-
 namespace Pol
 {
 namespace Clib

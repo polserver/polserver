@@ -23,32 +23,39 @@
 #include "bobject.h"
 #endif
 
-#include "eprog.h"
-
-#include "../clib/spinlock.h"
-
-#include <stack>
-#include <set>
-#include <vector>
 #include <exception>
 #include <memory>
+#include <set>
+#include <stack>
+#include <string>
+#include <vector>
+
+#include "../../lib/format/format.h"
+#include "../clib/refptr.h"
+#include "../clib/spinlock.h"
+#include "bobject.h"
+#include "eprog.h"
+#include "executortype.h"
+
 
 namespace Pol
 {
 namespace Core
 {
 class UOExecutor;
+
 void list_script( UOExecutor* uoexec );
 }
 namespace Bscript
 {
 class Executor;
+class ExecutorModule;
+class ModuleFunction;
 class String;
 class Token;
-class ModuleFunction;
-class ExecutorModule;
 #ifdef ESCRIPT_PROFILE
 #include <map>
+
 struct profile_instr
 {
   unsigned long sum;
@@ -245,9 +252,9 @@ public:
   void ins_set_member( const Instruction& ins );
   void ins_set_member_consume( const Instruction& ins );
   void ins_get_member( const Instruction& ins );
-  void ins_get_member_id( const Instruction& ins );  // test id
-  void ins_set_member_id( const Instruction& ins );  // test id
-  void ins_set_member_id_consume( const Instruction& ins );  // test id
+  void ins_get_member_id( const Instruction& ins );                       // test id
+  void ins_set_member_id( const Instruction& ins );                       // test id
+  void ins_set_member_id_consume( const Instruction& ins );               // test id
   void ins_set_member_id_consume_plusequal( const Instruction& ins );     // test id
   void ins_set_member_id_consume_minusequal( const Instruction& ins );    // test id
   void ins_set_member_id_consume_timesequal( const Instruction& ins );    // test id
@@ -372,7 +379,7 @@ private:
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;
   bool viewmode_;
-  
+
   bool runs_to_completion_;
 
   bool debugging_;
@@ -468,7 +475,6 @@ inline void Executor::set_running_to_completion( bool to_completion )
 {
   runs_to_completion_ = to_completion;
 }
-
 }
 }
 #endif

@@ -12,13 +12,22 @@
 #include "bobject.h"
 #endif
 
-#include "../clib/boostutils.h"
-#include "../clib/maputil.h"
-#include "executor.h"
-
 #include <map>
 #include <string>
 #include <vector>
+
+#include "../clib/boostutils.h"
+#include "../clib/compilerspecifics.h"
+#include "../clib/maputil.h"
+#include "executor.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 
 #ifdef _MSC_VER
 #pragma warning( push )
@@ -29,8 +38,8 @@ namespace Pol
 {
 namespace Bscript
 {
-class String;
 class ExecutorModule;
+class String;
 
 typedef BObject* ( ExecutorModule::*ExecutorModuleFn )();
 

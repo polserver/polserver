@@ -7,17 +7,17 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
-#include <vector>
-#include <map>
-#include <thread>
-#include <future>
-#include <memory>
-#include <fstream>
-#include <boost/noncopyable.hpp>
 #include "../../lib/format/format.h"
+#include <boost/noncopyable.hpp>
+#include <fstream>
+#include <future>
+#include <map>
+#include <memory>
+#include <thread>
+#include <vector>
 
-#include "compilerspecifics.h"
 #include "Debugging/LogSink.h"
+#include "compilerspecifics.h"
 
 namespace Pol
 {
@@ -173,6 +173,7 @@ public:
   ~Message();                         // auto flush
 
   fmt::Writer& message() { return *( _formater.get() ); }
+
 private:
   std::unique_ptr<fmt::Writer> _formater;
   std::string _id;

@@ -8,10 +8,22 @@
 #ifndef __PARSER_H
 #define __PARSER_H
 
-#include <string>
 #include <iosfwd>
+#include <stddef.h>
+#include <string>
 
 #include "../clib/compilerspecifics.h"
+#include "tokens.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class ModuleFunction;
+class Token;
+class UserFunction;
+}  // namespace Bscript
+}  // namespace Pol
 
 #ifndef __TOKEN_H
 #include "token.h"
@@ -23,13 +35,14 @@
 #include <queue>
 #include <stack>
 #include <vector>
+
 namespace Pol
 {
 namespace Bscript
 {
 class CompilerContext;
-typedef enum
-{
+
+typedef enum {
   PERR_NONE,
   PERR_UNEXRPAREN,  // unexpected RIGHT Paren
   PERR_MISSLPAREN,
@@ -138,6 +151,7 @@ class SmartParser : public Parser
 {
 public:
   virtual ~SmartParser() {}
+
 protected:
   virtual int tryLiteral( Token& tok, CompilerContext& ctx ) POL_OVERRIDE;
 

@@ -1,8 +1,9 @@
 #include "ExceptionParser.h"
+
+#include "../../../lib/format/format.h"
 #include "../Program/ProgramConfig.h"
-#include "LogSink.h"
-#include "../threadhelp.h"
 #include "../logfacility.h"
+#include "../threadhelp.h"
 
 #ifdef WINDOWS
 #include "../pol_global_config_win.h"
@@ -10,20 +11,23 @@
 #include "pol_global_config.h"
 #endif
 
+#include <cstddef>
 #include <cstring>
+#include <errno.h>
+#include <features.h>
 #include <signal.h>
 #include <stdio.h>
-#include <errno.h>
-#include <inttypes.h>
+#include <stdlib.h>
+#include <sys/socket.h>
 
 #ifndef WINDOWS
 #include <arpa/inet.h>
+#include <cxxabi.h>
+#include <execinfo.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <execinfo.h>
-#include <cxxabi.h>
 #include <unistd.h>
-#include <sys/syscall.h>
+
 #define SOCKET int
 #else
 #include "../Header_Windows.h"
@@ -48,7 +52,8 @@ std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTi
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace {
+namespace
+{
 void getSignalDescription( int signal, string& signalName, string& signalDescription )
 {
   switch ( signal )
@@ -313,7 +318,7 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   closesocket( socketFD );
 #endif
 }
-} // namespace
+}  // namespace
 
 void ExceptionParser::reportProgramAbort( const string& stackTrace, const string& reason )
 {
@@ -432,15 +437,11 @@ void ExceptionParser::handleExceptionSignal( int signal )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ExceptionParser::ExceptionParser()
-{
-}
+ExceptionParser::ExceptionParser() {}
 
-ExceptionParser::~ExceptionParser()
-{
-}
+ExceptionParser::~ExceptionParser() {}
 
-///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WIN32
 string ExceptionParser::getTrace()
@@ -661,13 +662,9 @@ string ExceptionParser::getTrace()
   return result;
 }
 
-void ExceptionParser::logAllStackTraces()
-{
-}
+void ExceptionParser::logAllStackTraces() {}
 
-void ExceptionParser::initGlobalExceptionCatching()
-{
-}
+void ExceptionParser::initGlobalExceptionCatching() {}
 #endif  // _WIN32
 
 void ExceptionParser::configureProgramAbortReportingSystem( bool active, std::string server,

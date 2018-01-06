@@ -6,6 +6,9 @@
 
 #include "userfunc.h"
 
+#include <stddef.h>
+
+#include "../../lib/format/format.h"
 #include "../clib/logfacility.h"
 
 namespace Pol
@@ -49,8 +52,6 @@ UserFunction::UserFunction()
 {
 }
 
-UserFunction::~UserFunction()
-{
-}
+UserFunction::~UserFunction() {}
 }
 }

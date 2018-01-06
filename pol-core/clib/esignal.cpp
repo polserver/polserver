@@ -5,9 +5,6 @@
 
 
 #include "esignal.h"
-#include "logfacility.h"
-
-#include "Header_Windows.h"
 #ifndef WINDOWS
 #include <signal.h>
 #endif

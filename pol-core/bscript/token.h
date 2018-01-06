@@ -14,11 +14,12 @@
 #include "modules.h"
 #endif
 
-#include "options.h"
-#include "../../lib/format/format.h"
-
 #include <iosfwd>
 #include <set>
+
+#include "../../lib/format/format.h"
+#include "options.h"
+
 namespace Pol
 {
 namespace Bscript
@@ -38,15 +39,13 @@ public:
   BTokenId id;
   BTokenType type;
   double dval;
-  union
-  {
+  union {
     int precedence;
     int sourceFile;
   };
   int dbg_filenum;
   int dbg_linenum;
-  union
-  {
+  union {
     int lval;
     const unsigned char* dataptr;
   };

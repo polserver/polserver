@@ -5,9 +5,11 @@
 
 
 #include "fileutil.h"
-#include "dirlist.h"
 
+#include <limits.h>
 #include <sys/stat.h>
+
+#include "dirlist.h"
 
 #ifdef LINUX
 #include <unistd.h>

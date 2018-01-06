@@ -16,8 +16,8 @@
 #ifndef __STDDEF_H
 #include "stddef.h"
 #endif
-#include <ctime>
 #include "rawtypes.h"
+#include <ctime>
 
 /**
  * use instead of c-style (type) casts.
@@ -53,7 +53,7 @@ int match( char* a, char* b );
 char* strip( char* s );
 
 #ifdef __STDIO_H /* well there you go, not portable... why not standard the idempotent mechanism? \
-                    */
+                  */
 /** open a unique file in a directory, no sharing allowed, "w+b" */
 FILE* uniqfile( char* directory, char* pathname );
 #endif
@@ -140,7 +140,7 @@ private:
 
 
 /// threadsafe version of localtime
-inline std::tm localtime( const std::time_t &t )
+inline std::tm localtime( const std::time_t& t )
 {
   std::tm result;
 #ifdef _MSC_VER

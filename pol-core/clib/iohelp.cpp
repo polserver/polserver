@@ -6,7 +6,6 @@
 
 #include "iohelp.h"
 
-#include <fstream>
 #include <stdexcept>
 
 // note this is only useful if ofs.exceptions( std::ios_base::failbit | std::ios_base::badbit ) is

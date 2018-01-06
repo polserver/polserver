@@ -8,17 +8,17 @@
 #ifndef BSCRIPT_EPROG_H
 #define BSCRIPT_EPROG_H
 
-#include "symcont.h"
-#include "token.h"
-
-#include "../clib/refptr.h"
-#include "../clib/boostutils.h"
-
-#include "executortype.h"
-
 #include <iosfwd>
+#include <stdio.h>
 #include <string>
 #include <vector>
+
+#include "../clib/boostutils.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "executortype.h"
+#include "symcont.h"
+#include "token.h"
 
 namespace Pol
 {

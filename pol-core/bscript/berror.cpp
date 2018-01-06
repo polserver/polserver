@@ -5,8 +5,9 @@
 
 
 #include "berror.h"
-#include "impstr.h"
+
 #include "contiter.h"
+#include "impstr.h"
 
 namespace Pol
 {

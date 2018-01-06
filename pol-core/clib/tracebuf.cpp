@@ -5,7 +5,6 @@
 
 
 #include "tracebuf.h"
-#include "logfacility.h"
 
 namespace Pol
 {

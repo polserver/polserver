@@ -15,17 +15,17 @@
 
 #define _IMAGEHLP_
 
-#include <winsock2.h>  // has to be included before Windows.h
-#include <windows.h>
-#include <ws2tcpip.h>
+#include <Shellapi.h>
+#include <crtdbg.h>
+#include <dbghelp.h>
+#include <eh.h>
 #include <process.h>
 #include <psapi.h>
-#include <eh.h>
-#include <dbghelp.h>
-#include <crtdbg.h>
-#include <Shellapi.h>
+#include <windows.h>
+#include <winsock2.h>  // has to be included before Windows.h
+#include <ws2tcpip.h>
 
-#pragma warning( pop ) // unused typedef in dbghelp.h
+#pragma warning( pop )  // unused typedef in dbghelp.h
 
 //#define snprintf _snprintf
 
