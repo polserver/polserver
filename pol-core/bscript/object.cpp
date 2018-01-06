@@ -1807,13 +1807,13 @@ BObjectImp* BBoolean::unpack( std::istream& is )
 
 void BBoolean::packonto( std::ostream& os ) const
 {
-  os << "b" << bval_ ? 1 : 0;
+  os << "b" << ( bval_ ? 1 : 0 );
 }
 
 std::string BBoolean::pack() const
 {
   OSTRINGSTREAM os;
-  os << "b" << bval_ ? 1 : 0;
+  os << "b" << ( bval_ ? 1 : 0 );
   return OSTRINGSTREAM_STR( os );
 }
 
