@@ -2045,6 +2045,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       lastcoord->addMember( "lastz", new BLong( lastz ) );
       return lastcoord.release();
     }
+    break;
   case MBR_ACTIVE_SKILL:
     return new BLong( skill_ex_active() );
   case MBR_CASTING_SPELL:
