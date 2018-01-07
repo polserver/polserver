@@ -568,23 +568,26 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SizeOf()
 }
 Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
 {
-  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
+  BObjectImp* imp = exec.getParamImp( 0 );
   return new BLong( imp->typeOfInt() );
 }
 
-picojson::value recurse2(Bscript::BObjectImp* v) {
-	if (v->isa(Bscript::BObjectImp::OTString)) {
+picojson::value recurseE2J(BObjectImp* v) {
+	if (v->isa(BObjectImp::OTString)) {
 		return picojson::value(v->getStringRep());
 	} 
-	else if (v->isa(Bscript::BObjectImp::OTLong)) {
+	else if (v->isa(BObjectImp::OTLong)) {
 		int intVal = static_cast<BLong*>(v)->value();
 		return picojson::value(static_cast<double>(intVal));
 	}
-	else if (v->isa(Bscript::BObjectImp::OTDouble)) {
+	else if (v->isa(BObjectImp::OTDouble)) {
 		return picojson::value(static_cast<Double*>(v)->value());
 	}
-	else if (v->isa(Bscript::BObjectImp::OTArray)) {
-		ObjArray *arr = static_cast<Bscript::ObjArray*>(v);
+	else if (v->isa(BObjectImp::OTBoolean)) {
+		return picojson::value(static_cast<BBoolean*>(v)->value());
+	}
+	else if (v->isa(BObjectImp::OTArray)) {
+		ObjArray* arr = static_cast<ObjArray*>(v);
 		picojson::array jsonArr;
 
 		for (std::vector<BObjectRef>::iterator itr = arr->ref_arr.begin(); itr != arr->ref_arr.end(); ++itr)
@@ -592,31 +595,29 @@ picojson::value recurse2(Bscript::BObjectImp* v) {
 			BObject* bo = (itr->get());
 			if (bo == nullptr)
 				continue;
-			Bscript::BObjectImp* imp = bo->impptr();
-			jsonArr.push_back(recurse2(imp));
+			BObjectImp* imp = bo->impptr();
+			jsonArr.push_back(recurseE2J(imp));
 		}
 		return picojson::value(jsonArr);
 	}
-	else if (v->isa(Bscript::BObjectImp::OTStruct)) {
-		BStruct *bstruct = static_cast<Bscript::BStruct*>(v);
+	else if (v->isa(BObjectImp::OTStruct)) {
+		BStruct *bstruct = static_cast<BStruct*>(v);
 		picojson::object jsonObj;
 		for (const auto& content : bstruct->contents())
 		{
 			BObjectImp* imp = content.second->impptr();
-			jsonObj.insert(std::pair<std::string, picojson::value>( content.first , recurse2(imp)));
+			jsonObj.insert(std::pair<std::string, picojson::value>( content.first , recurseE2J(imp) ));
 
 		}
 		return picojson::value(jsonObj);
 	} 
-	else if (v->isa(Bscript::BObjectImp::OTDictionary)) {
-		
-		
-		Bscript::BDictionary* cpropdict = static_cast<Bscript::BDictionary*>(v);
+	else if (v->isa(BObjectImp::OTDictionary)) {
+		BDictionary* cpropdict = static_cast<Bscript::BDictionary*>(v);
 		picojson::object jsonObj;
 		for (const auto& content : cpropdict->contents())
 		{
 			BObjectImp* imp = content.second->impptr();
-			jsonObj.insert(std::pair<std::string, picojson::value>(content.first->getStringRep(), recurse2(imp)));
+			jsonObj.insert(std::pair<std::string, picojson::value>(content.first->getStringRep(), recurseE2J(imp)));
 
 		}
 		return picojson::value(jsonObj);
@@ -625,8 +626,8 @@ picojson::value recurse2(Bscript::BObjectImp* v) {
 }
 Bscript::BObjectImp* BasicExecutorModule::mf_PackJSON()
 {
-	Bscript::BObjectImp* imp = exec.getParamImp(0);
-	return new String(recurse2(imp).serialize());
+	BObjectImp* imp = exec.getParamImp(0);
+	return new String(recurseE2J(imp).serialize());
 }
 
 
@@ -638,6 +639,9 @@ Bscript::BObjectImp* recurse(picojson::value v) {
 		// Possible improvement: separate into BLong and Double
 		return new Double(v.get<double>());
 	} 
+	else if (v.is<bool>()) {
+		return new BBoolean(v.get<bool>());
+	}
 	else if (v.is<picojson::array>()) {
 		std::unique_ptr<ObjArray> objarr(new ObjArray);
 		picojson::array arr = v.get<picojson::array>();
