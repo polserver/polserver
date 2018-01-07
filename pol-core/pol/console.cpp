@@ -9,24 +9,24 @@
 #include <ctype.h>
 #include <stddef.h>
 
-#include "../clib/cfgelem.h"
+#include "../../lib/format/format.h"
 #include "../bscript/eprog.h"
 #include "../bscript/impstr.h"
+#include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/kbhit.h"
 #include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../../lib/format/format.h"
 #include "../clib/refptr.h"
+#include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
-#include "polsig.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
 #include "polsem.h"
+#include "polsig.h"
 #include "scrdef.h"
-#include "scrstore.h"
 #include "scrsched.h"
+#include "scrstore.h"
 
 #ifdef _WIN32
 #include <conio.h>

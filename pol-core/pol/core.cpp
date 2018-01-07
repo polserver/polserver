@@ -11,11 +11,12 @@
 #include <stddef.h>
 
 #include "../clib/compilerspecifics.h"
-#include "fnsearch.h"
-#include "mobile/charactr.h"
 #include "../clib/rawtypes.h"
+#include "fnsearch.h"
+#include "globals/uvars.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
+#include "mobile/charactr.h"
 #include "multi/house.h"
 #include "multi/multi.h"
 #include "network/cgdata.h"
@@ -23,7 +24,6 @@
 #include "realms/realm.h"
 #include "ufunc.h"
 #include "uworld.h"
-#include "globals/uvars.h"
 
 namespace Pol
 {

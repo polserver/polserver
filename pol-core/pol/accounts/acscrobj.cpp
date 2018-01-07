@@ -25,22 +25,22 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../bscript/executor.h"
 #include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-#include "../../plib/systemstate.h"
 #include "../../clib/clib_MD5.h"
+#include "../../plib/systemstate.h"
+#include "../core.h"
+#include "../globals/uvars.h"
+#include "../mobile/charactr.h"
+#include "../network/client.h"
 #include "../polcfg.h"
 #include "../ufunc.h"
 #include "../uoscrobj.h"
-#include "../globals/uvars.h"
 #include "account.h"
 #include "accounts.h"
-#include "../core.h"
-#include "../mobile/charactr.h"
-#include "../network/client.h"
 
 namespace Pol
 {
@@ -355,7 +355,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   }
   ///
-  /// account.Set_UO_Expansion( string ) : recognized values: TOL, HSA, SA, ML, SE, AOS, LBR, T2A (default)
+  /// account.Set_UO_Expansion( string ) : recognized values: TOL, HSA, SA, ML, SE, AOS, LBR, T2A
+  /// (default)
   ///  this determines what flag is sent with packet 0xB9 during login.
   ///
   case MTH_SET_UO_EXPANSION:
@@ -365,12 +366,11 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     const String* expansion_str;
     if ( ex.getStringParam( 0, expansion_str ) )
     {
-      if ( expansion_str->value().empty() ||
-		   ( expansion_str->value() == "TOL" ) || ( expansion_str->value() == "HSA" ) ||
-           ( expansion_str->value() == "SA" ) || ( expansion_str->value() == "KR" ) ||
-           ( expansion_str->value() == "ML" ) || ( expansion_str->value() == "SE" ) ||
-           ( expansion_str->value() == "AOS" ) || ( expansion_str->value() == "LBR" ) ||
-           ( expansion_str->value() == "T2A" ) )
+      if ( expansion_str->value().empty() || ( expansion_str->value() == "TOL" ) ||
+           ( expansion_str->value() == "HSA" ) || ( expansion_str->value() == "SA" ) ||
+           ( expansion_str->value() == "KR" ) || ( expansion_str->value() == "ML" ) ||
+           ( expansion_str->value() == "SE" ) || ( expansion_str->value() == "AOS" ) ||
+           ( expansion_str->value() == "LBR" ) || ( expansion_str->value() == "T2A" ) )
       {
         obj_->uo_expansion_ = obj_->convert_uo_expansion( expansion_str->value() );
         for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
@@ -382,7 +382,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       }
       else
         return new BError(
-            "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, TOL" );
+            "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, "
+            "TOL" );
     }
     else
       return new BError( "Invalid Parameter Type" );

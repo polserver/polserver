@@ -272,9 +272,7 @@ BlowFish::BlowFish() : table_index( 0 ), block_pos( 0 ), stream_pos( 0 )
 {
   memset( &game_seed, 0, sizeof( game_seed ) );
 }
-BlowFish::~BlowFish()
-{
-}
+BlowFish::~BlowFish() {}
 
 // Public Member Functions
 

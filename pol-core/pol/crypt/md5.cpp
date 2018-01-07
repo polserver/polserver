@@ -79,9 +79,7 @@ MD5Crypt::MD5Crypt() : TableIdx( 0 )
 {
   memset( &Digest, 0, sizeof( Digest ) );
 }
-MD5Crypt::~MD5Crypt()
-{
-}
+MD5Crypt::~MD5Crypt() {}
 
 // Public Member Functions
 

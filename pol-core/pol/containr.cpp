@@ -26,24 +26,24 @@
 #include <cstddef>
 
 #include "../clib/cfgelem.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/streamsaver.h"
 #include "globals/state.h"
+#include "item/itemdesc.h"
+#include "mobile/charactr.h"
+#include "network/client.h"
 #include "profile.h"
 #include "scrdef.h"
-#include "item/itemdesc.h"
-#include "uobject.h"
-#include "mobile/charactr.h"
-#include "uconst.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "network/client.h"
+#include "scrsched.h"
 #include "statmsg.h"
+#include "uconst.h"
 #include "ufunc.h"
 #include "umanip.h"
+#include "uobject.h"
 #include "uoscrobj.h"
 #include "uworld.h"
-#include "scrsched.h"
 
 
 namespace Pol

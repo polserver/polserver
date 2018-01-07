@@ -15,18 +15,18 @@ namespace Pol
 {
 namespace Network
 {
-  class Client;
+class Client;
 }
 namespace Mobile
 {
-  class Character;
+class Character;
 }
 namespace Core
 {
 class UObject;
 
 void send_sysmessage_cl( Network::Client* client,  // System message (lower left corner)
-                         //						Character *chr_from,
+                                                   //						Character *chr_from,
                          unsigned int cliloc_num, const u16* arguments = 0,
                          unsigned short font = DEFAULT_TEXT_FONT,
                          unsigned short color = DEFAULT_TEXT_COLOR );

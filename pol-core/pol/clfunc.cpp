@@ -9,13 +9,13 @@
 
 #include "clfunc.h"
 
-#include <string.h>
 #include <cstddef>
+#include <string.h>
 
-#include "pktdef.h"
-#include "ufunc.h"
 #include "mobile/charactr.h"
 #include "network/packethelper.h"
+#include "pktdef.h"
+#include "ufunc.h"
 
 namespace Pol
 {

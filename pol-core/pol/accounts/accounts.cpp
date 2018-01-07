@@ -14,25 +14,25 @@
 
 #include "accounts.h"
 
+#include <iosfwd>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include <iosfwd>
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
-#include "../../clib/timer.h"
+#include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
+#include "../../clib/timer.h"
 #include "../../plib/systemstate.h"
-#include "account.h"
-#include "../../clib/clib.h"
-#include "../polsig.h"
-#include "../globals/uvars.h"
-#include "../globals/state.h"
 #include "../clib/passert.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../polsig.h"
+#include "account.h"
 
 namespace Pol
 {

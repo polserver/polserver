@@ -8,8 +8,9 @@
 
 #include "multidefs.h"
 
-#include "../multi/multidef.h"
+#include <cstddef>
 
+#include "../multi/multidef.h"
 
 namespace Pol
 {
@@ -17,12 +18,8 @@ namespace Multi
 {
 MultiDefBuffer multidef_buffer;
 
-MultiDefBuffer::MultiDefBuffer() : multidefs_by_multiid()
-{
-}
-MultiDefBuffer::~MultiDefBuffer()
-{
-}
+MultiDefBuffer::MultiDefBuffer() : multidefs_by_multiid() {}
+MultiDefBuffer::~MultiDefBuffer() {}
 
 void MultiDefBuffer::deinitialize()
 {

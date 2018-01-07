@@ -18,21 +18,21 @@
 #include "cfgrepos.h"
 
 #include <ctype.h>
-#include <stdlib.h>
-#include <sys/stat.h>
 #include <exception>
 #include <iosfwd>
+#include <stdlib.h>
+#include <sys/stat.h>
 
 #include "../bscript/bobject.h"
 #include "../bscript/escrutil.h"
 #include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/strutil.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../plib/systemstate.h"
+#include "../clib/strutil.h"
 #include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 #include "globals/ucfg.h"
 #include "polcfg.h"
 
@@ -52,9 +52,7 @@ StoredConfigElem::StoredConfigElem( Clib::ConfigElem& elem )
   }
 }
 
-StoredConfigElem::StoredConfigElem()
-{
-}
+StoredConfigElem::StoredConfigElem() {}
 
 // ToDo: we have to think over... it's a problem with script-inside references
 StoredConfigElem::~StoredConfigElem()
@@ -113,9 +111,7 @@ size_t StoredConfigElem::estimateSize() const
   return size;
 }
 
-StoredConfigFile::StoredConfigFile() : reload( false ), modified_( 0 )
-{
-}
+StoredConfigFile::StoredConfigFile() : reload( false ), modified_( 0 ) {}
 
 // ToDo: we have to think over... it's a problem with script-inside references
 // StoredConfigFile::~StoredConfigFile( )

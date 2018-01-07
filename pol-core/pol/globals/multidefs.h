@@ -7,11 +7,11 @@
 #ifndef GLOBALS_MULTIDEFS_H
 #define GLOBALS_MULTIDEFS_H
 
-#include "../../clib/rawtypes.h"
-
-#include <map>
-#include <cstddef>
 #include <boost/noncopyable.hpp>
+#include <cstddef>
+#include <map>
+
+#include "../../clib/rawtypes.h"
 
 namespace Pol
 {

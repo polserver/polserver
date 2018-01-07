@@ -42,19 +42,17 @@
 #ifndef __POL_DYNPROPS_H
 #define __POL_DYNPROPS_H
 
-#include "../clib/rawtypes.h"
-#include "../clib/passert.h"
-
-#include "gameclck.h"
-
 #include <bitset>
+#include <boost/any.hpp>
+#include <boost/variant.hpp>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <memory>
 
-#include <boost/variant.hpp>
-#include <boost/any.hpp>
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "gameclck.h"
 
 namespace Pol
 {
@@ -213,7 +211,8 @@ class PropHolderContainer;
 
 // small property type no types above size 4, for bigger types boost::any will be used
 typedef boost::variant<u8, u16, u32, s8, s16, s32, ValueModPack, SkillStatCap, ExtStatBarFollowers,
-                       gameclock_t> variant_storage;
+                       gameclock_t>
+    variant_storage;
 template <typename T>
 struct can_be_used_in_variant
 {
@@ -314,6 +313,7 @@ public:
 
 protected:
   ~DynamicPropsHolder();
+
 private:
   void initProps();
   std::unique_ptr<DynProps> _dynprops;
@@ -327,12 +327,8 @@ private:
 ////////////////
 // ValueModPack
 
-inline ValueModPack::ValueModPack( s16 value_ ) : value( value_ ), mod( 0 )
-{
-}
-inline ValueModPack::ValueModPack() : value( 0 ), mod( 0 )
-{
-}
+inline ValueModPack::ValueModPack( s16 value_ ) : value( value_ ), mod( 0 ) {}
+inline ValueModPack::ValueModPack() : value( 0 ), mod( 0 ) {}
 inline bool ValueModPack::operator==( const ValueModPack& other ) const
 {
   return value == other.value && mod == other.mod;
@@ -369,9 +365,7 @@ inline s16 ValueModPack::sum() const
 
 ////////////////
 // SkillStatCap
-inline SkillStatCap::SkillStatCap() : statcap( 0 ), skillcap( 0 )
-{
-}
+inline SkillStatCap::SkillStatCap() : statcap( 0 ), skillcap( 0 ) {}
 inline SkillStatCap::SkillStatCap( s16 statcap_, u16 skillcap_ )
     : statcap( statcap_ ), skillcap( skillcap_ )
 {
@@ -383,9 +377,7 @@ inline bool SkillStatCap::operator==( const SkillStatCap& other ) const
 
 ////////////////
 // ExtStatBarFollowers
-inline ExtStatBarFollowers::ExtStatBarFollowers() : followers( 0 ), followers_max( 0 )
-{
-}
+inline ExtStatBarFollowers::ExtStatBarFollowers() : followers( 0 ), followers_max( 0 ) {}
 inline ExtStatBarFollowers::ExtStatBarFollowers( s8 followers_, s8 followers_max_ )
     : followers( followers_ ), followers_max( followers_max_ )
 {
@@ -415,8 +407,7 @@ inline bool MovementCostMod::operator==( const MovementCostMod& other ) const
 ////////////////
 // PropHolder
 template <class Storage>
-inline PropHolder<Storage>::PropHolder( DynPropTypes type )
-    : _type( type ), _value()
+inline PropHolder<Storage>::PropHolder( DynPropTypes type ) : _type( type ), _value()
 {
 }
 template <class Storage>
@@ -441,8 +432,7 @@ inline V PropHolder<variant_storage>::getValue() const
 ////////////////
 // PropHolderContainer
 template <class Storage>
-inline PropHolderContainer<Storage>::PropHolderContainer()
-    : _props()
+inline PropHolderContainer<Storage>::PropHolderContainer() : _props()
 {
 }
 
@@ -508,12 +498,10 @@ inline void PropHolderContainer<Storage>::addValuePointer( DynPropTypes type, V 
 template <class Storage>
 inline void PropHolderContainer<Storage>::removeValue( DynPropTypes type )
 {
-  _props.erase( std::remove_if( _props.begin(), _props.end(),
-                                [&type]( const PropHolder<Storage>& x )
-                                {
-                                  return type == x._type;
-                                } ),
-                _props.end() );
+  _props.erase(
+      std::remove_if( _props.begin(), _props.end(),
+                      [&type]( const PropHolder<Storage>& x ) { return type == x._type; } ),
+      _props.end() );
 }
 
 template <class Storage>
@@ -602,9 +590,7 @@ static typename std::enable_if<!can_be_used_in_variant<V>::value, void>::type re
 
 ////////////////
 // DynProps
-inline DynProps::DynProps() : _prop_bits(), _props(), _any_props( nullptr )
-{
-}
+inline DynProps::DynProps() : _prop_bits(), _props(), _any_props( nullptr ) {}
 
 inline bool DynProps::hasProperty( DynPropTypes type ) const
 {
@@ -668,12 +654,9 @@ inline size_t DynProps::estimateSize() const
 ////////////////
 // DynamicPropsHolder
 
-inline DynamicPropsHolder::DynamicPropsHolder() : _dynprops( nullptr )
-{
-}
+inline DynamicPropsHolder::DynamicPropsHolder() : _dynprops( nullptr ) {}
 
-inline DynamicPropsHolder::~DynamicPropsHolder()
-{}
+inline DynamicPropsHolder::~DynamicPropsHolder() {}
 
 inline void DynamicPropsHolder::initProps()
 {

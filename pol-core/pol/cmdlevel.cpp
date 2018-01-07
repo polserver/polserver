@@ -10,17 +10,17 @@
 #include <stddef.h>
 #include <string>
 
+#include "../bscript/bstruct.h"
+#include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/dirlist.h"
 #include "../clib/clib.h"
-#include "../clib/strutil.h"
+#include "../clib/dirlist.h"
+#include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
-#include "../bscript/impstr.h"
-#include "../bscript/bstruct.h"
-#include "../clib/fileutil.h"
 #include "globals/uvars.h"
 
 #ifdef _MSC_VER

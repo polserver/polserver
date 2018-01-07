@@ -16,10 +16,10 @@
 
 #include <stddef.h>
 
-#include "baseobject.h"
 #include "../clib/compilerspecifics.h"
-#include "dynproperties.h"
 #include "../clib/rawtypes.h"
+#include "baseobject.h"
+#include "dynproperties.h"
 #ifndef ITEM_H
 #include "item/item.h"
 #endif
@@ -46,27 +46,35 @@ namespace Pol
 namespace Clib
 {
 class ConfigElem;
-namespace Pol {
-namespace Bscript {
+namespace Pol
+{
+namespace Bscript
+{
 class BObjectImp;
 class ObjArray;
 }  // namespace Bscript
-namespace Clib {
+namespace Clib
+{
 class StreamWriter;
 }  // namespace Clib
-namespace Core {
+namespace Core
+{
 class UContainer;
 }  // namespace Core
-namespace Items {
+namespace Items
+{
 class ItemDesc;
 }  // namespace Items
-namespace Mobile {
+namespace Mobile
+{
 class NPC;
 }  // namespace Mobile
-namespace Multi {
+namespace Multi
+{
 class UMulti;
 }  // namespace Multi
-namespace Network {
+namespace Network
+{
 class Client;
 }  // namespace Network
 }  // namespace Pol

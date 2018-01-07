@@ -17,8 +17,6 @@
 #include "../../clib/strset.h"
 #include "../proplist.h"
 #include "../reftypes.h"
-#include "../../clib/strset.h"
-#include "../../clib/refptr.h"
 
 namespace Pol
 {
@@ -79,7 +77,6 @@ private:
 
   Clib::StringSet options_;
 };
-
 }
 }
 #endif

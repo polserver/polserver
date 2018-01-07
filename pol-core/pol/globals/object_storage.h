@@ -2,16 +2,15 @@
 #define GLOBALS_OBJ_STORAGE_H
 
 
-#include "../../clib/rawtypes.h"
-#include "../objecthash.h"
-#include "../poltype.h"
-
 #include <boost/noncopyable.hpp>
-
+#include <cstddef>
 #include <map>
 #include <unordered_map>
 #include <vector>
-#include <cstddef>
+
+#include "../../clib/rawtypes.h"
+#include "../objecthash.h"
+#include "../poltype.h"
 
 namespace Pol
 {
@@ -29,6 +28,7 @@ public:
 
   void deinitialize();
   struct MemoryUsage;
+
   MemoryUsage estimateSize() const;
 
   unsigned incremental_save_count;

@@ -8,8 +8,8 @@
 #define __CRYPT_H__
 
 #include "../../clib/compilerspecifics.h"
-#include "blowfish.h"
 #include "../sockets.h"
+#include "blowfish.h"
 #include "cryptbase.h"
 #include "md5.h"
 #include "twofish.h"
