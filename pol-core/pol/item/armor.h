@@ -8,14 +8,33 @@
 #define ARMOR_H
 
 #include <iosfwd>
-
-#include "../scrdef.h"
-
-#include "equipmnt.h"
-
 #include <set>
 #include <string>
 
+#include "../../bscript/bobject.h"
+#include "../../clib/rawtypes.h"
+#include "../clib/compilerspecifics.h"
+#include "../dynproperties.h"
+#include "../scrdef.h"
+#include "equipmnt.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class String;
+class BStruct;
+}
+namespace Clib
+{
+class StreamWriter;
+class ConfigElem;
+}
+namespace Plib
+{
+class Package;
+}
+}
 #define ARMOR_TMPL ( static_cast<const ArmorDesc*>( tmpl ) )
 
 namespace Pol
