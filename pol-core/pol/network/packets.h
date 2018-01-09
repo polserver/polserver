@@ -7,7 +7,17 @@
 #ifndef POL_PACKETS_H
 #define POL_PACKETS_H
 
+#include <boost/noncopyable.hpp>
+#include <limits>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <string.h>
+#include <type_traits>
+
 #include "../../clib/clib_endian.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
@@ -21,16 +31,7 @@
 #include "../realms.h"
 #include "../uconst.h"
 #include "packetinterface.h"
-
-#include <queue>
-#include <map>
-
-#include <string.h>
-#include <mutex>
-#include <memory>
-#include <limits>
-#include <type_traits>
-#include <boost/noncopyable.hpp>
+#include "pktoutid.h"
 
 #ifdef _MSC_VER
 #pragma warning( push )
@@ -351,7 +352,7 @@ public:
 
 // buffer for encrypted Data send with a dummy pktid
 // NOTE: redefine id if pkt 0x0 ever gets send
-#define ENCRYPTEDPKTBUFFER static_cast<u8>(0)
+#define ENCRYPTEDPKTBUFFER static_cast<u8>( 0 )
 
 // Packet defs start
 typedef PacketWriterDefs::EmptyBufferTemplate<ENCRYPTEDPKTBUFFER, 0xFFFF> EncryptedPktBuffer;
@@ -401,7 +402,8 @@ typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_7C_ID, 2000> PktOut_7C;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_82_ID, 2> PktOut_82;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_88_ID, 66> PktOut_88;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_89_ID,
-                                         7 + ( 5 * ( Core::NUM_LAYERS + 1 ) ) + 1> PktOut_89;
+                                         7 + ( 5 * ( Core::NUM_LAYERS + 1 ) ) + 1>
+    PktOut_89;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_8C_ID, 11> PktOut_8C;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_90_ID, 19> PktOut_90;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_93_ID, 99> PktOut_93;
@@ -433,39 +435,52 @@ typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_BA_ID, 10> PktOut_BA;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_BC_ID, 3> PktOut_BC;
 
 typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CLOSE_GUMP,
-                                            5 + 8> PktOut_BF_Sub4;
+                                            5 + 8>
+    PktOut_BF_Sub4;
 typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_PARTY_SYSTEM,
-                                            0xFFFF> PktOut_BF_Sub6;
+                                            0xFFFF>
+    PktOut_BF_Sub6;
 typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CURSOR_HUE,
-                                            5 + 1> PktOut_BF_Sub8;
+                                            5 + 1>
+    PktOut_BF_Sub8;
 typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_OBJECT_CACHE,
-                                            5 + 8> PktOut_BF_Sub10;
-typedef PacketWriterDefs::PacketTemplateSub<
-    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_DISPLAY_POPUP_MENU, 0xFFFF> PktOut_BF_Sub14;
-typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CLOSE_WINDOW,
-                                            5 + 8> PktOut_BF_Sub16;
+                                            5 + 8>
+    PktOut_BF_Sub10;
 typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
-                                            Core::PKTBI_BF::TYPE_ENABLE_MAP_DIFFS,
-                                            5 + 4 + MAX_NUMER_REALMS * 8> PktOut_BF_Sub18;
+                                            Core::PKTBI_BF::TYPE_DISPLAY_POPUP_MENU, 0xFFFF>
+    PktOut_BF_Sub14;
+typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CLOSE_WINDOW,
+                                            5 + 8>
+    PktOut_BF_Sub16;
 typedef PacketWriterDefs::PacketTemplateSub<
-    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_EXTENDED_STATS_OUT, 5 + 7> PktOut_BF_Sub19;
-typedef PacketWriterDefs::PacketTemplateSub<
-    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_NEW_SPELLBOOK, 5 + 18> PktOut_BF_Sub1B;
-typedef PacketWriterDefs::PacketTemplateSub<
-    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT, 5 + 8> PktOut_BF_Sub1D;
-typedef PacketWriterDefs::PacketTemplateSub<
-    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL, 5 + 12> PktOut_BF_Sub20;
+    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_ENABLE_MAP_DIFFS, 5 + 4 + MAX_NUMER_REALMS * 8>
+    PktOut_BF_Sub18;
+typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                            Core::PKTBI_BF::TYPE_EXTENDED_STATS_OUT, 5 + 7>
+    PktOut_BF_Sub19;
+typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                            Core::PKTBI_BF::TYPE_NEW_SPELLBOOK, 5 + 18>
+    PktOut_BF_Sub1B;
+typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                            Core::PKTBI_BF::TYPE_CUSTOM_HOUSE_SHORT, 5 + 8>
+    PktOut_BF_Sub1D;
+typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                            Core::PKTBI_BF::TYPE_ACTIVATE_CUSTOM_HOUSE_TOOL, 5 + 12>
+    PktOut_BF_Sub20;
 typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_DAMAGE,
-                                            5 + 6> PktOut_BF_Sub22;
-typedef PacketWriterDefs::PacketTemplateSub<
-    Core::PKTBI_BF_ID, 3, Core::PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER, 5 + 2> PktOut_BF_Sub2A;
+                                            5 + 6>
+    PktOut_BF_Sub22;
+typedef PacketWriterDefs::PacketTemplateSub<Core::PKTBI_BF_ID, 3,
+                                            Core::PKTBI_BF::TYPE_CHARACTER_RACE_CHANGER, 5 + 2>
+    PktOut_BF_Sub2A;
 
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_C1_ID, 48 + ( SPEECH_MAX_LEN + 1 ) + 2>
     PktOut_C1;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_C2_ID, 21> PktOut_C2;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_C7_ID, 49> PktOut_C7;
-typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_CC_ID, 49 + ( SPEECH_MAX_LEN + 1 ) * 2 +
-                                                                 SPEECH_MAX_LEN + 1> PktOut_CC;
+typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_CC_ID,
+                                         49 + ( SPEECH_MAX_LEN + 1 ) * 2 + SPEECH_MAX_LEN + 1>
+    PktOut_CC;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_D6_OUT_ID, 0xFFFF> PktOut_D6;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DC_ID, 9> PktOut_DC;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_DD_ID, 0xFFFF> PktOut_DD;

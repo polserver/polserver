@@ -10,10 +10,10 @@
 #ifndef UOCLIENT_H
 #define UOCLIENT_H
 
-#include "crypt/cryptkey.h"
-
 #include <string>
 #include <vector>
+
+#include "crypt/cryptkey.h"
 
 namespace Pol
 {

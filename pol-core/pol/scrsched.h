@@ -26,8 +26,8 @@ class UOExecutorModule;
 }
 namespace Core
 {
-class UOExecutor;
 class ScriptDef;
+class UOExecutor;
 
 void step_scripts( polclock_t* clocksleft, bool* pactivity );
 void start_script( const char* filename, Bscript::BObjectImp* param0,

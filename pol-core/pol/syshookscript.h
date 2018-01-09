@@ -7,11 +7,20 @@
 #ifndef SYSHOOKSCRIPT_H
 #define SYSHOOKSCRIPT_H
 
+#include <string>
+#include <vector>
+
+#include "../bscript/bobject.h"
 #include "scrdef.h"
 #include "uoexec.h"
 
-#include <string>
-#include <vector>
+namespace Pol
+{
+namespace Bscript
+{
+struct BackupStruct;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {

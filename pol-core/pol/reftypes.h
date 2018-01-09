@@ -8,6 +8,7 @@
 #define REFTYPES_H
 
 #include "../clib/refptr.h"
+
 namespace Pol
 {
 namespace Accounts
@@ -28,7 +29,7 @@ namespace Core
 {
 #ifdef NDEBUG
 // release mode
-#define REFTYPE_DEBUG 0 
+#define REFTYPE_DEBUG 0
 #else
 // debug mode
 #define REFTYPE_DEBUG 0

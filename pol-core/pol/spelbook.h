@@ -10,6 +10,9 @@
 #ifndef __SPELBOOK_H
 #define __SPELBOOK_H
 
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+#include "item/item.h"
 #ifndef CONTAINR_H
 #include "containr.h"
 #endif
@@ -19,6 +22,23 @@ namespace Pol
 namespace Network
 {
 class Client;
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class Executor;
+}  // namespace Bscript
+namespace Clib
+{
+class ConfigElem;
+class StreamWriter;
+}  // namespace Clib
+namespace Items
+{
+class ItemDesc;
+}  // namespace Items
+}  // namespace Pol
 }
 namespace Items
 {

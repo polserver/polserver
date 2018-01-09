@@ -7,6 +7,9 @@
 #ifndef UMAP_H
 #define UMAP_H
 
+#include "../bscript/bobject.h"
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
 #ifndef ITEM_H
 #include "item/item.h"
 #endif
@@ -16,6 +19,26 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+namespace Clib
+{
+class ConfigElem;
+class StreamWriter;
+}  // namespace Clib
+namespace Items
+{
+class ItemDesc;
+}  // namespace Items
+namespace Network
+{
+class Client;
+}  // namespace Network
+}  // namespace Pol
 }
 namespace Items
 {
@@ -24,6 +47,7 @@ class MapDesc;
 namespace Core
 {
 struct PKTBI_56;
+
 struct PinPoint
 {
   unsigned short x;

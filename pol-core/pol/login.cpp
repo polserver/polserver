@@ -19,38 +19,32 @@
  */
 
 
-#include "network/client.h"
-#include "network/packets.h"
-#include "network/packethelper.h"
-#include "network/msghandl.h"
-#include "network/clienttransmit.h"
-#include "crypt/cryptbase.h"
-#include "crypt/cryptengine.h"
+#include <cstring>
+#include <netdb.h>
+#include <string>
 
-#include "accounts/account.h"
-#include "accounts/accounts.h"
-#include "mobile/charactr.h"
-
-#include "core.h"
-#include "pktin.h"
-#include "polcfg.h"
-#include "startloc.h"
-#include "globals/uvars.h"
-#include "globals/settings.h"
-#include "servdesc.h"
-#include "sockio.h"
-#include "ufunc.h"
-
-#include "../clib/stlutil.h"
-#include "../clib/clib_MD5.h"
 #include "../clib/clib.h"
+#include "../clib/clib_MD5.h"
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
-#include "../clib/fdump.h"
-
+#include "../clib/rawtypes.h"
 #include "../plib/systemstate.h"
-
-#include <cstring>
+#include "accounts/account.h"
+#include "accounts/accounts.h"
+#include "core.h"
+#include "crypt/cryptbase.h"
+#include "globals/settings.h"
+#include "globals/uvars.h"
+#include "mobile/charactr.h"
+#include "network/client.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "pktdef.h"
+#include "pktin.h"
+#include "polcfg.h"
+#include "servdesc.h"
+#include "startloc.h"
+#include "ufunc.h"
 
 namespace Pol
 {
@@ -198,8 +192,8 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
       }
       else
       {
-        POLLOG.Format( "gethostbyname(\"{}\") failed for server {}\n" ) << server->hostname
-                                                                        << server->name;
+        POLLOG.Format( "gethostbyname(\"{}\") failed for server {}\n" )
+            << server->hostname << server->name;
         continue;
       }
     }
@@ -229,9 +223,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
   }
 }
 
-void handle_A4( Network::Client* /*client*/, PKTIN_A4* /*msg*/ )
-{
-}
+void handle_A4( Network::Client* /*client*/, PKTIN_A4* /*msg*/ ) {}
 
 void handle_D9( Network::Client* client, PKTIN_D9* msg )
 {
@@ -455,8 +447,8 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   // Dave moved the max_clients check to pol.cpp so character cmdlevel could be checked.
   //
 
-  POLLOG.Format( "Account {} logged in from {}\n" ) << acct->name()
-                                                    << Network::AddressToString( &client->ipaddr );
+  POLLOG.Format( "Account {} logged in from {}\n" )
+      << acct->name() << Network::AddressToString( &client->ipaddr );
 
   // ENHANCEMENT: could authenticate with real loginservers.
 

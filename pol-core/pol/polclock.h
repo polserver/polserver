@@ -17,7 +17,9 @@
 #ifndef POLCLOCK_H
 #define POLCLOCK_H
 
+#include <sys/time.h>
 #include <time.h>
+
 namespace Pol
 {
 namespace Core

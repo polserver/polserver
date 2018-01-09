@@ -7,10 +7,10 @@
 #ifndef ATTRIBUTE_H
 #define ATTRIBUTE_H
 
-#include "../scrdef.h"
-
-#include <vector>
 #include <string>
+#include <vector>
+
+#include "../scrdef.h"
 
 namespace Pol
 {

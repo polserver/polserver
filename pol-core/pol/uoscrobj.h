@@ -11,24 +11,48 @@
 #ifndef UOSCROBJ_H
 #define UOSCROBJ_H
 
-#ifndef BSCRIPT_BOBJECT_H
+#include <stddef.h>
+
 #include "../bscript/bobject.h"
-#endif
-
 #include "../bscript/bstruct.h"
+#include "../clib/compilerspecifics.h"
 #include "../clib/passert.h"
-
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "../clib/weakptr.h"
+#include "eventid.h"
+#include "gameclck.h"
+#include "globals/state.h"
 #include "mobile/charactr.h"
+#include "multi/boat.h"
 #include "network/client.h"
+#include "reftypes.h"
+#include "uobjcnt.h"
 
 #ifndef ITEM_H
 #include "item/item.h"
 #endif
 
-#include "multi/boat.h"
-#include "eventid.h"
 
-#include "globals/state.h"
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+namespace Core
+{
+class UContainer;
+}  // namespace Core
+namespace Mobile
+{
+class NPC;
+}  // namespace Mobile
+namespace Multi
+{
+class UMulti;
+}  // namespace Multi
+}  // namespace Pol
 
 namespace Pol
 {

@@ -7,13 +7,34 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include "poltype.h"
-#include "region.h"
-
 #include <iosfwd>
+#include <map>
 #include <set>
 #include <string>
-#include <map>
+#include <time.h>
+
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+#include "poltype.h"
+#include "region.h"
+#include "zone.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+}  // namespace Bscript
+namespace Clib
+{
+class ConfigElem;
+class StreamWriter;
+}  // namespace Clib
+namespace Realms
+{
+class Realm;
+}  // namespace Realms
+}  // namespace Pol
 
 namespace Pol
 {

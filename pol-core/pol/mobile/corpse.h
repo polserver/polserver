@@ -1,7 +1,36 @@
 #ifndef MOBILE_CORPSE_H
 #define MOBILE_CORPSE_H
 
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
 #include "../containr.h"
+#include "../item/item.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+}  // namespace Bscript
+namespace Clib
+{
+class ConfigElem;
+class StreamWriter;
+}  // namespace Clib
+namespace Items
+{
+class ContainerDesc;
+class ItemDesc;
+}  // namespace Items
+namespace Mobile
+{
+class Character;
+}  // namespace Mobile
+namespace Multi
+{
+class UMulti;
+}  // namespace Multi
+}  // namespace Pol
 
 namespace Pol
 {

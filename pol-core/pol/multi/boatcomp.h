@@ -9,8 +9,25 @@
 #ifndef BOATCOMP_H
 #define BOATCOMP_H
 
-#include "boat.h"
+#include "../../bscript/bobject.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
+#include "../../clib/refptr.h"
+#include "../item/item.h"
 #include "../lockable.h"
+#include "boat.h"
+
+namespace Pol
+{
+namespace Items
+{
+class ItemDesc;
+}  // namespace Items
+namespace Multi
+{
+class UBoat;
+}  // namespace Multi
+}  // namespace Pol
 
 namespace Pol
 {

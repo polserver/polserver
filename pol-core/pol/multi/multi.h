@@ -32,7 +32,7 @@ class BStruct;
 }
 namespace Plib
 {
-  class MapShapeList;
+class MapShapeList;
 }
 namespace Realms
 {

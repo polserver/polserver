@@ -7,6 +7,7 @@
 
 #ifndef MOVECOST_H
 #define MOVECOST_H
+
 namespace Pol
 {
 namespace Mobile

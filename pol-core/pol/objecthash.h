@@ -7,11 +7,18 @@
 #ifndef __OBJECTHASH_H
 #define __OBJECTHASH_H
 
-#include "reftypes.h"
-#include "../clib/rawtypes.h"
-
 #include <map>
 #include <unordered_set>
+#include <utility>
+
+#include "../clib/rawtypes.h"
+#include "reftypes.h"
+
+namespace Pol {
+namespace Core {
+class UObject;
+}  // namespace Core
+}  // namespace Pol
 
 namespace Pol
 {

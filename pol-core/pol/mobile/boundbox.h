@@ -7,8 +7,8 @@
 #ifndef __BOUNDBOX_H
 #define __BOUNDBOX_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace Pol
 {

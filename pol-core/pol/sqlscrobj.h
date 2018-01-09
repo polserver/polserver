@@ -15,7 +15,6 @@
 
 #ifdef HAVE_MYSQL
 
-#include "../bscript/bobject.h"
 #ifdef _WIN32
 #include "../clib/Header_Windows.h"
 #include <mysql.h>
@@ -23,11 +22,22 @@
 #include <mysql/mysql.h>
 #endif
 
-#include "../clib/message_queue.h"
-
 #include <functional>
 #include <memory>
+#include <string>
 
+#include "../bscript/bobject.h"
+#include "../clib/compilerspecifics.h"
+#include "../clib/message_queue.h"
+#include "../clib/rawtypes.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 namespace Pol
 {
 namespace Core
