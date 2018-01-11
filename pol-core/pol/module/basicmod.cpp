@@ -645,7 +645,7 @@ Bscript::BObjectImp* recurseJ2E(const picojson::value& v) {
 	else if (v.is<picojson::array>()) {
 		std::unique_ptr<ObjArray> objarr(new ObjArray);
 		const picojson::array& arr = v.get<picojson::array>();
-		for (auto elem : arr) {
+		for (const auto& elem : arr) {
 			objarr->addElement(recurseJ2E(elem));
 		}
 		return objarr.release();
