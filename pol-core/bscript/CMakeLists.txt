@@ -41,7 +41,6 @@ SET (SOURCES  # sorted !
 ##############################################################
 # include dirs
 SET (INCLUDE_DIRS
-	../
 	./
 )
 

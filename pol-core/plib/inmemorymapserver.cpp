@@ -5,8 +5,8 @@
 
 #include "inmemorymapserver.h"
 
+#include "../clib/binaryfile.h"
 #include "../clib/passert.h"
-#include "clib/binaryfile.h"
 #include "mapblock.h"
 
 namespace Pol

@@ -25,61 +25,44 @@
  */
 
 #include "npc.h"
-#include "../module/npcmod.h"
 
-#include "attribute.h"
-#include "wornitems.h"  // refresh_ar() is the only one which needs this include...
-
-#include "../containr.h"
-#include "../dice.h"
-#include "../fnsearch.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../item/weapon.h"
-#include "../listenpt.h"
-#include "../mdelta.h"
-#include "../module/osmod.h"
-#include "../module/unimod.h"
-#include "../module/uomod.h"
-#include "../multi/house.h"
-#include "../network/client.h"
-#include "../objtype.h"
-#include "../pktout.h"
-#include "../poltype.h"
-#include "../realms/realm.h"
-#include "../realms.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../skilladv.h"
-#include "../skills.h"
-#include "../sockio.h"
-#include "../ufunc.h"
-#include "../ufuncinl.h"
-#include "../uoexec.h"
-#include "../uoexhelp.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "../unicode.h"
+#include <stdlib.h>
 
 #include "../../bscript/berror.h"
-#include "../../bscript/eprog.h"
-#include "../../bscript/execmodl.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
-#include "../../bscript/modules.h"
-
 #include "../../clib/cfgelem.h"
-#include "../../clib/clib.h"
-#include "../../clib/clib_endian.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
-#include "../../clib/stlutil.h"
+#include "../../clib/refptr.h"
 #include "../../clib/streamsaver.h"
-#include "../../clib/strutil.h"
+#include "../baseobject.h"
+#include "../dice.h"
+#include "../fnsearch.h"
+#include "../globals/uvars.h"
+#include "../item/armor.h"
+#include "../item/weapon.h"
+#include "../listenpt.h"
+#include "../mdelta.h"
+#include "../module/npcmod.h"
+#include "../module/osmod.h"
+#include "../module/uomod.h"
+#include "../multi/multi.h"
+#include "../npctmpl.h"
+#include "../scrdef.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../ufunc.h"
+#include "../uobjcnt.h"
+#include "../uobject.h"
+#include "../uoexec.h"
+#include "../uoscrobj.h"
+#include "../uworld.h"
+#include "attribute.h"
+#include "charactr.h"
+#include "globals/state.h"
+#include "wornitems.h"
 
-#include <stdexcept>
 
 /* An area definition is as follows:
    pt: (x,y)
@@ -209,9 +192,8 @@ bool NPC::could_move( Core::UFACING fdir ) const
     tmp_newx = x + Core::move_delta[tmp_facing].xmove;
     tmp_newy = y + Core::move_delta[tmp_facing].ymove;
     current_boost = gradual_boost;
-    if ( !walk1 &&
-         !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item,
-                             &current_boost ) )
+    if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi,
+                                       &walkon_item, &current_boost ) )
       return false;
   }
   unsigned short newx = x + Core::move_delta[fdir].xmove;
@@ -413,8 +395,7 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
 void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
 {
   // for ar and elemental damage/resist the mod values are loaded before in character code!
-  auto diceValue = []( const std::string& dicestr, int* value ) -> bool
-  {
+  auto diceValue = []( const std::string& dicestr, int* value ) -> bool {
     Core::Dice dice;
     std::string errmsg;
     if ( !dice.load( dicestr.c_str(), &errmsg ) )
@@ -423,14 +404,10 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
       *value = dice.roll();
     return *value != 0;
   };
-  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack
-  {
+  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
     return v.addToValue( static_cast<s16>( value ) );
   };
-  auto refresh = []( Core::ValueModPack v ) -> Core::ValueModPack
-  {
-    return v.addToValue( v.mod );
-  };
+  auto refresh = []( Core::ValueModPack v ) -> Core::ValueModPack { return v.addToValue( v.mod ); };
 
   std::string tmp;
   int value;

@@ -10,10 +10,10 @@
 #include <istream>
 #include <string>
 
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
 #include "bobject.h"
 #include "bstruct.h"
-#include "clib/compilerspecifics.h"
-#include "clib/rawtypes.h"
 
 namespace Pol
 {
