@@ -11,18 +11,15 @@
 
 #include "basicmod.h"
 
-#include "../../clib/clib.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
+#include <cstdio>
+#include <cstdlib>
+#include <string>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
-#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
+#include "../../clib/stlutil.h"
 
-#include <cstdio>
-#include <cstring>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp, itoa and sprintf warnings
@@ -576,18 +573,18 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
   if ( imp->isa( Bscript::BObjectImp::OTLong ) )
   {
     BLong* plong = static_cast<BLong*>( imp );
-    return new BBoolean(plong->value() != 0);
+    return new BBoolean( plong->value() != 0 );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTBoolean ) )
   {
-	return new BBoolean(*static_cast<BBoolean*>(imp));
+    return new BBoolean( *static_cast<BBoolean*>( imp ) );
   }
   else
   {
     return new BError( "Boolean() expects an Integer or Boolean" );
   }
 }
-} // namespace Module
+}  // namespace Module
 
 namespace Bscript
 {

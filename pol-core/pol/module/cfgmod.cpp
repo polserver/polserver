@@ -7,53 +7,53 @@
 
 
 #include "cfgmod.h"
-#include "../cfgrepos.h"
+
+#include <ctype.h>
+#include <fstream>
+#include <string>
+#include <utility>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
+#include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
+#include "../../bscript/execmodl.h"
 #include "../../bscript/executor.h"
-#include "../../bscript/escrutil.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/objmembers.h"
-
 #include "../../clib/rawtypes.h"
+#include "../../clib/refptr.h"
 #include "../../clib/strutil.h"
-
 #include "../../plib/pkg.h"
-
-#include <fstream>
-#include <string>
-#include <memory>
+#include "../cfgrepos.h"
 
 namespace Pol
 {
 namespace Module
 {
-class ConfigFileExecutorModule;
 }
 namespace Bscript
 {
 using namespace Module;
 template <>
 TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
-TmplExecutorModule<ConfigFileExecutorModule>::function_table = {
-    {"ReadConfigFile", &ConfigFileExecutorModule::mf_ConfigFile},
-    {"FindConfigElem", &ConfigFileExecutorModule::mf_FindConfigElement},
-    {"GetElemProperty", &ConfigFileExecutorModule::mf_GetConfigString},
-    {"GetConfigString", &ConfigFileExecutorModule::mf_GetConfigString},
-    {"GetConfigStringArray", &ConfigFileExecutorModule::mf_GetConfigStringArray},
-    {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary},
-    {"GetConfigInt", &ConfigFileExecutorModule::mf_GetConfigInt},
-    {"GetConfigIntArray", &ConfigFileExecutorModule::mf_GetConfigIntArray},
-    {"GetConfigReal", &ConfigFileExecutorModule::mf_GetConfigReal},
-    {"GetConfigMaxIntKey", &ConfigFileExecutorModule::mf_GetConfigMaxIntKey},
-    {"GetConfigStringKeys", &ConfigFileExecutorModule::mf_GetConfigStringKeys},
-    {"GetConfigIntKeys", &ConfigFileExecutorModule::mf_GetConfigIntKeys},
-    {"ListConfigElemProps", &ConfigFileExecutorModule::mf_ListConfigElemProps},
-    {"AppendConfigFileElem", &ConfigFileExecutorModule::mf_AppendConfigFileElem},
-    {"UnloadConfigFile", &ConfigFileExecutorModule::mf_UnloadConfigFile},
-    {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile}};
+    TmplExecutorModule<ConfigFileExecutorModule>::function_table = {
+        {"ReadConfigFile", &ConfigFileExecutorModule::mf_ConfigFile},
+        {"FindConfigElem", &ConfigFileExecutorModule::mf_FindConfigElement},
+        {"GetElemProperty", &ConfigFileExecutorModule::mf_GetConfigString},
+        {"GetConfigString", &ConfigFileExecutorModule::mf_GetConfigString},
+        {"GetConfigStringArray", &ConfigFileExecutorModule::mf_GetConfigStringArray},
+        {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary},
+        {"GetConfigInt", &ConfigFileExecutorModule::mf_GetConfigInt},
+        {"GetConfigIntArray", &ConfigFileExecutorModule::mf_GetConfigIntArray},
+        {"GetConfigReal", &ConfigFileExecutorModule::mf_GetConfigReal},
+        {"GetConfigMaxIntKey", &ConfigFileExecutorModule::mf_GetConfigMaxIntKey},
+        {"GetConfigStringKeys", &ConfigFileExecutorModule::mf_GetConfigStringKeys},
+        {"GetConfigIntKeys", &ConfigFileExecutorModule::mf_GetConfigIntKeys},
+        {"ListConfigElemProps", &ConfigFileExecutorModule::mf_ListConfigElemProps},
+        {"AppendConfigFileElem", &ConfigFileExecutorModule::mf_AppendConfigFileElem},
+        {"UnloadConfigFile", &ConfigFileExecutorModule::mf_UnloadConfigFile},
+        {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile}};
 }
 namespace Module
 {

@@ -6,61 +6,37 @@
 
 #include "npcmod.h"
 
-#include "osmod.h"
-#include "unimod.h"
-#include "uomod.h"
-
-#include "../containr.h"
-#include "../dice.h"
-#include "../eventid.h"
-#include "../fnsearch.h"
-#include "../globals/uvars.h"
-#include "../item/weapon.h"
-#include "../listenpt.h"
-#include "../mobile/attribute.h"
-#include "../mobile/boundbox.h"
-#include "../mobile/npc.h"
-#include "../mobile/ufacing.h"
-#include "../network/client.h"
-#include "../network/packets.h"
-#include "../network/packethelper.h"
-#include "../npctmpl.h"
-#include "../objtype.h"
-#include "../pktout.h"
-#include "../poltype.h"
-#include "../realms.h"
-#include "../realms/realm.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../skilladv.h"
-#include "../skills.h"
-#include "../sockio.h"
-#include "../ufunc.h"
-#include "../ufuncinl.h"
-#include "../uoexec.h"
-#include "../uoexhelp.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "../unicode.h"
+#include <iostream>
+#include <stddef.h>
+#include <string>
 
 #include "../../bscript/berror.h"
-#include "../../bscript/eprog.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/modules.h"
+#include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
-
-#include "../../clib/cfgelem.h"
 #include "../../clib/clib.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/fileutil.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
 #include "../../clib/random.h"
+#include "../../clib/rawtypes.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../containr.h"
+#include "../item/item.h"
+#include "../mobile/boundbox.h"
+#include "../mobile/charactr.h"
+#include "../mobile/npc.h"
+#include "../mobile/ufacing.h"
+#include "../network/packethelper.h"
+#include "../network/packets.h"
+#include "../objtype.h"
+#include "../pktdef.h"
+#include "../poltype.h"
+#include "../unicode.h"
+#include "../uoscrobj.h"
+#include "../uworld.h"
+#include "osmod.h"
+#include "unimod.h"
 
-#include <stdexcept>
-#include <iostream>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecation warning for stricmp
@@ -749,8 +725,7 @@ BObjectImp* NPCExecutorModule::say()
   else
     range = Core::settingsManager.ssopt.speech_range;
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range,
-                                                          [&]( Mobile::Character* chr )
-                                                          {
+                                                          [&]( Mobile::Character* chr ) {
                                                             if ( !chr->is_visible_to_me( &npc ) )
                                                               return;
                                                             msg.Send( chr->client, len );
@@ -759,8 +734,7 @@ BObjectImp* NPCExecutorModule::say()
   if ( doevent >= 1 )
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr )
-        {
+        npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
           Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
           if ( chr != &npc )
             othernpc->on_pc_spoke( &npc, text, texttype );
@@ -836,8 +810,7 @@ BObjectImp* NPCExecutorModule::SayUC()
     else
       range = Core::settingsManager.ssopt.speech_range;
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range,
-                                                            [&]( Mobile::Character* chr )
-                                                            {
+                                                            [&]( Mobile::Character* chr ) {
                                                               if ( !chr->is_visible_to_me( &npc ) )
                                                                 return;
                                                               talkmsg.Send( chr->client, len );
@@ -853,8 +826,7 @@ BObjectImp* NPCExecutorModule::SayUC()
       }
       ntextbuf[ntextbuflen++] = 0;
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr )
-          {
+          npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
               othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), NULL );
@@ -973,7 +945,8 @@ BObjectImp* NPCExecutorModule::CreateItem()
 
 BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
 {
-  String* arealist = EXPLICIT_CAST(String*, BObjectImp*)( getParamImp( 0, BObjectImp::OTString ) );
+  String* arealist =
+      EXPLICIT_CAST( String*, BObjectImp* )( getParamImp( 0, BObjectImp::OTString ) );
   if ( arealist == NULL )
     return new String( "" );
 
