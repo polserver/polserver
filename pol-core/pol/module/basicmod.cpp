@@ -590,9 +590,9 @@ picojson::value recurseE2J(BObjectImp* v) {
 		ObjArray* arr = static_cast<ObjArray*>(v);
 		picojson::array jsonArr;
 
-		for (std::vector<BObjectRef>::iterator itr = arr->ref_arr.begin(); itr != arr->ref_arr.end(); ++itr)
+		for (const auto &elem : arr->ref_arr)
 		{
-			BObject* bo = (itr->get());
+			BObject* bo = elem.get();
 			if (bo == nullptr)
 				continue;
 			BObjectImp* imp = bo->impptr();
@@ -631,7 +631,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_PackJSON()
 }
 
 
-Bscript::BObjectImp* recurse(picojson::value v) {
+Bscript::BObjectImp* recurseJ2E(const picojson::value& v) {
 	if (v.is<std::string>()) {
 		return new String(v.get<std::string>());
 	}
@@ -644,9 +644,9 @@ Bscript::BObjectImp* recurse(picojson::value v) {
 	}
 	else if (v.is<picojson::array>()) {
 		std::unique_ptr<ObjArray> objarr(new ObjArray);
-		picojson::array arr = v.get<picojson::array>();
+		const picojson::array& arr = v.get<picojson::array>();
 		for (auto elem : arr) {
-			objarr->addElement(recurse(elem));
+			objarr->addElement(recurseJ2E(elem));
 		}
 		return objarr.release();
 	} 
@@ -654,7 +654,7 @@ Bscript::BObjectImp* recurse(picojson::value v) {
 		std::unique_ptr<BStruct> objstruct(new BStruct);
 		for (const auto& content : v.get<picojson::object>())
 		{
-			objstruct->addMember(content.first.c_str(), recurse(content.second) );
+			objstruct->addMember(content.first.c_str(), recurseJ2E(content.second) );
 		}
 		return objstruct.release();
 	}
@@ -672,7 +672,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
 		if (!err.empty()) {
 			return new BError(err);
 		}
-		return recurse(v);
+		return recurseJ2E(v);
 	}
 	else
 	{
