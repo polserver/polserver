@@ -5,13 +5,14 @@
  */
 
 
-#include "../cfgrepos.h"
-
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
+#include <string>
 
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
+#include "../../clib/refptr.h"
+#include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
+#include "../cfgrepos.h"
 
 namespace Pol
 {

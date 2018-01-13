@@ -6,8 +6,10 @@
  */
 
 
-#include "customhouses.h"
+#include "../../clib/rawtypes.h"
 #include "../../plib/systemstate.h"
+#include "customhouses.h"
+
 namespace Pol
 {
 namespace Multi
@@ -192,9 +194,7 @@ CustomHouseElements::CustomHouseElements( u32 _height, u32 _width, s32 xoffset, 
   SetWidth( _width );
   SetHeight( _height );
 }
-CustomHouseElements::~CustomHouseElements()
-{
-}
+CustomHouseElements::~CustomHouseElements() {}
 
 void CustomHouseElements::SetHeight( u32 _height )
 {

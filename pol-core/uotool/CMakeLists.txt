@@ -9,16 +9,15 @@ MESSAGE("####################################")
 ###############################################################################
 # define source files
 SET (SOURCES  # sorted !
-    ../pol/globals/multidefs.cpp        #TODO: ugly hack
-    ../pol/multi/multidef.cpp           #TODO: ugly hack - what? same file name?
-    ../pol/polfile1.cpp                 #TODO: w00t
-   UoToolMain.cpp                      #note to me: never ever again suggest to introduce CMake in a C style C++ project which is full of linking magic
+    ../pol/globals/multidefs.cpp
+    ../pol/multi/multidef.cpp
+    ../pol/polfile1.cpp
+   UoToolMain.cpp
 )    
 
 ##############################################################
 # include dirs
 SET (INCLUDE_DIRS
-    .
 )
 
 ##############################################################
@@ -69,3 +68,7 @@ SET (TARGET_PROGRAM_NAME
 ##############################################################
 # include CMake core
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
+
+IF(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
+ADD_DEPENDENCIES(uotool boost)
+ENDIF()

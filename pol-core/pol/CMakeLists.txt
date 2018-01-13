@@ -234,7 +234,6 @@ SET (SOURCES  # sorted !
 ##############################################################
 # include dirs
 SET (INCLUDE_DIRS
-    ./
 )
 
 ##############################################################
@@ -309,3 +308,11 @@ SET (TARGET_PROGRAM_NAME
 ##############################################################
 # include CMake core
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
+
+IF(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
+ADD_DEPENDENCIES(pol boost)
+ENDIF()
+
+IF(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
+ADD_DEPENDENCIES(pol libcurl)
+ENDIF()
