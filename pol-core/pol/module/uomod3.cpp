@@ -5,20 +5,13 @@
  * - 2005/09/30 Shinigami: added Player Check to mf_SendStatus (crashed on NPCs)
  */
 
-#include "uomod.h"
-
 #include "../../bscript/berror.h"
-#include "../../bscript/impstr.h"
-
-#include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
-#include "../network/cliface.h"
-#include "../skills.h"
 #include "../statmsg.h"
 #include "../uoexhelp.h"
+#include "uomod.h"
 
-// f'ed packing:
-#include "../vital.h"
+
 namespace Pol
 {
 namespace Module
