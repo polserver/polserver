@@ -484,12 +484,96 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   int value;
   if ( elem.remove_prop( "AR", &tmp ) && diceValue( tmp, &value ) )
     npc_ar_ = static_cast<u16>( value );
-  if (elem.remove_prop("DAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
+  if (elem.remove_prop("LOWERREAGENTCOST", &tmp) && diceValue(tmp, &value))
+  {
+	  lower_reagent_cost(apply(lower_reagent_cost(), value));
+  }
+  if (has_lower_reagent_cost())
+	  lower_reagent_cost(refresh(lower_reagent_cost()));
+  if (elem.remove_prop("SPELLDAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
+  {
+	  spell_damage_increase(apply(spell_damage_increase(), value));
+  }
+  if (has_spell_damage_increase())
+	  spell_damage_increase(refresh(spell_damage_increase()));
+  if (elem.remove_prop("FASTERCASTING", &tmp) && diceValue(tmp, &value))
+  {
+	  faster_casting(apply(faster_casting(), value));
+  }
+  if (has_faster_casting())
+	  faster_casting(refresh(faster_casting()));
+  if (elem.remove_prop("FASTERCASTRECOVERY", &tmp) && diceValue(tmp, &value))
+  {
+	  faster_cast_recovery(apply(faster_cast_recovery(), value));
+  }
+  if (has_faster_cast_recovery())
+	  faster_cast_recovery(refresh(faster_cast_recovery()));
+  if (elem.remove_prop("DEFENCEINCREASE", &tmp) && diceValue(tmp, &value))
+  {
+	  defence_increase(apply(defence_increase(), value));
+  }
+  if (has_defence_increase())
+	  defence_increase(refresh(defence_increase()));
+  if (elem.remove_prop("DEFENCEINCREASECAP", &tmp) && diceValue(tmp, &value))
+  {
+	  defence_increase_cap(apply(defence_increase_cap(), value));
+  }
+  if (has_defence_increase_cap())
+	  defence_increase_cap(refresh(defence_increase_cap()));
+  if (elem.remove_prop("LOWERMANACOST", &tmp) && diceValue(tmp, &value))
+  {
+	  lower_mana_cost(apply(lower_mana_cost(), value));
+  }
+  if (has_lower_mana_cost())
+	  lower_mana_cost(refresh(lower_mana_cost()));
+  if (elem.remove_prop("HITCHANCE", &tmp) && diceValue(tmp, &value))
+  {
+	  hitchance(apply(hitchance(), value));
+  }
+  if (has_hitchance())
+	  hitchance(refresh(hitchance()));
+  if (elem.remove_prop("SWINGSPEED", &tmp) && diceValue(tmp, &value))
+  {
+	  swingspeed(apply(swingspeed(), value));
+  }
+  if (has_swingspeed())
+	  swingspeed(refresh(swingspeed()));
+   if (elem.remove_prop("DAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
   {
 	  damage_increase(apply(damage_increase(), value));
   }
   if (has_damage_increase())
 	  damage_increase(refresh(damage_increase()));
+  if (elem.remove_prop("FIRERESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  fire_resist_cap(apply(fire_resist_cap(), value));
+  }
+  if (has_fire_resist_cap())
+	  fire_resist_cap(refresh(fire_resist_cap()));
+  if (elem.remove_prop("COLDRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  cold_resist_cap(apply(cold_resist_cap(), value));
+  }
+  if (has_cold_resist_cap())
+	  cold_resist_cap(refresh(cold_resist_cap()));
+  if (elem.remove_prop("ENERGYRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  energy_resist_cap(apply(energy_resist_cap(), value));
+  }
+  if (has_energy_resist_cap())
+	  energy_resist_cap(refresh(energy_resist_cap()));
+  if (elem.remove_prop("PHYSICALRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  physical_resist_cap(apply(physical_resist_cap(), value));
+  }
+  if (has_physical_resist_cap())
+	  physical_resist_cap(refresh(physical_resist_cap()));
+  if (elem.remove_prop("POISONRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  poison_resist_cap(apply(poison_resist_cap(), value));
+  }
+  if (has_poison_resist_cap())
+	  poison_resist_cap(refresh(poison_resist_cap()));
 
   // elemental start
   // first apply template value as value and if mod or value exist sum them
