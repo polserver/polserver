@@ -971,13 +971,13 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if ( mod_value != 0 )
     physical_damage( physical_damage().setAsMod( mod_value ) );
 
-  mod_value = static_cast<s16>(elem.remove_int("LOWERREAGCOSTMOD", 0));
+  mod_value = static_cast<s16>(elem.remove_int("LOWERREAGENTCOSTMOD", 0));
   if (mod_value != 0)
 	  lower_reagent_cost(lower_reagent_cost().setAsMod(mod_value));
   mod_value = static_cast<s16>(elem.remove_int("SPELLDAMAGEINCREASEMOD", 0));
   if (mod_value != 0)
 	  spell_damage_increase(spell_damage_increase().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTMOD", 0));
+  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTINGMOD", 0));
   if (mod_value != 0)
 	  faster_casting(faster_casting().setAsMod(mod_value));
   mod_value = static_cast<s16>(elem.remove_int("FASTERCASTRECOVERYMOD", 0));
