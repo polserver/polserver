@@ -12,8 +12,8 @@
 #endif
 
 #include <string>
+#include <tinyxml/tinyxml.h>
 
-#include "../../lib/tinyxml/tinyxml.h"
 #include "../bscript/contiter.h"
 #include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"

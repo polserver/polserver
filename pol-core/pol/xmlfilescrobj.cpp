@@ -8,7 +8,6 @@
 
 #include <stddef.h>
 
-#include "../../lib/tinyxml/tinyxml.h"
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../bscript/bstruct.h"
