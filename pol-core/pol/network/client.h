@@ -29,7 +29,6 @@
 #include <mutex>
 #include <queue>
 #include <string>
-#include <sys/socket.h>
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/spinlock.h"
