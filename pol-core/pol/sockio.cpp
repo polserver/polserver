@@ -12,7 +12,6 @@
 struct utsname my_utsname;
 #endif
 
-#include <arpa/inet.h>
 #include <cstdio>
 #include <cstring>
 #include <fcntl.h>
@@ -21,7 +20,6 @@ struct utsname my_utsname;
 #include <netinet/tcp.h>
 #include <stdexcept>
 #include <string>
-#include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
 

@@ -8,9 +8,9 @@
 #include <stddef.h>
 
 #include "../../clib/passert.h"
+#include "../polclock.h"
 #include "../spells.h"
 #include "charactr.h"
-#include "polclock.h"
 
 
 namespace Pol

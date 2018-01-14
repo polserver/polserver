@@ -7,7 +7,6 @@
 #include "sqlscrobj.h"
 
 #include <exception>
-#include <mysql/mysql_com.h>
 #include <string.h>
 
 #include "../bscript/bobject.h"

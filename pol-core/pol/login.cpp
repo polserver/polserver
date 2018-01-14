@@ -20,7 +20,6 @@
 
 
 #include <cstring>
-#include <netdb.h>
 #include <string>
 
 #include "../clib/clib.h"

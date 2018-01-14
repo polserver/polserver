@@ -7,7 +7,6 @@
 
 #include <string.h>
 #include <string>
-#include <sys/socket.h>
 
 #include "../../lib/format/format.h"
 #include "../clib/compilerspecifics.h"

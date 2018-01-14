@@ -5,7 +5,6 @@
 #include <iosfwd>
 #include <stdlib.h>
 #include <string>
-#include <sys/time.h>
 #include <time.h>
 
 #include "../../lib/format/format.h"

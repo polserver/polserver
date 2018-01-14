@@ -17,8 +17,8 @@
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
-#include <sys/select.h>
-#include <sys/time.h>
+#include <iosfwd>
+#include <string>
 #include <time.h>
 #include <unistd.h>
 
@@ -53,8 +53,6 @@
 #include <pthread.h>
 #endif
 
-#include <iosfwd>
-#include <string>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)

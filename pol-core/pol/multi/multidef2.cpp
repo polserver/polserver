@@ -10,9 +10,9 @@
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
+#include "../clidata.h"
 #include "../item/itemdesc.h"
 #include "../tiles.h"
-#include "clidata.h"
 #include "multi/../udatfile.h"
 #include "multidef.h"
 

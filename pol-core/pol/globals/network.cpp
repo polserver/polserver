@@ -2,7 +2,6 @@
 
 #include <curl/curl.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"

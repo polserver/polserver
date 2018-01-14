@@ -23,7 +23,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
-#include <sys/time.h>
 #include <time.h>
 
 #include "../clib/cfgelem.h"

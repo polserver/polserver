@@ -4,8 +4,6 @@
 #include <exception>
 #include <stddef.h>
 #include <string>
-#include <sys/select.h>
-#include <sys/time.h>
 
 #include "../../../lib/format/format.h"
 #include "../../bscript/bobject.h"

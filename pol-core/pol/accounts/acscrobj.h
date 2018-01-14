@@ -8,9 +8,9 @@
 #ifndef ACSCROBJ_H
 #define ACSCROBJ_H
 
+#include "../../bscript/bobject.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
-#include "../bscript/bobject.h"
-#include "../clib/compilerspecifics.h"
 #include "../reftypes.h"
 
 namespace Pol

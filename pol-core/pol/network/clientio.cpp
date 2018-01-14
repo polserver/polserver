@@ -9,7 +9,6 @@
 #include <mutex>
 #include <stddef.h>
 #include <string>
-#include <sys/socket.h>
 
 #include "../../../lib/format/format.h"
 #include "../../clib/fdump.h"

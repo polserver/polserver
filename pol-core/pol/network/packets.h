@@ -31,7 +31,6 @@
 #include "../realms.h"
 #include "../uconst.h"
 #include "packetinterface.h"
-#include "pktoutid.h"
 
 #ifdef _MSC_VER
 #pragma warning( push )

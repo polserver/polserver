@@ -1,4 +1,3 @@
-#include <sys/socket.h>
 
 #include "../../clib/passert.h"
 #include "../uconst.h"

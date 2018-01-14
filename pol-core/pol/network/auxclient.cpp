@@ -14,7 +14,6 @@
 #include "auxclient.h"
 
 #include <iosfwd>
-#include <sys/socket.h>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"

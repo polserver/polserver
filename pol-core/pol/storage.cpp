@@ -9,7 +9,6 @@
 
 #include <exception>
 #include <string>
-#include <sys/time.h>
 #include <time.h>
 
 #include "../bscript/berror.h"

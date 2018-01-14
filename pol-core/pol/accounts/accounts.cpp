@@ -19,7 +19,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"

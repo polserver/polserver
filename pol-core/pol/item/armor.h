@@ -12,8 +12,8 @@
 #include <string>
 
 #include "../../bscript/bobject.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
-#include "../clib/compilerspecifics.h"
 #include "../dynproperties.h"
 #include "../scrdef.h"
 #include "equipmnt.h"

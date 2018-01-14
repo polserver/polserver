@@ -21,7 +21,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bstruct.h"

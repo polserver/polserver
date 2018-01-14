@@ -7,7 +7,6 @@
 
 #include <ctime>
 #include <iostream>
-#include <sys/time.h>
 
 #include "../../lib/format/format.h"
 #include "../bscript/bobject.h"
