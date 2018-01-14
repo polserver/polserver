@@ -15,21 +15,18 @@
 
 #include "scrsched.h"
 
-#include "scrdef.h"
-#include "scrstore.h"
+#include <ctime>
+#include <exception>
 
-#include "exscrobj.h"
-#include "polcfg.h"
-#include "polclock.h"
-#include "poldbg.h"
-
+#include "../../lib/format/format.h"
+#include "../bscript/berror.h"
+#include "../bscript/bobject.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/refptr.h"
+#include "../plib/systemstate.h"
+#include "globals/script_internals.h"
 #include "globals/state.h"
-
-#include "uoexec.h"
-#include "module/uomod.h"
-#include "module/osmod.h"
-
-// The ones below are required for the add_common_exmods(). Can't we move this somewhere else...?
 #include "module/attributemod.h"
 #include "module/basiciomod.h"
 #include "module/basicmod.h"
@@ -39,33 +36,22 @@
 #include "module/datastore.h"
 #include "module/filemod.h"
 #include "module/guildmod.h"
+#include "module/httpmod.h"
 #include "module/mathmod.h"
-#include "module/npcmod.h"
+#include "module/osmod.h"
 #include "module/partymod.h"
 #include "module/polsystemmod.h"
-#include "module/storagemod.h"
 #include "module/sqlmod.h"
+#include "module/storagemod.h"
 #include "module/unimod.h"
+#include "module/uomod.h"
 #include "module/utilmod.h"
 #include "module/vitalmod.h"
-#include "unicode.h"
-
-#include "../bscript/bobject.h"
-#include "../bscript/berror.h"
-#include "../bscript/eprog.h"
-#include "../bscript/executor.h"
-#include "../bscript/impstr.h"
-
-#include "../clib/logfacility.h"
-#include "../clib/clib_endian.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-
-#include "../plib/systemstate.h"
-
-#include <ctime>
-#include <stdexcept>
+#include "polsig.h"
+#include "profile.h"
+#include "scrdef.h"
+#include "scrstore.h"
+#include "uoexec.h"
 
 namespace Pol
 {
@@ -73,20 +59,20 @@ namespace Core
 {
 bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec )
 {
-	return scriptScheduler.find_exec(pid, pp_uoexec);
+  return scriptScheduler.find_exec( pid, pp_uoexec );
 }
 
 void run_ready()
 {
-	scriptScheduler.run_ready();
+  scriptScheduler.run_ready();
 }
 
 
 void check_blocked( polclock_t* pclocksleft )
 {
   polclock_t now_clock = polclock();
-  stateManager.profilevars.sleep_cycles += scriptScheduler.getHoldlist().size() +
-                                           scriptScheduler.getNoTimeoutHoldlist().size();
+  stateManager.profilevars.sleep_cycles +=
+      scriptScheduler.getHoldlist().size() + scriptScheduler.getNoTimeoutHoldlist().size();
   polclock_t clocksleft = POLCLOCKS_PER_SEC * 60;
   for ( ;; )
   {
@@ -262,7 +248,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
     // throw runtime_error( "Error starting script." );
   }
 
- 
+
   scriptScheduler.schedule( ex.release() );
 
   return uoemod;
@@ -396,7 +382,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   ex.set_running_to_completion( true );
 
   Clib::scripts_thread_script = ex.scriptname();
-  
+
   int i = 0;
   bool reported = false;
   while ( ex.runnable() )

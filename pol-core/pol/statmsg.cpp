@@ -12,19 +12,15 @@
 #include "statmsg.h"
 
 #include "../clib/clib.h"
-
+#include "../clib/rawtypes.h"
+#include "globals/network.h"
+#include "globals/settings.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "network/packets.h"
 #include "network/packethelper.h"
-#include "network/clienttransmit.h"
-
-#include "sockio.h"
-#include "pktboth.h"
+#include "network/packets.h"
 #include "ufunc.h"
 #include "uoclient.h"
-#include "globals/settings.h"
-#include "globals/network.h"
 
 
 namespace Pol
@@ -228,7 +224,7 @@ void send_stat_locks( Network::Client* client, Mobile::Character* chr )
 
   PacketOut<Network::PktOut_BF_Sub19> msg;
   msg->WriteFlipped<u16>( 12u );
-  msg->offset += 2;  // sub
+  msg->offset += 2;         // sub
   msg->Write<u8>( 0x02u );  // 2D Client = 0x02, KR = 0x05
   msg->Write<u32>( chr->serial_ext );
   msg->offset++;  // unk

@@ -7,17 +7,21 @@
 
 #include "region.h"
 
-#include "realms.h"
-#include "uworld.h"
-#include "globals/uvars.h"
+#include <stddef.h>
+#include <string>
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
-
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
+#include "globals/uvars.h"
+#include "poltype.h"
+#include "proplist.h"
+#include "realms.h"
+#include "realms/realm.h"
+#include "zone.h"
 
 namespace Pol
 {
@@ -28,9 +32,7 @@ Region::Region( Clib::ConfigElem& elem, RegionId id )
 {
 }
 
-Region::~Region()
-{
-}
+Region::~Region() {}
 
 size_t Region::estimateSize() const
 {

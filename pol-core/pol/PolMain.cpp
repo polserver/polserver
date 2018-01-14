@@ -1,6 +1,7 @@
 #include "PolMain.h"
 
-#include "pol.h"  //TODO: remove this ugly hack asap again
+#include "../clib/Program/ProgramMain.h"
+#include "pol.h"
 
 namespace Pol
 {
@@ -10,12 +11,8 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PolMain::PolMain() : ProgramMain()
-{
-}
-PolMain::~PolMain()
-{
-}
+PolMain::PolMain() : ProgramMain() {}
+PolMain::~PolMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 void PolMain::showHelp()
 {

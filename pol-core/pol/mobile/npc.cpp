@@ -39,6 +39,7 @@
 #include "../baseobject.h"
 #include "../dice.h"
 #include "../fnsearch.h"
+#include "../globals/state.h"
 #include "../globals/uvars.h"
 #include "../item/armor.h"
 #include "../item/weapon.h"
@@ -60,7 +61,6 @@
 #include "../uworld.h"
 #include "attribute.h"
 #include "charactr.h"
-#include "globals/state.h"
 #include "wornitems.h"
 
 

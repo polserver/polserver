@@ -6,7 +6,6 @@
 
 #ifndef REFTYPES_H
 #define REFTYPES_H
-
 #include "../clib/refptr.h"
 
 namespace Pol

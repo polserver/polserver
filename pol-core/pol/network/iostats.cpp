@@ -6,7 +6,7 @@
 
 #include "iostats.h"
 
-#include <string.h>
+#include <cstring>
 
 namespace Pol
 {

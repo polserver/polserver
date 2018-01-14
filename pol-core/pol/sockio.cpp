@@ -6,20 +6,32 @@
 
 #include "sockio.h"
 
-#include "../clib/clib_endian.h"
-#include "../clib/clib.h"
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-
-#include "globals/network.h"
-
 #ifdef __unix__
 #include <sys/utsname.h>
+
 struct utsname my_utsname;
 #endif
 
+#include <arpa/inet.h>
 #include <cstdio>
 #include <cstring>
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <stdexcept>
+#include <string>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include "../clib/clib.h"
+#include "../clib/clib_endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/strutil.h"
+#include "globals/network.h"
+#include "sockets.h"
+
 
 namespace Pol
 {
@@ -243,7 +255,5 @@ PolSocket::PolSocket()
   FD_ZERO( &err_fd );
   FD_ZERO( &send_fd );
 }
-
-
 }
 }

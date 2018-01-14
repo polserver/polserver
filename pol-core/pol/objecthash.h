@@ -14,8 +14,10 @@
 #include "../clib/rawtypes.h"
 #include "reftypes.h"
 
-namespace Pol {
-namespace Core {
+namespace Pol
+{
+namespace Core
+{
 class UObject;
 }  // namespace Core
 }  // namespace Pol

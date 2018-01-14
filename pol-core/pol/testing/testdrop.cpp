@@ -3,25 +3,21 @@
  * @par History
  */
 
-#include "testenv.h"
-
+#include "../../../lib/format/format.h"
 #include "../../clib/logfacility.h"
-#include "../../plib/mapserver.h"
 #include "../globals/uvars.h"
-#include "../multi/multi.h"
 #include "../realms/realm.h"
-#include "../uconst.h"
+#include "testenv.h"
 
 namespace Pol
 {
 namespace Testing
 {
-
 namespace
 {
 // This code should mirror code in drop_item_on_ground
 void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned short dropx,
-                       unsigned short dropy, short dropz, bool exp_result, short exp_z )
+                unsigned short dropy, short dropz, bool exp_result, short exp_z )
 {
   fmt::Writer tmp;
   tmp << "POL DropHeight(" << chrx << "," << chry << "," << chrz << "," << dropx << "," << dropy
@@ -52,7 +48,7 @@ void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned s
   inc_successes();
   INFO_PRINT << tmp.str() << "Ok!\n";
 }
-} // namespace
+}  // namespace
 
 void drop_test()
 {
@@ -78,5 +74,5 @@ void drop_test()
   // a ramp in an orc fort
   test_drop( 5210, 3616, 0, 5210, 3615, 5, true, 2 );
 }
-} // namespace Testing
-} // namespace Pol
+}  // namespace Testing
+}  // namespace Pol
