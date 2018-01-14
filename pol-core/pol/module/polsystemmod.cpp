@@ -31,6 +31,7 @@
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
 #include "../cmdlevel.h"
+#include "../core.h"
 #include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"

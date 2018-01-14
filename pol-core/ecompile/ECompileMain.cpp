@@ -20,6 +20,7 @@
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/mdump.h"
 #include "../clib/passert.h"
 #include "../clib/timer.h"
 #include "../plib/pkg.h"
