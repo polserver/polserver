@@ -14,8 +14,8 @@
 #include "../mobile/charactr.h"
 #include "../network/cliface.h"
 #include "../skilladv.h"
+#include "../skillid.h"
 #include "../uoexhelp.h"
-#include "skillid.h"
 
 
 namespace Pol

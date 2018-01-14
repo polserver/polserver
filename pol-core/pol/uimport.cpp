@@ -18,11 +18,8 @@
 #include <cstring>
 #include <exception>
 #include <future>
-#include <netdb.h>
 #include <string>
-#include <sys/time.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"

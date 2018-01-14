@@ -13,7 +13,7 @@
 #include "../clidata.h"
 #include "../item/itemdesc.h"
 #include "../tiles.h"
-#include "multi/../udatfile.h"
+#include "../udatfile.h"
 #include "multidef.h"
 
 namespace Pol

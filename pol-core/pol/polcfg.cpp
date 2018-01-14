@@ -26,6 +26,7 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/mdump.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"

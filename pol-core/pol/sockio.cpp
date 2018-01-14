@@ -15,13 +15,8 @@ struct utsname my_utsname;
 #include <cstdio>
 #include <cstring>
 #include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
 #include <stdexcept>
 #include <string>
-#include <sys/socket.h>
-#include <unistd.h>
 
 #include "../clib/clib.h"
 #include "../clib/clib_endian.h"

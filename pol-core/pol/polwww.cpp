@@ -20,7 +20,6 @@
 #include <iosfwd>
 #include <string>
 #include <time.h>
-#include <unistd.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
