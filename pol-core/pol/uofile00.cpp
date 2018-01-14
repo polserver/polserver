@@ -3,22 +3,15 @@
  * @par History
  */
 
-
 #include "uofile.h"
 
-#include "polcfg.h"
-#include "polfile.h"
-#include "udatfile.h"
-#include "ustruct.h"
+#include <cstdio>
+#include <string>
 
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
-
 #include "../plib/systemstate.h"
-
-#include <cstdio>
-#include <cstring>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning for fopen, etc

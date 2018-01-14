@@ -4,16 +4,11 @@
  */
 
 
-#include "uofile.h"
-#include "uofilei.h"
-
-#include "polcfg.h"
-#include "polfile.h"
+#include "/home/turley/newcore/pol-core/pol/clidata.h"
+#include "/home/turley/newcore/pol-core/pol/uconst.h"
 #include "udatfile.h"
+#include "uofile.h"
 #include "ustruct.h"
-
-#include <cstdio>
-#include <cstring>
 
 namespace Pol
 {

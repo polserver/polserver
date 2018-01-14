@@ -13,13 +13,16 @@
 
 #include "uworld.h"
 
-#include "realms.h"
-#include "globals/uvars.h"
+#include <stddef.h>
+#include <string>
 
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
+#include "../clib/passert.h"
+#include "globals/uvars.h"
+#include "item/item.h"
+#include "mobile/charactr.h"
+#include "multi/multi.h"
 
 namespace Pol
 {
@@ -126,8 +129,7 @@ void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
 {
   Zone& zone = getzone( chr->x, chr->y, chr->realm );
 
-  auto set_pos = [&]( ZoneCharacters& set )
-  {
+  auto set_pos = [&]( ZoneCharacters& set ) {
     passert( std::find( set.begin(), set.end(), chr ) == set.end() );
     set.push_back( chr );
   };
@@ -148,8 +150,7 @@ void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
 {
   Zone& zone = getzone( chr->x, chr->y, chr->realm );
 
-  auto clear_pos = [&]( ZoneCharacters& set )
-  {
+  auto clear_pos = [&]( ZoneCharacters& set ) {
     auto itr = std::find( set.begin(), set.end(), chr );
     if ( itr == set.end() )
     {
@@ -183,8 +184,7 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
 
     if ( &oldzone != &newzone )
     {
-      auto move_pos = [&]( ZoneCharacters& oldset, ZoneCharacters& newset )
-      {
+      auto move_pos = [&]( ZoneCharacters& oldset, ZoneCharacters& newset ) {
         auto oldset_itr = std::find( oldset.begin(), oldset.end(), chr );
 
         // ensure it's found in the old realm
@@ -291,8 +291,8 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
         found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
       }
       if ( found )
-        POLLOG_ERROR.Format( "ClrCharacterWorldPosition: Found mob in zone ({},{})\n" ) << zonex
-                                                                                        << zoney;
+        POLLOG_ERROR.Format( "ClrCharacterWorldPosition: Found mob in zone ({},{})\n" )
+            << zonex << zoney;
     }
   }
 }
@@ -364,8 +364,7 @@ void check_character_integrity()
     unsigned int gridwidth = realm->grid_width();
     unsigned int gridheight = realm->grid_height();
 
-    auto check_zone = []( Mobile::Character* chr, unsigned y, unsigned x )
-    {
+    auto check_zone = []( Mobile::Character* chr, unsigned y, unsigned x ) {
       unsigned short wx, wy;
       zone_convert( chr->x, chr->y, &wx, &wy, chr->realm );
       if ( wx != x || wy != y )

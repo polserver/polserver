@@ -51,55 +51,68 @@
 
 #include "uoscrobj.h"
 
+#include <string>
+
+#include "../bscript/berror.h"
+#include "../bscript/dict.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/executor.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
+#include "../clib/stlutil.h"
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"
-#include "item/armor.h"
-#include "item/armrtmpl.h"
-#include "mobile/attribute.h"
-#include "multi/boatcomp.h"
-#include "mobile/corpse.h"
-#include "mobile/ufacing.h"
-#include "network/packets.h"
-#include "network/packethelper.h"
 #include "cmdlevel.h"
+#include "containr.h"
 #include "door.h"
+#include "dynproperties.h"
+#include "equipdsc.h"
 #include "exscrobj.h"
 #include "fnsearch.h"
-#include "module/guildmod.h"
-#include "multi/house.h"
-#include "umap.h"
+#include "globals/network.h"
+#include "globals/uvars.h"
+#include "item/armor.h"
+#include "item/equipmnt.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
+#include "item/weapon.h"
+#include "lockable.h"
+#include "mobile/charactr.h"
+#include "mobile/corpse.h"
 #include "mobile/npc.h"
-#include "objtype.h"
+#include "mobile/ufacing.h"
+#include "module/guildmod.h"
+#include "module/partymod.h"
+#include "module/uomod.h"
+#include "multi/boat.h"
+#include "multi/boatcomp.h"
+#include "multi/house.h"
+#include "multi/multi.h"
+#include "network/client.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "npctmpl.h"
+#include "pktdef.h"
 #include "polclass.h"
+#include "polclock.h"
+#include "poltype.h"
+#include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
 #include "spelbook.h"
 #include "statmsg.h"
 #include "syshookscript.h"
 #include "tooltips.h"
+#include "uconst.h"
 #include "ufunc.h"
-#include "item/weapon.h"
-#include "item/wepntmpl.h"
+#include "umap.h"
+#include "unicode.h"
+#include "uobject.h"
+#include "uoclient.h"
+#include "uoexec.h"
 #include "uoexhelp.h"
 #include "uworld.h"
-#include "module/uomod.h"
-#include "module/partymod.h"
-#include "network/clienttransmit.h"
-#include "globals/uvars.h"
-#include "globals/network.h"
-#include "unicode.h"
-
-#include "../bscript/berror.h"
-#include "../bscript/dict.h"
-#include "../bscript/escrutil.h"
-#include "../bscript/execmodl.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-
-#include "../clib/clib_endian.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
 
 namespace Pol
 {
@@ -252,7 +265,7 @@ bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -436,7 +449,7 @@ bool EItemRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -573,7 +586,7 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -715,7 +728,7 @@ bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -951,7 +964,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( fire_resist().sum() );
     break;
   case MBR_COLD_RESIST:
-    return new BLong( cold_resist().sum());
+    return new BLong( cold_resist().sum() );
     break;
   case MBR_ENERGY_RESIST:
     return new BLong( energy_resist().sum() );
@@ -960,7 +973,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( poison_resist().sum() );
     break;
   case MBR_PHYSICAL_RESIST:
-    return new BLong( physical_resist().sum());
+    return new BLong( physical_resist().sum() );
     break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
@@ -978,19 +991,19 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( physical_resist().mod );
     break;
   case MBR_FIRE_DAMAGE:
-    return new BLong( fire_damage().sum());
+    return new BLong( fire_damage().sum() );
     break;
   case MBR_COLD_DAMAGE:
-    return new BLong( cold_damage().sum());
+    return new BLong( cold_damage().sum() );
     break;
   case MBR_ENERGY_DAMAGE:
-    return new BLong(energy_damage().sum());
+    return new BLong( energy_damage().sum() );
     break;
   case MBR_POISON_DAMAGE:
-    return new BLong( poison_damage().sum());
+    return new BLong( poison_damage().sum() );
     break;
   case MBR_PHYSICAL_DAMAGE:
-    return new BLong( physical_damage().sum());
+    return new BLong( physical_damage().sum() );
     break;
   case MBR_FIRE_DAMAGE_MOD:
     return new BLong( fire_damage().mod );
@@ -1018,7 +1031,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     Module::UOExecutorModule* proc = process();
     if ( proc )
     {
-      Pol::Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
+      Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
       return new Core::ScriptExObjImp( executor );
     }
     else
@@ -1468,8 +1481,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    auto create_new_stack = [&]() -> BObjectImp*
-    {
+    auto create_new_stack = [&]() -> BObjectImp* {
       bool can_insert =
           newcontainer->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
       if ( !can_insert )
@@ -2055,6 +2067,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   default:
     return NULL;
   }
+  return NULL;
 }
 
 BObjectImp* Character::get_script_member( const char* membername ) const
@@ -4282,7 +4295,7 @@ bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }

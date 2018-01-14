@@ -26,7 +26,6 @@
 #include "mobile/charactr.h"
 #include "multi/boat.h"
 #include "network/client.h"
-#include "reftypes.h"
 #include "uobjcnt.h"
 
 #ifndef ITEM_H

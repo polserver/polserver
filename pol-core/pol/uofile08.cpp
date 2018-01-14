@@ -6,25 +6,18 @@
  */
 
 
-#include "uofile.h"
-#include "uofilei.h"
-
-#include "../plib/mapfunc.h"
-
-#include "clidata.h"
-#include "objtype.h"
-#include "polcfg.h"
-#include "polfile.h"
-#include "udatfile.h"
-#include "ustruct.h"
-#include "poltype.h"
-
-#include "../clib/passert.h"
-
 #include <cstdio>
-#include <cstring>
 #include <map>
 #include <stdexcept>
+#include <stdlib.h>
+
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "clidata.h"
+#include "poltype.h"
+#include "uofile.h"
+#include "uofilei.h"
+#include "ustruct.h"
 
 namespace Pol
 {

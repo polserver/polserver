@@ -6,14 +6,15 @@
 
 #include "tildecmd.h"
 
-#include "polcfg.h"
-#include "spells.h"
+#include <iostream>
+#include <stdlib.h>
+#include <string>
 
+#include "../../lib/format/format.h"
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
-
-#include <iostream>
+#include "spells.h"
 
 namespace Pol
 {
