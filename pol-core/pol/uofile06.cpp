@@ -4,8 +4,8 @@
  */
 
 
-#include "/home/turley/newcore/pol-core/pol/clidata.h"
-#include "/home/turley/newcore/pol-core/pol/uconst.h"
+#include "clidata.h"
+#include "uconst.h"
 #include "udatfile.h"
 #include "uofile.h"
 #include "ustruct.h"
@@ -128,7 +128,5 @@ void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsi
   *result_out = result;
   *newz_out = newz;
 }
-
-
 }
 }
