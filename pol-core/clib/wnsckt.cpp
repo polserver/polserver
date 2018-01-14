@@ -6,10 +6,8 @@
 
 #include "wnsckt.h"
 
-#include <byteswap.h>
 #include <cstdio>
 #include <cstring>
-#include <sys/select.h>
 
 #include "esignal.h"
 #include "logfacility.h"

@@ -14,11 +14,9 @@
 #include <cstddef>
 #include <cstring>
 #include <errno.h>
-#include <features.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h>
 
 #ifndef WINDOWS
 #include <arpa/inet.h>
