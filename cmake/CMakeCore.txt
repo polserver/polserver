@@ -446,3 +446,12 @@ IF (DEFINED TARGET_LIB_NAME OR DEFINED TARGET_PROGRAM_NAME)
         TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_LINUX})
     ENDIF (LINUX)
 ENDIF()
+
+
+#PCH SUPPORT
+set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
+IF (EXISTS ${_pch_name})
+  include(${CMAKE_CURRENT_LIST_DIR}/cotire.cmake)
+  set_target_properties(${TARGET_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
+  cotire(${TARGET_NAME})
+endif()

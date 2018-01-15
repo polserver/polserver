@@ -113,4 +113,6 @@ ENDIF()
 ##############################################################
 SET (PRE_DEFINITIONS_EXECUTED "true")
 
+IF (NOT POL_DEFINITIONS_EXECUTED)
 INCLUDE (${CMAKE_CURRENT_LIST_DIR}/POL.txt)
+ENDIF()
