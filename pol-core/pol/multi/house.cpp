@@ -17,7 +17,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <stdlib.h>
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"

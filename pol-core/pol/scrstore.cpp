@@ -7,7 +7,7 @@
 
 #include "scrstore.h"
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"

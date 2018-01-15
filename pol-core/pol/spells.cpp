@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"

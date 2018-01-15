@@ -7,7 +7,7 @@
 #include <string>
 #include <time.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../bscript/compiler.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"

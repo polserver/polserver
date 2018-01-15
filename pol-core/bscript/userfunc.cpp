@@ -8,7 +8,7 @@
 
 #include <stddef.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../clib/logfacility.h"
 
 namespace Pol

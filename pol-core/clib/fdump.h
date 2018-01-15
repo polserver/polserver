@@ -7,7 +7,7 @@
 #ifndef CLIB_FDUMP_H
 #define CLIB_FDUMP_H
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 
 namespace Pol
 {

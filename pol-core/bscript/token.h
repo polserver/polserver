@@ -17,7 +17,7 @@
 #include <iosfwd>
 #include <set>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "options.h"
 
 namespace Pol

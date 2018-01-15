@@ -1,6 +1,6 @@
 #include "ExceptionParser.h"
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 #include "../Program/ProgramConfig.h"
 #include "../logfacility.h"
 #include "../threadhelp.h"

@@ -10,7 +10,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <iosfwd>
 #include <string>
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 
 namespace Pol
 {

@@ -3,7 +3,7 @@
  * @par History
  */
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 #include "../../clib/logfacility.h"
 #include "../globals/uvars.h"
 #include "../realms/realm.h"

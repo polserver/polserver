@@ -60,7 +60,7 @@
 
 #include <errno.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../bscript/bobject.h"
 #include "../clib/Debugging/ExceptionParser.h"
 #include "../clib/clib_endian.h"

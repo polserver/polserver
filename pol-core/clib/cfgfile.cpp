@@ -15,7 +15,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "cfgelem.h"
 #include "clib.h"
 #include "logfacility.h"

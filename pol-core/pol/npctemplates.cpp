@@ -11,7 +11,7 @@
 #include <string.h>
 #include <string>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"

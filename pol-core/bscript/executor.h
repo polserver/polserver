@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
 #include "bobject.h"

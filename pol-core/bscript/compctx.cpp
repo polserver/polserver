@@ -9,7 +9,7 @@
 #include <cstring>
 #include <ctype.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 
 namespace Pol
 {

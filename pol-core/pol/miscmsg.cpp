@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <string>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"

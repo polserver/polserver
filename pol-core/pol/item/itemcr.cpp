@@ -12,7 +12,7 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"

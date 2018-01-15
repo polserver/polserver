@@ -10,7 +10,7 @@
 #include <stddef.h>
 #include <stdexcept>
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/cfgelem.h"

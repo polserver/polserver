@@ -27,7 +27,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../clib/clib.h"
 #include "../clib/filecont.h"
 #include "../clib/fileutil.h"

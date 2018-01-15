@@ -7,7 +7,7 @@
 #include <sstream>
 #include <stddef.h>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "objmembers.h"
 #include "objmethods.h"
 #include "token.h"

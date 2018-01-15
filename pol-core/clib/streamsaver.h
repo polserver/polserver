@@ -7,7 +7,7 @@
 #include <string>
 #include <thread>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "compilerspecifics.h"
 #include "message_queue.h"
 #if 0

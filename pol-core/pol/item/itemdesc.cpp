@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"

@@ -8,7 +8,7 @@
 #include <ctime>
 #include <iostream>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../bscript/bobject.h"
 #include "../bscript/config.h"
 #include "../bscript/execmodl.h"

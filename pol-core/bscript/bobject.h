@@ -25,7 +25,7 @@
 #define INLINE_BOBJECTIMP_CTOR 1
 #endif
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 
 #include "../clib/fixalloc.h"
 #include "../clib/passert.h"

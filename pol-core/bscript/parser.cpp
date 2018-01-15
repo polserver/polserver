@@ -50,7 +50,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"

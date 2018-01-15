@@ -8,7 +8,7 @@
 #include <string.h>
 #include <string>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../clib/compilerspecifics.h"
 #include "../clib/esignal.h"
 #include "../clib/logfacility.h"

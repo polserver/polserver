@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <string>
 
-#include "../../../lib/format/format.h"
+#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"

@@ -7,7 +7,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include <boost/noncopyable.hpp>
 #include <fstream>
 #include <future>

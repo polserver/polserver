@@ -18,7 +18,7 @@
 #include <ctime>
 #include <exception>
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../clib/logfacility.h"
