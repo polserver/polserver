@@ -27,6 +27,7 @@ CONFIGURE_FILE(
     ${CMAKE_CURRENT_BINARY_DIR}/pol_global_config.h
 )
 
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 ##############################################################
 # compile FLAGS and INCLUDE dirs
 IF(LINUX)
