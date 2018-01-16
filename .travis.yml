@@ -34,8 +34,8 @@ before_install:
 before_script:
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
   - export TRAVIS_CI=1
-  - export CXX=${COMPILER_CXX}
-  - export CC=${COMPILER_CC}
+  - export CXX=$COMPILER_CXX
+  - export CC=$COMPILER_CC
   - cmake ../..
   - echo -en 'travis_fold:end:script.configure\\r'
 
