@@ -18,7 +18,7 @@ matrix:
         apt:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-7']
-          env: COMPILER_CXX='g++-7' COMPILER_CC='gcc-7'
+          env: COMPILER_CXX=g++-7 COMPILER_CC=gcc-7
 
     - os: linux
       compiler: clang
@@ -26,7 +26,7 @@ matrix:
         apt:
           sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
           packages: ['clang-5.0']
-          env: COMPILER_CXX='clang++-5.0' COMPILER_CC='clang-5.0'
+          env: COMPILER_CXX=clang++-5.0 COMPILER_CC=clang-5.0
 
 before_install:
   - cd pol-core/bin-build
