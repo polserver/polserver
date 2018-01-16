@@ -1,6 +1,7 @@
 language: cpp
 
-sudo: false
+#containerbased build defined via false has currently every few days network problems, define it back to false once they hve it under control
+sudo: required
 
 cache:
   directories:
