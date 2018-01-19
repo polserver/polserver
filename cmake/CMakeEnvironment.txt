@@ -10,6 +10,16 @@
 #
 ###############################################################################
 
+#stop spam
+if(__ENVIRONMENT_FILE__)
+  return()
+endif()
+set(__ENVIRONMENT_FILE__ TRUE)
+
+
+# Default build type
+SET(BUILD "Default" CACHE STRING "The build type, one of Default,Debug,Valgrind")
+
 MESSAGE("####################################")
 MESSAGE("##### Preparing configuration")
 MESSAGE("####################################")
@@ -59,41 +69,14 @@ ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 ENDIF()
 
 ##############################################################
-# detect FreeBSD
-IF (${CMAKE_SYSTEM} MATCHES "FreeBSD.*")
-    SET (BSD "true")
-    
-    # clear LINUX variable, otherwise the source gets confused because cmake detects FreeBSD also as LINUX environment
-    SET (LINUX)
-    MESSAGE("Target system is FreeBSD")
-ELSE()
-    MESSAGE("Target system is ${CMAKE_SYSTEM}") 
-ENDIF()
+MESSAGE("Target system is ${CMAKE_SYSTEM}") 
 
 ##############################################################
 # detect Linux
-IF (UNIX AND NOT WIN32 AND NOT APPLE AND NOT BSD)
+IF (UNIX AND NOT WIN32)
     MESSAGE("Target system is Linux")
     SET (LINUX "true")
 ENDIF()
-
-##############################################################
-# detect OS X
-if (APPLE)
-    exec_program(uname ARGS -v OUTPUT_VARIABLE DARWIN_VERSION)
-    string(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
-    if (DARWIN_VERSION LESS 10)
-        # 10.6 of Snow Leopard is minimum
-        MESSAGE(FATAL_ERROR "You need at least OS X Snow Leopard")
-    endif()
-    if (DARWIN_VERSION EQUAL 10)
-        MESSAGE("Target system is DARWIN version 10 from OS X Snow Leopard")
-    elseif (DARWIN_VERSION EQUAL 11)
-        MESSAGE("Target system is DARWIN version 11 from OS X Lion")
-    else()
-        message("Target system is DARWIN version ${DARWIN_VERSION}")
-    endif()
-endif(APPLE)
 
 ##############################################################
 # detect Windows
@@ -111,8 +94,5 @@ IF (WIN32)
 ENDIF()
 
 ##############################################################
-SET (PRE_DEFINITIONS_EXECUTED "true")
 
-IF (NOT POL_DEFINITIONS_EXECUTED)
 INCLUDE (${CMAKE_CURRENT_LIST_DIR}/POL.txt)
-ENDIF()

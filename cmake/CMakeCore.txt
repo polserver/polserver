@@ -13,9 +13,6 @@
 INCLUDE(CheckLibraryExists)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Default build type
-SET(BUILD "Default" CACHE STRING "The build type, one of Default,Debug,Valgrind")
-
 ##############################################################
 
 IF (DEFINED TARGET_NAME_BINARY) 
@@ -29,11 +26,8 @@ ELSEIF (DEFINED TARGET_NAME_LIB)
 ENDIF ()
 
 ##############################################################
-# check if CMakeEnvironment.txt was parsed before
-IF (NOT PRE_DEFINITIONS_EXECUTED)
-    MESSAGE("Including automatically the pre-definitions from CMakeEnvironment.txt..")
-    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeEnvironment.txt)
-ENDIF ()
+# if not already included call it now
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/CMakeEnvironment.txt)
 
 ##############################################################
 # minimum required GCC version
@@ -121,9 +115,7 @@ ENDIF()
 ##############################################################
 # differentiate between debug and release version
 IF ( (${BUILD} MATCHES "Debug") OR (${BUILD} MATCHES "Valgrind") )
-    IF (APPLE)
-        SET (FLAGS "${FLAGS} -g -DDEBUG_VERSION")
-    ELSEIF(WINDOWS)
+    IF(WINDOWS)
     	SET (FLAGS "${FLAGS} /DDEBUG_VERSION")
     ELSE()
         SET (FLAGS "${FLAGS} -g -ggdb -DDEBUG_VERSION")
@@ -137,17 +129,8 @@ ELSE ()
 ENDIF ()
 
 ##############################################################
-# define minimum OS X version to which the binary is compatible
-IF (APPLE)
-    SET(FLAGS
-        ${FLAGS}
-        -mmacosx-version-min=${MIN_SUPPORTED_OSX_VERSION}
-    )
-ENDIF()
-
-##############################################################
-# stripping for all platforms excluding APPLE
-IF (LINUX OR BSD)
+# stripping for linux platforms
+IF (LINUX)
     IF (${BUILD} MATCHES "Release")
         SET (LFLAGS "${LFLAGS} -s")
     ENDIF()
@@ -193,25 +176,6 @@ IF (LINUX)
         ${DEFINITIONS}
         ${DEFINITIONS_LINUX}
         -DLINUX
-    )
-ENDIF()
-
-# "-D" options for compilation in BSD environment
-IF (BSD)
-    SET (DEFINITIONS
-        ${DEFINITIONS}
-        ${DEFINITIONS_BSD}
-        -DBSD
-    )
-ENDIF()
-
-# "-D" options for compilation in APPLE environment
-IF (APPLE)
-    SET (DEFINITIONS
-        ${DEFINITIONS}
-        ${DEFINITIONS_APPLE}
-        -DAPPLE
-        -D_THREAD_SAFE
     )
 ENDIF()
 
@@ -261,7 +225,7 @@ FOREACH(FLAGS_ENTRY ${FLAGS})
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAGS_ENTRY}")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAGS_ENTRY}")
 ENDFOREACH(FLAGS_ENTRY ${FLAGS})
-MESSAGE("### Flags for C compiling: ${CMAKE_C_FLAGS}")
+#MESSAGE("### Flags for C compiling: ${CMAKE_C_FLAGS}")
 MESSAGE("### Flags for C++ compiling: ${CMAKE_CXX_FLAGS}")
 
 ##############################################################
@@ -278,18 +242,14 @@ ENDFOREACH(LIB_DIRS_ENTRY ${LIB_DIRS})
 
 ##############################################################
 # generate library from given source files
-IF (DEFINED TARGET_LIB_NAME) 
-    # set libraries install_name for APPLE systems
-    IF (APPLE)
-        SET (LFLAGS
-            ${LFLAGS}
-            -Wl,-install_name,@rpath/lib${TARGET_LIB_NAME}.dylib
-        )
-    ENDIF (APPLE)
-    
-    MESSAGE("### Flags for shared linking: ${CMAKE_SHARED_LINKER_FLAGS}")
-    MESSAGE("### Flags for module linking: ${CMAKE_MODULE_LINKER_FLAGS}")
-    
+IF (DEFINED TARGET_LIB_NAME)
+	IF (DEFINED CMAKE_SHARED_LINKER_FLAGS) 
+      MESSAGE("### Flags for shared linking: ${CMAKE_SHARED_LINKER_FLAGS}")
+    ENDIF()
+	IF (DEFINED CMAKE_MODULE_LINKER_FLAGS) 
+      MESSAGE("### Flags for module linking: ${CMAKE_MODULE_LINKER_FLAGS}")
+    ENDIF()
+
     # build destination
     SET(LIBRARY_OUTPUT_PATH ${TARGET_DIRECTORY})
     MESSAGE("### Library output path: ${TARGET_DIRECTORY}")
@@ -318,11 +278,7 @@ IF (DEFINED TARGET_PROGRAM_NAME)
     SET(EXECUTABLE_OUTPUT_PATH ${TARGET_DIRECTORY})
     MESSAGE("### Program output path: ${EXECUTABLE_OUTPUT_PATH}")
 
-    # trigger program creation
-    IF(APPLE)
-#        ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} MACOSX_BUNDLE ${SOURCES})
-        ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} ${SOURCES})
-    ELSEIF (WINDOWS)
+    IF (WINDOWS)
         ADD_EXECUTABLE(${TARGET_PROGRAM_NAME} WIN32 ${SOURCES})
     ELSE ()
     	IF(${BUILD_STATIC} MATCHES "ON")
@@ -382,18 +338,13 @@ IF (WINDOWS)
     ENDFOREACH(LIBS_WINDOWS_INSTALL_ENTRY ${LIBS_WINDOWS_INSTALL})
 ENDIF()
 IF (LINUX)
-    MESSAGE("### Will additionally install Linux libraries: ${LIBS_LINUX_INSTALL}")
+    IF(DEFINED LIBS_LINUX_INSTALL)
+      MESSAGE("### Will additionally install Linux libraries: ${LIBS_LINUX_INSTALL}")
+    ENDIF()
     FOREACH(LIBS_LINUX_INSTALL_ENTRY ${LIBS_LINUX_INSTALL})
         GET_FILENAME_COMPONENT(LIBS_INSTALL_ENTRY_PATH_PREFIX ${LIBS_LINUX_INSTALL_ENTRY} PATH)
         INSTALL(FILES release/linux${ARCH_BITS}/${LIBS_LINUX_INSTALL_ENTRY} DESTINATION lib/${LIBS_INSTALL_ENTRY_PATH_PREFIX} COMPONENT extlibraries)
     ENDFOREACH(LIBS_LINUX_INSTALL_ENTRY ${LIBS_LINUX_INSTALL})
-ENDIF()
-IF (APPLE)
-    MESSAGE("### Will additionally install OS X libraries: ${LIBS_APPLE_INSTALL}")
-    FOREACH(LIBS_APPLE_INSTALL_ENTRY ${LIBS_APPLE_INSTALL})
-        GET_FILENAME_COMPONENT(LIBS_INSTALL_ENTRY_PATH_PREFIX ${LIBS_APPLE_INSTALL_ENTRY} PATH)
-        INSTALL(FILES release/apple${ARCH_BITS}/${LIBS_APPLE_INSTALL_ENTRY} DESTINATION lib/${LIBS_INSTALL_ENTRY_PATH_PREFIX} COMPONENT extlibraries)
-    ENDFOREACH(LIBS_APPLE_INSTALL_ENTRY ${LIBS_APPLE_INSTALL})
 ENDIF()
 
 ##############################################################
@@ -408,41 +359,18 @@ ENDIF()
 # if nothing is set dont do anything
 # workaround to use the same compiler flags defined above for google benchmark
 IF (DEFINED TARGET_LIB_NAME OR DEFINED TARGET_PROGRAM_NAME)
-
-    IF (APPLE)
-        # activate rpath
-        SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-        SET(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
-        
-        MESSAGE("### Linking static Apple libraries: ${LIBS_APPLE_STATIC}")
-        SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-search_paths_first")
-        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE_STATIC})
-    
-        MESSAGE("### Linking dynamic Apple libraries: ${LIBS_APPLE}")
-        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_APPLE})
-    
-        MESSAGE("### Linking Apple frameworks: ${FRAMEWORKS_APPLE}")
-        FOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
-            TARGET_LINK_LIBRARIES(${TARGET_NAME} "-framework ${FRAMEWORKS_APPLE_ENTRY}" )
-        ENDFOREACH(FRAMEWORKS_APPLE_ENTRY ${FRAMEWORKS_APPLE})
-    ENDIF (APPLE)
-    IF (BSD)
-        MESSAGE("### Linking static BSD libraries: ${LIBS_BSD_STATIC}")
-    #    TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD_STATIC} )
-        TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_BSD_STATIC} -Wl,-Bdynamic )
-    
-        MESSAGE("### Linking dynamic BSD libraries: ${LIBS_BSD}")
-        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_BSD})
-    ENDIF (BSD)
-    
     IF (LINUX)
-        MESSAGE("### Linking static Linux libraries: ${LIBS_LINUX_STATIC}")
+        IF (DEFINED LIBS_LINUX_STATIC)
+          MESSAGE("### Linking static Linux libraries: ${LIBS_LINUX_STATIC}")
+        ENDIF()
         TARGET_LINK_LIBRARIES(${TARGET_NAME} -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC} -Wl,-Bdynamic )
         IF(${BUILD_STATIC} MATCHES "ON")
         	TARGET_LINK_LIBRARIES(${TARGET_NAME}_static -Wl,-Bstatic -Wl,-Bsymbolic ${LIBS_LINUX_STATIC_BIN_STATIC} -Wl,-Bdynamic )
         ENDIF()
     
-        MESSAGE("### Linking dynamic Linux libraries: ${LIBS_LINUX}")
+        IF (DEFINED LIBS_LINUX)
+          MESSAGE("### Linking dynamic Linux libraries: ${LIBS_LINUX}")
+        ENDIF()
         TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBS_LINUX})
     ENDIF (LINUX)
 ENDIF()

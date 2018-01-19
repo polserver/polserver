@@ -1,4 +1,10 @@
 ###############################################################################
+#stop spam
+if(__POL_FILE__)
+  return()
+endif()
+set(__POL_FILE__ TRUE)
+
 
 MESSAGE("####################################")
 MESSAGE("##### Preparing POL specific configuration")
@@ -76,16 +82,12 @@ IF(WINDOWS)
 ENDIF()
 
 ##### BOOST
-IF (NOT BOOST_EXECUTED)
-    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../cmake/Boost.txt)
-ENDIF ()
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../cmake/Boost.txt)
 INCLUDE_DIRECTORIES(${BOOST_SOURCE_DIR})
 LINK_DIRECTORIES(${BOOST_LIBRARY_DIR})
 
 ##### CURL
-IF (NOT CURL_EXECUTED)
-    INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../cmake/Curl.txt)
-ENDIF ()
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../cmake/Curl.txt)
 INCLUDE_DIRECTORIES(BEFORE SYSTEM ${CURL_INSTALL_DIR}/include)
 LINK_DIRECTORIES(${CURL_INSTALL_DIR}/lib)
 
@@ -97,5 +99,3 @@ ENDIF()
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_LIST_DIR}/../lib")
 
 
-
-SET (POL_DEFINITIONS_EXECUTED "true")

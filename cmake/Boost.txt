@@ -2,8 +2,11 @@ MESSAGE("####################################")
 MESSAGE("##### Building POL - BOOST")
 MESSAGE("####################################")
 
+if(__BOOST_FILE__)
+  return()
+endif()
+set(__BOOST_FILE__ TRUE)
 
-SET (BOOST_EXECUTED "true")
 SET (BOOST_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_63_0")
 
 IF(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
