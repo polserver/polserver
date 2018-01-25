@@ -129,6 +129,21 @@ public:
   unsigned short resist_energy_cap;
   unsigned short resist_physical_cap;
   unsigned short resist_poison_cap;
+  unsigned short defence_increase_mod;
+  unsigned short defence_increase_cap_mod;
+  unsigned short lower_mana_cost_mod;
+  unsigned short hitchance_mod;
+  unsigned short speed_mod;
+  unsigned short dmg_mod;
+  unsigned short resist_fire_cap_mod;
+  unsigned short resist_cold_cap_mod;
+  unsigned short resist_energy_cap_mod;
+  unsigned short resist_physical_cap_mod;
+  unsigned short resist_poison_cap_mod;
+  unsigned short lower_reagent_cost_mod;
+  unsigned short spell_damage_increase_mod;
+  unsigned short faster_casting_mod;
+  unsigned short faster_cast_recovery_mod;
 
   Core::Dice resist_dice;
 

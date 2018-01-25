@@ -245,6 +245,22 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   resist_energy_cap = elem.remove_ushort("ENERGYRESISTCAP", 0);
   resist_physical_cap = elem.remove_ushort("PHYSICALRESISTCAP", 0);
   resist_poison_cap = elem.remove_ushort("POISONRESISTCAP", 0);
+  //mods
+  defence_increase_mod = elem.remove_ushort("DefenceIncreaseMod", 0);
+  defence_increase_cap_mod = elem.remove_ushort("DefenceIncreaseCapMod", 0);
+  lower_mana_cost_mod = elem.remove_ushort("LowerManaCostMod", 0);
+  hitchance_mod = elem.remove_ushort("hitchance_mod", 0);
+  speed_mod = elem.remove_ushort("speed_mod", 0);
+  dmg_mod = elem.remove_ushort("dmg_mod", 0);
+  resist_fire_cap_mod = elem.remove_ushort("FireResistCapMod", 0);
+  resist_cold_cap_mod = elem.remove_ushort("ColdResistCapMod", 0);
+  resist_energy_cap_mod = elem.remove_ushort("EnergyResistCapMod", 0);
+  resist_physical_cap_mod = elem.remove_ushort("PhysicalResistCapMod", 0);
+  resist_poison_cap_mod = elem.remove_ushort("PoisonResistCapMod", 0);
+  lower_reagent_cost_mod = elem.remove_ushort("LowerReagentCostMod", 0);
+  spell_damage_increase_mod = elem.remove_ushort("SpellDamageIncreaseMod", 0);
+  faster_casting_mod = elem.remove_ushort("FasterCastingMod", 0);
+  faster_cast_recovery_mod = elem.remove_ushort("FasterCastRecoveryMod", 0);
 
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
   if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
@@ -592,6 +608,201 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 	  }
 	  resist_poison_cap = dice.roll();
   }
+  //change mods to dice rolls if needed
+  if (elem.remove_prop("DefenceIncreaseMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg DefenceIncreaseMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  defence_increase_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("DefenceIncreaseCapMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg DefenceIncreaseCapMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  defence_increase_cap_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("LowerManaCostMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg LowerManaCostMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  lower_mana_cost_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("hitchance_mod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg hitchance_mod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  hitchance_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("speed_mod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg speed_mod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  speed_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("dmg_mod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg dmg_mod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  dmg_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("FireResistCapMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg FireResistCapMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_fire_cap_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("ColdResistCapMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg ColdResistCapMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_cold_cap_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("EnergyResistCapMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg EnergyResistCapMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_energy_cap_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("PhysicalResistCapMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg PhysicalResistCapMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_physical_cap_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("PoisonResistCapMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg PoisonResistCapMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  resist_poison_cap_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("LowerReagentCostMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg LowerReagentCostMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  lower_reagent_cost_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("SpellDamageIncreaseMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg SpellDamageIncreaseMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  spell_damage_increase_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("FasterCastingMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg FasterCastingMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  faster_casting_mod = dice.roll();
+  }
+
+  if (elem.remove_prop("FasterCastRecoveryMod", &temp))
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(temp.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg FasterCastRecoveryMod for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  faster_cast_recovery_mod = dice.roll();
+  }
 
   memset( &element_resist, 0, sizeof( element_resist ) );
   memset( &element_damage, 0, sizeof( element_damage ) );
@@ -863,6 +1074,22 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember("EnergyResistCap", new BLong(resist_energy_cap));
   descriptor->addMember("PhysicalResistCap", new BLong(resist_physical_cap));
   descriptor->addMember("PoisonResistCap", new BLong(resist_poison_cap));
+  //new mods
+  descriptor->addMember("DefenceIncreaseMod", new BLong(defence_increase_mod));
+  descriptor->addMember("DefenceIncreaseCapMod", new BLong(defence_increase_cap_mod));
+  descriptor->addMember("LowerManaCostMod", new BLong(lower_mana_cost_mod));
+  descriptor->addMember("hitchance_mod", new BLong(hitchance_mod));
+  descriptor->addMember("speed_mod", new BLong(speed_mod));
+  descriptor->addMember("dmg_mod", new BLong(dmg_mod));
+  descriptor->addMember("FireResistCapMod", new BLong(resist_fire_cap_mod));
+  descriptor->addMember("ColdResistCapMod", new BLong(resist_cold_cap_mod));
+  descriptor->addMember("EnergyResistCapMod", new BLong(resist_energy_cap_mod));
+  descriptor->addMember("PhysicalResistCapMod", new BLong(resist_physical_cap_mod));
+  descriptor->addMember("PoisonResistCapMod", new BLong(resist_poison_cap_mod));
+  descriptor->addMember("LowerReagentCostMod", new BLong(lower_reagent_cost_mod));
+  descriptor->addMember("SpellDamageIncreaseMod", new BLong(spell_damage_increase_mod));
+  descriptor->addMember("FasterCastingMod", new BLong(faster_casting_mod));
+  descriptor->addMember("FasterCastRecoveryMod", new BLong(faster_cast_recovery_mod));
 
 
   std::set<std::string>::const_iterator set_itr;
