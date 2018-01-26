@@ -404,6 +404,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     Core::gamestate.old_objtype_conversions[old_objtype] = objtype;
   }
 
+
+
   if ( elem.remove_prop( "StackingIgnoresCProps", &temp ) )
   {
     ISTRINGSTREAM is( temp );
@@ -414,396 +416,112 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     }
   }
 
-  if (elem.remove_prop("LowerReagentCost", &temp))
+  auto diceValue = [&this](const std::string& value, const std::string& error_msg) -> unsigned short
   {
 	  Core::Dice dice;
 	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
+	  if (!dice.load(value.c_str(), &errmsg))
 	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg Lower Reagent Cost for "
+		  ERROR_PRINT << "Error loading itemdesc.cfg " << error_msg << " for "
 			  << objtype_description() << " : " << errmsg << "\n";
 		  throw std::runtime_error("Error loading Item Mods");
 	  }
-		  lower_reag_cost = dice.roll();
-  }
+	  return dice.roll();
+  };
+
 
   if (elem.remove_prop("SpellDamageIncrease", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg Spell Damage Increase for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  spell_damage_increase = dice.roll();
-  }
+    spell_damage_increase = diceValue(temp, "Spell Damage Increase");
 
+  if (elem.remove_prop("LowerReagentCost", &temp))
+    lower_reag_cost = diceValue(temp, "Lower Reagent Cost");
+
+  
   if (elem.remove_prop("FasterCasting", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg Faster Casting for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  faster_casting = dice.roll();
-  }
+    faster_casting = diceValue(temp, "Faster Casting");
 
   if (elem.remove_prop("FasterCastRecovery", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg Faster Cast Recovery for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  faster_cast_recovery = dice.roll();
-  }
+    faster_cast_recovery = diceValue(temp, "Faster Cast Recovery");
 
   if (elem.remove_prop("DefenceIncrease", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg Defence Increase for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  defence_increase = dice.roll();
-  }
-
+    defence_increase = diceValue(temp, "Defence Increase");
+  
   if (elem.remove_prop("DefenceIncreaseCap", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg DefenceIncreaseCap for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  defence_increase_cap = dice.roll();
-  }
-
+    defence_increase_cap = diceValue(temp, "Defence Increase Cap");
+  
   if (elem.remove_prop("LowerManaCost", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg LowerManaCost for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  lower_mana_cost = dice.roll();
-  }
-
+    lower_mana_cost = diceValue(temp, "Lower man Cost");
+  
   if (elem.remove_prop("HitChance", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg HitChance for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  hitchance = dice.roll();
-  }
-
+    hitchance = diceValue(temp, "Hit Chance");
+  
   if (elem.remove_prop("SwingSpeed", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg SwingSpeed for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  swingspeed = dice.roll();
-  }
-
+    swingspeed = diceValue(temp, "Swing Speed");
+  
   if (elem.remove_prop("DamageIncrease", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg DamageIncrease for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  damage_increase = dice.roll();
-  }
-
+    damage_increase = diceValue(temp, "Damage Increase");
+  
   if (elem.remove_prop("FireResistCap", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg FireResistCap for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_fire_cap = dice.roll();
-  }
-
+    resist_fire_cap = diceValue(temp, "Fire Resist Cap");
+  
   if (elem.remove_prop("ColdResistCap", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg ColdResistCap for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_cold_cap = dice.roll();
-  }
+    resist_cold_cap = diceValue(temp, "Cold Resist Cap");
 
   if (elem.remove_prop("EnergyResistCap", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg EnergyResistCap for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_energy_cap = dice.roll();
-  }
+    resist_energy_cap = diceValue(temp, "Energy Resist Cap");
 
   if (elem.remove_prop("PhysicalResistCap", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg PhysicalResistCap for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_physical_cap = dice.roll();
-  }
+    resist_physical_cap = diceValue(temp, "Physical Resist Cap");
 
   if (elem.remove_prop("PoisonResistCap", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg PoisonResistCap for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_poison_cap = dice.roll();
-  }
+    resist_poison_cap = diceValue(temp, "Poison Resist Cap");
+    
   //change mods to dice rolls if needed
   if (elem.remove_prop("DefenceIncreaseMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg DefenceIncreaseMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  defence_increase_mod = dice.roll();
-  }
+    defence_increase_mod = diceValue(temp, "Defence Increase Mod");
 
   if (elem.remove_prop("DefenceIncreaseCapMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg DefenceIncreaseCapMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  defence_increase_cap_mod = dice.roll();
-  }
+    defence_increase_cap_mod = diceValue(temp, "Defence Increase Cap Mod");
 
   if (elem.remove_prop("LowerManaCostMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg LowerManaCostMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  lower_mana_cost_mod = dice.roll();
-  }
+    lower_mana_cost_mod = diceValue(temp, "Lower Mana Cost Mod");
 
   if (elem.remove_prop("hitchance_mod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg hitchance_mod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  hitchance_mod = dice.roll();
-  }
+    hitchance_mod = diceValue(temp, "Hit Chance Mod");
 
   if (elem.remove_prop("speed_mod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg speed_mod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  speed_mod = dice.roll();
-  }
+    speed_mod = diceValue(temp, "Speed Mod Chance");
 
   if (elem.remove_prop("dmg_mod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg dmg_mod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  dmg_mod = dice.roll();
-  }
+    dmg_mod = diceValue(temp, "Damage Mod");
 
   if (elem.remove_prop("FireResistCapMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg FireResistCapMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_fire_cap_mod = dice.roll();
-  }
+    resist_fire_cap_mod = diceValue(temp, "Fire Resist Cap Mod");
 
   if (elem.remove_prop("ColdResistCapMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg ColdResistCapMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_cold_cap_mod = dice.roll();
-  }
+    resist_cold_cap_mod = diceValue(temp, "Cold Resist Cap");
 
   if (elem.remove_prop("EnergyResistCapMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg EnergyResistCapMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_energy_cap_mod = dice.roll();
-  }
+    resist_energy_cap_mod = diceValue(temp, "Energy Resist Cap");
 
   if (elem.remove_prop("PhysicalResistCapMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg PhysicalResistCapMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_physical_cap_mod = dice.roll();
-  }
+    resist_physical_cap_mod = diceValue(temp, "Physical Resist Cap");
 
   if (elem.remove_prop("PoisonResistCapMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg PoisonResistCapMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  resist_poison_cap_mod = dice.roll();
-  }
+    resist_poison_cap_mod = diceValue(temp, "Poison Resist Cap");
 
   if (elem.remove_prop("LowerReagentCostMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg LowerReagentCostMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  lower_reagent_cost_mod = dice.roll();
-  }
+    lower_reagent_cost_mod = diceValue(temp, "Lower Reagent Cost Mod");
 
   if (elem.remove_prop("SpellDamageIncreaseMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg SpellDamageIncreaseMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  spell_damage_increase_mod = dice.roll();
-  }
+    spell_damage_increase_mod = diceValue(temp, "Spell Damage Increase Mod");
 
   if (elem.remove_prop("FasterCastingMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg FasterCastingMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  faster_casting_mod = dice.roll();
-  }
+    faster_casting_mod = diceValue(temp, "Faster Casting Mod");
 
   if (elem.remove_prop("FasterCastRecoveryMod", &temp))
-  {
-	  Core::Dice dice;
-	  std::string errmsg;
-	  if (!dice.load(temp.c_str(), &errmsg))
-	  {
-		  ERROR_PRINT << "Error loading itemdesc.cfg FasterCastRecoveryMod for "
-			  << objtype_description() << " : " << errmsg << "\n";
-		  throw std::runtime_error("Error loading Item Mods");
-	  }
-	  faster_cast_recovery_mod = dice.roll();
-  }
-
+    faster_cast_recovery_mod = diceValue(temp, "Faster Cast Recovery Mod");
+  
   memset( &element_resist, 0, sizeof( element_resist ) );
   memset( &element_damage, 0, sizeof( element_damage ) );
   for ( unsigned resist = 0; resist <= Core::ELEMENTAL_TYPE_MAX; ++resist )
