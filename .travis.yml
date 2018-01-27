@@ -5,6 +5,7 @@ sudo: false
 cache:
   directories:
     - lib/curl
+    - lib/boost_1_63_0
 
 git:
   depth: 1

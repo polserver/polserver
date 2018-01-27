@@ -12,23 +12,23 @@
 #include "objmembers.h"
 #include "objmethods.h"
 
-#include "object.h"
 #include "berror.h"
 #include "bstruct.h"
 #include "dict.h"
-#include "impstr.h"
 #include "escriptv.h"
 #include "executor.h"
+#include "impstr.h"
+#include "object.h"
 
 #include "../clib/clib.h"
-#include "../clib/stlutil.h"
-#include "../clib/random.h"
 #include "../clib/logfacility.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
 
-#include <string>
 #include <istream>
-#include <ostream>
 #include <mutex>
+#include <ostream>
+#include <string>
 
 #if BOBJECTIMP_DEBUG
 #include <unordered_map>
@@ -107,6 +107,8 @@ BObjectImp* BObjectImp::unpack( std::istream& is )
       return BError::unpack( is );
     case 'x':
       return UninitObject::create();
+    case 'b':
+      return BBoolean::unpack( is );
 
     default:
       return new BError( "Unknown object type '" + std::string( 1, typech ) + "'" );
@@ -124,9 +126,7 @@ BObjectImp* BObjectImp::unpack( const char* pstr )
   return unpack( is );
 }
 
-BObject::~BObject()
-{
-}
+BObject::~BObject() {}
 
 
 BObject* BObject::clone() const
@@ -248,6 +248,8 @@ const char* BObjectImp::typestr( BObjectType typ )
     return "Packet";
   case OTBinaryFile:
     return "BinaryFile";
+  case OTBoolean:
+    return "Boolean";
   default:
     return "Undefined";
   }
@@ -965,9 +967,7 @@ BObjectRef BObjectImp::operDotQMark( const char* /*name*/ )
 UninitObject* UninitObject::SharedInstance;
 ref_ptr<BObjectImp> UninitObject::SharedInstanceOwner;
 
-UninitObject::UninitObject() : BObjectImp( OTUninit )
-{
-}
+UninitObject::UninitObject() : BObjectImp( OTUninit ) {}
 
 BObjectImp* UninitObject::copy( void ) const
 {
@@ -1001,13 +1001,9 @@ bool UninitObject::operator<( const BObjectImp& imp ) const
 }
 
 
-ObjArray::ObjArray() : BObjectImp( OTArray ), name_arr(), ref_arr()
-{
-}
+ObjArray::ObjArray() : BObjectImp( OTArray ), name_arr(), ref_arr() {}
 
-ObjArray::ObjArray( BObjectType type ) : BObjectImp( type ), name_arr(), ref_arr()
-{
-}
+ObjArray::ObjArray( BObjectType type ) : BObjectImp( type ), name_arr(), ref_arr() {}
 
 ObjArray::ObjArray( const ObjArray& copyfrom )
     : BObjectImp( copyfrom.type() ), name_arr( copyfrom.name_arr ), ref_arr( copyfrom.ref_arr )
@@ -1622,8 +1618,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
             return new BError( "Subindex to large" );
         }
         sort( ref_arr.begin(), ref_arr.end(),
-              [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool
-              {
+              [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool {
                 auto sub_arr1 = static_cast<ObjArray*>( x1.get()->impptr() );
                 auto sub_arr2 = static_cast<ObjArray*>( x2.get()->impptr() );
                 auto sub1 = sub_arr1->ref_arr[sub_index - 1];
@@ -1790,6 +1785,61 @@ std::string BApplicObjBase::getStringRep() const
 void BApplicObjBase::printOn( std::ostream& os ) const
 {
   os << getStringRep();
+}
+
+#if BOBJECTIMP_DEBUG
+BBoolean::BBoolean( bool bval ) : BObjectImp( OTBoolean ), bval_( bval ) {}
+BBoolean::BBoolean( const BBoolean& B ) : BBoolean( B.bval_ ) {}
+#endif
+
+BObjectImp* BBoolean::unpack( std::istream& is )
+{
+  int lv;
+  if ( is >> lv )
+  {
+    return new BBoolean( lv != 0 );
+  }
+  else
+  {
+    return new BError( "Error extracting Boolean value" );
+  }
+}
+
+void BBoolean::packonto( std::ostream& os ) const
+{
+  os << "b" << ( bval_ ? 1 : 0 );
+}
+
+std::string BBoolean::pack() const
+{
+  OSTRINGSTREAM os;
+  os << "b" << ( bval_ ? 1 : 0 );
+  return OSTRINGSTREAM_STR( os );
+}
+
+BObjectImp* BBoolean::copy() const
+{
+  return new BBoolean( *this );
+}
+
+size_t BBoolean::sizeEstimate() const
+{
+  return sizeof( BBoolean );
+}
+
+bool BBoolean::isTrue() const
+{
+  return bval_;
+}
+
+bool BBoolean::operator==( const BObjectImp& objimp ) const
+{
+  return bval_ == objimp.isTrue();
+}
+
+std::string BBoolean::getStringRep() const
+{
+  return bval_ ? "true" : "false";
 }
 }
 }

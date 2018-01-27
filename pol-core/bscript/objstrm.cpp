@@ -85,5 +85,10 @@ void BLong::printOn( std::ostream& os ) const
 {
   os << lval_;
 }
+
+void BBoolean::printOn( std::ostream& os ) const
+{
+  os << (bval_ ? "true" : "false");
+}
 }
 }
