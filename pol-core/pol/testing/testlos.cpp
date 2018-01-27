@@ -13,6 +13,10 @@
 #endif
 
 #ifdef ENABLE_BENCHMARK
+#include "../module/uomod.h"
+#include "../scrsched.h"
+#include "../uoexec.h"
+#include "../uoscrobj.h"
 #include <benchmark/benchmark.h>
 #endif
 
@@ -24,7 +28,6 @@
 #include "../mobile/npc.h"
 #include "../realms/realm.h"
 #include "../uobject.h"
-
 
 namespace Pol
 {

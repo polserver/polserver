@@ -1,5 +1,4 @@
 cmake_minimum_required (VERSION 2.8.12)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
 project (benchmark)
 
 foreach(p

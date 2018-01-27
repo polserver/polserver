@@ -823,7 +823,7 @@ void write_global_properties( Clib::StreamWriter& sw )
 
 void write_system_data( Clib::StreamWriter& sw )
 {
-  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
+  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION << pf_endl
        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl << "\tCompileDate\t"
        << POL_BUILD_DATE << pf_endl << "\tCompileTime\t" << POL_BUILD_TIME << pf_endl
        << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl  // dave 3/9/3

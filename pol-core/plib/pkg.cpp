@@ -208,11 +208,11 @@ void Package::check_dependencies() const
 {
   if ( core_required_ )
   {
-    if ( core_required_ > POL_VERSION_MAJOR )  // TODO: use a more fine grained check here
+    if ( core_required_ > POL_VERSION )  // TODO: use a more fine grained check here
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
                   << "  Core version " << core_required_ << " is required, but version "
-                  << POL_VERSION_MAJOR << " is running.\n";
+                  << POL_VERSION << " is running.\n";
       throw std::runtime_error( "Package requires a newer core version" );
     }
   }

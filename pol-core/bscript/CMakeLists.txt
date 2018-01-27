@@ -1,14 +1,7 @@
-###############################################################################
+set(lib_name bscript)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
-
-MESSAGE("####################################")
-MESSAGE("##### Building BSCRIPT")
-MESSAGE("####################################")
-
-###############################################################################
-# define source files
-SET (SOURCES  # sorted !
+add_library(${lib_name} STATIC
+    # sorted !
 	berror.cpp 
 	blong.cpp 
 	bstruct.cpp
@@ -38,50 +31,10 @@ SET (SOURCES  # sorted !
 	userfunc.cpp
 )
 
-##############################################################
-# include dirs
-SET (INCLUDE_DIRS
+set_compile_flags(${lib_name} 0)
+
+target_link_libraries(${lib_name} PUBLIC
+  clib
+  pthread
 )
 
-##############################################################
-# set directory for internal libs
-SET (LIB_DIRS
-	${LIB_DIRS}
-	${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# compile flags
-IF(NOT WINDOWS)
-	SET (FLAGS
-		${FLAGS}
-		-DINC_PASSERT=1 
-	)
-ENDIF()
-
-##############################################################
-# link to the needed libs
-SET (LIBS_LINUX
-    clib
-    pthread
-)
-
-##############################################################
-# define target directory
-SET (TARGET_DIRECTORY
-	${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# define binary name
-SET (TARGET_LIB_NAME
-	bscript
-)
-
-##############################################################
-# include CMake core
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
-
-IF(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-ADD_DEPENDENCIES(bscript boost)
-ENDIF()

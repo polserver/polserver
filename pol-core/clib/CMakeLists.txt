@@ -1,14 +1,17 @@
-###############################################################################
+set(lib_name clib)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
+if(windows)
+  set (COND_SOURCES  # sorted !
+		../../lib/StackWalker/StackWalker.cpp
+		mdump.cpp
+		msjexhnd.cpp
+		strexcpt.cpp
+	)
+endif()
 
-MESSAGE("####################################")
-MESSAGE("##### Building POL - CLIB")
-MESSAGE("####################################")
-
-###############################################################################
 # define source files
-SET (SOURCES  # sorted !
+add_library(${lib_name} STATIC
+    # sorted !
 	../../lib/format/format.cc          	
 	Header_Windows.h 								
 	Debugging/ExceptionParser.cpp
@@ -48,67 +51,22 @@ SET (SOURCES  # sorted !
 	wallclock.cpp
 	wnsckt.cpp
 	xmain.cpp
+	${COND_SOURCES}
 )
-IF(WINDOWS)
-	SET (SOURCES  # sorted !
-		${SOURCES}
-		../../lib/StackWalker/StackWalker.cpp 	#TODO: cleanup for this hack
-		mdump.cpp
-		msjexhnd.cpp
-		strexcpt.cpp
-	)
-ENDIF()
+set_compile_flags(${lib_name} 0)
 
-##############################################################
-# include dirs
-SET (INCLUDE_DIRS
-)
+use_benchmark(${lib_name})
 
-##############################################################
-# set directory for internal libs
-SET (LIB_DIRS
-	${LIB_DIRS}
-	${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# Linux specific dependencies
-SET (LIBS_LINUX
+target_link_libraries(${lib_name} PUBLIC
+  $<${linux}:
 	crypto
     pthread
-)
-IF (DEFINED ENABLE_BENCHMARK)
-  SET (LIBS_LINUX
-       ${LIBS_LINUX}
-       benchmark
-  )
-ENDIF()
-
-##############################################################
-# Windows specific dependencies
-SET (LIBS_WINDOWS
+  >
+  $<${windows}:
 	ws2_32
 	Psapi
 	DbgHelp
 #	crypto
+  >
 )
 
-##############################################################
-# define target directory
-SET (TARGET_DIRECTORY
-	${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# define binary name
-SET (TARGET_LIB_NAME
-	clib
-)
-
-##############################################################
-# include CMake core
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
-
-IF(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-ADD_DEPENDENCIES(clib boost)
-ENDIF()

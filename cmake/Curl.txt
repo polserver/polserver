@@ -1,18 +1,9 @@
-MESSAGE("####################################")
-MESSAGE("##### Building POL - CURL")
-MESSAGE("####################################")
-
-if(__CURL_FILE__)
-  return()
-endif()
-set(__CURL_FILE__ TRUE)
-
+message("* curl")
 set(CURL_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/curl")
 set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/INSTALL")
-
 IF(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
 
-ExternalProject_Add(libcurl
+  ExternalProject_Add(libcurl
 	URL "${CURL_SOURCE_DIR}/../curl-7.57.0.zip"
     SOURCE_DIR  "${CURL_SOURCE_DIR}"
     INSTALL_DIR ${CURL_INSTALL_DIR}
@@ -26,7 +17,7 @@ ExternalProject_Add(libcurl
     LOG_CONFIGURE 1
     LOG_BUILD 1
     LOG_INSTALL 1
-)
+  )
 
 ELSE()
   MESSAGE("Curl already build")
