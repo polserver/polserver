@@ -90,29 +90,30 @@ const char* poldbg_itemref_members[] = {"amount",
 										"spell_damage_increase_mod",
 										"faster_casting_mod",
 										"faster_cast_recovery_mod",
-	"defence_increase_mod",
-	"defence_increase_cap_mod",
-	"lower_mana_cost_mod",
-	"hitchance_mod",
-	"speed_mod",
-	"dmg_mod",
-	"fire_resist_cap_mod",
-	"cold_resist_cap_mod",
-	"energy_resist_cap_mod",
-	"poison_resist_cap_mod",
-	"physical_resist_cap_mod",
+										"defence_increase_mod",
+										"defence_increase_cap_mod",
+										"lower_mana_cost_mod",
+										"hitchance_mod",
+										"speed_mod",
+										"dmg_mod",
+										"fire_resist_cap_mod",
+										"cold_resist_cap_mod",
+										"energy_resist_cap_mod",
+										"poison_resist_cap_mod",
+										"physical_resist_cap_mod",
 
-	"defence_increase",
-	"defence_increase_cap",
-	"lower_mana_cost",
-	"hitchance",
-	"swingspeed",
-	"damage_increase",
-	"fire_resist_cap",
-	"cold_resist_cap",
-	"energy_resist_cap",
-	"poison_resist_cap",
-	"physical_resist_cap"
+										"defence_increase",
+										"defence_increase_cap",
+										"lower_mana_cost",
+										"hitchance",
+										"swingspeed",
+										"damage_increase",
+										"fire_resist_cap",
+										"cold_resist_cap",
+										"energy_resist_cap",
+										"poison_resist_cap",
+										"physical_resist_cap",
+										"luck_mod"
 
 };
 // 59 members
@@ -205,7 +206,9 @@ const char* poldbg_mobileref_members[] = {"warmode",
 	"cold_resist_cap",
 	"energy_resist_cap",
 	"poison_resist_cap",
-	"physical_resist_cap" };
+	"physical_resist_cap",
+	"luck_mod"
+};
 
 class DebugContext : public ref_counted
 {

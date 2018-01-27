@@ -159,6 +159,7 @@ enum DynPropTypes : u8
   PROP_RESIST_POISON_CAP = 73,              //Character
   PROP_RESIST_PHYSICAL_CAP = 74,            //Character
   PROP_DEFENCE_INCREASE_MOD = 75,           //Character
+  PROP_LUCK_MOD = 76,						//UObject
 
   PROP_FLAG_SIZE  // used for bitset size
 };

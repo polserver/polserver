@@ -508,6 +508,7 @@ ObjMember object_members[] = {
 	{ MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false },
 	{ MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false },  //245
 	{ MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false },
+	{ MBR_LUCK_MOD, "luck_mod", false},
 
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];

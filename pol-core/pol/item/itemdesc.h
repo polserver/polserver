@@ -157,6 +157,8 @@ public:
   unsigned short spell_damage_increase_mod;
   unsigned short faster_casting_mod;
   unsigned short faster_cast_recovery_mod;
+  unsigned short luck;
+  unsigned short luck_mod;
 
   Core::Dice resist_dice;
 

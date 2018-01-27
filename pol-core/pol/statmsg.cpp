@@ -171,7 +171,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     value = chr->energy_resist().value;
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
-    msg->WriteFlipped<s16>( chr->luck() );
+    msg->WriteFlipped<u16>( static_cast<u16>(chr->luck().value));
     msg->WriteFlipped<u16>( chr->min_weapon_damage() );
     msg->WriteFlipped<u16>( chr->max_weapon_damage() );
     msg->WriteFlipped<s32>( chr->tithing() );

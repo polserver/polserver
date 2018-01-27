@@ -367,6 +367,9 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   value = physical_resist_cap().mod;
   if (value != 0)
 	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = luck().mod;
+  if (value != 0)
+	  sw() << "\tLuckMod\t" << static_cast<int>(value) << pf_endl;
 
 }
 
@@ -551,6 +554,12 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   }
   if (has_poison_resist_cap())
 	  poison_resist_cap(refresh(poison_resist_cap()));
+  if (elem.remove_prop("LUCK", &tmp) && diceValue(tmp, &value))
+  {
+	  luck(apply(luck(), value));
+  }
+  if (has_luck())
+	  luck(refresh(luck()));
 
   // elemental start
   // first apply template value as value and if mod or value exist sum them
@@ -1195,6 +1204,8 @@ void NPC::resetEquipablePropertiesNPC()
 	  physical_resist_cap(physical_resist_cap().resetModAsValue().addToValue(physical_resist_cap()));
   if (has_poison_resist_cap())
 	  poison_resist_cap(poison_resist_cap().resetModAsValue().addToValue(poison_resist_cap()));
+  if (has_luck())
+	  luck(luck().resetModAsValue().addToValue(luck()));
 }
 
 size_t NPC::estimatedSize() const

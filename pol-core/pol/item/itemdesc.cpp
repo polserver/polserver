@@ -247,6 +247,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   resist_energy_cap = elem.remove_ushort("ENERGYRESISTCAP", 0);
   resist_physical_cap = elem.remove_ushort("PHYSICALRESISTCAP", 0);
   resist_poison_cap = elem.remove_ushort("POISONRESISTCAP", 0);
+  luck = elem.remove_ushort("LUCK", 0);
   //mods
   defence_increase_mod = elem.remove_ushort("DefenceIncreaseMod", 0);
   defence_increase_cap_mod = elem.remove_ushort("DefenceIncreaseCapMod", 0);
@@ -263,6 +264,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   spell_damage_increase_mod = elem.remove_ushort("SpellDamageIncreaseMod", 0);
   faster_casting_mod = elem.remove_ushort("FasterCastingMod", 0);
   faster_cast_recovery_mod = elem.remove_ushort("FasterCastRecoveryMod", 0);
+  luck_mod = elem.remove_ushort("LUCKMOD", 0);
 
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
   if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
@@ -477,7 +479,10 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   if (elem.remove_prop("PoisonResistCap", &temp))
     resist_poison_cap = diceValue(temp, "Poison Resist Cap");
-    
+
+  if (elem.remove_prop("LUCK", &temp))
+	  luck = diceValue(temp, "Luck");
+
   //change mods to dice rolls if needed
   if (elem.remove_prop("DefenceIncreaseMod", &temp))
     defence_increase_mod = diceValue(temp, "Defence Increase Mod");
@@ -523,6 +528,9 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   if (elem.remove_prop("FasterCastRecoveryMod", &temp))
     faster_cast_recovery_mod = diceValue(temp, "Faster Cast Recovery Mod");
+
+  if (elem.remove_prop("LUCKMOD", &temp))
+	  luck = diceValue(temp, "Luck Mod");
   
   memset( &element_resist, 0, sizeof( element_resist ) );
   memset( &element_damage, 0, sizeof( element_damage ) );
@@ -794,6 +802,8 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember("EnergyResistCap", new BLong(resist_energy_cap));
   descriptor->addMember("PhysicalResistCap", new BLong(resist_physical_cap));
   descriptor->addMember("PoisonResistCap", new BLong(resist_poison_cap));
+  descriptor->addMember("Luck", new BLong(luck));
+
   //new mods
   descriptor->addMember("DefenceIncreaseMod", new BLong(defence_increase_mod));
   descriptor->addMember("DefenceIncreaseCapMod", new BLong(defence_increase_cap_mod));
@@ -810,6 +820,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember("SpellDamageIncreaseMod", new BLong(spell_damage_increase_mod));
   descriptor->addMember("FasterCastingMod", new BLong(faster_casting_mod));
   descriptor->addMember("FasterCastRecoveryMod", new BLong(faster_cast_recovery_mod));
+  descriptor->addMember("LuckMod", new BLong(luck_mod));
 
 
   std::set<std::string>::const_iterator set_itr;

@@ -669,6 +669,9 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   value = physical_resist_cap().mod;
   if (value != 0)
 	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = luck().mod;
+  if (value != 0)
+	  sw() << "\tLuckMod\t" << static_cast<int>(value) << pf_endl;
 
   if ( has_movement_cost() )
   {
@@ -1017,6 +1020,9 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>(elem.remove_int("PHYSICALRESISTCAPMOD", 0));
   if (mod_value != 0)
 	  physical_resist_cap(physical_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("LUCKMOD", 0));
+  if (mod_value != 0)
+	  luck(luck().setAsMod(mod_value));
 
 
   movement_cost( Core::MovementCostMod(
@@ -2655,27 +2661,62 @@ void Character::refresh_ar()
 
 void Character::updateEquipableProperties( Items::Item* item )
 {
-  if ( item->has_fire_resist() )
-    fire_resist( fire_resist().addToValue( item->fire_resist() ) );
-  if (item->has_fire_resist_cap())
-	  fire_resist_cap(fire_resist_cap().addToValue(item->fire_resist_cap()));
-  if ( item->has_cold_resist() )
-    cold_resist( cold_resist().addToValue( item->cold_resist() ) );
-  if (item->has_cold_resist_cap())
-	  cold_resist(cold_resist_cap().addToValue(item->cold_resist_cap()));
-  if ( item->has_energy_resist() )
-    energy_resist( energy_resist().addToValue( item->energy_resist() ) );
-  if (item->has_energy_resist_cap())
-	  energy_resist(energy_resist_cap().addToValue(item->energy_resist()));
-  if ( item->has_poison_resist() )
-    poison_resist( poison_resist().addToValue( item->poison_resist() ) );
-  if (item->has_poison_resist_cap())
-	  poison_resist_cap(poison_resist_cap().addToValue(item->poison_resist_cap()));
-  if ( item->has_physical_resist() )
-    physical_resist( physical_resist().addToValue( item->physical_resist() ) );
-  if (item->has_physical_resist_cap())
-	  physical_resist_cap(physical_resist_cap().addToValue(item->physical_resist_cap()));
+	// calc caps
+	if (item->has_defence_increase_cap())
+		defence_increase_cap(defence_increase_cap().addToValue(item->defence_increase_cap()));
+	// calc resist caps
+	if (item->has_fire_resist_cap())
+		fire_resist_cap(fire_resist_cap().addToValue(item->fire_resist_cap()));
+	if (item->has_cold_resist_cap())
+		cold_resist_cap(cold_resist_cap().addToValue(item->cold_resist_cap()));
+	if (item->has_energy_resist_cap())
+		energy_resist_cap(energy_resist_cap().addToValue(item->energy_resist_cap()));
+	if (item->has_poison_resist_cap())
+		poison_resist_cap(poison_resist_cap().addToValue(item->poison_resist_cap()));
+	if (item->has_physical_resist_cap())
+		physical_resist_cap(physical_resist_cap().addToValue(item->physical_resist_cap()));
+	// calc resists
+	auto new_value = fire_resist().addToValue(item->fire_resist());
+	if (has_fire_resist_cap())
+	{
+		auto cap = fire_resist_cap().sum();
+		new_value.value = std::min(cap, new_value.value);
+	}
+	fire_resist(new_value);
 
+	new_value = cold_resist().addToValue(item->cold_resist());
+	if (has_cold_resist_cap())
+	{
+		auto cap = cold_resist_cap().sum();
+		new_value.value = std::min(cap, new_value.value);
+	}
+	cold_resist(new_value);
+
+	new_value = energy_resist().addToValue(item->energy_resist());
+	if (has_energy_resist_cap())
+	{
+		auto cap = energy_resist_cap().sum();
+		new_value.value = std::min(cap, new_value.value);
+	}
+	energy_resist(new_value);
+
+	new_value = poison_resist().addToValue(item->poison_resist());
+	if (has_poison_resist_cap())
+	{
+		auto cap = poison_resist_cap().sum();
+		new_value.value = std::min(cap, new_value.value);
+	}
+	poison_resist(new_value);
+
+	new_value = physical_resist().addToValue(item->physical_resist());
+	if (has_physical_resist_cap())
+	{
+		auto cap = physical_resist_cap().sum();
+		new_value.value = std::min(cap, new_value.value);
+	}
+	physical_resist(new_value);
+
+    // calc damages
   if ( item->has_fire_damage() )
     fire_damage( fire_damage().addToValue( item->fire_damage() ) );
   if ( item->has_cold_damage() )
@@ -2687,7 +2728,7 @@ void Character::updateEquipableProperties( Items::Item* item )
   if ( item->has_physical_damage() )
     physical_damage( physical_damage().addToValue( item->physical_damage() ) );
 
-
+  // calc others 
   if (item->has_lower_reagent_cost())
 	  lower_reagent_cost(lower_reagent_cost().addToValue(item->lower_reagent_cost()));
   if (item->has_spell_damage_increase())
@@ -2696,10 +2737,6 @@ void Character::updateEquipableProperties( Items::Item* item )
 	  faster_casting(faster_casting().addToValue(item->faster_casting()));
   if (item->has_faster_cast_recovery())
 	  faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
-  if (item->has_defence_increase())
-	  defence_increase(defence_increase().addToValue(item->defence_increase()));
-  if (item->has_defence_increase_cap())
-	  defence_increase_cap(defence_increase_cap().addToValue(item->defence_increase_cap()));
   if (item->has_lower_mana_cost())
 	  lower_mana_cost(lower_mana_cost().addToValue(item->lower_mana_cost()));
   if (item->has_hitchance())
@@ -2708,6 +2745,17 @@ void Character::updateEquipableProperties( Items::Item* item )
 	  swingspeed(swingspeed().addToValue(item->swingspeed()));
   if (item->has_damage_increase())
 	  damage_increase(damage_increase().addToValue(item->damage_increase()));
+  if (item->has_luck())
+	  luck(luck().addToValue(item->luck()));
+
+  // calc defence increase if lower than cap
+  new_value = defence_increase().addToValue(item->defence_increase());
+  if (has_defence_increase_cap())
+  {
+	  auto cap = defence_increase_cap().sum();
+	  new_value.value = std::min(cap, new_value.value);
+  }
+  defence_increase(new_value);
 }
 
 void Character::resetEquipableProperties()
@@ -2766,6 +2814,8 @@ void Character::resetEquipableProperties()
 	  swingspeed(swingspeed().resetModAsValue());
   if (has_damage_increase())
 	  damage_increase(damage_increase().resetModAsValue());
+  if (has_luck())
+	  luck(luck().resetModAsValue());
 }
 
 void Character::showarmor() const
