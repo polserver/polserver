@@ -420,7 +420,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     }
   }
 
-  auto diceValue = [&this](const std::string& value, const std::string& error_msg) -> unsigned short
+  auto diceValue = [this](const std::string& value, const std::string& error_msg) -> unsigned short
   {
 	  Core::Dice dice;
 	  std::string errmsg;

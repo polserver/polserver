@@ -2731,12 +2731,12 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     skillstatcap( val );
     return new BLong( skillstatcap().skillcap );
   }
-  case MBR_LUCK:
+ /* case MBR_LUCK:
     luck( static_cast<short>( value ) );
     if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
       on_aos_ext_stat_changed();
     return new BLong( luck() );
-    break;
+    break;*/
   case MBR_FOLLOWERSMAX:
   {
     auto val = followers();
