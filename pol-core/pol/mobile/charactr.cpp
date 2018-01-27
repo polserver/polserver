@@ -743,7 +743,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   }
 
   if ( has_luck() )
-    sw() << "\tLuck\t" << static_cast<int>( luck() ) << pf_endl;
+    sw() << "\tLuck\t" << static_cast<int>( luck().value ) << pf_endl;
   if ( has_followers() )
   {
     auto followers_value = followers();
@@ -2670,7 +2670,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	auto new_value = fire_resist().addToValue(item->fire_resist());
 	if (has_fire_resist_cap())
 	{
-		auto cap = fire_resist_cap().sum();
+		auto cap = fire_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
 	}
 	fire_resist(new_value);
@@ -2678,7 +2678,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	new_value = cold_resist().addToValue(item->cold_resist());
 	if (has_cold_resist_cap())
 	{
-		auto cap = cold_resist_cap().sum();
+		auto cap = cold_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
 	}
 	cold_resist(new_value);
@@ -2686,7 +2686,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	new_value = energy_resist().addToValue(item->energy_resist());
 	if (has_energy_resist_cap())
 	{
-		auto cap = energy_resist_cap().sum();
+		auto cap = energy_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
 	}
 	energy_resist(new_value);
@@ -2694,7 +2694,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	new_value = poison_resist().addToValue(item->poison_resist());
 	if (has_poison_resist_cap())
 	{
-		auto cap = poison_resist_cap().sum();
+		auto cap = poison_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
 	}
 	poison_resist(new_value);
@@ -2702,7 +2702,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	new_value = physical_resist().addToValue(item->physical_resist());
 	if (has_physical_resist_cap())
 	{
-		auto cap = physical_resist_cap().sum();
+		auto cap = physical_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
 	}
 	physical_resist(new_value);
@@ -2743,7 +2743,7 @@ void Character::updateEquipableProperties( Items::Item* item )
   new_value = defence_increase().addToValue(item->defence_increase());
   if (has_defence_increase_cap())
   {
-	  auto cap = defence_increase_cap().sum();
+	  auto cap = defence_increase_cap().value;
 	  new_value.value = std::min(cap, new_value.value);
   }
   defence_increase(new_value);
