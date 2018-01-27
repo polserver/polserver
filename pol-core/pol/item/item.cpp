@@ -115,6 +115,7 @@ Item* Item::clone() const
   item->energy_resist_cap(energy_resist_cap());
   item->poison_resist_cap(poison_resist_cap());
   item->physical_resist_cap(physical_resist_cap());
+  item->luck(luck());
 
 
   item->maxhp_mod( maxhp_mod() );
@@ -449,6 +450,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   value = faster_cast_recovery().mod;
   if (value != 0)
 	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
+  value = luck().mod;
+  if (value != 0)
+	  sw() << "\tLuckMod\t" << static_cast<int>(value) << pf_endl;
   //end new mod stuff
   if ( container != NULL )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
@@ -606,6 +610,9 @@ void Item::readProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>(elem.remove_int("FASTERCASTRECOVERYMOD", 0));
   if (mod_value != 0)
 	  faster_cast_recovery(faster_cast_recovery().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("LUCKMOD", 0));
+  if (mod_value != 0)
+	  luck(luck().setAsMod(mod_value));
 
 
 

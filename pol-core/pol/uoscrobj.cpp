@@ -1067,6 +1067,12 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_PHYSICAL_RESIST_CAP_MOD:
 	  return new BLong(physical_resist_cap().mod);
 	  break;
+  case MBR_LUCK:
+	  return new BLong(luck().sum());
+	  break;
+  case MBR_LUCK_MOD:
+    return new BLong(luck().mod);
+    break;
   case MBR_FIRE_DAMAGE:
     return new BLong( fire_damage().sum());
     break;
@@ -1201,7 +1207,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
   if ( imp != NULL )
     return imp;
 
-  switch ( id )
+   switch ( id )
   {
   case MBR_MOVABLE:
     restart_decay_timer();
@@ -1517,6 +1523,19 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
 		  }
 	  }
 	  return new BLong(damage_increase().mod);
+	  break;
+  case MBR_LUCK_MOD:
+	  luck(luck().setAsMod(static_cast<short>(value)));
+	  if (container != NULL)
+	  {
+		  if (Core::IsCharacter(container->serial))
+		  {
+			  Mobile::Character* chr = chr_from_wornitems(container);
+			  if (chr != NULL)
+				  chr->refresh_ar();
+		  }
+	  }
+	  return new BLong(luck().mod);
 	  break;
   case MBR_QUALITY:
     setQuality( double( value ) );
@@ -2322,8 +2341,11 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( skillstatcap().skillcap );
     break;
   case MBR_LUCK:
-    return new BLong( luck() );
+    return new BLong( luck().value );
     break;
+  case MBR_LUCK_MOD:
+	return new BLong( luck().mod );
+	break;
   case MBR_FOLLOWERSMAX:
     return new BLong( followers().followers_max );
     break;
@@ -2674,6 +2696,11 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
 	  poison_resist_cap(poison_resist_cap().setAsMod(static_cast<short>(value)));
 	  refresh_ar();
 	  return new BLong(poison_resist_cap().mod);
+	  break;
+  case MBR_LUCK_MOD:
+	  luck(luck().setAsMod(static_cast<short>(value)));
+	  refresh_ar();
+	  return new BLong(luck().mod);
 	  break;
 
   case MBR_STATCAP:

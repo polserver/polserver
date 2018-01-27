@@ -846,7 +846,8 @@ public:
 
   DYN_PROPERTY( skillstatcap, Core::SkillStatCap, Core::PROP_STATCAP_SKILLCAP,
                 Core::SkillStatCap::DEFAULT );
-  DYN_PROPERTY( luck, s16, Core::PROP_EXT_STATBAR_LUCK, 0 );
+  // rem the below for testing
+  //DYN_PROPERTY( luck, s16, Core::PROP_EXT_STATBAR_LUCK, 0 );
   DYN_PROPERTY( followers, Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS,
                 Core::ExtStatBarFollowers::DEFAULT );
   DYN_PROPERTY( tithing, s32, Core::PROP_EXT_STATBAR_TITHING, 0 );

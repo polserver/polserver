@@ -283,6 +283,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->energy_resist_cap(item->energy_resist_cap().addToValue(id.resist_energy_cap));
   item->physical_resist_cap(item->physical_resist_cap().addToValue(id.resist_physical_cap));
   item->poison_resist_cap(item->poison_resist_cap().addToValue(id.resist_poison_cap));
+  item->luck(item->luck().addToValue(id.luck));
   // new mods added here:
   item->defence_increase(item->defence_increase().addToMod(id.defence_increase_mod));
   item->defence_increase_cap(item->defence_increase_cap().addToMod(id.defence_increase_cap_mod));
@@ -299,6 +300,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->spell_damage_increase(item->spell_damage_increase().addToMod(id.spell_damage_increase_mod));
   item->faster_casting(item->faster_casting().addToMod(id.faster_casting_mod));
   item->faster_cast_recovery(item->faster_cast_recovery().addToMod(id.faster_cast_recovery_mod));
+  item->luck(item->luck().addToMod(id.luck_mod));
 
   // if ItemDesc is a dynamic one desc could differ and would be lost
   const ItemDesc& origid = find_itemdesc( item->objtype_ );
