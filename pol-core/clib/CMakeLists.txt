@@ -57,7 +57,7 @@ set_compile_flags(${lib_name} 0)
 
 use_benchmark(${lib_name})
 
-target_link_libraries(${lib_name} PUBLIC
+target_link_libraries(${lib_name} PRIVATE
   $<${linux}:
 	crypto
     pthread
