@@ -226,10 +226,13 @@ target_link_libraries(${ex_name} PUBLIC
   crypto
   pthread
   z
-  $<${linux}:
-	-fopenmp
-  >
 )
+if (${linux})
+  target_link_libraries(${ex_name} PUBLIC
+	-fopenmp
+  )
+endif()
+
 if(HAVE_MYSQL)
   target_link_libraries(${ex_name} PUBLIC
 	mysqlclient

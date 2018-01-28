@@ -74,19 +74,19 @@ function(set_compile_flags target is_executable)
 	>
   )
  
-  if (is_executable)
-    target_link_libraries(${target} PRIVATE
-  	  $<$<AND:${release},${linux}>:
+  if (${is_executable})
+    if (${release} AND ${linux})
+      target_link_libraries(${target} PUBLIC
         -s # strip
-	  >
+	  )
+    endif()
 	#search path for libs
 	#    $<${linux}:
 	#      -Wl,-R.
 	#      -Wl,-R./lib
 	#      -Wl,-R../lib
 	#      -Wl,-R../../lib
-	#    >
-    )
+	#    > 
   endif()
 
   if(${linux})

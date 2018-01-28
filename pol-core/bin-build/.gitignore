@@ -3,4 +3,6 @@
 /pol-core
 /*.tar.gz
 /compile_commands.json
-
+/CPack*
+/install_manifest*
+/boost*

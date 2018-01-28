@@ -57,16 +57,17 @@ set_compile_flags(${lib_name} 0)
 
 use_benchmark(${lib_name})
 
-target_link_libraries(${lib_name} PRIVATE
-  $<${linux}:
+if (${linux})
+  target_link_libraries(${lib_name} PUBLIC
 	crypto
     pthread
-  >
-  $<${windows}:
+  )
+elseif(${windows})
+  target_link_libraries(${lib_name} PUBLIC
 	ws2_32
 	Psapi
 	DbgHelp
 #	crypto
-  >
-)
+  )
+endif()
 
