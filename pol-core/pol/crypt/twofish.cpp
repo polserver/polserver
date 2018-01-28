@@ -136,12 +136,13 @@ unsigned int TwoFish::F32( unsigned int x, unsigned int* k32, int keyLen )
     b[1] = p8( 14 )[b[1]] ^ _b( k32[3], 1 );
     b[2] = p8( 24 )[b[2]] ^ _b( k32[3], 2 );
     b[3] = p8( 34 )[b[3]] ^ _b( k32[3], 3 );
-  // falls through
+  // fall through
   case 3:
     b[0] = p8( 03 )[b[0]] ^ _b( k32[2], 0 );
     b[1] = p8( 13 )[b[1]] ^ _b( k32[2], 1 );
     b[2] = p8( 23 )[b[2]] ^ _b( k32[2], 2 );
     b[3] = p8( 33 )[b[3]] ^ _b( k32[2], 3 );
+  // fall through
   case 2:
     b[0] = p8( 00 )[p8( 01 )[p8( 02 )[b[0]] ^ _b( k32[1], 0 )] ^ _b( k32[0], 0 )];
     b[1] = p8( 10 )[p8( 11 )[p8( 12 )[b[1]] ^ _b( k32[1], 1 )] ^ _b( k32[0], 1 )];

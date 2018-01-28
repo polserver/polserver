@@ -2676,7 +2676,7 @@ void Executor::innerExec( const Instruction& ins )
       upperLocals2.push_back( Locals2 );
     Locals2 = new BObjectRefVec;
   }
-  // NOTE fallthrough
+  // fallthrough
   case RSV_GOTO:  // ins_goto
     PC = (unsigned)ins.token.lval;
     return;

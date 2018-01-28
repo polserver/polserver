@@ -1992,7 +1992,8 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
       res = IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED );
       break;
     }
-  // FALLTHROUGH if left paren specified
+	// if left paren specified
+  // FALLTHROUGH
   default:
     // for more than one arg, or voluntary left paren on single
     // arg, so parens are required

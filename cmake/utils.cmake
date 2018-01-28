@@ -70,7 +70,6 @@ function(set_compile_flags target is_executable)
 
 	$<${gcc}:
       -fopenmp
-	  #  -Wno-unused-but-set-parameter
 	>
   )
  
