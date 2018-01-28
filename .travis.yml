@@ -35,7 +35,7 @@ before_script:
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
   - export CXX=$CXX_P
   - export CC=$CC_P
-  - cmake -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ../..
+  - cmake ../..
   - echo -en 'travis_fold:end:script.configure\\r'
 
 script:
