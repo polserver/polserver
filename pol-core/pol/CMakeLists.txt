@@ -227,7 +227,7 @@ target_link_libraries(${ex_name} PUBLIC
   pthread
   z
 )
-if (${linux})
+if (${gcc})
   target_link_libraries(${ex_name} PUBLIC
 	-fopenmp
   )

@@ -13,7 +13,7 @@ target_link_libraries(${ex_name} PUBLIC
   plib
   pthread    
 )
-if (${linux})
+if (${gcc})
   target_link_libraries(${ex_name} PUBLIC
     -fopenmp
   )
