@@ -50,14 +50,8 @@ function(set_compile_flags target is_executable)
       -fPIC
       -W
       -Wall
-      -Wno-unused
-      -Wno-long-long
-      -Wno-deprecated-declarations
-      -Wno-format
-      -Wno-unused-parameter
       -Wno-unknown-pragmas
       -fno-strict-aliasing  
-      -Wno-unused-result
 	>
 
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
