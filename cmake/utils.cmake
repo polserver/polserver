@@ -51,6 +51,9 @@ function(set_compile_flags target is_executable)
       -W
       -Wall
       -Wno-unknown-pragmas
+      -Wno-unused-result
+      -Wno-unused-function
+      -Wno-format
       -fno-strict-aliasing  
 	>
 
