@@ -19,7 +19,7 @@ ConfigSection::ConfigSection( ConfigFile& cf, const std::string& sectname, unsig
   _cf.allowed_types_.insert( sectname.c_str() );
 }
 
-ConfigSection::~ConfigSection()
+ConfigSection::~ConfigSection() noexcept(false)
 {
   if ( !_found && ( _flags & CST_MANDATORY ) )
   {

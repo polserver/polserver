@@ -244,9 +244,9 @@ if(DEFINED USE_BOOST_REGEX)
   )
 endif()
 
-target_compile_options(${ex_name} PRIVATE
-  -Wno-uninitialized  #TODO: remove and fix the code
-  -Wno-ignored-qualifiers #TODO: remove and fix the code
-)
+#target_compile_options(${ex_name} PRIVATE
+#  -Wno-uninitialized  #TODO: remove and fix the code
+#  -Wno-ignored-qualifiers #TODO: remove and fix the code
+#)
 
 dist(${ex_name} .)
