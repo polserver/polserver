@@ -68,6 +68,7 @@ struct ServSpecOpt
 
   unsigned short default_attribute_cap;
   bool core_sends_caps;
+  bool core_handles_defence_caps;
   bool send_stat_locks;
 
   unsigned short speech_range;

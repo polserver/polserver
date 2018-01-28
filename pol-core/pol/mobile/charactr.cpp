@@ -2667,8 +2667,9 @@ void Character::updateEquipableProperties( Items::Item* item )
 	if (item->has_physical_resist_cap())
 		physical_resist_cap(physical_resist_cap().addToValue(item->physical_resist_cap()));
 	// calc resists
+	bool process_caps = Core::settingsManager.ssopt.core_handles_defence_caps;
 	auto new_value = fire_resist().addToValue(item->fire_resist());
-	if (has_fire_resist_cap())
+	if (has_fire_resist_cap() && process_caps)
 	{
 		auto cap = fire_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
@@ -2676,7 +2677,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	fire_resist(new_value);
 
 	new_value = cold_resist().addToValue(item->cold_resist());
-	if (has_cold_resist_cap())
+	if (has_cold_resist_cap() && process_caps)
 	{
 		auto cap = cold_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
@@ -2684,7 +2685,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	cold_resist(new_value);
 
 	new_value = energy_resist().addToValue(item->energy_resist());
-	if (has_energy_resist_cap())
+	if (has_energy_resist_cap() && process_caps)
 	{
 		auto cap = energy_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
@@ -2692,7 +2693,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	energy_resist(new_value);
 
 	new_value = poison_resist().addToValue(item->poison_resist());
-	if (has_poison_resist_cap())
+	if (has_poison_resist_cap() && process_caps)
 	{
 		auto cap = poison_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
@@ -2700,7 +2701,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 	poison_resist(new_value);
 
 	new_value = physical_resist().addToValue(item->physical_resist());
-	if (has_physical_resist_cap())
+	if (has_physical_resist_cap() && process_caps)
 	{
 		auto cap = physical_resist_cap().value;
 		new_value.value = std::min(cap, new_value.value);
@@ -2741,7 +2742,7 @@ void Character::updateEquipableProperties( Items::Item* item )
 
   // calc defence increase if lower than cap
   new_value = defence_increase().addToValue(item->defence_increase());
-  if (has_defence_increase_cap())
+  if (has_defence_increase_cap() && process_caps)
   {
 	  auto cap = defence_increase_cap().value;
 	  new_value.value = std::min(cap, new_value.value);
