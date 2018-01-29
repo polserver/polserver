@@ -1064,6 +1064,7 @@ Region (region name)
 [Region...]
 </structure>
     <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
+    <explain>Note that if "EnterText" and "LeaveText" of the region you are leaving and the region you are entering are the same, no text will be sent.</explain>
     <explain>'Guarded', 'EnterText', and 'LeaveText' are for 'justice' regions, and may be split into /regions/justice.cfg. guard.cfg will be the prefered location for these properties</explain>
     <explain>'Midi' are for 'music' regions, and may be split into /regions/music.cfg, the prefered location for these regions.</explain>
     <explain>'NoCast' are for 'nocast' regions and may be split into /regions/nocast.cfg, the prefered location for these regions.</explain>
@@ -1093,6 +1094,7 @@ Region (region name)
 }
 [Region...]
 </structure>
+    <explain>Note that if "EnterText" and "LeaveText" of the region you are leaving and the region you are entering are the same, no text will be sent.</explain>
     <explain>Important: regions only override regions found earlier in the file. So the first region should cover the entire map, and further regions override portions of the world.</explain>
     <explain>This file is preferred over regions.cfg for the above properties.</explain>
     <explain>IMPORTANT: Regions are limited to POL's internal 4x4 tile zones and will internally expand to fill all of these zones the Range is contained in.</explain>

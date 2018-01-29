@@ -310,4 +310,33 @@ const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code
     <return>An Integer</return>
   </function>
 
+  <function name="PackJSON">
+    <prototype>PackJSON( expr )</prototype>
+    <parameter name="expr" value="An object to pack" />
+    <explain>Returns a JSON-serialization of the object to pack.</explain>
+    <explain>The following conversions are done:</explain>
+    <explain>eScript -&gt; JSON</explain>
+    <explain>double -&gt; number</explain>
+    <explain>int -&gt; number</explain>
+    <explain>string -&gt; string</explain>
+    <explain>array -&gt; array</explain>
+    <explain>struct -&gt; object</explain>
+    <explain>dict -&gt; object</explain>
+    <explain>everything else -&gt; null</explain>
+    <return>string</return>
+  </function>
+
+  <function name="UnpackJSON">
+    <prototype>UnpackJSON( str )</prototype>
+    <parameter name="str" value="A JSON serialized string" />
+    <explain>Returns an eScript object representing the serialized JSON string.</explain>
+    <explain>The following conversions are done:</explain>
+    <explain>JSON -&gt; eScript</explain>
+    <explain>number -&gt; double</explain>
+    <explain>string -&gt; string</explain>
+    <explain>array -&gt; array</explain>
+    <explain>object-&gt; struct</explain>
+    <explain>null -&gt; uninitialized object</explain>
+    <return>Any one of: double, string, array, struct, or uninit.</return>
+  </function>
 </ESCRIPT>

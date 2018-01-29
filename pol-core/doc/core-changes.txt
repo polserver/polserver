@@ -1,4 +1,9 @@
 ﻿-- POL099 --
+01-07-2018 Kevin:
+  Added:   basic::UnpackJSON(string)
+           Given a string in JSON format, returns an eScript object representing that JSON value.
+  Added:   basic::PackJSON(expr)
+           Given an eScript expression (Int, Dbl, String, Array, Struct, Dict), returns a serialization of the object in JSON format.
 01-05-2018 Turley:
   Added:   fileaccess.cfg Directory entry
            Can be definied multiple times in package syntax.

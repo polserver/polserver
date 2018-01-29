@@ -5,6 +5,7 @@ function(set_compile_flags target is_executable)
     ${PROJECT_BINARY_DIR} #global config
     ${BOOST_SOURCE_DIR} # boost
     "${CMAKE_CURRENT_LIST_DIR}/../../lib" #format/..
+    "${CMAKE_CURRENT_LIST_DIR}/../../lib/picojson-1.3.0" #pico
   )
 
   target_compile_definitions(${target} PRIVATE

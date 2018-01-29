@@ -13,10 +13,14 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <picojson.h>
 #include <string>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
+#include "../../bscript/dict.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/stlutil.h"
 
@@ -563,8 +567,132 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SizeOf()
 }
 Bscript::BObjectImp* BasicExecutorModule::mf_TypeOfInt()
 {
-  Bscript::BObjectImp* imp = exec.getParamImp( 0 );
+  BObjectImp* imp = exec.getParamImp( 0 );
   return new BLong( imp->typeOfInt() );
+}
+
+picojson::value recurseE2J( BObjectImp* v )
+{
+  if ( v->isa( BObjectImp::OTString ) )
+  {
+    return picojson::value( v->getStringRep() );
+  }
+  else if ( v->isa( BObjectImp::OTLong ) )
+  {
+    int intVal = static_cast<BLong*>( v )->value();
+    return picojson::value( static_cast<double>( intVal ) );
+  }
+  else if ( v->isa( BObjectImp::OTDouble ) )
+  {
+    return picojson::value( static_cast<Double*>( v )->value() );
+  }
+  else if ( v->isa( BObjectImp::OTBoolean ) )
+  {
+    return picojson::value( static_cast<BBoolean*>( v )->value() );
+  }
+  else if ( v->isa( BObjectImp::OTArray ) )
+  {
+    ObjArray* arr = static_cast<ObjArray*>( v );
+    picojson::array jsonArr;
+
+    for ( const auto& elem : arr->ref_arr )
+    {
+      BObject* bo = elem.get();
+      if ( bo == nullptr )
+        continue;
+      BObjectImp* imp = bo->impptr();
+      jsonArr.push_back( recurseE2J( imp ) );
+    }
+    return picojson::value( jsonArr );
+  }
+  else if ( v->isa( BObjectImp::OTStruct ) )
+  {
+    BStruct* bstruct = static_cast<BStruct*>( v );
+    picojson::object jsonObj;
+    for ( const auto& content : bstruct->contents() )
+    {
+      BObjectImp* imp = content.second->impptr();
+      jsonObj.insert( std::pair<std::string, picojson::value>( content.first, recurseE2J( imp ) ) );
+    }
+    return picojson::value( jsonObj );
+  }
+  else if ( v->isa( BObjectImp::OTDictionary ) )
+  {
+    BDictionary* cpropdict = static_cast<Bscript::BDictionary*>( v );
+    picojson::object jsonObj;
+    for ( const auto& content : cpropdict->contents() )
+    {
+      BObjectImp* imp = content.second->impptr();
+      jsonObj.insert( std::pair<std::string, picojson::value>( content.first->getStringRep(),
+                                                               recurseE2J( imp ) ) );
+    }
+    return picojson::value( jsonObj );
+  }
+  return picojson::value();
+}
+Bscript::BObjectImp* BasicExecutorModule::mf_PackJSON()
+{
+  BObjectImp* imp = exec.getParamImp( 0 );
+  return new String( recurseE2J( imp ).serialize() );
+}
+
+
+Bscript::BObjectImp* recurseJ2E( const picojson::value& v )
+{
+  if ( v.is<std::string>() )
+  {
+    return new String( v.get<std::string>() );
+  }
+  else if ( v.is<double>() )
+  {
+    // Possible improvement: separate into BLong and Double
+    return new Double( v.get<double>() );
+  }
+  else if ( v.is<bool>() )
+  {
+    return new BBoolean( v.get<bool>() );
+  }
+  else if ( v.is<picojson::array>() )
+  {
+    std::unique_ptr<ObjArray> objarr( new ObjArray );
+    const picojson::array& arr = v.get<picojson::array>();
+    for ( const auto& elem : arr )
+    {
+      objarr->addElement( recurseJ2E( elem ) );
+    }
+    return objarr.release();
+  }
+  else if ( v.is<picojson::object>() )
+  {
+    std::unique_ptr<BStruct> objstruct( new BStruct );
+    for ( const auto& content : v.get<picojson::object>() )
+    {
+      objstruct->addMember( content.first.c_str(), recurseJ2E( content.second ) );
+    }
+    return objstruct.release();
+  }
+  else
+    return UninitObject::create();
+}
+
+Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
+{
+  const String* str;
+
+  if ( exec.getStringParam( 0, str ) )
+  {
+    picojson::value v;
+    std::string err = picojson::parse( v, str->data() );
+    if ( !err.empty() )
+    {
+      return new BError( err );
+    }
+    return recurseJ2E( v );
+  }
+  else
+  {
+    return new BError( "Invalid parameter type" );
+  }
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
@@ -616,6 +744,8 @@ TmplExecutorModule<BasicExecutorModule>::FunctionTable
         {"TypeOf", &BasicExecutorModule::mf_TypeOf},
         {"SizeOf", &BasicExecutorModule::mf_SizeOf},
         {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt},
-        {"Boolean", &BasicExecutorModule::mf_Boolean}};
+        {"Boolean", &BasicExecutorModule::mf_Boolean},
+        {"PackJSON", &BasicExecutorModule::mf_PackJSON},
+        {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON}};
 }
 }
