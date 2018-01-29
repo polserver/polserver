@@ -1,9 +1,9 @@
 #include "ExceptionParser.h"
 
-#include <format/format.h>
 #include "../Program/ProgramConfig.h"
 #include "../logfacility.h"
 #include "../threadhelp.h"
+#include <format/format.h>
 
 #ifdef WINDOWS
 #include "../pol_global_config_win.h"
@@ -515,7 +515,7 @@ string ExceptionParser::getTrace()
       if ( res == 0 )
       {
         string funcnNameStr = ( funcnName ? funcnName : "" );
-        if ( strncmp( funcnName, "Pol::", 5 ) == 0 )
+        if ( funcnName && strncmp( funcnName, "Pol::", 5 ) == 0 )
           funcnNameStr = ">> " + funcnNameStr;
 
         if ( beginBinaryName && strlen( beginBinaryName ) )

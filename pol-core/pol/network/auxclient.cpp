@@ -139,6 +139,8 @@ bool AuxClientThread::init()
       uoemod = Core::start_script( _auxservice->scriptdef(), _auxconnection.get() );
     else
       uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params );
+    if ( uoemod == nullptr )
+      return false;
     _uoexec = uoemod->uoexec.weakptr;
     if ( _assume_string )
     {
