@@ -5,23 +5,21 @@
 
 #include "testenv.h"
 
+#include "../../bscript/bobject.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
+#include "../../clib/rawtypes.h"
 #include "../globals/object_storage.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../mobile/npc.h"
 #include "../multi/multi.h"
-#include "../objecthash.h"
-#include "../realms.h"
-#include "../realms/WorldChangeReasons.h"
-#include "../realms/realm.h"
+#include "../npctmpl.h"
 #include "../ufunc.h"
 #include "../uworld.h"
-
-#include <string>
 
 namespace Pol
 {

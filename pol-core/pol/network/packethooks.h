@@ -13,23 +13,25 @@
 #ifndef PACKETHOOKS_H
 #define PACKETHOOKS_H
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "client.h"
 #include "msghandl.h"
 
-#include <map>
-#include <vector>
-#include <string>
+template <class T>
+class ref_ptr;
 
 namespace Pol
 {
 namespace Core
 {
-class ExportedFunction;
 class BPacket;
+class ExportedFunction;
 }
 namespace Network
 {
-
 class PacketHookData
 {
 public:

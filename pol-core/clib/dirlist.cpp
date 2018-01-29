@@ -5,12 +5,14 @@
 
 
 #include "dirlist.h"
-#include "fileutil.h"
+
+#include <stddef.h>
 
 #ifdef __unix__
 #include <unistd.h>
 #endif
 
+#include "fileutil.h"
 
 #ifdef WINDOWS
 
@@ -73,8 +75,8 @@ void DirList::next()
 }
 #else  // non-brain dead places where we can use POSIX functions
 
-#include <sys/types.h>
 #include <dirent.h>
+
 namespace Pol
 {
 namespace Clib
@@ -84,9 +86,7 @@ DirList::DirList( const char* dirname )
   dir_ = opendir( dirname );
   next();
 }
-DirList::DirList() : dir_( NULL )
-{
-}
+DirList::DirList() : dir_( NULL ) {}
 DirList::~DirList()
 {
   if ( dir_ != NULL )

@@ -7,18 +7,33 @@
 #ifndef H_COMPILER_H
 #define H_COMPILER_H
 
+#include "../clib/compilerspecifics.h"
+#include "compctx.h"
+#include "tokens.h"
 #include "userfunc.h"
 
 #ifndef __PARSER_H
 #include "parser.h"
 #endif
 
+#include <iosfwd>
+#include <map>
+#include <stddef.h>
+#include <string>
+#include <vector>
+
 #include "../clib/maputil.h"
 #include "../clib/refptr.h"
 
-#include <vector>
-#include <string>
-#include <map>
+namespace Pol
+{
+namespace Bscript
+{
+class ModuleFunction;
+class Token;
+class UserFunction;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {
@@ -92,6 +107,7 @@ public:
   bool varexists( const std::string& varname, unsigned& idx ) const;
   bool varexists( const std::string& varname ) const;
   unsigned int numVariables() const { return static_cast<unsigned int>( variables_.size() ); }
+
 private:
   Variables variables_;
 
@@ -108,6 +124,7 @@ public:
   static int verbosity_level_;
   static void setCheckFileCase( bool check ) { check_filecase_ = check; }
   static void setVerbosityLevel( int vlev ) { verbosity_level_ = vlev; }
+
 private:
   std::string current_file_path;
 

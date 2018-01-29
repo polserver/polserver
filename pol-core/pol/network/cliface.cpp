@@ -5,28 +5,28 @@
  */
 
 
-//#include "../../clib/clib_endian.h"
-
 #include "cliface.h"
 
-#include "client.h"
+#include <memory>
+#include <stddef.h>
 
+#include "../../clib/rawtypes.h"
+#include "../globals/network.h"
+#include "../globals/settings.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
-#include "../network/packets.h"
 #include "../network/packethelper.h"
-#include "../network/clienttransmit.h"
-
 #include "../party.h"
-#include "../pktboth.h"
 #include "../statmsg.h"
 #include "../ufunc.h"
 #include "../uoclient.h"
 #include "../uoskills.h"
-#include "../globals/settings.h"
-#include "../globals/network.h"
-#include "../globals/uvars.h"
 #include "../vital.h"
+#include "client.h"
+#include "packets.h"
+
 namespace Pol
 {
 namespace Network
@@ -40,9 +40,7 @@ ClientVitalUpdaters::ClientVitalUpdaters() : my_vital_changed( NULL ), others_vi
 {
 }
 
-ClientAttributeUpdaters::ClientAttributeUpdaters() : my_attr_changed( NULL ), pUOSkill( nullptr )
-{
-}
+ClientAttributeUpdaters::ClientAttributeUpdaters() : my_attr_changed( NULL ), pUOSkill( nullptr ) {}
 
 void ClientInterface::register_client( Client* client )
 {

@@ -10,29 +10,24 @@
 
 #include "bstruct.h"
 
+#include <stddef.h>
+
+#include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "berror.h"
-#include "impstr.h"
+#include "bobject.h"
 #include "contiter.h"
 #include "executor.h"
-#include "objmembers.h"
+#include "impstr.h"
 #include "objmethods.h"
-
-#include "../clib/stlutil.h"
-
-#include <istream>
-#include <ostream>
 
 namespace Pol
 {
 namespace Bscript
 {
-BStruct::BStruct() : BObjectImp( OTStruct ), contents_()
-{
-}
+BStruct::BStruct() : BObjectImp( OTStruct ), contents_() {}
 
-BStruct::BStruct( BObjectType type ) : BObjectImp( type ), contents_()
-{
-}
+BStruct::BStruct( BObjectType type ) : BObjectImp( type ), contents_() {}
 
 BStruct::BStruct( const BStruct& other, BObjectType type ) : BObjectImp( type ), contents_()
 {

@@ -7,21 +7,16 @@
 
 #include "objecthash.h"
 
-#include "accounts/account.h"
-#include "mobile/charactr.h"
-
-#include "polcfg.h"
-#include "ufunc.h"
-#include "uobject.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
+#include <stddef.h>
 
 #include "../clib/clib_endian.h"
-#include "../clib/passert.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
-
 #include "../plib/systemstate.h"
+#include "accounts/account.h"
+#include "globals/state.h"
+#include "mobile/charactr.h"
+#include "ufunc.h"
 
 
 namespace Pol

@@ -1,15 +1,8 @@
-###############################################################################
+set(lib_name plib)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
-
-MESSAGE("####################################")
-MESSAGE("##### Building POL - PLIB")
-MESSAGE("####################################")
-
-###############################################################################
-# define source files
-SET (SOURCES  # sorted !
-	../pol/uofile00.cpp       # TODO: move all uofile*.cpp into the plib folder
+add_library(${lib_name} STATIC
+    # sorted !
+    ../pol/uofile00.cpp       # TODO: move all uofile*.cpp into the plib folder
 	../pol/uofile01.cpp
 	../pol/uofile02.cpp
 	../uotool/uofile04.cpp 
@@ -29,44 +22,9 @@ SET (SOURCES  # sorted !
 	systemstate.cpp
 )
 
-##############################################################
-# include dirs
-SET (INCLUDE_DIRS
-	../..
-	../
-	./
+set_compile_flags(${lib_name} 0)
+
+target_link_libraries(${lib_name} PUBLIC
+  clib
 )
-
-##############################################################
-# set directory for internal libs
-SET (LIB_DIRS
-	${LIB_DIRS}
-	${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# link to the needed libs
-SET (LIBS_LINUX
-	clib
-)
-
-##############################################################
-# define target directory
-SET (TARGET_DIRECTORY
-	${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# define binary name
-SET (TARGET_LIB_NAME
-	plib
-)
-
-##############################################################
-# include CMake core
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
-
-IF(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-ADD_DEPENDENCIES(plib boost)
-ENDIF()
 

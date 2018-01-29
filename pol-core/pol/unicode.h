@@ -9,6 +9,7 @@
 #define POL_UNICODE_H
 
 #include <string>
+
 #include "../clib/rawtypes.h"
 
 namespace Pol

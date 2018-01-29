@@ -7,13 +7,13 @@
 #ifndef REGION_H
 #define REGION_H
 
+#include <map>
+#include <string>
+
 #include "../clib/compilerspecifics.h"
 #include "poltype.h"
 #include "proplist.h"
 #include "zone.h"
-
-#include <map>
-#include <string>
 
 namespace Pol
 {

@@ -11,36 +11,35 @@
  */
 
 #include "item.h"
-#include "armor.h"
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/strutil.h"
-#include "../../clib/streamsaver.h"
+#include <exception>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
-
+#include "../../clib/cfgelem.h"
+#include "../../clib/passert.h"
+#include "../../clib/refptr.h"
+#include "../../clib/streamsaver.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
-
-#include "../ustruct.h"
+#include "../clidata.h"
 #include "../containr.h"
-#include "../ufunc.h"
-#include "../network/client.h"
-#include "../mobile/charactr.h"
-#include "../item/itemdesc.h"
-#include "../objtype.h"
-#include "../../plib/pkg.h"
-#include "../polcfg.h"
-#include "../resource.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../stackcfg.h"
-#include "../tooltips.h"
-#include "../uoscrobj.h"
 #include "../gameclck.h"
 #include "../globals/uvars.h"
+#include "../mobile/charactr.h"
+#include "../network/client.h"
+#include "../objtype.h"
+#include "../polcfg.h"
+#include "../proplist.h"
+#include "../resource.h"
+#include "../scrdef.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../tooltips.h"
+#include "../ufunc.h"
+#include "../uoscrobj.h"
+#include "itemdesc.h"
+
 
 namespace Pol
 {
@@ -924,9 +923,7 @@ void Item::extricate()
   }
 }
 
-void Item::spill_contents( Multi::UMulti* /*multi*/ )
-{
-}
+void Item::spill_contents( Multi::UMulti* /*multi*/ ) {}
 
 unsigned int Item::weight_of( unsigned short amount ) const
 {

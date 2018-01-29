@@ -22,8 +22,8 @@
 
 #include "../clib/rawtypes.h"
 #include "layers.h"
-#include "pktoutid.h"
 #include "pktdef.h"
+#include "pktoutid.h"
 #include "uconst.h"
 namespace Pol
 {
@@ -1098,7 +1098,7 @@ struct PKTOUT_9C
 // struct PKTOUT_BC {
 //    u8 msgtype;
 //	u8 season; enum { SEASON_SPRING = 0, SEASON_SUMMER, SEASON_FALL, SEASON_WINTER,
-//SEASON_DESOLATION };
+// SEASON_DESOLATION };
 //	u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
 //};
 // static_assert( sizeof(PKTOUT_BC) == 3, "size missmatch" );
@@ -1149,7 +1149,7 @@ struct PKTOUT_9C
 //	u32 msgnumber;
 //	char name[30];
 //	u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the
-//arguments
+// arguments
 //};
 // static_assert( sizeof( PKTOUT_C1 ) == 450, "size missmatch" );
 
@@ -1171,7 +1171,7 @@ struct PKTOUT_C4
 //	u16 explode_sound_num; //for moving effects, 0 otherwise
 //	u32 itemid; //if target is item (type 2), 0 otherwise
 //	u8 layer; //(of the character, e.g left hand, right hand,  0-5,7, 0xff: moving effect or target
-//is no char)
+// is no char)
 //	u16 unk_effect; //for moving effect, 0 otherwise
 //};
 
@@ -1188,11 +1188,11 @@ struct PKTOUT_C4
 //	u32 msgnumber;
 //	u8 flags; //0x2 unk, 0x4 message doesn't move,
 //	//(flags & 0x1) == 0 signals affix is appended to the localization string, (flags & 0x1) == 1
-//signals to prepend.
+// signals to prepend.
 //	char name[30]; //u8 name[32];
 //	char affix[1]; //nullterminated, uh not just 1 byte
 //	u16 arguments[1]; // _big-endian_ unicode string, tabs ('\t') seperate arguments, see 0xC1 for
-//argument example
+// argument example
 //};
 
 struct CUSTOM_HOUSE_PLANE
@@ -1215,9 +1215,9 @@ struct CUSTOM_HOUSE_PLANE_BUFFER
 struct PKTOUT_D8
 {
   u8 msgtype;
-  u16 msglen;  // flipped
+  u16 msglen;          // flipped
   u8 compressiontype;  // 0x03 currently supported for zlib compression type
-  u8 unk;  // usually 0
+  u8 unk;              // usually 0
   u32 serial;
   u32 revision;  // incremented whenever content changes
   u16 numtiles;

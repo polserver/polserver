@@ -1,9 +1,9 @@
 #ifndef UO_CONVERT_MAIN_H
 #define UO_CONVERT_MAIN_H
 
-#include "../clib/Program/ProgramMain.h"
-
 #include <string>
+
+#include "../clib/Program/ProgramMain.h"
 
 namespace Pol
 {

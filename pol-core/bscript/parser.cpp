@@ -42,38 +42,29 @@
 
 #include "parser.h"
 
-#include "fmodule.h"
-#include "modules.h"
-#include "symcont.h"
-#include "tokens.h"
-#include "userfunc.h"
-#include "verbtbl.h"
-#include "compctx.h"
-
-#include "compilercfg.h"
-
-#include "objmembers.h"
-#include "objmethods.h"
-
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/maputil.h"
-#include "../clib/strutil.h"
-#include "../clib/unittest.h"
-#include "../clib/passert.h"
 #include <cctype>
 #include <cstddef>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
-#include <map>
-#include <memory>
-#include <stack>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 
-#include <stdexcept>
+#include <format/format.h>
+#include "../clib/clib.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../clib/strutil.h"
+#include "../clib/unittest.h"
+#include "compctx.h"
+#include "compilercfg.h"
+#include "fmodule.h"
+#include "modules.h"
+#include "objmembers.h"
+#include "objmethods.h"
+#include "token.h"
+#include "tokens.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp, strtok POSIX deprecation warning
@@ -2001,7 +1992,8 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
       res = IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED );
       break;
     }
-  // FALLTHROUGH if left paren specified
+	// if left paren specified
+  // FALLTHROUGH
   default:
     // for more than one arg, or voluntary left paren on single
     // arg, so parens are required

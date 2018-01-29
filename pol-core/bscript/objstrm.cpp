@@ -7,7 +7,7 @@
 #include "bobject.h"
 #include "impstr.h"
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include <sstream>
 
 namespace Pol
@@ -88,7 +88,7 @@ void BLong::printOn( std::ostream& os ) const
 
 void BBoolean::printOn( std::ostream& os ) const
 {
-  os << (bval_ ? "true" : "false");
+  os << ( bval_ ? "true" : "false" );
 }
 }
 }

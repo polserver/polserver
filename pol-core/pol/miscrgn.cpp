@@ -8,13 +8,13 @@
 
 #include "miscrgn.h"
 
-#include "ufunc.h"
-#include "realms.h"
-#include "uworld.h"
-#include "globals/uvars.h"
-#include "realms/realm.h"
+#include <stddef.h>
 
 #include "../clib/cfgelem.h"
+#include "../clib/rawtypes.h"
+#include "globals/uvars.h"
+#include "realms/realm.h"
+#include "ufunc.h"
 
 namespace Pol
 {

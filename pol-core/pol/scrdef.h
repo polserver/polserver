@@ -7,8 +7,10 @@
 #ifndef SCRDEF_H
 #define SCRDEF_H
 
-#include "../clib/boostutils.h"
+#include <stddef.h>
 #include <string>
+
+#include "../clib/boostutils.h"
 
 namespace Pol
 {

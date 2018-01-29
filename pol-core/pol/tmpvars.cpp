@@ -6,6 +6,8 @@
 
 #include "tmpvars.h"
 
+#include "../clib/rawtypes.h"
+
 namespace Pol
 {
 namespace Core

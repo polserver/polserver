@@ -10,48 +10,35 @@
  */
 
 
-#include "accounts/account.h"
-#include "network/client.h"
-#include "network/packets.h"
-#include "network/packethelper.h"
-#include "network/msghandl.h"
+#include <cctype>
+#include <cstddef>
+#include <iostream>
+#include <string>
 
-#include "mobile/npc.h"
-
+#include "../bscript/bobject.h"
+#include "../bscript/impstr.h"
+#include "../clib/clib_endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/random.h"
+#include "../clib/rawtypes.h"
+#include "../plib/systemstate.h"
+#include "globals/settings.h"
+#include "globals/uvars.h"
+#include "guilds.h"
 #include "listenpt.h"
 #include "mkscrobj.h"
+#include "mobile/charactr.h"
+#include "mobile/npc.h"
+#include "network/client.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "pktdef.h"
 #include "pktin.h"
-#include "pktout.h"
-#include "polcfg.h"
-#include "sockio.h"
 #include "syshook.h"
 #include "textcmd.h"
 #include "tildecmd.h"
-#include "globals/uvars.h"
-#include "globals/network.h"
-#include "ufunc.h"
 #include "ufuncstd.h"
 #include "uworld.h"
-
-#include "guilds.h"
-
-#include "../bscript/impstr.h"
-
-#include "../clib/clib_endian.h"
-#include "../clib/clib.h"
-#include "../clib/random.h"
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/fdump.h"
-
-#include "../plib/systemstate.h"
-
-#include <cstddef>
-#include <cctype>
-#include <cwctype>
-
-#include <iomanip>
-#include <iostream>
 
 namespace Pol
 {
@@ -146,8 +133,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   else
     range = Core::settingsManager.ssopt.speech_range;
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* other_chr )
-      {
+      chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* other_chr ) {
         Network::Client* client2 = other_chr->client;
         if ( client == client2 )
           return;
@@ -170,8 +156,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   if ( !chr->dead() )
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-        {
+        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
           npc->on_pc_spoke( chr, textbuf, type );
         } );
@@ -179,8 +164,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   else
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-        {
+        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
           npc->on_ghost_pc_spoke( chr, textbuf, type );
         } );
@@ -356,8 +340,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
     else
       range = Core::settingsManager.ssopt.speech_range;
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-        {
+        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
           Network::Client* client2 = otherchr->client;
           if ( client == client2 )
             return;
@@ -380,8 +363,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
     if ( !chr->dead() )
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-          {
+          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
             npc->on_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
           } );
@@ -389,8 +371,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
     else
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr )
-          {
+          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
             npc->on_ghost_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
           } );

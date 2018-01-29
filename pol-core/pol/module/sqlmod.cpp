@@ -3,18 +3,27 @@
  * @par History
  */
 
+#ifdef WINDOWS
+#include "../../clib/pol_global_config_win.h"
+#else
+#include "pol_global_config.h"
+#endif
+
 #include "sqlmod.h"
 
+#include <stddef.h>
+
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
-
 #include "../../clib/logfacility.h"
-
+#include "../../clib/refptr.h"
+#include "../../clib/weakptr.h"
 #include "../globals/network.h"
 #include "../polsem.h"
 #include "../sqlscrobj.h"
+#include "../uoexec.h"
 #include "osmod.h"
+
 
 namespace Pol
 {
@@ -51,8 +60,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
                                                    const std::string username,
                                                    const std::string password )
 {
-  auto msg = [uoexec, host, username, password]()
-  {
+  auto msg = [uoexec, host, username, password]() {
     std::unique_ptr<Core::BSQLConnection> sql;
     {
       Core::PolLock lck;
@@ -98,7 +106,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
   if ( !uoexec->suspend() )
   {
     DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
-      << "\tThe execution of this script can't be blocked!\n";
+             << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -107,13 +115,12 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
 }
 
 Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExecutor> uoexec,
-                                                  Core::BSQLConnection* sql, const std::string db )
-{  
-  
+                                                           Core::BSQLConnection* sql,
+                                                           const std::string db )
+{
   // The BSQLConnection shouldn't be destroyed before the lambda runs
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
-  auto msg = [uoexec, sqlRef, db]()
-  {
+  auto msg = [uoexec, sqlRef, db]() {
     if ( sqlRef == nullptr )
     {
       Core::PolLock lck;
@@ -134,7 +141,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-          new BObject( new BError( sqlRef->getLastError() ) ) );
+            new BObject( new BError( sqlRef->getLastError() ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -154,7 +161,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
   if ( !uoexec->suspend() )
   {
     DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
-      << "\tThe execution of this script can't be blocked!\n";
+             << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
   Core::networkManager.sql_service->push( std::move( msg ) );
@@ -162,8 +169,9 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
 }
 
 Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecutor> uoexec,
-                                                 Core::BSQLConnection* sql, const std::string query,
-                                                 const Bscript::ObjArray* params )
+                                                          Core::BSQLConnection* sql,
+                                                          const std::string query,
+                                                          const Bscript::ObjArray* params )
 {
   // Copy and parse params before they will be deleted by this thread (go out of scope)
   Core::QueryParams sharedParams( nullptr );
@@ -181,10 +189,10 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
   }
 
   // The BSQLConnection shouldn't be destroyed before the lambda runs
-  ref_ptr<Core::BSQLConnection> sqlRef( sql ); 
-  auto msg = [uoexec, sqlRef, query, sharedParams]()
-  {
-    if ( sqlRef == nullptr ) // TODO: this doesn't make any sense and should be checked before the lambda. Same happens in background_select(). 
+  ref_ptr<Core::BSQLConnection> sqlRef( sql );
+  auto msg = [uoexec, sqlRef, query, sharedParams]() {
+    if ( sqlRef == nullptr )  // TODO: this doesn't make any sense and should be checked before the
+                              // lambda. Same happens in background_select().
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
@@ -204,7 +212,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
-          new BObject( new BError( sqlRef->getLastError() ) ) );
+            new BObject( new BError( sqlRef->getLastError() ) ) );
         uoexec.get_weakptr()->os_module->revive();
       }
     }
@@ -220,11 +228,11 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       }
     }
   };
-  
+
   if ( !uoexec->suspend() )
   {
     DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
-      << "\tThe execution of this script can't be blocked!\n";
+             << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 

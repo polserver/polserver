@@ -12,19 +12,21 @@
 
 #include "tooltips.h"
 
+#include <stddef.h>
+#include <string>
+
+#include "../clib/clib_endian.h"
+#include "../clib/rawtypes.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "network/packets.h"
-#include "network/packethelper.h"
 #include "network/packetdefs.h"
-#include "network/clienttransmit.h"
-#include "item/itemdesc.h"
-#include "item/item.h"
-#include "network/msghandl.h"
-#include "pktboth.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
 #include "pktin.h"
 #include "ufunc.h"
-#include "globals/uvars.h"
+#include "uobject.h"
 #include "uworld.h"
 
 namespace Pol
@@ -79,8 +81,7 @@ void send_object_cache_to_inrange( const UObject* obj )
     auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
 
     WorldIterator<OnlinePlayerFilter>::InVisualRange( obj->toplevel_owner(),
-                                                      [&]( Mobile::Character* chr )
-                                                      {
+                                                      [&]( Mobile::Character* chr ) {
                                                         pkt_rev.Send( chr->client );
                                                         // FIXME need to check character's
                                                         // additional_legal_items.

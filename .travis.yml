@@ -10,35 +10,31 @@ cache:
 git:
   depth: 1
 
-compiler:
-  - gcc
-  - clang
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-7']
+      env: CXX_P=g++-7 CC_P=gcc-7
 
-addons:
-  apt:
-    #ref: https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-trusty-5.0
-    #ref: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
-    packages:
-      - gcc-7
-      - g++-7
-      - clang-5.0
-      - python3
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
+      env: CXX_P=clang++-5.0 CC_P=clang-5.0
 
 before_install:
   - cd pol-core/bin-build
 
 before_script:
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
-  - export TRAVIS_CI=1
-  - if [ "$CXX" = "g++" ]; then 
-      export CXX="g++-7" CC="gcc-7";
-    fi
-  - if [ "$CXX" = "clang++" ]; then 
-      export CXX="clang++-5.0" CC="clang-5.0";
-    fi
+  - export CXX=$CXX_P
+  - export CC=$CC_P
   - cmake ../..
   - echo -en 'travis_fold:end:script.configure\\r'
 

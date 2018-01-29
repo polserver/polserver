@@ -9,18 +9,18 @@
 
 #include "cfgfile.h"
 
-#include "clib.h"
-#include "clibopt.h"
-#include "cfgelem.h"
-#include "stlutil.h"
-#include "strutil.h"
-#include "logfacility.h"
-
-#include <sys/stat.h>
-#include <stdlib.h>
+#include <ctype.h>
+#include <exception>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include <sys/stat.h>
+
+#include <format/format.h>
+#include "cfgelem.h"
+#include "clib.h"
+#include "logfacility.h"
+#include "stlutil.h"
+#include "strutil.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable POSIX deprecation warnings for stricmp
@@ -41,7 +41,7 @@ bool commentline( const std::string& str )
   return ( ( str[0] == '#' ) || ( str.compare( 0, 2, "//" ) == 0 ) );
 #endif
 }
-} // namespace
+}  // namespace
 
 ConfigProperty::ConfigProperty( const char* name, const char* value )
     : name_( name ), value_( value )
@@ -59,25 +59,17 @@ ConfigProperty::ConfigProperty( std::string* pname, std::string* pvalue )
   pvalue->swap( value_ );
 }
 
-ConfigProperty::~ConfigProperty()
-{
-}
+ConfigProperty::~ConfigProperty() {}
 
-ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( NULL )
-{
-}
+ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( NULL ) {}
 size_t ConfigElemBase::estimateSize() const
 {
   return type_.capacity() + rest_.capacity() + sizeof( _source );
 }
 
-ConfigElem::ConfigElem() : ConfigElemBase()
-{
-}
+ConfigElem::ConfigElem() : ConfigElemBase() {}
 
-ConfigElem::~ConfigElem()
-{
-}
+ConfigElem::~ConfigElem() {}
 
 size_t ConfigElem::estimateSize() const
 {
@@ -790,7 +782,7 @@ bool ConfigFile::readline( std::string& strbuf )
     char* nl = strchr( buffer, '\n' );
     if ( nl )
     {
-      if ( nl != buffer && *(nl-1) == '\r' )
+      if ( nl != buffer && *( nl - 1 ) == '\r' )
         --nl;
       *nl = '\0';
       strbuf += buffer;

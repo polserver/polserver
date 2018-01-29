@@ -1,39 +1,42 @@
 #include "clientthread.h"
 
-#include "client.h"
-#include "cgdata.h"    // This might not be needed if the client has a clear_gd() method
-#include "msgfiltr.h"  // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
-#include "iostats.h"
-#include "msghandl.h"
-#include "packethelper.h"
+#include <errno.h>
+#include <exception>
+#include <stddef.h>
+#include <string>
 
-#include "../../clib/passert.h"
-
-#include "../accounts/account.h"
-#include "../mobile/charactr.h"  // This is mostly needed to check for the chr cmdlevel in the timeout, could also make a client->has_cmdlevel()?
-#include "../crypt/cryptbase.h"
-#include "../crypt/cryptengine.h"
-
-#include "../checkpnt.h"
-#include "../polcfg.h"
-#include "../core.h"
-#include "../polclock.h"
-#include "../polsem.h"
-#include "../sockio.h"
-
-#include "../schedule.h"
-#include "../scrsched.h"
-#include "../uoscrobj.h"  // Needed for running the logoff script
-#include "../globals/uvars.h"
-#include "../uworld.h"
-
+#include <format/format.h>
+#include "../../bscript/bobject.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
+#include "../../clib/passert.h"
 #include "../../clib/spinlock.h"
-
+#include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
+#include "../accounts/account.h"
+#include "../core.h"
+#include "../crypt/cryptbase.h"
+#include "../mobile/charactr.h"
+#include "../pktboth.h"
+#include "../pktbothid.h"
+#include "../pktdef.h"
+#include "../pktinid.h"
+#include "../polcfg.h"
+#include "../polclock.h"
+#include "../polsem.h"
+#include "../schedule.h"
+#include "../scrdef.h"
+#include "../scrsched.h"
+#include "../sockets.h"
+#include "../uoscrobj.h"
+#include "../uworld.h"
+#include "cgdata.h"  // This might not be needed if the client has a clear_gd() method
+#include "client.h"
+#include "msgfiltr.h"  // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
+#include "msghandl.h"
+#include "packethelper.h"
+#include "packets.h"
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
 
@@ -50,7 +53,7 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
                        const std::string& pkg_script_ecl, bool offline = false );
 
 
-void report_weird_packet( Network::Client* client, const std::string& why ); // Defined below
+void report_weird_packet( Network::Client* client, const std::string& why );  // Defined below
 
 bool client_io_thread( Network::Client* client, bool login )
 {
@@ -93,14 +96,16 @@ bool client_io_thread( Network::Client* client, bool login )
       FD_ZERO( &c_send_fd );
       checkpoint = 1;
 
-	  SOCKET clientSocket = client->csocket;
-	  if (clientSocket == INVALID_SOCKET)
-		  break;
+      SOCKET clientSocket = client->csocket;
+      if ( clientSocket == INVALID_SOCKET )
+        break;
 
-	  // Non-Winsock implementations require nfds to be the largest socket value + 1
+        // Non-Winsock implementations require nfds to be the largest socket value + 1
 #ifndef _WIN32
-	  passert_r(clientSocket < FD_SETSIZE, "Select() implementation in Linux cant handle this many sockets at the same time." )
-	  nfds = clientSocket + 1;
+      passert_r(
+          clientSocket < FD_SETSIZE,
+          "Select() implementation in Linux cant handle this many sockets at the same time." )
+          nfds = clientSocket + 1;
 #endif
 
       FD_SET( clientSocket, &c_recv_fd );
@@ -123,8 +128,7 @@ bool client_io_thread( Network::Client* client, bool login )
           c_select_timeout.tv_usec = 0;
         }
         CLIENT_CHECKPOINT( 2 );
-        res = select( nfds, &c_recv_fd, &c_send_fd, &c_err_fd,
-                      &c_select_timeout );
+        res = select( nfds, &c_recv_fd, &c_send_fd, &c_err_fd, &c_select_timeout );
         CLIENT_CHECKPOINT( 3 );
       } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
       checkpoint = 3;
@@ -132,8 +136,8 @@ bool client_io_thread( Network::Client* client, bool login )
       if ( res < 0 )
       {
         int sckerr = socket_errno;
-        POLLOG.Format( "Client#{}: select res={}, sckerr={}\n" ) << client->instance_ << res
-                                                                 << sckerr;
+        POLLOG.Format( "Client#{}: select res={}, sckerr={}\n" )
+            << client->instance_ << res << sckerr;
         break;
       }
       else if ( res == 0 )
@@ -304,8 +308,8 @@ bool client_io_thread( Network::Client* client, bool login )
         CLIENT_CHECKPOINT( 11 );
         PolLock lck;
 
-        if ( client->chr ) {
-
+        if ( client->chr )
+        {
           client->chr->disconnect_cleanup();
           client->gd->clear();
           client->chr->connected( false );
@@ -315,10 +319,10 @@ bool client_io_thread( Network::Client* client, bool login )
           {
             CLIENT_CHECKPOINT( 12 );
             Bscript::BObject bobj(
-              run_script_to_completion( sd, new Module::ECharacterRefObjImp( client->chr ) ) );
+                run_script_to_completion( sd, new Module::ECharacterRefObjImp( client->chr ) ) );
             if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
             {
-              const Bscript::BLong* blong = static_cast<const Bscript::BLong*>(bobj.impptr());
+              const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
               seconds_wait = blong->value();
             }
           }
@@ -350,11 +354,9 @@ bool client_io_thread( Network::Client* client, bool login )
           Mobile::Character* chr = client->chr;
           CLIENT_CHECKPOINT( 16 );
           call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-          WorldIterator<NPCFilter>::InRange( chr->x, chr->y, chr->realm, 32,
-                                             [&]( Mobile::Character* zonechr )
-                                             {
-                                               Mobile::NpcPropagateLeftArea( zonechr, chr );
-                                             } );
+          WorldIterator<NPCFilter>::InRange(
+              chr->x, chr->y, chr->realm, 32,
+              [&]( Mobile::Character* zonechr ) { Mobile::NpcPropagateLeftArea( zonechr, chr ); } );
         }
       }
     }
@@ -441,7 +443,7 @@ bool process_data( Network::Client* client )
       // MSG is [MSGTYPE] [LENHI] [LENLO] [DATA ... ]
       client->message_length = ( client->buffer[1] << 8 ) + client->buffer[2];
 
-      if (!valid_message_length(client, client->message_length))
+      if ( !valid_message_length( client, client->message_length ) )
       {
         // If the reported length is too short (less than 3 bytes) or
         // too big (larger than the client buffer), something very odd
@@ -506,8 +508,8 @@ bool process_data( Network::Client* client )
 
           try
           {
-            INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x"
-                                   << fmt::hexu( msgtype ) << "\n";
+            INFO_PRINT_TRACE( 10 )
+                << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
             CLIENT_CHECKPOINT( 26 );
             packetHandler.func( client, client->buffer );
             CLIENT_CHECKPOINT( 27 );
@@ -682,9 +684,8 @@ void report_weird_packet( Network::Client* client, const std::string& why )
 {
   fmt::Writer tmp;
   tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )
-    << client->instance_ << why << (int)client->buffer[0] 
-    << client->bytes_received << client->ipaddrAsString()
-    << ((client->acct != NULL) ? client->acct->name() : "None");
+      << client->instance_ << why << (int)client->buffer[0] << client->bytes_received
+      << client->ipaddrAsString() << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
 
   if ( client->bytes_received <= 64 )
   {
@@ -707,7 +708,7 @@ void handle_unknown_packet( Network::Client* client )
     report_weird_packet( client, "Unknown packet" );
 }
 
-// Called when POL receives an undefined packet. 
+// Called when POL receives an undefined packet.
 // Those have no registered size, so we must guess.
 void handle_undefined_packet( Network::Client* client )
 {
@@ -716,17 +717,17 @@ void handle_undefined_packet( Network::Client* client )
 
   // Tries to read as much of it out as possible
   client->recv_remaining( sizeof client->buffer / 2 );
-  
+
   report_weird_packet( client, "Unexpected message" );
 }
 
 // Handles variable-sized packets whose declared size is much larger than
-// the receive buffer. This packet is most likely a client error, because 
+// the receive buffer. This packet is most likely a client error, because
 // the buffer should be big enough to handle anything sent by the known
 // clients.
 void handle_humongous_packet( Network::Client* client, unsigned int reported_size )
 {
-  // Tries to read as much of it out as possible 
+  // Tries to read as much of it out as possible
   // (the client will be disconnected, but this may
   // be useful for debugging)
   client->recv_remaining( sizeof client->buffer / 2 );
@@ -735,6 +736,5 @@ void handle_humongous_packet( Network::Client* client, unsigned int reported_siz
   tmp.Format( "Humongous packet (length {})", reported_size );
   report_weird_packet( client, tmp.str() );
 }
-
 }
 }

@@ -9,18 +9,14 @@
 
 #include "utilmod.h"
 
-#include "../dice.h"
+#include <ctime>
+#include <string>
 
 #include "../../bscript/berror.h"
-#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
-
 #include "../../clib/clib.h"
 #include "../../clib/random.h"
-#include "../../clib/rawtypes.h"
-
-#include <ctime>
-#include <climits>
+#include "../dice.h"
 
 namespace Pol
 {

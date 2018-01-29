@@ -4,14 +4,11 @@
  */
 
 
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-
-#include "../pol/polcfg.h"
-#include "../pol/udatfile.h"
-#include "../pol/ustruct.h"
+#include <stdio.h>
 
 #include "../clib/logfacility.h"
+#include "../pol/uofilei.h"
+#include "../pol/ustruct.h"
 
 namespace Pol
 {

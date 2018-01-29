@@ -41,26 +41,26 @@
 #include <vector>
 
 // 3rd Party Includes
+#include <format/format.h>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/any.hpp>
 #include <boost/flyweight.hpp>
 #include <boost/noncopyable.hpp>
-#include "../../lib/format/format.h"
 
 // Project Includes (be really really carefull what to include!)
 
 // explicit included since needed anyway for later includes
-#include "compilerspecifics.h"
 #include "Debugging/LogSink.h"
+#include "compilerspecifics.h"
 #include "message_queue.h"
 
-#include "passert.h"
+#include "fixalloc.h"
 #include "logfacility.h"
+#include "passert.h"
+#include "rawtypes.h"
+#include "refptr.h"
 #include "stlutil.h"
 #include "strutil.h"
-#include "rawtypes.h"
-#include "fixalloc.h"
-#include "refptr.h"
 #include "weakptr.h"
 
 #endif  // _CLIB_STDAFX_H

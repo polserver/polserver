@@ -6,18 +6,16 @@
 
 #include "stackcfg.h"
 
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
+#include <string>
 
-#include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-
+#include "../clib/fileutil.h"
+#include "../clib/stlutil.h"
+#include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 #include "globals/uvars.h"
 
-#include <sstream>
 
 namespace Pol
 {

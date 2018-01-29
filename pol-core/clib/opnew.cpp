@@ -17,16 +17,10 @@
 #include "pol_global_config.h"
 #endif
 
-#include "opnew.h"
 #include "logfacility.h"
-
-#include <stdexcept>
+#include "opnew.h"
 
 #ifdef _WIN32
-#include <malloc.h>
-#endif
-
-#ifdef __linux__
 #include <malloc.h>
 #endif
 

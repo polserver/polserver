@@ -7,8 +7,26 @@
 #ifndef SQLMOD_H
 #define SQLMOD_H
 
+#include <string>
+
 #include "../../bscript/execmodl.h"
 #include "../uoexec.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class Executor;
+class ObjArray;
+}  // namespace Bscript
+namespace Core
+{
+class UOExecutor;
+}  // namespace Core
+}  // namespace Pol
+template <class T>
+class weak_ptr;
 
 namespace Pol
 {

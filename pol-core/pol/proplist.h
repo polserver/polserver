@@ -9,33 +9,34 @@
 #ifndef PROPLIST_H
 #define PROPLIST_H
 
+#include <array>
+#include <boost/flyweight.hpp>
+#include <iosfwd>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+
 #include "../clib/boostutils.h"
 #include "../clib/rawtypes.h"
 #include "../clib/spinlock.h"
-
-#include <boost/flyweight.hpp>
-
-#include <map>
-#include <string>
-#include <vector>
-#include <set>
-
 
 namespace Pol
 {
 namespace Bscript
 {
-class Executor;
 class BObjectImp;
+class Executor;
 }
 namespace Clib
 {
-class StreamWriter;
 class ConfigElem;
+class StreamWriter;
 }
 namespace Core
 {
 class PropertyList;
+
 enum class UOBJ_CLASS : u8;
 
 /**
@@ -98,6 +99,7 @@ private:
     u64& operator[]( size_t idx );
     const u64& operator[]( size_t idx ) const;
     size_t sizeEstimate() const;
+
   private:
     /// 0=read, 1=write, 2=erase
     std::array<u64, 3> hits;
@@ -151,7 +153,7 @@ public:
 
   bool operator==( const PropertyList& ) const;
   PropertyList& operator-( const std::set<std::string>& );  // dave added 1/26/3
-  void operator-=( const std::set<std::string>& );  // dave added 1/26/3
+  void operator-=( const std::set<std::string>& );          // dave added 1/26/3
 protected:
   typedef std::map<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring>
       Properties;

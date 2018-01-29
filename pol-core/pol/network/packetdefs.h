@@ -2,10 +2,11 @@
 #ifndef POL_PACKETDEFS_H
 #define POL_PACKETDEFS_H
 
-#include "packets.h"
-#include "packethelper.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../action.h"
+#include "packethelper.h"
+#include "packets.h"
 
 namespace Pol
 {

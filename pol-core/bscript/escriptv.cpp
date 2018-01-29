@@ -7,6 +7,8 @@
 
 #include "escriptv.h"
 
+#include "../clib/rawtypes.h"
+
 namespace Pol
 {
 namespace Bscript

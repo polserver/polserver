@@ -8,23 +8,22 @@
 
 #include "core.h"
 
-#include "realms.h"
-#include "realms/realm.h"
+#include <stddef.h>
 
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+#include "fnsearch.h"
 #include "globals/uvars.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
 #include "mobile/charactr.h"
+#include "multi/house.h"
+#include "multi/multi.h"
 #include "network/cgdata.h"
 #include "network/client.h"
-#include "fnsearch.h"
-#include "item/itemdesc.h"
-
-#include "module/polsystemmod.h"
-#include "multi/multi.h"
-#include "multi/house.h"
+#include "realms/realm.h"
 #include "ufunc.h"
 #include "uworld.h"
-
-#include "polsem.h"
 
 namespace Pol
 {

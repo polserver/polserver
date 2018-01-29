@@ -3,8 +3,8 @@
 #define __DIRFUNC_H
 
 #if defined( WINDOWS )
-#include <stdlib.h>
 #include "Header_Windows.h"
+#include <stdlib.h>
 #else
 #include <dir.h>
 #endif

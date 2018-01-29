@@ -1,24 +1,7 @@
-###############################################################################
-#
-# Copyright (C) 2015 Thomas Volkert <thomas@homer-conferencing.com>
-# All rights reserved.
-# 
-# The environment was provided for the POL project. Redistribution 
-# and use in source and binary forms, with or without modification, 
-# are permitted. However, this paragraph has to be included in its 
-# original form in every project.
-#
-###############################################################################
+set(ex_name pol)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
-
-MESSAGE("########################################################################")
-MESSAGE("##### Building POL ${BINARY_VERSION} (${BINARY_VERSION_NAME})")
-MESSAGE("########################################################################")
-
-###############################################################################
-# define source files
-SET (SOURCES  # sorted !
+add_executable(${ex_name}
+  # sorted !
     accounts/account.cpp 
     accounts/accounts.cpp 
     accounts/acscrobj.cpp 
@@ -230,82 +213,35 @@ SET (SOURCES  # sorted !
     xmlfilescrobj.cpp
     zone.cpp
 )    
+ 
+set_compile_flags(${ex_name} 1)
+use_curl(${ex_name})
+use_benchmark(${ex_name})
 
-##############################################################
-# include dirs
-SET (INCLUDE_DIRS
-    ../
+target_link_libraries(${ex_name} PUBLIC
+  bscript
+  clib
+  plib
+  tinyxml
+  crypto
+  pthread
+  z
 )
+if (${gcc})
+  target_link_libraries(${ex_name} PUBLIC
+	-fopenmp
+  )
+endif()
 
-##############################################################
-# set directory for internal libs
-SET (LIB_DIRS
-    ${LIB_DIRS}
-    ${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-    
-##############################################################
-# compile flags
-IF(NOT WINDOWS)
-    SET (FLAGS
-        ${FLAGS}
-        -Wno-uninitialized  #TODO: remove and fix the code
-        -Wno-ignored-qualifiers #TODO: remove and fix the code
-    )
-    IF(GCC)
-		SET (FLAGS
-			${FLAGS}
-			-Wl,-R.
-			-Wl,-R./lib
-			-Wl,-R../lib
-			-Wl,-R../../lib
-		)
-	ENDIF()    
-ENDIF()
+if(HAVE_MYSQL)
+  target_link_libraries(${ex_name} PUBLIC
+	mysqlclient
+  )
+endif()
+if(DEFINED USE_BOOST_REGEX)
+  target_link_libraries(${ex_name} PUBLIC
+    boost_regex
+  )
+endif()
 
-##############################################################
-# link to the needed libs
-SET (LIBS_LINUX
-    bscript
-    clib
-    plib
-    tinyxml
-    crypto
-    pthread
-    z
-	curl
-)
-IF(HAVE_MYSQL)
-	SET (LIBS_LINUX
-		${LIBS_LINUX}
-		mysqlclient
-	)
-	IF(DEFINED USE_BOOST_REGEX)
-		SET (LIBS_LINUX
-			${LIBS_LINUX}
-			boost_regex
-		)
-	ENDIF()
-ENDIF()
-SET (LIBS_LINUX_STATIC_BIN_STATIC
-    bscript_static
-    clib_static
-    plib_static
-    tinyxml_static
-)
-
-##############################################################
-# define target directory
-SET (TARGET_DIRECTORY
-    ${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# define binary name
-SET (TARGET_PROGRAM_NAME
-    pol
-)
-
-##############################################################
-# include CMake core
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
+dist(${ex_name} .)

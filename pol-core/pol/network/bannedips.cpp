@@ -6,11 +6,13 @@
 
 #include "bannedips.h"
 
+#include <string>
+
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
-#include "client.h"
 #include "../globals/network.h"
+#include "client.h"
 
 namespace Pol
 {

@@ -10,52 +10,47 @@
  */
 
 
+#include <stdlib.h>
+#include <string>
+
+#include <format/format.h>
 #include "../clib/clib_endian.h"
-#include "../clib/fdump.h"
 #include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/strutil.h"
-
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
 #include "../plib/systemstate.h"
-
 #include "accounts/account.h"
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
 #include "clidata.h"
-#include "network/client.h"
+#include "containr.h"
 #include "gameclck.h"
+#include "globals/network.h"
+#include "globals/object_storage.h"
+#include "globals/uvars.h"
+#include "item/item.h"
 #include "layers.h"
 #include "mkscrobj.h"
-#include "network/msgfiltr.h"
-#include "network/msghandl.h"
+#include "mobile/attribute.h"
+#include "mobile/charactr.h"
+#include "mobile/wornitems.h"
+#include "module/osmod.h"
+#include "module/uomod.h"
+#include "network/client.h"
 #include "objtype.h"
+#include "pktdef.h"
 #include "pktin.h"
 #include "polcfg.h"
-#include "realms.h"
-#include "realms/realm.h"
-#include "scrdef.h"
-#include "skilladv.h"
-#include "sockio.h"
+#include "realms/WorldChangeReasons.h"
+#include "scrsched.h"
+#include "scrstore.h"
+#include "skillid.h"
 #include "startloc.h"
 #include "uconst.h"
 #include "ufunc.h"
+#include "uoclient.h"
+#include "uoexec.h"
 #include "uoskills.h"
-#include "globals/uvars.h"
-#include "globals/object_storage.h"
-#include "globals/network.h"
 #include "uworld.h"
 
-#include "../bscript/bobject.h"
-#include "module/osmod.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "uoexec.h"
-#include "module/uomod.h"
-#include "containr.h"
-#include "mobile/wornitems.h"
-
-#include <iostream>
-#include <string>
 
 namespace Pol
 {

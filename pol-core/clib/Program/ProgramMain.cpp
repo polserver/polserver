@@ -1,10 +1,10 @@
 #include "ProgramMain.h"
-#include "ProgramConfig.h"
-#include "../Debugging/ExceptionParser.h"
 
-#include "../clib.h"
+#include <stdlib.h>
+
+#include "../Debugging/ExceptionParser.h"
 #include "../logfacility.h"
-#include "../strexcpt.h"
+#include "ProgramConfig.h"
 
 #ifdef WINDOWS
 #include "../pol_global_config_win.h"
@@ -17,14 +17,16 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>  // for GetModuleFileName
 #include <crtdbg.h>
 #include <psapi.h>
+#include <windows.h>  // for GetModuleFileName
+
 #pragma comment( lib, "psapi.lib" )  // 32bit is a bit dumb..
 #else
-#include <unistd.h>
-#include <sys/resource.h>
 #endif
+#include <clocale>
+#include <exception>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 
@@ -36,12 +38,8 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ProgramMain::ProgramMain()
-{
-}
-ProgramMain::~ProgramMain()
-{
-}
+ProgramMain::ProgramMain() {}
+ProgramMain::~ProgramMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 
 void ProgramMain::start( int argc, char* argv[] )
@@ -51,7 +49,8 @@ void ProgramMain::start( int argc, char* argv[] )
   Clib::Logging::initLogging( &logger );
   Clib::ExceptionParser::initGlobalExceptionCatching();
 
-  setlocale( LC_TIME, "" );
+  std::setlocale( LC_TIME, "" );
+
   int exitcode = 0;
 
   try
@@ -150,8 +149,8 @@ bool ProgramMain::programArgsFind( const std::string& filter, std::string* rest 
     case '-':
       if ( param.substr( 1, filter.size() ) == filter )
       {
-        if (rest != nullptr )
-         *rest = param.substr( 1 + filter.size(), param.size() - ( 1 + filter.size() ) );
+        if ( rest != nullptr )
+          *rest = param.substr( 1 + filter.size(), param.size() - ( 1 + filter.size() ) );
         return true;
       }
       break;

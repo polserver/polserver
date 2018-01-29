@@ -7,26 +7,26 @@
 #ifndef CGDATA_H
 #define CGDATA_H
 
-#include "../../clib/refptr.h"
-#include "../reftypes.h"
-#include "../../clib/rawtypes.h"
-
 #include <cstddef>
 #include <map>
+
+#include "../../clib/rawtypes.h"
+#include "../../clib/refptr.h"
+#include "../reftypes.h"
 
 namespace Pol
 {
 namespace Module
 {
-class UnicodeExecutorModule;
 class UOExecutorModule;
+class UnicodeExecutorModule;
 }
 namespace Core
 {
 class JusticeRegion;
 class MusicRegion;
-class WeatherRegion;
 class UContainer;
+class WeatherRegion;
 }
 namespace Network
 {

@@ -7,13 +7,10 @@
 
 #include "allocd.h"
 
+#include <cstddef>
 #ifdef _WIN32
 #include <malloc.h>
 #endif
-
-#include <cstddef>
-#include <cstdio>
-#include "../clib/logfacility.h"
 
 namespace Pol
 {

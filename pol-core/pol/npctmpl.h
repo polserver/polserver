@@ -8,11 +8,13 @@
 #ifndef NPCTMPL_H
 #define NPCTMPL_H
 
-#include "../clib/cfgfile.h"
-#include "../clib/cfgelem.h"
-
 #include <map>
+#include <stddef.h>
 #include <string>
+
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/compilerspecifics.h"
 
 namespace Pol
 {
@@ -22,8 +24,8 @@ class Package;
 }
 namespace Items
 {
-class UWeapon;
 class UArmor;
+class UWeapon;
 }
 namespace Core
 {

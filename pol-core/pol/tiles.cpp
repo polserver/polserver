@@ -7,17 +7,15 @@
 
 
 #include "tiles.h"
-#include "polcfg.h"
 
-#include "../plib/mapcell.h"
+#include <stddef.h>
+
+#include "../clib/cfgelem.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
 #include "../plib/mapfunc.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
-
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/passert.h"
-#include "../clib/logfacility.h"
 
 namespace Pol
 {

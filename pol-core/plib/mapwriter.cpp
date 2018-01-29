@@ -6,17 +6,16 @@
 
 #include "mapwriter.h"
 
-#include "mapserver.h"
-#include "mapsolid.h"
+#include <string.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/iohelp.h"
-
 #include "../pol/uofile.h"
+#include "mapcell.h"
+#include "mapsolid.h"
 
-#include <stdexcept>
 
 namespace Pol
 {

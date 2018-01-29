@@ -8,7 +8,6 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/random.h"
-
 #include "globals/uvars.h"
 
 namespace Pol

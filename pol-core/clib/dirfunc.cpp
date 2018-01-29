@@ -5,15 +5,15 @@
  */
 
 
-#include <stdio.h>
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
-#include <sys\stat.h>
 #include <fcntl.h>
 #include <io.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <sys\stat.h>
 
 #pragma hdrstop
 
@@ -122,7 +122,7 @@ void find_usefns( const char* dir, const char* fname )
   else
     use_template = "%s\\%s";
 }
-} // namespace
+}  // namespace
 
 char* nodefile( const char* directory, const char* filename, int node )
 {

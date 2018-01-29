@@ -8,15 +8,14 @@
 #ifndef UCFG_H
 #define UCFG_H
 
-#include "../../clib/maputil.h"
-#include "../../clib/refptr.h"
-
-#include "../module/fileaccess.h"
-
 #include <boost/noncopyable.hpp>
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
+
+#include "../../clib/maputil.h"
+#include "../../clib/refptr.h"
+#include "../module/fileaccess.h"
 
 namespace Pol
 {
@@ -27,6 +26,7 @@ class DataStoreFile;
 namespace Core
 {
 class StoredConfigFile;
+
 typedef ref_ptr<StoredConfigFile> ConfigFileRef;
 
 typedef std::map<std::string, ConfigFileRef> CfgFiles;
@@ -41,6 +41,7 @@ public:
   ConfigurationBuffer();
   ~ConfigurationBuffer();
   struct Memory;
+
   Memory estimateSize() const;
 
   void deinitialize();

@@ -7,16 +7,18 @@
 
 #include "storagemod.h"
 
-#include "../../bscript/bobject.h"
+#include <stddef.h>
+
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
-
+#include "../../clib/clib.h"
 #include "../globals/uvars.h"
+#include "../item/item.h"
 #include "../realms.h"
+#include "../storage.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
-#include <string>
 
 namespace Pol
 {
@@ -67,7 +69,7 @@ BObjectImp* StorageExecutorModule::mf_FindStorageArea()
 
 BObjectImp* StorageExecutorModule::mf_CreateStorageArea()
 {
-  String* name = EXPLICIT_CAST(String*, BObjectImp*)( getParamImp( 0, BObjectImp::OTString ) );
+  String* name = EXPLICIT_CAST( String*, BObjectImp* )( getParamImp( 0, BObjectImp::OTString ) );
   if ( name )
   {
     Core::StorageArea* area = Core::gamestate.storage.create_area( name->value() );
@@ -80,7 +82,7 @@ BObjectImp* StorageExecutorModule::mf_CreateStorageArea()
 BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 {
   Core::StorageArea* area =
-      EXPLICIT_CAST(Core::StorageArea*, void*)( exec.getApplicPtrParam( 0, &storage_area_type ) );
+      EXPLICIT_CAST( Core::StorageArea*, void* )( exec.getApplicPtrParam( 0, &storage_area_type ) );
   const String* name = getStringParam( 1 );
 
   if ( !area || !name )
@@ -97,7 +99,7 @@ BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
 {
   Core::StorageArea* area =
-      EXPLICIT_CAST(Core::StorageArea*, void*)( getApplicPtrParam( 0, &storage_area_type ) );
+      EXPLICIT_CAST( Core::StorageArea*, void* )( getApplicPtrParam( 0, &storage_area_type ) );
   const String* name = getStringParam( 1 );
 
   if ( !area || !name )
@@ -110,7 +112,7 @@ BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
 BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 {
   Core::StorageArea* area =
-      EXPLICIT_CAST(Core::StorageArea*, void*)( getApplicPtrParam( 0, &storage_area_type ) );
+      EXPLICIT_CAST( Core::StorageArea*, void* )( getApplicPtrParam( 0, &storage_area_type ) );
   const String* name;
   const Items::ItemDesc* descriptor;
 

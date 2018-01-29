@@ -10,8 +10,8 @@
 #endif
 
 #include "../../clib/passert.h"
-#include "../uworld.h"
 #include "../ufunc.h"
+#include "../uworld.h"
 
 namespace Pol
 {
@@ -24,6 +24,7 @@ class PrivUpdater
 public:
   PrivUpdater( Character* chr, PRIV_FLAGS flag );
   ~PrivUpdater();
+
 private:
   Character* chr_;
   PRIV_FLAGS flag_;
@@ -55,10 +56,11 @@ private:
 
 
 PrivUpdater::PrivUpdater( Character* chr, PRIV_FLAGS flag )
-  : chr_( chr ),
-    flag_( flag ),
-    oldvalue_( chr_ != nullptr ? chr_->cached_settings.get( flag_ ) : false )
-{}
+    : chr_( chr ),
+      flag_( flag ),
+      oldvalue_( chr_ != nullptr ? chr_->cached_settings.get( flag_ ) : false )
+{
+}
 
 PrivUpdater::~PrivUpdater()
 {
@@ -69,21 +71,21 @@ PrivUpdater::~PrivUpdater()
     return;
   switch ( flag_ )
   {
-    case PRIV_FLAGS::INVUL:
-      on_change_invul( chr_, newvalue );
-      break;
-    case PRIV_FLAGS::SEE_GHOSTS:
-      on_change_see_ghosts( chr_, newvalue );
-      break;
-    case PRIV_FLAGS::SEE_HIDDEN:
-      on_change_see_hidden( chr_, newvalue );
-      break;
-    case PRIV_FLAGS::SEE_INVIS_ITEMS:
-      on_change_see_invis_items( chr_, newvalue );
-      break;
-    default:
-      passert_always(0);
-      break;
+  case PRIV_FLAGS::INVUL:
+    on_change_invul( chr_, newvalue );
+    break;
+  case PRIV_FLAGS::SEE_GHOSTS:
+    on_change_see_ghosts( chr_, newvalue );
+    break;
+  case PRIV_FLAGS::SEE_HIDDEN:
+    on_change_see_hidden( chr_, newvalue );
+    break;
+  case PRIV_FLAGS::SEE_INVIS_ITEMS:
+    on_change_see_invis_items( chr_, newvalue );
+    break;
+  default:
+    passert_always( 0 );
+    break;
   }
 }
 
@@ -94,17 +96,13 @@ void PrivUpdater::on_change_see_hidden( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr )
-                                                            {
-                                                              enable_see_hidden( zonechr, chr );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
+        chr, [&]( Character* zonechr ) { enable_see_hidden( zonechr, chr ); } );
   }
   else
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr )
-                                                            {
-                                                              disable_see_hidden( zonechr, chr );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
+        chr, [&]( Character* zonechr ) { disable_see_hidden( zonechr, chr ); } );
   }
 }
 
@@ -115,17 +113,13 @@ void PrivUpdater::on_change_see_ghosts( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr )
-                                                            {
-                                                              enable_see_ghosts( zonechr, chr );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
+        chr, [&]( Character* zonechr ) { enable_see_ghosts( zonechr, chr ); } );
   }
   else
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( chr, [&]( Character* zonechr )
-                                                            {
-                                                              disable_see_ghosts( zonechr, chr );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
+        chr, [&]( Character* zonechr ) { disable_see_ghosts( zonechr, chr ); } );
   }
 }
 
@@ -137,18 +131,13 @@ void PrivUpdater::on_change_see_invis_items( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
-                                                          {
-                                                            enable_see_invis_items( zoneitem, chr );
-                                                          } );
+    Core::WorldIterator<Core::ItemFilter>::InVisualRange(
+        chr, [&]( Items::Item* zoneitem ) { enable_see_invis_items( zoneitem, chr ); } );
   }
   else
   {
-    Core::WorldIterator<Core::ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
-                                                          {
-                                                            disable_see_invis_items( zoneitem,
-                                                                                     chr );
-                                                          } );
+    Core::WorldIterator<Core::ItemFilter>::InVisualRange(
+        chr, [&]( Items::Item* zoneitem ) { disable_see_invis_items( zoneitem, chr ); } );
   }
 }
 
@@ -159,20 +148,15 @@ void PrivUpdater::on_change_invul( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr )
-                                                                  {
-                                                                    enable_invul( zonechr, chr );
-                                                                  } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+        chr, [&]( Character* zonechr ) { enable_invul( zonechr, chr ); } );
   }
   else
   {
     Network::HealthBarStatusUpdate msg( chr->serial_ext,
                                         Network::HealthBarStatusUpdate::Color::YELLOW, false );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr )
-                                                                  {
-                                                                    disable_invul( zonechr, chr,
-                                                                                   msg );
-                                                                  } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+        chr, [&]( Character* zonechr ) { disable_invul( zonechr, chr, msg ); } );
   }
 }
 

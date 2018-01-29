@@ -5,14 +5,13 @@
 
 
 #include "clib.h"
+#include "rawtypes.h"
 
 namespace Pol
 {
 namespace Clib
 {
-OnlineStatistics::OnlineStatistics() : _count( 0 ), _max( 0 ), _mean( 0 ), _m2( 0 )
-{
-}
+OnlineStatistics::OnlineStatistics() : _count( 0 ), _max( 0 ), _mean( 0 ), _m2( 0 ) {}
 
 void OnlineStatistics::update( double value )
 {

@@ -8,11 +8,11 @@
 #ifndef __SCHEDULE_H
 #define __SCHEDULE_H
 
-#include "../clib/compilerspecifics.h"
-#include "polclock.h"
-
 #include <ctime>
 #include <functional>
+
+#include "../clib/compilerspecifics.h"
+#include "polclock.h"
 
 namespace Pol
 {
@@ -31,6 +31,7 @@ public:
   static bool is_dirty() { return dirty_; }
   static void cleanse() { dirty_ = false; }
   static void mark_dirty() { dirty_ = true; }
+
 private:
   static bool dirty_;
 };

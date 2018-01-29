@@ -1,28 +1,36 @@
 #include "UoToolMain.h"
-#include "uofile2.h"  //TODO: remove this file ASAP !!!
 
-#include "../pol/uofile.h"
-#include "../pol/polcfg.h"
-#include "../pol/polfile.h"
-#include "../pol/uofilei.h"
-#include "../pol/multi/multidef.h"
-#include "../pol/globals/multidefs.h"
-#include "../pol/objtype.h"
-#include "../pol/poltype.h"
+#include <assert.h>
+#include <iosfwd>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
 
+#include <format/format.h>
+#include "../clib/Program/ProgramMain.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fdump.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
 #include "../plib/systemstate.h"
-
-#include "../clib/strutil.h"
-#include "../clib/stlutil.h"
-
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/fdump.h"
-#include "../clib/passert.h"
+#include "../pol/clidata.h"
+#include "../pol/globals/multidefs.h"
+#include "../pol/multi/multidef.h"
+#include "../pol/objtype.h"
+#include "../pol/polfile.h"
+#include "../pol/uconst.h"
+#include "../pol/udatfile.h"
+#include "../pol/uofile.h"
+#include "../pol/uofilei.h"
+#include "../pol/ustruct.h"
+#include "uofile2.h"  //TODO: remove this file ASAP !!!
 
 namespace Pol
 {
@@ -89,8 +97,8 @@ static int print_ctable()
         valout |= 1;
       inmask <<= 1;
     }
-    _tmp.Format( "    {{ {:>2}, 0x{:04X}, 0x{:04X}}},\n" ) << ( keyid[i] & 0x0F )
-                                                           << ( keyid[i] >> 4 ) << valout;
+    _tmp.Format( "    {{ {:>2}, 0x{:04X}, 0x{:04X}}},\n" )
+        << ( keyid[i] & 0x0F ) << ( keyid[i] >> 4 ) << valout;
   }
   _tmp << "};\n";
   INFO_PRINT << _tmp.str();
@@ -313,8 +321,8 @@ static int loschange( int /*argc*/, char** /*argv*/ )
     if ( old_lostest != new_lostest )
     {
       display_tileinfo( objtype, tile );
-      INFO_PRINT.Format( " Old LOS: %s\n New LOS: %s\n" ) << ( old_lostest ? "true" : "false" )
-                                                          << ( new_lostest ? "true" : "false" );
+      INFO_PRINT.Format( " Old LOS: %s\n New LOS: %s\n" )
+          << ( old_lostest ? "true" : "false" ) << ( new_lostest ? "true" : "false" );
     }
   }
   Core::clear_tiledata();
@@ -397,8 +405,9 @@ static int print_statics()
       }
     }
   }
-  INFO_PRINT << cnt << " statics exist.\n" << water << " water tiles exist.\n" << strange_water
-             << " strange water tiles exist.\n";
+  INFO_PRINT << cnt << " statics exist.\n"
+             << water << " water tiles exist.\n"
+             << strange_water << " strange water tiles exist.\n";
   Core::clear_tiledata();
   return 0;
 }
@@ -1146,12 +1155,8 @@ static int checkmultis()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-UoToolMain::UoToolMain() : Pol::Clib::ProgramMain()
-{
-}
-UoToolMain::~UoToolMain()
-{
-}
+UoToolMain::UoToolMain() : Pol::Clib::ProgramMain() {}
+UoToolMain::~UoToolMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 
 void UoToolMain::showHelp()

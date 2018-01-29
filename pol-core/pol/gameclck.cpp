@@ -6,14 +6,13 @@
 
 #include "gameclck.h"
 
-#include "polclock.h"
-#include "globals/uvars.h"
-
-#include "../clib/stlutil.h"
-#include "../clib/spinlock.h"
-
 #include <ctime>
-#include <mutex>
+#include <string>
+
+#include "../clib/spinlock.h"
+#include "../clib/stlutil.h"
+#include "globals/uvars.h"
+#include "polclock.h"
 
 namespace Pol
 {

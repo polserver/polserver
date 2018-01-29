@@ -11,34 +11,33 @@
 
 #include "poldbg.h"
 
-#include "polcfg.h"
-#include "polsem.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "scrstore.h"
-
-#include "module/uomod.h"
-#include "module/osmod.h"
-#include "uoexec.h"
-#include "globals/uvars.h"
+#include <fstream>
+#include <stddef.h>
+#include <string>
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
+#include "../bscript/bstruct.h"
+#include "../bscript/eprog.h"
+#include "../bscript/executor.h"
 #include "../bscript/impstr.h"
-
+#include "../clib/clib.h"
+#include "../clib/compilerspecifics.h"
 #include "../clib/esignal.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
 #include "../clib/sckutil.h"
 #include "../clib/socketsvc.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/weakptr.h"
 #include "../clib/wnsckt.h"
-
 #include "../plib/systemstate.h"
-
-#include <string>
-#include <vector>
-#include <map>
-#include <fstream>
+#include "module/osmod.h"
+#include "module/uomod.h"
+#include "scrdef.h"
+#include "scrsched.h"
+#include "uoexec.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp deprecation warning
@@ -154,6 +153,7 @@ public:
   typedef std::vector<std::string> Results;
   bool process( const std::string& cmd, Results& results );
   bool done() const { return _done; }
+
 protected:
   std::string cmd_attach( unsigned pid );
   std::string cmd_kill( unsigned pid );
@@ -467,7 +467,7 @@ std::string DebugContext::cmd_stacktrace( Results& results )
   {
     ReturnContext rc;
     rc.PC = exec->PC;
-    rc.ValueStackDepth = static_cast<unsigned int>(exec->ValueStack.size());
+    rc.ValueStackDepth = static_cast<unsigned int>( exec->ValueStack.size() );
     stack.push_back( rc );
   }
   upperLocals2.push_back( exec->Locals2 );

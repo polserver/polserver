@@ -1,10 +1,10 @@
 #ifndef __PACKETHELPER_H
 #define __PACKETHELPER_H
 
+#include "../globals/network.h"
 #include "client.h"
 #include "clienttransmit.h"
 #include "packets.h"
-#include "../globals/network.h"
 
 namespace Pol
 {
@@ -41,7 +41,7 @@ public:
   // be really really careful with this function
   // needs PolLock
   void SendDirect( Client* client, int len = -1 ) const;
-  T* operator->( void ) const;
+  T* operator->(void)const;
   T* Get();
 };
 
@@ -86,7 +86,7 @@ void PacketOut<T>::SendDirect( Client* client, int len ) const
 }
 
 template <class T>
-T* PacketOut<T>::operator->( void ) const
+T* PacketOut<T>::operator->(void)const
 {
   return pkt;
 }

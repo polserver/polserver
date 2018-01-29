@@ -10,14 +10,13 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
+#include <string>
+#include <vector>
+
+#include "../../clib/refptr.h"
+#include "../../clib/strset.h"
 #include "../proplist.h"
 #include "../reftypes.h"
-
-#include "../../clib/strset.h"
-#include "../../clib/refptr.h"
-
-#include <vector>
-#include <string>
 
 namespace Pol
 {
@@ -78,7 +77,6 @@ private:
 
   Clib::StringSet options_;
 };
-
 }
 }
 #endif

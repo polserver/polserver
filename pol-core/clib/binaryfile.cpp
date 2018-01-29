@@ -9,27 +9,23 @@
 
 #include "binaryfile.h"
 
+#include <stdexcept>
+
 #include "passert.h"
 #include "strutil.h"
-
-#include <stdexcept>
 
 namespace Pol
 {
 namespace Clib
 {
-BinaryFile::BinaryFile()
-{
-}
+BinaryFile::BinaryFile() {}
 
 BinaryFile::BinaryFile( const std::string& filename, std::ios::openmode mode ) : _filename( "" )
 {
   Open( filename, mode );
 }
 
-BinaryFile::~BinaryFile()
-{
-}
+BinaryFile::~BinaryFile() {}
 
 void BinaryFile::Open( const std::string& filename, std::ios::openmode mode )
 {

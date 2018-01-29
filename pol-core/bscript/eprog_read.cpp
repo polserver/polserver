@@ -4,20 +4,22 @@
  * - 2005/12/07 MuadDib: Added "Recompile required" to Bad version reports.
  */
 
-#include "eprog.h"
-
-#include "filefmt.h"
-#include "escriptv.h"
-#include "options.h"
-#include "executor.h"
-#include "objmethods.h"
-#include "fmodule.h"
-
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-
 #include <cstdio>
-#include <stdexcept>
+#include <exception>
+#include <string>
+
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
+#include "../clib/strutil.h"
+#include "eprog.h"
+#include "executor.h"
+#include "filefmt.h"
+#include "fmodule.h"
+#include "modules.h"
+#include "objmethods.h"
+#include "symcont.h"
+#include "token.h"
+#include "tokens.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecated POSIX fopen warning
@@ -259,8 +261,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
       {
         throw std::runtime_error( "Symbol offset of " + Clib::decint( dt->strOffset ) +
                                   " exceeds symbol store length of " +
-                                  Clib::decint( symbols.length() ) + " at PC=" +
-                                  Clib::decint( position ) );
+                                  Clib::decint( symbols.length() ) +
+                                  " at PC=" + Clib::decint( position ) );
       }
       if ( dt->strOffset )
         token.setStr( symbols.array() + dt->strOffset );

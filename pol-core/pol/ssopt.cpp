@@ -23,18 +23,19 @@
 
 
 #include "ssopt.h"
-#include "pktdef.h"
-#include "globals/settings.h"
 
-#include "mobile/attribute.h"
+#include <cstring>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/rawtypes.h"
 #include "../clib/logfacility.h"
-
-#include <cstring>
+#include "globals/settings.h"
+#include "pktdef.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecation warning for sprintf, strtok
