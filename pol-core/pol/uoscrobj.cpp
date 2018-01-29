@@ -2045,16 +2045,17 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       lastcoord->addMember( "lastz", new BLong( lastz ) );
       return lastcoord.release();
     }
-    break;
+    return new BError("No client attached.");
   case MBR_ACTIVE_SKILL:
     return new BLong( skill_ex_active() );
   case MBR_CASTING_SPELL:
     return new BLong( casting_spell() );
   case MBR_LAST_TEXTCOLOR:
     return new BLong( last_textcolor() );
-  default:
-    return NULL;
   }
+
+  // if all else fails, returns nullptr
+  return nullptr;
 }
 
 BObjectImp* Character::get_script_member( const char* membername ) const
