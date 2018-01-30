@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 project(polserver)
 
 set(POL_VERSION_STR "099")
@@ -17,6 +19,9 @@ message("#          ${PROJECT_NAME} - ${POL_VERSION_STR}         #")
 message("# - ${POL_VERSION_NAME} - #")
 message("# -           ${GIT_REVISION}          - #")
 message("####################################")
+message("## CMake Version ${CMAKE_VERSION}")
+message("## Generator ${CMAKE_GENERATOR} ${CMAKE_EXTRA_GENERATOR}")
+message("")
 
 include(CheckIncludeFiles)
 include(ExternalProject)
