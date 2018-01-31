@@ -591,86 +591,157 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( frozen() )
     sw() << "\tFrozen\t" << static_cast<int>( frozen() ) << pf_endl;
 
-  s16 value = fire_resist().mod;
-  if ( value != 0 )
-    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_resist().mod;
-  if ( value != 0 )
-    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_resist().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
-
-  value = fire_damage().mod;
-  if ( value != 0 )
-    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_damage().mod;
-  if ( value != 0 )
-    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_damage().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
-
-  value = lower_reagent_cost().mod;
-  if (value != 0)
-	  sw() << "\tLowerReagentCostMod\t" << static_cast<int>(value) << pf_endl;
-  value = spell_damage_increase().mod;
-  if (value != 0)
-	  sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>(value) << pf_endl;
-  value = faster_casting().mod;
-  if (value != 0)
-	  sw() << "\tFasterCastingMod\t" << static_cast<int>(value) << pf_endl;
-  value = faster_cast_recovery().mod;
-  if (value != 0)
-	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
-  value = defence_increase().mod;
-  if (value != 0)
-	  sw() << "\tDefenceIncreaseMod\t" << static_cast<int>(value) << pf_endl;
-  value = defence_increase_cap().mod;
-  if (value != 0)
-	  sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = lower_mana_cost().mod;
-  if (value != 0)
-	  sw() << "\tLowerManaCostMod\t" << static_cast<int>(value) << pf_endl;
-  value = hitchance().mod;
-  if (value != 0)
-	  sw() << "\tHitChanceMod\t" << static_cast<int>(value) << pf_endl;
-  value = swingspeed().mod;
-  if (value != 0)
-	  sw() << "\tSpeedMod\t" << static_cast<int>(value) << pf_endl;
-  value = damage_increase().mod;
-  if (value != 0)
-	  sw() << "\tDamageMod\t" << static_cast<int>(value) << pf_endl;
-  value = fire_resist_cap().mod;
-  if (value != 0)
-	  sw() << "\tFireResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = cold_resist_cap().mod;
-  if (value != 0)
-	  sw() << "\tColdResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = energy_resist_cap().mod;
-  if (value != 0)
-	  sw() << "\tEnergyResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = poison_resist_cap().mod;
-  if (value != 0)
-	  sw() << "\tPoisonResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = physical_resist_cap().mod;
-  if (value != 0)
-	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
-  value = luck().mod;
-  if (value != 0)
-	  sw() << "\tLuckMod\t" << static_cast<int>(value) << pf_endl;
+  s16 value;
+  if ( has_fire_resist_cap() )
+  {
+    value = fire_resist_cap().mod;
+    if ( value != 0 )
+      sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_cold_resist() )
+  {
+    value = cold_resist().mod;
+    if ( value != 0 )
+      sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_energy_resist() )
+  {
+    value = energy_resist().mod;
+    if ( value != 0 )
+      sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_poison_resist() )
+  {
+    value = poison_resist().mod;
+    if ( value != 0 )
+      sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_physical_resist() )
+  {
+    value = physical_resist().mod;
+    if ( value != 0 )
+      sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_fire_damage() )
+  {
+    value = fire_damage().mod;
+    if ( value != 0 )
+      sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_cold_damage() )
+  {
+    value = cold_damage().mod;
+    if ( value != 0 )
+      sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_energy_damage() )
+  {
+    value = energy_damage().mod;
+    if ( value != 0 )
+      sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_poison_damage() )
+  {
+    value = poison_damage().mod;
+    if ( value != 0 )
+      sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_physical_damage() )
+  {
+    value = physical_damage().mod;
+    if ( value != 0 )
+      sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_lower_reagent_cost() )
+  {
+    value = lower_reagent_cost().mod;
+    if ( value != 0 )
+      sw() << "\tLowerReagentCostMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_spell_damage_increase() )
+  {
+    value = spell_damage_increase().mod;
+    if ( value != 0 )
+      sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_faster_casting() )
+  {
+    value = faster_casting().mod;
+    if ( value != 0 )
+      sw() << "\tFasterCastingMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_faster_cast_recovery() )
+  {
+    value = faster_cast_recovery().mod;
+    if ( value != 0 )
+      sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_defence_increase() )
+  {
+    value = defence_increase().mod;
+    if ( value != 0 )
+      sw() << "\tDefenceIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_defence_increase_cap() )
+  {
+    value = defence_increase_cap().mod;
+    if ( value != 0 )
+      sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_lower_mana_cost() )
+  {
+    value = lower_mana_cost().mod;
+    if ( value != 0 )
+      sw() << "\tLowerManaCostMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_hitchance() )
+  {
+    value = hitchance().mod;
+    if ( value != 0 )
+      sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_swingspeed() )
+  {
+    value = swingspeed().mod;
+    if ( value != 0 )
+      sw() << "\tSpeedMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_damage_increase() )
+  {
+    value = damage_increase().mod;
+    if ( value != 0 )
+      sw() << "\tDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_fire_resist_cap() )
+  {
+    value = fire_resist_cap().mod;
+    if ( value != 0 )
+      sw() << "\tFireResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_cold_resist_cap() )
+  {
+    value = cold_resist_cap().mod;
+    if ( value != 0 )
+      sw() << "\tColdResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_energy_resist_cap() )
+  {
+    value = energy_resist_cap().mod;
+    if ( value != 0 )
+      sw() << "\tEnergyResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_poison_resist_cap() )
+  {
+    value = poison_resist_cap().mod;
+    if ( value != 0 )
+      sw() << "\tPoisonResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  }
+  if ( has_physical_resist_cap() )
+  {
+    value = physical_resist_cap().mod;
+    if ( value != 0 )
+      sw() << "\tPhysicalResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  }
 
   if ( has_movement_cost() )
   {
@@ -973,55 +1044,55 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if ( mod_value != 0 )
     physical_damage( physical_damage().setAsMod( mod_value ) );
 
-  mod_value = static_cast<s16>(elem.remove_int("LOWERREAGENTCOSTMOD", 0));
-  if (mod_value != 0)
-	  lower_reagent_cost(lower_reagent_cost().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("SPELLDAMAGEINCREASEMOD", 0));
-  if (mod_value != 0)
-	  spell_damage_increase(spell_damage_increase().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTINGMOD", 0));
-  if (mod_value != 0)
-	  faster_casting(faster_casting().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTRECOVERYMOD", 0));
-  if (mod_value != 0)
-	  faster_cast_recovery(faster_cast_recovery().setAsMod(mod_value));
+  mod_value = static_cast<s16>( elem.remove_int( "LOWERREAGENTCOSTMOD", 0 ) );
+  if ( mod_value != 0 )
+    lower_reagent_cost( lower_reagent_cost().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "SPELLDAMAGEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    spell_damage_increase( spell_damage_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTINGMOD", 0 ) );
+  if ( mod_value != 0 )
+    faster_casting( faster_casting().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTRECOVERYMOD", 0 ) );
+  if ( mod_value != 0 )
+    faster_cast_recovery( faster_cast_recovery().setAsMod( mod_value ) );
 
-  mod_value = static_cast<s16>(elem.remove_int("DEFENCEINCREASEMOD", 0));
-  if (mod_value != 0)
-	  defence_increase(defence_increase().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("DEFENCEINCREASECAPMOD", 0));
-  if (mod_value != 0)
-	  defence_increase_cap(defence_increase_cap().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("LOWERMANACOSTMOD", 0));
-  if (mod_value != 0)
-	  lower_mana_cost(lower_mana_cost().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("HITCHANCEMOD", 0));
-  if (mod_value != 0)
-	  hitchance(hitchance().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("SWINGSPEEDMOD", 0));
-  if (mod_value != 0)
-	  swingspeed(swingspeed().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("DAMAGEINCREASEMOD", 0));
-  if (mod_value != 0)
-	  damage_increase(damage_increase().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("FIRERESISTCAPMOD", 0));
-  if (mod_value != 0)
-	  fire_resist_cap(fire_resist_cap().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("COLDRESISTCAPMOD", 0));
-  if (mod_value != 0)
-	  cold_resist_cap(cold_resist_cap().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("ENERGYRESISTCAPMOD", 0));
-  if (mod_value != 0)
-	  energy_resist_cap(energy_resist_cap().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("POISONRESISTCAPMOD", 0));
-  if (mod_value != 0)
-	  poison_resist_cap(poison_resist_cap().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("PHYSICALRESISTCAPMOD", 0));
-  if (mod_value != 0)
-	  physical_resist_cap(physical_resist_cap().setAsMod(mod_value));
-  mod_value = static_cast<s16>(elem.remove_int("LUCKMOD", 0));
-  if (mod_value != 0)
-	  luck(luck().setAsMod(mod_value));
+  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    defence_increase( defence_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASECAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    defence_increase_cap( defence_increase_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "LOWERMANACOSTMOD", 0 ) );
+  if ( mod_value != 0 )
+    lower_mana_cost( lower_mana_cost().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "HITCHANCEMOD", 0 ) );
+  if ( mod_value != 0 )
+    hitchance( hitchance().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "SWINGSPEEDMOD", 0 ) );
+  if ( mod_value != 0 )
+    swingspeed( swingspeed().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "DAMAGEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    damage_increase( damage_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    fire_resist_cap( fire_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    cold_resist_cap( cold_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    energy_resist_cap( energy_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    poison_resist_cap( poison_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    physical_resist_cap( physical_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "LUCKMOD", 0 ) );
+  if ( mod_value != 0 )
+    luck( luck().setAsMod( mod_value ) );
 
 
   movement_cost( Core::MovementCostMod(
@@ -2652,63 +2723,63 @@ void Character::refresh_ar()
 
 void Character::updateEquipableProperties( Items::Item* item )
 {
-	// calc caps
-	if (item->has_defence_increase_cap())
-		defence_increase_cap(defence_increase_cap().addToValue(item->defence_increase_cap()));
-	// calc resist caps
-	if (item->has_fire_resist_cap())
-		fire_resist_cap(fire_resist_cap().addToValue(item->fire_resist_cap()));
-	if (item->has_cold_resist_cap())
-		cold_resist_cap(cold_resist_cap().addToValue(item->cold_resist_cap()));
-	if (item->has_energy_resist_cap())
-		energy_resist_cap(energy_resist_cap().addToValue(item->energy_resist_cap()));
-	if (item->has_poison_resist_cap())
-		poison_resist_cap(poison_resist_cap().addToValue(item->poison_resist_cap()));
-	if (item->has_physical_resist_cap())
-		physical_resist_cap(physical_resist_cap().addToValue(item->physical_resist_cap()));
-	// calc resists
-	bool process_caps = Core::settingsManager.ssopt.core_handles_defence_caps;
-	auto new_value = fire_resist().addToValue(item->fire_resist());
-	if (has_fire_resist_cap() && process_caps)
-	{
-		auto cap = fire_resist_cap().value;
-		new_value.value = std::min(cap, new_value.value);
-	}
-	fire_resist(new_value);
+  // calc caps
+  if ( item->has_defence_increase_cap() )
+    defence_increase_cap( defence_increase_cap().addToValue( item->defence_increase_cap() ) );
+  // calc resist caps
+  if ( item->has_fire_resist_cap() )
+    fire_resist_cap( fire_resist_cap().addToValue( item->fire_resist_cap() ) );
+  if ( item->has_cold_resist_cap() )
+    cold_resist_cap( cold_resist_cap().addToValue( item->cold_resist_cap() ) );
+  if ( item->has_energy_resist_cap() )
+    energy_resist_cap( energy_resist_cap().addToValue( item->energy_resist_cap() ) );
+  if ( item->has_poison_resist_cap() )
+    poison_resist_cap( poison_resist_cap().addToValue( item->poison_resist_cap() ) );
+  if ( item->has_physical_resist_cap() )
+    physical_resist_cap( physical_resist_cap().addToValue( item->physical_resist_cap() ) );
+  // calc resists
+  bool process_caps = Core::settingsManager.ssopt.core_handles_defence_caps;
+  auto new_value = fire_resist().addToValue( item->fire_resist() );
+  if ( has_fire_resist_cap() && process_caps )
+  {
+    auto cap = fire_resist_cap().value;
+    new_value.value = std::min( cap, new_value.value );
+  }
+  fire_resist( new_value );
 
-	new_value = cold_resist().addToValue(item->cold_resist());
-	if (has_cold_resist_cap() && process_caps)
-	{
-		auto cap = cold_resist_cap().value;
-		new_value.value = std::min(cap, new_value.value);
-	}
-	cold_resist(new_value);
+  new_value = cold_resist().addToValue( item->cold_resist() );
+  if ( has_cold_resist_cap() && process_caps )
+  {
+    auto cap = cold_resist_cap().value;
+    new_value.value = std::min( cap, new_value.value );
+  }
+  cold_resist( new_value );
 
-	new_value = energy_resist().addToValue(item->energy_resist());
-	if (has_energy_resist_cap() && process_caps)
-	{
-		auto cap = energy_resist_cap().value;
-		new_value.value = std::min(cap, new_value.value);
-	}
-	energy_resist(new_value);
+  new_value = energy_resist().addToValue( item->energy_resist() );
+  if ( has_energy_resist_cap() && process_caps )
+  {
+    auto cap = energy_resist_cap().value;
+    new_value.value = std::min( cap, new_value.value );
+  }
+  energy_resist( new_value );
 
-	new_value = poison_resist().addToValue(item->poison_resist());
-	if (has_poison_resist_cap() && process_caps)
-	{
-		auto cap = poison_resist_cap().value;
-		new_value.value = std::min(cap, new_value.value);
-	}
-	poison_resist(new_value);
+  new_value = poison_resist().addToValue( item->poison_resist() );
+  if ( has_poison_resist_cap() && process_caps )
+  {
+    auto cap = poison_resist_cap().value;
+    new_value.value = std::min( cap, new_value.value );
+  }
+  poison_resist( new_value );
 
-	new_value = physical_resist().addToValue(item->physical_resist());
-	if (has_physical_resist_cap() && process_caps)
-	{
-		auto cap = physical_resist_cap().value;
-		new_value.value = std::min(cap, new_value.value);
-	}
-	physical_resist(new_value);
+  new_value = physical_resist().addToValue( item->physical_resist() );
+  if ( has_physical_resist_cap() && process_caps )
+  {
+    auto cap = physical_resist_cap().value;
+    new_value.value = std::min( cap, new_value.value );
+  }
+  physical_resist( new_value );
 
-    // calc damages
+  // calc damages
   if ( item->has_fire_damage() )
     fire_damage( fire_damage().addToValue( item->fire_damage() ) );
   if ( item->has_cold_damage() )
@@ -2720,34 +2791,34 @@ void Character::updateEquipableProperties( Items::Item* item )
   if ( item->has_physical_damage() )
     physical_damage( physical_damage().addToValue( item->physical_damage() ) );
 
-  // calc others 
-  if (item->has_lower_reagent_cost())
-	  lower_reagent_cost(lower_reagent_cost().addToValue(item->lower_reagent_cost()));
-  if (item->has_spell_damage_increase())
-	  spell_damage_increase(spell_damage_increase().addToValue(item->spell_damage_increase()));
-  if (item->has_faster_casting())
-	  faster_casting(faster_casting().addToValue(item->faster_casting()));
-  if (item->has_faster_cast_recovery())
-	  faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
-  if (item->has_lower_mana_cost())
-	  lower_mana_cost(lower_mana_cost().addToValue(item->lower_mana_cost()));
-  if (item->has_hitchance())
-	  hitchance(hitchance().addToValue(item->hitchance()));
-  if (item->has_swingspeed())
-	  swingspeed(swingspeed().addToValue(item->swingspeed()));
-  if (item->has_damage_increase())
-	  damage_increase(damage_increase().addToValue(item->damage_increase()));
-  if (item->has_luck())
-	  luck(luck().addToValue(item->luck()));
+  // calc others
+  if ( item->has_lower_reagent_cost() )
+    lower_reagent_cost( lower_reagent_cost().addToValue( item->lower_reagent_cost() ) );
+  if ( item->has_spell_damage_increase() )
+    spell_damage_increase( spell_damage_increase().addToValue( item->spell_damage_increase() ) );
+  if ( item->has_faster_casting() )
+    faster_casting( faster_casting().addToValue( item->faster_casting() ) );
+  if ( item->has_faster_cast_recovery() )
+    faster_cast_recovery( faster_cast_recovery().addToValue( item->faster_cast_recovery() ) );
+  if ( item->has_lower_mana_cost() )
+    lower_mana_cost( lower_mana_cost().addToValue( item->lower_mana_cost() ) );
+  if ( item->has_hitchance() )
+    hitchance( hitchance().addToValue( item->hitchance() ) );
+  if ( item->has_swingspeed() )
+    swingspeed( swingspeed().addToValue( item->swingspeed() ) );
+  if ( item->has_damage_increase() )
+    damage_increase( damage_increase().addToValue( item->damage_increase() ) );
+  if ( item->has_luck() )
+    luck( luck().addToValue( item->luck() ) );
 
   // calc defence increase if lower than cap
-  new_value = defence_increase().addToValue(item->defence_increase());
-  if (has_defence_increase_cap() && process_caps)
+  new_value = defence_increase().addToValue( item->defence_increase() );
+  if ( has_defence_increase_cap() && process_caps )
   {
-	  auto cap = defence_increase_cap().value;
-	  new_value.value = std::min(cap, new_value.value);
+    auto cap = defence_increase_cap().value;
+    new_value.value = std::min( cap, new_value.value );
   }
-  defence_increase(new_value);
+  defence_increase( new_value );
 }
 
 void Character::resetEquipableProperties()
@@ -2763,16 +2834,16 @@ void Character::resetEquipableProperties()
   if ( has_physical_resist() )
     physical_resist( physical_resist().resetModAsValue() );
 
-  if (has_fire_resist_cap())
-	  fire_resist_cap(fire_resist_cap().resetModAsValue());
-  if (has_cold_resist_cap())
-	  cold_resist_cap(cold_resist_cap().resetModAsValue());
-  if (has_energy_resist_cap())
-	  energy_resist_cap(energy_resist_cap().resetModAsValue());
-  if (has_poison_resist_cap())
-	  poison_resist_cap(poison_resist_cap().resetModAsValue());
-  if (has_physical_resist_cap())
-	  physical_resist_cap(physical_resist_cap().resetModAsValue());
+  if ( has_fire_resist_cap() )
+    fire_resist_cap( fire_resist_cap().resetModAsValue() );
+  if ( has_cold_resist_cap() )
+    cold_resist_cap( cold_resist_cap().resetModAsValue() );
+  if ( has_energy_resist_cap() )
+    energy_resist_cap( energy_resist_cap().resetModAsValue() );
+  if ( has_poison_resist_cap() )
+    poison_resist_cap( poison_resist_cap().resetModAsValue() );
+  if ( has_physical_resist_cap() )
+    physical_resist_cap( physical_resist_cap().resetModAsValue() );
 
   if ( has_fire_damage() )
     fire_damage( fire_damage().resetModAsValue() );
@@ -2786,28 +2857,28 @@ void Character::resetEquipableProperties()
     physical_damage( physical_damage().resetModAsValue() );
 
   if ( has_lower_reagent_cost() )
-	  lower_reagent_cost(lower_reagent_cost().resetModAsValue());
+    lower_reagent_cost( lower_reagent_cost().resetModAsValue() );
   if ( has_spell_damage_increase() )
-	  spell_damage_increase(spell_damage_increase().resetModAsValue());
+    spell_damage_increase( spell_damage_increase().resetModAsValue() );
   if ( has_faster_casting() )
-	  faster_casting(faster_casting().resetModAsValue());
+    faster_casting( faster_casting().resetModAsValue() );
   if ( has_faster_cast_recovery() )
-	  faster_cast_recovery(faster_cast_recovery().resetModAsValue());
+    faster_cast_recovery( faster_cast_recovery().resetModAsValue() );
 
-  if (has_defence_increase())
-	  defence_increase(defence_increase().resetModAsValue());
-  if (has_defence_increase_cap())
-	  defence_increase_cap(defence_increase_cap().resetModAsValue());
-  if (has_lower_mana_cost())
-	  lower_mana_cost(lower_mana_cost().resetModAsValue());
-  if (has_hitchance())
-	  hitchance(hitchance().resetModAsValue());
-  if (has_swingspeed())
-	  swingspeed(swingspeed().resetModAsValue());
-  if (has_damage_increase())
-	  damage_increase(damage_increase().resetModAsValue());
-  if (has_luck())
-	  luck(luck().resetModAsValue());
+  if ( has_defence_increase() )
+    defence_increase( defence_increase().resetModAsValue() );
+  if ( has_defence_increase_cap() )
+    defence_increase_cap( defence_increase_cap().resetModAsValue() );
+  if ( has_lower_mana_cost() )
+    lower_mana_cost( lower_mana_cost().resetModAsValue() );
+  if ( has_hitchance() )
+    hitchance( hitchance().resetModAsValue() );
+  if ( has_swingspeed() )
+    swingspeed( swingspeed().resetModAsValue() );
+  if ( has_damage_increase() )
+    damage_increase( damage_increase().resetModAsValue() );
+  if ( has_luck() )
+    luck( luck().resetModAsValue() );
 }
 
 void Character::showarmor() const
@@ -2902,70 +2973,67 @@ void PropagateMove( /*Client *client,*/ Character* chr )
   MoveChrPkt msgmove( chr );
   build_owncreate( chr, msgcreate.Get() );
 
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-      chr, [&]( Character* zonechr )
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) {
+    Client* client = zonechr->client;
+    if ( zonechr == chr )
+      return;
+    if ( !zonechr->is_visible_to_me( chr ) )
+      return;
+    /* The two characters exist, and are in range of each other.
+    Character 'chr''s lastx and lasty coordinates are valid.
+    SO, if lastx/lasty are out of range of client->chr, we
+    should send a 'create' type message.  If they are in range,
+    we should just send a move.
+    */
+    if ( chr->move_reason == Character::MULTIMOVE )
+    {
+      if ( client->ClientType & Network::CLIENTTYPE_7090 )
       {
-        Client* client = zonechr->client;
-        if ( zonechr == chr )
-          return;
-        if ( !zonechr->is_visible_to_me( chr ) )
-          return;
-        /* The two characters exist, and are in range of each other.
-        Character 'chr''s lastx and lasty coordinates are valid.
-        SO, if lastx/lasty are out of range of client->chr, we
-        should send a 'create' type message.  If they are in range,
-        we should just send a move.
-        */
-        if ( chr->move_reason == Character::MULTIMOVE )
-        {
-          if ( client->ClientType & Network::CLIENTTYPE_7090 )
-          {
-            if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
-              msgpoison.Send( client );
+        if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
+          msgpoison.Send( client );
 
-            if ( chr->invul() )  // if invul send 0x17 for newer clients
-              msginvul.Send( client );
-            return;
-          }
-          else
-          {
+        if ( chr->invul() )  // if invul send 0x17 for newer clients
+          msginvul.Send( client );
+        return;
+      }
+      else
+      {
 // NOTE: uncomment this line to make movement smoother (no stepping anims)
 // but basically makes it very difficult to talk while the ship
 // is moving.
 #ifdef PERGON
-            send_remove_character( client, chr, msgremove );
+        send_remove_character( client, chr, msgremove );
 #else
 // send_remove_character( client, chr );
 #endif
-            send_owncreate( client, chr, msgcreate.Get() );
-            if ( chr->poisoned() )
-              msgpoison.Send( client );
-            if ( chr->invul() )
-              msginvul.Send( client );
-          }
-        }
-        else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
-        {
-          msgmove.Send( client );
-          if ( chr->poisoned() )
-            msgpoison.Send( client );
-          if ( chr->invul() )
-            msginvul.Send( client );
-        }
-        else
-        {
-          send_owncreate( client, chr, msgcreate.Get() );
-          if ( chr->poisoned() )
-            msgpoison.Send( client );
-          if ( chr->invul() )
-            msginvul.Send( client );
-        }
-      } );
+        send_owncreate( client, chr, msgcreate.Get() );
+        if ( chr->poisoned() )
+          msgpoison.Send( client );
+        if ( chr->invul() )
+          msginvul.Send( client );
+      }
+    }
+    else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
+    {
+      msgmove.Send( client );
+      if ( chr->poisoned() )
+        msgpoison.Send( client );
+      if ( chr->invul() )
+        msginvul.Send( client );
+    }
+    else
+    {
+      send_owncreate( client, chr, msgcreate.Get() );
+      if ( chr->poisoned() )
+        msgpoison.Send( client );
+      if ( chr->invul() )
+        msginvul.Send( client );
+    }
+  } );
 
   // iter over all old in range players and send remove
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
-      {
+      chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr ) {
         Client* client = zonechr->client;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
@@ -3200,9 +3268,7 @@ void Character::inform_moved( Character* /*moved*/ )
 {
   // consider moving PropagateMove here!
 }
-void Character::inform_imoved( Character* /*chr*/ )
-{
-}
+void Character::inform_imoved( Character* /*chr*/ ) {}
 
 void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 {
@@ -3314,12 +3380,11 @@ void Character::set_warmode( bool i_warmode )
   else
   {
     Network::MoveChrPkt msgmove( this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr )
-                                                                  {
-                                                                    if ( chr == this )
-                                                                      return;
-                                                                    msgmove.Send( chr->client );
-                                                                  } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr ) {
+      if ( chr == this )
+        return;
+      msgmove.Send( chr->client );
+    } );
   }
 }
 
@@ -3497,7 +3562,7 @@ void Character::attack( Character* opponent )
         new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
         new Module::ECharacterRefObjImp( opponent ) );
   }
-  //SOMETHING PROBABLY NEEDS TO CHANGE HERE//
+  // SOMETHING PROBABLY NEEDS TO CHANGE HERE//
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
   hit_chance += hitchance_mod() * 0.001f;
@@ -3812,15 +3877,13 @@ void Character::unhide()
   {
     if ( client != NULL )
       send_owncreate( client, this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-        this, [&]( Character* chr )
-        {
-          if ( chr == this )
-            return;
-          if ( !chr->is_visible_to_me( this ) )
-            return;
-          send_owncreate( chr->client, this );
-        } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr ) {
+      if ( chr == this )
+        return;
+      if ( !chr->is_visible_to_me( this ) )
+        return;
+      send_owncreate( chr->client, this );
+    } );
 
     // dave 12-21 added this hack to get enteredarea events fired when unhiding
     u16 oldlastx = lastx;
@@ -3829,10 +3892,8 @@ void Character::unhide()
     lasty = 0;
     // tellmove();
 
-    Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
-                                                      {
-                                                        NpcPropagateMove( chr, this );
-                                                      } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        x, y, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
     lastx = oldlastx;
     lasty = oldlasty;
   }
@@ -4158,8 +4219,7 @@ bool Character::CheckPushthrough()
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        newx, newy, realm, 0, [&]( Mobile::Character* _chr )
-        {
+        newx, newy, realm, 0, [&]( Mobile::Character* _chr ) {
           if ( _chr->z >= z - 10 && _chr->z <= z + 10 && !_chr->dead() &&
                ( is_visible_to_me( _chr ) ||
                  _chr->hidden() ) )  // add hidden mobs even if they're not visible to me
@@ -4190,17 +4250,13 @@ void Character::tellmove()
   // TO DO: Place in realm change support so npcs know when you enter/leave one?
   if ( Core::pol_distance( lastx, lasty, x, y ) > 32 )
   {
-    Core::WorldIterator<Core::MobileFilter>::InRange( lastx, lasty, realm, 32, [&]( Character* chr )
-                                                      {
-                                                        NpcPropagateMove( chr, this );
-                                                      } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        lastx, lasty, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
   }
 
   // Inform nearby NPCs that a movement has been made.
-  Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 33, [&]( Character* chr )
-                                                    {
-                                                      NpcPropagateMove( chr, this );
-                                                    } );
+  Core::WorldIterator<Core::MobileFilter>::InRange(
+      x, y, realm, 33, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
 
   check_attack_after_move();
 
@@ -4409,10 +4465,10 @@ unsigned int Character::guildid() const
 }
 
 /**
-* Adds a new buff or overwrites an existing one for the character
-* Sends packets to the client accordingly
-* @author Bodom
-*/
+ * Adds a new buff or overwrites an existing one for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ */
 void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
                          const std::vector<u32>& arguments )
 {
@@ -4427,11 +4483,11 @@ void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
 }
 
 /**
-* Removes a buff for the character
-* Sends packets to the client accordingly
-* @author Bodom
-* @return True when the buff has been found and removed, False when the buff was not present
-*/
+ * Removes a buff for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ * @return True when the buff has been found and removed, False when the buff was not present
+ */
 bool Character::delBuff( u16 icon )
 {
   auto b = buffs_.find( icon );
@@ -4446,10 +4502,10 @@ bool Character::delBuff( u16 icon )
 }
 
 /**
-* Removes al buffs for the character
-* Sends packets to the client accordingly
-* @author Bodom
-*/
+ * Removes al buffs for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ */
 void Character::clearBuffs()
 {
   for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
@@ -4457,9 +4513,9 @@ void Character::clearBuffs()
 }
 
 /**
-* Resends all buffs (with updated duration), usually called at (re)login
-* @author Bodom
-*/
+ * Resends all buffs (with updated duration), usually called at (re)login
+ * @author Bodom
+ */
 void Character::send_buffs()
 {
   if ( client == NULL )
@@ -4551,5 +4607,5 @@ void Character::on_delete_from_account()
   if ( realm )
     realm->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
