@@ -27,7 +27,6 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#include <format/format.h>
 #include "../clib/clib.h"
 #include "../clib/filecont.h"
 #include "../clib/fileutil.h"
@@ -46,6 +45,7 @@
 #include "token.h"
 #include "tokens.h"
 #include "userfunc.h"
+#include <format/format.h>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning for stricmp, fopen
@@ -973,8 +973,13 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
         static_cast<unsigned char>( candidates[0].module );  // WAS module,we're using relative now
     token.type = TYP_FUNC;
     token.id = TOK_FUNC;
+    // INFO_PRINT<<"HERE << "<<candidates[0].name.get()<<"\n";
     token.lval = candidates[0].funcidx;
     token.userfunc = ( *pmf )->uf;
+    if ( token.userfunc != nullptr )
+      INFO_PRINT << token.userfunc->name;
+    else
+      INFO_PRINT << "M\n";
     return 1;
   }
   else
@@ -1398,7 +1403,6 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     else if ( token.id == TOK_RPAREN )
     {
       return 0;
-      ;
     }
     else
     {
@@ -1409,6 +1413,32 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
   // unreachable
 }
 
+int Compiler::getFunctionPArgument( Expression& /*expr*/, CompilerContext& ctx, Token* ref_tkn )
+{
+  int res;
+  Token token;
+  res = getToken( ctx, token );
+  if ( res < 0 || token.id != TOK_LPAREN )
+  {
+    INFO_PRINT << "Expected left parenthesis.\n";
+    return -1;
+  }
+  res = getToken( ctx, *ref_tkn );
+  if ( res < 0 || ref_tkn->id != TOK_USERFUNC )
+  {
+    INFO_PRINT << "Expected user function reference.\n";
+    return -1;
+  }
+  res = getToken( ctx, token );
+  if ( res < 0 || token.id != TOK_RPAREN )
+  {
+    INFO_PRINT << "Expected right parenthesis.\n";
+    return -1;
+  }
+  ref_tkn->id = TOK_FUNCREF;
+  ref_tkn->type = TYP_OPERAND;
+  return 0;
+}
 
 /*
 getUserArgs is called from IIP.
@@ -1736,6 +1766,9 @@ int Compiler::readexpr( Expression& expr, CompilerContext& ctx, unsigned flags )
     auto tkn = new Token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
     expr.tokens.push_back( tkn );
   }
+  INFO_PRINT << "++++\n";
+  for ( const auto& t : expr.tokens )
+    INFO_PRINT << *t << "\n";
   substitute_constants( expr );
   convert_variables( expr );
   expr.optimize();
@@ -1750,6 +1783,7 @@ void Compiler::inject( Expression& expr )
   for ( Expression::Tokens::const_iterator itr = expr.tokens.begin(); itr != expr.tokens.end();
         ++itr )
   {
+    INFO_PRINT << "INJ " << *( *itr ) << "\n";
     addToken( *( *itr ) );
   }
 }

@@ -118,7 +118,9 @@ void EScriptProgram::addToken( const Token& token )
   {
   case TYP_OPERAND:  // is variable name, long, double, string lit
   {
+    INFO_PRINT << "oper " << token << "\n";
     unsigned sympos = 0;
+    BTokenType type = token.type;
     switch ( token.id )
     {
     case TOK_LONG:
@@ -139,11 +141,15 @@ void EScriptProgram::addToken( const Token& token )
     case TOK_LOCALVAR:
       sympos = token.lval;
       break;
-
+    case TOK_FUNCREF:
+      // num params in type
+      type = static_cast<BTokenType>( token.userfunc->parameters.size() );
     default:
       break;
     }
-    tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ), &tokpos );
+    tokens.append_tok( StoredToken( token.module, token.id, type, sympos ), &tokpos );
+    if ( token.id == TOK_FUNCREF )
+      token.userfunc->forward_callers.push_back( tokpos );
   }
   break;
 

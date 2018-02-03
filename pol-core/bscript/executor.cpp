@@ -186,6 +186,7 @@ int Executor::getParams( unsigned howMany )
         return -1;
       }
       fparams[i] = ValueStack.back();
+      INFO_PRINT << fparams[i]->impptr()->getStringRep() << "\n";
       ValueStack.pop_back();
     }
   }
@@ -883,6 +884,7 @@ void Executor::popParam( const Token& /*token*/ )
 {
   BObjectRef objref = getObjRef();
 
+  INFO_PRINT << "pop " << ValueStack.size() << objref->impptr()->getStringRep() << "\n";
   Locals2->push_back( BObjectRef() );
   Locals2->back().set( new BObject( objref->impptr()->copy() ) );
 }
@@ -2263,8 +2265,15 @@ void Executor::ins_call_method_id( const Instruction& ins )
 {
   unsigned nparams = ins.token.type;
   getParams( nparams );
+  for ( auto& p : fparams )
+  {
+    INFO_PRINT << p->impptr()->getStringRep() << "INITIAL\n";
+  }
+  // TODO: HACK to fiddle with the valuestack, later this needs to be handled better
 
-  BObjectRef& objref = ValueStack.back();
+  BObjectRef objref = ValueStack.back();
+  ValueStack.pop_back();
+  bool deferred = objref->impptr()->isa( BObjectImp::OTFuncRef );
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
   strm << "MTHID_" << objref->impptr()->typeOf() << " ." << ins.token.lval;
@@ -2273,11 +2282,32 @@ void Executor::ins_call_method_id( const Instruction& ins )
   std::string name( strm.str() );
   unsigned long profile_start = GetTimeUs();
 #endif
+  INFO_PRINT << "deferred " << deferred << "\n";
+  if ( deferred )
+  {
+    for ( auto& p : fparams )
+    {
+      INFO_PRINT << p->impptr()->getStringRep() << "\n";
+      ValueStack.push_back( p );
+    }
+  }
   BObjectImp* imp = objref->impptr()->call_method_id( ins.token.lval, *this );
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
+  if ( deferred )
+  {
+    INFO_PRINT << "CLEAN\n" << ValueStack.size();
+    INFO_PRINT << ValueStack.back()->impptr()->getStringRep() << "\n";
+    // ValueStack.pop_back();
+    INFO_PRINT << ValueStack.back()->impptr()->getStringRep() << "\n";
+    INFO_PRINT << nparams << "par" << ValueStack.size() << "\n";
+    fparams.clear();
 
+    INFO_PRINT << nparams << "par" << ValueStack.size() << "\n";
+    INFO_PRINT << ValueStack.back()->impptr()->getStringRep() << "\n";
+    return;
+  }
   if ( func_result_ )
   {
     if ( imp )
@@ -2370,6 +2400,7 @@ void Executor::ins_makelocal( const Instruction& /*ins*/ )
 // CTRL_JSR_USERFUNC:
 void Executor::ins_jsr_userfunc( const Instruction& ins )
 {
+  INFO_PRINT << ValueStack.size() << " " << ValueStack.back()->impptr()->getStringRep() << "\n";
   ReturnContext rc;
   rc.PC = PC;
   rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
@@ -2410,6 +2441,7 @@ void Executor::ins_get_arg( const Instruction& ins )
 // CTRL_LEAVE_BLOCK:
 void Executor::ins_leave_block( const Instruction& ins )
 {
+  ERROR_PRINT << "leave " << ins.token << "\n";
   if ( Locals2 )
   {
     for ( int i = 0; i < ins.token.lval; i++ )
@@ -2527,6 +2559,11 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
   return;
 }
 
+void Executor::ins_funcref( const Instruction& ins )
+{
+  ValueStack.push_back(
+      BObjectRef( new BObject( new BFunctionRef( ins.token.lval, ins.token.type ) ) ) );
+}
 
 void Executor::innerExec( const Instruction& ins )
 {
@@ -2556,6 +2593,7 @@ void Executor::innerExec( const Instruction& ins )
   {
     unsigned nparams = token.lval;
     getParams( nparams );
+    INFO_PRINT << "HHHHHHHEEEERRREE\n";
 
     BObjectRef& objref = ValueStack.back();
     BObjectImp* imp = objref->impptr()->call_method( token.tokval(), *this );
@@ -2797,6 +2835,10 @@ void Executor::innerExec( const Instruction& ins )
     ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
     return;
 
+  case TOK_FUNCREF:
+    INFO_PRINT << "FUNCREF creation for PC " << token.lval << "\n";
+    // ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
+    return;
   case TOK_IDENT:
     ValueStack.push_back(
         BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
@@ -3093,6 +3135,9 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_array;
   case TOK_DICTIONARY:
     return &Executor::ins_dictionary;
+  case TOK_FUNCREF:
+    INFO_PRINT << "get instr function\n";
+    return &Executor::ins_funcref;
   case INS_UNINIT:
     return &Executor::ins_uninit;
   case TOK_IDENT:
@@ -3270,8 +3315,8 @@ void Executor::execInstr()
 #else
     const Instruction& ins = prog_->instr.at( PC );
 #endif
-    if ( debug_level >= INSTRUCTIONS )
-      INFO_PRINT << PC << ": " << ins.token << "\n";
+    // if ( debug_level >= INSTRUCTIONS )
+    INFO_PRINT << PC << ": " << ins.token << "\n";
 
     if ( debugging_ )
     {

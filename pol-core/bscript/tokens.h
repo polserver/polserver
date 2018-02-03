@@ -209,6 +209,8 @@ enum BTokenId : u16
   INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL = 0x5f,
   INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL = 0x60,
 
+  TOK_FUNCREF = 0x61,
+
   // --- UPPER SPACE 0x0100-0xFFFF: TOKENS THAT AREN'T PART OF EMITTED CODE ---
   //
   // these can be safely renumbered any time, but must start from 0x100

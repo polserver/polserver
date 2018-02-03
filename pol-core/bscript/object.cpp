@@ -23,6 +23,7 @@
 #include "berror.h"
 #include "bobject.h"
 #include "bstruct.h"
+#include "config.h"
 #include "dict.h"
 #include "executor.h"
 #include "impstr.h"
@@ -32,6 +33,7 @@
 
 #if BOBJECTIMP_DEBUG
 #include <unordered_map>
+#include "escriptv.h"
 #endif
 
 #ifdef _MSC_VER
@@ -250,6 +252,8 @@ const char* BObjectImp::typestr( BObjectType typ )
     return "BinaryFile";
   case OTBoolean:
     return "Boolean";
+  case OTFuncRef:
+    return "FunctionReference";
   default:
     return "Undefined";
   }
@@ -1840,6 +1844,85 @@ bool BBoolean::operator==( const BObjectImp& objimp ) const
 std::string BBoolean::getStringRep() const
 {
   return bval_ ? "true" : "false";
+}
+
+
+BFunctionRef::BFunctionRef( int progcounter, int param_count )
+    : BObjectImp( OTFuncRef ), pc_( progcounter ), num_params_( param_count )
+{
+  INFO_PRINT << " Created FuncRef @" << pc_ << " number of params" << num_params_ << "\n";
+}
+BFunctionRef::BFunctionRef( const BFunctionRef& B ) : BFunctionRef( B.pc_, B.num_params_ )
+{
+  INFO_PRINT << " Copy constr FuncRef @" << pc_ << " number of params" << num_params_ << "\n";
+}
+
+BObjectImp* BFunctionRef::copy() const
+{
+  return new BFunctionRef( *this );
+}
+
+size_t BFunctionRef::sizeEstimate() const
+{
+  return sizeof( BFunctionRef );
+}
+
+bool BFunctionRef::isTrue() const
+{
+  return false;
+}
+
+bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
+{
+  return false;
+}
+
+std::string BFunctionRef::getStringRep() const
+{
+  return "Function Reference";
+}
+
+BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )
+{
+  return nullptr;
+}
+
+BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+{
+  switch ( id )
+  {
+  case MTH_CALL:
+    if ( ex.numParams() == static_cast<size_t>( num_params_ ) )
+    {
+      ReturnContext rc;
+      rc.PC = ex.PC;
+      rc.ValueStackDepth = static_cast<unsigned int>( ex.ValueStack.size() );
+      ex.ControlStack.push_back( rc );
+
+      ex.PC = (unsigned)pc_;
+      if ( ex.ControlStack.size() >= escript_config.max_call_depth )
+      {
+        fmt::Writer tmp;
+        tmp << "Script " << ex.scriptname() << " exceeded maximum call depth\n"
+            << "Return path PCs: ";
+        while ( !ex.ControlStack.empty() )
+        {
+          rc = ex.ControlStack.back();
+          ex.ControlStack.pop_back();
+          tmp << rc.PC << " ";
+        }
+        POLLOG << tmp.str() << "\n";
+        ex.seterror( true );
+      }
+    }
+    //    return new BLong(0);
+    else
+      return new BError( "funcref.call() with invalid number of params expected " +
+                         Clib::tostring( num_params_ ) );
+  default:
+    return nullptr;
+  }
+  return nullptr;
 }
 }
 }

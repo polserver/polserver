@@ -660,6 +660,7 @@ ObjMethod object_methods[] = {
     {MTH_ADD_BUFF, "addbuff", false},
     {MTH_DEL_BUFF, "delbuff", false},  // 150
     {MTH_CLEAR_BUFFS, "clearbuffs", false},
+    {MTH_CALL, "call", false},
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
@@ -868,7 +869,7 @@ ReservedWord reserved_words[] = {
 
     {"downto", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"step", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
-    {"reference", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
+    {"reference", TOK_FUNCREF, TYP_OPERAND, PREC_TERMINATOR, false},
     {"out", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"inout", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     // { "ByRef",	  RSV_FUTURE,	 TYP_RESERVED, PREC_TERMINATOR, false },
@@ -2355,6 +2356,16 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       {
         INFO_PRINT << "Error reading members for dictionary\n";
       }
+    }
+    else if ( token.id == TOK_FUNCREF )
+    {
+      auto ref_tkn = new Token( token );
+      res = getFunctionPArgument( expr, ctx, ref_tkn );
+      if ( res < 0 )
+      {
+        INFO_PRINT << "Error reading members for dictionary\n";
+      }
+      expr.CA.push( ref_tkn );
     }
     else if ( token.id == TOK_MEMBER && callingMethod( ctx ) )
     {

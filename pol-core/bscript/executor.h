@@ -334,6 +334,8 @@ public:
   void ins_initfor( const Instruction& ins );
   void ins_nextfor( const Instruction& ins );
 
+  void ins_funcref( const Instruction& ins );
+
   static int ins_casejmp_findlong( const Token& token, BLong* blong );
   static int ins_casejmp_findstring( const Token& token, String* bstringimp );
   static int ins_casejmp_finddefault( const Token& token );

@@ -32,8 +32,10 @@ void EScriptProgram::dump( std::ostream& os )
   unsigned nLines = tokens.length() / sizeof( StoredToken );
   for ( PC = 0; PC < nLines; PC++ )
   {
+    INFO_PRINT << PC << "\n";
     if ( _readToken( token, PC ) )
     {
+      INFO_PRINT << "FAILED\n";
       return;
     }
     else
@@ -47,6 +49,7 @@ void EScriptProgram::dump( std::ostream& os )
       if ( sourcelines.size() > PC && !sourcelines[PC].empty() )
         os << sourcelines[PC] << std::endl;
       os << PC << ": " << token << std::endl;
+      INFO_PRINT << "** " << token << "\n";
       if ( token.id == INS_CASEJMP )
       {
         dump_casejmp( os, token );

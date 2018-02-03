@@ -97,6 +97,7 @@ int EScriptProgram::read( const char* fname )
         break;
       case BSCRIPT_SECTION_SYMBOLS:
         symbols.read( fp );
+        INFO_PRINT << std::string( symbols.array(), symbols.length() ) << "\n";
         break;
       case BSCRIPT_SECTION_GLOBALVARNAMES:
         if ( read_globalvarnames( fp ) )
@@ -294,6 +295,9 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
+    token.lval = st.offset;
+    return 0;
+  case TOK_FUNCREF:
     token.lval = st.offset;
     return 0;
 
