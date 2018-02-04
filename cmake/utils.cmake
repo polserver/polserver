@@ -128,6 +128,7 @@ function(use_curl target)
   else()
     target_link_libraries(${target} PUBLIC curl)
   endif()
+  mark_as_advanced(curl_lib)
 endfunction()
 
 function(use_benchmark target)

@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
 
+# protect the user for himself
+if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+  message(FATAL_ERROR "
+    FATAL: In-source builds are not allowed.
+           Remove CMakeCache.txt and CMakeFiles folder and
+           Switch to bin-build.")
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project(polserver)
@@ -7,6 +15,9 @@ project(polserver)
 set(POL_VERSION_STR "099")
 set(POL_VERSION 99)
 set(POL_VERSION_NAME "Break Everything Even Rudder")
+
+option(NO_PCH "Disable pre-compiled headers" OFF)
+option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
 
 include(cmake/init.cmake)
 
@@ -30,7 +41,8 @@ include(ExternalProject)
 include(cmake/utils.cmake)
 include(cmake/release.cmake)
 include(cmake/cotire.cmake)
-
+#hide the cotire settings
+hide_cotire()
 
 detect_compiler()
 detect_arch()
