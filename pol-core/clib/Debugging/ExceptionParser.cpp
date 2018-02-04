@@ -143,7 +143,6 @@ void logExceptionSignal( int signal )
   string signalDescription;
 
   getSignalDescription( signal, signalName, signalDescription );
-  ERROR_PRINT<<"EEEEEEEEEEE\n";
   printf( "Signal \"%s\"(%d: %s) detected.\n", signalName.c_str(), signal,
           signalDescription.c_str() );
 }

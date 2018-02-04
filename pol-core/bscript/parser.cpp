@@ -2363,7 +2363,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       res = getFunctionPArgument( expr, ctx, ref_tkn );
       if ( res < 0 )
       {
-        INFO_PRINT << "Error reading members for dictionary\n";
+        INFO_PRINT << "Error reading function reference argument\n";
       }
       expr.CA.push( ref_tkn );
     }

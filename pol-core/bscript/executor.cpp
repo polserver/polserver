@@ -2283,7 +2283,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       return;
     }
   }
-  BObjectRef objref = ValueStack.back();
+  BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
   strm << "MTHID_" << objref->impptr()->typeOf() << " ." << ins.token.lval;

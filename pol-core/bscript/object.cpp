@@ -23,7 +23,6 @@
 #include "berror.h"
 #include "bobject.h"
 #include "bstruct.h"
-#include "config.h"
 #include "dict.h"
 #include "executor.h"
 #include "impstr.h"
