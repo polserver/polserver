@@ -60,8 +60,8 @@
 
 #include <errno.h>
 
-#include <format/format.h>
 #include "../bscript/bobject.h"
+#include "../bscript/escriptv.h"
 #include "../clib/Debugging/ExceptionParser.h"
 #include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
@@ -135,8 +135,10 @@
 #include "uoclient.h"
 #include "uoscrobj.h"
 #include "uworld.h"
+#include <format/format.h>
 
 #ifndef NDEBUG
+#include "containr.h"
 #include "mobile/npc.h"
 #endif
 

@@ -3,7 +3,8 @@ shallow_clone: true
 clone_folder: c:\projects\pol_testing
 image: Visual Studio 2017
 platform: x64
-configuration: Release
+configuration: Debug
+#Release
 build:
   parallel: true
   project: pol-core/pol-2017.sln
