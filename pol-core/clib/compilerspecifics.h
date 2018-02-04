@@ -9,6 +9,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 // Fix for VS CodeAnalysis
 #ifdef _MSC_VER
+#pragma warning( disable : 4467 )  // ATL attributes
 #include <CodeAnalysis/sourceannotations.h>
 #define passert_assume( x ) __analysis_assume( x )
 #else

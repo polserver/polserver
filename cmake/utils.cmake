@@ -105,10 +105,12 @@ function(set_compile_flags target is_executable)
   )
 
   #PCH SUPPORT
-  set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
-  if (EXISTS ${_pch_name})
-    set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
-    cotire(${target})
+  if (NOT NO_PCH)
+    set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
+    if (EXISTS ${_pch_name})
+      set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
+      cotire(${target})
+    endif()
   endif()
 
 endfunction()

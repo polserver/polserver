@@ -9,6 +9,7 @@
 
 #include <cstddef>
 #ifdef _WIN32
+#include <format/format.h>
 #include <malloc.h>
 #endif
 
