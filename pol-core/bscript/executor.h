@@ -222,7 +222,6 @@ public:
   ModuleFunction* current_module_function;
   // NOTE: the debugger code expects these to be virtual..
   void execFunc( const Token& token );
-  void innerExec( const Instruction& ins );
   void execInstr();
 
   void ins_nop( const Instruction& ins );

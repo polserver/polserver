@@ -32,8 +32,8 @@
 #include "objmethods.h"
 
 #if BOBJECTIMP_DEBUG
-#include <unordered_map>
 #include "escriptv.h"
+#include <unordered_map>
 #endif
 
 #ifdef _MSC_VER
@@ -1850,11 +1850,10 @@ std::string BBoolean::getStringRep() const
 BFunctionRef::BFunctionRef( int progcounter, int param_count )
     : BObjectImp( OTFuncRef ), pc_( progcounter ), num_params_( param_count )
 {
-  INFO_PRINT << " Created FuncRef @" << pc_ << " number of params" << num_params_ << "\n";
 }
+
 BFunctionRef::BFunctionRef( const BFunctionRef& B ) : BFunctionRef( B.pc_, B.num_params_ )
 {
-  INFO_PRINT << " Copy constr FuncRef @" << pc_ << " number of params" << num_params_ << "\n";
 }
 
 BObjectImp* BFunctionRef::copy() const
@@ -1884,41 +1883,37 @@ std::string BFunctionRef::getStringRep() const
 
 BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )
 {
+  ObjMethod* objmethod = getKnownObjMethod( methodname );
+  if ( objmethod != nullptr )
+    return call_method_id( objmethod->id, ex );
   return nullptr;
 }
 
-BObjectImp* BFunctionRef::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) const
+{
+  if ( id != MTH_CALL )
+    return false;
+  if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
+    return false;
+  inst->func = &Executor::ins_nop;
+  inst->token.lval = pc_;
+  return true;
+}
+
+bool BFunctionRef::validCall( const char* methodname, Executor& ex, Instruction* inst ) const
+{
+  ObjMethod* objmethod = getKnownObjMethod( methodname );
+  if ( objmethod == nullptr )
+    return false;
+  return validCall( objmethod->id, ex, inst );
+}
+
+BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
 {
   switch ( id )
   {
   case MTH_CALL:
-    if ( ex.numParams() == static_cast<size_t>( num_params_ ) )
-    {
-      ReturnContext rc;
-      rc.PC = ex.PC;
-      rc.ValueStackDepth = static_cast<unsigned int>( ex.ValueStack.size() );
-      ex.ControlStack.push_back( rc );
-
-      ex.PC = (unsigned)pc_;
-      if ( ex.ControlStack.size() >= escript_config.max_call_depth )
-      {
-        fmt::Writer tmp;
-        tmp << "Script " << ex.scriptname() << " exceeded maximum call depth\n"
-            << "Return path PCs: ";
-        while ( !ex.ControlStack.empty() )
-        {
-          rc = ex.ControlStack.back();
-          ex.ControlStack.pop_back();
-          tmp << rc.PC << " ";
-        }
-        POLLOG << tmp.str() << "\n";
-        ex.seterror( true );
-      }
-    }
-    //    return new BLong(0);
-    else
-      return new BError( "funcref.call() with invalid number of params expected " +
-                         Clib::tostring( num_params_ ) );
+    return nullptr;  // handled directly
   default:
     return nullptr;
   }

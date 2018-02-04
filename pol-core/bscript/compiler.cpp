@@ -973,13 +973,8 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
         static_cast<unsigned char>( candidates[0].module );  // WAS module,we're using relative now
     token.type = TYP_FUNC;
     token.id = TOK_FUNC;
-    // INFO_PRINT<<"HERE << "<<candidates[0].name.get()<<"\n";
     token.lval = candidates[0].funcidx;
     token.userfunc = ( *pmf )->uf;
-    if ( token.userfunc != nullptr )
-      INFO_PRINT << token.userfunc->name;
-    else
-      INFO_PRINT << "M\n";
     return 1;
   }
   else
@@ -1766,9 +1761,6 @@ int Compiler::readexpr( Expression& expr, CompilerContext& ctx, unsigned flags )
     auto tkn = new Token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
     expr.tokens.push_back( tkn );
   }
-  INFO_PRINT << "++++\n";
-  for ( const auto& t : expr.tokens )
-    INFO_PRINT << *t << "\n";
   substitute_constants( expr );
   convert_variables( expr );
   expr.optimize();
@@ -1783,7 +1775,6 @@ void Compiler::inject( Expression& expr )
   for ( Expression::Tokens::const_iterator itr = expr.tokens.begin(); itr != expr.tokens.end();
         ++itr )
   {
-    INFO_PRINT << "INJ " << *( *itr ) << "\n";
     addToken( *( *itr ) );
   }
 }

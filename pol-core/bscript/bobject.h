@@ -53,6 +53,7 @@ class BObject;
 class BObjectRef;
 class ContIterator;
 class Executor;
+class Instruction;
 
 class BLong;
 class Double;
@@ -823,6 +824,8 @@ private:
 
 public:
   virtual size_t sizeEstimate() const POL_OVERRIDE;
+  bool validCall( const int id, Executor& ex, Instruction* inst ) const;
+  bool validCall( const char* methodname, Executor& ex, Instruction* inst ) const;
 
 public:  // Class Machinery
   virtual BObjectImp* copy() const POL_OVERRIDE;
@@ -836,7 +839,7 @@ public:  // Class Machinery
                                       bool forcebuiltin = false ) POL_OVERRIDE;
 
 private:
-  int pc_;
+  unsigned int pc_;
   int num_params_;
 };
 class BApplicObjType

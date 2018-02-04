@@ -187,9 +187,13 @@ void initLogging( LogFacility* logger );  // initalize the logging
 
 
 // several helper defines
-#define DEBUG_LOG_PRINTS
+//#define DEBUG_LOG_PRINTS
 #ifdef DEBUG_LOG_PRINTS
+#ifdef WINDOWS
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
 #define LOG_PRINT_CALLER_INFO __FILENAME__, __LINE__, __FUNCTION__
 #define LOG_PRINT_CALLER_INFO2 , __FILENAME__, __LINE__, __FUNCTION__
 #else

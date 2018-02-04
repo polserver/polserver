@@ -118,7 +118,6 @@ void EScriptProgram::addToken( const Token& token )
   {
   case TYP_OPERAND:  // is variable name, long, double, string lit
   {
-    INFO_PRINT << "oper " << token << "\n";
     unsigned sympos = 0;
     BTokenType type = token.type;
     switch ( token.id )

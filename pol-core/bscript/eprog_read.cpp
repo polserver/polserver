@@ -97,7 +97,6 @@ int EScriptProgram::read( const char* fname )
         break;
       case BSCRIPT_SECTION_SYMBOLS:
         symbols.read( fp );
-        INFO_PRINT << std::string( symbols.array(), symbols.length() ) << "\n";
         break;
       case BSCRIPT_SECTION_GLOBALVARNAMES:
         if ( read_globalvarnames( fp ) )
