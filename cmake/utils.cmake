@@ -132,7 +132,7 @@ function(use_curl target)
 endfunction()
 
 function(use_benchmark target)
-  if (DEFINED ENABLE_BENCHMARK) 
+  if (ENABLE_BENCHMARK) 
     target_link_libraries(${target} PUBLIC benchmark)
   endif()
 endfunction()
