@@ -6,6 +6,10 @@
 
 #include "tracebuf.h"
 
+#ifndef NDEBUG
+#include <format/format.h>
+#endif
+
 namespace Pol
 {
 namespace Clib
