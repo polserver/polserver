@@ -17,6 +17,7 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
+#include "../Header_Windows.h"
 #include <crtdbg.h>
 #include <psapi.h>
 #include <windows.h>  // for GetModuleFileName
