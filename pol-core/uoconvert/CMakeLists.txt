@@ -1,9 +1,10 @@
 set(ex_name uoconvert)
 
+# define source files
+include(CMakeSources.cmake)
+
 add_executable(${ex_name}
-  # sorted !
-  ../pol/polfile1.cpp
-  UoConvertMain.cpp
+  ${${ex_name}_sources}
 )    
  
 set_compile_flags(${ex_name} 1)
