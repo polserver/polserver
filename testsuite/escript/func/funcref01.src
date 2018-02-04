@@ -1,0 +1,24 @@
+function test(c)
+  return("works"+c);
+endfunction
+
+function copy(c)
+  print(c.call("copy"));
+endfunction
+
+program t()
+var f:=reference(test);
+var res:=f.call("direct");
+copy(f);
+print("res "+res);
+
+if (f)
+  print("error");
+else
+  print("funcref is always false");
+endif
+
+// should be packet to uninit
+print(pack(f));
+print(unpack(pack(f)));
+endprogram

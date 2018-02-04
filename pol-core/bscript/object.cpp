@@ -1846,12 +1846,16 @@ std::string BBoolean::getStringRep() const
 }
 
 
-BFunctionRef::BFunctionRef( int progcounter, int param_count )
-    : BObjectImp( OTFuncRef ), pc_( progcounter ), num_params_( param_count )
+BFunctionRef::BFunctionRef( int progcounter, int param_count, const std::string& scriptname )
+    : BObjectImp( OTFuncRef ),
+      pc_( progcounter ),
+      num_params_( param_count ),
+      script_name_( scriptname )
 {
 }
 
-BFunctionRef::BFunctionRef( const BFunctionRef& B ) : BFunctionRef( B.pc_, B.num_params_ )
+BFunctionRef::BFunctionRef( const BFunctionRef& B )
+    : BFunctionRef( B.pc_, B.num_params_, B.script_name_ )
 {
 }
 
@@ -1893,6 +1897,8 @@ bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) co
   if ( id != MTH_CALL )
     return false;
   if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
+    return false;
+  if ( ex.scriptname() != script_name_ )
     return false;
   inst->func = &Executor::ins_nop;
   inst->token.lval = pc_;

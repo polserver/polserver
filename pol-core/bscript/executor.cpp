@@ -2568,7 +2568,7 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 void Executor::ins_funcref( const Instruction& ins )
 {
   ValueStack.push_back(
-      BObjectRef( new BObject( new BFunctionRef( ins.token.lval, ins.token.type ) ) ) );
+      BObjectRef( new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
 }
 
 void Executor::ins_nop( const Instruction& /*ins*/ ) {}

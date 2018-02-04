@@ -816,7 +816,7 @@ class BFunctionRef : public BObjectImp
   typedef BObjectImp base;
 
 public:
-  explicit BFunctionRef( int progcounter, int param_count );
+  BFunctionRef( int progcounter, int param_count, const std::string& scriptname );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -841,6 +841,7 @@ public:  // Class Machinery
 private:
   unsigned int pc_;
   int num_params_;
+  std::string script_name_;
 };
 class BApplicObjType
 {
