@@ -1412,22 +1412,10 @@ int Compiler::getFunctionPArgument( Expression& /*expr*/, CompilerContext& ctx, 
 {
   int res;
   Token token;
-  res = getToken( ctx, token );
-  if ( res < 0 || token.id != TOK_LPAREN )
-  {
-    INFO_PRINT << "Expected left parenthesis.\n";
-    return -1;
-  }
   res = getToken( ctx, *ref_tkn );
   if ( res < 0 || ref_tkn->id != TOK_USERFUNC )
   {
     INFO_PRINT << "Expected user function reference.\n";
-    return -1;
-  }
-  res = getToken( ctx, token );
-  if ( res < 0 || token.id != TOK_RPAREN )
-  {
-    INFO_PRINT << "Expected right parenthesis.\n";
     return -1;
   }
   ref_tkn->id = TOK_FUNCREF;

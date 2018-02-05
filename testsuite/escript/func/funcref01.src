@@ -7,7 +7,7 @@ function copy(c)
 endfunction
 
 program t()
-var f:=reference(test);
+var f:=@test;
 var res:=f.call("direct");
 copy(f);
 print("res "+res);

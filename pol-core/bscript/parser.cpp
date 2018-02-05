@@ -250,7 +250,8 @@ Operator unary_operators[] = {
     {"+", TOK_UNPLUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"-", TOK_UNMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
-    {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false}
+    {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
+    {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false}
     //	{ "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
     // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR, false, false
 };
@@ -869,7 +870,7 @@ ReservedWord reserved_words[] = {
 
     {"downto", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"step", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
-    {"reference", TOK_FUNCREF, TYP_OPERAND, PREC_TERMINATOR, false},
+   // {"reference", TOK_FUNCREF, TYP_OPERAND, PREC_TERMINATOR, false},
     {"out", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"inout", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     // { "ByRef",	  RSV_FUTURE,	 TYP_RESERVED, PREC_TERMINATOR, false },

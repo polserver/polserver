@@ -1,5 +1,5 @@
 function init_animal(byref self)
-  self.+yell:=reference(animal_yell);
+  self.+yell:=@animal_yell;
 endfunction
 function animal_yell(byref self)
   print(self.text.call(self));
@@ -8,7 +8,7 @@ endfunction
 function init_cat()
   var cat:=struct;
   init_animal(cat);
-  cat.+text:=reference(cat_text);
+  cat.+text:=@cat_text;
   return cat;
 endfunction
 function cat_text(byref self)
@@ -18,7 +18,7 @@ endfunction
 function init_dog()
   var dog:=struct;
   init_animal(dog);
-  dog.+text:=reference(dog_text);
+  dog.+text:=@dog_text;
   dog.+angry:=0;
   return dog;
 endfunction
