@@ -149,6 +149,8 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
           ERROR_PRINT << "Invalid fileaccess Directory entry: " << tmp << "\n";
       }
     }
+    if ( Directories.empty() )
+      AllDirectories = true;
     while ( elem.remove_prop( "Extension", &tmp ) )
     {
       if ( tmp == "*" )

@@ -11,6 +11,8 @@ var f:=@test;
 var res:=f.call("direct");
 copy(f);
 print("res "+res);
+print(@test);
+copy(@test);
 
 if (f)
   print("error");

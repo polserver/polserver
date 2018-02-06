@@ -26,9 +26,9 @@
 <header>Class Hierarchy</header>
 <pre xml:space="preserve">
 
-            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>      <a href="#DataFileElement">DataFileElement</a>
+            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>      <a href="#DataFileElement">DataFileElement</a>   <a href="#FunctionObject">FunctionObject</a>
                |
-               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datafile">Datafile</a>
+               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datafile">Datafile</a>          <a href="#Boolean">Boolean</a>
      +---------+--------+
      |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#BinaryFile">BinaryFile</a>
    <a href="#Character">Character</a>           <a href="#Item">Item</a>
@@ -51,7 +51,7 @@
                                                                
 </pre>
 
-<datemodified>09/10/2017</datemodified>
+<datemodified>02/05/2018</datemodified>
 </fileheader>
 
 
@@ -821,4 +821,13 @@ It is iterable: iterates over Item objects (root items in storage area).</explai
 </class>
 
 
+<class name="FunctionObject">
+<explain>Object representing a function. Created via "var f:=@myfunc;"
+Object can be copied inside the same script, but cannot be stored in cprops or transfered to a different script.</explain>
+<method proto="call(...)" returns="unspecified" desc="Calls the underlying function, arguments and return value are the same as the original function." />
+</class>
+
+<class name="Boolean">
+<explain>Object representing a boolean value, only comparison operators ==, !=, ! are implemented. Can be stored in cprops/datafiles.</explain>
+</class>
 </ESCRIPT>

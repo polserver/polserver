@@ -59,6 +59,7 @@ enum BTokenType : u8
   TYP_RIGHTBRACE = 0x20,
 
   TYP_NUMTYPES = 0x21,
+  TYP_FUNCREF = 0x22,
 };
 
 inline std::ostream& operator<<( std::ostream& out, const BTokenType& tok )

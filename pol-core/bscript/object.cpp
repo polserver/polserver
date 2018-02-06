@@ -1881,7 +1881,7 @@ bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
 
 std::string BFunctionRef::getStringRep() const
 {
-  return "Function Reference";
+  return "FunctionObject";
 }
 
 BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )
