@@ -39,6 +39,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   msg->offset += 2;  // msglen
   msg->Write<u32>( chr->serial_ext );
   msg->Write( chr->name().c_str(), 30, false );
+  bool process_caps = Core::settingsManager.ssopt.core_handles_defence_caps;
   if ( networkManager.uoclient_general.hits.any )
   {
     int v = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
@@ -141,8 +142,13 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   // Adjusted to work with Physical Resist if AOS client, and AOS Resistances enabled.
   if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
   {
-    s16 value = chr->physical_resist().value;
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+    s16 value = chr->physical_resist().value; 
+	if (chr->has_physical_resist_cap() && process_caps)
+	{
+		auto cap = chr->physical_resist_cap().value;
+		value = std::min(cap, value);
+	}
+	msg->WriteFlipped<u16>(static_cast<u16>((value < 0) ? (0x10000 + value) : value));
   }
   else
     msg->WriteFlipped<u16>( chr->ar() );
@@ -168,12 +174,33 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->Write<s8>( follow_value.followers_max );
     // moreinfo 4 start
     s16 value = chr->fire_resist().value;
-    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+	if (chr->has_fire_resist_cap() && process_caps)
+	{
+		auto cap = chr->fire_resist_cap().value;
+		value = std::min(cap, value);
+	}
+	msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
+
     value = chr->cold_resist().value;
+	if (chr->has_cold_resist_cap() && process_caps)
+	{
+		auto cap = chr->cold_resist_cap().value;
+		value = std::min(cap, value);
+	}
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     value = chr->poison_resist().value;
+	if (chr->has_poison_resist_cap() && process_caps)
+	{
+		auto cap = chr->poison_resist_cap().value;
+		value = std::min(cap, value);
+	}
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     value = chr->energy_resist().value;
+	if (chr->has_energy_resist_cap() && process_caps)
+	{
+		auto cap = chr->energy_resist_cap().value;
+		value = std::min(cap, value);
+	}
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     msg->WriteFlipped<u16>( static_cast<u16>(chr->luck().value));
     msg->WriteFlipped<u16>( chr->min_weapon_damage() );
@@ -191,7 +218,13 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>(static_cast<u16>(chr->cold_resist_cap().value)); // Cold resist cap
     msg->WriteFlipped<u16>(static_cast<u16>(chr->poison_resist_cap().value)); // Poison resist cap
     msg->WriteFlipped<u16>(static_cast<u16>(chr->energy_resist_cap().value)); // Energy resist cap
-    msg->WriteFlipped<u16>(static_cast<u16>(chr->defence_increase().value)); // Defense chance increase
+	s16 value = chr->defence_increase().value;
+	if (chr->has_defence_increase_cap() && process_caps)
+	{
+		auto cap = chr->defence_increase_cap().value;
+		value = std::min(cap, value);
+	}
+	msg->WriteFlipped<u16>(static_cast<u16>((value < 0) ? (0x10000 + value) : value)); // Defense chance increase
     msg->WriteFlipped<u16>(static_cast<u16>(chr->defence_increase_cap().value)); // Defense chance cap increase
     msg->WriteFlipped<u16>(static_cast<u16>(chr->hitchance().value)); // Hit chance increase
     msg->WriteFlipped<u16>(static_cast<u16>(chr->swingspeed().value)); // Swing speed increase
