@@ -59,6 +59,7 @@ enum BTokenType : u8
   TYP_RIGHTBRACE = 0x20,
 
   TYP_NUMTYPES = 0x21,
+  TYP_FUNCREF = 0x22,
 };
 
 inline std::ostream& operator<<( std::ostream& out, const BTokenType& tok )
@@ -208,6 +209,8 @@ enum BTokenId : u16
   INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL = 0x5e,
   INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL = 0x5f,
   INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL = 0x60,
+
+  TOK_FUNCREF = 0x61,
 
   // --- UPPER SPACE 0x0100-0xFFFF: TOKENS THAT AREN'T PART OF EMITTED CODE ---
   //

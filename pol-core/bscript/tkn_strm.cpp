@@ -7,11 +7,11 @@
 #include <sstream>
 #include <stddef.h>
 
-#include <format/format.h>
 #include "objmembers.h"
 #include "objmethods.h"
 #include "token.h"
 #include "tokens.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -424,7 +424,9 @@ void Token::printOn( std::ostream& os ) const
   case TOK_USERFUNC:
     os << "User Function " << ( token ? token : "--function name not available--" );
     break;
-
+  case TOK_FUNCREF:
+    os << "Function Ref " << ( token ? token : "--function name not available--" ) << "@" << lval;
+    break;
   case RSV_COLON:
     os << "':'";
     break;

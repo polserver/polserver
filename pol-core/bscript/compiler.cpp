@@ -27,7 +27,6 @@
 #include <stdexcept>
 #include <stdlib.h>
 
-#include <format/format.h>
 #include "../clib/clib.h"
 #include "../clib/filecont.h"
 #include "../clib/fileutil.h"
@@ -46,6 +45,7 @@
 #include "token.h"
 #include "tokens.h"
 #include "userfunc.h"
+#include <format/format.h>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning for stricmp, fopen
@@ -1398,7 +1398,6 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     else if ( token.id == TOK_RPAREN )
     {
       return 0;
-      ;
     }
     else
     {
@@ -1409,6 +1408,20 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
   // unreachable
 }
 
+int Compiler::getFunctionPArgument( Expression& /*expr*/, CompilerContext& ctx, Token* ref_tkn )
+{
+  int res;
+  Token token;
+  res = getToken( ctx, *ref_tkn );
+  if ( res < 0 || ref_tkn->id != TOK_USERFUNC )
+  {
+    INFO_PRINT << "Expected user function reference.\n";
+    return -1;
+  }
+  ref_tkn->id = TOK_FUNCREF;
+  ref_tkn->type = TYP_OPERAND;
+  return 0;
+}
 
 /*
 getUserArgs is called from IIP.

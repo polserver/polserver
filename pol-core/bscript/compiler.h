@@ -224,6 +224,8 @@ public:
   virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
   virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
   virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) POL_OVERRIDE;
+  virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx,
+                                    Token* tok ) POL_OVERRIDE;
 
   int eatToken( CompilerContext& ctx, BTokenId tokenid );
   int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = NULL,

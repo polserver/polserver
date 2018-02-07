@@ -222,7 +222,6 @@ public:
   ModuleFunction* current_module_function;
   // NOTE: the debugger code expects these to be virtual..
   void execFunc( const Token& token );
-  void innerExec( const Instruction& ins );
   void execInstr();
 
   void ins_nop( const Instruction& ins );
@@ -333,6 +332,8 @@ public:
   void ins_casejmp( const Instruction& ins );
   void ins_initfor( const Instruction& ins );
   void ins_nextfor( const Instruction& ins );
+
+  void ins_funcref( const Instruction& ins );
 
   static int ins_casejmp_findlong( const Token& token, BLong* blong );
   static int ins_casejmp_findstring( const Token& token, String* bstringimp );

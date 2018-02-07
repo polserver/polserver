@@ -7,7 +7,6 @@
 
 
 #include "NTService.h"
-#include "Header_Windows.h"
 #include "ntservmsg.h"  // Event message ids
 #include <stdio.h>
 

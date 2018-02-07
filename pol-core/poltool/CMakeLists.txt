@@ -1,8 +1,10 @@
 set(ex_name poltool)
 
+# define source files
+include(CMakeSources.cmake)
+
 add_executable(${ex_name}
-  # sorted !
-  PolToolMain.cpp
+  ${${ex_name}_sources}
 )    
 
 set_compile_flags(${ex_name} 1)

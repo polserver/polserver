@@ -50,7 +50,6 @@
 #include <string>
 #include <unordered_map>
 
-#include <format/format.h>
 #include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
@@ -65,6 +64,7 @@
 #include "objmethods.h"
 #include "token.h"
 #include "tokens.h"
+#include <format/format.h>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp, strtok POSIX deprecation warning
@@ -250,7 +250,8 @@ Operator unary_operators[] = {
     {"+", TOK_UNPLUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"-", TOK_UNMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
-    {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false}
+    {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
+    {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_FUNCREF, false, false}
     //	{ "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
     // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR, false, false
 };
@@ -660,6 +661,7 @@ ObjMethod object_methods[] = {
     {MTH_ADD_BUFF, "addbuff", false},
     {MTH_DEL_BUFF, "delbuff", false},  // 150
     {MTH_CLEAR_BUFFS, "clearbuffs", false},
+    {MTH_CALL, "call", false},
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
@@ -1591,12 +1593,13 @@ int SmartParser::isOkay( const Token& token, BTokenType last_type )
   BTokenType this_type = token.type;
   if ( !quiet )
     INFO_PRINT << "isOkay(" << this_type << "," << last_type << ")\n";
-  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD )
+  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD || last_type==TYP_FUNCREF)
     last_type = TYP_OPERAND;
-  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD )
+  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD || this_type == TYP_FUNCREF)
     this_type = TYP_OPERAND;
   if ( token.id == TOK_LBRACE )  // an array declared somewhere out there
     this_type = TYP_OPERAND;
+
   if ( last_type > TYP_TESTMAX )
     return 1;  // assumed okay
   if ( this_type > TYP_TESTMAX )
@@ -1992,7 +1995,7 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
       res = IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED );
       break;
     }
-	// if left paren specified
+    // if left paren specified
   // FALLTHROUGH
   default:
     // for more than one arg, or voluntary left paren on single
@@ -2355,6 +2358,16 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       {
         INFO_PRINT << "Error reading members for dictionary\n";
       }
+    }
+    else if ( token.id == TOK_FUNCREF )
+    {
+      auto ref_tkn = new Token( token );
+      res = getFunctionPArgument( expr, ctx, ref_tkn );
+      if ( res < 0 )
+      {
+        INFO_PRINT << "Error reading function reference argument\n";
+      }
+      expr.CA.push( ref_tkn );
     }
     else if ( token.id == TOK_MEMBER && callingMethod( ctx ) )
     {

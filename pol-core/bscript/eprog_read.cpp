@@ -296,6 +296,9 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
     token.lval = st.offset;
     return 0;
+  case TOK_FUNCREF:
+    token.lval = st.offset;
+    return 0;
 
   case INS_CALL_METHOD:
   case TOK_FUNC:

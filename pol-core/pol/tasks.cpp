@@ -14,6 +14,7 @@
 #include <time.h>
 
 #include "../bscript/berror.h"
+#include "../bscript/escriptv.h"
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
 #include "cmbtcfg.h"

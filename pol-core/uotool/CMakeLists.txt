@@ -1,11 +1,10 @@
 set(ex_name uotool)
 
+# define source files
+include(CMakeSources.cmake)
+
 add_executable(${ex_name}
-  # sorted !
-  ../pol/globals/multidefs.cpp
-  ../pol/multi/multidef.cpp
-  ../pol/polfile1.cpp
-  UoToolMain.cpp
+  ${${ex_name}_sources}
 )    
 
 set_compile_flags(${ex_name} 1)

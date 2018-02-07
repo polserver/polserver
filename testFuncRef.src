@@ -1,0 +1,15 @@
+function test(c)
+print("works"+cstr(c));
+endfunction
+
+function copy(c)
+c.call();
+endfunction
+
+program t()
+var f:=reference(test);
+test("&");
+f.call("&");
+//copy(f);
+print("hh");
+endprogram

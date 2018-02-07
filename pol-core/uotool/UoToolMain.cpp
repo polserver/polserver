@@ -7,7 +7,6 @@
 #include <string.h>
 #include <string>
 
-#include <format/format.h>
 #include "../clib/Program/ProgramMain.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -25,12 +24,14 @@
 #include "../pol/multi/multidef.h"
 #include "../pol/objtype.h"
 #include "../pol/polfile.h"
+#include "../pol/poltype.h"
 #include "../pol/uconst.h"
 #include "../pol/udatfile.h"
 #include "../pol/uofile.h"
 #include "../pol/uofilei.h"
 #include "../pol/ustruct.h"
 #include "uofile2.h"  //TODO: remove this file ASAP !!!
+#include <format/format.h>
 
 namespace Pol
 {

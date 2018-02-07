@@ -1,4 +1,33 @@
 ﻿-- POL099 --
+02-06-2018 Turley:
+  Fixed:   fileaccess.cfg: Not specifying Directory entry behaves like before and gives access to all directories. (broken since 01-05-2018)
+02-05-2018 Turley:
+  Added:   Operator @
+           used to receive a function object, which can later be used to call the underlying function with the same parameters/return value via the method ".call(..)"
+  Note:    This object can only executed in the same script instance where it was created and cannot be saved/loaded from datafiles/cprops.
+  Note:    Use cases:
+           function genericItemLoop(func)
+             for item in ...
+               // complicated checks
+               func.call(item);
+             endfor
+           endfunction
+           function changecolor(item)
+             item.color:=6;
+           endfunction
+           ...
+           genericItemLoop(@changecolor);
+           genericItemLoop(@changeY);
+
+           // (fast) function table, instead of "if" cascade
+           var look=dictionary;
+           look["blubb"]:=@doSomething
+           look["blah"]:=@doSomethingElse
+           ...
+           look[mykey].call();
+          
+  Changed: Version number of ecl files, recompilation needed.
+           
 01-07-2018 Kevin:
   Added:   basic::UnpackJSON(string)
            Given a string in JSON format, returns an eScript object representing that JSON value.

@@ -53,6 +53,7 @@ class BObject;
 class BObjectRef;
 class ContIterator;
 class Executor;
+class Instruction;
 
 class BLong;
 class Double;
@@ -115,6 +116,7 @@ public:
     OTSQLResultSet = 36,
     OTSQLRow = 37,
     OTBoolean = 38,
+    OTFuncRef = 39,
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -809,6 +811,38 @@ private:
   bool bval_;
 };
 
+class BFunctionRef : public BObjectImp
+{
+  typedef BObjectImp base;
+
+public:
+  BFunctionRef( int progcounter, int param_count, const std::string& scriptname );
+  BFunctionRef( const BFunctionRef& B );
+
+private:
+  ~BFunctionRef() {}
+
+public:
+  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  bool validCall( const int id, Executor& ex, Instruction* inst ) const;
+  bool validCall( const char* methodname, Executor& ex, Instruction* inst ) const;
+
+public:  // Class Machinery
+  virtual BObjectImp* copy() const POL_OVERRIDE;
+  virtual bool isTrue() const POL_OVERRIDE;
+  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+
+  virtual std::string getStringRep() const POL_OVERRIDE;
+
+  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+  virtual BObjectImp* call_method_id( const int id, Executor& ex,
+                                      bool forcebuiltin = false ) POL_OVERRIDE;
+
+private:
+  unsigned int pc_;
+  int num_params_;
+  std::string script_name_;
+};
 class BApplicObjType
 {
 };

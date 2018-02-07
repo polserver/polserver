@@ -8,12 +8,13 @@
 #include <ctime>
 #include <iostream>
 
-#include <format/format.h>
 #include "../bscript/bobject.h"
 #include "../bscript/config.h"
+#include "../bscript/escriptv.h"
 #include "../bscript/execmodl.h"
 #include "../bscript/executor.h"
 #include "../bscript/filefmt.h"
+#include "../bscript/object.h"
 #include "../clib/Program/ProgramMain.h"
 #include "../clib/boostutils.h"
 #include "../clib/fileutil.h"
@@ -22,6 +23,7 @@
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 #include "RunEclMain.h"
+#include <format/format.h>
 
 #include "../pol/module/basiciomod.h"
 #include "../pol/module/basicmod.h"

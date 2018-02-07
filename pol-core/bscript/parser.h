@@ -180,6 +180,7 @@ public:
   virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) = 0;
   virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) = 0;
   virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) = 0;
+  virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx, Token* tok ) = 0;
 
   int IIP( Expression& expr, CompilerContext& ctx, unsigned expr_flags );
   int IP( Expression& expr, char* s );

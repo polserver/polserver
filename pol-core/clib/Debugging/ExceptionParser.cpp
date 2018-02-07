@@ -42,7 +42,7 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool ExceptionParser::m_programAbortReporting = true;
+bool ExceptionParser::m_programAbortReporting = false;
 std::string ExceptionParser::m_programAbortReportingServer = "";
 std::string ExceptionParser::m_programAbortReportingUrl = "";
 std::string ExceptionParser::m_programAbortReportingReporter = "";
