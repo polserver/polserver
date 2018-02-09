@@ -145,23 +145,23 @@ enum DynPropTypes : u8
   PROP_GOTTEN_ITEM = 57,            // Character
   PROP_PROCESS = 58,                // Item
   PROP_HOUSE = 59,                  // House
-  PROP_LOWER_REAG_COST = 60,		// UObject
-  PROP_SPELL_DAMAGE_INCREASE = 61,	// UObject
-  PROP_FASTER_CASTING = 62,			// UObject
-  PROP_FASTER_CAST_RECOVERY = 63,	// UObject
-  PROP_DEFENCE_INCREASE = 64,        //UObject
-  PROP_DEFENCE_INCREASE_CAP = 65,    //Character
-  PROP_LOWER_MANA_COST = 66,                //UObject
-  PROP_HITCHANCE = 67,                      //UObject
-  PROP_SWING_SPEED = 68,                    //UObject
-  PROP_DAMAGE_INCREASE = 69,                //UObject
-  PROP_RESIST_FIRE_CAP = 70,                //Character
-  PROP_RESIST_COLD_CAP = 71,                //Character
-  PROP_RESIST_ENERGY_CAP = 72,              //Character
-  PROP_RESIST_POISON_CAP = 73,              //Character
-  PROP_RESIST_PHYSICAL_CAP = 74,            //Character
-  PROP_DEFENCE_INCREASE_MOD = 75,           //Character
-  PROP_LUCK_MOD = 76,						//UObject
+  PROP_LOWER_REAG_COST = 60,        // UObject
+  PROP_SPELL_DAMAGE_INCREASE = 61,  // UObject
+  PROP_FASTER_CASTING = 62,         // UObject
+  PROP_FASTER_CAST_RECOVERY = 63,   // UObject
+  PROP_DEFENCE_INCREASE = 64,       // UObject
+  PROP_DEFENCE_INCREASE_CAP = 65,   // Character
+  PROP_LOWER_MANA_COST = 66,        // UObject
+  PROP_HITCHANCE = 67,              // UObject
+  PROP_SWING_SPEED = 68,            // UObject
+  PROP_DAMAGE_INCREASE = 69,        // UObject
+  PROP_RESIST_FIRE_CAP = 70,        // Character
+  PROP_RESIST_COLD_CAP = 71,        // Character
+  PROP_RESIST_ENERGY_CAP = 72,      // Character
+  PROP_RESIST_POISON_CAP = 73,      // Character
+  PROP_RESIST_PHYSICAL_CAP = 74,    // Character
+  PROP_DEFENCE_INCREASE_MOD = 75,   // Character
+  PROP_LUCK_MOD = 76,               // UObject
 
   PROP_FLAG_SIZE  // used for bitset size
 };
@@ -174,6 +174,7 @@ struct ValueModPack
   ValueModPack( s16 value_ );
   ValueModPack();
   bool operator==( const ValueModPack& other ) const;
+  bool operator!=( const ValueModPack& other ) const;
   ValueModPack& addToValue( const ValueModPack& other );
   ValueModPack& addToValue( s16 other );
   ValueModPack& addToMod( s16 other );
@@ -344,15 +345,15 @@ private:
 ////////////////
 // ValueModPack
 
-inline ValueModPack::ValueModPack( s16 value_ ) : value( value_ ), mod( 0 )
-{
-}
-inline ValueModPack::ValueModPack() : value( 0 ), mod( 0 )
-{
-}
+inline ValueModPack::ValueModPack( s16 value_ ) : value( value_ ), mod( 0 ) {}
+inline ValueModPack::ValueModPack() : value( 0 ), mod( 0 ) {}
 inline bool ValueModPack::operator==( const ValueModPack& other ) const
 {
   return value == other.value && mod == other.mod;
+}
+inline bool ValueModPack::operator!=( const ValueModPack& other ) const
+{
+  return !operator==( other );
 }
 inline ValueModPack& ValueModPack::addToValue( const ValueModPack& other )
 {
