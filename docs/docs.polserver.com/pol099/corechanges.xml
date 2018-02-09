@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-29-2018</datemodified>
+		<datemodified>02-09-2018</datemodified>
 	</header>
 	<version name="POL099">
 		<entry>
-			<date>01-28-2018</date>
+			<date>02-09-2018</date>
 			<author>DevGIB:</author>
 			<change type="Added">Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, SwingSpeed,<br/>
 DamageIncrease, LuckMod, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.</change>
@@ -17,6 +17,38 @@ DamageIncrease, LuckMod, FireResistCap, ColdResistCap, EnergyResistCap, Physical
 			<change type="Added">Support for new prop changes to the status bar packet.</change>
 			<change type="Added">Resistances will now be limited to caps by core, unless caps aren't set or are 0.</change>
 			<change type="Added">CoreHandlesDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will limit all resistances and defence increase cap to caps set on the mobile.</change>
+		</entry>
+		<entry>
+			<date>02-06-2018</date>
+			<author>Turley:</author>
+			<change type="Fixed">fileaccess.cfg: Not specifying Directory entry behaves like before and gives access to all directories. (broken since 01-05-2018)</change>
+		</entry>
+		<entry>
+			<date>02-05-2018</date>
+			<author>Turley:</author>
+			<change type="Added">Operator @<br/>
+used to receive a function object, which can later be used to call the underlying function with the same parameters/return value via the method &quot;.call(..)&quot;</change>
+			<change type="Note">This object can only executed in the same script instance where it was created and cannot be saved/loaded from datafiles/cprops.</change>
+			<change type="Note">Use cases:<br/>
+function genericItemLoop(func)<br/>
+  for item in ...<br/>
+    // complicated checks<br/>
+    func.call(item);<br/>
+  endfor<br/>
+endfunction<br/>
+function changecolor(item)<br/>
+  item.color:=6;<br/>
+endfunction<br/>
+...<br/>
+genericItemLoop(@changecolor);<br/>
+genericItemLoop(@changeY);<br/>
+// (fast) function table, instead of &quot;if&quot; cascade<br/>
+var look=dictionary;<br/>
+look[&quot;blubb&quot;]:=@doSomething<br/>
+look[&quot;blah&quot;]:=@doSomethingElse<br/>
+...<br/>
+look[mykey].call();</change>
+			<change type="Changed">Version number of ecl files, recompilation needed.</change>
 		</entry>
 		<entry>
 			<date>01-07-2018</date>
