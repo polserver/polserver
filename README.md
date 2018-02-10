@@ -16,7 +16,9 @@ IRC: #pol @ irc.darkmyst.org
 
 If you find bugs, please create an issue with the dump, relevant log lines and your best guess on how to reproduce the bug. 
 
-<b>Current version: POL 099 (beta).</b>
+<b>Current version: POL 099 (released on 2018-02-10).</b>
+
+Check the "master" branch for the most up-to-date developments. This release will only receive bug-fixes from now on.
 
 Contributing
 ---------
