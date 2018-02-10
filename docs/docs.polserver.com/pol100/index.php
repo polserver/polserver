@@ -31,9 +31,9 @@
 			I hope you find these documents useful!
 <?php if( ! $offline && $official ) { ?>
 				<hr>
-				Downloadable Version (099):
-				<a href="http://docs.polserver.com/pol099/archives/<?=$archivefile?>">
-					099 Offline Documentation <?=$archivetime?>
+				Downloadable Version (100):
+				<a href="http://docs.polserver.com/pol100/archives/<?=$archivefile?>">
+					100 Offline Documentation <?=$archivetime?>
 				</a>
 				<hr>
 <?php } else { ?>

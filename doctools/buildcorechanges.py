@@ -240,7 +240,7 @@ class Main:
 		out = out.replace('~~~NEWLINE~~~', '<br/>\n')
 
 		# Write
-		outFile = os.path.join('..','docs','docs.polserver.com','pol099','corechanges.xml')
+		outFile = os.path.join('..','docs','docs.polserver.com','pol100','corechanges.xml')
 		with open(outFile, 'wt', encoding='utf-8') as f:
 			f.write(out)
 

@@ -16,14 +16,14 @@ IRC: #pol @ irc.darkmyst.org
 
 If you find bugs, please create an issue with the dump, relevant log lines and your best guess on how to reproduce the bug. 
 
-<b>Current version: POL 099 (beta).</b>
+<b>Current version: POL 100.</b>
 
 Contributing
 ---------
 
 You can send us pull requests at anytime. We expect you to be the author of the contributed code or that it's in a compatible license.
 
-We always need updates or better descriptions in the docs, so feel free to send pull requests for changing them. You can find some of them in `docs/docs.polserver.com/pol099`.
+We always need updates or better descriptions in the docs, so feel free to send pull requests for changing them. You can find some of them in `docs/docs.polserver.com/pol100`.
 
 The best way to get used to the code is to search for eScript functions in the cpp files. For example, "SystemFindObjectBySerial" or "ApplyDamage". This way you can see how eScript interfaces with the core and how to add/modify modules and functions.
 
