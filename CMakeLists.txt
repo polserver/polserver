@@ -19,6 +19,14 @@ set(POL_VERSION_NAME "Break Everything Even Rudder")
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
 
+option(BUILD_ALL "Build everything" ON)
+option(ONLY_ECOMPILE "Build only ecompile" OFF)
+option(ONLY_RUNECL "Build only runecl" OFF)
+option(ONLY_POL "Build only pol" OFF)
+option(ONLY_POLTOOL "Build only poltool" OFF)
+option(ONLY_UOCONVERT "Build only uoconvert" OFF)
+option(ONLY_UOTOOL "Build only uotool" OFF)
+
 include(cmake/init.cmake)
 
 if (NOT DEFINED GIT_REVISION)
@@ -51,7 +59,6 @@ detect_platform()
 prepare_build()
 
 include(cmake/Boost.txt)
-include(cmake/Curl.txt)
 include(cmake/Benchmark.txt)
 
 add_subdirectory(lib/tinyxml)
