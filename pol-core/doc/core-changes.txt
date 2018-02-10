@@ -1,4 +1,8 @@
-﻿-- POL099 --
+﻿-- POL100 --
+02-10-2018 Nando:
+	Changed: POL099 is officially released after almost 10 years. Starting the work on POL100. 
+
+-- POL099 --
 02-06-2018 Turley:
   Fixed:   fileaccess.cfg: Not specifying Directory entry behaves like before and gives access to all directories. (broken since 01-05-2018)
 02-05-2018 Turley:

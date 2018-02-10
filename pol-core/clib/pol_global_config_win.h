@@ -11,10 +11,10 @@
 // #define HAVE_MYSQL
 // #define ENABLE_BENCHMARK
 
-#define POL_VERSION                 99
-#define POL_VERSION_STR             "099"
-#define POL_VERSION_NAME            "Break Everything Even Rudder"
-#define POL_VERSION_ID              "POL099 Break Everything Even Rudder"
+#define POL_VERSION                 100
+#define POL_VERSION_STR             "100"
+#define POL_VERSION_NAME            "Never Gonna Give You Up"
+#define POL_VERSION_ID              "POL100 Never Gonna Give You Up"
 #define POL_BUILD_DATE __DATE__
 #define POL_BUILD_TIME __TIME__
 

@@ -12,9 +12,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project(polserver)
 
-set(POL_VERSION_STR "099")
-set(POL_VERSION 99)
-set(POL_VERSION_NAME "Break Everything Even Rudder")
+set(POL_VERSION_STR "100")
+set(POL_VERSION 100)
+set(POL_VERSION_NAME "Never Gonna Give You Up")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
