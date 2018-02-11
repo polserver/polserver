@@ -11,12 +11,10 @@
 // #define HAVE_MYSQL
 // #define ENABLE_BENCHMARK
 
-#define POL_VERSION_MAJOR 99
-#define POL_VERSION_MINOR 0
-#define POL_VERSION_PATCH 0
-#define POL_VERSION_STR "99.0.0"
-#define POL_VERSION_NAME "Break Everything Even Rudder"
-#define POL_VERSION_ID "99.0.1 Break Everything Even Rudder"
+#define POL_VERSION                 100
+#define POL_VERSION_STR             "100"
+#define POL_VERSION_NAME            "Never Gonna Give You Up"
+#define POL_VERSION_ID              "POL100 Never Gonna Give You Up"
 #define POL_BUILD_DATE __DATE__
 #define POL_BUILD_TIME __TIME__
 
@@ -59,15 +57,15 @@
 #define POL_BUILD_TARGET                                                 \
   ( "VS2012" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
     "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#elif( _MSC_VER <= 1800 )
+#elif ( _MSC_VER <= 1800 )
 #define POL_BUILD_TARGET                                                 \
   ( "VS2013" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
     "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#elif( _MSC_VER <= 1900 )
+#elif ( _MSC_VER <= 1900 )
 #define POL_BUILD_TARGET                                                 \
   ( "VS2015" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
     "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#elif( _MSC_VER <= 2000 )
+#elif ( _MSC_VER <= 2000 )
 #define POL_BUILD_TARGET                                                 \
   ( "VS2017" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
     "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )

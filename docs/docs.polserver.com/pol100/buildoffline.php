@@ -132,7 +132,7 @@
 	}
 
 	$zip = new POLZip();
-	$zip->open("archives/pol-docs-099-$d.zip", ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+	$zip->open("archives/pol-docs-100-$d.zip", ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
 	$zip->addDirRecursive('offline');
 	$zip->close();
 

@@ -85,7 +85,7 @@ class Main:
 					print('done.')
 
 		# 2. Load and parse the mail modules.xml, start doing some checks
-		docPath = os.path.join('..','docs','docs.polserver.com','pol099')
+		docPath = os.path.join('..','docs','docs.polserver.com','pol100')
 		xmlfiles = {}
 		modules = ET.parse(os.path.join(docPath,'modules.xml'))
 		modlist = []
