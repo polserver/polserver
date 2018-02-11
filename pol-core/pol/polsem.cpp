@@ -6,10 +6,11 @@
 
 #include "polsem.h"
 
-#include <time.h>
+#include "checkpnt.h"
 
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/strexcpt.h"
 #include "../clib/threadhelp.h"
 #include "../clib/tracebuf.h"
 
@@ -18,6 +19,7 @@
 #else
 #include <pthread.h>
 #include <sys/time.h>
+#include <unistd.h>
 #endif
 
 namespace Pol
@@ -183,7 +185,9 @@ void init_ipc_vars()
   pthread_attr_setdetachstate( &thread_attr, PTHREAD_CREATE_DETACHED );
 }
 
-void deinit_ipc_vars() {}
+void deinit_ipc_vars()
+{
+}
 
 void send_pulse()
 {

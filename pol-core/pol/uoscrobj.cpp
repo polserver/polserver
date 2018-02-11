@@ -51,68 +51,55 @@
 
 #include "uoscrobj.h"
 
-#include <string>
-
-#include "../bscript/berror.h"
-#include "../bscript/dict.h"
-#include "../bscript/execmodl.h"
-#include "../bscript/executor.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-#include "../clib/stlutil.h"
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"
+#include "item/armor.h"
+#include "item/armrtmpl.h"
+#include "mobile/attribute.h"
+#include "multi/boatcomp.h"
+#include "mobile/corpse.h"
+#include "mobile/ufacing.h"
+#include "network/packets.h"
+#include "network/packethelper.h"
 #include "cmdlevel.h"
-#include "containr.h"
 #include "door.h"
-#include "dynproperties.h"
-#include "equipdsc.h"
 #include "exscrobj.h"
 #include "fnsearch.h"
-#include "globals/network.h"
-#include "globals/uvars.h"
-#include "item/armor.h"
-#include "item/equipmnt.h"
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "item/weapon.h"
-#include "lockable.h"
-#include "mobile/charactr.h"
-#include "mobile/corpse.h"
-#include "mobile/npc.h"
-#include "mobile/ufacing.h"
 #include "module/guildmod.h"
-#include "module/partymod.h"
-#include "module/uomod.h"
-#include "multi/boat.h"
-#include "multi/boatcomp.h"
 #include "multi/house.h"
-#include "multi/multi.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "npctmpl.h"
-#include "pktdef.h"
+#include "umap.h"
+#include "mobile/npc.h"
+#include "objtype.h"
 #include "polclass.h"
-#include "polclock.h"
-#include "poltype.h"
-#include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
 #include "spelbook.h"
 #include "statmsg.h"
 #include "syshookscript.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "ufunc.h"
-#include "umap.h"
-#include "unicode.h"
-#include "uobject.h"
-#include "uoclient.h"
-#include "uoexec.h"
+#include "item/weapon.h"
+#include "item/wepntmpl.h"
 #include "uoexhelp.h"
 #include "uworld.h"
+#include "module/uomod.h"
+#include "module/partymod.h"
+#include "network/clienttransmit.h"
+#include "globals/uvars.h"
+#include "globals/network.h"
+#include "unicode.h"
+
+#include "../bscript/berror.h"
+#include "../bscript/dict.h"
+#include "../bscript/escrutil.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
+
+#include "../clib/clib_endian.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
 namespace Pol
 {
@@ -265,7 +252,7 @@ bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
+	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
   else
     return false;
 }
@@ -449,7 +436,7 @@ bool EItemRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
+	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
   else
     return false;
 }
@@ -586,7 +573,7 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
+	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
   else
     return false;
 }
@@ -728,7 +715,7 @@ bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
+	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
   else
     return false;
 }
@@ -975,6 +962,18 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_PHYSICAL_RESIST:
     return new BLong( physical_resist().sum() );
     break;
+  case MBR_LOWER_REAG_COST:
+    return new BLong( lower_reagent_cost().sum() );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE:
+    return new BLong( spell_damage_increase().sum() );
+    break;
+  case MBR_FASTER_CASTING:
+    return new BLong( faster_casting().sum() );
+    break;
+  case MBR_FASTER_CAST_RECOVERY:
+    return new BLong( faster_casting().sum() );
+    break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
     break;
@@ -989,6 +988,90 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_PHYSICAL_RESIST_MOD:
     return new BLong( physical_resist().mod );
+    break;
+  case MBR_LOWER_REAG_COST_MOD:
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE:
+    return new BLong( defence_increase().sum() );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP:
+    return new BLong( defence_increase_cap().sum() );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST:
+    return new BLong( lower_mana_cost().sum() );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HITCHANCE:
+    return new BLong( hitchance().sum() );
+    break;
+  case MBR_HITCHANCE_MOD:
+    return new BLong( hitchance().mod );
+    break;
+  case MBR_SWING_SPEED:
+    return new BLong( swingspeed().sum() );
+    break;
+  case MBR_SPEED_MOD:
+    return new BLong( swingspeed().mod );
+    break;
+  case MBR_DAMAGE_INCREASE:
+    return new BLong( damage_increase().sum() );
+    break;
+  case MBR_DMG_MOD:
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_FIRE_RESIST_CAP:
+    return new BLong( fire_resist_cap().sum() );
+    break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP:
+    return new BLong( cold_resist_cap().sum() );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP:
+    return new BLong( energy_resist_cap().sum() );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP:
+    return new BLong( poison_resist_cap().sum() );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP:
+    return new BLong( physical_resist_cap().sum() );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    return new BLong( physical_resist_cap().mod );
+    break;
+  case MBR_LUCK:
+    return new BLong( luck().sum() );
+    break;
+  case MBR_LUCK_MOD:
+    return new BLong( luck().mod );
     break;
   case MBR_FIRE_DAMAGE:
     return new BLong( fire_damage().sum() );
@@ -1031,7 +1114,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     Module::UOExecutorModule* proc = process();
     if ( proc )
     {
-      Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
+      Pol::Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
       return new Core::ScriptExObjImp( executor );
     }
     else
@@ -1066,7 +1149,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_NO_DROP:
     return new BLong( no_drop() );
-  default:
+    default:
     return NULL;
   }
 }
@@ -1124,7 +1207,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
   if ( imp != NULL )
     return imp;
 
-  switch ( id )
+   switch ( id )
   {
   case MBR_MOVABLE:
     restart_decay_timer();
@@ -1226,6 +1309,71 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     }
     return new BLong( physical_resist().mod );
     break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    fire_resist_cap( fire_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    cold_resist_cap( cold_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    energy_resist_cap( energy_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    poison_resist_cap( poison_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    physical_resist_cap( physical_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( physical_resist_cap().mod );
+    break;
   case MBR_FIRE_DAMAGE_MOD:
     fire_damage( fire_damage().setAsMod( static_cast<short>( value ) ) );
     return new BLong( static_cast<short>( value ) );
@@ -1245,6 +1393,149 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
   case MBR_PHYSICAL_DAMAGE_MOD:
     physical_damage( physical_damage().setAsMod( static_cast<short>( value ) ) );
     return new BLong( static_cast<short>( value ) );
+    break;
+  case MBR_LOWER_REAG_COST_MOD:
+    lower_reagent_cost( lower_reagent_cost().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    spell_damage_increase( spell_damage_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    faster_casting( faster_casting().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    faster_cast_recovery( faster_cast_recovery().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( faster_cast_recovery().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    defence_increase( defence_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    defence_increase_cap( defence_increase_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    lower_mana_cost( lower_mana_cost().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HITCHANCE_MOD:
+    hitchance( hitchance().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( hitchance().mod );
+    break;
+  case MBR_SPEED_MOD:
+    swingspeed( swingspeed().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( swingspeed().mod );
+    break;
+  case MBR_DMG_MOD:
+    damage_increase( damage_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_LUCK_MOD:
+    luck( luck().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( luck().mod );
     break;
   case MBR_QUALITY:
     setQuality( double( value ) );
@@ -1288,6 +1579,8 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return NULL;
   }
 }
+
+
 
 BObjectImp* Item::set_script_member( const char* membername, int value )
 {
@@ -1481,7 +1774,8 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    auto create_new_stack = [&]() -> BObjectImp* {
+    auto create_new_stack = [&]() -> BObjectImp*
+    {
       bool can_insert =
           newcontainer->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
       if ( !can_insert )
@@ -1659,6 +1953,7 @@ BObjectImp* Character::make_offline_ref()
 BObjectImp* Character::get_script_member_id( const int id ) const
 {
   BObjectImp* imp = base::get_script_member_id( id );
+  bool process_caps = Core::settingsManager.ssopt.core_handles_defence_caps;
   if ( imp != NULL )
     return imp;
 
@@ -1907,9 +2202,10 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new String( mode );
     break;
   }
-  case MBR_HITCHANCE_MOD:
+  //COMMENTED OUT FOR CHANGES TO HITCHANCE
+  /*case MBR_HITCHANCE_MOD:
     return new BLong( hitchance_mod() );
-    break;
+    break;*/
   case MBR_EVASIONCHANCE_MOD:
     return new BLong( evasionchance_mod() );
     break;
@@ -1920,20 +2216,60 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( carrying_capacity() );
     break;
   case MBR_FIRE_RESIST:
-    return new BLong( fire_resist().value );
+  {
+    auto value = fire_resist().value;
+    if ( has_fire_resist_cap() && process_caps )
+    {
+      auto cap = fire_resist_cap().value;
+      value = std::min( cap, value );
+    }
+    return new BLong( value );
     break;
+  }
   case MBR_COLD_RESIST:
-    return new BLong( cold_resist().value );
+  {
+    auto value = cold_resist().value;
+    if ( has_cold_resist_cap() && process_caps )
+    {
+      auto cap = cold_resist_cap().value;
+      value = std::min( cap, value );
+    }
+    return new BLong( value );
     break;
+  }
   case MBR_ENERGY_RESIST:
-    return new BLong( energy_resist().value );
+  {
+    auto value = energy_resist().value;
+    if ( has_energy_resist() && process_caps )
+    {
+      auto cap = energy_resist_cap().value;
+      value = std::min( cap, value );
+    }
+    return new BLong( value );
     break;
+  }
   case MBR_POISON_RESIST:
-    return new BLong( poison_resist().value );
+  {
+    auto value = poison_resist().value;
+    if ( has_poison_resist_cap() && process_caps )
+    {
+      auto cap = poison_resist_cap().value;
+      value = std::min( cap, value );
+    }
+    return new BLong( value );
     break;
+  }
   case MBR_PHYSICAL_RESIST:
-    return new BLong( physical_resist().value );
+  {
+    auto value = physical_resist().value;
+    if ( has_physical_resist_cap() && process_caps )
+    {
+      auto cap = physical_resist_cap().value;
+      value = std::min( cap, value );
+    }
+    return new BLong( value );
     break;
+  }
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
     break;
@@ -1949,6 +2285,104 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_PHYSICAL_RESIST_MOD:
     return new BLong( physical_resist().mod );
     break;
+  case MBR_FIRE_RESIST_CAP:
+    return new BLong( fire_resist_cap().value );
+    break;
+  case MBR_COLD_RESIST_CAP:
+    return new BLong( cold_resist_cap().value );
+    break;
+  case MBR_ENERGY_RESIST_CAP:
+    return new BLong( energy_resist_cap().value );
+    break;
+  case MBR_POISON_RESIST_CAP:
+    return new BLong( poison_resist_cap().value );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP:
+    return new BLong( physical_resist_cap().value );
+    break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    return new BLong( physical_resist_cap().mod );
+    break;
+  case MBR_LOWER_REAG_COST:
+    return new BLong( lower_reagent_cost().value );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE:
+    return new BLong( spell_damage_increase().value );
+    break;
+  case MBR_FASTER_CASTING:
+    return new BLong( faster_casting().value );
+    break;
+  case MBR_FASTER_CAST_RECOVERY:
+    return new BLong( faster_cast_recovery().value );
+    break;
+  case MBR_LOWER_REAG_COST_MOD:
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    return new BLong( faster_cast_recovery().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HITCHANCE_MOD:
+    return new BLong( hitchance().mod );
+    break;
+  case MBR_SPEED_MOD:
+    return new BLong( swingspeed().mod );
+    break;
+  case MBR_DMG_MOD:
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE:
+  {
+    auto value = defence_increase().value;
+    if ( has_defence_increase_cap() && process_caps )
+    {
+      auto cap = defence_increase_cap().value;
+      value = std::min( cap, value );
+    }
+    return new BLong( value );
+    break;
+  }
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP:
+    return new BLong( defence_increase_cap().value );
+    break;
+  case MBR_LOWER_MANA_COST:
+    return new BLong( lower_mana_cost().value );
+    break;
+  case MBR_HITCHANCE:
+    return new BLong( hitchance().value );
+    break;
+  case MBR_SWING_SPEED:
+    return new BLong( swingspeed().value );
+    break;
+  case MBR_DAMAGE_INCREASE:
+    return new BLong( damage_increase().value );
+    break;
   case MBR_STATCAP:
     return new BLong( skillstatcap().statcap );
     break;
@@ -1956,7 +2390,10 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( skillstatcap().skillcap );
     break;
   case MBR_LUCK:
-    return new BLong( luck() );
+    return new BLong( luck().value );
+    break;
+  case MBR_LUCK_MOD:
+    return new BLong( luck().mod );
     break;
   case MBR_FOLLOWERSMAX:
     return new BLong( followers().followers_max );
@@ -2057,16 +2494,16 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       lastcoord->addMember( "lastz", new BLong( lastz ) );
       return lastcoord.release();
     }
-    return new BError("No client attached.");
+    break;
   case MBR_ACTIVE_SKILL:
     return new BLong( skill_ex_active() );
   case MBR_CASTING_SPELL:
     return new BLong( casting_spell() );
   case MBR_LAST_TEXTCOLOR:
     return new BLong( last_textcolor() );
+  default:
+    return NULL;
   }
-  // if all else fails, returns nullptr
-  return nullptr;
 }
 
 BObjectImp* Character::get_script_member( const char* membername ) const
@@ -2190,9 +2627,10 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     // make_murderer handles the updating
     make_murderer( value ? true : false );
     return new BLong( is_murderer() );
-  case MBR_HITCHANCE_MOD:
+ //removed below lines for new mods
+	/*case MBR_HITCHANCE_MOD:
     hitchance_mod( static_cast<short>( value ) );
-    return new BLong( hitchance_mod() );
+    return new BLong( hitchance_mod() );*/
   case MBR_EVASIONCHANCE_MOD:
     evasionchance_mod( static_cast<short>( value ) );
     return new BLong( evasionchance_mod() );
@@ -2233,6 +2671,87 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     refresh_ar();
     return new BLong( physical_resist().mod );
     break;
+  case MBR_LOWER_REAG_COST_MOD:
+    lower_reagent_cost( lower_reagent_cost().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    spell_damage_increase( spell_damage_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    faster_casting( faster_casting().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    faster_cast_recovery( faster_cast_recovery().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( faster_cast_recovery().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    defence_increase( defence_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    defence_increase_cap( defence_increase_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    lower_mana_cost( lower_mana_cost().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HITCHANCE_MOD:
+    hitchance( hitchance().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( hitchance().mod );
+    break;
+  case MBR_SPEED_MOD:
+    swingspeed( swingspeed().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( swingspeed().mod );
+    break;
+  case MBR_DMG_MOD:
+    damage_increase( damage_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    fire_resist_cap( fire_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    cold_resist_cap( cold_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    energy_resist_cap( energy_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    physical_resist_cap( physical_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( physical_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    poison_resist_cap( poison_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_LUCK_MOD:
+    luck( luck().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( luck().mod );
+    break;
+
   case MBR_STATCAP:
   {
     auto val = skillstatcap();
@@ -2249,12 +2768,12 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     skillstatcap( val );
     return new BLong( skillstatcap().skillcap );
   }
-  case MBR_LUCK:
-    luck( static_cast<short>( value ) );
-    if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
-      on_aos_ext_stat_changed();
-    return new BLong( luck() );
-    break;
+    /* case MBR_LUCK:
+       luck( static_cast<short>( value ) );
+       if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+         on_aos_ext_stat_changed();
+       return new BLong( luck() );
+       break;*/
   case MBR_FOLLOWERSMAX:
   {
     auto val = followers();
@@ -4294,7 +4813,7 @@ bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
+	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
   else
     return false;
 }

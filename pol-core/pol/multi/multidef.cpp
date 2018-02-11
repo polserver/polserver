@@ -8,16 +8,26 @@
 
 #include "multidef.h"
 
-#include <cstdio>
-#include <sstream>
-#include <string>
+#include "boat.h"
 
-#include "../../bscript/bstruct.h"
+#include "../item/itemdesc.h"
+#include "../objtype.h"
+#include "../ustruct.h"
+#include "../globals/uvars.h"
+#include "../globals/multidefs.h"
+
+#include "../../plib/mapcell.h"
+#include "../../plib/mapshape.h"
+#include "../../plib/systemstate.h"
+
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../globals/multidefs.h"
+
+#include <algorithm>
+#include <sstream>
 
 namespace Pol
 {
@@ -93,7 +103,9 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
   }
 }
 
-MultiDef::~MultiDef() {}
+MultiDef::~MultiDef()
+{
+}
 
 bool MultiDef::findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
                                short rx, short ry ) const

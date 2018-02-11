@@ -7,26 +7,28 @@
 
 #include "savedata.h"
 
-#include <cerrno>
-#include <exception>
-#include <fstream>
+#include "item/item.h"
+#include "item/itemdesc.h"
+#include "loaddata.h"
+#include "polcfg.h"
+#include "storage.h"
+#include "globals/uvars.h"
+#include "globals/object_storage.h"
 
 #include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/iohelp.h"
 #include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/streamsaver.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
 #include "../plib/systemstate.h"
-#include "globals/object_storage.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "objecthash.h"
-#include "storage.h"
-#include "uobject.h"
+
+#ifdef __unix__
+#include <unistd.h>
+#endif
+
+#include <cerrno>
+#include <fstream>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning for unlink, strerror
@@ -222,8 +224,8 @@ bool commit_incremental( const std::string& basename )
     if ( rename( ndtfile.c_str(), datfile.c_str() ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << ndtfile << datfile << strerror( err ) << err;
+      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << ndtfile << datfile
+                                                                    << strerror( err ) << err;
     }
   }
 

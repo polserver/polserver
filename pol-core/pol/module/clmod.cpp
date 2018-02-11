@@ -8,11 +8,11 @@
 #include "clmod.h"
 
 #include "../../bscript/berror.h"
-#include "../../clib/passert.h"
-#include "../../clib/rawtypes.h"
+#include "../../bscript/bobject.h"
+
 #include "../clfunc.h"
 #include "../mobile/charactr.h"
-#include "../pktdef.h"
+#include "../network/client.h"
 #include "../unicode.h"
 #include "../uoexhelp.h"
 
@@ -27,7 +27,8 @@ TmplExecutorModule<ClilocExecutorModule>::FunctionTable
 
         {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL},
         {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL},
-        {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL}};
+        {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL}
+};
 }
 namespace Module
 {

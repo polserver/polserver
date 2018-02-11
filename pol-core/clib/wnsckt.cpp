@@ -6,13 +6,15 @@
 
 #include "wnsckt.h"
 
+#include "esignal.h"
+#include "strutil.h"
+#include "logfacility.h"
+#include "passert.h"
+
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 
-#include "esignal.h"
-#include "logfacility.h"
-#include "passert.h"
-#include "strutil.h"
 
 #if defined( WINDOWS )
 #define SOCKET_ERRNO( x ) WSA##x
@@ -21,19 +23,22 @@ typedef int socklen_t;
 
 #else
 
-#include <arpa/inet.h>
-#include <errno.h>
-#include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <unistd.h>
-
+#include <fcntl.h>
+#include <errno.h>
 #define SOCKET_ERRNO( x ) x
 #define socket_errno errno
 
 #endif
+
+#include <stdexcept>
 
 #ifndef SCK_WATCH
 #define SCK_WATCH 0
@@ -130,7 +135,7 @@ bool Socket::open( const char* ipaddr, unsigned short port )
 #ifndef WINDOWS
        || _sck < 0
 #endif
-  )
+       )
   {
     INFO_PRINT << "Unable to open socket in Socket::open()\n";
     return false;
@@ -255,9 +260,8 @@ bool Socket::select( unsigned int seconds, unsigned int useconds )
   FD_ZERO( &fd );
   FD_SET( _sck, &fd );
 #ifndef _WIN32
-  passert_r( _sck < FD_SETSIZE,
-             "Select() implementation in Linux cant handle this many sockets at the same time." )
-      nfds = _sck + 1;
+  passert_r(_sck < FD_SETSIZE, "Select() implementation in Linux cant handle this many sockets at the same time." )
+  nfds = _sck + 1;
 #endif
 
   int res;
@@ -355,8 +359,8 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
 {
   fd_set fd;
 
-  if ( !connected() )
-    return false;
+  if (!connected())
+	  return false;
 
 #if SCK_WATCH
   INFO_PRINT << "{L;1}\n";
@@ -422,8 +426,8 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 
   while ( len )
   {
-    if ( !connected() )
-      return false;
+	if (!connected())
+	  return false;
 
 #if SCK_WATCH
     INFO_PRINT << "{L:" << len << "}\n";
@@ -431,7 +435,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     FD_ZERO( &fd );
     FD_SET( _sck, &fd );
 #ifndef _WIN32
-    nfds = _sck + 1;
+	nfds = _sck + 1;
 #endif
 
     struct timeval tv;
@@ -511,7 +515,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   {
     tv.tv_sec = wait_sec;
     tv.tv_usec = 0;
-    res = ::select( nfds, &fd, NULL, NULL, &tv );
+	res = ::select(nfds, &fd, NULL, NULL, &tv);
   } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
   if ( res == 0 )

@@ -7,9 +7,7 @@
 #ifndef FNSEARCH_H
 #define FNSEARCH_H
 
-#include "../clib/rawtypes.h"
 #include "utype.h"
-
 namespace Pol
 {
 namespace Items

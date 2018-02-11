@@ -473,7 +473,8 @@ struct PKTBI_B8_IN
   u8 msgtype;
   u16 msglen;
   u8 mode;
-  union {
+  union
+  {
     PKTBI_B8_IN_REQUEST profile_request;
     PKTBI_B8_IN_UPDATE profile_update;
   };
@@ -489,7 +490,7 @@ struct PKTBI_B8_IN
 //	u16 msglen;
 //	u32 serial;
 //	char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode
-// variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16.
+//variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16.
 //};
 // static_assert( sizeof(PKTBI_B8_OUT) == 1012, "size missmatch" );
 
@@ -612,14 +613,15 @@ static_assert( sizeof( PKTBI_BF_06_09 ) == 4, "size missmatch" );
 struct PKTBI_BF_06
 {
   u8 partycmd;
-  union {
+  union
+  {
     PKTBI_BF_06_01_IN partyadd;  // client
     // PKTBI_BF_06_01_OUT partyaddout; //server
     PKTBI_BF_06_02_IN partyremove;  // client
     // PKTBI_BF_06_02_OUT partyremoveout; //server
     // PKTBI_BF_06_02_LIST partyemptylist; //server
     PKTBI_BF_06_03 partymembermsg;  // client/server
-    PKTBI_BF_06_04_IN partymsg;     // client
+    PKTBI_BF_06_04_IN partymsg;  // client
     // PKTBI_BF_06_04_OUT partymsgout; //server
     PKTBI_BF_06_06 partylootperm;  // client
     // PKTBI_BF_06_07 invitemember; //server
@@ -762,7 +764,7 @@ struct PKTBI_BF_1A
 //	u16 graphic;
 //	u16 scroll_offset;
 //	u8 content[8];// first bit of first byte = spell #1, second bit of first byte = spell #2, first
-// bit of second byte = spell #8, etc
+//bit of second byte = spell #8, etc
 //
 //	enum { SCROLL_OFFSET_REGULAR = 1,
 //		SCROLL_OFFSET_NECRO = 101,
@@ -771,7 +773,7 @@ struct PKTBI_BF_1A
 
 struct PKTBI_BF_1C
 {
-  u16 unk2;            // 00 02
+  u16 unk2;  // 00 02
   u16 selected_spell;  // absolute spell number. 1-64, 101-etc
 };
 
@@ -827,7 +829,8 @@ struct PKTBI_BF_2A_RESULT
 // to change Hair, Beard and Color (maybe Race, but not in this Release)
 struct PKTBI_BF_RACE_CHANGER_RESULT
 {
-  union {
+  union
+  {
     // PKTBI_BF_2A_CALL_RACE_CHANGER call;
     PKTBI_BF_2A_RESULT result;
   };
@@ -845,20 +848,21 @@ struct PKTBI_BF
   u8 msgtype;
   u16 msglen;
   u16 subcmd;
-  union {
+  union
+  {
     u32 keys[6];  // BF.1: Cycling key-stack
     u32 addkey;   // BF.2: Adding key to top of stack
     // PKTBI_BF_04 closegump; //BF.4
     PKTBI_BF_05 screensize;  // BF.5
-    PKTBI_BF_06 partydata;   // BF.6
+    PKTBI_BF_06 partydata;  // BF.6
     // u8 cursorhue;	// BF.8: Cursor Hue (0=Felucca,1=Trammel)
-    char client_lang[3];            // BF.B Client language (client message, sent once at login)
+    char client_lang[3];  // BF.B Client language (client message, sent once at login)
     u32 serial_closed_status_gump;  // BF.C closed status gump
-    PKTBI_BF_0F clienttype;         // BF.F clienttype (like char create/select)
-    PKTBI_BF_10 objectcache;        // BF.10
+    PKTBI_BF_0F clienttype;  // BF.F clienttype (like char create/select)
+    PKTBI_BF_10 objectcache;  // BF.10
     u32 serial_request_popup_menu;  // BF.13
-    PKTBI_BF_14 displaypopup;       // BF.14
-    PKTBI_BF_15 popupselect;        // BF.15
+    PKTBI_BF_14 displaypopup;  // BF.14
+    PKTBI_BF_15 popupselect;  // BF.15
     // PKTBI_BF_16 closewindow; //BF.16
     PKTBI_BF_17 codex;  // BF.17
     // PKTBI_BF_18 mapdiffs; //BF.18
@@ -870,9 +874,9 @@ struct PKTBI_BF
     PKTBI_BF_1E reqfullcustomhouse;
     // PKTBI_BF_20 activatehousetool; //BF.20
     // PKTBI_BF_22 damage; //BF.22
-    u8 se_spam;                                         // BF.24
+    u8 se_spam;  // BF.24
     PKTBI_BF_RACE_CHANGER_RESULT characterracechanger;  // BF.2A
-    PKTBI_BF_32 toggleflying;                           // BF.32
+    PKTBI_BF_32 toggleflying;  // BF.32
   };
 
   enum
@@ -1090,7 +1094,8 @@ struct PKTBI_D7
   u16 msglen;
   u32 serial;
   u16 subcmd;
-  union {
+  union
+  {
     CH_ERASE ch_erase;
     CH_ADD ch_add;
     CH_ADD_MULTI ch_add_multi;

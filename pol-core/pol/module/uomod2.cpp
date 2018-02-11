@@ -36,74 +36,80 @@
 #include "pol_global_config.h"
 #endif
 
-#include <ctype.h>
-#include <stddef.h>
-#include <string>
+#include "uomod.h"
+#include "osmod.h"
+#include "../uoexec.h"
 
-#include "../../bscript/berror.h"
+
+#ifdef MEMORYLEAK
 #include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/eprog.h"
+#endif
+#include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
-#include "../../clib/clib.h"
+
 #include "../../clib/clib_endian.h"
-#include "../../clib/compilerspecifics.h"
+#include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
-#include "../accounts/account.h"
-#include "../accounts/accounts.h"
-#include "../accounts/acscrobj.h"
-#include "../containr.h"
-#include "../core.h"
-#include "../exscrobj.h"
-#include "../globals/memoryusage.h"
-#include "../globals/script_internals.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../layers.h"
-#include "../mobile/charactr.h"
-#include "../mobile/npc.h"
-#include "../multi/customhouses.h"
-#include "../multi/house.h"
-#include "../multi/multi.h"
-#include "../multi/multidef.h"
-#include "../network/cgdata.h"
-#include "../network/client.h"
-#include "../network/packethelper.h"
-#include "../network/packetinterface.h"
-#include "../network/packets.h"
-#include "../objtype.h"
-#include "../pktboth.h"
-#include "../pktdef.h"
-#include "../pktin.h"
-#include "../polclass.h"
-#include "../profile.h"
-#include "../realms/realm.h"
-#include "../reftypes.h"
-#include "../scrstore.h"
-#include "../sngclick.h"
-#include "../statmsg.h"
-#include "../tooltips.h"
-#include "../uconst.h"
-#include "../ufunc.h"
-#include "../uobject.h"
-#include "../uoexec.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "osmod.h"
-#include "uomod.h"
+#include "../../clib/fileutil.h"
 
 #ifdef MEMORYLEAK
 #include "../../clib/opnew.h"
 #endif
 
+#include "../../clib/strutil.h"
+#include "../../clib/clib_MD5.h"
+#include "../../clib/stlutil.h"
+
+#include "../realms/realm.h"
+
+#include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
+
+#include "../accounts/account.h"
+#include "../accounts/accounts.h"
+#include "../accounts/acscrobj.h"
+#include "../cfgrepos.h"
+#include "../containr.h"
+#include "../core.h"
+#include "../exscrobj.h"
+#include "../fnsearch.h"
+#include "../globals/memoryusage.h"
+#include "../globals/object_storage.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../item/itemdesc.h"
+#include "../menu.h"
+#include "../mobile/charactr.h"
+#include "../mobile/npc.h"
+#include "../multi/house.h"
+#include "../multi/multidef.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
+#include "../network/clienttransmit.h"
+#include "../network/iostats.h"
+#include "../network/msghandl.h"
+#include "../network/packets.h"
+#include "../network/packethelper.h"
+#include "../objtype.h"
+#include "../pktboth.h"
+#include "../pktin.h"
+#include "../pktout.h"
+#include "../polcfg.h"
+#include "../polclass.h"
+#include "../polstats.h"
+#include "../realms.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../sngclick.h"
+#include "../sockio.h"
+#include "../statmsg.h"
+#include "../syshook.h"
+#include "../tooltips.h"
+#include "../ufunc.h"
+#include "../uoscrobj.h"
+#include "../uworld.h"
+#include "../unicode.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #include <zlib.h>
@@ -1096,11 +1102,10 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
-  if ( !uoexec.suspend() )
-  {
+  if ( !uoexec.suspend() ) {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendDialogGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+      << "\tCall to function UO::SendDialogGump():\n"
+      << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1224,11 +1229,10 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
-  if ( !uoexec.suspend() )
-  {
+  if ( !uoexec.suspend() ) {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendDialogGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+      << "\tCall to function UO::SendDialogGump():\n"
+      << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1260,9 +1264,13 @@ private:
   BIntHash& operator=( const BIntHash& );
 };
 
-BIntHash::BIntHash() : BObjectImp( OTUnknown ), contents_() {}
+BIntHash::BIntHash() : BObjectImp( OTUnknown ), contents_()
+{
+}
 
-BIntHash::BIntHash( const BIntHash& ih ) : BObjectImp( OTUnknown ), contents_( ih.contents_ ) {}
+BIntHash::BIntHash( const BIntHash& ih ) : BObjectImp( OTUnknown ), contents_( ih.contents_ )
+{
+}
 
 BObjectImp* BIntHash::copy() const
 {
@@ -1605,15 +1613,14 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
-
-  if ( !uoexec.suspend() )
-  {
+  
+  if ( !uoexec.suspend() ) {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendTextEntryGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+      << "\tCall to function UO::SendTextEntryGump():\n"
+      << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
-
+  
   msg.Send( chr->client, len );
   chr->client->gd->textentry_uoemod = this;
   textentry_chr = chr;
@@ -1676,7 +1683,9 @@ private:
   PolCore& operator=( const PolCore& );
 };
 
-PolCore::PolCore() : BObjectImp( OTPolCoreRef ) {}
+PolCore::PolCore() : BObjectImp( OTPolCoreRef )
+{
+}
 
 BObjectImp* PolCore::copy() const
 {
@@ -1735,7 +1744,7 @@ BObjectImp* GetRunningScriptList()
 BObjectImp* GetAllScriptList()
 {
   ObjArray* arr = new ObjArray;
-
+  
   const ExecList& runlist = scriptScheduler.getRunlist();
   const ExecList& ranlist = scriptScheduler.getRanlist();
   const HoldList& holdlist = scriptScheduler.getHoldlist();
@@ -1884,7 +1893,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
   //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
   //	LONG_COREVAR( bytes_received, polstats.bytes_received );
-  LONG_COREVAR( version, POL_VERSION );
+  LONG_COREVAR( version, POL_VERSION_MAJOR );
   LONG_COREVAR( systime, time( NULL ) );
   LONG_COREVAR( events_per_min, GET_PROFILEVAR_PER_MIN( events ) );
   LONG_COREVAR( skill_checks_per_min, GET_PROFILEVAR_PER_MIN( skill_checks ) );
@@ -2128,14 +2137,13 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
   if ( chr->client->gd->resurrect_uoemod != NULL )
     return new BError( "Client busy with another instares dialog" );
 
-  if ( !uoexec.suspend() )
-  {
+  if ( !uoexec.suspend() ) {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendInstaResDialog():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+      << "\tCall to function UO::SendInstaResDialog():\n"
+      << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
-
+  
   PktHelper::PacketOut<PktOut_2C> msg;
   msg->Write<u8>( RESURRECT_CHOICE_SELECT );
   msg.Send( chr->client );
@@ -2192,17 +2200,16 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
   msg->Write<u32>( item->serial_ext );
   msg->offset += 2;  // u16 unk
   msg->WriteFlipped<u16>( item->graphic );
-
-  if ( !uoexec.suspend() )
-  {
+  
+  if ( !uoexec.suspend() ) {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SelectColor():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+      << "\tCall to function UO::SelectColor():\n"
+      << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
   msg.Send( chr->client );
-
+  
   chr->client->gd->selcolor_uoemod = this;
   selcolor_chr = chr;
   return new BLong( 0 );
@@ -2345,8 +2352,8 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == NULL )
   {
-    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
-        << book_serial << client->chr->serial;
+    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" ) << book_serial
+                                                                         << client->chr->serial;
     return;
   }
 
@@ -2462,8 +2469,8 @@ void open_book_handler( Client* client, PKTBI_93* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == NULL )
   {
-    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
-        << book_serial << client->chr->serial;
+    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" ) << book_serial
+                                                                         << client->chr->serial;
     return;
   }
   BObjectImpRefVec params;
@@ -2758,8 +2765,7 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   msg.Send( chr->client, len );
 
   // Cancel any previously waiting popup response
-  if ( chr->client->gd->popup_menu_selection_uoemod != NULL )
-  {
+  if ( chr->client->gd->popup_menu_selection_uoemod != NULL ) {
     chr->client->gd->popup_menu_selection_uoemod->uoexec.os_module->revive();
 
     chr->client->gd->popup_menu_selection_uoemod = NULL;
@@ -2767,14 +2773,13 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   }
 
   // Suspend the script first
-  if ( !uoexec.suspend() )
-  {
+  if ( !uoexec.suspend() ) {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendPopupMenu():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+      << "\tCall to function UO::SendPopupMenu():\n"
+      << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
-
+  
   // Prepare to restart the script once the response arrives
   chr->on_popup_menu_selection = popup_menu_selection_made;
   chr->client->gd->popup_menu_selection_uoemod = this;

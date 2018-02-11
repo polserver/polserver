@@ -4,24 +4,21 @@
  */
 
 
-#include <stddef.h>
+#include "charactr.h"
 
-#include "../../bscript/bobject.h"
-#include "../../bscript/eprog.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/refptr.h"
-#include "../../plib/systemstate.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
+#include "../module/cfgmod.h"
 #include "../module/osmod.h"
 #include "../module/uomod.h"
-#include "../scrdef.h"
+#include "../polcfg.h"
 #include "../scrsched.h"
-#include "../scrstore.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
-#include "charactr.h"
+#include "../item/itemdesc.h"
+#include "../scrstore.h"
+
+#include "../../clib/passert.h"
+#include "../../plib/systemstate.h"
 
 namespace Pol
 {

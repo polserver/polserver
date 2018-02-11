@@ -5,50 +5,55 @@
 
 #include "osmod.h"
 
+#include "npcmod.h"  // necessary for reporting which npc is discarding events when the queue is full
+#include "uomod.h"
+
+#include "../uoexec.h"
+#include "../uoexhelp.h"
+
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
+#include "../../bscript/eprog.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../../clib/sckutil.h"
-#include "../../clib/threadhelp.h"
-#include "../../clib/weakptr.h"
-#include "../../plib/systemstate.h"
-#include "../exscrobj.h"
-#include "../globals/script_internals.h"
-#include "../globals/state.h"
-#include "../item/item.h"
-#include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
-#include "../mobile/npc.h"
+
 #include "../network/auxclient.h"
 #include "../network/packethelper.h"
-#include "../network/packets.h"
-#include "../pktdef.h"
+
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
+#include "../mobile/npc.h"  // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
+
+#include "../exscrobj.h"
+#include "../globals/state.h"
 #include "../polcfg.h"
 #include "../poldbg.h"
 #include "../polsem.h"
-#include "../profile.h"
 #include "../schedule.h"
-#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skills.h"
-#include "../ufunc.h"
-#include "../uoexec.h"
-#include "npcmod.h"
-#include "uomod.h"
+#include "../ufuncstd.h"
+#include "../unicode.h"
 
+#include "../../clib/clib_endian.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/passert.h"
+#include "../../clib/sckutil.h"
+#include "../../clib/socketsvc.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/strutil.h"
+#include "../../clib/threadhelp.h"
+#include "../../clib/weakptr.h"
+
+#include "../../plib/systemstate.h"
 
 #pragma comment( lib, "crypt32.lib" )
-#include <ctime>
 #include <curl/curl.h>
-#include <memory>
-#include <string.h>
-#include <string>
+
+#include <ctime>
 #include <unordered_map>
+#include <vector>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp POSIX deprecation warning
@@ -1011,13 +1016,13 @@ struct PerfData
       std::unique_ptr<BStruct> elem( new BStruct );
       elem->addMember( "name", new String( res[i].name ) );
       elem->addMember( "instructions", new Double( static_cast<double>( res[i].instructions ) ) );
-      elem->addMember( "pid", new BLong( static_cast<int>( res[i].pid ) ) );
+      elem->addMember( "pid", new BLong( static_cast<int>(res[i].pid) ) );
       elem->addMember( "percent", new Double( res[i].instructions / sum_instr * 100.0 ) );
       arr->addElement( elem.release() );
     }
     std::unique_ptr<BStruct> result( new BStruct );
     result->addMember( "scripts", arr.release() );
-    result->addMember( "total_number_observed", new BLong( static_cast<int>( res.size() ) ) );
+    result->addMember( "total_number_observed", new BLong( static_cast<int>(res.size()) ) );
     result->addMember( "total_instructions", new Double( sum_instr ) );
     data->uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( result.release() ) );
 

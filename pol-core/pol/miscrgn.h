@@ -8,17 +8,7 @@
 #define MISCRGN_H
 
 
-#include "../clib/compilerspecifics.h"
 #include "region.h"
-#include "zone.h"
-
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-}  // namespace Clib
-}  // namespace Pol
 
 namespace Pol
 {

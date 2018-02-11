@@ -41,7 +41,7 @@ protected:
   ULWObject( const ULWObject& ) = delete;
   ULWObject& operator=( const ULWObject& ) = delete;
   ~ULWObject() = default;
-
+  
 public:
   bool orphan() const;
 

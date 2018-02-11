@@ -12,13 +12,7 @@
 #include "../bscript/executor.h"
 #endif
 
-#include <string>
-#include <time.h>
-
-#include "../clib/compilerspecifics.h"
-#include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
-
 namespace Pol
 {
 namespace Module
@@ -33,8 +27,8 @@ class UOExecutor : public Bscript::Executor
 {
   typedef Bscript::Executor base;
 
-public:  // soon to be private ;)
-  Module::OSExecutorModule* os_module;
+public: // soon to be private ;)
+	Module::OSExecutorModule* os_module;
 
 public:
   UOExecutor();

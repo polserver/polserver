@@ -8,15 +8,11 @@
 
 #include "boatcomp.h"
 
-#include "../baseobject.h"
-#include "../lockable.h"
-
 namespace Pol
 {
 namespace Multi
 {
-UPlank::UPlank( const Items::ItemDesc& descriptor )
-    : Core::ULockable( descriptor, Core::UOBJ_CLASS::CLASS_ITEM )
+UPlank::UPlank( const Items::ItemDesc& descriptor ) : Core::ULockable( descriptor, Core::UOBJ_CLASS::CLASS_ITEM )
 {
 }
 

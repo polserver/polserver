@@ -5,10 +5,13 @@
 
 
 #include "cryptengine.h"
+#include "cryptbase.h"
+#include "crypt.h"
+
+#include "../polcfg.h"
 
 #include "../../clib/logfacility.h"
-#include "crypt.h"
-#include "cryptkey.h"
+#include "../../clib/strutil.h"
 
 namespace Pol
 {

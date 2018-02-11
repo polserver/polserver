@@ -1,15 +1,16 @@
 #ifndef GLOBALS_SCRIPT_INTERNALS_H
 #define GLOBALS_SCRIPT_INTERNALS_H
 
+#include "../../clib/maputil.h"
+#include "../../bscript/eprog.h"
+
+#include "../reftypes.h"
+
+#include "../polclock.h"
 #include <boost/noncopyable.hpp>
 #include <deque>
-#include <map>
 #include <set>
-
-#include "../../bscript/eprog.h"
-#include "../../clib/maputil.h"
-#include "../polclock.h"
-#include "../reftypes.h"
+#include <map>
 
 namespace Pol
 {
@@ -30,10 +31,10 @@ public:
   static const unsigned int PID_MIN;
 
   int priority_divide;
-
+  
   // Consider moving the ScriptStorage to a different class.
   // It's not even used here besides to calculate how much memory is used.
-  ScriptStorage scrstore;
+  ScriptStorage scrstore; 
 
   ScriptScheduler();
   ~ScriptScheduler();
@@ -57,88 +58,81 @@ public:
 
   const PidList& getPidlist();
 
-  // void revive_timeout(UOExecutor* exec);
-  void revive_timeout( UOExecutor* exec, TimeoutHandle hold_itr );
-  void revive_notimeout( UOExecutor* exec );
-  void revive_debugged( UOExecutor* exec );
+  //void revive_timeout(UOExecutor* exec);
+  void revive_timeout(UOExecutor* exec, TimeoutHandle hold_itr);
+  void revive_notimeout(UOExecutor* exec);
+  void revive_debugged(UOExecutor* exec);
 
   // Adds a new executor to the queue directly
-  void enqueue( UOExecutor* exec );
+  void enqueue(UOExecutor* exec);
 
   // Sets up the executor before adding to the queue
-  void schedule( UOExecutor* exec );
+  void schedule(UOExecutor* exec);
 
 
   // The following methods should go to a different class,
   // together with the pidlist and new_pid.
-
+  
   // Gets new PID and store the executor in the pidlist
-  unsigned int get_new_pid( UOExecutor* exec );
-
-  void free_pid( unsigned int pid );
+  unsigned int get_new_pid(UOExecutor* exec);
+  
+  void free_pid(unsigned int pid);
 
   // Finds an UOExecutor from a pid. Returns false if not found.
-  bool find_exec( unsigned int pid, UOExecutor** exec );
+  bool find_exec(unsigned int pid, UOExecutor** exec);
 
-
+  
 private:
-  ExecList runlist;
-  ExecList ranlist;
-  HoldList holdlist;
-  NoTimeoutHoldList notimeoutholdlist;
-  NoTimeoutHoldList debuggerholdlist;
+	ExecList runlist;
+	ExecList ranlist;
+	HoldList holdlist;
+	NoTimeoutHoldList notimeoutholdlist;
+	NoTimeoutHoldList debuggerholdlist;
 
-  PidList pidlist;
-  unsigned int next_pid;
+	PidList pidlist;
+	unsigned int next_pid;
 };
 
-const inline ExecList& ScriptScheduler::getRanlist()
-{
-  return ranlist;
+const inline ExecList& ScriptScheduler::getRanlist() {
+	return ranlist;
 }
-const inline ExecList& ScriptScheduler::getRunlist()
-{
-  return runlist;
+const inline ExecList& ScriptScheduler::getRunlist() {
+	return runlist;
 }
-const inline HoldList& ScriptScheduler::getHoldlist()
-{
-  return holdlist;
+const inline HoldList& ScriptScheduler::getHoldlist() {
+	return holdlist;
 }
-const inline NoTimeoutHoldList& ScriptScheduler::getNoTimeoutHoldlist()
-{
-  return notimeoutholdlist;
+const inline NoTimeoutHoldList& ScriptScheduler::getNoTimeoutHoldlist() {
+	return notimeoutholdlist;
 }
-const inline PidList& ScriptScheduler::getPidlist()
-{
-  return pidlist;
+const inline PidList& ScriptScheduler::getPidlist() {
+	return pidlist;
 }
 
-inline void ScriptScheduler::revive_debugged( UOExecutor* exec )
-{
-  debuggerholdlist.erase( exec );
-  enqueue( exec );
+inline void ScriptScheduler::revive_debugged(UOExecutor* exec) {
+	debuggerholdlist.erase(exec);
+	enqueue(exec);
 }
 
-inline void ScriptScheduler::revive_timeout( UOExecutor* exec, TimeoutHandle hold_itr )
+inline void ScriptScheduler::revive_timeout(UOExecutor* exec, TimeoutHandle hold_itr)
 {
-  holdlist.erase( hold_itr );
-  enqueue( exec );
+	holdlist.erase(hold_itr);
+	enqueue(exec);
 }
 
-inline void ScriptScheduler::revive_notimeout( UOExecutor* exec )
+inline void ScriptScheduler::revive_notimeout(UOExecutor* exec)
 {
-  notimeoutholdlist.erase( exec );
-  enqueue( exec );
+	notimeoutholdlist.erase(exec);
+	enqueue(exec);
 }
 
-inline void ScriptScheduler::enqueue( UOExecutor* exec )
+inline void ScriptScheduler::enqueue(UOExecutor* exec)
 {
-  runlist.push_back( exec );
+	runlist.push_back(exec);
 }
 
-inline void ScriptScheduler::free_pid( unsigned int pid )
-{
-  pidlist.erase( pid );
+inline void ScriptScheduler::free_pid(unsigned int pid) {
+	pidlist.erase(pid);
 }
 
 extern ScriptScheduler scriptScheduler;

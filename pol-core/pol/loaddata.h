@@ -8,7 +8,6 @@
 #define LOADDATA_H
 
 #include "poltype.h"
-
 namespace Pol
 {
 namespace Mobile

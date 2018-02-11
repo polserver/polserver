@@ -1,9 +1,7 @@
 #include "LogSink.h"
+#include "../clib.h"
 
 #include <chrono>
-#include <time.h>
-
-#include "../clib.h"
 
 namespace Pol
 {
@@ -16,9 +14,13 @@ using std::chrono::system_clock;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-LogSink::LogSink() {}
+LogSink::LogSink()
+{
+}
 
-LogSink::~LogSink() {}
+LogSink::~LogSink()
+{
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

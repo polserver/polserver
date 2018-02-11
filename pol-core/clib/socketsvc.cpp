@@ -4,12 +4,14 @@
  */
 
 
-#include <stdlib.h>
-
 #include "logfacility.h"
 #include "socketsvc.h"
+
+#include "passert.h"
 #include "strutil.h"
 #include "threadhelp.h"
+#include "Header_Windows.h"
+#include <memory>
 
 namespace Pol
 {
@@ -50,7 +52,9 @@ SocketClientThread::SocketClientThread( SocketListener& SL ) : _sck()
 {
   SL.accept( _sck );
 }
-SocketClientThread::SocketClientThread( Socket& S ) : _sck( S ) {}
+SocketClientThread::SocketClientThread( Socket& S ) : _sck( S )
+{
+}
 
 static void _thread_stub2( void* arg )
 {

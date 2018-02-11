@@ -8,7 +8,6 @@
 #define UOSKILLS_H
 
 #include <string>
-
 namespace Pol
 {
 namespace Plib

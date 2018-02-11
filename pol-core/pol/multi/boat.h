@@ -10,48 +10,13 @@
 #ifndef BOAT_H
 #define BOAT_H
 
-#include <climits>
-#include <stddef.h>
-#include <string>
-#include <vector>
-
-#include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
-#include "../../clib/rawtypes.h"
+#include "multi.h"
 #include "../poltype.h"
 #include "../reftypes.h"
 #include "../uconst.h"
-#include "multi.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-class Executor;
-}  // namespace Bscript
-namespace Clib
-{
-class ConfigElem;
-class StreamWriter;
-}  // namespace Clib
-namespace Core
-{
-class UObject;
-}  // namespace Core
-namespace Items
-{
-class Item;
-class ItemDesc;
-}  // namespace Items
-namespace Mobile
-{
-class Character;
-}  // namespace Mobile
-namespace Network
-{
-class Client;
-}  // namespace Network
-}  // namespace Pol
+#include <climits>
+#include <vector>
 
 namespace Pol
 {
@@ -189,8 +154,7 @@ protected:
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
-  void move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z,
-                             Realms::Realm* new_realm );
+  void move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z, Realms::Realm* new_realm );
   const MultiDef& multi_ifturn( RELATIVE_DIR dir );
   unsigned short multiid_ifturn( RELATIVE_DIR dir );
 

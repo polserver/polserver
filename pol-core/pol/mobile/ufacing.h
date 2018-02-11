@@ -19,7 +19,7 @@ namespace Core
 class UObject;
 
 extern UFACING away_cvt[8];
-extern std::array<int, 7> adjustments;
+extern std::array<int,7> adjustments;
 }
 namespace Mobile
 {

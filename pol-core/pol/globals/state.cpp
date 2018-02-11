@@ -27,10 +27,14 @@ StateManager::StateManager()
 {
 }
 
-StateManager::~StateManager() {}
+StateManager::~StateManager()
+{
+}
 
 
-void StateManager::deinitialize() {}
+void StateManager::deinitialize()
+{
+}
 
 size_t StateManager::estimateSize() const
 {

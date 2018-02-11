@@ -22,44 +22,41 @@
 /* MISCMSG.CPP: Miscellaneous message handlers.  Handlers shouldn't stay here long,
    only until they find a better home - but this is better than putting them in POL.CPP. */
 
-#include <cstddef>
-#include <ctype.h>
-#include <string>
+#include "multi/customhouses.h"
+#include "multi/multi.h"
 
-#include <format/format.h>
-#include "../bscript/eprog.h"
+#include "mobile/charactr.h"
+#include "accounts/account.h"
+#include "network/client.h"
+#include "network/msghandl.h"
+#include "network/packethelper.h"
+
+#include "fnsearch.h"
+#include "cmbtcfg.h"
+#include "pktboth.h"
+#include "pktin.h"
+#include "spells.h"
+#include "tooltips.h"
+#include "globals/uvars.h"
+#include "ufunc.h"
+#include "uoscrobj.h"
+#include "sockio.h"
+#include "unicode.h"
+
+#include "scrstore.h"
+#include "polcfg.h"
+
+#include "../clib/clib.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
+#include "../clib/strutil.h"
 #include "../clib/stlutil.h"
+#include "../bscript/eprog.h"
 #include "../plib/systemstate.h"
-#include "accounts/account.h"
-#include "cmbtcfg.h"
-#include "fnsearch.h"
-#include "gameclck.h"
-#include "globals/settings.h"
-#include "globals/uvars.h"
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
-#include "multi/customhouses.h"
-#include "multi/multi.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "pktboth.h"
-#include "pktdef.h"
-#include "pktin.h"
-#include "scrstore.h"
-#include "sockio.h"
-#include "spells.h"
-#include "tooltips.h"
-#include "uconst.h"
-#include "ufunc.h"
-#include "unicode.h"
-#include "uobject.h"
-#include "uoscrobj.h"
+
+
+#include <cstddef>
 
 namespace Pol
 {

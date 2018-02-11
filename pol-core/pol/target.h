@@ -7,12 +7,12 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#include <array>
-
 #include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
+
 #include "pktboth.h"
 
+#include <array>
 namespace Pol
 {
 namespace Mobile

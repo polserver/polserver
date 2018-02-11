@@ -7,20 +7,10 @@
 #ifndef MUSICRGN_H
 #define MUSICRGN_H
 
+#include "region.h"
+
 #include <string>
 #include <vector>
-
-#include "../clib/compilerspecifics.h"
-#include "region.h"
-#include "zone.h"
-
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-}  // namespace Clib
-}  // namespace Pol
 
 namespace Pol
 {

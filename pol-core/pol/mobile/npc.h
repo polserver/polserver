@@ -21,39 +21,12 @@
 #include "../item/armor.h"
 #endif
 
+#include "../eventid.h"
+#include "../npctmpl.h"
+
 #include <iosfwd>
 #include <map>
-#include <stddef.h>
 #include <string>
-
-#include "../../bscript/bobject.h"
-#include "../../clib/boostutils.h"
-#include "../../clib/compilerspecifics.h"
-#include "../../clib/rawtypes.h"
-#include "../dynproperties.h"
-#include "../eventid.h"
-#include "../item/weapon.h"
-#include "../npctmpl.h"
-#include "../reftypes.h"
-#include "../uconst.h"
-
-namespace Pol
-{
-namespace Bscript
-{
-class Executor;
-}  // namespace Bscript
-namespace Clib
-{
-class StreamWriter;
-}  // namespace Clib
-namespace Items
-{
-class Item;
-}  // namespace Items
-}  // namespace Pol
-template <class T>
-class ref_ptr;
 
 namespace Pol
 {
@@ -67,8 +40,8 @@ class NPCExecutorModule;
 }
 namespace Core
 {
-class RepSystem;
 class UOExecutor;
+class RepSystem;
 }
 namespace Mobile
 {
@@ -209,7 +182,7 @@ private:
   DYN_PROPERTY( orig_energy_damage, s16, Core::PROP_ORIG_DAMAGE_ENERGY, 0 );
   DYN_PROPERTY( orig_poison_damage, s16, Core::PROP_ORIG_DAMAGE_POISON, 0 );
   DYN_PROPERTY( orig_physical_damage, s16, Core::PROP_ORIG_DAMAGE_PHYSICAL, 0 );
-
+  
   void resetEquipablePropertiesNPC();
 
   // MISC

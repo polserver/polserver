@@ -15,16 +15,31 @@
 
 #include "itemdesc.h"
 
-#include <ctype.h>
-#include <iosfwd>
-#include <stdlib.h>
-#include <string.h>
+#include "wepntmpl.h"
+#include "armrtmpl.h"
 
-#include <format/format.h>
-#include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
+#include "../../bscript/escrutil.h"
 #include "../../bscript/impstr.h"
+
+#include "../../plib/mapcell.h"
+#include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
+
+#include "../cfgrepos.h"
+#include "../clidata.h"
+#include "../objtype.h"
+#include "../multi/multidef.h"
+#include "../resource.h"
+#include "../polcfg.h"
+#include "../syshookscript.h"
+#include "../globals/ucfg.h"
+#include "../ustruct.h"
+#include "../uconst.h"
+#include "../globals/uvars.h"
+#include "../globals/settings.h"
+
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/esignal.h"
@@ -33,23 +48,6 @@
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
-#include "../../plib/mapcell.h"
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
-#include "../clidata.h"
-#include "../dice.h"
-#include "../extobj.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../multi/multidef.h"
-#include "../pktdef.h"
-#include "../proplist.h"
-#include "../resource.h"
-#include "../syshookscript.h"
-#include "../uconst.h"
-#include "../uobject.h"
-#include "armrtmpl.h"
-#include "wepntmpl.h"
 
 namespace Pol
 {
@@ -232,6 +230,39 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   }
 
   maxhp = elem.remove_ushort( "MAXHP", 0 );
+  lower_reag_cost = elem.remove_ushort("LOWERREAGENTCOST", 0);
+  damage_increase = elem.remove_ushort("DAMAGEINCREASE", 0);
+  spell_damage_increase = elem.remove_ushort("SPELLDAMAGEINCREASE", 0);
+  faster_casting = elem.remove_ushort("FASTERCASTING", 0);
+  faster_cast_recovery = elem.remove_ushort("FASTERCASTRECOVERY", 0);
+  defence_increase = elem.remove_ushort("DEFENCEINCREASE", 0);
+  defence_increase_cap = elem.remove_ushort("DEFENCEINCREASECAP", 0);
+  lower_mana_cost = elem.remove_ushort("LOWERMANACOST", 0);
+  hitchance = elem.remove_ushort("HITCHANCE", 0);
+  swingspeed = elem.remove_ushort("SWINGSPEED", 0);
+  resist_fire_cap = elem.remove_ushort("FIRERESISTCAP", 0);
+  resist_cold_cap = elem.remove_ushort("COLDRESISTCAP", 0);
+  resist_energy_cap = elem.remove_ushort("ENERGYRESISTCAP", 0);
+  resist_physical_cap = elem.remove_ushort("PHYSICALRESISTCAP", 0);
+  resist_poison_cap = elem.remove_ushort("POISONRESISTCAP", 0);
+  luck = elem.remove_ushort("LUCK", 0);
+  //mods
+  defence_increase_mod = elem.remove_ushort("DefenceIncreaseMod", 0);
+  defence_increase_cap_mod = elem.remove_ushort("DefenceIncreaseCapMod", 0);
+  lower_mana_cost_mod = elem.remove_ushort("LowerManaCostMod", 0);
+  hitchance_mod = elem.remove_ushort("hitchance_mod", 0);
+  speed_mod = elem.remove_ushort("speed_mod", 0);
+  dmg_mod = elem.remove_ushort("dmg_mod", 0);
+  resist_fire_cap_mod = elem.remove_ushort("FireResistCapMod", 0);
+  resist_cold_cap_mod = elem.remove_ushort("ColdResistCapMod", 0);
+  resist_energy_cap_mod = elem.remove_ushort("EnergyResistCapMod", 0);
+  resist_physical_cap_mod = elem.remove_ushort("PhysicalResistCapMod", 0);
+  resist_poison_cap_mod = elem.remove_ushort("PoisonResistCapMod", 0);
+  lower_reagent_cost_mod = elem.remove_ushort("LowerReagentCostMod", 0);
+  spell_damage_increase_mod = elem.remove_ushort("SpellDamageIncreaseMod", 0);
+  faster_casting_mod = elem.remove_ushort("FasterCastingMod", 0);
+  faster_cast_recovery_mod = elem.remove_ushort("FasterCastRecoveryMod", 0);
+  luck_mod = elem.remove_ushort("LUCKMOD", 0);
 
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
   if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
@@ -375,6 +406,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     Core::gamestate.old_objtype_conversions[old_objtype] = objtype;
   }
 
+
+
   if ( elem.remove_prop( "StackingIgnoresCProps", &temp ) )
   {
     ISTRINGSTREAM is( temp );
@@ -385,6 +418,118 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     }
   }
 
+  auto diceValue = [this](const std::string& value, const std::string& error_msg) -> unsigned short
+  {
+	  Core::Dice dice;
+	  std::string errmsg;
+	  if (!dice.load(value.c_str(), &errmsg))
+	  {
+		  ERROR_PRINT << "Error loading itemdesc.cfg " << error_msg << " for "
+			  << objtype_description() << " : " << errmsg << "\n";
+		  throw std::runtime_error("Error loading Item Mods");
+	  }
+	  return dice.roll();
+  };
+
+
+  if (elem.remove_prop("SpellDamageIncrease", &temp))
+    spell_damage_increase = diceValue(temp, "Spell Damage Increase");
+
+  if (elem.remove_prop("LowerReagentCost", &temp))
+    lower_reag_cost = diceValue(temp, "Lower Reagent Cost");
+
+  
+  if (elem.remove_prop("FasterCasting", &temp))
+    faster_casting = diceValue(temp, "Faster Casting");
+
+  if (elem.remove_prop("FasterCastRecovery", &temp))
+    faster_cast_recovery = diceValue(temp, "Faster Cast Recovery");
+
+  if (elem.remove_prop("DefenceIncrease", &temp))
+    defence_increase = diceValue(temp, "Defence Increase");
+  
+  if (elem.remove_prop("DefenceIncreaseCap", &temp))
+    defence_increase_cap = diceValue(temp, "Defence Increase Cap");
+  
+  if (elem.remove_prop("LowerManaCost", &temp))
+    lower_mana_cost = diceValue(temp, "Lower man Cost");
+  
+  if (elem.remove_prop("HitChance", &temp))
+    hitchance = diceValue(temp, "Hit Chance");
+  
+  if (elem.remove_prop("SwingSpeed", &temp))
+    swingspeed = diceValue(temp, "Swing Speed");
+  
+  if (elem.remove_prop("DamageIncrease", &temp))
+    damage_increase = diceValue(temp, "Damage Increase");
+  
+  if (elem.remove_prop("FireResistCap", &temp))
+    resist_fire_cap = diceValue(temp, "Fire Resist Cap");
+  
+  if (elem.remove_prop("ColdResistCap", &temp))
+    resist_cold_cap = diceValue(temp, "Cold Resist Cap");
+
+  if (elem.remove_prop("EnergyResistCap", &temp))
+    resist_energy_cap = diceValue(temp, "Energy Resist Cap");
+
+  if (elem.remove_prop("PhysicalResistCap", &temp))
+    resist_physical_cap = diceValue(temp, "Physical Resist Cap");
+
+  if (elem.remove_prop("PoisonResistCap", &temp))
+    resist_poison_cap = diceValue(temp, "Poison Resist Cap");
+
+  if (elem.remove_prop("LUCK", &temp))
+	  luck = diceValue(temp, "Luck");
+
+  //change mods to dice rolls if needed
+  if (elem.remove_prop("DefenceIncreaseMod", &temp))
+    defence_increase_mod = diceValue(temp, "Defence Increase Mod");
+
+  if (elem.remove_prop("DefenceIncreaseCapMod", &temp))
+    defence_increase_cap_mod = diceValue(temp, "Defence Increase Cap Mod");
+
+  if (elem.remove_prop("LowerManaCostMod", &temp))
+    lower_mana_cost_mod = diceValue(temp, "Lower Mana Cost Mod");
+
+  if (elem.remove_prop("hitchance_mod", &temp))
+    hitchance_mod = diceValue(temp, "Hit Chance Mod");
+
+  if (elem.remove_prop("speed_mod", &temp))
+    speed_mod = diceValue(temp, "Speed Mod Chance");
+
+  if (elem.remove_prop("dmg_mod", &temp))
+    dmg_mod = diceValue(temp, "Damage Mod");
+
+  if (elem.remove_prop("FireResistCapMod", &temp))
+    resist_fire_cap_mod = diceValue(temp, "Fire Resist Cap Mod");
+
+  if (elem.remove_prop("ColdResistCapMod", &temp))
+    resist_cold_cap_mod = diceValue(temp, "Cold Resist Cap");
+
+  if (elem.remove_prop("EnergyResistCapMod", &temp))
+    resist_energy_cap_mod = diceValue(temp, "Energy Resist Cap");
+
+  if (elem.remove_prop("PhysicalResistCapMod", &temp))
+    resist_physical_cap_mod = diceValue(temp, "Physical Resist Cap");
+
+  if (elem.remove_prop("PoisonResistCapMod", &temp))
+    resist_poison_cap_mod = diceValue(temp, "Poison Resist Cap");
+
+  if (elem.remove_prop("LowerReagentCostMod", &temp))
+    lower_reagent_cost_mod = diceValue(temp, "Lower Reagent Cost Mod");
+
+  if (elem.remove_prop("SpellDamageIncreaseMod", &temp))
+    spell_damage_increase_mod = diceValue(temp, "Spell Damage Increase Mod");
+
+  if (elem.remove_prop("FasterCastingMod", &temp))
+    faster_casting_mod = diceValue(temp, "Faster Casting Mod");
+
+  if (elem.remove_prop("FasterCastRecoveryMod", &temp))
+    faster_cast_recovery_mod = diceValue(temp, "Faster Cast Recovery Mod");
+
+  if (elem.remove_prop("LUCKMOD", &temp))
+	  luck = diceValue(temp, "Luck Mod");
+  
   memset( &element_resist, 0, sizeof( element_resist ) );
   memset( &element_damage, 0, sizeof( element_damage ) );
   for ( unsigned resist = 0; resist <= Core::ELEMENTAL_TYPE_MAX; ++resist )
@@ -639,6 +784,42 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "Quality", new Double( quality ) );
   descriptor->addMember( "MultiID", new BLong( multiid ) );
   descriptor->addMember( "MaxHp", new BLong( maxhp ) );
+  //new props
+  descriptor->addMember("LowerReagentCost", new BLong(lower_reag_cost));
+  descriptor->addMember("SpellDamageIncrease", new BLong(spell_damage_increase));
+  descriptor->addMember("FasterCasting", new BLong(faster_casting));
+  descriptor->addMember("FasterCastRecovery", new BLong(faster_cast_recovery));
+  descriptor->addMember("DefenceIncrease", new BLong(defence_increase));
+  descriptor->addMember("DefenceIncreaseCap", new BLong(defence_increase_cap));
+  descriptor->addMember("LowerManaCost", new BLong(lower_mana_cost));
+  descriptor->addMember("HitChance", new BLong(hitchance));
+  descriptor->addMember("SwingSpeed", new BLong(swingspeed));
+  descriptor->addMember("DamageIncrease", new BLong(damage_increase));
+  descriptor->addMember("FireResistCap", new BLong(resist_fire_cap));
+  descriptor->addMember("ColdResistCap", new BLong(resist_cold_cap));
+  descriptor->addMember("EnergyResistCap", new BLong(resist_energy_cap));
+  descriptor->addMember("PhysicalResistCap", new BLong(resist_physical_cap));
+  descriptor->addMember("PoisonResistCap", new BLong(resist_poison_cap));
+  descriptor->addMember("Luck", new BLong(luck));
+
+  //new mods
+  descriptor->addMember("DefenceIncreaseMod", new BLong(defence_increase_mod));
+  descriptor->addMember("DefenceIncreaseCapMod", new BLong(defence_increase_cap_mod));
+  descriptor->addMember("LowerManaCostMod", new BLong(lower_mana_cost_mod));
+  descriptor->addMember("hitchance_mod", new BLong(hitchance_mod));
+  descriptor->addMember("speed_mod", new BLong(speed_mod));
+  descriptor->addMember("dmg_mod", new BLong(dmg_mod));
+  descriptor->addMember("FireResistCapMod", new BLong(resist_fire_cap_mod));
+  descriptor->addMember("ColdResistCapMod", new BLong(resist_cold_cap_mod));
+  descriptor->addMember("EnergyResistCapMod", new BLong(resist_energy_cap_mod));
+  descriptor->addMember("PhysicalResistCapMod", new BLong(resist_physical_cap_mod));
+  descriptor->addMember("PoisonResistCapMod", new BLong(resist_poison_cap_mod));
+  descriptor->addMember("LowerReagentCostMod", new BLong(lower_reagent_cost_mod));
+  descriptor->addMember("SpellDamageIncreaseMod", new BLong(spell_damage_increase_mod));
+  descriptor->addMember("FasterCastingMod", new BLong(faster_casting_mod));
+  descriptor->addMember("FasterCastRecoveryMod", new BLong(faster_cast_recovery_mod));
+  descriptor->addMember("LuckMod", new BLong(luck_mod));
+
 
   std::set<std::string>::const_iterator set_itr;
   std::unique_ptr<ObjArray> ignorecp( new ObjArray );

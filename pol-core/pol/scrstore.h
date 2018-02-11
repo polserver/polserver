@@ -7,9 +7,9 @@
 #ifndef SCRSTORE_H
 #define SCRSTORE_H
 
-#include <string>
-
 #include "../clib/refptr.h"
+
+#include <string>
 
 namespace Pol
 {

@@ -7,18 +7,7 @@
 #ifndef DATASTORE_H
 #define DATASTORE_H
 
-#include <string>
-
 #include "../../bscript/execmodl.h"
-
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-class Executor;
-}  // namespace Bscript
-}  // namespace Pol
 
 namespace Pol
 {

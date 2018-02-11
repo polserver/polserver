@@ -7,19 +7,17 @@
 #ifndef CLIB_THREADHELP_H
 #define CLIB_THREADHELP_H
 
-#include <atomic>
-#include <boost/noncopyable.hpp>
+#include "Header_Windows.h"
 #include <functional>
+#include <vector>
+#include <thread>
 #include <future>
 #include <map>
-#include <mutex>
-#include <string>
-#include <thread>
-#include <vector>
 
-#include "Header_Windows.h"
-#include "message_queue.h"
 #include "spinlock.h"
+#include "message_queue.h"
+
+#include <boost/noncopyable.hpp>
 
 namespace Pol
 {
@@ -93,7 +91,6 @@ private:
 class DynTaskThreadPool : boost::noncopyable
 {
   class PoolWorker;
-
   friend class PoolWorker;
   typedef std::function<void()> msg;
   typedef Clib::message_queue<msg> msg_queue;

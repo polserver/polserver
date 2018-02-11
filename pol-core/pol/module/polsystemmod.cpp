@@ -13,39 +13,37 @@
 
 #include "polsystemmod.h"
 
-#include <ctime>
-#include <fstream>
-#include <string>
-
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/dict.h"
 #include "../../bscript/impstr.h"
+
 #include "../../clib/clib.h"
 #include "../../clib/clib_MD5.h"
-#include "../../clib/compilerspecifics.h"
+#include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
-#include "../../clib/rawtypes.h"
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
+
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
+
 #include "../cmdlevel.h"
 #include "../core.h"
-#include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../listenpt.h"
 #include "../packetscrobj.h"
-#include "../polcfg.h"
-#include "../proplist.h"
+#include "../polclock.h"
 #include "../realms.h"
 #include "../realms/realm.h"
 #include "../tooltips.h"
 #include "../uobject.h"
 #include "../uoexhelp.h"
 
+#include <fstream>
+#include <ctime>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecation warning for stricmp
@@ -68,7 +66,6 @@ public:
   const Plib::Package* operator->() const { return m_pPkg; }
   Plib::Package* Ptr() { return m_pPkg; }
   const Plib::Package* Ptr() const { return m_pPkg; }
-
 private:
   Plib::Package* m_pPkg;
 };

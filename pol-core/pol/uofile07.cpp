@@ -4,10 +4,20 @@
  */
 
 
-#include "clidata.h"
+#include "polcfg.h"
+#include "polfile.h"
 #include "udatfile.h"
-#include "uofile.h"
 #include "ustruct.h"
+
+#include "uofile.h"
+#include "uofilei.h"
+
+#include "../clib/passert.h"
+
+#include <cstdio>
+#include <cstring>
+
+#include <vector>
 
 namespace Pol
 {

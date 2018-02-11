@@ -7,19 +7,10 @@
 #ifndef __HTTPMOD_H
 #define __HTTPMOD_H
 
-#include <string>
-
 #include "../../bscript/execmodl.h"
 #include "../../clib/wnsckt.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+#include <string>
 
 namespace Pol
 {

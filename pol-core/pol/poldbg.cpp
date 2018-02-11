@@ -11,33 +11,34 @@
 
 #include "poldbg.h"
 
-#include <fstream>
-#include <stddef.h>
-#include <string>
+#include "polcfg.h"
+#include "polsem.h"
+#include "scrdef.h"
+#include "scrsched.h"
+#include "scrstore.h"
+
+#include "module/uomod.h"
+#include "module/osmod.h"
+#include "uoexec.h"
+#include "globals/uvars.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
-#include "../bscript/bstruct.h"
-#include "../bscript/eprog.h"
-#include "../bscript/executor.h"
 #include "../bscript/impstr.h"
-#include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
+
 #include "../clib/esignal.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
 #include "../clib/sckutil.h"
 #include "../clib/socketsvc.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/weakptr.h"
 #include "../clib/wnsckt.h"
+
 #include "../plib/systemstate.h"
-#include "module/osmod.h"
-#include "module/uomod.h"
-#include "scrdef.h"
-#include "scrsched.h"
-#include "uoexec.h"
+
+#include <string>
+#include <vector>
+#include <map>
+#include <fstream>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp deprecation warning
@@ -81,7 +82,41 @@ const char* poldbg_itemref_members[] = {"amount",
                                         "resist_cold_mod",
                                         "resist_energy_mod",
                                         "resist_poison_mod",
-                                        "resist_physical_mod"};
+                                        "resist_physical_mod",
+                                        "lower_reagent_cost",
+                                        "spell_damage_increase",
+                                        "faster_casting",
+                                        "faster_cast_recovery",
+                                        "lower_reagent_cost_mod",
+                                        "spell_damage_increase_mod",
+                                        "faster_casting_mod",
+                                        "faster_cast_recovery_mod",
+                                        "defence_increase_mod",
+                                        "defence_increase_cap_mod",
+                                        "lower_mana_cost_mod",
+                                        "hitchance_mod",
+                                        "speed_mod",
+                                        "dmg_mod",
+                                        "fire_resist_cap_mod",
+                                        "cold_resist_cap_mod",
+                                        "energy_resist_cap_mod",
+                                        "poison_resist_cap_mod",
+                                        "physical_resist_cap_mod",
+
+                                        "defence_increase",
+                                        "defence_increase_cap",
+                                        "lower_mana_cost",
+                                        "hitchance",
+                                        "swingspeed",
+                                        "damage_increase",
+                                        "fire_resist_cap",
+                                        "cold_resist_cap",
+                                        "energy_resist_cap",
+                                        "poison_resist_cap",
+                                        "physical_resist_cap",
+                                        "luck_mod"
+
+};
 // 59 members
 const char* poldbg_mobileref_members[] = {"warmode",
                                           "gender",
@@ -141,7 +176,39 @@ const char* poldbg_mobileref_members[] = {"warmode",
                                           "resist_cold_mod",
                                           "resist_energy_mod",
                                           "resist_poison_mod",
-                                          "resist_physical_mod"};
+                                          "resist_physical_mod",
+                                          "lower_reagent_cost",
+                                          "spell_damage_increase",
+                                          "faster_casting",
+                                          "faster_cast_recovery",
+                                          "lower_reagent_cost_mod",
+                                          "spell_damage_increase_mod",
+                                          "faster_casting_mod",
+                                          "faster_cast_recovery_mod",
+                                          "defence_increase_mod",
+                                          "defence_increase_cap_mod",
+                                          "lower_mana_cost_mod",
+                                          "hitchance_mod",
+                                          "speed_mod",
+                                          "dmg_mod",
+                                          "fire_resist_cap_mod",
+                                          "cold_resist_cap_mod",
+                                          "energy_resist_cap_mod",
+                                          "poison_resist_cap_mod",
+                                          "physical_resist_cap_mod",
+
+                                          "defence_increase",
+                                          "defence_increase_cap",
+                                          "lower_mana_cost",
+                                          "hitchance",
+                                          "swingspeed",
+                                          "damage_increase",
+                                          "fire_resist_cap",
+                                          "cold_resist_cap",
+                                          "energy_resist_cap",
+                                          "poison_resist_cap",
+                                          "physical_resist_cap",
+                                          "luck_mod"};
 
 class DebugContext : public ref_counted
 {
@@ -153,7 +220,6 @@ public:
   typedef std::vector<std::string> Results;
   bool process( const std::string& cmd, Results& results );
   bool done() const { return _done; }
-
 protected:
   std::string cmd_attach( unsigned pid );
   std::string cmd_kill( unsigned pid );
@@ -467,7 +533,7 @@ std::string DebugContext::cmd_stacktrace( Results& results )
   {
     ReturnContext rc;
     rc.PC = exec->PC;
-    rc.ValueStackDepth = static_cast<unsigned int>( exec->ValueStack.size() );
+    rc.ValueStackDepth = static_cast<unsigned int>(exec->ValueStack.size());
     stack.push_back( rc );
   }
   upperLocals2.push_back( exec->Locals2 );

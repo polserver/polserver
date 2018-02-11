@@ -9,13 +9,19 @@
 
 #include "clfunc.h"
 
-#include <cstddef>
-#include <string.h>
+#include "../clib/clib.h"
+#include "../clib/clib_endian.h"
+#include "../clib/passert.h"
 
 #include "mobile/charactr.h"
+#include "network/client.h"
+#include "network/clienttransmit.h"
 #include "network/packethelper.h"
-#include "pktdef.h"
+#include "pktoutid.h"
+#include "sockio.h"
 #include "ufunc.h"
+
+#include <cstddef>
 
 namespace Pol
 {

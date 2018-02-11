@@ -11,29 +11,24 @@
   Handles moving objects within a realm and from realm to realm.
 */
 
-#include <stddef.h>
-#include <string>
+#include "uomod.h"
+
+#include "../core.h"
+#include "../exscrobj.h"
+#include "../polclass.h"
+#include "../realms.h"
+#include "../ufunc.h"
+#include "../uoscrobj.h"
+#include "../uworld.h"
+#include "../containr.h"
+#include "../uoexhelp.h"
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
-#include "../../clib/rawtypes.h"
-#include "../containr.h"
-#include "../core.h"
-#include "../item/item.h"
-#include "../mobile/charactr.h"
-#include "../multi/boat.h"
-#include "../polclass.h"
-#include "../poltype.h"
-#include "../realms.h"
-#include "../realms/realm.h"
-#include "../reftypes.h"
-#include "../uconst.h"
-#include "../ufunc.h"
-#include "../uobject.h"
-#include "../uoexhelp.h"
-#include "../uworld.h"
-#include "uomod.h"
+
+#include "../../clib/strutil.h"
+#include "../../clib/stlutil.h"
 
 namespace Pol
 {
@@ -105,9 +100,11 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
   {  // Realm and X Y Z change.
      // 8-26-05  Austin
      // Notify NPCs in the old realm that the player left the realm.
-    WorldIterator<MobileFilter>::InRange(
-        chr->lastx, chr->lasty, oldrealm, 32,
-        [&]( Character* zonechr ) { NpcPropagateLeftArea( zonechr, chr ); } );
+    WorldIterator<MobileFilter>::InRange( chr->lastx, chr->lasty, oldrealm, 32,
+                                          [&]( Character* zonechr )
+                                          {
+                                            NpcPropagateLeftArea( zonechr, chr );
+                                          } );
 
     send_remove_character_to_nearby( chr );
     if ( chr->client != NULL )

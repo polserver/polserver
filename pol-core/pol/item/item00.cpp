@@ -7,16 +7,16 @@
  */
 
 
-#include <stddef.h>
-
-#include "../baseobject.h"
-#include "../gameclck.h"
-#include "../globals/state.h"
-#include "../resource.h"
-#include "../uobjcnt.h"
-#include "../uobject.h"
 #include "item.h"
 #include "itemdesc.h"
+#include "../gameclck.h"
+#include "../layers.h"
+#include "../resource.h"
+#include "../objtype.h"
+#include "../ustruct.h"
+#include "../globals/state.h"
+
+#include <climits>
 
 namespace Pol
 {

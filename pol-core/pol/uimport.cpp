@@ -13,58 +13,61 @@
 
 #include "uimport.h"
 
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
-#include <exception>
-#include <future>
-#include <string>
-#include <time.h>
+#include "loaddata.h"
+#include "accounts/account.h"
+#include "accounts/accounts.h"
+#include "mobile/charactr.h"
+#include "item/itemdesc.h"
+
+#include "fnsearch.h"
+#include "objtype.h"
+#include "mobile/npc.h"
+#include "polcfg.h"
+#include "realms.h"
+#include "realms/realm.h"
+#include "resource.h"
+#include "savedata.h"
+#include "servdesc.h"
+#include "sockio.h"
+#include "startloc.h"
+#include "storage.h"
+#include "stubdata.h"
+#include "globals/uvars.h"
+#include "globals/network.h"
+#include "globals/object_storage.h"
+#include "globals/state.h"
+#include "globals/settings.h"
+#include "ufunc.h"
+#include "uworld.h"
+#include "multi/multi.h"
+#include "multi/house.h"
+#include "containr.h"
+
+#include "../plib/systemstate.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/clib.h"
 #include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/threadhelp.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "../clib/timer.h"
-#include "../plib/systemstate.h"
-#include "accounts/accounts.h"
-#include "containr.h"
-#include "fnsearch.h"
-#include "gameclck.h"
-#include "globals/network.h"
-#include "globals/object_storage.h"
-#include "globals/settings.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "item/item.h"
-#include "item/itemdesc.h"
-#include "loaddata.h"
-#include "mobile/charactr.h"
-#include "mobile/npc.h"
-#include "multi/house.h"
-#include "multi/multi.h"
-#include "objecthash.h"
-#include "poltype.h"
-#include "polvar.h"
-#include "resource.h"
-#include "savedata.h"
-#include "servdesc.h"
-#include "startloc.h"
-#include "storage.h"
-#include "ufunc.h"
-#include "uobject.h"
-#include "uworld.h"
-
+#include "../clib/threadhelp.h"
 
 #ifndef __clang__
 #include <omp.h>
 #endif
+
+#include <cstdio>
+#include <cstring>
+#include <cerrno>
+
+#include <future>
+#include <fstream>
+#include <string>
+#include <stdexcept>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable warning deprecation of stricmp
@@ -199,8 +202,8 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   Items::Item* item = Items::Item::create( objtype, serial );
   if ( item == NULL )
   {
-    ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" )
-        << objtype << serial;
+    ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" ) << objtype
+                                                                                 << serial;
     if ( !Plib::systemstate.config.ignore_load_errors )
       throw std::runtime_error( "Item::create failed!" );
     else
@@ -353,8 +356,8 @@ void read_multi( Clib::ConfigElem& elem )
   Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
   if ( multi == NULL )
   {
-    ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" )
-        << objtype << serial;
+    ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" ) << objtype
+                                                                                    << serial;
     throw std::runtime_error( "Multi::create failed!" );
   }
   multi->readProperties( elem );
@@ -437,8 +440,8 @@ void read_pol_dat()
   if ( settingsManager.polvar.DataWrittenBy == 0 )
   {
     ERROR_PRINT
-        << "CoreVersion not found in " << polfile << "\n\n"
-        << polfile << " must contain a section similar to: \n"
+        << "CoreVersion not found in " << polfile << "\n\n" << polfile
+        << " must contain a section similar to: \n"
         << "System\n"
         << "{\n"
         << "	CoreVersion 99\n"
@@ -823,7 +826,7 @@ void write_global_properties( Clib::StreamWriter& sw )
 
 void write_system_data( Clib::StreamWriter& sw )
 {
-  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION << pf_endl
+  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION_MAJOR << pf_endl
        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl << "\tCompileDate\t"
        << POL_BUILD_DATE << pf_endl << "\tCompileTime\t" << POL_BUILD_TIME << pf_endl
        << "\tLastItemSerialNumber\t" << GetCurrentItemSerialNumber() << pf_endl  // dave 3/9/3
@@ -990,8 +993,8 @@ bool commit( const std::string& basename )
     if ( unlink( bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to remove {}: {} ({})\n" )
-          << bakfile_c << strerror( err ) << err;
+      POLLOG_ERROR.Format( "Unable to remove {}: {} ({})\n" ) << bakfile_c << strerror( err )
+                                                              << err;
     }
   }
 
@@ -1001,8 +1004,8 @@ bool commit( const std::string& basename )
     if ( rename( datfile_c, bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << datfile_c << bakfile_c << strerror( err ) << err;
+      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << datfile_c << bakfile_c
+                                                                    << strerror( err ) << err;
     }
   }
 
@@ -1012,8 +1015,8 @@ bool commit( const std::string& basename )
     if ( rename( ndtfile_c, datfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << ndtfile_c << datfile_c << strerror( err ) << err;
+      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" ) << ndtfile_c << datfile_c
+                                                                    << strerror( err ) << err;
     }
   }
 
@@ -1050,196 +1053,198 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
   // the remaining operations are only pure buffered i/o
   auto critical_promise = std::make_shared<std::promise<bool>>();
   auto critical_future = critical_promise->get_future();
-  SaveContext::finished = std::async( std::launch::async, [&, critical_promise]() -> bool {
+  SaveContext::finished = std::async(
+      std::launch::async, [&, critical_promise]() -> bool
+      {
 // limit the used thread
 #ifndef __clang__
-    int max_threads = omp_get_max_threads();
-    if ( max_threads > 1 )
-    {
-      max_threads /= 2;
-      max_threads = std::max( 2, max_threads );
-    }
-    omp_set_num_threads( max_threads );
+        int max_threads = omp_get_max_threads();
+        if ( max_threads > 1 )
+        {
+          max_threads /= 2;
+          max_threads = std::max( 2, max_threads );
+        }
+        omp_set_num_threads( max_threads );
 #endif
-    try
-    {
-      SaveContext sc;
-      bool result = true;
+        try
+        {
+          SaveContext sc;
+          bool result = true;
 #pragma omp parallel sections
-      {
-#pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: pol" );
-          try
           {
-            sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID << pf_endl
-                     << "#  Mobiles:		 " << get_mobile_count() << pf_endl
-                     << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl << "#"
-                     << pf_endl << pf_endl;
+#pragma omp section
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: pol" );
+              try
+              {
+                sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID << pf_endl
+                         << "#  Mobiles:		 " << get_mobile_count() << pf_endl
+                         << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl << "#"
+                         << pf_endl << pf_endl;
 
-            write_system_data( sc.pol );
-            write_global_properties( sc.pol );
-            write_shadow_realms( sc.pol );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store pol datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+                write_system_data( sc.pol );
+                write_global_properties( sc.pol );
+                write_shadow_realms( sc.pol );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store pol datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: items" );
-          try
-          {
-            write_items( sc.items );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store items datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: items" );
+              try
+              {
+                write_items( sc.items );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store items datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: chars" );
-          try
-          {
-            write_characters( sc );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store character datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: chars" );
+              try
+              {
+                write_characters( sc );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store character datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: npcs" );
-          try
-          {
-            write_npcs( sc );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store npcs datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: npcs" );
+              try
+              {
+                write_npcs( sc );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store npcs datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: multis" );
-          try
-          {
-            write_multis( sc.multis );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store multis datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: multis" );
+              try
+              {
+                write_multis( sc.multis );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store multis datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: storage" );
-          try
-          {
-            gamestate.storage.print( sc.storage );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store storage datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: storage" );
+              try
+              {
+                gamestate.storage.print( sc.storage );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store storage datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: resource" );
-          try
-          {
-            write_resources_dat( sc.resource );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store resource datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: resource" );
+              try
+              {
+                write_resources_dat( sc.resource );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store resource datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: guilds" );
-          try
-          {
-            write_guilds( sc.guilds );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store guilds datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: guilds" );
+              try
+              {
+                write_guilds( sc.guilds );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store guilds datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
-        {
-          threadhelp::ThreadRegister register_thread( "SaveSection: datastore" );
-          try
-          {
-            Module::write_datastore( sc.datastore );
-            // Atomically (hopefully) perform the switch.
-            Module::commit_datastore();
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store datastore datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
-        }
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: datastore" );
+              try
+              {
+                Module::write_datastore( sc.datastore );
+                // Atomically (hopefully) perform the switch.
+                Module::commit_datastore();
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store datastore datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
 #pragma omp section
+            {
+              threadhelp::ThreadRegister register_thread( "SaveSection: party" );
+              try
+              {
+                write_party( sc.party );
+              }
+              catch ( ... )
+              {
+                POLLOG_ERROR << "failed to store party datafile!\n";
+                Clib::force_backtrace();
+                result = false;
+              }
+            }
+          }
+          critical_promise->set_value( result );  // critical part end
+        }  // deconstructor of the SaveContext flushes and joins the queues
+        catch ( ... )
         {
-          threadhelp::ThreadRegister register_thread( "SaveSection: party" );
-          try
-          {
-            write_party( sc.party );
-          }
-          catch ( ... )
-          {
-            POLLOG_ERROR << "failed to store party datafile!\n";
-            Clib::force_backtrace();
-            result = false;
-          }
+          POLLOG_ERROR << "failed to save datafiles!\n";
+          Clib::force_backtrace();
+          critical_promise->set_value( false );  // critical part end
         }
-      }
-      critical_promise->set_value( result );  // critical part end
-    }  // deconstructor of the SaveContext flushes and joins the queues
-    catch ( ... )
-    {
-      POLLOG_ERROR << "failed to save datafiles!\n";
-      Clib::force_backtrace();
-      critical_promise->set_value( false );  // critical part end
-    }
-    commit( "pol" );
-    commit( "objects" );
-    commit( "pcs" );
-    commit( "pcequip" );
-    commit( "npcs" );
-    commit( "npcequip" );
-    commit( "items" );
-    commit( "multis" );
-    commit( "storage" );
-    commit( "resource" );
-    commit( "guilds" );
-    commit( "datastore" );
-    commit( "parties" );
-    return true;
-  } );
+        commit( "pol" );
+        commit( "objects" );
+        commit( "pcs" );
+        commit( "pcequip" );
+        commit( "npcs" );
+        commit( "npcequip" );
+        commit( "items" );
+        commit( "multis" );
+        commit( "storage" );
+        commit( "resource" );
+        commit( "guilds" );
+        commit( "datastore" );
+        commit( "parties" );
+        return true;
+      } );
   critical_future.wait();  // wait for end of critical part
 
   if ( Plib::systemstate.accounts_txt_dirty )  // write accounts extra, since it uses extra thread

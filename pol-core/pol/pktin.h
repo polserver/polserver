@@ -17,8 +17,8 @@
 
 #include "../clib/rawtypes.h"
 #include "layers.h"
-#include "pktdef.h"
 #include "pktinid.h"
+#include "pktdef.h"
 #include "uconst.h"
 namespace Pol
 {
@@ -42,21 +42,21 @@ struct PKTIN_00
   u32 logincount;
   u8 profession;
   char unk2[15];
-  u8 Sex;           // Byte 70 (0 if Human Male, 1 if Human Female, 2 if Elf Male, 3 if Elf Female)
-  u8 Strength;      // Byte 71
-  u8 Dexterity;     // Byte 72
+  u8 Sex;  // Byte 70 (0 if Human Male, 1 if Human Female, 2 if Elf Male, 3 if Elf Female)
+  u8 Strength;  // Byte 71
+  u8 Dexterity;  // Byte 72
   u8 Intelligence;  // Byte 73
   u8 SkillNumber1;  // Byte 74
-  u8 SkillValue1;   // Byte 75
+  u8 SkillValue1;  // Byte 75
   u8 SkillNumber2;  // Byte 76
-  u8 SkillValue2;   // Byte 77
+  u8 SkillValue2;  // Byte 77
   u8 SkillNumber3;  // Byte 78
-  u8 SkillValue3;   // Byte 79
-  u16 SkinColor;    // Byte 80-81
-  u16 HairStyle;    // Byte 82-83
-  u16 HairColor;    // Byte 84-85
-  u16 BeardStyle;   // Byte 86-87
-  u16 BeardColor;   // Byte 88-89
+  u8 SkillValue3;  // Byte 79
+  u16 SkinColor;  // Byte 80-81
+  u16 HairStyle;  // Byte 82-83
+  u16 HairColor;  // Byte 84-85
+  u16 BeardStyle;  // Byte 86-87
+  u16 BeardColor;  // Byte 88-89
   u8 unk90;
   u8 StartIndex;  // Byte 91 (actually a <word> with unk90)
   u8 unk92;
@@ -279,43 +279,43 @@ struct PKTIN_8D
 {
   u8 msgtype;  // 0
   u16 msglen;
-  u32 unk_1;          // 3-6
-  u32 char_slot;      // 7-10
-  char name[30];      // 11-40
+  u32 unk_1;  // 3-6
+  u32 char_slot;  // 7-10
+  char name[30];  // 11-40
   char password[30];  // 41-70
-  u8 profession;      // 71
-  u8 flags;           // 72
-  u8 gender;          // 73
-  u8 race;            // 74   0=human/1=elf/2=gargoyle
-  u8 strength;        // 75
-  u8 dexterity;       // 76
-  u8 intelligence;    // 77
-  u16 skin_color;     // 78-79
-  u32 unk_2;          // 80-83 0x00000000
-  u32 unk_3;          // 84-87 0x00000000
-  u8 skillnumber1;    // 88
-  u8 skillvalue1;     // 89
-  u8 skillnumber2;    // 90
-  u8 skillvalue2;     // 91
-  u8 skillnumber3;    // 92
-  u8 skillvalue3;     // 93
-  u8 skillnumber4;    // 94
-  u8 skillvalue4;     // 95
-  char unk_4[25];     // 96-121 all 00
-  u8 unk_5;           // 122 Always 0x0B?
-  u16 haircolor;      // 133-134
-  u16 hairstyle;      // 135-136
-  u8 unk_6;           // 137 Always 0x0C?
-  u32 unk_7;          // 138-141 0x00000000
-  u8 unk_8;           // 142 Always 0x0D?
-  u16 shirtcolor;     // 143-144
-  u16 pantscolor;     // 145-146
-  u8 unk_9;           // 147 Always 0x0F?
-  u16 face_color;     // 148-149
-  u16 face_id;        // 150-151
-  u8 unk_10;          // 152
-  u16 beardcolor;     // 153
-  u16 beardstyle;     // 154
+  u8 profession;  // 71
+  u8 flags;  // 72
+  u8 gender;  // 73
+  u8 race;  // 74   0=human/1=elf/2=gargoyle
+  u8 strength;  // 75
+  u8 dexterity;  // 76
+  u8 intelligence;  // 77
+  u16 skin_color;  // 78-79
+  u32 unk_2;  // 80-83 0x00000000
+  u32 unk_3;  // 84-87 0x00000000
+  u8 skillnumber1;  // 88
+  u8 skillvalue1;  // 89
+  u8 skillnumber2;  // 90
+  u8 skillvalue2;  // 91
+  u8 skillnumber3;  // 92
+  u8 skillvalue3;  // 93
+  u8 skillnumber4;  // 94
+  u8 skillvalue4;  // 95
+  char unk_4[25];  // 96-121 all 00
+  u8 unk_5;  // 122 Always 0x0B?
+  u16 haircolor;  // 133-134
+  u16 hairstyle;  // 135-136
+  u8 unk_6;  // 137 Always 0x0C?
+  u32 unk_7;  // 138-141 0x00000000
+  u8 unk_8;  // 142 Always 0x0D?
+  u16 shirtcolor;  // 143-144
+  u16 pantscolor;  // 145-146
+  u8 unk_9;  // 147 Always 0x0F?
+  u16 face_color;  // 148-149
+  u16 face_id;  // 150-151
+  u8 unk_10;  // 152
+  u16 beardcolor;  // 153
+  u16 beardstyle;  // 154
 };
 static_assert( sizeof( PKTIN_8D ) == 146, "size missmatch" );
 
@@ -534,23 +534,23 @@ struct PKTIN_F8
   u32 logincount;
   u8 profession;
   char unk2[15];
-  u8 Sex;           // Byte 70 (0 if Human Male, 1 if Human Female, 2 if Elf Male, 3 if Elf Female)
-  u8 Strength;      // Byte 71
-  u8 Dexterity;     // Byte 72
+  u8 Sex;  // Byte 70 (0 if Human Male, 1 if Human Female, 2 if Elf Male, 3 if Elf Female)
+  u8 Strength;  // Byte 71
+  u8 Dexterity;  // Byte 72
   u8 Intelligence;  // Byte 73
   u8 SkillNumber1;  // Byte 74
-  u8 SkillValue1;   // Byte 75
+  u8 SkillValue1;  // Byte 75
   u8 SkillNumber2;  // Byte 76
-  u8 SkillValue2;   // Byte 77
+  u8 SkillValue2;  // Byte 77
   u8 SkillNumber3;  // Byte 78
-  u8 SkillValue3;   // Byte 79
+  u8 SkillValue3;  // Byte 79
   u8 SkillNumber4;  // Byte 80
-  u8 SkillValue4;   // Byte8 1
-  u16 SkinColor;    // Byte 82-83
-  u16 HairStyle;    // Byte 84-85
-  u16 HairColor;    // Byte 86-87
-  u16 BeardStyle;   // Byte 88-89
-  u16 BeardColor;   // Byte 90-91
+  u8 SkillValue4;  // Byte8 1
+  u16 SkinColor;  // Byte 82-83
+  u16 HairStyle;  // Byte 84-85
+  u16 HairColor;  // Byte 86-87
+  u16 BeardStyle;  // Byte 88-89
+  u16 BeardColor;  // Byte 90-91
   u8 unk90;
   u8 StartIndex;  // Byte 93 (actually a <word> with unk90)
   u8 unk92;

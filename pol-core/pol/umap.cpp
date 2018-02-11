@@ -8,26 +8,29 @@
  */
 
 #include "umap.h"
+#include "pktboth.h"
+#include "poltype.h"
+#include "sockio.h"
+#include "ufunc.h"
+#include "realms/realm.h"
 
-#include <stdio.h>
-#include <string>
+#include "network/client.h"
+#include "network/packets.h"
+#include "network/packethelper.h"
+#include "network/msghandl.h"
+#include "item/itemdesc.h"
+#include "fnsearch.h"
 
-#include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../bscript/bstruct.h"
 #include "../bscript/executor.h"
+#include "../bscript/berror.h"
 #include "../bscript/objmethods.h"
+
 #include "../clib/cfgelem.h"
 #include "../clib/clib_endian.h"
+#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
-#include "item/itemdesc.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "pktboth.h"
-#include "realms/realm.h"
-#include "ufunc.h"
-#include "uobject.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning sprintf, sscanf
@@ -53,7 +56,9 @@ Map::Map( const Items::MapDesc& mapdesc )
 {
 }
 
-Map::~Map() {}
+Map::~Map()
+{
+}
 
 void Map::printProperties( Clib::StreamWriter& sw ) const
 {

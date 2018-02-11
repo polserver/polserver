@@ -12,7 +12,6 @@
 #define POLCFG_H
 
 #include <string>
-
 #include "crypt/cryptkey.h"
 #if !defined( _WIN32 )
 #include <sys/stat.h>

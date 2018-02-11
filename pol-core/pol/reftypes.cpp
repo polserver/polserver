@@ -5,6 +5,14 @@
 
 #include "reftypes.h"
 
+#include "uobject.h"
+#include "mobile/charactr.h"
+#include "item/item.h"
+#include "mobile/npc.h"
+
+#include "../clib/logfacility.h"
+
+#include <map>
 
 namespace Pol
 {

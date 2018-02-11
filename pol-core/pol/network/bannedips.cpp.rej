@@ -1,0 +1,23 @@
+diff a/pol-core/pol/network/bannedips.cpp b/pol-core/pol/network/bannedips.cpp	(rejected hunks)
+@@ -6,13 +6,11 @@
+ 
+ #include "bannedips.h"
+ 
+-#include <string>
+-
+ #include "../../clib/cfgelem.h"
+ #include "../../clib/cfgfile.h"
+ #include "../../clib/fileutil.h"
+-#include "../globals/network.h"
+ #include "client.h"
++#include "../globals/network.h"
+ 
+ namespace Pol
+ {
+@@ -77,4 +75,4 @@
+   }
+ }
+ }
+-}
++}
+\ No newline at end of file

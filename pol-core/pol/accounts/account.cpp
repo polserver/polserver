@@ -9,20 +9,21 @@
 
 
 #include "account.h"
-
-#include <cstring>
+#include "accounts.h"
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib_MD5.h"
-#include "../../clib/rawtypes.h"
 #include "../../clib/streamsaver.h"
-#include "../../plib/systemstate.h"
-#include "../cmdlevel.h"
+
 #include "../globals/uvars.h"
+#include "../../plib/systemstate.h"
+
 #include "../mobile/charactr.h"
 #include "../network/client.h"
+#include "../cmdlevel.h"
 #include "../polcfg.h"
-#include "../uobject.h"
+
+#include <cstring>
 
 namespace Pol
 {
@@ -241,7 +242,7 @@ u16 Account::convert_uo_expansion( const std::string& expansion )
 {
   const auto not_found = std::string::npos;
 
-  if ( expansion.find( "TOL" ) != not_found )
+  if (expansion.find("TOL") != not_found)
     return Network::TOL;
   else if ( expansion.find( "HSA" ) != not_found )
     return Network::HSA;

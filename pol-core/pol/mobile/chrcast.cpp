@@ -5,12 +5,20 @@
  */
 
 
-#include <stddef.h>
-
-#include "../../clib/passert.h"
-#include "../polclock.h"
-#include "../spells.h"
 #include "charactr.h"
+
+#include "../../clib/clib.h"
+#include "../../clib/passert.h"
+
+#include "../module/cfgmod.h"
+#include "../module/osmod.h"
+
+#include "../polclock.h"
+#include "../scrsched.h"
+#include "../spells.h"
+
+#include "../module/uomod.h"
+#include "../uoexec.h"
 
 
 namespace Pol

@@ -8,7 +8,6 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/streamsaver.h"
-#include "uobject.h"
 
 namespace Pol
 {

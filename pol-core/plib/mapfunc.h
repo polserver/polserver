@@ -9,7 +9,6 @@
 #define PLIB_MAPFUNC_H
 
 #include <string>
-
 #include "../clib/rawtypes.h"
 
 namespace Pol

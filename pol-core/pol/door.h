@@ -7,7 +7,6 @@
 #ifndef DOOR_H
 #define DOOR_H
 
-#include "../clib/compilerspecifics.h"
 #ifndef LOCKABLE_H
 #include "lockable.h"
 #endif
@@ -21,14 +20,6 @@ namespace Pol
 namespace Network
 {
 class Client;
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-class Executor;
-}  // namespace Bscript
-}  // namespace Pol
 }
 namespace Items
 {

@@ -13,14 +13,19 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
+
 #include "../cmbtcfg.h"
 #include "../globals/settings.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
+#include "../network/cliface.h"
 #include "../spells.h"
+#include "../statmsg.h"
 #include "../ufunc.h"
 #include "../uoexhelp.h"
 #include "../vital.h"
+
+#include <climits>
 
 namespace Pol
 {

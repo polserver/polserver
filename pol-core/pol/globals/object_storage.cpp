@@ -1,8 +1,5 @@
 #include "object_storage.h"
 
-#include <string.h>
-
-#include "../objecthash.h"
 #include "../reftypes.h"
 #include "../uobject.h"
 
@@ -26,7 +23,9 @@ ObjectStorageManager::ObjectStorageManager()
 {
 }
 
-ObjectStorageManager::~ObjectStorageManager() {}
+ObjectStorageManager::~ObjectStorageManager()
+{
+}
 
 
 void ObjectStorageManager::deinitialize()

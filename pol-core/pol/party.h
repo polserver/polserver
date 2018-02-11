@@ -7,21 +7,9 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-#include <stddef.h>
-#include <vector>
-
-#include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "proplist.h"
-
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-}  // namespace Clib
-}  // namespace Pol
-
+#include <vector>
 namespace Pol
 {
 namespace Clib

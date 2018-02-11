@@ -10,16 +10,20 @@
 
 #include "realms.h"
 
-#include <stddef.h>
+#include "storage.h"
+#include "polcfg.h"
+#include "globals/uvars.h"
+
+#include "realms/realm.h"
+#include "../plib/mapserver.h"
+#include "../plib/systemstate.h"
 
 #include "../clib/dirlist.h"
-#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
+
 #include "../clib/timer.h"
-#include "../plib/systemstate.h"
-#include "globals/uvars.h"
-#include "realms/realm.h"
+#include "../clib/logfacility.h"
 
 namespace Pol
 {

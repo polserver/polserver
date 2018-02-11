@@ -8,30 +8,31 @@
 
 #include "uoexhelp.h"
 
-#include <ctype.h>
-#include <exception>
-#include <stdlib.h>
-#include <string>
+#include "item/itemdesc.h"
+#include "mobile/attribute.h"
+#include "globals/uvars.h"
+#include "globals/network.h"
+
+#include "fnsearch.h"
+#include "polcfg.h"
+#include "uoscrobj.h"
+#include "ufunc.h"
+#include "vital.h"
 
 #include "../bscript/berror.h"
-#include "../bscript/bobject.h"
+#include "../bscript/execmodl.h"
 #include "../bscript/executor.h"
 #include "../bscript/fmodule.h"
 #include "../bscript/impstr.h"
+#include "../bscript/objmethods.h"
+
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
+#include "../clib/stlutil.h"
+
 #include "../plib/systemstate.h"
-#include "fnsearch.h"
-#include "globals/network.h"
-#include "globals/uvars.h"
-#include "item/itemdesc.h"
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
-#include "multi/multi.h"
-#include "network/client.h"
-#include "uobject.h"
-#include "uoscrobj.h"
-#include "vital.h"
+
+#include <string>
 
 namespace Pol
 {

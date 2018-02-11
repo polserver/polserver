@@ -21,42 +21,13 @@
 
 #include "customhouses.h"
 
-#include <cstddef>
-#include <stdlib.h>
-#include <string.h>
-#include <string>
-
-#include "../../bscript/bstruct.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/streamsaver.h"
+
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
-#include "../core.h"
-#include "../globals/uvars.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../mkscrobj.h"
-#include "../mobile/charactr.h"
-#include "../network/cgdata.h"
-#include "../network/client.h"
-#include "../network/packethelper.h"
-#include "../network/packets.h"
-#include "../pktboth.h"
-#include "../pktout.h"
-#include "../pktoutid.h"
-#include "../realms/realm.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../syshook.h"
-#include "../ufunc.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
-#include "house.h"
-#include "multidef.h"
 
 #ifdef USE_SYSTEM_ZLIB
 #include <zlib.h>
@@ -64,6 +35,32 @@
 #include "../../../lib/zlib/zlib.h"
 #endif
 
+#include "../item/itemdesc.h"
+#include "../mobile/charactr.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
+#include "../network/packets.h"
+#include "../network/packethelper.h"
+#include "../network/clienttransmit.h"
+#include "../core.h"
+#include "../globals/uvars.h"
+#include "house.h"
+#include "multi.h"
+#include "multidef.h"
+#include "../fnsearch.h"
+#include "../polcfg.h"
+#include "../pktboth.h"
+#include "../ufunc.h"
+#include "../ustruct.h"
+#include "../uworld.h"
+#include "../syshook.h"
+#include "../mkscrobj.h"
+#include "../scrsched.h"
+#include "../clidata.h"
+#include "../uoscrobj.h"
+
+#include <string>
+#include <vector>
 
 namespace Pol
 {
@@ -103,7 +100,9 @@ CustomHouseDesign::CustomHouseDesign( u32 _height, u32 _width, s32 xoffset, s32 
   InitDesign( _height, _width, xoffset, yoffset );
 }
 
-CustomHouseDesign::~CustomHouseDesign() {}
+CustomHouseDesign::~CustomHouseDesign()
+{
+}
 
 size_t CustomHouseDesign::estimatedSize() const
 {
@@ -1046,8 +1045,10 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
 void CustomHousesSendFullToInRange( UHouse* house, int design, int range )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      house->x, house->y, house->realm, range,
-      [&]( Mobile::Character* chr ) { CustomHousesSendFull( house, chr->client, design ); } );
+      house->x, house->y, house->realm, range, [&]( Mobile::Character* chr )
+      {
+        CustomHousesSendFull( house, chr->client, design );
+      } );
 }
 
 void CustomHousesSendShort( UHouse* house, Network::Client* client )

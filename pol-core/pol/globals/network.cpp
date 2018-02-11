@@ -1,25 +1,25 @@
 #include "network.h"
 
-#include <curl/curl.h>
-#include <string.h>
-
-#include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/threadhelp.h"
+
 #include "../../plib/systemstate.h"
+
+
 #include "../accounts/account.h"
-#include "../mobile/charactr.h"
 #include "../network/auxclient.h"
+#include "../network/client.h"
 #include "../network/clienttransmit.h"
 #include "../network/cliface.h"
 #include "../network/msgfiltr.h"
-#include "../network/msghandl.h"
 #include "../network/packethooks.h"
 #include "../network/packetinterface.h"
+#include "../network/packets.h"
+#include "../mobile/charactr.h"
 #include "../servdesc.h"
-#include "../sockio.h"
 #include "../sqlscrobj.h"
-#include "../uoclient.h"
+
+#include <curl/curl.h>
 
 namespace Pol
 {
@@ -67,10 +67,12 @@ NetworkManager::NetworkManager()
 
   Network::PacketRegistry::initialize_msg_handlers();
 
-  curl_global_init( CURL_GLOBAL_DEFAULT );
+  curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-NetworkManager::~NetworkManager() {}
+NetworkManager::~NetworkManager()
+{
+}
 void NetworkManager::kill_disconnected_clients()
 {
   Clients::iterator itr = clients.begin();

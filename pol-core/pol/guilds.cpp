@@ -1,20 +1,19 @@
 
 #include "guilds.h"
 
-#include <stddef.h>
-#include <string>
-
+#include "../clib/streamsaver.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
 #include "../clib/fileutil.h"
-#include "../clib/streamsaver.h"
+
 #include "../plib/systemstate.h"
-#include "fnsearch.h"
 #include "globals/uvars.h"
+
 #include "mobile/charactr.h"
-#include "ufunc.h"
+#include "fnsearch.h"
 #include "uobject.h"
+#include "ufunc.h"
 
 namespace Pol
 {

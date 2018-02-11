@@ -14,15 +14,6 @@ namespace Pol
 {
 namespace Bscript
 {
-class BObjectImp;
-class ExecutorModule;
-}  // namespace Bscript
-}  // namespace Pol
-
-namespace Pol
-{
-namespace Bscript
-{
 class Executor;
 }
 

@@ -11,25 +11,34 @@
 
 #include "tasks.h"
 
-#include <time.h>
+#include "mobile/charactr.h"
+#include "network/client.h"
+
+#include "cmbtcfg.h"
+#include "decay.h"
+#include "polcfg.h"
+#include "polclock.h"
+#include "realms.h"
+#include "schedule.h"
+#include "scrsched.h"
+#include "sockio.h"
+#include "statmsg.h"
+#include "ufunc.h"
+#include "globals/uvars.h"
+#include "globals/state.h"
+#include "globals/settings.h"
+#include "globals/script_internals.h"
+#include "uworld.h"
+#include "vital.h"
+#include "realms/realm.h"
+
+#include "../plib/systemstate.h"
 
 #include "../bscript/berror.h"
 #include "../bscript/escriptv.h"
+
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
-#include "../plib/systemstate.h"
-#include "cmbtcfg.h"
-#include "gameclck.h"
-#include "globals/script_internals.h"
-#include "globals/settings.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "mobile/charactr.h"
-#include "polclock.h"
-#include "polsig.h"
-#include "profile.h"
-#include "realms/realm.h"
-#include "uworld.h"
-#include "vital.h"
 
 #ifdef _MSC_VER
 #pragma warning( \
@@ -52,7 +61,8 @@ void regen_stats()
 
   unsigned wgridx, wgridy;
 
-  auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr ) {
+  auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr )
+  {
     THREAD_CHECKPOINT( tasks, 402 );
 
     if ( chr->has_lightoverride() )
@@ -229,13 +239,13 @@ void update_rpm( void )
         << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs
         << stateManager.profilevars.last_cputime;
   if ( Plib::systemstate.config.log_sysload )
-    POLLOG.Format( "sysload={} ({}) cputime={}\n" )
-        << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs
-        << stateManager.profilevars.last_cputime;
-    // cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " <<
-    // GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
-    // cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;
-    // cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
+    POLLOG.Format( "sysload={} ({}) cputime={}\n" ) << stateManager.profilevars.last_sysload
+                                                    << stateManager.profilevars.last_sysload_nprocs
+                                                    << stateManager.profilevars.last_cputime;
+// cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " <<
+// GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
+// cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;
+// cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
 
 #ifndef NDEBUG
   INFO_PRINT << "activity: " << stateManager.profilevars.last_script_passes_activity
@@ -245,12 +255,12 @@ void update_rpm( void )
   stateManager.profilevars.last_mapcache_misses = stateManager.profilevars.mapcache_misses;
   if ( Plib::systemstate.config.watch_mapcache )
     INFO_PRINT << "mapcache: hits=" << stateManager.profilevars.mapcache_hits
-               << ", misses=" << stateManager.profilevars.mapcache_misses << ", rate="
-               << ( stateManager.profilevars.mapcache_hits
-                        ? ( stateManager.profilevars.mapcache_hits * 100 /
-                            ( stateManager.profilevars.mapcache_hits +
-                              stateManager.profilevars.mapcache_misses ) )
-                        : 0 )
+               << ", misses=" << stateManager.profilevars.mapcache_misses
+               << ", rate=" << ( stateManager.profilevars.mapcache_hits
+                                     ? ( stateManager.profilevars.mapcache_hits * 100 /
+                                         ( stateManager.profilevars.mapcache_hits +
+                                           stateManager.profilevars.mapcache_misses ) )
+                                     : 0 )
                << "%\n";
   stateManager.profilevars.mapcache_hits = 0;
   stateManager.profilevars.mapcache_misses = 0;
@@ -308,10 +318,10 @@ void update_rpm( void )
                  << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_sipm /
                                                             stateManager.profilevars.last_rpm )
                                                         : 0 )
-                 << "   SC/R: "
-                 << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_scpm /
-                                                            stateManager.profilevars.last_rpm )
-                                                        : 0 )
+                 << "   SC/R: " << ( stateManager.profilevars.last_rpm
+                                         ? ( stateManager.profilevars.last_scpm /
+                                             stateManager.profilevars.last_rpm )
+                                         : 0 )
                  << "\n";
   }
   THREAD_CHECKPOINT( tasks, 399 );
@@ -327,7 +337,7 @@ void update_sysload()
   else
   {
     ++stateManager.profilevars.busy_sysload_cycles;
-    stateManager.profilevars.sysload_nprocs += scriptScheduler.getRunlist().size();
+	stateManager.profilevars.sysload_nprocs += scriptScheduler.getRunlist().size();
   }
   THREAD_CHECKPOINT( tasks, 299 );
 }

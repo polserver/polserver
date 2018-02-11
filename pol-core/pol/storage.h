@@ -11,10 +11,10 @@
 #pragma warning( disable : 4786 )
 #endif
 
+#include "../clib/maputil.h"
+
 #include <map>
 #include <string>
-
-#include "../clib/maputil.h"
 
 namespace Pol
 {

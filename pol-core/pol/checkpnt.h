@@ -21,7 +21,6 @@ public:
 
   void setvalue( unsigned line ) { _line = line; }
   void clear() { _line = 0; }
-
 private:
   const char* _file;
   unsigned _line;

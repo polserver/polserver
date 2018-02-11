@@ -5,15 +5,20 @@
  */
 
 
-#include <string>
+#include "tiplist.h"
+
+#include "network/msghandl.h"
+#include "network/packets.h"
+#include "network/packethelper.h"
+#include "pktin.h"
+#include "pktout.h"
+#include "sockio.h"
+#include "globals/uvars.h"
 
 #include "../clib/clib_endian.h"
-#include "../clib/rawtypes.h"
-#include "globals/uvars.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
+
+#include <cstring>
+#include <cstddef>
 
 namespace Pol
 {

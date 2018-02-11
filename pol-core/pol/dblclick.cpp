@@ -14,34 +14,35 @@
  */
 
 
-#include <cstring>
-#include <string>
-
-#include "../bscript/eprog.h"
+#include "../clib/clib.h"
 #include "../clib/clib_endian.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
+#include "../bscript/eprog.h"
+
 #include "../plib/systemstate.h"
-#include "containr.h"
+
+#include "network/client.h"
+#include "network/packets.h"
+#include "network/packethelper.h"
+#include "network/clienttransmit.h"
 #include "eventid.h"
-#include "gameclck.h"
-#include "item/item.h"
 #include "item/itemdesc.h"
+#include "network/msghandl.h"
 #include "mobile/charactr.h"
 #include "mobile/npc.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "objtype.h"
-#include "pktdef.h"
 #include "pktin.h"
+#include "polcfg.h"
+#include "realms.h"
 #include "realms/realm.h"
-#include "scrdef.h"
-#include "scrsched.h"
 #include "scrstore.h"
 #include "ufunc.h"
-#include "uobject.h"
 #include "uoscrobj.h"
+#include "multi/multi.h"
+#include "objtype.h"
+#include "containr.h"
+#include "globals/uvars.h"
+
+#include <cstring>
+#include <string>
 
 namespace Pol
 {

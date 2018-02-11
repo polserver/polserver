@@ -22,19 +22,27 @@
 #ifndef __CHARACTR_H
 #include "mobile/charactr.h"
 #endif
-#include <algorithm>
-#include <vector>
+#include "zone.h"
 
 #include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../plib/realmdescriptor.h"
-#include "realms/WorldChangeReasons.h"
 #include "realms/realm.h"
-#include "uconst.h"
-#include "zone.h"
+
+#include <vector>
 
 namespace Pol
 {
+namespace Mobile
+{
+class Character;
+}
+namespace Multi
+{
+class UMulti;
+}
+namespace Items
+{
+class Item;
+}
 namespace Core
 {
 void add_item_to_world( Items::Item* item );

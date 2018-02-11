@@ -1,0 +1,24 @@
+diff a/pol-core/bscript/dict.h b/pol-core/bscript/dict.h	(rejected hunks)
+@@ -16,21 +16,8 @@
+ #include "bobject.h"
+ #endif
+ 
+-#include <iosfwd>
+ #include <map>
+-#include <string>
+-
+-#include "../clib/compilerspecifics.h"
+-#include "../clib/rawtypes.h"
+-
+-namespace Pol
+-{
+-namespace Bscript
+-{
+-class ContIterator;
+-class Executor;
+-}  // namespace Bscript
+-}  // namespace Pol
++#include <iosfwd>
+ 
+ namespace Pol
+ {

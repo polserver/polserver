@@ -4,10 +4,10 @@
  */
 
 
-#include <assert.h>
-#include <string.h>
-
 #include "Header_Windows.h"
+
+#include <assert.h>
+#include "string.h"
 #include "clib.h"
 
 namespace Pol

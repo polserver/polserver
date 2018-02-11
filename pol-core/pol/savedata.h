@@ -7,12 +7,11 @@
 #ifndef SAVEDATA_H
 #define SAVEDATA_H
 
-#include <boost/noncopyable.hpp>
-#include <fstream>
+#include "../clib/streamsaver.h"
+
 #include <future>
 #include <string>
-
-#include "../clib/streamsaver.h"
+#include <fstream>
 
 namespace Pol
 {

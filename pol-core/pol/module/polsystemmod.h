@@ -9,16 +9,6 @@
 #define POLSYSTEMEMOD_H
 
 #include "../../bscript/execmodl.h"
-
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-class Executor;
-}  // namespace Bscript
-}  // namespace Pol
-
 namespace Pol
 {
 namespace Module

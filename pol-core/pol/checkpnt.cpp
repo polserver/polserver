@@ -6,8 +6,9 @@
 
 #include "checkpnt.h"
 
-#include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
+#include "../clib/logfacility.h"
+
 #include "globals/state.h"
 
 namespace Pol
@@ -23,7 +24,9 @@ void checkpoint( const char* msg, unsigned short minlvl /* = 11 */ )
   }
 }
 
-Checkpoint::Checkpoint( const char* file ) : _file( file ), _line( 0 ) {}
+Checkpoint::Checkpoint( const char* file ) : _file( file ), _line( 0 )
+{
+}
 Checkpoint::~Checkpoint()
 {
   if ( _line )

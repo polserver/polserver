@@ -9,26 +9,32 @@
 
 #include "target.h"
 
-#include <stddef.h>
+#include "accounts/account.h"
+#include "mobile/charactr.h"
+
+#include "item/itemdesc.h"
+#include "multi/multi.h"
+
+#include "network/client.h"
+#include "network/cgdata.h"
+#include "network/clienttransmit.h"
+#include "network/msghandl.h"
+#include "network/packethelper.h"
+
+#include "fnsearch.h"
+#include "objtype.h"
+#include "realms.h"
+#include "realms/realm.h"
+#include "ufunc.h"
+#include "globals/uvars.h"
+#include "polclass.h"
+
+#include "guardrgn.h"
 
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "accounts/account.h"
-#include "fnsearch.h"
-#include "globals/uvars.h"
-#include "guardrgn.h"
-#include "item/itemdesc.h"
-#include "mobile/charactr.h"
-#include "multi/multi.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "pktboth.h"
-#include "polclass.h"
-#include "realms/realm.h"
-#include "ufunc.h"
-#include "uobject.h"
+
+#include <stdexcept>
 
 namespace Pol
 {

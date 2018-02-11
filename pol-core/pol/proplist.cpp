@@ -7,27 +7,33 @@
 
 #include "proplist.h"
 
-#include <stddef.h>
+#include "../plib/systemstate.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/streamsaver.h"
 
 #include "../bscript/berror.h"
-#include "../bscript/bobject.h"
+#include "../bscript/execmodl.h"
 #include "../bscript/executor.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmethods.h"
-#include "../clib/cfgelem.h"
-#include "../clib/logfacility.h"
-#include "../clib/streamsaver.h"
-#include "../clib/strutil.h"
-#include "../plib/systemstate.h"
+
 #include "baseobject.h"
-#include "polcfg.h"
+
+#include <memory>
 
 #define pf_endl '\n'
 namespace Pol
 {
 namespace Core
 {
-CPropProfiler::HitsCounter::HitsCounter() : hits( std::array<u64, 3>{{0, 0, 0}} ) {}
+
+CPropProfiler::HitsCounter::HitsCounter() : hits( std::array<u64, 3>{{0, 0, 0}} )
+{
+}
 
 u64& CPropProfiler::HitsCounter::operator[]( size_t idx )
 {
@@ -74,7 +80,9 @@ CPropProfiler& CPropProfiler::instance()
   return instance;
 }
 
-CPropProfiler::CPropProfiler() : _proplists( new PropLists() ), _hits( new Hits() ) {}
+CPropProfiler::CPropProfiler() : _proplists( new PropLists() ), _hits( new Hits() )
+{
+}
 
 /**
  * Returns proplist type, internal usage
@@ -173,12 +181,12 @@ void CPropProfiler::unregisterProplist( const PropertyList* proplist )
 }
 
 /**
- * Register a cprop action
- *
- * @param proplist Pointer to the registered list where this cprop resides
- * @param name Name of the cprop
- * @param key Index of the array key to update
- */
+* Register a cprop action
+*
+* @param proplist Pointer to the registered list where this cprop resides
+* @param name Name of the cprop
+* @param key Index of the array key to update
+*/
 void CPropProfiler::cpropAction( const PropertyList* proplist, const std::string& name,
                                  const size_t key )
 {

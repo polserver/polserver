@@ -8,8 +8,8 @@
 #ifndef ACTION_H
 #define ACTION_H
 
-#include <cstddef>
 #include <vector>
+#include <cstddef>
 
 #include "../clib/rawtypes.h"
 

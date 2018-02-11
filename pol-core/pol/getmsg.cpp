@@ -4,23 +4,23 @@
  */
 
 
-#include <ctype.h>
-#include <stddef.h>
-
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
+
 #include "../clib/clib_endian.h"
-#include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
+
 #include "item/item.h"
 #include "mobile/charactr.h"
 #include "module/osmod.h"
 #include "module/uomod.h"
+#include "network/msghandl.h"
 #include "network/cgdata.h"
 #include "network/client.h"
-#include "network/packethelper.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
 #include "pktboth.h"
+#include "sockio.h"
 #include "ufunc.h"
 #include "uoexec.h"
 
@@ -95,12 +95,12 @@ Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
 
   if ( !uoexec.suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::RequestInput():\n"
-             << "\tThe execution of this script can't be blocked!\n";
-    return new Bscript::BError( "Script can't be blocked" );
+	  DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
+		  << "\tCall to function UO::RequestInput():\n"
+		  << "\tThe execution of this script can't be blocked!\n";
+	  return new Bscript::BError( "Script can't be blocked" );
   }
-
+  
   Core::send_sysmessage( chr->client, prompt->data() );
 
   chr->client->gd->prompt_uoemod = this;

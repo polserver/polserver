@@ -11,25 +11,12 @@
 #include <string>
 #include <vector>
 
-#include "../../clib/boostutils.h"
-#include "../../clib/compilerspecifics.h"
-#include "../../clib/rawtypes.h"
-#include "../dice.h"
-#include "../proplist.h"
-#include "../scrdef.h"
-#include "../uobject.h"
 
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-}  // namespace Clib
-namespace Plib
-{
-class Package;
-}  // namespace Plib
-}  // namespace Pol
+#include "../../clib/rawtypes.h"
+#include "../uobject.h"
+#include "../proplist.h"
+#include "../dice.h"
+#include "../scrdef.h"
 
 namespace Pol
 {
@@ -127,6 +114,38 @@ public:
   double quality;
   unsigned short multiid;
   unsigned short maxhp;
+  unsigned short lower_reag_cost;
+  unsigned short spell_damage_increase;
+  unsigned short faster_casting;
+  unsigned short faster_cast_recovery;
+  unsigned short defence_increase;
+  unsigned short defence_increase_cap;
+  unsigned short lower_mana_cost;
+  unsigned short hitchance;
+  unsigned short swingspeed;
+  unsigned short damage_increase;
+  unsigned short resist_fire_cap;
+  unsigned short resist_cold_cap;
+  unsigned short resist_energy_cap;
+  unsigned short resist_physical_cap;
+  unsigned short resist_poison_cap;
+  unsigned short defence_increase_mod;
+  unsigned short defence_increase_cap_mod;
+  unsigned short lower_mana_cost_mod;
+  unsigned short hitchance_mod;
+  unsigned short speed_mod;
+  unsigned short dmg_mod;
+  unsigned short resist_fire_cap_mod;
+  unsigned short resist_cold_cap_mod;
+  unsigned short resist_energy_cap_mod;
+  unsigned short resist_physical_cap_mod;
+  unsigned short resist_poison_cap_mod;
+  unsigned short lower_reagent_cost_mod;
+  unsigned short spell_damage_increase_mod;
+  unsigned short faster_casting_mod;
+  unsigned short faster_cast_recovery_mod;
+  unsigned short luck;
+  unsigned short luck_mod;
 
   Core::Dice resist_dice;
 

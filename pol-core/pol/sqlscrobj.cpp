@@ -6,32 +6,34 @@
 
 #include "sqlscrobj.h"
 
-#include <exception>
-#include <string.h>
-
-#include "../bscript/bobject.h"
-
-
 #ifdef HAVE_MYSQL
 
+#include <limits>
+
+#include "../clib/strutil.h"
+#include "../clib/stlutil.h"
+#include "../clib/clib_endian.h"
+#include "../clib/threadhelp.h"
+#include "../clib/logfacility.h"
+#include "../clib/esignal.h"
+
+#include "../bscript/executor.h"
+#include "../bscript/execmodl.h"
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
-#include "../clib/esignal.h"
-#include "../clib/logfacility.h"
-#include "../clib/threadhelp.h"
+
+#include "../plib/pkg.h"
 #include "globals/network.h"
 
 // std::regex support is broken in GCC < 4.9. This define is a workaround for GCC 4.8.
 // TODO: remove this in future and just use std:: namespace
 #ifndef USE_BOOST_REGEX
 #include <regex>
-
 #define REGEX_NSPACE std
 #else
 #include <boost/regex.hpp>
-
 #define REGEX_NSPACE boost
 #endif
 
@@ -115,7 +117,9 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     return BObjectRef( new BError( "SQLRow keys must be integer" ) );
   }
 }
-BSQLRow::~BSQLRow() {}
+BSQLRow::~BSQLRow()
+{
+}
 Bscript::BObjectImp* BSQLRow::copy() const
 {
   return new BSQLRow( _result, _row, _fields );
@@ -178,7 +182,9 @@ int BSQLResultSet::affected_rows() const
 {
   return _affected_rows;
 }
-BSQLResultSet::~BSQLResultSet() {}
+BSQLResultSet::~BSQLResultSet()
+{
+}
 bool BSQLResultSet::isTrue() const
 {
   return true;
@@ -234,7 +240,9 @@ BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn )
 {
 }
 
-BSQLConnection::~BSQLConnection() {}
+BSQLConnection::~BSQLConnection()
+{
+}
 std::string BSQLConnection::getStringRep() const
 {
   return "SQLConnection";
@@ -407,7 +415,9 @@ Bscript::BObjectImp* BSQLConnection::copy() const
   return new BSQLConnection( _conn );
 }
 
-BSQLConnection::ConnectionWrapper::ConnectionWrapper() : _conn( nullptr ) {}
+BSQLConnection::ConnectionWrapper::ConnectionWrapper() : _conn( nullptr )
+{
+}
 BSQLConnection::ConnectionWrapper::~ConnectionWrapper()
 {
   if ( _conn )
@@ -425,8 +435,12 @@ MYSQL* BSQLConnection::ConnectionWrapper::ptr()
   return _conn;
 };
 
-ResultWrapper::ResultWrapper( MYSQL_RES* res ) : _result( res ) {}
-ResultWrapper::ResultWrapper() : _result( nullptr ) {}
+ResultWrapper::ResultWrapper( MYSQL_RES* res ) : _result( res )
+{
+}
+ResultWrapper::ResultWrapper() : _result( nullptr )
+{
+}
 ResultWrapper::~ResultWrapper()
 {
   if ( _result )
@@ -468,8 +482,12 @@ void sql_service_thread_stub()
   }
 }
 
-SQLService::SQLService() {}
-SQLService::~SQLService() {}
+SQLService::SQLService()
+{
+}
+SQLService::~SQLService()
+{
+}
 void SQLService::stop()
 {
   _msgs.cancel();

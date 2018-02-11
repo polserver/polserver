@@ -7,17 +7,17 @@
 #ifndef PLIB_MAPSERVER_H
 #define PLIB_MAPSERVER_H
 
-#include <vector>
-
 #include "mapsolid.h"
 #include "realmdescriptor.h"
+
+#include <vector>
 
 namespace Pol
 {
 namespace Plib
 {
-class MapShapeList;
 struct MAPCELL;
+class MapShapeList;
 
 class MapServer
 {

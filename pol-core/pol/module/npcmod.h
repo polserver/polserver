@@ -10,21 +10,11 @@
 #ifndef NPCEMOD_H
 #define NPCEMOD_H
 
-#include <string>
-
 #include "../../bscript/execmodl.h"
 #include "../reftypes.h"
 #include "../uconst.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-class Executor;
-template <class T>
-class TmplExecutorModule;
-}  // namespace Bscript
-}  // namespace Pol
+#include <string>
 
 namespace Pol
 {
@@ -52,7 +42,7 @@ public:
 
 protected:
   OSExecutorModule* os_module;
-
+  
   friend class Bscript::TmplExecutorModule<NPCExecutorModule>;
 
   Bscript::BObjectImp* mf_Wander();

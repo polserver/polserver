@@ -1,30 +1,32 @@
 #include "ECompileMain.h"
 
-#include <cstdio>
-#include <exception>
-#include <iosfwd>
-#include <stdlib.h>
-#include <string>
-#include <time.h>
-
-#include <format/format.h>
-#include "../bscript/compiler.h"
-#include "../bscript/compilercfg.h"
-#include "../bscript/escriptv.h"
-#include "../bscript/executor.h"
-#include "../bscript/executortype.h"
-#include "../bscript/filefmt.h"
-#include "../bscript/parser.h"
 #include "../clib/Program/ProgramConfig.h"
-#include "../clib/Program/ProgramMain.h"
+#include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/mdump.h"
-#include "../clib/passert.h"
 #include "../clib/timer.h"
+
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+
+#include "../bscript/compilercfg.h"
+#include "../bscript/filefmt.h"
+#include "../bscript/parser.h"
+#include "../bscript/userfunc.h"
+#include "../bscript/compiler.h"
+#include "../bscript/escriptv.h"
+#include "../bscript/executor.h"
+#include "../bscript/userfunc.h"
+
+#include <cstring>
+#include <cstdio>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <stdexcept>
 
 namespace Pol
 {
@@ -48,8 +50,12 @@ using namespace Pol::Bscript;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ECompileMain::ECompileMain() : Pol::Clib::ProgramMain() {}
-ECompileMain::~ECompileMain() {}
+ECompileMain::ECompileMain() : Pol::Clib::ProgramMain()
+{
+}
+ECompileMain::~ECompileMain()
+{
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 void ECompileMain::showHelp()

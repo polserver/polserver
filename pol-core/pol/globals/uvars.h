@@ -7,33 +7,29 @@
 #ifndef __UVARS_H
 #define __UVARS_H
 
-#include <array>
-#include <boost/noncopyable.hpp>
-#include <map>
-#include <queue>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
+#include "../reftypes.h"
 
 #include "../../clib/maputil.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
+
 #include "../action.h"
 #include "../clidata.h"
 #include "../cmdlevel.h"
 #include "../layers.h"
 #include "../menu.h"
-#include "../reftypes.h"
 #include "../region.h"
 #include "../schedule.h"
 #include "../storage.h"
 #include "../syshook.h"
-#include "../target.h"
-#include "../tasks.h"
 #include "../textcmd.h"
+#include "../target.h"
 #include "../uoskills.h"
 
+
+#include <boost/noncopyable.hpp>
+#include <vector>
+#include <map>
+#include <queue>
+#include <set>
 
 namespace Pol
 {
@@ -43,10 +39,10 @@ class Realm;
 }
 namespace Items
 {
-class Equipment;
+class UWeapon;
 class Item;
 class ItemDesc;
-class UWeapon;
+class Equipment;
 }
 namespace Mobile
 {
@@ -62,24 +58,24 @@ struct BoatShape;
 }
 namespace Core
 {
-class ConsoleCommand;
-class Guild;
-class JusticeRegion;
-class LightRegion;
-class ListenPoint;
-class MusicRegion;
-class NoCastRegion;
-class NpcTemplate;
-class NpcTemplateElem;
-class Party;
-class PropertyList;
-class ResourceDef;
-class SpellCircle;
 class StartingLocation;
-class UOExecutor;
-class USpell;
-class Vital;
+class PropertyList;
+class NpcTemplate;
+class JusticeRegion;
+class NoCastRegion;
+class LightRegion;
 class WeatherDef;
+class MusicRegion;
+class USpell;
+class SpellCircle;
+class Vital;
+class ResourceDef;
+class NpcTemplateElem;
+class ConsoleCommand;
+class ListenPoint;
+class Party;
+class Guild;
+class UOExecutor;
 
 typedef std::vector<Core::CmdLevel> CmdLevels;
 
@@ -130,7 +126,6 @@ public:
 
   void deinitialize();
   struct Memory;
-
   Memory estimateSize() const;
 
   CmdLevels cmdlevels;

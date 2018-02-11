@@ -17,14 +17,12 @@
 #include "pol_global_config.h"
 #endif
 
-#include <map>
-#include <string>
-#include <time.h>
-#include <utility>
-
-#include "../clib/boostutils.h"
 #include "../clib/maputil.h"
 #include "../clib/refptr.h"
+#include "../clib/boostutils.h"
+
+#include <map>
+#include <string>
 
 namespace Pol
 {
@@ -34,8 +32,8 @@ class BObjectImp;
 }
 namespace Clib
 {
-class ConfigElem;
 class ConfigFile;
+class ConfigElem;
 }
 namespace Core
 {
@@ -43,8 +41,7 @@ class StoredConfigElem : public ref_counted
 {
 private:
   typedef std::multimap<boost_utils::cfg_key_flystring, ref_ptr<Bscript::BObjectImp>,
-                        Clib::ci_cmp_pred>
-      PropImpList;
+                        Clib::ci_cmp_pred> PropImpList;
 
 public:
   StoredConfigElem( Clib::ConfigElem& elem );

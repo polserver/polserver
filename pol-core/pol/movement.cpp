@@ -7,22 +7,28 @@
  */
 
 
-#include <stddef.h>
-
-#include "../clib/rawtypes.h"
 #include "mobile/charactr.h"
+
 #include "multi/customhouses.h"
 #include "multi/house.h"
 #include "multi/multi.h"
+
 #include "network/client.h"
-#include "network/packetdefs.h"
-#include "network/packethelper.h"
+#include "network/msghandl.h"
 #include "network/packets.h"
-#include "pktdef.h"
+#include "network/packethelper.h"
+#include "network/packetdefs.h"
+#include "network/clienttransmit.h"
+
 #include "pktin.h"
-#include "uconst.h"
+#include "pktout.h"
+#include "pktboth.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uworld.h"
+
+#include <functional>
+
 
 namespace Pol
 {
@@ -65,13 +71,19 @@ void send_objects_newly_inrange( Network::Client* client )
 {
   Mobile::Character* chr = client->chr;
 
-  WorldIterator<MobileFilter>::InVisualRange(
-      chr, [&]( Mobile::Character* zonechr ) { send_char_if_newly_inrange( zonechr, client ); } );
-  WorldIterator<ItemFilter>::InVisualRange(
-      chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
-  WorldIterator<MultiFilter>::InRange(
-      chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-      [&]( Multi::UMulti* zonemulti ) { send_multi_if_newly_inrange( zonemulti, client ); } );
+  WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
+                                              {
+                                                send_char_if_newly_inrange( zonechr, client );
+                                              } );
+  WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
+                                            {
+                                              send_item_if_newly_inrange( zoneitem, client );
+                                            } );
+  WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+                                       [&]( Multi::UMulti* zonemulti )
+                                       {
+                                         send_multi_if_newly_inrange( zonemulti, client );
+                                       } );
 }
 
 void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
@@ -80,26 +92,31 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
   {
-    WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr ) {
-      Multi::UMulti* multi =
-          zonechr->realm->find_supporting_multi( zonechr->x, zonechr->y, zonechr->z );
+    WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
+                                                {
+                                                  Multi::UMulti* multi =
+                                                      zonechr->realm->find_supporting_multi(
+                                                          zonechr->x, zonechr->y, zonechr->z );
 
-      if ( multi != NULL && multi->serial == serial )
-        return;
+                                                  if ( multi != NULL && multi->serial == serial )
+                                                    return;
 
-      send_char_if_newly_inrange( zonechr, client );
-    } );
-    WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem ) {
-      Multi::UMulti* multi =
-          zoneitem->realm->find_supporting_multi( zoneitem->x, zoneitem->y, zoneitem->z );
+                                                  send_char_if_newly_inrange( zonechr, client );
+                                                } );
+    WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
+                                              {
+                                                Multi::UMulti* multi =
+                                                    zoneitem->realm->find_supporting_multi(
+                                                        zoneitem->x, zoneitem->y, zoneitem->z );
 
-      if ( multi != NULL && multi->serial == serial )
-        return;
+                                                if ( multi != NULL && multi->serial == serial )
+                                                  return;
 
-      send_item_if_newly_inrange( zoneitem, client );
-    } );
+                                                send_item_if_newly_inrange( zoneitem, client );
+                                              } );
     WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-                                         [&]( Multi::UMulti* zonemulti ) {
+                                         [&]( Multi::UMulti* zonemulti )
+                                         {
                                            if ( zonemulti->serial == serial )
                                              return;
 
@@ -108,13 +125,19 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
   }
   else
   {
-    WorldIterator<MobileFilter>::InVisualRange(
-        chr, [&]( Mobile::Character* zonechr ) { send_char_if_newly_inrange( zonechr, client ); } );
-    WorldIterator<ItemFilter>::InVisualRange(
-        chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
-    WorldIterator<MultiFilter>::InRange(
-        chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-        [&]( Multi::UMulti* zonemulti ) { send_multi_if_newly_inrange( zonemulti, client ); } );
+    WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechr )
+                                                {
+                                                  send_char_if_newly_inrange( zonechr, client );
+                                                } );
+    WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* zoneitem )
+                                              {
+                                                send_item_if_newly_inrange( zoneitem, client );
+                                              } );
+    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+                                         [&]( Multi::UMulti* zonemulti )
+                                         {
+                                           send_multi_if_newly_inrange( zonemulti, client );
+                                         } );
   }
 }
 
@@ -123,14 +146,20 @@ void remove_objects_inrange( Network::Client* client )
   Mobile::Character* chr = client->chr;
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
 
-  WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechar ) {
-    send_remove_character( client, zonechar, msgremove );
-  } );
-  WorldIterator<ItemFilter>::InVisualRange(
-      chr, [&]( Items::Item* item ) { send_remove_object( client, item, msgremove ); } );
-  WorldIterator<MultiFilter>::InRange(
-      chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-      [&]( Multi::UMulti* multi ) { send_remove_object( client, multi, msgremove ); } );
+  WorldIterator<MobileFilter>::InVisualRange( chr, [&]( Mobile::Character* zonechar )
+                                              {
+                                                send_remove_character( client, zonechar,
+                                                                       msgremove );
+                                              } );
+  WorldIterator<ItemFilter>::InVisualRange( chr, [&]( Items::Item* item )
+                                            {
+                                              send_remove_object( client, item, msgremove );
+                                            } );
+  WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+                                       [&]( Multi::UMulti* multi )
+                                       {
+                                         send_remove_object( client, multi, msgremove );
+                                       } );
 }
 
 

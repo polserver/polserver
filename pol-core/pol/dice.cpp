@@ -7,21 +7,21 @@
 
 #include "dice.h"
 
-#include <cstring>
-#include <ctype.h>
-#include <exception>
-#include <stdlib.h>
-
-#include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
+#include "../clib/random.h"
+
+#include <cstring>
+#include <stdexcept>
 
 namespace Pol
 {
 namespace Core
 {
-Dice::Dice() : die_count( 0 ), die_type( 0 ), plus_damage( 0 ) {}
+Dice::Dice() : die_count( 0 ), die_type( 0 ), plus_damage( 0 )
+{
+}
 
 unsigned short Dice::roll() const
 {

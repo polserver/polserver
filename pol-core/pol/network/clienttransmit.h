@@ -1,14 +1,15 @@
 #ifndef CLIENTSEND_H
 #define CLIENTSEND_H
 
+#include "../../clib/rawtypes.h"
+#include "../../clib/message_queue.h"
+#include "../../clib/weakptr.h"
+
 #include <boost/noncopyable.hpp>
+
 #include <memory>
 #include <mutex>
 #include <vector>
-
-#include "../../clib/message_queue.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/weakptr.h"
 
 namespace Pol
 {

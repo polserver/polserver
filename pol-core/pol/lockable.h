@@ -7,25 +7,6 @@
 #ifndef LOCKABLE_H
 #define LOCKABLE_H
 
-#include "../clib/compilerspecifics.h"
-#include "baseobject.h"
-
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-}  // namespace Bscript
-namespace Clib
-{
-class ConfigElem;
-class StreamWriter;
-}  // namespace Clib
-namespace Items
-{
-class ItemDesc;
-}  // namespace Items
-}  // namespace Pol
 #ifndef ITEM_H
 #include "item/item.h"
 #endif

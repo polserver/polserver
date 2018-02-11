@@ -9,42 +9,49 @@
  */
 
 
-#include <stddef.h>
-#include <string>
-
-#include <format/format.h>
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/systemstate.h"
-#include "../baseobject.h"
-#include "../clidata.h"
-#include "../containr.h"
-#include "../door.h"
-#include "../extobj.h"
-#include "../globals/object_storage.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../lockable.h"
-#include "../mobile/corpse.h"
-#include "../module/uomod.h"
-#include "../multi/boatcomp.h"
-#include "../objtype.h"
-#include "../polcfg.h"
-#include "../resource.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../spelbook.h"
-#include "../ufunc.h"
-#include "../umap.h"
-#include "../uobject.h"
-#include "armor.h"
-#include "armrtmpl.h"
 #include "item.h"
 #include "itemdesc.h"
 #include "weapon.h"
 #include "wepntmpl.h"
+#include "armor.h"
+#include "armrtmpl.h"
+
+#include "../multi/boat.h"
+#include "../multi/boatcomp.h"
+#include "../multi/house.h"
+
+#include "../mobile/charactr.h"
+#include "../mobile/corpse.h"
+
+#include "../network/client.h"
+
+#include "../containr.h"
+#include "../door.h"
+#include "../lockable.h"
+#include "../umap.h"
+#include "../objtype.h"
+#include "../polcfg.h"
+#include "../resource.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../spells.h"
+#include "../spelbook.h"
+#include "../tiles.h"
+#include "../ufunc.h"
+#include "../uoscrobj.h"
+#include "../globals/uvars.h"
+#include "../globals/object_storage.h"
+
+#include "../../clib/cfgfile.h"
+#include "../../clib/clib_endian.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/strutil.h"
+
+#include "../../plib/systemstate.h"
+
+#include "../module/uomod.h"
+
+#include <stdexcept>
 
 namespace Pol
 {
@@ -139,8 +146,9 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     item = new Core::Map( static_cast<const MapDesc&>( id ) );
   }
   else if ( objtype == Core::settingsManager.extobj.port_plank ||
-            objtype == Core::settingsManager.extobj
-                           .starboard_plank )  // ITEMDESCTODO make new ItemDesc type
+            objtype ==
+                Core::settingsManager.extobj
+                    .starboard_plank )  // ITEMDESCTODO make new ItemDesc type
   {
     item = new Multi::UPlank( id );
   }
@@ -222,7 +230,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     }
   }
 
-  for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
+  /*for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
   {
     switch ( element )
     {
@@ -247,7 +255,52 @@ Item* Item::create( const ItemDesc& id, u32 serial )
       item->physical_damage( item->physical_damage().addToValue( id.element_damage.physical ) );
       break;
     }
-  }
+  }*/
+  //removed for loop (old stuff)
+  item->fire_resist(item->fire_resist().addToValue(id.element_resist.fire));
+  item->fire_damage(item->fire_damage().addToValue(id.element_damage.fire));
+  item->cold_resist(item->cold_resist().addToValue(id.element_resist.cold));
+  item->cold_damage(item->cold_damage().addToValue(id.element_damage.cold));
+  item->energy_resist(item->energy_resist().addToValue(id.element_resist.energy));
+  item->energy_damage(item->energy_damage().addToValue(id.element_damage.energy));
+  item->poison_resist(item->poison_resist().addToValue(id.element_resist.poison));
+  item->poison_damage(item->poison_damage().addToValue(id.element_damage.poison));
+  item->physical_resist(item->physical_resist().addToValue(id.element_resist.physical));
+  item->physical_damage(item->physical_damage().addToValue(id.element_damage.physical));
+  // new props add here:
+  item->lower_reagent_cost(item->lower_reagent_cost().addToValue(id.lower_reag_cost));
+  item->spell_damage_increase(item->spell_damage_increase().addToValue(id.spell_damage_increase));
+  item->faster_casting(item->faster_casting().addToValue(id.faster_casting));
+  item->faster_cast_recovery(item->faster_cast_recovery().addToValue(id.faster_cast_recovery));
+  item->defence_increase(item->defence_increase().addToValue(id.defence_increase));
+  item->defence_increase_cap(item->defence_increase_cap().addToValue(id.defence_increase_cap));
+  item->lower_mana_cost(item->lower_mana_cost().addToValue(id.lower_mana_cost));
+  item->hitchance(item->hitchance().addToValue(id.hitchance));
+  item->swingspeed(item->swingspeed().addToValue(id.swingspeed));
+  item->damage_increase(item->damage_increase().addToValue(id.damage_increase));
+  item->fire_resist_cap(item->fire_resist_cap().addToValue(id.resist_fire_cap));
+  item->cold_resist_cap(item->cold_resist_cap().addToValue(id.resist_cold_cap));
+  item->energy_resist_cap(item->energy_resist_cap().addToValue(id.resist_energy_cap));
+  item->physical_resist_cap(item->physical_resist_cap().addToValue(id.resist_physical_cap));
+  item->poison_resist_cap(item->poison_resist_cap().addToValue(id.resist_poison_cap));
+  item->luck(item->luck().addToValue(id.luck));
+  // new mods added here:
+  item->defence_increase(item->defence_increase().addToMod(id.defence_increase_mod));
+  item->defence_increase_cap(item->defence_increase_cap().addToMod(id.defence_increase_cap_mod));
+  item->lower_mana_cost(item->lower_mana_cost().addToMod(id.lower_mana_cost_mod));
+  item->hitchance(item->hitchance().addToMod(id.hitchance_mod));
+  item->swingspeed(item->swingspeed().addToMod(id.speed_mod));
+  item->damage_increase(item->damage_increase().addToMod(id.dmg_mod));
+  item->fire_resist_cap(item->fire_resist_cap().addToMod(id.resist_fire_cap_mod));
+  item->cold_resist_cap(item->cold_resist_cap().addToMod(id.resist_cold_cap_mod));
+  item->energy_resist_cap(item->energy_resist_cap().addToMod(id.resist_energy_cap_mod));
+  item->physical_resist_cap(item->physical_resist_cap().addToMod(id.resist_physical_cap_mod));
+  item->poison_resist_cap(item->poison_resist_cap().addToMod(id.resist_poison_cap_mod));
+  item->lower_reagent_cost(item->lower_reagent_cost().addToMod(id.lower_reagent_cost_mod));
+  item->spell_damage_increase(item->spell_damage_increase().addToMod(id.spell_damage_increase_mod));
+  item->faster_casting(item->faster_casting().addToMod(id.faster_casting_mod));
+  item->faster_cast_recovery(item->faster_cast_recovery().addToMod(id.faster_cast_recovery_mod));
+  item->luck(item->luck().addToMod(id.luck_mod));
 
   // if ItemDesc is a dynamic one desc could differ and would be lost
   const ItemDesc& origid = find_itemdesc( item->objtype_ );

@@ -5,23 +5,24 @@
  */
 
 
-#include <stdlib.h>
-#include <string>
+#include "uoskills.h"
+#include "skills.h"
 
-#include "../bscript/eprog.h"
-#include "../clib/refptr.h"
-#include "../plib/systemstate.h"
-#include "globals/network.h"
+#include "accounts/account.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+
 #include "pktin.h"
-#include "polclock.h"
-#include "scrdef.h"
+#include "polcfg.h"
 #include "scrstore.h"
-#include "skills.h"
 #include "ufunc.h"
-#include "uoskills.h"
+#include "polclock.h"
+#include "globals/uvars.h"
+#include "globals/network.h"
+
+#include "../bscript/eprog.h"
+#include "../plib/systemstate.h"
 
 namespace Pol
 {

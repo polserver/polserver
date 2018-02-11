@@ -6,20 +6,25 @@
  */
 
 
-#include <stddef.h>
-
-#include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/objmembers.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../baseobject.h"
-#include "../globals/state.h"
-#include "../item/item.h"
-#include "../item/itemdesc.h"
-#include "../uobjcnt.h"
 #include "multi.h"
 #include "multidef.h"
+
+#include "../../clib/passert.h"
+#include "../../clib/strutil.h"
+#include "../../clib/logfacility.h"
+
+#include "../../bscript/bstruct.h"
+#include "../../bscript/objmembers.h"
+
+#include "../item/itemdesc.h"
+#include "../objtype.h"
+#include "../globals/state.h"
+
+#include "../uobject.h"
+#include "../ustruct.h"
+#include "../polcfg.h"
+
+#include <stdexcept>
 
 namespace Pol
 {
@@ -57,9 +62,13 @@ UHouse* UMulti::as_house()
   return NULL;
 }
 
-void UMulti::register_object( UObject* /*obj*/ ) {}
+void UMulti::register_object( UObject* /*obj*/ )
+{
+}
 
-void UMulti::unregister_object( UObject* /*obj*/ ) {}
+void UMulti::unregister_object( UObject* /*obj*/ )
+{
+}
 
 const char* UMulti::classname() const
 {

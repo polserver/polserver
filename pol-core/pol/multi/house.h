@@ -8,50 +8,12 @@
 #ifndef _HOUSE_H
 #define _HOUSE_H
 
-#include <list>
-#include <vector>
-
-#include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
-#include "../../clib/rawtypes.h"
-#include "../item/item.h"
-#include "../reftypes.h"
-#include "../udatfile.h"
 #include "customhouses.h"
 #include "multi.h"
+#include "../reftypes.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-class Executor;
-}  // namespace Bscript
-namespace Clib
-{
-class ConfigElem;
-class StreamWriter;
-}  // namespace Clib
-namespace Core
-{
-class UObject;
-}  // namespace Core
-namespace Items
-{
-class ItemDesc;
-}  // namespace Items
-namespace Mobile
-{
-class Character;
-}  // namespace Mobile
-namespace Plib
-{
-class MapShapeList;
-}  // namespace Plib
-namespace Realms
-{
-class Realm;
-}  // namespace Realms
-}  // namespace Pol
+#include <list>
+#include <vector>
 
 namespace Pol
 {
@@ -120,10 +82,8 @@ protected:
   virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
   virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
   virtual class UHouse* as_house() POL_OVERRIDE;
-  virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y,
-                           short zbase ) POL_OVERRIDE;
-  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y,
-                            short zbase ) POL_OVERRIDE;
+  virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, short zbase ) POL_OVERRIDE;
+  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase ) POL_OVERRIDE;
   Bscript::ObjArray* component_list() const;
   Bscript::ObjArray* items_list() const;
   Bscript::ObjArray* mobiles_list() const;

@@ -7,17 +7,17 @@
 
 #include "listenpt.h"
 
-#include <stddef.h>
+#include "../clib/refptr.h"
 
-#include "../bscript/bobject.h"
-#include "globals/settings.h"
-#include "globals/uvars.h"
 #include "mobile/charactr.h"
 #include "module/osmod.h"
-#include "uconst.h"
+#include "uobject.h"
 #include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
+#include "globals/uvars.h"
+
+#include <map>
 
 namespace Pol
 {
@@ -28,7 +28,9 @@ ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags
 {
 }
 
-ListenPoint::~ListenPoint() {}
+ListenPoint::~ListenPoint()
+{
+}
 
 const char* TextTypeToString( u8 texttype )
 {

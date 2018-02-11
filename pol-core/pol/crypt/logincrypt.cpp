@@ -1,6 +1,7 @@
-#include <string.h>
-
+#include <memory.h>
 #include "logincrypt.h"
+#include "crypt.h"
+#include "cryptbase.h"
 
 namespace Pol
 {
@@ -16,7 +17,9 @@ LoginCrypt::LoginCrypt() : m_k1( 0 ), m_k2( 0 )
 {
   memset( &lkey, 0, sizeof( lkey ) );
 }
-LoginCrypt::~LoginCrypt() {}
+LoginCrypt::~LoginCrypt()
+{
+}
 
 // Member Functions
 void LoginCrypt::Init( unsigned char* lseed, unsigned int k1, unsigned int k2 )

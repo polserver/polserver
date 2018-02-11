@@ -6,17 +6,19 @@
 
 #include "schedule.h"
 
-#include <ctime>
+#include "polcfg.h"
+#include "globals/uvars.h"
+#include "globals/state.h"
 
-#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/tracebuf.h"
+#include "../clib/logfacility.h"
+
 #include "../plib/systemstate.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
-#include "polclock.h"
-#include "polsig.h"
-#include "profile.h"
+
+#include <ctime>
+#include <vector>
+#include <queue>
 
 namespace Pol
 {
@@ -43,7 +45,9 @@ ScheduledTask::ScheduledTask( polclock_t next_run_clock )
 {
 }
 
-ScheduledTask::~ScheduledTask() {}
+ScheduledTask::~ScheduledTask()
+{
+}
 
 void ScheduledTask::cancel()
 {

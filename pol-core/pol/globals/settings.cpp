@@ -1,11 +1,10 @@
 #include "settings.h"
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
 #include "../../plib/systemstate.h"
-#include "../watch.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/cfgfile.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/fileutil.h"
 
 namespace Pol
 {
@@ -28,10 +27,14 @@ SettingsManager::SettingsManager()
 {
 }
 
-SettingsManager::~SettingsManager() {}
+SettingsManager::~SettingsManager()
+{
+}
 
 
-void SettingsManager::deinitialize() {}
+void SettingsManager::deinitialize()
+{
+}
 
 size_t SettingsManager::estimateSize() const
 {

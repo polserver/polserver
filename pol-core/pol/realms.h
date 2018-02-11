@@ -11,8 +11,8 @@
 #define REALMS_H
 
 #include <map>
-#include <string>
 #include <vector>
+#include <string>
 
 namespace Pol
 {

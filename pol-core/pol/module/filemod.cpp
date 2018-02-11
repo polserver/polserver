@@ -9,27 +9,34 @@
  */
 
 
-#include <cerrno>
-#include <ctime>
-#include <iosfwd>
-#include <string>
+#include "fileaccess.h"
+#include "filemod.h"
 
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/maputil.h"
+#include "../../clib/stlutil.h"
+
+#include "../../bscript/berror.h"
+#include "../../bscript/impstr.h"
+
 #include "../../plib/pkg.h"
+
 #include "../binaryfilescrobj.h"
 #include "../core.h"
 #include "../globals/ucfg.h"
 #include "../xmlfilescrobj.h"
-#include "fileaccess.h"
-#include "filemod.h"
+
+#include <cerrno>
+#include <ctime>
+
+#ifdef __unix__
+#include <unistd.h>
+#endif
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecated POSIX strerror warning
@@ -149,8 +156,6 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
           ERROR_PRINT << "Invalid fileaccess Directory entry: " << tmp << "\n";
       }
     }
-    if ( Directories.empty() )
-      AllDirectories = true;
     while ( elem.remove_prop( "Extension", &tmp ) )
     {
       if ( tmp == "*" )
@@ -246,7 +251,8 @@ bool FileAccess::AppliesToPath( const std::string& path, const Plib::Package* fi
 size_t FileAccess::estimateSize() const
 {
   size_t size = sizeof( FileAccess );
-  size += Packages.size() * ( sizeof( void* ) + 3 * sizeof( void* ) );
+  for ( const auto& pkg : Packages )
+    size += ( sizeof(void*) + 3 * sizeof( void* ) );
 
   for ( const auto& d : Directories )
     size += sizeof( decltype( Directories )::value_type ) + d.second.capacity();

@@ -58,98 +58,115 @@
 
 #include "pol.h"
 
-#include <errno.h>
-
-#include "../bscript/bobject.h"
-#include "../bscript/escriptv.h"
-#include "../clib/Debugging/ExceptionParser.h"
-#include "../clib/clib_endian.h"
-#include "../clib/esignal.h"
-#include "../clib/fileutil.h"
-#include "../clib/kbhit.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
-#include "../clib/stlutil.h"
-#include "../clib/streamsaver.h"
-#include "../clib/threadhelp.h"
-#include "../clib/timer.h"
-#include "../clib/tracebuf.h"
 #include "../plib/pkg.h"
-#include "../plib/systemstate.h"
+
+#include "../bscript/escriptv.h"
 #include "accounts/account.h"
+#include "allocd.h"
 #include "checkpnt.h"
+#include "containr.h"
 #include "console.h"
 #include "core.h"
 #include "decay.h"
-#include "extobj.h"
 #include "fnsearch.h"
 #include "gameclck.h"
-#include "globals/network.h"
-#include "globals/object_storage.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
 #include "guardrgn.h"
-#include "item/armor.h"
-#include "item/equipmnt.h"
 #include "item/itemdesc.h"
+#include "item/equipmnt.h"
+#include "item/armor.h"
+#include "lightlvl.h"
 #include "loadunld.h"
-#include "menu.h"
 #include "miscrgn.h"
 #include "mobile/charactr.h"
+#include "multi/boat.h"
 #include "multi/house.h"
 #include "multi/multi.h"
 #include "musicrgn.h"
 #include "network/cgdata.h"
 #include "network/client.h"
-#include "network/clientthread.h"
 #include "network/clienttransmit.h"
 #include "network/cliface.h"
-#include "network/packethelper.h"
+#include "network/iostats.h"
+#include "network/msgfiltr.h"
+#include "network/msghandl.h"
 #include "network/packethooks.h"
 #include "network/packets.h"
+#include "network/packethelper.h"
+#include "objtype.h"
 #include "party.h"
 #include "pktboth.h"
-#include "pktdef.h"
 #include "pktin.h"
+#include "pktout.h"
 #include "polcfg.h"
 #include "polclock.h"
 #include "poldbg.h"
 #include "polsem.h"
-#include "polsig.h"
+#include "testing/poltest.h"
 #include "polwww.h"
-#include "profile.h"
-#include "realms/WorldChangeReasons.h"
+#include "realms.h"
 #include "realms/realm.h"
 #include "savedata.h"
+#include "schedule.h"
 #include "scrdef.h"
 #include "scrsched.h"
+#include "scrstore.h"
 #include "sockets.h"
 #include "sockio.h"
-#include "sqlscrobj.h"
-#include "ssopt.h"
-#include "testing/poltest.h"
+#include "tasks.h"
 #include "ufunc.h"
-#include "uimport.h"
-#include "uoclient.h"
 #include "uoscrobj.h"
+#include "globals/uvars.h"
+#include "globals/network.h"
+#include "globals/state.h"
+#include "globals/object_storage.h"
 #include "uworld.h"
-#include <format/format.h>
+
+#include "stubdata.h"
+#include "uimport.h"
+
+#include "sqlscrobj.h"
+
+#include "network/clientthread.h"
+
+#include "../clib/clib_MD5.h"
+#include "../clib/clib_endian.h"
+#include "../clib/esignal.h"
+#include "../clib/fdump.h"
+#include "../clib/fileutil.h"
+#include "../clib/kbhit.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
+#include "../clib/strexcpt.h"
+#include "../clib/strutil.h"
+#include "../clib/threadhelp.h"
+#include "../clib/timer.h"
+#include "../clib/tracebuf.h"
+#include "../clib/Debugging/ExceptionParser.h"
+
+#include "../plib/systemstate.h"
 
 #ifndef NDEBUG
-#include "containr.h"
 #include "mobile/npc.h"
 #endif
 
 #ifdef _WIN32
-#include <process.h>
-
 #include "../clib/mdump.h"
+#include <process.h>
 #endif
 
 #ifndef __clang__
 #include <omp.h>
+#endif
+
+#ifdef __unix__
+#include <execinfo.h>
+#endif
+
+#ifndef _WIN32
+#include <signal.h>
+#include <unistd.h>
 #endif
 
 #ifdef __linux__
@@ -159,9 +176,9 @@
 
 #include <cstdio>
 #include <cstring>
-#include <exception>
-#include <iosfwd>
+
 #include <string>
+#include <stdexcept>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
@@ -224,14 +241,18 @@ void send_startup( Network::Client* client )
 
 void send_inrange_items( Network::Client* client )
 {
-  WorldIterator<ItemFilter>::InVisualRange(
-      client->chr, [&]( Items::Item* item ) { send_item( client, item ); } );
+  WorldIterator<ItemFilter>::InVisualRange( client->chr, [&]( Items::Item* item )
+                                            {
+                                              send_item( client, item );
+                                            } );
 }
 
 void send_inrange_multis( Network::Client* client )
 {
-  WorldIterator<MultiFilter>::InVisualRange(
-      client->chr, [&]( Multi::UMulti* multi ) { send_multi( client, multi ); } );
+  WorldIterator<MultiFilter>::InVisualRange( client->chr, [&]( Multi::UMulti* multi )
+                                             {
+                                               send_multi( client, multi );
+                                             } );
 }
 
 void textcmd_startlog( Network::Client* client );
@@ -397,8 +418,8 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 
   Mobile::Character* chosen_char = client->acct->get_character( charidx );
 
-  POLLOG.Format( "Account {} selecting character {}\n" )
-      << client->acct->name() << chosen_char->name();
+  POLLOG.Format( "Account {} selecting character {}\n" ) << client->acct->name()
+                                                         << chosen_char->name();
 
   if ( Plib::systemstate.config.min_cmdlevel_to_login > chosen_char->cmdlevel() )
   {
@@ -489,8 +510,10 @@ void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
                          // packets (else this hangs 4.0.0e clients)
 
   Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
+      client->chr, [&]( Mobile::Character* zonechr )
+      {
+        send_client_char_data( zonechr, client );
+      } );
 
   send_inrange_items( client );
   send_inrange_multis( client );
@@ -720,7 +743,7 @@ void threadstatus_thread( void )
       tmp << "*Thread Info*\n";
       tmp << "Semaphore TID: " << locker << "\n";
 
-      if ( Plib::systemstate.config.log_traces_when_stuck )
+      if (Plib::systemstate.config.log_traces_when_stuck)
         Pol::Clib::ExceptionParser::logAllStackTraces();
 
       tmp << "Scripts Thread Checkpoint: " << stateManager.polsig.scripts_thread_checkpoint << "\n";
@@ -867,6 +890,11 @@ void start_threads()
   checkpoint( "start sql service thread" );
   start_sql_service();
 #endif
+
+#ifndef _WIN32
+// checkpoint( "start catch_signals thread" );
+// start_thread( catch_signals_thread, "CatchSignals" );
+#endif
 }
 
 void check_incoming_data( void )
@@ -972,6 +1000,7 @@ unsigned int ref_counted::_ctor_calls;
 #endif
 
 void display_unreaped_orphan_instances();
+
 void display_reftypes();
 
 void display_leftover_objects()
@@ -1330,17 +1359,17 @@ int xmain_inner( bool testing )
       << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
   // if( 1 )
   {
-    if ( Plib::systemstate.config.multithread == 0 )
-    {
-      POLLOG_INFO << "\n"
-                     "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-                     "WARNING: Threading is disabled (Multithread==0 in pol.cfg).    \n"
-                     "         This setting is deprecated and will be removed from   \n"
-                     "         the next version of POL. It may not even work now!    \n"
-                     "         Only use this option if you really know what you are  \n"
-                     "         doing. And you probably don't.                        \n"
-                     "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-                     "\n";
+    if ( Plib::systemstate.config.multithread == 0 ) {
+      POLLOG_INFO <<
+        "\n"
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+        "WARNING: Threading is disabled (Multithread==0 in pol.cfg).    \n"
+        "         This setting is deprecated and will be removed from   \n"
+        "         the next version of POL. It may not even work now!    \n"
+        "         Only use this option if you really know what you are  \n"
+        "         doing. And you probably don't.                        \n"
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+        "\n";
     }
     POLLOG_INFO << "Game is active.\n";
   }

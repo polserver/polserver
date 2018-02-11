@@ -7,17 +7,25 @@
  */
 
 
-#include "../clib/rawtypes.h"
-#include "containr.h"
-#include "item/item.h"
-#include "menu.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/packethelper.h"
-#include "network/packets.h"
-#include "tooltips.h"
 #include "ufunc.h"
 
+#include "network/client.h"
+#include "network/packets.h"
+#include "network/packethelper.h"
+#include "network/clienttransmit.h"
+#include "sockio.h"
+#include "menu.h"
+#include "pktout.h"
+#include "tooltips.h"
+#include "uworld.h"
+#include "mobile/npc.h"
+#include "globals/uvars.h"
+#include "containr.h"
+
+#include "../clib/clib_endian.h"
+#include "../clib/clib.h"
+
+#include <cstring>
 
 namespace Pol
 {

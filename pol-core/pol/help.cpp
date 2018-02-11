@@ -3,13 +3,11 @@
  * @par History
  */
 
-#include <stddef.h>
-
 #include "../bscript/eprog.h"
-#include "../clib/refptr.h"
 #include "../plib/systemstate.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/msghandl.h"
 #include "pktin.h"
 #include "scrstore.h"
 

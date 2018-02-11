@@ -9,15 +9,18 @@
 
 #include "boatmod.h"
 
-#include <stddef.h>
-
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
+
 #include "../../clib/rawtypes.h"
+
+#include "../item/item.h"
 #include "../multi/boat.h"
-#include "../multi/multi.h"
 #include "../realms/realm.h"
-#include "../uconst.h"
 #include "../uoexhelp.h"
+#include "../uoscrobj.h"
 
 namespace Pol
 {

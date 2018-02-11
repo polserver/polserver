@@ -7,21 +7,21 @@
 
 #include "sngclick.h"
 
-#include <cstdio>
-#include <string>
-
-#include "../clib/clib_endian.h"
-#include "../clib/passert.h"
-#include "containr.h"
-#include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/msghandl.h"
+
+#include "mobile/charactr.h"
+#include "mobile/npc.h"
+
 #include "pktin.h"
 #include "uconst.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
-#include "uobject.h"
+#include "ustruct.h"
 #include "uworld.h"
+#include "containr.h"
 
+#include <cstdio>
 
 namespace Pol
 {

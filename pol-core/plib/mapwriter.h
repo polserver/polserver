@@ -8,11 +8,11 @@
 #ifndef PLIB_MAPWRITER_H
 #define PLIB_MAPWRITER_H
 
-#include "mapblock.h"
 #include "maptile.h"
+#include "mapblock.h"
 
-#include <fstream>
 #include <string>
+#include <fstream>
 
 namespace Pol
 {
@@ -54,7 +54,6 @@ public:
 
   unsigned width() const { return _width; }
   unsigned height() const { return _height; }
-
 private:
   std::fstream::pos_type total_size();
 

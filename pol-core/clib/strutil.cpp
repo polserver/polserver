@@ -10,11 +10,11 @@
 
 #include "strutil.h"
 
-#include <boost/algorithm/string/case_conv.hpp>
-
-#include "logfacility.h"
 #include "stlutil.h"
 #include "unittest.h"
+#include "logfacility.h"
+
+#include <boost/algorithm/string/case_conv.hpp>
 
 namespace Pol
 {

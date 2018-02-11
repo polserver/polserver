@@ -9,9 +9,9 @@
 
 #include "../../clib/maputil.h"
 
+#include <vector>
 #include <set>
 #include <string>
-#include <vector>
 
 namespace Pol
 {

@@ -378,7 +378,7 @@ public:  // methods
           //					sort_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
 
           //					assert( is_heap( m_OpenList.begin(), m_OpenList.end(),
-          // HeapCompare_f() ) );
+          //HeapCompare_f() ) );
         }
 
         // heap now unsorted
@@ -588,7 +588,6 @@ public:  // methods
 
   // Get the number of steps
   int GetStepCount() { return m_Steps; }
-
 private:  // methods
   // This is called when a search fails or is cancelled to free all used
   // memory

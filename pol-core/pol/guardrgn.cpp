@@ -6,17 +6,21 @@
 
 #include "guardrgn.h"
 
-#include <stddef.h>
-
-#include "../bscript/bobject.h"
 #include "../bscript/impstr.h"
-#include "../clib/cfgelem.h"
-#include "globals/uvars.h"
-#include "network/cgdata.h"
-#include "network/client.h"
+
+#include "mobile/charactr.h"
+#include "polcfg.h"
 #include "scrdef.h"
+#include "scrstore.h"
 #include "scrsched.h"
 #include "uoscrobj.h"
+#include "globals/uvars.h"
+
+#include "network/client.h"
+#include "network/cgdata.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/fileutil.h"
 
 namespace Pol
 {

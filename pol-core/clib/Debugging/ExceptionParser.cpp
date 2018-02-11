@@ -1,9 +1,8 @@
 #include "ExceptionParser.h"
-
 #include "../Program/ProgramConfig.h"
-#include "../logfacility.h"
+#include "LogSink.h"
 #include "../threadhelp.h"
-#include <format/format.h>
+#include "../logfacility.h"
 
 #ifdef WINDOWS
 #include "../pol_global_config_win.h"
@@ -11,21 +10,20 @@
 #include "pol_global_config.h"
 #endif
 
-#include <cstddef>
 #include <cstring>
-#include <errno.h>
 #include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <errno.h>
+#include <inttypes.h>
 
 #ifndef WINDOWS
 #include <arpa/inet.h>
-#include <cxxabi.h>
-#include <execinfo.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <execinfo.h>
+#include <cxxabi.h>
 #include <unistd.h>
-
+#include <sys/syscall.h>
 #define SOCKET int
 #else
 #include "../Header_Windows.h"
@@ -42,7 +40,7 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool ExceptionParser::m_programAbortReporting = false;
+bool ExceptionParser::m_programAbortReporting = true;
 std::string ExceptionParser::m_programAbortReportingServer = "";
 std::string ExceptionParser::m_programAbortReportingUrl = "";
 std::string ExceptionParser::m_programAbortReportingReporter = "";
@@ -50,8 +48,7 @@ std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTi
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace
-{
+namespace {
 void getSignalDescription( int signal, string& signalName, string& signalDescription )
 {
   switch ( signal )
@@ -316,7 +313,7 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   closesocket( socketFD );
 #endif
 }
-}  // namespace
+} // namespace
 
 void ExceptionParser::reportProgramAbort( const string& stackTrace, const string& reason )
 {
@@ -435,11 +432,15 @@ void ExceptionParser::handleExceptionSignal( int signal )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ExceptionParser::ExceptionParser() {}
+ExceptionParser::ExceptionParser()
+{
+}
 
-ExceptionParser::~ExceptionParser() {}
+ExceptionParser::~ExceptionParser()
+{
+}
 
-  ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WIN32
 string ExceptionParser::getTrace()
@@ -515,7 +516,7 @@ string ExceptionParser::getTrace()
       if ( res == 0 )
       {
         string funcnNameStr = ( funcnName ? funcnName : "" );
-        if ( funcnName && strncmp( funcnName, "Pol::", 5 ) == 0 )
+        if ( strncmp( funcnName, "Pol::", 5 ) == 0 )
           funcnNameStr = ">> " + funcnNameStr;
 
         if ( beginBinaryName && strlen( beginBinaryName ) )
@@ -660,9 +661,13 @@ string ExceptionParser::getTrace()
   return result;
 }
 
-void ExceptionParser::logAllStackTraces() {}
+void ExceptionParser::logAllStackTraces()
+{
+}
 
-void ExceptionParser::initGlobalExceptionCatching() {}
+void ExceptionParser::initGlobalExceptionCatching()
+{
+}
 #endif  // _WIN32
 
 void ExceptionParser::configureProgramAbortReportingSystem( bool active, std::string server,

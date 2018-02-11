@@ -9,31 +9,28 @@
 
 #include "uobject.h"
 
-#include <atomic>
-#include <iosfwd>
-#include <stddef.h>
-#include <string>
-
 #include "../clib/cfgelem.h"
+#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/refptr.h"
 #include "../clib/streamsaver.h"
+
 #include "../plib/systemstate.h"
-#include "baseobject.h"
-#include "clidata.h"
-#include "dynproperties.h"
+
 #include "globals/state.h"
+#include "item/item.h"
 #include "item/itemdesc.h"
 #include "objtype.h"
+#include "polclass.h"
 #include "polcfg.h"
-#include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
+#include "reftypes.h"
 #include "tooltips.h"
-#include "uconst.h"
-#include "uobjcnt.h"
+#include "ufunc.h"
+#include "zone.h"
+
+#include <stdexcept>
 
 namespace Pol
 {
@@ -378,9 +375,13 @@ bool UObject::setcolor( u16 newcolor )
   return true;
 }
 
-void UObject::on_color_changed() {}
+void UObject::on_color_changed()
+{
+}
 
-void UObject::on_facing_changed() {}
+void UObject::on_facing_changed()
+{
+}
 
 bool UObject::saveonexit() const
 {

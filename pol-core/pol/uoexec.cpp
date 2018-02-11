@@ -1,14 +1,13 @@
 #include "uoexec.h"
 
-#include <stddef.h>
+#include "polclock.h"
+#include "polcfg.h"
 
-#include "../bscript/executor.h"
+#include "module/osmod.h"
+#include "globals/settings.h"
+
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
-#include "globals/settings.h"
-#include "module/osmod.h"
-#include "polcfg.h"
-#include "polclock.h"
 
 namespace Pol
 {
@@ -58,13 +57,13 @@ bool UOExecutor::suspend()
     return false;
 
   os_module->suspend();
-  return true;
+	return true;
 }
 
 bool UOExecutor::revive()
 {
-  os_module->revive();
-  return true;
+	os_module->revive();
+	return true;
 }
 
 std::string UOExecutor::state()

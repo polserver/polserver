@@ -7,14 +7,6 @@
 #ifndef BSCRIPT_BASICMOD_H
 #define BSCRIPT_BASICMOD_H
 
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-class Executor;
-}  // namespace Bscript
-}  // namespace Pol
 #ifndef BSCRIPT_EXECMODL_H
 #include "../../bscript/execmodl.h"
 #endif
@@ -24,6 +16,7 @@ namespace Pol
 {
 namespace Module
 {
+
 class BasicExecutorModule : public Bscript::TmplExecutorModule<BasicExecutorModule>
 {
 public:

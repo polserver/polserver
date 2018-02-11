@@ -1,12 +1,12 @@
 #include "ufacing.h"
 
+#include "charactr.h"
+
+#include "../uobject.h"
+#include "../mdelta.h"
+
 #include "../../clib/clib.h"
 #include "../../clib/random.h"
-#include "../mdelta.h"
-#include "../poltype.h"
-#include "../uconst.h"
-#include "../uobject.h"
-#include "charactr.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning for stricmp
@@ -25,7 +25,7 @@ MoveDelta move_delta[8] = {{0, -1},   // 0 is N
 UFACING away_cvt[8] = {FACING_S, FACING_SW, FACING_W, FACING_NW,
                        FACING_N, FACING_NE, FACING_E, FACING_SE};
 
-std::array<int, 7> adjustments = {{0, +1, -1, +2, -2, +3, -3}};
+std::array<int,7> adjustments = {{0, +1, -1, +2, -2, +3, -3}};
 }
 namespace Mobile
 {

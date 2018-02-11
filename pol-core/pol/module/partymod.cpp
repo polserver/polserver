@@ -12,28 +12,24 @@
 #endif
 
 #include "partymod.h"
-
-#include <stddef.h>
+#include "../party.h"
+#include "../unicode.h"
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-#include "../../clib/compilerspecifics.h"
-#include "../../clib/rawtypes.h"
-#include "../clfunc.h"
+#include "../../bscript/bobject.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/cfgelem.h"
+#include "../network/client.h"
 #include "../fnsearch.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../mobile/charactr.h"
-#include "../party.h"
-#include "../party_cfg.h"
-#include "../pktdef.h"
-#include "../syshook.h"
-#include "../unicode.h"
-#include "../uoexhelp.h"
+#include "../proplist.h"
+#include "../clfunc.h"
 #include "../uoscrobj.h"
+#include "../uoexhelp.h"
+#include "../globals/uvars.h"
+
+#include <memory>
 
 namespace Pol
 {
@@ -115,7 +111,7 @@ bool EPartyRefObjImp::operator==( const BObjectImp& objimp ) const
       return false;
   }
   else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
-    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
+	return isTrue() == static_cast<const Bscript::BBoolean&>(objimp).isTrue();
   else
     return false;
 }

@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{84831da0-079a-4609-a46e-dace29e7f832}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{82194515-44b9-4a2b-90d7-d62c197c4152}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="tinyxml">
+      <UniqueIdentifier>{5847ce3c-0bd9-4c36-a96c-de8cedaf38b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="format">
+      <UniqueIdentifier>{ac8f842c-1bdd-412c-ba83-563baa6fc512}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stackwalker">
+      <UniqueIdentifier>{ec9834bc-ae82-496c-b6f3-4fb73fb3c57b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debugging">
+      <UniqueIdentifier>{de79a169-ffb0-4c0a-9e53-71afb0638fbd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="binaryfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cfgfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cfgsect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dirfunc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dirlist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="esignal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fdump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="filecont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="forspcnt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iohelp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MD5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mdump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mlog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="msjexhnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NTService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="opnew.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="passert.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="progver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="random.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sckutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="socketsvc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StdAfx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stracpy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="strexcpt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="strset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="strutil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="threadhelp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tracebuf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="unicode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wallclock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wnsckt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\tinyxml\tinystr.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\tinyxml\tinyxml.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\tinyxml\tinyxmlerror.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\tinyxml\tinyxmlparser.cpp">
+      <Filter>tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\format\format.cc">
+      <Filter>format</Filter>
+    </ClCompile>
+    <ClCompile Include="streamsaver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="logfacility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\StackWalker\StackWalker.cpp">
+      <Filter>stackwalker</Filter>
+    </ClCompile>
+    <ClCompile Include="boostutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugging\ExceptionParser.cpp">
+      <Filter>Debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugging\LogSink.cpp">
+      <Filter>Debugging</Filter>
+    </ClCompile>
+	<ClCompile Include="timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="clib_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="binaryfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bitutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cfgelem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cfgfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cfgsect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clibopt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dirlist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="esignal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fdump.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fixalloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iohelp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maputil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MD5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mdump.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mdumpimp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mlog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="msjexhnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTService.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="opnew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="passert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="progver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rawtypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RefPtr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sckutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="socketsvc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StdAfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stlutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="strexcpt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="strset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="strutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="threadhelp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tracebuf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unicode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unittest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wallclock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="weakptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wnsckt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\tinyxml\tinystr.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\tinyxml\tinyxml.h">
+      <Filter>tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="dirfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="filecont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntservmsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="message_queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\format\format.h">
+      <Filter>format</Filter>
+    </ClInclude>
+    <ClInclude Include="streamsaver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logfacility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\StackWalker\StackWalker.h">
+      <Filter>stackwalker</Filter>
+    </ClInclude>
+    <ClInclude Include="compilerspecifics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boostutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="Debugging\ExceptionParser.h">
+	  <Filter>Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="Debugging\LogSink.h">
+      <Filter>Debugging</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

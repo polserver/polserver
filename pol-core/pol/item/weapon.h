@@ -9,38 +9,14 @@
 #define WEAPON_H
 
 
+#include "equipmnt.h"
+
+#include "../action.h"
+#include "../scrdef.h"
+
 #include <iosfwd>
 #include <memory>
 #include <string>
-
-#include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
-#include "../../clib/rawtypes.h"
-#include "../action.h"
-#include "../dynproperties.h"
-#include "../scrdef.h"
-#include "equipmnt.h"
-
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-class StreamWriter;
-}  // namespace Clib
-namespace Core
-{
-class UContainer;
-}  // namespace Core
-namespace Items
-{
-class Item;
-}  // namespace Items
-namespace Plib
-{
-class Package;
-}  // namespace Plib
-}  // namespace Pol
 
 #define WEAPON_TMPL ( static_cast<const WeaponDesc*>( tmpl ) )
 
@@ -48,13 +24,13 @@ namespace Pol
 {
 namespace Mobile
 {
-class Attribute;
 class Character;
+class Attribute;
 }
 namespace Items
 {
-class UWeapon;
 class WeaponDesc;
+class UWeapon;
 
 
 class UWeapon : public Equipment

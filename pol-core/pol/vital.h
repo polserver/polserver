@@ -10,7 +10,6 @@
 
 #include <string>
 #include <vector>
-
 namespace Pol
 {
 namespace Clib

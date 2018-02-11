@@ -6,13 +6,19 @@
 
 #include "uoskills.h"
 
-#include <stddef.h>
+#include "skillid.h"
+#include "mobile/attribute.h"
+#include "globals/uvars.h"
+#include "globals/network.h"
+
+#include "../plib/pkg.h"
 
 #include "../clib/cfgelem.h"
-#include "../plib/pkg.h"
-#include "globals/uvars.h"
-#include "mobile/attribute.h"
-#include "skillid.h"
+#include "../clib/stlutil.h"
+#include "../clib/logfacility.h"
+
+#include <vector>
+#include <stdexcept>
 
 namespace Pol
 {

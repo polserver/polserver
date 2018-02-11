@@ -7,9 +7,9 @@
 #define __TEXTCMD_H
 
 #include <cstddef>
-#include <string>
-
 #include "../clib/rawtypes.h"
+
+#include <string>
 
 namespace Pol
 {

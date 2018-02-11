@@ -1,8 +1,6 @@
 #ifndef GLOBALS_SETTINGS_H
 #define GLOBALS_SETTINGS_H
 
-#include <boost/noncopyable.hpp>
-
 #include "../cmbtcfg.h"
 #include "../extobj.h"
 #include "../movecost.h"
@@ -11,6 +9,8 @@
 #include "../repsys_cfg.h"
 #include "../ssopt.h"
 #include "../watch.h"
+
+#include <boost/noncopyable.hpp>
 
 namespace Pol
 {

@@ -1,18 +1,20 @@
 #include "clienttransmit.h"
-
-#include "../../clib/esignal.h"
-#include "../../clib/rawtypes.h"
-#include "../globals/network.h"
-#include "../polsem.h"
 #include "client.h"
+#include "../globals/network.h"
+#include "../../clib/esignal.h"
+#include "../polsem.h"
 
 namespace Pol
 {
 namespace Network
 {
-ClientTransmit::ClientTransmit() : _transmitqueue() {}
+ClientTransmit::ClientTransmit() : _transmitqueue()
+{
+}
 
-ClientTransmit::~ClientTransmit() {}
+ClientTransmit::~ClientTransmit()
+{
+}
 
 void ClientTransmit::Cancel()
 {
@@ -67,8 +69,7 @@ void ClientTransmitThread()
           Core::PolLock lock;
           Client::Delete( data->client.get_weakptr() );
         }
-        else if ( data->disconnects )
-        {
+        else if ( data->disconnects ) {
           data->client->forceDisconnect();
         }
         else if ( data->client->isReallyConnected() )

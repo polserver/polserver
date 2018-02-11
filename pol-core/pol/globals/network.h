@@ -7,28 +7,29 @@
 #include "pol_global_config.h"
 #endif
 
-#include <array>
-#include <boost/noncopyable.hpp>
-#include <memory>
-#include <vector>
-
-#include "../network/bannedips.h"
 #include "../network/iostats.h"
 #include "../network/msghandl.h"
+#include "../network/bannedips.h"
 #include "../polstats.h"
 #include "../sockio.h"
 #include "../uoclient.h"
+
+#include <boost/noncopyable.hpp>
+
+#include <array>
+#include <vector>
+#include <memory>
 
 namespace Pol
 {
 namespace Network
 {
-class AuxService;
 class Client;
-class ClientTransmit;
+class UOClientInterface;
+class AuxService;
 class PacketHookData;
 class PacketsSingleton;
-class UOClientInterface;
+class ClientTransmit;
 }
 namespace threadhelp
 {
@@ -37,8 +38,8 @@ class DynTaskThreadPool;
 namespace Core
 {
 class MessageTypeFilter;
-class SQLService;
 class ServerDescription;
+class SQLService;
 
 typedef std::vector<Network::Client*> Clients;
 typedef std::vector<ServerDescription*> Servers;
@@ -53,7 +54,6 @@ public:
   void kill_disconnected_clients();
 
   struct Memory;
-
   Memory estimateSize() const;
 
   Clients clients;

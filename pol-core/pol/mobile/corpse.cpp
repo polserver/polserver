@@ -9,16 +9,12 @@
 
 #include "corpse.h"
 
-#include <stddef.h>
-
 #include "../../clib/cfgelem.h"
-#include "../../clib/passert.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/streamsaver.h"
-#include "../containr.h"
+
 #include "../layers.h"
 #include "../ufunc.h"
-#include "../uobject.h"
-
 
 namespace Pol
 {

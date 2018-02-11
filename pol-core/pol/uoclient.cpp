@@ -7,22 +7,23 @@
 
 #include "uoclient.h"
 
-#include <string>
-
-#include "../clib/cfgelem.h"
-#include "../plib/pkg.h"
-#include "globals/network.h"
 #include "mobile/attribute.h"
 #include "skillid.h"
-#include "syshookscript.h"
 #include "vital.h"
+#include "syshookscript.h"
+#include "globals/network.h"
+
+#include "../plib/pkg.h"
+#include "../clib/cfgelem.h"
 
 
 namespace Pol
 {
 namespace Core
 {
-UoClientProtocol::UoClientProtocol() : EnableFlowControlPackets( false ) {}
+UoClientProtocol::UoClientProtocol() : EnableFlowControlPackets( false )
+{
+}
 size_t UoClientProtocol::estimateSize() const
 {
   return sizeof( UoClientProtocol );
@@ -147,11 +148,12 @@ size_t UoClientGeneral::estimateSize() const
 
 void UoClientGeneral::deinitialize()
 {
-  if ( method_script != nullptr )
-  {
-    delete method_script;
-    method_script = nullptr;
-  }
+	if (method_script != nullptr)
+	{
+		delete method_script;
+		method_script = nullptr;
+	}
 }
+
 }
 }

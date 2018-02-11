@@ -4,8 +4,10 @@
  */
 
 
-#include "../../bscript/eprog.h"
 #include "charactr.h"
+
+#include "../uoexec.h"
+
 
 namespace Pol
 {

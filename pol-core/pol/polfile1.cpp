@@ -7,19 +7,34 @@
  */
 
 
-#include <cstdio>
-#include <string>
+#include "polfile.h"
 
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
+#include "polcfg.h"
+#include "uofilei.h"
+#include "uofile.h"
+
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
 #include "../plib/systemstate.h"
-#include "clidata.h"
-#include "uofile.h"
+
+#include "item/itemdesc.h"
 #include "ustruct.h"
+
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/fileutil.h"
+#include "../clib/passert.h"
+#include "../clib/random.h"
+#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
+#include "../clib/wallclock.h"
+#include "../clib/logfacility.h"
+
+#ifdef __unix__
+#include <unistd.h>
+#endif
+
+#include <cstdio>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning fopen
@@ -159,12 +174,9 @@ int write_pol_static_files( const std::string& realm )
 
 
 #ifndef NDEBUG
-  INFO_PRINT << statics << " statics written\n"
-             << duplicates << " duplicates eliminated\n"
-             << illegales << " illegales eliminated\n"
-             << empties << " empties\n"
-             << nonempties << " nonempties\n"
-             << maxcount << " was the highest count\n";
+  INFO_PRINT << statics << " statics written\n" << duplicates << " duplicates eliminated\n"
+             << illegales << " illegales eliminated\n" << empties << " empties\n" << nonempties
+             << " nonempties\n" << maxcount << " was the highest count\n";
 #endif
   return 0;
 }

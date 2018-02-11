@@ -24,9 +24,9 @@
 #ifndef FSA_H
 #define FSA_H
 
-#include "../clib/logfacility.h"
-#include <stdio.h>
 #include <string>
+#include <stdio.h>
+#include "../clib/logfacility.h"
 namespace Pol
 {
 namespace Plib

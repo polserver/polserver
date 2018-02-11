@@ -25,44 +25,61 @@
  */
 
 #include "npc.h"
+#include "../module/npcmod.h"
 
-#include <stdlib.h>
+#include "attribute.h"
+#include "wornitems.h"  // refresh_ar() is the only one which needs this include...
 
-#include "../../bscript/berror.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/random.h"
-#include "../../clib/refptr.h"
-#include "../../clib/streamsaver.h"
-#include "../baseobject.h"
+#include "../containr.h"
 #include "../dice.h"
 #include "../fnsearch.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
-#include "../item/armor.h"
 #include "../item/weapon.h"
 #include "../listenpt.h"
 #include "../mdelta.h"
-#include "../module/npcmod.h"
 #include "../module/osmod.h"
+#include "../module/unimod.h"
 #include "../module/uomod.h"
-#include "../multi/multi.h"
-#include "../npctmpl.h"
-#include "../scrdef.h"
+#include "../multi/house.h"
+#include "../network/client.h"
+#include "../objtype.h"
+#include "../pktout.h"
+#include "../poltype.h"
+#include "../realms/realm.h"
+#include "../realms.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../skilladv.h"
+#include "../skills.h"
+#include "../sockio.h"
 #include "../ufunc.h"
-#include "../uobjcnt.h"
-#include "../uobject.h"
+#include "../ufuncinl.h"
 #include "../uoexec.h"
+#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
-#include "attribute.h"
-#include "charactr.h"
-#include "wornitems.h"
+#include "../unicode.h"
 
+#include "../../bscript/berror.h"
+#include "../../bscript/eprog.h"
+#include "../../bscript/execmodl.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
+#include "../../bscript/modules.h"
+
+#include "../../clib/cfgelem.h"
+#include "../../clib/clib.h"
+#include "../../clib/clib_endian.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/passert.h"
+#include "../../clib/random.h"
+#include "../../clib/stlutil.h"
+#include "../../clib/streamsaver.h"
+#include "../../clib/strutil.h"
+
+#include <stdexcept>
 
 /* An area definition is as follows:
    pt: (x,y)
@@ -192,8 +209,9 @@ bool NPC::could_move( Core::UFACING fdir ) const
     tmp_newx = x + Core::move_delta[tmp_facing].xmove;
     tmp_newy = y + Core::move_delta[tmp_facing].ymove;
     current_boost = gradual_boost;
-    if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi,
-                                       &walkon_item, &current_boost ) )
+    if ( !walk1 &&
+         !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item,
+                             &current_boost ) )
       return false;
   }
   unsigned short newx = x + Core::move_delta[fdir].xmove;
@@ -320,6 +338,57 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tPhysicalDamage\t" << orig_physical_damage() << pf_endl;
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
+
+  //new mods
+  s16 value = lower_reagent_cost().mod;
+  if (value != 0)
+	  sw() << "\tLowerReagentCostMod\t" << static_cast<int>(value) << pf_endl;
+  value = spell_damage_increase().mod;
+  if (value != 0)
+	  sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_casting().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastingMod\t" << static_cast<int>(value) << pf_endl;
+  value = faster_cast_recovery().mod;
+  if (value != 0)
+	  sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>(value) << pf_endl;
+  value = defence_increase().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseMod\t" << static_cast<int>(value) << pf_endl;
+  value = defence_increase_cap().mod;
+  if (value != 0)
+	  sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = lower_mana_cost().mod;
+  if (value != 0)
+	  sw() << "\tLowerManaCostMod\t" << static_cast<int>(value) << pf_endl;
+  value = hitchance().mod;
+  if (value != 0)
+	  sw() << "\tHitChanceMod\t" << static_cast<int>(value) << pf_endl;
+  value = swingspeed().mod;
+  if (value != 0)
+	  sw() << "\tSpeedMod\t" << static_cast<int>(value) << pf_endl;
+  value = damage_increase().mod;
+  if (value != 0)
+	  sw() << "\tDamageMod\t" << static_cast<int>(value) << pf_endl;
+  value = fire_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tFireResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = cold_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tColdResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = energy_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tEnergyResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = poison_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tPoisonResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = physical_resist_cap().mod;
+  if (value != 0)
+	  sw() << "\tPhysicalResistCapMod\t" << static_cast<int>(value) << pf_endl;
+  value = luck().mod;
+  if (value != 0)
+	  sw() << "\tLuckMod\t" << static_cast<int>(value) << pf_endl;
+
 }
 
 void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -395,7 +464,8 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
 void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
 {
   // for ar and elemental damage/resist the mod values are loaded before in character code!
-  auto diceValue = []( const std::string& dicestr, int* value ) -> bool {
+  auto diceValue = []( const std::string& dicestr, int* value ) -> bool
+  {
     Core::Dice dice;
     std::string errmsg;
     if ( !dice.load( dicestr.c_str(), &errmsg ) )
@@ -404,15 +474,115 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
       *value = dice.roll();
     return *value != 0;
   };
-  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
+  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack
+  {
     return v.addToValue( static_cast<s16>( value ) );
   };
-  auto refresh = []( Core::ValueModPack v ) -> Core::ValueModPack { return v.addToValue( v.mod ); };
+  auto refresh = []( Core::ValueModPack v ) -> Core::ValueModPack
+  {
+    return v.addToValue( v.mod );
+  };
 
   std::string tmp;
   int value;
   if ( elem.remove_prop( "AR", &tmp ) && diceValue( tmp, &value ) )
     npc_ar_ = static_cast<u16>( value );
+  if (elem.remove_prop("LOWERREAGENTCOST", &tmp) && diceValue(tmp, &value))
+  {
+	  lower_reagent_cost(apply(lower_reagent_cost(), value));
+  }
+  if (has_lower_reagent_cost())
+	  lower_reagent_cost(refresh(lower_reagent_cost()));
+  if (elem.remove_prop("SPELLDAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
+  {
+	  spell_damage_increase(apply(spell_damage_increase(), value));
+  }
+  if (has_spell_damage_increase())
+	  spell_damage_increase(refresh(spell_damage_increase()));
+  if (elem.remove_prop("FASTERCASTING", &tmp) && diceValue(tmp, &value))
+  {
+	  faster_casting(apply(faster_casting(), value));
+  }
+  if (has_faster_casting())
+	  faster_casting(refresh(faster_casting()));
+  if (elem.remove_prop("FASTERCASTRECOVERY", &tmp) && diceValue(tmp, &value))
+  {
+	  faster_cast_recovery(apply(faster_cast_recovery(), value));
+  }
+  if (has_faster_cast_recovery())
+	  faster_cast_recovery(refresh(faster_cast_recovery()));
+  if (elem.remove_prop("DEFENCEINCREASE", &tmp) && diceValue(tmp, &value))
+  {
+	  defence_increase(apply(defence_increase(), value));
+  }
+  if (has_defence_increase())
+	  defence_increase(refresh(defence_increase()));
+  if (elem.remove_prop("DEFENCEINCREASECAP", &tmp) && diceValue(tmp, &value))
+  {
+	  defence_increase_cap(apply(defence_increase_cap(), value));
+  }
+  if (has_defence_increase_cap())
+	  defence_increase_cap(refresh(defence_increase_cap()));
+  if (elem.remove_prop("LOWERMANACOST", &tmp) && diceValue(tmp, &value))
+  {
+	  lower_mana_cost(apply(lower_mana_cost(), value));
+  }
+  if (has_lower_mana_cost())
+	  lower_mana_cost(refresh(lower_mana_cost()));
+  if (elem.remove_prop("HITCHANCE", &tmp) && diceValue(tmp, &value))
+  {
+	  hitchance(apply(hitchance(), value));
+  }
+  if (has_hitchance())
+	  hitchance(refresh(hitchance()));
+  if (elem.remove_prop("SWINGSPEED", &tmp) && diceValue(tmp, &value))
+  {
+	  swingspeed(apply(swingspeed(), value));
+  }
+  if (has_swingspeed())
+	  swingspeed(refresh(swingspeed()));
+   if (elem.remove_prop("DAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
+  {
+	  damage_increase(apply(damage_increase(), value));
+  }
+  if (has_damage_increase())
+	  damage_increase(refresh(damage_increase()));
+  if (elem.remove_prop("FIRERESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  fire_resist_cap(apply(fire_resist_cap(), value));
+  }
+  if (has_fire_resist_cap())
+	  fire_resist_cap(refresh(fire_resist_cap()));
+  if (elem.remove_prop("COLDRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  cold_resist_cap(apply(cold_resist_cap(), value));
+  }
+  if (has_cold_resist_cap())
+	  cold_resist_cap(refresh(cold_resist_cap()));
+  if (elem.remove_prop("ENERGYRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  energy_resist_cap(apply(energy_resist_cap(), value));
+  }
+  if (has_energy_resist_cap())
+	  energy_resist_cap(refresh(energy_resist_cap()));
+  if (elem.remove_prop("PHYSICALRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  physical_resist_cap(apply(physical_resist_cap(), value));
+  }
+  if (has_physical_resist_cap())
+	  physical_resist_cap(refresh(physical_resist_cap()));
+  if (elem.remove_prop("POISONRESISTCAP", &tmp) && diceValue(tmp, &value))
+  {
+	  poison_resist_cap(apply(poison_resist_cap(), value));
+  }
+  if (has_poison_resist_cap())
+	  poison_resist_cap(refresh(poison_resist_cap()));
+  if (elem.remove_prop("LUCK", &tmp) && diceValue(tmp, &value))
+  {
+	  luck(apply(luck(), value));
+  }
+  if (has_luck())
+	  luck(refresh(luck()));
 
   // elemental start
   // first apply template value as value and if mod or value exist sum them
@@ -1026,6 +1196,39 @@ void NPC::resetEquipablePropertiesNPC()
     poison_damage( poison_damage().resetModAsValue().addToValue( orig_poison_damage() ) );
   if ( has_physical_damage() || has_orig_physical_damage() )
     physical_damage( physical_damage().resetModAsValue().addToValue( orig_physical_damage() ) );
+
+  if ( has_lower_reagent_cost() )
+	  lower_reagent_cost(lower_reagent_cost().resetModAsValue().addToValue(lower_reagent_cost()));
+  if ( has_spell_damage_increase() )
+	  spell_damage_increase(spell_damage_increase().resetModAsValue().addToValue(spell_damage_increase()));
+  if ( has_faster_casting() )
+	  faster_casting(faster_casting().resetModAsValue().addToValue(faster_casting()));
+  if (has_faster_cast_recovery())
+	  faster_cast_recovery(faster_cast_recovery().resetModAsValue().addToValue(faster_cast_recovery()));
+  if (has_defence_increase())
+	  defence_increase(defence_increase().resetModAsValue().addToValue(defence_increase()));
+  if (has_defence_increase_cap())
+	  defence_increase_cap(defence_increase_cap().resetModAsValue().addToValue(defence_increase_cap()));
+  if (has_lower_mana_cost())
+	  lower_mana_cost(lower_mana_cost().resetModAsValue().addToValue(lower_mana_cost()));
+  if (has_hitchance())
+	  hitchance(hitchance().resetModAsValue().addToValue(hitchance()));
+  if (has_swingspeed())
+	  swingspeed(swingspeed().resetModAsValue().addToValue(swingspeed()));
+  if (has_damage_increase())
+	  damage_increase(damage_increase().resetModAsValue().addToValue(damage_increase()));
+  if (has_fire_resist_cap())
+	  fire_resist_cap(fire_resist_cap().resetModAsValue().addToValue(fire_resist_cap()));
+  if (has_cold_resist_cap())
+	  cold_resist_cap(cold_resist_cap().resetModAsValue().addToValue(cold_resist_cap()));
+  if (has_energy_resist_cap())
+	  energy_resist_cap(energy_resist_cap().resetModAsValue().addToValue(energy_resist_cap()));
+  if (has_physical_resist_cap())
+	  physical_resist_cap(physical_resist_cap().resetModAsValue().addToValue(physical_resist_cap()));
+  if (has_poison_resist_cap())
+	  poison_resist_cap(poison_resist_cap().resetModAsValue().addToValue(poison_resist_cap()));
+  if (has_luck())
+	  luck(luck().resetModAsValue().addToValue(luck()));
 }
 
 size_t NPC::estimatedSize() const

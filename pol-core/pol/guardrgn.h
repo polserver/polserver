@@ -8,19 +8,9 @@
 #ifndef GUARDRGN_H
 #define GUARDRGN_H
 
-#include <string>
-
-#include "../clib/compilerspecifics.h"
 #include "region.h"
-#include "zone.h"
 
-namespace Pol
-{
-namespace Clib
-{
-class ConfigElem;
-}  // namespace Clib
-}  // namespace Pol
+#include <string>
 
 namespace Pol
 {

@@ -7,17 +7,7 @@
 #ifndef EQUIPDSC_H
 #define EQUIPDSC_H
 
-#include "../clib/compilerspecifics.h"
-#include "../clib/rawtypes.h"
 #include "item/itemdesc.h"
-
-namespace Pol
-{
-namespace Bscript
-{
-class BStruct;
-}  // namespace Bscript
-}  // namespace Pol
 
 namespace Pol
 {

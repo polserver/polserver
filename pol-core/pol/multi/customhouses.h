@@ -8,13 +8,13 @@
 #ifndef _CUSTOMHOUSES_H
 #define _CUSTOMHOUSES_H
 
-#include <cstddef>  // for size_t
-#include <iosfwd>   // for testprint()
+#include "../../clib/rawtypes.h"
+
+#include <vector>
 #include <list>
 #include <string>
-#include <vector>
-
-#include "../../clib/rawtypes.h"
+#include <cstddef>  // for size_t
+#include <iosfwd>   // for testprint()
 
 namespace Pol
 {

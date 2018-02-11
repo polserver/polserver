@@ -2,25 +2,30 @@
 
 #include "logfacility.h"
 
+#include <ratio>
+
 namespace Pol
 {
 namespace Tools
 {
 void DebugT::print( const std::string& name, long long time )
 {
-  INFO_PRINT << "\n----------------------------------\n"
-             << name << ": " << time << " ms\n"
+  INFO_PRINT << "\n----------------------------------\n" << name << ": " << time << " ms\n"
              << "----------------------------------\n";
 }
-void SilentT::print( const std::string&, long long ) {}
+void SilentT::print( const std::string&, long long )
+{
+}
 
 template <class printer>
-Timer<printer>::Timer( std::string name ) : _name( std::move( name ) )
+Timer<printer>::Timer( std::string name )
+    : _name( std::move( name ) )
 {
   start();
 }
 template <class printer>
-Timer<printer>::Timer() : _name( "" )
+Timer<printer>::Timer()
+    : _name( "" )
 {
   start();
 }
@@ -62,7 +67,9 @@ void Timer<printer>::print() const
 }
 
 
-HighPerfTimer::HighPerfTimer() : _start( Clock::now() ) {}
+HighPerfTimer::HighPerfTimer() : _start( Clock::now() )
+{
+}
 
 HighPerfTimer::time_mu HighPerfTimer::ellapsed() const
 {

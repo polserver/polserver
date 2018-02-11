@@ -9,9 +9,9 @@
 #define PROFILE_H
 
 #include "../clib/rawtypes.h"
-#include <atomic>
 #include <cstddef>
 #include <ctime>
+#include <atomic>
 
 namespace Pol
 {

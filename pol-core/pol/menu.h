@@ -10,10 +10,10 @@
 #ifndef __CLIB_RAWTYPES_H
 #include "../clib/rawtypes.h"
 #endif
-#include <cstddef>
-#include <vector>
-
 #include "../clib/weakptr.h"
+
+#include <vector>
+#include <cstddef>
 
 namespace Pol
 {

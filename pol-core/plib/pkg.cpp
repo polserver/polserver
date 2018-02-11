@@ -5,8 +5,7 @@
 
 
 #include "pkg.h"
-
-#include <stdlib.h>
+#include "systemstate.h"
 #ifdef WINDOWS
 #include "../clib/pol_global_config_win.h"
 #else
@@ -15,18 +14,20 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/maputil.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../plib/systemstate.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp deprecation warning
 #endif
+
+#include <algorithm>
+#include <functional>
 
 namespace Pol
 {
@@ -208,11 +209,11 @@ void Package::check_dependencies() const
 {
   if ( core_required_ )
   {
-    if ( core_required_ > POL_VERSION )  // TODO: use a more fine grained check here
+    if ( core_required_ > POL_VERSION_MAJOR )  // TODO: use a more fine grained check here
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
                   << "  Core version " << core_required_ << " is required, but version "
-                  << POL_VERSION << " is running.\n";
+                  << POL_VERSION_MAJOR << " is running.\n";
       throw std::runtime_error( "Package requires a newer core version" );
     }
   }

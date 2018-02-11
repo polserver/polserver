@@ -1,7 +1,8 @@
+#include <memory.h>
 #include <string.h>
-
 #include "md5.h"
-
+#include "twofish.h"
+#include "cryptbase.h"
 namespace Pol
 {
 namespace Crypt
@@ -79,7 +80,9 @@ MD5Crypt::MD5Crypt() : TableIdx( 0 )
 {
   memset( &Digest, 0, sizeof( Digest ) );
 }
-MD5Crypt::~MD5Crypt() {}
+MD5Crypt::~MD5Crypt()
+{
+}
 
 // Public Member Functions
 

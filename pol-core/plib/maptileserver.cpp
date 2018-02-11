@@ -19,7 +19,9 @@ MapTileServer::MapTileServer( const RealmDescriptor& descriptor )
   _cur_block_index = 0;
 }
 
-MapTileServer::~MapTileServer() {}
+MapTileServer::~MapTileServer()
+{
+}
 
 MAPTILE_CELL MapTileServer::GetMapTile( unsigned short x, unsigned short y )
 {

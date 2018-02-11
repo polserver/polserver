@@ -16,20 +16,22 @@
 #include "../clib/rawtypes.h"
 #endif
 
-#include <atomic>
-#include <boost/any.hpp>
-#include <boost/flyweight.hpp>
-#include <iosfwd>
-#include <map>
-#include <set>
-#include <string>
-#include <type_traits>
-
-#include "../clib/boostutils.h"
 #include "../clib/refptr.h"
 #include "baseobject.h"
 #include "dynproperties.h"
 #include "proplist.h"
+
+#include "../clib/boostutils.h"
+
+#include <boost/any.hpp>
+#include <boost/flyweight.hpp>
+
+#include <iosfwd>
+#include <map>
+#include <string>
+#include <atomic>
+#include <set>
+#include <type_traits>
 
 #define pf_endl '\n'
 
@@ -99,7 +101,8 @@ struct ElementDamages
 
 template <typename ENUM,
           typename std::enable_if<
-              std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value, int>::type = 0>
+          std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value
+          , int>::type = 0 >
 struct AttributeFlags
 {
   typedef typename std::underlying_type<ENUM>::type enum_t;
@@ -120,23 +123,22 @@ struct AttributeFlags
       remove( flag );
   }
   void reset() { flags_ = 0; };
-
 private:
   enum_t flags_;
 };
 
 enum class OBJ_FLAGS : u16
 {
-  DIRTY = 1 << 0,  // UObject flags
+  DIRTY        = 1 << 0,  // UObject flags
   SAVE_ON_EXIT = 1 << 1,
-  NEWBIE = 1 << 2,  // Item flags
-  INSURED = 1 << 3,
-  MOVABLE = 1 << 4,
-  IN_USE = 1 << 5,
-  INVISIBLE = 1 << 6,
-  LOCKED = 1 << 7,              // ULockable flag
-  CONTENT_TO_GRAVE = 1 << 8,    // UCorpse flag
-  NO_DROP = 1 << 9,             // Item flag
+  NEWBIE       = 1 << 2,  // Item flags
+  INSURED      = 1 << 3,
+  MOVABLE      = 1 << 4,
+  IN_USE       = 1 << 5,
+  INVISIBLE    = 1 << 6,
+  LOCKED       = 1 << 7,  // ULockable flag
+  CONTENT_TO_GRAVE  = 1 << 8,  // UCorpse flag
+  NO_DROP           = 1 << 9,  // Item flag
   NO_DROP_EXCEPTION = 1 << 10,  // Container/Character flag
 };
 
@@ -265,6 +267,26 @@ public:
   DYN_PROPERTY( poison_damage, ValueModPack, PROP_DAMAGE_POISON, ValueModPack::DEFAULT );
   DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
+
+  DYN_PROPERTY( fire_resist_cap, ValueModPack, PROP_RESIST_FIRE_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY( cold_resist_cap, ValueModPack, PROP_RESIST_COLD_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY( energy_resist_cap, ValueModPack, PROP_RESIST_ENERGY_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY( poison_resist_cap, ValueModPack, PROP_RESIST_POISON_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY( physical_resist_cap, ValueModPack, PROP_RESIST_PHYSICAL_CAP, ValueModPack::DEFAULT);
+
+  DYN_PROPERTY( lower_reagent_cost, ValueModPack, PROP_LOWER_REAG_COST, ValueModPack::DEFAULT);
+  DYN_PROPERTY( spell_damage_increase, ValueModPack, PROP_SPELL_DAMAGE_INCREASE, ValueModPack::DEFAULT);
+  DYN_PROPERTY( faster_casting, ValueModPack, PROP_FASTER_CASTING, ValueModPack::DEFAULT);
+  DYN_PROPERTY( faster_cast_recovery, ValueModPack, PROP_FASTER_CAST_RECOVERY, ValueModPack::DEFAULT);
+
+  DYN_PROPERTY( defence_increase, ValueModPack, PROP_DEFENCE_INCREASE, ValueModPack::DEFAULT);
+  DYN_PROPERTY( defence_increase_cap, ValueModPack, PROP_DEFENCE_INCREASE_CAP, ValueModPack::DEFAULT);
+  DYN_PROPERTY( lower_mana_cost, ValueModPack, PROP_LOWER_MANA_COST, ValueModPack::DEFAULT);
+  DYN_PROPERTY( hitchance, ValueModPack, PROP_HITCHANCE, ValueModPack::DEFAULT);
+  DYN_PROPERTY( swingspeed, ValueModPack, PROP_SWING_SPEED, ValueModPack::DEFAULT);
+  DYN_PROPERTY( damage_increase, ValueModPack, PROP_DAMAGE_INCREASE, ValueModPack::DEFAULT);
+  DYN_PROPERTY( luck, ValueModPack, PROP_EXT_STATBAR_LUCK, ValueModPack::DEFAULT);
+
 private:
   u32 _rev;
 
@@ -317,6 +339,7 @@ inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
 }
+
 }
 }
 

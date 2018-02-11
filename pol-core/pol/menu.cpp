@@ -6,20 +6,21 @@
 
 #include "menu.h"
 
-#include <cstddef>
-#include <string>
+#include "../clib/logfacility.h"
 
+#include "../clib/clib.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
+#include "../clib/fileutil.h"
+#include "../clib/passert.h"
+
 #include "../plib/systemstate.h"
-#include "globals/uvars.h"
+
 #include "item/itemdesc.h"
+#include "globals/uvars.h"
+
+#include <cstring>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecation warning stricmp
@@ -43,14 +44,15 @@ Menu::Menu() : menu_id( 0 )
   title[0] = '\0';
 }
 
-Menu::Menu( const Menu& other ) : menu_id( other.menu_id ), menuitems_( other.menuitems_ )
+Menu::Menu(const Menu& other) 
+  : menu_id(other.menu_id), menuitems_(other.menuitems_)
 {
   strzcpy( name, other.name, sizeof name );
   strzcpy( title, other.title, sizeof title );
-
+  
   weakptr.set( this );
 }
-Menu& Menu::operator=( const Menu& rhs )
+Menu& Menu::operator=(const Menu &rhs)
 {
   Menu tmpMenu( rhs );
 

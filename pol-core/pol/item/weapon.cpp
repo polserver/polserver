@@ -8,32 +8,41 @@
 
 
 #include "weapon.h"
+#include "wepntmpl.h"
 
-#include <stddef.h>
-#include <string>
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
+
+#include "../polcfg.h"
+#include "../realms.h"
+#include "../skillid.h"
+#include "../ufunc.h"
+#include "../umanip.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../globals/object_storage.h"
+#include "../containr.h"
+#include "../realms/realm.h"
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/streamsaver.h"
-#include "../../clib/strutil.h"
+
+#include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
-#include "../containr.h"
-#include "../dice.h"
-#include "../equipdsc.h"
-#include "../extobj.h"
-#include "../globals/settings.h"
-#include "../globals/uvars.h"
-#include "../layers.h"
-#include "../mobile/charactr.h"
-#include "../realms/realm.h"
-#include "../ufunc.h"
-#include "../umanip.h"
-#include "../uobject.h"
-#include "itemdesc.h"
-#include "wepntmpl.h"
+
+#include "../../clib/cfgelem.h"
+#include "../../clib/clib_endian.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
+#include "../../clib/random.h"
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <string>
+
+#include <climits>
+#include <stdexcept>
 
 namespace Pol
 {

@@ -15,21 +15,27 @@
 
 #include "getitem.h"
 
-#include <cstdio>
+#include "realms/realm.h"
 
-#include "../clib/clib_endian.h"
-#include "../clib/rawtypes.h"
-#include "containr.h"
-#include "item/item.h"
+#include "multi/boat.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktdef.h"
+#include "network/msghandl.h"
+
 #include "pktin.h"
-#include "reftypes.h"
+#include "realms.h"
 #include "statmsg.h"
+#include "globals/uvars.h"
 #include "ufunc.h"
 #include "uobject.h"
 #include "uworld.h"
+#include "containr.h"
+
+#include "../clib/clib_endian.h"
+#include "../clib/stlutil.h"
+
+
+#include <cstdio>
 
 
 /* How get_item works:

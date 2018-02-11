@@ -4,10 +4,12 @@
  */
 
 
-#include <string>
+#include "tiplist.h"
 
 #include "../clib/dirlist.h"
 #include "globals/uvars.h"
+
+#include <string>
 
 namespace Pol
 {

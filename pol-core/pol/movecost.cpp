@@ -8,19 +8,18 @@
 
 #include "movecost.h"
 
-#include <string.h>
-#include <string>
+#include "mobile/charactr.h"
+
+#include "globals/settings.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../clib/logfacility.h"
+
 #include "../plib/systemstate.h"
-#include "dynproperties.h"
-#include "globals/settings.h"
-#include "mobile/charactr.h"
 
 namespace Pol
 {

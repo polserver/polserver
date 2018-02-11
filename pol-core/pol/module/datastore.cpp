@@ -9,27 +9,29 @@
 
 
 #include "datastore.h"
-
-#include <exception>
-#include <fstream>
-#include <stddef.h>
+#include "datastoreimp.h"
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/objmethods.h"
+
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/fileutil.h"
-#include "../../clib/rawtypes.h"
+#include "../../clib/maputil.h"
+#include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
+
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
-#include "../globals/ucfg.h"
+
 #include "../proplist.h"
-#include "datastoreimp.h"
+#include "../uoexhelp.h"
+#include "../polcfg.h"
+
+#include "../globals/ucfg.h"
+
+#include <fstream>
 
 namespace Pol
 {
@@ -58,7 +60,9 @@ namespace Module
 Bscript::BApplicObjType datafileref_type;
 Bscript::BApplicObjType datafileelem_type;
 
-DataFileContents::DataFileContents( DataStoreFile* dsf ) : dsf( dsf ), dirty( false ) {}
+DataFileContents::DataFileContents( DataStoreFile* dsf ) : dsf( dsf ), dirty( false )
+{
+}
 
 DataFileContents::~DataFileContents()
 {
@@ -686,7 +690,9 @@ size_t DataStoreFile::estimateSize() const
 }
 
 
-DataFileElement::DataFileElement() : proplist( Core::CPropProfiler::Type::DATAFILEELEMENT ) {}
+DataFileElement::DataFileElement() : proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )
+{
+}
 
 DataFileElement::DataFileElement( Clib::ConfigElem& elem )
     : proplist( Core::CPropProfiler::Type::DATAFILEELEMENT )

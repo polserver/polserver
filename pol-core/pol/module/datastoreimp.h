@@ -11,16 +11,16 @@
 
 #include "../proplist.h"
 
-#include <map>
 #include <string>
+#include <map>
 
 namespace Pol
 {
 namespace Clib
 {
-class ConfigElem;
-class ConfigFile;
-class StreamWriter;
+  class ConfigElem;
+  class ConfigFile;
+  class StreamWriter;
 }
 namespace Plib
 {

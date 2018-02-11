@@ -6,29 +6,27 @@
 
 
 #include "armor.h"
-
-#include <stddef.h>
-#include <stdexcept>
-
-#include <format/format.h>
-#include "../../bscript/bstruct.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/streamsaver.h"
-#include "../../clib/strutil.h"
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
-#include "../equipdsc.h"
-#include "../extobj.h"
-#include "../globals/settings.h"
-#include "../layers.h"
-#include "../tiles.h"
-#include "../uobject.h"
+#include "item.h"
 #include "armrtmpl.h"
 #include "itemdesc.h"
 
+#include "../../bscript/bstruct.h"
+#include "../../bscript/impstr.h"
+
+#include "../../clib/cfgelem.h"
+#include "../../clib/clib_endian.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/streamsaver.h"
+#include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
+
+#include "../tiles.h"
+#include "../clidata.h"
+#include "../layers.h"
+#include "../ufunc.h"
+
+#include <climits>
+#include <stdexcept>
 
 namespace Pol
 {

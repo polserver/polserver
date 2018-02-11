@@ -7,21 +7,21 @@
  */
 
 
-#include <cstdio>
+#include "../bscript/bobject.h"
 
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
-#include "../clib/rawtypes.h"
-#include "item/item.h"
-#include "layers.h"
+
+#include "realms/realm.h"
+#include "network/client.h"
+#include "network/msghandl.h"
 #include "mobile/charactr.h"
 #include "multi/multi.h"
-#include "network/client.h"
-#include "pktdef.h"
 #include "pktin.h"
-#include "realms/realm.h"
-#include "reftypes.h"
 #include "ufunc.h"
+#include "globals/uvars.h"
+
+#include <cstdio>
 
 namespace Pol
 {

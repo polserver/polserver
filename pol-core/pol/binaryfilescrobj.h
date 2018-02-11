@@ -12,19 +12,9 @@
 #include "../bscript/bobject.h"
 #endif
 
-#include <fstream>
-#include <string>
-
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+#include <fstream>
 
 namespace Pol
 {

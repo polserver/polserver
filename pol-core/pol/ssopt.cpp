@@ -23,19 +23,18 @@
 
 
 #include "ssopt.h"
+#include "pktdef.h"
+#include "globals/settings.h"
 
-#include <cstring>
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
+#include "mobile/attribute.h"
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
+#include "../clib/rawtypes.h"
 #include "../clib/logfacility.h"
-#include "globals/settings.h"
-#include "pktdef.h"
+
+#include <cstring>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecation warning for sprintf, strtok
@@ -99,6 +98,7 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.use_edit_server = elem.remove_bool( "EditServer", false );
   settingsManager.ssopt.carrying_capacity_mod = elem.remove_double( "CarryingCapacityMod", 1.0 );
   settingsManager.ssopt.core_sends_caps = elem.remove_bool( "CoreSendsCaps", false );
+  settingsManager.ssopt.core_handles_defence_caps = elem.remove_bool("CoreHandlesDefenceCaps", false);
   settingsManager.ssopt.send_stat_locks = elem.remove_bool( "SendStatLocks", false );
   settingsManager.ssopt.speech_range = elem.remove_ushort( "SpeechRange", 12 );
   settingsManager.ssopt.whisper_range = elem.remove_ushort( "WhisperRange", 2 );

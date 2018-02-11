@@ -6,8 +6,13 @@
 
 #include "basiciomod.h"
 
-#include "../../clib/logfacility.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
 
+#include "../../clib/clib.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/rawtypes.h"
 
 namespace Pol
 {
@@ -19,7 +24,7 @@ TmplExecutorModule<BasicIoExecutorModule>::FunctionTable
     TmplExecutorModule<BasicIoExecutorModule>::function_table = {
         {"print", &BasicIoExecutorModule::print}};
 
-}  // namespace Bscript
+} // namespace Bscript
 
 namespace Module
 {

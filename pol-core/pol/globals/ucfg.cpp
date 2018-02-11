@@ -1,8 +1,6 @@
 
 #include "ucfg.h"
 
-#include <string.h>
-
 #include "../cfgrepos.h"
 #include "../module/datastoreimp.h"
 
@@ -17,7 +15,9 @@ ConfigurationBuffer::ConfigurationBuffer()
 {
 }
 
-ConfigurationBuffer::~ConfigurationBuffer() {}
+ConfigurationBuffer::~ConfigurationBuffer()
+{
+}
 
 void ConfigurationBuffer::deinitialize()
 {

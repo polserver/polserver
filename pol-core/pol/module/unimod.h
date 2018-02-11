@@ -11,32 +11,9 @@
 #include "../../bscript/execmodl.h"
 #endif
 
-#include "../../clib/rawtypes.h"
 #include "../pktdef.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
-
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-}  // namespace Bscript
-namespace Core
-{
-class UOExecutor;
-class UObject;
-}  // namespace Core
-namespace Items
-{
-class Item;
-}  // namespace Items
-namespace Mobile
-{
-class Character;
-}  // namespace Mobile
-}  // namespace Pol
-
 namespace Pol
 {
 namespace Module
@@ -50,7 +27,7 @@ public:
   ~UnicodeExecutorModule();
 
   Core::UOExecutor& uoexec;
-
+  
   Bscript::BObjectImp* mf_PrintTextAboveUC();    // OverObject, Text, Font, Color
   Bscript::BObjectImp* mf_PrivateTextAboveUC();  // OverObject, Text, ToChar, Font, Color
 

@@ -11,18 +11,8 @@
 #include "../bscript/bobject.h"
 #endif
 
-#include <string>
-#include <tinyxml/tinyxml.h>
-
 #include "../bscript/contiter.h"
-#include "../clib/compilerspecifics.h"
-#include "../clib/rawtypes.h"
-
-namespace Pol {
-namespace Bscript {
-class Executor;
-}  // namespace Bscript
-}  // namespace Pol
+#include "../../lib/tinyxml/tinyxml.h"
 
 namespace Pol
 {
