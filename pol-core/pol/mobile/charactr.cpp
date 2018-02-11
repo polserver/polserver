@@ -1203,6 +1203,23 @@ void Character::revoke_privilege( const char* priv )
   refresh_cached_settings();
 }
 
+bool Character::can_access( const Items::Item* item, int range ) const
+{
+  // TODO: find_legal_item() is awful, we should just check the item 
+  //       properties directly instead of going around searching for a given serial in the world
+
+  // Range < 0 has special meaning. -1 is the default accessible range,
+  // anything smaller ignores the range check.
+  if ( range == -1 )
+    range = Core::settingsManager.ssopt.default_accessible_range;
+
+  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;  
+  if ( within_range && (find_legal_item( this, item->serial ) != NULL) )
+    return true;    
+
+  return false;
+}
+
 bool Character::can_move( const Items::Item* item ) const
 {
   if ( item->objtype_ != UOBJ_CORPSE )

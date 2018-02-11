@@ -2,8 +2,21 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-06-2018</datemodified>
+		<datemodified>02-11-2018</datemodified>
 	</header>
+	<version name="POL099.1">
+		<entry>
+			<date>02-11-2018</date>
+			<author>Nando:</author>
+			<change type="Added">range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT).<br/>
+Valid values: range &gt;= 0, range == ACCESSIBLE_DEFAULT or range == ACCESSIBLE_IGNOREDISTANCE.<br/>
+The default range will be defined as the servspecopt entry &quot;DefaultAccessibleRange&quot;. If that<br/>
+entry doesn't exist, the &quot;DefaultDoubleclickRange&quot; will be used instead (which defaults to 2).</change>
+			<change type="Fixed">Accessible(chr, item) now checks for the distance to the item. Differently from the distance<br/>
+of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,<br/>
+use ACCESSIBLE_IGNOREDISTANCE as range.</change>
+		</entry>
+	</version>
 	<version name="POL099">
 		<entry>
 			<date>02-06-2018</date>

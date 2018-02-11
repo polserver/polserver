@@ -1,4 +1,15 @@
-﻿-- POL099 --
+-- POL099.1 --
+02-11-2018 Nando:  
+  Added:   range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT). 
+           Valid values: range >= 0, range == ACCESSIBLE_DEFAULT or range == ACCESSIBLE_IGNOREDISTANCE.
+		   The default range will be defined as the servspecopt entry "DefaultAccessibleRange". If that 
+		   entry doesn't exist, the "DefaultDoubleclickRange" will be used instead (which defaults to 2).
+		   
+  Fixed:   Accessible(chr, item) now checks for the distance to the item. Differently from the distance 
+           of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,
+		   use ACCESSIBLE_IGNOREDISTANCE as range.
+
+-- POL099 --
 02-06-2018 Turley:
   Fixed:   fileaccess.cfg: Not specifying Directory entry behaves like before and gives access to all directories. (broken since 01-05-2018)
 02-05-2018 Turley:
