@@ -44,6 +44,7 @@ struct ServSpecOpt
   bool decay_items;
   unsigned int default_decay_time;
   unsigned short default_doubleclick_range;
+  int default_accessible_range;
   unsigned short default_light_level;
   bool event_visibility_core_checks;
   unsigned int max_pathfind_range;

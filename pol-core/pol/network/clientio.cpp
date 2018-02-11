@@ -5,33 +5,30 @@
  */
 
 
-#include "client.h"
+#include <errno.h>
+#include <mutex>
+#include <stddef.h>
+#include <string>
 
-#include "iostats.h"
-#include "packethooks.h"
-#include "packets.h"
-#include "packethelper.h"
-#include "clienttransmit.h"
-
-#include "../ctable.h"
-#include "../sockio.h"
-#include "../sockets.h"
-
-#define OPT_LOG_CLIENT_DATA 0
-
-#include "../config.h"
-
+#include <format/format.h>
+#include "../../clib/fdump.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/passert.h"
+#include "../../clib/refptr.h"
+#include "../../clib/spinlock.h"
 #include "../crypt/cryptbase.h"
-#include "../crypt/cryptengine.h"
-#include "../polstats.h"
-#include "../globals/ucfg.h"
+#include "../ctable.h"
+#include "../globals/network.h"
 #include "../globals/state.h"
 #include "../packetscrobj.h"
-
 #include "../polsem.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/fdump.h"
-#include "../../clib/passert.h"
+#include "../polsig.h"
+#include "../sockets.h"
+#include "client.h"
+#include "clienttransmit.h"
+#include "packethelper.h"
+#include "packethooks.h"
+#include "packets.h"
 
 namespace Pol
 {

@@ -13,29 +13,29 @@
 
 #include "auxclient.h"
 
+#include <iosfwd>
+
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
-
 #include "../../clib/cfgelem.h"
+#include "../../clib/clib.h"
 #include "../../clib/esignal.h"
-#include "../../clib/sckutil.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../../clib/threadhelp.h"
 #include "../../clib/logfacility.h"
-
+#include "../../clib/sckutil.h"
+#include "../../clib/socketsvc.h"
+#include "../../clib/threadhelp.h"
+#include "../../clib/wnsckt.h"
 #include "../../plib/pkg.h"
-#include "../polsem.h"
-#include "../scrsched.h"
-#include "../sockets.h"
-#include "../module/uomod.h"
-#include "../module/osmod.h"
 #include "../globals/network.h"
-
-#include <chrono>
-#include <memory>
-#include <thread>
+#include "../module/osmod.h"
+#include "../module/uomod.h"
+#include "../polsem.h"
+#include "../scrdef.h"
+#include "../scrsched.h"
+#include "../uoexec.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp deprecation
@@ -139,6 +139,8 @@ bool AuxClientThread::init()
       uoemod = Core::start_script( _auxservice->scriptdef(), _auxconnection.get() );
     else
       uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params );
+    if ( uoemod == nullptr )
+      return false;
     _uoexec = uoemod->uoexec.weakptr;
     if ( _assume_string )
     {
@@ -235,10 +237,7 @@ void AuxClientThread::transmit( const Bscript::BObjectImp* value )
   // defer transmit to not block server
   std::string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack();
   ++_transmit_counter;
-  Core::networkManager.auxthreadpool->push( [tmp, this]()
-                                            {
-                                              transmit( tmp );
-                                            } );
+  Core::networkManager.auxthreadpool->push( [tmp, this]() { transmit( tmp ); } );
 }
 
 void AuxClientThread::transmit( const std::string& msg )
@@ -287,12 +286,10 @@ void AuxService::run()
     {
       Core::PolLock lock;
       AuxClientThread* client( new AuxClientThread( this, listener ) );
-      Core::networkManager.auxthreadpool->push(
-          [client]()
-          {
-            std::unique_ptr<AuxClientThread> _clientptr( client );
-            _clientptr->run();
-          } );
+      Core::networkManager.auxthreadpool->push( [client]() {
+        std::unique_ptr<AuxClientThread> _clientptr( client );
+        _clientptr->run();
+      } );
     }
   }
 }

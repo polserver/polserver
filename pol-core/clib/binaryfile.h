@@ -8,6 +8,7 @@
 #define CLIB_BINARYFILE_H
 
 #include <fstream>
+#include <string>
 #include <vector>
 
 namespace Pol

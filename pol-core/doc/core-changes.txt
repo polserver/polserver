@@ -1,14 +1,18 @@
-﻿-- POL099 --
-02-09-2018 DevGIB:
-  Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, SwingSpeed, 
-           DamageIncrease, LuckMod, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.
-  Changed: Elevated Luck to UObject and added related LuckMod.
-  Changed: Elevated dmg_mod to UObject and linked to DamageIncrease.
-  Changed: Elevated hitchance_mod to UObject and linked to HitChance.
-  Changed: Elevated speed_mod to UObject and linked to SwingSpeed.
-  Added:   Support for new prop changes to the status bar packet.
-  Added:   Resistances will now be limited to caps by core, unless caps aren't set or are 0.
-  Added:   CoreHandlesDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will limit all resistances and defence increase cap to caps set on the mobile.
+﻿-- POL100 --
+02-11-2018 Nando:  
+  Added:   range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT). 
+           Valid values: range >= 0, range == ACCESSIBLE_DEFAULT or range == ACCESSIBLE_IGNOREDISTANCE.
+		   The default range will be defined as the servspecopt entry "DefaultAccessibleRange". If that 
+		   entry doesn't exist, the "DefaultDoubleclickRange" will be used instead (which defaults to 2).
+		   
+  Fixed:   Accessible(chr, item) now checks for the distance to the item. Differently from the distance 
+           of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,
+		   use ACCESSIBLE_IGNOREDISTANCE as range.
+  
+02-10-2018 Nando:
+  Changed: POL099 is officially released after almost 10 years. Starting the work on POL100. 
+
+-- POL099 --
 02-06-2018 Turley:
   Fixed:   fileaccess.cfg: Not specifying Directory entry behaves like before and gives access to all directories. (broken since 01-05-2018)
 02-05-2018 Turley:
@@ -37,6 +41,7 @@
            look[mykey].call();
           
   Changed: Version number of ecl files, recompilation needed.
+           
 01-07-2018 Kevin:
   Added:   basic::UnpackJSON(string)
            Given a string in JSON format, returns an eScript object representing that JSON value.

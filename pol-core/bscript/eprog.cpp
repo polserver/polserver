@@ -4,14 +4,12 @@
  */
 
 #include "eprog.h"
-#include "escriptv.h"
-#include "fmodule.h"
-#include "filefmt.h"
-
-#include "../clib/stlutil.h"
 
 #include <cstdio>
-#include <climits>
+
+#include "../clib/refptr.h"
+#include "escriptv.h"
+#include "fmodule.h"
 
 namespace Pol
 {

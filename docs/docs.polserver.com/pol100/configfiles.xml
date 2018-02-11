@@ -327,7 +327,8 @@ Spell (int spellid)
     <structure>
 [AllowSecureTradingInWarMode    (0/1)]
 [DefaultDecayTime               (int minutes)]
-[DefaultDoubleclickRange        (int range)]
+[DefaultDoubleclickRange        (int range {default 2})]
+[DefaultAccessibleRange         (int range {default DefaultDoubleclickRange})]
 [DefaultLightLevel              (int level)]
 [MovementUsesStamina            (0/1)]
 [TotalStatsAtCreation           (string see below)]

@@ -2264,6 +2264,25 @@ void Executor::ins_call_method_id( const Instruction& ins )
   unsigned nparams = ins.token.type;
   getParams( nparams );
 
+  if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
+  {
+    BObjectRef objref = ValueStack.back();
+    auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+    Instruction jmp;
+    if ( funcr->validCall( ins.token.lval, *this, &jmp ) )
+    {
+      // params need to be on the stack, without current objectref
+      ValueStack.pop_back();
+      for ( auto& p : fparams )
+        ValueStack.push_back( p );
+      // jump to function
+      ins_jsr_userfunc( jmp );
+      fparams.clear();
+      // switch to new block
+      ins_makelocal( jmp );
+      return;
+    }
+  }
   BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;

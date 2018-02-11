@@ -6,11 +6,14 @@
 
 
 #include "escrutil.h"
+
+#include <climits>
+#include <cmath>
+#include <ctype.h>
+#include <stdlib.h>
+
 #include "bobject.h"
 #include "impstr.h"
-
-#include <cmath>
-#include <climits>
 
 namespace Pol
 {

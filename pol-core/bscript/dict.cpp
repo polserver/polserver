@@ -9,29 +9,22 @@
 
 #include "dict.h"
 
-#include "executor.h"
-
-#include "berror.h"
-#include "impstr.h"
-#include "contiter.h"
-#include "objmembers.h"
-#include "objmethods.h"
+#include <stddef.h>
 
 #include "../clib/stlutil.h"
-
-#include <sstream>
+#include "berror.h"
+#include "contiter.h"
+#include "executor.h"
+#include "impstr.h"
+#include "objmethods.h"
 
 namespace Pol
 {
 namespace Bscript
 {
-BDictionary::BDictionary() : BObjectImp( OTDictionary ), contents_()
-{
-}
+BDictionary::BDictionary() : BObjectImp( OTDictionary ), contents_() {}
 
-BDictionary::BDictionary( BObjectType type ) : BObjectImp( type ), contents_()
-{
-}
+BDictionary::BDictionary( BObjectType type ) : BObjectImp( type ), contents_() {}
 
 BDictionary::BDictionary( const BDictionary& dict, BObjectType type )
     : BObjectImp( type ), contents_()
