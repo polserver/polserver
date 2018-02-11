@@ -7,8 +7,8 @@
 #ifndef CLIB_IOHELP_H
 #define CLIB_IOHELP_H
 
-#include <string>
 #include <fstream>
+#include <string>
 
 namespace Pol
 {

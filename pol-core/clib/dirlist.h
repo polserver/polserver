@@ -12,8 +12,8 @@
 #include "Header_Windows.h"
 
 #ifndef WINDOWS
-#include <sys/types.h>
 #include <dirent.h>
+#include <sys/types.h>
 #endif
 
 namespace Pol

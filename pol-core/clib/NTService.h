@@ -9,6 +9,8 @@
 #ifndef _NTSERVICE_H_
 #define _NTSERVICE_H_
 
+#include "Header_Windows.h"
+
 #define SERVICE_CONTROL_USER 128
 namespace Pol
 {

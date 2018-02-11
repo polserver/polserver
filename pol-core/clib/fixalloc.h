@@ -37,8 +37,7 @@ template <size_t N, size_t B>
 class fixed_allocator
 {
 public:
-  union Buffer
-  {
+  union Buffer {
     Buffer* next;
     char data[N];
   };

@@ -138,8 +138,7 @@ inline unsigned int ref_counted::instance() const
 #endif
 
 template <class T>
-ref_ptr<T>::ref_ptr( T* ptr )
-    : _ptr( ptr )
+ref_ptr<T>::ref_ptr( T* ptr ) : _ptr( ptr )
 {
   add_ref();
 #if REFPTR_DEBUG
@@ -147,8 +146,7 @@ ref_ptr<T>::ref_ptr( T* ptr )
 #endif
 }
 template <class T>
-ref_ptr<T>::ref_ptr( const ref_ptr& rptr )
-  : _ptr(rptr.get())
+ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr.get() )
 {
   add_ref();
 #if REFPTR_DEBUG
@@ -157,11 +155,10 @@ ref_ptr<T>::ref_ptr( const ref_ptr& rptr )
 }
 
 template <class T>
-ref_ptr<T>::ref_ptr(ref_ptr&& rptr) POL_NOEXCEPT
-	: _ptr(rptr._ptr.exchange(nullptr))
+ref_ptr<T>::ref_ptr( ref_ptr&& rptr ) POL_NOEXCEPT : _ptr( rptr._ptr.exchange( nullptr ) )
 {
 #if REFPTR_DEBUG
-	--refptr_count;
+  --refptr_count;
 #endif
 }
 
@@ -267,11 +264,11 @@ ref_ptr<T>& ref_ptr<T>::operator=( const ref_ptr<T>& rptr )
 }
 
 template <class T>
-ref_ptr<T>& ref_ptr<T>::operator=(ref_ptr<T>&& rptr)
+ref_ptr<T>& ref_ptr<T>::operator=( ref_ptr<T>&& rptr )
 {
-	release();
-	_ptr = rptr._ptr.exchange(nullptr);
-	return *this;
+  release();
+  _ptr = rptr._ptr.exchange( nullptr );
+  return *this;
 }
 
 template <class T>
@@ -299,7 +296,7 @@ void ref_ptr<T>::add_ref()
 template <class T>
 void ref_ptr<T>::release()
 {
-  T* Pointee = _ptr.exchange(nullptr);
+  T* Pointee = _ptr.exchange( nullptr );
   if ( Pointee )
   {
     if ( 0 == Pointee->release( REFERER_PARAM( this ) ) )
