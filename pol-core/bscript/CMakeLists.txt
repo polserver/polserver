@@ -10,6 +10,10 @@ set_compile_flags(${lib_name} 0)
 
 target_link_libraries(${lib_name} PUBLIC
   clib
-  pthread
 )
+if (${linux})
+  target_link_libraries(${lib_name} PUBLIC
+    pthread    
+  )
+endif()
 

@@ -12,6 +12,7 @@ set (runecl_sources  # sorted !
   ../pol/module/utilmod.cpp 
   ../pol/proplist.cpp
   ../pol/xmlfilescrobj.cpp
+  CMakeSources.cmake 
   RunEclMain.cpp
   RunEclMain.h
   StdAfx.h
