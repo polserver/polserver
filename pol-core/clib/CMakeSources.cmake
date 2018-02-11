@@ -90,7 +90,7 @@ set (clib_sources
   #vld.h
 )
 if(windows)
-  set (clib_sources clib_sources
+  set (clib_sources ${clib_sources}
     ../../lib/StackWalker/StackWalker.cpp
     NTService.h
     StdAfx.cpp
@@ -99,7 +99,6 @@ if(windows)
     mdumpimp.h
     msjexhnd.cpp
     msjexhnd.h
-    mstrexcpt.cpp
     ntservmsg.h
     strexcpt.cpp #TODO: remove as default? 
     strexcpt.h

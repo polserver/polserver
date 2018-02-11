@@ -445,7 +445,7 @@ set (pol_sources  # sorted !
   zone.h
 )
 if(windows)
-  set (pol_sources pol_sources
+  set (pol_sources ${pol_sources}
     polservice.cpp
   )
 endif()
