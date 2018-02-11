@@ -5,30 +5,25 @@
 #include "pol_global_config.h"
 #endif
 
-#include "RunEclMain.h"
+#include <ctime>
+#include <iostream>
 
-#include "../clib/cfgelem.h"
-#include "../clib/clib.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-#include "../clib/timer.h"
-
-
+#include "../bscript/bobject.h"
 #include "../bscript/config.h"
-#include "../bscript/eprog.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/execmodl.h"
 #include "../bscript/executor.h"
 #include "../bscript/filefmt.h"
 #include "../bscript/object.h"
-#include "../bscript/symcont.h"
-#include "../bscript/token.h"
-#include "../bscript/tokens.h"
-
+#include "../clib/Program/ProgramMain.h"
+#include "../clib/boostutils.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/refptr.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include "RunEclMain.h"
+#include <format/format.h>
 
 #include "../pol/module/basiciomod.h"
 #include "../pol/module/basicmod.h"
@@ -40,13 +35,6 @@
 #include "../pol/module/utilmod.h"
 #include "../pol/polcfg.h"
 #include "../pol/sqlscrobj.h"
-
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-
-#include <iomanip>
-#include <iostream>
 
 namespace Pol
 {

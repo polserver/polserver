@@ -19,26 +19,23 @@
 
 #include "packethooks.h"
 
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
+#include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/fileutil.h"
+#include "../../clib/rawtypes.h"
+#include "../../clib/refptr.h"
 #include "../../clib/strutil.h"
-
-#include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
-
 #include "../../plib/pkg.h"
-
-#include "../accounts/account.h"
-#include "../mobile/charactr.h"
-
-#include "../packetscrobj.h"
-#include "../uoscrobj.h"
-#include "../syshook.h"
-#include "../polsem.h"
 #include "../globals/network.h"
+#include "../mobile/charactr.h"
+#include "../packetscrobj.h"
+#include "../syshook.h"
+#include "client.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecation warnings for stricmp
@@ -462,7 +459,7 @@ PacketHookData::PacketHookData()
 
 PacketHookData::~PacketHookData()
 {
-  std::map<u32, PacketHookData *>::iterator itr = SubCommands.begin(), end = SubCommands.end();
+  std::map<u32, PacketHookData*>::iterator itr = SubCommands.begin(), end = SubCommands.end();
   for ( ; itr != end; ++itr )
   {
     delete itr->second;

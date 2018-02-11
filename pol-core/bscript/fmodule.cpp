@@ -5,11 +5,9 @@
 
 #include "fmodule.h"
 
-#include "userfunc.h"
-
-#include "../clib/clib.h"
-
 #include <cstddef>
+
+#include "userfunc.h"
 
 namespace Pol
 {
@@ -20,9 +18,7 @@ ModuleFunction::ModuleFunction( const char* fname, int i_nargs, UserFunction* i_
 {
 }
 
-ModuleFunction::~ModuleFunction()
-{
-}
+ModuleFunction::~ModuleFunction() {}
 
 FunctionalityModule::FunctionalityModule( const char* i_modname )
     : have_indexes( false ), modulename( i_modname )

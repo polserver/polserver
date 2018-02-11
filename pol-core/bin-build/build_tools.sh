@@ -5,8 +5,12 @@ prune () {
 	rm -r -f pol-core
 	rm -r -f lib
 	rm -r -f CMakeFiles
-	rm CMakeCache.txt
-	rm Makefile
+	rm -f CMakeCache.txt
+	rm -f Makefile
+	rm -f install_manifest.txt
+	rm -f CPack*
+	rm -f pol_global_config.h
+	rm -f cmake_install.cmake
 }
 
 case "$1" in
@@ -17,14 +21,16 @@ case "$1" in
 		./build_linux.sh
 		;;
 	-c|-clang37)
-		export CXX="clang++-3.7" CC="clang-3.7";
-		echo "FORCING CLANG-3.7"
+		export CXX="clang++" CC="clang";
+		echo "FORCING CLANG"
 		prune
 		./build_linux.sh
 		;;
 	-p|-prune)
-		echo "PRUNE.."
-		prune
+		if [ ${PWD##*/} = "bin-build" ]; then
+		  echo "PRUNE.."
+		  prune
+		fi
 		exit
 		;;
 	-t|-tidy)

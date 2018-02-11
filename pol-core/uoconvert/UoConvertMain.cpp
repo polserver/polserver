@@ -1,36 +1,33 @@
 #include "UoConvertMain.h"
 
-#include "../pol/objtype.h"
-#include "../pol/polcfg.h"
+#include <stdio.h>
+#include <string.h>
+#include <string>
 
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-#include "../pol/udatfile.h"
-#include "../pol/polfile.h"
-
-#include "../plib/mapcell.h"
-#include "../plib/mapblock.h"
-#include "../plib/mapsolid.h"
-#include "../plib/mapfunc.h"
-#include "../plib/mapserver.h"
-#include "../plib/mapshape.h"
-#include "../plib/mapwriter.h"
-#include "../plib/realmdescriptor.h"
-#include "../plib/systemstate.h"
-
-#include "../clib/stlutil.h"
+#include "../clib/Program/ProgramMain.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
 #include "../clib/timer.h"
-
-#include <string>
-#include <set>
-#include <vector>
-#include <stdexcept>
-#include <limits>
+#include "../plib/mapcell.h"
+#include "../plib/mapfunc.h"
+#include "../plib/mapshape.h"
+#include "../plib/mapsolid.h"
+#include "../plib/maptile.h"
+#include "../plib/mapwriter.h"
+#include "../plib/realmdescriptor.h"
+#include "../plib/systemstate.h"
+#include "../pol/clidata.h"
+#include "../pol/objtype.h"
+#include "../pol/polfile.h"
+#include "../pol/udatfile.h"
+#include "../pol/uofile.h"
+#include "../pol/uofilei.h"
+#include "../pol/ustruct.h"
 
 namespace Pol
 {
@@ -45,12 +42,8 @@ using namespace Pol::Plib;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-UoConvertMain::UoConvertMain() : Pol::Clib::ProgramMain()
-{
-}
-UoConvertMain::~UoConvertMain()
-{
-}
+UoConvertMain::UoConvertMain() : Pol::Clib::ProgramMain() {}
+UoConvertMain::~UoConvertMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 
 void UoConvertMain::showHelp()
@@ -119,8 +112,8 @@ void display_flags()
               unsigned int polflags = Plib::polflags_from_tileflags(
                   0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
               unsigned moveland = ( polflags & Plib::FLAG::MOVELAND ) ? 1 : 0;
-              INFO_PRINT.Format( "{} {} {} {} {} {}: {}\n" ) << blocking << platform << walk << wall
-                                                             << half << floor << moveland;
+              INFO_PRINT.Format( "{} {} {} {} {} {}: {}\n" )
+                  << blocking << platform << walk << wall << half << floor << moveland;
             }
           }
         }
@@ -171,8 +164,8 @@ void create_maptile( const std::string& realmname )
           safe_getmapinfo( x, y, &z, &mi );
 
           if ( mi.landtile > 0x3FFF )
-            INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x
-                                                                                 << y << z;
+            INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" )
+                << mi.landtile << x << y << z;
 
           // for water, don't average with surrounding tiles.
           if ( landtile_uoflags( mi.landtile ) & Core::USTRUCT_TILE::FLAG_LIQUID )
@@ -475,8 +468,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
       safe_getmapinfo( x, y, &z, &mi );
 
       if ( mi.landtile > 0x3FFF )
-        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x
-                                                                             << y << z;
+        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" )
+            << mi.landtile << x << y << z;
 
       // for water, don't average with surrounding tiles.
       if ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
@@ -487,8 +480,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
       z = low_z;
 
       if ( mi.landtile > 0x3FFF )
-        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x
-                                                                             << y << z;
+        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" )
+            << mi.landtile << x << y << z;
 
       unsigned int lt_flags = landtile_uoflags( mi.landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
@@ -505,11 +498,12 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
       if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
         lt_height = 20;
 
-      readstatics( statics, x, y, USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
-                                      USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID |
-                                      USTRUCT_TILE::FLAG_HOVEROVER
+      readstatics( statics, x, y,
+                   USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
+                       USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID |
+                       USTRUCT_TILE::FLAG_HOVEROVER
                    // USTRUCT_TILE::FLAG__WALK
-                   );
+      );
 
       for ( unsigned i = 0; i < statics.size(); ++i )
       {

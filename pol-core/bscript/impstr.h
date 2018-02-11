@@ -11,8 +11,8 @@
 #include "bobject.h"
 #endif
 
-#include <string>
 #include <stack>
+#include <string>
 
 namespace Pol
 {
@@ -84,6 +84,7 @@ public:
   operator const char*() const { return value_.data(); }
   void remove( const char* s );
   virtual bool isTrue() const POL_OVERRIDE { return !value_.empty(); }
+
 public:
   virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
   virtual BObjectImp* selfPlusObj( const BObjectImp& objimp ) const POL_OVERRIDE;

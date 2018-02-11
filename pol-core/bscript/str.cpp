@@ -8,16 +8,16 @@
  * sense.
  */
 
-#include "impstr.h"
+#include <cstdlib>
+#include <ctype.h>
+#include <string>
 
 #include "../clib/stlutil.h"
 #include "berror.h"
 #include "bobject.h"
 #include "executor.h"
+#include "impstr.h"
 #include "objmethods.h"
-
-#include <cstdlib>
-#include <cstring>
 
 #ifdef __GNUG__
 #include <streambuf>

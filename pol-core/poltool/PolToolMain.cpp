@@ -1,20 +1,21 @@
 #include "PolToolMain.h"
+
+#include <fstream>
+#include <string>
+
+#include <format/format.h>
+#include "../clib/Program/ProgramMain.h"
 #include "../clib/clib_endian.h"
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
 #include "../plib/mapcell.h"
 #include "../plib/mapfunc.h"
 #include "../plib/mapserver.h"
-#include "../plib/filemapserver.h"
 #include "../plib/mapshape.h"
-#include "../plib/realmdescriptor.h"
 #include "../plib/maptile.h"
 #include "../plib/maptileserver.h"
-
-#include <string>
-#include <fstream>
-#include <memory>
+#include "../plib/realmdescriptor.h"
 #ifdef USE_SYSTEM_ZLIB
 #include <zlib.h>
 #else
@@ -29,12 +30,8 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PolToolMain::PolToolMain() : ProgramMain()
-{
-}
-PolToolMain::~PolToolMain()
-{
-}
+PolToolMain::PolToolMain() : ProgramMain() {}
+PolToolMain::~PolToolMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 
 void PolToolMain::showHelp()
@@ -164,14 +161,10 @@ int PolToolMain::unpackCompressedGump()
   }
 
   size_t index = 0;
-  auto toInt = [&]( size_t i ) -> unsigned int
-  {
+  auto toInt = [&]( size_t i ) -> unsigned int {
     return ( bytes[i] << 24 ) | ( bytes[i + 1] << 16 ) | ( bytes[i + 2] << 8 ) | ( bytes[i + 3] );
   };
-  auto toShort = [&]( size_t i ) -> unsigned short
-  {
-    return ( bytes[i] << 8 ) | ( bytes[i + 1] );
-  };
+  auto toShort = [&]( size_t i ) -> unsigned short { return ( bytes[i] << 8 ) | ( bytes[i + 1] ); };
   if ( bytes[index] != 0xdd )
     return 1;
   ++index;
@@ -195,7 +188,7 @@ int PolToolMain::unpackCompressedGump()
   index += 4;
   auto datalen = static_cast<unsigned long>( toInt( index ) );
   index += 4;
-  std::unique_ptr<unsigned char[]> uncompressed(new unsigned char[datalen]);
+  std::unique_ptr<unsigned char[]> uncompressed( new unsigned char[datalen] );
   int res = uncompress( uncompressed.get(), &datalen, &bytes.data()[index], cbuflen );
   if ( res < 0 )
     return 1;
@@ -217,7 +210,7 @@ int PolToolMain::unpackCompressedGump()
   index += 4;
   datalen = static_cast<unsigned long>( toInt( index ) );
   index += 4;
-  std::unique_ptr<unsigned char[]> uncompressed2(new unsigned char[datalen]);
+  std::unique_ptr<unsigned char[]> uncompressed2( new unsigned char[datalen] );
   res = uncompress( uncompressed2.get(), &datalen, &bytes.data()[index], cbuflen );
   if ( res < 0 )
     return 1;

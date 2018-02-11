@@ -4,6 +4,7 @@
  */
 
 #include "poltest.h"
+
 #include "testenv.h"
 
 #ifdef WINDOWS

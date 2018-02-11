@@ -9,11 +9,13 @@
 
 
 #include "packets.h"
-#include "packethelper.h"
 
 #include "../../clib/rawtypes.h"
-
-#include <stdexcept>
+#include "../../clib/spinlock.h"
+#include "../pktboth.h"
+#include "../pktbothid.h"
+#include "packethelper.h"
+#include "packetinterface.h"
 
 namespace Pol
 {
@@ -159,9 +161,7 @@ size_t PacketsSingleton::estimateSize() const
   return size;
 }
 
-PacketQueueSingle::PacketQueueSingle() : _packets(), _lock()
-{
-}
+PacketQueueSingle::PacketQueueSingle() : _packets(), _lock() {}
 PacketInterface* PacketQueueSingle::GetNext( u8 id, u16 /*sub*/ )
 {
   // critical start
@@ -210,9 +210,7 @@ size_t PacketQueueSingle::estimateSize() const
   return size;
 }
 
-PacketQueueSubs::PacketQueueSubs() : _packets(), _lock()
-{
-}
+PacketQueueSubs::PacketQueueSubs() : _packets(), _lock() {}
 PacketQueueSubs::~PacketQueueSubs()
 {
   Clib::SpinLockGuard lock( _lock );

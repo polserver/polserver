@@ -8,29 +8,30 @@
  * - 2009/12/21 Turley:    ._method() call fix
  */
 
-#include "bobject.h"
-#include "objmembers.h"
-#include "objmethods.h"
+#include <assert.h>
+#include <istream>
+#include <stddef.h>
+#include <string>
 
+#include "../clib/clib.h"
+#include "../clib/fixalloc.h"
+#include "../clib/logfacility.h"
+#include "../clib/random.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "../clib/stlutil.h"
 #include "berror.h"
+#include "bobject.h"
 #include "bstruct.h"
 #include "dict.h"
-#include "escriptv.h"
 #include "executor.h"
 #include "impstr.h"
 #include "object.h"
-
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/stlutil.h"
-
-#include <istream>
-#include <mutex>
-#include <ostream>
-#include <string>
+#include "objmembers.h"
+#include "objmethods.h"
 
 #if BOBJECTIMP_DEBUG
+#include "escriptv.h"
 #include <unordered_map>
 #endif
 
@@ -250,6 +251,8 @@ const char* BObjectImp::typestr( BObjectType typ )
     return "BinaryFile";
   case OTBoolean:
     return "Boolean";
+  case OTFuncRef:
+    return "FunctionReference";
   default:
     return "Undefined";
   }
@@ -1840,6 +1843,86 @@ bool BBoolean::operator==( const BObjectImp& objimp ) const
 std::string BBoolean::getStringRep() const
 {
   return bval_ ? "true" : "false";
+}
+
+
+BFunctionRef::BFunctionRef( int progcounter, int param_count, const std::string& scriptname )
+    : BObjectImp( OTFuncRef ),
+      pc_( progcounter ),
+      num_params_( param_count ),
+      script_name_( scriptname )
+{
+}
+
+BFunctionRef::BFunctionRef( const BFunctionRef& B )
+    : BFunctionRef( B.pc_, B.num_params_, B.script_name_ )
+{
+}
+
+BObjectImp* BFunctionRef::copy() const
+{
+  return new BFunctionRef( *this );
+}
+
+size_t BFunctionRef::sizeEstimate() const
+{
+  return sizeof( BFunctionRef );
+}
+
+bool BFunctionRef::isTrue() const
+{
+  return false;
+}
+
+bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
+{
+  return false;
+}
+
+std::string BFunctionRef::getStringRep() const
+{
+  return "FunctionObject";
+}
+
+BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )
+{
+  ObjMethod* objmethod = getKnownObjMethod( methodname );
+  if ( objmethod != nullptr )
+    return call_method_id( objmethod->id, ex );
+  return nullptr;
+}
+
+bool BFunctionRef::validCall( const int id, Executor& ex, Instruction* inst ) const
+{
+  if ( id != MTH_CALL )
+    return false;
+  if ( ex.numParams() != static_cast<size_t>( num_params_ ) )
+    return false;
+  if ( ex.scriptname() != script_name_ )
+    return false;
+  inst->func = &Executor::ins_nop;
+  inst->token.lval = pc_;
+  return true;
+}
+
+bool BFunctionRef::validCall( const char* methodname, Executor& ex, Instruction* inst ) const
+{
+  ObjMethod* objmethod = getKnownObjMethod( methodname );
+  if ( objmethod == nullptr )
+    return false;
+  return validCall( objmethod->id, ex, inst );
+}
+
+BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /*forcebuiltin*/ )
+{
+  switch ( id )
+  {
+  case MTH_CALL:
+    return nullptr;  // handled directly
+  default:
+    return nullptr;
+  }
+  return nullptr;
 }
 }
 }

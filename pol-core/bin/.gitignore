@@ -7,4 +7,5 @@
 *-dynamic
 *.so*
 *.a
-
+_CPack*
+*.zip

@@ -15,36 +15,28 @@
 
 #include "executor.h"
 
-#include "berror.h"
-#include "config.h"
-#include "execmodl.h"
-
-#include "bstruct.h"
-#include "dict.h"
-#include "escriptv.h"
-#include "eprog.h"
-#include "impstr.h"
-#include "modules.h"
-#include "token.h"
-#include "tokens.h"
-#include "operator.h"
-#include "contiter.h"
-#include "filefmt.h"
-#include "fmodule.h"
-
 #include "../clib/clib.h"
+#include "../clib/compilerspecifics.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
-#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "berror.h"
+#include "config.h"
+#include "contiter.h"
+#include "dict.h"
+#include "eprog.h"
+#include "escriptv.h"
+#include "execmodl.h"
+#include "fmodule.h"
+#include "impstr.h"
+#include "token.h"
+#include "tokens.h"
 #ifdef MEMORYLEAK
 #include "../clib/mlog.h"
 #endif
 
-#include <climits>
 #include <cstdlib>
-#include <stdexcept>
-#include <stack>
+#include <exception>
 
 #ifdef ESCRIPT_PROFILE
 #ifdef _WIN32
@@ -476,7 +468,7 @@ bool Executor::getObjArrayParam( unsigned param, ObjArray*& pobjarr )
 void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type )
 {
   BApplicPtr* ap =
-      EXPLICIT_CAST(BApplicPtr*, BObjectImp*)( getParamImp( param, BObjectImp::OTApplicPtr ) );
+      EXPLICIT_CAST( BApplicPtr*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicPtr ) );
   if ( ap == NULL )
     return NULL;
 
@@ -499,8 +491,8 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
 
 BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjType* object_type )
 {
-  BApplicObjBase* aob =
-      EXPLICIT_CAST(BApplicObjBase*, BObjectImp*)( getParamImp( param, BObjectImp::OTApplicObj ) );
+  BApplicObjBase* aob = EXPLICIT_CAST(
+      BApplicObjBase*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicObj ) );
   if ( aob == NULL )
     return NULL;
 
@@ -955,9 +947,7 @@ BObjectRef Executor::checkmember( BObject& left, const BObject& right )
 }
 
 
-ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown )
-{
-}
+ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown ) {}
 BObject* ContIterator::step()
 {
   return NULL;
@@ -2287,7 +2277,6 @@ void Executor::ins_call_method_id( const Instruction& ins )
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
-
   if ( func_result_ )
   {
     if ( imp )
@@ -2315,6 +2304,26 @@ void Executor::ins_call_method( const Instruction& ins )
 {
   unsigned nparams = ins.token.lval;
   getParams( nparams );
+
+  if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
+  {
+    BObjectRef objref = ValueStack.back();
+    auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+    Instruction jmp;
+    if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
+    {
+      // params need to be on the stack, without current objectref
+      ValueStack.pop_back();
+      for ( auto& p : fparams )
+        ValueStack.push_back( p );
+      // jump to function
+      ins_jsr_userfunc( jmp );
+      fparams.clear();
+      // switch to new block
+      ins_makelocal( jmp );
+      return;
+    }
+  }
 
   BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE

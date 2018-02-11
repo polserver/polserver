@@ -11,11 +11,11 @@
 
 #include "msgfiltr.h"
 
-#include "../pktboth.h"
-#include "../pktin.h"
-#include "../globals/network.h"
-
 #include <cstring>
+
+#include "../globals/network.h"
+#include "../pktbothid.h"
+#include "../pktinid.h"
 
 namespace Pol
 {

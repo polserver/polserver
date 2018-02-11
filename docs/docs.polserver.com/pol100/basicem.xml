@@ -4,7 +4,7 @@
 <ESCRIPT>  
   <fileheader fname="Basic.em">
     <filedesc>Functions for converting and manipulating number, character, and string values.</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>02/05/2018</datemodified>
 <constant>const TRIM_LEFT  := 0x1; // Trim whitespace from Left of string.</constant>
 <constant>const TRIM_RIGHT := 0x2; // Trim whitespace from Right of string.</constant>
 <constant>const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</constant>
@@ -48,6 +48,9 @@
 <constant>const OT_SQLCONN          := 35;</constant>
 <constant>const OT_SQLRESULT        := 36;</constant>
 <constant>const OT_SQLROW           := 37;</constant>
+<constant>  </constant>
+<constant>const OT_BOOLEAN          := 38;</constant>
+<constant>const OT_FUNCOBJECT       := 39;</constant>
   </fileheader>
 
   <function name="CAsc"> 
@@ -322,6 +325,7 @@ const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code
     <explain>array -&gt; array</explain>
     <explain>struct -&gt; object</explain>
     <explain>dict -&gt; object</explain>
+    <explain>bool -&gt; bool</explain>
     <explain>everything else -&gt; null</explain>
     <return>string</return>
   </function>
@@ -336,7 +340,15 @@ const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code
     <explain>string -&gt; string</explain>
     <explain>array -&gt; array</explain>
     <explain>object-&gt; struct</explain>
+    <explain>bool -&gt; bool</explain>
     <explain>null -&gt; uninitialized object</explain>
-    <return>Any one of: double, string, array, struct, or uninit.</return>
+    <return>Any one of: double, string, array, struct, boolean, or uninit.</return>
+  </function>
+  
+  <function name="Boolean">
+    <prototype>Boolean( number )</prototype>
+	<parameter name="number" value="1/0" />
+    <explain>Converts a number to an boolean value.</explain>
+    <return>Returns an Boolean object.</return>
   </function>
 </ESCRIPT>

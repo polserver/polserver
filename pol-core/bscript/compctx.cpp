@@ -7,7 +7,9 @@
 #include "compctx.h"
 
 #include <cstring>
-#include <ostream>
+#include <ctype.h>
+
+#include <format/format.h>
 
 namespace Pol
 {
@@ -65,7 +67,7 @@ int eatToCommentEnd( CompilerContext& ctx )
   }
   return -1;
 }
-} // namespace
+}  // namespace
 
 CompilerContext::CompilerContext()
     : s( NULL ), line( 1 ), filename( "" ), s_begin( NULL ), dbg_filenum( 0 )
@@ -176,6 +178,5 @@ void CompilerContext::printOnShort( fmt::Writer& writer ) const
 {
   writer << filename << ", Line " << line << "\n";
 }
-
 }
 }

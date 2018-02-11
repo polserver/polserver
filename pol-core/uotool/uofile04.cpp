@@ -3,17 +3,13 @@
  * @par History
  */
 
-
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-
-//#include "../pol/polcfg.h"
-#include "../pol/udatfile.h"
-#include "../pol/ustruct.h"
+#include <set>
+#include <stdio.h>
 
 #include "../clib/logfacility.h"
-
-#include <set>
+#include "../clib/rawtypes.h"
+#include "../pol/uofilei.h"
+#include "../pol/ustruct.h"
 
 namespace Pol
 {

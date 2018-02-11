@@ -1,12 +1,12 @@
 
 #include "packetdefs.h"
 
-#include "../../clib/logfacility.h"
-
+#include "../../clib/rawtypes.h"
 #include "../globals/settings.h"
-#include "../uobject.h"
-#include "../pktdef.h"
 #include "../mobile/charactr.h"
+#include "../pktdef.h"
+#include "../uobject.h"
+#include "client.h"
 
 namespace Pol
 {
@@ -372,9 +372,7 @@ void PlaySoundPkt::build()
   _p->WriteFlipped<s16>( _zcenter );
 }
 
-RemoveObjectPkt::RemoveObjectPkt( u32 serial_ext ) : _serial( serial_ext ), _p()
-{
-}
+RemoveObjectPkt::RemoveObjectPkt( u32 serial_ext ) : _serial( serial_ext ), _p() {}
 
 void RemoveObjectPkt::update( u32 serial )
 {
@@ -866,9 +864,7 @@ void HealthBarStatusUpdate::Send( Client* client )
 }
 
 
-MoveChrPkt::MoveChrPkt( const Mobile::Character* chr ) : PktSender(), _chr( chr ), _p()
-{
-}
+MoveChrPkt::MoveChrPkt( const Mobile::Character* chr ) : PktSender(), _chr( chr ), _p() {}
 
 void MoveChrPkt::build()
 {
