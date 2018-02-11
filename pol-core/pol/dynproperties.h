@@ -172,6 +172,7 @@ struct ValueModPack
   ValueModPack( s16 value_ );
   ValueModPack();
   bool operator==( const ValueModPack& other ) const;
+  bool operator!=(const ValueModPack& other) const;
   ValueModPack& addToValue( const ValueModPack& other );
   ValueModPack& addToValue( s16 other );
   ValueModPack& addToMod( s16 other );
@@ -349,6 +350,10 @@ inline ValueModPack::ValueModPack() : value( 0 ), mod( 0 ) {}
 inline bool ValueModPack::operator==( const ValueModPack& other ) const
 {
   return value == other.value && mod == other.mod;
+}
+inline bool ValueModPack::operator!=(const ValueModPack& other) const
+{
+    return !operator==(other);
 }
 inline ValueModPack& ValueModPack::addToValue( const ValueModPack& other )
 {
