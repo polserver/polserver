@@ -1028,9 +1028,15 @@ BObjectImp* UOExecutorModule::mf_Accessible()
 {
   Character* chr;
   Item* item;
+  int range;
+
   if ( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, item ) )
   {
-    if ( find_legal_item( chr, item->serial ) != NULL )
+    // Range defaults to -1 if it's not defined in the .em file (old scripts) or the user provides a weird object.
+    if ( exec.numParams() < 3 || !getParam( 2, range ) )
+      range = -1;
+      
+    if ( chr->can_access(item, range) )
       return new BLong( 1 );
     else
       return new BLong( 0 );

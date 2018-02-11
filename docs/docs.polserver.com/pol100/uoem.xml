@@ -213,6 +213,10 @@
 <constant>//SendCharProfile</constant>
 <constant>const CHARPROFILE_NO_UNEDITABLE_TEXT := array;</constant>
 <constant>const CHARPROFILE_NO_EDITABLE_TEXT := array;</constant>
+<constant>//Accessible</constant>
+<constant>const ACCESSIBLE_DEFAULT := -1; // uses the default from ssopt</constant>
+<constant>const ACCESSIBLE_IGNOREDISTANCE := -2; // ignores the range check</constant>
+
 </fileheader>
 
 <function name="AddAmount">
@@ -1144,11 +1148,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="Accessible">
-    <prototype>Accessible( by_character, item )</prototype>
+    <prototype>Accessible( by_character, item, range := ACCESSIBLE_DEFAULT )</prototype>
   <parameter name="by_character" value="Character Reference" />
   <parameter name="item" value="Item Reference" />
+  <parameter name="range" value="Integer" />
   <explain>Function: Determines if an item falls into one of the following categories for a character:</explain>
-  <explain>An item on the ground, within two squares </explain>
+  <explain>An item on the ground, within "range" squares (defaults to "DefaultAccessibleRange" from servspecopt). Use ACCESSIBLE_IGNOREDISTANCE to avoid this check. </explain>
   <explain>An item equipped by the character </explain>
   <explain>An item inside the character's backpack </explain>
   <explain>A temporarily accessible item </explain>
