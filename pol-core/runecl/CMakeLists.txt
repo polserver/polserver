@@ -14,7 +14,11 @@ target_link_libraries(${ex_name} PUBLIC
   clib
   plib
   tinyxml
-  pthread
 )
+if (${linux})
+  target_link_libraries(${ex_name} PUBLIC
+    pthread    
+  )
+endif()
 
 dist(${ex_name} scripts)

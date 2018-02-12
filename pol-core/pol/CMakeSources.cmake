@@ -1,4 +1,5 @@
 set (pol_sources  # sorted !
+  CMakeSources.cmake 
   PolMain.cpp
   PolMain.h
   StdAfx.h

@@ -1,4 +1,5 @@
 set (ecompile_sources  # sorted !
+  CMakeSources.cmake 
   ECompileMain.cpp
   ECompileMain.h
   StdAfx.h

@@ -7,6 +7,7 @@ set (plib_sources  # sorted !
   ../pol/uofile08.cpp
   ../uotool/uofile04.cpp 
   ../uotool/uofile05.cpp
+  CMakeSources.cmake 
   StdAfx.h
   filemapserver.cpp 
   filemapserver.h

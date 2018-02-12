@@ -16,10 +16,14 @@ target_link_libraries(${ex_name} PUBLIC
   clib
   plib
   tinyxml
-  crypto
-  pthread
-  z
 )
+if (${linux})
+  target_link_libraries(${ex_name} PUBLIC
+    crypto
+	pthread
+	z
+  )
+endif()
 if (${gcc})
   target_link_libraries(${ex_name} PUBLIC
 	-fopenmp

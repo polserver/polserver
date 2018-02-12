@@ -2,6 +2,7 @@ set (uotool_sources  # sorted !
   ../pol/globals/multidefs.cpp
   ../pol/multi/multidef.cpp
   ../pol/polfile1.cpp
+  CMakeSources.cmake 
   StdAfx.h
   UoToolMain.cpp
   UoToolMain.h

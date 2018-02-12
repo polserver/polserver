@@ -1,6 +1,7 @@
 set (clib_sources
   #sorted !
-  ../../lib/format/format.cc                
+  ../../lib/format/format.cc
+  CMakeSources.cmake 
   Debugging/ExceptionParser.cpp
   Debugging/ExceptionParser.h
   Debugging/LogSink.cpp

@@ -35,7 +35,7 @@ endif()
 
 message("####################################")
 message("#          ${PROJECT_NAME} - ${POL_VERSION_STR}         #")
-message("# - ${POL_VERSION_NAME} - #")
+message("# -   ${POL_VERSION_NAME}    - #")
 message("# -           ${GIT_REVISION}          - #")
 message("####################################")
 message("## CMake Version ${CMAKE_VERSION}")
@@ -61,6 +61,9 @@ prepare_build()
 include(cmake/Boost.txt)
 include(cmake/Benchmark.txt)
 
+if (BUILD_ALL OR ONLY_POL)
+  include(cmake/Curl.txt)
+endif()
 add_subdirectory(lib/tinyxml)
 add_subdirectory(pol-core)
 

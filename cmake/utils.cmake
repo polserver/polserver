@@ -117,9 +117,7 @@ function(set_compile_flags target is_executable)
 endfunction()
 
 function(use_curl target)
-  include("${CMAKE_CURRENT_LIST_DIR}/../../cmake/Curl.txt")
-
-  find_library(curl_lib NAMES curl libcurl
+  find_library(curl_lib NAMES curl libcurl libcurl_a
     PATHS ${CURL_INSTALL_DIR}/lib
     NO_DEFAULT_PATH)
  
