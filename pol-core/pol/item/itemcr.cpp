@@ -248,51 +248,55 @@ Item* Item::create( const ItemDesc& id, u32 serial )
       break;
     }
   }*/
-  //removed for loop (old stuff)
-  item->fire_resist(item->fire_resist().addToValue(id.element_resist.fire));
-  item->fire_damage(item->fire_damage().addToValue(id.element_damage.fire));
-  item->cold_resist(item->cold_resist().addToValue(id.element_resist.cold));
-  item->cold_damage(item->cold_damage().addToValue(id.element_damage.cold));
-  item->energy_resist(item->energy_resist().addToValue(id.element_resist.energy));
-  item->energy_damage(item->energy_damage().addToValue(id.element_damage.energy));
-  item->poison_resist(item->poison_resist().addToValue(id.element_resist.poison));
-  item->poison_damage(item->poison_damage().addToValue(id.element_damage.poison));
-  item->physical_resist(item->physical_resist().addToValue(id.element_resist.physical));
-  item->physical_damage(item->physical_damage().addToValue(id.element_damage.physical));
+  // removed for loop (old stuff)
+  item->fire_resist( item->fire_resist().addToValue( id.element_resist.fire ) );
+  item->fire_damage( item->fire_damage().addToValue( id.element_damage.fire ) );
+  item->cold_resist( item->cold_resist().addToValue( id.element_resist.cold ) );
+  item->cold_damage( item->cold_damage().addToValue( id.element_damage.cold ) );
+  item->energy_resist( item->energy_resist().addToValue( id.element_resist.energy ) );
+  item->energy_damage( item->energy_damage().addToValue( id.element_damage.energy ) );
+  item->poison_resist( item->poison_resist().addToValue( id.element_resist.poison ) );
+  item->poison_damage( item->poison_damage().addToValue( id.element_damage.poison ) );
+  item->physical_resist( item->physical_resist().addToValue( id.element_resist.physical ) );
+  item->physical_damage( item->physical_damage().addToValue( id.element_damage.physical ) );
   // new props add here:
-  item->lower_reagent_cost(item->lower_reagent_cost().addToValue(id.lower_reag_cost));
-  item->spell_damage_increase(item->spell_damage_increase().addToValue(id.spell_damage_increase));
-  item->faster_casting(item->faster_casting().addToValue(id.faster_casting));
-  item->faster_cast_recovery(item->faster_cast_recovery().addToValue(id.faster_cast_recovery));
-  item->defence_increase(item->defence_increase().addToValue(id.defence_increase));
-  item->defence_increase_cap(item->defence_increase_cap().addToValue(id.defence_increase_cap));
-  item->lower_mana_cost(item->lower_mana_cost().addToValue(id.lower_mana_cost));
-  item->hitchance(item->hitchance().addToValue(id.hitchance));
-  item->swingspeed(item->swingspeed().addToValue(id.swingspeed));
-  item->damage_increase(item->damage_increase().addToValue(id.damage_increase));
-  item->fire_resist_cap(item->fire_resist_cap().addToValue(id.resist_fire_cap));
-  item->cold_resist_cap(item->cold_resist_cap().addToValue(id.resist_cold_cap));
-  item->energy_resist_cap(item->energy_resist_cap().addToValue(id.resist_energy_cap));
-  item->physical_resist_cap(item->physical_resist_cap().addToValue(id.resist_physical_cap));
-  item->poison_resist_cap(item->poison_resist_cap().addToValue(id.resist_poison_cap));
-  item->luck(item->luck().addToValue(id.luck));
+  item->lower_reagent_cost( item->lower_reagent_cost().addToValue( id.lower_reag_cost ) );
+  item->spell_damage_increase(
+      item->spell_damage_increase().addToValue( id.spell_damage_increase ) );
+  item->faster_casting( item->faster_casting().addToValue( id.faster_casting ) );
+  item->faster_cast_recovery( item->faster_cast_recovery().addToValue( id.faster_cast_recovery ) );
+  item->defence_increase( item->defence_increase().addToValue( id.defence_increase ) );
+  item->defence_increase_cap( item->defence_increase_cap().addToValue( id.defence_increase_cap ) );
+  item->lower_mana_cost( item->lower_mana_cost().addToValue( id.lower_mana_cost ) );
+  item->hitchance( item->hitchance().addToValue( id.hitchance ) );
+  item->swingspeed( item->swingspeed().addToValue( id.swingspeed ) );
+  item->damage_increase( item->damage_increase().addToValue( id.damage_increase ) );
+  item->fire_resist_cap( item->fire_resist_cap().addToValue( id.resist_fire_cap ) );
+  item->cold_resist_cap( item->cold_resist_cap().addToValue( id.resist_cold_cap ) );
+  item->energy_resist_cap( item->energy_resist_cap().addToValue( id.resist_energy_cap ) );
+  item->physical_resist_cap( item->physical_resist_cap().addToValue( id.resist_physical_cap ) );
+  item->poison_resist_cap( item->poison_resist_cap().addToValue( id.resist_poison_cap ) );
+  item->luck( item->luck().addToValue( id.luck ) );
   // new mods added here:
-  item->defence_increase(item->defence_increase().addToMod(id.defence_increase_mod));
-  item->defence_increase_cap(item->defence_increase_cap().addToMod(id.defence_increase_cap_mod));
-  item->lower_mana_cost(item->lower_mana_cost().addToMod(id.lower_mana_cost_mod));
-  item->hitchance(item->hitchance().addToMod(id.hitchance_mod));
-  item->swingspeed(item->swingspeed().addToMod(id.speed_mod));
-  item->damage_increase(item->damage_increase().addToMod(id.dmg_mod));
-  item->fire_resist_cap(item->fire_resist_cap().addToMod(id.resist_fire_cap_mod));
-  item->cold_resist_cap(item->cold_resist_cap().addToMod(id.resist_cold_cap_mod));
-  item->energy_resist_cap(item->energy_resist_cap().addToMod(id.resist_energy_cap_mod));
-  item->physical_resist_cap(item->physical_resist_cap().addToMod(id.resist_physical_cap_mod));
-  item->poison_resist_cap(item->poison_resist_cap().addToMod(id.resist_poison_cap_mod));
-  item->lower_reagent_cost(item->lower_reagent_cost().addToMod(id.lower_reagent_cost_mod));
-  item->spell_damage_increase(item->spell_damage_increase().addToMod(id.spell_damage_increase_mod));
-  item->faster_casting(item->faster_casting().addToMod(id.faster_casting_mod));
-  item->faster_cast_recovery(item->faster_cast_recovery().addToMod(id.faster_cast_recovery_mod));
-  item->luck(item->luck().addToMod(id.luck_mod));
+  item->defence_increase( item->defence_increase().addToMod( id.defence_increase_mod ) );
+  item->defence_increase_cap(
+      item->defence_increase_cap().addToMod( id.defence_increase_cap_mod ) );
+  item->lower_mana_cost( item->lower_mana_cost().addToMod( id.lower_mana_cost_mod ) );
+  item->hitchance( item->hitchance().addToMod( id.hitchance_mod ) );
+  item->swingspeed( item->swingspeed().addToMod( id.speed_mod ) );
+  item->damage_increase( item->damage_increase().addToMod( id.dmg_mod ) );
+  item->fire_resist_cap( item->fire_resist_cap().addToMod( id.resist_fire_cap_mod ) );
+  item->cold_resist_cap( item->cold_resist_cap().addToMod( id.resist_cold_cap_mod ) );
+  item->energy_resist_cap( item->energy_resist_cap().addToMod( id.resist_energy_cap_mod ) );
+  item->physical_resist_cap( item->physical_resist_cap().addToMod( id.resist_physical_cap_mod ) );
+  item->poison_resist_cap( item->poison_resist_cap().addToMod( id.resist_poison_cap_mod ) );
+  item->lower_reagent_cost( item->lower_reagent_cost().addToMod( id.lower_reagent_cost_mod ) );
+  item->spell_damage_increase(
+      item->spell_damage_increase().addToMod( id.spell_damage_increase_mod ) );
+  item->faster_casting( item->faster_casting().addToMod( id.faster_casting_mod ) );
+  item->faster_cast_recovery(
+      item->faster_cast_recovery().addToMod( id.faster_cast_recovery_mod ) );
+  item->luck( item->luck().addToMod( id.luck_mod ) );
 
   // if ItemDesc is a dynamic one desc could differ and would be lost
   const ItemDesc& origid = find_itemdesc( item->objtype_ );
