@@ -3305,12 +3305,12 @@ unsigned short Character::random_weapon_damage() const
 
 unsigned short Character::min_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.min_value() + weapon->damage_mod();
+  return weapon->descriptor().damage_dice.min_value() + damage_increase().value;
 }
 
 unsigned short Character::max_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.max_value() + weapon->damage_mod();
+  return weapon->descriptor().damage_dice.max_value() + damage_increase().value;
 }
 
 void Character::damage_weapon()

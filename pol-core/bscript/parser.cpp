@@ -350,7 +350,7 @@ ObjMember object_members[] = {
     {MBR_HP, "hp", false},
     {MBR_MAXHP_MOD, "maxhp_mod", false},
     {MBR_MAXHP, "maxhp", true},       // 90
-    {MBR_DMG_MOD, "dmg_mod", false},  // weapon
+    {MBR_DMG_MOD, "dmg_mod", false},  // weapon  // to be made redundant in the future
     {MBR_ATTRIBUTE, "attribute", true},
     {MBR_INTRINSIC, "intrinsic", true},
     {MBR_HITSCRIPT, "hitscript", false},
@@ -469,7 +469,7 @@ ObjMember object_members[] = {
     {MBR_MAX_ITEMS_MOD, "max_items_mod", false},  // 205
     {MBR_MAX_WEIGHT_MOD, "max_weight_mod", false},
     {MBR_MAX_SLOTS_MOD, "max_slots_mod", false},
-    {MBR_SPEED_MOD, "speed_mod", false},
+    {MBR_SPEED_MOD, "speed_mod", false},  // to be made redundant in the future
     {MBR_NAME_SUFFIX, "name_suffix", false},
     {MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true},  // 210
     {MBR_LAST_TEXTCOLOR, "last_textcolor", true},
@@ -494,25 +494,25 @@ ObjMember object_members[] = {
     {MBR_ENERGY_RESIST_CAP, "resist_energy_cap", true},
     {MBR_POISON_RESIST_CAP, "resist_poison_cap", true},  // 230
     {MBR_PHYSICAL_RESIST_CAP, "resist_physical_cap", true},
+    {MBR_DAMAGE_INCREASE, "damage_increase", true},
+    {MBR_HITCHANCE, "hitchance", true},
+    {MBR_SWING_SPEED, "swingspeed", true},
     // Additions for new properties mods
-    {MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod", false},
+    {MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod", false},  // 235
     {MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod", false},
     {MBR_FASTER_CASTING_MOD, "faster_casting_mod", false},
-    {MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod", false},  // 235
+    {MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod", false},
     {MBR_DEFENCE_CHANCE_INCREASE_MOD, "defence_increase_mod", false},
-    {MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD, "defence_increase_cap_mod", false},
+    {MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD, "defence_increase_cap_mod", false},  // 240
     {MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod", false},
     {MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false},
-    {MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false},  // 240
+    {MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false},
     {MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false},
-    {MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false},
+    {MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false},  // 245
     {MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false},
-    // New properties for previously exsiting 'mods'
-    {MBR_HITCHANCE, "hitchance", true},              // hitchance_mod
-    {MBR_SWING_SPEED, "swingspeed", true},           // speed_mod  // 245
-    {MBR_DAMAGE_INCREASE, "damage_increase", true},  // dmg_mod
-    // New mods for previously existing properties
-    {MBR_LUCK_MOD, "luck_mod", false},  // luck
+    {MBR_DAMAGE_INCREASE_MOD, "damage_increase_mod", false},
+    {MBR_SWING_SPEED_MOD, "swing_speed_mod", false},
+    {MBR_LUCK_MOD, "luck_mod", false},
 
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];

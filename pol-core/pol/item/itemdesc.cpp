@@ -253,8 +253,9 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   defence_increase_cap_mod = elem.remove_ushort( "DefenceIncreaseCapMod", 0 );
   lower_mana_cost_mod = elem.remove_ushort( "LowerManaCostMod", 0 );
   hitchance_mod = elem.remove_ushort( "hitchance_mod", 0 );
-  speed_mod = elem.remove_ushort( "speed_mod", 0 );
-  dmg_mod = elem.remove_ushort( "dmg_mod", 0 );
+  swing_speed_mod = elem.remove_ushort( "speed_mod", 0 );
+  damage_increase_mod = elem.remove_ushort( "dmg_mod", 0 );  // to be made redundant in the future
+  damage_increase_mod = elem.remove_ushort( "DAMAGEINCREASEMOD", damage_increase_mod );
   resist_fire_cap_mod = elem.remove_ushort( "FireResistCapMod", 0 );
   resist_cold_cap_mod = elem.remove_ushort( "ColdResistCapMod", 0 );
   resist_energy_cap_mod = elem.remove_ushort( "EnergyResistCapMod", 0 );
@@ -495,11 +496,17 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   if ( elem.remove_prop( "hitchance_mod", &temp ) )
     hitchance_mod = diceValue( temp, "Hit Chance Mod" );
 
-  if ( elem.remove_prop( "speed_mod", &temp ) )
-    speed_mod = diceValue( temp, "Speed Mod Chance" );
+  if ( elem.remove_prop( "speed_mod", &temp ) )  // to be made redundant in the future
+    swing_speed_mod = diceValue( temp, "Speed Mod Chance" );
 
-  if ( elem.remove_prop( "dmg_mod", &temp ) )
-    dmg_mod = diceValue( temp, "Damage Mod" );
+  if ( elem.remove_prop( "SwingSpeedMod", &temp ) )
+    swing_speed_mod = diceValue( temp, "Speed Mod Chance" );
+
+  if ( elem.remove_prop( "dmg_mod", &temp ) )  // to be made redundant in the future
+    damage_increase_mod = diceValue( temp, "Damage Mod" );
+
+  if ( elem.remove_prop( "DamageIncreaseMod", &temp ) )
+    damage_increase_mod = diceValue( temp, "Damage Mod" );
 
   if ( elem.remove_prop( "FireResistCapMod", &temp ) )
     resist_fire_cap_mod = diceValue( temp, "Fire Resist Cap Mod" );
@@ -808,8 +815,8 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "DefenceIncreaseCapMod", new BLong( defence_increase_cap_mod ) );
   descriptor->addMember( "LowerManaCostMod", new BLong( lower_mana_cost_mod ) );
   descriptor->addMember( "hitchance_mod", new BLong( hitchance_mod ) );
-  descriptor->addMember( "speed_mod", new BLong( speed_mod ) );
-  descriptor->addMember( "dmg_mod", new BLong( dmg_mod ) );
+  descriptor->addMember( "swing_speed_mod", new BLong( swing_speed_mod ) );
+  descriptor->addMember( "damage_increase_mod", new BLong( damage_increase_mod ) );
   descriptor->addMember( "FireResistCapMod", new BLong( resist_fire_cap_mod ) );
   descriptor->addMember( "ColdResistCapMod", new BLong( resist_cold_cap_mod ) );
   descriptor->addMember( "EnergyResistCapMod", new BLong( resist_energy_cap_mod ) );

@@ -101,8 +101,8 @@ enum DynPropTypes : u8
   PROP_DAMAGE_ENERGY = 15,          // UObject
   PROP_DAMAGE_POISON = 16,          // UObject
   PROP_DAMAGE_PHYSICAL = 17,        // UObject
-  PROP_DMG_MOD = 18,                // UWeapon
-  PROP_SPEED_MOD = 19,              // UWeapon
+  PROP_DAMAGE_INCREASE_MOD = 18,    // UObject
+  PROP_SWING_SPEED_MOD = 19,        // UObject
   PROP_ORIG_RESIST_FIRE = 20,       // Npc
   PROP_ORIG_RESIST_COLD = 21,       // Npc
   PROP_ORIG_RESIST_ENERGY = 22,     // Npc

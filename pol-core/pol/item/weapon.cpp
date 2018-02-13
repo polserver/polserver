@@ -342,7 +342,7 @@ size_t UWeapon::estimatedSize() const
 
 unsigned short UWeapon::speed() const
 {
-  int speed_ = WEAPON_TMPL->speed + speed_mod();
+  int speed_ = WEAPON_TMPL->speed + swingspeed().value;
 
   if ( speed_ < 0 )
     return 0;
@@ -365,7 +365,7 @@ const Mobile::Attribute& UWeapon::attribute() const
 unsigned short UWeapon::get_random_damage() const
 {
   int dmg = int( WEAPON_TMPL->get_random_damage() ) * hp_ / maxhp();
-  dmg += damage_mod();
+  dmg += damage_increase().value;
   if ( dmg < 0 )
     return 0;
   else if ( dmg <= USHRT_MAX )
@@ -463,8 +463,6 @@ Item* UWeapon::clone() const
 {
   UWeapon* wpn = static_cast<UWeapon*>( base::clone() );
   wpn->hit_script_ = hit_script_;
-  wpn->damage_mod( this->damage_mod() );
-  wpn->speed_mod( this->speed_mod() );
 
   return wpn;
 }
@@ -473,13 +471,6 @@ void UWeapon::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
 
-  short speed_mod_ = speed_mod();
-  short dmg_mod = damage_mod();
-
-  if ( dmg_mod )
-    sw() << "\tdmg_mod\t" << dmg_mod << pf_endl;
-  if ( speed_mod_ )
-    sw() << "tspeed_mod\t" << speed_mod_ << pf_endl;
   if ( !( hit_script_ == WEAPON_TMPL->hit_script ) )
     sw() << "\tHitScript\t" << hit_script_.relativename( tmpl->pkg ) << pf_endl;
 }
@@ -487,9 +478,6 @@ void UWeapon::printProperties( Clib::StreamWriter& sw ) const
 void UWeapon::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
-
-  damage_mod( static_cast<s16>( elem.remove_int( "DMG_MOD", 0 ) ) );
-  speed_mod( static_cast<s16>( elem.remove_int( "SPEED_MOD", 0 ) ) );
 
   // if the HITSCRIPT is not specified in the data file, keep the value from the template.
   if ( elem.has_prop( "HITSCRIPT" ) )

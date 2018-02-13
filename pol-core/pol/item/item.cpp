@@ -564,10 +564,18 @@ void Item::readProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
   if ( mod_value != 0 )
     physical_damage( physical_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "DMG_MOD", 0 ) );
+  mod_value =
+      static_cast<s16>( elem.remove_int( "DMG_MOD", 0 ) );  // to be made redundant in the future
   if ( mod_value != 0 )
     damage_increase( damage_increase().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "SPEED_MOD", 0 ) );
+  mod_value = static_cast<s16>( elem.remove_int( "DAMAGE_INCREASE_MOD", 0 ) );
+  if ( mod_value != 0 )
+    damage_increase( damage_increase().setAsMod( mod_value ) );
+  mod_value =
+      static_cast<s16>( elem.remove_int( "SPEED_MOD", 0 ) );  // to be made redundant in the future
+  if ( mod_value != 0 )
+    swingspeed( swingspeed().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "SWING_SPEED_MOD", 0 ) );
   if ( mod_value != 0 )
     swingspeed( swingspeed().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASEMOD", 0 ) );
