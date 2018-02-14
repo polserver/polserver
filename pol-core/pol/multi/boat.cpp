@@ -53,6 +53,7 @@
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uworld.h"
+#include "../module/uomod.h"
 #include "boatcomp.h"
 #include "multi.h"
 #include "multidef.h"
@@ -1607,8 +1608,10 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
 
   regself();  // do this after our x,y are known.
   // consider throwing if starting position isn't passable.
-
-  Core::start_script( "misc/boat", make_boatref( this ) );
+	
+	this->process(Core::start_script(Core::ScriptDef("misc/boat", nullptr), make_boatref(this)));
+	this->process()->attached_item_ = this;
+	
 }
 
 void UBoat::printProperties( Clib::StreamWriter& sw ) const

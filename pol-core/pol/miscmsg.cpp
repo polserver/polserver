@@ -35,6 +35,11 @@
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
+#include "realms/realm.h"
+#include "polclass.h"
+#include "module/uomod.h"
+#include "module/osmod.h"
+#include "uoexec.h"
 #include "accounts/account.h"
 #include "cmbtcfg.h"
 #include "fnsearch.h"
@@ -409,6 +414,38 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     u16 id = cfBEu16( msg->popupselect.entry_tag );
     client->chr->on_popup_menu_selection( client, serial, id );
     break;
+  }
+  case PKTBI_BF::TYPE_BOAT_MOVE:
+  {
+		Mobile::Character* chr = client->chr;
+		multi = chr->realm->find_supporting_multi(client->chr->x, client->chr->y, client->chr->z);
+
+		if (multi == nullptr) {
+				POLLOG_INFO.Format("{}/{} tried to use a boat movement packet without being on a multi.\n")
+						<< client->acct->name() << chr->name();
+				break;
+		}
+
+		if (!multi->script_isa(Core::POLCLASS_BOAT)) {
+				POLLOG_INFO.Format("{}/{} tried to use a boat movement packet without being on a boat multi.\n")
+						<< client->acct->name() << chr->name();
+				break;
+		}
+		
+		if (!multi->has_process()) {
+				POLLOG_INFO.Format("{}/{} tried to use a boat movement packet on a boat multi (serial {}) that has no running script.\n")
+						<< client->acct->name() << chr->name() << multi->serial;
+				break;
+		}
+
+		// @TODO how do we make sure the process is running?
+		// @TODO separate between start and stop?
+		Module::UOExecutorModule* process = multi->process();
+		Core::UOExecutor &uoexec = process->uoexec;
+		Module::OSExecutorModule* os_module = uoexec.os_module;
+		os_module->signal_event(new Module::BoatMovementEvent(chr, &msg->boatmove.speed, &msg->boatmove.direction));
+
+	  break;
   }
   default:
     handle_unknown_packet( client );

@@ -113,6 +113,7 @@
 #include "uoexec.h"
 #include "uoexhelp.h"
 #include "uworld.h"
+#include "exscrobj.h"
 
 namespace Pol
 {
@@ -1569,6 +1570,40 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
     break;
   }
+	case MTH_SETPROCESS:
+	{
+			BApplicObjBase* aob;
+			if (ex.hasParams(1))
+			{
+					aob = ex.getApplicObjParam(0, &Core::scriptexobjimp_type);
+					if (aob)
+					{
+							Core::ScriptExObjImp* ir = static_cast<Core::ScriptExObjImp*>(aob);
+							Core::ScriptExPtr iref = ir->value();
+							if (!iref.exists())
+									return new BError("Other script does not exist?");
+
+							Module::UOExecutorModule *old_uoemod = process();
+
+							Core::UOExecutor* new_uoexec = iref.get_weakptr();
+							Module::UOExecutorModule* new_uoemod = static_cast<Module::UOExecutorModule*>(new_uoexec->findModule("uo"));
+							new_uoemod->attached_item_ = this;
+							process(new_uoemod);
+
+							if (old_uoemod != nullptr) {
+									old_uoemod->attached_item_ = nullptr;
+									Core::UOExecutor* old_uoexec = static_cast<Core::UOExecutor*>(&old_uoemod->exec);
+									return new Core::ScriptExObjImp(old_uoexec);
+							}
+
+							return new BLong(1);
+					}
+					else
+							return new BError("Invalid parameter");
+			}
+			return new BError("Not enough parameters");
+			break;
+	}
   default:
     return NULL;
   }
@@ -3677,6 +3712,31 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
     }
     break;
   }
+	case MTH_SET_PILOT: {
+
+			BApplicObjBase* aob;
+			if (ex.hasParams(1))
+			{
+					aob = ex.getApplicObjParam(0, &Module::eitemrefobjimp_type);
+					if (aob)
+					{
+							Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>(aob);
+							Core::ItemRef iref = ir->value();
+							Module::UOExecutorModule *uoexec = iref->process();
+
+							if (uoexec == nullptr) {
+									return new BError("Item has no running process");
+							}
+							Core::UOExecutor* executor = static_cast<Core::UOExecutor*>(&uoexec->exec);
+							
+							return new BLong(1);
+					}
+					else
+							return new BError("No passed item");
+			}
+			return new BError("Not enough parameters");
+
+	}
   default:
     return NULL;
   }
@@ -4407,6 +4467,22 @@ BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool /
   }
 
   return base::call_method_id( id, ex );
+}
+
+/*class BoatMovementEvent : public Bscript::BStruct
+{
+public:
+		BoatMovementEvent(Core::EVENTID type);
+		BoatMovementEvent(Core::EVENTID type, Mobile::Character* source, const u8* speed, const u8* direction);
+};*/
+
+BoatMovementEvent::BoatMovementEvent(Mobile::Character* source, const u8* speed, const u8* direction)
+{
+		addMember("type", new BLong(Core::EVID_BOAT_MOVEMENT));
+		addMember("source", new Module::EOfflineCharacterRefObjImp(source));
+		addMember("speed", new BLong(static_cast<int>(*speed)));
+		addMember("direction", new BLong(static_cast<int>(*direction)));
+
 }
 
 SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
