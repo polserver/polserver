@@ -106,7 +106,7 @@ Item* Item::clone() const
   item->defence_increase( defence_increase() );
   item->defence_increase_cap( defence_increase_cap() );
   item->lower_mana_cost( lower_mana_cost() );
-  item->hitchance( hitchance() );
+  item->hit_chance( hit_chance() );
   item->swingspeed( swingspeed() );
   item->damage_increase( damage_increase() );
   item->fire_resist_cap( fire_resist_cap() );
@@ -419,12 +419,12 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   value = lower_mana_cost().mod;
   if ( value != 0 )
     sw() << "\tLowerManaCostMod\t" << static_cast<int>( value ) << pf_endl;
-  value = hitchance().mod;
+  value = hit_chance().mod;
   if ( value != 0 )
-    sw() << "\thitchance_mod\t" << static_cast<int>( value ) << pf_endl;
+    sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
   value = swingspeed().mod;
   if ( value != 0 )
-    sw() << "\tspeed_mod\t" << static_cast<int>( value ) << pf_endl;
+    sw() << "\tSwingSpeedmod\t" << static_cast<int>( value ) << pf_endl;
   value = fire_resist_cap().mod;
   if ( value != 0 )
     sw() << "\tFireResistCapMod\t" << static_cast<int>( value ) << pf_endl;

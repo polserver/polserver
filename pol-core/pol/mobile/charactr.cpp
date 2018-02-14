@@ -3470,7 +3470,7 @@ void Character::attack( Character* opponent )
   // SOMETHING PROBABLY NEEDS TO CHANGE HERE//
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
-  hit_chance += hitchance_mod() * 0.001f;
+  hit_chance += hit_chance_mod() * 0.001f;
   hit_chance -= opponent->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
     INFO_PRINT << "Chance to hit: " << hit_chance << ": ";

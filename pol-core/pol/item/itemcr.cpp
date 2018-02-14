@@ -268,7 +268,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->defence_increase( item->defence_increase().addToValue( id.defence_increase ) );
   item->defence_increase_cap( item->defence_increase_cap().addToValue( id.defence_increase_cap ) );
   item->lower_mana_cost( item->lower_mana_cost().addToValue( id.lower_mana_cost ) );
-  item->hitchance( item->hitchance().addToValue( id.hitchance ) );
+  item->hit_chance( item->hit_chance().addToValue( id.hit_chance ) );
   item->swingspeed( item->swingspeed().addToValue( id.swingspeed ) );
   item->damage_increase( item->damage_increase().addToValue( id.damage_increase ) );
   item->fire_resist_cap( item->fire_resist_cap().addToValue( id.resist_fire_cap ) );
@@ -282,7 +282,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->defence_increase_cap(
       item->defence_increase_cap().addToMod( id.defence_increase_cap_mod ) );
   item->lower_mana_cost( item->lower_mana_cost().addToMod( id.lower_mana_cost_mod ) );
-  item->hitchance( item->hitchance().addToMod( id.hitchance_mod ) );
+  item->hit_chance( item->hit_chance().addToMod( id.hit_chance_mod ) );
   item->swingspeed( item->swingspeed().addToMod( id.swing_speed_mod ) );
   item->damage_increase( item->damage_increase().addToMod( id.damage_increase_mod ) );
   item->fire_resist_cap( item->fire_resist_cap().addToMod( id.resist_fire_cap_mod ) );

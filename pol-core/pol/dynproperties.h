@@ -133,7 +133,7 @@ enum DynPropTypes : u8
   PROP_SPEECH_FONT = 47,            // Npc
   PROP_CARRY_CAPACITY_MOD = 48,     // Character
   PROP_DELAY_MOD = 49,              // Character
-  PROP_HITCHANCE_MOD = 50,          // Character
+  PROP_HIT_CHANCE_MOD = 50,          // Character
   PROP_EVASIONCHANCE_MOD = 51,      // Character
   PROP_PARTY = 52,                  // Character
   PROP_PARTY_CANDIDATE = 53,        // Character

@@ -240,7 +240,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   defence_increase = elem.remove_ushort( "DEFENCEINCREASE", 0 );
   defence_increase_cap = elem.remove_ushort( "DEFENCEINCREASECAP", 0 );
   lower_mana_cost = elem.remove_ushort( "LOWERMANACOST", 0 );
-  hitchance = elem.remove_ushort( "HITCHANCE", 0 );
+  hit_chance = elem.remove_ushort( "HITCHANCE", 0 );
   swingspeed = elem.remove_ushort( "SWINGSPEED", 0 );
   resist_fire_cap = elem.remove_ushort( "FIRERESISTCAP", 0 );
   resist_cold_cap = elem.remove_ushort( "COLDRESISTCAP", 0 );
@@ -252,8 +252,10 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   defence_increase_mod = elem.remove_ushort( "DefenceIncreaseMod", 0 );
   defence_increase_cap_mod = elem.remove_ushort( "DefenceIncreaseCapMod", 0 );
   lower_mana_cost_mod = elem.remove_ushort( "LowerManaCostMod", 0 );
-  hitchance_mod = elem.remove_ushort( "hitchance_mod", 0 );
-  swing_speed_mod = elem.remove_ushort( "speed_mod", 0 );
+  hit_chance_mod = elem.remove_ushort("hitchance_mod", 0);  // to be made redundant in the future
+  hit_chance_mod = elem.remove_ushort( "HitChanceMod", hit_chance_mod);
+  swing_speed_mod = elem.remove_ushort( "speed_mod", 0 );  // to be made redundant in the future
+  swing_speed_mod = elem.remove_ushort("SwingSpeedMod", swing_speed_mod);
   damage_increase_mod = elem.remove_ushort( "dmg_mod", 0 );  // to be made redundant in the future
   damage_increase_mod = elem.remove_ushort( "DAMAGEINCREASEMOD", damage_increase_mod );
   resist_fire_cap_mod = elem.remove_ushort( "FireResistCapMod", 0 );
@@ -457,7 +459,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     lower_mana_cost = diceValue( temp, "Lower man Cost" );
 
   if ( elem.remove_prop( "HitChance", &temp ) )
-    hitchance = diceValue( temp, "Hit Chance" );
+    hit_chance = diceValue( temp, "Hit Chance" );
 
   if ( elem.remove_prop( "SwingSpeed", &temp ) )
     swingspeed = diceValue( temp, "Swing Speed" );
@@ -493,8 +495,11 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   if ( elem.remove_prop( "LowerManaCostMod", &temp ) )
     lower_mana_cost_mod = diceValue( temp, "Lower Mana Cost Mod" );
 
-  if ( elem.remove_prop( "hitchance_mod", &temp ) )
-    hitchance_mod = diceValue( temp, "Hit Chance Mod" );
+  if ( elem.remove_prop( "hitchance_mod", &temp ) )  // to be made redundant in the future
+    hit_chance_mod = diceValue( temp, "Hit Chance Mod" );
+
+  if (elem.remove_prop("HitChanceMod", &temp))
+      hit_chance_mod = diceValue(temp, "Hit Chance Mod");
 
   if ( elem.remove_prop( "speed_mod", &temp ) )  // to be made redundant in the future
     swing_speed_mod = diceValue( temp, "Speed Mod Chance" );
@@ -800,7 +805,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "DefenceIncrease", new BLong( defence_increase ) );
   descriptor->addMember( "DefenceIncreaseCap", new BLong( defence_increase_cap ) );
   descriptor->addMember( "LowerManaCost", new BLong( lower_mana_cost ) );
-  descriptor->addMember( "HitChance", new BLong( hitchance ) );
+  descriptor->addMember( "HitChance", new BLong( hit_chance ) );
   descriptor->addMember( "SwingSpeed", new BLong( swingspeed ) );
   descriptor->addMember( "DamageIncrease", new BLong( damage_increase ) );
   descriptor->addMember( "FireResistCap", new BLong( resist_fire_cap ) );
@@ -814,9 +819,9 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "DefenceIncreaseMod", new BLong( defence_increase_mod ) );
   descriptor->addMember( "DefenceIncreaseCapMod", new BLong( defence_increase_cap_mod ) );
   descriptor->addMember( "LowerManaCostMod", new BLong( lower_mana_cost_mod ) );
-  descriptor->addMember( "hitchance_mod", new BLong( hitchance_mod ) );
-  descriptor->addMember( "swing_speed_mod", new BLong( swing_speed_mod ) );
-  descriptor->addMember( "damage_increase_mod", new BLong( damage_increase_mod ) );
+  descriptor->addMember( "HitChanceMod", new BLong( hit_chance_mod ) );
+  descriptor->addMember( "SwingSpeedMod", new BLong( swing_speed_mod ) );
+  descriptor->addMember( "DamageIncreaseMod", new BLong( damage_increase_mod ) );
   descriptor->addMember( "FireResistCapMod", new BLong( resist_fire_cap_mod ) );
   descriptor->addMember( "ColdResistCapMod", new BLong( resist_cold_cap_mod ) );
   descriptor->addMember( "EnergyResistCapMod", new BLong( resist_energy_cap_mod ) );

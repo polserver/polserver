@@ -134,7 +134,7 @@ public:
   unsigned short defence_increase;
   unsigned short defence_increase_cap;
   unsigned short lower_mana_cost;
-  unsigned short hitchance;
+  unsigned short hit_chance;
   unsigned short swingspeed;
   unsigned short damage_increase;
   unsigned short resist_fire_cap;
@@ -145,7 +145,7 @@ public:
   unsigned short defence_increase_mod;
   unsigned short defence_increase_cap_mod;
   unsigned short lower_mana_cost_mod;
-  unsigned short hitchance_mod;
+  unsigned short hit_chance_mod;
   unsigned short swing_speed_mod;
   unsigned short damage_increase_mod;
   unsigned short resist_fire_cap_mod;

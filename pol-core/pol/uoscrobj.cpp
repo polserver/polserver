@@ -1035,7 +1035,8 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_HITCHANCE:
     return new BLong( hitchance().sum() );
     break;
-  case MBR_HITCHANCE_MOD:
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
     return new BLong( hitchance().mod );
     break;
   case MBR_SWING_SPEED:
@@ -1500,7 +1501,8 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     }
     return new BLong( lower_mana_cost().mod );
     break;
-  case MBR_HITCHANCE_MOD:
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
     hitchance( hitchance().setAsMod( static_cast<short>( value ) ) );
     if ( container != NULL )
     {
@@ -2216,10 +2218,6 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new String( mode );
     break;
   }
-  // COMMENTED OUT FOR CHANGES TO HITCHANCE
-  /*case MBR_HITCHANCE_MOD:
-    return new BLong( hitchance_mod() );
-    break;*/
   case MBR_EVASIONCHANCE_MOD:
     return new BLong( evasionchance_mod() );
     break;
@@ -2322,7 +2320,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_LOWER_MANA_COST_MOD:
     return new BLong( lower_mana_cost().mod );
     break;
-  case MBR_HITCHANCE_MOD:
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
     return new BLong( hitchance().mod );
     break;
   case MBR_SPEED_MOD:  // to be made redundant in the future
@@ -2595,10 +2594,6 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     // make_murderer handles the updating
     make_murderer( value ? true : false );
     return new BLong( is_murderer() );
-    // removed below lines for new mods
-    /*case MBR_HITCHANCE_MOD:
-    hitchance_mod( static_cast<short>( value ) );
-    return new BLong( hitchance_mod() );*/
   case MBR_EVASIONCHANCE_MOD:
     evasionchance_mod( static_cast<short>( value ) );
     return new BLong( evasionchance_mod() );
@@ -2674,7 +2669,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     refresh_ar();
     return new BLong( lower_mana_cost().mod );
     break;
-  case MBR_HITCHANCE_MOD:
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
     hitchance( hitchance().setAsMod( static_cast<short>( value ) ) );
     refresh_ar();
     return new BLong( hitchance().mod );

@@ -822,7 +822,7 @@ protected:
   u16 ar_;
   DYN_PROPERTY( ar_mod, s16, Core::PROP_AR_MOD, 0 );
   DYN_PROPERTY( delay_mod, s16, Core::PROP_DELAY_MOD, 0 );
-  DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HITCHANCE_MOD, 0 );
+  DYN_PROPERTY( hit_chance_mod, s16, Core::PROP_HIT_CHANCE_MOD, 0 );
   DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
 
   Character* opponent_;

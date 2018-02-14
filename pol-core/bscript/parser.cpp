@@ -395,7 +395,7 @@ ObjMember object_members[] = {
     {MBR_PROMPT, "prompt", false},
     {MBR_STACKABLE, "stackable", false},
     {MBR_MOVEMODE, "movemode", false},  // 135
-    {MBR_HITCHANCE_MOD, "hitchance_mod", false},
+    {MBR_HITCHANCE_MOD, "hitchance_mod", false},  // to be made redundant in the future
     {MBR_EVASIONCHANCE_MOD, "evasionchance_mod", false},
     {MBR_TILE_LAYER, "tile_layer", true},
     {MBR_CLIENTVERSIONDETAIL, "clientver_detail", true},
@@ -513,6 +513,7 @@ ObjMember object_members[] = {
     {MBR_DAMAGE_INCREASE_MOD, "damage_increase_mod", false},
     {MBR_SWING_SPEED_MOD, "swing_speed_mod", false},
     {MBR_LUCK_MOD, "luck_mod", false},
+    {MBR_HIT_CHANCE_MOD, "hit_chance_mod", false},  // 250
 
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];

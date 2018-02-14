@@ -668,6 +668,10 @@ bool Expression::optimize_token( int i )
         {
           INFO_PRINT << "Warning!! speed_mod member will be depreciated in future versions.\n";
         }
+        if (objmemb->id == MBR_HITCHANCE_MOD && compilercfg.DisplayWarnings)
+        {
+            INFO_PRINT << "Warning!! hitchance_mod member will be depreciated in future versions.\n";
+        }
         // merge the member name with the member operator.
         oper->id = INS_GET_MEMBER_ID;
         oper->type = TYP_UNARY_OPERATOR;
