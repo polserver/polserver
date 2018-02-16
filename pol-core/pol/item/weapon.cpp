@@ -342,7 +342,7 @@ size_t UWeapon::estimatedSize() const
 
 unsigned short UWeapon::speed() const
 {
-  int speed_ = WEAPON_TMPL->speed + swingspeed().value;
+  int speed_ = WEAPON_TMPL->speed + swing_speed().value;
 
   if ( speed_ < 0 )
     return 0;

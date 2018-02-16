@@ -495,8 +495,8 @@ ObjMember object_members[] = {
     {MBR_POISON_RESIST_CAP, "resist_poison_cap", true},  // 230
     {MBR_PHYSICAL_RESIST_CAP, "resist_physical_cap", true},
     {MBR_DAMAGE_INCREASE, "damage_increase", true},
-    {MBR_HITCHANCE, "hitchance", true},
-    {MBR_SWING_SPEED, "swingspeed", true},
+    {MBR_HIT_CHANCE, "hit_chance", true},
+    {MBR_SWING_SPEED, "swing_speed", true},
     // Additions for new properties mods
     {MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod", false},  // 235
     {MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod", false},

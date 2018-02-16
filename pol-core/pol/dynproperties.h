@@ -150,7 +150,7 @@ enum DynPropTypes : u8
   PROP_DEFENCE_INCREASE = 64,       // UObject
   PROP_DEFENCE_INCREASE_CAP = 65,   // Character
   PROP_LOWER_MANA_COST = 66,        // UObject
-  PROP_HITCHANCE = 67,              // UObject
+  PROP_HIT_CHANCE = 67,              // UObject
   PROP_SWING_SPEED = 68,            // UObject
   PROP_DAMAGE_INCREASE = 69,        // UObject
   PROP_RESIST_FIRE_CAP = 70,        // Character

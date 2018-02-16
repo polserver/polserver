@@ -159,9 +159,9 @@
 <member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="hitchance_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="speed_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="dmg_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="hit_chance_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="swing_speed_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="damage_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="resist_fire_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="resist_cold_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="resist_energy_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
@@ -319,8 +319,9 @@
 <member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="speed_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="dmg_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="hit_chance_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="swing_speed_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="damage_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="resist_fire_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="resist_cold_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="resist_energy_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
@@ -506,8 +507,6 @@
 <class name="Weapon">
 <parent>Equipment</parent>
 <explain>Equipable items that deal damage in combat</explain>
-<member mname="dmg_mod" type="Integer" access="r/w" mdesc="Damage Modifier" />
-<member mname="speed_mod" type="Integer" access="r/w" mdesc="from -32768 to 32767, an optional way to delay if you want to use the default speed math and just add to that" />
 <member mname="attribute" type="String" access="r/o" mdesc="Attribute name this weapon uses as a skill" />
 <member mname="hitscript" type="String" access="r/w" mdesc="Script name that runs when weapon makes a hit" />
 </class>

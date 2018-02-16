@@ -645,10 +645,10 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   value = lower_mana_cost().mod;
   if ( value != 0 )
     sw() << "\tLowerManaCostMod\t" << static_cast<int>( value ) << pf_endl;
-  value = hitchance().mod;
+  value = hit_chance().mod;
   if ( value != 0 )
     sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
-  value = swingspeed().mod;
+  value = swing_speed().mod;
   if ( value != 0 )
     sw() << "\tSpeedMod\t" << static_cast<int>( value ) << pf_endl;
   value = damage_increase().mod;
@@ -998,10 +998,10 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
     lower_mana_cost( lower_mana_cost().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "HITCHANCEMOD", 0 ) );
   if ( mod_value != 0 )
-    hitchance( hitchance().setAsMod( mod_value ) );
+    hit_chance( hit_chance().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "SWINGSPEEDMOD", 0 ) );
   if ( mod_value != 0 )
-    swingspeed( swingspeed().setAsMod( mod_value ) );
+    swing_speed( swing_speed().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "DAMAGEINCREASEMOD", 0 ) );
   if ( mod_value != 0 )
     damage_increase( damage_increase().setAsMod( mod_value ) );
@@ -2710,10 +2710,10 @@ void Character::updateEquipableProperties( Items::Item* item )
     faster_cast_recovery( faster_cast_recovery().addToValue( item->faster_cast_recovery() ) );
   if ( item->has_lower_mana_cost() )
     lower_mana_cost( lower_mana_cost().addToValue( item->lower_mana_cost() ) );
-  if ( item->has_hitchance() )
-    hitchance( hitchance().addToValue( item->hitchance() ) );
-  if ( item->has_swingspeed() )
-    swingspeed( swingspeed().addToValue( item->swingspeed() ) );
+  if ( item->has_hit_chance() )
+    hit_chance( hit_chance().addToValue( item->hit_chance() ) );
+  if ( item->has_swing_speed() )
+    swing_speed( swing_speed().addToValue( item->swing_speed() ) );
   if ( item->has_damage_increase() )
     damage_increase( damage_increase().addToValue( item->damage_increase() ) );
   if ( item->has_luck() )
@@ -2776,10 +2776,10 @@ void Character::resetEquipableProperties()
     defence_increase_cap( defence_increase_cap().resetModAsValue() );
   if ( has_lower_mana_cost() )
     lower_mana_cost( lower_mana_cost().resetModAsValue() );
-  if ( has_hitchance() )
-    hitchance( hitchance().resetModAsValue() );
-  if ( has_swingspeed() )
-    swingspeed( swingspeed().resetModAsValue() );
+  if ( has_hit_chance() )
+    hit_chance( hit_chance().resetModAsValue() );
+  if ( has_swing_speed() )
+    swing_speed( swing_speed().resetModAsValue() );
   if ( has_damage_increase() )
     damage_increase( damage_increase().resetModAsValue() );
   if ( has_luck() )

@@ -229,8 +229,8 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
                                                             : value ) );  // Defense chance increase
     msg->WriteFlipped<u16>(
         static_cast<u16>( chr->defence_increase_cap().value ) );  // Defense chance cap increase
-    msg->WriteFlipped<u16>( static_cast<u16>( chr->hitchance().value ) );   // Hit chance increase
-    msg->WriteFlipped<u16>( static_cast<u16>( chr->swingspeed().value ) );  // Swing speed increase
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->hit_chance().value ) );   // Hit chance increase
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->swing_speed().value ) );  // Swing speed increase
     msg->WriteFlipped<u16>(
         static_cast<u16>( chr->damage_increase().value ) );  // Weapon damage increase
     msg->WriteFlipped<u16>(

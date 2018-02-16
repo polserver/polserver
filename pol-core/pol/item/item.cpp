@@ -107,7 +107,7 @@ Item* Item::clone() const
   item->defence_increase_cap( defence_increase_cap() );
   item->lower_mana_cost( lower_mana_cost() );
   item->hit_chance( hit_chance() );
-  item->swingspeed( swingspeed() );
+  item->swing_speed( swing_speed() );
   item->damage_increase( damage_increase() );
   item->fire_resist_cap( fire_resist_cap() );
   item->cold_resist_cap( cold_resist_cap() );
@@ -422,7 +422,7 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   value = hit_chance().mod;
   if ( value != 0 )
     sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
-  value = swingspeed().mod;
+  value = swing_speed().mod;
   if ( value != 0 )
     sw() << "\tSwingSpeedmod\t" << static_cast<int>( value ) << pf_endl;
   value = fire_resist_cap().mod;
@@ -574,10 +574,10 @@ void Item::readProperties( Clib::ConfigElem& elem )
   mod_value =
       static_cast<s16>( elem.remove_int( "SPEED_MOD", 0 ) );  // to be made redundant in the future
   if ( mod_value != 0 )
-    swingspeed( swingspeed().setAsMod( mod_value ) );
+    swing_speed( swing_speed().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "SWING_SPEED_MOD", 0 ) );
   if ( mod_value != 0 )
-    swingspeed( swingspeed().setAsMod( mod_value ) );
+    swing_speed( swing_speed().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASEMOD", 0 ) );
   if ( mod_value != 0 )
     defence_increase( defence_increase().setAsMod( mod_value ) );
@@ -589,7 +589,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
     lower_mana_cost( lower_mana_cost().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "HITCHANCEMOD", 0 ) );
   if ( mod_value != 0 )
-    hitchance( hitchance().setAsMod( mod_value ) );
+    hit_chance( hit_chance().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTCAPMOD", 0 ) );
   if ( mod_value != 0 )
     fire_resist_cap( fire_resist_cap().setAsMod( mod_value ) );

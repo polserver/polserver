@@ -343,10 +343,10 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   value = lower_mana_cost().mod;
   if ( value != 0 )
     sw() << "\tLowerManaCostMod\t" << static_cast<int>( value ) << pf_endl;
-  value = hitchance().mod;
+  value = hit_chance().mod;
   if ( value != 0 )
     sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
-  value = swingspeed().mod;
+  value = swing_speed().mod;
   if ( value != 0 )
     sw() << "\tSpeedMod\t" << static_cast<int>( value ) << pf_endl;
   value = damage_increase().mod;
@@ -507,16 +507,16 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
     lower_mana_cost( refresh( lower_mana_cost() ) );
   if ( elem.remove_prop( "HITCHANCE", &tmp ) && diceValue( tmp, &value ) )
   {
-    hitchance( apply( hitchance(), value ) );
+    hit_chance( apply( hit_chance(), value ) );
   }
-  if ( has_hitchance() )
-    hitchance( refresh( hitchance() ) );
+  if ( has_hit_chance() )
+    hit_chance( refresh( hit_chance() ) );
   if ( elem.remove_prop( "SWINGSPEED", &tmp ) && diceValue( tmp, &value ) )
   {
-    swingspeed( apply( swingspeed(), value ) );
+    swing_speed( apply( swing_speed(), value ) );
   }
-  if ( has_swingspeed() )
-    swingspeed( refresh( swingspeed() ) );
+  if ( has_swing_speed() )
+    swing_speed( refresh( swing_speed() ) );
   if ( elem.remove_prop( "DAMAGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
   {
     damage_increase( apply( damage_increase(), value ) );
@@ -1190,10 +1190,10 @@ void NPC::resetEquipablePropertiesNPC()
         defence_increase_cap().resetModAsValue().addToValue( defence_increase_cap() ) );
   if ( has_lower_mana_cost() )
     lower_mana_cost( lower_mana_cost().resetModAsValue().addToValue( lower_mana_cost() ) );
-  if ( has_hitchance() )
-    hitchance( hitchance().resetModAsValue().addToValue( hitchance() ) );
-  if ( has_swingspeed() )
-    swingspeed( swingspeed().resetModAsValue().addToValue( swingspeed() ) );
+  if ( has_hit_chance() )
+    hit_chance( hit_chance().resetModAsValue().addToValue( hit_chance() ) );
+  if ( has_swing_speed() )
+    swing_speed( swing_speed().resetModAsValue().addToValue( swing_speed() ) );
   if ( has_damage_increase() )
     damage_increase( damage_increase().resetModAsValue().addToValue( damage_increase() ) );
   if ( has_fire_resist_cap() )

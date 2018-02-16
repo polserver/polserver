@@ -1032,19 +1032,19 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_LOWER_MANA_COST_MOD:
     return new BLong( lower_mana_cost().mod );
     break;
-  case MBR_HITCHANCE:
-    return new BLong( hitchance().sum() );
+  case MBR_HIT_CHANCE:
+    return new BLong( hit_chance().sum() );
     break;
   case MBR_HITCHANCE_MOD:  // to be made redundant in the future
   case MBR_HIT_CHANCE_MOD:
-    return new BLong( hitchance().mod );
+    return new BLong( hit_chance().mod );
     break;
   case MBR_SWING_SPEED:
-    return new BLong( swingspeed().sum() );
+    return new BLong( swing_speed().sum() );
     break;
   case MBR_SPEED_MOD:  // to be made redundant in the future
   case MBR_SWING_SPEED_MOD:
-    return new BLong( swingspeed().mod );
+    return new BLong( swing_speed().mod );
     break;
   case MBR_DAMAGE_INCREASE:
     return new BLong( damage_increase().sum() );
@@ -1503,7 +1503,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
   case MBR_HITCHANCE_MOD:  // to be made redundant in the future
   case MBR_HIT_CHANCE_MOD:
-    hitchance( hitchance().setAsMod( static_cast<short>( value ) ) );
+    hit_chance( hit_chance().setAsMod( static_cast<short>( value ) ) );
     if ( container != NULL )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1513,11 +1513,11 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
           chr->refresh_ar();
       }
     }
-    return new BLong( hitchance().mod );
+    return new BLong( hit_chance().mod );
     break;
   case MBR_SWING_SPEED_MOD:
   case MBR_SPEED_MOD:  // to be made redundant in the future
-    swingspeed( swingspeed().setAsMod( static_cast<short>( value ) ) );
+    swing_speed( swing_speed().setAsMod( static_cast<short>( value ) ) );
     if ( container != NULL )
     {
       if ( Core::IsCharacter( container->serial ) )
@@ -1527,7 +1527,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
           chr->refresh_ar();
       }
     }
-    return new BLong( swingspeed().mod );
+    return new BLong( swing_speed().mod );
     break;
   case MBR_DAMAGE_INCREASE_MOD:
   case MBR_DMG_MOD:  // to be made redundant in the future
@@ -2322,11 +2322,11 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     break;
   case MBR_HITCHANCE_MOD:  // to be made redundant in the future
   case MBR_HIT_CHANCE_MOD:
-    return new BLong( hitchance().mod );
+    return new BLong( hit_chance().mod );
     break;
   case MBR_SPEED_MOD:  // to be made redundant in the future
   case MBR_SWING_SPEED_MOD:
-    return new BLong( swingspeed().mod );
+    return new BLong( swing_speed().mod );
     break;
   case MBR_DMG_MOD:  // to be made redundant in the future
   case MBR_DAMAGE_INCREASE_MOD:
@@ -2341,11 +2341,11 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_LOWER_MANA_COST:
     return new BLong( lower_mana_cost().value );
     break;
-  case MBR_HITCHANCE:
-    return new BLong( hitchance().value );
+  case MBR_HIT_CHANCE:
+    return new BLong( hit_chance().value );
     break;
   case MBR_SWING_SPEED:
-    return new BLong( swingspeed().value );
+    return new BLong( swing_speed().value );
     break;
   case MBR_DAMAGE_INCREASE:
     return new BLong( damage_increase().value );
@@ -2671,15 +2671,15 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     break;
   case MBR_HITCHANCE_MOD:  // to be made redundant in the future
   case MBR_HIT_CHANCE_MOD:
-    hitchance( hitchance().setAsMod( static_cast<short>( value ) ) );
+    hit_chance( hit_chance().setAsMod( static_cast<short>( value ) ) );
     refresh_ar();
-    return new BLong( hitchance().mod );
+    return new BLong( hit_chance().mod );
     break;
   case MBR_SPEED_MOD:  // to be made redundant in the future
   case MBR_SWING_SPEED_MOD:
-    swingspeed( swingspeed().setAsMod( static_cast<short>( value ) ) );
+    swing_speed( swing_speed().setAsMod( static_cast<short>( value ) ) );
     refresh_ar();
-    return new BLong( swingspeed().mod );
+    return new BLong( swing_speed().mod );
     break;
   case MBR_DMG_MOD:  // to be made redundant in the future
   case MBR_DAMAGE_INCREASE_MOD:
@@ -4541,7 +4541,7 @@ BObjectImp* UWeapon::get_script_member_id( const int id ) const
     break;
   case MBR_SPEED_MOD:  // to be made redundant in the future
   case MBR_SWING_SPEED_MOD:
-    return new BLong( swingspeed().value );
+    return new BLong( swing_speed().value );
     break;
   case MBR_ATTRIBUTE:
     return new String( attribute().name );
@@ -4606,7 +4606,7 @@ BObjectImp* UWeapon::set_script_member_id( const int id, int value )
     break;
   case MBR_SPEED_MOD:  // to be made redundant in the future
   case MBR_SWING_SPEED_MOD:
-    swingspeed( static_cast<s16>( value ) );
+    swing_speed( static_cast<s16>( value ) );
     break;
   default:
     return NULL;
