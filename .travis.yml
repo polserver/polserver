@@ -10,7 +10,7 @@ script:
   - unzip kaitai-struct-compiler-0.8.zip
   - mkdir kaitai_out
   - ls
-  - ./kaitai-struct-compiler-0.8/bin/kaitai-struct-compiler -t cpp_stl -d kaitai_out kaitai_defs/tiledata.ksy
+  - ./kaitai-struct-compiler-0.8/bin/kaitai-struct-compiler -t cpp_stl --outdir kaitai_out kaitai_defs/tiledata.ksy
   - ls
   - ls kaitai_out
   - cat kaitai_out/*
