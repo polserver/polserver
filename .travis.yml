@@ -29,6 +29,10 @@ before_install:
   - chmod a+x build_linux.sh
 
 script:
+  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
+  - unzip kaitai-struct-compiler-0.8.zip
+  - ./kaitai-struct-compiler-0.8/bin/kaitai-struct-compiler -t cpp_stl -d . tiledata.ksy
+
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
   - export TRAVIS_CI=1
   - if [ "$CXX" = "g++" ]; then 
@@ -48,11 +52,11 @@ script:
   - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
   - echo -en 'travis_fold:end:script.tests\\r'
 
-notifications:
-  email:
-    - polteam@polserver.com
-  irc:
-    channels:
-      - "ircs://irc.darkmyst.org:6697/#pol"
-    on_success: always # Those are the defaults. Should maybe use "change" afterwards.
-    on_failure: always
+#notifications:
+#  email:
+#    - polteam@polserver.com
+#  irc:
+#    channels:
+#      - "ircs://irc.darkmyst.org:6697/#pol"
+#    on_success: always # Those are the defaults. Should maybe use "change" afterwards.
+#    on_failure: always
