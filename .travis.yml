@@ -10,6 +10,7 @@ script:
   - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
   - unzip kaitai-struct-compiler-0.8.zip
   - ./kaitai-struct-compiler-0.8/bin/kaitai-struct-compiler -t cpp_stl -d . tiledata.ksy
+  - ls
 
 
 #notifications:
