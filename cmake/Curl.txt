@@ -7,16 +7,19 @@ message("* curl")
 set(CURL_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/curl")
 if (${linux})
   set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/INSTALL")
+  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl.so")
 else()
   set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/builds/libcurl-${ARCH_STRING}-release-static")
+  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl_a.so")
 endif()
-IF(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
+
+if(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
 
   if(${linux})
     ExternalProject_Add(libcurl
       URL "${CURL_SOURCE_DIR}/../curl-7.57.0.zip"
       SOURCE_DIR  "${CURL_SOURCE_DIR}"
-      INSTALL_DIR ${CURL_INSTALL_DIR}
+      INSTALL_DIR "${CURL_INSTALL_DIR}"
       CONFIGURE_COMMAND ./configure
         -q
         --prefix=<INSTALL_DIR>
@@ -32,7 +35,7 @@ IF(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
     ExternalProject_Add(libcurl
 	  URL "${CURL_SOURCE_DIR}/../curl-7.57.0.zip"
       SOURCE_DIR  "${CURL_SOURCE_DIR}"
-      INSTALL_DIR ${CURL_INSTALL_DIR}
+      INSTALL_DIR "${CURL_INSTALL_DIR}"
       CONFIGURE_COMMAND ""
       BUILD_COMMAND ""
       INSTALL_COMMAND ""
@@ -48,6 +51,6 @@ IF(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
       COMMAND nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no
     )
   endif()
-ELSE()
-  MESSAGE("Curl already build")
-ENDIF()
+else()
+  message("Curl already build")
+endif()

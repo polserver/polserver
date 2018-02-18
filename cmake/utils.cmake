@@ -117,19 +117,13 @@ function(set_compile_flags target is_executable)
 endfunction()
 
 function(use_curl target)
-  find_library(curl_lib NAMES curl libcurl libcurl_a
-    PATHS ${CURL_INSTALL_DIR}/lib
-    NO_DEFAULT_PATH)
- 
   target_include_directories(${target}
     PUBLIC ${CURL_INSTALL_DIR}/include
   )
-  if(curl_lib)
-    target_link_libraries(${target} PUBLIC ${curl_lib})
-  else()
-    target_link_libraries(${target} PUBLIC curl)
-  endif()
-  mark_as_advanced(curl_lib)
+  target_link_libraries(${target} PUBLIC ${CURL_LIB})
+  if (NOT EXISTS ${CURL_LIB})
+	add_dependencies(${target} libcurl)
+  endif()	
 endfunction()
 
 function(use_benchmark target)
