@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdio>
+#include <iosfwd>
 
 #include "../pol/ustruct.h" // Needed because of USTRUCT_MAPINFO_BLOCK
 
@@ -41,6 +42,8 @@ namespace Plib {
       // Read full map (old version with MUL)
       // returns the number of blocks
       unsigned int load_full_map( FILE* mapfile, FILE* mapdif_file );
+
+      unsigned int load_full_map( int uo_mapid, std::istream& uopfile );
 
       RawMap();
       ~RawMap();

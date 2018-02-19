@@ -48,12 +48,16 @@ static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPIN
 
 void rawmapfullread()
 {
-  if ( mapfile == nullptr )
-    return;
-
   rawmap.set_bounds( uo_map_width, uo_map_height );
-  rawmap.load_full_map( mapfile, mapdif_file );
-  rawmap_ready = true;
+
+  unsigned int blocks = 0;
+  if ( mapfile == nullptr )
+    blocks = rawmap.load_full_map( uo_mapid, uopmapfile );
+  else
+    blocks = rawmap.load_full_map( mapfile, mapdif_file );
+
+  if ( blocks )
+    rawmap_ready = true;
 }
 
 /*

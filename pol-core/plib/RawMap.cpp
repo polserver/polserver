@@ -2,6 +2,9 @@
 
 #include "../clib/passert.h"
 
+#include "uopreader/uop.h"
+#include "uopreader/uophash.h"
+
 #include <cstdio>
 
 using namespace Pol::Core;
@@ -93,6 +96,68 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
 
   is_init = true;
   return block;
+}
+
+// TODO: cleanup the code
+unsigned int RawMap::load_full_map( int uo_mapid, std::istream &ifs )
+{
+  auto maphash = []( int mapid, int chunkidx ) {
+    char mapstring[1024];
+    snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, chunkidx );
+    return HashLittle2( mapstring );
+  };
+
+  if ( !ifs ) {
+    ERROR_PRINT << "Error when opening UOP file.\n";
+    return 0;
+  }
+
+  kaitai::kstream ks( &ifs );
+  uop_t uopfile( &ks );
+
+  // TODO: read all blocks (shouldn't be a problem for the current map UOPs though)
+  size_t totalSize = 0;
+  std::map<uint64_t, uop_t::file_t*> filemap;
+  uop_t::block_addr_t *currentblock = uopfile.header()->firstblock();
+  for ( auto file : *currentblock->block_body()->files() ) {
+    if ( file == nullptr )
+      continue;
+    if ( file->decompressed_size() == 0 )
+      continue;
+
+    filemap[file->filehash()] = file;
+    totalSize += file->decompressed_size();
+  }
+
+  if ( uopfile.header()->nfiles() != filemap.size() )
+    INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/" << uopfile.header()->nfiles() << ")\n";
+
+  passert_r( size_t( totalSize / sizeof( USTRUCT_MAPINFO_BLOCK ) ) * sizeof( USTRUCT_MAPINFO_BLOCK ) == totalSize, "Not an integer number of blocks! Check if the sizes are correct.");
+  
+  m_mapinfo_vec.clear();
+  m_mapinfo_vec.resize( totalSize/sizeof( USTRUCT_MAPINFO_BLOCK ) );
+
+  int vecidx = 0;
+  for ( size_t i = 0, remaining = totalSize; i < filemap.size(); i++ ) {
+    auto fileitr = filemap.find( maphash( uo_mapid, i ) );
+    if ( fileitr == filemap.end() ) {
+      ERROR_PRINT << "Couldn't find file hash: " << std::to_string(maphash( uo_mapid, i )) << "\n";
+      continue;
+    }
+
+    auto file = fileitr->second;
+
+    passert( remaining >= file->data()->filebytes().size() );
+    memcpy(&m_mapinfo_vec[vecidx], file->data()->filebytes().data(), file->data()->filebytes().size());
+    
+    remaining -= file->data()->filebytes().size();
+    vecidx += file->data()->filebytes().size() / sizeof( USTRUCT_MAPINFO_BLOCK );
+  }
+
+  if ( m_mapinfo_vec.size() > 0)
+    is_init = true;
+
+  return m_mapinfo_vec.size();
 }
 
 RawMap::RawMap() : m_mapwidth(0), m_mapheight(0)

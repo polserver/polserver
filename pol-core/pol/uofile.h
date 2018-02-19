@@ -45,6 +45,7 @@ void readwater();
 
 extern int uo_mapid;
 extern int uo_usedif;
+extern bool uo_readuop;
 extern unsigned short uo_map_width;
 extern unsigned short uo_map_height;
 

@@ -6,7 +6,7 @@
 // was modified from C# to C++ from the code provided in LegacyMULConverter 
 // by Eos, which claims comes from http://burtleburtle.net/bob/c/lookup3.c. (Nando)
 //
-uint64_t HashLittle2( std::string s )
+inline uint64_t HashLittle2( std::string s )
 {
   int length = s.size();
 

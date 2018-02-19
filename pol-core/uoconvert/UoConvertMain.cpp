@@ -240,6 +240,7 @@ void create_map( const std::string& realm, unsigned short width, unsigned short 
   INFO_PRINT << "Creating map base and solids files.\n"
              << "  Realm: " << realm << "\n"
              << "  Map ID: " << uo_mapid << "\n"
+             << "  Reading UOP file: " << (uo_readuop ? "Yes" : "No") << "\n"
              << "  Use Dif files: " << ( uo_usedif ? "Yes" : "No" ) << "\n"
              << "  Size: " << uo_map_width << "x" << uo_map_height << "\n"
              << "Initializing files: ";
@@ -1239,6 +1240,7 @@ int UoConvertMain::main()
   {
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
     UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 0, false );
+    UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
     int default_width = 6144;
