@@ -31,6 +31,7 @@ namespace Core
 {
 
 static Pol::Plib::RawMap rawmap;
+static bool rawmap_ready = false;
 
 void read_map_difs()
 {  
@@ -39,6 +40,9 @@ void read_map_difs()
 
 static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
+  if ( !rawmap_ready ) // UoTool has a serious problem of not loading data before using this function...
+    rawmapfullread();
+
   return rawmap.rawinfo( x, y, gi );
 }
 
@@ -49,6 +53,7 @@ void rawmapfullread()
 
   rawmap.set_bounds( uo_map_width, uo_map_height );
   rawmap.load_full_map( mapfile, mapdif_file );
+  rawmap_ready = true;
 }
 
 /*
