@@ -42,4 +42,5 @@ set (plib_sources  # sorted !
   systemstate.cpp
   systemstate.h
   uoexpansion.h
+  uopreader/uop.cpp
 )
