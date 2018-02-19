@@ -1,4 +1,5 @@
 set (plib_sources  # sorted !
+  ../../lib/kaitai-runtime/kaitai/kaitaistream.cpp # TODO: beautify this :P
   ../pol/uofile00.cpp       # TODO: move all uofile*.cpp into the plib folder
   ../pol/uofile01.cpp
   ../pol/uofile02.cpp
@@ -30,6 +31,8 @@ set (plib_sources  # sorted !
   mapwriter.h
   pkg.cpp 
   pkg.h
+  RawMap.cpp
+  RawMap.h
   realmdescriptor.cpp 
   realmdescriptor.h
   staticblock.h
