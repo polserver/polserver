@@ -29,6 +29,9 @@
 #include "../pol/uofilei.h"
 #include "../pol/ustruct.h"
 
+#include "uopreader/uop.h"
+#include "uophash.h"
+
 namespace Pol
 {
 namespace UoConvert
@@ -1180,7 +1183,59 @@ int UoConvertMain::main()
   }
 
   std::string command = binArgs[1];
-  if ( command == "map" )
+  if ( command == "uoptomul" ) {
+    // this is kludgy and doesn't take into account the UODataPath. Mostly a proof of concept now.
+    UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
+
+    std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
+    std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
+
+    auto maphash = []( int mapid, int chunkidx ) {
+      char mapstring[1024];
+      snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, chunkidx );
+      return HashLittle2( mapstring );
+    };
+
+    std::ifstream ifs( uop_mapfile, std::ifstream::binary );
+    if ( !ifs ) {
+      cerr << "Error when opening mapfile: " << uop_mapfile << endl;
+      return 1;
+    }
+
+    kaitai::kstream ks( &ifs );
+    uop_t uopfile( &ks );
+
+    // TODO: read all blocks
+    std::map<uint64_t, uop_t::file_t*> filemap;
+    uop_t::block_addr_t *currentblock = uopfile.header()->firstblock();
+    for ( auto file : *currentblock->block_body()->files() ) {
+      if ( file == nullptr )
+        continue;
+      if ( file->decompressed_size() == 0 )
+        continue;
+      filemap[file->filehash()] = file;
+    }
+
+    if ( uopfile.header()->nfiles() != filemap.size() )
+      cout << "Warning: not all chunks read (" << filemap.size() << "/" << uopfile.header()->nfiles() << ")" << endl;
+
+    std::ofstream ofs( mul_mapfile, std::ofstream::binary );
+    for ( size_t i = 0; i < filemap.size(); i++ ) {
+      
+      auto fileitr = filemap.find( maphash( uo_mapid, i ) );
+      if ( fileitr == filemap.end() ) {
+        cout << "Couldn't find file hash: " << maphash( uo_mapid, i );
+        continue;
+      }
+
+      auto file = fileitr->second;
+      ofs << file->data()->filebytes();
+      cout << "Wrote: " << i+1 << "/" << filemap.size() << endl;
+      //cout << i << ": " << file->filehash() << " - " << maphash( uo_mapid,i) << " (" << file->decompressed_size() << ") " << endl;
+    }
+    cout << "Done converting." << endl;
+  }
+  else if ( command == "map" )
   {
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
     UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 0, false );
