@@ -10,7 +10,8 @@ function(set_compile_flags target is_executable)
   )
 
   target_compile_definitions(${target} PRIVATE
-    INC_PASSERT=1 
+    KS_STR_ENCODING_NONE
+    INC_PASSERT=1
     __STDC_CONSTANT_MACROS
     __STDC_FORMAT_MACROS
     __STDC_LIMIT_MACROS
