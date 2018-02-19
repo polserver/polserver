@@ -19,6 +19,8 @@
 #include "uofilei.h"
 #include "ustruct.h"
 
+#include "../plib/RawMap.h"
+
 namespace Pol
 {
 namespace Plib
@@ -29,7 +31,6 @@ namespace Core
 {
 typedef std::map<unsigned int, unsigned int> MapBlockIndex;
 MapBlockIndex mapdifl;
-
 
 void read_map_difs()
 {
@@ -46,28 +47,21 @@ void read_map_difs()
   Plib::num_map_patches = index;
 }
 
-static std::vector<USTRUCT_MAPINFO_BLOCK> rawmap_buffer_vec;
 static bool rawmap_init = false;
+static RawMap rawmap;
 
-signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
+static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
   if ( !rawmap_init )  // FIXME just for safety cause I'm lazy
     rawmapfullread();
-  passert( x < uo_map_width && y < uo_map_height );
 
-  unsigned int x_block = x / 8;
-  unsigned int y_block = y / 8;
-  unsigned int block = ( x_block * ( uo_map_height / 8 ) + y_block );
-
-  unsigned int x_offset = x & 0x7;
-  unsigned int y_offset = y & 0x7;
-
-  *gi = rawmap_buffer_vec.at( block ).cell[y_offset][x_offset];
-  return gi->z;
+  return rawmap.mapinfo( x, y, gi );
 }
 
 void rawmapfullread()
 {
+  rawmap.set_bounds( uo_map_width, uo_map_height );
+
   unsigned int block = 0;
   USTRUCT_MAPINFO_BLOCK buffer;
   while ( fread( &buffer, sizeof buffer, 1, mapfile ) == 1 )
@@ -75,7 +69,7 @@ void rawmapfullread()
     MapBlockIndex::const_iterator citr = mapdifl.find( block );
     if ( citr == mapdifl.end() )
     {
-      rawmap_buffer_vec.push_back( buffer );
+      rawmap.add_block( buffer );
     }
     else
     {
@@ -87,7 +81,7 @@ void rawmapfullread()
 
       if ( fread( &buffer, sizeof buffer, 1, mapdif_file ) != 1 )
         throw std::runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
-      rawmap_buffer_vec.push_back( buffer );
+      rawmap.add_block( buffer );
     }
     ++block;
   }

@@ -5,12 +5,6 @@
       <UniqueIdentifier>{27f456ad-1e20-4c17-9e9a-d07df2ff343d}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="kaitai">
-      <UniqueIdentifier>{2c8c5c5d-f0d2-45a3-bf3e-8b427b28f317}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="uopreader">
-      <UniqueIdentifier>{7b2e0510-2a9a-460c-a9ef-a201832d6fb9}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="uoconvert.ico">
@@ -26,32 +20,11 @@
     <ClCompile Include="..\pol\polfile1.cpp" />
     <ClCompile Include="StdAfx.cpp" />
     <ClCompile Include="UoConvertMain.cpp" />
-    <ClCompile Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.cpp">
-      <Filter>kaitai</Filter>
-    </ClCompile>
-    <ClCompile Include="uopreader\uop.cpp">
-      <Filter>uopreader</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UoConvertMain.h" />
-    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\custom_decoder.h">
-      <Filter>kaitai</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.h">
-      <Filter>kaitai</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistruct.h">
-      <Filter>kaitai</Filter>
-    </ClInclude>
-    <ClInclude Include="uopreader\uop.h">
-      <Filter>uopreader</Filter>
-    </ClInclude>
-    <ClInclude Include="uophash.h">
-      <Filter>uopreader</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="..\clib\win2kcompat.masm" />

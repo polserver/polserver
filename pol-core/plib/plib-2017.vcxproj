@@ -224,6 +224,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.cpp" />
     <ClCompile Include="..\pol\uofile00.cpp" />
     <ClCompile Include="..\pol\uofile01.cpp" />
     <ClCompile Include="..\pol\uofile02.cpp" />
@@ -239,6 +240,7 @@
     <ClCompile Include="maptileserver.cpp" />
     <ClCompile Include="mapwriter.cpp" />
     <ClCompile Include="pkg.cpp" />
+    <ClCompile Include="RawMap.cpp" />
     <ClCompile Include="realmdescriptor.cpp" />
     <ClCompile Include="staticserver.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -246,8 +248,12 @@
     </ClCompile>
     <ClCompile Include="systemstate.cpp" />
     <ClCompile Include="uoexpansion.cpp" />
+    <ClCompile Include="uopreader\uop.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\custom_decoder.h" />
+    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.h" />
+    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistruct.h" />
     <ClInclude Include="..\pol\uofile.h" />
     <ClInclude Include="..\pol\uofilei.h" />
     <ClInclude Include="filemapserver.h" />
@@ -264,6 +270,7 @@
     <ClInclude Include="maptileserver.h" />
     <ClInclude Include="mapwriter.h" />
     <ClInclude Include="pkg.h" />
+    <ClInclude Include="RawMap.h" />
     <ClInclude Include="realmdescriptor.h" />
     <ClInclude Include="staticblock.h" />
     <ClInclude Include="staticserver.h" />
@@ -271,6 +278,8 @@
     <ClInclude Include="stlastar.h" />
     <ClInclude Include="systemstate.h" />
     <ClInclude Include="uoexpansion.h" />
+    <ClInclude Include="uopreader\uop.h" />
+    <ClInclude Include="uopreader\uophash.h" />
     <ClInclude Include="WorldChangeReasons.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

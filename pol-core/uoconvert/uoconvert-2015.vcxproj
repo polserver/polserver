@@ -96,12 +96,6 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>..\..\lib\kaitai-runtime;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>..\..\lib\kaitai-runtime;$(IncludePath)</IncludePath>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
       <TypeLibraryName>.\Release/uoconvert.tlb</TypeLibraryName>
@@ -152,7 +146,7 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>KS_STR_ENCODING_NONE;WIN32;NDEBUG;_CONSOLE;NOMINMAX;INC_PASSERT;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;NOMINMAX;INC_PASSERT;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -293,23 +287,16 @@
     <ResourceCompile Include="uoconvert.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.cpp" />
     <ClCompile Include="..\pol\polfile1.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="UoConvertMain.cpp" />
-    <ClCompile Include="uopreader\uop.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\custom_decoder.h" />
-    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.h" />
-    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistruct.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UoConvertMain.h" />
-    <ClInclude Include="uophash.h" />
-    <ClInclude Include="uopreader\uop.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\clib\clib-2015.vcxproj">

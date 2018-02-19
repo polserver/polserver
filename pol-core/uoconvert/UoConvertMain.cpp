@@ -21,6 +21,8 @@
 #include "../plib/mapwriter.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/systemstate.h"
+#include "../plib/uopreader/uop.h"
+#include "../plib/uopreader/uophash.h"
 #include "../pol/clidata.h"
 #include "../pol/objtype.h"
 #include "../pol/polfile.h"
@@ -29,8 +31,6 @@
 #include "../pol/uofilei.h"
 #include "../pol/ustruct.h"
 
-#include "uopreader/uop.h"
-#include "uophash.h"
 
 namespace Pol
 {
