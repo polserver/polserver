@@ -29,63 +29,26 @@ unsigned int num_map_patches = 0;
 }
 namespace Core
 {
-typedef std::map<unsigned int, unsigned int> MapBlockIndex;
-MapBlockIndex mapdifl;
+
+static Pol::Plib::RawMap rawmap;
 
 void read_map_difs()
-{
-  unsigned index = 0;
-  if ( mapdifl_file != NULL )
-  {
-    u32 blockid;
-    while ( fread( &blockid, sizeof blockid, 1, mapdifl_file ) == 1 )
-    {
-      mapdifl[blockid] = index;
-      ++index;
-    }
-  }
-  Plib::num_map_patches = index;
+{  
+  Plib::num_map_patches = rawmap.load_map_difflist( mapdifl_file );
 }
-
-static bool rawmap_init = false;
-static RawMap rawmap;
 
 static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
-  if ( !rawmap_init )  // FIXME just for safety cause I'm lazy
-    rawmapfullread();
-
-  return rawmap.mapinfo( x, y, gi );
+  return rawmap.rawinfo( x, y, gi );
 }
 
 void rawmapfullread()
 {
+  if ( mapfile == nullptr )
+    return;
+
   rawmap.set_bounds( uo_map_width, uo_map_height );
-
-  unsigned int block = 0;
-  USTRUCT_MAPINFO_BLOCK buffer;
-  while ( fread( &buffer, sizeof buffer, 1, mapfile ) == 1 )
-  {
-    MapBlockIndex::const_iterator citr = mapdifl.find( block );
-    if ( citr == mapdifl.end() )
-    {
-      rawmap.add_block( buffer );
-    }
-    else
-    {
-      // it's in the dif file.. get it from there.
-      unsigned dif_index = ( *citr ).second;
-      unsigned int file_offset = dif_index * sizeof( USTRUCT_MAPINFO_BLOCK );
-      if ( fseek( mapdif_file, file_offset, SEEK_SET ) != 0 )
-        throw std::runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
-
-      if ( fread( &buffer, sizeof buffer, 1, mapdif_file ) != 1 )
-        throw std::runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
-      rawmap.add_block( buffer );
-    }
-    ++block;
-  }
-  rawmap_init = true;
+  rawmap.load_full_map( mapfile, mapdif_file );
 }
 
 /*
