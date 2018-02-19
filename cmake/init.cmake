@@ -71,6 +71,7 @@ endmacro()
 
 macro(prepare_build)
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
+  SET(SOURCE_GROUP_DELIMITER "/")
 
   if(windows)
     set(HAVE_OPENSSL true)
@@ -114,4 +115,15 @@ macro(hide_cotire)
     COTIRE_UNITY_SOURCE_EXCLUDE_EXTENSIONS
     COTIRE_VERBOSE
   )
+endmacro()
+
+macro(cmake_fake_target)
+  add_custom_target("cmakefiles"
+			WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+			VERBATIM
+			SOURCES cmake/init.cmake cmake/Benchmark.txt cmake/Boost.txt cmake/Curl.txt cmake/release.cmake cmake/utils.cmake cmake/env/pol_global_config.h.in)
+  source_group(cmake FILES cmake/init.cmake cmake/Benchmark.txt cmake/Boost.txt cmake/Curl.txt cmake/release.cmake cmake/utils.cmake)
+  source_group(cmake/env FILES cmake/env/pol_global_config.h.in)
+  set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 endmacro()

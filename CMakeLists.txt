@@ -57,6 +57,7 @@ detect_arch()
 detect_platform()
 
 prepare_build()
+cmake_fake_target()
 
 include(cmake/Boost.txt)
 include(cmake/Benchmark.txt)
