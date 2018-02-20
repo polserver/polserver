@@ -57,10 +57,10 @@ types:
       - id: map_struct
         size: _parent.compressed_size
         type: map_struct
-        if _root.mapformat
+        if: _root.mapformat
       - id: filebytes
         size: _parent.compressed_size
-        if not _root.mapformat
+        if: not _root.mapformat
      
       
   file:
