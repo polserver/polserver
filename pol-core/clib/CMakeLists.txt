@@ -14,7 +14,7 @@ use_benchmark(${lib_name})
 #clib is our base lib, if this waits for boost extraction
 #its enough, the external libs can start to build already
 if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-  add_dependencies(${target} boost)
+  add_dependencies(${lib_name} boost)
 endif()
 
 target_link_libraries(${lib_name} PUBLIC
