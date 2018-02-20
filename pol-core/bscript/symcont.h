@@ -9,14 +9,13 @@
 
 #include <cstdio>
 
-#include "../clib/passert.h"
+#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 
 #ifndef __TOKENS_H
 #include "tokens.h"
 #endif
 
-#include "modules.h"
 namespace Pol
 {
 namespace Bscript
@@ -38,7 +37,7 @@ public:
                         BTokenType aType = TYP_CONTROL,
                         unsigned aOffset = 0  //,
                         // unsigned aNargs = 0
-                        );
+  );
 } POSTSTRUCT_PACK;
 #ifdef _MSC_VER
 #pragma pack( pop )

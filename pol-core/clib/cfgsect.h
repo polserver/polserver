@@ -25,7 +25,7 @@ class ConfigSection
 public:
   ConfigSection( ConfigFile& cf, const std::string& sectname,
                  unsigned flags = CST_MANDATORY | CST_UNIQUE );
-  ~ConfigSection();
+  ~ConfigSection() noexcept(false);
   ConfigSection& operator=( const ConfigSection& ) { return *this; }
   bool matches( const ConfigElem& elem );
 

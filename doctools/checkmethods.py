@@ -112,7 +112,7 @@ def parseFile(file,defs,methods):
 
 def checkDocs(methods):
     docs=dict()
-    with open('../docs/docs.polserver.com/pol099/objref.xml','r') as f:
+    with open('../docs/docs.polserver.com/pol100/objref.xml','r') as f:
         in_c=None
         for l in f.readlines():
             l=l.strip()

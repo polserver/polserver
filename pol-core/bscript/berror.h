@@ -7,10 +7,21 @@
 #ifndef BSCRIPT_BERROR_H
 #define BSCRIPT_BERROR_H
 
-#include "bstruct.h"
-
 #include <istream>
 #include <string>
+
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+#include "bobject.h"
+#include "bstruct.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class ContIterator;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {

@@ -10,10 +10,7 @@ namespace Pol
 {
 namespace Bscript
 {
-typedef enum
-{
-  Mod_Basic
-} ModuleID;
+typedef enum { Mod_Basic } ModuleID;
 }
 }
 #endif

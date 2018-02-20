@@ -2,9 +2,9 @@
 #define __PACKETINTERFACE_H
 
 #include "../../clib/rawtypes.h"
+#include <boost/noncopyable.hpp>
 #include <map>
 #include <queue>
-#include <boost/noncopyable.hpp>
 
 namespace Pol
 {

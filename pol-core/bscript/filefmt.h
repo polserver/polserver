@@ -12,7 +12,6 @@
 #ifndef __BSCRIPT_FILEFMT_H
 #define __BSCRIPT_FILEFMT_H
 
-#include "../clib/rawtypes.h"
 namespace Pol
 {
 namespace Bscript
@@ -34,6 +33,7 @@ namespace Bscript
 #define ESCRIPT_FILE_VER_000A 0x000A
 #define ESCRIPT_FILE_VER_000B 0x000B
 #define ESCRIPT_FILE_VER_000C 0x000C
+#define ESCRIPT_FILE_VER_000D 0x000D
 
 /*
     NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
@@ -41,7 +41,7 @@ namespace Bscript
     and report this to users when an older compiled version
     is attempted to be executed - TJ
     */
-#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_000C )
+#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_000D )
 
 struct BSCRIPT_FILE_HDR
 {

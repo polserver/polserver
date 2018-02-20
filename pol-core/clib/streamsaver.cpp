@@ -2,11 +2,8 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <chrono>
-#include "../../lib/format/format.h"
-#include "message_queue.h"
+
 #include "streamsaver.h"
-#include "logfacility.h"
 
 namespace Pol
 {
@@ -15,12 +12,8 @@ namespace Clib
 const std::size_t flush_limit = 10000;  // 500;
 
 /// BaseClass implements only writer operator logic
-StreamWriter::StreamWriter() : _writer( new fmt::Writer )
-{
-}
-StreamWriter::~StreamWriter()
-{
-}
+StreamWriter::StreamWriter() : _writer( new fmt::Writer ) {}
+StreamWriter::~StreamWriter() {}
 
 fmt::Writer& StreamWriter::operator()()
 {
@@ -97,13 +90,9 @@ void OFStreamWriter::flush_file()
 }
 
 /// ostream implementation (non threaded)
-OStreamWriter::OStreamWriter() : StreamWriter(), _stream()
-{
-}
+OStreamWriter::OStreamWriter() : StreamWriter(), _stream() {}
 
-OStreamWriter::OStreamWriter( std::ostream* stream ) : StreamWriter(), _stream( stream )
-{
-}
+OStreamWriter::OStreamWriter( std::ostream* stream ) : StreamWriter(), _stream( stream ) {}
 
 OStreamWriter::~OStreamWriter()
 {
@@ -111,9 +100,7 @@ OStreamWriter::~OStreamWriter()
     *_stream << _writer->str();
 }
 
-void OStreamWriter::init( const std::string& )
-{
-}
+void OStreamWriter::init( const std::string& ) {}
 
 void OStreamWriter::flush()
 {
@@ -149,35 +136,33 @@ ThreadedOFStreamWriter::ThreadedOFStreamWriter( std::ofstream* stream )
 }
 void ThreadedOFStreamWriter::start_worker()
 {
-  _writethread = std::thread( [this]()
-                              {
-                                std::list<WriterPtr> writers;
-                                // small helper lambda to write into stream
-                                auto _write_to_stream = [&]( std::list<WriterPtr>& l )
-                                {
-                                  for ( const auto& _w : l )
-                                  {
-                                    if ( _w->size() )
-                                      *_stream << _w->str();
-                                  }
-                                };
-                                try
-                                {
-                                  for ( ;; )
-                                  {
-                                    writers.clear();
-                                    _msg_queue.pop_wait( &writers );
-                                    _write_to_stream( writers );
-                                  }
-                                }
-                                catch ( writer_queue::Canceled& )
-                                {
-                                }
-                                writers.clear();
-                                _msg_queue.pop_remaining( &writers );
-                                _write_to_stream( writers );
-                                _stream->flush();
-                              } );
+  _writethread = std::thread( [this]() {
+    std::list<WriterPtr> writers;
+    // small helper lambda to write into stream
+    auto _write_to_stream = [&]( std::list<WriterPtr>& l ) {
+      for ( const auto& _w : l )
+      {
+        if ( _w->size() )
+          *_stream << _w->str();
+      }
+    };
+    try
+    {
+      for ( ;; )
+      {
+        writers.clear();
+        _msg_queue.pop_wait( &writers );
+        _write_to_stream( writers );
+      }
+    }
+    catch ( writer_queue::Canceled& )
+    {
+    }
+    writers.clear();
+    _msg_queue.pop_remaining( &writers );
+    _write_to_stream( writers );
+    _stream->flush();
+  } );
 }
 
 ThreadedOFStreamWriter::~ThreadedOFStreamWriter()

@@ -2,9 +2,11 @@
 #define CLIB_WNSCKT_H
 
 #include <string>
+
 #include "Header_Windows.h"
 #ifndef WINDOWS
 #include <sys/socket.h>
+
 typedef int SOCKET;
 #ifndef INVALID_SOCKET
 #define INVALID_SOCKET ( SOCKET )( -1 )

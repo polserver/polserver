@@ -7,40 +7,29 @@
 
 #include "resource.h"
 
-#include "../plib/maptile.h"
-#include "../plib/systemstate.h"
-
-#include "item/itemdesc.h"
-#include "polcfg.h"
-#include "polclock.h"
-#include "proplist.h"
-#include "realms.h"
-#include "realms/realm.h"
-#include "schedule.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
-
 #include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/impstr.h"
-
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
-#include "../clib/stlutil.h"
 #include "../clib/streamsaver.h"
-
-#include <stdexcept>
+#include "../plib/maptile.h"
+#include "../plib/systemstate.h"
+#include "globals/state.h"
+#include "globals/uvars.h"
+#include "item/itemdesc.h"
+#include "polcfg.h"
+#include "polclock.h"
+#include "polsig.h"
+#include "realms/realm.h"
 
 namespace Pol
 {
 namespace Core
 {
-
-///Resource Management
+/// Resource Management
 ResourceRegion::ResourceRegion( Clib::ConfigElem& elem, RegionId id )
     : Region( elem, id ),
       tilecount_( 0 ),
@@ -440,8 +429,11 @@ void read_resources_dat()
 
 void ResourceDef::write( Clib::StreamWriter& sw ) const
 {
-  sw() << "GlobalResourcePool " << name() << '\n' << "{" << '\n' << "\tUnits\t" << current_units_
-       << '\n' << "}" << '\n' << '\n';
+  sw() << "GlobalResourcePool " << name() << '\n'
+       << "{" << '\n'
+       << "\tUnits\t" << current_units_ << '\n'
+       << "}" << '\n'
+       << '\n';
 
   for ( unsigned i = 0; i < regions_.size(); ++i )
   {
@@ -464,9 +456,13 @@ size_t ResourceDef::estimateSize() const
 
 void ResourceRegion::write( Clib::StreamWriter& sw, const std::string& resource_name ) const
 {
-  sw() << "RegionalResourcePool " << resource_name << '\n' << "{" << '\n' << "\tName\t" << name_
-       << '\n' << "\tUnits\t" << units_ << '\n' << "#\t(regions/" << resource_name
-       << ".cfg: Capacity is " << capacity_ << ")" << '\n' << "}" << '\n' << '\n';
+  sw() << "RegionalResourcePool " << resource_name << '\n'
+       << "{" << '\n'
+       << "\tName\t" << name_ << '\n'
+       << "\tUnits\t" << units_ << '\n'
+       << "#\t(regions/" << resource_name << ".cfg: Capacity is " << capacity_ << ")" << '\n'
+       << "}" << '\n'
+       << '\n';
   // sw.flush();
 }
 
@@ -476,9 +472,8 @@ size_t ResourceRegion::estimateSize() const
       Region::estimateSize() +
       5 * sizeof( unsigned int ) /*tilecount_ units_per_area_ seconds_per_regrow_ capacity_ units_*/
       + sizeof( time_t )         /*last_regen_*/
-      +
-      ( sizeof( unsigned int ) + sizeof( unsigned short ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
-          depletions_.size();
+      + ( sizeof( unsigned int ) + sizeof( unsigned short ) + ( sizeof( void* ) * 3 + 1 ) / 2 ) *
+            depletions_.size();
   return size;
 }
 

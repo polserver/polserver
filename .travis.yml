@@ -2,23 +2,62 @@ language: cpp
 
 sudo: false
 
-compiler:
-  - gcc
 
 script:
-  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
-  - unzip kaitai-struct-compiler-0.8.zip
-  - mkdir kaitai_out
-  - ./kaitai-struct-compiler-0.8/bin/kaitai-struct-compiler -t cpp_stl --outdir kaitai_out kaitai_defs/*.ksy
-  - ls kaitai_out
-  - tail -n +1 kaitai_out/*
+  #  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
+  #  - unzip kaitai-struct-compiler-0.8.zip
+  #  - mkdir kaitai_out
+  #  - ./kaitai-struct-compiler-0.8/bin/kaitai-struct-compiler -t cpp_stl --outdir kaitai_out kaitai_defs/*.ksy
+  #  - ls kaitai_out
+  #  - tail -n +1 kaitai_out/*
 
 
-#notifications:
-#  email:
-#    - polteam@polserver.com
-#  irc:
-#    channels:
-#      - "ircs://irc.darkmyst.org:6697/#pol"
-#    on_success: always # Those are the defaults. Should maybe use "change" afterwards.
-#    on_failure: always
+cache:
+  directories:
+    - lib/curl
+    - lib/boost_1_63_0
+
+git:
+  depth: 1
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-7']
+      env: CXX_P=g++-7 CC_P=gcc-7
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
+      env: CXX_P=clang++-5.0 CC_P=clang-5.0
+
+before_install:
+  - cd pol-core/bin-build
+
+before_script:
+  - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
+  - export CXX=$CXX_P
+  - export CC=$CC_P
+  - cmake ../..
+  - echo -en 'travis_fold:end:script.configure\\r'
+
+script:
+  - echo 'Build...' && echo -en 'travis_fold:start:script.build\\r'
+  - make -j 2
+  - echo -en 'travis_fold:end:script.build\\r'
+
+  - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
+  - cd ../../testsuite/escript
+  - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
+  - echo -en 'travis_fold:end:script.tests\\r'
+
+notifications:
+  email:
+    - polteam@polserver.com

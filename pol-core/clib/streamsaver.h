@@ -3,13 +3,16 @@
 
 #include <boost/noncopyable.hpp>
 #include <iosfwd>
-#include <string>
 #include <memory>
+#include <string>
 #include <thread>
-#include "../../lib/format/format.h"
+
+#include <format/format.h>
 #include "compilerspecifics.h"
 #include "message_queue.h"
+#if 0
 #include "timer.h"
+#endif
 
 namespace Pol
 {

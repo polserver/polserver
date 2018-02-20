@@ -4,20 +4,16 @@
  * - 2009/12/02 Turley:    added config.max_tile_id - Tomi
  */
 
-
 // TODO: consider joining this file with landtile.cpp, tiles.cpp and clidata.h and renaming it all
 // to something consistent.
 // TODO: encapsulate the tile[] vector here
-#include "clidata.h"
-
-#include "tiles.h"
-#include "polcfg.h"
-
-#include "../clib/passert.h"
-#include "../plib/mapcell.h"
-#include "../plib/systemstate.h"
 
 #include <string>
+
+#include "../clib/rawtypes.h"
+#include "../plib/mapcell.h"
+#include "../plib/systemstate.h"
+#include "tiles.h"
 
 namespace Pol
 {

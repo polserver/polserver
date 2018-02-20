@@ -7,12 +7,19 @@
 #ifndef PLIB_FILEMAPSERVER_H
 #define PLIB_FILEMAPSERVER_H
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/binaryfile.h"
-
+#include "../clib/compilerspecifics.h"
 #include "mapblock.h"
 #include "mapcell.h"
 #include "mapserver.h"
+
+namespace Pol
+{
+namespace Plib
+{
+class RealmDescriptor;
+}  // namespace Plib
+}  // namespace Pol
 
 namespace Pol
 {

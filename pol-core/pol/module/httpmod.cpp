@@ -5,16 +5,14 @@
 
 #include "httpmod.h"
 
-#include "../polcfg.h"
-#include "../scrsched.h"
-
-#include "../../bscript/impstr.h"
 #include "../../bscript/berror.h"
-
+#include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/wnsckt.h"
-
 #include "../../plib/systemstate.h"
+#include "../uoexec.h"
+#include "osmod.h"
+
 
 namespace Pol
 {

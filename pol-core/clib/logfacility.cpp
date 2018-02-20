@@ -12,13 +12,17 @@ POLLOG.Format("hello {}") << "world";
 */
 
 #include "logfacility.h"
-#include "clib.h"
 
-#include <fstream>
 #include <chrono>
-#include <iomanip>
+#include <fstream>
+#include <functional>
 #include <iostream>
-#include <memory.h>
+#include <mutex>
+#include <string.h>
+#include <thread>
+
+#include "clib.h"
+#include "message_queue.h"
 
 namespace Pol
 {
@@ -78,34 +82,31 @@ public:
   // blocks till the queue is empty
   void exit()
   {
-    send( [&]()
-          {
-            _done = true;
-          } );
+    send( [&]() { _done = true; } );
     _work_thread.join();  // wait for it
   }
   // send msg into queue
   void send( const msg& msg_ ) { _queue.push( msg_ ); }
+
 private:
   // endless loop in thread
   void run()
   {
-    _work_thread = std::thread( [&]()
-                                {
-                                  while ( !_done )
-                                  {
-                                    try
-                                    {
-                                      msg func;
-                                      _queue.pop_wait( &func );
-                                      func();  // execute
-                                    }
-                                    catch ( std::exception& msg )
-                                    {
-                                      std::cout << msg.what() << std::endl;
-                                    }
-                                  }
-                                } );
+    _work_thread = std::thread( [&]() {
+      while ( !_done )
+      {
+        try
+        {
+          msg func;
+          _queue.pop_wait( &func );
+          func();  // execute
+        }
+        catch ( std::exception& msg )
+        {
+          std::cout << msg.what() << std::endl;
+        }
+      }
+    } );
   }
   bool _done;
   msg_queue _queue;
@@ -113,9 +114,7 @@ private:
 };
 
 
-LogFacility::LogFacility() : _worker( new LogWorker )
-{
-}
+LogFacility::LogFacility() : _worker( new LogWorker ) {}
 
 // note this blocks till the worker is finished
 LogFacility::~LogFacility()
@@ -130,18 +129,17 @@ LogFacility::~LogFacility()
 template <typename Sink>
 void LogFacility::save( fmt::Writer* message, const std::string& id )
 {
-  _worker->send( [message, id]()
-                 {
-                   std::unique_ptr<fmt::Writer> msg( message );
-                   try
-                   {
-                     getSink<Sink>()->addMessage( msg.get(), id );
-                   }
-                   catch ( std::exception& msg )
-                   {
-                     std::cout << msg.what() << std::endl;
-                   }
-                 } );
+  _worker->send( [message, id]() {
+    std::unique_ptr<fmt::Writer> msg( message );
+    try
+    {
+      getSink<Sink>()->addMessage( msg.get(), id );
+    }
+    catch ( std::exception& msg )
+    {
+      std::cout << msg.what() << std::endl;
+    }
+  } );
 }
 
 // register sink for later deconstruction
@@ -153,28 +151,19 @@ void LogFacility::registerSink( LogSink* sink )
 // disables debuglog
 void LogFacility::disableDebugLog()
 {
-  _worker->send( []()
-                 {
-                   getSink<LogSink_debuglog>()->disable();
-                 } );
+  _worker->send( []() { getSink<LogSink_debuglog>()->disable(); } );
 }
 
 // disables startlog ( activates pol.log )
 void LogFacility::deinitializeStartLog()
 {
-  _worker->send( []()
-                 {
-                   getSink<LogSink_pollog>()->deinitialize_startlog();
-                 } );
+  _worker->send( []() { getSink<LogSink_pollog>()->deinitialize_startlog(); } );
 }
 
 // closes flex sink of given id
 void LogFacility::closeFlexLog( const std::string& id )
 {
-  _worker->send( [id]()
-                 {
-                   getSink<LogSink_flexlog>()->close( id );
-                 } );
+  _worker->send( [id]() { getSink<LogSink_flexlog>()->close( id ); } );
 }
 
 // register new flex sink with given filename
@@ -183,18 +172,16 @@ std::string LogFacility::registerFlexLogger( const std::string& logfilename, boo
 {
   auto promise = std::make_shared<std::promise<std::string>>();
   auto ret = promise->get_future();
-  _worker->send(
-      [=]()
-      {
-        try
-        {
-          promise->set_value( getSink<LogSink_flexlog>()->create( logfilename, open_timestamp ) );
-        }
-        catch ( ... )
-        {
-          promise->set_exception( std::current_exception() );
-        }
-      } );
+  _worker->send( [=]() {
+    try
+    {
+      promise->set_value( getSink<LogSink_flexlog>()->create( logfilename, open_timestamp ) );
+    }
+    catch ( ... )
+    {
+      promise->set_exception( std::current_exception() );
+    }
+  } );
   return ret.get();  // block wait till valid
 }
 
@@ -203,23 +190,18 @@ void LogFacility::wait_for_empty_queue()
 {
   auto promise = std::make_shared<std::promise<bool>>();
   auto ret = promise->get_future();
-  _worker->send( [=]()
-                 {
-                   promise->set_value( true );
-                 } );
+  _worker->send( [=]() { promise->set_value( true ); } );
   ret.get();  // block wait till valid
 }
 
 // Message default construct
 template <typename Sink>
-Message<Sink>::Message()
-    : _formater( new fmt::Writer() ), _id( "" )
+Message<Sink>::Message() : _formater( new fmt::Writer() ), _id( "" )
 {
 }
 
 template <typename Sink>
-Message<Sink>::Message( const std::string& id )
-    : _formater( new fmt::Writer() ), _id( id )
+Message<Sink>::Message( const std::string& id ) : _formater( new fmt::Writer() ), _id( id )
 {
 }
 // directly fill on construction the formater with file, line and function
@@ -259,12 +241,7 @@ Sink* getSink()
   // with later vc its automatically threadsafe (magic statics)
   static std::once_flag flag;
   static Sink* sink = new Sink();
-  std::call_once( flag,
-                  []( Sink* s )
-                  {
-                    global_logger->registerSink( s );
-                  },
-                  sink );
+  std::call_once( flag, []( Sink* s ) { global_logger->registerSink( s ); }, sink );
   return sink;
 }
 
@@ -378,9 +355,7 @@ bool LogSinkGenericFile::test_for_rollover(
   return true;
 }
 
-LogSink_cout::LogSink_cout() : LogSink()
-{
-}
+LogSink_cout::LogSink_cout() : LogSink() {}
 // print given msg into std::cout
 void LogSink_cout::addMessage( fmt::Writer* msg )
 {
@@ -392,9 +367,7 @@ void LogSink_cout::addMessage( fmt::Writer* msg, const std::string& )
   addMessage( msg );
 }
 
-LogSink_cerr::LogSink_cerr() : LogSink()
-{
-}
+LogSink_cerr::LogSink_cerr() : LogSink() {}
 // print given msg into std::cerr
 void LogSink_cerr::addMessage( fmt::Writer* msg )
 {
@@ -407,9 +380,7 @@ void LogSink_cerr::addMessage( fmt::Writer* msg, const std::string& )
 }
 
 // on construction this opens not pol.log instead start.log
-LogSink_pollog::LogSink_pollog() : LogSinkGenericFile( &startlogBehaviour )
-{
-}
+LogSink_pollog::LogSink_pollog() : LogSinkGenericFile( &startlogBehaviour ) {}
 
 // performs the switch between start.log and pol.log
 void LogSink_pollog::deinitialize_startlog()
@@ -422,14 +393,10 @@ void LogSink_pollog::deinitialize_startlog()
 }
 
 // on construction opens script.log
-LogSink_scriptlog::LogSink_scriptlog() : LogSinkGenericFile( &scriptlogBehaviour )
-{
-}
+LogSink_scriptlog::LogSink_scriptlog() : LogSinkGenericFile( &scriptlogBehaviour ) {}
 
 // on construction opens debug.log
-LogSink_debuglog::LogSink_debuglog() : LogSinkGenericFile( &debuglogBehaviour )
-{
-}
+LogSink_debuglog::LogSink_debuglog() : LogSinkGenericFile( &debuglogBehaviour ) {}
 
 // debug.log can be disabled
 void LogSink_debuglog::disable()
@@ -453,16 +420,10 @@ void LogSink_debuglog::addMessage( fmt::Writer* msg, const std::string& )
 }
 
 // on construction opens leak.log
-LogSink_leaklog::LogSink_leaklog() : LogSinkGenericFile( &leaklogBehaviour )
-{
-}
+LogSink_leaklog::LogSink_leaklog() : LogSinkGenericFile( &leaklogBehaviour ) {}
 
-LogSink_flexlog::LogSink_flexlog() : LogSink()
-{
-}
-LogSink_flexlog::~LogSink_flexlog()
-{
-}
+LogSink_flexlog::LogSink_flexlog() : LogSink() {}
+LogSink_flexlog::~LogSink_flexlog() {}
 
 // create and open new logfile with given name, returns unique id
 std::string LogSink_flexlog::create( std::string logfilename, bool open_timestamp )
@@ -500,8 +461,7 @@ void LogSink_flexlog::close( const std::string& id )
 }
 
 template <typename log1, typename log2>
-LogSink_dual<log1, log2>::LogSink_dual()
-    : LogSink()
+LogSink_dual<log1, log2>::LogSink_dual() : LogSink()
 {
 }
 // performs the sink with given msg for both sinks

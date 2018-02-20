@@ -15,39 +15,41 @@
 
 #include "itemdesc.h"
 
-#include "wepntmpl.h"
-#include "armrtmpl.h"
+#include <ctype.h>
+#include <iosfwd>
+#include <stdlib.h>
+#include <string.h>
 
+#include <format/format.h>
+#include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
-#include "../../bscript/escrutil.h"
 #include "../../bscript/impstr.h"
-
-#include "../../plib/mapcell.h"
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
-
-#include "../cfgrepos.h"
-#include "../clidata.h"
-#include "../objtype.h"
-#include "../multi/multidef.h"
-#include "../resource.h"
-#include "../polcfg.h"
-#include "../syshookscript.h"
-#include "../globals/ucfg.h"
-#include "../ustruct.h"
-#include "../globals/uvars.h"
-#include "../globals/settings.h"
-
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
+#include "../clidata.h"
+#include "../dice.h"
+#include "../extobj.h"
+#include "../globals/settings.h"
+#include "../globals/uvars.h"
+#include "../multi/multidef.h"
+#include "../pktdef.h"
+#include "../proplist.h"
+#include "../resource.h"
+#include "../syshookscript.h"
+#include "../uconst.h"
+#include "../uobject.h"
+#include "armrtmpl.h"
+#include "wepntmpl.h"
 
 namespace Pol
 {

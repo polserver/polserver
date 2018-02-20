@@ -7,19 +7,18 @@
 #ifndef FMODULE_H
 #define FMODULE_H
 
-#include "options.h"
-#include "../clib/maputil.h"
-#include "../clib/boostutils.h"
-
 #include <map>
+#include <stddef.h>
 #include <string>
 #include <vector>
+
+#include "../clib/boostutils.h"
+#include "../clib/maputil.h"
 
 namespace Pol
 {
 namespace Bscript
 {
-class ExecutorModule;
 class UserFunction;
 
 class ModuleFunction

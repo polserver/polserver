@@ -5,9 +5,6 @@
 
 #include "equipdsc.h"
 
-#include "../clib/cfgelem.h"
-#include "../bscript/bstruct.h"
-
 
 namespace Pol
 {
@@ -25,7 +22,7 @@ void EquipDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 size_t EquipDesc::estimatedSize() const
 {
   return base::estimatedSize() + sizeof( bool ) /*is_intrinsic*/
-         +sizeof( bool ); /*is_pc_intrinsic*/
+         + sizeof( bool );                      /*is_pc_intrinsic*/
 }
 /*
 EquipDesc::EquipDesc()

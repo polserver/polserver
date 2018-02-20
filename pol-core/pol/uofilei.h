@@ -7,9 +7,9 @@
 #ifndef UOFILEI_H
 #define UOFILEI_H
 
-#include <stdio.h>
 #include "uconst.h"
 #include "udatfile.h"
+#include <stdio.h>
 namespace Pol
 {
 namespace Core

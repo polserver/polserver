@@ -11,16 +11,32 @@
 #include <string>
 #include <vector>
 
-
+#include "../../clib/boostutils.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
-#include "../../bscript/bstruct.h"
-#include "../uobject.h"
-#include "../proplist.h"
 #include "../dice.h"
+#include "../proplist.h"
 #include "../scrdef.h"
+#include "../uobject.h"
 
 namespace Pol
 {
+namespace Clib
+{
+class ConfigElem;
+}  // namespace Clib
+namespace Plib
+{
+class Package;
+}  // namespace Plib
+}  // namespace Pol
+
+namespace Pol
+{
+namespace Bscript
+{
+class BStruct;
+}
 namespace Core
 {
 class ExportScript;

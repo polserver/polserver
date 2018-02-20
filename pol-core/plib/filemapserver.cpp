@@ -6,6 +6,8 @@
 
 #include "filemapserver.h"
 
+#include <string>
+
 #include "../clib/passert.h"
 
 namespace Pol

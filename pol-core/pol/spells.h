@@ -8,16 +8,17 @@
 #define SPELLS_H
 
 #include <string>
-#include <vector>
 #include <time.h>
+#include <vector>
 
-#include "../clib/refptr.h"
-
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
 #include "action.h"
-#include "scrdef.h"
-#include "schedule.h"
-#include "reftypes.h"
 #include "globals/uvars.h"
+#include "polclock.h"
+#include "reftypes.h"
+#include "schedule.h"
+#include "scrdef.h"
 
 namespace Pol
 {
@@ -39,7 +40,6 @@ class Client;
 }
 namespace Core
 {
-class TargetCursor;
 class USpell;
 
 class USpellParams

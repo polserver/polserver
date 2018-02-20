@@ -96,7 +96,7 @@ enum MemberID
   MBR_ATTACHED,
   MBR_CLIENTVERSION,
   MBR_REPORTABLES,  // 60
-  MBR_SCRIPT,  // npc
+  MBR_SCRIPT,       // npc
   MBR_NPCTEMPLATE,
   MBR_MASTER,
   MBR_PROCESS,
@@ -105,15 +105,15 @@ enum MemberID
   MBR_SPEECH_FONT,
   MBR_USE_ADJUSTMENTS,
   MBR_RUN_SPEED,
-  MBR_LOCKED,  // lockable		//70
+  MBR_LOCKED,      // lockable		//70
   MBR_CORPSETYPE,  // corpse
-  MBR_TILLERMAN,  // boat
+  MBR_TILLERMAN,   // boat
   MBR_PORTPLANK,
   MBR_STARBOARDPLANK,
   MBR_HOLD,  // 75
   MBR_HAS_OFFLINE_MOBILES,
   MBR_COMPONENTS,  // house
-  MBR_ITEMS,  // multi
+  MBR_ITEMS,       // multi
   MBR_MOBILES,
   MBR_XEAST,  // map		//80
   MBR_XWEST,
@@ -121,11 +121,11 @@ enum MemberID
   MBR_YSOUTH,
   MBR_GUMPWIDTH,
   MBR_GUMPHEIGHT,  // 85
-  MBR_ISOPEN,  // door
-  MBR_QUALITY,  // equipment
+  MBR_ISOPEN,      // door
+  MBR_QUALITY,     // equipment
   MBR_HP,
   MBR_MAXHP_MOD,
-  MBR_MAXHP,  // 90
+  MBR_MAXHP,    // 90
   MBR_DMG_MOD,  // weapon
   MBR_ATTRIBUTE,
   MBR_INTRINSIC,

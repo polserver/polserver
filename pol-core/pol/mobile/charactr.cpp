@@ -87,92 +87,89 @@
 
 #include "charactr.h"
 
-#ifdef __GNUC__
-#include <math.h>
-#endif
+#include <stdlib.h>
+#include <string>
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
+#include "../../clib/clib.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/streamsaver.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-
+#include "../../clib/streamsaver.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
-
 #include "../accounts/account.h"
-#include "../action.h"
-#include "../anim.h"
+#include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../clidata.h"
 #include "../cmbtcfg.h"
 #include "../cmdlevel.h"
+#include "../containr.h"
+#include "../dice.h"
+#include "../extobj.h"
 #include "../fnsearch.h"
+#include "../globals/settings.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
 #include "../guardrgn.h"
 #include "../guilds.h"
 #include "../item/armor.h"
+#include "../item/item.h"
+#include "../item/itemdesc.h"
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
-#include "../lightlvl.h"
+#include "../layers.h"
 #include "../mdelta.h"
 #include "../miscrgn.h"
 #include "../mkscrobj.h"
 #include "../module/osmod.h"
 #include "../module/uomod.h"
-#include "../multi/boat.h"
+#include "../movecost.h"
+#include "../multi/customhouses.h"
 #include "../multi/house.h"
+#include "../multi/multi.h"
+#include "../multi/multidef.h"
 #include "../musicrgn.h"
-#include "../network/cgdata.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/cliface.h"
+#include "../network/packetdefs.h"
+#include "../network/packethelper.h"
 #include "../network/packets.h"
 #include "../objtype.h"
 #include "../party.h"
-#include "../pktboth.h"
-#include "../pktout.h"
-#include "../polcfg.h"
+#include "../pktdef.h"
 #include "../polclass.h"
-#include "../polclock.h"
+#include "../polsig.h"
+#include "../polvar.h"
+#include "../profile.h"
+#include "../realms/WorldChangeReasons.h"
 #include "../realms/realm.h"
-#include "../realms.h"
 #include "../schedule.h"
+#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../sfx.h"
 #include "../skilladv.h"
-#include "../skills.h"
 #include "../spelbook.h"
 #include "../statmsg.h"
 #include "../syshook.h"
-#include "../syshook.h"
-#include "../target.h"
-#include "../uconst.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
-#include "../umanip.h"
+#include "../uobjcnt.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../vital.h"
-
 #include "attribute.h"
 #include "corpse.h"
 #include "privupdater.h"
-#include "ufacing.h"
 #include "wornitems.h"
-
-#include "npc.h"  // TODO: Remove this abomination!
-
-#include <string>
-#include <set>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp deprecation warning
@@ -973,7 +970,8 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
       static_cast<u16>( elem.remove_int( "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) ) );
   luck( static_cast<s16>( elem.remove_int( "LUCK", 0 ) ) );
   followers( Core::ExtStatBarFollowers(
-      static_cast<s8>( elem.remove_int( "FOLLOWERS", Core::ExtStatBarFollowers::DEFAULT.followers ) ),
+      static_cast<s8>(
+          elem.remove_int( "FOLLOWERS", Core::ExtStatBarFollowers::DEFAULT.followers ) ),
       static_cast<s8>(
           elem.remove_int( "FOLLOWERSMAX", Core::ExtStatBarFollowers::DEFAULT.followers_max ) ) ) );
   tithing( elem.remove_int( "TITHING", 0 ) );
@@ -1203,6 +1201,23 @@ void Character::revoke_privilege( const char* priv )
   privs.remove( priv );
   settings.remove( priv );
   refresh_cached_settings();
+}
+
+bool Character::can_access( const Items::Item* item, int range ) const
+{
+  // TODO: find_legal_item() is awful, we should just check the item 
+  //       properties directly instead of going around searching for a given serial in the world
+
+  // Range < 0 has special meaning. -1 is the default accessible range,
+  // anything smaller ignores the range check.
+  if ( range == -1 )
+    range = Core::settingsManager.ssopt.default_accessible_range;
+
+  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;  
+  if ( within_range && (find_legal_item( this, item->serial ) != NULL) )
+    return true;    
+
+  return false;
 }
 
 bool Character::can_move( const Items::Item* item ) const
@@ -1692,10 +1707,8 @@ void Character::on_poison_changed()
     {
       Network::HealthBarStatusUpdate msg( serial_ext, Network::HealthBarStatusUpdate::Color::GREEN,
                                           poisoned() );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* zonechr )
-                                                                    {
-                                                                      msg.Send( zonechr->client );
-                                                                    } );
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+          this, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
     }
   }
 }
@@ -2114,11 +2127,9 @@ void Character::resurrect()
     send_warmode();
     send_goxyz( client, this );
     send_owncreate( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr )
-                                                            {
-                                                              send_remove_if_hidden_ghost( zonechr,
-                                                                                           client );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr ) {
+      send_remove_if_hidden_ghost( zonechr, client );
+    } );
     client->restart();
   }
 
@@ -2126,10 +2137,8 @@ void Character::resurrect()
   send_remove_character_to_nearby_cansee( this );
   send_create_mobile_to_nearby_cansee( this );
 
-  Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
-                                                 {
-                                                   NpcPropagateEnteredArea( chr, this );
-                                                 } );
+  Core::WorldIterator<Core::NPCFilter>::InRange(
+      x, y, realm, 32, [&]( Character* chr ) { NpcPropagateEnteredArea( chr, this ); } );
 }
 
 void Character::on_death( Items::Item* corpse )
@@ -2161,10 +2170,8 @@ void Character::on_death( Items::Item* corpse )
     send_full_corpse( client, corpse );
 
     send_goxyz( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr )
-                                                            {
-                                                              send_create_ghost( zonechr, client );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
+        client->chr, [&]( Character* zonechr ) { send_create_ghost( zonechr, client ); } );
 
     client->restart();
   }
@@ -2282,15 +2289,13 @@ void Character::die()
   UPDATE_CHECKPOINT();
 
   // small lambdas to reduce the mess inside the loops
-  auto _copy_item = [&]( Items::Item* _item )
-  {  // copy a item into the corpse
+  auto _copy_item = [&]( Items::Item* _item ) {  // copy a item into the corpse
     Items::Item* copy = _item->clone();
     copy->invisible( true );
     copy->movable( false );
     corpse->add( copy );
   };
-  auto _drop_item_to_world = [&]( Items::Item* _item )
-  {  // places the item onto the corpse coords
+  auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
     _item->x = corpse->x;
     _item->y = corpse->y;
     _item->z = corpse->z;
@@ -2501,9 +2506,9 @@ void Character::refresh_ar()
     if ( item == NULL )
       continue;
     // Let's check all items as base, and handle their element_resists.
-	updateEquipableProperties( item );
-    
-	if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
+    updateEquipableProperties( item );
+
+    if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Items::UArmor* armor = static_cast<Items::UArmor*>( item );
       std::set<unsigned short> tmplzones = armor->tmplzones();
@@ -2696,70 +2701,67 @@ void PropagateMove( /*Client *client,*/ Character* chr )
   MoveChrPkt msgmove( chr );
   build_owncreate( chr, msgcreate.Get() );
 
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-      chr, [&]( Character* zonechr )
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) {
+    Client* client = zonechr->client;
+    if ( zonechr == chr )
+      return;
+    if ( !zonechr->is_visible_to_me( chr ) )
+      return;
+    /* The two characters exist, and are in range of each other.
+    Character 'chr''s lastx and lasty coordinates are valid.
+    SO, if lastx/lasty are out of range of client->chr, we
+    should send a 'create' type message.  If they are in range,
+    we should just send a move.
+    */
+    if ( chr->move_reason == Character::MULTIMOVE )
+    {
+      if ( client->ClientType & Network::CLIENTTYPE_7090 )
       {
-        Client* client = zonechr->client;
-        if ( zonechr == chr )
-          return;
-        if ( !zonechr->is_visible_to_me( chr ) )
-          return;
-        /* The two characters exist, and are in range of each other.
-        Character 'chr''s lastx and lasty coordinates are valid.
-        SO, if lastx/lasty are out of range of client->chr, we
-        should send a 'create' type message.  If they are in range,
-        we should just send a move.
-        */
-        if ( chr->move_reason == Character::MULTIMOVE )
-        {
-          if ( client->ClientType & Network::CLIENTTYPE_7090 )
-          {
-            if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
-              msgpoison.Send( client );
+        if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
+          msgpoison.Send( client );
 
-            if ( chr->invul() )  // if invul send 0x17 for newer clients
-              msginvul.Send( client );
-            return;
-          }
-          else
-          {
+        if ( chr->invul() )  // if invul send 0x17 for newer clients
+          msginvul.Send( client );
+        return;
+      }
+      else
+      {
 // NOTE: uncomment this line to make movement smoother (no stepping anims)
 // but basically makes it very difficult to talk while the ship
 // is moving.
 #ifdef PERGON
-            send_remove_character( client, chr, msgremove );
+        send_remove_character( client, chr, msgremove );
 #else
 // send_remove_character( client, chr );
 #endif
-            send_owncreate( client, chr, msgcreate.Get() );
-            if ( chr->poisoned() )
-              msgpoison.Send( client );
-            if ( chr->invul() )
-              msginvul.Send( client );
-          }
-        }
-        else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
-        {
-          msgmove.Send( client );
-          if ( chr->poisoned() )
-            msgpoison.Send( client );
-          if ( chr->invul() )
-            msginvul.Send( client );
-        }
-        else
-        {
-          send_owncreate( client, chr, msgcreate.Get() );
-          if ( chr->poisoned() )
-            msgpoison.Send( client );
-          if ( chr->invul() )
-            msginvul.Send( client );
-        }
-      } );
+        send_owncreate( client, chr, msgcreate.Get() );
+        if ( chr->poisoned() )
+          msgpoison.Send( client );
+        if ( chr->invul() )
+          msginvul.Send( client );
+      }
+    }
+    else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
+    {
+      msgmove.Send( client );
+      if ( chr->poisoned() )
+        msgpoison.Send( client );
+      if ( chr->invul() )
+        msginvul.Send( client );
+    }
+    else
+    {
+      send_owncreate( client, chr, msgcreate.Get() );
+      if ( chr->poisoned() )
+        msgpoison.Send( client );
+      if ( chr->invul() )
+        msginvul.Send( client );
+    }
+  } );
 
   // iter over all old in range players and send remove
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
-      {
+      chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr ) {
         Client* client = zonechr->client;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
@@ -2994,9 +2996,7 @@ void Character::inform_moved( Character* /*moved*/ )
 {
   // consider moving PropagateMove here!
 }
-void Character::inform_imoved( Character* /*chr*/ )
-{
-}
+void Character::inform_imoved( Character* /*chr*/ ) {}
 
 void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 {
@@ -3108,12 +3108,11 @@ void Character::set_warmode( bool i_warmode )
   else
   {
     Network::MoveChrPkt msgmove( this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr )
-                                                                  {
-                                                                    if ( chr == this )
-                                                                      return;
-                                                                    msgmove.Send( chr->client );
-                                                                  } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr ) {
+      if ( chr == this )
+        return;
+      msgmove.Send( chr->client );
+    } );
   }
 }
 
@@ -3606,15 +3605,13 @@ void Character::unhide()
   {
     if ( client != NULL )
       send_owncreate( client, this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-        this, [&]( Character* chr )
-        {
-          if ( chr == this )
-            return;
-          if ( !chr->is_visible_to_me( this ) )
-            return;
-          send_owncreate( chr->client, this );
-        } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr ) {
+      if ( chr == this )
+        return;
+      if ( !chr->is_visible_to_me( this ) )
+        return;
+      send_owncreate( chr->client, this );
+    } );
 
     // dave 12-21 added this hack to get enteredarea events fired when unhiding
     u16 oldlastx = lastx;
@@ -3623,10 +3620,8 @@ void Character::unhide()
     lasty = 0;
     // tellmove();
 
-    Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
-                                                      {
-                                                        NpcPropagateMove( chr, this );
-                                                      } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        x, y, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
     lastx = oldlastx;
     lasty = oldlasty;
   }
@@ -3952,8 +3947,7 @@ bool Character::CheckPushthrough()
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        newx, newy, realm, 0, [&]( Mobile::Character* _chr )
-        {
+        newx, newy, realm, 0, [&]( Mobile::Character* _chr ) {
           if ( _chr->z >= z - 10 && _chr->z <= z + 10 && !_chr->dead() &&
                ( is_visible_to_me( _chr ) ||
                  _chr->hidden() ) )  // add hidden mobs even if they're not visible to me
@@ -3984,17 +3978,13 @@ void Character::tellmove()
   // TO DO: Place in realm change support so npcs know when you enter/leave one?
   if ( Core::pol_distance( lastx, lasty, x, y ) > 32 )
   {
-    Core::WorldIterator<Core::MobileFilter>::InRange( lastx, lasty, realm, 32, [&]( Character* chr )
-                                                      {
-                                                        NpcPropagateMove( chr, this );
-                                                      } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        lastx, lasty, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
   }
 
   // Inform nearby NPCs that a movement has been made.
-  Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 33, [&]( Character* chr )
-                                                    {
-                                                      NpcPropagateMove( chr, this );
-                                                    } );
+  Core::WorldIterator<Core::MobileFilter>::InRange(
+      x, y, realm, 33, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
 
   check_attack_after_move();
 
@@ -4203,10 +4193,10 @@ unsigned int Character::guildid() const
 }
 
 /**
-* Adds a new buff or overwrites an existing one for the character
-* Sends packets to the client accordingly
-* @author Bodom
-*/
+ * Adds a new buff or overwrites an existing one for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ */
 void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
                          const std::vector<u32>& arguments )
 {
@@ -4221,11 +4211,11 @@ void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
 }
 
 /**
-* Removes a buff for the character
-* Sends packets to the client accordingly
-* @author Bodom
-* @return True when the buff has been found and removed, False when the buff was not present
-*/
+ * Removes a buff for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ * @return True when the buff has been found and removed, False when the buff was not present
+ */
 bool Character::delBuff( u16 icon )
 {
   auto b = buffs_.find( icon );
@@ -4240,10 +4230,10 @@ bool Character::delBuff( u16 icon )
 }
 
 /**
-* Removes al buffs for the character
-* Sends packets to the client accordingly
-* @author Bodom
-*/
+ * Removes al buffs for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ */
 void Character::clearBuffs()
 {
   for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
@@ -4251,9 +4241,9 @@ void Character::clearBuffs()
 }
 
 /**
-* Resends all buffs (with updated duration), usually called at (re)login
-* @author Bodom
-*/
+ * Resends all buffs (with updated duration), usually called at (re)login
+ * @author Bodom
+ */
 void Character::send_buffs()
 {
   if ( client == NULL )

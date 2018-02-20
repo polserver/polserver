@@ -4,28 +4,22 @@
  */
 
 
-#include "bobject.h"
-#include "berror.h"
-#include "impstr.h"
+#include <sstream>
+#include <string>
 
 #include "../clib/stlutil.h"
-
-#include <cstdlib>
-#include <cstring>
-#include <sstream>
+#include "berror.h"
+#include "bobject.h"
+#include "impstr.h"
 
 namespace Pol
 {
 namespace Bscript
 {
 #if BOBJECTIMP_DEBUG
-BLong::BLong( int lval ) : BObjectImp( OTLong ), lval_( static_cast<int>( lval ) )
-{
-}
+BLong::BLong( int lval ) : BObjectImp( OTLong ), lval_( static_cast<int>( lval ) ) {}
 
-BLong::BLong( const BLong& L ) : BObjectImp( OTLong ), lval_( L.lval_ )
-{
-}
+BLong::BLong( const BLong& L ) : BObjectImp( OTLong ), lval_( L.lval_ ) {}
 #endif
 
 
@@ -100,6 +94,10 @@ bool BLong::operator==( const BObjectImp& objimp ) const
   else if ( objimp.isa( OTDouble ) )
   {
     return lval_ == ( (Double&)objimp ).value();
+  }
+  else if ( objimp.isa( OTBoolean ) )
+  {
+    return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   }
   else
   {

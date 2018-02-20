@@ -19,38 +19,33 @@
 
 #include "compiler.h"
 
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <exception>
+#include <ostream>
+#include <stdexcept>
+#include <stdlib.h>
+
 #include "../clib/clib.h"
 #include "../clib/filecont.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-
 #include "../plib/pkg.h"
-
 #include "compctx.h"
 #include "compilercfg.h"
+#include "eprog.h"
+#include "fmodule.h"
 #include "modules.h"
-#include "tokens.h"
-#include "symcont.h"
-#include "operator.h"
-#include "token.h"
-#include "verbtbl.h"
-#include "parser.h"
-#include "userfunc.h"
-#include "filefmt.h"
-
 #include "objmembers.h"
-
-#include <cstring>
-#include <cstddef>
-#include <cstdio>
-#include <stdexcept>
-#include <ostream>
-
-#ifdef __unix__
-#include <unistd.h>
-#endif
+#include "symcont.h"
+#include "token.h"
+#include "tokens.h"
+#include "userfunc.h"
+#include <format/format.h>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning for stricmp, fopen
@@ -1308,9 +1303,9 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     // first get the key expression.
 
     Expression key_expression;
-    res = readexpr( key_expression, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
-                                             EXPR_FLAG_DICTKEY_TERM_ALLOWED |
-                                             EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = readexpr( key_expression, ctx,
+                    EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_DICTKEY_TERM_ALLOWED |
+                        EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -1403,7 +1398,6 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     else if ( token.id == TOK_RPAREN )
     {
       return 0;
-      ;
     }
     else
     {
@@ -1414,6 +1408,20 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
   // unreachable
 }
 
+int Compiler::getFunctionPArgument( Expression& /*expr*/, CompilerContext& ctx, Token* ref_tkn )
+{
+  int res;
+  Token token;
+  res = getToken( ctx, *ref_tkn );
+  if ( res < 0 || ref_tkn->id != TOK_USERFUNC )
+  {
+    INFO_PRINT << "Expected user function reference.\n";
+    return -1;
+  }
+  ref_tkn->id = TOK_FUNCREF;
+  ref_tkn->type = TYP_OPERAND;
+  return 0;
+}
 
 /*
 getUserArgs is called from IIP.
@@ -2362,13 +2370,15 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
       if ( funcName.id == TOK_FUNC )
       {
         INFO_PRINT << "'" << funcName.tokval() << "' is already defined as a function.\n"
-                   << "Near: " << curLine << "\n" << ctx;
+                   << "Near: " << curLine << "\n"
+                   << ctx;
         return -1;
       }
       else
       {
         INFO_PRINT << "Expected an identifier, got " << funcName << " instead.\n"
-                   << "Near: " << curLine << "\n" << ctx;
+                   << "Near: " << curLine << "\n"
+                   << ctx;
         return -1;
       }
     }
@@ -3063,10 +3073,10 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
 
   return 0;
 
-// FIXME: Dead code since ages, left here because I have no idea if bug or feature...
-//  // insert a consumer to eat the evaluated result from the expr.
-//  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
-//  return 0;
+  // FIXME: Dead code since ages, left here because I have no idea if bug or feature...
+  //  // insert a consumer to eat the evaluated result from the expr.
+  //  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
+  //  return 0;
 }
 
 /*
@@ -4086,8 +4096,8 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
     case RSV_ENUM:
       return handleEnumDeclare( ctx );
 
-    // DEPRECATED:
-    //	case RSV_BEGIN:		 return handleBlock(ctx, level+1);
+      // DEPRECATED:
+      //	case RSV_BEGIN:		 return handleBlock(ctx, level+1);
 
     default:
       INFO_PRINT << "Unhandled reserved word: " << token << "\n";

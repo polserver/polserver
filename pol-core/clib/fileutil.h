@@ -25,6 +25,7 @@ std::string GetTrueName( const char* filename );
 std::string GetFilePart( const char* filename );
 std::string normalized_dir_form( const std::string& str );
 int make_dir( const char* dir );  // recursive
+int strip_one( std::string& direc );
 }
 }
 #endif

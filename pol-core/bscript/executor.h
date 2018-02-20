@@ -15,47 +15,47 @@
 #include "pol_global_config.h"
 #endif
 
-#ifndef __SYMCONT_H
-#include "symcont.h"
-#endif
-
 #ifndef __EXECTYPE_H
 #include "exectype.h"
-#endif
-
-#ifndef __TOKEN_H
-#include "token.h"
 #endif
 
 #ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif
 
-#include "fmodule.h"
-#include "eprog.h"
-
-#include "../clib/spinlock.h"
-
-#include <stack>
-#include <vector>
 #include <exception>
+#include <memory>
+#include <set>
+#include <stack>
+#include <string>
+#include <vector>
+
+#include <format/format.h>
+#include "../clib/refptr.h"
+#include "../clib/spinlock.h"
+#include "bobject.h"
+#include "eprog.h"
+#include "executortype.h"
+
 
 namespace Pol
 {
 namespace Core
 {
 class UOExecutor;
+
 void list_script( UOExecutor* uoexec );
 }
 namespace Bscript
 {
 class Executor;
-class EScriptProgram;
-class BLong;
+class ExecutorModule;
+class ModuleFunction;
 class String;
-
+class Token;
 #ifdef ESCRIPT_PROFILE
 #include <map>
+
 struct profile_instr
 {
   unsigned long sum;
@@ -222,7 +222,6 @@ public:
   ModuleFunction* current_module_function;
   // NOTE: the debugger code expects these to be virtual..
   void execFunc( const Token& token );
-  void innerExec( const Instruction& ins );
   void execInstr();
 
   void ins_nop( const Instruction& ins );
@@ -252,9 +251,9 @@ public:
   void ins_set_member( const Instruction& ins );
   void ins_set_member_consume( const Instruction& ins );
   void ins_get_member( const Instruction& ins );
-  void ins_get_member_id( const Instruction& ins );  // test id
-  void ins_set_member_id( const Instruction& ins );  // test id
-  void ins_set_member_id_consume( const Instruction& ins );  // test id
+  void ins_get_member_id( const Instruction& ins );                       // test id
+  void ins_set_member_id( const Instruction& ins );                       // test id
+  void ins_set_member_id_consume( const Instruction& ins );               // test id
   void ins_set_member_id_consume_plusequal( const Instruction& ins );     // test id
   void ins_set_member_id_consume_minusequal( const Instruction& ins );    // test id
   void ins_set_member_id_consume_timesequal( const Instruction& ins );    // test id
@@ -334,6 +333,8 @@ public:
   void ins_initfor( const Instruction& ins );
   void ins_nextfor( const Instruction& ins );
 
+  void ins_funcref( const Instruction& ins );
+
   static int ins_casejmp_findlong( const Token& token, BLong* blong );
   static int ins_casejmp_findstring( const Token& token, String* bstringimp );
   static int ins_casejmp_finddefault( const Token& token );
@@ -379,7 +380,7 @@ private:
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;
   bool viewmode_;
-  
+
   bool runs_to_completion_;
 
   bool debugging_;
@@ -475,7 +476,6 @@ inline void Executor::set_running_to_completion( bool to_completion )
 {
   runs_to_completion_ = to_completion;
 }
-
 }
 }
 #endif

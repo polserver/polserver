@@ -14,7 +14,6 @@
 #else
 #include <pthread.h>
 #include <unistd.h>
-#include "clib/passert.h"
 #endif
 #include <atomic>
 

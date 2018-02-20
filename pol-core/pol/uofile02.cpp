@@ -7,21 +7,15 @@
  */
 
 
+#include <cstdio>
+
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
 #include "uofile.h"
 #include "uofilei.h"
-
-#include "polcfg.h"
-#include "polfile.h"
-#include "udatfile.h"
 #include "ustruct.h"
-
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
-#include "../clib/logfacility.h"
-
-#include <cstdio>
-#include <cstring>
-#include <stdexcept>
 
 
 namespace Pol

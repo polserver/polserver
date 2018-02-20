@@ -25,7 +25,7 @@
 #include <crtdbg.h>
 #include <Shellapi.h>
 
-#pragma warning( pop ) // unused typedef in dbghelp.h
+#pragma warning( pop )  // unused typedef in dbghelp.h
 
 //#define snprintf _snprintf
 

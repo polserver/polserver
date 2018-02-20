@@ -6,32 +6,31 @@
  */
 
 
+#include <stddef.h>
+
+#include "../bscript/eprog.h"
+#include "../clib/clib_endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "../plib/systemstate.h"
+#include "globals/network.h"
+#include "globals/settings.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
-
 #include "network/client.h"
-#include "network/clienttransmit.h"
-#include "network/msghandl.h"
-
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "party.h"
 #include "pktboth.h"
+#include "pktdef.h"
 #include "pktin.h"
-#include "polcfg.h"
 #include "scrdef.h"
 #include "scrstore.h"
 #include "statmsg.h"
-#include "uoskills.h"
-#include "globals/network.h"
-#include "globals/state.h"
-#include "globals/settings.h"
 #include "ufunc.h"
-#include "party.h"
-
-#include "../clib/clib_endian.h"
-#include "../clib/fdump.h"
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-
-#include "../plib/systemstate.h"
+#include "uoclient.h"
+#include "uoskills.h"
 
 namespace Pol
 {

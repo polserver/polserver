@@ -3,14 +3,11 @@
  * @par History
  */
 
-#include "testenv.h"
-
 #include "../../clib/logfacility.h"
-#include "../../plib/mapserver.h"
 #include "../globals/uvars.h"
 #include "../realms/realm.h"
 #include "../uconst.h"
-#include "../uobject.h"
+#include "testenv.h"
 
 namespace Pol
 {
@@ -321,5 +318,5 @@ void multiwalk_test()
   // try walking on a long boat, next to its plank
   test_walk( 1496, 1817, -2, 1495, 1817, true, -2 );
 }
-} // namespace Testing
-} // namespace Pol
+}  // namespace Testing
+}  // namespace Pol

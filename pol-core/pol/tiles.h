@@ -8,8 +8,9 @@
 #ifndef TILES_H
 #define TILES_H
 
-#include "../clib/rawtypes.h"
 #include <string>
+
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {

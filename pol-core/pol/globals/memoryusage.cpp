@@ -1,7 +1,9 @@
 #include "memoryusage.h"
 
+#include <format/format.h>
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
+#include "../../plib/systemstate.h"
 #include "multidefs.h"
 #include "network.h"
 #include "object_storage.h"
@@ -10,8 +12,6 @@
 #include "state.h"
 #include "ucfg.h"
 #include "uvars.h"
-
-#include "../../plib/systemstate.h"
 
 #ifdef WINDOWS
 #include "../../clib/pol_global_config_win.h"

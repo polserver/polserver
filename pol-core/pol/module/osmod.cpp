@@ -5,46 +5,50 @@
 
 #include "osmod.h"
 
-#include "uomod.h"
-#include "npcmod.h"  // necessary for reporting which npc is discarding events when the queue is full
-
-#include "../uoexec.h"
-
 #include "../../bscript/berror.h"
-#include "../../bscript/eprog.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
 #include "../../bscript/bobject.h"
-
-#include "../network/auxclient.h"
-#include "../network/packethelper.h"
-
-#include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
-#include "../mobile/npc.h"  // needed only for reporting the NPC's position when the event queue is full - should refactor to decouple
-
+#include "../../bscript/bstruct.h"
+#include "../../bscript/impstr.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/rawtypes.h"
+#include "../../clib/refptr.h"
+#include "../../clib/sckutil.h"
+#include "../../clib/threadhelp.h"
+#include "../../clib/weakptr.h"
+#include "../../plib/systemstate.h"
 #include "../exscrobj.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
+#include "../item/item.h"
+#include "../mobile/attribute.h"
+#include "../mobile/charactr.h"
+#include "../mobile/npc.h"
+#include "../network/auxclient.h"
+#include "../network/packethelper.h"
+#include "../network/packets.h"
+#include "../pktdef.h"
 #include "../polcfg.h"
 #include "../poldbg.h"
+#include "../polsem.h"
+#include "../profile.h"
+#include "../schedule.h"
+#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../skills.h"
-#include "../ufuncstd.h"
-#include "../unicode.h"
+#include "../ufunc.h"
+#include "../uoexec.h"
+#include "npcmod.h"
+#include "uomod.h"
 
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../../clib/sckutil.h"
-#include "../../clib/socketsvc.h"
 
-#include "../../plib/systemstate.h"
-
+#pragma comment( lib, "crypt32.lib" )
 #include <ctime>
+#include <curl/curl.h>
+#include <memory>
+#include <string.h>
+#include <string>
+#include <unordered_map>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // stricmp POSIX deprecation warning
@@ -82,7 +86,9 @@ TmplExecutorModule<OSExecutorModule>::FunctionTable
         {"set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size},
         {"OpenURL", &OSExecutorModule::mf_OpenURL},
         {"OpenConnection", &OSExecutorModule::mf_OpenConnection},
-        {"Debugger", &OSExecutorModule::mf_debugger}};
+        {"Debugger", &OSExecutorModule::mf_debugger},
+        {"PerformanceMeasure", &OSExecutorModule::mf_performance_diff},
+        {"HTTPRequest", &OSExecutorModule::mf_HTTPRequest}};
 }  // namespace Bscript
 namespace Module
 {
@@ -615,8 +621,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       std::string hostname( host->value() );
       bool assume_string = assume_string_int != 0;
       Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, scriptparam, assume_string]()
-          {
+          [uoexec_w, sd, hostname, port, scriptparam, assume_string]() {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
             {
@@ -654,6 +659,113 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   return new BError( "Invalid parameter type" );
 }
 
+size_t curlWriteCallback( void* contents, size_t size, size_t nmemb, void* userp )
+{
+  ( static_cast<std::string*>( userp ) )->append( static_cast<char*>( contents ), size * nmemb );
+  return size * nmemb;
+}
+
+BObjectImp* OSExecutorModule::mf_HTTPRequest()
+{
+  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
+  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+
+  if ( this_uoexec->pChild == nullptr )
+  {
+    const String *url, *method;
+    BObjectImp* options;
+    if ( getStringParam( 0, url ) && getStringParam( 1, method ) && getParamImp( 2, options ) )
+    {
+      if ( !this_uoexec->suspend() )
+      {
+        DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+                 << ": \n"
+                 << "\tThe execution of this script can't be blocked!\n";
+        return new Bscript::BError( "Script can't be blocked" );
+      }
+
+      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+
+      std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
+      CURL* curl = curl_sp.get();
+      if ( curl )
+      {
+        curl_easy_setopt( curl, CURLOPT_URL, url->data() );
+        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
+        curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
+
+        struct curl_slist* chunk = nullptr;
+        if ( options->isa( Bscript::BObjectImp::OTStruct ) )
+        {
+          Bscript::BStruct* opts = static_cast<Bscript::BStruct*>( options );
+          const BObjectImp* data = opts->FindMember( "data" );
+          if ( data != nullptr )
+          {
+            curl_easy_setopt( curl, CURLOPT_COPYPOSTFIELDS, data->getStringRep().c_str() );
+          }
+
+          const BObjectImp* headers_ = opts->FindMember( "headers" );
+
+          if ( headers_ != nullptr && headers_->isa( BObjectImp::OTStruct ) )
+          {
+            const BStruct* headers = static_cast<const BStruct*>( headers_ );
+
+            for ( const auto& content : headers->contents() )
+            {
+              BObjectImp* ref = content.second->impptr();
+              std::string header = content.first + ": " + ref->getStringRep();
+              chunk = curl_slist_append( chunk, header.c_str() );
+            }
+            curl_easy_setopt( curl, CURLOPT_HTTPHEADER, chunk );
+          }
+        }
+
+        Core::networkManager.auxthreadpool->push( [uoexec_w, curl_sp, chunk]() {
+          CURL* curl = curl_sp.get();
+          CURLcode res;
+          std::string readBuffer;
+          curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
+
+          /* Perform the request, res will get the return code */
+          res = curl_easy_perform( curl );
+          if ( chunk != nullptr )
+            curl_slist_free_all( chunk );
+          {
+            Core::PolLock lck;
+
+            if ( !uoexec_w.exists() )
+            {
+              DEBUGLOG << "OpenConnection Script has been destroyed\n";
+              return;
+            }
+            /* Check for errors */
+            if ( res != CURLE_OK )
+              uoexec_w.get_weakptr()->ValueStack.back().set(
+                  new BObject( new BError( curl_easy_strerror( res ) ) ) );
+            else
+              uoexec_w.get_weakptr()->ValueStack.back().set(
+                  new BObject( new String( readBuffer ) ) );
+
+            uoexec_w.get_weakptr()->os_module->revive();
+          }
+
+          /* always cleanup */
+          // curl_easy_cleanup() is performed when the shared pointer deallocates
+        } );
+      }
+      else
+      {
+        return new BError( "curl_easy_init() failed" );
+      }
+    }
+    else
+    {
+      return new BError( "Invalid parameter type" );
+    }
+  }
+
+  return new BError( "Invalid parameter type" );
+}
 
 // signal_event() takes ownership of the pointer which is passed to it.
 // Objects must not be touched or deleted after being sent here!
@@ -826,6 +938,133 @@ BObjectImp* OSExecutorModule::mf_set_script_option()
 BObjectImp* OSExecutorModule::mf_clear_event_queue()  // DAVE
 {
   return ( clear_event_queue() );
+}
+
+namespace
+{
+struct ScriptDiffData
+{
+  std::string name;
+  u64 instructions;
+  u64 pid;
+  ScriptDiffData( Core::UOExecutor* ex )
+      : name( ex->scriptname() ), instructions( ex->instr_cycles ), pid( ex->os_module->pid() )
+  {
+  }
+  ScriptDiffData( Core::UOExecutor* ex, u64 instr ) : ScriptDiffData( ex )
+  {
+    instructions -= instr;
+    auto uoemod = static_cast<Module::UOExecutorModule*>( ex->findModule( "uo" ) );
+    if ( uoemod->attached_chr_ != nullptr )
+      name += " (" + uoemod->attached_chr_->name() + ")";
+    else if ( uoemod->attached_npc_ != nullptr )
+      name += " (" + static_cast<Mobile::NPC*>( uoemod->attached_npc_ )->templatename() + ")";
+    else if ( uoemod->attached_item_ )
+      name += " (" + uoemod->attached_item_->name() + ")";
+  }
+
+  bool operator>( const ScriptDiffData& other ) const { return instructions > other.instructions; }
+};
+struct PerfData
+{
+  std::unordered_map<u64, ScriptDiffData> data;
+  weak_ptr<Core::UOExecutor> uoexec_w;
+  size_t max_scripts;
+  PerfData( weak_ptr<Core::UOExecutor> weak_ex, size_t max_count )
+      : data(), uoexec_w( weak_ex ), max_scripts( max_count )
+  {
+  }
+  static void collect_perf( PerfData* data_ptr )
+  {
+    std::unique_ptr<PerfData> data( data_ptr );
+    std::vector<ScriptDiffData> res;
+    if ( !data->uoexec_w.exists() )
+    {
+      DEBUGLOG << "PerformanceMeasure Script has been destroyed\n";
+      return;
+    }
+    double sum_instr( 0 );
+    const auto& runlist = Core::scriptScheduler.getRunlist();
+    const auto& ranlist = Core::scriptScheduler.getRanlist();
+    const auto& holdlist = Core::scriptScheduler.getHoldlist();
+    const auto& notimeoutholdlist = Core::scriptScheduler.getNoTimeoutHoldlist();
+    auto collect = [&]( Core::UOExecutor* scr ) {
+      auto itr = data->data.find( scr->os_module->pid() );
+      if ( itr == data->data.end() )
+        return;
+      res.emplace_back( scr, itr->second.instructions );
+      sum_instr += res.back().instructions;
+    };
+    for ( const auto& scr : runlist )
+      collect( scr );
+    for ( const auto& scr : ranlist )
+      collect( scr );
+    for ( const auto& scr : holdlist )
+      collect( scr.second );
+    for ( const auto& scr : notimeoutholdlist )
+      collect( scr );
+    std::sort( res.begin(), res.end(), std::greater<ScriptDiffData>() );
+
+    std::unique_ptr<ObjArray> arr( new ObjArray );
+    for ( size_t i = 0; i < res.size() && i < data->max_scripts; ++i )
+    {
+      std::unique_ptr<BStruct> elem( new BStruct );
+      elem->addMember( "name", new String( res[i].name ) );
+      elem->addMember( "instructions", new Double( static_cast<double>( res[i].instructions ) ) );
+      elem->addMember( "pid", new BLong( static_cast<int>( res[i].pid ) ) );
+      elem->addMember( "percent", new Double( res[i].instructions / sum_instr * 100.0 ) );
+      arr->addElement( elem.release() );
+    }
+    std::unique_ptr<BStruct> result( new BStruct );
+    result->addMember( "scripts", arr.release() );
+    result->addMember( "total_number_observed", new BLong( static_cast<int>( res.size() ) ) );
+    result->addMember( "total_instructions", new Double( sum_instr ) );
+    data->uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( result.release() ) );
+
+    data->uoexec_w.get_weakptr()->os_module->revive();
+  }
+};
+
+}  // namespace
+
+BObjectImp* OSExecutorModule::mf_performance_diff()
+{
+  int second_delta, max_scripts;
+  if ( !getParam( 0, second_delta ) || !getParam( 1, max_scripts ) )
+    return new BError( "Invalid parameter type" );
+
+  auto this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
+  auto this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+
+  if ( !this_uoexec->suspend() )
+  {
+    DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+             << ": \n"
+             << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  const auto& runlist = Core::scriptScheduler.getRunlist();
+  const auto& ranlist = Core::scriptScheduler.getRanlist();
+  const auto& holdlist = Core::scriptScheduler.getHoldlist();
+  const auto& notimeoutholdlist = Core::scriptScheduler.getNoTimeoutHoldlist();
+
+  std::unique_ptr<PerfData> perf( new PerfData( this_uoexec->weakptr, max_scripts ) );
+  for ( const auto& scr : runlist )
+    perf->data.insert( std::make_pair( scr->os_module->pid(), ScriptDiffData( scr ) ) );
+  for ( const auto& scr : ranlist )
+    perf->data.insert( std::make_pair( scr->os_module->pid(), ScriptDiffData( scr ) ) );
+  for ( const auto& scr : holdlist )
+    perf->data.insert(
+        std::make_pair( scr.second->os_module->pid(), ScriptDiffData( scr.second ) ) );
+  for ( const auto& scr : notimeoutholdlist )
+    perf->data.insert( std::make_pair( scr->os_module->pid(), ScriptDiffData( scr ) ) );
+
+  new Core::OneShotTaskInst<PerfData*>( nullptr,
+                                        Core::polclock() + second_delta * Core::POLCLOCKS_PER_SEC,
+                                        PerfData::collect_perf, perf.release() );
+
+  return new BLong( 0 );  // dummy
 }
 }
 }

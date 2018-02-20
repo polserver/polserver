@@ -31,10 +31,18 @@
 #define H_UOMOD_H
 
 #include "../../bscript/execmodl.h"
-#include "../uoexec.h"
-#include "../uoexhelp.h"
-#include "../reftypes.h"
+#include "../../clib/rawtypes.h"
 #include "../poltype.h"
+#include "../reftypes.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class ObjArray;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {
@@ -44,10 +52,10 @@ class Realm;
 }
 namespace Core
 {
-enum USKILLID;
 class Menu;
-class UObject;
 class UContainer;
+class UOExecutor;
+class UObject;
 }
 namespace Mobile
 {
@@ -57,9 +65,12 @@ namespace Items
 {
 class Item;
 }
+namespace Multi
+{
+class UBoat;
+}
 namespace Module
 {
-
 class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule>
 {
 public:

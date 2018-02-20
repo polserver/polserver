@@ -13,7 +13,7 @@ namespace Pol
 {
 namespace Core
 {
-enum PKTBOTHID
+enum PKTBOTHID : unsigned char
 {
   PKTBI_22_APPROVED_ID = 0x22,  // Move Approved/Resync Request.
   PKTBI_22_SYNC_ID = 0x22,      // Move Approved/Resync Request.

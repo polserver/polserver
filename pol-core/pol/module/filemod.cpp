@@ -9,34 +9,27 @@
  */
 
 
-#include "filemod.h"
-#include "fileaccess.h"
+#include <cerrno>
+#include <ctime>
+#include <iosfwd>
+#include <string>
 
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/impstr.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
-#include "../../clib/maputil.h"
-#include "../../clib/stlutil.h"
-
-#include "../../bscript/berror.h"
-#include "../../bscript/execmodl.h"
-#include "../../bscript/impstr.h"
-
+#include "../../clib/logfacility.h"
 #include "../../plib/pkg.h"
-
-#include "../core.h"
 #include "../binaryfilescrobj.h"
-#include "../xmlfilescrobj.h"
+#include "../core.h"
 #include "../globals/ucfg.h"
-
-#include <cerrno>
-#include <ctime>
-
-#ifdef __unix__
-#include <unistd.h>
-#endif
+#include "../xmlfilescrobj.h"
+#include "fileaccess.h"
+#include "filemod.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecated POSIX strerror warning
@@ -135,24 +128,38 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
     if ( tmp == "*" )
       AllPackages = true;
     else
-      Packages.insert( tmp );
-  }
-  while ( elem.remove_prop( "Directory", &tmp ) )
-  {
-    if ( tmp == "*" )
+    {
+      auto pkg = Plib::find_package( tmp );
+      if ( pkg == nullptr )
+        ERROR_PRINT << "Fileaccess package entry not found: " << tmp << "\n";
+      else
+        Packages.insert( pkg );
+    }
+    while ( elem.remove_prop( "Directory", &tmp ) )
+    {
+      if ( tmp == "*" )
+        AllDirectories = true;
+      else
+      {
+        const Plib::Package* cfgpkg;
+        std::string cfgpath;
+        if ( pkgdef_split( tmp, nullptr, &cfgpkg, &cfgpath ) )
+          Directories.push_back( std::make_pair( cfgpkg, cfgpath ) );
+        else
+          ERROR_PRINT << "Invalid fileaccess Directory entry: " << tmp << "\n";
+      }
+    }
+    if ( Directories.empty() )
       AllDirectories = true;
-    else
-      Directories.push_back( tmp );
-  }
-  while ( elem.remove_prop( "Extension", &tmp ) )
-  {
-    if ( tmp == "*" )
-      AllExtensions = true;
-    else
-      Extensions.push_back( tmp );
+    while ( elem.remove_prop( "Extension", &tmp ) )
+    {
+      if ( tmp == "*" )
+        AllExtensions = true;
+      else
+        Extensions.push_back( tmp );
+    }
   }
 }
-
 bool FileAccess::AllowsAccessTo( const Plib::Package* pkg, const Plib::Package* filepackage ) const
 {
   if ( AllowRemote )
@@ -169,33 +176,61 @@ bool FileAccess::AppliesToPackage( const Plib::Package* pkg ) const
   if ( AllPackages )
     return true;
 
-  if ( pkg == NULL )
+  if ( pkg == nullptr )
     return false;
 
-  if ( Packages.count( pkg->name() ) )
+  if ( Packages.count( pkg ) )
     return true;
 
   return false;
 }
 
-bool FileAccess::AppliesToPath( const std::string& path ) const
+bool FileAccess::AppliesToPath( const std::string& path, const Plib::Package* filepkg ) const
 {
+  if ( !AllDirectories )
+  {
+    std::string filepath = path;
+    if ( Clib::strip_one( filepath ) != 0 )
+      filepath = "";
+
+    bool found( false );
+    for ( const auto& dir : Directories )
+    {
+      const auto& cfgpkg = dir.first;
+      const auto& cfgpath = dir.second;
+      if ( cfgpkg == filepkg )
+      {
+        if ( filepath.size() < cfgpath.size() )
+        {
+          found = false;
+          continue;
+        }
+        found = true;
+        for ( size_t i = 0; i < filepath.size() && i < cfgpath.size(); ++i )
+        {
+          if ( filepath[i] != cfgpath[i] )
+          {
+            found = false;
+            break;
+          }
+        }
+        if ( found )
+          break;
+      }
+    }
+    if ( !found )
+      return false;
+  }
   if ( AllExtensions )
     return true;
 
   // check for weirdness in the path
-  for ( unsigned i = 0; i < path.size(); ++i )
-  {
-    char ch = path[i];
-    if ( ch == '\0' )
-      return false;
-  }
+  if ( path.find( '\0' ) != std::string::npos )
+    return false;
   if ( path.find( ".." ) != std::string::npos )
     return false;
-
-  for ( unsigned i = 0; i < Extensions.size(); ++i )
+  for ( const auto& ext : Extensions )
   {
-    std::string ext = Extensions[i];
     if ( path.size() >= ext.size() )
     {
       std::string path_ext = path.substr( path.size() - ext.size() );
@@ -211,11 +246,10 @@ bool FileAccess::AppliesToPath( const std::string& path ) const
 size_t FileAccess::estimateSize() const
 {
   size_t size = sizeof( FileAccess );
-  for ( const auto& pkg : Packages )
-    size += ( pkg.capacity() + 3 * sizeof( void* ) );
+  size += Packages.size() * ( sizeof( void* ) + 3 * sizeof( void* ) );
 
   for ( const auto& d : Directories )
-    size += d.capacity();
+    size += sizeof( decltype( Directories )::value_type ) + d.second.capacity();
   for ( const auto& e : Extensions )
     size += e.capacity();
   return size;
@@ -224,65 +258,41 @@ size_t FileAccess::estimateSize() const
 bool HasReadAccess( const Plib::Package* pkg, const Plib::Package* filepackage,
                     const std::string& path )
 {
-#ifdef NOACCESS_CHECKS
-  (void)pkg;
-  (void)filepackage;
-  (void)path;
-  return true;
-#else
-  for ( unsigned i = 0; i < Core::configurationbuffer.file_access_rules.size(); ++i )
+  for ( const auto& fa : Core::configurationbuffer.file_access_rules )
   {
-    const FileAccess& fa = Core::configurationbuffer.file_access_rules[i];
     if ( fa.AllowRead && fa.AllowsAccessTo( pkg, filepackage ) && fa.AppliesToPackage( pkg ) &&
-         fa.AppliesToPath( path ) )
+         fa.AppliesToPath( path, filepackage ) )
     {
       return true;
     }
   }
   return false;
-#endif
 }
 bool HasWriteAccess( const Plib::Package* pkg, const Plib::Package* filepackage,
                      const std::string& path )
 {
-#ifdef NOACCESS_CHECKS
-  (void)pkg;
-  (void)filepackage;
-  (void)path;
-  return true;
-#else
-  for ( unsigned i = 0; i < Core::configurationbuffer.file_access_rules.size(); ++i )
+  for ( const auto& fa : Core::configurationbuffer.file_access_rules )
   {
-    const FileAccess& fa = Core::configurationbuffer.file_access_rules[i];
     if ( fa.AllowWrite && fa.AllowsAccessTo( pkg, filepackage ) && fa.AppliesToPackage( pkg ) &&
-         fa.AppliesToPath( path ) )
+         fa.AppliesToPath( path, filepackage ) )
     {
       return true;
     }
   }
   return false;
-#endif
 }
 bool HasAppendAccess( const Plib::Package* pkg, const Plib::Package* filepackage,
                       const std::string& path )
 {
-#ifdef NOACCESS_CHECKS
-  (void)pkg;
-  (void)filepackage;
-  (void)path;
-  return true;
-#else
-  for ( unsigned i = 0; i < Core::configurationbuffer.file_access_rules.size(); ++i )
+  for ( const auto& fa : Core::configurationbuffer.file_access_rules )
   {
-    const FileAccess& fa = Core::configurationbuffer.file_access_rules[i];
     if ( fa.AllowAppend && fa.AllowsAccessTo( pkg, filepackage ) && fa.AppliesToPackage( pkg ) &&
-         fa.AppliesToPath( path ) )
+         fa.AppliesToPath( path, filepackage ) )
     {
       return true;
     }
   }
   return false;
-#endif
 }
 
 FileAccessExecutorModule::FileAccessExecutorModule( Bscript::Executor& exec )
@@ -310,7 +320,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_FileExists()
     return new BError( "No parent path traversal allowed." );
 
   std::string filepath;
-  if ( outpkg == NULL )
+  if ( outpkg == nullptr )
     filepath = path;
   else
     filepath = outpkg->dir() + path;
@@ -336,7 +346,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ReadFile()
     return new BError( "Access denied" );
 
   std::string filepath;
-  if ( outpkg == NULL )
+  if ( outpkg == nullptr )
     filepath = path;
   else
     filepath = outpkg->dir() + path;
@@ -362,7 +372,6 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_WriteFile()
   {
     return new BError( "Invalid parameter type" );
   }
-
   const Plib::Package* outpkg;
   std::string path;
   if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
@@ -370,12 +379,11 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_WriteFile()
 
   if ( path.find( ".." ) != std::string::npos )
     return new BError( "No parent path traversal please." );
-
   if ( !HasWriteAccess( exec.prog()->pkg, outpkg, path ) )
     return new BError( "Access denied" );
 
   std::string filepath;
-  if ( outpkg == NULL )
+  if ( outpkg == nullptr )
     filepath = path;
   else
     filepath = outpkg->dir() + path;
@@ -392,7 +400,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_WriteFile()
   {
     BObjectRef& ref = contents->ref_arr[i];
     BObject* obj = ref.get();
-    if ( obj != NULL )
+    if ( obj != nullptr )
     {
       ofs << ( *obj )->getStringRep();
     }
@@ -454,7 +462,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_AppendToFile()
     return new BError( "Access denied" );
 
   std::string filepath;
-  if ( outpkg == NULL )
+  if ( outpkg == nullptr )
     filepath = path;
   else
     filepath = outpkg->dir() + path;
@@ -468,7 +476,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_AppendToFile()
   {
     BObjectRef& ref = contents->ref_arr[i];
     BObject* obj = ref.get();
-    if ( obj != NULL )
+    if ( obj != nullptr )
     {
       ofs << ( *obj )->getStringRep();
     }
@@ -509,7 +517,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_LogToFile()
       return new BError( "Access denied" );
 
     std::string filepath;
-    if ( outpkg == NULL )
+    if ( outpkg == nullptr )
       filepath = path;
     else
       filepath = outpkg->dir() + path;
@@ -521,7 +529,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_LogToFile()
 
     if ( flags & Core::LOG_DATETIME )
     {
-      auto time_tm = Clib::localtime( time( NULL ) );
+      auto time_tm = Clib::localtime( time( nullptr ) );
 
       char buffer[30];
       if ( strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", &time_tm ) > 0 )
@@ -567,7 +575,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_OpenBinaryFile()
   }
 
   std::string filepath;
-  if ( outpkg == NULL )
+  if ( outpkg == nullptr )
     filepath = path;
   else
     filepath = outpkg->dir() + path;
@@ -588,7 +596,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_CreateDirectory()
   if ( path.find( ".." ) != std::string::npos )
     return new BError( "No parent path traversal please." );
 
-  if ( outpkg != NULL )
+  if ( outpkg != nullptr )
     path = outpkg->dir() + path;
   path = Clib::normalized_dir_form( path );
   if ( Clib::IsDirectory( path.c_str() ) )
@@ -615,7 +623,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
   if ( path.find( ".." ) != std::string::npos )
     return new BError( "No parent path traversal please." );
 
-  if ( outpkg != NULL )
+  if ( outpkg != nullptr )
     path = outpkg->dir() + path;
   path = Clib::normalized_dir_form( path );
   if ( !Clib::IsDirectory( path.c_str() ) )
@@ -675,7 +683,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_OpenXMLFile()
     return new BError( "Access denied" );
 
   std::string filepath;
-  if ( outpkg == NULL )
+  if ( outpkg == nullptr )
     filepath = path;
   else
     filepath = outpkg->dir() + path;

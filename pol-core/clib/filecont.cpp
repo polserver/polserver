@@ -6,9 +6,9 @@
 
 #include "filecont.h"
 
-#include "logfacility.h"
 #include <cstdio>
-#include <stdexcept>
+
+#include "logfacility.h"
 
 // disables unsafe warning for fopen
 #ifdef _MSC_VER

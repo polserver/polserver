@@ -12,19 +12,36 @@
 #include "../../bscript/execmodl.h"
 #endif
 
+#include <ctime>
+#include <map>
+#include <queue>
+
+#include "../globals/script_internals.h"
 #include "../polclock.h"
 #include "../uoexhelp.h"
-#include "../globals/script_internals.h"
 
-#include <queue>
-#include <map>
-#include <ctime>
+namespace Pol
+{
+namespace Bscript
+{
+class BObject;
+class BObjectImp;
+class Executor;
+template <class T>
+class TmplExecutorModule;
+}  // namespace Bscript
+namespace Mobile
+{
+class Character;
+}  // namespace Mobile
+}  // namespace Pol
 
 namespace Pol
 {
 namespace Core
 {
 class UOExecutor;
+
 void run_ready( void );
 void check_blocked( polclock_t* pclocksleft );
 void deschedule_executor( UOExecutor* ex );
@@ -85,8 +102,11 @@ protected:
   Bscript::BObjectImp* mf_OpenURL();
   Bscript::BObjectImp* mf_OpenConnection();
   Bscript::BObjectImp* mf_debugger();
+  Bscript::BObjectImp* mf_HTTPRequest();
 
   Bscript::BObjectImp* mf_clear_event_queue();  // DAVE
+
+  Bscript::BObjectImp* mf_performance_diff();
 
   bool blocked_;
   Core::polclock_t sleep_until_clock_;  // 0 if wait forever
@@ -119,8 +139,8 @@ protected:
 
   friend class NPCExecutorModule;
   friend void step_scripts( void );
- // friend void Core::run_ready( void );
-  friend class Core::ScriptScheduler; // TODO: REMOVE THIS AS SOON AS POSSIBLE!!!
+  // friend void Core::run_ready( void );
+  friend class Core::ScriptScheduler;  // TODO: REMOVE THIS AS SOON AS POSSIBLE!!!
   friend void Core::check_blocked( Core::polclock_t* pclocksleft );
   friend void new_check_blocked( void );
   friend void Core::deschedule_executor( Core::UOExecutor* ex );
@@ -137,9 +157,8 @@ inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Charact
 
 inline bool OSExecutorModule::blocked() const
 {
-	return blocked_;
+  return blocked_;
 }
-
 }
 }
 

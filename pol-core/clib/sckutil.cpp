@@ -7,6 +7,7 @@
 #include "sckutil.h"
 
 #include "esignal.h"
+#include "strutil.h"
 #include "wnsckt.h"
 
 namespace Pol

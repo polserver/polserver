@@ -7,16 +7,14 @@
 
 #include "staticserver.h"
 
-#include "staticblock.h"
+#include <string>
 
 #include "../clib/binaryfile.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/timer.h"
-#include "../clib/logfacility.h"
-
-#include <string>
-#include <stdexcept>
+#include "staticblock.h"
 
 namespace Pol
 {
@@ -44,9 +42,7 @@ StaticServer::StaticServer( const RealmDescriptor& descriptor )
   Validate();
 }
 
-StaticServer::~StaticServer()
-{
-}
+StaticServer::~StaticServer() {}
 
 void StaticServer::Validate() const
 {

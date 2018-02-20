@@ -7,18 +7,17 @@
 
 #include "binaryfilescrobj.h"
 
-#include "../clib/strutil.h"
-#include "../clib/clib_endian.h"
+#include <fstream>
+#include <stddef.h>
 
-#include "../bscript/executor.h"
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
+#include "../bscript/executor.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
-
-#include <fstream>
-
+#include "../clib/clib_endian.h"
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {
@@ -322,13 +321,13 @@ bool BBinaryfile::operator==( const Bscript::BObjectImp& objimp ) const
     if ( ( (BBinaryfile&)objimp )._filename == _filename )
       return true;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   return false;
 }
 
 
-BinFile::BinFile()
-{
-}
+BinFile::BinFile() {}
 
 BinFile::BinFile( const std::string& filename, std::ios::openmode mode )
 {

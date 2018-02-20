@@ -9,7 +9,7 @@
 #ifndef MULTI_H
 #define MULTI_H
 
-#include "multidef.h"
+#include "../udatfile.h"
 
 // also consider: multimap<unsigned int, unsigned int>
 // unsigned int is (x << 16) | y
@@ -29,6 +29,10 @@ namespace Bscript
 {
 class BObjectImp;
 class BStruct;
+}
+namespace Plib
+{
+class MapShapeList;
 }
 namespace Realms
 {

@@ -12,8 +12,8 @@
 #include "Header_Windows.h"
 
 #ifndef WINDOWS
-#include <sys/types.h>
 #include <dirent.h>
+#include <sys/types.h>
 #endif
 
 namespace Pol
@@ -49,7 +49,6 @@ private:  // not implemented
   DirList& operator=( const DirList& );
 };
 
-std::string normalized_dir_form( const std::string& str );
 std::string curdir();
 
 class PushDir

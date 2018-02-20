@@ -7,35 +7,28 @@
 
 #include "unimod.h"
 
+#include <iostream>
+#include <string.h>
+
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
-#include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
-
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-
 #include "../accounts/account.h"
 #include "../item/item.h"
 #include "../mobile/charactr.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
-#include "../network/msghandl.h"
+#include "../network/packethelper.h"
+#include "../network/packets.h"
 #include "../pktboth.h"
-#include "../sockio.h"
+#include "../pktdef.h"
 #include "../ufunc.h"
 #include "../unicode.h"
+#include "../uoexec.h"
 #include "osmod.h"
 
-#include <stdexcept>
-#include <iostream>
-
-//////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
 namespace Pol
 {
 namespace Core
@@ -147,8 +140,9 @@ using namespace Bscript;
 u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
-  : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
-  uoexec( exec ), prompt_chr( NULL )
+    : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
+      uoexec( exec ),
+      prompt_chr( NULL )
 {
 }
 
@@ -171,9 +165,9 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
   unsigned short color;
   unsigned short requiredCmdLevel;
   if ( getObjArrayParam( 0, oText ) && getStringParam( 1, lang ) &&
-       getParam( 2, font ) &&  // todo: getFontParam
-       getParam( 3, color ) &&					// todo: getColorParam
-	   getParam( 4, requiredCmdLevel ) )        // todo: getRequiredCmdLevelParam
+       getParam( 2, font ) &&             // todo: getFontParam
+       getParam( 3, color ) &&            // todo: getColorParam
+       getParam( 4, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
     size_t textlen = oText->ref_arr.size();
     if ( textlen > SPEECH_MAX_LEN )
@@ -183,7 +177,8 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
     // lang->toUpper(); // Language codes are in upper-case :)
     if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
       return new BError( "Invalid value in Unicode array." );
-    Core::broadcast( gwtext, Clib::strupper( lang->value() ).c_str(), font, color, requiredCmdLevel );
+    Core::broadcast( gwtext, Clib::strupper( lang->value() ).c_str(), font, color,
+                     requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -281,8 +276,8 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
     if ( !uoexec.suspend() )
     {
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-        << "\tCall to function Unicode::RequestInputUC():\n"
-        << "\tThe execution of this script can't be blocked!\n";
+               << "\tCall to function Unicode::RequestInputUC():\n"
+               << "\tThe execution of this script can't be blocked!\n";
       return new Bscript::BError( "Script can't be blocked" );
     }
 
@@ -292,7 +287,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
     prompt_chr = chr;
 
     Core::send_unicode_prompt( chr->client, ctBEu32( item->serial ) );
-    
+
     return new BLong( 0 );
   }
   else

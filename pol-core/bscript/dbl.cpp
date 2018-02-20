@@ -4,16 +4,14 @@
  */
 
 
-#include "bobject.h"
-#include "berror.h"
-#include "impstr.h"
+#include <cmath>
+#include <sstream>
+#include <string>
 
 #include "../clib/stlutil.h"
-
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-#include <sstream>
+#include "berror.h"
+#include "bobject.h"
+#include "impstr.h"
 
 namespace Pol
 {
@@ -75,6 +73,10 @@ bool Double::operator==( const BObjectImp& objimp ) const
   {
     double diff = dval_ - ( (BLong&)objimp ).value();
     return fabs( diff ) < 0.00000001;
+  }
+  else if ( objimp.isa( OTBoolean ) )
+  {
+    return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   }
   else
   {

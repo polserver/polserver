@@ -7,14 +7,16 @@
 
 #include "syshookscript.h"
 
-#include "scrsched.h"
-
-#include "../bscript/executor.h"
-#include "../bscript/berror.h"
-
-#include "../clib/logfacility.h"
-
+#include <exception>
+#include <stddef.h>
 #include <string>
+
+#include "../bscript/berror.h"
+#include "../bscript/eprog.h"
+#include "../bscript/executor.h"
+#include "../clib/clib.h"
+#include "../clib/logfacility.h"
+#include "scrsched.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // disable deprecation warning for stricmp
@@ -32,9 +34,7 @@ ExportScript::ExportScript( const Plib::Package* pkg, std::string scriptname )
   sd.config( scriptname, pkg, "", true );
 }
 
-ExportScript::ExportScript( const ScriptDef& isd ) : sd( isd )
-{
-}
+ExportScript::ExportScript( const ScriptDef& isd ) : sd( isd ) {}
 
 bool ExportScript::Initialize()
 {

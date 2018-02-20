@@ -9,8 +9,23 @@
 #ifndef VITALEMOD_H
 #define VITALEMOD_H
 
+#include <stddef.h>
+
 #include "../../bscript/execmodl.h"
 #include "uomod.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class Executor;
+}  // namespace Bscript
+namespace Module
+{
+class UOExecutorModule;
+}  // namespace Module
+}  // namespace Pol
 
 namespace Pol
 {

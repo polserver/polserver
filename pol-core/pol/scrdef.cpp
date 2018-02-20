@@ -6,14 +6,9 @@
 
 #include "scrdef.h"
 
-#include "scrstore.h"
-#include "../bscript/eprog.h"
 #include "../bscript/escrutil.h"
-
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/refptr.h"
-
 #include "../plib/pkg.h"
 
 namespace Pol

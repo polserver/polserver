@@ -14,6 +14,12 @@
 #ifndef CONTAINR_H
 #define CONTAINR_H
 
+#include <stddef.h>
+
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+#include "baseobject.h"
+#include "dynproperties.h"
 #ifndef ITEM_H
 #include "item/item.h"
 #endif
@@ -21,8 +27,6 @@
 #ifndef LOCKABLE_H
 #include "lockable.h"
 #endif
-
-#include "reftypes.h"
 
 #define CONTAINER_STORES_ITEMREF 0
 
@@ -42,6 +46,38 @@ namespace Pol
 namespace Clib
 {
 class ConfigElem;
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class ObjArray;
+}  // namespace Bscript
+namespace Clib
+{
+class StreamWriter;
+}  // namespace Clib
+namespace Core
+{
+class UContainer;
+}  // namespace Core
+namespace Items
+{
+class ItemDesc;
+}  // namespace Items
+namespace Mobile
+{
+class NPC;
+}  // namespace Mobile
+namespace Multi
+{
+class UMulti;
+}  // namespace Multi
+namespace Network
+{
+class Client;
+}  // namespace Network
+}  // namespace Pol
 }
 namespace Mobile
 {

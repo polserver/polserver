@@ -6,25 +6,30 @@
 
 
 #include "equipmnt.h"
-#include "weapon.h"
-#include "armor.h"
+
+#include <stddef.h>
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
-#include "../../clib/random.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fileutil.h"
-
-#include "../ufunc.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../globals/object_storage.h"
-
+#include "../../clib/passert.h"
+#include "../../clib/random.h"
+#include "../../clib/streamsaver.h"
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
-
 #include "../equipdsc.h"
-#include "../tooltips.h"
+#include "../globals/object_storage.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../layers.h"
 #include "../mobile/charactr.h"
+#include "../tooltips.h"
+#include "../ufunc.h"
+#include "armor.h"
+#include "item.h"
+#include "itemdesc.h"
+#include "weapon.h"
 
 namespace Pol
 {

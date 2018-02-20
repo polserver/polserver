@@ -18,7 +18,7 @@ namespace Pol
 {
 namespace Core
 {
-enum PKTOUTID
+enum PKTOUTID : unsigned char
 {
   PKTOUT_0B_ID = 0x0B,  // Newer client damage display packet. since 4.0.7a client
 

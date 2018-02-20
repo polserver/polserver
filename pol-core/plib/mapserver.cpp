@@ -6,18 +6,18 @@
 
 #include "mapserver.h"
 
-#include "filemapserver.h"
-#include "inmemorymapserver.h"
-#include "mapblock.h"
-#include "mapshape.h"
-#include "mapsolid.h"
-#include "realmdescriptor.h"
+#include <stddef.h>
+#include <stdexcept>
+#include <string>
 
 #include "../clib/binaryfile.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
-
-#include <stdexcept>
+#include "filemapserver.h"
+#include "inmemorymapserver.h"
+#include "mapcell.h"
+#include "mapshape.h"
+#include "mapsolid.h"
 
 namespace Pol
 {
@@ -33,9 +33,7 @@ MapServer::MapServer( const RealmDescriptor& descriptor ) : _descriptor( descrip
   LoadFirstLevelIndex();
 }
 
-MapServer::~MapServer()
-{
-}
+MapServer::~MapServer() {}
 
 void MapServer::LoadSolids()
 {

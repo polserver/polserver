@@ -11,10 +11,10 @@
 #ifndef STLUTIL_H
 #define STLUTIL_H
 
+#include "Header_Windows.h"
+#include "compilerspecifics.h"
 #include <cstring>
 #include <sstream>
-#include "compilerspecifics.h"
-#include "Header_Windows.h"
 
 namespace Pol
 {
@@ -83,12 +83,11 @@ std::string tostring( const T& v )
   return OSTRINGSTREAM_STR( os );
 }
 
-template<class T, size_t N>
-CONSTEXPR size_t arsize(T(&)[N])
+template <class T, size_t N>
+CONSTEXPR size_t arsize( T ( & )[N] )
 {
   return N;
 }
-
 }
 }
 

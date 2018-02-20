@@ -6,21 +6,19 @@
 
 
 #include "cgdata.h"
-#include "../fnsearch.h"
+
+#include <cstddef>
 
 #include "../containr.h"
-#include "../multi/house.h"
-
-
+#include "../fnsearch.h"
 #include "../mobile/npc.h"
-
 #include "../module/osmod.h"
 #include "../module/unimod.h"
 #include "../module/uomod.h"
+#include "../multi/customhouses.h"
+#include "../multi/house.h"
+#include "../multi/multi.h"
 #include "../uoexec.h"
-#include "../unicode.h"
-
-#include <vector>
 
 namespace Pol
 {

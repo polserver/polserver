@@ -1,7 +1,34 @@
 #ifndef MOBILE_WORNITEMS_H
 #define MOBILE_WORNITEMS_H
 
+#include <stddef.h>
+
+#include "../../clib/compilerspecifics.h"
 #include "../containr.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+}  // namespace Bscript
+namespace Clib
+{
+class StreamWriter;
+}  // namespace Clib
+namespace Core
+{
+class UObject;
+}  // namespace Core
+namespace Items
+{
+class Item;
+}  // namespace Items
+namespace Mobile
+{
+class Character;
+}  // namespace Mobile
+}  // namespace Pol
 
 namespace Pol
 {

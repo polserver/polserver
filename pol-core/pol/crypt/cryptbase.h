@@ -73,7 +73,6 @@
 
 #include "../sockets.h"
 #include "../uconst.h"
-#include "../../clib/passert.h"
 #include "logincrypt.h"
 namespace Pol
 {

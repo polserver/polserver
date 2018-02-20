@@ -2,20 +2,16 @@
  *
  * @par History
  */
-#include "../../clib/logfacility.h"
+#include <stdlib.h>
+
 #include "../../clib/compilerspecifics.h"
-#include "realm.h"
+#include "../../clib/rawtypes.h"
 #include "../../plib/mapcell.h"
-#include "../../plib/mapserver.h"
-#include "../../plib/inmemorymapserver.h"
-#include "../../plib/mapshape.h"
-
-#include "../mobile/charactr.h"
-#include "../uworld.h"  // TODO move 'world' into Realm
+#include "../baseobject.h"
 #include "../item/item.h"
-#include "../clidata.h"
-
-#include <algorithm>
+#include "../mobile/charactr.h"
+#include "../uworld.h"
+#include "realm.h"
 
 namespace Pol
 {
@@ -56,8 +52,7 @@ const int los_range = 20;
 /**
  * @ingroup los3d
  */
-bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z,
-                                     LosCache& cache )
+bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache )
 {
   for ( const auto& item : cache.dyn_items )
   {
@@ -78,7 +73,8 @@ bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z
 /**
  * @ingroup los3d
  */
-bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache ) const
+bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z,
+                                    LosCache& cache ) const
 {
   if ( cache.last_x != x || cache.last_y != y )
   {
@@ -135,8 +131,7 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
     return false;
   }
 
-  return dynamic_item_blocks_los( x, y, z, cache ) ||
-         static_item_blocks_los( x, y, z, cache );
+  return dynamic_item_blocks_los( x, y, z, cache ) || static_item_blocks_los( x, y, z, cache );
 }
 
 /// absolute value of a
@@ -146,14 +141,14 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
 #define ZSGN( a ) ( ( ( a ) < 0 ) ? -1 : ( a ) > 0 ? 1 : 0 )
 
 /**
-* @ingroup los3d
-*/
+ * @ingroup los3d
+ */
 bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const
 {
   if ( att.isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
   {
     const Mobile::Character& chr = static_cast<const Mobile::Character&>( att );
-    if ( tgt.serial ) // remotes fail the realm check :(
+    if ( tgt.serial )  // remotes fail the realm check :(
     {
       bool remote;
       Items::Item* remote_container = chr.search_remote_containers( tgt.serial, &remote );
@@ -170,12 +165,12 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     if ( att.realm != tgt.realm )
       return false;
   }
-  // due to the nature of los check the same x,y coordinates get checked, cache the last used coords
-  // to reduce the expensive map/multi read per coordinate
+    // due to the nature of los check the same x,y coordinates get checked, cache the last used
+    // coords to reduce the expensive map/multi read per coordinate
 
-#if (!defined(_MSC_VER) || _MSC_VER >= 1900)
+#if ( !defined( _MSC_VER ) || _MSC_VER >= 1900 )
   static THREADLOCAL LosCache cache;
-#else // older ms support only primitive types :(
+#else  // older ms support only primitive types :(
   LosCache cache;
 #endif
   cache.last_x = 0xFFFF;
@@ -184,10 +179,8 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   cache.dyn_items.clear();
   // pre filter dynitems
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      std::min( att.x, tgt.x ), std::min( att.y, tgt.y ),
-      std::max( att.x, tgt.x ), std::max( att.y, tgt.y ),
-      att.realm, [&]( Items::Item* item )
-      {
+      std::min( att.x, tgt.x ), std::min( att.y, tgt.y ), std::max( att.x, tgt.x ),
+      std::max( att.y, tgt.y ), att.realm, [&]( Items::Item* item ) {
         u32 flags = Core::tile_flags( item->graphic );
         if ( flags & Plib::FLAG::BLOCKSIGHT )
         {

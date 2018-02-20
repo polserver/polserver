@@ -1,12 +1,17 @@
 #include "msghandl.h"
 
-#include "../../clib/passert.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
-#include "client.h"
+#include "../../clib/passert.h"
+#include "../../clib/rawtypes.h"
 #include "../globals/network.h"
+#include "../pktboth.h"
+#include "../pktbothid.h"
 #include "../pktin.h"
 #include "../pktinid.h"
+#include "../pktout.h"
+#include "../pktoutid.h"
+#include "client.h"
 
 namespace Pol
 {
@@ -87,8 +92,8 @@ void PacketRegistry::set_extended_handler( UEXTMSGID submsgtype,
 {
   if ( Core::networkManager.ext_handler_table[submsgtype].func )
   {
-    ERROR_PRINT.Format( "Extended Message Handler {} (0x{:X}) multiply defined.\n" ) << submsgtype
-                                                                                     << submsgtype;
+    ERROR_PRINT.Format( "Extended Message Handler {} (0x{:X}) multiply defined.\n" )
+        << submsgtype << submsgtype;
     throw std::runtime_error( "Extended Message Handler multiply defined." );
   }
   Core::networkManager.ext_handler_table[submsgtype].func = func;

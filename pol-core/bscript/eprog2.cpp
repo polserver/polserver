@@ -4,19 +4,24 @@
  */
 
 
-// EPROG compiler-only functions
-#include "eprog.h"
-#include "escriptv.h"
-#include "filefmt.h"
-#include "parser.h"
-#include "userfunc.h"
+#include <stdio.h>
+#include <string.h>
+#include <string>
 
 #include "../clib/clib.h"
-#include "../clib/passert.h"
-#include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
-
-#include <stdexcept>
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
+#include "compctx.h"
+// EPROG compiler-only functions
+#include "eprog.h"
+#include "filefmt.h"
+#include "fmodule.h"
+#include "symcont.h"
+#include "token.h"
+#include "tokens.h"
+#include "userfunc.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecated POSIX fopen warning
@@ -114,6 +119,7 @@ void EScriptProgram::addToken( const Token& token )
   case TYP_OPERAND:  // is variable name, long, double, string lit
   {
     unsigned sympos = 0;
+    BTokenType type = token.type;
     switch ( token.id )
     {
     case TOK_LONG:
@@ -134,11 +140,15 @@ void EScriptProgram::addToken( const Token& token )
     case TOK_LOCALVAR:
       sympos = token.lval;
       break;
-
+    case TOK_FUNCREF:
+      // num params in type
+      type = static_cast<BTokenType>( token.userfunc->parameters.size() );
     default:
       break;
     }
-    tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ), &tokpos );
+    tokens.append_tok( StoredToken( token.module, token.id, type, sympos ), &tokpos );
+    if ( token.id == TOK_FUNCREF )
+      token.userfunc->forward_callers.push_back( tokpos );
   }
   break;
 

@@ -8,10 +8,9 @@
 
 #ifndef _WIN32
 #include <sys/time.h>
-#include <unistd.h>
-#endif
-
+#else
 #include <ctime>
+#endif
 
 namespace Pol
 {

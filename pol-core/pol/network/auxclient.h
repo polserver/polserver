@@ -13,16 +13,33 @@
 #include "../../bscript/bobject.h"
 #endif
 
-#include "../../clib/socketsvc.h"
-#include "../../clib/threadhelp.h"
-#include "../../clib/weakptr.h"
-
-#include "../scrdef.h"
-#include "../uoexec.h"
-
 #include <atomic>
 #include <string>
 #include <vector>
+
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/refptr.h"
+#include "../../clib/socketsvc.h"
+#include "../../clib/weakptr.h"
+#include "../scrdef.h"
+#include "../uoexec.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+namespace Clib
+{
+class Socket;
+}  // namespace Clib
+namespace Core
+{
+class UOExecutor;
+}  // namespace Core
+}  // namespace Pol
+struct sockaddr;
 
 namespace Pol
 {
@@ -95,7 +112,7 @@ public:
 private:
   bool init();
   bool ipAllowed( sockaddr MyPeer );
-  void transmit(const std::string& msg);
+  void transmit( const std::string& msg );
   AuxService* _auxservice;
   ref_ptr<AuxConnection> _auxconnection;
   weak_ptr<Core::UOExecutor> _uoexec;

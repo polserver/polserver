@@ -8,17 +8,23 @@
 #ifndef PLIB_STATICSERVER_H
 #define PLIB_STATICSERVER_H
 
-#include "realmdescriptor.h"
 #include <vector>
+
+#include "realmdescriptor.h"
+#include "staticblock.h"
 
 namespace Pol
 {
 namespace Plib
 {
-struct STATIC_INDEX;
-struct STATIC_ENTRY;
 class StaticEntryList;
+}  // namespace Plib
+}  // namespace Pol
 
+namespace Pol
+{
+namespace Plib
+{
 class StaticServer
 {
 public:

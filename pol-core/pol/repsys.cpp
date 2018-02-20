@@ -9,30 +9,31 @@
 
 
 #include "repsys.h"
-#include "repsys_cfg.h"
+
+#include <stddef.h>
+#include <string>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
 #include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-
+#include "../clib/rawtypes.h"
 #include "cmbtcfg.h"
-#include "mobile/charactr.h"
 #include "fnsearch.h"
+#include "globals/settings.h"
+#include "globals/state.h"
 #include "guilds.h"
+#include "mobile/charactr.h"
 #include "mobile/npc.h"
 #include "npctmpl.h"
-#include "polclock.h"
+#include "party.h"
+#include "pktdef.h"
+#include "polsig.h"
+#include "repsys_cfg.h"
 #include "schedule.h"
 #include "syshook.h"
 #include "ufunc.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
 #include "uworld.h"
-#include "party.h"
-
-#include <string>
 
 // BUGS:
 //  it looks like you can restart someone's aggressor timer by toggling war mode and setting
@@ -43,8 +44,7 @@ namespace Pol
 {
 namespace Core
 {
-
-///Reputation System
+/// Reputation System
 
 /// [1] Reputation System Configuration
 /// Reputation System Configuration is read from config/repsys.cfg
@@ -760,10 +760,8 @@ void Character::restart_criminal_timer( Core::polclock_t until )
   {
     if ( criminal_until_ < Core::polclock() )
     {
-      Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
-                                                     {
-                                                       NpcPropagateCriminal( chr, this );
-                                                     } );
+      Core::WorldIterator<Core::NPCFilter>::InRange(
+          x, y, realm, 32, [&]( Character* chr ) { NpcPropagateCriminal( chr, this ); } );
     }
     criminal_until_ = until;
   }
@@ -1099,9 +1097,8 @@ void Character::make_criminal( int level )
   if ( level )
   {
     Core::polclock_t timeout_at =
-        Core::polclock() +
-        level * Core::settingsManager.repsys_cfg.General.CriminalFlagInterval *
-            Core::POLCLOCKS_PER_SEC;
+        Core::polclock() + level * Core::settingsManager.repsys_cfg.General.CriminalFlagInterval *
+                               Core::POLCLOCKS_PER_SEC;
 
     restart_criminal_timer( timeout_at );
     Core::RepSystem::schedule_repsys_task( this, timeout_at + 1 );
@@ -1121,7 +1118,7 @@ void Character::make_criminal( int level )
 
 void Character::make_murderer( bool newval )
 {
-  bool refresh = ( mob_flags_.get ( MOB_FLAGS::MURDERER ) != newval );
+  bool refresh = ( mob_flags_.get( MOB_FLAGS::MURDERER ) != newval );
 
   set_dirty();
   mob_flags_.change( MOB_FLAGS::MURDERER, newval );

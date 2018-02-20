@@ -16,27 +16,20 @@
 #include <stddef.h>
 
 #include "../clib/rawtypes.h"
-
-#include "uconst.h"
-#include "pktout.h"
-#include "network/packets.h"
-#include "network/packetdefs.h"
-
 #include "core.h"
+#include "network/packets.h"
+#include "uconst.h"
+
 namespace Pol
 {
-namespace Bscript
-{
-class ObjArray;
-}
 namespace Network
 {
 class Client;
+class RemoveObjectPkt;
 }
 namespace Mobile
 {
 class Character;
-class NPC;
 }
 namespace Items
 {
@@ -53,10 +46,9 @@ class Realm;
 
 namespace Core
 {
+class Menu;
 class UContainer;
 class UObject;
-struct USTRUCT_TILE;
-class Menu;
 
 void SetCurrentItemSerialNumber( u32 serial );
 void SetCurrentCharSerialNumber( u32 serial );
@@ -187,9 +179,11 @@ void send_sysmessage( Network::Client* client, const u16* wtext, const char lang
                       unsigned short font = DEFAULT_TEXT_FONT,
                       unsigned short color = DEFAULT_TEXT_COLOR );
 void broadcast( const char* text, unsigned short font = DEFAULT_TEXT_FONT,
-                unsigned short color = DEFAULT_TEXT_COLOR, unsigned short requiredCmdLevel = DEFAULT_TEXT_REQUIREDCMD );
+                unsigned short color = DEFAULT_TEXT_COLOR,
+                unsigned short requiredCmdLevel = DEFAULT_TEXT_REQUIREDCMD );
 void broadcast( const u16* wtext, const char lang[4], unsigned short font = DEFAULT_TEXT_FONT,
-                unsigned short color = DEFAULT_TEXT_COLOR, unsigned short requiredCmdLevel = DEFAULT_TEXT_REQUIREDCMD );
+                unsigned short color = DEFAULT_TEXT_COLOR,
+                unsigned short requiredCmdLevel = DEFAULT_TEXT_REQUIREDCMD );
 bool say_above( const UObject* obj, const char* text, unsigned short font = DEFAULT_TEXT_FONT,
                 unsigned short color = DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );

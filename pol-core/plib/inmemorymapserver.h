@@ -7,9 +7,21 @@
 #ifndef PLIB_INMEMORYMAPSERVER_H
 #define PLIB_INMEMORYMAPSERVER_H
 
-#include "filemapserver.h"
-
 #include <vector>
+
+#include "../clib/binaryfile.h"
+#include "../clib/compilerspecifics.h"
+#include "mapblock.h"
+#include "mapcell.h"
+#include "mapserver.h"
+
+namespace Pol
+{
+namespace Plib
+{
+class RealmDescriptor;
+}  // namespace Plib
+}  // namespace Pol
 
 namespace Pol
 {

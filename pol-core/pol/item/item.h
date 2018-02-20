@@ -15,6 +15,16 @@
 #include "pol_global_config.h"
 #endif
 
+#include <stddef.h>
+#include <string>
+
+#include "../../clib/boostutils.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
+#include "../baseobject.h"
+#include "../dynproperties.h"
+#include "../globals/settings.h"
+#include "../layers.h"
 #include "../uobject.h"
 
 
@@ -22,8 +32,18 @@
 #include "../../bscript/bobject.h"
 #endif
 
-#include "../layers.h"
-#include "../globals/settings.h"
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+namespace Clib
+{
+class ConfigElem;
+class StreamWriter;
+}  // namespace Clib
+}  // namespace Pol
 
 namespace Pol
 {
@@ -33,8 +53,8 @@ class UOExecutorModule;
 }
 namespace Core
 {
-struct USTRUCT_TILE;
 class UContainer;
+
 std::string format_description( unsigned int polflags, const std::string& descdef,
                                 unsigned short amount, const std::string suffix );
 }
@@ -44,8 +64,8 @@ class Character;
 }
 namespace Multi
 {
-class UMulti;
 class UHouse;
+class UMulti;
 }
 namespace Network
 {

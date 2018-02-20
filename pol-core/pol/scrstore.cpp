@@ -7,17 +7,17 @@
 
 #include "scrstore.h"
 
-#include "scrdef.h"
+#include <format/format.h>
 #include "../bscript/eprog.h"
-
-#include "polcfg.h"
-#include "globals/script_internals.h"
-#include "globals/state.h"
-
 #include "../clib/logfacility.h"
-#include "../clib/refptr.h"
+#include "../clib/rawtypes.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
+#include "globals/script_internals.h"
+#include "globals/state.h"
+#include "polcfg.h"
+#include "profile.h"
+#include "scrdef.h"
 
 
 namespace Pol
@@ -72,8 +72,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
   {
     std::string tmpname = name;
     Clib::mklower( tmpname );
-    scriptScheduler.scrstore.insert(
-        ScriptStorage::value_type( tmpname.c_str(), program ) );
+    scriptScheduler.scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
   }
 
   return program;
@@ -104,8 +103,7 @@ ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool com
   {
     std::string tmpname = script.name();
     Clib::mklower( tmpname );
-    scriptScheduler.scrstore.insert(
-        ScriptStorage::value_type( tmpname.c_str(), program ) );
+    scriptScheduler.scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
   }
 
   return program;

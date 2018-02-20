@@ -7,16 +7,12 @@
 
 #include "symcont.h"
 
-#include "tokens.h"
-
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 
-#include <stdexcept>
+#include "../clib/logfacility.h"
+#include "../clib/strutil.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )  // deprecation warning for strcpy, fopen

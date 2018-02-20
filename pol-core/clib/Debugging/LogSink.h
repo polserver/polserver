@@ -6,10 +6,11 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOG_SINK_H
 #define CLIB_LOG_SINK_H
 
-#include "../../../lib/format/format.h"
-
 #include <boost/noncopyable.hpp>
+#include <iosfwd>
 #include <string>
+
+#include <format/format.h>
 
 namespace Pol
 {

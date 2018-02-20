@@ -5,10 +5,10 @@
 
 
 #include "esignal.h"
-#include "logfacility.h"
-
+#ifdef WINDOWS
 #include "Header_Windows.h"
-#ifndef WINDOWS
+#include "logfacility.h"
+#else
 #include <signal.h>
 #endif
 namespace Pol
