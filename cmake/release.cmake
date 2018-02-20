@@ -11,3 +11,15 @@ macro(release)
   set(CPACK_GENERATOR "ZIP")
   include(CPack)
 endmacro()
+
+function(dist target dir)
+# install target for our archive
+# dir is the folder in our release zip
+  install(
+    TARGETS ${target} 
+    ARCHIVE DESTINATION ${dir}
+    LIBRARY DESTINATION ${dir}
+    RUNTIME DESTINATION ${dir}
+    COMPONENT polcore
+  )
+endfunction()

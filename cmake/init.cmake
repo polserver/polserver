@@ -118,11 +118,29 @@ macro(hide_cotire)
 endmacro()
 
 macro(cmake_fake_target)
+  #used to have cmake files in VisualStudio as folder
   add_custom_target("cmakefiles"
-			WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-			VERBATIM
-			SOURCES cmake/init.cmake cmake/Benchmark.txt cmake/Boost.txt cmake/Curl.txt cmake/release.cmake cmake/utils.cmake cmake/env/pol_global_config.h.in)
-  source_group(cmake FILES cmake/init.cmake cmake/Benchmark.txt cmake/Boost.txt cmake/Curl.txt cmake/release.cmake cmake/utils.cmake)
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    VERBATIM
+    SOURCES 
+      cmake/init.cmake
+      cmake/Benchmark.txt
+      cmake/Boost.txt
+      cmake/Curl.txt
+      cmake/Format.txt
+      cmake/release.cmake
+      cmake/compile_defs.cmake
+      cmake/env/pol_global_config.h.in
+  )
+  source_group(cmake FILES
+    cmake/init.cmake
+    cmake/Benchmark.txt
+    cmake/Boost.txt
+    cmake/Curl.txt
+    cmake/Format.txt
+    cmake/release.cmake
+    cmake/compiler_defs.cmake
+  )
   source_group(cmake/env FILES cmake/env/pol_global_config.h.in)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_ALL TRUE)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)

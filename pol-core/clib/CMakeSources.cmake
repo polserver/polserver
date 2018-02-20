@@ -1,6 +1,5 @@
 set (clib_sources
   #sorted !
-  ../../lib/format/format.cc
   CMakeSources.cmake 
   Debugging/ExceptionParser.cpp
   Debugging/ExceptionParser.h

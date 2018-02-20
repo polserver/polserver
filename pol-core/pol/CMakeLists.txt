@@ -8,6 +8,7 @@ add_executable(${ex_name}
 )    
  
 set_compile_flags(${ex_name} 1)
+enable_pch(${ex_name})
 use_curl(${ex_name})
 use_benchmark(${ex_name})
 

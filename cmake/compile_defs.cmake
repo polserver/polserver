@@ -77,13 +77,6 @@ function(set_compile_flags target is_executable)
         -s # strip
 	  )
     endif()
-	#search path for libs
-	#    $<${linux}:
-	#      -Wl,-R.
-	#      -Wl,-R./lib
-	#      -Wl,-R../lib
-	#      -Wl,-R../../lib
-	#    > 
   endif()
 
   if(${linux})
@@ -94,25 +87,11 @@ function(set_compile_flags target is_executable)
     )
   endif()
 
-  if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-    add_dependencies(${target} boost)
-  endif()
-
   set_target_properties(${target} PROPERTIES
-  	ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
   )
-
-  #PCH SUPPORT
-  if (NOT NO_PCH)
-    set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
-    if (EXISTS ${_pch_name})
-      set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
-      set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD OFF)
-      cotire(${target})
-    endif()
-  endif()
 
   source_group_by_folder(${target})
 endfunction()
@@ -136,6 +115,17 @@ function(source_group_by_folder target)
   endif ()
 endfunction()
 
+function (enable_pch target)
+  if (NOT NO_PCH)
+    set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
+    if (EXISTS ${_pch_name})
+      set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
+      set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD OFF)
+      cotire(${target})
+    endif()
+  endif()
+endfunction()
+
 function(use_curl target)
   target_include_directories(${target}
     PUBLIC ${CURL_INSTALL_DIR}/include
@@ -152,12 +142,3 @@ function(use_benchmark target)
   endif()
 endfunction()
 
-function(dist target dir)
-  install(
-    TARGETS ${target} 
-    ARCHIVE DESTINATION ${dir}
-    LIBRARY DESTINATION ${dir}
-    RUNTIME DESTINATION ${dir}
-    COMPONENT polcore
-  )
-endfunction()
