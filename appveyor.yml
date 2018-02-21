@@ -20,7 +20,7 @@ cache:
 build_script:
 - cd pol-core/bin-build
 - cmake ../.. -G "Visual Studio 15 2017 Win64"
-- cmake --build . --configuration Release
+- cmake --build . --config Release
 #- msbuild "pol-core/pol-2015.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
 test_script:
   #- cd testsuite\\escript 
