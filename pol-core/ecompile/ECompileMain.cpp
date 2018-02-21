@@ -30,10 +30,10 @@ namespace Pol
 {
 namespace Bscript
 {
-ExecInstrFunc Executor::GetInstrFunc( const Token& /*token*/ )
-{
-  return NULL;
-}
+//ExecInstrFunc Executor::GetInstrFunc( const Token& /*token*/ )
+//{
+  //  return NULL;
+//}
 }
 
 namespace ECompile
