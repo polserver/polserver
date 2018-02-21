@@ -20,10 +20,8 @@ cache:
 build_script:
 - cd pol-core/bin-build
 - cmake ../.. -G "Visual Studio 15 2017 Win64"
-- cmake --build . --config Release
-- cd ../../lib/curl/builds/libcurl-x64-release-static/lib
-- dir
-#- msbuild "pol-core/pol-2015.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
+#- cmake --build . --config Release
+- msbuild "polserver.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
 test_script:
   #- cd testsuite\\escript 
   #- c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\ecompile\\Release\\x64\\ecompile.exe ..\\..\\pol-core\\runecl\\Release\\x64\\runecl.exe -n 5
