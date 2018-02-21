@@ -79,7 +79,7 @@ function(set_compile_flags target is_executable)
       /Gy # function level linking
       /Zi # pdb files
       /GF # string pooling
-      /Eha # exception handling
+      /EHa # exception handling
       /W4
     >
   )
@@ -93,8 +93,8 @@ function(set_compile_flags target is_executable)
   endif()
   if (${windows})
     target_link_libraries(${target} PUBLIC
-      /LARGEADDRESSAWARE
-      /OPT:REF
+      -LARGEADDRESSAWARE
+      -OPT:REF
     )
   endif()
 
