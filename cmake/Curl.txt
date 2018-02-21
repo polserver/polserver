@@ -48,7 +48,7 @@ if(NOT EXISTS "${CURL_LIB}")
     ExternalProject_Add_Step(libcurl buildstep
       DEPENDEES DOWNLOAD
       WORKING_DIRECTORY "${CURL_SOURCE_DIR}/winbuild"
-      COMMAND nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no
+      COMMAND nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no RTLIBCFG=static
     )
   endif()
 else()
