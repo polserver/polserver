@@ -50,6 +50,7 @@ if(NOT EXISTS "${CURL_LIB}")
       WORKING_DIRECTORY "${CURL_SOURCE_DIR}/winbuild"
       COMMAND nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no RTLIBCFG=static
     )
+    message("nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no RTLIBCFG=static")
   endif()
 else()
   message("Curl already build")
