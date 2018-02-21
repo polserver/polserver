@@ -63,9 +63,9 @@ include(cmake/Boost.txt)
 include(cmake/Benchmark.txt)
 include(cmake/Format.txt)
 
-#if (BUILD_ALL OR ONLY_POL)
+if (BUILD_ALL OR ONLY_POL)
   include(cmake/Curl.txt)
-  #endif()
+endif()
 add_subdirectory(lib/tinyxml)
 add_subdirectory(pol-core)
 
