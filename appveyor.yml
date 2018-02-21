@@ -6,7 +6,7 @@ platform: x64
 configuration: Release
 build:
   parallel: true
-  project: pol-core/pol-2017.sln
+  project: pol-core/bin-build/polserver.sln
   verbosity: normal
 init:
 - git config --global core.autocrlf true
@@ -14,14 +14,16 @@ install:
   #- cd lib
   #- prepare_extlibs.bat > NUL
   #- cd ..
+- cd pol-core/bin-build
+- cmake ../.. -G "Visual Studio 15 2017 Win64"
 cache:
 - lib/boost_1_63_0
 - lib/curl-7.57.0
-build_script:
-- cd pol-core/bin-build
-- cmake ../.. -G "Visual Studio 15 2017 Win64"
+#build_script:
+#- cd pol-core/bin-build
+#- cmake ../.. -G "Visual Studio 15 2017 Win64"
 #- cmake --build . --config Release
-- msbuild "polserver.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
+#- msbuild "polserver.sln" /verbosity:normal /p:Configuration=Release /p:Platform="x64" /m:2
 test_script:
   #- cd testsuite\\escript 
   #- c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\ecompile\\Release\\x64\\ecompile.exe ..\\..\\pol-core\\runecl\\Release\\x64\\runecl.exe -n 5
