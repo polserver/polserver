@@ -77,13 +77,6 @@ function(set_compile_flags target is_executable)
         -s # strip
 	  )
     endif()
-	#search path for libs
-	#    $<${linux}:
-	#      -Wl,-R.
-	#      -Wl,-R./lib
-	#      -Wl,-R../lib
-	#      -Wl,-R../../lib
-	#    > 
   endif()
 
   if(${linux})
@@ -94,17 +87,35 @@ function(set_compile_flags target is_executable)
     )
   endif()
 
-  if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
-    add_dependencies(${target} boost)
-  endif()
-
   set_target_properties(${target} PROPERTIES
-  	ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
   )
 
-  #PCH SUPPORT
+  source_group_by_folder(${target})
+endfunction()
+
+function(source_group_by_folder target)
+  set(last_dir "")
+  set(files "")
+  foreach(file ${${target}_sources})
+    get_filename_component(dir "${file}" PATH)
+    if (NOT "${dir}" STREQUAL "${last_dir}")
+      if (files)
+        source_group("${last_dir}" FILES ${files})
+      endif ()
+      set(files "")
+    endif (NOT "${dir}" STREQUAL "${last_dir}")
+    set(files ${files} ${file})
+    set(last_dir "${dir}")
+  endforeach()
+  if (files)
+    source_group("${last_dir}" FILES ${files})
+  endif ()
+endfunction()
+
+function (enable_pch target)
   if (NOT NO_PCH)
     set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
     if (EXISTS ${_pch_name})
@@ -113,7 +124,6 @@ function(set_compile_flags target is_executable)
       cotire(${target})
     endif()
   endif()
-
 endfunction()
 
 function(use_curl target)
@@ -132,12 +142,3 @@ function(use_benchmark target)
   endif()
 endfunction()
 
-function(dist target dir)
-  install(
-    TARGETS ${target} 
-    ARCHIVE DESTINATION ${dir}
-    LIBRARY DESTINATION ${dir}
-    RUNTIME DESTINATION ${dir}
-    COMPONENT polcore
-  )
-endfunction()

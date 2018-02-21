@@ -7,6 +7,7 @@ add_library(${lib_name} STATIC
 )
 
 set_compile_flags(${lib_name} 0)
+enable_pch(${lib_name})
 
 target_link_libraries(${lib_name} PUBLIC
   clib

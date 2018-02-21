@@ -46,7 +46,7 @@ include(CheckIncludeFiles)
 include(ExternalProject)
 
 
-include(cmake/utils.cmake)
+include(cmake/compile_defs.cmake)
 include(cmake/release.cmake)
 include(cmake/cotire.cmake)
 #hide the cotire settings
@@ -57,9 +57,11 @@ detect_arch()
 detect_platform()
 
 prepare_build()
+cmake_fake_target()
 
 include(cmake/Boost.txt)
 include(cmake/Benchmark.txt)
+include(cmake/Format.txt)
 
 if (BUILD_ALL OR ONLY_POL)
   include(cmake/Curl.txt)
@@ -67,4 +69,5 @@ endif()
 add_subdirectory(lib/tinyxml)
 add_subdirectory(pol-core)
 
+#cmake package target for creating archive
 release()

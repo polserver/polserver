@@ -10,10 +10,10 @@ if (${linux})
   set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl.so")
 else()
   set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/builds/libcurl-${ARCH_STRING}-release-static")
-  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl_a.so")
+  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl_a.lib")
 endif()
 
-if(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
+if(NOT EXISTS "${CURL_LIB}")
 
   if(${linux})
     ExternalProject_Add(libcurl
