@@ -241,7 +241,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   defence_increase_cap = elem.remove_ushort( "DEFENCEINCREASECAP", 0 );
   lower_mana_cost = elem.remove_ushort( "LOWERMANACOST", 0 );
   hit_chance = elem.remove_ushort( "HITCHANCE", 0 );
-  swingspeed = elem.remove_ushort( "SWINGSPEED", 0 );
+  swing_speed = elem.remove_ushort( "SWINGSPEED", 0 );
   resist_fire_cap = elem.remove_ushort( "FIRERESISTCAP", 0 );
   resist_cold_cap = elem.remove_ushort( "COLDRESISTCAP", 0 );
   resist_energy_cap = elem.remove_ushort( "ENERGYRESISTCAP", 0 );
@@ -462,7 +462,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     hit_chance = diceValue( temp, "Hit Chance" );
 
   if ( elem.remove_prop( "SwingSpeed", &temp ) )
-    swingspeed = diceValue( temp, "Swing Speed" );
+    swing_speed = diceValue( temp, "Swing Speed" );
 
   if ( elem.remove_prop( "DamageIncrease", &temp ) )
     damage_increase = diceValue( temp, "Damage Increase" );
@@ -806,7 +806,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "DefenceIncreaseCap", new BLong( defence_increase_cap ) );
   descriptor->addMember( "LowerManaCost", new BLong( lower_mana_cost ) );
   descriptor->addMember( "HitChance", new BLong( hit_chance ) );
-  descriptor->addMember( "SwingSpeed", new BLong( swingspeed ) );
+  descriptor->addMember( "SwingSpeed", new BLong( swing_speed ) );
   descriptor->addMember( "DamageIncrease", new BLong( damage_increase ) );
   descriptor->addMember( "FireResistCap", new BLong( resist_fire_cap ) );
   descriptor->addMember( "ColdResistCap", new BLong( resist_cold_cap ) );

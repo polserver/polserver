@@ -269,7 +269,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->defence_increase_cap( item->defence_increase_cap().addToValue( id.defence_increase_cap ) );
   item->lower_mana_cost( item->lower_mana_cost().addToValue( id.lower_mana_cost ) );
   item->hit_chance( item->hit_chance().addToValue( id.hit_chance ) );
-  item->swing_speed( item->swing_speed().addToValue( id.swingspeed ) );
+  item->swing_speed( item->swing_speed().addToValue( id.swing_speed ) );
   item->damage_increase( item->damage_increase().addToValue( id.damage_increase ) );
   item->fire_resist_cap( item->fire_resist_cap().addToValue( id.resist_fire_cap ) );
   item->cold_resist_cap( item->cold_resist_cap().addToValue( id.resist_cold_cap ) );

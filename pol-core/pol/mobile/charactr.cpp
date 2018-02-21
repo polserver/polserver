@@ -592,87 +592,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( frozen() )
     sw() << "\tFrozen\t" << static_cast<int>( frozen() ) << pf_endl;
 
-  s16 value = fire_resist().mod;
-  if ( value != 0 )
-    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_resist().mod;
-  if ( value != 0 )
-    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_resist().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
-
-  value = fire_damage().mod;
-  if ( value != 0 )
-    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_damage().mod;
-  if ( value != 0 )
-    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_damage().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
-
-  value = lower_reagent_cost().mod;
-  if ( value != 0 )
-    sw() << "\tLowerReagentCostMod\t" << static_cast<int>( value ) << pf_endl;
-  value = spell_damage_increase().mod;
-  if ( value != 0 )
-    sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
-  value = faster_casting().mod;
-  if ( value != 0 )
-    sw() << "\tFasterCastingMod\t" << static_cast<int>( value ) << pf_endl;
-  value = faster_cast_recovery().mod;
-  if ( value != 0 )
-    sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>( value ) << pf_endl;
-  value = defence_increase().mod;
-  if ( value != 0 )
-    sw() << "\tDefenceIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
-  value = defence_increase_cap().mod;
-  if ( value != 0 )
-    sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>( value ) << pf_endl;
-  value = lower_mana_cost().mod;
-  if ( value != 0 )
-    sw() << "\tLowerManaCostMod\t" << static_cast<int>( value ) << pf_endl;
-  value = hit_chance().mod;
-  if ( value != 0 )
-    sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
-  value = swing_speed().mod;
-  if ( value != 0 )
-    sw() << "\tSpeedMod\t" << static_cast<int>( value ) << pf_endl;
-  value = damage_increase().mod;
-  if ( value != 0 )
-    sw() << "\tDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = fire_resist_cap().mod;
-  if ( value != 0 )
-    sw() << "\tFireResistCapMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_resist_cap().mod;
-  if ( value != 0 )
-    sw() << "\tColdResistCapMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_resist_cap().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyResistCapMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_resist_cap().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonResistCapMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_resist_cap().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalResistCapMod\t" << static_cast<int>( value ) << pf_endl;
-  value = luck().mod;
-  if ( value != 0 )
-    sw() << "\tLuckMod\t" << static_cast<int>( value ) << pf_endl;
-
+ 
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
@@ -3470,7 +3390,7 @@ void Character::attack( Character* opponent )
   // SOMETHING PROBABLY NEEDS TO CHANGE HERE//
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
-  hit_chance += hit_chance_mod() * 0.001f;
+  hit_chance += Character::hit_chance().sum() * 0.001f;
   hit_chance -= opponent->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
     INFO_PRINT << "Chance to hit: " << hit_chance << ": ";

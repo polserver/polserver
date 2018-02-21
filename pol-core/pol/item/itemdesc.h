@@ -135,7 +135,7 @@ public:
   unsigned short defence_increase_cap;
   unsigned short lower_mana_cost;
   unsigned short hit_chance;
-  unsigned short swingspeed;
+  unsigned short swing_speed;
   unsigned short damage_increase;
   unsigned short resist_fire_cap;
   unsigned short resist_cold_cap;
