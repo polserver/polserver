@@ -32,9 +32,21 @@ if (${gcc})
 endif()
 
 if(HAVE_MYSQL)
-  target_link_libraries(${ex_name} PUBLIC
-	mysqlclient
-  )
+  if(${windows})
+	if (${ARCH_BITS} EQUAL "64")
+      target_link_libraries(${ex_name} PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-winx64/lib/mysqlclient.lib
+	  )
+    else()
+      target_link_libraries(${ex_name} PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-win32/lib/mysqlclient.lib
+	  )
+    endif()
+  else()
+    target_link_libraries(${ex_name} PUBLIC
+  	  mysqlclient
+    )
+  endif()
 endif()
 if(DEFINED USE_BOOST_REGEX)
   target_link_libraries(${ex_name} PUBLIC

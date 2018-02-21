@@ -94,6 +94,7 @@ if(windows)
     ../../lib/StackWalker/StackWalker.cpp
     NTService.h
     StdAfx.cpp
+    forspcnt.cpp
     mdump.cpp
     mdump.h
     mdumpimp.h
