@@ -12,12 +12,12 @@ init:
 - git config --global core.autocrlf true
 install:
 - cd pol-core/bin-build
-- cmake ../.. -G "Visual Studio 15 2017 Win64" -DBUILD_ALL=OFF -DONLY_ECOMPILE=ON -ONLY_RUNECL=ON
+- cmake ../.. -G "Visual Studio 15 2017 Win64" -DBUILD_ALL=OFF -DONLY_ECOMPILE=ON -DONLY_RUNECL=ON
 cache:
 - lib/boost_1_63_0
 - lib/curl-7.57.0
 test_script:
-  - cd testsuite\\escript 
+  - cd ..\\..\\testsuite\\escript 
   - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\bin\\ecompile.exe ..\\..\\pol-core\\bin\\runecl.exe -n 5
 deploy: off
 
