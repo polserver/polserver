@@ -161,7 +161,10 @@ function(use_curl target)
   target_link_libraries(${target} PUBLIC ${CURL_LIB})
   if (NOT EXISTS ${CURL_LIB})
     add_dependencies(${target} libcurl)
-  endif()    
+  endif()
+  target_compile_definitions(${target} PRIVATE
+	CURL_STATICLIB
+  )
 endfunction()
 
 function(use_benchmark target)
