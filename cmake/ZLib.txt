@@ -30,6 +30,6 @@ add_library(${lib_name} STATIC
 set_compile_flags(${lib_name} 0)
 
 target_compile_options(${lib_name} PRIVATE
-  /W4131 # old-style decorator
-  /W4244 # conversion loss of data
+  /wd4131 # old-style decorator
+  /wd4244 # conversion loss of data
 )
