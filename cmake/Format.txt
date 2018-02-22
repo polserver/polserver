@@ -14,7 +14,7 @@ add_library(${lib_name} STATIC
 set_compile_flags(${lib_name} 0)
 
 if (${windows})
- target_compile_definitions(${lib_name} PRIVATE
+ target_compile_options(${lib_name} PRIVATE
    /wd4458 #var name hides
    /wd4456 #var name hides
   )

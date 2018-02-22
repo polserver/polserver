@@ -15,7 +15,7 @@ target_compile_definitions(${lib_name} PUBLIC
 )
 
 if (${windows})
- target_compile_definitions(${lib_name} PRIVATE
+ target_compile_options(${lib_name} PRIVATE
    /wd4458 #var name hides
   )
 endif()
