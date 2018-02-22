@@ -93,8 +93,8 @@ function(set_compile_flags target is_executable)
   endif()
   if (${windows})
     target_link_libraries(${target} PRIVATE
-      -LARGEADDRESSAWARE
-      -OPT:REF
+      -LARGEADDRESSAWARE # todo doesnt work
+      -OPT:REF # todo doesnt work
     )
   endif()
 
@@ -113,11 +113,6 @@ function(set_compile_flags target is_executable)
   )
 
   source_group_by_folder(${target})
-  #ist
-  #release-static\include" /I"C:\Tools\vcpkg\installed\x64-windows\include"  /W3  /diagnostics:classic  /EHsc /MD /GS /fp:precise  /GR  /TP  /errorReport:queue  /Zm170
-  
-  #  Release 64 bit pol compflag:
-  # /MP /GS- /W4 /Gy   /Zi  /Fd".\Release/x64/"  /errorReport:prompt /GF  /MT /openmp /Fa".\Release/x64/" /EHa  /Fo".\Release/x64/"
 
   #  Release 64bit linker pol:
   # /DYNAMICBASE:NO "normaliz.lib" "wsock32.lib" "odbc32.lib" "odbccp32.lib" "libmysql.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" /LARGEADDRESSAWARE /DEBUG /MACHINE:X64 /OPT:REF /INCREMENTAL:NO /PGD:".\Release\x64/pol.pgd" /SUBSYSTEM:CONSOLE",5.02" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /ManifestFile:".\Release\x64/pol.exe.intermediate.manifest" /MAP":.\Release/x64/pol.map" /ERRORREPORT:PROMPT /NOLOGO  /TLBID:1 
