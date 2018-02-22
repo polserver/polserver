@@ -68,7 +68,8 @@ endif()
 if (BUILD_ALL OR ONLY_POL)
   include(cmake/Curl.txt)
 endif()
-add_subdirectory(lib/tinyxml)
+include(cmake/TinyXML.txt)
+
 add_subdirectory(pol-core)
 
 #cmake package target for creating archive
