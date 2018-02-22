@@ -92,7 +92,7 @@ function(set_compile_flags target is_executable)
     endif()
   endif()
   if (${windows})
-    target_link_libraries(${target} PUBLIC
+    target_link_libraries(${target} PRIVATE
       -LARGEADDRESSAWARE
       -OPT:REF
     )
