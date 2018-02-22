@@ -18,7 +18,7 @@ cache:
 - lib/curl-7.57.0
 test_script:
   - cd ..\\..\\testsuite\\escript 
-  - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\bin\\ecompile.exe ..\\..\\pol-core\\bin\\runecl.exe -n 5
+  - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\bin\\Release\\ecompile.exe ..\\..\\pol-core\\bin\\Release\\runecl.exe -n 5
 deploy: off
 
 #notifications:
