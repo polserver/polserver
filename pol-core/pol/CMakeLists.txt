@@ -17,12 +17,12 @@ target_link_libraries(${ex_name} PUBLIC
   clib
   plib
   tinyxml
+  z
 )
 if (${linux})
   target_link_libraries(${ex_name} PUBLIC
     crypto
 	pthread
-	z
   )
 endif()
 if (${gcc})
