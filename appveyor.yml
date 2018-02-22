@@ -16,7 +16,7 @@ install:
   # -DBUILD_ALL=OFF -DONLY_ECOMPILE=ON -DONLY_RUNECL=ON
 cache:
 - lib/boost_1_63_0
-- lib/curl-7.57.0
+- lib/curl
 test_script:
   #  - cd ..\\..\\testsuite\\escript 
   #  - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\bin\\Release\\ecompile.exe ..\\..\\pol-core\\bin\\Release\\runecl.exe -n 5
