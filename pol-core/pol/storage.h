@@ -7,10 +7,6 @@
 #ifndef H_STORAGE_H
 #define H_STORAGE_H
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4786 )
-#endif
-
 #include <map>
 #include <string>
 

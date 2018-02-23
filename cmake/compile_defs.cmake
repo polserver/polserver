@@ -168,11 +168,8 @@ function(warning_suppression target)
   if (${windows})
     target_compile_options(${target} PRIVATE
       /wd4996 #deprecated
-	  #/wd4005 #macro redefinition
-	  #/wd4127 #conditional expression is constant (needed because of FD_SET)
       /wd4786 #identifier trunc for debug
-      #/wd4091 #no variable declared
-      /wd4251 #no dll interface
+	  #      /wd4251 #no dll interface
     )
   endif()
 endfunction()

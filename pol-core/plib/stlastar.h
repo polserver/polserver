@@ -30,12 +30,6 @@
 // Uses std new and delete instead if you turn it off
 #define USE_FSA_MEMORY 1
 
-// disable warning that debugging information has lines that are truncated
-// occurs in stl headers
-#ifdef _MSC_VER
-#pragma warning( disable : 4786 )
-#endif
-
 namespace Pol
 {
 namespace Plib

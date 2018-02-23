@@ -1918,7 +1918,6 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /
   default:
     return nullptr;
   }
-  return nullptr;
 }
 }
 }
