@@ -91,8 +91,4 @@ CONSTEXPR size_t arsize( T ( & )[N] )
 }
 }
 
-#ifdef _MSC_VER
-#pragma warning( pop )
-#endif
-
 #endif

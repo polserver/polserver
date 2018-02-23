@@ -6,6 +6,7 @@
 
 #pragma warning( disable : 4189 )  // local variable is initialized but not referenced
 #pragma warning( disable : 4311 )  // cast trunc
+#pragma warning( disable : 4302 )  // cast trunc
 
 //==========================================
 // Matt Pietrek

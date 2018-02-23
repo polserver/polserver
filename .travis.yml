@@ -3,7 +3,7 @@ language: cpp
 sudo: false
 
 
-script:
+#script:
   #  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
   #  - unzip kaitai-struct-compiler-0.8.zip
   #  - mkdir kaitai_out
