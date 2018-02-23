@@ -94,7 +94,7 @@ function(set_compile_flags target is_executable)
   if (${windows})
     target_link_libraries(${target} PRIVATE
       -LARGEADDRESSAWARE # todo doesnt work
-      -OPT:REF # todo doesnt work
+      -XOPT:XREF # todo doesnt work
     )
   endif()
 
