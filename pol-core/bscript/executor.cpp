@@ -47,11 +47,6 @@
 #endif
 #endif
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecated POSIX stricmp warning
-#endif
-
-
 namespace Pol
 {
 namespace Bscript

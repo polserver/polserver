@@ -65,11 +65,6 @@
 #include "token.h"
 #include "tokens.h"
 #include <format/format.h>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp, strtok POSIX deprecation warning
-#endif
-
 namespace Pol
 {
 namespace Bscript

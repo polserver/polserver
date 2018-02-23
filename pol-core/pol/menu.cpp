@@ -21,10 +21,6 @@
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning stricmp
-#endif
-
 namespace Pol
 {
 namespace Core

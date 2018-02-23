@@ -40,7 +40,6 @@
 #pragma warning( push )
 #pragma warning( disable : 4005 )  // redefinition
 #pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
-#pragma warning( disable : 4996 )  // unsafe strerror, deprecation warnings for getcwd, chdir
 #pragma warning( disable : 4786 )
 #pragma warning( disable : 4091 )
 

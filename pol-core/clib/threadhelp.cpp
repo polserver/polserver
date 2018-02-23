@@ -27,10 +27,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable warning for strcpy, strerror
-#endif
-
 namespace Pol
 {
 namespace threadhelp

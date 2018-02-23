@@ -13,10 +13,6 @@
 #include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for fopen, etc
-#endif
-
 namespace Pol
 {
 namespace Core

@@ -21,10 +21,6 @@
 #include "token.h"
 #include "tokens.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecated POSIX fopen warning
-#endif
-
 namespace Pol
 {
 namespace Bscript

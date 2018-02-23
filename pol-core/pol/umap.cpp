@@ -29,11 +29,6 @@
 #include "ufunc.h"
 #include "uobject.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning sprintf, sscanf
-#endif
-
-
 namespace Pol
 {
 namespace Core

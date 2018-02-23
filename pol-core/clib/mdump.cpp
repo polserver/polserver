@@ -30,7 +30,6 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for localtime, strcpy
 #pragma warning( disable : 4100 )  // TODO: This file needs some serious rewrite, so I'm just
                                    // ignoring the unreferenced parameters for now
 #endif

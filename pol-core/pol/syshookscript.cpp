@@ -18,10 +18,6 @@
 #include "../clib/logfacility.h"
 #include "scrsched.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp
-#endif
-
 namespace Pol
 {
 namespace Core

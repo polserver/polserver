@@ -21,10 +21,6 @@
 #include "uofile.h"
 #include "ustruct.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning fopen
-#endif
-
 namespace Pol
 {
 namespace Core
