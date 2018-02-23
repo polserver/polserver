@@ -93,10 +93,12 @@ macro(get_git_revision)
 	  log -1 --pretty=format:%h
 	  RESULT_VARIABLE status
 	  OUTPUT_VARIABLE GIT_REVISION
-	  ERROR_QUIET
+	  #  ERROR_QUIET
 	)
 	if (status)
 	  set(GIT_REVISION "\"1Unknown\"")
+	  message(${status})
+	  message(${GIT_REVISION})
 	else()
 	  set(GIT_REVISION "\"${GIT_REVISION}\"")
 	endif()
