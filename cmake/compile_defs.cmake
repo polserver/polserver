@@ -44,6 +44,11 @@ function(set_compile_flags target is_executable)
       WINVER=0x0501
       _CONSOLE
     )
+    if (${ARCH_BITS} EQUAL "64")
+      target_compile_definitions(${target} PRIVATE
+        _WIN64
+      )
+    endif()
   endif()
 
   target_compile_options(${target} PRIVATE
@@ -169,7 +174,6 @@ function(warning_suppression target)
     target_compile_options(${target} PRIVATE
       /wd4996 #deprecated
       /wd4786 #identifier trunc for debug
-	  #      /wd4251 #no dll interface
     )
   endif()
 endfunction()
