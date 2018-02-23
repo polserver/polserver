@@ -23,31 +23,29 @@ target_link_libraries(${ex_name} PUBLIC
 if (${linux})
   target_link_libraries(${ex_name} PUBLIC
     crypto
-	pthread
+    pthread
   )
 endif()
 if (${gcc})
   target_link_libraries(${ex_name} PUBLIC
-	-fopenmp
+    -fopenmp
   )
 endif()
 
 if(HAVE_MYSQL)
   if(${windows})
-	if (${ARCH_BITS} EQUAL "64")
+    if (${ARCH_BITS} EQUAL "64")
       target_link_libraries(${ex_name} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-winx64/lib/libmysql.lib
-		#        legacy_stdio_definitions.lib
-	  )
+      )
     else()
       target_link_libraries(${ex_name} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-win32/lib/libmysql.lib
-		#        legacy_stdio_definitions.lib
-	  )
+      )
     endif()
   else()
     target_link_libraries(${ex_name} PUBLIC
-  	  mysqlclient
+      mysqlclient
     )
   endif()
 endif()
