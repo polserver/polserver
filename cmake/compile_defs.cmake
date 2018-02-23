@@ -93,8 +93,8 @@ function(set_compile_flags target is_executable)
   endif()
   if (${windows})
     target_link_libraries(${target} PRIVATE
-      -LARGEADDRESSAWARE # todo doesnt work
-      -XOPT:XREF # todo doesnt work
+      -LARGEADDRESSAWARE # more then 2gb for 32bit
+      -OPT:REF # remove unused blocks
     )
   endif()
 
@@ -113,10 +113,6 @@ function(set_compile_flags target is_executable)
   )
 
   source_group_by_folder(${target})
-
-  #  Release 64bit linker pol:
-  # /DYNAMICBASE:NO "normaliz.lib" "wsock32.lib" "odbc32.lib" "odbccp32.lib" "libmysql.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" /LARGEADDRESSAWARE /DEBUG /MACHINE:X64 /OPT:REF /INCREMENTAL:NO /PGD:".\Release\x64/pol.pgd" /SUBSYSTEM:CONSOLE",5.02" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /ManifestFile:".\Release\x64/pol.exe.intermediate.manifest" /MAP":.\Release/x64/pol.map" /ERRORREPORT:PROMPT /NOLOGO  /TLBID:1 
- #/ERRORREPORT:QUEUE  /INCREMENTAL:NO /NOLOGO  ws2_32.lib Psapi.lib DbgHelp.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib   /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed  /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT  /MACHINE:X64  /machine:x64 pol.dir\Release\pol.res
 endfunction()
 
 function(source_group_by_folder target)

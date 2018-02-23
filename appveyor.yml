@@ -1,6 +1,5 @@
-version: 1.0.{build} 
-#shallow_clone: true
-clone_depth: 5
+version: 100.{build} 
+shallow_clone: true
 clone_folder: c:\projects\pol_testing
 image: Visual Studio 2017
 platform: x64
@@ -14,13 +13,12 @@ init:
 install:
 - cd pol-core/bin-build
 - cmake ../.. -G "Visual Studio 15 2017 Win64"
-  # -DBUILD_ALL=OFF -DONLY_ECOMPILE=ON -DONLY_RUNECL=ON
 cache:
 - lib/boost_1_63_0
 - lib/curl
 test_script:
-  #  - cd ..\\..\\testsuite\\escript 
-  #  - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\bin\\Release\\ecompile.exe ..\\..\\pol-core\\bin\\Release\\runecl.exe -n 5
+  - cd ..\\..\\testsuite\\escript 
+  - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\bin\\Release\\ecompile.exe ..\\..\\pol-core\\bin\\Release\\runecl.exe -n 5
 deploy: off
 
 #notifications:
