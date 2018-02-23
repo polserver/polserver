@@ -1,5 +1,6 @@
 version: 1.0.{build} 
-shallow_clone: true
+#shallow_clone: true
+clone_depth: 5
 clone_folder: c:\projects\pol_testing
 image: Visual Studio 2017
 platform: x64
