@@ -91,7 +91,6 @@ set (clib_sources
 )
 if(windows)
   set (clib_sources ${clib_sources}
-    ../../lib/StackWalker/StackWalker.cpp
     NTService.cpp
     NTService.h
     StdAfx.cpp

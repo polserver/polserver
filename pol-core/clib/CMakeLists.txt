@@ -28,6 +28,7 @@ if (${linux})
   )
 elseif(${windows})
   target_link_libraries(${lib_name} PUBLIC
+	stackwalk
 	ws2_32
 	Psapi
 	DbgHelp
