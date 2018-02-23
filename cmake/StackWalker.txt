@@ -12,5 +12,6 @@ set_compile_flags(${lib_name} 0)
 if (${windows})
  target_compile_options(${lib_name} PRIVATE
    /wd4091 #typedef
+   /wd4996 #deprecated
   )
 endif()
