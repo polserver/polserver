@@ -7,7 +7,7 @@ configuration: Release
 build:
   parallel: true
   project: pol-core/bin-build/polserver.sln
-  verbosity: normal
+  verbosity: minimal
 init:
 - git config --global core.autocrlf true
 install:
