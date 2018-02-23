@@ -26,15 +26,6 @@
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-//ExecInstrFunc Executor::GetInstrFunc( const Token& /*token*/ )
-//{
-  //  return NULL;
-//}
-}
 
 namespace ECompile
 {

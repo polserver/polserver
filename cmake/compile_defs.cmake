@@ -159,7 +159,7 @@ function(use_curl target)
     add_dependencies(${target} libcurl)
   endif()
   target_compile_definitions(${target} PRIVATE
-	CURL_STATICLIB
+    CURL_STATICLIB
   )
 endfunction()
 
