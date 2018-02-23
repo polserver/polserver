@@ -2,6 +2,7 @@
 set(stackwalk_sources 
   ${CMAKE_CURRENT_LIST_DIR}/../lib/StackWalker/StackWalker.cpp
   ${CMAKE_CURRENT_LIST_DIR}/../lib/StackWalker/StackWalker.h
+)
 set(lib_name stackwalk)
 
 add_library(${lib_name} STATIC
