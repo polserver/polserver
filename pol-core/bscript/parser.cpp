@@ -491,7 +491,7 @@ ObjMember* getKnownObjMember( const char* token )
   }();
   std::string temp( token );
   std::transform( temp.begin(), temp.end(), temp.begin(),
-                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
   auto member = cache.find( temp );
   if ( member != cache.end() )
     return member->second;
@@ -673,7 +673,8 @@ ObjMethod* getKnownObjMethod( const char* token )
     return m;
   }();
   std::string temp( token );
-  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  std::transform( temp.begin(), temp.end(), temp.begin(),
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
   auto method = cache.find( temp );
   if ( method != cache.end() )
     return method->second;
