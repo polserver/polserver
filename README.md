@@ -34,25 +34,20 @@ The best way to get used to the code is to search for eScript functions in the c
 Compiling in Windows
 ---------
 
-If you're compiling it for the first time, you need to unpack the boost library by running `prepare_boost.bat` in the `lib/` folder. 
-
-In the folder `pol-core`, run `buildDistWin.bat` to create a complete package in `dist`. Alternatively, open the Visual Studio solution (e.g., pol-2012.sln) and choose to build the solution (Ctrl+Shift+B).
+You need atleast cmake version 3.0.
+Open the cmake gui select the CMakeLists.txt in the root folder and select your installed Visual Studio version e.g. `Visual Studio 15 2015 Win64`. As build directory it is recommended to use `bin-build`. Now simply press configure+generate and you can directly open the solution file in your IDE. After building the binaries are located in the `bin` folder.
  
-Minimum compiler version: Visual Studio 2012 (Express editions might require the Windows SDK to be installed.)
+Minimum compiler version: Visual Studio 2015
 
 <b>Warning:</b> We can not easily debug dumps from self-compiled cores. Make sure you save the `.pdb` and `.exe`!
  
 Compiling in Linux
 ----------
 
-Make sure you have the required libraries installed: boost, zlib, tinyxml and the mysql client (if SQL supported is desired).
-Boost libraries are also shipped with the source. If you choose to use the provided version, unpack them with:
-* `cd lib`
-* `tar xjf boost_1_63_0.tar.bz2`
-* `cd ..`
+Make sure you have the required libraries installed: zlib and the mysql client (if SQL supported is desired).
 
-Then run the following commands (you need at least CMake 2.8):
-* `cd pol-core/bin-build`
+Then run the following commands (you need at least CMake 3.0):
+* `cd bin-build`
 * `./build_linux.sh`
 
 Minimum compiler version: GCC 4.9 or LLVM/Clang 3.5.
@@ -71,8 +66,8 @@ If you are familiar with linux source tarballs, just think of *cmake* as a moder
 
 First of all, run cmake one first time and let it do some autodetection:
 ```
-cd pol-core
-cmake -Wno-dev
+cd bin-build
+cmake ..
 ```
 
 A file called `CMakeCache.txt` has now been created: inside this file, you will find all the settings that will be used for your build. You have many options to edit this file:
