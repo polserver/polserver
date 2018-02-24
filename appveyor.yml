@@ -11,14 +11,14 @@ build:
 init:
 - git config --global core.autocrlf true
 install:
-- cd pol-core/bin-build
-- cmake ../.. -G "Visual Studio 15 2017 Win64"
+- cd bin-build
+- cmake .. -G "Visual Studio 15 2017 Win64"
 cache:
 - lib/boost_1_63_0
 - lib/curl
 test_script:
-  - cd ..\\..\\testsuite\\escript 
-  - c:\\Python34\\python.exe performtests.py ..\\..\\pol-core\\bin\\Release\\ecompile.exe ..\\..\\pol-core\\bin\\Release\\runecl.exe -n 5
+  - cd ..\\testsuite\\escript 
+  - c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5
 deploy: off
 
 notifications:
