@@ -6,7 +6,7 @@ platform: x64
 configuration: Release
 build:
   parallel: true
-  project: pol-core/bin-build/polserver.sln
+  project: bin-build/polserver.sln
   verbosity: minimal
 init:
 - git config --global core.autocrlf true
