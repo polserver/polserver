@@ -33,6 +33,10 @@
 #include "uofile2.h"  //TODO: remove this file ASAP !!!
 #include <format/format.h>
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4244 )  // std::transform in combination with tolower
+#endif
+
 namespace Pol
 {
 namespace Multi

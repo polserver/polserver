@@ -65,6 +65,11 @@
 #include "token.h"
 #include "tokens.h"
 #include <format/format.h>
+
+#ifdef _MSC_VER
+#pragma warning( disable : 4244 )  // std::transform in combination with tolower
+#endif
+
 namespace Pol
 {
 namespace Bscript
