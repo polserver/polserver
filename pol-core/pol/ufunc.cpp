@@ -83,10 +83,6 @@
 #include "uoclient.h"
 #include "uworld.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for sprintf
-#endif
-
 namespace Pol
 {
 namespace Core

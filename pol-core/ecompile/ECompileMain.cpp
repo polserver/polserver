@@ -28,14 +28,6 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-ExecInstrFunc Executor::GetInstrFunc( const Token& /*token*/ )
-{
-  return NULL;
-}
-}
-
 namespace ECompile
 {
 using namespace std;

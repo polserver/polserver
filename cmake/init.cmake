@@ -1,24 +1,24 @@
 
 macro(detect_compiler)
   if( NOT CMAKE_BUILD_TYPE )
-	set( CMAKE_BUILD_TYPE Release CACHE STRING
-		 "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-	     FORCE
-	   )
+    set( CMAKE_BUILD_TYPE Release CACHE STRING
+         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+         FORCE
+    )
   endif()
   if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
-	set(debug 1)
-	set(release 0)
+    set(debug 1)
+    set(release 0)
   else()
-	set(debug 0)
-	set(release 1)
+    set(debug 0)
+    set(release 1)
   endif()
   message("Build type: ${CMAKE_BUILD_TYPE} ${MinSizeRel}")
   set(clang 0)
   set(msvc 0)
   set(gcc 0)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	set(clang 1)
+    set(clang 1)
   elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(msvc 1)
     if (${MSVC_VERSION} VERSION_GREATER 1900)
@@ -62,8 +62,7 @@ macro(detect_platform)
   set (linux 0)
   set (windows 0)
   if (UNIX AND NOT WIN32)
-    message("Target system is Linux")
-	set (linux 1)
+    set (linux 1)
   elseif (WIN32)
     set (windows 1)
   endif()
@@ -89,25 +88,25 @@ endmacro()
 macro(get_git_revision)
   find_package(Git)
   if(GIT_EXECUTABLE)
-	execute_process(COMMAND ${GIT_EXECUTABLE}
-	  log -1 --pretty=format:%h
-	  RESULT_VARIABLE status
-	  OUTPUT_VARIABLE GIT_REVISION
-	  ERROR_QUIET
-	)
-	if (status)
-	  set(GIT_REVISION "\"Unknown\"")
-	else()
-	  set(GIT_REVISION "\"${GIT_REVISION}\"")
-	endif()
+    execute_process(COMMAND ${GIT_EXECUTABLE}
+      log -1 --pretty=format:%h
+      RESULT_VARIABLE status
+      OUTPUT_VARIABLE GIT_REVISION
+      ERROR_QUIET
+    )
+    if (status)
+      set(GIT_REVISION "\"Non-Git\"")
+    else()
+      set(GIT_REVISION "\"${GIT_REVISION}\"")
+    endif()
   else()
-	set(GIT_REVISION "\"Unknown\"")
+    set(GIT_REVISION "\"Unknown\"")
   endif()
 endmacro()
 
 macro(hide_cotire)
   mark_as_advanced(FORCE
-	COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS
+    COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS
     COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_PATH
     COTIRE_DEBUG
     COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES

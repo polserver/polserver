@@ -28,10 +28,6 @@
 #include "storage.h"
 #include "uobject.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for unlink, strerror
-#endif
-
 namespace Pol
 {
 namespace Core

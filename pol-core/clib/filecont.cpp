@@ -10,12 +10,6 @@
 
 #include "logfacility.h"
 
-// disables unsafe warning for fopen
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 namespace Pol
 {
 namespace Clib

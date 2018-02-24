@@ -29,6 +29,8 @@ option(ONLY_UOTOOL "Build only uotool" OFF)
 
 include(cmake/init.cmake)
 
+set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
+
 if (NOT DEFINED GIT_REVISION)
   get_git_revision()
 endif()
@@ -40,6 +42,7 @@ message("# -           ${GIT_REVISION}          - #")
 message("####################################")
 message("## CMake Version ${CMAKE_VERSION}")
 message("## Generator ${CMAKE_GENERATOR} ${CMAKE_EXTRA_GENERATOR}")
+message("## Output Dir: ${output_bin_dir}")
 message("")
 
 include(CheckIncludeFiles)
@@ -62,11 +65,15 @@ cmake_fake_target()
 include(cmake/Boost.txt)
 include(cmake/Benchmark.txt)
 include(cmake/Format.txt)
-
+if (${windows})
+  include(cmake/ZLib.txt)
+  include(cmake/StackWalker.txt)
+endif()
 if (BUILD_ALL OR ONLY_POL)
   include(cmake/Curl.txt)
 endif()
-add_subdirectory(lib/tinyxml)
+include(cmake/TinyXML.txt)
+
 add_subdirectory(pol-core)
 
 #cmake package target for creating archive

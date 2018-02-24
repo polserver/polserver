@@ -7,6 +7,7 @@ add_library(${lib_name} STATIC
   ${${lib_name}_sources}
 )
 set_compile_flags(${lib_name} 0)
+warning_suppression(${lib_name})
 enable_pch(${lib_name})
 
 use_benchmark(${lib_name})
@@ -28,6 +29,7 @@ if (${linux})
   )
 elseif(${windows})
   target_link_libraries(${lib_name} PUBLIC
+	stackwalk
 	ws2_32
 	Psapi
 	DbgHelp

@@ -66,10 +66,6 @@
 #include "tokens.h"
 #include <format/format.h>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp, strtok POSIX deprecation warning
-#endif
-
 namespace Pol
 {
 namespace Bscript
@@ -494,7 +490,8 @@ ObjMember* getKnownObjMember( const char* token )
     return m;
   }();
   std::string temp( token );
-  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  std::transform( temp.begin(), temp.end(), temp.begin(),
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
   auto member = cache.find( temp );
   if ( member != cache.end() )
     return member->second;
@@ -676,7 +673,8 @@ ObjMethod* getKnownObjMethod( const char* token )
     return m;
   }();
   std::string temp( token );
-  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  std::transform( temp.begin(), temp.end(), temp.begin(),
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
   auto method = cache.find( temp );
   if ( method != cache.end() )
     return method->second;
@@ -1593,9 +1591,11 @@ int SmartParser::isOkay( const Token& token, BTokenType last_type )
   BTokenType this_type = token.type;
   if ( !quiet )
     INFO_PRINT << "isOkay(" << this_type << "," << last_type << ")\n";
-  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD || last_type==TYP_FUNCREF)
+  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD ||
+       last_type == TYP_FUNCREF )
     last_type = TYP_OPERAND;
-  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD || this_type == TYP_FUNCREF)
+  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD ||
+       this_type == TYP_FUNCREF )
     this_type = TYP_OPERAND;
   if ( token.id == TOK_LBRACE )  // an array declared somewhere out there
     this_type = TYP_OPERAND;
