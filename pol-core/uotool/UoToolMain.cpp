@@ -33,10 +33,6 @@
 #include "uofile2.h"  //TODO: remove this file ASAP !!!
 #include <format/format.h>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4244 )  // std::transform in combination with tolower
-#endif
-
 namespace Pol
 {
 namespace Multi
@@ -1243,7 +1239,7 @@ int UoToolMain::main()
   }
 
   std::transform( argvalue.begin(), argvalue.end(), argvalue.begin(),
-                  []( char c ) { return static_cast<char>( std::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
 
   if ( argvalue == "tiledump" )
   {
