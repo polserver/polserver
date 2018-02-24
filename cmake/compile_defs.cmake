@@ -57,11 +57,6 @@ function(set_compile_flags target is_executable)
       -fPIC
       -W
       -Wall
-      -Wno-unknown-pragmas
-      -Wno-unused-result
-      -Wno-unused-function
-      -Wno-format
-      -fno-strict-aliasing  
     >
 
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
@@ -112,9 +107,9 @@ function(set_compile_flags target is_executable)
   endif()
 
   set_target_properties(${target} PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/../bin"
+    ARCHIVE_OUTPUT_DIRECTORY ${output_bin_dir}
+    LIBRARY_OUTPUT_DIRECTORY ${output_bin_dir}
+    RUNTIME_OUTPUT_DIRECTORY ${output_bin_dir}
   )
 
   source_group_by_folder(${target})
@@ -170,10 +165,17 @@ function(use_benchmark target)
 endfunction()
 
 function(warning_suppression target)
-  if (${windows})
-    target_compile_options(${target} PRIVATE
+  target_compile_options(${target} PRIVATE
+    $<${windows}:
       /wd4996 #deprecated
       /wd4786 #identifier trunc for debug
-    )
-  endif()
+    >
+    $<${linux}:
+      -Wno-unknown-pragmas
+      -Wno-unused-result
+      -Wno-unused-function
+      -Wno-format
+      -fno-strict-aliasing  
+    >
+  )
 endfunction()
