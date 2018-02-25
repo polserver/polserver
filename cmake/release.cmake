@@ -23,9 +23,11 @@ function(dist target dir)
     RUNTIME DESTINATION ${dir}
     COMPONENT bin
   )
-  install(
-    FILES $<TARGET_PDB_FILE:${target}>
-    DESTINATION .
-    COMPONENT dbg
-  )
+  if (${windows})
+    install(
+      FILES $<TARGET_PDB_FILE:${target}>
+      DESTINATION .
+      COMPONENT dbg
+    )
+  endif()
 endfunction()
