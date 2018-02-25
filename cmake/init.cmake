@@ -127,6 +127,9 @@ macro(cmake_fake_target)
       cmake/Boost.txt
       cmake/Curl.txt
       cmake/Format.txt
+	  cmake/StackWalker.txt
+	  cmake/TinyXML.txt
+	  cmake/ZLib.txt
       cmake/release.cmake
       cmake/compile_defs.cmake
       cmake/env/pol_global_config.h.in
@@ -137,8 +140,11 @@ macro(cmake_fake_target)
     cmake/Boost.txt
     cmake/Curl.txt
     cmake/Format.txt
+	cmake/StackWalker.txt
+	cmake/TinyXML.txt
+	cmake/ZLib.txt
     cmake/release.cmake
-    cmake/compiler_defs.cmake
+    cmake/compile_defs.cmake
   )
   source_group(cmake/env FILES cmake/env/pol_global_config.h.in)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_ALL TRUE)

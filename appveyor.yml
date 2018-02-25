@@ -15,7 +15,7 @@ install:
 - cmake .. -G "Visual Studio 15 2017 Win64"
 cache:
 - lib/boost_1_63_0
-- lib/curl
+- lib/curl-7.57.0
 test_script:
   - cd ..\\testsuite\\escript 
   - c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5
