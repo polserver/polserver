@@ -37,18 +37,44 @@ install(FILES
   uoconvert.cfg
   pol.cfg
   DESTINATION .
+  COMPONENT bin
 )
 install(FILES
   extobj.cfg
   boats.cfg
   animxlate.cfg
   DESTINATION config
+  COMPONENT bin
 )
 install(FILES
   scripts/ecompile.cfg.example
   DESTINATION scripts
+  COMPONENT bin
 )
-install(DIRECTORY scripts/
+install(FILES
+  scripts/attributes.em
+  scripts/basic.em
+  scripts/basicio.em
+  scripts/boat.em
+  scripts/cfgfile.em
+  scripts/cliloc.em
+  scripts/datafile.em
+  scripts/file.em
+  scripts/guilds.em
+  scripts/http.em
+  scripts/math.em
+  scripts/npc.em
+  scripts/os.em
+  scripts/party.em
+  scripts/polsys.em
+  scripts/sql.em
+  scripts/storage.em
+  scripts/unicode.em
+  scripts/uo.em
+  scripts/util.em
+  scripts/vitals.em
   DESTINATION scripts
-  FILES_MATCHING PATTERN "*.em"
+  COMPONENT bin
 )
+
+set_target_properties (${lib_name} PROPERTIES FOLDER Misc)

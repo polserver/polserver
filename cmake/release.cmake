@@ -6,7 +6,8 @@ macro(release)
     set(system WINDOWS)
   endif()
   set(CPACK_PACKAGE_FILE_NAME "polserver${POL_VERSION_STR}-${system}-${curr_date}") 
-
+  set(CPACK_COMPONENTS_GROUPING IGNORE)
+  set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
   set(CPACK_PACKAGE_DIRECTORY ${output_bin_dir})
   set(CPACK_GENERATOR "ZIP")
   include(CPack)
@@ -20,6 +21,11 @@ function(dist target dir)
     ARCHIVE DESTINATION ${dir}
     LIBRARY DESTINATION ${dir}
     RUNTIME DESTINATION ${dir}
-    COMPONENT polcore
+    COMPONENT bin
+  )
+  install(
+    FILES $<TARGET_PDB_FILE:${target}>
+    DESTINATION .
+    COMPONENT dbg
   )
 endfunction()

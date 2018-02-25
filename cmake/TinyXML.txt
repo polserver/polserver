@@ -19,3 +19,5 @@ if (${windows})
    /wd4458 #var name hides
   )
 endif()
+
+set_target_properties (${lib_name} PROPERTIES FOLDER 3rdParty)

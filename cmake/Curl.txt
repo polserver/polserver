@@ -47,6 +47,7 @@ if(NOT EXISTS "${CURL_LIB}")
       LOG=1
     )
   endif()
+  set_target_properties (libcurl PROPERTIES FOLDER 3rdParty)
 else()
   message("Curl already build")
 endif()

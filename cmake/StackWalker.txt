@@ -17,3 +17,5 @@ if (${windows})
    /wd4996 #deprecated
   )
 endif()
+
+set_target_properties (${lib_name} PROPERTIES FOLDER 3rdParty)

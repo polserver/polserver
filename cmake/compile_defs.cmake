@@ -110,6 +110,9 @@ function(set_compile_flags target is_executable)
     ARCHIVE_OUTPUT_DIRECTORY ${output_bin_dir}
     LIBRARY_OUTPUT_DIRECTORY ${output_bin_dir}
     RUNTIME_OUTPUT_DIRECTORY ${output_bin_dir}
+    PDB_NAME ${target}
+    COMPILE_PDB_NAME ${target}
+    PDB_OUTPUT_DIRECTORY ${output_bin_dir}
   )
 
   source_group_by_folder(${target})
@@ -120,12 +123,11 @@ function(source_group_by_folder target)
   set(files "")
   foreach(file ${${target}_sources})
     if(IS_ABSOLUTE ${file})
-	  file(RELATIVE_PATH relative_file "${CMAKE_CURRENT_SOURCE_DIR}" ${file})
-	  get_filename_component(dir "${relative_path}" PATH)
+	  file(RELATIVE_PATH relative_file "${CMAKE_CURRENT_SOURCE_DIR}" "${file}")
+	  get_filename_component(dir "${relative_path}" DIRECTORY)
 	else()
       get_filename_component(dir "${file}" PATH)
 	endif()
-
     if (NOT "${dir}" STREQUAL "${last_dir}")
       if (files)
         source_group("${last_dir}" FILES ${files})
@@ -147,6 +149,7 @@ function (enable_pch target)
       set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
       set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD OFF)
       cotire(${target})
+	  set_target_properties (clean_cotire PROPERTIES FOLDER 3rdParty)
     endif()
   endif()
 endfunction()

@@ -74,7 +74,14 @@ if (BUILD_ALL OR ONLY_POL)
 endif()
 include(cmake/TinyXML.txt)
 
+add_subdirectory(docs)
 add_subdirectory(pol-core)
 
 #cmake package target for creating archive
 release()
+
+if (BUILD_ALL OR ONLY_POL)
+  if (${CMAKE_VERSION} VERSION_GREATER "3.6.0")
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT pol)
+  endif()
+endif()
