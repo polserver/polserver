@@ -9,3 +9,5 @@
 *.a
 _CPack*
 *.zip
+Release
+Debug

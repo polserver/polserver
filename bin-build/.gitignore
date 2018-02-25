@@ -7,3 +7,7 @@
 /install_manifest*
 /boost*
 /pol_global_config.h
+/*.vcxproj*
+/.vs
+/*.sln
+/docs
