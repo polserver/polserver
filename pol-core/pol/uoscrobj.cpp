@@ -3714,27 +3714,34 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
   }
 	case MTH_SET_PILOT: {
 
-			BApplicObjBase* aob;
-			if (ex.hasParams(1))
-			{
-					aob = ex.getApplicObjParam(0, &Module::eitemrefobjimp_type);
-					if (aob)
-					{
-							Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>(aob);
-							Core::ItemRef iref = ir->value();
-							Module::UOExecutorModule *uoexec = iref->process();
+      Mobile::Character* chr;
+      if (ex.hasParams(1)) 
+      {
+        if (Core::getCharacterParam(ex, 0, chr)) {
+          if (mountpiece != nullptr && !mountpiece->orphan()) {
+            return new BError("The boat is already being piloted.");
+          }
 
-							if (uoexec == nullptr) {
-									return new BError("Item has no running process");
-							}
-							Core::UOExecutor* executor = static_cast<Core::UOExecutor*>(&uoexec->exec);
-							
-							return new BLong(1);
-					}
-					else
-							return new BError("No passed item");
+          Items::Item* item = Items::Item::create(Core::settingsManager.extobj.boatmount);
+          mountpiece = Core::ItemRef(item);
+          chr->equip(item);
+          send_wornitem_to_inrange(chr, item);
+
+          return new BLong(1);
+        }
+        return new BError("Invalid parameters");
+        
 			}
-			return new BError("Not enough parameters");
+      else
+      {
+        if (mountpiece != nullptr) {
+          if (!mountpiece->orphan()) {
+            destroy_item(mountpiece.get());
+          }
+          mountpiece.clear();
+        }
+        return new BLong(1);
+      }
 
 	}
   default:

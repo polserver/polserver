@@ -1242,7 +1242,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
   {
     BoatContext bc( *this );
 
-    send_smooth_move_to_inrange( move_dir, speed, newx, newy, relative );
+    send_smooth_move_to_inrange(move_dir, speed, newx, newy, relative );
 
     set_dirty();
 
@@ -1253,38 +1253,38 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
     x = newx;
     y = newy;
 
-    // NOTE, send_boat_to_inrange pauses those it sends to.
-    // send_boat_to_inrange( this, oldx, oldy );
-    move_travellers( move_dir, bc, x, y, realm );
-    move_components( realm );
+    //// NOTE, send_boat_to_inrange pauses those it sends to.
+    //// send_boat_to_inrange( this, oldx, oldy );
+    //move_travellers( move_dir, bc, x, y, realm );
+    //move_components( realm );
 
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
-          Network::Client* client = zonechr->client;
+    //Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
+    //    x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+    //      Network::Client* client = zonechr->client;
 
-          if ( client->ClientType & Network::CLIENTTYPE_7090 )
-          {
-            if ( Core::inrange( client->chr->x, client->chr->y, oldx, oldy ) )
-              return;
-            else
-              send_boat_newly_inrange( client );  // send HSA packet only for newly inrange
-          }
-          else
-          {
-            if ( client->ClientType & Network::CLIENTTYPE_7000 )
-              send_boat( client );  // Send
-            else
-              send_boat_old( client );
-          }
-        } );
+    //      if ( client->ClientType & Network::CLIENTTYPE_7090 )
+    //      {
+    //        if ( Core::inrange( client->chr->x, client->chr->y, oldx, oldy ) )
+    //          return;
+    //        else
+    //          send_boat_newly_inrange( client );  // send HSA packet only for newly inrange
+    //      }
+    //      else
+    //      {
+    //        if ( client->ClientType & Network::CLIENTTYPE_7000 )
+    //          send_boat( client );  // Send
+    //        else
+    //          send_boat_old( client );
+    //      }
+    //    } );
 
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
-          Network::Client* client = zonechr->client;
+    //Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
+    //    oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+    //      Network::Client* client = zonechr->client;
 
-          if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
-            send_remove_boat( client );
-        } );
+    //      if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
+    //        send_remove_boat( client );
+    //    } );
 
     do_tellmoves();
     unpause_paused();

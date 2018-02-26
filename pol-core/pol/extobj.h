@@ -34,6 +34,8 @@ struct ExternalObject
 
   unsigned int secure_trade_container;
   unsigned int wornitems_container;
+
+	unsigned int boatmount;
 };
 
 void read_extobj();
