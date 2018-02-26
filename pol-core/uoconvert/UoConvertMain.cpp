@@ -1201,7 +1201,7 @@ int UoConvertMain::main()
     std::ifstream ifs( uop_mapfile, std::ifstream::binary );
     if ( !ifs )
     {
-      cerr << "Error when opening mapfile: " << uop_mapfile << endl;
+      ERROR_PRINT << "Error when opening mapfile: " << uop_mapfile << '\n';
       return 1;
     }
 
@@ -1221,8 +1221,8 @@ int UoConvertMain::main()
     }
 
     if ( uopfile.header()->nfiles() != filemap.size() )
-      cout << "Warning: not all chunks read (" << filemap.size() << "/"
-           << uopfile.header()->nfiles() << ")" << endl;
+      INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
+           << uopfile.header()->nfiles() << ")\n";
 
     std::ofstream ofs( mul_mapfile, std::ofstream::binary );
     for ( size_t i = 0; i < filemap.size(); i++ )
@@ -1230,17 +1230,17 @@ int UoConvertMain::main()
       auto fileitr = filemap.find( maphash( uo_mapid, i ) );
       if ( fileitr == filemap.end() )
       {
-        cout << "Couldn't find file hash: " << maphash( uo_mapid, i );
+        INFO_PRINT << "Couldn't find file hash: " << maphash( uo_mapid, i );
         continue;
       }
 
       auto file = fileitr->second;
       ofs << file->data()->filebytes();
-      cout << "Wrote: " << i + 1 << "/" << filemap.size() << endl;
+      INFO_PRINT << "Wrote: " << i + 1 << "/" << filemap.size() << '\n';
       // cout << i << ": " << file->filehash() << " - " << maphash( uo_mapid,i) << " (" <<
       // file->decompressed_size() << ") " << endl;
     }
-    cout << "Done converting." << endl;
+    INFO_PRINT << "Done converting.\n";
   }
   else if ( command == "map" )
   {
