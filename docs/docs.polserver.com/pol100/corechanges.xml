@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-11-2018</datemodified>
+		<datemodified>02-26-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>02-26-2018</date>
+			<author>Nando:</author>
+			<change type="Added">uoconvert now supports UOP files and will use them by default. If there is no<br/>
+map[N]LegacyMUL.uop in the UODataFileRoot, uoconvert will fall back to the<br/>
+old map[N].mul files. You can force uoconvert to convert from the old MULs by using<br/>
+readuop=0.</change>
+		</entry>
 		<entry>
 			<date>02-11-2018</date>
 			<author>Nando:</author>

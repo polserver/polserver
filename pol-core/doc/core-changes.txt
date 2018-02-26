@@ -1,4 +1,10 @@
 ﻿-- POL100 --
+02-26-2018 Nando:
+  Added:   uoconvert now supports UOP files and will use them by default. If there is no
+           map[N]LegacyMUL.uop in the UODataFileRoot, uoconvert will fall back to the
+		   old map[N].mul files. You can force uoconvert to convert from the old MULs by using
+		   readuop=0.
+		   
 02-11-2018 Nando:  
   Added:   range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT). 
            Valid values: range >= 0, range == ACCESSIBLE_DEFAULT or range == ACCESSIBLE_IGNOREDISTANCE.

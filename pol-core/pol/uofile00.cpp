@@ -57,7 +57,7 @@ FILE* open_uo_file( const std::string& filename_part )
                 << "POL.CFG specifies UODataFileRoot as '"
                 << Plib::systemstate.config.uo_datafile_root << "'.  Is this correct?\n"
                 << "  The following files must be present in that directory:\n"
-                << "      map0.mul\n"
+                << "      map0.mul OR map0LegacyMUL.uop\n"
                 << "      multi.idx\n"
                 << "      multi.mul\n"
                 << "      staidx0.mul\n"

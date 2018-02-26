@@ -56,8 +56,8 @@ void UoConvertMain::showHelp()
               << "  UOCONVERT command [options ...]\n"
               << "    \n"
               << "  Commands: \n"
-              << "    map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} "
-                 "{height=Height} {x=X} {y=Y}\n"
+              << "    map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width}"
+              << "        {height=Height} {mapid=0} {readuop=1} {x=X} {y=Y}\n"
               << "    statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
               << "    maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
               << "    multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
@@ -240,7 +240,7 @@ void create_map( const std::string& realm, unsigned short width, unsigned short 
   INFO_PRINT << "Creating map base and solids files.\n"
              << "  Realm: " << realm << "\n"
              << "  Map ID: " << uo_mapid << "\n"
-             << "  Reading UOP file: " << (uo_readuop ? "Yes" : "No") << "\n"
+             << "  Reading UOP file: " << ( uo_readuop ? "Yes" : "No" ) << "\n"
              << "  Use Dif files: " << ( uo_usedif ? "Yes" : "No" ) << "\n"
              << "  Size: " << uo_map_width << "x" << uo_map_height << "\n"
              << "Initializing files: ";
@@ -1184,7 +1184,8 @@ int UoConvertMain::main()
   }
 
   std::string command = binArgs[1];
-  if ( command == "uoptomul" ) {
+  if ( command == "uoptomul" )
+  {
     // this is kludgy and doesn't take into account the UODataPath. Mostly a proof of concept now.
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
 
@@ -1198,7 +1199,8 @@ int UoConvertMain::main()
     };
 
     std::ifstream ifs( uop_mapfile, std::ifstream::binary );
-    if ( !ifs ) {
+    if ( !ifs )
+    {
       cerr << "Error when opening mapfile: " << uop_mapfile << endl;
       return 1;
     }
@@ -1208,8 +1210,9 @@ int UoConvertMain::main()
 
     // TODO: read all blocks
     std::map<uint64_t, uop_t::file_t*> filemap;
-    uop_t::block_addr_t *currentblock = uopfile.header()->firstblock();
-    for ( auto file : *currentblock->block_body()->files() ) {
+    uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
+    for ( auto file : *currentblock->block_body()->files() )
+    {
       if ( file == nullptr )
         continue;
       if ( file->decompressed_size() == 0 )
@@ -1218,21 +1221,24 @@ int UoConvertMain::main()
     }
 
     if ( uopfile.header()->nfiles() != filemap.size() )
-      cout << "Warning: not all chunks read (" << filemap.size() << "/" << uopfile.header()->nfiles() << ")" << endl;
+      cout << "Warning: not all chunks read (" << filemap.size() << "/"
+           << uopfile.header()->nfiles() << ")" << endl;
 
     std::ofstream ofs( mul_mapfile, std::ofstream::binary );
-    for ( size_t i = 0; i < filemap.size(); i++ ) {
-      
+    for ( size_t i = 0; i < filemap.size(); i++ )
+    {
       auto fileitr = filemap.find( maphash( uo_mapid, i ) );
-      if ( fileitr == filemap.end() ) {
+      if ( fileitr == filemap.end() )
+      {
         cout << "Couldn't find file hash: " << maphash( uo_mapid, i );
         continue;
       }
 
       auto file = fileitr->second;
       ofs << file->data()->filebytes();
-      cout << "Wrote: " << i+1 << "/" << filemap.size() << endl;
-      //cout << i << ": " << file->filehash() << " - " << maphash( uo_mapid,i) << " (" << file->decompressed_size() << ") " << endl;
+      cout << "Wrote: " << i + 1 << "/" << filemap.size() << endl;
+      // cout << i << ": " << file->filehash() << " - " << maphash( uo_mapid,i) << " (" <<
+      // file->decompressed_size() << ") " << endl;
     }
     cout << "Done converting." << endl;
   }
@@ -1354,8 +1360,8 @@ int UoConvertMain::main()
   UoConvert::clear_tiledata();
   return 0;
 }
-}
-}  // namespaces
+}  // namespace UoConvert
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

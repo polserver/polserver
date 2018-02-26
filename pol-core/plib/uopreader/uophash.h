@@ -8,10 +8,10 @@
 //
 inline uint64_t HashLittle2( std::string s )
 {
-  int length = s.size();
+  uint32_t length = (uint32_t)s.size();
 
   uint32_t a, b, c;
-  a = b = c = 0xDEADBEEF + (uint32_t)length;
+  a = b = c = 0xDEADBEEF + length;
 
   int k = 0;
 
