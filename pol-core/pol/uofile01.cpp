@@ -15,10 +15,6 @@
 #include "uofilei.h"
 #include "ustruct.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for sprintf
-#endif
-
 namespace Pol
 {
 namespace Core

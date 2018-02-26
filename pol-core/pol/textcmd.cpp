@@ -67,10 +67,6 @@
 #include "utype.h"
 #include "uworld.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable warning for asctime, localtime, sprintf, strnicmp
-#endif
-
 namespace Pol
 {
 namespace Core

@@ -17,10 +17,6 @@
 
 #pragma hdrstop
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#endif
-
 #include "clib.h"
 
 #include "dirfunc.h"

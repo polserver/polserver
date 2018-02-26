@@ -14,10 +14,6 @@
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for strcpy, fopen
-#endif
-
 namespace Pol
 {
 namespace Bscript

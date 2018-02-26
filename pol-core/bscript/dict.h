@@ -8,10 +8,6 @@
 #ifndef BSCRIPT_DICT_H
 #define BSCRIPT_DICT_H
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4786 )
-#endif
-
 #ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif

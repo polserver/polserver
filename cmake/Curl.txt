@@ -1,19 +1,14 @@
-if(__CURL_DEP_FILE__)
-  return()
-endif()
-set(__CURL_DEP_FILE__ TRUE)
-
 message("* curl")
-set(CURL_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/curl")
+set(CURL_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/curl-7.57.0")
 if (${linux})
   set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/INSTALL")
   set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl.so")
 else()
   set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/builds/libcurl-${ARCH_STRING}-release-static")
-  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl_a.so")
+  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl_a.lib")
 endif()
 
-if(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
+if(NOT EXISTS "${CURL_LIB}")
 
   if(${linux})
     ExternalProject_Add(libcurl
@@ -48,9 +43,11 @@ if(NOT EXISTS "${CURL_INSTALL_DIR}/include/curl/curl.h")
     ExternalProject_Add_Step(libcurl buildstep
       DEPENDEES DOWNLOAD
       WORKING_DIRECTORY "${CURL_SOURCE_DIR}/winbuild"
-      COMMAND nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no
+      COMMAND nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no RTLIBCFG=static
+      LOG=1
     )
   endif()
+  set_target_properties (libcurl PROPERTIES FOLDER 3rdParty)
 else()
   message("Curl already build")
 endif()

@@ -1,6 +1,5 @@
 set (clib_sources
   #sorted !
-  ../../lib/format/format.cc
   CMakeSources.cmake 
   Debugging/ExceptionParser.cpp
   Debugging/ExceptionParser.h
@@ -92,9 +91,10 @@ set (clib_sources
 )
 if(windows)
   set (clib_sources ${clib_sources}
-    ../../lib/StackWalker/StackWalker.cpp
+    NTService.cpp
     NTService.h
     StdAfx.cpp
+    forspcnt.cpp
     mdump.cpp
     mdump.h
     mdumpimp.h

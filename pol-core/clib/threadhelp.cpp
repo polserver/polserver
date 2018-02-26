@@ -27,8 +27,10 @@
 #include <unistd.h>
 #endif
 
+//TODO: fix trunc cast warnings
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable warning for strcpy, strerror
+#pragma warning( disable : 4311 )  // trunc cast
+#pragma warning( disable : 4302 )  // trunc cast
 #endif
 
 namespace Pol

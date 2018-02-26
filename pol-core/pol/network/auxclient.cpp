@@ -37,10 +37,6 @@
 #include "../scrsched.h"
 #include "../uoexec.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation
-#endif
-
 namespace Pol
 {
 namespace Network

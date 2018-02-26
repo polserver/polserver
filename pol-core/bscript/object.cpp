@@ -35,10 +35,6 @@
 #include <unordered_map>
 #endif
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
-#endif
-
 namespace Pol
 {
 namespace Bscript
@@ -1922,7 +1918,6 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /
   default:
     return nullptr;
   }
-  return nullptr;
 }
 }
 }
