@@ -86,3 +86,5 @@ if (BUILD_ALL OR ONLY_POL)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT pol)
   endif()
 endif()
+
+add_polrelease_target()

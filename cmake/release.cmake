@@ -31,3 +31,16 @@ function(dist target dir)
     )
   endif()
 endfunction()
+
+function(add_polrelease_target)
+  add_custom_target(
+    PolRelease
+    COMMAND "${CMAKE_COMMAND}" --build . --target clean
+    COMMAND "${CMAKE_COMMAND}" --build . --target package
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMENT "Building Pol Release"
+  )
+  set_target_properties(PolRelease PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(PolRelease PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+  set_target_properties(PolRelease PROPERTIES FOLDER !BuildTargets)
+endfunction()
