@@ -360,16 +360,25 @@ inline ValueModPack& ValueModPack::addToValue( const ValueModPack& other )
   value += other.value + other.mod;
   return *this;
 }
+/**
+* Adds to the property base value
+*/
 inline ValueModPack& ValueModPack::addToValue( s16 other )
 {
   value += other;
   return *this;
 }
+/**
+* Adds to the property mod
+*/
 inline ValueModPack& ValueModPack::addToMod( s16 other )
 {
   mod += other;
   return *this;
 }
+/**
+* Sets the property mod to value
+*/
 inline ValueModPack& ValueModPack::setAsMod( s16 other )
 {
   mod = other;
@@ -380,6 +389,9 @@ inline ValueModPack& ValueModPack::resetModAsValue()
   value = mod;
   return *this;
 }
+/**
+* Returns the value + mod
+*/
 inline s16 ValueModPack::sum() const
 {
   return value + mod;

@@ -340,7 +340,7 @@ size_t UWeapon::estimatedSize() const
   return base::estimatedSize() + hit_script_.estimatedSize();
 }
 
-unsigned short UWeapon::speed() const
+/*unsigned short UWeapon::speed() const
 {
   int speed_ = WEAPON_TMPL->speed + swing_speed().value;
 
@@ -350,7 +350,7 @@ unsigned short UWeapon::speed() const
     return static_cast<u16>( speed_ );
   else
     return USHRT_MAX;
-}
+}*/
 
 unsigned short UWeapon::delay() const
 {
@@ -482,6 +482,8 @@ void UWeapon::readProperties( Clib::ConfigElem& elem )
   // if the HITSCRIPT is not specified in the data file, keep the value from the template.
   if ( elem.has_prop( "HITSCRIPT" ) )
     set_hit_script( elem.remove_string( "HITSCRIPT" ) );
+  if (!has_swing_speed())
+      swing_speed(static_cast<s16>(elem.remove_int("SwingSpeed", 0)));
 }
 
 void UWeapon::set_hit_script( const std::string& scriptname )

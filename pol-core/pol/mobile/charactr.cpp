@@ -2894,7 +2894,7 @@ void Character::schedule_attack()
   // while waiting for your timeout.
   if ( swing_task == NULL )
   {
-    unsigned int weapon_speed = weapon->speed();
+    unsigned int weapon_speed = swing_speed().sum();
     unsigned int weapon_delay = weapon->delay();
     Core::polclock_t clocks;
 

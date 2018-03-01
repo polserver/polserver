@@ -64,7 +64,7 @@ class UWeapon : public Equipment
 public:
   virtual ~UWeapon(){};
 
-  unsigned short speed() const;
+  //unsigned short speed() const;
   unsigned short delay() const;
 
   const Mobile::Attribute& attribute() const;
