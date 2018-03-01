@@ -24,7 +24,7 @@ target_link_libraries(${lib_name} PUBLIC
 
 if (${linux})
   target_link_libraries(${lib_name} PUBLIC
-	crypto
+    crypto
     pthread
   )
 elseif(${windows})

@@ -13,7 +13,7 @@ macro(detect_compiler)
     set(debug 0)
     set(release 1)
   endif()
-  message("Build type: ${CMAKE_BUILD_TYPE} ${MinSizeRel}")
+  message("Build type: ${CMAKE_BUILD_TYPE}")
   set(clang 0)
   set(msvc 0)
   set(gcc 0)
@@ -66,6 +66,39 @@ macro(detect_platform)
   elseif (WIN32)
     set (windows 1)
   endif()
+endmacro()
+
+macro(fix_compiler_flags)
+  #remove default flags which collide with out settings
+  set(variables
+    CMAKE_C_FLAGS
+    CMAKE_C_FLAGS_DEBUG
+    CMAKE_C_FLAGS_MINSIZEREL
+    CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS
+    CMAKE_CXX_FLAGS_DEBUG
+    CMAKE_CXX_FLAGS_MINSIZEREL
+    CMAKE_CXX_FLAGS_RELEASE
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO
+  )
+  foreach(variable ${variables})
+    if(${variable} MATCHES "/MDd")
+      string(REGEX REPLACE "/MDd" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/EHsc")
+      string(REGEX REPLACE "/EHsc" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/EHs")
+      string(REGEX REPLACE "/EHs" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/W3")
+      string(REGEX REPLACE "/W3" "" ${variable} "${${variable}}")
+    endif()
+  endforeach()
 endmacro()
 
 macro(prepare_build)
@@ -127,9 +160,9 @@ macro(cmake_fake_target)
       cmake/Boost.txt
       cmake/Curl.txt
       cmake/Format.txt
-	  cmake/StackWalker.txt
-	  cmake/TinyXML.txt
-	  cmake/ZLib.txt
+      cmake/StackWalker.txt
+      cmake/TinyXML.txt
+      cmake/ZLib.txt
       cmake/release.cmake
       cmake/compile_defs.cmake
       cmake/env/pol_global_config.h.in
@@ -140,9 +173,9 @@ macro(cmake_fake_target)
     cmake/Boost.txt
     cmake/Curl.txt
     cmake/Format.txt
-	cmake/StackWalker.txt
-	cmake/TinyXML.txt
-	cmake/ZLib.txt
+    cmake/StackWalker.txt
+    cmake/TinyXML.txt
+    cmake/ZLib.txt
     cmake/release.cmake
     cmake/compile_defs.cmake
   )

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 
 # protect the user for himself
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -56,6 +56,7 @@ include(cmake/cotire.cmake)
 #hide the cotire settings
 hide_cotire()
 
+fix_compiler_flags()
 detect_compiler()
 detect_arch()
 detect_platform()

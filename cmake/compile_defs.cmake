@@ -73,7 +73,6 @@ function(set_compile_flags target is_executable)
 
     $<${windows}:
       /MT # runtime lib
-      /MP # multiprocess build
       /openmp
       /GS- # no buffer security
       /Gy # function level linking
@@ -83,6 +82,13 @@ function(set_compile_flags target is_executable)
       /W4
     >
   )
+  if (${windows})
+    if (NOT "${CMAKE_GENERATOR}" MATCHES "Ninja")
+      target_compile_options(${target} PRIVATE
+        /MP # multiprocess build
+      )
+    endif()
+  endif()
  
   if (${is_executable})
     if (${release} AND ${linux})
@@ -123,11 +129,11 @@ function(source_group_by_folder target)
   set(files "")
   foreach(file ${${target}_sources})
     if(IS_ABSOLUTE ${file})
-	  file(RELATIVE_PATH relative_file "${CMAKE_CURRENT_SOURCE_DIR}" "${file}")
-	  get_filename_component(dir "${relative_path}" DIRECTORY)
-	else()
+      file(RELATIVE_PATH relative_file "${CMAKE_CURRENT_SOURCE_DIR}" "${file}")
+      get_filename_component(dir "${relative_path}" DIRECTORY)
+    else()
       get_filename_component(dir "${file}" PATH)
-	endif()
+    endif()
     if (NOT "${dir}" STREQUAL "${last_dir}")
       if (files)
         source_group("${last_dir}" FILES ${files})
@@ -149,7 +155,12 @@ function (enable_pch target)
       set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
       set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD OFF)
       cotire(${target})
-	  set_target_properties (clean_cotire PROPERTIES FOLDER 3rdParty)
+      set_target_properties (clean_cotire PROPERTIES FOLDER 3rdParty)
+      if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
+        if(TARGET ${target}_pch)
+          add_dependencies(${target}_pch boost)
+        endif()
+      endif()
     endif()
   endif()
 endfunction()
