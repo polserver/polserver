@@ -27,7 +27,7 @@ matrix:
         apt:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['g++-7']
-      env: CXX_P=g++-7 CC_P=gcc-7
+      env: CXX_P=g++-7 CC_P=gcc-7 NOPCH=0
 
     - os: linux
       compiler: clang
@@ -35,7 +35,15 @@ matrix:
         apt:
           sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
           packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
-      env: CXX_P=clang++-5.0 CC_P=clang-5.0
+      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=0
+    
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
+      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=1
 
 before_install:
   - cd bin-build
@@ -48,7 +56,7 @@ before_script:
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
   - export CXX=$CXX_P
   - export CC=$CC_P
-  - cmake .. -G Ninja
+  - cmake .. -G Ninja -DNO_PCH=$NOPCH
   - echo -en 'travis_fold:end:script.configure\\r'
 
 script:
