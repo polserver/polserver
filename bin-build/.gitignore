@@ -12,3 +12,9 @@
 /*.sln
 /docs
 /x64
+/z.dir
+/tinyxml.dir
+/*.db
+/format.dir
+/stackwalk.dir
+
