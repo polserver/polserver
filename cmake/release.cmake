@@ -35,8 +35,8 @@ endfunction()
 function(add_polrelease_target)
   add_custom_target(
     PolRelease
-    COMMAND "${CMAKE_COMMAND}" --build . --target clean
-    COMMAND "${CMAKE_COMMAND}" --build . --target package
+    COMMAND "${CMAKE_COMMAND}" --build . --target clean --config Release
+    COMMAND "${CMAKE_COMMAND}" --build . --target package --config Release
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT "Building Pol Release"
   )

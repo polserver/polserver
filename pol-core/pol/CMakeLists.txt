@@ -38,9 +38,19 @@ if(HAVE_MYSQL)
       target_link_libraries(${ex_name} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-winx64/lib/libmysql.lib
       )
+      install(
+        FILES ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-winx64/lib/libmysql.dll
+        DESTINATION .
+        COMPONENT bin
+      )
     else()
       target_link_libraries(${ex_name} PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-win32/lib/libmysql.lib
+      )
+      install(
+        FILES ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-win32/lib/libmysql.dll
+        DESTINATION .
+        COMPONENT bin
       )
     endif()
   else()
