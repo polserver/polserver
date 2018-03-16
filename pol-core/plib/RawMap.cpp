@@ -1,11 +1,13 @@
 #include "RawMap.h"
 
 #include "../clib/passert.h"
+#include "../clib/logfacility.h"
 
 #include "uopreader/uop.h"
 #include "uopreader/uophash.h"
 
 #include <cstdio>
+#include <map>
 
 using namespace Pol::Core;
 
