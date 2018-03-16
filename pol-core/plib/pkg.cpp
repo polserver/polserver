@@ -24,10 +24,6 @@
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation warning
-#endif
-
 namespace Pol
 {
 namespace Plib

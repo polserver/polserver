@@ -34,10 +34,6 @@
 #include "poltype.h"
 #include "ufunc.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
-#endif
-
 namespace Pol
 {
 namespace Core

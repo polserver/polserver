@@ -32,11 +32,6 @@
 #include "../uconst.h"
 #include "packetinterface.h"
 
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )  // disable warning about strncpy
-#endif
-
 namespace Pol
 {
 namespace Network
@@ -493,9 +488,5 @@ typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F6_ID, 0xFFFF> PktOut_F6;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F7_ID, 0xFFFF> PktOut_F7;
 // Packet defs end
 }
-
-#ifdef _MSC_VER
-#pragma warning( pop )
-#endif
 }
 #endif

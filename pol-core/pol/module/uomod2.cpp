@@ -111,10 +111,6 @@
 #include "../../../lib/zlib/zlib.h"
 #endif
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp
-#endif
-
 namespace Pol
 {
 namespace Core

@@ -24,11 +24,6 @@
 #include "../../bscript/impstr.h"
 #include "../../clib/stlutil.h"
 
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp, itoa and sprintf warnings
-#endif
-
 namespace Pol
 {
 namespace Module

@@ -16,6 +16,9 @@ install(FILES
   uoconvert.txt
   packethooks.txt
   DESTINATION .
+  COMPONENT bin
 )
+
+set_target_properties (${lib_name} PROPERTIES FOLDER Misc)
 
 

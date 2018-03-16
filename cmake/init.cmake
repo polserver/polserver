@@ -1,24 +1,24 @@
 
 macro(detect_compiler)
   if( NOT CMAKE_BUILD_TYPE )
-	set( CMAKE_BUILD_TYPE Release CACHE STRING
-		 "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-	     FORCE
-	   )
+    set( CMAKE_BUILD_TYPE Release CACHE STRING
+         "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+         FORCE
+    )
   endif()
   if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
-	set(debug 1)
-	set(release 0)
+    set(debug 1)
+    set(release 0)
   else()
-	set(debug 0)
-	set(release 1)
+    set(debug 0)
+    set(release 1)
   endif()
-  message("Build type: ${CMAKE_BUILD_TYPE} ${MinSizeRel}")
+  message("Build type: ${CMAKE_BUILD_TYPE}")
   set(clang 0)
   set(msvc 0)
   set(gcc 0)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	set(clang 1)
+    set(clang 1)
   elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(msvc 1)
     if (${MSVC_VERSION} VERSION_GREATER 1900)
@@ -62,11 +62,43 @@ macro(detect_platform)
   set (linux 0)
   set (windows 0)
   if (UNIX AND NOT WIN32)
-    message("Target system is Linux")
-	set (linux 1)
+    set (linux 1)
   elseif (WIN32)
     set (windows 1)
   endif()
+endmacro()
+
+macro(fix_compiler_flags)
+  #remove default flags which collide with out settings
+  set(variables
+    CMAKE_C_FLAGS
+    CMAKE_C_FLAGS_DEBUG
+    CMAKE_C_FLAGS_MINSIZEREL
+    CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS
+    CMAKE_CXX_FLAGS_DEBUG
+    CMAKE_CXX_FLAGS_MINSIZEREL
+    CMAKE_CXX_FLAGS_RELEASE
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO
+  )
+  foreach(variable ${variables})
+    if(${variable} MATCHES "/MDd")
+      string(REGEX REPLACE "/MDd" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/EHsc")
+      string(REGEX REPLACE "/EHsc" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/EHs")
+      string(REGEX REPLACE "/EHs" "" ${variable} "${${variable}}")
+    endif()
+    if(${variable} MATCHES "/W3")
+      string(REGEX REPLACE "/W3" "" ${variable} "${${variable}}")
+    endif()
+  endforeach()
 endmacro()
 
 macro(prepare_build)
@@ -89,25 +121,25 @@ endmacro()
 macro(get_git_revision)
   find_package(Git)
   if(GIT_EXECUTABLE)
-	execute_process(COMMAND ${GIT_EXECUTABLE}
-	  log -1 --pretty=format:%h
-	  RESULT_VARIABLE status
-	  OUTPUT_VARIABLE GIT_REVISION
-	  ERROR_QUIET
-	)
-	if (status)
-	  set(GIT_REVISION "\"Unknown\"")
-	else()
-	  set(GIT_REVISION "\"${GIT_REVISION}\"")
-	endif()
+    execute_process(COMMAND ${GIT_EXECUTABLE}
+      log -1 --pretty=format:%h
+      RESULT_VARIABLE status
+      OUTPUT_VARIABLE GIT_REVISION
+      ERROR_QUIET
+    )
+    if (status)
+      set(GIT_REVISION "\"Non-Git\"")
+    else()
+      set(GIT_REVISION "\"${GIT_REVISION}\"")
+    endif()
   else()
-	set(GIT_REVISION "\"Unknown\"")
+    set(GIT_REVISION "\"Unknown\"")
   endif()
 endmacro()
 
 macro(hide_cotire)
   mark_as_advanced(FORCE
-	COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS
+    COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS
     COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_PATH
     COTIRE_DEBUG
     COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES
@@ -128,6 +160,9 @@ macro(cmake_fake_target)
       cmake/Boost.txt
       cmake/Curl.txt
       cmake/Format.txt
+      cmake/StackWalker.txt
+      cmake/TinyXML.txt
+      cmake/ZLib.txt
       cmake/release.cmake
       cmake/compile_defs.cmake
       cmake/env/pol_global_config.h.in
@@ -138,10 +173,14 @@ macro(cmake_fake_target)
     cmake/Boost.txt
     cmake/Curl.txt
     cmake/Format.txt
+    cmake/StackWalker.txt
+    cmake/TinyXML.txt
+    cmake/ZLib.txt
     cmake/release.cmake
-    cmake/compiler_defs.cmake
+    cmake/compile_defs.cmake
   )
   source_group(cmake/env FILES cmake/env/pol_global_config.h.in)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_ALL TRUE)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+  set_target_properties (cmakefiles PROPERTIES FOLDER Misc)
 endmacro()

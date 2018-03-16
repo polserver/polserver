@@ -22,11 +22,6 @@
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 #include "globals/uvars.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp POSIX deprecation warning
-#endif
-
 namespace Pol
 {
 namespace Core

@@ -37,10 +37,6 @@
 #include "../syshook.h"
 #include "client.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warnings for stricmp
-#endif
-
 namespace Pol
 {
 namespace Network

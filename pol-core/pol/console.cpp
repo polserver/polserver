@@ -36,10 +36,6 @@
 #include <stdexcept>
 #include <string>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // POSIX deprecation warning getch()
-#endif
-
 namespace Pol
 {
 namespace Core

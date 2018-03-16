@@ -10,10 +10,6 @@
 #include "ntservmsg.h"  // Event message ids
 #include <stdio.h>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#endif
-
 // Custom Controls Below Here
 #define SERVICE_CONTROL_BEEP 0x000004B0
 #define SERVICE_CONTROL_STOP_POL 0x000004B1

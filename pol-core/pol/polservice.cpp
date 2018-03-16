@@ -20,7 +20,6 @@
 #include "../clib/ntservmsg.h" 
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )
 #pragma warning( disable : 4189 )  // local variable is initialized but not referenced. TODO: check
                                    // if TrackPopupMenu() returns an error on line 146.
 #endif

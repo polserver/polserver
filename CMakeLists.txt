@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 
 # protect the user for himself
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -9,6 +9,7 @@ if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "!BuildTargets")
 
 project(polserver)
 
@@ -29,6 +30,8 @@ option(ONLY_UOTOOL "Build only uotool" OFF)
 
 include(cmake/init.cmake)
 
+set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
+
 if (NOT DEFINED GIT_REVISION)
   get_git_revision()
 endif()
@@ -40,6 +43,10 @@ message("# -           ${GIT_REVISION}          - #")
 message("####################################")
 message("## CMake Version ${CMAKE_VERSION}")
 message("## Generator ${CMAKE_GENERATOR} ${CMAKE_EXTRA_GENERATOR}")
+message("## Output Dir: ${output_bin_dir}")
+if (NO_PCH)
+  message("## No precompiled header")
+endif()
 message("")
 
 include(CheckIncludeFiles)
@@ -52,6 +59,7 @@ include(cmake/cotire.cmake)
 #hide the cotire settings
 hide_cotire()
 
+fix_compiler_flags()
 detect_compiler()
 detect_arch()
 detect_platform()
@@ -62,12 +70,25 @@ cmake_fake_target()
 include(cmake/Boost.txt)
 include(cmake/Benchmark.txt)
 include(cmake/Format.txt)
-
+if (${windows})
+  include(cmake/ZLib.txt)
+  include(cmake/StackWalker.txt)
+endif()
 if (BUILD_ALL OR ONLY_POL)
   include(cmake/Curl.txt)
 endif()
-add_subdirectory(lib/tinyxml)
+include(cmake/TinyXML.txt)
+
+add_subdirectory(docs)
 add_subdirectory(pol-core)
 
 #cmake package target for creating archive
 release()
+
+if (BUILD_ALL OR ONLY_POL)
+  if (${CMAKE_VERSION} VERSION_GREATER "3.6.0")
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT pol)
+  endif()
+endif()
+
+add_polrelease_target()

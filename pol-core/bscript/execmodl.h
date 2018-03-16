@@ -29,11 +29,6 @@ class Executor;
 }  // namespace Bscript
 }  // namespace Pol
 
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )
-#endif
-
 namespace Pol
 {
 namespace Bscript
@@ -169,9 +164,5 @@ inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
 }
 }
 }
-
-#ifdef _MSC_VER
-#pragma warning( pop )
-#endif
 
 #endif

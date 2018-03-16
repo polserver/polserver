@@ -1238,7 +1238,8 @@ int UoToolMain::main()
     argvalue = binArgs[2];
   }
 
-  std::transform( argvalue.begin(), argvalue.end(), argvalue.begin(), ::tolower );
+  std::transform( argvalue.begin(), argvalue.end(), argvalue.begin(),
+                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
 
   if ( argvalue == "tiledump" )
   {

@@ -22,10 +22,6 @@
 #include "stlutil.h"
 #include "strutil.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable POSIX deprecation warnings for stricmp
-#define _CRT_SECURE_NO_WARNINGS    // disable unsecure warning for fread()
-#endif
 
 namespace Pol
 {

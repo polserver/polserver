@@ -47,10 +47,6 @@
 #include "userfunc.h"
 #include <format/format.h>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp, fopen
-#endif
-
 namespace Pol
 {
 namespace Bscript

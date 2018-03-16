@@ -31,11 +31,6 @@
 #include "fileaccess.h"
 #include "filemod.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecated POSIX strerror warning
-#endif
-
-
 namespace Pol
 {
 namespace Bscript

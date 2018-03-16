@@ -7,3 +7,14 @@
 /install_manifest*
 /boost*
 /pol_global_config.h
+/*.vcxproj*
+/.vs
+/*.sln
+/docs
+/x64
+/z.dir
+/tinyxml.dir
+/*.db
+/format.dir
+/stackwalk.dir
+

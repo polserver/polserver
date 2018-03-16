@@ -9,10 +9,6 @@
 #ifndef BSCRIPT_BOBJECT_H
 #define BSCRIPT_BOBJECT_H
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4786 )
-#endif
-
 #ifdef NDEBUG
 #define BOBJECTIMP_DEBUG 0
 #else
