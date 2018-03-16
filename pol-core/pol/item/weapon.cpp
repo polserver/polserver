@@ -104,10 +104,17 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
       minrange( elem.remove_ushort( "MINRANGE", projectile ? 2 : 0 ) ),
       maxrange( elem.remove_ushort( "MAXRANGE", projectile ? 20 : 1 ) )
 {
-  if ( delay == 0 )
-    speed = elem.remove_ushort( "SPEED" );
+  if (delay == 0)
+    {
+      if(elem.has_prop("SwingSpeed"))
+        speed = elem.remove_ushort("SwingSpeed");
+      else
+            speed = elem.remove_ushort("SPEED");
+    }
   else
-    speed = 35;
+      speed = 35;
+
+  
 
   std::string attrname = elem.remove_string( "Attribute", "" );
   if ( attrname.empty() )
@@ -482,8 +489,10 @@ void UWeapon::readProperties( Clib::ConfigElem& elem )
   // if the HITSCRIPT is not specified in the data file, keep the value from the template.
   if ( elem.has_prop( "HITSCRIPT" ) )
     set_hit_script( elem.remove_string( "HITSCRIPT" ) );
-  if (!has_swing_speed())
+  if (!has_swing_speed() && elem.has_prop("SwingSpeed"))
       swing_speed(static_cast<s16>(elem.remove_int("SwingSpeed", 0)));
+  else
+      swing_speed(static_cast<s16>(elem.remove_int("SPEED")));
 }
 
 void UWeapon::set_hit_script( const std::string& scriptname )
