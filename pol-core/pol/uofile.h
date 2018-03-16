@@ -23,7 +23,6 @@ namespace Pol
 
 namespace Core
 {
-extern signed char rawmapinfo( unsigned short x, unsigned short y, struct USTRUCT_MAPINFO* gi );
 extern void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void rawmapfullread();
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
@@ -46,6 +45,7 @@ void readwater();
 
 extern int uo_mapid;
 extern int uo_usedif;
+extern bool uo_readuop;
 extern unsigned short uo_map_width;
 extern unsigned short uo_map_height;
 

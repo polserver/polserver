@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <string>
+#include <fstream>
 
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
@@ -17,16 +18,30 @@ namespace Pol
 {
 namespace Core
 {
-FILE* mapfile;
-FILE* sidxfile;
-FILE* statfile;
-FILE* verfile;
-FILE* tilefile;
-FILE* stadifl_file;
-FILE* stadifi_file;
-FILE* stadif_file;
-FILE* mapdifl_file;
-FILE* mapdif_file;
+FILE* mapfile = nullptr;
+FILE* sidxfile = nullptr;
+FILE* statfile = nullptr;
+FILE* verfile = nullptr;
+FILE* tilefile = nullptr;
+FILE* stadifl_file = nullptr;
+FILE* stadifi_file = nullptr;
+FILE* stadif_file = nullptr;
+FILE* mapdifl_file = nullptr;
+FILE* mapdif_file = nullptr;
+
+std::ifstream uopmapfile;
+
+bool open_uopmap_file( const int mapid ) {
+  std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
+  std::string filename = Plib::systemstate.config.uo_datafile_root + filepart;
+  if ( !Clib::FileExists( filename ) ) {
+    INFO_PRINT << filepart << " not found in " << Plib::systemstate.config.uo_datafile_root << ". Searching for old map[N].mul files.\n";
+    return false;
+  }    
+
+  uopmapfile.open( filename, std::ios::binary );
+  return (bool)uopmapfile;
+}
 
 FILE* open_uo_file( const std::string& filename_part )
 {
@@ -38,7 +53,7 @@ FILE* open_uo_file( const std::string& filename_part )
                 << "POL.CFG specifies UODataFileRoot as '"
                 << Plib::systemstate.config.uo_datafile_root << "'.  Is this correct?\n"
                 << "  The following files must be present in that directory:\n"
-                << "      map0.mul\n"
+                << "      map0.mul OR map0LegacyMUL.uop\n"
                 << "      multi.idx\n"
                 << "      multi.mul\n"
                 << "      staidx0.mul\n"
@@ -68,14 +83,21 @@ FILE* open_map_file( std::string name, int map_id )
 
 int uo_mapid = 0;
 int uo_usedif = 0;
+bool uo_readuop = true;
+
 unsigned short uo_map_width = 6144;
 unsigned short uo_map_height = 4096;
 void open_uo_data_files( void )
 {
   std::string filename;
+
+  // First tries to load the new UOP files. Otherwise fall back to map[N].mul files.
   // map1 uses map0 + 'dif' files, unless there is a map1.mul (newer clients)
   // same for staidx and statics
-  mapfile = open_map_file( "map", uo_mapid );
+
+  if ( !uo_readuop || !open_uopmap_file( uo_mapid ) )
+    mapfile = open_map_file( "map", uo_mapid );
+  
   sidxfile = open_map_file( "staidx", uo_mapid );
   statfile = open_map_file( "statics", uo_mapid );
 

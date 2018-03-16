@@ -9,7 +9,10 @@
 
 #include "uconst.h"
 #include "udatfile.h"
-#include <stdio.h>
+
+#include <fstream>
+#include <cstdio>
+
 namespace Pol
 {
 namespace Core
@@ -24,6 +27,7 @@ extern FILE* stadifi_file;
 extern FILE* stadif_file;
 extern FILE* mapdifl_file;
 extern FILE* mapdif_file;
+extern std::ifstream uopmapfile;
 
 struct USTRUCT_VERSION;
 

@@ -9,6 +9,15 @@
       <UniqueIdentifier>{48d3dd62-82f8-4aa5-8d7b-fdfe165b1877}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
+    <Filter Include="kaitai">
+      <UniqueIdentifier>{c237dc63-8a52-48ba-9933-d8da9eb0cf6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="uopreader">
+      <UniqueIdentifier>{84c678e0-17ff-40e6-9fd7-01c0b33cb576}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RawMap">
+      <UniqueIdentifier>{a7b3ea8b-a117-40ca-bd17-f6d5057fd3e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="filemapserver.cpp">
@@ -70,6 +79,15 @@
     </ClCompile>
     <ClCompile Include="..\pol\uofile08.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.cpp">
+      <Filter>kaitai</Filter>
+    </ClCompile>
+    <ClCompile Include="uopreader\uop.cpp">
+      <Filter>uopreader</Filter>
+    </ClCompile>
+    <ClCompile Include="RawMap.cpp">
+      <Filter>RawMap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +162,24 @@
     </ClInclude>
     <ClInclude Include="..\pol\uofile.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\custom_decoder.h">
+      <Filter>kaitai</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistream.h">
+      <Filter>kaitai</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\kaitai-runtime\kaitai\kaitaistruct.h">
+      <Filter>kaitai</Filter>
+    </ClInclude>
+    <ClInclude Include="uopreader\uop.h">
+      <Filter>uopreader</Filter>
+    </ClInclude>
+    <ClInclude Include="uopreader\uophash.h">
+      <Filter>uopreader</Filter>
+    </ClInclude>
+    <ClInclude Include="RawMap.h">
+      <Filter>RawMap</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

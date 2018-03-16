@@ -6,10 +6,12 @@ function(set_compile_flags target is_executable)
     ${BOOST_SOURCE_DIR} # boost
     "${CMAKE_CURRENT_LIST_DIR}/../../lib" #format/..
     "${CMAKE_CURRENT_LIST_DIR}/../../lib/picojson-1.3.0" #pico
+	"${CMAKE_CURRENT_LIST_DIR}/../../lib/kaitai-runtime" #kaitai
   )
 
   target_compile_definitions(${target} PRIVATE
-    INC_PASSERT=1 
+    KS_STR_ENCODING_NONE
+    INC_PASSERT=1
     __STDC_CONSTANT_MACROS
     __STDC_FORMAT_MACROS
     __STDC_LIMIT_MACROS
