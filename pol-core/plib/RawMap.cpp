@@ -7,6 +7,7 @@
 #include "uopreader/uophash.h"
 
 #include <cstdio>
+#include <cstring>
 #include <map>
 
 using namespace Pol::Core;
