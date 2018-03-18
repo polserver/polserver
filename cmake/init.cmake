@@ -160,6 +160,7 @@ macro(cmake_fake_target)
       cmake/Boost.txt
       cmake/Curl.txt
       cmake/Format.txt
+      cmake/Kaitai.txt
       cmake/StackWalker.txt
       cmake/TinyXML.txt
       cmake/ZLib.txt
@@ -173,6 +174,7 @@ macro(cmake_fake_target)
     cmake/Boost.txt
     cmake/Curl.txt
     cmake/Format.txt
+    cmake/Kaitai.txt
     cmake/StackWalker.txt
     cmake/TinyXML.txt
     cmake/ZLib.txt
@@ -182,5 +184,5 @@ macro(cmake_fake_target)
   source_group(cmake/env FILES cmake/env/pol_global_config.h.in)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_ALL TRUE)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
-  set_target_properties (cmakefiles PROPERTIES FOLDER Misc)
+  set_target_properties(cmakefiles PROPERTIES FOLDER Misc)
 endmacro()

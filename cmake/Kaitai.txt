@@ -12,16 +12,23 @@ add_library(${lib_name} STATIC
 )
 set_compile_flags(${lib_name} 0)
 
-target_include_directories(${lib_name}  PRIVATE 
+target_include_directories(${lib_name}  PRIVATE
   "${CMAKE_CURRENT_LIST_DIR}/../lib/kaitai-runtime"
 )
+if(${windows})
+  target_include_directories(${lib_name}  PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/../lib/zlib"
+  )
+endif()
 target_link_libraries(${lib_name} PRIVATE
   z
 )
 warning_suppression(${lib_name})
 target_compile_definitions(${lib_name} PRIVATE
   KS_STR_ENCODING_NONE
-  DKS_ZLIB
+)
+target_compile_definitions(${lib_name} PUBLIC
+  KS_ZLIB
 )
 if(${linux})
   target_compile_options(${lib_name} PRIVATE
@@ -33,6 +40,7 @@ if (${windows})
  target_compile_options(${lib_name} PRIVATE
    /wd4458 #var name hides
    /wd4456 #var name hides
+   /wd4267 #convert types
   )
 endif()
 
