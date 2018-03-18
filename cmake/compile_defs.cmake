@@ -101,6 +101,7 @@ function(set_compile_flags target is_executable)
   if (${windows})
     target_link_libraries(${target} PRIVATE
       -LARGEADDRESSAWARE # more then 2gb for 32bit
+      -DEBUG # include debug information (otherwise attach to process does not work)
     )
     if (${release})
       target_link_libraries(${target} PRIVATE
