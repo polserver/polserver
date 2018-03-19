@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-26-2018</datemodified>
+		<datemodified>03-19-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>03-19-2018</date>
+			<author>Nando:</author>
+			<change type="Fixed">Crash at shutdown when POL hasn't been correctly started.</change>
+		</entry>
 		<entry>
 			<date>02-26-2018</date>
 			<author>Nando:</author>
