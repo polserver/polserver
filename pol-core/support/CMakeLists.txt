@@ -73,7 +73,7 @@ install(FILES
   scripts/uo.em
   scripts/util.em
   scripts/vitals.em
-  DESTINATION scripts
+  DESTINATION scripts/modules
   COMPONENT bin
 )
 

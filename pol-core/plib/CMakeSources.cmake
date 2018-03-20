@@ -1,5 +1,4 @@
 set (plib_sources  # sorted !
-  ../../lib/kaitai-runtime/kaitai/kaitaistream.cpp # TODO: beautify this :P
   ../pol/uofile00.cpp       # TODO: move all uofile*.cpp into the plib folder
   ../pol/uofile01.cpp
   ../pol/uofile02.cpp
@@ -43,4 +42,7 @@ set (plib_sources  # sorted !
   systemstate.h
   uoexpansion.h
   uopreader/uop.cpp
+  uopreader/uop.h
+  uopreader/uopfile.ksy
+  uopreader/uophash.h
 )

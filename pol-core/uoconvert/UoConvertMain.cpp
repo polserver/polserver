@@ -1192,10 +1192,10 @@ int UoConvertMain::main()
     std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
     std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
 
-    auto maphash = []( int mapid, int chunkidx ) {
-      char mapstring[1024];
-      snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, chunkidx );
-      return HashLittle2( mapstring );
+    auto maphash = []( int mapid, size_t chunkidx ) {
+      fmt::Writer tmp;
+      tmp << "build/map" << mapid << "legacymul/" << fmt::pad(chunkidx,8,'0') << ".dat";
+      return HashLittle2( tmp.str() );
     };
 
     std::ifstream ifs( uop_mapfile, std::ifstream::binary );
@@ -1237,8 +1237,6 @@ int UoConvertMain::main()
       auto file = fileitr->second;
       ofs << file->data()->filebytes();
       INFO_PRINT << "Wrote: " << i + 1 << "/" << filemap.size() << '\n';
-      // cout << i << ": " << file->filehash() << " - " << maphash( uo_mapid,i) << " (" <<
-      // file->decompressed_size() << ") " << endl;
     }
     INFO_PRINT << "Done converting.\n";
   }
