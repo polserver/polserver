@@ -480,9 +480,6 @@ void Item::readProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
   if ( mod_value != 0 )
     physical_damage( physical_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_damage( physical_damage().setAsMod( mod_value ) );
   mod_value =
       static_cast<s16>( elem.remove_int( "DMG_MOD", 0 ) );  // to be made redundant in the future
   if ( mod_value != 0 )
