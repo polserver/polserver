@@ -16,6 +16,7 @@
 #define POL_VERSION_NAME            "Never Gonna Give You Up"
 #define POL_VERSION_ID              "POL100 Never Gonna Give You Up"
 #define POL_BUILD_DATETIME          __DATE__ " " __TIME__
+#define POL_COPYRIGHT               "Copyright (C) 1993-2018 Eric N. Swanson"
 
 #ifdef PERGON
 #define POL_BUILD_TARGET_TAG_PERGON " - Pergon"
