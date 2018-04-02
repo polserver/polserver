@@ -1136,8 +1136,7 @@ int xmain_inner( bool testing )
   Clib::MakeDirectory( "log" );
 
   POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET << "\ncompiled on "
-              << POL_BUILD_DATETIME << "\nCopyright (C) 1993-2016 Eric N. Swanson"
-              << "\n\n";
+              << POL_BUILD_DATETIME << "\n" << POL_COPYRIGHT << "\n\n";
   if ( testing )
     POLLOG_INFO << "TESTING MODE\n\n";
 

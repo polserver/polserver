@@ -863,7 +863,7 @@ int ECompileMain::main()
     // vX.YY
     double vernum = (double)1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
     ERROR_PRINT << "EScript Compiler v" << vernum << "\n"
-                << "Copyright (C) 1993-2016 Eric N. Swanson\n\n";
+                << POL_COPYRIGHT << "\n\n";
   }
 
   if ( ECompile::opt_generate_wordlist )
