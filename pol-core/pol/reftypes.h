@@ -6,84 +6,86 @@
 
 #ifndef REFTYPES_H
 #define REFTYPES_H
-
 #include "../clib/refptr.h"
-namespace Pol {
-  namespace Accounts {
-	class Account;
-  }
-  namespace Network {
-	class Client;
-  }
-  namespace Mobile {
-	class Character;
-	class NPC;
-  }
-  namespace Items {
-	class Item;
-  }
 
-  namespace Core {
+namespace Pol
+{
+namespace Accounts
+{
+class Account;
+}
+namespace Mobile
+{
+class Character;
+class NPC;
+}
+namespace Items
+{
+class Item;
+}
+
+namespace Core
+{
 #ifdef NDEBUG
-	// release mode
+// release mode
 #define REFTYPE_DEBUG 0
 #else
-	// debug mode
-#define REFTYPE_DEBUG 1
+// debug mode
+#define REFTYPE_DEBUG 0
 #endif
 
-	class UObject;
+class UObject;
 
 
 #if !REFTYPE_DEBUG
-	typedef ref_ptr<UObject> UObjectRef;
-	typedef ref_ptr<Mobile::Character> CharacterRef;
-	typedef ref_ptr<Items::Item> ItemRef;
-	typedef ref_ptr<Mobile::NPC> NpcRef;
-	typedef ref_ptr<Accounts::Account> AccountRef;
+typedef ref_ptr<UObject> UObjectRef;
+typedef ref_ptr<Mobile::Character> CharacterRef;
+typedef ref_ptr<Items::Item> ItemRef;
+typedef ref_ptr<Mobile::NPC> NpcRef;
+typedef ref_ptr<Accounts::Account> AccountRef;
 #else
-	class UObjectRef : public ref_ptr<UObject>
-	{
-	public:
-	  explicit UObjectRef( UObject* ptr = 0 );
-	  UObjectRef( const UObjectRef& rptr );
-	  ~UObjectRef();
-	};
+class UObjectRef : public ref_ptr<UObject>
+{
+public:
+  explicit UObjectRef( UObject* ptr = 0 );
+  UObjectRef( const UObjectRef& rptr );
+  ~UObjectRef();
+};
 
-	class CharacterRef : public ref_ptr<Mobile::Character>
-	{
-	public:
-	  explicit CharacterRef( Mobile::Character* chr );
-	  CharacterRef( const CharacterRef& rptr );
-	  ~CharacterRef();
+class CharacterRef : public ref_ptr<Mobile::Character>
+{
+public:
+  explicit CharacterRef( Mobile::Character* chr );
+  CharacterRef( const CharacterRef& rptr );
+  ~CharacterRef();
 
-	  CharacterRef& operator=( const CharacterRef& rptr );
-	  void set( Mobile::Character* chr );
-	  void clear();
+  CharacterRef& operator=( const CharacterRef& rptr );
+  void set( Mobile::Character* chr );
+  void clear();
 
-	  unsigned int cref_instance;
-	};
+  unsigned int cref_instance;
+};
 
-	class ItemRef : public ref_ptr<Items::Item>
-	{
-	public:
-	  explicit ItemRef( Items::Item* item = 0 );
-	  ItemRef( const ItemRef& rptr );
-	  ~ItemRef();
-	};
+class ItemRef : public ref_ptr<Items::Item>
+{
+public:
+  explicit ItemRef( Items::Item* item = 0 );
+  ItemRef( const ItemRef& rptr );
+  ~ItemRef();
+};
 
-	class NpcRef : public ref_ptr<Mobile::NPC>
-	{
-	public:
-	  explicit NpcRef( Mobile::NPC* npc = 0 );
-	  NpcRef( const NpcRef& rptr );
-	  ~NpcRef();
-	};
+class NpcRef : public ref_ptr<Mobile::NPC>
+{
+public:
+  explicit NpcRef( Mobile::NPC* npc = 0 );
+  NpcRef( const NpcRef& rptr );
+  ~NpcRef();
+};
 
-	typedef ref_ptr<Accounts::Account> AccountRef;
+typedef ref_ptr<Accounts::Account> AccountRef;
 
 #endif
-  }
+}
 }
 
 #endif

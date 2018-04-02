@@ -6,197 +6,208 @@
 
 
 #include "equipmnt.h"
-#include "weapon.h"
-#include "armor.h"
+
+#include <stddef.h>
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
-#include "../../clib/random.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/fileutil.h"
-
-#include "../ufunc.h"
-#include "../globals/state.h"
-#include "../globals/uvars.h"
-#include "../globals/object_storage.h"
-
+#include "../../clib/passert.h"
+#include "../../clib/random.h"
+#include "../../clib/streamsaver.h"
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
-
 #include "../equipdsc.h"
-#include "../tooltips.h"
+#include "../globals/object_storage.h"
+#include "../globals/state.h"
+#include "../globals/uvars.h"
+#include "../layers.h"
 #include "../mobile/charactr.h"
+#include "../tooltips.h"
+#include "../ufunc.h"
+#include "armor.h"
+#include "item.h"
+#include "itemdesc.h"
+#include "weapon.h"
 
-namespace Pol {
-  namespace Items {
-	Equipment::Equipment( const ItemDesc& itemdesc, UOBJ_CLASS uobj_class, const Core::EquipDesc* permanent_descriptor ) :
-	  Item( itemdesc, uobj_class ),
-	  tmpl( permanent_descriptor ),
-      _quality(itemdesc.quality)
-	{}
+namespace Pol
+{
+namespace Items
+{
+Equipment::Equipment( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class,
+                      const Core::EquipDesc* permanent_descriptor )
+    : Item( itemdesc, uobj_class ), tmpl( permanent_descriptor ), _quality( itemdesc.quality )
+{
+}
 
-    Equipment::~Equipment()
+Equipment::~Equipment()
+{
+  // Every intrinsic equipment has its own local itemdesc element that should be deleted here.
+  // Only exception is the wrestling weapon, which should be deferred
+  // to the global desctable cleaning.
+
+  if ( is_intrinsic() )
+  {
+    Core::EquipDesc* ed = const_cast<Core::EquipDesc*>( tmpl );
+    if ( !ed->is_pc_intrinsic )
     {
-      // Every intrinsic equipment has its own local itemdesc element that should be deleted here.
-      // Only exception is the wrestling weapon, which should be deferred 
-      // to the global desctable cleaning.
+      ed->unload_scripts();
 
-      if ( is_intrinsic() )
-      {
-        Core::EquipDesc* ed = const_cast<Core::EquipDesc*>( tmpl );
-        if ( !ed->is_pc_intrinsic )
-        {
-          ed->unload_scripts();
-
-          delete tmpl;
-          tmpl = NULL;
-        }
-      }
+      delete tmpl;
+      tmpl = NULL;
     }
-
-	Item* Equipment::clone() const
-	{
-	  Equipment* eq = static_cast<Equipment*>( base::clone() );
-
-	  return eq;
-	}
-
-	void Equipment::printProperties( Clib::StreamWriter& sw ) const
-	{
-	  base::printProperties( sw );
-	}
-
-	void Equipment::readProperties( Clib::ConfigElem& elem )
-	{
-	  base::readProperties( elem );
-	}
-
-	void Equipment::reduce_hp_from_hit()
-	{
-	  // Intrinsic equipment does ot get damaged
-	  if ( tmpl->is_intrinsic )
-		return;
-
-      if ( hp_ >= 1 && Clib::random_int( 99 ) == 0 )
-	  {
-		set_dirty();
-		--hp_;
-		increv();
-		if ( isa( CLASS_ARMOR ) )
-		{
-		  Mobile::Character* chr = GetCharacterOwner();
-		  if ( chr != NULL )
-			chr->refresh_ar();
-		}
-		send_object_cache_to_inrange( this );
-	  }
-	}
-
-    /// Tells eather an equipment is intrinsic or not
-    /// Intrinsic equipment is, by example, NPCs "natural" weapon and shield
-    /// or the PCs wrestling weapon
-    bool Equipment::is_intrinsic() const
-    {
-      return tmpl->is_intrinsic;
-    }
-
-    size_t Equipment::estimatedSize() const
-    {
-      size_t size = base::estimatedSize() 
-        + sizeof(double) /*_quality*/
-        + sizeof(const Core::EquipDesc*); /*tmpl*/
-      if ( is_intrinsic() && !tmpl->is_pc_intrinsic )
-        size += tmpl->estimatedSize();
-      return size;
-    }
-
-    double Equipment::getQuality() const
-    {
-      return _quality;
-    }
-    void Equipment::setQuality(double value)
-    {
-      _quality = value;
-    }
-
-    /// Looks up for an existing intrinsic equipment and return it or NULL if not found
-    Equipment* find_intrinsic_equipment( const std::string& name, u8 layer )
-    {
-      auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndLayer(name,layer) );
-      if( itr == Core::gamestate.intrinsic_equipments.end() )
-        return NULL;
-      return itr->second;
-    }
-
-    /// Must be called when a new intrinsic equipment is created
-    void register_intrinsic_equipment( const std::string& name, Equipment* equip )
-    {
-      equip->inuse( true );
-
-      // during system startup, defer serial allocation in order to avoid clashes with 
-      // saved items.
-      if ( ! Core::stateManager.gflag_in_system_startup )
-      {
-        equip->serial = Core::GetNewItemSerialNumber( );
-        equip->serial_ext = ctBEu32( equip->serial );
-        Core::objStorageManager.objecthash.Insert( equip );
-      }
-
-      insert_intrinsic_equipment(name, equip);
-    }
-
-    /// Adds a new intrisinc equipment to the map of known ones
-    void insert_intrinsic_equipment( const std::string& name, Equipment* equip )
-    {
-      passert_always_r( equip->layer, "Trying to use register equipment without a layer as intrinsic. Please report this bug on the forums." );
-      passert_always_r( equip->is_intrinsic(), "Trying to register non-intrinsic equipment. Please report this bug on the forums." );
-      Core::gamestate.intrinsic_equipments.insert( Core::IntrinsicEquipments::value_type( Core::NameAndLayer(name, equip->layer), equip ) );
-    }
-
-    /// Deferred allocator for serials during startup, see comments in register_intrinsic_equipment()
-    void allocate_intrinsic_equipment_serials()
-    {
-      for( auto it = Core::gamestate.intrinsic_equipments.begin(); it != Core::gamestate.intrinsic_equipments.end(); ++it )
-      {
-        Equipment* eqp = it->second;
-        eqp->serial = Core::GetNewItemSerialNumber();
-        eqp->serial_ext = ctBEu32( eqp->serial );
-        Core::objStorageManager.objecthash.Insert( eqp );
-      }
-    }
-
-    /// Recreates intrinsic equipment for defined NPCs
-    /// must be called at startup
-    void load_npc_intrinsic_equip()
-    {
-      if ( Clib::FileExists( "config/npcdesc.cfg" ) )
-      {
-        Clib::ConfigFile cf( "config/npcdesc.cfg" );
-        Clib::ConfigElem elem;
-        while ( cf.read( elem ) )
-        {
-          Items::create_intrinsic_weapon_from_npctemplate( elem, NULL );
-          Items::create_intrinsic_shield_from_npctemplate( elem, NULL );
-        }
-      }
-      for ( const auto &pkg : Plib::systemstate.packages )
-      {
-        std::string filename = Plib::GetPackageCfgPath(pkg, "npcdesc.cfg");
-
-        if ( Clib::FileExists( filename.c_str( ) ) )
-        {
-          Clib::ConfigFile cf( filename.c_str( ) );
-          Clib::ConfigElem elem;
-          while ( cf.read( elem ) )
-          {
-            std::string newrest = ":" + pkg->name() + ":" + std::string( elem.rest() );
-            elem.set_rest( newrest.c_str() );
-
-            create_intrinsic_weapon_from_npctemplate( elem, pkg );
-            create_intrinsic_shield_from_npctemplate( elem, pkg );
-          }
-        }
-      }
-    }
-
   }
+}
+
+Item* Equipment::clone() const
+{
+  Equipment* eq = static_cast<Equipment*>( base::clone() );
+
+  return eq;
+}
+
+void Equipment::printProperties( Clib::StreamWriter& sw ) const
+{
+  base::printProperties( sw );
+}
+
+void Equipment::readProperties( Clib::ConfigElem& elem )
+{
+  base::readProperties( elem );
+}
+
+void Equipment::reduce_hp_from_hit()
+{
+  // Intrinsic equipment does ot get damaged
+  if ( tmpl->is_intrinsic )
+    return;
+
+  if ( hp_ >= 1 && Clib::random_int( 99 ) == 0 )
+  {
+    set_dirty();
+    --hp_;
+    increv();
+    if ( isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
+    {
+      Mobile::Character* chr = GetCharacterOwner();
+      if ( chr != NULL )
+        chr->refresh_ar();
+    }
+    send_object_cache_to_inrange( this );
+  }
+}
+
+/// Tells eather an equipment is intrinsic or not
+/// Intrinsic equipment is, by example, NPCs "natural" weapon and shield
+/// or the PCs wrestling weapon
+bool Equipment::is_intrinsic() const
+{
+  return tmpl->is_intrinsic;
+}
+
+size_t Equipment::estimatedSize() const
+{
+  size_t size = base::estimatedSize() + sizeof( double ) /*_quality*/
+                + sizeof( const Core::EquipDesc* );      /*tmpl*/
+  if ( is_intrinsic() && !tmpl->is_pc_intrinsic )
+    size += tmpl->estimatedSize();
+  return size;
+}
+
+double Equipment::getQuality() const
+{
+  return _quality;
+}
+void Equipment::setQuality( double value )
+{
+  _quality = value;
+}
+
+/// Looks up for an existing intrinsic equipment and return it or NULL if not found
+Equipment* find_intrinsic_equipment( const std::string& name, u8 layer )
+{
+  auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndLayer( name, layer ) );
+  if ( itr == Core::gamestate.intrinsic_equipments.end() )
+    return NULL;
+  return itr->second;
+}
+
+/// Must be called when a new intrinsic equipment is created
+void register_intrinsic_equipment( const std::string& name, Equipment* equip )
+{
+  equip->inuse( true );
+
+  // during system startup, defer serial allocation in order to avoid clashes with
+  // saved items.
+  if ( !Core::stateManager.gflag_in_system_startup )
+  {
+    equip->serial = Core::GetNewItemSerialNumber();
+    equip->serial_ext = ctBEu32( equip->serial );
+    Core::objStorageManager.objecthash.Insert( equip );
+  }
+
+  insert_intrinsic_equipment( name, equip );
+}
+
+/// Adds a new intrisinc equipment to the map of known ones
+void insert_intrinsic_equipment( const std::string& name, Equipment* equip )
+{
+  passert_always_r( equip->layer,
+                    "Trying to use register equipment without a layer as intrinsic. Please report "
+                    "this bug on the forums." );
+  passert_always_r(
+      equip->is_intrinsic(),
+      "Trying to register non-intrinsic equipment. Please report this bug on the forums." );
+  Core::gamestate.intrinsic_equipments.insert(
+      Core::IntrinsicEquipments::value_type( Core::NameAndLayer( name, equip->layer ), equip ) );
+}
+
+/// Deferred allocator for serials during startup, see comments in register_intrinsic_equipment()
+void allocate_intrinsic_equipment_serials()
+{
+  for ( auto it = Core::gamestate.intrinsic_equipments.begin();
+        it != Core::gamestate.intrinsic_equipments.end(); ++it )
+  {
+    Equipment* eqp = it->second;
+    eqp->serial = Core::GetNewItemSerialNumber();
+    eqp->serial_ext = ctBEu32( eqp->serial );
+    Core::objStorageManager.objecthash.Insert( eqp );
+  }
+}
+
+/// Recreates intrinsic equipment for defined NPCs
+/// must be called at startup
+void load_npc_intrinsic_equip()
+{
+  if ( Clib::FileExists( "config/npcdesc.cfg" ) )
+  {
+    Clib::ConfigFile cf( "config/npcdesc.cfg" );
+    Clib::ConfigElem elem;
+    while ( cf.read( elem ) )
+    {
+      Items::create_intrinsic_weapon_from_npctemplate( elem, NULL );
+      Items::create_intrinsic_shield_from_npctemplate( elem, NULL );
+    }
+  }
+  for ( const auto& pkg : Plib::systemstate.packages )
+  {
+    std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
+
+    if ( Clib::FileExists( filename.c_str() ) )
+    {
+      Clib::ConfigFile cf( filename.c_str() );
+      Clib::ConfigElem elem;
+      while ( cf.read( elem ) )
+      {
+        std::string newrest = ":" + pkg->name() + ":" + std::string( elem.rest() );
+        elem.set_rest( newrest.c_str() );
+
+        create_intrinsic_weapon_from_npctemplate( elem, pkg );
+        create_intrinsic_shield_from_npctemplate( elem, pkg );
+      }
+    }
+  }
+}
+}
 }

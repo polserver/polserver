@@ -17,6 +17,10 @@
 #ifndef __REFPTR_H
 #define __REFPTR_H
 
+#include "compilerspecifics.h"
+
+#include <atomic>
+
 // **** base class for ref counted classes
 
 #define REFPTR_DEBUG 0
@@ -26,10 +30,10 @@
 class ref_counted
 {
   // Construction
- protected:
+protected:
   ref_counted();
 
- public:
+public:
   // Operations
   unsigned int add_ref();
   unsigned int release();
@@ -38,15 +42,15 @@ class ref_counted
   unsigned int instance() const;
 #endif
   // Representation
- protected:
-  unsigned int _count;
+protected:
+  std::atomic<unsigned int> _count;
 #if REFPTR_DEBUG
   unsigned int _cumulative_references;
   unsigned int _instance;
   static unsigned int _ctor_calls;
 #endif
 
- private:  // not implemented
+private:  // not implemented
   ref_counted& operator=( const ref_counted& );
   ref_counted( const ref_counted& );
 };
@@ -60,9 +64,10 @@ template <class T>
 class ref_ptr
 {
   // Construction
- public:
+public:
   explicit ref_ptr( T* ptr = 0 );
   ref_ptr( const ref_ptr& rptr );
+  ref_ptr( ref_ptr&& rptr ) POL_NOEXCEPT;
   ~ref_ptr();
 
   // Operations
@@ -86,16 +91,18 @@ class ref_ptr
   bool operator>=( T* ptr ) const;
 
   ref_ptr& operator=( const ref_ptr& rptr );
+  ref_ptr& operator=( ref_ptr&& rptr );
+
   void set( T* ptr );
   void clear();
 
- protected:
+protected:
   void add_ref();
   void release();
 
   // Representation
- private:
-  T* _ptr;
+private:
+  std::atomic<T*> _ptr;
 };
 
 inline ref_counted::ref_counted()
@@ -139,13 +146,22 @@ ref_ptr<T>::ref_ptr( T* ptr ) : _ptr( ptr )
 #endif
 }
 template <class T>
-ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr._ptr )
+ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr.get() )
 {
   add_ref();
 #if REFPTR_DEBUG
   ++refptr_count;
 #endif
 }
+
+template <class T>
+ref_ptr<T>::ref_ptr( ref_ptr&& rptr ) POL_NOEXCEPT : _ptr( rptr._ptr.exchange( nullptr ) )
+{
+#if REFPTR_DEBUG
+  --refptr_count;
+#endif
+}
+
 template <class T>
 ref_ptr<T>::~ref_ptr()
 {
@@ -241,11 +257,20 @@ template <class T>
 ref_ptr<T>& ref_ptr<T>::operator=( const ref_ptr<T>& rptr )
 {
   release();
-  _ptr = rptr._ptr;
+  _ptr = rptr.get();
   add_ref();
 
   return *this;
 }
+
+template <class T>
+ref_ptr<T>& ref_ptr<T>::operator=( ref_ptr<T>&& rptr )
+{
+  release();
+  _ptr = rptr._ptr.exchange( nullptr );
+  return *this;
+}
+
 template <class T>
 void ref_ptr<T>::set( T* ptr )
 {
@@ -262,21 +287,22 @@ void ref_ptr<T>::clear()
 template <class T>
 void ref_ptr<T>::add_ref()
 {
-  if ( _ptr )
+  T* Pointee = _ptr.load();
+  if ( Pointee )
   {
-    _ptr->add_ref( REFERER_PARAM( this ) );
+    Pointee->add_ref( REFERER_PARAM( this ) );
   }
 }
 template <class T>
 void ref_ptr<T>::release()
 {
-  if ( _ptr )
+  T* Pointee = _ptr.exchange( nullptr );
+  if ( Pointee )
   {
-    if ( 0 == _ptr->release( REFERER_PARAM( this ) ) )
+    if ( 0 == Pointee->release( REFERER_PARAM( this ) ) )
     {
-      delete _ptr;
+      delete Pointee;
     }
-    _ptr = 0;
   }
 }
 

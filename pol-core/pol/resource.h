@@ -7,101 +7,120 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include "poltype.h"
-#include "proplist.h"
-#include "region.h"
-
 #include <iosfwd>
+#include <map>
 #include <set>
 #include <string>
-#include <map>
+#include <time.h>
 
-namespace Pol {
-  namespace Items {
-    void remove_resources( u32 objtype, u16 amount );
-    void return_resources( u32 objtype, u16 amount );
-  }
-  namespace Core {
-	class ResourceDef;
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+#include "poltype.h"
+#include "region.h"
+#include "zone.h"
 
-	Bscript::BObjectImp* get_harvest_difficulty( const char* resource,
-										xcoord x,
-										ycoord y, Realms::Realm* realm,
-										unsigned short marker );
-	Bscript::BObjectImp* harvest_resource( const char* resource,
-										   xcoord x, ycoord y, Realms::Realm* realm,
-								  int b, int n );
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+}  // namespace Bscript
+namespace Clib
+{
+class ConfigElem;
+class StreamWriter;
+}  // namespace Clib
+namespace Realms
+{
+class Realm;
+}  // namespace Realms
+}  // namespace Pol
 
-	Bscript::BObjectImp* get_region_string( const char* resource,
-											xcoord x, ycoord y, Realms::Realm* realm,
-								   const std::string& propname );
-
-	ResourceDef* find_resource_def( const std::string& rname );
-	void write_resources_dat( Clib::StreamWriter& sw_resource );
-	void read_resources_dat();
-	void clean_resources();
-
-
-	class ResourceRegion : public Region
-	{
-	public:
-	  explicit ResourceRegion( Clib::ConfigElem& elem, RegionId id );
-      virtual size_t estimateSize() const POL_OVERRIDE;
-
-	  void read_data( Clib::ConfigElem& elem );
-
-	  Bscript::BObjectImp* get_harvest_difficulty( xcoord x, ycoord y, Realms::Realm* realm );
-	  Bscript::BObjectImp* harvest_resource( xcoord x, ycoord y, int b, int n );
-
-	  void regenerate( time_t now );
-	  void write( Clib::StreamWriter& sw, const std::string& resource_name ) const;
-
-	  unsigned int tilecount_;
-	  friend class ResourceDef;
-	private:
-
-	  //
-	  // These are only used for depletion levels.  
-	  //
-	  const unsigned int units_per_area_;
-	  const unsigned int seconds_per_regrow_;
-	  typedef std::map<unsigned int, unsigned short> Depletions;
-	  Depletions depletions_;
-	  time_t last_regen_;
-
-
-	  //
-	  // the following are used if resource banks are implemented.
-	  //
-	  unsigned int capacity_;        // config
-	  unsigned int units_;           // data
-	};
-
-
-	class ResourceDef : public RegionGroup<ResourceRegion>
-	{
-	public:
-	  explicit ResourceDef( const char* name );
-	  void read_config( Clib::ConfigElem& elem );
-	  void read_data( Clib::ConfigElem& elem );
-      virtual size_t estimateSize() const POL_OVERRIDE;
-	  // void read_region( ConfigElem& elem );
-
-	  bool findmarker( xcoord x, ycoord y, Realms::Realm* realm, unsigned int objtype );
-	  void regenerate( time_t now );
-	  void consume( unsigned amount );
-	  void produce( unsigned amount );
-	  void counttiles();
-	  void write( Clib::StreamWriter& sw ) const;
-	protected:
-
-	private:
-	  unsigned int initial_units_;
-	  int current_units_;
-	  std::set<unsigned short> landtiles_;
-	  std::set<unsigned short> tiles_;
-	  // std::vector<ResourceRegion*> regions_;
-	};
-  }
+namespace Pol
+{
+namespace Items
+{
+void remove_resources( u32 objtype, u16 amount );
+void return_resources( u32 objtype, u16 amount );
 }
-#endif // RESOURCE_H
+namespace Core
+{
+class ResourceDef;
+
+Bscript::BObjectImp* get_harvest_difficulty( const char* resource, xcoord x, ycoord y,
+                                             Realms::Realm* realm, unsigned short marker );
+Bscript::BObjectImp* harvest_resource( const char* resource, xcoord x, ycoord y,
+                                       Realms::Realm* realm, int b, int n );
+
+Bscript::BObjectImp* get_region_string( const char* resource, xcoord x, ycoord y,
+                                        Realms::Realm* realm, const std::string& propname );
+
+ResourceDef* find_resource_def( const std::string& rname );
+void write_resources_dat( Clib::StreamWriter& sw_resource );
+void read_resources_dat();
+void clean_resources();
+
+
+class ResourceRegion : public Region
+{
+public:
+  explicit ResourceRegion( Clib::ConfigElem& elem, RegionId id );
+  virtual size_t estimateSize() const POL_OVERRIDE;
+
+  void read_data( Clib::ConfigElem& elem );
+
+  Bscript::BObjectImp* get_harvest_difficulty( xcoord x, ycoord y, Realms::Realm* realm );
+  Bscript::BObjectImp* harvest_resource( xcoord x, ycoord y, int b, int n );
+
+  void regenerate( time_t now );
+  void write( Clib::StreamWriter& sw, const std::string& resource_name ) const;
+
+  unsigned int tilecount_;
+  friend class ResourceDef;
+
+private:
+  //
+  // These are only used for depletion levels.
+  //
+  const unsigned int units_per_area_;
+  const unsigned int seconds_per_regrow_;
+  typedef std::map<unsigned int, unsigned short> Depletions;
+  Depletions depletions_;
+  time_t last_regen_;
+
+
+  //
+  // the following are used if resource banks are implemented.
+  //
+  unsigned int capacity_;  // config
+  unsigned int units_;     // data
+};
+
+
+class ResourceDef : public RegionGroup<ResourceRegion>
+{
+public:
+  explicit ResourceDef( const char* name );
+  void read_config( Clib::ConfigElem& elem );
+  void read_data( Clib::ConfigElem& elem );
+  virtual size_t estimateSize() const POL_OVERRIDE;
+  // void read_region( ConfigElem& elem );
+
+  bool findmarker( xcoord x, ycoord y, Realms::Realm* realm, unsigned int objtype );
+  void regenerate( time_t now );
+  void consume( unsigned amount );
+  void produce( unsigned amount );
+  void counttiles();
+  void write( Clib::StreamWriter& sw ) const;
+
+protected:
+private:
+  unsigned int initial_units_;
+  int current_units_;
+  std::set<unsigned short> landtiles_;
+  std::set<unsigned short> tiles_;
+  // std::vector<ResourceRegion*> regions_;
+};
+}
+}
+#endif  // RESOURCE_H

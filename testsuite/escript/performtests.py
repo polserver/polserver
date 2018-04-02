@@ -263,6 +263,9 @@ if __name__ == '__main__':
 
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
+	if not os.path.exists(args.ecompile) or not os.path.exists(args.runecl):
+		print('Executables not found!')
+		sys.exit(1)
 
 	totLoops = args.num if args.num > 0 else None
 	totLoopsStr = str(totLoops) if totLoops else '∞'

@@ -1,25 +1,27 @@
 #ifndef E_COMPILE_MAIN_H
 #define E_COMPILE_MAIN_H
 
-#include "../clib/Program/ProgramMain.h"
-
 #include <string>
 
-namespace Pol{ namespace ECompile{
+#include "../clib/Program/ProgramMain.h"
 
+namespace Pol
+{
+namespace ECompile
+{
 class ECompileMain : public Pol::Clib::ProgramMain
 {
 public:
-	ECompileMain();
-    virtual ~ECompileMain();
+  ECompileMain();
+  virtual ~ECompileMain();
 
 protected:
-    virtual int main();
+  virtual int main();
 
 private:
-    virtual void showHelp();
+  virtual void showHelp();
 };
+}
+}  // namespaces
 
-}} // namespaces
-
-#endif // E_COMPILE_MAIN_H
+#endif  // E_COMPILE_MAIN_H

@@ -7,58 +7,59 @@
 #ifndef FMODULE_H
 #define FMODULE_H
 
-#include "options.h"
-#include "../clib/maputil.h"
-#include "../clib/boostutils.h"
-
 #include <map>
+#include <stddef.h>
 #include <string>
 #include <vector>
 
-namespace Pol {
-  namespace Bscript {
-	class ExecutorModule;
-	class UserFunction;
+#include "../clib/boostutils.h"
+#include "../clib/maputil.h"
 
-	class ModuleFunction
-	{
-	public:
-      boost_utils::function_name_flystring name;
-	  unsigned nargs;
-	  int funcidx; // according to the executor, what's its function index 
+namespace Pol
+{
+namespace Bscript
+{
+class UserFunction;
 
-	  // compiler only:
-	  UserFunction* uf; // compiler only
-	  bool used;          // compiler only
+class ModuleFunction
+{
+public:
+  boost_utils::function_name_flystring name;
+  unsigned nargs;
+  int funcidx;  // according to the executor, what's its function index
 
-	  ModuleFunction( const char* fname, int nargs, UserFunction* uf );
-	  ~ModuleFunction();
-	};
+  // compiler only:
+  UserFunction* uf;  // compiler only
+  bool used;         // compiler only
 
-	class FunctionalityModule
-	{
-	public:
-	  bool have_indexes;
-	  std::vector<ModuleFunction*> functions;
+  ModuleFunction( const char* fname, int nargs, UserFunction* uf );
+  ~ModuleFunction();
+};
 
-	  // compiler only:
-	  typedef std::map<std::string, ModuleFunction*, Clib::ci_cmp_pred> FunctionsByName;
-	  FunctionsByName functionsByName;
-	  std::vector<ModuleFunction*> used_functions;
-      std::vector<UserFunction*> owned_userfuncs;
+class FunctionalityModule
+{
+public:
+  bool have_indexes;
+  std::vector<ModuleFunction*> functions;
 
-      boost_utils::function_name_flystring modulename;
+  // compiler only:
+  typedef std::map<std::string, ModuleFunction*, Clib::ci_cmp_pred> FunctionsByName;
+  FunctionsByName functionsByName;
+  std::vector<ModuleFunction*> used_functions;
+  std::vector<UserFunction*> owned_userfuncs;
 
-	  bool isFunc( const char *funcName, ModuleFunction **pmf, int *funcidx );
-	  explicit FunctionalityModule( const char* modname );
-	  ~FunctionalityModule();
+  boost_utils::function_name_flystring modulename;
 
-	  void addFunction( const char *funcname, int nparams, UserFunction* uf = NULL );
-	  void fillFunctionsByName();
+  bool isFunc( const char* funcName, ModuleFunction** pmf, int* funcidx );
+  explicit FunctionalityModule( const char* modname );
+  ~FunctionalityModule();
 
-	private:
-	  FunctionalityModule( const FunctionalityModule& );
-	};
-  }
+  void addFunction( const char* funcname, int nparams, UserFunction* uf = NULL );
+  void fillFunctionsByName();
+
+private:
+  FunctionalityModule( const FunctionalityModule& );
+};
+}
 }
 #endif

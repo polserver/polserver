@@ -1,6 +1,8 @@
 #ifndef GLOBALS_SETTINGS_H
 #define GLOBALS_SETTINGS_H
 
+#include <boost/noncopyable.hpp>
+
 #include "../cmbtcfg.h"
 #include "../extobj.h"
 #include "../movecost.h"
@@ -10,37 +12,35 @@
 #include "../ssopt.h"
 #include "../watch.h"
 
-#include <boost/noncopyable.hpp>
+namespace Pol
+{
+namespace Core
+{
+class SettingsManager : boost::noncopyable
+{
+public:
+  SettingsManager();
+  ~SettingsManager();
 
-namespace Pol {
-namespace Core {
+  void deinitialize();
+  size_t estimateSize() const;
 
+  CombatConfig combat_config;
+  Watch watch;
+  ExternalObject extobj;
+  Party_Cfg party_cfg;
+  ServSpecOpt ssopt;
+  PolVar polvar;
 
-  class SettingsManager : boost::noncopyable
-  {
-  public:
-	  SettingsManager();
-	  ~SettingsManager();
+  MovementCost movecost_walking;
+  MovementCost movecost_running;
+  MovementCost movecost_walking_mounted;
+  MovementCost movecost_running_mounted;
 
-	  void deinitialize();
-      size_t estimateSize() const;
+  RepSys_Cfg repsys_cfg;
+};
 
-	  CombatConfig combat_config;
-	  Watch watch;
-	  ExternalObject extobj;
-	  Party_Cfg party_cfg;
-	  ServSpecOpt ssopt;
-	  PolVar polvar;
-
-	  MovementCost movecost_walking;
-	  MovementCost movecost_running;
-	  MovementCost movecost_walking_mounted;
-	  MovementCost movecost_running_mounted;
-
-	  RepSys_Cfg repsys_cfg;
-  };
-
-  extern SettingsManager settingsManager;
+extern SettingsManager settingsManager;
 }
 }
 #endif

@@ -9,373 +9,315 @@
  */
 
 
-
 #ifndef __UOBJECT_H
 #define __UOBJECT_H
 
-#ifndef __UCONST_H
-#	include "uconst.h"
-#endif
-
 #ifndef __CLIB_RAWTYPES_H
-#	include "../clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 #endif
 
-#include "../clib/refptr.h"
-#include "dynproperties.h"
-#include "proplist.h"
-
-#include "../clib/boostutils.h"
-
+#include <atomic>
 #include <boost/any.hpp>
 #include <boost/flyweight.hpp>
-
 #include <iosfwd>
 #include <map>
-#include <string>
-#include <atomic>
 #include <set>
+#include <string>
+#include <type_traits>
 
-#include "../../lib/format/format.h"
+#include "../clib/boostutils.h"
+#include "../clib/refptr.h"
+#include "baseobject.h"
+#include "dynproperties.h"
+#include "proplist.h"
 
 #define pf_endl '\n'
 
 
-namespace Pol {
-  namespace Bscript {
-	class BObjectImp;
-	class Executor;
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class Executor;
+}
+namespace Clib
+{
+class ConfigElem;
+}
+namespace Items
+{
+class Item;
+class UArmor;
+class UWeapon;
+}
+namespace Mobile
+{
+class Character;
+class NPC;
+}
+namespace Multi
+{
+class UMulti;
+class UBoat;
+}
+namespace Core
+{
+class UContainer;
+class WornItemsContainer;
+
+#pragma pack( push, 1 )
+struct Resistances
+{
+  s16 fire;
+  s16 cold;
+  s16 poison;
+  s16 energy;
+  s16 physical;
+};
+
+enum ElementalType
+{
+  ELEMENTAL_TYPE_MAX = 0x4,
+  ELEMENTAL_FIRE = 0x0,
+  ELEMENTAL_COLD = 0x1,
+  ELEMENTAL_ENERGY = 0x2,
+  ELEMENTAL_POISON = 0x3,
+  ELEMENTAL_PHYSICAL = 0x4
+};
+
+struct ElementDamages
+{
+  s16 fire;
+  s16 cold;
+  s16 poison;
+  s16 energy;
+  s16 physical;
+};
+
+#pragma pack( pop )
+
+template <typename ENUM,
+          typename std::enable_if<
+              std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value, int>::type = 0>
+struct AttributeFlags
+{
+  typedef typename std::underlying_type<ENUM>::type enum_t;
+  AttributeFlags() : flags_( 0 ){};
+
+  bool get( ENUM flag ) const
+  {
+    // no implicit conversion to bool, to be able to check against all bits set
+    return ( flags_ & static_cast<enum_t>( flag ) ) == static_cast<enum_t>( flag );
+  };
+  void set( ENUM flag ) { flags_ |= static_cast<enum_t>( flag ); };
+  void remove( ENUM flag ) { flags_ &= ~static_cast<enum_t>( flag ); };
+  void change( ENUM flag, bool value )
+  {
+    if ( value )
+      set( flag );
+    else
+      remove( flag );
   }
-  namespace Clib {
-	class ConfigElem;
-  }
-  namespace Realms {
-	class Realm;
-  }
-  namespace Items {
-	class Item;
-	class UArmor;
-	class UWeapon;
-  }
-  namespace Mobile {
-	class Character;
-	class NPC;
-  }
-  namespace Multi {
-	class UMulti;
-	class UBoat;
-  }
-  namespace Core {
-	class UContainer;
-	class WornItemsContainer;
+  void reset() { flags_ = 0; };
 
-	// ULWObject: Lightweight object.
-	// Should contain minimal data structures (and no virtuals)
-	// Note, not yet needed, so nothing has been moved here.
-	class ULWObject
-	{};
+private:
+  enum_t flags_;
+};
 
+enum class OBJ_FLAGS : u16
+{
+  DIRTY = 1 << 0,  // UObject flags
+  SAVE_ON_EXIT = 1 << 1,
+  NEWBIE = 1 << 2,  // Item flags
+  INSURED = 1 << 3,
+  MOVABLE = 1 << 4,
+  IN_USE = 1 << 5,
+  INVISIBLE = 1 << 6,
+  LOCKED = 1 << 7,              // ULockable flag
+  CONTENT_TO_GRAVE = 1 << 8,    // UCorpse flag
+  NO_DROP = 1 << 9,             // Item flag
+  NO_DROP_EXCEPTION = 1 << 10,  // Container/Character flag
+};
 
-#ifdef _MSC_VER
-#	pragma pack( push, 1 )
-#else
-#	pragma pack(1)
-#endif
-	struct Resistances
-	{
-	  s16 fire;
-	  s16 cold;
-	  s16 poison;
-	  s16 energy;
-	  s16 physical;
-	};
+/**
+ * @warning if you add fields, be sure to update Items::create().
+ */
+class UObject : protected ref_counted, public ULWObject, public DynamicPropsHolder
+{
+public:
+  virtual std::string name() const;
+  virtual std::string description() const;
 
-	enum ElementalType
-	{
-	  ELEMENTAL_TYPE_MAX = 0x4,
-	  ELEMENTAL_FIRE = 0x0,
-	  ELEMENTAL_COLD = 0x1,
-	  ELEMENTAL_ENERGY = 0x2,
-	  ELEMENTAL_POISON = 0x3,
-	  ELEMENTAL_PHYSICAL = 0x4
-	};
+  bool specific_name() const;
+  void setname( const std::string& );
 
-	struct ElementDamages
-	{
-	  s16 fire;
-	  s16 cold;
-	  s16 poison;
-	  s16 energy;
-	  s16 physical;
-	};
+  bool getprop( const std::string& propname, std::string& propvalue ) const;
+  void setprop( const std::string& propname, const std::string& propvalue );
+  void eraseprop( const std::string& propname );
+  void copyprops( const UObject& obj );
+  void copyprops( const PropertyList& proplist );
+  void getpropnames( std::vector<std::string>& propnames ) const;
+  const PropertyList& getprops() const;
 
-#ifdef _MSC_VER
-#	pragma pack( pop )
-#else
-#	pragma pack()
-#endif
+  virtual void destroy();
 
-    /**
-     * @warning if you add fields, be sure to update Items::create().
-     */
-	class UObject : protected ref_counted, public DynamicPropsHolder
-	{
-	public:
+  virtual unsigned int weight() const = 0;
 
-      /**
-       * This is meant to be coarse-grained. It's meant as an alternative to dynamic_cast.
-       *
-       * Mostly used to go from UItem to UContainer.
-       *
-       * @warning When adding a class, be sure to to also update class_to_type static method
-       */
-      enum UOBJ_CLASS : u8
-      {
-        CLASS_ITEM,
-        CLASS_CONTAINER,
-        CLASS_CHARACTER,
-        CLASS_NPC,
-        CLASS_WEAPON,
-        CLASS_ARMOR,
-        CLASS_MULTI,
-      };
+  virtual UObject* toplevel_owner();  // this isn't really right, it returns the WornItemsContainer
+  virtual UObject* owner();
+  virtual const UObject* owner() const;
+  virtual UObject* self_as_owner();
+  virtual const UObject* self_as_owner() const;
+  virtual const UObject* toplevel_owner() const;
+  virtual bool setgraphic( u16 newobjtype );
+  virtual bool setcolor( u16 newcolor );
+  virtual void on_color_changed();
 
+  virtual void setfacing( u8 newfacing ) = 0;
+  virtual void on_facing_changed();
 
-	  virtual std::string name() const;
-	  virtual std::string description() const;
+  bool saveonexit() const;
+  void saveonexit( bool newvalue );
 
-	  bool specific_name() const;
-	  void setname( const std::string& );
+  virtual void printOn( Clib::StreamWriter& ) const;
+  virtual void printSelfOn( Clib::StreamWriter& sw ) const;
 
-	  bool getprop( const std::string& propname, std::string& propvalue ) const;
-	  void setprop( const std::string& propname, const std::string& propvalue );
-	  void eraseprop( const std::string& propname );
-	  void copyprops( const UObject& obj );
-	  void copyprops( const PropertyList& proplist );
-	  void getpropnames( std::vector< std::string >& propnames ) const;
-	  const PropertyList& getprops() const;
-      
-	  bool orphan() const;
+  virtual void printOnDebug( Clib::StreamWriter& sw ) const;
+  virtual void fixInvalidGraphic();
+  virtual void readProperties( Clib::ConfigElem& elem );
+  // virtual Bscript::BObjectImp* script_member( const char *membername );
+  virtual Bscript::BObjectImp* make_ref() = 0;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const;  /// id test
 
-	  virtual void destroy();
+  virtual Bscript::BObjectImp* set_script_member( const char* membername,
+                                                  const std::string& value );
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value );
+  virtual Bscript::BObjectImp* set_script_member_double( const char* membername, double value );
 
-	  virtual u8 los_height() const = 0;
-	  virtual unsigned int weight() const = 0;
+  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value );
+  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );
+  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value );
 
+  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex );
+  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
 
-	  virtual UObject* toplevel_owner(); // this isn't really right, it returns the WornItemsContainer
-	  virtual UObject* owner();
-	  virtual const UObject* owner() const;
-	  virtual UObject* self_as_owner();
-	  virtual const UObject* self_as_owner() const;
-	  virtual const UObject* toplevel_owner() const;
-	  virtual bool setgraphic( u16 newobjtype );
-	  virtual bool setcolor( u16 newcolor );
-	  virtual void on_color_changed();
+  virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
+                                                     Bscript::Executor& ex );
+  virtual bool script_isa( unsigned isatype ) const;
+  virtual const char* target_tag() const;
 
-	  virtual void setfacing( u8 newfacing ) = 0;
-	  virtual void on_facing_changed();
+  virtual const char* classname() const = 0;
 
-	  virtual bool saveonexit() const;
-	  virtual void saveonexit( bool newvalue );
+  virtual size_t estimatedSize() const;
 
-	  virtual void printOn( Clib::StreamWriter& ) const;
-	  virtual void printSelfOn( Clib::StreamWriter& sw ) const;
+  void ref_counted_add_ref();
+  void ref_counted_release();
+  unsigned ref_counted_count() const;
+  ref_counted* as_ref_counted() { return this; }
+  inline void increv() { _rev++; };
+  inline u32 rev() const { return _rev; };
+  bool dirty() const;
+  void set_dirty();
+  void clear_dirty() const;
+  static std::atomic<unsigned int> dirty_writes;
+  static std::atomic<unsigned int> clean_writes;
 
-	  virtual void printOnDebug( Clib::StreamWriter& sw ) const;
-	  virtual void fixInvalidGraphic();
-	  virtual void readProperties( Clib::ConfigElem& elem );
-	  //virtual Bscript::BObjectImp* script_member( const char *membername );
-	  virtual Bscript::BObjectImp* make_ref() = 0;
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const; ///id test
+protected:
+  virtual void printProperties( Clib::StreamWriter& sw ) const;
+  virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
 
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string& value );
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value );
-	  virtual Bscript::BObjectImp* set_script_member_double( const char *membername, double value );
+  UObject( u32 objtype, UOBJ_CLASS uobj_class );
+  virtual ~UObject();
 
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value );
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );
-	  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value );
+  friend class ref_ptr<UObject>;
+  friend class ref_ptr<Mobile::Character>;
+  friend class ref_ptr<Items::Item>;
+  friend class ref_ptr<Multi::UBoat>;
+  friend class ref_ptr<Multi::UMulti>;
+  friend class ref_ptr<Mobile::NPC>;
+  friend class ref_ptr<UContainer>;
+  friend class ref_ptr<Items::UWeapon>;
+  friend class ref_ptr<Items::UArmor>;
+  friend class ref_ptr<WornItemsContainer>;
 
-	  virtual Bscript::BObjectImp* script_method( const char *methodname, Bscript::Executor& ex );
-	  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
+  // DATA:
+public:
+  u32 serial_ext;
 
-	  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, Bscript::Executor& ex );
-	  virtual bool script_isa( unsigned isatype ) const;
-	  virtual const char* target_tag() const;
+  const u32 objtype_;
+  u16 color;
 
-	  virtual const char *classname() const = 0;
+  u8 facing;  // not always used for items.
+  // always used for characters
 
-      virtual size_t estimatedSize() const;
+  DYN_PROPERTY( maxhp_mod, s16, PROP_MAXHP_MOD, 0 );
+  DYN_PROPERTY( fire_resist, ValueModPack, PROP_RESIST_FIRE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( cold_resist, ValueModPack, PROP_RESIST_COLD, ValueModPack::DEFAULT );
+  DYN_PROPERTY( energy_resist, ValueModPack, PROP_RESIST_ENERGY, ValueModPack::DEFAULT );
+  DYN_PROPERTY( poison_resist, ValueModPack, PROP_RESIST_POISON, ValueModPack::DEFAULT );
+  DYN_PROPERTY( physical_resist, ValueModPack, PROP_RESIST_PHYSICAL, ValueModPack::DEFAULT );
 
+  DYN_PROPERTY( fire_damage, ValueModPack, PROP_DAMAGE_FIRE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( cold_damage, ValueModPack, PROP_DAMAGE_COLD, ValueModPack::DEFAULT );
+  DYN_PROPERTY( energy_damage, ValueModPack, PROP_DAMAGE_ENERGY, ValueModPack::DEFAULT );
+  DYN_PROPERTY( poison_damage, ValueModPack, PROP_DAMAGE_POISON, ValueModPack::DEFAULT );
+  DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
-	  bool isa( UOBJ_CLASS uobj_class ) const;
-	  bool ismobile() const;
-	  bool isitem() const;
-	  bool ismulti() const;
+private:
+  u32 _rev;
 
-	  void ref_counted_add_ref();
-	  void ref_counted_release();
-	  unsigned ref_counted_count() const;
-	  ref_counted* as_ref_counted() { return this; }
+protected:
+  boost_utils::object_name_flystring name_;
+  // mutable due to dirty flag
+  mutable AttributeFlags<OBJ_FLAGS> flags_;
 
-	  inline void increv() { _rev++; };
-	  inline u32 rev() const { return _rev; };
+private:
+  PropertyList proplist_;
 
-	  bool dirty() const;
-	  void set_dirty() { dirty_ = true; }
-	  void clear_dirty() const;
-	  static std::atomic<unsigned int> dirty_writes;
-	  static std::atomic<unsigned int>  clean_writes;
+private:  // not implemented:
+  UObject( const UObject& );
+  UObject& operator=( const UObject& );
+};
 
-	protected:
+extern Clib::StreamWriter& operator<<( Clib::StreamWriter&, const UObject& );
 
-	  virtual void printProperties( Clib::StreamWriter& sw ) const;
-	  virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
+inline bool UObject::specific_name() const
+{
+  return !name_.get().empty();
+}
 
-	  UObject( u32 objtype, UOBJ_CLASS uobj_class );
-	  virtual ~UObject();
+inline void UObject::set_dirty()
+{
+  flags_.set( OBJ_FLAGS::DIRTY );
+}
 
-	  friend class ref_ptr<UObject>;
-	  friend class ref_ptr<Mobile::Character>;
-	  friend class ref_ptr<Items::Item>;
-	  friend class ref_ptr<Multi::UBoat>;
-	  friend class ref_ptr<Multi::UMulti>;
-	  friend class ref_ptr<Mobile::NPC>;
-	  friend class ref_ptr<UContainer>;
-	  friend class ref_ptr<Items::UWeapon>;
-	  friend class ref_ptr<Items::UArmor>;
-	  friend class ref_ptr<WornItemsContainer>;
+inline void UObject::ref_counted_add_ref()
+{
+  ref_counted::add_ref( REFERER_PARAM( this ) );
+}
 
-	  friend class UObjectHelper;
+inline void UObject::ref_counted_release()
+{
+  ref_counted::release( REFERER_PARAM( this ) );
+}
 
+inline unsigned UObject::ref_counted_count() const
+{
+  return ref_counted::count();
+}
 
-	  // DATA:
-	public:
-	  u32 serial, serial_ext;
+inline bool IsCharacter( u32 serial )
+{
+  return ( ~serial & 0x40000000Lu ) ? true : false;
+}
 
-	  const u32 objtype_;
-	  u16 graphic;
-	  u16 color;
-	  u16 x, y;
-	  s8 z;
-	  u8 height;
-
-	  u8 facing; // not always used for items.
-	  // always used for characters
-	  Realms::Realm* realm;
-
-	  bool saveonexit_;	// 1-25-2009 MuadDib added. So far only items will make use of this.
-	  // Another possibility is adding this to NPCs for WoW style Instances.
-
-      DYN_PROPERTY(maxhp_mod, s16, PROP_MAXHP_MOD, 0);
-      static AosValuePack DEFAULT_AOSVALUEPACK;
-      DYN_PROPERTY(fire_resist,     AosValuePack, PROP_RESIST_FIRE,     DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(cold_resist,     AosValuePack, PROP_RESIST_COLD,     DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(energy_resist,   AosValuePack, PROP_RESIST_ENERGY,   DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(poison_resist,   AosValuePack, PROP_RESIST_POISON,   DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(physical_resist, AosValuePack, PROP_RESIST_PHYSICAL, DEFAULT_AOSVALUEPACK);
-
-      DYN_PROPERTY(fire_damage,     AosValuePack, PROP_DAMAGE_FIRE,     DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(cold_damage,     AosValuePack, PROP_DAMAGE_COLD,     DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(energy_damage,   AosValuePack, PROP_DAMAGE_ENERGY,   DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(poison_damage,   AosValuePack, PROP_DAMAGE_POISON,   DEFAULT_AOSVALUEPACK);
-      DYN_PROPERTY(physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK);
-
-	private:
-	  const u8 uobj_class_;
-	  mutable bool dirty_;
-	  u32 _rev;
-
-	protected:
-      boost_utils::object_name_flystring name_;
-
-	private:
-	  PropertyList proplist_;
-      /** Given an UOBJ_CLASS, returns the corresponding Type for profiling */
-      inline static CPropProfiler::Type class_to_type( const UOBJ_CLASS oclass )
-      {
-        switch( oclass ) {
-        case UObject::UOBJ_CLASS::CLASS_ITEM:
-        case UObject::UOBJ_CLASS::CLASS_ARMOR:
-        case UObject::UOBJ_CLASS::CLASS_CONTAINER:
-        case UObject::UOBJ_CLASS::CLASS_WEAPON:
-          return CPropProfiler::Type::ITEM;
-        case UObject::UOBJ_CLASS::CLASS_CHARACTER:
-        case UObject::UOBJ_CLASS::CLASS_NPC:
-          return CPropProfiler::Type::MOBILE;
-        case UObject::UOBJ_CLASS::CLASS_MULTI:
-          return CPropProfiler::Type::MULTI;
-        }
-
-        /// Must compute all cases, relying on GCC's -wSwitch option to check it
-        /// but placing a safe fallback anyway.
-        return CPropProfiler::Type::UNKNOWN;
-      }
-
-	private: // not implemented:
-	  UObject( const UObject& );
-	  UObject& operator=( const UObject& );
-	};
-
-	extern Clib::StreamWriter& operator << ( Clib::StreamWriter&, const UObject& );
-
-	inline bool UObject::specific_name() const
-	{
-	  return !name_.get().empty();
-	}
-
-	inline bool UObject::isa( UOBJ_CLASS uobj_class ) const
-	{
-	  return uobj_class_ == uobj_class;
-	}
-
-	inline bool UObject::ismobile() const
-	{
-	  return ( uobj_class_ == CLASS_CHARACTER ||
-			   uobj_class_ == CLASS_NPC );
-	}
-
-	inline bool UObject::isitem() const
-	{
-	  return !ismobile();
-	}
-	inline bool UObject::ismulti() const
-	{
-	  return ( uobj_class_ == CLASS_MULTI );
-	}
-
-	inline bool UObject::orphan() const
-	{
-	  return ( serial == 0 );
-	}
-
-	inline void UObject::ref_counted_add_ref()
-	{
-	  ref_counted::add_ref( REFERER_PARAM( this ) );
-	}
-
-	inline void UObject::ref_counted_release()
-	{
-	  ref_counted::release( REFERER_PARAM( this ) );
-	}
-
-	inline unsigned UObject::ref_counted_count() const
-	{
-	  return ref_counted::count();
-	}
-
-	inline bool IsCharacter( u32 serial )
-	{
-	  return ( ~serial & 0x40000000Lu ) ? true : false;
-	}
-
-	inline bool IsItem( u32 serial )
-	{
-	  return ( serial & 0x40000000Lu ) ? true : false;
-	}
-  }
+inline bool IsItem( u32 serial )
+{
+  return ( serial & 0x40000000Lu ) ? true : false;
+}
+}
 }
 
 #endif

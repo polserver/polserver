@@ -8,70 +8,84 @@
 #ifndef BSCRIPT_DICT_H
 #define BSCRIPT_DICT_H
 
-#ifdef _MSC_VER
-#pragma warning(disable:4786)
-#endif
-
 #ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
 #endif
 
-#include <map>
 #include <iosfwd>
+#include <map>
+#include <string>
 
-namespace Pol {
-  namespace Bscript {
-	class BDictionary : public BObjectImp
-	{
-	public:
-	  BDictionary();
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
 
-	  static BObjectImp* unpack( std::istream& is );
+namespace Pol
+{
+namespace Bscript
+{
+class ContIterator;
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 
-	  void addMember( const char* name, BObjectRef val );
-	  void addMember( const char* name, BObjectImp* imp );
-	  void addMember( BObjectImp* key, BObjectImp* val );
-	  size_t mapcount() const;
+namespace Pol
+{
+namespace Bscript
+{
+class BDictionary : public BObjectImp
+{
+public:
+  BDictionary();
 
-	  typedef std::map<BObject, BObjectRef> Contents;
-	  const Contents& contents() const;
+  static BObjectImp* unpack( std::istream& is );
 
-	protected:
-	  BDictionary( std::istream& is, unsigned size, BObjectType type = OTDictionary );
-	  BDictionary( const BDictionary&, BObjectType type = OTDictionary );
+  void addMember( const char* name, BObjectRef val );
+  void addMember( const char* name, BObjectImp* imp );
+  void addMember( BObjectImp* key, BObjectImp* val );
+  size_t mapcount() const;
 
-	  virtual BObjectImp* copy() const POL_OVERRIDE;
-	  virtual std::string getStringRep() const POL_OVERRIDE;
-	  virtual size_t sizeEstimate() const POL_OVERRIDE;
-	  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
-	  virtual const char* typeOf() const POL_OVERRIDE;
-	  virtual u8 typeOfInt() const POL_OVERRIDE;
+  typedef std::map<BObject, BObjectRef> Contents;
+  const Contents& contents() const;
 
-	  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
+protected:
+  BDictionary( std::istream& is, unsigned size, BObjectType type = OTDictionary );
+  BDictionary( const BDictionary&, BObjectType type = OTDictionary );
 
-	  virtual char packtype() const;
-	  virtual const char* typetag() const;
-	  virtual void FormatForStringRep( std::ostream& os, const BObject& bkeyobj, const BObjectRef& bvalref ) const;
+  virtual BObjectImp* copy() const POL_OVERRIDE;
+  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
+  virtual const char* typeOf() const POL_OVERRIDE;
+  virtual u8 typeOfInt() const POL_OVERRIDE;
 
-	  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
-	  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-	  virtual BObjectImp* call_method_id( const int id, Executor& ex, bool forcebuiltin = false ) POL_OVERRIDE;
-	  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) POL_OVERRIDE;
-	  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-	  virtual BObjectRef operDotPlus( const char* name ) POL_OVERRIDE;
-	  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
+  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
 
-	  friend class BDictionaryIterator;
+  virtual char packtype() const;
+  virtual const char* typetag() const;
+  virtual void FormatForStringRep( std::ostream& os, const BObject& bkeyobj,
+                                   const BObjectRef& bvalref ) const;
 
-	protected:
-	  explicit BDictionary( BObjectType type );
+  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
+  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+  virtual BObjectImp* call_method_id( const int id, Executor& ex,
+                                      bool forcebuiltin = false ) POL_OVERRIDE;
+  virtual BObjectRef set_member( const char* membername, BObjectImp* value,
+                                 bool copy ) POL_OVERRIDE;
+  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+  virtual BObjectRef operDotPlus( const char* name ) POL_OVERRIDE;
+  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
 
-	private:
-	  Contents contents_;
+  friend class BDictionaryIterator;
 
-	  // not implemented:
-	  BDictionary& operator=( const BDictionary& );
-	};
-  }
+protected:
+  explicit BDictionary( BObjectType type );
+
+private:
+  Contents contents_;
+
+  // not implemented:
+  BDictionary& operator=( const BDictionary& );
+};
+}
 }
 #endif

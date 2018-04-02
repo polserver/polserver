@@ -38,18 +38,6 @@
     <ClCompile Include="staticserver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="testdrop1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testenv.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testlos1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="testwalk1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="uoexpansion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -131,9 +119,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="staticserver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="testenv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fsa.h">

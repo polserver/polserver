@@ -90,7 +90,7 @@ class Main:
 
 	def run(self):
 		parser = Parser()
-		with open(os.path.join('..','docs','docs.polserver.com','pol099','include','escriptguide.inc')) as f:
+		with open(os.path.join('..','docs','docs.polserver.com','pol100','include','escriptguide.inc')) as f:
 			while True:
 				l = f.readline()
 				if not l:

@@ -104,5 +104,8 @@ Set_Event_Queue_Size(size);
 Is_Critical();
 
 OpenURL( character, url );
-OpenConnection( host, port, scriptdef);
+OpenConnection( host, port, scriptdef, params := 0, assume_string := 0);
 Debugger(); // put script in debug state
+
+PerformanceMeasure(delta_seconds := 10, max_scripts := 100);
+HTTPRequest(url, method := "GET", options := struct{});

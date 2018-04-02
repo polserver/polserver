@@ -7,20 +7,24 @@
 
 #ifndef MOVECOST_H
 #define MOVECOST_H
-namespace Pol {
-  namespace Mobile {
-    class Character;
-  }
-  namespace Core {
-	#define MAX_CARRY_PERC 200
 
-	struct MovementCost
-	{
-	  double cost[MAX_CARRY_PERC + 1];
-	  double over;
-	};
+namespace Pol
+{
+namespace Mobile
+{
+class Character;
+}
+namespace Core
+{
+#define MAX_CARRY_PERC 200
 
-	unsigned short movecost( const Mobile::Character* chr, int carry_perc, bool running, bool mounted );
-  }
+struct MovementCost
+{
+  double cost[MAX_CARRY_PERC + 1];
+  double over;
+};
+
+unsigned short movecost( const Mobile::Character* chr, int carry_perc, bool running, bool mounted );
+}
 }
 #endif

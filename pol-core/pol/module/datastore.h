@@ -7,27 +7,38 @@
 #ifndef DATASTORE_H
 #define DATASTORE_H
 
+#include <string>
+
 #include "../../bscript/execmodl.h"
 
-namespace Pol {
-  namespace Module {
-	class DataStoreFile;
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 
-	class DataFileExecutorModule : public Bscript::TmplExecutorModule<DataFileExecutorModule>
-	{
-	public:
-	  DataFileExecutorModule( Bscript::Executor& exec ) :
-		Bscript::TmplExecutorModule<DataFileExecutorModule>( "datafile", exec ) {}
+namespace Pol
+{
+namespace Module
+{
+class DataStoreFile;
 
-	  Bscript::BObjectImp* mf_ListDataFiles();
-	  Bscript::BObjectImp* mf_CreateDataFile();
-	  Bscript::BObjectImp* mf_OpenDataFile();
-	  Bscript::BObjectImp* mf_UnloadDataFile();
+class DataFileExecutorModule : public Bscript::TmplExecutorModule<DataFileExecutorModule>
+{
+public:
+  DataFileExecutorModule( Bscript::Executor& exec );
+  Bscript::BObjectImp* mf_ListDataFiles();
+  Bscript::BObjectImp* mf_CreateDataFile();
+  Bscript::BObjectImp* mf_OpenDataFile();
+  Bscript::BObjectImp* mf_UnloadDataFile();
 
-	private:
-	  DataStoreFile* GetDataStoreFile( const std::string& inspec );
-	};
-  }
+private:
+  DataStoreFile* GetDataStoreFile( const std::string& inspec );
+};
+}
 }
 
 #endif

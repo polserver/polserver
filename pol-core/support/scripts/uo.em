@@ -193,6 +193,7 @@ const RACE_GARGOYLE := 2;
 //  (and I don't know what for color)
 const _DEFAULT_TEXT_FONT     := 3;
 const _DEFAULT_TEXT_COLOR    := 1000;
+const _DEFAULT_TEXT_REQUIREDCMD    := 0;
 
 // Realms
 const _DEFAULT_REALM  		:= "britannia";
@@ -226,19 +227,23 @@ const CLOSE_CONTAINER := 12;
 const CHARPROFILE_NO_UNEDITABLE_TEXT := array;
 const CHARPROFILE_NO_EDITABLE_TEXT := array;
 
+//Accessible
+const ACCESSIBLE_DEFAULT := -1; // uses the default from ssopt
+const ACCESSIBLE_IGNOREDISTANCE := -2; // ignores the range check
+
 ////////////////////////////////////////////////////////////////
 //
 //	FUNCTIONS
 //
 ////////////////////////////////////////////////////////////////
 
-Accessible( by_character, item );
+Accessible( by_character, item, range := ACCESSIBLE_DEFAULT );
 AddAmount( item, amount );
 AddMenuItem( menu, objtype, text, color:=0 );
 ApplyConstraint( objlist, configfile, propertyname, minvalue );
 AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth );
 Attach( character );
-Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
+Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
 CancelTarget( of_whom );
 CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM);
 CheckLineOfSight( object1, object2 );

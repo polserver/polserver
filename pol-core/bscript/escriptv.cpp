@@ -7,15 +7,19 @@
 
 #include "escriptv.h"
 
-namespace Pol {
-  namespace Bscript {
-	int include_debug;
+#include "../clib/rawtypes.h"
 
-	int executor_count = 0;
-	std::atomic<int> eobject_imp_count(0);
-	std::atomic<int> eobject_imp_constructions(0);
-	int escript_program_count = 0;
-	u64 escript_instr_cycles = 0;
-	int escript_execinstr_calls = 0;
-  }
+namespace Pol
+{
+namespace Bscript
+{
+int include_debug;
+
+int executor_count = 0;
+std::atomic<int> eobject_imp_count( 0 );
+std::atomic<int> eobject_imp_constructions( 0 );
+int escript_program_count = 0;
+u64 escript_instr_cycles = 0;
+int escript_execinstr_calls = 0;
+}
 }

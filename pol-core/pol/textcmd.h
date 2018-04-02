@@ -7,23 +7,27 @@
 #define __TEXTCMD_H
 
 #include <cstddef>
-#include "../clib/rawtypes.h"
-
 #include <string>
 
-namespace Pol {
-    namespace Network {
-        class Client;
-    }
+#include "../clib/rawtypes.h"
 
-    namespace Core {
-	  class wordicmp : public std::less<std::string>
-	  {
-	  public:
-		  bool operator()(const std::string& lhs, const std::string& rhs) const;
-	  };
+namespace Pol
+{
+namespace Network
+{
+class Client;
+}
 
-        bool process_command(Network::Client *client, const char *text, const u16* wtext = nullptr, const char* lang = nullptr);
-    }
+namespace Core
+{
+class wordicmp : public std::less<std::string>
+{
+public:
+  bool operator()( const std::string& lhs, const std::string& rhs ) const;
+};
+
+bool process_command( Network::Client* client, const char* text, const u16* wtext = nullptr,
+                      const char* lang = nullptr );
+}
 }
 #endif

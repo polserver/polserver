@@ -1,7 +1,170 @@
-﻿-- POL099 --
-02-23-2016 Bodom:
+﻿-- POL100 --
+04-02-2018 Bodom:
   Removed: polcore().compiledate and polcore().compiletime
   Added:   polcore().compiledatetime
+
+03-19-2018 Nando:
+  Fixed:   Crash at shutdown when POL hasn't been correctly started.
+
+02-26-2018 Nando:
+  Added:   uoconvert now supports UOP files and will use them by default. If there is no
+           map[N]LegacyMUL.uop in the UODataFileRoot, uoconvert will fall back to the
+           old map[N].mul files. You can force uoconvert to convert from the old MULs by using
+           readuop=0.
+
+02-10-2018 Nando:
+  Changed: POL099 is officially released after almost 10 years. Starting the work on POL100. 
+
+-- POL099.1 --
+02-11-2018 Nando:  
+  Added:   range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT). 
+           Valid values: range >= 0, range == ACCESSIBLE_DEFAULT or range == ACCESSIBLE_IGNOREDISTANCE.
+		   The default range will be defined as the servspecopt entry "DefaultAccessibleRange". If that 
+		   entry doesn't exist, the "DefaultDoubleclickRange" will be used instead (which defaults to 2).
+  Fixed:   Accessible(chr, item) now checks for the distance to the item. Differently from the distance 
+           of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,
+		   use ACCESSIBLE_IGNOREDISTANCE as range.
+
+-- POL099 --
+02-06-2018 Turley:
+  Fixed:   fileaccess.cfg: Not specifying Directory entry behaves like before and gives access to all directories. (broken since 01-05-2018)
+02-05-2018 Turley:
+  Added:   Operator @
+           used to receive a function object, which can later be used to call the underlying function with the same parameters/return value via the method ".call(..)"
+  Note:    This object can only executed in the same script instance where it was created and cannot be saved/loaded from datafiles/cprops.
+  Note:    Use cases:
+           function genericItemLoop(func)
+             for item in ...
+               // complicated checks
+               func.call(item);
+             endfor
+           endfunction
+           function changecolor(item)
+             item.color:=6;
+           endfunction
+           ...
+           genericItemLoop(@changecolor);
+           genericItemLoop(@changeY);
+
+           // (fast) function table, instead of "if" cascade
+           var look=dictionary;
+           look["blubb"]:=@doSomething
+           look["blah"]:=@doSomethingElse
+           ...
+           look[mykey].call();
+          
+  Changed: Version number of ecl files, recompilation needed.
+           
+01-07-2018 Kevin:
+  Added:   basic::UnpackJSON(string)
+           Given a string in JSON format, returns an eScript object representing that JSON value.
+  Added:   basic::PackJSON(expr)
+           Given an eScript expression (Int, Dbl, String, Array, Struct, Dict), returns a serialization of the object in JSON format.
+01-05-2018 Turley:
+  Added:   fileaccess.cfg Directory entry
+           Can be definied multiple times in package syntax.
+           ::config means config rootfolder, :mypkg:test means subfolder test of mypkg. Has only a meaning if AllowRemote is given. Limits the access to given folder and its subfolders.
+  Added:   New type Boolean
+           == != ! operators are implemented
+           use new basic.em function Boolean(1/0) to create such type.
+           see testsuite/escript/boolean in the sources for detailed scripts of what is possible.
+01-04-2018 Kevin:
+  Added:   os::HTTPRequest(url, method := "GET", options := struct{})
+           Creates an HTTP request, and returns the returned data as a string.
+12-23-2017 Turley:
+  Added:   os:PerformanceMeasure(delta_seconds, max_scripts)
+           Monitors for given number of seconds the instructions of all scripts. Returns:
+           struct with the following members: 
+           total_number_observed - number of scripts alive in the timespan
+           total_instructions - sum of all instructions of the observed scripts
+           scripts - array of structs (max number is given max_scripts param) sorted by instructions amount
+           each scripts entry has the following members:
+           name - script name, if attached with name/npctemplate
+           instructions - number of executed instructions
+           pid - PID of the script
+           percent - percent of the total instruction amount
+
+12-20-2017 Turley:
+  Changed: Doubled the speed of custom method resolution.
+10-20-2017 DevGIB:
+  Changed: Added assume_string flag to OS::OpenConnection() to allow you to force the connection script to run as AUXSVC_ASSUME_STRING script option before the script loads in case of fast responding connections.
+10-11-2017 DevGIB:
+  Changed: Added params to OS::OpenConnection() to allow you to pass parameters to the script that is run for the connection.
+09-23-2017 Turley:
+  Added:   array.sort(int sub_index:=0) the optional parameter specifies the index used for sorting in the case of an array of arrays
+09-10-2017 Turley:
+  Added:   poltool uncompressgump
+           unpacks and prints content of a compressed gump
+           only parameter is a filename, which needs to contain a single 0xDD packetlog
+  Added:   item member no_drop 1/0 r/w (itemdesc NoDrop)
+           if set no drop of this item is allowed
+           container/npc member no_drop_exception 1/0 r/w
+           (itemdesc/npctemplate NoDropException)
+           if set this container/npc is a valid target even if no_drop is set for the item
+08-03-2017 Nando:
+  Fixed:   Shutdown crash when using character method scripts.
+07-31-2017 Nando:
+  Fixed:   Interactive commands could cause a crash when used inside a run-to-completion script
+           (e.g., syshooks, scripts ran via OS::run_script_to_completion() and method scripts). The 
+           interactive commands	will now return an error if the script can't be blocked. 
+		   (Note: this does not apply to critical scripts, which *can* block).
+		   
+		   Affected commands: 
+		   UO::Target(), UO::TargetCoordinates(), UO::TargetMultiPlacement(), UO::SelectMenuItem(),
+		   UO::SendDialogGump(), UO::SendGumpMenu(), UO::SendTextEntryGump(), UO::SendInstaResDialog(),
+		   UO::SelectColor(), UO::SendPopupMenu(), UO::RequestInput(), Unicode::RequestInputUC()		   
+
+07-23-2017 DevGIB:
+  Added:   _DEFAULT_TEXT_REQUIREDCMD := 0 to uo.em which allows to set a minimum cmd level that broadcasts will be sent to.
+
+  Changed: Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD )
+           adding requiredcmdlevel argument which allows you to set a minimum cmd level that the broadcast will be sent to.
+  Changed: No longer require a PID for GetProcess( pid  := "" ), not selecting a PID will use the PID of the parent script.
+07-17-2017 Kevin:
+  Fixed:   PrintTextAbove*CL() now behaves similarly to PrintTextAbove*() functions, displaying the
+           object's description instead of "System".
+05-28-2017 Turley:
+  Removed: pol.cfg entry to disable assertions. A crash will anyway happen, thus it makes no sense and only hides the real reason.
+05-28-2017 Nando:
+  Fixed:   Crash when using SplitWords() in a script that was compiled with outdated .em files.
+05-01-2017 Turley:
+  Fixed:   Item.house property gets now reset on component remove
+11-29-2016 Boberski:
+  Added:   Support for TOL (Time of Legends) expantion.
+10-23-2016 Nando:
+  Added:   Member character.carrying_capacity (read only)
+           Returns the current carrying capacity of a character, defined as:
+              (40 + 3.5*STR + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod
+   Note:   Characters can go above their carrying_capacity, but they will spend
+           much more stamina to move according to movecost.cfg. Don't treat this
+           as max_weight.
+08-28-2016 Turley:
+  Fixed:   Calculation of NPC AOS resistance/damage values
+  Added:   Member object.specific_name
+           returns 1 if a custom name is set. if its still the original (eg itemdesc) returns 0
+03-27-2016 Nando:
+  Added:   Option "ThreadStacktracesWhenStuck" to pol.cfg. Useful to debug the core when
+           no clock movement occurs for more than 30 seconds. Defaults to false.
+03-25-2016 Nando:
+  Fixed:   Crashes when receiving very big packets.
+03-24-2016 Nando:
+  Fixed:   Crashes after deleting a component (hold, tillerman, plank) of a boat
+03-23-2016 Nando:
+  Fixed:   Possible crashes when a script teminates while executing a SQL command.
+03-21-2016 Nando:
+  Fixed:   Possible crashes when handling a client's response to menus
+           created with CreateMenu()
+03-02-2016 Nando:
+  Changed: POL will default to use multithreading (Multithread = 1 in pol.cfg).
+     Note: Multithread=0 is deprecated and likely buggy. It's possible that it doesn't
+           even work at the moment. Because every OS should support threading by now,
+           we see no reason to maintain two separate systems. Singlethread support will
+           be removed in the next version.
+03-02-2016 Nando & Turley:
+  Fixed:   Possible crashes when sending events to npcs whose event queues were full.
+02-29-2016 Nando & Turley:
+  Fixed:   Data races when dealing with clients. Some other not-reproducible crashes
+           should also go away now.
 02-15-2016 Nando:
   Changed: UO::SendQuestArrow(x := -1, y := -1, target := "")
            This function will now work for HSA clients (version > 7.0.9), which

@@ -10,8 +10,10 @@
  * - Add a normal Header file which includes everything you want in the pch.
  * - Add a normal cpp which only includes this header.
  * - In the project settings C/C++ Precompiled header: Use /Yu
- * - And since the pch header file needs to be included everywhere also use /FI (forced include file) in the advanced section.
- * - The pch needs also to be created and thats why the additional cpp file exists, in the properties of this file instead of "Use /Yu" set it to "Create /Yc"
+ * - And since the pch header file needs to be included everywhere also use /FI (forced include
+ * file) in the advanced section.
+ * - The pch needs also to be created and thats why the additional cpp file exists, in the
+ * properties of this file instead of "Use /Yu" set it to "Create /Yc"
  */
 
 
@@ -39,27 +41,26 @@
 #include <vector>
 
 // 3rd Party Includes
+#include <format/format.h>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/any.hpp>
 #include <boost/flyweight.hpp>
 #include <boost/noncopyable.hpp>
-#include "../../lib/format/format.h"
 
 // Project Includes (be really really carefull what to include!)
 
 // explicit included since needed anyway for later includes
-#include "compileassert.h"
-#include "compilerspecifics.h" 
 #include "Debugging/LogSink.h"
+#include "compilerspecifics.h"
 #include "message_queue.h"
 
-#include "passert.h"
+#include "fixalloc.h"
 #include "logfacility.h"
+#include "passert.h"
+#include "rawtypes.h"
+#include "refptr.h"
 #include "stlutil.h"
 #include "strutil.h"
-#include "rawtypes.h"
-#include "fixalloc.h"
-#include "refptr.h"
 #include "weakptr.h"
 
-#endif // _CLIB_STDAFX_H
+#endif  // _CLIB_STDAFX_H

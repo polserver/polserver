@@ -8,56 +8,64 @@
 #define __MENU_H
 
 #ifndef __CLIB_RAWTYPES_H
-#	include "../clib/rawtypes.h"
+#include "../clib/rawtypes.h"
 #endif
-
-#include <vector>
 #include <cstddef>
+#include <vector>
 
-namespace Pol {
-  namespace Core {
-	// FIXME these are horribly wasteful.  Probably should be using <string> or something.
-	// also, kinda bad for each MenuItem to have a submenu_name, when most won't be submenus...sigh.
+#include "../clib/weakptr.h"
 
-	class MenuItem
-	{
-	public:
-	  MenuItem();
+namespace Pol
+{
+namespace Core
+{
+// FIXME these are horribly wasteful.  Probably should be using <string> or something.
+// also, kinda bad for each MenuItem to have a submenu_name, when most won't be submenus...sigh.
 
-	  // memberwise copy is okay for these:
-	  //MenuItem( const MenuItem& );
-	  //MenuItem& operator=( const MenuItem& );
+class MenuItem
+{
+public:
+  MenuItem();
 
-	  u32 objtype_;
-	  u16 graphic_;
-	  u16 color_;
-	  char title[80];
-	  char submenu_name[80];
-	  unsigned short submenu_id;
+  // memberwise copy is okay for these:
+  // MenuItem( const MenuItem& );
+  // MenuItem& operator=( const MenuItem& );
 
-	private: // not implemented
-	};
+  u32 objtype_;
+  u16 graphic_;
+  u16 color_;
+  char title[80];
+  char submenu_name[80];
+  unsigned short submenu_id;
 
-	class Menu
-	{
-	public:
-	  Menu();
+private:  // not implemented
+};
 
-	  //memberwise copy is fine for these:
-	  //Menu( const Menu& );
-	  //Menu& operator=( const Menu& );
+class Menu
+{
+public:
+  Menu();
 
-	  unsigned short menu_id;
-	  char name[80];
-	  char title[80];
+  // Those are needed to update the weak_ptr_owner
+  Menu( const Menu& );
+  Menu& operator=( const Menu& );
 
-	  std::vector<MenuItem> menuitems_;
-	  size_t estimateSize() const;
+  unsigned short menu_id;
+  char name[80];
+  char title[80];
 
-	  static void read_menus();
-	  static Menu *find_menu( const char *name );
-	  static Menu *find_menu( unsigned short menu_id );
-	};
-  }
+  std::vector<MenuItem> menuitems_;
+  size_t estimateSize() const;
+
+  static void read_menus();
+  static Menu* find_menu( const char* name );
+  static Menu* find_menu( unsigned short menu_id );
+
+  weak_ptr<Menu> getWeakPtr() const { return weakptr; }
+
+private:
+  weak_ptr_owner<Menu> weakptr;
+};
+}
 }
 #endif

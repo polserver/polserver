@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="scripts">
+      <UniqueIdentifier>{23e9a4f5-2c18-4a12-bd5e-1089829a8682}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="scripts\attributes.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\basic.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\basicio.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\boat.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\cfgfile.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\cliloc.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\datafile.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\ecompile.cfg.example">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\file.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\guilds.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\http.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\math.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\npc.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\os.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\party.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\polsys.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\sql.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\storage.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\unicode.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\uo.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\util.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="scripts\vitals.em">
+      <Filter>scripts</Filter>
+    </None>
+    <None Include="pol.cfg" />
+    <None Include="uoconvert.cfg" />
+    <None Include="extobj.cfg" />
+    <None Include="boats.cfg" />
+    <None Include="animxlate.cfg" />
+  </ItemGroup>
+</Project>

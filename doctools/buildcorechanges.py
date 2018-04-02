@@ -199,9 +199,11 @@ class LineParseError(Exception):
 class Main:
 
 	def run(self):
+		mydir = os.path.dirname(os.path.realpath(__file__))
+
 		# Load core changes
 		try:
-			changes = CoreChanges(os.path.join('..','pol-core','doc','core-changes.txt'))
+			changes = CoreChanges(os.path.join(mydir,'..','pol-core','doc','core-changes.txt'))
 		except LineParseError as e:
 			print('ERROR parsing line {}: {}\nLine: "{}"'.format(e.linenum, e, e.line))
 			return
@@ -240,7 +242,7 @@ class Main:
 		out = out.replace('~~~NEWLINE~~~', '<br/>\n')
 
 		# Write
-		outFile = os.path.join('..','docs','docs.polserver.com','pol099','corechanges.xml')
+		outFile = os.path.join(mydir,'..','docs','docs.polserver.com','pol100','corechanges.xml')
 		with open(outFile, 'wt', encoding='utf-8') as f:
 			f.write(out)
 

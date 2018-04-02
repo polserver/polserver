@@ -8,69 +8,94 @@
 #define ARMOR_H
 
 #include <iosfwd>
-
-#include "../scrdef.h"
-
-#include "equipmnt.h"
-
 #include <set>
 #include <string>
 
-#define ARMOR_TMPL (static_cast<const ArmorDesc*>(tmpl))
+#include "../../bscript/bobject.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
+#include "../dynproperties.h"
+#include "../scrdef.h"
+#include "equipmnt.h"
 
-namespace Pol {
-  namespace Items {
-	class ArmorDesc;
-    class Item;
+namespace Pol
+{
+namespace Bscript
+{
+class String;
+class BStruct;
+}
+namespace Clib
+{
+class StreamWriter;
+class ConfigElem;
+}
+namespace Plib
+{
+class Package;
+}
+}
+#define ARMOR_TMPL ( static_cast<const ArmorDesc*>( tmpl ) )
 
-	class UArmor : public Equipment
-	{
-	  typedef Equipment base;
+namespace Pol
+{
+namespace Items
+{
+class ArmorDesc;
+class Item;
 
-	public:
-      virtual ~UArmor() {};
-	  virtual unsigned short ar() const;
-	  virtual unsigned short ar_base() const;
-	  virtual bool covers( unsigned short layer ) const;
-	  virtual Item* clone() const POL_OVERRIDE;
-      virtual size_t estimatedSize( ) const POL_OVERRIDE;
+class UArmor : public Equipment
+{
+  typedef Equipment base;
 
-	  void set_onhitscript( const std::string& scriptname );
-	  std::set<unsigned short> tmplzones();
+public:
+  virtual ~UArmor(){};
+  virtual unsigned short ar() const;
+  virtual unsigned short ar_base() const;
+  virtual bool covers( unsigned short zlayer ) const;
+  virtual Item* clone() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const POL_OVERRIDE;
 
-      DYN_PROPERTY(ar_mod, s16, Core::PROP_AR_MOD, 0);
+  void set_onhitscript( const std::string& scriptname );
+  std::set<unsigned short> tmplzones();
 
-	protected:
-	  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-	  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* get_script_member( const char *membername ) const POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE; ///id test
+  DYN_PROPERTY( ar_mod, s16, Core::PROP_AR_MOD, 0 );
 
-      virtual Bscript::BObjectImp* set_script_member(const char *membername, const std::string& value) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* set_script_member( const char *membername, int value ) POL_OVERRIDE;
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value ) POL_OVERRIDE; //id test
-	  virtual Bscript::BObjectImp* set_script_member_id( const int id, int value ) POL_OVERRIDE;//id test
-	  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+protected:
+  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
 
-	  UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor );
-	  friend class Item;
-	  //friend void load_data();
-	  friend void load_weapon_templates();
-	  friend UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem, const Plib::Package* pkg );
+  virtual Bscript::BObjectImp* set_script_member( const char* membername,
+                                                  const std::string& value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
+      POL_OVERRIDE;  // id test
+  virtual Bscript::BObjectImp* set_script_member_id( const int id,
+                                                     int value ) POL_OVERRIDE;  // id test
+  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
 
-	  const ArmorDesc& descriptor() const;
-	  const Core::ScriptDef& onhitscript() const;
+  UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor );
+  friend class Item;
+  // friend void load_data();
+  friend void load_weapon_templates();
+  friend UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem,
+                                          const Plib::Package* pkg );
 
-	private:
-	  Core::ScriptDef onhitscript_;
+  const ArmorDesc& descriptor() const;
+  const Core::ScriptDef& onhitscript() const;
 
-	};
+private:
+  Core::ScriptDef onhitscript_;
+};
 
-	void load_armor_templates();
-	void unload_armor_templates();
+void load_armor_templates();
+void unload_armor_templates();
 
-	void validate_intrinsic_shield_template();
-	UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg );
-  }
+void validate_intrinsic_shield_template();
+UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem,
+                                                  const Plib::Package* pkg );
+}
 }
 #endif

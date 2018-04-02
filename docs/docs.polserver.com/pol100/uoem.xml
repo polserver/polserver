@@ -1,0 +1,3037 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="escript.xslt" ?>
+<!DOCTYPE ESCRIPT SYSTEM "escript.dtd">
+<ESCRIPT>
+  <fileheader fname="UO.em">
+    <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
+    <datemodified>08/31/2015</datemodified>
+
+<constant>// CreateMulti flags</constant>
+<constant>// only for house creation:</constant>
+<constant>const CRMULTI_IGNORE_MULTIS     := 0x0001;  // ignore intersecting multis</constant>
+<constant>const CRMULTI_IGNORE_OBJECTS    := 0x0002;  // ignore dynamic objects</constant>
+<constant>const CRMULTI_IGNORE_WORLDZ     := 0x0004;  // ignore standability, relative Z, world height</constant>
+<constant>const CRMULTI_IGNORE_ALL        := 0x0007;</constant>
+<constant>// only for boat creation:</constant>
+<constant>const CRMULTI_FACING_NORTH      := 0x0000;</constant>
+<constant>const CRMULTI_FACING_EAST       := 0x0100;</constant>
+<constant>const CRMULTI_FACING_SOUTH      := 0x0200;</constant>
+<constant>const CRMULTI_FACING_WEST       := 0x0300;</constant>
+<constant> </constant>
+<constant>//  ListHostiles exclusions</constant>
+<constant>const LH_FLAG_LOS               := 1;       // only include those in LOS</constant>
+<constant>const LH_FLAG_INCLUDE_HIDDEN    := 2;       // include hidden characters</constant>
+<constant> </constant>
+<constant>// FindPath flags</constant>
+<constant>const FP_IGNORE_MOBILES         := 0x01;    // ignore Mobiles</constant>
+<constant>const FP_IGNORE_DOORS           := 0x02;    // ignore Doors (you've to open doors by yourself)</constant>
+<constant> </constant>
+<constant>// Send*Window flags</constant>
+<constant>const VENDOR_SEND_AOS_TOOLTIP   := 0x01;    // send Item Description using AoS Tooltips</constant>
+<constant>const VENDOR_BUYABLE_CONTAINER_FILTER := 0x02; // filter items in the SendSellWindow() by what is in the buyable container</constant>
+<constant> </constant>
+<constant>const SENDDIALOGMENU_FORCE_OLD  := 0x01;    // send UnCompressed Gump</constant>
+<constant> </constant>
+<constant>// RegisterForSpeechEvents flags</constant>
+<constant>const LISTENPT_HEAR_GHOSTS      := 0x01;    // hear ghost speech in addition to living speech</constant>
+<constant>const LISTENPT_HEAR_TOKENS      := 0x02;    // hear also speechtokens (only with ssopt.SeperateSpeechTokens)</constant>
+<constant>const LISTENPT_NO_SPEECH        := 0x04;    // hear no normal speech (only with ssopt.SeperateSpeechTokens)</constant>
+<constant> </constant>
+<constant>// List[Statics/Items]* flags</constant>
+<constant>const ITEMS_IGNORE_STATICS      := 0x01;    // Don't list Static Items</constant>
+<constant>const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items</constant>
+<constant> </constant>
+<constant>// special value for List[Items/Mobiles/Statics]*</constant>
+<constant>const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</constant>
+<constant> </constant>
+<constant>//  ListMobilesNearLocationEx exclusions</constant>
+<constant>const LISTEX_FLAG_NORMAL := 0x01;</constant>
+<constant>const LISTEX_FLAG_HIDDEN := 0x02;</constant>
+<constant>const LISTEX_FLAG_GHOST := 0x04;</constant>
+<constant>const LISTEX_FLAG_CONCEALED := 0x08;</constant>
+<constant>const LISTEX_FLAG_PLAYERS_ONLY := 0x10;</constant>
+<constant>const LISTEX_FLAG_NPC_ONLY := 0x20;</constant>
+<constant> </constant>
+<constant>// ListItemsNearLocationWithFlag( x,y,z, range, flags ); tiledata flags</constant>
+<constant>// Thanks to Alazane: http://dkbush.cablenet-va.com/alazane/file_formats.html#3.17</constant>
+<constant>const TILEDATA_FLAG_BACKGROUND  := 0x00000001; //Background</constant>
+<constant>const TILEDATA_FLAG_WEAPON      := 0x00000002; //Weapon</constant>
+<constant>const TILEDATA_FLAG_TRANSPARENT := 0x00000004; //Transparent</constant>
+<constant>const TILEDATA_FLAG_TRANSLUCENT := 0x00000008; //Translucent</constant>
+<constant>const TILEDATA_FLAG_WALL        := 0x00000010; //Wall</constant>
+<constant>const TILEDATA_FLAG_DAMAGING    := 0x00000020; //Damaging</constant>
+<constant>const TILEDATA_FLAG_IMPASSABLE  := 0x00000040; //Impassable</constant>
+<constant>const TILEDATA_FLAG_WET         := 0x00000080; //Wet</constant>
+<constant>const TILEDATA_FLAG_UNK         := 0x00000100; //Unknown</constant>
+<constant>const TILEDATA_FLAG_SURFACE     := 0x00000200; //Surface</constant>
+<constant>const TILEDATA_FLAG_BRIDGE      := 0x00000400; //Bridge</constant>
+<constant>const TILEDATA_FLAG_STACKABLE   := 0x00000800; //Generic/Stackable</constant>
+<constant>const TILEDATA_FLAG_WINDOW      := 0x00001000; //Window</constant>
+<constant>const TILEDATA_FLAG_NOSHOOT     := 0x00002000; //No Shoot</constant>
+<constant>const TILEDATA_FLAG_PREFIX_A    := 0x00004000; //Prefix A</constant>
+<constant>const TILEDATA_FLAG_PREFIX_AN   := 0x00008000; //Prefix An</constant>
+<constant>const TILEDATA_FLAG_INTERNAL    := 0x00010000; //Internal (things like hair, beards, etc)</constant>
+<constant>const TILEDATA_FLAG_FOLIAGE     := 0x00020000; //Foliage</constant>
+<constant>const TILEDATA_FLAG_PARTIAL_HUE := 0x00040000; //Partial Hue</constant>
+<constant>const TILEDATA_FLAG_UNK1        := 0x00080000; //Unknown 1</constant>
+<constant>const TILEDATA_FLAG_MAP         := 0x00100000; //Map</constant>
+<constant>const TILEDATA_FLAG_CONTAINER   := 0x00200000; //Container</constant>
+<constant>const TILEDATA_FLAG_WEARABLE    := 0x00400000; //Wearable</constant>
+<constant>const TILEDATA_FLAG_LIGHTSOURCE := 0x00800000; //LightSource</constant>
+<constant>const TILEDATA_FLAG_ANIMATED    := 0x01000000; //Animated</constant>
+<constant>const TILEDATA_FLAG_HOVEROVER   := 0x02000000; //HoverOver (gargoyle flying tiles)</constant>
+<constant>const TILEDATA_FLAG_UNK2        := 0x04000000; //Unknown 2</constant>
+<constant>const TILEDATA_FLAG_ARMOR       := 0x08000000; //Armor</constant>
+<constant>const TILEDATA_FLAG_ROOF        := 0x10000000; //Roof</constant>
+<constant>const TILEDATA_FLAG_DOOR        := 0x20000000; //Door</constant>
+<constant>const TILEDATA_FLAG_STAIRBACK   := 0x40000000; //StairBack</constant>
+<constant>const TILEDATA_FLAG_STAIRRIGHT  := 0x80000000; //StairRight</constant>
+<constant> </constant>
+<constant>// GetStandingLayers( x, y, flags, realm := _DEFAULT_REALM ); mapdata flags</constant>
+<constant>const MAPDATA_FLAG_NONE         := 0x0000;     // Nothing</constant>
+<constant>const MAPDATA_FLAG_MOVELAND     := 0x0001;     // Move Land</constant>
+<constant>const MAPDATA_FLAG_MOVESEA      := 0x0002;     // Move Sea</constant>
+<constant>const MAPDATA_FLAG_BLOCKSIGHT   := 0x0004;     // Block Sight</constant>
+<constant>const MAPDATA_FLAG_OVERFLIGHT   := 0x0008;     // Over Flight (gargoyle flying)</constant>
+<constant>const MAPDATA_FLAG_ALLOWDROPON  := 0x0010;     // Allow DropOn</constant>
+<constant>const MAPDATA_FLAG_GRADUAL      := 0x0020;     // Gradual</constant>
+<constant>const MAPDATA_FLAG_BLOCKING     := 0x0040;     // Blocking</constant>
+<constant>const MAPDATA_FLAG_MORE_SOLIDS  := 0x0080;     // List more Solids</constant>
+<constant> </constant>
+<constant>const MAPDATA_FLAG_WALKBLOCK    := 0x0057;     // Move Land, Move Sea, Blocking, Block Sight, Allow DropOn</constant>
+<constant>const MAPDATA_FLAG_MOVE_FLAGS   := 0x0063;     // Move Land, Move Sea, Blocking, Gradual</constant>
+<constant>const MAPDATA_FLAG_DROP_FLAGS   := 0x0050;     // Blocking, Allow DropOn</constant>
+<constant>const MAPDATA_FLAG_ALL          := 0xffffffff; // All</constant>
+<constant> </constant>
+<constant>// Constants for MoveObjectToLocation</constant>
+<constant>const MOVEOBJECT_NORMAL    := 0x0;        // Implicit.  Will move if able.</constant>
+<constant>const MOVEITEM_IGNOREMOVABLE   := 0x20000000; // Will ignore the movable property on items.</constant>
+<constant>const MOVEOBJECT_FORCELOCATION := 0x40000000; // Force Z location</constant>
+<constant> </constant>
+<constant>// Constants for PrintTextAbove*</constant>
+<constant>const JOURNAL_PRINT_NAME    := 0x00;  // Implicit.  Print's the object's description / npc's name in the journal.</constant>
+<constant>const JOURNAL_PRINT_YOU_SEE := 0x01;  // Will print "You see:" in the journal.</constant>
+<constant> </constant>
+<constant>// Resurrect options</constant>
+<constant>const RESURRECT_FORCELOCATION := 0x01;</constant>
+<constant> </constant>
+<constant>// MoveType constants for CanInsert/OnInsert/CanRemove/OnRemove scripts</constant>
+<constant> </constant>
+<constant>const MOVETYPE_PLAYER     := 0; // Moved by the player</constant>
+<constant>const MOVETYPE_COREMOVE   := 1; // Moved with MoveItem*() (or equiv)</constant>
+<constant>const MOVETYPE_CORECREATE := 2; // Created with CreateItemIn*() (or equiv)</constant>
+<constant> </constant>
+<constant>// InsertType constants for CanInsert/OnInsert scripts</constant>
+<constant>const INSERT_ADD_ITEM          := 1;</constant>
+<constant>const INSERT_INCREASE_STACK    := 2;</constant>
+<constant> </constant>
+<constant>// DeleteBy constants for CanDelete script</constant>
+<constant>const DELETE_BY_PLAYER := 0;</constant>
+<constant>const DELETE_BY_SCRIPT := 1;</constant>
+<constant> </constant>
+<constant>// EnumerateItemsInContainer constants</constant>
+<constant>const ENUMERATE_IGNORE_LOCKED := 0x1; // List content of locked container.</constant>
+<constant>const ENUMERATE_ROOT_ONLY   := 0x2; // Do not list contents of sub-containers.</constant>
+<constant> </constant>
+<constant>// FindSubstance constants</constant>
+<constant>const FINDSUBSTANCE_IGNORE_LOCKED := 0x1; // Find matches in locked containers</constant>
+<constant>const FINDSUBSTANCE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</constant>
+<constant>const FINDSUBSTANCE_FIND_ALL      := 0x4; // Find all matches ignoring given amount</constant>
+<constant> </constant>
+<constant>//  SendTextEntryGump options</constant>
+<constant>const TE_CANCEL_DISABLE := 0;</constant>
+<constant>const TE_CANCEL_ENABLE  := 1;</constant>
+<constant> </constant>
+<constant>const TE_STYLE_DISABLE  := 0;</constant>
+<constant>const TE_STYLE_NORMAL   := 1;</constant>
+<constant>const TE_STYLE_NUMERICAL:= 2;</constant>
+<constant> </constant>
+<constant>//  SystemFindObjectBySerial options:</constant>
+<constant>const SYSFIND_SEARCH_OFFLINE_MOBILES := 1;</constant>
+<constant> </constant>
+<constant>//  Target Options - add these together and pass as second</constant>
+<constant>//  param to Target()</constant>
+<constant>const TGTOPT_CHECK_LOS   := 0x0001;</constant>
+<constant>const TGTOPT_NOCHECK_LOS := 0x0000; // to be explicit</constant>
+<constant>const TGTOPT_HARMFUL     := 0x0002;</constant>
+<constant>const TGTOPT_NEUTRAL     := 0x0000; // to be explicit</constant>
+<constant>const TGTOPT_HELPFUL     := 0x0004;</constant>
+<constant> </constant>
+<constant>// POLCLASS_* constants - use with obj.isa(POLCLASS_*)</constant>
+<constant>const POLCLASS_UOBJECT      := 1;</constant>
+<constant>const POLCLASS_ITEM         := 2;</constant>
+<constant>const POLCLASS_MOBILE       := 3;</constant>
+<constant>const POLCLASS_NPC          := 4;</constant>
+<constant>const POLCLASS_LOCKABLE     := 5;</constant>
+<constant>const POLCLASS_CONTAINER    := 6;</constant>
+<constant>const POLCLASS_CORPSE       := 7;</constant>
+<constant>const POLCLASS_DOOR         := 8;</constant>
+<constant>const POLCLASS_SPELLBOOK    := 9;</constant>
+<constant>const POLCLASS_MAP          := 10;</constant>
+<constant>const POLCLASS_MULTI        := 11;</constant>
+<constant>const POLCLASS_BOAT         := 12;</constant>
+<constant>const POLCLASS_HOUSE        := 13;</constant>
+<constant>const POLCLASS_EQUIPMENT    := 14;</constant>
+<constant>const POLCLASS_ARMOR        := 15;</constant>
+<constant>const POLCLASS_WEAPON       := 16;</constant>
+<constant> </constant>
+<constant>// mobile.race constants</constant>
+<constant>const RACE_HUMAN    := 0;</constant>
+<constant>const RACE_ELF      := 1;</constant>
+<constant>const RACE_GARGOYLE := 2;</constant>
+<constant> </constant>
+<constant>// Don't use these outside this file, use FONT_* from client.inc</constant>
+<constant>//  (and I don't know what for color)</constant>
+<constant>const _DEFAULT_TEXT_FONT     := 3;</constant>
+<constant>const _DEFAULT_TEXT_COLOR    := 1000;</constant>
+<constant>const _DEFAULT_TEXT_REQUIREDCMD    := 0;</constant>
+<constant> </constant>
+<constant>// Realms</constant>
+<constant>const _DEFAULT_REALM  := "britannia";</constant>
+<constant>const REALM_BRITANNIA := _DEFAULT_REALM;</constant>
+<constant>const REALM_BRITANNIA_ALT	:= "britannia_alt";</constant>
+<constant>const REALM_ILSHENAR  := "ilshenar";</constant>
+<constant>const REALM_MALAS     := "malas";</constant>
+<constant>const REALM_TOKUNO    := "tokuno";</constant>
+<constant>const REALM_TERMUR    := "termur";</constant>
+<constant> </constant>
+<constant>//PerformAction</constant>
+<constant>const ACTION_DIR_FORWARD  := 0;</constant>
+<constant>const ACTION_DIR_BACKWARD := 1;</constant>
+<constant>const ACTION_NOREPEAT     := 0;</constant>
+<constant>const ACTION_REPEAT       := 1;</constant>
+<constant>//CanWalk</constant>
+<constant>const CANWALK_DIR := -1;</constant>
+<constant>//UpdateMobile</constant>
+<constant>const UPDATEMOBILE_RECREATE := 1;</constant>
+<constant>const UPDATEMOBILE_UPDATE   := 0;</constant>
+<constant>//CloseWindow</constant>
+<constant>const CLOSE_PAPERDOLL := 1;</constant>
+<constant>const CLOSE_STATUS    := 2;</constant>
+<constant>const CLOSE_PROFILE   := 8;</constant>
+<constant>const CLOSE_CONTAINER := 12;</constant>
+<constant>//SendCharProfile</constant>
+<constant>const CHARPROFILE_NO_UNEDITABLE_TEXT := array;</constant>
+<constant>const CHARPROFILE_NO_EDITABLE_TEXT := array;</constant>
+<constant>//Accessible</constant>
+<constant>const ACCESSIBLE_DEFAULT := -1; // uses the default from ssopt</constant>
+<constant>const ACCESSIBLE_IGNOREDISTANCE := -2; // ignores the range check</constant>
+
+</fileheader>
+
+<function name="AddAmount">
+  <prototype>AddAmount( item, amount )</prototype>
+  <parameter name="item" value="Item reference"/>
+  <parameter name="amount" value="An integer 1-60000" />
+  <explain>Adds the specified amount to a stack of items. Amount is between 1 and 60000 </explain>
+  <return>1 or error</return> 
+  <error>"That item is being used" (if inuse or reserved)</error>
+  <error>"That item type is not stackable" </error>
+  <error>"Can't add that much to that stack" (if resulting amount > 60000)</error>
+  <error>"Invalid Parameter type"</error>
+  <related>Item</related>
+</function>
+
+<function name="ConsumeReagents">
+  <prototype>ConsumeReagents( who, spellid )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <parameter name="spellid" value="An integer" />
+  <explain>Removes reagent items from caster's pack according to spellid's definition in spells.cfg. Spells.cfg 
+files define spells &amp; spell ids.</explain>
+    <return>1 on successful consume, 0 if not enough of defined reagents</return>
+  <error>"Spell ID out of range" if !(spellid &gt;= 1 &amp;&amp; spellid &lt;= last spellid)</error>
+  <error>"No such spell" if spellid not found</error>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+  <relatedcfg>spells.cfg</relatedcfg>
+</function>
+
+<function name="ConsumeSubstance">
+  <prototype>ConsumeSubstance( container, objtype, amount )</prototype>
+  <parameter name="container" value="Container reference" />
+  <parameter name="objtype" value="Integer objtype to find and consume" />
+  <parameter name="amount" value="An integer" />
+  <explain>Subtracts "amount" of type "objtype", starting in container 
+"container"</explain>
+  <return>1 or Error</return>
+  <error>"That is not a container" if container.isa(POLCLASS_CONTAINER) == false</error>
+  <error>"Amount cannot be negative" if amount &lt; 0</error>
+  <error>"Not enough of that substance in container"</error>
+  <error>"Invalid parameter type"</error>
+  <related>Container</related>
+</function>
+
+<function name="CreateItemInInventory">
+  <prototype>CreateItemInInventory( container, objtype, amount := 1 )</prototype>
+  <parameter name="container" value="Container reference" />
+  <parameter name="objtype" value="Integer objtype for item to be created, OR String ObjtypeName, OR GetItemDescriptor struct." />
+  <parameter name="amount" value="size of stack to be created. Default = 1" />
+  <explain>Creates a stack of items in the specified container. As usual, objtype
+  must be valid and amount must be 1..60000. FORCES STACKING: If the specified obytpe is not stackable 
+by 
+  default (i.e. most weapons), this function WILL CREATE A STACK! This will cause a client crash if 
+container 
+  is a player's pack! Therefore, this function SHOULD ONLY BE USED WITH NPC MERCHANTS' STORAGE AREA 
+  INVENTORIES! For normal containers, use CreateItemInContainer().
+  </explain>
+  <explain>Note: Will call the container's canInsert and onInsert scripts.</explain>
+  <return>Item reference or Error</return>
+  <error>"A parameter was invalid"</error>
+  <error>"That is not a container" if container.isa(POLCLASS_CONTAINER) == false</error>
+  <error>"That container is full" if weight would be > 65535, or if would exceed maximum # of items</error>
+  <error>"Failed to create that item type"</error>
+  <error>"Could not insert item into container." if canInsert script returns false</error>
+  <related>Container</related>
+  <related>Item</related>
+  <relatedcfg>itemdesc.cfg</relatedcfg>
+</function>
+
+<function name="FindObjtypeInContainer">
+  <prototype>FindObjtypeInContainer( container, objtype )</prototype>
+  <parameter name="container" value="Container reference" />
+  <parameter name="objtype" value="integer objtype to find" />
+  <explain>Returns an Item Reference to the first found item matching objtype starting in "container".</explain>
+  <return>Item reference or Error</return>
+  <error>"Invalid parameter type"</error>
+  <error>"That is not a container" if container.isa(POLCLASS_CONTAINER) == false</error>
+  <error>"No items were found"</error>
+  <related>Container</related>
+  <related>Item</related>
+</function>
+
+<function name="GetEquipmentByLayer">
+  <prototype>GetEquipmentByLayer( character, layer )</prototype>
+  <parameter name="Character" value="Character reference" />
+  <parameter name="layer" value="An integer" />
+  <explain>Gets an item reference to an equipped item. For proper layer values, see 
+scripts/include/client.inc</explain>
+  <return>Itemref or Error</return>
+  <error>"Invalid layer"</error>
+  <error>"Nothing equipped on that layer."</error>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+  <related>Item</related>
+</function>
+
+<function name="GetObjPropertyNames">
+  <prototype>GetObjPropertyNames( object )</prototype>
+  <parameter name="object" value="UObject reference" />
+  <explain>Gets all the CProp names set on the object. Use GetObjProperty(object, returned_array[i]) to get the 
+CProp value.</explain>
+  <return>Array of strings or Error</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+  <related>Array</related>
+</function>
+
+<function name="GetObjTypeByName">
+  <prototype>GetObjtypeByName( name )</prototype>
+  <parameter name="name" value="string"/>
+  <explain>Finds the matching Object Type number for the obejct named "name" Matches on the itemdesc.cfg property 
+"Name".</explain>
+  <return>Integer ObjType or Error</return>
+  <error>"No objtype by that name"</error>
+  <error>"Invalid parameter"</error>
+  <relatedcfg>itemdesc.cfg</relatedcfg>
+</function>
+
+<function name="GetObjType">
+  <prototype>GetObjType( object )</prototype>
+  <parameter name="object" value="UObject Reference"/>
+  <explain>Returns the Objtype of an object. Same as ref.objtype. Works for item root classed and character root classed.</explain>
+  <return>Integer ObjType or 0</return>
+  <related>Character</related>
+  <related>Item</related>
+  <relatedcfg>itemdesc.cfg</relatedcfg>
+</function>
+
+<function name="ListItemsAtLocation">
+  <prototype>ListItemsAtLocation( x, y, z, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Returns a list of items at the specified x,y,z. test ret != 0</explain>
+  <explain>Use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>&lt;uninitialized object&gt; if invalid parameters, or Array of Item References of items at that location.</return>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListObjectsInBox">
+  <prototype>ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Lists all items &amp; mobiles inside an imaginary box. Finds both characters (PCs &amp; NPCs) and items</explain>
+  <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
+  <return>Error or Array of all characters and items found inside the specified box.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>Item</related>
+  <related>Character</related>
+  <related>Array</related>
+</function>
+
+<function name="ListMobilesInBox">
+  <prototype>ListMobilesInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>like ListObjectsInBox but returns only mobiles</explain>
+  <return>Error or Array of all characters found inside the specified box.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>Character</related>
+  <related>Array</related>
+</function> 
+
+<function name="ReleaseItem">
+  <prototype>ReleaseItem( item )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <explain>Releases an item previously reserved by ReserveItem().</explain>
+  <return>1 on success or Error</return>
+  <error>"That item is not reserved by this script." if item is not reserved (using ReserveItem())</error>
+  <error>"That item is not reserved." if the item is not "in use"</error>
+  <error>"Invalid parameter"</error>
+  <related>Item</related>
+</function>
+
+<function name="ReserveItem">
+  <prototype>ReserveItem( item )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <explain>Reserves an item so no other script or client may manipulate it until ReleaseItem() is called.
+  Use this function to prevent nasty exploits like this:
+        <code>
+if(!ReserveItem(item))
+  SendSysMessage(who, "You cannot use that.");
+  return;
+endif</code></explain>
+  <return>1 Item has been reserved by me. 2 Item was already reserved by me. Or Error</return>
+  <error>"That item is already being used."</error>
+  <error>"Invalid parameter"</error>
+  <related>Item</related>
+</function>
+
+<function name="AssignRectToWeatherRegion">
+  <prototype>AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth )</prototype>
+  <parameter name="region" value="string" />
+  <parameter name="xwest" value="integer" />
+  <parameter name="ynorth" value="integer" />
+  <parameter name="xeast" value="integer" />
+  <parameter name="ysouth" value="integer" />
+  <explain>Sets the range for weather region named "region". Useful for making moving storms.
+  Notes: Weather region strings as defined in regions/weather.cfg</explain>
+  <return>1 on success</return>
+  <error>"Invalid Parameter type"</error>
+  <error>"Weather region not found"</error>
+  <relatedcfg>weather.cfg</relatedcfg>
+</function>
+
+<function name="GetRegionLightLevelAtLocation">
+  <prototype>GetRegionLightLevelAtLocation( x, y, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="x location" />
+  <parameter name="y" value="y location" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Get lightlevel of [light] region for coordinates.</explain>
+  <return>Integer value of lightlevel on success</return>
+  <error>"Invalid Parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for realm"</error>
+  <relatedcfg>regions.cfg</relatedcfg>
+  <relatedcfg>light.cfg</relatedcfg>
+</function>
+  
+<function name="GetRegionName">
+  <prototype>GetRegionName( object )</prototype>
+  <parameter name="object" value="top level UObject (item/character/npc/etc)" />
+  <explain>Get name of [justice] region that Object is in.</explain>
+  <return>String value of "Region Name" on success</return>
+  <error>"Invalid Parameter"</error>
+  <error>"No Region defined at this Location"</error>
+  <relatedcfg>regions.cfg</relatedcfg>
+</function>
+
+<function name="GetRegionNameAtLocation">
+  <prototype>GetRegionNameAtLocation( x, y, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="x location" />
+  <parameter name="y" value="y location" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Get name of [justice] region for coordinates.</explain>
+  <return>String value of "Region Name" on success</return>
+  <error>"Invalid Parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for realm"</error>
+  <error>"No Region defined at this Location"</error>
+  <relatedcfg>regions.cfg</relatedcfg>
+</function>
+
+<function name="GetRegionString"> 
+  <prototype>GetRegionString( resource, x, y, propertyname, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="resource" value="string" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="propertyname" value="string" />
+  <explain>Allows you to look up custom properties within a resource region entry.</explain>
+  <explain>"resource" is a string that matches a resource type in regions/resource.cfg, i.e. "ore". 
+  x,y is the coordinate to look up in the regions defined in resources/ore.cfg (or the 
+  filename matching the supplied resource).</explain>
+  <explain>"property_name" is the _custom_ property to match (i.e. UnitsPerArea, SecondsPerRegrow, 
+  Capacity, Range are NOT matched) in the found region.
+
+<code>
+Example: in regions/resource.cfg there exists a ResourceType "ore". In ore.cfg 
+         there exists a region:
+Region Outer Covetous 
+{ 
+    UnitsPerArea        15 
+    SecondsPerRegrow    300 
+    Capacity            20000 
+    Range        2299 784 2635 967 
+    Prop         value_string    -- this is a custom property not used by the core
+} 
+GetRegionString("ore",2299,785,"Prop"); would return "value_string"</code></explain>
+  <return>String value of "propertyname" on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"No resource by that name" if "resource" not found in regions/resource.cfg</error>
+  <error>"No resource region at that location" if the given x,y is not defined inside any of the regions in regions/[resource string].cfg</error>
+  <error>"Property not found" if "propertyname" was not found in the matching region.</error>
+  <relatedcfg>regions.cfg</relatedcfg>
+</function>
+
+<function name="SetRegionWeatherLevel">
+  <prototype>SetRegionWeatherLevel( region, type, severity, aux := 0, lightoverride := -1)</prototype>
+  <parameter name="region" value="string"/>
+  <parameter name="type" value="integer" />
+  <parameter name="severity" value="integer" />
+  <parameter name="aux" value="integer (optional, see above for default values)" />
+  <parameter name="lightoverride" value="integer (optional, see above for default values)" />
+  <explain>Sets the weather effects for a given weather region.</explain>
+  <explain>
+<code>
+Notes: Weather values by Tharaxis
+type:
+    0 - light rain ("It starts to rain")
+    1 - rain/thunder ("A fierce storm approaches")
+    2 - snow ("It begins to snow")
+    3 - brewing storm - ("A storm is brewing")
+    255 - None (Turns sound effects off)
+      
+    severity:is set on a 0-70 scale, 70=torrential rain, 0=light drizzle.     
+    aux: ??? 
+    lightoverride: light level amount overrides current level. -1 means no override.</code></explain>   
+  <return>1 on success</return>
+  <error>"Invalid Parameter type"</error>
+  <error>"Weather region not found" if "region" not found in regions/weather.cfg</error>
+  <relatedcfg>weather.cfg</relatedcfg>
+</function>
+
+<function name="CreateAccount">
+  <prototype>CreateAccount( acctname, password, enabled )</prototype>
+  <parameter name="acctname" value="string" />
+  <parameter name="password" value="string" />
+  <parameter name="enabled" value="integer (0 or 1)" />
+  <explain>Creates a new player account with the specified account name, password.</explain>
+  <explain>Notes: If enabled == 0, player cannot log in.</explain>
+  <explain>Only accepts Alphanumeric characters for account name. Control characters, '{' '}', and spaces not allowed.</explain>
+  <explain>Passwords cannot contain whitespace or control characters.</explain>
+  <return>Account Reference for the new account on success</return>
+  <error>"Account already exists"</error>
+  <error>"Invalid parameter type"</error>
+  <error>"Attempted to create account with non-alphanumeric characters."</error>
+  <error>"Attempted to use password in account creation with non-allowed characters."</error>
+  <related>Account</related>
+</function>
+
+<function name="FindAccount">
+  <prototype>FindAccount( acctname )</prototype>
+  <parameter name="acctname" value="string" />
+  <explain>Gets a player Account Reference by the name of the account.</explain>
+  <return>Account Reference on success</return>
+  <error>"Account not found."</error>
+  <error>"Invalid parameter type"</error>
+  <related>Account</related>
+</function>
+
+<function name="ListAccounts">
+  <prototype>ListAccounts()</prototype>
+  <explain>Gets a list of all account names.</explain>
+  <return>Array of Strings of account names.</return>
+  <related>Array</related>
+  <related>Account</related>
+</function>
+
+<function name="DestroyMulti">
+  <prototype>DestroyMulti( multi )</prototype>
+  <parameter name="multi" value="Multi Reference" />
+  <explain>Deletes a Multi item from the world.</explain>
+  <explain>Notes: House: Moves all characters and items inside multi to ground.
+         Boat: Requires hold be empty, deck be empty, and have no mobiles logged-out on boat.</explain>
+  <return>1 on success</return>
+  <error>"WTF!? Don't know what kind of multi that is!" if not a boat or a house</error>
+  <error>"Invalid parameter type"</error>
+  <error>Boat Errors:"There is cargo in the ship's hold"</error>
+  <error>"There are logged-out characters on the deck"</error>
+  <error>"The deck is not empty"</error>
+  <related>House</related>
+  <related>Boat</related>
+</function>
+
+<function name="DisableEvents">
+  <prototype>DisableEvents( eventtype )</prototype>
+  <parameter name="eventtype" value="integer combination (bitwise-OR) of constants from SYSEVENT.INC" />
+  <explain>Disables the system event(s) defined in sysevent.inc for the current NPC or item control script. Do not use for "user" events (see EnableEvents()).</explain>
+  <return>New event mask on success</return>
+  <error>"Invalid parameter"</error>
+</function>
+
+<function name="SendEvent">
+  <prototype>SendEvent( npc, event )</prototype>
+  <parameter name="npc" value="Character Reference to an NPC" />
+  <parameter name="event" value="integer" />
+  <explain>Sends the integer event (either a combination of system events, or one user-defined event) to the 
+NPC's control script.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"That mobile is not an NPC"</error>
+  <error>"That NPC doesn't have a control script"</error>
+  <error>"Event queue is full, discarding event"</error>
+  <related>NPC</related>
+</function>
+
+<function name="SendHousingTool">
+  <prototype>SendHousingTool( who, house )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <parameter name="house" value="House Reference" />
+  <explain>Sends the custom housing tool to Character</explain>
+  <explain>house.setcustom(1) is needed before SendHousingTool() works</explain>
+  <explain>during editing chr is only allowed to walk inside the house</explain>
+  <explain>all components which are not invisible get removed from component list during edit and added to design
+(not invisible to give the chance to eg protect a house sign from been removed from the editing char)</explain>
+  <explain>any item inside the house will be invisible for the chr</explain>
+  <explain>any other mobiles get moved outside the house</explain>
+  <explain>param houseelemarray in script call is the current list of houseparts, multi.house_parts gives you the last stored list</explain>
+  <explain>until no house.acceptcommit() is called and start of commitscript no new SendHousingTool() for this house is allowed</explain>
+  <return>1 on success</return>
+  <related>Character</related>
+  <related>House</related>
+</function>
+
+<function name="ApplyConstraint">
+  <prototype>ApplyConstraint( objlist, configfile, propertyname, minvalue )</prototype>
+  <parameter name="objlist" value="array of objtype numbers" />
+  <parameter name="configfile" value="config file reference" />
+  <parameter name="propertyname" value="string" />
+  <parameter name="minvalue" value="integer" />
+  <explain>Each element's objtype in "objlist" is looked up in the config file referenced by "configfile".
+        if the object's value for "propertyname" is less than "minvalue", its objtype is included in the returned array.</explain>
+  <explain>Notes: Example: gets all the bowcraft items you can make given the amount of logs selected.
+<code>
+//Returns all the objtypes in the "BowcraftCarving" entry in menus.cfg:
+var objtypes := GetMenuObjTypes( "BowcraftCarving" );
+//Returns a subset of the objtypes in the bowcraft item crafting config file that require
+//less "material" than the value of targetted_logs.amount.
+objtypes := ApplyConstraint(objtypes,bowcraftconfigfile,"material",targetted_logs.amount);
+//the return value is in a convienent form to use AddMenuItem()
+return objtypes;</code></explain>
+  <return>An Array of Object Types that pass the constraint.</return>
+  <error>none (instead returns an Uninitialized Object on failure)</error>
+  <related>UObject</related>
+  <related>Array</related>
+</function>
+
+<function name="GetCommandHelp">  
+  <prototype>GetCommandHelp( character, command )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="command" value="string" />
+  <explain>Gets a help message for a textcommand, if one is defined.</explain>
+  <explain>Notes: Help files are found in commandname.txt in the same directory as the command script.</explain>
+  <return>String with help information</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No help for that command found"</error>
+  <related>Character</related>
+</function>
+
+<function name="GetMenuObjTypes">
+  <prototype>GetMenuObjTypes( menuname )</prototype>
+  <parameter name="menuname" value="static or dynamic menu" />
+  <explain>Gets all the objtypes contained in the menu. </explain>
+  <explain>Notes: see CreateMenu(), AddMenuItem()</explain>
+  <return>Array of objtypes contained in the given menu.</return>
+  <error>none (instead returns 0 on failure)</error>
+  <related>Array</related>
+</function>
+
+<function name="SetScriptController">
+  <prototype>SetScriptController( who )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <explain>Set the "controller" of the current script to "who".</explain>
+  <explain>Notes: This is used to know, for instance, who the fire field walk-on script belongs to so that
+        the reputation/criminal system knows who to punish.</explain>
+  <explain>pass 0 to clear the script controller.</explain>
+  <return>Character Reference of the "old" controller of the script.</return>
+  <error>none (instead returns 0 on failure)</error>
+  <related>Character</related>
+</function>
+
+<function name="SingleClick">
+	<prototype>SingleClick( who, what )</prototype>
+	<parameter name="who" value="Character Reference" />
+	<parameter name="what" value="Character or Item reference" />
+	<explain>Emulates a single click of the character "who" on the object or character "what".</explain>
+	<explain>Note: "what" can be a serial.</explain>
+	<return>1 on success</return>
+	<error>"Invalid parameter"</error>
+	<error>"Mobile has no active client"</error>
+</function>
+
+<function name="GetSpellDifficulty">
+  <prototype>GetSpellDifficulty( spellid )</prototype>
+  <parameter name="spellid" value="Integer" />
+  <explain>Gets spell "difficulty" based on spell circle number (config/circles.cfg).</explain>
+  <explain>Notes: spells.cfg files define spells and spell ids.
+       "Difficulty" values are used in the function CheckSkill()</explain>
+  <return>Integer difficulty value</return>
+  <error>"Invalid parameter"</error>
+  <error>"No such spell"</error>
+  <error>"Spell ID out of range"</error>
+  <relatedcfg>circles.cfg</relatedcfg>
+</function>
+
+<function name="SpeakPowerWords">
+  <prototype>SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <parameter name="spellid" value="Integer" />
+  <parameter name="font" value="Integer (optional)" />
+  <parameter name="color" value=" Integer (optional)" />
+  <explain>Forces character "who" to speak the spell power words as defined in spells.cfg.</explain>
+  <explain>Notes: spells.cfg files define spells and spell ids.</explain>
+  <explain>See client.inc for font and color values.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"No such spell"</error>
+  <error>"Spell ID out of range"</error>
+  <related>Character</related>
+  <relatedcfg>spells.cfg</relatedcfg>
+</function>
+
+<function name="StartSpellEffect">
+  <prototype>StartSpellEffect( who, spellid )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <parameter name="spellid" value="Integer" />
+  <explain>Starts the spell script as defined in spells.cfg</explain>
+  <explain>Notes: spells.cfg files define spells and spell ids.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"No such spell"</error>
+  <error>"Spell ID out of range"</error>
+  <related>Character</related>
+  <relatedcfg>spells.cfg</relatedcfg>
+</function>
+
+<function name="DisconnectClient">
+  <prototype>DisconnectClient( character )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <explain>Disconnects the character's client.</explain>
+  <explain>Notes: Fun!</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"No client is attached"</error>
+  <related>Character</related>
+</function>
+
+<function name="ListEquippedItems">
+  <prototype>ListEquippedItems( who )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <explain>Returns a list of items current equipped on character referenced by "who"</explain>
+  <return>Array of Item References equipped on "who"</return>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListHostiles">
+  <prototype>ListHostiles( character, range := 20, flags := 0 )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="range" value="integer (optional, default=20)" />
+  <parameter name="flags" value="integer (optional, default=0)" />
+  <explain>Gets a list of Character References that are hostile (i.e. attacking) "character"</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+const LH_FLAG_LOS               := 1;       // only include those in LOS
+const LH_FLAG_INCLUDE_HIDDEN    := 2;       // include hidden characters</code></explain>
+<explain>Will NOT find "concealed" characters.</explain>
+  <return>Array of Character References hostile to "character"</return>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+  <related>Array</related>
+</function>
+
+<function name="OpenPaperdoll">
+  <prototype>OpenPaperdoll( towhom, forwhom )</prototype>
+  <parameter name="towhom" value="Character Reference" />
+  <parameter name="forwhom" value="Character Reference" />
+  <explain>Sends the paperdoll gump to a character.</explain>
+  <explain>Notes: "towhom" gets the paperdoll for character "forwhom"</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <related>Character</related>
+</function>
+
+<function name="SelectColor">
+  <prototype>SelectColor( character, item )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="item" value="Item Reference" />
+  <explain>Sends a color chooser gump to character.</explain>
+  <explain>Notes: Function blocks until character cancels or selects a color from the chooser gump.
+       No validation is done by the core. Might be useful to check if the color returned is
+       >1001 (out of range for the chooser gump).</explain>
+  <return>Integer of selected color. use item.color = return_value to set.</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <error>"Client is already selecting a color"</error>
+  <related>Character</related>
+  <related>Item</related>
+</function>
+
+<function name="SendBuyWindow">
+  <prototype>SendBuyWindow( character, container, vendor, items, flags := 0 )</prototype>
+  <parameter name="character" value="Character Reference to player" />
+  <parameter name="container" value="Container Reference ( vendor 'for sale items' container )" />
+  <parameter name="vendor" value="Character Reference to NPC vendor" />
+  <parameter name="items" value="Container Reference (vendor 'player bought items' container)" />
+  <parameter name="flags" value="Integer" />
+  <explain>Sends the "buy scroll" gump to a player to choose items to buy.</explain>
+  <explain>Notes: Pretty nasty function. Containers should be in storage areas.</explain>
+  <explain>Notes: Core will send Item Description using AoS Tooltips in any case if flag VENDOR_SEND_AOS_TOOLTIP is set. This will correct problems with Item Descriptions in newer Clients, but maybe freeze ancient Clients...</explain>
+  <explain>Notes: uo.em constants for this function:
+<code>
+const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
+  <return>1 on success</return>
+  <error>"A parameter was invalid"</error>
+  <error>"No client connected to character"</error>
+  <error>"Parameter 1 invalid"</error>
+  <error>"Parameter 2 invalid"</error>
+  <error>"Parameter 3 invalid"</error>
+  <error>"Too much crap in vendor's inventory!" (message exceeds 2000 byte buffer)</error>
+  <related>Character</related>
+  <related>Container</related>
+</function>
+
+<function name="SendDialogGump">
+  <prototype>SendDialogGump( who, layout, textlines, x := 0, y := 0, flags := 0, gumpid := 0 )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <parameter name="layout" value="String Array" />
+  <parameter name="textlines" value="String Array" />
+  <parameter name="x" value="Integer-Offset" />
+  <parameter name="y" value="Integer-Offset" />
+  <parameter name="flags" value="Integer" />
+  <parameter name="gumpid" value="Integer, 0 to 0xFFFFFF" />
+  <explain>Sends a generic gump window to "who" and waits for the user's input.</explain>
+  <explain>If no gumpid is given, the script's pid will be sent as gumpid.</explain>
+  <explain>Notes: "layout" is an array of strings with each string a gump layout directive.
+       "textlines" is an array of strings with text that is displayed on the gump. "Layout" references
+          this array in a 0-based manner.
+       Creating these arrays is difficult and hard to debug. See the "gumps" package for a more user-
+       friendly interface to gumps.</explain>
+  <explain>Based on clientversion core will send compressed or uncompressed version</explain>
+  <explain>Notes: uo.em constants for this function:
+<code>
+const SENDDIALOGMENU_FORCE_OLD  := 0x01;</code></explain>
+  <return> the return value is a dictionary.
+       return[0] contains the button ID the user used to close the gump. 0 is returned if the gump was cancelled.
+       return.keys contains the IDs for the radio buttons, checkboxes, and textentries set when the gump was returned. Note control characters are stripped from the text input lines.
+      </return>
+  <error>"Invalid parameter"</error>
+  <error>"No client attached"</error>
+  <error>"Buffer length exceeded" (64K byte)</error>
+  <error>"GumpID out of range"</error>
+  <related>Character</related>
+  <related>Dictionary</related>
+  <related>Array</related>
+</function>
+
+<function name="SendInstaResDialog">
+  <prototype>SendInstaResDialog( character )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <explain>Character's screen fades to black, "You are Dead" appears, Character gets menu choice for 
+Instares.</explain>
+  <explain>Notes: (Rac) Could not get menu dialog to appear, "Play as ghost" returned to server no matter what.
+      "AssumePlayAsGhost" in uo.cfg made no difference.</explain>
+  <return>Integer with choice. 1 = instares, 2 = ghost</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <error>"Client busy with another instares dialog"</error>
+  <related>Character</related>  
+</function> 
+
+<function name="SendOpenBook">
+  <prototype>SendOpenBook( character, book )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="book" value="Item Reference (Book object only)" />
+  <explain>Sends a book gump to the character.</explain>
+  <explain>The 'book' passed must have a Method Script, exporting the following functions:
+<code>exported function IsWritable(book)    // returns 0 or 1 for readonly/writable
+exported function GetNumLines(book)   // returns maximum number of lines
+exported function GetTitle(book)      // returns title as string
+exported function GetAuthor(book)     //returns author as string
+exported function GetLine(book, line) // line is 1-based</code></explain>
+  <explain>Writable books must provide the following functions:
+<code>exported function SetAuthor(book,author)
+exported function SetTitle(book,title)
+exported function SetLine(book,line,text)
+exported function GetContents(book)   // returns an array of all lines</code></explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No active client"</error>
+  <error>"book.GetNumLines() did not return an Integer"</error>
+  <error>"book.GetContents() must return an array"</error>
+  <error>"Buffer overflow"</error>
+  <related>Character</related>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="SendOpenSpecialContainer">
+  <prototype>SendOpenSpecialContainer( character, container )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="container" value="Container Reference" />
+  <explain>Sends an open container gump to the character.</explain>
+  <explain>Notes: DANGEROUS FUNCTION. Normally only used to show "inaccessable" containers like bankboxes.
+       If used on normal containers, it allows the character to both view and change the contents.
+       See SendViewContainer().</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <error>"That isn't a container"</error>
+  <related>Character</related>
+  <related>Container</related>
+</function>
+
+<function name="SendPacket">
+  <prototype>SendPacket( to_whom, packet_hex_string )</prototype>
+  <parameter name="to_whom" value="Character Reference" />
+  <parameter name="packet_hex_string" value="String" />
+  <explain>Sends the hex string to the character as a binary packet.</explain>
+  <explain>Notes: Development function, use at your own risk. The string is in a form like:
+      SendPacket(who,"BC0401") would cause the season to change to "desolation"</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <error>"Invalid packet string length."</error>
+  <related>Character</related>
+</function>
+
+<function name="SendSellWindow">
+  <prototype>SendSellWindow( character, vendor, i1, i2, i3, flags := 0 )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="vendor" value="Character Reference" />
+  <parameter name="i1" value="Container Reference" />
+  <parameter name="i2" value="Container Reference" />
+  <parameter name="i3" value="Container Reference" />
+  <parameter name="flags" value="Integer" />
+  <explain>Sends a sell scroll gump to "character" using "vendor" as the merchant.</explain>
+  <explain>Notes: i1 = vendor's "For sale" item containter. i2 = vendor's "Bought from player" item container. i3 = vendor's "Buyable" item container.</explain>
+  <explain>Notes: Core will send Item Description using AoS Tooltips in any case if flag VENDOR_SEND_AOS_TOOLTIP is set. This will correct problems with Item Descriptions in newer Clients, but maybe freeze ancient Clients...</explain>
+  <explain>Notes: uo.em constants for this function:
+<code>
+const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
+  <return>1 on success</return>
+  <error>"A parameter was invalid"</error>
+  <error>"No client connected to character"</error>
+  <error>"Parameter 1 invalid" if !(vendor.isa(POLCLASS_NPC))</error>
+  <error>"Parameter 2 must be a container"</error>
+  <error>"Character has no backpack"</error>
+  <related>Character</related>
+  <related>Container</related>
+</function>
+
+<function name="SendSkillWindow">
+  <prototype>SendSkillWindow( towhom, forwhom )</prototype>
+  <parameter name="towhom" value="Character Reference" />
+  <parameter name="forwhom" value="Character Reference" />
+  <explain>Sends a skills scroll gump to "towhom"</explain>
+  <explain>Notes: The skills belong to "forwhom" and are sent to "towhom"</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <related>Character</related>
+</function>
+
+<function name="SendStringAsTipWindow">
+  <prototype>SendStringAsTipWindow( character, text )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="text" value="String" />
+  <explain>Sends "text" to "character" in a tip-window gump.</explain>
+  <explain>Text needs to be in "MAC" format: CR at the end of each line.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <related>Character</related>
+</function>
+
+<function name="SendTextEntryGump">
+  <prototype>SendTextEntryGump( who, line1, cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NORMAL, maximum := 40, 
+line2 := "" )</prototype>
+  <parameter name="who" value="Character Reference" />
+  <parameter name="line1" value="String" />
+  <parameter name="cancel" value="Integer (TE_CANCEL_DISABLE or TE_CANCEL_ENABLE)" />
+  <parameter name="style" value="Integer (TE_STYLE_DISABLE or TE_STYLE_NORMAL or TE_STYLE_NUMERICAL)" />
+  <parameter name="maximum" value="Integer" />
+  <parameter name="line2" value="String" />
+  <explain>Sends a text-entry gump to "who" with the specified option, style, and informational 
+string.</explain>
+  <explain>Notes: uo.em constants for this function:
+<code>
+const TE_CANCEL_DISABLE := 0;
+const TE_CANCEL_ENABLE  := 1;
+
+const TE_STYLE_DISABLE  := 0;
+const TE_STYLE_NORMAL   := 1;
+const TE_STYLE_NUMERICAL:= 2;</code></explain>
+  <return>A String on success
+       0 if gump was cancelled.</return>
+  <error>"Invalid parameter"</error>
+  <error>"No client attached"</error>
+  <related>Character</related>
+</function>
+
+<function name="SendViewContainer">
+  <prototype>SendViewContainer( character, container )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="container" value="Container Reference" />
+  <explain>Sends the container's open gump and contents to the character.</explain>
+  <explain>Notes: Use this for normal containers.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <error>"That isn't a container"</error>
+  <related>Character</related>
+  <related>Container</related>
+</function>
+
+<function name="PlayMovingEffectXYZ">
+  <prototype>PlayMovingEffectXYZ( srcx, srcy, srcz, dstx, dsty, dstz, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="srcx" value="Integer Source world coordinates" />
+  <parameter name="srcy" value="Integer Source world coordinates" />
+  <parameter name="srcz" value="Integer Source world coordinates" />
+  <parameter name="dstx" value="Integer Destination world coordinates" />
+  <parameter name="dsty" value="Integer Destination world coordinates" />
+  <parameter name="dstz" value="Integer Destination world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="effect" value="integer" />
+  <parameter name="speed" value="integer (to 255)" />
+  <parameter name="loop" value="integer (to 255)" />
+  <parameter name="explode" value="integer (to 255)" />
+  <explain>Starts a moving effect between the source and destination coordinates.</explain>
+  <explain>Notes: "effect" is a UO graphic number (the first graphic in a series for an animated effect)
+       "speed" controls the time between frames of animation
+       "loop" controls the number of total frames to play in the animation (loops if greater than the length of the animation). 0 = play once.
+       "explode" flags if an explosion effect should be played at the end of the animation</explain>
+  <return>1 on success, 0 or Error</return>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+</function>
+
+<function name="PlaySoundEffectPrivate">
+  <prototype>PlaySoundEffectPrivate( object, effect, playfor )</prototype>
+  <parameter name="object" value="UObject Reference" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="playfor" value="Character Reference" />
+  <explain>Plays a sound effect only heard by "playfor", centered around "object"</explain>
+  <explain>Notes: see client.inc for sound IDs (or InsideUO)</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+  <related>UObject</related>
+</function>
+
+<function name="PlayStationaryEffect">
+  <prototype>PlayStationaryEffect( x, y, z, effect, speed, loop := 0, explode := 0, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="effect" value="integer" />
+  <parameter name="speed" value="integer (to 255)" />
+  <parameter name="loop" value="integer (to 255)" />
+  <parameter name="explode" value="integer (to 255)" />
+  <explain>Starts a stationary graphic effect at x,y,z.</explain>
+  <explain>Notes: "effect" is a UO graphic number (the first graphic in a series for an animated effect)
+       "speed" controls the time between frames of animation
+       "loop" controls the number of total frames to play in the animation (loops if greater than the length of the animation). 0 = play once.
+       "explode" flags if an explosion effect should be played at the end of the animation</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+</function>
+
+<function name="POLCore">
+  <prototype>POLCore()</prototype>
+  <explain>Returns a Polcore object. See object reference for object methods.</explain>
+  <return>Polcore object reference</return>
+  <related>Polcore</related>
+</function>
+
+<function name="GetMapInfo">
+  <prototype>GetMapInfo( x, y, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Gets information about map data at a location.</explain>
+  <explain>Notes: Tells you nothing about Static items! 
+       z = map height at x,y. Not necessarily the same as GetStandingHeight()
+       landtile = the land tile type number at x,y (not an item graphic number)</explain>
+  <return>A Struct with members "z" and "landtile".</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+</function>
+
+<function name="GetStandingHeight">
+  <prototype>GetStandingHeight( x, y, startz, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="startz" value="Integer" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Gets the lowest z height value one could stand at x,y starting at "startz". </explain>
+  <explain>Notes: For example, if there is a static tunnel under the map, using a startz value less than the
+        tunnel floor would get you the z of the floor. Above that value would get you the 
+        next possible standing height (i.e. on the map above).
+       Also returns a multi reference if a multi exists at that location.</explain>
+  <return>A Struct with members "z" and possibly "multi" (a Multi Reference)</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"Can't stand there" if inaccessible location</error>
+</function>
+
+<function name="GetWorldHeight">
+  <prototype>GetWorldHeight( x, y, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Gets the lowest standing height at x,y</explain>
+  <return>z value of lowest standing height</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"Location out of bounds"</error>
+  <error>"Nowhere" if one could not stand at any z value of x,y</error>
+</function>
+
+<function name="Shutdown">
+  <prototype>Shutdown()</prototype>
+  <explain>Shuts down the server</explain>
+  <explain>Notes: Disconnects all clients and saves the world state.</explain>
+  <return>1 always</return>
+</function>
+
+<function name="Accessible">
+    <prototype>Accessible( by_character, item, range := ACCESSIBLE_DEFAULT )</prototype>
+  <parameter name="by_character" value="Character Reference" />
+  <parameter name="item" value="Item Reference" />
+  <parameter name="range" value="Integer" />
+  <explain>Function: Determines if an item falls into one of the following categories for a character:</explain>
+  <explain>An item on the ground, within "range" squares (defaults to "DefaultAccessibleRange" from servspecopt). Use ACCESSIBLE_IGNOREDISTANCE to avoid this check. </explain>
+  <explain>An item equipped by the character </explain>
+  <explain>An item inside the character's backpack </explain>
+  <explain>A temporarily accessible item </explain>
+  <explain>Notes: Does not check that character has line-of-sight to item. </explain>
+  <return>0 if item does not fall into one of the above categories, 1 if the item does. </return>
+  <error>none</error>
+  <related>Item</related>
+    <related>Character</related>
+</function>
+
+<function name="Broadcast">
+  <prototype>Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredCmdLevel := _DEFAULT_TEXT_REQUIREDCMD )</prototype>
+  <parameter name="text" value="String" />
+  <parameter name="font" value="Integer (optional)" />
+  <parameter name="color" value=" Integer (optional)" />
+  <parameter name="requiredcmdlevel" value=" Integer (optional)" />
+  <explain>Sends text as a System Message to every online player whos cmd level is above requiredcmdlevel. </explain>
+  <explain>See client.inc for font and color values.</explain>
+  <return>1 on success</return>
+  <error>none (returns 0 on invalid parameter) </error>
+</function>
+
+<function name="CheckLineOfSight">
+  <prototype>CheckLineOfSight( object1, object2 )</prototype>
+  <parameter name="object1" value="UObject Reference" />
+  <parameter name="object2" value="UObject Reference" />
+  <explain>Tests if object1 has Line-of-sight to object 2</explain>
+  <return>0 if sight blocked</return>
+  <return>1 if object1 has LOS to object2</return>
+  <error>none (returns 0 on invalid parameter)</error>
+  <related>UObject</related>
+</function>
+
+<function name="CancelTarget">
+  <prototype>CancelTarget( of_whom )</prototype>
+  <parameter name="of_whom" value="Character Reference" />
+  <explain>If the character has a current Target Reference, it sends the cancel packet. Client response to the original target cursor's script is as if they hit Escape.</explain>
+  <return>0</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client connected"</error>
+  <error>"Client does not have an active target cursor"</error>
+  <related>Character</related>
+</function>
+
+<function name="CheckLosAt">
+  <prototype>CheckLosAt( character, x, y, z )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <explain>Tests if character has Line-of-sight to coordinate</explain>
+  <return>1 if character has line-of-sight to (x,y,z)</return>
+  <return>0 if character does not have line-of-sight to (x,y,z)</return>
+  <error>(returns 0 on invalid parameter)</error>
+  <error>"Invalid Coordinates for realm"</error>
+  <related>Character</related>
+</function>
+
+<function name="CloseTradeWindow">
+  <prototype>CloseTradeWindow( character )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <explain>Attempts to close the Trade Window a client has open.</explain>
+  <return>1</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Mobile is not currently trading with anyone."</error>
+  <related>Character</related>
+</function>
+
+<function name="CreateItemAtLocation">
+  <prototype>CreateItemAtLocation( x, y, z, objtype, amount := 1, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
+  <parameter name="amount" value="Integer (0..60000)" />
+  <explain>Creates an item at an arbitrary location. </explain>
+  <explain> Amount specifies how large the stack should be. </explain>
+  <explain>Runs the item's create script, if any.</explain>
+  <return>Item Reference on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"That item is not stackable.  Create one at a time."</error>
+  <error>"Unable to create item of objtype X"</error>
+  <related>Item</related>
+  <relatedcfg>itemdesc.cfg</relatedcfg>
+</function>
+
+<function name="CreateItemInBackpack">
+  <prototype>CreateItemInBackpack( of_character, objtype, amount := 1 )</prototype>
+  <parameter name="of_character" value="Character Reference" />
+  <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
+  <parameter name="amount" value="Integer (optional, 0..60000)" />
+  <explain>Creates an item in a character's backpack. </explain>
+  <explain>Notes: Adds to an existing stack in the top level of the container, if an appropriate stack can be found (meaning, can hold the new amount, the existing item stack has color equal to its itemdesc.cfg color property AND has equal CProps as its itemdesc.cfg entry (not counting locally and globally ignored cprops).  If no appropritate stack is found, creates a new stack. </explain>
+  <explain>Runs the item's create script, if any.</explain>
+  <explain>Calls the container's canInsert and onInsert scripts, if any.</explain>
+  <return>Item Reference on success</return>
+  <error>"A parameter was invalid."</error>
+  <error>"Character has no backpack."</error>
+  <error>"That item is not stackable.  Create one at a time."</error>
+  <error>"That container is full"</error>
+  <error>"Failed to create that item type"</error>
+  <related>Character</related>
+  <related>Item</related>
+  <relatedcfg>itemdesc.cfg</relatedcfg>
+  <relatedcfg>stacking.cfg</relatedcfg>
+</function>
+
+<function name="CreateItemInContainer">
+  <prototype>CreateItemInContainer( container, objtype, amount := 1 )</prototype>
+  <parameter name="container" value="Container Reference" />
+  <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
+  <parameter name="amount" value="Integer (optional, 0..60000)" />
+  <explain>Creates an item in a container. </explain>
+  <explain>Notes: Adds to an existing stack in the top level of the container, if an appropriate stack can be found (meaning, can hold the new amount, the existing item stack has color equal to its itemdesc.cfg color property AND has equal CProps as its itemdesc.cfg entry (not counting locally and globally ignored cprops).  If no appropritate stack is found, creates a new stack. </explain>
+  <explain>Runs the item's create script, if any.</explain>
+  <explain>Calls the container's canInsert and onInsert scripts, if any.</explain>
+  <return>Item Reference on success</return>
+  <error>"A parameter was invalid"</error>
+  <error>"That is not a container"</error>
+  <error>"That item is not stackable.  Create one at a time."</error>
+  <error>"That container is full"</error>
+  <error>"Failed to create that item type"</error>
+  <related>Item</related>
+  <related>Container</related>
+  <relatedcfg>itemdesc.cfg</relatedcfg>
+  <relatedcfg>stacking.cfg</relatedcfg>
+</function>
+
+<function name="CreateNpcFromTemplate">
+  <prototype>CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM)</prototype>
+  <parameter name="template" value="String" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="override_properties" value="A Struct with keys as String members and values as appropriate (see notes)" />
+  <explain>Creates an NPC from a template (found in NPCDESC.CFG).</explain>
+  <explain>Notes: override_properties: a structure containing members to override values in the 
+        NPC template. This can be used to override built-in properties (facing, 
+        color, gender etc) and custom properties ("CProps" = dictionary {key=cpropname value=cpropvalue})</explain>
+  <return>Character Reference on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Parameter 4 must be a Struct or Integer(0)"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"NPC template 'X' not found"</error>
+  <error>"Not a valid location for an NPC!"</error>
+  <error>"Exception detected trying to create npc from template 'X'"</error>
+  <related>NPC</related>
+  <relatedcfg>npcdesc.cfg</relatedcfg>
+</function>
+
+<function name="Detach">
+  <prototype>Detach()</prototype>
+  <explain>Disassociates the current script from the character that it is attached to. See Attach() too.</explain>
+  <explain>If the current script is not attached to a character, does nothing.</explain>
+  <explain>Example: a spell script for both  doing the spell, implementing a temporary spell effect on
+an object, and removing the effect after an amount of time:
+<code>
+Program Spell(who)
+    // Test, if spell possible (reagents, mana, line of sight, etc..)
+    // Do the spell, animations, etc.
+    // Now something is changed, a temporary effect is installed to an
+object, this effect will expire in n seconds
+    // Detach the script from the caster
+    Detach(); //this allows other scripts to run on this character during the below sleep()
+    sleep(n); //delay until effect time is elapsed
+    // End the effect, and return
+endprogram</code>
+</explain>
+  <return>1 on success (the script was attached to a character, and is no longer.)</return>
+  <error>none (returns 0 on failure (character invalid))</error>
+  <related>Character</related>
+</function>
+
+<function name="Distance">
+  <prototype>Distance( obj1, obj2 )</prototype>
+  <parameter name="obj1" value="UObject Reference" />
+  <parameter name="obj2" value="UObject Reference" />
+  <explain>Determines the distance between two objects.  If either object is in a container, 
+        uses the world-position of its ultimate-parent container. </explain>
+  <explain>Notes: This distance is defined as the greater of the x-distance and the y-distance. z-distance 
+       is not taken into account.  (This is neither Pythagorean distance nor Manhattan distance) </explain>
+  <return>Integer - calculated distance on success</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+</function>
+
+<function name="EnumerateItemsInContainer">
+  <prototype>EnumerateItemsInContainer( container, flags := 0 )</prototype>
+  <parameter name="container" value="Container Reference" />
+  <parameter name="flags" value="Integer" />
+  <explain>Returns an array of the contents of a container.</explain>
+  <explain>Notes: If 'container' is itself locked, its contents will still be enumerated. </explain>
+  <explain>Notes: uo.em constant for this function:
+<code>
+const ENUMERATE_IGNORE_LOCKED := 0x1; // List content of locked container
+const ENUMERATE_ROOT_ONLY     := 0x2; // Do not list contents of sub-containers.</code></explain>
+  <return>An Array of Item References on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>none (returns 0 on different errors)</error>
+  <related>Container</related>
+</function>
+
+<function name="EnumerateOnlineCharacters">
+  <prototype>EnumerateOnlineCharacters()</prototype>
+  <explain>Gets a list of all online player characters.</explain>
+  <return>An Array of Character References on success</return>
+  <error>none</error>
+  <related>Character</related>
+</function>
+
+<function name="EquipFromTemplate">
+  <prototype>EquipFromTemplate( character, template )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="template" value="String" />
+  <explain>Creates equipment for a character, using EQUIP.CFG. </explain>
+  <explain>Notes: Element properties in EQUIP.CFG can have the following formats:
+      Equip [hex_objtype] [hex_color]
+      Armor [armor_template_name]
+      Weapon [weapon_template_name]
+      Note that object type and color must be in hex format (0xHHHH) </explain>
+    <explain>Will not create an item that is not equippable.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"Equipment template not found"</error>
+  <error>"Blech! Can't find '[object name]' named in equip.cfg"</error>
+  <related>Character</related>
+  <related>Equipment</related>
+  <relatedcfg>equip.cfg</relatedcfg>
+</function>
+
+<function name="GetAmount">
+  <prototype>GetAmount( item )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <explain>Returns size of item stack.</explain>
+  <explain>probably better to use item.amount</explain>
+  <return>Integer  size of item's stack on success</return>
+  <error>none (returns 0 on invalid parameter)</error>
+  <related>Item</related>
+</function>
+
+<function name="GrantPrivilege">
+  <prototype>GrantPrivilege( character, privilege )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="privilege" value="String" />
+  <explain>Grants a privilege to a character. </explain>
+  <explain>Notes: see some other doc for a list of privs and their functions</explain>
+  <return>1 f the privilege was granted successfully</return>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+</function>
+
+<function name="ListGhostsNearLocation">
+  <prototype>ListGhostsNearLocation( x, y, z, range, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <explain>Searches the world for ghosts within "range" squares of (x,y,z).</explain>
+  <explain>Notes: 19 is used for the z-range.  
+         Rectangular range is used - x-range and y-range are compared independently 
+      This call is equivalent to ListMobilesNearLocationEx( x, y, z, range, LISTEX_GHOST, realm ).
+          For this reason, this function is depreciated.</explain>
+  <return>An array of Character References of ghosts found near the location on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>Character</related>
+</function>
+
+<function name="ListItemsNearLocation">
+  <prototype>ListItemsNearLocation( x, y, z, range, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <explain>Searches the world for items within range squares of (x,y,z).</explain>
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>&lt;uninitialized object&gt; if invalid parameters, or Array of Item References of Items found near the location.</return>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListItemsNearLocationOfType">
+  <prototype>ListItemsNearLocationOfType( x, y, z, range, objtype, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <parameter name="objtype" value="Integer" />
+  <explain>Searches the world for items within range squares of (x,y,z) of type objtype.</explain>
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>&lt;uninitialized object&gt; if invalid parameters, or Array of Item References of Items matching "objtype" found near the location.</return>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListMobilesInLineOfSight">
+  <prototype>ListMobilesInLineOfSight( object, range )</prototype>
+  <parameter name="object" value="UObject Reference" />
+  <parameter name="range" value="Integer" />
+  <explain>Gets list of mobiles in line of sight of "object", maximum "range" tiles away.</explain>
+  <explain>Notes: Finds living, non-hidden mobiles within range tiles of object, that have LOS with it. </explain>
+  <return>An Array of Character References on success</return>
+  <error>"Invalid parameter"</error>
+  <related>UObject</related>
+</function>
+
+<function name="ListMobilesNearLocation">
+  <prototype>ListMobilesNearLocation( x, y, z, range, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <explain>Searches the world for mobiles within range squares of (x,y,z).</explain>
+  <explain>Notes: Finds living, non-hidden mobiles found near the location. </explain>
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>An Array of Character References</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Character</related>
+  <related>Array</related>
+</function>
+
+<function name="ListMobilesNearLocationEx">
+  <prototype>ListMobilesNearLocationEx( x, y, z, range, flags, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <parameter name="flags" value="Integer" />
+  <explain>Searches the world for mobiles within range squares of (x,y,z).</explain>
+  <explain>Notes: uo.em constants for flags - include mobile types:
+<code>
+const LISTEX_FLAG_NORMAL := 0x01;
+const LISTEX_FLAG_HIDDEN := 0x02;
+const LISTEX_FLAG_GHOST  := 0x04;
+const LISTEX_FLAG_CONCEALED  := 0x08;</code></explain>
+
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>An Array of Character References of mobiles found matching the search criteria. </return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Character</related>
+  <related>Array</related>
+</function>
+
+<function name="ListOfflineMobilesInRealm">
+  <prototype>ListOfflineMobilesInRealm(realm := _DEFAULT_REALM)</prototype>
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>returns the list of offline mobiles in a specific realm.</explain>
+  <explain>Useful for moving the offline mobiles out of a shadow realm before deleting it.</explain>
+  <return>An Array of Character References of mobiles found.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>Character</related>
+  <related>Array</related>
+</function>
+
+<function name="PrintTextAbove">
+  <prototype>PrintTextAbove( above_object, text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, journal_print := JOURNAL_PRINT_NAME)</prototype>
+  <parameter name="above_object" value="UObject Reference" />
+  <parameter name="text" value="String" />
+  <parameter name="font" value="Integer (optional)" />
+  <parameter name="color" value="Integer (optional)" />
+  <parameter name="journal_print" value="Integer (optional)" />
+  <explain>Prints text above an object, as if spoken.</explain>
+  <explain>Notes: see client.inc for suitable values for font and color</explain>
+  <explain>Notes: journal_print flags:
+<code>
+const JOURNAL_PRINT_NAME  := 0x00; // Implicit.  Print's the object's description / npc's name in the journal.
+const JOURNAL_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</code></explain>
+  <return>0 if text was too long (>200 characters)</return>
+  <return>1 on success</return>
+  <error>"A parameter was invalid"</error>
+  <related>UObject</related>
+</function>
+
+<function name="PrintTextAbovePrivate">
+  <prototype>PrintTextAbovePrivate( above_object, text, character, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, journal_print := JOURNAL_PRINT_NAME )</prototype>
+  <parameter name="above_object" value="UObject Reference" />
+  <parameter name="text" value="String" />
+  <parameter name="character" value="Character Reference" />
+  <parameter name="font" value="Integer (optional)" />
+  <parameter name="color" value="Integer (optional)" />
+  <parameter name="journal_print" value="Integer (optional)" />
+  <explain>Causes text to be displayed above "above_object", as if spoken. This text will only 
+        be seen by a single character referenced by "character"</explain>
+  <explain>Notes: see client.inc for suitable values for font and color</explain>
+  <explain>Notes: journal_print flags:
+<code>
+const JOURNAL_PRINT_NAME  := 0x00; // Implicit.  Print's the object's description / npc's name in the journal.
+const JOURNAL_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</code></explain>
+  <return>0 if text was too long (>200 characters)</return>
+  <return>1 on success</return>
+  <error>"A parameter was invalid"</error>
+  <related>UObject</related>
+  <related>Character</related>
+</function>
+
+<function name="ReadGameClock">
+  <prototype>ReadGameClock()</prototype>
+  <explain>Returns the total number of seconds the server has been active.</explain>
+  <explain>Notes: The Game Clock is a seconds-counter.  It is started after all data is read, and is 
+      stopped just before writing data.  It has no relationship to real-world calendar time.  
+      It counts real-time seconds - if the system is running slow, it will reliably tell you 
+      how many real-time seconds have passed while the game was running. </explain>
+  <return>Integer - The current value of the game clock. </return>
+  <error>none</error>
+</function>
+
+<function name="RequestInput">
+  <prototype>RequestInput(character, item, prompt )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="item" value="Item Reference" />
+  <parameter name="prompt" value="String" />
+  <explain>Prompts a player for input, and waits for the player to type a line of text. </explain>
+  <explain>Notes: "item" is a placeholder - the client needs it, but it is not used internally.  
+      Typically some related item will be passed. </explain>
+  <return>A String containing the next line of text from the client's keyboard on success. Returns 0 (int) if control characters were found in the string.</return>
+  <error>"Invalid parameter"</error>
+  <error>"No client attached"</error>
+  <error>"Another script has an active prompt"</error>
+  <related>Character</related>
+  <related>Item</related>
+</function>
+
+<function name="RestartScript">
+  <prototype>RestartScript( npc )</prototype>
+  <parameter name="npc" value="Character Reference (must be an NPC)" />
+  <explain>Stops the current master script for an NPC, and starts a new one. </explain>
+  <explain>npc.script can be assigned before calling this, to change the master script for an NPC. </explain>
+  <return>1 if the script was started</return>
+  <error>"Invalid parameter"</error>
+  <error>"RestartScript only operates on NPCs"</error>
+  <related>NPC</related>
+</function>
+
+<function name="Resurrect">
+  <prototype>Resurrect( mobile, flags := 0 )</prototype>
+  <parameter name="mobile" value="Character Reference" />
+  <parameter name="flags" value="integer flags" />
+  <explain>Resurrects a ghost. Checks to see if the location occupied by the ghost is valid for an alive character first unless flags ==  RESURRECT_FORCELOCATION. (Be very careful with this unless you like exploits)
+<code>
+flags:
+const RESURRECT_FORCELOCATION := 0x01;</code>
+  </explain>
+  <return>1 if the ghost was resurrected successfully</return>
+  <error>"Invalid parameter type"</error>
+  <error>"That is not dead"</error>
+  <error>"That location is blocked"</error>
+  <related>Character</related>
+</function>
+
+<function name="RevokePrivilege">
+  <prototype>RevokePrivilege( character, privilege )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="privilege" value="String" />
+  <explain>Revokes a privilege from a character. </explain>
+  <return>1 if the privilege was revoked, or if it was not previously granted. </return>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+</function>
+
+<function name="SaveWorldState">
+  <prototype>SaveWorldState()</prototype>
+  <explain>Saves the current world state. </explain>
+  <return>struct { CleanObjects, DirtyObjects, ElapsedMilliseconds }</return>
+  <error>"Exception during world save"</error>
+  <error>"pol.cfg has InhibitSaves=1"</error>
+</function>
+
+<function name="SendSysMessage">
+  <prototype>SendSysMessage( character, text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="text" value="String" />
+  <parameter name="font" value="Integer (optional)" />
+  <parameter name="color" value="Integer (optional)" />
+  <explain>Displays a System Message in the lower-left corner of character's player's screen. </explain>
+  <explain>Notes: see client.inc for suitable values of font and color.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Mobile has no active client"</error>
+  <related>Character</related>
+</function>
+
+<function name="SetRegionLightLevel">
+  <prototype>SetRegionLightLevel( regionname, lightlevel )</prototype>
+  <parameter name="regionname" value="String" />
+  <parameter name="lightlevel" value="Integer (0..30)" />
+  <explain>Sets the light level of a region by name.</explain>
+  <explain>Notes: lightlevel must be a value between 0 and 30 where 0 is daylight and 30 is near-total darkness. 
+       regionname must match a region name from REGIONS\LIGHT.CFG.  </explain>
+  <return>1 if the light level was set successfully</return>
+  <error>"Invalid Parameter type"</error>
+  <error>"Light Level is out of range"</error>
+  <error>"Light region not found"</error>
+  <relatedcfg>light.cfg</relatedcfg>
+</function>
+
+<function name="SystemFindObjectBySerial">
+  <prototype>SystemFindObjectBySerial( serial, sysfind_flags := 0 )</prototype>
+  <parameter name="serial" value="Integer" />
+  <parameter name="sysfind_flags" value="Integer (optional, default 0)" />
+  <explain>Searches the world for an item or mobile by serial number. This could be used
+        if the serial number of an object was saved with SetObjProperty, for example. </explain>
+  <explain>Notes: uo.em constants for flags:
+<code>
+const SYSFIND_SEARCH_OFFLINE_MOBILES := 1;</code></explain>
+  <return>A Character Reference, Item Reference, or Multi reference on success.</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Character not found"</error>
+  <error>"Item not found."</error>
+</function>
+
+
+<function name="Target">
+  <prototype>Target( by_character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL)</prototype>
+  <parameter name="by_character" value="Character Reference" />
+  <parameter name="options" value="Integer (Optional)" />
+  <explain>Sends a target cursor to "by_character"'s client, and waits for the player to target something. </explain>
+  <explain>Notes: Options control Line-of-sight checking. </explain>
+  <explain>0 is returned if the character does not have line-of-sight to the object.</explain>
+  <explain>uo.em constants for options, just add together non-mutually exclusive options.
+<code>
+const TGTOPT_CHECK_LOS   := 0x0001;
+const TGTOPT_NOCHECK_LOS := 0x0000; // to be explicit
+const TGTOPT_HARMFUL     := 0x0002;
+const TGTOPT_NEUTRAL     := 0x0000; // to be explicit
+const TGTOPT_HELPFUL     := 0x0004;</code></explain>
+    <explain>
+       The first 2 options specify if Line-of-sight to the targetting obejct should be checked or not.
+       The last 3 options are involved with the reputation system. Use TGTOPT_HARMFUL if the effect that
+       uses the target is a hostile action (like casting fireball), use _HELPFUL for things like healing
+       and use _NEUTRAL for reputation-neutral actions.</explain>
+  <return>0 if user cancelled, or nothing targetted, or no LOS to target (if option is selected)</return>
+  <return>UObject Reference on success (item or character or multi)</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client connected"</error>
+  <error>"Client busy with another target cursor"</error>
+  <related>UObject</related>
+  <related>Character</related>
+</function>
+
+<function name="TargetCoordinates">
+  <prototype>TargetCoordinates( by_character )</prototype>
+  <parameter name="by_character" value="Character Reference" />
+  <explain>Sends a target cursor to a character's client, and waits for the player to target a ground tile.</explain>
+  <explain>Notes: Line-of-sight is not checked.</explain>
+  <return>A Structure on success: 
+members: structure.x,structure.y,structure.z,structure.realm - containing the location targetted. 
+     structure.objtype - containing the objtype of the static object targetted.</return>
+  <return>Not always present members:</return>
+  <return>structure.item contains an Item Reference to a dynamic item targetted.</return>
+  <return>structure.mobile contains a Character Reference to a mobile targetted.</return>
+  <return>structure.multi contains Multi Reference if coords are inside a multi</return>
+  <return>0 if the target cursor was cancelled or the client disconnected. </return>
+  <error>"Invalid parameter type"</error>
+  <error>"Mobile has no active client"</error>
+  <error>"Client has an active target cursor"</error>
+  <related>Character</related>
+</function>
+
+
+<function name="AddMenuItem">
+  <prototype>AddMenuItem( menu, objtype, text, color:=0 )</prototype>
+  <parameter name="menu" value="Dynamic Menu Reference (from CreateMenu())" />
+  <parameter name="objtype" value="Integer tile graphic to add to menu" />
+  <parameter name="text" value="String description" />
+  <parameter name="color" value="Integer" />
+  <explain>Adds a menu item to a dynamic menu. </explain>
+  <explain>Notes: The 'objtype' field of a mobile is not appropriate here.  There is special art for 
+      mobiles for use in menus.  Human Males (object type: 0x190) use 0x2106, females 0x2107.  
+      Use InsideUO to determine other values.
+      Color defaults to 0 if no itemdesc.cfg entry exists.
+      Hint: menus.cfg uses the color of the itemdesc entry of the objtype given.</explain>
+    <explain>0 for objtype creates a checkbox-style menu</explain>      
+  <return>1 if the item was added successfully</return>
+  <error>none (returns 0 on invalid parameters)</error>
+</function>
+
+<function name="CreateMenu">
+  <prototype>CreateMenu( title )</prototype>
+  <parameter name="title" value="String" />
+  <explain>Creates an empty dynamic "old-style item selection" menu. </explain>
+  <return>A dynamic menu reference if the menu was created successfully</return>
+  <error>none (returns 0 on invalid parameter)</error>
+</function>
+
+<function name="SelectMenuItem2">
+  <prototype>SelectMenuItem2( character, menuname )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="menuname" value="String name of the static menu in menus.cfg, or a dynamic menu reference" />
+  <explain>Displays an object menu on the character's client for the player to select from. </explain>
+  <explain>Notes: Can take a static or dynamic menu.</explain>
+  <return>0 if the menu was cancelled, or the character's client disconnected.</return>
+  <return>A Structure on success:
+        .objtype = Integer object type of the selection. 
+        .index = 1-based index within the menu of the selection. 
+        .graphic = Integer graphic of the object. 
+        .color = color of the object.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Client is busy, or menu is empty"</error>
+  <error>"Menu too large"</error>
+  <related>Character</related>
+  <relatedcfg>menus.cfg</relatedcfg>
+</function>
+
+<function name="EraseObjProperty">
+  <prototype>EraseObjProperty( object, propname )</prototype>
+  <parameter name="object" value="UObject Reference" />
+  <parameter name="propname" value="String" />
+  <explain>Removes a property from the custom-property ("cprop") list of an object. propertyname is case-sensative</explain>
+  <return>1 if the property was erased or did not exist.</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+</function>
+
+<function name="GetObjProperty">
+  <prototype>GetObjProperty( object, property_name )</prototype>
+  <parameter name="object" value="UObject Reference" />
+  <parameter name="property_name" value="String" />
+  <explain>Retrieves custom data (a "cprop") associated with an object. propertyname is case-sensative</explain>
+  <return>On success, the unpacked object that was saved with SetObjProperty. This could be a
+       string, integer, real, array, struct, dictionary, etc.</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Property not found"</error>
+  <related>UObject</related>
+</function>
+
+<function name="SetObjProperty">
+  <prototype>SetObjProperty( object, property_name, property_value )</prototype>
+  <parameter name="object" value="UObject Reference" />
+  <parameter name="property_name" value="String" />
+  <parameter name="property_value" value="a script object (could be string, int, real, array, etc)" />
+  <explain>Sets a custom data property on an object. This data will be saved with the object, for later retrieval with GetObjProperty. propertyname is case-sensative</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+</function>
+
+<function name="EraseGlobalProperty">
+  <prototype>EraseGlobalProperty( propname )</prototype>
+  <parameter name="propname" value="String" />
+  <explain>Removes a property from the global property list. propertyname is case-sensative</explain>
+  <return>1 if the property was erased or did not exist.</return>
+  <error>"Invalid parameter type"</error>
+</function>
+
+<function name="GetGlobalProperty">
+  <prototype>GetGlobalProperty( propname )</prototype>
+  <parameter name="propname" value="String" />
+  <explain>Retrieves the value of a global property. propertyname is case-sensative</explain>
+  <return>On success a script object (string, integer, real, array, etc) containing the value of the named property</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Property not found"</error>
+</function>
+
+<function name="SetGlobalProperty">
+  <prototype>SetGlobalProperty( propname, propval )</prototype>
+  <parameter name="propname" value="String" />
+  <parameter name="propval" value="a script object (could be string, int, real, array, etc)" />
+  <explain>Sets the value of a global property. propertyname is case-sensative</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+</function>
+
+<function name="GetGlobalPropertyNames">
+  <prototype>GetGlobalPropertyNames()</prototype>
+  <explain>Gets all the global property names. Use GetGlobalProperty(returned_array[i]) to get the property value.</explain>
+  <return>Array of strings</return>
+</function>
+
+<function name="PerformAction">
+  <prototype>PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD, repeatflag := ACTION_NOREPEAT, delay := 1 )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="action" value="Integer" />
+  <parameter name="framecount" value="Integer (Optional)" />
+  <parameter name="repeatcount" value="Integer (Optional)" />
+  <parameter name="backward" value="Integer (Optional)" />
+  <parameter name="repeatflag" value="Integer (Optional)" />
+  <parameter name="delay" value="Integer (Optional)" />
+  <explain>Causes character to perform an action, such as Bow or Salute. </explain>
+  <explain>Notes: see client.inc for valid action IDs</explain>
+  <explain>
+  <code>
+const ACTION_DIR_FORWARD  := 0;
+const ACTION_DIR_BACKWARD := 1;
+const ACTION_NOREPEAT     := 0;
+const ACTION_REPEAT       := 1;</code></explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+</function>
+
+<function name="PlayLightningBoltEffect">
+  <prototype>PlayLightningBoltEffect( center_object )</prototype>
+  <parameter name="center_object" value="UObject Reference" />
+  <explain>Plays a lightning bolt effect centered on the object.</explain>
+  <return>1 on success </return>
+  <error>none (returns 0 if invalid parameter).</error>
+  <related>UObject</related>
+</function>
+
+<function name="PlayMovingEffect">
+  <prototype>PlayMovingEffect( source, target, effect, speed, loop := 0, explode := 0 )</prototype>
+  <parameter name="source" value="UObject Reference" />
+  <parameter name="target" value="UObject Reference" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="speed" value="Integer (0..255)" />
+  <parameter name="loop" value="Integer (Optional, 0..255)" />
+  <parameter name="explode" value="Integer (Optional, 0..255)" />
+  <explain>Causes a moving effect to be played, travelling from source to destination </explain>
+  <explain>Notes: effect = an item graphic number (the first in a series if an animation) 
+       speed = how fast the effect should travel. 
+       loop = 0/1 loop the animation? 
+       explode = 0/1 show an explosion at destination at the end of the effect?</explain>
+  <return>1 on success</return>
+  <error>none (returns 0 if invalid parameter)</error>
+  <related>UObject</related>
+</function>
+
+<function name="PlayObjectCenteredEffect">
+  <prototype>PlayObjectCenteredEffect( center, effect, speed, loop := 0)</prototype>
+  <parameter name="center" value="UObject Reference" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="speed" value="Integer (0..255)" />
+  <parameter name="loop" value="Integer (Optional, 0..255)" />
+  <explain>Causes an effect to be played, centered on uobject, which follows uobject if it moves. </explain>
+  <explain>Notes: see PlayMovingEffect for effect, speed, loop description
+       This is used for effects like flame strike and reactive armor.</explain>
+  <return>1 on success</return>
+  <error>none (returns 0 on invalid parameter)</error>
+  <related>UObject</related>
+</function>
+
+<function name="PlaySoundEffect">
+  <prototype>PlaySoundEffect( object, effect )</prototype>
+  <parameter name="object" value="UObject Reference" />
+  <parameter name="effect" value="Integer" />
+  <explain>Causes a sound effect to be played, centered on object. </explain>
+  <explain>Notes: see client.inc for sound effect constants</explain>
+  <explain>All clients within a range of 18 tiles are sent this command. Use PlaySoundEffectPrivate() for private sounds.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <related>UObject</related>
+</function>
+
+<function name="PlaySoundEffectXYZ">
+  <prototype>PlaySoundEffectXYZ( x, y, z, effect, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Causes a sound effect to be played, centered on Location. </explain>
+  <explain>Notes: see client.inc for sound effect constants</explain>
+  <explain>All clients within a range of 18 tiles are sent this command. Use PlaySoundEffectPrivate() for private sounds.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for realm"</error>
+  <related>UObject</related>
+</function>
+
+<function name="DestroyItem">
+  <prototype>DestroyItem( Item )</prototype>
+  <parameter name="Item" value="Item Reference" />
+  <explain>Removes an item from the world.  Transmits commands to each client in range of item to reflect this.</explain>
+  <explain>Notes: runs the Item's destroy script, if any.</explain>
+  <return>1 if the item was destroyed</return>
+  <return>0 if the item's destroy script disallowed destruction</return>
+  <error>"That item is being used."</error>
+  <error>"Invalid parameter type"</error>
+  <related>Item</related>
+</function>
+
+<function name="EquipItem">
+  <prototype>EquipItem( mobile, item )</prototype>
+  <parameter name="mobile" value="Character Reference" />
+  <parameter name="item" value="Item Reference" />
+  <explain>Equips an item on a mobile. </explain>
+  <explain>Notes: If item is in a container, it will be removed from the container.</explain>
+  <explain>"Equippable" means that the character does not have a similar item equipped, and that the item is an equipment-type item.</explain>
+  <explain>Carrying-capacity and strength requirements will fall under this category as well.</explain>
+  <explain>To "unequip" an item, move it to another location (typically a backpack)</explain>
+  <explain>Runs the Item's Equiptest and Equip scripts, if any.</explain>
+  <return>1 if the item was equipped succesfully</return>
+  <return>0 if the item's Equip script returned false</return>
+  <error>"That is immobile"</error>
+  <error>"That item is being used."</error>
+  <error>"That item is not equippable by that character" if equiptest script failed.</error>
+  <error>"Invalid parameter type"</error>
+  <related>Character</related>
+  <related>Item</related>
+</function>
+
+<function name="MoveItemToContainer">
+  <prototype>MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <parameter name="container" value="Container Reference" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
+  <parameter name="add_to_existing_stack" value="Defines if the items moved to the container will look for an existing stack and add to it or just add as a new item ( old behaviour )" />
+  <explain>Moves an item into a container.</explain>
+  <explain>Notes: If the default values for x and y are passed, or if x or y does not fall within the
+       legal bounds for a container as found in ITEMDESC.CFG, then a random location 
+       within the container will be chosen. </explain>
+  <explain>Calls the item's unequiptest and unequip scripts, if any.</explain>
+  <explain>Calls the container's canInsert and onInsert scripts, if any.</explain>
+  <explain>Calls the item's original container's (if any) canRemove and onRemove scripts, if any.</explain>
+  <explain>If add_to_existing_stack == 1 and there is no stack in the container, it will return Error "There is no existing stack", so its up to scripts to check this.</explain>
+  <explain>If add_to_existing_stack == 2 and there is no stack in the container, it will just add as a new item like when add_to_existing_stack == 0.</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"That is immobile"</error>
+  <error>"That item is being used."</error>
+  <error>"Non-container selected as target"</error>
+  <error>"Can't put a container into itself"</error>
+  <error>"Can't put a container into an item in itself"</error>
+  <error>"Container is too full to add that"</error>
+  <error>"Item cannot be unequipped"</error>
+  <error>"There is no existing stack"</error>
+  <related>Item</related>
+  <related>Container</related>
+</function>
+
+<function name="SubtractAmount">
+  <prototype>SubtractAmount( item, amount )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <parameter name="amount" value="Integer" />
+  <explain>Decreases the stack size of an item.  If nothing is left, deletes the item. </explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"That item is being used."</error>
+  <related>Item</related>
+</function>
+       
+<function name="CreateMultiAtLocation">
+  <prototype>CreateMultiAtLocation( x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
+  <parameter name="flags" value="Integer (optional)" />
+  <explain>Creates a "multi" object (house or boat) at a location.</explain>
+  <explain>Notes: uo.em constants for flags:
+<code>
+houses only:
+const CRMULTI_IGNORE_MULTIS     := 0x0001; //ignore intersecting multis
+const CRMULTI_IGNORE_OBJECTS    := 0x0002; //ignore dynamic objects
+const CRMULTI_IGNORE_WORLDZ     := 0x0004; //ignore standability,relative Z,world height
+const CRMULTI_IGNORE_ALL        := 0x0007; </code></explain>
+  <explain>objtype must be a multi type as defined in itemdesc.cfg having a type House or Boat.</explain>
+  <explain>For Boats: Position must be passable - every part of the hull sits on water, and no 
+                hull location is occupied by the hull of another ship, nor a static or 
+                dynamic blocking item. 
+              Runs scripts/misc/boat.ecl on creation.</explain>
+  <return>Boat Reference or House Reference on success, and adds the multi to the world</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"That location is out of bounds"</error>
+  <error>"That objtype is not a Multi"</error>
+  <error>"Don't know what kind of multi to make"</error>
+  <error>Boats:</error>
+  <error>   "Multi definition not found for Boat, objtype=X, graphic=Y"</error>
+  <error>   "No boatshape for Boat in boats.cfg, objtype=X, graphic=Y"</error>
+  <error>     "Position indicated is impassable"</error>
+  <error>Houses:</error>
+  <error>   "Multi definition not found for House, objtype=X, graphic=Y"</error>
+  <error>   "Location intersects with another structure" (use CRMULTI_IGNORE_MULTIS)</error>
+  <error>   "Something is blocking that location" (use CRMULTI_IGNORE_OBJECTS)</error>
+  <error>   "That location is not suitable" (use CRMULTI_IGNORE_WORLDZ)</error>
+  <related>House</related>
+  <related>Boat</related>
+</function>
+
+<function name="TargetMultiPlacement">
+  <prototype>TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0, hue := 0 )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="objtype" value="Integer" />
+  <parameter name="flags" value="Integer (optional)" />
+  <parameter name="xoffset" value="Integer offset to 'ghost' target house" />
+  <parameter name="yoffset" value="Integer offset to 'ghost' target house" />
+  <parameter name="hue" value="Integer" />
+  <explain>Sends character a "ghost" multi to select placement location in the world.</explain>
+  <explain>Notes: objtype must be from an itemdesc.cfg entry with a Boat or House type.</explain>
+  <explain>boats only constants for flags:
+<code>
+const CRMULTI_FACING_NORTH      := 0x0000;  
+const CRMULTI_FACING_EAST       := 0x0100;
+const CRMULTI_FACING_SOUTH      := 0x0200;
+const CRMULTI_FACING_WEST       := 0x0300;</code></explain>
+  <explain>For House target placement, flags should == 0.</explain>
+  <explain>NOTE: the coordinates returned by this are the coordinates of the "target" cursor, not the center of the house if you use x/yoffset! So if you want to have the front steps be under the cursor, you must transform the parameters to CreateMultiAtLocation to include your xoffset and yoffset. Positive offsets move the cursor left/down in relation to the ghost house. An example using the front steps to target:
+<code>    var dims := GetMultiDimensions( 0x6071 );
+    if(!dims) return; endif
+    var loc := TargetMultiPlacement( who, 0x6071, 0, 0, dims.ymax );
+    if(!loc) return; endif
+    var house := CreateMultiAtLocation( loc.x, loc.y - dims.ymax, loc.z, 0x6071, 0, who.realm );</code></explain>
+  <return>A Structure (x,y,z) containing the location targetted on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <error>"Client busy with another target cursor"</error>
+  <error>"Object Type is out of range for Multis"</error>
+  <related>House</related>
+  <related>Boat</related>
+  <related>Character</related>
+</function>
+
+<function name="RegisterForSpeechEvents">
+  <prototype>RegisterForSpeechEvents( at_object, range, flags := 0 )</prototype>
+  <parameter name="at_object" value="UObject Reference" />
+  <parameter name="range" value="Integer" />
+  <parameter name="flags" value="Integer (optional)" />
+  <explain>Player-character speech spoken within "range" tiles of "at_object" will generate 
+        speech events, which are sent to "at_object"'s control script (use wait_for_event()
+        to retreive the event).</explain>
+  <explain>uo.em constants for flags:
+          const LISTENPT_HEAR_GHOSTS      := 0x01;</explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Already registered for speech events"</error>
+  <related>UObject</related>
+  <related>Item</related>
+  <related>Character</related>
+</function>
+
+<function name="EnableEvents">
+  <prototype>EnableEvents( eventtype, range := -1 )</prototype>
+  <parameter name="eventtype" value="Integer" />
+  <parameter name="range" value="Integer (optional, 0..32)" />
+  <explain>Enables events specified. When enabled events occur, they will be placed on the 
+        script's event queue, and must be read with wait_for_event.  Events that were 
+        previously enabled will remain enabled. </explain>
+  <explain>Notes: See include/sysevent.inc for event type constants.  DO NOT use this function for 
+         non-system event IDs. For user-created events, just send the event, no need to enable
+         it first.</explain>
+  <explain>This function is useful only to NPCs and Items that have called RegisterForSpeechEvents.</explain>
+  <explain>Range is only used for certain events (currently speech, and entered/leftarea events)</explain>
+  <return>Integer new event "mask" on success</return>
+  <error>"Invalid parameter"</error>
+</function>
+
+<function name="GetHarvestDifficulty">
+  <prototype>GetHarvestDifficulty( resource, x, y, tiletype, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="resource" value="String" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="tiletype" value="Integer" />
+  <explain>Determines the difficulty of harvesting a resource from location (x,y). </explain>
+  <explain>Notes: tiletype will typically be .objtype from TargetCoordinates() 
+       Checks the location for an object of type 'tiletype'. This tiletype may be a 
+         landtile or an object tile.</explain>
+  <explain>"resource" is something like "ore" "wood" "fish", etc. see regions/resource.cfg,
+       regions/ore.cfg, etc.</explain>
+  <explain>Formula: random_int( (90 - (units * 80 / units_per_area_)) * 2 )</explain>
+  <return>An integer difficulty level if resources exist.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"No resource by that name"</error>
+  <error>"No resource-bearing landmark there"</error>
+  <error>"No resource region at that location"</error>
+  <error>"Resource is depleted"</error>
+  <relatedcfg>resource.cfg</relatedcfg>
+</function>
+
+<function name="HarvestResource">
+  <prototype>HarvestResource( resource, x, y, b, n, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="resource" value="String" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="b" value="Integer" />
+  <parameter name="n" value="Integer" />
+  <explain>Attempts to harvest a resource from a location.</explain>
+  <explain>Notes: Harvests a*b resource units, where 0 is less than or equal to 'a'  and 'a' is less than or 
+equal to n.  Thus you can request 0-40  units in groups of 5, etc. </explain>
+  <return>Integer number of resource units harvested if resources were harvested, or 0 if 
+         no resources were available.</return>
+  <error>"Invalid parameter" </error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"No resource by that name"</error>
+  <error>"No resource region at that location"</error>
+  <relatedcfg>resource.cfg</relatedcfg>
+</function>
+
+<function name="CreateItemCopyAtLocation">
+  <prototype>CreateItemCopyAtLocation(x, y, z, item, realm := _DEFAULT_REALM)</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="item" value="Item Reference" />
+  <explain>makes a clone of the item
+      referenced with "itemref" at location x,y,z. Copies member variables and CProps. Does
+      not work with Multi objects. Does not copy a container's contents.</explain>
+  <return>A new Item Reference</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"Unable to clone item"</error>
+  <error>"This function does not work with Multi objects."</error>
+  <related>Item</related>
+  <relatedcfg>itemdesc.cfg</relatedcfg>
+</function>
+   
+<function name="SendQuestArrow">   
+  <prototype>SendQuestArrow(to_whom, x := -1, y := -1, target := "")</prototype>
+  <parameter name="to_whom" value="Character reference the arrow shows to" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="target" value="Item or Character reference" />
+  <explain>Sends a "quest arrow" to the player that points at x,y</explain>
+  <explain>Passing 'x' and 'y' within map bounds will set the Quest Arrow to point at that location.</explain>
+  <explain>Passing -1 as 'x' and 'y' (ie. by just called SendQuestArrow(to_whom)) will remove it.</explain>
+  <explain>If the client is HSA (client version > 7.0.9), "target" is required. Otherwise it will be ignored.</explain>
+  <return>1 on success</return>
+  <error>"No client attached"</error>
+  <error>"Invalid parameter"</error>
+  <error>"No valid target for HSA client"</error>
+  <related>Character</related>
+</function>
+
+<function name="ListItemsNearLocationWithFlag">
+  <prototype>ListItemsNearLocationWithFlag( x, y, z, range, flags, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <parameter name="flags" value="Integer" />
+  <explain>Gets an array of itemrefs if its graphic matches any of the OR'd flags passed. "flags" here are 
+    tiledata.mul flags for the item's graphic.</explain>
+  <explain>Tiledata.mul flags:
+<code>
+const TILEDATA_FLAG_BACKGROUND  := 0x00000001; //Background
+const TILEDATA_FLAG_WEAPON      := 0x00000002; //Weapon
+const TILEDATA_FLAG_TRANSPARENT := 0x00000004; //Transparent
+const TILEDATA_FLAG_TRANSLUCENT := 0x00000008; //Translucent
+const TILEDATA_FLAG_WALL        := 0x00000010; //Wall
+const TILEDATA_FLAG_DAMAGING    := 0x00000020; //Damaging
+const TILEDATA_FLAG_IMPASSABLE  := 0x00000040; //Impassable
+const TILEDATA_FLAG_WET         := 0x00000080; //Wet
+const TILEDATA_FLAG_UNK         := 0x00000100; //Unknown
+const TILEDATA_FLAG_SURFACE     := 0x00000200; //Surface
+const TILEDATA_FLAG_BRIDGE      := 0x00000400; //Bridge
+const TILEDATA_FLAG_STACKABLE   := 0x00000800; //Generic/Stackable
+const TILEDATA_FLAG_WINDOW      := 0x00001000; //Window
+const TILEDATA_FLAG_NOSHOOT     := 0x00002000; //No Shoot
+const TILEDATA_FLAG_PREFIX_A    := 0x00004000; //Prefix A
+const TILEDATA_FLAG_PREFIX_AN   := 0x00008000; //Prefix An
+const TILEDATA_FLAG_INTERNAL    := 0x00010000; //Internal (things like hair, beards, etc)
+const TILEDATA_FLAG_FOLIAGE     := 0x00020000; //Foliage
+const TILEDATA_FLAG_PARTIAL_HUE := 0x00040000; //Partial Hue
+const TILEDATA_FLAG_UNK1        := 0x00080000; //Unknown 1
+const TILEDATA_FLAG_MAP         := 0x00100000; //Map
+const TILEDATA_FLAG_CONTAINER   := 0x00200000; //Container
+const TILEDATA_FLAG_WEARABLE    := 0x00400000; //Wearable
+const TILEDATA_FLAG_LIGHTSOURCE := 0x00800000; //LightSource
+const TILEDATA_FLAG_ANIMATED    := 0x01000000; //Animated
+const TILEDATA_FLAG_HOVEROVER   := 0x02000000; //HoverOver (gargoyle flying tiles)
+const TILEDATA_FLAG_UNK2        := 0x04000000; //Unknown 2
+const TILEDATA_FLAG_ARMOR       := 0x08000000; //Armor
+const TILEDATA_FLAG_ROOF        := 0x10000000; //Roof
+const TILEDATA_FLAG_DOOR        := 0x20000000; //Door
+const TILEDATA_FLAG_STAIRBACK   := 0x40000000; //StairBack
+const TILEDATA_FLAG_STAIRRIGHT  := 0x80000000; //StairRight</code></explain>
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>Array of Item References of Items matching "flags" found near the location or Error.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListMultisInBox">
+  <prototype>ListMultisInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Lists all multis inside an imaginary box (where a multi must have at least one 'static' piece inside the box)</explain>
+  <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
+  <return>Error or Array of all multis found inside the specified box.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>House</related>
+  <related>Boat</related>
+  <related>Array</related>
+</function> 
+
+<function name="SetName">
+  <prototype>SetName( object, name )</prototype>
+  <parameter name="object" value="UObject Reference" />
+  <parameter name="name" value="String" />
+  <explain>Sets name of item or mobile.</explain>
+  <return>1 on success</return>
+  <error>none (returns 0 on failure)</error>
+  <related>UObject</related>
+</function>
+
+<function name="FindPath">
+  <prototype>FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 )</prototype>
+  <parameter name="x1" value="Integer world coordinates - start of the path" />
+  <parameter name="y1" value="Integer world coordinates - start of the path" />
+  <parameter name="z1" value="Integer world coordinates - start of the path" />
+  <parameter name="x2" value="Integer world coordinates - destination" />
+  <parameter name="y2" value="Integer world coordinates - destination" />
+  <parameter name="z2" value="Integer world coordinates - destination" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="flags" value="Integer" />
+  <parameter name="searchskirt" value="Integer" />
+  <explain>Finds a path from start to destination and will return an array of coordinates, representing each step along the path from the next step to take from the start of the path to the actual destination.  The coordinates are found in .x, .y, and .z.</explain>
+  <explain>Notes: The skirt around the square that is formed around the start of the path to the destination which represents the searchable area is set by searchskirt. Check out MaxPathFindRange in servspecopt.cfg too.</explain>
+  <explain>Notes: uo.em constant for this function:
+<code>
+// FindPath flags
+const FP_IGNORE_MOBILES         := 0x01;    // ignore Mobiles
+const FP_IGNORE_DOORS           := 0x02;    // ignore Doors (you've to open doors by yourself)</code></explain>
+  <return>Error or Array of coordinates, representing each step along the path.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Start Coordinates Invalid for Realm"</error>
+  <error>"End Coordinates Invalid for Realm"</error>
+  <error>"Beyond Max Range."</error>
+  <error>"Failed to find a path."</error>
+  <error>"Out of memory."</error>
+  <error>"Solution Corrupted!"</error>
+  <error>"Pathfind Error."</error>
+  <related>NPC</related>
+  <related>Array</related>
+</function> 
+
+<function name="UseItem">
+  <prototype>UseItem( item, character )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <parameter name="character" value="Character Reference" />
+  <explain>This will allow the item specified's use script to be run by the character specified.  No checks are done for distance, or check for being a ghost, or anything else.</explain>
+  <explain>Warning: This function can also be called with NPC's as the character, but any use script that requires interactivity with it's user that is called on an NPC may have unpredictable results(dependant on the script).</explain>
+  <return>1 on success, 0 or Error</return>
+  <error>"Invalid parameter"</error>
+  <error>"Character busy."</error>
+  <error>"Failed to start script!"</error>
+  <related>Item</related>
+  <related>Character</related>
+  <related>NPC</related>
+</function> 
+
+<function name="GetMultiDimensions">
+  <prototype>GetMultiDimensions( multiid )</prototype>
+  <parameter name="multiid" value="Multi Graphic ID" />
+  <explain>Returns struct with coords of _relative_ distances from center. xmin and ymin are _negative_.</explain>
+  <return>Struct with "xmin", "xmax", "ymin", "ymax".</return>
+  <error>"Invalid parameter"</error>
+  <error>"Multi Graphic not found"</error>
+  <related>Multi</related>
+</function>
+
+<function name="FindSubstance">
+  <prototype>FindSubstance( container, objtype, amount, makeinuse := 0, flags := 0 )</prototype>
+  <parameter name="container" value="Container reference" />
+  <parameter name="objtype" value="Integer objtype to find" />
+  <parameter name="amount" value="Integer" />
+  <parameter name="makeinuse" value="Integer (0/1)" />
+  <parameter name="flags" value="Integer" />
+  <explain>Search the given container for items of objtype in an amount equal or greater than the amount given (stackables can return greater than #).</explain>
+  <explain>If makeinuse is set to 1, then the items will be reserved.</explain>
+  <explain>uo.em constants for flags:
+  <code>
+// FindSubstance constants
+const FINDSUBSTANCE_IGNORE_LOCKED := 0x1; // Find matches in locked containers
+const FINDSUBSTANCE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.
+const FINDSUBSTANCE_FIND_ALL      := 0x4; // Find all matches ignoring given amount</code></explain>
+  <return>If sufficient # of items have been found, those found (and possibly reserved) will be returned in an array.</return>
+  <error>"Invalid parameter type"</error>
+  <error>"That is not a container"</error>
+  <error>"Amount cannot be negative"</error>
+  <error>"Not enough of that substance in container"</error>
+  <related>Container</related>
+</function>
+
+<function name="SecureTradeWin">
+  <prototype>SecureTradeWin( character, character2 )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <parameter name="character2" value="Character Reference" />
+  <explain>Init secure trade via script over long distances.</explain>
+  <return>1 on success or Error</return>
+  <error>"Invalid parameter type"</error>
+  <error>"You can't trade with yourself."</error>
+  <error>"No client attached."</error>
+  <error>"Secure trading is unavailable."</error>
+  <error>"You cannot trade with someone in war mode."</error>
+  <error>"You cannot trade while in war mode."</error>
+  <error>"That person is already involved in a trade."</error>
+  <error>"You are already involved in a trade."</error>
+  <error>"Ghosts cannot trade items."</error>
+  <error>"Something goes wrong."</error>
+  <related>Character</related>
+</function>
+
+<function name="MoveItemToSecureTradeWin">
+  <prototype>MoveItemToSecureTradeWin( item, character )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <parameter name="character" value="Character Reference" />
+  <explain>Move item to secure trade window via script.</explain>
+  <return>1 on success or Error</return>
+  <error>"Invalid parameter type"</error>
+  <error>"That is immobile"</error>
+  <error>"That item is being used."</error>
+  <error>"Could not remove item from its container."</error>
+  <error>"Item was destroyed in CanRemove script"</error>
+  <error>"Item cannot be unequipped"</error>
+  <error>"Item was destroyed in Equip Script"</error>
+  <error>"Item was destroyed in OnRemove script"</error>
+  <error>"Unable to complete trade"</error>
+  <error>"That's too heavy to trade."</error>
+  <error>"Something went wrong with trade window."</error>
+  <related>Item</related>
+  <related>Character</related>
+</function>
+
+<function name="Attach">
+  <prototype>Attach( character )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <explain>Associates the current script to the character. See Detach() too.</explain>
+  <return>1 on success or Error</return>
+  <error>"Invalid parameter"</error>
+  <error>"Another script still attached."</error>
+  <error>"Another character still attached."</error>
+  <related>Character</related>
+</function>
+
+<function name="ListStaticsAtLocation">
+  <prototype>ListStaticsAtLocation( x, y, z, flags := 0, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="flags" value="Integer" />
+  <explain>Returns a list of Static or Multi Items at the specified x,y,z.</explain>
+  <explain>Use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// ListStatics* flags
+const ITEMS_IGNORE_STATICS      := 0x01;    // Don't list Static Items
+const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items
+
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>Array of Structs with members "x", "y", "z" and "objtype" or Error.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListStaticsNearLocation">
+  <prototype>ListStaticsNearLocation( x, y, z, range, flags := 0, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <parameter name="flags" value="Integer" />
+  <explain>Searches the world for Static or Multi Items within range squares of (x,y,z).</explain>
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// ListStatics* flags
+const ITEMS_IGNORE_STATICS      := 0x01;    // Don't list Static Items
+const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items
+
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>Array of Structs with members "x", "y", "z" and "objtype" or Error.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="GetStandingLayers">
+  <prototype>GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="flags" value="Integer" />
+  <explain>Returns an Array of standing Layers and blocking Solids.</explain>
+  <explain>mapdata flags:
+<code>
+const MAPDATA_FLAG_NONE         := 0x0000;     // Nothing
+const MAPDATA_FLAG_MOVELAND     := 0x0001;     // Move Land
+const MAPDATA_FLAG_MOVESEA      := 0x0002;     // Move Sea
+const MAPDATA_FLAG_BLOCKSIGHT   := 0x0004;     // Block Sight
+const MAPDATA_FLAG_OVERFLIGHT   := 0x0008;     // Over Flight (gargoyle flying)
+const MAPDATA_FLAG_ALLOWDROPON  := 0x0010;     // Allow DropOn
+const MAPDATA_FLAG_GRADUAL      := 0x0020;     // Gradual
+const MAPDATA_FLAG_BLOCKING     := 0x0040;     // Blocking
+const MAPDATA_FLAG_MORE_SOLIDS  := 0x0080;     // List more Solids
+
+const MAPDATA_FLAG_WALKBLOCK    := 0x0057;     // Move Land, Move Sea, Blocking, Block Sight, Allow DropOn
+const MAPDATA_FLAG_MOVE_FLAGS   := 0x0063;     // Move Land, Move Sea, Blocking, Gradual
+const MAPDATA_FLAG_DROP_FLAGS   := 0x0050;     // Blocking, Allow DropOn
+const MAPDATA_FLAG_ALL          := 0xffffffff; // All</code></explain>
+  <return>Array of Structs with members "z", "height" and "flags" at that location or Error.</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Character</related>
+  <related>NPC</related>
+  <related>Array</related>
+  <related>Struct</related>
+</function>
+
+<function name="ListStaticsInBox">
+  <prototype>ListStaticsInBox( x1,y1,z1, x2,y2,z2, flags := 0, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="flags" value="Integer" />
+  <explain>Lists all Static or Multi Items inside an imaginary box.</explain>
+  <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// ListStatics* flags
+const ITEMS_IGNORE_STATICS      := 0x01;    // Don't list Static Items
+const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items</code></explain>
+  <return>Array of Structs with members "x", "y", "z" and "objtype" or Error.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function> 
+
+<function name="SendStatus">
+  <prototype>SendStatus( character )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <explain>Send full Status Packet to support Extensions like Resistances, if you add'em via Packet Hook. Use SendStatus to update'em.</explain>
+  <return>1 on success or Error</return>
+  <error>"Invalid parameter type"</error>
+  <error>"No client attached"</error>
+  <error>"Mobile must not be offline"</error>
+  <related>Character</related>
+</function> 
+
+<function name="MoveObjectToLocation">
+  <prototype>MoveObjectToLocation( object, x, y, z, realm := _DEFAULT_REALM, flags := MOVEOBJECT_NORMAL )</prototype>
+  <parameter name="object" value="Object Reference" />
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="flags" value="Integer" />
+  <explain>Moves an Object to a location in the world and/or from one realm to another realm.</explain>
+  <explain>Function will replace MoveCharacterToLocation(), MoveItemToLocation(), and MoveObjectToRealm().</explain>
+  <explain>Currently moves boats, mobiles, and items.</explain>
+  <explain>Notes: If MOVEOBJECT_FORCELOCATION is not passed with flags, z-coordinate passed is used as a hint.  
+       The object will be placed on the the ground, or on an item, or on a ship.
+       If it is set, the z location of the object is forced.</explain>
+  <explain>Notes: If MOVEITEM_IGNOREMOVABLE is set movable member is ignored.</explain>
+  <explain>Notes: If item is equipped, its unequiptest and unequip scripts are run, if any.</explain>
+    <explain>Notes: Calls the item's original container's canRemove and onRemove scripts, if any.</explain>
+    <explain>uo.em constants for flags:
+<code>
+// Constants for MoveObjectToLocation
+//
+const MOVEOBJECT_NORMAL   := 0x0;
+const MOVEITEM_IGNOREMOVABLE := 0x20000000;
+const MOVEOBJECT_FORCELOCATION  := 0x40000000;</code></explain>
+  <return>1 on success</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <error>"Can't handle that object type yet."</error>
+  <error>Can't move multis at this time.</error>
+  <error>Mobile:</error>
+  <error>"Can't go there"</error>
+  <error>Boat:</error>
+  <error>"Position indicated is impassable"</error>
+  <error>Item or Container:</error>
+  <error>"That is immobile"</error>
+  <error>"That item is being used."</error>
+  <error>"Location (x, y, z) is out of bounds"</error>
+  <error>"Invalid location selected"</error>
+  <error>"Could not remove item from its container."</error>
+  <error>"Item was destroyed in CanRemove script"</error>
+  <error>"Item cannot be unequipped"</error>
+  <error>"Item was destroyed in Equip script"</error>
+  <error>"Item was destroyed in OnRemove script"</error>
+  <related>Boat</related>
+  <related>Character</related>
+  <related>Container</related>
+  <related>Item</related>
+  <related>UObject</related>
+</function> 
+
+<function name="CoordinateDistance">
+  <prototype>CoordinateDistance(x1, y1, x2, y2)</prototype>
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="x2" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
+  <explain>Calculates the distance between two coordinates.</explain>
+  <return>The distance between two coordinates.</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+</function> 
+
+<function name="GetCoordsInLine">
+  <prototype>GetCoordsInLine(x1, y1, x2, y2)</prototype>
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="x2" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
+  <explain>Calculates every coordinate between the two points.</explain>
+  <return>Array of Structs {.x, .y}</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+</function> 
+
+<function name="GetFacing">
+  <prototype>GetFacing(from_x, from_y, to_x, to_y)</prototype>
+  <parameter name="from_x" value="Integer world coordinates" />
+  <parameter name="from_y" value="Integer world coordinates" />
+  <parameter name="to_x" value="Integer world coordinates" />
+  <parameter name="to_y" value="Integer world coordinates" />
+  <explain>Returns the facing number an object must have in order to face to_x and to_y from from_x and from_y.</explain>
+  <return>Facing number</return>
+  <error>"Invalid parameter type"</error>
+  <related>Character</related>
+  <related>NPC</related>
+  <related>UObject</related>
+</function> 
+
+<function name="SendCharacterRaceChanger">
+  <prototype>SendCharacterRaceChanger( character )</prototype>
+  <parameter name="character" value="Character Reference" />
+  <explain>Send Client inside Character Race Changer to change Hair, Beard and Color.</explain>
+  <return>1 on success or Error</return>
+  <error>"Invalid parameter"</error>
+  <related>Character</related>
+</function> 
+
+<function name="IsStackable">
+  <prototype>IsStackable( item1, item2 )</prototype>
+  <parameter name="item1" value="Item 1" />
+  <parameter name="item2" value="Item 2" />
+  <explain>Compares 2 items to determine if they can be stacked together.</explain>
+  <return>1 if the 2 items can be stacked, 0 if not or Error</return>
+  <error>"Invalid parameter"</error>
+  <related>Item</related>
+</function> 
+
+<function name="UpdateItem">
+  <prototype>UpdateItem( item )</prototype>
+  <parameter name="item" value="Item Reference" />
+  <explain>updates the item to every client in range, good to use for example after returning 1 in some packethook and the item get invisible</explain>
+  <return>1 on success or Error</return>
+  <related>Item</related>
+</function> 
+
+<function name="UpdateMobile">
+  <prototype>UpdateMobile( mobile, recreate := UPDATEMOBILE_UPDATE )</prototype>
+  <parameter name="mobile" value="Character Reference" />
+  <parameter name="recreate" value="Integer (Optional, 0..1)" />
+  <explain>if flags set to UPDATEMOBILE_UPDATE sends to mobiles in visual range UpdatePlayer packet of mobile, for example to inform of notority changes</explain>
+  <explain>if flags set to UPDATEMOBILE_RECREATE sends ReCreate packet (0x78)</explain>
+  <explain>uo.em constants:
+<code>
+const UPDATEMOBILE_RECREATE := 1;
+const UPDATEMOBILE_UPDATE   := 0;</code></explain>
+  <return>1 on success or Error</return>
+  <error>"Mobile is offline"</error>
+  <related>Character</related>
+  <related>NPC</related>
+</function> 
+
+<function name="PlayMovingEffectEx">
+  <prototype>PlayMovingEffectEx( source, target, effect, speed, duration := 0, hue := 0, render := 0, fixeddirection := 0, explode := 0, effect3d := 0, effect3dexplode := 0, effect3dsound := 0 )</prototype>
+  <parameter name="source" value="UObject Reference" />
+  <parameter name="target" value="UObject Reference" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="speed" value="Integer (0..255)" />
+  <parameter name="duration" value="Integer (Optional, 0..255)" />
+  <parameter name="hue" value="Integer" />
+  <parameter name="render" value="Integer (Optional, 0..255)" />
+  <parameter name="fixeddirection" value="Integer (Optional, 0..1)" />
+  <parameter name="explode" value="Integer (Optional, 0..1)" />
+  <parameter name="effect3d" value="Integer" />
+  <parameter name="effect3dexplode" value="Integer (Optional, 0..255)" />
+  <parameter name="effect3dsound" value="Integer (Optional, 0..255)" />
+  <explain>Causes a moving effect to be played, travelling from source to destination </explain>
+  <explain>effect3d,effect3dexplode,effect3dsound are only interpreted by the 3D client</explain>
+  <explain>effect3dexplode and effect3dsound are only interpreted if explode is set, effect3d and effect3dexplode values can be found in client/particles dir.</explain>
+  <explain>Notes: effect = an item graphic number (the first in a series if an animation) 
+       speed = how fast the effect should travel. 
+       explode = 0/1 show an explosion at destination at the end of the effect?
+       hue = which color should the effect have?
+       fixeddirection = 0/1 should the effect change his facing?
+       </explain>
+  <explain>render values are:</explain>
+  <explain>0 no change</explain>
+  <explain>1 It becomes dark</explain>
+  <explain>2 It becomes bright</explain>
+  <explain>3 Bright color is emphasized and dark color is converted transparently</explain>
+  <explain>4 The translucency (transparency is high)</explain>
+  <explain>5 The translucency (it is close to primary color)</explain>
+  <explain>6 Negative positive reversal</explain>
+  <explain>7 The background which is transparent negative positive reversal</explain>
+  <return>1 on success</return>
+  <error>"Realms must match"</error>
+  <related>UObject</related>
+</function>
+
+<function name="PlayMovingEffectXYZEx">
+  <prototype>PlayMovingEffectXYZEx( srcx, srcy, srcz, dstx, dsty, dstz, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, fixeddirection := 0, explode := 0, effect3d := 0, effect3dexplode := 0, effect3dsound := 0 )</prototype>
+  <parameter name="srcx" value="Integer Source world coordinates" />
+  <parameter name="srcy" value="Integer Source world coordinates" />
+  <parameter name="srcz" value="Integer Source world coordinates" />
+  <parameter name="dstx" value="Integer Destination world coordinates" />
+  <parameter name="dsty" value="Integer Destination world coordinates" />
+  <parameter name="dstz" value="Integer Destination world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="speed" value="Integer (0..255)" />
+  <parameter name="duration" value="Integer (Optional, 0..255)" />
+  <parameter name="hue" value="Integer" />
+  <parameter name="render" value="Integer (Optional, 0..255)" />
+  <parameter name="fixeddirection" value="Integer (Optional, 0..1)" />
+  <parameter name="explode" value="Integer (Optional, 0..1)" />
+  <parameter name="effect3d" value="Integer" />
+  <parameter name="effect3dexplode" value="Integer (Optional, 0..255)" />
+  <parameter name="effect3dsound" value="Integer (Optional, 0..255)" />
+  <explain>Causes a moving effect to be played, travelling from source to destination </explain>
+  <explain>effect3d,effect3dexplode,effect3dsound are only interpreted by the 3D client</explain>
+  <explain>effect3dexplode and effect3dsound are only interpreted if explode is set, effect3d and effect3dexplode values can be found in client/particles dir.</explain>
+  <explain>Notes: effect = an item graphic number (the first in a series if an animation) 
+       speed = how fast the effect should travel. 
+       explode = 0/1 show an explosion at destination at the end of the effect?
+       hue = which color should the effect have?
+       fixeddirection = 0/1 should the effect change his facing?</explain>
+  <explain>render values are:</explain>
+  <explain>0 no change</explain>
+  <explain>1 It becomes dark</explain>
+  <explain>2 It becomes bright</explain>
+  <explain>3 Bright color is emphasized and dark color is converted transparently</explain>
+  <explain>4 The translucency (transparency is high)</explain>
+  <explain>5 The translucency (it is close to primary color)</explain>
+  <explain>6 Negative positive reversal</explain>
+  <explain>7 The background which is transparent negative positive reversal</explain>
+  <return>1 on success</return>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for realm"</error>
+  <error>"Realm not found"</error>
+  <related>UObject</related>
+</function>
+
+<function name="PlayObjectCenteredEffectEx">
+  <prototype>PlayObjectCenteredEffectEx( center, effect, speed, duration := 0, hue := 0, render := 0, layer := 0, effect3d := 0 )</prototype>
+  <parameter name="center" value="UObject Reference" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="speed" value="Integer (0..255)" />
+  <parameter name="duration" value="Integer (Optional, 0..255)" />
+  <parameter name="hue" value="Integer" />
+  <parameter name="render" value="Integer (Optional, 0..255)" />
+  <parameter name="layer" value="Integer (Optional, 0..255)" />
+  <parameter name="effect3d" value="Integer" />
+  <explain>Causes an effect to be played, centered on uobject, which follows uobject if it moves. </explain>
+  <explain>layer, effect3d are only interpreted by the 3D client</explain>
+  <explain>effect3d values can be found in client/particles dir.</explain>
+  <explain>Notes: effect = an item graphic number (the first in a series if an animation) 
+       speed = how fast the effect should travel.
+       duration = controls the number of total frames to play in the animation (loops if greater than the length of the animation). 0 = play once. 
+       hue = which color should the effect have?</explain>
+  <explain>render values are:</explain>
+  <explain>0 no change</explain>
+  <explain>1 It becomes dark</explain>
+  <explain>2 It becomes bright</explain>
+  <explain>3 Bright color is emphasized and dark color is converted transparently</explain>
+  <explain>4 The translucency (transparency is high)</explain>
+  <explain>5 The translucency (it is close to primary color)</explain>
+  <explain>6 Negative positive reversal</explain>
+  <explain>7 The background which is transparent negative positive reversal</explain>
+  <explain>layer values are:</explain>
+  <explain>0 Head</explain>
+  <explain>1 RightHand</explain>
+  <explain>2 LeftHand</explain>
+  <explain>3 Waist</explain>
+  <explain>4 LeftFoot</explain>
+  <explain>5 RightFoot</explain>
+  <explain>7 CenterFeet</explain>
+  <return>1 on success</return>
+  <error>none (returns 0 on invalid parameter)</error>
+  <related>UObject</related>
+</function>
+
+<function name="PlayStationaryEffectEx">
+  <prototype>PlayStationaryEffectEx( x, y, z, realm := _DEFAULT_REALM, effect, speed, duration := 0, hue := 0, render := 0, effect3d := 0 )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="effect" value="Integer" />
+  <parameter name="speed" value="Integer (to 255)" />
+  <parameter name="duration" value="Integer (Optional, 0..255)" />
+  <parameter name="hue" value="Integer" />
+  <parameter name="render" value="Integer (Optional, 0..255)" />
+  <parameter name="effect3d" value="Integer" />
+  <explain>Starts a stationary graphic effect at x,y,z.</explain>
+  <explain>effect3d is only interpreted by the 3D client</explain>
+  <explain>effect3d values can be found in client/particles dir.</explain>
+  <explain>Notes: effect= is a UO graphic number (the first graphic in a series for an animated effect)
+       speed = controls the time between frames of animation
+       duration = controls the number of total frames to play in the animation (loops if greater than the length of the animation). 0 = play once.
+  </explain>
+  <explain>render values are:</explain>
+  <explain>0 no change</explain>
+  <explain>1 It becomes dark</explain>
+  <explain>2 It becomes bright</explain>
+  <explain>3 Bright color is emphasized and dark color is converted transparently</explain>
+  <explain>4 The translucency (transparency is high)</explain>
+  <explain>5 The translucency (it is close to primary color)</explain>
+  <explain>6 Negative positive reversal</explain>
+  <explain>7 The background which is transparent negative positive reversal</explain>
+  <explain>layer values are:</explain>
+  <explain>0 Head</explain>
+  <explain>1 RightHand</explain>
+  <explain>2 LeftHand</explain>
+  <explain>3 Waist</explain>
+  <explain>4 LeftFoot</explain>
+  <explain>5 RightFoot</explain>
+  <explain>7 CenterFeet</explain>
+  <return>1 on success</return>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for realm"</error>
+  <related>UObject</related>
+</function>
+
+<function name="CheckLosBetween">
+  <prototype>CheckLosBetween( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x1" value="Integer world coordinates for coordinate 1" />
+  <parameter name="y1" value="Integer world coordinates for coordinate 1" />
+  <parameter name="z1" value="Integer world coordinates for coordinate 1" />
+  <parameter name="x2" value="Integer world coordinates for coordinate 2" />
+  <parameter name="y2" value="Integer world coordinates for coordinate 2" />
+  <parameter name="z2" value="Integer world coordinates for coordinate 2" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Tests if coordinate 1 has Line-of-sight to coordinate 2</explain>
+  <return>1 if coordinate 1 has line-of-sight to coordinate 2</return>
+  <return>0 if coordinate 1 does not have line-of-sight to coordinate 2</return>
+  <error>(returns 0 on invalid parameter)</error>
+  <error>"Invalid Coordinates for realm"</error>
+  <error>"Realm not found"</error>
+  <related>Character</related>
+</function>
+
+<function name="CloseGump">
+  <prototype>CloseGump( character, gumpid, response := 0 )</prototype>
+  <parameter name="character" value="Character" />
+  <parameter name="gumpid" value="Integer" />
+  <parameter name="response" value="UObject - what is going to be returned to the gump script" />
+  <explain>If the gump was sent using a custom gumpid, then the same gumpid must be used here.
+If the gump was sent without specifying a gumpid, then use the sender script's pid.</explain>
+  <explain>Closes the gump, returning 'response' to the script that called SendDialogGump()</explain>
+  <return>1 on success</return>
+  <error>"Invalid Parameters"</error>
+  <error>"No client attached"</error>
+  <error>"Couldnt find script"</error>
+  <related>Character</related>
+  <related>UObject</related>
+  <related>Script</related>
+</function>
+
+<function name="PlayMusic">
+  <prototype>PlayMusic( chr, music_id := 0 )</prototype>
+  <parameter name="chr" value="Character" />
+  <parameter name="music_id" value="Integer - ID of the music to be played on client" />
+  <explain>Plays music on client, as if it had just entered a new region</explain>
+  <return>1 on success</return>
+  <error>"Invalid Parameters"</error>
+  <related>Character</related>
+</function>
+
+<function name="CanWalk">
+  <prototype>CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM)</prototype>
+  <parameter name="movemode" value="String" />
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="z1" value="Integer world coordinates" />
+  <parameter name="x2_or_dir" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Checks if a mobile can walk with given movemode into given direction and returns the new z value or error.</explain>
+  <explain>Note: if y2 is CANWALK_DIR x2 is considered as direction. if x2 and y2 is given it calculates the needed direction</explain>
+  <explain>uo.em constants:
+<code>
+const CANWALK_DIR := -1;</code></explain>
+  <return>new z value on success</return>
+  <error>"Invalid Parameters"</error>
+  <error>"Realm not found."</error>
+  <error>"Invalid coordinates for realm."</error>
+  <error>"Cannot walk there"</error>
+  <related>Character</related>
+</function>
+
+<function name="CloseWindow">
+  <prototype>CloseWindow( character, type, object )</prototype>
+  <parameter name="character" value="Character" />
+  <parameter name="type" value="Integer" />
+  <parameter name="object" value="UObject Reference" />
+  <explain>if ( type == CLOSE_CONTAINER ) object has to be a ContainerRef, to close the open container gump.
+            else object has to be a MobRef to close paperdoll, status or profile of the chosen mob.</explain>
+  <explain>uo.em constants for type:
+<code>
+const CLOSE_PAPERDOLL := 1;
+const CLOSE_STATUS    := 2;
+const CLOSE_PROFILE   := 8;
+const CLOSE_CONTAINER := 12;</code></explain>
+  <return>1 on success</return>
+  <error>"Invalid Parameters"</error>
+  <error>"No client attached"</error>
+  <error>"Invalid object, has to be a containerRef"</error>
+  <error>"Invalid object, has to be a mobRef"</error>
+  <error>"Invalid type"</error>
+  <related>Character</related>
+</function>
+
+<function name="SendCharProfile">
+  <prototype>SendCharProfile( character, of_who, title, uneditable_text := CHARPROFILE_NO_UNEDITABLE_TEXT, editable_text := CHARPROFILE_NO_EDITABLE_TEXT )</prototype>
+  <parameter name="character" value="Character" />
+  <parameter name="of_who" value="Character" />
+  <parameter name="title" value="String" />
+  <parameter name="uneditable_text" value="unicode arrays" />
+  <parameter name="editable_text" value="unicode arrays" />
+  <explain>will send the serverside charprofile packet back to client and display it for the player.</explain>
+  <explain>uo.em constants for type:
+<code>
+const CHARPROFILE_NO_UNEDITABLE_TEXT := array;
+const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
+  <return>1 on success</return>
+  <error>"Invalid Parameters"</error>
+  <error>"Mobile must be online."</error>
+  <error>"Invalid parameter type"</error>
+  <related>Character</related>
+</function>
+
+<function name="SendOverallSeason">
+  <prototype>SendOverallSeason( season_id, playsound := 1 )</prototype>
+  <parameter name="season_id" value="Integer" />
+  <parameter name="playsound" value="Integer" />
+  <explain>Used to send the Season packet 0xBC to all clients logged on.</explain>
+  <explain>This function doesnt resend the lightlevel or weather after it sends season, that has to be done by scripts.</explain>
+  <return>1 on success</return>
+  <error>"Invalid Parameters"</error>
+  <error>"Invalid season id"</error>
+  <related>Character</related>
+  <relatedcfg>weather.cfg</relatedcfg>
+</function>
+
+<function name="DistanceEuclidean">
+  <prototype>DistanceEuclidean( obj1, obj2 )</prototype>
+  <parameter name="obj1" value="UObject Reference" />
+  <parameter name="obj2" value="UObject Reference" />
+  <explain>Determines the distance between two objects.  If either object is in a container, 
+        uses the world-position of its ultimate-parent container. </explain>
+  <explain>Notes: This distance is defined as sqrt(pow(object1.x-object2.x,2)+pow(object1.y-object2.y,2)) </explain>
+  <return>Double - calculated distance on success</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+</function>
+
+<function name="CoordinateDistanceEuclidean">
+  <prototype>CoordinateDistanceEuclidean(x1, y1, x2, y2)</prototype>
+  <parameter name="x1" value="Integer world coordinates" />
+  <parameter name="y1" value="Integer world coordinates" />
+  <parameter name="x2" value="Integer world coordinates" />
+  <parameter name="y2" value="Integer world coordinates" />
+  <explain>Calculates the distance between two coordinates.</explain>
+  <explain>Notes: This distance is defined as sqrt(pow(x1-x2,2)+pow(y1-y2,2)) </explain>
+  <return>Double - calculated distance on success</return>
+  <error>"Invalid parameter type"</error>
+  <related>UObject</related>
+</function> 
+
+<function name="GetMidpointCircleCoords">
+  <prototype>GetMidpointCircleCoords(xcenter, ycenter, radius)</prototype>
+  <parameter name="xcenter" value="Integer center of the circle coordinate" />
+  <parameter name="ycenter" value="Integer center of the circle coordinate" />
+  <parameter name="radius" value="Integer circle radius" />
+  <explain>based on given center coordinates and radius returns array of x,y structs which represent a circle</explain>
+  <explain>The array of coordinates is sorted, which means that its easily possible to only use every second point</explain>
+  <return>Error or Array</return>
+  <related>Array</related>
+</function> 
+
+<function name="SendPopUpMenu">
+  <prototype>SendPopUpMenu( to_whom, above, menu )</prototype>
+  <parameter name="to_whom" value="Character: who to send the menu to" />
+  <parameter name="above" value="Object: Item or Mobile to display the menu above" />
+  <parameter name="menu" value="Array: array of menu elements" />
+  <explain>Will show a pop-up context menu above the given object, waits for a reponse and return it 
+           (if no response is given, this could hang the script undefinitely)</explain>
+  <explain>Every element in the menu array must be an integer specifying a cliloc text for the menu or a
+           struct { cliloc, [disabled,] [arrow,] [color] }</explain>
+  <explain>- cliloc: int, this is the only mandatory element in struct, the cliloc text id (min 3000000, max 3065535)</explain>
+  <explain>- disabled: bool, if true, the menu entry will be disabled and shown in gray (default: false)</explain>
+  <explain>- arrow: bool, if true, an arrow will be shown (default: false)</explain>
+  <explain>- color: an optional rgb 1555 color (ex, 0 = transparent, 0x8000 = solid black, 0x1F = blue, 0x3E0 = green, 0x7C00 = red)</explain>
+  <return>Error or Array index selected (0 if canceled). No validation is done.</return>
+  <error>"Invalid parameter"</error>
+  <error>"No client attached"</error>
+  <error>"Can't send empty menu"</error>
+  <error>"Too many entries in menu"</error>
+  <error>"Menu elements must be int or struct"</error>
+  <error>"Cliloc out of range in menu"</error>
+  <error>"Missing cliloc for menu element"</error>
+  <error>"Invalid cliloc for menu element"</error>
+  <related>Character</related>
+  <related>Item</related>
+  <related>Mobile</related>
+  <related>Array</related>
+  <related>Struct</related>
+</function>
+
+</ESCRIPT>

@@ -1,49 +1,56 @@
 #ifndef CLIENTSEND_H
 #define CLIENTSEND_H
 
-#include "../../clib/rawtypes.h"
-#include "../../clib/message_queue.h"
-
 #include <boost/noncopyable.hpp>
-
 #include <memory>
 #include <mutex>
 #include <vector>
 
-namespace Pol {
-  namespace Network {
-	class Client;
+#include "../../clib/message_queue.h"
+#include "../../clib/rawtypes.h"
+#include "../../clib/weakptr.h"
 
-	struct TransmitData
-	{
-	  Client* client;
-	  int len;
-	  std::vector<u8> data;
-	  bool disconnects;
+namespace Pol
+{
+namespace Network
+{
+class Client;
 
-	  TransmitData() : client( nullptr ), len( 0 ), disconnects( false ) {};
-	};
+struct TransmitData
+{
+  // store a weak_ptr as a guard for pkts after deleting
+  weak_ptr<Client> client;
+  int len;
+  std::vector<u8> data;
+  bool disconnects;
+  bool remove;
 
-	typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
-	typedef Clib::message_queue<TransmitDataSPtr> ClientTransmitQueue;
+  TransmitData() : client( 0 ), len( 0 ), disconnects( false ), remove( false ){};
+};
 
-	class ClientTransmit : boost::noncopyable
-	{
-     public:
-	   ClientTransmit();
-      ~ClientTransmit();
+typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
+typedef Clib::message_queue<TransmitDataSPtr> ClientTransmitQueue;
 
-      void AddToQueue(Client* client, const void* data, int len);
-      void QueueDisconnection(Client* client);
-      void Cancel();
+class ClientTransmit : boost::noncopyable
+{
+public:
+  ClientTransmit();
+  ~ClientTransmit();
 
-      TransmitDataSPtr NextQueueEntry();
+  void AddToQueue( Client* client, const void* data, int len );
+  void QueueDisconnection( Client* client );
+  // queue delete and perform it in transmitthread, to be sure
+  // that the weak_ptr stays valid without PolLock
+  void QueueDelete( Client* client );
+  void Cancel();
 
-     private:
-      ClientTransmitQueue _transmitqueue;
-    };
+  TransmitDataSPtr NextQueueEntry();
 
-    void ClientTransmitThread();
-  }
+private:
+  ClientTransmitQueue _transmitqueue;
+};
+
+void ClientTransmitThread();
+}
 }
 #endif

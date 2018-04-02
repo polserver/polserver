@@ -1,25 +1,27 @@
 #ifndef UO_CONVERT_MAIN_H
 #define UO_CONVERT_MAIN_H
 
-#include "../clib/Program/ProgramMain.h"
-
 #include <string>
 
-namespace Pol{ namespace UoConvert{
+#include "../clib/Program/ProgramMain.h"
 
+namespace Pol
+{
+namespace UoConvert
+{
 class UoConvertMain : public Pol::Clib::ProgramMain
 {
 public:
-	UoConvertMain();
-    virtual ~UoConvertMain();
+  UoConvertMain();
+  virtual ~UoConvertMain();
 
 protected:
-    virtual int main();
+  virtual int main();
 
 private:
-    virtual void showHelp();
+  virtual void showHelp();
 };
+}
+}  // namespaces
 
-}} // namespaces
-
-#endif // UO_CONVERT_MAIN_H
+#endif  // UO_CONVERT_MAIN_H

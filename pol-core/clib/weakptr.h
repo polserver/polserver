@@ -1,16 +1,18 @@
 /** @file
-*
-* @par History
-*
-* @note ATTENTION
-* This header is part of the PCH
-* Remove the include in all StdAfx.h files or live with the consequences :)
-*/
+ *
+ * @par History
+ *
+ * @note ATTENTION
+ * This header is part of the PCH
+ * Remove the include in all StdAfx.h files or live with the consequences :)
+ */
 
 #ifndef __WEAKPTR_H
 #define __WEAKPTR_H
 
 #include "refptr.h"
+#include <atomic>
+#include <boost/noncopyable.hpp>
 
 //
 //    weak_ptr_owner<T>
@@ -24,19 +26,20 @@
 //    weak_ptr<T> ref_ptr to -------------+
 //
 
-template<class T> class weak_ptr_owner;
+template <class T>
+class weak_ptr_owner;
 
 template <class T>
 class weak_ptr_link : public ref_counted
 {
- public:
+public:
   weak_ptr_link();
   void clear_weakptr();
   T* get_weakptr() const;
   void set_weakptr( T* ptr );
 
- private:
-  T* _ptr;
+private:
+  std::atomic<T*> _ptr;
 };
 
 template <class T>
@@ -45,10 +48,10 @@ class weak_ptr : protected ref_ptr<weak_ptr_link<T>>
   typedef ref_ptr<weak_ptr_link<T>> base;
 
 public:
-  explicit weak_ptr(weak_ptr_link<T>* wpl);
+  explicit weak_ptr( weak_ptr_link<T>* wpl );
 
-  weak_ptr& operator=(const weak_ptr_link<T>* wpl);
-  weak_ptr& operator=(const weak_ptr_owner<T>& wpo);
+  weak_ptr& operator=( const weak_ptr_link<T>* wpl );
+  weak_ptr& operator=( const weak_ptr_owner<T>& wpo );
 
   T* get_weakptr() const;
   bool exists() const;
@@ -59,12 +62,12 @@ public:
 };
 
 template <class T>
-class weak_ptr_owner : public weak_ptr<T>
+class weak_ptr_owner : public weak_ptr<T>, boost::noncopyable
 {
 public:
   weak_ptr_owner();
   ~weak_ptr_owner();
-  void set(T* obptr);
+  void set( T* obptr );
 };
 
 template <class T>
@@ -144,4 +147,4 @@ void weak_ptr_owner<T>::set( T* obptr )
   this->ref_ptr<weak_ptr_link<T>>::get()->set_weakptr( obptr );
 }
 
-#endif	// __WEAKPTR_H
+#endif  // __WEAKPTR_H
