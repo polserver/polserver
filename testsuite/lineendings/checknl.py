@@ -19,7 +19,9 @@ class Main:
 	# Extensions of always-windows files
 	WINEXTS = ('.vcproj', '.bat')
 
-	def __init__(self):
+	def __init__(self, quiet=False):
+		self.quiet = quiet
+
 		mydir = os.path.dirname(os.path.realpath(__file__))
 		self.polroot = os.path.realpath(os.path.join(mydir, '..', '..'))
 
@@ -29,9 +31,13 @@ class Main:
 			raise NotImplementedError('Unhandled line ending style')
 
 	def run(self):
+		''' Checks line endings
+		@return True on success, False on error
+		'''
 		print("Checking line endings, POL root is {}".format(self.polroot))
 
 		analyzed = 0
+		ignored = 0
 		errors = 0
 		for root, dir, files in os.walk(self.polroot):
 			rel = os.path.relpath(root, self.polroot)
@@ -42,6 +48,7 @@ class Main:
 				full = os.path.join(root, file)
 
 				if self.isGitIgnored(full):
+					ignored += 1
 					continue
 
 				base, ext = os.path.splitext(file)
@@ -59,7 +66,7 @@ class Main:
 				if not self.checkLineEndings(full, nl=nl):
 					errors += 1
 
-		print("Done. {} files analyzed, {} errors.".format(analyzed, errors))
+		print("Done. {} files analyzed, {} errors, {} ignored.".format(analyzed, errors, ignored))
 		if errors:
 			return False
 		return True
@@ -68,13 +75,11 @@ class Main:
 	def isGitIgnored(self, path):
 		''' Checks if file is ignored by git '''
 
-		cmd = ('git', 'check-ignore', path)
-		try:
-			subprocess.check_call(cmd)
-		except subprocess.CalledProcessError:
-			return False
+		cmd = ('git', 'check-ignore', '-q', path)
+		proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+		po, pe = proc.communicate()
 
-		return True
+		return proc.returncode == 0
 
 	def checkLineEndings(self, path, nl='auto'):
 		''' Checks for coherent line endings on the given text file '''
@@ -120,6 +125,14 @@ class Main:
 
 
 if __name__ == '__main__':
-	if Main().run():
+	# Includes not needed when used as module
+	import argparse
+
+	# Parse command line
+	parser = argparse.ArgumentParser(description=__doc__.strip().split('\n',1)[0].strip())
+	parser.add_argument('-q', '--quiet', action='store_true', help="Quiet output: only display errors and summary")
+	args = parser.parse_args()
+
+	if Main(args.quiet).run():
 		sys.exit(0)
 	sys.exit(1)
