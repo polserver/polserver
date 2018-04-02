@@ -399,7 +399,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf( "Stack trace:\n%s", tStackTrace.c_str() );
     printf( "\n" );
     printf( "Compiler: %s\n", getCompilerVersion().c_str() );
-    printf( "Compile time: %s\n", POL_BUILD_TIME );
+    printf( "Compile time: %s\n", POL_BUILD_DATETIME );
     printf( "Build target: %s\n", POL_BUILD_TARGET );
     printf( "Build revision: %s\n", POL_VERSION_ID );
 #ifndef _WIN32
