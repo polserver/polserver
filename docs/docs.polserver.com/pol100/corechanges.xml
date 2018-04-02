@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-19-2018</datemodified>
+		<datemodified>04-02-2018</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
@@ -19,6 +19,13 @@ old map[N].mul files. You can force uoconvert to convert from the old MULs by us
 readuop=0.</change>
 		</entry>
 		<entry>
+			<date>02-10-2018</date>
+			<author>Nando:</author>
+			<change type="Changed">POL099 is officially released after almost 10 years. Starting the work on POL100.</change>
+		</entry>
+	</version>
+	<version name="POL099.1">
+		<entry>
 			<date>02-11-2018</date>
 			<author>Nando:</author>
 			<change type="Added">range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT).<br/>
@@ -28,11 +35,6 @@ entry doesn't exist, the &quot;DefaultDoubleclickRange&quot; will be used instea
 			<change type="Fixed">Accessible(chr, item) now checks for the distance to the item. Differently from the distance<br/>
 of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,<br/>
 use ACCESSIBLE_IGNOREDISTANCE as range.</change>
-		</entry>
-		<entry>
-			<date>02-10-2018</date>
-			<author>Nando:</author>
-			<change type="Changed">POL099 is officially released after almost 10 years. Starting the work on POL100.</change>
 		</entry>
 	</version>
 	<version name="POL099">
