@@ -7,3 +7,5 @@ Makefile
 *.vspx
 /.vs
 /CMakeSettings.json
+__pycache__
+

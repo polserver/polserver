@@ -42,7 +42,7 @@ test_script:
   - cd ..\\testsuite\\escript
   - c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5 -q
   - cd ..\\lineendings
-  - c:\\Python34\\python.exe checknl.py -q;
+  - c:\\Python34\\python.exe checknl.py -q
   #- if [%ninja%] == [1] (
   #  c:\\Python34\\python.exe performtests.py ..\\..\\bin\\ecompile.exe ..\\..\\bin\\runecl.exe -n 5
   #  )
