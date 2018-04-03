@@ -38,7 +38,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #endif
 
 // Note: POL_ANALYZER_NORETURN is just a hint for code analyzers (mostly clang-analyzer) and is not
-//		 used for code generation. I don't know of anything similar in the other analyzers and
+//   used for code generation. I don't know of anything similar in the other analyzers and
 // thought
 //       of using POL_NORETURN here. Right now I'm not sure if this is needed at all.
 #ifndef POL_ANALYZER_NORETURN

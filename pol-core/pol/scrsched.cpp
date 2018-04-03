@@ -490,7 +490,7 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
                                                Bscript::BObjectImp* param5 )
 {
   //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
-  //??		bobj4( param4 ), bobj5( param5 );
+  //??   bobj4( param4 ), bobj5( param5 );
 
   UOExecutor ex;
 
@@ -511,7 +511,7 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
                                                Bscript::BObjectImp* param6 )
 {
   //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
-  //??		bobj4( param4 ), bobj5( param5 );
+  //??   bobj4( param4 ), bobj5( param5 );
 
   UOExecutor ex;
 

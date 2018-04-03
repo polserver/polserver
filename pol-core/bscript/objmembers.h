@@ -10,13 +10,13 @@
  * - 2005/12/09 MuadDib:   added member uclang for storing Unicode Language sent during logon.
  * - 2006/05/16 Shinigami: added Prop Character.Race [RACE_* Constants] to support Elfs
  * - 2007/07/09 Shinigami: added Prop Character.isUOKR [bool] - UO:KR client used?
- * - 2008/07/08 Turley:	Added character.movemode - returns the MoveMode like given in NPCDesc
+ * - 2008/07/08 Turley:    Added character.movemode - returns the MoveMode like given in NPCDesc
  * - Added item.stackable - Is item stackable?
  * - 2008/12/17 MuadDub:   Added item.tile_layer - returns layer entry from tiledata/tiles.cfg
  * - 2009/08/06 MuadDib:   Removed PasswordOnlyHash support
- * - 2009/08/19 Turley:	Added character.uo_expansion_client
- * - 2009/09/06 Turley:	Removed chr.isUOKR added chr.ClientType
- * - 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+ * - 2009/08/19 Turley:    Added character.uo_expansion_client
+ * - 2009/09/06 Turley:    Removed chr.isUOKR added chr.ClientType
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
  * - 2011/12/13 Tomi:    Boat members MBR_COMPONENT, MBR_HULL, MBR_ROPE, MBR_SAILS, MBR_WHEEL,
  * MBR_TILLER, MBR_RUDDER, MBR_STORAGE, MBR_WEAPONSLOT
  * - 2012/02/02 Tomi:    Multi member MBR_MULTIID
@@ -35,7 +35,7 @@ namespace Bscript
 {
 enum MemberID
 {
-  MBR_X,  // uobject		//0
+  MBR_X,  // uobject //0
   MBR_Y,  // 1
   MBR_Z,
   MBR_NAME,
@@ -105,7 +105,7 @@ enum MemberID
   MBR_SPEECH_FONT,
   MBR_USE_ADJUSTMENTS,
   MBR_RUN_SPEED,
-  MBR_LOCKED,      // lockable		//70
+  MBR_LOCKED,      // lockable //70
   MBR_CORPSETYPE,  // corpse
   MBR_TILLERMAN,   // boat
   MBR_PORTPLANK,
@@ -115,7 +115,7 @@ enum MemberID
   MBR_COMPONENTS,  // house
   MBR_ITEMS,       // multi
   MBR_MOBILES,
-  MBR_XEAST,  // map		//80
+  MBR_XEAST,  // map //80
   MBR_XWEST,
   MBR_YNORTH,
   MBR_YSOUTH,
@@ -135,7 +135,7 @@ enum MemberID
   MBR_ENABLED,  // account
   MBR_BANNED,
   MBR_USERNAMEPASSWORDHASH,
-  MBR_MEMBERS,  // guild/party		//100
+  MBR_MEMBERS,  // guild/party //100
   MBR_ALLYGUILDS,
   MBR_ENEMYGUILDS,
   MBR_PID,  // script

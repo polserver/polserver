@@ -12,9 +12,9 @@
  * packet.SetUnicodeStringFlipped (Byte Order)
  * - 2009/08/06 MuadDib:   Added GetGottenBy to find who is holding the item. Returning char ref of
  * course.
- * - 2009/10/09 Turley:	Added spellbook.spells() & .hasspell() methods
- * - 2009/10/10 Turley:	Added spellbook.addspell() & .removespell() methods
- * - 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+ * - 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+ * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
  */
 
 
@@ -26,7 +26,7 @@ namespace Bscript
 {
 enum MethodID
 {
-  MTH_ISA,         // uobject				  //0
+  MTH_ISA,         // uobject  //0
   MTH_SET_MEMBER,  // 1
   MTH_GET_MEMBER,
   MTH_SETPOISONED,  // character
@@ -46,12 +46,12 @@ enum MethodID
   MTH_SETWARMODE,
   MTH_SETMASTER,             // npc
   MTH_MOVE_OFFLINE_MOBILES,  // boat
-  MTH_SETCUSTOM,             // house			  //20
+  MTH_SETCUSTOM,             // house  //20
   MTH_GETPINS,               // map
   MTH_INSERTPIN,
   MTH_APPENDPIN,
   MTH_ERASEPIN,
-  MTH_OPEN,  // door					//25
+  MTH_OPEN,  // door  //25
   MTH_CLOSE,
   MTH_TOGGLE,
   MTH_BAN,  // account

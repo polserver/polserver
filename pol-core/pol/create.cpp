@@ -73,7 +73,7 @@ short validhaircolor( u16 /*color*/ )
    */
 
 /* hair can be:
-    0x203B  Short Hair		  // Human
+    0x203B  Short Hair      // Human
     0x203C  Long Hair
     0x203D  PonyTail
     0x2044  Mohawk
@@ -84,7 +84,7 @@ short validhaircolor( u16 /*color*/ )
     0x2049  Two Pig Tails
     0x204A  Krisna Hair
 
-    0x2FBF  Mid Long Hair	   // Elf (Mondain's Legacy)
+    0x2FBF  Mid Long Hair     // Elf (Mondain's Legacy)
     0x2FC0  Long Feather Hair
     0x2FC1  Short Elf Hair
     0x2FC2  Mullet
@@ -105,7 +105,7 @@ short validhaircolor( u16 /*color*/ )
     0x425e  Horn Style 7
     0x425f  Horn Style 8
 
-    0x4261	Female Horn Style 1  // Gargoyle Female (SA)
+    0x4261  Female Horn Style 1  // Gargoyle Female (SA)
     0x4262  Female Horn Style 2
     0x4273  Female Horn Style 3
     0x4274  Female Horn Style 4
@@ -137,7 +137,7 @@ bool validhair( u16 HairStyle )
 }
 
 /* beard can be:
-    0x203E  Long Beard		 // Human
+    0x203E  Long Beard     // Human
     0x203F  Short Beard
     0x2040  Goatee
     0x2041  Mustache

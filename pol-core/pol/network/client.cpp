@@ -223,7 +223,7 @@ void Client::PreDelete()
   last_xmit_buffer = NULL;
 
   // while (!movementqueue.empty())
-  //	movementqueue.pop();
+  //  movementqueue.pop();
 }
 
 // ClientInfo - delivers a lot of usefull infomation about client PC

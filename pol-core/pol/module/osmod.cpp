@@ -166,7 +166,7 @@ BObjectImp* OSExecutorModule::getpid()
 {
   return new BLong( pid_ );
 }
-/*	Ok, this is going to be fun.  In the case where we block,
+/*  Ok, this is going to be fun.  In the case where we block,
 the caller is going to take our return value and push
 it on the value stack.
 
@@ -416,7 +416,7 @@ BObjectImp* OSExecutorModule::run_script()
         new_uoemod->controller_ = this_uoemod->controller_;
       }
       Core::UOExecutor* new_uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
-      //			OSExecutorModule* osemod = uoexec->os_module;
+      //      OSExecutorModule* osemod = uoexec->os_module;
       new_uoexec->pParent = this_uoexec;
       this_uoexec->pChild = new_uoexec;
 

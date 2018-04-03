@@ -212,19 +212,19 @@ SOCKET open_listen_socket( unsigned short port )
 const char* AddressToString( struct sockaddr* addr )
 {
 #if 0 && defined( _WIN32 )
-	  // this requires Winsock 2! Ouch.
-	  static char buf[ 80 ];
-	  DWORD len = sizeof buf;
-	  if (WSAAddressToString( addr, sizeof *addr, 
-		NULL, // protocol
-		buf, &len ) != SOCKET_ERROR)
-	  {
-		return buf;
-	  }
-	  else
-	  {
-		return "(display error)";
-	  }
+  // this requires Winsock 2! Ouch.
+  static char buf[ 80 ];
+  DWORD len = sizeof buf;
+  if (WSAAddressToString( addr, sizeof *addr,
+    NULL, // protocol
+    buf, &len ) != SOCKET_ERROR)
+  {
+    return buf;
+  }
+  else
+  {
+    return "(display error)";
+  }
 #else
   struct sockaddr_in* in_addr = (struct sockaddr_in*)addr;
   if ( addr->sa_family == AF_INET )

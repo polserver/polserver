@@ -163,8 +163,8 @@ static_assert( sizeof( USTRUCT_TILE_HSA ) == 41, "size missmatch" );
   weight: 255 is unmoveable
   */
 
-//#define UOBJ_FLAG2_DESC_NEEDS_AN	0x80
-//#define UOBJ_FLAG2_DESC_NEEDS_A		0x40
+//#define UOBJ_FLAG2_DESC_NEEDS_AN  0x80
+//#define UOBJ_FLAG2_DESC_NEEDS_A   0x40
 
 struct USTRUCT_LAND_TILE
 {

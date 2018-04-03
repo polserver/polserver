@@ -263,14 +263,14 @@ void Spellbook::add_bulk( int /* item_count_delta */, int /* weight_delta */ )
 
 void Spellbook::add( Item* item )
 {
-  //	UContainer::add(item);
+  // UContainer::add(item);
   u16 spellnum = USpellScroll::convert_objtype_to_spellnum( item->objtype_, spell_school );
   u8 spellslot = spellnum & 7;
   if ( spellslot == 0 )
     spellslot = 8;
   bitwise_contents[( spellnum - 1 ) >> 3] |= 1 << ( spellslot - 1 );
   item->destroy();
-  //	item->saveonexit(0);
+  // item->saveonexit(0);
 }
 
 void Spellbook::printProperties( Clib::StreamWriter& sw ) const

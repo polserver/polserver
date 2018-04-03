@@ -3,7 +3,7 @@
 #include <string>
 
 // The hash function below is necessary for UOP decoding and
-// was modified from C# to C++ from the code provided in LegacyMULConverter 
+// was modified from C# to C++ from the code provided in LegacyMULConverter
 // by Eos, which claims comes from http://burtleburtle.net/bob/c/lookup3.c. (Nando)
 //
 inline uint64_t HashLittle2( std::string s )

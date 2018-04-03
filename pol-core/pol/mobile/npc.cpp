@@ -144,7 +144,7 @@ const char* NPC::classname() const
 
 // 8-25-05 Austin
 // Moved unsigned short pol_distance( unsigned short x1, unsigned short y1,
-//									unsigned short x2, unsigned short y2 )
+//                  unsigned short x2, unsigned short y2 )
 // to ufunc.cpp
 
 bool NPC::anchor_allows_move( Core::UFACING fdir ) const

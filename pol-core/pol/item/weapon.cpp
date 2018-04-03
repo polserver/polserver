@@ -3,7 +3,7 @@
  * @par History
  * - 2005/03/09 Shinigami: Added Prop Delay [ms]
  * - 2005/07/25 Shinigami: added MinDamage and MaxDamage in Weapon-Descriptor
- * - 2011/11/12 Tomi:	  added extobj.wrestling
+ * - 2011/11/12 Tomi:    added extobj.wrestling
  */
 
 
@@ -147,7 +147,7 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
     elem.throw_error( "Error parsing DAMAGE string for WeaponTemplate\n" + errmsg );
 
     /*cerr << "Error parsing DAMAGE string for WeaponTemplate " << objtype << endl;
-    cerr << "	" << errmsg << endl;
+    cerr << "  " << errmsg << endl;
     throw runtime_error( "Configuration error" );*/
   }
 
@@ -450,7 +450,7 @@ bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Characte
   unsigned short dist = pol_distance( wielder, target );
   INFO_PRINT_TRACE( 22 ) << "in_range(0x" << fmt::hexu( wielder->serial ) << ",0x"
                          << fmt::hexu( target->serial ) << "):\n"
-                         << "dist:	 " << dist << "\n"
+                         << "dist:   " << dist << "\n"
                          << "minrange: " << WEAPON_TMPL->minrange << "\n"
                          << "maxrange: " << WEAPON_TMPL->maxrange << "\n"
                          << "has_los:  " << wielder->realm->has_los( *wielder, *target ) << "\n";

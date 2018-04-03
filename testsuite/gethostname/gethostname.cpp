@@ -24,7 +24,7 @@ int main( int argc, char* argv[] )
     struct hostent* host_result = NULL;
     char tmp_buf[ 1024 ];
     int my_h_errno;
-    int res = gethostbyname_r( hostname, &host_ret, tmp_buf, 
+    int res = gethostbyname_r( hostname, &host_ret, tmp_buf,
                                sizeof tmp_buf, &host_result, &my_h_errno );
     if (res == 0 && host_result && host_result->h_addr_list[0])
     {

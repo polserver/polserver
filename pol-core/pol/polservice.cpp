@@ -17,7 +17,7 @@
 #include "../clib/Header_Windows.h"
 #include "pol.h"
 #include "../clib/NTService.h"  // This needs to be after the windows includes, otherwise it'll complain about windows types.
-#include "../clib/ntservmsg.h" 
+#include "../clib/ntservmsg.h"
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4189 )  // local variable is initialized but not referenced. TODO: check
@@ -270,7 +270,7 @@ void InitializeSystemTrayHandling()
   WM_TASKBARCREATED = RegisterWindowMessage( "TaskbarCreated" );
 
   ndata.cbSize = sizeof( NOTIFYICONDATA );
-  //	ndata.hWnd=hwndDlg;
+  //  ndata.hWnd=hwndDlg;
   ndata.uID = 2000;
   ndata.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
   ndata.uCallbackMessage = WM_ICON_NOTIFY;

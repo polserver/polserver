@@ -53,7 +53,7 @@
  * - 2010/01/22 Turley:    Speedhack Prevention System
  * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within
  * decay_thread_shadow
- * - 2011/11/12 Tomi:	  Added extobj.cfg
+ * - 2011/11/12 Tomi:    Added extobj.cfg
  */
 
 #include "pol.h"
@@ -323,7 +323,7 @@ void start_client_char( Network::Client* client )
   //  Moved login_complete higher to prevent weather regions from messing up client
   //  spell icon packets(made it look like it was raining spell icons from spellbook if logged
   //  into a weather region with rain.
-  //	login_complete(client);
+  //  login_complete(client);
 }
 
 
@@ -1317,7 +1317,7 @@ int xmain_inner( bool testing )
     }
   }
 
-  //	if( 1 )
+  //  if( 1 )
   {
     POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
   }

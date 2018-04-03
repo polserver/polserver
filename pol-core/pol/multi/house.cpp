@@ -426,7 +426,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
     if ( !IsCustom() )
       return new BError( "House is not custom" );
     // else if (!IsEditing())
-    //	return new BError( "House is currently not been edited" );
+    //  return new BError( "House is currently not been edited" );
     else if ( !IsWaitingForAccept() )
       return new BError( "House is currently not waiting for a commit" );
     else if ( !ex.hasParams( 2 ) )

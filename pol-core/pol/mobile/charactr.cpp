@@ -7,7 +7,7 @@
  * - 2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
  * - 2005/09/14 Shinigami: Character::resurrect() - Vital.regen_while_dead implemented
  * - 2005/10/14 Shinigami: fixed missing init of Character::dblclick_wait
- * - 2005/11/23 MuadDib:	  Added warmode_wait object for characters.
+ * - 2005/11/23 MuadDib:    Added warmode_wait object for characters.
  * - 2005/11/25 MuadDib:   Added realm check to is_visible_to_me.
  * - 2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
  * - 2006/03/10 MuadDib:   Added NoCombat support to checking of justice region.
@@ -373,7 +373,7 @@ Character::~Character()
   // It might be nice to do this only when the system isn't shutting down...
   // if (!opponent_of.empty())
   //{
-  //	Clib::Log( "Destroying character with nonempty opponent_of! (But cleaning up..)\n" );
+  //  Clib::Log( "Destroying character with nonempty opponent_of! (But cleaning up..)\n" );
   //}
 
   removal_cleanup();
@@ -406,9 +406,9 @@ void Character::removal_cleanup()
   if ( opponent_ != NULL )
   {
     opponent_->opponent_of.erase( this );
-    //		This is cleanup, wtf we doing trying to send highlights?!
-    //		opponent_->send_highlight();
-    //		opponent_->schedule_attack();
+    //    This is cleanup, wtf we doing trying to send highlights?!
+    //    opponent_->send_highlight();
+    //    opponent_->schedule_attack();
     opponent_ = NULL;
   }
 
@@ -875,8 +875,8 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   movemode = decode_movemode( elem.remove_string( "MOVEMODE", "L" ) );
   concealed_ = static_cast<unsigned char>( elem.remove_ushort(
       "CONCEALED", 0 ) );  // DAVE changed from remove_bool 11/25. concealed is a char, not a bool!
-  //	if (concealed_ > cmdlevel)
-  //		concealed_ = cmdlevel;
+  //  if (concealed_ > cmdlevel)
+  //    concealed_ = cmdlevel;
 
   truecolor = elem.remove_ushort( "TRUECOLOR" );
 
@@ -1204,7 +1204,7 @@ void Character::revoke_privilege( const char* priv )
 
 bool Character::can_access( const Items::Item* item, int range ) const
 {
-  // TODO: find_legal_item() is awful, we should just check the item 
+  // TODO: find_legal_item() is awful, we should just check the item
   //       properties directly instead of going around searching for a given serial in the world
 
   // Range < 0 has special meaning. -1 is the default accessible range,
@@ -1212,9 +1212,9 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;  
+  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;
   if ( within_range && (find_legal_item( this, item->serial ) != NULL) )
-    return true;    
+    return true;
 
   return false;
 }
@@ -1959,9 +1959,9 @@ void Character::run_hit_script( Character* defender, double damage )
 
 ///
 /// Clear a Mobile's ToBeReportable list when all of the following are true:
-///	 1) hits are at maximum
-///	 2) mobile is not poisoned
-///	 3) mobile is not paralyzed
+///   1) hits are at maximum
+///   2) mobile is not poisoned
+///   3) mobile is not paralyzed
 ///
 void Character::check_undamaged()
 {
@@ -1976,9 +1976,9 @@ void Character::check_undamaged()
 /// When a Mobile is Healed
 ///
 ///   if Amy's hits are at maximum,
-///	   Clear Amy's ToBeReportable list
+///     Clear Amy's ToBeReportable list
 ///
-///	 (note, poisoned and paralyzed flags are not checked)
+///   (note, poisoned and paralyzed flags are not checked)
 ///
 void Character::heal_damage_hundredths( unsigned int amount )
 {
@@ -2489,7 +2489,7 @@ void Character::die()
 
 void Character::refresh_ar()
 {
-  //	find_armor(); <-- MuadDib commented out, put code inside here to cut down on iter.
+  //  find_armor(); <-- MuadDib commented out, put code inside here to cut down on iter.
   // Figure out what's in each zone
   //   FIXME? NZONES * NLAYERS (5 * 24 = 124) iterations.
   // okay, reverse, for each wornitem, for each coverage area, upgrade.
@@ -2520,7 +2520,7 @@ void Character::refresh_ar()
     }
   }
 
-  //	calculate_ar();	<-- MuadDib Commented out, mixed code within ported find_armor to reduce
+  //  calculate_ar();  <-- MuadDib Commented out, mixed code within ported find_armor to reduce
   // iter.
   double new_ar = 0.0;
   for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
@@ -2894,11 +2894,11 @@ bool Character::is_attackable( Character* who ) const
   {
     INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
                            << fmt::hexu( who->serial ) << "):\n"
-                           << "  who->dead:	" << who->dead() << "\n"
+                           << "  who->dead:  " << who->dead() << "\n"
                            << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
-                           << "  hidden:	   " << hidden() << "\n"
+                           << "  hidden:     " << hidden() << "\n"
                            << "  who->hidden:  " << who->hidden() << "\n"
-                           << "  concealed:	" << is_concealed_from_me( who ) << "\n";
+                           << "  concealed:  " << is_concealed_from_me( who ) << "\n";
     if ( who->dead() )
       return false;
     else if ( !weapon->in_range( this, who ) )
@@ -3917,8 +3917,8 @@ void Character::realm_changed()
   // automagically by wormitems realm handling.  There is a slim
   // possibility that backpacks might be assigned to a character but
   // not be a worn item?  If this is the case, that will be broken.
-  //	backpack()->realm = realm;
-  //	backpack()->for_each_item(setrealm, (void*)realm);
+  //  backpack()->realm = realm;
+  //  backpack()->for_each_item(setrealm, (void*)realm);
   wornitems->for_each_item( Core::setrealm, (void*)realm );
   if ( has_gotten_item() )
     gotten_item()->realm = realm;

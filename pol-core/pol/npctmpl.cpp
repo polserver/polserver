@@ -42,7 +42,7 @@ int translate( const std::string& name, TRANSLATION* table )
   tmp << "  Expected one of the following values:\n";
   for ( int i = 0; table[i].name; ++i )
   {
-    tmp << "	" << table[i].name << "\n";
+    tmp << "  " << table[i].name << "\n";
   }
   ERROR_PRINT << tmp.str();
   throw std::runtime_error( "Unable to translate value" );

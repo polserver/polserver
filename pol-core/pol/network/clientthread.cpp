@@ -286,7 +286,7 @@ bool client_io_thread( Network::Client* client, bool login )
 
   try
   {
-    //		if (1)
+    //    if (1)
     {
       CLIENT_CHECKPOINT( 9 );
       PolLock lck;
@@ -302,7 +302,7 @@ bool client_io_thread( Network::Client* client, bool login )
     CLIENT_CHECKPOINT( 10 );
     if ( client->chr )
     {
-      //			if (1)
+      //      if (1)
       int seconds_wait = 0;
       {
         CLIENT_CHECKPOINT( 11 );
@@ -346,7 +346,7 @@ bool client_io_thread( Network::Client* client, bool login )
 
       checkpoint = 10;
       CLIENT_CHECKPOINT( 15 );
-      //			if (1)
+      //      if (1)
       {
         PolLock lck;
         if ( client->chr )

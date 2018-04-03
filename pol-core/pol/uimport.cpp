@@ -437,7 +437,7 @@ void read_pol_dat()
         << polfile << " must contain a section similar to: \n"
         << "System\n"
         << "{\n"
-        << "	CoreVersion 99\n"
+        << "\tCoreVersion 99\n"
         << "}\n\n"
         << "Ensure that the CoreVersion matches the version that created your data files!\n";
     throw std::runtime_error( "Data file error" );
@@ -482,20 +482,20 @@ void read_items_dat()
 void read_multis_dat()
 {
   slurp( ( Plib::systemstate.config.world_data_path + "multis.txt" ).c_str(), "MULTI" );
-  //	string multisfile = config.world_data_path + "multis.txt";
-  //	if (FileExists( multisfile ))
-  //	{
-  //		cout << multisfile << ":";
-  //		ConfigFile cf( multisfile, "MULTI" );
-  //		ConfigElem elem;
-  //		while( cf.read( elem ))
-  //		{
-  //			UMulti* multi = read_multi( elem );
-  //			if (multi == NULL) throw runtime_error( "multi creation returned NULL!" );
+  //  string multisfile = config.world_data_path + "multis.txt";
+  //  if (FileExists( multisfile ))
+  //  {
+  //    cout << multisfile << ":";
+  //    ConfigFile cf( multisfile, "MULTI" );
+  //    ConfigElem elem;
+  //    while( cf.read( elem ))
+  //    {
+  //      UMulti* multi = read_multi( elem );
+  //      if (multi == NULL) throw runtime_error( "multi creation returned NULL!" );
   //
-  //			add_multi_to_world( multi );
-  //		}
-  //	}
+  //      add_multi_to_world( multi );
+  //    }
+  //  }
 }
 
 void read_storage_dat()
@@ -663,7 +663,7 @@ int read_data()
   clear_save_index();
 
   import_new_data();
-  //	import_wsc();
+  //  import_wsc();
 
   // dave 3/9/3
   if ( stateManager.stored_last_item_serial < GetCurrentItemSerialNumber() )
@@ -1069,7 +1069,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           try
           {
             sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID << pf_endl
-                     << "#  Mobiles:		 " << get_mobile_count() << pf_endl
+                     << "#  Mobiles: " << get_mobile_count() << pf_endl
                      << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl << "#"
                      << pf_endl << pf_endl;
 

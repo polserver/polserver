@@ -162,7 +162,7 @@ public:
   UContainer* find_container( u32 serial ) const;
 
   // remove(): tells what subcontainer used to hold the item
-  //			 points item->container to NULL on removal
+  //           points item->container to NULL on removal
   virtual Items::Item* remove( u32 serial, UContainer** found_in = NULL );
   virtual void remove( Items::Item* item );  // item must be in this container
   virtual void remove( iterator itr );
@@ -244,7 +244,7 @@ protected:
 
   // sticky places that currently need to know the internals:
   friend class UContainerIterator;
-  //	friend class Character; // uses the [] operator for quick layer access.
+  // friend class Character; // uses the [] operator for quick layer access.
   friend bool Module::send_vendorwindow_contents( Network::Client* client, UContainer* for_sale,
                                                   bool send_aos_tooltip );  // also []
   friend bool send_vendorsell( Network::Client* client, Mobile::NPC* merchant, UContainer* sellfrom,

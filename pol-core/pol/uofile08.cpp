@@ -34,7 +34,7 @@ static Pol::Plib::RawMap rawmap;
 static bool rawmap_ready = false;
 
 void read_map_difs()
-{  
+{
   Plib::num_map_patches = rawmap.load_map_difflist( mapdifl_file );
 }
 

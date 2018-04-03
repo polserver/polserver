@@ -37,7 +37,7 @@ bool open_uopmap_file( const int mapid ) {
   if ( !Clib::FileExists( filename ) ) {
     INFO_PRINT << filepart << " not found in " << Plib::systemstate.config.uo_datafile_root << ". Searching for old map[N].mul files.\n";
     return false;
-  }    
+  }
 
   uopmapfile.open( filename, std::ios::binary );
   return (bool)uopmapfile;

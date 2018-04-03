@@ -1771,10 +1771,10 @@ void update_all_weatherregions()
 }
 
 /* there are four forms of 'name' in objinfo:
-    name					 (normal)
-    name%s					 (percent followed by plural-part, then null-term)
-    name%s%					 (percent followed by plural-part, then percent, then more)
-    wheat shea%ves/f%		 ( '%', plural part, '/', single part, '%', rest )
+    name              (normal)
+    name%s            (percent followed by plural-part, then null-term)
+    name%s%           (percent followed by plural-part, then percent, then more)
+    wheat shea%ves/f% ( '%', plural part, '/', single part, '%', rest )
     Some examples:
     pil%es/e% of hides
     banana%s%

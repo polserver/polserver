@@ -24,7 +24,7 @@ int main( int argc, char *argv[] )
         dif = 1;
     }
 
-	size_t address=0;
+    size_t address=0;
     while (!dif)
     {
         char cha, chb;
@@ -45,7 +45,7 @@ int main( int argc, char *argv[] )
         }
         if (resa == 0)
             break;
-		++address;
+      ++address;
     }
 
     if (fb) fclose( fb );

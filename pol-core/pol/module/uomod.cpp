@@ -892,11 +892,11 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
       arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
       arr->addMember( "z", new BLong( msg->z ) );
-      //			FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
-      //			validate right here. Should we check map/static, or let that reside
-      //			for scripts to run ListStatics? In theory, using Injection or similar,
-      //			you could mine where no mineable tiles are by faking objtype in packet
-      //			and still get the resources?
+      //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
+      //      validate right here. Should we check map/static, or let that reside
+      //      for scripts to run ListStatics? In theory, using Injection or similar,
+      //      you could mine where no mineable tiles are by faking objtype in packet
+      //      and still get the resources?
       arr->addMember( "objtype", new BLong( cfBEu16( msg->graphic ) ) );
 
       u32 selected_serial = cfBEu32( msg->selected_serial );
@@ -909,8 +909,8 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
         }
       }
 
-      //			Never trust packet's objtype is the reason here. They should never
-      //			target on other realms. DUH!
+      //      Never trust packet's objtype is the reason here. They should never
+      //      target on other realms. DUH!
       arr->addMember( "realm", new String( chr->realm->name() ) );
 
       Multi::UMulti* multi =
@@ -1656,7 +1656,7 @@ void append_objtypes( ObjArray* objarr, Menu* menu )
     {
       // Code Analyze: Commented out and replaced with tmp_menu due to hiding
       // menu passed to function.
-      //			Menu* menu = find_menu( mi->submenu_id );
+      //      Menu* menu = find_menu( mi->submenu_id );
       Menu* tmp_menu = Menu::find_menu( mi->submenu_id );
       if ( tmp_menu != NULL )
         append_objtypes( objarr, tmp_menu );
@@ -2249,7 +2249,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, re
     std::swap( z1, z2 );
   // Disabled again: ShardAdmins "loves" this "bug" :o/
   // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //	 return new BError("Invalid Coordinates for realm");
+  //   return new BError("Invalid Coordinates for realm");
   internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -2296,7 +2296,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, re
     std::swap( z1, z2 );
   // Disabled again: ShardAdmins "loves" this "bug" :o/
   // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //	 return new BError("Invalid Coordinates for realm");
+  //   return new BError("Invalid Coordinates for realm");
   internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -2337,7 +2337,7 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
     std::swap( z1, z2 );
   // Disabled again: ShardAdmins "loves" this "bug" :o/
   // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //	 return new BError("Invalid Coordinates for realm");
+  //   return new BError("Invalid Coordinates for realm");
   internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -2424,7 +2424,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
       std::swap( z1, z2 );
     // Disabled again: ShardAdmins "loves" this "bug" :o/
     // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-    //	 return new BError("Invalid Coordinates for realm");
+    //   return new BError("Invalid Coordinates for realm");
     internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -3161,7 +3161,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
     if ( res == 0 )
     {
       // Code Analyze: C6246
-      //			BStruct* res = new BStruct();
+      //      BStruct* res = new BStruct();
       BStruct* ret = new BStruct();
       ret->addMember( "DirtyObjects", new BLong( dirty ) );
       ret->addMember( "CleanObjects", new BLong( clean ) );
@@ -4956,15 +4956,15 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
 //  put in two safeguards against this.
 //
 //  Safeguard #1) As we go through the nodes in the solution, I make sure each of them
-//				is on the Closed List.  If not, the pathfind errors out with a
-//				"Solution Corrupt!" error.  This is an attempt to short circuit any
-//				solution containing erroneous nodes in it.
+//        is on the Closed List.  If not, the pathfind errors out with a
+//        "Solution Corrupt!" error.  This is an attempt to short circuit any
+//        solution containing erroneous nodes in it.
 //
 //  Safeguard #2) I keep a vector of the nodes in the solution as we go through them.
-//				Before adding each node to the vector, I search that vector for that
-//				node.  If that vector already contains the node, the pathfind errors
-//				out with a "Solution Corrupt!" error.  THis is an attempt to catch
-//				the cases where Closed List nodes have looped for some reason.
+//        Before adding each node to the vector, I search that vector for that
+//        node.  If that vector already contains the node, the pathfind errors
+//        out with a "Solution Corrupt!" error.  THis is an attempt to catch
+//        the cases where Closed List nodes have looped for some reason.
 //
 //  These two safeguards should not truly be necessary for this algorithm, and take up
 //  space and time to guard against.  Thus, finding out why these problems are occurring
@@ -5004,24 +5004,24 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
 //  it in the src module.  They are :
 //
 //  stlastar.h  --  virtually untouched by me really, it is the original author's
-//				  implimentation, pretty nicely done and documented if you are
-//				  interested in learning about A*.
+//          implimentation, pretty nicely done and documented if you are
+//          interested in learning about A*.
 //
-//  fsa.h	   --  a "fixed size allocation" module which I toy with enabling and
-//				  disabling.  Using it is supposed to get you some speed, but it
-//				  limits your maps because it will only allocate a certain # of
-//				  nodes at once, and after that, it will return out of memory.
-//				  Presently, it is disabled, but will be submitted to CVS for
-//				  completion in case we wish to use it later.
+//  fsa.h     --  a "fixed size allocation" module which I toy with enabling and
+//          disabling.  Using it is supposed to get you some speed, but it
+//          limits your maps because it will only allocate a certain # of
+//          nodes at once, and after that, it will return out of memory.
+//          Presently, it is disabled, but will be submitted to CVS for
+//          completion in case we wish to use it later.
 //
 //  uopathnode.h -- this is stricly my work, love it or hate it, it's pretty quick
-//				  and dirty, and can stand to be cleaned up, optimized, and so forth.
-//				  I have the name field and function in there to allow for some
-//				  debugging, though the character array could probably be removed to
-//				  make the nodes smaller.  I didn't find it mattered particularly, since
-//				  these puppies are created and destroyed at a pretty good clip.
-//				  It is this class that encapsulates the necessary functionality to
-//				  make the otherwise fairly generic stlastar class work.
+//          and dirty, and can stand to be cleaned up, optimized, and so forth.
+//          I have the name field and function in there to allow for some
+//          debugging, though the character array could probably be removed to
+//          make the nodes smaller.  I didn't find it mattered particularly, since
+//          these puppies are created and destroyed at a pretty good clip.
+//          It is this class that encapsulates the necessary functionality to
+//          make the otherwise fairly generic stlastar class work.
 
 typedef Plib::AStarSearch<UOPathState> UOSearch;
 
@@ -5110,7 +5110,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
         theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 
         if ( Plib::systemstate.config.loglevel >= 12 )
-          POLLOG.Format( "[FindPath]	 add Blocker {} at {} {} {}\n" )
+          POLLOG.Format( "[FindPath]   add Blocker {} at {} {} {}\n" )
               << chr->name() << chr->x << chr->y << chr->z;
       } );
     }
