@@ -35,8 +35,21 @@ Compiling in Windows
 ---------
 
 You need atleast cmake version 3.0.
-Open the cmake gui select the CMakeLists.txt in the root folder and select your installed Visual Studio version e.g. `Visual Studio 15 2015 Win64`. As build directory it is recommended to use `bin-build`. Now simply press configure+generate and you can directly open the solution file in your IDE. After building the binaries are located in the `bin` folder.
- 
+
+**Recommended:**
+Open the *CMake GUI* select the the root folder as source code folder, select
+the `bin-build` subfolder as "where to build the binaries" folder, and select
+your installed Visual Studio version e.g. `Visual Studio 15 2015 Win64`.
+Now simply press configure+generate+open project and it will directly open
+the solution file in your IDE.
+After building the binaries are located in the `bin` folder.
+
+**Not Recommended:**
+If you are using *Visual Studio 2017*, you can try using the integraded CMake:
+use the `open folder` function and select the root folder. CMake will take a
+while to load: wait until the `CMAKE` manu appears, then you can use it to
+start the build, make sure to have the `Realease` mode selected.
+
 Minimum compiler version: Visual Studio 2015
 
 <b>Warning:</b> We can not easily debug dumps from self-compiled cores. Make sure you save the `.pdb` and `.exe`!
@@ -91,6 +104,8 @@ Keep in mind that even when set this way, the option will be saved in the `CMake
 
 You can now use the classic *make* command to compile the POL. You can type:
 * `make` or `make all` to do the build
-* `make clean` to delete all the intermediate build files
 
 You will find the compiled files inside the `bin/` folder.
+
+To delete intermediate build files and clean the folder you can use the
+interective clean.py script.

@@ -41,7 +41,7 @@ BObjectRef BXMLfile::get_member_id( const int /*id*/ )  // id test
   // switch(id)
   //{
 
-  //	default: return BObjectRef(UninitObject::create());
+  //  default: return BObjectRef(UninitObject::create());
   //}
 }
 BObjectRef BXMLfile::get_member( const char* membername )

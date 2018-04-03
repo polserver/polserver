@@ -28,7 +28,7 @@ namespace Pol
 {
 namespace Clib
 {
-HCRYPTPROV hProv = NULL;
+static HCRYPTPROV hProv = NULL;
 
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
@@ -84,7 +84,10 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
 
 void MD5_Cleanup()
 {
-  CryptReleaseContext( hProv, 0 );
+  if ( hProv )
+  {
+    CryptReleaseContext( hProv, 0 );
+  }
 }
 
 #elif defined( HAVE_OPENSSL )
@@ -117,7 +120,8 @@ void MD5_Cleanup()
 
 #else
 extern "C" {
-#include "MD5.h"  //TODO: rework the following code - does not work with up-to-date header files anymore
+//TODO: rework the following code - does not work with up-to-date header files anymore
+#include "MD5.h"
 }
 namespace Pol
 {

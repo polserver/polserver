@@ -57,11 +57,11 @@ StoredConfigElem::StoredConfigElem() {}
 // ToDo: we have to think over... it's a problem with script-inside references
 StoredConfigElem::~StoredConfigElem()
 {
-  //	while (!propimps_.empty())
-  //	{
-  //		delete ((*propimps_.begin()).second);
-  //		propimps_.erase( propimps_.begin() );
-  //	}
+  //  while (!propimps_.empty())
+  //  {
+  //    delete ((*propimps_.begin()).second);
+  //    propimps_.erase( propimps_.begin() );
+  //  }
 }
 
 void StoredConfigElem::addprop( const std::string& propname, Bscript::BObjectImp* imp )
@@ -116,17 +116,17 @@ StoredConfigFile::StoredConfigFile() : reload( false ), modified_( 0 ) {}
 // ToDo: we have to think over... it's a problem with script-inside references
 // StoredConfigFile::~StoredConfigFile( )
 //{
-//	while (!elements_bynum_.empty())
-//	{
-//		delete ((*elements_bynum_.begin()).second);
-//		elements_bynum_.erase( elements_bynum_.begin() );
-//	}
+//  while (!elements_bynum_.empty())
+//  {
+//    delete ((*elements_bynum_.begin()).second);
+//    elements_bynum_.erase( elements_bynum_.begin() );
+//  }
 //
-//	while (!elements_byname_.empty())
-//	{
-//		delete ((*elements_byname_.begin()).second);
-//		elements_byname_.erase( elements_byname_.begin() );
-//	}
+//  while (!elements_byname_.empty())
+//  {
+//    delete ((*elements_byname_.begin()).second);
+//    elements_byname_.erase( elements_byname_.begin() );
+//  }
 //}
 
 void StoredConfigFile::load( Clib::ConfigFile& cf )

@@ -516,7 +516,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 
     // Shinigami: will not hang server on queue of delimiter
     // if ( add_string.empty() )
-    //	continue;
+    //  continue;
 
     objarr->addElement( new String( add_string ) );
     std::string tmp_string = new_string.substr( found + delimiter.length(), new_string.length() );

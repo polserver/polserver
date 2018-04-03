@@ -283,7 +283,7 @@ public:  // methods
       for ( NodeVectorIterator successor = m_Successors.begin(), successor_end = m_Successors.end();
             successor != successor_end; ++successor )
       {
-        // 	The g value for this successor ...
+        // The g value for this successor ...
         float newg = n->g + n->m_UserState.GetCost( ( *successor )->m_UserState );
 
         // Now we need to find whether the node is on the open or closed lists
@@ -369,9 +369,9 @@ public:  // methods
           // thanks to Mike Ryynanen for pointing this out and then explaining
           // it in detail. sort_heap called on an invalid heap does not work
 
-          //					sort_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
+          //               sort_heap( m_OpenList.begin(), m_OpenList.end(), HeapCompare_f() );
 
-          //					assert( is_heap( m_OpenList.begin(), m_OpenList.end(),
+          //               assert( is_heap( m_OpenList.begin(), m_OpenList.end(),
           // HeapCompare_f() ) );
         }
 

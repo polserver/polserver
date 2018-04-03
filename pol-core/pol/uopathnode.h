@@ -122,7 +122,7 @@ bool UOPathState::IsGoal( UOPathState& nodeGoal )
 {
   return ( ( nodeGoal.x == x ) && ( nodeGoal.y == y ) &&
            ( abs( nodeGoal.z - z ) <= settingsManager.ssopt.default_character_height ) );
-  //	return (IsSameState(nodeGoal));
+  //return (IsSameState(nodeGoal));
 }
 float UOPathState::GetCost( UOPathState& successor )
 {

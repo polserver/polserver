@@ -34,13 +34,14 @@ static Pol::Plib::RawMap rawmap;
 static bool rawmap_ready = false;
 
 void read_map_difs()
-{  
+{
   Plib::num_map_patches = rawmap.load_map_difflist( mapdifl_file );
 }
 
 static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
-  if ( !rawmap_ready ) // UoTool has a serious problem of not loading data before using this function...
+  // UoTool has a serious problem of not loading data before using this function...
+  if ( !rawmap_ready )
     rawmapfullread();
 
   return rawmap.rawinfo( x, y, gi );

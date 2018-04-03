@@ -51,8 +51,8 @@ namespace Module
 /// Datastore
 ///
 ///  datastore files are stored in
-///	   config.world_data_path + ds/fname.txt
-///	   config.world_data_path + ds/{pkgname}/fname.txt
+///     config.world_data_path + ds/fname.txt
+///     config.world_data_path + ds/{pkgname}/fname.txt
 ///
 
 Bscript::BApplicObjType datafileref_type;
@@ -512,7 +512,7 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_OpenDataFile()
     try
     {
       std::string descriptor;
-      //			string directory;
+      //      string directory;
       const std::string& inspec = strob->value();
 
       const Plib::Package* spec_pkg = NULL;

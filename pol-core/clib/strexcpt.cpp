@@ -173,7 +173,7 @@ void alt_se_trans_func( unsigned int u, _EXCEPTION_POINTERS* pExp )
   {
     in_ex_handler = true;
     POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" )
-        << POL_BUILD_DATE << POL_BUILD_TIME;
+        << POL_BUILD_DATETIME;
 
     MSJExceptionHandler::MSJUnhandledExceptionFilter( pExp );
     in_ex_handler = false;

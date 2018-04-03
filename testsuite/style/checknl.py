@@ -7,74 +7,41 @@ Checks that all files have correct line endings
 '''
 
 import os, sys
-import subprocess
+
+import util
 
 
-class Main:
+class Main(util.SourceChecker):
 
 	# Extensions of binary files, will be ignored
-	BINEXTS = ('.jpg', '.rar', '.zip', '.exe', '.dll', '.doc', '.lib', '.bz2', '.aps')
+	BINEXTS = ('.jpg', '.rar', '.zip', '.exe', '.dll', '.doc', '.lib', '.bz2', '.aps', '.ico')
 	# Extensions of always-unix files
 	UNIXEXTS = ('.sh', )
 	# Extensions of always-windows files
 	WINEXTS = ('.vcproj', '.bat')
 
-	def __init__(self):
-		mydir = os.path.dirname(os.path.realpath(__file__))
-		self.polroot = os.path.realpath(os.path.join(mydir, '..', '..'))
+	WHAT = 'line endings'
+
+	def __init__(self, quiet=False):
+		super().__init__(quiet)
 
 		# Just to be sure
 		if os.linesep != '\r\n' and os.linesep != '\n':
 			print(os.linesep)
 			raise NotImplementedError('Unhandled line ending style')
 
-	def run(self):
-		print("Checking line endings, POL root is {}".format(self.polroot))
+	def checkFile(self, path, ext):
+		if ext in self.BINEXTS:
+			return self.SKIP
 
-		analyzed = 0
-		errors = 0
-		for root, dir, files in os.walk(self.polroot):
-			rel = os.path.relpath(root, self.polroot)
-			if rel.startswith('.git'):
-				continue
+		if ext in self.UNIXEXTS:
+			nl = 'unix'
+		elif ext in self.WINEXTS:
+			nl = 'windows'
+		else:
+			nl = 'auto'
 
-			for file in files:
-				full = os.path.join(root, file)
-
-				if self.isGitIgnored(full):
-					continue
-
-				base, ext = os.path.splitext(file)
-				if ext in self.BINEXTS:
-					continue
-
-				if ext in self.UNIXEXTS:
-					nl = 'unix'
-				elif ext in self.WINEXTS:
-					nl = 'windows'
-				else:
-					nl = 'auto'
-
-				analyzed += 1
-				if not self.checkLineEndings(full, nl=nl):
-					errors += 1
-
-		print("Done. {} files analyzed, {} errors.".format(analyzed, errors))
-		if errors:
-			return False
-		return True
-
-
-	def isGitIgnored(self, path):
-		''' Checks if file is ignored by git '''
-
-		cmd = ('git', 'check-ignore', path)
-		try:
-			subprocess.check_call(cmd)
-		except subprocess.CalledProcessError:
-			return False
-
-		return True
+		return self.checkLineEndings(path, nl)
 
 	def checkLineEndings(self, path, nl='auto'):
 		''' Checks for coherent line endings on the given text file '''
@@ -120,6 +87,14 @@ class Main:
 
 
 if __name__ == '__main__':
-	if Main().run():
+	# Includes not needed when used as module
+	import argparse
+
+	# Parse command line
+	parser = argparse.ArgumentParser(description=__doc__.strip().split('\n',1)[0].strip())
+	parser.add_argument('-q', '--quiet', action='store_true', help="Quiet output: only display errors and summary")
+	args = parser.parse_args()
+
+	if Main(args.quiet).run():
 		sys.exit(0)
 	sys.exit(1)

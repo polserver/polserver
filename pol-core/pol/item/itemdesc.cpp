@@ -372,7 +372,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
             }
             */
     // if (!objtype_byname.count( temp.c_str() ))
-    //	objtype_byname[ temp.c_str() ] = objtype;
+    //  objtype_byname[ temp.c_str() ] = objtype;
   }
 
   props.readProperties( elem );
@@ -958,12 +958,12 @@ ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::P
   // FIXME: in theory, should never happen due to conversion to u8. Maybe here as note during
   // rewrite. Add a remove_uchar/remove_char for allowing
   // use of max 0-255 integers control due to packet limits, in configuration files. Yay.
-  //	if ( max_slots > 255 )
-  //	{
-  //			cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined.
+  //  if ( max_slots > 255 )
+  //  {
+  //      cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined.
   // MaxSlots max value is 255. Setting to 255." << endl;
-  //			max_slots = 255;
-  //	}
+  //      max_slots = 255;
+  //  }
 }
 
 void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
@@ -1322,7 +1322,7 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
     // string unused_name, unused_value;
     // while (elem.remove_first_prop( &unused_name, &unused_value ))
     //{
-    //	elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is
+    //  elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is
     // unused." );
     //}
 
@@ -1416,11 +1416,11 @@ void write_objtypes_txt()
 
 void load_itemdesc()
 {
-  //	CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
+  //  CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
   if ( Clib::FileExists( "config/itemdesc.cfg" ) )
     read_itemdesc_file( "config/itemdesc.cfg" );
-  //	read_itemdesc_file( "config/wepndesc.cfg" );
-  //	read_itemdesc_file( "config/armrdesc.cfg" );
+  //  read_itemdesc_file( "config/wepndesc.cfg" );
+  //  read_itemdesc_file( "config/armrdesc.cfg" );
   for ( auto& pkg : Plib::systemstate.packages )
     load_package_itemdesc( pkg );
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<Description>
+	<LineLength>100</LineLength>
+	<Tabs>1</Tabs>
+	<Spaces>0</Spaces>
+	<Indent>
+		<type>SPACE</type>
+		<size>2</size>
+	</Indent>
+</Description>

@@ -3,7 +3,7 @@
  * @par History
  * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no
  * sense.
- * - 2014/06/10 Nando:	Removed pragma that disabled 4244. (tolower()/toupper() used ints because -1
+ * - 2014/06/10 Nando:  Removed pragma that disabled 4244. (tolower()/toupper() used ints because -1
  * is a valid output).
  */
 

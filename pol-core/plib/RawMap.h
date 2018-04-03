@@ -25,7 +25,8 @@ namespace Plib {
 
     public:
       // Gets information about a single tile within a 8x8 cell
-      Pol::Core::USTRUCT_MAPINFO get_cell( unsigned int blockidx, unsigned int x_offset, unsigned int y_offset );
+      Pol::Core::USTRUCT_MAPINFO get_cell( unsigned int blockidx, unsigned int x_offset,
+                                           unsigned int y_offset );
       
       // Returns information about a given coordinate in the world
       signed char rawinfo( unsigned short x, unsigned short y, Pol::Core::USTRUCT_MAPINFO* gi );

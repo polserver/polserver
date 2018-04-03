@@ -12,16 +12,16 @@ namespace Core
 {
 /* skill advancement:
     (essentially, a base-2 logarithm..)
-    disp		raw				bits		posn
-    10.0		2048	  1000 0000 0000	11
-    20.0		4096	1 0000 0000 0000	12
-    30.0		8K							13
+    disp     raw              bits  posn
+    10.0    2048    1000 0000 0000    11
+    20.0    4096  1 0000 0000 0000    12
+    30.0      8K                      13
     ...
-    70.0		128K						17
+    70.0    128K                      17
     ...
-    100.0		1024K						20
-    200.0		1M K						...
-    220.0		4M K						...
+    100.0  1024K                      20
+    200.0     1M                     ...
+    220.0     4M                     ...
     We care about the high bit, and the next 8 bits of
     lesser significance to it.
     So, we want to normalize to: 1 bbbb bbbb (n removed)
@@ -61,7 +61,7 @@ unsigned short raw_to_base( unsigned int raw )
   }
 
   // now, what's left is the "1 bbbb bbbb" part.
-  //					   (or "0 bbbb bbbb" if less than 1 0000 0000)
+  //             (or "0 bbbb bbbb" if less than 1 0000 0000)
   // calculate (linearly) the ones digit and decimal point part, using 8 bits
 
   skill += static_cast<unsigned short>( raw ) * 100 / 2048;

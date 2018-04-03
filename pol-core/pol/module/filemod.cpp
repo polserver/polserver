@@ -81,32 +81,33 @@ using namespace Bscript;
  * integrating compile capability directly into pol, and adding something like
  * CompileScript( scriptpath ) to polsys.em
  *
- * @example config/fileaccess.cfg
+ * config/fileaccess.cfg
+ * ~~~~~~~~~~~~~~~~~~~~~
  * // anyone can append to a log file in their own package
- * // (backslash escaping on "\<all\>" is here for doxygen only)
  * FileAccess
  * {
- * allow append
- * match *.log
- * package \<all\>
+ *   allow append
+ *   match *.log
+ *   package <all>
  * }
  * // anyone can create .htm files in their own web root
  * FileAccess
  * {
- * allow write
- * match www/ *.html
- * package \<all\>
+ *   allow write
+ *   match www/ *.html
+ *   package <all>
  * }
  * // the uploader package is allowed to write .src and .cfg files in any package
  * FileAccess
  * {
- * allow read
- * allow write
- * remote 1
- * match *.cfg
- * match *.src
- * package uploader
+ *   allow read
+ *   allow write
+ *   remote 1
+ *   match *.cfg
+ *   match *.src
+ *   package uploader
  * }
+ * ~~~~~~~~~~~~~~~~~~~~~
  */
 FileAccess::FileAccess( Clib::ConfigElem& elem )
     : AllowWrite( elem.remove_bool( "AllowWrite", false ) ),

@@ -8,7 +8,7 @@
  * - 2005-09-07 Folko:     No longer warn about unused variables in BASIC style for loops
  * - 2005/09/08 Shinigami: Will warn about unused variables in BASIC style for loops on -v5 only
  * - 2005/09/25 Shinigami: BugFix inside FileCheck for multiple include of same File
- *                         e.g.: inside scripts	extcmd	est	extcmd.src:
+ *                         e.g.: inside scripts  extcmd  est  extcmd.src:
  *                         Include "../../../pkg/std/housing/include/test";
  *                         Include ":housing:test";
  *                         Include ":housing:include/test";
@@ -752,11 +752,11 @@ void Expression::optimize_assignments()
     a) disable all optimization
     b) disable optimization on doubles
     OPTIMIZATIONS PERFORMED:
-    Constant Long Arithmetic:	(+ - * /)
+    Constant Long Arithmetic:  (+ - * /)
     5 + 7   ->   5 7 +   ->  12
     Constant Double Arithmetic: (+ - * /)
     5.5 + 6.5  ->  5.5 6.5 +   -> 12.0
-    String Concatenation:		(+)
+    String Concatenation:    (+)
     "hello" + " world" -> "hello" " world" + -> "hello world"
     OPTIMIZATIONS TO BE CONSIDERED:
     More efficient constructs: (+=, -=, *=, /=)
@@ -769,11 +769,11 @@ void Expression::optimize_assignments()
     Optimizations that must take place at a different level:
     0  IFFALSE -> GOTO
     1  IFFALSE -> NOP
-    0  IF		-> NOP
-    1  IF		-> GOTO
+    0  IF    -> NOP
+    1  IF    -> GOTO
     34: GOTO 56
-    56: GOTO 78		--> 34: GOTO 78  56: GOTO 78
-    NOP		-> (null) (compress NOPs)
+    56: GOTO 78    --> 34: GOTO 78  56: GOTO 78
+    NOP    -> (null) (compress NOPs)
     */
 void Expression::optimize()
 {
@@ -2177,7 +2177,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
     default_posn = prog_tokens->next();
 
   // the default case must go at the end.
-  //	if (1)
+  //  if (1)
   {
     unsigned char* tmppch = reinterpret_cast<unsigned char*>( &default_posn );
     caseblock.push_back( tmppch[0] );
@@ -3100,7 +3100,7 @@ int Compiler::handleConstDeclare( CompilerContext& ctx )
 
 
   /*
-      formats:	varname followed by comma or semicolon
+      formats:  varname followed by comma or semicolon
       varname followed by "array", then by comma/semicolon
       varname followed by ':=', then an initializer, then comma/semicolon.
       */
@@ -3418,12 +3418,12 @@ int Compiler::handleUse( CompilerContext& ctx )
 
 int Compiler::includeModule( const std::string& modulename )
 {
-  //	cout << "includeModule(" << modulename << "). includes(" << included.size() << "):";
-  //	for( INCLUDES::const_iterator citr = included.begin(); citr != included.end(); ++citr )
-  //	{
-  //		cout << " " << (*citr);
-  //	}
-  //	cout << endl;
+  //  cout << "includeModule(" << modulename << "). includes(" << included.size() << "):";
+  //  for( INCLUDES::const_iterator citr = included.begin(); citr != included.end(); ++citr )
+  //  {
+  //    cout << " " << (*citr);
+  //  }
+  //  cout << endl;
 
   std::string filename_part = modulename;
   filename_part += ".inc";
@@ -3612,8 +3612,8 @@ int Compiler::insertBreak( const std::string& label )
 
 
 // break statements come in the following forms:
-//	  break;
-//	  break label;
+//    break;
+//    break label;
 // we'll emit a LEAVE_BLOCK token if necessary, and
 // a GOTO which will be patched in when the block
 // is completed.
@@ -3646,8 +3646,8 @@ int Compiler::handleBreak( CompilerContext& ctx )
 }
 
 // continue statements come in the following forms:
-//	  continue;
-//	  continue label;
+//    continue;
+//    continue label;
 // we'll emit a LEAVE_BLOCK token if necessary, and
 // a GOTO which will point at the continuePC of the block.
 int Compiler::handleContinue( CompilerContext& ctx )
@@ -4107,12 +4107,12 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       return handleEnumDeclare( ctx );
 
       // DEPRECATED:
-      //	case RSV_BEGIN:		 return handleBlock(ctx, level+1);
+      //  case RSV_BEGIN:     return handleBlock(ctx, level+1);
 
     default:
       INFO_PRINT << "Unhandled reserved word: " << token << "\n";
       return -1;
-      //			   assert(0);
+      //         assert(0);
       break;
     }
   }
@@ -4195,7 +4195,7 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
           INFO_PRINT << ctx;
       }
     }
-    //	cout << "Statement: " << Parser.CA << endl;
+    //  cout << "Statement: " << Parser.CA << endl;
   }
   return res;
 }
@@ -5416,17 +5416,17 @@ int Compiler::compileFile( const char* in_file )
     INFO_PRINT << "Exception Detected:\n" << ex.what() << "\n";
     res = -1;
   }
-  //	catch(...)
-  //	{
-  //		cout << "Generic Exception" << endl;
-  //		res = -1;
-  //	}
+  //  catch(...)
+  //  {
+  //    cout << "Generic Exception" << endl;
+  //    res = -1;
+  //  }
 
   if ( res < 0 )
     INFO_PRINT << "Compilation failed.\n";
 
   // if (contains_tabs && Compiler.warnings_)
-  //	cout << "Warning! Source contains TAB characters" << endl;
+  //  cout << "Warning! Source contains TAB characters" << endl;
 
   return res;
 }
@@ -5445,7 +5445,7 @@ int Compiler::write_dbg( const char* fname, bool gen_txt )
 void Compiler::writeIncludedFilenames( const char* fname ) const
 {
   std::ofstream ofs( fname, std::ios::out | std::ios::trunc );
-  //	ofs << current_file_path << endl;
+  //  ofs << current_file_path << endl;
   for ( const auto& elem : referencedPathnames )
   {
     ofs << elem << std::endl;
@@ -5459,9 +5459,9 @@ void Compiler::dump( std::ostream& os )
 }
 }
 /*
-    local x;			[ "x", RSV_LOCAL, # ]
-    local x:=5;			[ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
-    local x,y:=5;		[ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
+    local x;      [ "x", RSV_LOCAL, # ]
+    local x:=5;      [ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
+    local x,y:=5;    [ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
     local x:=5,y;
 
     x := 5;

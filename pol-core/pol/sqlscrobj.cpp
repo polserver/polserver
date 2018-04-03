@@ -205,13 +205,14 @@ Bscript::BObjectImp* BSQLConnection::getResultSet() const
   }
   else  // mysql_store_result() returned nothing; should it have?
   {
-    /*		if (mysql_errno(_conn))
-				{
-				_error = mysql_error(_conn);
-				_errno = mysql_errno(_conn);
-				return new BError(_error);
-				}
-                else */ if ( mysql_field_count( _conn->ptr() ) == 0 )
+    /*  if (mysql_errno(_conn))
+        {
+          _error = mysql_error(_conn);
+          _errno = mysql_errno(_conn);
+          return new BError(_error);
+        }
+        else */
+    if ( mysql_field_count( _conn->ptr() ) == 0 )
     {
       return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn->ptr() ) ) );
     }
@@ -375,7 +376,7 @@ BObjectRef BSQLConnection::get_member_id( const int /*id*/ )  // id test
   // switch(id)
   //{
 
-  //	default: return BObjectRef(UninitObject::create());
+  //  default: return BObjectRef(UninitObject::create());
   //}
 }
 BObjectRef BSQLConnection::get_member( const char* membername )

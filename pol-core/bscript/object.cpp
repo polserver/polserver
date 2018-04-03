@@ -1314,7 +1314,7 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
   else
   result->ref_arr.push_back( BObjectRef() );
   } */
-  //	return result.release();
+  //  return result.release();
   return BObjectRef( str );
 }
 

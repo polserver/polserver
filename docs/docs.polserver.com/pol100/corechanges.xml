@@ -2,24 +2,35 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-13-2018</datemodified>
+		<datemodified>04-02-2018</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
-			<date>02-11-2018</date>
-			<author>DevGIB:</author>
-			<change type="Added">Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, SwingSpeed,<br/>
-DamageIncrease, LuckMod, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.</change>
-			<change type="Changed">Elevated Luck to UObject and added related LuckMod.</change>
-			<change type="Changed">Elevated dmg_mod to UObject and linked to DamageIncrease.</change>
-			<change type="Changed">Elevated hitchance_mod to UObject and linked to HitChance.</change>
-			<change type="Changed">Elevated speed_mod to UObject and linked to SwingSpeed.</change>
-			<change type="Added">Damage_Increase_Mod and Swing_Speed_Mod to replace dmg_mod and speed_mod respectively in the future.</change>
-			<change type="Added">Warning to compiler that dmg_mod and speed_mod are depreciated.</change>
-			<change type="Added">Support for new prop changes to the status bar packet.</change>
-			<change type="Added">Resistances will now be limited to caps by core, unless caps aren't set or are 0.</change>
-			<change type="Added">CoreHandlesDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will limit all resistances and defence increase cap to caps set on the mobile.</change>
+			<date>04-02-2018</date>
+			<author>Bodom:</author>
+			<change type="Removed">polcore().compiledate and polcore().compiletime</change>
+			<change type="Added">polcore().compiledatetime</change>
 		</entry>
+		<entry>
+			<date>03-19-2018</date>
+			<author>Nando:</author>
+			<change type="Fixed">Crash at shutdown when POL hasn't been correctly started.</change>
+		</entry>
+		<entry>
+			<date>02-26-2018</date>
+			<author>Nando:</author>
+			<change type="Added">uoconvert now supports UOP files and will use them by default. If there is no<br/>
+map[N]LegacyMUL.uop in the UODataFileRoot, uoconvert will fall back to the<br/>
+old map[N].mul files. You can force uoconvert to convert from the old MULs by using<br/>
+readuop=0.</change>
+		</entry>
+		<entry>
+			<date>02-10-2018</date>
+			<author>Nando:</author>
+			<change type="Changed">POL099 is officially released after almost 10 years. Starting the work on POL100.</change>
+		</entry>
+	</version>
+	<version name="POL099.1">
 		<entry>
 			<date>02-11-2018</date>
 			<author>Nando:</author>
@@ -30,11 +41,6 @@ entry doesn't exist, the &quot;DefaultDoubleclickRange&quot; will be used instea
 			<change type="Fixed">Accessible(chr, item) now checks for the distance to the item. Differently from the distance<br/>
 of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,<br/>
 use ACCESSIBLE_IGNOREDISTANCE as range.</change>
-		</entry>
-		<entry>
-			<date>02-10-2018</date>
-			<author>Nando:</author>
-			<change type="Changed">POL099 is officially released after almost 10 years. Starting the work on POL100.</change>
 		</entry>
 	</version>
 	<version name="POL099">

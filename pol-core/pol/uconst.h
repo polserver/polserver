@@ -32,9 +32,9 @@ enum URACE : u8
 
 /* Character Facings:
     N^
-    7	0	1
-    6	*	2
-    5	4	3
+    7 0 1
+    6 * 2
+    5 4 3
     */
 
 enum UFACING : u8

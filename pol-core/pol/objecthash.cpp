@@ -43,8 +43,8 @@ bool ObjectHash::Insert( UObject* obj )
 
 bool ObjectHash::Remove( u32 /*serial*/ )
 {
-  //	unsigned int num_erased = hash.erase( serial );
-  //	return (num_erased>0);
+  //  unsigned int num_erased = hash.erase( serial );
+  //  return (num_erased>0);
   return true;
 }
 

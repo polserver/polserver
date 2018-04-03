@@ -702,8 +702,8 @@ public:
   void cmdlevel( unsigned char value, bool update_on_change = true );
 
   // Tests whether item is at a legal location and within reach of the character (range).
-  // Range == -1 takes the default accessible distance, any smaller negative number ignores the
-  // range check.
+  // Range == -1 takes the default accessible distance,
+  // any smaller negative number ignores the range check.
   bool can_access( const Items::Item* item, int range = -1 ) const;
 
   bool can_move( const Items::Item* item ) const;
@@ -822,7 +822,7 @@ protected:
   u16 ar_;
   DYN_PROPERTY( ar_mod, s16, Core::PROP_AR_MOD, 0 );
   DYN_PROPERTY( delay_mod, s16, Core::PROP_DELAY_MOD, 0 );
-  DYN_PROPERTY( hit_chance_mod, s16, Core::PROP_HIT_CHANCE_MOD, 0 );
+  DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HITCHANCE_MOD, 0 );
   DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
 
   Character* opponent_;
@@ -879,6 +879,7 @@ public:
 
   DYN_PROPERTY( skillstatcap, Core::SkillStatCap, Core::PROP_STATCAP_SKILLCAP,
                 Core::SkillStatCap::DEFAULT );
+  DYN_PROPERTY( luck, s16, Core::PROP_EXT_STATBAR_LUCK, 0 );
   DYN_PROPERTY( followers, Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS,
                 Core::ExtStatBarFollowers::DEFAULT );
   DYN_PROPERTY( tithing, s32, Core::PROP_EXT_STATBAR_TITHING, 0 );

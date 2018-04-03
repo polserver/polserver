@@ -122,21 +122,21 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
 }
 
 #if 0
-	BObjectImp* HttpExecutorModule::mf_WriteHtml()
-	{
-	  const String* str;
-	  if (getStringParam( 0, str ))
-	  {
-		// TODO: some tricky stuff so if the socket blocks, the script goes to
-		// sleep for a bit and sends the rest later
-		http_writeline( sck_, str->value() );
-		return new BLong(1);
-	  }
-	  else
-	  {
-		return new BError( "Invalid parameter type" );
-	  }
-	}
+  BObjectImp* HttpExecutorModule::mf_WriteHtml()
+  {
+    const String* str;
+    if (getStringParam( 0, str ))
+    {
+    // TODO: some tricky stuff so if the socket blocks, the script goes to
+    // sleep for a bit and sends the rest later
+    http_writeline( sck_, str->value() );
+    return new BLong(1);
+    }
+    else
+    {
+    return new BError( "Invalid parameter type" );
+    }
+  }
 #endif
 
 BObjectImp* HttpExecutorModule::mf_QueryParam()

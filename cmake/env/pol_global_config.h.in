@@ -15,9 +15,9 @@
 #define POL_VERSION_STR             "@POL_VERSION_STR@"
 #define POL_VERSION_NAME            "@POL_VERSION_NAME@"
 #define POL_VERSION_ID              "POL@POL_VERSION_STR@ @POL_VERSION_NAME@"
-#define POL_BUILD_DATE              __DATE__
-#define POL_BUILD_TIME              __TIME__
+#define POL_BUILD_DATETIME          __DATE__ " " __TIME__
 #define POL_BUILD_ARCH_BITS_STR     "@ARCH_BITS@"
+#define POL_COPYRIGHT               "Copyright (C) 1993-2018 Eric N. Swanson"
 
 
 #ifdef PERGON

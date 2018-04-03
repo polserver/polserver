@@ -7,7 +7,7 @@
  * - 2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
  * - 2005/09/14 Shinigami: Character::resurrect() - Vital.regen_while_dead implemented
  * - 2005/10/14 Shinigami: fixed missing init of Character::dblclick_wait
- * - 2005/11/23 MuadDib:	  Added warmode_wait object for characters.
+ * - 2005/11/23 MuadDib:    Added warmode_wait object for characters.
  * - 2005/11/25 MuadDib:   Added realm check to is_visible_to_me.
  * - 2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
  * - 2006/03/10 MuadDib:   Added NoCombat support to checking of justice region.
@@ -373,7 +373,7 @@ Character::~Character()
   // It might be nice to do this only when the system isn't shutting down...
   // if (!opponent_of.empty())
   //{
-  //	Clib::Log( "Destroying character with nonempty opponent_of! (But cleaning up..)\n" );
+  //  Clib::Log( "Destroying character with nonempty opponent_of! (But cleaning up..)\n" );
   //}
 
   removal_cleanup();
@@ -406,9 +406,9 @@ void Character::removal_cleanup()
   if ( opponent_ != NULL )
   {
     opponent_->opponent_of.erase( this );
-    //		This is cleanup, wtf we doing trying to send highlights?!
-    //		opponent_->send_highlight();
-    //		opponent_->schedule_attack();
+    //    This is cleanup, wtf we doing trying to send highlights?!
+    //    opponent_->send_highlight();
+    //    opponent_->schedule_attack();
     opponent_ = NULL;
   }
 
@@ -591,7 +591,38 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( frozen() )
     sw() << "\tFrozen\t" << static_cast<int>( frozen() ) << pf_endl;
 
- 
+  s16 value = fire_resist().mod;
+  if ( value != 0 )
+    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = cold_resist().mod;
+  if ( value != 0 )
+    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = energy_resist().mod;
+  if ( value != 0 )
+    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = poison_resist().mod;
+  if ( value != 0 )
+    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = physical_resist().mod;
+  if ( value != 0 )
+    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
+
+  value = fire_damage().mod;
+  if ( value != 0 )
+    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = cold_damage().mod;
+  if ( value != 0 )
+    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = energy_damage().mod;
+  if ( value != 0 )
+    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = poison_damage().mod;
+  if ( value != 0 )
+    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = physical_damage().mod;
+  if ( value != 0 )
+    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
+
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
@@ -663,7 +694,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   }
 
   if ( has_luck() )
-    sw() << "\tLuck\t" << static_cast<int>( luck().value ) << pf_endl;
+    sw() << "\tLuck\t" << static_cast<int>( luck() ) << pf_endl;
   if ( has_followers() )
   {
     auto followers_value = followers();
@@ -844,8 +875,8 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   movemode = decode_movemode( elem.remove_string( "MOVEMODE", "L" ) );
   concealed_ = static_cast<unsigned char>( elem.remove_ushort(
       "CONCEALED", 0 ) );  // DAVE changed from remove_bool 11/25. concealed is a char, not a bool!
-  //	if (concealed_ > cmdlevel)
-  //		concealed_ = cmdlevel;
+  //  if (concealed_ > cmdlevel)
+  //    concealed_ = cmdlevel;
 
   truecolor = elem.remove_ushort( "TRUECOLOR" );
 
@@ -892,57 +923,6 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
   if ( mod_value != 0 )
     physical_damage( physical_damage().setAsMod( mod_value ) );
-
-  mod_value = static_cast<s16>( elem.remove_int( "LOWERREAGENTCOSTMOD", 0 ) );
-  if ( mod_value != 0 )
-    lower_reagent_cost( lower_reagent_cost().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "SPELLDAMAGEINCREASEMOD", 0 ) );
-  if ( mod_value != 0 )
-    spell_damage_increase( spell_damage_increase().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTINGMOD", 0 ) );
-  if ( mod_value != 0 )
-    faster_casting( faster_casting().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTRECOVERYMOD", 0 ) );
-  if ( mod_value != 0 )
-    faster_cast_recovery( faster_cast_recovery().setAsMod( mod_value ) );
-
-  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASEMOD", 0 ) );
-  if ( mod_value != 0 )
-    defence_increase( defence_increase().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASECAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    defence_increase_cap( defence_increase_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "LOWERMANACOSTMOD", 0 ) );
-  if ( mod_value != 0 )
-    lower_mana_cost( lower_mana_cost().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "HITCHANCEMOD", 0 ) );
-  if ( mod_value != 0 )
-    hit_chance( hit_chance().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "SWINGSPEEDMOD", 0 ) );
-  if ( mod_value != 0 )
-    swing_speed( swing_speed().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "DAMAGEINCREASEMOD", 0 ) );
-  if ( mod_value != 0 )
-    damage_increase( damage_increase().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_resist_cap( fire_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_resist_cap( cold_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_resist_cap( energy_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_resist_cap( poison_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_resist_cap( physical_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "LUCKMOD", 0 ) );
-  if ( mod_value != 0 )
-    luck( luck().setAsMod( mod_value ) );
-
 
   movement_cost( Core::MovementCostMod(
       elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
@@ -1224,7 +1204,7 @@ void Character::revoke_privilege( const char* priv )
 
 bool Character::can_access( const Items::Item* item, int range ) const
 {
-  // TODO: find_legal_item() is awful, we should just check the item 
+  // TODO: find_legal_item() is awful, we should just check the item
   //       properties directly instead of going around searching for a given serial in the world
 
   // Range < 0 has special meaning. -1 is the default accessible range,
@@ -1232,8 +1212,8 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = ( range < -1 ) || pol_distance( this, item ) <= range;
-  if ( within_range && ( find_legal_item( this, item->serial ) != NULL ) )
+  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;
+  if ( within_range && (find_legal_item( this, item->serial ) != NULL) )
     return true;
 
   return false;
@@ -1979,9 +1959,9 @@ void Character::run_hit_script( Character* defender, double damage )
 
 ///
 /// Clear a Mobile's ToBeReportable list when all of the following are true:
-///	 1) hits are at maximum
-///	 2) mobile is not poisoned
-///	 3) mobile is not paralyzed
+///   1) hits are at maximum
+///   2) mobile is not poisoned
+///   3) mobile is not paralyzed
 ///
 void Character::check_undamaged()
 {
@@ -1996,9 +1976,9 @@ void Character::check_undamaged()
 /// When a Mobile is Healed
 ///
 ///   if Amy's hits are at maximum,
-///	   Clear Amy's ToBeReportable list
+///     Clear Amy's ToBeReportable list
 ///
-///	 (note, poisoned and paralyzed flags are not checked)
+///   (note, poisoned and paralyzed flags are not checked)
 ///
 void Character::heal_damage_hundredths( unsigned int amount )
 {
@@ -2509,7 +2489,7 @@ void Character::die()
 
 void Character::refresh_ar()
 {
-  //	find_armor(); <-- MuadDib commented out, put code inside here to cut down on iter.
+  //  find_armor(); <-- MuadDib commented out, put code inside here to cut down on iter.
   // Figure out what's in each zone
   //   FIXME? NZONES * NLAYERS (5 * 24 = 124) iterations.
   // okay, reverse, for each wornitem, for each coverage area, upgrade.
@@ -2540,7 +2520,7 @@ void Character::refresh_ar()
     }
   }
 
-  //	calculate_ar();	<-- MuadDib Commented out, mixed code within ported find_armor to reduce
+  //  calculate_ar();  <-- MuadDib Commented out, mixed code within ported find_armor to reduce
   // iter.
   double new_ar = 0.0;
   for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
@@ -2580,21 +2560,6 @@ void Character::refresh_ar()
 
 void Character::updateEquipableProperties( Items::Item* item )
 {
-  // calc caps
-  if ( item->has_defence_increase_cap() )
-    defence_increase_cap( defence_increase_cap().addToValue( item->defence_increase_cap() ) );
-  // calc resist caps
-  if ( item->has_fire_resist_cap() )
-    fire_resist_cap( fire_resist_cap().addToValue( item->fire_resist_cap() ) );
-  if ( item->has_cold_resist_cap() )
-    cold_resist_cap( cold_resist_cap().addToValue( item->cold_resist_cap() ) );
-  if ( item->has_energy_resist_cap() )
-    energy_resist_cap( energy_resist_cap().addToValue( item->energy_resist_cap() ) );
-  if ( item->has_poison_resist_cap() )
-    poison_resist_cap( poison_resist_cap().addToValue( item->poison_resist_cap() ) );
-  if ( item->has_physical_resist_cap() )
-    physical_resist_cap( physical_resist_cap().addToValue( item->physical_resist_cap() ) );
-  // calc resists
   if ( item->has_fire_resist() )
     fire_resist( fire_resist().addToValue( item->fire_resist() ) );
   if ( item->has_cold_resist() )
@@ -2606,7 +2571,6 @@ void Character::updateEquipableProperties( Items::Item* item )
   if ( item->has_physical_resist() )
     physical_resist( physical_resist().addToValue( item->physical_resist() ) );
 
-  // calc damages
   if ( item->has_fire_damage() )
     fire_damage( fire_damage().addToValue( item->fire_damage() ) );
   if ( item->has_cold_damage() )
@@ -2617,32 +2581,6 @@ void Character::updateEquipableProperties( Items::Item* item )
     poison_damage( poison_damage().addToValue( item->poison_damage() ) );
   if ( item->has_physical_damage() )
     physical_damage( physical_damage().addToValue( item->physical_damage() ) );
-
-  // calc others
-  if ( item->has_lower_reagent_cost() )
-    lower_reagent_cost( lower_reagent_cost().addToValue( item->lower_reagent_cost() ) );
-  if ( item->has_spell_damage_increase() )
-    spell_damage_increase( spell_damage_increase().addToValue( item->spell_damage_increase() ) );
-  if ( item->has_faster_casting() )
-    faster_casting( faster_casting().addToValue( item->faster_casting() ) );
-  if ( item->has_faster_cast_recovery() )
-    faster_cast_recovery( faster_cast_recovery().addToValue( item->faster_cast_recovery() ) );
-  if ( item->has_lower_mana_cost() )
-    lower_mana_cost( lower_mana_cost().addToValue( item->lower_mana_cost() ) );
-  if ( item->has_hit_chance() )
-    hit_chance( hit_chance().addToValue( item->hit_chance() ) );
-  if ( item->has_swing_speed() )
-    swing_speed( swing_speed().addToValue( item->swing_speed() ) );
-  if ( item->has_damage_increase() )
-    damage_increase( damage_increase().addToValue( item->damage_increase() ) );
-  if ( item->has_luck() )
-    luck( luck().addToValue( item->luck() ) );
-
-  // calc defence increase if lower than cap
-  if ( item->has_defence_increase() )
-    luck( luck().addToValue( item->luck() ) );
-  if ( has_defence_increase_cap() )
-    defence_increase( defence_increase().addToValue( item->defence_increase() ) );
 }
 
 void Character::resetEquipableProperties()
@@ -2658,17 +2596,6 @@ void Character::resetEquipableProperties()
   if ( has_physical_resist() )
     physical_resist( physical_resist().resetModAsValue() );
 
-  if ( has_fire_resist_cap() )
-    fire_resist_cap( fire_resist_cap().resetModAsValue() );
-  if ( has_cold_resist_cap() )
-    cold_resist_cap( cold_resist_cap().resetModAsValue() );
-  if ( has_energy_resist_cap() )
-    energy_resist_cap( energy_resist_cap().resetModAsValue() );
-  if ( has_poison_resist_cap() )
-    poison_resist_cap( poison_resist_cap().resetModAsValue() );
-  if ( has_physical_resist_cap() )
-    physical_resist_cap( physical_resist_cap().resetModAsValue() );
-
   if ( has_fire_damage() )
     fire_damage( fire_damage().resetModAsValue() );
   if ( has_cold_damage() )
@@ -2679,30 +2606,6 @@ void Character::resetEquipableProperties()
     poison_damage( poison_damage().resetModAsValue() );
   if ( has_physical_damage() )
     physical_damage( physical_damage().resetModAsValue() );
-
-  if ( has_lower_reagent_cost() )
-    lower_reagent_cost( lower_reagent_cost().resetModAsValue() );
-  if ( has_spell_damage_increase() )
-    spell_damage_increase( spell_damage_increase().resetModAsValue() );
-  if ( has_faster_casting() )
-    faster_casting( faster_casting().resetModAsValue() );
-  if ( has_faster_cast_recovery() )
-    faster_cast_recovery( faster_cast_recovery().resetModAsValue() );
-
-  if ( has_defence_increase() )
-    defence_increase( defence_increase().resetModAsValue() );
-  if ( has_defence_increase_cap() )
-    defence_increase_cap( defence_increase_cap().resetModAsValue() );
-  if ( has_lower_mana_cost() )
-    lower_mana_cost( lower_mana_cost().resetModAsValue() );
-  if ( has_hit_chance() )
-    hit_chance( hit_chance().resetModAsValue() );
-  if ( has_swing_speed() )
-    swing_speed( swing_speed().resetModAsValue() );
-  if ( has_damage_increase() )
-    damage_increase( damage_increase().resetModAsValue() );
-  if ( has_luck() )
-    luck( luck().resetModAsValue() );
 }
 
 void Character::showarmor() const
@@ -2893,7 +2796,7 @@ void Character::schedule_attack()
   // while waiting for your timeout.
   if ( swing_task == NULL )
   {
-    unsigned int weapon_speed = swing_speed().sum();
+    unsigned int weapon_speed = weapon->speed();
     unsigned int weapon_delay = weapon->delay();
     Core::polclock_t clocks;
 
@@ -2991,11 +2894,11 @@ bool Character::is_attackable( Character* who ) const
   {
     INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
                            << fmt::hexu( who->serial ) << "):\n"
-                           << "  who->dead:	" << who->dead() << "\n"
+                           << "  who->dead:  " << who->dead() << "\n"
                            << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
-                           << "  hidden:	   " << hidden() << "\n"
+                           << "  hidden:     " << hidden() << "\n"
                            << "  who->hidden:  " << who->hidden() << "\n"
-                           << "  concealed:	" << is_concealed_from_me( who ) << "\n";
+                           << "  concealed:  " << is_concealed_from_me( who ) << "\n";
     if ( who->dead() )
       return false;
     else if ( !weapon->in_range( this, who ) )
@@ -3224,12 +3127,12 @@ unsigned short Character::random_weapon_damage() const
 
 unsigned short Character::min_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.min_value() + damage_increase().value;
+  return weapon->descriptor().damage_dice.min_value() + weapon->damage_mod();
 }
 
 unsigned short Character::max_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.max_value() + damage_increase().value;
+  return weapon->descriptor().damage_dice.max_value() + weapon->damage_mod();
 }
 
 void Character::damage_weapon()
@@ -3386,10 +3289,10 @@ void Character::attack( Character* opponent )
         new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ),
         new Module::ECharacterRefObjImp( opponent ) );
   }
-  // SOMETHING PROBABLY NEEDS TO CHANGE HERE//
+
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
-  hit_chance += Character::hit_chance().sum() * 0.001f;
+  hit_chance += hitchance_mod() * 0.001f;
   hit_chance -= opponent->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
     INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
@@ -4014,8 +3917,8 @@ void Character::realm_changed()
   // automagically by wormitems realm handling.  There is a slim
   // possibility that backpacks might be assigned to a character but
   // not be a worn item?  If this is the case, that will be broken.
-  //	backpack()->realm = realm;
-  //	backpack()->for_each_item(setrealm, (void*)realm);
+  //  backpack()->realm = realm;
+  //  backpack()->for_each_item(setrealm, (void*)realm);
   wornitems->for_each_item( Core::setrealm, (void*)realm );
   if ( has_gotten_item() )
     gotten_item()->realm = realm;

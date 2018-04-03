@@ -298,9 +298,9 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     stateManager.gflag_enforce_container_limits = true;
 
     // if (new_parent_cont)
-    //	parent_conts.push( cont );
+    //  parent_conts.push( cont );
     // if (item->isa( UObject::CLASS_CONTAINER ))
-    //	parent_conts.push( static_cast<UContainer*>(item) );
+    //  parent_conts.push( static_cast<UContainer*>(item) );
   }
   else
   {

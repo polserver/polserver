@@ -52,7 +52,7 @@ bool load_realms()
     if ( realm_name == "britannia" )
       gamestate.main_realm = temprealm;
   }
-  //	main_realm = new DummyRealm();
+  //  main_realm = new DummyRealm();
   gamestate.baserealm_count = realm_counter;
   gamestate.shadowrealm_count = 0;
   if ( realm_counter > 0 )

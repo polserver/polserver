@@ -336,7 +336,7 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
 BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()
 {
   // SendTextEntryGumpUC(who, uc_text1, cancel := TE_CANCEL_ENABLE,
-  //						style := TE_STYLE_NORMAL, maximum := 40, uc_text2 := {} );
+  //            style := TE_STYLE_NORMAL, maximum := 40, uc_text2 := {} );
 
   return new BError( "Function not implimented" );
 }

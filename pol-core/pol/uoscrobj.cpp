@@ -1953,7 +1953,7 @@ public:
     chr->refresh_ar();  // FIXME inefficient
     // if (chr->client != NULL) // already send in refresh_ar()
     //{
-    //	send_full_statmsg( chr->client, chr );
+    //  send_full_statmsg( chr->client, chr );
     //}
   }
 };

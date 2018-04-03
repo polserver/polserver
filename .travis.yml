@@ -36,7 +36,7 @@ matrix:
           sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
           packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
       env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=0
-    
+
     - os: linux
       compiler: clang
       addons:
@@ -46,6 +46,8 @@ matrix:
       env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=1
 
 before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y kwstyle
   - cd bin-build
   - wget https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip
   - unzip ninja-linux.zip
@@ -67,6 +69,9 @@ script:
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
   - cd ../testsuite/escript
   - ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q;
+  - cd ../style
+  - ./checknl.py -q;
+  - ./checkstyle.py -q;
   - echo -en 'travis_fold:end:script.tests\\r'
 
 notifications:
