@@ -702,7 +702,8 @@ public:
   void cmdlevel( unsigned char value, bool update_on_change = true );
 
   // Tests whether item is at a legal location and within reach of the character (range).
-  // Range == -1 takes the default accessible distance, any smaller negative number ignores the range check.
+  // Range == -1 takes the default accessible distance,
+  // any smaller negative number ignores the range check.
   bool can_access( const Items::Item* item, int range = -1 ) const;
 
   bool can_move( const Items::Item* item ) const;

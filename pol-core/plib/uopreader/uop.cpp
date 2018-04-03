@@ -4,7 +4,8 @@
 
 
 
-uop_t::uop_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent, uop_t* p__root) : kaitai::kstruct(p__io) {
+uop_t::uop_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent,
+             uop_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = this;
     _read();
@@ -18,7 +19,8 @@ uop_t::~uop_t() {
     delete m_header;
 }
 
-uop_t::block_addr_t::block_addr_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent, uop_t* p__root) : kaitai::kstruct(p__io) {
+uop_t::block_addr_t::block_addr_t(kaitai::kstream* p__io, kaitai::kstruct* p__parent,
+                                  uop_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
     f_block_body = false;
@@ -50,7 +52,8 @@ uop_t::block_body_t* uop_t::block_addr_t::block_body() {
     return m_block_body;
 }
 
-uop_t::block_body_t::block_body_t(kaitai::kstream* p__io, uop_t::block_addr_t* p__parent, uop_t* p__root) : kaitai::kstruct(p__io) {
+uop_t::block_body_t::block_body_t(kaitai::kstream* p__io, uop_t::block_addr_t* p__parent,
+                                  uop_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
     _read();
@@ -75,7 +78,8 @@ uop_t::block_body_t::~block_body_t() {
     delete m_files;
 }
 
-uop_t::data_header_v5_t::data_header_v5_t(kaitai::kstream* p__io, uop_t::file_t* p__parent, uop_t* p__root) : kaitai::kstruct(p__io) {
+uop_t::data_header_v5_t::data_header_v5_t(kaitai::kstream* p__io, uop_t::file_t* p__parent,
+                                          uop_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
     _read();
@@ -89,7 +93,8 @@ void uop_t::data_header_v5_t::_read() {
 uop_t::data_header_v5_t::~data_header_v5_t() {
 }
 
-uop_t::header_t::header_t(kaitai::kstream* p__io, uop_t* p__parent, uop_t* p__root) : kaitai::kstruct(p__io) {
+uop_t::header_t::header_t(kaitai::kstream* p__io, uop_t* p__parent,
+                          uop_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
     _read();
@@ -108,7 +113,8 @@ uop_t::header_t::~header_t() {
     delete m_firstblock;
 }
 
-uop_t::file_t::file_t(kaitai::kstream* p__io, uop_t::block_body_t* p__parent, uop_t* p__root) : kaitai::kstruct(p__io) {
+uop_t::file_t::file_t(kaitai::kstream* p__io, uop_t::block_body_t* p__parent,
+                      uop_t* p__root) : kaitai::kstruct(p__io) {
     m__parent = p__parent;
     m__root = p__root;
     f_data = false;

@@ -6,7 +6,9 @@
 #endif
 
 #ifndef H_NPC_H
-#include "npc.h"  // At some point, npc.h should be removed. The only dependence is to send leftarea/enteredarea events.
+// At some point, npc.h should be removed.
+// The only dependence is to send leftarea/enteredarea events.
+#include "npc.h"
 #endif
 
 #include "../../clib/passert.h"

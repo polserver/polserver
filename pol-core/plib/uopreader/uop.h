@@ -74,7 +74,8 @@ public:
 
     public:
 
-        block_body_t(kaitai::kstream* p__io, uop_t::block_addr_t* p__parent = 0, uop_t* p__root = 0);
+        block_body_t(kaitai::kstream* p__io, uop_t::block_addr_t* p__parent = 0,
+                     uop_t* p__root = 0);
 
     private:
         void _read();

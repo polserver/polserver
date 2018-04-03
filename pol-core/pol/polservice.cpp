@@ -16,7 +16,8 @@
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/Header_Windows.h"
 #include "pol.h"
-#include "../clib/NTService.h"  // This needs to be after the windows includes, otherwise it'll complain about windows types.
+// This needs to be after the windows includes, otherwise it'll complain about windows types.
+#include "../clib/NTService.h"
 #include "../clib/ntservmsg.h"
 
 #ifdef _MSC_VER

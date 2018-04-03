@@ -40,7 +40,8 @@ void read_map_difs()
 
 static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
-  if ( !rawmap_ready ) // UoTool has a serious problem of not loading data before using this function...
+  // UoTool has a serious problem of not loading data before using this function...
+  if ( !rawmap_ready )
     rawmapfullread();
 
   return rawmap.rawinfo( x, y, gi );

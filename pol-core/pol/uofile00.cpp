@@ -35,7 +35,8 @@ bool open_uopmap_file( const int mapid ) {
   std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
   std::string filename = Plib::systemstate.config.uo_datafile_root + filepart;
   if ( !Clib::FileExists( filename ) ) {
-    INFO_PRINT << filepart << " not found in " << Plib::systemstate.config.uo_datafile_root << ". Searching for old map[N].mul files.\n";
+    INFO_PRINT << filepart << " not found in " << Plib::systemstate.config.uo_datafile_root
+      << ". Searching for old map[N].mul files.\n";
     return false;
   }
 

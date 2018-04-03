@@ -120,7 +120,8 @@ void MD5_Cleanup()
 
 #else
 extern "C" {
-#include "MD5.h"  //TODO: rework the following code - does not work with up-to-date header files anymore
+//TODO: rework the following code - does not work with up-to-date header files anymore
+#include "MD5.h"
 }
 namespace Pol
 {

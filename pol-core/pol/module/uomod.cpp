@@ -1032,7 +1032,8 @@ BObjectImp* UOExecutorModule::mf_Accessible()
 
   if ( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, item ) )
   {
-    // Range defaults to -1 if it's not defined in the .em file (old scripts) or the user provides a weird object.
+    // Range defaults to -1 if it's not defined in the .em file (old scripts)
+    // or the user provides a weird object.
     if ( exec.numParams() < 3 || !getParam( 2, range ) )
       range = -1;
       
