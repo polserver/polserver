@@ -414,7 +414,10 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->value());
+    std::pair<
+      Core::StoredConfigElem::const_iterator,
+      Core::StoredConfigElem::const_iterator
+    > pr= celem->equal_range(propname_str->value());
     celem->equal_range( propname_str->data() );
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;
@@ -444,7 +447,10 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->value());
+    std::pair<
+      Core::StoredConfigElem::const_iterator,
+      Core::StoredConfigElem::const_iterator
+    > pr = celem->equal_range(propname_str->value());
     celem->equal_range( propname_str->data() );
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;

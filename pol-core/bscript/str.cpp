@@ -21,105 +21,105 @@
 #include <cstring>
 
 #ifdef __GNUG__
-#	include <streambuf>
+#include <streambuf>
 #endif
 
 namespace Pol {
-  namespace Bscript {
+namespace Bscript {
 
-    /**
-     * Creates a String from a char* pointer of a fixed length
-     *
-     * @param s: the pointer to start reading chars from
-     * @param len: Number of chars to read
-     */
-    String::String( const char *s, int len )
-    {
-      value_.append( s, len );
-    }
+/**
+ * Creates a String from a char* pointer of a fixed length
+ *
+ * @param s: the pointer to start reading chars from
+ * @param len: Number of chars to read
+ */
+String::String( const char *s, int len )
+{
+  value_.append( s, len );
+}
 
-    std::string String::pack() const
-    {
-      return "s" + value_;
-    }
+std::string String::pack() const
+{
+  return "s" + value_;
+}
 
-    void String::packonto(std::ostream& os) const
-    {
-      os << "S" << value_.size() << ":" << value_;
-    }
-    void String::packonto(std::ostream& os, const std::string& value)
-    {
-      os << "S" << value.size() << ":" << value;
-    }
+void String::packonto(std::ostream& os) const
+{
+  os << "S" << value_.size() << ":" << value_;
+}
+void String::packonto(std::ostream& os, const std::string& value)
+{
+  os << "S" << value.size() << ":" << value;
+}
 
-    BObjectImp* String::unpack( const char* pstr )
-    {
-      return new String( pstr );
-    }
+BObjectImp* String::unpack( const char* pstr )
+{
+  return new String( pstr );
+}
 
-    BObjectImp* String::unpack(std::istream& is)
-    {
-      std::string tmp;
-      getline( is, tmp );
+BObjectImp* String::unpack(std::istream& is)
+{
+  std::string tmp;
+  getline( is, tmp );
 
-      return new String( tmp );
-    }
+  return new String( tmp );
+}
 
-    BObjectImp* String::unpackWithLen(std::istream& is)
-    {
-      unsigned len;
-      char colon;
-      if ( !( is >> len >> colon ) )
-      {
-        return new BError( "Unable to unpack string length." );
-      }
-      if ( (int)len < 0 )
-      {
-        return new BError( "Unable to unpack string length. Invalid length!" );
-      }
-      if ( colon != ':' )
-      {
-        return new BError( "Unable to unpack string length. Bad format. Colon not found!" );
-      }
-
-      is.unsetf(std::ios::skipws);
-      std::string tmp;
-      tmp.reserve( len );
-      while ( len-- )
-      {
-        char ch = '\0';
-        if ( !( is >> ch ) || ch == '\0' )
-        {
-          return new BError( "Unable to unpack string length. String length excessive." );
-        }
-        tmp += ch;
-      }
-
-      is.setf(std::ios::skipws);
-      return new String( tmp );
-    }
-
-    size_t String::sizeEstimate() const
-    {
-      return sizeof(String)+value_.capacity();
-    }
-
-    void String::toUpper( void )
-    {
-      for( char &c : value_ )
-      {
-        c = static_cast<char>(toupper( c ));
-      }
-    }
-
-    void String::toLower( void )
-    {
-      for( char &c : value_ )
-      {
-        c = static_cast<char>(tolower( c ));
-      }
-    }
-
-
+BObjectImp* String::unpackWithLen(std::istream& is)
+{
+  unsigned len;
+  char colon;
+  if ( !( is >> len >> colon ) )
+  {
+    return new BError( "Unable to unpack string length." );
   }
+  if ( (int)len < 0 )
+  {
+    return new BError( "Unable to unpack string length. Invalid length!" );
+  }
+  if ( colon != ':' )
+  {
+    return new BError( "Unable to unpack string length. Bad format. Colon not found!" );
+  }
+
+  is.unsetf(std::ios::skipws);
+  std::string tmp;
+  tmp.reserve( len );
+  while ( len-- )
+  {
+    char ch = '\0';
+    if ( !( is >> ch ) || ch == '\0' )
+    {
+      return new BError( "Unable to unpack string length. String length excessive." );
+    }
+    tmp += ch;
+  }
+
+  is.setf(std::ios::skipws);
+  return new String( tmp );
+}
+
+size_t String::sizeEstimate() const
+{
+  return sizeof(String)+value_.capacity();
+}
+
+void String::toUpper( void )
+{
+  for( char &c : value_ )
+  {
+    c = static_cast<char>(toupper( c ));
+  }
+}
+
+void String::toLower( void )
+{
+  for( char &c : value_ )
+  {
+    c = static_cast<char>(tolower( c ));
+  }
+}
+
+
+}
 }

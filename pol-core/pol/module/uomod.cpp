@@ -749,7 +749,9 @@ BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
        getCharacterParam( exec, 2, chr ) && getParam( 3, font ) && getParam( 4, color ) &&
        getParam( 5, journal_print ) )
   {
-    return new BLong( private_say_above( chr, obj, ptext->value().c_str(), font, color, journal_print ) );
+    return new BLong(
+      private_say_above( chr, obj, ptext->value().c_str(), font, color, journal_print )
+    );
   }
   else
   {

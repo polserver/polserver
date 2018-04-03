@@ -425,7 +425,9 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
       }
       else
       {
-        exec.setFunctionResult( new BError( std::string( "Objtype not defined: " ) + pstring->value() ) );
+        exec.setFunctionResult( new BError(
+           std::string( "Objtype not defined: " ) + pstring->value()
+        ));
         new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;

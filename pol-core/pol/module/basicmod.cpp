@@ -44,7 +44,8 @@ Bscript::BObjectImp* BasicExecutorModule::len()
     Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( imp );
     return new BLong( static_cast<int>( arr->ref_arr.size() ) );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString )
+    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
   {
     BaseString* bs = static_cast<BaseString*>( imp );
     return new BLong( static_cast<int>( bs->length() ) );
@@ -86,35 +87,35 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Trim()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
 
-      BaseString::TrimTypes type;
-      switch ( exec.paramAsLong( 1 ) ) {
-      case 1:
-        type = BaseString::TrimTypes::TRIM_LEFT;
-        break;
-      case 2:
-        type = BaseString::TrimTypes::TRIM_RIGHT;
-        break;
-      default:
-        type = BaseString::TrimTypes::TRIM_BOTH;
-      }
-      const char* cset = exec.paramAsString( 2 );
+  BaseString::TrimTypes type;
+  switch ( exec.paramAsLong( 1 ) ) {
+  case 1:
+    type = BaseString::TrimTypes::TRIM_LEFT;
+    break;
+  case 2:
+    type = BaseString::TrimTypes::TRIM_RIGHT;
+    break;
+  default:
+    type = BaseString::TrimTypes::TRIM_BOTH;
+  }
+  const char* cset = exec.paramAsString( 2 );
 
-      if ( imp->isa( Bscript::BObjectImp::OTString ) )
-      {
-        String* string = static_cast<String*>( imp );
-        String* newStr = new String(*string);
-        newStr->trim(std::string(cset), type);
-        return newStr;
-      }
-      else if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
-      {
-        //TODO: implement it on Unicode
-        return new BError( "Not implemented. Please report this error." );
-      }
-      else
-      {
-        return new BError( "Param 1 must be a string or unicode." );
-      }
+  if ( imp->isa( Bscript::BObjectImp::OTString ) )
+  {
+    String* string = static_cast<String*>( imp );
+    String* newStr = new String(*string);
+    newStr->trim(std::string(cset), type);
+    return newStr;
+  }
+  else if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  {
+    //TODO: implement it on Unicode
+    return new BError( "Not implemented. Please report this error." );
+  }
+  else
+  {
+    return new BError( "Param 1 must be a string or unicode." );
+  }
 }
 
 /*
@@ -126,11 +127,11 @@ Bscript::BObjectImp* BasicExecutorModule::mf_StrReplace()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
 
-      if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
-      {
-        //TODO: implement unicode
-        return new BError( "Not implemented yet. Please report this error." );
-      }
+  if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  {
+    //TODO: implement unicode
+    return new BError( "Not implemented yet. Please report this error." );
+  }
 
   std::unique_ptr<String> string( new String( imp->getStringRep().c_str() ) );
   String* to_replace = static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
@@ -154,7 +155,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_StrReplace()
 // SubStrReplace(str, replace_with, start, length:=0);
 Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 {
-      //TODO: implement Unicode
+  //TODO: implement Unicode
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   std::unique_ptr<String> string( new String( imp->getStringRep().c_str() ) );
   String* replace_with =
@@ -182,7 +183,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
     len = static_cast<int>( replace_with->length() - index );
 
   string->replace( *replace_with, static_cast<unsigned>( index ), static_cast<unsigned>( len ) );
-                          static_cast<unsigned>( len ) );
+                   static_cast<unsigned>( len ) );
 
   return string.release();
 }
@@ -271,7 +272,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CInt()
   {
     return imp->copy();
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString )
+    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
   {
     BaseString* str = static_cast<BaseString*>( imp );
     return new BLong( str->intval() );
@@ -295,7 +297,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CDbl()
     BLong* lng = static_cast<BLong*>( imp );
     return new Double( lng->value() );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString )
+    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
   {
     BaseString* str = static_cast<BaseString*>( imp );
     return new Double( str->dblval() );
@@ -322,12 +325,12 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
   if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-		return new BLong( static_cast<unsigned char>( str->value()[0] ) );
-	  }
-	  if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
-	  {
-		Unicode* str = static_cast<Unicode*>( imp );
-		return new BLong( static_cast<char32_t>(str->value()[0]) );
+    return new BLong( static_cast<unsigned char>( str->value()[0] ) );
+  }
+  if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  {
+    Unicode* str = static_cast<Unicode*>( imp );
+    return new BLong( static_cast<char32_t>(str->value()[0]) );
   }
   else
   {
@@ -416,16 +419,17 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
     sprintf( s, "0x%X", static_cast<unsigned int>( pdbl->value() ) );
     return new String( s );
   }
-	  else if ( imp->isa( Bscript::BObjectImp::OTString ) || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString )
+    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
   {
-		BaseString* str = static_cast<BaseString*>( imp );
+    BaseString* str = static_cast<BaseString*>( imp );
     char s[20];
-		sprintf( s, "0x%X", str->intval() );
+    sprintf( s, "0x%X", str->intval() );
     return new String( s );
   }
   else
   {
-		return new BError( "Hex() expects an Integer, Real, String or Unicode" );
+    return new BError( "Hex() expects an Integer, Real, String or Unicode" );
   }
 }
 
@@ -575,7 +579,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Unpack()
 
   if ( exec.getStringParam( 0, str ) )
   {
-		return Bscript::BObjectImp::unpack( str->value().c_str() );
+    return Bscript::BObjectImp::unpack( str->value().c_str() );
   }
   else
   {
