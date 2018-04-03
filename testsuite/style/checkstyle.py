@@ -6,7 +6,7 @@ Checks that all files have acceptable format
 @author Bodom
 '''
 
-import os, sys
+import sys
 import difflib
 import subprocess
 

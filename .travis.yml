@@ -67,8 +67,9 @@ script:
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
   - cd ../testsuite/escript
   - ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q;
-  - cd ../lineendings
+  - cd ../style
   - ./checknl.py -q;
+  - ./checkstyle.py -q;
   - echo -en 'travis_fold:end:script.tests\\r'
 
 notifications:
