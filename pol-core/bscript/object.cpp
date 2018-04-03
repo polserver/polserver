@@ -24,6 +24,7 @@
 #include "bobject.h"
 #include "bstruct.h"
 #include "dict.h"
+//#include "impunicode.h"
 #include "executor.h"
 #include "impstr.h"
 #include "object.h"
@@ -88,6 +89,8 @@ BObjectImp* BObjectImp::unpack( std::istream& is )
       return String::unpack( is );
     case 'S':
       return String::unpackWithLen( is );
+    case 'U':
+      return Unicode::unpack( is );
     case 'i':
       return BLong::unpack( is );
     case 'r':

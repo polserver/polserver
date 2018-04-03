@@ -2569,10 +2569,10 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      if ( has_privilege( pstr->data() ) )
+      if ( has_privilege( pstr->value().c_str() ) )
       {
         set_dirty();
-        set_setting( pstr->data(), true );
+        set_setting( pstr->value().c_str(), true );
         return new BLong( 1 );
       }
       else
@@ -2589,7 +2589,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.getStringParam( 0, pstr ) )
     {
       set_dirty();
-      set_setting( pstr->data(), false );
+      set_setting( pstr->value().c_str(), false );
       return new BLong( 1 );
     }
     break;
@@ -2601,7 +2601,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       return new BError( "Not enough parameters" );
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
-      return new BLong( setting_enabled( pstr->data() ) ? 1 : 0 );
+      return new BLong( setting_enabled( pstr->value().c_str() ) ? 1 : 0 );
     break;
   }
 
@@ -2625,7 +2625,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      Core::CmdLevel* pcmdlevel = Core::find_cmdlevel( pstr->data() );
+      Core::CmdLevel* pcmdlevel = Core::find_cmdlevel( pstr->value().c_str() );
       if ( pcmdlevel )
       {
         set_dirty();

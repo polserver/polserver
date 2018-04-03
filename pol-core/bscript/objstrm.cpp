@@ -6,6 +6,7 @@
 
 #include "bobject.h"
 #include "impstr.h"
+#include "impunicode.h"
 
 #include <format/format.h>
 #include <sstream>
@@ -62,18 +63,13 @@ void ObjArray::printOn( std::ostream& os ) const
 
 void String::printOn( std::ostream& os ) const
 {
-  os << '\"' << value_ << '\"';
+  os << getFormattedStringRep();
 }
 
-#if 0
-    void SubString::printOn(std::ostream& os ) const
-  {
-    os << "{ \"";
-    os << ref_String->value_.substr( begin-1, len );
-
-    os << "\" }";
-  }
-#endif
+void Unicode::printOn(std::ostream& os) const
+{
+  os << getFormattedStringRep();
+}
 
 void Double::printOn( std::ostream& os ) const
 {

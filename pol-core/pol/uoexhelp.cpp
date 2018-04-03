@@ -415,18 +415,18 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
   {
     // this could be an objtypename, or an objtype in string form.  Cope with either.
     String* pstring = Clib::explicit_cast<String*, BObjectImp*>( imp );
-    const char* ot_str = pstring->data();
+    const char* ot_str = pstring->value().c_str();
     if ( !isdigit( ot_str[0] ) )
     {
-      objtype = Items::get_objtype_byname( pstring->data() );
+      objtype = Items::get_objtype_byname( pstring->value().c_str() );
       if ( objtype != 0 )
       {
         return true;
       }
       else
       {
-        exec.setFunctionResult(
-            new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
+        exec.setFunctionResult( new BError( std::string( "Objtype not defined: " ) + pstring->value() ) );
+        new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;
       }
@@ -497,10 +497,10 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
   {
     // this could be an objtypename, or an objtype in string form.  Cope with either.
     String* pstring = Clib::explicit_cast<String*, BObjectImp*>( imp );
-    const char* ot_str = pstring->data();
+    const char* ot_str = pstring->value().c_str();
     if ( !isdigit( ot_str[0] ) )
     {
-      unsigned int objtype = Items::get_objtype_byname( pstring->data() );
+      unsigned int objtype = Items::get_objtype_byname( pstring->value().c_str() );
       if ( objtype != 0 )
       {
         itemdesc_out = &Items::find_itemdesc( objtype );
@@ -508,8 +508,8 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
       }
       else
       {
-        exec.setFunctionResult(
-            new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
+        exec.setFunctionResult(new BError(std::string("Objtype not defined: ") + pstring->value()));
+        new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;
       }

@@ -5,12 +5,13 @@
  */
 
 
-#ifndef POL_UNICODE_H
-#define POL_UNICODE_H
+#pragma once
 
 #include <string>
 
 #include "../clib/rawtypes.h"
+
+#include "utype.h"
 
 namespace Pol
 {
@@ -26,4 +27,3 @@ bool convertUCtoArray( const u16* in_wtext, Bscript::ObjArray*& out_text, size_t
                        bool ConvFromBE = false );
 }
 }
-#endif

@@ -73,7 +73,7 @@ Bscript::BObjectRef EConfigFileRefObjImp::OperSubscript( const Bscript::BObject&
 
   if ( imp.isa( OTString ) )
   {
-    const char* strval = static_cast<const Bscript::String*>( &imp )->data();
+    const std::string strval = static_cast<const Bscript::String*>( &imp )->value();
     celem = obj_->findelem( strval );
   }
   else if ( imp.isa( OTLong ) )
@@ -258,14 +258,11 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_ConfigFile()
   }
 }
 
-bool legal_scp_filename( const char* filename )
+bool legal_scp_filename( const std::string& filename )
 {
-  while ( filename && *filename )
-  {
-    if ( !isalnum( *filename ) )
+  for ( char c : filename )
+    if ( !isalnum( c ) )
       return false;
-    ++filename;
-  }
   return true;
 }
 
@@ -277,7 +274,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_LoadTusScpFile()
     return new Bscript::BError( "Invalid parameter type" );
   }
 
-  if ( !legal_scp_filename( filename_str->data() ) )
+  if ( !legal_scp_filename( filename_str->value() ) )
   {
     return new Bscript::BError( "Filename cannot include path information or special characters" );
   }
@@ -364,7 +361,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
     }
     else if ( keyimp->isa( Bscript::BObjectImp::OTString ) )
     {
-      const char* strval = static_cast<Bscript::String*>( keyimp )->data();
+      const std::string strval = static_cast<Bscript::String*>( keyimp )->value( );
       celem = cfile->findelem( strval );
     }
     else
@@ -417,8 +414,8 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr =
-        celem->equal_range( propname_str->data() );
+    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->value());
+    celem->equal_range( propname_str->data() );
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -447,8 +444,8 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr =
-        celem->equal_range( propname_str->data() );
+    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr = celem->equal_range(propname_str->value());
+    celem->equal_range( propname_str->data() );
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -506,7 +503,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
       else if ( imp->isa( Bscript::BObjectImp::OTString ) )
       {
         Bscript::String* str = static_cast<Bscript::String*>( imp );
-        return new Bscript::BLong( strtoul( str->data(), NULL, 0 ) );
+        return new Bscript::BLong( strtoul( str->value( ).c_str(), NULL, 0 ) );
       }
       else
       {
@@ -531,7 +528,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    auto pr = celem->equal_range( propname_str->data() );
+    auto pr = celem->equal_range(propname_str->value());
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -556,7 +553,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
         else if ( imp->isa( Bscript::BObjectImp::OTString ) )
         {
           Bscript::String* str = static_cast<Bscript::String*>( imp );
-          ar->addElement( new Bscript::BLong( strtoul( str->data(), NULL, 0 ) ) );
+          ar->addElement( new  Bscript::BLong( str->intval() ) );
         }
       }
     }
@@ -590,7 +587,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigReal()
       else if ( imp->isa( Bscript::BObjectImp::OTString ) )
       {
         Bscript::String* str = static_cast<Bscript::String*>( imp );
-        return new Bscript::Double( strtod( str->data(), NULL ) );
+        return new Bscript::Double( str->dblval() );
       }
       else
       {

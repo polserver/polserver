@@ -38,10 +38,12 @@
  * - 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
  * - 2012/04/15 Tomi:      Added MBR_EDITABLE for maps
  * - 2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+ * - 2015/20/12 Bodom:     Added Unicode string support ( u"utf8" )
  */
 
 #include "parser.h"
 
+#include "../clib/unicode.h"
 #include <cctype>
 #include <cstddef>
 #include <cstdlib>
@@ -88,6 +90,7 @@ const char* ParseErrorStr[PERR_NUM_ERRORS] = {"(No Error, or not specified)",
                                               "Waaah!",
                                               "Unterminated String Literal",
                                               "Invalid escape sequence in String",
+	  "Invalid utf8 character in Unicode String",
                                               "Too Few Arguments",
                                               "Too Many Arguments",
                                               "Unexpected Comma",
@@ -1204,7 +1207,11 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 }
 
 /**
- * Tries to read a literal (string/variable name) from context
+* Tries to read a literal (string/unicode/variable name) from context
+*
+* A string is ANSI bytes between double quotes "", with \" escape sequence
+* An unicode is UTF8 bytes between double quotes prepended by an 'u' u"",
+* with \" escape. Valid characters are limited to 0x0001-0xFFFF
  *
  * @param tok Token&: The token to store the found literal into
  * @param ctx CompilerContext&: The context to look into
@@ -1212,14 +1219,16 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
  */
 int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 {
-  if ( ctx.s[0] == '\"' )
+  bool unicode = ( ctx.s[0] == 'u' );
+  if ( ctx.s[unicode ? 1 : 0] == '\"' )
   {
-    const char* end = &ctx.s[1];
-    std::string lit;
+    const char* end = &ctx.s[unicode ? 2 : 1];
     bool escnext = false;  // true when waiting for 2nd char in an escape sequence
     u8 hexnext = 0;        // tells how many more chars in a \xNN escape sequence
-    char hexstr[3];        // will contain the \x escape chars to be processed
-    memset( hexstr, 0, 3 );
+    char hexstr[3] = {} ; // will contain the \x escape chars to be processed
+    Clib::Utf8CharValidator validator;
+    std::string lit; // will containing the read string/literal
+    Clib::UnicodeString ulit; // will contain the read unicode
 
     for ( ;; )
     {
@@ -1230,60 +1239,105 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
       }
 
       passert_always_r( !( escnext && hexnext ),
-                        "Bug in the compiler. Please report this on the forums." );
+      // Read next char to be processed
+      wchar_t nextChar;
+      if( unicode )
+      {
+        switch( validator.addByte(*end) )
+        {
+        case Clib::Utf8CharValidator::AddByteResult::MORE:
+          end++;
+          continue;
+        case Clib::Utf8CharValidator::AddByteResult::INVALID:
+          err = PERR_INVUTF8;
+          return -1;
+        default:
+          passert_always_r(false, "Bug in the compiler. Please report this on the forums.");
+        case Clib::Utf8CharValidator::AddByteResult::DONE:
+          break;
+        }
+
+        try {
+          nextChar = validator.getChar().asUtf16();
+          validator.reset();
+        } catch( const Clib::UnicodeCastFailedException& ) {
+          err = PERR_INVUTF8;
+          return -1;
+        }
+      }
+      else
+      {
+        nextChar = *end;
+      }
+
 
       if ( escnext )
       {
         // waiting for 2nd character after a backslash
         escnext = false;
-        if ( *end == 'n' )
+        if ( nextChar == 'n' )
           lit += '\n';
-        else if ( *end == 't' )
+        else if ( nextChar == 't' )
           lit += '\t';
-        else if ( *end == 'x' )
+        else if ( nextChar == 'x' )
           hexnext = 2;
+        else if ( unicode )
+          ulit += static_cast<char16_t>(nextChar);
         else
-          lit += *end;
+          lit += static_cast<char>(nextChar);
       }
       else if ( hexnext )
       {
         // waiting for next (two) chars in hex escape sequence (eg. \xFF)
-        hexstr[2 - hexnext] = *end;
+        if( nextChar < 0x30 || nextChar > 0x80 )
+        {
+          // Out of 0-z range, no need for more checks
+          err = PERR_INVESCAPE;
+          return -1;
+        }
+        hexstr[2-hexnext] = static_cast<char>(nextChar);
+
         if ( !--hexnext )
         {
           char* endptr;
+          errno = 0;
           char ord = static_cast<char>( strtol( hexstr, &endptr, 16 ) );
-          if ( *endptr != '\0' )
+          if( *endptr != 0 || errno )
           {
             err = PERR_INVESCAPE;
             return -1;
           }
-          lit += ord;
+          if( unicode )
+            ulit += ord;
+          else
+            lit += ord;
         }
       }
       else
       {
-        if ( *end == '\\' )
+        if ( nextChar == '\\' )
           escnext = true;
-        else if ( *end == '\"' )
+        else if ( nextChar == '\"' )
           break;
+        else if ( unicode )
+          ulit += static_cast<char16_t>(nextChar);
         else
-          lit += *end;
+          lit += static_cast<char>(nextChar);
       }
       ++end;
     }
-    /*
-            char *end = strchr(&ctx.s[1], '\"');
-            if (!end)
-            {
-            err = PERR_UNTERMSTRING;
-            return -1;
-            }
-            */
-    // int len = end - ctx.s;   //   "abd" len = 5-1 = 4
-    tok.id = TOK_STRING;  // this is a misnomer I think!
-    tok.type = TYP_OPERAND;
-    tok.copyStr( lit.c_str() );
+
+    if ( unicode )
+    {
+      //TODO: emit the unicode token
+      throw std::runtime_error( "Unicode token still not implemented" );
+    }
+    else
+    {
+      tok.id = TOK_STRING;
+      tok.type = TYP_OPERAND;
+      tok.copyStr( lit.c_str() );
+    }
 
     ctx.s = end + 1;  // skip past the ending delimiter
     return 1;

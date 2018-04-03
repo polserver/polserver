@@ -92,7 +92,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     String& string = (String&)right;
     for ( unsigned int i = 0; i < num_fields; i++ )
     {
-      if ( !strncmp( _fields[i].name, string.data(), _fields[i].name_length ) )
+      if ( !strncmp( _fields[i].name, string.value().c_str(), _fields[i].name_length ) )
       {
         if ( _row[i] == 0 )
         {

@@ -270,6 +270,7 @@
     <ClCompile Include="threadhelp.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="tracebuf.cpp" />
+    <ClCompile Include="unicode.cpp" />
     <ClCompile Include="wallclock.cpp" />
     <ClCompile Include="wnsckt.cpp" />
     <ClCompile Include="xmain.cpp" />
@@ -333,6 +334,7 @@
     <ClInclude Include="threadhelp.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="tracebuf.h" />
+    <ClInclude Include="unicode.h" />
     <ClInclude Include="unittest.h" />
     <ClInclude Include="wallclock.h" />
     <ClInclude Include="weakptr.h" />

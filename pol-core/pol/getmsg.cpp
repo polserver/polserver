@@ -101,7 +101,7 @@ Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  Core::send_sysmessage( chr->client, prompt->data() );
+  Core::send_sysmessage( chr->client, prompt->value().c_str() );
 
   chr->client->gd->prompt_uoemod = this;
   prompt_chr = chr;

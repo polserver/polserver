@@ -54,6 +54,7 @@ class Instruction;
 class BLong;
 class Double;
 class String;
+	class Unicode;
 class ObjArray;
 
 class BObjectImp : public ref_counted
@@ -72,6 +73,7 @@ public:
     OTUnknown = 0,
     OTUninit = 1,
     OTString = 2,
+		OTUnicode = 38,
     OTLong = 3,
     OTDouble = 4,
     OTArray = 5,
@@ -146,9 +148,11 @@ public:
   virtual const char* typeOf() const;
   virtual u8 typeOfInt() const;
 
-
+	  /** Returns a packed version of this object */
   virtual std::string pack() const;
+	  /** Writes a packet version of this object into the given stream */
   virtual void packonto( std::ostream& os ) const;
+	  /** Prints this object into the given stream */
   virtual void printOn( std::ostream& ) const;
 
   virtual bool operator==( const BObjectImp& objimp ) const;

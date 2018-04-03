@@ -472,8 +472,8 @@ BObjectImp* OSExecutorModule::mf_Log()
   if ( imp->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    POLLOG << "[" << exec.scriptname() << "]: " << str->data() << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << str->data() << "\n";
+    POLLOG << "[" << exec.scriptname() << "]: " << str->value() << "\n";
+    INFO_PRINT << "syslog [" << exec.scriptname( ) << "]: " << str->value() << "\n";
     return new BLong( 1 );
   }
   else
@@ -515,7 +515,7 @@ BObjectImp* OSExecutorModule::mf_unload_scripts()
     if ( str->length() == 0 )
       n = Core::unload_all_scripts();
     else
-      n = Core::unload_script( str->data() );
+      n = Core::unload_script( str->value() );
     return new BLong( n );
   }
   else
@@ -557,14 +557,13 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
     {
       Network::PktHelper::PacketOut<Network::PktOut_A5> msg;
       unsigned urllen;
-      const char* url = str->data();
 
-      urllen = static_cast<unsigned int>( strlen( url ) );
+      urllen = str->length();
       if ( urllen > URL_MAX_LEN )
         urllen = URL_MAX_LEN;
 
       msg->WriteFlipped<u16>( urllen + 4u );
-      msg->Write( url, static_cast<u16>( urllen + 1 ) );
+      msg->Write(str->value().c_str(), static_cast<u16>(urllen + 1));
       msg.Send( chr->client );
       return new BLong( 1 );
     }

@@ -5,6 +5,7 @@
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
 	  files starting with '.'
 	- talk about escape sequences in string, do not forget "\xFF"
+	- talk about unicode strings (u"") and their difference from standard strings
 -->
 
 <br/>
