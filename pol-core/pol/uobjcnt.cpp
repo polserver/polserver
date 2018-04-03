@@ -10,6 +10,7 @@ namespace Pol
 {
 namespace Core
 {
+  // This comment is needed for correct indentation to be detected
 UObjCount::UObjCount()
     : unreaped_orphans( 0 ),
       uobject_count( 0 ),
