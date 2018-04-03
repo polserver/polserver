@@ -46,6 +46,8 @@ matrix:
       env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=1
 
 before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y kwstyle
   - cd bin-build
   - wget https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip
   - unzip ninja-linux.zip

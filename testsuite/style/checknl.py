@@ -14,7 +14,7 @@ import util
 class Main(util.SourceChecker):
 
 	# Extensions of binary files, will be ignored
-	BINEXTS = ('.jpg', '.rar', '.zip', '.exe', '.dll', '.doc', '.lib', '.bz2', '.aps')
+	BINEXTS = ('.jpg', '.rar', '.zip', '.exe', '.dll', '.doc', '.lib', '.bz2', '.aps', '.ico')
 	# Extensions of always-unix files
 	UNIXEXTS = ('.sh', )
 	# Extensions of always-windows files
