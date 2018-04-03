@@ -37,6 +37,15 @@ class Main(util.SourceChecker):
 		if ext not in self.SRCEXTS:
 			return self.SKIP
 
+		if not self.checkKWStyle(path):
+			return False
+
+		if not self.checkIndent(path):
+			return False
+
+		return True
+
+	def checkKWStyle(self, path):
 		cmd = ('KWStyle', '-xml', 'style.kws.xml', '-gcc', '-v', path)
 		proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		po, pe = proc.communicate()
@@ -48,6 +57,20 @@ class Main(util.SourceChecker):
 		print('File "{}" has invalid style'.format(path))
 		print(po.decode(), pe.decode())
 		return False
+
+	def checkIndent(self, path):
+		''' Indentation check for file '''
+		levels = set()
+		with open(path, 'rt') as file:
+			for line in file:
+				lspaces = len(line) - len(line.lstrip(' '))
+				levels.add(lspaces)
+
+		if 2 not in levels and (4 in levels or 8 in levels):
+			print('File "{}" has 4 instead of 2 spaces indentation style'.format(path))
+			return False
+
+		return True
 
 	def unusedClangcheckFile(self, path, ext):
 		if ext not in self.SRCEXTS:
