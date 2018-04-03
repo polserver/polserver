@@ -26,7 +26,7 @@ namespace Pol {
 
 	void start_gameclock()
 	{
-	  std::lock_guard<Clib::SpinLock> lock( _gameclock_lock );
+	  Clib::SpinLockGuard lock( _gameclock_lock );
 	  std::string gameclock_str;
 	  if ( gamestate.global_properties->getprop( "gameclock", gameclock_str ) )
 	  {
@@ -56,7 +56,7 @@ namespace Pol {
 
 	gameclock_t read_gameclock()
 	{
-	  std::lock_guard<Clib::SpinLock> lock( _gameclock_lock );
+	  Clib::SpinLockGuard lock( _gameclock_lock );
 	  time_t new_last_read = poltime();
 	  unsigned int diff = static_cast<unsigned int>( new_last_read - last_read );
 	  gameclock += diff;

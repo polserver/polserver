@@ -19,3 +19,4 @@ ReadMillisecondClock();
 Realms(realm:="");
 ReloadConfiguration(); // reloads pol.cfg and npcdesc.cfg
 SetSysTrayPopupText(text);
+LogCPropProfile();

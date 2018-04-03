@@ -2,9 +2,41 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-22-2016</datemodified>
+		<datemodified>02-15-2016</datemodified>
 	</header>
 	<version name="POL099">
+		<entry>
+			<date>02-15-2016</date>
+			<author>Nando:</author>
+            <change type="Changed">UO::SendQuestArrow(x := -1, y := -1, target := "")<br/>
+This function will now work for HSA clients (version > 7.0.9), which<br/>
+require a larger packet. Target is ignored for older clients, but is<br/>
+required (and must be a valid Item or Character reference) for HSA<br/>
+clients.<br/>
+           </change>
+			<change type="Added">UO::SingleClick(who, what)<br/>
+This function will emulate a single-click from the client, sending<br/>
+the character name, guild and tags or the item description. Note<br/>
+that the client may display the item description wherever it had<br/>
+clicked before. "what" can be either a serial, item or character.<br/>
+			</change>
+		</entry>
+		<entry>
+			<date>01-31-2016</date>
+			<author>Bodom:</author>
+			<change type="Added">CProp profiler: helps detecting unused CProps.<br/>
+It can be enabled by using the new pol.cfg option &quot;ProfileCProps&quot;.<br/>
+For better results, should be enabled before startup.<br/>
+Impacts on performance very slightly, but consumes an average of<br/>
+300 bytes of extra RAM for every CProp used.<br/>
+New polsys.em function LogCPropProfile() can be called to dump<br/>
+the profiling information into cpprofile.log.</change>
+		</entry>
+		<entry>
+			<date>01-30-2016</date>
+			<author>Bodom &amp; Nando:</author>
+			<change type="Fixed">Spoofing prevention on packet 0xD7 (custom housing)</change>
+		</entry>
 		<entry>
 			<date>01-22-2016</date>
 			<author>Bodom:</author>

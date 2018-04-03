@@ -38,5 +38,14 @@ script:
     fi
   - ./build_linux.sh
 
-  - cd ../..
-  - testsuite/escript/performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
+  - cd ../../testsuite/escript
+  - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
+  
+notifications:
+  email:
+    - polteam@polserver.com
+  irc:
+    channels:
+      - "ircs://irc.darkmyst.org:6697/#pol"
+    on_success: always # Those are the defaults. Should maybe use "change" afterwards.
+    on_failure: always

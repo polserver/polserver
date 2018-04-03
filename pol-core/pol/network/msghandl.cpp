@@ -113,7 +113,7 @@ namespace Pol {
 		  MESSAGE_HANDLER       ( PKTIN_07      , get_item );
 		  MESSAGE_HANDLER       ( PKTIN_08_V1   , drop_item );
 		  MESSAGE_HANDLER_V2    ( PKTIN_08_V2   , drop_item_v2 );
-		  MESSAGE_HANDLER       ( PKTIN_09      , singleclick );
+		  MESSAGE_HANDLER       ( PKTIN_09      , handle_singleclick );
 		  MESSAGE_HANDLER_VARLEN( PKTIN_12      , PacketRegistry::handle_extended_cmd );
 		  MESSAGE_HANDLER       ( PKTIN_13      , equip_item );
 		  MESSAGE_HANDLER       ( PKTBI_22_SYNC , handle_resync_request );

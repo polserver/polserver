@@ -175,7 +175,7 @@ namespace Pol {
 	  type_(type),
 	  instance_(0)
 	{
-	  std::lock_guard<Clib::SpinLock> lock (bobjectimp_lock);
+      Clib::SpinLockGuard lock (bobjectimp_lock);
 	  instance_=instances_++;
 	  ++eobject_imp_count;
 	  ++eobject_imp_constructions;
@@ -184,7 +184,7 @@ namespace Pol {
 
 	BObjectImp::~BObjectImp()
 	{
-	  std::lock_guard<Clib::SpinLock> lock (bobjectimp_lock);
+      Clib::SpinLockGuard lock (bobjectimp_lock);
 	  bobjectimp_instances.erase( instance_ );
 	  --eobject_imp_count;
 	}

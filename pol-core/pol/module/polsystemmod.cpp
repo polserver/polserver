@@ -43,6 +43,9 @@
 #include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
 
+#include <fstream>
+#include <ctime>
+
 #ifdef _MSC_VER
 #pragma warning(disable:4996) // deprecation warning for stricmp
 #endif
@@ -107,7 +110,8 @@ namespace Pol {
       { "CreatePacket", &PolSystemExecutorModule::mf_CreatePacket },
       { "AddRealm", &PolSystemExecutorModule::mf_AddRealm },
       { "DeleteRealm", &PolSystemExecutorModule::mf_DeleteRealm },
-      { "MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt }
+      { "MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt },
+      { "LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile },
     };
     template<>
     int TmplExecutorModule<PolSystemExecutorModule>::function_table_size = arsize( function_table );
@@ -473,5 +477,41 @@ namespace Pol {
 		return new BError( "Failed to encrypt" );
 	  return new String( temp );
 	}
+
+    /**
+     * Dumps the CProp profiling info into the log file
+     *
+     * @author Bodom
+     */
+    BObjectImp* PolSystemExecutorModule::mf_LogCPropProfile()
+    {
+      const std::string filepath = "log/cpprofile.log";
+      std::ofstream ofs(filepath.c_str(), std::ios::out | std::ios::app);
+
+      if( ! ofs.is_open() )
+        return new BError( "Unable to open file: " + filepath );
+
+      // Write the header
+      auto t = std::time(nullptr);
+      auto tm = std::localtime(&t);
+      ofs << std::string(80, '=') << std::endl;
+      ofs << "CProp profiling information dumped on " << std::asctime(tm) << std::endl;
+      ofs << "the profiler is using an estimated amount of " << Core::CPropProfiler::instance().estimateSize() << " Bytes of memory." << std::endl;
+      ofs << "the profiler is currently " << (Plib::systemstate.config.profile_cprops?"enabled":"disabled") << "." << std::endl;
+      ofs << std::endl;
+
+      // Write the body
+      Core::CPropProfiler::instance().dumpProfile(ofs);
+
+      // Write the footer
+      ofs << std::string(80, '=') << std::endl;
+
+      if( ofs.fail() )
+        return new BError( "Error during write." );
+
+      ofs.close();
+      return new BLong( 1 );
+    }
+
   }
 }

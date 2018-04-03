@@ -381,6 +381,10 @@ namespace Pol {
 	  Mobile::Character* chr = NULL;
 	  Multi::UMulti* multi = NULL;
 
+	  // This function is a kludge because the individual functions will all test for 
+	  // a serial independently and may set errors. 
+      // TODO: Refactor this function to test whether the parameter is a BLong in a single place.
+
 	  if ( getCharacterParam( exec, param, chr ) )
 	  {
 		objptr = chr;

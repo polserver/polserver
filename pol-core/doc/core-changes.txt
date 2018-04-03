@@ -14,6 +14,27 @@ XX-XX-XXXX Bodom:
            non-ANSI characters (those above 0xFF) are silently converted to a
            question mark ('?').
            Unicode objects are saved and packed using utf8 encoding.
+02-15-2016 Nando:
+  Changed: UO::SendQuestArrow(x := -1, y := -1, target := "")
+           This function will now work for HSA clients (version > 7.0.9), which
+           require a larger packet. Target is ignored for older clients, but is
+           required (and must be a valid Item or Character reference) for HSA 
+           clients.           
+  Added:   UO::SingleClick(who, what)
+           This function will emulate a single-click from the client, sending
+           the character name, guild and tags or the item description. Note
+           that the client may display the item description wherever it had
+           clicked before. "what" can be either a serial, item or character.
+01-31-2016 Bodom:
+  Added:   CProp profiler: helps detecting unused CProps.
+           It can be enabled by using the new pol.cfg option "ProfileCProps".
+           For better results, should be enabled before startup.
+           Impacts on performance very slightly, but consumes an average of
+           300 bytes of extra RAM for every CProp used.
+           New polsys.em function LogCPropProfile() can be called to dump
+           the profiling information into cpprofile.log.
+01-30-2016 Bodom & Nando:
+  Fixed:   Spoofing prevention on packet 0xD7 (custom housing)
 01-22-2016 Bodom:
   Fixed:   Minor bug in ecompile allowing Double literals in the form "2d4".
            These were incorrectly interpreted as "2e4", meaning 20000 and
