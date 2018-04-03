@@ -5,21 +5,23 @@
 
 #include <string>
 
-namespace Pol{ namespace ECompile{
-
+namespace Pol
+{
+namespace ECompile
+{
 class ECompileMain : public Pol::Clib::ProgramMain
 {
 public:
-	ECompileMain();
-    virtual ~ECompileMain();
+  ECompileMain();
+  virtual ~ECompileMain();
 
 protected:
-    virtual int main();
+  virtual int main();
 
 private:
-    virtual void showHelp();
+  virtual void showHelp();
 };
+}
+}  // namespaces
 
-}} // namespaces
-
-#endif // E_COMPILE_MAIN_H
+#endif  // E_COMPILE_MAIN_H

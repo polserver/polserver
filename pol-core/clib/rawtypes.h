@@ -18,37 +18,36 @@
 
 /* The PACK_NEEDED define goes after "struct { }" definitions */
 #ifdef __GNUC__
-#define POSTSTRUCT_PACK __attribute__((__packed__))
+#define POSTSTRUCT_PACK __attribute__( ( __packed__ ) )
 #else
 #define POSTSTRUCT_PACK
 #endif
 
 
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
 
-typedef unsigned char     u8;
-typedef unsigned short    u16;
-typedef unsigned int      u32;
-
-typedef signed char       s8;
-typedef signed short      s16;
-typedef signed int        s32;
+typedef signed char s8;
+typedef signed short s16;
+typedef signed int s32;
 
 #ifdef _WIN32
-typedef unsigned __int64    u64;
-typedef signed __int64      s64;
+typedef unsigned __int64 u64;
+typedef signed __int64 s64;
 #define OUT64 "I64"
 #else
-typedef unsigned long long  u64;
-typedef signed long long    s64;
+typedef unsigned long long u64;
+typedef signed long long s64;
 #define OUT64 "ll"
 #endif
 
 
 /* these fail to compile if lengths of U8, U16, or U32 are incorrect. */
-asserteql( sizeof(u8), 1 );
-asserteql( sizeof(u16), 2 );
-asserteql( sizeof(u32), 4 );
-asserteql( sizeof(u64), 8 );
+asserteql( sizeof( u8 ), 1 );
+asserteql( sizeof( u16 ), 2 );
+asserteql( sizeof( u32 ), 4 );
+asserteql( sizeof( u64 ), 8 );
 
 assertsize( u8, 1 );
 assertsize( u16, 2 );

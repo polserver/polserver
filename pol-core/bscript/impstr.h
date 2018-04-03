@@ -41,15 +41,15 @@ namespace Pol {
       inline String( const char *left, const char *right ) { value_.append(left); value_.append(right); };
 
     // ---------------------- PACK/UNPACK STUFF -----------------------------
-	  static BObjectImp* unpack( const char* pstr );
-	  static BObjectImp* unpack( std::istream& is );
-	  static BObjectImp* unpackWithLen( std::istream& is );
-	  virtual std::string pack() const POL_OVERRIDE;
-	  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
-	  static void packonto( std::ostream& os, const std::string& value );
+      static BObjectImp* unpack( const char* pstr );
+      static BObjectImp* unpack( std::istream& is );
+      static BObjectImp* unpackWithLen( std::istream& is );
+      virtual std::string pack() const POL_OVERRIDE;
+      virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
+      static void packonto( std::ostream& os, const std::string& value );
 
     // -------------------------- MISC ----------------------------------------
-	  virtual size_t sizeEstimate() const POL_OVERRIDE;
+      virtual size_t sizeEstimate() const POL_OVERRIDE;
 
       /*
        * Only for backward compatibility
@@ -57,8 +57,8 @@ namespace Pol {
        */
       inline int find( int begin, const char* target ) { const std::string str(target); return BaseStringTpl::find( begin, str); }
 
-	  void toUpper( void );
-	  void toLower( void );
+      void toUpper( void );
+      void toLower( void );
 
       inline unsigned long intval() const { return strtoul( value_.c_str(), NULL, 0 ); }
       inline double dblval() const { return strtod( value_.c_str(), NULL ); }

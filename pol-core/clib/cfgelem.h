@@ -13,171 +13,178 @@
 #include <map>
 #include <vector>
 
-namespace Pol {
-  namespace Clib {
-	class ConfigProperty
-	{
-	public:
-	  ConfigProperty();
-	  ConfigProperty( const char *name, const char *value );
-	  ConfigProperty( const std::string& name, const std::string& value );
-	  ConfigProperty( std::string* pname, std::string* pvalue );
+namespace Pol
+{
+namespace Clib
+{
+class ConfigProperty
+{
+public:
+  ConfigProperty();
+  ConfigProperty( const char* name, const char* value );
+  ConfigProperty( const std::string& name, const std::string& value );
+  ConfigProperty( std::string* pname, std::string* pvalue );
 
-	  ~ConfigProperty();
-	protected:
-	  std::string name_;
-	  std::string value_;
-	  friend class ConfigElem;
-	  friend class VectorConfigElem;
-	};
+  ~ConfigProperty();
 
-	class ConfigSource;
+protected:
+  std::string name_;
+  std::string value_;
+  friend class ConfigElem;
+  friend class VectorConfigElem;
+};
 
-	class ConfigElemBase
-	{
-	public:
-          virtual ~ConfigElemBase(){};
-	  bool type_is( const char* name ) const;
-	  const char *type() const;
-	  const char *rest() const;
-      virtual size_t estimateSize() const;
-	protected:
-	  ConfigElemBase();
-	protected:
-	  std::string type_;
-	  std::string rest_;
+class ConfigSource;
 
-	  const ConfigSource* _source;
-	};
+class ConfigElemBase
+{
+public:
+  virtual ~ConfigElemBase(){};
+  bool type_is( const char* name ) const;
+  const char* type() const;
+  const char* rest() const;
+  virtual size_t estimateSize() const;
 
-	class ConfigElem : public ConfigElemBase
-	{
-	public:
-	  ConfigElem();
-	  virtual ~ConfigElem();
-      virtual size_t estimateSize() const POL_OVERRIDE;
-	  friend class ConfigFile;
+protected:
+  ConfigElemBase();
 
-	  bool has_prop( const char* propname ) const;
+protected:
+  std::string type_;
+  std::string rest_;
 
-	  std::string remove_string( const char *propname );
-	  std::string remove_string( const char *propname, const char *dflt );
+  const ConfigSource* _source;
+};
 
-	  unsigned short remove_ushort( const char *propname );
-	  unsigned short remove_ushort( const char *propname, unsigned short dflt );
+class ConfigElem : public ConfigElemBase
+{
+public:
+  ConfigElem();
+  virtual ~ConfigElem();
+  virtual size_t estimateSize() const POL_OVERRIDE;
+  friend class ConfigFile;
 
-	  int remove_int( const char *propname );
-	  int remove_int( const char *propname, int dflt );
+  bool has_prop( const char* propname ) const;
 
-	  unsigned remove_unsigned( const char *propname );
-	  unsigned remove_unsigned( const char *propname, int dflt );
+  std::string remove_string( const char* propname );
+  std::string remove_string( const char* propname, const char* dflt );
 
-	  unsigned int remove_ulong( const char *propname );
-	  unsigned int remove_ulong( const char *propname, unsigned int dflt );
+  unsigned short remove_ushort( const char* propname );
+  unsigned short remove_ushort( const char* propname, unsigned short dflt );
 
-	  bool remove_bool( const char *propname );
-	  bool remove_bool( const char *propname, bool dflt );
+  int remove_int( const char* propname );
+  int remove_int( const char* propname, int dflt );
 
-	  float remove_float( const char *propname, float dflt );
-	  double remove_double( const char *propname, double dflt );
+  unsigned remove_unsigned( const char* propname );
+  unsigned remove_unsigned( const char* propname, int dflt );
 
-	  void clear_prop( const char *propname );
+  unsigned int remove_ulong( const char* propname );
+  unsigned int remove_ulong( const char* propname, unsigned int dflt );
 
-	  bool remove_first_prop( std::string* propname, std::string* value );
-	  bool remove_prop( const char *propname, std::string* value );
-	  bool remove_prop( const char *propname, unsigned int *plong );
-	  bool remove_prop( const char *propname, unsigned short *pushort );
+  bool remove_bool( const char* propname );
+  bool remove_bool( const char* propname, bool dflt );
 
-	  bool read_prop( const char *propname, std::string* value ) const;
+  float remove_float( const char* propname, float dflt );
+  double remove_double( const char* propname, double dflt );
 
-	  // get_prop calls: don't remove, and throw if not found.
-	  void get_prop( const char *propname, unsigned int* plong ) const;
+  void clear_prop( const char* propname );
 
-	  std::string read_string( const char *propname ) const;
-	  std::string read_string( const char *propname, const char *dflt ) const;
+  bool remove_first_prop( std::string* propname, std::string* value );
+  bool remove_prop( const char* propname, std::string* value );
+  bool remove_prop( const char* propname, unsigned int* plong );
+  bool remove_prop( const char* propname, unsigned short* pushort );
 
+  bool read_prop( const char* propname, std::string* value ) const;
 
-	  void add_prop( const char *propname, const char *str );
-	  void add_prop( const char *propname, unsigned int lval );
-	  void add_prop( const char *propname, unsigned short sval );
-	  void add_prop( const char *propname, short sval );
+  // get_prop calls: don't remove, and throw if not found.
+  void get_prop( const char* propname, unsigned int* plong ) const;
 
-	  POL_NORETURN void throw_error( const std::string& errmsg ) const;
-	  void warn( const std::string& errmsg ) const;
-	  void warn_with_line( const std::string& errmsg ) const;
-
-	  void set_rest( const char* newrest );
-	  void set_type( const char* newtype );
-	  void set_source( const ConfigElem& elem );
-	  void set_source( const ConfigSource* source );
-	protected:
-	  POL_NORETURN void prop_not_found( const char *propname ) const;
-	  typedef std::multimap<std::string, std::string, ci_cmp_pred> Props;
-	  Props properties;
-	};
-
-	class VectorConfigElem : public ConfigElemBase
-	{
-	public:
-	  VectorConfigElem();
-	  virtual ~VectorConfigElem();
-
-	  friend class ConfigFile;
-	  bool type_is( const char* name ) const;
-	  const char *type() const;
-	  const char *rest() const;
-
-	  bool has_prop( const char* propname ) const;
-
-	  std::string remove_string( const char *propname );
-	  std::string remove_string( const char *propname, const char *dflt );
-
-	  unsigned short remove_ushort( const char *propname );
-	  unsigned short remove_ushort( const char *propname, unsigned short dflt );
-
-	  int remove_int( const char *propname );
-	  int remove_int( const char *propname, int dflt );
-
-	  unsigned int remove_ulong( const char *propname );
-	  unsigned int remove_ulong( const char *propname, unsigned int dflt );
-
-	  bool remove_bool( const char *propname );
-	  bool remove_bool( const char *propname, bool dflt );
-
-	  float remove_float( const char *propname, float dflt );
-	  double remove_double( const char *propname, double dflt );
-
-	  void clear_prop( const char *propname );
-
-	  bool remove_first_prop( std::string* propname, std::string* value );
-	  bool remove_prop( const char *propname, std::string* value );
-	  bool remove_prop( const char *propname, unsigned int *plong );
-	  bool remove_prop( const char *propname, unsigned short *pushort );
-
-	  bool read_prop( const char *propname, std::string* value ) const;
-	  std::string read_string( const char *propname ) const;
-	  std::string read_string( const char *propname, const char *dflt ) const;
+  std::string read_string( const char* propname ) const;
+  std::string read_string( const char* propname, const char* dflt ) const;
 
 
-	  void add_prop( const char *propname, const char *str );
-	  void add_prop( const char *propname, unsigned int lval );
-	  void add_prop( const char *propname, unsigned short sval );
+  void add_prop( const char* propname, const char* str );
+  void add_prop( const char* propname, unsigned int lval );
+  void add_prop( const char* propname, unsigned short sval );
+  void add_prop( const char* propname, short sval );
 
-	  POL_NORETURN void throw_error( const std::string& errmsg ) const;
-	  void warn( const std::string& errmsg ) const;
+  POL_NORETURN void throw_error( const std::string& errmsg ) const;
+  void warn( const std::string& errmsg ) const;
+  void warn_with_line( const std::string& errmsg ) const;
 
-	  void set_rest( const char* newrest );
-	  void set_source( const ConfigElem& elem );
-	protected:
-	  POL_NORETURN void prop_not_found( const char *propname ) const;
-	  std::string type_;
-	  std::string rest_;
+  void set_rest( const char* newrest );
+  void set_type( const char* newtype );
+  void set_source( const ConfigElem& elem );
+  void set_source( const ConfigSource* source );
 
-	  typedef std::vector<ConfigProperty*> Props;
-	  Props properties;
+protected:
+  POL_NORETURN void prop_not_found( const char* propname ) const;
+  typedef std::multimap<std::string, std::string, ci_cmp_pred> Props;
+  Props properties;
+};
 
-	  ConfigSource* source_;
-	};
-  }
+class VectorConfigElem : public ConfigElemBase
+{
+public:
+  VectorConfigElem();
+  virtual ~VectorConfigElem();
+
+  friend class ConfigFile;
+  bool type_is( const char* name ) const;
+  const char* type() const;
+  const char* rest() const;
+
+  bool has_prop( const char* propname ) const;
+
+  std::string remove_string( const char* propname );
+  std::string remove_string( const char* propname, const char* dflt );
+
+  unsigned short remove_ushort( const char* propname );
+  unsigned short remove_ushort( const char* propname, unsigned short dflt );
+
+  int remove_int( const char* propname );
+  int remove_int( const char* propname, int dflt );
+
+  unsigned int remove_ulong( const char* propname );
+  unsigned int remove_ulong( const char* propname, unsigned int dflt );
+
+  bool remove_bool( const char* propname );
+  bool remove_bool( const char* propname, bool dflt );
+
+  float remove_float( const char* propname, float dflt );
+  double remove_double( const char* propname, double dflt );
+
+  void clear_prop( const char* propname );
+
+  bool remove_first_prop( std::string* propname, std::string* value );
+  bool remove_prop( const char* propname, std::string* value );
+  bool remove_prop( const char* propname, unsigned int* plong );
+  bool remove_prop( const char* propname, unsigned short* pushort );
+
+  bool read_prop( const char* propname, std::string* value ) const;
+  std::string read_string( const char* propname ) const;
+  std::string read_string( const char* propname, const char* dflt ) const;
+
+
+  void add_prop( const char* propname, const char* str );
+  void add_prop( const char* propname, unsigned int lval );
+  void add_prop( const char* propname, unsigned short sval );
+
+  POL_NORETURN void throw_error( const std::string& errmsg ) const;
+  void warn( const std::string& errmsg ) const;
+
+  void set_rest( const char* newrest );
+  void set_source( const ConfigElem& elem );
+
+protected:
+  POL_NORETURN void prop_not_found( const char* propname ) const;
+  std::string type_;
+  std::string rest_;
+
+  typedef std::vector<ConfigProperty*> Props;
+  Props properties;
+
+  ConfigSource* source_;
+};
+}
 }
 #endif

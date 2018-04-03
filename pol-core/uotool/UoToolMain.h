@@ -5,23 +5,24 @@
 
 #include <string>
 
-namespace Pol{ namespace UoTool{
-
+namespace Pol
+{
+namespace UoTool
+{
 class UoToolMain : public Pol::Clib::ProgramMain
 {
 public:
-	UoToolMain();
-    virtual ~UoToolMain();
+  UoToolMain();
+  virtual ~UoToolMain();
 
 protected:
-    virtual int main();
+  virtual int main();
 
 private:
-    virtual void showHelp();
-    int uotool();
-
+  virtual void showHelp();
+  int uotool();
 };
+}
+}  // namespaces
 
-}} // namespaces
-
-#endif // UO_TOOL_MAIN_H
+#endif  // UO_TOOL_MAIN_H

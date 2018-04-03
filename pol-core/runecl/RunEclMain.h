@@ -5,28 +5,30 @@
 
 #include <string>
 
-namespace Pol{ namespace Clib{
-
+namespace Pol
+{
+namespace Clib
+{
 class RunEclMain : public ProgramMain
 {
 public:
-	RunEclMain();
-    virtual ~RunEclMain();
+  RunEclMain();
+  virtual ~RunEclMain();
 
 protected:
-    virtual int main();
+  virtual int main();
 
 private:
-    virtual void showHelp();
-    void dumpScript(std::string fileName);
-    int runeclScript(std::string fileName);
-    int runecl();
+  virtual void showHelp();
+  void dumpScript( std::string fileName );
+  int runeclScript( std::string fileName );
+  int runecl();
 
-    bool m_quiet;
-    bool m_debug;
-    bool m_profile;
+  bool m_quiet;
+  bool m_debug;
+  bool m_profile;
 };
+}
+}  // namespaces
 
-}} // namespaces
-
-#endif // RUN_ECL_MAIN_H
+#endif  // RUN_ECL_MAIN_H

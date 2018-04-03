@@ -3,7 +3,8 @@
  * @par History
  * - 2009/08/03 MuadDib:   Upgraded ph6017 and is6017 to version, and integer instead of bool.
  *
- * @note Version member: Positive Integer. This is used to translate the "version" of the packet structure
+ * @note Version member: Positive Integer. This is used to translate the "version" of the packet
+ * structure
  * to the correct internal core Message Handler (Default 1, which translates to use handler[]). Each
  * new Handler added to the core needs a new Version number here. As of 8/3/09 there is only 2.
  */
@@ -19,44 +20,49 @@
 #include <vector>
 #include <string>
 
-namespace Pol {
-  namespace Core {
-    class ExportedFunction;
-    class BPacket;
-  }
-  namespace Network {
-    class Client;
-   
-	class PacketHookData
-	{
-	public:
-	  PacketHookData();
-	  ~PacketHookData();
-      size_t estimateSize() const;
+namespace Pol
+{
+namespace Core
+{
+class ExportedFunction;
+class BPacket;
+}
+namespace Network
+{
+class Client;
 
-	  int length; // if MSGLEN_2BYTELEN_DATA, variable length
-	  Core::ExportedFunction* function;
-	  Core::ExportedFunction* outgoing_function;
-      
-      PktHandlerFunc default_handler;
+class PacketHookData
+{
+public:
+  PacketHookData();
+  ~PacketHookData();
+  size_t estimateSize() const;
 
-	  unsigned short sub_command_offset;
-	  unsigned short sub_command_length;
-      PacketVersion version;
-	  VersionDetailStruct client_ver;
-	  std::map<u32, PacketHookData*>SubCommands;
+  int length;  // if MSGLEN_2BYTELEN_DATA, variable length
+  Core::ExportedFunction* function;
+  Core::ExportedFunction* outgoing_function;
 
-	  static void initializeGameData(std::vector<std::unique_ptr<PacketHookData>> *data);
-	};
+  PktHandlerFunc default_handler;
 
-	void load_packet_hooks();
-	void ExportedPacketHookHandler( Client* client, void* data );
-	void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int& inlength, ref_ptr<Core::BPacket>& outpacket, PacketHookData* phd, bool& handled );
-	bool GetAndCheckPacketHooked( Client* client, const void*& data, PacketHookData*& phd );
-	void clean_packethooks();
+  unsigned short sub_command_offset;
+  unsigned short sub_command_length;
+  PacketVersion version;
+  VersionDetailStruct client_ver;
+  std::map<u32, PacketHookData*> SubCommands;
 
-	void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail );
-	bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 );
-  }
+  static void initializeGameData( std::vector<std::unique_ptr<PacketHookData>>* data );
+};
+
+void load_packet_hooks();
+void ExportedPacketHookHandler( Client* client, void* data );
+void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int& inlength,
+                                         ref_ptr<Core::BPacket>& outpacket, PacketHookData* phd,
+                                         bool& handled );
+bool GetAndCheckPacketHooked( Client* client, const void*& data, PacketHookData*& phd );
+void clean_packethooks();
+
+void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail );
+bool CompareVersionDetail( VersionDetailStruct ver1, VersionDetailStruct ver2 );
+}
 }
 #endif

@@ -13,31 +13,32 @@
 
 #include "../clib/logfacility.h"
 
-namespace Pol {
-  namespace Core {
-    void staticsmax()
+namespace Pol
+{
+namespace Core
+{
+void staticsmax()
+{
+  unsigned int max = 0;
+  USTRUCT_IDX idxrec;
+
+  fseek( sidxfile, 0, SEEK_SET );
+  for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
+  {
+    for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
     {
-      unsigned int max = 0;
-      USTRUCT_IDX idxrec;
+      fread( &idxrec, sizeof idxrec, 1, sidxfile );
 
-      fseek( sidxfile, 0, SEEK_SET );
-      for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
+      if ( idxrec.length != 0xFFffFFffLu )
       {
-        for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
+        if ( idxrec.length > max )
         {
-          fread( &idxrec, sizeof idxrec, 1, sidxfile );
-
-          if ( idxrec.length != 0xFFffFFffLu )
-          {
-            if ( idxrec.length > max )
-            {
-              max = idxrec.length;
-              INFO_PRINT << "Max: " << max << ", X=" << xblock << ", Y=" << yblock << "\n";
-            }
-          }
+          max = idxrec.length;
+          INFO_PRINT << "Max: " << max << ", X=" << xblock << ", Y=" << yblock << "\n";
         }
       }
     }
   }
-
+}
+}
 }

@@ -7,42 +7,43 @@
 #ifndef CLIB_TRACEBUF_H
 #define CLIB_TRACEBUF_H
 
-namespace Pol {
-  namespace Clib {
+namespace Pol
+{
+namespace Clib
+{
 #ifndef NDEBUG
 
 #ifndef TRACEBUF_DEPTH
 #define TRACEBUF_DEPTH 5000
 #endif
 
-	struct TraceBufferElem
-	{
-	  const char* tag;
-	  unsigned int value;
-	};
+struct TraceBufferElem
+{
+  const char* tag;
+  unsigned int value;
+};
 
-	extern TraceBufferElem tracebuffer[ TRACEBUF_DEPTH ];
-	extern unsigned tracebuffer_insertpoint;
+extern TraceBufferElem tracebuffer[TRACEBUF_DEPTH];
+extern unsigned tracebuffer_insertpoint;
 
-	inline void _tracebuffer_addelem( const char* tag, unsigned int value )
-	{
-	  tracebuffer[ tracebuffer_insertpoint ].tag   = tag;
-	  tracebuffer[ tracebuffer_insertpoint ].value = value;
-	  ++tracebuffer_insertpoint;
-	  if (tracebuffer_insertpoint >= TRACEBUF_DEPTH)
-		tracebuffer_insertpoint = 0;
-
-	}
+inline void _tracebuffer_addelem( const char* tag, unsigned int value )
+{
+  tracebuffer[tracebuffer_insertpoint].tag = tag;
+  tracebuffer[tracebuffer_insertpoint].value = value;
+  ++tracebuffer_insertpoint;
+  if ( tracebuffer_insertpoint >= TRACEBUF_DEPTH )
+    tracebuffer_insertpoint = 0;
+}
 #endif
 
-	void LogTraceBuffer();
-  }
+void LogTraceBuffer();
+}
 
 #ifdef NDEBUG
-#define TRACEBUF_ADDELEM(tag,value) /**/
+#define TRACEBUF_ADDELEM( tag, value ) /**/
 #else
-#define TRACEBUF_ADDELEM(tag,value) Clib::_tracebuffer_addelem(tag, value)
+#define TRACEBUF_ADDELEM( tag, value ) Clib::_tracebuffer_addelem( tag, value )
 #endif
 }
 
-#endif //CLIB_TRACEBUF_H
+#endif  // CLIB_TRACEBUF_H

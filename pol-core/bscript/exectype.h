@@ -10,13 +10,15 @@
 
 #ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
-#endif 
+#endif
 
 #include <vector>
 
-namespace Pol {
-  namespace Bscript {
-	typedef std::vector<BObjectRef> BObjectRefVec;
-  }
+namespace Pol
+{
+namespace Bscript
+{
+typedef std::vector<BObjectRef> BObjectRefVec;
+}
 }
 #endif

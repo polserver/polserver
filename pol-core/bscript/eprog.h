@@ -22,164 +22,164 @@
 #include <string>
 #include <vector>
 
-namespace Pol {
-  namespace Plib {
-	class Package;
-  }
-  namespace Bscript {
-	class CompilerContext;
-	class Executor;
+namespace Pol
+{
+namespace Plib
+{
+class Package;
+}
+namespace Bscript
+{
+class CompilerContext;
+class Executor;
 
-	class Instruction
-	{
-	public:
+class Instruction
+{
+public:
+  Instruction( ExecInstrFunc f ) : token(), func( f ), cycles( 0 ) {}
+  Instruction() : token(), func( 0 ), cycles( 0 ) {}
+  Token token;
+  ExecInstrFunc func;
+  mutable unsigned int cycles;
+};
 
-	  Instruction( ExecInstrFunc f ) : token(), func( f ), cycles( 0 )
-	  {}
-	  Instruction() : token(), func( 0 ), cycles( 0 )
-	  {}
+struct EPDbgInstr
+{
+  unsigned int blockidx;
+  unsigned int flags;
+  unsigned int fileidx;
+  unsigned int line;
+  unsigned int srclineidx;
+  unsigned int functionidx;
+};
 
-	  Token token;
-	  ExecInstrFunc func;
-	  mutable unsigned int cycles;
-	};
+struct EPDbgBlock
+{
+  unsigned parentblockidx;
+  unsigned parentvariables;
+  std::vector<std::string> localvarnames;
+};
 
-	struct EPDbgInstr
-	{
-	  unsigned int blockidx;
-	  unsigned int flags;
-	  unsigned int fileidx;
-	  unsigned int line;
-	  unsigned int srclineidx;
-	  unsigned int functionidx;
-	};
+struct EPExportedFunction
+{
+  std::string name;
+  unsigned nargs;
+  unsigned PC;
+};
 
-	struct EPDbgBlock
-	{
-	  unsigned parentblockidx;
-	  unsigned parentvariables;
-	  std::vector< std::string > localvarnames;
-	};
+struct EPDbgFunction
+{
+  std::string name;
+  unsigned firstPC;
+  unsigned lastPC;
+};
 
-	struct EPExportedFunction
-	{
-	  std::string name;
-	  unsigned nargs;
-	  unsigned PC;
-	};
+struct BSCRIPT_SECTION_HDR;
 
-	struct EPDbgFunction
-	{
-	  std::string name;
-	  unsigned firstPC;
-	  unsigned lastPC;
-	};
+class EScriptProgram : public ref_counted
+{
+public:
+  EScriptProgram();
+  void addToken( const Token& token );
+  void append( const StoredToken& stoken );
+  void append( const StoredToken& stoken, unsigned* posn );
+  void append( const StoredToken& stoken, const CompilerContext& ctx );
+  void append( const StoredToken& stoken, const CompilerContext& ctx, unsigned* posn );
+  void erase();
+  void clear_modules();
+  unsigned nglobals;
+  unsigned expectedArgs;
+  bool haveProgram;
+  boost_utils::script_name_flystring name;
+  std::vector<FunctionalityModule*> modules;
+  StoredTokenContainer tokens;
+  SymbolContainer symbols;
 
-	struct BSCRIPT_SECTION_HDR;
+  void dump( std::ostream& os );
+  void dump_casejmp( std::ostream& os, const Token& token );
+  int write( const char* fname );
+  int read( const char* fname );
+  int read_dbg_file();
+  int read_progdef_hdr( FILE* fp );
+  int read_module( FILE* fp );
+  int read_globalvarnames( FILE* fp );
+  int read_exported_functions( FILE* fp, BSCRIPT_SECTION_HDR* hdr );
+  int _readToken( Token& token, unsigned position ) const;
+  int create_instructions();
 
-	class EScriptProgram : public ref_counted
-	{
-	public:
-	  EScriptProgram();
-	  void addToken( const Token& token );
-	  void append( const StoredToken& stoken );
-	  void append( const StoredToken& stoken, unsigned* posn );
-	  void append( const StoredToken& stoken, const CompilerContext& ctx );
-	  void append( const StoredToken& stoken, const CompilerContext& ctx, unsigned* posn );
-	  void erase();
-      void clear_modules();
-      unsigned nglobals;
-      unsigned expectedArgs;
-      bool haveProgram;
-	  boost_utils::script_name_flystring name;
-	  std::vector< FunctionalityModule* > modules;
-	  StoredTokenContainer tokens;
-	  SymbolContainer symbols;
+  int write_dbg( const char* fname, bool gen_txt );
 
-	  void dump( std::ostream& os );
-	  void dump_casejmp( std::ostream& os, const Token& token );
-	  int write( const char *fname );
-	  int read( const char *fname );
-	  int read_dbg_file();
-	  int read_progdef_hdr( FILE *fp );
-	  int read_module( FILE* fp );
-	  int read_globalvarnames( FILE* fp );
-	  int read_exported_functions( FILE* fp, BSCRIPT_SECTION_HDR* hdr );
-	  int _readToken( Token& token, unsigned position ) const;
-	  int create_instructions();
+  // compiler only:
+  unsigned program_PC;
+  std::string program_decl;
+  std::vector<std::string> sourcelines;
+  std::vector<std::string> fileline;
+  std::vector<std::string> function_decls;
 
-	  int write_dbg( const char *fname, bool gen_txt );
+  std::vector<EPExportedFunction> exported_functions;
 
-	  // compiler only:
-      unsigned program_PC;
-      std::string program_decl;
-	  std::vector<std::string> sourcelines;
-      std::vector<std::string> fileline;
-      std::vector<std::string> function_decls;
+  // executor only:
+  unsigned short version;
+  unsigned int invocations;
+  u64 instr_cycles;  // FIXME need an enable-profiling flag
+  Plib::Package const* pkg;
+  std::vector<Instruction> instr;
 
-      std::vector<EPExportedFunction> exported_functions;
+  // debug data:
+  bool debug_loaded;
+  unsigned savecurblock;
+  unsigned curblock;
+  unsigned curfile;
+  unsigned curline;
+  bool statementbegin;
+  std::vector<std::string> globalvarnames;
+  std::vector<EPDbgBlock> blocks;
+  std::vector<EPDbgFunction> dbg_functions;
+  std::vector<std::string> dbg_filenames;
 
-	  // executor only:
-	  unsigned short version;
-      unsigned int invocations;
-      u64 instr_cycles; // FIXME need an enable-profiling flag
-      Plib::Package const * pkg;
-      std::vector<Instruction> instr;
+  // per instruction:
+  std::vector<unsigned> dbg_filenum;
+  std::vector<unsigned> dbg_linenum;
+  std::vector<unsigned> dbg_ins_blocks;
+  std::vector<bool> dbg_ins_statementbegin;
+  void setcontext( const CompilerContext& ctx );
+  void setstatementbegin();
 
-	  // debug data:
-	  bool debug_loaded;
-	  unsigned savecurblock;
-	  unsigned curblock;
-	  unsigned curfile;
-	  unsigned curline;
-	  bool statementbegin;
-      std::vector< std::string > globalvarnames;
-      std::vector< EPDbgBlock > blocks;
-      std::vector< EPDbgFunction > dbg_functions;
-      std::vector< std::string > dbg_filenames;
+  void enterfunction();
+  void leavefunction();
+  void enterblock();
+  void leaveblock();
+  void addlocalvar( const std::string& localvarname );
+  void addfunction( std::string name, unsigned firstPC, unsigned lastPC );
+  void update_dbg_pos( const Token& tkn );
+  void add_ins_dbg_info();
 
-	  // per instruction:
-      std::vector< unsigned > dbg_filenum;
-      std::vector< unsigned > dbg_linenum;
-      std::vector< unsigned > dbg_ins_blocks;
-      std::vector< bool > dbg_ins_statementbegin;
-	  void setcontext( const CompilerContext& ctx );
-	  void setstatementbegin();
+  int add_dbg_filename( const std::string& filename );
+  std::string dbg_get_instruction( size_t atPC ) const;
 
-	  void enterfunction();
-	  void leavefunction();
-	  void enterblock();
-	  void leaveblock();
-	  void addlocalvar( const std::string& localvarname );
-	  void addfunction( std::string name, unsigned firstPC, unsigned lastPC );
-	  void update_dbg_pos( const Token& tkn );
-	  void add_ins_dbg_info();
+  unsigned varcount( unsigned block );
+  unsigned parentvariables( unsigned parent );
+  size_t sizeEstimate() const;
 
-	  int add_dbg_filename( const std::string& filename );
-	  std::string dbg_get_instruction( size_t atPC ) const;
+private:
+  friend class EScriptProgramCheckpoint;
+  ~EScriptProgram();
+  friend class ref_ptr<EScriptProgram>;
+};
 
-	  unsigned varcount( unsigned block );
-	  unsigned parentvariables( unsigned parent );
-      size_t sizeEstimate() const;
-	private:
-	  friend class EScriptProgramCheckpoint;
-	  ~EScriptProgram();
-	  friend class ref_ptr<EScriptProgram>;
-	};
+class EScriptProgramCheckpoint
+{
+public:
+  explicit EScriptProgramCheckpoint( const EScriptProgram& );
+  void commit( const EScriptProgram& prog );
+  void rollback( EScriptProgram& prog ) const;
 
-	class EScriptProgramCheckpoint
-	{
-	public:
-	  explicit EScriptProgramCheckpoint( const EScriptProgram& );
-	  void commit( const EScriptProgram& prog );
-	  void rollback( EScriptProgram& prog ) const;
-
-	  unsigned module_count;
-	  unsigned tokens_count;
-	  unsigned symbols_length;
-	  unsigned sourcelines_count;
-	  unsigned fileline_count;
-	};
-  }
+  unsigned module_count;
+  unsigned tokens_count;
+  unsigned symbols_length;
+  unsigned sourcelines_count;
+  unsigned fileline_count;
+};
+}
 }
 #endif

@@ -9,25 +9,27 @@
 
 #include "../../bscript/execmodl.h"
 
-namespace Pol {
-    namespace Core {
-        class Party;
-    }
-  namespace Module {
-	class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule>
-	{
-	public:
-      PartyExecutorModule( Bscript::Executor& exec ) :
-		TmplExecutorModule<PartyExecutorModule>( "Party", exec ) {};
+namespace Pol
+{
+namespace Core
+{
+class Party;
+}
+namespace Module
+{
+class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule>
+{
+public:
+  PartyExecutorModule( Bscript::Executor& exec )
+      : TmplExecutorModule<PartyExecutorModule>( "Party", exec ){};
 
-      Bscript::BObjectImp* mf_CreateParty( );
-      Bscript::BObjectImp* mf_DisbandParty( );
-      Bscript::BObjectImp* mf_SendPartyMsg( );
-      Bscript::BObjectImp* mf_SendPrivatePartyMsg( );
-	};
+  Bscript::BObjectImp* mf_CreateParty();
+  Bscript::BObjectImp* mf_DisbandParty();
+  Bscript::BObjectImp* mf_SendPartyMsg();
+  Bscript::BObjectImp* mf_SendPrivatePartyMsg();
+};
 
-    Bscript::BObjectImp* CreatePartyRefObjImp( Core::Party* party );
-  }
+Bscript::BObjectImp* CreatePartyRefObjImp( Core::Party* party );
+}
 }
 #endif
-
