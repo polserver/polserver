@@ -685,8 +685,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
       CURL* curl = curl_sp.get();
       if ( curl )
       {
-        curl_easy_setopt( curl, CURLOPT_URL, url->value() );
-        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->value() );
+        curl_easy_setopt( curl, CURLOPT_URL, url->value().c_str() );
+        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->value().c_str() );
         curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
 
         struct curl_slist* chunk = nullptr;

@@ -79,6 +79,8 @@ set (clib_sources
   timer.h
   tracebuf.cpp
   tracebuf.h
+  unicode.cpp
+  unicode.h
   unittest.h
   wallclock.cpp
   wallclock.h
