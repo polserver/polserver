@@ -73,7 +73,7 @@ public:
     OTUnknown = 0,
     OTUninit = 1,
     OTString = 2,
-    OTUnicode = 38,
+    OTUnicode = 40,
     OTLong = 3,
     OTDouble = 4,
     OTArray = 5,
@@ -115,6 +115,7 @@ public:
     OTSQLRow = 37,
     OTBoolean = 38,
     OTFuncRef = 39,
+    // 40 is taken for OTUnicode
   };
 
 #if INLINE_BOBJECTIMP_CTOR

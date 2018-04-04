@@ -840,8 +840,11 @@ public:
   {
     if ( objimp.isa( T ) )
       return ( value_ == static_cast<const D&>( objimp ).value_ );
-    else
-      return false;
+
+    if ( objimp.isa( OTBoolean ) )
+      return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
+
+    return false;
   }
 
   /**

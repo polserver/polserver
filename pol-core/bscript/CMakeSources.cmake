@@ -1,6 +1,7 @@
 set (bscript_sources    # sorted !
   CMakeSources.cmake 
   StdAfx.h
+  basestr.h
   berror.cpp 
   berror.h
   blong.cpp 
