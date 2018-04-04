@@ -183,7 +183,6 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
     len = static_cast<int>( replace_with->length() - index );
 
   string->replace( *replace_with, static_cast<unsigned>( index ), static_cast<unsigned>( len ) );
-                   static_cast<unsigned>( len ) );
 
   return string.release();
 }
@@ -713,7 +712,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
   if ( exec.getStringParam( 0, str ) )
   {
     picojson::value v;
-    std::string err = picojson::parse( v, str->data() );
+    std::string err = picojson::parse( v, str->value() );
     if ( !err.empty() )
     {
       return new BError( err );

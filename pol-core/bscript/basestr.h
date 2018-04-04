@@ -199,7 +199,7 @@ public:
   unsigned int alnumlen() const
   {
     unsigned int c = 0;
-    while ( iswalnum( value_[c] ) )
+    while ( iswalnum(static_cast<wchar_t>(value_[c])) )
       c++;
     return c;
   }
@@ -488,7 +488,7 @@ protected:
 
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE
   {
-    Pol::Bscript::ObjMethod* objmethod = getKnownObjMethod( methodname );
+    ObjMethod* objmethod = getKnownObjMethod( methodname );
     if ( objmethod != NULL )
       return this->call_method_id( objmethod->id, ex );
     else

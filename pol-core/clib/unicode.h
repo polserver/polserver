@@ -43,6 +43,8 @@ public:
   //   ------------------------------- OPERATORS ----------------------------------------------
   inline bool operator==( const char16_t c ) const { return val_ == c; };
   inline bool operator==( const UnicodeChar &c ) const { return val_ == c.val_; };
+  inline bool operator!=( const char16_t c ) const { return val_ != c; };
+  inline bool operator!=( const UnicodeChar &c ) const { return val_ != c.val_; };
   inline bool operator<=( const UnicodeChar &c ) const { return val_ <= c.val_; };
   inline bool operator>=( const UnicodeChar &c ) const { return val_ >= c.val_; };
   inline bool operator<( const UnicodeChar &c ) const { return val_ < c.val_; };
@@ -74,6 +76,12 @@ private:
 };
 
 /**
+ * Provides traits for the UnicodeChar
+ */
+class UnicodeCharTraits : public std::char_traits<UnicodeChar> {
+};
+
+/**
  * Represents an Unicode String
  *
  * Uses utf16 for internal storage.
@@ -88,10 +96,10 @@ private:
  *   be represented anyway)
  * @author Bodom, 12-08-2015
  */
-class UnicodeString : public std::basic_string<UnicodeChar>
+class UnicodeString : public std::basic_string<UnicodeChar, UnicodeCharTraits>
 {
 private:
-  typedef std::basic_string<UnicodeChar> base;
+  typedef std::basic_string<UnicodeChar, UnicodeCharTraits> base;
 
 public:
   // TODO: use ("using") all base class constructor on VS2015
@@ -191,6 +199,11 @@ public:
   inline bool UnicodeString::operator==( const char16_t c ) const
   {
     return size() == 1 && front() == c;
+  };
+
+  inline bool UnicodeString::operator!=( const char16_t c ) const
+  {
+    return size() != 1 || front() != c;
   };
 
   /**

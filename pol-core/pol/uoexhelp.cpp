@@ -428,7 +428,6 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
         exec.setFunctionResult( new BError(
            std::string( "Objtype not defined: " ) + pstring->value()
         ));
-        new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;
       }
@@ -511,7 +510,6 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
       else
       {
         exec.setFunctionResult(new BError(std::string("Objtype not defined: ") + pstring->value()));
-        new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;
       }

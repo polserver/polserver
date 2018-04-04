@@ -556,13 +556,13 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
     if ( chr->has_active_client() )
     {
       Network::PktHelper::PacketOut<Network::PktOut_A5> msg;
-      unsigned urllen;
 
+      size_t urllen;
       urllen = str->length();
       if ( urllen > URL_MAX_LEN )
         urllen = URL_MAX_LEN;
 
-      msg->WriteFlipped<u16>( urllen + 4u );
+      msg->WriteFlipped<u16>( urllen + 4 );
       msg->Write(str->value().c_str(), static_cast<u16>(urllen + 1));
       msg.Send( chr->client );
       return new BLong( 1 );
@@ -685,8 +685,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
       CURL* curl = curl_sp.get();
       if ( curl )
       {
-        curl_easy_setopt( curl, CURLOPT_URL, url->data() );
-        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
+        curl_easy_setopt( curl, CURLOPT_URL, url->value() );
+        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->value() );
         curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
 
         struct curl_slist* chunk = nullptr;

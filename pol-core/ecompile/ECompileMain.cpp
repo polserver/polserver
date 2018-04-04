@@ -27,6 +27,7 @@
 #include "../plib/systemstate.h"
 
 namespace Pol
+{
 namespace ECompile
 {
 using namespace std;

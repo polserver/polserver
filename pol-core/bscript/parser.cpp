@@ -1238,7 +1238,9 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
         return -1;
       }
 
-      passert_always_r( !( escnext && hexnext ),
+      passert_always_r( !(escnext && hexnext),
+        "Bug in the compiler. Please report this on the forums." );
+
       // Read next char to be processed
       wchar_t nextChar;
       if( unicode )

@@ -90,7 +90,9 @@ BObjectImp* BObjectImp::unpack( std::istream& is )
     case 'S':
       return String::unpackWithLen( is );
     case 'U':
-      return Unicode::unpack( is );
+      //TODO FIXME Unicode
+      passert_always_r(false, "Bug. To be implemented.");
+      //return Unicode::unpack( is );
     case 'i':
       return BLong::unpack( is );
     case 'r':
