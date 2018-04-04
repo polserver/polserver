@@ -196,12 +196,12 @@ public:
     return res;
   };
 
-  inline bool UnicodeString::operator==( const char16_t c ) const
+  inline bool operator==( const char16_t c ) const
   {
     return size() == 1 && front() == c;
   };
 
-  inline bool UnicodeString::operator!=( const char16_t c ) const
+  inline bool operator!=( const char16_t c ) const
   {
     return size() != 1 || front() != c;
   };

@@ -365,19 +365,29 @@ public:
 // ------------------- FORMATTING INTERNAL FUNCTIONS ------------------------
 private:
 
-  /** Internal function used by format, parses a tag into an int */
-  bool s_parse_int(int &i, const std::string &s) const
+  /**
+   * Internal function used by format, parses a tag into an int
+   *
+   * @param i The result will be placed into this var
+   * @param s The string to be parsed
+   * @return true on success
+   */
+  bool s_parse_int(unsigned &i, const std::string &s) const
   {
     if ( s.empty() )
       return false;
 
     char* end;
-    i = strtol( s.c_str(), &end, 10 );
+    int r = strtol( s.c_str(), &end, 10 );
 
-    if ( !*end )
-      return true;
-    else
+    if ( r < 0 )
       return false;
+    i = r;
+
+    if ( ! *end )
+      return true;
+
+    return false;
   }
 
   /** Internal function used by format, converts int to binary string */
@@ -554,7 +564,7 @@ protected:
           size_t tag_stop_pos;   // the position of tag's end "}"
           size_t tag_dot_pos;
 
-          int tag_param_idx;
+          unsigned int tag_param_idx;
 
           size_t str_pos = 0;         // current string position
           unsigned int next_param_idx = 0;  // next index of .format() parameter

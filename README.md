@@ -70,6 +70,8 @@ The command will generate binaries and dynamicaly linked libraries in the `bin/`
 
 To generate a compressed distributable archive (without debug symbols), then use `./build_linux_release.sh`.
 
+To clean, use `./build_tools.sh -p`.
+
 ### Manual/Advanced compiling
 
 The following instructions are only for advanced users. If you only want to compile the core, please follow the steps above.

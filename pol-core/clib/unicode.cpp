@@ -74,7 +74,7 @@ u8 Utf8Char::getByteLen() const
     return 1;
 
   u8 ret = 0;
-  for( u8 i = 7; i >= 0; i-- )
+  for( int i = 7; i >= 0; i-- )
     if( bytes_[0] & ( 1 << i ) )
       ret++;
     else
@@ -120,11 +120,12 @@ char32_t Utf8Char::asUtf32() const
 char16_t Utf8Char::asUtf16( const bool failsafe ) const
 {
   char32_t out = asUtf32();
-  if( out > 0xFFFF )
+  if( out > 0xFFFF ) {
     if( failsafe )
       return 0xFFFD;
     else
       throw UnicodeCastFailedException();
+  }
   return static_cast<char16_t>(out);
 }
 
@@ -138,11 +139,12 @@ char16_t Utf8Char::asUtf16( const bool failsafe ) const
 char Utf8Char::asAnsi( const bool failsafe ) const
 {
   char32_t out = asUtf32();
-  if( out > 0xFF )
+  if( out > 0xFF ) {
     if( failsafe )
       return '?';
     else
       throw UnicodeCastFailedException();
+  }
   return static_cast<char>(out);
 }
 
@@ -190,11 +192,12 @@ u8 UnicodeChar::getByteLen() const
  */
 char UnicodeChar::asAnsi( const bool failsafe ) const
 {
-  if( val_ > 0xFF )
+  if( val_ > 0xFF ) {
     if( failsafe )
       return '?';
     else
       return 0;
+  }
   return static_cast<char>(val_);
 }
 
@@ -344,12 +347,12 @@ Utf8CharValidator::AddByteResult Utf8CharValidator::addByte(const char byte)
       // this is the start of a multibyte utf8 char
       // number of most significant bits set to 1 tells how many bytes is the
       // character composed in total (first byte is this one)
-      for( u8 i = 6; i >= 0; i-- )
+      for( int i = 6; i >= 0; i-- )
         if( byte & ( 1 << i ) )
           bytesNext_++;
         else
           break;
-       if( bytesNext_ < 1 || bytesNext_ > 3 )
+      if( bytesNext_ < 1 || bytesNext_ > 3 )
         return AddByteResult::INVALID;
 
       char_.bytes_.push_back(byte);
