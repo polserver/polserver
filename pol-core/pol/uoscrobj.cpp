@@ -2057,7 +2057,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       lastcoord->addMember( "lastz", new BLong( lastz ) );
       return lastcoord.release();
     }
-    return new BError("No client attached.");
+    return new BError( "No client attached." );
   case MBR_ACTIVE_SKILL:
     return new BLong( skill_ex_active() );
   case MBR_CASTING_SPELL:
@@ -4343,6 +4343,9 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
     break;
   case MBR_LAST_PACKET_AT:
     return BObjectRef( new BLong( obj_->last_packet_at ) );
+    break;
+  case MBR_PORT:
+    return BObjectRef( new BLong( obj_->listen_port ) );
     break;
   }
 
