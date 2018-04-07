@@ -19,6 +19,7 @@ dist:
 	copy ..\..\runecl\release\runecl.exe scripts
 !	ENDIF
 	copy ..\..\support\scripts\ecompile.cfg.example scripts\ecompile.cfg.example
+	copy ..\..\support\pol.cfg.example pol.cfg.example
 	copy ..\..\doc\core-changes.txt .
 	copy ..\..\doc\uoconvert.txt .
 	copy ..\..\doc\packethooks.txt .
