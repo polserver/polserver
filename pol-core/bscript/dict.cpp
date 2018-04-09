@@ -385,7 +385,7 @@ BObjectImp* BDictionary::unpack( std::istream& is )
   return new BDictionary( is, size );
 }
 
-std::string BDictionary::getStringRep() const
+UnicodeStr BDictionary::getStringRep() const
 {
   OSTRINGSTREAM os;
   os << typetag() << "{ ";
@@ -406,7 +406,7 @@ std::string BDictionary::getStringRep() const
 
   os << " }";
 
-  return OSTRINGSTREAM_STR( os );
+  return UnicodeStr(Clib::StrEncoding::UTF8, OSTRINGSTREAM_STR( os ));
 }
 
 void BDictionary::FormatForStringRep( std::ostream& os, const BObject& bkeyobj,

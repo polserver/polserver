@@ -205,13 +205,13 @@ int Executor::makeString( unsigned param )
   return 0;
 }
 
-const char* Executor::paramAsString( unsigned param )
+const UnicodeString Executor::paramAsString( unsigned param )
 {
   makeString( param );
   BObjectImp* objimp = fparams[param]->impptr();
 
   String* str = (String*)objimp;
-  return str ? str->value().c_str() : "";
+  return str ? str->value() : UnicodeString();
 }
 
 int Executor::makeDouble( unsigned param )
@@ -502,7 +502,7 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
              << "\tParameter " << param
              << ": Expected datatype " /*<< object_type TODO this is totally useless since its a
                                           pointer address*/
-             << ", got datatype " << aob->getStringRep() << "\n";
+             << ", got datatype " << aob->getStringRep().value().utf8() << "\n";
 
     return NULL;
   }
@@ -955,9 +955,9 @@ size_t ContIterator::sizeEstimate() const
 {
   return sizeof( ContIterator );
 }
-std::string ContIterator::getStringRep() const
+UnicodeStr ContIterator::getStringRep() const
 {
-  return "<iterator>";
+  return UnicodeStr(Clib::StrEncoding::UTF8, "<iterator>");
 }
 
 class ArrayIterator : public ContIterator

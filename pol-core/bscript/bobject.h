@@ -28,6 +28,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "../clib/unicode.h"
 
 #if INLINE_BOBJECTIMP_CTOR
 #include "escriptv.h"
@@ -54,8 +55,11 @@ class Instruction;
 class BLong;
 class Double;
 class String;
-class Unicode;
 class ObjArray;
+
+using Clib::UnicodeString;
+using Clib::UnicodeChar;
+using Clib::StrEncoding;
 
 class BObjectImp : public ref_counted
 {
@@ -73,7 +77,6 @@ public:
     OTUnknown = 0,
     OTUninit = 1,
     OTString = 2,
-    OTUnicode = 40,
     OTLong = 3,
     OTDouble = 4,
     OTArray = 5,
@@ -115,7 +118,6 @@ public:
     OTSQLRow = 37,
     OTBoolean = 38,
     OTFuncRef = 39,
-    // 40 is taken for OTUnicode
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -142,8 +144,8 @@ public:
   static const char* typestr( BObjectType typ );
 
   virtual BObjectImp* copy() const = 0;
-  virtual std::string getStringRep() const = 0;
-  virtual std::string getFormattedStringRep() const;
+  virtual UnicodeString getStringRep() const = 0;
+  virtual UnicodeString getFormattedStringRep() const;
 
   virtual size_t sizeEstimate() const = 0;
   virtual const char* typeOf() const;
@@ -474,7 +476,9 @@ public:
 
   virtual BObjectImp* copy() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE { return "<uninitialized object>"; }
+  virtual UnicodeString getStringRep() const POL_OVERRIDE {
+    return UnicodeString(Clib::StrEncoding::UTF8, "<uninitialized object>");
+  }
   virtual void printOn( std::ostream& os ) const POL_OVERRIDE;
 
   virtual bool isTrue() const POL_OVERRIDE;
@@ -551,7 +555,7 @@ public:
 
   const BObjectImp* imp_at( unsigned index ) const;  // 1-based
 
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual void printOn( std::ostream& os ) const POL_OVERRIDE;
 
   virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
@@ -671,7 +675,7 @@ public:  // Class Machinery
 
   virtual BObjectImp* bitnot() const POL_OVERRIDE;
 
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
 protected:
@@ -758,7 +762,7 @@ public:  // Class Machinery
   virtual void selfDividedByObj( Double& objimp, BObject& obj ) POL_OVERRIDE;
 
   virtual BObjectImp* inverse() const POL_OVERRIDE { return new Double( -dval_ ); }
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
 private:
@@ -805,7 +809,7 @@ public:  // Class Machinery
   virtual bool isTrue() const POL_OVERRIDE;
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
 private:
@@ -833,7 +837,7 @@ public:  // Class Machinery
   virtual bool isTrue() const POL_OVERRIDE;
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
 
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
 
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
   virtual BObjectImp* call_method_id( const int id, Executor& ex,
@@ -866,7 +870,7 @@ public:
 public:  // Class Machinery
   virtual BObjectImp* copy() const POL_OVERRIDE;
 
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual void printOn( std::ostream& ) const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
 
@@ -886,7 +890,7 @@ public:
 public:  // Class Machinery
   virtual BObjectImp* copy() const POL_OVERRIDE = 0;
 
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual void printOn( std::ostream& ) const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE = 0;
 
@@ -959,6 +963,7 @@ T* BApplicObj<T>::operator->()
 {
   return &obj_;
 }
+
 }
 }
 #endif

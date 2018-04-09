@@ -24,7 +24,6 @@
 #include "bobject.h"
 #include "bstruct.h"
 #include "dict.h"
-//#include "impunicode.h"
 #include "executor.h"
 #include "impstr.h"
 #include "object.h"
@@ -89,10 +88,6 @@ BObjectImp* BObjectImp::unpack( std::istream& is )
       return String::unpack( is );
     case 'S':
       return String::unpackWithLen( is );
-    case 'U':
-      //TODO FIXME Unicode
-      passert_always_r(false, "Bug. To be implemented.");
-      //return Unicode::unpack( is );
     case 'i':
       return BLong::unpack( is );
     case 'r':
@@ -169,7 +164,7 @@ typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
 bobjectimps bobjectimp_instances;
 int display_bobjectimp_instance( BObjectImp* imp )
 {
-  INFO_PRINT << imp->instance() << ": " << imp->getStringRep() << "\n";
+  INFO_PRINT << imp->instance() << ": " << imp->getStringRep().value().utf8() << "\n";
   return 0;
 }
 void display_bobjectimp_instances()
@@ -215,7 +210,7 @@ void BObjectImp::packonto( std::ostream& os ) const
   os << "u";
 }
 
-std::string BObjectImp::getFormattedStringRep() const
+UnicodeString BObjectImp::getFormattedStringRep() const
 {
   return getStringRep();
 }
@@ -1406,7 +1401,7 @@ void ObjArray::addElement( BObjectImp* imp )
   ref_arr.push_back( BObjectRef( new BObject( imp ) ) );
 }
 
-std::string ObjArray::getStringRep() const
+UnicodeString ObjArray::getStringRep() const
 {
   OSTRINGSTREAM os;
   os << "{ ";
@@ -1428,7 +1423,7 @@ std::string ObjArray::getStringRep() const
   }
   os << " }";
 
-  return OSTRINGSTREAM_STR( os );
+  return UnicodeString(StrEncoding::UTF8, OSTRINGSTREAM_STR( os ));
 }
 
 long ObjArray::contains( const BObjectImp& imp ) const
@@ -1770,9 +1765,9 @@ void* BApplicPtr::ptr() const
   return ptr_;
 }
 
-std::string BApplicPtr::getStringRep() const
+UnicodeString BApplicPtr::getStringRep() const
 {
-  return "<appptr>";
+  return UnicodeString(StrEncoding::UTF8, "<appptr>");
 }
 
 
@@ -1781,9 +1776,9 @@ void BApplicPtr::printOn( std::ostream& os ) const
   os << "<appptr>";
 }
 
-std::string BApplicObjBase::getStringRep() const
+UnicodeString BApplicObjBase::getStringRep() const
 {
-  return std::string( "<appobj:" ) + typeOf() + ">";
+  return UnicodeString(StrEncoding::UTF8, std::string( "<appobj:" ) + typeOf() + ">");
 }
 
 void BApplicObjBase::printOn( std::ostream& os ) const
@@ -1841,9 +1836,9 @@ bool BBoolean::operator==( const BObjectImp& objimp ) const
   return bval_ == objimp.isTrue();
 }
 
-std::string BBoolean::getStringRep() const
+UnicodeString BBoolean::getStringRep() const
 {
-  return bval_ ? "true" : "false";
+  return UnicodeString(StrEncoding::UTF8, bval_ ? "true" : "false");
 }
 
 
@@ -1880,9 +1875,9 @@ bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
   return false;
 }
 
-std::string BFunctionRef::getStringRep() const
+UnicodeString BFunctionRef::getStringRep() const
 {
-  return "FunctionObject";
+  return UnicodeString(StrEncoding::UTF8, "FunctionObject");
 }
 
 BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )

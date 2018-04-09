@@ -336,7 +336,7 @@ class StorageAreaImp : public BObjectImp
 public:
   StorageAreaImp( StorageArea* area ) : BObjectImp( BObjectImp::OTUnknown ), _area( area ) {}
   virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreaImp( _area ); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return _area->_name; }
+  virtual UnicodeString getStringRep() const POL_OVERRIDE { return _area->_name; }
   virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
   ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
   {
@@ -407,7 +407,7 @@ class StorageAreasImp : public BObjectImp
 public:
   StorageAreasImp() : BObjectImp( BObjectImp::OTUnknown ) {}
   virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreasImp(); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return "<StorageAreas>"; }
+  virtual UnicodeString getStringRep() const POL_OVERRIDE { return "<StorageAreas>"; }
   virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
   ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
   {

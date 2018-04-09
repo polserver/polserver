@@ -1245,7 +1245,7 @@ public:
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
   virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
   virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
 
 private:
@@ -1662,7 +1662,7 @@ public:
   virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
   virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( PolCore ); }
   virtual const char* typeOf() const POL_OVERRIDE;
   virtual u8 typeOfInt() const POL_OVERRIDE;

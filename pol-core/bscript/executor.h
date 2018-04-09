@@ -33,6 +33,7 @@
 #include <format/format.h>
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "../clib/unicode.h"
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
@@ -177,7 +178,7 @@ public:
   BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
 
 
-  const char* paramAsString( unsigned param );
+  const UnicodeString paramAsString( unsigned param );
   double paramAsDouble( unsigned param );
   int paramAsLong( unsigned param );
 

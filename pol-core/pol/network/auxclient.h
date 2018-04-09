@@ -68,7 +68,7 @@ public:
 
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
   virtual bool isTrue() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
 
   virtual Bscript::BObjectImp* call_method( const char* methodname,

@@ -409,7 +409,7 @@ void BStruct::packonto( std::ostream& os ) const
   }
 }
 
-std::string BStruct::getStringRep() const
+UnicodeString BStruct::getStringRep() const
 {
   OSTRINGSTREAM os;
   os << typetag() << "{ ";
@@ -430,7 +430,7 @@ std::string BStruct::getStringRep() const
 
   os << " }";
 
-  return OSTRINGSTREAM_STR( os );
+  return UnicodeString(Clib::StrEncoding::UTF8, OSTRINGSTREAM_STR( os ));
 }
 
 

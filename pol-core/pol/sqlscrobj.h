@@ -73,7 +73,7 @@ public:
   // virtual Bscript::BObjectImp* call_method_id( const int id, Executor& ex, bool
   // forcebuiltin=false );
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE { return "SQLRow"; }
+  virtual UnicodeString getStringRep() const POL_OVERRIDE { return "SQLRow"; }
   virtual size_t sizeEstimate() const POL_OVERRIDE
   {
     return sizeof( *this ) + sizeof( MYSQL_FIELD );
@@ -101,7 +101,7 @@ public:
   const char* field_name( unsigned int index ) const;
   int num_rows() const;
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE
   {
     return sizeof( *this ) + sizeof( MYSQL_FIELD );
@@ -149,7 +149,7 @@ public:
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
                                                bool forcebuiltin = false ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ) + _error.capacity(); }
   virtual const char* typeOf() const POL_OVERRIDE { return "SQLConnection"; }
   virtual u8 typeOfInt() const POL_OVERRIDE { return OTSQLConnection; }

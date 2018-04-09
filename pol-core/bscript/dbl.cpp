@@ -98,12 +98,12 @@ bool Double::operator<( const BObjectImp& objimp ) const
   return base::operator<( objimp );
 }
 
-std::string Double::getStringRep() const
+UnicodeString Double::getStringRep() const
 {
   OSTRINGSTREAM os;
 
   os << dval_;
-  return OSTRINGSTREAM_STR( os );
+  return UnicodeString(Clib::StrEncoding::UTF8, OSTRINGSTREAM_STR( os ));
 }
 
 BObjectImp* Double::selfPlusObjImp( const BObjectImp& objimp ) const

@@ -1,19 +1,14 @@
 ﻿-- POL100 --
 XX-XX-XXXX Bodom:
   Added:   Native unicode support
-           New syntax u"some utf8 text" in escript, used to define an Unicode
-           object. Valid chars are 0x0000-0xFFFF: chars above 0xFFFF are not
+           All scripts and strings must now be utf8.
+           Valid chars are 0x0000-0xFFFF: chars above 0xFFFF are not
            supported in UO. When an unicode contains invalid chars, the compiler
            will issue an error.
-           The new Unicode object implements all the methods that are implemented
-           on the String object, but returns Unicode objects instead.
-           Unicode uses about double the amount of memory used by String, but
-           has only a very small deterioration in performance.
-           String can be lossless converted to Unicode.
-           Unicode can be converted to String, but, when converting, all the
+           String can be converted to ANSI, but, when converting, all the
            non-ANSI characters (those above 0xFF) are silently converted to a
            question mark ('?').
-           Unicode objects are saved and packed using utf8 encoding.
+           String objects are saved and packed using utf8 encoding.
 04-02-2018 Bodom:
   Removed: polcore().compiledate and polcore().compiletime
   Added:   polcore().compiledatetime

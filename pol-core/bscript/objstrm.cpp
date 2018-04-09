@@ -6,7 +6,6 @@
 
 #include "bobject.h"
 #include "impstr.h"
-#include "impunicode.h"
 
 #include <format/format.h>
 #include <sstream>
