@@ -954,7 +954,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 		  std::unique_ptr<ObjArray> arr(new ObjArray);
 		  std::size_t pos = 0, found;
 		  
-		  while ((found = value_.find_first_of(container->value, pos)) != std::string::npos)
+		  while ((found = value_.find_first_of(container->value(), pos)) != std::string::npos)
 		  {
 			  arr->addElement(new String(value_.substr(pos, found - pos)));
 			  pos = found + 1;
