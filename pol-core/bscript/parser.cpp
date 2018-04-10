@@ -656,7 +656,7 @@ ObjMethod object_methods[] = {
     {MTH_UPPER, "upper", false},
     {MTH_LOWER, "lower", false},  // 145
     {MTH_FORMAT, "format", false},
-	{MTH_SPLIT, "split", false},
+	{MTH_SPLITSTRING, "split", false},
     {MTH_DISABLE_SKILLS_FOR, "disableskillsfor", false},
     {MTH_CYCLE, "cycle", false},
     {MTH_ADD_BUFF, "addbuff", false},  // 150

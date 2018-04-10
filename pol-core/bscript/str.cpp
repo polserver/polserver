@@ -942,7 +942,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     else
       return new BError( "string.join(array) requires a parameter." );
   }
-  case MTH_SPLIT:
+  case MTH_SPLITSTRING:
   {
 	  BObject* cont;
 	  if (ex.numParams() == 1 && (cont = ex.getParamObj(0)) != NULL)
