@@ -949,15 +949,17 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 	  {
 		  if (!(cont->isa(OTString)))
 			  return new BError("string.split expects a string");
+
 		  String* container = static_cast<String*>(cont->impptr());
-		  std::string to_split = value_;
 		  std::unique_ptr<ObjArray> arr(new ObjArray);
 		  std::size_t pos = 0, found;
-		  while ((found = to_split.find_first_of(container->value, pos)) != std::string::npos) {
-			  arr->addElement(new String(to_split.substr(pos, found - pos)));
+		  
+		  while ((found = value_.find_first_of(container->value, pos)) != std::string::npos)
+		  {
+			  arr->addElement(new String(value_.substr(pos, found - pos)));
 			  pos = found + 1;
 		  }
-		  arr->addElement(new String(to_split.substr(pos)));
+		  arr->addElement(new String(value_.substr(pos)));
 
 		  return arr.release();
 	  }
