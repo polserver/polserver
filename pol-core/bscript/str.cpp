@@ -942,6 +942,28 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
     else
       return new BError( "string.join(array) requires a parameter." );
   }
+  case MTH_SPLIT:
+  {
+	  BObject* cont;
+	  if (ex.numParams() == 1 && (cont = ex.getParamObj(0)) != NULL)
+	  {
+		  if (!(cont->isa(OTString)))
+			  return new BError("string.split expects a string");
+		  String* container = static_cast<String*>(cont->impptr());
+		  std::string to_split = value_;
+		  std::unique_ptr<ObjArray> arr(new ObjArray);
+		  std::size_t pos = 0, found;
+		  while ((found = to_split.find_first_of(container->value, pos)) != std::string::npos) {
+			  arr->addElement(new String(to_split.substr(pos, found - pos)));
+			  pos = found + 1;
+		  }
+		  arr->addElement(new String(to_split.substr(pos)));
+
+		  return arr.release();
+	  }
+	  else
+		  return new BError("string.split(string) requires a parameter.");
+  }
   default:
     return NULL;
   }
