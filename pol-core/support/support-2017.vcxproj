@@ -103,7 +103,7 @@
     <None Include="scripts\uo.em" />
     <None Include="scripts\util.em" />
     <None Include="scripts\vitals.em" />
-    <None Include="pol.cfg" />
+    <None Include="pol.cfg.example" />
     <None Include="uoconvert.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

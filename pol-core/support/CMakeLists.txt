@@ -5,7 +5,7 @@ message("* (${lib_name})")
 #custom target to show it in IDEs
 add_custom_target(${lib_name} SOURCES
   uoconvert.cfg
-  pol.cfg
+  pol.cfg.example
   extobj.cfg
   boats.cfg
   animxlate.cfg
@@ -35,7 +35,7 @@ add_custom_target(${lib_name} SOURCES
 
 install(FILES
   uoconvert.cfg
-  pol.cfg
+  pol.cfg.example
   DESTINATION .
   COMPONENT bin
 )
