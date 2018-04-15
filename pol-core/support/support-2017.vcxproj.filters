@@ -72,7 +72,7 @@
     <None Include="scripts\vitals.em">
       <Filter>scripts</Filter>
     </None>
-    <None Include="pol.cfg" />
+    <None Include="pol.cfg.example" />
     <None Include="uoconvert.cfg" />
     <None Include="extobj.cfg" />
     <None Include="boats.cfg" />
