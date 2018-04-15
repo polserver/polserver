@@ -11,11 +11,16 @@
 #include <string>
 
 #include <format/format.h>
+#include "../clib/unicode.h"
 
 namespace Pol
 {
 namespace Bscript
 {
+
+using Clib::UnicodeString;
+using Clib::UnicodeStringIterator;
+
 /**
  * Represents a single compile context.
  *

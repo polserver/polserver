@@ -502,7 +502,7 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
              << "\tParameter " << param
              << ": Expected datatype " /*<< object_type TODO this is totally useless since its a
                                           pointer address*/
-             << ", got datatype " << aob->getStringRep().value().utf8() << "\n";
+             << ", got datatype " << aob->getStringRep().utf8() << "\n";
 
     return NULL;
   }
@@ -914,7 +914,7 @@ BObjectRef Executor::addmember( BObject& left, const BObject& right )
 
   const String& varname = static_cast<const String&>( right.impref() );
 
-  return left.impref().operDotPlus( varname.value().c_str() );
+  return left.impref().operDotPlus( varname.utf8().c_str() );
 }
 
 BObjectRef Executor::removemember( BObject& left, const BObject& right )
@@ -926,7 +926,7 @@ BObjectRef Executor::removemember( BObject& left, const BObject& right )
 
   const String& varname = static_cast<const String&>( right.impref() );
 
-  return left.impref().operDotMinus( varname.value().c_str() );
+  return left.impref().operDotMinus( varname.utf8().c_str() );
 }
 
 BObjectRef Executor::checkmember( BObject& left, const BObject& right )
@@ -938,7 +938,7 @@ BObjectRef Executor::checkmember( BObject& left, const BObject& right )
 
   const String& varname = static_cast<const String&>( right.impref() );
 
-  return left.impref().operDotQMark( varname.value().c_str() );
+  return left.impref().operDotQMark( varname.utf8().c_str() );
 }
 
 
@@ -955,9 +955,9 @@ size_t ContIterator::sizeEstimate() const
 {
   return sizeof( ContIterator );
 }
-UnicodeStr ContIterator::getStringRep() const
+UnicodeString ContIterator::getStringRep() const
 {
-  return UnicodeStr(Clib::StrEncoding::UTF8, "<iterator>");
+  return "<iterator>";
 }
 
 class ArrayIterator : public ContIterator
@@ -1165,7 +1165,7 @@ int Executor::ins_casejmp_findlong( const Token& token, BLong* blong )
 
 int Executor::ins_casejmp_findstring( const Token& token, String* bstringimp )
 {
-  const std::string& bstring = bstringimp->value();
+  const std::string& bstring = bstringimp->utf8();
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {

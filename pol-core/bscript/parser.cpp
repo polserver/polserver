@@ -38,7 +38,7 @@
  * - 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
  * - 2012/04/15 Tomi:      Added MBR_EDITABLE for maps
  * - 2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
- * - 2015/20/12 Bodom:     Added Unicode string support
+ * - 2015/20/12 Bodom:     Added Unicode support
  */
 
 #include "parser.h"
@@ -1040,8 +1040,8 @@ void Parser::write_words( std::ostream& os )
  * @param tok Token&: The token to store the found literal into
  * @param opList: The list of possible operators to look for, as Operator[]
  * @param n_ops: Number of operators in the list
- * @param t: todo
- * @param s: todo
+ * @param t: Copy of the current ctx pointer
+ * @param s: Pointer to the original ctx pointer
  * @param opbuf: todo
  * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
  */
@@ -1210,11 +1210,14 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 *
 * A string is UTF8 bytes between double quotes, with \" escape,
 * please note that UO supported characters are limited to 0x0001-0xFFFF
- *
- * @param tok Token&: The token to store the found literal into
- * @param ctx CompilerContext&: The context to look into
- * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
- */
+*
+* @todo This double-validation is quite useless, since now the whole source is checked
+*       to be valid utf8. This can probably be removed in future.
+*
+* @param tok Token&: The token to store the found literal into
+* @param ctx CompilerContext&: The context to look into
+* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+*/
 int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 {
   if ( ctx.s[0] == '\"' )
@@ -1238,7 +1241,7 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
         "Bug in the compiler. Please report this on the forums." );
 
       // Read next char to be processed
-      wchar_t nextChar;
+      char32_t nextChar;
 
       switch( validator.addByte(*end) )
       {
@@ -1255,7 +1258,7 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
       }
 
       try {
-        nextChar = validator.getChar().asUtf16();
+        nextChar = validator.getChar();
         validator.reset();
       } catch( const Clib::UnicodeCastFailedException& ) {
         err = PERR_INVUTF8;
@@ -1313,7 +1316,7 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 
     tok.id = TOK_STRING;
     tok.type = TYP_OPERAND;
-    tok.copyStr( lit.c_str() );
+    tok.copyStr( lit.utf8().c_str() );
 
     ctx.s = end + 1;  // skip past the ending delimiter
     return 1;

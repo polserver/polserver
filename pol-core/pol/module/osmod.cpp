@@ -238,7 +238,7 @@ BObjectImp* OSExecutorModule::start_script()
 
     // FIXME needs to inherit available modules?
     Core::ScriptDef sd;
-    if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+    if ( !sd.config_nodie( scriptname_str->utf8(), exec.prog()->pkg, "scripts/" ) )
     {
       return new BError( "Error in script name" );
     }
@@ -282,7 +282,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
 
       if ( exec.getStringParam( 2, script_name ) )
       {
-        if ( !script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ) )
+        if ( !script.config_nodie( script_name->utf8(), exec.prog()->pkg, "scripts/skills/" ) )
         {
           return new BError( "Error in script name" );
         }
@@ -368,14 +368,14 @@ BObjectImp* OSExecutorModule::is_critical()
 
 BObjectImp* OSExecutorModule::run_script_to_completion()
 {
-  const char* scriptname = exec.paramAsString( 0 );
-  if ( scriptname == NULL )
+  const UnicodeString scriptname = exec.paramAsString( 0 );
+  if ( scriptname.empty() )
     return new BLong( 0 );
 
   // FIXME needs to inherit available modules?
   Core::ScriptDef script;
 
-  if ( !script.config_nodie( scriptname, exec.prog()->pkg, "scripts/" ) )
+  if ( !script.config_nodie( scriptname.utf8(), exec.prog()->pkg, "scripts/" ) )
     return new BError( "Script descriptor error" );
 
   if ( !script.exists() )
@@ -398,7 +398,7 @@ BObjectImp* OSExecutorModule::run_script()
 
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
-      if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+      if ( !sd.config_nodie( scriptname_str->utf8(), exec.prog()->pkg, "scripts/" ) )
       {
         return new BError( "Error in script name" );
       }
@@ -472,15 +472,15 @@ BObjectImp* OSExecutorModule::mf_Log()
   if ( imp->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    POLLOG << "[" << exec.scriptname() << "]: " << str->value() << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname( ) << "]: " << str->value() << "\n";
+    POLLOG << "[" << exec.scriptname() << "]: " << str->utf8() << "\n";
+    INFO_PRINT << "syslog [" << exec.scriptname( ) << "]: " << str->utf8() << "\n";
     return new BLong( 1 );
   }
   else
   {
-    std::string strval = imp->getStringRep();
-    POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
+    Clib::UnicodeString strval = imp->getStringRep();
+    POLLOG << "[" << exec.scriptname() << "]: " << strval.utf8() << "\n";
+    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval.utf8() << "\n";
     return new BLong( 1 );
   }
 }
@@ -512,10 +512,10 @@ BObjectImp* OSExecutorModule::mf_unload_scripts()
   if ( getStringParam( 0, str ) )
   {
     int n;
-    if ( str->length() == 0 )
+    if ( str->empty() )
       n = Core::unload_all_scripts();
     else
-      n = Core::unload_script( str->value() );
+      n = Core::unload_script( str->utf8() );
     return new BLong( n );
   }
   else
@@ -558,12 +558,12 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
       Network::PktHelper::PacketOut<Network::PktOut_A5> msg;
 
       size_t urllen;
-      urllen = str->length();
+      urllen = str->lengthc();
       if ( urllen > URL_MAX_LEN )
         urllen = URL_MAX_LEN;
 
       msg->WriteFlipped<u16>( urllen + 4 );
-      msg->Write(str->value().c_str(), static_cast<u16>(urllen + 1));
+      msg->Write(str->ascii().c_str(), static_cast<u16>(urllen + 1));
       msg.Send( chr->client );
       return new BLong( 1 );
     }
@@ -596,7 +596,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
-      if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+      if ( !sd.config_nodie( scriptname_str->utf8(), exec.prog()->pkg, "scripts/" ) )
       {
         return new BError( "Error in script name" );
       }
@@ -613,12 +613,12 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       }
 
       weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
-      std::string hostname( host->value() );
+      Clib::UnicodeString hostname( host->value() );
       bool assume_string = assume_string_int != 0;
       Core::networkManager.auxthreadpool->push(
           [uoexec_w, sd, hostname, port, scriptparam, assume_string]() {
             Clib::Socket s;
-            bool success_open = s.open( hostname.c_str(), port );
+            bool success_open = s.open( hostname.utf8().c_str(), port );
             {
               Core::PolLock lck;
               if ( !uoexec_w.exists() )
@@ -685,8 +685,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
       CURL* curl = curl_sp.get();
       if ( curl )
       {
-        curl_easy_setopt( curl, CURLOPT_URL, url->value().c_str() );
-        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->value().c_str() );
+        curl_easy_setopt( curl, CURLOPT_URL, url->ascii().c_str() );
+        curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->ascii().c_str() );
         curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
 
         struct curl_slist* chunk = nullptr;
@@ -696,7 +696,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
           const BObjectImp* data = opts->FindMember( "data" );
           if ( data != nullptr )
           {
-            curl_easy_setopt( curl, CURLOPT_COPYPOSTFIELDS, data->getStringRep().c_str() );
+            curl_easy_setopt( curl, CURLOPT_COPYPOSTFIELDS, data->getStringRep().utf8().c_str() );
           }
 
           const BObjectImp* headers_ = opts->FindMember( "headers" );
@@ -708,7 +708,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
             for ( const auto& content : headers->contents() )
             {
               BObjectImp* ref = content.second->impptr();
-              std::string header = content.first + ": " + ref->getStringRep();
+              std::string header = content.first + ": " + ref->getStringRep().utf8();
               chunk = curl_slist_append( chunk, header.c_str() );
             }
             curl_easy_setopt( curl, CURLOPT_HTTPHEADER, chunk );
@@ -810,7 +810,7 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
                        << npcemod->npc.x << " " << npcemod->npc.y << " " << npcemod->npc.z << ")\n";
           }
 
-          INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
+          INFO_PRINT << "Event: " << ob->getStringRep().utf8() << "\n";
         }
         return false;  // Event-queue is full
       }

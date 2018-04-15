@@ -13,6 +13,7 @@
 #include <string>
 
 #include "../clib/compilerspecifics.h"
+#include "../clib/unicode.h"
 #include "tokens.h"
 
 namespace Pol

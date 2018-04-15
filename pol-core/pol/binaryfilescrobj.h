@@ -88,7 +88,7 @@ public:
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
                                                bool forcebuiltin = false ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual UnicodeString getStringRep() const POL_OVERRIDE;
+  virtual Clib::UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
   virtual const char* typeOf() const POL_OVERRIDE { return "BinaryFile"; }
   virtual u8 typeOfInt() const POL_OVERRIDE { return OTBinaryFile; }

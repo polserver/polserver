@@ -309,7 +309,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_FileExists()
 
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( filename->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in filename descriptor." );
 
   if ( path.find( ".." ) != std::string::npos )
@@ -332,7 +332,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ReadFile()
 
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( filename->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in filename descriptor" );
 
   if ( path.find( ".." ) != std::string::npos )
@@ -370,7 +370,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_WriteFile()
   }
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( filename->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in filename descriptor" );
 
   if ( path.find( ".." ) != std::string::npos )
@@ -398,7 +398,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_WriteFile()
     BObject* obj = ref.get();
     if ( obj != nullptr )
     {
-      ofs << ( *obj )->getStringRep();
+      ofs << ( *obj )->getStringRep().utf8();
     }
     ofs << std::endl;
   }
@@ -448,7 +448,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_AppendToFile()
 
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( filename->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in filename descriptor" );
 
   if ( path.find( ".." ) != std::string::npos )
@@ -474,7 +474,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_AppendToFile()
     BObject* obj = ref.get();
     if ( obj != nullptr )
     {
-      ofs << ( *obj )->getStringRep();
+      ofs << ( *obj )->getStringRep().utf8();
     }
     ofs << std::endl;
   }
@@ -503,7 +503,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_LogToFile()
 
     const Plib::Package* outpkg;
     std::string path;
-    if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
+    if ( !pkgdef_split( filename->utf8(), exec.prog()->pkg, &outpkg, &path ) )
       return new BError( "Error in filename descriptor" );
 
     if ( path.find( ".." ) != std::string::npos )
@@ -532,7 +532,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_LogToFile()
         ofs << "[" << buffer << "] ";
     }
 
-    ofs << textline->value() << std::endl;
+    ofs << textline->utf8() << std::endl;
 
     if ( ofs.fail() )
       return new BError( "Error during write." );
@@ -553,7 +553,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_OpenBinaryFile()
 
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( filename->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in filename descriptor" );
 
   if ( path.find( ".." ) != std::string::npos )
@@ -587,7 +587,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_CreateDirectory()
 
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( dirname->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( dirname->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in dirname descriptor" );
   if ( path.find( ".." ) != std::string::npos )
     return new BError( "No parent path traversal please." );
@@ -614,7 +614,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
 
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( dirname->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( dirname->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in dirname descriptor" );
   if ( path.find( ".." ) != std::string::npos )
     return new BError( "No parent path traversal please." );
@@ -628,7 +628,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
   bool nofiles = false;
   if ( extension->getStringRep().find( '*', 0 ) != std::string::npos )
     asterisk = true;
-  else if ( extension->length() == 0 )
+  else if ( extension->value().empty() )
     nofiles = true;
 
   Bscript::ObjArray* arr = new Bscript::ObjArray;
@@ -651,7 +651,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
       std::string::size_type extensionPointPos = name.rfind( '.' );
       if ( extensionPointPos == std::string::npos )
         continue;
-      if ( name.substr( extensionPointPos + 1 ) != extension->value() )
+      if ( name.substr( extensionPointPos + 1 ) != extension->utf8() )
         continue;
     }
 
@@ -669,7 +669,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_OpenXMLFile()
 
   const Plib::Package* outpkg;
   std::string path;
-  if ( !pkgdef_split( filename->value(), exec.prog()->pkg, &outpkg, &path ) )
+  if ( !pkgdef_split( filename->utf8(), exec.prog()->pkg, &outpkg, &path ) )
     return new BError( "Error in filename descriptor" );
 
   if ( path.find( ".." ) != std::string::npos )

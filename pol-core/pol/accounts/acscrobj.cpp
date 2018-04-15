@@ -93,15 +93,15 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     const String* mname;
     if ( ex.getStringParam( 0, mname ) )
     {
-      BObjectRef ref_temp = get_member( mname->value().c_str() );
+      BObjectRef ref_temp = get_member( mname->utf8().c_str() );
       BObjectRef& ref = ref_temp;
       BObject* bo = ref.get();
       BObjectImp* ret = bo->impptr();
       ret = ret->copy();
       if ( ret->isa( OTUninit ) )
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        UnicodeString message = UnicodeString( "Member " ) + mname->value() +
+                              UnicodeString( " not found on that object" );
         return new BError( message );
       }
       else
@@ -175,10 +175,10 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       if ( ex.getStringParam( 0, pwstr ) )
       {
         if ( Plib::systemstate.config.retain_cleartext_passwords )
-          obj_->password_ = pwstr->value();
+          obj_->password_ = pwstr->utf8();
 
         std::string temp;
-        Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );
+        Clib::MD5_Encrypt( obj_->name_ + pwstr->ansi(), temp );
         obj_->passwordhash_ = temp;  // MD5
         break;
       }
@@ -201,7 +201,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
         bool ret;
         std::string temp;
 
-        Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );  // MD5
+        Clib::MD5_Encrypt( obj_->name_ + pwstr->ansi(), temp );  // MD5
         ret = Clib::MD5_Compare( obj_->passwordhash_, temp );
 
         result = new BLong( ret );
@@ -233,7 +233,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
           return new BError( "Account name must not be empty." );
         std::string temp;
         // passing the new name, and recalc name+pass hash (pass only hash is unchanged)
-        obj_->name_ = nmstr->value();
+        obj_->name_ = nmstr->ansi();
         Clib::MD5_Encrypt( obj_->name_ + obj_->password_, temp );
         obj_->passwordhash_ = temp;  // MD5
       }
@@ -251,13 +251,13 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       {
         if ( nmstr->value().empty() )
           return new BError( "Account name must not be empty." );
-        obj_->name_ = nmstr->value();
+
         // this is the same as the "setpassword" code above
         if ( Plib::systemstate.config.retain_cleartext_passwords )
-          obj_->password_ = pwstr->value();
+          obj_->password_ = pwstr->utf8();
 
         std::string temp;
-        Clib::MD5_Encrypt( obj_->name_ + pwstr->value(), temp );
+        Clib::MD5_Encrypt( nmstr->ansi() + pwstr->ansi(), temp );
         obj_->passwordhash_ = temp;  // MD5
       }
       else
@@ -366,13 +366,13 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     const String* expansion_str;
     if ( ex.getStringParam( 0, expansion_str ) )
     {
-      if ( expansion_str->value().empty() || ( expansion_str->value() == "TOL" ) ||
-           ( expansion_str->value() == "HSA" ) || ( expansion_str->value() == "SA" ) ||
-           ( expansion_str->value() == "KR" ) || ( expansion_str->value() == "ML" ) ||
-           ( expansion_str->value() == "SE" ) || ( expansion_str->value() == "AOS" ) ||
-           ( expansion_str->value() == "LBR" ) || ( expansion_str->value() == "T2A" ) )
+      if ( expansion_str->value().empty() || ( expansion_str->utf8() == "TOL" ) ||
+           ( expansion_str->utf8() == "HSA" ) || ( expansion_str->utf8() == "SA" ) ||
+           ( expansion_str->utf8() == "KR" ) || ( expansion_str->utf8() == "ML" ) ||
+           ( expansion_str->utf8() == "SE" ) || ( expansion_str->utf8() == "AOS" ) ||
+           ( expansion_str->utf8() == "LBR" ) || ( expansion_str->utf8() == "T2A" ) )
       {
-        obj_->uo_expansion_ = obj_->convert_uo_expansion( expansion_str->value() );
+        obj_->uo_expansion_ = obj_->convert_uo_expansion( expansion_str->utf8() );
         for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
         {
           Mobile::Character* chr = obj_->get_character( i );
@@ -418,7 +418,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
         if ( acctname->value().empty() )
           return new BError( "Account name must not be empty." );
 
-        if ( find_account( acctname->value().c_str() ) )
+        if ( find_account( acctname->utf8().c_str() ) )
           return new BError( "Account already exists." );
 
         Mobile::Character* chr = obj_->get_character( index - 1 );
@@ -428,7 +428,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
         if ( chr->client != NULL || chr->logged_in() )
           return new BError( "That character is in use." );
 
-        Account* account = duplicate_account( obj_->name_, acctname->value() );
+        Account* account = duplicate_account( obj_->name_, acctname->utf8() );
         if ( account != NULL )
         {
           obj_->clear_character( index - 1 );
@@ -459,7 +459,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
         if ( acctname->value().empty() )
           return new BError( "Account name must not be empty." );
 
-        Account* account = find_account( acctname->value().c_str() );
+        Account* account = find_account( acctname->utf8().c_str() );
         if ( account == NULL )
           return new BError( "Account doesn't exists." );
 

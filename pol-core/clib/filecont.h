@@ -2,23 +2,25 @@
 #define CLIB_FILECONT_H
 
 #include <string>
+#include "unicode.h"
+
 namespace Pol
 {
 namespace Clib
 {
 /**
- * Simple class to read a whole file as a char array
+ * Simple class to read a whole file as a utf8 string
  */
 class FileContents
 {
 public:
   FileContents( const char* filname );
 
-  const char* contents() const;
-  void set_contents( const std::string& str );
+  const UnicodeString& contents() const;
+  void set_contents( const UnicodeString& str );
 
 private:
-  std::string contents_;
+  UnicodeString contents_;
 };
 }
 }

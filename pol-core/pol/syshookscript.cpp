@@ -264,7 +264,7 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
       ret = "error";
     else
     {
-      ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
+      ret = uoexec.ValueStack.back().get()->impptr()->getStringRep().utf8();
       uoexec.ValueStack.pop_back();
     }
 
@@ -303,7 +303,7 @@ std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* 
       ret = "error";
     else
     {
-      ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
+      ret = uoexec.ValueStack.back().get()->impptr()->getStringRep().utf8();
       uoexec.ValueStack.pop_back();
     }
 

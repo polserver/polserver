@@ -159,21 +159,25 @@ int CompilerContext::skipcomments()
   return 0;
 }
 
+/** Prints current file name and position on given stream */
 void CompilerContext::printOn( std::ostream& os ) const
 {
   os << "File: " << filename << ", Line " << line << std::endl;
 }
 
+/** Prints current file name and position on given writer */
 void CompilerContext::printOn( fmt::Writer& writer ) const
 {
   writer << "File: " << filename << ", Line " << line << "\n";
 }
 
+/** Prints current position only on given stream */
 void CompilerContext::printOnShort( std::ostream& os ) const
 {
   os << filename << ", Line " << line << std::endl;
 }
 
+/** Prints current position only on given writer */
 void CompilerContext::printOnShort( fmt::Writer& writer ) const
 {
   writer << filename << ", Line " << line << "\n";

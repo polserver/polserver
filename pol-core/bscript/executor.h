@@ -54,6 +54,7 @@ class ExecutorModule;
 class ModuleFunction;
 class String;
 class Token;
+
 #ifdef ESCRIPT_PROFILE
 #include <map>
 

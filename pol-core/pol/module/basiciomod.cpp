@@ -30,7 +30,7 @@ BasicIoExecutorModule::BasicIoExecutorModule( Bscript::Executor& exec )
 
 Bscript::BObjectImp* BasicIoExecutorModule::print()
 {
-  INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";
+  INFO_PRINT << exec.getParamImp( 0 )->getStringRep().utf8() << "\n";
   return new Bscript::UninitObject;
 }
 }

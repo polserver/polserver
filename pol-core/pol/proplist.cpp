@@ -531,7 +531,7 @@ Bscript::BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const in
     if ( !ex.getStringParam( 0, propname_str ) )
       return new BError( "Invalid parameter type" );
     std::string val;
-    if ( !proplist.getprop( propname_str->value(), val ) )
+    if ( !proplist.getprop( propname_str->utf8(), val ) )
       return new BError( "Property not found" );
 
     return Bscript::BObjectImp::unpack( val.c_str() );
@@ -550,8 +550,8 @@ Bscript::BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const in
     {
       POLLOG.Format( "wtf, setprop w/ an error '{}' PC:{}\n" ) << ex.scriptname().c_str() << ex.PC;
     }
-    std::string propname = propname_str->value();
-    proplist.setprop( propname, propval->pack() );
+    Clib::UnicodeString propname = propname_str->value();
+    proplist.setprop( propname.utf8(), propval->pack() );
     if ( propname[0] != '#' )
       changed = true;
     return new BLong( 1 );
@@ -564,8 +564,8 @@ Bscript::BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const in
     const String* propname_str;
     if ( !ex.getStringParam( 0, propname_str ) )
       return new BError( "Invalid parameter type" );
-    std::string propname = propname_str->value();
-    proplist.eraseprop( propname );
+    Clib::UnicodeString propname = propname_str->value();
+    proplist.eraseprop( propname.utf8() );
     if ( propname[0] != '#' )
       changed = true;
     return new BLong( 1 );

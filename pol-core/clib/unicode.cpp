@@ -11,15 +11,62 @@
 namespace Pol {
 namespace Clib {
 
+// ------------------------------ Utf8Util ------------------------------------
+
+
 /**
- * Create an utf8 char from a char32_t
+ * Reads next complete character from string pointer
  *
- * @param c the char, in the range 0x000000 - 0x10FFFFFF
- * @throws UnicodeCastFailedException
+ * @param str The char pointer to read from, will advance it to the last byte
+ *            of read char
+ * @param bool Error: will set this to true on error
+ * @return next valid full UtfChar, or UNICODE_REPL on error
  */
-Utf8Char::Utf8Char( const char32_t c )
+UnicodeChar Utf8Util::getNextCharFromStr(const char*& str, bool& error)
 {
-  appendToStringAsUtf8( bytes_, c );
+  error = false;
+
+  Utf8CharValidator val = Utf8CharValidator();
+  Utf8CharValidator::AddByteResult res = val.addByte(*str);
+
+  while ( res == Utf8CharValidator::AddByteResult::MORE ) {
+    str++;
+    res = val.addByte(*str);
+  }
+
+  if ( res == Utf8CharValidator::AddByteResult::DONE )
+    return val.getChar();
+
+  error = true;
+  return UnicodeChar(UNICODE_REPL);
+}
+
+/** @see getNextCharFromStr(char, bool) */
+UnicodeChar Utf8Util::getNextCharFromStr(const char*& str) {
+  bool error;
+  return getNextCharFromStr(str, error);
+};
+
+/**
+ * Parses given first utf8 byte to return total number of utf8 bytes in this char
+ * (including the given one)
+ *
+ * @return 1-4 on success, 0 on failure
+ */
+u8 Utf8Util::getByteCountFromFirstByte(const char byte) {
+  if ( (byte & 0x80) == 0 )    // 0xxxxxxx
+    return 1;
+
+  if ( (byte & 0xe0) == 0xc0 ) // 110xxxxx
+    return 2;
+
+  if ( (byte & 0xf0) == 0xe0 ) // 1110xxxx
+    return 3;
+
+  if ( (byte & 0xf8) == 0xf0 ) // 11110xxx
+    return 4;
+
+  return 0; // invalid
 }
 
 /**
@@ -27,7 +74,7 @@ Utf8Char::Utf8Char( const char32_t c )
   *
   * @return 1 to 4 or 0 if out of range
   */
-u8 Utf8Char::getCharByteLen( const char32_t c )
+u8 Utf8Util::getCharByteLen( const char32_t c )
 {
   if( c < 0x80 ) {
     // up to 7 bits, ASCII-compatibility, 1 byte long result
@@ -54,7 +101,7 @@ u8 Utf8Char::getCharByteLen( const char32_t c )
   *
   * @return 1 to 3
   */
-u8 Utf8Char::getCharByteLen( const char16_t c )
+u8 Utf8Util::getCharByteLen( const char16_t c )
 {
   if( c < 0x80 ) {
     // up to 7 bits, ASCII-compatibility, 1 byte long result
@@ -76,9 +123,9 @@ u8 Utf8Char::getCharByteLen( const char16_t c )
  * @throws UnicodeCastFailedException
  * @return number of appended bytes
  */
-u8 Utf8Char::appendToStringAsUtf8( std::string& str, const char32_t c )
+u8 Utf8Util::appendToStringAsUtf8( std::string& str, const char32_t c )
 {
-  u8 bl = Utf8Char::getCharByteLen(c);
+  u8 bl = Utf8Util::getCharByteLen(c);
 
   switch ( bl ) {
   case 1:
@@ -118,9 +165,9 @@ u8 Utf8Char::appendToStringAsUtf8( std::string& str, const char32_t c )
  * @param c the char
  * @return number of appended bytes
  */
-u8 Utf8Char::appendToStringAsUtf8( std::string& str, const char16_t c )
+u8 Utf8Util::appendToStringAsUtf8( std::string& str, const char16_t c )
 {
-  u8 bl = Utf8Char::getCharByteLen(c);
+  u8 bl = Utf8Util::getCharByteLen(c);
 
   switch ( bl ) {
   case 1:
@@ -145,25 +192,37 @@ u8 Utf8Char::appendToStringAsUtf8( std::string& str, const char16_t c )
   passert_always_r( false, "Bug in Utf8Char, please report this bug on the forums." );
 }
 
-/**
- * Returns number of bytes represented by this utf8 char (1 to 4)
- */
-u8 Utf8Char::getByteLen() const
+
+// ------------------------------ Utf8CharRef ---------------------------------
+
+/** Constructs the char from given string
+  *
+  * @param str The referenced string as bytes
+  * @param pos The referenced 0-based starting position inside the string
+  */
+Utf8CharRef::Utf8CharRef( const UnicodeString& str, size_t pos )
+  : str_(str), pos_(pos)
 {
-  passert_always_r( bytes_.size(), "Empty Utf8Char, please report this bug on the forums." );
+  updateLen();
+}
 
-  if( static_cast<const unsigned char>(bytes_[0]) < 0x80 )
-    return 1;
+/** Returns currently pointed first char */
+inline const char* Utf8CharRef::fc() const {
+  return str_.value_.c_str() + pos_;
+}
 
-  u8 ret = 0;
-  for( int i = 7; i >= 0; i-- )
-    if( bytes_[0] & ( 1 << i ) )
-      ret++;
-    else
-      return ret;
+/** Updates the len_ based on current pos */
+inline void Utf8CharRef::updateLen() {
+  len_ = Utf8Util::getByteCountFromFirstByte( *fc() );
+  passert_always_r( len_ > 0 && len_ < 5,
+    "Bug in Utf8CharRef::updateLen(), please report this bug on the forums." );
+}
 
-  // Must never reach this point
-  passert_always_r( false, "Bug in Utf8Char, please report this bug on the forums." );
+/** Returns 0-pos based byte insde this character */
+char Utf8CharRef::getByteAt(u8 idx) const {
+  passert_always_r( idx < len_,
+    "Bug in Utf8CharRef::getByteAt(), please report this bug on the forums." );
+  return str_.value_[pos_ + idx];
 }
 
  /**
@@ -171,40 +230,39 @@ u8 Utf8Char::getByteLen() const
  *
  * @return The u32 value
  */
-char32_t Utf8Char::asUtf32() const
+char32_t Utf8CharRef::asChar32() const
 {
-  u8 len = getByteLen();
-  if( len <= 1 )
-    return bytes_[0];
+  if( len_ == 1 )
+    return getByteAt(0);
 
   char32_t out = 0;
   // Copy bits from first byte
-  for( s8 i = 7-1-len; i >= 0; i-- )
-    if( bytes_[0] & ( 1 << i ) )
-      out |= 1 << ( (6 * ( len - 1 ) ) + i );
+  for( s8 i = 7-1-len_; i >= 0; i-- )
+    if( getByteAt(0) & ( 1 << i ) )
+      out |= 1 << ( (6 * ( len_ - 1 ) ) + i );
   // Copy bits from remaining bytes
-  for( u8 bn = 1; bn < len; bn++ )
+  for( u8 bn = 1; bn < len_; bn++ )
     for( s8 i = 5; i >= 0; i-- )
-      if( bytes_[bn] & ( 1 << i ) )
-        out |= 1 << ( (6 * ( len - bn - 1)) + i );
+      if( getByteAt(bn) & ( 1 << i ) )
+        out |= 1 << ( (6 * ( len_ - bn - 1)) + i );
 
   return out;
 }
 
 /**
- * Returns an UTF16 representation of this utf8 char, when possible
+ * Returns an UO UTF16 representation of this utf8 char, when possible
  *
  * @param failsafe When true, will replace invalid chars with
- *                 0xFFFD replacement character instead of throwing
+ *                 UNICODE_REPL replacement character instead of throwing
  * @return The char value
  * @throws UnicodeCastFailedException
  */
-char16_t Utf8Char::asUtf16( const bool failsafe ) const
+char16_t Utf8CharRef::asChar16( const bool failsafe ) const
 {
-  char32_t out = asUtf32();
+  char32_t out = asChar32();
   if( out > 0xFFFF ) {
     if( failsafe )
-      return 0xFFFD;
+      return UNICODE_REPL;
     else
       throw UnicodeCastFailedException();
   }
@@ -214,16 +272,16 @@ char16_t Utf8Char::asUtf16( const bool failsafe ) const
 /**
  * Returns an ANSI representation of this utf8 char, when possible
  *
- * @param failsafe When true, will replace invalid chars with "?" instead of throwing
+ * @param failsafe When true, will replace invalid chars with ASCII_REPL instead of throwing
  * @return The char value
  * @throws UnicodeCastFailedException
  */
-char Utf8Char::asAnsi( const bool failsafe ) const
+char Utf8CharRef::asAnsi( const bool failsafe ) const
 {
-  char32_t out = asUtf32();
+  char32_t out = asChar32();
   if( out > 0xFF ) {
     if( failsafe )
-      return '?';
+      return ASCII_REPL;
     else
       throw UnicodeCastFailedException();
   }
@@ -231,58 +289,27 @@ char Utf8Char::asAnsi( const bool failsafe ) const
 }
 
 /**
- * Creates a new char from a given char
- */
-UnicodeChar::UnicodeChar( const char16_t c ) : val_( c )
-{
-}
-
-/**
- * Returns minumum number of bytes this char can fit in
- */
-u8 UnicodeChar::getByteLen() const
-{
-  if( val_ > 0xFF )
-    return 2;
-  return 1;
-}
-
-/**
- * Returns an ANSI representation of this utf8 char, when possible
+ * Returns an ASCII representation of this utf8 char, when possible
  *
- * @param failsafe When true, will replace invalid chars with "?" instead of returning 0
- * @return The char value, 0 when the char has no ANSI representation
+ * @param failsafe When true, will replace invalid chars with ASCII_REPL instead of throwing
+ * @return The char value
+ * @throws UnicodeCastFailedException
  */
-char UnicodeChar::asAnsi( const bool failsafe ) const
+char Utf8CharRef::asAscii( const bool failsafe ) const
 {
-  if( val_ > 0xFF ) {
+  char32_t out = asChar32();
+  if( out > 0x7F ) {
     if( failsafe )
-      return '?';
+      return ASCII_REPL;
     else
-      return 0;
+      throw UnicodeCastFailedException();
   }
-  return static_cast<char>(val_);
+  return static_cast<char>(out);
 }
 
-/**
- * Convert this char to lowercase, if possible
- */
-void UnicodeChar::toLower()
-{
-  wchar_t c = towlower(val_);
-  if( c > 0 && c <= 0xFFFF )
-    val_ = static_cast<char16_t>(c);
-}
 
-/**
- * Convert this char to uppercase, if possible
- */
-void UnicodeChar::toUpper()
-{
-  wchar_t c = towupper(val_);
-  if( c > 0 && c <= 0xFFFF )
-    val_ = static_cast<char16_t>(c);
-}
+// ------------------------------ UnicodeString -------------------------------
+
 
 /**
  * Constructs from a simple char
@@ -292,6 +319,7 @@ UnicodeString::UnicodeString( const char32_t chr )
 {
   (*this) += chr;
 }
+
 /**
  * Constructs from a C string
  */
@@ -300,6 +328,17 @@ UnicodeString::UnicodeString( const StrEncoding enc, const char* str )
 {
   this->append(enc, str);
 }
+
+/**
+ * Constructs by taking a given amount of bytes from char pointer
+ */
+UnicodeString::UnicodeString( const StrEncoding enc, const char* str, size_t nbytes )
+  : UnicodeString()
+{
+  this->reserveb(nbytes);
+  this->append(enc, std::string(str, nbytes));
+}
+
 /**
  * Constructs from a std string
  */
@@ -308,6 +347,7 @@ UnicodeString::UnicodeString( const StrEncoding enc, const std::string& str )
 {
   this->append(enc, str);
 }
+
 /**
  * Constructs from part of a std string
  * (string is split indiscriminately: pos and len are interpreted as bytes)
@@ -330,7 +370,7 @@ UnicodeString& UnicodeString::assign( const StrEncoding enc, const char* s )
 }
 
 /**
- * Appends a C string to this. Truncates the string if invalid bytes are found.
+ * Appends a C string to this. Replace sinvalid bytes with UNICODE_REPL
  */
 UnicodeString& UnicodeString::append( const StrEncoding enc, const char* s )
 {
@@ -338,7 +378,7 @@ UnicodeString& UnicodeString::append( const StrEncoding enc, const char* s )
   {
   case StrEncoding::ANSI:
     while ( *s++ != '\0' ) {
-      u8 bl = Utf8Char::appendToStringAsUtf8( value_, *s );
+      u8 bl = Utf8Util::appendToStringAsUtf8( value_, *s );
       this->length_++;
       if ( bl > 1 )
         this->ascii_ = false;
@@ -347,16 +387,11 @@ UnicodeString& UnicodeString::append( const StrEncoding enc, const char* s )
 
   case StrEncoding::UTF8:
     while ( *s++ != '\0' ) {
-      bool error;
-      Utf8Char uc = Utf8CharValidator::getNextCharFromStr(s, error);
+      UnicodeChar uc = Utf8Util::getNextCharFromStr(s);
 
-      if (error)
-        break;
-
-      this->value_ += uc.bytes();
+      this->value_ += uc.value_;
       this->length_++;
-      if (uc.bytes().length() > 1)
-        this->ascii_ = false;
+      this->ascii_ = this->ascii_ && uc.ascii_;
     }
     break;
   }
@@ -367,7 +402,7 @@ UnicodeString& UnicodeString::append( const StrEncoding enc, const char* s )
 /**
   * Appends an ANSI string to a copy of this string
   */
-UnicodeString UnicodeString::sum( const StrEncoding enc, const char* s ) const
+UnicodeString UnicodeString::concat( const StrEncoding enc, const char* s ) const
 {
   UnicodeString res(*this);
   res.append(enc, s);
@@ -384,7 +419,7 @@ UnicodeString UnicodeString::sum( const StrEncoding enc, const char* s ) const
 bool UnicodeString::asAnsi( std::string* outStr ) const
 {
   for( auto it : *this ) {
-    char c = it->asAnsi();
+    char c = it.asAnsi();
     if( c )
       *outStr += c;
     else
@@ -405,7 +440,29 @@ std::string UnicodeString::asAnsi( const bool failsafe ) const
   std::string ret;
 
   for( auto it : *this ) {
-    char c = it->asAnsi(failsafe);
+    char c = it.asAnsi(failsafe);
+    if( c )
+      ret += c;
+    else
+      throw UnicodeCastFailedException();
+  }
+
+  return ret;
+}
+
+/**
+ * Returns an ASCII string representation of this object
+ *
+ * @param failsafe When true, will replace invalid chars with "?" instead of throwing
+ * @return the ASCII string
+ * @throws CastFailedException
+ */
+std::string UnicodeString::asAscii( const bool failsafe ) const
+{
+  std::string ret;
+
+  for( auto it : *this ) {
+    char c = it.asAscii(failsafe);
     if( c )
       ret += c;
     else
@@ -565,7 +622,7 @@ size_t UnicodeString::find( const UnicodeString& str, size_t pos ) const
  */
 size_t UnicodeString::find( const char32_t chr, size_t pos ) const
 {
-  return this->find(Utf8Char(chr), pos);
+  return this->find(UnicodeChar(chr), pos);
 }
 
 /**
@@ -579,7 +636,8 @@ void UnicodeString::reverse()
   auto it = this->end();
   do {
     --it;
-    reversed += it->bytes();
+    for ( int i = 0; i < it->getByteLen(); ++i )
+      reversed.append(it->fc(), it->getByteLen());
   } while ( it != this->begin() );
 
   value_ = reversed;
@@ -613,7 +671,7 @@ UnicodeString UnicodeString::substr( size_t pos, size_t len ) const
       started = true;
 
     if ( started )
-      ret += it.get();
+      ret += it;
 
     len--;
     if ( len == 0 )
@@ -635,7 +693,7 @@ UnicodeString UnicodeString::replace( size_t pos, size_t len, const UnicodeStrin
   for ( auto it : *this ) {
     if ( it.pos() < pos ) {
       // Replacement not started yet, copy form old string
-      res += it.get();
+      res += it;
       continue;
     }
     if ( it.pos() == pos ) {
@@ -648,11 +706,28 @@ UnicodeString UnicodeString::replace( size_t pos, size_t len, const UnicodeStrin
       continue;
     }
     // replacement done, copying the rest from old string
-    res += it.get();
+    res += it;
   }
 
   return res;
 }
+
+/** @see std::string::compare */
+int UnicodeString::compare( const UnicodeString& str ) const
+{
+  return this->value_.compare(str.value_);
+}
+/** @see std::string::compare */
+int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str ) const
+{
+  return this->value_.compare(pos, len, str.value_);
+}
+/** @see std::string::compare */
+int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str, size_t subpos, size_t sublen ) const
+{
+  return this->value_.compare(pos, len, str.value_, subpos, sublen);
+}
+
 
 /**
  * Returns an esteem of the amount of memory currently allocated by this object
@@ -661,6 +736,9 @@ size_t UnicodeString::sizeEstimate() const
 {
   return value_.capacity() * sizeof(char) + sizeof(size_t) + sizeof(bool);
 }
+
+
+// ------------------------------ Utf8CharValidator ---------------------------
 
 
 Utf8CharValidator::Utf8CharValidator()
@@ -673,7 +751,7 @@ Utf8CharValidator::Utf8CharValidator()
  */
 void Utf8CharValidator::reset()
 {
-  char_.bytes_.clear();
+  char_.clear();
   bytesNext_ = 0;
   completed_ = false;
 }
@@ -692,10 +770,10 @@ Utf8CharValidator::AddByteResult Utf8CharValidator::addByte(const char byte)
 
   if( bytesNext_ == 0 ) {
     // this is the first byte
-    u8 totBytes = getByteCountFromFirstByte(byte);
+    u8 totBytes = Utf8Util::getByteCountFromFirstByte(byte);
     if( totBytes == 1 ) {
       // this is a single byte character, nothing special to do
-      char_.bytes_.push_back(byte);
+      char_.push_back(byte);
       completed_ = true;
       return AddByteResult::DONE;
     } else if( totBytes == 0 ) {
@@ -704,7 +782,7 @@ Utf8CharValidator::AddByteResult Utf8CharValidator::addByte(const char byte)
     } else {
       // this is the start of a multibyte utf8 char
       bytesNext_ = totBytes - 1;
-      char_.bytes_.push_back(byte);
+      char_.push_back(byte);
       return AddByteResult::MORE;
     }
   } else {
@@ -713,7 +791,7 @@ Utf8CharValidator::AddByteResult Utf8CharValidator::addByte(const char byte)
       return AddByteResult::INVALID;
 
     bytesNext_--;
-    char_.bytes_.push_back(byte);
+    char_.push_back(byte);
 
     if( bytesNext_ == 0 ) {
       completed_ = true;
@@ -726,66 +804,12 @@ Utf8CharValidator::AddByteResult Utf8CharValidator::addByte(const char byte)
 /**
  * Returns the current char, when completed
  */
-Utf8Char Utf8CharValidator::getChar()
+UnicodeChar Utf8CharValidator::getChar()
 {
   if( ! completed_ )
     throw std::runtime_error("Trying to read incomplete char");
 
-  return char_;
-}
-
-/**
- * Reads next complete character from string pointer
- *
- * @param str The char pointer to read from, will advance it to the last byte
- *            of read char
- * @param bool Error: will set this to true on error
- * @return next valid full UtfChar, or \0 on error
- */
-Utf8Char Utf8CharValidator::getNextCharFromStr(const char*& str, bool& error)
-{
-  error = false;
-
-  if ( *str == '\0' ) {
-    error = true;
-    return Utf8Char();
-  }
-
-  Utf8CharValidator val = Utf8CharValidator();
-  Utf8CharValidator::AddByteResult res = val.addByte(*str);
-
-  while ( res == Utf8CharValidator::AddByteResult::MORE ) {
-    str++;
-    val.addByte(*str);
-  }
-
-  if ( res == Utf8CharValidator::AddByteResult::DONE )
-    return val.getChar();
-
-  error = true;
-  return Utf8Char();
-}
-
-/**
- * Parses given first utf8 byte to return total number of utf8 bytes in this char
- * (including the given one)
- *
- * @return 1-4 on success, 0 on failure
- */
-u8 Utf8CharValidator::getByteCountFromFirstByte(const char byte) {
-  if ( (byte & 0x80) == 0 )    // 0xxxxxxx
-    return 1;
-
-  if ( (byte & 0xe0) == 0xc0 ) // 110xxxxx
-    return 2;
-
-  if ( (byte & 0xf0) == 0xe0 ) // 1110xxxx
-    return 3;
-
-  if ( (byte & 0xf8) == 0xf0 ) // 11110xxx
-    return 4;
-
-  return 0; // invalid
+  return UnicodeChar(char_);
 }
 
 }

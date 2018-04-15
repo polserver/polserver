@@ -172,7 +172,7 @@ BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value, 
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -354,7 +354,7 @@ BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value, bool 
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -518,7 +518,7 @@ BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value, bool
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -684,7 +684,7 @@ BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value, bool
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -2569,10 +2569,10 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      if ( has_privilege( pstr->value().c_str() ) )
+      if ( has_privilege( pstr->utf8().c_str() ) )
       {
         set_dirty();
-        set_setting( pstr->value().c_str(), true );
+        set_setting( pstr->utf8().c_str(), true );
         return new BLong( 1 );
       }
       else
@@ -2589,7 +2589,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.getStringParam( 0, pstr ) )
     {
       set_dirty();
-      set_setting( pstr->value().c_str(), false );
+      set_setting( pstr->utf8().c_str(), false );
       return new BLong( 1 );
     }
     break;
@@ -2601,7 +2601,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       return new BError( "Not enough parameters" );
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
-      return new BLong( setting_enabled( pstr->value().c_str() ) ? 1 : 0 );
+      return new BLong( setting_enabled( pstr->utf8().c_str() ) ? 1 : 0 );
     break;
   }
 
@@ -2625,7 +2625,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      Core::CmdLevel* pcmdlevel = Core::find_cmdlevel( pstr->value().c_str() );
+      Core::CmdLevel* pcmdlevel = Core::find_cmdlevel( pstr->utf8().c_str() );
       if ( pcmdlevel )
       {
         set_dirty();
@@ -2788,8 +2788,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     BObjectImp* param0 = ex.getParamImp( 0 );
     if ( param0->isa( BObjectImp::OTString ) )
     {
-      const char* szDir = ex.paramAsString( 0 );
-      if ( DecodeFacing( szDir, i_facing ) == false )
+      const UnicodeString szDir = ex.paramAsString( 0 );
+      if ( DecodeFacing( szDir.utf8().c_str(), i_facing ) == false )
         return new BError( "Invalid string for parameter 0" );
     }
     else if ( param0->isa( BObjectImp::OTLong ) )
@@ -2814,7 +2814,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
         return new BError( "Not enough parameters" );
       const String* pstr;
       if ( ex.getStringParam( 0, pstr ) )
-        return new BLong( client->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
+        return new BLong( client->compareVersion( pstr->getStringRep().utf8() ) ? 1 : 0 );
       else
         return new BError( "Invalid parameter type" );
     }
@@ -3826,17 +3826,17 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
       if ( objimp->isa( BObjectImp::OTLong ) )
       {
         BLong* lng = static_cast<BLong*>( objimp );
-        ret = set_script_member( mname->value().c_str(), lng->value() );
+        ret = set_script_member( mname->utf8().c_str(), lng->value() );
       }
       else if ( objimp->isa( BObjectImp::OTDouble ) )
       {
         Double* dbl = static_cast<Double*>( objimp );
-        ret = set_script_member_double( mname->value().c_str(), dbl->value() );
+        ret = set_script_member_double( mname->utf8().c_str(), dbl->value() );
       }
       else if ( objimp->isa( BObjectImp::OTString ) )
       {
         String* str = static_cast<String*>( objimp );
-        ret = set_script_member( mname->value().c_str(), str->value() );
+        ret = set_script_member( mname->utf8().c_str(), str->value().utf8() );
       }
       else
         return new BError( "Invalid value type" );
@@ -3845,8 +3845,8 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
         return ret;
       else
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        UnicodeString message = UnicodeString( "Member " ) + mname->value() +
+                              " not found on that object";
         return new BError( message );
       }
     }
@@ -3860,13 +3860,13 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
     const String* mname;
     if ( ex.getStringParam( 0, mname ) )
     {
-      BObjectImp* ret = get_script_member( mname->value().c_str() );
+      BObjectImp* ret = get_script_member( mname->utf8().c_str() );
       if ( ret != NULL )
         return ret;
       else
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        UnicodeString message = UnicodeString( "Member " ) + mname->value() +
+                              " not found on that object";
         return new BError( message );
       }
     }
@@ -4401,7 +4401,7 @@ BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool /
       return new BError( "Not enough parameters" );
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
-      return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
+      return new BLong( obj_->compareVersion( pstr->getStringRep().utf8() ) ? 1 : 0 );
     return new BError( "Invalid parameter type" );
   }
   }

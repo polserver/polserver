@@ -28,6 +28,7 @@
 #include "../../clib/socketsvc.h"
 #include "../../clib/threadhelp.h"
 #include "../../clib/wnsckt.h"
+#include "../../clib/unicode.h"
 #include "../../plib/pkg.h"
 #include "../globals/network.h"
 #include "../module/osmod.h"
@@ -46,7 +47,7 @@ Bscript::BObjectImp* AuxConnection::copy() const
   return const_cast<AuxConnection*>( this );
 }
 
-std::string AuxConnection::getStringRep() const
+Clib::UnicodeString AuxConnection::getStringRep() const
 {
   return "<AuxConnection>";
 }
@@ -231,7 +232,7 @@ void AuxClientThread::run()
 void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 {
   // defer transmit to not block server
-  std::string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack();
+  std::string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep().utf8() : value->pack();
   ++_transmit_counter;
   Core::networkManager.auxthreadpool->push( [tmp, this]() { transmit( tmp ); } );
 }

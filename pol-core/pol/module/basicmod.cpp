@@ -22,7 +22,6 @@
 #include "../../bscript/dict.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
-#include "../../bscript/impunicode.h"
 #include "../../clib/stlutil.h"
 
 namespace Pol
@@ -44,11 +43,10 @@ Bscript::BObjectImp* BasicExecutorModule::len()
     Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( imp );
     return new BLong( static_cast<int>( arr->ref_arr.size() ) );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString )
-    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
-    BaseString* bs = static_cast<BaseString*>( imp );
-    return new BLong( static_cast<int>( bs->length() ) );
+    String* str = static_cast<String*>( imp );
+    return new BLong( static_cast<int>( str->lengthc() ) );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTError ) )
   {
@@ -65,7 +63,7 @@ Bscript::BObjectImp* BasicExecutorModule::find()
 {
   exec.makeString( 0 );
   String* str = static_cast<String*>( exec.getParamImp( 0 ) );
-  const char* s = exec.paramAsString( 1 );
+  UnicodeString s = exec.paramAsString( 1 );
   int d = static_cast<int>( exec.paramAsLong( 2 ) );
 
   int posn = str->find( d ? ( d - 1 ) : 0, s ) + 1;
@@ -87,30 +85,25 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Trim()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
 
-  BaseString::TrimTypes type;
+  UnicodeString::TrimTypes type;
   switch ( exec.paramAsLong( 1 ) ) {
   case 1:
-    type = BaseString::TrimTypes::TRIM_LEFT;
+    type = UnicodeString::TrimTypes::TRIM_LEFT;
     break;
   case 2:
-    type = BaseString::TrimTypes::TRIM_RIGHT;
+    type = UnicodeString::TrimTypes::TRIM_RIGHT;
     break;
   default:
-    type = BaseString::TrimTypes::TRIM_BOTH;
+    type = UnicodeString::TrimTypes::TRIM_BOTH;
   }
-  const char* cset = exec.paramAsString( 2 );
+  UnicodeString cset = exec.paramAsString( 2 );
 
   if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* string = static_cast<String*>( imp );
     String* newStr = new String(*string);
-    newStr->trim(std::string(cset), type);
+    newStr->trim(cset, type);
     return newStr;
-  }
-  else if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
-  {
-    //TODO: implement it on Unicode
-    return new BError( "Not implemented. Please report this error." );
   }
   else
   {
@@ -127,13 +120,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_StrReplace()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
 
-  if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
-  {
-    //TODO: implement unicode
-    return new BError( "Not implemented yet. Please report this error." );
-  }
-
-  std::unique_ptr<String> string( new String( imp->getStringRep().c_str() ) );
+  std::unique_ptr<String> string( new String( imp->getStringRep() ) );
   String* to_replace = static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
   if ( !to_replace )
     return new BError( "Invalid parameter type" );
@@ -142,9 +129,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_StrReplace()
   if ( !replace_with )
     return new BError( "Invalid parameter type" );
 
-  if ( string->length() < 1 )
+  if ( string->empty() )
     return new BError( "Cannot use empty string for string haystack." );
-  if ( to_replace->length() < 1 )
+  if ( to_replace->empty() )
     return new BError( "Cannot use empty string for string needle." );
 
   string->replace( *to_replace, *replace_with );
@@ -157,7 +144,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 {
   //TODO: implement Unicode
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  std::unique_ptr<String> string( new String( imp->getStringRep().c_str() ) );
+  std::unique_ptr<String> string( new String( imp->getStringRep() ) );
   String* replace_with =
       static_cast<String*>( exec.getParamImp( 1, Bscript::BObjectImp::OTString ) );
   if ( !replace_with )
@@ -167,20 +154,20 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 
   if ( index < 0 )
     return new BError( "Index must not be negative" );
-  if ( static_cast<unsigned>( index - 1 ) > string->length() )
+  if ( static_cast<unsigned>( index - 1 ) > string->lengthc() )
     return new BError( "Index out of range" );
 
   // We set it to 1 because of doing -1 later to stay with eScript handling.
   if ( !index )
     index = 1;
 
-  if ( static_cast<unsigned>( len ) > ( string->length() - index ) )
+  if ( static_cast<unsigned>( len ) > ( string->lengthc() - index ) )
     return new BError( "Length out of range" );
   if ( len < 0 )
     return new BError( "Length must not be negative" );
 
   if ( !len )
-    len = static_cast<int>( replace_with->length() - index );
+    len = static_cast<int>( replace_with->lengthc() - index );
 
   string->replace( *replace_with, static_cast<unsigned>( index ), static_cast<unsigned>( len ) );
 
@@ -191,8 +178,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 // just in case someone's code is bugged :(
 Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
 {
-  std::string str1 = exec.paramAsString( 0 );
-  std::string str2 = exec.paramAsString( 1 );
+  UnicodeString str1 = exec.paramAsString( 0 );
+  UnicodeString str2 = exec.paramAsString( 1 );
   int pos1_index = static_cast<int>( exec.paramAsLong( 2 ) );
   int pos1_len = static_cast<int>( exec.paramAsLong( 3 ) );
   int pos2_index = static_cast<int>( exec.paramAsLong( 4 ) );
@@ -202,25 +189,25 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
   {
     if ( pos1_index < 0 )
       return new BError( "Index must not be negative for param 1" );
-    if ( static_cast<unsigned>( pos1_index - 1 ) > str1.length() )
+    if ( static_cast<unsigned>( pos1_index - 1 ) > str1.lengthc() )
       return new BError( "Index out of range for param 1" );
   }
   if ( pos2_index != 0 )
   {
     if ( pos2_index < 0 )
       return new BError( "Index must not be negative for param 2" );
-    if ( static_cast<unsigned>( pos2_index - 1 ) > str2.length() )
+    if ( static_cast<unsigned>( pos2_index - 1 ) > str2.lengthc() )
       return new BError( "Index out of range for param 2" );
   }
 
 
   if ( pos1_len < 0 )
     return new BError( "Length must not be negative for param 1" );
-  if ( static_cast<unsigned>( pos1_len ) > ( str1.length() - pos1_index ) )
+  if ( static_cast<unsigned>( pos1_len ) > ( str1.lengthc() - pos1_index ) )
     return new BError( "Length out of range for param 1" );
   if ( pos2_len < 0 )
     return new BError( "Length must not be negative for param 2" );
-  if ( static_cast<unsigned>( pos2_len ) > ( str2.length() - pos2_index ) )
+  if ( static_cast<unsigned>( pos2_len ) > ( str2.lengthc() - pos2_index ) )
     return new BError( "Length out of range for param 2" );
 
 
@@ -271,10 +258,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CInt()
   {
     return imp->copy();
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString )
-    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
-    BaseString* str = static_cast<BaseString*>( imp );
+    String* str = static_cast<String*>( imp );
     return new BLong( str->intval() );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
@@ -296,10 +282,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CDbl()
     BLong* lng = static_cast<BLong*>( imp );
     return new Double( lng->value() );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString )
-    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
-    BaseString* str = static_cast<BaseString*>( imp );
+    String* str = static_cast<String*>( imp );
     return new Double( str->dblval() );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
@@ -324,12 +309,10 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
   if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    return new BLong( static_cast<unsigned char>( str->value()[0] ) );
-  }
-  if ( imp->isa( Bscript::BObjectImp::OTUnicode ) )
-  {
-    Unicode* str = static_cast<Unicode*>( imp );
-    return new BLong( static_cast<char32_t>(str->value()[0]) );
+    if ( str->empty() )
+      return new BError( "The string is empty" );
+    else
+      return new BLong( str->value()[0].asChar32() );
   }
   else
   {
@@ -340,12 +323,12 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
 Bscript::BObjectImp* BasicExecutorModule::mf_CAscZ()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  std::string tmp = imp->getStringRep();
+  UnicodeString tmp = imp->getStringRep();
   int nullterm = static_cast<int>( exec.paramAsLong( 1 ) );
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( size_t i = 0; i < tmp.size(); ++i )
+  for ( auto chr: tmp )
   {
-    arr->addElement( new BLong( static_cast<unsigned char>( tmp[i] ) ) );
+    arr->addElement( new BLong( chr.asChar32() ) );
   }
   if ( nullterm )
     arr->addElement( new BLong( 0 ) );
@@ -358,10 +341,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChr()
   int val;
   if ( getParam( 0, val ) )
   {
-    char s[2];
-    s[0] = static_cast<char>( val );
-    s[1] = '\0';
-    return new String( s );
+    return new String( static_cast<char32_t>(val) );
   }
   else
   {
@@ -371,7 +351,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChr()
 
 Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
 {
-  std::string res;
+  UnicodeString res;
   Bscript::ObjArray* arr =
       static_cast<Bscript::ObjArray*>( exec.getParamImp( 0, Bscript::BObjectImp::OTArray ) );
   int break_first_null = static_cast<int>( exec.paramAsLong( 1 ) );
@@ -391,10 +371,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
         BLong* blong = static_cast<BLong*>( imp );
         if ( break_first_null && blong->value() == 0 )
           break;
-        char s[2];
-        s[0] = static_cast<char>( blong->value() );
-        s[1] = '\0';
-        res += s;
+        char32_t chr = static_cast<char32_t>( blong->value() );
+        res += chr;
       }
     }
   }
@@ -418,10 +396,9 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
     sprintf( s, "0x%X", static_cast<unsigned int>( pdbl->value() ) );
     return new String( s );
   }
-  else if ( imp->isa( Bscript::BObjectImp::OTString )
-    || imp->isa( Bscript::BObjectImp::OTUnicode ) )
+  else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
-    BaseString* str = static_cast<BaseString*>( imp );
+    String* str = static_cast<String*>( imp );
     char s[20];
     sprintf( s, "0x%X", str->intval() );
     return new String( s );
@@ -481,14 +458,14 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Bin()
 Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 {
   Bscript::BObjectImp* bimp_split = exec.getParamImp( 0 );
-  std::string source = bimp_split->getStringRep();
+  UnicodeString source = bimp_split->getStringRep();
 
   const String* bimp_delimiter;
   if ( !exec.getStringParam( 1, bimp_delimiter ) )
   {
     return new BError( "Invalid parameter type." );
   }
-  std::string delimiter = bimp_delimiter->getStringRep();
+  UnicodeString delimiter = bimp_delimiter->getStringRep();
 
   // max_split parameter
   int max_split = -1;
@@ -503,40 +480,13 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 
   // Support for how it previously worked.
   // Kept to support spaces and tabs as the same.
-  if ( delimiter == " " )
-  {
-    ISTRINGSTREAM is( source );
-    std::string tmp;
-    std::streamoff tellg = -1;
-    bool splitted = false;
-
-    while ( is >> tmp )
-    {
-      tellg = is.tellg();
-      if ( count == max_split && tellg != -1 )
-      {  // added max_split parameter
-        splitted = true;
-        break;
-      }
-      objarr->addElement( new String( tmp ) );
-      tmp = "";
-      count += 1;
-    }
-
-    // Merges the remaining of the string
-    if ( splitted )
-    {
-      std::string remaining_string;
-      remaining_string = source.substr( tellg - tmp.length(), source.length() );
-      objarr->addElement( new String( remaining_string ) );
-    }
-
-    return objarr.release();
-  }
+  //if ( delimiter == " " )
+  //  delimiter = " \t";
+  //TODO: reimplement this, maybe just support array delimiter?
 
   // New delimiter support.
-  std::string new_string = source;
-  std::string::size_type found;
+  UnicodeString new_string = source;
+  UnicodeString::size_type found;
   do
   {
     found = new_string.find( delimiter, 0 );
@@ -547,14 +497,14 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
       break;
     }
 
-    std::string add_string = new_string.substr( 0, found );
+    UnicodeString add_string = new_string.substr( 0, found );
 
     // Shinigami: will not hang server on queue of delimiter
     // if ( add_string.empty() )
     //  continue;
 
     objarr->addElement( new String( add_string ) );
-    std::string tmp_string = new_string.substr( found + delimiter.length(), new_string.length() );
+    UnicodeString tmp_string = new_string.substr( found + delimiter.lengthc(), new_string.lengthc() );
     new_string = tmp_string;
     count += 1;
   } while ( found != std::string::npos );
@@ -578,7 +528,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Unpack()
 
   if ( exec.getStringParam( 0, str ) )
   {
-    return Bscript::BObjectImp::unpack( str->value().c_str() );
+    return Bscript::BObjectImp::unpack( str->utf8().c_str() );
   }
   else
   {
@@ -605,7 +555,7 @@ picojson::value recurseE2J( BObjectImp* v )
 {
   if ( v->isa( BObjectImp::OTString ) )
   {
-    return picojson::value( v->getStringRep() );
+    return picojson::value( v->getStringRep().utf8() );
   }
   else if ( v->isa( BObjectImp::OTLong ) )
   {
@@ -653,7 +603,7 @@ picojson::value recurseE2J( BObjectImp* v )
     for ( const auto& content : cpropdict->contents() )
     {
       BObjectImp* imp = content.second->impptr();
-      jsonObj.insert( std::pair<std::string, picojson::value>( content.first->getStringRep(),
+      jsonObj.insert( std::pair<std::string, picojson::value>( content.first->getStringRep().utf8(),
                                                                recurseE2J( imp ) ) );
     }
     return picojson::value( jsonObj );
@@ -712,7 +662,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_UnpackJSON()
   if ( exec.getStringParam( 0, str ) )
   {
     picojson::value v;
-    std::string err = picojson::parse( v, str->value() );
+    std::string err = picojson::parse( v, str->value().utf8() );
     if ( !err.empty() )
     {
       return new BError( err );

@@ -33,6 +33,7 @@ public:
   BError();
   explicit BError( const char* errortext );
   explicit BError( const std::string& errortext );
+  explicit BError( const UnicodeString& errortext );
 
   static BObjectImp* unpack( std::istream& is );
 

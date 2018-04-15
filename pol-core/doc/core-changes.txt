@@ -1,7 +1,8 @@
 ﻿-- POL100 --
 XX-XX-XXXX Bodom:
   Added:   Native unicode support
-           All scripts and strings must now be utf8.
+           All scripts, config files and strings must now be utf8.
+		   Savegame files are automatically converted.
            Valid chars are 0x0000-0xFFFF: chars above 0xFFFF are not
            supported in UO. When an unicode contains invalid chars, the compiler
            will issue an error.
@@ -9,6 +10,12 @@ XX-XX-XXXX Bodom:
            non-ANSI characters (those above 0xFF) are silently converted to a
            question mark ('?').
            String objects are saved and packed using utf8 encoding.
+           The whole POL should now use UTF8 encoding everywhere with the very only
+           exeption of encrypted passwords, where ANSI is still used for backward compatibility.
+           Failing to use UTF8 somewhere is now considered a BUG.
+  Changed: As a result, CAsc() and CAscZ() may now return values > 255
+           while CChr() and CChrZ() now accept values > 255
+  Changed: CAsc() now returns error on empty string
 04-02-2018 Bodom:
   Removed: polcore().compiledate and polcore().compiletime
   Added:   polcore().compiledatetime

@@ -172,7 +172,7 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
                                                            Items::Item* item );
 Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Character* dropon );
 void send_tip( Network::Client* client, const std::string& tiptext );
-std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
+Clib::UnicodeString get_textcmd_help( Mobile::Character* chr, const char* cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );
 Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
@@ -546,16 +546,15 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
 
 BObjectImp* UOExecutorModule::broadcast()
 {
-  const char* text;
   unsigned short font;
   unsigned short color;
   unsigned short requiredCmdLevel;
-  text = exec.paramAsString( 0 );
-  if ( text && getParam( 1, font ) &&     // todo: getFontParam
+  const UnicodeString text = exec.paramAsString( 0 );
+  if ( !text.empty() && getParam( 1, font ) &&     // todo: getFontParam
        getParam( 2, color ) &&            // todo: getColorParam
        getParam( 3, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
-    Core::broadcast( text, font, color, requiredCmdLevel );
+    Core::broadcast( text.asAnsi().c_str(), font, color, requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -704,7 +703,7 @@ BObjectImp* UOExecutorModule::mf_SendSysMessage()
   {
     if ( chr->has_active_client() )
     {
-      send_sysmessage( chr->client, ptext->value().c_str(), font, color );
+      send_sysmessage( chr->client, ptext->ansi().c_str(), font, color );
       return new BLong( 1 );
     }
     else
@@ -729,7 +728,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
   if ( getUObjectParam( exec, 0, obj ) && getStringParam( 1, ptext ) && getParam( 2, font ) &&
        getParam( 3, color ) && getParam( 4, journal_print ) )
   {
-    return new BLong( say_above( obj, ptext->value().c_str(), font, color, journal_print ) );
+    return new BLong( say_above( obj, ptext->ansi().c_str(), font, color, journal_print ) );
   }
   else
   {
@@ -750,7 +749,7 @@ BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
        getParam( 5, journal_print ) )
   {
     return new BLong(
-      private_say_above( chr, obj, ptext->value().c_str(), font, color, journal_print )
+      private_say_above( chr, obj, ptext->ansi().c_str(), font, color, journal_print )
     );
   }
   else
@@ -1135,7 +1134,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemAtLocation( /* x,y,z,objtype,amount,r
       return new BError( "That item is not stackable.  Create one at a time." );
     }
 
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    Realms::Realm* realm = find_realm( strrealm->utf8() );
     if ( !realm )
       return new BError( "Realm not found" );
 
@@ -1167,7 +1166,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation( /* x,y,z,item,realm *
     if ( origitem->script_isa( POLCLASS_MULTI ) )
       return new BError( "This function does not work with Multi objects." );
 
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    Realms::Realm* realm = find_realm( strrealm->utf8() );
     if ( !realm )
       return new BError( "Realm not found" );
 
@@ -1211,7 +1210,7 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation( /* x,y,z,objtype,flags,r
     const String* strrealm;
     if ( !getStringParam( 5, strrealm ) )
       return new BError( "Invalid parameter type" );
-    realm = find_realm( strrealm->value() );
+    realm = find_realm( strrealm->utf8() );
   }
 
   if ( !realm )
@@ -1247,7 +1246,7 @@ void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
         {
           elem.add_prop(
               "cprop", ( ( *itr ).first->getStringRep() + "\t" + ( *itr ).second->impptr()->pack() )
-                           .c_str() );
+                           .utf8().c_str() );
         }
       }
       else
@@ -1259,7 +1258,7 @@ void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
     else
     {
       elem.clear_prop( name.c_str() );
-      elem.add_prop( name.c_str(), ref->getStringRep().c_str() );
+      elem.add_prop( name.c_str(), ref->getStringRep().utf8().c_str() );
     }
   }
 }
@@ -1296,7 +1295,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   {
     if ( !getStringParam( 5, strrealm ) )
       return new BError( "Realm not found" );
-    realm = find_realm( strrealm->value() );
+    realm = find_realm( strrealm->utf8() );
   }
 
   if ( !realm )
@@ -1306,13 +1305,13 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 
   Clib::ConfigElem elem;
   START_PROFILECLOCK( npc_search );
-  bool found = FindNpcTemplate( tmplname->value().c_str(), elem );
+  bool found = FindNpcTemplate( tmplname->utf8().c_str(), elem );
   STOP_PROFILECLOCK( npc_search );
   INC_PROFILEVAR( npc_searches );
 
   if ( !found )
   {
-    return new BError( "NPC template '" + tmplname->value() + "' not found" );
+    return new BError( "NPC template '" + tmplname->utf8() + "' not found" );
   }
   MOVEMODE movemode = Character::decode_movemode( elem.read_string( "MoveMode", "L" ) );
 
@@ -1393,7 +1392,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     if ( npc.get() != NULL )
       npc->destroy();
     return new BError( "Exception detected trying to create npc from template '" +
-                       tmplname->value() + "': " + ex.what() );
+                       tmplname->utf8() + "': " + ex.what() );
   }
 }
 
@@ -1517,7 +1516,7 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
   if ( getParam( 0, cx ) && getParam( 1, cy ) && getParam( 2, cz ) && getParam( 3, effect ) &&
        getStringParam( 4, strrealm ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    Realms::Realm* realm = find_realm( strrealm->utf8() );
     if ( !realm )
       return new BError( "Realm not found" );
     if ( !realm->valid( cx, cy, cz ) )
@@ -1595,7 +1594,7 @@ bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu 
   if ( imp->isa( BObjectImp::OTString ) )
   {
     String* pmenuname = static_cast<String*>( imp );
-    menu = Menu::find_menu( pmenuname->value().c_str() );
+    menu = Menu::find_menu( pmenuname->utf8().c_str() );
     return ( menu != NULL );
   }
   else if ( imp->isa( BObjectImp::OTApplicObj ) )
@@ -1713,7 +1712,7 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
       if ( celem.get() == NULL )
         continue;
 
-      BObjectImp* propval = celem->getimp( propname_str->value() );
+      BObjectImp* propval = celem->getimp( propname_str->utf8() );
       if ( propval == NULL )
         continue;
       if ( !propval->isa( BObjectImp::OTLong ) )
@@ -1737,7 +1736,7 @@ BObjectImp* UOExecutorModule::mf_CreateMenu()
   {
     Menu temp;
     temp.menu_id = 0;
-    strzcpy( temp.title, title->value().c_str(), sizeof temp.title );
+    strzcpy( temp.title, title->utf8().c_str(), sizeof temp.title );
     return new EMenuObjImp( temp );
   }
   return new BLong( 0 );
@@ -1757,7 +1756,7 @@ BObjectImp* UOExecutorModule::mf_AddMenuItem()
     MenuItem* mi = &menu->menuitems_.back();
     mi->objtype_ = objtype;
     mi->graphic_ = getgraphic( objtype );
-    strzcpy( mi->title, text->value().c_str(), sizeof mi->title );
+    strzcpy( mi->title, text->utf8().c_str(), sizeof mi->title );
     mi->color_ = color & settingsManager.ssopt.item_color_mask;
     return new BLong( 1 );
   }
@@ -1774,7 +1773,7 @@ BObjectImp* UOExecutorModule::mf_GetObjProperty()
   if ( getUObjectParam( exec, 0, uobj ) && getStringParam( 1, propname_str ) )
   {
     std::string val;
-    if ( uobj->getprop( propname_str->value(), val ) )
+    if ( uobj->getprop( propname_str->utf8(), val ) )
     {
       return BObjectImp::unpack( val.c_str() );
     }
@@ -1796,7 +1795,7 @@ BObjectImp* UOExecutorModule::mf_SetObjProperty()
   if ( getUObjectParam( exec, 0, uobj ) && getStringParam( 1, propname_str ) )
   {
     BObjectImp* propval = getParamImp( 2 );
-    uobj->setprop( propname_str->value(), propval->pack() );
+    uobj->setprop( propname_str->utf8(), propval->pack() );
     return new BLong( 1 );
   }
   else
@@ -1811,7 +1810,7 @@ BObjectImp* UOExecutorModule::mf_EraseObjProperty()
   const String* propname_str;
   if ( getUObjectParam( exec, 0, uobj ) && getStringParam( 1, propname_str ) )
   {
-    uobj->eraseprop( propname_str->value() );
+    uobj->eraseprop( propname_str->utf8() );
     return new BLong( 1 );
   }
   else
@@ -1846,7 +1845,7 @@ BObjectImp* UOExecutorModule::mf_GetGlobalProperty()
   if ( getStringParam( 0, propname_str ) )
   {
     std::string val;
-    if ( gamestate.global_properties->getprop( propname_str->value(), val ) )
+    if ( gamestate.global_properties->getprop( propname_str->utf8(), val ) )
     {
       return BObjectImp::unpack( val.c_str() );
     }
@@ -1867,7 +1866,7 @@ BObjectImp* UOExecutorModule::mf_SetGlobalProperty()
   if ( exec.getStringParam( 0, propname_str ) )
   {
     BObjectImp* propval = exec.getParamImp( 1 );
-    gamestate.global_properties->setprop( propname_str->value(), propval->pack() );
+    gamestate.global_properties->setprop( propname_str->utf8(), propval->pack() );
     return new BLong( 1 );
   }
   else
@@ -1881,7 +1880,7 @@ BObjectImp* UOExecutorModule::mf_EraseGlobalProperty()
   const String* propname_str;
   if ( getStringParam( 0, propname_str ) )
   {
-    gamestate.global_properties->eraseprop( propname_str->value() );
+    gamestate.global_properties->eraseprop( propname_str->utf8() );
     return new BLong( 1 );
   }
   else
@@ -1943,7 +1942,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
        getParam( 7, speed, UCHAR_MAX ) && getParam( 8, loop, UCHAR_MAX ) &&
        getParam( 9, explode, UCHAR_MAX ) && getStringParam( 10, strrealm ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    Realms::Realm* realm = find_realm( strrealm->utf8() );
     if ( !realm )
       return new BError( "Realm not found" );
     if ( !realm->valid( sx, sy, sz ) || !realm->valid( dx, dy, dz ) )
@@ -1992,7 +1991,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
        getParam( 4, speed, UCHAR_MAX ) && getParam( 5, loop, UCHAR_MAX ) &&
        getParam( 6, explode, UCHAR_MAX ) && getStringParam( 7, strrealm ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    Realms::Realm* realm = find_realm( strrealm->utf8() );
     if ( !realm )
       return new BError( "Realm not found" );
     if ( !realm->valid( x, y, z ) )
@@ -2073,7 +2072,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
        getParam( 13, explode, UCHAR_MAX ) && getParam( 14, effect3d ) &&
        getParam( 15, effect3dexplode ) && getParam( 16, effect3dsound ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    Realms::Realm* realm = find_realm( strrealm->utf8() );
     if ( !realm )
       return new BError( "Realm not found" );
     if ( !realm->valid( sx, sy, sz ) || !realm->valid( dx, dy, dz ) )
@@ -2137,7 +2136,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
        getParam( 6, duration, UCHAR_MAX ) && getParam( 7, hue, INT_MAX ) &&
        getParam( 8, render, INT_MAX ) && getParam( 9, effect3d ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    Realms::Realm* realm = find_realm( strrealm->utf8() );
     if ( !realm )
       return new BError( "Realm not found" );
     if ( !realm->valid( x, y, z ) )
@@ -2908,7 +2907,7 @@ BObjectImp* UOExecutorModule::mf_SetName()
 
   if ( getUObjectParam( exec, 0, obj ) && getStringParam( 1, name_str ) )
   {
-    obj->setname( name_str->value() );
+    obj->setname( name_str->utf8() );
     return new BLong( 1 );
   }
   else
@@ -3198,7 +3197,7 @@ BObjectImp* UOExecutorModule::mf_SetRegionLightLevel()
     return new BError( "Light Level is out of range" );
   }
 
-  LightRegion* lightregion = gamestate.lightdef->getregion( region_name_str->value() );
+  LightRegion* lightregion = gamestate.lightdef->getregion( region_name_str->utf8() );
   if ( lightregion == NULL )
   {
     return new BError( "Light region not found" );
@@ -3221,7 +3220,7 @@ BObjectImp* UOExecutorModule::mf_SetRegionWeatherLevel()
     return new BError( "Invalid Parameter type" );
   }
 
-  WeatherRegion* weatherregion = gamestate.weatherdef->getregion( region_name_str->value() );
+  WeatherRegion* weatherregion = gamestate.weatherdef->getregion( region_name_str->utf8() );
   if ( weatherregion == NULL )
   {
     return new BError( "Weather region not found" );
@@ -3250,7 +3249,7 @@ BObjectImp* UOExecutorModule::mf_AssignRectToWeatherRegion()
   if ( !realm->valid( xeast, ysouth, 0 ) )
     return new BError( "Invalid Coordinates for realm" );
 
-  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->value().c_str(),
+  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->utf8().c_str(),
                                                            xwest, ynorth, xeast, ysouth, realm );
   if ( res )
     return new BLong( 1 );
@@ -3748,7 +3747,7 @@ BObjectImp* UOExecutorModule::mf_GetHarvestDifficulty()
     if ( !realm->valid( x, y, 0 ) )
       return new BError( "Invalid Coordinates for realm" );
 
-  return get_harvest_difficulty( resource->value().c_str(), x, y, realm, tiletype );
+  return get_harvest_difficulty( resource->utf8().c_str(), x, y, realm, tiletype );
   }
   else
   {
@@ -3776,7 +3775,7 @@ BObjectImp* UOExecutorModule::mf_HarvestResource()
 
     if ( b <= 0 )
       return new BError( "b must be >= 0" );
-    return harvest_resource( resource->value().c_str(), x, y, realm, b, n );
+    return harvest_resource( resource->utf8().c_str(), x, y, realm, b, n );
   }
   else
   {
@@ -3854,7 +3853,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionString()
     if ( !realm->valid( x, y, 0 ) )
       return new BError( "Invalid Coordinates for realm" );
 
-    return get_region_string( resource->value().c_str(), x, y, realm, propname->value() );
+    return get_region_string( resource->utf8().c_str(), x, y, realm, propname->utf8() );
   }
   else
   {
@@ -3895,7 +3894,7 @@ BObjectImp* UOExecutorModule::mf_EquipFromTemplate()
   const String* template_name;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, template_name ) )
   {
-    return equip_from_template( chr, template_name->value().c_str() );
+    return equip_from_template( chr, template_name->utf8().c_str() );
   }
   else
   {
@@ -3910,7 +3909,7 @@ BObjectImp* UOExecutorModule::mf_GrantPrivilege()
   const String* privstr;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, privstr ) )
   {
-    chr->grant_privilege( privstr->value().c_str() );
+    chr->grant_privilege( privstr->utf8().c_str() );
     return new BLong( 1 );
   }
   else
@@ -3926,7 +3925,7 @@ BObjectImp* UOExecutorModule::mf_RevokePrivilege()
   const String* privstr;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, privstr ) )
   {
-    chr->revoke_privilege( privstr->value().c_str() );
+    chr->revoke_privilege( privstr->utf8().c_str() );
     return new BLong( 1 );
   }
   else
@@ -3959,14 +3958,18 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
   const String* str;
   if ( getCharacterOrClientParam( exec, 0, chr, client ) && getStringParam( 1, str ) )
   {
-    if ( str->length() % 2 > 0 )
+    if ( ! str->isAscii() )
+    {
+      return new BError( "Invalid non-ascii packet string." );
+    }
+    if ( str->lengthc() % 2 > 0 )
     {
       return new BError( "Invalid packet string length." );
     }
     Network::PktHelper::PacketOut<Network::EncryptedPktBuffer>
         buffer;  // encryptedbuffer is the only one without getID buffer[0]
     unsigned char* buf = reinterpret_cast<unsigned char*>( buffer->getBuffer() );
-    const char*s = str->value().c_str();
+    const char*s = str->ascii().c_str();
     while ( buffer->offset < 2000 && isxdigit( s[0] ) && isxdigit( s[1] ) )
     {
       unsigned char ch;
@@ -4302,7 +4305,7 @@ BObjectImp* UOExecutorModule::mf_GetObjtypeByName()
   const String* namestr;
   if ( getStringParam( 0, namestr ) )
   {
-    unsigned int objtype = get_objtype_byname( namestr->value().c_str() );
+    unsigned int objtype = get_objtype_byname( namestr->utf8().c_str() );
     if ( objtype != 0 )
       return new BLong( objtype );
     else
@@ -4688,7 +4691,7 @@ BObjectImp* UOExecutorModule::mf_GetCommandHelp()
   const String* cmd;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, cmd ) )
   {
-    std::string help = get_textcmd_help( chr, cmd->value().c_str() );
+    UnicodeString help = get_textcmd_help( chr, cmd->utf8().c_str() );
     if ( !help.empty() )
     {
       return new String( help );
@@ -4713,7 +4716,7 @@ BObjectImp* UOExecutorModule::mf_SendStringAsTipWindow()
   {
     if ( chr->has_active_client() )
     {
-      send_tip( chr->client, str->value() );
+      send_tip( chr->client, str->ansi() );
       return new BLong( 1 );
     }
     else
@@ -4936,98 +4939,99 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
     return new BError( "Invalid parameter" );
 }
 
-//  Birdy :  (Notes on Pathfinding)
-//
-//  This implimentation of pathfinding is actually from a very nice stl based A*
-//  implimentation.  It will, within reason, succeed in finding a path in a wide
-//  variety of circumstance, including traversing stairs and multiple level
-//  structures.
-//
-//  Unfortunately, it, or my POL support classes implimenting it, seems to at times
-//  generate corrupted results in finding a path.  These corruptions take the form
-//  of basically looping within the result list, or linking in non-closed list nodes
-//  which may be on the open list and generate more looping or which may have even
-//  been deleted by the algorithm, generally causing an illegal reference and crash.
-//
-//  Thus far, the above senerio has only been replicated, though fairly reliably, in
-//  cases where there are many many(about 100) npc's trying to pathfind at the same time,
-//  in close proximity to one another.
-//
-//  "Looping" will, of course, cause the shard to hang while the pathfinding routine
-//  tries to build the child list for the solution set.  An illegal reference will
-//  cause the shard to crash most likely.  Neither is tollerable of course, so I have
-//  put in two safeguards against this.
-//
-//  Safeguard #1) As we go through the nodes in the solution, I make sure each of them
-//        is on the Closed List.  If not, the pathfind errors out with a
-//        "Solution Corrupt!" error.  This is an attempt to short circuit any
-//        solution containing erroneous nodes in it.
-//
-//  Safeguard #2) I keep a vector of the nodes in the solution as we go through them.
-//        Before adding each node to the vector, I search that vector for that
-//        node.  If that vector already contains the node, the pathfind errors
-//        out with a "Solution Corrupt!" error.  THis is an attempt to catch
-//        the cases where Closed List nodes have looped for some reason.
-//
-//  These two safeguards should not truly be necessary for this algorithm, and take up
-//  space and time to guard against.  Thus, finding out why these problems are occurring
-//  in the first place would be great, as we could fix that instead and remove these
-//  checks.  If necessary to live with long term, then the solution vector should probably
-//  be made into a hash table for quick lookups.
-//
-//  I have also implimented a sort blocking list that is supposed to represent those
-//  spots that mobiles occupy and are thus not walkable on.  This is only maintained if
-//  the mobilesBlock parameter passed from escript is true.  It would probably be good
-//  to make this a hash table.  It may be said that it is a good idea to pre-process all
-//  blocking spots on the map, but this would hinder the ability to manage 3d shifts, or
-//  probably be prohibitive if an attempt were made to check for traversal at all possible
-//  various z's.  So it may be that checking such at the time of the search for the path
-//  is ultimately the best means of handling this.
-//
-//  Other details that may be nice to have here might be a method for interacting with
-//  escript, letting escript tell the pathfinder to ignore doors, and then the pathfinder
-//  putting in the solution list an indication to escript that at the given node a door
-//  was encountered, so that AI can open the door before attempting to traverse that
-//  path.  Providing the user the ability to define an array of objects which are to be
-//  considered as blocking, or an array of objects which are to be ignored even if they
-//  are blocking might be nice as well.  The former could be easily implimented by
-//  adding to the mobile's blocking list.  The latter may be more difficult to do
-//  considering if the item blocks, the walk function will not let you traverse it, and
-//  it is the walk function that we use to accurately replicate the ability of the
-//  mobile to traverse from one place to the next.  Additional functionality of some
-//  sort may be necessary to do this, or making a copy of the walk function and putting
-//  in a special walk function strictly for pathfinding which can take this array into
-//  account.
-//
-//  For now, however, these concerns are all unaddressed.  I wish to see if this
-//  function works and is useful, and also would prefer to find some way to track down
-//  the corruption of the solution nodes before adding more complexity to the problem.
-//
-//  Other than the below function, the following files will be added to CVS to support
-//  it in the src module.  They are :
-//
-//  stlastar.h  --  virtually untouched by me really, it is the original author's
-//          implimentation, pretty nicely done and documented if you are
-//          interested in learning about A*.
-//
-//  fsa.h     --  a "fixed size allocation" module which I toy with enabling and
-//          disabling.  Using it is supposed to get you some speed, but it
-//          limits your maps because it will only allocate a certain # of
-//          nodes at once, and after that, it will return out of memory.
-//          Presently, it is disabled, but will be submitted to CVS for
-//          completion in case we wish to use it later.
-//
-//  uopathnode.h -- this is stricly my work, love it or hate it, it's pretty quick
-//          and dirty, and can stand to be cleaned up, optimized, and so forth.
-//          I have the name field and function in there to allow for some
-//          debugging, though the character array could probably be removed to
-//          make the nodes smaller.  I didn't find it mattered particularly, since
-//          these puppies are created and destroyed at a pretty good clip.
-//          It is this class that encapsulates the necessary functionality to
-//          make the otherwise fairly generic stlastar class work.
-
 typedef Plib::AStarSearch<UOPathState> UOSearch;
 
+/**
+ *  Birdy :  (Notes on Pathfinding)
+ *
+ *  This implimentation of pathfinding is actually from a very nice stl based A*
+ *  implimentation.  It will, within reason, succeed in finding a path in a wide
+ *  variety of circumstance, including traversing stairs and multiple level
+ *  structures.
+ *
+ *  Unfortunately, it, or my POL support classes implimenting it, seems to at times
+ *  generate corrupted results in finding a path.  These corruptions take the form
+ *  of basically looping within the result list, or linking in non-closed list nodes
+ *  which may be on the open list and generate more looping or which may have even
+ *  been deleted by the algorithm, generally causing an illegal reference and crash.
+ *
+ *  Thus far, the above senerio has only been replicated, though fairly reliably, in
+ *  cases where there are many many(about 100) npc's trying to pathfind at the same time,
+ *  in close proximity to one another.
+ *
+ *  "Looping" will, of course, cause the shard to hang while the pathfinding routine
+ *  tries to build the child list for the solution set.  An illegal reference will
+ *  cause the shard to crash most likely.  Neither is tollerable of course, so I have
+ *  put in two safeguards against this.
+ *
+ *  Safeguard #1) As we go through the nodes in the solution, I make sure each of them
+ *        is on the Closed List.  If not, the pathfind errors out with a
+ *        "Solution Corrupt!" error.  This is an attempt to short circuit any
+ *        solution containing erroneous nodes in it.
+ *
+ *  Safeguard #2) I keep a vector of the nodes in the solution as we go through them.
+ *        Before adding each node to the vector, I search that vector for that
+ *        node.  If that vector already contains the node, the pathfind errors
+ *        out with a "Solution Corrupt!" error.  THis is an attempt to catch
+ *        the cases where Closed List nodes have looped for some reason.
+ *
+ *  These two safeguards should not truly be necessary for this algorithm, and take up
+ *  space and time to guard against.  Thus, finding out why these problems are occurring
+ *  in the first place would be great, as we could fix that instead and remove these
+ *  checks.  If necessary to live with long term, then the solution vector should probably
+ *  be made into a hash table for quick lookups.
+ *
+ *  I have also implimented a sort blocking list that is supposed to represent those
+ *  spots that mobiles occupy and are thus not walkable on.  This is only maintained if
+ *  the mobilesBlock parameter passed from escript is true.  It would probably be good
+ *  to make this a hash table.  It may be said that it is a good idea to pre-process all
+ *  blocking spots on the map, but this would hinder the ability to manage 3d shifts, or
+ *  probably be prohibitive if an attempt were made to check for traversal at all possible
+ *  various z's.  So it may be that checking such at the time of the search for the path
+ *  is ultimately the best means of handling this.
+ *
+ *  Other details that may be nice to have here might be a method for interacting with
+ *  escript, letting escript tell the pathfinder to ignore doors, and then the pathfinder
+ *  putting in the solution list an indication to escript that at the given node a door
+ *  was encountered, so that AI can open the door before attempting to traverse that
+ *  path.  Providing the user the ability to define an array of objects which are to be
+ *  considered as blocking, or an array of objects which are to be ignored even if they
+ *  are blocking might be nice as well.  The former could be easily implimented by
+ *  adding to the mobile's blocking list.  The latter may be more difficult to do
+ *  considering if the item blocks, the walk function will not let you traverse it, and
+ *  it is the walk function that we use to accurately replicate the ability of the
+ *  mobile to traverse from one place to the next.  Additional functionality of some
+ *  sort may be necessary to do this, or making a copy of the walk function and putting
+ *  in a special walk function strictly for pathfinding which can take this array into
+ *  account.
+ *
+ *  For now, however, these concerns are all unaddressed.  I wish to see if this
+ *  function works and is useful, and also would prefer to find some way to track down
+ *  the corruption of the solution nodes before adding more complexity to the problem.
+ *
+ *  Other than the below function, the following files will be added to CVS to support
+ *  it in the src module.  They are :
+ *
+ *  stlastar.h  --  virtually untouched by me really, it is the original author's
+ *          implimentation, pretty nicely done and documented if you are
+ *          interested in learning about A*.
+ *
+ *  fsa.h     --  a "fixed size allocation" module which I toy with enabling and
+ *          disabling.  Using it is supposed to get you some speed, but it
+ *          limits your maps because it will only allocate a certain # of
+ *          nodes at once, and after that, it will return out of memory.
+ *          Presently, it is disabled, but will be submitted to CVS for
+ *          completion in case we wish to use it later.
+ *
+ *  uopathnode.h -- this is stricly my work, love it or hate it, it's pretty quick
+ *          and dirty, and can stand to be cleaned up, optimized, and so forth.
+ *          I have the name field and function in there to allow for some
+ *          debugging, though the character array could probably be removed to
+ *          make the nodes smaller.  I didn't find it mattered particularly, since
+ *          these puppies are created and destroyed at a pretty good clip.
+ *          It is this class that encapsulates the necessary functionality to
+ *          make the otherwise fairly generic stlastar class work.
+ */
 BObjectImp* UOExecutorModule::mf_FindPath()
 {
   unsigned short x1, x2;
@@ -5100,7 +5104,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
     if ( Plib::systemstate.config.loglevel >= 12 )
     {
       POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, {}, {}, {}, {}, 0x{:X}, {})\n" )
-            << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->value() << flags << theSkirt;
+            << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->utf8() << flags << theSkirt;
       POLLOG.Format( "[FindPath]   search for Blockers inside {} {} {} {}\n" )
           << xL << yL << xH << yH;
     }
@@ -5381,7 +5385,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
        ( getParam( 3, z ) ) && ( getParam( 4, x2_or_dir ) ) && ( getParam( 5, y2_ ) ) &&
        ( getStringParam( 6, realm_name ) ) )
   {
-    MOVEMODE movemode = Character::decode_movemode( movemode_name->value() );
+    MOVEMODE movemode = Character::decode_movemode( movemode_name->utf8() );
 
     Realms::Realm* realm = find_realm( realm_name->value() );
     if ( !realm )
@@ -5463,7 +5467,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
       if ( !Core::convertArrayToUC( eText, ewtext, elen ) )
         return new BError( "Invalid parameter type" );
 
-      sendCharProfile( chr, of_who, title->value().c_str(), uwtext, ewtext );
+      sendCharProfile( chr, of_who, title->ansi().c_str(), uwtext, ewtext );
       return new BLong( 1 );
     }
     else

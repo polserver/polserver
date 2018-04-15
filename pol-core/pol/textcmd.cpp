@@ -511,7 +511,7 @@ void textcmd_integ_chr( Network::Client* /*client*/ )
   check_character_integrity();
 }
 
-std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
+Clib::UnicodeString get_textcmd_help( Mobile::Character* chr, const char* cmd )
 {
   const char* t = cmd;
   while ( *t )
@@ -545,14 +545,14 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
       if ( Clib::FileExists( filename.c_str() ) )
       {
         // cout << "Found " << filename << endl;
-        std::string result;
+        Clib::UnicodeString result;
         std::ifstream ifs( filename.c_str(), std::ios::binary );
         char temp[64];
         do
         {
           ifs.read( temp, sizeof temp );
           if ( ifs.gcount() )
-            result.append( temp, static_cast<size_t>( ifs.gcount() ) );
+            result += Clib::UnicodeString( temp, static_cast<size_t>( ifs.gcount() ) );
         } while ( !ifs.eof() );
         return result;
       }

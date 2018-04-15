@@ -1023,7 +1023,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
     if ( bo == NULL )
       continue;
     BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
+    std::string s = imp->getStringRep().asAnsi(true);
 
     size_t addlen = 4 + s.length();
     layoutlen += addlen;
@@ -1063,7 +1063,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
     if ( bo == NULL )
       continue;
     BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
+    std::string s = imp->getStringRep().asAnsi(true);
 
     const char* string = s.c_str();
     ++numlines;
@@ -1130,7 +1130,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     if ( bo == NULL )
       continue;
     BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
+    std::string s = imp->getStringRep().asAnsi(true);
 
     size_t addlen = 4 + s.length();
     if ( layoutdlen + addlen > sizeof bfr->buffer )
@@ -1178,7 +1178,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     if ( bo == NULL )
       continue;
     BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
+    std::string s = imp->getStringRep().asAnsi(true);
 
     const char* string = s.c_str();
     ++numlines;
@@ -1277,7 +1277,7 @@ size_t BIntHash::sizeEstimate() const
   return size;
 }
 
-std::string BIntHash::getStringRep() const
+UnicodeString BIntHash::getStringRep() const
 {
   return "<inthash>";
 }
@@ -1584,20 +1584,23 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   msg->Write<u32>( chr->serial_ext );
   msg->offset += 2;  // u8 type,index
 
-  size_t numbytes = line1->length() + 1;
+  const std::string line1a = line1->ansi();
+  const std::string line2a = line2->ansi();
+
+  size_t numbytes = line1a.size() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line1->value().c_str(), static_cast<u16>( numbytes ) ); // null-terminated
+  msg->Write( line1a.c_str(), static_cast<u16>( numbytes ) ); // null-terminated
 
   msg->Write<u8>( static_cast<u8>( cancel ) );
   msg->Write<u8>( static_cast<u8>( style ) );
   msg->WriteFlipped<s32>( maximum );
-  numbytes = line2->length() + 1;
+  numbytes = line2a.size() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line2->value().c_str(), static_cast<u16>( numbytes ) ); // null-terminated
+  msg->Write( line2a.c_str(), static_cast<u16>( numbytes ) ); // null-terminated
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1679,7 +1682,7 @@ BObjectImp* PolCore::copy() const
   return new PolCore;
 }
 
-std::string PolCore::getStringRep() const
+UnicodeString PolCore::getStringRep() const
 {
   return "<polcore>";
 }
@@ -2035,24 +2038,24 @@ BObjectImp* UOExecutorModule::mf_CreateAccount()
   int enabled;
   if ( getStringParam( 0, acctname ) && getStringParam( 1, password ) && getParam( 2, enabled ) )
   {
-    if ( acctname->SafeCharAmt() < acctname->length() )
+    if ( acctname->SafeCharAmt() < acctname->lengthc() )
     {
       return new BError(
           "Attempted to use username in account creation with non-allowed characters." );
     }
-    if ( password->SafeCharAmt() < password->length() )
+    if ( password->SafeCharAmt() < password->lengthc() )
     {
       return new BError(
           "Attempted to use password in account creation with non-allowed characters." );
     }
 
-    if ( Accounts::find_account( acctname->value().c_str() ) )
+    if ( Accounts::find_account( acctname->utf8().c_str() ) )
     {
       return new BError( "Account already exists" );
     }
 
     // Dave 6/5/3 let this function handle the hashing (Account ctor does it)
-    Accounts::Account* acct = Accounts::create_new_account( acctname->value(), password->value(),
+    Accounts::Account* acct = Accounts::create_new_account( acctname->utf8(), password->utf8(),
                                                             enabled ? true : false );  // MD5
 
     return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( AccountRef( acct ) ) );
@@ -2068,7 +2071,7 @@ BObjectImp* UOExecutorModule::mf_FindAccount()
   const String* acctname;
   if ( getStringParam( 0, acctname ) )
   {
-    Accounts::Account* acct = Accounts::find_account( acctname->value().c_str() );
+    Accounts::Account* acct = Accounts::find_account( acctname->utf8().c_str() );
     if ( acct != NULL )
     {
       return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( AccountRef( acct ) ) );
@@ -2228,8 +2231,8 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   {
     return new BError( "book.GetNumLines() did not return an Integer" );
   }
-  std::string title = book->call_custom_method( "gettitle" )->getStringRep();
-  std::string author = book->call_custom_method( "getauthor" )->getStringRep();
+  UnicodeString title = book->call_custom_method( "gettitle" )->getStringRep();
+  UnicodeString author = book->call_custom_method( "getauthor" )->getStringRep();
 
   int npages = ( nlines + 7 ) / 8;
 
@@ -2251,8 +2254,8 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   msg93->Write<u8>( writable ? 1u : 0u );
   msg93->Write<u8>( 1u );
   msg93->WriteFlipped<u16>( static_cast<u16>( npages ) );
-  msg93->Write( title.c_str(), 60, false );
-  msg93->Write( author.c_str(), 30, false );
+  msg93->Write( title.asAnsi(true).c_str(), 60, false );
+  msg93->Write( author.asAnsi(true).c_str(), 30, false );
   msg93.Send( chr->client );
 
   if ( writable )
@@ -2281,7 +2284,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
         const BObjectImp* line_imp = arr->imp_at( linenum );
         std::string linetext;
         if ( line_imp )
-          linetext = line_imp->getStringRep();
+          linetext = line_imp->getStringRep().asAnsi(true);
         if ( msg->offset + linetext.size() + 1 > sizeof msg->buffer )
         {
           return new BError( "Buffer overflow" );
@@ -2377,7 +2380,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
       BObjectImpRefVec params;
       params.push_back( ref_ptr<BObjectImp>( new BLong( linenum ) ) );
       BObject line_ob = book->call_custom_method( "getline", params );
-      linetext = line_ob->getStringRep();
+      linetext = line_ob->getStringRep().asAnsi(true);
 
       if ( msgOut->offset + linetext.size() + 1 > sizeof msgOut->buffer )
       {

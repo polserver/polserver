@@ -62,12 +62,7 @@ void ObjArray::printOn( std::ostream& os ) const
 
 void String::printOn( std::ostream& os ) const
 {
-  os << getFormattedStringRep();
-}
-
-void Unicode::printOn(std::ostream& os) const
-{
-  os << getFormattedStringRep();
+  os << getFormattedStringRep().utf8();
 }
 
 void Double::printOn( std::ostream& os ) const

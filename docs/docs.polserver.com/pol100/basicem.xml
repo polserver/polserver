@@ -57,9 +57,11 @@
     <prototype>CAsc(str)</prototype>
     <parameter name="str" value="String to convert" />
     <explain>
-      Converts the first character of string to an ASCII code
+      Converts the first character of string to an UNICODE code
     </explain>
-    <return>ASCII code</return>
+    <return>UNICODE code (0 to 0xFFFFFFFF)</return>
+	<error>"Invalid parameter type"</error>
+	<error>"The string is empty"</error>
   </function>
 
   <function name="CAscZ"> 
@@ -67,16 +69,16 @@
     <parameter name="str" value="String to convert" />
     <parameter name="nullterm" value="If true, adds a 0x00 to the end of the array" />
     <explain>
-      Converts the string to an array of the character's ASCII codes
+      Converts the string to an array of the character's UNICODE codes
     </explain>
-    <return>Array of ASCII values</return>
+    <return>Array of UNICODE values (0 to 0xFFFFFFFF)</return>
   </function>
 
   <function name="CChr">
     <prototype>CChr(number)</prototype>
     <parameter name="number" value="Integer to convert" />
     <explain>
-      Converts an ASCII value to a string consisting of one character.
+      Converts an UNICODE value to a string consisting of one character.
     </explain>
     <return>A character</return>
   </function>
@@ -86,7 +88,7 @@
     <parameter name="intarray" value="Array of ASCII values" />
     <parameter name="break_at_first_null" value="If true, stops when 0x00 found" />
     <explain>
-      Converts an array of ASCII values to a string
+      Converts an array of UNICODE values to a string
     </explain>
     <return>A string</return>
   </function>

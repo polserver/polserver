@@ -241,7 +241,7 @@ BObjectImp* DebugContextObjImp::call_method( const char* methodname, Executor& e
     if ( ex.getStringParam( 0, str ) )
     {
       std::vector<std::string> results;
-      value()->process( str->value(), results );
+      value()->process( str->utf8(), results );
       std::unique_ptr<ObjArray> arr( new ObjArray );
       for ( unsigned i = 0; i < results.size(); ++i )
       {
@@ -1099,7 +1099,7 @@ std::string DebugContext::cmd_localvar( const std::string& rest )
   unsigned varidx = atoi( rest.c_str() );
   if ( varidx >= uoexec->Locals2->size() )
     return "Error: Index out of range";  // vector
-  return "Value: " + ( *uoexec->Locals2 )[varidx]->impref().getStringRep();
+  return "Value: " + ( *uoexec->Locals2 )[varidx]->impref().getStringRep().utf8();
 }
 
 std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results& results )
@@ -1113,16 +1113,16 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
     return "Error: Index out of range";  // vector
   BObjectImp& var = ( *uoexec->Locals2 )[varidx]->impref();
 
-  std::string strrep = var.getStringRep();
+  UnicodeString strrep = var.getStringRep();
   const char* memname;
   int i;
   OSTRINGSTREAM os;
-  if ( strrep.find( "ItemRef" ) != std::string::npos )
+  if ( strrep.find( "ItemRef" ) != UnicodeString::npos )
   {
     for ( i = 0; i < 14; i++ )  // i = member count for poldbg_base_members
     {
       memname = poldbg_base_members[i];
-      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
+      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep().utf8();
 
       results.push_back( OSTRINGSTREAM_STR( os ) );
       os.str( "" );
@@ -1131,19 +1131,19 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
     for ( i = 0; i < 27; i++ )  // i = 27 members
     {
       memname = poldbg_itemref_members[i];
-      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
+      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep().utf8();
 
       results.push_back( OSTRINGSTREAM_STR( os ) );
       os.str( "" );
     }
   }
 
-  else if ( strrep.find( "MobileRef" ) != std::string::npos )
+  else if ( strrep.find( "MobileRef" ) != UnicodeString::npos )
   {
     for ( i = 0; i < 14; i++ )  // i = member count for poldbg_base_members
     {
       memname = poldbg_base_members[i];
-      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
+      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep().utf8();
 
       results.push_back( OSTRINGSTREAM_STR( os ) );
       os.str( "" );
@@ -1152,13 +1152,13 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
     for ( i = 0; i < 59; i++ )  // i = 59 members
     {
       memname = poldbg_mobileref_members[i];
-      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();
+      os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep().utf8();
 
       results.push_back( OSTRINGSTREAM_STR( os ) );
       os.str( "" );
     }
   }
-  return "Value: " + strrep;
+  return "Value: " + strrep.utf8();
 }
 
 std::string DebugContext::cmd_inslist( const std::string& rest, Results& results )

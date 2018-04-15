@@ -59,7 +59,7 @@ BObjectImp* StorageExecutorModule::mf_FindStorageArea()
   const String* str = getStringParam( 0 );
   if ( str != NULL )
   {
-    Core::StorageArea* area = Core::gamestate.storage.find_area( str->value() );
+    Core::StorageArea* area = Core::gamestate.storage.find_area( str->utf8() );
 
     if ( area )
       return new BApplicPtr( &storage_area_type, area );
@@ -72,7 +72,7 @@ BObjectImp* StorageExecutorModule::mf_CreateStorageArea()
   String* name = EXPLICIT_CAST( String*, BObjectImp* )( getParamImp( 0, BObjectImp::OTString ) );
   if ( name )
   {
-    Core::StorageArea* area = Core::gamestate.storage.create_area( name->value() );
+    Core::StorageArea* area = Core::gamestate.storage.create_area( name->utf8() );
     if ( area )
       return new BApplicPtr( &storage_area_type, area );
   }
@@ -88,7 +88,7 @@ BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
   if ( !area || !name )
     return new BError( "Invalid parameter type" );
 
-  Items::Item* item = area->find_root_item( name->value() );
+  Items::Item* item = area->find_root_item( name->utf8() );
 
   if ( item != NULL )
     return new EItemRefObjImp( item );
@@ -105,7 +105,7 @@ BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
   if ( !area || !name )
     return new BError( "Invalid parameter type" );
 
-  bool result = area->delete_root_item( name->value() );
+  bool result = area->delete_root_item( name->utf8() );
   return new BLong( result ? 1 : 0 );
 }
 
@@ -123,7 +123,7 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
   if ( item == NULL )
     return new BError( "Unable to create item" );
 
-  item->setname( name->value() );
+  item->setname( name->utf8() );
 
   if ( item->realm == NULL )
     item->realm = Core::find_realm( std::string( "britannia" ) );

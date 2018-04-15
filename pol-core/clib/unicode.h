@@ -1,11 +1,11 @@
-/** @file
+﻿/** @file
  *
  * Generic unicode handling library, to be used in any project
  *
+ * @warning This source file must be utf8-encoded
  * @par History
  * - 2015/08/12 Bodom:     created this file, added Unicode and UTF8 classes
  */
-
 
 #pragma once
 
@@ -14,9 +14,20 @@
 #include "rawtypes.h"
 #include "passert.h"
 
+//TODO: Implement it
+/// If defined, will enable optimizations while handling ASCII-compatible strings
+#define UNICODE_ENABLE_ASCII_OPTIMIZATIONS 1
+
+/// The Unicode replacement character '�'
+#define UNICODE_REPL static_cast<char32_t>(0xFFFD)
+// The Unicode replacement character encoded as UTF8 string
+#define UTF8_REPL "�"
+/// The ASCII replacemente character
+#define ASCII_REPL '?'
 
 namespace Pol {
 namespace Clib {
+
 
 /**
  * Trown when conversion fails
@@ -24,56 +35,6 @@ namespace Clib {
  */
 class UnicodeCastFailedException: public std::exception
 {
-};
-
-/**
- * Represents a single POL Unicode Character, in the range 0x0000 - 0xFFFF
- * @author Bodom, 12-08-2015
- */
-class UnicodeChar
-{
-public:
-  /**
-   * This trivial default constructible
-   * @warning Using this constructor leaves the internal character container uninitialized
-   * @deprecated
-   */
-  UnicodeChar() = default;
-  UnicodeChar( const char16_t c );
-
-  //   ------------------------------- OPERATORS ----------------------------------------------
-  inline bool operator==( const char16_t c ) const { return val_ == c; };
-  inline bool operator==( const UnicodeChar &c ) const { return val_ == c.val_; };
-  inline bool operator!=( const char16_t c ) const { return val_ != c; };
-  inline bool operator!=( const UnicodeChar &c ) const { return val_ != c.val_; };
-  inline bool operator<=( const UnicodeChar &c ) const { return val_ <= c.val_; };
-  inline bool operator>=( const UnicodeChar &c ) const { return val_ >= c.val_; };
-  inline bool operator<( const UnicodeChar &c ) const { return val_ < c.val_; };
-  inline bool operator>( const UnicodeChar &c ) const { return val_ > c.val_; };
-  inline UnicodeChar& operator+=( const UnicodeChar &c ) { val_ += c.val_; return *this; };
-  inline UnicodeChar& operator-=( const UnicodeChar &c ) { val_ -= c.val_; return *this; };
-
-  // Automagically cast to safe char types... is this dangerous?
-  inline operator char32_t() const { return val_; };
-  inline operator char16_t() const { return val_; };
-  inline operator wchar_t() const { return val_; };
-
-  u8 getByteLen() const;
-  std::string asUtf8() const;
-  char asAnsi( const bool failsafe = false ) const;
-
-  /** Tells wether this is a space character */
-  inline bool isSpace() const { return isspace(val_) == 0; };
-  /** Tells wether this is a digit character */
-  inline bool isDigit() const { return isdigit(val_) == 0; };
-  /** Tells wether this is an alphabetic character */
-  inline bool isAlpha() const { return isalpha(val_) == 0; };
-
-  void toLower();
-  void toUpper();
-
-private:
-  char16_t val_;
 };
 
 
@@ -87,28 +48,24 @@ enum class StrEncoding
 };
 
 
+// Forward declarations
+class UnicodeString;
+class UnicodeChar;
+
+
 /**
- * Represents a single UTF8 character
- * @author Bodom, 12-08-2015
+ * Collections of static UTF8 utils
  */
-class Utf8Char
+class Utf8Util
 {
-  friend class Utf8CharValidator;
-
 public:
-  /**
-   * Create a NULL utf8 char
-   */
-  inline Utf8Char() : bytes_('\0') {};
-  Utf8Char( const char32_t c );
 
-  u8 getByteLen() const;
-  char32_t asUtf32() const;
-  char16_t asUtf16( const bool failsafe = false ) const;
-  char asAnsi( const bool failsafe = false ) const;
+  static UnicodeChar getNextCharFromStr(const char*& str, bool& error);
+  static UnicodeChar getNextCharFromStr(const char*& str);
 
-  /** returns reference to internal bytes */
-  inline const std::string& bytes() const { return bytes_; };
+  static u8 getByteCountFromFirstByte(const char byte);
+  /** Returns true is first char is an UTF8 first byte */
+  inline static bool isFirstByte(const char byte) { return ( byte & 0x80 ) == 0; };
 
   static u8 getCharByteLen( const char32_t c );
   static u8 getCharByteLen( const char16_t c );
@@ -137,7 +94,7 @@ public:
    */
   inline static u8 appendToStringAsUtf8( std::string& str, const char c )
   {
-    u8 bl = Utf8Char::getCharByteLen(c);
+    u8 bl = getCharByteLen(c);
 
     if ( bl == 1 ) {
       str.push_back(c);
@@ -149,49 +106,55 @@ public:
     str.push_back(static_cast<char>(0x80 | ( c & 0x3f ))); // second byte: 10XXXXXX
     return 2;
   };
-
-protected:
-  inline bool operator==( const char c ) const { return bytes_.size() == 1 && bytes_[0] == c; };
-
-private:
-  std::string bytes_;
 };
 
 /**
- * Validates an utf8 multi-byte character
- * Usage: Instantiate it, then add bytes until the char is complete or you get an error,
- *        call getChar() to read your byte or just use getNextByteFromStr()
+ * Represents a single UTF8 character inside a string
  * @author Bodom, 12-08-2015
  */
-class Utf8CharValidator
+class Utf8CharRef
 {
-public:
-  enum class AddByteResult
-  {
-    DONE,
-    INVALID,
-    MORE
-  };
-
-  Utf8CharValidator();
-  AddByteResult addByte(const char byte);
-  Utf8Char getChar();
-  void reset();
-
-  static Utf8Char getNextCharFromStr(const char*& str, bool& error);
-  static u8 getByteCountFromFirstByte(const char byte);
-  /** Returns true is first char is an UTF8 first byte */
-  inline static bool isFirstByte(const char byte) { return ( byte & 0x80 ) == 0; };
+  friend class Utf8CharValidator;
+  friend class UnicodeString;
+  friend class UnicodeStringIterator;
 
 private:
-  /** The character being validated */
-  Utf8Char char_;
-  /** Number of bytes to expect next */
-  u8 bytesNext_;
-  /** True if the byte is completed */
-  bool completed_;
-};
+  /** This constructor is private because it is unsafe */
+  Utf8CharRef( const UnicodeString& str, size_t pos );
 
+  const char* fc() const;
+  void updateLen();
+  char getByteAt(u8 idx) const;
+
+public:
+
+  /* Returns number of bytes forming by this utf8 char (1 to 4) */
+  inline u8 getByteLen() const { return len_; };
+  char32_t asChar32() const;
+  char16_t asChar16( const bool failsafe = true ) const;
+  char asAnsi( const bool failsafe = true ) const;
+  char asAscii( const bool failsafe = true ) const;
+
+  /** Tells wether this is a space character */
+  inline bool isSpace() const { return isspace(asChar32()) == 0; };
+  /** Tells wether this is a digit character */
+  inline bool isDigit() const { return isdigit(asChar32()) == 0; };
+  /** Tells wether this is an alphabetic character */
+  inline bool isAlpha() const { return isalpha(asChar32()) == 0; };
+  /** Tells whether this is an alphanumeric cracater */
+  inline bool isAlNum() const { return isalnum(asChar32()) == 0; };
+
+  /** Returns current position, inside the string, chars */
+  inline size_t pos() const { return pos_; };
+
+  inline bool operator==( const char32_t c ) const { return asChar32() == c; };
+  inline bool operator!=( const char32_t c ) const { return asChar32() != c; };
+
+private:
+  const UnicodeString& str_;
+  size_t pos_;
+  u8 len_;
+};
 
 /**
  * Iterator for UnicodeString
@@ -200,19 +163,24 @@ private:
  */
 class UnicodeStringIterator
 {
+  friend class Utf8CharRef;
+
 private:
   typedef std::string::const_iterator internal_iter_type;
   /** The parent iterator */
   internal_iter_type itr_;
   /** The string position in characters */
-  size_t pos_;
+  size_t posc_;
+  /** The internal character reference */
+  Utf8CharRef ref_;
 
   /** Increment this by one, used in the ++ operator */
   inline void inc() {
-    u8 cnt = Utf8CharValidator::getByteCountFromFirstByte(*itr_);
-    if ( cnt ) {
-      itr_ += cnt;
-      pos_++;
+    if ( ref_.len_ ) {
+      itr_ += ref_.len_;
+      posc_++;
+      ref_.pos_ += ref_.len_;
+      ref_.updateLen();
     }
   };
 
@@ -221,14 +189,27 @@ private:
     do
     {
       itr_--;
-    } while ( Utf8CharValidator::isFirstByte(*itr_) );
-    pos_--;
+      ref_.pos_--;
+    } while ( Utf8Util::isFirstByte(*itr_) );
+
+    posc_--;
+    ref_.updateLen();
   };
 
 public:
-  inline UnicodeStringIterator( internal_iter_type itr, size_t pos ) : itr_(itr), pos_(pos) {};
+  /**
+   * Constructs the iterator from the given string
+   *
+   * @param str Reference to the string being iterated
+   * @param itr Reference to the base std::string iterator
+   * @param cpos Current string position in characters
+   * @param bpos Current string position in bytes
+   */
+  inline UnicodeStringIterator( const UnicodeString& str, internal_iter_type itr, size_t cpos,
+    size_t bpos ) : itr_(itr), posc_(cpos), ref_(str, bpos) {};
   /** Copy constructor */
-  inline UnicodeStringIterator( const UnicodeStringIterator& it ) : itr_(it.itr_), pos_(it.pos_) {};
+  inline UnicodeStringIterator( const UnicodeStringIterator& it )
+    : itr_(it.itr_), posc_(it.posc_), ref_(it.ref_) {};
 
   inline bool operator==( const UnicodeStringIterator& it ) const {
     return itr_ == it.itr_;
@@ -288,26 +269,27 @@ public:
   /**
    * Returns currently pointed char
    */
-  inline const UnicodeStringIterator& operator*() const {
-    return *this;
+  inline const Utf8CharRef operator*() const {
+    return this->get();
   };
   /**
    * Returns currently pointed char
    */
-  inline const Utf8Char* operator->() const {
-    return &(this->get());
+  inline const Utf8CharRef* operator->() const {
+    return &ref_;
   }
   /**
    * Returns currently pointed char
    */
-  inline const Utf8Char get() const {
-    const char* ptr = itr_._Ptr; // Create a copy because it will be modified
-    bool error; // Unchecked because internal UnicodeString value is trusted
-    return Utf8CharValidator::getNextCharFromStr(ptr, error);
+  inline const Utf8CharRef get() const {
+    return ref_;
   };
 
   /** Returns current position, in chars */
-  inline size_t pos() const { return pos_; };
+  inline size_t posc() const { return posc_; };
+
+  /** Returns a copy of this iterator */
+  inline UnicodeStringIterator copy() const { return UnicodeStringIterator(*this); };
 };
 
 
@@ -317,19 +299,22 @@ public:
  * Uses s standard string in utf8 for internal storage.
  * Why utf8? http://utf8everywhere.org/
  *
- * This is intended to be "transparently" compatible to ANSI, by simply replacing
+ * Default constructors assume the source strings to be in UTF8
+ * Specifying a StrEncoding may help clarifing doubtful situations
+ *
+ * This can provide "transparent" compatibility to ANSI, by simply replacing
  * non-ansi chars with a question mark '?'.
  *
  * To avoid confusion, some constructors are named.
- * Default constructors and operators are referred to ANSI strings.
  *
  * @author Bodom, 12-08-2015
  */
 class UnicodeString
 {
   //friend class UnicodeStringIterator;
+  friend class Utf8CharRef;
 
-private:
+protected:
   /** The internally stored value, as UTF8 */
   std::string value_;
   /** The length, in characters */
@@ -358,23 +343,26 @@ public:
   /** Copy constrctor */
   inline UnicodeString( const UnicodeString& str )
     : value_(str.value_), length_(str.length_), ascii_(str.ascii_) {};
-  /** Constructs from a single char */
-  inline UnicodeString( const Utf8Char& chr )
-    : value_(chr.bytes()), length_(1), ascii_(chr.bytes().size() == 1) {};
+  /** Constructs from a single char in a string */
+  inline UnicodeString( const Utf8CharRef& chr )
+    : value_(""), length_(1), ascii_(chr.getByteLen() == 1)
+  {
+    for ( u8 i = 0; i < chr.getByteLen(); ++i )
+      value_ += chr.getByteAt(i);
+  };
 
   UnicodeString( const char32_t chr );
   UnicodeString( const StrEncoding enc, const char* str );
+  UnicodeString( const StrEncoding enc, const char* str, size_t nbytes );
   UnicodeString( const StrEncoding enc, const std::string& str );
   UnicodeString( const StrEncoding enc, const std::string& str, size_t pos, size_t len = npos );
 
-  //static UnicodeString fromUtf8( const char* str );
-  //static UnicodeString fromUtf8( const std::string& str );
+  //   ------------------------------ BACKWARD-COMPATIBILITY CONSTRUCTORS --------------------
 
-  //explicit UnicodeString( const char* str );
-  //explicit UnicodeString( const std::string& str );
-  //explicit UnicodeString( const UnicodeString& s, size_type pos, size_type n ) : base(s, pos, n) {};
-  //explicit UnicodeString( const std::string& s, size_type pos, size_type n )
-  //  : base(UnicodeString(s), pos, n) {};
+  inline UnicodeString( const char* str ) : UnicodeString( StrEncoding::UTF8, str ) {};
+  inline UnicodeString( const std::string& str ) : UnicodeString( StrEncoding::UTF8, str ) {};
+  inline UnicodeString( const char* str, size_t nbytes )
+    : UnicodeString( StrEncoding::UTF8, str, nbytes ) {};
 
   //   ------------------------------- OPERATORS ----------------------------------------------
 
@@ -384,14 +372,14 @@ public:
     this->ascii_ = s.ascii_;
     return *this;
   };
-  inline UnicodeString& operator=( const Utf8Char& c ) {
-    this->value_ = c.bytes();
+  inline UnicodeString& operator=( const Utf8CharRef& c ) {
+    this->value_.assign(c.fc(), c.getByteLen());
     this->length_ = 1;
-    this->ascii_ = ( c.bytes().size() == 1 );
+    this->ascii_ = ( c.getByteLen() == 1 );
     return *this;
   };
   inline UnicodeString& operator=( const char32_t c ) {
-    (*this) = Utf8Char(c);
+    (*this) = UnicodeString(c);
     return *this;
   };
 
@@ -401,14 +389,16 @@ public:
     this->ascii_ = this->ascii_ && s.ascii_;
     return *this;
   };
-  inline UnicodeString& operator+=( const Utf8Char& c ) {
-    this->value_ += c.bytes();
-    this->length_++;
-    this->ascii_ = this->ascii_ && ( c.bytes().size() == 1 );
+  inline UnicodeString& operator+=( const Utf8CharRef& c ) {
+    this->value_.append(c.fc(), c.getByteLen());
+    this->length_ += 1;
+    this->ascii_ = this->ascii_ && ( c.getByteLen() == 1 );
     return *this;
   };
   inline UnicodeString& operator+=( const char32_t c ) {
-    (*this) += Utf8Char(c);
+    u8 len = Utf8Util::appendToStringAsUtf8(this->value_, c);
+    this->length_ += 1;
+    this->ascii_ = this->ascii_ && ( len == 1 );
     return *this;
   };
 
@@ -417,7 +407,7 @@ public:
     res += s;
     return res;
   };
-  inline UnicodeString operator+( const Utf8Char& c ) const {
+  inline UnicodeString operator+( const Utf8CharRef& c ) const {
     UnicodeString res(*this);
     res += c;
     return res;
@@ -449,7 +439,7 @@ public:
   /**
    * Returns an iterator to nth char of this string
    */
-  inline Utf8Char operator[]( size_t pos) const {
+  inline Utf8CharRef operator[]( size_t pos) const {
     UnicodeStringIterator it = this->begin();
     it += pos;
     return it.get();
@@ -466,21 +456,23 @@ public:
 
   UnicodeString& assign( const StrEncoding enc, const char* s );
   inline UnicodeString& assign( const StrEncoding enc, const std::string s ) {
+    this->reserveb(s.size());
     return this->assign(enc, s.c_str());
   };
   UnicodeString& append( const StrEncoding enc, const char* s );
   inline UnicodeString& append( const StrEncoding enc, const std::string s ) {
+    this->reserveb(value_.size() + s.size());
     return this->append(enc, s.c_str());
   };
-  UnicodeString sum( const StrEncoding enc, const char* s ) const;
-  inline UnicodeString sum( const StrEncoding enc, const std::string s ) const {
-    return this->sum(enc, s.c_str());
+  UnicodeString concat( const StrEncoding enc, const char* s ) const;
+  inline UnicodeString concat( const StrEncoding enc, const std::string s ) const {
+    return this->concat(enc, s.c_str());
   };
 
   //   ------------------------------- ITERATING ----------------------------------------------
 
-  inline const_iterator begin() const { return const_iterator(value_.begin(), 0); };
-  inline const_iterator end() const { return const_iterator(value_.end(), length_); };
+  inline const_iterator begin() const { return const_iterator(*this, value_.begin(), 0, 0); };
+  inline const_iterator end() const { return const_iterator(*this, value_.end(), length_, value_.size()); };
 
   //   ------------------------------- REDEFINED BASE CLASS FUNCTIONS -------------------------
   //inline UnicodeString substr( size_t pos = 0, size_t len = npos ) { return substr(pos, len); };
@@ -525,21 +517,91 @@ public:
   void remove( const UnicodeString& rm );
   UnicodeString substr( size_t pos = 0, size_t len = npos ) const;
   UnicodeString replace( size_t pos, size_t len, const UnicodeString& str );
+  int compare( const UnicodeString& str ) const;
+  int compare( size_t pos, size_t len, const UnicodeString& str ) const;
+  int compare( size_t pos, size_t len, const UnicodeString& str, size_t subpos,
+    size_t sublen = npos ) const;
 
   //   ------------------------------- MISCELLANEOUS ------------------------------------------
   void toLower();
   void toUpper();
 
-  const wchar_t* asWcharArray() const;
   bool asAnsi( std::string* outStr ) const;
-  std::string asAnsi( const bool failsafe = false ) const;
+  std::string asAnsi( const bool failsafe = true ) const;
+  std::string asAscii( const bool failsafe = true ) const;
+  /** Returns true when this string is ascii-compatible */
+  inline bool isAscii() const { return ascii_; };
   /**
    * Returns internal utf8-encoded representation of this object
    */
   inline const std::string& utf8() const { return value_; };
 
+  /** Parses this string, interpreting its content as an integral number */
+  inline unsigned long intval() const { return std::stoi(value_); };
+
+  /** Parses this string, interpreting its content as floating point number */
+  inline double dblval() const { return std::stod(value_); }
+
   size_t sizeEstimate() const;
 };
+
+
+/**
+ * Actually just a standard UnicodeString with 1-length
+ */
+class UnicodeChar : public UnicodeString
+{
+  friend class UnicodeString;
+  friend class Utf8CharValidator;
+
+private:
+  /**
+   * Unsafe/unchecked construct from single-char string
+   *
+   * @warning do not use! This is meant for Utf8CharValidator only
+   */
+  inline explicit UnicodeChar( std::string& str ) : UnicodeString() {
+    this->value_ = str;
+    this->length_ = 1;
+    this->ascii_ = ( str.size() == 1 );
+  }
+
+public:
+  UnicodeChar( const char32_t chr ) : UnicodeString( chr ) {};
+  inline operator char32_t() const { return (*this)[0].asChar32(); };
+};
+
+
+/**
+ * Validates an utf8 multi-byte character
+ * Usage: Instantiate it, then add bytes until the char is complete or you get an error,
+ *        call getChar() to read your byte or just use Utf8Util::getNextCharFromStr()
+ * @author Bodom, 12-08-2015
+ */
+class Utf8CharValidator
+{
+public:
+  enum class AddByteResult
+  {
+    DONE,
+    INVALID,
+    MORE
+  };
+
+  Utf8CharValidator();
+  AddByteResult addByte(const char byte);
+  UnicodeChar getChar();
+  void reset();
+
+private:
+  /** The character being validated */
+  std::string char_;
+  /** Number of bytes to expect next */
+  u8 bytesNext_;
+  /** True if the byte is completed */
+  bool completed_;
+};
+
 
 }
 }

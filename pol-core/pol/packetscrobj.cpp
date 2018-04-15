@@ -427,7 +427,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     const String* text;
     if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, text ) && ex.getParam( 2, nullterm ) )
     {
-      u16 textlen = static_cast<u16>( text->length() );
+      u16 textlen = static_cast<u16>( text->utf8().size() );
       if ( static_cast<u16>( offset + textlen + nullterm ) > buffer.size() )
       {
         if ( !SetSize( ( offset + textlen + nullterm ) ) )
@@ -438,7 +438,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       }
 
       u8* bufptr = reinterpret_cast<u8*>( &buffer[offset] );
-      const char* textptr = text->value().c_str();
+      const char* textptr = text->utf8().c_str();
       for ( u16 i = 0; i < textlen; i++ )
         bufptr[i] = textptr[i];
 
@@ -523,7 +523,7 @@ BObjectImp* BPacket::copy() const
 {
   return new BPacket( *this );
 }
-std::string BPacket::getStringRep() const
+UnicodeString BPacket::getStringRep() const
 {
   OSTRINGSTREAM os;
   for ( auto itr = buffer.begin(); itr != buffer.end(); ++itr )

@@ -1417,7 +1417,7 @@ UnicodeString ObjArray::getStringRep() const
 
     if ( bo != NULL )
     {
-      std::string tmp = bo->impptr()->getStringRep();
+      std::string tmp = bo->impptr()->getStringRep().utf8();
       os << tmp;
     }
   }
@@ -1783,7 +1783,7 @@ UnicodeString BApplicObjBase::getStringRep() const
 
 void BApplicObjBase::printOn( std::ostream& os ) const
 {
-  os << getStringRep();
+  os << getStringRep().utf8();
 }
 
 #if BOBJECTIMP_DEBUG

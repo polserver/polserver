@@ -17,6 +17,7 @@
 
 #include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
+#include "../clib/unicode.h"
 
 namespace Pol
 {
@@ -47,7 +48,7 @@ public:
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
                                                bool forcebuiltin = false ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual UnicodeString getStringRep() const POL_OVERRIDE;
+  virtual Clib::UnicodeString getStringRep() const POL_OVERRIDE;
   bool SetSize( u16 newsize );
   Bscript::BObjectImp* SetSize( u16 newsize, bool giveReturn );
   virtual size_t sizeEstimate() const POL_OVERRIDE

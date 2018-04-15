@@ -23,7 +23,7 @@ namespace Bscript
 {
 
 using Clib::UnicodeString;
-using Clib::UnicodeChar;
+using Clib::Utf8CharRef;
 using Clib::StrEncoding;
 
 /**
@@ -50,21 +50,34 @@ public:
     : BObjectImp( OTString ), value_( objimp.getStringRep() ) {};
   /** Creates an instance from a raw Unicode string */
   inline explicit String( const UnicodeString& str ) : BObjectImp( OTString ), value_( str ) {};
+  /** Creates an instance from a single char in a raw Unicode String */
+  inline explicit String( const Utf8CharRef& chr) : BObjectImp( OTString ), value_( chr ) {};
   /** Creates an instance from a part of a raw unicode string */
   //inline explicit String( const UnicodeString& str, UnicodeString::size_type pos,
   //  UnicodeString::size_type n ) : BObjectImp( OTString ), value_( str, pos, n ) {};
   /** Creates an instance by concatenating two strings */
   inline explicit String( const String& left, const String& right )
     : BObjectImp( OTString ), value_( left.value_ + right.value_ ) {};
-  //TODO: how to handle this in unicode?
-  //String( const char* str, int nchars );
+
+// -------------------- COMPATIBILITY CONSTRUCTORS ----------------------
+
+  /** Constructs from a standard UTF8 string.*/
+  inline String( const std::string& str )
+    : BObjectImp( OTString ), value_( str ) {};
+  /** Constructs from a standard UTF8 C string.*/
+  inline String( const char* str )
+    : BObjectImp( OTString ), value_( str ) {};
+  /** Construct from a fixed amount of bytes from pointer */
+  inline String( const char* str, size_t nbytes )
+    : BObjectImp( OTString ), value_( str, nbytes ) {};
 
 // ---------------------- PACK/UNPACK STUFF -----------------------------
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
+  static BObjectImp* String::unpackWithLen( std::istream& is );
   virtual std::string pack() const POL_OVERRIDE;
   virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
-  static void packonto( std::ostream& os, const std::string& value );
+  static void packonto( std::ostream& os, const UnicodeString& value );
 
 // -------------------------- MISC ----------------------------------------
   virtual size_t sizeEstimate() const POL_OVERRIDE;
@@ -72,11 +85,11 @@ public:
   void toUpper();
   void toLower();
 
-  /** Parses this string, interpreting its content as an integral number */
-  inline unsigned long intval() const { return std::stoi(value_.utf8()); };
+  /** @see UnicodeString::intval() */
+  inline unsigned long intval() const { return value_.intval(); }
 
-  /** Parses this string, interpreting its content as floating point number */
-  inline double dblval() const { return wcstod( value_.asWcharArray(), NULL ); }
+  /** @see UnicodeString::dblval() */
+  inline double dblval() const { return value_.dblval(); }
 
   inline virtual UnicodeString getStringRep() const POL_OVERRIDE
   {
@@ -110,8 +123,24 @@ public:
   void set( char* newstr ); /* String now owns newstr */
   /** Returns the internal storage object */
   const UnicodeString& value() const { return value_; }
+  /** Returns the internal utf8 bytes */
+  const std::string& utf8() const { return value_.utf8(); }
+  /**
+   * Returns the string encoded as ansi
+   *
+   * @warning Non-ANSI characters will be replaced
+   */
+  std::string ansi() const { return value_.asAnsi(true); }
+  /**
+   * Returns the string encoded as ascii
+   *
+   * @warning Non-ASCII characters will be replaced
+   */
+  std::string ascii() const { return value_.asAscii(true); }
+  /** Returns true when this string is ascii-compatible */
+  inline bool isAscii() const { return value_.isAscii(); }
   /** Returns length in characters */
-  size_t lengthc() const { return value_.lengthc(); }
+  inline size_t lengthc() const { return value_.lengthc(); }
 
   virtual ~String() {}
   /*
@@ -154,6 +183,7 @@ public:
   //operator const char*() const { return value_.data(); }
   void remove( const UnicodeString& rm );
   virtual bool isTrue() const POL_OVERRIDE { return ! value_.empty(); }
+  inline bool empty() const { return value_.empty(); }
 
 public:
   virtual BObjectImp* selfPlusObjImp( const BObjectImp& objimp ) const POL_OVERRIDE;
@@ -189,8 +219,8 @@ public:
 
   int find( int begin, const UnicodeString& target );
 
-  unsigned int alnumlen() const;
-  unsigned int SafeCharAmt() const;
+  UnicodeString::size_type alnumlen() const;
+  UnicodeString::size_type SafeCharAmt() const;
 
   void reverse();
 

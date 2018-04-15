@@ -81,15 +81,15 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
     const String* mname;
     if ( ex.getStringParam( 0, mname ) )
     {
-      BObjectRef ref_temp = get_member( mname->value().c_str() );
+      BObjectRef ref_temp = get_member( mname->utf8().c_str() );
       BObjectRef& ref = ref_temp;
       BObject* bo = ref.get();
       BObjectImp* ret = bo->impptr();
       ret = ret->copy();
       if ( ret->isa( OTUninit ) )
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        UnicodeString message = UnicodeString( "Member " ) + mname->value() +
+                              UnicodeString( " not found on that object" );
         return new BError( message );
       }
       else

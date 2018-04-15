@@ -437,7 +437,7 @@ BObjectRef StorageAreasImp::OperSubscript( const BObject& obj )
   if ( obj.isa( OTString ) )
   {
     String& rtstr = (String&)obj.impref();
-    std::string key = rtstr.value();
+    std::string key = rtstr.utf8();
 
     Storage::AreaCont::iterator itr = gamestate.storage.areas.find( key );
     if ( itr != gamestate.storage.areas.end() )

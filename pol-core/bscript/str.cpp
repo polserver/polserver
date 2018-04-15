@@ -33,15 +33,6 @@ namespace Pol
 {
 namespace Bscript
 {
-String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() ) {}
-
-//String::String( const char* s, int len ) : BObjectImp( OTString ), value_( s, len ) {}
-
-/*
-String* String::StrStr( int begin, int len )
-{
-  return new String( value_.substr( begin - 1, len ) );
-}
 
 /**
   * Searches this string for all occurrences of src and replaces them with rep
@@ -82,18 +73,21 @@ String* String::substr( const int begin, const int len ) const
   return new String( value_.substr( begin, len ) );
 }
 
+std::string String::pack() const
+{
+  return "s" + value_.utf8();
+}
+
 void String::packonto( std::ostream& os ) const
 {
-  const std::string encoded = value_.utf8();
-  os << "S" << encoded.size() << ":" << encoded;
+  os << "S" << value_.utf8().size() << ":" << value_.utf8();
 }
-/*
-void String::packonto( std::ostream& os, const std::string& value )
+
+void String::packonto( std::ostream& os, const UnicodeString& value )
 {
-  os << "S" << value.size() << ":" << value;
+  os << "S" << value.utf8().size() << ":" << value.utf8();
 }
-*/
-/*
+
 BObjectImp* String::unpack( const char* pstr )
 {
   return new String( pstr );
@@ -106,8 +100,7 @@ BObjectImp* String::unpack( std::istream& is )
 
   return new String( tmp );
 }
-*/
-/*
+
 BObjectImp* String::unpackWithLen( std::istream& is )
 {
   unsigned len;
@@ -141,7 +134,6 @@ BObjectImp* String::unpackWithLen( std::istream& is )
   is.setf( std::ios::skipws );
   return new String( tmp );
 }
-*/
 
 size_t String::sizeEstimate() const
 {
@@ -171,11 +163,11 @@ int String::find( int begin, const UnicodeString& target )
 /**
  * Returns the amount of alpha-numeric characters in string
  */
-unsigned int String::alnumlen() const
+UnicodeString::size_type String::alnumlen() const
 {
   unsigned int c = 0;
   for ( auto it : value_ )
-    if ( iswalnum(it->asUtf32()) )
+    if ( iswalnum(it.asChar32()) )
       c++;
   return c;
 }
@@ -184,11 +176,11 @@ unsigned int String::alnumlen() const
  * Returns how many safe to print characters can be read
  * from string until a non-safe one is found
  */
-unsigned int String::SafeCharAmt() const
+UnicodeString::size_type String::SafeCharAmt() const
 {
   for ( auto it : value_ )
   {
-    char32_t tmp = it->asUtf32();
+    char32_t tmp = it.asChar32();
 
     if ( iswalnum( tmp ) )  // a-z A-Z 0-9
       continue;
@@ -297,19 +289,19 @@ BObjectImp* String::selfMinusObjImp( const BObjectImp& objimp ) const
 BObjectImp* String::selfMinusObj( const BObjectImp& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep().data() );
+  tmp->remove( objimp.getStringRep() );
   return tmp;
 }
 BObjectImp* String::selfMinusObj( const BLong& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep().data() );
+  tmp->remove( objimp.getStringRep() );
   return tmp;
 }
 BObjectImp* String::selfMinusObj( const Double& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep().data() );
+  tmp->remove( objimp.getStringRep() );
   return tmp;
 }
 BObjectImp* String::selfMinusObj( const String& objimp ) const
@@ -330,15 +322,15 @@ void String::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
 }
 void String::selfMinusObj( BObjectImp& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.getStringRep().data() );
+  remove( objimp.getStringRep() );
 }
 void String::selfMinusObj( BLong& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.getStringRep().data() );
+  remove( objimp.getStringRep() );
 }
 void String::selfMinusObj( Double& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.getStringRep().data() );
+  remove( objimp.getStringRep() );
 }
 void String::selfMinusObj( String& objimp, BObject& /*obj*/ )
 {
@@ -756,7 +748,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       return new BError( "string.find(Search, [Start]) takes only two parameters" );
     if ( ex.numParams() < 1 )
       return new BError( "string.find(Search, [Start]) takes at least one parameter" );
-    const char* s = ex.paramAsString( 0 );
+    UnicodeString s = ex.paramAsString( 0 );
     int d = 0;
     if ( ex.numParams() == 2 )
       d = ex.paramAsLong( 1 );

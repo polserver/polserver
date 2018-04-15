@@ -5300,7 +5300,7 @@ void preprocess_web_script( Clib::FileContents& fc )
 
   bool reading_html = true;
   bool source_is_emit = false;
-  const char* s = fc.contents();
+  const char* s = fc.contents().utf8().c_str();
   std::string acc;
   while ( *s )
   {
@@ -5379,7 +5379,7 @@ int Compiler::compileFile( const char* in_file )
       preprocess_web_script( fc );
     }
 
-    CompilerContext ctx( filepath, program->add_dbg_filename( filepath ), fc.contents() );
+    CompilerContext ctx( filepath, program->add_dbg_filename( filepath ), fc.contents().utf8().c_str() );
 
     bool bres = read_function_declarations( ctx );
     // cout << "bres:" << bres << endl;

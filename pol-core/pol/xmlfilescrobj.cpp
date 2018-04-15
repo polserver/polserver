@@ -77,7 +77,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
          ex.getStringParam( 2, standalone ) )
     {
       TiXmlDeclaration* decl =
-          new TiXmlDeclaration( version->value(), encoding->value(), standalone->value() );
+          new TiXmlDeclaration( version->utf8(), encoding->utf8(), standalone->utf8() );
       if ( !file.NoChildren() )  // in case its not the first method used
       {
         if ( file.FirstChild()->Type() == TiXmlNode::TINYXML_DECLARATION )
@@ -100,7 +100,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
+      std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->utf8() ) );
 
       if ( ex.hasParams( 2 ) )
       {
@@ -118,7 +118,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
             else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
               elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
             else
-              elem->SetAttribute( name, ref->getStringRep() );
+              elem->SetAttribute( name, ref->getStringRep().utf8() );
           }
         }
       }
@@ -135,7 +135,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      TiXmlComment* comment = new TiXmlComment( pstr->value().c_str() );
+      TiXmlComment* comment = new TiXmlComment( pstr->utf8().c_str() );
       file.LinkEndChild( comment );
       return new BLong( 1 );
     }
@@ -149,7 +149,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     if ( imp->isa( Bscript::BObjectImp::OTString ) )
     {
       const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
-      TiXmlNode* child = file.FirstChild( pstr->value() );
+      TiXmlNode* child = file.FirstChild( pstr->utf8() );
       if ( child )
         return new BLong( file.RemoveChild( child ) ? 1 : 0 );
       else
@@ -181,7 +181,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     {
       const Plib::Package* outpkg;
       std::string path;
-      if ( !pkgdef_split( pstr->value(), ex.prog()->pkg, &outpkg, &path ) )
+      if ( !pkgdef_split( pstr->utf8(), ex.prog()->pkg, &outpkg, &path ) )
         return new BError( "Error in filename descriptor" );
 
       if ( path.find( ".." ) != std::string::npos )
@@ -207,7 +207,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     {
       const String* pstr;
       if ( ex.getStringParam( 0, pstr ) )
-        indent = pstr->value();
+        indent = pstr->utf8();
     }
     TiXmlPrinter printer;
     printer.SetIndent( indent.c_str() );
@@ -227,7 +227,7 @@ Bscript::BObjectImp* BXMLfile::copy() const
   return new BXMLfile( _filename );
 }
 
-std::string BXMLfile::getStringRep() const
+UnicodeString BXMLfile::getStringRep() const
 {
   if ( file.Error() )
   {
@@ -248,7 +248,7 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
   if ( obj->isa( OTString ) )
   {
     const String* keystr = static_cast<const String*>( obj.impptr() );
-    TiXmlNode* node = file.FirstChild( keystr->value() );
+    TiXmlNode* node = file.FirstChild( keystr->utf8() );
     if ( node )
       return BObjectRef( new BXmlNode( node ) );
     else
@@ -335,7 +335,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       const String* pstr;
       if ( ex.getStringParam( 0, pstr ) )
       {
-        TiXmlNode* child = node->FirstChild( pstr->value() );
+        TiXmlNode* child = node->FirstChild( pstr->utf8() );
         if ( child )
           return new BXmlNode( child );
         else
@@ -360,7 +360,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
       const String* pstr;
       if ( ex.getStringParam( 0, pstr ) )
       {
-        TiXmlNode* sibling = node->NextSibling( pstr->value() );
+        TiXmlNode* sibling = node->NextSibling( pstr->utf8() );
         if ( sibling )
           return new BXmlNode( sibling );
         else
@@ -384,7 +384,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->value() ) );
+      std::unique_ptr<TiXmlElement> elem( new TiXmlElement( pstr->utf8() ) );
 
       if ( ex.hasParams( 2 ) )
       {
@@ -402,7 +402,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
             else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
               elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
             else
-              elem->SetAttribute( name, ref->getStringRep() );
+              elem->SetAttribute( name, ref->getStringRep().utf8() );
           }
         }
       }
@@ -420,7 +420,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      TiXmlComment* comment = new TiXmlComment( pstr->value().c_str() );
+      TiXmlComment* comment = new TiXmlComment( pstr->utf8().c_str() );
       node->LinkEndChild( comment );
       return new BLong( 1 );
     }
@@ -445,7 +445,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         else if ( ref->isa( Bscript::BObjectImp::OTDouble ) )
           elem->SetDoubleAttribute( name, static_cast<Double*>( ref )->value() );
         else
-          elem->SetAttribute( name, ref->getStringRep() );
+          elem->SetAttribute( name, ref->getStringRep().utf8() );
       }
       return new BLong( 1 );
     }
@@ -459,7 +459,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, pstr ) )
     {
       TiXmlElement* elem = node->ToElement();
-      elem->RemoveAttribute( pstr->value() );
+      elem->RemoveAttribute( pstr->utf8() );
       return new BLong( 1 );
     }
     break;
@@ -472,7 +472,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( imp->isa( Bscript::BObjectImp::OTString ) )
     {
       const String* pstr = Clib::explicit_cast<String*, Bscript::BObjectImp*>( imp );
-      TiXmlNode* child = node->FirstChild( pstr->value() );
+      TiXmlNode* child = node->FirstChild( pstr->utf8() );
       if ( child )
         return new BLong( node->RemoveChild( child ) ? 1 : 0 );
       else
@@ -506,7 +506,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     if ( ex.getStringParam( 0, pstr ) )
     {
       TiXmlElement* elem = node->ToElement();
-      elem->LinkEndChild( new TiXmlText( pstr->value() ) );
+      elem->LinkEndChild( new TiXmlText( pstr->utf8() ) );
       return new BLong( 1 );
     }
     break;
@@ -526,7 +526,7 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
   if ( obj->isa( OTString ) )
   {
     const String* keystr = static_cast<const String*>( obj.impptr() );
-    TiXmlNode* child = node->FirstChild( keystr->value() );
+    TiXmlNode* child = node->FirstChild( keystr->utf8() );
     if ( child )
       return BObjectRef( new BXmlNode( child ) );
     else
@@ -549,7 +549,7 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
   }
 }
 
-std::string BXmlNode::getStringRep() const
+UnicodeString BXmlNode::getStringRep() const
 {
   if ( node->Type() == TiXmlNode::TINYXML_TEXT )
     return node->ToText()->Value();
@@ -600,7 +600,7 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
   if ( obj->isa( OTString ) )
   {
     const String* keystr = static_cast<const String*>( obj.impptr() );
-    const std::string* attrib = node->Attribute( keystr->value() );
+    const std::string* attrib = node->Attribute( keystr->utf8() );
     if ( attrib )
       return BObjectRef( new String( attrib->c_str() ) );
     else

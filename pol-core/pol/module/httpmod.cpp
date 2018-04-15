@@ -58,7 +58,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
     // sleep for a bit and sends the rest later
 
     unsigned nsent;
-    const std::string& s = str->value();
+    const std::string& s = str->utf8();
     bool res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
@@ -98,7 +98,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     // sleep for a bit and sends the rest later
 
     unsigned nsent;
-    const std::string& s = str->value();
+    const std::string& s = str->utf8();
     bool res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
@@ -144,7 +144,7 @@ BObjectImp* HttpExecutorModule::mf_QueryParam()
   const String* str;
   if ( getStringParam( 0, str ) )
   {
-    QueryParamMap::iterator itr = params_.find( str->value() );
+    QueryParamMap::iterator itr = params_.find( str->utf8() );
     if ( itr != params_.end() )
       return new String( ( *itr ).second );
     else

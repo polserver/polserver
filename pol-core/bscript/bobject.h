@@ -58,7 +58,6 @@ class String;
 class ObjArray;
 
 using Clib::UnicodeString;
-using Clib::UnicodeChar;
 using Clib::StrEncoding;
 
 class BObjectImp : public ref_counted

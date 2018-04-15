@@ -172,12 +172,12 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
     size_t textlen = oText->ref_arr.size();
     if ( textlen > SPEECH_MAX_LEN )
       return new BError( "Unicode array exceeds maximum size." );
-    if ( lang->length() != 3 )
+    if ( lang->lengthc() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    // lang->toUpper(); // Language codes are in upper-case :)
+
     if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
       return new BError( "Invalid value in Unicode array." );
-    Core::broadcast( gwtext, Clib::strupper( lang->value() ).c_str(), font, color,
+    Core::broadcast( gwtext, Clib::strupper( lang->ansi() ).c_str(), font, color,
                      requiredCmdLevel );
     return new BLong( 1 );
   }
@@ -202,12 +202,12 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
     size_t textlen = oText->ref_arr.size();
     if ( textlen > SPEECH_MAX_LEN )
       return new BError( "Unicode array exceeds maximum size." );
-    if ( lang->length() != 3 )
+    if ( lang->lengthc() != 3 )
       return new BError( "langcode must be a 3-character code." );
     if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( say_above( obj, gwtext, Clib::strupper( lang->value() ).c_str(), font, color,
+    return new BLong( say_above( obj, gwtext, Clib::strupper( lang->ansi() ).c_str(), font, color,
                                  journal_print ) );
   }
   else
@@ -231,13 +231,13 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
     size_t textlen = oText->ref_arr.size();
     if ( textlen > SPEECH_MAX_LEN )
       return new BError( "Unicode array exceeds maximum size." );
-    if ( lang->length() != 3 )
+    if ( lang->lengthc() != 3 )
       return new BError( "langcode must be a 3-character code." );
     // lang->toUpper(); // Language codes are in upper-case :)
     if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( private_say_above( chr, obj, gwtext, Clib::strupper( lang->value() ).c_str(),
+    return new BLong( private_say_above( chr, obj, gwtext, Clib::strupper( lang->ansi() ).c_str(),
                                          font, color ) );
   }
   else
@@ -268,7 +268,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
     size_t textlen = oPrompt->ref_arr.size();
     if ( textlen > SPEECH_MAX_LEN )
       return new BError( "Unicode array exceeds maximum size." );
-    if ( lang->length() != 3 )
+    if ( lang->lengthc() != 3 )
       return new BError( "langcode must be a 3-character code." );
     if ( !Core::convertArrayToUC( oPrompt, gwtext, textlen ) )
       return new BError( "Invalid value in Unicode array." );
@@ -281,7 +281,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new Bscript::BError( "Script can't be blocked" );
     }
 
-    Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->value() ).c_str() );
+    Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->ansi() ).c_str() );
 
     chr->client->gd->prompt_uniemod = this;
     prompt_chr = chr;
@@ -312,13 +312,13 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
       size_t textlen = oText->ref_arr.size();
       if ( textlen > SPEECH_MAX_LEN )
         return new BError( "Unicode array exceeds maximum size." );
-      if ( lang->length() != 3 )
+      if ( lang->lengthc() != 3 )
         return new BError( "langcode must be a 3-character code." );
       // lang->toUpper(); // Language codes are in upper-case :)
       if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
         return new BError( "Invalid value in Unicode array." );
 
-      Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->value() ).c_str(), font,
+      Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->ansi() ).c_str(), font,
                              color );
       return new BLong( 1 );
     }
