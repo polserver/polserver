@@ -9,6 +9,11 @@
 
 #pragma once
 
+#if __cplusplus < 201103L
+//  #error C++11 or better is required!
+#endif
+
+
 #include <string>
 #include <vector>
 #include "rawtypes.h"
@@ -60,8 +65,8 @@ class Utf8Util
 {
 public:
 
-  static UnicodeChar getNextCharFromStr(const char*& str, bool& error);
-  static UnicodeChar getNextCharFromStr(const char*& str);
+  static UnicodeChar getNextCharFromStrAndAdvancePointer(const char*& str, bool& error);
+  static UnicodeChar getNextCharFromStrAndAdvancePointer(const char*& str);
 
   static u8 getByteCountFromFirstByte(const char byte);
   /** Returns true is first char is an UTF8 first byte */
@@ -86,10 +91,10 @@ public:
   static u8 appendToStringAsUtf8( std::string& str, const char32_t c );
   static u8 appendToStringAsUtf8( std::string& str, const char16_t c );
   /**
-   * Appends given char to given string as UTF8 bytes
+   * Appends given ANSI char to given string as UTF8 bytes
    *
    * @patam str std::string, the string to append to
-   * @param c the char
+   * @param c the ANSI char
    * @return number of appended bytes
    */
   inline static u8 appendToStringAsUtf8( std::string& str, const char c )
@@ -174,27 +179,8 @@ private:
   /** The internal character reference */
   Utf8CharRef ref_;
 
-  /** Increment this by one, used in the ++ operator */
-  inline void inc() {
-    if ( ref_.len_ ) {
-      itr_ += ref_.len_;
-      posc_++;
-      ref_.pos_ += ref_.len_;
-      ref_.updateLen();
-    }
-  };
-
-  /** Decrement this by one, used in the -- operator */
-  inline void dec() {
-    do
-    {
-      itr_--;
-      ref_.pos_--;
-    } while ( Utf8Util::isFirstByte(*itr_) );
-
-    posc_--;
-    ref_.updateLen();
-  };
+  inline void inc();
+  inline void dec();
 
 public:
   /**
@@ -440,6 +426,7 @@ public:
    * Returns an iterator to nth char of this string
    */
   inline Utf8CharRef operator[]( size_t pos) const {
+    passert_always_r( pos < length_, "Requesting iterator over string end" );
     UnicodeStringIterator it = this->begin();
     it += pos;
     return it.get();
@@ -516,7 +503,7 @@ public:
   void reverse();
   void remove( const UnicodeString& rm );
   UnicodeString substr( size_t pos = 0, size_t len = npos ) const;
-  UnicodeString replace( size_t pos, size_t len, const UnicodeString& str );
+  UnicodeString& replace( size_t pos, size_t len, const UnicodeString& str );
   int compare( const UnicodeString& str ) const;
   int compare( size_t pos, size_t len, const UnicodeString& str ) const;
   int compare( size_t pos, size_t len, const UnicodeString& str, size_t subpos,
@@ -537,10 +524,22 @@ public:
   inline const std::string& utf8() const { return value_; };
 
   /** Parses this string, interpreting its content as an integral number */
-  inline unsigned long intval() const { return std::stoi(value_); };
+  inline unsigned long intval() const {
+    try {
+      return std::stoi(value_);
+    } catch ( std::logic_error ) {
+      return 0L;
+    }
+  };
 
   /** Parses this string, interpreting its content as floating point number */
-  inline double dblval() const { return std::stod(value_); }
+  inline double dblval() const {
+    try {
+      return std::stod(value_);
+    } catch ( std::logic_error ) {
+      return 0.0;
+    }
+  }
 
   size_t sizeEstimate() const;
 };

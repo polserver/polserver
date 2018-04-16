@@ -119,6 +119,8 @@ public:
   void replace( const String& src, const String& rep );
   void replace( const String& replace_with, const unsigned int index, const unsigned int len );
   String* substr( const int begin, const int len ) const;
+  ObjArray* split( const std::vector<UnicodeString>& delimiters, int max_split = -1,
+    bool ignore_multiple = false );
 
   void set( char* newstr ); /* String now owns newstr */
   /** Returns the internal storage object */

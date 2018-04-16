@@ -465,7 +465,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
   {
     return new BError( "Invalid parameter type." );
   }
-  UnicodeString delimiter = bimp_delimiter->getStringRep();
+  const UnicodeString delimiter = bimp_delimiter->getStringRep();
 
   // max_split parameter
   int max_split = -1;
@@ -476,44 +476,15 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
     max_split = static_cast<int>( exec.paramAsLong( 2 ) );
   }
 
-  std::unique_ptr<Bscript::ObjArray> objarr( new Bscript::ObjArray );
+  std::vector<UnicodeString> delimiters;
+  delimiters.push_back(delimiter);
 
   // Support for how it previously worked.
   // Kept to support spaces and tabs as the same.
-  //if ( delimiter == " " )
-  //  delimiter = " \t";
-  //TODO: reimplement this, maybe just support array delimiter?
+  if ( delimiter == " " )
+    delimiters.push_back("\t");
 
-  // New delimiter support.
-  UnicodeString new_string = source;
-  UnicodeString::size_type found;
-  do
-  {
-    found = new_string.find( delimiter, 0 );
-    if ( found == std::string::npos )
-      break;
-    else if ( count == max_split )
-    {  // added max_split parameter
-      break;
-    }
-
-    UnicodeString add_string = new_string.substr( 0, found );
-
-    // Shinigami: will not hang server on queue of delimiter
-    // if ( add_string.empty() )
-    //  continue;
-
-    objarr->addElement( new String( add_string ) );
-    UnicodeString tmp_string = new_string.substr( found + delimiter.lengthc(), new_string.lengthc() );
-    new_string = tmp_string;
-    count += 1;
-  } while ( found != std::string::npos );
-
-  // Catch leftovers here.
-  if ( !new_string.empty() )
-    objarr->addElement( new String( new_string ) );
-
-  return objarr.release();
+  return String(source).split(delimiters, max_split, true);
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_Pack()

@@ -25,8 +25,8 @@ def colorprint(text, color):
 class Compare:
 	@staticmethod
 	def txtcompare(file1, file2):
-		with open(file1,'rt',encoding='utf-8',errors='replace',newline=None) as f1, \
-				open(file2,'rt',encoding='utf-8',errors='replace',newline=None) as f2:
+		with open(file1,'rt',encoding='utf-8',errors='strict',newline=None) as f1, \
+				open(file2,'rt',encoding='utf-8',errors='strict',newline=None) as f2:
 			l1=f1.readlines()
 			l2=f2.readlines()
 			if len(l1) != len(l2):

@@ -22,16 +22,17 @@ namespace Clib {
  * @param bool Error: will set this to true on error
  * @return next valid full UtfChar, or UNICODE_REPL on error
  */
-UnicodeChar Utf8Util::getNextCharFromStr(const char*& str, bool& error)
+UnicodeChar Utf8Util::getNextCharFromStrAndAdvancePointer(const char*& str, bool& error)
 {
   error = false;
 
   Utf8CharValidator val = Utf8CharValidator();
   Utf8CharValidator::AddByteResult res = val.addByte(*str);
+  str++;
 
   while ( res == Utf8CharValidator::AddByteResult::MORE ) {
-    str++;
     res = val.addByte(*str);
+    str++;
   }
 
   if ( res == Utf8CharValidator::AddByteResult::DONE )
@@ -42,9 +43,9 @@ UnicodeChar Utf8Util::getNextCharFromStr(const char*& str, bool& error)
 }
 
 /** @see getNextCharFromStr(char, bool) */
-UnicodeChar Utf8Util::getNextCharFromStr(const char*& str) {
+UnicodeChar Utf8Util::getNextCharFromStrAndAdvancePointer(const char*& str) {
   bool error;
-  return getNextCharFromStr(str, error);
+  return getNextCharFromStrAndAdvancePointer(str, error);
 };
 
 /**
@@ -308,6 +309,45 @@ char Utf8CharRef::asAscii( const bool failsafe ) const
 }
 
 
+// -------------------------- UnicodeStringIterator ---------------------------
+
+/**
+ * Increment this by one, used in the ++ operator
+ */
+void UnicodeStringIterator::inc() {
+  if ( ref_.len_ == 0 )
+    throw std::runtime_error("Incrementing invalid len UnicodeStringIterator");
+
+  if ( posc_ == ref_.str_.lengthc() )
+    throw std::runtime_error("Incrementing UnicodeStringIterator over null terminator");
+
+  itr_ += ref_.len_;
+  posc_++;
+  ref_.pos_ += ref_.len_;
+  ref_.updateLen();
+};
+
+/**
+ * Decrement this by one, used in the -- operator
+ */
+void UnicodeStringIterator::dec() {
+  if ( ref_.len_ == 0 )
+    throw std::runtime_error("Decrementing invalid len UnicodeStringIterator");
+
+  if ( posc_ == 0 )
+    throw std::runtime_error("Decrementing UnicodeStringIterator before string start");
+
+  do
+  {
+    itr_--;
+    ref_.pos_--;
+  } while ( ! Utf8Util::isFirstByte(*itr_) );
+
+  posc_--;
+  ref_.updateLen();
+};
+
+
 // ------------------------------ UnicodeString -------------------------------
 
 
@@ -386,8 +426,8 @@ UnicodeString& UnicodeString::append( const StrEncoding enc, const char* s )
     break;
 
   case StrEncoding::UTF8:
-    while ( *s++ != '\0' ) {
-      UnicodeChar uc = Utf8Util::getNextCharFromStr(s);
+    while ( *s != '\0' ) {
+      UnicodeChar uc = Utf8Util::getNextCharFromStrAndAdvancePointer(s);
 
       this->value_ += uc.value_;
       this->length_++;
@@ -563,7 +603,7 @@ size_t UnicodeString::find_last_not_of( const UnicodeString& list, size_t pos) c
   if ( length_ == 0 )
     return npos;
   if ( pos == npos || pos > length_ )
-    pos = length_ -1 ;
+    pos = length_ - 1 ;
 
   for ( auto mine = this->end() - 1; mine != this->begin(); --mine ) {
     bool found = false;
@@ -603,7 +643,7 @@ void UnicodeString::trim( const UnicodeString& crSet, TrimTypes type )
     // Find the first character position from reverse
     size_t endpos = this->find_last_not_of( crSet, npos );
     if ( npos != endpos )
-      value_ = value_.substr( 0, endpos + 1 );
+      value_ = value_.substr( 0, endpos );
     else
       value_.clear();
   }
@@ -658,20 +698,21 @@ void UnicodeString::remove( const UnicodeString& rm )
  */
 UnicodeString UnicodeString::substr( size_t pos, size_t len ) const
 {
-  if ( pos > length_ )
+  if ( pos >= length_ )
     throw std::out_of_range("Substr out of range");
 
   UnicodeString ret = UnicodeString();
   if ( pos == length_ || len == 0)
     return ret;
 
-  bool started = false;
-  for ( auto it : *this ) {
-    if ( it.pos() >= pos )
-      started = true;
+  // When len is too big, do not reserve too much
+  ret.value_.reserve( std::min(len, value_.size()) );
 
-    if ( started )
-      ret += it;
+  for ( auto it : *this ) {
+    if ( it.pos() < pos )
+      continue;
+
+    ret += it;
 
     len--;
     if ( len == 0 )
@@ -684,7 +725,7 @@ UnicodeString UnicodeString::substr( size_t pos, size_t len ) const
 /**
  * @see std::string::replace
  */
-UnicodeString UnicodeString::replace( size_t pos, size_t len, const UnicodeString& str )
+UnicodeString& UnicodeString::replace( size_t pos, size_t len, const UnicodeString& str )
 {
   if ( pos > length_ )
     throw std::out_of_range("Replace pos out of range");
@@ -692,7 +733,7 @@ UnicodeString UnicodeString::replace( size_t pos, size_t len, const UnicodeStrin
   UnicodeString res = UnicodeString();
   for ( auto it : *this ) {
     if ( it.pos() < pos ) {
-      // Replacement not started yet, copy form old string
+      // Replacement not started yet
       res += it;
       continue;
     }
@@ -709,7 +750,8 @@ UnicodeString UnicodeString::replace( size_t pos, size_t len, const UnicodeStrin
     res += it;
   }
 
-  return res;
+  *this = res;
+  return *this;
 }
 
 /** @see std::string::compare */

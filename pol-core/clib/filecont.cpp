@@ -31,16 +31,17 @@ FileContents::FileContents( const char* filename )
 
   char buf[1024];
   size_t pos = 0;
+  Utf8CharValidator val = Utf8CharValidator();
+
   while ( !ferror( fp ) && !feof( fp ) )
   {
     size_t nread = fread( buf, 1, sizeof buf, fp );
     if ( nread ) {
-      std::string utf8;
-      utf8.reserve(nread);
-      Utf8CharValidator val = Utf8CharValidator();
+      contents_.reserveb(contents_.utf8().size() + nread);
 
       for ( size_t i = 0; i < nread; ++i ) {
         ++pos;
+        val.reset();
 
         auto res = val.addByte(buf[i]);
         while ( res == Utf8CharValidator::AddByteResult::MORE && i < nread ) {

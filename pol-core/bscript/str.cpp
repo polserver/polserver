@@ -73,6 +73,76 @@ String* String::substr( const int begin, const int len ) const
   return new String( value_.substr( begin, len ) );
 }
 
+/**
+ * Splits this string, returns a pointer to a newly allocated array
+ *
+ * @param delimiters List of delimiters for splitting
+ * @param max_split Max number of splits. -1 = undefined, 0 = no split
+ * @param ignore_multiple If true, ignore multiple delimiters in split
+ */
+ObjArray* String::split( const std::vector<UnicodeString>& delimiters, int max_split,
+  bool ignore_multiple )
+{
+  std::unique_ptr<Bscript::ObjArray> objarr( new Bscript::ObjArray );
+
+  if ( max_split == 0 ) {
+    objarr->addElement( new String( value_ ) );
+    return objarr.release();
+  }
+
+  size_t pos = 0;
+  // Using my count because objarr->count() seems to be unreliable
+  unsigned count = 0;
+  while ( true )
+  {
+    size_t nextdelpos = UnicodeString::npos;
+
+    // Search for next delimiter
+    for ( auto del : delimiters ) {
+      nextdelpos = value_.find(del, pos);
+      if ( nextdelpos != UnicodeString::npos )
+        break;
+    }
+
+    if ( nextdelpos == UnicodeString::npos ) {
+      // No more delimiters found, done
+      break;
+    }
+
+    if ( nextdelpos == pos ) {
+      // Delimiter is here, should return empty string
+      if ( ignore_multiple ) {
+        ++pos;
+        continue;
+      }
+
+      objarr->addElement( new String() );
+      ++pos;
+      ++count;
+      if ( count == static_cast<unsigned>(max_split) )
+        break;
+      else
+        continue;
+    }
+
+    // Split string up to delimiter
+    UnicodeString part = value_.substr(pos, nextdelpos - pos);
+    objarr->addElement( new String( part ) );
+    pos = nextdelpos + 1;
+    ++count;
+    if ( count == static_cast<unsigned>(max_split) )
+      break;
+  }
+
+  // Add leftovers
+  if ( pos < value_.lengthc() ) {
+    UnicodeString part = value_.substr(pos);
+    objarr->addElement( new String( part ) );
+  }
+
+  return objarr.release();
+}
+
 std::string String::pack() const
 {
   return "s" + value_.utf8();
@@ -582,8 +652,8 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
   {
     String& rtstr = (String&)right;
     auto pos = value_.find( rtstr.value_ );
-    if ( pos != std::string::npos )
-      return BObjectRef( new BObject( new String( value_[pos - 1] ) ) );
+    if ( pos != UnicodeString::npos )
+      return BObjectRef( new BObject( new String( value_[pos] ) ) );
     else
       return BObjectRef( new UninitObject );
   }

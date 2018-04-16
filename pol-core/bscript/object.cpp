@@ -164,7 +164,7 @@ typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
 bobjectimps bobjectimp_instances;
 int display_bobjectimp_instance( BObjectImp* imp )
 {
-  INFO_PRINT << imp->instance() << ": " << imp->getStringRep().value().utf8() << "\n";
+  INFO_PRINT << imp->instance() << ": " << imp->getStringRep().utf8() << "\n";
   return 0;
 }
 void display_bobjectimp_instances()
