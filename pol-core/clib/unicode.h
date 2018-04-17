@@ -10,6 +10,7 @@
 #pragma once
 
 #if __cplusplus < 201103L
+//  Strings must be sequential or most of this will not work
 //  #error C++11 or better is required!
 #endif
 
@@ -26,7 +27,7 @@
 /// The Unicode replacement character '�'
 #define UNICODE_REPL static_cast<char32_t>(0xFFFD)
 // The Unicode replacement character encoded as UTF8 string
-#define UTF8_REPL "�"
+#define UTF8_REPL u8"�"
 /// The ASCII replacemente character
 #define ASCII_REPL '?'
 
@@ -141,19 +142,35 @@ public:
   char asAscii( const bool failsafe = true ) const;
 
   /** Tells wether this is a space character */
-  inline bool isSpace() const { return isspace(asChar32()) == 0; };
+  inline bool isSpace() const { return isspace(asChar32()) != 0; };
   /** Tells wether this is a digit character */
-  inline bool isDigit() const { return isdigit(asChar32()) == 0; };
+  inline bool isDigit() const { return isdigit(asChar32()) != 0; };
   /** Tells wether this is an alphabetic character */
-  inline bool isAlpha() const { return isalpha(asChar32()) == 0; };
+  inline bool isAlpha() const { return isalpha(asChar32()) != 0; };
   /** Tells whether this is an alphanumeric cracater */
-  inline bool isAlNum() const { return isalnum(asChar32()) == 0; };
+  inline bool isAlNum() const { return isalnum(asChar32()) != 0; };
 
   /** Returns current position, inside the string, chars */
   inline size_t pos() const { return pos_; };
+  /** Returns a reference to the whole string */
+  inline const UnicodeString& str() const { return str_; };
 
   inline bool operator==( const char32_t c ) const { return asChar32() == c; };
   inline bool operator!=( const char32_t c ) const { return asChar32() != c; };
+  inline bool operator>( const char32_t c ) const { return asChar32() > c; };
+  inline bool operator<( const char32_t c ) const { return asChar32() < c; };
+  inline bool operator>=( const char32_t c ) const { return asChar32() >= c; };
+  inline bool operator<=( const char32_t c ) const { return asChar32() <= c; };
+
+  inline void operator=( const Utf8CharRef& other ) {
+    //TODO: Remove the assertion and support the case?
+    passert_always_r( &(str_) == &(other.str_), "Cannot assign reference to a different string" );
+    pos_ = other.pos_;
+    len_ = other.len_;
+  };
+
+  /** This is true if non-zero */
+  inline explicit operator bool() const { return this->asChar32() != 0; };
 
 private:
   const UnicodeString& str_;
@@ -171,9 +188,6 @@ class UnicodeStringIterator
   friend class Utf8CharRef;
 
 private:
-  typedef std::string::const_iterator internal_iter_type;
-  /** The parent iterator */
-  internal_iter_type itr_;
   /** The string position in characters */
   size_t posc_;
   /** The internal character reference */
@@ -187,21 +201,24 @@ public:
    * Constructs the iterator from the given string
    *
    * @param str Reference to the string being iterated
-   * @param itr Reference to the base std::string iterator
    * @param cpos Current string position in characters
    * @param bpos Current string position in bytes
    */
-  inline UnicodeStringIterator( const UnicodeString& str, internal_iter_type itr, size_t cpos,
-    size_t bpos ) : itr_(itr), posc_(cpos), ref_(str, bpos) {};
+  inline UnicodeStringIterator( const UnicodeString& str, size_t cpos, size_t bpos )
+    : posc_(cpos), ref_(str, bpos) {};
   /** Copy constructor */
   inline UnicodeStringIterator( const UnicodeStringIterator& it )
-    : itr_(it.itr_), posc_(it.posc_), ref_(it.ref_) {};
+    : posc_(it.posc_), ref_(it.ref_) {};
 
   inline bool operator==( const UnicodeStringIterator& it ) const {
-    return itr_ == it.itr_;
+    return ref_.fc() == it.ref_.fc();
   };
   inline bool operator!=( const UnicodeStringIterator& it ) const {
-    return itr_ != it.itr_;
+    return ref_.fc() != it.ref_.fc();
+  };
+  inline void operator=( const UnicodeStringIterator& it ) {
+    posc_ = it.posc_;
+    ref_ = it.ref_;
   };
   /** ++this */
   inline UnicodeStringIterator& operator++() {
@@ -214,7 +231,7 @@ public:
     this->inc();
     return original;
   };
-  inline UnicodeStringIterator operator+( size_t n ) {
+  inline UnicodeStringIterator operator+( size_t n ) const {
     // TODO: implement it in a better way? Is there any?
     UnicodeStringIterator other = UnicodeStringIterator(*this);
     for ( n; n > 0; --n )
@@ -238,7 +255,7 @@ public:
     this->dec();
     return original;
   };
-  inline UnicodeStringIterator operator-( size_t n ) {
+  inline UnicodeStringIterator operator-( size_t n ) const {
     // TODO: implement it in a better way? Is there any?
     UnicodeStringIterator other = UnicodeStringIterator(*this);
     for ( n; n > 0; --n )
@@ -251,13 +268,24 @@ public:
       --(*this);
     return *this;
   };
+  /** Returns a Utf8CharRef to nth position */
+  inline const Utf8CharRef operator[]( size_t n ) const {
+    auto op = *this + n;
+    return op.get();
+  }
 
+  /**
+   * Returns the string being iterated
+   */
+  inline const UnicodeString& str() const {
+    return ref_.str();
+  }
   /**
    * Returns currently pointed char
    */
   inline const Utf8CharRef operator*() const {
     return this->get();
-  };
+  }
   /**
    * Returns currently pointed char
    */
@@ -270,6 +298,12 @@ public:
   inline const Utf8CharRef get() const {
     return ref_;
   };
+  /**
+   * Returns a pointer to current char in string
+   */
+  inline const char* ptr() const {
+    return ref_.fc();
+  }
 
   /** Returns current position, in chars */
   inline size_t posc() const { return posc_; };
@@ -364,6 +398,9 @@ public:
     this->ascii_ = ( c.getByteLen() == 1 );
     return *this;
   };
+  inline UnicodeString& operator=( const UnicodeStringIterator& c ) {
+    return *this = *c;
+  };
   inline UnicodeString& operator=( const char32_t c ) {
     (*this) = UnicodeString(c);
     return *this;
@@ -381,6 +418,9 @@ public:
     this->ascii_ = this->ascii_ && ( c.getByteLen() == 1 );
     return *this;
   };
+  inline UnicodeString& operator+=( const UnicodeStringIterator& c ) {
+    return *this += *c;
+  };
   inline UnicodeString& operator+=( const char32_t c ) {
     u8 len = Utf8Util::appendToStringAsUtf8(this->value_, c);
     this->length_ += 1;
@@ -397,6 +437,9 @@ public:
     UnicodeString res(*this);
     res += c;
     return res;
+  };
+  inline UnicodeString operator+( const UnicodeStringIterator& c ) const {
+    return *this + *c;
   };
   inline UnicodeString operator+( const char32_t c ) const {
     UnicodeString res(*this);
@@ -458,8 +501,8 @@ public:
 
   //   ------------------------------- ITERATING ----------------------------------------------
 
-  inline const_iterator begin() const { return const_iterator(*this, value_.begin(), 0, 0); };
-  inline const_iterator end() const { return const_iterator(*this, value_.end(), length_, value_.size()); };
+  inline const_iterator begin() const { return const_iterator(*this, 0, 0); };
+  inline const_iterator end() const { return const_iterator(*this, length_, value_.size()); };
 
   //   ------------------------------- REDEFINED BASE CLASS FUNCTIONS -------------------------
   //inline UnicodeString substr( size_t pos = 0, size_t len = npos ) { return substr(pos, len); };

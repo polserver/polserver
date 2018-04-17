@@ -469,7 +469,6 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SplitWords()
 
   // max_split parameter
   int max_split = -1;
-  int count = 0;
 
   if ( exec.hasParams( 3 ) )
   {

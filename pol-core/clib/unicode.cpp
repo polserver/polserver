@@ -321,7 +321,6 @@ void UnicodeStringIterator::inc() {
   if ( posc_ == ref_.str_.lengthc() )
     throw std::runtime_error("Incrementing UnicodeStringIterator over null terminator");
 
-  itr_ += ref_.len_;
   posc_++;
   ref_.pos_ += ref_.len_;
   ref_.updateLen();
@@ -339,9 +338,8 @@ void UnicodeStringIterator::dec() {
 
   do
   {
-    itr_--;
     ref_.pos_--;
-  } while ( ! Utf8Util::isFirstByte(*itr_) );
+  } while ( ! Utf8Util::isFirstByte(*ptr()) );
 
   posc_--;
   ref_.updateLen();
@@ -634,7 +632,7 @@ void UnicodeString::trim( const UnicodeString& crSet, TrimTypes type )
     // Find the first character position after excluding leading blank spaces
     size_t startpos = this->find_first_not_of( crSet, 0 );
     if ( npos != startpos )
-      value_ = value_.substr( startpos );
+      *this = this->substr( startpos );
     else
       value_.clear();
   }
@@ -643,7 +641,7 @@ void UnicodeString::trim( const UnicodeString& crSet, TrimTypes type )
     // Find the first character position from reverse
     size_t endpos = this->find_last_not_of( crSet, npos );
     if ( npos != endpos )
-      value_ = value_.substr( 0, endpos );
+      *this = this->substr( 0, endpos );
     else
       value_.clear();
   }
