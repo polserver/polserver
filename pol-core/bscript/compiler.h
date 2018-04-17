@@ -301,7 +301,8 @@ public:
   void patch_callers( UserFunction& uf );
 
 private:
-  std::vector<char*> delete_these_arrays;
+  /** Holds program bodies so that they don't go out of scope */
+  std::vector<UnicodeString> program_bodies;
 };
 }
 }

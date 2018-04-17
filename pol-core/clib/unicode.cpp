@@ -54,7 +54,7 @@ UnicodeChar Utf8Util::getNextCharFromStrAndAdvancePointer(const char*& str) {
  *
  * @return 1-4 on success, 0 on failure
  */
-u8 Utf8Util::getByteCountFromFirstByte(const char byte) {
+inline u8 Utf8Util::getByteCountFromFirstByte(const char byte) {
   if ( (byte & 0x80) == 0 )    // 0xxxxxxx
     return 1;
 
@@ -75,7 +75,7 @@ u8 Utf8Util::getByteCountFromFirstByte(const char byte) {
   *
   * @return 1 to 4 or 0 if out of range
   */
-u8 Utf8Util::getCharByteLen( const char32_t c )
+inline u8 Utf8Util::getCharByteLen( const char32_t c )
 {
   if( c < 0x80 ) {
     // up to 7 bits, ASCII-compatibility, 1 byte long result
@@ -102,7 +102,7 @@ u8 Utf8Util::getCharByteLen( const char32_t c )
   *
   * @return 1 to 3
   */
-u8 Utf8Util::getCharByteLen( const char16_t c )
+inline u8 Utf8Util::getCharByteLen( const char16_t c )
 {
   if( c < 0x80 ) {
     // up to 7 bits, ASCII-compatibility, 1 byte long result
@@ -202,14 +202,14 @@ u8 Utf8Util::appendToStringAsUtf8( std::string& str, const char16_t c )
   * @param pos The referenced 0-based starting position inside the string
   */
 Utf8CharRef::Utf8CharRef( const UnicodeString& str, size_t pos )
-  : str_(str), pos_(pos)
+  : str_(&str), pos_(pos)
 {
   updateLen();
 }
 
 /** Returns currently pointed first char */
 inline const char* Utf8CharRef::fc() const {
-  return str_.value_.c_str() + pos_;
+  return str_->value_.c_str() + pos_;
 }
 
 /** Updates the len_ based on current pos */
@@ -223,7 +223,7 @@ inline void Utf8CharRef::updateLen() {
 char Utf8CharRef::getByteAt(u8 idx) const {
   passert_always_r( idx < len_,
     "Bug in Utf8CharRef::getByteAt(), please report this bug on the forums." );
-  return str_.value_[pos_ + idx];
+  return str_->value_[pos_ + idx];
 }
 
  /**
@@ -318,7 +318,7 @@ void UnicodeStringIterator::inc() {
   if ( ref_.len_ == 0 )
     throw std::runtime_error("Incrementing invalid len UnicodeStringIterator");
 
-  if ( posc_ == ref_.str_.lengthc() )
+  if ( posc_ == ref_.str_->lengthc() )
     throw std::runtime_error("Incrementing UnicodeStringIterator over null terminator");
 
   posc_++;

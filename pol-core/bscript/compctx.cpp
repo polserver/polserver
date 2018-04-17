@@ -22,9 +22,9 @@ namespace
  */
 int eatToEndOfLine( CompilerContext& ctx )
 {
-  const char* t = ctx.s;
+  Clib::UnicodeStringIterator t = ctx.s;
 
-  while ( *t && ( *t != '\r' ) && ( *t != '\n' ) )
+  while ( ( *t != '\0' ) && ( *t != '\r' ) && ( *t != '\n' ) )
     t++;
 
   ctx.s = t;
@@ -42,20 +42,20 @@ int eatToCommentEnd( CompilerContext& ctx )
 
   while ( tmp.s[0] )
   {
-    if ( strncmp( tmp.s, "*/", 2 ) == 0 )
+    if ( strncmp( tmp.s.ptr(), "*/", 2 ) == 0 )
     {
       tmp.s += 2;
       ctx = tmp;
       return 0;
     }
-    else if ( strncmp( tmp.s, "/*", 2 ) == 0 )  // nested comment
+    else if ( strncmp( tmp.s.ptr(), "/*", 2 ) == 0 )  // nested comment
     {
       tmp.s += 2;
       int res = eatToCommentEnd( tmp );
       if ( res )
         return res;
     }
-    else if ( strncmp( tmp.s, "//", 2 ) == 0 )  // nested eol-comment
+    else if ( strncmp( tmp.s.ptr(), "//", 2 ) == 0 )  // nested eol-comment
     {
       int res = eatToEndOfLine( tmp );
       if ( res )
@@ -70,11 +70,11 @@ int eatToCommentEnd( CompilerContext& ctx )
 }  // namespace
 
 CompilerContext::CompilerContext()
-    : s( NULL ), line( 1 ), filename( "" ), s_begin( NULL ), dbg_filenum( 0 )
+    : s( "", 0, 0 ), line( 1 ), filename( "" ), s_begin( "", 0, 0 ), dbg_filenum( 0 )
 {
 }
 
-CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const char* s )
+CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const UnicodeStringIterator& s )
     : s( s ), line( 1 ), filename( filename ), s_begin( s ), dbg_filenum( dbg_filenum )
 {
 }
@@ -99,12 +99,13 @@ CompilerContext& CompilerContext::operator=( const CompilerContext& rhs )
   return *this;
 }
 
+
 /**
  * Skips whitespaces. Moves the pointer forward until a non-whitespace is found
  */
 void CompilerContext::skipws()
 {
-  while ( isspace( s[0] ) )
+  while ( s->isSpace() )
   {
     if ( s[0] == '\n' )
       ++line;
@@ -117,7 +118,7 @@ int CompilerContext::skipcomments()
   CompilerContext tctx( *this );
   for ( ;; )
   {
-    while ( tctx.s[0] && isspace( tctx.s[0] ) )
+    while ( tctx.s[0] && tctx.s->isSpace() )
     {
       // FIXME: if (tctx.s[0] == '\t')
       // FIXME:     contains_tabs = true;
@@ -133,7 +134,7 @@ int CompilerContext::skipcomments()
     }
 
     // look for comments
-    if ( strncmp( tctx.s, "/*", 2 ) == 0 )  // got a start of comment
+    if ( strncmp( tctx.s.ptr(), "/*", 2 ) == 0 )  // got a start of comment
     {
       int res;
       tctx.s += 2;
@@ -141,7 +142,7 @@ int CompilerContext::skipcomments()
       if ( res )
         return res;
     }
-    else if ( strncmp( tctx.s, "//", 2 ) == 0 )  // comment, one line only
+    else if ( strncmp( tctx.s.ptr(), "//", 2 ) == 0 )  // comment, one line only
     {
       int res;
       res = eatToEndOfLine( tctx );

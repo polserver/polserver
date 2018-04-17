@@ -31,7 +31,7 @@ class CompilerContext
 {
 public:
   CompilerContext();
-  CompilerContext( const std::string& filename, int dbg_filenum, const char* s );
+  CompilerContext( const std::string& filename, int dbg_filenum, const UnicodeStringIterator& s );
   CompilerContext( const CompilerContext& );
   CompilerContext& operator=( const CompilerContext& );
 
@@ -47,11 +47,16 @@ public:
    * The code to be compiled, as null-terminated char sequence.
    * The pointer is moved forward when part of the string has been processed
    */
-  const char* s;
-  int line;
-  std::string filename;
+  UnicodeStringIterator s;
+  /**
+   * The iterator as it was when on its initial state
+   */
+  UnicodeStringIterator s_begin;
 
-  const char* s_begin;
+  /** Current line */
+  int line;
+  /** Current file name */
+  std::string filename;
 
   int dbg_filenum;
 };

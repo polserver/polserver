@@ -15,6 +15,7 @@ class FileContents
 {
 public:
   FileContents( const char* filname );
+  inline FileContents( const std::string& filname ) : FileContents( filname.c_str() ) {};
 
   const UnicodeString& contents() const;
   void set_contents( const UnicodeString& str );

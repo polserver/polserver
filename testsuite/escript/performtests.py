@@ -25,6 +25,19 @@ def colorprint(text, color):
 class Compare:
 	@staticmethod
 	def txtcompare(file1, file2):
+		# Test for UTF8 validity
+		for file in (file1, file2):
+			with open(file,'rb') as f:
+				lnum = 0
+				for line in f.read().split(b'\n'):
+					lnum += 1
+					try:
+						line.decode()
+					except UnicodeDecodeError as e:
+						print('Unicode error in "{}" line {}: {}'.format(file, lnum, e))
+						print('Line: {}'.format(line))
+						return False
+
 		with open(file1,'rt',encoding='utf-8',errors='strict',newline=None) as f1, \
 				open(file2,'rt',encoding='utf-8',errors='strict',newline=None) as f2:
 			l1=f1.readlines()
@@ -153,7 +166,7 @@ class StdTests:
 	and put the text to be matched on the error message inside it.
 	'''
 
-	def __init__(self, compiler, runecl, what=None, quiet=False):
+	def __init__(self, compiler, runecl, what=None, quiet=False, dirty=False):
 		if what:
 			splits = what.split('/')
 			if len(splits) > 2:
@@ -183,6 +196,7 @@ class StdTests:
 		self.compiler = compiler
 		self.runecl = runecl
 		self.quiet = quiet
+		self.dirty = dirty
 
 	def cleanFile(self, file):
 		base=os.path.splitext(file)[0]
@@ -232,7 +246,8 @@ class StdTests:
 			else:
 				passed += 1
 			finally:
-				self.cleanFile(f)
+				if not self.dirty:
+					self.cleanFile(f)
 		success = True if tested == passed else False
 
 		color = 'green' if success else 'red'
@@ -259,6 +274,7 @@ if __name__ == '__main__':
 	parser.add_argument('-q', '--quiet', action='store_true', help="Quiet output: only display errors and summary")
 	parser.add_argument('-n', '--num', type=int, default=1,
 		help="Repeat tests this number of times or until it fails (to detect intermittent bugs). O means forever.")
+	parser.add_argument('-d', '--dirty', action='store_true', help="Do not clean temporary files")
 	args = parser.parse_args()
 
 	compiler=Compiler(args.ecompile)
@@ -278,7 +294,7 @@ if __name__ == '__main__':
 				print()
 				print()
 
-			test = StdTests(compiler, runecl, args.what, args.quiet)
+			test = StdTests(compiler, runecl, args.what, args.quiet, args.dirty)
 
 			if not test((i,totLoopsStr), args.halt):
 				sys.exit(1)

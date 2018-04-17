@@ -44,7 +44,7 @@ public:
   Addresses forward_callers;
 
   CompilerContext ctx;
-  char* function_body;  // FIXME: this is leaked
+  UnicodeString function_body;
   bool exported;
   bool emitted;
   std::string declaration;

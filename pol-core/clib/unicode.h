@@ -116,6 +116,9 @@ public:
 
 /**
  * Represents a single UTF8 character inside a string
+ *
+ * @warning Using this after the string is gone will have same effect as using a pointer
+ *           to a deleted memory area
  * @author Bodom, 12-08-2015
  */
 class Utf8CharRef
@@ -153,7 +156,7 @@ public:
   /** Returns current position, inside the string, chars */
   inline size_t pos() const { return pos_; };
   /** Returns a reference to the whole string */
-  inline const UnicodeString& str() const { return str_; };
+  inline const UnicodeString& str() const { return *str_; };
 
   inline bool operator==( const char32_t c ) const { return asChar32() == c; };
   inline bool operator!=( const char32_t c ) const { return asChar32() != c; };
@@ -163,8 +166,7 @@ public:
   inline bool operator<=( const char32_t c ) const { return asChar32() <= c; };
 
   inline void operator=( const Utf8CharRef& other ) {
-    //TODO: Remove the assertion and support the case?
-    passert_always_r( &(str_) == &(other.str_), "Cannot assign reference to a different string" );
+    str_ = other.str_;
     pos_ = other.pos_;
     len_ = other.len_;
   };
@@ -173,7 +175,13 @@ public:
   inline explicit operator bool() const { return this->asChar32() != 0; };
 
 private:
-  const UnicodeString& str_;
+  /**
+   * Using a pointer to allow the operator= to be fully implemented,
+   * since it is hevaily used by the parser.
+   * Anyway, this must never be a null pointer and the interface to the outside world
+   * should always use references.
+   */
+  const UnicodeString* str_;
   size_t pos_;
   u8 len_;
 };
@@ -181,7 +189,9 @@ private:
 /**
  * Iterator for UnicodeString
  *
- * Anything different than ++ is expensive
+ * @warning Anything different than ++ is expensive
+ * @warning Using this after the string is gone will have same effect as using a pointer
+ *          to a deleted memory area
  */
 class UnicodeStringIterator
 {

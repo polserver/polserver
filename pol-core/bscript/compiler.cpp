@@ -137,11 +137,12 @@ void Scope::addvar( const std::string& varname, const CompilerContext& ctx, bool
       throw std::runtime_error( "Variable " + varname + " is already in scope." );
     }
   }
-  Variable newvar;
-  newvar.name = varname;
-  newvar.ctx = ctx;
-  newvar.used = !warn_on_notused;
-  newvar.unused = unused;
+  Variable newvar = {
+    /* name = */   varname,
+    /* used = */   ! warn_on_notused,
+    /* unused = */ unused,
+    /* ctx = */    ctx,
+  };
   variables_.push_back( newvar );
   blockdescs_.back().varcount++;
 }
@@ -860,12 +861,6 @@ Compiler::Compiler()
 
 Compiler::~Compiler()
 {
-  while ( !delete_these_arrays.empty() )
-  {
-    char* s = delete_these_arrays.back();
-    delete[] s;
-    delete_these_arrays.pop_back();
-  }
 }
 
 
@@ -2975,13 +2970,15 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
     if ( inGlobalScope() )
     {
       unsigned idx;
-      CompilerContext gctx;
+      CompilerContext gctx = ctx;
       if ( !globalexists( tk_varname.tokval(), idx, &gctx ) )
       {
-        Variable v;
-        v.name = tk_varname.tokval();
-        v.used = true;
-        v.ctx = savectx;
+        Variable v = {
+          /* name = */   tk_varname.tokval(),
+          /* used = */   ! true,
+          /* unused = */ false,
+          /* ctx = */    savectx,
+        };
 
         varindex = static_cast<unsigned>( globals_.size() );
         globals_.push_back( v );
@@ -3277,18 +3274,17 @@ int Compiler::useModule( const char* modulename )
       INFO_PRINT << "Found " << filename_full << "\n";
   }
 
-  char* orig_mt;
-  char* mt;
-
+  Clib::FileContents mt( filename_full );
+  //TODO make exception more specific
+  /*
   if ( getFileContents( filename_full.c_str(), &orig_mt ) )
   {
     INFO_PRINT << "Unable to find module " << modulename << "\n"
                << "\t(Filename: " << filename_full << ")\n";
     return -1;
   }
-
-  mt = orig_mt;
-  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), mt );
+  */
+  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), mt.contents().begin() );
 
   std::string save = current_file_path;
   current_file_path = getpathof( filename_full );
@@ -3301,13 +3297,11 @@ int Compiler::useModule( const char* modulename )
     if ( res < 0 )
     {
       INFO_PRINT << "Error reading token in module " << modulename << "\n";
-      free( orig_mt );
       break;
     }
     else if ( res == 1 )
     {
       addModule( compmodl.release() );
-      free( orig_mt );
       res = 0;
       break;
     }
@@ -3324,7 +3318,6 @@ int Compiler::useModule( const char* modulename )
     if ( readFunctionDeclaration( mod_ctx, *puserfunc ) )
     {
       INFO_PRINT << "Error reading function declaration in module " << modulename << "\n";
-      free( orig_mt );
       res = -1;
       break;
     }
@@ -3334,8 +3327,6 @@ int Compiler::useModule( const char* modulename )
     {
       INFO_PRINT << filename_full << ": Error in declaration for " << puserfunc->name << ":\n"
                  << "  Expected a semicolon, got end-of-file or error\n";
-
-      free( orig_mt );
       res = -1;
       break;
     }
@@ -3343,7 +3334,6 @@ int Compiler::useModule( const char* modulename )
     {
       INFO_PRINT << filename_full << ": Error in declaration for " << puserfunc->name << ":\n"
                  << "  Expected a semicolon, got '" << tk_semicolon << "'\n";
-      free( orig_mt );
       res = -1;
       break;
     }
@@ -3503,16 +3493,18 @@ int Compiler::includeModule( const std::string& modulename )
 
   referencedPathnames.push_back( filename_full );
 
-  char* orig_mt;
-
+  Clib::FileContents mt( filename_full );
+  //TODO make exception more specific
+  /*
   if ( getFileContents( filename_full.c_str(), &orig_mt ) )
   {
     INFO_PRINT << "Unable to find module " << modulename << "\n"
                << "\t(Filename: " << filename_full << ")\n";
     return -1;
   }
-
-  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), orig_mt );
+  */
+  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ),
+    mt.contents().begin() );
 
   std::string save = current_file_path;
   current_file_path = getpathof( filename_full );
@@ -3521,7 +3513,6 @@ int Compiler::includeModule( const std::string& modulename )
 
   current_file_path = save;
 
-  free( orig_mt );
   if ( res < 0 )
     return res;
   else
@@ -3997,7 +3988,7 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
 
     DebugToken DT;
     DT.sourceFile = curSourceFile;
-    DT.offset = static_cast<unsigned int>( ctx.s - ctx.s_begin );
+    DT.offset = static_cast<unsigned int>( ctx.s.ptr() - ctx.s_begin.ptr() );
     DT.strOffset = last_position;
 
     program->symbols.append( &DT, sizeof DT, last_position );
@@ -4527,7 +4518,7 @@ int Compiler::handleProgram( CompilerContext& ctx, int /*level*/ )
   haveProgram = true;
   program->program_decl = curLine;
   program_ctx = ctx;
-  const char* program_body_start = ctx.s;
+  auto program_body_start = ctx.s;
   while ( ctx.s[0] )
   {
     Token token;
@@ -4537,13 +4528,16 @@ int Compiler::handleProgram( CompilerContext& ctx, int /*level*/ )
 
     if ( token.id == RSV_ENDPROGRAM )
     {
-      const char* program_body_end = ctx.s;
-      size_t len = program_body_end - program_body_start + 1;
-      program_source = new char[len];
-      delete_these_arrays.push_back( program_source );
-      memcpy( program_source, program_body_start, len - 1 );
-      program_source[len - 1] = '\0';
-      program_ctx.s = program_ctx.s_begin = program_source;
+      auto program_body_end = ctx.s;
+
+      size_t len = program_body_end.ptr() - program_body_start.ptr() + 1;
+      program_bodies.push_back(
+        program_body_start.str().substr(program_body_start.posc(), len)
+      );
+
+      auto program_itr = program_bodies.back().begin();
+      program_ctx.s = program_itr;
+      program_ctx.s_begin = program_itr;
       return 0;
     }
   }
@@ -4769,7 +4763,7 @@ int Compiler::forward_read_function( CompilerContext& ctx )
   }
   userfunc.ctx = ctx;
 
-  const char* function_body_start = ctx.s;
+  auto function_body_start = ctx.s;
   while ( ctx.s[0] )
   {
     Token _token;
@@ -4778,14 +4772,17 @@ int Compiler::forward_read_function( CompilerContext& ctx )
       break;
     if ( _token.id == RSV_ENDFUNCTION )
     {
-      const char* function_body_end = ctx.s;
-      size_t len = function_body_end - function_body_start + 1;
-      userfunc.function_body = new char[len];
-      delete_these_arrays.push_back( userfunc.function_body );
-      memcpy( userfunc.function_body, function_body_start, len - 1 );
-      userfunc.function_body[len - 1] = '\0';
-      userfunc.ctx.s = userfunc.ctx.s_begin = userfunc.function_body;
+      auto function_body_end = ctx.s;
+
+      size_t len = function_body_end.ptr() - function_body_start.ptr() + 1;
+      userfunc.function_body =
+        function_body_start.str().substr(function_body_start.posc(), len);
+
       userFunctions[userfunc.name] = userfunc;
+      auto function_itr = userFunctions[userfunc.name].function_body.begin();
+      userfunc.ctx.s = function_itr;
+      userfunc.ctx.s_begin = function_itr;
+
       res = 0;
       return 0;
     }
@@ -5076,15 +5073,17 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
     return true;
   included.insert( filename_check );
 
-  char* orig_mt;
-
+  Clib::FileContents mt(filename_full);
+  //TODO: Make error more specific
+  /*
   if ( getFileContents( filename_full.c_str(), &orig_mt ) )
   {
     INFO_PRINT << "Unable to read include file '" << filename_full << "'\n";
     return false;
   }
-
-  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), orig_mt );
+  */
+  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ),
+    mt.contents().begin() );
 
   std::string save = current_file_path;
   current_file_path = getpathof( filename_full );
@@ -5093,7 +5092,6 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
 
   current_file_path = save;
 
-  free( orig_mt );
   return res;
 }
 
@@ -5102,7 +5100,7 @@ void Compiler::readCurLine( CompilerContext& ctx )
   ctx.skipws();
   ctx.skipcomments();
 
-  Clib::stracpy( curLine, ctx.s, sizeof curLine );
+  Clib::stracpy( curLine, ctx.s.ptr(), sizeof curLine );
 
   char* t;
   t = strchr( curLine, '\r' );
@@ -5379,7 +5377,8 @@ int Compiler::compileFile( const char* in_file )
       preprocess_web_script( fc );
     }
 
-    CompilerContext ctx( filepath, program->add_dbg_filename( filepath ), fc.contents().utf8().c_str() );
+    CompilerContext ctx( filepath, program->add_dbg_filename( filepath ),
+      fc.contents().begin() );
 
     bool bres = read_function_declarations( ctx );
     // cout << "bres:" << bres << endl;

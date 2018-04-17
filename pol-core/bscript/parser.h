@@ -130,8 +130,7 @@ public:
   virtual int recognize( Token& tok, const char* buf, const char** s );
   virtual bool recognize_reserved_word( Token& tok, const char* buf );
 
-  virtual int tryOperator( Token& tok, const char* buf, const char** s, Operator* opList, int n_ops,
-                           char* opbuf );
+  virtual int tryOperator( Token& tok, CompilerContext& ctx, Operator* opList, int n_ops);
   virtual int tryBinaryOperator( Token& tok, CompilerContext& ctx );
   virtual int tryUnaryOperator( Token& tok, CompilerContext& ctx );
 

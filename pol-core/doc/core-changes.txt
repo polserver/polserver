@@ -13,6 +13,7 @@ XX-XX-XXXX Bodom:
            The whole POL should now use UTF8 encoding everywhere with the very only
            exeption of encrypted passwords, where ANSI is still used for backward compatibility.
            Failing to use UTF8 somewhere is now considered a BUG.
+  Added:   New escape sequence \uNNNN to define unicode chars from hex
   Changed: As a result, CAsc() and CAscZ() may now return values > 255
            while CChr() and CChrZ() now accept values > 255
   Changed: CAsc() now returns error on empty string
