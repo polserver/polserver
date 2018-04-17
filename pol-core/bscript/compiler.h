@@ -300,9 +300,6 @@ public:
   int emit_functions();
   void patch_callers( UserFunction& uf );
 
-private:
-  /** Holds program bodies so that they don't go out of scope */
-  std::vector<UnicodeString> program_bodies;
 };
 }
 }

@@ -14,18 +14,13 @@ namespace Pol
 {
 namespace Clib
 {
-/**
- * Creates the instance and reads the whole file content into it
- *
- * @param filename Full path of the file to be read
- * @throws std::runtime_error When something goes wrong when reading the file
- */
-FileContents::FileContents( const char* filename )
+
+void FileContents::read()
 {
-  FILE* fp = fopen( filename, "rb" );
+  FILE* fp = fopen( filename_.c_str(), "rb" );
   if ( fp == NULL )
   {
-    ERROR_PRINT << "Unable to open '" << filename << "' for reading.\n";
+    reportNotFoundError();
     throw std::runtime_error( "Error opening file" );
   }
 
@@ -37,7 +32,7 @@ FileContents::FileContents( const char* filename )
   {
     size_t nread = fread( buf, 1, sizeof buf, fp );
     if ( nread ) {
-      contents_.reserveb(contents_.utf8().size() + nread);
+      contents_->reserveb(contents_->utf8().size() + nread);
 
       for ( size_t i = 0; i < nread; ++i ) {
         ++pos;
@@ -51,11 +46,11 @@ FileContents::FileContents( const char* filename )
         }
 
         if ( res != Utf8CharValidator::AddByteResult::DONE ) {
-          ERROR_PRINT << "Error reading '" << filename << "': invalid utf8 byte at pos " << pos << ".\n";
+          ERROR_PRINT << "Error reading '" << filename_ << "': invalid utf8 byte at pos " << pos << ".\n";
           throw std::runtime_error( "Error opening file" );
         }
 
-        contents_ += val.getChar();
+        *contents_ += val.getChar();
       }
     }
   }
@@ -64,9 +59,28 @@ FileContents::FileContents( const char* filename )
 }
 
 /**
+ * Reports when file has not been found
+ */
+void SourceFileContents::reportNotFoundError() const
+{
+  ERROR_PRINT << "Unable to open '" << filename_ << "' for reading.\n";
+}
+
+void IncludeFileContents::reportNotFoundError() const
+{
+  ERROR_PRINT << "Unable to read include file '" << filename_ << "'\n";
+}
+
+void ModuleFileContents::reportNotFoundError() const
+{
+  ERROR_PRINT << "Unable to find module " << modulename_ << "\n"
+               << "\t(Filename: " << filename_ << ")\n";
+}
+
+/**
  * Returns a reference to the internal content
  */
-const UnicodeString& FileContents::contents() const
+const std::shared_ptr<UnicodeString>& FileContents::contents() const
 {
   return contents_;
 }
@@ -76,7 +90,7 @@ const UnicodeString& FileContents::contents() const
  */
 void FileContents::set_contents( const UnicodeString& str )
 {
-  contents_ = str;
+  *contents_ = str;
 }
 
 }

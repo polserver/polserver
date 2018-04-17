@@ -3274,17 +3274,8 @@ int Compiler::useModule( const char* modulename )
       INFO_PRINT << "Found " << filename_full << "\n";
   }
 
-  Clib::FileContents mt( filename_full );
-  //TODO make exception more specific
-  /*
-  if ( getFileContents( filename_full.c_str(), &orig_mt ) )
-  {
-    INFO_PRINT << "Unable to find module " << modulename << "\n"
-               << "\t(Filename: " << filename_full << ")\n";
-    return -1;
-  }
-  */
-  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), mt.contents().begin() );
+  Clib::ModuleFileContents mt( filename_full, modulename );
+  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), mt.contents() );
 
   std::string save = current_file_path;
   current_file_path = getpathof( filename_full );
@@ -3493,18 +3484,9 @@ int Compiler::includeModule( const std::string& modulename )
 
   referencedPathnames.push_back( filename_full );
 
-  Clib::FileContents mt( filename_full );
-  //TODO make exception more specific
-  /*
-  if ( getFileContents( filename_full.c_str(), &orig_mt ) )
-  {
-    INFO_PRINT << "Unable to find module " << modulename << "\n"
-               << "\t(Filename: " << filename_full << ")\n";
-    return -1;
-  }
-  */
+  Clib::ModuleFileContents mt( filename_full, modulename );
   CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ),
-    mt.contents().begin() );
+    mt.contents() );
 
   std::string save = current_file_path;
   current_file_path = getpathof( filename_full );
@@ -4531,13 +4513,14 @@ int Compiler::handleProgram( CompilerContext& ctx, int /*level*/ )
       auto program_body_end = ctx.s;
 
       size_t len = program_body_end.ptr() - program_body_start.ptr() + 1;
-      program_bodies.push_back(
+      std::shared_ptr<UnicodeString> program_body = std::make_shared<UnicodeString>(
         program_body_start.str().substr(program_body_start.posc(), len)
       );
 
-      auto program_itr = program_bodies.back().begin();
-      program_ctx.s = program_itr;
-      program_ctx.s_begin = program_itr;
+      program_ctx.str = program_body;
+      program_ctx.s = program_body->begin();
+      program_ctx.s_begin = program_body->begin();
+
       return 0;
     }
   }
@@ -5073,17 +5056,9 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
     return true;
   included.insert( filename_check );
 
-  Clib::FileContents mt(filename_full);
-  //TODO: Make error more specific
-  /*
-  if ( getFileContents( filename_full.c_str(), &orig_mt ) )
-  {
-    INFO_PRINT << "Unable to read include file '" << filename_full << "'\n";
-    return false;
-  }
-  */
+  Clib::IncludeFileContents mt(filename_full);
   CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ),
-    mt.contents().begin() );
+    mt.contents() );
 
   std::string save = current_file_path;
   current_file_path = getpathof( filename_full );
@@ -5298,7 +5273,7 @@ void preprocess_web_script( Clib::FileContents& fc )
 
   bool reading_html = true;
   bool source_is_emit = false;
-  const char* s = fc.contents().utf8().c_str();
+  const char* s = fc.contents()->utf8().c_str();
   std::string acc;
   while ( *s )
   {
@@ -5370,15 +5345,14 @@ int Compiler::compileFile( const char* in_file )
     current_file_path = getpathof( filepath );
     if ( verbosity_level_ >= 11 )
       INFO_PRINT << "cfp: " << current_file_path << "\n";
-    Clib::FileContents fc( filepath.c_str() );
+    Clib::SourceFileContents fc( filepath.c_str() );
 
     if ( is_web_script( filepath.c_str() ) )
     {
       preprocess_web_script( fc );
     }
 
-    CompilerContext ctx( filepath, program->add_dbg_filename( filepath ),
-      fc.contents().begin() );
+    CompilerContext ctx( filepath, program->add_dbg_filename( filepath ), fc.contents() );
 
     bool bres = read_function_declarations( ctx );
     // cout << "bres:" << bres << endl;

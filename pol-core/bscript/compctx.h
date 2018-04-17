@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <memory>
 
 #include <format/format.h>
 #include "../clib/unicode.h"
@@ -31,7 +32,8 @@ class CompilerContext
 {
 public:
   CompilerContext();
-  CompilerContext( const std::string& filename, int dbg_filenum, const UnicodeStringIterator& s );
+  CompilerContext( const std::string& filename, int dbg_filenum,
+    const std::shared_ptr<UnicodeString>& str );
   CompilerContext( const CompilerContext& );
   CompilerContext& operator=( const CompilerContext& );
 
@@ -43,6 +45,10 @@ public:
   void skipws();
   int skipcomments();
 
+  /**
+   * Holds the pointed string so it doesn't accidentally go out of scope
+   */
+  std::shared_ptr<UnicodeString> str;
   /**
    * The code to be compiled, as null-terminated char sequence.
    * The pointer is moved forward when part of the string has been processed

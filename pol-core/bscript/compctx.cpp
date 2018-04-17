@@ -70,30 +70,37 @@ int eatToCommentEnd( CompilerContext& ctx )
 }  // namespace
 
 CompilerContext::CompilerContext()
-    : s( "", 0, 0 ), line( 1 ), filename( "" ), s_begin( "", 0, 0 ), dbg_filenum( 0 )
+    : str( std::make_shared<UnicodeString>("") ), s( str->begin() ), s_begin( str->begin() ),
+      line( 1 ), filename( "" ), dbg_filenum( 0 )
 {
 }
 
-CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const UnicodeStringIterator& s )
-    : s( s ), line( 1 ), filename( filename ), s_begin( s ), dbg_filenum( dbg_filenum )
+CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum,
+    const std::shared_ptr<UnicodeString>& str ) : str( str ), s( str->begin() ),
+    s_begin( str->begin() ), line( 1 ), filename( filename ),
+    dbg_filenum( dbg_filenum )
 {
 }
 
 CompilerContext::CompilerContext( const CompilerContext& ctx )
-    : s( ctx.s ),
+    : str( ctx.str ),
+      s( ctx.s ),
+      s_begin( ctx.s_begin ),
+
       line( ctx.line ),
       filename( ctx.filename ),
-      s_begin( ctx.s_begin ),
       dbg_filenum( ctx.dbg_filenum )
 {
 }
 
 CompilerContext& CompilerContext::operator=( const CompilerContext& rhs )
 {
-  filename = rhs.filename;
+  str = rhs.str;
   s = rhs.s;
-  line = rhs.line;
   s_begin = rhs.s_begin;
+
+  line = rhs.line;
+  filename = rhs.filename;
   dbg_filenum = rhs.dbg_filenum;
 
   return *this;
