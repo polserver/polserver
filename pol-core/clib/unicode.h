@@ -168,11 +168,11 @@ public:
 
   inline bool operator==( const char32_t c ) const { return asChar32() == c; };
   inline bool operator==( const Utf8CharRef& cr ) const {
-    return len_ == cr.len_ && strncmp( fc(), cr.fc(), len_ ) == 0;
+    return asChar32() == cr.asChar32();
   };
   inline bool operator!=( const char32_t c ) const { return asChar32() != c; };
   inline bool operator!=( const Utf8CharRef& cr ) const {
-    return len_ != cr.len_ || strncmp( fc(), cr.fc(), len_ ) != 0;
+    return asChar32() != cr.asChar32();
   };
   inline bool operator>( const char32_t c ) const { return asChar32() > c; };
   inline bool operator<( const char32_t c ) const { return asChar32() < c; };
