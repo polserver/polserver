@@ -46,7 +46,8 @@ void FileContents::read()
         }
 
         if ( res != Utf8CharValidator::AddByteResult::DONE ) {
-          ERROR_PRINT << "Error reading '" << filename_ << "': invalid utf8 byte at pos " << pos << ".\n";
+          ERROR_PRINT << "Error reading '" << filename_ << "': invalid utf8 byte at pos "
+            << pos << ".\n";
           throw std::runtime_error( "Error opening file" );
         }
 

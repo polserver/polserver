@@ -3275,7 +3275,8 @@ int Compiler::useModule( const char* modulename )
   }
 
   Clib::ModuleFileContents mt( filename_full, modulename );
-  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ), mt.contents() );
+  CompilerContext mod_ctx( filename_full, program->add_dbg_filename( filename_full ),
+    mt.contents() );
 
   std::string save = current_file_path;
   current_file_path = getpathof( filename_full );

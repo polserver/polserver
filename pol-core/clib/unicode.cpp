@@ -802,7 +802,8 @@ int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str ) c
   return this->substr(pos, len).compare( str );
 }
 /** @see std::string::compare */
-int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str, size_t subpos, size_t sublen ) const
+int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str, size_t subpos,
+  size_t sublen ) const
 {
   return this->substr(pos, len).compare( str.substr(subpos, sublen) );
 }

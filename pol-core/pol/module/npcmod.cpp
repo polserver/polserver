@@ -153,7 +153,8 @@ BObjectImp* NPCExecutorModule::CanMove()
       {
         DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                  << "\tCall to function npc::canmove():\n"
-                 << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir.utf8() << "\n";
+                 << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got "
+                 << dir.utf8() << "\n";
         return new BError( "Invalid facing value" );
       }
 
@@ -326,7 +327,8 @@ BObjectImp* NPCExecutorModule::face()
     {
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                << "\tCall to function npc::face():\n"
-               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir.utf8() << "\n";
+               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got "
+               << dir.utf8() << "\n";
       return NULL;
     }
   }
@@ -365,7 +367,8 @@ BObjectImp* NPCExecutorModule::move()
     {
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                << "\tCall to function npc::move():\n"
-               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir.utf8() << "\n";
+               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got "
+               << dir.utf8() << "\n";
       return NULL;
     }
 
@@ -826,7 +829,8 @@ BObjectImp* NPCExecutorModule::SayUC()
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.utf8().c_str(), NULL );
+              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.utf8().c_str(),
+                NULL );
           } );
     }
   }
