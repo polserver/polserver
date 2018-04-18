@@ -398,14 +398,11 @@ set (pol_sources  # sorted !
   ufunc.h
   ufunc2.cpp
   ufuncinl.h
-  ufuncstd.h
   uimport.cpp
   uimport.h
   umanip.h
   umap.cpp
   umap.h
-  unicode.cpp
-  unicode.h
   uobjcnt.cpp
   uobjcnt.h
   uobject.cpp

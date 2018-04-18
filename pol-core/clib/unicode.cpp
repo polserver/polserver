@@ -384,6 +384,24 @@ UnicodeString::UnicodeString( const char32_t chr )
 }
 
 /**
+ * Constructs from a UO-UTF16 string
+ */
+UnicodeString::UnicodeString( const std::u16string& str )
+  : UnicodeString()
+{
+  this->append(str);
+}
+
+/**
+ * Constructs from a UTF32 string
+ */
+UnicodeString::UnicodeString( const std::u32string& str )
+  : UnicodeString()
+{
+  this->append(str);
+}
+
+/**
  * Constructs from a C string
  */
 UnicodeString::UnicodeString( const StrEncoding enc, const char* str )
@@ -433,6 +451,26 @@ UnicodeString& UnicodeString::assign( const StrEncoding enc, const char* s )
 }
 
 /**
+  * Sets this string from the content of UO-UTF16 string
+  */
+UnicodeString& UnicodeString::assign( const std::u16string& str )
+{
+  this->clear();
+  this->append(str);
+  return *this;
+}
+
+/**
+  * Sets this string from the content of UTF32 string
+  */
+UnicodeString& UnicodeString::assign( const std::u32string& str )
+{
+  this->clear();
+  this->append(str);
+  return *this;
+}
+
+/**
  * Appends a C string to this. Replace sinvalid bytes with UNICODE_REPL
  */
 UnicodeString& UnicodeString::append( const StrEncoding enc, const char* s )
@@ -463,12 +501,62 @@ UnicodeString& UnicodeString::append( const StrEncoding enc, const char* s )
 }
 
 /**
+ * Appends a UO-UTF16 string
+ */
+UnicodeString& UnicodeString::append( const std::u16string& str )
+{
+  for ( const auto& chr : str ) {
+    u8 bl = Utf8Util::appendToStringAsUtf8( value_, chr );
+    this->length_++;
+    if ( bl > 1 )
+      this->ascii_ = false;
+  }
+
+  return *this;
+}
+
+/**
+ * Appends a UO-UTF32 string
+ */
+UnicodeString& UnicodeString::append( const std::u32string& str )
+{
+  for ( const auto& chr : str ) {
+    u8 bl = Utf8Util::appendToStringAsUtf8( value_, chr );
+    this->length_++;
+    if ( bl > 1 )
+      this->ascii_ = false;
+  }
+
+  return *this;
+}
+
+/**
   * Appends an ANSI string to a copy of this string
   */
 UnicodeString UnicodeString::concat( const StrEncoding enc, const char* s ) const
 {
   UnicodeString res(*this);
   res.append(enc, s);
+  return res;
+}
+
+/**
+  * Appends an UO-UTF16 string to a copy of this string
+  */
+UnicodeString UnicodeString::concat( const std::u16string& str ) const
+{
+  UnicodeString res(*this);
+  res.append(str);
+  return res;
+}
+
+/**
+  * Appends a UTF32 string to a copy of this string
+  */
+UnicodeString UnicodeString::concat( const std::u32string& str ) const
+{
+  UnicodeString res(*this);
+  res.append(str);
   return res;
 }
 

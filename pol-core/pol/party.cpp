@@ -33,6 +33,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
 #include "../plib/systemstate.h"
+#include "../bscript/impstr.h"
 #include "clfunc.h"
 #include "fnsearch.h"
 #include "globals/network.h"
@@ -51,7 +52,6 @@
 #include "statmsg.h"
 #include "syshook.h"
 #include "ufunc.h"
-#include "unicode.h"
 #include "uobject.h"
 #include "uoclient.h"
 
@@ -105,25 +105,13 @@ void load_party_cfg_general( Clib::ConfigElem& elem )
         elem.remove_bool( "RejoinPartyOnLogon", false );
   else
     settingsManager.party_cfg.General.RejoinPartyOnLogon = false;
-  std::string tmp = elem.remove_string( "PrivateMsgPrefix", "" );
-  if ( tmp.size() == 0 )
-    settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
-  else
-  {
-    std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-    tmp += " ";
-    for ( unsigned i = 0; i < tmp.size(); ++i )
-    {
-      arr->addElement( new Bscript::BLong( static_cast<unsigned char>( tmp[i] ) ) );
-    }
-    settingsManager.party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
-    if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen > SPEECH_MAX_LEN )
-      settingsManager.party_cfg.General.PrivateMsgPrefixLen = SPEECH_MAX_LEN;
 
-    Bscript::ObjArray* arrPtr = arr.get();
-    if ( !Core::convertArrayToUC( arrPtr, settingsManager.party_cfg.General.PrivateMsgPrefix,
-                                  settingsManager.party_cfg.General.PrivateMsgPrefixLen, true ) )
-      settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
+  settingsManager.party_cfg.General.PrivateMsgPrefix =
+     elem.remove_string( "PrivateMsgPrefix", "" );
+
+  if ( settingsManager.party_cfg.General.PrivateMsgPrefix.lengthc() > SPEECH_MAX_LEN ) {
+    settingsManager.party_cfg.General.PrivateMsgPrefix = 
+        settingsManager.party_cfg.General.PrivateMsgPrefix.substr(0, SPEECH_MAX_LEN);
   }
 }
 
@@ -164,7 +152,7 @@ void load_party_cfg( bool reload )
     settingsManager.party_cfg.General.MaxPartyMembers = 10;
     settingsManager.party_cfg.General.TreatNoAsPrivate = false;
     settingsManager.party_cfg.General.DeclineTimeout = 10;
-    settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
+    settingsManager.party_cfg.General.PrivateMsgPrefix = "";
     settingsManager.party_cfg.General.RemoveMemberOnLogoff = false;
     settingsManager.party_cfg.General.RejoinPartyOnLogon = false;
   }
@@ -668,7 +656,8 @@ void Party::on_stam_changed( Mobile::Character* chr ) const
   }
 }
 
-void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const
+void Party::send_member_msg_public( Mobile::Character* chr,
+                                    Clib::UnicodeString wtext ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
   msg->offset += 4;  // len+sub
@@ -677,21 +666,15 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
 
   if ( settingsManager.party_cfg.Hooks.ChangePublicChat )
   {
-    Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
-      return;
+    Bscript::String* ws = new Bscript::String( wtext );
     Bscript::BObject obj =
-        settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref(), arr );
-    if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+        settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref(), ws );
+
+    if ( obj->isa( Bscript::BObjectImp::OTString ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
-      unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
-      if ( len > SPEECH_MAX_LEN )
-        len = SPEECH_MAX_LEN;
-      if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
-        return;
-      wtextlen = len + 1;
+      wtext = static_cast<Bscript::String*>( obj.impptr() )->value();
+      if ( wtext.lengthc() > SPEECH_MAX_LEN )
+        wtext = wtext.substr(0, SPEECH_MAX_LEN);
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {
@@ -699,7 +682,7 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
         return;
     }
   }
-  msg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );
+  msg->Write( wtext );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -715,8 +698,8 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
   }
 }
 
-void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext,
-                                     size_t wtextlen ) const
+void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr,
+                                     Clib::UnicodeString wtext ) const
 {
   if ( !tochr->has_active_client() )
     return;
@@ -727,21 +710,15 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
 
   if ( settingsManager.party_cfg.Hooks.ChangePrivateChat )
   {
-    Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
-      return;
+    Bscript::String* ws = new Bscript::String( wtext );
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object(
-        chr->make_ref(), tochr->make_ref(), arr );
-    if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+        chr->make_ref(), tochr->make_ref(), ws );
+
+    if ( obj->isa( Bscript::BObjectImp::OTString ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
-      unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
-      if ( len > SPEECH_MAX_LEN )
-        len = SPEECH_MAX_LEN;
-      if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
-        return;
-      wtextlen = len + 1;
+      wtext = static_cast<Bscript::String*>( obj.impptr() )->value();
+      if ( wtext.lengthc() > SPEECH_MAX_LEN )
+        wtext = wtext.substr(0, SPEECH_MAX_LEN);
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {
@@ -749,13 +726,12 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
         return;
     }
   }
-  if ( ( wtextlen + settingsManager.party_cfg.General.PrivateMsgPrefixLen ) > SPEECH_MAX_LEN )
-    wtextlen = SPEECH_MAX_LEN - settingsManager.party_cfg.General.PrivateMsgPrefixLen;
-  if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen )
-    msg->Write( &settingsManager.party_cfg.General.PrivateMsgPrefix[0],
-                settingsManager.party_cfg.General.PrivateMsgPrefixLen, false );
 
-  msg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );
+  wtext = settingsManager.party_cfg.General.PrivateMsgPrefix + wtext;
+  if ( wtext.lengthc() > SPEECH_MAX_LEN )
+        wtext = wtext.substr(0, SPEECH_MAX_LEN);
+
+  msg->Write( wtext );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1129,9 +1105,6 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       // int wtextoffset = 0;
       int i;
 
-      u16 wtextbuf[SPEECH_MAX_LEN + 1];
-      size_t wtextbuflen;
-
       intextlen =
           ( cfBEu16( msg->msglen ) - 10 ) / sizeof( msg->partydata.partymembermsg.wtext[0] ) - 1;
 
@@ -1143,28 +1116,27 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       if ( intextlen > SPEECH_MAX_LEN )
         intextlen = SPEECH_MAX_LEN;
 
-      wtextbuflen = 0;
+      Clib::UnicodeString wtext;
+      wtext.reserveb(intextlen);
       for ( i = 0; i < intextlen; i++ )
       {
-        u16 wc = cfBEu16( themsg[i] );
+        char16_t wc = cfBEu16( themsg[i] );
         if ( wc == 0 )
           break;  // quit early on embedded nulls
         if ( wc == L'~' )
           continue;  // skip unprintable tildes.
-        wtextbuf[wtextbuflen++] = ctBEu16( wc );
+
+        wtext += wc;
       }
-      wtextbuf[wtextbuflen++] = (u16)0;
 
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        Bscript::String* wt = new Bscript::String( wtext );
+        settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
+                                                             member->make_ref(), wt );
       }
 
-      party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
+      party->send_member_msg_private( client->chr, member, wtext );
     }
     else
       send_sysmessage_cl( client, CLP_No_Party );  // You are not in a party.
@@ -1184,9 +1156,6 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     int i, starti;
     Mobile::Character* member = nullptr;
 
-    u16 wtextbuf[SPEECH_MAX_LEN + 1];
-    size_t wtextbuflen;
-
     intextlen = ( cfBEu16( msg->msglen ) - 6 ) / sizeof( msg->partydata.partymsg.wtext[0] ) - 1;
 
     //  intextlen does not include the null terminator.
@@ -1197,7 +1166,6 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     if ( intextlen > SPEECH_MAX_LEN )
       intextlen = SPEECH_MAX_LEN;
 
-    wtextbuflen = 0;
     starti = 0;
     if ( settingsManager.party_cfg.General.TreatNoAsPrivate )
     {
@@ -1219,6 +1187,8 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
       }
     }
 
+    Clib::UnicodeString wtext;
+    wtext.reserveb(intextlen);
     for ( i = starti; i < intextlen; i++ )
     {
       u16 wc = cfBEu16( themsg[i] );
@@ -1226,33 +1196,29 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
         break;  // quit early on embedded nulls
       if ( wc == L'~' )
         continue;  // skip unprintable tildes.
-      wtextbuf[wtextbuflen++] = ctBEu16( wc );
+
+      wtext += wc;
     }
-    wtextbuf[wtextbuflen++] = (u16)0;
 
     if ( starti == 2 )  // private chat
     {
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        Bscript::String* wt = new Bscript::String( wtext );
+        settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
+                                                             member->make_ref(), wt );
       }
-      party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
+      party->send_member_msg_private( client->chr, member, wtext );
     }
     else
     {
       if ( settingsManager.party_cfg.Hooks.OnPublicChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
+        Bscript::String* wt = new Bscript::String( wtext );
+       settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), wt );
       }
 
-      party->send_member_msg_public( client->chr, wtextbuf, wtextbuflen );
+      party->send_member_msg_public( client->chr, wtext );
     }
   }
   else

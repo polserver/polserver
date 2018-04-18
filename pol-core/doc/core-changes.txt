@@ -1,5 +1,5 @@
 ﻿-- POL100 --
-XX-XX-XXXX Bodom:
+04-18-2018 Bodom:
   Added:   Native unicode support
            All scripts, config files and strings must now be utf8.
            Savegame files are automatically converted.
@@ -17,6 +17,25 @@ XX-XX-XXXX Bodom:
   Changed: As a result, CAsc() and CAscZ() may now return values > 255
            while CChr() and CChrZ() now accept values > 255
   Changed: CAsc() now returns error on empty string
+  Removed: The old unicode "array of ints" syntax is now deprecated
+  Changed: BroadcastUC(), PrintTextAbovePrivateUC(), PrintTextAboveUC(),
+           RequestInputUC(), SendSysMessageUC(), SendCharProfile(),
+           PrintTextAboveCL(), PrintTextAbovePrivateCL(), SendSysMessageCL(),
+           SayUC(), SendPartyMsg(), SendPartyPrivateMsg()
+           now all accept standard Strings as parameters.
+           Hint: to pass old-style arrays you can still use CChrZ() on them.
+  Changed: npc.addBuff() now accepts a standard String
+  Changed: CharProfileScript and TextCommandScript now get a String as uctext
+           argument instead of array
+  Changed: SYSEVENT_SPEECH now carries a standard String as uc_text
+  Changed: OnPublicChat, OnPrivateChat,ChangePublicChat, ChangePrivateChat
+           party hook scripts now get a string instead of array and must return
+           a string instead of array
+  Changed: Client.clientinfo() struct now contains standard String instead of
+           char arrays for video_description and langcode
+  Changed: Packet.GetUnicodeString(), Packet.GetUnicodeStringFlipped(),
+           Packet.SetUnicodeString(), Packet.SetUnicodeStringFlipped()
+           now accept and return return a standard string instead of array
 04-02-2018 Bodom:
   Removed: polcore().compiledate and polcore().compiletime
   Added:   polcore().compiledatetime

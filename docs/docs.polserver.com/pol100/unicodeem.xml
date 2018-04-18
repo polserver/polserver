@@ -11,22 +11,17 @@
     <constant>const JOURNAL_UC_PRINT_NAME    := 0x00; // Implicit.  Print's the object's description / npc's name in the journal.</constant>
     <constant>const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</constant>
   </fileheader>
-  
+
   <function name="BroadcastUC"> 
     <prototype>BroadcastUC(uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR)</prototype>
-    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />
+    <parameter name="uc_text" value="String" />
     <parameter name="langcode" value="3-character 'Originating Language' string code  e.g. ENU, CHT, DEU, RUS, KOR, etc." />
     <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
     <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
     <explain>Broadcasts a unicode string to all players</explain>
-    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
-    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
-    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
-    <explain>The Array must be terminated with zero. (0x0000)</explain>
     <return>1 on success</return>
-    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Unicode String exceeds maximum length." (200 characters)</error>
     <error>"langcode must be a 3-character code."</error>
-    <error>"Invalid value in Unicode array."</error>
     <error>"A parameter was invalid"</error>
     <related>Array</related>
   </function>
@@ -34,24 +29,19 @@
   <function name="PrintTextAboveUC"> 
     <prototype>PrintTextAboveUC(above_object, uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR, journal_print := JOURNAL_UC_PRINT_NAME)</prototype>
     <parameter name="above_object" value="UObject reference" />
-    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />
+    <parameter name="uc_text" value="String" />
     <parameter name="langcode" value="3-character 'Originating Language' string code  e.g. ENU, CHT, DEU, RUS, KOR, etc." />
     <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
     <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
     <parameter name="journal_print" value="Integer (optional)" />
     <explain>Displays a unicode string above 'above_object'</explain>
-    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
-    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
-    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
-    <explain>The Array must be terminated with zero. (0x0000)</explain>
     <explain>Notes: journal_print flags:
 <code>
 const JOURNAL_UC_PRINT_NAME	:= 0x00; // Implicit.  Print's the object's description / npc's name in the journal.
 const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</code></explain>
     <return>1 on success, 0 on failure</return>
-    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Unicode String exceeds maximum length." (200 characters)</error>
     <error>"langcode must be a 3-character code."</error>
-    <error>"Invalid value in Unicode array."</error>
     <error>"A parameter was invalid"</error>
     <related>Array</related>
     <related>UObject</related>
@@ -60,25 +50,20 @@ const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.
   <function name="PrintTextAbovePrivateUC"> 
     <prototype>PrintTextAbovePrivateUC(above_object, uc_text, langcode, character, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR, journal_print := JOURNAL_UC_PRINT_NAME)</prototype>
     <parameter name="above_object" value="UObject reference" />
-    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />
+    <parameter name="uc_text" value="String" />
     <parameter name="langcode" value="3-character 'Originating Language' string code  e.g. ENU, CHT, DEU, RUS, KOR, etc." />
     <parameter name="character" value="Character reference to receive the text" />
     <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
     <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
     <parameter name="journal_print" value="Integer (optional)" />
     <explain>Displays a unicode string above 'above_object' only to 'character'</explain>
-    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
-    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
-    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
-    <explain>The Array must be terminated with zero. (0x0000)</explain>
     <explain>Notes: journal_print flags:
 <code>
 const JOURNAL_UC_PRINT_NAME	:= 0x00; // Implicit.  Print's the object's description / npc's name in the journal.
 const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</code></explain>
     <return>1 on success, 0 on failure</return>
-    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Unicode String exceeds maximum length." (200 characters)</error>
     <error>"langcode must be a 3-character code."</error>
-    <error>"Invalid value in Unicode array."</error>
     <error>"A parameter was invalid"</error>
     <related>Array</related>
     <related>UObject</related>
@@ -88,19 +73,14 @@ const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.
   <function name="SendSysMessageUC"> 
     <prototype>SendSysMessageUC(character, uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR)</prototype>
     <parameter name="character" value="Character reference to receive the text" />
-    <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />
+    <parameter name="uc_text" value="String" />
     <parameter name="langcode" value="3-character 'Originating Language' string code  e.g. ENU, CHT, DEU, RUS, KOR, etc." />
     <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
     <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
     <explain>Displays a unicode system message to 'character'</explain>
-    <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
-    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
-    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
-    <explain>The Array must be terminated with zero. (0x0000)</explain>
     <return>1 on success</return>
-    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Unicode String exceeds maximum length." (200 characters)</error>
     <error>"langcode must be a 3-character code."</error>
-    <error>"Invalid value in Unicode array."</error>
     <error>"A parameter was invalid"</error>
     <related>Array</related>
   </function>
@@ -109,19 +89,14 @@ const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.
     <prototype>RequestInputUC(character, item, uc_prompt, langcode)</prototype>
     <parameter name="character" value="Character reference to receive the text" />
     <parameter name="item" value="placeholder, pass any valid item" />
-    <parameter name="uc_prompt" value="Array of 2-byte integers, where each integer is a Unicode character. The question to which the player types the response." />
+    <parameter name="uc_prompt" value="String. The question to which the player types the response." />
     <parameter name="langcode" value="3-character 'Originating Language' string code  e.g. ENU, CHT, DEU, RUS, KOR, etc." />
     <explain>Displays a unicode system message prompt to 'character', the character can then enter unicode characters which will be returned to the script.</explain>
-    <explain>uc_prompt MUST be an array of integers representing unicode characters.</explain>
-    <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
-    <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>
-    <explain>The Array must be terminated with zero. (0x0000)</explain>
     <return>a struct with members "lang" (3-character string), and "uc_text" (a "unicode array" of 2-byte integers representing unicode characters in the specified language) on success.</return>
     <error>"No client attached"</error>
     <error>"Another script has an active prompt"</error>
-    <error>"Unicode array exceeds maximum size." (200 characters)</error>
+    <error>"Unicode String exceeds maximum length." (200 characters)</error>
     <error>"langcode must be a 3-character code."</error>
-    <error>"Invalid value in Unicode array."</error>
     <error>"Invalid control characters in text entry"</error>
     <error>"A parameter was invalid"</error>
     <related>Array</related>

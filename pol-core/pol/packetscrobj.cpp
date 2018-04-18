@@ -33,7 +33,6 @@
 #include "network/clienttransmit.h"
 #include "realms.h"
 #include "realms/realm.h"
-#include "unicode.h"
 #include "uoexhelp.h"
 #include "uworld.h"
 
@@ -262,9 +261,14 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
              buffer.size() ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
 
-      ObjArray* arr;
-      Core::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, true );
-      return arr;
+      String* ret = new String();
+      for ( int i = offset; i < offset + len * 2; i += 2 ) {
+        char16_t left = buffer[i];
+        char16_t right = buffer[i + 1];
+
+        (*ret) += ( left << 8 ) + right;
+      }
+      return ret;
     }
     break;
   }
@@ -282,9 +286,14 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
              buffer.size() ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
 
-      ObjArray* arr;
-      Core::convertUCtoArray( reinterpret_cast<u16*>( &buffer[offset] ), arr, len, false );
-      return arr;
+      String* ret = new String();
+      for ( int i = offset; i < offset + len * 2; i += 2 ) {
+        char16_t left = buffer[i];
+        char16_t right = buffer[i + 1];
+
+        (*ret) += ( right << 8 ) + left;
+      }
+      return ret;
     }
     break;
   }
@@ -454,24 +463,34 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 3 )
       return new BError( "SetUnicodeString requires 3 parameters." );
     unsigned short offset, nullterm;
-    ObjArray* unitext;
-    if ( ex.getParam( 0, offset ) && ex.getObjArrayParam( 1, unitext ) &&
+    const String* unitext;
+    if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, unitext ) &&
          ex.getParam( 2, nullterm ) )
     {
-      u16 textlen =
-          static_cast<u16>( unitext->ref_arr.size() );  // number of unicode chars, not bytes
+      size_t textlen = unitext->lengthc();  // number of unicode chars, not bytes
       u16 nulltermlen = nullterm ? 2 : 0;
-      if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
+      u16 totsize = static_cast<u16>(textlen * 2 + offset + nulltermlen);
+      if ( totsize > buffer.size() )
       {
-        if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
+        if ( !SetSize( totsize ) )
         {
           return new BError( "Offset value out of range on a fixed length packet" );
           ;
         }
       }
-      if ( !Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen,
-                                    true, nullterm ? true : false ) )
-        return new BError( "Invalid value in Unicode array." );
+
+      for ( const auto& chr : unitext->value() ) {
+        char16_t c16 = chr.asChar16(true);
+        char left = static_cast<char>( c16 >> 8 );
+        char right = static_cast<char>( c16 );
+
+        buffer[offset++] = left;
+        buffer[offset++] = right;
+      }
+      if ( nullterm ) {
+        buffer[offset++] = '\0';
+        buffer[offset++] = '\0';
+      }
 
       return new BLong( 1 );
     }
@@ -482,24 +501,35 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 3 )
       return new BError( "SetUnicodeStringFlipped requires 3 parameters." );
     unsigned short offset, nullterm;
-    ObjArray* unitext;
-    if ( ex.getParam( 0, offset ) && ex.getObjArrayParam( 1, unitext ) &&
+    const String* unitext;
+    if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, unitext ) &&
          ex.getParam( 2, nullterm ) )
     {
-      u16 textlen =
-          static_cast<u16>( unitext->ref_arr.size() );  // number of unicode chars, not bytes
+      size_t textlen = unitext->lengthc();  // number of unicode chars, not bytes
       u16 nulltermlen = nullterm ? 2 : 0;
-      if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
+      u16 totsize = static_cast<u16>(textlen * 2 + offset + nulltermlen);
+      if ( totsize > buffer.size() )
       {
-        if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
+        if ( !SetSize( totsize ) )
         {
           return new BError( "Offset value out of range on a fixed length packet" );
           ;
         }
       }
-      if ( !Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen,
-                                    false, nullterm ? true : false ) )
-        return new BError( "Invalid value in Unicode array." );
+
+      for ( const auto& chr : unitext->value() ) {
+        char16_t c16 = chr.asChar16(true);
+        char left = static_cast<char>( c16 >> 8 );
+        char right = static_cast<char>( c16 );
+
+        buffer[offset++] = right;
+        buffer[offset++] = left;
+      }
+      if ( nullterm ) {
+        buffer[offset++] = '\0';
+        buffer[offset++] = '\0';
+      }
+
       return new BLong( 1 );
     }
     break;

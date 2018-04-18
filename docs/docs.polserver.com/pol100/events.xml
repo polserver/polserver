@@ -18,7 +18,7 @@
   <member mname="source" value="Character Reference"/>
   <member mname="text" value="string normal text (junk if unicode)"/>
   <member mname="texttype" value="type of speech: &quot;yell&quot;, &quot;whisper&quot;, &quot;emote&quot;, or &quot;default&quot;"/>
-  <member mname="uc_text" value="(Unicode only) a &quot;Unicode array&quot; of 2-byte &quot;Big Endian&quot; integers corresponding to the unicode characters sent. will be an 'error' type if the Unicode input is &quot;bad&quot;.  will be uninitialized if no Unicode text is available (ie, when a non-Unicode client types the command)"/>
+  <member mname="uc_text" value="(Unicode only) a &quot;Unicode String&quot;. Will be uninitialized if no Unicode text is available (ie, when a non-Unicode client types the command)"/>
   <member mname="langcode" value="(Unicode only) string 3-character, uppercase language code, i.e. &quot;ENU&quot;, &quot;DEU&quot;, etc."/>
   <member mname="tokens" value="(Unicode only) if speech has (speech.mul) Tokens, gives array of spoken TokenIDs"/>
   <whensent>When a player speaks in range of an item listening point, or NPC that has enabled the event. Note Ghost speech is a seperate event.</whensent>

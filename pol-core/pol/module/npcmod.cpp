@@ -31,7 +31,6 @@
 #include "../objtype.h"
 #include "../pktdef.h"
 #include "../poltype.h"
-#include "../unicode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "osmod.h"
@@ -749,11 +748,11 @@ BObjectImp* NPCExecutorModule::SayUC()
   else if ( npc.hidden() )
     npc.unhide();
 
-  ObjArray* oText;
+  const String* oText;
   const String* lang;
   int doevent;
 
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
+  if ( getStringParam( 0, oText ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
   {
     Clib::UnicodeString texttype_str = exec.paramAsString( 1 );
     texttype_str.toLower();
@@ -762,23 +761,13 @@ BObjectImp* NPCExecutorModule::SayUC()
       return new BError( "texttype string param must be either 'default', 'whisper', or 'yell'" );
     }
 
-    size_t textlenucc = oText->ref_arr.size();
-    if ( textlenucc > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( oText->lengthc() > SPEECH_MAX_LEN )
+      return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
     if ( lang->lengthc() != 3 )
-      return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
-      return new BError( "Invalid value in Unicode array." );
+      return new BError( ParamErrors::LANGCODE_INVALID );
 
     Clib::UnicodeString languc = lang->value();
     languc.toUpper();
-    unsigned textlen = 0;
-
-    // textlen = wcslen((const wchar_t*)wtext) + 1;
-    while ( gwtext[textlen] != L'\0' )
-      ++textlen;
-    if ( textlen > SPEECH_MAX_LEN )
-      textlen = SPEECH_MAX_LEN;
 
     u8 texttype;
     if ( texttype_str == "whisper" )
@@ -797,7 +786,7 @@ BObjectImp* NPCExecutorModule::SayUC()
     talkmsg->WriteFlipped<u16>( npc.speech_font() );
     talkmsg->Write( languc.asAscii(true).c_str(), 4 );
     talkmsg->Write( npc.description().c_str(), 30 );
-    talkmsg->WriteFlipped( &gwtext[0], static_cast<u16>( textlen ) );
+    talkmsg->WriteFlipped( oText->value(), static_cast<u16>( oText->lengthc() ) );
     u16 len = talkmsg->offset;
     talkmsg->offset = 1;
     talkmsg->WriteFlipped<u16>( len );
@@ -818,19 +807,14 @@ BObjectImp* NPCExecutorModule::SayUC()
 
     if ( doevent >= 1 )
     {
-      char ntextbuf[SPEECH_MAX_LEN + 1];
-      int ntextbuflen = 0;
-      for ( unsigned i = 0; i < textlen; ++i )
-      {
-        ntextbuf[ntextbuflen++] = std::wcout.narrow( (wchar_t)gwtext[i], '?' );
-      }
-      ntextbuf[ntextbuflen++] = 0;
+      const std::string ansiText = oText->ansi();
+
       Core::WorldIterator<Core::NPCFilter>::InRange(
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.utf8().c_str(),
-                NULL );
+              othernpc->on_pc_spoke( &npc, ansiText.c_str(), texttype, oText->value(),
+                languc.utf8().c_str(), NULL );
           } );
     }
   }

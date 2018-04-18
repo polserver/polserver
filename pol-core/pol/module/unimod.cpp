@@ -3,6 +3,7 @@
  * @par History
  * - 2006/10/07 Shinigami: GCC 3.4.x fix - added "template<>" to TmplExecutorModule
  * - 2009/09/03 MuadDib:   Relocation of account related cpp/h
+ * - 2018/04/18 Bodom:     Implementing the new unicode-aware String
  */
 
 #include "unimod.h"
@@ -25,9 +26,9 @@
 #include "../pktboth.h"
 #include "../pktdef.h"
 #include "../ufunc.h"
-#include "../unicode.h"
 #include "../uoexec.h"
 #include "osmod.h"
+
 
 namespace Pol
 {
@@ -159,25 +160,26 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
 {
   using std::wcout;  // wcout rox :)
 
-  ObjArray* oText;
+  const String* oText;
   const String* lang;
   unsigned short font;
   unsigned short color;
   unsigned short requiredCmdLevel;
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 1, lang ) &&
+  if ( getStringParam( 0, oText ) && getStringParam( 1, lang ) &&
        getParam( 2, font ) &&             // todo: getFontParam
        getParam( 3, color ) &&            // todo: getColorParam
        getParam( 4, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
-    size_t textlen = oText->ref_arr.size();
+    size_t textlen = oText->lengthc();
     if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+      return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
     if ( lang->lengthc() != 3 )
-      return new BError( "langcode must be a 3-character code." );
+      return new BError( ParamErrors::LANGCODE_INVALID );
 
-    if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
-    Core::broadcast( gwtext, Clib::strupper( lang->ansi() ).c_str(), font, color,
+    UnicodeString langup = lang->value();
+    langup.toUpper();
+
+    Core::broadcast( oText->value(), langup.asAscii(true).c_str(), font, color,
                      requiredCmdLevel );
     return new BLong( 1 );
   }
@@ -190,24 +192,25 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
 BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
 {
   Core::UObject* obj;
-  ObjArray* oText;
+  const String* oText;
   const String* lang;
   unsigned short font;
   unsigned short color;
   int journal_print;
 
-  if ( getUObjectParam( 0, obj ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
+  if ( getUObjectParam( 0, obj ) && getStringParam( 1, oText ) && getStringParam( 2, lang ) &&
        getParam( 3, font ) && getParam( 4, color ) && getParam( 5, journal_print ) )
   {
-    size_t textlen = oText->ref_arr.size();
+    size_t textlen = oText->lengthc();
     if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+      return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
     if ( lang->lengthc() != 3 )
-      return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
+      return new BError( ParamErrors::LANGCODE_INVALID );
 
-    return new BLong( say_above( obj, gwtext, Clib::strupper( lang->ansi() ).c_str(), font, color,
+    UnicodeString langup = lang->value();
+    langup.toUpper();
+
+    return new BLong( say_above( obj, oText->value(), langup.asAscii(true).c_str(), font, color,
                                  journal_print ) );
   }
   else
@@ -220,24 +223,24 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
 {
   Mobile::Character* chr;
   Core::UObject* obj;
-  ObjArray* oText;
+  const String* oText;
   const String* lang;
   unsigned short font;
   unsigned short color;
 
-  if ( getUObjectParam( 0, obj ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
+  if ( getUObjectParam( 0, obj ) && getStringParam( 1, oText ) && getStringParam( 2, lang ) &&
        getCharacterParam( 3, chr ) && getParam( 4, font ) && getParam( 5, color ) )
   {
-    size_t textlen = oText->ref_arr.size();
+    size_t textlen = oText->lengthc();
     if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+      return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
     if ( lang->lengthc() != 3 )
-      return new BError( "langcode must be a 3-character code." );
-    // lang->toUpper(); // Language codes are in upper-case :)
-    if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
+      return new BError( ParamErrors::LANGCODE_INVALID );
 
-    return new BLong( private_say_above( chr, obj, gwtext, Clib::strupper( lang->ansi() ).c_str(),
+    UnicodeString langup = lang->value();
+    langup.toUpper();
+
+    return new BLong( private_say_above( chr, obj, oText->value(), langup.asAscii(true).c_str(),
                                          font, color ) );
   }
   else
@@ -250,9 +253,9 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 {
   Mobile::Character* chr;
   Items::Item* item;
-  ObjArray* oPrompt;
+  const String* oPrompt;
   const String* lang;
-  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getObjArrayParam( 2, oPrompt ) &&
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getStringParam( 2, oPrompt ) &&
        getStringParam( 3, lang ) )
   {
     if ( !chr->has_active_client() )
@@ -265,13 +268,14 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new BError( "Another script has an active prompt" );
     }
 
-    size_t textlen = oPrompt->ref_arr.size();
+    size_t textlen = oPrompt->lengthc();
     if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+      return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
     if ( lang->lengthc() != 3 )
-      return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oPrompt, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
+      return new BError( ParamErrors::LANGCODE_INVALID );
+
+    UnicodeString langup = lang->value();
+    langup.toUpper();
 
     if ( !uoexec.suspend() )
     {
@@ -281,7 +285,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new Bscript::BError( "Script can't be blocked" );
     }
 
-    Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->ansi() ).c_str() );
+    Core::send_sysmessage( chr->client, oPrompt->value(), langup.asAscii(true).c_str() );
 
     chr->client->gd->prompt_uniemod = this;
     prompt_chr = chr;
@@ -299,26 +303,26 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
 {
   Mobile::Character* chr;
-  ObjArray* oText;
+  const String* oText;
   const String* lang;
   unsigned short font;
   unsigned short color;
 
-  if ( getCharacterParam( 0, chr ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
+  if ( getCharacterParam( 0, chr ) && getStringParam( 1, oText ) && getStringParam( 2, lang ) &&
        getParam( 3, font ) && getParam( 4, color ) )
   {
     if ( chr->has_active_client() )
     {
-      size_t textlen = oText->ref_arr.size();
+      size_t textlen = oText->lengthc();
       if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
+        return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
       if ( lang->lengthc() != 3 )
-        return new BError( "langcode must be a 3-character code." );
-      // lang->toUpper(); // Language codes are in upper-case :)
-      if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-        return new BError( "Invalid value in Unicode array." );
+        return new BError( ParamErrors::LANGCODE_INVALID );
 
-      Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->ansi() ).c_str(), font,
+      UnicodeString langup = lang->value();
+      langup.toUpper();
+
+      Core::send_sysmessage( chr->client, oText->value(), langup.asAscii(true).c_str(), font,
                              color );
       return new BLong( 1 );
     }

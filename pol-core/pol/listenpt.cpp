@@ -47,8 +47,9 @@ const char* TextTypeToString( u8 texttype )
 
 void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int /*p_textlen*/,
                              u8 texttype,  // DAVE
-                             const u16* p_wtext /*=nullptr*/, const char* p_lang /*=nullptr*/,
-                             int p_wtextlen /*=0*/, Bscript::ObjArray* speechtokens /*=nullptr*/ )
+                             const Clib::UnicodeString* p_wtext /*=nullptr*/,
+                             const char* p_lang /*=nullptr*/,
+                             Bscript::ObjArray* speechtokens /*=nullptr*/ )
 {
   for ( ListenPoints::iterator itr = gamestate.listen_points.begin(),
                                end = gamestate.listen_points.end();
@@ -85,9 +86,9 @@ void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int
         if ( ( speaker->realm == toplevel->realm ) &&
              ( inrangex( speaker, toplevel->x, toplevel->y, lp->range ) ) )
         {
-          if ( p_wtext && p_lang && p_wtextlen > 0 )
+          if ( p_wtext && p_lang && p_wtext->lengthc() > 0 )
             lp->uoexec->os_module->signal_event( new Module::UnicodeSpeechEvent(
-                speaker, p_text, TextTypeToString( texttype ), p_wtext, p_lang, speechtokens ) );
+                speaker, p_text, TextTypeToString( texttype ), *p_wtext, p_lang, speechtokens ) );
           else
             lp->uoexec->os_module->signal_event(
                 new Module::SpeechEvent( speaker, p_text, TextTypeToString( texttype ) ) );

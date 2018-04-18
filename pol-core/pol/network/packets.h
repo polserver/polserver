@@ -289,6 +289,32 @@ public:
       offset += 2;
     }
   };
+  void Write( const Clib::UnicodeString& str, u16 len = std::numeric_limits<u16>::max(), bool nullterm = false )
+  {
+    for ( const auto& chr : str ) {
+      if ( len == 0 )
+        break;
+      Write<u16>( chr.asChar16(true) );
+      --len;
+    }
+    if ( nullterm ) {
+      passert_always_r( offset + 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
+      offset += 2;
+    }
+  };
+  void WriteFlipped( const Clib::UnicodeString& str, u16 len = std::numeric_limits<u16>::max(), bool nullterm = false )
+  {
+    for ( const auto& chr : str ) {
+      if ( len == 0 )
+        break;
+      WriteFlipped<u16>( chr.asChar16(true) );
+      --len;
+    }
+    if ( nullterm ) {
+      passert_always_r( offset + 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
+      offset += 2;
+    }
+  };
 };
 
 // "normal" pkt

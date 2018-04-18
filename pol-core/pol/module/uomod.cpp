@@ -152,7 +152,6 @@
 #include "../ufunc.h"
 #include "../uimport.h"
 #include "../umanip.h"
-#include "../unicode.h"
 #include "../uobject.h"
 #include "../uoexec.h"
 #include "../uopathnode.h"
@@ -5441,33 +5440,21 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
 {
   Character *chr, *of_who;
   const String* title;
-  ObjArray* uText;
-  ObjArray* eText;
+  const String* uText;
+  const String* eText;
 
   if ( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, of_who ) &&
-       getStringParam( 2, title ) && getObjArrayParam( 3, uText ) && getObjArrayParam( 4, eText ) )
+       getStringParam( 2, title ) && getStringParam( 3, uText ) && getStringParam( 4, eText ) )
   {
     if ( chr->logged_in() && of_who->logged_in() )
     {
-      // Get The Unicode message lengths and convert the arrays to UC
-      u16 uwtext[( SPEECH_MAX_LEN + 1 )];
-      u16 ewtext[( SPEECH_MAX_LEN + 1 )];
+      if ( uText->lengthc() > SPEECH_MAX_LEN )
+        return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
 
-      size_t ulen = uText->ref_arr.size();
-      if ( ulen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
+      if ( eText->lengthc() > SPEECH_MAX_LEN )
+        return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
 
-      if ( !Core::convertArrayToUC( uText, uwtext, ulen ) )
-        return new BError( "Invalid parameter type" );
-
-      size_t elen = eText->ref_arr.size();
-      if ( elen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-
-      if ( !Core::convertArrayToUC( eText, ewtext, elen ) )
-        return new BError( "Invalid parameter type" );
-
-      sendCharProfile( chr, of_who, title->ansi().c_str(), uwtext, ewtext );
+      sendCharProfile( chr, of_who, title->ansi().c_str(), uText->value(), eText->value() );
       return new BLong( 1 );
     }
     else

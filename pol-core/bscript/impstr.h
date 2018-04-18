@@ -52,9 +52,10 @@ public:
   inline explicit String( const UnicodeString& str ) : BObjectImp( OTString ), value_( str ) {};
   /** Creates an instance from a single char in a raw Unicode String */
   inline explicit String( const Utf8CharRef& chr) : BObjectImp( OTString ), value_( chr ) {};
-  /** Creates an instance from a part of a raw unicode string */
-  //inline explicit String( const UnicodeString& str, UnicodeString::size_type pos,
-  //  UnicodeString::size_type n ) : BObjectImp( OTString ), value_( str, pos, n ) {};
+  /** Constructs from a UO-UTF16 string */
+  inline explicit String( const std::u16string& str ) : BObjectImp( OTString ), value_( str ) {};
+  /** Constructs from a UTF32 string */
+  inline explicit String( const std::u32string& str ) : BObjectImp( OTString ), value_( str ) {};
   /** Creates an instance by concatenating two strings */
   inline explicit String( const String& left, const String& right )
     : BObjectImp( OTString ), value_( left.value_ + right.value_ ) {};

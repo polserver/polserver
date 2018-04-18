@@ -8,6 +8,7 @@
 #define PARTY_CFG_H
 
 #include "pktdef.h"
+#include "../clib/unicode.h"
 
 namespace Pol
 {
@@ -22,8 +23,7 @@ struct Party_Cfg
     unsigned short MaxPartyMembers;
     bool TreatNoAsPrivate;
     unsigned short DeclineTimeout;
-    u16 PrivateMsgPrefix[SPEECH_MAX_LEN + 1];
-    unsigned char PrivateMsgPrefixLen;
+    Clib::UnicodeString PrivateMsgPrefix;
     bool RemoveMemberOnLogoff;
     bool RejoinPartyOnLogon;
   } General;

@@ -55,6 +55,19 @@ class ModuleFunction;
 class String;
 class Token;
 
+/**
+ * Collection of possible errors given when processing parameters
+ *
+ * @todo MOve all messages here
+ * @author Bodom
+ */
+struct ParamErrors
+{
+  static constexpr auto UNICODE_STRING_TOO_LONG = "unicode String exceeds maximum length.";
+  static constexpr auto LANGCODE_INVALID = "langcode must be a 3-character code.";
+};
+
+
 #ifdef ESCRIPT_PROFILE
 #include <map>
 

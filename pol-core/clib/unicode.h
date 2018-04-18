@@ -400,6 +400,8 @@ public:
   };
 
   UnicodeString( const char32_t chr );
+  UnicodeString( const std::u16string& str );
+  UnicodeString( const std::u32string& str );
   UnicodeString( const StrEncoding enc, const char* str );
   UnicodeString( const StrEncoding enc, const char* str, size_t nbytes );
   UnicodeString( const StrEncoding enc, const std::string& str );
@@ -527,15 +529,23 @@ public:
     this->reserveb(s.size());
     return this->assign(enc, s.c_str());
   };
+  UnicodeString& assign( const std::u16string& str );
+  UnicodeString& assign( const std::u32string& str );
+
   UnicodeString& append( const StrEncoding enc, const char* s );
   inline UnicodeString& append( const StrEncoding enc, const std::string s ) {
     this->reserveb(value_.size() + s.size());
     return this->append(enc, s.c_str());
   };
+  UnicodeString& append( const std::u16string& str );
+  UnicodeString& append( const std::u32string& str );
+
   UnicodeString concat( const StrEncoding enc, const char* s ) const;
   inline UnicodeString concat( const StrEncoding enc, const std::string s ) const {
     return this->concat(enc, s.c_str());
   };
+  UnicodeString concat( const std::u16string& str ) const;
+  UnicodeString concat( const std::u32string& str ) const;
 
   //   ------------------------------- ITERATING ----------------------------------------------
 
