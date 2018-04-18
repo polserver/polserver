@@ -1272,7 +1272,7 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
             return -1;
           }
 
-          if( ord < 0 || ord > 0xffff )
+          if( ord > 0xffff )
           {
             // This should never happen, just being paranoid
             err = PERR_INVESCAPE;

@@ -212,8 +212,8 @@ private:
   /** The internal character reference */
   Utf8CharRef ref_;
 
-  inline void inc();
-  inline void dec();
+  void inc();
+  void dec();
 
 public:
   /**
@@ -252,13 +252,13 @@ public:
   inline UnicodeStringIterator operator+( size_t n ) const {
     // TODO: implement it in a better way? Is there any?
     UnicodeStringIterator other = UnicodeStringIterator(*this);
-    for ( n; n > 0; --n )
+    for ( ; n > 0; --n )
       ++other;
     return other;
   };
   inline UnicodeStringIterator& operator+=( size_t n ) {
     // TODO: implement it in a better way? Is there any?
-    for ( n; n > 0; --n )
+    for ( ; n > 0; --n )
       ++(*this);
     return *this;
   };
@@ -276,13 +276,13 @@ public:
   inline UnicodeStringIterator operator-( size_t n ) const {
     // TODO: implement it in a better way? Is there any?
     UnicodeStringIterator other = UnicodeStringIterator(*this);
-    for ( n; n > 0; --n )
+    for ( ; n > 0; --n )
       --other;
     return other;
   };
   inline UnicodeStringIterator& operator-=( size_t n ) {
     // TODO: implement it in a better way? Is there any?
-    for ( n; n > 0; --n )
+    for ( ; n > 0; --n )
       --(*this);
     return *this;
   };

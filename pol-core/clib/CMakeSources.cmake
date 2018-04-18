@@ -6,7 +6,7 @@ set (clib_sources
   Debugging/LogSink.cpp
   Debugging/LogSink.h
   Header_Windows.h
-  Header_Windows.h                                
+  Header_Windows.h
   Program/ProgramConfig.cpp
   Program/ProgramConfig.h
   Program/ProgramMain.cpp
@@ -81,6 +81,7 @@ set (clib_sources
   tracebuf.h
   unicode.cpp
   unicode.h
+  unicodedata.h
   unittest.h
   wallclock.cpp
   wallclock.h

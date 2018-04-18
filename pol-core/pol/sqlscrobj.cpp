@@ -92,7 +92,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     String& string = (String&)right;
     for ( unsigned int i = 0; i < num_fields; i++ )
     {
-      if ( !strncmp( _fields[i].name, string.value().c_str(), _fields[i].name_length ) )
+      if ( !strncmp( _fields[i].name, string.utf8().c_str(), _fields[i].name_length ) )
       {
         if ( _row[i] == 0 )
         {
@@ -183,7 +183,7 @@ bool BSQLResultSet::isTrue() const
 {
   return true;
 }
-std::string BSQLResultSet::getStringRep() const
+Clib::UnicodeString BSQLResultSet::getStringRep() const
 {
   return "SQLResultSet";
 }
@@ -236,7 +236,7 @@ BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn )
 }
 
 BSQLConnection::~BSQLConnection() {}
-std::string BSQLConnection::getStringRep() const
+Clib::UnicodeString BSQLConnection::getStringRep() const
 {
   return "SQLConnection";
 }

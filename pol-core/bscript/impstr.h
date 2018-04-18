@@ -74,7 +74,7 @@ public:
 // ---------------------- PACK/UNPACK STUFF -----------------------------
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
-  static BObjectImp* String::unpackWithLen( std::istream& is );
+  static BObjectImp* unpackWithLen( std::istream& is );
   virtual std::string pack() const POL_OVERRIDE;
   virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
   static void packonto( std::ostream& os, const UnicodeString& value );
