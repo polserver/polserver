@@ -110,7 +110,7 @@ void load_party_cfg_general( Clib::ConfigElem& elem )
      elem.remove_string( "PrivateMsgPrefix", "" );
 
   if ( settingsManager.party_cfg.General.PrivateMsgPrefix.lengthc() > SPEECH_MAX_LEN ) {
-    settingsManager.party_cfg.General.PrivateMsgPrefix = 
+    settingsManager.party_cfg.General.PrivateMsgPrefix =
         settingsManager.party_cfg.General.PrivateMsgPrefix.substr(0, SPEECH_MAX_LEN);
   }
 }

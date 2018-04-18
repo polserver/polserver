@@ -485,7 +485,8 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
 
       if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )
         Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call( chr->make_ref(),
-                                                                   tochr->make_ref(), oText->copy() );
+                                                                   tochr->make_ref(),
+                                                                   oText->copy() );
 
       party->send_member_msg_private( chr, tochr, oText->value() );
       return new BLong( 1 );

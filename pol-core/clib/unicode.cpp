@@ -240,7 +240,7 @@ inline char Utf8CharRef::getByteAt(u8 idx) const {
  *
  * @return The u32 value
  */
-inline char32_t Utf8CharRef::asChar32() const
+char32_t Utf8CharRef::asChar32() const
 {
   if( len_ == 1 )
     return getByteAt(0);

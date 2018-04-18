@@ -255,7 +255,7 @@ Bscript::BStruct* Client::getclientinfo() const
   String* video_description = new String();
   size_t maxlen_vd =
     sizeof( clientinfo_.video_description ) / sizeof( clientinfo_.video_description[0] );
-  for ( int i = 0; i < maxlen_vd; ++i ) {
+  for ( unsigned i = 0; i < maxlen_vd; ++i ) {
     if ( clientinfo_.video_description[i] == L'\0' )
       break;
     (*video_description) += clientinfo_.video_description[i];
@@ -277,12 +277,12 @@ Bscript::BStruct* Client::getclientinfo() const
   String* langcode = new String();
   size_t maxlen_lc =
     sizeof( clientinfo_.langcode ) / sizeof( clientinfo_.langcode[0] );
-  for ( int i = 0; i < maxlen_lc; ++i ) {
+  for ( unsigned i = 0; i < maxlen_lc; ++i ) {
     if ( clientinfo_.langcode[i] == L'\0' )
       break;
     (*langcode) += clientinfo_.langcode[i];
   }
-  ret->addMember( "langcode", langcode );  
+  ret->addMember( "langcode", langcode );
 
   std::unique_ptr<ObjArray> arr_u2( new ObjArray );
   for ( unsigned i = 0; i < sizeof( clientinfo_.unknown2 ); ++i )

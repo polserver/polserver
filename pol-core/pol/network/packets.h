@@ -289,7 +289,8 @@ public:
       offset += 2;
     }
   };
-  void Write( const Clib::UnicodeString& str, u16 len = std::numeric_limits<u16>::max(), bool nullterm = false )
+  void Write( const Clib::UnicodeString& str, u16 len = std::numeric_limits<u16>::max(),
+              bool nullterm = false )
   {
     for ( const auto& chr : str ) {
       if ( len == 0 )
@@ -302,7 +303,8 @@ public:
       offset += 2;
     }
   };
-  void WriteFlipped( const Clib::UnicodeString& str, u16 len = std::numeric_limits<u16>::max(), bool nullterm = false )
+  void WriteFlipped( const Clib::UnicodeString& str, u16 len = std::numeric_limits<u16>::max(),
+                     bool nullterm = false )
   {
     for ( const auto& chr : str ) {
       if ( len == 0 )

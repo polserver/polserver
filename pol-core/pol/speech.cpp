@@ -512,8 +512,8 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
   }
 
   Clib::UnicodeString wtext;
-  for ( i = 0; i < wtextbuflen; ++i )
-    wtext += wtextbuf[i];
+  for ( unsigned k = 0; k < wtextbuflen; ++k )
+    wtext += wtextbuf[k];
 
   SendUnicodeSpeech( client, msgin, wtext, ntextbuf, ntextbuflen, speechtokens.release() );
 }
