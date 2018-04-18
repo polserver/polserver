@@ -1,0 +1,3 @@
+
+// This file contains invalid UTF8 characters and should fail to compile
+// אעשח

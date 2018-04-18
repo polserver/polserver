@@ -19,6 +19,7 @@
 #include <vector>
 #include "rawtypes.h"
 #include "passert.h"
+#include "unicodedata.h"
 
 //TODO: Implement it
 /// If defined, will enable optimizations while handling ASCII-compatible strings
@@ -129,13 +130,16 @@ class Utf8CharRef
 
 private:
   /** This constructor is private because it is unsafe */
-  Utf8CharRef( const UnicodeString& str, size_t pos );
+  Utf8CharRef( const UnicodeString& str, size_t posb, size_t posc );
 
   const char* fc() const;
   void updateLen();
   char getByteAt(u8 idx) const;
 
 public:
+  /** Copy constructor */
+  inline Utf8CharRef( const Utf8CharRef& ref )
+    : str_(ref.str_), posb_(ref.posb_), posc_(ref.posc_), len_(ref.len_) {};
 
   /* Returns number of bytes forming by this utf8 char (1 to 4) */
   inline u8 getByteLen() const { return len_; };
@@ -153,8 +157,10 @@ public:
   /** Tells whether this is an alphanumeric cracater */
   inline bool isAlNum() const { return isalnum(asChar32()) != 0; };
 
-  /** Returns current position, inside the string, chars */
-  inline size_t pos() const { return pos_; };
+  /** Returns current position inside the string in bytes */
+  inline size_t posb() const { return posb_; };
+  /** Returns current position inside the string in chars */
+  inline size_t posc() const { return posc_; };
   /** Returns a reference to the whole string */
   inline const UnicodeString& str() const { return *str_; };
 
@@ -167,7 +173,8 @@ public:
 
   inline void operator=( const Utf8CharRef& other ) {
     str_ = other.str_;
-    pos_ = other.pos_;
+    posb_ = other.posb_;
+    posc_ = other.posc_;
     len_ = other.len_;
   };
 
@@ -177,12 +184,16 @@ public:
 private:
   /**
    * Using a pointer to allow the operator= to be fully implemented,
-   * since it is hevaily used by the parser.
+   * since it is heavily used by the parser.
    * Anyway, this must never be a null pointer and the interface to the outside world
    * should always use references.
    */
   const UnicodeString* str_;
-  size_t pos_;
+  /** The position inside the string, in bytes */
+  size_t posb_;
+  /** The position inside the string, in chars */
+  size_t posc_;
+  /** The character length, in bytes */
   u8 len_;
 };
 
@@ -198,8 +209,6 @@ class UnicodeStringIterator
   friend class Utf8CharRef;
 
 private:
-  /** The string position in characters */
-  size_t posc_;
   /** The internal character reference */
   Utf8CharRef ref_;
 
@@ -215,10 +224,10 @@ public:
    * @param bpos Current string position in bytes
    */
   inline UnicodeStringIterator( const UnicodeString& str, size_t cpos, size_t bpos )
-    : posc_(cpos), ref_(str, bpos) {};
+    : ref_(str, bpos, cpos) {};
   /** Copy constructor */
   inline UnicodeStringIterator( const UnicodeStringIterator& it )
-    : posc_(it.posc_), ref_(it.ref_) {};
+    : ref_(it.ref_) {};
 
   inline bool operator==( const UnicodeStringIterator& it ) const {
     return ref_.fc() == it.ref_.fc();
@@ -227,7 +236,6 @@ public:
     return ref_.fc() != it.ref_.fc();
   };
   inline void operator=( const UnicodeStringIterator& it ) {
-    posc_ = it.posc_;
     ref_ = it.ref_;
   };
   /** ++this */
@@ -316,7 +324,10 @@ public:
   }
 
   /** Returns current position, in chars */
-  inline size_t posc() const { return posc_; };
+  inline size_t posc() const { return ref_.posc(); };
+
+  /** Returns current position, in bytes */
+  inline size_t posb() const { return ref_.posb(); };
 
   /** Returns a copy of this iterator */
   inline UnicodeStringIterator copy() const { return UnicodeStringIterator(*this); };
@@ -485,13 +496,6 @@ public:
     return it.get();
   }
 
-  /**
-   * Converts to an ANSI string, same as calling Unicode.asAnsi(true)
-   *
-   * @warning converison may lead to loss of precision
-   */
-  //explicit operator std::string() const { return asAnsi(true); };
-
   //   ------------------------------- PSEUDO-OPERATORS ---------------------------------------
 
   UnicodeString& assign( const StrEncoding enc, const char* s );
@@ -569,6 +573,7 @@ public:
   bool asAnsi( std::string* outStr ) const;
   std::string asAnsi( const bool failsafe = true ) const;
   std::string asAscii( const bool failsafe = true ) const;
+  std::u32string asChar32String() const;
   /** Returns true when this string is ascii-compatible */
   inline bool isAscii() const { return ascii_; };
   /**

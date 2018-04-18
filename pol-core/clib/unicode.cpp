@@ -199,17 +199,18 @@ u8 Utf8Util::appendToStringAsUtf8( std::string& str, const char16_t c )
 /** Constructs the char from given string
   *
   * @param str The referenced string as bytes
-  * @param pos The referenced 0-based starting position inside the string
+  * @param posb The referenced 0-based starting position inside the string, in bytes
+  * @param posc The referenced 0-based starting position inside the string, in chars
   */
-Utf8CharRef::Utf8CharRef( const UnicodeString& str, size_t pos )
-  : str_(&str), pos_(pos)
+Utf8CharRef::Utf8CharRef( const UnicodeString& str, size_t posb, size_t posc )
+  : str_(&str), posb_(posb), posc_(posc)
 {
   updateLen();
 }
 
 /** Returns currently pointed first char */
 inline const char* Utf8CharRef::fc() const {
-  return str_->value_.c_str() + pos_;
+  return str_->value_.c_str() + posb_;
 }
 
 /** Updates the len_ based on current pos */
@@ -223,7 +224,7 @@ inline void Utf8CharRef::updateLen() {
 char Utf8CharRef::getByteAt(u8 idx) const {
   passert_always_r( idx < len_,
     "Bug in Utf8CharRef::getByteAt(), please report this bug on the forums." );
-  return str_->value_[pos_ + idx];
+  return str_->value_[posb_ + idx];
 }
 
  /**
@@ -318,11 +319,11 @@ void UnicodeStringIterator::inc() {
   if ( ref_.len_ == 0 )
     throw std::runtime_error("Incrementing invalid len UnicodeStringIterator");
 
-  if ( posc_ == ref_.str_->lengthc() )
+  if ( ref_.posc_ == ref_.str_->lengthc() )
     throw std::runtime_error("Incrementing UnicodeStringIterator over null terminator");
 
-  posc_++;
-  ref_.pos_ += ref_.len_;
+  ++ref_.posc_;
+  ref_.posb_ += ref_.len_;
   ref_.updateLen();
 };
 
@@ -333,15 +334,15 @@ void UnicodeStringIterator::dec() {
   if ( ref_.len_ == 0 )
     throw std::runtime_error("Decrementing invalid len UnicodeStringIterator");
 
-  if ( posc_ == 0 )
+  if ( ref_.posc_ == 0 )
     throw std::runtime_error("Decrementing UnicodeStringIterator before string start");
 
   do
   {
-    ref_.pos_--;
+    --ref_.posb_;
   } while ( ! Utf8Util::isFirstByte(*ptr()) );
 
-  posc_--;
+  --ref_.posc_;
   ref_.updateLen();
 };
 
@@ -511,23 +512,43 @@ std::string UnicodeString::asAscii( const bool failsafe ) const
 }
 
 /**
+ * Returns a copy of this object encoded as a string of char32
+ */
+std::u32string UnicodeString::asChar32String() const
+{
+  std::u32string ret;
+  ret.reserve(length_);
+
+  for ( auto chr: *this )
+    ret += chr.asChar32();
+
+  return ret;
+}
+
+/**
  * In-place convert this string to lowercase
- *
- * @todo locale support. Actually only nasic chars are converted
  */
 void UnicodeString::toLower()
 {
-  boost::to_lower(value_);
+  UnicodeString res;
+
+  for ( auto chr : *this )
+    res += UnicodeData::toLower( chr.asChar32() );
+
+  *this = res;
 }
 
 /**
  * In-place convert this string to uppercase
- *
- * @todo locale support. Actually only nasic chars are converted
  */
 void UnicodeString::toUpper()
 {
-  boost::to_upper(value_);
+  UnicodeString res;
+
+  for ( auto chr : *this )
+    res += UnicodeData::toUpper( chr.asChar32() );
+
+  *this = res;
 }
 
 /**
@@ -648,15 +669,33 @@ void UnicodeString::trim( const UnicodeString& crSet, TrimTypes type )
 }
 
 /**
+ * Like string::find but position is in characters
+ *
  * @see string::find
  */
 size_t UnicodeString::find( const UnicodeString& str, size_t pos ) const
 {
-  return value_.find(str.value_, pos);
+  if ( pos >= length_ )
+    return npos;
+
+  auto it = this->begin() + pos;
+  size_t fposb = value_.find(str.value_, it.posb());
+
+  if ( fposb == npos )
+    return npos;
+
+  // Convert byte-based position to char-based position
+  for ( ; it != this->end(); ++it )
+    if ( it.posb() == fposb )
+      return it.posc();
+
+  passert_always_r(false, "BUG in UnicodeString::find(): Couldn't convert posb to posc");
 }
 
 /**
- * Like string::find, but needs to know encoding
+ * Like string::find but position is in characters
+ *
+ * @see string::find
  */
 size_t UnicodeString::find( const char32_t chr, size_t pos ) const
 {
@@ -707,7 +746,7 @@ UnicodeString UnicodeString::substr( size_t pos, size_t len ) const
   ret.value_.reserve( std::min(len, value_.size()) );
 
   for ( auto it : *this ) {
-    if ( it.pos() < pos )
+    if ( it.posc() < pos )
       continue;
 
     ret += it;
@@ -730,17 +769,17 @@ UnicodeString& UnicodeString::replace( size_t pos, size_t len, const UnicodeStri
 
   UnicodeString res = UnicodeString();
   for ( auto it : *this ) {
-    if ( it.pos() < pos ) {
+    if ( it.posc() < pos ) {
       // Replacement not started yet
       res += it;
       continue;
     }
-    if ( it.pos() == pos ) {
+    if ( it.posc() == pos ) {
       // Replacement point reached, paste the whole replacement here
       res += str;
       continue;
     }
-    if ( it.pos() - pos < len ) {
+    if ( it.posc() - pos < len ) {
       // Ignoring characters being replaced
       continue;
     }
@@ -760,12 +799,12 @@ int UnicodeString::compare( const UnicodeString& str ) const
 /** @see std::string::compare */
 int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str ) const
 {
-  return this->value_.compare(pos, len, str.value_);
+  return this->substr(pos, len).compare( str );
 }
 /** @see std::string::compare */
 int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str, size_t subpos, size_t sublen ) const
 {
-  return this->value_.compare(pos, len, str.value_, subpos, sublen);
+  return this->substr(pos, len).compare( str.substr(subpos, sublen) );
 }
 
 

@@ -258,13 +258,13 @@ UnicodeString::size_type String::SafeCharAmt() const
     if ( iswpunct( tmp ) )  // !"#$%&'()*+,-./:;<=>?@{|}~
     {
       if ( tmp == '{' || tmp == '}' )
-        return it.pos();
+        return it.posc();
       else
         continue;
     }
     else
     {
-      return it.pos();
+      return it.posc();
     }
   }
   return value_.lengthc();

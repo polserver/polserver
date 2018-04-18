@@ -2,7 +2,7 @@
 XX-XX-XXXX Bodom:
   Added:   Native unicode support
            All scripts, config files and strings must now be utf8.
-		   Savegame files are automatically converted.
+           Savegame files are automatically converted.
            Valid chars are 0x0000-0xFFFF: chars above 0xFFFF are not
            supported in UO. When an unicode contains invalid chars, the compiler
            will issue an error.
