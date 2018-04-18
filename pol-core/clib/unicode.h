@@ -145,6 +145,8 @@ public:
   inline u8 getByteLen() const { return len_; };
   char32_t asChar32() const;
   char16_t asChar16( const bool failsafe = true ) const;
+  /** Tells if this char is ascii-compatible */
+  inline bool isAscii() const { return len_ == 1; }
   char asAnsi( const bool failsafe = true ) const;
   char asAscii( const bool failsafe = true ) const;
 
@@ -165,7 +167,13 @@ public:
   inline const UnicodeString& str() const { return *str_; };
 
   inline bool operator==( const char32_t c ) const { return asChar32() == c; };
+  inline bool operator==( const Utf8CharRef& cr ) const {
+    return len_ == cr.len_ && strncmp( fc(), cr.fc(), len_ ) == 0;
+  };
   inline bool operator!=( const char32_t c ) const { return asChar32() != c; };
+  inline bool operator!=( const Utf8CharRef& cr ) const {
+    return len_ != cr.len_ || strncmp( fc(), cr.fc(), len_ ) != 0;
+  };
   inline bool operator>( const char32_t c ) const { return asChar32() > c; };
   inline bool operator<( const char32_t c ) const { return asChar32() < c; };
   inline bool operator>=( const char32_t c ) const { return asChar32() >= c; };
@@ -388,8 +396,7 @@ public:
   inline UnicodeString( const Utf8CharRef& chr )
     : value_(""), length_(1), ascii_(chr.getByteLen() == 1)
   {
-    for ( u8 i = 0; i < chr.getByteLen(); ++i )
-      value_ += chr.getByteAt(i);
+    *this += chr;
   };
 
   UnicodeString( const char32_t chr );
@@ -405,7 +412,24 @@ public:
   inline UnicodeString( const char* str, size_t nbytes )
     : UnicodeString( StrEncoding::UTF8, str, nbytes ) {};
 
+  //   ------------------------------ UNCHECKED CONSTRUCTORS ----------------------------------
+protected:
+
+  /**
+   * Construct the string from verified ASCII data
+   *
+   * @warning Be sure of what you're doing when using it!
+   */
+  inline static UnicodeString UnsafeConstructFromAscii( const std::string& ascii ) {
+    UnicodeString ret;
+    ret.value_ = ascii;
+    ret.length_ = ascii.size();
+    ret.ascii_ = true;
+    return ret;
+  }
+
   //   ------------------------------- OPERATORS ----------------------------------------------
+public:
 
   inline UnicodeString& operator=( const UnicodeString& s ) {
     this->value_ = s.value_;
@@ -517,9 +541,6 @@ public:
 
   inline const_iterator begin() const { return const_iterator(*this, 0, 0); };
   inline const_iterator end() const { return const_iterator(*this, length_, value_.size()); };
-
-  //   ------------------------------- REDEFINED BASE CLASS FUNCTIONS -------------------------
-  //inline UnicodeString substr( size_t pos = 0, size_t len = npos ) { return substr(pos, len); };
 
   //   ------------------------------- CAPACITY -----------------------------------------------
 

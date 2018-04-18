@@ -209,19 +209,27 @@ Utf8CharRef::Utf8CharRef( const UnicodeString& str, size_t posb, size_t posc )
 }
 
 /** Returns currently pointed first char */
-inline const char* Utf8CharRef::fc() const {
+const char* Utf8CharRef::fc() const {
   return str_->value_.c_str() + posb_;
 }
 
 /** Updates the len_ based on current pos */
 inline void Utf8CharRef::updateLen() {
+
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if( str_->ascii_ ) {
+    len_ = 1;
+    return;
+  }
+#endif
+
   len_ = Utf8Util::getByteCountFromFirstByte( *fc() );
   passert_always_r( len_ > 0 && len_ < 5,
     "Bug in Utf8CharRef::updateLen(), please report this bug on the forums." );
 }
 
 /** Returns 0-pos based byte insde this character */
-char Utf8CharRef::getByteAt(u8 idx) const {
+inline char Utf8CharRef::getByteAt(u8 idx) const {
   passert_always_r( idx < len_,
     "Bug in Utf8CharRef::getByteAt(), please report this bug on the forums." );
   return str_->value_[posb_ + idx];
@@ -232,7 +240,7 @@ char Utf8CharRef::getByteAt(u8 idx) const {
  *
  * @return The u32 value
  */
-char32_t Utf8CharRef::asChar32() const
+inline char32_t Utf8CharRef::asChar32() const
 {
   if( len_ == 1 )
     return getByteAt(0);
@@ -322,6 +330,14 @@ void UnicodeStringIterator::inc() {
   if ( ref_.posc_ == ref_.str_->lengthc() )
     throw std::runtime_error("Incrementing UnicodeStringIterator over null terminator");
 
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ref_.str_->isAscii() ) {
+    ++ref_.posc_;
+    ++ref_.posb_;
+    return;
+  }
+#endif
+
   ++ref_.posc_;
   ref_.posb_ += ref_.len_;
   ref_.updateLen();
@@ -336,6 +352,14 @@ void UnicodeStringIterator::dec() {
 
   if ( ref_.posc_ == 0 )
     throw std::runtime_error("Decrementing UnicodeStringIterator before string start");
+
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ref_.str_->isAscii() ) {
+    --ref_.posc_;
+    --ref_.posb_;
+    return;
+  }
+#endif
 
   do
   {
@@ -457,6 +481,13 @@ UnicodeString UnicodeString::concat( const StrEncoding enc, const char* s ) cons
  */
 bool UnicodeString::asAnsi( std::string* outStr ) const
 {
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ ) {
+    *outStr += value_;
+    return true;
+  }
+#endif
+
   for( auto it : *this ) {
     char c = it.asAnsi();
     if( c )
@@ -476,6 +507,11 @@ bool UnicodeString::asAnsi( std::string* outStr ) const
  */
 std::string UnicodeString::asAnsi( const bool failsafe ) const
 {
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ )
+    return value_;
+#endif
+
   std::string ret;
 
   for( auto it : *this ) {
@@ -498,6 +534,11 @@ std::string UnicodeString::asAnsi( const bool failsafe ) const
  */
 std::string UnicodeString::asAscii( const bool failsafe ) const
 {
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ )
+    return value_;
+#endif
+
   std::string ret;
 
   for( auto it : *this ) {
@@ -519,7 +560,7 @@ std::u32string UnicodeString::asChar32String() const
   std::u32string ret;
   ret.reserve(length_);
 
-  for ( auto chr: *this )
+  for ( const auto& chr: *this )
     ret += chr.asChar32();
 
   return ret;
@@ -532,7 +573,7 @@ void UnicodeString::toLower()
 {
   UnicodeString res;
 
-  for ( auto chr : *this )
+  for ( const auto& chr : *this )
     res += UnicodeData::toLower( chr.asChar32() );
 
   *this = res;
@@ -545,7 +586,7 @@ void UnicodeString::toUpper()
 {
   UnicodeString res;
 
-  for ( auto chr : *this )
+  for ( const auto& chr : *this )
     res += UnicodeData::toUpper( chr.asChar32() );
 
   *this = res;
@@ -559,9 +600,14 @@ size_t UnicodeString::find_first_of( const UnicodeString& list, size_t pos) cons
   if ( pos >= length_ )
     return npos;
 
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && list.ascii_ )
+    return value_.find_first_of( list.value_, pos );
+#endif
+
   for ( auto mine = this->begin() + pos; mine != this->end(); ++mine ) {
-    for ( auto comp = list.begin(); comp != list.end(); ++comp )
-      if ( mine == comp )
+    for ( const auto& comp : list )
+      if ( *mine == comp )
         return pos;
 
     pos++;
@@ -577,11 +623,16 @@ size_t UnicodeString::find_first_not_of( const UnicodeString& list, size_t pos) 
   if ( pos >= length_ )
     return npos;
 
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && list.ascii_ )
+    return value_.find_first_not_of( list.value_, pos );
+#endif
+
   for ( auto mine = this->begin() + pos; mine != this->end(); ++mine ) {
     bool found = false;
 
-    for ( auto comp = list.begin(); comp != list.end(); ++comp )
-      if ( mine == comp ) {
+    for ( const auto& comp : list )
+      if ( *mine == comp ) {
         found = true;
         break;
       }
@@ -604,12 +655,19 @@ size_t UnicodeString::find_last_of( const UnicodeString& list, size_t pos) const
   if ( pos == npos || pos > length_ )
     pos = length_ -1 ;
 
-  for ( auto mine = this->end() - 1; mine != this->begin(); --mine ) {
-    for ( auto comp = list.begin(); comp != list.end(); ++comp )
-      if ( mine == comp )
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && list.ascii_ )
+    return value_.find_last_of( list.value_, pos );
+#endif
+
+  for ( auto mine = this->begin() + pos; ; --mine ) {
+    for ( const auto& comp : list )
+      if ( *mine == comp )
         return pos;
 
     pos--;
+    if ( mine.posc() == 0 )
+      break;
   }
   return npos;
 }
@@ -624,11 +682,16 @@ size_t UnicodeString::find_last_not_of( const UnicodeString& list, size_t pos) c
   if ( pos == npos || pos > length_ )
     pos = length_ - 1 ;
 
-  for ( auto mine = this->end() - 1; mine != this->begin(); --mine ) {
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && list.ascii_ )
+    return value_.find_last_not_of( list.value_, pos );
+#endif
+
+  for ( auto mine = this->begin() + pos; ; --mine ) {
     bool found = false;
 
-    for ( auto comp = list.begin(); comp != list.end(); ++comp )
-      if ( mine == comp ) {
+    for ( const auto& comp : list )
+      if ( *mine == comp ) {
         found = true;
         break;
       }
@@ -637,6 +700,8 @@ size_t UnicodeString::find_last_not_of( const UnicodeString& list, size_t pos) c
       return pos;
 
     pos--;
+    if ( mine.posc() == 0 )
+      break;
   }
   return npos;
 }
@@ -662,7 +727,7 @@ void UnicodeString::trim( const UnicodeString& crSet, TrimTypes type )
     // Find the first character position from reverse
     size_t endpos = this->find_last_not_of( crSet, npos );
     if ( npos != endpos )
-      *this = this->substr( 0, endpos );
+      *this = this->substr( 0, endpos + 1 );
     else
       value_.clear();
   }
@@ -677,6 +742,11 @@ size_t UnicodeString::find( const UnicodeString& str, size_t pos ) const
 {
   if ( pos >= length_ )
     return npos;
+
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && str.ascii_ )
+    return value_.find(str.value_, pos);
+#endif
 
   auto it = this->begin() + pos;
   size_t fposb = value_.find(str.value_, it.posb());
@@ -738,14 +808,19 @@ UnicodeString UnicodeString::substr( size_t pos, size_t len ) const
   if ( pos >= length_ )
     throw std::out_of_range("Substr out of range");
 
-  UnicodeString ret = UnicodeString();
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ )
+    return UnsafeConstructFromAscii( value_.substr( pos, len ) );
+#endif
+
+  UnicodeString ret;
   if ( pos == length_ || len == 0)
     return ret;
 
   // When len is too big, do not reserve too much
   ret.value_.reserve( std::min(len, value_.size()) );
 
-  for ( auto it : *this ) {
+  for ( const auto& it : *this ) {
     if ( it.posc() < pos )
       continue;
 
@@ -767,8 +842,15 @@ UnicodeString& UnicodeString::replace( size_t pos, size_t len, const UnicodeStri
   if ( pos > length_ )
     throw std::out_of_range("Replace pos out of range");
 
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && str.ascii_ ) {
+    value_.replace( pos, len, str.value_ );
+    return *this;
+  }
+#endif
+
   UnicodeString res = UnicodeString();
-  for ( auto it : *this ) {
+  for ( const auto& it : *this ) {
     if ( it.posc() < pos ) {
       // Replacement not started yet
       res += it;
@@ -799,15 +881,24 @@ int UnicodeString::compare( const UnicodeString& str ) const
 /** @see std::string::compare */
 int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str ) const
 {
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && str.ascii_ )
+    return value_.compare( pos, len, str.value_ );
+#endif
+
   return this->substr(pos, len).compare( str );
 }
 /** @see std::string::compare */
 int UnicodeString::compare( size_t pos, size_t len, const UnicodeString& str, size_t subpos,
   size_t sublen ) const
 {
+#if UNICODE_ENABLE_ASCII_OPTIMIZATIONS
+  if ( ascii_ && str.ascii_ )
+    return value_.compare( pos, len, str.value_, subpos, sublen );
+#endif
+
   return this->substr(pos, len).compare( str.substr(subpos, sublen) );
 }
-
 
 /**
  * Returns an esteem of the amount of memory currently allocated by this object
