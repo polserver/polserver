@@ -228,7 +228,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
           "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
           Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
     }
-    token.lval = *(int*)( symbols.array() + st.offset );
+    std::memcpy( &token.lval, symbols.array() + st.offset, sizeof( int ) );
     return 0;
   case TOK_DOUBLE:
     if ( st.offset >= symbols.length() )
@@ -237,7 +237,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
           "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
           Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
     }
-    token.dval = *(double*)( symbols.array() + st.offset );
+    std::memcpy( &token.dval, symbols.array() + st.offset, sizeof( double ) );
     return 0;
 
   case CTRL_STATEMENTBEGIN:

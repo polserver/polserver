@@ -559,6 +559,9 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
   {
     BLong& lng = (BLong&)right;
 
+    if ( lng.value() < 0 )
+      return BObjectRef( new BError( "Subscript out of range" ) );
+
     unsigned index = (unsigned)lng.value();
 
     if ( index == 0 || index > value_.size() )
@@ -570,6 +573,8 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
   {
     Double& dbl = (Double&)right;
 
+    if ( dbl.value() < 0 )
+      return BObjectRef( new BError( "Subscript out of range" ) );
     unsigned index = (unsigned)dbl.value();
 
     if ( index == 0 || index > value_.size() )

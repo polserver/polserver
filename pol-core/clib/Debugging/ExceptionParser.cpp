@@ -24,6 +24,7 @@
 #include <execinfo.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <sys/mman.h>
 #include <unistd.h>
 
 #define SOCKET int
@@ -638,12 +639,12 @@ void ExceptionParser::initGlobalExceptionCatching()
 
   // set handler stack
   stack_t tStack;
-  tStack.ss_sp = malloc( SIGSTKSZ );
-  if ( tStack.ss_sp == NULL )
-  {
-    printf( "Could not allocate signal handler stack\n" );
-    exit( 1 );
-  }
+  // mmap: no false positives for leak, plus guardpages to get SIGSEGV on memory overwrites
+  char* mem = static_cast<char*>( mmap( NULL, SIGSTKSZ + 2 * getpagesize(), PROT_READ | PROT_WRITE,
+                                        MAP_PRIVATE | MAP_ANON, -1, 0 ) );
+  mprotect( mem, getpagesize(), PROT_NONE );
+  mprotect( mem + getpagesize() + SIGSTKSZ, getpagesize(), PROT_NONE );
+  tStack.ss_sp = mem + getpagesize();
   tStack.ss_size = SIGSTKSZ;
   tStack.ss_flags = 0;
   if ( sigaltstack( &tStack, NULL ) == -1 )
