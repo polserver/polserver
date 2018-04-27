@@ -4978,7 +4978,11 @@ int Compiler::getFileContents( const char* file, char** iv )
     return -1;
   }
 
-  fread( s, filelen, 1, fp );
+  if (fread( s, filelen, 1, fp ) != 1 )
+  {
+    fclose( fp );
+    return -1;
+  }
 
   fclose( fp );
   *iv = s;
