@@ -106,10 +106,16 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
 {
   if (delay == 0)
     {
-      if(elem.has_prop("SwingSpeed"))
-        speed = elem.remove_ushort("SwingSpeed");
+      if (elem.has_prop("SwingSpeed"))
+      {
+          speed = elem.remove_ushort("SwingSpeed");
+      }
+      else if (elem.has_prop("SPEED"))
+      {
+          speed = elem.remove_ushort("SPEED");
+      }
       else
-            speed = elem.remove_ushort("SPEED");
+          speed = 35;
     }
   else
       speed = 35;

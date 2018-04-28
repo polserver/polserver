@@ -478,7 +478,6 @@ ObjMember object_members[] = {
     {MBR_NO_DROP, "no_drop", false},
     {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
     { MBR_PORT, "port", false },  // 220
-<<<<<<< HEAD
     // Additions for new properties
     {MBR_LOWER_REAG_COST, "lower_reagent_cost", true},
     {MBR_SPELL_DAMAGE_INCREASE, "spell_damage_increase", true},

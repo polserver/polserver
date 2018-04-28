@@ -694,7 +694,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   }
 
   if ( has_luck() )
-    sw() << "\tLuck\t" << static_cast<int>( luck() ) << pf_endl;
+    sw() << "\tLuck\t" << static_cast<int>( luck().value ) << pf_endl;
   if ( has_followers() )
   {
     auto followers_value = followers();
@@ -2796,7 +2796,7 @@ void Character::schedule_attack()
   // while waiting for your timeout.
   if ( swing_task == NULL )
   {
-    unsigned int weapon_speed = weapon->speed();
+    unsigned int weapon_speed = swing_speed().value;
     unsigned int weapon_delay = weapon->delay();
     Core::polclock_t clocks;
 
@@ -3127,12 +3127,12 @@ unsigned short Character::random_weapon_damage() const
 
 unsigned short Character::min_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.min_value() + weapon->damage_mod();
+  return weapon->descriptor().damage_dice.min_value() + damage_increase().value;
 }
 
 unsigned short Character::max_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.max_value() + weapon->damage_mod();
+  return weapon->descriptor().damage_dice.max_value() + damage_increase().value;
 }
 
 void Character::damage_weapon()
