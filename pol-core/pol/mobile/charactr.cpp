@@ -591,38 +591,6 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( frozen() )
     sw() << "\tFrozen\t" << static_cast<int>( frozen() ) << pf_endl;
 
-  s16 value = fire_resist().mod;
-  if ( value != 0 )
-    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_resist().mod;
-  if ( value != 0 )
-    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_resist().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
-
-  value = fire_damage().mod;
-  if ( value != 0 )
-    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_damage().mod;
-  if ( value != 0 )
-    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_damage().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
-
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
@@ -923,6 +891,56 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
   if ( mod_value != 0 )
     physical_damage( physical_damage().setAsMod( mod_value ) );
+
+  mod_value = static_cast<s16>(elem.remove_int("LOWERREAGENTCOSTMOD", 0));
+  if (mod_value != 0)
+      lower_reagent_cost(lower_reagent_cost().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("SPELLDAMAGEINCREASEMOD", 0));
+  if (mod_value != 0)
+      spell_damage_increase(spell_damage_increase().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTINGMOD", 0));
+  if (mod_value != 0)
+      faster_casting(faster_casting().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("FASTERCASTRECOVERYMOD", 0));
+  if (mod_value != 0)
+      faster_cast_recovery(faster_cast_recovery().setAsMod(mod_value));
+
+  mod_value = static_cast<s16>(elem.remove_int("DEFENCEINCREASEMOD", 0));
+  if (mod_value != 0)
+      defence_increase(defence_increase().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("DEFENCEINCREASECAPMOD", 0));
+  if (mod_value != 0)
+      defence_increase_cap(defence_increase_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("LOWERMANACOSTMOD", 0));
+  if (mod_value != 0)
+      lower_mana_cost(lower_mana_cost().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("HITCHANCEMOD", 0));
+  if (mod_value != 0)
+      hit_chance(hit_chance().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("SWINGSPEEDMOD", 0));
+  if (mod_value != 0)
+      swing_speed(swing_speed().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("DAMAGEINCREASEMOD", 0));
+  if (mod_value != 0)
+      damage_increase(damage_increase().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("FIRERESISTCAPMOD", 0));
+  if (mod_value != 0)
+      fire_resist_cap(fire_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("COLDRESISTCAPMOD", 0));
+  if (mod_value != 0)
+      cold_resist_cap(cold_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("ENERGYRESISTCAPMOD", 0));
+  if (mod_value != 0)
+      energy_resist_cap(energy_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("POISONRESISTCAPMOD", 0));
+  if (mod_value != 0)
+      poison_resist_cap(poison_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("PHYSICALRESISTCAPMOD", 0));
+  if (mod_value != 0)
+      physical_resist_cap(physical_resist_cap().setAsMod(mod_value));
+  mod_value = static_cast<s16>(elem.remove_int("LUCKMOD", 0));
+  if (mod_value != 0)
+      luck(luck().setAsMod(mod_value));
 
   movement_cost( Core::MovementCostMod(
       elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
@@ -2560,52 +2578,129 @@ void Character::refresh_ar()
 
 void Character::updateEquipableProperties( Items::Item* item )
 {
-  if ( item->has_fire_resist() )
-    fire_resist( fire_resist().addToValue( item->fire_resist() ) );
-  if ( item->has_cold_resist() )
-    cold_resist( cold_resist().addToValue( item->cold_resist() ) );
-  if ( item->has_energy_resist() )
-    energy_resist( energy_resist().addToValue( item->energy_resist() ) );
-  if ( item->has_poison_resist() )
-    poison_resist( poison_resist().addToValue( item->poison_resist() ) );
-  if ( item->has_physical_resist() )
-    physical_resist( physical_resist().addToValue( item->physical_resist() ) );
+    // calc caps
+    if (item->has_defence_increase_cap())
+        defence_increase_cap(defence_increase_cap().addToValue(item->defence_increase_cap()));
+    // calc resist caps
+    if (item->has_fire_resist_cap())
+        fire_resist_cap(fire_resist_cap().addToValue(item->fire_resist_cap()));
+    if (item->has_cold_resist_cap())
+        cold_resist_cap(cold_resist_cap().addToValue(item->cold_resist_cap()));
+    if (item->has_energy_resist_cap())
+        energy_resist_cap(energy_resist_cap().addToValue(item->energy_resist_cap()));
+    if (item->has_poison_resist_cap())
+        poison_resist_cap(poison_resist_cap().addToValue(item->poison_resist_cap()));
+    if (item->has_physical_resist_cap())
+        physical_resist_cap(physical_resist_cap().addToValue(item->physical_resist_cap()));
+    // calc resists
+    if (item->has_fire_resist())
+        fire_resist(fire_resist().addToValue(item->fire_resist()));
+    if (item->has_cold_resist())
+        cold_resist(cold_resist().addToValue(item->cold_resist()));
+    if (item->has_energy_resist())
+        energy_resist(energy_resist().addToValue(item->energy_resist()));
+    if (item->has_poison_resist())
+        poison_resist(poison_resist().addToValue(item->poison_resist()));
+    if (item->has_physical_resist())
+        physical_resist(physical_resist().addToValue(item->physical_resist()));
 
-  if ( item->has_fire_damage() )
-    fire_damage( fire_damage().addToValue( item->fire_damage() ) );
-  if ( item->has_cold_damage() )
-    cold_damage( cold_damage().addToValue( item->cold_damage() ) );
-  if ( item->has_energy_damage() )
-    energy_damage( energy_damage().addToValue( item->energy_damage() ) );
-  if ( item->has_poison_damage() )
-    poison_damage( poison_damage().addToValue( item->poison_damage() ) );
-  if ( item->has_physical_damage() )
-    physical_damage( physical_damage().addToValue( item->physical_damage() ) );
+    // calc damages
+    if (item->has_fire_damage())
+        fire_damage(fire_damage().addToValue(item->fire_damage()));
+    if (item->has_cold_damage())
+        cold_damage(cold_damage().addToValue(item->cold_damage()));
+    if (item->has_energy_damage())
+        energy_damage(energy_damage().addToValue(item->energy_damage()));
+    if (item->has_poison_damage())
+        poison_damage(poison_damage().addToValue(item->poison_damage()));
+    if (item->has_physical_damage())
+        physical_damage(physical_damage().addToValue(item->physical_damage()));
+
+    // calc others
+    if (item->has_lower_reagent_cost())
+        lower_reagent_cost(lower_reagent_cost().addToValue(item->lower_reagent_cost()));
+    if (item->has_spell_damage_increase())
+        spell_damage_increase(spell_damage_increase().addToValue(item->spell_damage_increase()));
+    if (item->has_faster_casting())
+        faster_casting(faster_casting().addToValue(item->faster_casting()));
+    if (item->has_faster_cast_recovery())
+        faster_cast_recovery(faster_cast_recovery().addToValue(item->faster_cast_recovery()));
+    if (item->has_lower_mana_cost())
+        lower_mana_cost(lower_mana_cost().addToValue(item->lower_mana_cost()));
+    if (item->has_hit_chance())
+        hit_chance(hit_chance().addToValue(item->hit_chance()));
+    if (item->has_swing_speed())
+        swing_speed(swing_speed().addToValue(item->swing_speed()));
+    if (item->has_damage_increase())
+        damage_increase(damage_increase().addToValue(item->damage_increase()));
+    if (item->has_luck())
+        luck(luck().addToValue(item->luck()));
+
+    // calc defence increase if lower than cap
+    if (item->has_defence_increase())
+        luck(luck().addToValue(item->luck()));
+    if (has_defence_increase_cap())
+        defence_increase(defence_increase().addToValue(item->defence_increase()));
 }
 
 void Character::resetEquipableProperties()
 {
-  if ( has_fire_resist() )
-    fire_resist( fire_resist().resetModAsValue() );
-  if ( has_cold_resist() )
-    cold_resist( cold_resist().resetModAsValue() );
-  if ( has_energy_resist() )
-    energy_resist( energy_resist().resetModAsValue() );
-  if ( has_poison_resist() )
-    poison_resist( poison_resist().resetModAsValue() );
-  if ( has_physical_resist() )
-    physical_resist( physical_resist().resetModAsValue() );
+    if (has_fire_resist())
+        fire_resist(fire_resist().resetModAsValue());
+    if (has_cold_resist())
+        cold_resist(cold_resist().resetModAsValue());
+    if (has_energy_resist())
+        energy_resist(energy_resist().resetModAsValue());
+    if (has_poison_resist())
+        poison_resist(poison_resist().resetModAsValue());
+    if (has_physical_resist())
+        physical_resist(physical_resist().resetModAsValue());
 
-  if ( has_fire_damage() )
-    fire_damage( fire_damage().resetModAsValue() );
-  if ( has_cold_damage() )
-    cold_damage( cold_damage().resetModAsValue() );
-  if ( has_energy_damage() )
-    energy_damage( energy_damage().resetModAsValue() );
-  if ( has_poison_damage() )
-    poison_damage( poison_damage().resetModAsValue() );
-  if ( has_physical_damage() )
-    physical_damage( physical_damage().resetModAsValue() );
+    if (has_fire_resist_cap())
+        fire_resist_cap(fire_resist_cap().resetModAsValue());
+    if (has_cold_resist_cap())
+        cold_resist_cap(cold_resist_cap().resetModAsValue());
+    if (has_energy_resist_cap())
+        energy_resist_cap(energy_resist_cap().resetModAsValue());
+    if (has_poison_resist_cap())
+        poison_resist_cap(poison_resist_cap().resetModAsValue());
+    if (has_physical_resist_cap())
+        physical_resist_cap(physical_resist_cap().resetModAsValue());
+
+    if (has_fire_damage())
+        fire_damage(fire_damage().resetModAsValue());
+    if (has_cold_damage())
+        cold_damage(cold_damage().resetModAsValue());
+    if (has_energy_damage())
+        energy_damage(energy_damage().resetModAsValue());
+    if (has_poison_damage())
+        poison_damage(poison_damage().resetModAsValue());
+    if (has_physical_damage())
+        physical_damage(physical_damage().resetModAsValue());
+
+    if (has_lower_reagent_cost())
+        lower_reagent_cost(lower_reagent_cost().resetModAsValue());
+    if (has_spell_damage_increase())
+        spell_damage_increase(spell_damage_increase().resetModAsValue());
+    if (has_faster_casting())
+        faster_casting(faster_casting().resetModAsValue());
+    if (has_faster_cast_recovery())
+        faster_cast_recovery(faster_cast_recovery().resetModAsValue());
+
+    if (has_defence_increase())
+        defence_increase(defence_increase().resetModAsValue());
+    if (has_defence_increase_cap())
+        defence_increase_cap(defence_increase_cap().resetModAsValue());
+    if (has_lower_mana_cost())
+        lower_mana_cost(lower_mana_cost().resetModAsValue());
+    if (has_hit_chance())
+        hit_chance(hit_chance().resetModAsValue());
+    if (has_swing_speed())
+        swing_speed(swing_speed().resetModAsValue());
+    if (has_damage_increase())
+        damage_increase(damage_increase().resetModAsValue());
+    if (has_luck())
+        luck(luck().resetModAsValue());
 }
 
 void Character::showarmor() const
@@ -2796,7 +2891,8 @@ void Character::schedule_attack()
   // while waiting for your timeout.
   if ( swing_task == NULL )
   {
-    unsigned int weapon_speed = swing_speed().value;
+      INFO_PRINT << "swing_speed " << swing_speed().value << " swing_speed_sum "<< swing_speed().sum();
+    unsigned int weapon_speed = swing_speed().sum();
     unsigned int weapon_delay = weapon->delay();
     Core::polclock_t clocks;
 
@@ -3292,7 +3388,7 @@ void Character::attack( Character* opponent )
 
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
-  hit_chance += hitchance_mod() * 0.001f;
+  hit_chance += Character::hit_chance().sum() * 0.001f;
   hit_chance -= opponent->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
     INFO_PRINT << "Chance to hit: " << hit_chance << ": ";

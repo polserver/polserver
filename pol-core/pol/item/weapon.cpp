@@ -104,21 +104,13 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
       minrange( elem.remove_ushort( "MINRANGE", projectile ? 2 : 0 ) ),
       maxrange( elem.remove_ushort( "MAXRANGE", projectile ? 20 : 1 ) )
 {
-  if (delay == 0)
+    swing_speed = 35;
+    if (!delay)
     {
-      if (elem.has_prop("SwingSpeed"))
-      {
-          speed = elem.remove_ushort("SwingSpeed");
-      }
-      else if (elem.has_prop("SPEED"))
-      {
-          speed = elem.remove_ushort("SPEED");
-      }
-      else
-          speed = 35;
+        swing_speed = elem.remove_ushort("speed", 35);
+        if (elem.has_prop("SwingSpeed"))
+            swing_speed = elem.remove_ushort("SwingSpeed");
     }
-  else
-      speed = 35;
 
   
 
@@ -145,7 +137,7 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
     elem.throw_error( "Weapon has INTRINSIC property, which is no longer needed" );
   }
 
-  if ( speed <= 0 )
+  if ( swing_speed <= 0 )
   {
     elem.throw_error( "Weapon has illegal Speed value (Speed must be positive)" );
   }
@@ -182,7 +174,7 @@ void WeaponDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   using namespace Bscript;
   base::PopulateStruct( descriptor );
-  descriptor->addMember( "Speed", new BLong( speed ) );
+  descriptor->addMember( "SwingSpeed", new BLong( swing_speed ) );
   descriptor->addMember( "Delay", new BLong( delay ) );
 
   descriptor->addMember( "Projectile", new BLong( projectile ) );
@@ -492,13 +484,14 @@ void UWeapon::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
 
+  if (!has_swing_speed())
+  {
+      swing_speed(static_cast<s16>(elem.remove_int("SPEED", 0)));
+  }
+
   // if the HITSCRIPT is not specified in the data file, keep the value from the template.
   if ( elem.has_prop( "HITSCRIPT" ) )
-    set_hit_script( elem.remove_string( "HITSCRIPT" ) );
-  if (!has_swing_speed() && elem.has_prop("SwingSpeed"))
-      swing_speed(static_cast<s16>(elem.remove_int("SwingSpeed", 0)));
-  else
-      swing_speed(static_cast<s16>(elem.remove_int("SPEED")));
+      set_hit_script(elem.remove_string("HITSCRIPT"));
 }
 
 void UWeapon::set_hit_script( const std::string& scriptname )
