@@ -23,6 +23,7 @@ POLLOG.Format("hello {}") << "world";
 
 #include "clib.h"
 #include "message_queue.h"
+#include "Header_Windows.h"
 
 namespace Pol
 {
@@ -31,6 +32,8 @@ namespace Clib
 bool LogfileTimestampEveryLine = false;
 namespace Logging
 {
+bool LogFacility::_vsDebuggerPresent = false;
+
 // helper struct to define log file behaviour
 struct LogFileBehaviour
 {
@@ -60,6 +63,11 @@ LogFacility* global_logger = nullptr;
 void initLogging( LogFacility* logger )
 {
   global_logger = logger;
+  // on start check if Visual Studio is attached
+  // if so print cout and cerr msgs also in the VS console
+#if defined(WINDOWS)
+  LogFacility::_vsDebuggerPresent = IsDebuggerPresent();
+#endif
 }
 
 // internal worker class which performs the work in a additional thread
@@ -361,6 +369,10 @@ void LogSink_cout::addMessage( fmt::Writer* msg )
 {
   std::cout << msg->str();
   std::cout.flush();
+#if defined(WINDOWS)
+  if (LogFacility::_vsDebuggerPresent)
+    OutputDebugString(msg->c_str());
+#endif
 }
 void LogSink_cout::addMessage( fmt::Writer* msg, const std::string& )
 {
@@ -373,6 +385,10 @@ void LogSink_cerr::addMessage( fmt::Writer* msg )
 {
   std::cerr << msg->str();
   std::cerr.flush();
+#if defined(WINDOWS)
+  if (LogFacility::_vsDebuggerPresent)
+    OutputDebugString(msg->c_str());
+#endif
 }
 void LogSink_cerr::addMessage( fmt::Writer* msg, const std::string& )
 {
