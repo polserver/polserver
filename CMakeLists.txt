@@ -11,7 +11,7 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "!BuildTargets")
 
-project(polserver)
+project(polserver CXX C)
 
 set(POL_VERSION_STR "100")
 set(POL_VERSION 100)
@@ -27,6 +27,15 @@ option(ONLY_POL "Build only pol" OFF)
 option(ONLY_POLTOOL "Build only poltool" OFF)
 option(ONLY_UOCONVERT "Build only uoconvert" OFF)
 option(ONLY_UOTOOL "Build only uotool" OFF)
+
+option(ENABLE_ASAN "Enables Address sanitizer" OFF)
+option(ENABLE_USAN "Enables Undefined sanitizer" OFF)
+option(ENABLE_MSAN "Enables Memory sanitizer" OFF)
+option(ENABLE_TSAN "Enables Thread sanitizer" OFF)
+
+if(${ONLY_ECOMPILE} OR ${ONLY_RUNECL} OR ${ONLY_POL} OR ${ONLY_POLTOOL} OR ${ONLY_UOCONVERT} OR ${ONLY_UOTOOL})
+  set(BUILD_ALL OFF)
+endif()
 
 include(cmake/init.cmake)
 

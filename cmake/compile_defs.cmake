@@ -58,6 +58,7 @@ function(set_compile_flags target is_executable)
       -fPIC
       -W
       -Wall
+      -Wextra
     >
 
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
@@ -83,6 +84,31 @@ function(set_compile_flags target is_executable)
       /W4
     >
   )
+
+  if(${gcc} OR ${clang})
+    if(${ENABLE_ASAN})
+      target_compile_options(${target} PRIVATE -fsanitize=address)
+      target_link_libraries(${target} PRIVATE  -fsanitize=address)
+    endif()
+    if(${ENABLE_USAN})
+      target_compile_options(${target} PRIVATE -fsanitize=undefined)
+      target_link_libraries(${target} PRIVATE  -fsanitize=undefined)
+    endif()
+    if(${ENABLE_MSAN})
+      target_compile_options(${target} PRIVATE -fsanitize=memory)
+      target_link_libraries(${target} PRIVATE  -fsanitize=memory)
+    endif()
+    if(${ENABLE_TSAN})
+      target_compile_options(${target} PRIVATE -fsanitize=thread)
+      target_link_libraries(${target} PRIVATE  -fsanitize=thread)
+    endif()
+    if (${ENABLE_ASAN} OR ${ENABLE_USAN} OR ${ENABLE_MSAN} OR ${ENABLE_TSAN})
+      target_compile_options(${target} PRIVATE
+        -g
+        -fno-omit-frame-pointer
+      )
+    endif()
+  endif()
   if (${windows})
     if (NOT "${CMAKE_GENERATOR}" MATCHES "Ninja")
       target_compile_options(${target} PRIVATE
@@ -93,9 +119,13 @@ function(set_compile_flags target is_executable)
  
   if (${is_executable})
     if (${release} AND ${linux})
-      target_link_libraries(${target} PUBLIC
-        -s # strip
-      )
+      if (${ENABLE_ASAN} OR ${ENABLE_USAN} OR ${ENABLE_MSAN} OR ${ENABLE_TSAN})
+        #dont strip
+      else()
+        target_link_libraries(${target} PUBLIC
+          -s # strip
+        )
+      endif()
     endif()
   endif()
   if (${windows})

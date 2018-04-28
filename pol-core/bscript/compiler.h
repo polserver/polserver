@@ -87,8 +87,8 @@ struct BlockDesc
 struct Variable
 {
   std::string name;
-  mutable bool used;
-  mutable bool unused;
+  mutable bool used = false;
+  mutable bool unused = false;
   CompilerContext ctx;
 };
 typedef std::vector<Variable> Variables;

@@ -263,6 +263,8 @@ bool ConfigElem::remove_prop( const char* propname, unsigned short* psval )
   return false;
 }
 
+VectorConfigElem::~VectorConfigElem() {}
+
 bool VectorConfigElem::remove_prop( const char* propname, unsigned short* psval )
 {
   auto itr = properties.begin(), end = properties.end();
