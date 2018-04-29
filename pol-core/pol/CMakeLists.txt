@@ -26,11 +26,6 @@ if (${linux})
     pthread
   )
 endif()
-if (${gcc})
-  target_link_libraries(${ex_name} PUBLIC
-    -fopenmp
-  )
-endif()
 
 if(HAVE_MYSQL)
   if(${windows})

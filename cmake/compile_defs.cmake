@@ -69,13 +69,8 @@ function(set_compile_flags target is_executable)
       -ggdb
     >
 
-    $<${gcc}:
-      -fopenmp
-    >
-
     $<${windows}:
       /MT # runtime lib
-      /openmp
       /GS- # no buffer security
       /Gy # function level linking
       /Zi # pdb files
