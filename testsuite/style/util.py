@@ -48,6 +48,8 @@ class SourceChecker(metaclass=abc.ABCMeta):
 				continue
 
 			if os.path.isdir(full):
+				if self.isGitIgnored(full):
+				    continue
 				yield from self.walk(full)
 			elif os.path.isfile(full):
 				yield full
