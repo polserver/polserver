@@ -151,6 +151,8 @@ public:
   std::string registerFlexLogger( const std::string& logfilename, bool open_timestamp );
   void wait_for_empty_queue();
 
+  static bool _vsDebuggerPresent;
+
 private:
   class LogWorker;
   std::unique_ptr<LogWorker> _worker;
