@@ -27,7 +27,7 @@
 #include <unistd.h>
 #endif
 
-//TODO: fix trunc cast warnings
+// TODO: fix trunc cast warnings
 #ifdef _MSC_VER
 #pragma warning( disable : 4311 )  // trunc cast
 #pragma warning( disable : 4302 )  // trunc cast
@@ -408,6 +408,11 @@ std::future<bool> TaskThreadPool::checked_push( const msg& msg )
     }
   } );
   return ret;
+}
+
+size_t TaskThreadPool::size() const
+{
+  return _threads.size();
 }
 
 

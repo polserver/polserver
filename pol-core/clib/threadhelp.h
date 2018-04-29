@@ -82,6 +82,7 @@ public:
   ~TaskThreadPool();
   void push( const msg& msg );
   std::future<bool> checked_push( const msg& msg );
+  size_t size() const;
 
 private:
   void init( unsigned int max_count, const std::string& name );
