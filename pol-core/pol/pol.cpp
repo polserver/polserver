@@ -1123,7 +1123,8 @@ int xmain_inner( bool testing )
 #endif
 #endif
 
-  // problem with order of global construction, threads cannot be registered in the constructor of gamestate :(
+  // problem with order of global construction, threads cannot be registered in the constructor of
+  // gamestate :(
   Core::gamestate.task_thread_pool.init_pool(
       std::max( 2u, std::thread::hardware_concurrency() / 2 ), "generic_task_thread" );
 
