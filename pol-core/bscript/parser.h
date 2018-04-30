@@ -13,6 +13,7 @@
 #include <string>
 
 #include "../clib/compilerspecifics.h"
+#include "../clib/unicode.h"
 #include "tokens.h"
 
 namespace Pol
@@ -52,6 +53,7 @@ typedef enum {
   PERR_WAAH,          // god knows what happened
   PERR_UNTERMSTRING,  // "abcd  (not terminated with '"')
   PERR_INVESCAPE,     // an invalid escape sequence (eg. \xFG)
+  PERR_INVUTF8,       // an invalid utf8 character
   PERR_TOOFEWARGS,
   PERR_TOOMANYARGS,
   PERR_UNEXPCOMMA,
@@ -128,8 +130,7 @@ public:
   virtual int recognize( Token& tok, const char* buf, const char** s );
   virtual bool recognize_reserved_word( Token& tok, const char* buf );
 
-  virtual int tryOperator( Token& tok, const char* buf, const char** s, Operator* opList, int n_ops,
-                           char* opbuf );
+  virtual int tryOperator( Token& tok, CompilerContext& ctx, Operator* opList, int n_ops);
   virtual int tryBinaryOperator( Token& tok, CompilerContext& ctx );
   virtual int tryUnaryOperator( Token& tok, CompilerContext& ctx );
 
@@ -144,6 +145,7 @@ public:
   int IP( Expression& expr, char* s );
 
   void setQuiet( int x ) { quiet = x; }
+
 };
 
 

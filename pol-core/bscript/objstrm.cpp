@@ -62,18 +62,8 @@ void ObjArray::printOn( std::ostream& os ) const
 
 void String::printOn( std::ostream& os ) const
 {
-  os << '\"' << value_ << '\"';
+  os << getFormattedStringRep().utf8();
 }
-
-#if 0
-    void SubString::printOn(std::ostream& os ) const
-  {
-    os << "{ \"";
-    os << ref_String->value_.substr( begin-1, len );
-
-    os << "\" }";
-  }
-#endif
 
 void Double::printOn( std::ostream& os ) const
 {

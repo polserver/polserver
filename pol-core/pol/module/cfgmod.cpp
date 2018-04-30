@@ -24,6 +24,7 @@
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
 #include "../../clib/strutil.h"
+#include "../../clib/unicode.h"
 #include "../../plib/pkg.h"
 #include "../cfgrepos.h"
 
@@ -73,7 +74,7 @@ Bscript::BObjectRef EConfigFileRefObjImp::OperSubscript( const Bscript::BObject&
 
   if ( imp.isa( OTString ) )
   {
-    const char* strval = static_cast<const Bscript::String*>( &imp )->data();
+    const std::string strval = static_cast<const Bscript::String*>( &imp )->utf8();
     celem = obj_->findelem( strval );
   }
   else if ( imp.isa( OTLong ) )
@@ -232,7 +233,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_ConfigFile()
   const Bscript::String* cfgdesc_str;
   if ( exec.getStringParam( 0, cfgdesc_str ) )
   {
-    const std::string& cfgdesc = cfgdesc_str->value();
+    const std::string& cfgdesc = cfgdesc_str->utf8();
     std::string cfgfile;
     std::string errmsg;
     std::string allpkgbase;
@@ -258,14 +259,11 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_ConfigFile()
   }
 }
 
-bool legal_scp_filename( const char* filename )
+bool legal_scp_filename( const Clib::UnicodeString& filename )
 {
-  while ( filename && *filename )
-  {
-    if ( !isalnum( *filename ) )
+  for ( auto c : filename )
+    if ( ! c.isAlNum() )
       return false;
-    ++filename;
-  }
   return true;
 }
 
@@ -277,13 +275,13 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_LoadTusScpFile()
     return new Bscript::BError( "Invalid parameter type" );
   }
 
-  if ( !legal_scp_filename( filename_str->data() ) )
+  if ( !legal_scp_filename( filename_str->value() ) )
   {
     return new Bscript::BError( "Filename cannot include path information or special characters" );
   }
 
   ref_ptr<Core::StoredConfigFile> cfile =
-      Core::LoadTusScpFile( "import/tus/" + filename_str->value() + ".scp" );
+      Core::LoadTusScpFile( "import/tus/" + filename_str->utf8() + ".scp" );
 
   if ( cfile.get() == NULL )
   {
@@ -364,7 +362,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
     }
     else if ( keyimp->isa( Bscript::BObjectImp::OTString ) )
     {
-      const char* strval = static_cast<Bscript::String*>( keyimp )->data();
+      const std::string strval = static_cast<Bscript::String*>( keyimp )->utf8( );
       celem = cfile->findelem( strval );
     }
     else
@@ -394,7 +392,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigString()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    Bscript::BObjectImp* imp = celem->getimp( propname_str->value() );
+    Bscript::BObjectImp* imp = celem->getimp( propname_str->utf8() );
     if ( imp != NULL )
     {
       return new Bscript::String( imp->getStringRep() );
@@ -417,8 +415,11 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr =
-        celem->equal_range( propname_str->data() );
+    std::pair<
+      Core::StoredConfigElem::const_iterator,
+      Core::StoredConfigElem::const_iterator
+    > pr= celem->equal_range(propname_str->utf8());
+    celem->equal_range( propname_str->utf8() );
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -429,7 +430,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringArray()
       // Added 9-03-2005  Austin
       // Will no longer place the string right into the array.
       // Instead a check is done to make sure something is there.
-      if ( imp->getStringRep().length() >= 1 )
+      if ( imp->getStringRep().lengthc() >= 1 )
         ar->addElement( new Bscript::String( imp->getStringRep() ) );
     }
     return ar.release();
@@ -447,8 +448,11 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    std::pair<Core::StoredConfigElem::const_iterator, Core::StoredConfigElem::const_iterator> pr =
-        celem->equal_range( propname_str->data() );
+    std::pair<
+      Core::StoredConfigElem::const_iterator,
+      Core::StoredConfigElem::const_iterator
+    > pr = celem->equal_range(propname_str->utf8());
+    celem->equal_range( propname_str->utf8() );
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -457,8 +461,8 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
     {
       Bscript::BObjectImp* line = ( *itr ).second.get();
 
-      std::string line_str = line->getStringRep();
-      if ( line_str.length() < 1 )
+      Clib::UnicodeString line_str = line->getStringRep();
+      if ( line_str.empty() )
         continue;
 
       /* Example:
@@ -470,7 +474,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigStringDictionary()
        * dict "data"->"moredata more data", "stuff"->"morestuff stuffity stuff!"
        */
       std::string prop_name, prop_value;
-      Clib::splitnamevalue( line_str, prop_name, prop_value );
+      Clib::splitnamevalue( line_str.utf8(), prop_name, prop_value );
 
       dict->addMember( new Bscript::String( prop_name ), new Bscript::String( prop_value ) );
     }
@@ -491,7 +495,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    Bscript::BObjectImp* imp = celem->getimp( propname_str->value() );
+    Bscript::BObjectImp* imp = celem->getimp( propname_str->utf8() );
     if ( imp != NULL )
     {
       if ( imp->isa( Bscript::BObjectImp::OTLong ) )
@@ -506,7 +510,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
       else if ( imp->isa( Bscript::BObjectImp::OTString ) )
       {
         Bscript::String* str = static_cast<Bscript::String*>( imp );
-        return new Bscript::BLong( strtoul( str->data(), NULL, 0 ) );
+        return new Bscript::BLong( strtoul( str->utf8().c_str(), NULL, 0 ) );
       }
       else
       {
@@ -531,7 +535,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    auto pr = celem->equal_range( propname_str->data() );
+    auto pr = celem->equal_range(propname_str->utf8());
     Core::StoredConfigElem::const_iterator itr = pr.first;
     Core::StoredConfigElem::const_iterator end = pr.second;
 
@@ -542,7 +546,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
       // Will no longer place the string right into the array.
       // Instead a check is done to make sure something is there.
 
-      if ( imp->getStringRep().length() >= 1 )
+      if ( ! imp->getStringRep().empty() )
       {
         if ( imp->isa( Bscript::BObjectImp::OTLong ) )
         {
@@ -556,7 +560,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
         else if ( imp->isa( Bscript::BObjectImp::OTString ) )
         {
           Bscript::String* str = static_cast<Bscript::String*>( imp );
-          ar->addElement( new Bscript::BLong( strtoul( str->data(), NULL, 0 ) ) );
+          ar->addElement( new  Bscript::BLong( str->intval() ) );
         }
       }
     }
@@ -575,7 +579,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigReal()
 
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
-    Bscript::BObjectImp* imp = celem->getimp( propname_str->value() );
+    Bscript::BObjectImp* imp = celem->getimp( propname_str->utf8() );
     if ( imp != NULL )
     {
       if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
@@ -590,7 +594,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigReal()
       else if ( imp->isa( Bscript::BObjectImp::OTString ) )
       {
         Bscript::String* str = static_cast<Bscript::String*>( imp );
-        return new Bscript::Double( strtod( str->data(), NULL ) );
+        return new Bscript::Double( str->dblval() );
       }
       else
       {
@@ -633,17 +637,17 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
   {
     return new Bscript::BError( "Invalid parameter type" );
   }
-  std::string elemkey = getParamImp( 2 )->getStringRep();
+  Clib::UnicodeString elemkey = getParamImp( 2 )->getStringRep();
 
   std::string pathname, errmsg;
-  const std::string& cfgdesc = filename->value();
+  const std::string& cfgdesc = filename->utf8();
   if ( !get_cfgfilename( cfgdesc, &pathname, &errmsg ) )
   {
     return new Bscript::BError( errmsg );
   }
 
   std::ofstream ofs( pathname.c_str(), std::ios::app );
-  ofs << std::endl << elemtype->value() << " " << elemkey << std::endl << "{" << std::endl;
+  ofs << std::endl << elemtype->utf8() << " " << elemkey.utf8() << std::endl << "{" << std::endl;
   for ( Bscript::ObjArray::const_iterator itr = objarr->ref_arr.begin(),
                                           end = objarr->ref_arr.end();
         itr != end; ++itr )
@@ -661,9 +665,9 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
           if ( nobj != NULL && nobj->isa( Bscript::BObjectImp::OTString ) && vobj != NULL )
           {
             Bscript::String* namestr = static_cast<Bscript::String*>( nobj->impptr() );
-            std::string value = vobj->impptr()->getStringRep();
+            Clib::UnicodeString value = vobj->impptr()->getStringRep();
 
-            ofs << "\t" << namestr->value() << "\t" << value << std::endl;
+            ofs << "\t" << namestr->utf8() << "\t" << value.utf8() << std::endl;
           }
         }
       }
@@ -675,9 +679,9 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
         if ( name_imp && name_imp->isa( Bscript::BObjectImp::OTString ) && value_imp )
         {
           const Bscript::String* namestr = static_cast<const Bscript::String*>( name_imp );
-          std::string value = value_imp->getStringRep();
+          Clib::UnicodeString value = value_imp->getStringRep();
 
-          ofs << "\t" << namestr->value() << "\t" << value << std::endl;
+          ofs << "\t" << namestr->utf8() << "\t" << value.utf8() << std::endl;
         }
       }
     }
@@ -694,7 +698,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_UnloadConfigFile()
   const Bscript::String* filename;
   if ( getStringParam( 0, filename ) )
   {
-    const std::string& cfgdesc = filename->value();
+    const std::string& cfgdesc = filename->utf8();
     std::string cfgfile;
     std::string errmsg;
     std::string allpkgbase;

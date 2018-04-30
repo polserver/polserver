@@ -284,10 +284,10 @@ Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executo
     const String* text;
     if ( ( !ex.getStringParam( 0, text ) ) || ( !ex.getParam( 1, value ) ) )
       return new BError( "Invalid parameter" );
-    u32 len = static_cast<u32>( text->value().length() );
+    u32 len = static_cast<u32>( text->utf8().length() );
     if ( value == 1 )
       len++;
-    if ( !file.WriteString( text->value().c_str(), len ) )
+    if ( !file.WriteString( text->utf8().c_str(), len ) )
       return new BError( "Failed to write" );
     return new BLong( 1 );
   }
@@ -302,7 +302,7 @@ Bscript::BObjectImp* BBinaryfile::copy() const
   return new BBinaryfile( _filename, static_cast<unsigned short>( openmode ), bigendian );
 }
 
-std::string BBinaryfile::getStringRep() const
+Clib::UnicodeString BBinaryfile::getStringRep() const
 {
   return "BinaryFile";
 }

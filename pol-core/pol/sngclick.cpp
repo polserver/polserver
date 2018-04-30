@@ -18,7 +18,6 @@
 #include "pktin.h"
 #include "uconst.h"
 #include "ufunc.h"
-#include "ufuncstd.h"
 #include "uobject.h"
 #include "uworld.h"
 

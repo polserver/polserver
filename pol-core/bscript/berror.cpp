@@ -46,6 +46,12 @@ BError::BError( const std::string& err ) : BStruct( OTError )
   addMember( "errortext", new String( err ) );
 }
 
+BError::BError( const UnicodeString& err ) : BStruct( OTError )
+{
+  ++creations_;
+  addMember( "errortext", new String( err ) );
+}
+
 
 BObjectImp* BError::copy( void ) const
 {

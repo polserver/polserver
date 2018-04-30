@@ -667,7 +667,8 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
   }
 }
 
-void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
+void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
+                       const Clib::UnicodeString& wspeech,
                        const char lang[4], Bscript::ObjArray* speechtokens )
 {
   if ( ex != NULL )
@@ -693,7 +694,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, cons
 }
 
 void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
-                             const u16* wspeech, const char lang[4],
+                             const Clib::UnicodeString& wspeech, const char lang[4],
                              Bscript::ObjArray* speechtokens )
 {
   if ( ex != NULL )

@@ -51,7 +51,7 @@ BStruct::BStruct( std::istream& is, unsigned size, BObjectType type )
     {
       String* str = static_cast<String*>( keyimp );
 
-      contents_[str->value()].set( new BObject( valimp ) );
+      contents_[str->utf8()].set( new BObject( valimp ) );
 
       BObject cleaner( str );
     }
@@ -113,7 +113,7 @@ BObjectImp* BStruct::unpack( std::istream& is )
 void BStruct::FormatForStringRep( std::ostream& os, const std::string& key,
                                   const BObjectRef& bvalref ) const
 {
-  os << key << " = " << bvalref->impref().getFormattedStringRep();
+  os << key << " = " << bvalref->impref().getFormattedStringRep().utf8();
 }
 
 class BStructIterator : public ContIterator
@@ -249,7 +249,7 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
   {
     const String* keystr = static_cast<const String*>( obj.impptr() );
 
-    auto itr = contents_.find( keystr->value() );
+    auto itr = contents_.find( keystr->utf8() );
     if ( itr != contents_.end() )
     {
       BObjectRef& oref = ( *itr ).second;
@@ -278,7 +278,7 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
 
     String* keystr = static_cast<String*>( idx );
 
-    auto itr = contents_.find( keystr->value() );
+    auto itr = contents_.find( keystr->utf8() );
     if ( itr != contents_.end() )
     {
       BObjectRef& oref = ( *itr ).second;
@@ -287,7 +287,7 @@ BObjectImp* BStruct::array_assign( BObjectImp* idx, BObjectImp* target, bool cop
     }
     else
     {
-      contents_[keystr->value()].set( new BObject( new_target ) );
+      contents_[keystr->utf8()].set( new BObject( new_target ) );
       return new_target;
     }
   }
@@ -332,7 +332,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
       String* strkey = static_cast<String*>( keyobj->impptr() );
-      int nremove = static_cast<int>( contents_.erase( strkey->value() ) );
+      int nremove = static_cast<int>( contents_.erase( strkey->utf8() ) );
       return new BLong( nremove );
     }
     else
@@ -347,7 +347,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
       String* strkey = static_cast<String*>( keyobj->impptr() );
-      contents_[strkey->value()] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
+      contents_[strkey->utf8()] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
       return new BLong( static_cast<int>( contents_.size() ) );
     }
     else
@@ -361,7 +361,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
       String* strkey = static_cast<String*>( keyobj->impptr() );
-      int count = static_cast<int>( contents_.count( strkey->value() ) );
+      int count = static_cast<int>( contents_.count( strkey->utf8() ) );
       return new BLong( count );
     }
     else
@@ -409,7 +409,7 @@ void BStruct::packonto( std::ostream& os ) const
   }
 }
 
-std::string BStruct::getStringRep() const
+UnicodeString BStruct::getStringRep() const
 {
   OSTRINGSTREAM os;
   os << typetag() << "{ ";

@@ -198,7 +198,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
   }
   else if ( getStringParam( 0, cmdlevel_alias ) )
   {
-    Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data() );
+    Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->utf8() );
     if ( cmdlevel == NULL )
       return new BError( "Could not find a command level with that alias." );
     else
@@ -214,7 +214,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
   if ( !getStringParam( 0, cmdlvlname ) )
     return new BError( "Invalid parameter type." );
 
-  Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdlvlname->data() );
+  Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdlvlname->utf8().c_str() );
   if ( cmdlevel_search == NULL )
     return new BError( "Could not find a command level with that name." );
 
@@ -239,7 +239,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
     return new BError( "Invalid parameter type." );
 
   // pkgname->toLower();
-  Plib::Package* pkg = Plib::find_package( pkgname->value() );
+  Plib::Package* pkg = Plib::find_package( pkgname->utf8() );
   if ( !pkg )
     return new BError( "No package found by that name." );
   else
@@ -331,9 +331,9 @@ BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
                        BObjectImp::typestr( imp->type() ) );
   }
 
-  if ( realm_name->length() > 0 )
+  if ( ! realm_name->empty() )
   {
-    Realms::Realm* realm = Core::find_realm( realm_name->value() );
+    Realms::Realm* realm = Core::find_realm( realm_name->utf8() );
     if ( !realm )
       return new BError( "Realm not found." );
     else
@@ -355,9 +355,9 @@ BObjectImp* PolSystemExecutorModule::mf_Realms( /* realm_name:="" */ )
 BObjectImp* PolSystemExecutorModule::mf_SetSysTrayPopupText()
 {
 #ifdef _WIN32
-  const char* text = exec.paramAsString( 0 );
+  const UnicodeString text = exec.paramAsString( 0 );
 
-  Core::CoreSetSysTrayToolTip( text, Core::ToolTipPriorityScript );
+  Core::CoreSetSysTrayToolTip( text.utf8(), Core::ToolTipPriorityScript );
 #endif
   return new BLong( 1 );
 }
@@ -392,7 +392,7 @@ BObjectImp* PolSystemExecutorModule::mf_FormatItemDescription()
 
   if ( getStringParam( 0, desc ) && getParam( 1, amount ) && getStringParam( 2, suffix ) )
   {
-    return new String( Core::format_description( 0, desc->value(), amount, suffix->value() ) );
+    return new String( Core::format_description( 0, desc->utf8(), amount, suffix->utf8() ) );
   }
   else
   {
@@ -425,22 +425,22 @@ BObjectImp* PolSystemExecutorModule::mf_AddRealm( /*name,base*/ )
   {
     return new BError( "Invalid parameter" );
   }
-  Realms::Realm* baserealm = Core::find_realm( base->value() );
+  Realms::Realm* baserealm = Core::find_realm( base->utf8() );
   if ( !baserealm )
     return new BError( "BaseRealm not found." );
   if ( baserealm->is_shadowrealm )
     return new BError( "BaseRealm is a ShadowRealm." );
-  if ( Core::defined_realm( realm_name->value() ) )
+  if ( Core::defined_realm( realm_name->utf8() ) )
     return new BError( "Realmname already defined." );
-  Core::add_realm( realm_name->value(), baserealm );
+  Core::add_realm( realm_name->utf8(), baserealm );
   if ( Core::settingsManager.ssopt.decay_items )
   {
     if ( !Plib::systemstate.config.single_thread_decay )
     {
       std::ostringstream thname;
-      thname << "Decay_" << realm_name->value();
+      thname << "Decay_" << realm_name->utf8();
       threadhelp::start_thread( Core::decay_thread_shadow, thname.str().c_str(),
-                                (void*)Core::find_realm( realm_name->value() ) );
+                                (void*)Core::find_realm( realm_name->utf8() ) );
     }
   }
   return new BLong( 1 );
@@ -452,7 +452,7 @@ BObjectImp* PolSystemExecutorModule::mf_DeleteRealm( /*name*/ )
   if ( !( getStringParam( 0, realm_name ) ) )
     return new BError( "Invalid parameter" );
 
-  Realms::Realm* realm = Core::find_realm( realm_name->value() );
+  Realms::Realm* realm = Core::find_realm( realm_name->utf8() );
 
   if ( !realm )
     return new BError( "Realm not found." );
@@ -467,7 +467,7 @@ BObjectImp* PolSystemExecutorModule::mf_DeleteRealm( /*name*/ )
   if ( realm->multi_count() > 0 )
     return new BError( "Multis in Realm." );
 
-  Core::remove_realm( realm_name->value() );
+  Core::remove_realm( realm_name->utf8() );
   return new BLong( 1 );
 }
 
@@ -476,10 +476,10 @@ BObjectImp* PolSystemExecutorModule::mf_MD5Encrypt( /*string*/ )
   const String* string;
   if ( !( getStringParam( 0, string ) ) )
     return new BError( "Invalid parameter" );
-  if ( string->length() < 1 )
+  if ( string->empty() )
     return new BError( "String is empty" );
   std::string temp;
-  if ( !Clib::MD5_Encrypt( string->value(), temp ) )
+  if ( !Clib::MD5_Encrypt( string->utf8(), temp ) )
     return new BError( "Failed to encrypt" );
   return new String( temp );
 }

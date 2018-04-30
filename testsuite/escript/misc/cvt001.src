@@ -13,3 +13,7 @@ print( CAsc( CChr( 0xef ) ) );
 print( CAsc(b) );
 print( CAscZ( "hello" ) );
 print( CChrZ( { 0x41, 0x42, 0x43, 0x44 } ) );
+
+print( CChr( 0x0414 ) );
+print( CChr( 0x2726 ) );
+print( CAsc(CChr( 0xffff )) );

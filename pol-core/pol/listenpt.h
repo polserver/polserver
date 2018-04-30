@@ -8,6 +8,7 @@
 #define LISTENPT_H
 
 #include "../clib/rawtypes.h"
+#include "../clib/unicode.h"
 #include "reftypes.h"
 
 namespace Pol
@@ -42,8 +43,9 @@ const char* TextTypeToString( u8 texttype );  // DAVE
 
 void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int p_textlen,
                              u8 texttype,  // DAVE
-                             const u16* p_wtext = nullptr, const char* p_lang = nullptr,
-                             int p_wtextlen = 0, Bscript::ObjArray* speechtokens = nullptr );
+                             const Clib::UnicodeString* p_wtext = nullptr,
+                             const char* p_lang = nullptr,
+                             Bscript::ObjArray* speechtokens = nullptr );
 
 const int LISTENPT_HEAR_GHOSTS = 0x01;
 const int LISTENPT_HEAR_TOKENS = 0x02;

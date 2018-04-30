@@ -18,6 +18,7 @@
 
 #include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
+#include "../clib/unicode.h"
 
 namespace Pol
 {
@@ -52,7 +53,7 @@ protected:
   BDictionary( const BDictionary&, BObjectType type = OTDictionary );
 
   virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE;
   virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
   virtual const char* typeOf() const POL_OVERRIDE;

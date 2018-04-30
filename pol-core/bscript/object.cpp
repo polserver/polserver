@@ -164,7 +164,7 @@ typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
 bobjectimps bobjectimp_instances;
 int display_bobjectimp_instance( BObjectImp* imp )
 {
-  INFO_PRINT << imp->instance() << ": " << imp->getStringRep() << "\n";
+  INFO_PRINT << imp->instance() << ": " << imp->getStringRep().utf8() << "\n";
   return 0;
 }
 void display_bobjectimp_instances()
@@ -210,7 +210,7 @@ void BObjectImp::packonto( std::ostream& os ) const
   os << "u";
 }
 
-std::string BObjectImp::getFormattedStringRep() const
+UnicodeString BObjectImp::getFormattedStringRep() const
 {
   return getStringRep();
 }
@@ -1401,7 +1401,7 @@ void ObjArray::addElement( BObjectImp* imp )
   ref_arr.push_back( BObjectRef( new BObject( imp ) ) );
 }
 
-std::string ObjArray::getStringRep() const
+UnicodeString ObjArray::getStringRep() const
 {
   OSTRINGSTREAM os;
   os << "{ ";
@@ -1417,13 +1417,13 @@ std::string ObjArray::getStringRep() const
 
     if ( bo != NULL )
     {
-      std::string tmp = bo->impptr()->getStringRep();
+      std::string tmp = bo->impptr()->getStringRep().utf8();
       os << tmp;
     }
   }
   os << " }";
 
-  return OSTRINGSTREAM_STR( os );
+  return UnicodeString(StrEncoding::UTF8, OSTRINGSTREAM_STR( os ));
 }
 
 long ObjArray::contains( const BObjectImp& imp ) const
@@ -1765,9 +1765,9 @@ void* BApplicPtr::ptr() const
   return ptr_;
 }
 
-std::string BApplicPtr::getStringRep() const
+UnicodeString BApplicPtr::getStringRep() const
 {
-  return "<appptr>";
+  return UnicodeString(StrEncoding::UTF8, "<appptr>");
 }
 
 
@@ -1776,14 +1776,14 @@ void BApplicPtr::printOn( std::ostream& os ) const
   os << "<appptr>";
 }
 
-std::string BApplicObjBase::getStringRep() const
+UnicodeString BApplicObjBase::getStringRep() const
 {
-  return std::string( "<appobj:" ) + typeOf() + ">";
+  return UnicodeString(StrEncoding::UTF8, std::string( "<appobj:" ) + typeOf() + ">");
 }
 
 void BApplicObjBase::printOn( std::ostream& os ) const
 {
-  os << getStringRep();
+  os << getStringRep().utf8();
 }
 
 #if BOBJECTIMP_DEBUG
@@ -1836,9 +1836,9 @@ bool BBoolean::operator==( const BObjectImp& objimp ) const
   return bval_ == objimp.isTrue();
 }
 
-std::string BBoolean::getStringRep() const
+UnicodeString BBoolean::getStringRep() const
 {
-  return bval_ ? "true" : "false";
+  return UnicodeString(StrEncoding::UTF8, bval_ ? "true" : "false");
 }
 
 
@@ -1875,9 +1875,9 @@ bool BFunctionRef::operator==( const BObjectImp& /*objimp*/ ) const
   return false;
 }
 
-std::string BFunctionRef::getStringRep() const
+UnicodeString BFunctionRef::getStringRep() const
 {
-  return "FunctionObject";
+  return UnicodeString(StrEncoding::UTF8, "FunctionObject");
 }
 
 BObjectImp* BFunctionRef::call_method( const char* methodname, Executor& ex )

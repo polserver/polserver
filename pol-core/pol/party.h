@@ -12,6 +12,7 @@
 
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
+#include "../clib/unicode.h"
 #include "proplist.h"
 
 namespace Pol
@@ -80,9 +81,9 @@ public:
   void send_stats_on_add( Mobile::Character* newmember ) const;
   void on_mana_changed( Mobile::Character* chr ) const;
   void on_stam_changed( Mobile::Character* chr ) const;
-  void send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const;
-  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext,
-                                size_t wtextlen ) const;
+  void send_member_msg_public( Mobile::Character* chr, Clib::UnicodeString wtext ) const;
+  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr,
+                                Clib::UnicodeString wtext ) const;
   u32 leader() const;
   void printOn( Clib::StreamWriter& sw ) const;
   u32 get_member_at( unsigned short pos ) const;

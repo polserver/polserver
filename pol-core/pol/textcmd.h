@@ -10,6 +10,7 @@
 #include <string>
 
 #include "../clib/rawtypes.h"
+#include "../clib/unicode.h"
 
 namespace Pol
 {
@@ -26,8 +27,8 @@ public:
   bool operator()( const std::string& lhs, const std::string& rhs ) const;
 };
 
-bool process_command( Network::Client* client, const char* text, const u16* wtext = nullptr,
-                      const char* lang = nullptr );
+bool process_command( Network::Client* client, const char* text,
+                      const Clib::UnicodeString* wtext = nullptr, const char* lang = nullptr );
 }
 }
 #endif

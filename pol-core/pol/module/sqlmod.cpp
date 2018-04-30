@@ -184,7 +184,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       const BObjectRef& ref = params->ref_arr[i];
       const BObject* obj = ref.get();
       if ( obj != NULL )
-        sharedParams->insert( sharedParams->end(), obj->impptr()->getStringRep() );
+        sharedParams->insert( sharedParams->end(), obj->impptr()->getStringRep().utf8() );
     }
   }
 
@@ -249,8 +249,9 @@ Bscript::BObjectImp* SQLExecutorModule::mf_ConnectToDB()
   {
     return new BError( "Invalid parameters" );
   }
-  return background_connect( uoexec.weakptr, host->getStringRep(), username->getStringRep(),
-                             password->getStringRep() );
+  return background_connect( uoexec.weakptr, host->getStringRep().utf8(),
+                             username->getStringRep().utf8(),
+                             password->getStringRep().utf8() );
 }
 Bscript::BObjectImp* SQLExecutorModule::mf_SelectDb()
 {
@@ -261,7 +262,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_SelectDb()
   {
     return new BError( "Invalid parameters" );
   }
-  return background_select( uoexec.weakptr, sql, db->getStringRep() );
+  return background_select( uoexec.weakptr, sql, db->getStringRep().utf8() );
 }
 
 Bscript::BObjectImp* SQLExecutorModule::mf_Query()
@@ -276,7 +277,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_Query()
     return new BError( "Invalid parameters" );
   }
 
-  return background_query( uoexec.weakptr, sql, query->getStringRep(),
+  return background_query( uoexec.weakptr, sql, query->getStringRep().utf8(),
                            use_parameters ? params : nullptr );
 }
 

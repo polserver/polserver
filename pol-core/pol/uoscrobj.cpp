@@ -107,7 +107,6 @@
 #include "uconst.h"
 #include "ufunc.h"
 #include "umap.h"
-#include "unicode.h"
 #include "uobject.h"
 #include "uoclient.h"
 #include "uoexec.h"
@@ -172,7 +171,7 @@ BObjectRef ECharacterRefObjImp::set_member_id( const int id, BObjectImp* value, 
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -354,7 +353,7 @@ BObjectRef EItemRefObjImp::set_member_id( const int id, BObjectImp* value, bool 
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -518,7 +517,7 @@ BObjectRef EUBoatRefObjImp::set_member_id( const int id, BObjectImp* value, bool
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -684,7 +683,7 @@ BObjectRef EMultiRefObjImp::set_member_id( const int id, BObjectImp* value, bool
   else if ( value->isa( BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( value );
-    result = obj_->set_script_member_id( id, str->value() );
+    result = obj_->set_script_member_id( id, str->utf8() );
   }
   else if ( value->isa( BObjectImp::OTDouble ) )
   {
@@ -2569,10 +2568,10 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      if ( has_privilege( pstr->data() ) )
+      if ( has_privilege( pstr->utf8().c_str() ) )
       {
         set_dirty();
-        set_setting( pstr->data(), true );
+        set_setting( pstr->utf8().c_str(), true );
         return new BLong( 1 );
       }
       else
@@ -2589,7 +2588,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.getStringParam( 0, pstr ) )
     {
       set_dirty();
-      set_setting( pstr->data(), false );
+      set_setting( pstr->utf8().c_str(), false );
       return new BLong( 1 );
     }
     break;
@@ -2601,7 +2600,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       return new BError( "Not enough parameters" );
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
-      return new BLong( setting_enabled( pstr->data() ) ? 1 : 0 );
+      return new BLong( setting_enabled( pstr->utf8().c_str() ) ? 1 : 0 );
     break;
   }
 
@@ -2625,7 +2624,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
     {
-      Core::CmdLevel* pcmdlevel = Core::find_cmdlevel( pstr->data() );
+      Core::CmdLevel* pcmdlevel = Core::find_cmdlevel( pstr->utf8().c_str() );
       if ( pcmdlevel )
       {
         set_dirty();
@@ -2788,8 +2787,8 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     BObjectImp* param0 = ex.getParamImp( 0 );
     if ( param0->isa( BObjectImp::OTString ) )
     {
-      const char* szDir = ex.paramAsString( 0 );
-      if ( DecodeFacing( szDir, i_facing ) == false )
+      const UnicodeString szDir = ex.paramAsString( 0 );
+      if ( DecodeFacing( szDir.utf8().c_str(), i_facing ) == false )
         return new BError( "Invalid string for parameter 0" );
     }
     else if ( param0->isa( BObjectImp::OTLong ) )
@@ -2814,7 +2813,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
         return new BError( "Not enough parameters" );
       const String* pstr;
       if ( ex.getStringParam( 0, pstr ) )
-        return new BLong( client->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
+        return new BLong( client->compareVersion( pstr->getStringRep().utf8() ) ? 1 : 0 );
       else
         return new BError( "Invalid parameter type" );
     }
@@ -2924,32 +2923,20 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     u16 duration;
     u32 cl_name;
     u32 cl_descr;
-    ObjArray* oText;
+    const String* oText;
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
     if ( ex.getParam( 0, icon ) && ex.getParam( 1, duration ) && ex.getParam( 2, cl_name ) &&
-         ex.getParam( 3, cl_descr ) && ex.getObjArrayParam( 4, oText ) )
+         ex.getParam( 3, cl_descr ) && ex.getStringParam( 4, oText ) )
     {
       if ( !( icon && cl_name && cl_descr ) )
         return new BError( "Invalid parameters" );
 
-      // Retrieve and validate the unicode text as an array of u16
-      if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      u16 cltext[( SPEECH_MAX_LEN + 1 )];
-      size_t textlen = oText->ref_arr.size();
-      if ( !Core::convertArrayToUC( oText, cltext, textlen, false ) )
-        return new BError( "Invalid value in Unicode array." );
+      if ( oText->lengthc() > SPEECH_MAX_LEN )
+        return new BError( "Arguments exceeds maximum size." );
 
-      // Now convert it into a vector of u32
-      // TODO: use a unicode string class or something bettwer when it will be ready
-      std::vector<u32> arguments;
-      arguments.reserve( textlen );
-      for ( size_t i = 0; i < textlen; i++ )
-        arguments.insert( arguments.end(), cltext[i] );
-
-      addBuff( icon, duration, cl_name, cl_descr, arguments );
+      addBuff( icon, duration, cl_name, cl_descr, oText->value() );
       return new BLong( 1 );
     }
     break;
@@ -3826,17 +3813,17 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
       if ( objimp->isa( BObjectImp::OTLong ) )
       {
         BLong* lng = static_cast<BLong*>( objimp );
-        ret = set_script_member( mname->value().c_str(), lng->value() );
+        ret = set_script_member( mname->utf8().c_str(), lng->value() );
       }
       else if ( objimp->isa( BObjectImp::OTDouble ) )
       {
         Double* dbl = static_cast<Double*>( objimp );
-        ret = set_script_member_double( mname->value().c_str(), dbl->value() );
+        ret = set_script_member_double( mname->utf8().c_str(), dbl->value() );
       }
       else if ( objimp->isa( BObjectImp::OTString ) )
       {
         String* str = static_cast<String*>( objimp );
-        ret = set_script_member( mname->value().c_str(), str->value() );
+        ret = set_script_member( mname->utf8().c_str(), str->value().utf8() );
       }
       else
         return new BError( "Invalid value type" );
@@ -3845,8 +3832,8 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
         return ret;
       else
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        UnicodeString message = UnicodeString( "Member " ) + mname->value() +
+                              " not found on that object";
         return new BError( message );
       }
     }
@@ -3860,13 +3847,13 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
     const String* mname;
     if ( ex.getStringParam( 0, mname ) )
     {
-      BObjectImp* ret = get_script_member( mname->value().c_str() );
+      BObjectImp* ret = get_script_member( mname->utf8().c_str() );
       if ( ret != NULL )
         return ret;
       else
       {
-        std::string message = std::string( "Member " ) + std::string( mname->value() ) +
-                              std::string( " not found on that object" );
+        UnicodeString message = UnicodeString( "Member " ) + mname->value() +
+                              " not found on that object";
         return new BError( message );
       }
     }
@@ -4404,7 +4391,7 @@ BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool /
       return new BError( "Not enough parameters" );
     const String* pstr;
     if ( ex.getStringParam( 0, pstr ) )
-      return new BLong( obj_->compareVersion( pstr->getStringRep() ) ? 1 : 0 );
+      return new BLong( obj_->compareVersion( pstr->getStringRep().utf8() ) ? 1 : 0 );
     return new BError( "Invalid parameter type" );
   }
   }
@@ -4433,44 +4420,26 @@ SpeechEvent::SpeechEvent( Mobile::Character* speaker, const char* speech, const 
 }
 
 UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech,
-                                        const u16* wspeech, const char lang[4],
+                                        const Clib::UnicodeString& wspeech, const char lang[4],
                                         ObjArray* speechtokens )
 {
-  ObjArray* arr;
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
   addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
   addMember( "text", new String( speech ) );
-  unsigned wlen = 0;
-  while ( wspeech[wlen] != L'\0' )
-    ++wlen;
-  if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
-    addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
-  else
-  {
-    addMember( "uc_text", arr );
-    addMember( "langcode", new String( lang ) );
-  }
+  addMember( "uc_text", new String( wspeech ) );
+  addMember( "langcode", new String( lang ) );
   if ( speechtokens != NULL )
     addMember( "tokens", speechtokens );
 }
 UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech,
-                                        const char* texttype, const u16* wspeech,
+                                        const char* texttype, const Clib::UnicodeString& wspeech,
                                         const char lang[4], ObjArray* speechtokens )
 {
-  ObjArray* arr;
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
   addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
   addMember( "text", new String( speech ) );
-  unsigned wlen = 0;
-  while ( wspeech[wlen] != L'\0' )
-    ++wlen;
-  if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
-    addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
-  else
-  {
-    addMember( "uc_text", arr );
-    addMember( "langcode", new String( lang ) );
-  }
+  addMember( "uc_text", new String( wspeech ) );
+  addMember( "langcode", new String( lang ) );
   addMember( "texttype", new String( texttype ) );
   if ( speechtokens != NULL )
     addMember( "tokens", new ObjArray( *speechtokens ) );

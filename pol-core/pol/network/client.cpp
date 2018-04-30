@@ -24,6 +24,7 @@
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bstruct.h"
+#include "../../bscript/impstr.h"
 #include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/strutil.h"  //CNXBUG
@@ -39,7 +40,6 @@
 #include "../polsig.h"
 #include "../realms/WorldChangeReasons.h"
 #include "../ufunc.h" // only in here temporarily, until logout-on-disconnect stuff is removed
-#include "../unicode.h"
 #include "../uoclient.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
@@ -251,19 +251,16 @@ Bscript::BStruct* Client::getclientinfo() const
   ret->addMember( "directx_major", new BLong( clientinfo_.directx_major ) );  // DirectX Major
   ret->addMember( "directx_minor", new BLong( clientinfo_.directx_minor ) );  // DirectX Minor
 
-  ObjArray* arr_vd;
-  unsigned maxlen_vd =
-      sizeof( clientinfo_.video_description ) / sizeof( clientinfo_.video_description[0] );
-  unsigned wlen_vd = 0;
-  while ( ( clientinfo_.video_description[wlen_vd] != L'\0' ) && ( wlen_vd < maxlen_vd ) )
-    ++wlen_vd;
-  if ( !Core::convertUCtoArray( clientinfo_.video_description, arr_vd, wlen_vd, true ) )
-    ret->addMember( "video_description",
-                    new Bscript::BError( "Invalid Unicode speech received." ) );
-  else
-  {
-    ret->addMember( "video_description", arr_vd );  // Video Card Description [wide-character]
+  // Video Card Description [wide-character]
+  String* video_description = new String();
+  size_t maxlen_vd =
+    sizeof( clientinfo_.video_description ) / sizeof( clientinfo_.video_description[0] );
+  for ( unsigned i = 0; i < maxlen_vd; ++i ) {
+    if ( clientinfo_.video_description[i] == L'\0' )
+      break;
+    (*video_description) += clientinfo_.video_description[i];
   }
+  ret->addMember( "video_description", video_description );
 
   ret->addMember( "video_vendor", new BLong( clientinfo_.video_vendor ) );  // Video Card Vendor ID
   ret->addMember( "video_device", new BLong( clientinfo_.video_device ) );  // Video Card Device ID
@@ -276,17 +273,16 @@ Bscript::BStruct* Client::getclientinfo() const
   ret->addMember( "partial_installed",
                   new BLong( clientinfo_.partial_installed ) );  // Partial Insstalled
 
-  ObjArray* arr_lc;
-  unsigned maxlen_lc = sizeof( clientinfo_.langcode ) / sizeof( clientinfo_.langcode[0] );
-  unsigned wlen_lc = 0;
-  while ( ( wlen_lc < maxlen_lc ) && ( clientinfo_.langcode[wlen_lc] != L'\0' ) )
-    ++wlen_lc;
-  if ( !Core::convertUCtoArray( clientinfo_.langcode, arr_lc, wlen_lc, true ) )
-    ret->addMember( "langcode", new Bscript::BError( "Invalid Unicode speech received." ) );
-  else
-  {
-    ret->addMember( "langcode", arr_lc );  // Language Code [wide-character]
+  // Language Code [wide-character]
+  String* langcode = new String();
+  size_t maxlen_lc =
+    sizeof( clientinfo_.langcode ) / sizeof( clientinfo_.langcode[0] );
+  for ( unsigned i = 0; i < maxlen_lc; ++i ) {
+    if ( clientinfo_.langcode[i] == L'\0' )
+      break;
+    (*langcode) += clientinfo_.langcode[i];
   }
+  ret->addMember( "langcode", langcode );
 
   std::unique_ptr<ObjArray> arr_u2( new ObjArray );
   for ( unsigned i = 0; i < sizeof( clientinfo_.unknown2 ); ++i )

@@ -38,6 +38,7 @@
  * - 2012/04/14 Tomi:      Added MBR_FACETID for new map message packet
  * - 2012/04/15 Tomi:      Added MBR_EDITABLE for maps
  * - 2012/06/02 Tomi:      Added MBR_ACTIVE_SKILL and MBR_CASTING_SPELL for characters
+ * - 2015/20/12 Bodom:     Added Unicode support
  */
 
 #include "parser.h"
@@ -88,6 +89,7 @@ const char* ParseErrorStr[PERR_NUM_ERRORS] = {"(No Error, or not specified)",
                                               "Waaah!",
                                               "Unterminated String Literal",
                                               "Invalid escape sequence in String",
+                                              "Invalid utf8 character in String",
                                               "Too Few Arguments",
                                               "Too Many Arguments",
                                               "Unexpected Comma",
@@ -732,7 +734,7 @@ void testparserdefinitions()
 }
 Clib::UnitTest testparserdefinitions_obj( testparserdefinitions );
 
-void matchOperators( Operator* oplist, int n_ops, char* buf, int* nPartial,
+void matchOperators( Operator* oplist, int n_ops, char32_t* buf, int* nPartial,
                      Operator** pTotalMatchOperator )
 {
   // all operators are 1 or 2 characters.
@@ -747,7 +749,7 @@ void matchOperators( Operator* oplist, int n_ops, char* buf, int* nPartial,
     Operator* op = &oplist[0];
     for ( int i = 0; i < n_ops; ++i, ++op )
     {
-      if ( op->code[0] == buf[0] )
+      if ( static_cast<unsigned char>(op->code[0]) == buf[0] )
       {
         if ( op->code[1] == '\0' )
         {
@@ -767,7 +769,8 @@ void matchOperators( Operator* oplist, int n_ops, char* buf, int* nPartial,
     Operator* op = &oplist[0];
     for ( int i = 0; i < n_ops; ++i, ++op )
     {
-      if ( op->code[0] == buf[0] && op->code[1] == buf[1] )
+      if ( static_cast<unsigned char>(op->code[0]) == buf[0]
+        && static_cast<unsigned char>(op->code[1]) == buf[1] )
       {
         ( *pTotalMatchOperator ) = op;
         return;
@@ -1037,22 +1040,22 @@ void Parser::write_words( std::ostream& os )
  * Tries to read a an operator from context
  *
  * @param tok Token&: The token to store the found literal into
+ * @param ctx: Reference to the compiler context
  * @param opList: The list of possible operators to look for, as Operator[]
  * @param n_ops: Number of operators in the list
- * @param t: todo
- * @param s: todo
- * @param opbuf: todo
  * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
  */
-int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* opList, int n_ops,
-                         char* opbuf )
+int Parser::tryOperator( Token& tok, CompilerContext& ctx, Operator* opList, int n_ops)
 {
   int bufp = 0;
   int thisMatchPartial;
   Operator* pLastMatch = NULL;
   Operator* pMatch = NULL;
 
-  while ( t && *t )
+  Clib::UnicodeStringIterator t = ctx.s;
+  char32_t opbuf[10];
+
+  while ( t.ptr() && *t )
   {
     //    if (strchr(operator_brk, *t)) mustBeOperator = 1;
 
@@ -1062,7 +1065,7 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
       err = PERR_BADTOKEN;
       return -1;
     }
-    opbuf[bufp++] = *t++;
+    opbuf[bufp++] = (t++)->asChar32();
     opbuf[bufp] = '\0';
     matchOperators( opList, n_ops, opbuf, &thisMatchPartial, &pMatch );
     if ( !thisMatchPartial )
@@ -1097,7 +1100,7 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
 
   if ( pMatch )
   {
-    *s += strlen( pMatch->code );
+    ctx.s += strlen( pMatch->code );
 
     tok.module = Mod_Basic;
     tok.id = pMatch->id;
@@ -1121,12 +1124,7 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
  */
 int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 {
-  int res;
-  char opbuf[10];
-
-  res = tryOperator( tok, ctx.s, &ctx.s, binary_operators, n_operators, opbuf );
-
-  return res;
+  return tryOperator( tok, ctx, binary_operators, n_operators );
 }
 
 /**
@@ -1138,12 +1136,7 @@ int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
  */
 int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 {
-  int res;
-  char opbuf[10];
-
-  res = tryOperator( tok, ctx.s, &ctx.s, unary_operators, n_unary, opbuf );
-
-  return res;
+  return tryOperator( tok, ctx, unary_operators, n_unary );
 }
 
 /**
@@ -1155,11 +1148,13 @@ int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
  */
 int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 {
-  if ( isdigit( ctx.s[0] ) || ctx.s[0] == '.' )
+  if ( ctx.s->isDigit() || ctx.s[0] == '.' )
   {
     char *endptr, *endptr2;
-    int l = strtol( ctx.s, &endptr, 0 );
-    double d = strtod( ctx.s, &endptr2 );
+    int l = strtol( ctx.s.ptr(), &endptr, 0 );
+    double d = strtod( ctx.s.ptr(), &endptr2 );
+    size_t llen = endptr - ctx.s.ptr();
+    size_t dlen = endptr2 - ctx.s.ptr();
 
     // 2015-01-21 Bodom: weird trick to remove an unwanted feature from Microsoft compiler
     //                   interpreting 'd' as 'e' (exponent), but 'd' in UO means dice,
@@ -1168,18 +1163,18 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
     if ( !( ctx.s[0] == '0' && ctx.s[1] && ( ctx.s[1] == 'x' || ctx.s[1] == 'X' ) ) )
     {
       // This is not hex, so no 'd' can be valid
-      for ( const char* i = ctx.s; i < endptr2; i++ )
+      for ( const char* i = ctx.s.ptr(); i < endptr2; i++ )
       {
         if ( *i == 'd' || *i == 'D' )
         {
           // A 'd' has been eaten, bug could have occurred:
           // re-perform parsing on a cleaned version of the string
-          size_t safelen = i - ctx.s + 1;
+          size_t safelen = i - ctx.s.ptr() + 1;
           std::unique_ptr<char[]> safeptr( new char[safelen]() );
-          strncpy( safeptr.get(), ctx.s, safelen - 1 );
+          strncpy( safeptr.get(), ctx.s.ptr(), safelen - 1 );
           d = strtod( safeptr.get(), &endptr2 );
           size_t newlen = endptr2 - safeptr.get();
-          endptr2 = const_cast<char*>( ctx.s + newlen );
+          endptr2 = const_cast<char*>( ctx.s.ptr() + newlen );
           break;
         }
       }
@@ -1190,14 +1185,14 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
     {  // long got more out of it, we'll go with that
       tok.id = TOK_LONG;
       tok.lval = l;
-      ctx.s = endptr;
+      ctx.s += llen;
       return 1;
     }
     else
     {
       tok.id = TOK_DOUBLE;
       tok.dval = d;
-      ctx.s = endptr2;
+      ctx.s += dlen;
       return 1;
     }
   }
@@ -1205,61 +1200,86 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 }
 
 /**
- * Tries to read a literal (string/variable name) from context
- *
- * @param tok Token&: The token to store the found literal into
- * @param ctx CompilerContext&: The context to look into
- * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
- */
+* Tries to read a literal (string/variable name) from context
+*
+* A string is UTF8 bytes between double quotes, with \" escape,
+* please note that UO supported characters are limited to 0x0001-0xFFFF
+*
+* @param tok Token&: The token to store the found literal into
+* @param ctx CompilerContext&: The context to look into
+* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+*/
 int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 {
   if ( ctx.s[0] == '\"' )
   {
-    const char* end = &ctx.s[1];
-    std::string lit;
-    bool escnext = false;  // true when waiting for 2nd char in an escape sequence
-    u8 hexnext = 0;        // tells how many more chars in a \xNN escape sequence
-    char hexstr[3];        // will contain the \x escape chars to be processed
-    memset( hexstr, 0, 3 );
+    UnicodeStringIterator end = ctx.s + 1;
+    bool escnext = false;    // true when waiting for 2nd char in an escape sequence
+    u8 hexnext = 0;          // tells how many more chars in a \xNN or \xNNNN escape sequence
+    std::string hexstr;      // will contain the \x escape chars to be processed
+    hexstr.reserve(7);
+    Clib::UnicodeString lit; // will contain the read unicode
 
     for ( ;; )
     {
-      if ( !*end )
+      if ( *end == '\0' )
       {
         err = PERR_UNTERMSTRING;
         return -1;
       }
 
-      passert_always_r( !( escnext && hexnext ),
-                        "Bug in the compiler. Please report this on the forums." );
+      passert_always_r( !(escnext && hexnext),
+        "Bug in the compiler. Please report this on the forums." );
 
       if ( escnext )
       {
         // waiting for 2nd character after a backslash
         escnext = false;
+
         if ( *end == 'n' )
           lit += '\n';
         else if ( *end == 't' )
           lit += '\t';
         else if ( *end == 'x' )
           hexnext = 2;
+        else if ( *end == 'u' )
+          hexnext = 4;
         else
-          lit += *end;
+          lit += end;
+
+        if ( hexnext )
+          hexstr = "0x";
       }
       else if ( hexnext )
       {
-        // waiting for next (two) chars in hex escape sequence (eg. \xFF)
-        hexstr[2 - hexnext] = *end;
+        // waiting for more chars in hex escape sequence (eg. \xFF)
+        if( *end < 0x30 || *end > 0x80 )
+        {
+          // Out of 0-z range, no need for more checks
+          err = PERR_INVESCAPE;
+          return -1;
+        }
+        hexstr += end->asAscii(false);
+
         if ( !--hexnext )
         {
-          char* endptr;
-          char ord = static_cast<char>( strtol( hexstr, &endptr, 16 ) );
-          if ( *endptr != '\0' )
-          {
+          unsigned long ord = std::numeric_limits<unsigned long>::max();
+
+          try {
+            ord = std::stoul( hexstr, 0, 16 );
+          } catch ( std::logic_error ) {
             err = PERR_INVESCAPE;
             return -1;
           }
-          lit += ord;
+
+          if( ord > 0xffff )
+          {
+            // This should never happen, just being paranoid
+            err = PERR_INVESCAPE;
+            return -1;
+          }
+
+          lit += static_cast<char32_t>(ord);
         }
       }
       else
@@ -1269,30 +1289,23 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
         else if ( *end == '\"' )
           break;
         else
-          lit += *end;
+          lit += end;
       }
+
       ++end;
     }
-    /*
-            char *end = strchr(&ctx.s[1], '\"');
-            if (!end)
-            {
-            err = PERR_UNTERMSTRING;
-            return -1;
-            }
-            */
-    // int len = end - ctx.s;   //   "abd" len = 5-1 = 4
-    tok.id = TOK_STRING;  // this is a misnomer I think!
+
+    tok.id = TOK_STRING;
     tok.type = TYP_OPERAND;
-    tok.copyStr( lit.c_str() );
+    tok.copyStr( lit.utf8().c_str() );
 
     ctx.s = end + 1;  // skip past the ending delimiter
     return 1;
   }
-  else if ( isalpha( ctx.s[0] ) || ctx.s[0] == '_' )
+  else if ( ctx.s->isAlpha() || ctx.s[0] == '_' )
   {  // we have a variable/label/verb.
-    const char* end = ctx.s;
-    while ( *end && !isspace( *end ) && strchr( ident_allowed, *end ) )
+    UnicodeStringIterator end = ctx.s;
+    while ( *end && !end->isSpace() && strchr( ident_allowed, end->asChar32() ) )
     {
       ++end;
     }
@@ -1300,20 +1313,20 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
     if ( end[0] == ':' && end[1] == ':' )
     {
       end += 2;
-      while ( *end && !isspace( *end ) && strchr( ident_allowed, *end ) )
+      while ( *end && !end->isSpace() && strchr( ident_allowed, end->asChar32() ) )
       {
         ++end;
       }
     }
 
-    int len = static_cast<int>( end - ctx.s + 1 );  //   "abcd"
+    int lenb = static_cast<int>( end.ptr() - ctx.s.ptr() + 1 );  //   "abcd"
 
-    tok.copyStr( ctx.s, len - 1 );
+    tok.copyStr( ctx.s.ptr(), lenb - 1 );
 
     tok.id = TOK_IDENT;
     tok.type = TYP_OPERAND;
 
-    ctx.s = end;
+    ctx.s += end.posc() - ctx.s.posc();
     return 1;
   }
   return 0;
@@ -1667,7 +1680,7 @@ int SmartParser::tryLiteral( Token& tok, CompilerContext& ctx )
       // (easier when/if token uses string)
     }
 #endif
-    if ( ctx.s[0] == ':' && ( ctx.s[1] == '\0' || isspace( ctx.s[1] ) ) )
+    if ( ctx.s[0] == ':' && ( ctx.s[1] == '\0' || ctx.s[1].isSpace() ) )
     {
       tok.id = CTRL_LABEL;
       tok.type = TYP_LABEL;
@@ -2092,7 +2105,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
   if ( !quiet )
   {
     char buf[80];
-    Clib::stracpy( buf, ctx.s, 80 );
+    Clib::stracpy( buf, ctx.s.ptr(), 80 );
     strtok( buf, "\r\n" );
     INFO_PRINT << "Parsing " << buf << "\n";
   }
@@ -2101,7 +2114,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
   int leftbracket_count = 0;
   while ( !done && ( res == 0 ) )
   {
-    const char* t = ctx.s;
+    UnicodeStringIterator t = ctx.s;
     Token token;
 
     res = peekToken( ctx, token );

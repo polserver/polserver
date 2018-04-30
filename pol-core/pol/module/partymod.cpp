@@ -16,6 +16,7 @@
 #include <stddef.h>
 
 #include "../../bscript/berror.h"
+#include "../../bscript/impstr.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
@@ -31,7 +32,6 @@
 #include "../party_cfg.h"
 #include "../pktdef.h"
 #include "../syshook.h"
-#include "../unicode.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
@@ -448,21 +448,17 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
   BError* err;
   if ( getPartyParam( exec, 0, party, err ) )
   {
-    ObjArray* oText;
+    const String* oText;
     Mobile::Character* chr;
-    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getObjArrayParam( 2, oText ) ) )
+    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getStringParam( 2, oText ) ) )
     {
-      size_t textlen = oText->ref_arr.size();
-      u16 gwtext[( SPEECH_MAX_LEN + 1 )];
-      if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
-        return new BError( "Invalid value in Unicode array." );
+      if ( oText->lengthc() > SPEECH_MAX_LEN )
+        return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
 
       if ( Core::settingsManager.party_cfg.Hooks.OnPublicChat )
-        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref(), oText );
+        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref(), oText->copy() );
 
-      party->send_member_msg_public( chr, gwtext, textlen );
+      party->send_member_msg_public( chr, oText->value() );
       return new BLong( 1 );
     }
     else
@@ -478,24 +474,21 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
   BError* err;
   if ( getPartyParam( exec, 0, party, err ) )
   {
-    ObjArray* oText;
+    const String* oText;
     Mobile::Character* chr;
     Mobile::Character* tochr;
     if ( ( getCharacterParam( exec, 1, chr ) ) && ( getCharacterParam( exec, 2, tochr ) ) &&
-         ( getObjArrayParam( 3, oText ) ) )
+         ( getStringParam( 3, oText ) ) )
     {
-      size_t textlen = oText->ref_arr.size();
-      u16 gwtext[( SPEECH_MAX_LEN + 1 )];
-      if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
-        return new BError( "Invalid value in Unicode array." );
+      if ( oText->lengthc() > SPEECH_MAX_LEN )
+        return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
 
       if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )
         Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call( chr->make_ref(),
-                                                                   tochr->make_ref(), oText );
+                                                                   tochr->make_ref(),
+                                                                   oText->copy() );
 
-      party->send_member_msg_private( chr, tochr, gwtext, textlen );
+      party->send_member_msg_private( chr, tochr, oText->value() );
       return new BLong( 1 );
     }
     else

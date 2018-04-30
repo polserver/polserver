@@ -273,7 +273,7 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::E
       {
         return new Bscript::BError( "datafile.createelement(key): key must be a String" );
       }
-      return obj_->methodCreateElement( key->value() );
+      return obj_->methodCreateElement( key->utf8() );
     }
     break;
   case Bscript::MTH_FINDELEMENT:
@@ -297,7 +297,7 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::E
       {
         return new Bscript::BError( "datafile.findelement(key): key must be a String" );
       }
-      return obj_->methodFindElement( key->value() );
+      return obj_->methodFindElement( key->utf8() );
     }
     break;
   case Bscript::MTH_DELETEELEMENT:
@@ -321,7 +321,7 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::E
       {
         return new Bscript::BError( "datafile.deleteelement(key): key must be a String" );
       }
-      return obj_->methodDeleteElement( key->value() );
+      return obj_->methodDeleteElement( key->utf8() );
     }
     break;
   case Bscript::MTH_KEYS:
@@ -444,7 +444,7 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_CreateDataFile()
       std::string descriptor;
       std::string directory;
       std::string d_ds;
-      const std::string& inspec = strob->value();
+      const std::string& inspec = strob->utf8();
 
       const Plib::Package* spec_pkg = NULL;
       std::string spec_filename;
@@ -513,7 +513,7 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_OpenDataFile()
     {
       std::string descriptor;
       //      string directory;
-      const std::string& inspec = strob->value();
+      const std::string& inspec = strob->utf8();
 
       const Plib::Package* spec_pkg = NULL;
       std::string spec_filename;
@@ -562,7 +562,7 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_UnloadDataFile()
   const Bscript::String* strob;
   if ( getStringParam( 0, strob ) )
   {
-    DataStoreFile* dsf = GetDataStoreFile( strob->value() );
+    DataStoreFile* dsf = GetDataStoreFile( strob->utf8() );
     if ( !dsf )
       return new Bscript::BError( "Unable to find data store file" );
 

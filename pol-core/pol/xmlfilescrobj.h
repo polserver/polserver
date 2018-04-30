@@ -17,6 +17,7 @@
 #include "../bscript/contiter.h"
 #include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
+#include "../clib/unicode.h"
 
 namespace Pol {
 namespace Bscript {
@@ -69,7 +70,7 @@ public:
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
                                                bool forcebuiltin = false ) POL_OVERRIDE;
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual Clib::UnicodeString getStringRep() const POL_OVERRIDE;
   virtual size_t sizeEstimate() const POL_OVERRIDE
   {
     return sizeof( *this ) + _filename.capacity();
@@ -98,7 +99,7 @@ public:
   }
 
   virtual Bscript::BObjectImp* copy() const POL_OVERRIDE { return new BXmlNode( node->Clone() ); }
-  virtual std::string getStringRep() const POL_OVERRIDE;
+  virtual Clib::UnicodeString getStringRep() const POL_OVERRIDE;
 
   virtual const char* typeOf() const POL_OVERRIDE { return "XMLNode"; }
   virtual u8 typeOfInt() const POL_OVERRIDE { return OTXMLNode; }
@@ -133,7 +134,7 @@ public:
     return new BXmlAttribute( node->Clone() );
   }
 
-  virtual std::string getStringRep() const POL_OVERRIDE { return "XMLAttributes"; }
+  virtual Clib::UnicodeString getStringRep() const POL_OVERRIDE { return "XMLAttributes"; }
   virtual const char* typeOf() const POL_OVERRIDE { return "XMLAttributes"; }
   virtual u8 typeOfInt() const POL_OVERRIDE { return OTXMLAttributes; }
   virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }

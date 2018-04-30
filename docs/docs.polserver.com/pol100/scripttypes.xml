@@ -731,7 +731,7 @@ endprogram</example>
     <prototype>program textcommand(character, text, uc_text, langcode)</prototype>
     <parameter name="character" value="Character ref activating this script" />
     <parameter name="text" value="String after command name" />
-    <parameter name="uc_text" value="a Unicode array of the text string typed after the command (exist if client used unicode speech)" />
+    <parameter name="uc_text" value="Unicode String: text typed after the command (exist if client used unicode speech)" />
     <parameter name="langcode" value="3-character string, representing the client's language code, i.e. 'ENU', 'DEU', 'RUS', etc.(exist if client used unicode speech)" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
@@ -1399,7 +1399,7 @@ endprogram</example>
     <parameter name="character" value="Character ref" />
     <parameter name="of_who" value="Character ref" />
     <parameter name="mode" value="Integer" />
-    <parameter name="uctext" value="Unicode character array" />
+    <parameter name="uctext" value="Unicode String" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
     <def_prio>100</def_prio>
@@ -1413,7 +1413,7 @@ use uo;
 program CharProfile(character, of_who, mode, uctext)
     if (mode == 0)
       print("Request");
-      SendCharProfile(character, of_who, "Core test Title", CAscZ("Core test"), of_who.getprop("Profile"));
+      SendCharProfile(character, of_who, "Core test Title", "Core test", of_who.getprop("Profile"));
     else
       print("Update");
       of_who.setprop("Profile",uctext);

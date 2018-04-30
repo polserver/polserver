@@ -20,20 +20,22 @@ namespace Bscript
 
 #define BSCRIPT_FILE_MAGIC0 'C'
 #define BSCRIPT_FILE_MAGIC1 'E'
-#define ESCRIPT_FILE_VER_0000_obs 0x0000
-#define ESCRIPT_FILE_VER_0001_obs 0x0001
-#define ESCRIPT_FILE_VER_0002_obs 0x0002
-#define ESCRIPT_FILE_VER_0003 0x0003
-#define ESCRIPT_FILE_VER_0004 0x0004
-#define ESCRIPT_FILE_VER_0005 0x0005
-#define ESCRIPT_FILE_VER_0006 0x0006
-#define ESCRIPT_FILE_VER_0007 0x0007
-#define ESCRIPT_FILE_VER_0008 0x0008
-#define ESCRIPT_FILE_VER_0009 0x0009
-#define ESCRIPT_FILE_VER_000A 0x000A
-#define ESCRIPT_FILE_VER_000B 0x000B
-#define ESCRIPT_FILE_VER_000C 0x000C
-#define ESCRIPT_FILE_VER_000D 0x000D
+
+#define ESCRIPT_FILE_VER_0000_obs                     0x0000
+#define ESCRIPT_FILE_VER_0001_obs                     0x0001
+#define ESCRIPT_FILE_VER_POL093                       0x0002
+#define ESCRIPT_FILE_VER_0003                         0x0003
+#define ESCRIPT_FILE_VER_0004                         0x0004
+#define ESCRIPT_FILE_VER_0005                         0x0005
+#define ESCRIPT_FILE_VER_0006                         0x0006
+#define ESCRIPT_FILE_VER_0007                         0x0007
+#define ESCRIPT_FILE_VER_0008                         0x0008
+#define ESCRIPT_FILE_VER_0009                         0x0009
+#define ESCRIPT_FILE_VER_000A                         0x000A
+#define ESCRIPT_FILE_VER_POL097                       0x000B
+#define ESCRIPT_FILE_VER_POL099                       0x000C
+#define ESCRIPT_FILE_VER_POL099_BOOL                  0x000D
+#define ESCRIPT_FILE_VER_POL100_UNICODE               0x000E
 
 /*
     NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
@@ -41,7 +43,7 @@ namespace Bscript
     and report this to users when an older compiled version
     is attempted to be executed - TJ
     */
-#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_000D )
+#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_POL100_UNICODE )
 
 struct BSCRIPT_FILE_HDR
 {

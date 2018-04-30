@@ -9,13 +9,19 @@
 
 #include <iosfwd>
 #include <string>
+#include <memory>
 
 #include <format/format.h>
+#include "../clib/unicode.h"
 
 namespace Pol
 {
 namespace Bscript
 {
+
+using Clib::UnicodeString;
+using Clib::UnicodeStringIterator;
+
 /**
  * Represents a single compile context.
  *
@@ -26,7 +32,8 @@ class CompilerContext
 {
 public:
   CompilerContext();
-  CompilerContext( const std::string& filename, int dbg_filenum, const char* s );
+  CompilerContext( const std::string& filename, int dbg_filenum,
+    const std::shared_ptr<UnicodeString>& str );
   CompilerContext( const CompilerContext& );
   CompilerContext& operator=( const CompilerContext& );
 
@@ -39,14 +46,23 @@ public:
   int skipcomments();
 
   /**
+   * Holds the pointed string so it doesn't accidentally go out of scope
+   */
+  std::shared_ptr<UnicodeString> str;
+  /**
    * The code to be compiled, as null-terminated char sequence.
    * The pointer is moved forward when part of the string has been processed
    */
-  const char* s;
-  int line;
-  std::string filename;
+  UnicodeStringIterator s;
+  /**
+   * The iterator as it was when on its initial state
+   */
+  UnicodeStringIterator s_begin;
 
-  const char* s_begin;
+  /** Current line */
+  int line;
+  /** Current file name */
+  std::string filename;
 
   int dbg_filenum;
 };

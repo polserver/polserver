@@ -167,6 +167,9 @@
     <ClCompile Include="Program\ProgramMain.cpp">
       <Filter>Program</Filter>
     </ClCompile>
+    <ClCompile Include="unicode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binaryfile.h">
@@ -348,6 +351,9 @@
     </ClInclude>
     <ClInclude Include="Program\ProgramMain.h">
       <Filter>Program</Filter>
+    </ClInclude>
+    <ClInclude Include="unicode.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

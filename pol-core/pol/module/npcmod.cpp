@@ -31,7 +31,6 @@
 #include "../objtype.h"
 #include "../pktdef.h"
 #include "../poltype.h"
-#include "../unicode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "osmod.h"
@@ -128,7 +127,7 @@ BObjectImp* NPCExecutorModule::IsLegalMove()
   const Mobile::BoundingBox& bbox = ao_bbox->value();
 
   Core::UFACING facing;
-  if ( Mobile::DecodeFacing( facing_str->value().c_str(), facing ) == false )
+  if ( Mobile::DecodeFacing( facing_str->utf8().c_str(), facing ) == false )
     return new BLong( 0 );
 
   unsigned short x, y;
@@ -146,14 +145,15 @@ BObjectImp* NPCExecutorModule::CanMove()
 
     if ( param0->isa( BObjectImp::OTString ) )
     {
-      const char* dir = exec.paramAsString( 0 );
+      const UnicodeString dir = exec.paramAsString( 0 );
       Core::UFACING facing;
 
-      if ( Mobile::DecodeFacing( dir, facing ) == false )
+      if ( Mobile::DecodeFacing( dir.utf8().c_str(), facing ) == false )
       {
         DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                  << "\tCall to function npc::canmove():\n"
-                 << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
+                 << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got "
+                 << dir.utf8() << "\n";
         return new BError( "Invalid facing value" );
       }
 
@@ -320,13 +320,14 @@ BObjectImp* NPCExecutorModule::face()
 
   if ( param0->isa( BObjectImp::OTString ) )
   {
-    const char* dir = exec.paramAsString( 0 );
+    const UnicodeString dir = exec.paramAsString( 0 );
 
-    if ( Mobile::DecodeFacing( dir, i_facing ) == false )
+    if ( Mobile::DecodeFacing( dir.utf8().c_str(), i_facing ) == false )
     {
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                << "\tCall to function npc::face():\n"
-               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
+               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got "
+               << dir.utf8() << "\n";
       return NULL;
     }
   }
@@ -358,14 +359,15 @@ BObjectImp* NPCExecutorModule::move()
 
   if ( param0->isa( BObjectImp::OTString ) )
   {
-    const char* dir = exec.paramAsString( 0 );
+    const UnicodeString dir = exec.paramAsString( 0 );
     Core::UFACING facing;
 
-    if ( Mobile::DecodeFacing( dir, facing ) == false )
+    if ( Mobile::DecodeFacing( dir.utf8().c_str(), facing ) == false )
     {
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                << "\tCall to function npc::move():\n"
-               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
+               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got "
+               << dir.utf8() << "\n";
       return NULL;
     }
 
@@ -681,8 +683,9 @@ BObjectImp* NPCExecutorModule::say()
   else if ( npc.hidden() )
     npc.unhide();
 
-  const char* text = exec.paramAsString( 0 );
-  std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+  const UnicodeString text = exec.paramAsString( 0 );
+  UnicodeString texttype_str = exec.paramAsString( 1 );
+  texttype_str.toLower();
   int doevent;
   exec.getParam( 2, doevent );
   u8 texttype;
@@ -695,7 +698,6 @@ BObjectImp* NPCExecutorModule::say()
   else
     return new BError( "texttype string param must be either 'default', 'whisper', or 'yell'" );
 
-
   Network::PktHelper::PacketOut<Network::PktOut_1C> msg;
   msg->offset += 2;
   msg->Write<u32>( npc.serial_ext );
@@ -704,9 +706,9 @@ BObjectImp* NPCExecutorModule::say()
   msg->WriteFlipped<u16>( npc.speech_color() );
   msg->WriteFlipped<u16>( npc.speech_font() );
   msg->Write( npc.name().c_str(), 30 );
-  msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
+  msg->Write( text.asAnsi(true).c_str(), ( text.lengthc() > SPEECH_MAX_LEN + 1 )
                         ? SPEECH_MAX_LEN + 1
-                        : static_cast<u16>( strlen( text ) + 1 ) );
+                        : static_cast<u16>( text.lengthc() + 1 ) );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -732,7 +734,7 @@ BObjectImp* NPCExecutorModule::say()
         npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
           Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
           if ( chr != &npc )
-            othernpc->on_pc_spoke( &npc, text, texttype );
+            othernpc->on_pc_spoke( &npc, text.utf8().c_str(), texttype );
         } );
   }
 
@@ -746,34 +748,26 @@ BObjectImp* NPCExecutorModule::SayUC()
   else if ( npc.hidden() )
     npc.unhide();
 
-  ObjArray* oText;
+  const String* oText;
   const String* lang;
   int doevent;
 
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
+  if ( getStringParam( 0, oText ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
   {
-    std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+    Clib::UnicodeString texttype_str = exec.paramAsString( 1 );
+    texttype_str.toLower();
     if ( texttype_str != "default" && texttype_str != "whisper" && texttype_str != "yell" )
     {
       return new BError( "texttype string param must be either 'default', 'whisper', or 'yell'" );
     }
 
-    size_t textlenucc = oText->ref_arr.size();
-    if ( textlenucc > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
-    if ( lang->length() != 3 )
-      return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
-      return new BError( "Invalid value in Unicode array." );
+    if ( oText->lengthc() > SPEECH_MAX_LEN )
+      return new BError( ParamErrors::UNICODE_STRING_TOO_LONG );
+    if ( lang->lengthc() != 3 )
+      return new BError( ParamErrors::LANGCODE_INVALID );
 
-    std::string languc = Clib::strupper( lang->value() );
-    unsigned textlen = 0;
-
-    // textlen = wcslen((const wchar_t*)wtext) + 1;
-    while ( gwtext[textlen] != L'\0' )
-      ++textlen;
-    if ( textlen > SPEECH_MAX_LEN )
-      textlen = SPEECH_MAX_LEN;
+    Clib::UnicodeString languc = lang->value();
+    languc.toUpper();
 
     u8 texttype;
     if ( texttype_str == "whisper" )
@@ -790,9 +784,9 @@ BObjectImp* NPCExecutorModule::SayUC()
     talkmsg->Write<u8>( texttype );
     talkmsg->WriteFlipped<u16>( npc.speech_color() );
     talkmsg->WriteFlipped<u16>( npc.speech_font() );
-    talkmsg->Write( languc.c_str(), 4 );
+    talkmsg->Write( languc.asAscii(true).c_str(), 4 );
     talkmsg->Write( npc.description().c_str(), 30 );
-    talkmsg->WriteFlipped( &gwtext[0], static_cast<u16>( textlen ) );
+    talkmsg->WriteFlipped( oText->value(), static_cast<u16>( oText->lengthc() ) );
     u16 len = talkmsg->offset;
     talkmsg->offset = 1;
     talkmsg->WriteFlipped<u16>( len );
@@ -813,18 +807,14 @@ BObjectImp* NPCExecutorModule::SayUC()
 
     if ( doevent >= 1 )
     {
-      char ntextbuf[SPEECH_MAX_LEN + 1];
-      int ntextbuflen = 0;
-      for ( unsigned i = 0; i < textlen; ++i )
-      {
-        ntextbuf[ntextbuflen++] = std::wcout.narrow( (wchar_t)gwtext[i], '?' );
-      }
-      ntextbuf[ntextbuflen++] = 0;
+      const std::string ansiText = oText->ansi();
+
       Core::WorldIterator<Core::NPCFilter>::InRange(
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), NULL );
+              othernpc->on_pc_spoke( &npc, ansiText.c_str(), texttype, oText->value(),
+                languc.utf8().c_str(), NULL );
           } );
     }
   }
@@ -857,7 +847,7 @@ BObjectImp* NPCExecutorModule::getproperty()
   if ( exec.getStringParam( 0, propname_str ) )
   {
     std::string val;
-    if ( npc.getprop( propname_str->value(), val ) )
+    if ( npc.getprop( propname_str->utf8(), val ) )
     {
       return BObjectImp::unpack( val.c_str() );
     }
@@ -878,7 +868,7 @@ BObjectImp* NPCExecutorModule::setproperty()
   if ( exec.getStringParam( 0, propname_str ) )
   {
     BObjectImp* propval = getParamImp( 1 );
-    npc.setprop( propname_str->value(), propval->pack() );
+    npc.setprop( propname_str->utf8(), propval->pack() );
     return new BLong( 1 );
   }
   else
@@ -950,7 +940,7 @@ BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
 
   //    const std::string& areas = arealist->value();
 
-  ISTRINGSTREAM is( arealist->value() );
+  ISTRINGSTREAM is( arealist->utf8() );
 
   Mobile::Area a;
   // FIXME this is a terrible data format.

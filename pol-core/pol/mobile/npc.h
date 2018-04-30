@@ -171,9 +171,11 @@ public:
   void on_pc_spoke( Character* src_chr, const char* speech, u8 texttype );
   void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype );
   // Speech: Unicode (and ASCII) versions
-  void on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
+  void on_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
+                    const Clib::UnicodeString& wspeech,
                     const char lang[4], Bscript::ObjArray* speechtokens = NULL );
-  void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
+  void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
+                          const Clib::UnicodeString& wspeech,
                           const char lang[4], Bscript::ObjArray* speechtokens = NULL );
   bool can_accept_event( Core::EVENTID eventid );
   Bscript::BObjectImp* send_event_script( Bscript::BObjectImp* event );

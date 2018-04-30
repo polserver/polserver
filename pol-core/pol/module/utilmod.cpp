@@ -95,7 +95,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_RandomDiceRoll()
   {
     std::string errormsg;
     Core::Dice dice;
-    if ( dice.load( dicestr->data(), &errormsg ) )
+    if ( dice.load( dicestr->utf8().c_str(), &errormsg ) )
     {
       return new BLong( dice.roll() );
     }
@@ -115,7 +115,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
   const String* format_string;
   if ( !getStringParam( 0, format_string ) )
     return new BError( "No time string passed." );
-  else if ( format_string->length() > 100 )
+  else if ( format_string->lengthc() > 100 )
     return new BError( "Format string exceeded 100 characters." );
 
   int time_stamp;
@@ -133,15 +133,15 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
   auto time_struct = Clib::localtime( seconds );
 
   // strftime uses assert check for invalid format -> precheck it
-  size_t len = format_string->length();
-  const char* str = format_string->data();
+  size_t len = format_string->lengthc();
+  auto itr = format_string->value().begin();
   while ( len-- > 0 )
   {
-    if ( *str++ == '%' )
+    if ( *(itr++) == '%' )
     {
       if ( len-- <= 0 )
         return new BError( "Invalid Format string." );
-      switch ( *str++ )
+      switch ( (itr++)->asChar32() )
       {
       case ( '%' ):
       case ( 'a' ):
@@ -176,7 +176,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
   }
 
   char buffer[102];  // +2 for the \0 termination.
-  if ( strftime( buffer, sizeof buffer, format_string->data(), &time_struct ) > 0 )
+  if ( strftime( buffer, sizeof buffer, format_string->utf8().c_str(), &time_struct ) > 0 )
     return new String( buffer );
   else
     return new BError( "Format string too long." );

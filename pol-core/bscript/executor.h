@@ -33,6 +33,7 @@
 #include <format/format.h>
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
+#include "../clib/unicode.h"
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
@@ -53,6 +54,20 @@ class ExecutorModule;
 class ModuleFunction;
 class String;
 class Token;
+
+/**
+ * Collection of possible errors given when processing parameters
+ *
+ * @todo MOve all messages here
+ * @author Bodom
+ */
+struct ParamErrors
+{
+  static constexpr auto UNICODE_STRING_TOO_LONG = "unicode String exceeds maximum length.";
+  static constexpr auto LANGCODE_INVALID = "langcode must be a 3-character code.";
+};
+
+
 #ifdef ESCRIPT_PROFILE
 #include <map>
 
@@ -177,7 +192,7 @@ public:
   BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
 
 
-  const char* paramAsString( unsigned param );
+  const UnicodeString paramAsString( unsigned param );
   double paramAsDouble( unsigned param );
   int paramAsLong( unsigned param );
 

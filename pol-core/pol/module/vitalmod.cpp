@@ -248,9 +248,9 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       else if ( param1->isa( BObjectImp::OTString ) )
       {
         String* attrname = static_cast<String*>( param1 );
-        Mobile::Attribute* attr = Mobile::Attribute::FindAttribute( attrname->value() );
+        Mobile::Attribute* attr = Mobile::Attribute::FindAttribute( attrname->utf8() );
         if ( attr == NULL )
-          return new BError( "Attribute not defined: " + attrname->value() );
+          return new BError( UnicodeString("Attribute not defined: ") + attrname->value() );
         chr->calc_single_attribute( attr );
       }
       else
@@ -261,9 +261,9 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       else if ( param2->isa( BObjectImp::OTString ) )
       {
         String* vitalname = static_cast<String*>( param2 );
-        Core::Vital* vital = Core::FindVital( vitalname->value() );
+        Core::Vital* vital = Core::FindVital( vitalname->utf8() );
         if ( vital == NULL )
-          return new BError( "Vital not defined: " + vitalname->value() );
+          return new BError( UnicodeString("Vital not defined: ") + vitalname->value() );
         chr->calc_single_vital( vital );
       }
       else

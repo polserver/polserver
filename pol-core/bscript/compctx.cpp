@@ -22,9 +22,9 @@ namespace
  */
 int eatToEndOfLine( CompilerContext& ctx )
 {
-  const char* t = ctx.s;
+  Clib::UnicodeStringIterator t = ctx.s;
 
-  while ( *t && ( *t != '\r' ) && ( *t != '\n' ) )
+  while ( ( *t != '\0' ) && ( *t != '\r' ) && ( *t != '\n' ) )
     t++;
 
   ctx.s = t;
@@ -42,20 +42,20 @@ int eatToCommentEnd( CompilerContext& ctx )
 
   while ( tmp.s[0] )
   {
-    if ( strncmp( tmp.s, "*/", 2 ) == 0 )
+    if ( strncmp( tmp.s.ptr(), "*/", 2 ) == 0 )
     {
       tmp.s += 2;
       ctx = tmp;
       return 0;
     }
-    else if ( strncmp( tmp.s, "/*", 2 ) == 0 )  // nested comment
+    else if ( strncmp( tmp.s.ptr(), "/*", 2 ) == 0 )  // nested comment
     {
       tmp.s += 2;
       int res = eatToCommentEnd( tmp );
       if ( res )
         return res;
     }
-    else if ( strncmp( tmp.s, "//", 2 ) == 0 )  // nested eol-comment
+    else if ( strncmp( tmp.s.ptr(), "//", 2 ) == 0 )  // nested eol-comment
     {
       int res = eatToEndOfLine( tmp );
       if ( res )
@@ -70,41 +70,49 @@ int eatToCommentEnd( CompilerContext& ctx )
 }  // namespace
 
 CompilerContext::CompilerContext()
-    : s( NULL ), line( 1 ), filename( "" ), s_begin( NULL ), dbg_filenum( 0 )
+    : str( std::make_shared<UnicodeString>("") ), s( str->begin() ), s_begin( str->begin() ),
+      line( 1 ), filename( "" ), dbg_filenum( 0 )
 {
 }
 
-CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const char* s )
-    : s( s ), line( 1 ), filename( filename ), s_begin( s ), dbg_filenum( dbg_filenum )
+CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum,
+    const std::shared_ptr<UnicodeString>& str ) : str( str ), s( str->begin() ),
+    s_begin( str->begin() ), line( 1 ), filename( filename ),
+    dbg_filenum( dbg_filenum )
 {
 }
 
 CompilerContext::CompilerContext( const CompilerContext& ctx )
-    : s( ctx.s ),
+    : str( ctx.str ),
+      s( ctx.s ),
+      s_begin( ctx.s_begin ),
+
       line( ctx.line ),
       filename( ctx.filename ),
-      s_begin( ctx.s_begin ),
       dbg_filenum( ctx.dbg_filenum )
 {
 }
 
 CompilerContext& CompilerContext::operator=( const CompilerContext& rhs )
 {
-  filename = rhs.filename;
+  str = rhs.str;
   s = rhs.s;
-  line = rhs.line;
   s_begin = rhs.s_begin;
+
+  line = rhs.line;
+  filename = rhs.filename;
   dbg_filenum = rhs.dbg_filenum;
 
   return *this;
 }
+
 
 /**
  * Skips whitespaces. Moves the pointer forward until a non-whitespace is found
  */
 void CompilerContext::skipws()
 {
-  while ( isspace( s[0] ) )
+  while ( s->isSpace() )
   {
     if ( s[0] == '\n' )
       ++line;
@@ -117,7 +125,7 @@ int CompilerContext::skipcomments()
   CompilerContext tctx( *this );
   for ( ;; )
   {
-    while ( tctx.s[0] && isspace( tctx.s[0] ) )
+    while ( tctx.s[0] && tctx.s->isSpace() )
     {
       // FIXME: if (tctx.s[0] == '\t')
       // FIXME:     contains_tabs = true;
@@ -133,7 +141,7 @@ int CompilerContext::skipcomments()
     }
 
     // look for comments
-    if ( strncmp( tctx.s, "/*", 2 ) == 0 )  // got a start of comment
+    if ( strncmp( tctx.s.ptr(), "/*", 2 ) == 0 )  // got a start of comment
     {
       int res;
       tctx.s += 2;
@@ -141,7 +149,7 @@ int CompilerContext::skipcomments()
       if ( res )
         return res;
     }
-    else if ( strncmp( tctx.s, "//", 2 ) == 0 )  // comment, one line only
+    else if ( strncmp( tctx.s.ptr(), "//", 2 ) == 0 )  // comment, one line only
     {
       int res;
       res = eatToEndOfLine( tctx );
@@ -159,21 +167,25 @@ int CompilerContext::skipcomments()
   return 0;
 }
 
+/** Prints current file name and position on given stream */
 void CompilerContext::printOn( std::ostream& os ) const
 {
   os << "File: " << filename << ", Line " << line << std::endl;
 }
 
+/** Prints current file name and position on given writer */
 void CompilerContext::printOn( fmt::Writer& writer ) const
 {
   writer << "File: " << filename << ", Line " << line << "\n";
 }
 
+/** Prints current position only on given stream */
 void CompilerContext::printOnShort( std::ostream& os ) const
 {
   os << filename << ", Line " << line << std::endl;
 }
 
+/** Prints current position only on given writer */
 void CompilerContext::printOnShort( fmt::Writer& writer ) const
 {
   writer << filename << ", Line " << line << "\n";

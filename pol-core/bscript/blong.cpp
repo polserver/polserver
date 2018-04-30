@@ -119,7 +119,7 @@ bool BLong::operator<( const BObjectImp& objimp ) const
   return base::operator<( objimp );
 }
 
-std::string BLong::getStringRep() const
+UnicodeString BLong::getStringRep() const
 {
   OSTRINGSTREAM os;
 
@@ -142,7 +142,7 @@ BObjectImp* BLong::selfPlusObj( const Double& objimp ) const
 }
 BObjectImp* BLong::selfPlusObj( const String& objimp ) const
 {
-  return new String( getStringRep() + objimp.data() );
+  return new String( getStringRep() + objimp.value() );
 }
 
 void BLong::selfPlusObjImp( BObjectImp& objimp, BObject& obj )

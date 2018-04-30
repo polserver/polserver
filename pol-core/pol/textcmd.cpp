@@ -60,8 +60,6 @@
 #include "tmpvars.h"
 #include "uconst.h"
 #include "ufunc.h"
-#include "ufuncstd.h"
-#include "unicode.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 #include "utype.h"
@@ -511,7 +509,7 @@ void textcmd_integ_chr( Network::Client* /*client*/ )
   check_character_integrity();
 }
 
-std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
+Clib::UnicodeString get_textcmd_help( Mobile::Character* chr, const char* cmd )
 {
   const char* t = cmd;
   while ( *t )
@@ -545,14 +543,14 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
       if ( Clib::FileExists( filename.c_str() ) )
       {
         // cout << "Found " << filename << endl;
-        std::string result;
+        Clib::UnicodeString result;
         std::ifstream ifs( filename.c_str(), std::ios::binary );
         char temp[64];
         do
         {
           ifs.read( temp, sizeof temp );
           if ( ifs.gcount() )
-            result.append( temp, static_cast<size_t>( ifs.gcount() ) );
+            result += Clib::UnicodeString( temp, static_cast<size_t>( ifs.gcount() ) );
         } while ( !ifs.eof() );
         return result;
       }
@@ -561,8 +559,8 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
   return "";
 }
 
-bool start_textcmd_script( Network::Client* client, const char* text, const u16* wtext = NULL,
-                           const char* lang = NULL )
+bool start_textcmd_script( Network::Client* client, const char* text,
+                           const Clib::UnicodeString* wtext = nullptr, const char* lang = nullptr )
 {
   std::string scriptname;
   std::string params;
@@ -625,26 +623,8 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
         {
           if ( wtext && lang )
           {
-            Bscript::ObjArray* arr;
-            size_t woffset;
-            bool UCconv = false;
-            // calc offset to either the null after the
-            // scriptname (+1) or the start of the param (+2)
-            woffset = static_cast<size_t>( scriptname.length() + ( params == "" ? 1 : 2 ) );
-            unsigned wtlen = 0;  // wcslen(static_cast<const wchar_t*>(wtext+woffset))
-
-            // Need to calc length with a loop (coz linux is a PITA with 4-byte unicode!)
-            while ( *( wtext + woffset + wtlen ) )
-              ++wtlen;
-            UCconv = Core::convertUCtoArray( wtext + woffset, arr, wtlen,
-                                             true );  // convert back with ctBEu16()
-            if ( UCconv )
-            {
-              ex->pushArg( new Bscript::String( lang ) );
-              ex->pushArg( arr );
-            }
-            else
-              ex->pushArg( new Bscript::BError( "Invalid Unicode speech received." ) );
+            ex->pushArg( new Bscript::String( lang ) );
+            ex->pushArg( new Bscript::String( *wtext ) );
           }
           ex->pushArg( new Bscript::String( params ) );
           ex->pushArg( new Module::ECharacterRefObjImp( client->chr ) );
@@ -672,8 +652,8 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
   return false;
 }
 
-bool process_command( Network::Client* client, const char* text, const u16* wtext /*NULL*/,
-                      const char* lang /*NULL*/ )
+bool process_command( Network::Client* client, const char* text,
+                      const Clib::UnicodeString* wtext /*NULL*/, const char* lang /*NULL*/ )
 {
   static int init;
   if ( !init )

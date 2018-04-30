@@ -128,7 +128,7 @@ BObjectImp* bobject_from_string( const std::string& str, int radix )
   if ( imp )
     return imp;
   else
-    return new ConstString( str );
+    return new String( str );
 }
 
 

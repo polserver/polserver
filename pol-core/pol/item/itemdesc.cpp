@@ -986,7 +986,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         {
           elem.add_prop( "cprop", ( ( *ditr ).first->getStringRep() + "\t" +
                                     ( *ditr ).second->impptr()->pack() )
-                                      .c_str() );
+                                      .utf8().c_str() );
         }
       }
       else
@@ -1006,7 +1006,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         Bscript::ObjArray::Cont::const_iterator aitr;
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
         {
-          os << ( *aitr ).get()->impptr()->getStringRep() << " ";
+          os << ( *aitr ).get()->impptr()->getStringRep().utf8() << " ";
         }
         elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ).c_str() );
       }
@@ -1028,7 +1028,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
         {
           OSTRINGSTREAM os;
-          os << ( *aitr ).get()->impptr()->getStringRep();
+          os << ( *aitr ).get()->impptr()->getStringRep().utf8();
           elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ).c_str() );
         }
       }
@@ -1040,13 +1040,13 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     }
     else if ( key == "ObjClass" )
     {
-      std::string value = val_imp->getStringRep();
-      elem.set_type( value.c_str() );
+      Clib::UnicodeString value = val_imp->getStringRep();
+      elem.set_type( value.utf8().c_str() );
     }
     else if ( key == "ObjType" )
     {
-      std::string value = val_imp->getStringRep();
-      elem.set_rest( value.c_str() );
+      Clib::UnicodeString value = val_imp->getStringRep();
+      elem.set_rest( value.utf8().c_str() );
     }
     else if ( Clib::strlower( key ) == "name" || Clib::strlower( key ) == "objtypename" ||
               Clib::strlower( key ) == "oldobjtype" || Clib::strlower( key ) == "methodscript" ||
@@ -1060,8 +1060,8 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     }
     else
     {
-      std::string value = val_imp->getStringRep();
-      elem.add_prop( key.c_str(), value.c_str() );
+      Clib::UnicodeString value = val_imp->getStringRep();
+      elem.add_prop( key.c_str(), value.utf8().c_str() );
     }
   }
 

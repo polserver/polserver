@@ -13,6 +13,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "../clib/unicode.h"
 
 namespace Pol
 {
@@ -23,6 +24,12 @@ class Realm;
 namespace Core
 {
 Realms::Realm* find_realm( const std::string& name );
+inline Realms::Realm* find_realm( const char* name ) {
+  return find_realm( std::string(name) );
+}
+inline Realms::Realm* find_realm( const Clib::UnicodeString& name ) {
+  return find_realm( name.utf8() );
+}
 void add_realm( const std::string& name, Realms::Realm* base );
 bool defined_realm( const std::string& name );
 void remove_realm( const std::string& name );

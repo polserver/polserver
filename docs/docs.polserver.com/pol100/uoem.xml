@@ -2942,8 +2942,8 @@ const CLOSE_CONTAINER := 12;</code></explain>
   <parameter name="character" value="Character" />
   <parameter name="of_who" value="Character" />
   <parameter name="title" value="String" />
-  <parameter name="uneditable_text" value="unicode arrays" />
-  <parameter name="editable_text" value="unicode arrays" />
+  <parameter name="uneditable_text" value="Unicode String" />
+  <parameter name="editable_text" value="Unicode String" />
   <explain>will send the serverside charprofile packet back to client and display it for the player.</explain>
   <explain>uo.em constants for type:
 <code>

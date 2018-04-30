@@ -85,7 +85,7 @@ Bscript::BObjectImp* StoredConfigElem::listprops() const
   PropImpList::const_iterator itr;
   for ( itr = propimps_.begin(); itr != propimps_.end(); ++itr )
   {
-    Bscript::String propname( ( *itr ).first );
+    Bscript::String propname( ( *itr ).first.get() );
     if ( !objarr->contains( propname ) )
       objarr->addElement( propname.copy() );
   }

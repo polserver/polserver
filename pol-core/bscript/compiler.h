@@ -300,8 +300,6 @@ public:
   int emit_functions();
   void patch_callers( UserFunction& uf );
 
-private:
-  std::vector<char*> delete_these_arrays;
 };
 }
 }

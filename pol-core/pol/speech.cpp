@@ -37,7 +37,7 @@
 #include "syshook.h"
 #include "textcmd.h"
 #include "tildecmd.h"
-#include "ufuncstd.h"
+#include "ufunc.h"
 #include "uworld.h"
 
 namespace Pol
@@ -209,7 +209,7 @@ void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
                            mymsg->font );
 }
 
-void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, size_t wtextlen,
+void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const Clib::UnicodeString& wtext,
                         char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
 {
   // validate text color
@@ -224,22 +224,18 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
 
   chr->last_textcolor( textcol );
 
-  using std::wstring;
-
-  if ( wtext[0] == ctBEu16( L'.' ) || wtext[0] == ctBEu16( L'=' ) )
+  if ( wtext[0] == '.' || wtext[0] == '=' )
   {
-    if ( !process_command( client, ntext, wtext, msgin->lang ) )
+    if ( !process_command( client, ntext, &wtext, msgin->lang ) )
     {
-      wstring wtmp( L"Unknown command: " );
-      // Needs to be done char-by-char due to linux's 4-byte unicode!
-      for ( size_t i = 0; i < wtextlen; i++ )
-        wtmp += static_cast<wchar_t>( cfBEu16( wtext[i] ) );
-      send_sysmessage( client, wtmp, msgin->lang );
+      Clib::UnicodeString wtmp( "Unknown command: " );
+      wtmp += wtext;
+      send_sysmessage( client, wtext, msgin->lang );
     }
     return;
   }
 
-  if ( cfBEu16( msgin->wtext[0] ) == L'~' )  // we strip tildes out
+  if ( msgin->wtext[0] == '~' )  // we strip tildes out
   {
     process_tildecommand( client, wtext );
     return;
@@ -267,7 +263,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
   talkmsg->WriteFlipped<u16>( msgin->font );
   talkmsg->Write( msgin->lang, 4 );
   talkmsg->Write( chr->name().c_str(), 30 );
-  talkmsg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );  // nullterm already included
+  talkmsg->Write( wtext, static_cast<u16>(wtext.lengthc()), true );
   u16 len = talkmsg->offset;
   talkmsg->offset = 1;
   talkmsg->WriteFlipped<u16>( len );
@@ -376,8 +372,8 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
             npc->on_ghost_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
           } );
     }
-    sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type, wtext,
-                            msgin->lang, static_cast<int>( wtextlen ), speechtokens );
+    sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type, &wtext,
+                            msgin->lang, speechtokens );
   }
 }
 u16 Get12BitNumber( u8* thearray, u16 theindex )
@@ -515,8 +511,11 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
     msgin->type &= ( ~0xC0 );  // Client won't accept C0 text type messages, so must set to 0
   }
 
-  SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen,
-                     speechtokens.release() );
+  Clib::UnicodeString wtext;
+  for ( unsigned k = 0; k < wtextbuflen; ++k )
+    wtext += wtextbuf[k];
+
+  SendUnicodeSpeech( client, msgin, wtext, ntextbuf, ntextbuflen, speechtokens.release() );
 }
 }
 }
