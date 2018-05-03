@@ -75,6 +75,6 @@ script:
   - ./checkstyle.py -q;
   - echo -en 'travis_fold:end:script.tests\\r'
 
-notifications:
-  email:
-    - polteam@polserver.com
+#notifications:
+#  email:
+#    - polteam@polserver.com

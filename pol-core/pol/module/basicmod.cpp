@@ -45,7 +45,8 @@ Bscript::BObjectImp* BasicExecutorModule::len()
   }
   else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
-    return new BLong( static_cast<int>( imp->getStringRep().length() ) );
+    Bscript::String* str = static_cast<Bscript::String*>( imp );
+    return new BLong( static_cast<int>( str->length() ) );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTError ) )
   {

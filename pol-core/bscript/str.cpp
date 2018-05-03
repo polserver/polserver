@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <ctype.h>
 #include <string>
+#include <utf8/utf8.h>
 
 #include "../clib/stlutil.h"
 #include "berror.h"
@@ -26,6 +27,9 @@
 #ifdef _MSC_VER
 #pragma warning( disable : 4244 )
 #endif
+
+#define UTF8TEST 1
+
 namespace Pol
 {
 namespace Bscript
@@ -39,6 +43,14 @@ String* String::StrStr( int begin, int len )
   return new String( value_.substr( begin - 1, len ) );
 }
 
+size_t String::length() const
+{
+#if UTF8TEST
+  return utf8::distance( value_.begin(), value_.end() );
+#else
+  return value_.length();
+#endif
+}
 String* String::ETrim( const char* CRSet, int type )
 {
   std::string tmp = value_;
@@ -381,6 +393,22 @@ void String::toLower( void )
   }
 }
 
+
+namespace
+{
+size_t getBytePosition( std::string& str, std::string::iterator& itr, size_t codeindex )
+{
+  auto itr_end = str.end();
+  for ( size_t i = 0; i < codeindex && itr != itr_end; ++i )
+    utf8::next( itr, itr_end );
+
+  if ( itr != itr_end )
+  {
+    return std::distance( str.begin(), itr );
+  }
+  return std::string::npos;
+}
+}
 BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*copy*/ )
 {
   std::string::size_type pos, len;
@@ -390,19 +418,47 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
   {
     String& rtstr = (String&)*idx;
     pos = value_.find( rtstr.value_ );
+#ifdef UTF8TEST
+    len = rtstr.value_.size();
+#else
     len = rtstr.length();
+#endif
   }
   else if ( idx->isa( OTLong ) )
   {
     BLong& lng = (BLong&)*idx;
-    pos = lng.value() - 1;
     len = 1;
+    pos = lng.value() - 1;
+#ifdef UTF8TEST
+    auto itr = value_.begin();
+    pos = getBytePosition( value_, itr, pos );
+    if ( pos != std::string::npos )
+    {
+      utf8::next( itr, value_.end() );
+      len = std::distance( value_.begin(), itr ) - pos;
+    }
+    else
+      pos = std::string::npos;
+#else
+#endif
   }
   else if ( idx->isa( OTDouble ) )
   {
     Double& dbl = (Double&)*idx;
     pos = static_cast<std::string::size_type>( dbl.value() );
     len = 1;
+#ifdef UTF8TEST
+    auto itr = value_.begin();
+    pos = getBytePosition( value_, itr, pos );
+    if ( pos != std::string::npos )
+    {
+      utf8::next( itr, value_.end() );
+      len = std::distance( value_.begin(), itr ) - pos;
+    }
+    else
+      pos = std::string::npos;
+#else
+#endif
   }
   else
   {
@@ -438,12 +494,20 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
   BObjectImp& start = start_obj.impref();
 
   // first deal with the start position.
-  unsigned index;
+  size_t index;
   if ( start.isa( OTLong ) )
   {
     BLong& lng = (BLong&)start;
-    index = (unsigned)lng.value();
+    index = (size_t)lng.value();
     if ( index == 0 || index > value_.size() )
+      return BObjectRef( new BError( "Subscript out of range" ) );
+    --index;
+#ifdef UTF8TEST
+    auto itr = value_.begin();
+    index = getBytePosition( value_, itr, index );
+#else
+#endif
+    if ( index == std::string::npos )
       return BObjectRef( new BError( "Subscript out of range" ) );
   }
   else if ( start.isa( OTString ) )
@@ -451,7 +515,7 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
     String& rtstr = (String&)start;
     std::string::size_type pos = value_.find( rtstr.value_ );
     if ( pos != std::string::npos )
-      index = static_cast<unsigned int>( pos + 1 );
+      index = static_cast<size_t>( pos );
     else
       return BObjectRef( new UninitObject );
   }
@@ -461,28 +525,41 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
   }
 
   // now deal with the length.
-  int len;
+  size_t len;
   if ( length.isa( OTLong ) )
   {
     BLong& lng = (BLong&)length;
 
-    len = (int)lng.value();
+    len = (size_t)lng.value();
   }
   else if ( length.isa( OTDouble ) )
   {
     Double& dbl = (Double&)length;
 
-    len = (int)dbl.value();
+    len = (size_t)dbl.value();
   }
   else
   {
     return BObjectRef( copy() );
   }
+#ifdef UTF8TEST
+
+  auto itr = value_.begin();
+  std::advance( itr, index );
+  size_t index_len = getBytePosition( value_, itr, len );
+
+  if ( index_len != std::string::npos )
+  {
+    len = index_len-index;
+  }
+  else
+    len = index_len;
+#endif
 
   if ( target->isa( OTString ) )
   {
     String* target_str = (String*)target;
-    value_.replace( index - 1, len, target_str->value_ );
+    value_.replace( index, len, target_str->value_ );
   }
   else
   {
@@ -734,7 +811,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
   {
   case MTH_LENGTH:
     if ( ex.numParams() == 0 )
-      return new BLong( static_cast<int>( value_.length() ) );
+      return new BLong( static_cast<int>( length() ) );
     else
       return new BError( "string.length() doesn't take parameters." );
     break;
