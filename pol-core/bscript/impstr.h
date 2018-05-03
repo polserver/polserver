@@ -65,7 +65,7 @@ public:
   void set( char* newstr ); /* String now owns newstr */
   const char* data() const { return value_.c_str(); }
   const std::string& value() const { return value_; }
-  size_t length() const { return value_.length(); }
+  size_t length() const;
   void toUpper( void );
   void toLower( void );
 
