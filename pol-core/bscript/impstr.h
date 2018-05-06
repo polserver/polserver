@@ -68,6 +68,8 @@ public:
   size_t length() const;
   void toUpper( void );
   void toLower( void );
+  std::vector<unsigned int> toUTF32() const;
+  static std::string fromUTF32( unsigned int code );
 
   virtual ~String() {}
   String& operator=( const char* s )
@@ -141,6 +143,7 @@ protected:
 private:
   std::string value_;
   String* midstring( int begin, int len ) const;
+  size_t getBytePosition( std::string::const_iterator& itr, size_t codeindex ) const;
   friend class SubString;
 };
 
