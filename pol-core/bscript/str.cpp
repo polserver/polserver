@@ -40,7 +40,13 @@ String::String( const char* s, int len ) : BObjectImp( OTString ), value_( s, le
 
 String* String::StrStr( int begin, int len )
 {
-  return new String( value_.substr( begin - 1, len ) );
+  auto itr = value_.cbegin();
+  --begin;
+  size_t startpos = getBytePosition( itr, begin );
+  size_t endpos = getBytePosition( itr, len );
+  if ( startpos != std::string::npos )
+    return new String( value_.substr( startpos, endpos - startpos ) );
+  return new String( value_ );
 }
 
 size_t String::length() const
@@ -98,8 +104,8 @@ void String::EStrReplace( String* str1, String* str2 )
   std::string::size_type valpos = 0;
   while ( std::string::npos != ( valpos = value_.find( str1->value_, valpos ) ) )
   {
-    value_.replace( valpos, str1->length(), str2->value_ );
-    valpos += str2->length();
+    value_.replace( valpos, str1->value_.size(), str2->value_ );
+    valpos += str2->value_.size();
   }
 }
 
