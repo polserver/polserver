@@ -230,18 +230,6 @@ unsigned int String::SafeCharAmt() const
   return strlen;
 }
 
-void String::reverse( void )
-{
-  std::reverse( value_.begin(), value_.end() );
-}
-
-void String::set( char* newstr )
-{
-  value_ = newstr;
-  delete newstr;
-}
-
-
 BObjectImp* String::selfPlusObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfPlusObj( *this );
