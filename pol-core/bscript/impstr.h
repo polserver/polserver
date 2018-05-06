@@ -5,7 +5,6 @@
 
 #ifndef H_BSCRIPT_IMPSTR_H
 #define H_BSCRIPT_IMPSTR_H
-#define H_IMPSTR_H
 
 #ifndef BSCRIPT_BOBJECT_H
 #include "bobject.h"
@@ -29,6 +28,7 @@ public:
   String( const char* str, int nchars );
   explicit String( const char* str ) : BObjectImp( OTString ), value_( str ) {}
   explicit String( const std::string& str ) : BObjectImp( OTString ), value_( str ) {}
+private: // TODO remove?
   explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n )
       : BObjectImp( OTString ), value_( str, pos, n )
   {
@@ -42,6 +42,7 @@ public:
       : BObjectImp( OTString ), value_( left.value_ + right.value_ )
   {
   }
+public:
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
   static BObjectImp* unpack( const char* pstr );
