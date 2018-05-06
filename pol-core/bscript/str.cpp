@@ -393,22 +393,19 @@ void String::toLower( void )
   }
 }
 
-
-namespace
+size_t String::getBytePosition( std::string::const_iterator& itr, size_t codeindex ) const
 {
-size_t getBytePosition( std::string& str, std::string::iterator& itr, size_t codeindex )
-{
-  auto itr_end = str.end();
+  auto itr_end = value_.cend();
   for ( size_t i = 0; i < codeindex && itr != itr_end; ++i )
     utf8::next( itr, itr_end );
 
   if ( itr != itr_end )
   {
-    return std::distance( str.begin(), itr );
+    return std::distance( value_.cbegin(), itr );
   }
   return std::string::npos;
 }
-}
+
 BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*copy*/ )
 {
   std::string::size_type pos, len;
@@ -430,12 +427,12 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
     len = 1;
     pos = lng.value() - 1;
 #ifdef UTF8TEST
-    auto itr = value_.begin();
-    pos = getBytePosition( value_, itr, pos );
+    auto itr = value_.cbegin();
+    pos = getBytePosition( itr, pos );
     if ( pos != std::string::npos )
     {
-      utf8::next( itr, value_.end() );
-      len = std::distance( value_.begin(), itr ) - pos;
+      utf8::next( itr, value_.cend() );
+      len = std::distance( value_.cbegin(), itr ) - pos;
     }
     else
       pos = std::string::npos;
@@ -445,15 +442,15 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
   else if ( idx->isa( OTDouble ) )
   {
     Double& dbl = (Double&)*idx;
-    pos = static_cast<std::string::size_type>( dbl.value() );
+    pos = static_cast<std::string::size_type>( dbl.value() ) - 1;
     len = 1;
 #ifdef UTF8TEST
-    auto itr = value_.begin();
-    pos = getBytePosition( value_, itr, pos );
+    auto itr = value_.cbegin();
+    pos = getBytePosition( itr, pos );
     if ( pos != std::string::npos )
     {
-      utf8::next( itr, value_.end() );
-      len = std::distance( value_.begin(), itr ) - pos;
+      utf8::next( itr, value_.cend() );
+      len = std::distance( value_.cbegin(), itr ) - pos;
     }
     else
       pos = std::string::npos;
@@ -503,8 +500,8 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
       return BObjectRef( new BError( "Subscript out of range" ) );
     --index;
 #ifdef UTF8TEST
-    auto itr = value_.begin();
-    index = getBytePosition( value_, itr, index );
+    auto itr = value_.cbegin();
+    index = getBytePosition( itr, index );
 #else
 #endif
     if ( index == std::string::npos )
@@ -543,15 +540,12 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
     return BObjectRef( copy() );
   }
 #ifdef UTF8TEST
-
-  auto itr = value_.begin();
+  auto itr = value_.cbegin();
   std::advance( itr, index );
-  size_t index_len = getBytePosition( value_, itr, len );
+  size_t index_len = getBytePosition( itr, len );
 
   if ( index_len != std::string::npos )
-  {
-    len = index_len-index;
-  }
+    len = index_len - index;
   else
     len = index_len;
 #endif
@@ -584,12 +578,20 @@ BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
   BObjectImp& start = start_obj.impref();
 
   // first deal with the start position.
-  unsigned index;
+  size_t index;
   if ( start.isa( OTLong ) )
   {
     BLong& lng = (BLong&)start;
-    index = (unsigned)lng.value();
+    index = (size_t)lng.value();
     if ( index == 0 || index > value_.size() )
+      return BObjectRef( new BError( "Subscript out of range" ) );
+    --index;
+#ifdef UTF8TEST
+    auto itr = value_.cbegin();
+    index = getBytePosition( itr, index );
+#else
+#endif
+    if ( index == std::string::npos )
       return BObjectRef( new BError( "Subscript out of range" ) );
   }
   else if ( start.isa( OTString ) )
@@ -597,7 +599,7 @@ BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
     String& rtstr = (String&)start;
     std::string::size_type pos = value_.find( rtstr.value_ );
     if ( pos != std::string::npos )
-      index = static_cast<unsigned int>( pos + 1 );
+      index = static_cast<unsigned int>( pos );
     else
       return BObjectRef( new UninitObject );
   }
@@ -607,25 +609,34 @@ BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
   }
 
   // now deal with the length.
-  int len;
+  size_t len;
   if ( length.isa( OTLong ) )
   {
     BLong& lng = (BLong&)length;
 
-    len = (int)lng.value();
+    len = (size_t)lng.value();
   }
   else if ( length.isa( OTDouble ) )
   {
     Double& dbl = (Double&)length;
 
-    len = (int)dbl.value();
+    len = (size_t)dbl.value();
   }
   else
   {
     return BObjectRef( copy() );
   }
+#ifdef UTF8TEST
+  auto itr = value_.cbegin();
+  std::advance( itr, index );
+  size_t index_len = getBytePosition( itr, len );
 
-  auto str = new String( value_, index - 1, len );
+  if ( index_len != std::string::npos )
+    len = index_len - index;
+  else
+    len = index_len;
+#endif
+  auto str = new String( value_, index, len );
   return BObjectRef( str );
 }
 
@@ -639,12 +650,26 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     if ( lng.value() < 0 )
       return BObjectRef( new BError( "Subscript out of range" ) );
 
-    unsigned index = (unsigned)lng.value();
+    size_t index = (size_t)lng.value();
 
     if ( index == 0 || index > value_.size() )
       return BObjectRef( new BError( "Subscript out of range" ) );
 
-    return BObjectRef( new BObject( new String( value_.c_str() + index - 1, 1 ) ) );
+    --index;
+#ifdef UTF8TEST
+    auto itr = value_.cbegin();
+    index = getBytePosition( itr, index );
+    if ( index != std::string::npos )
+    {
+      utf8::next( itr, value_.cend() );
+      size_t len = std::distance( value_.cbegin(), itr ) - index;
+      return BObjectRef( new BObject( new String( value_.c_str() + index, len ) ) );
+    }
+    else
+      return BObjectRef( new BError( "Subscript out of range" ) );
+#else
+    return BObjectRef( new BObject( new String( value_.c_str() + index, 1 ) ) );
+#endif
   }
   else if ( right.isa( OTDouble ) )
   {
@@ -652,19 +677,43 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
 
     if ( dbl.value() < 0 )
       return BObjectRef( new BError( "Subscript out of range" ) );
-    unsigned index = (unsigned)dbl.value();
+    size_t index = (size_t)dbl.value();
 
     if ( index == 0 || index > value_.size() )
       return BObjectRef( new BError( "Subscript out of range" ) );
 
-    return BObjectRef( new BObject( new String( value_.c_str() + index - 1, 1 ) ) );
+    --index;
+#ifdef UTF8TEST
+    auto itr = value_.cbegin();
+    index = getBytePosition( itr, index );
+    if ( index != std::string::npos )
+    {
+      utf8::next( itr, value_.cend() );
+      size_t len = std::distance( value_.cbegin(), itr ) - index;
+      return BObjectRef( new BObject( new String( value_.c_str() + index, len ) ) );
+    }
+    else
+      return BObjectRef( new BError( "Subscript out of range" ) );
+#else
+    return BObjectRef( new BObject( new String( value_.c_str() + index, 1 ) ) );
+#endif
   }
   else if ( right.isa( OTString ) )
   {
     String& rtstr = (String&)right;
     auto pos = value_.find( rtstr.value_ );
     if ( pos != std::string::npos )
+    {
+#ifdef UTF8TEST
+      auto itr = value_.cbegin();
+      std::advance( itr, pos );
+      utf8::next( itr, value_.cend() );
+      size_t len = std::distance( value_.cbegin(), itr ) - pos;
+      return BObjectRef( new BObject( new String( value_, pos, len ) ) );
+#else
       return BObjectRef( new BObject( new String( value_, pos, 1 ) ) );
+#endif
+    }
     else
       return BObjectRef( new UninitObject );
   }
@@ -1027,6 +1076,20 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
   default:
     return NULL;
   }
+}
+
+std::vector<unsigned int> String::toUTF32() const
+{
+  std::vector<unsigned int> u32;
+  utf8::utf8to32( value_.begin(), value_.end(), std::back_inserter( u32 ) );
+  return u32;
+}
+
+std::string String::fromUTF32( unsigned int code )
+{
+  std::string s;
+  utf8::append( code, std::back_inserter( s ) );
+  return s;
 }
 }
 }

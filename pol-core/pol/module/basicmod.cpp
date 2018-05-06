@@ -296,7 +296,10 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
   if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    return new BLong( static_cast<unsigned char>( str->data()[0] ) );
+    const auto& utf32 = str->toUTF32();
+    if ( utf32.empty() )
+      return new BLong( 0 );
+    return new BLong( utf32[0] );
   }
   else
   {
@@ -307,12 +310,13 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
 Bscript::BObjectImp* BasicExecutorModule::mf_CAscZ()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  std::string tmp = imp->getStringRep();
+  String tmp( imp->getStringRep());
   int nullterm = static_cast<int>( exec.paramAsLong( 1 ) );
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( size_t i = 0; i < tmp.size(); ++i )
+  const auto& utf32 = tmp.toUTF32();
+  for ( const auto& code : utf32 )
   {
-    arr->addElement( new BLong( static_cast<unsigned char>( tmp[i] ) ) );
+    arr->addElement( new BLong( code ) );
   }
   if ( nullterm )
     arr->addElement( new BLong( 0 ) );
@@ -325,10 +329,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChr()
   int val;
   if ( getParam( 0, val ) )
   {
-    char s[2];
-    s[0] = static_cast<char>( val );
-    s[1] = '\0';
-    return new String( s );
+    return new String( String::fromUTF32( val ) );
   }
   else
   {
@@ -358,10 +359,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
         BLong* blong = static_cast<BLong*>( imp );
         if ( break_first_null && blong->value() == 0 )
           break;
-        char s[2];
-        s[0] = static_cast<char>( blong->value() );
-        s[1] = '\0';
-        res += s;
+        res += String::fromUTF32( blong->value() );
       }
     }
   }
