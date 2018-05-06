@@ -63,7 +63,6 @@ public:
   void EStrReplace( String* str1, String* str2 );
   void ESubStrReplace( String* replace_with, unsigned int index, unsigned int len );
 
-  void set( char* newstr ); /* String now owns newstr */
   const char* data() const { return value_.c_str(); }
   const std::string& value() const { return value_; }
   size_t length() const;
@@ -84,8 +83,9 @@ public:
     return *this;
   }
   void copyvalue( const String& str ) { value_ = str.value_; }
-  operator const char*() const { return value_.data(); }
+private:
   void remove( const char* s );
+public:
   virtual bool isTrue() const POL_OVERRIDE { return !value_.empty(); }
 
 public:
@@ -124,7 +124,6 @@ public:
   unsigned int alnumlen() const;
   unsigned int SafeCharAmt() const;
 
-  void reverse();
 
   virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
   int find( char* s, int* posn );
