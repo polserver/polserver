@@ -132,6 +132,10 @@ public:
   virtual std::string getFormattedStringRep() const POL_OVERRIDE { return "\"" + value_ + "\""; }
   virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
+  bool compare(const String& str) const;
+  bool compare(size_t pos1, size_t len1, const String& str) const;
+  bool compare(size_t pos1, size_t len1, const String& str, size_t pos2, size_t len2) const;
+
 protected:
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
   virtual bool operator<( const BObjectImp& objimp ) const POL_OVERRIDE;

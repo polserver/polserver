@@ -111,7 +111,11 @@ void String::EStrReplace( String* str1, String* str2 )
 
 void String::ESubStrReplace( String* replace_with, unsigned int index, unsigned int len )
 {
-  value_.replace( index - 1, len, replace_with->value_ );
+  auto itr = value_.cbegin();
+  size_t begin = getBytePosition( itr, index - 1 );
+  size_t end = getBytePosition( itr, len );
+  if ( begin != std::string::npos )
+    value_.replace( begin, end - begin, replace_with->value_ );
 }
 
 std::string String::pack() const
@@ -188,12 +192,16 @@ size_t String::sizeEstimate() const
 int String::find( int begin, const char* target )
 {
   // TODO: check what happens in string if begin position is out of range
-  std::string::size_type pos;
-  pos = value_.find( target, begin );
+  auto itr = value_.cbegin();
+  size_t pos = getBytePosition( itr, begin );
+  pos = value_.find( target, pos );
   if ( pos == std::string::npos )
     return -1;
   else
+  {
+    pos = utf8::distance( value_.cbegin(), std::next( value_.cbegin(), pos ) );
     return static_cast<int>( pos );
+  }
 }
 
 // Returns the amount of alpha-numeric characters in string.
@@ -1084,6 +1092,30 @@ std::string String::fromUTF32( unsigned int code )
   std::string s;
   utf8::append( code, std::back_inserter( s ) );
   return s;
+}
+
+bool String::compare( const String& str ) const
+{
+  return value_.compare( str.value_ ) == 0;
+}
+
+bool String::compare( size_t pos1, size_t len1, const String& str ) const
+{
+  auto itr1 = value_.cbegin();
+  pos1 = getBytePosition( itr1, pos1 );
+  len1 = getBytePosition( itr1, len1 ) - pos1;
+  return value_.compare( pos1, len1, str.value_ ) == 0;
+}
+
+bool String::compare( size_t pos1, size_t len1, const String& str, size_t pos2, size_t len2 ) const
+{
+  auto itr1 = value_.cbegin();
+  pos1 = getBytePosition( itr1, pos1 );
+  len1 = getBytePosition( itr1, len1 ) - pos1;
+  auto itr2 = str.value_.cbegin();
+  pos2 = str.getBytePosition( itr2, pos2 );
+  len2 = str.getBytePosition( itr2, len2 ) - pos2;
+  return value_.compare( pos1, len1, str.value_, pos2, len2 ) == 0;
 }
 }
 }
