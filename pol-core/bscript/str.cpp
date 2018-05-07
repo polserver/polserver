@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <ctype.h>
+#include <cwctype>
 #include <string>
 #include <utf8/utf8.h>
 
@@ -676,7 +677,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     if ( index != std::string::npos )
     {
       utf8::next( itr, value_.cend() );
-      size_t len = std::distance( value_.cbegin(), itr ) - index;
+      int len = static_cast<int>( std::distance( value_.cbegin(), itr ) - index );
       return BObjectRef( new BObject( new String( value_.c_str() + index, len ) ) );
     }
     else
