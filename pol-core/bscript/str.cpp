@@ -381,17 +381,29 @@ String* String::midstring( int begin, int len ) const
 
 void String::toUpper( void )
 {
-  for ( char& c : value_ )
+  std::vector<wchar_t> codes;
+  if ( sizeof( wchar_t ) == sizeof( unsigned int ) )
+    utf8::utf8to32( value_.begin(), value_.end(), std::back_inserter( codes ) );
+  else
+    utf8::utf8to16( value_.begin(), value_.end(), std::back_inserter( codes ) );
+  value_.clear();
+  for ( const auto& c : codes )
   {
-    c = toupper( c );
+    utf8::append( std::towupper( c ), std::back_inserter( value_ ) );
   }
 }
 
 void String::toLower( void )
 {
-  for ( char& c : value_ )
+  std::vector<wchar_t> codes;
+  if ( sizeof( wchar_t ) == sizeof( unsigned int ) )
+    utf8::utf8to32( value_.begin(), value_.end(), std::back_inserter( codes ) );
+  else
+    utf8::utf8to16( value_.begin(), value_.end(), std::back_inserter( codes ) );
+  value_.clear();
+  for ( const auto& c : codes )
   {
-    c = tolower( c );
+    utf8::append( std::towlower( c ), std::back_inserter( value_ ) );
   }
 }
 
