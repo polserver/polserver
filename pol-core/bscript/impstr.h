@@ -28,23 +28,14 @@ public:
   String( const char* str, int nchars );
   explicit String( const char* str ) : BObjectImp( OTString ), value_( str ) {}
   explicit String( const std::string& str ) : BObjectImp( OTString ), value_( str ) {}
-private: // TODO remove?
-  explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n )
-      : BObjectImp( OTString ), value_( str, pos, n )
-  {
-  }
-  String( const char* left, const char* right )
-      : BObjectImp( OTString ), value_( std::string( left ) + std::string( right ) )
-  {
-  }
-
-  String( const String& left, const String& right )
-      : BObjectImp( OTString ), value_( left.value_ + right.value_ )
-  {
-  }
-public:
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
+  virtual ~String() {}
+
+private:
+  explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n );
+
+public:
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
   static BObjectImp* unpackWithLen( std::istream& is );
@@ -69,9 +60,10 @@ public:
   void toUpper( void );
   void toLower( void );
   std::vector<unsigned int> toUTF32() const;
+  std::vector<unsigned short> toUTF16() const;
   static std::string fromUTF32( unsigned int code );
+  static std::string fromUTF16( std::vector<unsigned short> code );
 
-  virtual ~String() {}
   String& operator=( const char* s )
   {
     value_ = s;
@@ -83,8 +75,10 @@ public:
     return *this;
   }
   void copyvalue( const String& str ) { value_ = str.value_; }
+
 private:
   void remove( const char* s );
+
 public:
   virtual bool isTrue() const POL_OVERRIDE { return !value_.empty(); }
 
@@ -121,7 +115,6 @@ public:
                                                BObjectImp* target ) POL_OVERRIDE;
 
   int find( int begin, const char* target );
-  unsigned int alnumlen() const;
   unsigned int SafeCharAmt() const;
 
 
@@ -132,9 +125,9 @@ public:
   virtual std::string getFormattedStringRep() const POL_OVERRIDE { return "\"" + value_ + "\""; }
   virtual void printOn( std::ostream& ) const POL_OVERRIDE;
 
-  bool compare(const String& str) const;
-  bool compare(size_t pos1, size_t len1, const String& str) const;
-  bool compare(size_t pos1, size_t len1, const String& str, size_t pos2, size_t len2) const;
+  bool compare( const String& str ) const;
+  bool compare( size_t pos1, size_t len1, const String& str ) const;
+  bool compare( size_t pos1, size_t len1, const String& str, size_t pos2, size_t len2 ) const;
 
 protected:
   virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
@@ -145,9 +138,9 @@ protected:
                                       bool forcebuiltin = false ) POL_OVERRIDE;
 
 private:
-  std::string value_;
-  String* midstring( int begin, int len ) const;
   size_t getBytePosition( std::string::const_iterator& itr, size_t codeindex ) const;
+
+  std::string value_;
   friend class SubString;
 };
 
