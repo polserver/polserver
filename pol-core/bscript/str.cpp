@@ -366,13 +366,29 @@ bool String::operator<( const BObjectImp& objimp ) const
   return base::operator<( objimp );
 }
 
-void String::toUpper( void )
+namespace
+{
+template <typename T, typename std::enable_if<sizeof( T ) == sizeof( unsigned int ), int>::type = 0>
+std::vector<wchar_t> convertutf8( const std::string& value )
 {
   std::vector<wchar_t> codes;
-  if ( sizeof( wchar_t ) == sizeof( unsigned int ) )
-    utf8::utf8to32( value_.begin(), value_.end(), std::back_inserter( codes ) );
-  else
-    utf8::utf8to16( value_.begin(), value_.end(), std::back_inserter( codes ) );
+  utf8::utf8to32( value.begin(), value.end(), std::back_inserter( codes ) );
+  return codes;
+}
+template <typename T,
+          typename std::enable_if<sizeof( T ) == sizeof( unsigned short ), int>::type = 0>
+std::vector<wchar_t> convertutf8( const std::string& value )
+{
+  std::vector<wchar_t> codes;
+  utf8::utf8to16( value.begin(), value.end(), std::back_inserter( codes ) );
+  return codes;
+}
+}  // namespace
+
+void String::toUpper( void )
+{
+  std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
+  ;
   value_.clear();
   for ( const auto& c : codes )
   {
@@ -382,11 +398,7 @@ void String::toUpper( void )
 
 void String::toLower( void )
 {
-  std::vector<wchar_t> codes;
-  if ( sizeof( wchar_t ) == sizeof( unsigned int ) )
-    utf8::utf8to32( value_.begin(), value_.end(), std::back_inserter( codes ) );
-  else
-    utf8::utf8to16( value_.begin(), value_.end(), std::back_inserter( codes ) );
+  std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
   value_.clear();
   for ( const auto& c : codes )
   {
