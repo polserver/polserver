@@ -36,6 +36,9 @@ private:
   explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n );
 
 public:
+  static bool isValidUnicode( const std::string& str );
+  static bool sanitizeUnicode( std::string* str );
+
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
   static BObjectImp* unpackWithLen( std::istream& is );
