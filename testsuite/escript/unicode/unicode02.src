@@ -1,0 +1,204 @@
+// 2018-04-16 Bodom, ultimate string testing, unicode version
+// Trying to include all string-related stuff in this script.
+
+use uo;
+use os;
+
+var t := "Нè└└☺";
+var sep := "―――――――――――――――――――――――――――――――――――――――――――――";
+
+// pack/unpack
+var p := Pack(t);
+print( p );
+var u := Unpack(p);
+print( u );
+print( u == t );
+print( p != u );
+print(sep);
+
+var uninit;
+var optests := array{
+	"1234", "Нè└└☺", "b", "ab", "a", "caterpillar",
+	array{ "α", "β", "γ", 19 },
+	dictionary{ "ⅠⅡⅢⅣ" -> "𐄜𐄝𐄞", "eeee" -> 0 }
+};
+
+// Binary operators
+foreach ot in optests
+	var tmp;
+
+	// comparison
+	print( "t == " + ot );
+	print( t == ot );
+	print( CStr(ot) + " == t " );
+	print( ot == t );
+	print( "t != " + ot );
+	print( t != ot );
+	print( "t < " + ot );
+	print( t < ot );
+	print( "t <= " + ot );
+	print( t <= ot );
+	print( "t > " + ot );
+	print( t > ot );
+	print( "t >= " + ot );
+	print( t >= ot );
+
+	// arithmetic
+	print( "t + " + ot );
+	print( t + ot );
+	print( CStr(ot) + " + t" );
+	print( ot + t );
+	print( "t - " + ot );
+	print( t - ot );
+	print( CStr(ot) + " - t" );
+	print( ot - t );
+	print( "t * " + ot );
+	print( t * ot );
+	print( CStr(ot) + " * t" );
+	print( ot * t );
+	print( "t / " + ot );
+	print( t / ot );
+	print( CStr(ot) + " / t" );
+	print( ot / t );
+	print( "t % " + ot );
+	print( t % ot );
+	print( CStr(ot) + " % t" );
+	print( ot % t );
+
+	// arithmetic with assignment
+	tmp := t;
+	print( "tmp += " + ot );
+	tmp += ot;
+	print( tmp );
+	tmp := t;
+	print( "tmp -= " + ot );
+	tmp -= ot;
+	print( tmp );
+	tmp := t;
+	print( "tmp *= " + ot );
+	tmp *= ot;
+	print( tmp );
+	tmp := t;
+	print( "tmp /= " + ot );
+	tmp /= ot;
+	print( tmp );
+	tmp := t;
+	print( "tmp %= " + ot );
+	tmp %= ot;
+	print( tmp );
+
+	// bitwise
+	print( "t & " + ot );
+	print( t & ot );
+	print( CStr(ot) + " & t" );
+	print( ot & t );
+	print( "t | " + ot );
+	print( t | ot );
+	print( CStr(ot) + " | t" );
+	print( ot | t );
+	print( "t ^ " + ot );
+	print( t ^ ot );
+	print( CStr(ot) + " ^ t" );
+	print( ot ^ t );
+	print( "t << " + ot );
+	print( t << ot );
+	print( CStr(ot) + " << t" );
+	print( ot << t );
+	print( "t >> " + ot );
+	print( t >> ot );
+	print( CStr(ot) + " >> t" );
+	print( ot >> t );
+
+	// member
+	tmp := t;
+	print( "tmp .+ " + ot );
+	tmp .+ ot;
+	print( tmp );
+	tmp := t;
+	print( "tmp .- " + ot );
+	tmp .- ot;
+	print( tmp );
+	tmp := t;
+
+	// subscript
+	print( "t[" + ot + "]" );
+	print( t[ot] );
+
+	print(sep);
+endforeach
+
+// Unary operators
+print( "~ t" );
+print( ~ t );
+print(sep);
+
+// Cast
+print(CAsc(t));
+print(CAscZ(t));
+print(CChr(t));
+print(CChrZ(t));
+print(CDbl(t));
+print(CInt(t));
+print(CStr(t));
+print(sep);
+
+// substring
+print(t[0,1]);
+print(t[1,99]);
+print(t[1,0]);
+print(t[1,10]);
+print(t[2,2]);
+print(t["└└"]);
+var tmp := t;
+tmp["└└"] := "__";
+print(tmp);
+print(sep);
+
+// is true
+if( t )
+	print("t is true");
+else
+	print("t is false");
+endif
+if( "" )
+	print("\"\" is true");
+else
+	print("\"\" is false");
+endif
+if( "0" )
+	print("0 is true");
+else
+	print("0 is false");
+endif
+print(sep);
+
+// manipulation functions
+print( Compare(t, "bè└└☺", 2, 3, 2, 3) );
+print( Find(t, "└└", 1) );
+print( Len(t) );
+print( Lower("Здраво!") );
+print( SplitWords("ⅠⅡⅢ	456	789", "	", 1) );
+print( StrReplace(t, "└└", "__") );
+print( SubStr(t, 2, 2) );
+print( SubStrReplace(t, "XXXXXX", 2, 3) );
+print( Trim("	Ћао ") );
+print( Upper("Здраво!") );
+print(sep);
+
+// methods
+print( t.length() );
+print(t);
+print(t.find("è"));
+print(t.upper());
+print(t.lower());
+print("{:x}".format(10));
+print("{:#x}".format(10));
+print("You hàve {} ☉ coins".format(120));
+print("{} hits {} for {} of ☠".format("John", "Bob", 120));
+print("You hit {2} for {1} ☠".format(120, "John Doe"));
+print("⚗ {1.spell_name} requires reagents: {1.reagents}".format(struct{spell_name:="Firè Wrath", reagents:="Ba, Bm, Ga"}));
+print("{name} you ⚔ level {level}".format(struct{name:="Jane Doe", level:=4}));
+print(sep);
+
+// check that t is unaltered
+print(t);

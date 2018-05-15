@@ -1107,5 +1107,26 @@ bool String::compare( size_t pos1, size_t len1, const String& str, size_t pos2, 
   len2 = str.getBytePosition( itr2, len2 ) - pos2;
   return value_.compare( pos1, len1, str.value_, pos2, len2 ) == 0;
 }
+
+
+bool String::isValidUnicode( const std::string& str )
+{
+  return utf8::find_invalid( str.begin(), str.end() ) == str.end();
+}
+
+bool String::sanitizeUnicode( std::string* str )
+{
+  try
+  {
+    std::string temp;
+    utf8::replace_invalid( str->begin(), str->end(), back_inserter( temp ) );
+    *str = temp;
+    return true;
+  }
+  catch ( const utf8::exception& )
+  {
+    return false;
+  }
+}
 }
 }
