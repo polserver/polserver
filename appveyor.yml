@@ -39,6 +39,7 @@ install:
   #)
 
 test_script:
+  - set PYTHONIOENCODING=UTF-8
   - cd ..\\testsuite\\escript
   - c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5 -q
   - cd ..\\style
