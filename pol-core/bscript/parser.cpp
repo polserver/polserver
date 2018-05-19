@@ -1285,7 +1285,6 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
     // int len = end - ctx.s;   //   "abd" len = 5-1 = 4
     if ( !String::isValidUnicode( lit ) )
     {
-      Clib::force_backtrace();
       if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
       {
         INFO_PRINT << "Warning: invalid unicode character detected.\n" << ctx;
