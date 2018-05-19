@@ -405,7 +405,7 @@ void String::toUpper( void )
                           str.size(), 0, 0 );
   if ( !len )
     return;
-  std::vector<wchar_t> buf( len + 1 );
+  std::vector<wchar_t> buf( len );
   int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
                         str.size(), &buf.front(), buf.size() );
   str.assign( &buf.front(), buf.size() );
@@ -430,7 +430,7 @@ void String::toLower( void )
                           str.size(), 0, 0 );
   if ( !len )
     return;
-  std::vector<wchar_t> buf( len + 1 );
+  std::vector<wchar_t> buf( len );
   int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
                         str.size(), &buf.front(), buf.size() );
   str.assign( &buf.front(), buf.size() );
