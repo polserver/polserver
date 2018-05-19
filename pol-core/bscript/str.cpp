@@ -27,6 +27,8 @@
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4244 )
+#include "../clib/Header_Windows.h"
+#include <codecvt>
 #endif
 
 namespace Pol
@@ -387,6 +389,7 @@ std::vector<wchar_t> convertutf8( const std::string& value )
 
 void String::toUpper( void )
 {
+#ifndef WINDOWS
   std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
   ;
   value_.clear();
@@ -394,16 +397,45 @@ void String::toUpper( void )
   {
     utf8::append( std::towupper( c ), std::back_inserter( value_ ) );
   }
+#else
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  std::wstring str = converter.from_bytes( value_ );
+
+  int len = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
+                          str.size(), 0, 0 );
+  if ( !len )
+    return;
+  std::vector<wchar_t> buf( len + 1 );
+  int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
+                        str.size(), &buf.front(), buf.size() );
+  str.assign( &buf.front(), buf.size() );
+  value_ = converter.to_bytes( str );
+#endif
 }
 
 void String::toLower( void )
 {
+#ifndef WINDOWS
   std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
   value_.clear();
   for ( const auto& c : codes )
   {
     utf8::append( std::towlower( c ), std::back_inserter( value_ ) );
   }
+#else
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  std::wstring str = converter.from_bytes( value_ );
+
+  int len = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
+                          str.size(), 0, 0 );
+  if ( !len )
+    return;
+  std::vector<wchar_t> buf( len + 1 );
+  int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
+                        str.size(), &buf.front(), buf.size() );
+  str.assign( &buf.front(), buf.size() );
+  value_ = converter.to_bytes( str );
+#endif
 }
 
 size_t String::getBytePosition( std::string::const_iterator& itr, size_t codeindex ) const
