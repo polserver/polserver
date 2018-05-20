@@ -21,9 +21,9 @@ POLLOG.Format("hello {}") << "world";
 #include <string.h>
 #include <thread>
 
+#include "Header_Windows.h"
 #include "clib.h"
 #include "message_queue.h"
-#include "Header_Windows.h"
 
 namespace Pol
 {
@@ -33,6 +33,7 @@ bool LogfileTimestampEveryLine = false;
 namespace Logging
 {
 bool LogFacility::_vsDebuggerPresent = false;
+bool LogSinkGenericFile::_disabled = false;
 
 // helper struct to define log file behaviour
 struct LogFileBehaviour
@@ -65,7 +66,7 @@ void initLogging( LogFacility* logger )
   global_logger = logger;
   // on start check if Visual Studio is attached
   // if so print cout and cerr msgs also in the VS console
-#if defined(WINDOWS)
+#if defined( WINDOWS )
   LogFacility::_vsDebuggerPresent = IsDebuggerPresent();
 #endif
 }
@@ -160,6 +161,11 @@ void LogFacility::registerSink( LogSink* sink )
 void LogFacility::disableDebugLog()
 {
   _worker->send( []() { getSink<LogSink_debuglog>()->disable(); } );
+}
+
+void LogFacility::disableFileLog()
+{
+  LogSinkGenericFile::_disabled = true;
 }
 
 // disables startlog ( activates pol.log )
@@ -287,6 +293,8 @@ void LogSinkGenericFile::setBehaviour( const LogFileBehaviour* behaviour, std::s
 // open file
 void LogSinkGenericFile::open_log_file( bool open_timestamp )
 {
+  if ( _disabled )
+    return;
   _filestream.open( _log_filename, _behaviour->openmode );
   if ( !_filestream.is_open() )
   {
@@ -308,6 +316,13 @@ void LogSinkGenericFile::open_log_file( bool open_timestamp )
 // print given msg into filestream
 void LogSinkGenericFile::addMessage( fmt::Writer* msg )
 {
+  if ( _disabled )
+  {
+    std::cerr << msg->str();
+    std::cerr.flush();
+    return;
+  }
+
   if ( !_filestream.is_open() )
     return;
   if ( !msg->size() )
@@ -369,9 +384,9 @@ void LogSink_cout::addMessage( fmt::Writer* msg )
 {
   std::cout << msg->str();
   std::cout.flush();
-#if defined(WINDOWS)
-  if (LogFacility::_vsDebuggerPresent)
-    OutputDebugString(msg->c_str());
+#if defined( WINDOWS )
+  if ( LogFacility::_vsDebuggerPresent )
+    OutputDebugString( msg->c_str() );
 #endif
 }
 void LogSink_cout::addMessage( fmt::Writer* msg, const std::string& )
@@ -385,9 +400,9 @@ void LogSink_cerr::addMessage( fmt::Writer* msg )
 {
   std::cerr << msg->str();
   std::cerr.flush();
-#if defined(WINDOWS)
-  if (LogFacility::_vsDebuggerPresent)
-    OutputDebugString(msg->c_str());
+#if defined( WINDOWS )
+  if ( LogFacility::_vsDebuggerPresent )
+    OutputDebugString( msg->c_str() );
 #endif
 }
 void LogSink_cerr::addMessage( fmt::Writer* msg, const std::string& )

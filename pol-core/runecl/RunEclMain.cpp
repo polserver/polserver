@@ -220,6 +220,8 @@ int RunEclMain::runecl()
 
 int RunEclMain::main()
 {
+  Clib::Logging::global_logger->disableFileLog();
+
   const std::vector<std::string>& binArgs = programArgs();
   Pol::Bscript::escript_config.max_call_depth = 100;
   m_quiet = programArgsFind( "q" );
@@ -232,8 +234,7 @@ int RunEclMain::main()
   if ( !m_quiet )
   {
     double vernum = 1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    ERROR_PRINT << "EScript Executor v" << vernum << "\n"
-                << POL_COPYRIGHT << "\n\n";
+    ERROR_PRINT << "EScript Executor v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
   }
 
   /**********************************************
