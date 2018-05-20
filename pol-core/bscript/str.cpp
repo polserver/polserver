@@ -37,18 +37,16 @@ namespace Bscript
 {
 String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() )
 {
-  if ( !String::isValidUnicode( value_ ) )
-    if ( !String::sanitizeUnicode( &value_ ) )
-      value_ = "Invalid unicode";
+  if ( !String::sanitizeUnicode( &value_ ) )
+    value_ = "Invalid unicode";
 }
 
 String::String( const char* s, int len, Tainted san ) : BObjectImp( OTString ), value_( s, len )
 {
   if ( san == Tainted::YES )
   {
-    if ( !String::isValidUnicode( value_ ) )
-      if ( !String::sanitizeUnicode( &value_ ) )
-        value_ = "Invalid unicode";
+    if ( !String::sanitizeUnicode( &value_ ) )
+      value_ = "Invalid unicode";
   }
 }
 
@@ -61,9 +59,8 @@ String::String( const char* str, Tainted san ) : BObjectImp( OTString ), value_(
 {
   if ( san == Tainted::YES )
   {
-    if ( !String::isValidUnicode( value_ ) )
-      if ( !String::sanitizeUnicode( &value_ ) )
-        value_ = "Invalid unicode";
+    if ( !String::sanitizeUnicode( &value_ ) )
+      value_ = "Invalid unicode";
   }
 }
 
@@ -71,9 +68,8 @@ String::String( const std::string& str, Tainted san ) : BObjectImp( OTString ), 
 {
   if ( san == Tainted::YES )
   {
-    if ( !String::isValidUnicode( value_ ) )
-      if ( !String::sanitizeUnicode( &value_ ) )
-        value_ = "Invalid unicode";
+    if ( !String::sanitizeUnicode( &value_ ) )
+      value_ = "Invalid unicode";
   }
 }
 String* String::StrStr( int begin, int len )
@@ -295,9 +291,8 @@ void String::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
 void String::selfPlusObj( BObjectImp& objimp, BObject& /*obj*/ )
 {
   value_ += objimp.getStringRep();
-  if ( !String::isValidUnicode( value_ ) )
-    if ( !String::sanitizeUnicode( &value_ ) )
-      value_ = "Invalid unicode";
+  if ( !String::sanitizeUnicode( &value_ ) )
+    value_ = "Invalid unicode";
 }
 void String::selfPlusObj( BLong& objimp, BObject& /*obj*/ )
 {
@@ -314,9 +309,8 @@ void String::selfPlusObj( String& objimp, BObject& /*obj*/ )
 void String::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 {
   value_ += objimp.getStringRep();
-  if ( !String::isValidUnicode( value_ ) )
-    if ( !String::sanitizeUnicode( &value_ ) )
-      value_ = "Invalid unicode";
+  if ( !String::sanitizeUnicode( &value_ ) )
+    value_ = "Invalid unicode";
 }
 
 
@@ -1201,17 +1195,26 @@ bool String::isValidUnicode( const std::string& str )
 
 bool String::sanitizeUnicode( std::string* str )
 {
-  try
-  {
-    std::string temp;
-    utf8::replace_invalid( str->begin(), str->end(), back_inserter( temp ) );
-    *str = temp;
+  if ( isValidUnicode( *str ) )
     return true;
-  }
-  catch ( const utf8::exception& )
+  // assume iso8859
+  std::string utf8( "" );
+  utf8.reserve( 2 * str->size() + 1 );
+
+  for ( const auto& s : *str )
   {
-    return false;
+    if ( !( s & 0x80 ) )
+    {
+      utf8.push_back( s );
+    }
+    else
+    {
+      utf8.push_back( 0xc2 | ( (unsigned char)( s ) >> 6 ) );
+      utf8.push_back( 0xbf & s );
+    }
   }
+  *str = utf8;
+  return true;
 }
 }
 }
