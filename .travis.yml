@@ -67,14 +67,17 @@ script:
   - ./ninja -j 2
   - echo -en 'travis_fold:end:script.build\\r'
 
-  - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
-  - cd ../testsuite/escript
-  - ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q;
-  - cd ../style
-  - ./checknl.py -q;
-  - ./checkstyle.py -q;
-  - echo -en 'travis_fold:end:script.tests\\r'
+  - |
+    if [[ "$NOPCH" == "0" ]]; then
+      echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
+      cd ../testsuite/escript
+      ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q;
+      cd ../style
+      ./checknl.py -q;
+      ./checkstyle.py -q;
+       echo -en 'travis_fold:end:script.tests\\r'
+    fi
 
-#notifications:
-#  email:
-#    - polteam@polserver.com
+notifications:
+  email:
+    - polteam@polserver.com
