@@ -1047,7 +1047,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
       SaveContext sc;
       bool result = true;
       std::vector<std::future<bool>> critical_parts;
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID << pf_endl
@@ -1065,8 +1065,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_items( sc.items );
@@ -1077,8 +1077,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_characters( sc );
@@ -1089,8 +1089,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_npcs( sc );
@@ -1101,8 +1101,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_multis( sc.multis );
@@ -1113,8 +1113,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           gamestate.storage.print( sc.storage );
@@ -1125,8 +1125,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_resources_dat( sc.resource );
@@ -1137,8 +1137,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_guilds( sc.guilds );
@@ -1149,8 +1149,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           Module::write_datastore( sc.datastore );
@@ -1163,8 +1163,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_party( sc.party );
@@ -1175,7 +1175,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
+      } ) );
       for ( auto& task : critical_parts )
         task.wait();
 
