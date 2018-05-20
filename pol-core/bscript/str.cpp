@@ -35,15 +35,47 @@ namespace Pol
 {
 namespace Bscript
 {
-String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() ) {}
+String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() )
+{
+  if ( !String::isValidUnicode( value_ ) )
+    if ( !String::sanitizeUnicode( &value_ ) )
+      value_ = "Invalid unicode";
+}
 
-String::String( const char* s, int len ) : BObjectImp( OTString ), value_( s, len ) {}
+String::String( const char* s, int len, Tainted san ) : BObjectImp( OTString ), value_( s, len )
+{
+  if ( san == Tainted::YES )
+  {
+    if ( !String::isValidUnicode( value_ ) )
+      if ( !String::sanitizeUnicode( &value_ ) )
+        value_ = "Invalid unicode";
+  }
+}
 
 String::String( const std::string& str, std::string::size_type pos, std::string::size_type n )
     : BObjectImp( OTString ), value_( str, pos, n )
 {
 }
 
+String::String( const char* str, Tainted san ) : BObjectImp( OTString ), value_( str )
+{
+  if ( san == Tainted::YES )
+  {
+    if ( !String::isValidUnicode( value_ ) )
+      if ( !String::sanitizeUnicode( &value_ ) )
+        value_ = "Invalid unicode";
+  }
+}
+
+String::String( const std::string& str, Tainted san ) : BObjectImp( OTString ), value_( str )
+{
+  if ( san == Tainted::YES )
+  {
+    if ( !String::isValidUnicode( value_ ) )
+      if ( !String::sanitizeUnicode( &value_ ) )
+        value_ = "Invalid unicode";
+  }
+}
 String* String::StrStr( int begin, int len )
 {
   auto itr = value_.cbegin();
@@ -51,13 +83,13 @@ String* String::StrStr( int begin, int len )
   size_t startpos = getBytePosition( itr, begin );
   size_t endpos = getBytePosition( itr, len );
   if ( startpos != std::string::npos )
-    return new String( value_.substr( startpos, endpos - startpos ) );
-  return new String( value_ );
+    return new String( value_.substr( startpos, endpos - startpos ), Tainted::NO );
+  return new String( value_, Tainted::NO );
 }
 
 size_t String::length() const
 {
-  return utf8::distance( value_.begin(), value_.end() );
+  return utf8::unchecked::distance( value_.begin(), value_.end() );
 }
 
 String* String::ETrim( const char* CRSet, int type )
@@ -72,7 +104,7 @@ String* String::ETrim( const char* CRSet, int type )
       tmp = tmp.substr( startpos );
     else
       tmp = "";
-    return new String( tmp );
+    return new String( tmp, Tainted::NO );
   }
   else if ( type == 2 )  // This is for Trailing Only.
   {
@@ -82,7 +114,7 @@ String* String::ETrim( const char* CRSet, int type )
       tmp = tmp.substr( 0, endpos + 1 );
     else
       tmp = "";
-    return new String( tmp );
+    return new String( tmp, Tainted::NO );
   }
   else if ( type == 3 )
   {
@@ -96,10 +128,10 @@ String* String::ETrim( const char* CRSet, int type )
       tmp = "";
     else
       tmp = tmp.substr( startpos, endpos - startpos + 1 );
-    return new String( tmp );
+    return new String( tmp, Tainted::NO );
   }
   else
-    return new String( tmp );
+    return new String( tmp, Tainted::NO );
 }
 
 void String::EStrReplace( String* str1, String* str2 )
@@ -202,7 +234,7 @@ int String::find( int begin, const char* target )
     return -1;
   else
   {
-    pos = utf8::distance( value_.cbegin(), std::next( value_.cbegin(), pos ) );
+    pos = utf8::unchecked::distance( value_.cbegin(), std::next( value_.cbegin(), pos ) );
     return static_cast<int>( pos );
   }
 }
@@ -242,15 +274,15 @@ BObjectImp* String::selfPlusObj( const BObjectImp& objimp ) const
 }
 BObjectImp* String::selfPlusObj( const BLong& objimp ) const
 {
-  return new String( value_ + objimp.getStringRep() );
+  return new String( value_ + objimp.getStringRep(), Tainted::NO );
 }
 BObjectImp* String::selfPlusObj( const Double& objimp ) const
 {
-  return new String( value_ + objimp.getStringRep() );
+  return new String( value_ + objimp.getStringRep(), Tainted::NO );
 }
 BObjectImp* String::selfPlusObj( const String& objimp ) const
 {
-  return new String( value_ + objimp.getStringRep() );
+  return new String( value_ + objimp.getStringRep(), Tainted::NO );
 }
 BObjectImp* String::selfPlusObj( const ObjArray& objimp ) const
 {
@@ -263,6 +295,9 @@ void String::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
 void String::selfPlusObj( BObjectImp& objimp, BObject& /*obj*/ )
 {
   value_ += objimp.getStringRep();
+  if ( !String::isValidUnicode( value_ ) )
+    if ( !String::sanitizeUnicode( &value_ ) )
+      value_ = "Invalid unicode";
 }
 void String::selfPlusObj( BLong& objimp, BObject& /*obj*/ )
 {
@@ -279,6 +314,9 @@ void String::selfPlusObj( String& objimp, BObject& /*obj*/ )
 void String::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 {
   value_ += objimp.getStringRep();
+  if ( !String::isValidUnicode( value_ ) )
+    if ( !String::sanitizeUnicode( &value_ ) )
+      value_ = "Invalid unicode";
 }
 
 
@@ -374,7 +412,7 @@ template <typename T, typename std::enable_if<sizeof( T ) == sizeof( unsigned in
 std::vector<wchar_t> convertutf8( const std::string& value )
 {
   std::vector<wchar_t> codes;
-  utf8::utf8to32( value.begin(), value.end(), std::back_inserter( codes ) );
+  utf8::unchecked::utf8to32( value.begin(), value.end(), std::back_inserter( codes ) );
   return codes;
 }
 template <typename T,
@@ -382,7 +420,7 @@ template <typename T,
 std::vector<wchar_t> convertutf8( const std::string& value )
 {
   std::vector<wchar_t> codes;
-  utf8::utf8to16( value.begin(), value.end(), std::back_inserter( codes ) );
+  utf8::unchecked::utf8to16( value.begin(), value.end(), std::back_inserter( codes ) );
   return codes;
 }
 }  // namespace
@@ -395,7 +433,7 @@ void String::toUpper( void )
   value_.clear();
   for ( const auto& c : codes )
   {
-    utf8::append( std::towupper( c ), std::back_inserter( value_ ) );
+    utf8::unchecked::append( std::towupper( c ), std::back_inserter( value_ ) );
   }
 #else
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -428,7 +466,7 @@ void String::toLower( void )
   value_.clear();
   for ( const auto& c : codes )
   {
-    utf8::append( std::towlower( c ), std::back_inserter( value_ ) );
+    utf8::unchecked::append( std::towlower( c ), std::back_inserter( value_ ) );
   }
 #else
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -458,7 +496,7 @@ size_t String::getBytePosition( std::string::const_iterator& itr, size_t codeind
 {
   auto itr_end = value_.cend();
   for ( size_t i = 0; i < codeindex && itr != itr_end; ++i )
-    utf8::next( itr, itr_end );
+    utf8::unchecked::next( itr );
 
   if ( itr != itr_end )
   {
@@ -487,7 +525,7 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
     pos = getBytePosition( itr, pos );
     if ( pos != std::string::npos )
     {
-      utf8::next( itr, value_.cend() );
+      utf8::unchecked::next( itr );
       len = std::distance( value_.cbegin(), itr ) - pos;
     }
     else
@@ -502,7 +540,7 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
     pos = getBytePosition( itr, pos );
     if ( pos != std::string::npos )
     {
-      utf8::next( itr, value_.cend() );
+      utf8::unchecked::next( itr );
       len = std::distance( value_.cbegin(), itr ) - pos;
     }
     else
@@ -700,9 +738,9 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     index = getBytePosition( itr, index );
     if ( index != std::string::npos )
     {
-      utf8::next( itr, value_.cend() );
+      utf8::unchecked::next( itr );
       int len = static_cast<int>( std::distance( value_.cbegin(), itr ) - index );
-      return BObjectRef( new BObject( new String( value_.c_str() + index, len ) ) );
+      return BObjectRef( new BObject( new String( value_.c_str() + index, len, Tainted::NO ) ) );
     }
     return BObjectRef( new BError( "Subscript out of range" ) );
   }
@@ -722,9 +760,9 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     index = getBytePosition( itr, index );
     if ( index != std::string::npos )
     {
-      utf8::next( itr, value_.cend() );
+      utf8::unchecked::next( itr );
       int len = static_cast<int>( std::distance( value_.cbegin(), itr ) - index );
-      return BObjectRef( new BObject( new String( value_.c_str() + index, len ) ) );
+      return BObjectRef( new BObject( new String( value_.c_str() + index, len, Tainted::NO ) ) );
     }
     return BObjectRef( new BError( "Subscript out of range" ) );
   }
@@ -736,7 +774,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     {
       auto itr = value_.cbegin();
       std::advance( itr, pos );
-      utf8::next( itr, value_.cend() );
+      utf8::unchecked::next( itr );
       size_t len = std::distance( value_.cbegin(), itr ) - pos;
       return BObjectRef( new BObject( new String( value_, pos, len ) ) );
     }
@@ -750,7 +788,6 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
 }
 
 // -- format related stuff --
-// TODO UTF8
 bool s_parse_int( int& i, std::string const& s )
 {
   if ( s.empty() )
@@ -1107,7 +1144,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
 std::vector<unsigned int> String::toUTF32() const
 {
   std::vector<unsigned int> u32;
-  utf8::utf8to32( value_.begin(), value_.end(), std::back_inserter( u32 ) );
+  utf8::unchecked::utf8to32( value_.begin(), value_.end(), std::back_inserter( u32 ) );
   return u32;
 }
 
@@ -1121,14 +1158,14 @@ std::vector<unsigned short> String::toUTF16() const
 std::string String::fromUTF32( unsigned int code )
 {
   std::string s;
-  utf8::append( code, std::back_inserter( s ) );
+  utf8::unchecked::append( code, std::back_inserter( s ) );
   return s;
 }
 
 std::string String::fromUTF16( std::vector<unsigned short> codes )
 {
   std::string s;
-  utf8::utf16to8( codes.begin(), codes.end(), std::back_inserter( s ) );
+  utf8::unchecked::utf16to8( codes.begin(), codes.end(), std::back_inserter( s ) );
   return s;
 }
 

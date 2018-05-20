@@ -24,10 +24,15 @@ class String : public BObjectImp
   typedef BObjectImp base;
 
 public:
+  enum class Tainted
+  {
+    YES,  // performs unicode sanitize should be done for every external value
+    NO    // performs no unicode sanitize should only be used for internal usage
+  };
   String() : BObjectImp( OTString ), value_( "" ) {}
-  String( const char* str, int nchars );
-  explicit String( const char* str ) : BObjectImp( OTString ), value_( str ) {}
-  explicit String( const std::string& str ) : BObjectImp( OTString ), value_( str ) {}
+  String( const char* str, int nchars, Tainted san = Tainted::YES );
+  explicit String( const char* str, Tainted san = Tainted::YES );
+  explicit String( const std::string& str, Tainted san = Tainted::YES );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
   virtual ~String() {}
@@ -150,7 +155,7 @@ private:
 class ConstString : public String
 {
 public:
-  explicit ConstString( const std::string& str ) : String( str ) {}
+  explicit ConstString( const std::string& str ) : String( str, Tainted::YES ) {}
 };
 }
 }
