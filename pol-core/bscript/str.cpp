@@ -434,19 +434,20 @@ void String::toUpper( void )
   std::wstring str = converter.from_bytes( value_ );
 
   int len = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                          str.size(), 0, 0 );
+                          static_cast<int>( str.size() ), 0, 0 );
   if ( !len )
     return;
   else if ( len == str.size() )
   {
-    int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                          str.size(), &str[0], str.size() );
+    LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
+                  static_cast<int>( str.size() ), &str[0], static_cast<int>( str.size() ) );
   }
   else
   {
     std::vector<wchar_t> buf( len );
     int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                          str.size(), &buf.front(), buf.size() );
+                          static_cast<int>( str.size() ), &buf.front(),
+                          static_cast<int>( buf.size() ) );
     str.assign( &buf.front(), buf.size() );
   }
   value_ = converter.to_bytes( str );
@@ -467,19 +468,19 @@ void String::toLower( void )
   std::wstring str = converter.from_bytes( value_ );
 
   int len = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                          str.size(), 0, 0 );
+                          static_cast<int>( str.size() ), 0, 0 );
   if ( !len )
     return;
   else if ( len == str.size() )
   {
-    int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                          str.size(), &str[0], str.size() );
+    LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
+                  static_cast<int>( str.size() ), &str[0], static_cast<int>( str.size() ) );
   }
   else
   {
     std::vector<wchar_t> buf( len );
     int l = LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                          str.size(), &buf.front(), buf.size() );
+                          static_cast<int>( str.size() ), &buf.front(), static<int>( buf.size() ) );
     str.assign( &buf.front(), buf.size() );
   }
   value_ = converter.to_bytes( str );
