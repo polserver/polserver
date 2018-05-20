@@ -1287,7 +1287,7 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
     {
       if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
       {
-        INFO_PRINT << "Warning: invalid unicode character detected.\n" << ctx;
+        INFO_PRINT << "Warning: invalid unicode character detected. Assuming ISO8859\n" << ctx;
         if ( compilercfg.ErrorOnWarning )
           throw std::runtime_error( "Warnings treated as errors." );
       }
