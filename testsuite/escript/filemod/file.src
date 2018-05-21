@@ -1,4 +1,4 @@
 use file;
 
-print(ReadFile(":filetest:normal.txt"));
-print(ReadFile(":filetest:bom.txt"));
+print(ReadFile(":filetest:normal.file"));
+print(ReadFile(":filetest:bom.file"));
