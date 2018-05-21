@@ -400,7 +400,8 @@ void load_packages( bool quiet )
       while ( elem.remove_prop( "dir", &dir ) )
       {
         dir = Clib::normalized_dir_form( dir );
-        INFO_PRINT << "Searching for packages under " << dir << "\n";
+        if ( !quiet )
+          INFO_PRINT << "Searching for packages under " << dir << "\n";
         load_packages( dir.c_str(), quiet );
       }
     }

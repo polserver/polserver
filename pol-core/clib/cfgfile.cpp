@@ -15,12 +15,13 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <format/format.h>
 #include "cfgelem.h"
 #include "clib.h"
 #include "logfacility.h"
 #include "stlutil.h"
 #include "strutil.h"
+#include <format/format.h>
+#include <utf8/utf8.h>
 
 
 namespace Pol
@@ -664,6 +665,15 @@ ConfigFile::~ConfigFile()
 #endif
 }
 
+void ConfigFile::remove_bom( std::string* strbuf )
+{
+  if ( strbuf->size() >= 3 )
+  {
+    if ( utf8::starts_with_bom( strbuf->cbegin(), strbuf->cend() ) )
+      strbuf->erase( 0, 3 );
+  }
+}
+
 #if !CFGFILE_USES_IOSTREAMS
 char ConfigFile::buffer[1024];
 #endif
@@ -676,6 +686,8 @@ bool ConfigFile::read_properties( ConfigElem& elem )
   std::string propname, propvalue;
   while ( getline( ifs, strbuf ) )  // get
   {
+    if ( !cur_line )
+      remove_bom( &strbuf );
     ++cur_line;
 
     ISTRINGSTREAM is( strbuf );
@@ -717,6 +729,8 @@ bool ConfigFile::_read( ConfigElem& elem )
   std::string strbuf;
   while ( getline( ifs, strbuf ) )
   {
+    if ( !cur_line )
+      remove_bom( &strbuf );
     ++cur_line;
 
     string type, rest;
@@ -802,6 +816,8 @@ bool ConfigFile::read_properties( ConfigElem& elem )
   static std::string propname, propvalue;
   while ( readline( strbuf ) )
   {
+    if ( !_cur_line )
+      remove_bom( &strbuf );
     ++_cur_line;
 
     ISTRINGSTREAM is( strbuf );
@@ -833,6 +849,8 @@ bool ConfigFile::read_properties( VectorConfigElem& elem )
   static std::string propname, propvalue;
   while ( readline( strbuf ) )
   {
+    if ( !_cur_line )
+      remove_bom( &strbuf );
     ++_cur_line;
 
     ISTRINGSTREAM is( strbuf );
@@ -873,6 +891,8 @@ bool ConfigFile::_read( ConfigElem& elem )
   std::string strbuf;
   while ( readline( strbuf ) )
   {
+    if ( !_cur_line )
+      remove_bom( &strbuf );
     ++_cur_line;
 
     std::string type, rest;
@@ -938,6 +958,8 @@ bool ConfigFile::_read( VectorConfigElem& elem )
   std::string strbuf;
   while ( readline( strbuf ) )
   {
+    if ( !_cur_line )
+      remove_bom( &strbuf );
     ++_cur_line;
 
     std::string type, rest;

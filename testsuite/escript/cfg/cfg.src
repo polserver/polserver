@@ -1,0 +1,7 @@
+use cfgfile;
+var a:=ReadConfigFile(":cfgtests:cfg");
+print(a);
+print(GetConfigStringKeys(a));
+var b:=ReadConfigFile(":cfgtests:cfgbom");
+print(b);
+print(GetConfigStringKeys(b));
