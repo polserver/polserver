@@ -1,0 +1,2 @@
+﻿print("useless BOM");
+include "unicode04";

@@ -46,6 +46,7 @@
 #include "tokens.h"
 #include "userfunc.h"
 #include <format/format.h>
+#include <utf8/utf8.h>
 
 namespace Pol
 {
@@ -4970,6 +4971,25 @@ int Compiler::getFileContents( const char* file, char** iv )
     fclose( fp );
     return -1;
   }
+  if ( filelen >= 3 )
+  {
+    char bom[3];
+    if ( fread( bom, 1, 3, fp ) != 3 )
+    {
+      fclose( fp );
+      return -1;
+    }
+    if ( !utf8::starts_with_bom( bom, bom + 3 ) )
+    {
+      if ( fseek( fp, 0, SEEK_SET ) != 0 )
+      {
+        fclose( fp );
+        return -1;
+      }
+    }
+    else
+      filelen -= 3;
+  }
 
   s = (char*)calloc( 1, filelen + 1 );
   if ( !s )
@@ -4978,7 +4998,7 @@ int Compiler::getFileContents( const char* file, char** iv )
     return -1;
   }
 
-  if (fread( s, filelen, 1, fp ) != 1 )
+  if ( fread( s, filelen, 1, fp ) != 1 )
   {
     fclose( fp );
     return -1;
