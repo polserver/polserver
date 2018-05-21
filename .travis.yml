@@ -66,16 +66,16 @@ script:
   - ./ninja -j 2
   - echo -en 'travis_fold:end:script.build\\r'
 
+  - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
   - |
     if [[ "$NOPCH" == "0" ]]; then
-      echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
       cd ../testsuite/escript
-      ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q;
+      ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q || travis_terminate 1;
       cd ../style
-      ./checknl.py -q;
-      ./checkstyle.py -q;
-       echo -en 'travis_fold:end:script.tests\\r'
+      ./checknl.py -q || travis_terminate 1;
+      ./checkstyle.py -q || travis_terminate 1;
     fi
+  - echo -en 'travis_fold:end:script.tests\\r'
 
 notifications:
   email:
