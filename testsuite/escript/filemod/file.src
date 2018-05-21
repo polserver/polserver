@@ -1,4 +1,4 @@
 use file;
 
-print(ReadFile("filemod/normal.txt"));
-print(ReadFile("filemod/bom.txt"));
+print(ReadFile(":filetest:normal.txt"));
+print(ReadFile(":filetest:bom.txt"));

@@ -21,6 +21,7 @@
 #include "RunEclMain.h"
 #include <format/format.h>
 
+#include "../pol/globals/ucfg.h"
 #include "../pol/module/basiciomod.h"
 #include "../pol/module/basicmod.h"
 #include "../pol/module/cfgmod.h"
@@ -182,6 +183,10 @@ int RunEclMain::runeclScript( std::string fileName )
 #endif
     INFO_PRINT << tmp.str();
   }
+  // deinit
+  Core::configurationbuffer.deinitialize();
+  Plib::systemstate.deinitialize();
+
   return exres ? 0 : 1;
 }
 
