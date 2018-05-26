@@ -31,10 +31,8 @@
 #include "../pol/module/datastore.h"
 #include "../pol/module/filemod.h"
 #include "../pol/module/mathmod.h"
-#include "../pol/module/sqlmod.h"
 #include "../pol/module/utilmod.h"
 #include "../pol/polcfg.h"
-#include "../pol/sqlscrobj.h"
 
 namespace Pol
 {
@@ -81,7 +79,6 @@ void RunEclMain::dumpScript( std::string fileName )
   exe.addModule( new BasicExecutorModule( exe ) );
   exe.addModule( new BasicIoExecutorModule( exe ) );
   exe.addModule( new MathExecutorModule( exe ) );
-  // E.addModule( new SQLExecutorModule(exe));
   exe.addModule( new UtilExecutorModule( exe ) );
   exe.addModule( new FileAccessExecutorModule( exe ) );
   exe.addModule( new ConfigFileExecutorModule( exe ) );
@@ -112,7 +109,6 @@ int RunEclMain::runeclScript( std::string fileName )
   exe.addModule( new BasicExecutorModule( exe ) );
   exe.addModule( new BasicIoExecutorModule( exe ) );
   exe.addModule( new MathExecutorModule( exe ) );
-  // E.addModule( new SQLExecutorModule( E ) );
   exe.addModule( new UtilExecutorModule( exe ) );
   exe.addModule( new FileAccessExecutorModule( exe ) );
   exe.addModule( new ConfigFileExecutorModule( exe ) );
