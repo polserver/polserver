@@ -9,28 +9,31 @@
 
 #include "uobject.h"
 
+#include <atomic>
+#include <iosfwd>
+#include <stddef.h>
+#include <string>
+
 #include "../clib/cfgelem.h"
-#include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
 #include "../clib/streamsaver.h"
-
 #include "../plib/systemstate.h"
-
+#include "baseobject.h"
+#include "clidata.h"
+#include "dynproperties.h"
 #include "globals/state.h"
-#include "item/item.h"
 #include "item/itemdesc.h"
 #include "objtype.h"
-#include "polclass.h"
 #include "polcfg.h"
+#include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
-#include "reftypes.h"
 #include "tooltips.h"
-#include "ufunc.h"
-#include "zone.h"
-
-#include <stdexcept>
+#include "uconst.h"
+#include "uobjcnt.h"
 
 namespace Pol
 {
@@ -65,7 +68,6 @@ void display_unreaped_orphan_instances()
 
 std::atomic<unsigned int> UObject::dirty_writes;
 std::atomic<unsigned int> UObject::clean_writes;
-AosValuePack UObject::DEFAULT_AOSVALUEPACK = AosValuePack();
 
 UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
     : ref_counted(),
@@ -376,13 +378,9 @@ bool UObject::setcolor( u16 newcolor )
   return true;
 }
 
-void UObject::on_color_changed()
-{
-}
+void UObject::on_color_changed() {}
 
-void UObject::on_facing_changed()
-{
-}
+void UObject::on_facing_changed() {}
 
 bool UObject::saveonexit() const
 {

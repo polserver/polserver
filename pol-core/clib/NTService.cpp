@@ -6,13 +6,9 @@
  */
 
 
-#include "Header_Windows.h"
-#include <stdio.h>
 #include "NTService.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#endif
+#include "ntservmsg.h"  // Event message ids
+#include <stdio.h>
 
 // Custom Controls Below Here
 #define SERVICE_CONTROL_BEEP 0x000004B0

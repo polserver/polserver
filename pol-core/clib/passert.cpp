@@ -9,25 +9,18 @@
 
 #include "passert.h"
 
-#include "Debugging/ExceptionParser.h"
+#include <format/format.h>
 
+#include "Debugging/ExceptionParser.h"
 #include "esignal.h"
 #include "logfacility.h"
 #include "stlutil.h"
-#include "threadhelp.h"
-#include <cstring>
 
 #ifdef WINDOWS
 #include "Header_Windows.h"
 #include "mdumpimp.h"
 #else
-#include <signal.h>
-#include <unistd.h>
-#include <execinfo.h>
-#include <iostream>
 #include <cstdlib>
-#include <signal.h>
-#include <pthread.h>
 #endif
 
 namespace Pol

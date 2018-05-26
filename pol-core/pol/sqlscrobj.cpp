@@ -6,36 +6,32 @@
 
 #include "sqlscrobj.h"
 
+#include <exception>
+#include <string.h>
+
+#include "../bscript/bobject.h"
+
+
 #ifdef HAVE_MYSQL
 
-#include <limits>
-
-#include "../clib/strutil.h"
-#include "../clib/stlutil.h"
-#include "../clib/clib_endian.h"
-#include "../clib/threadhelp.h"
-#include "../clib/logfacility.h"
-#include "../clib/esignal.h"
-#include "../clib/message_queue.h"
-
-#include "../bscript/executor.h"
-#include "../bscript/execmodl.h"
 #include "../bscript/berror.h"
-#include "../bscript/bobject.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
-
-#include "../plib/pkg.h"
+#include "../clib/esignal.h"
+#include "../clib/logfacility.h"
+#include "../clib/threadhelp.h"
 #include "globals/network.h"
 
 // std::regex support is broken in GCC < 4.9. This define is a workaround for GCC 4.8.
 // TODO: remove this in future and just use std:: namespace
 #ifndef USE_BOOST_REGEX
 #include <regex>
+
 #define REGEX_NSPACE std
 #else
 #include <boost/regex.hpp>
+
 #define REGEX_NSPACE boost
 #endif
 
@@ -119,9 +115,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     return BObjectRef( new BError( "SQLRow keys must be integer" ) );
   }
 }
-BSQLRow::~BSQLRow()
-{
-}
+BSQLRow::~BSQLRow() {}
 Bscript::BObjectImp* BSQLRow::copy() const
 {
   return new BSQLRow( _result, _row, _fields );
@@ -184,9 +178,7 @@ int BSQLResultSet::affected_rows() const
 {
   return _affected_rows;
 }
-BSQLResultSet::~BSQLResultSet()
-{
-}
+BSQLResultSet::~BSQLResultSet() {}
 bool BSQLResultSet::isTrue() const
 {
   return true;
@@ -213,13 +205,14 @@ Bscript::BObjectImp* BSQLConnection::getResultSet() const
   }
   else  // mysql_store_result() returned nothing; should it have?
   {
-    /*		if (mysql_errno(_conn))
-				{
-				_error = mysql_error(_conn);
-				_errno = mysql_errno(_conn);
-				return new BError(_error);
-				}
-                else */ if ( mysql_field_count( _conn->ptr() ) == 0 )
+    /*  if (mysql_errno(_conn))
+        {
+          _error = mysql_error(_conn);
+          _errno = mysql_errno(_conn);
+          return new BError(_error);
+        }
+        else */
+    if ( mysql_field_count( _conn->ptr() ) == 0 )
     {
       return new BSQLResultSet( static_cast<int>( mysql_affected_rows( _conn->ptr() ) ) );
     }
@@ -242,9 +235,7 @@ BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn )
 {
 }
 
-BSQLConnection::~BSQLConnection()
-{
-}
+BSQLConnection::~BSQLConnection() {}
 std::string BSQLConnection::getStringRep() const
 {
   return "SQLConnection";
@@ -385,7 +376,7 @@ BObjectRef BSQLConnection::get_member_id( const int /*id*/ )  // id test
   // switch(id)
   //{
 
-  //	default: return BObjectRef(UninitObject::create());
+  //  default: return BObjectRef(UninitObject::create());
   //}
 }
 BObjectRef BSQLConnection::get_member( const char* membername )
@@ -417,9 +408,7 @@ Bscript::BObjectImp* BSQLConnection::copy() const
   return new BSQLConnection( _conn );
 }
 
-BSQLConnection::ConnectionWrapper::ConnectionWrapper() : _conn( nullptr )
-{
-}
+BSQLConnection::ConnectionWrapper::ConnectionWrapper() : _conn( nullptr ) {}
 BSQLConnection::ConnectionWrapper::~ConnectionWrapper()
 {
   if ( _conn )
@@ -437,12 +426,8 @@ MYSQL* BSQLConnection::ConnectionWrapper::ptr()
   return _conn;
 };
 
-ResultWrapper::ResultWrapper( MYSQL_RES* res ) : _result( res )
-{
-}
-ResultWrapper::ResultWrapper() : _result( nullptr )
-{
-}
+ResultWrapper::ResultWrapper( MYSQL_RES* res ) : _result( res ) {}
+ResultWrapper::ResultWrapper() : _result( nullptr ) {}
 ResultWrapper::~ResultWrapper()
 {
   if ( _result )
@@ -484,12 +469,8 @@ void sql_service_thread_stub()
   }
 }
 
-SQLService::SQLService()
-{
-}
-SQLService::~SQLService()
-{
-}
+SQLService::SQLService() {}
+SQLService::~SQLService() {}
 void SQLService::stop()
 {
   _msgs.cancel();

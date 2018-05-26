@@ -7,14 +7,14 @@
 
 #include "fnsearch.h"
 
-#include "../clib/stlutil.h"
+#include <stddef.h>
 
 #include "globals/object_storage.h"
-#include "mobile/charactr.h"
 #include "item/item.h"
-#include "storage.h"
+#include "mobile/charactr.h"
 #include "multi/multi.h"
-#include "uworld.h"
+#include "objecthash.h"
+#include "uobject.h"
 
 namespace Pol
 {

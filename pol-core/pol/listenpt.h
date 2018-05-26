@@ -23,8 +23,8 @@ class Character;
 }
 namespace Core
 {
-class UObject;
 class UOExecutor;
+class UObject;
 
 class ListenPoint
 {

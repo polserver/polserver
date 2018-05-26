@@ -8,6 +8,24 @@
 #define EQUIPMNT_H
 
 #include <iosfwd>
+#include <string>
+
+#include "../../bscript/bobject.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
+#include "../baseobject.h"
+
+namespace Pol
+{
+namespace Clib
+{
+class StreamWriter;
+}  // namespace Clib
+namespace Items
+{
+class ItemDesc;
+}  // namespace Items
+}  // namespace Pol
 
 #ifndef ITEM_H
 #include "item.h"

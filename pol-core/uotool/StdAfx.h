@@ -20,9 +20,6 @@
 #if !defined( _UOTOOL_STDAFX_H )
 #define _UOTOOL_STDAFX_H
 
-#define WIN32_LEAN_AND_MEAN  // Exclude rarely-used stuff from Windows headers
-#include <windows.h>
-
 // include default pch
 #include "../clib/StdAfx.h"
 

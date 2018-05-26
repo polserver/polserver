@@ -1,8 +1,9 @@
 #include "ExceptionParser.h"
+
 #include "../Program/ProgramConfig.h"
-#include "LogSink.h"
-#include "../threadhelp.h"
 #include "../logfacility.h"
+#include "../threadhelp.h"
+#include <format/format.h>
 
 #ifdef WINDOWS
 #include "../pol_global_config_win.h"
@@ -10,20 +11,22 @@
 #include "pol_global_config.h"
 #endif
 
+#include <cstddef>
 #include <cstring>
+#include <errno.h>
 #include <signal.h>
 #include <stdio.h>
-#include <errno.h>
-#include <inttypes.h>
+#include <stdlib.h>
 
 #ifndef WINDOWS
 #include <arpa/inet.h>
+#include <cxxabi.h>
+#include <execinfo.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <execinfo.h>
-#include <cxxabi.h>
+#include <sys/mman.h>
 #include <unistd.h>
-#include <sys/syscall.h>
+
 #define SOCKET int
 #else
 #include "../Header_Windows.h"
@@ -40,7 +43,7 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool ExceptionParser::m_programAbortReporting = true;
+bool ExceptionParser::m_programAbortReporting = false;
 std::string ExceptionParser::m_programAbortReportingServer = "";
 std::string ExceptionParser::m_programAbortReportingUrl = "";
 std::string ExceptionParser::m_programAbortReportingReporter = "";
@@ -48,6 +51,8 @@ std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTi
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace
+{
 void getSignalDescription( int signal, string& signalName, string& signalDescription )
 {
   switch ( signal )
@@ -312,6 +317,7 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   closesocket( socketFD );
 #endif
 }
+}  // namespace
 
 void ExceptionParser::reportProgramAbort( const string& stackTrace, const string& reason )
 {
@@ -349,8 +355,8 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
                    "comp=" +
                    getCompilerVersion() +
                    "&"
-                   "comp_time=" POL_BUILD_DATE "(" POL_BUILD_TIME
-                   ")&"
+                   "comp_time=" POL_BUILD_DATETIME
+                   "&"
                    "build_target=" +
                    POL_BUILD_TARGET +
                    "&"
@@ -394,7 +400,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf( "Stack trace:\n%s", tStackTrace.c_str() );
     printf( "\n" );
     printf( "Compiler: %s\n", getCompilerVersion().c_str() );
-    printf( "Compile time: %s\n", POL_BUILD_TIME );
+    printf( "Compile time: %s\n", POL_BUILD_DATETIME );
     printf( "Build target: %s\n", POL_BUILD_TARGET );
     printf( "Build revision: %s\n", POL_VERSION_ID );
 #ifndef _WIN32
@@ -430,15 +436,11 @@ void ExceptionParser::handleExceptionSignal( int signal )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ExceptionParser::ExceptionParser()
-{
-}
+ExceptionParser::ExceptionParser() {}
 
-ExceptionParser::~ExceptionParser()
-{
-}
+ExceptionParser::~ExceptionParser() {}
 
-///////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WIN32
 string ExceptionParser::getTrace()
@@ -514,7 +516,7 @@ string ExceptionParser::getTrace()
       if ( res == 0 )
       {
         string funcnNameStr = ( funcnName ? funcnName : "" );
-        if ( strncmp( funcnName, "Pol::", 5 ) == 0 )
+        if ( funcnName && strncmp( funcnName, "Pol::", 5 ) == 0 )
           funcnNameStr = ">> " + funcnNameStr;
 
         if ( beginBinaryName && strlen( beginBinaryName ) )
@@ -637,12 +639,12 @@ void ExceptionParser::initGlobalExceptionCatching()
 
   // set handler stack
   stack_t tStack;
-  tStack.ss_sp = malloc( SIGSTKSZ );
-  if ( tStack.ss_sp == NULL )
-  {
-    printf( "Could not allocate signal handler stack\n" );
-    exit( 1 );
-  }
+  // mmap: no false positives for leak, plus guardpages to get SIGSEGV on memory overwrites
+  char* mem = static_cast<char*>( mmap( NULL, SIGSTKSZ + 2 * getpagesize(), PROT_READ | PROT_WRITE,
+                                        MAP_PRIVATE | MAP_ANON, -1, 0 ) );
+  mprotect( mem, getpagesize(), PROT_NONE );
+  mprotect( mem + getpagesize() + SIGSTKSZ, getpagesize(), PROT_NONE );
+  tStack.ss_sp = mem + getpagesize();
   tStack.ss_size = SIGSTKSZ;
   tStack.ss_flags = 0;
   if ( sigaltstack( &tStack, NULL ) == -1 )
@@ -659,13 +661,9 @@ string ExceptionParser::getTrace()
   return result;
 }
 
-void ExceptionParser::logAllStackTraces()
-{
-}
+void ExceptionParser::logAllStackTraces() {}
 
-void ExceptionParser::initGlobalExceptionCatching()
-{
-}
+void ExceptionParser::initGlobalExceptionCatching() {}
 #endif  // _WIN32
 
 void ExceptionParser::configureProgramAbortReportingSystem( bool active, std::string server,

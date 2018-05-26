@@ -5,10 +5,10 @@
 
 
 #include "esignal.h"
-#include "logfacility.h"
-
+#ifdef WINDOWS
 #include "Header_Windows.h"
-#ifndef WINDOWS
+#include "logfacility.h"
+#else
 #include <signal.h>
 #endif
 namespace Pol
@@ -30,20 +30,20 @@ BOOL WINAPI control_handler( DWORD dwCtrlType )
 
 // Consider these three new signals?
 #if 0
-		case CTRL_CLOSE_EVENT:		// console window closing
+    case CTRL_CLOSE_EVENT:    // console window closing
           ERROR_PRINT << "Console window closing. Stopping...\n";
-		  exit_signalled = true;
-		  return TRUE;
+      exit_signalled = true;
+      return TRUE;
 
-		case CTRL_LOGOFF_EVENT:		// User logging off system
+    case CTRL_LOGOFF_EVENT:    // User logging off system
           ERROR_PRINT << "User logging off system. Stopping...\n";
-		  exit_signalled = true;
-		  return TRUE;
+      exit_signalled = true;
+      return TRUE;
 
-		case CTRL_SHUTDOWN_EVENT:	// User shutting down system
+    case CTRL_SHUTDOWN_EVENT:  // User shutting down system
           ERROR_PRINT << "System shutting down. Stopping...\n";
-		  exit_signalled = true;
-		  return TRUE;
+      exit_signalled = true;
+      return TRUE;
 #endif
   }
   return FALSE;

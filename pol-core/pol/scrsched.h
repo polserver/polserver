@@ -10,13 +10,15 @@
 #include <list>
 #include <set>
 
-#include "module/osmod.h"
+#include "../clib/refptr.h"
+#include "polclock.h"
+
 namespace Pol
 {
 namespace Bscript
 {
 class BObjectImp;
-class Executor;
+class EScriptProgram;
 }
 namespace Module
 {
@@ -24,8 +26,8 @@ class UOExecutorModule;
 }
 namespace Core
 {
-class UOExecutor;
 class ScriptDef;
+class UOExecutor;
 
 void step_scripts( polclock_t* clocksleft, bool* pactivity );
 void start_script( const char* filename, Bscript::BObjectImp* param0,

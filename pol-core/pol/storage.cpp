@@ -7,33 +7,32 @@
 
 #include "storage.h"
 
-#include "item/item.h"
-#include "containr.h"
-#include "loaddata.h"
+#include <exception>
+#include <string>
+#include <time.h>
 
-#include "mkscrobj.h"
-#include "fnsearch.h"
-#include "polcfg.h"
-#include "ufunc.h"
-#include "globals/uvars.h"
-#include "globals/object_storage.h"
-
+#include "../bscript/berror.h"
+#include "../bscript/bobject.h"
 #include "../bscript/contiter.h"
 #include "../bscript/impstr.h"
-#include "../bscript/berror.h"
-
-#include "../clib/logfacility.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/clib.h"
+#include "../clib/compilerspecifics.h"
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
 #include "../clib/streamsaver.h"
-
 #include "../plib/systemstate.h"
-
-#include <stdexcept>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
-#endif
+#include "containr.h"
+#include "fnsearch.h"
+#include "globals/object_storage.h"
+#include "globals/uvars.h"
+#include "item/item.h"
+#include "loaddata.h"
+#include "mkscrobj.h"
+#include "polcfg.h"
+#include "poltype.h"
+#include "ufunc.h"
 
 namespace Pol
 {
@@ -41,9 +40,7 @@ namespace Core
 {
 using namespace Bscript;
 
-StorageArea::StorageArea( std::string name ) : _name( name )
-{
-}
+StorageArea::StorageArea( std::string name ) : _name( name ) {}
 
 StorageArea::~StorageArea()
 {
@@ -268,7 +265,10 @@ void Storage::print( Clib::StreamWriter& sw ) const
 {
   for ( const auto& area : areas )
   {
-    sw() << "StorageArea" << '\n' << "{" << '\n' << "\tName\t" << area.first << '\n' << "}" << '\n'
+    sw() << "StorageArea" << '\n'
+         << "{" << '\n'
+         << "\tName\t" << area.first << '\n'
+         << "}" << '\n'
          << '\n';
     area.second->print( sw );
     sw() << '\n';

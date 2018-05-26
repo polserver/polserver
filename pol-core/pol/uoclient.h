@@ -10,10 +10,10 @@
 #ifndef UOCLIENT_H
 #define UOCLIENT_H
 
-#include "crypt/cryptkey.h"
-
 #include <string>
 #include <vector>
+
+#include "crypt/cryptkey.h"
 
 namespace Pol
 {
@@ -33,8 +33,8 @@ public:
 
   void deinitialize();
 
-public:
-  ~UoClientGeneral();
+  //~UoClientGeneral(); Note: no deconstructor due to undefined static deconstruction order,
+  // let it leak if the usual way fails
 
   class Mapping
   {

@@ -8,39 +8,38 @@
 
 #include "spells.h"
 
-#include "spelbook.h"
-#include "item/itemdesc.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
+#include <stdlib.h>
+#include <time.h>
 
-#include "polclass.h"
-
-#include "action.h"
-#include "miscrgn.h"
-#include "mkscrobj.h"
-#include "objtype.h"
-#include "pktin.h"
-#include "polcfg.h"
-#include "schedule.h"
-#include "scrstore.h"
-#include "syshook.h"
-#include "target.h"
-#include "ufunc.h"
-#include "umanip.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
-#include "vital.h"
-
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-
+#include <format/format.h>
+#include "../bscript/eprog.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-
-#include <vector>
-#include <stdexcept>
+#include "../clib/refptr.h"
+#include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+#include "containr.h"
+#include "globals/state.h"
+#include "globals/uvars.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
+#include "layers.h"
+#include "miscrgn.h"
+#include "mkscrobj.h"
+#include "mobile/charactr.h"
+#include "network/client.h"
+#include "pktin.h"
+#include "polclass.h"
+#include "polsig.h"
+#include "scrstore.h"
+#include "skillid.h"
+#include "spelbook.h"
+#include "syshook.h"
+#include "ufunc.h"
+#include "umanip.h"
+#include "vital.h"
 
 namespace Pol
 {
@@ -112,9 +111,7 @@ bool hands_are_free( Mobile::Character* chr )
   return true;
 }
 
-USpellParams::USpellParams() : manacost( 0 ), difficulty( 0 ), pointvalue( 0 ), delay( 0 )
-{
-}
+USpellParams::USpellParams() : manacost( 0 ), difficulty( 0 ), pointvalue( 0 ), delay( 0 ) {}
 
 USpellParams::USpellParams( Clib::ConfigElem& elem )
     : manacost( elem.remove_ushort( "MANA" ) ),
@@ -125,9 +122,7 @@ USpellParams::USpellParams( Clib::ConfigElem& elem )
 }
 
 
-SpellCircle::SpellCircle( Clib::ConfigElem& elem ) : params( elem )
-{
-}
+SpellCircle::SpellCircle( Clib::ConfigElem& elem ) : params( elem ) {}
 
 USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg )
     : pkg_( pkg ),
@@ -301,8 +296,8 @@ void do_cast( Network::Client* client, u16 spellid )
   }
 
   // Let scripts handle this.
-  //	if (client->chr->hidden())
-  //		client->chr->unhide();
+  // if (client->chr->hidden())
+  //   client->chr->unhide();
 
   if ( client->chr->frozen() )
   {
@@ -411,21 +406,21 @@ void register_spell( USpell* spell, unsigned short spellid )
     tmp << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined\n";
     if ( origspell->pkg_ != NULL )
     {
-      tmp << "	Spell originally defined in package '" << origspell->pkg_->name() << "' ("
+      tmp << "  Spell originally defined in package '" << origspell->pkg_->name() << "' ("
           << origspell->pkg_->dir() << ")\n";
     }
     else
     {
-      tmp << "	Spell originally defined in main\n";
+      tmp << "  Spell originally defined in main\n";
     }
     if ( spell->pkg_ != NULL )
     {
-      tmp << "	Spell redefined in package '" << spell->pkg_->name() << "' (" << spell->pkg_->dir()
+      tmp << "  Spell redefined in package '" << spell->pkg_->name() << "' (" << spell->pkg_->dir()
           << ")\n";
     }
     else
     {
-      tmp << "	Spell redefined in main\n";
+      tmp << "  Spell redefined in main\n";
     }
     ERROR_PRINT << tmp.str();
     throw std::runtime_error( "Spell ID multiply defined" );

@@ -22,30 +22,25 @@
 
 #include "acscrobj.h"
 
-#include "account.h"
-#include "accounts.h"
-
-#include "../../clib/clib_MD5.h"
+#include <stddef.h>
+#include <string>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-
+#include "../../clib/clib_MD5.h"
 #include "../../plib/systemstate.h"
-
+#include "../core.h"
+#include "../globals/uvars.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
-#include "../cmdlevel.h"
-#include "../core.h"
-#include "../objecthash.h"
 #include "../polcfg.h"
-#include "../realms.h"
 #include "../ufunc.h"
 #include "../uoscrobj.h"
-#include "../uoexhelp.h"
-#include "../globals/uvars.h"
+#include "account.h"
+#include "accounts.h"
 
 namespace Pol
 {
@@ -77,10 +72,10 @@ Bscript::BObjectImp* AccountObjImp::copy() const
 ///
 /// [1] Account Scripting Object Methods
 ///
-///	 All methods except GetProp and GetCharacter return 1 on success
-///	 All methods except GetProp and GetCharacter write the accounts.txt file on success.
-///	 All methods return Error("Not enough parameters") if too few parameters were passed.
-///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
+///   All methods except GetProp and GetCharacter return 1 on success
+///   All methods except GetProp and GetCharacter write the accounts.txt file on success.
+///   All methods return Error("Not enough parameters") if too few parameters were passed.
+///   All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
 Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Executor& ex,
                                                     bool /*forcebuiltin*/ )
@@ -221,7 +216,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   ///
   /// account.SetAcctName( newname : string ) : changes the account name
-  ///	- deprecated in favor of:
+  ///  - deprecated in favor of:
   /// account.SetName( newname : string ) : changes the account name
   ///  ACK, bug - since account data is saved immediately,
   ///  a crash w/o save will result in a server that can't start
@@ -277,7 +272,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   ///
   /// account.GetProp( propname : string ) : gets a custom account property
-  ///	 returns Error( "Property not found" ) if property does not exist.
+  ///   returns Error( "Property not found" ) if property does not exist.
   ///
   ///
   /// account.SetProp( propname : string, propval : packable ) : sets a custom account property
@@ -317,7 +312,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
   ///
   /// account.GetCharacter( index : 1..5 ) : retrieve a reference to a character belonging to this
   /// account.
-  ///	This reference may be used even if the character is offline.
+  ///  This reference may be used even if the character is offline.
   case MTH_GETCHARACTER:
   {
     if ( ex.numParams() != 1 )
@@ -360,7 +355,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   }
   ///
-  /// account.Set_UO_Expansion( string ) : recognized values: TOL, HSA, SA, ML, SE, AOS, LBR, T2A (default)
+  /// account.Set_UO_Expansion( string ) : recognized values: TOL, HSA, SA, ML, SE, AOS, LBR, T2A
+  /// (default)
   ///  this determines what flag is sent with packet 0xB9 during login.
   ///
   case MTH_SET_UO_EXPANSION:
@@ -370,12 +366,11 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     const String* expansion_str;
     if ( ex.getStringParam( 0, expansion_str ) )
     {
-      if ( expansion_str->value().empty() ||
-		   ( expansion_str->value() == "TOL" ) || ( expansion_str->value() == "HSA" ) ||
-           ( expansion_str->value() == "SA" ) || ( expansion_str->value() == "KR" ) ||
-           ( expansion_str->value() == "ML" ) || ( expansion_str->value() == "SE" ) ||
-           ( expansion_str->value() == "AOS" ) || ( expansion_str->value() == "LBR" ) ||
-           ( expansion_str->value() == "T2A" ) )
+      if ( expansion_str->value().empty() || ( expansion_str->value() == "TOL" ) ||
+           ( expansion_str->value() == "HSA" ) || ( expansion_str->value() == "SA" ) ||
+           ( expansion_str->value() == "KR" ) || ( expansion_str->value() == "ML" ) ||
+           ( expansion_str->value() == "SE" ) || ( expansion_str->value() == "AOS" ) ||
+           ( expansion_str->value() == "LBR" ) || ( expansion_str->value() == "T2A" ) )
       {
         obj_->uo_expansion_ = obj_->convert_uo_expansion( expansion_str->value() );
         for ( unsigned short i = 0; i < Plib::systemstate.config.character_slots; i++ )
@@ -387,7 +382,8 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       }
       else
         return new BError(
-            "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, TOL" );
+            "Invalid Parameter Value. Supported Values: \"\", T2A, LBR, AOS, SE, ML, KR, SA, HSA, "
+            "TOL" );
     }
     else
       return new BError( "Invalid Parameter Type" );
@@ -538,10 +534,10 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 ///
 /// [1] Account Scripting Object Methods
 ///
-///	 All methods except GetProp and GetCharacter return 1 on success
-///	 All methods except GetProp and GetCharacter write the accounts.txt file on success.
-///	 All methods return Error("Not enough parameters") if too few parameters were passed.
-///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
+///   All methods except GetProp and GetCharacter return 1 on success
+///   All methods except GetProp and GetCharacter write the accounts.txt file on success.
+///   All methods return Error("Not enough parameters") if too few parameters were passed.
+///   All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
 Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
@@ -554,10 +550,10 @@ Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript
 
 ///
 /// [2] Account Scripting Object Members
-///	 MemberName	  Type		Access
-///	 name			string	  read-only
-///	 enabled		 boolean	 read-only
-///	 banned		  boolean	 read-only
+///   MemberName    Type    Access
+///   name      string    read-only
+///   enabled     boolean   read-only
+///   banned      boolean   read-only
 ///
 
 Bscript::BObjectRef AccountObjImp::get_member_id( const int id )  // id test

@@ -8,16 +8,16 @@
  * sense.
  */
 
-#include "impstr.h"
+#include <cstdlib>
+#include <ctype.h>
+#include <string>
 
+#include "../clib/stlutil.h"
 #include "berror.h"
 #include "bobject.h"
-#include "objmethods.h"
 #include "executor.h"
-#include "../clib/stlutil.h"
-
-#include <cstdlib>
-#include <cstring>
+#include "impstr.h"
+#include "objmethods.h"
 
 #ifdef __GNUG__
 #include <streambuf>
@@ -30,13 +30,9 @@ namespace Pol
 {
 namespace Bscript
 {
-String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() )
-{
-}
+String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() ) {}
 
-String::String( const char* s, int len ) : BObjectImp( OTString ), value_( s, len )
-{
-}
+String::String( const char* s, int len ) : BObjectImp( OTString ), value_( s, len ) {}
 
 String* String::StrStr( int begin, int len )
 {
@@ -351,6 +347,8 @@ bool String::operator==( const BObjectImp& objimp ) const
   if ( objimp.isa( OTString ) )
     return ( value_ == static_cast<const String&>( objimp ).value_ );
 
+  if ( objimp.isa( OTBoolean ) )
+    return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   return base::operator==( objimp );
 }
 
@@ -561,6 +559,9 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
   {
     BLong& lng = (BLong&)right;
 
+    if ( lng.value() < 0 )
+      return BObjectRef( new BError( "Subscript out of range" ) );
+
     unsigned index = (unsigned)lng.value();
 
     if ( index == 0 || index > value_.size() )
@@ -572,6 +573,8 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
   {
     Double& dbl = (Double&)right;
 
+    if ( dbl.value() < 0 )
+      return BObjectRef( new BError( "Subscript out of range" ) );
     unsigned index = (unsigned)dbl.value();
 
     if ( index == 0 || index > value_.size() )

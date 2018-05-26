@@ -12,27 +12,28 @@
 #endif
 
 #include "partymod.h"
-#include "../party.h"
-#include "../unicode.h"
 
-#ifdef MEMORYLEAK
-#include "../../bscript/bobject.h"
-#endif
+#include <stddef.h>
+
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-#include "../../bscript/bobject.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/cfgelem.h"
-#include "../network/client.h"
-#include "../fnsearch.h"
-#include "../proplist.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
 #include "../clfunc.h"
-#include "../uoscrobj.h"
-#include "../uoexhelp.h"
+#include "../fnsearch.h"
+#include "../globals/settings.h"
 #include "../globals/uvars.h"
-
-#include <memory>
+#include "../mobile/charactr.h"
+#include "../party.h"
+#include "../party_cfg.h"
+#include "../pktdef.h"
+#include "../syshook.h"
+#include "../unicode.h"
+#include "../uoexhelp.h"
+#include "../uoscrobj.h"
 
 namespace Pol
 {
@@ -113,6 +114,8 @@ bool EPartyRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }

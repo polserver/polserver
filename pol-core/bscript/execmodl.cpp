@@ -6,14 +6,9 @@
 
 #include "execmodl.h"
 
-#include "../clib/clib.h"
-#include "../clib/stlutil.h"
-
-#include "eprog.h"
-#include "executor.h"
-#include "impstr.h"
-
 #include <string>
+
+#include "executor.h"
 
 namespace Pol
 {

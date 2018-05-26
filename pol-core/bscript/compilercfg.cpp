@@ -5,14 +5,14 @@
 
 
 #include "compilercfg.h"
-#include "../clib/Program/ProgramConfig.h"
-#include "../clib/cfgfile.h"
-#include "../clib/cfgelem.h"
-#include "../clib/dirlist.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // POSIX deprecation warnings for stricmp, getenv
-#endif
+#include <stdlib.h>
+
+#include "../clib/Program/ProgramConfig.h"
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/dirlist.h"
+#include "../clib/fileutil.h"
 
 namespace Pol
 {

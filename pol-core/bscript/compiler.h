@@ -7,31 +7,41 @@
 #ifndef H_COMPILER_H
 #define H_COMPILER_H
 
-#include "escript.h"
+#include "../clib/compilerspecifics.h"
+#include "compctx.h"
+#include "tokens.h"
 #include "userfunc.h"
-
-#ifndef __COMPMODL_H
-#include "compmodl.h"
-#endif
 
 #ifndef __PARSER_H
 #include "parser.h"
 #endif
-#ifndef __SYMCONT_H
-#include "symcont.h"
-#endif
 
-#include "eprog.h"
-#include "../clib/maputil.h"
-
-#include <vector>
-#include <string>
+#include <iosfwd>
 #include <map>
+#include <stddef.h>
+#include <string>
+#include <vector>
+
+#include "../clib/maputil.h"
+#include "../clib/refptr.h"
 
 namespace Pol
 {
 namespace Bscript
 {
+class ModuleFunction;
+class Token;
+class UserFunction;
+}  // namespace Bscript
+}  // namespace Pol
+
+namespace Pol
+{
+namespace Bscript
+{
+class EScriptProgram;
+class EScriptProgramCheckpoint;
+class FunctionalityModule;
 /*
     ack, this is a misnomer.
     "CanBeLabelled" means "break or continue can happen here."
@@ -77,8 +87,8 @@ struct BlockDesc
 struct Variable
 {
   std::string name;
-  mutable bool used;
-  mutable bool unused;
+  mutable bool used = false;
+  mutable bool unused = false;
   CompilerContext ctx;
 };
 typedef std::vector<Variable> Variables;
@@ -97,6 +107,7 @@ public:
   bool varexists( const std::string& varname, unsigned& idx ) const;
   bool varexists( const std::string& varname ) const;
   unsigned int numVariables() const { return static_cast<unsigned int>( variables_.size() ); }
+
 private:
   Variables variables_;
 
@@ -113,6 +124,7 @@ public:
   static int verbosity_level_;
   static void setCheckFileCase( bool check ) { check_filecase_ = check; }
   static void setVerbosityLevel( int vlev ) { verbosity_level_ = vlev; }
+
 private:
   std::string current_file_path;
 
@@ -212,6 +224,8 @@ public:
   virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
   virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
   virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) POL_OVERRIDE;
+  virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx,
+                                    Token* tok ) POL_OVERRIDE;
 
   int eatToken( CompilerContext& ctx, BTokenId tokenid );
   int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = NULL,

@@ -9,10 +9,6 @@
 #ifndef CLIB_CFGFILE_H
 #define CLIB_CFGFILE_H
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4786 )
-#endif
-
 #define CFGFILE_USES_IOSTREAMS 0
 
 #if CFGFILE_USES_IOSTREAMS
@@ -23,17 +19,18 @@
 
 #include <set>
 #include <string>
+#include <time.h>
 #include <vector>
 
-#include "maputil.h"
 #include "compilerspecifics.h"
+#include "maputil.h"
 
 namespace Pol
 {
 namespace Clib
 {
-class ConfigElemBase;
 class ConfigElem;
+class ConfigElemBase;
 class VectorConfigElem;
 
 class ConfigSource

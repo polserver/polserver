@@ -11,11 +11,6 @@
 #include <cstring>
 #include <string>
 
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )  // disables POSIX name deprecation warning for stricmp
-#endif
-
 namespace Pol
 {
 namespace Clib
@@ -30,8 +25,5 @@ public:
 };
 }
 }
-#ifdef _MSC_VER
-#pragma warning( pop )
-#endif
 
 #endif

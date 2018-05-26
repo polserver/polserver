@@ -1,72 +1,24 @@
-###############################################################################
+set(ex_name uotool)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/../../cmake/CMakeEnvironment.txt)
-
-MESSAGE("####################################")
-MESSAGE("##### Building UOTOOL")
-MESSAGE("####################################")
-
-###############################################################################
 # define source files
-SET (SOURCES  # sorted !
-    ../pol/globals/multidefs.cpp        #TODO: ugly hack
-    ../pol/multi/multidef.cpp           #TODO: ugly hack - what? same file name?
-    ../pol/polfile1.cpp                 #TODO: w00t
-   UoToolMain.cpp                      #note to me: never ever again suggest to introduce CMake in a C style C++ project which is full of linking magic
+include(CMakeSources.cmake)
+
+add_executable(${ex_name}
+  ${${ex_name}_sources}
 )    
 
-##############################################################
-# include dirs
-SET (INCLUDE_DIRS
-    .
-    ../
-)
+set_compile_flags(${ex_name} 1)
+warning_suppression(${ex_name})
+enable_pch(${ex_name})
 
-##############################################################
-# compile flags
-IF(NOT WINDOWS)
-	IF(GCC)
-    	SET (FLAGS
-	        ${FLAGS}
-			-Wl,-R.
-			-Wl,-R./lib
-			-Wl,-R../lib
-			-Wl,-R../../lib
-	    )
-    ENDIF()
-ENDIF()
-
-##############################################################
-# set directory for internal libs
-SET (LIB_DIRS
-    ${LIB_DIRS}
-    ${CMAKE_CURRENT_LIST_DIR}/../bin
+target_link_libraries(${ex_name} PUBLIC
+  clib
+  plib
 )
-    
-##############################################################
-# link to the needed libs
-SET (LIBS_LINUX
-    clib
-    plib
+if (${linux})
+  target_link_libraries(${ex_name} PUBLIC
     pthread    
-)
-SET (LIBS_LINUX_STATIC_BIN_STATIC
-    clib_static
-    plib_static
-)
+  )
+endif()
 
-##############################################################
-# define target directory
-SET (TARGET_DIRECTORY
-    ${CMAKE_CURRENT_LIST_DIR}/../bin
-)
-
-##############################################################
-# define binary name
-SET (TARGET_PROGRAM_NAME
-    uotool
-)
-
-##############################################################
-# include CMake core
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/CMakeCore.txt)
+dist(${ex_name} .)

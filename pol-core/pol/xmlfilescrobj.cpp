@@ -6,32 +6,25 @@
 
 #include "xmlfilescrobj.h"
 
-#include "module/fileaccess.h"
+#include <stddef.h>
 
-#include "../plib/pkg.h"
-
-#include "../bscript/executor.h"
-#include "../bscript/execmodl.h"
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
+#include "../bscript/bstruct.h"
+#include "../bscript/executor.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
-
-#include "../clib/strutil.h"
 #include "../clib/stlutil.h"
-#include "../clib/clib_endian.h"
-
-#include <memory>
+#include "../plib/pkg.h"
+#include "module/fileaccess.h"
 
 namespace Pol
 {
 namespace Core
 {
 using namespace Bscript;
-BXMLfile::BXMLfile() : Bscript::BObjectImp( OTXMLFile ), file(), _filename( "" )
-{
-}
+BXMLfile::BXMLfile() : Bscript::BObjectImp( OTXMLFile ), file(), _filename( "" ) {}
 
 BXMLfile::BXMLfile( std::string filename )
     : Bscript::BObjectImp( OTXMLFile ), file( filename.c_str() ), _filename( filename )
@@ -40,9 +33,7 @@ BXMLfile::BXMLfile( std::string filename )
     return;
 }
 
-BXMLfile::~BXMLfile()
-{
-}
+BXMLfile::~BXMLfile() {}
 
 BObjectRef BXMLfile::get_member_id( const int /*id*/ )  // id test
 {
@@ -50,7 +41,7 @@ BObjectRef BXMLfile::get_member_id( const int /*id*/ )  // id test
   // switch(id)
   //{
 
-  //	default: return BObjectRef(UninitObject::create());
+  //  default: return BObjectRef(UninitObject::create());
   //}
 }
 BObjectRef BXMLfile::get_member( const char* membername )

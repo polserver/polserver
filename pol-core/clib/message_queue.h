@@ -7,9 +7,9 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 #include <chrono>
-#include <mutex>
-#include <list>
 #include <condition_variable>
+#include <list>
+#include <mutex>
 
 #include <boost/noncopyable.hpp>
 
@@ -59,8 +59,7 @@ private:
 };
 
 template <typename Message>
-message_queue<Message>::message_queue()
-    : _queue(), _mutex(), _notifier(), _cancel( false )
+message_queue<Message>::message_queue() : _queue(), _mutex(), _notifier(), _cancel( false )
 {
 }
 

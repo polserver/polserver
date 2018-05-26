@@ -96,6 +96,18 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>..\..\lib\picojson-1.3.0\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>..\..\lib\picojson-1.3.0\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>..\..\lib\picojson-1.3.0\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>..\..\lib\picojson-1.3.0\;..\..\lib\curl-7.57.0\include;..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
       <TypeLibraryName>.\Release/pol.tlb</TypeLibraryName>
@@ -116,7 +128,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
-      <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zo /Zm149 %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <ResourceCompile>
@@ -125,10 +137,10 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>normaliz.lib;libcurl_a.lib;wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Release/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\libcurl-x86-release-static\lib;..\..\lib\boost_1_55_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Release/pol.pdb</ProgramDatabaseFile>
@@ -148,7 +160,7 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-winx64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -163,7 +175,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <OpenMPSupport>true</OpenMPSupport>
-      <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zo /Zm149 %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
@@ -173,11 +185,10 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>normaliz.lib;libcurl_a.lib;wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Release/x64/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\curl-7.57.0\builds\libcurl-x64-release-static\lib;..\..\lib\boost_1_55_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Release/x64/pol.pdb</ProgramDatabaseFile>
@@ -213,7 +224,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <BrowseInformation>true</BrowseInformation>
-      <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zo /Zm149 %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <ResourceCompile>
@@ -222,10 +233,10 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>/MACHINE:I386 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>normaliz.lib;libcurl_a_debug.lib;wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\libcurl-x86-debug-static\lib;..\..\lib\boost_1_55_0\lib\x86\lib;..\..\lib\mysql-connector-c-6.0.2-win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/pol.pdb</ProgramDatabaseFile>
@@ -246,7 +257,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\lib\mysql-connector-c-6.0.2-winx64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;NOMINMAX;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;_DEBUG;_CONSOLE;NOMINMAX;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
@@ -258,7 +269,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
-      <AdditionalOptions>/Zo %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zo /Zm149 %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <ResourceCompile>
@@ -267,10 +278,10 @@
     </ResourceCompile>
     <Link>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>normaliz.lib;libcurl_a.lib;wsock32.lib;odbc32.lib;odbccp32.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/x64/pol.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib\boost_1_55_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\curl-7.57.0\builds\libcurl-x64-release-static\lib;..\..\lib\boost_1_55_0\lib\x64\lib;..\..\lib\mysql-connector-c-6.0.2-winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\Debug/x64/pol.pdb</ProgramDatabaseFile>
@@ -300,6 +311,7 @@
     <ClCompile Include="dice.cpp" />
     <ClCompile Include="door.cpp" />
     <ClCompile Include="dropitem.cpp" />
+    <ClCompile Include="dynproperties.cpp" />
     <ClCompile Include="eqpitem.cpp" />
     <ClCompile Include="equipdsc.cpp" />
     <ClCompile Include="exscrobj.cpp" />

@@ -7,25 +7,20 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
-#include <vector>
-#include <map>
-#include <thread>
-#include <future>
-#include <memory>
-#include <fstream>
+#include <format/format.h>
 #include <boost/noncopyable.hpp>
-#include "../../lib/format/format.h"
+#include <fstream>
+#include <future>
+#include <map>
+#include <memory>
+#include <thread>
+#include <vector>
 
-#include "compilerspecifics.h"
 #include "Debugging/LogSink.h"
-#include "message_queue.h"
+#include "compilerspecifics.h"
 
 namespace Pol
 {
-namespace Core
-{
-struct PolConfig;
-}
 namespace Clib
 {
 extern bool LogfileTimestampEveryLine;
@@ -156,6 +151,8 @@ public:
   std::string registerFlexLogger( const std::string& logfilename, bool open_timestamp );
   void wait_for_empty_queue();
 
+  static bool _vsDebuggerPresent;
+
 private:
   class LogWorker;
   std::unique_ptr<LogWorker> _worker;
@@ -178,6 +175,7 @@ public:
   ~Message();                         // auto flush
 
   fmt::Writer& message() { return *( _formater.get() ); }
+
 private:
   std::unique_ptr<fmt::Writer> _formater;
   std::string _id;
@@ -193,8 +191,13 @@ void initLogging( LogFacility* logger );  // initalize the logging
 // several helper defines
 //#define DEBUG_LOG_PRINTS
 #ifdef DEBUG_LOG_PRINTS
-#define LOG_PRINT_CALLER_INFO __FILE__, __LINE__, __FUNCTION__
-#define LOG_PRINT_CALLER_INFO2 , __FILE__, __LINE__, __FUNCTION__
+#ifdef WINDOWS
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
+#define LOG_PRINT_CALLER_INFO __FILENAME__, __LINE__, __FUNCTION__
+#define LOG_PRINT_CALLER_INFO2 , __FILENAME__, __LINE__, __FUNCTION__
 #else
 #define LOG_PRINT_CALLER_INFO
 #define LOG_PRINT_CALLER_INFO2

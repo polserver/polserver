@@ -7,13 +7,12 @@
 #ifndef BSCRIPT_USERFUNC_H
 #define BSCRIPT_USERFUNC_H
 
-#include "options.h"
-#include "compctx.h"
-#include "token.h"
-
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
+
+#include "compctx.h"
+#include "token.h"
 
 namespace Pol
 {

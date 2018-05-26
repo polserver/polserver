@@ -7,8 +7,6 @@
 
 #include "stlutil.h"
 
-#include <sstream>
-
 namespace Pol
 {
 namespace Clib

@@ -5,26 +5,24 @@
  */
 
 
-#include "uoclient.h"
-#include "network/client.h"
-#include "network/cliface.h"
+#include <string.h>
+#include <string>
 
-#include "core.h"
-#include "polsem.h"
-#include "sockio.h"
-#include "globals/network.h"
-#include "polcfg.h"
-
+#include <format/format.h>
+#include "../clib/compilerspecifics.h"
 #include "../clib/esignal.h"
 #include "../clib/logfacility.h"
 #include "../clib/socketsvc.h"
 #include "../clib/stlutil.h"
-#include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
+#include "../clib/wnsckt.h"
 #include "../plib/systemstate.h"
-
-#include <list>
-#include <string>
+#include "core.h"
+#include "globals/network.h"
+#include "network/client.h"
+#include "network/cliface.h"
+#include "polsem.h"
+#include "uoclient.h"
 
 namespace Pol
 {

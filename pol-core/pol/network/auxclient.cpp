@@ -13,33 +13,29 @@
 
 #include "auxclient.h"
 
-#include "../../bscript/bobject.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/impstr.h"
+#include <iosfwd>
 
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
+#include "../../bscript/bstruct.h"
+#include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
 #include "../../clib/cfgelem.h"
+#include "../../clib/clib.h"
 #include "../../clib/esignal.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/sckutil.h"
 #include "../../clib/socketsvc.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
 #include "../../clib/threadhelp.h"
-#include "../../clib/weakptr.h"
-#include "../../clib/logfacility.h"
-
+#include "../../clib/wnsckt.h"
 #include "../../plib/pkg.h"
-#include "../polsem.h"
-#include "../scrsched.h"
-#include "../sockets.h"
-#include "../module/uomod.h"
 #include "../globals/network.h"
-
-#include <memory>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation
-#endif
+#include "../module/osmod.h"
+#include "../module/uomod.h"
+#include "../polsem.h"
+#include "../scrdef.h"
+#include "../scrsched.h"
+#include "../uoexec.h"
 
 namespace Pol
 {
@@ -62,7 +58,7 @@ size_t AuxConnection::sizeEstimate() const
 
 bool AuxConnection::isTrue() const
 {
-  return ( _auxclientthread != NULL );
+  return ( _auxclientthread != nullptr );
 }
 
 Bscript::BObjectRef AuxConnection::get_member( const char* membername )
@@ -80,10 +76,9 @@ Bscript::BObjectImp* AuxConnection::call_method( const char* methodname, Bscript
   {
     if ( ex.numParams() == 1 )
     {
-      if ( _auxclientthread != NULL )
+      if ( _auxclientthread != nullptr )
       {
         Bscript::BObjectImp* value = ex.getParamImp( 0 );
-        // FIXME this can block!
         _auxclientthread->transmit( value );
       }
       else
@@ -96,20 +91,35 @@ Bscript::BObjectImp* AuxConnection::call_method( const char* methodname, Bscript
       return new Bscript::BError( "1 parameter expected" );
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void AuxConnection::disconnect()
 {
-  _auxclientthread = NULL;
+  _auxclientthread = nullptr;
 }
 
 AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener )
-    : SocketClientThread( listener ), _auxservice( auxsvc ), _uoexec( 0 )
+    : SocketClientThread( listener ),
+      _auxservice( auxsvc ),
+      _auxconnection(),
+      _uoexec( nullptr ),
+      _scriptdef(),
+      _params( nullptr ),
+      _assume_string( false ),
+      _transmit_counter( 0 )
 {
 }
-AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock )
-    : SocketClientThread( sock ), _auxservice( 0 ), _scriptdef( scriptdef ), _uoexec( 0 )
+AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock,
+                                  Bscript::BObjectImp* params, bool assume_string )
+    : SocketClientThread( sock ),
+      _auxservice( nullptr ),
+      _auxconnection(),
+      _uoexec( nullptr ),
+      _scriptdef( scriptdef ),
+      _params( params ),
+      _assume_string( assume_string ),
+      _transmit_counter( 0 )
 {
 }
 
@@ -124,8 +134,14 @@ bool AuxClientThread::init()
     if ( _auxservice )
       uoemod = Core::start_script( _auxservice->scriptdef(), _auxconnection.get() );
     else
-      uoemod = Core::start_script( _scriptdef, _auxconnection.get() );
+      uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params );
+    if ( uoemod == nullptr )
+      return false;
     _uoexec = uoemod->uoexec.weakptr;
+    if ( _assume_string )
+    {
+      uoemod->uoexec.auxsvc_assume_string = _assume_string;
+    }
     return true;
   }
   else
@@ -200,6 +216,9 @@ void AuxClientThread::run()
       break;
     }
   }
+  // wait for all transmits to finish
+  while ( !Clib::exit_signalled && _transmit_counter > 0 )
+    std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
   Core::PolLock lock;
   _auxconnection->disconnect();
@@ -211,8 +230,17 @@ void AuxClientThread::run()
 
 void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 {
+  // defer transmit to not block server
   std::string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack();
-  writeline( _sck, tmp );
+  ++_transmit_counter;
+  Core::networkManager.auxthreadpool->push( [tmp, this]() { transmit( tmp ); } );
+}
+
+void AuxClientThread::transmit( const std::string& msg )
+{
+  if ( _sck.connected() )
+    writeline( _sck, msg );
+  --_transmit_counter;
 }
 
 AuxService::AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem )
@@ -253,20 +281,11 @@ void AuxService::run()
     if ( listener.GetConnection( 5 ) )
     {
       Core::PolLock lock;
-#ifdef PERGON
-      // TODO remove the ifdef it works..
       AuxClientThread* client( new AuxClientThread( this, listener ) );
-      Core::networkManager.auxthreadpool->push(
-          [client]()
-          {
-            std::unique_ptr<AuxClientThread> _clientptr( client );
-            _clientptr->run();
-          } );
-#else
-      Clib::SocketClientThread* clientthread = new AuxClientThread( this, listener );
-      clientthread->start();
-// note SocketClientThread::start deletes the SocketClientThread upon thread exit.
-#endif
+      Core::networkManager.auxthreadpool->push( [client]() {
+        std::unique_ptr<AuxClientThread> _clientptr( client );
+        _clientptr->run();
+      } );
     }
   }
 }

@@ -18,48 +18,47 @@
 #endif
 
 #include "party.h"
-#include "party_cfg.h"
 
-#include "mobile/charactr.h"
-#include "module/partymod.h"
-
-#include "network/client.h"
-#include "network/packets.h"
-#include "network/clienttransmit.h"
+#include <ctype.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string>
+#include <time.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
-#include "../clib/refptr.h"
-#include "../clib/stlutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
-
 #include "../plib/systemstate.h"
-
 #include "clfunc.h"
 #include "fnsearch.h"
+#include "globals/network.h"
+#include "globals/settings.h"
+#include "globals/uvars.h"
+#include "mobile/charactr.h"
+#include "module/partymod.h"
+#include "network/client.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "party_cfg.h"
 #include "pktboth.h"
-#include "polcfg.h"
+#include "pktdef.h"
+#include "polclock.h"
 #include "schedule.h"
 #include "statmsg.h"
 #include "syshook.h"
-#include "target.h"
-#include "globals/settings.h"
-#include "globals/uvars.h"
-#include "realms/realm.h"
+#include "ufunc.h"
 #include "unicode.h"
+#include "uobject.h"
+#include "uoclient.h"
 
-#include "../bscript/berror.h"
 #ifdef MEMORYLEAK
 #include "../bscript/bobject.h"
 #endif
 
-#include <iostream>
-#include <string>
-#include <vector>
 
 namespace Pol
 {
@@ -352,10 +351,8 @@ void Party::add_offline_mem( u32 serial )
 
 bool Party::remove_candidate( u32 serial )
 {
-  auto itr = std::find_if( _candidates_serials.begin(), _candidates_serials.end(), [&]( u32& i )
-                           {
-                             return i == serial;
-                           } );
+  auto itr = std::find_if( _candidates_serials.begin(), _candidates_serials.end(),
+                           [&]( u32& i ) { return i == serial; } );
   if ( itr != _candidates_serials.end() )
   {
     _candidates_serials.erase( itr );
@@ -366,10 +363,8 @@ bool Party::remove_candidate( u32 serial )
 
 bool Party::remove_member( u32 serial )
 {
-  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32& i )
-                           {
-                             return i == serial;
-                           } );
+  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(),
+                           [&]( u32& i ) { return i == serial; } );
   if ( itr != _member_serials.end() )
   {
     _member_serials.erase( itr );
@@ -380,11 +375,8 @@ bool Party::remove_member( u32 serial )
 
 bool Party::remove_offline_mem( u32 serial )
 {
-  auto itr =
-      std::find_if( _offlinemember_serials.begin(), _offlinemember_serials.end(), [&]( u32& i )
-                    {
-                      return i == serial;
-                    } );
+  auto itr = std::find_if( _offlinemember_serials.begin(), _offlinemember_serials.end(),
+                           [&]( u32& i ) { return i == serial; } );
   if ( itr != _offlinemember_serials.end() )
   {
     _offlinemember_serials.erase( itr );
@@ -395,10 +387,8 @@ bool Party::remove_offline_mem( u32 serial )
 
 void Party::set_leader( u32 serial )
 {
-  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(), [&]( u32& i )
-                           {
-                             return i == serial;
-                           } );
+  auto itr = std::find_if( _member_serials.begin(), _member_serials.end(),
+                           [&]( u32& i ) { return i == serial; } );
   if ( itr != _member_serials.end() )
   {
     _member_serials.erase( itr );
@@ -833,11 +823,8 @@ void register_party_members()
 
 void disband_party( u32 leader )
 {
-  auto itr =
-      std::find_if( gamestate.parties.begin(), gamestate.parties.end(), [&]( PartyRef& party )
-                    {
-                      return party->is_leader( leader );
-                    } );
+  auto itr = std::find_if( gamestate.parties.begin(), gamestate.parties.end(),
+                           [&]( PartyRef& party ) { return party->is_leader( leader ); } );
   if ( itr != gamestate.parties.end() )
   {
     ( *itr )->disband();
@@ -1148,7 +1135,7 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       intextlen =
           ( cfBEu16( msg->msglen ) - 10 ) / sizeof( msg->partydata.partymembermsg.wtext[0] ) - 1;
 
-      //	intextlen does not include the null terminator.
+      //  intextlen does not include the null terminator.
 
       // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
       if ( intextlen < 0 )
@@ -1202,7 +1189,7 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
 
     intextlen = ( cfBEu16( msg->msglen ) - 6 ) / sizeof( msg->partydata.partymsg.wtext[0] ) - 1;
 
-    //	intextlen does not include the null terminator.
+    //  intextlen does not include the null terminator.
 
     // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
     if ( intextlen < 0 )

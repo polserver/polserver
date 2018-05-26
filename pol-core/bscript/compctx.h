@@ -8,7 +8,9 @@
 #define BSCRIPT_COMPCTX_H
 
 #include <iosfwd>
-#include "../../lib/format/format.h"
+#include <string>
+
+#include <format/format.h>
 
 namespace Pol
 {

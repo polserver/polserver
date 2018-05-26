@@ -227,13 +227,17 @@ const CLOSE_CONTAINER := 12;
 const CHARPROFILE_NO_UNEDITABLE_TEXT := array;
 const CHARPROFILE_NO_EDITABLE_TEXT := array;
 
+//Accessible
+const ACCESSIBLE_DEFAULT := -1; // uses the default from ssopt
+const ACCESSIBLE_IGNOREDISTANCE := -2; // ignores the range check
+
 ////////////////////////////////////////////////////////////////
 //
 //	FUNCTIONS
 //
 ////////////////////////////////////////////////////////////////
 
-Accessible( by_character, item );
+Accessible( by_character, item, range := ACCESSIBLE_DEFAULT );
 AddAmount( item, amount );
 AddMenuItem( menu, objtype, text, color:=0 );
 ApplyConstraint( objlist, configfile, propertyname, minvalue );

@@ -5,8 +5,8 @@
 
 
 #include "Header_Windows.h"
-#include <stdio.h>
 #include "clib.h"
+#include <stdio.h>
 
 namespace Pol
 {

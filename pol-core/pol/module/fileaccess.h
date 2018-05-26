@@ -9,9 +9,9 @@
 
 #include "../../clib/maputil.h"
 
-#include <vector>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace Pol
 {
@@ -32,7 +32,7 @@ public:
   explicit FileAccess( Clib::ConfigElem& elem );
   bool AllowsAccessTo( const Plib::Package* pkg, const Plib::Package* filepackage ) const;
   bool AppliesToPackage( const Plib::Package* pkg ) const;
-  bool AppliesToPath( const std::string& path ) const;
+  bool AppliesToPath( const std::string& path, const Plib::Package* filepkg ) const;
   size_t estimateSize() const;
 
   bool AllowWrite;
@@ -42,11 +42,11 @@ public:
   bool AllowRemote;
 
   bool AllPackages;
-  bool AllDirectories;  // not used
+  bool AllDirectories;
   bool AllExtensions;
 
-  std::set<std::string, Clib::ci_cmp_pred> Packages;
-  std::vector<std::string> Directories;  // not used
+  std::set<const Plib::Package*> Packages;
+  std::vector<std::pair<const Plib::Package*, std::string>> Directories;
   std::vector<std::string> Extensions;
 };
 

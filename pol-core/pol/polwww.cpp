@@ -14,35 +14,37 @@
 
 #include "polwww.h"
 
-#include "module/httpmod.h"
-#include "module/uomod.h"
-#include "uoexec.h"
-
-#include "../bscript/berror.h"
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <iosfwd>
+#include <string>
+#include <time.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/esignal.h"
-#include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/refptr.h"
 #include "../clib/stlutil.h"
-#include "../clib/strexcpt.h"
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/wnsckt.h"
-#include "../clib/threadhelp.h"
-
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
-
+#include "globals/uvars.h"
+#include "module/httpmod.h"
+#include "module/uomod.h"
 #include "polcfg.h"
 #include "polsem.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
+#include "sockets.h"
 #include "sockio.h"
-#include "globals/uvars.h"
+#include "uoexec.h"
 
 #ifdef _WIN32
 #include <process.h>
@@ -50,8 +52,6 @@
 #include <pthread.h>
 #endif
 
-#include <map>
-#include <string>
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4127 )  // conditional expression is constant (needed because of FD_SET)
@@ -112,11 +112,13 @@ void config_web_server()
     Plib::Package* pkg = ( *itr );
     if ( pkg->provides_system_home_page() )
     {
-      if ( gamestate.wwwroot_pkg == nullptr ) {
+      if ( gamestate.wwwroot_pkg == nullptr )
+      {
         POLLOG.Format( "wwwroot package is {}\n" ) << pkg->desc();
         gamestate.wwwroot_pkg = pkg;
       }
-      else {
+      else
+      {
         POLLOG.Format( "Package {} also provides a wwwroot, ignoring\n" ) << pkg->desc();
       }
     }
@@ -221,9 +223,9 @@ void http_redirect( Clib::Socket& sck, const std::string& new_url )
 }
 // http_decodestr: turn all those %2F etc into what they represent
 // rules:
-//	'+'   ->   ' '
-//	%HH   ->   (hex value)
-//	other ->   itself
+//  '+'   ->   ' '
+//  %HH   ->   (hex value)
+//  other ->   itself
 std::string http_decodestr( const std::string& s )
 {
   std::string decoded;
@@ -664,8 +666,8 @@ void http_func( SOCKET client_socket )
                << "http-proto: '" << proto << "'\n";
   }
 
-  //	if (url == "/")
-  //		url = "/index.htm";
+  //  if (url == "/")
+  //    url = "/index.htm";
 
   // spliturl( url, page, params ); ??
   std::string::size_type ques = url.find( '?' );
@@ -765,9 +767,7 @@ void http_func( SOCKET client_socket )
 
 
 #ifdef _WIN32
-void init_http_thread_support()
-{
-}
+void init_http_thread_support() {}
 #else
 pthread_attr_t http_attr;
 void init_http_thread_support()
@@ -883,10 +883,8 @@ void http_thread( void )
       std::string addrstr = Network::AddressToString( &client_addr );
       INFO_PRINT << "HTTP client connected from " << addrstr << "\n";
 
-      worker_threads.push( [=]()
-                           {
-                             http_func( client_socket );
-                           } );  // copy socket into queue to keep it valid
+      worker_threads.push(
+          [=]() { http_func( client_socket ); } );  // copy socket into queue to keep it valid
     }
   }
   gamestate.mime_types.clear();  // cleanup on exit

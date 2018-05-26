@@ -36,9 +36,7 @@ inline SpinLock::SpinLock()
 {
   _lck.clear();
 }
-inline SpinLock::~SpinLock()
-{
-}
+inline SpinLock::~SpinLock() {}
 
 /**
  * Puts the caller in an endless busy loop until it acquires the lock

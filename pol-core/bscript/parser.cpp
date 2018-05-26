@@ -42,41 +42,29 @@
 
 #include "parser.h"
 
-#include "fmodule.h"
-#include "modules.h"
-#include "operator.h"
-#include "symcont.h"
-#include "token.h"
-#include "tokens.h"
-#include "verbtbl.h"
-#include "userfunc.h"
-
-#include "compilercfg.h"
-
-#include "objmembers.h"
-#include "objmethods.h"
+#include <cctype>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
+#include <mutex>
+#include <string>
+#include <unordered_map>
 
 #include "../clib/clib.h"
-#include "../clib/maputil.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
 #include "../clib/strutil.h"
 #include "../clib/unittest.h"
-#include "../clib/logfacility.h"
-
-#include <cstdlib>
-#include <cctype>
-#include <cstring>
-#include <cstddef>
-#include <cstdio>
-
-#include <map>
-#include <stack>
-#include <string>
-
-#include <stdexcept>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp, strtok POSIX deprecation warning
-#endif
+#include "compctx.h"
+#include "compilercfg.h"
+#include "fmodule.h"
+#include "modules.h"
+#include "objmembers.h"
+#include "objmethods.h"
+#include "token.h"
+#include "tokens.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -122,7 +110,7 @@ char ident_allowed[] =
 
 int allowed_table[8][8] = {
     /* this token is a(n)... */
-    /*					 binary   unary
+    /*           binary   unary
      * TERMINATOR OPERAND OPERATOR OPERATOR LPAREN RPAREN  LBRACK  RBRACK*/
     /* Last token was a(n)... */
     {1, 1, 0, 1, 1, 0, 0, 0}, /* TERMINATOR */
@@ -138,38 +126,38 @@ int allowed_table[8][8] = {
 /* examples matrix: -- connected denotes unary operator
 
 legal:
-{	TT	   T AB			 T -AB	T (						   },
-{  AB T				AB +					 AB )	A[	  A]	},
-{			 * AB			   *-	  * (						  },
-{			  -AB						-(						  },
-{			 ( AB			   (-	  ( (						  },
-{	) T				) -					  ) )			)]	}
-{			 [A		.		[-	  [(			 [[	   .	}
-{	] T	 .		  ] *	   .	   .	  ])	 ][	  ][	}
+{  TT     T AB       T -AB  T (               },
+{  AB T        AB +           AB )  A[    A]  },
+{       * AB         *-    * (              },
+{        -AB            -(              },
+{       ( AB         (-    ( (              },
+{  ) T        ) -            ) )      )]  }
+{       [A    .    [-    [(       [[     .  }
+{  ] T   .      ] *     .     .    ])   ][    ][  }
 
 illegal:
-{					  T b-A					T )	T [	  T ]   },
-{			AB AB			  AB~	 AB (						  },
-{	* T				* /					  - )	*[	  *]	},
-{	b- T				-*	  --			   -)	-[	  -]	},
-{	( T				( *					  ( )	([	  (]	},
-{			 ) AB			   )-	  ) (			)[			}
-{	[ T				[+					   [)			 []	}
-{			 ]A				 ]-	  ] (					 .	}
+{            T b-A          T )  T [    T ]   },
+{      AB AB        AB~   AB (              },
+{  * T        * /            - )  *[    *]  },
+{  b- T        -*    --         -)  -[    -]  },
+{  ( T        ( *            ( )  ([    (]  },
+{       ) AB         )-    ) (      )[      }
+{  [ T        [+             [)       []  }
+{       ]A         ]-    ] (           .  }
 
 */
 
 
-/* operator characters			// (and precedence table)
+/* operator characters      // (and precedence table)
     ( )   [ ]
     + - (unary-arithmetic)   ! (unary-logical)  ~ (unary-boolean)
     * / %
     + -
     < <= > >=
     == <>
-    &	(band ?)
-    ^	(bxor ?)
-    |	(bor  ?)
+    &  (band ?)
+    ^  (bxor ?)
+    |  (bor  ?)
     and
     or
     :=
@@ -239,10 +227,10 @@ Operator binary_operators[] = {
     {"=", TOK_EQUAL1, PREC_EQUALTO, TYP_OPERATOR, true, false},  // deprecated: :=/==
     {"==", TOK_EQUAL, PREC_EQUALTO, TYP_OPERATOR, false, false},
 
-    //	{ "and",	TOK_AND,	PREC_LOGAND,  TYP_OPERATOR, false, false },
+    //  { "and",  TOK_AND,  PREC_LOGAND,  TYP_OPERATOR, false, false },
     {"&&", TOK_AND, PREC_LOGAND, TYP_OPERATOR, false, false},
 
-    //	{ "or",	TOK_OR,		 PREC_LOGOR,  TYP_OPERATOR, false, false },
+    //  { "or",  TOK_OR,     PREC_LOGOR,  TYP_OPERATOR, false, false },
     {"||", TOK_OR, PREC_LOGOR, TYP_OPERATOR, false, false},
 
     {":=", TOK_ASSIGN, PREC_ASSIGN, TYP_OPERATOR, false, false},
@@ -258,8 +246,9 @@ Operator unary_operators[] = {
     {"+", TOK_UNPLUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"-", TOK_UNMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
-    {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false}
-    //	{ "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
+    {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
+    {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_FUNCREF, false, false}
+    //  { "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
     // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR, false, false
 };
 int n_unary = sizeof unary_operators / sizeof unary_operators[0];
@@ -327,7 +316,7 @@ ObjMember object_members[] = {
     {MBR_ATTACHED, "attached", true},
     {MBR_CLIENTVERSION, "clientversion", true},
     {MBR_REPORTABLES, "reportables", true},  // 60
-    {MBR_SCRIPT, "script", false},  // npc
+    {MBR_SCRIPT, "script", false},           // npc
     {MBR_NPCTEMPLATE, "npctemplate", true},
     {MBR_MASTER, "master", true},
     {MBR_PROCESS, "process", true},
@@ -336,15 +325,15 @@ ObjMember object_members[] = {
     {MBR_SPEECH_FONT, "speech_font", false},
     {MBR_USE_ADJUSTMENTS, "use_adjustments", false},
     {MBR_RUN_SPEED, "run_speed", false},
-    {MBR_LOCKED, "locked", false},  // lockable //70
+    {MBR_LOCKED, "locked", false},         // lockable //70
     {MBR_CORPSETYPE, "corpsetype", true},  // corpse
-    {MBR_TILLERMAN, "tillerman", true},  // boat
+    {MBR_TILLERMAN, "tillerman", true},    // boat
     {MBR_PORTPLANK, "portplank", true},
     {MBR_STARBOARDPLANK, "starboardplank", true},
     {MBR_HOLD, "hold", true},  // 75
     {MBR_HAS_OFFLINE_MOBILES, "has_offline_mobiles", true},
     {MBR_COMPONENTS, "components", true},  // house
-    {MBR_ITEMS, "items", true},  // multi
+    {MBR_ITEMS, "items", true},            // multi
     {MBR_MOBILES, "mobiles", true},
     {MBR_XEAST, "xeast", false},  // map //80
     {MBR_XWEST, "xwest", false},
@@ -352,11 +341,11 @@ ObjMember object_members[] = {
     {MBR_YSOUTH, "ysouth", false},
     {MBR_GUMPWIDTH, "gumpwidth", false},
     {MBR_GUMPHEIGHT, "gumpheight", false},  // 85
-    {MBR_ISOPEN, "isopen", true},  // door
-    {MBR_QUALITY, "quality", false},  // equipment
+    {MBR_ISOPEN, "isopen", true},           // door
+    {MBR_QUALITY, "quality", false},        // equipment
     {MBR_HP, "hp", false},
     {MBR_MAXHP_MOD, "maxhp_mod", false},
-    {MBR_MAXHP, "maxhp", true},  // 90
+    {MBR_MAXHP, "maxhp", true},       // 90
     {MBR_DMG_MOD, "dmg_mod", false},  // weapon
     {MBR_ATTRIBUTE, "attribute", true},
     {MBR_INTRINSIC, "intrinsic", true},
@@ -380,7 +369,7 @@ ObjMember object_members[] = {
     {MBR_VAR_SIZE, "var_size", true},
     {MBR_REALM, "realm", true},
     {MBR_UO_EXPANSION, "uo_expansion", true},
-    {MBR_CUSTOM, "custom", true},  // house
+    {MBR_CUSTOM, "custom", true},    // house
     {MBR_GLOBALS, "globals", true},  // 115
     {MBR_FOOTPRINT, "footprint", true},
     {MBR_CLIENTINFO, "clientinfo", true},
@@ -486,29 +475,39 @@ ObjMember object_members[] = {
     {MBR_HOUSE, "house", true},  // 215, Item
     {MBR_SPECIFIC_NAME, "specific_name", true},
     {MBR_CARRYINGCAPACITY, "carrying_capacity", true},
+    {MBR_NO_DROP, "no_drop", false},
+    {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
+    {MBR_PORT, "port", false},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
 {
-  for ( int i = 0; i < n_objmembers; i++ )
-  {
-    if ( stricmp( object_members[i].code, token ) == 0 )
+  static auto cache = []() -> std::unordered_map<std::string, ObjMember*> {
+    std::unordered_map<std::string, ObjMember*> m;
+    for ( int i = 0; i < n_objmembers; ++i )
     {
-      return &( object_members[i] );
+      m[object_members[i].code] = &object_members[i];
     }
-  }
-  return NULL;
+    return m;
+  }();
+  std::string temp( token );
+  std::transform( temp.begin(), temp.end(), temp.begin(),
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
+  auto member = cache.find( temp );
+  if ( member != cache.end() )
+    return member->second;
+  return nullptr;
 }
 ObjMember* getObjMember( int id )
 {
   if ( id >= n_objmembers )
-    return NULL;
+    return nullptr;
   else
     return &( object_members[id] );
 }
 
 ObjMethod object_methods[] = {
-    {MTH_ISA, "isa", false},  // 0
+    {MTH_ISA, "isa", false},                // 0
     {MTH_SET_MEMBER, "set_member", false},  // 1
     {MTH_GET_MEMBER, "get_member", false},
     {MTH_SETPOISONED, "setpoisoned", false},
@@ -526,14 +525,14 @@ ObjMethod object_methods[] = {
     {MTH_GETGOTTENITEM, "getgottenitem", false},  // 15
     {MTH_CLEARGOTTENITEM, "cleargottenitem", false},
     {MTH_SETWARMODE, "setwarmode", false},
-    {MTH_SETMASTER, "setmaster", false},  // npc
+    {MTH_SETMASTER, "setmaster", false},                        // npc
     {MTH_MOVE_OFFLINE_MOBILES, "move_offline_mobiles", false},  // boat
-    {MTH_SETCUSTOM, "setcustom", false},  // house			 //20
-    {MTH_GETPINS, "getpins", false},  // map
+    {MTH_SETCUSTOM, "setcustom", false},                        // house       //20
+    {MTH_GETPINS, "getpins", false},                            // map
     {MTH_INSERTPIN, "insertpin", false},
     {MTH_APPENDPIN, "appendpin", false},
     {MTH_ERASEPIN, "erasepin", false},
-    {MTH_OPEN, "open", false},  // door						 //25
+    {MTH_OPEN, "open", false},  // door             //25
     {MTH_CLOSE, "close", false},
     {MTH_TOGGLE, "toggle", false},
     {MTH_BAN, "ban", false},  // account
@@ -547,7 +546,7 @@ ObjMethod object_methods[] = {
     {MTH_SETPROP, "setprop", false},
     {MTH_ERASEPROP, "eraseprop", false},
     {MTH_PROPNAMES, "propnames", false},
-    {MTH_ISMEMBER, "ismember", false},  // guild
+    {MTH_ISMEMBER, "ismember", false},        // guild
     {MTH_ISALLYGUILD, "isallyguild", false},  // 40
     {MTH_ISENEMYGUILD, "isenemyguild", false},
     {MTH_ADDMEMBER, "addmember", false},
@@ -562,7 +561,7 @@ ObjMethod object_methods[] = {
     {MTH_SHRINK, "shrink", false},
     {MTH_APPEND, "append", false},
     {MTH_REVERSE, "reverse", false},
-    {MTH_SORT, "sort", false},  // dict
+    {MTH_SORT, "sort", false},      // dict
     {MTH_EXISTS, "exists", false},  // 55
     {MTH_KEYS, "keys", false},
     {MTH_SENDPACKET, "sendpacket", false},  // packet
@@ -578,12 +577,12 @@ ObjMethod object_methods[] = {
     {MTH_SETSTRING, "setstring", false},
     {MTH_SETUNICODESTRING, "setunicodestring", false},
     {MTH_GETSIZE, "getsize", false},
-    {MTH_SETSIZE, "setsize", false},  // 70
+    {MTH_SETSIZE, "setsize", false},              // 70
     {MTH_CREATEELEMENT, "createelement", false},  // datastore
     {MTH_FINDELEMENT, "findelement", false},
     {MTH_DELETEELEMENT, "deleteelement", false},
     {MTH_SENDEVENT, "sendevent", false},  // script
-    {MTH_KILL, "kill", false},  // 75
+    {MTH_KILL, "kill", false},            // 75
     {MTH_LOADSYMBOLS, "loadsymbols", false},
     {MTH_SET_UO_EXPANSION, "set_uo_expansion", false},
     {MTH_CLEAR_EVENT_QUEUE, "clear_event_queue", false},
@@ -601,7 +600,7 @@ ObjMethod object_methods[] = {
     {MTH_PRIVILEGES, "privileges", false},  // 90
     {MTH_GETUNICODESTRINGFLIPPED, "getunicodestringflipped", false},
     {MTH_SETUNICODESTRINGFLIPPED, "setunicodestringflipped", false},
-    {MTH_ADD_CHARACTER, "AddCharacter", false},
+    {MTH_ADD_CHARACTER, "addcharacter", false},
     {MTH_SET_SWINGTIMER, "setswingtimer", false},
     {MTH_ATTACK_ONCE, "attack_once", false},  // 95
     {MTH_SETFACING, "setfacing", false},
@@ -660,23 +659,32 @@ ObjMethod object_methods[] = {
     {MTH_ADD_BUFF, "addbuff", false},
     {MTH_DEL_BUFF, "delbuff", false},  // 150
     {MTH_CLEAR_BUFFS, "clearbuffs", false},
+    {MTH_CALL, "call", false},
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
 {
-  for ( int i = 0; i < n_objmethods; i++ )
-  {
-    if ( stricmp( object_methods[i].code, token ) == 0 )
+  // cache needs to hold a pointer to the original structure! eprog_read sets the override member
+  static auto cache = []() -> std::unordered_map<std::string, ObjMethod*> {
+    std::unordered_map<std::string, ObjMethod*> m;
+    for ( int i = 0; i < n_objmethods; ++i )
     {
-      return &( object_methods[i] );
+      m[object_methods[i].code] = &object_methods[i];
     }
-  }
-  return NULL;
+    return m;
+  }();
+  std::string temp( token );
+  std::transform( temp.begin(), temp.end(), temp.begin(),
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
+  auto method = cache.find( temp );
+  if ( method != cache.end() )
+    return method->second;
+  return nullptr;
 }
 ObjMethod* getObjMethod( int id )
 {
   if ( id >= n_objmethods )
-    return NULL;
+    return nullptr;
   else
     return &( object_methods[id] );
 }
@@ -690,6 +698,17 @@ void testparserdefinitions()
       INFO_PRINT << "ERROR: Object Method definition of " << object_methods[i].code
                  << " has an invalid index!\n";
     }
+    auto c = reinterpret_cast<unsigned char*>( object_methods[i].code );
+    while ( *c )
+    {
+      if ( *c != tolower( *c ) )
+      {
+        INFO_PRINT << "ERROR: Object Method definition of " << object_methods[i].code
+                   << " is not lowercase!\n";
+        break;
+      }
+      ++c;
+    }
   }
   for ( int i = 0; i < n_objmembers; i++ )
   {
@@ -697,6 +716,17 @@ void testparserdefinitions()
     {
       INFO_PRINT << "ERROR: Object Member definition of " << object_members[i].code
                  << " has an invalid index!\n";
+    }
+    auto c = reinterpret_cast<unsigned char*>( object_members[i].code );
+    while ( *c )
+    {
+      if ( *c != tolower( *c ) )
+      {
+        INFO_PRINT << "ERROR: Object Member definition of " << object_members[i].code
+                   << " is not lowercase!\n";
+        break;
+      }
+      ++c;
     }
   }
 }
@@ -788,13 +818,13 @@ ReservedWord reserved_words[] = {
     {"gosub", RSV_GOSUB, TYP_RESERVED, PREC_TERMINATOR, false},
     {"return", RSV_RETURN, TYP_RESERVED, PREC_TERMINATOR, false},
 
-    //	{ "global",		RSV_GLOBAL,	 TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
-    //	{ "local",		RSV_LOCAL,	  TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
+    //  { "global",    RSV_GLOBAL,   TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
+    //  { "local",    RSV_LOCAL,    TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
     {"const", RSV_CONST, TYP_RESERVED, PREC_TERMINATOR, false},
     {"var", RSV_VAR, TYP_RESERVED, PREC_TERMINATOR, false},
 
-    //  { "begin",		RSV_BEGIN,	  TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
-    //  { "end",		RSV_ENDB,	   TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
+    //  { "begin",    RSV_BEGIN,    TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
+    //  { "end",    RSV_ENDB,     TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
 
     {"do", RSV_DO, TYP_RESERVED, PREC_TERMINATOR, false},
     {"dowhile", RSV_DOWHILE, TYP_RESERVED, PREC_TERMINATOR, false},
@@ -830,7 +860,7 @@ ReservedWord reserved_words[] = {
     {"endprogram", RSV_ENDPROGRAM, TYP_RESERVED, PREC_TERMINATOR, false},
 
     {"case", RSV_SWITCH, TYP_RESERVED, PREC_TERMINATOR, false},
-    // { "case",	   RSV_CASE,	   TYP_RESERVED, PREC_TERMINATOR, false },
+    // { "case",     RSV_CASE,     TYP_RESERVED, PREC_TERMINATOR, false },
     {"default", RSV_DEFAULT, TYP_RESERVED, PREC_TERMINATOR, false},
     {"endcase", RSV_ENDSWITCH, TYP_RESERVED, PREC_TERMINATOR, false},
 
@@ -842,7 +872,7 @@ ReservedWord reserved_words[] = {
     {"reference", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"out", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"inout", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
-    // { "ByRef",	  RSV_FUTURE,	 TYP_RESERVED, PREC_TERMINATOR, false },
+    // { "ByRef",    RSV_FUTURE,   TYP_RESERVED, PREC_TERMINATOR, false },
     {"ByVal", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
 
     {"string", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
@@ -868,13 +898,13 @@ ReservedWord reserved_words[] = {
     {"array", TOK_ARRAY, TYP_OPERAND, PREC_TERMINATOR, false},
     {"stack", TOK_STACK, TYP_OPERAND, PREC_TERMINATOR, false},
     {"in", TOK_IN, TYP_OPERATOR, PREC_EQUALTO, false}
-    //	{ "bitand",	 TOK_BITAND,	 TYP_OPERATOR, PREC_BITAND },
-    //	{ "bitxor",	 TOK_BITXOR,	 TYP_OPERATOR, PREC_BITXOR },
-    //	{ "bitor",	  TOK_BITOR,	  TYP_OPERATOR, PREC_BITOR }
-    /*	"/""*",			RSV_COMMENT_START,
-        "*""/",			RSV_COMMENT_END,
-        "/""/",			RSV_COMMENT_TO_EOL,
-        "--",			RSV_COMMENT_TO_EOL
+    //  { "bitand",   TOK_BITAND,   TYP_OPERATOR, PREC_BITAND },
+    //  { "bitxor",   TOK_BITXOR,   TYP_OPERATOR, PREC_BITXOR },
+    //  { "bitor",    TOK_BITOR,    TYP_OPERATOR, PREC_BITOR }
+    /*  "/""*",      RSV_COMMENT_START,
+        "*""/",      RSV_COMMENT_END,
+        "/""/",      RSV_COMMENT_TO_EOL,
+        "--",      RSV_COMMENT_TO_EOL
         */
 };
 unsigned n_reserved = sizeof reserved_words / sizeof reserved_words[0];
@@ -884,13 +914,12 @@ ReservedWords reservedWordsByName;
 static void init_tables()
 {
   static std::once_flag flag;
-  std::call_once( flag, []()
-                  {
-                    for ( unsigned i = 0; i < n_reserved; ++i )
-                    {
-                      reservedWordsByName[reserved_words[i].word] = &reserved_words[i];
-                    }
-                  } );
+  std::call_once( flag, []() {
+    for ( unsigned i = 0; i < n_reserved; ++i )
+    {
+      reservedWordsByName[reserved_words[i].word] = &reserved_words[i];
+    }
+  } );
 }
 
 void Parser::write_words( std::ostream& os )
@@ -930,91 +959,91 @@ void Parser::write_words( std::ostream& os )
 }
 
 #if 0
-	void matchReservedWords(char *buf,
-							 int *nPartial,
-							 int *nTotal)
-	{
-	  int lenbuf = strlen(buf);
-	  assert(nPartial && nTotal);
-	  *nPartial = 0;
-	  *nTotal = 0;
-	  for(int i = 0; i < n_reserved; i++) 
-	  {
-		if (strnicmp(reserved_words[i].word, buf, lenbuf)==0) 
-		  (*nPartial)++;
-		if (stricmp(reserved_words[i].word, buf)==0) 
-		  (*nTotal)++;
-	  }
-	}
+  void matchReservedWords(char *buf,
+               int *nPartial,
+               int *nTotal)
+  {
+    int lenbuf = strlen(buf);
+    assert(nPartial && nTotal);
+    *nPartial = 0;
+    *nTotal = 0;
+    for(int i = 0; i < n_reserved; i++)
+    {
+    if (strnicmp(reserved_words[i].word, buf, lenbuf)==0)
+      (*nPartial)++;
+    if (stricmp(reserved_words[i].word, buf)==0)
+      (*nTotal)++;
+    }
+  }
 #endif
 
-/*
-  WTF is going on in this function?  It seems like it waits for a match, followed
-  by a nonmatch?  eh?
+  /*
+    WTF is going on in this function?  It seems like it waits for a match, followed
+    by a nonmatch?  eh?
 
-  What does this mean for variables like "IfDone" etc?
-  */
+    What does this mean for variables like "IfDone" etc?
+    */
 
 #if 0
-	int Parser::tryReservedWord(Token& tok, char *t, char **s)
-	{
-	  char opbuf[10];
-	  int bufp = 0;
-	  int thisMatchPartial, thisMatchTotal;
-	  int lastMatchTotal = 0;
+  int Parser::tryReservedWord(Token& tok, char *t, char **s)
+  {
+    char opbuf[10];
+    int bufp = 0;
+    int thisMatchPartial, thisMatchTotal;
+    int lastMatchTotal = 0;
 
-	  while (t && *t) {
-		/* let's try to match it as we go. */
-		if (bufp==10) { err = PERR_BADTOKEN; return -1; }
-		opbuf[bufp++] = *t++;
-		opbuf[bufp] = '\0';
-		matchReservedWords(opbuf, &thisMatchPartial, &thisMatchTotal);
-		if (!thisMatchPartial) { /* can't match a bloody thing! */
-		  switch(lastMatchTotal) {
-			case 0:
-			  return 0; // this just wasn't a reserved word..
-			case 1: // this is the only way it will work..
-			  // here, we don't match now but if we don't count
-			  // this character, it was a unique match.
-			  opbuf[bufp-1] = '\0';
-			  tok.nulStr();
-			  recognize_reserved_word(tok, opbuf);
-			  *s = t-1;
-			  return 1;
-			case 2: // here, with this character there is no match
-			  // but before there were multiple matches.
-			  // really shouldn't happen.
-			  err = PERR_BADOPER;
-			  return -1;
-		  }
-		} else { /* this partially matches.. */
-		  // "Remember....."
-		  lastMatchTotal = thisMatchTotal;
-		}
-	  }
+    while (t && *t) {
+    /* let's try to match it as we go. */
+    if (bufp==10) { err = PERR_BADTOKEN; return -1; }
+    opbuf[bufp++] = *t++;
+    opbuf[bufp] = '\0';
+    matchReservedWords(opbuf, &thisMatchPartial, &thisMatchTotal);
+    if (!thisMatchPartial) { /* can't match a bloody thing! */
+      switch(lastMatchTotal) {
+      case 0:
+        return 0; // this just wasn't a reserved word..
+      case 1: // this is the only way it will work..
+        // here, we don't match now but if we don't count
+        // this character, it was a unique match.
+        opbuf[bufp-1] = '\0';
+        tok.nulStr();
+        recognize_reserved_word(tok, opbuf);
+        *s = t-1;
+        return 1;
+      case 2: // here, with this character there is no match
+        // but before there were multiple matches.
+        // really shouldn't happen.
+        err = PERR_BADOPER;
+        return -1;
+      }
+    } else { /* this partially matches.. */
+      // "Remember....."
+      lastMatchTotal = thisMatchTotal;
+    }
+    }
 
-	  if (thisMatchTotal == 1) {
-		tok.nulStr();
-		recognize_reserved_word( tok, opbuf );
-		*s = t;
-		return 1;
-	  }
+    if (thisMatchTotal == 1) {
+    tok.nulStr();
+    recognize_reserved_word( tok, opbuf );
+    *s = t;
+    return 1;
+    }
 
-	  return 0; // didn't find one!
-	}
+    return 0; // didn't find one!
+  }
 #endif
 
 /**
-* Tries to read a an operator from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param opList: The list of possible operators to look for, as Operator[]
-* @param n_ops: Number of operators in the list
-* @param t: todo
-* @param s: todo
-* @param opbuf: todo
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a an operator from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param opList: The list of possible operators to look for, as Operator[]
+ * @param n_ops: Number of operators in the list
+ * @param t: todo
+ * @param s: todo
+ * @param opbuf: todo
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* opList, int n_ops,
                          char* opbuf )
 {
@@ -1025,7 +1054,7 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
 
   while ( t && *t )
   {
-    //		if (strchr(operator_brk, *t)) mustBeOperator = 1;
+    //    if (strchr(operator_brk, *t)) mustBeOperator = 1;
 
     /* let's try to match it as we go. */
     if ( bufp == 4 )
@@ -1084,12 +1113,12 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
 }
 
 /**
-* Tries to read a binary operator from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a binary operator from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 {
   int res;
@@ -1101,12 +1130,12 @@ int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 }
 
 /**
-* Tries to read an unary operator from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read an unary operator from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 {
   int res;
@@ -1118,12 +1147,12 @@ int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 }
 
 /**
-* Tries to read a numeric value from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a numeric value from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 {
   if ( isdigit( ctx.s[0] ) || ctx.s[0] == '.' )
@@ -1176,12 +1205,12 @@ int Parser::tryNumeric( Token& tok, CompilerContext& ctx )
 }
 
 /**
-* Tries to read a literal (string/variable name) from context
-*
-* @param tok Token&: The token to store the found literal into
-* @param ctx CompilerContext&: The context to look into
-* @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
-*/
+ * Tries to read a literal (string/variable name) from context
+ *
+ * @param tok Token&: The token to store the found literal into
+ * @param ctx CompilerContext&: The context to look into
+ * @return 0 when no matching text is found, 1 on success, -1 on error (also sets err)
+ */
 int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 {
   if ( ctx.s[0] == '\"' )
@@ -1563,12 +1592,15 @@ int SmartParser::isOkay( const Token& token, BTokenType last_type )
   BTokenType this_type = token.type;
   if ( !quiet )
     INFO_PRINT << "isOkay(" << this_type << "," << last_type << ")\n";
-  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD )
+  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD ||
+       last_type == TYP_FUNCREF )
     last_type = TYP_OPERAND;
-  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD )
+  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD ||
+       this_type == TYP_FUNCREF )
     this_type = TYP_OPERAND;
   if ( token.id == TOK_LBRACE )  // an array declared somewhere out there
     this_type = TYP_OPERAND;
+
   if ( last_type > TYP_TESTMAX )
     return 1;  // assumed okay
   if ( this_type > TYP_TESTMAX )
@@ -1622,18 +1654,18 @@ int SmartParser::tryLiteral( Token& tok, CompilerContext& ctx )
 
 // this might be a nice place to look for module::function, too.
 #if 0
-		if (t[0] == ':' && t[1] == ':')
-		{
-		  t += 2;
-		  *s = t;
-		  Token tok2;
-		  int res2 = Parser::tryLiteral( tok2, t, s );
-		  if (res2 < 0) return res2;
-		  if (res2 == 0)
-			return -1;
-		  // append '::{tok2 tokval}' to tok.tokval
-		  // (easier when/if token uses string)
-		}
+    if (t[0] == ':' && t[1] == ':')
+    {
+      t += 2;
+      *s = t;
+      Token tok2;
+      int res2 = Parser::tryLiteral( tok2, t, s );
+      if (res2 < 0) return res2;
+      if (res2 == 0)
+      return -1;
+      // append '::{tok2 tokval}' to tok.tokval
+      // (easier when/if token uses string)
+    }
 #endif
     if ( ctx.s[0] == ':' && ( ctx.s[1] == '\0' || isspace( ctx.s[1] ) ) )
     {
@@ -1648,7 +1680,7 @@ int SmartParser::tryLiteral( Token& tok, CompilerContext& ctx )
 
 int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* token )
 {
-  //	return Parser::parseToken(token);
+  //  return Parser::parseToken(token);
   if ( !quiet )
   {
     fmt::Writer _tmp;
@@ -1877,8 +1909,8 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
  * are variable names, verbs, functions,  or labels.  To this end it
  * pulls out the ':' if necessary.
  * TYP_OPERAND, TOK_VARNAME
- * TYP_FUNC,	TOK_MID,	<-- TYP_OPERAND for purposes of legality
- * TYP_PROC,	TOK_PRINT,
+ * TYP_FUNC,  TOK_MID,  <-- TYP_OPERAND for purposes of legality
+ * TYP_PROC,  TOK_PRINT,
  * TYP_LABEL,   (don't care)
  *
  * IP still does the same thing only it no longer looks for isVerb.
@@ -1922,8 +1954,8 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
   int res = 0;
   ModuleFunction* mfUse = modfunc_;
   Token token;
-  //	int nullArgOk = 0;
-  //	int nArgsUse = v->narg;
+  //  int nullArgOk = 0;
+  //  int nArgsUse = v->narg;
 
   /*
       if (vUse->narg == -1) {
@@ -1957,14 +1989,15 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
     {
       if ( token.id == TOK_SEMICOLON )
       {
-        //				   if (nullArgOk) return 0;
+        //           if (nullArgOk) return 0;
         err = PERR_TOOFEWARGS;
         return -1;
       }
       res = IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED );
       break;
     }
-  // FALLTHROUGH if left paren specified
+    // if left paren specified
+  // FALLTHROUGH
   default:
     // for more than one arg, or voluntary left paren on single
     // arg, so parens are required
@@ -1983,7 +2016,7 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
         getToken( ctx, token );
         if ( token.id != TOK_COMMA )
         {
-          //						if (nullArgOk) break;
+          //            if (nullArgOk) break;
           res = -1;
           err = PERR_TOOFEWARGS;
           break;
@@ -2082,7 +2115,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       break;
     }
 
-    //		if (token.type == TYP_DELIMITER) break;
+    //    if (token.type == TYP_DELIMITER) break;
     // debug_last_tx_token = expr.TX.top();
 
     /*
@@ -2226,8 +2259,8 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       res = getUserArgs( expr, ctx, false );
       if ( res < 0 )
       {
-        INFO_PRINT << "Error getting arguments for function " << token.tokval() << "\n" << ctx
-                   << "\n";
+        INFO_PRINT << "Error getting arguments for function " << token.tokval() << "\n"
+                   << ctx << "\n";
         return res;
       }
       ptok2 = new Token( token );
@@ -2258,7 +2291,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       // expr.CA.push( array_tkn );
 
       // 'array' can be of the following forms:
-      // var x := array;				  // preferred
+      // var x := array;          // preferred
       // var x := array { 2, 4, 6, 1 };   // preferred
       // var x := array ( 2, 4, 6, 1 );   // not preferred, looks too much like a multi-dim
 
@@ -2326,6 +2359,16 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       {
         INFO_PRINT << "Error reading members for dictionary\n";
       }
+    }
+    else if ( token.id == TOK_FUNCREF )
+    {
+      auto ref_tkn = new Token( token );
+      res = getFunctionPArgument( expr, ctx, ref_tkn );
+      if ( res < 0 )
+      {
+        INFO_PRINT << "Error reading function reference argument\n";
+      }
+      expr.CA.push( ref_tkn );
     }
     else if ( token.id == TOK_MEMBER && callingMethod( ctx ) )
     {
@@ -2407,7 +2450,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
 /* not used? 12/10/1998 ens
 int SmartParser::IP(Expression& expr, char *s)
 {
-//	return Parser::IP(s);
+//  return Parser::IP(s);
 reinit(expr);
 int res = IIP(expr, &s, EXPR_FLAG_SEMICOLON_TERM_ALLOWED);
 if (res < 0 && !quiet)

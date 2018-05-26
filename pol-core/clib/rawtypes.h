@@ -63,5 +63,5 @@ static_assert( sizeof( wchar_t ) == 4, "size missmatch" );
 #endif
 
 #endif
-    
+
 #endif /* __STYPE_H */

@@ -5,14 +5,9 @@
  */
 
 #include "token.h"
-#include "tokens.h"
-#include "modules.h"
-
-#include "../clib/esignal.h"
 
 #include <cstdio>
 #include <cstring>
-#include <cstdlib>
 
 namespace Pol
 {

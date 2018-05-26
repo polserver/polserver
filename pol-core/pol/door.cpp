@@ -5,13 +5,13 @@
 
 #include "door.h"
 
-#include "network/client.h"
+#include <stddef.h>
+
+#include "../clib/rawtypes.h"
 #include "item/itemdesc.h"
-#include "objtype.h"
+#include "network/client.h"
 #include "ufunc.h"
 #include "uworld.h"
-
-#include "../clib/passert.h"
 
 
 namespace Pol

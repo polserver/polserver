@@ -1,23 +1,25 @@
 #include "network.h"
 
+#include <curl/curl.h>
+#include <string.h>
+
+#include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/threadhelp.h"
-
 #include "../../plib/systemstate.h"
-
-
 #include "../accounts/account.h"
+#include "../mobile/charactr.h"
 #include "../network/auxclient.h"
-#include "../network/client.h"
 #include "../network/clienttransmit.h"
 #include "../network/cliface.h"
 #include "../network/msgfiltr.h"
+#include "../network/msghandl.h"
 #include "../network/packethooks.h"
 #include "../network/packetinterface.h"
-#include "../network/packets.h"
-#include "../mobile/charactr.h"
 #include "../servdesc.h"
+#include "../sockio.h"
 #include "../sqlscrobj.h"
+#include "../uoclient.h"
 
 namespace Pol
 {
@@ -49,12 +51,10 @@ NetworkManager::NetworkManager()
       ext_handler_table(),
       packetsSingleton( new Network::PacketsSingleton() ),
       clientTransmit( new Network::ClientTransmit() ),
-#ifdef PERGON
       auxthreadpool( new threadhelp::DynTaskThreadPool( "AuxPool" ) ),  // TODO: seems to work
                                                                         // activate by default?
                                                                         // maybe add a cfg entry for
                                                                         // max number of threads
-#endif
       banned_ips(),
       polsocket()
 {
@@ -66,11 +66,11 @@ NetworkManager::NetworkManager()
   Network::PacketHookData::initializeGameData( &packet_hook_data_v2 );
 
   Network::PacketRegistry::initialize_msg_handlers();
+
+  curl_global_init( CURL_GLOBAL_DEFAULT );
 }
 
-NetworkManager::~NetworkManager()
-{
-}
+NetworkManager::~NetworkManager() {}
 void NetworkManager::kill_disconnected_clients()
 {
   Clients::iterator itr = clients.begin();
@@ -115,9 +115,7 @@ void NetworkManager::deinialize()
 
   // unload_aux_service
   Clib::delete_all( auxservices );
-#ifdef PERGON
   auxthreadpool.reset();
-#endif
   banned_ips.clear();
 #ifdef _WIN32
   closesocket( polsocket.listen_socket );
@@ -126,7 +124,7 @@ void NetworkManager::deinialize()
 #endif
   Network::deinit_sockets_library();
   Network::clean_packethooks();
-
+  curl_global_cleanup();
   uoclient_general.deinitialize();
 }
 
@@ -187,9 +185,7 @@ NetworkManager::Memory NetworkManager::estimateSize() const
 
   usage.misc += packetsSingleton->estimateSize();
   usage.misc += sizeof( Network::ClientTransmit );
-#ifdef PERGON
   usage.misc += sizeof( threadhelp::DynTaskThreadPool );
-#endif
 
   usage.misc += 3 * sizeof( Network::IPRule* ) + banned_ips.capacity() * sizeof( Network::IPRule );
 

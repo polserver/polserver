@@ -7,7 +7,7 @@
 #include "bobject.h"
 #include "impstr.h"
 
-#include "../../lib/format/format.h"
+#include <format/format.h>
 #include <sstream>
 
 namespace Pol
@@ -67,12 +67,12 @@ void String::printOn( std::ostream& os ) const
 
 #if 0
     void SubString::printOn(std::ostream& os ) const
-	{
-	  os << "{ \"";
-	  os << ref_String->value_.substr( begin-1, len );
+  {
+    os << "{ \"";
+    os << ref_String->value_.substr( begin-1, len );
 
-	  os << "\" }";
-	}
+    os << "\" }";
+  }
 #endif
 
 void Double::printOn( std::ostream& os ) const
@@ -84,6 +84,11 @@ void Double::printOn( std::ostream& os ) const
 void BLong::printOn( std::ostream& os ) const
 {
   os << lval_;
+}
+
+void BBoolean::printOn( std::ostream& os ) const
+{
+  os << ( bval_ ? "true" : "false" );
 }
 }
 }

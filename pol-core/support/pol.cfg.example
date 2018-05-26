@@ -1,0 +1,347 @@
+#############################################################################
+## Basic Configuration
+#############################################################################
+
+#
+# Port and encryption settings now handled in UOCLIENT.CFG
+#
+
+#
+# UoDataFileRoot: where the UO client files are located.
+# Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
+#
+UoDataFileRoot=MUL
+
+#
+# Used to tell POL where to look for the realm data that was made by uoconvert.
+# Defaults to 'realm/' from where pol.exe is started.
+#
+RealmDataPath=realm/
+
+#
+# RetainCleartextPasswords: If you select this, the server will save plain passwords
+# in the accounts.txt file. If you set it to 0, all will be erased. You can get them back
+# by changing this back to 1 and successfully logging into the account (for each account)
+#
+RetainCleartextPasswords=1
+
+#############################################################################
+## Logon and Logoff
+#############################################################################
+
+#
+# MinCmdlevelToLogin: Only characters with this command level or higher
+#                     log in. (0=player,5=admin)
+#
+MinCmdlevelToLogin=0
+
+#
+# InactivityWarningTimeout: Time in minutes until the user gets a "you are
+#                           about to be disconnected" message
+#
+InactivityWarningTimeout=4
+
+#
+# InactivityDisconnectTimeout: Idle Time in minutes before the user is
+#                              disconnected.
+#
+InactivityDisconnectTimeout=5
+
+#
+# MaximumClients: Sets the total number of clients allowed to connect at
+#                 one time.
+MaximumClients=300
+
+#
+# MaximumClientsBypassCmdLevel: Sets the character command level that bypasses the
+#                               MaximumClients limiter
+#
+MaximumClientsBypassCmdLevel=1
+
+#############################################################################
+## System Profiling and Performance
+#############################################################################
+
+#
+# LogLevel:
+#
+LogLevel=0
+
+#
+# DebugLevel:
+#
+DebugLevel=0
+
+#
+# WatchRPM: display the RPM counter to console every minute
+#
+WatchRPM=1
+
+#
+# WatchSysLoad: display the Sysload counter to console every minute
+#
+WatchSysLoad=1
+
+#
+# LogSysLoad: log sysload to pol.log every minute
+#
+LogSysLoad=1
+
+#
+# LogScriptCycles: Write profiling information on scripts to pol.log on exit
+#
+LogScriptCycles=1
+
+#
+# RunawayScriptThreshold: a script executing this many instructions without
+#                         sleeping will be reported as a runaway script
+#
+RunawayScriptThreshold=20000
+
+#
+# ReportRunToCompletionScripts: Print "run to completion" scripts that are running
+#
+ReportRunToCompletionScripts=0
+
+#
+# ReportCriticalScripts: Print "critical" scripts that are running
+#
+ReportCriticalScripts=0
+
+#
+# MaxCallDepth: Maximum function call depth for scripts
+#
+MaxCallDepth=100
+
+#
+#  ShowRealmInfo: Reports realms and their number of mobiles, offline chars,
+#                 top-level items and multis to the console
+#
+ShowRealmInfo=0
+
+#############################################################################
+## Debugging
+#############################################################################
+
+#
+# DebugPort: TCP/IP port to listen for debugger connections
+#
+DebugPort=5001
+
+#
+# DebugPassword: Password for debugging
+#   If none is specified, no password is required.
+DebugPassword=debugme
+
+#
+# DebugLocalOnly: Only allow access from localhost
+#
+DebugLocalOnly=1
+
+#
+# CacheInteractiveScripts: if 0, always load interactive scripts from disk
+#                          Useful for script development
+#
+CacheInteractiveScripts=1
+
+#
+# ThreadStacktracesWhenStuck: logs the stack traces of all threads to stdout and
+#                             stderr when there is no clock movement for more than
+#                             30 seconds. Only useful for debugging the core.
+#
+ThreadStacktracesWhenStuck=0
+
+#
+# AssertionFailureAction
+# abort/continue/shutdown/shutdown-nosave
+#  abort: (like old behavior) aborts immediately, without saving data.
+#  continue: allows execution to continue.
+#  shutdown: attempts graceful shutdown
+#  shutdown-nosave: attempts graceful shutdown, without saving data.
+#
+AssertionFailureAction=continue
+
+#
+# DumpStackOnAssertionFailure: will cause a stack backtrace to be generated when any assertion fails.
+#
+DumpStackOnAssertionFailure=1
+
+#
+# EnableDebugLog: Enable the script debug log (formerly known as pol.lg2)
+#
+EnableDebugLog=1
+
+#
+# MiniDumpType: type of crash dump created. values: small (default) or large.
+#               Case sensative.
+#
+MiniDumpType=small
+
+#
+# DisplayUnknownPackets: If a packet is unknown, it will be reported to the console.
+#
+DisplayUnknownPackets=1
+
+#
+# Verbose: Reports all incoming packets.
+#
+Verbose=0
+
+#
+# ShowSpeechColors: If enabled, reports the speech colors clients are using when they talk.
+#
+ShowSpeechColors=0
+
+#############################################################################
+## Reporting System for Program Aborts
+#############################################################################
+#
+# ReportCrashsAutomatically: for Linux build only, enable reporting system
+#
+ReportCrashsAutomatically=0
+
+#
+# ReportAdminEmail: the email address which should be used to contact the shard admin
+#
+ReportAdminEmail=anonymous
+
+#
+# ReportServer: the host name of the bug tracking server
+#
+ReportServer=polserver.com
+
+#
+# ReportURL: the URL which is called in case of a program abort
+#
+ReportURL=/pol/report_program_abort.php
+
+#############################################################################
+## Integrated Web Server
+#############################################################################
+
+#
+# WebServer: in multithread mode only, run the internal web server
+#            This may be a security risk.  It's susceptible to DoS attacks.
+#            If someone knows a little about TCP/IP, they could cause you
+#            trouble if it's enabled.
+#
+WebServer=1
+
+#
+# WebServerPort: What TCP/IP port to listen for web requests
+#
+WebServerPort=5000
+
+#
+# WebServerLocalOnly: Only allow access from localhost
+#
+WebServerLocalOnly=0
+
+#
+# WebServerDebug: Print trace information about http requests
+#
+WebServerDebug=0
+
+#
+# WebServerPassword: username/password required for access to the web server.
+#                    If not specified, no password is required.
+# WebServerPassword=username:password
+#
+WebServerPassword=
+
+#############################################################################
+## System Load and Save
+#############################################################################
+
+#
+# CheckIntegrity: check for duplicate objects on startup
+#
+CheckIntegrity=1
+
+#
+# IgnoreLoadErrors: force load to continue even if object creations fail
+#                   or containers cannot be found.
+#
+IgnoreLoadErrors=0
+
+#
+# InhibitSaves: Don't ever save world state
+#
+InhibitSaves=0
+
+#
+# AccountDataSave:
+# -1 : old behaviour, saves accounts.txt immediately after an account change
+#  0 : saves only during worldsave (if needed)
+# >0 : saves every X seconds and during worldsave (if needed)
+#
+AccountDataSave=-1
+
+
+
+#############################################################################
+## Features
+#############################################################################
+
+#
+# RequireSpellbooks: Require spellbooks for casting (in hand or in pack)
+#
+RequireSpellbooks=1
+
+#
+# EnableSecureTrading: if you enable this, see changes.txt regarding an entry
+#                      that MUST be added to config/itemdesc.cfg
+#
+EnableSecureTrading=1
+
+# MaxTileID: accepted values are 
+# For clients older than Stygian Abyss Expansion <0x3FFF>
+# For Stygian Abyss Clients <0x7FFF>
+# For High Seas Adventures clients <0xFFFF>
+# Default <0x3FFF>
+MaxTileID=0xFFFF
+
+# MaxObjtype
+# Can be any value between 0x20000 and 0xFFFFFFFF Default is 0xFFFFFFFF
+MaxObjtype=0x20000
+
+# EnforceMountObjtype: ensures that only items with the mount objtype defined
+                       in extobj.cfg (default 0x1F021) can be equipped in the
+ 					   character as a mount (Default false)
+EnforceMountObjtype=0
+
+
+#############################################################################
+## Experimental Options - Modify at your own risk
+#############################################################################
+
+#
+# ExpLosChecksMap - prevents stuff like arrows from going through the 'black'
+#                   areas in dungeons.
+#
+ExpLosChecksMap=1
+
+#
+# DisableNagle - 
+#  0 - old style, no changes
+#  1 - disable Nagle's algorithm, might reduce connection latency
+#
+DisableNagle=0
+
+#############################################################################
+## Treading Settings - Do not modify unless necessary.
+#############################################################################
+
+#
+# Multithread: use multiple threads to lower CPU usage
+# If you are using Linux 2.4.*, set this to 1.
+#
+Multithread=1
+
+#
+# SelectTimeout: I/O sleep time
+#   Set to 0 for a dedicated server.
+#   Set to 10 for a non-dedicated server.
+#   Has no effect in multithread mode
+#
+SelectTimeout=10

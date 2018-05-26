@@ -12,27 +12,29 @@
 #include "bobject.h"
 #endif
 
-#include "../clib/boostutils.h"
-#include "../clib/maputil.h"
-#include "executor.h"
-
 #include <map>
 #include <string>
 #include <vector>
 
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4996 )
-#endif
+#include "../clib/boostutils.h"
+#include "../clib/compilerspecifics.h"
+#include "../clib/maputil.h"
+#include "executor.h"
 
 namespace Pol
 {
 namespace Bscript
 {
 class Executor;
-class Token;
-class String;
+}  // namespace Bscript
+}  // namespace Pol
+
+namespace Pol
+{
+namespace Bscript
+{
 class ExecutorModule;
+class String;
 
 typedef BObject* ( ExecutorModule::*ExecutorModuleFn )();
 
@@ -162,9 +164,5 @@ inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
 }
 }
 }
-
-#ifdef _MSC_VER
-#pragma warning( pop )
-#endif
 
 #endif

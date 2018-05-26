@@ -12,7 +12,6 @@ namespace Pol
 {
 namespace Bscript
 {
-class BObjectImp;
 class Executor;
 }
 namespace Mobile
@@ -36,7 +35,6 @@ class Client;
 }
 namespace Core
 {
-class PropertyList;
 class UObject;
 class Vital;
 

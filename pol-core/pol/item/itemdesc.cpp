@@ -15,39 +15,41 @@
 
 #include "itemdesc.h"
 
-#include "wepntmpl.h"
-#include "armrtmpl.h"
+#include <ctype.h>
+#include <iosfwd>
+#include <stdlib.h>
+#include <string.h>
 
+#include <format/format.h>
+#include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
-#include "../../bscript/escrutil.h"
 #include "../../bscript/impstr.h"
-
-#include "../../plib/mapcell.h"
-#include "../../plib/pkg.h"
-#include "../../plib/systemstate.h"
-
-#include "../cfgrepos.h"
-#include "../clidata.h"
-#include "../objtype.h"
-#include "../multi/multidef.h"
-#include "../resource.h"
-#include "../polcfg.h"
-#include "../syshookscript.h"
-#include "../globals/ucfg.h"
-#include "../ustruct.h"
-#include "../globals/uvars.h"
-#include "../globals/settings.h"
-
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../plib/mapcell.h"
+#include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
+#include "../clidata.h"
+#include "../dice.h"
+#include "../extobj.h"
+#include "../globals/settings.h"
+#include "../globals/uvars.h"
+#include "../multi/multidef.h"
+#include "../pktdef.h"
+#include "../proplist.h"
+#include "../resource.h"
+#include "../syshookscript.h"
+#include "../uconst.h"
+#include "../uobject.h"
+#include "armrtmpl.h"
+#include "wepntmpl.h"
 
 namespace Pol
 {
@@ -195,6 +197,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       invisible( elem.remove_bool( "INVISIBLE", false ) ),
       decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
       blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
+      no_drop( elem.remove_bool( "NoDrop", false ) ),
       base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
       quality( elem.remove_double( "QUALITY", 1.0 ) ),
       props( Core::CPropProfiler::Type::ITEM ),
@@ -333,7 +336,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
             }
             */
     // if (!objtype_byname.count( temp.c_str() ))
-    //	objtype_byname[ temp.c_str() ] = objtype;
+    //  objtype_byname[ temp.c_str() ] = objtype;
   }
 
   props.readProperties( elem );
@@ -527,6 +530,7 @@ ItemDesc::ItemDesc( Type type )
       invisible( false ),
       decays_on_multis( false ),
       blocks_casting_if_in_hand( true ),
+      no_drop( false ),
       base_str_req( 0 ),
       stack_limit( MAX_STACK_ITEMS ),
       quality( 1.0 ),
@@ -618,6 +622,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "Invisible", new BLong( invisible ) );
   descriptor->addMember( "DecaysOnMultis", new BLong( decays_on_multis ) );
   descriptor->addMember( "BlocksCastingIfInHand", new BLong( blocks_casting_if_in_hand ) );
+  descriptor->addMember( "NoDrop", new BLong( no_drop ) );
   descriptor->addMember( "StrRequired", new BLong( base_str_req ) );
   descriptor->addMember( "StackLimit", new BLong( stack_limit ) );
   descriptor->addMember( "Weight", new Double( static_cast<double>( weightmult ) / weightdiv ) );
@@ -718,6 +723,7 @@ ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::P
                                      Core::settingsManager.ssopt.default_container_max_items ) ),
       max_slots( static_cast<u8>(
           elem.remove_ushort( "MAXSLOTS", Core::settingsManager.ssopt.default_max_slots ) ) ),
+      no_drop_exception( elem.remove_bool( "NoDropException", false ) ),
       can_insert_script( elem.remove_string( "CANINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
       on_insert_script( elem.remove_string( "ONINSERTSCRIPT", "" ), pkg, "scripts/control/" ),
       can_remove_script( elem.remove_string( "CANREMOVESCRIPT", "" ), pkg, "scripts/control/" ),
@@ -726,12 +732,12 @@ ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::P
   // FIXME: in theory, should never happen due to conversion to u8. Maybe here as note during
   // rewrite. Add a remove_uchar/remove_char for allowing
   // use of max 0-255 integers control due to packet limits, in configuration files. Yay.
-  //	if ( max_slots > 255 )
-  //	{
-  //			cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined.
+  //  if ( max_slots > 255 )
+  //  {
+  //      cerr << "Warning! Container " << hexint( objtype ) << ": Invalid MaxSlots defined.
   // MaxSlots max value is 255. Setting to 255." << endl;
-  //			max_slots = 255;
-  //	}
+  //      max_slots = 255;
+  //  }
 }
 
 void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
@@ -746,6 +752,7 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "MaxWeight", new BLong( max_weight ) );
   descriptor->addMember( "MaxItems", new BLong( max_items ) );
   descriptor->addMember( "MaxSlots", new BLong( max_slots ) );
+  descriptor->addMember( "NoDropException", new BLong( no_drop_exception ) );
   descriptor->addMember( "CanInsertScript", new String( can_insert_script.relativename( pkg ) ) );
   descriptor->addMember( "CanRemoveScript", new String( can_remove_script.relativename( pkg ) ) );
   descriptor->addMember( "OnInsertScript", new String( on_insert_script.relativename( pkg ) ) );
@@ -762,6 +769,7 @@ size_t ContainerDesc::estimatedSize() const
          + sizeof( u16 )                       /*max_weight*/
          + sizeof( u16 )                       /*max_items*/
          + sizeof( u8 )                        /*max_slots*/
+         + sizeof( bool )                      /*no_drop_exception*/
          + can_insert_script.estimatedSize() + on_insert_script.estimatedSize() +
          can_remove_script.estimatedSize() + on_remove_script.estimatedSize();
 }
@@ -1088,7 +1096,7 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
     // string unused_name, unused_value;
     // while (elem.remove_first_prop( &unused_name, &unused_value ))
     //{
-    //	elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is
+    //  elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is
     // unused." );
     //}
 
@@ -1182,11 +1190,11 @@ void write_objtypes_txt()
 
 void load_itemdesc()
 {
-  //	CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
+  //  CreateEmptyStoredConfigFile( "config/itemdesc.cfg" );
   if ( Clib::FileExists( "config/itemdesc.cfg" ) )
     read_itemdesc_file( "config/itemdesc.cfg" );
-  //	read_itemdesc_file( "config/wepndesc.cfg" );
-  //	read_itemdesc_file( "config/armrdesc.cfg" );
+  //  read_itemdesc_file( "config/wepndesc.cfg" );
+  //  read_itemdesc_file( "config/armrdesc.cfg" );
   for ( auto& pkg : Plib::systemstate.packages )
     load_package_itemdesc( pkg );
 

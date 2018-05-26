@@ -23,22 +23,19 @@
 
 
 #include "ssopt.h"
-#include "pktdef.h"
-#include "globals/settings.h"
 
-#include "mobile/attribute.h"
+#include <cstring>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/rawtypes.h"
 #include "../clib/logfacility.h"
-
-#include <cstring>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for sprintf, strtok
-#endif
+#include "globals/settings.h"
+#include "pktdef.h"
 
 namespace Pol
 {
@@ -67,6 +64,8 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.default_decay_time = elem.remove_ulong( "DefaultDecayTime", 10 );
   settingsManager.ssopt.default_doubleclick_range =
       elem.remove_ushort( "DefaultDoubleclickRange", 2 );
+  settingsManager.ssopt.default_accessible_range =
+    elem.remove_int( "DefaultAccessibleRange", settingsManager.ssopt.default_doubleclick_range);
   settingsManager.ssopt.default_light_level = elem.remove_ushort( "DefaultLightLevel", 10 );
   settingsManager.ssopt.event_visibility_core_checks =
       elem.remove_bool( "EventVisibilityCoreChecks", false );
@@ -136,14 +135,14 @@ void ServSpecOpt::read_servspecopt()
   ssopt_parse_totalstats( elem );
 
   // Turley 2009/11/06 u8 range...
-  //	if ( ssopt.default_max_slots > 255 )
-  //	{
-  //		cerr << "Invalid MaxContainerSlots value '"
-  //			 << ssopt.default_max_slots << "', using '255'" << endl;
-  //		Log( "Invalid MaxContainerSlots value '%d', using '255'\n",
-  //			  ssopt.default_max_slots );
-  //		ssopt.default_max_slots = 255;
-  //	}
+  // if ( ssopt.default_max_slots > 255 )
+  // {
+  //   cerr << "Invalid MaxContainerSlots value '"
+  //        << ssopt.default_max_slots << "', using '255'" << endl;
+  //   Log( "Invalid MaxContainerSlots value '%d', using '255'\n",
+  //        ssopt.default_max_slots );
+  //   ssopt.default_max_slots = 255;
+  // }
 }
 
 void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )

@@ -7,9 +7,31 @@
 #ifndef CFGEMOD_H
 #define CFGEMOD_H
 
-#include "../../bscript/execmodl.h"
+#include <stddef.h>
+#include <string>
 
+#include "../../bscript/bobject.h"
+#include "../../bscript/execmodl.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
 #include "../cfgrepos.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+class ExecutorModule;
+}  // namespace Bscript
+namespace Core
+{
+class StoredConfigElem;
+class StoredConfigFile;
+}  // namespace Core
+}  // namespace Pol
+template <class T>
+class ref_ptr;
+
 namespace Pol
 {
 namespace Module

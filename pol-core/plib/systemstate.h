@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #endif
 
-#include "../clib/rawtypes.h"
 #include "../clib/maputil.h"
 #include "../pol/polcfg.h"
 

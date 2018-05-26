@@ -6,22 +6,25 @@
 
 #include "sockio.h"
 
-#include "sockets.h"
-
-#include "../clib/clib_endian.h"
-#include "../clib/clib.h"
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-
-#include "globals/network.h"
-
 #ifdef __unix__
 #include <sys/utsname.h>
+
 struct utsname my_utsname;
 #endif
 
 #include <cstdio>
 #include <cstring>
+#include <fcntl.h>
+#include <stdexcept>
+#include <string>
+
+#include "../clib/clib.h"
+#include "../clib/clib_endian.h"
+#include "../clib/logfacility.h"
+#include "../clib/strutil.h"
+#include "globals/network.h"
+#include "sockets.h"
+
 
 namespace Pol
 {
@@ -209,19 +212,19 @@ SOCKET open_listen_socket( unsigned short port )
 const char* AddressToString( struct sockaddr* addr )
 {
 #if 0 && defined( _WIN32 )
-	  // this requires Winsock 2! Ouch.
-	  static char buf[ 80 ];
-	  DWORD len = sizeof buf;
-	  if (WSAAddressToString( addr, sizeof *addr, 
-		NULL, // protocol
-		buf, &len ) != SOCKET_ERROR)
-	  {
-		return buf;
-	  }
-	  else
-	  {
-		return "(display error)";
-	  }
+  // this requires Winsock 2! Ouch.
+  static char buf[ 80 ];
+  DWORD len = sizeof buf;
+  if (WSAAddressToString( addr, sizeof *addr,
+    NULL, // protocol
+    buf, &len ) != SOCKET_ERROR)
+  {
+    return buf;
+  }
+  else
+  {
+    return "(display error)";
+  }
 #else
   struct sockaddr_in* in_addr = (struct sockaddr_in*)addr;
   if ( addr->sa_family == AF_INET )
@@ -245,7 +248,5 @@ PolSocket::PolSocket()
   FD_ZERO( &err_fd );
   FD_ZERO( &send_fd );
 }
-
-
 }
 }

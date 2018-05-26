@@ -6,18 +6,12 @@
  * - 2009/12/03 Turley:    added gargoyle flying flag (hoverover/overflight flag)
  */
 
-
-#include "mapserver.h"
+#include "mapfunc.h"
 
 #include "../clib/cfgelem.h"
-#include "../clib/passert.h"
 #include "../clib/logfacility.h"
-
-#include "../plib/mapcell.h"
-#include "../plib/mapshape.h"
-
-#include "../pol/uconst.h"
 #include "../pol/ustruct.h"
+#include "mapcell.h"
 
 namespace Pol
 {
@@ -133,7 +127,7 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
 
          ( uoflags & ( Core::USTRUCT_TILE::FLAG_BLOCKING | Core::USTRUCT_TILE::FLAG_DOOR ) )
 
-             )
+    )
 
       mapflags |= FLAG::BLOCKSIGHT;
 
@@ -150,7 +144,7 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
 
            ( uoflags & Core::USTRUCT_TILE::FLAG_WALL )
 
-               )
+      )
 
         mapflags |= FLAG::BLOCKSIGHT;
     }

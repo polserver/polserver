@@ -22,36 +22,34 @@
 #ifndef __CLIENT_H
 #define __CLIENT_H
 
+#include <atomic>
+#include <boost/noncopyable.hpp>
+#include <cstring>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <string>
+
 #include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/wallclock.h"
 #include "../../clib/weakptr.h"
-
 #include "../crypt/cryptkey.h"
+#include "../pktdef.h"
 #include "../pktin.h"
 #include "../polclock.h"
-#include "../polsem.h"
 #include "../sockets.h"
 #include "../uconst.h"
-
-#include <memory>
-#include <cstring>
-#include <mutex>
-#include <queue>
-
-#include <boost/noncopyable.hpp>
 
 namespace Pol
 {
 namespace Bscript
 {
-class BStruct;
 class BObjectImp;
+class BStruct;
 }
 namespace Core
 {
-class UContainer;
 class MessageTypeFilter;
 struct XmitBuffer;
 }
@@ -71,19 +69,21 @@ namespace Network
 {
 class ClientGameData;
 class ClientInterface;
-class UOClientInterface;
 
 const u16 T2A = 0x01;
 const u16 LBR = 0x02;
 const u16 AOS = 0x04;
-const u16 SE =	0x08;	// set AOS-Flag in send_feature_enable() too for needed checks
-const u16 ML =	0x10;	// set SE- and AOS-Flag in send_feature_enable() too for needed checks
-const u16 KR =	0x20;	// set KR- and ML- and SE- and AOS-Flag in send_feature_enable() too for needed checks
-const u16 SA =  0x40;	// set SA- and KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
-const u16 HSA = 0x80;	// set HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too
-						// for needed checks
-const u16 TOL = 0x100;	// set TOL- and HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too
-						// for needed checks
+const u16 SE = 0x08;  // set AOS-Flag in send_feature_enable() too for needed checks
+const u16 ML = 0x10;  // set SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 KR =
+    0x20;  // set KR- and ML- and SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 SA =
+    0x40;  // set SA- and KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
+const u16 HSA = 0x80;  // set HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too
+                       // for needed checks
+const u16 TOL =
+    0x100;  // set TOL- and HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too
+            // for needed checks
 
 const u8 FLAG_GENDER = 0x01;
 const u8 FLAG_RACE = 0x02;
@@ -150,7 +150,7 @@ public:
   bool isReallyConnected() const;
   bool isConnected() const;
 
-  void unregister(); // removes updater for vitals and takes client away from clientlist
+  void unregister();  // removes updater for vitals and takes client away from clientlist
   void closeConnection();
   void transmit( const void* data, int len,
                  bool needslock = false );         // for entire message or header only
@@ -247,6 +247,7 @@ protected:
   void queue_data( const void* data, unsigned short datalen );
   void transmit_encrypted( const void* data, int len );
   void xmit( const void* data, unsigned short datalen );
+
 public:
   ClientGameData* gd;
   unsigned int instance_;

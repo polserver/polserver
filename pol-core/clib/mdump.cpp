@@ -5,13 +5,14 @@
  * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
  */
 
-
 #include "mdump.h"
-#include "strexcpt.h"
-#include "passert.h"
-#include "logfacility.h"
-#include "threadhelp.h"
 #include "clib.h"
+#include "logfacility.h"
+#include "passert.h"
+#include "strexcpt.h"
+#include "threadhelp.h"
+
+#pragma warning( disable : 4091 )  // unused typedef
 #include "../../lib/StackWalker/StackWalker.h"
 
 #include "Header_Windows.h"
@@ -22,14 +23,14 @@
 #if _MSC_VER < 1300
 #define DECLSPEC_DEPRECATED
 // VC6: change this path to your Platform SDK headers
-#include "C:\\Program Files\\Microsoft Visual Studio\\PlatformSDK\\include\\dbghelp.h"  // must be XP version of file
+// must be XP version of file
+#include "C:\\Program Files\\Microsoft Visual Studio\\PlatformSDK\\include\\dbghelp.h"
 #else
 // VC7: ships with updated headers
 #include "dbghelp.h"
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for localtime, strcpy
 #pragma warning( disable : 4100 )  // TODO: This file needs some serious rewrite, so I'm just
                                    // ignoring the unreferenced parameters for now
 #endif
@@ -180,15 +181,15 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
       }
       else
       {
-        result.Format( "Failed to save dump file to '{}' (error {})" ) << dumppath.str()
-                                                                       << GetLastError();
+        result.Format( "Failed to save dump file to '{}' (error {})" )
+            << dumppath.str() << GetLastError();
       }
       ::CloseHandle( hFile );
     }
     else
     {
-      result.Format( "Failed to create dump file '{}' (error {})" ) << dumppath.str()
-                                                                    << GetLastError();
+      result.Format( "Failed to create dump file '{}' (error {})" )
+          << dumppath.str() << GetLastError();
     }
   }
   print_backtrace();
@@ -197,8 +198,8 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
   if ( result.size() > 0 )
   {
-    POLLOG_ERROR << "##########################################################\n" << result.str()
-                 << "\n"
+    POLLOG_ERROR << "##########################################################\n"
+                 << result.str() << "\n"
                  << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC
                  << "\n##########################################################\n";
   }

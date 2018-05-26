@@ -8,7 +8,15 @@
 #define GUILDSMOD_H
 
 #include "../../bscript/execmodl.h"
-#include "../proplist.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {

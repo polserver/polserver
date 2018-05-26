@@ -10,52 +10,47 @@
  */
 
 
+#include <stdlib.h>
+#include <string>
+
+#include <format/format.h>
 #include "../clib/clib_endian.h"
-#include "../clib/fdump.h"
 #include "../clib/logfacility.h"
-#include "../clib/random.h"
-#include "../clib/strutil.h"
-
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
 #include "../plib/systemstate.h"
-
 #include "accounts/account.h"
-#include "mobile/attribute.h"
-#include "mobile/charactr.h"
 #include "clidata.h"
-#include "network/client.h"
+#include "containr.h"
 #include "gameclck.h"
+#include "globals/network.h"
+#include "globals/object_storage.h"
+#include "globals/uvars.h"
+#include "item/item.h"
 #include "layers.h"
 #include "mkscrobj.h"
-#include "network/msgfiltr.h"
-#include "network/msghandl.h"
+#include "mobile/attribute.h"
+#include "mobile/charactr.h"
+#include "mobile/wornitems.h"
+#include "module/osmod.h"
+#include "module/uomod.h"
+#include "network/client.h"
 #include "objtype.h"
+#include "pktdef.h"
 #include "pktin.h"
 #include "polcfg.h"
-#include "realms.h"
-#include "realms/realm.h"
-#include "scrdef.h"
-#include "skilladv.h"
-#include "sockio.h"
+#include "realms/WorldChangeReasons.h"
+#include "scrsched.h"
+#include "scrstore.h"
+#include "skillid.h"
 #include "startloc.h"
 #include "uconst.h"
 #include "ufunc.h"
+#include "uoclient.h"
+#include "uoexec.h"
 #include "uoskills.h"
-#include "globals/uvars.h"
-#include "globals/object_storage.h"
-#include "globals/network.h"
 #include "uworld.h"
 
-#include "../bscript/bobject.h"
-#include "module/osmod.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "uoexec.h"
-#include "module/uomod.h"
-#include "containr.h"
-#include "mobile/wornitems.h"
-
-#include <iostream>
-#include <string>
 
 namespace Pol
 {
@@ -78,7 +73,7 @@ short validhaircolor( u16 /*color*/ )
    */
 
 /* hair can be:
-    0x203B  Short Hair		  // Human
+    0x203B  Short Hair      // Human
     0x203C  Long Hair
     0x203D  PonyTail
     0x2044  Mohawk
@@ -89,7 +84,7 @@ short validhaircolor( u16 /*color*/ )
     0x2049  Two Pig Tails
     0x204A  Krisna Hair
 
-    0x2FBF  Mid Long Hair	   // Elf (Mondain's Legacy)
+    0x2FBF  Mid Long Hair     // Elf (Mondain's Legacy)
     0x2FC0  Long Feather Hair
     0x2FC1  Short Elf Hair
     0x2FC2  Mullet
@@ -110,7 +105,7 @@ short validhaircolor( u16 /*color*/ )
     0x425e  Horn Style 7
     0x425f  Horn Style 8
 
-    0x4261	Female Horn Style 1  // Gargoyle Female (SA)
+    0x4261  Female Horn Style 1  // Gargoyle Female (SA)
     0x4262  Female Horn Style 2
     0x4273  Female Horn Style 3
     0x4274  Female Horn Style 4
@@ -142,7 +137,7 @@ bool validhair( u16 HairStyle )
 }
 
 /* beard can be:
-    0x203E  Long Beard		 // Human
+    0x203E  Long Beard     // Human
     0x203F  Short Beard
     0x2040  Goatee
     0x2041  Mustache

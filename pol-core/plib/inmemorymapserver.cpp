@@ -5,8 +5,9 @@
 
 #include "inmemorymapserver.h"
 
-#include "../clib/strutil.h"
+#include "../clib/binaryfile.h"
 #include "../clib/passert.h"
+#include "mapblock.h"
 
 namespace Pol
 {
@@ -24,9 +25,7 @@ InMemoryMapServer::InMemoryMapServer( const RealmDescriptor& descriptor ) : MapS
   mapfile.Read( &_mapblocks[0], n_blocks );
 }
 
-InMemoryMapServer::~InMemoryMapServer()
-{
-}
+InMemoryMapServer::~InMemoryMapServer() {}
 
 MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) const
 {

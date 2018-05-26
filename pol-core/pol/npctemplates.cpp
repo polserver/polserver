@@ -6,26 +6,21 @@
  */
 
 
-#include "npctmpl.h"
-
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-
-#include "globals/uvars.h"
-
+#include <exception>
 #include <stdexcept>
-#include <map>
+#include <string.h>
 #include <string>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for stricmp
-#endif
+#include <format/format.h>
+#include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
+#include "../clib/clib.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+#include "globals/uvars.h"
+#include "npctmpl.h"
 
 
 namespace Pol
@@ -34,9 +29,7 @@ namespace Core
 {
 NpcTemplateConfigSource::NpcTemplateConfigSource( const Clib::ConfigFile& cf )
     : _filename( cf.filename() ), _fileline( cf.element_line_start() ){};
-NpcTemplateConfigSource::NpcTemplateConfigSource() : _filename( "" ), _fileline( 0 )
-{
-}
+NpcTemplateConfigSource::NpcTemplateConfigSource() : _filename( "" ), _fileline( 0 ) {}
 size_t NpcTemplateConfigSource::estimateSize() const
 {
   return _filename.capacity() + sizeof( unsigned int );
@@ -71,9 +64,7 @@ void NpcTemplateConfigSource::display_error( const std::string& msg, bool /*show
 }
 
 
-NpcTemplateElem::NpcTemplateElem()
-{
-}
+NpcTemplateElem::NpcTemplateElem() {}
 NpcTemplateElem::NpcTemplateElem( const Clib::ConfigFile& cf, const Clib::ConfigElem& elem )
     : _source( cf ), _elem( elem )
 {

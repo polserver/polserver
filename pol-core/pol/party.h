@@ -7,10 +7,21 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-#include "pktdef.h"
-#include "syshook.h"
-#include "proplist.h"
+#include <stddef.h>
 #include <vector>
+
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "proplist.h"
+
+namespace Pol
+{
+namespace Clib
+{
+class ConfigElem;
+}  // namespace Clib
+}  // namespace Pol
+
 namespace Pol
 {
 namespace Clib
@@ -33,7 +44,6 @@ class EPartyRefObjImp;
 namespace Core
 {
 struct PKTBI_BF;
-struct PKTBI_6C;
 
 void handle_add( Network::Client* client, PKTBI_BF* msg );
 void handle_remove( Network::Client* client, PKTBI_BF* msg );

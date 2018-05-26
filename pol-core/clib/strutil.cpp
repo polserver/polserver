@@ -3,18 +3,18 @@
  * @par History
  * - 2009/09/12 MuadDib:   Disabled 4244 in this file due to it being on a string iter. Makes no
  * sense.
- * - 2014/06/10 Nando:	Removed pragma that disabled 4244. (tolower()/toupper() used ints because -1
+ * - 2014/06/10 Nando:  Removed pragma that disabled 4244. (tolower()/toupper() used ints because -1
  * is a valid output).
  */
 
 
 #include "strutil.h"
 
+#include <boost/algorithm/string/case_conv.hpp>
+
+#include "logfacility.h"
 #include "stlutil.h"
 #include "unittest.h"
-#include "logfacility.h"
-
-#include <boost/algorithm/string/case_conv.hpp>
 
 namespace Pol
 {

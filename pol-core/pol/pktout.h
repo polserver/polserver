@@ -22,8 +22,8 @@
 
 #include "../clib/rawtypes.h"
 #include "layers.h"
-#include "pktoutid.h"
 #include "pktdef.h"
+#include "pktoutid.h"
 #include "uconst.h"
 namespace Pol
 {
@@ -32,9 +32,9 @@ namespace Core
 #pragma pack( push, 1 )
 
 // struct PKTOUT_0B {
-//	u8 msgtype;
-//	u32 serial;
-//	u16 damage;
+//  u8 msgtype;
+//  u32 serial;
+//  u16 damage;
 //};
 // static_assert( sizeof(PKTOUT_0B) == 7, "size missmatch" );
 //
@@ -61,19 +61,19 @@ namespace Core
 //    u32 gold;
 //    u16 AR;
 //    u16 weight;
-//	// If moreinfo is 3 or 4
-//	u16 statcap;
-//	u8 followers;
-//	u8 followers_max;
-//	// If moreinfo is 4
-//	u16 fireresist;
-//	u16 coldresist;
-//	u16 poisonresist;
-//	u16 energyresist;
-//	u16 luck;
-//	u16 damage_min;
-//	u16 damage_max;
-//	u32 titching;
+//  // If moreinfo is 3 or 4
+//  u16 statcap;
+//  u8 followers;
+//  u8 followers_max;
+//  // If moreinfo is 4
+//  u16 fireresist;
+//  u16 coldresist;
+//  u16 poisonresist;
+//  u16 energyresist;
+//  u16 luck;
+//  u16 damage_min;
+//  u16 damage_max;
+//  u32 titching;
 //};
 // static_assert( sizeof( PKTOUT_11_V1 ) == 88, "size missmatch" );
 //
@@ -100,33 +100,33 @@ namespace Core
 //    u32 gold;
 //    u16 AR;
 //    u16 weight;
-//	// If moreinfo is 5 or higher (ML Introduced this mid-packet
-//	u16 max_weight;
-//	u8 race;
-//	// If moreinfo is 3 or higher
-//	u16 statcap;
-//	u8 followers;
-//	u8 followers_max;
-//	// If moreinfo is 4 or higher
-//	u16 fireresist;
-//	u16 coldresist;
-//	u16 poisonresist;
-//	u16 energyresist;
-//	u16 luck;
-//	u16 damage_min;
-//	u16 damage_max;
-//	u32 titching;
+//  // If moreinfo is 5 or higher (ML Introduced this mid-packet
+//  u16 max_weight;
+//  u8 race;
+//  // If moreinfo is 3 or higher
+//  u16 statcap;
+//  u8 followers;
+//  u8 followers_max;
+//  // If moreinfo is 4 or higher
+//  u16 fireresist;
+//  u16 coldresist;
+//  u16 poisonresist;
+//  u16 energyresist;
+//  u16 luck;
+//  u16 damage_min;
+//  u16 damage_max;
+//  u32 titching;
 //};
 // static_assert( sizeof( PKTOUT_11_V2 ) == 91, "size missmatch" );
 
 // Health bar status update (KR)
 // struct PKTOUT_17 {
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial;
-//	u16 unk;
-//	u16 status_type;
-//	u8 flag;
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial;
+//  u16 unk;
+//  u16 status_type;
+//  u8 flag;
 //};
 // static_assert( sizeof(PKTOUT_17) == 12, "size missmatch" );
 
@@ -205,7 +205,7 @@ static_assert( sizeof( PKTOUT_1A_D ) == 0x10, "size missmatch" );
 //    u16 map_startx;
 //    u16 map_starty;
 //    u16 map_width;
-//	u16 map_height;
+//  u16 map_height;
 //    u8 unk31;
 //    u8 unk32;
 //    u8 unk33;
@@ -323,7 +323,7 @@ static_assert( sizeof( PKTOUT_23 ) == 26, "size missmatch" );
 //    u16 amount; // ??
 //    u16 x;
 //    u16 y;
-//	u8 slotindex;
+//  u8 slotindex;
 //    u32 container_serial;
 //    u16 color;
 //};
@@ -350,7 +350,7 @@ struct PKTOUT_28
 static_assert( sizeof( PKTOUT_28 ) == 5, "size missmatch" );
 
 // struct PKTOUT_29 {
-//	u8 msgtype;
+//  u8 msgtype;
 //};
 // static_assert( sizeof(PKTOUT_29) == 1, "size missmatch" );
 
@@ -369,14 +369,14 @@ struct PKTOUT_2B
 static_assert( sizeof( PKTOUT_2B ) == 2, "size missmatch" );
 
 // struct PKTOUT_2D {
-//	u8 msgtype;
-//	u32 serial;
-//	u16 hitsmax;
-//	u16 hitscurrent;
-//	u16 manamax;
-//	u16 manacurrent;
-//	u16 stammax;
-//	u16 stamcurrent;
+//  u8 msgtype;
+//  u32 serial;
+//  u16 hitsmax;
+//  u16 hitscurrent;
+//  u16 manamax;
+//  u16 manacurrent;
+//  u16 stammax;
+//  u16 stamcurrent;
 //};
 // static_assert( sizeof(PKTOUT_2D) == 17, "size missmatch" );
 
@@ -461,7 +461,7 @@ struct PKTOUT_36
 //        u16 amount;
 //        u16 x;
 //        u16 y;
-//		u8 slot_index;
+//    u8 slot_index;
 //        u32 container_serial;
 //        u16 color;
 //    } items[ MAX_CONTAINER_ITEMS ];
@@ -535,16 +535,16 @@ static_assert( sizeof( PKTOUT_4E ) == 6, "size missmatch" );
 //    u8 msgtype;
 //    u8 warning;
 //
-//	enum {
-//		WARN_NO_CHARACTER = 1,
-//		WARN_CHARACTER_EXISTS = 2,
-//		WARN_CANT_CONNECT_1 = 3,
-//		WARN_CANT_CONNECT_2 = 4,
-//		WARN_CHARACTER_IN_WORLD = 5,
-//		WARN_LOGIN_PROBLEM = 6,
-//		WARN_CHARACTER_IDLE = 7,
-//		WARN_CANT_CONNECT_3 = 8
-//	};
+//  enum {
+//    WARN_NO_CHARACTER = 1,
+//    WARN_CHARACTER_EXISTS = 2,
+//    WARN_CANT_CONNECT_1 = 3,
+//    WARN_CANT_CONNECT_2 = 4,
+//    WARN_CHARACTER_IN_WORLD = 5,
+//    WARN_LOGIN_PROBLEM = 6,
+//    WARN_CHARACTER_IDLE = 7,
+//    WARN_CANT_CONNECT_3 = 8
+//  };
 //};
 
 // struct PKTOUT_54 {
@@ -555,12 +555,12 @@ static_assert( sizeof( PKTOUT_4E ) == 6, "size missmatch" );
 //    u16 x;
 //    u16 y;
 //    s16 z;
-//	enum { FLAG_REPEAT = 0, FLAG_SINGLEPLAY = 1 };
+//  enum { FLAG_REPEAT = 0, FLAG_SINGLEPLAY = 1 };
 //};
 // static_assert( sizeof(PKTOUT_54) == 12, "size missmatch" );
 
 // struct PKTOUT_55 {
-//	u8 msgtype;
+//  u8 msgtype;
 //};
 // static_assert( sizeof(PKTOUT_55) == 1, "size missmatch" );
 
@@ -579,13 +579,13 @@ static_assert( sizeof( PKTOUT_5B ) == 4, "size missmatch" );
 //    u8 severity;
 //    u8 aux;
 //    enum { TYPE_NONE = 0, TYPE_RAIN = 1, TYPE_SNOW = 2 };
-//	enum { //TODO:FIX//
-//		WTYPE_START_TO_RAIN = 0x00,
-//		WTYPE_FIERCE_STORM = 0x01,
-//		WTYPE_BEGIN_TO_SNOW = 0x02,
-//		WTYPE_STORM_BREWING = 0x03,
-//		WTYPE_STOP_WEATHER = 0xFF
-//	};
+//  enum { //TODO:FIX//
+//    WTYPE_START_TO_RAIN = 0x00,
+//    WTYPE_FIERCE_STORM = 0x01,
+//    WTYPE_BEGIN_TO_SNOW = 0x02,
+//    WTYPE_STORM_BREWING = 0x03,
+//    WTYPE_STOP_WEATHER = 0xFF
+//  };
 //};
 // static_assert( sizeof(PKTOUT_65) == 4, "size missmatch" );
 
@@ -643,32 +643,32 @@ to another x/y/z coordinate.
 // static_assert( sizeof(PKTOUT_70) == 28, "size missmatch" );
 
 // struct PKTOUT_74 {
-//	struct HEADER {
-//		u8  msgtype;
-//		u16 msglen;
-//		u32 container;  /* container serial # */
-//		u8  num_items;
-//	};
-//	struct ELEMENT {
-//		u32 price;
-//		u8 desc_len;			/* including null terminator */
-//		char description[1];  /* No idea what max len should be null term string len includes null*/
-//	};
+//  struct HEADER {
+//    u8  msgtype;
+//    u16 msglen;
+//    u32 container;  /* container serial # */
+//    u8  num_items;
+//  };
+//  struct ELEMENT {
+//    u32 price;
+//    u8 desc_len;      /* including null terminator */
+//    char description[1];  /* No idea what max len should be null term string len includes null*/
+//  };
 //};
 // static_assert( sizeof(PKTOUT_74::HEADER) == 8, "size missmatch" );
 // static_assert( sizeof(PKTOUT_74::ELEMENT) == 6, "size missmatch" );
 
 // struct PKTOUT_76
 //{
-//	u8 msgtype;
-//	u16 xloc;
-//	u16 yloc;
-//	u16 zloc;
-//	u8 unk0;
-//	u16 x1;
-//	u16 y1;
-//	u16 x2;
-//	u16 y2;
+//  u8 msgtype;
+//  u16 xloc;
+//  u16 yloc;
+//  u16 zloc;
+//  u8 unk0;
+//  u16 x1;
+//  u16 y1;
+//  u16 x2;
+//  u16 y2;
 //};
 // static_assert( sizeof( PKTOUT_76 ) == 16, "size missmatch" );
 
@@ -832,21 +832,21 @@ struct PKTOUT_9C
 };
 
 // struct PKTOUT_9E {
-//	struct HEADER {
-//		u8 msgtype;
-//		u16 msglen;
-//		u32 vendor_serial;
-//		u16 num_items;
-//	};
-//	struct ELEMENT {
-//		u32 serial;
-//		u16 graphic;
-//		u16 color;
-//		u16 amount;
-//		u16 price;
-//		u16 desc_len;
-//		char description[1];
-//	};
+//  struct HEADER {
+//    u8 msgtype;
+//    u16 msglen;
+//    u32 vendor_serial;
+//    u16 num_items;
+//  };
+//  struct ELEMENT {
+//    u32 serial;
+//    u16 graphic;
+//    u16 color;
+//    u16 amount;
+//    u16 price;
+//    u16 desc_len;
+//    char description[1];
+//  };
 //};
 // static_assert( sizeof(PKTOUT_9E::HEADER) == 9, "size missmatch" );
 // static_assert( sizeof(PKTOUT_9E::ELEMENT) == 15, "size missmatch" );
@@ -879,8 +879,8 @@ struct PKTOUT_9C
 // struct PKTOUT_A5 {
 //    u8 msgtype;
 //    u16 msglen;
-//	char address[ URL_MAX_LEN + 1 ];
-//	u8 null_term;
+//  char address[ URL_MAX_LEN + 1 ];
+//  u8 null_term;
 //};
 
 // struct PKTOUT_A6 {
@@ -943,22 +943,22 @@ struct PKTOUT_9C
 // static_assert( sizeof(PKTOUT_A9_START_ELEM) == 63, "size missmatch" );
 //
 // struct PKTOUT_A9_START_FLAGS {
-//	u32 flags;
-//	enum {
-//		FLAG_UNK_0x0001             = 0x0001, // ?
-//		FLAG_SEND_CONFIG_REQ_LOGOUT = 0x0002, // Sends Configuration to Server
-//		FLAG_SINGLE_CHARACTER_SIEGE = 0x0004, // ?
-//		FLAG_ENABLE_NPC_POPUP_MENUS = 0x0008, // Enable NPC PopUp Menus
-//		FLAG_SINGLE_CHARACTER       = 0x0010, // Use 1 Character only
-//		FLAG_AOS_FEATURES           = 0x0020, // Age of Shadows
-//		FLAG_UPTO_SIX_CHARACTERS    = 0x0040, // Use up to 6 Characters (not only 5)
-//		FLAG_SE_FEATURES            = 0x0080, // Samurai Empire
-//		FLAG_ML_FEATURES            = 0x0100, // Mondain's Legacy
-//		FLAG_SEND_UO3D_TYPE         = 0x0400, // KR and UO:SA will send 0xE1 packet
-//		FLAG_UNK_0x0800             = 0x0800, // ?
-//		FLAG_UPTO_SEVEN_CHARACTERS  = 0x1000, // Use up to 7 Characters
-//		FLAG_UNK_0x2000             = 0x2000  // ?
-//	};
+//  u32 flags;
+//  enum {
+//    FLAG_UNK_0x0001             = 0x0001, // ?
+//    FLAG_SEND_CONFIG_REQ_LOGOUT = 0x0002, // Sends Configuration to Server
+//    FLAG_SINGLE_CHARACTER_SIEGE = 0x0004, // ?
+//    FLAG_ENABLE_NPC_POPUP_MENUS = 0x0008, // Enable NPC PopUp Menus
+//    FLAG_SINGLE_CHARACTER       = 0x0010, // Use 1 Character only
+//    FLAG_AOS_FEATURES           = 0x0020, // Age of Shadows
+//    FLAG_UPTO_SIX_CHARACTERS    = 0x0040, // Use up to 6 Characters (not only 5)
+//    FLAG_SE_FEATURES            = 0x0080, // Samurai Empire
+//    FLAG_ML_FEATURES            = 0x0100, // Mondain's Legacy
+//    FLAG_SEND_UO3D_TYPE         = 0x0400, // KR and UO:SA will send 0xE1 packet
+//    FLAG_UNK_0x0800             = 0x0800, // ?
+//    FLAG_UPTO_SEVEN_CHARACTERS  = 0x1000, // Use up to 7 Characters
+//    FLAG_UNK_0x2000             = 0x2000  // ?
+//  };
 //};
 
 /* AA message - Sets Opponent - the always-highlighted being.
@@ -1076,60 +1076,60 @@ struct PKTOUT_9C
 //              AOS skills/necro/paladin/fight book stuff works for ALL clients 4.0 and above)
 //      Bit 5 enables use of up to 6 Characters (not only 5)
 //      Bit 6 enables Samurai Empire update (SE map (SE installation required for that))
-//	  Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
+//    Bit 7 enables Mondain's Legacy update (Elves (ML/Gold installation required for that))
 //    */
 //};
 // static_assert( sizeof(PKTOUT_B9) == 3, "size missmatch" );
 //
 // struct PKTOUT_B9_V2 {
 //    u8 msgtype;
-//	u32 enable;
+//  u32 enable;
 //};
 // static_assert( sizeof(PKTOUT_B9_V2) == 5, "size missmatch" );
 
 // struct PKTOUT_BA {
-//	u8 msgtype;
-//	u8 active; enum { ARROW_OFF = 0, ARROW_ON = 1 };
-//	u16 x_tgt;
-//	u16 y_tgt;
+//  u8 msgtype;
+//  u8 active; enum { ARROW_OFF = 0, ARROW_ON = 1 };
+//  u16 x_tgt;
+//  u16 y_tgt;
 //};
 // static_assert( sizeof(PKTOUT_BA) == 6, "size missmatch" );
 
 // struct PKTOUT_BC {
 //    u8 msgtype;
-//	u8 season; enum { SEASON_SPRING = 0, SEASON_SUMMER, SEASON_FALL, SEASON_WINTER,
-//SEASON_DESOLATION };
-//	u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
+//  u8 season; enum { SEASON_SPRING = 0, SEASON_SUMMER, SEASON_FALL, SEASON_WINTER,
+// SEASON_DESOLATION };
+//  u8 playsound; enum { PLAYSOUND_NO = 0, PLAYSOUND_YES = 1 };
 //};
 // static_assert( sizeof(PKTOUT_BC) == 3, "size missmatch" );
 
 // Big-Endian for u16/32 unless otherwise noted.
 // struct PKTOUT_C0
 //{
-//	u8 msgtype;
-//	u8 type;
-//	u32 source_serial;
-//	u32 target_serial;
-//	u16 itemid;
-//	u16 x_source;
-//	u16 y_source;
-//	u8 z_source;
-//	u16 x_target;
-//	u16 y_target;
-//	u8 z_target;
-//	u8 speed;
-//	u8 duration;
-//	u16 unk; //On OSI, flamestrikes are 0x0100
-//	u8 fixed_direction;
-//	u8 explodes;
-//	u32 hue;
-//	u32 render_mode;
-//	enum {
-//		EFFECT_MOVING  = 0x00,
-//		EFFECT_LIGHTNING = 0x01,
-//		EFFECT_FIXEDXYZ = 0x02,
-//		EFFECT_FIXEDFROM = 0x03
-//	};
+//  u8 msgtype;
+//  u8 type;
+//  u32 source_serial;
+//  u32 target_serial;
+//  u16 itemid;
+//  u16 x_source;
+//  u16 y_source;
+//  u8 z_source;
+//  u16 x_target;
+//  u16 y_target;
+//  u8 z_target;
+//  u8 speed;
+//  u8 duration;
+//  u16 unk; //On OSI, flamestrikes are 0x0100
+//  u8 fixed_direction;
+//  u8 explodes;
+//  u32 hue;
+//  u32 render_mode;
+//  enum {
+//    EFFECT_MOVING  = 0x00,
+//    EFFECT_LIGHTNING = 0x01,
+//    EFFECT_FIXEDXYZ = 0x02,
+//    EFFECT_FIXEDFROM = 0x03
+//  };
 //};
 
 // Argument example:
@@ -1139,17 +1139,17 @@ struct PKTOUT_9C
 //"Only 100 thousand gold could be deposited. A check for 25 hundred gold was returned to you."
 // Big-Endian for u16/32 unless otherwise noted.
 // struct PKTOUT_C1 {
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial; //0xFFffFFff for system message
-//	u16 body; //0xFFff for system message
-//	u8 type; //6 lower left, 7 on player
-//	u16 hue;
-//	u16 font;
-//	u32 msgnumber;
-//	char name[30];
-//	u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the
-//arguments
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial; //0xFFffFFff for system message
+//  u16 body; //0xFFff for system message
+//  u8 type; //6 lower left, 7 on player
+//  u16 hue;
+//  u16 font;
+//  u32 msgnumber;
+//  char name[30];
+//  u16 arguments[(SPEECH_MAX_LEN) + 1]; // _little-endian_ Unicode string, tabs ('\t') separate the
+// arguments
 //};
 // static_assert( sizeof( PKTOUT_C1 ) == 450, "size missmatch" );
 
@@ -1165,34 +1165,34 @@ struct PKTOUT_C4
 // Big-Endian for u16/32 unless otherwise noted.
 // struct PKTOUT_C7
 //{
-//	PKTOUT_C0 header;
-//	u16 effect_num; //see particleffect subdir
-//	u16 explode_effect_num; //0 if no explosion
-//	u16 explode_sound_num; //for moving effects, 0 otherwise
-//	u32 itemid; //if target is item (type 2), 0 otherwise
-//	u8 layer; //(of the character, e.g left hand, right hand,  0-5,7, 0xff: moving effect or target
-//is no char)
-//	u16 unk_effect; //for moving effect, 0 otherwise
+//  PKTOUT_C0 header;
+//  u16 effect_num; //see particleffect subdir
+//  u16 explode_effect_num; //0 if no explosion
+//  u16 explode_sound_num; //for moving effects, 0 otherwise
+//  u32 itemid; //if target is item (type 2), 0 otherwise
+//  u8 layer; //(of the character, e.g left hand, right hand,  0-5,7, 0xff: moving effect or target
+// is no char)
+//  u16 unk_effect; //for moving effect, 0 otherwise
 //};
 
 // Big-Endian for u16/32 unless otherwise noted.
 // struct PKTOUT_CC
 //{
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial; //0xFFffFFff for system message
-//	u16 body; //0xFFff for system message
-//	u8 type; //6-lowerleft, 7-on player
-//	u16 hue;
-//	u16 font;
-//	u32 msgnumber;
-//	u8 flags; //0x2 unk, 0x4 message doesn't move,
-//	//(flags & 0x1) == 0 signals affix is appended to the localization string, (flags & 0x1) == 1
-//signals to prepend.
-//	char name[30]; //u8 name[32];
-//	char affix[1]; //nullterminated, uh not just 1 byte
-//	u16 arguments[1]; // _big-endian_ unicode string, tabs ('\t') seperate arguments, see 0xC1 for
-//argument example
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial; //0xFFffFFff for system message
+//  u16 body; //0xFFff for system message
+//  u8 type; //6-lowerleft, 7-on player
+//  u16 hue;
+//  u16 font;
+//  u32 msgnumber;
+//  u8 flags; //0x2 unk, 0x4 message doesn't move,
+//  //(flags & 0x1) == 0 signals affix is appended to the localization string, (flags & 0x1) == 1
+// signals to prepend.
+//  char name[30]; //u8 name[32];
+//  char affix[1]; //nullterminated, uh not just 1 byte
+//  u16 arguments[1]; // _big-endian_ unicode string, tabs ('\t') seperate arguments, see 0xC1 for
+// argument example
 //};
 
 struct CUSTOM_HOUSE_PLANE
@@ -1215,9 +1215,9 @@ struct CUSTOM_HOUSE_PLANE_BUFFER
 struct PKTOUT_D8
 {
   u8 msgtype;
-  u16 msglen;  // flipped
+  u16 msglen;          // flipped
   u8 compressiontype;  // 0x03 currently supported for zlib compression type
-  u8 unk;  // usually 0
+  u8 unk;              // usually 0
   u32 serial;
   u32 revision;  // incremented whenever content changes
   u16 numtiles;
@@ -1227,9 +1227,9 @@ struct PKTOUT_D8
 
 // If send clients request with 0xd6 list
 // struct PKTOUT_DC {
-//	u8 msgtype;
-//	u32 serial;
-//	u32 revision;
+//  u8 msgtype;
+//  u32 serial;
+//  u32 revision;
 //};
 // static_assert( sizeof(PKTOUT_DC) == 9, "size missmatch" );
 
@@ -1259,35 +1259,35 @@ struct PKTOUT_D8
 // static_assert( sizeof(PKTOUT_DD::TEXT) == 13, "size missmatch" );
 
 // struct PKTOUT_E3 {
-//	u8  msgtype;
-//	u16 msglen;
-//	u32 unknown_A_length; //  3 Bytes
-//	u8  unknown_A[3];
-//	u32 unknown_B_length; // 19 Bytes
-//	u8  unknown_B[19];
-//	u32 unknown_C_length; // 16 Bytes
-//	u8  unknown_C[16];
-//	u32 unknown_D;
-//	u32 unknown_E_length; // 16 Bytes
-//	u8  unknown_E[16];
+//  u8  msgtype;
+//  u16 msglen;
+//  u32 unknown_A_length; //  3 Bytes
+//  u8  unknown_A[3];
+//  u32 unknown_B_length; // 19 Bytes
+//  u8  unknown_B[19];
+//  u32 unknown_C_length; // 16 Bytes
+//  u8  unknown_C[16];
+//  u32 unknown_D;
+//  u32 unknown_E_length; // 16 Bytes
+//  u8  unknown_E[16];
 //};
 // static_assert( sizeof(PKTOUT_E3) == 77, "size missmatch" );
 
 // struct PKTOUT_F3 {
 //    u8 msgtype;
 //    u16 unknown; // always 0x1
-//	u8	datatype; // 0x00 for item and 0x02 for multi
+//  u8  datatype; // 0x00 for item and 0x02 for multi
 //    u32 serial;
 //    u16 graphic;
-//	u8	facing; // 0x00 if multi
+//  u8  facing; // 0x00 if multi
 //    u16 amount; // 0x1 if multi
-//	u16 amount_2; // 0x1 if multi
+//  u16 amount_2; // 0x1 if multi
 //    u16 x;
 //    u16 y;
-//    u8	z;
-//	u8	layer; // 0x00 if multi
+//    u8  z;
+//  u8  layer; // 0x00 if multi
 //    u16 color; // 0x00 if multi
-//    u8	flags; // 0x00 if multi
+//    u8  flags; // 0x00 if multi
 //};
 // static_assert( sizeof(PKTOUT_F3) == 24, "size missmatch" );
 

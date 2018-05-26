@@ -14,6 +14,12 @@
 #ifndef CONTAINR_H
 #define CONTAINR_H
 
+#include <stddef.h>
+
+#include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
+#include "baseobject.h"
+#include "dynproperties.h"
 #ifndef ITEM_H
 #include "item/item.h"
 #endif
@@ -21,8 +27,6 @@
 #ifndef LOCKABLE_H
 #include "lockable.h"
 #endif
-
-#include "reftypes.h"
 
 #define CONTAINER_STORES_ITEMREF 0
 
@@ -42,6 +46,38 @@ namespace Pol
 namespace Clib
 {
 class ConfigElem;
+namespace Pol
+{
+namespace Bscript
+{
+class BObjectImp;
+class ObjArray;
+}  // namespace Bscript
+namespace Clib
+{
+class StreamWriter;
+}  // namespace Clib
+namespace Core
+{
+class UContainer;
+}  // namespace Core
+namespace Items
+{
+class ItemDesc;
+}  // namespace Items
+namespace Mobile
+{
+class NPC;
+}  // namespace Mobile
+namespace Multi
+{
+class UMulti;
+}  // namespace Multi
+namespace Network
+{
+class Client;
+}  // namespace Network
+}  // namespace Pol
 }
 namespace Mobile
 {
@@ -126,7 +162,7 @@ public:
   UContainer* find_container( u32 serial ) const;
 
   // remove(): tells what subcontainer used to hold the item
-  //			 points item->container to NULL on removal
+  //           points item->container to NULL on removal
   virtual Items::Item* remove( u32 serial, UContainer** found_in = NULL );
   virtual void remove( Items::Item* item );  // item must be in this container
   virtual void remove( iterator itr );
@@ -188,6 +224,10 @@ public:
   DYN_PROPERTY( max_slots_mod, s8, Core::PROP_MAX_SLOTS_MOD, 0 );
   DYN_PROPERTY( max_weight_mod, s16, Core::PROP_MAX_WEIGHT_MOD, 0 );
 
+  bool no_drop_exception() const;
+  void no_drop_exception( bool newvalue );
+  bool default_no_drop_exception() const;
+
 protected:
   Contents contents_;
 
@@ -204,7 +244,7 @@ protected:
 
   // sticky places that currently need to know the internals:
   friend class UContainerIterator;
-  //	friend class Character; // uses the [] operator for quick layer access.
+  // friend class Character; // uses the [] operator for quick layer access.
   friend bool Module::send_vendorwindow_contents( Network::Client* client, UContainer* for_sale,
                                                   bool send_aos_tooltip );  // also []
   friend bool send_vendorsell( Network::Client* client, Mobile::NPC* merchant, UContainer* sellfrom,

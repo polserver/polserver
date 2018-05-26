@@ -14,33 +14,34 @@
  */
 
 
-#include "../clib/clib.h"
-#include "../clib/clib_endian.h"
-
-#include "../plib/systemstate.h"
-
-#include "network/client.h"
-#include "network/packets.h"
-#include "network/clienttransmit.h"
-#include "eventid.h"
-#include "item/itemdesc.h"
-#include "network/msghandl.h"
-#include "mobile/charactr.h"
-#include "mobile/npc.h"
-#include "pktin.h"
-#include "polcfg.h"
-#include "realms.h"
-#include "realms/realm.h"
-#include "scrstore.h"
-#include "ufunc.h"
-#include "uoscrobj.h"
-#include "multi/multi.h"
-#include "objtype.h"
-#include "containr.h"
-#include "globals/uvars.h"
-
 #include <cstring>
 #include <string>
+
+#include "../bscript/eprog.h"
+#include "../clib/clib_endian.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "../plib/systemstate.h"
+#include "containr.h"
+#include "eventid.h"
+#include "gameclck.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
+#include "mobile/charactr.h"
+#include "mobile/npc.h"
+#include "network/client.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "objtype.h"
+#include "pktdef.h"
+#include "pktin.h"
+#include "realms/realm.h"
+#include "scrdef.h"
+#include "scrsched.h"
+#include "scrstore.h"
+#include "ufunc.h"
+#include "uobject.h"
+#include "uoscrobj.h"
 
 namespace Pol
 {
@@ -82,8 +83,8 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
 
   // the find_character would find this, but most of the time it's your own paperdoll.
   // this is special-cased for two reasons:
-  //	  1) it's commonly done
-  //	  2) ghosts can doubleclick ONLY their paperdoll.
+  //    1) it's commonly done
+  //    2) ghosts can doubleclick ONLY their paperdoll.
   if ( serial == client->chr->serial )
   {
     if ( !paperdoll_macro_flag )
@@ -174,7 +175,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     Items::Item* item = find_legal_item( client->chr, serial );
 
     // next, check people's backpacks. (don't recurse down)
-    //	  (not done yet)
+    //    (not done yet)
 
     if ( item != NULL )
     {

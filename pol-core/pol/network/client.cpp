@@ -18,35 +18,35 @@
 
 #include "client.h"
 
-#include "../../clib/fdump.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"  //CNXBUG
+#include <errno.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "../../bscript/berror.h"
-
+#include "../../bscript/bstruct.h"
+#include "../../clib/clib.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/strutil.h"  //CNXBUG
+#include "../../clib/wallclock.h"
 #include "../accounts/account.h"
-#include "cgdata.h"
-#include "../mobile/charactr.h"
-#include "cliface.h"
+#include "../crypt/cryptbase.h"
 #include "../crypt/cryptengine.h"
-#include "msgfiltr.h"
-#include "../pktin.h"
-#include "../polcfg.h"
-#include "../polstats.h"
-#include "../sockio.h"
-#include "../module/unimod.h"
-#include "../uoclient.h"
-#include "../globals/uvars.h"
-#include "../globals/state.h"
 #include "../globals/network.h"
+#include "../globals/state.h"
+#include "../mobile/charactr.h"
+#include "../pktdef.h"
+#include "../pktin.h"
+#include "../polsig.h"
+#include "../realms/WorldChangeReasons.h"
+#include "../ufunc.h" // only in here temporarily, until logout-on-disconnect stuff is removed
+#include "../unicode.h"
+#include "../uoclient.h"
+#include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../xbuffer.h"
-#include "../uoscrobj.h"
-#include "../unicode.h"
+#include "cgdata.h"
+#include "cliface.h"
 
-// only in here temporarily, until logout-on-disconnect stuff is removed
-#include "../ufunc.h"
 
 #define PRE_ENCRYPT
 
@@ -57,7 +57,6 @@
 #ifdef _MSC_VER
 #pragma warning( \
     disable : 4351 )  // new behavior: elements of array '...' will be default initialized
-#pragma warning( disable : 4996 )  // disable warning about unsafe localtime(), asctime()
 #endif
 
 namespace Pol
@@ -129,23 +128,20 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
 
 void Client::Delete( Client* client )
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex ); // TODO: check if this is necessary
+  std::lock_guard<std::mutex> lock( _SocketMutex );  // TODO: check if this is necessary
   client->PreDelete();
-  delete client->cryptengine; // TODO: move this into a unique_ptr<> or at least ~Client()
+  delete client->cryptengine;  // TODO: move this into a unique_ptr<> or at least ~Client()
   client->cryptengine = NULL;
   delete client;
 }
 
-Client::~Client()
-{
-}
+Client::~Client() {}
 
 void Client::unregister()
 {
-  auto findClient = std::find( Core::networkManager.clients.begin(),
-                               Core::networkManager.clients.end(),
-                               this );
-  Core::networkManager.clients.erase(findClient); // TODO: Make networkManager more OO
+  auto findClient =
+      std::find( Core::networkManager.clients.begin(), Core::networkManager.clients.end(), this );
+  Core::networkManager.clients.erase( findClient );  // TODO: Make networkManager more OO
   Interface.deregister_client( this );
 }
 
@@ -227,7 +223,7 @@ void Client::PreDelete()
   last_xmit_buffer = NULL;
 
   // while (!movementqueue.empty())
-  //	movementqueue.pop();
+  //  movementqueue.pop();
 }
 
 // ClientInfo - delivers a lot of usefull infomation about client PC
@@ -380,30 +376,43 @@ void Client::setClientType( ClientTypeFlag type )
   {
   case CLIENTTYPE_70331:
     ClientType |= CLIENTTYPE_70331;
+  // fall through
   case CLIENTTYPE_70300:
     ClientType |= CLIENTTYPE_70300;
+  // fall through
   case CLIENTTYPE_70130:
     ClientType |= CLIENTTYPE_70130;
+  // fall through
   case CLIENTTYPE_7090:
     ClientType |= CLIENTTYPE_7090;
+  // fall through
   case CLIENTTYPE_UOSA:
     ClientType |= CLIENTTYPE_UOSA;
+  // fall through
   case CLIENTTYPE_7000:
     ClientType |= CLIENTTYPE_7000;
+  // fall through
   case CLIENTTYPE_UOKR:
     ClientType |= CLIENTTYPE_UOKR;
+  // fall through
   case CLIENTTYPE_60142:
     ClientType |= CLIENTTYPE_60142;
+  // fall through
   case CLIENTTYPE_6017:
     ClientType |= CLIENTTYPE_6017;
+  // fall through
   case CLIENTTYPE_5020:
     ClientType |= CLIENTTYPE_5020;
+  // fall through
   case CLIENTTYPE_5000:
     ClientType |= CLIENTTYPE_5000;
+  // fall through
   case CLIENTTYPE_4070:
     ClientType |= CLIENTTYPE_4070;
+  // fall through
   case CLIENTTYPE_4000:
     ClientType |= CLIENTTYPE_4000;
+  // fall through
   default:
     break;
   }
@@ -506,8 +515,8 @@ void Client::xmit( const void* data, unsigned short datalen )
     if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
     {
       THREAD_CHECKPOINT( active_client, 205 );
-      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (1, {} bytes)\n" ) << instance_
-                                                                                        << datalen;
+      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (1, {} bytes)\n" )
+          << instance_ << datalen;
       THREAD_CHECKPOINT( active_client, 206 );
       queue_data( data, datalen );
       THREAD_CHECKPOINT( active_client, 207 );

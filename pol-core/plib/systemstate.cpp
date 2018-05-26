@@ -1,10 +1,9 @@
 
 #include "systemstate.h"
-#include "../pol/tiles.h"
-#include "../clib/stlutil.h"
-#include "pkg.h"
 
-#include <sys/stat.h>
+#include "../clib/stlutil.h"
+#include "../pol/tiles.h"
+#include "pkg.h"
 
 namespace Pol
 {
@@ -23,9 +22,7 @@ SystemState::SystemState()
       tiles_loaded( false )
 {
 }
-SystemState::~SystemState()
-{
-}
+SystemState::~SystemState() {}
 
 void SystemState::deinitialize()
 {

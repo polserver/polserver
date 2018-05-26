@@ -13,22 +13,24 @@
 
 #include "threadhelp.h"
 
+#include <cstring>
+#include <exception>
+#include <thread>
+
 #include "esignal.h"
 #include "logfacility.h"
 #include "passert.h"
 
-#include <cstring>
-
-#ifdef _WIN32
-#include "Header_Windows.h"
-#else
+#ifndef _WIN32
+#include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <errno.h>
 #endif
 
+// TODO: fix trunc cast warnings
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable warning for strcpy, strerror
+#pragma warning( disable : 4311 )  // trunc cast
+#pragma warning( disable : 4302 )  // trunc cast
 #endif
 
 namespace Pol
@@ -40,9 +42,7 @@ std::atomic<unsigned int> child_threads( 0 );
 static int threads = 0;
 
 #ifdef _WIN32
-void init_threadhelp()
-{
-}
+void init_threadhelp() {}
 
 void thread_sleep_ms( unsigned millis )
 {
@@ -204,7 +204,7 @@ void create_thread( ThreadData* td, bool dec_child = false )
       --child_threads;
   }
   else
-  {    
+  {
     SetThreadName( threadid, threadName );
     CloseHandle( h );
   }
@@ -326,6 +326,8 @@ ThreadRegister::~ThreadRegister()
 /// TaskThreadPool workers;
 /// for (....)
 ///   workers.push([&](){dosomework();});
+TaskThreadPool::TaskThreadPool() : _done( false ), _msg_queue() {}
+
 TaskThreadPool::TaskThreadPool( const std::string& name ) : _done( false ), _msg_queue()
 {
   // get the count of processors
@@ -345,46 +347,58 @@ void TaskThreadPool::init( unsigned int max_count, const std::string& name )
 {
   for ( unsigned int i = 0; i < max_count; ++i )
   {
-    _threads.emplace_back( [=]()
-                           {
-                             ThreadRegister register_thread( "TaskPool " + name );
-                             auto f = msg();
-                             try
-                             {
-                               while ( !_done )
-                               {
-                                 _msg_queue.pop_wait( &f );
-                                 f();
-                               }
-                             }
-                             catch ( msg_queue::Canceled& )
-                             {
-                             }
-                             catch ( std::exception& ex )
-                             {
-                               ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
-                               Clib::force_backtrace( true );
-                               return;
-                             }
-                             // purge the queue empty
-                             std::list<msg> remaining;
-                             _msg_queue.pop_remaining( &remaining );
-                             for ( auto& _f : remaining )
-                               _f();
-                           } );
+    _threads.emplace_back( [=]() {
+      ThreadRegister register_thread( "TaskPool " + name );
+      auto f = msg();
+      try
+      {
+        while ( !_done )
+        {
+          _msg_queue.pop_wait( &f );
+          f();
+        }
+      }
+      catch ( msg_queue::Canceled& )
+      {
+      }
+      catch ( std::exception& ex )
+      {
+        ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
+        Clib::force_backtrace( true );
+        return;
+      }
+      // purge the queue empty
+      std::list<msg> remaining;
+      _msg_queue.pop_remaining( &remaining );
+      for ( auto& _f : remaining )
+        _f();
+    } );
   }
 }
 
-TaskThreadPool::~TaskThreadPool()
+void TaskThreadPool::init_pool( unsigned int max_count, const std::string& name )
 {
+  if ( !_threads.empty() )
+    return;
+  init( max_count, name );
+}
+
+void TaskThreadPool::deinit_pool()
+{
+  if ( _threads.empty() )
+    return;
   // send both done and cancel to wake up all workers
-  _msg_queue.push( [&]()
-                   {
-                     _done = true;
-                     _msg_queue.cancel();
-                   } );
+  _msg_queue.push( [&]() {
+    _done = true;
+    _msg_queue.cancel();
+  } );
   for ( auto& thread : _threads )
     thread.join();
+  _threads.clear();
+}
+TaskThreadPool::~TaskThreadPool()
+{
+  deinit_pool();
 }
 
 /// simply fire and forget only the deconstructor ensures the msg to be finished
@@ -398,19 +412,23 @@ std::future<bool> TaskThreadPool::checked_push( const msg& msg )
 {
   auto promise = std::make_shared<std::promise<bool>>();
   auto ret = promise->get_future();
-  _msg_queue.push( [=]()
-                   {
-                     try
-                     {
-                       msg();
-                       promise->set_value( true );
-                     }
-                     catch ( ... )
-                     {
-                       promise->set_exception( std::current_exception() );
-                     }
-                   } );
+  _msg_queue.push( [=]() {
+    try
+    {
+      msg();
+      promise->set_value( true );
+    }
+    catch ( ... )
+    {
+      promise->set_exception( std::current_exception() );
+    }
+  } );
   return ret;
+}
+
+size_t TaskThreadPool::size() const
+{
+  return _threads.size();
 }
 
 
@@ -451,31 +469,30 @@ void DynTaskThreadPool::PoolWorker::join()
 
 void DynTaskThreadPool::PoolWorker::run()
 {
-  _thread = std::thread( [&]()
-                         {
-                           ThreadRegister register_thread( _name );
-                           auto f = msg();
-                           try
-                           {
-                             while ( !_parent->_done && !Clib::exit_signalled )
-                             {
-                               _parent->_msg_queue.pop_wait( &f );
-                               {
-                                 BusyGuard busy( &_busy );
-                                 f();
-                               }
-                             }
-                           }
-                           catch ( msg_queue::Canceled& )
-                           {
-                           }
-                           catch ( std::exception& ex )
-                           {
-                             ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
-                             Clib::force_backtrace( true );
-                             return;
-                           }
-                         } );
+  _thread = std::thread( [&]() {
+    ThreadRegister register_thread( _name );
+    auto f = msg();
+    try
+    {
+      while ( !_parent->_done && !Clib::exit_signalled )
+      {
+        _parent->_msg_queue.pop_wait( &f );
+        {
+          BusyGuard busy( &_busy );
+          f();
+        }
+      }
+    }
+    catch ( msg_queue::Canceled& )
+    {
+    }
+    catch ( std::exception& ex )
+    {
+      ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
+      Clib::force_backtrace( true );
+      return;
+    }
+  } );
 }
 
 /// Creates a dynamic threadpool of workers.
@@ -514,11 +531,10 @@ void DynTaskThreadPool::create_thread()
 DynTaskThreadPool::~DynTaskThreadPool()
 {
   // send both done and cancel to wake up all workers
-  _msg_queue.push( [&]()
-                   {
-                     _done = true;
-                     _msg_queue.cancel();
-                   } );
+  _msg_queue.push( [&]() {
+    _done = true;
+    _msg_queue.cancel();
+  } );
   for ( auto& thread : _threads )
     thread->join();
 }
@@ -536,18 +552,17 @@ std::future<bool> DynTaskThreadPool::checked_push( const msg& msg )
   auto promise = std::make_shared<std::promise<bool>>();
   auto ret = promise->get_future();
   create_thread();
-  _msg_queue.push( [=]()
-                   {
-                     try
-                     {
-                       msg();
-                       promise->set_value( true );
-                     }
-                     catch ( ... )
-                     {
-                       promise->set_exception( std::current_exception() );
-                     }
-                   } );
+  _msg_queue.push( [=]() {
+    try
+    {
+      msg();
+      promise->set_value( true );
+    }
+    catch ( ... )
+    {
+      promise->set_exception( std::current_exception() );
+    }
+  } );
   return ret;
 }
 }

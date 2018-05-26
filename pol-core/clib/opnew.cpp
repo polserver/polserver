@@ -17,16 +17,10 @@
 #include "pol_global_config.h"
 #endif
 
-#include "opnew.h"
 #include "logfacility.h"
-
-#include <stdexcept>
+#include "opnew.h"
 
 #ifdef _WIN32
-#include <malloc.h>
-#endif
-
-#ifdef __linux__
 #include <malloc.h>
 #endif
 
@@ -104,40 +98,40 @@ static unsigned int allocated_huge = 0;
 #if 0
 #ifndef NDEBUG
 #ifdef _WIN32
-	static unsigned int n_allocs;
-	static unsigned int n_frees;
-	void* operator new( size_t len )
-	{
-	  void *vp = malloc( len );
-	  if (vp)
-	  {
+  static unsigned int n_allocs;
+  static unsigned int n_frees;
+  void* operator new( size_t len )
+  {
+    void *vp = malloc( len );
+    if (vp)
+    {
 #ifdef _WIN32
-		bytes_allocated += _msize( vp );
+    bytes_allocated += _msize( vp );
 #elif __linux__
-		bytes_allocated += malloc_usable_size( vp );
+    bytes_allocated += malloc_usable_size( vp );
 #endif
-		++blocks_allocated;
-		return vp;
-	  }
-	  else
-	  {
-		throw std::runtime_error( "Out of memory" );
-	  }
-	}
+    ++blocks_allocated;
+    return vp;
+    }
+    else
+    {
+    throw std::runtime_error( "Out of memory" );
+    }
+  }
 
-	void operator delete( void *ptr )
-	{
-	  if (ptr) 
-	  {
+  void operator delete( void *ptr )
+  {
+    if (ptr)
+    {
 #ifdef _WIN32
-		bytes_allocated -= _msize( ptr );
+    bytes_allocated -= _msize( ptr );
 #elif __linux__
-		bytes_allocated -= malloc_usable_size( ptr );
+    bytes_allocated -= malloc_usable_size( ptr );
 #endif
-		--blocks_allocated;
-		free( ptr );
-	  }
-	}
+    --blocks_allocated;
+    free( ptr );
+    }
+  }
 #endif
 #endif
 #endif

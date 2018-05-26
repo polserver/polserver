@@ -3,9 +3,10 @@
  * @par History
  */
 
-#include "testenv.h"
+#include <string>
 
 #include "../../clib/logfacility.h"
+#include "../../clib/rawtypes.h"
 #include "../../plib/maptile.h"
 #include "../dynproperties.h"
 #include "../globals/uvars.h"
@@ -15,11 +16,7 @@ namespace Pol
 {
 namespace Testing
 {
-
-void dummy()
-{
-
-}
+void dummy() {}
 
 void map_test()
 {
@@ -52,5 +49,5 @@ void dynprops_test()
   INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
 }
 
-} // namespace Testing
-} // namespace Pol
+}  // namespace Testing
+}  // namespace Pol

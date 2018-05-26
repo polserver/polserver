@@ -18,14 +18,14 @@
 // unsigned int is z << 16 | objtype
 
 
-#include "../udatfile.h"
-#include "../../clib/rawtypes.h"
-
-#include <map>
-#include <vector>
-#include <set>
 #include <boost/noncopyable.hpp>
 #include <cstdio>
+#include <map>
+#include <set>
+#include <vector>
+
+#include "../../clib/rawtypes.h"
+#include "../udatfile.h"
 
 namespace Pol
 {

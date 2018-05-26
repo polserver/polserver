@@ -10,20 +10,16 @@
 
 #include "realms.h"
 
-#include "storage.h"
-#include "polcfg.h"
-#include "globals/uvars.h"
-
-#include "realms/realm.h"
-#include "../plib/mapserver.h"
-#include "../plib/systemstate.h"
+#include <stddef.h>
 
 #include "../clib/dirlist.h"
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
-
 #include "../clib/timer.h"
-#include "../clib/logfacility.h"
+#include "../plib/systemstate.h"
+#include "globals/uvars.h"
+#include "realms/realm.h"
 
 namespace Pol
 {
@@ -56,7 +52,7 @@ bool load_realms()
     if ( realm_name == "britannia" )
       gamestate.main_realm = temprealm;
   }
-  //	main_realm = new DummyRealm();
+  //  main_realm = new DummyRealm();
   gamestate.baserealm_count = realm_counter;
   gamestate.shadowrealm_count = 0;
   if ( realm_counter > 0 )

@@ -9,32 +9,22 @@
 
 
 #include "guildmod.h"
-#include "../guilds.h"
 
-#include "uomod.h"
+#include <stddef.h>
 
-#include "../../bscript/execmodl.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
-#include "../../bscript/impstr.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-
-#include "../../clib/refptr.h"
-#include "../../clib/stlutil.h"
-
-#include "../../plib/systemstate.h"
-
-#include "../globals/uvars.h"
-#include "../mobile/charactr.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
 #include "../fnsearch.h"
-#include "../polcfg.h"
-#include "../proplist.h"
-#include "../ufunc.h"
-#include "../uobject.h"
+#include "../globals/uvars.h"
+#include "../guilds.h"
+#include "../mobile/charactr.h"
+#include "../uoexhelp.h"
 #include "../uoscrobj.h"
-
-#include <map>
 
 namespace Pol
 {
@@ -137,6 +127,8 @@ bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
   else
     return false;
 }

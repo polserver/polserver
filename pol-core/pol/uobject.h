@@ -12,32 +12,24 @@
 #ifndef __UOBJECT_H
 #define __UOBJECT_H
 
-#ifndef __UCONST_H
-#include "uconst.h"
-#endif
-
 #ifndef __CLIB_RAWTYPES_H
 #include "../clib/rawtypes.h"
 #endif
 
+#include <atomic>
+#include <boost/any.hpp>
+#include <boost/flyweight.hpp>
+#include <iosfwd>
+#include <map>
+#include <set>
+#include <string>
+#include <type_traits>
+
+#include "../clib/boostutils.h"
 #include "../clib/refptr.h"
 #include "baseobject.h"
 #include "dynproperties.h"
 #include "proplist.h"
-
-#include "../clib/boostutils.h"
-
-#include <boost/any.hpp>
-#include <boost/flyweight.hpp>
-
-#include <iosfwd>
-#include <map>
-#include <string>
-#include <atomic>
-#include <set>
-#include <type_traits>
-
-#include "../../lib/format/format.h"
 
 #define pf_endl '\n'
 
@@ -52,10 +44,6 @@ class Executor;
 namespace Clib
 {
 class ConfigElem;
-}
-namespace Realms
-{
-class Realm;
 }
 namespace Items
 {
@@ -111,8 +99,7 @@ struct ElementDamages
 
 template <typename ENUM,
           typename std::enable_if<
-          std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value
-          , int>::type = 0 >
+              std::is_enum<ENUM>::value && !std::is_convertible<ENUM, int>::value, int>::type = 0>
 struct AttributeFlags
 {
   typedef typename std::underlying_type<ENUM>::type enum_t;
@@ -133,21 +120,24 @@ struct AttributeFlags
       remove( flag );
   }
   void reset() { flags_ = 0; };
+
 private:
   enum_t flags_;
 };
 
 enum class OBJ_FLAGS : u16
 {
-  DIRTY        = 1 << 0,  // UObject flags
+  DIRTY = 1 << 0,  // UObject flags
   SAVE_ON_EXIT = 1 << 1,
-  NEWBIE       = 1 << 2,  // Item flags
-  INSURED      = 1 << 3,
-  MOVABLE      = 1 << 4,
-  IN_USE       = 1 << 5,
-  INVISIBLE    = 1 << 6,
-  LOCKED       = 1 << 7,  // ULockable flag
-  CONTENT_TO_GRAVE = 1 << 8,  // UCorpse flag
+  NEWBIE = 1 << 2,  // Item flags
+  INSURED = 1 << 3,
+  MOVABLE = 1 << 4,
+  IN_USE = 1 << 5,
+  INVISIBLE = 1 << 6,
+  LOCKED = 1 << 7,              // ULockable flag
+  CONTENT_TO_GRAVE = 1 << 8,    // UCorpse flag
+  NO_DROP = 1 << 9,             // Item flag
+  NO_DROP_EXCEPTION = 1 << 10,  // Container/Character flag
 };
 
 /**
@@ -263,18 +253,17 @@ public:
   // always used for characters
 
   DYN_PROPERTY( maxhp_mod, s16, PROP_MAXHP_MOD, 0 );
-  static AosValuePack DEFAULT_AOSVALUEPACK;
-  DYN_PROPERTY( fire_resist, AosValuePack, PROP_RESIST_FIRE, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( cold_resist, AosValuePack, PROP_RESIST_COLD, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( energy_resist, AosValuePack, PROP_RESIST_ENERGY, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( poison_resist, AosValuePack, PROP_RESIST_POISON, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( physical_resist, AosValuePack, PROP_RESIST_PHYSICAL, DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY( fire_resist, ValueModPack, PROP_RESIST_FIRE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( cold_resist, ValueModPack, PROP_RESIST_COLD, ValueModPack::DEFAULT );
+  DYN_PROPERTY( energy_resist, ValueModPack, PROP_RESIST_ENERGY, ValueModPack::DEFAULT );
+  DYN_PROPERTY( poison_resist, ValueModPack, PROP_RESIST_POISON, ValueModPack::DEFAULT );
+  DYN_PROPERTY( physical_resist, ValueModPack, PROP_RESIST_PHYSICAL, ValueModPack::DEFAULT );
 
-  DYN_PROPERTY( fire_damage, AosValuePack, PROP_DAMAGE_FIRE, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( cold_damage, AosValuePack, PROP_DAMAGE_COLD, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( energy_damage, AosValuePack, PROP_DAMAGE_ENERGY, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( poison_damage, AosValuePack, PROP_DAMAGE_POISON, DEFAULT_AOSVALUEPACK );
-  DYN_PROPERTY( physical_damage, AosValuePack, PROP_DAMAGE_PHYSICAL, DEFAULT_AOSVALUEPACK );
+  DYN_PROPERTY( fire_damage, ValueModPack, PROP_DAMAGE_FIRE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( cold_damage, ValueModPack, PROP_DAMAGE_COLD, ValueModPack::DEFAULT );
+  DYN_PROPERTY( energy_damage, ValueModPack, PROP_DAMAGE_ENERGY, ValueModPack::DEFAULT );
+  DYN_PROPERTY( poison_damage, ValueModPack, PROP_DAMAGE_POISON, ValueModPack::DEFAULT );
+  DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
 private:
   u32 _rev;
@@ -328,7 +317,6 @@ inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
 }
-
 }
 }
 

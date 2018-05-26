@@ -10,6 +10,7 @@ namespace Pol
 {
 namespace Core
 {
+  // This comment is needed for correct indentation to be detected
 SVR_KEYDESC keydesc[257] = {
     {2, 0x0000, 0x0000},  {5, 0x001f, 0x001f},  {6, 0x0022, 0x0011},  {7, 0x0034, 0x0016},
     {7, 0x0075, 0x0057},  {6, 0x0028, 0x0005},  {6, 0x003b, 0x0037},  {7, 0x0032, 0x0026},

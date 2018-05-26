@@ -7,20 +7,14 @@
 
 #include "vital.h"
 
-#include "checkpnt.h"
-#include "syshook.h"
-#include "globals/uvars.h"
-
-#include "../plib/pkg.h"
+#include <stddef.h>
+#include <string>
 
 #include "../clib/cfgelem.h"
-#include "../clib/maputil.h"
 #include "../clib/passert.h"
-
-#include <vector>
-#include <string>
-#include <iostream>
-#include <map>
+#include "../plib/pkg.h"
+#include "checkpnt.h"
+#include "globals/uvars.h"
 
 namespace Pol
 {

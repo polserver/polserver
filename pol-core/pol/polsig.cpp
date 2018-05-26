@@ -7,10 +7,12 @@
 
 #include "polsig.h"
 
-#include "../bscript/eprog.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "../clib/esignal.h"
-#include "../clib/threadhelp.h"
 #include "../clib/logfacility.h"
+#include "../clib/threadhelp.h"
 #include "globals/state.h"
 
 #ifndef _WIN32
@@ -37,9 +39,7 @@ void install_signal_handlers()
 {
   Clib::enable_exit_signaller();
 }
-void signal_catch_thread()
-{
-}
+void signal_catch_thread() {}
 #else
 
 pthread_t main_pthread;
@@ -60,9 +60,7 @@ void handle_SIGUSR1( int /*x*/ )  // LINUXTEST
   stateManager.polsig.report_status_signalled = true;
 }
 
-void null_handler( int /*x*/ )
-{
-}
+void null_handler( int /*x*/ ) {}
 
 void install_null_handler( int sig )
 {

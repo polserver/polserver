@@ -5,18 +5,21 @@
 
 
 #pragma warning( disable : 4189 )  // local variable is initialized but not referenced
-#pragma warning( disable : 4996 )  // unsafe strcpy
+#pragma warning( disable : 4312 )  // cast trunc
+#pragma warning( disable : 4311 )  // cast trunc
+#pragma warning( disable : 4302 )  // cast trunc
 
 //==========================================
 // Matt Pietrek
 // Microsoft Systems Journal, May 1997
 // FILE: MSJEXHND.CPP
 //==========================================
-#include "Header_Windows.h"
+
 #include <tchar.h>
-#include <imagehlp.h>
 #include "msjexhnd.h"
+#include <imagehlp.h>
 #include <algorithm>
+#include <stdio.h>
 #include "logfacility.h"
 
 namespace Pol

@@ -11,16 +11,32 @@
 #include <string>
 #include <vector>
 
-
+#include "../../clib/boostutils.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
-#include "../../bscript/bstruct.h"
-#include "../uobject.h"
-#include "../proplist.h"
 #include "../dice.h"
+#include "../proplist.h"
 #include "../scrdef.h"
+#include "../uobject.h"
 
 namespace Pol
 {
+namespace Clib
+{
+class ConfigElem;
+}  // namespace Clib
+namespace Plib
+{
+class Package;
+}  // namespace Plib
+}  // namespace Pol
+
+namespace Pol
+{
+namespace Bscript
+{
+class BStruct;
+}
 namespace Core
 {
 class ExportScript;
@@ -105,6 +121,7 @@ public:
   bool invisible;
   bool decays_on_multis;
   bool blocks_casting_if_in_hand;
+  bool no_drop;
   unsigned short base_str_req;
   unsigned short stack_limit;
   double quality;
@@ -148,6 +165,8 @@ public:
   u16 max_items;
 
   u8 max_slots;
+
+  bool no_drop_exception;
 
   Core::ScriptDef can_insert_script;
   Core::ScriptDef on_insert_script;

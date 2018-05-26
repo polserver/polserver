@@ -6,15 +6,9 @@
 
 #include "filecont.h"
 
-#include "logfacility.h"
 #include <cstdio>
-#include <stdexcept>
 
-// disables unsafe warning for fopen
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )
-#define _CRT_SECURE_NO_WARNINGS
-#endif
+#include "logfacility.h"
 
 namespace Pol
 {

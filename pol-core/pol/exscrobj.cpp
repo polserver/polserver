@@ -14,20 +14,23 @@
 
 #include "exscrobj.h"
 
+#include <stddef.h>
+#include <string>
+
 #include "../bscript/berror.h"
+#include "../bscript/bobject.h"
 #include "../bscript/dict.h"
+#include "../bscript/executor.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
-
-#include "module/uomod.h"
-#include "module/osmod.h"
-#include "uoexec.h"
-#include "uoscrobj.h"
-
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
-
+#include "module/osmod.h"
+#include "module/uomod.h"
+#include "polcfg.h"
+#include "uoexec.h"
+#include "uoscrobj.h"
 
 namespace Pol
 {

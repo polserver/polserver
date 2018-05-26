@@ -12,18 +12,21 @@
 #include "pol_global_config.h"
 #endif
 
-#ifdef DEBUG_FLYWEIGHT
-#include <vector>
-#include <string>
+#ifdef _MSC_VER
+#pragma warning( disable : 4503 )  // decorated name length exceeded
+#endif
 
+#ifdef DEBUG_FLYWEIGHT
 #include <boost/flyweight/factory_tag.hpp>
 #include <boost/flyweight/hashed_factory_fwd.hpp>
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/identity.hpp>
-#include <boost/multi_index/hashed_index.hpp>
+#include <boost/foreach.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
 #include <boost/mpl/if.hpp>
-#include <boost/foreach.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/identity.hpp>
+#include <boost/multi_index_container.hpp>
+#include <string>
+#include <vector>
 
 #include "compilerspecifics.h"
 #endif
@@ -61,8 +64,9 @@ class accessible_hashed_factory_class : public boost::flyweights::factory_marker
   };
 
   typedef boost::multi_index::multi_index_container<
-      Entry, index_list, typename boost::mpl::if_<boost::mpl::is_na<Allocator>,
-                                                  std::allocator<Entry>, Allocator>::type>
+      Entry, index_list,
+      typename boost::mpl::if_<boost::mpl::is_na<Allocator>, std::allocator<Entry>,
+                               Allocator>::type>
       container_type;
 
 public:
@@ -121,12 +125,14 @@ struct cprop_name_tag
 {
 };
 typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY> cprop_name_flystring;
+                         FLYWEIGHT_HASH_FACTORY>
+    cprop_name_flystring;
 struct cprop_value_tag
 {
 };
 typedef boost::flyweight<std::string, boost::flyweights::tag<cprop_value_tag>,
-                         FLYWEIGHT_HASH_FACTORY> cprop_value_flystring;
+                         FLYWEIGHT_HASH_FACTORY>
+    cprop_value_flystring;
 struct cfg_key_tag
 {
 };
@@ -136,22 +142,26 @@ struct object_name_tag
 {
 };
 typedef boost::flyweight<std::string, boost::flyweights::tag<object_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY> object_name_flystring;
+                         FLYWEIGHT_HASH_FACTORY>
+    object_name_flystring;
 struct script_name_tag
 {
 };
 typedef boost::flyweight<std::string, boost::flyweights::tag<script_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY> script_name_flystring;
+                         FLYWEIGHT_HASH_FACTORY>
+    script_name_flystring;
 struct npctemplate_name_tag
 {
 };
 typedef boost::flyweight<std::string, boost::flyweights::tag<npctemplate_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY> npctemplate_name_flystring;
+                         FLYWEIGHT_HASH_FACTORY>
+    npctemplate_name_flystring;
 struct function_name_tag
 {
 };
 typedef boost::flyweight<std::string, boost::flyweights::tag<function_name_tag>,
-                         FLYWEIGHT_HASH_FACTORY> function_name_flystring;
+                         FLYWEIGHT_HASH_FACTORY>
+    function_name_flystring;
 
 /**
  * These types must be initialized before any static objects using them
@@ -170,4 +180,5 @@ struct flyweight_initializers
 };
 }
 }
+
 #endif

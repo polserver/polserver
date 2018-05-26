@@ -5,20 +5,19 @@
  *                           Changes for multi related source file relocation
  */
 
-#include "boat.h"
-#include "house.h"
-#include "../item/itemdesc.h"
-#include "../objtype.h"
-#include "../ufunc.h"
-#include "../uworld.h"
-#include "../uoscrobj.h"
-#include "../globals/object_storage.h"
+#include <stddef.h>
 
 #include "../../bscript/berror.h"
-
 #include "../../clib/clib_endian.h"
-#include "../../clib/strutil.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/rawtypes.h"
+#include "../globals/object_storage.h"
+#include "../item/itemdesc.h"
+#include "../ufunc.h"
+#include "boat.h"
+#include "house.h"
+#include "multi.h"
+
 
 namespace Pol
 {

@@ -9,22 +9,17 @@
  */
 
 
-#include "charactr.h"
-
-#include "../network/client.h"
-#include "../network/cgdata.h"
-#include "../network/msghandl.h"
-
-#include "../pktin.h"
-#include "../ufunc.h"
-
-#include "../cmbtcfg.h"
-#include "../guardrgn.h"
-#include "../globals/settings.h"
+#include <cstdio>
 
 #include "../../clib/clib_endian.h"
-
-#include <cstdio>
+#include "../../clib/rawtypes.h"
+#include "../cmbtcfg.h"
+#include "../globals/settings.h"
+#include "../guardrgn.h"
+#include "../network/client.h"
+#include "../pktin.h"
+#include "../ufunc.h"
+#include "charactr.h"
 
 namespace Pol
 {

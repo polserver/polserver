@@ -7,13 +7,16 @@
 #ifndef SCRSTORE_H
 #define SCRSTORE_H
 
-#include "../bscript/eprog.h"
-#include "../clib/refptr.h"
-
 #include <string>
+
+#include "../clib/refptr.h"
 
 namespace Pol
 {
+namespace Bscript
+{
+class EScriptProgram;
+}
 namespace Core
 {
 class ScriptDef;

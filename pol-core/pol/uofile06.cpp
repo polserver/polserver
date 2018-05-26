@@ -4,16 +4,11 @@
  */
 
 
-#include "uofile.h"
-#include "uofilei.h"
-
-#include "polcfg.h"
-#include "polfile.h"
+#include "clidata.h"
+#include "uconst.h"
 #include "udatfile.h"
+#include "uofile.h"
 #include "ustruct.h"
-
-#include <cstdio>
-#include <cstring>
 
 namespace Pol
 {
@@ -133,7 +128,5 @@ void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsi
   *result_out = result;
   *newz_out = newz;
 }
-
-
 }
 }

@@ -8,7 +8,7 @@
  * - 2005-09-07 Folko:     No longer warn about unused variables in BASIC style for loops
  * - 2005/09/08 Shinigami: Will warn about unused variables in BASIC style for loops on -v5 only
  * - 2005/09/25 Shinigami: BugFix inside FileCheck for multiple include of same File
- *                         e.g.: inside scripts	extcmd	est	extcmd.src:
+ *                         e.g.: inside scripts  extcmd  est  extcmd.src:
  *                         Include "../../../pkg/std/housing/include/test";
  *                         Include ":housing:test";
  *                         Include ":housing:include/test";
@@ -19,42 +19,33 @@
 
 #include "compiler.h"
 
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <exception>
+#include <ostream>
+#include <stdexcept>
+#include <stdlib.h>
+
 #include "../clib/clib.h"
 #include "../clib/filecont.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-
 #include "../plib/pkg.h"
-
 #include "compctx.h"
 #include "compilercfg.h"
+#include "eprog.h"
+#include "fmodule.h"
 #include "modules.h"
-#include "tokens.h"
-#include "symcont.h"
-#include "operator.h"
-#include "token.h"
-#include "verbtbl.h"
-#include "parser.h"
-#include "userfunc.h"
-#include "filefmt.h"
-
 #include "objmembers.h"
-
-#include <cstring>
-#include <cstddef>
-#include <cstdio>
-#include <stdexcept>
-#include <ostream>
-
-#ifdef __unix__
-#include <unistd.h>
-#endif
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp, fopen
-#endif
+#include "symcont.h"
+#include "token.h"
+#include "tokens.h"
+#include "userfunc.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -747,11 +738,11 @@ void Expression::optimize_assignments()
     a) disable all optimization
     b) disable optimization on doubles
     OPTIMIZATIONS PERFORMED:
-    Constant Long Arithmetic:	(+ - * /)
+    Constant Long Arithmetic:  (+ - * /)
     5 + 7   ->   5 7 +   ->  12
     Constant Double Arithmetic: (+ - * /)
     5.5 + 6.5  ->  5.5 6.5 +   -> 12.0
-    String Concatenation:		(+)
+    String Concatenation:    (+)
     "hello" + " world" -> "hello" " world" + -> "hello world"
     OPTIMIZATIONS TO BE CONSIDERED:
     More efficient constructs: (+=, -=, *=, /=)
@@ -764,11 +755,11 @@ void Expression::optimize_assignments()
     Optimizations that must take place at a different level:
     0  IFFALSE -> GOTO
     1  IFFALSE -> NOP
-    0  IF		-> NOP
-    1  IF		-> GOTO
+    0  IF    -> NOP
+    1  IF    -> GOTO
     34: GOTO 56
-    56: GOTO 78		--> 34: GOTO 78  56: GOTO 78
-    NOP		-> (null) (compress NOPs)
+    56: GOTO 78    --> 34: GOTO 78  56: GOTO 78
+    NOP    -> (null) (compress NOPs)
     */
 void Expression::optimize()
 {
@@ -1308,9 +1299,9 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     // first get the key expression.
 
     Expression key_expression;
-    res = readexpr( key_expression, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED |
-                                             EXPR_FLAG_DICTKEY_TERM_ALLOWED |
-                                             EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = readexpr( key_expression, ctx,
+                    EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_DICTKEY_TERM_ALLOWED |
+                        EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -1403,7 +1394,6 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     else if ( token.id == TOK_RPAREN )
     {
       return 0;
-      ;
     }
     else
     {
@@ -1414,6 +1404,20 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
   // unreachable
 }
 
+int Compiler::getFunctionPArgument( Expression& /*expr*/, CompilerContext& ctx, Token* ref_tkn )
+{
+  int res;
+  Token token;
+  res = getToken( ctx, *ref_tkn );
+  if ( res < 0 || ref_tkn->id != TOK_USERFUNC )
+  {
+    INFO_PRINT << "Expected user function reference.\n";
+    return -1;
+  }
+  ref_tkn->id = TOK_FUNCREF;
+  ref_tkn->type = TYP_OPERAND;
+  return 0;
+}
 
 /*
 getUserArgs is called from IIP.
@@ -2159,7 +2163,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
     default_posn = prog_tokens->next();
 
   // the default case must go at the end.
-  //	if (1)
+  //  if (1)
   {
     unsigned char* tmppch = reinterpret_cast<unsigned char*>( &default_posn );
     caseblock.push_back( tmppch[0] );
@@ -2362,13 +2366,15 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
       if ( funcName.id == TOK_FUNC )
       {
         INFO_PRINT << "'" << funcName.tokval() << "' is already defined as a function.\n"
-                   << "Near: " << curLine << "\n" << ctx;
+                   << "Near: " << curLine << "\n"
+                   << ctx;
         return -1;
       }
       else
       {
         INFO_PRINT << "Expected an identifier, got " << funcName << " instead.\n"
-                   << "Near: " << curLine << "\n" << ctx;
+                   << "Near: " << curLine << "\n"
+                   << ctx;
         return -1;
       }
     }
@@ -3063,10 +3069,10 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
 
   return 0;
 
-// FIXME: Dead code since ages, left here because I have no idea if bug or feature...
-//  // insert a consumer to eat the evaluated result from the expr.
-//  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
-//  return 0;
+  // FIXME: Dead code since ages, left here because I have no idea if bug or feature...
+  //  // insert a consumer to eat the evaluated result from the expr.
+  //  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
+  //  return 0;
 }
 
 /*
@@ -3080,7 +3086,7 @@ int Compiler::handleConstDeclare( CompilerContext& ctx )
 
 
   /*
-      formats:	varname followed by comma or semicolon
+      formats:  varname followed by comma or semicolon
       varname followed by "array", then by comma/semicolon
       varname followed by ':=', then an initializer, then comma/semicolon.
       */
@@ -3398,12 +3404,12 @@ int Compiler::handleUse( CompilerContext& ctx )
 
 int Compiler::includeModule( const std::string& modulename )
 {
-  //	cout << "includeModule(" << modulename << "). includes(" << included.size() << "):";
-  //	for( INCLUDES::const_iterator citr = included.begin(); citr != included.end(); ++citr )
-  //	{
-  //		cout << " " << (*citr);
-  //	}
-  //	cout << endl;
+  //  cout << "includeModule(" << modulename << "). includes(" << included.size() << "):";
+  //  for( INCLUDES::const_iterator citr = included.begin(); citr != included.end(); ++citr )
+  //  {
+  //    cout << " " << (*citr);
+  //  }
+  //  cout << endl;
 
   std::string filename_part = modulename;
   filename_part += ".inc";
@@ -3592,8 +3598,8 @@ int Compiler::insertBreak( const std::string& label )
 
 
 // break statements come in the following forms:
-//	  break;
-//	  break label;
+//    break;
+//    break label;
 // we'll emit a LEAVE_BLOCK token if necessary, and
 // a GOTO which will be patched in when the block
 // is completed.
@@ -3626,8 +3632,8 @@ int Compiler::handleBreak( CompilerContext& ctx )
 }
 
 // continue statements come in the following forms:
-//	  continue;
-//	  continue label;
+//    continue;
+//    continue label;
 // we'll emit a LEAVE_BLOCK token if necessary, and
 // a GOTO which will point at the continuePC of the block.
 int Compiler::handleContinue( CompilerContext& ctx )
@@ -4086,13 +4092,13 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
     case RSV_ENUM:
       return handleEnumDeclare( ctx );
 
-    // DEPRECATED:
-    //	case RSV_BEGIN:		 return handleBlock(ctx, level+1);
+      // DEPRECATED:
+      //  case RSV_BEGIN:     return handleBlock(ctx, level+1);
 
     default:
       INFO_PRINT << "Unhandled reserved word: " << token << "\n";
       return -1;
-      //			   assert(0);
+      //         assert(0);
       break;
     }
   }
@@ -4175,7 +4181,7 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
           INFO_PRINT << ctx;
       }
     }
-    //	cout << "Statement: " << Parser.CA << endl;
+    //  cout << "Statement: " << Parser.CA << endl;
   }
   return res;
 }
@@ -4972,7 +4978,11 @@ int Compiler::getFileContents( const char* file, char** iv )
     return -1;
   }
 
-  fread( s, filelen, 1, fp );
+  if (fread( s, filelen, 1, fp ) != 1 )
+  {
+    fclose( fp );
+    return -1;
+  }
 
   fclose( fp );
   *iv = s;
@@ -5396,17 +5406,17 @@ int Compiler::compileFile( const char* in_file )
     INFO_PRINT << "Exception Detected:\n" << ex.what() << "\n";
     res = -1;
   }
-  //	catch(...)
-  //	{
-  //		cout << "Generic Exception" << endl;
-  //		res = -1;
-  //	}
+  //  catch(...)
+  //  {
+  //    cout << "Generic Exception" << endl;
+  //    res = -1;
+  //  }
 
   if ( res < 0 )
     INFO_PRINT << "Compilation failed.\n";
 
   // if (contains_tabs && Compiler.warnings_)
-  //	cout << "Warning! Source contains TAB characters" << endl;
+  //  cout << "Warning! Source contains TAB characters" << endl;
 
   return res;
 }
@@ -5425,7 +5435,7 @@ int Compiler::write_dbg( const char* fname, bool gen_txt )
 void Compiler::writeIncludedFilenames( const char* fname ) const
 {
   std::ofstream ofs( fname, std::ios::out | std::ios::trunc );
-  //	ofs << current_file_path << endl;
+  //  ofs << current_file_path << endl;
   for ( const auto& elem : referencedPathnames )
   {
     ofs << elem << std::endl;
@@ -5439,9 +5449,9 @@ void Compiler::dump( std::ostream& os )
 }
 }
 /*
-    local x;			[ "x", RSV_LOCAL, # ]
-    local x:=5;			[ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
-    local x,y:=5;		[ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
+    local x;      [ "x", RSV_LOCAL, # ]
+    local x:=5;      [ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
+    local x,y:=5;    [ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
     local x:=5,y;
 
     x := 5;

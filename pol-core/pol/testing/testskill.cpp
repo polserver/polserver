@@ -33,7 +33,7 @@ void test_skilladv( unsigned int raw, unsigned short base )
   INFO_PRINT << "Passed\n";
   inc_successes();
 }
-} // namespace
+}  // namespace
 
 void skilladv_test()
 {
@@ -102,5 +102,5 @@ void skilladv_test()
   }
 }
 
-} // namespace Testing
-} // namespace Pol
+}  // namespace Testing
+}  // namespace Pol

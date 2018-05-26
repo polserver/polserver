@@ -7,20 +7,18 @@
 
 #include "npctmpl.h"
 
-#include "item/weapon.h"
-#include "item/armor.h"
-#include "syshookscript.h"
-#include "globals/uvars.h"
-
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-
+#include <format/format.h>
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-
-#include <stdexcept>
+#include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+#include "globals/uvars.h"
+#include "item/armor.h"
+#include "item/equipmnt.h"
+#include "item/weapon.h"
+#include "syshookscript.h"
 
 namespace Pol
 {
@@ -44,7 +42,7 @@ int translate( const std::string& name, TRANSLATION* table )
   tmp << "  Expected one of the following values:\n";
   for ( int i = 0; table[i].name; ++i )
   {
-    tmp << "	" << table[i].name << "\n";
+    tmp << "  " << table[i].name << "\n";
   }
   ERROR_PRINT << tmp.str();
   throw std::runtime_error( "Unable to translate value" );

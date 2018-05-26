@@ -9,36 +9,23 @@
 
 #include "loadunld.h"
 
-#include "item/armor.h"
+#include <string>
+
+#include "../clib/strutil.h"
+#include "../plib/pkg.h"
+#include "../plib/systemstate.h"
 #include "checkpnt.h"
 #include "cmbtcfg.h"
 #include "console.h"
+#include "extobj.h"
+#include "globals/settings.h"
+#include "item/equipmnt.h"
+#include "item/itemdesc.h"
 #include "objtype.h"
 #include "polcfg.h"
-#include "stackcfg.h"
-#include "ufunc.h"
-#include "globals/uvars.h"
-#include "item/weapon.h"
-#include "item/wepntmpl.h"
-
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-
-#include <stdexcept>
-#include <string>
 
 namespace Pol
 {
-namespace Plib
-{
-void load_packages();
-}
 namespace Items
 {
 void preload_test_scripts();
@@ -164,8 +151,8 @@ void load_config( bool reload )
 
 void load_data()
 {
-  //	checkpoint( "read_translations" );
-  //	read_translations();
+  //  checkpoint( "read_translations" );
+  //  read_translations();
 
   checkpoint( "load_cmdlevels" );
   load_cmdlevels();

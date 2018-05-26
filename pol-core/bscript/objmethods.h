@@ -12,9 +12,9 @@
  * packet.SetUnicodeStringFlipped (Byte Order)
  * - 2009/08/06 MuadDib:   Added GetGottenBy to find who is holding the item. Returning char ref of
  * course.
- * - 2009/10/09 Turley:	Added spellbook.spells() & .hasspell() methods
- * - 2009/10/10 Turley:	Added spellbook.addspell() & .removespell() methods
- * - 2009/10/14 Turley:	Added char.deaf() methods & char.deafened member
+ * - 2009/10/09 Turley:    Added spellbook.spells() & .hasspell() methods
+ * - 2009/10/10 Turley:    Added spellbook.addspell() & .removespell() methods
+ * - 2009/10/14 Turley:    Added char.deaf() methods & char.deafened member
  */
 
 
@@ -26,7 +26,7 @@ namespace Bscript
 {
 enum MethodID
 {
-  MTH_ISA,  // uobject				  //0
+  MTH_ISA,         // uobject  //0
   MTH_SET_MEMBER,  // 1
   MTH_GET_MEMBER,
   MTH_SETPOISONED,  // character
@@ -44,14 +44,14 @@ enum MethodID
   MTH_GETGOTTENITEM,  // 15
   MTH_CLEARGOTTENITEM,
   MTH_SETWARMODE,
-  MTH_SETMASTER,  // npc
+  MTH_SETMASTER,             // npc
   MTH_MOVE_OFFLINE_MOBILES,  // boat
-  MTH_SETCUSTOM,  // house			  //20
-  MTH_GETPINS,  // map
+  MTH_SETCUSTOM,             // house  //20
+  MTH_GETPINS,               // map
   MTH_INSERTPIN,
   MTH_APPENDPIN,
   MTH_ERASEPIN,
-  MTH_OPEN,  // door					//25
+  MTH_OPEN,  // door  //25
   MTH_CLOSE,
   MTH_TOGGLE,
   MTH_BAN,  // account
@@ -65,7 +65,7 @@ enum MethodID
   MTH_SETPROP,
   MTH_ERASEPROP,
   MTH_PROPNAMES,
-  MTH_ISMEMBER,  // guild
+  MTH_ISMEMBER,     // guild
   MTH_ISALLYGUILD,  // 40
   MTH_ISENEMYGUILD,
   MTH_ADDMEMBER,
@@ -96,12 +96,12 @@ enum MethodID
   MTH_SETSTRING,
   MTH_SETUNICODESTRING,
   MTH_GETSIZE,
-  MTH_SETSIZE,  // 70
+  MTH_SETSIZE,        // 70
   MTH_CREATEELEMENT,  // datastore
   MTH_FINDELEMENT,
   MTH_DELETEELEMENT,
   MTH_SENDEVENT,  // script
-  MTH_KILL,  // 75
+  MTH_KILL,       // 75
   MTH_LOADSYMBOLS,
   MTH_SET_UO_EXPANSION,
   MTH_CLEAR_EVENT_QUEUE,
@@ -178,6 +178,7 @@ enum MethodID
   MTH_ADD_BUFF,
   MTH_DEL_BUFF,  // 150
   MTH_CLEAR_BUFFS,
+  MTH_CALL,
 };
 
 

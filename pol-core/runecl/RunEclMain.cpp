@@ -5,41 +5,34 @@
 #include "pol_global_config.h"
 #endif
 
-#include "RunEclMain.h"
+#include <ctime>
+#include <iostream>
 
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-#include "../clib/cfgelem.h"
-#include "../clib/timer.h"
-
+#include "../bscript/bobject.h"
 #include "../bscript/config.h"
-#include "../bscript/object.h"
-#include "../bscript/eprog.h"
 #include "../bscript/escriptv.h"
-#include "../bscript/filefmt.h"
-#include "../bscript/tokens.h"
-#include "../bscript/symcont.h"
-#include "../bscript/token.h"
 #include "../bscript/execmodl.h"
 #include "../bscript/executor.h"
+#include "../bscript/filefmt.h"
+#include "../bscript/object.h"
+#include "../clib/Program/ProgramMain.h"
+#include "../clib/boostutils.h"
+#include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/refptr.h"
+#include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+#include "RunEclMain.h"
+#include <format/format.h>
 
-#include "../pol/module/basicmod.h"
 #include "../pol/module/basiciomod.h"
-#include "../pol/module/mathmod.h"
-#include "../pol/module/sqlmod.h"
-#include "../pol/module/utilmod.h"
-#include "../pol/module/filemod.h"
+#include "../pol/module/basicmod.h"
 #include "../pol/module/cfgmod.h"
 #include "../pol/module/datastore.h"
-#include "../pol/sqlscrobj.h"
+#include "../pol/module/filemod.h"
+#include "../pol/module/mathmod.h"
+#include "../pol/module/utilmod.h"
 #include "../pol/polcfg.h"
-
-#include <cstring>
-#include <cstdio>
-#include <ctime>
-
-#include <iostream>
-#include <iomanip>
 
 namespace Pol
 {
@@ -48,7 +41,10 @@ namespace Core
 // See comment in boost_utils::flyweight_initializers
 boost_utils::flyweight_initializers fw_inits;
 }
-
+namespace Module
+{
+void load_fileaccess_cfg();
+}
 namespace Clib
 {
 using namespace std;
@@ -57,12 +53,8 @@ using namespace Pol::Module;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RunEclMain::RunEclMain() : ProgramMain(), m_quiet( false ), m_debug( false ), m_profile( false )
-{
-}
-RunEclMain::~RunEclMain()
-{
-}
+RunEclMain::RunEclMain() : ProgramMain(), m_quiet( false ), m_debug( false ), m_profile( false ) {}
+RunEclMain::~RunEclMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 
 void RunEclMain::showHelp()
@@ -87,7 +79,6 @@ void RunEclMain::dumpScript( std::string fileName )
   exe.addModule( new BasicExecutorModule( exe ) );
   exe.addModule( new BasicIoExecutorModule( exe ) );
   exe.addModule( new MathExecutorModule( exe ) );
-  // E.addModule( new SQLExecutorModule(exe));
   exe.addModule( new UtilExecutorModule( exe ) );
   exe.addModule( new FileAccessExecutorModule( exe ) );
   exe.addModule( new ConfigFileExecutorModule( exe ) );
@@ -114,12 +105,10 @@ int RunEclMain::runeclScript( std::string fileName )
   FILETIME kernelStart, userStart;
   FILETIME kernelEnd, userEnd;
 #endif
-
   Executor exe;
   exe.addModule( new BasicExecutorModule( exe ) );
   exe.addModule( new BasicIoExecutorModule( exe ) );
   exe.addModule( new MathExecutorModule( exe ) );
-  // E.addModule( new SQLExecutorModule( E ) );
   exe.addModule( new UtilExecutorModule( exe ) );
   exe.addModule( new FileAccessExecutorModule( exe ) );
   exe.addModule( new ConfigFileExecutorModule( exe ) );
@@ -132,6 +121,21 @@ int RunEclMain::runeclScript( std::string fileName )
     return 1;
   }
   exe.setProgram( program.get() );
+  // find and set pkg
+  std::string dir = fileName;
+  Clib::strip_one( dir );
+  dir = Clib::normalized_dir_form( dir );
+  Plib::load_packages( true /*quiet*/ );
+
+  const auto& pkgs = Plib::systemstate.packages;
+  auto pkg = std::find_if( pkgs.begin(), pkgs.end(), [&dir]( Plib::Package* p ) {
+    return Clib::stringicmp( p->dir(), dir ) == 0;
+  } );
+  if ( pkg != pkgs.end() )
+  {
+    program->pkg = *pkg;
+  }
+  Module::load_fileaccess_cfg();  // after pkg load
 
   exe.setDebugLevel( m_debug ? Executor::INSTRUCTIONS : Executor::NONE );
   clock_t start = clock();
@@ -233,7 +237,7 @@ int RunEclMain::main()
   {
     double vernum = 1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
     ERROR_PRINT << "EScript Executor v" << vernum << "\n"
-                << "Copyright (C) 1993-2016 Eric N. Swanson\n\n";
+                << POL_COPYRIGHT << "\n\n";
   }
 
   /**********************************************

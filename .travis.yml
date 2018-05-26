@@ -2,57 +2,78 @@ language: cpp
 
 sudo: false
 
-compiler:
-  - gcc
-  - clang
 
-addons:
-  apt:
-    #ref: https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.8
-      - george-edison55-precise-backports # cmake 3.2.3
-    #ref: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
-    packages:
-      - gcc-5
-      - g++-5
-      - clang-3.8
-      - cmake
-      - cmake-data
-      - python3
+#script:
+  #  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
+  #  - unzip kaitai-struct-compiler-0.8.zip
+  #  - mkdir kaitai_out
+  #  - ./kaitai-struct-compiler-0.8/bin/kaitai-struct-compiler -t cpp_stl --outdir kaitai_out kaitai_defs/*.ksy
+  #  - ls kaitai_out
+  #  - tail -n +1 kaitai_out/*
+
+
+cache:
+  directories:
+    - lib/curl-7.57.0
+
+git:
+  depth: 1
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['g++-7']
+      env: CXX_P=g++-7 CC_P=gcc-7 NOPCH=0
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
+      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=0
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
+      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=1
 
 before_install:
-  - cd lib
-  - tar xjf boost_1_63_0.tar.bz2
-  - cd ../pol-core/bin-build
-  - chmod a+x build_linux.sh
+  - sudo apt-get -qq update
+  - sudo apt-get install -y kwstyle
+  - cd bin-build
+  - wget https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip
+  - unzip ninja-linux.zip
+  - chmod +x ninja
+  - ./ninja --version
 
-script:
+before_script:
   - echo 'Configure...' && echo -en 'travis_fold:start:script.configure\\r'
-  - export TRAVIS_CI=1
-  - if [ "$CXX" = "g++" ]; then 
-      export CXX="g++-5" CC="gcc-5";
-    fi
-  - if [ "$CXX" = "clang++" ]; then 
-      export CXX="clang++-3.8" CC="clang-3.8";
-    fi
+  - export CXX=$CXX_P
+  - export CC=$CC_P
+  - cmake .. -G Ninja -DNO_PCH=$NOPCH
   - echo -en 'travis_fold:end:script.configure\\r'
 
+script:
   - echo 'Build...' && echo -en 'travis_fold:start:script.build\\r'
-  - ./build_linux.sh
+  - ./ninja -j 2
   - echo -en 'travis_fold:end:script.build\\r'
 
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
-  - cd ../../testsuite/escript
-  - ./performtests.py ../../pol-core/bin/ecompile ../../pol-core/bin/runecl -n 5;
+  - cd ../testsuite/escript
+  - ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q;
+  - cd ../style
+  - ./checknl.py -q;
+  - ./checkstyle.py -q;
   - echo -en 'travis_fold:end:script.tests\\r'
 
 notifications:
   email:
     - polteam@polserver.com
-  irc:
-    channels:
-      - "ircs://irc.darkmyst.org:6697/#pol"
-    on_success: always # Those are the defaults. Should maybe use "change" afterwards.
-    on_failure: always

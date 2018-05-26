@@ -10,24 +10,26 @@
 
 #include "decay.h"
 
-#include "../clib/esignal.h"
-#include "../plib/systemstate.h"
+#include <stddef.h>
 
-#include "core.h"
+#include "../clib/esignal.h"
+#include "../clib/logfacility.h"
+#include "../plib/systemstate.h"
 #include "gameclck.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
-#include "polclock.h"
+#include "polcfg.h"
 #include "polsem.h"
-#include "realms.h"
 #include "realms/realm.h"
+#include "scrdef.h"
 #include "scrsched.h"
 #include "syshook.h"
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "uworld.h"
+
 
 namespace Pol
 {

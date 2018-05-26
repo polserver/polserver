@@ -25,49 +25,43 @@
  */
 
 
+#include <cstdio>
+#include <string>
+
 #include "../bscript/berror.h"
-
-#include "../plib/systemstate.h"
-
-#include "fnsearch.h"
-#include "getitem.h"
-#include "layers.h"
-#include "los.h"
-#include "mkscrobj.h"
-#include "mobile/charactr.h"
-#include "network/msghandl.h"
-#include "multi/boat.h"
-#include "network/client.h"
-#include "network/packets.h"
-#include "network/packetdefs.h"
-#include "network/clienttransmit.h"
-#include "mobile/npc.h"
-#include "objtype.h"
-#include "pktboth.h"
-#include "pktin.h"
-#include "polcfg.h"
-#include "realms.h"
-#include "realms/realm.h"
-#include "sfx.h"
-#include "sockio.h"
-#include "statmsg.h"
-#include "storage.h"
-#include "syshook.h"
-#include "globals/ucfg.h"
-#include "ufunc.h"
-#include "uoscrobj.h"
-#include "globals/uvars.h"
-#include "uworld.h"
-#include "containr.h"
-
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-
-#include <cstdio>
+#include "../clib/rawtypes.h"
+#include "../plib/systemstate.h"
+#include "containr.h"
+#include "eventid.h"
+#include "fnsearch.h"
+#include "globals/uvars.h"
+#include "item/item.h"
+#include "los.h"
+#include "mobile/charactr.h"
+#include "mobile/npc.h"
+#include "multi/multi.h"
+#include "network/client.h"
+#include "network/packetdefs.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "objtype.h"
+#include "pktboth.h"
+#include "pktdef.h"
+#include "pktin.h"
+#include "polcfg.h"
+#include "realms/realm.h"
+#include "reftypes.h"
+#include "statmsg.h"
+#include "storage.h"
+#include "syshook.h"
+#include "ufunc.h"
+#include "uobject.h"
+#include "uoscrobj.h"
+#include "uworld.h"
 
 namespace Pol
 {
@@ -304,6 +298,11 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     UContainer* cont = client->chr->trade_container();
     if ( target_serial == cont->serial )
     {
+      if ( item->no_drop() )
+      {
+        send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+        return false;
+      }
       return place_item_in_secure_trade_container( client, item, x, y );
     }
   }
@@ -328,10 +327,23 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
 
   if ( target_item->isa( UOBJ_CLASS::CLASS_ITEM ) )
   {
+    if ( item->no_drop() )
+    {
+      if ( target_item->container == NULL || !target_item->container->no_drop_exception() )
+      {
+        send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+        return false;
+      }
+    }
     return add_item_to_stack( client, item, target_item );
   }
   else if ( target_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
+    if ( item->no_drop() && !( static_cast<UContainer*>( target_item )->no_drop_exception() ) )
+    {
+      send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+      return false;
+    }
     return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), x, y,
                                     slotIndex );
   }
@@ -346,6 +358,12 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
 
 bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16 y, s8 z )
 {
+  if ( item->no_drop() )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
+  }
+
   Mobile::Character* chr = client->chr;
 
   Multi::UMulti* multi;
@@ -594,6 +612,11 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   if ( !dropon->isa( UOBJ_CLASS::CLASS_NPC ) )
   {
+    if ( item->no_drop() )
+    {
+      send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+      return false;
+    }
     if ( gamestate.system_hooks.can_trade )
     {
       if ( !gamestate.system_hooks.can_trade->call( new Module::ECharacterRefObjImp( client->chr ),
@@ -612,6 +635,11 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   Mobile::NPC* npc = static_cast<Mobile::NPC*>( dropon );
   if ( !npc->can_accept_event( EVID_ITEM_GIVEN ) )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
+  }
+  if ( item->no_drop() && !npc->no_drop_exception() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -679,6 +707,11 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
   }
+  if ( item->no_drop() && !cont->no_drop_exception() )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
+  }
   if ( pol_distance( client->chr, cont ) > 2 && !client->chr->can_moveanydist() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
@@ -728,7 +761,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
 
 /* DROP_ITEM messages come in a couple varieties:
 
-    1)	Dropping an item on another object, or a person:
+    1)  Dropping an item on another object, or a person:
     item_serial: serial number of item to drop
     x: 0xFFFF
     y: 0xFFFF
@@ -740,7 +773,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     x,y,z: position
     target_serial: 0xFFFFFFFF
 
-    3)	Placing an item in a container, or in an existing pile:
+    3)  Placing an item in a container, or in an existing pile:
     item_serial: serial number of item to drop
     x: x-position
     y: y-position
@@ -753,8 +786,8 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     Details:    Original version of packet is supported by this function.
     Access:     public
     Qualifier:
-    Parameter:	Client * client
-    Parameter:	PKTIN_08_V1 * msg
+    Parameter:  Client * client
+    Parameter:  PKTIN_08_V1 * msg
     */
 void drop_item( Network::Client* client, PKTIN_08_V1* msg )
 {
@@ -822,8 +855,8 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
    UO:KR+ to support Slots
     Access:     public
     Qualifier:
-    Parameter:	Client * client
-    Parameter:	PKTIN_08_V2 * msg
+    Parameter:  Client * client
+    Parameter:  PKTIN_08_V2 * msg
     */
 void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
 {

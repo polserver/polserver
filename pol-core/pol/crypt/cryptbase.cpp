@@ -38,8 +38,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <memory.h>
+#include <string.h>
+
 #include "cryptbase.h"
+
 namespace Pol
 {
 namespace Crypt
@@ -69,12 +71,8 @@ namespace Crypt
 
 
 // Constructor / Destructor
-CCryptBase::CCryptBase()
-{
-}
-CCryptBase::~CCryptBase()
-{
-}
+CCryptBase::CCryptBase() {}
+CCryptBase::~CCryptBase() {}
 
 // Constructor / Destructor
 CCryptBaseCrypt::CCryptBaseCrypt() : CCryptBase(), lcrypt(), m_type( 0 )
@@ -82,8 +80,6 @@ CCryptBaseCrypt::CCryptBaseCrypt() : CCryptBase(), lcrypt(), m_type( 0 )
   memset( &m_masterKey, 0, sizeof( m_masterKey ) );
   memset( &encrypted_data, 0, sizeof( encrypted_data ) );
 }
-CCryptBaseCrypt::~CCryptBaseCrypt()
-{
-}
+CCryptBaseCrypt::~CCryptBaseCrypt() {}
 }
 }

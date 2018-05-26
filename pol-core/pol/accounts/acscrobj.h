@@ -8,11 +8,22 @@
 #ifndef ACSCROBJ_H
 #define ACSCROBJ_H
 
+#include "../../bscript/bobject.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
 #include "../reftypes.h"
 
-#ifndef BSCRIPT_BOBJECT_H
-#include "../../bscript/bobject.h"
-#endif
+namespace Pol
+{
+namespace Accounts
+{
+class Account;
+}  // namespace Accounts
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+}  // namespace Pol
 
 namespace Pol
 {
@@ -25,6 +36,7 @@ public:
   Account* operator->() { return acct.get(); }
   const Account* operator->() const { return acct.get(); }
   Account* Ptr() { return acct.get(); }
+
 private:
   Core::AccountRef acct;
 };

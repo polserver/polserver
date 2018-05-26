@@ -7,29 +7,34 @@
 #ifndef __UVARS_H
 #define __UVARS_H
 
-#include "../reftypes.h"
+#include <array>
+#include <boost/noncopyable.hpp>
+#include <map>
+#include <queue>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "../../clib/maputil.h"
-
+#include "../../clib/rawtypes.h"
+#include "../../clib/refptr.h"
+#include "../../clib/threadhelp.h"
 #include "../action.h"
 #include "../clidata.h"
 #include "../cmdlevel.h"
 #include "../layers.h"
 #include "../menu.h"
+#include "../reftypes.h"
 #include "../region.h"
 #include "../schedule.h"
 #include "../storage.h"
 #include "../syshook.h"
-#include "../textcmd.h"
 #include "../target.h"
+#include "../tasks.h"
+#include "../textcmd.h"
 #include "../uoskills.h"
 
-
-#include <boost/noncopyable.hpp>
-#include <vector>
-#include <map>
-#include <queue>
-#include <set>
 
 namespace Pol
 {
@@ -39,18 +44,13 @@ class Realm;
 }
 namespace Items
 {
-class UWeapon;
+class Equipment;
 class Item;
 class ItemDesc;
-class Equipment;
-}
-namespace Accounts
-{
-class Account;
+class UWeapon;
 }
 namespace Mobile
 {
-class Character;
 class Attribute;
 }
 namespace Network
@@ -59,30 +59,28 @@ class Client;
 }
 namespace Multi
 {
-class UMulti;
 struct BoatShape;
 }
 namespace Core
 {
-class StartingLocation;
-class UObject;
-class PropertyList;
-class NpcTemplate;
-class JusticeRegion;
-class NoCastRegion;
-class LightRegion;
-class WeatherDef;
-class MusicRegion;
-class PeriodicTask;
-class USpell;
-class SpellCircle;
-class Vital;
-class ResourceDef;
-class NpcTemplateElem;
 class ConsoleCommand;
-class ListenPoint;
-class Party;
 class Guild;
+class JusticeRegion;
+class LightRegion;
+class ListenPoint;
+class MusicRegion;
+class NoCastRegion;
+class NpcTemplate;
+class NpcTemplateElem;
+class Party;
+class PropertyList;
+class ResourceDef;
+class SpellCircle;
+class StartingLocation;
+class UOExecutor;
+class USpell;
+class Vital;
+class WeatherDef;
 
 typedef std::vector<Core::CmdLevel> CmdLevels;
 
@@ -133,6 +131,7 @@ public:
 
   void deinitialize();
   struct Memory;
+
   Memory estimateSize() const;
 
   CmdLevels cmdlevels;
@@ -246,7 +245,7 @@ public:
     size_t realm_size;
     size_t misc;
   };
-
+  threadhelp::TaskThreadPool task_thread_pool;
 private:
   void cleanup_vars();
   void cleanup_scripts();

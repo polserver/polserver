@@ -7,12 +7,25 @@
 #ifndef MISCRGN_H
 #define MISCRGN_H
 
-#include "realms/realm.h"
 
+#include "../clib/compilerspecifics.h"
 #include "region.h"
+#include "zone.h"
 
 namespace Pol
 {
+namespace Clib
+{
+class ConfigElem;
+}  // namespace Clib
+}  // namespace Pol
+
+namespace Pol
+{
+namespace Realms
+{
+class Realm;
+}
 namespace Core
 {
 class NoCastRegion : public Region

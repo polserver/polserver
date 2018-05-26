@@ -1,18 +1,18 @@
 /** @file
-*
-* @par History
-*
-* @note ATTENTION
-* This header is part of the PCH
-* Remove the include in all StdAfx.h files or live with the consequences :)
-*/
+ *
+ * @par History
+ *
+ * @note ATTENTION
+ * This header is part of the PCH
+ * Remove the include in all StdAfx.h files or live with the consequences :)
+ */
 
 #ifndef __WEAKPTR_H
 #define __WEAKPTR_H
 
 #include "refptr.h"
-#include <boost/noncopyable.hpp>
 #include <atomic>
+#include <boost/noncopyable.hpp>
 
 //
 //    weak_ptr_owner<T>
@@ -71,8 +71,7 @@ public:
 };
 
 template <class T>
-weak_ptr_link<T>::weak_ptr_link()
-    : _ptr( 0 )
+weak_ptr_link<T>::weak_ptr_link() : _ptr( 0 )
 {
 }
 template <class T>
@@ -92,8 +91,7 @@ void weak_ptr_link<T>::set_weakptr( T* ptr )
 }
 
 template <class T>
-weak_ptr<T>::weak_ptr( weak_ptr_link<T>* wpl )
-    : ref_ptr<weak_ptr_link<T>>( wpl )
+weak_ptr<T>::weak_ptr( weak_ptr_link<T>* wpl ) : ref_ptr<weak_ptr_link<T>>( wpl )
 {
 }
 template <class T>
@@ -135,8 +133,7 @@ T& weak_ptr<T>::operator*() const
 }
 
 template <class T>
-weak_ptr_owner<T>::weak_ptr_owner()
-    : weak_ptr<T>(new weak_ptr_link<T>)
+weak_ptr_owner<T>::weak_ptr_owner() : weak_ptr<T>( new weak_ptr_link<T> )
 {
 }
 template <class T>

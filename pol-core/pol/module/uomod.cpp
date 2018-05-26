@@ -73,43 +73,45 @@
 
 #include "uomod.h"
 
+#include <cmath>
+#include <cstddef>
+#include <exception>
+#include <stdlib.h>
+#include <string>
+
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
+#include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
-#include "../../bscript/execmodl.h"
 #include "../../bscript/impstr.h"
-#include "../../bscript/token.h"
-
 #include "../../clib/cfgelem.h"
-#include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
+#include "../../clib/compilerspecifics.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
-#include "../../clib/random.h"
 #include "../../clib/refptr.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../../clib/weakptr.h"
-
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/maptile.h"
+#include "../../plib/staticblock.h"
+#include "../../plib/stlastar.h"
 #include "../../plib/systemstate.h"
-
 #include "../action.h"
 #include "../cfgrepos.h"
+#include "../clidata.h"
 #include "../containr.h"
 #include "../core.h"
 #include "../eventid.h"
 #include "../fnsearch.h"
 #include "../gameclck.h"
 #include "../globals/object_storage.h"
-#include "../globals/state.h"
 #include "../globals/uvars.h"
 #include "../guardrgn.h"
+#include "../item/item.h"
 #include "../item/itemdesc.h"
+#include "../layers.h"
 #include "../lightlvl.h"
 #include "../listenpt.h"
 #include "../los.h"
@@ -121,46 +123,44 @@
 #include "../mobile/ufacing.h"
 #include "../multi/boat.h"
 #include "../multi/house.h"
+#include "../multi/multi.h"
 #include "../multi/multidef.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
-#include "../network/clienttransmit.h"
+#include "../network/packethelper.h"
 #include "../network/packets.h"
+#include "../npctmpl.h"
 #include "../objtype.h"
 #include "../pktboth.h"
-#include "../pktin.h"
+#include "../pktdef.h"
 #include "../polcfg.h"
 #include "../polclass.h"
-#include "../poltype.h"
+#include "../polclock.h"
+#include "../polsig.h"
+#include "../profile.h"
 #include "../realms.h"
 #include "../realms/realm.h"
 #include "../resource.h"
 #include "../savedata.h"
+#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
-#include "../skilladv.h"
 #include "../spells.h"
 #include "../target.h"
+#include "../uconst.h"
+#include "../udatfile.h"
 #include "../ufunc.h"
 #include "../uimport.h"
 #include "../umanip.h"
 #include "../unicode.h"
+#include "../uobject.h"
 #include "../uoexec.h"
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
-#include "../ustruct.h"
 #include "../uworld.h"
 #include "../wthrtype.h"
-#include "../zone.h"
 #include "cfgmod.h"
 #include "osmod.h"
-
-#include <cstddef>
-#include <cstdio>
-#include <cstring>
-#include <climits>
-#include <cmath>
-
 
 namespace Pol
 {
@@ -551,11 +551,11 @@ BObjectImp* UOExecutorModule::broadcast()
   unsigned short color;
   unsigned short requiredCmdLevel;
   text = exec.paramAsString( 0 );
-  if ( text && getParam( 1, font ) &&			// todo: getFontParam
-       getParam( 2, color ) &&					// todo: getColorParam
-	   getParam(3, requiredCmdLevel))          // todo: getRequiredCmdLevelParam
+  if ( text && getParam( 1, font ) &&     // todo: getFontParam
+       getParam( 2, color ) &&            // todo: getColorParam
+       getParam( 3, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
-    Core::broadcast( text, font, color, requiredCmdLevel);
+    Core::broadcast( text, font, color, requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -820,27 +820,29 @@ BObjectImp* UOExecutorModule::mf_Target()
     crstype = PKTBI_6C::CURSOR_TYPE_HELPFUL;
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
-  
-  if ( !uoexec.suspend() ) {
+
+  if ( !uoexec.suspend() )
+  {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-      << "\tCall to function UO::Target():\n"
-      << "\tThe execution of this script can't be blocked!\n";
+             << "\tCall to function UO::Target():\n"
+             << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  TargetCursor *tgt_cursor = nullptr;
+  TargetCursor* tgt_cursor = nullptr;
 
-  bool is_los_checked = (target_options & TGTOPT_CHECK_LOS) && !chr->ignores_line_of_sight();
-  if ( is_los_checked ) 
+  bool is_los_checked = ( target_options & TGTOPT_CHECK_LOS ) && !chr->ignores_line_of_sight();
+  if ( is_los_checked )
   {
     tgt_cursor = &gamestate.target_cursors.los_checked_script_cursor;
   }
-  else {
+  else
+  {
     tgt_cursor = &gamestate.target_cursors.nolos_checked_script_cursor;
   }
 
   tgt_cursor->send_object_cursor( chr->client, crstype );
-  
+
   chr->client->gd->target_cursor_uoemod = this;
   target_cursor_chr = chr;
 
@@ -890,11 +892,11 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
       arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
       arr->addMember( "z", new BLong( msg->z ) );
-      //			FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
-      //			validate right here. Should we check map/static, or let that reside
-      //			for scripts to run ListStatics? In theory, using Injection or similar,
-      //			you could mine where no mineable tiles are by faking objtype in packet
-      //			and still get the resources?
+      //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
+      //      validate right here. Should we check map/static, or let that reside
+      //      for scripts to run ListStatics? In theory, using Injection or similar,
+      //      you could mine where no mineable tiles are by faking objtype in packet
+      //      and still get the resources?
       arr->addMember( "objtype", new BLong( cfBEu16( msg->graphic ) ) );
 
       u32 selected_serial = cfBEu32( msg->selected_serial );
@@ -907,8 +909,8 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
         }
       }
 
-      //			Never trust packet's objtype is the reason here. They should never
-      //			target on other realms. DUH!
+      //      Never trust packet's objtype is the reason here. They should never
+      //      target on other realms. DUH!
       arr->addMember( "realm", new String( chr->realm->name() ) );
 
       Multi::UMulti* multi =
@@ -941,10 +943,11 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     return new BError( "Client has an active target cursor" );
   }
 
-  if ( !uoexec.suspend() ) {
+  if ( !uoexec.suspend() )
+  {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-      << "\tCall to function UO::TargetCoordinates():\n"
-      << "\tThe execution of this script can't be blocked!\n";
+             << "\tCall to function UO::TargetCoordinates():\n"
+             << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -984,16 +987,17 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new BError( "Object Type is out of range for Multis" );
   }
 
-  if ( !uoexec.suspend() ) {
+  if ( !uoexec.suspend() )
+  {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-      << "\tCall to function UO::TargetMultiPlacement():\n"
-      << "\tThe execution of this script can't be blocked!\n";
+             << "\tCall to function UO::TargetMultiPlacement():\n"
+             << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
   chr->client->gd->target_cursor_uoemod = this;
   target_cursor_chr = chr;
-  
+
   gamestate.target_cursors.multi_placement_cursor.send_placemulti(
       chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
 
@@ -1024,9 +1028,16 @@ BObjectImp* UOExecutorModule::mf_Accessible()
 {
   Character* chr;
   Item* item;
+  int range;
+
   if ( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, item ) )
   {
-    if ( find_legal_item( chr, item->serial ) != NULL )
+    // Range defaults to -1 if it's not defined in the .em file (old scripts)
+    // or the user provides a weird object.
+    if ( exec.numParams() < 3 || !getParam( 2, range ) )
+      range = -1;
+      
+    if ( chr->can_access(item, range) )
       return new BLong( 1 );
     else
       return new BLong( 0 );
@@ -1341,17 +1352,12 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 
     // characters.push_back( npc.get() );
     SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcCreate );
-    WorldIterator<OnlinePlayerFilter>::InVisualRange( npc.get(), [&]( Character* zonechr )
-                                                      {
-                                                        send_char_data( zonechr->client,
-                                                                        npc.get() );
-                                                      } );
+    WorldIterator<OnlinePlayerFilter>::InVisualRange(
+        npc.get(), [&]( Character* zonechr ) { send_char_data( zonechr->client, npc.get() ); } );
 
     // dave added 2/3/3 send entered area events for npc create
-    Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
-                                                      {
-                                                        NpcPropagateMove( chr, npc.get() );
-                                                      } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        x, y, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, npc.get() ); } );
     // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( dummy_multi )
     {
@@ -1610,7 +1616,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   Menu* menu;
 
   if ( !getCharacterParam( exec, 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
-    (chr->client->gd->menu_selection_uoemod != NULL) )
+       ( chr->client->gd->menu_selection_uoemod != NULL ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -1624,12 +1630,12 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   {
     return new BError( "Menu too large" );
   }
-    
+
   if ( !uoexec.suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-      << "\tCall to function UO::SelectMenuItem():\n"
-      << "\tThe execution of this script can't be blocked!\n";
+             << "\tCall to function UO::SelectMenuItem():\n"
+             << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1651,7 +1657,7 @@ void append_objtypes( ObjArray* objarr, Menu* menu )
     {
       // Code Analyze: Commented out and replaced with tmp_menu due to hiding
       // menu passed to function.
-      //			Menu* menu = find_menu( mi->submenu_id );
+      //      Menu* menu = find_menu( mi->submenu_id );
       Menu* tmp_menu = Menu::find_menu( mi->submenu_id );
       if ( tmp_menu != NULL )
         append_objtypes( objarr, tmp_menu );
@@ -2188,15 +2194,13 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation( /* x, y, z, range, realm
     }
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
-    WorldIterator<ItemFilter>::InRange(
-        x, y, realm, range, [&]( Item* item )
-        {
-          if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
-          {
-            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
-              newarr->addElement( item->make_ref() );
-          }
-        } );
+    WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Item* item ) {
+      if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
+      {
+        if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+          newarr->addElement( item->make_ref() );
+      }
+    } );
 
     return newarr.release();
   }
@@ -2246,24 +2250,22 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, re
     std::swap( z1, z2 );
   // Disabled again: ShardAdmins "loves" this "bug" :o/
   // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //	 return new BError("Invalid Coordinates for realm");
+  //   return new BError("Invalid Coordinates for realm");
   internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
-  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr )
-                                      {
-                                        if ( chr->z >= z1 && chr->z <= z2 )
-                                        {
-                                          newarr->addElement( chr->make_ref() );
-                                        }
-                                      } );
-  WorldIterator<ItemFilter>::InBox( x1, y1, x2, y2, realm, [&]( Items::Item* item )
-                                    {
-                                      if ( item->z >= z1 && item->z <= z2 )
-                                      {
-                                        newarr->addElement( item->make_ref() );
-                                      }
-                                    } );
+  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr ) {
+    if ( chr->z >= z1 && chr->z <= z2 )
+    {
+      newarr->addElement( chr->make_ref() );
+    }
+  } );
+  WorldIterator<ItemFilter>::InBox( x1, y1, x2, y2, realm, [&]( Items::Item* item ) {
+    if ( item->z >= z1 && item->z <= z2 )
+    {
+      newarr->addElement( item->make_ref() );
+    }
+  } );
 
   return newarr.release();
 }
@@ -2295,17 +2297,16 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, re
     std::swap( z1, z2 );
   // Disabled again: ShardAdmins "loves" this "bug" :o/
   // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //	 return new BError("Invalid Coordinates for realm");
+  //   return new BError("Invalid Coordinates for realm");
   internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
-  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr )
-                                      {
-                                        if ( chr->z >= z1 && chr->z <= z2 )
-                                        {
-                                          newarr->addElement( chr->make_ref() );
-                                        }
-                                      } );
+  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr ) {
+    if ( chr->z >= z1 && chr->z <= z2 )
+    {
+      newarr->addElement( chr->make_ref() );
+    }
+  } );
 
   return newarr.release();
 }
@@ -2337,7 +2338,7 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
     std::swap( z1, z2 );
   // Disabled again: ShardAdmins "loves" this "bug" :o/
   // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //	 return new BError("Invalid Coordinates for realm");
+  //   return new BError("Invalid Coordinates for realm");
   internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -2361,8 +2362,7 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
   internal_InBoxAreaChecks( x1range, y1range, z1, x2range, y2range, z2, realm );
   // search for multis.  this is tricky, since the center might lie outside the box
   WorldIterator<MultiFilter>::InBox(
-      x1range, y1range, x2range, y2range, realm, [&]( Multi::UMulti* multi )
-      {
+      x1range, y1range, x2range, y2range, realm, [&]( Multi::UMulti* multi ) {
         const Multi::MultiDef& md = multi->multidef();
         if ( multi->x + md.minrx > x2 ||  // east of the box
              multi->x + md.maxrx < x1 ||  // west of the box
@@ -2425,7 +2425,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
       std::swap( z1, z2 );
     // Disabled again: ShardAdmins "loves" this "bug" :o/
     // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-    //	 return new BError("Invalid Coordinates for realm");
+    //   return new BError("Invalid Coordinates for realm");
     internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -2508,16 +2508,14 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType( /* x, y, z, range,
         return new BError( "Invalid Coordinates for realm" );
     }
 
-    WorldIterator<ItemFilter>::InRange(
-        x, y, realm, range, [&]( Items::Item* item )
-        {
-          if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) &&
-               ( abs( item->y - y ) <= range ) )
-          {
-            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
-              newarr->addElement( item->make_ref() );
-          }
-        } );
+    WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Items::Item* item ) {
+      if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) &&
+           ( abs( item->y - y ) <= range ) )
+      {
+        if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+          newarr->addElement( item->make_ref() );
+      }
+    } );
 
     return newarr.release();
   }
@@ -2551,14 +2549,13 @@ BObjectImp* UOExecutorModule::mf_ListItemsAtLocation( /* x, y, z, realm */ )
     }
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
-    WorldIterator<ItemFilter>::InRange( x, y, realm, 0, [&]( Items::Item* item )
-                                        {
-                                          if ( ( item->x == x ) && ( item->y == y ) )
-                                          {
-                                            if ( ( z == LIST_IGNORE_Z ) || ( item->z == z ) )
-                                              newarr->addElement( item->make_ref() );
-                                          }
-                                        } );
+    WorldIterator<ItemFilter>::InRange( x, y, realm, 0, [&]( Items::Item* item ) {
+      if ( ( item->x == x ) && ( item->y == y ) )
+      {
+        if ( ( z == LIST_IGNORE_Z ) || ( item->z == z ) )
+          newarr->addElement( item->make_ref() );
+      }
+    } );
 
     return newarr.release();
   }
@@ -2582,14 +2579,12 @@ BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
       return new BError( "Realm not found" );
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
-    WorldIterator<PlayerFilter>::InRange(
-        x, y, realm, range, [&]( Mobile::Character* chr )
-        {
-          if ( chr->dead() && ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
-          {
-            newarr->addElement( chr->make_ref() );
-          }
-        } );
+    WorldIterator<PlayerFilter>::InRange( x, y, realm, range, [&]( Mobile::Character* chr ) {
+      if ( chr->dead() && ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+      {
+        newarr->addElement( chr->make_ref() );
+      }
+    } );
 
     return newarr.release();
   }
@@ -2640,8 +2635,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx( /* x, y, z, range, f
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-    auto fill_mobs = [&]( Mobile::Character* _chr )
-    {
+    auto fill_mobs = [&]( Mobile::Character* _chr ) {
       if ( ( inc_hidden && _chr->hidden() ) || ( inc_dead && _chr->dead() ) ||
            ( inc_concealed && _chr->concealed() ) ||
            ( inc_normal && !( _chr->hidden() || _chr->dead() || _chr->concealed() ) ) )
@@ -2699,13 +2693,11 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation( /* x, y, z, range, rea
     }
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
-    WorldIterator<MobileFilter>::InRange(
-        x, y, realm, range, [&]( Mobile::Character* chr )
-        {
-          if ( ( !chr->concealed() ) && ( !chr->hidden() ) && ( !chr->dead() ) )
-            if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
-              newarr->addElement( chr->make_ref() );
-        } );
+    WorldIterator<MobileFilter>::InRange( x, y, realm, range, [&]( Mobile::Character* chr ) {
+      if ( ( !chr->concealed() ) && ( !chr->hidden() ) && ( !chr->dead() ) )
+        if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+          newarr->addElement( chr->make_ref() );
+    } );
     return newarr.release();
   }
   else
@@ -2723,8 +2715,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
     obj = obj->toplevel_owner();
     std::unique_ptr<ObjArray> newarr( new ObjArray );
     WorldIterator<MobileFilter>::InRange( obj->x, obj->y, obj->realm, range,
-                                          [&]( Mobile::Character* chr )
-                                          {
+                                          [&]( Mobile::Character* chr ) {
                                             if ( chr->dead() || chr->hidden() || chr->concealed() )
                                               return;
                                             if ( chr == obj )
@@ -3075,7 +3066,8 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
     if ( ~flags & RESURRECT_FORCELOCATION )
     {
       // we want doors to block ghosts in this case.
-      bool doors_block = !( chr->graphic == UOBJ_GAMEMASTER || chr->cached_settings.get( PRIV_FLAGS::IGNORE_DOORS ) );
+      bool doors_block = !( chr->graphic == UOBJ_GAMEMASTER ||
+                            chr->cached_settings.get( PRIV_FLAGS::IGNORE_DOORS ) );
       short newz;
       Multi::UMulti* supporting_multi;
       Item* walkon_item;
@@ -3170,7 +3162,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
     if ( res == 0 )
     {
       // Code Analyze: C6246
-      //			BStruct* res = new BStruct();
+      //      BStruct* res = new BStruct();
       BStruct* ret = new BStruct();
       ret->addMember( "DirtyObjects", new BLong( dirty ) );
       ret->addMember( "CleanObjects", new BLong( clean ) );
@@ -4761,18 +4753,16 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(
     }
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
-    WorldIterator<ItemFilter>::InRange(
-        x, y, realm, range, [&]( Item* item )
+    WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Item* item ) {
+      if ( ( tile_uoflags( item->graphic ) & flags ) )
+      {
+        if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
         {
-          if ( ( tile_uoflags( item->graphic ) & flags ) )
-          {
-            if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
-            {
-              if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
-                newarr->addElement( new EItemRefObjImp( item ) );
-            }
-          }
-        } );
+          if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+            newarr->addElement( new EItemRefObjImp( item ) );
+        }
+      }
+    } );
 
     return newarr.release();
   }
@@ -4967,15 +4957,15 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
 //  put in two safeguards against this.
 //
 //  Safeguard #1) As we go through the nodes in the solution, I make sure each of them
-//				is on the Closed List.  If not, the pathfind errors out with a
-//				"Solution Corrupt!" error.  This is an attempt to short circuit any
-//				solution containing erroneous nodes in it.
+//        is on the Closed List.  If not, the pathfind errors out with a
+//        "Solution Corrupt!" error.  This is an attempt to short circuit any
+//        solution containing erroneous nodes in it.
 //
 //  Safeguard #2) I keep a vector of the nodes in the solution as we go through them.
-//				Before adding each node to the vector, I search that vector for that
-//				node.  If that vector already contains the node, the pathfind errors
-//				out with a "Solution Corrupt!" error.  THis is an attempt to catch
-//				the cases where Closed List nodes have looped for some reason.
+//        Before adding each node to the vector, I search that vector for that
+//        node.  If that vector already contains the node, the pathfind errors
+//        out with a "Solution Corrupt!" error.  THis is an attempt to catch
+//        the cases where Closed List nodes have looped for some reason.
 //
 //  These two safeguards should not truly be necessary for this algorithm, and take up
 //  space and time to guard against.  Thus, finding out why these problems are occurring
@@ -5015,24 +5005,24 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
 //  it in the src module.  They are :
 //
 //  stlastar.h  --  virtually untouched by me really, it is the original author's
-//				  implimentation, pretty nicely done and documented if you are
-//				  interested in learning about A*.
+//          implimentation, pretty nicely done and documented if you are
+//          interested in learning about A*.
 //
-//  fsa.h	   --  a "fixed size allocation" module which I toy with enabling and
-//				  disabling.  Using it is supposed to get you some speed, but it
-//				  limits your maps because it will only allocate a certain # of
-//				  nodes at once, and after that, it will return out of memory.
-//				  Presently, it is disabled, but will be submitted to CVS for
-//				  completion in case we wish to use it later.
+//  fsa.h     --  a "fixed size allocation" module which I toy with enabling and
+//          disabling.  Using it is supposed to get you some speed, but it
+//          limits your maps because it will only allocate a certain # of
+//          nodes at once, and after that, it will return out of memory.
+//          Presently, it is disabled, but will be submitted to CVS for
+//          completion in case we wish to use it later.
 //
 //  uopathnode.h -- this is stricly my work, love it or hate it, it's pretty quick
-//				  and dirty, and can stand to be cleaned up, optimized, and so forth.
-//				  I have the name field and function in there to allow for some
-//				  debugging, though the character array could probably be removed to
-//				  make the nodes smaller.  I didn't find it mattered particularly, since
-//				  these puppies are created and destroyed at a pretty good clip.
-//				  It is this class that encapsulates the necessary functionality to
-//				  make the otherwise fairly generic stlastar class work.
+//          and dirty, and can stand to be cleaned up, optimized, and so forth.
+//          I have the name field and function in there to allow for some
+//          debugging, though the character array could probably be removed to
+//          make the nodes smaller.  I didn't find it mattered particularly, since
+//          these puppies are created and destroyed at a pretty good clip.
+//          It is this class that encapsulates the necessary functionality to
+//          make the otherwise fairly generic stlastar class work.
 
 typedef Plib::AStarSearch<UOPathState> UOSearch;
 
@@ -5109,23 +5099,21 @@ BObjectImp* UOExecutorModule::mf_FindPath()
     {
       POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, {}, {}, {}, {}, 0x{:X}, {})\n" )
           << x1 << y1 << z1 << x2 << y2 << z2 << strrealm->data() << flags << theSkirt;
-      POLLOG.Format( "[FindPath]   search for Blockers inside {} {} {} {}\n" ) << xL << yL << xH
-                                                                               << yH;
+      POLLOG.Format( "[FindPath]   search for Blockers inside {} {} {} {}\n" )
+          << xL << yL << xH << yH;
     }
 
     AStarBlockers theBlockers( xL, xH, yL, yH );
 
     if ( !( flags & FP_IGNORE_MOBILES ) )
     {
-      WorldIterator<MobileFilter>::InBox(
-          xL, yL, xH, yH, realm, [&]( Mobile::Character* chr )
-          {
-            theBlockers.AddBlocker( chr->x, chr->y, chr->z );
+      WorldIterator<MobileFilter>::InBox( xL, yL, xH, yH, realm, [&]( Mobile::Character* chr ) {
+        theBlockers.AddBlocker( chr->x, chr->y, chr->z );
 
-            if ( Plib::systemstate.config.loglevel >= 12 )
-              POLLOG.Format( "[FindPath]	 add Blocker {} at {} {} {}\n" )
-                  << chr->name() << chr->x << chr->y << chr->z;
-          } );
+        if ( Plib::systemstate.config.loglevel >= 12 )
+          POLLOG.Format( "[FindPath]   add Blocker {} at {} {} {}\n" )
+              << chr->name() << chr->x << chr->y << chr->z;
+      } );
     }
 
     // passed via GetSuccessors to realm->walkheight
@@ -5341,18 +5329,18 @@ BObjectImp* UOExecutorModule::mf_UpdateMobile()
     if ( flags == 1 )
     {
       if ( ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) ) && ( chr->client ) )  // no npc and active client
-        send_owncreate( chr->client, chr );                          // inform self
+        send_owncreate( chr->client, chr );                             // inform self
       if ( ( chr->isa( UOBJ_CLASS::CLASS_NPC ) ) || ( chr->client ) )   // npc or active client
-        send_create_mobile_to_nearby_cansee( chr );                  // inform other
+        send_create_mobile_to_nearby_cansee( chr );                     // inform other
       else
         return new BError( "Mobile is offline" );
     }
     else
     {
       if ( ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) ) && ( chr->client ) )  // no npc and active client
-        send_move( chr->client, chr );                               // inform self
+        send_move( chr->client, chr );                                  // inform self
       if ( ( chr->isa( UOBJ_CLASS::CLASS_NPC ) ) || ( chr->client ) )   // npc or active client
-        send_move_mobile_to_nearby_cansee( chr );                    // inform other
+        send_move_mobile_to_nearby_cansee( chr );                       // inform other
       else
         return new BError( "Mobile is offline" );
     }
@@ -5522,8 +5510,7 @@ BObjectImp* UOExecutorModule::mf_GetMidpointCircleCoords( /* xcenter, ycenter, r
   std::unique_ptr<ObjArray> coords( new ObjArray );
 
   std::vector<std::tuple<int, int>> points;
-  auto add_point = [&coords]( int x, int y )
-  {
+  auto add_point = [&coords]( int x, int y ) {
     std::unique_ptr<BStruct> point( new BStruct );
     point->addMember( "x", new BLong( x ) );
     point->addMember( "y", new BLong( y ) );
@@ -5565,7 +5552,7 @@ BObjectImp* UOExecutorModule::mf_GetMidpointCircleCoords( /* xcenter, ycenter, r
 
   return coords.release();
 }
-} // namespace Module
+}  // namespace Module
 
 namespace Bscript
 {

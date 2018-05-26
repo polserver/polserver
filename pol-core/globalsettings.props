@@ -4,12 +4,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>..\..\lib\boost_1_63_0;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\lib\kaitai-runtime;..\..\lib\boost_1_63_0;..\..\lib;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>WINDOWS;NOMINMAX;WIN32;INC_PASSERT;TIXML_USE_STL;HAVE_MYSQL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>KS_STR_ENCODING_NONE;WINDOWS;NOMINMAX;WIN32;INC_PASSERT;TIXML_USE_STL;HAVE_MYSQL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>

@@ -16,28 +16,26 @@
 
 #include "packetscrobj.h"
 
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "network/clienttransmit.h"
+#include <iomanip>
+#include <stddef.h>
 
-#include "polsem.h"
-#include "realms.h"
-#include "uoexhelp.h"
-#include "uworld.h"
-#include "unicode.h"
-#include "globals/network.h"
-
-#include "../bscript/executor.h"
 #include "../bscript/berror.h"
+#include "../bscript/bobject.h"
+#include "../bscript/executor.h"
 #include "../bscript/impstr.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
-
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
-#include "../clib/strutil.h"
-
-#include <iomanip>
+#include "globals/network.h"
+#include "mobile/charactr.h"
+#include "network/client.h"
+#include "network/clienttransmit.h"
+#include "realms.h"
+#include "realms/realm.h"
+#include "unicode.h"
+#include "uoexhelp.h"
+#include "uworld.h"
 
 namespace Pol
 {
@@ -45,9 +43,7 @@ namespace Core
 {
 using namespace Bscript;
 
-BPacket::BPacket() : BObjectImp( OTPacket ), is_variable_length( false )
-{
-}
+BPacket::BPacket() : BObjectImp( OTPacket ), is_variable_length( false ) {}
 BPacket::BPacket( const BPacket& copyfrom )
     : BObjectImp( OTPacket ),
       buffer( copyfrom.buffer ),
@@ -76,9 +72,7 @@ BPacket::BPacket( const unsigned char* data, unsigned short length, bool variabl
 {
   is_variable_length = variable_len;
 }
-BPacket::~BPacket()
-{
-}
+BPacket::~BPacket() {}
 
 BObjectRef BPacket::get_member_id( const int /*id*/ )  // id test
 {
@@ -146,8 +140,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
 
       unsigned short num_sent_to = 0;
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          x, y, realm, range, [&]( Mobile::Character* chr )
-          {
+          x, y, realm, range, [&]( Mobile::Character* chr ) {
             Core::networkManager.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ),
                                                              static_cast<int>( buffer.size() ) );
             num_sent_to++;

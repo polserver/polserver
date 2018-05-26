@@ -13,42 +13,30 @@
  */
 
 
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
-#include "pol_global_config.h"
-#endif
-
 #include "executor.h"
 
-#include "berror.h"
-#include "config.h"
-#include "execmodl.h"
-
-#include "bstruct.h"
-#include "dict.h"
-#include "escriptv.h"
-#include "impstr.h"
-#include "modules.h"
-#include "tokens.h"
-#include "symcont.h"
-#include "eprog.h"
-#include "operator.h"
-#include "token.h"
-#include "contiter.h"
-#include "filefmt.h"
-
 #include "../clib/clib.h"
+#include "../clib/compilerspecifics.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
-#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "berror.h"
+#include "config.h"
+#include "contiter.h"
+#include "dict.h"
+#include "eprog.h"
+#include "escriptv.h"
+#include "execmodl.h"
+#include "fmodule.h"
+#include "impstr.h"
+#include "token.h"
+#include "tokens.h"
+#ifdef MEMORYLEAK
 #include "../clib/mlog.h"
+#endif
 
-#include <climits>
 #include <cstdlib>
-#include <stdexcept>
-#include <stack>
+#include <exception>
 
 #ifdef ESCRIPT_PROFILE
 #ifdef _WIN32
@@ -58,11 +46,6 @@
 #include <sys/time.h>
 #endif
 #endif
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecated POSIX stricmp warning
-#endif
-
 
 namespace Pol
 {
@@ -480,7 +463,7 @@ bool Executor::getObjArrayParam( unsigned param, ObjArray*& pobjarr )
 void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type )
 {
   BApplicPtr* ap =
-      EXPLICIT_CAST(BApplicPtr*, BObjectImp*)( getParamImp( param, BObjectImp::OTApplicPtr ) );
+      EXPLICIT_CAST( BApplicPtr*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicPtr ) );
   if ( ap == NULL )
     return NULL;
 
@@ -503,8 +486,8 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
 
 BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjType* object_type )
 {
-  BApplicObjBase* aob =
-      EXPLICIT_CAST(BApplicObjBase*, BObjectImp*)( getParamImp( param, BObjectImp::OTApplicObj ) );
+  BApplicObjBase* aob = EXPLICIT_CAST(
+      BApplicObjBase*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicObj ) );
   if ( aob == NULL )
     return NULL;
 
@@ -959,9 +942,7 @@ BObjectRef Executor::checkmember( BObject& left, const BObject& right )
 }
 
 
-ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown )
-{
-}
+ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown ) {}
 BObject* ContIterator::step()
 {
   return NULL;
@@ -2278,6 +2259,25 @@ void Executor::ins_call_method_id( const Instruction& ins )
   unsigned nparams = ins.token.type;
   getParams( nparams );
 
+  if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
+  {
+    BObjectRef objref = ValueStack.back();
+    auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+    Instruction jmp;
+    if ( funcr->validCall( ins.token.lval, *this, &jmp ) )
+    {
+      // params need to be on the stack, without current objectref
+      ValueStack.pop_back();
+      for ( auto& p : fparams )
+        ValueStack.push_back( p );
+      // jump to function
+      ins_jsr_userfunc( jmp );
+      fparams.clear();
+      // switch to new block
+      ins_makelocal( jmp );
+      return;
+    }
+  }
   BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
@@ -2291,7 +2291,6 @@ void Executor::ins_call_method_id( const Instruction& ins )
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
-
   if ( func_result_ )
   {
     if ( imp )
@@ -2319,6 +2318,26 @@ void Executor::ins_call_method( const Instruction& ins )
 {
   unsigned nparams = ins.token.lval;
   getParams( nparams );
+
+  if ( ValueStack.back()->isa( BObjectImp::OTFuncRef ) )
+  {
+    BObjectRef objref = ValueStack.back();
+    auto funcr = static_cast<BFunctionRef*>( objref->impptr() );
+    Instruction jmp;
+    if ( funcr->validCall( ins.token.tokval(), *this, &jmp ) )
+    {
+      // params need to be on the stack, without current objectref
+      ValueStack.pop_back();
+      for ( auto& p : fparams )
+        ValueStack.push_back( p );
+      // jump to function
+      ins_jsr_userfunc( jmp );
+      fparams.clear();
+      // switch to new block
+      ins_makelocal( jmp );
+      return;
+    }
+  }
 
   BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
@@ -2541,534 +2560,13 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
   return;
 }
 
-
-void Executor::innerExec( const Instruction& ins )
+void Executor::ins_funcref( const Instruction& ins )
 {
-  ++escript_execinstr_calls;
-  const Token& token = ins.token;
-
-  // this seems an ideal place for a table of function pointers ...
-  POLLOG.Format( "Script {} used undefined token {} at PC {}\n" ) << scriptname() << ins.token.id
-                                                                  << PC;
-
-  switch ( ins.token.id )
-  {
-  case TOK_USERFUNC:
-    return;
-
-  case TOK_FUNC:  // ins_func
-  {
-    unsigned nparams = prog_->modules[ins.token.module]->functions[ins.token.lval]->nargs;
-    // result = NULL;
-    getParams( nparams );
-    execFunc( token );
-    cleanParams();
-    return;
-  }
-
-  case INS_CALL_METHOD:  // ins_call_method
-  {
-    unsigned nparams = token.lval;
-    getParams( nparams );
-
-    BObjectRef& objref = ValueStack.back();
-    BObjectImp* imp = objref->impptr()->call_method( token.tokval(), *this );
-
-    if ( func_result_ )
-    {
-      objref.set( new BObject( func_result_ ) );
-      func_result_ = NULL;
-    }
-    else if ( imp )
-    {
-      objref.set( new BObject( imp ) );
-    }
-    else
-    {
-      objref.set( new BObject( UninitObject::create() ) );
-    }
-
-    cleanParams();
-    return;
-  }
-  case INS_CALL_METHOD_ID:  // ins_call_method
-  {
-    unsigned nparams = token.type;
-    getParams( nparams );
-
-    BObjectRef& objref = ValueStack.back();
-    BObjectImp* imp = objref->impptr()->call_method_id( token.lval, *this );
-
-    if ( func_result_ )
-    {
-      objref.set( new BObject( func_result_ ) );
-      func_result_ = NULL;
-    }
-    else if ( imp )
-    {
-      objref.set( new BObject( imp ) );
-    }
-    else
-    {
-      objref.set( new BObject( UninitObject::create() ) );
-    }
-
-    cleanParams();
-    return;
-  }
-
-  case CTRL_STATEMENTBEGIN:  // ins_statementbegin
-    if ( debug_level >= SOURCELINES && token.tokval() )
-      INFO_PRINT << token.tokval() << "\n";
-    return;
-  case CTRL_PROGEND:  // ins_progend
-    done = 1;
-    run_ok_ = false;
-    PC = 0;
-    return;
-  case CTRL_MAKELOCAL:  // ins_makelocal
-    if ( Locals2 )
-      upperLocals2.push_back( Locals2 );
-    Locals2 = new BObjectRefVec;
-    return;
-  case CTRL_JSR_USERFUNC:  // ins_jsr_userfunc
-  {
-    ReturnContext rc;
-    rc.PC = PC;
-    rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
-    ControlStack.push_back( rc );
-
-    PC = (unsigned)token.lval;
-    if ( ControlStack.size() >= escript_config.max_call_depth )
-    {
-      fmt::Writer tmp;
-      tmp << "Script " << scriptname() << " exceeded maximum call depth\n"
-          << "Return path PCs: ";
-      while ( !ControlStack.empty() )
-      {
-        rc = ControlStack.back();
-        ControlStack.pop_back();
-        tmp << rc.PC << " ";
-      }
-      POLLOG << tmp.str() << "\n";
-      seterror( true );
-    }
-    return;
-  }
-  case INS_POP_PARAM:  // ins_pop_param
-    popParam( ins.token );
-    return;
-  case INS_POP_PARAM_BYREF:  // ins_pop_param_byref
-    popParamByRef( ins.token );
-    return;
-  case INS_GET_ARG:  // ins_get_arg
-    getArg( ins.token );
-    return;
-  case CTRL_LEAVE_BLOCK:  // ins_leave_block
-    //            if (1)
-    {
-      if ( Locals2 )
-      {
-        for ( int i = 0; i < ins.token.lval; i++ )
-          Locals2->pop_back();
-      }
-      else  // at global level.  ick.
-      {
-        for ( int i = 0; i < ins.token.lval; i++ )
-          Globals2.pop_back();
-      }
-    }
-    return;
-
-  case RSV_GOSUB:  // ins_gosub
-  {
-    ReturnContext rc;
-    rc.PC = PC;
-    rc.ValueStackDepth = static_cast<unsigned int>( ValueStack.size() );
-    ControlStack.push_back( rc );
-    if ( Locals2 )
-      upperLocals2.push_back( Locals2 );
-    Locals2 = new BObjectRefVec;
-  }
-  // NOTE fallthrough
-  case RSV_GOTO:  // ins_goto
-    PC = (unsigned)ins.token.lval;
-    return;
-
-  case RSV_RETURN:  // ins_return
-  {
-    if ( ControlStack.empty() )
-    {
-      ERROR_PRINT << "Return without GOSUB!\n";
-
-      seterror( true );
-      return;
-    }
-    ReturnContext rc = ControlStack.back();
-    ControlStack.pop_back();
-    PC = rc.PC;
-    // FIXME do something with rc.ValueStackDepth
-
-    if ( Locals2 )
-    {
-      delete Locals2;
-      Locals2 = NULL;
-    }
-    if ( !upperLocals2.empty() )
-    {
-      Locals2 = upperLocals2.back();
-      upperLocals2.pop_back();
-    }
-    return;
-  }
-
-#ifdef NEVER
-  case INS_INITFOREACH:  // ins_initforeach
-    ins_initforeach( ins );
-    return;
-  case INS_STEPFOREACH:  // ins_stepforeach
-    ins_stepforeach( ins );
-    return;
-#endif
-  case INS_INITFOR:  // ins_initfor
-    ins_initfor( ins );
-    return;
-  case INS_NEXTFOR:  // ins_nextfor
-    ins_nextfor( ins );
-    return;
-  case INS_CASEJMP:  // ins_casejmp
-    ins_casejmp( ins );
-    return;
-
-  case RSV_EXIT:  // ins_exit
-    done = 1;
-    run_ok_ = false;
-    return;
-
-  case RSV_JMPIFTRUE:  // ins_jmpiftrue
-    // ins_jmpiftrue
-    {
-      BObjectRef& objref = ValueStack.back();
-
-      if ( objref->impptr()->isTrue() )
-        PC = (unsigned)ins.token.lval;
-
-      ValueStack.pop_back();
-    }
-    return;
-
-  case RSV_JMPIFFALSE:  // ins_jmpiffalse
-  {
-    BObjectRef& objref = ValueStack.back();
-
-    if ( !objref->impptr()->isTrue() )
-      PC = (unsigned)ins.token.lval;
-
-    ValueStack.pop_back();
-  }
-    return;
-
-  case RSV_LOCAL:  // ins_makeLocal
-    ins_makeLocal( ins );
-    return;
-
-  case INS_DECLARE_ARRAY:
-    ins_declareArray( ins );
-    return;
-
-  case TOK_LOCALVAR:  // ins_localvar
-    passert( Locals2 );
-    passert( token.lval < static_cast<int>( Locals2->size() ) );
-
-    ValueStack.push_back( ( *Locals2 )[token.lval] );
-    return;
-
-  case RSV_GLOBAL:  // ins_globalvar
-  case TOK_GLOBALVAR:
-    passert( token.lval < static_cast<int>( Globals2.size() ) );
-    ValueStack.push_back( Globals2[token.lval] );
-    return;
-
-  case TOK_LONG:  // ins_long
-    ValueStack.push_back( BObjectRef( new BObject( new BLong( token.lval ) ) ) );
-    return;
-  case TOK_DOUBLE:  // ins_double
-    ValueStack.push_back( BObjectRef( new BObject( new Double( token.dval ) ) ) );
-    return;
-  case TOK_STRING:
-    ValueStack.push_back( BObjectRef( new BObject( new String( token.tokval() ) ) ) );
-    return;
-  case TOK_ERROR:
-    ValueStack.push_back( BObjectRef( new BObject( new BError() ) ) );
-    return;
-  case TOK_STRUCT:
-    ValueStack.push_back( BObjectRef( new BObject( new BStruct ) ) );
-    return;
-  case TOK_ARRAY:
-    ValueStack.push_back( BObjectRef( new BObject( new ObjArray ) ) );
-    return;
-  case TOK_DICTIONARY:
-    ValueStack.push_back( BObjectRef( new BObject( new BDictionary ) ) );
-    return;
-
-  case TOK_IDENT:
-    ValueStack.push_back(
-        BObjectRef( new BObject( new BError( "Please recompile this script" ) ) ) );
-    return;
-
-
-  case TOK_CONSUMER:        // ins_consumer
-    ValueStack.pop_back();  // just consume
-    return;
-
-  case TOK_UNMINUS:
-  {
-    BObjectRef ref = getObjRef();
-    BObjectImp* newobj;
-    newobj = ref->impref().inverse();
-
-    ValueStack.push_back( BObjectRef( new BObject( newobj ) ) );
-    return;
-  }
-
-  case TOK_UNPLUS:  // unary plus doesn't actually do anything.
-    return;
-
-  case TOK_LOG_NOT:  // ins_logical_not
-  {
-    BObjectRef ref = getObjRef();
-    ValueStack.push_back( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
-    return;
-  }
-  case TOK_BITWISE_NOT:  // ins_bitwise_not
-  {
-    BObjectRef ref = getObjRef();
-    ValueStack.push_back( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
-    return;
-  }
-
-
-  case INS_ASSIGN_CONSUME:  // ins_assign_consume
-  {
-    BObjectRef rightref = ValueStack.back();
-    ValueStack.pop_back();
-    BObjectRef& leftref = ValueStack.back();
-
-    BObject& right = *rightref;
-    BObject& left = *leftref;
-
-    BObjectImp& rightimpref = right.impref();
-
-    if ( right.count() == 1 && rightimpref.count() == 1 )
-    {
-      left.setimp( &rightimpref );
-    }
-    else
-    {
-      left.setimp( rightimpref.copy() );
-    }
-    ValueStack.pop_back();
-
-    return;
-  }
-
-  case TOK_ASSIGN:    // ins_assign
-  case TOK_DIV:       // ins_div
-  case TOK_SUBTRACT:  // ins_subtract
-  case TOK_MULT:      // ins_mult
-  case TOK_ADD:       // ins_add
-  case TOK_MODULUS:   // ins_modulus
-
-  case TOK_PLUSEQUAL:     // ins_plusequal
-  case TOK_MINUSEQUAL:    // ins_minusequal
-  case TOK_TIMESEQUAL:    // ins_timesequal
-  case TOK_DIVIDEEQUAL:   // ins_divideequal
-  case TOK_MODULUSEQUAL:  // ins_modulusequal
-
-  case TOK_BSRIGHT:  // ins_bitshift_right
-  case TOK_BSLEFT:   // ins_bitshift_left
-  case TOK_BITAND:   // ins_bitwise_and
-  case TOK_BITXOR:   // ins_bitwise_xor
-  case TOK_BITOR:    // ins_bitwise_or
-
-  case TOK_EQUAL:     // ins_equal
-  case TOK_NEQ:       // ins_notequal
-  case TOK_LESSTHAN:  // ins_lessthan
-  case TOK_LESSEQ:    // ins_lessequal
-  case TOK_GRTHAN:    // ins_greaterthan
-  case TOK_GREQ:      // ins_greaterequal
-  case TOK_AND:       // ins_logical_and
-  case TOK_OR:        // ins_logical_or
-
-  case TOK_IN:  // ins_in
-
-  case TOK_ARRAY_SUBSCRIPT:  // ins_arraysubscript
-  case TOK_DELMEMBER:        // ins_removemember
-  case TOK_CHKMEMBER:        // ins_checkmember
-  case TOK_ADDMEMBER:        // ins_addmember
-  case TOK_MEMBER:           // ins_member
-  {
-    /*
-        These each take two operands, and replace them with one.
-        We'll leave the second one on the value stack, and
-        just replace its object with the result
-        */
-    BObjectRef rightref = ValueStack.back();
-    ValueStack.pop_back();
-    BObjectRef& leftref = ValueStack.back();
-
-    BObject& right = *rightref;
-    BObject& left = *leftref;
-
-    // if (!quiet) cout << "LEFT isa " << left.value().isA() << endl;
-    // if (!quiet) cout << "RIGHT isa " << right.value().isA() << endl;
-    switch ( token.id )
-    {
-    case TOK_ASSIGN:
-    {
-      BObjectImp& rightimpref = right.impref();
-
-      if ( right.count() == 1 && rightimpref.count() == 1 )
-      {
-        passert_always( 0 );
-      }
-      else
-      {
-        passert_always( 0 );
-      }
-      return;
-    }
-    break;
-    case TOK_ADD:  // ins_add
-      leftref.set( new BObject( right.impref().selfPlusObjImp( left.impref() ) ) );
-      return;
-    case TOK_DIV:  // ins_div
-      leftref.set( new BObject( right.impref().selfDividedByObjImp( left.impref() ) ) );
-      return;
-    case TOK_SUBTRACT:  // ins_subtract
-      leftref.set( new BObject( right.impref().selfMinusObjImp( left.impref() ) ) );
-      return;
-    case TOK_MULT:  // ins_mult
-      leftref.set( new BObject( right.impref().selfTimesObjImp( left.impref() ) ) );
-      return;
-    case TOK_MODULUS:  // ins_modulus
-      leftref.set( new BObject( right.impref().selfModulusObjImp( left.impref() ) ) );
-      return;
-    case TOK_BSRIGHT:  // ins_bitshift_right
-      leftref.set( new BObject( right.impref().selfBitShiftRightObjImp( left.impref() ) ) );
-      return;
-    case TOK_BSLEFT:  // ins_bitshift_left
-      leftref.set( new BObject( right.impref().selfBitShiftLeftObjImp( left.impref() ) ) );
-      return;
-    case TOK_BITAND:  // ins_bitwise_and
-      leftref.set( new BObject( right.impref().selfBitAndObjImp( left.impref() ) ) );
-      return;
-    case TOK_BITXOR:  // ins_bitwise_xor
-      leftref.set( new BObject( right.impref().selfBitXorObjImp( left.impref() ) ) );
-      return;
-    case TOK_BITOR:  // ins_bitwise_or
-      leftref.set( new BObject( right.impref().selfBitOrObjImp( left.impref() ) ) );
-      return;
-
-    case TOK_PLUSEQUAL:
-      left.impref().operPlusEqual( left, right.impref() );
-      return;
-    case TOK_MINUSEQUAL:
-      left.impref().operMinusEqual( left, right.impref() );
-      return;
-    case TOK_TIMESEQUAL:
-      left.impref().operTimesEqual( left, right.impref() );
-      return;
-    case TOK_DIVIDEEQUAL:
-      left.impref().operDivideEqual( left, right.impref() );
-      return;
-    case TOK_MODULUSEQUAL:
-      left.impref().operModulusEqual( left, right.impref() );
-      return;
-
-    // Binary Logical/Comparison Operators
-    case TOK_EQUAL:
-    case TOK_NEQ:
-    case TOK_LESSTHAN:
-    case TOK_LESSEQ:
-    case TOK_GRTHAN:
-    case TOK_GREQ:
-    case TOK_AND:
-    case TOK_OR:
-      int _true;
-      _true = 0;
-      switch ( token.id )
-      {
-      case TOK_EQUAL:
-        _true = ( left == right );
-        break;
-      case TOK_NEQ:
-        _true = ( left != right );
-        break;
-      case TOK_LESSTHAN:
-        _true = ( left < right );
-        break;
-      case TOK_LESSEQ:
-        _true = ( left <= right );
-        break;
-      case TOK_GRTHAN:
-        _true = ( left > right );
-        break;
-      case TOK_GREQ:
-        _true = ( left >= right );
-        break;
-      case TOK_AND:
-        _true = ( left.isTrue() && right.isTrue() );
-        break;
-      case TOK_OR:
-        _true = ( left.isTrue() || right.isTrue() );
-        break;
-      default:
-        passert( 0 );
-        break;
-      }
-      leftref.set( new BObject( new BLong( _true ) ) );
-      return;
-
-    case TOK_IN:
-      leftref.set( new BObject( new BLong( right.impref().contains( left.impref() ) ) ) );
-      return;
-
-    case TOK_ARRAY_SUBSCRIPT:  // ins_array_subscript
-      leftref = left.impptr()->OperSubscript( right );
-      return;
-    case TOK_CHKMEMBER:  // ins_checkmember
-      leftref = checkmember( left, right );
-      return;
-    case TOK_DELMEMBER:  // ins_removemember
-      leftref = removemember( left, right );
-      return;
-    case TOK_ADDMEMBER:  // ins_addmember
-      leftref = addmember( left, right );
-      return;
-
-    default:
-      ERROR_PRINT << "Operator handling not defined in Executor::innerExec for " << token << "\n";
-      seterror( true );
-      return;
-    }
-    // should be unreachable, see default above
-    return;
-  }
-
-  default:
-    ERROR_PRINT << "Execution error in " << scriptname() << ":\n"
-                << "Unhandled token " << token << " in Executor::innerExec\n";
-    seterror( true );
-    return;
-  }
-  // also unreachable
-  return;
+  ValueStack.push_back(
+    BObjectRef( new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
 }
 
-void Executor::ins_nop( const Instruction& /*ins*/ )
-{
-}
+void Executor::ins_nop( const Instruction& /*ins*/ ) {}
 
 ExecInstrFunc Executor::GetInstrFunc( const Token& token )
 {
@@ -3109,6 +2607,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_array;
   case TOK_DICTIONARY:
     return &Executor::ins_dictionary;
+  case TOK_FUNCREF:
+    return &Executor::ins_funcref;
   case INS_UNINIT:
     return &Executor::ins_uninit;
   case TOK_IDENT:
@@ -3449,7 +2949,7 @@ bool Executor::exec()
   passert( !error_ );
 
   Clib::scripts_thread_script = scriptname();
-  
+
   set_running_to_completion( true );
   while ( runnable() )
   {
@@ -3488,9 +2988,9 @@ void Executor::initForFnCall( unsigned in_PC )
   done = 0;
   seterror( false );
 
+#ifdef MEMORYLEAK
   while ( !ValueStack.empty() )
   {
-#ifdef MEMORYLEAK
     if ( Clib::memoryleak_debug )
     {
       if ( !data_shown )
@@ -3502,19 +3002,15 @@ void Executor::initForFnCall( unsigned in_PC )
       LEAKLOG << ValueStack.back()->impptr()->pack();
       LEAKLOG << " [" << ValueStack.back()->impptr()->sizeEstimate() << "] ";
     }
-#endif
-
     ValueStack.pop_back();
   }
-
-#ifdef MEMORYLEAK
   if ( Clib::memoryleak_debug )
     if ( data_shown )
       LEAKLOG << " ...deleted\n";
 #endif
 
-  delete Locals2;
-  Locals2 = new BObjectRefVec;
+  ValueStack.clear();
+  Locals2->clear();
 }
 
 void Executor::pushArg( BObjectImp* arg )

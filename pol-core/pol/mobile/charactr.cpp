@@ -7,7 +7,7 @@
  * - 2005/06/01 Shinigami: Added Walking_Mounted and Running_Mounted movecosts
  * - 2005/09/14 Shinigami: Character::resurrect() - Vital.regen_while_dead implemented
  * - 2005/10/14 Shinigami: fixed missing init of Character::dblclick_wait
- * - 2005/11/23 MuadDib:	  Added warmode_wait object for characters.
+ * - 2005/11/23 MuadDib:    Added warmode_wait object for characters.
  * - 2005/11/25 MuadDib:   Added realm check to is_visible_to_me.
  * - 2005/12/06 MuadDib:   Added uclang member for storing UC language from client.
  * - 2006/03/10 MuadDib:   Added NoCombat support to checking of justice region.
@@ -87,95 +87,91 @@
 
 #include "charactr.h"
 
-#ifdef __GNUC__
-#include <math.h>
-#endif
+#include <stdlib.h>
+#include <string>
 
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
+#include "../../clib/clib.h"
+#include "../../clib/clib_endian.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/streamsaver.h"
 #include "../../clib/passert.h"
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-
+#include "../../clib/streamsaver.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
-
 #include "../accounts/account.h"
-#include "../action.h"
-#include "../anim.h"
+#include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../clidata.h"
 #include "../cmbtcfg.h"
 #include "../cmdlevel.h"
+#include "../containr.h"
+#include "../dice.h"
+#include "../extobj.h"
 #include "../fnsearch.h"
+#include "../globals/settings.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
 #include "../guardrgn.h"
 #include "../guilds.h"
 #include "../item/armor.h"
+#include "../item/item.h"
+#include "../item/itemdesc.h"
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
-#include "../lightlvl.h"
+#include "../layers.h"
 #include "../mdelta.h"
 #include "../miscrgn.h"
 #include "../mkscrobj.h"
 #include "../module/osmod.h"
 #include "../module/uomod.h"
-#include "../multi/boat.h"
+#include "../movecost.h"
+#include "../multi/customhouses.h"
 #include "../multi/house.h"
+#include "../multi/multi.h"
+#include "../multi/multidef.h"
 #include "../musicrgn.h"
-#include "../network/cgdata.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/cliface.h"
+#include "../network/packetdefs.h"
+#include "../network/packethelper.h"
 #include "../network/packets.h"
 #include "../objtype.h"
 #include "../party.h"
-#include "../pktboth.h"
-#include "../pktout.h"
-#include "../polcfg.h"
+#include "../pktdef.h"
 #include "../polclass.h"
-#include "../polclock.h"
+#include "../polsig.h"
+#include "../polvar.h"
+#include "../profile.h"
+#include "../realms/WorldChangeReasons.h"
 #include "../realms/realm.h"
-#include "../realms.h"
 #include "../schedule.h"
+#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../sfx.h"
 #include "../skilladv.h"
-#include "../skills.h"
 #include "../spelbook.h"
 #include "../statmsg.h"
 #include "../syshook.h"
-#include "../syshook.h"
-#include "../target.h"
-#include "../uconst.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
-#include "../umanip.h"
+#include "../uobjcnt.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../vital.h"
-
 #include "attribute.h"
 #include "corpse.h"
 #include "privupdater.h"
-#include "ufacing.h"
 #include "wornitems.h"
 
-#include "npc.h"  // TODO: Remove this abomination!
-
-#include <string>
-#include <set>
-
 #ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation warning
 #pragma warning( disable : 4505 )  // unreferenced local function has been removed
 #endif
 
@@ -263,11 +259,6 @@ void unload_armor_zones()
   Core::gamestate.armor_zone_chance_sum = 0;
 }
 
-const Core::MovementCostMod Character::DEFAULT_MOVEMENTCOSTMOD =
-    Core::MovementCostMod( 1.0, 1.0, 1.0, 1.0 );
-const Core::ExtStatBarFollowers Character::DEFAULT_EXTSTATBARFOLLOWERS =
-    Core::ExtStatBarFollowers( 0, 0 );
-const Core::SkillStatCap Character::DEFAULT_SKILLSTATCAP = Core::SkillStatCap( 225, 700 );
 
 Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
     : UObject( objtype, uobj_class ),
@@ -277,7 +268,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       shield( NULL ),
       armor_( Core::gamestate.armorzones.size() ),
       wornitems( new Core::WornItemsContainer ),  // default objtype is in containr.cpp,
-                                                      // WornItemsContainer class
+                                                  // WornItemsContainer class
       gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
       remote_containers_(),
       // MOVEMENT
@@ -348,11 +339,11 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       race( Core::RACE_HUMAN ),
       last_corpse( 0 )
 {
-  logged_in( true ); // so initialization scripts etc can see
+  logged_in( true );  // so initialization scripts etc can see
 
   height = Core::settingsManager.ssopt
                .default_character_height;  // this gets overwritten in UObject::readProperties!
-  wornitems->chr_owner = this;              // FIXME, dangerous.
+  wornitems->chr_owner = this;             // FIXME, dangerous.
 
   set_caps_to_default();
 
@@ -382,18 +373,18 @@ Character::~Character()
   // It might be nice to do this only when the system isn't shutting down...
   // if (!opponent_of.empty())
   //{
-  //	Clib::Log( "Destroying character with nonempty opponent_of! (But cleaning up..)\n" );
+  //  Clib::Log( "Destroying character with nonempty opponent_of! (But cleaning up..)\n" );
   //}
 
   removal_cleanup();
 
-  // clean up wornitems, so it can be reaped by the objecthash later 
+  // clean up wornitems, so it can be reaped by the objecthash later
   wornitems->destroy();
 
   // clean up trade container if it exists
   if ( trading_cont != nullptr )
     trading_cont->destroy();
-  
+
   if ( repsys_task_ != NULL )
     repsys_task_->cancel();
 
@@ -415,9 +406,9 @@ void Character::removal_cleanup()
   if ( opponent_ != NULL )
   {
     opponent_->opponent_of.erase( this );
-    //		This is cleanup, wtf we doing trying to send highlights?!
-    //		opponent_->send_highlight();
-    //		opponent_->schedule_attack();
+    //    This is cleanup, wtf we doing trying to send highlights?!
+    //    opponent_->send_highlight();
+    //    opponent_->schedule_attack();
     opponent_ = NULL;
   }
 
@@ -534,7 +525,8 @@ unsigned int Character::weight() const
 }
 
 ///
-/// A Mobile's carrying capacity is (40 + 3.5*STR + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod stones.
+/// A Mobile's carrying capacity is (40 + 3.5*STR +
+/// chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod stones.
 ///
 unsigned short Character::carrying_capacity() const
 {
@@ -634,14 +626,16 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
-    if ( movecost_value.walk != DEFAULT_MOVEMENTCOSTMOD.walk )
+    if ( movecost_value.walk != Core::MovementCostMod::DEFAULT.walk )
       sw() << "\tMovementWalkMod\t" << static_cast<double>( movecost_value.walk ) << pf_endl;
-    if ( movecost_value.run != DEFAULT_MOVEMENTCOSTMOD.run )
+    if ( movecost_value.run != Core::MovementCostMod::DEFAULT.run )
       sw() << "\tMovementRunMod\t" << static_cast<double>( movecost_value.run ) << pf_endl;
-    if ( movecost_value.walk_mounted != DEFAULT_MOVEMENTCOSTMOD.walk_mounted )
-      sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( movecost_value.walk_mounted ) << pf_endl;
-    if ( movecost_value.run_mounted != DEFAULT_MOVEMENTCOSTMOD.run_mounted )
-      sw() << "\tMovementRunMountedMod\t" << static_cast<double>( movecost_value.run_mounted ) << pf_endl;
+    if ( movecost_value.walk_mounted != Core::MovementCostMod::DEFAULT.walk_mounted )
+      sw() << "\tMovementWalkMountedMod\t" << static_cast<double>( movecost_value.walk_mounted )
+           << pf_endl;
+    if ( movecost_value.run_mounted != Core::MovementCostMod::DEFAULT.run_mounted )
+      sw() << "\tMovementRunMountedMod\t" << static_cast<double>( movecost_value.run_mounted )
+           << pf_endl;
   }
   if ( has_carrying_capacity_mod() )
     sw() << "\tCarryingCapacityMod\t" << static_cast<int>( carrying_capacity_mod() ) << pf_endl;
@@ -693,10 +687,10 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( has_skillstatcap() )
   {
     auto cap_value = skillstatcap();
-    if ( cap_value.statcap != DEFAULT_SKILLSTATCAP.statcap )
-      sw() << "\tStatcap\t" << static_cast<int>(cap_value.statcap) << pf_endl;
-    if ( cap_value.skillcap != DEFAULT_SKILLSTATCAP.skillcap )
-      sw() << "\tSkillcap\t" << static_cast<int>(cap_value.skillcap) << pf_endl;
+    if ( cap_value.statcap != Core::SkillStatCap::DEFAULT.statcap )
+      sw() << "\tStatcap\t" << static_cast<int>( cap_value.statcap ) << pf_endl;
+    if ( cap_value.skillcap != Core::SkillStatCap::DEFAULT.skillcap )
+      sw() << "\tSkillcap\t" << static_cast<int>( cap_value.skillcap ) << pf_endl;
   }
 
   if ( has_luck() )
@@ -704,10 +698,10 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( has_followers() )
   {
     auto followers_value = followers();
-    if ( followers_value.followers_max != DEFAULT_EXTSTATBARFOLLOWERS.followers_max )
-      sw() << "\tFollowersMax\t" << static_cast<int>(followers_value.followers_max) << pf_endl;
-    if ( followers_value.followers != DEFAULT_EXTSTATBARFOLLOWERS.followers )
-      sw() << "\tFollowers\t" << static_cast<int>(followers_value.followers) << pf_endl;
+    if ( followers_value.followers_max != Core::ExtStatBarFollowers::DEFAULT.followers_max )
+      sw() << "\tFollowersMax\t" << static_cast<int>( followers_value.followers_max ) << pf_endl;
+    if ( followers_value.followers != Core::ExtStatBarFollowers::DEFAULT.followers )
+      sw() << "\tFollowers\t" << static_cast<int>( followers_value.followers ) << pf_endl;
   }
   if ( has_tithing() )
     sw() << "\tTithing\t" << static_cast<int>( tithing() ) << pf_endl;
@@ -881,8 +875,8 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   movemode = decode_movemode( elem.remove_string( "MOVEMODE", "L" ) );
   concealed_ = static_cast<unsigned char>( elem.remove_ushort(
       "CONCEALED", 0 ) );  // DAVE changed from remove_bool 11/25. concealed is a char, not a bool!
-  //	if (concealed_ > cmdlevel)
-  //		concealed_ = cmdlevel;
+  //  if (concealed_ > cmdlevel)
+  //    concealed_ = cmdlevel;
 
   truecolor = elem.remove_ushort( "TRUECOLOR" );
 
@@ -931,10 +925,10 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
     physical_damage( physical_damage().setAsMod( mod_value ) );
 
   movement_cost( Core::MovementCostMod(
-      elem.remove_double( "MovementWalkMod", DEFAULT_MOVEMENTCOSTMOD.walk ),
-      elem.remove_double( "MovementRunMod", DEFAULT_MOVEMENTCOSTMOD.run ),
-      elem.remove_double( "MovementWalkMountedMod", DEFAULT_MOVEMENTCOSTMOD.walk_mounted ),
-      elem.remove_double( "MovementRunMountedMod", DEFAULT_MOVEMENTCOSTMOD.run_mounted ) ) );
+      elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
+      elem.remove_double( "MovementRunMod", Core::MovementCostMod::DEFAULT.run ),
+      elem.remove_double( "MovementWalkMountedMod", Core::MovementCostMod::DEFAULT.walk_mounted ),
+      elem.remove_double( "MovementRunMountedMod", Core::MovementCostMod::DEFAULT.run_mounted ) ) );
 
   carrying_capacity_mod( static_cast<s16>( elem.remove_int( "CarryingCapacityMod", 0 ) ) );
 
@@ -971,13 +965,14 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
   uclang = elem.remove_string( "UCLang", "enu" );
   skillstatcap( Core::SkillStatCap(
-      static_cast<s16>( elem.remove_int( "STATCAP", DEFAULT_SKILLSTATCAP.statcap ) ),
-      static_cast<u16>( elem.remove_int( "SKILLCAP", DEFAULT_SKILLSTATCAP.skillcap ) ) ) );
+      static_cast<s16>( elem.remove_int( "STATCAP", Core::SkillStatCap::DEFAULT.statcap ) ),
+      static_cast<u16>( elem.remove_int( "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) ) );
   luck( static_cast<s16>( elem.remove_int( "LUCK", 0 ) ) );
   followers( Core::ExtStatBarFollowers(
-      static_cast<s8>( elem.remove_int( "FOLLOWERS", DEFAULT_EXTSTATBARFOLLOWERS.followers ) ),
       static_cast<s8>(
-          elem.remove_int( "FOLLOWERSMAX", DEFAULT_EXTSTATBARFOLLOWERS.followers_max ) ) ) );
+          elem.remove_int( "FOLLOWERS", Core::ExtStatBarFollowers::DEFAULT.followers ) ),
+      static_cast<s8>(
+          elem.remove_int( "FOLLOWERSMAX", Core::ExtStatBarFollowers::DEFAULT.followers_max ) ) ) );
   tithing( elem.remove_int( "TITHING", 0 ) );
 
   privs.readfrom( elem.remove_string( "Privs", "" ) );
@@ -1207,6 +1202,23 @@ void Character::revoke_privilege( const char* priv )
   refresh_cached_settings();
 }
 
+bool Character::can_access( const Items::Item* item, int range ) const
+{
+  // TODO: find_legal_item() is awful, we should just check the item
+  //       properties directly instead of going around searching for a given serial in the world
+
+  // Range < 0 has special meaning. -1 is the default accessible range,
+  // anything smaller ignores the range check.
+  if ( range == -1 )
+    range = Core::settingsManager.ssopt.default_accessible_range;
+
+  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;
+  if ( within_range && (find_legal_item( this, item->serial ) != NULL) )
+    return true;
+
+  return false;
+}
+
 bool Character::can_move( const Items::Item* item ) const
 {
   if ( item->objtype_ != UOBJ_CORPSE )
@@ -1364,7 +1376,8 @@ bool Character::equippable( const Items::Item* item ) const
   {
     return false;
   }
-  if ( ( item->tile_layer == Core::LAYER_BACKPACK ) && !item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
+  if ( ( item->tile_layer == Core::LAYER_BACKPACK ) &&
+       !item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     return false;
   }
@@ -1693,10 +1706,8 @@ void Character::on_poison_changed()
     {
       Network::HealthBarStatusUpdate msg( serial_ext, Network::HealthBarStatusUpdate::Color::GREEN,
                                           poisoned() );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* zonechr )
-                                                                    {
-                                                                      msg.Send( zonechr->client );
-                                                                    } );
+      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+          this, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
     }
   }
 }
@@ -1771,7 +1782,8 @@ u8 Character::get_flag1( Network::Client* other_client ) const
        ( ~other_client->ClientType &
          Network::CLIENTTYPE_7000 ) )  // client >=7 receive the poisonflag with 0x17
     flag1 |= Core::CHAR_FLAG1_POISONED;
-  if ( ( movemode & Core::MOVEMODE_FLY ) && ( other_client->ClientType & Network::CLIENTTYPE_7000 ) )
+  if ( ( movemode & Core::MOVEMODE_FLY ) &&
+       ( other_client->ClientType & Network::CLIENTTYPE_7000 ) )
     flag1 |= Core::CHAR_FLAG1_FLYING;
   if ( ( Core::settingsManager.ssopt.invul_tag == 2 ) && ( invul() ) )
     flag1 |= Core::CHAR_FLAG1_YELLOWHEALTH;
@@ -1814,7 +1826,7 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
   }
 
   if ( paralyzed() )
-    mob_flags_.remove ( MOB_FLAGS::PARALYZED );
+    mob_flags_.remove( MOB_FLAGS::PARALYZED );
 
   disable_regeneration_for( 2 );  // FIXME depend on amount?
 
@@ -1947,9 +1959,9 @@ void Character::run_hit_script( Character* defender, double damage )
 
 ///
 /// Clear a Mobile's ToBeReportable list when all of the following are true:
-///	 1) hits are at maximum
-///	 2) mobile is not poisoned
-///	 3) mobile is not paralyzed
+///   1) hits are at maximum
+///   2) mobile is not poisoned
+///   3) mobile is not paralyzed
 ///
 void Character::check_undamaged()
 {
@@ -1964,9 +1976,9 @@ void Character::check_undamaged()
 /// When a Mobile is Healed
 ///
 ///   if Amy's hits are at maximum,
-///	   Clear Amy's ToBeReportable list
+///     Clear Amy's ToBeReportable list
 ///
-///	 (note, poisoned and paralyzed flags are not checked)
+///   (note, poisoned and paralyzed flags are not checked)
 ///
 void Character::heal_damage_hundredths( unsigned int amount )
 {
@@ -2114,11 +2126,9 @@ void Character::resurrect()
     send_warmode();
     send_goxyz( client, this );
     send_owncreate( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr )
-                                                            {
-                                                              send_remove_if_hidden_ghost( zonechr,
-                                                                                           client );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr ) {
+      send_remove_if_hidden_ghost( zonechr, client );
+    } );
     client->restart();
   }
 
@@ -2126,10 +2136,8 @@ void Character::resurrect()
   send_remove_character_to_nearby_cansee( this );
   send_create_mobile_to_nearby_cansee( this );
 
-  Core::WorldIterator<Core::NPCFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
-                                                 {
-                                                   NpcPropagateEnteredArea( chr, this );
-                                                 } );
+  Core::WorldIterator<Core::NPCFilter>::InRange(
+      x, y, realm, 32, [&]( Character* chr ) { NpcPropagateEnteredArea( chr, this ); } );
 }
 
 void Character::on_death( Items::Item* corpse )
@@ -2161,10 +2169,8 @@ void Character::on_death( Items::Item* corpse )
     send_full_corpse( client, corpse );
 
     send_goxyz( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange( client->chr, [&]( Character* zonechr )
-                                                            {
-                                                              send_create_ghost( zonechr, client );
-                                                            } );
+    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
+        client->chr, [&]( Character* zonechr ) { send_create_ghost( zonechr, client ); } );
 
     client->restart();
   }
@@ -2282,15 +2288,13 @@ void Character::die()
   UPDATE_CHECKPOINT();
 
   // small lambdas to reduce the mess inside the loops
-  auto _copy_item = [&]( Items::Item* _item )
-  {  // copy a item into the corpse
+  auto _copy_item = [&]( Items::Item* _item ) {  // copy a item into the corpse
     Items::Item* copy = _item->clone();
     copy->invisible( true );
     copy->movable( false );
     corpse->add( copy );
   };
-  auto _drop_item_to_world = [&]( Items::Item* _item )
-  {  // places the item onto the corpse coords
+  auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
     _item->x = corpse->x;
     _item->y = corpse->y;
     _item->z = corpse->z;
@@ -2317,7 +2321,7 @@ void Character::die()
       _copy_item( item );
       continue;
     }
-    if ( item->newbie() || item->insured() )
+    if ( item->newbie() || item->insured() || item->no_drop() )
       continue;
     else if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
               !item->movable() )  // dress layer needs to be unequipped for deathrobe
@@ -2378,7 +2382,8 @@ void Character::die()
       bp_item->container = NULL;
       bp_item->layer = 0;
       UPDATE_CHECKPOINT();
-      if ( ( bp_item->newbie() || bp_item->use_insurance() ) && bp->can_add( *bp_item ) )
+      if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
+           bp->can_add( *bp_item ) )
       {
         if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
         {
@@ -2425,7 +2430,7 @@ void Character::die()
       if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
            !item->movable() )
         continue;
-      if ( ( item->newbie() || item->use_insurance() ) && bp->can_add( *item ) )
+      if ( ( item->newbie() || item->no_drop() || item->use_insurance() ) && bp->can_add( *item ) )
       {
         UPDATE_CHECKPOINT();
         if ( Core::settingsManager.ssopt.honor_unequip_script_on_death )
@@ -2484,7 +2489,7 @@ void Character::die()
 
 void Character::refresh_ar()
 {
-  //	find_armor(); <-- MuadDib commented out, put code inside here to cut down on iter.
+  //  find_armor(); <-- MuadDib commented out, put code inside here to cut down on iter.
   // Figure out what's in each zone
   //   FIXME? NZONES * NLAYERS (5 * 24 = 124) iterations.
   // okay, reverse, for each wornitem, for each coverage area, upgrade.
@@ -2492,10 +2497,7 @@ void Character::refresh_ar()
   for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
     armor_[zone] = NULL;
   // we need to reset each resist to 0, then add the base back using calc.
-  for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-  {
-    refresh_element( (Core::ElementalType)element );
-  }
+  resetEquipableProperties();
 
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
   {
@@ -2503,10 +2505,8 @@ void Character::refresh_ar()
     if ( item == NULL )
       continue;
     // Let's check all items as base, and handle their element_resists.
-    for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-    {
-      update_element( (Core::ElementalType)element, item );
-    }
+    updateEquipableProperties( item );
+
     if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Items::UArmor* armor = static_cast<Items::UArmor*>( item );
@@ -2520,7 +2520,7 @@ void Character::refresh_ar()
     }
   }
 
-  //	calculate_ar();	<-- MuadDib Commented out, mixed code within ported find_armor to reduce
+  //  calculate_ar();  <-- MuadDib Commented out, mixed code within ported find_armor to reduce
   // iter.
   double new_ar = 0.0;
   for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
@@ -2558,146 +2558,54 @@ void Character::refresh_ar()
   }
 }
 
-void Character::update_element( Core::ElementalType element, Items::Item* item )
+void Character::updateEquipableProperties( Items::Item* item )
 {
-  Core::AosValuePack curr;
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( item->has_fire_resist() )
-      fire_resist( fire_resist().addToValue( item->fire_resist() ) );
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( item->has_cold_resist() )
-      cold_resist( cold_resist().addToValue( item->cold_resist() ) );
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( item->has_energy_resist() )
-      energy_resist( energy_resist().addToValue( item->energy_resist() ) );
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( item->has_poison_resist() )
-      poison_resist( poison_resist().addToValue( item->poison_resist() ) );
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( item->has_physical_resist() )
-      physical_resist( physical_resist().addToValue( item->physical_resist() ) );
-    break;
-  }
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( item->has_fire_damage() )
-      fire_damage( fire_damage().addToValue( item->fire_damage() ) );
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( item->has_cold_damage() )
-      cold_damage( cold_damage().addToValue( item->cold_damage() ) );
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( item->has_energy_damage() )
-      energy_damage( energy_damage().addToValue( item->energy_damage() ) );
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( item->has_poison_damage() )
-      poison_damage( poison_damage().addToValue( item->poison_damage() ) );
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( item->has_physical_damage() )
-      physical_damage( physical_damage().addToValue( item->physical_damage() ) );
-    break;
-  }
+  if ( item->has_fire_resist() )
+    fire_resist( fire_resist().addToValue( item->fire_resist() ) );
+  if ( item->has_cold_resist() )
+    cold_resist( cold_resist().addToValue( item->cold_resist() ) );
+  if ( item->has_energy_resist() )
+    energy_resist( energy_resist().addToValue( item->energy_resist() ) );
+  if ( item->has_poison_resist() )
+    poison_resist( poison_resist().addToValue( item->poison_resist() ) );
+  if ( item->has_physical_resist() )
+    physical_resist( physical_resist().addToValue( item->physical_resist() ) );
+
+  if ( item->has_fire_damage() )
+    fire_damage( fire_damage().addToValue( item->fire_damage() ) );
+  if ( item->has_cold_damage() )
+    cold_damage( cold_damage().addToValue( item->cold_damage() ) );
+  if ( item->has_energy_damage() )
+    energy_damage( energy_damage().addToValue( item->energy_damage() ) );
+  if ( item->has_poison_damage() )
+    poison_damage( poison_damage().addToValue( item->poison_damage() ) );
+  if ( item->has_physical_damage() )
+    physical_damage( physical_damage().addToValue( item->physical_damage() ) );
 }
 
-void Character::refresh_element( Core::ElementalType element )
+void Character::resetEquipableProperties()
 {
-  Core::AosValuePack curr;
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( has_fire_resist() )
-    {
-      curr = fire_resist();
-      curr.value = curr.mod;
-      fire_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( has_cold_resist() )
-    {
-      curr = cold_resist();
-      curr.value = curr.mod;
-      cold_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( has_energy_resist() )
-    {
-      curr = energy_resist();
-      curr.value = curr.mod;
-      energy_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( has_poison_resist() )
-    {
-      curr = poison_resist();
-      curr.value = curr.mod;
-      poison_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( has_physical_resist() )
-    {
-      curr = physical_resist();
-      curr.value = curr.mod;
-      physical_resist( curr );
-    }
-    break;
-  }
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( has_fire_damage() )
-    {
-      curr = fire_damage();
-      curr.value = curr.mod;
-      fire_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( has_cold_damage() )
-    {
-      curr = cold_damage();
-      curr.value = curr.mod;
-      cold_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( has_energy_damage() )
-    {
-      curr = energy_damage();
-      curr.value = curr.mod;
-      energy_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( has_poison_damage() )
-    {
-      curr = poison_damage();
-      curr.value = curr.mod;
-      poison_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( has_physical_damage() )
-    {
-      curr = physical_damage();
-      curr.value = curr.mod;
-      physical_damage( curr );
-    }
-    break;
-  }
+  if ( has_fire_resist() )
+    fire_resist( fire_resist().resetModAsValue() );
+  if ( has_cold_resist() )
+    cold_resist( cold_resist().resetModAsValue() );
+  if ( has_energy_resist() )
+    energy_resist( energy_resist().resetModAsValue() );
+  if ( has_poison_resist() )
+    poison_resist( poison_resist().resetModAsValue() );
+  if ( has_physical_resist() )
+    physical_resist( physical_resist().resetModAsValue() );
+
+  if ( has_fire_damage() )
+    fire_damage( fire_damage().resetModAsValue() );
+  if ( has_cold_damage() )
+    cold_damage( cold_damage().resetModAsValue() );
+  if ( has_energy_damage() )
+    energy_damage( energy_damage().resetModAsValue() );
+  if ( has_poison_damage() )
+    poison_damage( poison_damage().resetModAsValue() );
+  if ( has_physical_damage() )
+    physical_damage( physical_damage().resetModAsValue() );
 }
 
 void Character::showarmor() const
@@ -2792,70 +2700,67 @@ void PropagateMove( /*Client *client,*/ Character* chr )
   MoveChrPkt msgmove( chr );
   build_owncreate( chr, msgcreate.Get() );
 
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-      chr, [&]( Character* zonechr )
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) {
+    Client* client = zonechr->client;
+    if ( zonechr == chr )
+      return;
+    if ( !zonechr->is_visible_to_me( chr ) )
+      return;
+    /* The two characters exist, and are in range of each other.
+    Character 'chr''s lastx and lasty coordinates are valid.
+    SO, if lastx/lasty are out of range of client->chr, we
+    should send a 'create' type message.  If they are in range,
+    we should just send a move.
+    */
+    if ( chr->move_reason == Character::MULTIMOVE )
+    {
+      if ( client->ClientType & Network::CLIENTTYPE_7090 )
       {
-        Client* client = zonechr->client;
-        if ( zonechr == chr )
-          return;
-        if ( !zonechr->is_visible_to_me( chr ) )
-          return;
-        /* The two characters exist, and are in range of each other.
-        Character 'chr''s lastx and lasty coordinates are valid.
-        SO, if lastx/lasty are out of range of client->chr, we
-        should send a 'create' type message.  If they are in range,
-        we should just send a move.
-        */
-        if ( chr->move_reason == Character::MULTIMOVE )
-        {
-          if ( client->ClientType & Network::CLIENTTYPE_7090 )
-          {
-            if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
-              msgpoison.Send( client );
+        if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
+          msgpoison.Send( client );
 
-            if ( chr->invul() )  // if invul send 0x17 for newer clients
-              msginvul.Send( client );
-            return;
-          }
-          else
-          {
+        if ( chr->invul() )  // if invul send 0x17 for newer clients
+          msginvul.Send( client );
+        return;
+      }
+      else
+      {
 // NOTE: uncomment this line to make movement smoother (no stepping anims)
 // but basically makes it very difficult to talk while the ship
 // is moving.
 #ifdef PERGON
-            send_remove_character( client, chr, msgremove );
+        send_remove_character( client, chr, msgremove );
 #else
 // send_remove_character( client, chr );
 #endif
-            send_owncreate( client, chr, msgcreate.Get() );
-            if ( chr->poisoned() )
-              msgpoison.Send( client );
-            if ( chr->invul() )
-              msginvul.Send( client );
-          }
-        }
-        else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
-        {
-          msgmove.Send( client );
-          if ( chr->poisoned() )
-            msgpoison.Send( client );
-          if ( chr->invul() )
-            msginvul.Send( client );
-        }
-        else
-        {
-          send_owncreate( client, chr, msgcreate.Get() );
-          if ( chr->poisoned() )
-            msgpoison.Send( client );
-          if ( chr->invul() )
-            msginvul.Send( client );
-        }
-      } );
+        send_owncreate( client, chr, msgcreate.Get() );
+        if ( chr->poisoned() )
+          msgpoison.Send( client );
+        if ( chr->invul() )
+          msginvul.Send( client );
+      }
+    }
+    else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
+    {
+      msgmove.Send( client );
+      if ( chr->poisoned() )
+        msgpoison.Send( client );
+      if ( chr->invul() )
+        msginvul.Send( client );
+    }
+    else
+    {
+      send_owncreate( client, chr, msgcreate.Get() );
+      if ( chr->poisoned() )
+        msgpoison.Send( client );
+      if ( chr->invul() )
+        msginvul.Send( client );
+    }
+  } );
 
   // iter over all old in range players and send remove
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr )
-      {
+      chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr ) {
         Client* client = zonechr->client;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
@@ -2989,11 +2894,11 @@ bool Character::is_attackable( Character* who ) const
   {
     INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
                            << fmt::hexu( who->serial ) << "):\n"
-                           << "  who->dead:	" << who->dead() << "\n"
+                           << "  who->dead:  " << who->dead() << "\n"
                            << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
-                           << "  hidden:	   " << hidden() << "\n"
+                           << "  hidden:     " << hidden() << "\n"
                            << "  who->hidden:  " << who->hidden() << "\n"
-                           << "  concealed:	" << is_concealed_from_me( who ) << "\n";
+                           << "  concealed:  " << is_concealed_from_me( who ) << "\n";
     if ( who->dead() )
       return false;
     else if ( !weapon->in_range( this, who ) )
@@ -3090,9 +2995,7 @@ void Character::inform_moved( Character* /*moved*/ )
 {
   // consider moving PropagateMove here!
 }
-void Character::inform_imoved( Character* /*chr*/ )
-{
-}
+void Character::inform_imoved( Character* /*chr*/ ) {}
 
 void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 {
@@ -3204,12 +3107,11 @@ void Character::set_warmode( bool i_warmode )
   else
   {
     Network::MoveChrPkt msgmove( this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr )
-                                                                  {
-                                                                    if ( chr == this )
-                                                                      return;
-                                                                    msgmove.Send( chr->client );
-                                                                  } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr ) {
+      if ( chr == this )
+        return;
+      msgmove.Send( chr->client );
+    } );
   }
 }
 
@@ -3480,13 +3382,13 @@ void Character::check_attack_after_move()
   INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
                          << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
   if ( opponent != NULL &&  // and I have an opponent
-       !dead() &&            // If I'm not dead
+       !dead() &&           // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
          ( !paralyzed() && !frozen() ) ) )
   {
     FUNCTION_CHECKPOINT( check_attack_after_move, 3 );
     if ( mob_flags_.get( MOB_FLAGS::READY_TO_SWING ) )  // and I can swing now,
-    {                      // do so.
+    {                                                   // do so.
       FUNCTION_CHECKPOINT( check_attack_after_move, 4 );
       if ( Core::settingsManager.combat_config.send_swing_packet && client != NULL )
         send_fight_occuring( client, opponent );
@@ -3702,15 +3604,13 @@ void Character::unhide()
   {
     if ( client != NULL )
       send_owncreate( client, this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-        this, [&]( Character* chr )
-        {
-          if ( chr == this )
-            return;
-          if ( !chr->is_visible_to_me( this ) )
-            return;
-          send_owncreate( chr->client, this );
-        } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr ) {
+      if ( chr == this )
+        return;
+      if ( !chr->is_visible_to_me( this ) )
+        return;
+      send_owncreate( chr->client, this );
+    } );
 
     // dave 12-21 added this hack to get enteredarea events fired when unhiding
     u16 oldlastx = lastx;
@@ -3719,10 +3619,8 @@ void Character::unhide()
     lasty = 0;
     // tellmove();
 
-    Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 32, [&]( Character* chr )
-                                                      {
-                                                        NpcPropagateMove( chr, this );
-                                                      } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        x, y, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
     lastx = oldlastx;
     lasty = oldlasty;
   }
@@ -3795,8 +3693,7 @@ bool Character::face( Core::UFACING i_facing, int flags )
     setfacing( static_cast<u8>( i_facing ) );
 
     if ( Core::settingsManager.combat_config.reset_swing_onturn &&
-         !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) &&
-         weapon->is_projectile() )
+         !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
     if ( hidden() && ( Core::settingsManager.ssopt.hidden_turns_count ) )
     {
@@ -3981,7 +3878,8 @@ bool Character::move( unsigned char i_dir )
 
     if ( hidden() )
     {
-      if ( ( ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) && !cached_settings.get( PRIV_FLAGS::RUN_WHILE_STEALTH ) ) ||
+      if ( ( ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) &&
+             !cached_settings.get( PRIV_FLAGS::RUN_WHILE_STEALTH ) ) ||
            ( stealthsteps_ == 0 ) )
         unhide();
       else if ( stealthsteps_ )
@@ -4019,8 +3917,8 @@ void Character::realm_changed()
   // automagically by wormitems realm handling.  There is a slim
   // possibility that backpacks might be assigned to a character but
   // not be a worn item?  If this is the case, that will be broken.
-  //	backpack()->realm = realm;
-  //	backpack()->for_each_item(setrealm, (void*)realm);
+  //  backpack()->realm = realm;
+  //  backpack()->for_each_item(setrealm, (void*)realm);
   wornitems->for_each_item( Core::setrealm, (void*)realm );
   if ( has_gotten_item() )
     gotten_item()->realm = realm;
@@ -4048,8 +3946,7 @@ bool Character::CheckPushthrough()
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        newx, newy, realm, 0, [&]( Mobile::Character* _chr )
-        {
+        newx, newy, realm, 0, [&]( Mobile::Character* _chr ) {
           if ( _chr->z >= z - 10 && _chr->z <= z + 10 && !_chr->dead() &&
                ( is_visible_to_me( _chr ) ||
                  _chr->hidden() ) )  // add hidden mobs even if they're not visible to me
@@ -4080,17 +3977,13 @@ void Character::tellmove()
   // TO DO: Place in realm change support so npcs know when you enter/leave one?
   if ( Core::pol_distance( lastx, lasty, x, y ) > 32 )
   {
-    Core::WorldIterator<Core::MobileFilter>::InRange( lastx, lasty, realm, 32, [&]( Character* chr )
-                                                      {
-                                                        NpcPropagateMove( chr, this );
-                                                      } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        lastx, lasty, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
   }
 
   // Inform nearby NPCs that a movement has been made.
-  Core::WorldIterator<Core::MobileFilter>::InRange( x, y, realm, 33, [&]( Character* chr )
-                                                    {
-                                                      NpcPropagateMove( chr, this );
-                                                    } );
+  Core::WorldIterator<Core::MobileFilter>::InRange(
+      x, y, realm, 33, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
 
   check_attack_after_move();
 
@@ -4299,10 +4192,10 @@ unsigned int Character::guildid() const
 }
 
 /**
-* Adds a new buff or overwrites an existing one for the character
-* Sends packets to the client accordingly
-* @author Bodom
-*/
+ * Adds a new buff or overwrites an existing one for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ */
 void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
                          const std::vector<u32>& arguments )
 {
@@ -4317,11 +4210,11 @@ void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
 }
 
 /**
-* Removes a buff for the character
-* Sends packets to the client accordingly
-* @author Bodom
-* @return True when the buff has been found and removed, False when the buff was not present
-*/
+ * Removes a buff for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ * @return True when the buff has been found and removed, False when the buff was not present
+ */
 bool Character::delBuff( u16 icon )
 {
   auto b = buffs_.find( icon );
@@ -4336,10 +4229,10 @@ bool Character::delBuff( u16 icon )
 }
 
 /**
-* Removes al buffs for the character
-* Sends packets to the client accordingly
-* @author Bodom
-*/
+ * Removes al buffs for the character
+ * Sends packets to the client accordingly
+ * @author Bodom
+ */
 void Character::clearBuffs()
 {
   for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
@@ -4347,9 +4240,9 @@ void Character::clearBuffs()
 }
 
 /**
-* Resends all buffs (with updated duration), usually called at (re)login
-* @author Bodom
-*/
+ * Resends all buffs (with updated duration), usually called at (re)login
+ * @author Bodom
+ */
 void Character::send_buffs()
 {
   if ( client == NULL )

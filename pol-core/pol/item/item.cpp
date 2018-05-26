@@ -11,36 +11,35 @@
  */
 
 #include "item.h"
-#include "armor.h"
 
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/strutil.h"
-#include "../../clib/streamsaver.h"
+#include <exception>
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-
+#include "../../bscript/eprog.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/passert.h"
+#include "../../clib/refptr.h"
+#include "../../clib/streamsaver.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
-
-#include "../ustruct.h"
+#include "../clidata.h"
 #include "../containr.h"
-#include "../ufunc.h"
-#include "../network/client.h"
-#include "../mobile/charactr.h"
-#include "../item/itemdesc.h"
-#include "../objtype.h"
-#include "../../plib/pkg.h"
-#include "../polcfg.h"
-#include "../resource.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../stackcfg.h"
-#include "../tooltips.h"
-#include "../uoscrobj.h"
 #include "../gameclck.h"
 #include "../globals/uvars.h"
+#include "../mobile/charactr.h"
+#include "../network/client.h"
+#include "../objtype.h"
+#include "../polcfg.h"
+#include "../proplist.h"
+#include "../resource.h"
+#include "../scrdef.h"
+#include "../scrsched.h"
+#include "../scrstore.h"
+#include "../tooltips.h"
+#include "../ufunc.h"
+#include "../uoscrobj.h"
+#include "itemdesc.h"
+
 
 namespace Pol
 {
@@ -104,6 +103,7 @@ Item* Item::clone() const
   item->maxhp_mod( maxhp_mod() );
   item->name_suffix( name_suffix() );
 
+  item->no_drop( no_drop() );
   return item;
 }
 
@@ -307,6 +307,21 @@ bool Item::use_insurance()
   return false;
 }
 
+bool Item::no_drop() const
+{
+  return flags_.get( Core::OBJ_FLAGS::NO_DROP );
+}
+
+void Item::no_drop( bool newvalue )
+{
+  flags_.change( Core::OBJ_FLAGS::NO_DROP, newvalue );
+}
+
+bool Item::default_no_drop() const
+{
+  return itemdesc().no_drop;
+}
+
 unsigned short Item::maxhp() const
 {
   int maxhp = itemdesc().maxhp + maxhp_mod();
@@ -407,6 +422,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tQuality\t" << quali << pf_endl;
   if ( !suffix.empty() )
     sw() << "\tNameSuffix\t" << suffix << pf_endl;
+  if ( no_drop() != default_no_drop() )
+    sw() << "\tNoDrop\t" << no_drop() << pf_endl;
 }
 
 void Item::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -482,6 +499,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
 
   maxhp_mod( static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
   name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
+  no_drop( elem.remove_bool( "NODROP", default_no_drop() ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )
@@ -905,9 +923,7 @@ void Item::extricate()
   }
 }
 
-void Item::spill_contents( Multi::UMulti* /*multi*/ )
-{
-}
+void Item::spill_contents( Multi::UMulti* /*multi*/ ) {}
 
 unsigned int Item::weight_of( unsigned short amount ) const
 {
@@ -1142,88 +1158,6 @@ bool Item::check_unequiptest_scripts()
   {
     return true;
   }
-}
-
-s16 Item::calc_element_resist( Core::ElementalType element ) const
-{
-  Core::AosValuePack curr;
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    curr = fire_resist();
-    break;
-  case Core::ELEMENTAL_COLD:
-    curr = cold_resist();
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    curr = energy_resist();
-    break;
-  case Core::ELEMENTAL_POISON:
-    curr = poison_resist();
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    curr = physical_resist();
-    break;
-  }
-  return curr.value + curr.mod;
-}
-
-s16 Item::calc_element_damage( Core::ElementalType element ) const
-{
-  Core::AosValuePack curr;
-  switch ( element )
-  {
-  case Core::ELEMENTAL_FIRE:
-    curr = fire_damage();
-    break;
-  case Core::ELEMENTAL_COLD:
-    curr = cold_damage();
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    curr = energy_damage();
-    break;
-  case Core::ELEMENTAL_POISON:
-    curr = poison_damage();
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    curr = physical_damage();
-    break;
-  }
-  return curr.value + curr.mod;
-}
-
-bool Item::has_resistance( Mobile::Character* /*chr*/ )
-{
-  if ( ( calc_element_resist( Core::ELEMENTAL_FIRE ) != 0 ) ||
-       ( calc_element_resist( Core::ELEMENTAL_COLD ) != 0 ) ||
-       ( calc_element_resist( Core::ELEMENTAL_ENERGY ) != 0 ) ||
-       ( calc_element_resist( Core::ELEMENTAL_POISON ) != 0 ) ||
-       ( calc_element_resist( Core::ELEMENTAL_PHYSICAL ) != 0 ) )
-    return true;
-  else
-  {
-    // double new_ar = 0.0;
-    UArmor* armor = static_cast<UArmor*>( this );  // Not sure if I like this method.
-    if ( armor != NULL )
-    {
-      if ( armor->ar() > 0 )
-        return true;
-    }
-  }
-  return false;
-}
-
-bool Item::has_element_damage()
-{
-  if ( ( calc_element_damage( Core::ELEMENTAL_FIRE ) != 0 ) ||
-       ( calc_element_damage( Core::ELEMENTAL_COLD ) != 0 ) ||
-       ( calc_element_damage( Core::ELEMENTAL_ENERGY ) != 0 ) ||
-       ( calc_element_damage( Core::ELEMENTAL_POISON ) != 0 ) ||
-       ( calc_element_damage( Core::ELEMENTAL_PHYSICAL ) != 0 ) )
-  {
-    return true;
-  }
-  return false;
 }
 
 /**

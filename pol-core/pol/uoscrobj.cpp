@@ -51,59 +51,68 @@
 
 #include "uoscrobj.h"
 
+#include <string>
+
+#include "../bscript/berror.h"
+#include "../bscript/dict.h"
+#include "../bscript/execmodl.h"
+#include "../bscript/executor.h"
+#include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
+#include "../bscript/objmethods.h"
+#include "../clib/stlutil.h"
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"
-#include "item/armor.h"
-#include "item/armrtmpl.h"
-#include "mobile/attribute.h"
-#include "multi/boatcomp.h"
-#include "mobile/charactr.h"
-#include "mobile/corpse.h"
-#include "mobile/ufacing.h"
-#include "network/client.h"
-#include "network/packets.h"
 #include "cmdlevel.h"
+#include "containr.h"
 #include "door.h"
+#include "dynproperties.h"
+#include "equipdsc.h"
 #include "exscrobj.h"
 #include "fnsearch.h"
-#include "module/guildmod.h"
-#include "multi/house.h"
+#include "globals/network.h"
+#include "globals/uvars.h"
+#include "item/armor.h"
+#include "item/equipmnt.h"
 #include "item/item.h"
-#include "umap.h"
+#include "item/itemdesc.h"
+#include "item/weapon.h"
+#include "lockable.h"
+#include "mobile/charactr.h"
+#include "mobile/corpse.h"
 #include "mobile/npc.h"
-#include "objtype.h"
+#include "mobile/ufacing.h"
+#include "module/guildmod.h"
+#include "module/partymod.h"
+#include "module/uomod.h"
+#include "multi/boat.h"
+#include "multi/boatcomp.h"
+#include "multi/house.h"
+#include "multi/multi.h"
+#include "network/client.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "npctmpl.h"
+#include "pktdef.h"
 #include "polclass.h"
+#include "polclock.h"
+#include "poltype.h"
+#include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
 #include "spelbook.h"
 #include "statmsg.h"
 #include "syshookscript.h"
 #include "tooltips.h"
+#include "uconst.h"
 #include "ufunc.h"
-#include "item/weapon.h"
-#include "item/wepntmpl.h"
+#include "umap.h"
+#include "unicode.h"
+#include "uobject.h"
+#include "uoclient.h"
+#include "uoexec.h"
 #include "uoexhelp.h"
 #include "uworld.h"
-#include "ufunc.h"
-#include "module/uomod.h"
-#include "module/partymod.h"
-#include "network/clienttransmit.h"
-#include "eventid.h"
-#include "globals/uvars.h"
-#include "unicode.h"
-
-#include "../bscript/berror.h"
-#include "../bscript/dict.h"
-#include "../bscript/escrutil.h"
-#include "../bscript/execmodl.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-#include "../bscript/bobject.h"
-
-#include "../clib/clib_endian.h"
-#include "../clib/stlutil.h"
-#include "../clib/strutil.h"
 
 namespace Pol
 {
@@ -255,6 +264,8 @@ bool ECharacterRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -437,6 +448,8 @@ bool EItemRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -572,6 +585,8 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -712,6 +727,8 @@ bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -944,19 +961,19 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( saveonexit() );
     break;
   case MBR_FIRE_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_FIRE ) );
+    return new BLong( fire_resist().sum() );
     break;
   case MBR_COLD_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_COLD ) );
+    return new BLong( cold_resist().sum() );
     break;
   case MBR_ENERGY_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_ENERGY ) );
+    return new BLong( energy_resist().sum() );
     break;
   case MBR_POISON_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_POISON ) );
+    return new BLong( poison_resist().sum() );
     break;
   case MBR_PHYSICAL_RESIST:
-    return new BLong( calc_element_resist( Core::ELEMENTAL_PHYSICAL ) );
+    return new BLong( physical_resist().sum() );
     break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
@@ -974,19 +991,19 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( physical_resist().mod );
     break;
   case MBR_FIRE_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_FIRE ) );
+    return new BLong( fire_damage().sum() );
     break;
   case MBR_COLD_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_COLD ) );
+    return new BLong( cold_damage().sum() );
     break;
   case MBR_ENERGY_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_ENERGY ) );
+    return new BLong( energy_damage().sum() );
     break;
   case MBR_POISON_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_POISON ) );
+    return new BLong( poison_damage().sum() );
     break;
   case MBR_PHYSICAL_DAMAGE:
-    return new BLong( calc_element_damage( Core::ELEMENTAL_PHYSICAL ) );
+    return new BLong( physical_damage().sum() );
     break;
   case MBR_FIRE_DAMAGE_MOD:
     return new BLong( fire_damage().mod );
@@ -1014,7 +1031,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     Module::UOExecutorModule* proc = process();
     if ( proc )
     {
-      Pol::Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
+      Core::UOExecutor* executor = static_cast<Core::UOExecutor*>( &proc->exec );
       return new Core::ScriptExObjImp( executor );
     }
     else
@@ -1047,6 +1064,8 @@ BObjectImp* Item::get_script_member_id( const int id ) const
       return house()->make_ref();
     return new BError( "This is a not component of any house" );
     break;
+  case MBR_NO_DROP:
+    return new BLong( no_drop() );
   default:
     return NULL;
   }
@@ -1262,6 +1281,9 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       }
     }
     return new BLong( value );
+  case MBR_NO_DROP:
+    no_drop( value ? true : false );
+    return new BLong( no_drop() );
   default:
     return NULL;
   }
@@ -1459,8 +1481,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    auto create_new_stack = [&]() -> BObjectImp*
-    {
+    auto create_new_stack = [&]() -> BObjectImp* {
       bool can_insert =
           newcontainer->can_insert_add_item( NULL, Core::UContainer::MT_CORE_MOVED, new_stack );
       if ( !can_insert )
@@ -1492,8 +1513,8 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
       if ( existing_stack != NULL && new_stack->stackable() )
       {
         if ( !newcontainer->can_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED,
-                                                    existing_stack, new_stack->getamount(),
-                                                    new_stack ) )
+                                                       existing_stack, new_stack->getamount(),
+                                                       new_stack ) )
         {
           if ( new_stack != this )
             this->add_to_self( new_stack );
@@ -1510,7 +1531,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
       UpdateCharacterWeight( existing_stack );
 
       newcontainer->on_insert_increase_stack( NULL, Core::UContainer::MT_CORE_MOVED, existing_stack,
-                                           amount );
+                                              amount );
 
       if ( amt == item_amount )
         destroy_item( this );
@@ -1621,7 +1642,7 @@ public:
     chr->refresh_ar();  // FIXME inefficient
     // if (chr->client != NULL) // already send in refresh_ar()
     //{
-    //	send_full_statmsg( chr->client, chr );
+    //  send_full_statmsg( chr->client, chr );
     //}
   }
 };
@@ -2036,15 +2057,16 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       lastcoord->addMember( "lastz", new BLong( lastz ) );
       return lastcoord.release();
     }
+    return new BError( "No client attached." );
   case MBR_ACTIVE_SKILL:
     return new BLong( skill_ex_active() );
   case MBR_CASTING_SPELL:
     return new BLong( casting_spell() );
   case MBR_LAST_TEXTCOLOR:
     return new BLong( last_textcolor() );
-  default:
-    return NULL;
   }
+  // if all else fails, returns nullptr
+  return nullptr;
 }
 
 BObjectImp* Character::get_script_member( const char* membername ) const
@@ -2122,7 +2144,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Core::RACE_GARGOYLE )
       race = Core::RACE_GARGOYLE;
     if ( ( race != Core::RACE_GARGOYLE ) &&
-         ( movemode & Core::MOVEMODE_FLY ) )  // FIXME graphic based maybe?
+         ( movemode & Core::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
       movemode = ( Core::MOVEMODE )( movemode ^ Core::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
@@ -2147,7 +2169,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     return new BLong( concealed() );
   case MBR_FROZEN:
     mob_flags_.change( MOB_FLAGS::FROZEN, value ? true : false );
-    return new BLong ( frozen() );
+    return new BLong( frozen() );
   case MBR_PARALYZED:
     mob_flags_.change( MOB_FLAGS::PARALYZED, value ? true : false );
     return new BLong( paralyzed() );
@@ -3120,6 +3142,8 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
   case MBR_SAVEONEXIT:
     return new BLong( saveonexit() );
     break;
+  case MBR_NO_DROP_EXCEPTION:
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }
@@ -3178,6 +3202,9 @@ BObjectImp* NPC::set_script_member_id( const int id, int value )
   case MBR_SAVEONEXIT:
     saveonexit( value ? true : false );
     return new BLong( saveonexit() );
+  case MBR_NO_DROP_EXCEPTION:
+    no_drop_exception( value ? true : false );
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }
@@ -3313,6 +3340,8 @@ BObjectImp* UContainer::get_script_member_id( const int id ) const
   case MBR_MAX_SLOTS_MOD:
     return new BLong( max_slots_mod() );
     break;
+  case MBR_NO_DROP_EXCEPTION:
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }
@@ -3343,6 +3372,9 @@ BObjectImp* UContainer::set_script_member_id( const int id, int value )
   case MBR_MAX_SLOTS_MOD:
     max_slots_mod( static_cast<s8>( value ) );
     break;
+  case MBR_NO_DROP_EXCEPTION:
+    no_drop_exception( value ? true : false );
+    return new BLong( no_drop_exception() );
   default:
     return NULL;
   }
@@ -4261,6 +4293,8 @@ bool EClientRefObjImp::operator==( const BObjectImp& objimp ) const
     else
       return false;
   }
+  else if ( objimp.isa( Bscript::BObjectImp::OTBoolean ) )
+    return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   else
     return false;
 }
@@ -4309,6 +4343,9 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
     break;
   case MBR_LAST_PACKET_AT:
     return BObjectRef( new BLong( obj_->last_packet_at ) );
+    break;
+  case MBR_PORT:
+    return BObjectRef( new BLong( obj_->listen_port ) );
     break;
   }
 

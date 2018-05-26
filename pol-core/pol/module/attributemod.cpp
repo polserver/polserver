@@ -8,15 +8,15 @@
 #include "attributemod.h"
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
-
 #include "../globals/uvars.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
 #include "../network/cliface.h"
 #include "../skilladv.h"
+#include "../skillid.h"
 #include "../uoexhelp.h"
+
 
 namespace Pol
 {
@@ -24,24 +24,24 @@ namespace Bscript
 {
 using namespace Module;
 template <>
-TmplExecutorModule<AttributeExecutorModule>::FunctionTable 
-	TmplExecutorModule<AttributeExecutorModule>::function_table = {
-    {"CheckSkill", &AttributeExecutorModule::mf_CheckSkill},
-    {"GetAttributeName", &AttributeExecutorModule::mf_GetAttributeName},
-    {"GetAttributeDefaultCap", &AttributeExecutorModule::mf_GetAttributeDefaultCap},
-    {"GetAttribute", &AttributeExecutorModule::mf_GetAttribute},
-    {"GetAttributeBaseValue", &AttributeExecutorModule::mf_GetAttributeBaseValue},
-    {"GetAttributeTemporaryMod", &AttributeExecutorModule::mf_GetAttributeTemporaryMod},
-    {"GetAttributeIntrinsicMod", &AttributeExecutorModule::mf_GetAttributeIntrinsicMod},
-    {"GetAttributeLock", &AttributeExecutorModule::mf_GetAttributeLock},
-    {"GetAttributeCap", &AttributeExecutorModule::mf_GetAttributeCap},
-    {"SetAttributeCap", &AttributeExecutorModule::mf_SetAttributeCap},
-    {"SetAttributeLock", &AttributeExecutorModule::mf_SetAttributeLock},
-    {"SetAttributeBaseValue", &AttributeExecutorModule::mf_SetAttributeBaseValue},
-    {"SetAttributeTemporaryMod", &AttributeExecutorModule::mf_SetAttributeTemporaryMod},
-    {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
-    {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase},
-    {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw}};
+TmplExecutorModule<AttributeExecutorModule>::FunctionTable
+    TmplExecutorModule<AttributeExecutorModule>::function_table = {
+        {"CheckSkill", &AttributeExecutorModule::mf_CheckSkill},
+        {"GetAttributeName", &AttributeExecutorModule::mf_GetAttributeName},
+        {"GetAttributeDefaultCap", &AttributeExecutorModule::mf_GetAttributeDefaultCap},
+        {"GetAttribute", &AttributeExecutorModule::mf_GetAttribute},
+        {"GetAttributeBaseValue", &AttributeExecutorModule::mf_GetAttributeBaseValue},
+        {"GetAttributeTemporaryMod", &AttributeExecutorModule::mf_GetAttributeTemporaryMod},
+        {"GetAttributeIntrinsicMod", &AttributeExecutorModule::mf_GetAttributeIntrinsicMod},
+        {"GetAttributeLock", &AttributeExecutorModule::mf_GetAttributeLock},
+        {"GetAttributeCap", &AttributeExecutorModule::mf_GetAttributeCap},
+        {"SetAttributeCap", &AttributeExecutorModule::mf_SetAttributeCap},
+        {"SetAttributeLock", &AttributeExecutorModule::mf_SetAttributeLock},
+        {"SetAttributeBaseValue", &AttributeExecutorModule::mf_SetAttributeBaseValue},
+        {"SetAttributeTemporaryMod", &AttributeExecutorModule::mf_SetAttributeTemporaryMod},
+        {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
+        {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase},
+        {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw}};
 }
 namespace Module
 {

@@ -1,8 +1,8 @@
 #ifndef PLIB_UOEXPANSION_H
 #define PLIB_UOEXPANSION_H
 
-#include "../clib/rawtypes.h"
 #include "../clib/compilerspecifics.h"
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {
@@ -88,6 +88,7 @@ const char* getExpansionName( ExpansionVersion x );
 class UOExpansion
 {
 public:
+  virtual ~UOExpansion(){};
   virtual bool hasFeature( A9Feature feature ) const = 0;
   virtual bool hasFeature( B9Feature feature ) const = 0;
   virtual u32 A9Flags() const = 0;

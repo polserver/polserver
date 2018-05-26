@@ -12,46 +12,48 @@
  * - 2012/02/02 Tomi:      Added boat member MBR_MULTIID
  */
 
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "house.h"
-#include "multidef.h"
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <stdlib.h>
+
+#include <format/format.h>
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
+#include "../../clib/refptr.h"
 #include "../../clib/streamsaver.h"
-
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
-
-#include "../network/cgdata.h"
 #include "../core.h"
 #include "../fnsearch.h"
+#include "../globals/object_storage.h"
 #include "../item/itemdesc.h"
-#include "../objtype.h"
-#include "../polcfg.h"
-#include "../realms.h"
+#include "../mobile/charactr.h"
+#include "../module/osmod.h"
+#include "../module/uomod.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
 #include "../realms/realm.h"
+#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
-#include "../tiles.h"
+#include "../uconst.h"
 #include "../ufunc.h"
+#include "../uobject.h"
 #include "../uoexec.h"
-#include "../module/uomod.h"
+#include "../uoexhelp.h"
 #include "../uoscrobj.h"
-#include "../ustruct.h"
-#include "../globals/object_storage.h"
 #include "../uworld.h"
+#include "customhouses.h"
+#include "multi.h"
+#include "multidef.h"
 
 
 namespace Pol
@@ -65,15 +67,13 @@ void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList&
   short x2 = house->x + md.maxrx, y2 = house->y + md.maxry;
 
   Core::WorldIterator<Core::MobileFilter>::InBox(
-      x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr )
-      {
+      x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr ) {
         UMulti* multi = house->realm->find_supporting_multi( chr->x, chr->y, chr->z );
         if ( const_cast<const UMulti*>( multi ) == house )
           chrs_in.push_back( chr );
       } );
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      x1, y1, x2, y2, house->realm, [&]( Items::Item* item )
-      {
+      x1, y1, x2, y2, house->realm, [&]( Items::Item* item ) {
         UMulti* multi = house->realm->find_supporting_multi( item->x, item->y, item->z );
         if ( const_cast<const UMulti*>( multi ) == house )
         {
@@ -426,7 +426,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
     if ( !IsCustom() )
       return new BError( "House is not custom" );
     // else if (!IsEditing())
-    //	return new BError( "House is currently not been edited" );
+    //  return new BError( "House is currently not been edited" );
     else if ( !IsWaitingForAccept() )
       return new BError( "House is currently not waiting for a commit" );
     else if ( !ex.hasParams( 2 ) )
@@ -561,8 +561,8 @@ void UHouse::destroy_components()
   {
     Items::Item* item = components_.back().get();
     if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOG.Format( "Destroying component 0x{:X}, serial=0x{:X}\n" ) << item->objtype_
-                                                                      << item->serial;
+      POLLOG.Format( "Destroying component 0x{:X}, serial=0x{:X}\n" )
+          << item->objtype_ << item->serial;
     if ( !item->orphan() )
       Core::destroy_item( item );
     if ( Plib::systemstate.config.loglevel >= 5 )
@@ -736,8 +736,7 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
   unsigned short wxL, wyL, wxH, wyH;
   Core::zone_convert_clip( x1, y1, realm, &wxL, &wyL );
   Core::zone_convert_clip( x2, y2, realm, &wxH, &wyH );
-  auto includes = [&]( const Core::UObject* obj )
-  {
+  auto includes = [&]( const Core::UObject* obj ) {
     if ( obj->x >= x1 && obj->x <= x2 && obj->y >= y1 && obj->y <= y2 )
     {
       return true;
@@ -800,9 +799,9 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
   const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
   if ( md == NULL )
   {
-    return new Bscript::BError( "Multi definition not found for House, objtype=" +
-                                Clib::hexint( descriptor.objtype ) + ", multiid=" +
-                                Clib::hexint( descriptor.multiid ) );
+    return new Bscript::BError(
+        "Multi definition not found for House, objtype=" + Clib::hexint( descriptor.objtype ) +
+        ", multiid=" + Clib::hexint( descriptor.multiid ) );
   }
 
   if ( ( !realm->valid( x + md->minrx, y + md->minry, z + md->minrz ) ) ||

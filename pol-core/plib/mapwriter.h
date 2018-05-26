@@ -8,11 +8,11 @@
 #ifndef PLIB_MAPWRITER_H
 #define PLIB_MAPWRITER_H
 
-#include "maptile.h"
 #include "mapblock.h"
+#include "maptile.h"
 
-#include <string>
 #include <fstream>
+#include <string>
 
 namespace Pol
 {
@@ -21,7 +21,6 @@ namespace Plib
 struct SOLIDS_ELEM;
 struct SOLIDX2_ELEM;
 struct MAPCELL;
-struct MAPTILE_CELL;
 
 class MapWriter
 {
@@ -55,6 +54,7 @@ public:
 
   unsigned width() const { return _width; }
   unsigned height() const { return _height; }
+
 private:
   std::fstream::pos_type total_size();
 

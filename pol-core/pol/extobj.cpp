@@ -13,8 +13,6 @@
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
-#include "../clib/rawtypes.h"
-
 #include "globals/settings.h"
 
 namespace Pol

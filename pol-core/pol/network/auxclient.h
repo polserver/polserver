@@ -13,15 +13,33 @@
 #include "../../bscript/bobject.h"
 #endif
 
-#include "../../clib/socketsvc.h"
-#include "../../clib/threadhelp.h"
-#include "../../clib/weakptr.h"
+#include <atomic>
+#include <string>
+#include <vector>
 
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/refptr.h"
+#include "../../clib/socketsvc.h"
+#include "../../clib/weakptr.h"
 #include "../scrdef.h"
 #include "../uoexec.h"
 
-#include <string>
-#include <vector>
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+namespace Clib
+{
+class Socket;
+}  // namespace Clib
+namespace Core
+{
+class UOExecutor;
+}  // namespace Core
+}  // namespace Pol
+struct sockaddr;
 
 namespace Pol
 {
@@ -85,7 +103,8 @@ class AuxClientThread : public Clib::SocketClientThread
 {
 public:
   AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
-  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock );
+  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params,
+                   bool assume_string );
   virtual void run() POL_OVERRIDE;
   void transmit( const Bscript::BObjectImp* imp );
   Bscript::BObjectImp* get_ip();
@@ -93,11 +112,14 @@ public:
 private:
   bool init();
   bool ipAllowed( sockaddr MyPeer );
-
+  void transmit( const std::string& msg );
   AuxService* _auxservice;
-  Core::ScriptDef _scriptdef;
   ref_ptr<AuxConnection> _auxconnection;
   weak_ptr<Core::UOExecutor> _uoexec;
+  Core::ScriptDef _scriptdef;
+  Bscript::BObjectImp* _params;
+  bool _assume_string;
+  std::atomic<int> _transmit_counter;
 };
 }
 }

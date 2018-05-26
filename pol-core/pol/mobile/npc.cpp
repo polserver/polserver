@@ -25,15 +25,19 @@
  */
 
 #include "npc.h"
-#include "../npctmpl.h"
-#include "../module/npcmod.h"
 
-#include "attribute.h"
-#include "wornitems.h"  // refresh_ar() is the only one which needs this include...
+#include <stdlib.h>
 
-#include "../containr.h"
+#include "../../bscript/berror.h"
+#include "../../clib/cfgelem.h"
+#include "../../clib/fileutil.h"
+#include "../../clib/logfacility.h"
+#include "../../clib/passert.h"
+#include "../../clib/random.h"
+#include "../../clib/refptr.h"
+#include "../../clib/streamsaver.h"
+#include "../baseobject.h"
 #include "../dice.h"
-#include "../eventid.h"
 #include "../fnsearch.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
@@ -41,49 +45,24 @@
 #include "../item/weapon.h"
 #include "../listenpt.h"
 #include "../mdelta.h"
+#include "../module/npcmod.h"
 #include "../module/osmod.h"
-#include "../module/unimod.h"
 #include "../module/uomod.h"
-#include "../multi/house.h"
-#include "../network/client.h"
-#include "../objtype.h"
-#include "../pktout.h"
-#include "../poltype.h"
-#include "../realms/realm.h"
-#include "../realms.h"
+#include "../multi/multi.h"
+#include "../npctmpl.h"
+#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
-#include "../skilladv.h"
-#include "../skills.h"
-#include "../sockio.h"
 #include "../ufunc.h"
-#include "../ufunc.h"
-#include "../ufuncinl.h"
+#include "../uobjcnt.h"
+#include "../uobject.h"
 #include "../uoexec.h"
-#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
-#include "../unicode.h"
+#include "attribute.h"
+#include "charactr.h"
+#include "wornitems.h"
 
-#include "../../bscript/berror.h"
-#include "../../bscript/eprog.h"
-#include "../../bscript/execmodl.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/impstr.h"
-#include "../../bscript/modules.h"
-
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/fileutil.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/random.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/streamsaver.h"
-#include "../../clib/strutil.h"
-
-#include <stdexcept>
 
 /* An area definition is as follows:
    pt: (x,y)
@@ -165,7 +144,7 @@ const char* NPC::classname() const
 
 // 8-25-05 Austin
 // Moved unsigned short pol_distance( unsigned short x1, unsigned short y1,
-//									unsigned short x2, unsigned short y2 )
+//                  unsigned short x2, unsigned short y2 )
 // to ufunc.cpp
 
 bool NPC::anchor_allows_move( Core::UFACING fdir ) const
@@ -213,9 +192,8 @@ bool NPC::could_move( Core::UFACING fdir ) const
     tmp_newx = x + Core::move_delta[tmp_facing].xmove;
     tmp_newy = y + Core::move_delta[tmp_facing].ymove;
     current_boost = gradual_boost;
-    if ( !walk1 &&
-         !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi, &walkon_item,
-                             &current_boost ) )
+    if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi,
+                                       &walkon_item, &current_boost ) )
       return false;
   }
   unsigned short newx = x + Core::move_delta[fdir].xmove;
@@ -319,37 +297,29 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( use_adjustments() != true )
     sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
 
-  s16 value = curr_fire_resist().value;
-  if ( value != 0 )
-    sw() << "\tFireResist\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_cold_resist().value;
-  if ( value != 0 )
-    sw() << "\tColdResist\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_energy_resist().value;
-  if ( value != 0 )
-    sw() << "\tEnergyResist\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_poison_resist().value;
-  if ( value != 0 )
-    sw() << "\tPoisonResist\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_physical_resist().value;
-  if ( value != 0 )
-    sw() << "\tPhysicalResist\t" << static_cast<int>( value ) << pf_endl;
+  if ( has_orig_fire_resist() )
+    sw() << "\tFireResist\t" << orig_fire_resist() << pf_endl;
+  if ( has_orig_cold_resist() )
+    sw() << "\tColdResist\t" << orig_cold_resist() << pf_endl;
+  if ( has_orig_energy_resist() )
+    sw() << "\tEnergyResist\t" << orig_energy_resist() << pf_endl;
+  if ( has_orig_poison_resist() )
+    sw() << "\tPoisonResist\t" << orig_poison_resist() << pf_endl;
+  if ( has_orig_physical_resist() )
+    sw() << "\tPhysicalResist\t" << orig_physical_resist() << pf_endl;
 
-  value = curr_fire_damage().value;
-  if ( value != 0 )
-    sw() << "\tFireDamage\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_cold_damage().value;
-  if ( value != 0 )
-    sw() << "\tColdDamage\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_energy_damage().value;
-  if ( value != 0 )
-    sw() << "\tEnergyDamage\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_poison_damage().value;
-  if ( value != 0 )
-    sw() << "\tPoisonDamage\t" << static_cast<int>( value ) << pf_endl;
-  value = curr_physical_damage().value;
-  if ( value != 0 )
-    sw() << "\tPhysicalDamage\t" << static_cast<int>( value ) << pf_endl;
+  if ( has_orig_fire_damage() )
+    sw() << "\tFireDamage\t" << orig_fire_damage() << pf_endl;
+  if ( has_orig_cold_damage() )
+    sw() << "\tColdDamage\t" << orig_cold_damage() << pf_endl;
+  if ( has_orig_energy_damage() )
+    sw() << "\tEnergyDamage\t" << orig_energy_damage() << pf_endl;
+  if ( has_orig_poison_damage() )
+    sw() << "\tPoisonDamage\t" << orig_poison_damage() << pf_endl;
+  if ( has_orig_physical_damage() )
+    sw() << "\tPhysicalDamage\t" << orig_physical_damage() << pf_endl;
+  if ( no_drop_exception() )
+    sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
 
 void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
@@ -382,12 +352,7 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
     shield = sld;
 
   // Load the base, equiping items etc will refresh_ar() to update for reals.
-  for ( int i = 0; i < 6; i++ )
-  {
-    loadResistances( i, elem );
-    if ( i > 0 )
-      loadDamages( i, elem );
-  }
+  loadEquipablePropertiesNPC( elem );
 
   // dave 3/19/3, read templatename only if empty
   if ( template_name.get().empty() )
@@ -424,255 +389,104 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
   run_speed = elem.remove_ushort( "RunSpeed", dexterity() );
 
   damaged_sound = elem.remove_ushort( "DamagedSound", 0 );
+  no_drop_exception( elem.remove_bool( "NoDropException", false ) );
 }
 
-// This now handles all resistances, including AR to simplify the code.
-void NPC::loadResistances( int resistanceType, Clib::ConfigElem& elem )
+void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
 {
-  std::string tmp;
-  bool passed = false;
-  // 0 = AR
-  // 1 = Fire
-  // 2 = Cold
-  // 3 = Energy
-  // 4 = Poison
-  // 5 = Physical
-  switch ( resistanceType )
-  {
-  case 0:
-    passed = elem.remove_prop( "AR", &tmp );
-    break;
-  case 1:
-    passed = elem.remove_prop( "FIRERESIST", &tmp );
-    break;
-  case 2:
-    passed = elem.remove_prop( "COLDRESIST", &tmp );
-    break;
-  case 3:
-    passed = elem.remove_prop( "ENERGYRESIST", &tmp );
-    break;
-  case 4:
-    passed = elem.remove_prop( "POISONRESIST", &tmp );
-    break;
-  case 5:
-    passed = elem.remove_prop( "PHYSICALRESIST", &tmp );
-    break;
-  }
-
-  int value = 0;
-  if ( passed )
-  {
+  // for ar and elemental damage/resist the mod values are loaded before in character code!
+  auto diceValue = []( const std::string& dicestr, int* value ) -> bool {
     Core::Dice dice;
     std::string errmsg;
-    if ( !dice.load( tmp.c_str(), &errmsg ) )
-      value = atoi( tmp.c_str() );
+    if ( !dice.load( dicestr.c_str(), &errmsg ) )
+      *value = atoi( dicestr.c_str() );
     else
-      value = dice.roll();
-  }
-  // mod values are loaded before in character code!
-  switch ( resistanceType )
-  {
-  case 0:
+      *value = dice.roll();
+    return *value != 0;
+  };
+  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
+    return v.addToValue( static_cast<s16>( value ) );
+  };
+  auto refresh = []( Core::ValueModPack v ) -> Core::ValueModPack { return v.addToValue( v.mod ); };
+
+  std::string tmp;
+  int value;
+  if ( elem.remove_prop( "AR", &tmp ) && diceValue( tmp, &value ) )
     npc_ar_ = static_cast<u16>( value );
-    break;
-  case 1:
-  {
-    if ( value != 0 )
-    {
-      fire_resist( fire_resist().addToValue( static_cast<s16>( value ) ) );
-      curr_fire_resist( curr_fire_resist().addToValue( static_cast<s16>( value ) ) );
-    }
-    break;
-  }
-  case 2:
-  {
-    if ( value != 0 )
-    {
-      cold_resist( cold_resist().addToValue( static_cast<s16>( value ) ) );
-      curr_cold_resist( curr_cold_resist().addToValue( static_cast<s16>( value ) ) );
-    }
-    break;
-  }
-  case 3:
-  {
-    if ( value != 0 )
-    {
-      energy_resist( energy_resist().addToValue( static_cast<s16>( value ) ) );
-      curr_energy_resist( curr_energy_resist().addToValue( static_cast<s16>( value ) ) );
-    }
-    break;
-  }
-  case 4:
-  {
-    if ( value != 0 )
-    {
-      poison_resist( poison_resist().addToValue( static_cast<s16>( value ) ) );
-      curr_poison_resist( curr_poison_resist().addToValue( static_cast<s16>( value ) ) );
-    }
-    break;
-  }
-  case 5:
-  {
-    if ( value != 0 )
-    {
-      physical_resist( physical_resist().addToValue( static_cast<s16>( value ) ) );
-      curr_physical_resist( curr_physical_resist().addToValue( static_cast<s16>( value ) ) );
-    }
-    break;
-  }
-  }
 
-  Core::AosValuePack curr;
-  switch ( resistanceType )
+  // elemental start
+  // first apply template value as value and if mod or value exist sum them
+  if ( elem.remove_prop( "FIRERESIST", &tmp ) && diceValue( tmp, &value ) )
   {
-  case 0:
-    break;  // ArMod isnt saved
-  case 1:
-    curr = fire_resist();
-    curr.value += curr.mod;
-    fire_resist( curr );
-    break;
-  case 2:
-    curr = cold_resist();
-    curr.value += curr.mod;
-    cold_resist( curr );
-    break;
-  case 3:
-    curr = energy_resist();
-    curr.value += curr.mod;
-    energy_resist( curr );
-    break;
-  case 4:
-    curr = poison_resist();
-    curr.value += curr.mod;
-    poison_resist( curr );
-    break;
-  case 5:
-    curr = physical_resist();
-    curr.value += curr.mod;
-    physical_resist( curr );
-    break;
+    fire_resist( apply( fire_resist(), value ) );
+    orig_fire_resist( static_cast<s16>( value ) );
   }
-}
+  if ( has_fire_resist() )
+    fire_resist( refresh( fire_resist() ) );
+  if ( elem.remove_prop( "COLDRESIST", &tmp ) && diceValue( tmp, &value ) )
+  {
+    cold_resist( apply( cold_resist(), value ) );
+    orig_cold_resist( static_cast<s16>( value ) );
+  }
+  if ( has_cold_resist() )
+    cold_resist( refresh( cold_resist() ) );
+  if ( elem.remove_prop( "ENERGYRESIST", &tmp ) && diceValue( tmp, &value ) )
+  {
+    energy_resist( apply( energy_resist(), value ) );
+    orig_energy_resist( static_cast<s16>( value ) );
+  }
+  if ( has_energy_resist() )
+    energy_resist( refresh( energy_resist() ) );
+  if ( elem.remove_prop( "POISONRESIST", &tmp ) && diceValue( tmp, &value ) )
+  {
+    poison_resist( apply( poison_resist(), value ) );
+    orig_poison_resist( static_cast<s16>( value ) );
+  }
+  if ( has_poison_resist() )
+    poison_resist( refresh( poison_resist() ) );
+  if ( elem.remove_prop( "PHYSICALRESIST", &tmp ) && diceValue( tmp, &value ) )
+  {
+    physical_resist( apply( physical_resist(), value ) );
+    orig_physical_resist( static_cast<s16>( value ) );
+  }
+  if ( has_physical_resist() )
+    physical_resist( refresh( physical_resist() ) );
 
-// This now handles all resistances, including AR to simplify the code.
-void NPC::loadDamages( int damageType, Clib::ConfigElem& elem )
-{
-  std::string tmp;
-  bool passed = false;
-  // 1 = Fire
-  // 2 = Cold
-  // 3 = Energy
-  // 4 = Poison
-  // 5 = Physical
-  switch ( damageType )
+  if ( elem.remove_prop( "FIREDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
-  case 1:
-    passed = elem.remove_prop( "FIREDAMAGE", &tmp );
-    break;
-  case 2:
-    passed = elem.remove_prop( "COLDDAMAGE", &tmp );
-    break;
-  case 3:
-    passed = elem.remove_prop( "ENERGYDAMAGE", &tmp );
-    break;
-  case 4:
-    passed = elem.remove_prop( "POISONDAMAGE", &tmp );
-    break;
-  case 5:
-    passed = elem.remove_prop( "PHYSICALDAMAGE", &tmp );
-    break;
+    fire_damage( apply( fire_damage(), value ) );
+    orig_fire_damage( static_cast<s16>( value ) );
   }
-
-  s16 value = 0;
-  if ( passed )
+  if ( has_fire_damage() )
+    fire_damage( refresh( fire_damage() ) );
+  if ( elem.remove_prop( "COLDDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
-    Core::Dice dice;
-    std::string errmsg;
-    if ( !dice.load( tmp.c_str(), &errmsg ) )
-      value = static_cast<s16>( atoi( tmp.c_str() ) );
-    else
-      value = dice.roll();
+    cold_damage( apply( cold_damage(), value ) );
+    orig_cold_damage( static_cast<s16>( value ) );
   }
-  // mod values are loaded before in character code!
-  switch ( damageType )
+  if ( has_cold_damage() )
+    cold_damage( refresh( cold_damage() ) );
+  if ( elem.remove_prop( "ENERGYDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
-  case 1:
+    energy_damage( apply( energy_damage(), value ) );
+    orig_energy_damage( static_cast<s16>( value ) );
+  }
+  if ( has_energy_damage() )
+    energy_damage( refresh( energy_damage() ) );
+  if ( elem.remove_prop( "POISONDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
-    if ( value != 0 )
-    {
-      fire_damage( fire_damage().addToValue( value ) );
-      curr_fire_damage( curr_fire_damage().addToValue( value ) );
-    }
-    break;
+    poison_damage( apply( poison_damage(), value ) );
+    orig_poison_damage( static_cast<s16>( value ) );
   }
-  case 2:
+  if ( has_poison_damage() )
+    poison_damage( refresh( poison_damage() ) );
+  if ( elem.remove_prop( "PHYSICALDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
-    if ( value != 0 )
-    {
-      cold_damage( cold_damage().addToValue( value ) );
-      curr_cold_damage( curr_cold_damage().addToValue( value ) );
-    }
-    break;
+    physical_damage( apply( physical_damage(), value ) );
+    orig_physical_damage( static_cast<s16>( value ) );
   }
-  case 3:
-  {
-    if ( value != 0 )
-    {
-      energy_damage( energy_damage().addToValue( value ) );
-      curr_energy_damage( curr_energy_damage().addToValue( value ) );
-    }
-    break;
-  }
-  case 4:
-  {
-    if ( value != 0 )
-    {
-      poison_damage( poison_damage().addToValue( value ) );
-      curr_poison_damage( curr_poison_damage().addToValue( value ) );
-    }
-    break;
-  }
-  case 5:
-  {
-    if ( value != 0 )
-    {
-      physical_damage( physical_damage().addToValue( value ) );
-      curr_physical_damage( curr_physical_damage().addToValue( value ) );
-    }
-    break;
-  }
-  }
-
-  Core::AosValuePack curr;
-  switch ( damageType )
-  {
-  case 1:
-    curr = fire_damage();
-    curr.value += curr.mod;
-    fire_damage( curr );
-    break;
-  case 2:
-    curr = cold_damage();
-    curr.value += curr.mod;
-    cold_damage( curr );
-    break;
-  case 3:
-    curr = energy_damage();
-    curr.value += curr.mod;
-    energy_damage( curr );
-    break;
-  case 4:
-    curr = poison_damage();
-    curr.value += curr.mod;
-    poison_damage( curr );
-    break;
-  case 5:
-    curr = physical_damage();
-    curr.value += curr.mod;
-    physical_damage( curr );
-    break;
-  }
+  if ( has_physical_damage() )
+    physical_damage( refresh( physical_damage() ) );
 }
 
 void NPC::readProperties( Clib::ConfigElem& elem )
@@ -1079,7 +893,8 @@ bool NPC::send_event( Bscript::BObjectImp* event )
     if ( ex->os_module->signal_event( event ) )
       return true;
   }
-  else {
+  else
+  {
     // There's no executor, so we must delete it ourselves.
     Bscript::BObject bo( event );
   }
@@ -1180,11 +995,7 @@ void NPC::refresh_ar()
     for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
       armor_[zone] = NULL;
     ar_ = 0;
-    for ( unsigned element = 0; element <= Core::ELEMENTAL_TYPE_MAX; ++element )
-    {
-      reset_element_resist( (Core::ElementalType)element );
-      reset_element_damage( (Core::ElementalType)element );
-    }
+    resetEquipablePropertiesNPC();
   }
   else
   {
@@ -1192,100 +1003,29 @@ void NPC::refresh_ar()
   }
 }
 
-void NPC::reset_element_resist( Core::ElementalType resist )
+void NPC::resetEquipablePropertiesNPC()
 {
-  Core::AosValuePack curr;
-  switch ( resist )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( has_fire_resist() || has_curr_fire_resist() )
-    {
-      curr = fire_resist();
-      curr.value = curr.mod + curr_fire_resist().value;
-      fire_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( has_cold_resist() || has_curr_cold_resist() )
-    {
-      curr = cold_resist();
-      curr.value = curr.mod + curr_cold_resist().value;
-      cold_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( has_energy_resist() || has_curr_energy_resist() )
-    {
-      curr = energy_resist();
-      curr.value = curr.mod + curr_energy_resist().value;
-      energy_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( has_poison_resist() || has_curr_poison_resist() )
-    {
-      curr = poison_resist();
-      curr.value = curr.mod + curr_poison_resist().value;
-      poison_resist( curr );
-    }
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( has_physical_resist() || has_curr_physical_resist() )
-    {
-      curr = physical_resist();
-      curr.value = curr.mod + curr_physical_resist().value;
-      physical_resist( curr );
-    }
-    break;
-  }
-}
+  if ( has_fire_resist() || has_orig_fire_resist() )
+    fire_resist( fire_resist().resetModAsValue().addToValue( orig_fire_resist() ) );
+  if ( has_cold_resist() || has_orig_cold_resist() )
+    cold_resist( cold_resist().resetModAsValue().addToValue( orig_cold_resist() ) );
+  if ( has_energy_resist() || has_orig_energy_resist() )
+    energy_resist( energy_resist().resetModAsValue().addToValue( orig_energy_resist() ) );
+  if ( has_poison_resist() || has_orig_poison_resist() )
+    poison_resist( poison_resist().resetModAsValue().addToValue( orig_poison_resist() ) );
+  if ( has_physical_resist() || has_orig_physical_resist() )
+    physical_resist( physical_resist().resetModAsValue().addToValue( orig_physical_resist() ) );
 
-void NPC::reset_element_damage( Core::ElementalType damage )
-{
-  Core::AosValuePack curr;
-  switch ( damage )
-  {
-  case Core::ELEMENTAL_FIRE:
-    if ( has_fire_damage() || has_curr_fire_damage() )
-    {
-      curr = fire_damage();
-      curr.value = curr.mod + curr_fire_damage().value;
-      fire_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_COLD:
-    if ( has_cold_damage() || has_curr_cold_damage() )
-    {
-      curr = cold_damage();
-      curr.value = curr.mod + curr_cold_damage().value;
-      cold_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_ENERGY:
-    if ( has_energy_damage() || has_curr_energy_damage() )
-    {
-      curr = energy_damage();
-      curr.value = curr.mod + curr_energy_damage().value;
-      energy_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_POISON:
-    if ( has_poison_damage() || has_curr_poison_damage() )
-    {
-      curr = poison_damage();
-      curr.value = curr.mod + curr_poison_damage().value;
-      poison_damage( curr );
-    }
-    break;
-  case Core::ELEMENTAL_PHYSICAL:
-    if ( has_physical_damage() || has_curr_physical_damage() )
-    {
-      curr = physical_damage();
-      curr.value = curr.mod + curr_physical_damage().value;
-      physical_damage( curr );
-    }
-    break;
-  }
+  if ( has_fire_damage() || has_orig_fire_damage() )
+    fire_damage( fire_damage().resetModAsValue().addToValue( orig_fire_damage() ) );
+  if ( has_cold_damage() || has_orig_cold_damage() )
+    cold_damage( cold_damage().resetModAsValue().addToValue( orig_cold_damage() ) );
+  if ( has_energy_damage() || has_orig_energy_damage() )
+    energy_damage( energy_damage().resetModAsValue().addToValue( orig_energy_damage() ) );
+  if ( has_poison_damage() || has_orig_poison_damage() )
+    poison_damage( poison_damage().resetModAsValue().addToValue( orig_poison_damage() ) );
+  if ( has_physical_damage() || has_orig_physical_damage() )
+    physical_damage( physical_damage().resetModAsValue().addToValue( orig_physical_damage() ) );
 }
 
 size_t NPC::estimatedSize() const
@@ -1317,5 +1057,19 @@ void NPC::use_adjustments( bool newvalue )
   mob_flags_.change( MOB_FLAGS::USE_ADJUSTMENTS, newvalue );
 }
 
+bool NPC::no_drop_exception() const
+{
+  return flags_.get( Core::OBJ_FLAGS::NO_DROP_EXCEPTION );
+}
+
+void NPC::no_drop_exception( bool newvalue )
+{
+  flags_.change( Core::OBJ_FLAGS::NO_DROP_EXCEPTION, newvalue );
+}
+
+std::string NPC::templatename() const
+{
+  return template_name;
+}
 }
 }

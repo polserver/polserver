@@ -14,35 +14,34 @@
  */
 
 
-#include "realm.h"
+#include <stddef.h>
 
-#include "../../plib/realmdescriptor.h"
+#include "../../clib/rawtypes.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapserver.h"
+#include "../../plib/mapshape.h"
+#include "../../plib/maptile.h"
+#include "../../plib/maptileserver.h"
 #include "../../plib/staticserver.h"
 #include "../../plib/systemstate.h"
-#include "../../plib/mapshape.h"
-#include "../../plib/maptileserver.h"
-
-#include "../tiles.h"
-#include "../mobile/charactr.h"
-#include "../network/cgdata.h"
-#include "../network/client.h"
+#include "../clidata.h"
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
-#include "../uworld.h"
-#include "../item/item.h"
 #include "../item/itemdesc.h"
-#include "../item/itemdesc.h"
-#include "../multi/multi.h"
-#include "../multi/house.h"
+#include "../mobile/charactr.h"
 #include "../multi/customhouses.h"
-#include "../uconst.h"
-#include "../clidata.h"
+#include "../multi/house.h"
+#include "../multi/multi.h"
+#include "../multi/multidef.h"
+#include "../network/cgdata.h"
+#include "../network/client.h"
 #include "../objtype.h"
 #include "../poltype.h"
-
-#include <vector>
+#include "../tiles.h"
+#include "../uconst.h"
+#include "../udatfile.h"
+#include "../uworld.h"
+#include "realm.h"
 
 #define HULL_HEIGHT_BUFFER 2
 namespace Pol
@@ -63,8 +62,9 @@ bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) c
 {
   static Plib::MapShapeList vec;
   vec.clear();
-  getmapshapes( vec, x, y, Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING |
-                               Plib::FLAG::GRADUAL );
+  getmapshapes(
+      vec, x, y,
+      Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING | Plib::FLAG::GRADUAL );
 
   bool res = true;
   lowest_standheight( Core::MOVEMODE_LAND, vec, *z, &res, z );
@@ -122,9 +122,8 @@ void Realm::standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
       }
     }
     if ( newz < shape.z &&
-         shape.z < newz +
-                       Core::settingsManager.ssopt
-                           .default_character_height )  // space too small to stand?
+         shape.z < newz + Core::settingsManager.ssopt
+                              .default_character_height )  // space too small to stand?
     {
       if ( !possible_shapes.empty() )
         possible_shapes.pop_back();  // remove the last pos_shape
@@ -624,61 +623,55 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
 void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
                         unsigned int anyflags ) const
 {
-  Core::WorldIterator<Core::MultiFilter>::InRange(
-      x, y, this, 64, [&]( Multi::UMulti* multi )
-      {
-        Multi::UHouse* house = multi->as_house();
-        if ( house != NULL && house->IsCustom() )  // readshapes switches to working design if the
-                                                   // house is being edited,
-          // everyone in the house would use it for walking...
-          multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z );
-        else
-        {
-          const Multi::MultiDef& def = multi->multidef();
-          def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags );
-        }
-      } );
+  Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
+    Multi::UHouse* house = multi->as_house();
+    if ( house != NULL && house->IsCustom() )  // readshapes switches to working design if the
+                                               // house is being edited,
+      // everyone in the house would use it for walking...
+      multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z );
+    else
+    {
+      const Multi::MultiDef& def = multi->multidef();
+      def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags );
+    }
+  } );
 }
 
 void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
                         unsigned int anyflags, MultiList& mvec ) const
 {
-  Core::WorldIterator<Core::MultiFilter>::InRange(
-      x, y, this, 64, [&]( Multi::UMulti* multi )
+  Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
+    Multi::UHouse* house = multi->as_house();
+    if ( house != NULL && house->IsCustom() )
+    {
+      if ( multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z ) )
+        mvec.push_back( multi );
+    }
+    else
+    {
+      const Multi::MultiDef& def = multi->multidef();
+      if ( def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags ) )
       {
-        Multi::UHouse* house = multi->as_house();
-        if ( house != NULL && house->IsCustom() )
-        {
-          if ( multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z ) )
-            mvec.push_back( multi );
-        }
-        else
-        {
-          const Multi::MultiDef& def = multi->multidef();
-          if ( def.readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z, anyflags ) )
-          {
-            mvec.push_back( multi );
-          }
-        }
-      } );
+        mvec.push_back( multi );
+      }
+    }
+  } );
 }
 
 void Realm::readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const
 {
-  Core::WorldIterator<Core::MultiFilter>::InRange(
-      x, y, this, 64, [&]( Multi::UMulti* multi )
-      {
-        Multi::UHouse* house = multi->as_house();
-        if ( house != NULL && house->IsCustom() )  // readshapes switches to working design if the
-                                                   // house is being edited,
-          // everyone in the house would use it for walking...
-          multi->readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
-        else
-        {
-          const Multi::MultiDef& def = multi->multidef();
-          def.readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
-        }
-      } );
+  Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
+    Multi::UHouse* house = multi->as_house();
+    if ( house != NULL && house->IsCustom() )  // readshapes switches to working design if the
+                                               // house is being edited,
+      // everyone in the house would use it for walking...
+      multi->readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
+    else
+    {
+      const Multi::MultiDef& def = multi->multidef();
+      def.readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
+    }
+  } );
 }
 
 bool Realm::navigable( unsigned short x, unsigned short y, short z, short height = 0 ) const

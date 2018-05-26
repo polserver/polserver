@@ -9,14 +9,13 @@
 
 #include "mathmod.h"
 
+#include <cmath>
+#include <stdio.h>
+
 #include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
 
-#include <cmath>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning sprintf
-#endif
 
 namespace Pol
 {

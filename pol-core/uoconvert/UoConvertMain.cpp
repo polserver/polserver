@@ -1,36 +1,36 @@
 #include "UoConvertMain.h"
 
-#include "../pol/objtype.h"
-#include "../pol/polcfg.h"
+#include <stdio.h>
+#include <string.h>
+#include <string>
 
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-#include "../pol/udatfile.h"
-#include "../pol/polfile.h"
-
-#include "../plib/mapcell.h"
-#include "../plib/mapblock.h"
-#include "../plib/mapsolid.h"
-#include "../plib/mapfunc.h"
-#include "../plib/mapserver.h"
-#include "../plib/mapshape.h"
-#include "../plib/mapwriter.h"
-#include "../plib/realmdescriptor.h"
-#include "../plib/systemstate.h"
-
-#include "../clib/stlutil.h"
+#include "../clib/Program/ProgramMain.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
 #include "../clib/timer.h"
+#include "../plib/mapcell.h"
+#include "../plib/mapfunc.h"
+#include "../plib/mapshape.h"
+#include "../plib/mapsolid.h"
+#include "../plib/maptile.h"
+#include "../plib/mapwriter.h"
+#include "../plib/realmdescriptor.h"
+#include "../plib/systemstate.h"
+#include "../plib/uopreader/uop.h"
+#include "../plib/uopreader/uophash.h"
+#include "../pol/clidata.h"
+#include "../pol/objtype.h"
+#include "../pol/polfile.h"
+#include "../pol/udatfile.h"
+#include "../pol/uofile.h"
+#include "../pol/uofilei.h"
+#include "../pol/ustruct.h"
 
-#include <string>
-#include <set>
-#include <vector>
-#include <stdexcept>
-#include <limits>
 
 namespace Pol
 {
@@ -45,12 +45,8 @@ using namespace Pol::Plib;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-UoConvertMain::UoConvertMain() : Pol::Clib::ProgramMain()
-{
-}
-UoConvertMain::~UoConvertMain()
-{
-}
+UoConvertMain::UoConvertMain() : Pol::Clib::ProgramMain() {}
+UoConvertMain::~UoConvertMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 
 void UoConvertMain::showHelp()
@@ -60,8 +56,8 @@ void UoConvertMain::showHelp()
               << "  UOCONVERT command [options ...]\n"
               << "    \n"
               << "  Commands: \n"
-              << "    map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width} "
-                 "{height=Height} {x=X} {y=Y}\n"
+              << "    map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width}"
+              << "        {height=Height} {mapid=0} {readuop=1} {x=X} {y=Y}\n"
               << "    statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
               << "    maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
               << "    multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
@@ -119,8 +115,8 @@ void display_flags()
               unsigned int polflags = Plib::polflags_from_tileflags(
                   0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
               unsigned moveland = ( polflags & Plib::FLAG::MOVELAND ) ? 1 : 0;
-              INFO_PRINT.Format( "{} {} {} {} {} {}: {}\n" ) << blocking << platform << walk << wall
-                                                             << half << floor << moveland;
+              INFO_PRINT.Format( "{} {} {} {} {} {}: {}\n" )
+                  << blocking << platform << walk << wall << half << floor << moveland;
             }
           }
         }
@@ -171,8 +167,8 @@ void create_maptile( const std::string& realmname )
           safe_getmapinfo( x, y, &z, &mi );
 
           if ( mi.landtile > 0x3FFF )
-            INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x
-                                                                                 << y << z;
+            INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" )
+                << mi.landtile << x << y << z;
 
           // for water, don't average with surrounding tiles.
           if ( landtile_uoflags( mi.landtile ) & Core::USTRUCT_TILE::FLAG_LIQUID )
@@ -244,6 +240,7 @@ void create_map( const std::string& realm, unsigned short width, unsigned short 
   INFO_PRINT << "Creating map base and solids files.\n"
              << "  Realm: " << realm << "\n"
              << "  Map ID: " << uo_mapid << "\n"
+             << "  Reading UOP file: " << ( uo_readuop ? "Yes" : "No" ) << "\n"
              << "  Use Dif files: " << ( uo_usedif ? "Yes" : "No" ) << "\n"
              << "  Size: " << uo_map_width << "x" << uo_map_height << "\n"
              << "Initializing files: ";
@@ -475,8 +472,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
       safe_getmapinfo( x, y, &z, &mi );
 
       if ( mi.landtile > 0x3FFF )
-        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x
-                                                                             << y << z;
+        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" )
+            << mi.landtile << x << y << z;
 
       // for water, don't average with surrounding tiles.
       if ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
@@ -487,8 +484,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
       z = low_z;
 
       if ( mi.landtile > 0x3FFF )
-        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" ) << mi.landtile << x
-                                                                             << y << z;
+        INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" )
+            << mi.landtile << x << y << z;
 
       unsigned int lt_flags = landtile_uoflags( mi.landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
@@ -505,11 +502,12 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
       if ( lt_flags & USTRUCT_TILE::FLAG_WALL )
         lt_height = 20;
 
-      readstatics( statics, x, y, USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
-                                      USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID |
-                                      USTRUCT_TILE::FLAG_HOVEROVER
+      readstatics( statics, x, y,
+                   USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
+                       USTRUCT_TILE::FLAG_HALF_HEIGHT | USTRUCT_TILE::FLAG_LIQUID |
+                       USTRUCT_TILE::FLAG_HOVEROVER
                    // USTRUCT_TILE::FLAG__WALK
-                   );
+      );
 
       for ( unsigned i = 0; i < statics.size(); ++i )
       {
@@ -1186,10 +1184,67 @@ int UoConvertMain::main()
   }
 
   std::string command = binArgs[1];
-  if ( command == "map" )
+  if ( command == "uoptomul" )
+  {
+    // this is kludgy and doesn't take into account the UODataPath. Mostly a proof of concept now.
+    UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
+
+    std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
+    std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
+
+    auto maphash = []( int mapid, size_t chunkidx ) {
+      fmt::Writer tmp;
+      tmp << "build/map" << mapid << "legacymul/" << fmt::pad(chunkidx,8,'0') << ".dat";
+      return HashLittle2( tmp.str() );
+    };
+
+    std::ifstream ifs( uop_mapfile, std::ifstream::binary );
+    if ( !ifs )
+    {
+      ERROR_PRINT << "Error when opening mapfile: " << uop_mapfile << '\n';
+      return 1;
+    }
+
+    kaitai::kstream ks( &ifs );
+    uop_t uopfile( &ks );
+
+    // TODO: read all blocks
+    std::map<uint64_t, uop_t::file_t*> filemap;
+    uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
+    for ( auto file : *currentblock->block_body()->files() )
+    {
+      if ( file == nullptr )
+        continue;
+      if ( file->decompressed_size() == 0 )
+        continue;
+      filemap[file->filehash()] = file;
+    }
+
+    if ( uopfile.header()->nfiles() != filemap.size() )
+      INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
+           << uopfile.header()->nfiles() << ")\n";
+
+    std::ofstream ofs( mul_mapfile, std::ofstream::binary );
+    for ( size_t i = 0; i < filemap.size(); i++ )
+    {
+      auto fileitr = filemap.find( maphash( uo_mapid, i ) );
+      if ( fileitr == filemap.end() )
+      {
+        INFO_PRINT << "Couldn't find file hash: " << maphash( uo_mapid, i );
+        continue;
+      }
+
+      auto file = fileitr->second;
+      ofs << file->data()->filebytes();
+      INFO_PRINT << "Wrote: " << i + 1 << "/" << filemap.size() << '\n';
+    }
+    INFO_PRINT << "Done converting.\n";
+  }
+  else if ( command == "map" )
   {
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
     UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 0, false );
+    UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
     int default_width = 6144;
@@ -1303,8 +1358,8 @@ int UoConvertMain::main()
   UoConvert::clear_tiledata();
   return 0;
 }
-}
-}  // namespaces
+}  // namespace UoConvert
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

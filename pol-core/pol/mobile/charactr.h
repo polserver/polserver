@@ -32,28 +32,51 @@
 #ifndef __CHARACTR_H
 #define __CHARACTR_H
 
-#include "../../clib/passert.h"
-#include "../gameclck.h"
-#include "../polclock.h"
-#include "../uobject.h"
-#include "../action.h"
-#include "../uconst.h"
-#include "../skillid.h"
-#include "../utype.h"
-
-#include "../../clib/weakptr.h"
-#include "../../clib/strset.h"
-#include "../reftypes.h"
-#include "../pktboth.h"
-
-#include "attribute.h"
-
 #include <ctime>
-
-#include <string>
-#include <vector>
 #include <map>
 #include <set>
+#include <string>
+#include <vector>
+
+#include "../../bscript/bobject.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/passert.h"
+#include "../../clib/rawtypes.h"
+#include "../../clib/refptr.h"
+#include "../../clib/strset.h"
+#include "../../clib/weakptr.h"
+#include "../action.h"
+#include "../baseobject.h"
+#include "../dynproperties.h"
+#include "../gameclck.h"
+#include "../polclock.h"
+#include "../reftypes.h"
+#include "../skillid.h"
+#include "../uconst.h"
+#include "../uobject.h"
+#include "../utype.h"
+#include "attribute.h"
+
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+namespace Clib
+{
+class StreamWriter;
+}  // namespace Clib
+namespace Core
+{
+class UContainer;
+class WornItemsContainer;
+}  // namespace Core
+namespace Mobile
+{
+class Character;
+}  // namespace Mobile
+}  // namespace Pol
 
 namespace Pol
 {
@@ -83,22 +106,23 @@ class UWeapon;
 }
 namespace Core
 {
-class RepSystem;
-class MenuItem;
+class Guild;
 class Menu;
+class MenuItem;
 class OneShotTask;
+class Party;
+class RepSystem;
+class SaveContext;
 class Spellbook;
 class TargetCursor;
 class UOExecutor;
 class USpell;
 class Vital;
-class SaveContext;
-class Party;
-class Guild;
-struct PKTIN_7D;
 struct PKTIN_00;
+struct PKTIN_7D;
 struct PKTIN_8D;
 struct PKTIN_F8;
+
 void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
 void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg );
 void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg );
@@ -151,6 +175,7 @@ public:
   void lock( unsigned char lockstate ) { _lockstate = lockstate; }
   unsigned short cap() const { return _cap; }
   void cap( unsigned short cap ) { _cap = cap; }
+
 private:
   unsigned short _base;
   short _temp;
@@ -230,8 +255,8 @@ private:
 };
 
 /**
-* Represents a buff icon in the buff bar, see packet 0xDF documentation for more details
-*/
+ * Represents a buff icon in the buff bar, see packet 0xDF documentation for more details
+ */
 struct Buff
 {
   // Polclock when the buff will end (only for displaying countdown)
@@ -257,46 +282,46 @@ inline bool operator<( const reportable_t& lhs, const reportable_t& rhs )
 
 enum class PRIV_FLAGS : u32
 {
-  MOVE_ANY              = 1 << 0,  // should everything be moveable?
-  MOVE_ANY_DIST         = 1 << 1,
-  RENAME_ANY            = 1 << 2,  // should everything be renameable?
-  CLOTHE_ANY            = 1 << 3,
-  INVUL                 = 1 << 4,
-  SEE_HIDDEN            = 1 << 5,
-  SEE_GHOSTS            = 1 << 6,
-  HEAR_GHOSTS           = 1 << 7,
-  SEE_INVIS_ITEMS       = 1 << 8,
-  DBLCLICK_ANY          = 1 << 9,
-  LOS_ANY               = 1 << 19,  // all targetting ignore LOS?
-  IGNORE_DOORS          = 1 << 11,
-  FREEMOVE              = 1 << 12,
-  FIRE_WHILE_MOVING     = 1 << 13,
-  ATTACK_HIDDEN         = 1 << 14,
-  HIDDEN_ATTACK         = 1 << 15,
-  PLOG_ANY              = 1 << 16,
+  MOVE_ANY = 1 << 0,  // should everything be moveable?
+  MOVE_ANY_DIST = 1 << 1,
+  RENAME_ANY = 1 << 2,  // should everything be renameable?
+  CLOTHE_ANY = 1 << 3,
+  INVUL = 1 << 4,
+  SEE_HIDDEN = 1 << 5,
+  SEE_GHOSTS = 1 << 6,
+  HEAR_GHOSTS = 1 << 7,
+  SEE_INVIS_ITEMS = 1 << 8,
+  DBLCLICK_ANY = 1 << 9,
+  LOS_ANY = 1 << 19,  // all targetting ignore LOS?
+  IGNORE_DOORS = 1 << 11,
+  FREEMOVE = 1 << 12,
+  FIRE_WHILE_MOVING = 1 << 13,
+  ATTACK_HIDDEN = 1 << 14,
+  HIDDEN_ATTACK = 1 << 15,
+  PLOG_ANY = 1 << 16,
   CAN_BE_HEARD_AS_GHOST = 1 << 17,
-  RUN_WHILE_STEALTH     = 1 << 18,
-  SPEEDHACK             = 1 << 19,
+  RUN_WHILE_STEALTH = 1 << 18,
+  SPEEDHACK = 1 << 19,
 
-  ALL                   = ~0u,  // all bits set
+  ALL = ~0u,  // all bits set
 };
 
 
 enum class MOB_FLAGS : u16
 {
   READY_TO_SWING = 1 << 0,
-  MURDERER       = 1 << 1,
+  MURDERER = 1 << 1,
   PARTY_CAN_LOOT = 1 << 2,
   TRADE_ACCEPTED = 1 << 3,
-  DEAD           = 1 << 4,
-  HIDDEN         = 1 << 5,
-  FROZEN         = 1 << 6,
-  PARALYZED      = 1 << 7,
-  WARMODE        = 1 << 8,
-  POISONED       = 1 << 9,
-  LOGGED_IN      = 1 << 10,  // for NPCs, this is always true.
-  CONNECTED      = 1 << 11,
-  USE_ADJUSTMENTS = 1 << 12, // NPCs
+  DEAD = 1 << 4,
+  HIDDEN = 1 << 5,
+  FROZEN = 1 << 6,
+  PARALYZED = 1 << 7,
+  WARMODE = 1 << 8,
+  POISONED = 1 << 9,
+  LOGGED_IN = 1 << 10,  // for NPCs, this is always true.
+  CONNECTED = 1 << 11,
+  USE_ADJUSTMENTS = 1 << 12,  // NPCs
 };
 
 // NOTES:
@@ -313,7 +338,8 @@ class Character : public Core::UObject
   typedef std::set<Character*> CharacterSet;
 
 public:
-  explicit Character( u32 objtype, Core::UOBJ_CLASS uobj_class = Core::UOBJ_CLASS::CLASS_CHARACTER );
+  explicit Character( u32 objtype,
+                      Core::UOBJ_CLASS uobj_class = Core::UOBJ_CLASS::CLASS_CHARACTER );
   virtual ~Character();
 
 private:
@@ -497,8 +523,8 @@ private:
   // ATTRIBUTES / VITALS
 public:
   void disable_regeneration_for( int seconds );
-  void refresh_element( Core::ElementalType element );
-  void update_element( Core::ElementalType element, Items::Item* item );
+  void resetEquipableProperties();
+  void updateEquipableProperties( Items::Item* item );
 
   u16 strength() const;
   u16 intelligence() const;
@@ -675,6 +701,11 @@ public:
   unsigned char cmdlevel() const;
   void cmdlevel( unsigned char value, bool update_on_change = true );
 
+  // Tests whether item is at a legal location and within reach of the character (range).
+  // Range == -1 takes the default accessible distance,
+  // any smaller negative number ignores the range check.
+  bool can_access( const Items::Item* item, int range = -1 ) const;
+
   bool can_move( const Items::Item* item ) const;
   bool can_rename( const Character* chr ) const;
   bool can_clothe( const Character* chr ) const;
@@ -732,7 +763,8 @@ protected:
 
   // BUFF/DEBUFF BAR
 public:
-  void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, const std::vector<u32>& arguments );
+  void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
+                const std::vector<u32>& arguments );
   bool delBuff( u16 icon );
   void clearBuffs();
   void send_buffs();
@@ -780,9 +812,8 @@ public:
   DYN_PROPERTY( lightoverride, int, Core::PROP_LIGHTOVERRIDE, -1 );
   DYN_PROPERTY( lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0 );
 
-  static const Core::MovementCostMod DEFAULT_MOVEMENTCOSTMOD;
   DYN_PROPERTY( movement_cost, Core::MovementCostMod, Core::PROP_MOVEMENTCOST_MOD,
-                DEFAULT_MOVEMENTCOSTMOD );
+                Core::MovementCostMod::DEFAULT );
   // COMBAT
 public:
   u32 warmode_wait;
@@ -828,7 +859,7 @@ public:
 public:
   DYN_PROPERTY( disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0 );
   Core::TargetCursor* tcursor2;
-  weak_ptr<Core::Menu> menu; // TODO: Move this into the client's gamedata
+  weak_ptr<Core::Menu> menu;  // TODO: Move this into the client's gamedata
   void ( *on_menu_selection )( Network::Client* client, Core::MenuItem* mi, Core::PKTIN_7D* msg );
   void ( *on_popup_menu_selection )( Network::Client* client, u32 serial, u16 id );
 
@@ -846,13 +877,11 @@ private:
 public:
   u8 cmdlevel_;
 
-  static const Core::ExtStatBarFollowers DEFAULT_EXTSTATBARFOLLOWERS;
-  static const Core::SkillStatCap DEFAULT_SKILLSTATCAP;
   DYN_PROPERTY( skillstatcap, Core::SkillStatCap, Core::PROP_STATCAP_SKILLCAP,
-                DEFAULT_SKILLSTATCAP );
+                Core::SkillStatCap::DEFAULT );
   DYN_PROPERTY( luck, s16, Core::PROP_EXT_STATBAR_LUCK, 0 );
   DYN_PROPERTY( followers, Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS,
-                DEFAULT_EXTSTATBARFOLLOWERS );
+                Core::ExtStatBarFollowers::DEFAULT );
   DYN_PROPERTY( tithing, s32, Core::PROP_EXT_STATBAR_TITHING, 0 );
 
 protected:

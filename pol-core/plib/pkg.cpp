@@ -5,7 +5,8 @@
 
 
 #include "pkg.h"
-#include "systemstate.h"
+
+#include <stdlib.h>
 #ifdef WINDOWS
 #include "../clib/pol_global_config_win.h"
 #else
@@ -14,20 +15,14 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/clib.h"
 #include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/maputil.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation warning
-#endif
-
-#include <algorithm>
-#include <functional>
+#include "../plib/systemstate.h"
 
 namespace Pol
 {
@@ -209,11 +204,11 @@ void Package::check_dependencies() const
 {
   if ( core_required_ )
   {
-    if ( core_required_ > POL_VERSION_MAJOR )  // TODO: use a more fine grained check here
+    if ( core_required_ > POL_VERSION )  // TODO: use a more fine grained check here
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
                   << "  Core version " << core_required_ << " is required, but version "
-                  << POL_VERSION_MAJOR << " is running.\n";
+                  << POL_VERSION << " is running.\n";
       throw std::runtime_error( "Package requires a newer core version" );
     }
   }
@@ -234,7 +229,7 @@ void Package::check_dependencies() const
     if ( found == NULL )
     {
       ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
-                  << "	Package '" << elem.pkgname << "' is required, but is not installed.\n";
+                  << "  Package '" << elem.pkgname << "' is required, but is not installed.\n";
       throw std::runtime_error( "Package dependency error" );
     }
     else
@@ -242,7 +237,7 @@ void Package::check_dependencies() const
       if ( !check_version2( found->version_, elem.version ) )
       {
         ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
-                    << "	Package '" << elem.pkgname << "' version " << elem.version
+                    << "  Package '" << elem.pkgname << "' version " << elem.version
                     << " is required, but version " << found->version_ << " was found\n";
         throw std::runtime_error( "Package dependency error" );
       }
@@ -258,7 +253,7 @@ void Package::check_conflicts() const
     if ( found != NULL )
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
-                  << "	Package conflicts with package " << found->desc() << "\n";
+                  << "  Package conflicts with package " << found->desc() << "\n";
       throw std::runtime_error( "Package dependency error" );
     }
   }
@@ -298,7 +293,7 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
     else if ( isequal )
     {
       ERROR_PRINT << "Error in package " << pkg->desc() << ":\n"
-                  << "	Package by same name already found in " << existing_pkg->desc() << "\n";
+                  << "  Package by same name already found in " << existing_pkg->desc() << "\n";
       throw std::runtime_error( "Duplicate package found" );
     }
     else
@@ -357,11 +352,6 @@ void load_packages( const std::string& basedir, bool quiet )
   }
 }
 
-void check_replaced_packages( const Package* pkg )
-{
-  pkg->check_replacements();
-}
-
 void check_deps_for_package( const Package* pkg )
 {
   pkg->check_dependencies();
@@ -394,11 +384,11 @@ void check_package_deps()
     check_deps_for_package( pkg );
 }
 
-void load_packages()
+void load_packages( bool quiet )
 {
   test_check_version();
 
-  load_packages( "pkg/" );
+  load_packages( "pkg/", quiet );
 
   if ( Clib::FileExists( "config/pkgroots.cfg" ) )
   {
@@ -411,7 +401,7 @@ void load_packages()
       {
         dir = Clib::normalized_dir_form( dir );
         INFO_PRINT << "Searching for packages under " << dir << "\n";
-        load_packages( dir.c_str() );
+        load_packages( dir.c_str(), quiet );
       }
     }
   }

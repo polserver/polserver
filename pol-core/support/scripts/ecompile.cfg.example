@@ -1,18 +1,135 @@
-ModuleDirectory 	c:\cvsdistro\pol\scripts\modules
-IncludeDirectory 	c:\cvsdistro\pol\scripts
-PolScriptRoot		c:\cvsdistro\pol\scripts
-PackageRoot		c:\cvsdistro\pol\pkg
-PackageRoot		c:\cvsdistro\pol\devpkg
-GenerateListing		1
-GenerateDebugInfo	1
-GenerateDebugTextInfo	1
-DisplayWarnings 1
-CompileAspPages 1
-AutoCompileByDefault 1
-UpdateOnlyOnAutoCompile 1
-OnlyCompileUpdatedScripts 1
-DisplaySummary 1
-GenerateDependencyInfo 1
-DisplayUpToDateScripts 0
-ThreadedCompilation 0
-ParanoiaWarnings 0
+##
+## ecompile.cfg: must be in the same directory as ecompile.exe
+##
+
+#
+# ModuleDirectory: Location of *.em files
+#
+ModuleDirectory=D:\DistroDev\scripts\modules
+
+#
+# IncludeDirectory: Location of *.inc files, if not found relative
+#                   or with a specified package
+#
+IncludeDirectory=D:\DistroDev\scripts
+
+#
+# PolScriptRoot: Location of "::file" includes
+#
+PolScriptRoot=D:\DistroDev\scripts
+
+#
+# PackageRoot: root directories where packages are stored
+#              This can be specified multiple times.
+#
+PackageRoot=D:\DistroDev\pkg
+PackageRoot=D:\DistroDev\devpkg
+
+#
+# Default ecompile options
+#
+
+#
+# GenerateListing
+# Generates *.lst files that contain program counter and
+# instyructions being executed at the program counter
+# location. Useful for debugging misbehaving scripts.
+# Default is 0
+#
+GenerateListing=0
+
+#
+# GenerateDebugInfo
+# Directs eCompile to generated a special *.dbg file.
+# Default is 0
+#
+GenerateDebugInfo=0
+
+#
+# GenerateDebugTextInfo
+# Default is 0
+#
+GenerateDebugTextInfo=0
+
+#
+# DisplayWarnings
+# Directs eCompile to display warnings such as 'unused variables'.
+# Default is 1
+#
+DisplayWarnings=1
+
+#
+# CompileAspPages
+# Directs eCompile to compile Active Server Pages
+# Default is 1
+#
+CompileAspPages=1
+
+#
+# AutoCompileByDefault
+# If set, and you don't pass any script names or use switches -r or -A, will perform an auto compile.
+# Default is 1
+#
+AutoCompileByDefault=1
+
+#
+# UpdateOnlyOnAutoCompile
+# If set, autocompile will only update modified scripts.
+# Default is 1
+#
+UpdateOnlyOnAutoCompile=1
+
+#
+# OnlyCompileUpdatedScripts
+# Compile only updated scripts (.src newer than .ecl)
+# Default is 1
+#
+OnlyCompileUpdatedScripts=1
+
+#
+# DisplaySummary
+# Displays overall totals after compilation, unless compilation aborted due to a compile error.
+# Default is 1
+#
+DisplaySummary=1
+
+#
+# GenerateDependencyInfo
+# Generate .dep files whether or not updating.
+# Default is 0
+#
+GenerateDependencyInfo=1
+
+#
+# 
+# Display the 'xxx/script.ecl is up-to-date' message, or not.
+# Default is 0
+#
+DisplayUpToDateScripts=0
+
+#
+# OptimizeObjectMembers
+# Default is 1
+#
+OptimizeObjectMembers=1
+
+#
+# ErrorOnWarning
+# Treat warnings just like errors.
+# Default is 0
+#
+ErrorOnWarning=0
+
+#
+# ThreadedCompilation
+# Uses multiple threads to speed up compilation.
+# Default is 0
+#
+ThreadedCompilation=1
+
+#
+# ParanoiaWarnings
+# Forces eCompile to complain about {} syntax.
+# Default is 0
+#
+ParanoiaWarnings=0

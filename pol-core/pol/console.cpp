@@ -6,35 +6,35 @@
 
 #include "console.h"
 
-#include "../bscript/impstr.h"
+#include <ctype.h>
+#include <stddef.h>
 
+#include <format/format.h>
+#include "../bscript/eprog.h"
+#include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/kbhit.h"
 #include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
+#include "../clib/kbhit.h"
 #include "../clib/logfacility.h"
-
+#include "../clib/refptr.h"
+#include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
-
-#include "polcfg.h"
+#include "globals/state.h"
+#include "globals/uvars.h"
 #include "polsem.h"
+#include "polsig.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
 
 #ifdef _WIN32
 #include <conio.h>
 #endif
 
-#include <string>
+#include <exception>
 #include <stdexcept>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // POSIX deprecation warning getch()
-#endif
+#include <string>
 
 namespace Pol
 {

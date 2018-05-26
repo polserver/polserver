@@ -7,17 +7,14 @@
  */
 
 
-#include "multidef.h"
-
-#include "../item/itemdesc.h"
-
-#include "../tiles.h"
-#include "../objtype.h"
-#include "../ustruct.h"
-
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
+#include "../clidata.h"
+#include "../item/itemdesc.h"
+#include "../tiles.h"
+#include "../udatfile.h"
+#include "multidef.h"
 
 namespace Pol
 {

@@ -8,32 +8,29 @@
  */
 
 
-#include "mobile/charactr.h"
-#include "clidata.h"
-#include "fnsearch.h"
-#include "item/item.h"
-#include "polcfg.h"
-#include "polclass.h"
-#include "poltype.h"
-#include "loaddata.h"
-#include "spelbook.h"
-#include "uobject.h"
-#include "globals/object_storage.h"
-#include "globals/state.h"
+#include <stddef.h>
+#include <string>
 
-#include "../clib/cfgfile.h"
 #include "../clib/cfgelem.h"
+#include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
-#include "../clib/logfacility.h"
-
 #include "../plib/systemstate.h"
-
-#include <climits>
-#include <map>
-#include <unordered_map>
-#include <stdexcept>
+#include "clidata.h"
+#include "containr.h"
+#include "fnsearch.h"
+#include "globals/object_storage.h"
+#include "globals/state.h"
+#include "item/item.h"
+#include "loaddata.h"
+#include "mobile/charactr.h"
+#include "objecthash.h"
+#include "polclass.h"
+#include "spelbook.h"
+#include "uobject.h"
 
 namespace Pol
 {
@@ -301,9 +298,9 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     stateManager.gflag_enforce_container_limits = true;
 
     // if (new_parent_cont)
-    //	parent_conts.push( cont );
+    //  parent_conts.push( cont );
     // if (item->isa( UObject::CLASS_CONTAINER ))
-    //	parent_conts.push( static_cast<UContainer*>(item) );
+    //  parent_conts.push( static_cast<UContainer*>(item) );
   }
   else
   {

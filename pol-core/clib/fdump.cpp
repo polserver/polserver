@@ -4,10 +4,7 @@
  */
 
 
-#include <ctype.h>
-
 #include "fdump.h"
-#include "logfacility.h"
 
 namespace Pol
 {

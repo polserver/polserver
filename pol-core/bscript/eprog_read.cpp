@@ -4,23 +4,22 @@
  * - 2005/12/07 MuadDib: Added "Recompile required" to Bad version reports.
  */
 
-#include "eprog.h"
-
-#include "filefmt.h"
-#include "escriptv.h"
-#include "options.h"
-#include "executor.h"
-#include "objmethods.h"
-
-#include "../clib/strutil.h"
-#include "../clib/logfacility.h"
-
 #include <cstdio>
-#include <stdexcept>
+#include <exception>
+#include <string>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecated POSIX fopen warning
-#endif
+#include "../clib/logfacility.h"
+#include "../clib/rawtypes.h"
+#include "../clib/strutil.h"
+#include "eprog.h"
+#include "executor.h"
+#include "filefmt.h"
+#include "fmodule.h"
+#include "modules.h"
+#include "objmethods.h"
+#include "symcont.h"
+#include "token.h"
+#include "tokens.h"
 
 namespace Pol
 {
@@ -229,7 +228,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
           "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
           Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
     }
-    token.lval = *(int*)( symbols.array() + st.offset );
+    std::memcpy( &token.lval, symbols.array() + st.offset, sizeof( int ) );
     return 0;
   case TOK_DOUBLE:
     if ( st.offset >= symbols.length() )
@@ -238,7 +237,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
           "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
           Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
     }
-    token.dval = *(double*)( symbols.array() + st.offset );
+    std::memcpy( &token.dval, symbols.array() + st.offset, sizeof( double ) );
     return 0;
 
   case CTRL_STATEMENTBEGIN:
@@ -258,8 +257,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
       {
         throw std::runtime_error( "Symbol offset of " + Clib::decint( dt->strOffset ) +
                                   " exceeds symbol store length of " +
-                                  Clib::decint( symbols.length() ) + " at PC=" +
-                                  Clib::decint( position ) );
+                                  Clib::decint( symbols.length() ) +
+                                  " at PC=" + Clib::decint( position ) );
       }
       if ( dt->strOffset )
         token.setStr( symbols.array() + dt->strOffset );
@@ -291,6 +290,9 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
+    token.lval = st.offset;
+    return 0;
+  case TOK_FUNCREF:
     token.lval = st.offset;
     return 0;
 
@@ -407,7 +409,7 @@ int EScriptProgram::read_dbg_file()
 
   u32 dbgversion;
   size_t fread_res = fread( &dbgversion, sizeof dbgversion, 1, fp );
-  if ( dbgversion != 2 && dbgversion != 3 )
+  if ( fread_res != 1 || ( dbgversion != 2 && dbgversion != 3 ) )
   {
     ERROR_PRINT << "Recompile required. Bad version " << dbgversion << " in " << mname
                 << ", expected version 2\n";
@@ -416,41 +418,74 @@ int EScriptProgram::read_dbg_file()
   }
 
   size_t bufalloc = 20;
-  auto buffer = new char[bufalloc];
+  auto buffer = std::unique_ptr<char[]>( new char[bufalloc] );
   int res = 0;
 
   u32 count;
   fread_res = fread( &count, sizeof count, 1, fp );
+  if ( fread_res != 1 )
+  {
+    fclose( fp );
+    return -1;
+  }
   dbg_filenames.resize( count );
   for ( auto& elem : dbg_filenames )
   {
     fread_res = fread( &count, sizeof count, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
     if ( count >= bufalloc )
     {
-      delete[] buffer;
       bufalloc = count * 2;
-      buffer = new char[bufalloc];
+      buffer.reset( new char[bufalloc] );
     }
-    fread_res = fread( buffer, count, 1, fp );
-    elem = buffer;
+    fread_res = fread( buffer.get(), count, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
+    elem = buffer.get();
   }
 
   fread_res = fread( &count, sizeof count, 1, fp );
+  if ( fread_res != 1 )
+  {
+    fclose( fp );
+    return -1;
+  }
   globalvarnames.resize( count );
   for ( auto& elem : globalvarnames )
   {
     fread_res = fread( &count, sizeof count, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
     if ( count >= bufalloc )
     {
-      delete[] buffer;
       bufalloc = count * 2;
-      buffer = new char[bufalloc];
+      buffer.reset( new char[bufalloc] );
     }
-    fread_res = fread( buffer, count, 1, fp );
-    elem = buffer;
+    fread_res = fread( buffer.get(), count, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
+    elem = buffer.get();
   }
 
   fread_res = fread( &count, sizeof count, 1, fp );
+  if ( fread_res != 1 )
+  {
+    fclose( fp );
+    return -1;
+  }
   dbg_filenum.resize( count );
   dbg_linenum.resize( count );
   dbg_ins_blocks.resize( count );
@@ -459,70 +494,123 @@ int EScriptProgram::read_dbg_file()
   {
     BSCRIPT_DBG_INSTRUCTION ins;
     fread_res = fread( &ins, sizeof ins, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
     dbg_filenum[i] = ins.filenum;
     dbg_linenum[i] = ins.linenum;
     dbg_ins_blocks[i] = ins.blocknum;
     dbg_ins_statementbegin[i] = ins.statementbegin ? true : false;
   }
   fread_res = fread( &count, sizeof count, 1, fp );
+  if ( fread_res != 1 )
+  {
+    fclose( fp );
+    return -1;
+  }
   blocks.resize( count );
   for ( auto& block : blocks )
   {
     u32 tmp;
 
     fread_res = fread( &tmp, sizeof tmp, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
     block.parentblockidx = tmp;
 
     fread_res = fread( &tmp, sizeof tmp, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
     block.parentvariables = tmp;
 
     fread_res = fread( &tmp, sizeof tmp, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
     block.localvarnames.resize( tmp );
 
     for ( auto& elem : block.localvarnames )
     {
       fread_res = fread( &count, sizeof count, 1, fp );
+      if ( fread_res != 1 )
+      {
+        fclose( fp );
+        return -1;
+      }
       if ( count >= bufalloc )
       {
-        delete[] buffer;
         bufalloc = count * 2;
-        buffer = new char[bufalloc];
+        buffer.reset( new char[bufalloc] );
       }
-      fread_res = fread( buffer, count, 1, fp );
-      elem = buffer;
+      fread_res = fread( buffer.get(), count, 1, fp );
+      if ( fread_res != 1 )
+      {
+        fclose( fp );
+        return -1;
+      }
+      elem = buffer.get();
     }
   }
   if ( dbgversion >= 3 )
   {
     fread_res = fread( &count, sizeof count, 1, fp );
+    if ( fread_res != 1 )
+    {
+      fclose( fp );
+      return -1;
+    }
     dbg_functions.resize( count );
     for ( auto& func : dbg_functions )
     {
       u32 tmp;
       fread_res = fread( &tmp, sizeof tmp, 1, fp );
+      if ( fread_res != 1 )
+      {
+        fclose( fp );
+        return -1;
+      }
       if ( tmp >= bufalloc )
       {
-        delete[] buffer;
         bufalloc = tmp * 2;
-        buffer = new char[bufalloc];
+        buffer.reset( new char[bufalloc] );
       }
-      fread_res = fread( buffer, tmp, 1, fp );
-      func.name = buffer;
+      fread_res = fread( buffer.get(), tmp, 1, fp );
+      if ( fread_res != 1 )
+      {
+        fclose( fp );
+        return -1;
+      }
+      func.name = buffer.get();
 
       fread_res = fread( &tmp, sizeof tmp, 1, fp );
+      if ( fread_res != 1 )
+      {
+        fclose( fp );
+        return -1;
+      }
       func.firstPC = tmp;
       fread_res = fread( &tmp, sizeof tmp, 1, fp );
+      if ( fread_res != 1 )
+      {
+        fclose( fp );
+        return -1;
+      }
       func.lastPC = tmp;
     }
   }
 
-  delete[] buffer;
-  buffer = NULL;
-
   fclose( fp );
   debug_loaded = true;
-  if ( fread_res )  // FIXME senseless check so fread_res is used
-    res = 0;
   return res;
 }
 }

@@ -19,6 +19,7 @@ dist:
 	copy ..\..\runecl\release\runecl.exe scripts
 !	ENDIF
 	copy ..\..\support\scripts\ecompile.cfg.example scripts\ecompile.cfg.example
+	copy ..\..\support\pol.cfg.example pol.cfg.example
 	copy ..\..\doc\core-changes.txt .
 	copy ..\..\doc\uoconvert.txt .
 	copy ..\..\doc\packethooks.txt .
@@ -72,9 +73,7 @@ debug:
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uoconvert\* uoconvert
     xcopy /I /S /EXCLUDE:..\debug-exclude.lst ..\..\uotool\* uotool
 	..\7za a -tzip -mx9 -r ..\pol-debug-.zip *
-#    "c:\program files\winzip\wzzip" -ex -ybc -r -P ..\pol-debug-.zip  *
     cd ..
-#    rmdir /S /Q debug-zip
 
 obj:
     mkdir obj-zip
@@ -90,15 +89,26 @@ obj:
     cd ..
     rmdir /S /Q obj-zip
 
+pdb:
+    mkdir pdb-zip
+    cd pdb-zip
+!   IF "$(PLATFORM)"=="x64"
+        copy ..\..\pol\release\x64\*.pdb .
+!   ELSE
+        copy ..\..\pol\release\*.pdb .
+!   ENDIF
+    ..\7za a -tzip -mx9 -r ..\pol-pdb-$(PLATFORM).zip @..\obj.lst
+    cd ..
+    rmdir /S /Q pdb-zip
+
 src:
     mkdir src-zip
     cd src-zip
     xcopy /S ..\..\pol\*.cpp .
     xcopy /S ..\..\pol\*.h .
-#    "c:\program files\winzip\wzzip" -ex -ybc -P ..\pol-src.zip @..\src.lst
 	..\7za a -tzip -mx9 -r ..\pol-src-.zip @..\src.lst
     cd ..
-#    rmdir /S /Q src-zip
+    rmdir /S /Q src-zip
     
 lib:
     mkdir lib-zip
@@ -110,7 +120,7 @@ lib:
     xcopy /I /S /EXCLUDE:..\libexclude.lst ..\..\runecl\* lib\runecl
 	..\7za a -tzip -mx9 -r ..\pol-lib.zip *
 	cd ..
-#    rmdir /S /Q lib-zip
+    rmdir /S /Q lib-zip
 
 clean:
 	-rmdir /S /Q build
@@ -118,3 +128,4 @@ clean:
 	-rmdir /S /Q obj-zip
 	-rmdir /S /Q src-zip
 	-rmdir /S /Q lib-zip
+	-rmdir /S /Q pdb-zip

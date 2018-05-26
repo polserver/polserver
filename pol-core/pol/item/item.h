@@ -15,6 +15,16 @@
 #include "pol_global_config.h"
 #endif
 
+#include <stddef.h>
+#include <string>
+
+#include "../../clib/boostutils.h"
+#include "../../clib/compilerspecifics.h"
+#include "../../clib/rawtypes.h"
+#include "../baseobject.h"
+#include "../dynproperties.h"
+#include "../globals/settings.h"
+#include "../layers.h"
 #include "../uobject.h"
 
 
@@ -22,8 +32,18 @@
 #include "../../bscript/bobject.h"
 #endif
 
-#include "../layers.h"
-#include "../globals/settings.h"
+namespace Pol
+{
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
+namespace Clib
+{
+class ConfigElem;
+class StreamWriter;
+}  // namespace Clib
+}  // namespace Pol
 
 namespace Pol
 {
@@ -33,8 +53,8 @@ class UOExecutorModule;
 }
 namespace Core
 {
-struct USTRUCT_TILE;
 class UContainer;
+
 std::string format_description( unsigned int polflags, const std::string& descdef,
                                 unsigned short amount, const std::string suffix );
 }
@@ -44,8 +64,8 @@ class Character;
 }
 namespace Multi
 {
-class UMulti;
 class UHouse;
+class UMulti;
 }
 namespace Network
 {
@@ -128,6 +148,10 @@ public:
   bool default_insured() const;
   void insured( bool newvalue );
   bool use_insurance();
+
+  bool no_drop() const;
+  bool default_no_drop() const;
+  void no_drop( bool newvalue );
 
   u8 slot_index() const;
   bool slot_index( u8 newvalue );
@@ -250,11 +274,6 @@ public:
   u8 tile_layer;
   unsigned short hp_;
   unsigned short maxhp() const;
-
-  s16 calc_element_resist( Core::ElementalType element ) const;
-  s16 calc_element_damage( Core::ElementalType element ) const;
-  bool has_resistance( Mobile::Character* chr );
-  bool has_element_damage();
 
   DYN_PROPERTY( maxhp_mod, s16, Core::PROP_MAXHP_MOD, 0 );
   DYN_PROPERTY( name_suffix, std::string, Core::PROP_NAME_SUFFIX, "" );

@@ -12,70 +12,60 @@
 
 #include "textcmd.h"
 
-#include "accounts/account.h"
-#include "mobile/charactr.h"
-#include "network/client.h"
-#include "cmdlevel.h"
-
-#include "item/armor.h"
-#include "item/weapon.h"
-#include "item/itemdesc.h"
-
-#include "module/uomod.h"
-#include "module/osmod.h"
-#include "uoexec.h"
-
-#include "action.h"
-#include "allocd.h"
-#include "menu.h"
-#include "mobile/npc.h"
-#include "pktboth.h"
-#include "polcfg.h"
-#include "polclock.h"
-#include "polsem.h"
-#include "realms.h"
-#include "realms/realm.h"
-#include "schedule.h"
-#include "scrsched.h"
-#include "scrstore.h"
-#include "target.h"
-#include "tmpvars.h"
-#include "uobject.h"
-#include "ufunc.h"
-#include "ufuncstd.h"
-#include "uoscrobj.h"
-#include "globals/uvars.h"
-#include "globals/state.h"
-#include "uworld.h"
-#include "repsys.h"
-#include "fnsearch.h"
-#include "unicode.h"
-
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
+#include <cstddef>
+#include <ctype.h>
+#include <iosfwd>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
+#include <time.h>
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
-
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/clib.h"
 #include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/opnew.h"
+#include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
+#include "../clib/spinlock.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../clib/spinlock.h"
 #include "../clib/threadhelp.h"
-
-#include <map>
-#include <string>
-#include <functional>
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable warning for asctime, localtime, sprintf, strnicmp
-#endif
+#include "../plib/pkg.h"
+#include "../plib/systemstate.h"
+#include "accounts/account.h"
+#include "allocd.h"
+#include "clidata.h"
+#include "globals/network.h"
+#include "globals/state.h"
+#include "globals/uvars.h"
+#include "item/item.h"
+#include "item/itemdesc.h"
+#include "mobile/charactr.h"
+#include "module/osmod.h"
+#include "module/uomod.h"
+#include "network/client.h"
+#include "pktboth.h"
+#include "polclock.h"
+#include "repsys.h"
+#include "scrdef.h"
+#include "scrsched.h"
+#include "scrstore.h"
+#include "tmpvars.h"
+#include "uconst.h"
+#include "ufunc.h"
+#include "ufuncstd.h"
+#include "unicode.h"
+#include "uoexec.h"
+#include "uoscrobj.h"
+#include "utype.h"
+#include "uworld.h"
 
 namespace Pol
 {
@@ -196,29 +186,23 @@ void textcmd_flag1( Network::Client* client, const char* text )
 {
   tmp_flag1 = (u8)strtoul( text, NULL, 16 );
   Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr, [&]( Mobile::Character* zonechr )
-      {
-        send_move_if_inrange2( zonechr, client );
-      } );
+      client->chr,
+      [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
 }
 
 void textcmd_flag2( Network::Client* client, const char* text )
 {
   tmp_flag2 = (u8)strtoul( text, NULL, 16 );
   Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr, [&]( Mobile::Character* zonechr )
-      {
-        send_move_if_inrange2( zonechr, client );
-      } );
+      client->chr,
+      [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
 }
 
 void textcmd_resendchars( Network::Client* client )
 {
   Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr, [&]( Mobile::Character* zonechr )
-      {
-        send_client_char_data( zonechr, client );
-      } );
+      client->chr,
+      [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
 }
 
 void textcmd_shutdown( Network::Client* /*client*/ )
@@ -260,15 +244,15 @@ std::string timeoutstr( polclock_t at )
 
 ///
 /// Internal Command: .i_repdata
-///	 Show Reputation System Data for a Targetted Mobile
-///	 Displays:
-///		 Murderer status
-///		 Criminal status and timeout
-///		 LawfullyDamaged status and timeouts
-///		 AggressorTo status and timeouts
-///		 ToBeReportable list
-///		 Reportable list
-///		 RepSystem Task status
+/// Show Reputation System Data for a Targetted Mobile
+/// Displays:
+///  Murderer status
+///  Criminal status and timeout
+///  LawfullyDamaged status and timeouts
+///  AggressorTo status and timeouts
+///  ToBeReportable list
+///  Reportable list
+///  RepSystem Task status
 ///
 void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
 {
@@ -454,8 +438,7 @@ void textcmd_procs( Network::Client* client )
   send_sysmessage( client, "Process Information:" );
 
   send_sysmessage(
-      client,
-      "Running: " + Clib::decint( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
+      client, "Running: " + Clib::decint( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
   send_sysmessage(
       client,
       "Blocked: " + Clib::decint( (unsigned int)( scriptScheduler.getHoldlist().size() ) ) );

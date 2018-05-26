@@ -14,57 +14,50 @@
  */
 
 #include "uvars.h"
-#include "multidefs.h"
-#include "script_internals.h"
-#include "network.h"
-#include "settings.h"
-#include "state.h"
-#include "object_storage.h"
-#include "ucfg.h"
 
-#include "../../clib/clib.h"
-#include "../../clib/logfacility.h"
+#include <string.h>
+
+#include "../../bscript/bobject.h"
+#include "../../clib/boostutils.h"
 #include "../../clib/clib_MD5.h"
-#include "../../clib/stlutil.h"
-
+#include "../../clib/logfacility.h"
 #include "../../plib/systemstate.h"
-
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
-#include "../cmdlevel.h"
 #include "../console.h"
 #include "../guardrgn.h"
 #include "../guilds.h"
-#include "../item/item.h"
+#include "../item/equipmnt.h"
 #include "../item/itemdesc.h"
 #include "../item/weapon.h"
 #include "../listenpt.h"
 #include "../loadunld.h"
 #include "../miscrgn.h"
 #include "../mobile/attribute.h"
-#include "../mobile/charactr.h"
 #include "../multi/boat.h"
-#include "../multi/multi.h"
 #include "../musicrgn.h"
 #include "../npctmpl.h"
+#include "../objecthash.h"
 #include "../party.h"
+#include "../polcfg.h"
 #include "../polsem.h"
-#include "../proplist.h"
-#include "../realms.h"
+#include "../realms/realm.h"
 #include "../resource.h"
 #include "../scrstore.h"
-#include "../sockio.h"
 #include "../spells.h"
 #include "../startloc.h"
 #include "../storage.h"
+#include "../syshook.h"
 #include "../syshookscript.h"
-#include "../target.h"
-#include "../tasks.h"
-#include "../ufunc.h"
 #include "../uoskills.h"
 #include "../uworld.h"
 #include "../vital.h"
+#include "multidefs.h"
+#include "network.h"
+#include "object_storage.h"
+#include "script_internals.h"
+#include "ucfg.h"
 
 #ifdef _MSC_VER
 #pragma warning( \
@@ -175,7 +168,8 @@ GameState::GameState()
       target_cursors(),
       textcmds(),
       paramtextcmds(),
-      uo_skills()
+      uo_skills(),
+      task_thread_pool()
 {
   memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
 }
@@ -252,6 +246,8 @@ void GameState::deinitialize()
   animation_translates.clear();
 
   tipfilenames.clear();
+
+  task_thread_pool.deinit_pool();
 
   checkpoint( "end of xmain2" );
 

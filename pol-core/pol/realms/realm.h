@@ -10,28 +10,26 @@
 #ifndef POL_REALM_H
 #define POL_REALM_H
 
+#include <memory>
+#include <set>
+#include <stddef.h>
+#include <string>
+#include <vector>
+
 #include "../../plib/mapshape.h"
 #include "../../plib/realmdescriptor.h"
-#include "../../plib/staticblock.h"
 #include "../uconst.h"
 #include "../udatfile.h"
-
 #include "WorldChangeReasons.h"
-
-#include "../../clib/rawtypes.h"
-
-#include <set>
-#include <vector>
-#include <memory>
 
 
 namespace Pol
 {
 namespace Core
 {
+class ItemsVector;
 class ULWObject;
 struct Zone;
-class ItemsVector;
 }
 namespace Mobile
 {
@@ -48,9 +46,10 @@ class UMulti;
 namespace Plib
 {
 class MapServer;
-struct MAPTILE_CELL;
 class MapTileServer;
+class StaticEntryList;
 class StaticServer;
+struct MAPTILE_CELL;
 }
 namespace Realms
 {

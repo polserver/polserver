@@ -4,9 +4,12 @@
  */
 
 
-#include "eprog.h"
-
 #include <iomanip>
+
+#include "eprog.h"
+#include "symcont.h"
+#include "token.h"
+#include "tokens.h"
 
 namespace Pol
 {

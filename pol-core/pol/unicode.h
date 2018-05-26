@@ -10,13 +10,14 @@
 
 #include <string>
 
-
-#ifndef BSCRIPT_BOBJECT_H
-#include "../bscript/bobject.h"
-#endif
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {
+namespace Bscript
+{
+class ObjArray;
+}
 namespace Core
 {
 bool convertArrayToUC( Bscript::ObjArray*& in_text, u16* out_wtext, size_t textlen,

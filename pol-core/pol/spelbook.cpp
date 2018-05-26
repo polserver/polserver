@@ -10,26 +10,23 @@
 
 #include "spelbook.h"
 
-#include "item/itemdesc.h"
-#include "spells.h"
-
-#include "mobile/charactr.h"
-#include "network/packets.h"
-#include "network/clienttransmit.h"
-#include "network/client.h"
-#include "objtype.h"
-#include "pktboth.h"
-#include "polcfg.h"
-#include "polclass.h"
-#include "ufunc.h"
+#include <sstream>
+#include <stddef.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
-#include "../clib/clib_endian.h"
 #include "../plib/systemstate.h"
-
-#include <sstream>
+#include "baseobject.h"
+#include "globals/uvars.h"
+#include "item/itemdesc.h"
+#include "mobile/charactr.h"
+#include "network/client.h"
+#include "network/packethelper.h"
+#include "network/packets.h"
+#include "polclass.h"
+#include "ufunc.h"
+#include "uobject.h"
 
 namespace Pol
 {
@@ -60,9 +57,7 @@ Spellbook::Spellbook( const Items::SpellbookDesc& descriptor )
     bitwise_contents[i] = 0;
 }
 
-Spellbook::~Spellbook()
-{
-}
+Spellbook::~Spellbook() {}
 
 size_t Spellbook::estimatedSize() const
 {
@@ -268,14 +263,14 @@ void Spellbook::add_bulk( int /* item_count_delta */, int /* weight_delta */ )
 
 void Spellbook::add( Item* item )
 {
-  //	UContainer::add(item);
+  // UContainer::add(item);
   u16 spellnum = USpellScroll::convert_objtype_to_spellnum( item->objtype_, spell_school );
   u8 spellslot = spellnum & 7;
   if ( spellslot == 0 )
     spellslot = 8;
   bitwise_contents[( spellnum - 1 ) >> 3] |= 1 << ( spellslot - 1 );
   item->destroy();
-  //	item->saveonexit(0);
+  // item->saveonexit(0);
 }
 
 void Spellbook::printProperties( Clib::StreamWriter& sw ) const
@@ -332,7 +327,8 @@ void Spellbook::calc_current_bitwise_contents()
   }
 }
 
-USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc ) : Item( itemdesc, UOBJ_CLASS::CLASS_ITEM )
+USpellScroll::USpellScroll( const Items::ItemDesc& itemdesc )
+    : Item( itemdesc, UOBJ_CLASS::CLASS_ITEM )
 {
 }
 
@@ -402,10 +398,10 @@ void send_spellbook_contents( Network::Client* client, Spellbook& spellbook )
     {
       msg->Write<u32>( 0x7FFFFFFFu - spellnumber );
       msg->WriteFlipped<u16>( objtype );
-      msg->offset++;  // unk6
+      msg->offset++;                          // unk6
       msg->WriteFlipped<u16>( spellnumber );  // amount
-      msg->WriteFlipped<u16>( 1u );  // x
-      msg->WriteFlipped<u16>( 1u );  // y
+      msg->WriteFlipped<u16>( 1u );           // x
+      msg->WriteFlipped<u16>( 1u );           // y
       if ( client->ClientType & Network::CLIENTTYPE_6017 )
         msg->Write<u8>( 0u );  // slotindex
       msg->Write<u32>( spellbook.serial_ext );

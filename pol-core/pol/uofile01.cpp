@@ -5,25 +5,15 @@
  */
 
 
-#include "uofile.h"
-#include "uofilei.h"
-
-#include "../plib/mapfunc.h"
-#include "../plib/systemstate.h"
-
-#include "objtype.h"
-#include "polfile.h"
-#include "udatfile.h"
-#include "ustruct.h"
-
-#include "../clib/passert.h"
 #include <cstdio>
 #include <cstring>
-#include <cmath>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for sprintf
-#endif
+#include "../clib/passert.h"
+#include "../clib/rawtypes.h"
+#include "../plib/systemstate.h"
+#include "uofile.h"
+#include "uofilei.h"
+#include "ustruct.h"
 
 namespace Pol
 {
