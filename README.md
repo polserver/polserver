@@ -39,7 +39,7 @@ You need atleast cmake version 3.0.
 **Recommended:**
 Open the *CMake GUI* select the the root folder as source code folder, select
 the `bin-build` subfolder as "where to build the binaries" folder, and select
-your installed Visual Studio version e.g. `Visual Studio 15 2015 Win64`.
+your installed Visual Studio version e.g. `Visual Studio 14 2015 Win64`.
 Now simply press configure+generate+open project and it will directly open
 the solution file in your IDE.
 After building the binaries are located in the `bin` folder.
