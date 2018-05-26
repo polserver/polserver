@@ -1163,6 +1163,13 @@ std::string String::fromUTF16( std::vector<unsigned short> codes )
   return s;
 }
 
+std::string String::fromUTF16( unsigned short* code, size_t len )
+{
+  std::string s;
+  utf8::unchecked::utf16to8( code, code + len, std::back_inserter( s ) );
+  return s;
+}
+
 bool String::compare( const String& str ) const
 {
   return value_.compare( str.value_ ) == 0;

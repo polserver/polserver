@@ -763,6 +763,7 @@ BObjectImp* NPCExecutorModule::SayUC()
       return new BError( "Unicode array exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
+    u16 gwtext[textlenucc + 1];
     if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
       return new BError( "Invalid value in Unicode array." );
 

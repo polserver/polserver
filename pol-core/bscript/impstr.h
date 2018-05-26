@@ -71,6 +71,7 @@ public:
   std::vector<unsigned short> toUTF16() const;
   static std::string fromUTF32( unsigned int code );
   static std::string fromUTF16( std::vector<unsigned short> code );
+  static std::string fromUTF16( unsigned short* code, size_t len );
 
   String& operator=( const char* s )
   {
