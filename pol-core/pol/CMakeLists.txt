@@ -45,7 +45,7 @@ if(HAVE_MYSQL)
     add_custom_command(TARGET ${ex_name} POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different
         "${mysql_path}/lib/libmysql.dll"
-        "${output_bin_dir}/libmysql.dll"
+        "$<TARGET_FILE_DIR:${ex_name}>/libmysql.dll"
     )
 
     install(
