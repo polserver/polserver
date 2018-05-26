@@ -57,7 +57,7 @@ Minimum compiler version: Visual Studio 2015
 Compiling in Linux
 ----------
 
-Make sure you have the required libraries installed: zlib and the mysql client (if SQL supported is desired).
+Make sure you have the required libraries installed: zlib, openssl and the mysql client (if SQL supported is desired).
 
 Then run the following commands (you need at least CMake 3.0):
 * `cd bin-build`
