@@ -173,7 +173,7 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
       return new BError( "Unicode array exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext(textlen + 1);
+    std::vector<u16> gwtext( textlen + 1 );
     if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
       return new BError( "Invalid value in Unicode array." );
     Core::broadcast( gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color,
@@ -203,12 +203,12 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
       return new BError( "Unicode array exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext(textlen + 1);
+    std::vector<u16> gwtext( textlen + 1 );
     if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( say_above( obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color,
-                                 journal_print ) );
+    return new BLong( say_above( obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font,
+                                 color, journal_print ) );
   }
   else
   {
@@ -233,12 +233,12 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
       return new BError( "Unicode array exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext(textlen + 1);
+    std::vector<u16> gwtext( textlen + 1 );
     if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( private_say_above( chr, obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(),
-                                         font, color ) );
+    return new BLong( private_say_above( chr, obj, gwtext.data(),
+                                         Clib::strupper( lang->value() ).c_str(), font, color ) );
   }
   else
   {
@@ -270,7 +270,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new BError( "Unicode array exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext(textlen + 1);
+    std::vector<u16> gwtext( textlen + 1 );
     if ( !Core::convertArrayToUC( oPrompt, gwtext.data(), textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
@@ -315,12 +315,12 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
         return new BError( "Unicode array exceeds maximum size." );
       if ( lang->length() != 3 )
         return new BError( "langcode must be a 3-character code." );
-      std::vector<u16> gwtext(textlen + 1);
+      std::vector<u16> gwtext( textlen + 1 );
       if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
         return new BError( "Invalid value in Unicode array." );
 
-      Core::send_sysmessage( chr->client, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font,
-                             color );
+      Core::send_sysmessage( chr->client, gwtext.data(), Clib::strupper( lang->value() ).c_str(),
+                             font, color );
       return new BLong( 1 );
     }
     else
