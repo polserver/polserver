@@ -73,6 +73,10 @@ detect_compiler()
 detect_arch()
 detect_platform()
 
+if (${linux})
+  option(STRIP_BINARIES "Strip binaries directly, instead of only in package target" OFF)
+endif()
+
 prepare_build()
 cmake_fake_target()
 

@@ -116,7 +116,7 @@ function(set_compile_flags target is_executable)
     if (${release} AND ${linux})
       if (${ENABLE_ASAN} OR ${ENABLE_USAN} OR ${ENABLE_MSAN} OR ${ENABLE_TSAN})
         #dont strip
-      else()
+      elseif(${STRIP_BINARIES})
         target_link_libraries(${target} PUBLIC
           -s # strip
         )
