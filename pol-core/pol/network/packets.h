@@ -8,6 +8,7 @@
 #define POL_PACKETS_H
 
 #include <boost/noncopyable.hpp>
+#include <cstring>
 #include <limits>
 #include <map>
 #include <memory>

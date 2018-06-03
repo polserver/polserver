@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <string>
 
 #include "../../clib/logfacility.h"
@@ -142,12 +143,12 @@ void packet_test()
     test( p, a );
     u8* data = reinterpret_cast<u8*>( &( p->buffer[1] ) );
     u8 d;
-    std::memcpy( &d, &(p->buffer[1]), 1 );
+    std::memcpy( &d, &( p->buffer[1] ), 1 );
     INFO_PRINT << ( *data ) << " " << d << "\n";
 
     u32* data1 = reinterpret_cast<u32*>( &( p->buffer[1] ) );
     u32 d1;
-    std::memcpy( &d1, &(p->buffer[1]), 4 );
+    std::memcpy( &d1, &( p->buffer[1] ), 4 );
     INFO_PRINT << ( *data1 ) << " " << d1 << "\n";
   }
 }
