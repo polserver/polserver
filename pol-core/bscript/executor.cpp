@@ -36,6 +36,7 @@
 #endif
 
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 
 #ifdef ESCRIPT_PROFILE
@@ -1142,13 +1143,15 @@ int Executor::ins_casejmp_findlong( const Token& token, BLong* blong )
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {
-    unsigned short offset = *(const unsigned short*)dataptr;
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
     dataptr += 2;
     unsigned char type = *dataptr;
     dataptr += 1;
     if ( type == CASE_TYPE_LONG )
     {
-      if ( blong->value() == *(const int*)dataptr )
+      int v = blong->value();
+      if ( std::memcmp( &v, dataptr, sizeof( int ) ) == 0 )
         return offset;
       dataptr += 4;
     }
@@ -1169,7 +1172,8 @@ int Executor::ins_casejmp_findstring( const Token& token, String* bstringimp )
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {
-    unsigned short offset = *(const unsigned short*)dataptr;
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
     dataptr += 2;
     unsigned char type = *dataptr;
     dataptr += 1;
@@ -1197,7 +1201,8 @@ int Executor::ins_casejmp_finddefault( const Token& token )
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {
-    unsigned short offset = *(const unsigned short*)dataptr;
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
     dataptr += 2;
     unsigned char type = *dataptr;
     dataptr += 1;
@@ -2562,8 +2567,8 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 
 void Executor::ins_funcref( const Instruction& ins )
 {
-  ValueStack.push_back(
-    BObjectRef( new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
+  ValueStack.push_back( BObjectRef(
+      new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
 }
 
 void Executor::ins_nop( const Instruction& /*ins*/ ) {}
