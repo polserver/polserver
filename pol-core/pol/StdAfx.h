@@ -29,5 +29,6 @@
 #include "../clib/StdAfx.h"
 
 #include "uobject.h"
+#include "network/packets.h"
 
 #endif

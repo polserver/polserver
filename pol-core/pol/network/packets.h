@@ -94,12 +94,13 @@ struct WriteHelper<u32>
 public:
   static void Write( u32 x, char buffer[], u16& offset )
   {
-    ( *(u32*)(void*)&buffer[offset] ) = x;
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 4;
   };
   static void WriteFlipped( u32 x, char buffer[], u16& offset )
   {
-    ( *(u32*)(void*)&buffer[offset] ) = cfBEu32( x );
+    x = cfBEu32( x );
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 4;
   };
 };
@@ -108,12 +109,13 @@ struct WriteHelper<s32>
 {
   static void Write( s32 x, char buffer[], u16& offset )
   {
-    ( *(s32*)(void*)&buffer[offset] ) = x;
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 4;
   };
   static void WriteFlipped( s32 x, char buffer[], u16& offset )
   {
-    ( *(s32*)(void*)&buffer[offset] ) = cfBEu32( x );
+    x = cfBEu32( x );
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 4;
   };
 };
@@ -122,12 +124,13 @@ struct WriteHelper<u16>
 {
   static void Write( u16 x, char buffer[], u16& offset )
   {
-    ( *(u16*)(void*)&buffer[offset] ) = x;
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 2;
   };
   static void WriteFlipped( u16 x, char buffer[], u16& offset )
   {
-    ( *(u16*)(void*)&buffer[offset] ) = cfBEu16( x );
+    x = cfBEu16( x );
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 2;
   };
 };
@@ -136,12 +139,13 @@ struct WriteHelper<s16>
 {
   static void Write( s16 x, char buffer[], u16& offset )
   {
-    ( *(s16*)(void*)&buffer[offset] ) = x;
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 2;
   };
   static void WriteFlipped( s16 x, char buffer[], u16& offset )
   {
-    ( *(s16*)(void*)&buffer[offset] ) = cfBEu16( x );
+    x = cfBEu16( x );
+    std::memcpy( &buffer[offset], &x, sizeof( x ) );
     offset += 2;
   };
 };
@@ -259,13 +263,8 @@ public:
   void Write( const u16* x, u16 len, bool nullterm = true )
   {
     passert_always_r( offset + len * 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
-    u16* _buffer = ( (u16*)(void*)&buffer[offset] );
+    std::memcpy( &buffer[offset], x, 2 * len );
     offset += len * 2;
-    s32 signedlen = static_cast<s32>( len );
-    while ( signedlen-- > 0 )
-    {
-      *( _buffer++ ) = *x++;
-    }
     if ( nullterm )
     {
       passert_always_r( offset + 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
@@ -275,13 +274,13 @@ public:
   void WriteFlipped( const u16* x, u16 len, bool nullterm = true )
   {
     passert_always_r( offset + len * 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
-    u16* _buffer = ( (u16*)(void*)&buffer[offset] );
-    offset += len * 2;
     s32 signedlen = static_cast<s32>( len );
     while ( signedlen-- > 0 )
     {
-      *( _buffer++ ) = ctBEu16( *x );
+      u16 tmp = ctBEu16( *x );
+      std::memcpy( &buffer[offset], &tmp, 2 );
       ++x;
+      offset += 2;
     }
     if ( nullterm )
     {
