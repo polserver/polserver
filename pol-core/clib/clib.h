@@ -80,12 +80,16 @@ char* binary( unsigned int val, int nbits );
 void incStr( char* str );
 
 
-/* GCCC is soo weak... */
+/* Compiler specific implementations for case insensitive compare... */
 #ifdef __GNUC__
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #endif
 
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#endif
 
 #ifdef __cplusplus
 #define PARAMS ...
