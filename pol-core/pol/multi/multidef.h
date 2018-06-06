@@ -48,6 +48,9 @@ struct MULTI_ELEM
   s16 y;
   s16 z;
   bool is_static;
+
+  u32 flags() const;
+  unsigned short graphic() const;
 };
 
 class MultiDef

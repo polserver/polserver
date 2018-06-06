@@ -2378,7 +2378,7 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
           if ( x1 <= absx && absx <= x2 && y1 <= absy && absy <= y2 )
           {
             // do Z checking
-            int height = tileheight( getgraphic( elem->objtype ) );
+            int height = tileheight( elem->graphic() );
             int top = absz + height;
 
             if ( ( z1 <= absz && absz <= z2 ) ||  // bottom point lies between
