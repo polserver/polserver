@@ -17,6 +17,7 @@
 #include "../globals/state.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
+#include "../uconst.h"
 #include "../uobjcnt.h"
 #include "multi.h"
 #include "multidef.h"
