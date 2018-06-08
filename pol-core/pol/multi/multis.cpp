@@ -73,6 +73,12 @@ const MultiDef& UMulti::multidef() const
   return *MultiDefByMultiID( multiid );
 }
 
+unsigned short UMulti::get_update_range() const
+{
+  return RANGE_VISUAL + multidef().max_radius + 2;
+}
+
+
 Bscript::BStruct* UMulti::footprint() const
 {
   const MultiDef& md = multidef();

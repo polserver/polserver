@@ -40,7 +40,8 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
       minrz( 0 ),
       maxrx( 0 ),
       maxry( 0 ),
-      maxrz( 0 )
+      maxrz( 0 ),
+      max_radius(0)
 {
   if ( elem.type_is( "BOAT" ) )
   {
@@ -254,6 +255,11 @@ void MultiDef::addrec( const MULTI_ELEM* elem )
     global_maxry = elem->y;
   if ( elem->z > global_maxrz )
     global_maxrz = elem->z;
+
+  if (std::abs(elem->x) > max_radius)
+    max_radius = std::abs(elem->x);
+  if (std::abs(elem->y) > max_radius)
+    max_radius = std::abs(elem->y);
 
   components.insert( Components::value_type( getkey( elem->x, elem->y ), elem ) );
 }

@@ -451,6 +451,14 @@ bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdis
   return ( ( abs( c1->x - x ) <= maxdist ) && ( abs( c1->y - y ) <= maxdist ) );
 }
 
+bool inrangex( const Mobile::Character* c1, const UObject* obj, int maxdist )
+{
+  obj = obj->toplevel_owner();
+
+  return ( ( c1->realm == obj->realm ) && ( abs( c1->x - obj->x ) <= maxdist ) &&
+           ( abs( c1->y - obj->y ) <= maxdist ) );
+}
+
 bool inrange( const UObject* c1, unsigned short x, unsigned short y )
 {
   return ( ( abs( c1->x - x ) <= RANGE_VISUAL ) && ( abs( c1->y - y ) <= RANGE_VISUAL ) );
@@ -1660,8 +1668,9 @@ void send_multi_to_inrange( const Multi::UMulti* multi )
 {
   auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->x, multi->y,
                              multi->z, multi->color );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      multi, [&]( Character* zonechr ) { pkt.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InRange(
+      multi->x, multi->y, multi->realm, multi->get_update_range(),
+      [&]( Character* zonechr ) { pkt.Send( zonechr->client ); } );
 }
 
 
