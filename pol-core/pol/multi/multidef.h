@@ -87,6 +87,7 @@ public:
 
   short minrx, minry, minrz;  // minimum relative distances
   short maxrx, maxry, maxrz;
+  unsigned short max_radius;
   Components components;
 
   static short global_minrx;

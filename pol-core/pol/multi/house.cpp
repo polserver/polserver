@@ -387,7 +387,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
       std::vector<u8> newvec2;
       CurrentCompressed.swap( newvec2 );
       revision++;
-      CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+      CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, get_update_range() );
       return new BLong( 1 );
     }
     break;
@@ -415,7 +415,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
         WorkingCompressed.swap( newvec );
         std::vector<u8> newvec2;
         CurrentCompressed.swap( newvec2 );
-        CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+        CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, get_update_range() );
       }
       return new BLong( ret ? 1 : 0 );
     }
@@ -1010,7 +1010,7 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
     CustomHouseStopEditing( chr, this );
 
     // send full house
-    CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+    CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, get_update_range() );
   }
   else
   {

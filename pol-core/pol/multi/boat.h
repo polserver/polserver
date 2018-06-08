@@ -175,7 +175,6 @@ public:
 
   virtual void on_color_changed() POL_OVERRIDE;
 
-
   // Should these be arrays instead to support customizable boats with certain component choises ?
   Items::Item* tillerman;
   Items::Item* portplank;

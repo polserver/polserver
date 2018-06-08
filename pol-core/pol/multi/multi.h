@@ -70,6 +70,7 @@ public:
   virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
 
   const MultiDef& multidef() const;
+  unsigned short get_update_range() const;
   virtual class UBoat* as_boat();
   virtual class UHouse* as_house();
   virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;

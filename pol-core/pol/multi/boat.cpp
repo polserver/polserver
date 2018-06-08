@@ -343,10 +343,10 @@ void UBoat::send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 n
                                          bool relative )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      newx, newy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+      newx, newy, realm, get_update_range(), [&]( Mobile::Character* zonechr ) {
         Network::Client* client = zonechr->client;
 
-        if ( inrange( client->chr, this ) &&
+        if ( Core::inrangex( client->chr, this, get_update_range() ) &&
              client->ClientType & Network::CLIENTTYPE_7090 )  // send this only to those who see the
                                                               // old location aswell
           send_smooth_move( client, move_dir, speed, newx, newy, relative );
@@ -515,7 +515,7 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
 void UBoat::send_display_boat_to_inrange( u16 oldx, u16 oldy )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+      x, y, realm, get_update_range(), [&]( Mobile::Character* zonechr ) {
         Network::Client* client = zonechr->client;
 
         if ( client->ClientType & Network::CLIENTTYPE_7090 )
@@ -527,10 +527,11 @@ void UBoat::send_display_boat_to_inrange( u16 oldx, u16 oldy )
       } );
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      oldx, oldy, this->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+      oldx, oldy, realm, get_update_range(), [&]( Mobile::Character* zonechr ) {
         Network::Client* client = zonechr->client;
 
-        if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
+        if ( !Core::inrangex( client->chr, this,
+                              get_update_range() ) )  // send remove to chrs only seeing the old loc
           send_remove_boat( client );
       } );
 }
@@ -710,7 +711,6 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
     {
       any_orphans = true;
       travellerRef.clear();
-      ;
       continue;
     }
 
@@ -1258,12 +1258,12 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
     move_components( realm );
 
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+        x, y, realm, get_update_range(), [&]( Mobile::Character* zonechr ) {
           Network::Client* client = zonechr->client;
 
           if ( client->ClientType & Network::CLIENTTYPE_7090 )
           {
-            if ( Core::inrange( client->chr->x, client->chr->y, oldx, oldy ) )
+            if ( Core::inrangex( client->chr, oldx, oldy, get_update_range() ) )
               return;
             else
               send_boat_newly_inrange( client );  // send HSA packet only for newly inrange
@@ -1278,10 +1278,12 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
         } );
 
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+        oldx, oldy, realm, get_update_range(), [&]( Mobile::Character* zonechr ) {
           Network::Client* client = zonechr->client;
 
-          if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
+          if ( !Core::inrangex(
+                   client->chr, this,
+                   get_update_range() ) )  // send remove to chrs only seeing the old loc
             send_remove_boat( client );
         } );
 

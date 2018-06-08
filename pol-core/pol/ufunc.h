@@ -68,6 +68,7 @@ bool inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned 
 
 bool inrangex( const Mobile::Character* c1, const Mobile::Character* c2, int maxdist );
 bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdist );
+bool inrangex( const Mobile::Character* c1, const UObject* obj, int maxdist );
 
 bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj );
 bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 );
