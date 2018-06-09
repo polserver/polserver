@@ -579,6 +579,18 @@ void UBoat::send_boat_old( Network::Client* client )
 void UBoat::send_remove_boat( Network::Client* client )
 {
   send_remove_object( client, this );
+  for ( auto& comp : Components )
+  {
+    UObject* obj = comp.get();
+    if ( obj != nullptr && !obj->orphan() )
+      send_remove_object( client, obj );
+  }
+  for ( auto& travellerRef : travellers_ )
+  {
+    UObject* obj = travellerRef.get();
+    if ( obj != nullptr && !obj->orphan() )
+      send_remove_object( client, obj );
+  }
 }
 
 void unpause_paused()

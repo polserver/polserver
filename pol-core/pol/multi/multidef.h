@@ -96,7 +96,9 @@ public:
   static short global_maxrx;
   static short global_maxry;
   static short global_maxrz;
+  static unsigned short global_max_radius;
 
+  static unsigned short get_searchradius();
   ItrPair findcomponents( short rx, short ry );
 
   bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end, short rx,

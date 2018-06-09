@@ -76,7 +76,7 @@ const MultiDef& UMulti::multidef() const
 
 unsigned short UMulti::get_update_range() const
 {
-  return RANGE_VISUAL + multidef().max_radius + 2;
+  return RANGE_VISUAL + multidef().max_radius;
 }
 
 

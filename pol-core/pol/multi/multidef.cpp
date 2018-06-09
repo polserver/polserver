@@ -18,12 +18,21 @@
 #include "../../clib/passert.h"
 #include "../../clib/strutil.h"
 #include "../globals/multidefs.h"
+#include "../uconst.h"
 
 namespace Pol
 {
 namespace Multi
 {
 bool BoatShapeExists( u16 graphic );
+
+short MultiDef::global_minrx = 0;
+short MultiDef::global_minry = 0;
+short MultiDef::global_minrz = 0;
+short MultiDef::global_maxrx = 0;
+short MultiDef::global_maxry = 0;
+short MultiDef::global_maxrz = 0;
+unsigned short MultiDef::global_max_radius = 0;
 
 MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     : multiid( multiid ),
@@ -261,6 +270,11 @@ void MultiDef::addrec( const MULTI_ELEM* elem )
   if ( std::abs( elem->y ) > max_radius )
     max_radius = static_cast<u16>( std::abs( elem->y ) );
 
+  if ( std::abs( elem->x ) > global_max_radius )
+    global_max_radius = static_cast<u16>( std::abs( elem->x ) );
+  if ( std::abs( elem->y ) > global_max_radius )
+    global_max_radius = static_cast<u16>( std::abs( elem->y ) );
+
   components.insert( Components::value_type( getkey( elem->x, elem->y ), elem ) );
 }
 
@@ -271,6 +285,11 @@ void MultiDef::init()
     addrec( &elems[i] );
   }
   computehull();
+}
+
+unsigned short MultiDef::get_searchradius()
+{
+  return RANGE_VISUAL + global_max_radius;
 }
 
 size_t MultiDef::estimateSize() const
@@ -288,13 +307,6 @@ size_t MultiDef::estimateSize() const
           components.size();
   return size;
 }
-
-short MultiDef::global_minrx;
-short MultiDef::global_minry;
-short MultiDef::global_minrz;
-short MultiDef::global_maxrx;
-short MultiDef::global_maxry;
-short MultiDef::global_maxrz;
 
 bool MultiDefByMultiIDExists( u16 multiid )
 {

@@ -1036,8 +1036,8 @@ BObjectImp* UOExecutorModule::mf_Accessible()
     // or the user provides a weird object.
     if ( exec.numParams() < 3 || !getParam( 2, range ) )
       range = -1;
-      
-    if ( chr->can_access(item, range) )
+
+    if ( chr->can_access( item, range ) )
       return new BLong( 1 );
     else
       return new BLong( 0 );
@@ -2345,17 +2345,18 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
 
   // extend the coords to find the center item
   // but only as parameter for the filter function
+  unsigned short multi_searchrange = Multi::MultiDef::get_searchradius();
   unsigned short x1range = x1;
-  unsigned short x2range = x2 + RANGE_VISUAL_LARGE_BUILDINGS;
+  unsigned short x2range = x2 + multi_searchrange;
   unsigned short y1range = y1;
-  unsigned short y2range = y2 + RANGE_VISUAL_LARGE_BUILDINGS;
+  unsigned short y2range = y2 + multi_searchrange;
 
-  if ( x1range >= RANGE_VISUAL_LARGE_BUILDINGS )
-    x1range -= RANGE_VISUAL_LARGE_BUILDINGS;
+  if ( x1range >= multi_searchrange )
+    x1range -= multi_searchrange;
   else
     x1range = 0;
-  if ( y1range >= RANGE_VISUAL_LARGE_BUILDINGS )
-    y1range -= RANGE_VISUAL_LARGE_BUILDINGS;
+  if ( y1range >= multi_searchrange )
+    y1range -= multi_searchrange;
   else
     y1range = 0;
 

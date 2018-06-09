@@ -481,9 +481,8 @@ bool inrange( const Mobile::Character* c1, const UObject* obj )
 
 bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj )
 {
-  return ( ( c1->realm == obj->realm ) &&
-           ( abs( c1->x - obj->x ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( c1->y - obj->y ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
+  return ( ( c1->realm == obj->realm ) && ( abs( c1->x - obj->x ) <= obj->get_update_range() ) &&
+           ( abs( c1->y - obj->y ) <= obj->get_update_range() ) );
 }
 
 unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2,
@@ -527,10 +526,10 @@ bool inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned 
   return ( ( abs( x1 - x2 ) <= RANGE_VISUAL ) && ( abs( y1 - y2 ) <= RANGE_VISUAL ) );
 }
 
-bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 )
+bool multi_inrange( const Multi::UMulti* obj, unsigned short x2, unsigned short y2 )
 {
-  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( y1 - y2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
+  return ( ( abs( obj->x - x2 ) <= obj->get_update_range() ) &&
+           ( abs( obj->y - y2 ) <= obj->get_update_range() ) );
 }
 
 void send_put_in_container( Client* client, const Item* item )
