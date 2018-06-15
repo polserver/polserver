@@ -335,7 +335,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
 
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
-
+  POLLOG_INFO << "send smooth move (0xF6) to " << client->chr->name() << " d "<<Core::pol_distance(client->chr, this) << "\n";
   msg.Send( client, len );
 }
 
@@ -465,6 +465,7 @@ void UBoat::send_display_boat( Network::Client* client )
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
+  POLLOG_INFO << "send display boat (0xF7) to " << client->chr->name() << " d "<<Core::pol_distance(client->chr, this) <<"\n";
   msg.Send( client, len );
 }
 
@@ -485,6 +486,7 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
   msg->WriteFlipped<u16>( color );  // u16 color
   msg->offset += 3;                 // u8 flags + u16 HSA access flags
 
+  POLLOG_INFO << "send boat newly inrange (0xF3) to " << client->chr->name() << " d "<<Core::pol_distance(client->chr, this) <<"\n";
   msg.Send( client );
 
   for ( auto& travellerRef : travellers_ )
@@ -509,7 +511,11 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
   for ( auto& component : Components )
   {
     if ( component != NULL && !component->orphan() )
+    {
+      POLLOG_INFO << "send component (0xF7) 0x" << fmt::hex( component->serial ) << " to "
+                  << client->chr->name() << " d "<<Core::pol_distance(client->chr, component.get()) <<"\n";
       send_item( client, component.get() );
+    }
   }
 }
 
@@ -556,6 +562,7 @@ void UBoat::send_boat( Network::Client* client )
   msg2->WriteFlipped<u16>( this->color );  // u16 color
   msg2->offset++;                          // u8 flags
 
+  POLLOG_INFO << "send boat (0xF3) to " << client->chr->name() << " d "<<Core::pol_distance(client->chr, this) <<"\n";
   msg2.Send( client );
 }
 
@@ -580,6 +587,7 @@ void UBoat::send_boat_old( Network::Client* client )
 
 void UBoat::send_remove_boat( Network::Client* client )
 {
+  POLLOG_INFO << "send remove boat & component to " << client->chr->name() << " d "<<Core::pol_distance(client->chr, this) <<"\n";
   send_remove_object( client, this );
   for ( auto& comp : Components )
   {
@@ -1407,7 +1415,11 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
             if ( !inrangex( client->chr, item, range ) )  // not in range.  If old loc
                                                           // was in range, send a
                                                           // delete.
+            {
+              POLLOG_INFO << "remove component (transform_component) 0x" << fmt::hex( item->serial )
+                          << " to " << client->chr->name() << " d "<<Core::pol_distance(client->chr, item) <<"\n";
               send_remove_object( client, item );
+            }
           } );
     }
   }
@@ -1470,7 +1482,11 @@ void UBoat::move_components( Realms::Realm* oldrealm )
             if ( !inrangex( client->chr, item, range ) )  // not in range.  If old loc
                                                           // was in range, send a
                                                           // delete.
+            {
+              POLLOG_INFO << "remove component (move_component) 0x" << fmt::hex( item->serial ) << " to "
+                          << client->chr->name() << " d "<<Core::pol_distance(client->chr, item) <<"\n";
               send_remove_object( client, item );
+            }
           } );
     }
   }
