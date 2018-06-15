@@ -1418,6 +1418,8 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
           oldx, oldy, oldrealm, range, [&]( Mobile::Character* zonechr ) {
             Network::Client* client = zonechr->client;
 
+            if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
+              return;
             if ( !inrangex( client->chr, item, range ) )  // not in range.  If old loc
                                                           // was in range, send a
                                                           // delete.
@@ -1486,6 +1488,8 @@ void UBoat::move_components( Realms::Realm* oldrealm )
           oldx, oldy, oldrealm, range, [&]( Mobile::Character* zonechr ) {
             Network::Client* client = zonechr->client;
 
+            if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
+              return;
             if ( !inrangex( client->chr, item, range ) )  // not in range.  If old loc
                                                           // was in range, send a
                                                           // delete.
