@@ -1412,6 +1412,13 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
 
             if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
               send_item( client, item );
+            else if ( !inrangex( client->chr, oldx, oldy, range ) )
+            {
+              POLLOG_INFO << "send component (transform) 0x" << fmt::hex( item->serial ) << " to "
+                          << client->chr->name() << " d " << Core::pol_distance( client->chr, item )
+                          << "\n";
+              send_item( client, item );
+            }
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
@@ -1482,6 +1489,13 @@ void UBoat::move_components( Realms::Realm* oldrealm )
 
             if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
               send_item( client, item );
+            else if ( !inrangex( client->chr, oldx, oldy, range ) )
+            {
+              POLLOG_INFO << "send component (move) 0x" << fmt::hex( item->serial ) << " to "
+                          << client->chr->name() << " d " << Core::pol_distance( client->chr, item )
+                          << "\n";
+              send_item( client, item );
+            }
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
