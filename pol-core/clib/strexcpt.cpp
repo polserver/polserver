@@ -9,11 +9,7 @@
 
 
 #include "logfacility.h"
-#ifdef WINDOWS
-#include "pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #if defined( WINDOWS )
 #include "Header_Windows.h"
@@ -172,8 +168,7 @@ void alt_se_trans_func( unsigned int u, _EXCEPTION_POINTERS* pExp )
   else
   {
     in_ex_handler = true;
-    POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" )
-        << POL_BUILD_DATETIME;
+    POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" ) << POL_BUILD_DATETIME;
 
     MSJExceptionHandler::MSJUnhandledExceptionFilter( pExp );
     in_ex_handler = false;
