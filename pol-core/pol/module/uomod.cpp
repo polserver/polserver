@@ -1354,10 +1354,8 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcCreate );
     WorldIterator<OnlinePlayerFilter>::InVisualRange(
         npc.get(), [&]( Character* zonechr ) { send_char_data( zonechr->client, npc.get() ); } );
+    realm->notify_entered( *npc );
 
-    // dave added 2/3/3 send entered area events for npc create
-    Core::WorldIterator<Core::MobileFilter>::InRange(
-        x, y, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, npc.get() ); } );
     // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( dummy_multi )
     {
