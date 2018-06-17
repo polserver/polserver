@@ -1212,8 +1212,8 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;
-  if ( within_range && (find_legal_item( this, item->serial ) != NULL) )
+  const bool within_range = ( range < -1 ) || pol_distance( this, item ) <= range;
+  if ( within_range && ( find_legal_item( this, item->serial ) != NULL ) )
     return true;
 
   return false;
@@ -3960,8 +3960,9 @@ void Character::tellmove()
 {
   check_region_changes();
   PropagateMove( this );
- 
-  // notify npcs and items (maybe the PropagateMove should also go there eventually? - Nando 2018-06-16)
+
+  // notify npcs and items (maybe the PropagateMove should also go there eventually? - Nando
+  // 2018-06-16)
   realm->notify_moved( *this );
 
   check_attack_after_move();
@@ -4313,5 +4314,5 @@ void Character::on_delete_from_account()
   if ( realm )
     realm->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
