@@ -28,6 +28,38 @@
 // include default pch
 #include "../clib/StdAfx.h"
 
+#include "baseobject.h"     // uobject include
+#include "dynproperties.h"  // uobject include
+#include "gameclck.h"       // dynprop include
+#include "proplist.h"       // uobject include
+
 #include "uobject.h"
+
+#include "layers.h"                   // network/packets include
+#include "network/packetinterface.h"  // network/packets include
+#include "pktboth.h"                  // network/packets include
+#include "pktbothid.h"                // network/packets include
+#include "pktdef.h"                   // network/packets include
+#include "pktoutid.h"                 // network/packets include
+#include "realms.h"                   // network/packets include
+#include "uconst.h"                   // network/packets include
+
+#include "network/packets.h"
+
+#include "clidata.h"
+#include "scrdef.h"
+#include "utype.h"
+
+#include "poltype.h"  // region include
+#include "zone.h"     // region include
+
+#include "region.h"
+
+#include "crypt/cryptkey.h"
+#include "mobile/attribute.h"
+#include "skillid.h"
+#include "udatfile.h"
+
+#include "../bscript/execmodl.h"
 
 #endif

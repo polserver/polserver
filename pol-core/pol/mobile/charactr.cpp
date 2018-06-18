@@ -1230,8 +1230,8 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = (range < -1) || pol_distance( this, item ) <= range;
-  if ( within_range && (find_legal_item( this, item->serial ) != NULL) )
+  const bool within_range = ( range < -1 ) || pol_distance( this, item ) <= range;
+  if ( within_range && ( find_legal_item( this, item->serial ) != NULL ) )
     return true;
 
   return false;
@@ -2153,9 +2153,7 @@ void Character::resurrect()
   // Tell other connected players, if in range, about this character.
   send_remove_character_to_nearby_cansee( this );
   send_create_mobile_to_nearby_cansee( this );
-
-  Core::WorldIterator<Core::NPCFilter>::InRange(
-      x, y, realm, 32, [&]( Character* chr ) { NpcPropagateEnteredArea( chr, this ); } );
+  realm->notify_resurrected( *this );
 }
 
 void Character::on_death( Items::Item* corpse )
@@ -3699,6 +3697,7 @@ void Character::unhide()
   {
     if ( client != NULL )
       send_owncreate( client, this );
+
     Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this, [&]( Character* chr ) {
       if ( chr == this )
         return;
@@ -3707,17 +3706,7 @@ void Character::unhide()
       send_owncreate( chr->client, this );
     } );
 
-    // dave 12-21 added this hack to get enteredarea events fired when unhiding
-    u16 oldlastx = lastx;
-    u16 oldlasty = lasty;
-    lastx = 0;
-    lasty = 0;
-    // tellmove();
-
-    Core::WorldIterator<Core::MobileFilter>::InRange(
-        x, y, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
-    lastx = oldlastx;
-    lasty = oldlasty;
+    realm->notify_unhid( *this );
   }
 }
 
@@ -4066,19 +4055,10 @@ void Character::tellmove()
 {
   check_region_changes();
   PropagateMove( this );
-  // Austin 8-25-05
-  // if distance > 32 - Inform NPCs in the old position about the movement.
-  // This is specifically for long distance teleportations.
-  // TO DO: Place in realm change support so npcs know when you enter/leave one?
-  if ( Core::pol_distance( lastx, lasty, x, y ) > 32 )
-  {
-    Core::WorldIterator<Core::MobileFilter>::InRange(
-        lastx, lasty, realm, 32, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
-  }
 
-  // Inform nearby NPCs that a movement has been made.
-  Core::WorldIterator<Core::MobileFilter>::InRange(
-      x, y, realm, 33, [&]( Character* chr ) { NpcPropagateMove( chr, this ); } );
+  // notify npcs and items (maybe the PropagateMove should also go there eventually? - Nando
+  // 2018-06-16)
+  realm->notify_moved( *this );
 
   check_attack_after_move();
 
@@ -4429,5 +4409,5 @@ void Character::on_delete_from_account()
   if ( realm )
     realm->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

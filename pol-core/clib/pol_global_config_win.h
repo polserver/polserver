@@ -7,8 +7,11 @@
 // #define PERGON
 // #define ESCRIPT_PROFILE
 // #define GIT_REVISION
-// #define HAVE_OPENSSL
-// #define HAVE_MYSQL
+#define HAVE_OPENSSL
+#ifndef HAVE_MYSQL
+  #define HAVE_MYSQL
+#endif
+
 // #define ENABLE_BENCHMARK
 
 #define POL_VERSION                 100

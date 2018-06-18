@@ -69,13 +69,8 @@ function(set_compile_flags target is_executable)
       -ggdb
     >
 
-    $<${gcc}:
-      -fopenmp
-    >
-
     $<${windows}:
       /MT # runtime lib
-      /openmp
       /GS- # no buffer security
       /Gy # function level linking
       /Zi # pdb files
@@ -121,7 +116,7 @@ function(set_compile_flags target is_executable)
     if (${release} AND ${linux})
       if (${ENABLE_ASAN} OR ${ENABLE_USAN} OR ${ENABLE_MSAN} OR ${ENABLE_TSAN})
         #dont strip
-      else()
+      elseif(${STRIP_BINARIES})
         target_link_libraries(${target} PUBLIC
           -s # strip
         )

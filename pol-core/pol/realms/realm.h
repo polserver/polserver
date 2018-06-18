@@ -76,6 +76,13 @@ public:
   bool valid( unsigned short x, unsigned short y, short z ) const;
   const std::string name() const;
 
+  // functions to broadcast entered- and leftarea events to items and npcs in the realm
+  void notify_moved( Mobile::Character& whomoved );
+  void notify_unhid( Mobile::Character& whounhid );
+  void notify_resurrected( Mobile::Character& whoressed );
+  void notify_entered( Mobile::Character& whoentered );
+  void notify_left( Mobile::Character& wholeft );
+
   void add_mobile( const Mobile::Character& chr, WorldChangeReason reason );
   void remove_mobile( const Mobile::Character& chr, WorldChangeReason reason );
 

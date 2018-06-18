@@ -111,7 +111,10 @@ macro(prepare_build)
   else()
     check_include_files (openssl/md5.h HAVE_OPENSSL)
     check_include_files (mysql/mysql.h HAVE_MYSQL)
-  endif() 
+  endif()
+  if (NOT HAVE_OPENSSL)
+    message(FATAL_ERROR "OpenSSL not found")
+  endif()
   configure_file(
     ${CMAKE_CURRENT_LIST_DIR}/cmake/env/pol_global_config.h.in 
     ${PROJECT_BINARY_DIR}/pol_global_config.h

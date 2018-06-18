@@ -5,7 +5,6 @@
 #include <stddef.h>
 #include <string>
 
-#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"
@@ -37,6 +36,7 @@
 #include "msghandl.h"
 #include "packethelper.h"
 #include "packets.h"
+#include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
 
@@ -354,9 +354,9 @@ bool client_io_thread( Network::Client* client, bool login )
           Mobile::Character* chr = client->chr;
           CLIENT_CHECKPOINT( 16 );
           call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-          WorldIterator<NPCFilter>::InRange(
-              chr->x, chr->y, chr->realm, 32,
-              [&]( Mobile::Character* zonechr ) { Mobile::NpcPropagateLeftArea( zonechr, chr ); } );
+          if ( chr->realm ) {
+            chr->realm->notify_left( *chr );
+          }
         }
       }
     }
@@ -736,5 +736,5 @@ void handle_humongous_packet( Network::Client* client, unsigned int reported_siz
   tmp.Format( "Humongous packet (length {})", reported_size );
   report_weird_packet( client, tmp.str() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

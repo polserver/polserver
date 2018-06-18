@@ -148,10 +148,6 @@
 #include "../clib/mdump.h"
 #endif
 
-#ifndef __clang__
-#include <omp.h>
-#endif
-
 #ifdef __linux__
 #include <gnu/libc-version.h>
 #endif
@@ -1127,6 +1123,11 @@ int xmain_inner( bool testing )
 #endif
 #endif
 
+  // problem with order of global construction, threads cannot be registered in the constructor of
+  // gamestate :(
+  Core::gamestate.task_thread_pool.init_pool(
+      std::max( 2u, std::thread::hardware_concurrency() / 2 ), "generic_task_thread" );
+
   int res;
 
   // for profiling:
@@ -1136,7 +1137,8 @@ int xmain_inner( bool testing )
   Clib::MakeDirectory( "log" );
 
   POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET << "\ncompiled on "
-              << POL_BUILD_DATETIME << "\n" << POL_COPYRIGHT << "\n\n";
+              << POL_BUILD_DATETIME << "\n"
+              << POL_COPYRIGHT << "\n\n";
   if ( testing )
     POLLOG_INFO << "TESTING MODE\n\n";
 
@@ -1156,16 +1158,8 @@ int xmain_inner( bool testing )
 #endif
   POLLOG_INFO << "\n";
 #endif
-#ifndef __clang__
-  int max_threads = omp_get_max_threads();
-  if ( max_threads > 1 )
-  {
-    max_threads /= 2;
-    max_threads = std::max( 2, max_threads );
-  }
-  POLLOG_INFO << "Using " << max_threads << " out of " << omp_get_max_threads()
-              << " worldsave threads\n";
-#endif
+  POLLOG_INFO << "Using " << Core::gamestate.task_thread_pool.size() << " out of "
+              << std::thread::hardware_concurrency() << " worldsave threads\n";
 
   Core::checkpoint( "installing signal handlers" );
   Core::install_signal_handlers();

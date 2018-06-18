@@ -38,6 +38,7 @@ void run_pol_tests()
 //  multiwalk_test();
 //  map_test();
 //  dynprops_test();
+  packet_test();
   dummy();
   display_test_results();
 }

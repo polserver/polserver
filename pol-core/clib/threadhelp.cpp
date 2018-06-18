@@ -27,7 +27,7 @@
 #include <unistd.h>
 #endif
 
-//TODO: fix trunc cast warnings
+// TODO: fix trunc cast warnings
 #ifdef _MSC_VER
 #pragma warning( disable : 4311 )  // trunc cast
 #pragma warning( disable : 4302 )  // trunc cast
@@ -326,6 +326,8 @@ ThreadRegister::~ThreadRegister()
 /// TaskThreadPool workers;
 /// for (....)
 ///   workers.push([&](){dosomework();});
+TaskThreadPool::TaskThreadPool() : _done( false ), _msg_queue() {}
+
 TaskThreadPool::TaskThreadPool( const std::string& name ) : _done( false ), _msg_queue()
 {
   // get the count of processors
@@ -374,8 +376,17 @@ void TaskThreadPool::init( unsigned int max_count, const std::string& name )
   }
 }
 
-TaskThreadPool::~TaskThreadPool()
+void TaskThreadPool::init_pool( unsigned int max_count, const std::string& name )
 {
+  if ( !_threads.empty() )
+    return;
+  init( max_count, name );
+}
+
+void TaskThreadPool::deinit_pool()
+{
+  if ( _threads.empty() )
+    return;
   // send both done and cancel to wake up all workers
   _msg_queue.push( [&]() {
     _done = true;
@@ -383,6 +394,11 @@ TaskThreadPool::~TaskThreadPool()
   } );
   for ( auto& thread : _threads )
     thread.join();
+  _threads.clear();
+}
+TaskThreadPool::~TaskThreadPool()
+{
+  deinit_pool();
 }
 
 /// simply fire and forget only the deconstructor ensures the msg to be finished
@@ -408,6 +424,11 @@ std::future<bool> TaskThreadPool::checked_push( const msg& msg )
     }
   } );
   return ret;
+}
+
+size_t TaskThreadPool::size() const
+{
+  return _threads.size();
 }
 
 

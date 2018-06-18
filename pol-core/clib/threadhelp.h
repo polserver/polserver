@@ -77,11 +77,16 @@ class TaskThreadPool : boost::noncopyable
   typedef Clib::message_queue<msg> msg_queue;
 
 public:
+  TaskThreadPool();
   TaskThreadPool( const std::string& name );
   TaskThreadPool( unsigned int max_count, const std::string& name );
   ~TaskThreadPool();
   void push( const msg& msg );
   std::future<bool> checked_push( const msg& msg );
+  size_t size() const;
+
+  void init_pool( unsigned int max_count, const std::string& name );
+  void deinit_pool();
 
 private:
   void init( unsigned int max_count, const std::string& name );

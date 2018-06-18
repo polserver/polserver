@@ -39,7 +39,7 @@ You need atleast cmake version 3.0.
 **Recommended:**
 Open the *CMake GUI* select the the root folder as source code folder, select
 the `bin-build` subfolder as "where to build the binaries" folder, and select
-your installed Visual Studio version e.g. `Visual Studio 15 2015 Win64`.
+your installed Visual Studio version e.g. `Visual Studio 14 2015 Win64`.
 Now simply press configure+generate+open project and it will directly open
 the solution file in your IDE.
 After building the binaries are located in the `bin` folder.
@@ -57,7 +57,7 @@ Minimum compiler version: Visual Studio 2015
 Compiling in Linux
 ----------
 
-Make sure you have the required libraries installed: zlib and the mysql client (if SQL supported is desired).
+Make sure you have the required libraries installed: zlib, openssl and the mysql client (if SQL supported is desired).
 
 Then run the following commands (you need at least CMake 3.0):
 * `cd bin-build`
