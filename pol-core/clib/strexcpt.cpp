@@ -8,6 +8,7 @@
  */
 
 
+#include "Program/ProgramConfig.h"
 #include "logfacility.h"
 #include "pol_global_config.h"
 
@@ -168,7 +169,8 @@ void alt_se_trans_func( unsigned int u, _EXCEPTION_POINTERS* pExp )
   else
   {
     in_ex_handler = true;
-    POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" ) << POL_BUILD_DATETIME;
+    POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" )
+        << ProgramConfig::build_datetime();
 
     MSJExceptionHandler::MSJUnhandledExceptionFilter( pExp );
     in_ex_handler = false;

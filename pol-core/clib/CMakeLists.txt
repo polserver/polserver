@@ -18,6 +18,8 @@ if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   add_dependencies(${lib_name} boost)
 endif()
 
+add_dependencies(${lib_name} git_rev)
+
 target_link_libraries(${lib_name} PUBLIC
   format
 )

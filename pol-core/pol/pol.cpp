@@ -60,9 +60,12 @@
 
 #include <errno.h>
 
+#include "pol_global_config.h"
+
 #include "../bscript/bobject.h"
 #include "../bscript/escriptv.h"
 #include "../clib/Debugging/ExceptionParser.h"
+#include "../clib/Program/ProgramConfig.h"
 #include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
@@ -1136,8 +1139,8 @@ int xmain_inner( bool testing )
 
   Clib::MakeDirectory( "log" );
 
-  POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET << "\ncompiled on "
-              << POL_BUILD_DATETIME << "\n"
+  POLLOG_INFO << POL_VERSION_ID << " - " << Clib::ProgramConfig::build_target() << "\ncompiled on "
+              << Clib::ProgramConfig::build_datetime() << "\n"
               << POL_COPYRIGHT << "\n\n";
   if ( testing )
     POLLOG_INFO << "TESTING MODE\n\n";
@@ -1320,7 +1323,8 @@ int xmain_inner( bool testing )
     DEINIT_STARTLOG();
   }
   POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} running.\n" )
-      << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATETIME;
+      << POL_VERSION_ID << Clib::ProgramConfig::build_target()
+      << Clib::ProgramConfig::build_datetime();
   // if( 1 )
   {
     if ( Plib::systemstate.config.multithread == 0 )

@@ -41,9 +41,7 @@ include(cmake/init.cmake)
 
 set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
 
-if (NOT DEFINED GIT_REVISION)
-  get_git_revision()
-endif()
+git_revision_target()
 
 message("####################################")
 message("#          ${PROJECT_NAME} - ${POL_VERSION_STR}         #")
