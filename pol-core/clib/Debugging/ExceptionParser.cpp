@@ -397,7 +397,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf( "\n" );
     printf( "Compiler: %s\n", getCompilerVersion().c_str() );
     printf( "Compile time: %s\n", ProgramConfig::build_datetime().c_str() );
-    printf( "Build target: %s%s\n", ProgramConfig::build_target().c_str() );
+    printf( "Build target: %s\n", ProgramConfig::build_target().c_str() );
     printf( "Build revision: %s\n", POL_VERSION_ID );
 #ifndef _WIN32
     printf( "GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__ );
