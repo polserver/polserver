@@ -36,7 +36,7 @@ public:
 
   const Mobile::Attribute* pAttr;
 
-  unsigned short swing_speed;
+  //unsigned short swing_speed;
   unsigned short delay;
 
   Core::ScriptDef hit_script;

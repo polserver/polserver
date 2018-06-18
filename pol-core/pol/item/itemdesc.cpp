@@ -461,8 +461,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   if ( elem.remove_prop( "HitChance", &temp ) )
     hit_chance = diceValue( temp, "Hit Chance" );
 
-  if ( elem.remove_prop( "SwingSpeed", &temp ) )
-    swing_speed = diceValue( temp, "Swing Speed" );
+  /*if ( elem.remove_prop( "SwingSpeed", &temp ) )
+    swing_speed = diceValue( temp, "Swing Speed" );*/
 
   if ( elem.remove_prop( "DamageIncrease", &temp ) )
     damage_increase = diceValue( temp, "Damage Increase" );

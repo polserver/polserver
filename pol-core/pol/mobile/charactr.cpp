@@ -2891,8 +2891,7 @@ void Character::schedule_attack()
   // while waiting for your timeout.
   if ( swing_task == NULL )
   {
-      INFO_PRINT << "swing_speed " << swing_speed().value << " swing_speed_sum "<< swing_speed().sum();
-    unsigned int weapon_speed = swing_speed().sum();
+    unsigned int weapon_speed = swing_speed().value;
     unsigned int weapon_delay = weapon->delay();
     Core::polclock_t clocks;
 
@@ -3388,7 +3387,7 @@ void Character::attack( Character* opponent )
 
   double hit_chance = ( weapon_attribute().effective() + 50.0 ) /
                       ( 2.0 * ( opponent->weapon_attribute().effective() + 50.0 ) );
-  hit_chance += Character::hit_chance().sum() * 0.001f;
+  hit_chance += Character::hit_chance().value * 0.001f;
   hit_chance -= opponent->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
     INFO_PRINT << "Chance to hit: " << hit_chance << ": ";

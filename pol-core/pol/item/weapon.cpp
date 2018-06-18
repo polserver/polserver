@@ -104,13 +104,10 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
       minrange( elem.remove_ushort( "MINRANGE", projectile ? 2 : 0 ) ),
       maxrange( elem.remove_ushort( "MAXRANGE", projectile ? 20 : 1 ) )
 {
-    swing_speed = 35;
-    if (!delay)
-    {
+
+    //Check if SwingSpeed has been set in weap config if not check for Speed or set to 35
+    if (!delay && !swing_speed)
         swing_speed = elem.remove_ushort("speed", 35);
-        if (elem.has_prop("SwingSpeed"))
-            swing_speed = elem.remove_ushort("SwingSpeed");
-    }
 
   
 
@@ -174,7 +171,7 @@ void WeaponDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   using namespace Bscript;
   base::PopulateStruct( descriptor );
-  descriptor->addMember( "SwingSpeed", new BLong( swing_speed ) );
+  //descriptor->addMember( "SwingSpeed", new BLong( swing_speed ) );
   descriptor->addMember( "Delay", new BLong( delay ) );
 
   descriptor->addMember( "Projectile", new BLong( projectile ) );
@@ -292,7 +289,7 @@ UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
     wpnelem.set_source( elem );
     wpnelem.add_prop( "Objtype", "0xFFFF" );
     wpnelem.add_prop( "Graphic", "1" );
-    wpnelem.add_prop( "Speed", tmp.c_str() );
+    wpnelem.add_prop( "SwingSpeed", tmp.c_str() );
 
     if ( elem.remove_prop( "AttackDelay", &tmp ) )
       wpnelem.add_prop( "Delay", tmp.c_str() );
