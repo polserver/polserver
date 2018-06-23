@@ -12,43 +12,23 @@ configuration: Release
 #  project: bin-build/polserver.sln
 #  verbosity: minimal
 
-#disabled since it does not run parallel so doubles the build time
-#but should be activated from time to time for testing ninja on windows (behaves slighlty different)
-environment:
-  matrix:
-    - ninja: 1
-    - ninja: 0
-
 init:
   - git config --global core.autocrlf true
 
 install:
   - cd bin-build
   #- cmake .. -G "Visual Studio 15 2017 Win64"
-  - if [%ninja%] == [1] (
-  appveyor DownloadFile "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip" -FileName ninja.zip &&
-  7z x ninja.zip > nul &&
-  ninja --version
-  )
-  - if [%ninja%] == [0] (
-  cmake .. -G "Visual Studio 15 2017 Win64"
-  )
-  - if [%ninja%] == [1] (
-  call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" &&
-   cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
-  )
+  - appveyor DownloadFile "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip" -FileName ninja.zip
+  - 7z x ninja.zip > nul
+  - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" &&
+  cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
 test_script:
   - cd ..\\testsuite\\escript
   #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5 -q
+  - c:\\Python34\\python.exe performtests.py ..\\..\\bin\\ecompile.exe ..\\..\\bin\\runecl.exe -n 5
   - cd ..\\style
   - c:\\Python34\\python.exe checknl.py -q
-  - if [%ninja%] == [1] (
-    c:\\Python34\\python.exe performtests.py ..\\..\\bin\\ecompile.exe ..\\..\\bin\\runecl.exe -n 5
-    )
-  - if [%ninja%] == [0] (
-    c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5
-    )
 
 deploy: off
 
