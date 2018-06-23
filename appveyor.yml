@@ -20,8 +20,8 @@ install:
   #- cmake .. -G "Visual Studio 15 2017 Win64"
   - appveyor DownloadFile "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip" -FileName ninja.zip
   - 7z x ninja.zip > nul
-  - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat" &&
-  cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+  - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+  - cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
 test_script:
   - cd ..\\testsuite\\escript
