@@ -52,6 +52,9 @@ before_install:
   - wget https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip
   - unzip ninja-linux.zip
   - chmod +x ninja
+  - pwd
+  - echo $TRAVIS_BUILD_DIR
+  - export PATH=$TRAVIS_BUILD_DIR/bin-build:$PATH
   - ./ninja --version
 
 before_script:
