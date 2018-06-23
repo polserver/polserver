@@ -140,14 +140,14 @@ macro(cmake_fake_target)
     VERBATIM
     SOURCES 
       cmake/init.cmake
-      cmake/Benchmark.txt
-      cmake/Boost.txt
-      cmake/Curl.txt
-      cmake/Format.txt
-      cmake/Kaitai.txt
-      cmake/StackWalker.txt
-      cmake/TinyXML.txt
-      cmake/ZLib.txt
+      cmake/Benchmark.cmake
+      cmake/Boost.cmake
+      cmake/Curl.cmake
+      cmake/Format.cmake
+      cmake/Kaitai.cmake
+      cmake/StackWalker.cmake
+      cmake/TinyXML.cmake
+      cmake/ZLib.cmake
       cmake/release.cmake
       cmake/git_revision.cmake
       cmake/compile_defs.cmake
@@ -158,14 +158,14 @@ macro(cmake_fake_target)
   )
   source_group(cmake FILES
     cmake/init.cmake
-    cmake/Benchmark.txt
-    cmake/Boost.txt
-    cmake/Curl.txt
-    cmake/Format.txt
-    cmake/Kaitai.txt
-    cmake/StackWalker.txt
-    cmake/TinyXML.txt
-    cmake/ZLib.txt
+    cmake/Benchmark.cmake
+    cmake/Boost.cmake
+    cmake/Curl.cmake
+    cmake/Format.cmake
+    cmake/Kaitai.cmake
+    cmake/StackWalker.cmake
+    cmake/TinyXML.cmake
+    cmake/ZLib.cmake
     cmake/release.cmake
     cmake/git_revision.cmake
     cmake/compile_defs.cmake
