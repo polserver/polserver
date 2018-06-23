@@ -209,7 +209,7 @@ function(use_curl target)
   target_compile_definitions(${target} PRIVATE
     CURL_STATICLIB
   )
-  if ($linux})
+  if (${linux})
     target_link_libraries(${target} PUBLIC ssl)
   else()
     target_link_libraries(${target} PUBLIC wldap32)
