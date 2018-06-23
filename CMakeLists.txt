@@ -11,6 +11,11 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "!BuildTargets")
 
+#fix default compiler flags for MSVC (/Md vs /MT)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_overrides.cmake)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
+
+
 project(polserver CXX C)
 
 set(POL_VERSION_STR "100")
@@ -41,12 +46,9 @@ include(cmake/init.cmake)
 
 set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
 
-git_revision_target()
-
 message("####################################")
 message("#          ${PROJECT_NAME} - ${POL_VERSION_STR}         #")
 message("# -   ${POL_VERSION_NAME}    - #")
-message("# -           ${GIT_REVISION}          - #")
 message("####################################")
 message("## CMake Version ${CMAKE_VERSION}")
 message("## Generator ${CMAKE_GENERATOR} ${CMAKE_EXTRA_GENERATOR}")
@@ -70,6 +72,7 @@ fix_compiler_flags()
 detect_compiler()
 detect_arch()
 detect_platform()
+git_revision_target()
 
 if (${linux})
   option(STRIP_BINARIES "Strip binaries directly, instead of only in package target" OFF)

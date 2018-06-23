@@ -151,6 +151,8 @@ macro(cmake_fake_target)
       cmake/release.cmake
       cmake/git_revision.cmake
       cmake/compile_defs.cmake
+      cmake/c_flag_overrides.cmake
+      cmake/cxx_flag_overrides.cmake
       cmake/env/pol_global_config.h.in
       cmake/env/pol_revision.h.in
   )
@@ -188,5 +190,5 @@ macro(git_revision_target)
     -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/git_revision.cmake
     BYPRODUCTS=${PROJECT_BINARY_DIR}/pol_revision.h 
   )
-  set_target_properties(git_rev PROPERTIES FOLDER !BuildTargets)
+  set_target_properties(git_rev PROPERTIES FOLDER Misc)
 endmacro()

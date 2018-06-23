@@ -11,3 +11,7 @@ _CPack*
 *.zip
 Release
 Debug
+*.pdb
+*.lib
+*.exe
+*.dll

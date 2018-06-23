@@ -209,6 +209,11 @@ function(use_curl target)
   target_compile_definitions(${target} PRIVATE
     CURL_STATICLIB
   )
+  if ($linux})
+    target_link_libraries(${target} PUBLIC ssl)
+  else()
+    target_link_libraries(${target} PUBLIC wldap32)
+  endif()
 endfunction()
 
 function(use_benchmark target)

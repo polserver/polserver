@@ -1,54 +1,28 @@
 message("* curl")
 set(CURL_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/curl-7.57.0")
+
+set(CURL_FLAGS -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCURL_STATICLIB=ON -DBUILD_SHARED_LIBS=OFF)
 if (${linux})
   set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/INSTALL")
-  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl.so")
 else()
   set(CURL_INSTALL_DIR "${CURL_SOURCE_DIR}/builds/libcurl-${ARCH_STRING}-release-static")
-  set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl_a.lib")
+  set(CURL_FLAGS ${CURL_FLAGS} -DCMAKE_USE_WINSSL=ON -DCURL_STATIC_CRT=1 -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_CURRENT_LIST_DIR}/c_flag_overrides.cmake)
 endif()
+set(CURL_LIB "${CURL_INSTALL_DIR}/lib/libcurl.lib")
 
 if(NOT EXISTS "${CURL_LIB}")
-
-  if(${linux})
-    ExternalProject_Add(libcurl
-      URL "${CURL_SOURCE_DIR}/../curl-7.57.0.zip"
-      SOURCE_DIR  "${CURL_SOURCE_DIR}"
-      INSTALL_DIR "${CURL_INSTALL_DIR}"
-      CONFIGURE_COMMAND ./configure
-        -q
-        --prefix=<INSTALL_DIR>
-      BUILD_COMMAND make
-      INSTALL_COMMAND make install
-      BUILD_IN_SOURCE 1
-      LOG_DOWNLOAD 1
-      LOG_CONFIGURE 1
-      LOG_BUILD 1
-      LOG_INSTALL 1
-      BUILD_BYPRODUCTS ${CURL_LIB}
-    )
-  elseif(${windows})
-    ExternalProject_Add(libcurl
-      URL "${CURL_SOURCE_DIR}/../curl-7.57.0.zip"
-      SOURCE_DIR  "${CURL_SOURCE_DIR}"
-      INSTALL_DIR "${CURL_INSTALL_DIR}"
-      CONFIGURE_COMMAND ""
-      BUILD_COMMAND ""
-      INSTALL_COMMAND ""
-      BUILD_IN_SOURCE 1
-      LOG_DOWNLOAD 1
-      LOG_CONFIGURE 1
-      LOG_BUILD 1
-      LOG_INSTALL 1
-      BUILD_BYPRODUCTS ${CURL_LIB}
-    )
-    ExternalProject_Add_Step(libcurl buildstep
-      DEPENDEES DOWNLOAD
-      WORKING_DIRECTORY "${CURL_SOURCE_DIR}/winbuild"
-      COMMAND nmake /f ../../Makefile-libcurl-polserver.vc mode=static machine=${ARCH_STRING} VC=${msvc_ide} ENABLE_WINSSL=yes DEBUG=no RTLIBCFG=static
-      LOG=1
-    )
-  endif()
+  ExternalProject_Add(libcurl
+    URL "${CURL_SOURCE_DIR}/../curl-7.57.0.zip"
+    SOURCE_DIR  "${CURL_SOURCE_DIR}"
+    PREFIX curl
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${CURL_INSTALL_DIR} ${CURL_FLAGS}
+    BUILD_IN_SOURCE 1
+    BUILD_BYPRODUCTS ${CURL_LIB}
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
+  )
   set_target_properties (libcurl PROPERTIES FOLDER 3rdParty)
 else()
   message("Curl already build")
