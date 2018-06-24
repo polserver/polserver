@@ -216,6 +216,9 @@ class StdTests:
 	def __call__(self, num, haltOnError=False):
 		tested = 0
 		passed = 0
+		if (os.environ.get('APPVEYOR',None)):
+			os.system('appveyor AddTest -Name Test{} -Framework Own -FileName ecompile.exe'.format(num[0]))
+		start = time.time()
 		for f in self.files:
 			if not self.quiet:
 				colorprint('Testing {}'.format(f), 'cyan')
@@ -234,12 +237,15 @@ class StdTests:
 			finally:
 				self.cleanFile(f)
 		success = True if tested == passed else False
+		total = int(round((time.time()-start)*1000))
 
 		color = 'green' if success else 'red'
 		print('')
 		print('*** TEST {}/{} SUMMARY ***'.format(*num))
 		colorprint('Overall status: {}. {} files tested, {} passed, {} failed.'.format(
 				'OK' if success else 'FAILED', tested, passed, tested-passed), color)
+		if (os.environ.get('APPVEYOR',None)):
+			os.system('appveyor UpdateTest -Name Test{} -Framework Own -FileName ecompile.exe -Outcome {} -Duration {}'.format(num[0], 'Passed' if success else 'Failed', total))
 		return success
 
 
