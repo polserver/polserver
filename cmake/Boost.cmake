@@ -25,6 +25,7 @@ if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
 	LOG_DOWNLOAD 1
     BUILD_IN_SOURCE 1
   )
+  set_target_properties (boost PROPERTIES FOLDER 3rdParty)
 else()
   message("Boost already extracted")
 endif()

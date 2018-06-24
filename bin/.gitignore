@@ -15,3 +15,4 @@ Debug
 *.lib
 *.exe
 *.dll
+*.exe.manifest

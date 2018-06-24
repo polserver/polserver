@@ -9,6 +9,7 @@
 @rmdir /S /Q z.dir
 @rmdir /S /Q pol-core
 @rmdir /S /Q x64
+@rmdir /S /Q x64-Release
 @del /S /F *.vcxproj*
 @del /S /F *.cmake
 @del /S /F *.h
