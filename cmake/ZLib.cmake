@@ -32,6 +32,7 @@ set_compile_flags(${lib_name} 0)
 target_compile_options(${lib_name} PRIVATE
   /wd4131 # old-style decorator
   /wd4244 # conversion loss of data
+  /wd4127 # conditional expression is constant
 )
 
 set_target_properties (${lib_name} PROPERTIES FOLDER 3rdParty)
