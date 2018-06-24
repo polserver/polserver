@@ -3,6 +3,7 @@ import os, subprocess
 import shutil
 import sys
 import re
+import time
 
 def colorprint(text, color):
 	if os.name == 'nt':
