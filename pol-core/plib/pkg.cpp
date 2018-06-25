@@ -7,11 +7,7 @@
 #include "pkg.h"
 
 #include <stdlib.h>
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"

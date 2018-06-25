@@ -30,11 +30,7 @@
     UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
     */
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include <ctype.h>
 #include <stddef.h>
@@ -46,6 +42,7 @@
 #include "../../bscript/eprog.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
+#include "../../clib/Program/ProgramConfig.h"
 #include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/compilerspecifics.h"
@@ -1899,7 +1896,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
   if ( stricmp( corevar, "verstr" ) == 0 )
     return new String( POL_VERSION_ID );
   if ( stricmp( corevar, "compiledatetime" ) == 0 )
-    return new String( POL_BUILD_DATETIME );
+    return new String( Clib::ProgramConfig::build_datetime() );
   if ( stricmp( corevar, "packages" ) == 0 )
     return GetPackageList();
   if ( stricmp( corevar, "running_scripts" ) == 0 )

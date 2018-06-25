@@ -11,13 +11,9 @@
 
 #include <iomanip>
 #include <sstream>
-#ifdef WINDOWS
-#include "pol_global_config_win.h"
-#else
-#include "pol_global_config.h"
-#endif
 
 #include "logfacility.h"
+#include "pol_global_config.h"
 #include "stlutil.h"
 
 #ifdef WINDOWS

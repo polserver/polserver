@@ -7,11 +7,7 @@
 #ifndef CLIB_CLIB_H
 #define CLIB_CLIB_H
 
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #ifndef __STDDEF_H
 #include "stddef.h"

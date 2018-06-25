@@ -21,6 +21,7 @@
 #include <string>
 #include <time.h>
 
+#include "../clib/Program/ProgramConfig.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
@@ -816,7 +817,7 @@ void write_system_data( Clib::StreamWriter& sw )
 {
   sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION << pf_endl
        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl << "\tCompileDateTime\t"
-       << POL_BUILD_DATETIME << pf_endl << "\tLastItemSerialNumber\t"
+       << Clib::ProgramConfig::build_datetime() << pf_endl << "\tLastItemSerialNumber\t"
        << GetCurrentItemSerialNumber() << pf_endl                                // dave 3/9/3
        << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl  // dave 3/9/3
        << "}" << pf_endl << pf_endl;

@@ -121,25 +121,6 @@ macro(prepare_build)
   )
 endmacro()
 
-macro(get_git_revision)
-  find_package(Git)
-  if(GIT_EXECUTABLE)
-    execute_process(COMMAND ${GIT_EXECUTABLE}
-      log -1 --pretty=format:%h
-      RESULT_VARIABLE status
-      OUTPUT_VARIABLE GIT_REVISION
-      ERROR_QUIET
-    )
-    if (status)
-      set(GIT_REVISION "\"Non-Git\"")
-    else()
-      set(GIT_REVISION "\"${GIT_REVISION}\"")
-    endif()
-  else()
-    set(GIT_REVISION "\"Unknown\"")
-  endif()
-endmacro()
-
 macro(hide_cotire)
   mark_as_advanced(FORCE
     COTIRE_ADDITIONAL_PREFIX_HEADER_IGNORE_EXTENSIONS
@@ -159,33 +140,55 @@ macro(cmake_fake_target)
     VERBATIM
     SOURCES 
       cmake/init.cmake
-      cmake/Benchmark.txt
-      cmake/Boost.txt
-      cmake/Curl.txt
-      cmake/Format.txt
-      cmake/Kaitai.txt
-      cmake/StackWalker.txt
-      cmake/TinyXML.txt
-      cmake/ZLib.txt
+      cmake/Benchmark.cmake
+      cmake/Boost.cmake
+      cmake/Curl.cmake
+      cmake/Format.cmake
+      cmake/Kaitai.cmake
+      cmake/StackWalker.cmake
+      cmake/TinyXML.cmake
+      cmake/ZLib.cmake
       cmake/release.cmake
+      cmake/git_revision.cmake
       cmake/compile_defs.cmake
+      cmake/c_flag_overrides.cmake
+      cmake/cxx_flag_overrides.cmake
       cmake/env/pol_global_config.h.in
+      cmake/env/pol_revision.h.in
   )
   source_group(cmake FILES
     cmake/init.cmake
-    cmake/Benchmark.txt
-    cmake/Boost.txt
-    cmake/Curl.txt
-    cmake/Format.txt
-    cmake/Kaitai.txt
-    cmake/StackWalker.txt
-    cmake/TinyXML.txt
-    cmake/ZLib.txt
+    cmake/Benchmark.cmake
+    cmake/Boost.cmake
+    cmake/Curl.cmake
+    cmake/Format.cmake
+    cmake/Kaitai.cmake
+    cmake/StackWalker.cmake
+    cmake/TinyXML.cmake
+    cmake/ZLib.cmake
     cmake/release.cmake
+    cmake/git_revision.cmake
     cmake/compile_defs.cmake
   )
-  source_group(cmake/env FILES cmake/env/pol_global_config.h.in)
+  source_group(cmake/env FILES 
+    cmake/env/pol_global_config.h.in
+    cmake/env/pol_revision.h.in
+  )
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_ALL TRUE)
   set_target_properties(cmakefiles PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
   set_target_properties(cmakefiles PROPERTIES FOLDER Misc)
+endmacro()
+
+macro(git_revision_target)
+  find_package(Git)
+  add_custom_target(git_rev
+    COMMAND ${CMAKE_COMMAND}
+    -DGIT=${GIT_EXECUTABLE}
+    -DCFG_FILE=${CMAKE_CURRENT_LIST_DIR}/cmake/env/pol_revision.h.in 
+    -DTMP_FILE=${PROJECT_BINARY_DIR}/pol_revision.h.tmp
+    -DOUT_FILE=${PROJECT_BINARY_DIR}/pol_revision.h
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/git_revision.cmake
+    BYPRODUCTS=${PROJECT_BINARY_DIR}/pol_revision.h 
+  )
+  set_target_properties(git_rev PROPERTIES FOLDER Misc)
 endmacro()

@@ -23,6 +23,8 @@ public:
    */
   static std::string programDir();
 
+  static std::string build_target();
+  static std::string build_datetime();
   /**
    * @brief Configures the bug reporting system
    */

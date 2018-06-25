@@ -1,0 +1,8 @@
+
+if (ENABLE_BENCHMARK)
+  message("* benchmark")
+  set(BENCHMARK_ENABLE_TESTING OFF)
+
+  add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../lib/google-benchmark/" "${CMAKE_CURRENT_BINARY_DIR}/lib/google-benchmark" EXCLUDE_FROM_ALL)
+  set_compile_flags(benchmark 0)
+endif()

@@ -5,12 +5,8 @@
 #include "../Debugging/ExceptionParser.h"
 #include "../logfacility.h"
 #include "ProgramConfig.h"
-
-#ifdef WINDOWS
-#include "../pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
+
 #ifdef ENABLE_BENCHMARK
 #include <benchmark/benchmark.h>
 #endif
