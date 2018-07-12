@@ -155,7 +155,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 
   // 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer
   // useage.
-  if (item->objtype_ == Core::settingsManager.extobj.boatmount)
+  if ( item->objtype_ == Core::settingsManager.extobj.boatmount )
     item->tile_layer = Core::LAYER_MOUNT;
   else
     item->tile_layer = Core::tilelayer( graphic );

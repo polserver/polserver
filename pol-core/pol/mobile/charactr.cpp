@@ -1365,7 +1365,7 @@ bool Character::equippable( const Items::Item* item ) const
           "correct and re-run uoconvert if necessary.\n" )
           << this->serial << item->serial << item->graphic;
     }
-    if ( item->objtype_ != Core::settingsManager.extobj.boatmount)
+    if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
       return false;
   }
   if ( layer_is_equipped( item->tile_layer ) )
@@ -1389,7 +1389,7 @@ bool Character::equippable( const Items::Item* item ) const
     return false;
   }
 
-  if (item->objtype_ != Core::settingsManager.extobj.boatmount)
+  if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
   {
     if ( ~Core::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
     {

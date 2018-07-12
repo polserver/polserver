@@ -133,12 +133,12 @@ void check_config()
       Items::find_container_desc( settingsManager.extobj.wornitems_container );
   Items::getgraphic( cd.objtype );
 
-	// Make sure corpse container is defined.
-	const Items::ItemDesc& boatmountid = Items::find_itemdesc(settingsManager.extobj.boatmount);
-	if (boatmountid.save_on_exit)
-			throw std::runtime_error("Boat mountpiece " +
-					Clib::hexint(Core::settingsManager.extobj.wrestling) +
-					" must specify SaveOnExit 0");
+  // Make sure the boat mount piece is SaveOnExit 0.
+  const Items::ItemDesc& boatmountid = Items::find_itemdesc( settingsManager.extobj.boatmount );
+  if ( boatmountid.save_on_exit )
+    throw std::runtime_error( "Boat mountpiece " +
+                              Clib::hexint( Core::settingsManager.extobj.boatmount) +
+                              " must specify SaveOnExit 0" );
 }
 
 void load_config( bool reload )

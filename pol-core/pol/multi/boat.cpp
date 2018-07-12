@@ -1242,9 +1242,9 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
   {
     BoatContext bc( *this );
 
-	// Relative is false, because we already did the translation from `dir`
-	// to `move_dir` above.
-    send_smooth_move_to_inrange(move_dir, speed, newx, newy, false );
+    // Relative is false, because we already did the translation from `dir`
+    // to `move_dir` above.
+    send_smooth_move_to_inrange( move_dir, speed, newx, newy, false );
 
     set_dirty();
 
@@ -1609,11 +1609,11 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   rescan_components();
 
   regself();  // do this after our x,y are known.
-  // consider throwing if starting position isn't passable.
-	
-	this->process(Core::start_script(Core::ScriptDef("misc/boat", nullptr), make_boatref(this)));
-	this->process()->attached_item_ = this;
-	
+              // consider throwing if starting position isn't passable.
+
+  this->process(
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( this ) ) );
+  this->process()->attached_item_ = this;
 }
 
 void UBoat::printProperties( Clib::StreamWriter& sw ) const

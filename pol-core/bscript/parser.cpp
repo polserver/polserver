@@ -478,7 +478,7 @@ ObjMember object_members[] = {
     {MBR_NO_DROP, "no_drop", false},
     {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
     {MBR_PORT, "port", false},
-	{MBR_PILOT, "pilot", true},
+    {MBR_PILOT, "pilot", true},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
@@ -661,8 +661,8 @@ ObjMethod object_methods[] = {
     {MTH_DEL_BUFF, "delbuff", false},  // 150
     {MTH_CLEAR_BUFFS, "clearbuffs", false},
     {MTH_CALL, "call", false},
-		{ MTH_SET_PILOT, "pilot", false },
-		{ MTH_SETPROCESS, "setprocess", false }
+    {MTH_SET_PILOT, "pilot", false},
+    {MTH_SETPROCESS, "setprocess", false},
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )

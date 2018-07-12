@@ -1570,40 +1570,42 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
     break;
   }
-	case MTH_SETPROCESS:
-	{
-			BApplicObjBase* aob;
-			if (ex.hasParams(1))
-			{
-					aob = ex.getApplicObjParam(0, &Core::scriptexobjimp_type);
-					if (aob)
-					{
-							Core::ScriptExObjImp* ir = static_cast<Core::ScriptExObjImp*>(aob);
-							Core::ScriptExPtr iref = ir->value();
-							if (!iref.exists())
-									return new BError("Other script does not exist?");
+  case MTH_SETPROCESS:
+  {
+    BApplicObjBase* aob;
+    if ( ex.hasParams( 1 ) )
+    {
+      aob = ex.getApplicObjParam( 0, &Core::scriptexobjimp_type );
+      if ( aob )
+      {
+        Core::ScriptExObjImp* ir = static_cast<Core::ScriptExObjImp*>( aob );
+        Core::ScriptExPtr iref = ir->value();
+        if ( !iref.exists() )
+          return new BError( "Other script does not exist?" );
 
-							Module::UOExecutorModule *old_uoemod = process();
+        Module::UOExecutorModule* old_uoemod = process();
 
-							Core::UOExecutor* new_uoexec = iref.get_weakptr();
-							Module::UOExecutorModule* new_uoemod = static_cast<Module::UOExecutorModule*>(new_uoexec->findModule("uo"));
-							new_uoemod->attached_item_ = this;
-							process(new_uoemod);
+        Core::UOExecutor* new_uoexec = iref.get_weakptr();
+        Module::UOExecutorModule* new_uoemod =
+            static_cast<Module::UOExecutorModule*>( new_uoexec->findModule( "uo" ) );
+        new_uoemod->attached_item_ = this;
+        process( new_uoemod );
 
-							if (old_uoemod != nullptr) {
-									old_uoemod->attached_item_ = nullptr;
-									Core::UOExecutor* old_uoexec = static_cast<Core::UOExecutor*>(&old_uoemod->exec);
-									return new Core::ScriptExObjImp(old_uoexec);
-							}
+        if ( old_uoemod != nullptr )
+        {
+          old_uoemod->attached_item_ = nullptr;
+          Core::UOExecutor* old_uoexec = static_cast<Core::UOExecutor*>( &old_uoemod->exec );
+          return new Core::ScriptExObjImp( old_uoexec );
+        }
 
-							return new BLong(1);
-					}
-					else
-							return new BError("Invalid parameter");
-			}
-			return new BError("Not enough parameters");
-			break;
-	}
+        return new BLong( 1 );
+      }
+      else
+        return new BError( "Invalid parameter" );
+    }
+    return new BError( "Not enough parameters" );
+    break;
+  }
   default:
     return NULL;
   }
@@ -3718,38 +3720,40 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
     }
     break;
   }
-	case MTH_SET_PILOT: {
-
-      Mobile::Character* chr;
-      if (ex.hasParams(1)) 
+  case MTH_SET_PILOT:
+  {
+    Mobile::Character* chr;
+    if ( ex.hasParams( 1 ) )
+    {
+      if ( Core::getCharacterParam( ex, 0, chr ) )
       {
-        if (Core::getCharacterParam(ex, 0, chr)) {
-          if (mountpiece != nullptr && !mountpiece->orphan()) {
-            return new BError("The boat is already being piloted.");
-          }
-
-          Items::Item* item = Items::Item::create(Core::settingsManager.extobj.boatmount);
-          mountpiece = Core::ItemRef(item);
-          chr->equip(item);
-          send_wornitem_to_inrange(chr, item);
-
-          return new BLong(1);
+        if ( mountpiece != nullptr && !mountpiece->orphan() )
+        {
+          return new BError( "The boat is already being piloted." );
         }
-        return new BError("Invalid parameters");
-        
-			}
-      else
-      {
-        if (mountpiece != nullptr) {
-          if (!mountpiece->orphan()) {
-            destroy_item(mountpiece.get());
-          }
-          mountpiece.clear();
-        }
-        return new BLong(1);
+
+        Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
+        mountpiece = Core::ItemRef( item );
+        chr->equip( item );
+        send_wornitem_to_inrange( chr, item );
+
+        return new BLong( 1 );
       }
-
-	}
+      return new BError( "Invalid parameters" );
+    }
+    else
+    {
+      if ( mountpiece != nullptr )
+      {
+        if ( !mountpiece->orphan() )
+        {
+          destroy_item( mountpiece.get() );
+        }
+        mountpiece.clear();
+      }
+      return new BLong( 1 );
+    }
+  }
   default:
     return NULL;
   }
@@ -4485,20 +4489,13 @@ BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool /
   return base::call_method_id( id, ex );
 }
 
-/*class BoatMovementEvent : public Bscript::BStruct
+BoatMovementEvent::BoatMovementEvent( Mobile::Character* source, const u8* speed,
+                                      const u8* direction )
 {
-public:
-		BoatMovementEvent(Core::EVENTID type);
-		BoatMovementEvent(Core::EVENTID type, Mobile::Character* source, const u8* speed, const u8* direction);
-};*/
-
-BoatMovementEvent::BoatMovementEvent(Mobile::Character* source, const u8* speed, const u8* direction)
-{
-		addMember("type", new BLong(Core::EVID_BOAT_MOVEMENT));
-		addMember("source", new Module::EOfflineCharacterRefObjImp(source));
-		addMember("speed", new BLong(static_cast<int>(*speed)));
-		addMember("direction", new BLong(static_cast<int>(*direction)));
-
+  addMember( "type", new BLong( Core::EVID_BOAT_MOVEMENT ) );
+  addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
+  addMember( "speed", new BLong( static_cast<int>( *speed ) ) );
+  addMember( "direction", new BLong( static_cast<int>( *direction ) ) );
 }
 
 SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
