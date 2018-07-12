@@ -3641,6 +3641,12 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
   case MBR_MULTIID:
     return new BLong( multiid );
     break;
+  case MBR_PILOT:
+    if ( mountpiece != nullptr && !mountpiece->orphan() )
+    {
+      return new Module::ECharacterRefObjImp( mountpiece->GetCharacterOwner() );
+    }
+    return NULL;
   default:
     return NULL;
   }
