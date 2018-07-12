@@ -11,13 +11,9 @@
 
 #include <iomanip>
 #include <sstream>
-#ifdef WINDOWS
-#include "pol_global_config_win.h"
-#else
-#include "pol_global_config.h"
-#endif
 
 #include "logfacility.h"
+#include "pol_global_config.h"
 #include "stlutil.h"
 
 #ifdef WINDOWS
@@ -28,7 +24,7 @@ namespace Pol
 {
 namespace Clib
 {
-HCRYPTPROV hProv = NULL;
+static HCRYPTPROV hProv = NULL;
 
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
@@ -84,10 +80,13 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
 
 void MD5_Cleanup()
 {
-  CryptReleaseContext( hProv, 0 );
+  if ( hProv )
+  {
+    CryptReleaseContext( hProv, 0 );
+  }
 }
 
-#elif defined( HAVE_OPENSSL )
+#else
 
 #include <openssl/md5.h>
 
@@ -113,38 +112,6 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
 void MD5_Cleanup()
 {
   // OpenSSL cleanup, if any
-}
-
-#else
-extern "C" {
-#include "MD5.h"  //TODO: rework the following code - does not work with up-to-date header files anymore
-}
-namespace Pol
-{
-namespace Clib
-{
-bool MD5_Encrypt( const std::string& in, std::string& out )
-{
-  struct md5_ctx ctx;
-  unsigned char sum[16];
-
-  __md5_init_ctx( &ctx );
-  __md5_process_bytes( in.c_str(), in.length(), &ctx );
-  __md5_finish_ctx( &ctx, sum );
-
-  std::ostringstream os;
-  for ( unsigned int i = 0; i < sizeof( sum ); i++ )
-  {
-    os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << (int)sum[i];
-  }
-  out = os.str();
-
-  return true;
-}
-
-void MD5_Cleanup()
-{
-  // MD5 cleanup, if any. Consider storing ctx until server shutdown.
 }
 
 #endif

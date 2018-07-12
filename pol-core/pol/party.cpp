@@ -11,11 +11,7 @@
  * - 2009/11/17 Turley:    fixed hang due to illegal pointers
  */
 
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include "party.h"
 
@@ -1135,7 +1131,7 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       intextlen =
           ( cfBEu16( msg->msglen ) - 10 ) / sizeof( msg->partydata.partymembermsg.wtext[0] ) - 1;
 
-      //	intextlen does not include the null terminator.
+      //  intextlen does not include the null terminator.
 
       // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
       if ( intextlen < 0 )
@@ -1189,7 +1185,7 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
 
     intextlen = ( cfBEu16( msg->msglen ) - 6 ) / sizeof( msg->partydata.partymsg.wtext[0] ) - 1;
 
-    //	intextlen does not include the null terminator.
+    //  intextlen does not include the null terminator.
 
     // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
     if ( intextlen < 0 )

@@ -6,7 +6,7 @@
  * - 2009/08/14 Turley:    fixed definition of PKTIN_00
  * - 2009/09/06 Turley:    Added PKTIN_E1
  * - 2009/12/02 Turley:    fixed definition of PKTIN_8D
- * - 2011/10/26 Tomi:	  Added PKTIN_F8
+ * - 2011/10/26 Tomi:      Added PKTIN_F8
  *
  * @note This file is for packet structs who sent by client.
  */

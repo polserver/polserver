@@ -4,6 +4,7 @@
  */
 
 
+#include <cstring>
 #include <iomanip>
 
 #include "eprog.h"
@@ -60,13 +61,15 @@ void EScriptProgram::dump_casejmp( std::ostream& os, const Token& token )
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {
-    unsigned short offset = *(const unsigned short*)dataptr;
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
     dataptr += 2;
     unsigned char type = *dataptr;
     dataptr += 1;
     if ( type == CASE_TYPE_LONG )
     {
-      unsigned int lval = *(const unsigned int*)dataptr;
+      int lval;
+      std::memcpy( &lval, dataptr, sizeof( int ) );
       dataptr += 4;
       os << "\t" << lval << ": @" << offset << std::endl;
     }

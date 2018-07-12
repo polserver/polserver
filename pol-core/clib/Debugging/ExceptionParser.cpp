@@ -3,13 +3,8 @@
 #include "../Program/ProgramConfig.h"
 #include "../logfacility.h"
 #include "../threadhelp.h"
-#include <format/format.h>
-
-#ifdef WINDOWS
-#include "../pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
+#include <format/format.h>
 
 #include <cstddef>
 #include <cstring>
@@ -24,6 +19,7 @@
 #include <execinfo.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <sys/mman.h>
 #include <unistd.h>
 
 #define SOCKET int
@@ -354,10 +350,11 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
                    "comp=" +
                    getCompilerVersion() +
                    "&"
-                   "comp_time=" POL_BUILD_DATE "(" POL_BUILD_TIME
-                   ")&"
+                   "comp_time=" +
+                   ProgramConfig::build_datetime() +
+                   "&"
                    "build_target=" +
-                   POL_BUILD_TARGET +
+                   ProgramConfig::build_target() +
                    "&"
                    "build_revision=" POL_VERSION_ID
                    "&"
@@ -399,8 +396,8 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf( "Stack trace:\n%s", tStackTrace.c_str() );
     printf( "\n" );
     printf( "Compiler: %s\n", getCompilerVersion().c_str() );
-    printf( "Compile time: %s\n", POL_BUILD_TIME );
-    printf( "Build target: %s\n", POL_BUILD_TARGET );
+    printf( "Compile time: %s\n", ProgramConfig::build_datetime().c_str() );
+    printf( "Build target: %s\n", ProgramConfig::build_target().c_str() );
     printf( "Build revision: %s\n", POL_VERSION_ID );
 #ifndef _WIN32
     printf( "GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__ );
@@ -638,12 +635,12 @@ void ExceptionParser::initGlobalExceptionCatching()
 
   // set handler stack
   stack_t tStack;
-  tStack.ss_sp = malloc( SIGSTKSZ );
-  if ( tStack.ss_sp == NULL )
-  {
-    printf( "Could not allocate signal handler stack\n" );
-    exit( 1 );
-  }
+  // mmap: no false positives for leak, plus guardpages to get SIGSEGV on memory overwrites
+  char* mem = static_cast<char*>( mmap( NULL, SIGSTKSZ + 2 * getpagesize(), PROT_READ | PROT_WRITE,
+                                        MAP_PRIVATE | MAP_ANON, -1, 0 ) );
+  mprotect( mem, getpagesize(), PROT_NONE );
+  mprotect( mem + getpagesize() + SIGSTKSZ, getpagesize(), PROT_NONE );
+  tStack.ss_sp = mem + getpagesize();
   tStack.ss_size = SIGSTKSZ;
   tStack.ss_flags = 0;
   if ( sigaltstack( &tStack, NULL ) == -1 )

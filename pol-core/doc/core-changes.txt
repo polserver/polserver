@@ -1,16 +1,29 @@
 ﻿-- POL100 --
+04-02-2018 Bodom:
+  Removed: polcore().compiledate and polcore().compiletime
+  Added:   polcore().compiledatetime
+
+03-19-2018 Nando:
+  Fixed:   Crash at shutdown when POL hasn't been correctly started.
+
+02-26-2018 Nando:
+  Added:   uoconvert now supports UOP files and will use them by default. If there is no
+           map[N]LegacyMUL.uop in the UODataFileRoot, uoconvert will fall back to the
+           old map[N].mul files. You can force uoconvert to convert from the old MULs by using
+           readuop=0.
+
+02-10-2018 Nando:
+  Changed: POL099 is officially released after almost 10 years. Starting the work on POL100. 
+
+-- POL099.1 --
 02-11-2018 Nando:  
   Added:   range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT). 
            Valid values: range >= 0, range == ACCESSIBLE_DEFAULT or range == ACCESSIBLE_IGNOREDISTANCE.
 		   The default range will be defined as the servspecopt entry "DefaultAccessibleRange". If that 
 		   entry doesn't exist, the "DefaultDoubleclickRange" will be used instead (which defaults to 2).
-		   
   Fixed:   Accessible(chr, item) now checks for the distance to the item. Differently from the distance 
            of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,
 		   use ACCESSIBLE_IGNOREDISTANCE as range.
-  
-02-10-2018 Nando:
-  Changed: POL099 is officially released after almost 10 years. Starting the work on POL100. 
 
 -- POL099 --
 02-06-2018 Turley:

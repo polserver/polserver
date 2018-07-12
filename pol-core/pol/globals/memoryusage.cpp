@@ -13,11 +13,7 @@
 #include "ucfg.h"
 #include "uvars.h"
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 namespace Pol
 {

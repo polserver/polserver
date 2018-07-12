@@ -10,13 +10,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for strcpy, fopen
-#endif
 
 namespace Pol
 {
@@ -94,7 +91,7 @@ void SymbolContainer::append( const char* string, unsigned& position )
 void SymbolContainer::append( int lvalue, unsigned& position )
 {
   resize( sizeof lvalue );
-  *( (int*)( s + usedLen ) ) = lvalue;
+  std::memcpy( s + usedLen, &lvalue, sizeof( int ) );
   position = usedLen;
   usedLen += sizeof lvalue;
 }
@@ -102,7 +99,7 @@ void SymbolContainer::append( int lvalue, unsigned& position )
 void SymbolContainer::append( double dvalue, unsigned& position )
 {
   resize( sizeof dvalue );
-  *( (double*)( s + usedLen ) ) = dvalue;
+  std::memcpy( s + usedLen, &dvalue, sizeof( double ) );
   position = usedLen;
   usedLen += sizeof dvalue;
 }

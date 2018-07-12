@@ -168,7 +168,8 @@ GameState::GameState()
       target_cursors(),
       textcmds(),
       paramtextcmds(),
-      uo_skills()
+      uo_skills(),
+      task_thread_pool()
 {
   memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
 }
@@ -245,6 +246,8 @@ void GameState::deinitialize()
   animation_translates.clear();
 
   tipfilenames.clear();
+
+  task_thread_pool.deinit_pool();
 
   checkpoint( "end of xmain2" );
 

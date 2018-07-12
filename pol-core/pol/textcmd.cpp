@@ -67,10 +67,6 @@
 #include "utype.h"
 #include "uworld.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable warning for asctime, localtime, sprintf, strnicmp
-#endif
-
 namespace Pol
 {
 namespace Core
@@ -248,15 +244,15 @@ std::string timeoutstr( polclock_t at )
 
 ///
 /// Internal Command: .i_repdata
-///	 Show Reputation System Data for a Targetted Mobile
-///	 Displays:
-///		 Murderer status
-///		 Criminal status and timeout
-///		 LawfullyDamaged status and timeouts
-///		 AggressorTo status and timeouts
-///		 ToBeReportable list
-///		 Reportable list
-///		 RepSystem Task status
+/// Show Reputation System Data for a Targetted Mobile
+/// Displays:
+///  Murderer status
+///  Criminal status and timeout
+///  LawfullyDamaged status and timeouts
+///  AggressorTo status and timeouts
+///  ToBeReportable list
+///  Reportable list
+///  RepSystem Task status
 ///
 void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
 {

@@ -7,7 +7,6 @@
 #include <string>
 #include <time.h>
 
-#include <format/format.h>
 #include "../bscript/compiler.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
@@ -18,24 +17,19 @@
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/Program/ProgramMain.h"
 #include "../clib/dirlist.h"
+#include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/mdump.h"
 #include "../clib/passert.h"
+#include "../clib/threadhelp.h"
 #include "../clib/timer.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include <format/format.h>
 
 namespace Pol
 {
-namespace Bscript
-{
-ExecInstrFunc Executor::GetInstrFunc( const Token& /*token*/ )
-{
-  return NULL;
-}
-}
-
 namespace ECompile
 {
 using namespace std;
@@ -117,9 +111,10 @@ std::string CfgPathEnv;  // ECOMPILE_CFG_PATH=zzz"
 
 struct Summary
 {
-  unsigned UpToDateScripts;
-  unsigned CompiledScripts;
-  unsigned ScriptsWithCompileErrors;
+  unsigned UpToDateScripts = 0;
+  unsigned CompiledScripts = 0;
+  unsigned ScriptsWithCompileErrors = 0;
+  size_t ThreadCount = 0;
 } summary;
 
 void generate_wordlist()
@@ -522,6 +517,8 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
   start = clock();
   for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
   {
+    if ( Clib::exit_signalled )
+      return;
     std::string name = dl.name(), ext;
     if ( name[0] == '.' )
       continue;
@@ -537,7 +534,7 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
              ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) ) )
       {
         s_compiled++;
-        if ( files == NULL )
+        if ( files == nullptr )
         {
           if ( compile_file( ( basedir + name ).c_str() ) )
           {
@@ -566,12 +563,12 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
       s_errors++;
     }
   }
-  if ( files == NULL )
+  if ( files == nullptr )
     return;
   finish = clock();
 
   if ( ( !quiet || timing_quiet_override ) && show_timing_details && s_compiled > 0 &&
-       files == NULL )
+       files == nullptr )
   {
     INFO_PRINT << "Compiled " << s_compiled << " script" << ( s_compiled == 1 ? "" : "s" ) << " in "
                << basedir << " in " << (int)( ( finish - start ) / CLOCKS_PER_SEC )
@@ -588,6 +585,8 @@ void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* 
 {
   for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
   {
+    if ( Clib::exit_signalled )
+      return;
     std::string name = dl.name(), ext;
     if ( name[0] == '.' )
       continue;
@@ -598,7 +597,7 @@ void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* 
 
     if ( pos != std::string::npos && !ext.compare( ".inc" ) )
     {
-      if ( files == NULL )
+      if ( files == nullptr )
         compile_file( ( basedir + name ).c_str() );
       else
         files->push_back( ( basedir + name ) );
@@ -612,42 +611,43 @@ void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* 
 
 void parallel_compile( const std::vector<std::string>& files )
 {
-  unsigned compiled_scripts = 0;
-  unsigned uptodate_scripts = 0;
-  unsigned error_scripts = 0;
-  bool omp_keep_building = true;
-#pragma omp parallel for reduction( + : compiled_scripts, uptodate_scripts, \
-                                    error_scripts ) shared( omp_keep_building )
-  for ( int i = 0; i < (int)files.size(); ++i )
+  std::atomic<unsigned> compiled_scripts( 0 );
+  std::atomic<unsigned> uptodate_scripts( 0 );
+  std::atomic<unsigned> error_scripts( 0 );
+  std::atomic<bool> par_keep_building( true );
   {
-#pragma omp flush( omp_keep_building )
-    if ( omp_keep_building )
+    unsigned int thread_count = std::max( 2u, std::thread::hardware_concurrency() * 2 );
+    threadhelp::TaskThreadPool pool( thread_count, "ecompile" );
+    summary.ThreadCount = pool.size();
+    for ( const auto& file : files )
     {
-      try
-      {
-        if ( compile_file( files[i].c_str() ) )
-          ++compiled_scripts;
-        else
-          ++uptodate_scripts;
-      }
-      catch ( std::exception& e )
-      {
-        ++compiled_scripts;
-        ++error_scripts;
-        ERROR_PRINT << "failed to compile " << files[i].c_str() << ": " << e.what() << "\n";
-        if ( !keep_building )
+      pool.push( [&]() {
+
+        if ( !par_keep_building || Clib::exit_signalled )
+          return;
+        try
         {
-#pragma omp critical( building_break )
-          omp_keep_building = false;
-          // Clib::force_backtrace();
+          if ( compile_file( file.c_str() ) )
+            ++compiled_scripts;
+          else
+            ++uptodate_scripts;
         }
-      }
-      catch ( ... )
-      {
-#pragma omp critical( building_break )
-        omp_keep_building = false;
-        Clib::force_backtrace();
-      }
+        catch ( std::exception& e )
+        {
+          ++compiled_scripts;
+          ++error_scripts;
+          ERROR_PRINT << "failed to compile " << file.c_str() << ": " << e.what() << "\n";
+          if ( !keep_building )
+          {
+            par_keep_building = false;
+          }
+        }
+        catch ( ... )
+        {
+          par_keep_building = false;
+          Clib::force_backtrace();
+        }
+      } );
     }
   }
   summary.CompiledScripts = compiled_scripts;
@@ -675,10 +675,10 @@ void AutoCompile()
   }
   else
   {
-    recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), NULL );
+    recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), nullptr );
     for ( const auto& pkg : Plib::systemstate.packages )
     {
-      recurse_compile( Clib::normalized_dir_form( pkg->dir() ), NULL );
+      recurse_compile( Clib::normalized_dir_form( pkg->dir() ), nullptr );
     }
   }
   compilercfg.OnlyCompileUpdatedScripts = save;
@@ -689,6 +689,7 @@ void AutoCompile()
  */
 bool run( int argc, char** argv )
 {
+  Clib::enable_exit_signaller();
   // Load and analyze the package structure
   for ( const auto& elem : compilercfg.PackageRoot )
   {
@@ -739,9 +740,9 @@ bool run( int argc, char** argv )
         else
         {
           if ( compile_inc )
-            recurse_compile_inc( Clib::normalized_dir_form( dir ), NULL );
+            recurse_compile_inc( Clib::normalized_dir_form( dir ), nullptr );
           else
-            recurse_compile( Clib::normalized_dir_form( dir ), NULL );
+            recurse_compile( Clib::normalized_dir_form( dir ), nullptr );
         }
       }
       else if ( argv[i][1] == 'C' )
@@ -776,6 +777,8 @@ bool run( int argc, char** argv )
   {
     fmt::Writer tmp;
     tmp << "Compilation Summary:\n";
+    if ( summary.ThreadCount )
+      tmp << "    Used " << summary.ThreadCount << " threads\n";
     if ( summary.CompiledScripts )
       tmp << "    Compiled " << summary.CompiledScripts << " script"
           << ( summary.CompiledScripts == 1 ? "" : "s" ) << " in " << timer.ellapsed() << " ms.\n";
@@ -814,7 +817,7 @@ void read_config_file( int argc, char* argv[] )
 
   // check ECOMPILE_CFG_PATH environment variable
   const char* env_ecompile_cfg_path = getenv( "ECOMPILE_CFG_PATH" );
-  if ( env_ecompile_cfg_path != NULL )
+  if ( env_ecompile_cfg_path != nullptr )
   {
     compilercfg.Read( std::string( env_ecompile_cfg_path ) );
     return;
@@ -870,8 +873,7 @@ int ECompileMain::main()
   {
     // vX.YY
     double vernum = (double)1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    ERROR_PRINT << "EScript Compiler v" << vernum << "\n"
-                << "Copyright (C) 1993-2016 Eric N. Swanson\n\n";
+    ERROR_PRINT << "EScript Compiler v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
   }
 
   if ( ECompile::opt_generate_wordlist )

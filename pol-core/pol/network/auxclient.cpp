@@ -5,11 +5,7 @@
  */
 
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include "auxclient.h"
 
@@ -36,10 +32,6 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../uoexec.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation
-#endif
 
 namespace Pol
 {

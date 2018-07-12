@@ -27,7 +27,7 @@
 		<div id="main">
 			<div class="container">
 				<div class="doc-mainbox">
-					<table class="doc-table" width="600px">
+					<table class="doc-table" width="700px">
 						<tr align="center">
 							<td>
 								<strong>

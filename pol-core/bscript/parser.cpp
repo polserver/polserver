@@ -66,10 +66,6 @@
 #include "tokens.h"
 #include <format/format.h>
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp, strtok POSIX deprecation warning
-#endif
-
 namespace Pol
 {
 namespace Bscript
@@ -114,7 +110,7 @@ char ident_allowed[] =
 
 int allowed_table[8][8] = {
     /* this token is a(n)... */
-    /*					 binary   unary
+    /*           binary   unary
      * TERMINATOR OPERAND OPERATOR OPERATOR LPAREN RPAREN  LBRACK  RBRACK*/
     /* Last token was a(n)... */
     {1, 1, 0, 1, 1, 0, 0, 0}, /* TERMINATOR */
@@ -130,38 +126,38 @@ int allowed_table[8][8] = {
 /* examples matrix: -- connected denotes unary operator
 
 legal:
-{	TT	   T AB			 T -AB	T (						   },
-{  AB T				AB +					 AB )	A[	  A]	},
-{			 * AB			   *-	  * (						  },
-{			  -AB						-(						  },
-{			 ( AB			   (-	  ( (						  },
-{	) T				) -					  ) )			)]	}
-{			 [A		.		[-	  [(			 [[	   .	}
-{	] T	 .		  ] *	   .	   .	  ])	 ][	  ][	}
+{  TT     T AB       T -AB  T (               },
+{  AB T        AB +           AB )  A[    A]  },
+{       * AB         *-    * (              },
+{        -AB            -(              },
+{       ( AB         (-    ( (              },
+{  ) T        ) -            ) )      )]  }
+{       [A    .    [-    [(       [[     .  }
+{  ] T   .      ] *     .     .    ])   ][    ][  }
 
 illegal:
-{					  T b-A					T )	T [	  T ]   },
-{			AB AB			  AB~	 AB (						  },
-{	* T				* /					  - )	*[	  *]	},
-{	b- T				-*	  --			   -)	-[	  -]	},
-{	( T				( *					  ( )	([	  (]	},
-{			 ) AB			   )-	  ) (			)[			}
-{	[ T				[+					   [)			 []	}
-{			 ]A				 ]-	  ] (					 .	}
+{            T b-A          T )  T [    T ]   },
+{      AB AB        AB~   AB (              },
+{  * T        * /            - )  *[    *]  },
+{  b- T        -*    --         -)  -[    -]  },
+{  ( T        ( *            ( )  ([    (]  },
+{       ) AB         )-    ) (      )[      }
+{  [ T        [+             [)       []  }
+{       ]A         ]-    ] (           .  }
 
 */
 
 
-/* operator characters			// (and precedence table)
+/* operator characters      // (and precedence table)
     ( )   [ ]
     + - (unary-arithmetic)   ! (unary-logical)  ~ (unary-boolean)
     * / %
     + -
     < <= > >=
     == <>
-    &	(band ?)
-    ^	(bxor ?)
-    |	(bor  ?)
+    &  (band ?)
+    ^  (bxor ?)
+    |  (bor  ?)
     and
     or
     :=
@@ -231,10 +227,10 @@ Operator binary_operators[] = {
     {"=", TOK_EQUAL1, PREC_EQUALTO, TYP_OPERATOR, true, false},  // deprecated: :=/==
     {"==", TOK_EQUAL, PREC_EQUALTO, TYP_OPERATOR, false, false},
 
-    //	{ "and",	TOK_AND,	PREC_LOGAND,  TYP_OPERATOR, false, false },
+    //  { "and",  TOK_AND,  PREC_LOGAND,  TYP_OPERATOR, false, false },
     {"&&", TOK_AND, PREC_LOGAND, TYP_OPERATOR, false, false},
 
-    //	{ "or",	TOK_OR,		 PREC_LOGOR,  TYP_OPERATOR, false, false },
+    //  { "or",  TOK_OR,     PREC_LOGOR,  TYP_OPERATOR, false, false },
     {"||", TOK_OR, PREC_LOGOR, TYP_OPERATOR, false, false},
 
     {":=", TOK_ASSIGN, PREC_ASSIGN, TYP_OPERATOR, false, false},
@@ -252,7 +248,7 @@ Operator unary_operators[] = {
     {"!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_FUNCREF, false, false}
-    //	{ "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
+    //  { "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
     // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR, false, false
 };
 int n_unary = sizeof unary_operators / sizeof unary_operators[0];
@@ -481,6 +477,7 @@ ObjMember object_members[] = {
     {MBR_CARRYINGCAPACITY, "carrying_capacity", true},
     {MBR_NO_DROP, "no_drop", false},
     {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
+    {MBR_PORT, "port", false},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
@@ -494,7 +491,8 @@ ObjMember* getKnownObjMember( const char* token )
     return m;
   }();
   std::string temp( token );
-  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  std::transform( temp.begin(), temp.end(), temp.begin(),
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
   auto member = cache.find( temp );
   if ( member != cache.end() )
     return member->second;
@@ -529,12 +527,12 @@ ObjMethod object_methods[] = {
     {MTH_SETWARMODE, "setwarmode", false},
     {MTH_SETMASTER, "setmaster", false},                        // npc
     {MTH_MOVE_OFFLINE_MOBILES, "move_offline_mobiles", false},  // boat
-    {MTH_SETCUSTOM, "setcustom", false},                        // house			 //20
+    {MTH_SETCUSTOM, "setcustom", false},                        // house       //20
     {MTH_GETPINS, "getpins", false},                            // map
     {MTH_INSERTPIN, "insertpin", false},
     {MTH_APPENDPIN, "appendpin", false},
     {MTH_ERASEPIN, "erasepin", false},
-    {MTH_OPEN, "open", false},  // door						 //25
+    {MTH_OPEN, "open", false},  // door             //25
     {MTH_CLOSE, "close", false},
     {MTH_TOGGLE, "toggle", false},
     {MTH_BAN, "ban", false},  // account
@@ -678,7 +676,8 @@ ObjMethod* getKnownObjMethod( const char* token )
     return m;
   }();
   std::string temp( token );
-  std::transform( temp.begin(), temp.end(), temp.begin(), ::tolower );
+  std::transform( temp.begin(), temp.end(), temp.begin(),
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
   auto method = cache.find( temp );
   if ( method != cache.end() )
     return method->second;
@@ -821,13 +820,13 @@ ReservedWord reserved_words[] = {
     {"gosub", RSV_GOSUB, TYP_RESERVED, PREC_TERMINATOR, false},
     {"return", RSV_RETURN, TYP_RESERVED, PREC_TERMINATOR, false},
 
-    //	{ "global",		RSV_GLOBAL,	 TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
-    //	{ "local",		RSV_LOCAL,	  TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
+    //  { "global",    RSV_GLOBAL,   TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
+    //  { "local",    RSV_LOCAL,    TYP_RESERVED, PREC_DEPRECATED, true }, // internal only
     {"const", RSV_CONST, TYP_RESERVED, PREC_TERMINATOR, false},
     {"var", RSV_VAR, TYP_RESERVED, PREC_TERMINATOR, false},
 
-    //  { "begin",		RSV_BEGIN,	  TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
-    //  { "end",		RSV_ENDB,	   TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
+    //  { "begin",    RSV_BEGIN,    TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
+    //  { "end",    RSV_ENDB,     TYP_RESERVED, PREC_DEPRECATED, true }, // deprecated
 
     {"do", RSV_DO, TYP_RESERVED, PREC_TERMINATOR, false},
     {"dowhile", RSV_DOWHILE, TYP_RESERVED, PREC_TERMINATOR, false},
@@ -863,7 +862,7 @@ ReservedWord reserved_words[] = {
     {"endprogram", RSV_ENDPROGRAM, TYP_RESERVED, PREC_TERMINATOR, false},
 
     {"case", RSV_SWITCH, TYP_RESERVED, PREC_TERMINATOR, false},
-    // { "case",	   RSV_CASE,	   TYP_RESERVED, PREC_TERMINATOR, false },
+    // { "case",     RSV_CASE,     TYP_RESERVED, PREC_TERMINATOR, false },
     {"default", RSV_DEFAULT, TYP_RESERVED, PREC_TERMINATOR, false},
     {"endcase", RSV_ENDSWITCH, TYP_RESERVED, PREC_TERMINATOR, false},
 
@@ -875,7 +874,7 @@ ReservedWord reserved_words[] = {
     {"reference", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"out", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
     {"inout", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
-    // { "ByRef",	  RSV_FUTURE,	 TYP_RESERVED, PREC_TERMINATOR, false },
+    // { "ByRef",    RSV_FUTURE,   TYP_RESERVED, PREC_TERMINATOR, false },
     {"ByVal", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
 
     {"string", RSV_FUTURE, TYP_RESERVED, PREC_TERMINATOR, false},
@@ -901,13 +900,13 @@ ReservedWord reserved_words[] = {
     {"array", TOK_ARRAY, TYP_OPERAND, PREC_TERMINATOR, false},
     {"stack", TOK_STACK, TYP_OPERAND, PREC_TERMINATOR, false},
     {"in", TOK_IN, TYP_OPERATOR, PREC_EQUALTO, false}
-    //	{ "bitand",	 TOK_BITAND,	 TYP_OPERATOR, PREC_BITAND },
-    //	{ "bitxor",	 TOK_BITXOR,	 TYP_OPERATOR, PREC_BITXOR },
-    //	{ "bitor",	  TOK_BITOR,	  TYP_OPERATOR, PREC_BITOR }
-    /*	"/""*",			RSV_COMMENT_START,
-        "*""/",			RSV_COMMENT_END,
-        "/""/",			RSV_COMMENT_TO_EOL,
-        "--",			RSV_COMMENT_TO_EOL
+    //  { "bitand",   TOK_BITAND,   TYP_OPERATOR, PREC_BITAND },
+    //  { "bitxor",   TOK_BITXOR,   TYP_OPERATOR, PREC_BITXOR },
+    //  { "bitor",    TOK_BITOR,    TYP_OPERATOR, PREC_BITOR }
+    /*  "/""*",      RSV_COMMENT_START,
+        "*""/",      RSV_COMMENT_END,
+        "/""/",      RSV_COMMENT_TO_EOL,
+        "--",      RSV_COMMENT_TO_EOL
         */
 };
 unsigned n_reserved = sizeof reserved_words / sizeof reserved_words[0];
@@ -962,22 +961,22 @@ void Parser::write_words( std::ostream& os )
 }
 
 #if 0
-	void matchReservedWords(char *buf,
-							 int *nPartial,
-							 int *nTotal)
-	{
-	  int lenbuf = strlen(buf);
-	  assert(nPartial && nTotal);
-	  *nPartial = 0;
-	  *nTotal = 0;
-	  for(int i = 0; i < n_reserved; i++) 
-	  {
-		if (strnicmp(reserved_words[i].word, buf, lenbuf)==0) 
-		  (*nPartial)++;
-		if (stricmp(reserved_words[i].word, buf)==0) 
-		  (*nTotal)++;
-	  }
-	}
+  void matchReservedWords(char *buf,
+               int *nPartial,
+               int *nTotal)
+  {
+    int lenbuf = strlen(buf);
+    assert(nPartial && nTotal);
+    *nPartial = 0;
+    *nTotal = 0;
+    for(int i = 0; i < n_reserved; i++)
+    {
+    if (strnicmp(reserved_words[i].word, buf, lenbuf)==0)
+      (*nPartial)++;
+    if (stricmp(reserved_words[i].word, buf)==0)
+      (*nTotal)++;
+    }
+  }
 #endif
 
   /*
@@ -988,52 +987,52 @@ void Parser::write_words( std::ostream& os )
     */
 
 #if 0
-	int Parser::tryReservedWord(Token& tok, char *t, char **s)
-	{
-	  char opbuf[10];
-	  int bufp = 0;
-	  int thisMatchPartial, thisMatchTotal;
-	  int lastMatchTotal = 0;
+  int Parser::tryReservedWord(Token& tok, char *t, char **s)
+  {
+    char opbuf[10];
+    int bufp = 0;
+    int thisMatchPartial, thisMatchTotal;
+    int lastMatchTotal = 0;
 
-	  while (t && *t) {
-		/* let's try to match it as we go. */
-		if (bufp==10) { err = PERR_BADTOKEN; return -1; }
-		opbuf[bufp++] = *t++;
-		opbuf[bufp] = '\0';
-		matchReservedWords(opbuf, &thisMatchPartial, &thisMatchTotal);
-		if (!thisMatchPartial) { /* can't match a bloody thing! */
-		  switch(lastMatchTotal) {
-			case 0:
-			  return 0; // this just wasn't a reserved word..
-			case 1: // this is the only way it will work..
-			  // here, we don't match now but if we don't count
-			  // this character, it was a unique match.
-			  opbuf[bufp-1] = '\0';
-			  tok.nulStr();
-			  recognize_reserved_word(tok, opbuf);
-			  *s = t-1;
-			  return 1;
-			case 2: // here, with this character there is no match
-			  // but before there were multiple matches.
-			  // really shouldn't happen.
-			  err = PERR_BADOPER;
-			  return -1;
-		  }
-		} else { /* this partially matches.. */
-		  // "Remember....."
-		  lastMatchTotal = thisMatchTotal;
-		}
-	  }
+    while (t && *t) {
+    /* let's try to match it as we go. */
+    if (bufp==10) { err = PERR_BADTOKEN; return -1; }
+    opbuf[bufp++] = *t++;
+    opbuf[bufp] = '\0';
+    matchReservedWords(opbuf, &thisMatchPartial, &thisMatchTotal);
+    if (!thisMatchPartial) { /* can't match a bloody thing! */
+      switch(lastMatchTotal) {
+      case 0:
+        return 0; // this just wasn't a reserved word..
+      case 1: // this is the only way it will work..
+        // here, we don't match now but if we don't count
+        // this character, it was a unique match.
+        opbuf[bufp-1] = '\0';
+        tok.nulStr();
+        recognize_reserved_word(tok, opbuf);
+        *s = t-1;
+        return 1;
+      case 2: // here, with this character there is no match
+        // but before there were multiple matches.
+        // really shouldn't happen.
+        err = PERR_BADOPER;
+        return -1;
+      }
+    } else { /* this partially matches.. */
+      // "Remember....."
+      lastMatchTotal = thisMatchTotal;
+    }
+    }
 
-	  if (thisMatchTotal == 1) {
-		tok.nulStr();
-		recognize_reserved_word( tok, opbuf );
-		*s = t;
-		return 1;
-	  }
+    if (thisMatchTotal == 1) {
+    tok.nulStr();
+    recognize_reserved_word( tok, opbuf );
+    *s = t;
+    return 1;
+    }
 
-	  return 0; // didn't find one!
-	}
+    return 0; // didn't find one!
+  }
 #endif
 
 /**
@@ -1057,7 +1056,7 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
 
   while ( t && *t )
   {
-    //		if (strchr(operator_brk, *t)) mustBeOperator = 1;
+    //    if (strchr(operator_brk, *t)) mustBeOperator = 1;
 
     /* let's try to match it as we go. */
     if ( bufp == 4 )
@@ -1595,9 +1594,11 @@ int SmartParser::isOkay( const Token& token, BTokenType last_type )
   BTokenType this_type = token.type;
   if ( !quiet )
     INFO_PRINT << "isOkay(" << this_type << "," << last_type << ")\n";
-  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD || last_type==TYP_FUNCREF)
+  if ( last_type == TYP_FUNC || last_type == TYP_USERFUNC || last_type == TYP_METHOD ||
+       last_type == TYP_FUNCREF )
     last_type = TYP_OPERAND;
-  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD || this_type == TYP_FUNCREF)
+  if ( this_type == TYP_FUNC || this_type == TYP_USERFUNC || this_type == TYP_METHOD ||
+       this_type == TYP_FUNCREF )
     this_type = TYP_OPERAND;
   if ( token.id == TOK_LBRACE )  // an array declared somewhere out there
     this_type = TYP_OPERAND;
@@ -1655,18 +1656,18 @@ int SmartParser::tryLiteral( Token& tok, CompilerContext& ctx )
 
 // this might be a nice place to look for module::function, too.
 #if 0
-		if (t[0] == ':' && t[1] == ':')
-		{
-		  t += 2;
-		  *s = t;
-		  Token tok2;
-		  int res2 = Parser::tryLiteral( tok2, t, s );
-		  if (res2 < 0) return res2;
-		  if (res2 == 0)
-			return -1;
-		  // append '::{tok2 tokval}' to tok.tokval
-		  // (easier when/if token uses string)
-		}
+    if (t[0] == ':' && t[1] == ':')
+    {
+      t += 2;
+      *s = t;
+      Token tok2;
+      int res2 = Parser::tryLiteral( tok2, t, s );
+      if (res2 < 0) return res2;
+      if (res2 == 0)
+      return -1;
+      // append '::{tok2 tokval}' to tok.tokval
+      // (easier when/if token uses string)
+    }
 #endif
     if ( ctx.s[0] == ':' && ( ctx.s[1] == '\0' || isspace( ctx.s[1] ) ) )
     {
@@ -1681,7 +1682,7 @@ int SmartParser::tryLiteral( Token& tok, CompilerContext& ctx )
 
 int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* token )
 {
-  //	return Parser::parseToken(token);
+  //  return Parser::parseToken(token);
   if ( !quiet )
   {
     fmt::Writer _tmp;
@@ -1910,8 +1911,8 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
  * are variable names, verbs, functions,  or labels.  To this end it
  * pulls out the ':' if necessary.
  * TYP_OPERAND, TOK_VARNAME
- * TYP_FUNC,	TOK_MID,	<-- TYP_OPERAND for purposes of legality
- * TYP_PROC,	TOK_PRINT,
+ * TYP_FUNC,  TOK_MID,  <-- TYP_OPERAND for purposes of legality
+ * TYP_PROC,  TOK_PRINT,
  * TYP_LABEL,   (don't care)
  *
  * IP still does the same thing only it no longer looks for isVerb.
@@ -1955,8 +1956,8 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
   int res = 0;
   ModuleFunction* mfUse = modfunc_;
   Token token;
-  //	int nullArgOk = 0;
-  //	int nArgsUse = v->narg;
+  //  int nullArgOk = 0;
+  //  int nArgsUse = v->narg;
 
   /*
       if (vUse->narg == -1) {
@@ -1990,7 +1991,7 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
     {
       if ( token.id == TOK_SEMICOLON )
       {
-        //				   if (nullArgOk) return 0;
+        //           if (nullArgOk) return 0;
         err = PERR_TOOFEWARGS;
         return -1;
       }
@@ -2017,7 +2018,7 @@ int SmartParser::getArgs( Expression& expr, CompilerContext& ctx )
         getToken( ctx, token );
         if ( token.id != TOK_COMMA )
         {
-          //						if (nullArgOk) break;
+          //            if (nullArgOk) break;
           res = -1;
           err = PERR_TOOFEWARGS;
           break;
@@ -2116,7 +2117,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       break;
     }
 
-    //		if (token.type == TYP_DELIMITER) break;
+    //    if (token.type == TYP_DELIMITER) break;
     // debug_last_tx_token = expr.TX.top();
 
     /*
@@ -2292,7 +2293,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       // expr.CA.push( array_tkn );
 
       // 'array' can be of the following forms:
-      // var x := array;				  // preferred
+      // var x := array;          // preferred
       // var x := array { 2, 4, 6, 1 };   // preferred
       // var x := array ( 2, 4, 6, 1 );   // not preferred, looks too much like a multi-dim
 
@@ -2451,7 +2452,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
 /* not used? 12/10/1998 ens
 int SmartParser::IP(Expression& expr, char *s)
 {
-//	return Parser::IP(s);
+//  return Parser::IP(s);
 reinit(expr);
 int res = IIP(expr, &s, EXPR_FLAG_SEMICOLON_TERM_ALLOWED);
 if (res < 0 && !quiet)

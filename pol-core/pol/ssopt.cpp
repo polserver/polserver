@@ -37,10 +37,6 @@
 #include "globals/settings.h"
 #include "pktdef.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // deprecation warning for sprintf, strtok
-#endif
-
 namespace Pol
 {
 namespace Core
@@ -139,14 +135,14 @@ void ServSpecOpt::read_servspecopt()
   ssopt_parse_totalstats( elem );
 
   // Turley 2009/11/06 u8 range...
-  //	if ( ssopt.default_max_slots > 255 )
-  //	{
-  //		cerr << "Invalid MaxContainerSlots value '"
-  //			 << ssopt.default_max_slots << "', using '255'" << endl;
-  //		Log( "Invalid MaxContainerSlots value '%d', using '255'\n",
-  //			  ssopt.default_max_slots );
-  //		ssopt.default_max_slots = 255;
-  //	}
+  // if ( ssopt.default_max_slots > 255 )
+  // {
+  //   cerr << "Invalid MaxContainerSlots value '"
+  //        << ssopt.default_max_slots << "', using '255'" << endl;
+  //   Log( "Invalid MaxContainerSlots value '%d', using '255'\n",
+  //        ssopt.default_max_slots );
+  //   ssopt.default_max_slots = 255;
+  // }
 }
 
 void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )

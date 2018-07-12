@@ -33,7 +33,8 @@ public:
 
   void deinitialize();
 
-  //~UoClientGeneral(); Note: no deconstructor due to undefined static deconstruction order, let it leak if the usual way fails
+  //~UoClientGeneral(); Note: no deconstructor due to undefined static deconstruction order,
+  // let it leak if the usual way fails
 
   class Mapping
   {

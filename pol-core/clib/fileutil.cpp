@@ -18,10 +18,6 @@
 #include <io.h>
 #endif
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable POSIX deprecation warnings for stricmp
-#endif
-
 namespace Pol
 {
 namespace Clib

@@ -57,7 +57,6 @@
 #ifdef _MSC_VER
 #pragma warning( \
     disable : 4351 )  // new behavior: elements of array '...' will be default initialized
-#pragma warning( disable : 4996 )  // disable warning about unsafe localtime(), asctime()
 #endif
 
 namespace Pol
@@ -224,7 +223,7 @@ void Client::PreDelete()
   last_xmit_buffer = NULL;
 
   // while (!movementqueue.empty())
-  //	movementqueue.pop();
+  //  movementqueue.pop();
 }
 
 // ClientInfo - delivers a lot of usefull infomation about client PC

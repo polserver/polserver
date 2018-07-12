@@ -7,11 +7,7 @@
 
 #include "testenv.h"
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #ifdef ENABLE_BENCHMARK
 #include <benchmark/benchmark.h>
@@ -38,6 +34,7 @@ void run_pol_tests()
 //  multiwalk_test();
 //  map_test();
 //  dynprops_test();
+  packet_test();
   dummy();
   display_test_results();
 }

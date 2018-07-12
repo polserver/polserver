@@ -19,6 +19,7 @@
 #include "../../clib/maputil.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
+#include "../../clib/threadhelp.h"
 #include "../action.h"
 #include "../clidata.h"
 #include "../cmdlevel.h"
@@ -244,7 +245,7 @@ public:
     size_t realm_size;
     size_t misc;
   };
-
+  threadhelp::TaskThreadPool task_thread_pool;
 private:
   void cleanup_vars();
   void cleanup_scripts();

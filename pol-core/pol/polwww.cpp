@@ -223,9 +223,9 @@ void http_redirect( Clib::Socket& sck, const std::string& new_url )
 }
 // http_decodestr: turn all those %2F etc into what they represent
 // rules:
-//	'+'   ->   ' '
-//	%HH   ->   (hex value)
-//	other ->   itself
+//  '+'   ->   ' '
+//  %HH   ->   (hex value)
+//  other ->   itself
 std::string http_decodestr( const std::string& s )
 {
   std::string decoded;
@@ -666,8 +666,8 @@ void http_func( SOCKET client_socket )
                << "http-proto: '" << proto << "'\n";
   }
 
-  //	if (url == "/")
-  //		url = "/index.htm";
+  //  if (url == "/")
+  //    url = "/index.htm";
 
   // spliturl( url, page, params ); ??
   std::string::size_type ques = url.find( '?' );

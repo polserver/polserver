@@ -16,6 +16,7 @@
 #include "../../plib/staticserver.h"
 #include "../mobile/charactr.h"
 #include "../poltype.h"
+#include "../ufunc.h"
 #include "../uworld.h"
 #include "WorldChangeReasons.h"
 
@@ -127,6 +128,56 @@ const std::string Realm::name() const
   return _descriptor.name;
 }
 
+void Realm::notify_moved( Mobile::Character& whomoved )
+{
+  // When the movement is larger than 32 tiles, notify mobiles in the old location
+  if ( Core::pol_distance( whomoved.lastx, whomoved.lasty, whomoved.x, whomoved.y ) > 32 )
+  {
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        whomoved.lastx, whomoved.lasty, this, 32,
+        [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
+  }
+
+  // Inform nearby mobiles that a movement has been made.
+  Core::WorldIterator<Core::MobileFilter>::InRange(
+      whomoved.x, whomoved.y, this, 33,
+      [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
+}
+
+// The unhid character was already in the area and must have seen the other mobiles. So only notify
+// the other mobiles in the region that a new one appeared.
+void Realm::notify_unhid( Mobile::Character& whounhid )
+{
+  Core::WorldIterator<Core::NPCFilter>::InRange(
+      whounhid.x, whounhid.y, this, 32,
+      [&]( Mobile::Character* chr ) { Mobile::NpcPropagateEnteredArea( chr, &whounhid ); } );
+}
+
+// Resurrecting is just like unhiding
+void Realm::notify_resurrected( Mobile::Character& whoressed )
+{
+  notify_unhid( whoressed );
+}
+
+void Realm::notify_entered( Mobile::Character& whoentered )
+{
+  Core::WorldIterator<Core::MobileFilter>::InRange(
+      whoentered.x, whoentered.y, this, 32, [&]( Mobile::Character* chr ) {
+        Mobile::NpcPropagateEnteredArea( chr, &whoentered );
+        Mobile::NpcPropagateEnteredArea( &whoentered,
+                                         chr );  // Notify the one who entered this area about
+                                                 // the mobiles that were already there
+      } );
+}
+
+// Must be used right before a mobile leaves (before updating x and y)
+void Realm::notify_left( Mobile::Character& wholeft )
+{
+  Core::WorldIterator<Core::MobileFilter>::InRange(
+      wholeft.x, wholeft.y, this, 32,
+      [&]( Mobile::Character* chr ) { Mobile::NpcPropagateLeftArea( chr, &wholeft ); } );
+}
+
 // This function will be called whenever:
 //
 //      - a npc is created,
@@ -197,5 +248,5 @@ void Realm::remove_mobile( const Mobile::Character& chr, WorldChangeReason reaso
   if ( chr.logged_in() )
     --_mobile_count;
 }
-}
-}
+}  // namespace Realms
+}  // namespace Pol

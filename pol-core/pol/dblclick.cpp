@@ -83,8 +83,8 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
 
   // the find_character would find this, but most of the time it's your own paperdoll.
   // this is special-cased for two reasons:
-  //	  1) it's commonly done
-  //	  2) ghosts can doubleclick ONLY their paperdoll.
+  //    1) it's commonly done
+  //    2) ghosts can doubleclick ONLY their paperdoll.
   if ( serial == client->chr->serial )
   {
     if ( !paperdoll_macro_flag )
@@ -175,7 +175,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     Items::Item* item = find_legal_item( client->chr, serial );
 
     // next, check people's backpacks. (don't recurse down)
-    //	  (not done yet)
+    //    (not done yet)
 
     if ( item != NULL )
     {

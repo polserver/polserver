@@ -7,11 +7,7 @@
 #include "pkg.h"
 
 #include <stdlib.h>
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -23,10 +19,6 @@
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // stricmp deprecation warning
-#endif
 
 namespace Pol
 {
@@ -233,7 +225,7 @@ void Package::check_dependencies() const
     if ( found == NULL )
     {
       ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
-                  << "	Package '" << elem.pkgname << "' is required, but is not installed.\n";
+                  << "  Package '" << elem.pkgname << "' is required, but is not installed.\n";
       throw std::runtime_error( "Package dependency error" );
     }
     else
@@ -241,7 +233,7 @@ void Package::check_dependencies() const
       if ( !check_version2( found->version_, elem.version ) )
       {
         ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
-                    << "	Package '" << elem.pkgname << "' version " << elem.version
+                    << "  Package '" << elem.pkgname << "' version " << elem.version
                     << " is required, but version " << found->version_ << " was found\n";
         throw std::runtime_error( "Package dependency error" );
       }
@@ -257,7 +249,7 @@ void Package::check_conflicts() const
     if ( found != NULL )
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
-                  << "	Package conflicts with package " << found->desc() << "\n";
+                  << "  Package conflicts with package " << found->desc() << "\n";
       throw std::runtime_error( "Package dependency error" );
     }
   }
@@ -297,7 +289,7 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
     else if ( isequal )
     {
       ERROR_PRINT << "Error in package " << pkg->desc() << ":\n"
-                  << "	Package by same name already found in " << existing_pkg->desc() << "\n";
+                  << "  Package by same name already found in " << existing_pkg->desc() << "\n";
       throw std::runtime_error( "Duplicate package found" );
     }
     else

@@ -1,0 +1,40 @@
+#ifndef POL_REVISION_CONFIG_H
+#define POL_REVISION_CONFIG_H
+
+#include "pol_global_config.h"
+
+#define POL_BUILD_REVISION @GIT_REVISION@
+
+#define POL_REVISION_TAG " (Rev. " @GIT_REVISION@ ")"
+
+#define POL_BUILD_DATETIME __DATE__ " " __TIME__
+
+#ifdef PERGON
+#define POL_BUILD_TARGET_TAG_PERGON " - Pergon"
+#else
+#define POL_BUILD_TARGET_TAG_PERGON ""
+#endif
+
+#ifdef MEMORYLEAK
+#define POL_BUILD_TARGET_TAG_MEMLEAK " - MemoryLeak"
+#else
+#define POL_BUILD_TARGET_TAG_MEMLEAK ""
+#endif
+
+#ifdef ESCRIPT_PROFILE
+#define POL_BUILD_TARGET_TAG_PROFILE " - EscriptProfile"
+#else
+#define POL_BUILD_TARGET_TAG_PROFILE ""
+#endif
+
+#if defined( LINUX )
+#define POL_ARCH "Linux"
+#else
+#define POL_ARCH "Windows"
+#endif
+
+#define POL_BUILD_TARGET                                                   \
+  ( POL_ARCH " " POL_BUILD_ARCH_BITS_STR "bit" POL_BUILD_TARGET_TAG_PERGON \
+             "" POL_BUILD_TARGET_TAG_MEMLEAK "" POL_BUILD_TARGET_TAG_PROFILE "" POL_REVISION_TAG )
+
+#endif /* POL_REVISION_CONFIG_H */

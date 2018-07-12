@@ -5,3 +5,7 @@ CMakeCache.txt
 Makefile
 *.opendb
 *.vspx
+/.vs
+/CMakeSettings.json
+__pycache__
+

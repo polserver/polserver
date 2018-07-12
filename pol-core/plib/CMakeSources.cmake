@@ -30,6 +30,8 @@ set (plib_sources  # sorted !
   mapwriter.h
   pkg.cpp 
   pkg.h
+  RawMap.cpp
+  RawMap.h
   realmdescriptor.cpp 
   realmdescriptor.h
   staticblock.h
@@ -39,4 +41,8 @@ set (plib_sources  # sorted !
   systemstate.cpp
   systemstate.h
   uoexpansion.h
+  uopreader/uop.cpp
+  uopreader/uop.h
+  uopreader/uopfile.ksy
+  uopreader/uophash.h
 )

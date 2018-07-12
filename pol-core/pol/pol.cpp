@@ -53,16 +53,19 @@
  * - 2010/01/22 Turley:    Speedhack Prevention System
  * - 2010/03/28 Shinigami: Transmit Pointer as Pointer and not Int as Pointer within
  * decay_thread_shadow
- * - 2011/11/12 Tomi:	  Added extobj.cfg
+ * - 2011/11/12 Tomi:    Added extobj.cfg
  */
 
 #include "pol.h"
 
 #include <errno.h>
 
+#include "pol_global_config.h"
+
 #include "../bscript/bobject.h"
 #include "../bscript/escriptv.h"
 #include "../clib/Debugging/ExceptionParser.h"
+#include "../clib/Program/ProgramConfig.h"
 #include "../clib/clib_endian.h"
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
@@ -146,10 +149,6 @@
 #include <process.h>
 
 #include "../clib/mdump.h"
-#endif
-
-#ifndef __clang__
-#include <omp.h>
 #endif
 
 #ifdef __linux__
@@ -323,7 +322,7 @@ void start_client_char( Network::Client* client )
   //  Moved login_complete higher to prevent weather regions from messing up client
   //  spell icon packets(made it look like it was raining spell icons from spellbook if logged
   //  into a weather region with rain.
-  //	login_complete(client);
+  //  login_complete(client);
 }
 
 
@@ -1127,6 +1126,11 @@ int xmain_inner( bool testing )
 #endif
 #endif
 
+  // problem with order of global construction, threads cannot be registered in the constructor of
+  // gamestate :(
+  Core::gamestate.task_thread_pool.init_pool(
+      std::max( 2u, std::thread::hardware_concurrency() / 2 ), "generic_task_thread" );
+
   int res;
 
   // for profiling:
@@ -1135,9 +1139,9 @@ int xmain_inner( bool testing )
 
   Clib::MakeDirectory( "log" );
 
-  POLLOG_INFO << POL_VERSION_ID << " - " << POL_BUILD_TARGET << "\ncompiled on " << POL_BUILD_DATE
-              << " " << POL_BUILD_TIME << "\nCopyright (C) 1993-2016 Eric N. Swanson"
-              << "\n\n";
+  POLLOG_INFO << POL_VERSION_ID << " - " << Clib::ProgramConfig::build_target() << "\ncompiled on "
+              << Clib::ProgramConfig::build_datetime() << "\n"
+              << POL_COPYRIGHT << "\n\n";
   if ( testing )
     POLLOG_INFO << "TESTING MODE\n\n";
 
@@ -1157,16 +1161,8 @@ int xmain_inner( bool testing )
 #endif
   POLLOG_INFO << "\n";
 #endif
-#ifndef __clang__
-  int max_threads = omp_get_max_threads();
-  if ( max_threads > 1 )
-  {
-    max_threads /= 2;
-    max_threads = std::max( 2, max_threads );
-  }
-  POLLOG_INFO << "Using " << max_threads << " out of " << omp_get_max_threads()
-              << " worldsave threads\n";
-#endif
+  POLLOG_INFO << "Using " << Core::gamestate.task_thread_pool.size() << " out of "
+              << std::thread::hardware_concurrency() << " worldsave threads\n";
 
   Core::checkpoint( "installing signal handlers" );
   Core::install_signal_handlers();
@@ -1318,7 +1314,7 @@ int xmain_inner( bool testing )
     }
   }
 
-  //	if( 1 )
+  //  if( 1 )
   {
     POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
   }
@@ -1326,8 +1322,9 @@ int xmain_inner( bool testing )
   {
     DEINIT_STARTLOG();
   }
-  POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} {3:s} running.\n" )
-      << POL_VERSION_ID << POL_BUILD_TARGET << POL_BUILD_DATE << POL_BUILD_TIME;
+  POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} running.\n" )
+      << POL_VERSION_ID << Clib::ProgramConfig::build_target()
+      << Clib::ProgramConfig::build_datetime();
   // if( 1 )
   {
     if ( Plib::systemstate.config.multithread == 0 )

@@ -158,8 +158,8 @@ void load_config( bool reload )
 
 void load_data()
 {
-  //	checkpoint( "read_translations" );
-  //	read_translations();
+  //  checkpoint( "read_translations" );
+  //  read_translations();
 
   checkpoint( "load_cmdlevels" );
   load_cmdlevels();

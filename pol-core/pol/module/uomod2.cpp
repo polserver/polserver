@@ -30,11 +30,7 @@
     UOEMOD2.CPP - a nice place for the Buy/Sell Interface Functions
     */
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include <ctype.h>
 #include <stddef.h>
@@ -46,6 +42,7 @@
 #include "../../bscript/eprog.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
+#include "../../clib/Program/ProgramConfig.h"
 #include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/compilerspecifics.h"
@@ -111,10 +108,6 @@
 #include "../../../lib/zlib/zlib.h"
 #endif
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disable deprecation warning for stricmp
-#endif
-
 namespace Pol
 {
 namespace Core
@@ -133,7 +126,7 @@ using namespace Core;
 0000: 74 02 70 40 29 ca d8 28  00 00 00 03 0b 53 65 77   t.p@)..( .....Sew
 0010: 69 6e 67 20 6b 69 74 00  00 00 00 0d 09 53 63 69   ing kit. .....Sci
 0020: 73 73 6f 72 73 00 00 00  00 09 0a 44 79 69 6e 67   ssors... ...Dying
-0030: 20 74 75 62 00 00 00 00  09 05 44 79 65 73 00 00	tub.... ..Dyes..
+0030: 20 74 75 62 00 00 00 00  09 05 44 79 65 73 00 00  tub.... ..Dyes..
 0040: 00 00 1b 08 44 6f 75 62  6c 65 74 00 00 00 00 1a   ....Doub let.....
 0050: 0c 53 68 6f 72 74 20 70  61 6e 74 73 00 00 00 00   .Short p ants....
 0060: 37 0c 46 61 6e 63 79 20  73 68 69 72 74 00 00 00   7.Fancy  shirt...
@@ -252,7 +245,7 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
       return new BError( "Parameter 3 invalid" );
     }
 
-    //	  say_above(merchant, "How may I help you?" );
+    //    say_above(merchant, "How may I help you?" );
   }
   else
   {
@@ -1882,8 +1875,8 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( uptime, polclock() / POLCLOCKS_PER_SEC );
   LONG_COREVAR( sysload, stateManager.profilevars.last_sysload );
   LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
-  //	LONG_COREVAR( bytes_sent, polstats.bytes_sent );
-  //	LONG_COREVAR( bytes_received, polstats.bytes_received );
+  //  LONG_COREVAR( bytes_sent, polstats.bytes_sent );
+  //  LONG_COREVAR( bytes_received, polstats.bytes_received );
   LONG_COREVAR( version, POL_VERSION );
   LONG_COREVAR( systime, time( NULL ) );
   LONG_COREVAR( events_per_min, GET_PROFILEVAR_PER_MIN( events ) );
@@ -1902,10 +1895,8 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( priority_divide, scriptScheduler.priority_divide );
   if ( stricmp( corevar, "verstr" ) == 0 )
     return new String( POL_VERSION_ID );
-  if ( stricmp( corevar, "compiledate" ) == 0 )
-    return new String( POL_BUILD_DATE );
-  if ( stricmp( corevar, "compiletime" ) == 0 )
-    return new String( POL_BUILD_TIME );
+  if ( stricmp( corevar, "compiledatetime" ) == 0 )
+    return new String( Clib::ProgramConfig::build_datetime() );
   if ( stricmp( corevar, "packages" ) == 0 )
     return GetPackageList();
   if ( stricmp( corevar, "running_scripts" ) == 0 )

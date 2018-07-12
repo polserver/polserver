@@ -8,9 +8,9 @@
 ** Notes
 **********
 **    TJ: up to 3.0.6j added
-**	  Tomi: Remade the whole list of clients and added all from the first Beta patch to the latest
+**    Tomi: Remade the whole list of clients and added all from the first Beta patch to the latest
 *SA.
-**	  Tomi: Removed the enabled param.
+**    Tomi: Removed the enabled param.
 **
 *********************************************************************/
 
@@ -20,10 +20,6 @@
 
 #include "../../clib/clib.h"
 #include "../../clib/logfacility.h"
-
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // strnicmp POSIX deprecation warning
-#endif
 
 namespace Pol
 {
@@ -226,9 +222,9 @@ bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major,
 //// NO ENCRYPTION
 
 // AddClient("ignition", 0,          0,          CRYPT_NOCRYPT);
-// AddClient("none",	  0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie
+// AddClient("none",    0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie
 // confusion
-// AddClient("uorice",	  0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie
+// AddClient("uorice",    0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie
 // confusion
 }
 }

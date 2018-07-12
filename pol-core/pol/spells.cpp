@@ -296,8 +296,8 @@ void do_cast( Network::Client* client, u16 spellid )
   }
 
   // Let scripts handle this.
-  //	if (client->chr->hidden())
-  //		client->chr->unhide();
+  // if (client->chr->hidden())
+  //   client->chr->unhide();
 
   if ( client->chr->frozen() )
   {
@@ -406,21 +406,21 @@ void register_spell( USpell* spell, unsigned short spellid )
     tmp << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined\n";
     if ( origspell->pkg_ != NULL )
     {
-      tmp << "	Spell originally defined in package '" << origspell->pkg_->name() << "' ("
+      tmp << "  Spell originally defined in package '" << origspell->pkg_->name() << "' ("
           << origspell->pkg_->dir() << ")\n";
     }
     else
     {
-      tmp << "	Spell originally defined in main\n";
+      tmp << "  Spell originally defined in main\n";
     }
     if ( spell->pkg_ != NULL )
     {
-      tmp << "	Spell redefined in package '" << spell->pkg_->name() << "' (" << spell->pkg_->dir()
+      tmp << "  Spell redefined in package '" << spell->pkg_->name() << "' (" << spell->pkg_->dir()
           << ")\n";
     }
     else
     {
-      tmp << "	Spell redefined in main\n";
+      tmp << "  Spell redefined in main\n";
     }
     ERROR_PRINT << tmp.str();
     throw std::runtime_error( "Spell ID multiply defined" );

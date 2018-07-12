@@ -8,10 +8,6 @@
  */
 
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4996 )  // disables POSIX deprecation warning for unlink / stricmp
-#endif
-
 #include "accounts.h"
 
 #include <iosfwd>

@@ -72,10 +72,10 @@ Bscript::BObjectImp* AccountObjImp::copy() const
 ///
 /// [1] Account Scripting Object Methods
 ///
-///	 All methods except GetProp and GetCharacter return 1 on success
-///	 All methods except GetProp and GetCharacter write the accounts.txt file on success.
-///	 All methods return Error("Not enough parameters") if too few parameters were passed.
-///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
+///   All methods except GetProp and GetCharacter return 1 on success
+///   All methods except GetProp and GetCharacter write the accounts.txt file on success.
+///   All methods return Error("Not enough parameters") if too few parameters were passed.
+///   All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
 Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Executor& ex,
                                                     bool /*forcebuiltin*/ )
@@ -216,7 +216,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   ///
   /// account.SetAcctName( newname : string ) : changes the account name
-  ///	- deprecated in favor of:
+  ///  - deprecated in favor of:
   /// account.SetName( newname : string ) : changes the account name
   ///  ACK, bug - since account data is saved immediately,
   ///  a crash w/o save will result in a server that can't start
@@ -272,7 +272,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   ///
   /// account.GetProp( propname : string ) : gets a custom account property
-  ///	 returns Error( "Property not found" ) if property does not exist.
+  ///   returns Error( "Property not found" ) if property does not exist.
   ///
   ///
   /// account.SetProp( propname : string, propval : packable ) : sets a custom account property
@@ -312,7 +312,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
   ///
   /// account.GetCharacter( index : 1..5 ) : retrieve a reference to a character belonging to this
   /// account.
-  ///	This reference may be used even if the character is offline.
+  ///  This reference may be used even if the character is offline.
   case MTH_GETCHARACTER:
   {
     if ( ex.numParams() != 1 )
@@ -534,10 +534,10 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 ///
 /// [1] Account Scripting Object Methods
 ///
-///	 All methods except GetProp and GetCharacter return 1 on success
-///	 All methods except GetProp and GetCharacter write the accounts.txt file on success.
-///	 All methods return Error("Not enough parameters") if too few parameters were passed.
-///	 All methods return Error("Invalid parameter type") if the wrong type was passed.
+///   All methods except GetProp and GetCharacter return 1 on success
+///   All methods except GetProp and GetCharacter write the accounts.txt file on success.
+///   All methods return Error("Not enough parameters") if too few parameters were passed.
+///   All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
 Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
@@ -550,10 +550,10 @@ Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript
 
 ///
 /// [2] Account Scripting Object Members
-///	 MemberName	  Type		Access
-///	 name			string	  read-only
-///	 enabled		 boolean	 read-only
-///	 banned		  boolean	 read-only
+///   MemberName    Type    Access
+///   name      string    read-only
+///   enabled     boolean   read-only
+///   banned      boolean   read-only
 ///
 
 Bscript::BObjectRef AccountObjImp::get_member_id( const int id )  // id test

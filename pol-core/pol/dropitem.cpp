@@ -761,7 +761,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
 
 /* DROP_ITEM messages come in a couple varieties:
 
-    1)	Dropping an item on another object, or a person:
+    1)  Dropping an item on another object, or a person:
     item_serial: serial number of item to drop
     x: 0xFFFF
     y: 0xFFFF
@@ -773,7 +773,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     x,y,z: position
     target_serial: 0xFFFFFFFF
 
-    3)	Placing an item in a container, or in an existing pile:
+    3)  Placing an item in a container, or in an existing pile:
     item_serial: serial number of item to drop
     x: x-position
     y: y-position
@@ -786,8 +786,8 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     Details:    Original version of packet is supported by this function.
     Access:     public
     Qualifier:
-    Parameter:	Client * client
-    Parameter:	PKTIN_08_V1 * msg
+    Parameter:  Client * client
+    Parameter:  PKTIN_08_V1 * msg
     */
 void drop_item( Network::Client* client, PKTIN_08_V1* msg )
 {
@@ -855,8 +855,8 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
    UO:KR+ to support Slots
     Access:     public
     Qualifier:
-    Parameter:	Client * client
-    Parameter:	PKTIN_08_V2 * msg
+    Parameter:  Client * client
+    Parameter:  PKTIN_08_V2 * msg
     */
 void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
 {

@@ -5,7 +5,6 @@
 #include <stddef.h>
 #include <string>
 
-#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"
@@ -37,6 +36,7 @@
 #include "msghandl.h"
 #include "packethelper.h"
 #include "packets.h"
+#include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
 
@@ -286,7 +286,7 @@ bool client_io_thread( Network::Client* client, bool login )
 
   try
   {
-    //		if (1)
+    //    if (1)
     {
       CLIENT_CHECKPOINT( 9 );
       PolLock lck;
@@ -302,7 +302,7 @@ bool client_io_thread( Network::Client* client, bool login )
     CLIENT_CHECKPOINT( 10 );
     if ( client->chr )
     {
-      //			if (1)
+      //      if (1)
       int seconds_wait = 0;
       {
         CLIENT_CHECKPOINT( 11 );
@@ -346,7 +346,7 @@ bool client_io_thread( Network::Client* client, bool login )
 
       checkpoint = 10;
       CLIENT_CHECKPOINT( 15 );
-      //			if (1)
+      //      if (1)
       {
         PolLock lck;
         if ( client->chr )
@@ -354,9 +354,9 @@ bool client_io_thread( Network::Client* client, bool login )
           Mobile::Character* chr = client->chr;
           CLIENT_CHECKPOINT( 16 );
           call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-          WorldIterator<NPCFilter>::InRange(
-              chr->x, chr->y, chr->realm, 32,
-              [&]( Mobile::Character* zonechr ) { Mobile::NpcPropagateLeftArea( zonechr, chr ); } );
+          if ( chr->realm ) {
+            chr->realm->notify_left( *chr );
+          }
         }
       }
     }
@@ -736,5 +736,5 @@ void handle_humongous_packet( Network::Client* client, unsigned int reported_siz
   tmp.Format( "Humongous packet (length {})", reported_size );
   report_weird_packet( client, tmp.str() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

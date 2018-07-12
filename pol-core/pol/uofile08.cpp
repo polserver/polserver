@@ -19,6 +19,8 @@
 #include "uofilei.h"
 #include "ustruct.h"
 
+#include "../plib/RawMap.h"
+
 namespace Pol
 {
 namespace Plib
@@ -27,71 +29,36 @@ unsigned int num_map_patches = 0;
 }
 namespace Core
 {
-typedef std::map<unsigned int, unsigned int> MapBlockIndex;
-MapBlockIndex mapdifl;
 
+static Pol::Plib::RawMap rawmap;
+static bool rawmap_ready = false;
 
 void read_map_difs()
 {
-  unsigned index = 0;
-  if ( mapdifl_file != NULL )
-  {
-    u32 blockid;
-    while ( fread( &blockid, sizeof blockid, 1, mapdifl_file ) == 1 )
-    {
-      mapdifl[blockid] = index;
-      ++index;
-    }
-  }
-  Plib::num_map_patches = index;
+  Plib::num_map_patches = rawmap.load_map_difflist( mapdifl_file );
 }
 
-static std::vector<USTRUCT_MAPINFO_BLOCK> rawmap_buffer_vec;
-static bool rawmap_init = false;
-
-signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
+static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
 {
-  if ( !rawmap_init )  // FIXME just for safety cause I'm lazy
+  // UoTool has a serious problem of not loading data before using this function...
+  if ( !rawmap_ready )
     rawmapfullread();
-  passert( x < uo_map_width && y < uo_map_height );
 
-  unsigned int x_block = x / 8;
-  unsigned int y_block = y / 8;
-  unsigned int block = ( x_block * ( uo_map_height / 8 ) + y_block );
-
-  unsigned int x_offset = x & 0x7;
-  unsigned int y_offset = y & 0x7;
-
-  *gi = rawmap_buffer_vec.at( block ).cell[y_offset][x_offset];
-  return gi->z;
+  return rawmap.rawinfo( x, y, gi );
 }
 
 void rawmapfullread()
 {
-  unsigned int block = 0;
-  USTRUCT_MAPINFO_BLOCK buffer;
-  while ( fread( &buffer, sizeof buffer, 1, mapfile ) == 1 )
-  {
-    MapBlockIndex::const_iterator citr = mapdifl.find( block );
-    if ( citr == mapdifl.end() )
-    {
-      rawmap_buffer_vec.push_back( buffer );
-    }
-    else
-    {
-      // it's in the dif file.. get it from there.
-      unsigned dif_index = ( *citr ).second;
-      unsigned int file_offset = dif_index * sizeof( USTRUCT_MAPINFO_BLOCK );
-      if ( fseek( mapdif_file, file_offset, SEEK_SET ) != 0 )
-        throw std::runtime_error( "rawmapinfo: fseek(mapdif_file) failure" );
+  rawmap.set_bounds( uo_map_width, uo_map_height );
 
-      if ( fread( &buffer, sizeof buffer, 1, mapdif_file ) != 1 )
-        throw std::runtime_error( "rawmapinfo: fread(mapdif_file) failure" );
-      rawmap_buffer_vec.push_back( buffer );
-    }
-    ++block;
-  }
-  rawmap_init = true;
+  unsigned int blocks = 0;
+  if ( mapfile == nullptr )
+    blocks = rawmap.load_full_map( uo_mapid, uopmapfile );
+  else
+    blocks = rawmap.load_full_map( mapfile, mapdif_file );
+
+  if ( blocks )
+    rawmap_ready = true;
 }
 
 /*

@@ -103,11 +103,9 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
   }
   else
   {  // Realm and X Y Z change.
-     // 8-26-05  Austin
+
      // Notify NPCs in the old realm that the player left the realm.
-    WorldIterator<MobileFilter>::InRange(
-        chr->lastx, chr->lasty, oldrealm, 32,
-        [&]( Character* zonechr ) { NpcPropagateLeftArea( zonechr, chr ); } );
+    oldrealm->notify_left( *chr );
 
     send_remove_character_to_nearby( chr );
     if ( chr->client != NULL )

@@ -34,25 +34,33 @@ The best way to get used to the code is to search for eScript functions in the c
 Compiling in Windows
 ---------
 
-If you're compiling it for the first time, you need to unpack the boost library by running `prepare_boost.bat` in the `lib/` folder. 
+You need atleast cmake version 3.0.
 
-In the folder `pol-core`, run `buildDistWin.bat` to create a complete package in `dist`. Alternatively, open the Visual Studio solution (e.g., pol-2012.sln) and choose to build the solution (Ctrl+Shift+B).
- 
-Minimum compiler version: Visual Studio 2012 (Express editions might require the Windows SDK to be installed.)
+**Recommended:**
+Open the *CMake GUI* select the the root folder as source code folder, select
+the `bin-build` subfolder as "where to build the binaries" folder, and select
+your installed Visual Studio version e.g. `Visual Studio 14 2015 Win64`.
+Now simply press configure+generate+open project and it will directly open
+the solution file in your IDE.
+After building the binaries are located in the `bin` folder.
+
+**Not Recommended:**
+If you are using *Visual Studio 2017*, you can try using the integraded CMake:
+use the `open folder` function and select the root folder. CMake will take a
+while to load: wait until the `CMAKE` manu appears, then you can use it to
+start the build, make sure to have the `Realease` mode selected.
+
+Minimum compiler version: Visual Studio 2015
 
 <b>Warning:</b> We can not easily debug dumps from self-compiled cores. Make sure you save the `.pdb` and `.exe`!
  
 Compiling in Linux
 ----------
 
-Make sure you have the required libraries installed: boost, zlib, tinyxml and the mysql client (if SQL supported is desired).
-Boost libraries are also shipped with the source. If you choose to use the provided version, unpack them with:
-* `cd lib`
-* `tar xjf boost_1_63_0.tar.bz2`
-* `cd ..`
+Make sure you have the required libraries installed: zlib, openssl and the mysql client (if SQL supported is desired).
 
-Then run the following commands (you need at least CMake 2.8):
-* `cd pol-core/bin-build`
+Then run the following commands (you need at least CMake 3.0):
+* `cd bin-build`
 * `./build_linux.sh`
 
 Minimum compiler version: GCC 4.9 or LLVM/Clang 3.5.
@@ -71,8 +79,8 @@ If you are familiar with linux source tarballs, just think of *cmake* as a moder
 
 First of all, run cmake one first time and let it do some autodetection:
 ```
-cd pol-core
-cmake -Wno-dev
+cd bin-build
+cmake ..
 ```
 
 A file called `CMakeCache.txt` has now been created: inside this file, you will find all the settings that will be used for your build. You have many options to edit this file:
@@ -96,6 +104,8 @@ Keep in mind that even when set this way, the option will be saved in the `CMake
 
 You can now use the classic *make* command to compile the POL. You can type:
 * `make` or `make all` to do the build
-* `make clean` to delete all the intermediate build files
 
 You will find the compiled files inside the `bin/` folder.
+
+To delete intermediate build files and clean the folder you can use the
+interective clean.py script.

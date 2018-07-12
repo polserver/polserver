@@ -118,7 +118,7 @@ struct PKTBI_3A_VALUES
 //        u16 value;
 //        u16 value_unmod;
 //        u8 lock_mode;
-//		u16 cap;
+//    u16 cap;
 //    } skills[100];//SKILLID__CLIENT_HIGHEST - SKILLID__CLIENT_LOWEST + 1 ];
 //    enum { LOCK_NONE = 0, LOCK_DOWN = 1, LOCK_LOCKED = 2 };
 //    //u16 terminator;
@@ -188,17 +188,17 @@ static_assert( sizeof( PKTBI_66 ) == 14, "size missmatch" );
 
 // struct PKTBI_66_HDR
 //{
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 book_serial;
-//	u16 pages;
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 book_serial;
+//  u16 pages;
 //};
 // static_assert( sizeof( PKTBI_66_HDR ) == 9, "size missmatch" );
 //
 // struct PKTBI_66_CONTENTS
 //{
-//	u16 page;
-//	u16 lines;
+//  u16 page;
+//  u16 lines;
 //};
 // static_assert( sizeof( PKTBI_66_CONTENTS ) == 4, "size missmatch" );
 
@@ -485,10 +485,10 @@ struct PKTBI_B8_IN
 };
 
 // struct PKTBI_B8_OUT {
-//	u8 msgtype;
-//	u16 msglen;
-//	u32 serial;
-//	char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode
+//  u8 msgtype;
+//  u16 msglen;
+//  u32 serial;
+//  char text[5*(SPEECH_MAX_LEN+1)]; // 1 Ascii variable array ( SPEECH_MAX_LEN+1) and 2 Unicode
 // variable arrays 2*(SPEECH_MAX_LEN+1) each due to u16.
 //};
 // static_assert( sizeof(PKTBI_B8_OUT) == 1012, "size missmatch" );
@@ -531,10 +531,10 @@ static_assert( sizeof( PKTBI_BF_06_01_IN ) == 4, "size missmatch" );
 
 // struct PKTBI_BF_06_01_OUT
 //{
-//	u8 nummembers;
-//	struct {
-//		u32 memberid;
-//	} serials[ 1 ];
+//  u8 nummembers;
+//  struct {
+//    u32 memberid;
+//  } serials[ 1 ];
 //};
 // static_assert( sizeof(PKTBI_BF_06_01_OUT) == 5, "size missmatch" );
 
@@ -545,18 +545,18 @@ struct PKTBI_BF_06_02_IN
 
 // struct PKTBI_BF_06_02_OUT
 //{
-//	u8 nummembers; //total nr of new party
-//	u32 remmemberid;  //removed Player
-//	struct {
-//		u32 memberid;
-//	} serials[ 1 ]; //party members
+//  u8 nummembers; //total nr of new party
+//  u32 remmemberid;  //removed Player
+//  struct {
+//    u32 memberid;
+//  } serials[ 1 ]; //party members
 //};
 // static_assert( sizeof(PKTBI_BF_06_02_OUT) == 9, "size missmatch" );
 
 // struct PKTBI_BF_06_02_LIST
 //{
-//	u8 nummembers;
-//	u32 remmemberid;
+//  u8 nummembers;
+//  u32 remmemberid;
 //};
 // static_assert( sizeof(PKTBI_BF_06_02_LIST) == 5, "size missmatch" );
 
@@ -575,8 +575,8 @@ static_assert( sizeof( PKTBI_BF_06_04_IN ) == 4, "size missmatch" );
 
 // struct PKTBI_BF_06_04_OUT
 //{
-//	u32 memberid;
-//	u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
+//  u32 memberid;
+//  u16 wtext[(SPEECH_MAX_LEN) + 1]; // wide-character, double-null terminated
 //};
 // static_assert( sizeof(PKTBI_BF_06_04_OUT) == 406, "size missmatch" );
 
@@ -593,7 +593,7 @@ static_assert( sizeof( PKTBI_BF_06_06 ) == 1, "size missmatch" );
 
 // struct PKTBI_BF_06_07
 //{
-//	u32 leaderid;
+//  u32 leaderid;
 //};
 // static_assert( sizeof(PKTBI_BF_06_07) == 4, "size missmatch" );
 
@@ -688,16 +688,16 @@ struct PKTBI_BF_15
 
 // struct PKTBI_BF_16
 //{
-//	u32 window_id;
-//	u32 serial; // Char serial ( if window_id = CONTAINER this is container serial )
+//  u32 window_id;
+//  u32 serial; // Char serial ( if window_id = CONTAINER this is container serial )
 //
-//	enum
-//	{
-//		PAPERDOLL	= 0x1,
-//		STATUS		= 0x2,
-//		CHARPROFILE	= 0x8,
-//		CONTAINER	= 0xC
-//	};
+//  enum
+//  {
+//    PAPERDOLL  = 0x1,
+//    STATUS    = 0x2,
+//    CHARPROFILE  = 0x8,
+//    CONTAINER  = 0xC
+//  };
 //};
 
 // Shows codex of wisdom's text #msg.  (msg is linearised (including sub indices) index number
@@ -711,30 +711,30 @@ struct PKTBI_BF_17
 
 // struct PKTBI_BF_18_ELEM
 //{
-//	u32 num_static_patches;
-//	u32 num_map_patches;
+//  u32 num_static_patches;
+//  u32 num_map_patches;
 //};
 //
 //
 // struct PKTBI_BF_18
 //{
-//	u32 num_maps;
-//	PKTBI_BF_18_ELEM elems[MAX_NUMER_REALMS];
+//  u32 num_maps;
+//  PKTBI_BF_18_ELEM elems[MAX_NUMER_REALMS];
 //};
 
 // struct PKTBI_BF_19
 //{
-//	u8 type; //always 2?
-//	u32 serial;
-//	u8 unk; //always 0?
-//	u8 lockbits; //Bits: XXSS DDII (s=strength, d=dex, i=int), 0 = up, 1 = down, 2 = locked
-//	enum
-//	{
-//		STR_MASK = 0x30,
-//		DEX_MASK = 0x0C,
-//		INT_MASK = 0x03
-//	};
-//	enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
+//  u8 type; //always 2?
+//  u32 serial;
+//  u8 unk; //always 0?
+//  u8 lockbits; //Bits: XXSS DDII (s=strength, d=dex, i=int), 0 = up, 1 = down, 2 = locked
+//  enum
+//  {
+//    STR_MASK = 0x30,
+//    DEX_MASK = 0x0C,
+//    INT_MASK = 0x03
+//  };
+//  enum { MODE_UP, MODE_DOWN, MODE_LOCKED };
 //};
 
 struct PKTBI_BF_1A
@@ -757,16 +757,16 @@ struct PKTBI_BF_1A
 
 // struct PKTBI_BF_1B
 //{
-//	u16 unk; //always 1
-//	u32 book_serial;
-//	u16 graphic;
-//	u16 scroll_offset;
-//	u8 content[8];// first bit of first byte = spell #1, second bit of first byte = spell #2, first
+//  u16 unk; //always 1
+//  u32 book_serial;
+//  u16 graphic;
+//  u16 scroll_offset;
+//  u8 content[8];// first bit of first byte = spell #1, second bit of first byte = spell #2, first
 // bit of second byte = spell #8, etc
 //
-//	enum { SCROLL_OFFSET_REGULAR = 1,
-//		SCROLL_OFFSET_NECRO = 101,
-//		SCROLL_OFFSET_PALADIN = 201 };
+//  enum { SCROLL_OFFSET_REGULAR = 1,
+//    SCROLL_OFFSET_NECRO = 101,
+//    SCROLL_OFFSET_PALADIN = 201 };
 //};
 
 struct PKTBI_BF_1C
@@ -777,8 +777,8 @@ struct PKTBI_BF_1C
 
 // struct PKTBI_BF_1D
 //{
-//	u32 house_serial;
-//	u32 revision;
+//  u32 house_serial;
+//  u32 revision;
 //};
 
 struct PKTBI_BF_1E
@@ -788,19 +788,19 @@ struct PKTBI_BF_1E
 
 // struct PKTBI_BF_20
 //{
-//	u32 house_serial;
-//	u8 unk1; //0x4 for begin 0x5 for end
-//	u16 unk2; //0
-//	u32 unk3; //all FF
-//	u8 unk4; // FF
+//  u32 house_serial;
+//  u8 unk1; //0x4 for begin 0x5 for end
+//  u16 unk2; //0
+//  u32 unk3; //all FF
+//  u8 unk4; // FF
 //};
 
 // displays damage amount over head
 // struct PKTBI_BF_22
 //{
-//	u8 unk; //always 1
-//	u32 serial;
-//	u8 damage_amt;
+//  u8 unk; //always 1
+//  u32 serial;
+//  u8 damage_amt;
 //};
 
 // no clue what this spam does.
@@ -811,8 +811,8 @@ struct PKTBI_BF_24_UNKNOWN
 
 // struct PKTBI_BF_2A_CALL_RACE_CHANGER
 //{
-//	u8 gender; // 0 = Male, 1 = Female
-//	u8 race;   // 1 = Human, 2 = Elf
+//  u8 gender; // 0 = Male, 1 = Female
+//  u8 race;   // 1 = Human, 2 = Elf
 //};
 
 struct PKTBI_BF_2A_RESULT
@@ -859,7 +859,7 @@ struct PKTBI_BF
     // PKTBI_BF_04 closegump; //BF.4
     PKTBI_BF_05 screensize;  // BF.5
     PKTBI_BF_06 partydata;   // BF.6
-    // u8 cursorhue;	// BF.8: Cursor Hue (0=Felucca,1=Trammel)
+    // u8 cursorhue;  // BF.8: Cursor Hue (0=Felucca,1=Trammel)
     char client_lang[3];            // BF.B Client language (client message, sent once at login)
     u32 serial_closed_status_gump;  // BF.C closed status gump
     PKTBI_BF_0F clienttype;         // BF.F clienttype (like char create/select)
@@ -969,9 +969,9 @@ static_assert( sizeof( PKTBI_D6_IN ) == 7, "size missmatch" );
 
 // struct AOS_OBJECT_PROPERTY_LIST_ELEM
 //{
-//	u32 localization_num;
-//	u16 textlen;
-//	u16 text; //little endian Unicode text, not 0 terminated
+//  u32 localization_num;
+//  u16 textlen;
+//  u16 text; //little endian Unicode text, not 0 terminated
 //};
 
 /*
@@ -980,14 +980,14 @@ This is the AOS Version of the packet
 */
 // struct PKTBI_D6_OUT
 //{
-//	u8 msgtype;
-//	u16 msglen;
-//	u16 unk1; //always 1
-//	u32 serial;
-//	u8 unk2; //always 0
-//	u8 unk3; //always 0
-//	u32 listid;
-//	AOS_OBJECT_PROPERTY_LIST_ELEM data[1];
+//  u8 msgtype;
+//  u16 msglen;
+//  u16 unk1; //always 1
+//  u32 serial;
+//  u8 unk2; //always 0
+//  u8 unk3; //always 0
+//  u32 listid;
+//  AOS_OBJECT_PROPERTY_LIST_ELEM data[1];
 //};
 
 // fixme: which 0 is z?
