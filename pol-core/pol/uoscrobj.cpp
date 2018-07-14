@@ -3676,6 +3676,23 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
         return new BError( "Not enough parameters" );
     }
     break;
+  case MTH_CHANGE_MULTI_ID:
+  {
+    if ( ex.numParams() != 1 )
+      return new BError( "Not enough parameters" );
+    int index;
+    if ( !ex.getParam( 0, index ) )
+      return new BError( "Invalid parameter type" );
+    const auto& desc = static_cast<const Items::BoatDesc&>( itemdesc() );
+    if ( index < 0 || static_cast<size_t>( index ) >= desc.alternates.size() )
+      return new BError( "Index out of range" );
+    u16 new_multiid = desc.alternates[index];
+    u16 base_multi = multiid & ~3u;
+    u16 multioffset = multiid - base_multi;
+    multiid = new_multiid + multioffset;
+    send_display_boat_to_inrange( x, y );
+    return new BLong( 1 );
+  }
   }
   default:
     return NULL;

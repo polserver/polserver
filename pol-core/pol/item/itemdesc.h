@@ -234,6 +234,8 @@ public:
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
   virtual ~BoatDesc(){};
   virtual size_t estimatedSize() const POL_OVERRIDE;
+
+  std::vector<u16> alternates;
 };
 
 class HouseDesc : public MultiDesc

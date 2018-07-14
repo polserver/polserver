@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
@@ -50,6 +49,7 @@
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "wepntmpl.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -850,13 +850,22 @@ size_t MultiDesc::estimatedSize() const
 }
 
 BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : MultiDesc( objtype, elem, BOATDESC, pkg )
+    : MultiDesc( objtype, elem, BOATDESC, pkg ), alternates()
 {
+  u16 alternate;
+  alternates.push_back( multiid );
+  while ( elem.remove_prop( "ALTERNATEMULTIID", &alternate ) )
+    alternates.push_back( alternate );
 }
 
 void BoatDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
+  std::unique_ptr<Bscript::ObjArray> a( new Bscript::ObjArray );
+  for ( u16 alt : alternates )
+    a->addElement( new Bscript::BLong( alt ) );
+
+  descriptor->addMember( "AlternateMultiID", a.release() );
 }
 size_t BoatDesc::estimatedSize() const
 {
@@ -973,9 +982,10 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
   for ( itr = struct_cont.begin(); itr != struct_cont.end(); ++itr )
   {
     const std::string& key = ( *itr ).first;
+    std::string key_lower = Clib::strlower( key );
     Bscript::BObjectImp* val_imp = ( *itr ).second->impptr();
 
-    if ( key == "CProps" )
+    if ( key_lower == "cprops" )
     {
       if ( val_imp->isa( Bscript::BObjectImp::OTDictionary ) )
       {
@@ -995,14 +1005,13 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
                                   std::string( val_imp->typeOf() ) );
       }
     }
-    else if ( key == "StackingIgnoresCProps" )
+    else if ( key_lower == "stackingignorescprops" )
     {
       if ( val_imp->isa( Bscript::BObjectImp::OTArray ) )
       {
         OSTRINGSTREAM os;
-        // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* ignorecp = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
-        const Bscript::ObjArray::Cont& conts = ignorecp->ref_arr;
+        Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
+        const Bscript::ObjArray::Cont& conts = arr->ref_arr;
         Bscript::ObjArray::Cont::const_iterator aitr;
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
         {
@@ -1012,18 +1021,16 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       }
       else
       {
-        throw std::runtime_error(
-            "CreateItemDescriptor: StackingIgnoresCProps must be an array, but is: " +
-            std::string( val_imp->typeOf() ) );
+        throw std::runtime_error( "CreateItemDescriptor: " + key + " must be an array, but is: " +
+                                  std::string( val_imp->typeOf() ) );
       }
     }
-    else if ( key == "Coverage" )  // Dave 7/13 needs to be parsed out into individual lines
+    else if ( key_lower == "coverage" || key_lower == "alternatemultiid" )
     {
       if ( val_imp->isa( Bscript::BObjectImp::OTArray ) )
       {
-        // FIXME verify that it's an ObjArray...
-        Bscript::ObjArray* coverage = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
-        const Bscript::ObjArray::Cont& conts = coverage->ref_arr;
+        Bscript::ObjArray* arr = static_cast<Bscript::ObjArray*>( itr->second->impptr() );
+        const Bscript::ObjArray::Cont& conts = arr->ref_arr;
         Bscript::ObjArray::Cont::const_iterator aitr;
         for ( aitr = conts.begin(); aitr != conts.end(); ++aitr )
         {
@@ -1034,23 +1041,22 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       }
       else
       {
-        throw std::runtime_error( "CreateItemDescriptor: Coverage must be an array, but is: " +
+        throw std::runtime_error( "CreateItemDescriptor: " + key + " must be an array, but is: " +
                                   std::string( val_imp->typeOf() ) );
       }
     }
-    else if ( key == "ObjClass" )
+    else if ( key_lower == "objclass" )
     {
       std::string value = val_imp->getStringRep();
       elem.set_type( value.c_str() );
     }
-    else if ( key == "ObjType" )
+    else if ( key_lower == "objtype" )
     {
       std::string value = val_imp->getStringRep();
       elem.set_rest( value.c_str() );
     }
-    else if ( Clib::strlower( key ) == "name" || Clib::strlower( key ) == "objtypename" ||
-              Clib::strlower( key ) == "oldobjtype" || Clib::strlower( key ) == "methodscript" ||
-              Clib::strlower( key ) == "weight" )
+    else if ( key_lower == "name" || key_lower == "objtypename" || key_lower == "oldobjtype" ||
+              key_lower == "methodscript" || key_lower == "weight" )
     {
       // all of these only affect the main descriptor, so they're left out.
       //   name, objtypename, and oldobjtype would try to insert aliases
@@ -1076,14 +1082,6 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
 
 void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
 {
-  /*
-      if (1)
-      {
-      ref_ptr<StoredConfigFile> scfg = FindConfigFile( "config/itemdesc.cfg" );
-      ConfigFile cf( filename );
-      scfg->load( cf );
-      }
-      */
   Clib::ConfigFile cf( filename,
                        "CONTAINER ITEM DOOR WEAPON ARMOR BOAT HOUSE SPELLBOOK SPELLSCROLL MAP" );
 
@@ -1091,15 +1089,6 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
   while ( cf.read( elem ) )
   {
     ItemDesc* descriptor = ItemDesc::create( elem, pkg );
-
-
-    // string unused_name, unused_value;
-    // while (elem.remove_first_prop( &unused_name, &unused_value ))
-    //{
-    //  elem.warn_with_line( "Property '" + unused_name + "' (value '" + unused_value + "') is
-    // unused." );
-    //}
-
     if ( has_itemdesc( descriptor->objtype ) )
     {
       fmt::Writer tmp;
@@ -1122,7 +1111,6 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
 
 void load_package_itemdesc( Plib::Package* pkg )
 {
-  // string filename = pkg->dir() + "itemdesc.cfg";
   std::string filename = GetPackageCfgPath( pkg, "itemdesc.cfg" );
   if ( Clib::FileExists( filename.c_str() ) )
   {
