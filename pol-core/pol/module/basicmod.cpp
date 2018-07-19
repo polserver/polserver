@@ -31,14 +31,14 @@ namespace Module
 using namespace Bscript;
 
 static const std::string base64_chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    "0123456789+/";
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+"abcdefghijklmnopqrstuvwxyz"
+"0123456789+/";
 
 
-static inline bool is_base64( unsigned char c )
+static inline bool is_base64(unsigned char c)
 {
-  return ( isalnum( c ) || ( c == '+' ) || ( c == '/' ) );
+    return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
 BasicExecutorModule::BasicExecutorModule( Executor& exec )
@@ -719,6 +719,10 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
   }
 }
 
+/*
+Base64 encode/decode snippit by René Nyffenegger rene.nyffenegger@adp-gmbh.ch
+Copyright (C) 2004-2008 René Nyffenegger
+*/
 Bscript::BObjectImp* BasicExecutorModule::mf_EncodeBase64()
 {
   std::string encoded_string = exec.paramAsString( 0 );
@@ -728,7 +732,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_EncodeBase64()
   {
     unsigned char const* bytes_to_encode =
         reinterpret_cast<const unsigned char*>( encoded_string.c_str() );
-    String* ret;
+    std::string ret;
     int i = 0;
     int j = 0;
     unsigned char char_array_3[3];
@@ -767,7 +771,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_EncodeBase64()
         ret += '=';
     }
 
-    return ret;
+    return new String(ret);
   }
   else
   {
