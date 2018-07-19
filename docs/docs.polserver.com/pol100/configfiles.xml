@@ -1723,6 +1723,7 @@ HookList
 [Sails                          (int objtype {default 0x1F019})]
 [Storage                        (int objtype {default 0x1F01A})]
 [Waponslot                      (int objtype {default 0x1F01B})]
+[Boatmount                      (int objtype {default 0x1F01C})]
 
 [Wrestling                      (int objtype {default 0x1F020})]
 [Mount                          (int objtype {default 0x1F021})]
