@@ -61,6 +61,9 @@ public:
   
   Bscript::BObjectImp* mf_Boolean();
 
+  Bscript::BObjectImp* mf_EncodeBase64();
+  Bscript::BObjectImp* mf_DecodeBase64();
+
   BasicExecutorModule( Bscript::Executor& exec );
 };
 }
