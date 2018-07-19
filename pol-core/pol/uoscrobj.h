@@ -272,7 +272,7 @@ public:
 class BoatMovementEvent : public Bscript::BStruct
 {
 public:
-  BoatMovementEvent( Mobile::Character* source, const u8* speed, const u8* direction );
+  BoatMovementEvent( Mobile::Character* source, const u8 speed, const u8 direction );
 };
 
 

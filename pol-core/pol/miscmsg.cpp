@@ -444,12 +444,14 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
       break;
     }
 
-    // @TODO how do we make sure the process is running?
     Module::UOExecutorModule* process = multi->process();
-    Core::UOExecutor& uoexec = process->uoexec;
-    Module::OSExecutorModule* os_module = uoexec.os_module;
-    os_module->signal_event(
-        new Module::BoatMovementEvent( chr, &msg->boatmove.speed, &msg->boatmove.direction ) );
+    if ( process != nullptr )
+    {
+      Core::UOExecutor& uoexec = process->uoexec;
+      Module::OSExecutorModule* os_module = uoexec.os_module;
+      os_module->signal_event(
+          new Module::BoatMovementEvent( chr, msg->boatmove.speed, msg->boatmove.direction ) );
+    }
 
     break;
   }

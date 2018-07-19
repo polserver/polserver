@@ -1611,9 +1611,18 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   regself();  // do this after our x,y are known.
               // consider throwing if starting position isn't passable.
 
-  this->process(
-      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( this ) ) );
-  this->process()->attached_item_ = this;
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( this ) );
+  
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << this->serial;
+  }
+  else
+  {
+    this->process( script );
+    this->process()->attached_item_ = this;
+  }
 }
 
 void UBoat::printProperties( Clib::StreamWriter& sw ) const
@@ -1690,7 +1699,17 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   Core::objStorageManager.objecthash.Insert( boat );
   ////
 
-  Core::start_script( "misc/boat", make_boatref( boat ) );
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( boat ) );
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << boat->serial;
+  }
+  else
+  {
+    boat->process( script );
+    boat->process()->attached_item_ = boat;
+  }
   return make_boatref( boat );
 }
 
