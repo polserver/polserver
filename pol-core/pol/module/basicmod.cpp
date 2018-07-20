@@ -720,8 +720,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
 }
 
 /*
-Base64 encode/decode snippit by René Nyffenegger rene.nyffenegger@adp-gmbh.ch
-Copyright (C) 2004-2008 René Nyffenegger
+Base64 encode/decode snippit by Rene Nyffenegger rene.nyffenegger@adp-gmbh.ch
+Copyright (C) 2004-2008 Rene Nyffenegger
 */
 Bscript::BObjectImp* BasicExecutorModule::mf_EncodeBase64()
 {
