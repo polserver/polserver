@@ -31,14 +31,14 @@ namespace Module
 using namespace Bscript;
 
 static const std::string base64_chars =
-"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-"abcdefghijklmnopqrstuvwxyz"
-"0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
 
 
-static inline bool is_base64(unsigned char c)
+static inline bool is_base64( unsigned char c )
 {
-    return (isalnum(c) || (c == '+') || (c == '/'));
+  return ( isalnum( c ) || ( c == '+' ) || ( c == '/' ) );
 }
 
 BasicExecutorModule::BasicExecutorModule( Executor& exec )
@@ -771,7 +771,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_EncodeBase64()
         ret += '=';
     }
 
-    return new String(ret);
+    return new String( ret );
   }
   else
   {
@@ -781,7 +781,6 @@ Bscript::BObjectImp* BasicExecutorModule::mf_EncodeBase64()
 
 Bscript::BObjectImp* BasicExecutorModule::mf_DecodeBase64()
 {
-
   std::string encoded_string = exec.paramAsString( 0 );
 
   if ( !encoded_string.empty() )
@@ -828,7 +827,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_DecodeBase64()
         ret += char_array_3[j];
     }
 
-    return new String(ret);
+    return new String( ret );
   }
   else
   {
@@ -870,7 +869,7 @@ TmplExecutorModule<BasicExecutorModule>::FunctionTable
         {"Boolean", &BasicExecutorModule::mf_Boolean},
         {"PackJSON", &BasicExecutorModule::mf_PackJSON},
         {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON},
-		{"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64},
-		{"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64}};
-}
-}
+        {"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64},
+        {"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64}};
+}  // namespace Bscript
+}  // namespace Pol
