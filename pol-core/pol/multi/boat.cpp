@@ -53,6 +53,7 @@
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uworld.h"
+#include "../module/uomod.h"
 #include "boatcomp.h"
 #include "multi.h"
 #include "multidef.h"
@@ -287,8 +288,8 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   u16 ymod = newy - y;
   Core::UFACING b_facing = boat_facing();
 
-  if ( relative == false )
-    move_dir = static_cast<Core::UFACING>( ( b_facing + move_dir ) * 7 );
+  if ( relative == true )
+    move_dir = static_cast<Core::UFACING>( ( b_facing + move_dir ) & 7 );
 
   msg->offset += 2;  // Length
   msg->Write<u32>( serial_ext );
@@ -1273,7 +1274,9 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
   {
     BoatContext bc( *this );
 
-    send_smooth_move_to_inrange( move_dir, speed, newx, newy, relative );
+    // Relative is false, because we already did the translation from `dir`
+    // to `move_dir` above.
+    send_smooth_move_to_inrange( move_dir, speed, newx, newy, false );
 
     set_dirty();
 
@@ -1672,9 +1675,20 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   rescan_components();
 
   regself();  // do this after our x,y are known.
-  // consider throwing if starting position isn't passable.
+              // consider throwing if starting position isn't passable.
 
-  Core::start_script( "misc/boat", make_boatref( this ) );
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( this ) );
+  
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << this->serial;
+  }
+  else
+  {
+    this->process( script );
+    this->process()->attached_item_ = this;
+  }
 }
 
 void UBoat::printProperties( Clib::StreamWriter& sw ) const
@@ -1751,7 +1765,17 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   Core::objStorageManager.objecthash.Insert( boat );
   ////
 
-  Core::start_script( "misc/boat", make_boatref( boat ) );
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( boat ) );
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << boat->serial;
+  }
+  else
+  {
+    boat->process( script );
+    boat->process()->attached_item_ = boat;
+  }
   return make_boatref( boat );
 }
 
