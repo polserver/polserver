@@ -1462,7 +1462,8 @@ House (objtype)
 Boat (objtype)
 {
     {everything Item can have, plus: }
-    MultiID         (int multiID number for this house)
+    MultiID           (int multiID number for this boat)
+    AlternateMultiID  (int multiID number for alternative shape of boat, multiple can be supplied in order)
 }
 
 Map (objtype)
