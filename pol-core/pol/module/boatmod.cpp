@@ -34,7 +34,7 @@ TmplExecutorModule<Module::UBoatExecutorModule>::FunctionTable
         {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat},
         {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem},
         {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial}};
-}
+}  // namespace Bscript
 namespace Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
@@ -50,8 +50,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
        getParam( 2, speed, 1, 4 ) )
   {
     Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
-    boat->move( move_dir, static_cast<u8>( speed ), false );
-    return new Bscript::BLong( 1 );
+    return new Bscript::BLong( boat->move( move_dir, static_cast<u8>( speed ), false ) );
   }
   return NULL;
 }
@@ -96,8 +95,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative()
        getParam( 2, speed, 1, 4 ) )
   {
     Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
-    boat->move( move_dir, static_cast<u8>( speed ), true );
-    return new Bscript::BLong( 1 );
+    return new Bscript::BLong( boat->move( move_dir, static_cast<u8>( speed ), true ) );
   }
   return NULL;
 }
@@ -151,5 +149,5 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem()
     return new Bscript::BError( "Invalid parameter type." );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

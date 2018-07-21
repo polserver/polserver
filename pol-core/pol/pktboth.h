@@ -843,10 +843,10 @@ struct PKTBI_BF_32
 // HSA Boat movement
 struct PKTBI_BF_33
 {
-	u32 serial; 
-	u8 direction;  
-	u8 unk1; // direction is duplicated
-	u8 speed; 
+  u32 serial;
+  u8 direction;
+  u8 unk1;  // direction is duplicated
+  u8 speed;
 };
 struct PKTBI_BF
 {
@@ -1132,6 +1132,6 @@ struct PKTBI_D7
 };
 
 #pragma pack( pop )
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
