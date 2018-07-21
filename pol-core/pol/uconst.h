@@ -70,7 +70,7 @@ enum UTEXTTYPE : u8
    by <= 18, you're in range.  If either is out of range, you're out.
    */
 #define RANGE_VISUAL 18
-#define RANGE_VISUAL_LARGE_BUILDINGS 18  // 31?
+#define RANGE_VISUAL_LARGE_BUILDINGS 31
 
 
 const unsigned VALID_ITEM_COLOR_MASK = 0x0FFF;

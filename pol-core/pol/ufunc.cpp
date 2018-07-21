@@ -451,6 +451,14 @@ bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdis
   return ( ( abs( c1->x - x ) <= maxdist ) && ( abs( c1->y - y ) <= maxdist ) );
 }
 
+bool inrangex( const Mobile::Character* c1, const UObject* obj, int maxdist )
+{
+  obj = obj->toplevel_owner();
+
+  return ( ( c1->realm == obj->realm ) && ( abs( c1->x - obj->x ) <= maxdist ) &&
+           ( abs( c1->y - obj->y ) <= maxdist ) );
+}
+
 bool inrange( const UObject* c1, unsigned short x, unsigned short y )
 {
   return ( ( abs( c1->x - x ) <= RANGE_VISUAL ) && ( abs( c1->y - y ) <= RANGE_VISUAL ) );
@@ -473,9 +481,8 @@ bool inrange( const Mobile::Character* c1, const UObject* obj )
 
 bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj )
 {
-  return ( ( c1->realm == obj->realm ) &&
-           ( abs( c1->x - obj->x ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( c1->y - obj->y ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
+  return ( ( c1->realm == obj->realm ) && ( abs( c1->x - obj->x ) <= obj->get_update_range() ) &&
+           ( abs( c1->y - obj->y ) <= obj->get_update_range() ) );
 }
 
 unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2,
@@ -519,10 +526,10 @@ bool inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned 
   return ( ( abs( x1 - x2 ) <= RANGE_VISUAL ) && ( abs( y1 - y2 ) <= RANGE_VISUAL ) );
 }
 
-bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 )
+bool multi_inrange( const Multi::UMulti* obj, unsigned short x2, unsigned short y2 )
 {
-  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( y1 - y2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
+  return ( ( abs( obj->x - x2 ) <= obj->get_update_range() ) &&
+           ( abs( obj->y - y2 ) <= obj->get_update_range() ) );
 }
 
 void send_put_in_container( Client* client, const Item* item )
@@ -1660,8 +1667,9 @@ void send_multi_to_inrange( const Multi::UMulti* multi )
 {
   auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->x, multi->y,
                              multi->z, multi->color );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      multi, [&]( Character* zonechr ) { pkt.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InRange(
+      multi->x, multi->y, multi->realm, multi->get_update_range(),
+      [&]( Character* zonechr ) { pkt.Send( zonechr->client ); } );
 }
 
 

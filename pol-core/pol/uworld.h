@@ -125,6 +125,8 @@ struct WorldIterator
   template <typename F>
   static void InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range, F&& f );
   template <typename F>
+  static void InRange( const UObject* obj, unsigned range, F&& f );
+  template <typename F>
   static void InVisualRange( const UObject* obj, F&& f );
   template <typename F>
   static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm, F&& f );
@@ -239,6 +241,13 @@ void WorldIterator<Filter>::InRange( u16 x, u16 y, const Realms::Realm* realm, u
     return;
   CoordsArea coords( x, y, realm, range );
   _forEach( coords, realm, std::forward<F>( f ) );
+}
+template <class Filter>
+template <typename F>
+void WorldIterator<Filter>::InRange( const UObject* obj, unsigned range, F&& f )
+{
+  InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm, range,
+           std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>

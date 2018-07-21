@@ -14,6 +14,7 @@
 #include "multi/customhouses.h"
 #include "multi/house.h"
 #include "multi/multi.h"
+#include "multi/multidef.h"
 #include "network/client.h"
 #include "network/packetdefs.h"
 #include "network/packethelper.h"
@@ -52,7 +53,7 @@ void send_item_if_newly_inrange( Items::Item* item, Network::Client* client )
 void send_multi_if_newly_inrange( Multi::UMulti* multi, Network::Client* client )
 {
   if ( multi_inrange( client->chr, multi ) &&
-       !multi_inrange( multi->x, multi->y, client->chr->lastx, client->chr->lasty ) )
+       !multi_inrange( multi, client->chr->lastx, client->chr->lasty ) )
   {
     send_multi( client, multi );
     Multi::UHouse* house = multi->as_house();
@@ -70,7 +71,7 @@ void send_objects_newly_inrange( Network::Client* client )
   WorldIterator<ItemFilter>::InVisualRange(
       chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
   WorldIterator<MultiFilter>::InRange(
-      chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+      chr->x, chr->y, chr->realm, Multi::MultiDef::get_searchradius(),
       [&]( Multi::UMulti* zonemulti ) { send_multi_if_newly_inrange( zonemulti, client ); } );
 }
 
@@ -98,7 +99,8 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 
       send_item_if_newly_inrange( zoneitem, client );
     } );
-    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm,
+                                         Multi::MultiDef::get_searchradius(),
                                          [&]( Multi::UMulti* zonemulti ) {
                                            if ( zonemulti->serial == serial )
                                              return;
@@ -113,7 +115,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
     WorldIterator<ItemFilter>::InVisualRange(
         chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
     WorldIterator<MultiFilter>::InRange(
-        chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+        chr->x, chr->y, chr->realm, Multi::MultiDef::get_searchradius(),
         [&]( Multi::UMulti* zonemulti ) { send_multi_if_newly_inrange( zonemulti, client ); } );
   }
 }
@@ -129,8 +131,10 @@ void remove_objects_inrange( Network::Client* client )
   WorldIterator<ItemFilter>::InVisualRange(
       chr, [&]( Items::Item* item ) { send_remove_object( client, item, msgremove ); } );
   WorldIterator<MultiFilter>::InRange(
-      chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
-      [&]( Multi::UMulti* multi ) { send_remove_object( client, multi, msgremove ); } );
+      chr->x, chr->y, chr->realm, Multi::MultiDef::get_searchradius(), [&]( Multi::UMulti* multi ) {
+        if ( multi_inrange( chr, multi ) )
+          send_remove_object( client, multi, msgremove );
+      } );
 }
 
 

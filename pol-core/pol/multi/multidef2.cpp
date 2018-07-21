@@ -20,6 +20,21 @@ namespace Pol
 {
 namespace Multi
 {
+
+unsigned short MULTI_ELEM::graphic() const
+{
+  // Static elements below max_tile_id should not be influenced by definitions on itemdesc.
+  if ( is_static && objtype <= Plib::systemstate.config.max_tile_id ) {
+    return objtype;
+  }
+  return Items::getgraphic( objtype );
+}
+
+u32 MULTI_ELEM::flags() const
+{
+  return Core::tile_flags( graphic() );
+}
+
 // 8/9/03 this seems to be used only by uofile03 -Syz
 bool MultiDef::readobjects( Core::StaticList& vec, short x, short y, short zbase ) const
 {
@@ -32,7 +47,7 @@ bool MultiDef::readobjects( Core::StaticList& vec, short x, short y, short zbase
       for ( ; itr != end; ++itr )
       {
         const MULTI_ELEM* elem = ( *itr ).second;
-        unsigned short graphic = Items::getgraphic( elem->objtype );
+        unsigned short graphic = elem->graphic();
         if ( Core::tile_flags( graphic ) & Plib::FLAG::WALKBLOCK )
         {
           if ( elem->is_static )
@@ -67,7 +82,7 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
       for ( ; itr != end; ++itr )
       {
         const MULTI_ELEM* elem = ( *itr ).second;
-        unsigned short graphic = Items::getgraphic( elem->objtype );
+        unsigned short graphic = elem->graphic();
         if ( Core::tile_flags( graphic ) & anyflags )
         {
           if ( elem->is_static )
@@ -75,7 +90,7 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
             Plib::MapShape shape;
             shape.z = elem->z + zbase;
             shape.height = Core::tileheight( graphic );
-            shape.flags = Plib::systemstate.tile[graphic].flags;  // pol_flags_by_tile( graphic );
+            shape.flags = Core::tile_flags( graphic );
             if ( !shape.height )
             {
               ++shape.height;
