@@ -1,7 +1,4 @@
 ﻿-- POL100 --
-07-22-2018 Tomi:
-  Changed: Statmsg will now send Statcap for T2A expansion and Follower information for UOR expansion. It shouldn't affect any new clients.
-
 07-19-2018 DevGIB:
   Added:   EncodeBase64(String) and DecodeBase64(String) to basic.em to enable people to encode and decode strings using base64 without requiring an escript function.
   

@@ -59,10 +59,6 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->Write<u8>( 5u );  // Set to ML level
   else if ( ( client->UOExpansionFlag & Network::AOS ) )
     msg->Write<u8>( 4u );  // Set to AOS level statbar for full info
-  else if ( ( client->UOExpansionFlag & Network::UOR ) )
-    msg->Write<u8>( 3u );  // Set to UOR level statbar for follower info
-  else if ( ( client->UOExpansionFlag & Network::T2A ) )
-    msg->Write<u8>( 2u );  // Set to T2A level statbar for statcap
   else
     msg->Write<u8>( 1u );  // Set to oldschool statbar info.
 
@@ -159,21 +155,14 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->Write<u8>( chr->race + 1u );
   }
 
-  // moreinfo 2 start
-  if ( ( client->UOExpansionFlag & Network::T2A ) )
+  // moreinfo 3 start
+  if ( ( client->UOExpansionFlag & Network::AOS ) )
   {
     msg->WriteFlipped<s16>( chr->skillstatcap().statcap );
-  }
-  // moreinfo 3 start
-  if ( ( client->UOExpansionFlag & Network::UOR ) )
-  {
     auto follow_value = chr->followers();
     msg->Write<s8>( follow_value.followers );
     msg->Write<s8>( follow_value.followers_max );
-  }
     // moreinfo 4 start
-   if ( ( client->UOExpansionFlag & Network::AOS ) )
-   {
     s16 value = chr->fire_resist().value;
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     value = chr->cold_resist().value;
