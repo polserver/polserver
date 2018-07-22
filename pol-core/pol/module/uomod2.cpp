@@ -2792,5 +2792,66 @@ BObjectImp* UOExecutorModule::mf_SingleClick()
   singleclick( chr->client, what->serial );
   return new BLong( 1 );
 }
+
+BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
+    /* x, y, z, range, objtype, realm */ )
+{
+  unsigned short x, y;
+  int z, range;
+  unsigned int objtype;
+  const String* strrealm;
+
+  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
+       getObjtypeParam( exec, 4, objtype ) && getStringParam( 5, strrealm ) )
+  {
+    Realms::Realm* realm = find_realm( strrealm->value() );
+    if ( !realm )
+      return new BError( "Realm not found" );
+
+    std::unique_ptr<ObjArray> newarr( new ObjArray );
+
+    if ( z == LIST_IGNORE_Z )
+    {
+      if ( !realm->valid( x, y, 0 ) )
+        return new BError( "Invalid Coordinates for realm" );
+    }
+    else
+    {
+      if ( !realm->valid( x, y, static_cast<short>( z ) ) )
+        return new BError( "Invalid Coordinates for realm" );
+    }
+    /*
+    WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Items::Item* item ) {
+      if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) &&
+           ( abs( item->y - y ) <= range ) )
+      {
+        if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+          newarr->addElement( item->make_ref() );
+      }
+    } );*/
+    for (  in )
+    {
+      Plib::StaticEntryList slist;
+      realm->getstatics( slist, wx, wy );
+
+      for ( unsigned i = 0; i < slist.size(); ++i )
+      {
+        if ( ( z == LIST_IGNORE_Z ) || ( abs( slist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+        {
+          std::unique_ptr<BStruct> arr( new BStruct );
+          arr->addMember( "x", new BLong( wx ) );
+          arr->addMember( "y", new BLong( wy ) );
+          arr->addMember( "z", new BLong( slist[i].z ) );
+          arr->addMember( "objtype", new BLong( slist[i].objtype ) );
+          arr->addMember( "hue", new BLong( slist[i].hue ) );
+          newarr->addElement( arr.release() );
+        }
+      }
+    }
+    return newarr.release();
+  }
+
+  return NULL;
+}
 }
 }

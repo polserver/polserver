@@ -1032,8 +1032,8 @@ BObjectImp* UOExecutorModule::mf_Accessible()
     // or the user provides a weird object.
     if ( exec.numParams() < 3 || !getParam( 2, range ) )
       range = -1;
-      
-    if ( chr->can_access(item, range) )
+
+    if ( chr->can_access( item, range ) )
       return new BLong( 1 );
     else
       return new BLong( 0 );
@@ -5727,6 +5727,8 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords},
 
         {"SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu},
-        {"SingleClick", &UOExecutorModule::mf_SingleClick}};
+        {"SingleClick", &UOExecutorModule::mf_SingleClick},
+        {"ListStaticsNearLocationOfType", &UOExecutor::mf_ListStaticsNearLocationOfType},
+        {"ListStaticsNearLocationWithFlag", &UOExecutor::mf_ListStaticsNearLocationWithFlag}};
 }
 }

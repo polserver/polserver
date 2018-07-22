@@ -284,6 +284,9 @@ public:
   Bscript::BObjectImp* mf_SendPopUpMenu( /* to_whom, above, menu */ );
   Bscript::BObjectImp* mf_SingleClick( /*who, what*/ );
 
+  Bscript::BObjectImp* mf_ListStaticsNearLocationOfType();
+  Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag();
+
   Core::UOExecutor& uoexec;
 
   /* If we're asking a character for a target, who is it?
