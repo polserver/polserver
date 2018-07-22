@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-19-2018</datemodified>
+		<datemodified>07-22-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>07-22-2018</date>
+			<author>Tomi:</author>
+			<change type="Changed">Statmsg will now send Statcap for T2A expansion and Follower information for UOR expansion. It shouldn't affect any new clients.</change>
+		</entry>
 		<entry>
 			<date>07-19-2018</date>
 			<author>DevGIB:</author>
