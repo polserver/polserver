@@ -172,7 +172,7 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );
 Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
-}
+}  // namespace Core
 namespace Module
 {
 using namespace Bscript;
@@ -5728,7 +5728,7 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
 
         {"SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu},
         {"SingleClick", &UOExecutorModule::mf_SingleClick},
-        {"ListStaticsNearLocationOfType", &UOExecutor::mf_ListStaticsNearLocationOfType},
-        {"ListStaticsNearLocationWithFlag", &UOExecutor::mf_ListStaticsNearLocationWithFlag}};
-}
-}
+        {"ListStaticsNearLocationOfType", &UOExecutorModule::mf_ListStaticsNearLocationOfType},
+        {"ListStaticsNearLocationWithFlag", &UOExecutorModule::mf_ListStaticsNearLocationWithFlag}};
+}  // namespace Bscript
+}  // namespace Pol

@@ -56,7 +56,7 @@ class Menu;
 class UContainer;
 class UOExecutor;
 class UObject;
-}
+}  // namespace Core
 namespace Mobile
 {
 class Character;
@@ -352,6 +352,6 @@ private:  // not implemented
   UOExecutorModule( const UOExecutorModule& );
   UOExecutorModule& operator=( const UOExecutorModule& );
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

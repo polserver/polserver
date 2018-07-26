@@ -51,6 +51,7 @@
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
 #include "../../plib/pkg.h"
+#include "../../plib/staticblock.h"
 #include "../../plib/systemstate.h"
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
@@ -114,7 +115,7 @@ namespace Core
 {
 bool validhair( u16 HairStyle );
 bool validbeard( u16 BeardStyle );
-}
+}  // namespace Core
 namespace Module
 {
 using namespace Bscript;
@@ -122,6 +123,9 @@ using namespace Network;
 using namespace Mobile;
 using namespace Items;
 using namespace Core;
+
+#define CONST_DEFAULT_ZRANGE 19
+
 /*
 0000: 74 02 70 40 29 ca d8 28  00 00 00 03 0b 53 65 77   t.p@)..( .....Sew
 0010: 69 6e 67 20 6b 69 74 00  00 00 00 0d 09 53 63 69   ing kit. .....Sci
@@ -2794,21 +2798,22 @@ BObjectImp* UOExecutorModule::mf_SingleClick()
 }
 
 BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
-    /* x, y, z, range, objtype, realm */ )
+    /* x, y, z, range, objtype, flags, realm */ )
 {
   unsigned short x, y;
-  int z, range;
+  int z, flags;
+  short range;
   unsigned int objtype;
   const String* strrealm;
+  Realms::Realm* realm;
 
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
-       getObjtypeParam( exec, 4, objtype ) && getStringParam( 5, strrealm ) )
+       getObjtypeParam( exec, 4, objtype ) && getParam( 5, flags ) &&
+       getStringParam( 6, strrealm ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
+    realm = find_realm( strrealm->value() );
     if ( !realm )
       return new BError( "Realm not found" );
-
-    std::unique_ptr<ObjArray> newarr( new ObjArray );
 
     if ( z == LIST_IGNORE_Z )
     {
@@ -2820,38 +2825,175 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
       if ( !realm->valid( x, y, static_cast<short>( z ) ) )
         return new BError( "Invalid Coordinates for realm" );
     }
-    /*
-    WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Items::Item* item ) {
-      if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) &&
-           ( abs( item->y - y ) <= range ) )
-      {
-        if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
-          newarr->addElement( item->make_ref() );
-      }
-    } );*/
-    for (  in )
-    {
-      Plib::StaticEntryList slist;
-      realm->getstatics( slist, wx, wy );
 
-      for ( unsigned i = 0; i < slist.size(); ++i )
+    std::unique_ptr<ObjArray> newarr( new ObjArray );
+
+    short wxL, wyL, wxH, wyH;
+    wxL = x - range;
+    if ( wxL < 0 )
+      wxL = 0;
+    wyL = y - range;
+    if ( wyL < 0 )
+      wyL = 0;
+    wxH = x + range;
+    if ( wxH > realm->width() - 1 )
+      wxH = realm->width() - 1;
+    wyH = y + range;
+    if ( wyH > realm->height() - 1 )
+      wyH = realm->height() - 1;
+
+    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+    {
+      for ( unsigned short wy = wyL; wy <= wyH; ++wy )
       {
-        if ( ( z == LIST_IGNORE_Z ) || ( abs( slist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+        if ( !( flags & ITEMS_IGNORE_STATICS ) )
         {
-          std::unique_ptr<BStruct> arr( new BStruct );
-          arr->addMember( "x", new BLong( wx ) );
-          arr->addMember( "y", new BLong( wy ) );
-          arr->addMember( "z", new BLong( slist[i].z ) );
-          arr->addMember( "objtype", new BLong( slist[i].objtype ) );
-          arr->addMember( "hue", new BLong( slist[i].hue ) );
-          newarr->addElement( arr.release() );
+          Plib::StaticEntryList slist;
+          realm->getstatics( slist, wx, wy );
+
+          for ( unsigned i = 0; i < slist.size(); ++i )
+          {
+            if ( slist[i].objtype != objtype )
+              continue;
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( slist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+            {
+              std::unique_ptr<BStruct> arr( new BStruct );
+              arr->addMember( "x", new BLong( wx ) );
+              arr->addMember( "y", new BLong( wy ) );
+              arr->addMember( "z", new BLong( slist[i].z ) );
+              arr->addMember( "objtype", new BLong( slist[i].objtype ) );
+              arr->addMember( "hue", new BLong( slist[i].hue ) );
+              newarr->addElement( arr.release() );
+            }
+          }
+        }
+
+        if ( !( flags & ITEMS_IGNORE_MULTIS ) )
+        {
+          StaticList mlist;
+          realm->readmultis( mlist, wx, wy );
+          for ( unsigned i = 0; i < mlist.size(); ++i )
+          {
+            if ( mlist[i].graphic != objtype )
+              continue;
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( mlist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+            {
+              std::unique_ptr<BStruct> arr( new BStruct );
+              arr->addMember( "x", new BLong( wx ) );
+              arr->addMember( "y", new BLong( wy ) );
+              arr->addMember( "z", new BLong( mlist[i].z ) );
+              arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
+              newarr->addElement( arr.release() );
+            }
+          }
         }
       }
     }
+
     return newarr.release();
   }
+  else
+    return new BError( "Invalid parameter" );
+}
 
-  return NULL;
+
+BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
+    /* x, y, z, range, flags, realm */ )
+{
+  unsigned short x, y;
+  int z, flags;
+  short range;
+  const String* strrealm;
+  Realms::Realm* realm;
+
+  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
+       getParam( 4, flags ) && getStringParam( 5, strrealm ) )
+  {
+    realm = find_realm( strrealm->value() );
+    if ( !realm )
+      return new BError( "Realm not found" );
+
+    if ( z == LIST_IGNORE_Z )
+    {
+      if ( !realm->valid( x, y, 0 ) )
+        return new BError( "Invalid Coordinates for realm" );
+    }
+    else
+    {
+      if ( !realm->valid( x, y, static_cast<short>( z ) ) )
+        return new BError( "Invalid Coordinates for realm" );
+    }
+
+    std::unique_ptr<ObjArray> newarr( new ObjArray );
+
+    short wxL, wyL, wxH, wyH;
+    wxL = x - range;
+    if ( wxL < 0 )
+      wxL = 0;
+    wyL = y - range;
+    if ( wyL < 0 )
+      wyL = 0;
+    wxH = x + range;
+    if ( wxH > realm->width() - 1 )
+      wxH = realm->width() - 1;
+    wyH = y + range;
+    if ( wyH > realm->height() - 1 )
+      wyH = realm->height() - 1;
+
+    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+    {
+      for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+      {
+        if ( !( flags & ITEMS_IGNORE_STATICS ) )
+        {
+          Plib::StaticEntryList slist;
+          realm->getstatics( slist, wx, wy );
+
+          for ( unsigned i = 0; i < slist.size(); ++i )
+          {
+            if ( ( tile_uoflags( slist[i].objtype ) & flags ) )
+            {
+              if ( ( z == LIST_IGNORE_Z ) || ( abs( slist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+              {
+                std::unique_ptr<BStruct> arr( new BStruct );
+                arr->addMember( "x", new BLong( wx ) );
+                arr->addMember( "y", new BLong( wy ) );
+                arr->addMember( "z", new BLong( slist[i].z ) );
+                arr->addMember( "objtype", new BLong( slist[i].objtype ) );
+                arr->addMember( "hue", new BLong( slist[i].hue ) );
+                newarr->addElement( arr.release() );
+              }
+            }
+          }
+        }
+
+        if ( !( flags & ITEMS_IGNORE_MULTIS ) )
+        {
+          StaticList mlist;
+          realm->readmultis( mlist, wx, wy );
+          for ( unsigned i = 0; i < mlist.size(); ++i )
+          {
+            if ( ( tile_uoflags( mlist[i].graphic ) & flags ) )
+            {
+              if ( ( z == LIST_IGNORE_Z ) || ( abs( mlist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
+              {
+                std::unique_ptr<BStruct> arr( new BStruct );
+                arr->addMember( "x", new BLong( wx ) );
+                arr->addMember( "y", new BLong( wy ) );
+                arr->addMember( "z", new BLong( mlist[i].z ) );
+                arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
+                newarr->addElement( arr.release() );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return newarr.release();
+  }
+  else
+    return new BError( "Invalid parameter" );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol
