@@ -327,7 +327,7 @@ ListMobilesInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
 ListStaticsAtLocation( x, y, z, flags := 0, realm := _DEFAULT_REALM );
 ListStaticsInBox( x1,y1,z1, x2,y2,z2, flags := 0, realm := _DEFAULT_REALM );
 ListStaticsNearLocation( x, y, z, range, flags := 0, realm := _DEFAULT_REALM );
-ListStaticsNearLocationOfType( x,y,z, range, objtype, flags, realm := _DEFAULT_REALM );
+ListStaticsNearLocationOfType( x,y,z, range, objtype, flags := 0, realm := _DEFAULT_REALM );
 ListStaticsNearLocationWithFlag( x,y,z, range, flags, realm := _DEFAULT_REALM );
 MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 );
 MoveItemToSecureTradeWin( item, character );

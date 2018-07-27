@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-19-2018</datemodified>
+		<datemodified>07-27-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>07-27-2018</date>
+			<author>DevGIB:</author>
+			<change type="Added">ListStaticsNearLocationOfType( x, y, z, range, objtype, flags := 0, realm := _DEFAULT_REALM ) to get a struct of statics near a location which match an objtype.</change>
+			<change type="Added">ListStaticsNearLocationWithFlag( x, y, z, range, flags, realm := _DEFAULT_REALM ) to get a struct of statics near a location which have matching flags in the tiledata.</change>
+		</entry>
 		<entry>
 			<date>07-19-2018</date>
 			<author>DevGIB:</author>
