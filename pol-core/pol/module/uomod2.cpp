@@ -2995,5 +2995,14 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
   else
     return new BError( "Invalid parameter" );
 }
+BObjectImp* UOExecutorModule::mf_GetTileInfo(
+/* graphic, flag */)
+{
+    unsigned short x, y;
+    int graphic, flags;
+    short range;
+    const String* strrealm;
+    Realms::Realm* realm;
+}
 }  // namespace Module
 }  // namespace Pol
