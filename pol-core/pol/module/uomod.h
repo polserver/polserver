@@ -284,8 +284,8 @@ public:
   Bscript::BObjectImp* mf_SendPopUpMenu( /* to_whom, above, menu */ );
   Bscript::BObjectImp* mf_SingleClick( /*who, what*/ );
 
-  Bscript::BObjectImp* mf_ListStaticsNearLocationOfType();
-  Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag();
+  Bscript::BObjectImp* mf_ListStaticsNearLocationOfType( /* x, y, z, range, objtype, flags, realm */ );
+  Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag( /* x, y, z, range, flags, realm */ );
 
   Core::UOExecutor& uoexec;
 
