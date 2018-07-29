@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-19-2018</datemodified>
+		<datemodified>07-29-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>07-29-2018</date>
+			<author>Turley:</author>
+			<change type="Added">ecompile.cfg NumberOfThreads<br/>
+forces N number of threads to be used for compilation, default is 0 which like before autodetects the number.<br/>
+cmd param -T can now be optionally extended with a number to override the cfg setting</change>
+		</entry>
 		<entry>
 			<date>07-19-2018</date>
 			<author>DevGIB:</author>
