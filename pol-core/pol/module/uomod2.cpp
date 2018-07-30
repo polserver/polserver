@@ -1718,13 +1718,13 @@ BObjectImp* GetRunningScriptList()
   const ExecList& runlist = scriptScheduler.getRunlist();
   const ExecList& ranlist = scriptScheduler.getRanlist();
 
-  for ( auto itr = ranlist.cbegin(); itr != ranlist.cend(); ++itr )
+  for ( const auto& script : ranlist )
   {
-    add_script( arr, *itr, "Running" );
+    add_script( arr, script, "Running" );
   }
-  for ( auto itr = runlist.cbegin(); itr != runlist.cend(); ++itr )
+  for ( const auto& script : runlist )
   {
-    add_script( arr, *itr, "Running" );
+    add_script( arr, script, "Running" );
   }
   return arr;
 }
@@ -1738,47 +1738,42 @@ BObjectImp* GetAllScriptList()
   const HoldList& holdlist = scriptScheduler.getHoldlist();
   const NoTimeoutHoldList& notimeoutholdlist = scriptScheduler.getNoTimeoutHoldlist();
 
-  for ( auto itr = ranlist.cbegin(); itr != ranlist.cend(); ++itr )
+  for ( const auto& script : ranlist )
   {
-    add_script( arr, *itr, "Running" );
+    add_script( arr, script, "Running" );
   }
-  for ( auto itr = runlist.cbegin(); itr != runlist.cend(); ++itr )
+  for ( const auto& script : runlist )
   {
-    add_script( arr, *itr, "Running" );
+    add_script( arr, script, "Running" );
   }
-  for ( auto itr = holdlist.cbegin(); itr != holdlist.cend(); ++itr )
+  for ( const auto& script : holdlist )
   {
-    add_script( arr, ( *itr ).second, "Sleeping" );
+    add_script( arr, ( script ).second, "Sleeping" );
   }
-  for ( auto itr = notimeoutholdlist.begin(); itr != notimeoutholdlist.end(); ++itr )
+  for ( const auto& script : notimeoutholdlist )
   {
-    add_script( arr, *itr, "Sleeping" );
+    add_script( arr, script, "Sleeping" );
   }
   return arr;
 }
 
 BObjectImp* GetScriptProfiles()
 {
-  std::unique_ptr<ObjArray> arr( new ObjArray );
+  std::unique_ptr<ObjArray> arr = std::make_unique<ObjArray>();
 
-  ScriptStorage::iterator itr = scriptScheduler.scrstore.begin(),
-                          end = scriptScheduler.scrstore.end();
   u64 total_instr = 0;
-  for ( ; itr != end; ++itr )
+  for ( const auto& source : scriptScheduler.scrstore )
   {
-    EScriptProgram* eprog = ( ( *itr ).second ).get();
+    EScriptProgram* eprog = ( ( source ).second ).get();
     total_instr += eprog->instr_cycles;
   }
 
-  itr = scriptScheduler.scrstore.begin();
-  end = scriptScheduler.scrstore.end();
-
-  for ( ; itr != end; ++itr )
+  for ( const auto& src : scriptScheduler.scrstore )
   {
-    EScriptProgram* eprog = ( ( *itr ).second ).get();
+    EScriptProgram* eprog = ( ( src ).second ).get();
 
 
-    std::unique_ptr<BStruct> elem( new BStruct );
+    std::unique_ptr<BStruct> elem = std::make_unique<BStruct>();
     elem->addMember( "name", new String( eprog->name ) );
     elem->addMember( "instr", new Double( static_cast<double>( eprog->instr_cycles ) ) );
     elem->addMember( "invocations", new BLong( eprog->invocations ) );
@@ -1805,7 +1800,7 @@ BObjectImp* GetIoStatsObj( const IOStats& stats )
 
   for ( unsigned i = 0; i < 256; ++i )
   {
-    std::unique_ptr<BStruct> elem( new BStruct );
+    std::unique_ptr<BStruct> elem = std::make_unique<BStruct>();
     elem->addMember( "count", new BLong( stats.sent[i].count ) );
     elem->addMember( "bytes", new BLong( stats.sent[i].bytes ) );
     sent->addElement( elem.release() );
@@ -1835,7 +1830,7 @@ BObjectImp* GetQueuedIoStats()
 BObjectImp* GetPktStatusObj()
 {
   using namespace PacketWriterDefs;
-  std::unique_ptr<ObjArray> pkts( new ObjArray );
+  std::unique_ptr<ObjArray> pkts = std::make_unique<ObjArray>();
   PacketQueueMap* map = networkManager.packetsSingleton->getPackets();
   for ( PacketQueueMap::iterator it = map->begin(); it != map->end(); ++it )
   {

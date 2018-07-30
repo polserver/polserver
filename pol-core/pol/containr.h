@@ -78,7 +78,7 @@ namespace Network
 class Client;
 }  // namespace Network
 }  // namespace Pol
-}
+}  // namespace Clib
 namespace Mobile
 {
 class Character;
@@ -278,6 +278,6 @@ inline Items::Item* UContainer::operator[]( unsigned idx ) const
 {
   return ITEM_ELEM_PTR( contents_[idx] );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

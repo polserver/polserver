@@ -22,6 +22,7 @@
 
 #include "containr.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <cstddef>
 
@@ -65,7 +66,7 @@ UContainer::~UContainer()
 
 size_t UContainer::estimatedSize() const
 {
-  size_t size = base::estimatedSize() + sizeof( u16 ) /*held_weight_*/
+  const size_t size = base::estimatedSize() + sizeof( u16 ) /*held_weight_*/
                 + sizeof( unsigned int )              /*held_item_count_*/
                 // no estimateSize here element is in objhash
                 + 3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
@@ -824,8 +825,8 @@ bool UContainer::check_can_remove_script( Mobile::Character* chr, Items::Item* i
 {
   if ( !desc.can_remove_script.empty() )
   {
-    Bscript::BObjectImp* chrParam = NULL;
-    if ( chr != NULL )  // TODO: consider moving this into make_mobileref
+    Bscript::BObjectImp* chrParam = nullptr;
+    if ( chr != nullptr )  // TODO: consider moving this into make_mobileref
       chrParam = chr->make_ref();
     else
       chrParam = Bscript::UninitObject::create();
@@ -895,7 +896,7 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
 
 Items::Item* UContainer::clone() const
 {
-  UContainer* item = static_cast<UContainer*>( base::clone() );
+  auto item = static_cast<UContainer*>( base::clone() );
 
   item->max_items_mod( this->max_items_mod() );
   item->max_weight_mod( this->max_weight_mod() );
@@ -907,19 +908,14 @@ Items::Item* UContainer::clone() const
 
 unsigned short UContainer::max_items() const
 {
-  int max_items = desc.max_items + max_items_mod();
+  const auto max_items = desc.max_items + max_items_mod();
 
-  if ( max_items < 1 )
-    return 1;
-  else if ( max_items <= MAX_CONTAINER_ITEMS )
-    return static_cast<u16>( max_items );
-  else
-    return MAX_CONTAINER_ITEMS;
+  return std::max( 1, std::min<decltype(max_items)>( max_items, MAX_CONTAINER_ITEMS ) );
 }
 
 unsigned short UContainer::max_weight() const
 {
-  int max_weight = desc.max_weight + max_weight_mod();
+  const s32 max_weight = desc.max_weight + max_weight_mod();
 
   if ( max_weight < 1 )
     return USHRT_MAX;
@@ -931,14 +927,9 @@ unsigned short UContainer::max_weight() const
 
 u8 UContainer::max_slots() const
 {
-  short max_slots = desc.max_slots + max_slots_mod();
+  const auto max_slots = desc.max_slots + max_slots_mod();
 
-  if ( max_slots < 0 )
-    return 0;
-  else if ( max_slots <= MAX_SLOTS )
-    return static_cast<u8>( max_slots );
-  else
-    return MAX_SLOTS;
+  return std::max( 0, std::min<decltype(max_slots)>( max_slots, MAX_SLOTS ) );
 }
 
 bool UContainer::no_drop_exception() const
@@ -955,5 +946,5 @@ bool UContainer::default_no_drop_exception() const
 {
   return desc.no_drop_exception;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
