@@ -345,8 +345,11 @@
 <member mname="weaponslot" type="Array" access="r/o" mdesc="array of ItemRefs of all the weaponslot components on the boat, or empty array if none" />
 <member mname="components" type="Array" access="r/o" mdesc="array of ItemRefs of all the components on the boat" />
 <member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
+<member mname="pilot" type="Character" access="r/o" mdesc="current pilot of the boat, uninit if no pilot" />
 
 <method proto="move_offline_mobiles(int x, int y, int z[, string realm])" returns="true/false" desc="moves offline mobiles on boat to x,y,z. If realm is not set, Boat-realm is used." />
+<method proto="pilot([Character pilot])" returns="true/error" desc="If a character is passed, will set the pilot of the boat only if no current pilot exists. Returns error if pilot already exists, 1 if pilot set successfully. To remove the current pilot, call the method with no arguments." />
+<method proto="set_alternate_multiid(int)" returns="true/false" desc="used to change a boats multi to an alternative multi defined in its itemdesc file, alternate ids are referenced with an integer based on the order they are defined in the itemdesc file starting from 1, with the base multiID being 0."/>
 </class>
 
 

@@ -17,6 +17,7 @@
 #include "../globals/state.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
+#include "../uconst.h"
 #include "../uobjcnt.h"
 #include "multi.h"
 #include "multidef.h"
@@ -72,6 +73,12 @@ const MultiDef& UMulti::multidef() const
 
   return *MultiDefByMultiID( multiid );
 }
+
+unsigned short UMulti::get_update_range() const
+{
+  return RANGE_VISUAL + multidef().max_radius;
+}
+
 
 Bscript::BStruct* UMulti::footprint() const
 {

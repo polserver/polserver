@@ -48,6 +48,9 @@ struct MULTI_ELEM
   s16 y;
   s16 z;
   bool is_static;
+
+  u32 flags() const;
+  unsigned short graphic() const;
 };
 
 class MultiDef
@@ -84,6 +87,7 @@ public:
 
   short minrx, minry, minrz;  // minimum relative distances
   short maxrx, maxry, maxrz;
+  unsigned short max_radius;
   Components components;
 
   static short global_minrx;
@@ -92,7 +96,9 @@ public:
   static short global_maxrx;
   static short global_maxry;
   static short global_maxrz;
+  static unsigned short global_max_radius;
 
+  static unsigned short get_searchradius();
   ItrPair findcomponents( short rx, short ry );
 
   bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end, short rx,

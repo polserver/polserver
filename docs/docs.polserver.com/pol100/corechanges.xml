@@ -5,6 +5,25 @@
 		<datemodified>07-29-2018</datemodified>
 	</header>
 	<version name="POL100">
+	<entry>
+			<date>17-07-2018</date>
+			<author>Kevin:</author>
+			<change type="Added">Boat piloting via mouse movement. Once a character is set as the<br/>
+pilot of the boat, the character's mouse pilot events are sent to the boat's running process script.<br/>
+New extobj.cfg entry &quot;Boatmount&quot; (defaults to 0x1F01C)<br/>
+New item must be defined in itemdesc.cfg<br/>
+// Boat mount piece - special mount used in boat piloting<br/>
+Item 0x1F01C<br/>
+{<br/>
+    Name            boatmount<br/>
+    Graphic         0x3e96<br/>
+    SaveOnExit      0<br/>
+}</change>
+			<change type="Added">boatRef.pilot member, returns the current pilot (if any)</change>
+			<change type="Added">boatRef.pilot([charRef]) method, to set or clear the pilot</change>
+
+
+		</entry>
 		<entry>
 			<date>07-29-2018</date>
 			<author>Turley:</author>
