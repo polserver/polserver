@@ -1,9 +1,11 @@
 ﻿-- POL100 --
+07-27-2018 DevGIB:
+  Added:   ListStaticsNearLocationOfType( x, y, z, range, objtype, flags := 0, realm := _DEFAULT_REALM ) to get a struct of statics near a location which match an objtype.
+  Added:   ListStaticsNearLocationWithFlag( x, y, z, range, flags, realm := _DEFAULT_REALM ) to get a struct of statics near a location which have matching flags in the tiledata.
 07-29-2018 Turley:
   Added:   ecompile.cfg NumberOfThreads
            forces N number of threads to be used for compilation, default is 0 which like before autodetects the number.
            cmd param -T can now be optionally extended with a number to override the cfg setting
-
 07-19-2018 DevGIB:
   Added:   EncodeBase64(String) and DecodeBase64(String) to basic.em to enable people to encode and decode strings using base64 without requiring an escript function.
   

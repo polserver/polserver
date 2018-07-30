@@ -172,7 +172,7 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );
 Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
-}
+}  // namespace Core
 namespace Module
 {
 using namespace Bscript;
@@ -1032,8 +1032,8 @@ BObjectImp* UOExecutorModule::mf_Accessible()
     // or the user provides a weird object.
     if ( exec.numParams() < 3 || !getParam( 2, range ) )
       range = -1;
-      
-    if ( chr->can_access(item, range) )
+
+    if ( chr->can_access( item, range ) )
       return new BLong( 1 );
     else
       return new BLong( 0 );
@@ -5727,6 +5727,8 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords},
 
         {"SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu},
-        {"SingleClick", &UOExecutorModule::mf_SingleClick}};
-}
-}
+        {"SingleClick", &UOExecutorModule::mf_SingleClick},
+        {"ListStaticsNearLocationOfType", &UOExecutorModule::mf_ListStaticsNearLocationOfType},
+        {"ListStaticsNearLocationWithFlag", &UOExecutorModule::mf_ListStaticsNearLocationWithFlag}};
+}  // namespace Bscript
+}  // namespace Pol
