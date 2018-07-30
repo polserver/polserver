@@ -79,7 +79,7 @@ void ECompileMain::showHelp()
               << "         -u         compile only updated scripts (.src newer than .ecl)\n"
               << "           -f       force compile even if up-to-date\n"
               << "       -s           display summary if -q is not set\n"
-              << "       -T           use threaded compilation\n"
+              << "       -T[N]        use threaded compilation, force N threads to run\n"
               << "       -vN          verbosity level\n"
               << "       -w           display warnings\n"
               << "       -W           generate wordfile\n"
@@ -481,9 +481,12 @@ int readargs( int argc, char** argv )
       break;
 #endif
       case 'T':
+      {
         compilercfg.ThreadedCompilation = true;
+        int count = atoi( &argv[i][2] );
+        compilercfg.NumberOfThreads = count;
         break;
-
+      }
       default:
         unknown_opt = true;
         break;
@@ -617,6 +620,8 @@ void parallel_compile( const std::vector<std::string>& files )
   std::atomic<bool> par_keep_building( true );
   {
     unsigned int thread_count = std::max( 2u, std::thread::hardware_concurrency() * 2 );
+    if ( compilercfg.NumberOfThreads )
+      thread_count = static_cast<unsigned>( compilercfg.NumberOfThreads );
     threadhelp::TaskThreadPool pool( thread_count, "ecompile" );
     summary.ThreadCount = pool.size();
     for ( const auto& file : files )
