@@ -354,7 +354,8 @@ bool client_io_thread( Network::Client* client, bool login )
           Mobile::Character* chr = client->chr;
           CLIENT_CHECKPOINT( 16 );
           call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-          if ( chr->realm ) {
+          if ( chr->realm )
+          {
             chr->realm->notify_left( *chr );
           }
         }
@@ -685,7 +686,8 @@ void report_weird_packet( Network::Client* client, const std::string& why )
   fmt::Writer tmp;
   tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )
       << client->instance_ << why << (int)client->buffer[0] << client->bytes_received
-      << client->ipaddrAsString() << ( ( client->acct != nullptr ) ? client->acct->name() : "None" );
+      << client->ipaddrAsString()
+      << ( ( client->acct != nullptr ) ? client->acct->name() : "None" );
 
   if ( client->bytes_received <= 64 )
   {

@@ -1239,9 +1239,8 @@ void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
         BDictionary::Contents::const_iterator itr;
         for ( itr = cprop_cont.begin(); itr != cprop_cont.end(); ++itr )
         {
-          elem.add_prop(
-              "cprop", ( ( *itr ).first->getStringRep() + "\t" + ( *itr ).second->impptr()->pack() )
-                            );
+          elem.add_prop( "cprop", ( ( *itr ).first->getStringRep() + "\t" +
+                                    ( *itr ).second->impptr()->pack() ) );
         }
       }
       else
@@ -5398,15 +5397,15 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
       unsigned short tmp_newy = y + move_delta[tmp_facing].ymove;
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
-      bool walk1 =
-          realm->walkheight( tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, true, movemode, nullptr );
+      bool walk1 = realm->walkheight( tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, true,
+                                      movemode, nullptr );
 
       tmp_facing = ( dir - 1 ) & 0x7;
       tmp_newx = x + move_delta[tmp_facing].xmove;
       tmp_newy = y + move_delta[tmp_facing].ymove;
 
-      if ( !walk1 &&
-           !realm->walkheight( tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, true, movemode, nullptr ) )
+      if ( !walk1 && !realm->walkheight( tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, true,
+                                         movemode, nullptr ) )
         return new BError( "Cannot walk there" );
     }
 

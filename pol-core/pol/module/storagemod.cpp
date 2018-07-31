@@ -34,7 +34,7 @@ TmplExecutorModule<StorageExecutorModule>::FunctionTable
         {"FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea},
         {"CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea},
         {"DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea}};
-}
+}  // namespace Bscript
 namespace Core
 {
 Bscript::BObjectImp* CreateStorageAreasImp();
@@ -116,7 +116,8 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
   const String* name;
   const Items::ItemDesc* descriptor;
 
-  if ( area == nullptr || !getStringParam( 1, name ) || !Core::getObjtypeParam( exec, 2, descriptor ) )
+  if ( area == nullptr || !getStringParam( 1, name ) ||
+       !Core::getObjtypeParam( exec, 2, descriptor ) )
     return new BError( "Invalid parameter type" );
 
   Items::Item* item = Items::Item::create( *descriptor );
@@ -132,5 +133,5 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 
   return new EItemRefObjImp( item );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

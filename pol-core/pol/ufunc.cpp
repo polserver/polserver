@@ -1737,8 +1737,8 @@ void update_weatherregion( Client* client, WeatherRegion* weatherregion )
 
   if ( client->gd->weather_region == weatherregion )
   {
-    // client->gd->weather_region = nullptr;  //dave commented this out 5/26/03, causing no processing
-    // to happen in following function, added force bool instead.
+    // client->gd->weather_region = nullptr;  //dave commented this out 5/26/03, causing no
+    // processing to happen in following function, added force bool instead.
     client->chr->check_weather_region_change( true );
     client->chr->check_light_region_change();
   }
@@ -2222,5 +2222,5 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
 
   msg.Send( chr->client, len );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

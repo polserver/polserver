@@ -92,7 +92,8 @@ void load_repsys_cfg_hooks( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "NameColor", &temp ) )
     settingsManager.repsys_cfg.Hooks.NameColor = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "HighLightColor", &temp ) )
-    settingsManager.repsys_cfg.Hooks.HighLightColor = FindExportedFunction( elem, nullptr, temp, 2 );
+    settingsManager.repsys_cfg.Hooks.HighLightColor =
+        FindExportedFunction( elem, nullptr, temp, 2 );
 
   if ( elem.remove_prop( "OnAttack", &temp ) )
     settingsManager.repsys_cfg.Hooks.OnAttack = FindExportedFunction( elem, nullptr, temp, 2 );
@@ -619,7 +620,7 @@ unsigned short RepSystem::name_color( const Mobile::Character* amy, const Mobile
   else
     return settingsManager.repsys_cfg.NameColoring.Innocent;
 }
-}
+}  // namespace Core
 namespace Mobile
 {
 ///
@@ -1279,5 +1280,5 @@ void Character::on_lawfullydamaged_changed()
     send_move( this->client, this );
   send_create_mobile_to_nearby_cansee( this );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

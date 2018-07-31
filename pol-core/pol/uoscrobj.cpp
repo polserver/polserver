@@ -732,7 +732,7 @@ bool EMultiRefObjImp::operator==( const BObjectImp& objimp ) const
   else
     return false;
 }
-}
+}  // namespace Module
 
 namespace Core
 {
@@ -889,7 +889,7 @@ BObjectImp* UObject::set_script_member_double( const char* membername, double va
   else
     return nullptr;
 }
-}
+}  // namespace Core
 
 namespace Items
 {
@@ -1450,8 +1450,8 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
         else
           new_stack = this->remove_part_of_stack( 1 );
 
-        bool can_insert =
-            newcontainer->can_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
+        bool can_insert = newcontainer->can_insert_add_item(
+            nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
         if ( !can_insert )
         {
           // Put new_stack back with the original stack
@@ -1530,8 +1530,8 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
       UpdateCharacterWeight( existing_stack );
 
-      newcontainer->on_insert_increase_stack( nullptr, Core::UContainer::MT_CORE_MOVED, existing_stack,
-                                              amount );
+      newcontainer->on_insert_increase_stack( nullptr, Core::UContainer::MT_CORE_MOVED,
+                                              existing_stack, amount );
 
       if ( amt == item_amount )
         destroy_item( this );
@@ -1629,7 +1629,7 @@ BObjectImp* Item::make_ref()
 {
   return new Module::EItemRefObjImp( this );
 }
-}
+}  // namespace Items
 namespace Mobile
 {
 using namespace Bscript;
@@ -3269,7 +3269,7 @@ BObjectImp* NPC::custom_script_method( const char* methodname, Executor& executo
   }
   return nullptr;
 }
-}
+}  // namespace Mobile
 namespace Core
 {
 using namespace Bscript;
@@ -3508,7 +3508,7 @@ BObjectImp* Spellbook::script_method( const char* methodname, Executor& ex )
   else
     return nullptr;
 }
-}
+}  // namespace Core
 namespace Multi
 {
 using namespace Bscript;
@@ -3714,7 +3714,7 @@ BObjectImp* UPlank::get_script_member( const char* membername ) const
   else
     return base::get_script_member( membername );
 }
-}
+}  // namespace Multi
 namespace Core
 {
 using namespace Bscript;
@@ -3966,7 +3966,7 @@ BObjectImp* UDoor::script_method( const char* methodname, Executor& ex )
   else
     return nullptr;
 }
-}
+}  // namespace Core
 namespace Items
 {
 using namespace Bscript;
@@ -4244,7 +4244,7 @@ BObjectImp* UArmor::set_script_member( const char* membername, int value )
   else
     return nullptr;
 }
-}
+}  // namespace Items
 namespace Module
 {
 using namespace Bscript;
@@ -4560,7 +4560,7 @@ ItemGivenEvent::~ItemGivenEvent()
     move_item( item, item->x, item->y, item->z, nullptr );
   }
 }
-}
+}  // namespace Module
 namespace Core
 {
 bool UObject::script_isa( unsigned isatype ) const
@@ -4597,7 +4597,7 @@ bool Map::script_isa( unsigned isatype ) const
 {
   return ( isatype == POLCLASS_MAP ) || base::script_isa( isatype );
 }
-}
+}  // namespace Core
 
 namespace Items
 {
@@ -4620,7 +4620,7 @@ bool UWeapon::script_isa( unsigned isatype ) const
 {
   return ( isatype == Core::POLCLASS_WEAPON ) || base::script_isa( isatype );
 }
-}
+}  // namespace Items
 
 namespace Mobile
 {
@@ -4633,7 +4633,7 @@ bool NPC::script_isa( unsigned isatype ) const
 {
   return ( isatype == Core::POLCLASS_NPC ) || base::script_isa( isatype );
 }
-}
+}  // namespace Mobile
 namespace Multi
 {
 bool UMulti::script_isa( unsigned isatype ) const
@@ -4650,5 +4650,5 @@ bool UHouse::script_isa( unsigned isatype ) const
 {
   return ( isatype == Core::POLCLASS_HOUSE ) || base::script_isa( isatype );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

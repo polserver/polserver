@@ -3376,7 +3376,7 @@ void Character::check_attack_after_move()
   INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
                          << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
   if ( opponent != nullptr &&  // and I have an opponent
-       !dead() &&           // If I'm not dead
+       !dead() &&              // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
          ( !paralyzed() && !frozen() ) ) )
   {
@@ -3772,13 +3772,15 @@ bool Character::move( unsigned char i_dir )
       unsigned short tmp_newy = y + Core::move_delta[tmp_facing].ymove;
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
-      bool walk1 = realm->walkheight( this, tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, nullptr );
+      bool walk1 =
+          realm->walkheight( this, tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, nullptr );
 
       tmp_facing = ( facing - 1 ) & 0x7;
       tmp_newx = x + Core::move_delta[tmp_facing].xmove;
       tmp_newy = y + Core::move_delta[tmp_facing].ymove;
 
-      if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, nullptr ) )
+      if ( !walk1 &&
+           !realm->walkheight( this, tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, nullptr ) )
         return false;
     }
 

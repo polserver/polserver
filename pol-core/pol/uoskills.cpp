@@ -58,7 +58,8 @@ UOSkill::UOSkill( const Plib::Package* pkg, Clib::ConfigElem& elem )
     }
   }
 }
-UOSkill::UOSkill() : inited( false ), skillid( 0 ), attributename( "" ), pAttr( nullptr ), pkg( nullptr )
+UOSkill::UOSkill()
+    : inited( false ), skillid( 0 ), attributename( "" ), pAttr( nullptr ), pkg( nullptr )
 {
 }
 
@@ -93,5 +94,5 @@ void clean_skills()
 {
   gamestate.uo_skills.clear();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

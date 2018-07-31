@@ -129,7 +129,8 @@ void load_party_cfg_hooks( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "CanAddToParty", &temp ) )
     settingsManager.party_cfg.Hooks.CanAddToParty = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "CanRemoveMember", &temp ) )
-    settingsManager.party_cfg.Hooks.CanRemoveMember = FindExportedFunction( elem, nullptr, temp, 2 );
+    settingsManager.party_cfg.Hooks.CanRemoveMember =
+        FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "CanLeaveParty", &temp ) )
     settingsManager.party_cfg.Hooks.CanLeaveParty = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "OnPublicChat", &temp ) )
@@ -139,9 +140,11 @@ void load_party_cfg_hooks( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "OnDisband", &temp ) )
     settingsManager.party_cfg.Hooks.OnDisband = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "ChangePublicChat", &temp ) )
-    settingsManager.party_cfg.Hooks.ChangePublicChat = FindExportedFunction( elem, nullptr, temp, 2 );
+    settingsManager.party_cfg.Hooks.ChangePublicChat =
+        FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "ChangePrivateChat", &temp ) )
-    settingsManager.party_cfg.Hooks.ChangePrivateChat = FindExportedFunction( elem, nullptr, temp, 3 );
+    settingsManager.party_cfg.Hooks.ChangePrivateChat =
+        FindExportedFunction( elem, nullptr, temp, 3 );
   if ( elem.remove_prop( "OnLeaveParty", &temp ) )
     settingsManager.party_cfg.Hooks.OnLeaveParty = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "OnAddToParty", &temp ) )
@@ -151,7 +154,8 @@ void load_party_cfg_hooks( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "OnDecline", &temp ) )
     settingsManager.party_cfg.Hooks.OnDecline = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "OnLootPermChange", &temp ) )
-    settingsManager.party_cfg.Hooks.OnLootPermChange = FindExportedFunction( elem, nullptr, temp, 1 );
+    settingsManager.party_cfg.Hooks.OnLootPermChange =
+        FindExportedFunction( elem, nullptr, temp, 1 );
 }
 void load_party_cfg( bool reload )
 {
@@ -1482,7 +1486,7 @@ void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob 
 
   msg.Send( chr->client );
 }
-}
+}  // namespace Core
 namespace Mobile
 {
 bool Character::party_can_loot() const
@@ -1518,5 +1522,5 @@ void Character::cancel_party_invite_timeout()
   if ( this->party_decline_timeout_ != nullptr )
     this->party_decline_timeout_->cancel();
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

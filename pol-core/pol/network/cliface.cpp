@@ -36,11 +36,14 @@ void initialize_client_interfaces()
   Core::networkManager.uo_client_interface->Initialize();
 }
 
-ClientVitalUpdaters::ClientVitalUpdaters() : my_vital_changed( nullptr ), others_vital_changed( nullptr )
+ClientVitalUpdaters::ClientVitalUpdaters()
+    : my_vital_changed( nullptr ), others_vital_changed( nullptr )
 {
 }
 
-ClientAttributeUpdaters::ClientAttributeUpdaters() : my_attr_changed( nullptr ), pUOSkill( nullptr ) {}
+ClientAttributeUpdaters::ClientAttributeUpdaters() : my_attr_changed( nullptr ), pUOSkill( nullptr )
+{
+}
 
 void ClientInterface::register_client( Client* client )
 {
@@ -253,5 +256,5 @@ void UOClientInterface::bcast_vital_changed( Mobile::Character* who,
     }
   }
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

@@ -861,7 +861,8 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
     while ( temp_cost > 60000 )
     {
       BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( 60000 ), false, nullptr ) );
+                                            static_cast<unsigned short>( 60000 ), false,
+                                            nullptr ) );
       temp_cost -= 60000;
     }
     if ( temp_cost > 0 )
