@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 #include <string>
+#include <tuple>
 
 #include "../bscript/berror.h"
 #include "../bscript/impstr.h"
@@ -121,8 +122,8 @@ void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
         elem.throw_error( "Zone range is out of bounds for realm" );
       }
       unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-      XyToZone( xwest, ynorth, &zone_xwest, &zone_ynorth );
-      XyToZone( xeast, ysouth, &zone_xeast, &zone_ysouth );
+      std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
+      std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
       unsigned zx, zy;
       for ( zx = zone_xwest; zx <= zone_xeast; ++zx )
       {
@@ -148,7 +149,7 @@ void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
 RegionId RegionGroupBase::getregionid( xcoord x, ycoord y, Realms::Realm* realm )
 {
   unsigned zx, zy;
-  XyToZone( x, y, &zx, &zy );
+  std::tie( zx, zy ) = XyToZone( x, y );
   RegionId** regiongrp;
   if ( realm->is_shadowrealm )
     regiongrp = regionrealms[realm->baserealm];
@@ -243,5 +244,5 @@ void read_region_data( RegionGroupBase& grp, const char* preferred_filename,
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
