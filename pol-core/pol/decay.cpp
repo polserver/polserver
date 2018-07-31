@@ -69,7 +69,7 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
         if ( !descriptor.decays_on_multis )
         {
           Multi::UMulti* multi = realm->find_supporting_multi( item->x, item->y, item->z );
-          if ( multi == NULL )
+          if ( multi == nullptr )
             stateManager.decay_statistics.temp_count_active++;
         }
         else
@@ -89,7 +89,7 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
       Multi::UMulti* multi = realm->find_supporting_multi( item->x, item->y, item->z );
 
       // some things don't decay on multis:
-      if ( multi != NULL && !descriptor.decays_on_multis )
+      if ( multi != nullptr && !descriptor.decays_on_multis )
         continue;
 
       if ( statistics )
@@ -191,7 +191,7 @@ void decay_thread_shadow( void* arg )  // Realm*
   unsigned wy = 0;
   unsigned id = static_cast<Realms::Realm*>( arg )->shadowid;
 
-  if ( gamestate.shadowrealms_by_id[id] == NULL )
+  if ( gamestate.shadowrealms_by_id[id] == nullptr )
     return;
   unsigned gridwidth = gamestate.shadowrealms_by_id[id]->grid_width();
   unsigned gridheight = gamestate.shadowrealms_by_id[id]->grid_height();
@@ -202,7 +202,7 @@ void decay_thread_shadow( void* arg )  // Realm*
     {
       PolLock lck;
       polclock_checkin();
-      if ( gamestate.shadowrealms_by_id[id] == NULL )  // is realm still there?
+      if ( gamestate.shadowrealms_by_id[id] == nullptr )  // is realm still there?
         break;
       decay_single_zone( gamestate.shadowrealms_by_id[id], gridwidth, gridheight, wx, wy );
       restart_all_clients();

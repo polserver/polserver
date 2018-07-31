@@ -128,7 +128,7 @@ void PrivUpdater::on_change_see_ghosts( Character* chr, bool enable )
 void PrivUpdater::on_change_see_invis_items( Character* chr, bool enable )
 {
   // NPCs don't care about invisible items, so we only need to check for active clients.
-  if ( chr == NULL || !chr->has_active_client() )
+  if ( chr == nullptr || !chr->has_active_client() )
     return;
 
   if ( enable )
@@ -164,7 +164,7 @@ void PrivUpdater::on_change_invul( Character* chr, bool enable )
 
 bool PrivUpdater::is_active_or_npc( Character* chr )
 {
-  return chr != NULL && ( chr->has_active_client() || chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) );
+  return chr != nullptr && ( chr->has_active_client() || chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) );
 }
 
 void PrivUpdater::enable_see_hidden( Character* in_range_chr, Character* chr )

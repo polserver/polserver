@@ -145,8 +145,8 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
   UOPathState* NewNode;
   short i, j;
   short newx, newy, newz;
-  Multi::UMulti* supporting_multi = NULL;
-  Items::Item* walkon_item = NULL;
+  Multi::UMulti* supporting_multi = nullptr;
+  Items::Item* walkon_item = nullptr;
   bool blocked;
   UOPathState SolutionStartNode = ( *( astarsearch->GetSolutionStart() ) );
   UOPathState SolutionEndNode = ( *( astarsearch->GetSolutionEnd() ) );

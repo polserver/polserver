@@ -87,24 +87,24 @@ polclock_t polclock()
 
 void start_poltime()
 {
-  poltime_base = time( NULL );
+  poltime_base = time( nullptr );
 }
 void pause_poltime()
 {
-  poltime_paused_at = time( NULL );
+  poltime_paused_at = time( nullptr );
 }
 void restart_poltime()
 {
-  time_t poltime_diff = time( NULL ) - poltime_paused_at;
+  time_t poltime_diff = time( nullptr ) - poltime_paused_at;
   poltime_base += poltime_diff;
 }
 
 time_t poltime()
 {
 #ifndef POLCLOCK_STRETCH
-  return time( NULL ) - poltime_base;
+  return time( nullptr ) - poltime_base;
 #else
-  return ( time( NULL ) - poltime_base ) / POLCLOCK_STRETCH;
+  return ( time( nullptr ) - poltime_base ) / POLCLOCK_STRETCH;
 #endif
 }
 

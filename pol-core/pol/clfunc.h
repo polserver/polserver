@@ -4,7 +4,7 @@
 #define __CLFUNC_H
 
 
-// this is for NULLs found..
+// this is for nullptrs found..
 #include <cstddef>
 
 #include "../clib/rawtypes.h"

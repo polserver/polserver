@@ -99,14 +99,14 @@ public:
 
   bool walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                    Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                   Core::MOVEMODE movemode, short* gradual_boost = NULL );
+                   Core::MOVEMODE movemode, short* gradual_boost = nullptr );
   bool walkheight( const Mobile::Character* chr, unsigned short x, unsigned short y, short oldz,
                    short* newz, Multi::UMulti** pmulti, Items::Item** pwalkon,
-                   short* gradual_boost = NULL );
+                   short* gradual_boost = nullptr );
 
   bool lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                           Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                          Core::MOVEMODE movemode, short* gradual_boost = NULL );
+                          Core::MOVEMODE movemode, short* gradual_boost = nullptr );
 
   bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
                    Multi::UMulti** pmulti );
@@ -148,10 +148,10 @@ protected:
   };
 
   static void standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
-                           bool* result, short* newz, short* gradual_boost = NULL );
+                           bool* result, short* newz, short* gradual_boost = nullptr );
 
   static void lowest_standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
-                                  bool* result, short* newz, short* gradual_boost = NULL );
+                                  bool* result, short* newz, short* gradual_boost = nullptr );
 
   static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );
 

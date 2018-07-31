@@ -72,7 +72,7 @@ Bscript::BObjectImp* StoredConfigElem::getimp( const std::string& propname ) con
 {
   PropImpList::const_iterator itr = propimps_.find( boost_utils::cfg_key_flystring( propname ) );
   if ( itr == propimps_.end() )
-    return NULL;
+    return nullptr;
   else
     return ( *itr ).second.get();
 }
@@ -139,7 +139,7 @@ void StoredConfigFile::load( Clib::ConfigFile& cf )
 
     if ( isdigit( elem.rest()[0] ) )
     {
-      unsigned int key = strtoul( elem.rest(), NULL, 0 );
+      unsigned int key = strtoul( elem.rest(), nullptr, 0 );
       elements_bynum_.insert( ElementsByNum::value_type( key, elemref ) );
     }
 

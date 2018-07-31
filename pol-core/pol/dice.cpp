@@ -132,7 +132,7 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
           return false;
         }
         str += 1;
-        plus_damage = strtoul( str, NULL, 0 );
+        plus_damage = strtoul( str, nullptr, 0 );
         if ( sign == '-' )
           plus_damage = -plus_damage;
       }
@@ -151,7 +151,7 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
       }
       die_count = 0;
       die_type = 0;
-      plus_damage = strtoul( str, NULL, 0 );
+      plus_damage = strtoul( str, nullptr, 0 );
     }
     return true;
   }

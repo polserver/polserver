@@ -39,7 +39,7 @@ Account::Account( Clib::ConfigElem& elem )
   // If too low, will cause the client to freeze and the console to report
   // Exception in message handler 0x91: vector
   for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
-    characters_.push_back( Core::CharacterRef( NULL ) );
+    characters_.push_back( Core::CharacterRef( nullptr ) );
 
   readfrom( elem );
 }
@@ -72,7 +72,7 @@ void Account::readfrom( Clib::ConfigElem& elem )
 
   std::string cmdaccstr = elem.remove_string( "DefaultCmdLevel", "player" );
   Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdaccstr.c_str() );
-  if ( cmdlevel_search != NULL )
+  if ( cmdlevel_search != nullptr )
     default_cmdlevel_ = cmdlevel_search->cmdlevel;
   else
     elem.throw_error( "Didn't understand cmdlevel of '" + cmdaccstr + "'" );
@@ -146,8 +146,8 @@ Account::~Account()
   {
     if ( characters_[i].get() )
     {
-      if ( characters_[i]->client != NULL && characters_[i]->client->acct == this )
-        characters_[i]->client->acct = NULL;
+      if ( characters_[i]->client != nullptr && characters_[i]->client->acct == this )
+        characters_[i]->client->acct = nullptr;
 
       characters_[i]->acct.clear();
       characters_[i].clear();

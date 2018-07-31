@@ -281,7 +281,7 @@ bool client_io_thread( Network::Client* client, bool login )
     return true;
   POLLOG.Format( "Client#{} ({}): disconnected (account {})\n" )
       << client->instance_ << Network::AddressToString( &client->ipaddr )
-      << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" );
+      << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" );
 
 
   try
@@ -685,7 +685,7 @@ void report_weird_packet( Network::Client* client, const std::string& why )
   fmt::Writer tmp;
   tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )
       << client->instance_ << why << (int)client->buffer[0] << client->bytes_received
-      << client->ipaddrAsString() << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
+      << client->ipaddrAsString() << ( ( client->acct != nullptr ) ? client->acct->name() : "None" );
 
   if ( client->bytes_received <= 64 )
   {

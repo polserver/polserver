@@ -69,7 +69,7 @@ void Guild::registerWithMembers()
     ++itr;
 
     Mobile::Character* chr = system_find_mobile( mserial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       chr->guild( this );
     }
@@ -94,7 +94,7 @@ void Guild::update_online_members()
     ++itr;
 
     Mobile::Character* chr = Core::system_find_mobile( mserial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       if ( chr->client )
       {
@@ -236,7 +236,7 @@ void write_guilds( Clib::StreamWriter& sw )
 Guild* Guild::FindOrCreateGuild( unsigned int guildid, unsigned int memberserial )
 {
   Guilds::iterator itr = Core::gamestate.guilds.find( guildid );
-  Guild* guild = NULL;
+  Guild* guild = nullptr;
   if ( itr != Core::gamestate.guilds.end() )
     guild = ( *itr ).second.get();
   else
@@ -254,7 +254,7 @@ Guild* Guild::FindOrCreateGuild( unsigned int guildid, unsigned int memberserial
 Guild* Guild::FindGuild( unsigned int guildid )
 {
   Guilds::iterator itr = Core::gamestate.guilds.find( guildid );
-  Guild* guild = NULL;
+  Guild* guild = nullptr;
 
   if ( itr != Core::gamestate.guilds.end() )
     guild = ( *itr ).second.get();

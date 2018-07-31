@@ -105,7 +105,7 @@ ConsoleCommand* ConsoleCommand::find_console_command( char ch )
     if ( cmd.ch == ch )
       return &cmd;
   }
-  return NULL;
+  return nullptr;
 }
 
 void ConsoleCommand::load_console_commands()
@@ -211,7 +211,7 @@ void ConsoleCommand::exec_console_cmd( char ch )
     sd.quickconfig( filename + ".ecl" );
     ref_ptr<Bscript::EScriptProgram> prog =
         find_script2( sd, true, Plib::systemstate.config.cache_interactive_scripts );
-    if ( prog.get() != NULL )
+    if ( prog.get() != nullptr )
       start_script( prog, new Bscript::String( getcmdstr( ch ) ) );
   }
   catch ( const char* msg )

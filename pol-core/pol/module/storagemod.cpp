@@ -57,7 +57,7 @@ BObjectImp* StorageExecutorModule::mf_StorageAreas()
 BObjectImp* StorageExecutorModule::mf_FindStorageArea()
 {
   const String* str = getStringParam( 0 );
-  if ( str != NULL )
+  if ( str != nullptr )
   {
     Core::StorageArea* area = Core::gamestate.storage.find_area( str->value() );
 
@@ -90,7 +90,7 @@ BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 
   Items::Item* item = area->find_root_item( name->value() );
 
-  if ( item != NULL )
+  if ( item != nullptr )
     return new EItemRefObjImp( item );
   else
     return new BError( "Root item not found." );
@@ -116,16 +116,16 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
   const String* name;
   const Items::ItemDesc* descriptor;
 
-  if ( area == NULL || !getStringParam( 1, name ) || !Core::getObjtypeParam( exec, 2, descriptor ) )
+  if ( area == nullptr || !getStringParam( 1, name ) || !Core::getObjtypeParam( exec, 2, descriptor ) )
     return new BError( "Invalid parameter type" );
 
   Items::Item* item = Items::Item::create( *descriptor );
-  if ( item == NULL )
+  if ( item == nullptr )
     return new BError( "Unable to create item" );
 
   item->setname( name->value() );
 
-  if ( item->realm == NULL )
+  if ( item->realm == nullptr )
     item->realm = Core::find_realm( std::string( "britannia" ) );
 
   area->insert_root_item( item );

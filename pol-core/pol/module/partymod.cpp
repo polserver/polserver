@@ -124,7 +124,7 @@ BObjectImp* CreatePartyRefObjImp( Core::Party* party )
 BObjectRef EPartyRefObjImp::get_member( const char* membername )
 {
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
@@ -141,7 +141,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id )  // id test
     while ( itr != obj_->_member_serials.end() )
     {
       Mobile::Character* chr = Core::system_find_mobile( *itr );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
         ++itr;
@@ -155,7 +155,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id )  // id test
   case MBR_LEADER:
   {
     Mobile::Character* chr = Core::system_find_mobile( obj_->_leaderserial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
       return BObjectRef( new EOfflineCharacterRefObjImp( chr ) );
     else
       return BObjectRef( new BLong( 0 ) );
@@ -168,7 +168,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id )  // id test
     while ( itr != obj_->_candidates_serials.end() )
     {
       Mobile::Character* chr = Core::system_find_mobile( *itr );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
         ++itr;
@@ -187,7 +187,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id )  // id test
 BObjectImp* EPartyRefObjImp::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
   {
@@ -224,7 +224,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
         Core::send_sysmessage_cl( chr->client,
                                   Core::CLP_Added );  // You have been added to the party.
       obj_->send_msg_to_all( Core::CLP_Joined, chr->name().c_str(), chr );  //  : joined the party.
-      obj_->send_member_list( NULL );
+      obj_->send_member_list( nullptr );
       obj_->send_stats_on_add( chr );
     }
 
@@ -247,7 +247,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
     {
       bool disband;
       obj_->send_remove_member( chr, &disband );
-      chr->party( NULL );
+      chr->party( nullptr );
       if ( Core::settingsManager.party_cfg.Hooks.OnLeaveParty )
         Core::settingsManager.party_cfg.Hooks.OnLeaveParty->call( chr->make_ref(), new BLong( 0 ) );
       if ( chr->has_active_client() )
@@ -277,7 +277,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
       return new BError( "Character is already leader of this party" );
 
     obj_->set_leader( chr->serial );
-    obj_->send_member_list( NULL );
+    obj_->send_member_list( nullptr );
     return new BLong( 1 );
   }
 
@@ -305,7 +305,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
     if ( obj_->add_candidate( chr->serial ) )
     {
       Mobile::Character* leader = Core::system_find_mobile( obj_->leader() );
-      if ( leader != NULL )
+      if ( leader != nullptr )
       {
         chr->candidate_of( obj_.get() );
         Core::send_invite( chr, leader );
@@ -334,7 +334,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
         Core::send_sysmessage_cl(
             chr->client,
             Core::CLP_Decline );  // You notify them that you do not wish to join the party.
-      if ( leader != NULL )
+      if ( leader != nullptr )
       {
         if ( leader->has_active_client() )
           Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Notify_Decline,
@@ -358,11 +358,11 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool /*
 // party.em Functions:
 bool getPartyParam( Executor& exec, unsigned param, Core::Party*& party, BError*& err )
 {
-  BApplicObjBase* aob = NULL;
+  BApplicObjBase* aob = nullptr;
   if ( exec.hasParams( param + 1 ) )
     aob = exec.getApplicObjParam( param, &party_type );
 
-  if ( aob == NULL )
+  if ( aob == nullptr )
   {
     err = new BError( "Invalid parameter type" );
     return false;
@@ -370,7 +370,7 @@ bool getPartyParam( Executor& exec, unsigned param, Core::Party*& party, BError*
 
   EPartyRefObjImp* pr = static_cast<EPartyRefObjImp*>( aob );
   party = pr->value().get();
-  if ( Core::system_find_mobile( party->leader() ) == NULL )
+  if ( Core::system_find_mobile( party->leader() ) == nullptr )
   {
     err = new BError( "Party has no leader" );
     return false;
@@ -415,7 +415,7 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
       if ( firstmem->has_active_client() )
         Core::send_sysmessage_cl_affix( firstmem->client, Core::CLP_Joined, leader->name().c_str(),
                                         true );
-      party->send_member_list( NULL );
+      party->send_member_list( nullptr );
       party->send_stats_on_add( firstmem );
     }
 

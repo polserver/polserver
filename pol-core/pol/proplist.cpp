@@ -584,7 +584,7 @@ Bscript::BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const in
   }
 
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -592,10 +592,10 @@ Bscript::BObjectImp* CallPropertyListMethod( PropertyList& proplist, const char*
                                              Bscript::Executor& ex, bool& changed )
 {
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return CallPropertyListMethod_id( proplist, objmethod->id, ex, changed );
   else
-    return NULL;
+    return nullptr;
 }
 }
 }

@@ -230,7 +230,7 @@ std::string http_decodestr( const std::string& s )
 {
   std::string decoded;
   const char* t = s.c_str();
-  while ( t != NULL && *t != '\0' )
+  while ( t != nullptr && *t != '\0' )
   {
     if ( *t == '+' )
     {
@@ -375,7 +375,7 @@ bool get_script_page_filename( const std::string& page, ScriptDef& sd )
       std::string pkg_name = page.substr( 5, pkgname_end - 5 );
       // cerr << "pkg name: " << pkg_name << endl;
       Plib::Package* pkg = Plib::find_package( pkg_name );
-      if ( pkg != NULL )
+      if ( pkg != nullptr )
       {
         sd.quickconfig( pkg, "www/" + page.substr( pkgname_end + 1 ) );
         return true;
@@ -423,7 +423,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
   ref_ptr<Bscript::EScriptProgram> program =
       find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
   // find_script( filename, true, config.cache_interactive_scripts );
-  if ( program.get() == NULL )
+  if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << page_sd.name() << "\n";
     res = false;
@@ -475,7 +475,7 @@ bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* p
                   std::string* ppagetype, std::string* redirect_to )
 {
   std::string page = ipage;
-  Plib::Package* pkg = NULL;
+  Plib::Package* pkg = nullptr;
   std::string filedir;
   std::string retdir;
 
@@ -497,7 +497,7 @@ bool decode_page( const std::string& ipage, Plib::Package** ppkg, std::string* p
 
     // cerr << "pkg name: " << pkgname << endl;
     pkg = Plib::find_package( pkgname );
-    if ( pkg == NULL )
+    if ( pkg == nullptr )
       return false;
 
     filedir = pkg->dir() + "www";
@@ -808,7 +808,7 @@ void test_decode()
       lock();
       if (find_package( "testwww" ))
       {
-      test_decode( "/", true, NULL, "scripts/www/index.htm", "htm" );
+      test_decode( "/", true, nullptr, "scripts/www/index.htm", "htm" );
       test_decode( "/pkg/testwww1",
       true, find_package( "testwww1" ), "pkg/test/testwww1/www/index.htm", "htm", "" );
       test_decode( "/pkg/testwww1/noexist.ecl",
@@ -858,7 +858,7 @@ void http_thread( void )
     {
       listen_timeout.tv_sec = 5;
       listen_timeout.tv_usec = 0;
-      res = select( nfds, &listen_fd, NULL, NULL, &listen_timeout );
+      res = select( nfds, &listen_fd, nullptr, nullptr, &listen_timeout );
     } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
     if ( res <= 0 )

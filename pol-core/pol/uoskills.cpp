@@ -28,9 +28,9 @@ const UOSkill& GetUOSkill( unsigned skillid )
 
 UOSkill::UOSkill( const Plib::Package* pkg, Clib::ConfigElem& elem )
     : inited( true ),
-      skillid( strtoul( elem.rest(), NULL, 10 ) ),
+      skillid( strtoul( elem.rest(), nullptr, 10 ) ),
       attributename( elem.remove_string( "Attribute", "" ) ),
-      pAttr( NULL ),
+      pAttr( nullptr ),
       pkg( pkg )
 {
   if ( skillid >= 500 )
@@ -58,7 +58,7 @@ UOSkill::UOSkill( const Plib::Package* pkg, Clib::ConfigElem& elem )
     }
   }
 }
-UOSkill::UOSkill() : inited( false ), skillid( 0 ), attributename( "" ), pAttr( NULL ), pkg( NULL )
+UOSkill::UOSkill() : inited( false ), skillid( 0 ), attributename( "" ), pAttr( nullptr ), pkg( nullptr )
 {
 }
 

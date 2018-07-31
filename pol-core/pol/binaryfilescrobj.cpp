@@ -70,7 +70,7 @@ Bscript::BObjectRef BBinaryfile::get_member_id( const int /*id*/ )  // id test
 Bscript::BObjectRef BBinaryfile::get_member( const char* membername )
 {
   Bscript::ObjMember* objmember = Bscript::getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return Bscript::BObjectRef( Bscript::UninitObject::create() );
@@ -79,10 +79,10 @@ Bscript::BObjectRef BBinaryfile::get_member( const char* membername )
 Bscript::BObjectImp* BBinaryfile::call_method( const char* methodname, Bscript::Executor& ex )
 {
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executor& ex,
@@ -293,7 +293,7 @@ Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executo
   }
 
   default:
-    return NULL;
+    return nullptr;
   }
 }
 

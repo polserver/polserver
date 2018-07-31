@@ -34,7 +34,7 @@ CmdLevel::CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum )
   while ( elem.remove_prop( "DIR", &tmp ) )
   {
     Clib::mklower( tmp );
-    add_searchdir( NULL, Clib::normalized_dir_form( tmp ) );
+    add_searchdir( nullptr, Clib::normalized_dir_form( tmp ) );
   }
   while ( elem.remove_prop( "ALIAS", &tmp ) )
   {

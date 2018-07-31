@@ -76,7 +76,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
 
   bool inRemoteContainer = false, isRemoteContainer = false;
   item = find_legal_item( client->chr, serial, &inRemoteContainer, &isRemoteContainer );
-  if ( item == NULL || isRemoteContainer )
+  if ( item == nullptr || isRemoteContainer )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
     return;
@@ -141,7 +141,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   u16 orig_x = item->x, orig_y = item->y;
   s8 orig_z = item->z;
 
-  if ( item->container != NULL )
+  if ( item->container != nullptr )
   {
     if ( IsCharacter( item->container->serial ) )
       client->chr->gotten_item_source = Mobile::Character::GOTTEN_ITEM_EQUIPPED_ON_SELF;
@@ -160,7 +160,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   item->gotten_by( client->chr );
   item->x = item->y = item->z = 0;  // don't let a boat carry it around
 
-  if ( orig_container != NULL )
+  if ( orig_container != nullptr )
   {
     orig_container->on_remove( client->chr, item );
     if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -182,13 +182,13 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   if ( item->amount_to_remove_is_partial( amount ) )
   {
     Items::Item* new_item = item->slice_stacked_item( amount );
-    if ( new_item != NULL )
+    if ( new_item != nullptr )
     {
       new_item->restart_decay_timer();
       new_item->x = orig_x;
       new_item->y = orig_y;
       new_item->z = orig_z;
-      if ( orig_container != NULL )
+      if ( orig_container != nullptr )
       {
         // NOTE: we just removed 'item' from its container,
         // so there's room for new_item.
@@ -200,7 +200,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
           new_item->z = client->chr->z;
           add_item_to_world( new_item );
           register_with_supporting_multi( new_item );
-          move_item( new_item, new_item->x, new_item->y, new_item->z, NULL );
+          move_item( new_item, new_item->x, new_item->y, new_item->z, nullptr );
         }
         else
         {
@@ -309,7 +309,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
           item->z = chr->z;
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x, chr->y, chr->z, NULL );
+          move_item( item, chr->x, chr->y, chr->z, nullptr );
           return;
         }
         else
@@ -325,7 +325,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
           item->z = chr->z;
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x, chr->y, chr->z, NULL );
+          move_item( item, chr->x, chr->y, chr->z, nullptr );
           return;
         }
         else
@@ -338,7 +338,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
 
     // Attempt to place the item in the player's backpack.
     UContainer* bp = chr->backpack();
-    if ( bp != NULL && bp->can_add( *item ) &&
+    if ( bp != nullptr && bp->can_add( *item ) &&
          bp->can_insert_add_item( chr, UContainer::MT_PLAYER, item ) )
     {
       if ( item->orphan() )
@@ -354,7 +354,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
           item->z = chr->z;
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x, chr->y, chr->z, NULL );
+          move_item( item, chr->x, chr->y, chr->z, nullptr );
           return;
         }
         else
@@ -370,7 +370,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
           item->z = chr->z;
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x, chr->y, chr->z, NULL );
+          move_item( item, chr->x, chr->y, chr->z, nullptr );
           return;
         }
         else
@@ -388,7 +388,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
   item->y = chr->y;
   item->z = chr->z;
   item->realm = chr->realm;
-  item->container = NULL;
+  item->container = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.
   item->layer = 0;
 

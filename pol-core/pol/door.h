@@ -41,7 +41,7 @@ class UDoor : public ULockable
   typedef ULockable base;
 
 public:
-  virtual ~UDoor(){};
+  virtual ~UDoor() = default;
   virtual size_t estimatedSize() const POL_OVERRIDE;
 
 private:

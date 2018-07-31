@@ -68,7 +68,7 @@ void install_null_handler( int sig )
   sa_null.sa_handler = null_handler;
   sigemptyset( &sa_null.sa_mask );
   sa_null.sa_flags = 0;
-  if ( sigaction( sig, &sa_null, NULL ) == -1 )
+  if ( sigaction( sig, &sa_null, nullptr ) == -1 )
   {
     perror( "sigaction failed" );
     if ( Clib::Logging::global_logger )
@@ -94,7 +94,7 @@ void install_signal_handlers()
   sigdelset( &blocked_sigs, SIGUSR2 );
   sigdelset( &blocked_sigs, SIGUSR1 );
 
-  int res = pthread_sigmask( SIG_BLOCK, &blocked_sigs, NULL );
+  int res = pthread_sigmask( SIG_BLOCK, &blocked_sigs, nullptr );
   if ( res )
   {
     ERROR_PRINT << "pthread_sigmask failed: " << res << "\n";

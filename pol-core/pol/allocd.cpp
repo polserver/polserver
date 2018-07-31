@@ -28,7 +28,7 @@ void PrintAllocationData()
 #ifdef _WIN32
   _HEAPINFO hinfo;
   int heapstatus;
-  hinfo._pentry = NULL;
+  hinfo._pentry = nullptr;
   size_t blocks_used = 0, bytes_used = 0, blocks_free = 0, bytes_free = 0;
   while ( ( heapstatus = _heapwalk( &hinfo ) ) == _HEAPOK )
   {

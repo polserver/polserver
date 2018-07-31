@@ -5,7 +5,7 @@
  * - 2009/08/25 Shinigami: STLport-5.2.1 fix: init order changed of _leaderserial
  *                         STLport-5.2.1 fix: UCconv, bytemsg and wtextoffset not used
  *                         STLport-5.2.1 fix: "wtext[ SPEECH_MAX_LEN+1 ];" has no effect
- *                         STLport-5.2.1 fix: illegal usage of NULL instead of 0
+ *                         STLport-5.2.1 fix: illegal usage of nullptr instead of 0
  *                         STLport-5.2.1 fix: initialization of member in handle_party_msg()
  * - 2009/08/26 Turley:    changed convertUCtoArray() to if check
  * - 2009/11/17 Turley:    fixed hang due to illegal pointers
@@ -127,31 +127,31 @@ void load_party_cfg_hooks( Clib::ConfigElem& elem )
 {
   std::string temp;
   if ( elem.remove_prop( "CanAddToParty", &temp ) )
-    settingsManager.party_cfg.Hooks.CanAddToParty = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.party_cfg.Hooks.CanAddToParty = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "CanRemoveMember", &temp ) )
-    settingsManager.party_cfg.Hooks.CanRemoveMember = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.party_cfg.Hooks.CanRemoveMember = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "CanLeaveParty", &temp ) )
-    settingsManager.party_cfg.Hooks.CanLeaveParty = FindExportedFunction( elem, NULL, temp, 1 );
+    settingsManager.party_cfg.Hooks.CanLeaveParty = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "OnPublicChat", &temp ) )
-    settingsManager.party_cfg.Hooks.OnPublicChat = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.party_cfg.Hooks.OnPublicChat = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "OnPrivateChat", &temp ) )
-    settingsManager.party_cfg.Hooks.OnPrivateChat = FindExportedFunction( elem, NULL, temp, 3 );
+    settingsManager.party_cfg.Hooks.OnPrivateChat = FindExportedFunction( elem, nullptr, temp, 3 );
   if ( elem.remove_prop( "OnDisband", &temp ) )
-    settingsManager.party_cfg.Hooks.OnDisband = FindExportedFunction( elem, NULL, temp, 1 );
+    settingsManager.party_cfg.Hooks.OnDisband = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "ChangePublicChat", &temp ) )
-    settingsManager.party_cfg.Hooks.ChangePublicChat = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.party_cfg.Hooks.ChangePublicChat = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "ChangePrivateChat", &temp ) )
-    settingsManager.party_cfg.Hooks.ChangePrivateChat = FindExportedFunction( elem, NULL, temp, 3 );
+    settingsManager.party_cfg.Hooks.ChangePrivateChat = FindExportedFunction( elem, nullptr, temp, 3 );
   if ( elem.remove_prop( "OnLeaveParty", &temp ) )
-    settingsManager.party_cfg.Hooks.OnLeaveParty = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.party_cfg.Hooks.OnLeaveParty = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "OnAddToParty", &temp ) )
-    settingsManager.party_cfg.Hooks.OnAddToParty = FindExportedFunction( elem, NULL, temp, 1 );
+    settingsManager.party_cfg.Hooks.OnAddToParty = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "OnPartyCreate", &temp ) )
-    settingsManager.party_cfg.Hooks.OnPartyCreate = FindExportedFunction( elem, NULL, temp, 1 );
+    settingsManager.party_cfg.Hooks.OnPartyCreate = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "OnDecline", &temp ) )
-    settingsManager.party_cfg.Hooks.OnDecline = FindExportedFunction( elem, NULL, temp, 1 );
+    settingsManager.party_cfg.Hooks.OnDecline = FindExportedFunction( elem, nullptr, temp, 1 );
   if ( elem.remove_prop( "OnLootPermChange", &temp ) )
-    settingsManager.party_cfg.Hooks.OnLootPermChange = FindExportedFunction( elem, NULL, temp, 1 );
+    settingsManager.party_cfg.Hooks.OnLootPermChange = FindExportedFunction( elem, nullptr, temp, 1 );
 }
 void load_party_cfg( bool reload )
 {
@@ -185,70 +185,70 @@ void load_party_cfg( bool reload )
 
 void unload_party_hooks()
 {
-  if ( settingsManager.party_cfg.Hooks.CanAddToParty != NULL )
+  if ( settingsManager.party_cfg.Hooks.CanAddToParty != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.CanAddToParty;
-    settingsManager.party_cfg.Hooks.CanAddToParty = NULL;
+    settingsManager.party_cfg.Hooks.CanAddToParty = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.CanRemoveMember != NULL )
+  if ( settingsManager.party_cfg.Hooks.CanRemoveMember != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.CanRemoveMember;
-    settingsManager.party_cfg.Hooks.CanRemoveMember = NULL;
+    settingsManager.party_cfg.Hooks.CanRemoveMember = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.CanLeaveParty != NULL )
+  if ( settingsManager.party_cfg.Hooks.CanLeaveParty != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.CanLeaveParty;
-    settingsManager.party_cfg.Hooks.CanLeaveParty = NULL;
+    settingsManager.party_cfg.Hooks.CanLeaveParty = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnPublicChat != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnPublicChat != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnPublicChat;
-    settingsManager.party_cfg.Hooks.OnPublicChat = NULL;
+    settingsManager.party_cfg.Hooks.OnPublicChat = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnPrivateChat != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnPrivateChat != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnPrivateChat;
-    settingsManager.party_cfg.Hooks.OnPrivateChat = NULL;
+    settingsManager.party_cfg.Hooks.OnPrivateChat = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnDisband != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnDisband != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnDisband;
-    settingsManager.party_cfg.Hooks.OnDisband = NULL;
+    settingsManager.party_cfg.Hooks.OnDisband = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.ChangePublicChat != NULL )
+  if ( settingsManager.party_cfg.Hooks.ChangePublicChat != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.ChangePublicChat;
-    settingsManager.party_cfg.Hooks.ChangePublicChat = NULL;
+    settingsManager.party_cfg.Hooks.ChangePublicChat = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.ChangePrivateChat != NULL )
+  if ( settingsManager.party_cfg.Hooks.ChangePrivateChat != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.ChangePrivateChat;
-    settingsManager.party_cfg.Hooks.ChangePrivateChat = NULL;
+    settingsManager.party_cfg.Hooks.ChangePrivateChat = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnLeaveParty != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnLeaveParty != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnLeaveParty;
-    settingsManager.party_cfg.Hooks.OnLeaveParty = NULL;
+    settingsManager.party_cfg.Hooks.OnLeaveParty = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnAddToParty != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnAddToParty != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnAddToParty;
-    settingsManager.party_cfg.Hooks.OnAddToParty = NULL;
+    settingsManager.party_cfg.Hooks.OnAddToParty = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnPartyCreate != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnPartyCreate != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnPartyCreate;
-    settingsManager.party_cfg.Hooks.OnPartyCreate = NULL;
+    settingsManager.party_cfg.Hooks.OnPartyCreate = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnDecline != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnDecline != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnDecline;
-    settingsManager.party_cfg.Hooks.OnDecline = NULL;
+    settingsManager.party_cfg.Hooks.OnDecline = nullptr;
   }
-  if ( settingsManager.party_cfg.Hooks.OnLootPermChange != NULL )
+  if ( settingsManager.party_cfg.Hooks.OnLootPermChange != nullptr )
   {
     delete settingsManager.party_cfg.Hooks.OnLootPermChange;
-    settingsManager.party_cfg.Hooks.OnLootPermChange = NULL;
+    settingsManager.party_cfg.Hooks.OnLootPermChange = nullptr;
   }
 }
 void unload_party()
@@ -292,7 +292,7 @@ bool Party::register_with_members()
   while ( itr != _member_serials.end() )
   {
     Mobile::Character* chr = system_find_mobile( *itr );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       chr->party( this );
       ++itr;
@@ -304,7 +304,7 @@ bool Party::register_with_members()
     return ( false );
   if ( !test_size() )
     return ( false );
-  if ( system_find_mobile( _leaderserial ) == NULL )
+  if ( system_find_mobile( _leaderserial ) == nullptr )
     _leaderserial = *_member_serials.begin();
 
   return true;
@@ -420,7 +420,7 @@ void Party::send_member_list( Mobile::Character* to_chr )
   while ( itr != _member_serials.end() )
   {
     Mobile::Character* chr = system_find_mobile( *itr );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       msg->Write<u32>( chr->serial_ext );
       ++itr;
@@ -435,12 +435,12 @@ void Party::send_member_list( Mobile::Character* to_chr )
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
-  if ( to_chr == NULL )
+  if ( to_chr == nullptr )
   {
     for ( const auto& serial : _member_serials )
     {
       Mobile::Character* chr = system_find_mobile( serial );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         if ( chr->has_active_client() )
           msg.Send( chr->client, len );
@@ -459,7 +459,7 @@ void Party::disband()
   for ( const auto& serial : _member_serials )
   {
     Mobile::Character* chr = system_find_mobile( serial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       chr->party( nullptr );
       if ( chr->has_active_client() )
@@ -472,13 +472,13 @@ void Party::disband()
   for ( const auto& serial : _candidates_serials )
   {
     Mobile::Character* chr = system_find_mobile( serial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
       chr->candidate_of( nullptr );
   }
   for ( const auto& serial : _offlinemember_serials )
   {
     Mobile::Character* chr = system_find_mobile( serial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
       chr->offline_mem_of( nullptr );
   }
 
@@ -508,7 +508,7 @@ void Party::send_remove_member( Mobile::Character* remchr, bool* disband )
     while ( itr != _member_serials.end() )
     {
       Mobile::Character* chr = system_find_mobile( *itr );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         msg->Write<u32>( chr->serial_ext );
         ++itr;
@@ -525,7 +525,7 @@ void Party::send_remove_member( Mobile::Character* remchr, bool* disband )
     for ( const auto& serial : _member_serials )
     {
       Mobile::Character* chr = system_find_mobile( serial );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         if ( chr->has_active_client() )
           msg.Send( chr->client, len );
@@ -545,7 +545,7 @@ void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
 {
   Network::PktHelper::PacketOut<Network::PktOut_C1> msgc1;
   Network::PktHelper::PacketOut<Network::PktOut_CC> msgcc;
-  if ( affix != NULL )
+  if ( affix != nullptr )
     build_sysmessage_cl_affix( msgcc.Get(), clilocnr, affix, true );
   else
     build_sysmessage_cl( msgc1.Get(), clilocnr );
@@ -553,13 +553,13 @@ void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
   for ( const auto& serial : _member_serials )
   {
     Mobile::Character* chr = system_find_mobile( serial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       if ( chr != exeptchr )
       {
         if ( chr->has_active_client() )
         {
-          if ( affix != NULL )
+          if ( affix != nullptr )
             msgcc.Send( chr->client );
           else
             msgc1.Send( chr->client );
@@ -583,12 +583,12 @@ void Party::send_stat_to( Mobile::Character* chr, Mobile::Character* bob ) const
 
 void Party::send_stats_on_add( Mobile::Character* newmember ) const
 {
-  if ( newmember == NULL )
+  if ( newmember == nullptr )
     return;
   for ( const auto& serial : _member_serials )
   {
     Mobile::Character* chr = system_find_mobile( serial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       if ( newmember != chr )
       {
@@ -625,7 +625,7 @@ void Party::on_mana_changed( Mobile::Character* chr ) const
   for ( const auto& serial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( serial );
-    if ( mem != NULL )
+    if ( mem != nullptr )
     {
       if ( mem != chr )
       {
@@ -653,7 +653,7 @@ void Party::on_stam_changed( Mobile::Character* chr ) const
   for ( const auto& serial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( serial );
-    if ( mem != NULL )
+    if ( mem != nullptr )
     {
       if ( mem != chr )
       {
@@ -703,7 +703,7 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
   for ( const auto& serial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( serial );
-    if ( mem != NULL )
+    if ( mem != nullptr )
     {
       if ( mem->has_active_client() )
         msg.Send( mem->client, len );
@@ -763,7 +763,7 @@ void Party::printOn( Clib::StreamWriter& sw ) const
 {
   if ( _member_serials.size() <= 1 )
     return;
-  if ( system_find_mobile( _leaderserial ) == NULL )
+  if ( system_find_mobile( _leaderserial ) == nullptr )
     return;
 
   sw() << "Party" << pf_endl << "{" << pf_endl << "\tLeader\t0x" << fmt::hex( _leaderserial )
@@ -772,7 +772,7 @@ void Party::printOn( Clib::StreamWriter& sw ) const
   for ( const auto& mserial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( mserial );
-    if ( mem != NULL )
+    if ( mem != nullptr )
       sw() << "\tMember\t0x" << fmt::hex( mserial ) << pf_endl;
   }
   _proplist.printProperties( sw );
@@ -790,7 +790,7 @@ size_t Party::estimateSize() const
 
 void send_empty_party( Mobile::Character* chr )
 {
-  if ( chr != NULL && chr->has_active_client() )
+  if ( chr != nullptr && chr->has_active_client() )
   {
     Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
     msg->WriteFlipped<u16>( 11u );
@@ -892,7 +892,7 @@ void on_loggoff_party( Mobile::Character* chr )
           party->set_leader( party->get_member_at( 0 ) );
           party->send_msg_to_all(
               CLP_Player_Removed );  // A player has been removed from your party.
-          party->send_member_list( NULL );
+          party->send_member_list( nullptr );
         }
         else
           party->send_remove_member( chr, &disband );
@@ -927,7 +927,7 @@ void on_loggon_party( Mobile::Character* chr )
       {
         chr->party( party );
         send_sysmessage_cl( chr->client, CLP_Rejoined );  // You have rejoined the party.
-        party->send_member_list( NULL );
+        party->send_member_list( nullptr );
         party->send_stats_on_add( chr );
         party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(),
                                 chr );  //: rejoined the party.
@@ -981,7 +981,7 @@ void party_cmd_handler( Network::Client* client, PKTBI_BF* msg )
 
 void handle_add_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 {
-  if ( chr->client != NULL )
+  if ( chr->client != nullptr )
   {
     Mobile::Character* add = system_find_mobile( cfBEu32( msgin->selected_serial ) );
     add_candidate( add, chr );
@@ -1004,10 +1004,10 @@ void handle_add( Network::Client* client, PKTBI_BF* msg )
 
 void handle_remove_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 {
-  if ( chr->client != NULL )
+  if ( chr->client != nullptr )
   {
     Mobile::Character* rem = system_find_mobile( cfBEu32( msgin->selected_serial ) );
-    if ( rem != NULL )
+    if ( rem != nullptr )
     {
       Party* party = chr->party();
       if ( ( party == nullptr ) || ( !party->is_leader( chr->serial ) ) ||
@@ -1056,7 +1056,7 @@ void handle_remove( Network::Client* client, PKTBI_BF* msg )
   }
   Mobile::Character* member = system_find_mobile( cfBEu32( msg->partydata.partyremove.memberid ) );
   // leader wants target
-  if ( ( party->is_leader( client->chr->serial ) ) && ( member == NULL ) )
+  if ( ( party->is_leader( client->chr->serial ) ) && ( member == nullptr ) )
   {
     send_sysmessage_cl( client,
                         CLP_Who_to_Remove );  // Who would you like to remove from your party?
@@ -1113,7 +1113,7 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
   using std::wcout;
   Mobile::Character* member =
       system_find_mobile( cfBEu32( msg->partydata.partymembermsg.memberid ) );
-  if ( member != NULL )
+  if ( member != nullptr )
   {
     Party* party = client->chr->party();
 
@@ -1275,7 +1275,7 @@ void handle_accept_invite( Network::Client* client, PKTBI_BF* msg )
 {
   Mobile::Character* leader =
       system_find_mobile( cfBEu32( msg->partydata.partyaccinvite.leaderid ) );
-  if ( leader != NULL )
+  if ( leader != nullptr )
   {
     Party* party = leader->party();
     if ( party != nullptr )
@@ -1293,7 +1293,7 @@ void handle_accept_invite( Network::Client* client, PKTBI_BF* msg )
 
           party->send_msg_to_all( CLP_Joined, client->chr->name().c_str(),
                                   client->chr );  //  : joined the party.
-          party->send_member_list( NULL );
+          party->send_member_list( nullptr );
           party->send_stats_on_add( client->chr );
         }
       }
@@ -1307,7 +1307,7 @@ void handle_decline_invite( Network::Client* client, PKTBI_BF* msg )
 {
   Mobile::Character* leader =
       system_find_mobile( cfBEu32( msg->partydata.partydecinvite.leaderid ) );
-  if ( leader != NULL )
+  if ( leader != nullptr )
   {
     Party* party = leader->party();
     if ( party != nullptr )
@@ -1418,7 +1418,7 @@ void invite_timeout( Mobile::Character* mem )
       Mobile::Character* leader = system_find_mobile( party->leader() );
       if ( settingsManager.party_cfg.Hooks.OnDecline )
         settingsManager.party_cfg.Hooks.OnDecline->call( mem->make_ref() );
-      if ( leader != NULL )
+      if ( leader != nullptr )
       {
         if ( leader->has_active_client() )
           send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, mem->name().c_str(),
@@ -1497,7 +1497,7 @@ void Character::set_party_can_loot( bool b )
 
 void Character::set_party_invite_timeout()
 {
-  if ( this->party_decline_timeout_ != NULL )
+  if ( this->party_decline_timeout_ != nullptr )
     this->party_decline_timeout_->cancel();
   Core::polclock_t timeout =
       Core::polclock() +
@@ -1508,14 +1508,14 @@ void Character::set_party_invite_timeout()
 
 bool Character::has_party_invite_timeout() const
 {
-  if ( this->party_decline_timeout_ != NULL )
+  if ( this->party_decline_timeout_ != nullptr )
     return false;
   return true;
 }
 
 void Character::cancel_party_invite_timeout()
 {
-  if ( this->party_decline_timeout_ != NULL )
+  if ( this->party_decline_timeout_ != nullptr )
     this->party_decline_timeout_->cancel();
 }
 }

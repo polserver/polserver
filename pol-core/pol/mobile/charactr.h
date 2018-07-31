@@ -540,7 +540,7 @@ public:
   void set_dexterity( u16 dexterity );
   void validate_stat_ranges();
 
-  double apply_damage( double damage, Character* source = NULL, bool userepsys = true,
+  double apply_damage( double damage, Character* source = nullptr, bool userepsys = true,
                        bool send_damage_packet = false );
   void heal_damage_hundredths( unsigned int damage );
 
@@ -638,8 +638,8 @@ public:
   bool casting_spell() const;
   bool skill_ex_active() const;
   bool start_script( Bscript::EScriptProgram* prog, bool start_attached,
-                     Bscript::BObjectImp* param2 = NULL, Bscript::BObjectImp* param3 = NULL,
-                     Bscript::BObjectImp* param4 = NULL );
+                     Bscript::BObjectImp* param2 = nullptr, Bscript::BObjectImp* param3 = nullptr,
+                     Bscript::BObjectImp* param4 = nullptr );
   bool start_skill_script( Bscript::EScriptProgram* prog );
   bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
                              bool start_attached );
@@ -1012,12 +1012,12 @@ inline unsigned short Character::ar() const
 
 inline bool Character::skill_ex_active() const
 {
-  return ( script_ex != NULL );
+  return ( script_ex != nullptr );
 }
 
 inline bool Character::casting_spell() const
 {
-  return ( spell_task != NULL );
+  return ( spell_task != nullptr );
 }
 
 inline const Character::CharacterSet& Character::hostiles() const
@@ -1040,7 +1040,7 @@ inline bool Character::can_dblclickany() const
 
 inline bool Character::has_shield() const
 {
-  return ( shield != NULL );
+  return ( shield != nullptr );
 }
 
 inline Items::UArmor* Character::get_shield() const

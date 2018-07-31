@@ -13,7 +13,7 @@
  * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
  * - 2009/08/06 MuadDib:   Added gotten_by code for items.
  * - 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
- * - 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return NULL to reject
+ * - 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return nullptr to reject
  * move instead of a crash.
  *                         Added slot support to find_giveitem_container()
  * - 2009/09/03 MuadDib:   Changes for account related source file relocation
@@ -138,7 +138,7 @@ bool place_item_in_secure_trade_container( Network::Client* client, Items::Item*
 {
   UContainer* cont = client->chr->trade_container();
   Mobile::Character* dropon = client->chr->trading_with.get();
-  if ( dropon == NULL || dropon->client == NULL )
+  if ( dropon == nullptr || dropon->client == nullptr )
   {
     send_sysmessage( client, "Unable to complete trade" );
     return false;
@@ -176,7 +176,7 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
 {
   UContainer* cont = client->chr->trade_container();
   Mobile::Character* dropon = client->chr->trading_with.get();
-  if ( dropon == NULL || dropon->client == NULL )
+  if ( dropon == nullptr || dropon->client == nullptr )
   {
     return new Bscript::BError( "Unable to complete trade" );
   }
@@ -293,7 +293,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
 {
   Items::Item* target_item = find_legal_item( client->chr, target_serial );
 
-  if ( target_item == NULL && client->chr->is_trading() )
+  if ( target_item == nullptr && client->chr->is_trading() )
   {
     UContainer* cont = client->chr->trade_container();
     if ( target_serial == cont->serial )
@@ -307,7 +307,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     }
   }
 
-  if ( target_item == NULL )
+  if ( target_item == nullptr )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -329,7 +329,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
   {
     if ( item->no_drop() )
     {
-      if ( target_item->container == NULL || !target_item->container->no_drop_exception() )
+      if ( target_item->container == nullptr || !target_item->container->no_drop_exception() )
       {
         send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
         return false;
@@ -406,10 +406,10 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
     }
     setrealm( item, (void*)chr->realm );
   }
-  item->container = NULL;
+  item->container = nullptr;
   item->reset_slot();
   add_item_to_world( item );
-  if ( multi != NULL )
+  if ( multi != nullptr )
   {
     multi->register_object( item );
   }
@@ -421,14 +421,14 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
 UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
 {
   StorageArea* area = gamestate.storage.create_area( "GivenItems" );
-  passert( area != NULL );
+  passert( area != nullptr );
 
   for ( unsigned short i = 0; i < 500; ++i )
   {
     std::string name = "Cont" + Clib::decint( i );
-    Items::Item* item = NULL;
+    Items::Item* item = nullptr;
     item = area->find_root_item( name );
-    if ( item == NULL )
+    if ( item == nullptr )
     {
       item = Items::Item::create( UOBJ_BACKPACK );
       item->setname( name );
@@ -437,20 +437,20 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
     }
     // Changed this from a passert to return null.
     if ( !( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) ) )
-      return NULL;
+      return nullptr;
     UContainer* cont = static_cast<UContainer*>( item );
     if ( !cont->can_add_to_slot( slotIndex ) )
     {
-      return NULL;
+      return nullptr;
     }
     if ( !item_to_add->slot_index( slotIndex ) )
     {
-      return NULL;
+      return nullptr;
     }
     if ( cont->can_add( *item_to_add ) )
       return cont;
   }
-  return NULL;
+  return nullptr;
 }
 
 void send_trade_container( Network::Client* client, Mobile::Character* whos, UContainer* cont )
@@ -542,7 +542,7 @@ Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Charact
     return new Bscript::BError( "Ghosts cannot trade items." );
   }
 
-  if ( do_open_trade_window( client, NULL, dropon ) )
+  if ( do_open_trade_window( client, nullptr, dropon ) )
     return new Bscript::BLong( 1 );
   else
     return new Bscript::BError( "Something goes wrong." );
@@ -582,7 +582,7 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   msg->Write( client->chr->name().c_str(), 30, false );
   msg.Send( dropon->client );
 
-  if ( item != NULL )
+  if ( item != nullptr )
     return place_item_in_secure_trade_container( client, item, 20, 20 );
   else
     return true;
@@ -593,7 +593,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 {
   Mobile::Character* dropon = find_character( target_serial );
 
-  if ( dropon == NULL )
+  if ( dropon == nullptr )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -646,7 +646,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
   }
 
   UContainer* cont = find_giveitem_container( item, slotIndex );
-  if ( cont == NULL )
+  if ( cont == nullptr )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -684,7 +684,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
                           u8 slotIndex )
 {
   ItemRef itemref( item );
-  UContainer* cont = NULL;
+  UContainer* cont = nullptr;
   if ( IsCharacter( target_serial ) )
   {
     if ( target_serial == client->chr->serial )
@@ -697,12 +697,12 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     }
   }
 
-  if ( cont == NULL )
+  if ( cont == nullptr )
   {
     cont = find_legal_container( client->chr, target_serial );
   }
 
-  if ( cont == NULL )
+  if ( cont == nullptr )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -830,7 +830,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   {
     Multi::UMulti* multi = system_find_multi( target_serial );
 
-    if ( multi != NULL )
+    if ( multi != nullptr )
       res = drop_item_on_ground( client, item, ( multi->x + x ), ( multi->y + y ), z );
     else
       res = place_item( client, item, target_serial, x, y, 0 );
@@ -900,7 +900,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   {
     Multi::UMulti* multi = system_find_multi( target_serial );
 
-    if ( multi != NULL )
+    if ( multi != nullptr )
       res = drop_item_on_ground( client, item, ( multi->x + x ), ( multi->y + y ), z );
     else
       res = place_item( client, item, target_serial, x, y, 0 );
@@ -926,7 +926,7 @@ void return_traded_items( Mobile::Character* chr )
 {
   UContainer* cont = chr->trade_container();
   UContainer* bp = chr->backpack();
-  if ( cont == NULL || bp == NULL )
+  if ( cont == nullptr || bp == nullptr )
     return;
 
   UContainer::Contents tmp;
@@ -935,7 +935,7 @@ void return_traded_items( Mobile::Character* chr )
   {
     Items::Item* item = ITEM_ELEM_PTR( tmp.back() );
     tmp.pop_back();
-    item->container = NULL;
+    item->container = nullptr;
     item->layer = 0;
 
     ItemRef itemref( item );
@@ -954,7 +954,7 @@ void return_traded_items( Mobile::Character* chr )
         item->z = chr->z;
         add_item_to_world( item );
         register_with_supporting_multi( item );
-        move_item( item, item->x, item->y, item->z, NULL );
+        move_item( item, item->x, item->y, item->z, nullptr );
         return;
       }
       bp->add_at_random_location( item );
@@ -970,7 +970,7 @@ void return_traded_items( Mobile::Character* chr )
       item->realm = chr->realm;
       add_item_to_world( item );
       register_with_supporting_multi( item );
-      move_item( item, chr->x, chr->y, chr->z, NULL );
+      move_item( item, chr->x, chr->y, chr->z, nullptr );
     }
   }
 }

@@ -98,7 +98,7 @@ bool FindEquipTemplate( const char* template_name, Clib::ConfigElem& elem )
       if ( !elem.type_is( "Equipment" ) )
         continue;
       const char* rest = elem.rest();
-      if ( rest == NULL || *rest == '\0' )
+      if ( rest == nullptr || *rest == '\0' )
         continue;
       if ( stricmp( rest, template_name ) == 0 )
         return true;
@@ -131,7 +131,7 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* te
       const char* ot_str = objtype_str.c_str();
       if ( isdigit( *ot_str ) )
       {
-        objtype = static_cast<u32>( strtoul( ot_str, NULL, 0 ) );
+        objtype = static_cast<u32>( strtoul( ot_str, nullptr, 0 ) );
       }
       else
       {
@@ -146,10 +146,10 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* te
       unsigned short color = 0;
       if ( is >> color_str )
       {
-        color = static_cast<unsigned short>( strtoul( color_str.c_str(), NULL, 0 ) );
+        color = static_cast<unsigned short>( strtoul( color_str.c_str(), nullptr, 0 ) );
       }
       Items::Item* it = Items::Item::create( objtype );
-      if ( it != NULL )
+      if ( it != nullptr )
       {
         color &= VALID_ITEM_COLOR_MASK;
         it->color = color;
@@ -184,7 +184,7 @@ void send_move_if_inrange2( Mobile::Character* chr, Network::Client* client )
 
 void textcmd_flag1( Network::Client* client, const char* text )
 {
-  tmp_flag1 = (u8)strtoul( text, NULL, 16 );
+  tmp_flag1 = (u8)strtoul( text, nullptr, 16 );
   Core::WorldIterator<Core::MobileFilter>::InVisualRange(
       client->chr,
       [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
@@ -192,7 +192,7 @@ void textcmd_flag1( Network::Client* client, const char* text )
 
 void textcmd_flag2( Network::Client* client, const char* text )
 {
-  tmp_flag2 = (u8)strtoul( text, NULL, 16 );
+  tmp_flag2 = (u8)strtoul( text, nullptr, 16 );
   Core::WorldIterator<Core::MobileFilter>::InVisualRange(
       client->chr,
       [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
@@ -212,7 +212,7 @@ void textcmd_shutdown( Network::Client* /*client*/ )
 
 void handle_ident_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 {
-  if ( chr->client != NULL )
+  if ( chr->client != nullptr )
   {
     char s[80];
     sprintf( s, "Serial: 0x%8.08lX, %ld, ObjType 0x%4.04X",
@@ -297,7 +297,7 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
         client, "Reportable: " + Clib::hexint( rt.serial ) + " at " + Clib::decint( rt.polclock ) );
   }
 
-  if ( mob->repsys_task_ != NULL )
+  if ( mob->repsys_task_ != nullptr )
     send_sysmessage( client, "Repsys task is active, runs in " +
                                  timeoutstr( mob->repsys_task_->next_run_clock() ) + " [" +
                                  Clib::decint( mob->repsys_task_->next_run_clock() ) + "]" );
@@ -373,7 +373,7 @@ void stop_packetlog( Mobile::Character* looker, Mobile::Character* mob )
     Clib::SpinLockGuard guard( mob->client->_fpLog_lock );
     if ( !mob->client->fpLog.empty() )
     {
-      auto time_tm = Clib::localtime( time( NULL ) );
+      auto time_tm = Clib::localtime( time( nullptr ) );
       FLEXLOG( mob->client->fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
       CLOSE_FLEXLOG( mob->client->fpLog );
       mob->client->fpLog.clear();
@@ -398,7 +398,7 @@ void textcmd_stoplog( Network::Client* client )
     Clib::SpinLockGuard guard( client->_fpLog_lock );
     if ( !client->fpLog.empty() )
     {
-      auto time_tm = Clib::localtime( time( NULL ) );
+      auto time_tm = Clib::localtime( time( nullptr ) );
       FLEXLOG( client->fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
       CLOSE_FLEXLOG( client->fpLog );
       client->fpLog.clear();
@@ -561,13 +561,13 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
   return "";
 }
 
-bool start_textcmd_script( Network::Client* client, const char* text, const u16* wtext = NULL,
-                           const char* lang = NULL )
+bool start_textcmd_script( Network::Client* client, const char* text, const u16* wtext = nullptr,
+                           const char* lang = nullptr )
 {
   std::string scriptname;
   std::string params;
   const char* t = strchr( text, ' ' );
-  if ( t != NULL )
+  if ( t != nullptr )
   {
     scriptname = std::string( text, t );
     params = t + 1;
@@ -616,7 +616,7 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
           find_script2( sd,
                         false,  // don't complain if not found
                         Plib::systemstate.config.cache_interactive_scripts );
-      if ( prog.get() != NULL )
+      if ( prog.get() != nullptr )
       {
         // Unicode stuff
 
@@ -672,8 +672,8 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
   return false;
 }
 
-bool process_command( Network::Client* client, const char* text, const u16* wtext /*NULL*/,
-                      const char* lang /*NULL*/ )
+bool process_command( Network::Client* client, const char* text, const u16* wtext /*nullptr*/,
+                      const char* lang /*nullptr*/ )
 {
   static int init;
   if ( !init )

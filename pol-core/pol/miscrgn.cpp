@@ -153,7 +153,7 @@ bool WeatherDef::assign_zones_to_region( const char* regionname, unsigned short 
   if ( regionname && regionname[0] )
   {
     Region* rgn = getregion_byname( regionname );
-    if ( rgn == NULL )
+    if ( rgn == nullptr )
       return false;
 
     unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;

@@ -64,9 +64,9 @@ NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg
       // script( elem.read_string( "SCRIPT" ) ),
       alignment( static_cast<ALIGNMENT>(
           translate( elem.read_string( "ALIGNMENT", "neutral" ), xlate_align ) ) ),
-      method_script( NULL )
+      method_script( nullptr )
 {
-  if ( pkg == NULL )
+  if ( pkg == nullptr )
   {
     name = elem.rest();
   }
@@ -98,10 +98,10 @@ NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg
 
 NpcTemplate::~NpcTemplate()
 {
-  if ( method_script != NULL )
+  if ( method_script != nullptr )
   {
     delete method_script;
-    method_script = NULL;
+    method_script = nullptr;
   }
 }
 
@@ -129,7 +129,7 @@ void load_npc_templates()
     Clib::ConfigElem elem;
     while ( cf.read( elem ) )
     {
-      create_npc_template( elem, NULL );
+      create_npc_template( elem, nullptr );
     }
   }
 
@@ -162,7 +162,7 @@ const NpcTemplate& find_npc_template( const Clib::ConfigElem& elem )
   {
     const Plib::Package* pkg;
     std::string path;
-    if ( Plib::pkgdef_split( elem.rest(), NULL, &pkg, &path ) )
+    if ( Plib::pkgdef_split( elem.rest(), nullptr, &pkg, &path ) )
     {
       return create_npc_template( elem, pkg );
     }

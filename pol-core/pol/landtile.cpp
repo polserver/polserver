@@ -21,7 +21,7 @@ namespace Core
 {
 void load_landtile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
-  unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), NULL, 0 ) );
+  unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), nullptr, 0 ) );
   passert_always( graphic < LANDTILE_COUNT );
 
   gamestate.landtiles[graphic].uoflags = elem.remove_ulong( "UoFlags" );

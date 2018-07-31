@@ -139,7 +139,7 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
 BObjectImp* ScriptExObjImp::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
     return new BError( "undefined" );
@@ -204,9 +204,9 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
   case MBR_GLOBALS:
     return BObjectRef( GetGlobals( uoexec ) );
   case MBR_ATTACHED_TO:
-    if ( uoemod->attached_chr_ != NULL )
+    if ( uoemod->attached_chr_ != nullptr )
       return BObjectRef( new Module::ECharacterRefObjImp( uoemod->attached_chr_ ) );
-    else if ( uoemod->attached_npc_ != NULL )
+    else if ( uoemod->attached_npc_ != nullptr )
       return BObjectRef( new Module::ECharacterRefObjImp( uoemod->attached_npc_ ) );
     else if ( uoemod->attached_item_ )
       return BObjectRef( new Module::EItemRefObjImp( uoemod->attached_item_ ) );
@@ -226,7 +226,7 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
 BObjectRef ScriptExObjImp::get_member( const char* membername )
 {
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );

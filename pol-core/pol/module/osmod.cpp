@@ -247,12 +247,12 @@ BObjectImp* OSExecutorModule::start_script()
       return new BError( "Script " + sd.name() + " does not exist." );
     }
     UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy() );
-    if ( new_uoemod == NULL )
+    if ( new_uoemod == nullptr )
     {
       return new BError( "Unable to start script" );
     }
     UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
-    if ( new_uoemod != NULL && this_uoemod != NULL )
+    if ( new_uoemod != nullptr && this_uoemod != nullptr )
     {
       new_uoemod->controller_ = this_uoemod->controller_;
     }
@@ -303,7 +303,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
           script, true,
           /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 
-      if ( prog.get() != NULL )
+      if ( prog.get() != nullptr )
       {
         BObjectImp* imp = exec.getParamImp( 3 );
         if ( imp )
@@ -369,7 +369,7 @@ BObjectImp* OSExecutorModule::is_critical()
 BObjectImp* OSExecutorModule::run_script_to_completion()
 {
   const char* scriptname = exec.paramAsString( 0 );
-  if ( scriptname == NULL )
+  if ( scriptname == nullptr )
     return new BLong( 0 );
 
   // FIXME needs to inherit available modules?
@@ -389,7 +389,7 @@ BObjectImp* OSExecutorModule::run_script()
   UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
   Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
 
-  if ( this_uoexec->pChild == NULL )
+  if ( this_uoexec->pChild == nullptr )
   {
     const String* scriptname_str;
     if ( exec.getStringParam( 0, scriptname_str ) )
@@ -407,7 +407,7 @@ BObjectImp* OSExecutorModule::run_script()
         return new BError( "Script " + sd.name() + " does not exist." );
       }
       UOExecutorModule* new_uoemod = Core::start_script( sd, imp->copy() );
-      if ( new_uoemod == NULL )
+      if ( new_uoemod == nullptr )
       {
         return new BError( "Unable to run script" );
       }
@@ -445,8 +445,8 @@ BObjectImp* OSExecutorModule::run_script()
   else
     ret = this_uoexec->pChild->ValueStack.back().get()->impptr()->copy();
 
-  this_uoexec->pChild->pParent = NULL;
-  this_uoexec->pChild = NULL;
+  this_uoexec->pChild->pParent = nullptr;
+  this_uoexec->pChild = nullptr;
 
   return ret;
 }
@@ -551,7 +551,7 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 {
   Mobile::Character* chr;
   const String* str;
-  if ( getCharacterParam( 0, chr ) && ( ( str = getStringParam( 1 ) ) != NULL ) )
+  if ( getCharacterParam( 0, chr ) && ( ( str = getStringParam( 1 ) ) != nullptr ) )
   {
     if ( chr->has_active_client() )
     {
@@ -585,7 +585,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
   Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
 
-  if ( this_uoexec->pChild == NULL )
+  if ( this_uoexec->pChild == nullptr )
   {
     const String* host;
     const String* scriptname_str;

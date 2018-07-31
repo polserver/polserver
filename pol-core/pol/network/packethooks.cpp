@@ -88,9 +88,9 @@ void ExportedPacketHookHandler( Client* client, void* data )
   u8 msgid = message[0];
   PacketHookData* phd = get_packethook( msgid, client );
 
-  if ( phd->function == NULL && phd->SubCommands.empty() )
+  if ( phd->function == nullptr && phd->SubCommands.empty() )
   {
-    if ( phd->default_handler == NULL )
+    if ( phd->default_handler == nullptr )
       POLLOG.Format( "Expected packet hook function for msg 0x{:X} but was null!\n" )
           << (int)*message;
     else  // only SendFunction is definied but default_handler is definied
@@ -105,15 +105,15 @@ void ExportedPacketHookHandler( Client* client, void* data )
     itr = phd->SubCommands.find( subcmd );
     if ( itr != phd->SubCommands.end() )
     {
-      if ( itr->second->function != NULL )
+      if ( itr->second->function != nullptr )
         phd = itr->second;
     }
   }
   if ( phd->function ==
-       NULL )  // this will happen if the main packet entry does not define a receive function,
+       nullptr )  // this will happen if the main packet entry does not define a receive function,
   // but has subcommands, and we've received an unhooked subcmd.
   {
-    if ( phd->default_handler != NULL )
+    if ( phd->default_handler != nullptr )
       phd->default_handler( client, data );
     return;
   }
@@ -135,7 +135,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
 
     if ( phd->function->call( calling_ref, pkt.get() ) == 0 )
     {
-      if ( phd->default_handler != NULL )
+      if ( phd->default_handler != nullptr )
         phd->default_handler( client, static_cast<void*>( &pkt->buffer[0] ) );
     }
   }
@@ -148,7 +148,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
 
     if ( phd->function->call( calling_ref, pkt.get() ) == 0 )
     {
-      if ( phd->default_handler != NULL )
+      if ( phd->default_handler != nullptr )
       {
         // the buffer size may have changed in the script, make sure the packet gets the right size
         // u16* sizeptr = (u16*)(&pkt->buffer[1]);
@@ -230,14 +230,14 @@ bool GetAndCheckPacketHooked( Client* client, const void*& data, PacketHookData*
     auto itr = phd->SubCommands.find( subcmd );
     if ( itr != phd->SubCommands.end() )
     {
-      if ( itr->second->outgoing_function != NULL )
+      if ( itr->second->outgoing_function != nullptr )
       {
         phd = itr->second;
         subcmd_handler_exists = true;
       }
     }
   }
-  if ( phd->outgoing_function == NULL && !subcmd_handler_exists )
+  if ( phd->outgoing_function == nullptr && !subcmd_handler_exists )
   {
     return false;
   }
@@ -275,9 +275,9 @@ static int load_packethook_length( Clib::ConfigElem& elem )
   else
   {
     unsigned short temp;
-    char* endptr = NULL;
+    char* endptr = nullptr;
     temp = (unsigned short)strtoul( lengthstr.c_str(), &endptr, 0 );
-    if ( temp == 0 || ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) ) )
+    if ( temp == 0 || ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) ) )
     {
       elem.throw_error( "Length must be a positive integer or 'variable'" );
     }
@@ -295,10 +295,10 @@ static void packethook_warn_if_previously_defined( u8 msgid, PacketVersion pktve
   auto existing_in_func = hook_data->function;
   auto existing_out_func = hook_data->outgoing_function;
 
-  if ( existing_in_func != NULL )
+  if ( existing_in_func != nullptr )
     POLLOG.Format( "Packet hook receive function multiply defined for packet 0x{:X}!\n" )
         << (int)msgid;
-  if ( existing_out_func != NULL )
+  if ( existing_out_func != nullptr )
     POLLOG.Format( "Packet hook send function multiply defined for packet 0x{:X}!\n" )
         << (int)msgid;
 }
@@ -314,8 +314,8 @@ void load_packet_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
   std::string client_string;
   VersionDetailStruct client_struct;
 
-  Core::ExportedFunction* exfunc = (Core::ExportedFunction*)NULL;
-  Core::ExportedFunction* exoutfunc = (Core::ExportedFunction*)NULL;
+  Core::ExportedFunction* exfunc = (Core::ExportedFunction*)nullptr;
+  Core::ExportedFunction* exoutfunc = (Core::ExportedFunction*)nullptr;
   if ( elem.has_prop( "ReceiveFunction" ) )
     exfunc =
         Core::FindExportedFunction( elem, pkg, elem.remove_string( "ReceiveFunction" ), 2, true );
@@ -323,9 +323,9 @@ void load_packet_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
     exoutfunc =
         Core::FindExportedFunction( elem, pkg, elem.remove_string( "SendFunction" ), 2, true );
 
-  char* endptr = NULL;
+  char* endptr = nullptr;
   unsigned int idlong = strtoul( elem.rest(), &endptr, 0 );
-  if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+  if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
   {
     elem.throw_error( "Packet ID not defined or poorly formed" );
   }
@@ -383,8 +383,8 @@ void load_subpacket_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
 {
   if ( stricmp( elem.type(), "SubPacket" ) != 0 )
     return;
-  Core::ExportedFunction* exfunc = (Core::ExportedFunction*)NULL;
-  Core::ExportedFunction* exoutfunc = (Core::ExportedFunction*)NULL;
+  Core::ExportedFunction* exfunc = (Core::ExportedFunction*)nullptr;
+  Core::ExportedFunction* exoutfunc = (Core::ExportedFunction*)nullptr;
 
   PacketVersion pktversion;
   std::string client_string;
@@ -397,9 +397,9 @@ void load_subpacket_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
     exoutfunc =
         Core::FindExportedFunction( elem, pkg, elem.remove_string( "SendFunction" ), 2, true );
 
-  char* endptr = NULL;
+  char* endptr = nullptr;
   unsigned int idlong = strtoul( elem.rest(), &endptr, 0 );
-  if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+  if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
   {
     elem.throw_error( "Packet ID not defined or poorly formed" );
   }
@@ -443,9 +443,9 @@ void load_packet_hooks()
 
 PacketHookData::PacketHookData()
     : length( 0 ),
-      function( NULL ),
-      outgoing_function( NULL ),
-      default_handler( NULL ),
+      function( nullptr ),
+      outgoing_function( nullptr ),
+      default_handler( nullptr ),
       sub_command_offset( 0 ),
       sub_command_length( 0 ),
       version( PacketVersion::Default )
@@ -460,9 +460,9 @@ PacketHookData::~PacketHookData()
   {
     delete itr->second;
   }
-  if ( function != NULL )
+  if ( function != nullptr )
     delete function;
-  if ( outgoing_function != NULL )
+  if ( outgoing_function != nullptr )
     delete outgoing_function;
 }
 

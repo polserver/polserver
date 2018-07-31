@@ -81,7 +81,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
                                                     bool /*forcebuiltin*/ )
 {
   using namespace Bscript;
-  BObjectImp* result = NULL;
+  BObjectImp* result = nullptr;
 
   switch ( id )
   {
@@ -319,10 +319,10 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       return new BError( "account.GetCharacter(index) requires a parameter." );
     int index;
     if ( !ex.getParam( 0, index, 1, Plib::systemstate.config.character_slots ) )
-      return NULL;
+      return nullptr;
     Mobile::Character* chr = obj_->get_character( index - 1 );
 
-    if ( chr == NULL )
+    if ( chr == nullptr )
       return new BError( "No such character on this account" );
     return new Module::EOfflineCharacterRefObjImp( chr );
   }
@@ -336,12 +336,12 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
       return new BError( "account.DeleteCharacter(index) requires a parameter." );
     int index;
     if ( !ex.getParam( 0, index, 1, Plib::systemstate.config.character_slots ) )
-      return NULL;
+      return nullptr;
     Mobile::Character* chr = obj_->get_character( index - 1 );
 
-    if ( chr == NULL )
+    if ( chr == nullptr )
       return new BError( "No such character on this account" );
-    if ( chr->client != NULL || chr->logged_in() )
+    if ( chr->client != nullptr || chr->logged_in() )
       return new BError( "That character is in use" );
 
     if ( can_delete_character( chr, Core::DELETE_BY_SCRIPT ) )
@@ -423,13 +423,13 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 
         Mobile::Character* chr = obj_->get_character( index - 1 );
 
-        if ( chr == NULL )
+        if ( chr == nullptr )
           return new BError( "No such character on this account." );
-        if ( chr->client != NULL || chr->logged_in() )
+        if ( chr->client != nullptr || chr->logged_in() )
           return new BError( "That character is in use." );
 
         Account* account = duplicate_account( obj_->name_, acctname->value() );
-        if ( account != NULL )
+        if ( account != nullptr )
         {
           obj_->clear_character( index - 1 );
           chr->acct.set( account );
@@ -460,14 +460,14 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
           return new BError( "Account name must not be empty." );
 
         Account* account = find_account( acctname->data() );
-        if ( account == NULL )
+        if ( account == nullptr )
           return new BError( "Account doesn't exists." );
 
         Mobile::Character* chr = obj_->get_character( index - 1 );
 
-        if ( chr == NULL )
+        if ( chr == nullptr )
           return new BError( "No such character on this account." );
-        if ( chr->client != NULL || chr->logged_in() )
+        if ( chr->client != nullptr || chr->logged_in() )
           return new BError( "That character is in use." );
 
         int charid = account->getnextfreeslot();
@@ -510,7 +510,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 
     result = new BLong( index + 1 );
     Account* acct = find_account( obj_->name_.c_str() );
-    if ( acct == NULL )
+    if ( acct == nullptr )
     {
       return new BError( "Account doesn't exist." );
     }
@@ -519,7 +519,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
     break;
   }
   default:
-    return NULL;
+    return nullptr;
   }
 
   // if any of the methods hit & worked, we'll come here
@@ -542,10 +542,10 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 ///
@@ -589,7 +589,7 @@ Bscript::BObjectRef AccountObjImp::get_member( const char* membername )
 {
   using namespace Bscript;
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );

@@ -198,7 +198,7 @@ void Client::transmit( const void* data, int len, bool needslock )
   // If there is no outgoing packet script, handled will be false, and the passed params will be
   // unchanged.
   {
-    PacketHookData* phd = NULL;
+    PacketHookData* phd = nullptr;
     handled = GetAndCheckPacketHooked( this, data, phd );
     if ( handled )
     {

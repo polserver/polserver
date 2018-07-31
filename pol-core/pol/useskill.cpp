@@ -63,7 +63,7 @@ bool StartSkillScript( Network::Client* client, const Mobile::Attribute* attrib 
       attrib->script_, true,
       /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     if ( chr->start_skill_script( prog.get() ) )
     {

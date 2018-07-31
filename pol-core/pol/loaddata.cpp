@@ -60,7 +60,7 @@ void load_incremental_indexes()  // indices is such a stupid word
       std::string name, value;
       while ( elem.remove_first_prop( &name, &value ) )
       {
-        pol_serial_t serial = strtoul( name.c_str(), NULL, 0 );
+        pol_serial_t serial = strtoul( name.c_str(), nullptr, 0 );
         objStorageManager.incremental_serial_index[serial] = index;
       }
     }
@@ -141,7 +141,7 @@ void insert_deferred_items()
     {
       Mobile::Character* chr = system_find_mobile( container_serial );
       Items::Item* item = static_cast<Items::Item*>( obj );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         equip_loaded_item( chr, item );
       }
@@ -167,7 +167,7 @@ void insert_deferred_items()
     {
       Items::Item* cont_item = system_find_item( container_serial );
       Items::Item* item = static_cast<Items::Item*>( obj );
-      if ( cont_item != NULL )
+      if ( cont_item != nullptr )
       {
         add_loaded_item( cont_item, item );
       }

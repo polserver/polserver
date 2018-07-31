@@ -82,7 +82,7 @@ Bscript::BObjectRef EConfigFileRefObjImp::OperSubscript( const Bscript::BObject&
     celem = obj_->findelem( key );
   }
 
-  if ( celem.get() != NULL )
+  if ( celem.get() != nullptr )
   {
     return Bscript::BObjectRef( new EConfigElemRefObjImp( celem ) );
   }
@@ -132,7 +132,7 @@ Bscript::BObjectRef EConfigElemRefObjImp::get_member_id( const int id )  // id t
 Bscript::BObjectRef EConfigElemRefObjImp::get_member( const char* membername )
 {
   Bscript::BObjectImp* imp = obj_->getimp( membername );
-  if ( imp != NULL )
+  if ( imp != nullptr )
     return Bscript::BObjectRef( imp );
 
   return Bscript::BObjectRef( new Bscript::UninitObject );
@@ -193,7 +193,7 @@ bool ConfigFileExecutorModule::get_cfgfilename( const std::string& cfgdesc, std:
         }
 
         Plib::Package* dstpkg = Plib::find_package( pkgname );
-        if ( dstpkg != NULL )
+        if ( dstpkg != nullptr )
         {
           *cfgfile = GetPackageCfgPath( dstpkg, cfgbase + ".cfg" );
           return true;
@@ -213,7 +213,7 @@ bool ConfigFileExecutorModule::get_cfgfilename( const std::string& cfgdesc, std:
   }
   else
   {
-    if ( pkg != NULL )
+    if ( pkg != nullptr )
     {
       *cfgfile = GetPackageCfgPath( const_cast<Plib::Package*>( pkg ), cfgdesc + ".cfg" );
       return true;
@@ -243,7 +243,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_ConfigFile()
 
     ref_ptr<Core::StoredConfigFile> cfile = Core::FindConfigFile( cfgfile, allpkgbase );
 
-    if ( cfile.get() != NULL )
+    if ( cfile.get() != nullptr )
     {
       return new EConfigFileRefObjImp( cfile );
     }
@@ -285,7 +285,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_LoadTusScpFile()
   ref_ptr<Core::StoredConfigFile> cfile =
       Core::LoadTusScpFile( "import/tus/" + filename_str->value() + ".scp" );
 
-  if ( cfile.get() == NULL )
+  if ( cfile.get() == nullptr )
   {
     return new Bscript::BError( "File not found" );
   }
@@ -372,7 +372,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
       return new Bscript::BError( "Param 1 must be an Integer or a String" );
     }
 
-    if ( celem.get() != NULL )
+    if ( celem.get() != nullptr )
     {
       return new EConfigElemRefObjImp( celem );
     }
@@ -395,7 +395,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigString()
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
     Bscript::BObjectImp* imp = celem->getimp( propname_str->value() );
-    if ( imp != NULL )
+    if ( imp != nullptr )
     {
       return new Bscript::String( imp->getStringRep() );
     }
@@ -492,7 +492,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
     Bscript::BObjectImp* imp = celem->getimp( propname_str->value() );
-    if ( imp != NULL )
+    if ( imp != nullptr )
     {
       if ( imp->isa( Bscript::BObjectImp::OTLong ) )
       {
@@ -506,7 +506,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigInt()
       else if ( imp->isa( Bscript::BObjectImp::OTString ) )
       {
         Bscript::String* str = static_cast<Bscript::String*>( imp );
-        return new Bscript::BLong( strtoul( str->data(), NULL, 0 ) );
+        return new Bscript::BLong( strtoul( str->data(), nullptr, 0 ) );
       }
       else
       {
@@ -556,7 +556,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntArray()
         else if ( imp->isa( Bscript::BObjectImp::OTString ) )
         {
           Bscript::String* str = static_cast<Bscript::String*>( imp );
-          ar->addElement( new Bscript::BLong( strtoul( str->data(), NULL, 0 ) ) );
+          ar->addElement( new Bscript::BLong( strtoul( str->data(), nullptr, 0 ) ) );
         }
       }
     }
@@ -576,7 +576,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigReal()
   if ( getStoredConfigElemParam( *this, 0, celem ) && getStringParam( 1, propname_str ) )
   {
     Bscript::BObjectImp* imp = celem->getimp( propname_str->value() );
-    if ( imp != NULL )
+    if ( imp != nullptr )
     {
       if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
       {
@@ -590,7 +590,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigReal()
       else if ( imp->isa( Bscript::BObjectImp::OTString ) )
       {
         Bscript::String* str = static_cast<Bscript::String*>( imp );
-        return new Bscript::Double( strtod( str->data(), NULL ) );
+        return new Bscript::Double( strtod( str->data(), nullptr ) );
       }
       else
       {
@@ -649,7 +649,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
         itr != end; ++itr )
   {
     Bscript::BObject* bo = itr->get();
-    if ( bo != NULL )
+    if ( bo != nullptr )
     {
       if ( bo->isa( Bscript::BObjectImp::OTArray ) )
       {
@@ -658,7 +658,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
         {
           Bscript::BObject* nobj = inarr->ref_arr[0].get();
           Bscript::BObject* vobj = inarr->ref_arr[1].get();
-          if ( nobj != NULL && nobj->isa( Bscript::BObjectImp::OTString ) && vobj != NULL )
+          if ( nobj != nullptr && nobj->isa( Bscript::BObjectImp::OTString ) && vobj != nullptr )
           {
             Bscript::String* namestr = static_cast<Bscript::String*>( nobj->impptr() );
             std::string value = vobj->impptr()->getStringRep();
@@ -715,7 +715,7 @@ bool getStoredConfigFileParam( Bscript::ExecutorModule& exmod, unsigned param,
                                Core::StoredConfigFile*& cfile )
 {
   Bscript::BApplicObjBase* ao_cfile_base = exmod.exec.getApplicObjParam( param, &cfgfile_type );
-  if ( ao_cfile_base != NULL )
+  if ( ao_cfile_base != nullptr )
   {
     EConfigFileRefObjImp* ao_cfile = static_cast<EConfigFileRefObjImp*>( ao_cfile_base );
 
@@ -733,7 +733,7 @@ bool getStoredConfigElemParam( Bscript::ExecutorModule& exmod, unsigned param,
                                Core::StoredConfigElem*& celem )
 {
   Bscript::BApplicObjBase* ao_celem_base = exmod.exec.getApplicObjParam( param, &cfgelem_type );
-  if ( ao_celem_base != NULL )
+  if ( ao_celem_base != nullptr )
   {
     EConfigElemRefObjImp* ao_celem = static_cast<EConfigElemRefObjImp*>( ao_celem_base );
 

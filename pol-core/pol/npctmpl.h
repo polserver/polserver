@@ -66,7 +66,7 @@ public:
   NpcTemplateConfigSource( const Clib::ConfigFile& cf );
   size_t estimateSize() const;
   virtual void display_error( const std::string& msg, bool show_curline = true,
-                              const Clib::ConfigElemBase* elem = NULL,
+                              const Clib::ConfigElemBase* elem = nullptr,
                               bool error = true ) const POL_OVERRIDE;
 
 private:

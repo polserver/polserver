@@ -87,7 +87,7 @@ Core::UACTION default_anim( bool two_handed )
 
 WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
     : EquipDesc( objtype, elem, WEAPONDESC, pkg ),
-      pAttr( NULL ),
+      pAttr( nullptr ),
       delay( elem.remove_ushort( "DELAY", 0 ) ),
       hit_script( elem.remove_string( "HITSCRIPT", "" ), pkg, "scripts/items/" ),
       damage_dice(),
@@ -267,14 +267,14 @@ void load_intrinsic_weapons()
   }
 
   // wrestling_weapon = find_intrinsic_weapon( "Wrestling" );
-  if ( Core::gamestate.wrestling_weapon == NULL )
+  if ( Core::gamestate.wrestling_weapon == nullptr )
     throw std::runtime_error( "A WeaponTemplate for Wrestling is required in itemdesc.cfg" );
 }
 
 /// Creates a new intrinic weapon for an NPC template and returns it
 /// @param elem: The conig element defining the NPC
 /// @param pkg: The package
-/// @returns The created weapon or NULL if none is defined in the template
+/// @returns The created weapon or nullptr if none is defined in the template
 UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
                                                    const Plib::Package* pkg )
 {
@@ -376,19 +376,19 @@ unsigned short UWeapon::get_random_damage() const
 
 bool UWeapon::is_projectile() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->projectile;
 }
 
 unsigned short UWeapon::projectile_sound() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->projectile_sound;
 }
 
 unsigned short UWeapon::projectile_anim() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->projectile_anim;
 }
 
@@ -401,40 +401,40 @@ return tmpl->projectile_action;
 
 Core::UACTION UWeapon::anim() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->anim;
 }
 
 Core::UACTION UWeapon::mounted_anim() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->mounted_anim;
 }
 
 unsigned short UWeapon::hit_sound() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->hit_sound;
 }
 
 unsigned short UWeapon::miss_sound() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->miss_sound;
 }
 
 const WeaponDesc& UWeapon::descriptor() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return *WEAPON_TMPL;
 }
 
 bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
 
   Item* item = cont->find_objtype_noninuse( WEAPON_TMPL->projectile_type );
-  if ( item != NULL )
+  if ( item != nullptr )
   {
     subtract_amount_from_item( item, 1 );
     return true;
@@ -504,7 +504,7 @@ void UWeapon::set_hit_script( const std::string& scriptname )
   }
   else
   {
-    passert( tmpl != NULL );
+    passert( tmpl != nullptr );
     hit_script_.config( scriptname, tmpl->pkg, "scripts/items/", true );
   }
 }

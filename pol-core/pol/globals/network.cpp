@@ -88,7 +88,7 @@ void NetworkManager::kill_disconnected_clients()
         POLLOG << tmp.str() << "\n";
 
       Network::Client::Delete( client );
-      client = NULL;
+      client = nullptr;
       itr = clients.erase( itr );
     }
     else

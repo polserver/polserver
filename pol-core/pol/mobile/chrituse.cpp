@@ -31,14 +31,14 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
                               Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
                               Bscript::BObjectImp* param4 )
 {
-  if ( !( !start_attached || ( script_ex == NULL ) ) )
+  if ( !( !start_attached || ( script_ex == nullptr ) ) )
   {
     POLLOG << "Character::start_script hiccup\n"
            << "Trying to start script " << prog->name.get() << "\n"
            << "Script " << script_ex->scriptname() << " is already running\n";
     return false;  // if it's going to have a passert() error, just return false.
   }
-  passert( !start_attached || ( script_ex == NULL ) );
+  passert( !start_attached || ( script_ex == nullptr ) );
 
   Bscript::BObject ob2( param2 ? param2 : Bscript::UninitObject::create() );
   Bscript::BObject ob3( param3 ? param3 : Bscript::UninitObject::create() );
@@ -96,7 +96,7 @@ void Item::walk_on( Mobile::Character* chr )
     prog = find_script2( itemdesc.walk_on_script,
                          true,  // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
-    if ( prog.get() != NULL )
+    if ( prog.get() != nullptr )
     {
       std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor() );
       ex->addModule( new Module::UOExecutorModule( *ex ) );

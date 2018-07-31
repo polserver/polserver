@@ -130,7 +130,7 @@ Account* duplicate_account( const std::string& oldacctname, const std::string& n
   passert( !find_account( newacctname.c_str() ) );
 
   Account* oldacct = find_account( oldacctname.c_str() );
-  if ( oldacct != NULL )
+  if ( oldacct != nullptr )
   {
     Clib::ConfigElem elem;
     oldacct->writeto( elem );
@@ -145,7 +145,7 @@ Account* duplicate_account( const std::string& oldacctname, const std::string& n
       Plib::systemstate.accounts_txt_dirty = true;
     return acct;
   }
-  return NULL;
+  return nullptr;
 }
 
 Account* find_account( const char* acctname )
@@ -157,7 +157,7 @@ Account* find_account( const char* acctname )
       return account.get();
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 int delete_account( const char* acctname )
@@ -188,7 +188,7 @@ void reread_account( Clib::ConfigElem& elem )
 {
   std::string name = elem.remove_string( "NAME" );
   Account* existing = find_account( name.c_str() );
-  if ( existing != NULL )
+  if ( existing != nullptr )
   {
     existing->readfrom( elem );
   }
@@ -209,7 +209,7 @@ void reload_account_data( void )
     struct stat newst;
     stat( accountsfile.c_str(), &newst );
     if ( ( newst.st_mtime != Plib::systemstate.accounts_txt_stat.st_mtime ) &&
-         ( newst.st_mtime < time( NULL ) - 10 ) )
+         ( newst.st_mtime < time( nullptr ) - 10 ) )
     {
       INFO_PRINT << "Reloading accounts.txt...";
       memcpy( &Plib::systemstate.accounts_txt_stat, &newst,

@@ -60,7 +60,7 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
     {
       fmt::Writer tmp;
       tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
-      if ( pkg == NULL )
+      if ( pkg == nullptr )
         tmp << "config/itemdesc.cfg\n";
       else
         tmp << pkg->dir() << "itemdesc.cfg\n";
@@ -86,7 +86,7 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
       {
         fmt::Writer tmp;
         tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
-        if ( pkg == NULL )
+        if ( pkg == nullptr )
           tmp << "config/itemdesc.cfg\n";
         else
           tmp << pkg->dir() << "itemdesc.cfg\n";
@@ -152,7 +152,7 @@ unsigned short UArmor::ar_base() const
 
 bool UArmor::covers( unsigned short zlayer ) const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return ARMOR_TMPL->zones.find( zlayer ) != ARMOR_TMPL->zones.end();
 }
 
@@ -170,7 +170,7 @@ void UArmor::printProperties( Clib::StreamWriter& sw ) const
   base::printProperties( sw );
   if ( has_ar_mod() )
     sw() << "\tAR_mod\t" << ar_mod() << pf_endl;
-  if ( tmpl != NULL && onhitscript_ != ARMOR_TMPL->on_hit_script )
+  if ( tmpl != nullptr && onhitscript_ != ARMOR_TMPL->on_hit_script )
     sw() << "\tOnHitScript\t" << onhitscript_.relativename( tmpl->pkg ) << pf_endl;
 }
 
@@ -194,7 +194,7 @@ void UArmor::set_onhitscript( const std::string& scriptname )
 }
 std::set<unsigned short> UArmor::tmplzones()
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return ARMOR_TMPL->zones;
 }
 
@@ -233,7 +233,7 @@ UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem,
 /// Creates a new intrinic shield for an NPC template and returns it
 /// @param elem: The conig element defining the NPC
 /// @param pkg: The package
-/// @returns The created shield or NULL if none is defined in the template
+/// @returns The created shield or nullptr if none is defined in the template
 UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const Plib::Package* pkg )
 {
   std::string tmp;
@@ -263,7 +263,7 @@ UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const 
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
