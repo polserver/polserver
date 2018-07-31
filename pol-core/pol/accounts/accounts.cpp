@@ -112,8 +112,8 @@ Account* create_new_account( const std::string& acctname, const std::string& pas
   passert( !find_account( acctname.c_str() ) );
 
   Clib::ConfigElem elem;
-  elem.add_prop( "name", acctname.c_str() );
-  elem.add_prop( "password", password.c_str() );
+  elem.add_prop( "name", acctname );
+  elem.add_prop( "password", password );
 
   elem.add_prop( "enabled", ( (unsigned int)( enabled ? 1 : 0 ) ) );
   auto acct = new Account( elem );
@@ -135,7 +135,7 @@ Account* duplicate_account( const std::string& oldacctname, const std::string& n
     Clib::ConfigElem elem;
     oldacct->writeto( elem );
     elem.remove_string( "name" );
-    elem.add_prop( "name", newacctname.c_str() );
+    elem.add_prop( "name", newacctname );
 
     auto acct = new Account( elem );
     Core::gamestate.accounts.push_back( Core::AccountRef( acct ) );
@@ -194,7 +194,7 @@ void reread_account( Clib::ConfigElem& elem )
   }
   else
   {
-    elem.add_prop( "NAME", name.c_str() );
+    elem.add_prop( "NAME", std::move(name) );
     Core::gamestate.accounts.push_back( Core::AccountRef( new Account( elem ) ) );
   }
 }
@@ -242,5 +242,5 @@ void write_account_data_task( void )
   if ( Plib::systemstate.accounts_txt_dirty )
     write_account_data();
 }
-}
-}
+}  // namespace Accounts
+}  // namespace Pol

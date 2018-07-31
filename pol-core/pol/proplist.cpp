@@ -444,7 +444,7 @@ void PropertyList::printProperties( Clib::ConfigElem& elem ) const
     const std::string& first = prop.first;
     if ( first[0] != '#' )
     {
-      elem.add_prop( "CProp", ( first + "\t" + prop.second.get() ).c_str() );
+      elem.add_prop( "CProp", ( first + "\t" + prop.second.get() ) );
     }
   }
 }

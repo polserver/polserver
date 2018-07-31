@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
@@ -50,6 +49,7 @@
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "wepntmpl.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -985,8 +985,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         for ( ditr = cprop_cont.begin(); ditr != cprop_cont.end(); ++ditr )
         {
           elem.add_prop( "cprop", ( ( *ditr ).first->getStringRep() + "\t" +
-                                    ( *ditr ).second->impptr()->pack() )
-                                      .c_str() );
+                                    ( *ditr ).second->impptr()->pack() ) );
         }
       }
       else
@@ -1008,7 +1007,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         {
           os << ( *aitr ).get()->impptr()->getStringRep() << " ";
         }
-        elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ).c_str() );
+        elem.add_prop( key, OSTRINGSTREAM_STR( os ));
       }
       else
       {
@@ -1029,7 +1028,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         {
           OSTRINGSTREAM os;
           os << ( *aitr ).get()->impptr()->getStringRep();
-          elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ).c_str() );
+          elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ) );
         }
       }
       else
@@ -1061,7 +1060,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     else
     {
       std::string value = val_imp->getStringRep();
-      elem.add_prop( key.c_str(), value.c_str() );
+      elem.add_prop( key, std::move(value) );
     }
   }
 
@@ -1244,5 +1243,5 @@ void return_resources( u32 objtype, u16 /*amount*/ )
     }
   }
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

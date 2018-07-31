@@ -246,18 +246,18 @@ UArmor* create_intrinsic_shield_from_npctemplate( Clib::ConfigElem& elem, const 
     shieldelem.add_prop( "Objtype", "0xFFFF" );
     shieldelem.add_prop( "Graphic", "1" );
     shieldelem.add_prop( "SaveOnExit", "0" );
-    shieldelem.add_prop( "AR", tmp.c_str() );
+    shieldelem.add_prop( "AR", tmp );
 
     if ( elem.remove_prop( "ShieldMaxHp", &tmp ) )
-      shieldelem.add_prop( "MaxHP", tmp.c_str() );
+      shieldelem.add_prop( "MaxHP", tmp );
     else
       shieldelem.add_prop( "MaxHP", "1" );
 
     if ( elem.remove_prop( "ShieldOnHitScript", &tmp ) )
-      shieldelem.add_prop( "OnHitScript", tmp.c_str() );
+      shieldelem.add_prop( "OnHitScript", tmp );
 
     while ( elem.remove_prop( "ShieldCProp", &tmp ) )
-      shieldelem.add_prop( "CProp", tmp.c_str() );
+      shieldelem.add_prop( "CProp", tmp );
 
     return create_intrinsic_shield( elem.rest(), shieldelem, pkg );
   }

@@ -114,28 +114,28 @@ void Account::writeto( Clib::StreamWriter& sw ) const
 
 void Account::writeto( Clib::ConfigElem& elem ) const
 {
-  elem.add_prop( "Name", name_.c_str() );
+  elem.add_prop( "Name", name_ );
 
   // dave 6/5/3 don't write cleartext unless configured to
   if ( Plib::systemstate.config.retain_cleartext_passwords && !password_.empty() )
-    elem.add_prop( "Password", password_.c_str() );
+    elem.add_prop( "Password", password_ );
 
-  elem.add_prop( "PasswordHash", passwordhash_.c_str() );
+  elem.add_prop( "PasswordHash", passwordhash_ );
 
   elem.add_prop( "Enabled", ( (unsigned int)( enabled_ ? 1 : 0 ) ) );
   elem.add_prop( "Banned", ( (unsigned int)( banned_ ? 1 : 0 ) ) );
 
   if ( !default_privs_.empty() )
   {
-    elem.add_prop( "DefaultPrivs", default_privs_.extract().c_str() );
+    elem.add_prop( "DefaultPrivs", default_privs_.extract() );
   }
   if ( default_cmdlevel_ )
   {
-    elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
+    elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name );
   }
   if ( uo_expansion_ )
   {
-    elem.add_prop( "UOExpansion", uo_expansion().c_str() );
+    elem.add_prop( "UOExpansion", uo_expansion() );
   }
   props_.printProperties( elem );
 }
@@ -300,5 +300,5 @@ int Account::getnextfreeslot() const
       return ( i + 1 );
   return -1;
 }
-}
-}
+}  // namespace Accounts
+}  // namespace Pol

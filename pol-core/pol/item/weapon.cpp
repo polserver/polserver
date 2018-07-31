@@ -287,45 +287,45 @@ UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
     wpnelem.set_source( elem );
     wpnelem.add_prop( "Objtype", "0xFFFF" );
     wpnelem.add_prop( "Graphic", "1" );
-    wpnelem.add_prop( "Speed", tmp.c_str() );
+    wpnelem.add_prop( "Speed", tmp );
 
     if ( elem.remove_prop( "AttackDelay", &tmp ) )
-      wpnelem.add_prop( "Delay", tmp.c_str() );
+      wpnelem.add_prop( "Delay", tmp );
 
-    wpnelem.add_prop( "Damage", elem.remove_string( "AttackDamage" ).c_str() );
+    wpnelem.add_prop( "Damage", elem.remove_string( "AttackDamage" ) );
 
     if ( elem.has_prop( "AttackSkillId" ) )
-      wpnelem.add_prop( "SkillId", elem.remove_string( "AttackSkillId" ).c_str() );
+      wpnelem.add_prop( "SkillId", elem.remove_string( "AttackSkillId" ) );
     else
-      wpnelem.add_prop( "Attribute", elem.remove_string( "AttackAttribute" ).c_str() );
+      wpnelem.add_prop( "Attribute", elem.remove_string( "AttackAttribute" ) );
 
-    wpnelem.add_prop( "HitSound", elem.remove_string( "AttackHitSound", "0" ).c_str() );
-    wpnelem.add_prop( "MissSound", elem.remove_string( "AttackMissSound", "0" ).c_str() );
-    wpnelem.add_prop( "Anim", elem.remove_string( "AttackAnimation", "0" ).c_str() );
+    wpnelem.add_prop( "HitSound", elem.remove_string( "AttackHitSound", "0" ) );
+    wpnelem.add_prop( "MissSound", elem.remove_string( "AttackMissSound", "0" ) );
+    wpnelem.add_prop( "Anim", elem.remove_string( "AttackAnimation", "0" ));
     wpnelem.add_prop( "MaxHp", "1" );
     if ( elem.remove_prop( "AttackHitScript", &tmp ) )
-      wpnelem.add_prop( "HitScript", tmp.c_str() );
+      wpnelem.add_prop( "HitScript", tmp );
     if ( elem.remove_prop( "AttackMinRange", &tmp ) )
-      wpnelem.add_prop( "MinRange", tmp.c_str() );
+      wpnelem.add_prop( "MinRange", tmp );
     if ( elem.remove_prop( "AttackMaxRange", &tmp ) )
-      wpnelem.add_prop( "MaxRange", tmp.c_str() );
+      wpnelem.add_prop( "MaxRange", tmp );
 
     if ( elem.has_prop( "AttackProjectile" ) )
     {
       wpnelem.add_prop( "Projectile", "1" );
-      wpnelem.add_prop( "ProjectileType", elem.remove_string( "AttackProjectileType" ).c_str() );
-      wpnelem.add_prop( "ProjectileAnim", elem.remove_string( "AttackProjectileAnim" ).c_str() );
-      wpnelem.add_prop( "ProjectileSound", elem.remove_string( "AttackProjectileSound" ).c_str() );
+      wpnelem.add_prop( "ProjectileType", elem.remove_string( "AttackProjectileType" ) );
+      wpnelem.add_prop( "ProjectileAnim", elem.remove_string( "AttackProjectileAnim" ) );
+      wpnelem.add_prop( "ProjectileSound", elem.remove_string( "AttackProjectileSound" ) );
     }
 
     while ( elem.remove_prop( "AttackCProp", &tmp ) )
-      wpnelem.add_prop( "CProp", tmp.c_str() );
+      wpnelem.add_prop( "CProp", tmp );
 
     return create_intrinsic_weapon( elem.rest(), wpnelem, pkg );
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 

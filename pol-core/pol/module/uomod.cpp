@@ -1241,7 +1241,7 @@ void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
         {
           elem.add_prop(
               "cprop", ( ( *itr ).first->getStringRep() + "\t" + ( *itr ).second->impptr()->pack() )
-                           .c_str() );
+                            );
         }
       }
       else
@@ -1253,7 +1253,7 @@ void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
     else
     {
       elem.clear_prop( name.c_str() );
-      elem.add_prop( name.c_str(), ref->getStringRep().c_str() );
+      elem.add_prop( std::move(name), ref->getStringRep() );
     }
   }
 }
@@ -1336,7 +1336,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     elem.add_prop( "X", x );
     elem.add_prop( "Y", y );
     elem.add_prop( "Z", z );
-    elem.add_prop( "Realm", realm->name().c_str() );
+    elem.add_prop( "Realm", realm->name() );
     if ( custom_struct != NULL )
       replace_properties( elem, custom_struct );
     npc->readPropertiesForNewNPC( elem );
