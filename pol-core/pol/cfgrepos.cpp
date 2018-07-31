@@ -52,8 +52,6 @@ StoredConfigElem::StoredConfigElem( Clib::ConfigElem& elem )
   }
 }
 
-StoredConfigElem::StoredConfigElem() {}
-
 // ToDo: we have to think over... it's a problem with script-inside references
 StoredConfigElem::~StoredConfigElem()
 {

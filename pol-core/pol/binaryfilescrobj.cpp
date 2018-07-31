@@ -32,7 +32,7 @@ BBinaryfile::BBinaryfile()
 }
 
 BBinaryfile::BBinaryfile( std::string filename, unsigned short mode, bool _bigendian )
-    : Bscript::BObjectImp( OTBinaryFile ), _filename( filename ), bigendian( _bigendian )
+    : Bscript::BObjectImp( OTBinaryFile ), _filename( std::move(filename) ), bigendian( _bigendian )
 {
   using std::ios;
 
@@ -325,9 +325,6 @@ bool BBinaryfile::operator==( const Bscript::BObjectImp& objimp ) const
     return isTrue() == static_cast<const Bscript::BBoolean&>( objimp ).isTrue();
   return false;
 }
-
-
-BinFile::BinFile() {}
 
 BinFile::BinFile( const std::string& filename, std::ios::openmode mode )
 {

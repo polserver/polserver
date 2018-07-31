@@ -30,6 +30,6 @@ struct LandTile
   unsigned int uoflags;
   unsigned int flags;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
