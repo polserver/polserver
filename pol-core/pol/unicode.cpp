@@ -26,7 +26,7 @@ bool convertArrayToUC( Bscript::ObjArray*& in_text, u16* out_wtext, size_t textl
   for ( size_t i = 0; i < textlen; i++ )
   {
     Bscript::BObject* bo = in_text->ref_arr[i].get();
-    if ( bo == NULL )
+    if ( bo == nullptr )
       continue;
     if ( !bo->isa( Bscript::BObjectImp::OTLong ) )
       return false;
@@ -34,7 +34,7 @@ bool convertArrayToUC( Bscript::ObjArray*& in_text, u16* out_wtext, size_t textl
     Bscript::BLong* blong = static_cast<Bscript::BLong*>( imp );
     value = ( u16 )( blong->value() & 0xFFFF );
     out_wtext[pos++] = ConvToBE ? ctBEu16( value ) : value;
-    // Jump out on a NULL (EOS) value (should stop exploits, too?)
+    // Jump out on a nullptr (EOS) value (should stop exploits, too?)
     if ( value == 0L )
       return true;
   }
@@ -51,7 +51,7 @@ bool convertUCtoArray( const u16* in_wtext, Bscript::ObjArray*& out_text, size_t
   for ( size_t i = 0; i < textlen; i++ )
   {
     value = ConvFromBE ? cfBEu16( in_wtext[i] ) : in_wtext[i];
-    // Jump out on a NULL (EOS) value (should stop exploits, too?)
+    // Jump out on a nullptr (EOS) value (should stop exploits, too?)
     if ( value == 0L )
       return true;
     out_text->addElement( new Bscript::BLong( value ) );

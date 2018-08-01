@@ -25,7 +25,7 @@ Attribute* Attribute::FindAttribute( const std::string& str )
   if ( citr != Core::gamestate.attributes_byname.end() )
     return ( *citr ).second;
   else
-    return NULL;
+    return nullptr;
 }
 
 Attribute* Attribute::FindAttribute( unsigned attrid )
@@ -33,7 +33,7 @@ Attribute* Attribute::FindAttribute( unsigned attrid )
   if ( attrid < Core::gamestate.attributes.size() )
     return Core::gamestate.attributes[attrid];
   else
-    return NULL;
+    return nullptr;
 }
 
 Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem )
@@ -41,7 +41,7 @@ Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem )
       name( elem.rest() ),
       attrid( 0 ),
       aliases(),
-      next( NULL ),
+      next( nullptr ),
       getintrinsicmod_func( nullptr ),
       delay_seconds( elem.remove_ushort( "DELAY", 0 ) ),
       unhides( elem.remove_bool( "UNHIDES", true ) ),
@@ -121,7 +121,7 @@ void clean_attributes()
   for ( ; iter != Core::gamestate.attributes.end(); ++iter )
   {
     delete *iter;
-    *iter = NULL;
+    *iter = nullptr;
   }
   Core::gamestate.attributes.clear();
   Core::gamestate.attributes_byname.clear();

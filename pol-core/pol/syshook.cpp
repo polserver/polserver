@@ -33,7 +33,7 @@ ExportedFunction::ExportedFunction( ExportScript* shs, unsigned in_PC )
 }
 ExportedFunction::~ExportedFunction()
 {
-  export_script = NULL;
+  export_script = nullptr;
   PC = 0;
 }
 const std::string& ExportedFunction::scriptname() const
@@ -88,29 +88,29 @@ BObject ExportedFunction::call_object( BObjectImp* p0, BObjectImp* p1, BObjectIm
 }
 
 SystemHooks::SystemHooks()
-    : check_skill_hook( NULL ),
-      open_spellbook_hook( NULL ),
-      get_book_page_hook( NULL ),
-      combat_advancement_hook( NULL ),
-      parry_advancement_hook( NULL ),
-      attack_hook( NULL ),
-      pushthrough_hook( NULL ),
-      speechmul_hook( NULL ),
-      hitmiss_hook( NULL ),
-      on_cast_hook( NULL ),
-      can_decay( NULL ),
-      ouch_hook( NULL ),
-      can_die( NULL ),
-      un_hide( NULL ),
-      close_customhouse_hook( NULL ),
-      warmode_change( NULL ),
-      can_trade( NULL )
+    : check_skill_hook( nullptr ),
+      open_spellbook_hook( nullptr ),
+      get_book_page_hook( nullptr ),
+      combat_advancement_hook( nullptr ),
+      parry_advancement_hook( nullptr ),
+      attack_hook( nullptr ),
+      pushthrough_hook( nullptr ),
+      speechmul_hook( nullptr ),
+      hitmiss_hook( nullptr ),
+      on_cast_hook( nullptr ),
+      can_decay( nullptr ),
+      ouch_hook( nullptr ),
+      can_die( nullptr ),
+      un_hide( nullptr ),
+      close_customhouse_hook( nullptr ),
+      warmode_change( nullptr ),
+      can_trade( nullptr )
 {
 }
 
 void hook( ExportScript* shs, const std::string& hookname, const std::string& exfuncname )
 {
-  ExportedFunction** pphook = NULL;
+  ExportedFunction** pphook = nullptr;
   unsigned nargs;
   if ( hookname == "CheckSkill" )
   {
@@ -203,7 +203,7 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
     return;
   }
 
-  if ( *pphook != NULL )
+  if ( *pphook != nullptr )
   {
     INFO_PRINT << "SystemHook " << hookname << " multiply defined\n"
                << "  Already found in: " << gamestate.system_hooks.check_skill_hook->scriptname()
@@ -274,39 +274,39 @@ void SystemHooks::unload_system_hooks()
     delete ps;
   }
   gamestate.export_scripts.clear();
-  if ( attack_hook != NULL )
+  if ( attack_hook != nullptr )
     delete attack_hook;
-  if ( check_skill_hook != NULL )
+  if ( check_skill_hook != nullptr )
     delete check_skill_hook;
-  if ( combat_advancement_hook != NULL )
+  if ( combat_advancement_hook != nullptr )
     delete combat_advancement_hook;
-  if ( get_book_page_hook != NULL )
+  if ( get_book_page_hook != nullptr )
     delete get_book_page_hook;
-  if ( hitmiss_hook != NULL )
+  if ( hitmiss_hook != nullptr )
     delete hitmiss_hook;
-  if ( open_spellbook_hook != NULL )
+  if ( open_spellbook_hook != nullptr )
     delete open_spellbook_hook;
-  if ( parry_advancement_hook != NULL )
+  if ( parry_advancement_hook != nullptr )
     delete parry_advancement_hook;
-  if ( pushthrough_hook != NULL )
+  if ( pushthrough_hook != nullptr )
     delete pushthrough_hook;
-  if ( speechmul_hook != NULL )
+  if ( speechmul_hook != nullptr )
     delete speechmul_hook;
-  if ( on_cast_hook != NULL )
+  if ( on_cast_hook != nullptr )
     delete on_cast_hook;
-  if ( can_decay != NULL )
+  if ( can_decay != nullptr )
     delete can_decay;
-  if ( ouch_hook != NULL )
+  if ( ouch_hook != nullptr )
     delete ouch_hook;
-  if ( can_die != NULL )
+  if ( can_die != nullptr )
     delete can_die;
-  if ( un_hide != NULL )
+  if ( un_hide != nullptr )
     delete un_hide;
-  if ( close_customhouse_hook != NULL )
+  if ( close_customhouse_hook != nullptr )
     delete close_customhouse_hook;
-  if ( warmode_change != NULL )
+  if ( warmode_change != nullptr )
     delete warmode_change;
-  if ( can_trade != NULL )
+  if ( can_trade != nullptr )
     delete can_trade;
 }
 
@@ -328,7 +328,7 @@ ExportScript* FindExportScript( const ScriptDef& sd )
   else
   {
     delete ps;
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -353,7 +353,7 @@ ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Pack
     if ( complain_if_missing )
       elem.throw_error( "Export Script " + sd.name() + " not found" );
     else
-      return NULL;
+      return nullptr;
   }
 
   unsigned PC;
@@ -363,7 +363,7 @@ ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Pack
       elem.throw_error( "Exported Function " + functionname + " not found in " +
                         export_script->scriptname() );
     else
-      return NULL;
+      return nullptr;
   }
 
   return new ExportedFunction( export_script, PC );

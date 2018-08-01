@@ -112,8 +112,8 @@ Account* create_new_account( const std::string& acctname, const std::string& pas
   passert( !find_account( acctname.c_str() ) );
 
   Clib::ConfigElem elem;
-  elem.add_prop( "name", acctname.c_str() );
-  elem.add_prop( "password", password.c_str() );
+  elem.add_prop( "name", acctname );
+  elem.add_prop( "password", password );
 
   elem.add_prop( "enabled", ( (unsigned int)( enabled ? 1 : 0 ) ) );
   auto acct = new Account( elem );
@@ -130,12 +130,12 @@ Account* duplicate_account( const std::string& oldacctname, const std::string& n
   passert( !find_account( newacctname.c_str() ) );
 
   Account* oldacct = find_account( oldacctname.c_str() );
-  if ( oldacct != NULL )
+  if ( oldacct != nullptr )
   {
     Clib::ConfigElem elem;
     oldacct->writeto( elem );
     elem.remove_string( "name" );
-    elem.add_prop( "name", newacctname.c_str() );
+    elem.add_prop( "name", newacctname );
 
     auto acct = new Account( elem );
     Core::gamestate.accounts.push_back( Core::AccountRef( acct ) );
@@ -145,7 +145,7 @@ Account* duplicate_account( const std::string& oldacctname, const std::string& n
       Plib::systemstate.accounts_txt_dirty = true;
     return acct;
   }
-  return NULL;
+  return nullptr;
 }
 
 Account* find_account( const char* acctname )
@@ -157,7 +157,7 @@ Account* find_account( const char* acctname )
       return account.get();
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 int delete_account( const char* acctname )
@@ -188,13 +188,13 @@ void reread_account( Clib::ConfigElem& elem )
 {
   std::string name = elem.remove_string( "NAME" );
   Account* existing = find_account( name.c_str() );
-  if ( existing != NULL )
+  if ( existing != nullptr )
   {
     existing->readfrom( elem );
   }
   else
   {
-    elem.add_prop( "NAME", name.c_str() );
+    elem.add_prop( "NAME", name );
     Core::gamestate.accounts.push_back( Core::AccountRef( new Account( elem ) ) );
   }
 }
@@ -209,7 +209,7 @@ void reload_account_data( void )
     struct stat newst;
     stat( accountsfile.c_str(), &newst );
     if ( ( newst.st_mtime != Plib::systemstate.accounts_txt_stat.st_mtime ) &&
-         ( newst.st_mtime < time( NULL ) - 10 ) )
+         ( newst.st_mtime < time( nullptr ) - 10 ) )
     {
       INFO_PRINT << "Reloading accounts.txt...";
       memcpy( &Plib::systemstate.accounts_txt_stat, &newst,
@@ -242,5 +242,5 @@ void write_account_data_task( void )
   if ( Plib::systemstate.accounts_txt_dirty )
     write_account_data();
 }
-}
-}
+}  // namespace Accounts
+}  // namespace Pol

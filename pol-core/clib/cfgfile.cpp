@@ -15,12 +15,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <format/format.h>
 #include "cfgelem.h"
 #include "clib.h"
 #include "logfacility.h"
 #include "stlutil.h"
 #include "strutil.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -39,23 +39,10 @@ bool commentline( const std::string& str )
 }
 }  // namespace
 
-ConfigProperty::ConfigProperty( const char* name, const char* value )
-    : name_( name ), value_( value )
+ConfigProperty::ConfigProperty( std::string name, std::string value )
+    : name_( std::move( name ) ), value_( std::move( value ) )
 {
 }
-
-ConfigProperty::ConfigProperty( const std::string& name, const std::string& value )
-    : name_( name ), value_( value )
-{
-}
-
-ConfigProperty::ConfigProperty( std::string* pname, std::string* pvalue )
-{
-  pname->swap( name_ );
-  pvalue->swap( value_ );
-}
-
-ConfigProperty::~ConfigProperty() {}
 
 ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( NULL ) {}
 size_t ConfigElemBase::estimateSize() const
@@ -500,59 +487,40 @@ void ConfigElem::clear_prop( const char* propname )
     continue;
 }
 
-void ConfigElem::add_prop( const char* propname, const char* propval )
+void ConfigElem::add_prop( std::string propname, std::string propval )
 {
-  properties.insert( make_pair( std::string( propname ), std::string( propval ) ) );
+  properties.emplace( std::move( propname ), std::move( propval ) );
 }
-void VectorConfigElem::add_prop( const char* propname, const char* propval )
+void VectorConfigElem::add_prop( std::string propname, std::string propval )
 {
-  ConfigProperty* prop;
-
-  prop = new ConfigProperty( propname, propval );
+  ConfigProperty* prop = new ConfigProperty( std::move( propname ), std::move( propval ) );
 
   properties.push_back( prop );
 }
 
-void ConfigElem::add_prop( const char* propname, unsigned short sval )
+void ConfigElem::add_prop( std::string propname, unsigned short sval )
 {
-  OSTRINGSTREAM os;
-  os << sval;
-
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+  properties.emplace( std::move( propname ), std::to_string( sval ) );
 }
-void ConfigElem::add_prop( const char* propname, short sval )
+void ConfigElem::add_prop( std::string propname, short sval )
 {
-  OSTRINGSTREAM os;
-  os << sval;
-
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+  properties.emplace( std::move( propname ), std::to_string( sval ) );
 }
 
-void VectorConfigElem::add_prop( const char* propname, unsigned short sval )
+void VectorConfigElem::add_prop( std::string propname, unsigned short sval )
 {
-  ConfigProperty* prop;
-  OSTRINGSTREAM os;
-  os << sval;
-
-  prop = new ConfigProperty( propname, OSTRINGSTREAM_STR( os ) );
+  auto prop = new ConfigProperty( std::move( propname ), std::to_string( sval ) );
 
   properties.push_back( prop );
 }
 
-void ConfigElem::add_prop( const char* propname, unsigned int lval )
+void ConfigElem::add_prop( std::string propname, unsigned int lval )
 {
-  OSTRINGSTREAM os;
-  os << lval;
-
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+  properties.emplace( std::move( propname ), std::to_string( lval ) );
 }
-void VectorConfigElem::add_prop( const char* propname, unsigned int lval )
+void VectorConfigElem::add_prop( std::string propname, unsigned int lval )
 {
-  ConfigProperty* prop;
-  OSTRINGSTREAM os;
-  os << lval;
-
-  prop = new ConfigProperty( propname, OSTRINGSTREAM_STR( os ) );
+  auto prop = new ConfigProperty( std::move( propname ), std::to_string( lval ) );
 
   properties.push_back( prop );
 }
@@ -695,7 +663,7 @@ bool ConfigFile::read_properties( ConfigElem& elem )
     if ( propvalue[0] == '\"' )
       convertquotedstring( propvalue );
 
-    ConfigProperty* prop = new ConfigProperty( &propname, &propvalue );
+    ConfigProperty* prop = new ConfigProperty( propname, propvalue );
     elem.properties.push_back( prop );
   }
   return false;
@@ -823,7 +791,7 @@ bool ConfigFile::read_properties( ConfigElem& elem )
       decodequotedstring( propvalue );
     }
 
-    elem.properties.insert( make_pair( propname, propvalue ) );
+    elem.properties.emplace( propname, propvalue );
   }
   return false;
 }
@@ -854,7 +822,7 @@ bool ConfigFile::read_properties( VectorConfigElem& elem )
       decodequotedstring( propvalue );
     }
 
-    auto prop = new ConfigProperty( &propname, &propvalue );
+    auto prop = new ConfigProperty( propname, propvalue );
     elem.properties.push_back( prop );
   }
   return false;
@@ -1077,5 +1045,5 @@ void StubConfigSource::display_error( const std::string& msg, bool /*show_curlin
   ERROR_PRINT << ( error ? "Error" : "Warning" ) << " reading configuration element:"
               << "\t" << msg << "\n";
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

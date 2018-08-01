@@ -185,7 +185,7 @@ public:
 protected:
   void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation,
                         unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX,
-                        Realms::Realm* oldrealm = NULL );
+                        Realms::Realm* oldrealm = nullptr );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );

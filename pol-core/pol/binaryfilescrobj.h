@@ -30,11 +30,13 @@ namespace Pol
 {
 namespace Core
 {
-class BinFile
+class BinFile final
 {
 public:
-  BinFile();
+  BinFile() = default;
   BinFile( const std::string& filename, std::ios::openmode mode );
+  BinFile(const BinFile& ) = delete;
+  BinFile operator=( const BinFile& ) = delete;
   ~BinFile();
 
   bool Open( const std::string& filename, std::ios::openmode mode );

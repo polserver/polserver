@@ -257,10 +257,10 @@ class UnicodeSpeechEvent : public Bscript::BStruct
 {
 public:
   UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech, const u16* wspeech,
-                      const char lang[4], Bscript::ObjArray* speechtokens = NULL );
+                      const char lang[4], Bscript::ObjArray* speechtokens = nullptr );
   UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech, const char* texttype,
                       const u16* wspeech, const char lang[4],
-                      Bscript::ObjArray* speechtokens = NULL );
+                      Bscript::ObjArray* speechtokens = nullptr );
 };
 
 class DamageEvent : public Bscript::BStruct

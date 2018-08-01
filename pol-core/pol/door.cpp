@@ -57,7 +57,7 @@ void UDoor::toggle()
     y += dd->ymod;
   }
 
-  MoveItemWorldPosition( oldx, oldy, this, NULL );
+  MoveItemWorldPosition( oldx, oldy, this, nullptr );
 
   send_item_to_inrange( this );
 }

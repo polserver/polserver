@@ -39,7 +39,7 @@ Account::Account( Clib::ConfigElem& elem )
   // If too low, will cause the client to freeze and the console to report
   // Exception in message handler 0x91: vector
   for ( int i = 0; i < Plib::systemstate.config.character_slots; i++ )
-    characters_.push_back( Core::CharacterRef( NULL ) );
+    characters_.push_back( Core::CharacterRef( nullptr ) );
 
   readfrom( elem );
 }
@@ -72,7 +72,7 @@ void Account::readfrom( Clib::ConfigElem& elem )
 
   std::string cmdaccstr = elem.remove_string( "DefaultCmdLevel", "player" );
   Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdaccstr.c_str() );
-  if ( cmdlevel_search != NULL )
+  if ( cmdlevel_search != nullptr )
     default_cmdlevel_ = cmdlevel_search->cmdlevel;
   else
     elem.throw_error( "Didn't understand cmdlevel of '" + cmdaccstr + "'" );
@@ -114,28 +114,28 @@ void Account::writeto( Clib::StreamWriter& sw ) const
 
 void Account::writeto( Clib::ConfigElem& elem ) const
 {
-  elem.add_prop( "Name", name_.c_str() );
+  elem.add_prop( "Name", name_ );
 
   // dave 6/5/3 don't write cleartext unless configured to
   if ( Plib::systemstate.config.retain_cleartext_passwords && !password_.empty() )
-    elem.add_prop( "Password", password_.c_str() );
+    elem.add_prop( "Password", password_ );
 
-  elem.add_prop( "PasswordHash", passwordhash_.c_str() );
+  elem.add_prop( "PasswordHash", passwordhash_ );
 
   elem.add_prop( "Enabled", ( (unsigned int)( enabled_ ? 1 : 0 ) ) );
   elem.add_prop( "Banned", ( (unsigned int)( banned_ ? 1 : 0 ) ) );
 
   if ( !default_privs_.empty() )
   {
-    elem.add_prop( "DefaultPrivs", default_privs_.extract().c_str() );
+    elem.add_prop( "DefaultPrivs", default_privs_.extract() );
   }
   if ( default_cmdlevel_ )
   {
-    elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
+    elem.add_prop( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name );
   }
   if ( uo_expansion_ )
   {
-    elem.add_prop( "UOExpansion", uo_expansion().c_str() );
+    elem.add_prop( "UOExpansion", uo_expansion() );
   }
   props_.printProperties( elem );
 }
@@ -146,8 +146,8 @@ Account::~Account()
   {
     if ( characters_[i].get() )
     {
-      if ( characters_[i]->client != NULL && characters_[i]->client->acct == this )
-        characters_[i]->client->acct = NULL;
+      if ( characters_[i]->client != nullptr && characters_[i]->client->acct == this )
+        characters_[i]->client->acct = nullptr;
 
       characters_[i]->acct.clear();
       characters_[i].clear();
@@ -300,5 +300,5 @@ int Account::getnextfreeslot() const
       return ( i + 1 );
   return -1;
 }
-}
-}
+}  // namespace Accounts
+}  // namespace Pol

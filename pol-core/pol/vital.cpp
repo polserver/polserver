@@ -25,12 +25,12 @@ Vital::Vital( const Plib::Package* pkg, Clib::ConfigElem& elem )
       name( elem.rest() ),
       aliases(),
       vitalid( 0 ),
-      next( NULL ),
+      next( nullptr ),
       get_regenrate_func(
           FindExportedFunction( elem, pkg, elem.remove_string( "RegenRateFunction" ), 1 ) ),
       get_maximum_func(
           FindExportedFunction( elem, pkg, elem.remove_string( "MaximumFunction" ), 1 ) ),
-      underflow_func( NULL ),
+      underflow_func( nullptr ),
       regen_while_dead( elem.remove_bool( "RegenWhileDead", false ) )
 {
   aliases.push_back( name );
@@ -46,18 +46,18 @@ Vital::Vital( const Plib::Package* pkg, Clib::ConfigElem& elem )
 
 Vital::~Vital()
 {
-  if ( this->underflow_func != NULL )
+  if ( this->underflow_func != nullptr )
     delete this->underflow_func;
 
-  if ( this->get_maximum_func != NULL )
+  if ( this->get_maximum_func != nullptr )
     delete this->get_maximum_func;
 
-  if ( this->get_regenrate_func != NULL )
+  if ( this->get_regenrate_func != nullptr )
     delete this->get_regenrate_func;
 
-  this->get_maximum_func = NULL;
-  this->underflow_func = NULL;
-  this->get_regenrate_func = NULL;
+  this->get_maximum_func = nullptr;
+  this->underflow_func = nullptr;
+  this->get_regenrate_func = nullptr;
 }
 
 size_t Vital::estimateSize() const
@@ -74,7 +74,7 @@ void clean_vitals()
   for ( ; iter != gamestate.vitals.end(); ++iter )
   {
     delete *iter;
-    *iter = NULL;
+    *iter = nullptr;
   }
   gamestate.vitals.clear();
   gamestate.vitals_byname.clear();
@@ -86,7 +86,7 @@ Vital* FindVital( const std::string& str )
   if ( citr != gamestate.vitals_byname.end() )
     return ( *citr ).second;
   else
-    return NULL;
+    return nullptr;
 }
 
 Vital* FindVital( unsigned vitalid )
@@ -94,7 +94,7 @@ Vital* FindVital( unsigned vitalid )
   if ( vitalid < gamestate.vitals.size() )
     return gamestate.vitals[vitalid];
   else
-    return NULL;
+    return nullptr;
 }
 
 void load_vital_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )

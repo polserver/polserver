@@ -18,7 +18,7 @@ public:
   virtual ~PacketInterface(){};
   u16 offset;
   virtual void ReSetBuffer(){};
-  virtual char* getBuffer() { return NULL; };
+  virtual char* getBuffer() { return nullptr; };
   virtual inline u8 getID() const { return 0; };
   virtual inline u16 getSize() const { return 0; };
   virtual inline u16 getSubID() const { return 0; };
@@ -43,12 +43,12 @@ public:
     (void)id;
     (void)sub; /* unused variables */
 
-    return NULL;
+    return nullptr;
   };
   virtual void Add( PacketInterface* pkt ) { (void)pkt; /*do nothing*/ };
   virtual size_t Count() const { return 0; };
   virtual bool HasSubs() const { return false; };
-  virtual PacketInterfaceQueueMap* GetSubs() { return NULL; };
+  virtual PacketInterfaceQueueMap* GetSubs() { return nullptr; };
   virtual size_t estimateSize() const = 0;
 };
 

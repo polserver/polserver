@@ -45,7 +45,7 @@ void statrequest( Network::Client* client, u32 serial )
   else
   {
     Mobile::Character* chr = find_character( serial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       if ( client->chr->is_visible_to_me( chr ) )
       {
@@ -133,7 +133,7 @@ void skillrequest( Network::Client* client, u32 serial )
       prog = find_script2( sd,
                            false,  // complain if not found
                            Plib::systemstate.config.cache_interactive_scripts );
-      if ( prog.get() != NULL && client->chr->start_script( prog.get(), false ) )
+      if ( prog.get() != nullptr && client->chr->start_script( prog.get(), false ) )
       {
         return;
       }
@@ -153,7 +153,7 @@ void srequest( Network::Client* client, PKTIN_34* msg )
     else
     {
       Mobile::Character* bob = find_character( serial );
-      if ( bob == NULL )
+      if ( bob == nullptr )
         return;
       if ( !client->chr->is_concealed_from_me( bob ) && client->chr->is_visible_to_me( bob ) )
       {

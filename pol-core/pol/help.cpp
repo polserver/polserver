@@ -21,7 +21,7 @@ void handle_help( Network::Client* client, PKTIN_9B* /*msg*/ )
 {
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/help", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     client->chr->start_script( prog.get(), false );
   }

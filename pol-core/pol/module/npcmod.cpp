@@ -87,14 +87,14 @@ NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
     : TmplExecutorModule<NPCExecutorModule>( "NPC", ex ), npcref( &npc ), npc( npc )
 {
   os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
-  if ( os_module == NULL )
+  if ( os_module == nullptr )
     throw std::runtime_error( "NPCExecutorModule needs OS module!" );
 }
 
 NPCExecutorModule::~NPCExecutorModule()
 {
   if ( npc.ex == &exec )
-    npc.ex = NULL;
+    npc.ex = nullptr;
 }
 
 BApplicObjType bounding_box_type;
@@ -118,7 +118,7 @@ BObjectImp* NPCExecutorModule::IsLegalMove()
   String* facing_str = static_cast<String*>( exec.getParamImp( 0, BObjectImp::OTString ) );
   BApplicObjBase* appobj =
       static_cast<BApplicObjBase*>( exec.getParamImp( 1, BObjectImp::OTApplicObj ) );
-  if ( facing_str == NULL || appobj == NULL || appobj->object_type() != &bounding_box_type )
+  if ( facing_str == nullptr || appobj == nullptr || appobj->object_type() != &bounding_box_type )
   {
     return new BLong( 0 );
   }
@@ -313,7 +313,7 @@ BObjectImp* NPCExecutorModule::face()
   BObjectImp* param0 = exec.getParamImp( 0 );
   int flags;
 
-  if ( param0 == NULL || !exec.getParam( 1, flags ) )
+  if ( param0 == nullptr || !exec.getParam( 1, flags ) )
     return new BError( "Invalid parameter type." );
 
   Core::UFACING i_facing;
@@ -327,7 +327,7 @@ BObjectImp* NPCExecutorModule::face()
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                << "\tCall to function npc::face():\n"
                << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
-      return NULL;
+      return nullptr;
     }
   }
   else if ( param0->isa( BObjectImp::OTLong ) )
@@ -342,7 +342,7 @@ BObjectImp* NPCExecutorModule::face()
              << "\tParameter 0: Expected direction, "
              << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
 
-    return NULL;
+    return nullptr;
   }
 
   if ( !npc.face( i_facing, flags ) )
@@ -366,7 +366,7 @@ BObjectImp* NPCExecutorModule::move()
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                << "\tCall to function npc::move():\n"
                << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
-      return NULL;
+      return nullptr;
     }
 
     return move_self( facing, false );
@@ -407,7 +407,7 @@ BObjectImp* NPCExecutorModule::move()
                << "\tCall to function npc::move():\n"
                << "\tParameter 0: Expected direction or bounding box, "
                << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
-      return NULL;
+      return nullptr;
     }
   }
   else
@@ -417,7 +417,7 @@ BObjectImp* NPCExecutorModule::move()
              << "\tParameter 0: Expected direction or bounding box, "
              << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
 
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -736,7 +736,7 @@ BObjectImp* NPCExecutorModule::say()
         } );
   }
 
-  return NULL;
+  return nullptr;
 }
 
 BObjectImp* NPCExecutorModule::SayUC()
@@ -824,7 +824,7 @@ BObjectImp* NPCExecutorModule::SayUC()
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), NULL );
+              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), nullptr );
           } );
     }
   }
@@ -832,7 +832,7 @@ BObjectImp* NPCExecutorModule::SayUC()
   {
     return new BError( "A parameter was invalid" );
   }
-  return NULL;
+  return nullptr;
 }
 
 BObjectImp* NPCExecutorModule::position()
@@ -908,17 +908,17 @@ BObjectImp* NPCExecutorModule::CreateItem()
 {
   // UNTESTED
   const BLong* objtype = exec.getLongParam( 0 );
-  if ( objtype == NULL )
+  if ( objtype == nullptr )
     return new BLong( 0 );
 
   Core::UContainer* backpack = npc.backpack();
-  if ( backpack == NULL )
+  if ( backpack == nullptr )
     return new BLong( 0 );
 
   Items::Item* i = Items::Item::create( static_cast<unsigned int>( objtype->value() ) );
   i->realm = npc.realm;
   std::unique_ptr<Items::Item> item( i );
-  if ( item.get() == NULL )
+  if ( item.get() == nullptr )
     return new BLong( 0 );
 
   if ( !backpack->can_add( *item ) )
@@ -942,7 +942,7 @@ BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
 {
   String* arealist =
       EXPLICIT_CAST( String*, BObjectImp* )( getParamImp( 0, BObjectImp::OTString ) );
-  if ( arealist == NULL )
+  if ( arealist == nullptr )
     return new String( "" );
 
   BoundingBoxObjImp* bbox = new BoundingBoxObjImp;
@@ -972,7 +972,7 @@ BObjectImp* NPCExecutorModule::mf_SetOpponent()
   }
   else
   {
-    npc.set_opponent( NULL );
+    npc.set_opponent( nullptr );
     return new BLong( 0 );
   }
 }

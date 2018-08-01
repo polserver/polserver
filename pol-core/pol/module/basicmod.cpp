@@ -258,7 +258,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CInt()
   else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    return new BLong( strtoul( str->data(), NULL, 0 ) );
+    return new BLong( strtoul( str->data(), nullptr, 0 ) );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
   {
@@ -282,7 +282,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CDbl()
   else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    return new Double( strtod( str->data(), NULL ) );
+    return new Double( strtod( str->data(), nullptr ) );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
   {
@@ -358,7 +358,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
         itr != itrend; ++itr )
   {
     BObject* bo = ( itr->get() );
-    if ( bo == NULL )
+    if ( bo == nullptr )
       continue;
     Bscript::BObjectImp* imp = bo->impptr();
     if ( imp )
@@ -399,7 +399,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
   {
     String* str = static_cast<String*>( imp );
     char s[20];
-    sprintf( s, "0x%X", static_cast<unsigned int>( strtoul( str->data(), NULL, 0 ) ) );
+    sprintf( s, "0x%X", static_cast<unsigned int>( strtoul( str->data(), nullptr, 0 ) ) );
     return new String( s );
   }
   else

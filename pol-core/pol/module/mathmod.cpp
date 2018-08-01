@@ -225,7 +225,7 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
     if ( value->ref_arr.empty() )
       return new Bscript::BError( "Array empty" );
 
-    Bscript::BObjectImp* compare = NULL;
+    Bscript::BObjectImp* compare = nullptr;
     for ( std::vector<Bscript::BObjectRef>::iterator itr = value->ref_arr.begin();
           itr != value->ref_arr.end(); ++itr )
     {
@@ -233,19 +233,19 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
       {
         Bscript::BObject* bo = ( itr->get() );
 
-        if ( bo == NULL )
+        if ( bo == nullptr )
           continue;
         if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
              ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
         {
-          if ( compare == NULL )
+          if ( compare == nullptr )
             compare = bo->impptr();
           else if ( *( bo->impptr() ) < *compare )
             compare = bo->impptr();
         }
       }
     }
-    if ( compare != NULL )
+    if ( compare != nullptr )
       return ( compare->copy() );
     else
       return new Bscript::BError( "No Integer/Double elements" );
@@ -274,7 +274,7 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
     if ( value->ref_arr.empty() )
       return new Bscript::BError( "Array empty" );
 
-    Bscript::BObjectImp* compare = NULL;
+    Bscript::BObjectImp* compare = nullptr;
     for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin();
           itr != value->ref_arr.end(); ++itr )
     {
@@ -282,19 +282,19 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
       {
         Bscript::BObject* bo = ( itr->get() );
 
-        if ( bo == NULL )
+        if ( bo == nullptr )
           continue;
         if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
              ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
         {
-          if ( compare == NULL )
+          if ( compare == nullptr )
             compare = bo->impptr();
           else if ( *( bo->impptr() ) >= *compare )
             compare = bo->impptr();
         }
       }
     }
-    if ( compare != NULL )
+    if ( compare != nullptr )
       return ( compare->copy() );
     else
       return new Bscript::BError( "No Integer/Double elements" );

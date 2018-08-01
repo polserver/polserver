@@ -310,7 +310,7 @@ struct PKTBI_71
     struct POSTER
     {
       u8 post_len;
-      char poster[1];  // post_len bytes long (NULL term)
+      char poster[1];  // post_len bytes long (nullptr term)
     };
     struct SUBJECT
     {

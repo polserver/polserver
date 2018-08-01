@@ -195,20 +195,20 @@ public:
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
     : TmplExecutorModule<UOExecutorModule>( "UO", exec ),
       uoexec( exec ),
-      target_cursor_chr( NULL ),
-      menu_selection_chr( NULL ),
-      popup_menu_selection_chr( NULL ),
-      popup_menu_selection_above( NULL ),
-      prompt_chr( NULL ),
-      gump_chr( NULL ),
-      textentry_chr( NULL ),
-      resurrect_chr( NULL ),
-      selcolor_chr( NULL ),
+      target_cursor_chr( nullptr ),
+      menu_selection_chr( nullptr ),
+      popup_menu_selection_chr( nullptr ),
+      popup_menu_selection_above( nullptr ),
+      prompt_chr( nullptr ),
+      gump_chr( nullptr ),
+      textentry_chr( nullptr ),
+      resurrect_chr( nullptr ),
+      selcolor_chr( nullptr ),
       target_options( 0 ),
-      attached_chr_( NULL ),
-      attached_npc_( NULL ),
+      attached_chr_( nullptr ),
+      attached_npc_( nullptr ),
       attached_item_( nullptr ),
-      controller_( NULL ),
+      controller_( nullptr ),
       reserved_items_(),
       registered_for_speech_events( false )
 {
@@ -223,62 +223,62 @@ UOExecutorModule::~UOExecutorModule()
     reserved_items_.pop_back();
   }
 
-  if ( target_cursor_chr != NULL )
+  if ( target_cursor_chr != nullptr )
   {
     // CHECKME can we cancel the cursor request?
     if ( target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
-      target_cursor_chr->client->gd->target_cursor_uoemod = NULL;
-    target_cursor_chr = NULL;
+      target_cursor_chr->client->gd->target_cursor_uoemod = nullptr;
+    target_cursor_chr = nullptr;
   }
-  if ( menu_selection_chr != NULL )
+  if ( menu_selection_chr != nullptr )
   {
     if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
-      menu_selection_chr->client->gd->menu_selection_uoemod = NULL;
-    menu_selection_chr = NULL;
+      menu_selection_chr->client->gd->menu_selection_uoemod = nullptr;
+    menu_selection_chr = nullptr;
   }
-  if ( popup_menu_selection_chr != NULL )
+  if ( popup_menu_selection_chr != nullptr )
   {
     if ( popup_menu_selection_chr->client != nullptr &&
          popup_menu_selection_chr->client->gd != nullptr )
-      popup_menu_selection_chr->client->gd->popup_menu_selection_uoemod = NULL;
-    popup_menu_selection_chr = NULL;
-    popup_menu_selection_above = NULL;
+      popup_menu_selection_chr->client->gd->popup_menu_selection_uoemod = nullptr;
+    popup_menu_selection_chr = nullptr;
+    popup_menu_selection_above = nullptr;
   }
-  if ( prompt_chr != NULL )
+  if ( prompt_chr != nullptr )
   {
     if ( prompt_chr->client != nullptr && prompt_chr->client->gd != nullptr )
-      prompt_chr->client->gd->prompt_uoemod = NULL;
-    prompt_chr = NULL;
+      prompt_chr->client->gd->prompt_uoemod = nullptr;
+    prompt_chr = nullptr;
   }
-  if ( gump_chr != NULL )
+  if ( gump_chr != nullptr )
   {
     if ( gump_chr->client != nullptr && gump_chr->client->gd != nullptr )
       gump_chr->client->gd->remove_gumpmods( this );
-    gump_chr = NULL;
+    gump_chr = nullptr;
   }
-  if ( textentry_chr != NULL )
+  if ( textentry_chr != nullptr )
   {
     if ( textentry_chr->client != nullptr && textentry_chr->client->gd != nullptr )
-      textentry_chr->client->gd->textentry_uoemod = NULL;
-    textentry_chr = NULL;
+      textentry_chr->client->gd->textentry_uoemod = nullptr;
+    textentry_chr = nullptr;
   }
-  if ( resurrect_chr != NULL )
+  if ( resurrect_chr != nullptr )
   {
     if ( resurrect_chr->client != nullptr && resurrect_chr->client->gd != nullptr )
-      resurrect_chr->client->gd->resurrect_uoemod = NULL;
-    resurrect_chr = NULL;
+      resurrect_chr->client->gd->resurrect_uoemod = nullptr;
+    resurrect_chr = nullptr;
   }
-  if ( selcolor_chr != NULL )
+  if ( selcolor_chr != nullptr )
   {
     if ( selcolor_chr->client != nullptr && selcolor_chr->client->gd != nullptr )
-      selcolor_chr->client->gd->selcolor_uoemod = NULL;
-    selcolor_chr = NULL;
+      selcolor_chr->client->gd->selcolor_uoemod = nullptr;
+    selcolor_chr = nullptr;
   }
-  if ( attached_chr_ != NULL )
+  if ( attached_chr_ != nullptr )
   {
     passert( attached_chr_->script_ex == &uoexec );
-    attached_chr_->script_ex = NULL;
-    attached_chr_ = NULL;
+    attached_chr_->script_ex = nullptr;
+    attached_chr_ = nullptr;
   }
   if ( attached_item_ )
   {
@@ -296,9 +296,9 @@ BObjectImp* UOExecutorModule::mf_Attach( /* Character */ )
   Character* chr;
   if ( getCharacterParam( exec, 0, chr ) )
   {
-    if ( attached_chr_ == NULL )
+    if ( attached_chr_ == nullptr )
     {
-      if ( chr->script_ex == NULL )
+      if ( chr->script_ex == nullptr )
       {
         attached_chr_ = chr;
         attached_chr_->script_ex = &uoexec;
@@ -317,11 +317,11 @@ BObjectImp* UOExecutorModule::mf_Attach( /* Character */ )
 
 BObjectImp* UOExecutorModule::mf_Detach()
 {
-  if ( attached_chr_ != NULL )
+  if ( attached_chr_ != nullptr )
   {
     passert( attached_chr_->script_ex == &uoexec );
-    attached_chr_->script_ex = NULL;
-    attached_chr_ = NULL;
+    attached_chr_->script_ex = nullptr;
+    attached_chr_ = nullptr;
     return new BLong( 1 );
   }
   else
@@ -360,8 +360,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
       {
         // DAVE added this 11/17, call can/onInsert scripts for this container
         Character* chr_owner = cont->GetCharacterOwner();
-        if ( chr_owner == NULL )
-          if ( uoemod != NULL )
+        if ( chr_owner == nullptr )
+          if ( uoemod != nullptr )
             chr_owner = uoemod->controller_.get();
 
         // If the can insert script fails for combining a stack, we'll let the create new item code
@@ -370,7 +370,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         // shouldn't do that)
         // FIXME oh my, this makes no sense.  'item' in this case is already in the container.
         if ( !cont->can_insert_increase_stack( chr_owner, UContainer::MT_CORE_CREATED, item, amount,
-                                               NULL ) )
+                                               nullptr ) )
           continue;
         if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
         {
@@ -406,7 +406,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
   }
 
   Item* item = Item::create( *descriptor );
-  if ( item != NULL )
+  if ( item != nullptr )
   {
     ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
     item->realm = cont->realm;
@@ -449,8 +449,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
 
       // DAVE added this 11/17, call can/onInsert scripts for this container
       Character* chr_owner = cont->GetCharacterOwner();
-      if ( chr_owner == NULL )
-        if ( uoemod != NULL )
+      if ( chr_owner == nullptr )
+        if ( uoemod != nullptr )
           chr_owner = uoemod->controller_.get();
 
       if ( !cont->can_insert_add_item( chr_owner, UContainer::MT_CORE_CREATED, item ) )
@@ -556,7 +556,7 @@ BObjectImp* UOExecutorModule::broadcast()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -681,7 +681,7 @@ BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
 
   UContainer* cont = static_cast<UContainer*>( item );
   Item* found = cont->find_toplevel_objtype( objtype );
-  if ( found == NULL )
+  if ( found == nullptr )
     return new BError( "No items were found" );
   else
     return new EItemRefObjImp( found );
@@ -695,7 +695,7 @@ BObjectImp* UOExecutorModule::mf_SendSysMessage()
   unsigned short font;
   unsigned short color;
 
-  if ( getCharacterParam( exec, 0, chr ) && ( ( ptext = getStringParam( 1 ) ) != NULL ) &&
+  if ( getCharacterParam( exec, 0, chr ) && ( ( ptext = getStringParam( 1 ) ) != nullptr ) &&
        getParam( 2, font ) && getParam( 3, color ) )
   {
     if ( chr->has_active_client() )
@@ -761,9 +761,9 @@ const int TGTOPT_HELPFUL = 0x0004;
 // FIXME susceptible to out-of-sequence target cursors
 void handle_script_cursor( Character* chr, UObject* obj )
 {
-  if ( chr != NULL && chr->client->gd->target_cursor_uoemod != NULL )
+  if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
   {
-    if ( obj != NULL )
+    if ( obj != nullptr )
     {
       if ( obj->ismobile() )
       {
@@ -783,8 +783,8 @@ void handle_script_cursor( Character* chr, UObject* obj )
     }
     // even on cancel, we wake the script up.
     chr->client->gd->target_cursor_uoemod->uoexec.os_module->revive();
-    chr->client->gd->target_cursor_uoemod->target_cursor_chr = NULL;
-    chr->client->gd->target_cursor_uoemod = NULL;
+    chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
+    chr->client->gd->target_cursor_uoemod = nullptr;
   }
 }
 
@@ -880,9 +880,9 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 
 void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 {
-  if ( chr != NULL && chr->client->gd->target_cursor_uoemod != NULL )
+  if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
   {
-    if ( msg != NULL )
+    if ( msg != nullptr )
     {
       BStruct* arr = new BStruct;
       arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
@@ -911,15 +911,15 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 
       Multi::UMulti* multi =
           chr->realm->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
-      if ( multi != NULL )
+      if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 
       chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
     }
 
     chr->client->gd->target_cursor_uoemod->uoexec.os_module->revive();
-    chr->client->gd->target_cursor_uoemod->target_cursor_chr = NULL;
-    chr->client->gd->target_cursor_uoemod = NULL;
+    chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
+    chr->client->gd->target_cursor_uoemod = nullptr;
   }
 }
 
@@ -1067,7 +1067,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
        getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
   {
     UContainer* backpack = chr->backpack();
-    if ( backpack != NULL )
+    if ( backpack != nullptr )
     {
       return _create_item_in_container( backpack, descriptor, amount, false, this );
     }
@@ -1136,7 +1136,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemAtLocation( /* x,y,z,objtype,amount,r
     if ( !realm->valid( x, y, z ) )
       return new BError( "Invalid Coordinates for Realm" );
     Item* item = Item::create( *itemdesc );
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       item->setamount( amount );
       return _complete_create_item_at_location( item, x, y, z, realm );
@@ -1168,7 +1168,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation( /* x,y,z,item,realm *
     if ( !realm->valid( x, y, z ) )
       return new BError( "Invalid Coordinates for Realm" );
     Item* item = origitem->clone();
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       return _complete_create_item_at_location( item, x, y, z, realm );
     }
@@ -1239,9 +1239,8 @@ void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
         BDictionary::Contents::const_iterator itr;
         for ( itr = cprop_cont.begin(); itr != cprop_cont.end(); ++itr )
         {
-          elem.add_prop(
-              "cprop", ( ( *itr ).first->getStringRep() + "\t" + ( *itr ).second->impptr()->pack() )
-                           .c_str() );
+          elem.add_prop( "cprop", ( ( *itr ).first->getStringRep() + "\t" +
+                                    ( *itr ).second->impptr()->pack() ) );
         }
       }
       else
@@ -1253,7 +1252,7 @@ void replace_properties( Clib::ConfigElem& elem, BStruct* custom )
     else
     {
       elem.clear_prop( name.c_str() );
-      elem.add_prop( name.c_str(), ref->getStringRep().c_str() );
+      elem.add_prop( name, ref->getStringRep() );
     }
   }
 }
@@ -1272,10 +1271,10 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     return new BError( "Invalid parameter type" );
   }
   BObjectImp* imp = getParamImp( 4 );
-  BStruct* custom_struct = NULL;
+  BStruct* custom_struct = nullptr;
   if ( imp->isa( BObjectImp::OTLong ) )
   {
-    custom_struct = NULL;
+    custom_struct = nullptr;
   }
   else if ( imp->isa( BObjectImp::OTStruct ) )
   {
@@ -1336,8 +1335,8 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     elem.add_prop( "X", x );
     elem.add_prop( "Y", y );
     elem.add_prop( "Z", z );
-    elem.add_prop( "Realm", realm->name().c_str() );
-    if ( custom_struct != NULL )
+    elem.add_prop( "Realm", realm->name() );
+    if ( custom_struct != nullptr )
       replace_properties( elem, custom_struct );
     npc->readPropertiesForNewNPC( elem );
 
@@ -1361,7 +1360,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
       {
         npc->registered_house = dummy_multi->serial;
 
-        if ( this_house != NULL )
+        if ( this_house != nullptr )
           this_house->walk_on( npc.get() );
       }
     }
@@ -1370,7 +1369,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
       if ( npc->registered_house > 0 )
       {
         Multi::UMulti* multi = system_find_multi( npc->registered_house );
-        if ( multi != NULL )
+        if ( multi != nullptr )
         {
           multi->unregister_object( npc.get() );
         }
@@ -1382,7 +1381,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   }
   catch ( std::exception& ex )
   {
-    if ( npc.get() != NULL )
+    if ( npc.get() != nullptr )
       npc->destroy();
     return new BError( "Exception detected trying to create npc from template '" +
                        tmplname->value() + "': " + ex.what() );
@@ -1541,12 +1540,12 @@ BObjectImp* UOExecutorModule::mf_PlayMusic( /* char, music_id */ )
 
 void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
 {
-  if ( client != NULL )
+  if ( client != nullptr )
   {
     Character* chr = client->chr;
-    if ( chr != NULL && chr->client->gd->menu_selection_uoemod != NULL )
+    if ( chr != nullptr && chr->client->gd->menu_selection_uoemod != nullptr )
     {
-      if ( mi != NULL && msg != NULL )
+      if ( mi != nullptr && msg != nullptr )
       {
         BStruct* selection = new BStruct;
         // FIXME should make sure objtype and choice are within valid range.
@@ -1560,8 +1559,8 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
       }
       // 0 is already on the value stack, for the case of cancellation.
       chr->client->gd->menu_selection_uoemod->uoexec.os_module->revive();
-      chr->client->gd->menu_selection_uoemod->menu_selection_chr = NULL;
-      chr->client->gd->menu_selection_uoemod = NULL;
+      chr->client->gd->menu_selection_uoemod->menu_selection_chr = nullptr;
+      chr->client->gd->menu_selection_uoemod = nullptr;
     }
   }
 }
@@ -1569,7 +1568,7 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
 bool UOExecutorModule::getDynamicMenuParam( unsigned param, Menu*& menu )
 {
   BApplicObjBase* aob = getApplicObjParam( param, &menu_type );
-  if ( aob != NULL )
+  if ( aob != nullptr )
   {
     EMenuObjImp* menu_imp = static_cast<EMenuObjImp*>( aob );
     menu = &menu_imp->value();
@@ -1588,7 +1587,7 @@ bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu 
   {
     String* pmenuname = static_cast<String*>( imp );
     menu = Menu::find_menu( pmenuname->data() );
-    return ( menu != NULL );
+    return ( menu != nullptr );
   }
   else if ( imp->isa( BObjectImp::OTApplicObj ) )
   {
@@ -1610,12 +1609,12 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   Menu* menu;
 
   if ( !getCharacterParam( exec, 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
-       ( chr->client->gd->menu_selection_uoemod != NULL ) )
+       ( chr->client->gd->menu_selection_uoemod != nullptr ) )
   {
     return new BError( "Invalid parameter" );
   }
 
-  if ( menu == NULL || !chr->has_active_client() || menu->menuitems_.empty() )
+  if ( menu == nullptr || !chr->has_active_client() || menu->menuitems_.empty() )
   {
     return new BError( "Client is busy, or menu is empty" );
   }
@@ -1653,7 +1652,7 @@ void append_objtypes( ObjArray* objarr, Menu* menu )
       // menu passed to function.
       //      Menu* menu = find_menu( mi->submenu_id );
       Menu* tmp_menu = Menu::find_menu( mi->submenu_id );
-      if ( tmp_menu != NULL )
+      if ( tmp_menu != nullptr )
         append_objtypes( objarr, tmp_menu );
     }
     else
@@ -1694,7 +1693,7 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
       BObjectRef& ref = arr->ref_arr[i];
 
       BObject* bo = ref.get();
-      if ( bo == NULL )
+      if ( bo == nullptr )
         continue;
       if ( !bo->isa( BObjectImp::OTLong ) )
         continue;
@@ -1702,11 +1701,11 @@ BObjectImp* UOExecutorModule::mf_ApplyConstraint()
       unsigned int objtype = static_cast<u32>( blong->value() );
 
       ref_ptr<StoredConfigElem> celem = cfile->findelem( objtype );
-      if ( celem.get() == NULL )
+      if ( celem.get() == nullptr )
         continue;
 
       BObjectImp* propval = celem->getimp( propname_str->value() );
-      if ( propval == NULL )
+      if ( propval == nullptr )
         continue;
       if ( !propval->isa( BObjectImp::OTLong ) )
         continue;
@@ -1948,7 +1947,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -1969,7 +1968,7 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2080,7 +2079,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2108,7 +2107,7 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2199,7 +2198,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation( /* x, y, z, range, realm
     return newarr.release();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/,
@@ -2514,7 +2513,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType( /* x, y, z, range,
     return newarr.release();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 
@@ -2554,7 +2553,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsAtLocation( /* x, y, z, realm */ )
     return newarr.release();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
@@ -2828,7 +2827,7 @@ BObjectImp* UOExecutorModule::mf_CheckLosAt()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2854,7 +2853,7 @@ BObjectImp* UOExecutorModule::mf_CheckLosBetween()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2947,7 +2946,7 @@ BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
       return newarr.release();
     }
 
-    return NULL;
+    return nullptr;
   }
   else
     return new BError( "Invalid parameter type" );
@@ -2961,7 +2960,7 @@ BObjectImp* UOExecutorModule::mf_EnumerateOnlineCharacters()
                                 end = networkManager.clients.end();
         itr != end; ++itr )
   {
-    if ( ( *itr )->chr != NULL )
+    if ( ( *itr )->chr != nullptr )
     {
       newarr->addElement( new ECharacterRefObjImp( ( *itr )->chr ) );
     }
@@ -3016,7 +3015,7 @@ BObjectImp* UOExecutorModule::mf_EnableEvents()
       }
       else
       {
-        return NULL;
+        return nullptr;
       }
     }
     uoexec.eventmask |= eventmask;
@@ -3095,7 +3094,7 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
     if ( IsCharacter( serial ) )
     {
       Character* chr = system_find_mobile( serial );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         if ( sysfind_flags & SYSFIND_SEARCH_OFFLINE_MOBILES )
           return new EOfflineCharacterRefObjImp( chr );
@@ -3113,7 +3112,7 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
       // don't need system_find_multi here.
       Item* item = system_find_item( serial );
 
-      if ( item != NULL )
+      if ( item != nullptr )
       {
         return item->make_ref();
       }
@@ -3191,7 +3190,7 @@ BObjectImp* UOExecutorModule::mf_SetRegionLightLevel()
   }
 
   LightRegion* lightregion = gamestate.lightdef->getregion( region_name_str->value() );
-  if ( lightregion == NULL )
+  if ( lightregion == nullptr )
   {
     return new BError( "Light region not found" );
   }
@@ -3214,7 +3213,7 @@ BObjectImp* UOExecutorModule::mf_SetRegionWeatherLevel()
   }
 
   WeatherRegion* weatherregion = gamestate.weatherdef->getregion( region_name_str->value() );
-  if ( weatherregion == NULL )
+  if ( weatherregion == nullptr )
   {
     return new BError( "Weather region not found" );
   }
@@ -3414,7 +3413,7 @@ BObjectImp* UOExecutorModule::mf_GetFacing()
 void true_extricate( Item* item )
 {
   send_remove_object_to_inrange( item );
-  if ( item->container != NULL )
+  if ( item->container != nullptr )
   {
     item->extricate();
   }
@@ -3442,7 +3441,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
   if ( !item->movable() )
   {
     Character* chr = controller_.get();
-    if ( chr == NULL || !chr->can_move( item ) )
+    if ( chr == nullptr || !chr->can_move( item ) )
       return new BError( "That is immobile" );
   }
   if ( item->inuse() && !is_reserved_to_me( item ) )
@@ -3471,15 +3470,15 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
   }
   // DAVE added this 12/04, call can/onInsert & can/onRemove scripts for this container
   Character* chr_owner = cont->GetCharacterOwner();
-  if ( chr_owner == NULL )
-    if ( controller_.get() != NULL )
+  if ( chr_owner == nullptr )
+    if ( controller_.get() != nullptr )
       chr_owner = controller_.get();
 
   // daved changed order 1/26/3 check canX scripts before onX scripts.
   UContainer* oldcont = item->container;
-  Item* existing_stack = NULL;
+  Item* existing_stack = nullptr;
 
-  if ( ( oldcont != NULL ) &&
+  if ( ( oldcont != nullptr ) &&
        ( !oldcont->check_can_remove_script( chr_owner, item, UContainer::MT_CORE_MOVED ) ) )
     return new BError( "Could not remove item from its container." );
   if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -3490,7 +3489,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
   if ( add_to_existing_stack )
   {
     existing_stack = cont->find_addable_stack( item );
-    if ( existing_stack != NULL )
+    if ( existing_stack != nullptr )
     {
       if ( !cont->can_insert_increase_stack( chr_owner, UContainer::MT_CORE_MOVED, existing_stack,
                                              item->getamount(), item ) )
@@ -3518,7 +3517,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
     return new BError( "Item was destroyed in Equip Script" );
   }
 
-  if ( oldcont != NULL )
+  if ( oldcont != nullptr )
   {
     oldcont->on_remove( chr_owner, item, UContainer::MT_CORE_MOVED );
     if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -3598,7 +3597,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
   if ( !item->movable() )
   {
     Character* _chr = controller_.get();
-    if ( _chr == NULL || !_chr->can_move( item ) )
+    if ( _chr == nullptr || !_chr->can_move( item ) )
       return new BError( "That is immobile" );
   }
   if ( item->inuse() && !is_reserved_to_me( item ) )
@@ -3610,14 +3609,14 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
   UContainer* oldcont = item->container;
 
   // DAVE added this 12/04, call can/onInsert & can/onRemove scripts for this container
-  Character* chr_owner = NULL;
-  if ( oldcont != NULL )
+  Character* chr_owner = nullptr;
+  if ( oldcont != nullptr )
     chr_owner = oldcont->GetCharacterOwner();
-  if ( chr_owner == NULL )
-    if ( controller_.get() != NULL )
+  if ( chr_owner == nullptr )
+    if ( controller_.get() != nullptr )
       chr_owner = controller_.get();
 
-  if ( ( oldcont != NULL ) &&
+  if ( ( oldcont != nullptr ) &&
        ( !oldcont->check_can_remove_script( chr_owner, item, UContainer::MT_CORE_MOVED ) ) )
     return new BError( "Could not remove item from its container." );
   if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -3632,7 +3631,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
     return new BError( "Item was destroyed in Equip Script" );
   }
 
-  if ( oldcont != NULL )
+  if ( oldcont != nullptr )
   {
     oldcont->on_remove( chr_owner, item, UContainer::MT_CORE_MOVED );
     if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -3656,7 +3655,7 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
     if ( !item->movable() )
     {
       Character* _chr = controller_.get();
-      if ( _chr == NULL || !_chr->can_move( item ) )
+      if ( _chr == nullptr || !_chr->can_move( item ) )
         return new BError( "That is immobile" );
     }
 
@@ -3798,7 +3797,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
     else
       justice_region = gamestate.justicedef->getregion( obj->x, obj->y, obj->realm );
 
-    if ( justice_region == NULL )
+    if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );
     else
       return new String( justice_region->region_name() );
@@ -3821,7 +3820,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation( /* x, y, realm */ )
       return new BError( "Invalid Coordinates for realm" );
 
     JusticeRegion* justice_region = gamestate.justicedef->getregion( x, y, realm );
-    if ( justice_region == NULL )
+    if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );
     else
       return new String( justice_region->region_name() );
@@ -3868,7 +3867,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionLightLevelAtLocation( /* x, y, realm *
       return new BError( "Invalid Coordinates for realm" );
     LightRegion* light_region = gamestate.lightdef->getregion( x, y, realm );
     int lightlevel;
-    if ( light_region != NULL )
+    if ( light_region != nullptr )
       lightlevel = light_region->lightlevel;
     else
       lightlevel = settingsManager.ssopt.default_light_level;
@@ -3967,7 +3966,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
       buffer->offset++;
       s += 2;
     }
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       if ( chr->has_active_client() )
       {
@@ -3979,7 +3978,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
         return new BError( "No client attached" );
       }
     }
-    else if ( client != NULL )
+    else if ( client != nullptr )
     {
       if ( client->isConnected() )
       {
@@ -4062,7 +4061,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeReagents()
       return new BError( "Spell ID out of range" );
     }
     USpell* spell = gamestate.spells[spellid];
-    if ( spell == NULL )
+    if ( spell == nullptr )
     {
       return new BError( "No such spell" );
     }
@@ -4086,7 +4085,7 @@ BObjectImp* UOExecutorModule::mf_StartSpellEffect()
       return new BError( "Spell ID out of range" );
     }
     USpell* spell = gamestate.spells[spellid];
-    if ( spell == NULL )
+    if ( spell == nullptr )
     {
       return new BError( "No such spell" );
     }
@@ -4109,7 +4108,7 @@ BObjectImp* UOExecutorModule::mf_GetSpellDifficulty()
       return new BError( "Spell ID out of range" );
     }
     USpell* spell = gamestate.spells[spellid];
-    if ( spell == NULL )
+    if ( spell == nullptr )
     {
       return new BError( "No such spell" );
     }
@@ -4136,7 +4135,7 @@ BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
       return new BError( "Spell ID out of range" );
     }
     USpell* spell = gamestate.spells[spellid];
-    if ( spell == NULL )
+    if ( spell == nullptr )
     {
       return new BError( "No such spell" );
     }
@@ -4160,7 +4159,7 @@ BObjectImp* UOExecutorModule::mf_ListEquippedItems()
     for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
     {
       Item* item = chr->wornitem( layer );
-      if ( item != NULL )
+      if ( item != nullptr )
       {
         arr->addElement( new EItemRefObjImp( item ) );
       }
@@ -4185,7 +4184,7 @@ BObjectImp* UOExecutorModule::mf_GetEquipmentByLayer()
     }
 
     Item* item = chr->wornitem( layer );
-    if ( item == NULL )
+    if ( item == nullptr )
     {
       return new BError( "Nothing equipped on that layer." );
     }
@@ -4207,7 +4206,7 @@ BObjectImp* UOExecutorModule::mf_DisconnectClient()
 
   if ( getCharacterOrClientParam( exec, 0, chr, client ) )
   {
-    if ( chr != NULL )
+    if ( chr != nullptr )
     {
       if ( !chr->has_active_client() )
         return new BError( "No client attached" );
@@ -4215,7 +4214,7 @@ BObjectImp* UOExecutorModule::mf_DisconnectClient()
       client = chr->client;
     }
 
-    if ( client != NULL )
+    if ( client != nullptr )
     {
       if ( client->isConnected() )
       {
@@ -4312,7 +4311,7 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
   if ( getCharacterParam( exec, 0, chr ) )
   {
     BObjectImp* event = exec.getParamImp( 1 );
-    if ( event != NULL )
+    if ( event != nullptr )
     {
       if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
       {
@@ -4352,12 +4351,12 @@ BObjectImp* UOExecutorModule::mf_DestroyMulti()
     }
 
     Multi::UBoat* boat = multi->as_boat();
-    if ( boat != NULL )
+    if ( boat != nullptr )
     {
       return Multi::destroy_boat( boat );
     }
     Multi::UHouse* house = multi->as_house();
-    if ( house != NULL )
+    if ( house != nullptr )
     {
       return Multi::destroy_house( house );
     }
@@ -4431,7 +4430,7 @@ if (getMultiParam( *this, 0, multi ) &&
 getItemParan( 1, item ))
 {
 UHouse* house = multi->as_house();
-if (house != NULL)
+if (house != nullptr)
 {
 house->add_component( item );
 return new BLong(1);
@@ -4467,7 +4466,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
     {
       std::unique_ptr<BStruct> arr( new BStruct );
       arr->addMember( "z", new BLong( newz ) );
-      if ( multi != NULL )
+      if ( multi != nullptr )
         arr->addMember( "multi", new EMultiRefObjImp( multi ) );
       return arr.release();
     }
@@ -5132,11 +5131,11 @@ BObjectImp* UOExecutorModule::mf_FindPath()
     if ( SearchState == UOSearch::SEARCH_STATE_SUCCEEDED )
     {
       UOPathState* node = astarsearch->GetSolutionStart();
-      ObjArray* nodeArray = NULL;
-      BStruct* nextStep = NULL;
+      ObjArray* nodeArray = nullptr;
+      BStruct* nextStep = nullptr;
 
       nodeArray = new ObjArray();
-      while ( ( node = astarsearch->GetSolutionNext() ) != NULL )
+      while ( ( node = astarsearch->GetSolutionNext() ) != nullptr )
       {
         nextStep = new BStruct;
         nextStep->addMember( "x", new BLong( node->x ) );
@@ -5185,7 +5184,7 @@ BObjectImp* UOExecutorModule::mf_UseItem()
 
     if ( itemdesc.requires_attention && ( chr->skill_ex_active() || chr->casting_spell() ) )
     {
-      if ( chr->client != NULL )
+      if ( chr->client != nullptr )
       {
         send_sysmessage( chr->client, "I am already doing something else." );
         return new BError( "Character busy." );
@@ -5202,7 +5201,7 @@ BObjectImp* UOExecutorModule::mf_UseItem()
 
     if ( !on_use_script.empty() )
     {
-      ScriptDef sd( on_use_script, NULL, "" );
+      ScriptDef sd( on_use_script, nullptr, "" );
       prog = find_script2( sd,
                            true,  // complain if not found
                            Plib::systemstate.config.cache_interactive_scripts );
@@ -5213,7 +5212,7 @@ BObjectImp* UOExecutorModule::mf_UseItem()
                            Plib::systemstate.config.cache_interactive_scripts );
     }
 
-    if ( prog.get() != NULL )
+    if ( prog.get() != nullptr )
     {
       if ( chr->start_itemuse_script( prog.get(), item, itemdesc.requires_attention ) )
         return new BLong( 1 );
@@ -5223,7 +5222,7 @@ BObjectImp* UOExecutorModule::mf_UseItem()
     }
     else
     {
-      if ( chr->client != NULL )
+      if ( chr->client != nullptr )
         item->builtin_on_use( chr->client );
       return new BLong( 0 );
     }
@@ -5273,7 +5272,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
             itr != substanceVector.end(); ++itr )
       {
         item = GET_ITEM_PTR( itr );
-        if ( item != NULL )
+        if ( item != nullptr )
         {
           if ( ( makeInUse ) && ( !item->inuse() ) )
           {
@@ -5398,15 +5397,15 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
       unsigned short tmp_newy = y + move_delta[tmp_facing].ymove;
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
-      bool walk1 =
-          realm->walkheight( tmp_newx, tmp_newy, z, &new_z, NULL, NULL, true, movemode, NULL );
+      bool walk1 = realm->walkheight( tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, true,
+                                      movemode, nullptr );
 
       tmp_facing = ( dir - 1 ) & 0x7;
       tmp_newx = x + move_delta[tmp_facing].xmove;
       tmp_newy = y + move_delta[tmp_facing].ymove;
 
-      if ( !walk1 &&
-           !realm->walkheight( tmp_newx, tmp_newy, z, &new_z, NULL, NULL, true, movemode, NULL ) )
+      if ( !walk1 && !realm->walkheight( tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, true,
+                                         movemode, nullptr ) )
         return new BError( "Cannot walk there" );
     }
 
@@ -5414,7 +5413,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
     unsigned short newy = y + move_delta[dir].ymove;
     short newz;
 
-    if ( !realm->walkheight( newx, newy, z, &newz, NULL, NULL, true, movemode, NULL ) )
+    if ( !realm->walkheight( newx, newy, z, &newz, nullptr, nullptr, true, movemode, nullptr ) )
       return new BError( "Cannot walk there" );
 
     return new BLong( newz );

@@ -287,7 +287,7 @@ void PolConfig::reload_pol_cfg()
     stat( "pol.cfg", &newst );
 
     if ( ( newst.st_mtime != PolConfig::pol_cfg_stat.st_mtime ) &&
-         ( newst.st_mtime < time( NULL ) - 10 ) )
+         ( newst.st_mtime < time( nullptr ) - 10 ) )
     {
       POLLOG_INFO << "Reloading pol.cfg...";
       memcpy( &PolConfig::pol_cfg_stat, &newst, sizeof PolConfig::pol_cfg_stat );

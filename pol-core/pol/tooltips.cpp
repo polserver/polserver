@@ -42,7 +42,7 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
   if ( !IsCharacter( serial ) )
   {
     Items::Item* item = find_legal_item( client->chr, serial );
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       const Items::ItemDesc& id = item->itemdesc();
       if ( !id.tooltip.empty() )

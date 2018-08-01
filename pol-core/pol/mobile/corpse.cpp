@@ -161,7 +161,7 @@ void UCorpse::on_insert_add_item( Mobile::Character* mob, MoveType move, Items::
   {
     UCorpse* corpse = static_cast<UCorpse*>( this );
     Item* item_on_layer = corpse->GetItemOnLayer( new_item->tile_layer );
-    if ( item_on_layer != NULL && item_on_layer->serial == new_item->serial )
+    if ( item_on_layer != nullptr && item_on_layer->serial == new_item->serial )
     {
       send_corpse_equip_inrange( corpse );
     }

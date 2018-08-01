@@ -23,61 +23,61 @@ namespace Core
 UObject* system_find_object( u32 serial )
 {
   UObject* obj = objStorageManager.objecthash.Find( serial );
-  if ( obj != NULL && !obj->orphan() )
+  if ( obj != nullptr && !obj->orphan() )
     return obj;
   else
-    return NULL;
+    return nullptr;
 }
 
 Mobile::Character* system_find_mobile( u32 serial /*, int sysfind_flags*/ )
 {
   UObject* obj = objStorageManager.objecthash.Find( serial );
-  if ( obj != NULL && obj->ismobile() && !obj->orphan() )
+  if ( obj != nullptr && obj->ismobile() && !obj->orphan() )
     return static_cast<Mobile::Character*>( obj );
   else
-    return NULL;
+    return nullptr;
 }
 
 Items::Item* system_find_item( u32 serial /*, int sysfind_flags */ )
 {
   UObject* obj = objStorageManager.objecthash.Find( serial );
-  if ( obj != NULL && obj->isitem() && !obj->orphan() )
+  if ( obj != nullptr && obj->isitem() && !obj->orphan() )
     return static_cast<Items::Item*>( obj );
   else
-    return NULL;
+    return nullptr;
 }
 
 Multi::UMulti* system_find_multi( u32 serial )
 {
   UObject* obj = objStorageManager.objecthash.Find( serial );
-  if ( obj != NULL && obj->ismulti() && !obj->orphan() )
+  if ( obj != nullptr && obj->ismulti() && !obj->orphan() )
     return static_cast<Multi::UMulti*>( obj );
   else
-    return NULL;
+    return nullptr;
 }
 
 // find_character: find a logged-in character given a serial number.
 Mobile::Character* find_character( u32 serial )
 {
   Mobile::Character* chr = system_find_mobile( serial );
-  if ( chr != NULL && chr->logged_in() )
+  if ( chr != nullptr && chr->logged_in() )
     return chr;
   else
-    return NULL;
+    return nullptr;
 }
 
 Items::Item* find_toplevel_item( u32 serial )
 {
   Items::Item* item = system_find_item( serial );
-  if ( item != NULL && item->container != NULL )
-    return NULL;
+  if ( item != nullptr && item->container != nullptr )
+    return nullptr;
   //{
   //    const UObject* owner = item->toplevel_owner();
   //    if (owner->ismobile())
   //    {
   //        Character* chr = static_cast<Character*>(owner);
   //        if (!chr->logged_in)
-  //            return NULL;
+  //            return nullptr;
   //    }
   //}
   return item;

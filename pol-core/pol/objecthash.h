@@ -33,7 +33,7 @@ namespace Core
 {
 /*
 template <class _Key> struct myhash { };
-_STLP_TEMPLATE_NULL struct myhash<UObject*> {
+_STLP_TEMPLATE_nullptr struct myhash<UObject*> {
 size_t operator()(UObject* obj) const { return obj->serial; }
 };
 */

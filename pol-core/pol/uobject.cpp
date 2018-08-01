@@ -213,12 +213,12 @@ void UObject::setname( const std::string& newname )
 
 UObject* UObject::owner()
 {
-  return NULL;
+  return nullptr;
 }
 
 const UObject* UObject::owner() const
 {
-  return NULL;
+  return nullptr;
 }
 
 UObject* UObject::self_as_owner()
@@ -264,7 +264,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tFacing\t" << static_cast<int>( facing ) << pf_endl;
 
   sw() << "\tRevision\t" << rev() << pf_endl;
-  if ( realm == NULL )
+  if ( realm == nullptr )
     sw() << "\tRealm\tbritannia" << pf_endl;
   else
     sw() << "\tRealm\t" << realm->name() << pf_endl;

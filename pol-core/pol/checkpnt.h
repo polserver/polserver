@@ -18,6 +18,8 @@ class Checkpoint
 public:
   explicit Checkpoint( const char* file );
   ~Checkpoint();
+  Checkpoint( const Checkpoint& ) = delete;
+  Checkpoint& operator=( const Checkpoint& ) = delete;
 
   void setvalue( unsigned line ) { _line = line; }
   void clear() { _line = 0; }
