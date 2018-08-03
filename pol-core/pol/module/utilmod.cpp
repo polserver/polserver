@@ -126,7 +126,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 
 
   if ( time_stamp <= 0 )
-    seconds = time( NULL );
+    seconds = time( nullptr );
   else
     seconds = time_stamp;
 

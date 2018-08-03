@@ -75,8 +75,8 @@ void TwoFish::Init( unsigned char* gseed )
   numRounds[0] = 0;
   numRounds[1] = numRounds[2] = numRounds[3] = 0x10;
 
-  MakeKey( &ki, 1, 0x80, NULL );
-  CipherInit( &ci, 1, NULL );
+  MakeKey( &ki, 1, 0x80, nullptr );
+  CipherInit( &ci, 1, nullptr );
 
   ki.key32[0] = ki.key32[1] = ki.key32[2] = ki.key32[3] = seed;
   ReKey( &ki );
@@ -197,7 +197,7 @@ void TwoFish::CipherInit( CipherInstance* cipher, unsigned char mode, char* IV )
 
 void TwoFish::MakeKey( KeyInstance* key, unsigned char direction, int keyLen, char* keyMaterial )
 {
-  passert_r( keyMaterial == NULL, "User supplied key-material is not implemented" );
+  passert_r( keyMaterial == nullptr, "User supplied key-material is not implemented" );
   (void)keyMaterial;
 
   key->keySig = 0x48534946;

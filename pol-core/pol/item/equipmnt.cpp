@@ -55,7 +55,7 @@ Equipment::~Equipment()
       ed->unload_scripts();
 
       delete tmpl;
-      tmpl = NULL;
+      tmpl = nullptr;
     }
   }
 }
@@ -91,7 +91,7 @@ void Equipment::reduce_hp_from_hit()
     if ( isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Mobile::Character* chr = GetCharacterOwner();
-      if ( chr != NULL )
+      if ( chr != nullptr )
         chr->refresh_ar();
     }
     send_object_cache_to_inrange( this );
@@ -124,12 +124,12 @@ void Equipment::setQuality( double value )
   _quality = value;
 }
 
-/// Looks up for an existing intrinsic equipment and return it or NULL if not found
+/// Looks up for an existing intrinsic equipment and return it or nullptr if not found
 Equipment* find_intrinsic_equipment( const std::string& name, u8 layer )
 {
   auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndLayer( name, layer ) );
   if ( itr == Core::gamestate.intrinsic_equipments.end() )
-    return NULL;
+    return nullptr;
   return itr->second;
 }
 
@@ -186,8 +186,8 @@ void load_npc_intrinsic_equip()
     Clib::ConfigElem elem;
     while ( cf.read( elem ) )
     {
-      Items::create_intrinsic_weapon_from_npctemplate( elem, NULL );
-      Items::create_intrinsic_shield_from_npctemplate( elem, NULL );
+      Items::create_intrinsic_weapon_from_npctemplate( elem, nullptr );
+      Items::create_intrinsic_shield_from_npctemplate( elem, nullptr );
     }
   }
   for ( const auto& pkg : Plib::systemstate.packages )

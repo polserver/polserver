@@ -1,11 +1,7 @@
 #ifndef GLOBALS_NETWORK_H
 #define GLOBALS_NETWORK_H
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include <array>
 #include <boost/noncopyable.hpp>

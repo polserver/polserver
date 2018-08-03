@@ -24,7 +24,7 @@ namespace Items
 {
 Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
     : UObject( id.objtype, uobj_class ),
-      container( NULL ),
+      container( nullptr ),
       decayat_gameclock_( 0 ),
       amount_( 1 ),
       slot_index_( 0 ),

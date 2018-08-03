@@ -3,13 +3,8 @@
 #include "../Program/ProgramConfig.h"
 #include "../logfacility.h"
 #include "../threadhelp.h"
-#include <format/format.h>
-
-#ifdef WINDOWS
-#include "../pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
+#include <format/format.h>
 
 #include <cstddef>
 #include <cstring>
@@ -355,10 +350,11 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
                    "comp=" +
                    getCompilerVersion() +
                    "&"
-                   "comp_time=" POL_BUILD_DATETIME
+                   "comp_time=" +
+                   ProgramConfig::build_datetime() +
                    "&"
                    "build_target=" +
-                   POL_BUILD_TARGET +
+                   ProgramConfig::build_target() +
                    "&"
                    "build_revision=" POL_VERSION_ID
                    "&"
@@ -400,8 +396,8 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf( "Stack trace:\n%s", tStackTrace.c_str() );
     printf( "\n" );
     printf( "Compiler: %s\n", getCompilerVersion().c_str() );
-    printf( "Compile time: %s\n", POL_BUILD_DATETIME );
-    printf( "Build target: %s\n", POL_BUILD_TARGET );
+    printf( "Compile time: %s\n", ProgramConfig::build_datetime().c_str() );
+    printf( "Build target: %s\n", ProgramConfig::build_target().c_str() );
     printf( "Build revision: %s\n", POL_VERSION_ID );
 #ifndef _WIN32
     printf( "GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__ );

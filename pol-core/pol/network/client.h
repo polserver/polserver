@@ -280,7 +280,7 @@ private:
 
 inline bool Client::have_queued_data() const
 {
-  return ( first_xmit_buffer != NULL );
+  return ( first_xmit_buffer != nullptr );
 }
 
 

@@ -73,7 +73,7 @@ Item* Item::create( u32 objtype, u32 serial )
     else
     {
       ERROR_PRINT << message.str() << "\n";
-      return NULL;
+      return nullptr;
     }
   }
 }
@@ -92,12 +92,12 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   else if ( id.type == ItemDesc::BOATDESC )
   {
     // still created with create_multi
-    return NULL;
+    return nullptr;
   }
   else if ( id.type == ItemDesc::HOUSEDESC )
   {
     // still created with create_multi
-    return NULL;
+    return nullptr;
   }
   else if ( ( objtype >= Core::gamestate.spell_scroll_objtype_limits[0][0] &&
               objtype <= Core::gamestate.spell_scroll_objtype_limits[0][1] ) ||

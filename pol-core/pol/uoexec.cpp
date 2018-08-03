@@ -16,7 +16,7 @@ namespace Core
 {
 UOExecutor::UOExecutor()
     : Executor(),
-      os_module( NULL ),
+      os_module( nullptr ),
       instr_cycles( 0 ),
       sleep_cycles( 0 ),
       start_time( poltime() ),
@@ -27,8 +27,8 @@ UOExecutor::UOExecutor()
       speech_size( 1 ),
       can_access_offline_mobiles( false ),
       auxsvc_assume_string( false ),
-      pParent( NULL ),
-      pChild( NULL )
+      pParent( nullptr ),
+      pChild( nullptr )
 {
   weakptr.set( this );
   os_module = new Module::OSExecutorModule( *this );
@@ -47,8 +47,8 @@ UOExecutor::~UOExecutor()
         << scriptname() << instr_cycles << sleep_cycles << elapsed;
   }
 
-  pParent = NULL;
-  pChild = NULL;
+  pParent = nullptr;
+  pChild = nullptr;
 }
 
 bool UOExecutor::suspend()

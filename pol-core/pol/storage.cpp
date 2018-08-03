@@ -70,7 +70,7 @@ Items::Item* StorageArea::find_root_item( const std::string& name )
   {
     return ( *itr ).second;
   }
-  return NULL;
+  return nullptr;
 }
 
 bool StorageArea::delete_root_item( const std::string& name )
@@ -109,7 +109,7 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
 
   Items::Item* item = read_item( elem );
   // Austin added 8/10/2006, protect against further crash if item is null. Should throw instead?
-  if ( item == NULL )
+  if ( item == nullptr )
   {
     elem.warn_with_line( "Error reading item SERIAL or OBJTYPE." );
     return;
@@ -136,7 +136,7 @@ StorageArea* Storage::find_area( const std::string& name )
 {
   AreaCont::iterator itr = areas.find( name );
   if ( itr == areas.end() )
-    return NULL;
+    return nullptr;
   else
     return ( *itr ).second;
 }
@@ -159,7 +159,7 @@ StorageArea* Storage::create_area( const std::string& name )
 StorageArea* Storage::create_area( Clib::ConfigElem& elem )
 {
   const char* rest = elem.rest();
-  if ( rest != NULL && rest[0] )
+  if ( rest != nullptr && rest[0] )
   {
     return create_area( rest );
   }
@@ -211,7 +211,7 @@ void Storage::read( Clib::ConfigFile& cf )
   static int num_until_dot = 1000;
   unsigned int nobjects = 0;
 
-  StorageArea* area = NULL;
+  StorageArea* area = nullptr;
   Clib::ConfigElem elem;
 
   clock_t start = clock();
@@ -229,7 +229,7 @@ void Storage::read( Clib::ConfigFile& cf )
     }
     else if ( elem.type_is( "Item" ) )
     {
-      if ( area != NULL )
+      if ( area != nullptr )
       {
         try
         {
@@ -322,7 +322,7 @@ BObject* StorageAreaIterator::step()
   }
 
   if ( itr == _area->_items.end() )
-    return NULL;
+    return nullptr;
 
   key = ( *itr ).first;
   m_pIterVal->setimp( new String( key ) );
@@ -394,7 +394,7 @@ BObject* StorageAreasIterator::step()
   }
 
   if ( itr == gamestate.storage.areas.end() )
-    return NULL;
+    return nullptr;
 
   key = ( *itr ).first;
   m_pIterVal->setimp( new String( key ) );

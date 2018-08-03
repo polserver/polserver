@@ -128,6 +128,12 @@ ErrorOnWarning=0
 ThreadedCompilation=1
 
 #
+# NumberOfThreads
+# Forces N threads to run, 0 autodetects the used number.
+# Default is 0
+#
+NumberOfThreads=0
+#
 # ParanoiaWarnings
 # Forces eCompile to complain about {} syntax.
 # Default is 0

@@ -83,14 +83,14 @@ HANDLE hSemThread;
 void init_ipc_vars()
 {
   InitializeCriticalSection( &cs );
-  hEvPulse = CreateEvent( NULL, TRUE, FALSE, NULL );
+  hEvPulse = CreateEvent( nullptr, TRUE, FALSE, nullptr );
 
-  hEvTasksThread = CreateEvent( NULL, FALSE, FALSE, NULL );
+  hEvTasksThread = CreateEvent( nullptr, FALSE, FALSE, nullptr );
 
-  hEvClientTransmit = CreateEvent( NULL, TRUE, FALSE, NULL );
+  hEvClientTransmit = CreateEvent( nullptr, TRUE, FALSE, nullptr );
 
   InitializeCriticalSection( &csThread );
-  hSemThread = CreateSemaphore( NULL, 0, 1, NULL );
+  hSemThread = CreateSemaphore( nullptr, 0, 1, nullptr );
 }
 
 void deinit_ipc_vars()
@@ -99,7 +99,7 @@ void deinit_ipc_vars()
   DeleteCriticalSection( &csThread );
 
   CloseHandle( hEvTasksThread );
-  hEvTasksThread = NULL;
+  hEvTasksThread = nullptr;
 
   CloseHandle( hEvPulse );
   CloseHandle( hEvClientTransmit );

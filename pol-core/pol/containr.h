@@ -78,7 +78,7 @@ namespace Network
 class Client;
 }  // namespace Network
 }  // namespace Pol
-}
+}  // namespace Clib
 namespace Mobile
 {
 class Character;
@@ -162,8 +162,8 @@ public:
   UContainer* find_container( u32 serial ) const;
 
   // remove(): tells what subcontainer used to hold the item
-  //           points item->container to NULL on removal
-  virtual Items::Item* remove( u32 serial, UContainer** found_in = NULL );
+  //           points item->container to nullptr on removal
+  virtual Items::Item* remove( u32 serial, UContainer** found_in = nullptr );
   virtual void remove( Items::Item* item );  // item must be in this container
   virtual void remove( iterator itr );
 
@@ -195,7 +195,7 @@ public:
                                  unsigned short amt_added );
   virtual void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
 
-  virtual Mobile::Character* get_chr_owner() { return NULL; };
+  virtual Mobile::Character* get_chr_owner() { return nullptr; };
   // system_find: bypasses all locks, etc.
   Items::Item* system_find( u32 serial ) const;
 
@@ -278,6 +278,6 @@ inline Items::Item* UContainer::operator[]( unsigned idx ) const
 {
   return ITEM_ELEM_PTR( contents_[idx] );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -19,7 +19,7 @@ namespace Core
 {
 WornItemsContainer::WornItemsContainer()
     : UContainer( Items::find_container_desc( settingsManager.extobj.wornitems_container ) ),
-      chr_owner( NULL )
+      chr_owner( nullptr )
 {
   contents_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
 }
@@ -34,7 +34,7 @@ void WornItemsContainer::for_each_item( void ( *f )( Items::Item* item, void* a 
 {
   for ( auto& item : contents_ )
   {
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
@@ -65,7 +65,7 @@ void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
       item ) );  // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
-  item->container = NULL;
+  item->container = nullptr;
   contents_[item->tile_layer] = EMPTY_ELEM;
   // 12-17-2008 MuadDib added to clear item.layer properties.
   item->layer = 0;
@@ -112,7 +112,7 @@ void WornItemsContainer::print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& s
 
 Bscript::BObjectImp* WornItemsContainer::make_ref()
 {
-  passert_always( chr_owner != NULL );
+  passert_always( chr_owner != nullptr );
   return chr_owner->make_offline_ref();
 }
 

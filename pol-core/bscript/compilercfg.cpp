@@ -53,6 +53,7 @@ void CompilerConfig::Read( const std::string& path )
 
   DisplayUpToDateScripts = elem.remove_bool( "DisplayUpToDateScripts", true );
   ThreadedCompilation = elem.remove_bool( "ThreadedCompilation", false );
+  NumberOfThreads = elem.remove_int( "NumberOfThreads", 0 );
   ParanoiaWarnings = elem.remove_bool( "ParanoiaWarnings", false );
 
 // This is where we TRY to validate full paths from what was provided in the

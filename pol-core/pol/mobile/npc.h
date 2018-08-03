@@ -172,9 +172,9 @@ public:
   void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype );
   // Speech: Unicode (and ASCII) versions
   void on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
-                    const char lang[4], Bscript::ObjArray* speechtokens = NULL );
+                    const char lang[4], Bscript::ObjArray* speechtokens = nullptr );
   void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
-                          const char lang[4], Bscript::ObjArray* speechtokens = NULL );
+                          const char lang[4], Bscript::ObjArray* speechtokens = nullptr );
   bool can_accept_event( Core::EVENTID eventid );
   Bscript::BObjectImp* send_event_script( Bscript::BObjectImp* event );
   bool send_event( Bscript::BObjectImp* event );
@@ -276,7 +276,7 @@ inline unsigned short NPC::ar() const
 {
   if ( ar_ == 0 )
   {
-    if ( shield != NULL && shield->is_intrinsic() )
+    if ( shield != nullptr && shield->is_intrinsic() )
       return npc_ar_ + shield->ar();
     return npc_ar_;
   }

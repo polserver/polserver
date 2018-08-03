@@ -213,12 +213,12 @@ void UObject::setname( const std::string& newname )
 
 UObject* UObject::owner()
 {
-  return NULL;
+  return nullptr;
 }
 
 const UObject* UObject::owner() const
 {
-  return NULL;
+  return nullptr;
 }
 
 UObject* UObject::self_as_owner()
@@ -401,7 +401,6 @@ void UObject::printProperties(Clib::StreamWriter& sw) const
     if ( value )
         sw() << "\tLuckMod\t" << static_cast<int>(value) << pf_endl;
   // end new mod stuff
-
   proplist_.printProperties( sw );
 }
 

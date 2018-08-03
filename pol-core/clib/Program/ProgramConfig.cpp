@@ -1,4 +1,6 @@
 #include "ProgramConfig.h"
+#include "pol_global_config.h"
+#include "pol_revision.h"
 #include <string>
 
 namespace Pol
@@ -47,6 +49,16 @@ std::string ProgramConfig::programName()
 std::string ProgramConfig::programDir()
 {
   return m_programDir;
+}
+
+std::string ProgramConfig::build_target()
+{
+  return POL_BUILD_TARGET;
+}
+
+std::string ProgramConfig::build_datetime()
+{
+  return POL_BUILD_DATETIME;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

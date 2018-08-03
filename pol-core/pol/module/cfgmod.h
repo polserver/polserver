@@ -63,7 +63,7 @@ public:
 
 protected:
   bool get_cfgfilename( const std::string& cfgdesc, std::string* cfgfile, std::string* errmsg,
-                        std::string* allpkgbase = NULL );
+                        std::string* allpkgbase = nullptr );
 };
 
 

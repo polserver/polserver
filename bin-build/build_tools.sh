@@ -10,6 +10,7 @@ prune () {
 	rm -f install_manifest.txt
 	rm -f CPack*
 	rm -f pol_global_config.h
+	rm -f pol_revision.h
 	rm -f cmake_install.cmake
 }
 

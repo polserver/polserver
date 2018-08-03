@@ -82,8 +82,8 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
            _fields[index - 1].type == MYSQL_TYPE_NEWDECIMAL ||
            _fields[index - 1].type == MYSQL_TYPE_FLOAT ||
            _fields[index - 1].type == MYSQL_TYPE_DOUBLE )
-        return BObjectRef( new Double( strtod( _row[index - 1], NULL ) ) );
-      return BObjectRef( new BLong( strtoul( _row[index - 1], NULL, 0 ) ) );
+        return BObjectRef( new Double( strtod( _row[index - 1], nullptr ) ) );
+      return BObjectRef( new BLong( strtoul( _row[index - 1], nullptr, 0 ) ) );
     }
     return BObjectRef( new String( _row[index - 1] ) );
   }
@@ -102,8 +102,8 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
         {
           if ( _fields[i].type == MYSQL_TYPE_DECIMAL || _fields[i].type == MYSQL_TYPE_NEWDECIMAL ||
                _fields[i].type == MYSQL_TYPE_FLOAT || _fields[i].type == MYSQL_TYPE_DOUBLE )
-            return BObjectRef( new Double( strtod( _row[i], NULL ) ) );
-          return BObjectRef( new BLong( strtoul( _row[i], NULL, 0 ) ) );
+            return BObjectRef( new Double( strtod( _row[i], nullptr ) ) );
+          return BObjectRef( new BLong( strtoul( _row[i], nullptr, 0 ) ) );
         }
         return BObjectRef( new String( _row[i] ) );
       }
@@ -222,7 +222,7 @@ Bscript::BObjectImp* BSQLConnection::getResultSet() const
 BSQLConnection::BSQLConnection()
     : Bscript::BObjectImp( OTSQLConnection ), _conn( new ConnectionWrapper ), _errno( 0 )
 {
-  _conn->set( mysql_init( NULL ) );
+  _conn->set( mysql_init( nullptr ) );
   if ( !_conn->ptr() )
   {
     _error = "Insufficient memory";
@@ -256,7 +256,7 @@ bool BSQLConnection::connect( const char* host, const char* user, const char* pa
     _error = "No active MYSQL object instance.";
     return false;
   }
-  if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, NULL, 0, NULL, 0 ) )
+  if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, nullptr, 0, nullptr, 0 ) )
   {
     _errno = mysql_errno( _conn->ptr() );
     _error = mysql_error( _conn->ptr() );
@@ -382,7 +382,7 @@ BObjectRef BSQLConnection::get_member_id( const int /*id*/ )  // id test
 BObjectRef BSQLConnection::get_member( const char* membername )
 {
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
@@ -391,10 +391,10 @@ BObjectRef BSQLConnection::get_member( const char* membername )
 Bscript::BObjectImp* BSQLConnection::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 Bscript::BObjectImp* BSQLConnection::call_method_id( const int /*id*/, Executor& /*ex*/,

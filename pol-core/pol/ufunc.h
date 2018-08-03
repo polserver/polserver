@@ -169,8 +169,8 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, Realm
 
 // find_legal_item: search worn items, including backpack recursively, and
 // items on the ground, recursively, for an item of a given serial.
-Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = NULL,
-                              bool* isRemoteContainer = NULL );
+Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = nullptr,
+                              bool* isRemoteContainer = nullptr );
 
 void send_sysmessage( Network::Client* client, const char* text,
                       unsigned short font = DEFAULT_TEXT_FONT,

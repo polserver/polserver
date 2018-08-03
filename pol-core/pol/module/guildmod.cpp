@@ -140,11 +140,11 @@ BObjectImp* GuildExecutorModule::CreateGuildRefObjImp( Core::Guild* guild )
 
 bool getGuildParam( Executor& exec, unsigned param, Core::Guild*& guild, BError*& err )
 {
-  BApplicObjBase* aob = NULL;
+  BApplicObjBase* aob = nullptr;
   if ( exec.hasParams( param + 1 ) )
     aob = exec.getApplicObjParam( param, &guild_type );
 
-  if ( aob == NULL )
+  if ( aob == nullptr )
   {
     err = new BError( "Invalid parameter type" );
     return false;
@@ -180,7 +180,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
       ++itr;
 
       Mobile::Character* chr = Core::system_find_mobile( mserial );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
       }
@@ -206,7 +206,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
 
       Core::Guild* guild = Core::Guild::FindGuild( gserial );
 
-      if ( guild != NULL )
+      if ( guild != nullptr )
       {
         arr->addElement( new EGuildRefObjImp( ref_ptr<Core::Guild>( guild ) ) );
       }
@@ -232,7 +232,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
 
       Core::Guild* guild = Core::Guild::FindGuild( gserial );
 
-      if ( guild != NULL )
+      if ( guild != nullptr )
       {
         arr->addElement( new EGuildRefObjImp( ref_ptr<Core::Guild>( guild ) ) );
       }
@@ -256,7 +256,7 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
     return BObjectRef( new BError( "Guild has disbanded" ) );
 
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
@@ -387,7 +387,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool /*
     if ( chr->guildid() != obj_->_guildid )
       return new BError( "Character does not belong to this guild" );
 
-    chr->guild( NULL );
+    chr->guild( nullptr );
     obj_->_member_serials.erase( chr->serial );
 
     // MuadDib Added to update online members when status changes.
@@ -457,7 +457,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
     return new BError( "Guild has disbanded" );
 
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
   {

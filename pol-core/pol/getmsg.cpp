@@ -41,7 +41,7 @@ void send_prompt( Network::Client* client, u32 serial )
 void handle_prompt( Network::Client* client, PKTBI_9A* msg )
 {
   Module::UOExecutorModule* uoemod = client->gd->prompt_uoemod;
-  if ( uoemod == NULL )
+  if ( uoemod == nullptr )
     return;
   int textlen = cfBEu16( msg->msglen ) - offsetof( PKTBI_9A, text );
   if ( msg->type )
@@ -66,8 +66,8 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
     }
   }
   uoemod->uoexec.os_module->revive();
-  uoemod->prompt_chr = NULL;
-  client->gd->prompt_uoemod = NULL;
+  uoemod->prompt_chr = nullptr;
+  client->gd->prompt_uoemod = nullptr;
 }
 }
 namespace Module
@@ -83,7 +83,7 @@ Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
     return new Bscript::BError( "Invalid parameter" );
   }
 
-  if ( chr->client == NULL )
+  if ( chr->client == nullptr )
   {
     return new Bscript::BError( "No client attached" );
   }

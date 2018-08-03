@@ -84,7 +84,7 @@ Menu* Menu::find_menu( const char* name )
     if ( stricmp( menu->name, name ) == 0 )
       return menu;
   }
-  return NULL;
+  return nullptr;
 }
 
 // currently a menu ID is its location in the array.
@@ -141,9 +141,9 @@ void Menu::read_menus()
         std::string title;
 
         /*
-        char *submenu_name = NULL;
-        char *objtype_str = NULL;
-        char *title = NULL;
+        char *submenu_name = nullptr;
+        char *objtype_str = nullptr;
+        char *title = nullptr;
         */
 
         if ( stricmp( propname.c_str(), "SubMenu" ) == 0 )
@@ -167,9 +167,9 @@ void Menu::read_menus()
           // title = s;
           /*
           submenu_name = strtok( value, " \t," );
-          objtype_str = strtok( NULL, " \t," );
-          title = strtok( NULL, "" ); // title is the rest of the line
-          while ((title != NULL) && *title && isspace(*title)) // skip leading spaces
+          objtype_str = strtok( nullptr, " \t," );
+          title = strtok( nullptr, "" ); // title is the rest of the line
+          while ((title != nullptr) && *title && isspace(*title)) // skip leading spaces
           title++;
           */
         }
@@ -191,7 +191,7 @@ void Menu::read_menus()
                       << " must provide at least an object type\n";
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
-        u32 objtype = (u32)strtoul( objtype_str.c_str(), NULL, 0 );
+        u32 objtype = (u32)strtoul( objtype_str.c_str(), nullptr, 0 );
         if ( objtype == 0 )  // 0 specified, or text
         {
           ERROR_PRINT << "Entry in menu " << menu->name << " cannot specify [" << objtype_str

@@ -330,7 +330,7 @@ public:
   size_t estimateSizeDynProps() const;
 
 protected:
-  ~DynamicPropsHolder();
+  ~DynamicPropsHolder() = default;
 
 private:
   void initProps();
@@ -690,7 +690,6 @@ inline size_t DynProps::estimateSize() const
 
 inline DynamicPropsHolder::DynamicPropsHolder() : _dynprops( nullptr ) {}
 
-inline DynamicPropsHolder::~DynamicPropsHolder() {}
 
 inline void DynamicPropsHolder::initProps()
 {

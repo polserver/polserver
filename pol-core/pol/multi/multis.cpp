@@ -50,11 +50,11 @@ void UMulti::double_click( Network::Client* /*client*/ )
 
 UBoat* UMulti::as_boat()
 {
-  return NULL;
+  return nullptr;
 }
 UHouse* UMulti::as_house()
 {
-  return NULL;
+  return nullptr;
 }
 
 void UMulti::register_object( UObject* /*obj*/ ) {}
@@ -96,17 +96,17 @@ Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id 
     return footprint();
     break;
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
 Bscript::BObjectImp* UMulti::get_script_member( const char* membername ) const
 {
   Bscript::ObjMember* objmember = Bscript::getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_script_member_id( objmember->id );
   else
-    return NULL;
+    return nullptr;
 }
 
 size_t UMulti::estimatedSize() const

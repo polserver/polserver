@@ -67,7 +67,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   item->gotten_by( nullptr );
   client->chr->gotten_item( nullptr );
 
-  Mobile::Character* equip_on = NULL;
+  Mobile::Character* equip_on = nullptr;
   if ( equip_on_serial == client->chr->serial )
   {
     equip_on = client->chr;
@@ -75,7 +75,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   else
   {
     equip_on = find_character( equip_on_serial );
-    if ( equip_on == NULL || !client->chr->can_clothe( equip_on ) )
+    if ( equip_on == nullptr || !client->chr->can_clothe( equip_on ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );
 
@@ -131,11 +131,11 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   }
 
   // Unregister the item if it is on a multi
-  if ( item->container == NULL && !item->has_gotten_by() )
+  if ( item->container == nullptr && !item->has_gotten_by() )
   {
     Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
 
-    if ( multi != NULL )
+    if ( multi != nullptr )
       multi->unregister_object( item );
   }
 

@@ -37,7 +37,7 @@ bool ishouse( u32 objtype )
 // Dave changed 3/8/3 to use objecthash
 UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
 {
-  UMulti* multi = NULL;
+  UMulti* multi = nullptr;
 
   if ( descriptor.type == Items::ItemDesc::BOATDESC )
   {
@@ -51,7 +51,7 @@ UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
   {
     ERROR_PRINT << "Tried to create multi 0x" << fmt::hexu( descriptor.objtype )
                 << " but no definition exists in itemdesc.cfg\n";
-    return NULL;
+    return nullptr;
   }
 
   if ( serial )

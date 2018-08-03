@@ -269,7 +269,7 @@ Bscript::BObjectImp* get_harvest_difficulty( const char* resource, xcoord x, yco
     return new Bscript::BError( "No resource-bearing landmark there" );
 
   ResourceRegion* rgn = rd->getregion( x, y, realm );
-  if ( rgn == NULL )
+  if ( rgn == nullptr )
     return new Bscript::BError( "No resource region at that location" );
 
   return rgn->get_harvest_difficulty( x, y, realm );
@@ -289,7 +289,7 @@ Bscript::BObjectImp* harvest_resource( const char* resource, xcoord x, ycoord y,
       return new BError( "No resource-bearing landmark there" );
       */
   ResourceRegion* rgn = rd->getregion( x, y, realm );
-  if ( rgn == NULL )
+  if ( rgn == nullptr )
     return new Bscript::BError( "No resource region at that location" );
 
   return rgn->harvest_resource( x, y, b, n );
@@ -305,7 +305,7 @@ Bscript::BObjectImp* get_region_string( const char* resource, xcoord x, ycoord y
   ResourceDef* rd = ( *itr ).second;
 
   ResourceRegion* rgn = rd->getregion( x, y, realm );
-  if ( rgn == NULL )
+  if ( rgn == nullptr )
     return new Bscript::BError( "No resource region at that location" );
 
   return rgn->get_region_string( propname );
@@ -317,7 +317,7 @@ ResourceDef* find_resource_def( const std::string& rname )
   ResourceDefs::iterator itr = gamestate.resourcedefs.find( rname );
   if ( itr == gamestate.resourcedefs.end() )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -376,7 +376,7 @@ void load_resource_cfg()
 void read_global_data( Clib::ConfigElem& elem )
 {
   ResourceDef* rd = find_resource_def( elem.rest() );
-  if ( rd == NULL )
+  if ( rd == nullptr )
   {
     ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest()
                 << "\n";
@@ -388,7 +388,7 @@ void read_global_data( Clib::ConfigElem& elem )
 void read_region_data( Clib::ConfigElem& elem )
 {
   ResourceDef* rd = find_resource_def( elem.rest() );
-  if ( rd == NULL )
+  if ( rd == nullptr )
   {
     ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest()
                 << "\n";
@@ -396,7 +396,7 @@ void read_region_data( Clib::ConfigElem& elem )
   }
   std::string regionname = elem.remove_string( "Name" );
   ResourceRegion* rgn = rd->getregion( regionname );
-  if ( rgn == NULL )
+  if ( rgn == nullptr )
   {
     ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find region " << regionname
                 << " in resource " << elem.rest() << "\n";

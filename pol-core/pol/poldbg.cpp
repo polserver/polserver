@@ -647,13 +647,13 @@ std::string DebugContext::cmd_start( const std::string& rest )
 {
   std::string filename = rest;
   ScriptDef sd;
-  if ( !sd.config_nodie( filename, NULL, "scripts/" ) )
+  if ( !sd.config_nodie( filename, nullptr, "scripts/" ) )
     return "Error in script name.";
   if ( !sd.exists() )
     return "Script " + sd.name() + " does not exist.";
 
-  Module::UOExecutorModule* new_uoemod = Core::start_script( sd, NULL );
-  if ( new_uoemod == NULL )
+  Module::UOExecutorModule* new_uoemod = Core::start_script( sd, nullptr );
+  if ( new_uoemod == nullptr )
   {
     return "Unable to start script";
   }
@@ -671,7 +671,7 @@ std::string DebugContext::cmd_call( const std::string& rest, Results& /*results*
   Clib::splitnamevalue( rest, filename, parameters_packed );
 
   ScriptDef sd;
-  if ( !sd.config_nodie( filename, NULL, "scripts/" ) )
+  if ( !sd.config_nodie( filename, nullptr, "scripts/" ) )
     return "Error in script name.";
   if ( !sd.exists() )
     return "Script " + sd.name() + " does not exist.";
@@ -711,7 +711,7 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
   {
     UOExecutor* uoexec = ( *citr ).second;
     std::string name = Clib::strlower( uoexec->scriptname() );
-    if ( strstr( name.c_str(), match.c_str() ) != NULL )
+    if ( strstr( name.c_str(), match.c_str() ) != nullptr )
     {
       results.push_back( Clib::decint( ( *citr ).first ) + " " + uoexec->scriptname() );
     }
@@ -1048,7 +1048,7 @@ std::string DebugContext::cmd_fileline( const std::string& rest )
 
 std::string DebugContext::cmd_files( Results& results )
 {
-  const EScriptProgram* prog = NULL;
+  const EScriptProgram* prog = nullptr;
 
   if ( _script.get() != 0 )
     prog = _script.get();
@@ -1070,7 +1070,7 @@ std::string DebugContext::cmd_files( Results& results )
 
 std::string DebugContext::cmd_filecont( const std::string& rest, Results& results )
 {
-  const EScriptProgram* prog = NULL;
+  const EScriptProgram* prog = nullptr;
 
   if ( _script.get() != 0 )
     prog = _script.get();
@@ -1307,7 +1307,7 @@ std::string DebugContext::cmd_setlocalpacked( const std::string& rest )
   BObjectRef& ref = ( *uoexec->Locals2 )[varidx];
   BObject& obj = *ref;
   BObjectImp* newimp = BObjectImp::unpack( is );
-  if ( newimp == NULL )
+  if ( newimp == nullptr )
     return "Error: unable to unpack";
 
   obj.setimp( newimp );
@@ -1335,7 +1335,7 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
   BObjectRef& ref = uoexec->Globals2[varidx];
   BObject& obj = *ref;
   BObjectImp* newimp = BObjectImp::unpack( is );
-  if ( newimp == NULL )
+  if ( newimp == nullptr )
     return "Error: unable to unpack";
 
   obj.setimp( newimp );

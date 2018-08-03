@@ -6,12 +6,13 @@
 /CPack*
 /install_manifest*
 /boost*
-/pol_global_config.h
+/*.h
+/*.h.tmp
 /*.vcxproj*
 /.vs
 /*.sln
 /docs
-/x64
+/x64*
 /z.dir
 /tinyxml.dir
 /*.db
@@ -19,3 +20,4 @@
 /stackwalk.dir
 /*ninja*
 /kaitai.dir
+/curl

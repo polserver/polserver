@@ -997,6 +997,7 @@ PackageRoot (path to package root)
 [OptimizeObjectMembers (0/1 {default 1})]     //-m flag will set it to 0
 [ErrorOnWarning (0/1 {default 0})]            //same as -y flag
 [ThreadedCompilation (0/1 {default 0})]       //uses multiple thread to speed up compilation
+[NumberOfThreads (0/N {default 0})]           //defines the used number of threads (0=autodetect)
 [ParanoiaWarnings (0/1 {default 0})]          //will complain about {} syntax
 
 </structure>

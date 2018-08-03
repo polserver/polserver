@@ -327,17 +327,17 @@ Bscript::BObjectImp* DataFileRefObjImp::call_method_id( const int id, Bscript::E
   case Bscript::MTH_KEYS:
     return obj_->methodKeys();
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
 Bscript::BObjectImp* DataFileRefObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 
@@ -387,13 +387,13 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
 {
   std::string descriptor;
 
-  const Plib::Package* spec_pkg = NULL;
+  const Plib::Package* spec_pkg = nullptr;
   std::string spec_filename;
   if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg, &spec_pkg, &spec_filename ) )
   {
-    return NULL;  // new BError( "Error in descriptor" );
+    return nullptr;  // new BError( "Error in descriptor" );
   }
-  if ( spec_pkg == NULL )
+  if ( spec_pkg == nullptr )
   {
     // ::filename
     descriptor = "::" + spec_filename;
@@ -412,7 +412,7 @@ DataStoreFile* DataFileExecutorModule::GetDataStoreFile( const std::string& insp
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -446,13 +446,13 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_CreateDataFile()
       std::string d_ds;
       const std::string& inspec = strob->value();
 
-      const Plib::Package* spec_pkg = NULL;
+      const Plib::Package* spec_pkg = nullptr;
       std::string spec_filename;
       if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg, &spec_pkg, &spec_filename ) )
       {
         return new Bscript::BError( "Error in descriptor" );
       }
-      if ( spec_pkg == NULL )
+      if ( spec_pkg == nullptr )
       {
         // ::filename
         descriptor = "::" + spec_filename;
@@ -472,7 +472,7 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_CreateDataFile()
         Clib::MakeDirectory( directory.c_str() );
       }
 
-      DataStoreFile* dsf = NULL;
+      DataStoreFile* dsf = nullptr;
 
       Core::DataStore::iterator itr = Core::configurationbuffer.datastore.find( descriptor );
       if ( itr != Core::configurationbuffer.datastore.end() )
@@ -515,13 +515,13 @@ Bscript::BObjectImp* DataFileExecutorModule::mf_OpenDataFile()
       //      string directory;
       const std::string& inspec = strob->value();
 
-      const Plib::Package* spec_pkg = NULL;
+      const Plib::Package* spec_pkg = nullptr;
       std::string spec_filename;
       if ( !Plib::pkgdef_split( inspec, exec.prog()->pkg, &spec_pkg, &spec_filename ) )
       {
         return new Bscript::BError( "Error in descriptor" );
       }
-      if ( spec_pkg == NULL )
+      if ( spec_pkg == nullptr )
       {
         // ::filename
         descriptor = "::" + spec_filename;
@@ -600,13 +600,13 @@ DataStoreFile::DataStoreFile( const std::string& descriptor, const Plib::Package
       unload( false ),
       delversion( 0 )
 {
-  if ( pkg != NULL )
+  if ( pkg != nullptr )
     pkgname = pkg->name();
 }
 
 bool DataStoreFile::loaded() const
 {
-  return dfcontents.get() != NULL;
+  return dfcontents.get() != nullptr;
 }
 
 void DataStoreFile::load()
@@ -653,7 +653,7 @@ void DataStoreFile::printOn( Clib::StreamWriter& sw ) const
 std::string DataStoreFile::filename( unsigned ver ) const
 {
   std::string tmp = Plib::systemstate.config.world_data_path + "ds/";
-  if ( pkg != NULL )
+  if ( pkg != nullptr )
     tmp += pkg->name() + "/";
   tmp += name + "." + Clib::tostring( ver % 10 ) + ".txt";
   return tmp;
@@ -755,7 +755,7 @@ void commit_datastore()
 
     if ( dsf->unload )
     {
-      if ( dsf->dfcontents.get() != NULL )
+      if ( dsf->dfcontents.get() != nullptr )
       {
         if ( dsf->dfcontents->count() == 1 )
         {

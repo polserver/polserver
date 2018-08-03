@@ -3,11 +3,7 @@
  * @par History
  */
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include "sqlmod.h"
 
@@ -183,7 +179,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
     {
       const BObjectRef& ref = params->ref_arr[i];
       const BObject* obj = ref.get();
-      if ( obj != NULL )
+      if ( obj != nullptr )
         sharedParams->insert( sharedParams->end(), obj->impptr()->getStringRep() );
     }
   }

@@ -23,7 +23,7 @@ namespace Core
 {
 void load_tile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
-  unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), NULL, 0 ) );
+  unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), nullptr, 0 ) );
   passert_always( graphic < ( Plib::systemstate.config.max_tile_id + 1 ) );
   Tile& entry = Plib::systemstate.tile[graphic];
   entry.desc = elem.remove_string( "Desc" );

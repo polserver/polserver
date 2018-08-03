@@ -32,7 +32,7 @@ class UoClientThread : public Clib::SocketClientThread
 {
 public:
   UoClientThread( UoClientListener* def, Clib::SocketListener& SL )
-      : Clib::SocketClientThread( SL ), _def( *def ), client( NULL )
+      : Clib::SocketClientThread( SL ), _def( *def ), client( nullptr )
   {
   }
   UoClientThread( UoClientThread& copy )
@@ -79,8 +79,8 @@ void UoClientThread::create()
       client->listen_port = _def.port;
     if ( _def.aosresist )
       client->aosresist = true;  // UOCLient.cfg Entry
-    // Added null setting for pre-char selection checks using NULL validation
-    client->acct = NULL;
+    // Added null setting for pre-char selection checks using nullptr validation
+    client->acct = nullptr;
     memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
 
     networkManager.clients.push_back( client );
@@ -135,7 +135,7 @@ void uo_client_listener_thread( void* arg )
     auto itr = login_clients.begin();
     while ( itr != login_clients.end() )
     {
-      if ( ( *itr )->client != NULL && ( *itr )->client->isReallyConnected() )
+      if ( ( *itr )->client != nullptr && ( *itr )->client->isReallyConnected() )
       {
         if ( !client_io_thread( ( *itr )->client, true ) )
         {

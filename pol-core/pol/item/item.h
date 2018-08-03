@@ -9,11 +9,7 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include <stddef.h>
 #include <string>
@@ -170,7 +166,7 @@ public:
 
   bool can_add_to_self( unsigned short amount, bool force_stacking ) const;
   bool can_add_to_self( const Item& item, bool force_stacking ) const;
-  bool has_only_default_cprops( const ItemDesc* compare = NULL ) const;
+  bool has_only_default_cprops( const ItemDesc* compare = nullptr ) const;
   void add_to_self( Item*& item );  // deletes the item passed
 
 #ifdef PERGON

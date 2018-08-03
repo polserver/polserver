@@ -52,8 +52,8 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
 {
   // FIXME consider consolidating with similar code in CHARACTER.CPP
   short newz;
-  Multi::UMulti* supporting_multi = NULL;
-  Items::Item* walkon_item = NULL;
+  Multi::UMulti* supporting_multi = nullptr;
+  Items::Item* walkon_item = nullptr;
   short new_boost = 0;
 
   if ( flags & MOVEITEM_FORCELOCATION )
@@ -77,7 +77,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
   }
   chr->set_dirty();
 
-  if ( ( oldrealm != NULL ) && ( oldrealm != chr->realm ) )
+  if ( ( oldrealm != nullptr ) && ( oldrealm != chr->realm ) )
   {
     chr->lastx = 0;
     chr->lasty = 0;
@@ -98,7 +98,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
   chr->gradual_boost = new_boost;
   chr->position_changed();
   // FIXME: Need to add Walkon checks for multi right here if type is house.
-  if ( supporting_multi != NULL )
+  if ( supporting_multi != nullptr )
   {
     supporting_multi->register_object( chr );
     Multi::UHouse* this_house = supporting_multi->as_house();
@@ -106,7 +106,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     {
       chr->registered_house = supporting_multi->serial;
 
-      if ( this_house != NULL )
+      if ( this_house != nullptr )
         this_house->walk_on( chr );
     }
   }
@@ -115,7 +115,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     if ( chr->registered_house > 0 )
     {
       Multi::UMulti* multi = system_find_multi( chr->registered_house );
-      if ( multi != NULL )
+      if ( multi != nullptr )
       {
         multi->unregister_object( chr );
       }
@@ -127,7 +127,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
   if ( chr->has_active_client() )
   {
     passert_assume( chr->client !=
-                    NULL );  // tells compiler to assume this is true during static code analysis
+                    nullptr );  // tells compiler to assume this is true during static code analysis
 
     if ( oldrealm != chr->realm )
     {
@@ -137,7 +137,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     send_goxyz( chr->client, chr );
 
     // send_goxyz seems to stop the weather.  This will force a refresh, if the client cooperates.
-    chr->client->gd->weather_region = NULL;
+    chr->client->gd->weather_region = nullptr;
   }
   if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) ||
        chr->client )  // dave 3/26/3 dont' tell moves of offline PCs
@@ -149,7 +149,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     send_objects_newly_inrange( chr->client );
     chr->check_light_region_change();
   }
-  if ( walkon_item != NULL )
+  if ( walkon_item != nullptr )
   {
     walkon_item->walk_on( chr );
   }
@@ -179,7 +179,7 @@ Items::Item* find_walkon_item( ItemsVector& ivec, short z )
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 }
 }

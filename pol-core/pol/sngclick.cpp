@@ -44,13 +44,13 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
       for ( const auto& ochr : chr->realm->zone[wx][wy].characters )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != NULL )
+        if ( _item != nullptr )
           return _item;
       }
       for ( const auto& ochr : chr->realm->zone[wx][wy].npcs )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != NULL )
+        if ( _item != nullptr )
           return _item;
       }
     }
@@ -68,7 +68,7 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
       return item;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 std::string create_nametags( Mobile::Character* chr )

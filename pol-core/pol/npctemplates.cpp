@@ -44,7 +44,7 @@ void NpcTemplateConfigSource::display_error( const std::string& msg, bool /*show
 
   tmp << "\t" << msg << "\n";
 
-  if ( elem != NULL )
+  if ( elem != nullptr )
   {
     if ( strlen( elem->type() ) > 0 )
     {
@@ -105,7 +105,7 @@ bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cf, Clib::Con
   {
     const Plib::Package* pkg;
     std::string npctemplate;
-    if ( !Plib::pkgdef_split( template_name, NULL, &pkg, &npctemplate ) )
+    if ( !Plib::pkgdef_split( template_name, nullptr, &pkg, &npctemplate ) )
       return false;
 
     std::string filename =
@@ -118,13 +118,13 @@ bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cf, Clib::Con
         continue;
 
       std::string orig_rest = elem.rest();
-      if ( pkg != NULL )
+      if ( pkg != nullptr )
       {
         std::string newrest = ":" + pkg->name() + ":" + npctemplate;
         elem.set_rest( newrest.c_str() );
       }
       const char* rest = elem.rest();
-      if ( rest != NULL && *rest != '\0' )
+      if ( rest != nullptr && *rest != '\0' )
       {
         if ( stricmp( orig_rest.c_str(), npctemplate.c_str() ) == 0 )
           return true;
@@ -177,7 +177,7 @@ void read_npc_templates( Plib::Package* pkg )
       // first determine the NPC template name.
       std::string namebase;
       const char* rest = elem.rest();
-      if ( rest != NULL && *rest != '\0' )
+      if ( rest != nullptr && *rest != '\0' )
       {
         namebase = rest;
       }
@@ -186,7 +186,7 @@ void read_npc_templates( Plib::Package* pkg )
         namebase = elem.remove_string( "TemplateName" );
       }
       std::string descname;
-      if ( pkg != NULL )
+      if ( pkg != nullptr )
       {
         descname = ":" + pkg->name() + ":" + namebase;
         elem.set_rest( descname.c_str() );
@@ -202,7 +202,7 @@ void read_npc_templates( Plib::Package* pkg )
 void read_npc_templates()
 {
   gamestate.npc_template_elems.clear();
-  read_npc_templates( NULL );
+  read_npc_templates( nullptr );
   for ( auto& pkg : Plib::systemstate.packages )
   {
     read_npc_templates( pkg );

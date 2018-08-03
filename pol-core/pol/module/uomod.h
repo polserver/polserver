@@ -56,7 +56,7 @@ class Menu;
 class UContainer;
 class UOExecutor;
 class UObject;
-}
+}  // namespace Core
 namespace Mobile
 {
 class Character;
@@ -284,6 +284,10 @@ public:
   Bscript::BObjectImp* mf_SendPopUpMenu( /* to_whom, above, menu */ );
   Bscript::BObjectImp* mf_SingleClick( /*who, what*/ );
 
+  Bscript::BObjectImp* mf_ListStaticsNearLocationOfType(
+      /* x, y, z, range, objtype, flags, realm */ );
+  Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag( /* x, y, z, range, flags, realm */ );
+
   Core::UOExecutor& uoexec;
 
   /* If we're asking a character for a target, who is it?
@@ -349,6 +353,6 @@ private:  // not implemented
   UOExecutorModule( const UOExecutorModule& );
   UOExecutorModule& operator=( const UOExecutorModule& );
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
@@ -50,6 +49,7 @@
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "wepntmpl.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -70,7 +70,7 @@ unsigned int get_objtype_from_string( const std::string& str )
   const char* ot_str = str.c_str();
   if ( isdigit( *ot_str ) )
   {
-    objtype = static_cast<u32>( strtoul( ot_str, NULL, 0 ) );
+    objtype = static_cast<u32>( strtoul( ot_str, nullptr, 0 ) );
   }
   else
   {
@@ -86,7 +86,7 @@ unsigned int get_objtype_from_string( const std::string& str )
 ResourceComponent::ResourceComponent( const std::string& rname, unsigned amount )
     : rd( Core::find_resource_def( rname ) ), amount( amount )
 {
-  if ( rd == NULL )
+  if ( rd == nullptr )
   {
     ERROR_PRINT << "itemdesc.cfg: Resource '" << rname << "' not found\n";
     throw std::runtime_error( "Configuration error" );
@@ -96,7 +96,7 @@ ResourceComponent::ResourceComponent( const std::string& rname, unsigned amount 
 
 ItemDesc* ItemDesc::create( Clib::ConfigElem& elem, const Plib::Package* pkg )
 {
-  u32 objtype = static_cast<u32>( strtoul( elem.rest(), NULL, 0 ) );
+  u32 objtype = static_cast<u32>( strtoul( elem.rest(), nullptr, 0 ) );
   if ( !objtype )
   {
     elem.throw_error( "Element must have objtype specified" );
@@ -109,7 +109,7 @@ ItemDesc* ItemDesc::create( Clib::ConfigElem& elem, const Plib::Package* pkg )
         find_itemdesc( Core::gamestate.old_objtype_conversions[objtype] ).objtype_description() );
   }
 
-  ItemDesc* descriptor = NULL;
+  ItemDesc* descriptor = nullptr;
 
   if ( elem.type_is( "Container" ) )
   {
@@ -201,7 +201,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
       quality( elem.remove_double( "QUALITY", 1.0 ) ),
       props( Core::CPropProfiler::Type::ITEM ),
-      method_script( NULL ),
+      method_script( nullptr ),
       save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
 {
   if ( type == BOATDESC || type == HOUSEDESC )
@@ -379,7 +379,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   if ( elem.remove_prop( "MethodScript", &temp ) )
   {
-    if ( pkg == NULL )
+    if ( pkg == nullptr )
       throw std::runtime_error( "MethodScripts can only be specified in a package" );
     if ( !temp.empty() )
     {
@@ -658,7 +658,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
 ItemDesc::ItemDesc( Type type )
     : type( type ),
-      pkg( NULL ),
+      pkg( nullptr ),
       objtype( 0 ),
       graphic( 0 ),
       color( 0 ),
@@ -695,7 +695,7 @@ ItemDesc::ItemDesc( Type type )
       multiid( 0xFFFF ),
       maxhp( 0 ),
       props( Core::CPropProfiler::Type::ITEM ),
-      method_script( NULL ),
+      method_script(nullptr),
       save_on_exit( true ), 
       lower_reag_cost(0),
       spell_damage_increase(0),
@@ -897,10 +897,10 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 
 void ItemDesc::unload_scripts()
 {
-  if ( method_script != NULL )
+  if ( method_script != nullptr )
   {
     delete method_script;
-    method_script = NULL;
+    method_script = nullptr;
   }
 }
 
@@ -1211,8 +1211,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         for ( ditr = cprop_cont.begin(); ditr != cprop_cont.end(); ++ditr )
         {
           elem.add_prop( "cprop", ( ( *ditr ).first->getStringRep() + "\t" +
-                                    ( *ditr ).second->impptr()->pack() )
-                                      .c_str() );
+                                    ( *ditr ).second->impptr()->pack() ) );
         }
       }
       else
@@ -1234,7 +1233,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         {
           os << ( *aitr ).get()->impptr()->getStringRep() << " ";
         }
-        elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ).c_str() );
+        elem.add_prop( key, OSTRINGSTREAM_STR( os ));
       }
       else
       {
@@ -1255,7 +1254,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         {
           OSTRINGSTREAM os;
           os << ( *aitr ).get()->impptr()->getStringRep();
-          elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ).c_str() );
+          elem.add_prop( key.c_str(), OSTRINGSTREAM_STR( os ) );
         }
       }
       else
@@ -1287,11 +1286,11 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     else
     {
       std::string value = val_imp->getStringRep();
-      elem.add_prop( key.c_str(), value.c_str() );
+      elem.add_prop( key, std::move(value) );
     }
   }
 
-  unsigned int objtype = static_cast<unsigned int>( strtoul( elem.rest(), NULL, 0 ) );
+  unsigned int objtype = static_cast<unsigned int>( strtoul( elem.rest(), nullptr, 0 ) );
   ItemDesc* id = ItemDesc::create( elem, find_itemdesc( objtype ).pkg );
 
   Core::gamestate.dynamic_item_descriptors.push_back( id );
@@ -1300,7 +1299,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
 }
 
 
-void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
+void read_itemdesc_file( const char* filename, Plib::Package* pkg = nullptr )
 {
   /*
       if (1)
@@ -1330,7 +1329,7 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = NULL )
     {
       fmt::Writer tmp;
       tmp.Format( "Error: Objtype 0x{:X} is already defined in" ) << descriptor->objtype;
-      if ( find_itemdesc( descriptor->objtype ).pkg == NULL )
+      if ( find_itemdesc( descriptor->objtype ).pkg == nullptr )
         tmp << "config/itemdesc.cfg\n";
       else
         tmp << find_itemdesc( descriptor->objtype ).pkg->dir() << "itemdesc.cfg\n";
@@ -1470,5 +1469,5 @@ void return_resources( u32 objtype, u16 /*amount*/ )
     }
   }
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

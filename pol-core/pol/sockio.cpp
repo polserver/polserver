@@ -46,7 +46,7 @@ void search_name( const char* hostname )
   struct sockaddr_in server;
   POLLOG_INFO << "hostname is " << hostname << "\n";
   struct hostent* he = gethostbyname( hostname );
-  for ( int i = 0; ( he != NULL ) && ( he->h_addr_list[i] != NULL ); ++i )
+  for ( int i = 0; ( he != nullptr ) && ( he->h_addr_list[i] != nullptr ); ++i )
   {
     memcpy( &server.sin_addr, he->h_addr_list[i], he->h_length );
 
@@ -216,7 +216,7 @@ const char* AddressToString( struct sockaddr* addr )
   static char buf[ 80 ];
   DWORD len = sizeof buf;
   if (WSAAddressToString( addr, sizeof *addr,
-    NULL, // protocol
+    nullptr, // protocol
     buf, &len ) != SOCKET_ERROR)
   {
     return buf;

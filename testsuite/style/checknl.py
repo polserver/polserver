@@ -7,7 +7,7 @@ Checks that all files have correct line endings
 '''
 
 import os, sys
-
+import time
 import util
 
 
@@ -95,6 +95,15 @@ if __name__ == '__main__':
 	parser.add_argument('-q', '--quiet', action='store_true', help="Quiet output: only display errors and summary")
 	args = parser.parse_args()
 
+	if (os.environ.get('APPVEYOR',None)):
+		os.system('appveyor AddTest -Name TestStyleNL -Framework Own -FileName Style')
+	start = time.time()
 	if Main(args.quiet).run():
+		total = int(round((time.time()-start)*1000))
+		if (os.environ.get('APPVEYOR',None)):
+			os.system('appveyor UpdateTest -Name TestStyleNL -Framework Own -FileName Style -Outcome {} -Duration {}'.format('Passed', total))
 		sys.exit(0)
+	total = int(round((time.time()-start)*1000))
+	if (os.environ.get('APPVEYOR',None)):
+		os.system('appveyor UpdateTest -Name TestStyleNL -Framework Own -FileName Style -Outcome {} -Duration {}'.format('Failed', total))
 	sys.exit(1)
