@@ -133,7 +133,7 @@ enum DynPropTypes : u8
   PROP_SPEECH_FONT = 47,            // Npc
   PROP_CARRY_CAPACITY_MOD = 48,     // Character
   PROP_DELAY_MOD = 49,              // Character
-  PROP_HITCHANCE_MOD = 50,          // Character
+  PROP_HIT_CHANCE_MOD = 50,         // Character
   PROP_EVASIONCHANCE_MOD = 51,      // Character
   PROP_PARTY = 52,                  // Character
   PROP_PARTY_CANDIDATE = 53,        // Character
@@ -143,6 +143,21 @@ enum DynPropTypes : u8
   PROP_GOTTEN_ITEM = 57,            // Character
   PROP_PROCESS = 58,                // Item
   PROP_HOUSE = 59,                  // House
+  PROP_LOWER_REAG_COST = 60,        // UObject
+  PROP_SPELL_DAMAGE_INCREASE = 61,  // UObject
+  PROP_FASTER_CASTING = 62,         // UObject
+  PROP_FASTER_CAST_RECOVERY = 63,   // UObject
+  PROP_DEFENCE_INCREASE = 64,       // UObject
+  PROP_DEFENCE_INCREASE_CAP = 65,   // UObject
+  PROP_LOWER_MANA_COST = 66,        // UObject
+  PROP_HIT_CHANCE = 67,             // UObject
+  PROP_RESIST_FIRE_CAP = 68,        // UObject
+  PROP_RESIST_COLD_CAP = 69,        // UObject
+  PROP_RESIST_ENERGY_CAP = 70,      // UObject
+  PROP_RESIST_POISON_CAP = 71,      // UObject
+  PROP_RESIST_PHYSICAL_CAP = 72,    // UObject
+  PROP_DEFENCE_INCREASE_MOD = 73,   // UObject
+  PROP_LUCK_MOD = 74,               // UObject
 
   PROP_FLAG_SIZE  // used for bitset size
 };
@@ -155,6 +170,7 @@ struct ValueModPack
   ValueModPack( s16 value_ );
   ValueModPack();
   bool operator==( const ValueModPack& other ) const;
+  bool operator!=(const ValueModPack& other) const;
   ValueModPack& addToValue( const ValueModPack& other );
   ValueModPack& addToValue( s16 other );
   ValueModPack& addToMod( s16 other );
@@ -332,6 +348,10 @@ inline ValueModPack::ValueModPack() : value( 0 ), mod( 0 ) {}
 inline bool ValueModPack::operator==( const ValueModPack& other ) const
 {
   return value == other.value && mod == other.mod;
+}
+inline bool ValueModPack::operator!=(const ValueModPack& other) const
+{
+    return !operator==(other);
 }
 inline ValueModPack& ValueModPack::addToValue( const ValueModPack& other )
 {
