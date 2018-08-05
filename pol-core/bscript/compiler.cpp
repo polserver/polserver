@@ -652,8 +652,22 @@ bool Expression::optimize_token( int i )
     if ( operand->id == TOK_STRING /*|| operand->id == INS_CALL_METHOD*/ )
     {
       ObjMember* objmemb = getKnownObjMember( operand->tokval() );
+
+
       if ( objmemb != NULL && compilercfg.OptimizeObjectMembers )
       {
+        if ( objmemb->id == MBR_DMG_MOD && compilercfg.DisplayWarnings )
+        {
+          INFO_PRINT << "Warning!! dmg_mod member will be depreciated in future versions.\n";
+        }
+        if ( objmemb->id == MBR_SPEED_MOD && compilercfg.DisplayWarnings )
+        {
+          INFO_PRINT << "Warning!! speed_mod member will be depreciated in future versions.\n";
+        }
+        if (objmemb->id == MBR_HITCHANCE_MOD && compilercfg.DisplayWarnings)
+        {
+            INFO_PRINT << "Warning!! hitchance_mod member will be depreciated in future versions.\n";
+        }
         // merge the member name with the member operator.
         oper->id = INS_GET_MEMBER_ID;
         oper->type = TYP_UNARY_OPERATOR;

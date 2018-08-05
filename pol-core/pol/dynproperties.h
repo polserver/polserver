@@ -101,8 +101,8 @@ enum DynPropTypes : u8
   PROP_DAMAGE_ENERGY = 15,          // UObject
   PROP_DAMAGE_POISON = 16,          // UObject
   PROP_DAMAGE_PHYSICAL = 17,        // UObject
-  PROP_DMG_MOD = 18,                // UWeapon
-  PROP_SPEED_MOD = 19,              // UWeapon
+  PROP_DAMAGE_INCREASE_MOD = 18,    // UObject
+  PROP_SWING_SPEED_MOD = 19,        // UObject
   PROP_ORIG_RESIST_FIRE = 20,       // Npc
   PROP_ORIG_RESIST_COLD = 21,       // Npc
   PROP_ORIG_RESIST_ENERGY = 22,     // Npc
@@ -133,7 +133,7 @@ enum DynPropTypes : u8
   PROP_SPEECH_FONT = 47,            // Npc
   PROP_CARRY_CAPACITY_MOD = 48,     // Character
   PROP_DELAY_MOD = 49,              // Character
-  PROP_HITCHANCE_MOD = 50,          // Character
+  PROP_HIT_CHANCE_MOD = 50,          // Character
   PROP_EVASIONCHANCE_MOD = 51,      // Character
   PROP_PARTY = 52,                  // Character
   PROP_PARTY_CANDIDATE = 53,        // Character
@@ -143,6 +143,23 @@ enum DynPropTypes : u8
   PROP_GOTTEN_ITEM = 57,            // Character
   PROP_PROCESS = 58,                // Item
   PROP_HOUSE = 59,                  // House
+  PROP_LOWER_REAG_COST = 60,        // UObject
+  PROP_SPELL_DAMAGE_INCREASE = 61,  // UObject
+  PROP_FASTER_CASTING = 62,         // UObject
+  PROP_FASTER_CAST_RECOVERY = 63,   // UObject
+  PROP_DEFENCE_INCREASE = 64,       // UObject
+  PROP_DEFENCE_INCREASE_CAP = 65,   // Character
+  PROP_LOWER_MANA_COST = 66,        // UObject
+  PROP_HIT_CHANCE = 67,              // UObject
+  PROP_SWING_SPEED = 68,            // UObject
+  PROP_DAMAGE_INCREASE = 69,        // UObject
+  PROP_RESIST_FIRE_CAP = 70,        // Character
+  PROP_RESIST_COLD_CAP = 71,        // Character
+  PROP_RESIST_ENERGY_CAP = 72,      // Character
+  PROP_RESIST_POISON_CAP = 73,      // Character
+  PROP_RESIST_PHYSICAL_CAP = 74,    // Character
+  PROP_DEFENCE_INCREASE_MOD = 75,   // Character
+  PROP_LUCK_MOD = 76,               // UObject
 
   PROP_FLAG_SIZE  // used for bitset size
 };
@@ -155,6 +172,7 @@ struct ValueModPack
   ValueModPack( s16 value_ );
   ValueModPack();
   bool operator==( const ValueModPack& other ) const;
+  bool operator!=( const ValueModPack& other ) const;
   ValueModPack& addToValue( const ValueModPack& other );
   ValueModPack& addToValue( s16 other );
   ValueModPack& addToMod( s16 other );
@@ -333,21 +351,34 @@ inline bool ValueModPack::operator==( const ValueModPack& other ) const
 {
   return value == other.value && mod == other.mod;
 }
+inline bool ValueModPack::operator!=( const ValueModPack& other ) const
+{
+  return !operator==( other );
+}
 inline ValueModPack& ValueModPack::addToValue( const ValueModPack& other )
 {
   value += other.value + other.mod;
   return *this;
 }
+/**
+* Adds to the property base value
+*/
 inline ValueModPack& ValueModPack::addToValue( s16 other )
 {
   value += other;
   return *this;
 }
+/**
+* Adds to the property mod
+*/
 inline ValueModPack& ValueModPack::addToMod( s16 other )
 {
   mod += other;
   return *this;
 }
+/**
+* Sets the property mod to value
+*/
 inline ValueModPack& ValueModPack::setAsMod( s16 other )
 {
   mod = other;
@@ -358,6 +389,9 @@ inline ValueModPack& ValueModPack::resetModAsValue()
   value = mod;
   return *this;
 }
+/**
+* Returns the value + mod
+*/
 inline s16 ValueModPack::sum() const
 {
   return value + mod;

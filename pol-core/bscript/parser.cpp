@@ -346,7 +346,7 @@ ObjMember object_members[] = {
     {MBR_HP, "hp", false},
     {MBR_MAXHP_MOD, "maxhp_mod", false},
     {MBR_MAXHP, "maxhp", true},       // 90
-    {MBR_DMG_MOD, "dmg_mod", false},  // weapon
+    {MBR_DMG_MOD, "dmg_mod", false},  // weapon  // to be made redundant in the future
     {MBR_ATTRIBUTE, "attribute", true},
     {MBR_INTRINSIC, "intrinsic", true},
     {MBR_HITSCRIPT, "hitscript", false},
@@ -391,7 +391,7 @@ ObjMember object_members[] = {
     {MBR_PROMPT, "prompt", false},
     {MBR_STACKABLE, "stackable", false},
     {MBR_MOVEMODE, "movemode", false},  // 135
-    {MBR_HITCHANCE_MOD, "hitchance_mod", false},
+    {MBR_HITCHANCE_MOD, "hitchance_mod", false},  // to be made redundant in the future
     {MBR_EVASIONCHANCE_MOD, "evasionchance_mod", false},
     {MBR_TILE_LAYER, "tile_layer", true},
     {MBR_CLIENTVERSIONDETAIL, "clientver_detail", true},
@@ -465,7 +465,7 @@ ObjMember object_members[] = {
     {MBR_MAX_ITEMS_MOD, "max_items_mod", false},  // 205
     {MBR_MAX_WEIGHT_MOD, "max_weight_mod", false},
     {MBR_MAX_SLOTS_MOD, "max_slots_mod", false},
-    {MBR_SPEED_MOD, "speed_mod", false},
+    {MBR_SPEED_MOD, "speed_mod", false},  // to be made redundant in the future
     {MBR_NAME_SUFFIX, "name_suffix", false},
     {MBR_TEMPORALLY_CRIMINAL, "temporally_criminal", true},  // 210
     {MBR_LAST_TEXTCOLOR, "last_textcolor", true},
@@ -477,7 +477,40 @@ ObjMember object_members[] = {
     {MBR_CARRYINGCAPACITY, "carrying_capacity", true},
     {MBR_NO_DROP, "no_drop", false},
     {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
-    {MBR_PORT, "port", false},
+    { MBR_PORT, "port", false },  // 220
+    // Additions for new properties
+    {MBR_LOWER_REAG_COST, "lower_reagent_cost", true},
+    {MBR_SPELL_DAMAGE_INCREASE, "spell_damage_increase", true},
+    {MBR_FASTER_CASTING, "faster_casting", true},
+    {MBR_FASTER_CAST_RECOVERY, "faster_cast_recovery", true},
+    {MBR_DEFENCE_CHANCE_INCREASE, "defence_increase", true},  // 225
+    {MBR_DEFENCE_CHANCE_INCREASE_CAP, "defence_increase_cap", true},
+    {MBR_LOWER_MANA_COST, "lower_mana_cost", true},
+    {MBR_FIRE_RESIST_CAP, "resist_fire_cap", true},
+    {MBR_COLD_RESIST_CAP, "resist_cold_cap", true},
+    {MBR_ENERGY_RESIST_CAP, "resist_energy_cap", true},  // 230
+    {MBR_POISON_RESIST_CAP, "resist_poison_cap", true},
+    {MBR_PHYSICAL_RESIST_CAP, "resist_physical_cap", true},
+    {MBR_DAMAGE_INCREASE, "damage_increase", true},
+    {MBR_HIT_CHANCE, "hit_chance", true},
+    {MBR_SWING_SPEED, "swing_speed", true},  // 235
+    // Additions for new properties mods
+    {MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod", false},
+    {MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod", false},
+    {MBR_FASTER_CASTING_MOD, "faster_casting_mod", false},
+    {MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod", false},
+    {MBR_DEFENCE_CHANCE_INCREASE_MOD, "defence_increase_mod", false},  // 240
+    {MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD, "defence_increase_cap_mod", false},
+    {MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod", false},
+    {MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false},
+    {MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false},
+    {MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false},  // 245
+    {MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false},
+    {MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false},
+    {MBR_DAMAGE_INCREASE_MOD, "damage_increase_mod", false},
+    {MBR_SWING_SPEED_MOD, "swing_speed_mod", false},
+    {MBR_LUCK_MOD, "luck_mod", false},  // 250
+    {MBR_HIT_CHANCE_MOD, "hit_chance_mod", false},  
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

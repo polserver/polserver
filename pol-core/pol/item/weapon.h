@@ -64,7 +64,7 @@ class UWeapon : public Equipment
 public:
   virtual ~UWeapon(){};
 
-  unsigned short speed() const;
+  //unsigned short speed() const;
   unsigned short delay() const;
 
   const Mobile::Attribute& attribute() const;
@@ -86,9 +86,6 @@ public:
 
   virtual Item* clone() const POL_OVERRIDE;
   virtual size_t estimatedSize() const POL_OVERRIDE;
-
-  DYN_PROPERTY( damage_mod, s16, Core::PROP_DMG_MOD, 0 );
-  DYN_PROPERTY( speed_mod, s16, Core::PROP_SPEED_MOD, 0 );
 
 protected:
   virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;

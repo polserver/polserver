@@ -1,0 +1,13 @@
+
+04-03-2018 DevGIB:
+  Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, SwingSpeed, 
+           DamageIncrease, LuckMod, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.
+  Changed: Elevated Luck to UObject and added related LuckMod.
+  Changed: Elevated dmg_mod to UObject and linked to DamageIncrease.
+  Changed: Elevated hitchance_mod to UObject and linked to HitChance.
+  Changed: Elevated speed_mod to UObject and linked to SwingSpeed.
+  Added:   Damage_Increase_Mod, Swing_Speed_Mod and Hit_Chance_mod to replace dmg_mod, speed_mod and hitchance_mod respectively in the future.
+  Added:   Warning to compiler that dmg_mod, speed_mod and hitchance_mod are depreciated.
+  Added:   Support for new prop changes to the status bar packet.
+  Added:   Resistances will now be limited to caps by core, unless caps aren't set or are 0.
+  Added:   CoreHandlesDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will limit all resistances and defence increase cap to caps set on the mobile.

@@ -8,7 +8,6 @@
            cmd param -T can now be optionally extended with a number to override the cfg setting
 07-19-2018 DevGIB:
   Added:   EncodeBase64(String) and DecodeBase64(String) to basic.em to enable people to encode and decode strings using base64 without requiring an escript function.
-  
 04-02-2018 Bodom:
   Removed: polcore().compiledate and polcore().compiletime
   Added:   polcore().compiledatetime

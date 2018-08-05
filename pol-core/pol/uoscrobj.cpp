@@ -975,6 +975,18 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_PHYSICAL_RESIST:
     return new BLong( physical_resist().sum() );
     break;
+  case MBR_LOWER_REAG_COST:
+    return new BLong( lower_reagent_cost().sum() );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE:
+    return new BLong( spell_damage_increase().sum() );
+    break;
+  case MBR_FASTER_CASTING:
+    return new BLong( faster_casting().sum() );
+    break;
+  case MBR_FASTER_CAST_RECOVERY:
+    return new BLong( faster_casting().sum() );
+    break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
     break;
@@ -989,6 +1001,93 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_PHYSICAL_RESIST_MOD:
     return new BLong( physical_resist().mod );
+    break;
+  case MBR_LOWER_REAG_COST_MOD:
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE:
+    return new BLong( defence_increase().sum() );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP:
+    return new BLong( defence_increase_cap().sum() );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST:
+    return new BLong( lower_mana_cost().sum() );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HIT_CHANCE:
+    return new BLong( hit_chance().sum() );
+    break;
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
+    return new BLong( hit_chance().mod );
+    break;
+  case MBR_SWING_SPEED:
+    return new BLong( swing_speed().sum() );
+    break;
+  case MBR_SPEED_MOD:  // to be made redundant in the future
+  case MBR_SWING_SPEED_MOD:
+    return new BLong( swing_speed().mod );
+    break;
+  case MBR_DAMAGE_INCREASE:
+    return new BLong( damage_increase().sum() );
+    break;
+  case MBR_DMG_MOD:  // to be made redundant in the future
+  case MBR_DAMAGE_INCREASE_MOD:
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_FIRE_RESIST_CAP:
+    return new BLong( fire_resist_cap().sum() );
+    break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP:
+    return new BLong( cold_resist_cap().sum() );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP:
+    return new BLong( energy_resist_cap().sum() );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP:
+    return new BLong( poison_resist_cap().sum() );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP:
+    return new BLong( physical_resist_cap().sum() );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    return new BLong( physical_resist_cap().mod );
+    break;
+  case MBR_LUCK:
+    return new BLong( luck().sum() );
+    break;
+  case MBR_LUCK_MOD:
+    return new BLong( luck().mod );
     break;
   case MBR_FIRE_DAMAGE:
     return new BLong( fire_damage().sum() );
@@ -1226,6 +1325,71 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     }
     return new BLong( physical_resist().mod );
     break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    fire_resist_cap( fire_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    cold_resist_cap( cold_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    energy_resist_cap( energy_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    poison_resist_cap( poison_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    physical_resist_cap( physical_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( physical_resist_cap().mod );
+    break;
   case MBR_FIRE_DAMAGE_MOD:
     fire_damage( fire_damage().setAsMod( static_cast<short>( value ) ) );
     return new BLong( static_cast<short>( value ) );
@@ -1245,6 +1409,152 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
   case MBR_PHYSICAL_DAMAGE_MOD:
     physical_damage( physical_damage().setAsMod( static_cast<short>( value ) ) );
     return new BLong( static_cast<short>( value ) );
+    break;
+  case MBR_LOWER_REAG_COST_MOD:
+    lower_reagent_cost( lower_reagent_cost().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    spell_damage_increase( spell_damage_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    faster_casting( faster_casting().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    faster_cast_recovery( faster_cast_recovery().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( faster_cast_recovery().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    defence_increase( defence_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    defence_increase_cap( defence_increase_cap().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    lower_mana_cost( lower_mana_cost().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
+    hit_chance( hit_chance().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( hit_chance().mod );
+    break;
+  case MBR_SWING_SPEED_MOD:
+  case MBR_SPEED_MOD:  // to be made redundant in the future
+    swing_speed( swing_speed().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( swing_speed().mod );
+    break;
+  case MBR_DAMAGE_INCREASE_MOD:
+  case MBR_DMG_MOD:  // to be made redundant in the future
+    damage_increase( damage_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_LUCK_MOD:
+    luck( luck().setAsMod( static_cast<short>( value ) ) );
+    if ( container != NULL )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != NULL )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( luck().mod );
     break;
   case MBR_QUALITY:
     setQuality( double( value ) );
@@ -1288,6 +1598,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return nullptr;
   }
 }
+
 
 BObjectImp* Item::set_script_member( const char* membername, int value )
 {
@@ -1907,9 +2218,6 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new String( mode );
     break;
   }
-  case MBR_HITCHANCE_MOD:
-    return new BLong( hitchance_mod() );
-    break;
   case MBR_EVASIONCHANCE_MOD:
     return new BLong( evasionchance_mod() );
     break;
@@ -1949,6 +2257,99 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_PHYSICAL_RESIST_MOD:
     return new BLong( physical_resist().mod );
     break;
+  case MBR_FIRE_RESIST_CAP:
+    return new BLong( fire_resist_cap().value );
+    break;
+  case MBR_COLD_RESIST_CAP:
+    return new BLong( cold_resist_cap().value );
+    break;
+  case MBR_ENERGY_RESIST_CAP:
+    return new BLong( energy_resist_cap().value );
+    break;
+  case MBR_POISON_RESIST_CAP:
+    return new BLong( poison_resist_cap().value );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP:
+    return new BLong( physical_resist_cap().value );
+    break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    return new BLong( physical_resist_cap().mod );
+    break;
+  case MBR_LOWER_REAG_COST:
+    return new BLong( lower_reagent_cost().value );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE:
+    return new BLong( spell_damage_increase().value );
+    break;
+  case MBR_FASTER_CASTING:
+    return new BLong( faster_casting().value );
+    break;
+  case MBR_FASTER_CAST_RECOVERY:
+    return new BLong( faster_cast_recovery().value );
+    break;
+  case MBR_LOWER_REAG_COST_MOD:
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    return new BLong( faster_cast_recovery().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
+    return new BLong( hit_chance().mod );
+    break;
+  case MBR_SPEED_MOD:  // to be made redundant in the future
+  case MBR_SWING_SPEED_MOD:
+    return new BLong( swing_speed().mod );
+    break;
+  case MBR_DMG_MOD:  // to be made redundant in the future
+  case MBR_DAMAGE_INCREASE_MOD:
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE:
+    return new BLong( defence_increase().value );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP:
+    return new BLong( defence_increase_cap().value );
+    break;
+  case MBR_LOWER_MANA_COST:
+    return new BLong( lower_mana_cost().value );
+    break;
+  case MBR_HIT_CHANCE:
+    return new BLong( hit_chance().value );
+    break;
+  case MBR_SWING_SPEED:
+    return new BLong( swing_speed().value );
+    break;
+  case MBR_DAMAGE_INCREASE:
+    return new BLong( damage_increase().value );
+    break;
   case MBR_STATCAP:
     return new BLong( skillstatcap().statcap );
     break;
@@ -1956,7 +2357,10 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( skillstatcap().skillcap );
     break;
   case MBR_LUCK:
-    return new BLong( luck() );
+    return new BLong( luck().value );
+    break;
+  case MBR_LUCK_MOD:
+    return new BLong( luck().mod );
     break;
   case MBR_FOLLOWERSMAX:
     return new BLong( followers().followers_max );
@@ -2190,9 +2594,6 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     // make_murderer handles the updating
     make_murderer( value ? true : false );
     return new BLong( is_murderer() );
-  case MBR_HITCHANCE_MOD:
-    hitchance_mod( static_cast<short>( value ) );
-    return new BLong( hitchance_mod() );
   case MBR_EVASIONCHANCE_MOD:
     evasionchance_mod( static_cast<short>( value ) );
     return new BLong( evasionchance_mod() );
@@ -2233,6 +2634,90 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     refresh_ar();
     return new BLong( physical_resist().mod );
     break;
+  case MBR_LOWER_REAG_COST_MOD:
+    lower_reagent_cost( lower_reagent_cost().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( lower_reagent_cost().mod );
+    break;
+  case MBR_SPELL_DAMAGE_INCREASE_MOD:
+    spell_damage_increase( spell_damage_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_FASTER_CASTING_MOD:
+    faster_casting( faster_casting().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( faster_casting().mod );
+    break;
+  case MBR_FASTER_CAST_RECOVERY_MOD:
+    faster_cast_recovery( faster_cast_recovery().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( faster_cast_recovery().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_MOD:
+    defence_increase( defence_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( defence_increase().mod );
+    break;
+  case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
+    defence_increase_cap( defence_increase_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( defence_increase_cap().mod );
+    break;
+  case MBR_LOWER_MANA_COST_MOD:
+    lower_mana_cost( lower_mana_cost().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( lower_mana_cost().mod );
+    break;
+  case MBR_HITCHANCE_MOD:  // to be made redundant in the future
+  case MBR_HIT_CHANCE_MOD:
+    hit_chance( hit_chance().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( hit_chance().mod );
+    break;
+  case MBR_SPEED_MOD:  // to be made redundant in the future
+  case MBR_SWING_SPEED_MOD:
+    swing_speed( swing_speed().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( swing_speed().mod );
+    break;
+  case MBR_DMG_MOD:  // to be made redundant in the future
+  case MBR_DAMAGE_INCREASE_MOD:
+    damage_increase( damage_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( damage_increase().mod );
+    break;
+  case MBR_FIRE_RESIST_CAP_MOD:
+    fire_resist_cap( fire_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( fire_resist_cap().mod );
+    break;
+  case MBR_COLD_RESIST_CAP_MOD:
+    cold_resist_cap( cold_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( cold_resist_cap().mod );
+    break;
+  case MBR_ENERGY_RESIST_CAP_MOD:
+    energy_resist_cap( energy_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( energy_resist_cap().mod );
+    break;
+  case MBR_PHYSICAL_RESIST_CAP_MOD:
+    physical_resist_cap( physical_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( physical_resist_cap().mod );
+    break;
+  case MBR_POISON_RESIST_CAP_MOD:
+    poison_resist_cap( poison_resist_cap().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( poison_resist_cap().mod );
+    break;
+  case MBR_LUCK_MOD:
+    luck( luck().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( luck().mod );
+    break;
+
   case MBR_STATCAP:
   {
     auto val = skillstatcap();
@@ -2249,12 +2734,12 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     skillstatcap( val );
     return new BLong( skillstatcap().skillcap );
   }
-  case MBR_LUCK:
-    luck( static_cast<short>( value ) );
-    if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
-      on_aos_ext_stat_changed();
-    return new BLong( luck() );
-    break;
+    /* case MBR_LUCK:
+       luck( static_cast<short>( value ) );
+       if ( !this->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+         on_aos_ext_stat_changed();
+       return new BLong( luck() );
+       break;*/
   case MBR_FOLLOWERSMAX:
   {
     auto val = followers();
@@ -4050,11 +4535,13 @@ BObjectImp* UWeapon::get_script_member_id( const int id ) const
 
   switch ( id )
   {
-  case MBR_DMG_MOD:
-    return new BLong( damage_mod() );
+  case MBR_DMG_MOD:  // to be made redundant in the future
+  case MBR_DAMAGE_INCREASE_MOD:
+    return new BLong( damage_increase().value );
     break;
-  case MBR_SPEED_MOD:
-    return new BLong( speed_mod() );
+  case MBR_SPEED_MOD:  // to be made redundant in the future
+  case MBR_SWING_SPEED_MOD:
+    return new BLong( swing_speed().value );
     break;
   case MBR_ATTRIBUTE:
     return new String( attribute().name );
@@ -4113,11 +4600,13 @@ BObjectImp* UWeapon::set_script_member_id( const int id, int value )
 
   switch ( id )
   {
-  case MBR_DMG_MOD:
-    damage_mod( static_cast<s16>( value ) );
+  case MBR_DMG_MOD:  // to be made redundant in the future
+  case MBR_DAMAGE_INCREASE_MOD:
+    damage_increase( static_cast<s16>( value ) );
     break;
-  case MBR_SPEED_MOD:
-    speed_mod( static_cast<s16>( value ) );
+  case MBR_SPEED_MOD:  // to be made redundant in the future
+  case MBR_SWING_SPEED_MOD:
+    swing_speed( static_cast<s16>( value ) );
     break;
   default:
     return nullptr;
