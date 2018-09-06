@@ -670,6 +670,7 @@ BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
 {
   Item* item;
   unsigned int objtype;
+  int flags;
   if ( !getItemParam( exec, 0, item ) || !getObjtypeParam( exec, 1, objtype ) )
   {
     return new BError( "Invalid parameter type" );
@@ -678,9 +679,11 @@ BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
   {
     return new BError( "That is not a container" );
   }
+  if (!getParam(4, flags))
+      flags = 0;
 
   UContainer* cont = static_cast<UContainer*>( item );
-  Item* found = cont->find_toplevel_objtype( objtype );
+  Item* found = cont->find_objtype( objtype, flags );
   if ( found == nullptr )
     return new BError( "No items were found" );
   else

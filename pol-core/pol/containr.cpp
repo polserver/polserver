@@ -421,6 +421,30 @@ Items::Item* UContainer::find_addable_stack( const Items::Item* adding_item ) co
   return nullptr;
 }
 
+Items::Item* UContainer::find_objtype(u32 objtype, int flags) const
+{
+    Items::Item* _item = find_toplevel_objtype(objtype);
+    if (_item != nullptr)
+        return _item;
+    if (!(flags & FINDOBJTYPE_ROOT_ONLY))
+    {
+        for (const auto& item : contents_)
+        {
+            if (item && item->isa(UOBJ_CLASS::CLASS_CONTAINER) && !item->inuse())
+            {
+                UContainer* cont = static_cast<UContainer*>(item);
+                if (!cont->locked() || (flags & FINDOBJTYPE_IGNORE_LOCKED) )
+                {
+                    auto child_item = cont->find_objtype_noninuse(objtype);
+                    if (child_item != nullptr)
+                        return child_item;
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 
 Items::Item* UContainer::find_objtype_noninuse( u32 objtype ) const
 {
