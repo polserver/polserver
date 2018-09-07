@@ -148,7 +148,7 @@ public:
   Items::Item* find_toplevel_objtype_noninuse( u32 objtype ) const;
   Items::Item* find_toplevel_objtype_noninuse( u32 objtype, unsigned short maxamount ) const;
   Items::Item* find_objtype_noninuse( u32 objtype ) const;
-  Items::Item* find_objtype(u32 objtype, int flags) const;
+  Items::Item* find_objtype( u32 objtype, int flags ) const;
 
   virtual void for_each_item( void ( *f )( Item* item, void* a ), void* arg );
 

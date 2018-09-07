@@ -679,8 +679,8 @@ BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
   {
     return new BError( "That is not a container" );
   }
-  if (!getParam(4, flags))
-      flags = 0;
+  if ( !getParam( 4, flags ) )
+    flags = 0;
 
   UContainer* cont = static_cast<UContainer*>( item );
   Item* found = cont->find_objtype( objtype, flags );

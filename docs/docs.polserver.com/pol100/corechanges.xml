@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-30-2018</datemodified>
+		<datemodified>09-07-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>09-07-2018</date>
+			<author>DevGIB:</author>
+			<change type="Changed">FindObjtypeInContainer(container, objtype, flags :=0 ) to recurse all containers from base container.</change>
+			<change type="Added">FINDOBJTYPE_IGNORE_LOCKED and FINDOBJTYPE_ROOT_ONLY to UO.EM</change>
+			<change type="Added">Flags to FindObjtypeInContainer() for only accessing root container, and bypassing locked container checks.</change>
+			<change type="Note">THESE CHANGES TO FindObjtypeInContainer() WILL EFFECTIVELY CHANGE THE DEFAULT FUNCTIONALITY OF THE FUNCTION AS DEFAULT IS NOW TO RECURSE SUB CONTAINERS.</change>
+			<change type="Added">Additional documentation to the Racalac escript guide to include additional information supplied by Yukiko.</change>
+		</entry>
 		<entry>
 			<date>07-27-2018</date>
 			<author>DevGIB:</author>
