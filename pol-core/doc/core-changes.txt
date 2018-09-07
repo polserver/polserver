@@ -1,7 +1,7 @@
 ﻿-- POL100 --
 09-07-2018 DevGIB:
   Changed: FindObjtypeInContainer(container, objtype, flags :=0 ) to recurse all containers from base container.
-  Added:   FINDOBJTYPE_IGNORE_LOCKED and FINDOBJTYPE_ROOT_ONLY to UO.EM
+  Added:   Constants FINDOBJTYPE_RECURSIVE, FINDOBJTYPE_IGNORE_LOCKED and FINDOBJTYPE_ROOT_ONLY to UO.EM
   Added:   Flags to FindObjtypeInContainer() for only accessing root container, and bypassing locked container checks.
   Note:    THESE CHANGES TO FindObjtypeInContainer() WILL EFFECTIVELY CHANGE THE DEFAULT FUNCTIONALITY OF THE FUNCTION AS DEFAULT IS NOW TO RECURSE SUB CONTAINERS.
   Added:   Additional documentation to the Racalac escript guide to include additional information supplied by Yukiko.

@@ -138,7 +138,8 @@ const ENUMERATE_IGNORE_LOCKED	:= 0x1; // List content of locked container.
 const ENUMERATE_ROOT_ONLY		:= 0x2; // Do not list contents of sub-containers.
 
 // FindObjtypeInContainer constants
-const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers
+const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).
+const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers.
 const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.
 
 // FindSubstance constants
@@ -284,7 +285,7 @@ EquipItem( mobile, item );
 EraseGlobalProperty( propname );
 EraseObjProperty( object, propname );
 FindAccount( acctname );
-FindObjtypeInContainer( container, objtype, flags := 0 );
+FindObjtypeInContainer( container, objtype, flags := FINDOBJTYPE_RECURSIVE );
 FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
 FindSubstance( container, objtype, amount, makeinuse := 0, flags := 0 );
 GetAmount( item );

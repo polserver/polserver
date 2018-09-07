@@ -139,7 +139,8 @@
 <constant>const FINDSUBSTANCE_FIND_ALL      := 0x4; // Find all matches ignoring given amount</constant>
 <constant> </constant>
 <constant>// FindObjtypeInContainer constants</constant>
-<constant>const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers</constant>
+<constant>const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).</constant>
+<constant>const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers.</constant>
 <constant>const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</constant>
 <constant> </constant>
 <constant>//  SendTextEntryGump options</constant>
@@ -291,7 +292,7 @@ container
 </function>
 
 <function name="FindObjtypeInContainer">
-  <prototype>FindObjtypeInContainer( container, objtype, flags:=0 )</prototype>
+  <prototype>FindObjtypeInContainer( container, objtype, flags:=FINDOBJTYPE_RECURSIVE )</prototype>
   <parameter name="container" value="Container reference" />
   <parameter name="objtype" value="integer objtype to find" />
   <parameter name="flags" value="Integer" />
@@ -299,6 +300,7 @@ container
   <explain>uo.em constants for flags:
   <code>
 // FindObjtype constants
+const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).
 const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers
 const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</code></explain>
   <return>Item reference or Error</return>
