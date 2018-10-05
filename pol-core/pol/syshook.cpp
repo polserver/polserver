@@ -104,7 +104,8 @@ SystemHooks::SystemHooks()
       un_hide( nullptr ),
       close_customhouse_hook( nullptr ),
       warmode_change( nullptr ),
-      can_trade( nullptr )
+      can_trade( nullptr ),
+      consume_ammunition_hook( nullptr )
 {
 }
 
@@ -196,6 +197,11 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
   {
     nargs = 3;
     pphook = &gamestate.system_hooks.can_trade;
+  }
+  else if ( hookname == "ConsumeAmmunition" )
+  {
+    nargs = 2;
+    pphook = &gamestate.system_hooks.consume_ammunition_hook;
   }
   else
   {
@@ -308,6 +314,8 @@ void SystemHooks::unload_system_hooks()
     delete warmode_change;
   if ( can_trade != nullptr )
     delete can_trade;
+  if ( consume_ammunition_hook != nullptr )
+    delete consume_ammunition_hook;
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )
@@ -368,5 +376,5 @@ ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Pack
 
   return new ExportedFunction( export_script, PC );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

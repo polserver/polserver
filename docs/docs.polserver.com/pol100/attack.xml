@@ -13,9 +13,13 @@ if( Attack sys hook is loaded )
 endif
 
 if( weapon is projectile )
-  try to comsume projectile
-  if none, exit
-exit
+  if( consume ammo hook is loaded)
+    call it
+  else
+    try to comsume projectile
+    if none, exit
+  endif
+endif
 
 repsys effects
 

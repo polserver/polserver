@@ -251,7 +251,7 @@ SystemHookScript (string script_name_with_ecl)
     <explain>Defines the script file and function to call for the core to call. The script should be in the same package as the syshook.cfg.</explain>
     <explain>The script_name_with_ecl should define a 'program' which will be run on server start.</explain>
     <explain>The exported_func_name should be defined with the 'exported' keyword.</explain>
-    <explain>The list of SyshookNames: CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide, CloseCustomHouse, WarmodeChange, CanTrade</explain>
+    <explain>The list of SyshookNames: CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide, CloseCustomHouse, WarmodeChange, CanTrade, ConsumeAmmunition</explain>
 </cfgfile>
 
 

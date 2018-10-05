@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-08-2018</datemodified>
+		<datemodified>10-06-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-06-2018</date>
+			<author>DevGIB:</author>
+			<change type="Added">ConsumeAmmunition syshook to hook the cores check for ammunition consumption during combat. Hook should return 1 if combat is to go ahead and 0 if the weapon should not fire.</change>
+		</entry>
 		<entry>
 			<date>09-07-2018</date>
 			<author>DevGIB:</author>
