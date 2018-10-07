@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+10-06-2018 DevGIB:
+  Added:   ConsumeAmmunition syshook to hook the cores check for ammunition consumption during combat. Hook should return 1 if combat is to go ahead and 0 if the weapon should not fire.
 09-07-2018 DevGIB:
   Changed: FindObjtypeInContainer(container, objtype, flags :=0 ) to recurse all containers from base container.
   Added:   Constants FINDOBJTYPE_RECURSIVE, FINDOBJTYPE_IGNORE_LOCKED and FINDOBJTYPE_ROOT_ONLY to UO.EM

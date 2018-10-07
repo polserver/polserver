@@ -81,6 +81,7 @@ public:
   ExportedFunction* close_customhouse_hook;
   ExportedFunction* warmode_change;
   ExportedFunction* can_trade;
+  ExportedFunction* consume_ammunition_hook;
 };
 
 ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Package* pkg,
