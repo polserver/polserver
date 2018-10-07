@@ -34,7 +34,7 @@ matrix:
       addons:
         apt:
           sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-6.0', 'libstdc++7', 'libstdc++-7-dev', 'kwstyle']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'kwstyle']
       env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=0
 
     - os: linux
@@ -42,7 +42,7 @@ matrix:
       addons:
         apt:
           sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-6.0', 'libstdc++7', 'libstdc++-7-dev']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev']
       env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=1
 
 before_install:
