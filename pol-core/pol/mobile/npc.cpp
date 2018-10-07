@@ -802,7 +802,6 @@ void NPC::inform_moved( Character* moved )
   if ( ex != nullptr )
   {
     bool signaled = false;
-    passert( this != nullptr );
     passert( moved != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
@@ -852,7 +851,6 @@ void NPC::inform_imoved( Character* chr )
 {
   if ( ex != nullptr )
   {
-    passert( this != nullptr );
     passert( chr != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
