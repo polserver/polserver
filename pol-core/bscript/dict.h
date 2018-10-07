@@ -32,7 +32,7 @@ namespace Pol
 {
 namespace Bscript
 {
-class BDictionary : public BObjectImp
+class BDictionary final : public BObjectImp
 {
 public:
   BDictionary();

@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+10-07-2018 Turley:
+  Added:   array.sorted_insert(obj, sub_index:=0, reverse:=0)
+           assumes an already sorted array and inserts given obj. sub_index and reverse parameter have to match the sorting criteria of the array.
 10-06-2018 DevGIB:
   Added:   ConsumeAmmunition syshook to hook the cores check for ammunition consumption during combat. Hook should return 1 if combat is to go ahead and 0 if the weapon should not fire.
 09-07-2018 DevGIB:

@@ -179,6 +179,7 @@ enum MethodID
   MTH_DEL_BUFF,  // 150
   MTH_CLEAR_BUFFS,
   MTH_CALL,
+  MTH_SORTEDINSERT,
 };
 
 

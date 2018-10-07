@@ -192,7 +192,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
 RawMap::RawMap() : m_mapwidth( 0 ), m_mapheight( 0 ) {}
 
 
-RawMap::~RawMap() {}
+RawMap::~RawMap() = default;
 
 }  // namespace Plib
 }  // namespace Pol

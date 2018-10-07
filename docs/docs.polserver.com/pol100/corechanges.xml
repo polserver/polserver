@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-06-2018</datemodified>
+		<datemodified>10-07-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-07-2018</date>
+			<author>Turley:</author>
+			<change type="Added">array.sorted_insert(obj, sub_index:=0, reverse:=0)<br/>
+assumes an already sorted array and inserts given obj. sub_index and reverse parameter have to match the sorting criteria of the array.</change>
+		</entry>
 		<entry>
 			<date>10-06-2018</date>
 			<author>DevGIB:</author>

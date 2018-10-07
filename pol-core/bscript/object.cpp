@@ -123,7 +123,7 @@ BObjectImp* BObjectImp::unpack( const char* pstr )
   return unpack( is );
 }
 
-BObject::~BObject() {}
+BObject::~BObject() = default;
 
 
 BObject* BObject::clone() const
@@ -1679,6 +1679,97 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
     }
     break;
 
+  case MTH_SORTEDINSERT:
+  {
+    if ( !name_arr.empty() )
+      break;
+    if ( ex.numParams() == 0 )
+      return new BError(
+          "array.sorted_insert(obj, sub_index:=0, reverse:=0) takes at least one parameter." );
+    BObjectImp* imp = ex.getParamImp( 0 );
+    if ( !imp )
+      return new BError( "Invalid parameter type" );
+    bool reverse = false;
+    int sub_index = 0;
+    if ( ex.numParams() >= 2 )
+    {
+      if ( !ex.getParam( 1, sub_index ) )
+        return new BError( "Invalid parameter type" );
+      if ( sub_index < 0 )
+        return new BError( "Invalid sub_index value" );
+    }
+    if ( ex.numParams() >= 3 )
+    {
+      int reverseparam;
+      if ( !ex.getParam( 2, reverseparam ) )
+        return new BError( "Invalid parameter type" );
+      reverse = reverseparam != 0;
+    }
+    BObjectRef item( new BObject( imp->copy() ) );
+    if ( !sub_index )
+    {
+      if ( reverse )
+      {
+        ref_arr.insert( std::lower_bound( ref_arr.begin(), ref_arr.end(), item,
+                                          []( const BObjectRef& x1, const BObjectRef& x2 ) -> bool {
+                                            const BObject* b1 = x1.get();
+                                            const BObject* b2 = x2.get();
+                                            if ( b1 == nullptr || b2 == nullptr )
+                                              return ( &x1 > &x2 );
+                                            const BObject& r1 = *b1;
+                                            const BObject& r2 = *b2;
+                                            return ( r1 > r2 );
+                                          } ),
+                        item );
+      }
+      else
+      {
+        ref_arr.insert( std::upper_bound( ref_arr.begin(), ref_arr.end(), item, objref_cmp() ),
+                        item );
+      }
+    }
+    else
+    {
+      auto cmp_func = [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool {
+        if ( x1.get() == nullptr || !x1.get()->isa( OTArray ) )
+          return false;
+        if ( x2.get() == nullptr || !x2.get()->isa( OTArray ) )
+          return false;
+        auto sub_arr1 = static_cast<ObjArray*>( x1.get()->impptr() );
+        auto sub_arr2 = static_cast<ObjArray*>( x2.get()->impptr() );
+        if ( sub_arr1->ref_arr.size() < static_cast<size_t>( sub_index ) )
+          return false;
+        if ( sub_arr2->ref_arr.size() < static_cast<size_t>( sub_index ) )
+          return false;
+        auto sub1 = sub_arr1->ref_arr[sub_index - 1];
+        auto sub2 = sub_arr2->ref_arr[sub_index - 1];
+        const BObject* b1 = sub1.get();
+        const BObject* b2 = sub2.get();
+        if ( !reverse )
+        {
+          if ( b1 == nullptr || b2 == nullptr )
+            return ( &x1 < &x2 );
+          return ( *b1 < *b2 );
+        }
+        else
+        {
+          if ( b1 == nullptr || b2 == nullptr )
+            return ( &x1 > &x2 );
+          return ( *b1 > *b2 );
+        }
+      };
+      if ( reverse )
+      {
+        ref_arr.insert( std::lower_bound( ref_arr.begin(), ref_arr.end(), item, cmp_func ), item );
+      }
+      else
+      {
+        ref_arr.insert( std::upper_bound( ref_arr.begin(), ref_arr.end(), item, cmp_func ), item );
+      }
+    }
+    return new BLong( 1 );
+    break;
+  }
   default:
     return NULL;
   }

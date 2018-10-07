@@ -360,7 +360,7 @@ inline BObjectImp::BObjectType BObjectImp::type() const
   return type_;
 }
 
-class BObject : public ref_counted
+class BObject final : public ref_counted
 {
 public:
   explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp ) { passert( objimp ); }
@@ -458,7 +458,7 @@ public:
 };
 
 
-class UninitObject : public BObjectImp
+class UninitObject final : public BObjectImp
 {
 public:
   UninitObject();
@@ -497,7 +497,7 @@ inline void UninitObject::operator delete( void* p )
 {
   uninit_alloc.deallocate( p );
 }
-class ObjArray : public BObjectImp
+class ObjArray final : public BObjectImp
 {
 public:
   typedef std::vector<std::string> NameCont;
@@ -562,7 +562,7 @@ protected:
   void deepcopy();
 };
 
-class BLong : public BObjectImp
+class BLong final : public BObjectImp
 {
   typedef BObjectImp base;
 
@@ -689,7 +689,7 @@ inline void BLong::operator delete( void* p, size_t /*len*/ )
   blong_alloc.deallocate( p );
 }
 
-class Double : public BObjectImp
+class Double final : public BObjectImp
 {
   typedef BObjectImp base;
 
@@ -772,7 +772,7 @@ inline void Double::operator delete( void* p )
   double_alloc.deallocate( p );
 }
 
-class BBoolean : public BObjectImp
+class BBoolean final : public BObjectImp
 {
   typedef BObjectImp base;
 
@@ -807,7 +807,7 @@ private:
   bool bval_;
 };
 
-class BFunctionRef : public BObjectImp
+class BFunctionRef final : public BObjectImp
 {
   typedef BObjectImp base;
 

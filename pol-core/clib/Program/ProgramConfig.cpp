@@ -16,8 +16,8 @@ std::string ProgramConfig::m_programDir = "";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ProgramConfig::ProgramConfig() {}
-ProgramConfig::~ProgramConfig() {}
+ProgramConfig::ProgramConfig() = default;
+ProgramConfig::~ProgramConfig() = default;
 
 ///////////////////////////////////////////////////////////////////////////////
 

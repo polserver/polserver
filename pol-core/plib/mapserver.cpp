@@ -33,7 +33,7 @@ MapServer::MapServer( const RealmDescriptor& descriptor ) : _descriptor( descrip
   LoadFirstLevelIndex();
 }
 
-MapServer::~MapServer() {}
+MapServer::~MapServer() = default;
 
 void MapServer::LoadSolids()
 {
