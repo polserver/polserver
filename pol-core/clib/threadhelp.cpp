@@ -176,10 +176,11 @@ void* thread_stub2( void* v_td )
 
 #ifdef _WIN32
   _endthreadex( 0 );
+  return 0;
 #else
   pthread_exit( nullptr );
-#endif
   return nullptr;
+#endif
 }
 
 #ifdef _WIN32

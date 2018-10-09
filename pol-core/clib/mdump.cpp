@@ -156,7 +156,7 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
       ExInfo.ThreadId = ::GetCurrentThreadId();
       ExInfo.ExceptionPointers = pExceptionInfo;
-      ExInfo.ClientPointers = nullptr;
+      ExInfo.ClientPointers = 0;
 
       // write the dump
       MINIDUMP_TYPE dumptype;

@@ -24,7 +24,7 @@ namespace Pol
 {
 namespace Clib
 {
-static HCRYPTPROV hProv = nullptr;
+static HCRYPTPROV hProv = 0;
 
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
@@ -32,7 +32,7 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
 
   // HCRYPTKEY hKey = nullptr;
   // HCRYPTKEY hXchgKey = nullptr;
-  HCRYPTHASH hHash = nullptr;
+  HCRYPTHASH hHash = 0;
 
   if ( !hProv )
   {
