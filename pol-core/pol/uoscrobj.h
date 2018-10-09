@@ -110,7 +110,7 @@ public:
   virtual bool offline_access_ok() const override { return true; }
 };
 
-class ECharacterEquipObjImp final : public Bscript::BApplicObj<Core::CharacterRef>
+class ECharacterEquipObjImp : public Bscript::BApplicObj<Core::CharacterRef>
 {
   typedef Bscript::BApplicObj<Core::CharacterRef> base;
 
