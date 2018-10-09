@@ -5,9 +5,9 @@
  * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
  */
 
-#include "mdump.h"
 #include "clib.h"
 #include "logfacility.h"
+#include "mdump.h"
 #include "passert.h"
 #include "strexcpt.h"
 #include "threadhelp.h"
@@ -168,8 +168,8 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
         dumptype = MiniDumpNormal;
 
       ERROR_PRINT << "Unhandled Exception! Minidump started...\n";
-      BOOL bOK =
-          pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo, nullptr, nullptr );
+      BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo,
+                        nullptr, nullptr );
       if ( bOK )
       {
         result.Format(

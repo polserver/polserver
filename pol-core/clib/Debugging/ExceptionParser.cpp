@@ -636,8 +636,8 @@ void ExceptionParser::initGlobalExceptionCatching()
   // set handler stack
   stack_t tStack;
   // mmap: no false positives for leak, plus guardpages to get SIGSEGV on memory overwrites
-  char* mem = static_cast<char*>( mmap( nullptr, SIGSTKSZ + 2 * getpagesize(), PROT_READ | PROT_WRITE,
-                                        MAP_PRIVATE | MAP_ANON, -1, 0 ) );
+  char* mem = static_cast<char*>( mmap( nullptr, SIGSTKSZ + 2 * getpagesize(),
+                                        PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0 ) );
   mprotect( mem, getpagesize(), PROT_NONE );
   mprotect( mem + getpagesize() + SIGSTKSZ, getpagesize(), PROT_NONE );
   tStack.ss_sp = mem + getpagesize();

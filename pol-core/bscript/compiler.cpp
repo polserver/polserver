@@ -2903,7 +2903,8 @@ int Compiler::handleBracketedWhile( CompilerContext& ctx, int level )
   emit_leaveblock();
 
   // jump back to conditional expression
-  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, conditional_expr_posn ), nullptr );
+  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, conditional_expr_posn ),
+                   nullptr );
 
   // Control should jump past the loop when the expr evaluates to false.
   unsigned exit_loop_posn = prog_tokens->next();
@@ -4978,7 +4979,7 @@ int Compiler::getFileContents( const char* file, char** iv )
     return -1;
   }
 
-  if (fread( s, filelen, 1, fp ) != 1 )
+  if ( fread( s, filelen, 1, fp ) != 1 )
   {
     fclose( fp );
     return -1;

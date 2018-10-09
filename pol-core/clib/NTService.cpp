@@ -145,8 +145,8 @@ BOOL CNTService::IsInstalled()
   BOOL bResult = FALSE;
 
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                     // local machine
-                                    nullptr,                     // ServicesActive database
+  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                  // local machine
+                                    nullptr,                  // ServicesActive database
                                     SC_MANAGER_ALL_ACCESS );  // full access
   if ( hSCM )
   {
@@ -167,8 +167,8 @@ BOOL CNTService::IsInstalled()
 BOOL CNTService::Install()
 {
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                     // local machine
-                                    nullptr,                     // ServicesActive database
+  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                  // local machine
+                                    nullptr,                  // ServicesActive database
                                     SC_MANAGER_ALL_ACCESS );  // full access
   if ( !hSCM )
     return FALSE;
@@ -179,11 +179,11 @@ BOOL CNTService::Install()
   strcat( szFilePath, " -s" );
 
   // Create the service
-  SC_HANDLE hService =
-      ::CreateService( hSCM, m_szServiceName, m_szServiceName, SERVICE_ALL_ACCESS,
-                       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS,
-                       SERVICE_DEMAND_START,  // start condition
-                       SERVICE_ERROR_NORMAL, szFilePath, nullptr, nullptr, nullptr, nullptr, nullptr );
+  SC_HANDLE hService = ::CreateService( hSCM, m_szServiceName, m_szServiceName, SERVICE_ALL_ACCESS,
+                                        SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS,
+                                        SERVICE_DEMAND_START,  // start condition
+                                        SERVICE_ERROR_NORMAL, szFilePath, nullptr, nullptr, nullptr,
+                                        nullptr, nullptr );
   if ( !hService )
   {
     ::CloseServiceHandle( hSCM );
@@ -224,8 +224,8 @@ BOOL CNTService::Install()
 BOOL CNTService::Uninstall()
 {
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                     // local machine
-                                    nullptr,                     // ServicesActive database
+  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                  // local machine
+                                    nullptr,                  // ServicesActive database
                                     SC_MANAGER_ALL_ACCESS );  // full access
   if ( !hSCM )
     return FALSE;
@@ -273,7 +273,7 @@ void CNTService::LogEvent( WORD wType, DWORD dwID, const char* pszS1, const char
   // not then register it now
   if ( !m_hEventSource )
   {
-    m_hEventSource = ::RegisterEventSource( nullptr,               // local machine
+    m_hEventSource = ::RegisterEventSource( nullptr,            // local machine
                                             m_szServiceName );  // source name
   }
 
