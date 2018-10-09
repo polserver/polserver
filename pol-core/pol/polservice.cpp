@@ -42,8 +42,8 @@ class PolService : public Clib::CNTService
 {
 public:
   PolService();
-  virtual void Run() POL_OVERRIDE;
-  virtual void OnStop() POL_OVERRIDE;
+  virtual void Run() override;
+  virtual void OnStop() override;
 };
 
 PolService::PolService() : Clib::CNTService( "POL" )

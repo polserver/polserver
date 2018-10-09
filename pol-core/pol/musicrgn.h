@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-#include "../clib/compilerspecifics.h"
 #include "region.h"
 #include "zone.h"
 
@@ -34,7 +33,7 @@ class MusicRegion : public Region
 
 public:
   MusicRegion( Clib::ConfigElem& elem, RegionId id );
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual size_t estimateSize() const override;
 
 
   unsigned short getmidi() const;

@@ -10,7 +10,6 @@
 
 #include <stddef.h>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "fnsearch.h"
 #include "globals/uvars.h"

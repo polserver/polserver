@@ -14,7 +14,6 @@
 #include <string>
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../action.h"
 #include "../dynproperties.h"
@@ -57,12 +56,12 @@ class UWeapon;
 class WeaponDesc;
 
 
-class UWeapon : public Equipment
+class UWeapon final : public Equipment
 {
   typedef Equipment base;
 
 public:
-  virtual ~UWeapon(){};
+  virtual ~UWeapon() = default;
 
   unsigned short speed() const;
   unsigned short delay() const;
@@ -84,31 +83,31 @@ public:
   const Core::ScriptDef& hit_script() const;
   void set_hit_script( const std::string& scriptname );
 
-  virtual Item* clone() const POL_OVERRIDE;
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual Item* clone() const override;
+  virtual size_t estimatedSize() const override;
 
   DYN_PROPERTY( damage_mod, s16, Core::PROP_DMG_MOD, 0 );
   DYN_PROPERTY( speed_mod, s16, Core::PROP_SPEED_MOD, 0 );
 
 protected:
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
   // BObjectImp* script_member( const char *membername );
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
 
   virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+                                                  const std::string& value ) override;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_double( const char* membername,
-                                                         double value ) POL_OVERRIDE;
+                                                         double value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      POL_OVERRIDE;  // id test
+      override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
+                                                     int value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) POL_OVERRIDE;  // id test
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+                                                            double value ) override;  // id test
+  virtual bool script_isa( unsigned isatype ) const override;
   UWeapon( const WeaponDesc& descriptor, const WeaponDesc* permanent_descriptor );
   friend class Item;
   friend void load_data();

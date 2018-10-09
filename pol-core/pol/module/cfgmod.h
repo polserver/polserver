@@ -12,7 +12,6 @@
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/execmodl.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../cfgrepos.h"
 
@@ -69,28 +68,28 @@ protected:
 
 typedef Bscript::BApplicObj<ref_ptr<Core::StoredConfigFile>> EConfigFileRefObjImpBase;
 
-class EConfigFileRefObjImp : public EConfigFileRefObjImpBase
+class EConfigFileRefObjImp final : public EConfigFileRefObjImpBase
 {
 public:
   EConfigFileRefObjImp( ref_ptr<Core::StoredConfigFile> rcfile );
-  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) POL_OVERRIDE;
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
 };
 
 
 typedef Bscript::BApplicObj<ref_ptr<Core::StoredConfigElem>> EConfigElemRefObjImpBase;
 
-class EConfigElemRefObjImp : public EConfigElemRefObjImpBase
+class EConfigElemRefObjImp final : public EConfigElemRefObjImpBase
 {
 public:
   EConfigElemRefObjImp( ref_ptr<Core::StoredConfigElem> rcelem );
-  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
+  virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
 };
 
 

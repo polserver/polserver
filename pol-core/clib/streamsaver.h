@@ -8,7 +8,6 @@
 #include <thread>
 
 #include <format/format.h>
-#include "compilerspecifics.h"
 #include "message_queue.h"
 #if 0
 #include "timer.h"
@@ -32,25 +31,25 @@ protected:
   std::unique_ptr<fmt::Writer> _writer;
 };
 
-class FMTStreamWriter : public StreamWriter
+class FMTStreamWriter final : public StreamWriter
 {
 public:
-  FMTStreamWriter() : StreamWriter(){};
-  virtual ~FMTStreamWriter(){};
-  virtual void init( const std::string& ) POL_OVERRIDE{};  // argument is not used
-  virtual void flush() POL_OVERRIDE{};
-  virtual void flush_file() POL_OVERRIDE{};
+  FMTStreamWriter() = default;
+  virtual ~FMTStreamWriter() = default;
+  virtual void init( const std::string& ) override{};  // argument is not used
+  virtual void flush() override{};
+  virtual void flush_file() override{};
 };
 
-class OFStreamWriter : public StreamWriter
+class OFStreamWriter final : public StreamWriter
 {
 public:
   OFStreamWriter();
   OFStreamWriter( std::ofstream* stream );
   virtual ~OFStreamWriter();
-  virtual void init( const std::string& filepath ) POL_OVERRIDE;
-  virtual void flush() POL_OVERRIDE;
-  virtual void flush_file() POL_OVERRIDE;
+  virtual void init( const std::string& filepath ) override;
+  virtual void flush() override;
+  virtual void flush_file() override;
 
 private:
   std::ofstream* _stream;
@@ -60,22 +59,22 @@ private:
   std::string _stream_name;
 };
 
-class OStreamWriter : public StreamWriter
+class OStreamWriter final : public StreamWriter
 {
 public:
   OStreamWriter();
   OStreamWriter( std::ostream* stream );
   virtual ~OStreamWriter();
-  virtual void init( const std::string& filepath ) POL_OVERRIDE;
-  virtual void flush() POL_OVERRIDE;
-  virtual void flush_file() POL_OVERRIDE;
+  virtual void init( const std::string& filepath ) override;
+  virtual void flush() override;
+  virtual void flush_file() override;
 
 private:
   std::ostream* _stream;
 };
 
 
-class ThreadedOFStreamWriter : public StreamWriter
+class ThreadedOFStreamWriter final : public StreamWriter
 {
   typedef std::unique_ptr<fmt::Writer> WriterPtr;
   typedef message_queue<WriterPtr> writer_queue;
@@ -84,9 +83,9 @@ public:
   ThreadedOFStreamWriter();
   ThreadedOFStreamWriter( std::ofstream* stream );
   virtual ~ThreadedOFStreamWriter();
-  virtual void init( const std::string& filepath ) POL_OVERRIDE;
-  virtual void flush() POL_OVERRIDE;
-  virtual void flush_file() POL_OVERRIDE;
+  virtual void init( const std::string& filepath ) override;
+  virtual void flush() override;
+  virtual void flush_file() override;
 
 private:
   void start_worker();

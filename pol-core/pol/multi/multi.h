@@ -64,29 +64,29 @@ public:
   static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
                                                s8 z, Realms::Realm* realm, int flags );
 
-  virtual void double_click( Network::Client* client ) POL_OVERRIDE;
+  virtual void double_click( Network::Client* client ) override;
   virtual void register_object( UObject* obj );
   virtual void unregister_object( UObject* obj );
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+  virtual bool script_isa( unsigned isatype ) const override;
 
   const MultiDef& multidef() const;
   virtual class UBoat* as_boat();
   virtual class UHouse* as_house();
-  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;
+  virtual Bscript::BObjectImp* make_ref() override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;
 
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
   virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase );
 
   virtual ~UMulti();
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
 protected:
   explicit UMulti( const Items::ItemDesc& itemdesc );
 
-  virtual const char* classname() const POL_OVERRIDE;
+  virtual const char* classname() const override;
   friend class ref_ptr<UMulti>;
 
 private:

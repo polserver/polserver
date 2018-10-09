@@ -9,7 +9,6 @@
 #include <string>
 
 #include <format/format.h>
-#include "../clib/compilerspecifics.h"
 #include "../clib/esignal.h"
 #include "../clib/logfacility.h"
 #include "../clib/socketsvc.h"
@@ -28,7 +27,7 @@ namespace Pol
 {
 namespace Core
 {
-class UoClientThread : public Clib::SocketClientThread
+class UoClientThread final : public Clib::SocketClientThread
 {
 public:
   UoClientThread( UoClientListener* def, Clib::SocketListener& SL )
@@ -37,7 +36,7 @@ public:
   }
   UoClientThread( UoClientThread& copy )
       : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ){};
-  virtual void run() POL_OVERRIDE;
+  virtual void run() override;
   void create();
   virtual ~UoClientThread(){};
 

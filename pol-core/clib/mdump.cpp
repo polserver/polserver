@@ -222,14 +222,14 @@ public:
 
 protected:
   // no output
-  virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) POL_OVERRIDE {}
+  virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) override {}
   virtual void OnLoadModule( LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result,
-                             LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) POL_OVERRIDE
+                             LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) override
   {
   }
-  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) POL_OVERRIDE{};
-  virtual void OnOutput( LPCSTR szText ) POL_OVERRIDE { _log << szText; }
-  virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry& entry ) POL_OVERRIDE
+  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) override{};
+  virtual void OnOutput( LPCSTR szText ) override { _log << szText; }
+  virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry& entry ) override
   {
     try
     {

@@ -4,7 +4,6 @@
  */
 #include <stdlib.h>
 
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../../plib/mapcell.h"
 #include "../baseobject.h"

@@ -116,11 +116,11 @@ void BStruct::FormatForStringRep( std::ostream& os, const std::string& key,
   os << key << " = " << bvalref->impref().getFormattedStringRep();
 }
 
-class BStructIterator : public ContIterator
+class BStructIterator final : public ContIterator
 {
 public:
   BStructIterator( BStruct* pDict, BObject* pIterVal );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   BObject m_StructObj;

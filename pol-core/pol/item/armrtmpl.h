@@ -27,8 +27,8 @@ public:
   ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg,
              bool forceShield = false );
   virtual ~ArmorDesc(){};
-  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const POL_OVERRIDE;
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual void PopulateStruct( Bscript::BStruct* descriptor ) const override;
+  virtual size_t estimatedSize() const override;
 
   unsigned short ar;
   std::set<unsigned short> zones;

@@ -7,7 +7,7 @@ namespace Pol
 {
 namespace Clib
 {
-class PolToolMain : public ProgramMain
+class PolToolMain final : public ProgramMain
 {
 public:
   PolToolMain();

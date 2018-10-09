@@ -7,7 +7,6 @@
 #ifndef H_COMPILER_H
 #define H_COMPILER_H
 
-#include "../clib/compilerspecifics.h"
 #include "compctx.h"
 #include "tokens.h"
 #include "userfunc.h"
@@ -117,7 +116,7 @@ private:
   friend class Compiler;
 };
 
-class Compiler : public SmartParser
+class Compiler final : public SmartParser
 {
 public:
   static bool check_filecase_;
@@ -210,22 +209,22 @@ public:
   void addModule( FunctionalityModule* module );
   int useModule( const char* modulename );
   int includeModule( const std::string& modulename );
-  virtual int isFunc( Token& tok, ModuleFunction** v ) POL_OVERRIDE;
-  virtual int isUserFunc( Token& tok, UserFunction** userfunc ) POL_OVERRIDE;
+  virtual int isFunc( Token& tok, ModuleFunction** v ) override;
+  virtual int isUserFunc( Token& tok, UserFunction** userfunc ) override;
 
   void patchoffset( unsigned instruc, unsigned newoffset );
   void addToken( Token& tok );
 
-  virtual int isLegal( Token& tok ) POL_OVERRIDE;
+  virtual int isLegal( Token& tok ) override;
 
-  virtual int getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr ) POL_OVERRIDE;
-  virtual int getArrayElements( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
-  virtual int getNewArrayElements( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
-  virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
-  virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) POL_OVERRIDE;
-  virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) POL_OVERRIDE;
+  virtual int getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr ) override;
+  virtual int getArrayElements( Expression& expr, CompilerContext& ctx ) override;
+  virtual int getNewArrayElements( Expression& expr, CompilerContext& ctx ) override;
+  virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) override;
+  virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) override;
+  virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) override;
   virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx,
-                                    Token* tok ) POL_OVERRIDE;
+                                    Token* tok ) override;
 
   int eatToken( CompilerContext& ctx, BTokenId tokenid );
   int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = NULL,

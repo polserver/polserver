@@ -39,7 +39,6 @@
 #include <vector>
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
@@ -349,45 +348,45 @@ private:
 
   // UOBJECT INTERFACE
 public:
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
-  virtual void destroy() POL_OVERRIDE;
-  virtual unsigned int weight() const POL_OVERRIDE;
+  virtual void destroy() override;
+  virtual unsigned int weight() const override;
 
-  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
-  virtual void on_color_changed() POL_OVERRIDE;
-  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
-  virtual void on_facing_changed() POL_OVERRIDE;
+  virtual bool setgraphic( u16 newobjtype ) override;
+  virtual void on_color_changed() override;
+  virtual void setfacing( u8 newfacing ) override;
+  virtual void on_facing_changed() override;
 
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
 
-  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
+  virtual Bscript::BObjectImp* make_ref() override;
 
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  // id test
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  // id test
   virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+                                                  const std::string& value ) override;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      POL_OVERRIDE;  // id test
+      override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
+                                                     int value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) POL_OVERRIDE;
+                                                            double value ) override;
   virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+                                              Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-  virtual const char* target_tag() const POL_OVERRIDE;
+                                                     Bscript::Executor& ex ) override;
+  virtual bool script_isa( unsigned isatype ) const override;
+  virtual const char* target_tag() const override;
 
 protected:
-  virtual const char* classname() const POL_OVERRIDE;
-  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+  virtual const char* classname() const override;
+  virtual void printOn( Clib::StreamWriter& sw ) const override;
+  virtual void printSelfOn( Clib::StreamWriter& sw ) const override;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void printDebugProperties( Clib::StreamWriter& sw ) const override;
 
 public:
   Bscript::BObjectImp* make_offline_ref();

@@ -14,7 +14,6 @@
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/clib.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/random.h"
 #include "../../clib/rawtypes.h"
@@ -99,7 +98,7 @@ NPCExecutorModule::~NPCExecutorModule()
 
 BApplicObjType bounding_box_type;
 
-class BoundingBoxObjImp : public BApplicObj<Mobile::BoundingBox>
+class BoundingBoxObjImp final : public BApplicObj<Mobile::BoundingBox>
 {
 public:
   BoundingBoxObjImp() : BApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
@@ -107,9 +106,9 @@ public:
       : BApplicObj<Mobile::BoundingBox>( &bounding_box_type, b )
   {
   }
-  virtual const char* typeOf() const POL_OVERRIDE { return "BoundingBox"; }
-  virtual u8 typeOfInt() const POL_OVERRIDE { return OTBoundingBox; }
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new BoundingBoxObjImp( value() ); }
+  virtual const char* typeOf() const override { return "BoundingBox"; }
+  virtual u8 typeOfInt() const override { return OTBoundingBox; }
+  virtual BObjectImp* copy() const override { return new BoundingBoxObjImp( value() ); }
 };
 
 /* IsLegalMove: parameters (move, bounding box)*/

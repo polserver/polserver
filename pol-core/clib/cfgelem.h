@@ -55,7 +55,7 @@ class ConfigElem : public ConfigElemBase
 public:
   ConfigElem();
   virtual ~ConfigElem();
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual size_t estimateSize() const override;
   friend class ConfigFile;
 
   bool has_prop( const char* propname ) const;

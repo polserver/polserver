@@ -69,7 +69,7 @@ protected:
   bool _read( VectorConfigElem& elem );
   virtual void display_error( const std::string& msg, bool show_curline = true,
                               const ConfigElemBase* elem = NULL,
-                              bool error = true ) const POL_OVERRIDE;
+                              bool error = true ) const override;
   POL_NORETURN void display_and_rethrow_exception();
   void register_allowed_type( const char* allowed_type );
 
@@ -93,7 +93,7 @@ class StubConfigSource : public ConfigSource
 {
 public:
   virtual void display_error( const std::string& msg, bool show_curline, const ConfigElemBase* elem,
-                              bool error ) const POL_OVERRIDE;
+                              bool error ) const override;
 };
 }
 }

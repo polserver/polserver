@@ -10,7 +10,6 @@
 #define BOATCOMP_H
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
 #include "../item/item.h"
@@ -37,22 +36,22 @@ class BObjectImp;
 }
 namespace Multi
 {
-class UPlank : public Core::ULockable
+class UPlank final : public Core::ULockable
 {
   typedef Core::ULockable base;
 
 public:
   void setboat( UBoat* boat );
   virtual ~UPlank(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
 protected:
   explicit UPlank( const Items::ItemDesc& descriptor );
   friend Items::Item* Items::Item::create( const Items::ItemDesc& descriptor, u32 serial );
 
-  virtual void destroy() POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
+  virtual void destroy() override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
 
 private:
   ref_ptr<UBoat> boat_;

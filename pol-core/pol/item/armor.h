@@ -12,7 +12,6 @@
 #include <string>
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../dynproperties.h"
 #include "../scrdef.h"
@@ -44,17 +43,17 @@ namespace Items
 class ArmorDesc;
 class Item;
 
-class UArmor : public Equipment
+class UArmor final : public Equipment
 {
   typedef Equipment base;
 
 public:
-  virtual ~UArmor(){};
+  virtual ~UArmor() = default;
   virtual unsigned short ar() const;
   virtual unsigned short ar_base() const;
   virtual bool covers( unsigned short zlayer ) const;
-  virtual Item* clone() const POL_OVERRIDE;
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual Item* clone() const override;
+  virtual size_t estimatedSize() const override;
 
   void set_onhitscript( const std::string& scriptname );
   std::set<unsigned short> tmplzones();
@@ -62,19 +61,19 @@ public:
   DYN_PROPERTY( ar_mod, s16, Core::PROP_AR_MOD, 0 );
 
 protected:
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
 
   virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+                                                  const std::string& value ) override;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      POL_OVERRIDE;  // id test
+      override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+                                                     int value ) override;  // id test
+  virtual bool script_isa( unsigned isatype ) const override;
 
   UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor );
   friend class Item;

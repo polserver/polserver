@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "../clib/boostutils.h"
+#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "executortype.h"

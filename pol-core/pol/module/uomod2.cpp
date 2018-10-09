@@ -45,7 +45,6 @@
 #include "../../clib/Program/ProgramConfig.h"
 #include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/make_unique.hpp"
 #include "../../clib/passert.h"
@@ -1239,17 +1238,17 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
   return new BLong( 0 );
 }
 
-class BIntHash : public BObjectImp
+class BIntHash final : public BObjectImp
 {
 public:
   BIntHash();
   BIntHash( const BIntHash& );
   void add( int key, BObjectImp* value );
-  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
-  virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  virtual BObjectRef get_member( const char* membername ) override;
+  virtual BObjectRef OperSubscript( const BObject& obj ) override;
+  virtual BObjectImp* copy() const override;
+  virtual std::string getStringRep() const override;
+  virtual size_t sizeEstimate() const override;
 
 private:
   typedef std::map<int, BObjectRef> Contents;
@@ -1658,17 +1657,17 @@ void handle_textentry( Client* client, PKTIN_AC* msg )
   client->gd->textentry_uoemod = nullptr;
 }
 
-class PolCore : public BObjectImp
+class PolCore final : public BObjectImp
 {
 public:
   PolCore();
-  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-  virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( PolCore ); }
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
+  virtual BObjectRef get_member( const char* membername ) override;
+  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
+  virtual BObjectImp* copy() const override;
+  virtual std::string getStringRep() const override;
+  virtual size_t sizeEstimate() const override { return sizeof( PolCore ); }
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
 
 private:
   // not implemented:

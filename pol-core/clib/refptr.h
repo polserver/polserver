@@ -18,7 +18,6 @@
 #define __REFPTR_H
 
 #include "compilerspecifics.h"
-
 #include <atomic>
 
 // **** base class for ref counted classes

@@ -83,7 +83,6 @@
 #include "../../clib/cfgelem.h"
 #include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
@@ -182,13 +181,13 @@ using namespace Core;
 
 #define CONST_DEFAULT_ZRANGE 19
 
-class EMenuObjImp : public BApplicObj<Menu>
+class EMenuObjImp final : public BApplicObj<Menu>
 {
 public:
   EMenuObjImp( const Menu& m ) : BApplicObj<Menu>( &menu_type, m ) {}
-  virtual const char* typeOf() const POL_OVERRIDE { return "MenuRef"; }
-  virtual u8 typeOfInt() const POL_OVERRIDE { return OTMenuRef; }
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new EMenuObjImp( value() ); }
+  virtual const char* typeOf() const override { return "MenuRef"; }
+  virtual u8 typeOfInt() const override { return OTMenuRef; }
+  virtual BObjectImp* copy() const override { return new EMenuObjImp( value() ); }
 };
 
 

@@ -12,7 +12,6 @@
 #include <stddef.h>
 #include <string>
 
-#include "../clib/compilerspecifics.h"
 #include "tokens.h"
 
 namespace Pol
@@ -153,7 +152,7 @@ public:
   virtual ~SmartParser() {}
 
 protected:
-  virtual int tryLiteral( Token& tok, CompilerContext& ctx ) POL_OVERRIDE;
+  virtual int tryLiteral( Token& tok, CompilerContext& ctx ) override;
 
   class ModuleFunction* modfunc_;
   UserFunction* userfunc_;
@@ -168,8 +167,8 @@ public:
 
   virtual int isUserFunc( Token& tok, UserFunction** userfunc );
 
-  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* ) POL_OVERRIDE;
-  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL ) POL_OVERRIDE;
+  virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* ) override;
+  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL ) override;
 
   bool callingMethod( CompilerContext& ctx );
 

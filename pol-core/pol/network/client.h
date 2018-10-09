@@ -139,7 +139,7 @@ public:
 
 private:
   void PreDelete();
-  virtual ~Client();
+  ~Client();
   bool preDisconnect;
   bool disconnect;  // if 1, disconnect this client
 

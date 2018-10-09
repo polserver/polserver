@@ -60,11 +60,11 @@ BDictionary::BDictionary( std::istream& is, unsigned size, BObjectType type )
   }
 }
 
-class BDictionaryIterator : public ContIterator
+class BDictionaryIterator final : public ContIterator
 {
 public:
   BDictionaryIterator( BDictionary* pDict, BObject* pIterVal );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   BObject m_DictObj;

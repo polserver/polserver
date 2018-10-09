@@ -16,7 +16,6 @@
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../clfunc.h"
 #include "../fnsearch.h"
@@ -54,21 +53,21 @@ PartyExecutorModule::PartyExecutorModule( Executor& exec )
 {
 }
 
-class EPartyRefObjImp : public BApplicObj<Core::PartyRef>
+class EPartyRefObjImp final : public BApplicObj<Core::PartyRef>
 {
 public:
   EPartyRefObjImp( Core::PartyRef pref );
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual bool isTrue() const POL_OVERRIDE;
-  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual BObjectImp* copy() const override;
+  virtual bool isTrue() const override;
+  virtual bool operator==( const BObjectImp& objimp ) const override;
 
-  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+  virtual BObjectRef get_member( const char* membername ) override;
+  virtual BObjectRef get_member_id( const int id ) override;  // id test
+  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
   virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
+                                      bool forcebuiltin = false ) override;
 };
 BApplicObjType party_type;
 EPartyRefObjImp::EPartyRefObjImp( Core::PartyRef pref )

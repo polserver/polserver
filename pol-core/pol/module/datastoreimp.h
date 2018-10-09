@@ -28,7 +28,7 @@ class Package;
 }
 namespace Module
 {
-class DataFileElement : public ref_counted
+class DataFileElement final : public ref_counted
 {
 public:
   DataFileElement();
@@ -42,7 +42,7 @@ typedef ref_ptr<DataFileElement> DataFileElementRef;
 // const int DF_KEYTYPE_STRING = 0x00; // currently unneeded
 const int DF_KEYTYPE_INTEGER = 0x01;
 
-class DataFileContents : public ref_counted
+class DataFileContents final : public ref_counted
 {
 public:
   DataFileContents( DataStoreFile* dsf );
@@ -78,19 +78,19 @@ typedef ref_ptr<DataFileContents> DataFileContentsRef;
 
 typedef Bscript::BApplicObj<DataFileContentsRef> DataFileRefObjImpBase;
 
-class DataFileRefObjImp : public DataFileRefObjImpBase
+class DataFileRefObjImp final : public DataFileRefObjImpBase
 {
 public:
   explicit DataFileRefObjImp( DataFileContentsRef dfref );
 
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
 
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) POL_OVERRIDE;
+                                               bool forcebuiltin = false ) override;
 };
 
 
@@ -108,18 +108,18 @@ public:
 };
 
 typedef Bscript::BApplicObj<DataFileElemObj> DataElemRefObjImpBase;
-class DataElemRefObjImp : public DataElemRefObjImpBase
+class DataElemRefObjImp final : public DataElemRefObjImpBase
 {
 public:
   DataElemRefObjImp( DataFileContentsRef dfcontents, DataFileElementRef dflem );
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
 
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) POL_OVERRIDE;
+                                               bool forcebuiltin = false ) override;
 };
 
 class DataStoreFile
@@ -128,7 +128,7 @@ public:
   explicit DataStoreFile( Clib::ConfigElem& elem );
   DataStoreFile( const std::string& descriptor, const Plib::Package* pkg, const std::string& name,
                  int flags );
-  virtual ~DataStoreFile();
+  ~DataStoreFile();
   size_t estimateSize() const;
   bool loaded() const;
   void load();

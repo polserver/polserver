@@ -16,7 +16,6 @@
 #include "executor.h"
 
 #include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
@@ -961,11 +960,11 @@ std::string ContIterator::getStringRep() const
   return "<iterator>";
 }
 
-class ArrayIterator : public ContIterator
+class ArrayIterator final : public ContIterator
 {
 public:
   ArrayIterator( ObjArray* pArr, BObject* pIterVal );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   size_t m_Index;

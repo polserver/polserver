@@ -10,7 +10,6 @@
 #include <map>
 #include <string>
 
-#include "../clib/compilerspecifics.h"
 #include "poltype.h"
 #include "proplist.h"
 #include "zone.h"
@@ -113,7 +112,7 @@ public:
   virtual T* getregion( const std::string& regionname );
 
 protected:
-  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const POL_OVERRIDE;
+  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const override;
 };
 
 template <class T>

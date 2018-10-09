@@ -50,8 +50,8 @@
 // Project Includes (be really really carefull what to include!)
 
 // explicit included since needed anyway for later includes
-#include "Debugging/LogSink.h"
 #include "compilerspecifics.h"
+#include "Debugging/LogSink.h"
 #include "message_queue.h"
 
 #include "fixalloc.h"

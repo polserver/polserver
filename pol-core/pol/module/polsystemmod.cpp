@@ -23,7 +23,6 @@
 #include "../../bscript/impstr.h"
 #include "../../clib/clib.h"
 #include "../../clib/clib_MD5.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/strutil.h"
@@ -71,18 +70,18 @@ private:
 Bscript::BApplicObjType packageobjimp_type;
 // typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
 typedef Bscript::BApplicObj<PackagePtrHolder> PackageObjImpBase;
-class PackageObjImp : public PackageObjImpBase
+class PackageObjImp final : public PackageObjImpBase
 {
   typedef PackageObjImpBase base;
 
 public:
   explicit PackageObjImp( const PackagePtrHolder& other );
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
 };
 PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
     : PackageObjImpBase( &packageobjimp_type, other )
