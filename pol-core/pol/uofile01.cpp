@@ -338,7 +338,7 @@ static void read_veridx()
   int num_version_records;
   Core::USTRUCT_VERSION vrec;
 
-  if ( Core::verfile != NULL )
+  if ( Core::verfile != nullptr )
   {
     // FIXME: should read this once per run, per file.
     fseek( verfile, 0, SEEK_SET );

@@ -31,7 +31,7 @@ int forspec( const char* spec, void ( *func )( const char* pathname ) )
     {
       ++nProc;
       strzcpy( fname, find.cFileName, lenleft );
-      if ( func != NULL )
+      if ( func != nullptr )
         ( *func )( fullpath );
     } while ( FindNextFile( hFind, &find ) );
     FindClose( hFind );

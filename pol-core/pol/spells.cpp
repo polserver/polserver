@@ -396,7 +396,7 @@ void register_spell( USpell* spell, unsigned short spellid )
 {
   if ( spellid >= gamestate.spells.size() )
   {
-    gamestate.spells.resize( spellid + 1, 0 );
+    gamestate.spells.resize( spellid + 1, nullptr );
   }
 
   if ( gamestate.spells[spellid] )

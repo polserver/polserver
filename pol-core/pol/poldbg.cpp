@@ -274,7 +274,7 @@ BObjectImp* create_debug_context()
 DebugContext::DebugContext()
     : _authorized( Plib::systemstate.config.debug_password.empty() ),
       _done( false ),
-      uoexec_wptr( 0 )
+      uoexec_wptr( nullptr )
 {
 }
 
@@ -686,7 +686,7 @@ std::string DebugContext::cmd_setscript( const std::string& rest, Results& /*res
 
 std::string DebugContext::cmd_funclist( const std::string& /*rest*/, Results& results )
 {
-  if ( _script.get() == 0 )
+  if ( _script.get() == nullptr )
     return "use setscript first";
 
   // no parameters.
@@ -712,7 +712,7 @@ std::string DebugContext::cmd_funclist( const std::string& /*rest*/, Results& re
 
 std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results )
 {
-  if ( _script.get() == 0 )
+  if ( _script.get() == nullptr )
     return "use setscript first";
 
   // parameter: file#
@@ -747,7 +747,7 @@ std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results
 
 std::string DebugContext::cmd_funcprof( const std::string& /*rest*/, Results& /*results*/ )
 {
-  if ( _script.get() == 0 )
+  if ( _script.get() == nullptr )
     return "use setscript first";
 
   return "";
@@ -983,7 +983,7 @@ std::string DebugContext::cmd_files( Results& results )
 {
   const EScriptProgram* prog = nullptr;
 
-  if ( _script.get() != 0 )
+  if ( _script.get() != nullptr )
     prog = _script.get();
   else if ( uoexec_wptr.exists() )
     prog = uoexec_wptr.get_weakptr()->prog();
@@ -1005,7 +1005,7 @@ std::string DebugContext::cmd_filecont( const std::string& rest, Results& result
 {
   const EScriptProgram* prog = nullptr;
 
-  if ( _script.get() != 0 )
+  if ( _script.get() != nullptr )
     prog = _script.get();
   else if ( uoexec_wptr.exists() )
     prog = uoexec_wptr.get_weakptr()->prog();

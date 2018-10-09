@@ -47,7 +47,7 @@ void FunctionalityModule::addFunction( const char* funcname, int nparams, UserFu
   functions.push_back( mf );
 
   // compiler only:
-  if ( uf != NULL )
+  if ( uf != nullptr )
     owned_userfuncs.push_back( uf );
 }
 

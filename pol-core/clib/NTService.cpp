@@ -18,7 +18,7 @@ namespace Pol
 namespace Clib
 {
 // static variables
-CNTService* CNTService::m_pThis = NULL;
+CNTService* CNTService::m_pThis = nullptr;
 
 CNTService::CNTService( const char* szServiceName )
 {
@@ -31,10 +31,10 @@ CNTService::CNTService( const char* szServiceName )
   strncpy( m_szServiceName, szServiceName, sizeof( m_szServiceName ) - 1 );
   m_iMajorVersion = 1;
   m_iMinorVersion = 0;
-  m_hEventSource = NULL;
+  m_hEventSource = nullptr;
 
   // set up the initial service status
-  m_hServiceStatus = NULL;
+  m_hServiceStatus = nullptr;
   m_Status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
   m_Status.dwCurrentState = SERVICE_STOPPED;
   m_Status.dwControlsAccepted = SERVICE_ACCEPT_STOP;
@@ -107,7 +107,7 @@ BOOL CNTService::ParseStandardArgs( int argc, char* argv[] )
       {
         // Get the executable file path
         char szFilePath[MAX_PATH];
-        ::GetModuleFileName( NULL, szFilePath, sizeof( szFilePath ) );
+        ::GetModuleFileName( nullptr, szFilePath, sizeof( szFilePath ) );
         printf( "%s removed. (You must delete the file (%s) yourself.)\n", m_szServiceName,
                 szFilePath );
       }
@@ -145,8 +145,8 @@ BOOL CNTService::IsInstalled()
   BOOL bResult = FALSE;
 
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( NULL,                     // local machine
-                                    NULL,                     // ServicesActive database
+  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                     // local machine
+                                    nullptr,                     // ServicesActive database
                                     SC_MANAGER_ALL_ACCESS );  // full access
   if ( hSCM )
   {
@@ -167,15 +167,15 @@ BOOL CNTService::IsInstalled()
 BOOL CNTService::Install()
 {
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( NULL,                     // local machine
-                                    NULL,                     // ServicesActive database
+  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                     // local machine
+                                    nullptr,                     // ServicesActive database
                                     SC_MANAGER_ALL_ACCESS );  // full access
   if ( !hSCM )
     return FALSE;
 
   // Get the executable file path
   char szFilePath[MAX_PATH];
-  ::GetModuleFileName( NULL, szFilePath, sizeof( szFilePath ) );
+  ::GetModuleFileName( nullptr, szFilePath, sizeof( szFilePath ) );
   strcat( szFilePath, " -s" );
 
   // Create the service
@@ -183,7 +183,7 @@ BOOL CNTService::Install()
       ::CreateService( hSCM, m_szServiceName, m_szServiceName, SERVICE_ALL_ACCESS,
                        SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS,
                        SERVICE_DEMAND_START,  // start condition
-                       SERVICE_ERROR_NORMAL, szFilePath, NULL, NULL, NULL, NULL, NULL );
+                       SERVICE_ERROR_NORMAL, szFilePath, nullptr, nullptr, nullptr, nullptr, nullptr );
   if ( !hService )
   {
     ::CloseServiceHandle( hSCM );
@@ -194,7 +194,7 @@ BOOL CNTService::Install()
   // Add the source name as a subkey under the Application
   // key in the EventLog service portion of the registry.
   char szKey[256];
-  HKEY hKey = NULL;
+  HKEY hKey = nullptr;
   strcpy( szKey, "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" );
   strcat( szKey, m_szServiceName );
   if (::RegCreateKey( HKEY_LOCAL_MACHINE, szKey, &hKey ) != ERROR_SUCCESS )
@@ -224,8 +224,8 @@ BOOL CNTService::Install()
 BOOL CNTService::Uninstall()
 {
   // Open the Service Control Manager
-  SC_HANDLE hSCM = ::OpenSCManager( NULL,                     // local machine
-                                    NULL,                     // ServicesActive database
+  SC_HANDLE hSCM = ::OpenSCManager( nullptr,                     // local machine
+                                    nullptr,                     // ServicesActive database
                                     SC_MANAGER_ALL_ACCESS );  // full access
   if ( !hSCM )
     return FALSE;
@@ -265,7 +265,7 @@ void CNTService::LogEvent( WORD wType, DWORD dwID, const char* pszS1, const char
   WORD iStr = 0;
   for ( WORD i = 0; i < 3; i++ )
   {
-    if ( ps[i] != NULL )
+    if ( ps[i] != nullptr )
       iStr++;
   }
 
@@ -273,15 +273,15 @@ void CNTService::LogEvent( WORD wType, DWORD dwID, const char* pszS1, const char
   // not then register it now
   if ( !m_hEventSource )
   {
-    m_hEventSource = ::RegisterEventSource( NULL,               // local machine
+    m_hEventSource = ::RegisterEventSource( nullptr,               // local machine
                                             m_szServiceName );  // source name
   }
 
   if ( m_hEventSource )
   {
     ::ReportEvent( m_hEventSource, wType, 0, dwID,
-                   NULL,  // sid
-                   iStr, 0, ps, NULL );
+                   nullptr,  // sid
+                   iStr, 0, ps, nullptr );
   }
 }
 
@@ -290,7 +290,7 @@ void CNTService::LogEvent( WORD wType, DWORD dwID, const char* pszS1, const char
 
 BOOL CNTService::StartService()
 {
-  SERVICE_TABLE_ENTRY st[] = {{m_szServiceName, ServiceMain}, {NULL, NULL}};
+  SERVICE_TABLE_ENTRY st[] = {{m_szServiceName, ServiceMain}, {nullptr, nullptr}};
 
   DebugMsg( "Calling StartServiceCtrlDispatcher()" );
   BOOL b = ::StartServiceCtrlDispatcher( st );
@@ -313,7 +313,7 @@ void CNTService::ServiceMain( DWORD /*dwArgc*/, LPTSTR* /*lpszArgv*/ )
   // Register the control request handler
   pService->m_Status.dwCurrentState = SERVICE_START_PENDING;
   pService->m_hServiceStatus = RegisterServiceCtrlHandler( pService->m_szServiceName, Handler );
-  if ( pService->m_hServiceStatus == NULL )
+  if ( pService->m_hServiceStatus == nullptr )
   {
     pService->LogEvent( EVENTLOG_ERROR_TYPE, EVMSG_CTRLHANDLERNOTINSTALLED );
     return;

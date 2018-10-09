@@ -135,8 +135,8 @@ public:
   virtual int tryNumeric( Token& tok, CompilerContext& ctx );
   virtual int tryLiteral( Token& tok, CompilerContext& ctx );
 
-  virtual int peekToken( const CompilerContext& ctx, Token& token, Expression* expr = NULL );
-  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL );
+  virtual int peekToken( const CompilerContext& ctx, Token& token, Expression* expr = nullptr );
+  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = nullptr );
 
 
   virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* token ) = 0;
@@ -168,7 +168,7 @@ public:
   virtual int isUserFunc( Token& tok, UserFunction** userfunc );
 
   virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* ) override;
-  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = NULL ) override;
+  virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = nullptr ) override;
 
   bool callingMethod( CompilerContext& ctx );
 

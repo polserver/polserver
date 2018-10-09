@@ -60,7 +60,7 @@ BSQLRow::BSQLRow( RES_WRAPPER result, MYSQL_ROW row, MYSQL_FIELD* fields )
 BObjectRef BSQLRow::OperSubscript( const BObject& obj )
 {
   const Bscript::BObjectImp& right = obj.impref();
-  if ( _result == 0 )
+  if ( _result == nullptr )
     return BObjectRef( new BError( "No result" ) );
   unsigned int num_fields = mysql_num_fields( _result->ptr() );
   if ( right.isa( OTLong ) )  // vector
@@ -72,7 +72,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     {
       return BObjectRef( new BError( "Index out of bounds" ) );
     }
-    else if ( _row[index - 1] == 0 )
+    else if ( _row[index - 1] == nullptr )
     {
       return BObjectRef( UninitObject::create() );
     }
@@ -94,7 +94,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     {
       if ( !strncmp( _fields[i].name, string.data(), _fields[i].name_length ) )
       {
-        if ( _row[i] == 0 )
+        if ( _row[i] == nullptr )
         {
           return BObjectRef( UninitObject::create() );
         }
@@ -147,10 +147,10 @@ BSQLResultSet::BSQLResultSet( int affected_rows )
 const char* BSQLResultSet::field_name( unsigned int index ) const
 {
   if ( !_result || _result->ptr() == nullptr )
-    return 0;
+    return nullptr;
   if ( index <= 0 || index > mysql_num_fields( _result->ptr() ) )
   {
-    return 0;
+    return nullptr;
   }
   return _fields[index - 1].name;
 }

@@ -65,7 +65,7 @@ private:
 template <size_t N, size_t B>
 fixed_allocator<N, B>::fixed_allocator()
 {
-  freelist_ = NULL;
+  freelist_ = nullptr;
   buffers = 0;
   requests = 0;
   max_requests = 0;
@@ -101,7 +101,7 @@ void* fixed_allocator<N, B>::allocate()
 #endif
 
   Buffer* p = freelist_;
-  if ( p != NULL )
+  if ( p != nullptr )
   {
     freelist_ = p->next;
     return p;
@@ -131,7 +131,7 @@ void* fixed_allocator<N, B>::refill()
     walk->next = next;
     walk++;
   }
-  walk->next = NULL;
+  walk->next = nullptr;
   freelist_ = morebuf + 1;
   return morebuf;
 }

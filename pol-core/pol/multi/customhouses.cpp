@@ -805,7 +805,7 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
 
   // call a script to do post processing (calc cost, yes/no confirm, consume cost, link teleporters)
   Core::ScriptDef sd;
-  if ( sd.config_nodie( "misc/customhousecommit.ecl", 0, 0 ) )
+  if ( sd.config_nodie( "misc/customhousecommit.ecl", nullptr, nullptr ) )
   {
     if ( sd.exists() )
     {

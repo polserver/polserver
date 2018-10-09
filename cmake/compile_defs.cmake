@@ -237,3 +237,12 @@ function(warning_suppression target)
     >
   )
 endfunction()
+
+function(use_tidy target)
+  if (ENABLE_TIDY)
+    set_target_properties(
+      ${target} PROPERTIES
+      CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
+    )
+  endif()
+endfunction()

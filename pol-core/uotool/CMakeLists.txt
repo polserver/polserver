@@ -22,3 +22,5 @@ if (${linux})
 endif()
 
 dist(${ex_name} .)
+
+use_tidy(${ex_name})

@@ -300,7 +300,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
     return new BError( "Invalid parameters" );
   }
   const char* name = result->field_name( index );
-  if ( name == 0 )
+  if ( name == nullptr )
     return new BError( "Column does not exist" );
   return new String( name );
 }

@@ -247,13 +247,13 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   {
   case AF_INET:
     if ( inet_ntop( AF_INET, &( (struct sockaddr_in*)serverAddr->ai_addr )->sin_addr, targetIP,
-                    INET_ADDRSTRLEN ) == NULL )
+                    INET_ADDRSTRLEN ) == nullptr )
       exit( 1 );
     break;
 
   case AF_INET6:
     if ( inet_ntop( AF_INET6, &( (struct sockaddr_in*)serverAddr->ai_addr )->sin_addr, targetIP,
-                    INET6_ADDRSTRLEN ) == NULL )
+                    INET6_ADDRSTRLEN ) == nullptr )
       exit( 1 );
     break;
 
@@ -321,11 +321,11 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
    */
   string host = "polserver.com";
   string url = "/pol/report_program_abort.php";
-  if ( ( m_programAbortReportingServer.c_str() != NULL ) &&
+  if ( ( m_programAbortReportingServer.c_str() != nullptr ) &&
        ( m_programAbortReportingServer != "" ) )
   {
     host = m_programAbortReportingServer;
-    if ( m_programAbortReportingUrl.c_str() != NULL )
+    if ( m_programAbortReportingUrl.c_str() != nullptr )
       url = m_programAbortReportingUrl;
   }
 
@@ -508,7 +508,7 @@ string ExceptionParser::getTrace()
 
       int res;
       funcnName = abi::__cxa_demangle( beginFuncName, funcnName, &funcNameSize, &res );
-      unsigned int binaryOffset = strtoul( beginBinaryOffset, NULL, 16 );
+      unsigned int binaryOffset = strtoul( beginBinaryOffset, nullptr, 16 );
       if ( res == 0 )
       {
         string funcnNameStr = ( funcnName ? funcnName : "" );
@@ -557,11 +557,11 @@ static void handleSignalLinux( int signal, siginfo_t* signalInfo, void* arg )
 {
   (void)arg;
   logExceptionSignal( signal );
-  if ( signalInfo != NULL )
+  if ( signalInfo != nullptr )
   {
     if ( signal == SIGSEGV )
     {
-      if ( signalInfo->si_addr != NULL )
+      if ( signalInfo->si_addr != nullptr )
         printf( "Segmentation fault detected - faulty memory reference at location: %p\n",
                 signalInfo->si_addr );
       else
@@ -626,24 +626,24 @@ void ExceptionParser::initGlobalExceptionCatching()
   sigemptyset( &sigAction.sa_mask );
   sigAction.sa_sigaction = handleSignalLinux;
   sigAction.sa_flags = SA_SIGINFO;
-  sigaction( SIGINT, &sigAction, NULL );
-  sigaction( SIGTERM, &sigAction, NULL );
-  sigaction( SIGSEGV, &sigAction, NULL );
-  sigaction( SIGABRT, &sigAction, NULL );
+  sigaction( SIGINT, &sigAction, nullptr );
+  sigaction( SIGTERM, &sigAction, nullptr );
+  sigaction( SIGSEGV, &sigAction, nullptr );
+  sigaction( SIGABRT, &sigAction, nullptr );
   sigAction.sa_sigaction = handleStackTraceRequestLinux;
-  sigaction( SIGUSR1, &sigAction, NULL );
+  sigaction( SIGUSR1, &sigAction, nullptr );
 
   // set handler stack
   stack_t tStack;
   // mmap: no false positives for leak, plus guardpages to get SIGSEGV on memory overwrites
-  char* mem = static_cast<char*>( mmap( NULL, SIGSTKSZ + 2 * getpagesize(), PROT_READ | PROT_WRITE,
+  char* mem = static_cast<char*>( mmap( nullptr, SIGSTKSZ + 2 * getpagesize(), PROT_READ | PROT_WRITE,
                                         MAP_PRIVATE | MAP_ANON, -1, 0 ) );
   mprotect( mem, getpagesize(), PROT_NONE );
   mprotect( mem + getpagesize() + SIGSTKSZ, getpagesize(), PROT_NONE );
   tStack.ss_sp = mem + getpagesize();
   tStack.ss_size = SIGSTKSZ;
   tStack.ss_flags = 0;
-  if ( sigaltstack( &tStack, NULL ) == -1 )
+  if ( sigaltstack( &tStack, nullptr ) == -1 )
   {
     printf( "Could not set signal handler stack\n" );
     exit( 1 );

@@ -69,7 +69,7 @@ public:
   virtual void* detach( void )
   {
     char* t = s;
-    s = NULL;
+    s = nullptr;
     usedLen = allocLen = 0;
     return t;
   }
@@ -85,13 +85,13 @@ class StoredTokenContainer final : public SymbolContainer
 {
 public:
   StoredToken* ST;
-  explicit StoredTokenContainer( int growBy = 512 ) : SymbolContainer( growBy ), ST( NULL ) {}
+  explicit StoredTokenContainer( int growBy = 512 ) : SymbolContainer( growBy ), ST( nullptr ) {}
   virtual void pack( void ) override;
   virtual void* detach( void ) override;
   virtual void resize( unsigned lengthToAdd ) override;
   void setcount( unsigned newCount ) { usedLen = newCount * sizeof( StoredToken ); }
   unsigned count( void ) const { return usedLen / sizeof( StoredToken ); }
-  void append_tok( const StoredToken& token, unsigned* position = NULL );
+  void append_tok( const StoredToken& token, unsigned* position = nullptr );
   void atPut1( const StoredToken& token, unsigned position );
   void atGet1( unsigned position, StoredToken& token ) const;
   unsigned next( void ) { return length() / sizeof( StoredToken ); }

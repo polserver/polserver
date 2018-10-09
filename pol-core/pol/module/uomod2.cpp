@@ -1997,7 +1997,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
       else if ( type == 3 )
       {
         POLLOG_ERROR << "Forcing crash\n";
-        int* i = 0;
+        int* i = nullptr;
         *i = 1;
       }
       else if ( type == 4 )

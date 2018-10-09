@@ -338,7 +338,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
     if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, 0, 0 );
+      stat_max = strtoul( maxpos, nullptr, 0 );
     if ( stat_total >= stat_min && stat_total <= stat_max )
       valid_stats = true;
   }
@@ -697,7 +697,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
     if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, 0, 0 );
+      stat_max = strtoul( maxpos, nullptr, 0 );
     if ( stat_total >= stat_min && stat_total <= stat_max )
       valid_stats = true;
   }
@@ -1090,7 +1090,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
     if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, 0, 0 );
+      stat_max = strtoul( maxpos, nullptr, 0 );
     if ( stat_total >= stat_min && stat_total <= stat_max )
       valid_stats = true;
   }

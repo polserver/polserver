@@ -44,7 +44,7 @@ ConfigProperty::ConfigProperty( std::string name, std::string value )
 {
 }
 
-ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( NULL ) {}
+ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( nullptr ) {}
 size_t ConfigElemBase::estimateSize() const
 {
   return type_.capacity() + rest_.capacity() + sizeof( _source );
@@ -187,7 +187,7 @@ void ConfigElem::get_prop( const char* propname, unsigned int* plong ) const
   auto itr = properties.find( propname );
   if ( itr != properties.end() )
   {
-    *plong = strtoul( ( *itr ).second.c_str(), NULL, 0 );
+    *plong = strtoul( ( *itr ).second.c_str(), nullptr, 0 );
   }
   else
   {
@@ -200,7 +200,7 @@ bool ConfigElem::remove_prop( const char* propname, unsigned int* plong )
   auto itr = properties.find( propname );
   if ( itr != properties.end() )
   {
-    *plong = strtoul( ( *itr ).second.c_str(), NULL, 0 );
+    *plong = strtoul( ( *itr ).second.c_str(), nullptr, 0 );
     properties.erase( itr );
     return true;
   }
@@ -217,7 +217,7 @@ bool VectorConfigElem::remove_prop( const char* propname, unsigned int* plong )
     ConfigProperty* prop = *itr;
     if ( stricmp( prop->name_.c_str(), propname ) == 0 )
     {
-      *plong = strtoul( prop->value_.c_str(), NULL, 0 );
+      *plong = strtoul( prop->value_.c_str(), nullptr, 0 );
       delete prop;
       properties.erase( itr );
       return true;
@@ -234,9 +234,9 @@ bool ConfigElem::remove_prop( const char* propname, unsigned short* psval )
     // FIXME isdigit isxdigit - +
     // or, use endptr
 
-    char* endptr = NULL;
+    char* endptr = nullptr;
     *psval = (unsigned short)strtoul( temp.c_str(), &endptr, 0 );
-    if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+    if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
     {
       std::string errmsg;
       errmsg = "Poorly formed number in property '";
@@ -263,9 +263,9 @@ bool VectorConfigElem::remove_prop( const char* propname, unsigned short* psval 
       // FIXME isdigit isxdigit - +
       // or, use endptr
 
-      char* endptr = NULL;
+      char* endptr = nullptr;
       *psval = (unsigned short)strtoul( prop->value_.c_str(), &endptr, 0 );
-      if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+      if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
       {
         std::string errmsg;
         errmsg = "Poorly formed number in property '";
@@ -284,26 +284,26 @@ bool VectorConfigElem::remove_prop( const char* propname, unsigned short* psval 
 
 void ConfigElem::throw_error( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, false, this );
   throw std::runtime_error( "Configuration file error" );
 }
 void VectorConfigElem::throw_error( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, false, this );
   throw std::runtime_error( "Configuration file error" );
 }
 
 void ConfigElem::warn( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, false, this, false );
 }
 
 void ConfigElem::warn_with_line( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, true, this, false );
 }
 
@@ -361,7 +361,7 @@ unsigned ConfigElem::remove_unsigned( const char* propname )
 {
   std::string temp = remove_string( propname );
 
-  return strtoul( temp.c_str(), NULL, 0 );  // TODO check unsigned range
+  return strtoul( temp.c_str(), nullptr, 0 );  // TODO check unsigned range
 }
 
 unsigned ConfigElem::remove_unsigned( const char* propname, int dflt )
@@ -369,7 +369,7 @@ unsigned ConfigElem::remove_unsigned( const char* propname, int dflt )
   std::string temp;
   if ( remove_prop( propname, &temp ) )
   {
-    return strtoul( temp.c_str(), NULL, 0 );  // TODO check unsigned range
+    return strtoul( temp.c_str(), nullptr, 0 );  // TODO check unsigned range
   }
   else
   {
@@ -438,7 +438,7 @@ float ConfigElem::remove_float( const char* propname, float dflt )
   std::string tmp;
   if ( remove_prop( propname, &tmp ) )
   {
-    return static_cast<float>( strtod( tmp.c_str(), NULL ) );
+    return static_cast<float>( strtod( tmp.c_str(), nullptr ) );
   }
   else
   {
@@ -450,7 +450,7 @@ double ConfigElem::remove_double( const char* propname, double dflt )
   std::string tmp;
   if ( remove_prop( propname, &tmp ) )
   {
-    return strtod( tmp.c_str(), NULL );
+    return strtod( tmp.c_str(), nullptr );
   }
   else
   {
@@ -544,7 +544,7 @@ ConfigFile::ConfigFile( const char* i_filename, const char* allowed_types_str )
 #if CFGFILE_USES_IOSTREAMS
       ifs(),
 #else
-      fp( NULL ),
+      fp( nullptr ),
 #endif
       _element_line_start( 0 ),
       _cur_line( 0 )
@@ -558,7 +558,7 @@ ConfigFile::ConfigFile( const std::string& i_filename, const char* allowed_types
 #if CFGFILE_USES_IOSTREAMS
       ifs(),
 #else
-      fp( NULL ),
+      fp( nullptr ),
 #endif
       _element_line_start( 0 ),
       _cur_line( 0 )
@@ -573,7 +573,7 @@ void ConfigFile::init( const char* i_filename, const char* allowed_types_str )
     open( i_filename );
   }
 
-  if ( allowed_types_str != NULL )
+  if ( allowed_types_str != nullptr )
   {
     ISTRINGSTREAM is( allowed_types_str );
     std::string tag;
@@ -628,7 +628,7 @@ ConfigFile::~ConfigFile()
 #if !CFGFILE_USES_IOSTREAMS
   if ( fp )
     fclose( fp );
-  fp = NULL;
+  fp = nullptr;
 #endif
 }
 
@@ -967,7 +967,7 @@ void ConfigFile::display_error( const std::string& msg, bool show_curline,
   tmp << ( error ? "Error" : "Warning" ) << " reading configuration file " << _filename << ":\n"
       << "\t" << msg << "\n";
 
-  if ( elem != NULL )
+  if ( elem != nullptr )
   {
     if ( strlen( elem->type() ) > 0 )
     {

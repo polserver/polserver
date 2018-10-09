@@ -741,7 +741,7 @@ void matchOperators( Operator* oplist, int n_ops, char* buf, int* nPartial,
   int lenbuf = buf[1] ? 2 : 1;
 
   *nPartial = 0;
-  *pTotalMatchOperator = NULL;
+  *pTotalMatchOperator = nullptr;
 
   if ( lenbuf == 1 )
   {
@@ -1050,8 +1050,8 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
 {
   int bufp = 0;
   int thisMatchPartial;
-  Operator* pLastMatch = NULL;
-  Operator* pMatch = NULL;
+  Operator* pLastMatch = nullptr;
+  Operator* pMatch = nullptr;
 
   while ( t && *t )
   {
@@ -1093,7 +1093,7 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
     }
   }
 
-  if ( pMatch == NULL )
+  if ( pMatch == nullptr )
     pMatch = pLastMatch;
 
   if ( pMatch )
@@ -2078,7 +2078,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
 {
   BTokenType last_type = TYP_TERMINATOR;
   Token last_token;
-  // Token* debug_last_tx_token = NULL;
+  // Token* debug_last_tx_token = nullptr;
   int done = 0;
   int res = 0;  // 1=done, -1=error, 0=not done
 
@@ -2123,7 +2123,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
             if (comma_term_allowed)
             {
             Token* tkn = expr.TX.top();
-            if (leftbracket_count > 0) // tkn != NULL && tkn->id == TOK_LBRACKET )
+            if (leftbracket_count > 0) // tkn != nullptr && tkn->id == TOK_LBRACKET )
             {
             // ignore commas if we're in a left bracket situation.
             ;
@@ -2397,7 +2397,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( _t );
 
       ObjMethod* objmeth = getKnownObjMethod( methodName.c_str() );
-      if ( objmeth != NULL && compilercfg.OptimizeObjectMembers )
+      if ( objmeth != nullptr && compilercfg.OptimizeObjectMembers )
       {
         ptok2->id = INS_CALL_METHOD_ID;
         ptok2->type = TYP_METHOD;

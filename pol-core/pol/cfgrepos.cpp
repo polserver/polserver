@@ -152,7 +152,7 @@ StoredConfigFile::ElemRef StoredConfigFile::findelem( int key )
 {
   ElementsByNum::const_iterator itr = elements_bynum_.find( key );
   if ( itr == elements_bynum_.end() )
-    return ElemRef( 0 );
+    return ElemRef( nullptr );
   else
     return ( *itr ).second;
 }
@@ -161,7 +161,7 @@ StoredConfigFile::ElemRef StoredConfigFile::findelem( const std::string& key )
 {
   ElementsByName::const_iterator itr = elements_byname_.find( key );
   if ( itr == elements_byname_.end() )
-    return ElemRef( 0 );
+    return ElemRef( nullptr );
   else
     return ( *itr ).second;
 }
@@ -291,7 +291,7 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
         }
       }
       if ( !any )
-        return ConfigFileRef( 0 );
+        return ConfigFileRef( nullptr );
       Core::configurationbuffer.cfgfiles.insert( CfgFiles::value_type( filename, scfg ) );
       return scfg;
     }
@@ -303,7 +303,7 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
         {
           DEBUGLOG << "Config File " << filename << " does not exist.\n";
         }
-        return ConfigFileRef( 0 );
+        return ConfigFileRef( nullptr );
       }
 
       Clib::ConfigFile cf( filename.c_str() );
@@ -319,7 +319,7 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
     // There was some weird problem reading the config file.
     DEBUGLOG << "An exception was encountered while reading " << filename << ": " << ex.what()
              << "\n";
-    return ConfigFileRef( 0 );
+    return ConfigFileRef( nullptr );
   }
 }
 
@@ -327,7 +327,7 @@ ConfigFileRef LoadTusScpFile( const std::string& filename )
 {
   if ( !Clib::FileExists( filename.c_str() ) )
   {
-    return ConfigFileRef( 0 );
+    return ConfigFileRef( nullptr );
   }
 
   ref_ptr<StoredConfigFile> scfg( new StoredConfigFile() );

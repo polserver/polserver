@@ -70,7 +70,7 @@ int eatToCommentEnd( CompilerContext& ctx )
 }  // namespace
 
 CompilerContext::CompilerContext()
-    : s( NULL ), line( 1 ), filename( "" ), s_begin( NULL ), dbg_filenum( 0 )
+    : s( nullptr ), line( 1 ), filename( "" ), s_begin( nullptr ), dbg_filenum( 0 )
 {
 }
 

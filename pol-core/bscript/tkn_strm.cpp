@@ -41,12 +41,12 @@ void Token::printOn( std::ostream& os ) const
     break;
   case TOK_LOCALVAR:
     os << "local #" << lval;
-    if ( token != NULL )
+    if ( token != nullptr )
       os << " (" << token << ")";
     break;
   case TOK_GLOBALVAR:
     os << "global #" << lval;
-    if ( token != NULL )
+    if ( token != nullptr )
       os << " (" << token << ")";
     break;
 

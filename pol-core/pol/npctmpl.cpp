@@ -52,7 +52,7 @@ int translate( const std::string& name, TRANSLATION* table )
 TRANSLATION xlate_align[] = {{"good", NpcTemplate::GOOD},
                              {"neutral", NpcTemplate::NEUTRAL},
                              {"evil", NpcTemplate::EVIL},
-                             {0, 0}};
+                             {nullptr, 0}};
 
 
 NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg )

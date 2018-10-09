@@ -58,7 +58,7 @@ bool JusticeRegion::RunEnterScript( Mobile::Character* chr )
     return false;
 
   ScriptDef sd;
-  if ( !sd.config_nodie( enter_script_, 0, 0 ) )
+  if ( !sd.config_nodie( enter_script_, nullptr, nullptr ) )
     return false;
   if ( !sd.exists() )
     return false;
@@ -74,7 +74,7 @@ bool JusticeRegion::RunLeaveScript( Mobile::Character* chr )
     return false;
 
   ScriptDef sd;
-  if ( !sd.config_nodie( leave_script_, 0, 0 ) )
+  if ( !sd.config_nodie( leave_script_, nullptr, nullptr ) )
     return false;
   if ( !sd.exists() )
     return false;

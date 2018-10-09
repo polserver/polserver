@@ -167,7 +167,7 @@ private:
   Variables globals_;
 
   bool globalexists( const std::string& varname, unsigned& idx,
-                     CompilerContext* atctx = NULL ) const;
+                     CompilerContext* atctx = nullptr ) const;
 
   Scope localscope;
 
@@ -185,7 +185,7 @@ private:
   void enterblock( eb_label_ok eblabel, eb_break_ok ebbreak, eb_continue_ok ebcontinue );
   void enterblock( eb_label_ok et );
   int readblock( CompilerContext& ctx, int level, BTokenId endtokenid,
-                 BTokenId* last_statement_id = NULL, Token* block_end = NULL );
+                 BTokenId* last_statement_id = nullptr, Token* block_end = nullptr );
   void leaveblock( unsigned breakPC, unsigned continuePC );
   void emit_leaveblock();
   void patchblock_continues( unsigned continuePC );
@@ -227,10 +227,10 @@ public:
                                     Token* tok ) override;
 
   int eatToken( CompilerContext& ctx, BTokenId tokenid );
-  int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = NULL,
-               Expression* ex = NULL );
-  int getExpr2( CompilerContext& ctx, unsigned expr_flags, Expression* ex = NULL );
-  int getExprInParens( CompilerContext& ctx, Expression* ex = NULL );
+  int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = nullptr,
+               Expression* ex = nullptr );
+  int getExpr2( CompilerContext& ctx, unsigned expr_flags, Expression* ex = nullptr );
+  int getExprInParens( CompilerContext& ctx, Expression* ex = nullptr );
   int getSimpleExpr( CompilerContext& ctx );
 
   int handleProgram( CompilerContext& ctx, int level );

@@ -99,7 +99,7 @@ void MapServer::LoadFirstLevelIndex()
     }
     else
     {
-      _index1[i] = NULL;
+      _index1[i] = nullptr;
     }
   }
 }

@@ -530,7 +530,7 @@ void UContainer::remove( Items::Item* item )
     POLLOG.Format( "UContainer::remove(Item*), serial=0x{:X}, item=0x{:X}, item->cont=0x{:X}\n" )
         << serial << item->serial << item->container->serial;
     passert_always( item->container == this );
-    int* p = 0;
+    int* p = nullptr;
     *p = 6;
   }
 

@@ -1076,7 +1076,7 @@ bool ObjArray::operator==( const BObjectImp& imp ) const
 
     const BObject* thisobj = thisref.get();
     const BObject* thatobj = thatref.get();
-    if ( thisobj != NULL && thatobj != NULL )
+    if ( thisobj != nullptr && thatobj != nullptr )
     {
       const BObjectImp& thisimp = thisobj->impref();
       const BObjectImp& thatimp = thatobj->impref();
@@ -1086,7 +1086,7 @@ bool ObjArray::operator==( const BObjectImp& imp ) const
       else
         return false;
     }
-    else if ( thisobj == NULL && thatobj == NULL )
+    else if ( thisobj == nullptr && thatobj == nullptr )
     {
       continue;
     }
@@ -1102,10 +1102,10 @@ const BObjectImp* ObjArray::imp_at( unsigned index /* 1-based */ ) const
 {
   assert( index > 0 );
   if ( index > ref_arr.size() )
-    return NULL;
+    return nullptr;
   const BObjectRef& ref = ref_arr[index - 1];
-  if ( ref.get() == NULL )
-    return NULL;
+  if ( ref.get() == nullptr )
+    return nullptr;
   return ref.get()->impptr();
 }
 
@@ -1126,7 +1126,7 @@ BObjectImp* ObjArray::array_assign( BObjectImp* idx, BObjectImp* target, bool co
 
     BObjectImp* new_target = copy ? target->copy() : target;
 
-    if ( refobj != NULL )
+    if ( refobj != nullptr )
     {
       refobj->setimp( new_target );
     }
@@ -1335,7 +1335,7 @@ BObjectRef ObjArray::OperSubscript( const BObject& rightobj )
       return BObjectRef( new BError( "Array index out of bounds" ) );
 
     BObjectRef& ref = ref_arr[index - 1];
-    if ( ref.get() == NULL )
+    if ( ref.get() == nullptr )
       ref.set( new BObject( UninitObject::create() ) );
     return ref;
   }
@@ -1416,7 +1416,7 @@ std::string ObjArray::getStringRep() const
 
     BObject* bo = elem.get();
 
-    if ( bo != NULL )
+    if ( bo != nullptr )
     {
       std::string tmp = bo->impptr()->getStringRep();
       os << tmp;
@@ -1434,7 +1434,7 @@ long ObjArray::contains( const BObjectImp& imp ) const
     if ( itr->get() )
     {
       BObject* bo = ( itr->get() );
-      if ( bo == NULL )
+      if ( bo == nullptr )
       {
         INFO_PRINT << Clib::scripts_thread_script << " - '" << imp
                    << " in array{}' check. Invalid data at index " << ( itr - ref_arr.begin() ) + 1
@@ -1457,7 +1457,7 @@ public:
   {
     const BObject* b1 = x1.get();
     const BObject* b2 = x2.get();
-    if ( b1 == NULL || b2 == NULL )
+    if ( b1 == nullptr || b2 == nullptr )
       return ( &x1 < &x2 );
 
     const BObject& r1 = *b1;
@@ -1489,7 +1489,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         }
         else
         {
-          return NULL;
+          return nullptr;
         }
       }
       else
@@ -1524,7 +1524,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         int idx;
         BObjectImp* imp = ex.getParamImp( 1 );
         if ( ex.getParam( 0, idx, 1, static_cast<int>( ref_arr.size() + 1 ) ) &&
-             imp != NULL )  // 1-based index
+             imp != nullptr )  // 1-based index
         {
           --idx;
           BObjectRef tmp;
@@ -1644,8 +1644,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
         {
           const BObjectRef& ref =
               ref_arr[Clib::random_int( static_cast<int>( ref_arr.size() ) - 1 )];
-          if ( ref.get() == NULL )
-            return NULL;
+          if ( ref.get() == nullptr )
+            return nullptr;
           return ref.get()->impptr();
         }
       }
@@ -1772,18 +1772,18 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
     break;
   }
   default:
-    return NULL;
+    return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 BObjectImp* ObjArray::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 void ObjArray::packonto( std::ostream& os ) const
@@ -1824,7 +1824,7 @@ BObjectImp* ObjArray::unpack( std::istream& is )
   for ( unsigned i = 0; i < arrsize; ++i )
   {
     BObjectImp* imp = BObjectImp::unpack( is );
-    if ( imp != NULL && !imp->isa( OTUninit ) )
+    if ( imp != nullptr && !imp->isa( OTUninit ) )
     {
       arr->ref_arr[i].set( new BObject( imp ) );
     }

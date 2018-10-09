@@ -47,7 +47,7 @@ BStruct::BStruct( std::istream& is, unsigned size, BObjectType type )
   {
     BObjectImp* keyimp = BObjectImp::unpack( is );
     BObjectImp* valimp = BObjectImp::unpack( is );
-    if ( keyimp != NULL && valimp != NULL && keyimp->isa( OTString ) )
+    if ( keyimp != nullptr && valimp != nullptr && keyimp->isa( OTString ) )
     {
       String* str = static_cast<String*>( keyimp );
 
@@ -144,7 +144,7 @@ BObject* BStructIterator::step()
   {
     auto itr = m_pStruct->contents_.begin();
     if ( itr == m_pStruct->contents_.end() )
-      return NULL;
+      return nullptr;
 
     m_First = false;
     key = ( *itr ).first;
@@ -157,10 +157,10 @@ BObject* BStructIterator::step()
   {
     auto itr = m_pStruct->contents_.find( key );
     if ( itr == m_pStruct->contents_.end() )
-      return NULL;
+      return nullptr;
     ++itr;
     if ( itr == m_pStruct->contents_.end() )
-      return NULL;
+      return nullptr;
 
     key = ( *itr ).first;
     m_IterVal->setimp( new String( key ) );
@@ -224,7 +224,7 @@ const BObjectImp* BStruct::FindMember( const char* name )
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -327,7 +327,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "struct.size() doesn't take parameters." );
 
   case MTH_ERASE:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
@@ -341,8 +341,8 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     }
     break;
   case MTH_INSERT:
-    if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != NULL &&
-         ( valobj = ex.getParamObj( 1 ) ) != NULL )
+    if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr &&
+         ( valobj = ex.getParamObj( 1 ) ) != nullptr )
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
@@ -356,7 +356,7 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
     }
     break;
   case MTH_EXISTS:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
     {
       if ( !keyobj->isa( OTString ) )
         return new BError( "Struct keys must be strings" );
@@ -383,17 +383,17 @@ BObjectImp* BStruct::call_method_id( const int id, Executor& ex, bool /*forcebui
       return new BError( "struct.keys() doesn't take parameters." );
     break;
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
 BObjectImp* BStruct::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 void BStruct::packonto( std::ostream& os ) const

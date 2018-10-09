@@ -266,7 +266,7 @@ bool Socket::select( unsigned int seconds, unsigned int useconds )
   {
     timeout.tv_sec = seconds;
     timeout.tv_usec = useconds;
-    res = ::select( nfds, &fd, NULL, NULL, &timeout );
+    res = ::select( nfds, &fd, nullptr, nullptr, &timeout );
   } while ( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
   return ( res > 0 && FD_ISSET( _sck, &fd ) );
@@ -274,7 +274,7 @@ bool Socket::select( unsigned int seconds, unsigned int useconds )
 
 bool Socket::accept( SOCKET* s, unsigned int /*mstimeout*/ )
 {
-  *s = ::accept( _sck, NULL, NULL );
+  *s = ::accept( _sck, nullptr, nullptr );
   if ( *s != INVALID_SOCKET )
   {
     apply_socket_options( *s );
@@ -340,7 +340,7 @@ void Socket::HandleError()
 #if SCK_WATCH
   if ( FormatMessage( FORMAT_MESSAGE_FROM_HMODULE, GetModuleHandle( TEXT( "wsock32" ) ), ErrVal,
                       MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), ErrorBuffer, sizeof ErrorBuffer,
-                      NULL ) == 0 )
+                      nullptr ) == 0 )
   {
     sprintf( ErrorBuffer, "Unknown error code 0x%08x", ErrVal );
   }
@@ -374,7 +374,7 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
   {
     tv.tv_sec = 0;
     tv.tv_usec = waitms * 1000;
-    res = ::select( nfds, &fd, NULL, NULL, &tv );
+    res = ::select( nfds, &fd, nullptr, nullptr, &tv );
   } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
   if ( res == 0 )
@@ -440,7 +440,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     {
       tv.tv_sec = 0;
       tv.tv_usec = waitms * 1000;
-      res = ::select( nfds, &fd, NULL, NULL, &tv );
+      res = ::select( nfds, &fd, nullptr, nullptr, &tv );
     } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
     if ( res == 0 )
@@ -511,7 +511,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   {
     tv.tv_sec = wait_sec;
     tv.tv_usec = 0;
-    res = ::select( nfds, &fd, NULL, NULL, &tv );
+    res = ::select( nfds, &fd, nullptr, nullptr, &tv );
   } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
   if ( res == 0 )

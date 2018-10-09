@@ -38,14 +38,14 @@ class ConfigSource
 public:
   virtual ~ConfigSource() {}
   virtual void display_error( const std::string& msg, bool show_curline = true,
-                              const ConfigElemBase* elem = NULL, bool error = true ) const = 0;
+                              const ConfigElemBase* elem = nullptr, bool error = true ) const = 0;
 };
 
 class ConfigFile : public ConfigSource
 {
 public:
-  explicit ConfigFile( const char* filename = NULL, const char* allowed_types = NULL );
-  explicit ConfigFile( const std::string& filename, const char* allowed_types = NULL );
+  explicit ConfigFile( const char* filename = nullptr, const char* allowed_types = nullptr );
+  explicit ConfigFile( const std::string& filename, const char* allowed_types = nullptr );
   virtual ~ConfigFile();
 
   void open( const char* i_filename );
@@ -68,7 +68,7 @@ protected:
   bool _read( ConfigElem& elem );
   bool _read( VectorConfigElem& elem );
   virtual void display_error( const std::string& msg, bool show_curline = true,
-                              const ConfigElemBase* elem = NULL,
+                              const ConfigElemBase* elem = nullptr,
                               bool error = true ) const override;
   POL_NORETURN void display_and_rethrow_exception();
   void register_allowed_type( const char* allowed_type );

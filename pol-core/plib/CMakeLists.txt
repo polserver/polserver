@@ -20,3 +20,5 @@ endif()
 if(${windows})
   set_source_files_properties(uopreader/uop.cpp PROPERTIES COMPILE_FLAGS /wd4100)
 endif()
+
+use_tidy(${lib_name})

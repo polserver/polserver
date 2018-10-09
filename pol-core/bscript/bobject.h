@@ -451,7 +451,7 @@ inline void BObject::setimp( BObjectImp* imp )
 class BObjectRef : public ref_ptr<BObject>
 {
 public:
-  explicit BObjectRef( BObject* pobj = NULL ) : ref_ptr<BObject>( pobj ) {}
+  explicit BObjectRef( BObject* pobj = nullptr ) : ref_ptr<BObject>( pobj ) {}
   explicit BObjectRef( BObjectImp* pimp ) : ref_ptr<BObject>( new BObject( pimp ) ) {}
   void set( BObject* obj ) { ref_ptr<BObject>::set( obj ); }
   size_t sizeEstimate() const;
@@ -483,7 +483,7 @@ public:
   static void ReleaseSharedInstance()
   {
     SharedInstanceOwner.clear();
-    SharedInstance = NULL;
+    SharedInstance = nullptr;
   }
 };
 extern Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;

@@ -45,7 +45,7 @@ BDictionary::BDictionary( std::istream& is, unsigned size, BObjectType type )
   {
     BObjectImp* keyimp = BObjectImp::unpack( is );
     BObjectImp* valimp = BObjectImp::unpack( is );
-    if ( keyimp != NULL && valimp != NULL )
+    if ( keyimp != nullptr && valimp != nullptr )
     {
       BObject keyobj( keyimp );
       contents_[keyobj].set( new BObject( valimp ) );
@@ -89,7 +89,7 @@ BObject* BDictionaryIterator::step()
   {
     auto itr = m_pDict->contents_.begin();
     if ( itr == m_pDict->contents_.end() )
-      return NULL;
+      return nullptr;
 
     m_First = false;
     const BObject& okey = ( *itr ).first;
@@ -103,10 +103,10 @@ BObject* BDictionaryIterator::step()
   {
     auto itr = m_pDict->contents_.find( m_Key );
     if ( itr == m_pDict->contents_.end() )
-      return NULL;
+      return nullptr;
     ++itr;
     if ( itr == m_pDict->contents_.end() )
-      return NULL;
+      return nullptr;
 
     const BObject& okey = ( *itr ).first;
     m_Key.setimp( okey.impptr()->copy() );
@@ -260,7 +260,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
       return new BError( "dictionary.size() doesn't take parameters." );
     break;
   case MTH_ERASE:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
     {
       if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
               keyobj->isa( OTApplicObj ) ) )
@@ -274,8 +274,8 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
     }
     break;
   case MTH_INSERT:
-    if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != NULL &&
-         ( valobj = ex.getParamObj( 1 ) ) != NULL )
+    if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr &&
+         ( valobj = ex.getParamObj( 1 ) ) != nullptr )
     {
       if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
               keyobj->isa( OTApplicObj ) ) )
@@ -290,7 +290,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
     }
     break;
   case MTH_EXISTS:
-    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
     {
       if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
               keyobj->isa( OTApplicObj ) ) )
@@ -319,17 +319,17 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
       return new BError( "dictionary.keys() doesn't take parameters." );
     break;
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
 BObjectImp* BDictionary::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 char BDictionary::packtype() const

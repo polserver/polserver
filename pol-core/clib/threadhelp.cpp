@@ -167,9 +167,9 @@ void* thread_stub2( void* v_td )
   threadmap.Register( thread_pid(), td->name );
 
   delete td;
-  td = NULL;
+  td = nullptr;
 
-  if ( entry != NULL )
+  if ( entry != nullptr )
     run_thread( entry, arg );
   else
     run_thread( entry_noparam );
@@ -177,9 +177,9 @@ void* thread_stub2( void* v_td )
 #ifdef _WIN32
   _endthreadex( 0 );
 #else
-  pthread_exit( NULL );
+  pthread_exit( nullptr );
 #endif
-  return 0;
+  return nullptr;
 }
 
 #ifdef _WIN32
@@ -190,7 +190,7 @@ void create_thread( ThreadData* td, bool dec_child = false )
   std::string threadName = td->name;
 
   unsigned threadid = 0;
-  HANDLE h = (HANDLE)_beginthreadex( NULL, 0, thread_stub2, td, 0, &threadid );
+  HANDLE h = (HANDLE)_beginthreadex( nullptr, 0, thread_stub2, td, 0, &threadid );
   if ( h == 0 )  // added for better debugging
   {
     POLLOG.Format(
@@ -235,7 +235,7 @@ void start_thread( void ( *entry )( void* ), const char* thread_name, void* arg 
   auto td = new ThreadData;
   td->name = thread_name;
   td->entry = entry;
-  td->entry_noparam = NULL;
+  td->entry_noparam = nullptr;
   td->arg = arg;
 
   ++child_threads;
@@ -247,9 +247,9 @@ void start_thread( void ( *entry )( void ), const char* thread_name )
 {
   auto td = new ThreadData;
   td->name = thread_name;
-  td->entry = NULL;
+  td->entry = nullptr;
   td->entry_noparam = entry;
-  td->arg = NULL;
+  td->arg = nullptr;
 
   ++child_threads;
 
