@@ -68,6 +68,7 @@ namespace Core
 {
 class RepSystem;
 class UOExecutor;
+class ExportScript;
 }
 namespace Mobile
 {
@@ -116,6 +117,8 @@ public:
   virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
                                                      Bscript::Executor& ex ) override;
   virtual bool script_isa( unsigned isatype ) const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:
   virtual const char* classname() const override;

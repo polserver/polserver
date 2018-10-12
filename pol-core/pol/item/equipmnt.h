@@ -35,6 +35,7 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
+class Executor;
 }
 namespace Clib
 {
@@ -43,6 +44,7 @@ class ConfigElem;
 namespace Core
 {
 class EquipDesc;
+class ExportScript;
 }
 namespace Items
 {
@@ -74,6 +76,8 @@ protected:
                                                      int value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
                                                             double value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
   virtual bool script_isa( unsigned isatype ) const override;
   virtual Item* clone() const override;

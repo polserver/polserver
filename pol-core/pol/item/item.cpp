@@ -16,6 +16,7 @@
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
@@ -35,6 +36,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "../uoscrobj.h"
@@ -1200,6 +1202,15 @@ double Item::getQuality() const
 void Item::setQuality( double value )
 {
   quality( value );
+}
+
+bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                            Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.item_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

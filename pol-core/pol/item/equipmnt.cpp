@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib_endian.h"
@@ -24,6 +25,7 @@
 #include "../globals/uvars.h"
 #include "../layers.h"
 #include "../mobile/charactr.h"
+#include "../syshookscript.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "armor.h"
@@ -122,6 +124,15 @@ double Equipment::getQuality() const
 void Equipment::setQuality( double value )
 {
   _quality = value;
+}
+
+bool Equipment::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                 Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.equipment_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 
 /// Looks up for an existing intrinsic equipment and return it or nullptr if not found

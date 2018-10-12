@@ -22,6 +22,7 @@
 #include <string>
 
 #include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib_endian.h"
@@ -48,6 +49,7 @@
 #include "../polvar.h"
 #include "../realms/realm.h"
 #include "../scrsched.h"
+#include "../syshookscript.h"
 #include "../tiles.h"
 #include "../uconst.h"
 #include "../ufunc.h"
@@ -1802,6 +1804,15 @@ size_t UBoat::estimatedSize() const
                 + 3 * sizeof( Traveller* ) + travellers_.capacity() * sizeof( Traveller ) +
                 3 * sizeof( Items::Item** ) + Components.capacity() * sizeof( Items::Item* );
   return size;
+}
+
+bool UBoat::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                             Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.boat_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 
 Bscript::BObjectImp* destroy_boat( UBoat* boat )

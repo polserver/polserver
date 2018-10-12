@@ -8,6 +8,7 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/streamsaver.h"
+#include "globals/uvars.h"
 #include "uobject.h"
 
 namespace Pol
@@ -45,6 +46,15 @@ Items::Item* ULockable::clone() const
 size_t ULockable::estimatedSize() const
 {
   return base::estimatedSize();
+}
+
+bool ULockable::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                 Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.lockable_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

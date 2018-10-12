@@ -11,11 +11,14 @@
 
 #include <stddef.h>
 
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/passert.h"
 #include "../../clib/streamsaver.h"
 #include "../containr.h"
+#include "../globals/uvars.h"
 #include "../layers.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 
@@ -168,6 +171,15 @@ void UCorpse::on_insert_add_item( Mobile::Character* mob, MoveType move, Items::
   }
 
   base::on_insert_add_item( mob, move, new_item );
+}
+
+bool UCorpse::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                               unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.corpse_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

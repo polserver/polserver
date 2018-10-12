@@ -86,6 +86,7 @@
 #include <stdlib.h>
 #include <string>
 
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
@@ -155,6 +156,7 @@
 #include "../spelbook.h"
 #include "../statmsg.h"
 #include "../syshook.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
 #include "../uobjcnt.h"
@@ -4321,6 +4323,15 @@ void Character::on_delete_from_account()
 {
   if ( realm )
     realm->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
+}
+
+bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                 Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.mobile_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }  // namespace Mobile
 }  // namespace Pol

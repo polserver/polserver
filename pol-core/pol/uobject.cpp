@@ -25,12 +25,14 @@
 #include "clidata.h"
 #include "dynproperties.h"
 #include "globals/state.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "objtype.h"
 #include "polcfg.h"
 #include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
+#include "syshookscript.h"
 #include "tooltips.h"
 #include "uconst.h"
 #include "uobjcnt.h"
@@ -395,6 +397,13 @@ void UObject::saveonexit( bool newvalue )
 const char* UObject::target_tag() const
 {
   return "object";
+}
+
+bool UObject::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                               unsigned int* PC ) const
+{
+  return gamestate.system_hooks.get_method_hook( gamestate.system_hooks.uobject_method_script.get(),
+                                                 methodname, ex, hook, PC );
 }
 }
 }

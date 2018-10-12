@@ -46,6 +46,7 @@ class MapDesc;
 namespace Core
 {
 struct PKTBI_56;
+class ExportScript;
 
 struct PinPoint
 {
@@ -95,6 +96,8 @@ protected:
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
                                                      int value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const override;
   // virtual Bscript::BObjectImp* set_script_member_double( const char *membername, double value );
   virtual bool script_isa( unsigned isatype ) const override;
   virtual void printProperties( Clib::StreamWriter& sw ) const override;

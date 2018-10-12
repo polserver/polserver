@@ -17,7 +17,6 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <stdlib.h>
 
-#include <format/format.h>
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
@@ -34,6 +33,7 @@
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../globals/object_storage.h"
+#include "../globals/uvars.h"
 #include "../item/itemdesc.h"
 #include "../mobile/charactr.h"
 #include "../module/osmod.h"
@@ -44,6 +44,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../uconst.h"
 #include "../ufunc.h"
 #include "../uobject.h"
@@ -54,6 +55,7 @@
 #include "customhouses.h"
 #include "multi.h"
 #include "multidef.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -1019,6 +1021,15 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
     if ( chr && chr->client )
       CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_WORKING );
   }
+}
+
+bool UHouse::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                              Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.house_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

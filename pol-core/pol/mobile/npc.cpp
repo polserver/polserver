@@ -29,6 +29,7 @@
 #include <stdlib.h>
 
 #include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
@@ -53,6 +54,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobjcnt.h"
 #include "../uobject.h"
@@ -1068,6 +1070,15 @@ void NPC::no_drop_exception( bool newvalue )
 std::string NPC::templatename() const
 {
   return template_name;
+}
+
+bool NPC::get_method_hook( const char* methodname, Bscript::Executor* ex, Core::ExportScript** hook,
+                           unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.npc_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

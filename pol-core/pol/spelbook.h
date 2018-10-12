@@ -21,8 +21,7 @@ namespace Pol
 namespace Network
 {
 class Client;
-namespace Pol
-{
+}
 namespace Bscript
 {
 class BObjectImp;
@@ -37,14 +36,15 @@ namespace Items
 {
 class ItemDesc;
 }  // namespace Items
-}  // namespace Pol
-}
+
 namespace Items
 {
 class SpellbookDesc;
 }
 namespace Core
 {
+class ExportScript;
+
 class Spellbook final : public UContainer
 {
   typedef UContainer base;
@@ -70,6 +70,8 @@ public:
   virtual Bscript::BObjectImp* script_method( const char* methodname,
                                               Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const override;
 
 private:
   virtual bool can_add( const Items::Item& item ) const override;

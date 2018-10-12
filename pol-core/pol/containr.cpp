@@ -26,12 +26,14 @@
 #include <assert.h>
 #include <cstddef>
 
+#include "../bscript/executor.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/streamsaver.h"
 #include "globals/state.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -39,6 +41,7 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "statmsg.h"
+#include "syshookscript.h"
 #include "uconst.h"
 #include "ufunc.h"
 #include "umanip.h"
@@ -969,6 +972,15 @@ void UContainer::no_drop_exception( bool newvalue )
 bool UContainer::default_no_drop_exception() const
 {
   return desc.no_drop_exception;
+}
+
+bool UContainer::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                  ExportScript** hook, unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.container_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }  // namespace Core
 }  // namespace Pol
