@@ -3238,16 +3238,18 @@ void Character::attack( Character* opponent )
   if ( weapon->is_projectile() )
   {
     Core::UContainer* bp = backpack();
-    if ( Core::gamestate.system_hooks.consume_ammunition_hook )
+    int check_consume_hook = -1;
+    if (Core::gamestate.system_hooks.consume_ammunition_hook)
     {
-      if ( Core::gamestate.system_hooks.consume_ammunition_hook->call(
-               new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ) ) ==
-           false )
-      {
-        return;
-      }
+        check_consume_hook = Core::gamestate.system_hooks.consume_ammunition_hook->call_long(
+            new Module::ECharacterRefObjImp(this), new Module::EItemRefObjImp(weapon));
+        if (check_consume_hook == 0)
+        {
+            return;
+        }
     }
-    else if ( ( bp == nullptr ) || ( weapon->consume_projectile( bp ) == false ) )
+
+    if ( ( check_consume_hook ==-1 ) && ( ( bp == nullptr ) || ( weapon->consume_projectile( bp ) == false ) ) )
     {
       // 04/2007 - MuadDib
       // Range through wornitems to find containers and check

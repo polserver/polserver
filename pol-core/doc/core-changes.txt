@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+10-12-2018 DevGIB:
+  Changed: Added -1 as acceptable return from ConsumeAmmunition hook which will make the core continue with the normal ammunition checks.
 10-07-2018 Turley:
   Added:   array.sorted_insert(obj, sub_index:=0, reverse:=0)
            assumes an already sorted array and inserts given obj. sub_index and reverse parameter have to match the sorting criteria of the array.

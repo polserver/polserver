@@ -1185,7 +1185,7 @@ endfunction</example>
     <explain><code>CanTrade:</code></explain>
     <explain>params: CharRef mobile, CharRef drop_on, ItemRef item. When called: When dropping an item on a character or when trying to add an item to a tradewindow. Return: 0 disallow trade, 1 core will continue.</explain>
     <explain><code>ConsumeAmmunition:</code></explain>
-    <explain>params: CharRef attacker, ItemRef weapon. When called: the combat system goes to perform the ammunition consumption check. Note: This is overruled by an active Combat Hook Return: 0 disallow fire, 1 fire weapon.</explain>
+    <explain>params: CharRef attacker, ItemRef weapon. When called: the combat system goes to perform the ammunition consumption check. Note: This is overruled by an active Combat Hook Return: 0 disallow fire, 1 fire weapon, -1 use core consumption.</explain>
     <example>
 //Pushthrough hook example    
 //syshook.cfg defines: 
