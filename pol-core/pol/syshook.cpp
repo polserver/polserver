@@ -21,11 +21,14 @@
 #include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include "accounts/account.h"
+#include "accounts/acscrobj.h"
 #include "globals/uvars.h"
 #include "polclass.h"
 #include "scrdef.h"
 #include "syshookscript.h"
 #include "uobject.h"
+#include "uoscrobj.h"
 
 namespace Pol
 {
@@ -241,11 +244,8 @@ template <typename T>
 void setMethod( T* script, Plib::Package* pkg, const std::string& scriptname )
 {
   auto shs = Clib::make_unique<ExportScript>( pkg, scriptname );
-  INFO_PRINT << "LOADING " << scriptname << "\n";
   if ( shs->Initialize() )
     script->swap( shs );
-  else
-    INFO_PRINT << "FAILED";
 }
 }  // namespace
 
@@ -320,6 +320,10 @@ void load_system_hooks()
               setMethod( &gamestate.system_hooks.npc_method_script, pkg, script );
             else if ( !hookclass.compare( "mobile" ) )
               setMethod( &gamestate.system_hooks.mobile_method_script, pkg, script );
+            else if ( !hookclass.compare( "client" ) )
+              setMethod( &gamestate.system_hooks.client_method_script, pkg, script );
+            else if ( !hookclass.compare( "account" ) )
+              setMethod( &gamestate.system_hooks.account_method_script, pkg, script );
             else
               POLLOG_INFO << "Unknown class used for method hook: " << hookclass << "\n";
           }
@@ -336,6 +340,25 @@ BObjectImp* SystemHooks::call_script_method( const char* methodname, Executor* e
   unsigned PC;
   if ( obj->get_method_hook( methodname, ex, &hook, &PC ) )
     return hook->call( PC, obj->make_ref(), ex->fparams );
+  return nullptr;
+}
+
+Bscript::BObjectImp* SystemHooks::call_script_method( const char* methodname, Bscript::Executor* ex,
+                                                      Bscript::BApplicObjBase* obj ) const
+{
+  ExportScript* script( nullptr );
+  if ( obj->object_type() == &Module::eclientrefobjimp_type )
+    script = client_method_script.get();
+  else if ( obj->object_type() == &Accounts::accountobjimp_type )
+    script = account_method_script.get();
+
+  if ( script != nullptr )
+  {
+    unsigned PC;
+    ExportScript* hook;
+    if ( get_method_hook( script, methodname, ex, &hook, &PC ) )
+      return hook->call( PC, obj, ex->fparams );
+  }
   return nullptr;
 }
 
@@ -413,6 +436,8 @@ void SystemHooks::unload_system_hooks()
   corpse_method_script.reset( nullptr );
   npc_method_script.reset( nullptr );
   mobile_method_script.reset( nullptr );
+  client_method_script.reset( nullptr );
+  account_method_script.reset( nullptr );
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )

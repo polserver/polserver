@@ -78,10 +78,17 @@ Bscript::BObjectImp* AccountObjImp::copy() const
 ///   All methods return Error("Invalid parameter type") if the wrong type was passed.
 ///
 Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Executor& ex,
-                                                    bool /*forcebuiltin*/ )
+                                                    bool forcebuiltin )
 {
   using namespace Bscript;
   BObjectImp* result = nullptr;
+  ObjMethod* mth = getObjMethod( id );
+  if ( mth->overridden && !forcebuiltin )
+  {
+    result = Core::gamestate.system_hooks.call_script_method( mth->code, &ex, this );
+    if ( result )
+      return result;
+  }
 
   switch ( id )
   {
@@ -541,11 +548,16 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 ///
 Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
+  bool forcebuiltin( false );
+  if ( methodname[0] == '_' )
+  {
+    ++methodname;
+    forcebuiltin = true;
+  }
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex );
-  else
-    return nullptr;
+    return this->call_method_id( objmethod->id, ex, forcebuiltin );
+  return Core::gamestate.system_hooks.call_script_method( methodname, &ex, this );
 }
 
 ///

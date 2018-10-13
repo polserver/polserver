@@ -4247,11 +4247,7 @@ BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex 
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex, forcebuiltin );
-  else
-  {
-    // todo
-  }
-  return nullptr;
+  return Core::gamestate.system_hooks.call_script_method( methodname, &ex, this );
 }
 
 BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
@@ -4262,7 +4258,9 @@ BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool f
   ObjMethod* mth = getObjMethod( id );
   if ( mth->overridden && !forcebuiltin )
   {
-    // todo
+    auto* imp = Core::gamestate.system_hooks.call_script_method( mth->code, &ex, this );
+    if ( imp )
+      return imp;
   }
   switch ( id )
   {

@@ -19,6 +19,7 @@ namespace Bscript
 {
 class BObjectImp;
 class Executor;
+class BApplicObjBase;
 }
 namespace Clib
 {
@@ -89,6 +90,9 @@ public:
 
   Bscript::BObjectImp* call_script_method( const char* methodname, Bscript::Executor* ex,
                                            UObject* obj ) const;
+  Bscript::BObjectImp* call_script_method( const char* methodname, Bscript::Executor* ex,
+                                           Bscript::BApplicObjBase* obj ) const;
+
   bool get_method_hook( ExportScript* search_script, const char* methodname, Bscript::Executor* ex,
                         ExportScript** hook, unsigned int* PC ) const;
   std::unique_ptr<ExportScript> uobject_method_script;
@@ -107,6 +111,8 @@ public:
   std::unique_ptr<ExportScript> corpse_method_script;
   std::unique_ptr<ExportScript> npc_method_script;
   std::unique_ptr<ExportScript> mobile_method_script;
+  std::unique_ptr<ExportScript> client_method_script;
+  std::unique_ptr<ExportScript> account_method_script;
 };
 
 ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Package* pkg,
