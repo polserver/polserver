@@ -113,6 +113,8 @@ public:
   std::unique_ptr<ExportScript> mobile_method_script;
   std::unique_ptr<ExportScript> client_method_script;
   std::unique_ptr<ExportScript> account_method_script;
+  std::unique_ptr<ExportScript> party_method_script;
+  std::unique_ptr<ExportScript> guild_method_script;
 };
 
 ExportedFunction* FindExportedFunction( Clib::ConfigElem& elem, const Plib::Package* pkg,

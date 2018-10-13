@@ -24,6 +24,8 @@
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"
 #include "globals/uvars.h"
+#include "module/guildmod.h"
+#include "module/partymod.h"
 #include "polclass.h"
 #include "scrdef.h"
 #include "syshookscript.h"
@@ -114,7 +116,27 @@ SystemHooks::SystemHooks()
       close_customhouse_hook( nullptr ),
       warmode_change( nullptr ),
       can_trade( nullptr ),
-      consume_ammunition_hook( nullptr )
+      consume_ammunition_hook( nullptr ),
+      uobject_method_script( nullptr ),
+      item_method_script( nullptr ),
+      equipment_method_script( nullptr ),
+      lockable_method_script( nullptr ),
+      map_method_script( nullptr ),
+      multi_method_script( nullptr ),
+      armor_method_script( nullptr ),
+      weapon_method_script( nullptr ),
+      door_method_script( nullptr ),
+      container_method_script( nullptr ),
+      boat_method_script( nullptr ),
+      house_method_script( nullptr ),
+      spellbook_method_script( nullptr ),
+      corpse_method_script( nullptr ),
+      npc_method_script( nullptr ),
+      mobile_method_script( nullptr ),
+      client_method_script( nullptr ),
+      account_method_script( nullptr ),
+      party_method_script( nullptr ),
+      guild_method_script( nullptr )
 {
 }
 
@@ -240,8 +262,8 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
 
 namespace
 {
-template <typename T>
-void setMethod( T* script, Plib::Package* pkg, const std::string& scriptname )
+void setMethod( std::unique_ptr<ExportScript>* script, Plib::Package* pkg,
+                const std::string& scriptname )
 {
   auto shs = Clib::make_unique<ExportScript>( pkg, scriptname );
   if ( shs->Initialize() )
@@ -324,6 +346,10 @@ void load_system_hooks()
               setMethod( &gamestate.system_hooks.client_method_script, pkg, script );
             else if ( !hookclass.compare( "account" ) )
               setMethod( &gamestate.system_hooks.account_method_script, pkg, script );
+            else if ( !hookclass.compare( "party" ) )
+              setMethod( &gamestate.system_hooks.party_method_script, pkg, script );
+            else if ( !hookclass.compare( "guild" ) )
+              setMethod( &gamestate.system_hooks.guild_method_script, pkg, script );
             else
               POLLOG_INFO << "Unknown class used for method hook: " << hookclass << "\n";
           }
@@ -347,10 +373,14 @@ Bscript::BObjectImp* SystemHooks::call_script_method( const char* methodname, Bs
                                                       Bscript::BApplicObjBase* obj ) const
 {
   ExportScript* script( nullptr );
-  if ( obj->object_type() == &Module::eclientrefobjimp_type )
-    script = client_method_script.get();
-  else if ( obj->object_type() == &Accounts::accountobjimp_type )
+  if ( obj->object_type() == &Accounts::accountobjimp_type )
     script = account_method_script.get();
+  else if ( obj->object_type() == &Module::eclientrefobjimp_type )
+    script = client_method_script.get();
+  else if ( obj->object_type() == &Module::party_type )
+    script = party_method_script.get();
+  else if ( obj->object_type() == &Module::guild_type )
+    script = guild_method_script.get();
 
   if ( script != nullptr )
   {
@@ -438,6 +468,8 @@ void SystemHooks::unload_system_hooks()
   mobile_method_script.reset( nullptr );
   client_method_script.reset( nullptr );
   account_method_script.reset( nullptr );
+  party_method_script.reset( nullptr );
+  guild_method_script.reset( nullptr );
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )

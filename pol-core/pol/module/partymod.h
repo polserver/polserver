@@ -7,13 +7,13 @@
 #ifndef PARTYMOD_H
 #define PARTYMOD_H
 
+#include "../../bscript/bobject.h"
 #include "../../bscript/execmodl.h"
 
 namespace Pol
 {
 namespace Bscript
 {
-class BObjectImp;
 class Executor;
 }  // namespace Bscript
 }  // namespace Pol
@@ -26,6 +26,8 @@ class Party;
 }
 namespace Module
 {
+extern Bscript::BApplicObjType party_type;
+
 class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule>
 {
 public:
