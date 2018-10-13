@@ -2,9 +2,22 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-12-2018</datemodified>
+		<datemodified>10-13-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-13-2018</date>
+			<author>Turley:</author>
+			<change type="Added">syshook.cfg SystemMethod for defining object class method scripts.<br/>
+Like itemdesc method scripts overriding builtin methods is possible, the builtin method can be called when prefixing with _.<br/>
+For UObject classes like shown in the objref docs the inheritance is respected<br/>
+so methods defined for items will be usable in weapons and methods defined in equipment override uobject methods.<br/>
+Valid cfg keys are:<br/>
+uobject, item, equipment, lockable, map, multi, armor, weapon, door, container, boat,<br/>
+house, spellbook, corpse, npc, mobile, client, account, party, guild<br/>
+Itemdesc/Npctemplate specific method scripts will still be first checked.</change>
+			<change type="Note">uoclient.cfg MethodScript entry is deprecated</change>
+		</entry>
 		<entry>
 			<date>10-12-2018</date>
 			<author>DevGIB:</author>
