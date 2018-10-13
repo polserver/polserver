@@ -212,7 +212,8 @@ public:
   virtual const char* classname() const = 0;
 
   virtual size_t estimatedSize() const;
-  virtual bool get_method_hook ( const char* methodname, Bscript::Executor* ex, ExportScript** hook, unsigned int* PC) const;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const;
 
   void ref_counted_add_ref();
   void ref_counted_release();
