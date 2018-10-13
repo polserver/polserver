@@ -548,12 +548,7 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
 ///
 Bscript::BObjectImp* AccountObjImp::call_method( const char* methodname, Bscript::Executor& ex )
 {
-  bool forcebuiltin( false );
-  if ( methodname[0] == '_' )
-  {
-    ++methodname;
-    forcebuiltin = true;
-  }
+  bool forcebuiltin{Bscript::Executor::builtinMethodForced( methodname )};
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex, forcebuiltin );

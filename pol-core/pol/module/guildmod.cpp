@@ -460,12 +460,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 {
   if ( obj_->_disbanded )
     return new BError( "Guild has disbanded" );
-  bool forcebuiltin( false );
-  if ( methodname[0] == '_' )
-  {
-    ++methodname;
-    forcebuiltin = true;
-  }
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return call_method_id( objmethod->id, ex, forcebuiltin );

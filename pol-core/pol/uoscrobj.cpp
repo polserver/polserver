@@ -194,7 +194,7 @@ BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, boo
 {
   // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
-  if ( !obj_->orphan() )
+  if ( obj_->orphan() )
     return new BError( "That object no longer exists" );
   ObjMethod* mth = getObjMethod( id );
   if ( mth->overridden && !forcebuiltin )
@@ -213,12 +213,7 @@ BObjectImp* ECharacterRefObjImp::call_method( const char* methodname, Executor& 
 {
   // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
-  bool forcebuiltin( false );
-  if ( methodname[0] == '_' )
-  {
-    ++methodname;
-    forcebuiltin = true;
-  }
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex, forcebuiltin );
@@ -376,12 +371,7 @@ BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex, bool for
 
 BObjectImp* EItemRefObjImp::call_method( const char* methodname, Executor& ex )
 {
-  bool forcebuiltin( false );
-  if ( methodname[0] == '_' )
-  {
-    ++methodname;
-    forcebuiltin = true;
-  }
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
 
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -520,12 +510,7 @@ BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex, bool fo
 
 BObjectImp* EUBoatRefObjImp::call_method( const char* methodname, Executor& ex )
 {
-  bool forcebuiltin( false );
-  if ( methodname[0] == '_' )
-  {
-    ++methodname;
-    forcebuiltin = true;
-  }
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex, forcebuiltin );
@@ -560,12 +545,7 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
 
 BObjectImp* EMultiRefObjImp::call_method( const char* methodname, Executor& ex )
 {
-  bool forcebuiltin( false );
-  if ( methodname[0] == '_' )
-  {
-    ++methodname;
-    forcebuiltin = true;
-  }
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex, forcebuiltin );
@@ -2893,6 +2873,7 @@ BObjectImp* Character::script_method( const char* methodname, Executor& ex )
 
 BObjectImp* Character::custom_script_method( const char* methodname, Executor& ex )
 {
+  // TODO uoclient entry deprecated
   if ( Core::networkManager.uoclient_general.method_script != nullptr )
   {
     unsigned PC;
@@ -4238,12 +4219,7 @@ BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex 
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return new BError( "Client not ready or disconnected" );
-  bool forcebuiltin( false );
-  if ( methodname[0] == '_' )
-  {
-    ++methodname;
-    forcebuiltin = true;
-  }
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex, forcebuiltin );

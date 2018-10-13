@@ -53,7 +53,7 @@ public:
   Mapping stamina;
   Mapping mana;
   unsigned short maxskills;  // dave changed 3/15/03, support configurable max skillid
-  ExportScript* method_script;
+  ExportScript* method_script; // TODO deprecated!
 };
 
 class UoClientProtocol
