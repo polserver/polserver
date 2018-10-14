@@ -51,6 +51,7 @@ namespace Bscript
 {
 class BObjectImp;
 class ObjArray;
+class Executor;
 }  // namespace Bscript
 namespace Clib
 {
@@ -59,6 +60,7 @@ class StreamWriter;
 namespace Core
 {
 class UContainer;
+class ExportScript;
 }  // namespace Core
 namespace Items
 {
@@ -186,6 +188,8 @@ public:
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
                                                      int value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const override;
 
   bool can_insert_increase_stack( Mobile::Character* mob, MoveType move, Items::Item* existing_item,
                                   unsigned short amt_to_add, Items::Item* adding_item );

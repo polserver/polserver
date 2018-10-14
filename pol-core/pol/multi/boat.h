@@ -26,6 +26,7 @@ namespace Pol
 {
 namespace Bscript
 {
+class BObjectImp;
 class Executor;
 }  // namespace Bscript
 namespace Clib
@@ -36,6 +37,7 @@ class StreamWriter;
 namespace Core
 {
 class UObject;
+class ExportScript;
 }  // namespace Core
 namespace Items
 {
@@ -50,14 +52,6 @@ namespace Network
 {
 class Client;
 }  // namespace Network
-}  // namespace Pol
-
-namespace Pol
-{
-namespace Bscript
-{
-class BObjectImp;
-}
 namespace Realms
 {
 class Realm;
@@ -66,6 +60,10 @@ namespace Module
 {
 class EUBoatRefObjImp;
 }
+}  // namespace Pol
+
+namespace Pol
+{
 namespace Multi
 {
 class MultiDef;
@@ -167,6 +165,8 @@ public:
                                                s8 z, Realms::Realm* realm, int flags );
 
   virtual Bscript::BObjectImp* make_ref() override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
   static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z,
                          Realms::Realm* realm );
   void realm_changed();

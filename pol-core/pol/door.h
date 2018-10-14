@@ -35,6 +35,7 @@ class DoorDesc;
 }
 namespace Core
 {
+class ExportScript;
 class UDoor final : public ULockable
 {
   typedef ULockable base;
@@ -42,6 +43,8 @@ class UDoor final : public ULockable
 public:
   virtual ~UDoor() = default;
   virtual size_t estimatedSize() const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const override;
 
 private:
   virtual void builtin_on_use( Network::Client* client ) override;

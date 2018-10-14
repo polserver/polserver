@@ -22,6 +22,10 @@
 
 namespace Pol
 {
+namespace Bscript
+{
+class Executor;
+}  // namespace Bscript
 namespace Clib
 {
 class ConfigElem;
@@ -30,6 +34,7 @@ class StreamWriter;
 namespace Core
 {
 class UContainer;
+class ExportScript;
 }  // namespace Core
 namespace Items
 {
@@ -89,6 +94,9 @@ public:
   DYN_PROPERTY( damage_mod, s16, Core::PROP_DMG_MOD, 0 );
   DYN_PROPERTY( speed_mod, s16, Core::PROP_SPEED_MOD, 0 );
 
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
+
 protected:
   virtual void printProperties( Clib::StreamWriter& sw ) const override;
   virtual void readProperties( Clib::ConfigElem& elem ) override;
@@ -101,8 +109,8 @@ protected:
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_double( const char* membername,
                                                          double value ) override;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      override;  // id test
+  virtual Bscript::BObjectImp* set_script_member_id(
+      const int id, const std::string& value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
                                                      int value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id,

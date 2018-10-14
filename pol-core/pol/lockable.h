@@ -14,6 +14,7 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
+class Executor;
 }  // namespace Bscript
 namespace Clib
 {
@@ -33,6 +34,7 @@ namespace Pol
 {
 namespace Core
 {
+class ExportScript;
 class ULockable : public Items::Item
 {
   typedef Item base;
@@ -50,6 +52,8 @@ protected:
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
                                                      int value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
   virtual bool script_isa( unsigned isatype ) const override;
 
   virtual Items::Item* clone() const override;  // dave 12-20

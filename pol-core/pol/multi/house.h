@@ -33,6 +33,7 @@ class StreamWriter;
 namespace Core
 {
 class UObject;
+class ExportScript;
 }  // namespace Core
 namespace Items
 {
@@ -105,6 +106,8 @@ public:
 
   virtual ~UHouse(){};
   virtual size_t estimatedSize() const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:
   explicit UHouse( const Items::ItemDesc& itemdesc );
@@ -121,8 +124,7 @@ protected:
   virtual class UHouse* as_house() override;
   virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y,
                            short zbase ) override;
-  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y,
-                            short zbase ) override;
+  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase ) override;
   Bscript::ObjArray* component_list() const;
   Bscript::ObjArray* items_list() const;
   Bscript::ObjArray* mobiles_list() const;

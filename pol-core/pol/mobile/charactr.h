@@ -105,6 +105,7 @@ class UWeapon;
 }
 namespace Core
 {
+class ExportScript;
 class Guild;
 class Menu;
 class MenuItem;
@@ -367,12 +368,11 @@ public:
   virtual Bscript::BObjectImp* set_script_member( const char* membername,
                                                   const std::string& value ) override;
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      override;  // id test
+  virtual Bscript::BObjectImp* set_script_member_id(
+      const int id, const std::string& value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
                                                      int value ) override;  // id test
-  virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) override;
+  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) override;
   virtual Bscript::BObjectImp* script_method( const char* methodname,
                                               Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
@@ -380,6 +380,8 @@ public:
                                                      Bscript::Executor& ex ) override;
   virtual bool script_isa( unsigned isatype ) const override;
   virtual const char* target_tag() const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:
   virtual const char* classname() const override;

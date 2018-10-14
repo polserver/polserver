@@ -9,17 +9,28 @@
 
 #include <stddef.h>
 #include <string>
+#include <tuple>
 
 #include "../bscript/bobject.h"
+#include "../bscript/executor.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/make_unique.hpp"
+#include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include "accounts/account.h"
+#include "accounts/acscrobj.h"
 #include "globals/uvars.h"
+#include "module/guildmod.h"
+#include "module/partymod.h"
+#include "polclass.h"
 #include "scrdef.h"
 #include "syshookscript.h"
+#include "uobject.h"
+#include "uoscrobj.h"
 
 namespace Pol
 {
@@ -105,13 +116,33 @@ SystemHooks::SystemHooks()
       close_customhouse_hook( nullptr ),
       warmode_change( nullptr ),
       can_trade( nullptr ),
-      consume_ammunition_hook( nullptr )
+      consume_ammunition_hook( nullptr ),
+      uobject_method_script( nullptr ),
+      item_method_script( nullptr ),
+      equipment_method_script( nullptr ),
+      lockable_method_script( nullptr ),
+      map_method_script( nullptr ),
+      multi_method_script( nullptr ),
+      armor_method_script( nullptr ),
+      weapon_method_script( nullptr ),
+      door_method_script( nullptr ),
+      container_method_script( nullptr ),
+      boat_method_script( nullptr ),
+      house_method_script( nullptr ),
+      spellbook_method_script( nullptr ),
+      corpse_method_script( nullptr ),
+      npc_method_script( nullptr ),
+      character_method_script( nullptr ),
+      client_method_script( nullptr ),
+      account_method_script( nullptr ),
+      party_method_script( nullptr ),
+      guild_method_script( nullptr )
 {
 }
 
 void hook( ExportScript* shs, const std::string& hookname, const std::string& exfuncname )
 {
-  ExportedFunction** pphook = nullptr;
+  std::unique_ptr<ExportedFunction>* pphook = nullptr;
   unsigned nargs;
   if ( hookname == "CheckSkill" )
   {
@@ -226,118 +257,209 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
     return;
   }
 
-  *pphook = new ExportedFunction( shs, PC );
+  *pphook = Clib::make_unique<ExportedFunction>( shs, PC );
 }
+
+namespace
+{
+void setMethod( std::unique_ptr<ExportScript>* script, Plib::Package* pkg,
+                const std::string& scriptname )
+{
+  auto shs = Clib::make_unique<ExportScript>( pkg, scriptname );
+  if ( shs->Initialize() )
+    script->swap( shs );
+}
+}  // namespace
 
 void load_system_hooks()
 {
-  /*
-      system_hooks.clear();
-      while (!export_scripts.empty())
-      {
-      delete export_scripts.back();
-      export_scripts.pop_back();
-      }
-      */
   for ( Plib::Packages::const_iterator citr = Plib::systemstate.packages.begin();
         citr != Plib::systemstate.packages.end(); ++citr )
   {
     Plib::Package* pkg = ( *citr );
-    // string fname = pkg->dir() + "syshook.cfg";
     std::string fname = Plib::GetPackageCfgPath( pkg, "syshook.cfg" );
     if ( Clib::FileExists( fname.c_str() ) )
     {
-      Clib::ConfigFile cf( fname.c_str(), "SystemHookScript" );
+      Clib::ConfigFile cf( fname.c_str(), "SystemHookScript SystemMethod" );
       Clib::ConfigElem elem;
       while ( cf.read( elem ) )
       {
-        ExportScript* shs = new ExportScript( pkg, elem.rest() );
-        if ( shs->Initialize() )
+        if ( !stricmp( elem.type(), "SystemHookScript" ) )
         {
-          gamestate.export_scripts.push_back( shs );
-          std::string hookname, exfuncname;
-          while ( elem.remove_first_prop( &hookname, &exfuncname ) )
+          auto shs = Clib::make_unique<ExportScript>( pkg, elem.rest() );
+          if ( shs->Initialize() )
           {
-            if ( exfuncname.empty() )
-              exfuncname = hookname;
-            hook( shs, hookname, exfuncname );
+            std::string hookname, exfuncname;
+            while ( elem.remove_first_prop( &hookname, &exfuncname ) )
+            {
+              if ( exfuncname.empty() )
+                exfuncname = hookname;
+              hook( shs.get(), hookname, exfuncname );
+            }
+            gamestate.export_scripts.push_back( std::move( shs ) );
           }
         }
-        else
+        else  // SystemMethod
         {
-          delete shs;
+          std::string hookclass, script;
+
+          while ( elem.remove_first_prop( &hookclass, &script ) )
+          {
+            Clib::mklower( hookclass );
+            if ( !hookclass.compare( "uobject" ) )
+              setMethod( &gamestate.system_hooks.uobject_method_script, pkg, script );
+            else if ( !hookclass.compare( "item" ) )
+              setMethod( &gamestate.system_hooks.item_method_script, pkg, script );
+            else if ( !hookclass.compare( "equipment" ) )
+              setMethod( &gamestate.system_hooks.equipment_method_script, pkg, script );
+            else if ( !hookclass.compare( "lockable" ) )
+              setMethod( &gamestate.system_hooks.lockable_method_script, pkg, script );
+            else if ( !hookclass.compare( "map" ) )
+              setMethod( &gamestate.system_hooks.map_method_script, pkg, script );
+            else if ( !hookclass.compare( "multi" ) )
+              setMethod( &gamestate.system_hooks.multi_method_script, pkg, script );
+            else if ( !hookclass.compare( "armor" ) )
+              setMethod( &gamestate.system_hooks.armor_method_script, pkg, script );
+            else if ( !hookclass.compare( "weapon" ) )
+              setMethod( &gamestate.system_hooks.weapon_method_script, pkg, script );
+            else if ( !hookclass.compare( "door" ) )
+              setMethod( &gamestate.system_hooks.door_method_script, pkg, script );
+            else if ( !hookclass.compare( "container" ) )
+              setMethod( &gamestate.system_hooks.container_method_script, pkg, script );
+            else if ( !hookclass.compare( "boat" ) )
+              setMethod( &gamestate.system_hooks.boat_method_script, pkg, script );
+            else if ( !hookclass.compare( "house" ) )
+              setMethod( &gamestate.system_hooks.house_method_script, pkg, script );
+            else if ( !hookclass.compare( "spellbook" ) )
+              setMethod( &gamestate.system_hooks.spellbook_method_script, pkg, script );
+            else if ( !hookclass.compare( "corpse" ) )
+              setMethod( &gamestate.system_hooks.corpse_method_script, pkg, script );
+            else if ( !hookclass.compare( "npc" ) )
+              setMethod( &gamestate.system_hooks.npc_method_script, pkg, script );
+            else if ( !hookclass.compare( "character" ) )
+              setMethod( &gamestate.system_hooks.character_method_script, pkg, script );
+            else if ( !hookclass.compare( "client" ) )
+              setMethod( &gamestate.system_hooks.client_method_script, pkg, script );
+            else if ( !hookclass.compare( "account" ) )
+              setMethod( &gamestate.system_hooks.account_method_script, pkg, script );
+            else if ( !hookclass.compare( "party" ) )
+              setMethod( &gamestate.system_hooks.party_method_script, pkg, script );
+            else if ( !hookclass.compare( "guild" ) )
+              setMethod( &gamestate.system_hooks.guild_method_script, pkg, script );
+            else
+              POLLOG_INFO << "Unknown class used for method hook: " << hookclass << "\n";
+          }
         }
       }
     }
   }
 }
 
+BObjectImp* SystemHooks::call_script_method( const char* methodname, Executor* ex,
+                                             UObject* obj ) const
+{
+  ExportScript* hook;
+  unsigned PC;
+  if ( obj->get_method_hook( methodname, ex, &hook, &PC ) )
+    return hook->call( PC, obj->make_ref(), ex->fparams );
+  return nullptr;
+}
+
+Bscript::BObjectImp* SystemHooks::call_script_method( const char* methodname, Bscript::Executor* ex,
+                                                      Bscript::BApplicObjBase* obj ) const
+{
+  ExportScript* script( nullptr );
+  if ( obj->object_type() == &Accounts::accountobjimp_type )
+    script = account_method_script.get();
+  else if ( obj->object_type() == &Module::eclientrefobjimp_type )
+    script = client_method_script.get();
+  else if ( obj->object_type() == &Module::party_type )
+    script = party_method_script.get();
+  else if ( obj->object_type() == &Module::guild_type )
+    script = guild_method_script.get();
+
+  if ( script != nullptr )
+  {
+    unsigned PC;
+    ExportScript* hook;
+    if ( get_method_hook( script, methodname, ex, &hook, &PC ) )
+      return hook->call( PC, obj, ex->fparams );
+  }
+  return nullptr;
+}
+
+bool SystemHooks::get_method_hook( ExportScript* search_script, const char* methodname,
+                                   Bscript::Executor* ex, ExportScript** hook,
+                                   unsigned int* PC ) const
+{
+  if ( search_script && search_script->FindExportedFunction(
+                            methodname, static_cast<unsigned int>( ex->numParams() + 1 ), *PC ) )
+  {
+    *hook = search_script;
+    return true;
+  }
+  return false;
+}
+
 void SystemHooks::unload_system_hooks()
 {
-  for ( unsigned i = 0; i < gamestate.export_scripts.size(); ++i )
-  {
-    ExportScript* ps = gamestate.export_scripts[i];
-    delete ps;
-  }
   gamestate.export_scripts.clear();
-  if ( attack_hook != nullptr )
-    delete attack_hook;
-  if ( check_skill_hook != nullptr )
-    delete check_skill_hook;
-  if ( combat_advancement_hook != nullptr )
-    delete combat_advancement_hook;
-  if ( get_book_page_hook != nullptr )
-    delete get_book_page_hook;
-  if ( hitmiss_hook != nullptr )
-    delete hitmiss_hook;
-  if ( open_spellbook_hook != nullptr )
-    delete open_spellbook_hook;
-  if ( parry_advancement_hook != nullptr )
-    delete parry_advancement_hook;
-  if ( pushthrough_hook != nullptr )
-    delete pushthrough_hook;
-  if ( speechmul_hook != nullptr )
-    delete speechmul_hook;
-  if ( on_cast_hook != nullptr )
-    delete on_cast_hook;
-  if ( can_decay != nullptr )
-    delete can_decay;
-  if ( ouch_hook != nullptr )
-    delete ouch_hook;
-  if ( can_die != nullptr )
-    delete can_die;
-  if ( un_hide != nullptr )
-    delete un_hide;
-  if ( close_customhouse_hook != nullptr )
-    delete close_customhouse_hook;
-  if ( warmode_change != nullptr )
-    delete warmode_change;
-  if ( can_trade != nullptr )
-    delete can_trade;
-  if ( consume_ammunition_hook != nullptr )
-    delete consume_ammunition_hook;
+  attack_hook.reset( nullptr );
+  check_skill_hook.reset( nullptr );
+  combat_advancement_hook.reset( nullptr );
+  get_book_page_hook.reset( nullptr );
+  hitmiss_hook.reset( nullptr );
+  open_spellbook_hook.reset( nullptr );
+  parry_advancement_hook.reset( nullptr );
+  pushthrough_hook.reset( nullptr );
+  speechmul_hook.reset( nullptr );
+  on_cast_hook.reset( nullptr );
+  can_decay.reset( nullptr );
+  ouch_hook.reset( nullptr );
+  can_die.reset( nullptr );
+  un_hide.reset( nullptr );
+  close_customhouse_hook.reset( nullptr );
+  warmode_change.reset( nullptr );
+  can_trade.reset( nullptr );
+  consume_ammunition_hook.reset( nullptr );
+
+  uobject_method_script.reset( nullptr );
+  item_method_script.reset( nullptr );
+  equipment_method_script.reset( nullptr );
+  lockable_method_script.reset( nullptr );
+  map_method_script.reset( nullptr );
+  multi_method_script.reset( nullptr );
+  armor_method_script.reset( nullptr );
+  weapon_method_script.reset( nullptr );
+  door_method_script.reset( nullptr );
+  container_method_script.reset( nullptr );
+  boat_method_script.reset( nullptr );
+  house_method_script.reset( nullptr );
+  spellbook_method_script.reset( nullptr );
+  corpse_method_script.reset( nullptr );
+  npc_method_script.reset( nullptr );
+  character_method_script.reset( nullptr );
+  client_method_script.reset( nullptr );
+  account_method_script.reset( nullptr );
+  party_method_script.reset( nullptr );
+  guild_method_script.reset( nullptr );
 }
 
 ExportScript* FindExportScript( const ScriptDef& sd )
 {
-  for ( unsigned i = 0; i < gamestate.export_scripts.size(); ++i )
+  for ( const auto& ps : gamestate.export_scripts )
   {
-    ExportScript* ps = gamestate.export_scripts[i];
     if ( ps->scriptname() == sd.name() )
-      return ps;
+      return ps.get();
   }
 
-  ExportScript* ps = new ExportScript( sd );
+  auto ps = Clib::make_unique<ExportScript>( sd );
   if ( ps->Initialize() )
   {
-    gamestate.export_scripts.push_back( ps );
-    return ps;
+    gamestate.export_scripts.push_back( std::move( ps ) );
+    return gamestate.export_scripts.back().get();
   }
-  else
-  {
-    delete ps;
-    return nullptr;
-  }
+  return nullptr;
 }
 
 // descriptor is script:function (or :pkg:script:function, or ::script:function?)

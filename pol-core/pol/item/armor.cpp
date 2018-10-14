@@ -10,8 +10,8 @@
 #include <stddef.h>
 #include <stdexcept>
 
-#include <format/format.h>
 #include "../../bscript/bstruct.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/logfacility.h"
@@ -23,11 +23,14 @@
 #include "../equipdsc.h"
 #include "../extobj.h"
 #include "../globals/settings.h"
+#include "../globals/uvars.h"
 #include "../layers.h"
+#include "../syshookscript.h"
 #include "../tiles.h"
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "itemdesc.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -271,6 +274,15 @@ size_t UArmor::estimatedSize() const
 {
   size_t size = base::estimatedSize() + onhitscript_.estimatedSize();
   return size;
+}
+
+bool UArmor::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                              Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.armor_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

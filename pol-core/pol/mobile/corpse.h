@@ -10,6 +10,7 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
+class Executor;
 }  // namespace Bscript
 namespace Clib
 {
@@ -35,6 +36,8 @@ namespace Pol
 {
 namespace Core
 {
+class ExportScript;
+
 // Corpses must NEVER EVER be movable.
 // They can decay even if they are immobile.
 class UCorpse final : public UContainer
@@ -56,6 +59,9 @@ public:
   u16 corpsetype;
   u32 ownerserial;  // NPCs get deleted on death, so serial is used.
   Items::Item* GetItemOnLayer( unsigned idx ) const;
+
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const override;
 
 protected:
   void RemoveItemFromLayer( Items::Item* item );

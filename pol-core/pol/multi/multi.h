@@ -29,6 +29,7 @@ namespace Bscript
 {
 class BObjectImp;
 class BStruct;
+class Executor;
 }
 namespace Plib
 {
@@ -37,6 +38,10 @@ class MapShapeList;
 namespace Realms
 {
 class Realm;
+}
+namespace Core
+{
+class ExportScript;
 }
 namespace Multi
 {
@@ -75,6 +80,8 @@ public:
   virtual Bscript::BObjectImp* make_ref() override;
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );

@@ -222,8 +222,8 @@ public:
   virtual Bscript::BObjectImp* set_script_member( const char* membername,
                                                   const std::string& value ) override;
   virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      override;  /// id test
+  virtual Bscript::BObjectImp* set_script_member_id(
+      const int id, const std::string& value ) override;  /// id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
                                                      int value ) override;  /// id test
   virtual Bscript::BObjectImp* set_script_member_double( const char* membername,
@@ -241,6 +241,8 @@ public:
                                                      Bscript::Executor& ex ) override;
   Bscript::BObject call_custom_method( const char* methodname, Bscript::BObjectImpRefVec& pmore );
   Bscript::BObject call_custom_method( const char* methodname );
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:  // only derived classes need the constructor
   virtual void printProperties( Clib::StreamWriter& sw ) const override;

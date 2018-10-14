@@ -3142,6 +3142,15 @@ size_t Executor::sizeEstimate() const
   return size;
 }
 
+bool Executor::builtinMethodForced( const char*& methodname )
+{
+  if ( methodname[0] == '_' )
+  {
+    ++methodname;
+    return true;
+  }
+  return false;
+}
 
 #ifdef ESCRIPT_PROFILE
 void Executor::profile_escript( std::string name, unsigned long profile_start )

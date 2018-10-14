@@ -20,12 +20,14 @@
 #include "../clib/cfgelem.h"
 #include "../clib/clib_endian.h"
 #include "../clib/streamsaver.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
 #include "pktboth.h"
 #include "realms/realm.h"
+#include "syshookscript.h"
 #include "ufunc.h"
 #include "uobject.h"
 
@@ -353,6 +355,15 @@ size_t Map::estimatedSize() const
          + sizeof( u16 )                       /*ysouth*/
          + sizeof( u16 )                       /*facetid*/
          + 3 * sizeof( PinPoint* ) + pin_points.capacity() * sizeof( PinPoint );
+}
+
+bool Map::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                           unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.map_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 
 void handle_map_pin( Network::Client* client, PKTBI_56* msg )

@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -40,6 +39,7 @@
 #include "ufunc.h"
 #include "umanip.h"
 #include "vital.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -277,7 +277,7 @@ void SpellTask::on_run()
 
 void do_cast( Network::Client* client, u16 spellid )
 {
-  if ( gamestate.system_hooks.on_cast_hook != nullptr )
+  if ( gamestate.system_hooks.on_cast_hook )
   {
     if ( gamestate.system_hooks.on_cast_hook->call( make_mobileref( client->chr ),
                                                     new Bscript::BLong( spellid ) ) )
