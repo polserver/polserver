@@ -18,7 +18,6 @@
 #define __REFPTR_H
 
 #include "compilerspecifics.h"
-
 #include <atomic>
 
 // **** base class for ref counted classes
@@ -32,6 +31,7 @@ class ref_counted
   // Construction
 protected:
   ref_counted();
+  ~ref_counted() = default;
 
 public:
   // Operations

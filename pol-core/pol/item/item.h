@@ -15,7 +15,6 @@
 #include <string>
 
 #include "../../clib/boostutils.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../baseobject.h"
 #include "../dynproperties.h"
@@ -83,7 +82,7 @@ public:
   bool stackable() const;
 
   virtual ~Item();
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
   virtual void double_click( Network::Client* client );
   virtual void builtin_on_use( Network::Client* client );
@@ -117,15 +116,15 @@ public:
   bool can_decay() const;
 
   bool setlayer( unsigned char layer );
-  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
-  virtual bool setcolor( u16 newcolor ) POL_OVERRIDE;
-  virtual void on_color_changed() POL_OVERRIDE;
+  virtual bool setgraphic( u16 newobjtype ) override;
+  virtual bool setcolor( u16 newcolor ) override;
+  virtual void on_color_changed() override;
   virtual void spill_contents( Multi::UMulti* supporting_multi );
 
-  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
-  virtual void on_facing_changed() POL_OVERRIDE;
+  virtual void setfacing( u8 newfacing ) override;
+  virtual void on_facing_changed() override;
 
-  virtual std::string description() const POL_OVERRIDE;
+  virtual std::string description() const override;
   std::string merchant_description() const;
 
 
@@ -155,18 +154,18 @@ public:
 
   virtual unsigned int item_count() const;
   unsigned int weight_of( unsigned short amount ) const;
-  virtual unsigned int weight() const POL_OVERRIDE;
+  virtual unsigned int weight() const override;
 
-  virtual std::string name() const POL_OVERRIDE;
+  virtual std::string name() const override;
 
-  virtual UObject* owner() POL_OVERRIDE;
-  virtual const UObject* owner() const POL_OVERRIDE;
-  virtual UObject* toplevel_owner() POL_OVERRIDE;
-  virtual const UObject* toplevel_owner() const POL_OVERRIDE;
+  virtual UObject* owner() override;
+  virtual const UObject* owner() const override;
+  virtual UObject* toplevel_owner() override;
+  virtual const UObject* toplevel_owner() const override;
 
   bool can_add_to_self( unsigned short amount, bool force_stacking ) const;
   bool can_add_to_self( const Item& item, bool force_stacking ) const;
-  bool has_only_default_cprops( const ItemDesc* compare = NULL ) const;
+  bool has_only_default_cprops( const ItemDesc* compare = nullptr ) const;
   void add_to_self( Item*& item );  // deletes the item passed
 
 #ifdef PERGON
@@ -214,38 +213,40 @@ public:
    */
   static Item* create( u32 objtype, u32 serial = 0 );
   static Item* create( const ItemDesc& itemdesc, u32 serial = 0 );
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
   virtual Item* clone() const;
   // virtual class BObjectImp* script_member( const char *membername );
-  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
+  virtual Bscript::BObjectImp* make_ref() override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
   virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      POL_OVERRIDE;  /// id test
+                                                  const std::string& value ) override;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
+  virtual Bscript::BObjectImp* set_script_member_id(
+      const int id, const std::string& value ) override;  /// id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  /// id test
+                                                     int value ) override;  /// id test
   virtual Bscript::BObjectImp* set_script_member_double( const char* membername,
-                                                         double value ) POL_OVERRIDE;
+                                                         double value ) override;
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) POL_OVERRIDE;  // id test
+                                                            double value ) override;  // id test
   virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+                                              Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
 
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-  virtual const char* target_tag() const POL_OVERRIDE;
-  virtual const char* classname() const POL_OVERRIDE;
+  virtual bool script_isa( unsigned isatype ) const override;
+  virtual const char* target_tag() const override;
+  virtual const char* classname() const override;
   virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Bscript::Executor& ex ) POL_OVERRIDE;
+                                                     Bscript::Executor& ex ) override;
   Bscript::BObject call_custom_method( const char* methodname, Bscript::BObjectImpRefVec& pmore );
   Bscript::BObject call_custom_method( const char* methodname );
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:  // only derived classes need the constructor
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void printDebugProperties( Clib::StreamWriter& sw ) const override;
 
   Item( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class );
 

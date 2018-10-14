@@ -33,7 +33,7 @@ MapServer::MapServer( const RealmDescriptor& descriptor ) : _descriptor( descrip
   LoadFirstLevelIndex();
 }
 
-MapServer::~MapServer() {}
+MapServer::~MapServer() = default;
 
 void MapServer::LoadSolids()
 {
@@ -99,7 +99,7 @@ void MapServer::LoadFirstLevelIndex()
     }
     else
     {
-      _index1[i] = NULL;
+      _index1[i] = nullptr;
     }
   }
 }

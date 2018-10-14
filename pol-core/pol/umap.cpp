@@ -20,12 +20,14 @@
 #include "../clib/cfgelem.h"
 #include "../clib/clib_endian.h"
 #include "../clib/streamsaver.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
 #include "pktboth.h"
 #include "realms/realm.h"
+#include "syshookscript.h"
 #include "ufunc.h"
 #include "uobject.h"
 
@@ -176,7 +178,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
 {
   using namespace Bscript;
   BObjectImp* imp = base::script_method_id( id, ex );
-  if ( imp != NULL )
+  if ( imp != nullptr )
     return imp;
 
   switch ( id )
@@ -265,7 +267,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
   }
 
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -273,14 +275,14 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
 Bscript::BObjectImp* Map::script_method( const char* methodname, Bscript::Executor& ex )
 {
   Bscript::BObjectImp* imp = base::script_method( methodname, ex );
-  if ( imp != NULL )
+  if ( imp != nullptr )
     return imp;
 
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->script_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 bool Map::msgCoordsInBounds( PKTBI_56* msg )
@@ -355,13 +357,22 @@ size_t Map::estimatedSize() const
          + 3 * sizeof( PinPoint* ) + pin_points.capacity() * sizeof( PinPoint );
 }
 
+bool Map::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                           unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.map_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
+}
+
 void handle_map_pin( Network::Client* client, PKTBI_56* msg )
 {
   // FIXME you really need to check that the item is in fact a map.
   // Can cause crash if someone is messing with their packets to script
   // pin movement on a non-map item.
   Map* my_map = (Map*)find_legal_item( client->chr, cfBEu32( msg->serial ) );
-  if ( my_map == NULL )
+  if ( my_map == nullptr )
     return;
   if ( my_map->editable == false )
     return;

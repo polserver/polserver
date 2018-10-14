@@ -31,7 +31,7 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////////
 
 PolToolMain::PolToolMain() : ProgramMain() {}
-PolToolMain::~PolToolMain() {}
+PolToolMain::~PolToolMain() = default;
 ///////////////////////////////////////////////////////////////////////////////
 
 void PolToolMain::showHelp()
@@ -154,7 +154,7 @@ int PolToolMain::unpackCompressedGump()
     }
     if ( tmp.size() == 2 )
     {
-      int num = std::stoi( tmp, 0, 16 );
+      int num = std::stoi( tmp, nullptr, 16 );
       bytes.push_back( static_cast<unsigned char>( num ) );
       ++per_line;
     }

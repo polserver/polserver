@@ -108,7 +108,7 @@ void open_uo_data_files( void )
   }
   else
   {
-    verfile = NULL;
+    verfile = nullptr;
   }
   tilefile = open_uo_file( "tiledata.mul" );
 

@@ -47,7 +47,7 @@ BObjectRef BXMLfile::get_member_id( const int /*id*/ )  // id test
 BObjectRef BXMLfile::get_member( const char* membername )
 {
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
@@ -56,10 +56,10 @@ BObjectRef BXMLfile::get_member( const char* membername )
 Bscript::BObjectImp* BXMLfile::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
@@ -191,7 +191,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
         return new BError( "Access denied" );
 
       std::string filepath;
-      if ( outpkg == NULL )
+      if ( outpkg == nullptr )
         filepath = path;
       else
         filepath = outpkg->dir() + path;
@@ -217,7 +217,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
   }
 
   default:
-    return NULL;
+    return nullptr;
   }
   return new BError( "Invalid parameter type" );
 }
@@ -309,7 +309,7 @@ BObjectRef BXmlNode::get_member_id( const int id )  // id test
 BObjectRef BXmlNode::get_member( const char* membername )
 {
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
@@ -318,10 +318,10 @@ BObjectRef BXmlNode::get_member( const char* membername )
 Bscript::BObjectImp* BXmlNode::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
@@ -516,7 +516,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     return copy();
   }
   default:
-    return NULL;
+    return nullptr;
   }
   return new BError( "Invalid parameter type" );
 }
@@ -566,17 +566,17 @@ std::string BXmlNode::getStringRep() const
 Bscript::BObjectImp* BXmlAttribute::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex*/,
                                                     bool /*forcebuiltin*/ )
 {
   if ( !node )
-    return NULL;
+    return nullptr;
   switch ( id )
   {
   case MTH_PROPNAMES:
@@ -591,7 +591,7 @@ Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex
     return arr.release();
   }
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -614,7 +614,7 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
 
 BXMLNodeIterator::BXMLNodeIterator( TiXmlDocument* file, BObject* pIter )
     :  // root elements
-      node( NULL ),
+      node( nullptr ),
       _file( file ),
       _init( false ),
       m_IterVal( pIter ),
@@ -625,7 +625,7 @@ BXMLNodeIterator::BXMLNodeIterator( TiXmlDocument* file, BObject* pIter )
 BXMLNodeIterator::BXMLNodeIterator( TiXmlNode* _node, BObject* pIter )
     :  // child elements
       node( _node ),
-      _file( NULL ),
+      _file( nullptr ),
       _init( false ),
       m_IterVal( pIter ),
       m_pIterVal( new BLong( 0 ) )
@@ -636,9 +636,9 @@ BXMLNodeIterator::BXMLNodeIterator( TiXmlNode* _node, BObject* pIter )
 BObject* BXMLNodeIterator::step()
 {
   m_pIterVal->increment();
-  if ( node == NULL )  // root elements (iter over BXmlFile)
+  if ( node == nullptr )  // root elements (iter over BXmlFile)
     node = _file->FirstChild();
-  else if ( _file == NULL )  // child elements (iter over BXmlNode)
+  else if ( _file == nullptr )  // child elements (iter over BXmlNode)
   {
     if ( !_init )
     {
@@ -651,13 +651,13 @@ BObject* BXMLNodeIterator::step()
   else  // root elements (iter over BXmlFile)
     node = node->NextSibling();
   if ( !node )
-    return NULL;
+    return nullptr;
 
   return new BObject( new BXmlNode( node ) );
 }
 
 BXMLAttributeIterator::BXMLAttributeIterator( TiXmlElement* _node, BObject* pIter )
-    : node( _node ), nodeAttrib( NULL ), m_IterVal( pIter ), m_pIterVal( new BLong( 0 ) )
+    : node( _node ), nodeAttrib( nullptr ), m_IterVal( pIter ), m_pIterVal( new BLong( 0 ) )
 {
   m_IterVal.get()->setimp( m_pIterVal );
 }
@@ -666,8 +666,8 @@ BObject* BXMLAttributeIterator::step()
 {
   m_pIterVal->increment();
   if ( !node )
-    return NULL;
-  if ( nodeAttrib == NULL )
+    return nullptr;
+  if ( nodeAttrib == nullptr )
     nodeAttrib = node->FirstAttribute();
   else
     nodeAttrib = nodeAttrib->Next();
@@ -677,7 +677,7 @@ BObject* BXMLAttributeIterator::step()
     details->addMember( nodeAttrib->Name(), new String( nodeAttrib->Value() ) );
     return new BObject( details.release() );
   }
-  return NULL;
+  return nullptr;
 }
 }
 }

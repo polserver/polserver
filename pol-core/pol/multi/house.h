@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../item/item.h"
 #include "../reftypes.h"
@@ -34,6 +33,7 @@ class StreamWriter;
 namespace Core
 {
 class UObject;
+class ExportScript;
 }  // namespace Core
 namespace Items
 {
@@ -61,7 +61,7 @@ typedef std::list<Items::Item*> ItemList;
 typedef std::list<Mobile::Character*> MobileList;
 
 
-class UHouse : public UMulti
+class UHouse final : public UMulti
 {
   typedef UMulti base;
 
@@ -92,10 +92,10 @@ public:
   int editing_floor_num;
   u32 revision;
 
-  virtual void register_object( Core::UObject* obj ) POL_OVERRIDE;
-  virtual void unregister_object( Core::UObject* obj ) POL_OVERRIDE;
+  virtual void register_object( Core::UObject* obj ) override;
+  virtual void unregister_object( Core::UObject* obj ) override;
 
-  virtual void walk_on( Mobile::Character* chr ) POL_OVERRIDE;
+  virtual void walk_on( Mobile::Character* chr ) override;
 
   void ClearSquatters();
   bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
@@ -105,25 +105,26 @@ public:
   void CustomHousesQuit( Mobile::Character* chr, bool drop_changes );
 
   virtual ~UHouse(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:
   explicit UHouse( const Items::ItemDesc& itemdesc );
   void create_components();
 
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
   virtual Bscript::BObjectImp* script_method( const char* membername,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-  virtual class UHouse* as_house() POL_OVERRIDE;
+                                              Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
+  virtual bool script_isa( unsigned isatype ) const override;
+  virtual class UHouse* as_house() override;
   virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y,
-                           short zbase ) POL_OVERRIDE;
-  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y,
-                            short zbase ) POL_OVERRIDE;
+                           short zbase ) override;
+  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase ) override;
   Bscript::ObjArray* component_list() const;
   Bscript::ObjArray* items_list() const;
   Bscript::ObjArray* mobiles_list() const;

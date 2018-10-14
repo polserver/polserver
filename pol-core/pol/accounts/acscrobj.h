@@ -9,7 +9,6 @@
 #define ACSCROBJ_H
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../reftypes.h"
 
@@ -42,7 +41,7 @@ private:
 };
 
 extern Bscript::BApplicObjType accountobjimp_type;
-class AccountObjImp : public Bscript::BApplicObj<AccountPtrHolder>
+class AccountObjImp final : public Bscript::BApplicObj<AccountPtrHolder>
 {
   typedef Bscript::BApplicObj<AccountPtrHolder> base;
 
@@ -51,15 +50,15 @@ public:
       : Bscript::BApplicObj<AccountPtrHolder>( &accountobjimp_type, other )
   {
   }
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
+                                               bool forcebuiltin = false ) override;
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
+  virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
 };
 }
 }

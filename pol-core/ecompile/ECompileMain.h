@@ -9,7 +9,7 @@ namespace Pol
 {
 namespace ECompile
 {
-class ECompileMain : public Pol::Clib::ProgramMain
+class ECompileMain final : public Pol::Clib::ProgramMain
 {
 public:
   ECompileMain();

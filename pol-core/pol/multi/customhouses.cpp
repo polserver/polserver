@@ -348,7 +348,7 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
     delete[] compressed;
     if ( ubuflen > 0 )
       delete[] uncompressed;
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -388,7 +388,7 @@ unsigned char CustomHouseDesign::NumUsedPlanes() const
 void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
 {
   const MultiDef* multidef = MultiDefByMultiID( multiid );
-  if ( multidef == NULL )
+  if ( multidef == nullptr )
   {
     ERROR_PRINT << "Trying to add Multi to customhouse, multiid 0x" << fmt::hexu( multiid )
                 << " multi definition doesn't exist!\n";
@@ -515,7 +515,7 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
   while ( itr != comp->end() )
   {
     Items::Item* item = ( *itr ).get();
-    if ( item != NULL && !item->orphan() )
+    if ( item != nullptr && !item->orphan() )
     {
       if ( isEditableItem( house, item ) )
       {
@@ -535,7 +535,7 @@ void CustomHouseDesign::AddComponents( UHouse* house )
         ++itr )
   {
     Items::Item* item = ( *itr ).get();
-    if ( item != NULL && !item->orphan() )
+    if ( item != nullptr && !item->orphan() )
     {
       if ( isEditableItem( house, item ) )  // give scripters the chance to keep an item alive
       {
@@ -568,7 +568,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             if ( add_as_component )
             {
               Items::Item* component = Items::Item::create( id.objtype );
-              if ( component != NULL )
+              if ( component != nullptr )
               {
                 bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
                 passert_always_r( res,
@@ -585,7 +585,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             if ( add_as_component )
             {
               Items::Item* component = Items::Item::create( zitr->graphic );
-              if ( component != NULL )
+              if ( component != nullptr )
               {
                 bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
                 passert_always_r( res,
@@ -646,7 +646,7 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house )
 
   const MultiDef& def = house->multidef();
   move_character_to( chr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
-                     Core::MOVEITEM_FORCELOCATION, NULL );
+                     Core::MOVEITEM_FORCELOCATION, nullptr );
   chr->client->gd->custom_house_serial = 0;
   house->editing = false;
   ItemList itemlist;
@@ -664,7 +664,7 @@ void CustomHousesAdd( Core::PKTBI_D7* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   Core::CH_ADD add = msg->ch_add;
@@ -693,7 +693,7 @@ void CustomHousesAddMulti( Core::PKTBI_D7* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   u16 itemID = cfBEu16( msg->ch_add_multi.multiID );
@@ -705,7 +705,7 @@ void CustomHousesAddMulti( Core::PKTBI_D7* msg )
   if ( itemID < STAIR_MULTIID_MIN || itemID > STAIR_MULTIID_MAX )
   {
     Mobile::Character* chr = Core::find_character( serial );
-    if ( chr != NULL && chr->client != NULL )
+    if ( chr != nullptr && chr->client != nullptr )
       CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
     return;
   }
@@ -723,7 +723,7 @@ void CustomHousesErase( Core::PKTBI_D7* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   u32 x = cfBEu32( msg->ch_erase.xoffset ), y = cfBEu32( msg->ch_erase.yoffset );
@@ -764,7 +764,7 @@ void CustomHousesClear( Core::PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   Mobile::Character* chr = Core::find_character( serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   house->WorkingDesign.Clear();
@@ -775,7 +775,7 @@ void CustomHousesClear( Core::PKTBI_D7* msg )
 
   // add foundation back to design
   house->WorkingDesign.AddMultiAtOffset( house->multiid, 0, 0, 0 );
-  if ( chr != NULL && chr->client != NULL )
+  if ( chr != nullptr && chr->client != nullptr )
     CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 
   house->revision++;
@@ -786,7 +786,7 @@ void CustomHousesQuit( Core::PKTBI_D7* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
   Mobile::Character* chr = Core::find_character( serial );
   house->CustomHousesQuit( chr, false );
@@ -797,7 +797,7 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
   Mobile::Character* chr = Core::find_character( serial );
-  if ( house == NULL || chr == NULL )
+  if ( house == nullptr || chr == nullptr )
     return;
 
   // remove dynamic bits (teleporters, doors)
@@ -805,13 +805,13 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
 
   // call a script to do post processing (calc cost, yes/no confirm, consume cost, link teleporters)
   Core::ScriptDef sd;
-  if ( sd.config_nodie( "misc/customhousecommit.ecl", 0, 0 ) )
+  if ( sd.config_nodie( "misc/customhousecommit.ecl", nullptr, nullptr ) )
   {
     if ( sd.exists() )
     {
       house->waiting_for_accept = true;
       if ( Core::start_script( sd, make_mobileref( chr ), new Module::EMultiRefObjImp( house ),
-                               house->WorkingDesign.list_parts() ) != NULL )
+                               house->WorkingDesign.list_parts() ) != nullptr )
         return;
     }
   }
@@ -823,7 +823,7 @@ void CustomHousesSelectFloor( Core::PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
   Mobile::Character* chr = Core::find_character( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
   u8 floor = msg->ch_select_floor.floornumber;
 
@@ -836,7 +836,7 @@ void CustomHousesSelectFloor( Core::PKTBI_D7* msg )
   {
     move_character_to( chr, chr->x, chr->y,
                        house->z + CustomHouseDesign::custom_house_z_xlate_table[floor],
-                       Core::MOVEITEM_FORCELOCATION, NULL );
+                       Core::MOVEITEM_FORCELOCATION, nullptr );
     if ( chr->client )
       CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
   }
@@ -846,7 +846,7 @@ void CustomHousesBackup( Core::PKTBI_D7* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   house->BackupDesign = house->WorkingDesign;
@@ -857,13 +857,13 @@ void CustomHousesRestore( Core::PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
   Mobile::Character* chr = Core::find_character( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   house->WorkingDesign = house->BackupDesign;
   std::vector<u8> newvec;
   house->WorkingCompressed.swap( newvec );
-  if ( chr != NULL && chr->client != NULL )
+  if ( chr != nullptr && chr->client != nullptr )
     CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 }
 
@@ -872,7 +872,7 @@ void CustomHousesSynch( Core::PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   Mobile::Character* chr = Core::find_character( serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( chr != NULL && chr->client != NULL && house != NULL )
+  if ( chr != nullptr && chr->client != nullptr && house != nullptr )
     CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 }
 
@@ -882,14 +882,14 @@ void CustomHousesRevert( Core::PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
 
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   house->WorkingDesign = house->CurrentDesign;
   std::vector<u8> newvec;
   house->WorkingCompressed.swap( newvec );
   Mobile::Character* chr = Core::find_character( serial );
-  if ( chr != NULL && chr->client != NULL )
+  if ( chr != nullptr && chr->client != nullptr )
     CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 }
 
@@ -897,7 +897,7 @@ void CustomHousesRoofSelect( Core::PKTBI_D7* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   Core::CH_SELECT_ROOF add = msg->ch_select_roof;
@@ -922,7 +922,7 @@ void CustomHousesRoofRemove( Core::PKTBI_D7* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   UHouse* house = UHouse::FindWorkingHouse( serial );
-  if ( house == NULL )
+  if ( house == nullptr )
     return;
 
   Core::CH_DELETE_ROOF remove = msg->ch_delete_roof;
@@ -932,7 +932,7 @@ void CustomHousesRoofRemove( Core::PKTBI_D7* msg )
   if ( !house->WorkingDesign.EraseGraphicAt( graphic, x, y, z ) )
   {
     Mobile::Character* chr = Core::find_character( serial );
-    if ( chr != NULL && chr->client != NULL )
+    if ( chr != nullptr && chr->client != nullptr )
       CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
     return;
   }
@@ -1018,7 +1018,7 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
   {
     planeheader = 0;
     data = pdesign->Compress( i, &ulen, &clen );
-    if ( data == NULL )  // compression error
+    if ( data == nullptr )  // compression error
     {
       return;
     }
@@ -1114,7 +1114,7 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes )
   {
     CustomHouseStopEditing( chr, this );
     CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
-    if ( Core::gamestate.system_hooks.close_customhouse_hook != NULL )
+    if ( Core::gamestate.system_hooks.close_customhouse_hook )
     {
       Core::gamestate.system_hooks.close_customhouse_hook->call(
           make_mobileref( chr ), new Module::EMultiRefObjImp( this ) );

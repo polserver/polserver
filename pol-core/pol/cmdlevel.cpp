@@ -34,7 +34,7 @@ CmdLevel::CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum )
   while ( elem.remove_prop( "DIR", &tmp ) )
   {
     Clib::mklower( tmp );
-    add_searchdir( NULL, Clib::normalized_dir_form( tmp ) );
+    add_searchdir( nullptr, Clib::normalized_dir_form( tmp ) );
   }
   while ( elem.remove_prop( "ALIAS", &tmp ) )
   {
@@ -56,17 +56,11 @@ bool CmdLevel::matches( const std::string& i_name ) const
 }
 void CmdLevel::add_searchdir( Plib::Package* pkg, const std::string& dir )
 {
-  SearchDir sdir;
-  sdir.pkg = pkg;
-  sdir.dir = dir;
-  searchlist.push_back( sdir );
+  searchlist.emplace_back( SearchDir{pkg, dir} );
 }
 void CmdLevel::add_searchdir_front( Plib::Package* pkg, const std::string& dir )
 {
-  SearchDir sdir;
-  sdir.pkg = pkg;
-  sdir.dir = dir;
-  searchlist.insert( searchlist.begin(), sdir );
+  searchlist.insert( searchlist.begin(), SearchDir{pkg, dir} );
 }
 
 size_t CmdLevel::estimateSize() const
@@ -75,33 +69,36 @@ size_t CmdLevel::estimateSize() const
 
   size += 3 * sizeof( SearchDir* );
   for ( const auto& ele : searchlist )
+  {
     size += sizeof( Plib::Package* ) + ele.dir.capacity();
+  }
   size += 3 * sizeof( std::string* );
   for ( const auto& ele : aliases )
+  {
     size += ele.capacity();
+  }
   return size;
 }
 
 
 CmdLevel* find_cmdlevel( const char* name )
 {
-  for ( unsigned i = 0; i < gamestate.cmdlevels.size(); ++i )
+  for ( auto& cmdlvl : gamestate.cmdlevels )
   {
-    if ( stricmp( name, gamestate.cmdlevels[i].name.c_str() ) == 0 )
-      return &gamestate.cmdlevels[i];
+    if ( stricmp( name, cmdlvl.name.c_str() ) == 0 )
+      return &cmdlvl;
   }
-  return NULL;
+  return nullptr;
 }
 
 CmdLevel* FindCmdLevelByAlias( const std::string& str )
 {
-  for ( unsigned i = 0; i < gamestate.cmdlevels.size(); ++i )
+  for ( auto& cmdlvl : gamestate.cmdlevels )
   {
-    CmdLevel* cmdlvl = &gamestate.cmdlevels[i];
-    if ( cmdlvl->matches( str ) )
-      return cmdlvl;
+    if ( cmdlvl.matches( str ) )
+      return &cmdlvl;
   }
-  return NULL;
+  return nullptr;
 }
 
 Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
@@ -149,7 +146,7 @@ Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
   if ( script_names->ref_arr.size() > 0 )
     return script_names.release();
   else
-    return NULL;
+    return nullptr;
 }
 
 void load_cmdlevels()
@@ -239,5 +236,5 @@ void load_package_cmdlevels()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

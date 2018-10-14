@@ -17,7 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/refptr.h"
 #include "../../clib/socketsvc.h"
 #include "../../clib/weakptr.h"
@@ -56,7 +55,7 @@ namespace Network
 {
 class AuxClientThread;
 
-class AuxConnection : public Bscript::BObjectImp
+class AuxConnection final : public Bscript::BObjectImp
 {
 public:
   AuxConnection( AuxClientThread* auxclientthread, std::string ip )
@@ -66,14 +65,14 @@ public:
   {
   }
 
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual bool isTrue() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  virtual Bscript::BObjectImp* copy() const override;
+  virtual bool isTrue() const override;
+  virtual std::string getStringRep() const override;
+  virtual size_t sizeEstimate() const override;
 
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
 
   void disconnect();
 
@@ -99,13 +98,13 @@ private:
   unsigned short _port;
 };
 
-class AuxClientThread : public Clib::SocketClientThread
+class AuxClientThread final : public Clib::SocketClientThread
 {
 public:
   AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
   AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params,
                    bool assume_string );
-  virtual void run() POL_OVERRIDE;
+  virtual void run() override;
   void transmit( const Bscript::BObjectImp* imp );
   Bscript::BObjectImp* get_ip();
 

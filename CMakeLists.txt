@@ -38,9 +38,17 @@ option(ENABLE_USAN "Enables Undefined sanitizer" OFF)
 option(ENABLE_MSAN "Enables Memory sanitizer" OFF)
 option(ENABLE_TSAN "Enables Thread sanitizer" OFF)
 
+option(ENABLE_TIDY "Enables clang tidy check" OFF)
+# e.g "-fix;-checks=modernize-use-nullptr")
+set(TIDY_ARGS "" CACHE STRING "clang tidy arguments")
+
 if(${ONLY_ECOMPILE} OR ${ONLY_RUNECL} OR ${ONLY_POL} OR ${ONLY_POLTOOL} OR ${ONLY_UOCONVERT} OR ${ONLY_UOTOOL})
   set(BUILD_ALL OFF)
 endif()
+if(${ENABLE_TIDY})
+  set(NO_PCH ON)
+endif()
+
 
 include(cmake/init.cmake)
 
@@ -56,6 +64,22 @@ message("## Output Dir: ${output_bin_dir}")
 if (NO_PCH)
   message("## No precompiled header")
 endif()
+
+if (ENABLE_TIDY)
+  find_program(
+    CLANG_TIDY_EXE
+    NAMES "clang-tidy"
+    DOC "Path to clang-tidy executable"
+  )
+  if(NOT CLANG_TIDY_EXE)
+    message(ERROR "clang-tidy not found.")
+  else()
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+    message(STATUS "clang-tidy args: ${TIDY_ARGS}")
+    set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "${TIDY_ARGS}")
+  endif()
+endif()
+
 message("")
 
 include(CheckIncludeFiles)

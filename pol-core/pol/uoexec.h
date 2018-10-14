@@ -15,7 +15,6 @@
 #include <string>
 #include <time.h>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 
@@ -29,7 +28,7 @@ namespace Core
 {
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
-class UOExecutor : public Bscript::Executor
+class UOExecutor final : public Bscript::Executor
 {
   typedef Bscript::Executor base;
 
@@ -39,7 +38,7 @@ public:  // soon to be private ;)
 public:
   UOExecutor();
   virtual ~UOExecutor();
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  virtual size_t sizeEstimate() const override;
 
   bool suspend();
   bool revive();

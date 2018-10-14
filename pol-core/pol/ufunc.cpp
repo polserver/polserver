@@ -220,7 +220,7 @@ void send_owncreate( Client* client, const Character* chr )
   for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
   {
     const Item* item = chr->wornitem( layer );
-    if ( item == NULL )
+    if ( item == nullptr )
       continue;
 
     // Dont send faces if older client or ssopt
@@ -264,7 +264,7 @@ void send_owncreate( Client* client, const Character* chr )
     for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
     {
       const Item* item = chr->wornitem( layer );
-      if ( item == NULL )
+      if ( item == nullptr )
         continue;
       if ( layer == LAYER_FACE )
         continue;
@@ -299,7 +299,7 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
   for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
   {
     const Item* item = chr->wornitem( layer );
-    if ( item == NULL )
+    if ( item == nullptr )
       continue;
 
     // Dont send faces if older client or ssopt
@@ -343,7 +343,7 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
     for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
     {
       const Item* item = chr->wornitem( layer );
-      if ( item == NULL )
+      if ( item == nullptr )
         continue;
       if ( layer == LAYER_FACE )
         continue;
@@ -419,7 +419,7 @@ void send_remove_object_if_inrange( Client* client, const Item* item )
 
 void send_remove_object( Client* client, const UObject* object )
 {
-  if ( client == NULL || !client->ready )
+  if ( client == nullptr || !client->ready )
     return;
   Network::RemoveObjectPkt msgremove( object->serial_ext );
   msgremove.Send( client );
@@ -736,7 +736,7 @@ void send_item_to_inrange( const Item* item )
 
 void update_item_to_inrange( const Item* item )
 {
-  if ( item->container != NULL )
+  if ( item->container != nullptr )
   {
     if ( IsCharacter( item->container->serial ) )
     {
@@ -856,7 +856,7 @@ void send_wornitem_to_inrange( const Character* chr, const Item* item )
 // at client and then sends the new information.
 void update_wornitem_to_inrange( const Character* chr, const Item* item )
 {
-  if ( chr != NULL )
+  if ( chr != nullptr )
   {
     send_remove_object_to_inrange( item );
 
@@ -876,7 +876,7 @@ void update_wornitem_to_inrange( const Character* chr, const Item* item )
 // does 'item' have a parent with serial 'serial'?
 bool is_a_parent( const Item* item, u32 serial )
 {
-  while ( item->container != NULL )
+  while ( item->container != nullptr )
   {
     // UNTESTED
     item = item->container;
@@ -905,9 +905,9 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 
   // 4/2007 - MuadDib
   // Wasn't in backpack, check wornitems
-  cont = NULL;
+  cont = nullptr;
   Item* worn_item = chr->find_wornitem( serial );
-  if ( worn_item != NULL && worn_item->script_isa( POLCLASS_CONTAINER ) )
+  if ( worn_item != nullptr && worn_item->script_isa( POLCLASS_CONTAINER ) )
   {
     // Ignore these layers explicitly. Backpack especially since it was
     // already checked above.
@@ -916,7 +916,7 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
          worn_item->layer != LAYER_MOUNT )
     {
       UContainer* worn_cont = static_cast<UContainer*>( worn_item );
-      if ( worn_cont != NULL )
+      if ( worn_cont != nullptr )
         return worn_cont;
     }
   }
@@ -947,18 +947,18 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
   }
 
   Item* item =
-      chr->search_remote_containers( serial, NULL /* don't care if it's a remote container */ );
-  if ( item != NULL && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+      chr->search_remote_containers( serial, nullptr /* don't care if it's a remote container */ );
+  if ( item != nullptr && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     return static_cast<UContainer*>( item );
   else
-    return NULL;
+    return nullptr;
 }
 
 // assume if you pass additlegal or isRemoteContainer, you init to false
 Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool* isRemoteContainer )
 {
   UContainer* backpack = chr->backpack();
-  if ( backpack != NULL && backpack->serial == serial )
+  if ( backpack != nullptr && backpack->serial == serial )
     return backpack;
 
   // check worn items
@@ -970,13 +970,13 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
   // just like the backpack, without making it specific like
   // a bankbox or backpack.
   Item* item = chr->find_wornitem( serial );
-  if ( item != NULL )
+  if ( item != nullptr )
     return item;
 
-  if ( backpack != NULL )
+  if ( backpack != nullptr )
   {
     item = backpack->find( serial );
-    if ( item != NULL )
+    if ( item != nullptr )
       return item;
   }
 
@@ -994,20 +994,20 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
           continue;
         if ( _item->serial == serial )
         {
-          passert_always( _item->container == NULL );
+          passert_always( _item->container == nullptr );
           return _item;
         }
         if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
         {
           item = ( (const UContainer*)_item )->find( serial );
-          if ( item != NULL )
+          if ( item != nullptr )
             return item;
         }
       }
     }
   }
 
-  if ( additlegal != NULL )
+  if ( additlegal != nullptr )
     *additlegal = true;
   return chr->search_remote_containers( serial, isRemoteContainer );
 }
@@ -1328,7 +1328,7 @@ bool say_above( const UObject* obj, const u16* wtext, const char lang[4], unsign
 bool private_say_above( Character* chr, const UObject* obj, const char* text, unsigned short font,
                         unsigned short color, unsigned int journal_print )
 {
-  if ( chr->client == NULL )
+  if ( chr->client == nullptr )
     return false;
   PktHelper::PacketOut<PktOut_1C> msg;
   u16 textlen = static_cast<u16>( strlen( text ) + 1 );
@@ -1368,7 +1368,7 @@ bool private_say_above( Character* chr, const UObject* obj, const u16* wtext, co
     ++textlen;
   if ( textlen > ( SPEECH_MAX_LEN ) )  // FIXME need to handle this better second msg?
     textlen = ( SPEECH_MAX_LEN );
-  if ( chr->client == NULL )
+  if ( chr->client == nullptr )
     return false;
 
   PktHelper::PacketOut<PktOut_AE> msg;
@@ -1400,7 +1400,7 @@ bool private_say_above( Character* chr, const UObject* obj, const u16* wtext, co
 bool private_say_above_ex( Character* chr, const UObject* obj, const char* text,
                            unsigned short color )
 {
-  if ( chr->client == NULL )
+  if ( chr->client == nullptr )
     return false;
   PktHelper::PacketOut<PktOut_1C> msg;
   u16 textlen = static_cast<u16>( strlen( text ) + 1 );
@@ -1529,10 +1529,10 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
 Character* chr_from_wornitems( UContainer* wornitems )
 {
   Character* owner = wornitems->get_chr_owner();
-  if ( owner != NULL )
+  if ( owner != nullptr )
     return owner;
   else
-    return NULL;  // fixed 3/8/3
+    return nullptr;  // fixed 3/8/3
 }
 
 void destroy_item( Item* item )
@@ -1554,7 +1554,7 @@ void destroy_item( Item* item )
 
     send_remove_object_to_inrange( item );
 
-    if ( item->container == NULL )  // on ground, easy.
+    if ( item->container == nullptr )  // on ground, easy.
     {
       if ( !item->has_gotten_by() )  // and not in hand
         remove_item_from_world( item );
@@ -1607,7 +1607,7 @@ void move_item( Item* item, UFACING facing )
   item->y += move_delta[facing].ymove;
 
   item->restart_decay_timer();
-  MoveItemWorldPosition( oldx, oldy, item, NULL );
+  MoveItemWorldPosition( oldx, oldy, item, nullptr );
 
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
@@ -1704,7 +1704,7 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
       // dave 12-22 check for no regions
       LightRegion* light_region =
           gamestate.lightdef->getregion( client->chr->x, client->chr->y, client->chr->realm );
-      if ( light_region != NULL )
+      if ( light_region != nullptr )
         newlightlevel = light_region->lightlevel;
       else
         newlightlevel = settingsManager.ssopt.default_light_level;
@@ -1737,8 +1737,8 @@ void update_weatherregion( Client* client, WeatherRegion* weatherregion )
 
   if ( client->gd->weather_region == weatherregion )
   {
-    // client->gd->weather_region = NULL;  //dave commented this out 5/26/03, causing no processing
-    // to happen in following function, added force bool instead.
+    // client->gd->weather_region = nullptr;  //dave commented this out 5/26/03, causing no
+    // processing to happen in following function, added force bool instead.
     client->chr->check_weather_region_change( true );
     client->chr->check_light_region_change();
   }
@@ -1874,7 +1874,7 @@ void send_midi( Client* client, u16 midi )
 
 void register_with_supporting_multi( Item* item )
 {
-  if ( item->container == NULL )
+  if ( item->container == nullptr )
   {
     Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
     if ( multi )
@@ -1916,18 +1916,18 @@ void send_move_mobile_to_nearby_cansee( const Character* chr )
 Character* UpdateCharacterWeight( Item* item )
 {
   Character* chr_owner = item->GetCharacterOwner();
-  if ( chr_owner != NULL && chr_owner->client != NULL )
+  if ( chr_owner != nullptr && chr_owner->client != nullptr )
   {
     send_full_statmsg( chr_owner->client, chr_owner );
     return chr_owner;
   }
-  return NULL;
+  return nullptr;
 }
 
 void UpdateCharacterOnDestroyItem( Item* item )
 {
   Character* chr_owner = item->GetCharacterOwner();
-  if ( chr_owner != NULL )
+  if ( chr_owner != nullptr )
   {
     if ( item->layer && chr_owner->is_equipped( item ) )
     {
@@ -1941,7 +1941,7 @@ void UpdateCharacterOnDestroyItem( Item* item )
 // Dave added this 12/1/02
 bool clientHasCharacter( Client* c )
 {
-  return ( c->chr != NULL );
+  return ( c->chr != nullptr );
 }
 
 void login_complete( Client* c )
@@ -2097,7 +2097,7 @@ void send_season_info( Client* client )
     msg.Send( client );
 
     // Sending Season info resets light level in client, this fixes it during login
-    if ( client->gd->weather_region != NULL && client->gd->weather_region->lightoverride != -1 &&
+    if ( client->gd->weather_region != nullptr && client->gd->weather_region->lightoverride != -1 &&
          !client->chr->has_lightoverride() )
     {
       send_light( client, client->gd->weather_region->lightoverride );
@@ -2130,9 +2130,9 @@ void send_fight_occuring( Client* client, Character* opponent )
 void send_damage( Character* attacker, Character* defender, u16 damage )
 {
   SendDamagePkt pkt( defender->serial_ext, damage );
-  if ( attacker->client != NULL )
+  if ( attacker->client != nullptr )
     pkt.Send( attacker->client );
-  if ( ( defender->client != NULL ) && ( attacker != defender ) )
+  if ( ( defender->client != nullptr ) && ( attacker != defender ) )
     pkt.Send( defender->client );
 }
 
@@ -2182,7 +2182,7 @@ void sendCharProfile( Character* chr, Character* of_who, const char* title, cons
  * @param duration duration in seconds, only for displaying [ignored if show is false]
  * @param cl_name name of the buff, cliloc id [ignored if show is false]
  * @param cl_descr description of the buff, cliloc id [ignored if show is false]
- * @param arguments arguments for cl_descr as unicode string, separated by spaces, without NULL
+ * @param arguments arguments for cl_descr as unicode string, separated by spaces, without nullptr
  * terminator
  */
 void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 cl_name,
@@ -2213,7 +2213,7 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
     msg->Write<u16>( 20u );  // a space character
     for ( auto it = arguments.begin(); it != arguments.end(); ++it )
       msg->Write<u16>( *it );
-    msg->Write<u16>( 0u );  // NULL terminator for unicode string
+    msg->Write<u16>( 0u );  // nullptr terminator for unicode string
   }
 
   u16 len = msg->offset;
@@ -2222,5 +2222,5 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
 
   msg.Send( chr->client, len );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

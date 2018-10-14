@@ -4,7 +4,6 @@
  */
 #include <stdlib.h>
 
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../../plib/mapcell.h"
 #include "../baseobject.h"
@@ -152,7 +151,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     {
       bool remote;
       Items::Item* remote_container = chr.search_remote_containers( tgt.serial, &remote );
-      if ( ( remote_container != NULL ) && remote )
+      if ( ( remote_container != nullptr ) && remote )
         return true;
     }
     if ( att.realm != tgt.realm )

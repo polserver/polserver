@@ -1143,7 +1143,7 @@ endfunction</example>
     <wherelives>As exported functions in a .src, as defined in syshook.cfg or uopacket.cfg.</wherelives>
     <todefine>Define a system hook script in a syshook.cfg or a packet hook script in a uopacket.cfg.</todefine>
     <explain>The valid system hook names are:</explain>
-    <explain><code>CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide, CloseCustomHouse, WarmodeChange, CanTrade</code></explain>
+    <explain><code>CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide, CloseCustomHouse, WarmodeChange, CanTrade, ConsumeAmmunition</code></explain>
     <explain>You can use any name in packet hook script (ReceiveFunction/SendFunction - you can find examples in packethooks.txt).</explain>
 	  <explain>Note: You must define a "program" named scriptname in the file scriptname. This program should perform any substantive initialization for supporting the individual hooks in the file. Return 1 to install the hooks, or 0 to disable. This will be run only once on startup.</explain>
     <explain><code>CheckSkill:</code></explain>
@@ -1157,7 +1157,7 @@ endfunction</example>
     <explain><code>ParryAdvancement:</code></explain>
     <explain>params: CharRef character, WeaponRef weapon, CharRef opponent, ItemRef opponent_shield. When called: A Character attacks another whom wields a shield, before parry success is determined. Used to override 'parry' skill advancement.</explain>
     <explain><code>Attack:</code></explain>
-    <explain>params: CharRef character, CharRef opponent. When called: A Character attacks another. IMPORTANT: completely overrides core handling of combat, including the above advancement hooks. You must handle all of combat yourself in a script if you use this hook (determining hits, applying damage, destroying ammo, skill advancement, etc). Since it is called for every attack, this is a very CPU expensive hook to implement.</explain>
+    <explain>params: CharRef character, CharRef opponent. When called: A Character attacks another. IMPORTANT: completely overrides core handling of combat, including the above advancement hooks and ammunition hooks. You must handle all of combat yourself in a script if you use this hook (determining hits, applying damage, destroying ammo, skill advancement, etc). Since it is called for every attack, this is a very CPU expensive hook to implement.</explain>
     <explain><code>Pushthrough:</code></explain>
     <explain>params: CharRef character, Array of CharRefs in destination tile. When called: on EVERY move of EVERY character. Return: true if walk ok, false to block walk. Used to override the default core behavior of blocking the movement if a tile is already occupied by another mobile. NOTE: The client also performs pushthrough checks (for some realms) and must be patched if you only want server-side checks. Since this critical script is called so often, it should be kept short.</explain>
     <explain><code>SpeechMul:</code></explain>
@@ -1184,6 +1184,8 @@ endfunction</example>
     <explain>params: CharRef mobile, Integer new_status. When called: When mobile changes the warmode. Return: Ignored.</explain>
     <explain><code>CanTrade:</code></explain>
     <explain>params: CharRef mobile, CharRef drop_on, ItemRef item. When called: When dropping an item on a character or when trying to add an item to a tradewindow. Return: 0 disallow trade, 1 core will continue.</explain>
+    <explain><code>ConsumeAmmunition:</code></explain>
+    <explain>params: CharRef attacker, ItemRef weapon. When called: the combat system goes to perform the ammunition consumption check. Note: This is overruled by an active Combat Hook Return: 0 disallow fire, 1 fire weapon, -1 use core consumption.</explain>
     <example>
 //Pushthrough hook example    
 //syshook.cfg defines: 

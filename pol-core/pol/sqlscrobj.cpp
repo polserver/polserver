@@ -60,7 +60,7 @@ BSQLRow::BSQLRow( RES_WRAPPER result, MYSQL_ROW row, MYSQL_FIELD* fields )
 BObjectRef BSQLRow::OperSubscript( const BObject& obj )
 {
   const Bscript::BObjectImp& right = obj.impref();
-  if ( _result == 0 )
+  if ( _result == nullptr )
     return BObjectRef( new BError( "No result" ) );
   unsigned int num_fields = mysql_num_fields( _result->ptr() );
   if ( right.isa( OTLong ) )  // vector
@@ -72,7 +72,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     {
       return BObjectRef( new BError( "Index out of bounds" ) );
     }
-    else if ( _row[index - 1] == 0 )
+    else if ( _row[index - 1] == nullptr )
     {
       return BObjectRef( UninitObject::create() );
     }
@@ -82,8 +82,8 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
            _fields[index - 1].type == MYSQL_TYPE_NEWDECIMAL ||
            _fields[index - 1].type == MYSQL_TYPE_FLOAT ||
            _fields[index - 1].type == MYSQL_TYPE_DOUBLE )
-        return BObjectRef( new Double( strtod( _row[index - 1], NULL ) ) );
-      return BObjectRef( new BLong( strtoul( _row[index - 1], NULL, 0 ) ) );
+        return BObjectRef( new Double( strtod( _row[index - 1], nullptr ) ) );
+      return BObjectRef( new BLong( strtoul( _row[index - 1], nullptr, 0 ) ) );
     }
     return BObjectRef( new String( _row[index - 1] ) );
   }
@@ -94,7 +94,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
     {
       if ( !strncmp( _fields[i].name, string.data(), _fields[i].name_length ) )
       {
-        if ( _row[i] == 0 )
+        if ( _row[i] == nullptr )
         {
           return BObjectRef( UninitObject::create() );
         }
@@ -102,8 +102,8 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
         {
           if ( _fields[i].type == MYSQL_TYPE_DECIMAL || _fields[i].type == MYSQL_TYPE_NEWDECIMAL ||
                _fields[i].type == MYSQL_TYPE_FLOAT || _fields[i].type == MYSQL_TYPE_DOUBLE )
-            return BObjectRef( new Double( strtod( _row[i], NULL ) ) );
-          return BObjectRef( new BLong( strtoul( _row[i], NULL, 0 ) ) );
+            return BObjectRef( new Double( strtod( _row[i], nullptr ) ) );
+          return BObjectRef( new BLong( strtoul( _row[i], nullptr, 0 ) ) );
         }
         return BObjectRef( new String( _row[i] ) );
       }
@@ -147,10 +147,10 @@ BSQLResultSet::BSQLResultSet( int affected_rows )
 const char* BSQLResultSet::field_name( unsigned int index ) const
 {
   if ( !_result || _result->ptr() == nullptr )
-    return 0;
+    return nullptr;
   if ( index <= 0 || index > mysql_num_fields( _result->ptr() ) )
   {
-    return 0;
+    return nullptr;
   }
   return _fields[index - 1].name;
 }
@@ -222,7 +222,7 @@ Bscript::BObjectImp* BSQLConnection::getResultSet() const
 BSQLConnection::BSQLConnection()
     : Bscript::BObjectImp( OTSQLConnection ), _conn( new ConnectionWrapper ), _errno( 0 )
 {
-  _conn->set( mysql_init( NULL ) );
+  _conn->set( mysql_init( nullptr ) );
   if ( !_conn->ptr() )
   {
     _error = "Insufficient memory";
@@ -256,7 +256,7 @@ bool BSQLConnection::connect( const char* host, const char* user, const char* pa
     _error = "No active MYSQL object instance.";
     return false;
   }
-  if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, NULL, 0, NULL, 0 ) )
+  if ( !mysql_real_connect( _conn->ptr(), host, user, passwd, nullptr, 0, nullptr, 0 ) )
   {
     _errno = mysql_errno( _conn->ptr() );
     _error = mysql_error( _conn->ptr() );
@@ -382,7 +382,7 @@ BObjectRef BSQLConnection::get_member_id( const int /*id*/ )  // id test
 BObjectRef BSQLConnection::get_member( const char* membername )
 {
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
@@ -391,10 +391,10 @@ BObjectRef BSQLConnection::get_member( const char* membername )
 Bscript::BObjectImp* BSQLConnection::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 Bscript::BObjectImp* BSQLConnection::call_method_id( const int /*id*/, Executor& /*ex*/,

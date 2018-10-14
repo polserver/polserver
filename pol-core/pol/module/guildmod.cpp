@@ -13,11 +13,9 @@
 #include <stddef.h>
 
 #include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
@@ -68,21 +66,21 @@ using namespace Bscript;
 ///   guild.setprop( propname, propvalue )
 ///   guild.eraseprop( propname )
 ///
-class EGuildRefObjImp : public BApplicObj<Core::GuildRef>
+class EGuildRefObjImp final : public BApplicObj<Core::GuildRef>
 {
 public:
   EGuildRefObjImp( Core::GuildRef gref );
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual bool isTrue() const POL_OVERRIDE;
-  virtual bool operator==( const BObjectImp& objimp ) const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual BObjectImp* copy() const override;
+  virtual bool isTrue() const override;
+  virtual bool operator==( const BObjectImp& objimp ) const override;
 
-  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+  virtual BObjectRef get_member( const char* membername ) override;
+  virtual BObjectRef get_member_id( const int id ) override;  // id test
+  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
   virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
+                                      bool forcebuiltin = false ) override;
 };
 
 BApplicObjType guild_type;
@@ -140,11 +138,11 @@ BObjectImp* GuildExecutorModule::CreateGuildRefObjImp( Core::Guild* guild )
 
 bool getGuildParam( Executor& exec, unsigned param, Core::Guild*& guild, BError*& err )
 {
-  BApplicObjBase* aob = NULL;
+  BApplicObjBase* aob = nullptr;
   if ( exec.hasParams( param + 1 ) )
     aob = exec.getApplicObjParam( param, &guild_type );
 
-  if ( aob == NULL )
+  if ( aob == nullptr )
   {
     err = new BError( "Invalid parameter type" );
     return false;
@@ -180,7 +178,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
       ++itr;
 
       Mobile::Character* chr = Core::system_find_mobile( mserial );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         arr->addElement( new EOfflineCharacterRefObjImp( chr ) );
       }
@@ -206,7 +204,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
 
       Core::Guild* guild = Core::Guild::FindGuild( gserial );
 
-      if ( guild != NULL )
+      if ( guild != nullptr )
       {
         arr->addElement( new EGuildRefObjImp( ref_ptr<Core::Guild>( guild ) ) );
       }
@@ -232,7 +230,7 @@ BObjectRef EGuildRefObjImp::get_member_id( const int id )  // id test
 
       Core::Guild* guild = Core::Guild::FindGuild( gserial );
 
-      if ( guild != NULL )
+      if ( guild != nullptr )
       {
         arr->addElement( new EGuildRefObjImp( ref_ptr<Core::Guild>( guild ) ) );
       }
@@ -256,16 +254,23 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
     return BObjectRef( new BError( "Guild has disbanded" ) );
 
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
   if ( obj_->_disbanded )
     return new BError( "Guild has disbanded" );
+  ObjMethod* mth = getObjMethod( id );
+  if ( mth->overridden && !forcebuiltin )
+  {
+    auto* result = Core::gamestate.system_hooks.call_script_method( mth->code, &ex, this );
+    if ( result )
+      return result;
+  }
 
   switch ( id )
   {
@@ -387,7 +392,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool /*
     if ( chr->guildid() != obj_->_guildid )
       return new BError( "Character does not belong to this guild" );
 
-    chr->guild( NULL );
+    chr->guild( nullptr );
     obj_->_member_serials.erase( chr->serial );
 
     // MuadDib Added to update online members when status changes.
@@ -455,15 +460,16 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 {
   if ( obj_->_disbanded )
     return new BError( "Guild has disbanded" );
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
+  if ( objmethod != nullptr )
+    return call_method_id( objmethod->id, ex, forcebuiltin );
+  auto* res = Core::gamestate.system_hooks.call_script_method( methodname, &ex, this );
+  if ( res )
+    return res;
 
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
-    return this->call_method_id( objmethod->id, ex );
-  else
-  {
-    bool changed = false;
-    return CallPropertyListMethod( obj_->_proplist, methodname, ex, changed );
-  }
+  bool changed = false;
+  return CallPropertyListMethod( obj_->_proplist, methodname, ex, changed );
 }
 
 

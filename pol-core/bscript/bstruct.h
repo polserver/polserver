@@ -17,7 +17,6 @@
 #include <map>
 #include <string>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/maputil.h"
 #include "../clib/rawtypes.h"
 
@@ -55,32 +54,32 @@ protected:
   explicit BStruct( const BStruct& other, BObjectType type );
   explicit BStruct( BObjectType type );
 
-  virtual BObjectImp* copy() const POL_OVERRIDE;
+  virtual BObjectImp* copy() const override;
 
   virtual char packtype() const;
   virtual const char* typetag() const;
   virtual void FormatForStringRep( std::ostream& os, const std::string& key,
                                    const BObjectRef& bvalref ) const;
 
-  virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
-  virtual void packonto( std::ostream& os ) const POL_OVERRIDE;
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
+  virtual std::string getStringRep() const override;
+  virtual size_t sizeEstimate() const override;
+  virtual void packonto( std::ostream& os ) const override;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
 
-  virtual ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE;
+  virtual ContIterator* createIterator( BObject* pIterVal ) override;
 
-  virtual BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
+  virtual BObjectRef OperSubscript( const BObject& obj ) override;
+  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
   virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) POL_OVERRIDE;
+                                      bool forcebuiltin = false ) override;
   virtual BObjectRef set_member( const char* membername, BObjectImp* value,
-                                 bool copy ) POL_OVERRIDE;
-  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual BObjectRef operDotPlus( const char* name ) POL_OVERRIDE;
-  virtual BObjectRef operDotMinus( const char* name ) POL_OVERRIDE;
-  virtual BObjectRef operDotQMark( const char* name ) POL_OVERRIDE;
-  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) POL_OVERRIDE;
+                                 bool copy ) override;
+  virtual BObjectRef get_member( const char* membername ) override;
+  virtual BObjectRef operDotPlus( const char* name ) override;
+  virtual BObjectRef operDotMinus( const char* name ) override;
+  virtual BObjectRef operDotQMark( const char* name ) override;
+  virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
 
   friend class BStructIterator;
 

@@ -2,9 +2,65 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-02-2018</datemodified>
+		<datemodified>10-14-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-13-2018</date>
+			<author>Turley:</author>
+			<change type="Added">syshook.cfg SystemMethod for defining object class method scripts.<br/>
+Like itemdesc method scripts overriding builtin methods is possible, the builtin method can be called when prefixing with _.<br/>
+For UObject classes like shown in the objref docs the inheritance is respected<br/>
+so methods defined for items will be usable in weapons and methods defined in equipment override uobject methods.<br/>
+Valid cfg keys are:<br/>
+uobject, item, equipment, lockable, map, multi, armor, weapon, door, container, boat,<br/>
+house, spellbook, corpse, npc, character, client, account, party, guild<br/>
+Itemdesc/Npctemplate specific method scripts will still be first checked.</change>
+			<change type="Note">uoclient.cfg MethodScript entry is deprecated</change>
+		</entry>
+		<entry>
+			<date>10-12-2018</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Added -1 as acceptable return from ConsumeAmmunition hook which will make the core continue with the normal ammunition checks.</change>
+		</entry>
+		<entry>
+			<date>10-07-2018</date>
+			<author>Turley:</author>
+			<change type="Added">array.sorted_insert(obj, sub_index:=0, reverse:=0)<br/>
+assumes an already sorted array and inserts given obj. sub_index and reverse parameter have to match the sorting criteria of the array.</change>
+		</entry>
+		<entry>
+			<date>10-06-2018</date>
+			<author>DevGIB:</author>
+			<change type="Added">ConsumeAmmunition syshook to hook the cores check for ammunition consumption during combat. Hook should return 1 if combat is to go ahead and 0 if the weapon should not fire.</change>
+		</entry>
+		<entry>
+			<date>09-07-2018</date>
+			<author>DevGIB:</author>
+			<change type="Changed">FindObjtypeInContainer(container, objtype, flags :=0 ) to recurse all containers from base container.</change>
+			<change type="Added">Constants FINDOBJTYPE_RECURSIVE, FINDOBJTYPE_IGNORE_LOCKED and FINDOBJTYPE_ROOT_ONLY to UO.EM</change>
+			<change type="Added">Flags to FindObjtypeInContainer() for only accessing root container, and bypassing locked container checks.</change>
+			<change type="Note">THESE CHANGES TO FindObjtypeInContainer() WILL EFFECTIVELY CHANGE THE DEFAULT FUNCTIONALITY OF THE FUNCTION AS DEFAULT IS NOW TO RECURSE SUB CONTAINERS.</change>
+			<change type="Added">Additional documentation to the Racalac escript guide to include additional information supplied by Yukiko.</change>
+		</entry>
+		<entry>
+			<date>07-27-2018</date>
+			<author>DevGIB:</author>
+			<change type="Added">ListStaticsNearLocationOfType( x, y, z, range, objtype, flags := 0, realm := _DEFAULT_REALM ) to get a struct of statics near a location which match an objtype.</change>
+			<change type="Added">ListStaticsNearLocationWithFlag( x, y, z, range, flags, realm := _DEFAULT_REALM ) to get a struct of statics near a location which have matching flags in the tiledata.</change>
+		</entry>
+		<entry>
+			<date>07-29-2018</date>
+			<author>Turley:</author>
+			<change type="Added">ecompile.cfg NumberOfThreads<br/>
+forces N number of threads to be used for compilation, default is 0 which like before autodetects the number.<br/>
+cmd param -T can now be optionally extended with a number to override the cfg setting</change>
+		</entry>
+		<entry>
+			<date>07-19-2018</date>
+			<author>DevGIB:</author>
+			<change type="Added">EncodeBase64(String) and DecodeBase64(String) to basic.em to enable people to encode and decode strings using base64 without requiring an escript function.</change>
+		</entry>
 		<entry>
 			<date>04-02-2018</date>
 			<author>Bodom:</author>

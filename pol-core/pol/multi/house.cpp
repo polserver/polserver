@@ -17,7 +17,6 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <stdlib.h>
 
-#include <format/format.h>
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
@@ -34,6 +33,7 @@
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../globals/object_storage.h"
+#include "../globals/uvars.h"
 #include "../item/itemdesc.h"
 #include "../mobile/charactr.h"
 #include "../module/osmod.h"
@@ -44,6 +44,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../uconst.h"
 #include "../ufunc.h"
 #include "../uobject.h"
@@ -54,6 +55,7 @@
 #include "customhouses.h"
 #include "multi.h"
 #include "multidef.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -203,7 +205,7 @@ Bscript::ObjArray* UHouse::component_list() const
         ++itr )
   {
     Items::Item* item = ( *itr ).get();
-    if ( item != NULL && !item->orphan() )
+    if ( item != nullptr && !item->orphan() )
     {
       arr->addElement( new Module::EItemRefObjImp( item ) );
     }
@@ -282,24 +284,24 @@ Bscript::BObjectImp* UHouse::get_script_member_id( const int id ) const  /// id 
       return CurrentDesign.list_parts();
     break;
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
 Bscript::BObjectImp* UHouse::get_script_member( const char* membername ) const
 {
   Bscript::ObjMember* objmember = Bscript::getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_script_member_id( objmember->id );
   else
-    return NULL;
+    return nullptr;
 }
 
 Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& ex )
 {
   using namespace Bscript;
   BObjectImp* imp = base::script_method_id( id, ex );
-  if ( imp != NULL )
+  if ( imp != nullptr )
     return imp;
 
   switch ( id )
@@ -462,7 +464,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
   }
 
   default:
-    return NULL;
+    return nullptr;
   }
   return new BError( "Invalid parameter type" );
 }
@@ -470,10 +472,10 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
 Bscript::BObjectImp* UHouse::script_method( const char* methodname, Bscript::Executor& ex )
 {
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->script_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 void UHouse::readProperties( Clib::ConfigElem& elem )
@@ -485,7 +487,7 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
   while ( elem.remove_prop( "Component", &tmp_serial ) )
   {
     Items::Item* item = Core::find_toplevel_item( tmp_serial );
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       if ( !add_component( Component( item ) ) )
       {
@@ -540,7 +542,7 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
         ++itr )
   {
     Items::Item* item = ( *itr ).get();
-    if ( item != NULL && !item->orphan() )
+    if ( item != nullptr && !item->orphan() )
     {
       sw() << "\tComponent\t0x" << fmt::hex( item->serial ) << pf_endl;
     }
@@ -650,20 +652,20 @@ bool UHouse::readobjects( Core::StaticList& vec, short obj_x, short obj_y, short
 UHouse* UHouse::FindWorkingHouse( u32 chrserial )
 {
   Mobile::Character* chr = Core::find_character( chrserial );
-  if ( chr == NULL )
-    return NULL;
-  if ( chr->client == NULL )
-    return NULL;
+  if ( chr == nullptr )
+    return nullptr;
+  if ( chr->client == nullptr )
+    return nullptr;
 
   u32 house_serial = chr->client->gd->custom_house_serial;
 
   UMulti* multi = Core::system_find_multi( house_serial );
-  if ( multi == NULL )
-    return NULL;
+  if ( multi == nullptr )
+    return nullptr;
 
   UHouse* house = multi->as_house();
-  if ( house == NULL )
-    return NULL;
+  if ( house == nullptr )
+    return nullptr;
 
   return house;
 }
@@ -797,7 +799,7 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
                                               Realms::Realm* realm, int flags )
 {
   const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
-  if ( md == NULL )
+  if ( md == nullptr )
   {
     return new Bscript::BError(
         "Multi definition not found for House, objtype=" + Clib::hexint( descriptor.objtype ) +
@@ -876,7 +878,7 @@ void move_to_ground( Items::Item* item )
       item->y = sy;
       if ( res )
       {
-        move_item( item, item->x + xd, item->y + yd, static_cast<signed char>( newz ), NULL );
+        move_item( item, item->x + xd, item->y + yd, static_cast<signed char>( newz ), nullptr );
         return;
       }
     }
@@ -884,7 +886,7 @@ void move_to_ground( Items::Item* item )
   short newz;
   if ( item->realm->groundheight( item->x, item->y, &newz ) )
   {
-    move_item( item, item->x, item->y, static_cast<signed char>( newz ), NULL );
+    move_item( item, item->x, item->y, static_cast<signed char>( newz ), nullptr );
     return;
   }
 }
@@ -892,7 +894,7 @@ void move_to_ground( Items::Item* item )
 
 void move_to_ground( Mobile::Character* chr )
 {
-  move_character_to( chr, chr->x, chr->y, chr->z, Core::MOVEITEM_FORCELOCATION, NULL );
+  move_character_to( chr, chr->x, chr->y, chr->z, Core::MOVEITEM_FORCELOCATION, nullptr );
 }
 
 // void send_remove_object_if_inrange( Client *client, const UObject *item );
@@ -970,7 +972,7 @@ void UHouse::walk_on( Mobile::Character* chr )
     prog = find_script2( itemdesc.walk_on_script,
                          true,  // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
-    if ( prog.get() != NULL )
+    if ( prog.get() != nullptr )
     {
       std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor() );
       ex->addModule( new Module::UOExecutorModule( *ex ) );
@@ -1019,6 +1021,15 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
     if ( chr && chr->client )
       CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_WORKING );
   }
+}
+
+bool UHouse::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                              Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.house_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

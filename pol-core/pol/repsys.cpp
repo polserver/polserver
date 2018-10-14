@@ -90,44 +90,45 @@ void load_repsys_cfg_hooks( Clib::ConfigElem& elem )
 {
   std::string temp;
   if ( elem.remove_prop( "NameColor", &temp ) )
-    settingsManager.repsys_cfg.Hooks.NameColor = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.repsys_cfg.Hooks.NameColor = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "HighLightColor", &temp ) )
-    settingsManager.repsys_cfg.Hooks.HighLightColor = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.repsys_cfg.Hooks.HighLightColor =
+        FindExportedFunction( elem, nullptr, temp, 2 );
 
   if ( elem.remove_prop( "OnAttack", &temp ) )
-    settingsManager.repsys_cfg.Hooks.OnAttack = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.repsys_cfg.Hooks.OnAttack = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "OnDamage", &temp ) )
-    settingsManager.repsys_cfg.Hooks.OnDamage = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.repsys_cfg.Hooks.OnDamage = FindExportedFunction( elem, nullptr, temp, 2 );
   if ( elem.remove_prop( "OnHelp", &temp ) )
-    settingsManager.repsys_cfg.Hooks.OnHelp = FindExportedFunction( elem, NULL, temp, 2 );
+    settingsManager.repsys_cfg.Hooks.OnHelp = FindExportedFunction( elem, nullptr, temp, 2 );
 }
 
 void unload_repsys_cfg_hooks()
 {
-  if ( settingsManager.repsys_cfg.Hooks.NameColor != NULL )
+  if ( settingsManager.repsys_cfg.Hooks.NameColor != nullptr )
   {
     delete settingsManager.repsys_cfg.Hooks.NameColor;
-    settingsManager.repsys_cfg.Hooks.NameColor = NULL;
+    settingsManager.repsys_cfg.Hooks.NameColor = nullptr;
   }
-  if ( settingsManager.repsys_cfg.Hooks.HighLightColor != NULL )
+  if ( settingsManager.repsys_cfg.Hooks.HighLightColor != nullptr )
   {
     delete settingsManager.repsys_cfg.Hooks.HighLightColor;
-    settingsManager.repsys_cfg.Hooks.HighLightColor = NULL;
+    settingsManager.repsys_cfg.Hooks.HighLightColor = nullptr;
   }
-  if ( settingsManager.repsys_cfg.Hooks.OnAttack != NULL )
+  if ( settingsManager.repsys_cfg.Hooks.OnAttack != nullptr )
   {
     delete settingsManager.repsys_cfg.Hooks.OnAttack;
-    settingsManager.repsys_cfg.Hooks.OnAttack = NULL;
+    settingsManager.repsys_cfg.Hooks.OnAttack = nullptr;
   }
-  if ( settingsManager.repsys_cfg.Hooks.OnDamage != NULL )
+  if ( settingsManager.repsys_cfg.Hooks.OnDamage != nullptr )
   {
     delete settingsManager.repsys_cfg.Hooks.OnDamage;
-    settingsManager.repsys_cfg.Hooks.OnDamage = NULL;
+    settingsManager.repsys_cfg.Hooks.OnDamage = nullptr;
   }
-  if ( settingsManager.repsys_cfg.Hooks.OnHelp != NULL )
+  if ( settingsManager.repsys_cfg.Hooks.OnHelp != nullptr )
   {
     delete settingsManager.repsys_cfg.Hooks.OnHelp;
-    settingsManager.repsys_cfg.Hooks.OnHelp = NULL;
+    settingsManager.repsys_cfg.Hooks.OnHelp = nullptr;
   }
 }
 
@@ -344,13 +345,13 @@ void RepSystem::repsys_task( Mobile::Character* amy )
 
 void RepSystem::schedule_repsys_task( Mobile::Character* chr, polclock_t runat )
 {
-  if ( chr->repsys_task_ != NULL )
+  if ( chr->repsys_task_ != nullptr )
   {
     if ( chr->repsys_task_->next_run_clock() > runat )
       chr->repsys_task_->cancel();
   }
 
-  if ( chr->repsys_task_ == NULL )
+  if ( chr->repsys_task_ == nullptr )
   {
     new OneShotTaskInst<Mobile::Character*>( &chr->repsys_task_, runat, RepSystem::repsys_task,
                                              chr );
@@ -533,12 +534,12 @@ void RepSystem::de_escalate( Mobile::Character* amy, Mobile::Character* bob )
 {
   if ( amy->opponent_ == bob )
   {
-    amy->set_opponent( NULL, true );
+    amy->set_opponent( nullptr, true );
   }
 
   if ( bob->opponent_ == amy )
   {
-    bob->set_opponent( NULL, true );
+    bob->set_opponent( nullptr, true );
   }
 }
 
@@ -619,7 +620,7 @@ unsigned short RepSystem::name_color( const Mobile::Character* amy, const Mobile
   else
     return settingsManager.repsys_cfg.NameColoring.Innocent;
 }
-}
+}  // namespace Core
 namespace Mobile
 {
 ///
@@ -1200,7 +1201,7 @@ void Character::clear_my_aggressors()
   {
     u32 repserial = ( *itr );
     Character* aggressor = Core::system_find_mobile( repserial );
-    if ( aggressor != NULL )
+    if ( aggressor != nullptr )
     {
       aggressor->remove_as_aggressor_to( this );
     }
@@ -1210,11 +1211,11 @@ void Character::remove_as_aggressor_to( Character* chr )
 {
   Core::CharacterRef ref( chr );
   aggressor_to_.erase( ref );
-  if ( chr->client != NULL )
+  if ( chr->client != nullptr )
   {
     send_create_mobile_if_nearby_cansee( chr->client, this );
   }
-  if ( client != NULL )
+  if ( client != nullptr )
   {
     send_create_mobile_if_nearby_cansee( client, chr );
   }
@@ -1227,7 +1228,7 @@ void Character::clear_my_lawful_damagers()
   {
     u32 repserial = ( *itr );
     Character* damager = Core::system_find_mobile( repserial );
-    if ( damager != NULL )
+    if ( damager != nullptr )
     {
       damager->remove_as_lawful_damager( this );
     }
@@ -1239,11 +1240,11 @@ void Character::remove_as_lawful_damager( Character* chr )
   Core::CharacterRef ref( chr );
   lawfully_damaged_.erase( ref );
 
-  if ( chr->client != NULL )
+  if ( chr->client != nullptr )
   {
     send_create_mobile_if_nearby_cansee( chr->client, this );
   }
-  if ( client != NULL )
+  if ( client != nullptr )
   {
     send_create_mobile_if_nearby_cansee( client, chr );
   }
@@ -1279,5 +1280,5 @@ void Character::on_lawfullydamaged_changed()
     send_move( this->client, this );
   send_create_mobile_to_nearby_cansee( this );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

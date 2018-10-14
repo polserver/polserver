@@ -68,10 +68,10 @@ inline Mobile::Character* VitalExecutorModule::GetUOController()
 {
   UOExecutorModule* uo_module = static_cast<UOExecutorModule*>( exec.findModule( "UO" ) );
 
-  if ( uo_module != NULL && uo_module->controller_.get() )
+  if ( uo_module != nullptr && uo_module->controller_.get() )
     return uo_module->controller_.get();
   else
-    return NULL;
+    return nullptr;
 }
 }
 }

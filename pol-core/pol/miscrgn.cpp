@@ -9,6 +9,7 @@
 #include "miscrgn.h"
 
 #include <stddef.h>
+#include <tuple>
 
 #include "../clib/cfgelem.h"
 #include "../clib/rawtypes.h"
@@ -152,16 +153,17 @@ bool WeatherDef::assign_zones_to_region( const char* regionname, unsigned short 
   if ( regionname && regionname[0] )
   {
     Region* rgn = getregion_byname( regionname );
-    if ( rgn == NULL )
+    if ( rgn == nullptr )
       return false;
 
     unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-    XyToZone( xwest, ynorth, &zone_xwest, &zone_ynorth );
-    XyToZone( xeast, ysouth, &zone_xeast, &zone_ysouth );
-    unsigned zx, zy;
-    for ( zx = zone_xwest; zx <= zone_xeast; ++zx )
+
+    std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
+    std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
+
+    for ( auto zx = zone_xwest; zx <= zone_xeast; ++zx )
     {
-      for ( zy = zone_ynorth; zy <= zone_ysouth; ++zy )
+      for ( auto zy = zone_ynorth; zy <= zone_ysouth; ++zy )
       {
         regionrealms[realm][zx][zy] = rgn->regionid();
       }
@@ -170,12 +172,12 @@ bool WeatherDef::assign_zones_to_region( const char* regionname, unsigned short 
   else  // move 'em back to the default
   {
     unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-    XyToZone( xwest, ynorth, &zone_xwest, &zone_ynorth );
-    XyToZone( xeast, ysouth, &zone_xeast, &zone_ysouth );
-    unsigned zx, zy;
-    for ( zx = zone_xwest; zx <= zone_xeast; ++zx )
+    std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
+    std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
+
+    for ( auto zx = zone_xwest; zx <= zone_xeast; ++zx )
     {
-      for ( zy = zone_ynorth; zy <= zone_ysouth; ++zy )
+      for ( auto zy = zone_ynorth; zy <= zone_ysouth; ++zy )
       {
         regionrealms[realm][zx][zy] = default_regionrealms[realm][zx][zy];
       }
@@ -193,5 +195,5 @@ void read_weather_zones()
 
   gamestate.weatherdef->copy_default_regions();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

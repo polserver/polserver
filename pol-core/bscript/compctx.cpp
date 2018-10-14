@@ -70,7 +70,7 @@ int eatToCommentEnd( CompilerContext& ctx )
 }  // namespace
 
 CompilerContext::CompilerContext()
-    : s( NULL ), line( 1 ), filename( "" ), s_begin( NULL ), dbg_filenum( 0 )
+    : s( nullptr ), line( 1 ), filename( "" ), s_begin( nullptr ), dbg_filenum( 0 )
 {
 }
 
@@ -80,24 +80,12 @@ CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, 
 }
 
 CompilerContext::CompilerContext( const CompilerContext& ctx )
-    : s( ctx.s ),
-      line( ctx.line ),
-      filename( ctx.filename ),
-      s_begin( ctx.s_begin ),
-      dbg_filenum( ctx.dbg_filenum )
-{
-}
+    
+      
+= default;
 
 CompilerContext& CompilerContext::operator=( const CompilerContext& rhs )
-{
-  filename = rhs.filename;
-  s = rhs.s;
-  line = rhs.line;
-  s_begin = rhs.s_begin;
-  dbg_filenum = rhs.dbg_filenum;
-
-  return *this;
-}
+= default;
 
 /**
  * Skips whitespaces. Moves the pointer forward until a non-whitespace is found

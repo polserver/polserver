@@ -7,7 +7,6 @@
 #ifndef CLIFACE_H
 #define CLIFACE_H
 
-#include "../../clib/compilerspecifics.h"
 #include <vector>
 namespace Pol
 {
@@ -49,7 +48,7 @@ public:
 class ClientInterface
 {
 public:
-  virtual ~ClientInterface() {}
+  virtual ~ClientInterface() = default;
   void register_client( Client* client );
   void deregister_client( Client* client );
 
@@ -69,15 +68,15 @@ protected:
   friend void send_uo_skill( Client* client, Mobile::Character* me, const Mobile::Attribute* attr );
 };
 
-class UOClientInterface : public ClientInterface
+class UOClientInterface final : public ClientInterface
 {
 public:
-  virtual void Initialize() POL_OVERRIDE;
+  virtual void Initialize() override;
 
 protected:
   friend class ClientInterface;
   virtual void bcast_vital_changed( Mobile::Character* who,
-                                    const Core::Vital* vital ) const POL_OVERRIDE;
+                                    const Core::Vital* vital ) const override;
 };
 }
 }

@@ -22,7 +22,7 @@ namespace Core
 {
 void invoke( Network::Client* client, const char* spellidstr )
 {
-  u16 spellnum = static_cast<u16>( strtoul( spellidstr, NULL, 0 ) );
+  u16 spellnum = static_cast<u16>( strtoul( spellidstr, nullptr, 0 ) );
   do_cast( client, spellnum );
 }
 
@@ -31,7 +31,7 @@ void invoke( Network::Client* client, const u16* wspellidstr )
   std::wstring wstr = L"";
   for ( size_t i = 0; wspellidstr[i] != L'\0'; i++ )
     wstr += static_cast<const wchar_t>( cfBEu16( wspellidstr[i] ) );
-  u16 spellnum = static_cast<u16>( wcstoul( wstr.c_str(), NULL, 0 ) );
+  u16 spellnum = static_cast<u16>( wcstoul( wstr.c_str(), nullptr, 0 ) );
   do_cast( client, spellnum );
 }
 

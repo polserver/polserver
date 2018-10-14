@@ -59,7 +59,7 @@ size_t MobileTranslate::estimateSize() const
 
 UACTION str_to_action( Clib::ConfigElem& elem, const std::string& str )
 {
-  unsigned short tmp = static_cast<unsigned short>( strtoul( str.c_str(), NULL, 0 ) );
+  unsigned short tmp = static_cast<unsigned short>( strtoul( str.c_str(), nullptr, 0 ) );
 
   if ( UACTION_IS_VALID( tmp ) )
   {
@@ -127,7 +127,7 @@ void load_anim_xlate_cfg( bool /*reload*/ )
             if ( !values.empty() )
             {
               mobiletype.old_anim[id].action =
-                  static_cast<u16>( strtoul( values[0].c_str(), NULL, 0 ) );
+                  static_cast<u16>( strtoul( values[0].c_str(), nullptr, 0 ) );
               mobiletype.old_anim[id].valid = true;
               mobiletype.old_anim[id].framecount = 5;
               mobiletype.old_anim[id].repeatcount = 1;
@@ -137,19 +137,19 @@ void load_anim_xlate_cfg( bool /*reload*/ )
             }
             if ( values.size() > 1 )
               mobiletype.old_anim[id].framecount =
-                  static_cast<u16>( strtoul( values[1].c_str(), NULL, 0 ) );
+                  static_cast<u16>( strtoul( values[1].c_str(), nullptr, 0 ) );
             if ( values.size() > 2 )
               mobiletype.old_anim[id].repeatcount =
-                  static_cast<u16>( strtoul( values[2].c_str(), NULL, 0 ) );
+                  static_cast<u16>( strtoul( values[2].c_str(), nullptr, 0 ) );
             if ( values.size() > 3 )
               mobiletype.old_anim[id].backward =
-                  static_cast<u8>( strtoul( values[3].c_str(), NULL, 0 ) );
+                  static_cast<u8>( strtoul( values[3].c_str(), nullptr, 0 ) );
             if ( values.size() > 4 )
               mobiletype.old_anim[id].repeatflag =
-                  static_cast<u8>( strtoul( values[4].c_str(), NULL, 0 ) );
+                  static_cast<u8>( strtoul( values[4].c_str(), nullptr, 0 ) );
             if ( values.size() > 5 )
               mobiletype.old_anim[id].delay =
-                  static_cast<u8>( strtoul( values[5].c_str(), NULL, 0 ) );
+                  static_cast<u8>( strtoul( values[5].c_str(), nullptr, 0 ) );
           }
           entry = "NewAnim" + std::to_string( id );
           if ( elem.has_prop( entry.c_str() ) )
@@ -158,17 +158,17 @@ void load_anim_xlate_cfg( bool /*reload*/ )
             if ( !values.empty() )
             {
               mobiletype.new_anim[id].anim =
-                  static_cast<u16>( strtoul( values[0].c_str(), NULL, 0 ) );
+                  static_cast<u16>( strtoul( values[0].c_str(), nullptr, 0 ) );
               mobiletype.new_anim[id].valid = true;
               mobiletype.new_anim[id].action = 0;
               mobiletype.new_anim[id].subaction = 0;
             }
             if ( values.size() > 1 )
               mobiletype.new_anim[id].action =
-                  static_cast<u16>( strtoul( values[1].c_str(), NULL, 0 ) );
+                  static_cast<u16>( strtoul( values[1].c_str(), nullptr, 0 ) );
             if ( values.size() > 2 )
               mobiletype.new_anim[id].subaction =
-                  static_cast<u8>( strtoul( values[2].c_str(), NULL, 0 ) );
+                  static_cast<u8>( strtoul( values[2].c_str(), nullptr, 0 ) );
           }
         }
         Core::gamestate.animation_translates[elem.rest()] = mobiletype;

@@ -10,13 +10,16 @@
 
 #include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../baseobject.h"
 #include "../globals/state.h"
+#include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
+#include "../syshookscript.h"
 #include "../uobjcnt.h"
 #include "multi.h"
 #include "multidef.h"
@@ -50,11 +53,11 @@ void UMulti::double_click( Network::Client* /*client*/ )
 
 UBoat* UMulti::as_boat()
 {
-  return NULL;
+  return nullptr;
 }
 UHouse* UMulti::as_house()
 {
-  return NULL;
+  return nullptr;
 }
 
 void UMulti::register_object( UObject* /*obj*/ ) {}
@@ -96,17 +99,26 @@ Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id 
     return footprint();
     break;
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
 Bscript::BObjectImp* UMulti::get_script_member( const char* membername ) const
 {
   Bscript::ObjMember* objmember = Bscript::getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_script_member_id( objmember->id );
   else
-    return NULL;
+    return nullptr;
+}
+
+bool UMulti::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                              Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.multi_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 
 size_t UMulti::estimatedSize() const

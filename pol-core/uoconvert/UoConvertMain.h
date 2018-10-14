@@ -9,7 +9,7 @@ namespace Pol
 {
 namespace UoConvert
 {
-class UoConvertMain : public Pol::Clib::ProgramMain
+class UoConvertMain final : public Pol::Clib::ProgramMain
 {
 public:
   UoConvertMain();

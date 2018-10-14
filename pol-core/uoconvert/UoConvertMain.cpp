@@ -877,7 +877,7 @@ void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
   USTRUCT_IDX idxrec;
   for ( int i = 0; fread( &idxrec, sizeof idxrec, 1, multi_idx ) == 1; ++i )
   {
-    const USTRUCT_VERSION* vrec = NULL;
+    const USTRUCT_VERSION* vrec = nullptr;
 
     if ( check_verdata( VERFILE_MULTI_MUL, i, vrec ) )
     {
@@ -1105,17 +1105,17 @@ int UoConvertMain::main()
         ISTRINGSTREAM is_boats( temp );
         std::string graphicnum;
         while ( is_boats >> graphicnum )
-          UoConvert::BoatTypes.insert( strtoul( graphicnum.c_str(), NULL, 0 ) );
+          UoConvert::BoatTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
 
         temp = elem.remove_string( "Houses" );
         ISTRINGSTREAM is_houses( temp );
         while ( is_houses >> graphicnum )
-          UoConvert::HouseTypes.insert( strtoul( graphicnum.c_str(), NULL, 0 ) );
+          UoConvert::HouseTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
 
         temp = elem.remove_string( "Stairs" );
         ISTRINGSTREAM is_stairs( temp );
         while ( is_stairs >> graphicnum )
-          UoConvert::StairTypes.insert( strtoul( graphicnum.c_str(), NULL, 0 ) );
+          UoConvert::StairTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
       }
       else if ( elem.type_is( "LOSOptions" ) )
       {
@@ -1132,7 +1132,7 @@ int UoConvertMain::main()
         ISTRINGSTREAM is_mounts( temp );
         while ( is_mounts >> graphicnum )
         {
-          UoConvert::MountTypes.insert( strtoul( graphicnum.c_str(), NULL, 0 ) );
+          UoConvert::MountTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
         }
       }
       else if ( elem.type_is( "StaticOptions" ) )

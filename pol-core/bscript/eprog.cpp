@@ -33,7 +33,7 @@ EScriptProgram::EScriptProgram()
       version( 0 ),
       invocations( 0 ),
       instr_cycles( 0 ),
-      pkg( NULL ),
+      pkg( nullptr ),
       instr(),
       debug_loaded( false ),
       savecurblock( 0 ),

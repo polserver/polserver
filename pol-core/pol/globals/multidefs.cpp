@@ -26,9 +26,9 @@ void MultiDefBuffer::deinitialize()
   Multi::MultiDefs::iterator iter = multidefs_by_multiid.begin();
   for ( ; iter != multidefs_by_multiid.end(); ++iter )
   {
-    if ( iter->second != NULL )
+    if ( iter->second != nullptr )
       delete iter->second;
-    iter->second = NULL;
+    iter->second = nullptr;
   }
   multidefs_by_multiid.clear();
 }

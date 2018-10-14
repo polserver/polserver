@@ -56,7 +56,7 @@ void send_multi_if_newly_inrange( Multi::UMulti* multi, Network::Client* client 
   {
     send_multi( client, multi );
     Multi::UHouse* house = multi->as_house();
-    if ( ( client->UOExpansionFlag & Network::AOS ) && house != NULL && house->IsCustom() )
+    if ( ( client->UOExpansionFlag & Network::AOS ) && house != nullptr && house->IsCustom() )
       Multi::CustomHousesSendShort( house, client );
   }
 }
@@ -84,7 +84,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
       Multi::UMulti* multi =
           zonechr->realm->find_supporting_multi( zonechr->x, zonechr->y, zonechr->z );
 
-      if ( multi != NULL && multi->serial == serial )
+      if ( multi != nullptr && multi->serial == serial )
         return;
 
       send_char_if_newly_inrange( zonechr, client );
@@ -93,7 +93,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
       Multi::UMulti* multi =
           zoneitem->realm->find_supporting_multi( zoneitem->x, zoneitem->y, zoneitem->z );
 
-      if ( multi != NULL && multi->serial == serial )
+      if ( multi != nullptr && multi->serial == serial )
         return;
 
       send_item_if_newly_inrange( zoneitem, client );

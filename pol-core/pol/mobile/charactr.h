@@ -39,7 +39,6 @@
 #include <vector>
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
@@ -106,6 +105,7 @@ class UWeapon;
 }
 namespace Core
 {
+class ExportScript;
 class Guild;
 class Menu;
 class MenuItem;
@@ -349,45 +349,46 @@ private:
 
   // UOBJECT INTERFACE
 public:
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
-  virtual void destroy() POL_OVERRIDE;
-  virtual unsigned int weight() const POL_OVERRIDE;
+  virtual void destroy() override;
+  virtual unsigned int weight() const override;
 
-  virtual bool setgraphic( u16 newobjtype ) POL_OVERRIDE;
-  virtual void on_color_changed() POL_OVERRIDE;
-  virtual void setfacing( u8 newfacing ) POL_OVERRIDE;
-  virtual void on_facing_changed() POL_OVERRIDE;
+  virtual bool setgraphic( u16 newobjtype ) override;
+  virtual void on_color_changed() override;
+  virtual void setfacing( u8 newfacing ) override;
+  virtual void on_facing_changed() override;
 
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
 
-  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
+  virtual Bscript::BObjectImp* make_ref() override;
 
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  // id test
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  // id test
   virtual Bscript::BObjectImp* set_script_member( const char* membername,
-                                                  const std::string& value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* set_script_member_id( const int id, const std::string& value )
-      POL_OVERRIDE;  // id test
+                                                  const std::string& value ) override;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
+  virtual Bscript::BObjectImp* set_script_member_id(
+      const int id, const std::string& value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
-  virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) POL_OVERRIDE;
+                                                     int value ) override;  // id test
+  virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) override;
   virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
+                                              Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-  virtual const char* target_tag() const POL_OVERRIDE;
+                                                     Bscript::Executor& ex ) override;
+  virtual bool script_isa( unsigned isatype ) const override;
+  virtual const char* target_tag() const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:
-  virtual const char* classname() const POL_OVERRIDE;
-  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printDebugProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+  virtual const char* classname() const override;
+  virtual void printOn( Clib::StreamWriter& sw ) const override;
+  virtual void printSelfOn( Clib::StreamWriter& sw ) const override;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void printDebugProperties( Clib::StreamWriter& sw ) const override;
 
 public:
   Bscript::BObjectImp* make_offline_ref();
@@ -540,7 +541,7 @@ public:
   void set_dexterity( u16 dexterity );
   void validate_stat_ranges();
 
-  double apply_damage( double damage, Character* source = NULL, bool userepsys = true,
+  double apply_damage( double damage, Character* source = nullptr, bool userepsys = true,
                        bool send_damage_packet = false );
   void heal_damage_hundredths( unsigned int damage );
 
@@ -638,8 +639,8 @@ public:
   bool casting_spell() const;
   bool skill_ex_active() const;
   bool start_script( Bscript::EScriptProgram* prog, bool start_attached,
-                     Bscript::BObjectImp* param2 = NULL, Bscript::BObjectImp* param3 = NULL,
-                     Bscript::BObjectImp* param4 = NULL );
+                     Bscript::BObjectImp* param2 = nullptr, Bscript::BObjectImp* param3 = nullptr,
+                     Bscript::BObjectImp* param4 = nullptr );
   bool start_skill_script( Bscript::EScriptProgram* prog );
   bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
                              bool start_attached );
@@ -1012,12 +1013,12 @@ inline unsigned short Character::ar() const
 
 inline bool Character::skill_ex_active() const
 {
-  return ( script_ex != NULL );
+  return ( script_ex != nullptr );
 }
 
 inline bool Character::casting_spell() const
 {
-  return ( spell_task != NULL );
+  return ( spell_task != nullptr );
 }
 
 inline const Character::CharacterSet& Character::hostiles() const
@@ -1040,7 +1041,7 @@ inline bool Character::can_dblclickany() const
 
 inline bool Character::has_shield() const
 {
-  return ( shield != NULL );
+  return ( shield != nullptr );
 }
 
 inline Items::UArmor* Character::get_shield() const

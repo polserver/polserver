@@ -18,7 +18,6 @@
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../clib/streamsaver.h"
@@ -70,7 +69,7 @@ Items::Item* StorageArea::find_root_item( const std::string& name )
   {
     return ( *itr ).second;
   }
-  return NULL;
+  return nullptr;
 }
 
 bool StorageArea::delete_root_item( const std::string& name )
@@ -109,7 +108,7 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
 
   Items::Item* item = read_item( elem );
   // Austin added 8/10/2006, protect against further crash if item is null. Should throw instead?
-  if ( item == NULL )
+  if ( item == nullptr )
   {
     elem.warn_with_line( "Error reading item SERIAL or OBJTYPE." );
     return;
@@ -136,7 +135,7 @@ StorageArea* Storage::find_area( const std::string& name )
 {
   AreaCont::iterator itr = areas.find( name );
   if ( itr == areas.end() )
-    return NULL;
+    return nullptr;
   else
     return ( *itr ).second;
 }
@@ -159,7 +158,7 @@ StorageArea* Storage::create_area( const std::string& name )
 StorageArea* Storage::create_area( Clib::ConfigElem& elem )
 {
   const char* rest = elem.rest();
-  if ( rest != NULL && rest[0] )
+  if ( rest != nullptr && rest[0] )
   {
     return create_area( rest );
   }
@@ -211,7 +210,7 @@ void Storage::read( Clib::ConfigFile& cf )
   static int num_until_dot = 1000;
   unsigned int nobjects = 0;
 
-  StorageArea* area = NULL;
+  StorageArea* area = nullptr;
   Clib::ConfigElem elem;
 
   clock_t start = clock();
@@ -229,7 +228,7 @@ void Storage::read( Clib::ConfigFile& cf )
     }
     else if ( elem.type_is( "Item" ) )
     {
-      if ( area != NULL )
+      if ( area != nullptr )
       {
         try
         {
@@ -296,11 +295,11 @@ size_t Storage::estimateSize() const
   return size;
 }
 
-class StorageAreaIterator : public ContIterator
+class StorageAreaIterator final : public ContIterator
 {
 public:
   StorageAreaIterator( StorageArea* area, BObject* pIter );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   BObject* m_pIterVal;
@@ -322,7 +321,7 @@ BObject* StorageAreaIterator::step()
   }
 
   if ( itr == _area->_items.end() )
-    return NULL;
+    return nullptr;
 
   key = ( *itr ).first;
   m_pIterVal->setimp( new String( key ) );
@@ -331,19 +330,19 @@ BObject* StorageAreaIterator::step()
 }
 
 
-class StorageAreaImp : public BObjectImp
+class StorageAreaImp final : public BObjectImp
 {
 public:
   StorageAreaImp( StorageArea* area ) : BObjectImp( BObjectImp::OTUnknown ), _area( area ) {}
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreaImp( _area ); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return _area->_name; }
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
-  ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
+  virtual BObjectImp* copy() const override { return new StorageAreaImp( _area ); }
+  virtual std::string getStringRep() const override { return _area->_name; }
+  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
+  ContIterator* createIterator( BObject* pIterVal ) override
   {
     return new StorageAreaIterator( _area, pIterVal );
   }
 
-  BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+  BObjectRef get_member( const char* membername ) override;
 
 private:
   StorageArea* _area;
@@ -369,11 +368,11 @@ BObjectRef StorageAreaImp::get_member( const char* membername )
 }
 
 
-class StorageAreasIterator : public ContIterator
+class StorageAreasIterator final : public ContIterator
 {
 public:
   StorageAreasIterator( BObject* pIter );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   BObject* m_pIterVal;
@@ -394,7 +393,7 @@ BObject* StorageAreasIterator::step()
   }
 
   if ( itr == gamestate.storage.areas.end() )
-    return NULL;
+    return nullptr;
 
   key = ( *itr ).first;
   m_pIterVal->setimp( new String( key ) );
@@ -402,21 +401,21 @@ BObject* StorageAreasIterator::step()
   return result;
 }
 
-class StorageAreasImp : public BObjectImp
+class StorageAreasImp final : public BObjectImp
 {
 public:
   StorageAreasImp() : BObjectImp( BObjectImp::OTUnknown ) {}
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreasImp(); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return "<StorageAreas>"; }
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
-  ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
+  virtual BObjectImp* copy() const override { return new StorageAreasImp(); }
+  virtual std::string getStringRep() const override { return "<StorageAreas>"; }
+  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
+  ContIterator* createIterator( BObject* pIterVal ) override
   {
     return new StorageAreasIterator( pIterVal );
   }
 
-  BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+  BObjectRef get_member( const char* membername ) override;
 
-  BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
+  BObjectRef OperSubscript( const BObject& obj ) override;
 };
 
 BObjectImp* CreateStorageAreasImp()

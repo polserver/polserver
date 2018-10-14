@@ -82,12 +82,12 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
                                                       int flags, Realms::Realm* newrealm )
 {
   short newz;
-  Multi::UMulti* supporting_multi = NULL;
-  Item* walkon_item = NULL;
+  Multi::UMulti* supporting_multi = nullptr;
+  Item* walkon_item = nullptr;
 
   if ( !( flags & MOVEITEM_FORCELOCATION ) )
   {
-    if ( newrealm != NULL )
+    if ( newrealm != nullptr )
     {
       if ( !newrealm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true,
                                   chr->movemode ) )
@@ -97,9 +97,9 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
   Realms::Realm* oldrealm = chr->realm;
 
   bool ok;
-  if ( newrealm == NULL || oldrealm == newrealm )
+  if ( newrealm == nullptr || oldrealm == newrealm )
   {  // Realm is staying the same, just changing X Y Z coordinates.
-    ok = move_character_to( chr, x, y, z, flags, NULL );
+    ok = move_character_to( chr, x, y, z, flags, nullptr );
   }
   else
   {  // Realm and X Y Z change.
@@ -108,7 +108,7 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
     oldrealm->notify_left( *chr );
 
     send_remove_character_to_nearby( chr );
-    if ( chr->client != NULL )
+    if ( chr->client != nullptr )
       remove_objects_inrange( chr->client );
     chr->realm = newrealm;
     chr->realm_changed();
@@ -156,7 +156,7 @@ BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xco
   // Check if container was successfully moved to a new realm and update contents.
   if ( !ok->isa( BObjectImp::OTError ) )
   {
-    if ( newrealm != NULL && oldrealm != newrealm )
+    if ( newrealm != nullptr && oldrealm != newrealm )
       container->for_each_item( setrealm, (void*)newrealm );
   }
 
@@ -170,7 +170,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
   if ( !( flags & MOVEITEM_IGNOREMOVABLE ) && !item->movable() )
   {
     Character* chr = controller_.get();
-    if ( chr == NULL || !chr->can_move( item ) )
+    if ( chr == nullptr || !chr->can_move( item ) )
       return new BError( "That is immobile" );
   }
   if ( item->inuse() && !is_reserved_to_me( item ) )
@@ -188,7 +188,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     return new BError( message );
   }
 
-  Multi::UMulti* multi = NULL;
+  Multi::UMulti* multi = nullptr;
   if ( flags & MOVEITEM_FORCELOCATION )
   {
     short newz;
@@ -208,14 +208,14 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     z = newz;
   }
 
-  if ( item->container != NULL )
+  if ( item->container != nullptr )
   {
     // DAVE added this 12/04, call can/onRemove scripts for the old container
     UObject* oldroot = item->toplevel_owner();
     UContainer* oldcont = item->container;
     Character* chr_owner = oldcont->GetCharacterOwner();
-    if ( chr_owner == NULL )
-      if ( controller_.get() != NULL )
+    if ( chr_owner == nullptr )
+      if ( controller_.get() != nullptr )
         chr_owner = controller_.get();
 
     // dave changed 1/26/3 order of scripts to call. added unequip/test script call
@@ -259,7 +259,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
 
   move_item( item, x, y, static_cast<signed char>( z ), oldrealm );
 
-  if ( multi != NULL )
+  if ( multi != nullptr )
   {
     multi->register_object( item );
   }

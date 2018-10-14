@@ -32,7 +32,7 @@ namespace Bscript
  */
 int EScriptProgram::read( const char* fname )
 {
-  FILE* fp = NULL;
+  FILE* fp = nullptr;
 
   try
   {
@@ -126,7 +126,7 @@ int EScriptProgram::read( const char* fname )
   catch ( std::exception& ex )
   {
     ERROR_PRINT << "Exception caught while loading script " << fname << ": " << ex.what() << "\n";
-    if ( fp != NULL )
+    if ( fp != nullptr )
       fclose( fp );
     return -1;
   }
@@ -134,7 +134,7 @@ int EScriptProgram::read( const char* fname )
   catch ( ... )
   {
     ERROR_PRINT << "Exception caught while loading script " << fname << "\n";
-    if ( fp != NULL )
+    if ( fp != nullptr )
       fclose( fp );
     return -1;
   }
@@ -368,7 +368,7 @@ int EScriptProgram::read_globalvarnames( FILE* fp )
     globalvarnames.push_back( std::string( buffer ) );
   }
   delete[] buffer;
-  buffer = NULL;
+  buffer = nullptr;
   return res;
 }
 
@@ -387,7 +387,7 @@ int EScriptProgram::read_exported_functions( FILE* fp, BSCRIPT_SECTION_HDR* hdr 
     ef.nargs = bef.nargs;
     ef.PC = bef.PC;
     exported_functions.push_back( ef );
-    if ( ( mth = getKnownObjMethod( ef.name.c_str() ) ) != NULL )
+    if ( ( mth = getKnownObjMethod( ef.name.c_str() ) ) != nullptr )
       mth->overridden = true;
   }
   return 0;

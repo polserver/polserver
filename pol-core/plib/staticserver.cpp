@@ -42,7 +42,7 @@ StaticServer::StaticServer( const RealmDescriptor& descriptor )
   Validate();
 }
 
-StaticServer::~StaticServer() {}
+StaticServer::~StaticServer() = default;
 
 void StaticServer::Validate() const
 {

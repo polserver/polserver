@@ -25,12 +25,14 @@
 #include "clidata.h"
 #include "dynproperties.h"
 #include "globals/state.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "objtype.h"
 #include "polcfg.h"
 #include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
+#include "syshookscript.h"
 #include "tooltips.h"
 #include "uconst.h"
 #include "uobjcnt.h"
@@ -213,12 +215,12 @@ void UObject::setname( const std::string& newname )
 
 UObject* UObject::owner()
 {
-  return NULL;
+  return nullptr;
 }
 
 const UObject* UObject::owner() const
 {
-  return NULL;
+  return nullptr;
 }
 
 UObject* UObject::self_as_owner()
@@ -264,7 +266,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tFacing\t" << static_cast<int>( facing ) << pf_endl;
 
   sw() << "\tRevision\t" << rev() << pf_endl;
-  if ( realm == NULL )
+  if ( realm == nullptr )
     sw() << "\tRealm\tbritannia" << pf_endl;
   else
     sw() << "\tRealm\t" << realm->name() << pf_endl;
@@ -395,6 +397,13 @@ void UObject::saveonexit( bool newvalue )
 const char* UObject::target_tag() const
 {
   return "object";
+}
+
+bool UObject::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                               unsigned int* PC ) const
+{
+  return gamestate.system_hooks.get_method_hook( gamestate.system_hooks.uobject_method_script.get(),
+                                                 methodname, ex, hook, PC );
 }
 }
 }

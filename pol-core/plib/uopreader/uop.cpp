@@ -90,8 +90,7 @@ void uop_t::data_header_v5_t::_read() {
   m_filebytes = m__io->read_bytes(_parent()->compressed_size());
 }
 
-uop_t::data_header_v5_t::~data_header_v5_t() {
-}
+uop_t::data_header_v5_t::~data_header_v5_t() = default;
 
 uop_t::header_t::header_t(kaitai::kstream* p__io, uop_t* p__parent,
                           uop_t* p__root) : kaitai::kstruct(p__io) {

@@ -70,12 +70,12 @@ void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int
       {
         if ( settingsManager.ssopt.seperate_speechtoken )
         {
-          if ( speechtokens != NULL && ( ( lp->flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
+          if ( speechtokens != nullptr && ( ( lp->flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
           {
             ++itr;
             continue;
           }
-          else if ( speechtokens == NULL && ( lp->flags & LISTENPT_NO_SPEECH ) )
+          else if ( speechtokens == nullptr && ( lp->flags & LISTENPT_NO_SPEECH ) )
           {
             ++itr;
             continue;
@@ -100,7 +100,7 @@ void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int
 
 void deregister_from_speech_events( UOExecutor* uoexec )
 {
-  // ListenPoint lp( NULL, uoexec, 0, 0 );
+  // ListenPoint lp( nullptr, uoexec, 0, 0 );
   ListenPoints::iterator itr = gamestate.listen_points.find( uoexec );
   if ( itr !=
        gamestate.listen_points.end() )  // could have been cleaned up in sayto_listening_points
@@ -124,7 +124,7 @@ Bscript::BObjectImp* GetListenPoints()
         itr != end; )
   {
     ListenPoint* lp = ( *itr ).second;
-    if ( lp == NULL || lp->object->orphan() )
+    if ( lp == nullptr || lp->object->orphan() )
     {
       ListenPoints::iterator next = itr;
       ++next;

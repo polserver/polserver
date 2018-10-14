@@ -179,7 +179,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
     {
       const BObjectRef& ref = params->ref_arr[i];
       const BObject* obj = ref.get();
-      if ( obj != NULL )
+      if ( obj != nullptr )
         sharedParams->insert( sharedParams->end(), obj->impptr()->getStringRep() );
     }
   }
@@ -300,7 +300,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
     return new BError( "Invalid parameters" );
   }
   const char* name = result->field_name( index );
-  if ( name == 0 )
+  if ( name == nullptr )
     return new BError( "Column does not exist" );
   return new String( name );
 }

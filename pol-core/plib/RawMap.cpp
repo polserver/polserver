@@ -52,7 +52,7 @@ void RawMap::set_bounds( unsigned short width, unsigned short height )
 unsigned int RawMap::load_map_difflist( FILE* mapdifl_file )
 {
   unsigned index = 0;
-  if ( mapdifl_file != NULL )
+  if ( mapdifl_file != nullptr )
   {
     u32 blockid;
     while ( fread( &blockid, sizeof blockid, 1, mapdifl_file ) == 1 )
@@ -192,7 +192,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
 RawMap::RawMap() : m_mapwidth( 0 ), m_mapheight( 0 ) {}
 
 
-RawMap::~RawMap() {}
+RawMap::~RawMap() = default;
 
 }  // namespace Plib
 }  // namespace Pol

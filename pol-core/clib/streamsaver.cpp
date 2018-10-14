@@ -13,7 +13,7 @@ const std::size_t flush_limit = 10000;  // 500;
 
 /// BaseClass implements only writer operator logic
 StreamWriter::StreamWriter() : _writer( new fmt::Writer ) {}
-StreamWriter::~StreamWriter() {}
+StreamWriter::~StreamWriter() = default;
 
 fmt::Writer& StreamWriter::operator()()
 {

@@ -53,7 +53,7 @@ static bool rawstatic_init = false;
 void read_static_diffs()
 {
   unsigned index = 0;
-  if ( stadifl_file != NULL )
+  if ( stadifl_file != nullptr )
   {
     u32 blockid;
     while ( fread( &blockid, sizeof blockid, 1, stadifl_file ) == 1 )

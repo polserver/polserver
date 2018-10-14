@@ -251,10 +251,10 @@ static int flagsearch( int argc, char** argv )
   if ( argc < 3 )
     return 1;
 
-  unsigned int flags = strtoul( argv[2], NULL, 0 );
+  unsigned int flags = strtoul( argv[2], nullptr, 0 );
   unsigned int notflags = 0;
   if ( argc >= 4 )
-    notflags = strtoul( argv[3], NULL, 0 );
+    notflags = strtoul( argv[3], nullptr, 0 );
 
   int i;
   for ( i = 0; i <= 0xFFFF; i++ )
@@ -278,10 +278,10 @@ static int landtileflagsearch( int argc, char** argv )
   if ( argc < 3 )
     return 1;
 
-  unsigned int flags = strtoul( argv[2], NULL, 0 );
+  unsigned int flags = strtoul( argv[2], nullptr, 0 );
   unsigned int notflags = 0;
   if ( argc >= 4 )
-    notflags = strtoul( argv[3], NULL, 0 );
+    notflags = strtoul( argv[3], nullptr, 0 );
 
   Core::USTRUCT_LAND_TILE landtile;
 
@@ -832,7 +832,7 @@ static int contour()
 
 static int findlandtile( int /*argc*/, char** argv )
 {
-  int landtile = strtoul( argv[1], NULL, 0 );
+  int landtile = strtoul( argv[1], nullptr, 0 );
   Core::open_uo_data_files();
   Core::read_uo_data();
 
@@ -859,7 +859,7 @@ static int findlandtile( int /*argc*/, char** argv )
 
 static int findgraphic( int /*argc*/, char** argv )
 {
-  int graphic = strtoul( argv[1], NULL, 0 );
+  int graphic = strtoul( argv[1], nullptr, 0 );
   INFO_PRINT << "Searching map for statics with graphic=0x" << fmt::hexu( graphic ) << "\n";
 
   Core::open_uo_data_files();
@@ -886,7 +886,7 @@ static int findgraphic( int /*argc*/, char** argv )
 
 static int findlandtileflags( int /*argc*/, char** argv )
 {
-  unsigned int flags = strtoul( argv[1], NULL, 0 );
+  unsigned int flags = strtoul( argv[1], nullptr, 0 );
   Core::open_uo_data_files();
   Core::read_uo_data();
 

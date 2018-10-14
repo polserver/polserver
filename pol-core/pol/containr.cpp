@@ -22,15 +22,18 @@
 
 #include "containr.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <cstddef>
 
+#include "../bscript/executor.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/streamsaver.h"
 #include "globals/state.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -38,6 +41,7 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "statmsg.h"
+#include "syshookscript.h"
 #include "uconst.h"
 #include "ufunc.h"
 #include "umanip.h"
@@ -65,10 +69,10 @@ UContainer::~UContainer()
 
 size_t UContainer::estimatedSize() const
 {
-  size_t size = base::estimatedSize() + sizeof( u16 ) /*held_weight_*/
-                + sizeof( unsigned int )              /*held_item_count_*/
-                // no estimateSize here element is in objhash
-                + 3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
+  const size_t size = base::estimatedSize() + sizeof( u16 ) /*held_weight_*/
+                      + sizeof( unsigned int )              /*held_item_count_*/
+                      // no estimateSize here element is in objhash
+                      + 3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
   return size;
 }
 
@@ -77,9 +81,9 @@ void UContainer::destroy_contents()
   while ( !contents_.empty() )
   {
     Contents::value_type item = contents_.back();
-    if ( ITEM_ELEM_PTR( item ) != NULL )  // this is really only for wornitems.
+    if ( ITEM_ELEM_PTR( item ) != nullptr )  // this is really only for wornitems.
     {
-      item->container = NULL;
+      item->container = nullptr;
       item->destroy();
     }
     contents_.pop_back();
@@ -110,7 +114,7 @@ void UContainer::printContents( Clib::StreamWriter& sw ) const
 {
   for ( const auto& item : contents_ )
   {
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       if ( item->itemdesc().save_on_exit && item->saveonexit() )
       {
@@ -146,7 +150,7 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
     if ( held_item_count_ + item_count_diff > max_items() )
       return false;
 
-    if ( container != NULL )
+    if ( container != nullptr )
       return container->can_add_bulk( 0, 0, weight_diff );
     else
       return true;
@@ -219,7 +223,7 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
   // MAX_WEIGHT) );
 
   held_weight_ += static_cast<unsigned short>( weight_delta );
-  if ( container != NULL )
+  if ( container != nullptr )
   {
     container->add_bulk( 0, weight_delta );
   }
@@ -356,7 +360,7 @@ Items::Item* UContainer::find_toplevel_polclass( unsigned int polclass ) const
     if ( item && ( item->script_isa( polclass ) ) )
       return item;
   }
-  return NULL;
+  return nullptr;
 }
 
 Items::Item* UContainer::find_toplevel_objtype( u32 objtype ) const
@@ -366,7 +370,7 @@ Items::Item* UContainer::find_toplevel_objtype( u32 objtype ) const
     if ( item && ( item->objtype_ == objtype ) )
       return item;
   }
-  return NULL;
+  return nullptr;
 }
 Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype ) const
 {
@@ -375,7 +379,7 @@ Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype ) const
     if ( item && ( item->objtype_ == objtype ) && !item->inuse() )
       return item;
   }
-  return NULL;
+  return nullptr;
 }
 
 Items::Item* UContainer::find_toplevel_objtype( u32 objtype, unsigned short maxamount ) const
@@ -385,7 +389,7 @@ Items::Item* UContainer::find_toplevel_objtype( u32 objtype, unsigned short maxa
     if ( item && ( item->objtype_ == objtype ) && ( item->getamount() <= maxamount ) )
       return item;
   }
-  return NULL;
+  return nullptr;
 }
 Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype,
                                                          unsigned short maxamount ) const
@@ -396,13 +400,13 @@ Items::Item* UContainer::find_toplevel_objtype_noninuse( u32 objtype,
          !item->inuse() )
       return item;
   }
-  return NULL;
+  return nullptr;
 }
 
 Items::Item* UContainer::find_addable_stack( const Items::Item* adding_item ) const
 {
   if ( !adding_item->stackable() )
-    return NULL;
+    return nullptr;
 
   unsigned short maxamount = adding_item->itemdesc().stack_limit - adding_item->getamount();
 
@@ -417,14 +421,38 @@ Items::Item* UContainer::find_addable_stack( const Items::Item* adding_item ) co
     }
   }
 
-  return NULL;
+  return nullptr;
+}
+
+Items::Item* UContainer::find_objtype( u32 objtype, int flags ) const
+{
+  Items::Item* _item = find_toplevel_objtype( objtype );
+  if ( _item != nullptr )
+    return _item;
+  if ( !( flags & FINDOBJTYPE_ROOT_ONLY ) )
+  {
+    for ( const auto& item : contents_ )
+    {
+      if ( item && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+      {
+        UContainer* cont = static_cast<UContainer*>( item );
+        if ( !cont->locked() || ( flags & FINDOBJTYPE_IGNORE_LOCKED ) )
+        {
+          auto child_item = cont->find_objtype( objtype, flags );
+          if ( child_item != nullptr )
+            return child_item;
+        }
+      }
+    }
+  }
+  return nullptr;
 }
 
 
 Items::Item* UContainer::find_objtype_noninuse( u32 objtype ) const
 {
   Items::Item* _item = find_toplevel_objtype_noninuse( objtype );
-  if ( _item != NULL )
+  if ( _item != nullptr )
     return _item;
 
   for ( const auto& item : contents_ )
@@ -435,12 +463,12 @@ Items::Item* UContainer::find_objtype_noninuse( u32 objtype ) const
       if ( !cont->locked() )
       {
         auto child_item = cont->find_objtype_noninuse( objtype );
-        if ( child_item != NULL )
+        if ( child_item != nullptr )
           return child_item;
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype ) const
@@ -472,7 +500,7 @@ void UContainer::consume_sumof_objtype_noninuse( u32 objtype, unsigned int amoun
   while ( amount != 0 )
   {
     Items::Item* item = find_objtype_noninuse( objtype );
-    passert_always( item != NULL );
+    passert_always( item != nullptr );
 
     unsigned short thisamt = item->getamount();
     if ( thisamt > amount )
@@ -488,9 +516,9 @@ Items::Item* UContainer::remove( u32 objserial, UContainer** found_in )
   iterator itr;
 
   item = find( objserial, itr );
-  if ( item != NULL )
+  if ( item != nullptr )
   {
-    if ( found_in != NULL )
+    if ( found_in != nullptr )
       *found_in = item->container;
 
     item->container->remove( itr );
@@ -505,7 +533,7 @@ void UContainer::remove( Items::Item* item )
     POLLOG.Format( "UContainer::remove(Item*), serial=0x{:X}, item=0x{:X}, item->cont=0x{:X}\n" )
         << serial << item->serial << item->container->serial;
     passert_always( item->container == this );
-    int* p = 0;
+    int* p = nullptr;
     *p = 6;
   }
 
@@ -515,13 +543,13 @@ void UContainer::remove( Items::Item* item )
   // DAVE added this 11/17. refresh owner's weight on delete
   Mobile::Character* chr_owner = item->GetCharacterOwner();
 
-  if ( chr_owner != NULL && chr_owner->client != NULL )
+  if ( chr_owner != nullptr && chr_owner->client != nullptr )
   {
     send_remove_object_to_inrange( item );
   }
   remove( itr );
 
-  if ( chr_owner != NULL && chr_owner->client != NULL )
+  if ( chr_owner != nullptr && chr_owner->client != nullptr )
   {
     send_full_statmsg( chr_owner->client, chr_owner );
     // chr_owner->refresh_ar();
@@ -540,7 +568,7 @@ void UContainer::remove( iterator itr )
   INC_PROFILEVAR( container_removes );
   Items::Item* item = GET_ITEM_PTR( itr );
   contents_.erase( itr );
-  item->container = NULL;
+  item->container = nullptr;
   item->reset_slot();
   item->set_dirty();
   remove_bulk( item );
@@ -557,11 +585,11 @@ UContainer* UContainer::find_container( u32 objserial ) const
       if ( cont->serial == objserial )
         return cont;
       cont = cont->find_container( objserial );
-      if ( cont != NULL )
+      if ( cont != nullptr )
         return cont;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
@@ -569,8 +597,8 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
   for ( iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
   {
     Items::Item* item = GET_ITEM_PTR( itr );
-    passert( item != NULL );
-    if ( item != NULL )
+    passert( item != nullptr );
+    if ( item != nullptr )
     {
       if ( item->serial == objserial )
       {
@@ -583,21 +611,21 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
         if ( !cont->locked() )
         {
           item = cont->find( objserial, where_in_container );
-          if ( item != NULL )
+          if ( item != nullptr )
             return item;
         }
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Items::Item* UContainer::find( u32 objserial ) const
 {
   for ( const auto& item : contents_ )
   {
-    passert( item != NULL );
-    if ( item != NULL )
+    passert( item != nullptr );
+    if ( item != nullptr )
     {
       if ( item->serial == objserial )
         return item;
@@ -608,27 +636,27 @@ Items::Item* UContainer::find( u32 objserial ) const
         if ( !cont->locked() )
         {
           auto child_item = cont->find( objserial );
-          if ( child_item != NULL )
+          if ( child_item != nullptr )
             return child_item;
         }
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Items::Item* UContainer::find_toplevel( u32 objserial ) const
 {
   for ( auto& item : contents_ )
   {
-    passert( item != NULL );
-    if ( item != NULL )
+    passert( item != nullptr );
+    if ( item != nullptr )
     {
       if ( item->serial == objserial )
         return item;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void UContainer::for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg )
@@ -712,7 +740,7 @@ bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) co
 
 void UContainer::spill_contents( Multi::UMulti* multi )
 {
-  passert( container == NULL );
+  passert( container == nullptr );
   if ( !locked() )
   {
     while ( !contents_.empty() )
@@ -725,9 +753,9 @@ void UContainer::spill_contents( Multi::UMulti* multi )
         item->x = x;
         item->y = y;
         item->z = z;
-        item->container = NULL;
+        item->container = nullptr;
         add_item_to_world( item );
-        move_item( item, x, y, z, NULL );
+        move_item( item, x, y, z, nullptr );
         if ( multi )
           multi->register_object( item );
         item->layer = 0;
@@ -747,7 +775,7 @@ void UContainer::on_remove( Mobile::Character* chr, Items::Item* item, MoveType 
   {
     // static code analysis indicates (C6211) that this might leak, but I can't use an auto_ptr<>
     // because of UninitObject::create() ... ideas? Nando - 2010-07-10
-    Bscript::BObjectImp* chrParam = NULL;
+    Bscript::BObjectImp* chrParam = nullptr;
     if ( chr )  // consider: move this into make_mobileref
       chrParam = new Module::ECharacterRefObjImp( chr );
     else
@@ -824,8 +852,8 @@ bool UContainer::check_can_remove_script( Mobile::Character* chr, Items::Item* i
 {
   if ( !desc.can_remove_script.empty() )
   {
-    Bscript::BObjectImp* chrParam = NULL;
-    if ( chr != NULL )  // TODO: consider moving this into make_mobileref
+    Bscript::BObjectImp* chrParam = nullptr;
+    if ( chr != nullptr )  // TODO: consider moving this into make_mobileref
       chrParam = chr->make_ref();
     else
       chrParam = Bscript::UninitObject::create();
@@ -895,7 +923,7 @@ unsigned int UContainer::find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet,
 
 Items::Item* UContainer::clone() const
 {
-  UContainer* item = static_cast<UContainer*>( base::clone() );
+  auto item = static_cast<UContainer*>( base::clone() );
 
   item->max_items_mod( this->max_items_mod() );
   item->max_weight_mod( this->max_weight_mod() );
@@ -907,19 +935,14 @@ Items::Item* UContainer::clone() const
 
 unsigned short UContainer::max_items() const
 {
-  int max_items = desc.max_items + max_items_mod();
+  const auto max_items = desc.max_items + max_items_mod();
 
-  if ( max_items < 1 )
-    return 1;
-  else if ( max_items <= MAX_CONTAINER_ITEMS )
-    return static_cast<u16>( max_items );
-  else
-    return MAX_CONTAINER_ITEMS;
+  return std::max( 1, std::min<decltype( max_items )>( max_items, MAX_CONTAINER_ITEMS ) );
 }
 
 unsigned short UContainer::max_weight() const
 {
-  int max_weight = desc.max_weight + max_weight_mod();
+  const s32 max_weight = desc.max_weight + max_weight_mod();
 
   if ( max_weight < 1 )
     return USHRT_MAX;
@@ -931,14 +954,9 @@ unsigned short UContainer::max_weight() const
 
 u8 UContainer::max_slots() const
 {
-  short max_slots = desc.max_slots + max_slots_mod();
+  const auto max_slots = desc.max_slots + max_slots_mod();
 
-  if ( max_slots < 0 )
-    return 0;
-  else if ( max_slots <= MAX_SLOTS )
-    return static_cast<u8>( max_slots );
-  else
-    return MAX_SLOTS;
+  return std::max( 0, std::min<decltype( max_slots )>( max_slots, MAX_SLOTS ) );
 }
 
 bool UContainer::no_drop_exception() const
@@ -955,5 +973,14 @@ bool UContainer::default_no_drop_exception() const
 {
   return desc.no_drop_exception;
 }
+
+bool UContainer::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                  ExportScript** hook, unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.container_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
+}  // namespace Core
+}  // namespace Pol

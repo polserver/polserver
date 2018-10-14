@@ -252,7 +252,7 @@ void start_client_char( Network::Client* client )
   {
     client->chr->z = static_cast<s8>( newz );
     // FIXME: Need to add Walkon checks for multi right here if type is house.
-    if ( supporting_multi != NULL )
+    if ( supporting_multi != nullptr )
     {
       supporting_multi->register_object( client->chr );
       Multi::UHouse* this_house = supporting_multi->as_house();
@@ -260,7 +260,7 @@ void start_client_char( Network::Client* client )
       {
         client->chr->registered_house = supporting_multi->serial;
 
-        if ( this_house != NULL )
+        if ( this_house != nullptr )
           this_house->walk_on( client->chr );
       }
     }
@@ -269,7 +269,7 @@ void start_client_char( Network::Client* client )
       if ( client->chr->registered_house > 0 )
       {
         Multi::UMulti* multi = system_find_multi( client->chr->registered_house );
-        if ( multi != NULL )
+        if ( multi != nullptr )
         {
           multi->unregister_object( client->chr );
         }
@@ -386,8 +386,8 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 {
   bool reconnecting = false;
   int charidx = cfBEu32( msg->charidx );
-  if ( ( charidx >= Plib::systemstate.config.character_slots ) || ( client->acct == NULL ) ||
-       ( client->acct->get_character( charidx ) == NULL ) )
+  if ( ( charidx >= Plib::systemstate.config.character_slots ) || ( client->acct == nullptr ) ||
+       ( client->acct->get_character( charidx ) == nullptr ) )
   {
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
@@ -437,10 +437,10 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
     chosen_char->client->msgtype_filter = networkManager.disconnected_filter.get();
 
     // disassociate the objects from each other.
-    chosen_char->client->acct = NULL;
-    chosen_char->client->chr = NULL;
+    chosen_char->client->acct = nullptr;
+    chosen_char->client->chr = nullptr;
 
-    chosen_char->client = NULL;
+    chosen_char->client = nullptr;
     reconnecting = true;
   }
   else if ( !Plib::systemstate.config.allow_multi_clients_per_account &&
@@ -732,7 +732,7 @@ void threadstatus_thread( void )
       tmp << "Number of clients: " << Core::networkManager.clients.size() << "\n";
       for ( const auto& client : Core::networkManager.clients )
         tmp << " " << Network::AddressToString( &client->ipaddr ) << " "
-            << ( client->acct == NULL ? "prelogin " : client->acct->name() ) << " "
+            << ( client->acct == nullptr ? "prelogin " : client->acct->name() ) << " "
             << client->checkpoint << "\n";
       if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
         tmp << "check_attack_after_move() Checkpoint: "
@@ -959,8 +959,8 @@ void check_incoming_data( void )
                              Plib::systemstate.config.client_encryption_version );
     client->csocket = client_socket;
     memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
-    // Added null setting for pre-char selection checks using NULL validation
-    client->acct = NULL;
+    // Added null setting for pre-char selection checks using nullptr validation
+    client->acct = nullptr;
 
     networkManager.clients.push_back( client );
     INFO_PRINT << "Client connected (Total: " << networkManager.clients.size() << ")\n";
@@ -1037,11 +1037,11 @@ const char* Use_low_fragmentation_Heap()
     HINSTANCE hKernel32;
 
     hKernel32 = LoadLibrary( "Kernel32" );
-    if ( hKernel32 != NULL )
+    if ( hKernel32 != nullptr )
     {
       DynHeapSetInformation ProcAdd;
       ProcAdd = (DynHeapSetInformation)GetProcAddress( hKernel32, "HeapSetInformation" );
-      if ( ProcAdd != NULL )
+      if ( ProcAdd != nullptr )
       {
         ULONG HeapFragValue = 2;
 
@@ -1457,7 +1457,7 @@ int xmain_outer( bool testing )
   }
   catch ( std::exception& )
   {
-    if ( Core::stateManager.last_checkpoint != NULL )
+    if ( Core::stateManager.last_checkpoint != nullptr )
     {
       POLLOG_INFO << "Server Shutdown: " << Core::stateManager.last_checkpoint << "\n";
       // pol_sleep_ms( 10000 );

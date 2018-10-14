@@ -10,6 +10,7 @@
 #include <array>
 #include <boost/noncopyable.hpp>
 #include <map>
+#include <memory>
 #include <queue>
 #include <set>
 #include <string>
@@ -186,7 +187,7 @@ public:
   std::vector<USpell*> spells;
   std::vector<SpellCircle*> spellcircles;
 
-  std::vector<ExportScript*> export_scripts;
+  std::vector<std::unique_ptr<ExportScript>> export_scripts;
   SystemHooks system_hooks;
 
   std::vector<std::string> tipfilenames;
@@ -246,6 +247,7 @@ public:
     size_t misc;
   };
   threadhelp::TaskThreadPool task_thread_pool;
+
 private:
   void cleanup_vars();
   void cleanup_scripts();

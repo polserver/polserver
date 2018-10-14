@@ -21,7 +21,7 @@ namespace Bscript
 {
 SymbolContainer::SymbolContainer( int PgrowBy )
 {
-  s = NULL;
+  s = nullptr;
   usedLen = allocLen = 0u;
   growBy = PgrowBy;
 }
@@ -29,14 +29,14 @@ SymbolContainer::~SymbolContainer()
 {
   if ( s )
     free( s );
-  s = NULL;
+  s = nullptr;
 }
 
 void SymbolContainer::erase()
 {
   if ( s )
     free( s );
-  s = NULL;
+  s = nullptr;
   usedLen = allocLen = 0;
 }
 
@@ -45,7 +45,7 @@ void SymbolContainer::resize( unsigned lengthToAdd )
   while ( usedLen + lengthToAdd > allocLen )
   {
     allocLen += growBy;
-    if ( s == NULL )
+    if ( s == nullptr )
     {
       s = (char*)calloc( 1, (unsigned)allocLen );
       usedLen = 0;
@@ -209,7 +209,7 @@ void StoredTokenContainer::pack( void )
 void* StoredTokenContainer::detach( void )
 {
   void* d = SymbolContainer::detach();
-  ST = NULL;
+  ST = nullptr;
   return d;
 }
 

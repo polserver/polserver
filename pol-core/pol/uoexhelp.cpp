@@ -44,7 +44,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
                                 Network::Client*& clientptr )
 {
   BObjectImp* imp = exec.getParamImp( param );
-  if ( imp == NULL )
+  if ( imp == nullptr )
   {
     exec.setFunctionResult( new BError( "Missing parameter " + Clib::decint( param ) ) );
     return false;
@@ -53,7 +53,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
   {
     BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
 
-    if ( ( aob != NULL ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
+    if ( ( aob != nullptr ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
     {
       ECharacterRefObjImp* chrref_imp =
           Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
@@ -76,14 +76,14 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
         return false;
       }
     }
-    else if ( ( aob != NULL ) && ( aob->object_type() == &eclientrefobjimp_type ) )
+    else if ( ( aob != nullptr ) && ( aob->object_type() == &eclientrefobjimp_type ) )
     {
       EClientRefObjImp* clientref_imp =
           Clib::explicit_cast<EClientRefObjImp*, BApplicObjBase*>( aob );
 
-      clientptr = clientref_imp->value().exists() ? clientref_imp->value().get_weakptr() : NULL;
+      clientptr = clientref_imp->value().exists() ? clientref_imp->value().get_weakptr() : nullptr;
 
-      if ( ( clientptr != NULL ) && clientptr->isConnected() )
+      if ( ( clientptr != nullptr ) && clientptr->isConnected() )
       {
         return true;
       }
@@ -112,7 +112,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
 
     chrptr = system_find_mobile( serial );
 
-    if ( chrptr != NULL )
+    if ( chrptr != nullptr )
     {
       if ( chrptr->logged_in() )
       {
@@ -140,7 +140,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
 bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Character*& chrptr )
 {
   BObjectImp* imp = exec.getParamImp( param );
-  if ( imp == NULL )
+  if ( imp == nullptr )
   {
     exec.setFunctionResult( new BError( "Missing parameter " + Clib::decint( param ) ) );
     return false;
@@ -149,7 +149,7 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
   {
     BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
 
-    if ( ( aob != NULL ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
+    if ( ( aob != nullptr ) && ( aob->object_type() == &echaracterrefobjimp_type ) )
     {
       ECharacterRefObjImp* chrref_imp =
           Clib::explicit_cast<ECharacterRefObjImp*, BApplicObjBase*>( aob );
@@ -191,7 +191,7 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
 
     chrptr = system_find_mobile( serial );
 
-    if ( chrptr != NULL )
+    if ( chrptr != nullptr )
     {
       if ( chrptr->logged_in() )
       {
@@ -219,7 +219,7 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
 bool getItemParam( Executor& exec, unsigned param, Items::Item*& itemptr )
 {
   BObjectImp* imp = exec.getParamImp( param );
-  if ( imp == NULL )
+  if ( imp == nullptr )
   {
     return false;
   }
@@ -227,7 +227,7 @@ bool getItemParam( Executor& exec, unsigned param, Items::Item*& itemptr )
   {
     BApplicObjBase* aob = Clib::explicit_cast<BApplicObjBase*, BObjectImp*>( imp );
 
-    if ( ( aob != NULL ) && ( aob->object_type() == &eitemrefobjimp_type ) )
+    if ( ( aob != nullptr ) && ( aob->object_type() == &eitemrefobjimp_type ) )
     {
       EItemRefObjImp* itemref_imp = Clib::explicit_cast<EItemRefObjImp*, BApplicObjBase*>( aob );
 
@@ -250,7 +250,7 @@ bool getItemParam( Executor& exec, unsigned param, Items::Item*& itemptr )
 
     itemptr = system_find_item( serial );
 
-    return ( itemptr != NULL );
+    return ( itemptr != nullptr );
   }
   else
   {
@@ -262,7 +262,7 @@ bool getItemParam( Executor& exec, unsigned param, Items::Item*& itemptr )
 bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
 {
   BObjectImp* imp = exec.getParamImp( param );
-  if ( imp == NULL )
+  if ( imp == nullptr )
   {
     return false;
   }
@@ -286,7 +286,7 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
       {
         Multi::UMulti* multi = static_cast<Multi::UMulti*>( item );
         boatptr = multi->as_boat();
-        if ( boatptr == NULL )
+        if ( boatptr == nullptr )
           return false;
         else
           return ( !boatptr->orphan() );
@@ -310,7 +310,7 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
     if ( multi )
       boatptr = multi->as_boat();
 
-    return ( boatptr != NULL );
+    return ( boatptr != nullptr );
   }
   else
   {
@@ -323,7 +323,7 @@ bool getUBoatParam( Executor& exec, unsigned param, Multi::UBoat*& boatptr )
 bool getMultiParam( Executor& exec, unsigned param, Multi::UMulti*& multiptr )
 {
   BObjectImp* imp = exec.getParamImp( param );
-  if ( imp == NULL )
+  if ( imp == nullptr )
   {
     return false;
   }
@@ -357,7 +357,7 @@ bool getMultiParam( Executor& exec, unsigned param, Multi::UMulti*& multiptr )
 
     multiptr = system_find_multi( pitem_serial->value() );
 
-    return ( multiptr != NULL );
+    return ( multiptr != nullptr );
   }
   else
   {
@@ -368,9 +368,9 @@ bool getMultiParam( Executor& exec, unsigned param, Multi::UMulti*& multiptr )
 
 bool getUObjectParam( Executor& exec, unsigned param, UObject*& objptr )
 {
-  Items::Item* item = NULL;
-  Mobile::Character* chr = NULL;
-  Multi::UMulti* multi = NULL;
+  Items::Item* item = nullptr;
+  Mobile::Character* chr = nullptr;
+  Multi::UMulti* multi = nullptr;
 
   // This function is a kludge because the individual functions will all test for
   // a serial independently and may set errors.
@@ -400,7 +400,7 @@ bool getUObjectParam( Executor& exec, unsigned param, UObject*& objptr )
 bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
 {
   BObjectImp* imp = exec.getParamImp( param );
-  if ( imp == NULL )
+  if ( imp == nullptr )
   {
     return false;
   }
@@ -434,7 +434,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
     else
     {
       // a number passed...process below as if passed as a BLong
-      objtype_long = strtol( ot_str, NULL, 0 );
+      objtype_long = strtol( ot_str, nullptr, 0 );
     }
   }
   else
@@ -482,7 +482,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, unsigned int& objtype )
 bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& itemdesc_out )
 {
   BObjectImp* imp = exec.getParamImp( param );
-  if ( imp == NULL )
+  if ( imp == nullptr )
   {
     return false;
   }
@@ -517,7 +517,7 @@ bool getObjtypeParam( Executor& exec, unsigned param, const Items::ItemDesc*& it
     else
     {
       // a number passed...process below as if passed as a BLong
-      objtype_long = strtol( ot_str, NULL, 0 );
+      objtype_long = strtol( ot_str, nullptr, 0 );
     }
   }
   else if ( imp->isa( BObjectImp::OTStruct ) )

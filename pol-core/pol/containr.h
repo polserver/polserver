@@ -16,7 +16,6 @@
 
 #include <stddef.h>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "baseobject.h"
 #include "dynproperties.h"
@@ -52,6 +51,7 @@ namespace Bscript
 {
 class BObjectImp;
 class ObjArray;
+class Executor;
 }  // namespace Bscript
 namespace Clib
 {
@@ -60,6 +60,7 @@ class StreamWriter;
 namespace Core
 {
 class UContainer;
+class ExportScript;
 }  // namespace Core
 namespace Items
 {
@@ -78,7 +79,7 @@ namespace Network
 class Client;
 }  // namespace Network
 }  // namespace Pol
-}
+}  // namespace Clib
 namespace Mobile
 {
 class Character;
@@ -106,28 +107,28 @@ class UContainer : public ULockable
 public:
   typedef ULockable base;
   virtual ~UContainer();
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
-  virtual void destroy() POL_OVERRIDE;
+  virtual void destroy() override;
   void destroy_contents();
   typedef std::vector<Items::Item*> Contents;
   typedef Contents::iterator iterator;
   typedef Contents::const_iterator const_iterator;
 
-  virtual void builtin_on_use( Network::Client* client ) POL_OVERRIDE;
+  virtual void builtin_on_use( Network::Client* client ) override;
 
   // can_add(): doesn't look for matching stacks to add to.
   virtual bool can_add( const Items::Item& item ) const;
   virtual bool can_add( unsigned short more_weight ) const;
 
-  virtual void spill_contents( Multi::UMulti* supporting_multi ) POL_OVERRIDE;
+  virtual void spill_contents( Multi::UMulti* supporting_multi ) override;
 
   virtual void add( Items::Item* item );  // NOTE: points item->container to self on insertion
   void add_at_random_location( Items::Item* item );
   unsigned count() const;
 
-  virtual unsigned int item_count() const POL_OVERRIDE;
-  virtual unsigned int weight() const POL_OVERRIDE;
+  virtual unsigned int item_count() const override;
+  virtual unsigned int weight() const override;
 
   bool can_add_bulk( int tli_diff, int item_count_diff, int weight_diff ) const;
   virtual void add_bulk( int item_count_delta, int weight_delta );
@@ -148,11 +149,12 @@ public:
   Items::Item* find_toplevel_objtype_noninuse( u32 objtype ) const;
   Items::Item* find_toplevel_objtype_noninuse( u32 objtype, unsigned short maxamount ) const;
   Items::Item* find_objtype_noninuse( u32 objtype ) const;
+  Items::Item* find_objtype( u32 objtype, int flags ) const;
 
   virtual void for_each_item( void ( *f )( Item* item, void* a ), void* arg );
 
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-  virtual Items::Item* clone() const POL_OVERRIDE;
+  virtual bool script_isa( unsigned isatype ) const override;
+  virtual Items::Item* clone() const override;
 
   unsigned int find_sumof_objtype_noninuse( u32 objtype ) const;
   unsigned int find_sumof_objtype_noninuse( u32 objtype, u32 amtToGet, Contents& saveItemsTo,
@@ -162,8 +164,8 @@ public:
   UContainer* find_container( u32 serial ) const;
 
   // remove(): tells what subcontainer used to hold the item
-  //           points item->container to NULL on removal
-  virtual Items::Item* remove( u32 serial, UContainer** found_in = NULL );
+  //           points item->container to nullptr on removal
+  virtual Items::Item* remove( u32 serial, UContainer** found_in = nullptr );
   virtual void remove( Items::Item* item );  // item must be in this container
   virtual void remove( iterator itr );
 
@@ -178,14 +180,16 @@ public:
   bool check_can_remove_script( Mobile::Character* chr, Items::Item* item,
                                 MoveType move = MT_PLAYER );
   void on_remove( Mobile::Character* chr, Items::Item* item, MoveType move = MT_PLAYER );
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
 
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
+                                                     int value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const override;
 
   bool can_insert_increase_stack( Mobile::Character* mob, MoveType move, Items::Item* existing_item,
                                   unsigned short amt_to_add, Items::Item* adding_item );
@@ -195,7 +199,7 @@ public:
                                  unsigned short amt_added );
   virtual void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
 
-  virtual Mobile::Character* get_chr_owner() { return NULL; };
+  virtual Mobile::Character* get_chr_owner() { return nullptr; };
   // system_find: bypasses all locks, etc.
   Items::Item* system_find( u32 serial ) const;
 
@@ -258,8 +262,8 @@ protected:
   // DAVE added this 11/17 so WornItemsContainer could pass up its class to UObject constructor
   UContainer( u32 objtype, UOBJ_CLASS pol_class );
   // uses Items::classname()
-  virtual void printOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void printSelfOn( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+  virtual void printOn( Clib::StreamWriter& sw ) const override;
+  virtual void printSelfOn( Clib::StreamWriter& sw ) const override;
   void printContents( Clib::StreamWriter& sw ) const;
 };
 
@@ -278,6 +282,6 @@ inline Items::Item* UContainer::operator[]( unsigned idx ) const
 {
   return ITEM_ELEM_PTR( contents_[idx] );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

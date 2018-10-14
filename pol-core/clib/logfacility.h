@@ -17,7 +17,6 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <vector>
 
 #include "Debugging/LogSink.h"
-#include "compilerspecifics.h"
 
 namespace Pol
 {
@@ -39,8 +38,8 @@ public:
   virtual ~LogSinkGenericFile();
   void open_log_file( bool open_timestamp );
   void setBehaviour( const LogFileBehaviour* behaviour, std::string filename );
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 
 protected:
   friend class LogFacility;
@@ -60,27 +59,27 @@ template <typename Sink>
 Sink* getSink();
 
 // std::cout sink
-class LogSink_cout : public LogSink
+class LogSink_cout final : public LogSink
 {
 public:
   LogSink_cout();
   virtual ~LogSink_cout(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
 
 // std::cerr sink
-class LogSink_cerr : public LogSink
+class LogSink_cerr final : public LogSink
 {
 public:
   LogSink_cerr();
   virtual ~LogSink_cerr(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
 
 // pol.log (and start.log) file sink
-class LogSink_pollog : public LogSinkGenericFile
+class LogSink_pollog final : public LogSinkGenericFile
 {
 public:
   LogSink_pollog();
@@ -89,7 +88,7 @@ public:
 };
 
 // script.log file sink
-class LogSink_scriptlog : public LogSinkGenericFile
+class LogSink_scriptlog final : public LogSinkGenericFile
 {
 public:
   LogSink_scriptlog();
@@ -97,33 +96,33 @@ public:
 };
 
 // debug.log file sink
-class LogSink_debuglog : public LogSinkGenericFile
+class LogSink_debuglog final : public LogSinkGenericFile
 {
 public:
   LogSink_debuglog();
   virtual ~LogSink_debuglog(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
   void disable();
   static bool Disabled;
 };
 
 // leak.log file sink
-class LogSink_leaklog : public LogSinkGenericFile
+class LogSink_leaklog final : public LogSinkGenericFile
 {
 public:
   LogSink_leaklog();
   virtual ~LogSink_leaklog(){};
 };
 
-class LogSink_flexlog : public LogSink
+class LogSink_flexlog final : public LogSink
 {
 public:
   LogSink_flexlog();
   virtual ~LogSink_flexlog();
   std::string create( std::string logfilename, bool open_timestamp );
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
   void close( const std::string& id );
 
 private:
@@ -131,13 +130,13 @@ private:
 };
 // template class to perform a dual log eg. cout + pol.log
 template <typename log1, typename log2>
-class LogSink_dual : public LogSink
+class LogSink_dual final : public LogSink
 {
 public:
   LogSink_dual();
   virtual ~LogSink_dual(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
 
 // main class which starts the logging

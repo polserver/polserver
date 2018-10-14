@@ -166,7 +166,7 @@ void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )
   bool valok = true;
   settingsManager.ssopt.total_stats_at_creation.clear();
   token = strtok( tmpcopy, "," );
-  while ( token != NULL && valok )
+  while ( token != nullptr && valok )
   {
     valok = false;
     statmin = strtoul( token, &valmax, 0 );
@@ -190,7 +190,7 @@ void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )
       sprintf( tmp, "%lu", static_cast<unsigned long>( statmin ) );
     settingsManager.ssopt.total_stats_at_creation.push_back( tmp );
     valok = true;
-    token = strtok( NULL, "," );
+    token = strtok( nullptr, "," );
   }
 
   if ( !valok || settingsManager.ssopt.total_stats_at_creation.empty() )

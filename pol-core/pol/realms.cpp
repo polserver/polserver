@@ -68,7 +68,7 @@ Realms::Realm* find_realm( const std::string& name )
     if ( realm->name() == name )
       return realm;
   }
-  return NULL;
+  return nullptr;
 }
 
 bool defined_realm( const std::string& name )
@@ -97,7 +97,7 @@ void remove_realm( const std::string& name )
     if ( ( *itr )->name() == name )
     {
       gamestate.storage.on_delete_realm( *itr );
-      gamestate.shadowrealms_by_id[( *itr )->shadowid] = NULL;  // used inside the decaythread
+      gamestate.shadowrealms_by_id[( *itr )->shadowid] = nullptr;  // used inside the decaythread
       delete *itr;
       gamestate.Realms.erase( itr );
       break;

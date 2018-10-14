@@ -498,7 +498,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
 
   if ( msgin->type & 0xc0 )
   {
-    Bscript::BLong* atoken = NULL;
+    Bscript::BLong* atoken = nullptr;
     if ( speechtokens.get() == nullptr )
       speechtokens.reset( new Bscript::ObjArray() );
     for ( u16 j = 0; j < numtokens; j++ )
@@ -506,7 +506,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
       atoken = new Bscript::BLong( Get12BitNumber( (u8*)( msgin->wtext ), j + 1 ) );
       speechtokens->addElement( atoken );
     }
-    if ( gamestate.system_hooks.speechmul_hook != NULL )
+    if ( gamestate.system_hooks.speechmul_hook )
     {
       gamestate.system_hooks.speechmul_hook->call( make_mobileref( client->chr ),
                                                    new Bscript::ObjArray( *speechtokens.get() ),

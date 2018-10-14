@@ -21,3 +21,5 @@ if (${linux})
   )
 endif()
 dist(${ex_name} scripts)
+
+use_tidy(${ex_name})

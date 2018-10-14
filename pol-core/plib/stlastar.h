@@ -257,7 +257,7 @@ public:  // methods
 
       // User provides this functions and uses AddSuccessor to add each successor of
       // node 'n' to m_Successors
-      bool ret = n->m_UserState.GetSuccessors( this, n->parent ? &n->parent->m_UserState : NULL,
+      bool ret = n->m_UserState.GetSuccessors( this, n->parent ? &n->parent->m_UserState : nullptr,
                                                doors_block );
 
       if ( !ret )
@@ -421,7 +421,7 @@ public:  // methods
         n = n->child;
         FreeNode( del );
 
-        del = NULL;
+        del = nullptr;
 
       } while ( n != m_Goal );
       FreeNode( n );  // Delete the goal
@@ -446,7 +446,7 @@ public:  // methods
     }
     else
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -463,7 +463,7 @@ public:  // methods
       }
     }
 
-    return NULL;
+    return nullptr;
   }
 
   // Get end node
@@ -476,7 +476,7 @@ public:  // methods
     }
     else
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -493,7 +493,7 @@ public:  // methods
       }
     }
 
-    return NULL;
+    return nullptr;
   }
 
   // For educational use and debugging it is useful to be able to view
@@ -516,7 +516,7 @@ public:  // methods
       return &( *iterDbgOpen )->m_UserState;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   UserState* GetOpenListNext()
@@ -535,7 +535,7 @@ public:  // methods
       h = ( *iterDbgOpen )->h;
       return &( *iterDbgOpen )->m_UserState;
     }
-    return NULL;
+    return nullptr;
   }
 
   UserState* GetClosedListStart()
@@ -556,7 +556,7 @@ public:  // methods
       return &( *iterDbgClosed )->m_UserState;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   UserState* GetClosedListNext()
@@ -577,7 +577,7 @@ public:  // methods
       return &( *iterDbgClosed )->m_UserState;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   // Get the number of steps
@@ -632,7 +632,7 @@ private:  // methods
       if ( !n->child )
       {
         FreeNode( n );
-        n = NULL;
+        n = nullptr;
       }
       ++iterOpen;
     }
@@ -648,7 +648,7 @@ private:  // methods
       if ( !n->child )
       {
         FreeNode( n );
-        n = NULL;
+        n = nullptr;
       }
     }
     m_ClosedList.clear();
@@ -665,7 +665,7 @@ private:  // methods
 
     if ( !address )
     {
-      return NULL;
+      return nullptr;
     }
     m_AllocateNodeCount++;
     Node* p = new ( address ) Node;

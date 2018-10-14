@@ -580,7 +580,7 @@ void ExportScript::SaveStack( BackupStruct& backup )
       backup.ValueStack.push_back( uoexec.ValueStack.back() );
       uoexec.ValueStack.pop_back();
     }
-    if ( ( uoexec.Locals2 != NULL ) && ( !uoexec.Locals2->empty() ) )
+    if ( ( uoexec.Locals2 != nullptr ) && ( !uoexec.Locals2->empty() ) )
     {
       backup.Locals.reset( new BObjectRefVec );
       backup.Locals->assign( uoexec.Locals2->begin(), uoexec.Locals2->end() );
@@ -600,7 +600,7 @@ void ExportScript::LoadStack( BackupStruct& backup )
       uoexec.ValueStack.push_back( backup.ValueStack.back() );
       backup.ValueStack.pop_back();
     }
-    if ( backup.Locals.get() != NULL )
+    if ( backup.Locals.get() != nullptr )
     {
       delete uoexec.Locals2;
       uoexec.Locals2 = backup.Locals.release();

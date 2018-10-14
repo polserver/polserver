@@ -58,11 +58,14 @@ public:
 
   Bscript::BObjectImp* mf_PackJSON();
   Bscript::BObjectImp* mf_UnpackJSON();
-  
+
   Bscript::BObjectImp* mf_Boolean();
+
+  Bscript::BObjectImp* mf_EncodeBase64();
+  Bscript::BObjectImp* mf_DecodeBase64();
 
   BasicExecutorModule( Bscript::Executor& exec );
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

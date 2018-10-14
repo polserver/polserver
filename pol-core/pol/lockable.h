@@ -7,7 +7,6 @@
 #ifndef LOCKABLE_H
 #define LOCKABLE_H
 
-#include "../clib/compilerspecifics.h"
 #include "baseobject.h"
 
 namespace Pol
@@ -15,6 +14,7 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
+class Executor;
 }  // namespace Bscript
 namespace Clib
 {
@@ -34,6 +34,7 @@ namespace Pol
 {
 namespace Core
 {
+class ExportScript;
 class ULockable : public Items::Item
 {
   typedef Item base;
@@ -44,18 +45,20 @@ public:
 protected:
   void locked( bool newvalue );
 
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+                                                     int value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
+  virtual bool script_isa( unsigned isatype ) const override;
 
-  virtual Items::Item* clone() const POL_OVERRIDE;  // dave 12-20
+  virtual Items::Item* clone() const override;  // dave 12-20
   virtual ~ULockable(){};
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
 protected:
   explicit ULockable( const Items::ItemDesc& itemdesc, UOBJ_CLASS uobj_class );

@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 
-#include "compilerspecifics.h"
 #endif
 #include <boost/flyweight.hpp>
 
@@ -74,10 +73,10 @@ public:
   static const Entry& entry( handle_type h ) { return *h; }
   typedef std::size_t size_type;
 
-  virtual size_type bucket_count() const POL_OVERRIDE { return cont.bucket_count(); }
-  virtual size_type max_bucket_count() const POL_OVERRIDE { return cont.max_bucket_count(); }
-  virtual size_type bucket_size( size_type n ) const POL_OVERRIDE { return cont.bucket_size( n ); }
-  virtual size_type estimateSize() const POL_OVERRIDE
+  virtual size_type bucket_count() const override { return cont.bucket_count(); }
+  virtual size_type max_bucket_count() const override { return cont.max_bucket_count(); }
+  virtual size_type bucket_size( size_type n ) const override { return cont.bucket_size( n ); }
+  virtual size_type estimateSize() const override
   {
     size_type size = 0;
     BOOST_FOREACH ( const Entry& e, cont )

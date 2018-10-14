@@ -200,7 +200,7 @@ bool validface( u16 FaceStyle )
 
 void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 {
-  if ( client->acct == NULL )
+  if ( client->acct == nullptr )
   {
     ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
                 << " tried to create a character without an account!\n";
@@ -214,7 +214,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     return;
   }
   else if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( msg->CharNumber ) != NULL ||
+            client->acct->get_character( msg->CharNumber ) != nullptr ||
             msg->StartIndex >= gamestate.startlocations.size() )
   {
     ERROR_PRINT << "Create Character: Invalid parameters.\n";
@@ -338,7 +338,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
     if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, 0, 0 );
+      stat_max = strtoul( maxpos, nullptr, 0 );
     if ( stat_total >= stat_min && stat_total <= stat_max )
       valid_stats = true;
   }
@@ -469,7 +469,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       tmpitem->z = chr->z;
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, NULL );
+      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, nullptr );
     }
     else
       backpack->add( tmpitem );
@@ -540,7 +540,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     std::unique_ptr<UOExecutor> ex( create_script_executor() );
 
@@ -595,7 +595,7 @@ void createchar2( Accounts::Account* acct, unsigned index )
 void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 {
   int charslot = ctBEu32( msg->char_slot );
-  if ( client->acct == NULL )
+  if ( client->acct == nullptr )
   {
     ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
                 << " tried to create a character without an account!\n";
@@ -609,7 +609,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     return;
   }
   else if ( charslot >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( charslot ) != NULL )
+            client->acct->get_character( charslot ) != nullptr )
   {
     ERROR_PRINT << "Create Character: Invalid parameters.\n";
     send_login_error( client, LOGIN_ERROR_MISC );
@@ -697,7 +697,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
     if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, 0, 0 );
+      stat_max = strtoul( maxpos, nullptr, 0 );
     if ( stat_total >= stat_min && stat_total <= stat_max )
       valid_stats = true;
   }
@@ -851,7 +851,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       tmpitem->z = chr->z;
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, NULL );
+      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, nullptr );
     }
     else
       backpack->add( tmpitem );
@@ -922,7 +922,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     std::unique_ptr<UOExecutor> ex( create_script_executor() );
 
@@ -952,7 +952,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
 void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 {
-  if ( client->acct == NULL )
+  if ( client->acct == nullptr )
   {
     ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
                 << " tried to create a character without an account!\n";
@@ -966,7 +966,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     return;
   }
   else if ( msg->CharNumber >= Plib::systemstate.config.character_slots ||
-            client->acct->get_character( msg->CharNumber ) != NULL ||
+            client->acct->get_character( msg->CharNumber ) != nullptr ||
             msg->StartIndex >= gamestate.startlocations.size() )
   {
     ERROR_PRINT << "Create Character: Invalid parameters.\n";
@@ -1090,7 +1090,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
     stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
     if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, 0, 0 );
+      stat_max = strtoul( maxpos, nullptr, 0 );
     if ( stat_total >= stat_min && stat_total <= stat_max )
       valid_stats = true;
   }
@@ -1269,7 +1269,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       tmpitem->z = chr->z;
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, NULL );
+      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, nullptr );
     }
     else
       backpack->add( tmpitem );
@@ -1340,7 +1340,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     std::unique_ptr<UOExecutor> ex( create_script_executor() );
 

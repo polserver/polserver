@@ -29,6 +29,7 @@
 #include <stdlib.h>
 
 #include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
@@ -53,6 +54,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobjcnt.h"
 #include "../uobject.h"
@@ -88,11 +90,11 @@ NPC::NPC( u32 objtype, const Clib::ConfigElem& elem )
       // EVENTS
       // SCRIPT
       script( "" ),
-      ex( NULL ),
+      ex( nullptr ),
       // MISC
       damaged_sound( 0 ),
       template_name(),
-      master_( NULL ),
+      master_( nullptr ),
       template_( Core::find_npc_template( elem ) )
 {
   connected( true );
@@ -109,7 +111,7 @@ NPC::~NPC()
 
 void NPC::stop_scripts()
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
@@ -127,7 +129,7 @@ void NPC::destroy()
   if ( registered_house > 0 )
   {
     Multi::UMulti* multi = Core::system_find_multi( registered_house );
-    if ( multi != NULL )
+    if ( multi != nullptr )
     {
       multi->unregister_object( (UObject*)this );
     }
@@ -282,7 +284,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( !script.get().empty() )
     sw() << "\tscript\t" << script.get() << pf_endl;
 
-  if ( master_.get() != NULL )
+  if ( master_.get() != nullptr )
     sw() << "\tmaster\t" << master_->serial << pf_endl;
 
   if ( has_speech_color() )
@@ -339,16 +341,16 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
 
   Items::UWeapon* wpn = static_cast<Items::UWeapon*>(
       Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND1 ) );
-  if ( wpn == NULL )
+  if ( wpn == nullptr )
     wpn = Items::create_intrinsic_weapon_from_npctemplate( elem, template_.pkg );
-  if ( wpn != NULL )
+  if ( wpn != nullptr )
     weapon = wpn;
 
   Items::UArmor* sld = static_cast<Items::UArmor*>(
       Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND2 ) );
-  if ( sld == NULL )
+  if ( sld == nullptr )
     sld = Items::create_intrinsic_shield_from_npctemplate( elem, template_.pkg );
-  if ( sld != NULL )
+  if ( sld != nullptr )
     shield = sld;
 
   // Load the base, equiping items etc will refresh_ar() to update for reals.
@@ -373,7 +375,7 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "MASTER", &master_serial ) )
   {
     Character* chr = Core::system_find_mobile( master_serial );
-    if ( chr != NULL )
+    if ( chr != nullptr )
       master_.set( chr );
   }
 
@@ -550,14 +552,14 @@ void NPC::readPropertiesForNewNPC( Clib::ConfigElem& elem )
 
 void NPC::restart_script()
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     ex->seterror( true );
     // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
     ex->os_module->revive();
     if ( ex->os_module->in_debugger_holdlist() )
       ex->os_module->revive_debugged();
-    ex = NULL;
+    ex = nullptr;
     // when the NPC executor module destructs, it checks this NPC to see if it points
     // back at it.  If not, it leaves us alone.
   }
@@ -576,7 +578,7 @@ void NPC::on_death( Items::Item* corpse )
     Core::start_script( "misc/death", new Module::EItemRefObjImp( corpse ) );
 
   ClrCharacterWorldPosition( this, Realms::WorldChangeReason::NpcDeath );
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     // this will force the execution engine to stop running this script immediately
     ex->seterror( true );
@@ -591,7 +593,7 @@ void NPC::on_death( Items::Item* corpse )
 
 void NPC::start_script()
 {
-  passert( ex == NULL );
+  passert( ex == nullptr );
   passert( !script.get().empty() );
   Core::ScriptDef sd( script, template_.pkg, "scripts/ai/" );
   // Log( "NPC script starting: %s\n", sd.name().c_str() );
@@ -599,7 +601,7 @@ void NPC::start_script()
   ref_ptr<Bscript::EScriptProgram> prog = Core::find_script2( sd );
   // find_script( "ai/" + script );
 
-  if ( prog.get() == NULL )
+  if ( prog.get() == nullptr )
   {
     ERROR_PRINT << "Unable to read script " << sd.name() << " for NPC " << name() << "(0x"
                 << fmt::hexu( serial ) << ")\n";
@@ -637,7 +639,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
   << ": '" << speech << "'" << endl;
   */
 
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ( ex->eventmask & Core::EVID_SPOKE ) && inrangex( this, src_chr, ex->speech_size ) &&
          !deafened() )
@@ -653,7 +655,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
 
 void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) &&
          inrangex( this, src_chr, ex->speech_size ) && !deafened() )
@@ -670,13 +672,13 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
 void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
                        const char lang[4], Bscript::ObjArray* speechtokens )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( Core::settingsManager.ssopt.seperate_speechtoken )
     {
-      if ( speechtokens != NULL && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
+      if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
         return;
-      else if ( speechtokens == NULL && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
+      else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
         return;
     }
     if ( ( ( ex->eventmask & Core::EVID_SPOKE ) || ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
@@ -696,13 +698,13 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
                              const u16* wspeech, const char lang[4],
                              Bscript::ObjArray* speechtokens )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( Core::settingsManager.ssopt.seperate_speechtoken )
     {
-      if ( speechtokens != NULL && ( ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
+      if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
         return;
-      else if ( speechtokens == NULL && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
+      else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
         return;
     }
     if ( ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) ||
@@ -722,7 +724,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
 void NPC::inform_engaged( Character* engaged )
 {
   // someone has targetted us. Create an event if appropriate.
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ex->eventmask & Core::EVID_ENGAGED )
     {
@@ -735,7 +737,7 @@ void NPC::inform_engaged( Character* engaged )
 void NPC::inform_disengaged( Character* disengaged )
 {
   // someone has targetted us. Create an event if appropriate.
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ex->eventmask & Core::EVID_DISENGAGED )
     {
@@ -747,7 +749,7 @@ void NPC::inform_disengaged( Character* disengaged )
 
 void NPC::inform_criminal( Character* thecriminal )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ( ex->eventmask & ( Core::EVID_GONE_CRIMINAL ) ) &&
          inrangex( this, thecriminal, ex->area_size ) )
@@ -762,7 +764,7 @@ void NPC::inform_criminal( Character* thecriminal )
 
 void NPC::inform_leftarea( Character* wholeft )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ex->eventmask & ( Core::EVID_LEFTAREA ) )
     {
@@ -778,7 +780,7 @@ void NPC::inform_leftarea( Character* wholeft )
 
 void NPC::inform_enteredarea( Character* whoentered )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) )
     {
@@ -799,11 +801,10 @@ void NPC::inform_moved( Character* moved )
   // Note: This does not look at realms at all, just X Y coords.
   // ^is_visible_to_me checks realm - Turley
 
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     bool signaled = false;
-    passert( this != NULL );
-    passert( moved != NULL );
+    passert( moved != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
       // egcs may have a compiler bug when calling these as inlines
@@ -850,10 +851,9 @@ void NPC::inform_moved( Character* moved )
 
 void NPC::inform_imoved( Character* chr )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
-    passert( this != NULL );
-    passert( chr != NULL );
+    passert( chr != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
       // egcs may have a compiler bug when calling these as inlines
@@ -878,7 +878,7 @@ void NPC::inform_imoved( Character* chr )
 
 bool NPC::can_accept_event( Core::EVENTID eventid )
 {
-  if ( ex == NULL )
+  if ( ex == nullptr )
     return false;
   if ( ex->eventmask & eventid )
     return true;
@@ -888,7 +888,7 @@ bool NPC::can_accept_event( Core::EVENTID eventid )
 
 bool NPC::send_event( Bscript::BObjectImp* event )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ex->os_module->signal_event( event ) )
       return true;
@@ -903,7 +903,7 @@ bool NPC::send_event( Bscript::BObjectImp* event )
 
 Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ex->os_module->signal_event( event ) )
       return new Bscript::BLong( 1 );
@@ -923,7 +923,7 @@ Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
 void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, bool userepsys,
                                        bool send_damage_packet )
 {
-  if ( ex != NULL )
+  if ( ex != nullptr )
   {
     if ( ex->eventmask & Core::EVID_DAMAGED )
     {
@@ -993,7 +993,7 @@ void NPC::refresh_ar()
   if ( npc_ar_ )
   {
     for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
-      armor_[zone] = NULL;
+      armor_[zone] = nullptr;
     ar_ = 0;
     resetEquipablePropertiesNPC();
   }
@@ -1070,6 +1070,15 @@ void NPC::no_drop_exception( bool newvalue )
 std::string NPC::templatename() const
 {
   return template_name;
+}
+
+bool NPC::get_method_hook( const char* methodname, Bscript::Executor* executor,
+                           Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.npc_method_script.get(), methodname, executor, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, executor, hook, PC );
 }
 }
 }

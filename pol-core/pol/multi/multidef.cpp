@@ -120,7 +120,7 @@ const MULTI_ELEM* MultiDef::find_component( short rx, short ry ) const
   if ( body_contains( rx, ry ) )
     return ( *components.find( getkey( rx, ry ) ) ).second;
   else
-    return NULL;
+    return nullptr;
 }
 
 void MultiDef::add_to_hull( const MULTI_ELEM* elem )
@@ -176,7 +176,7 @@ void MultiDef::add_body_tohull()
     for ( rx = minrx; rx <= maxrx; ++rx )
     {
       const MULTI_ELEM* elem = find_component( rx, ry );
-      if ( elem != NULL )
+      if ( elem != nullptr )
       {
         add_to_hull( elem );
 
@@ -186,7 +186,7 @@ void MultiDef::add_body_tohull()
     for ( rx = maxrx; rx >= minrx; --rx )
     {
       const MULTI_ELEM* elem = find_component( rx, ry );
-      if ( elem != NULL )
+      if ( elem != nullptr )
       {
         add_to_hull( elem );
 
@@ -201,7 +201,7 @@ void MultiDef::add_body_tohull()
     for ( ry = minry; ry <= maxry; ++ry )
     {
       const MULTI_ELEM* elem = find_component( rx, ry );
-      if ( elem != NULL )
+      if ( elem != nullptr )
       {
         add_to_hull( elem );
         break;
@@ -210,7 +210,7 @@ void MultiDef::add_body_tohull()
     for ( ry = maxry; ry >= minry; --ry )
     {
       const MULTI_ELEM* elem = find_component( rx, ry );
-      if ( elem != NULL )
+      if ( elem != nullptr )
       {
         add_to_hull( elem );
         break;
@@ -302,7 +302,7 @@ const MultiDef* MultiDefByMultiID( u16 multiid )
   if ( citr != multidef_buffer.multidefs_by_multiid.end() )
     return ( *citr ).second;
   else
-    return NULL;
+    return nullptr;
 }
 
 
@@ -312,7 +312,7 @@ void read_multidefs()
   Clib::ConfigElem elem;
   while ( cf.read( elem ) )
   {
-    u16 multiid = static_cast<u16>( strtoul( elem.rest(), NULL, 0 ) );
+    u16 multiid = static_cast<u16>( strtoul( elem.rest(), nullptr, 0 ) );
 
     MultiDef* mdef = new MultiDef( elem, multiid );
     mdef->init();

@@ -138,6 +138,11 @@
 <constant>const FINDSUBSTANCE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</constant>
 <constant>const FINDSUBSTANCE_FIND_ALL      := 0x4; // Find all matches ignoring given amount</constant>
 <constant> </constant>
+<constant>// FindObjtypeInContainer constants</constant>
+<constant>const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).</constant>
+<constant>const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers.</constant>
+<constant>const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</constant>
+<constant> </constant>
 <constant>//  SendTextEntryGump options</constant>
 <constant>const TE_CANCEL_DISABLE := 0;</constant>
 <constant>const TE_CANCEL_ENABLE  := 1;</constant>
@@ -287,10 +292,17 @@ container
 </function>
 
 <function name="FindObjtypeInContainer">
-  <prototype>FindObjtypeInContainer( container, objtype )</prototype>
+  <prototype>FindObjtypeInContainer( container, objtype, flags:=FINDOBJTYPE_RECURSIVE )</prototype>
   <parameter name="container" value="Container reference" />
   <parameter name="objtype" value="integer objtype to find" />
+  <parameter name="flags" value="Integer" />
   <explain>Returns an Item Reference to the first found item matching objtype starting in "container".</explain>
+  <explain>uo.em constants for flags:
+  <code>
+// FindObjtype constants
+const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).
+const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers
+const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</code></explain>
   <return>Item reference or Error</return>
   <error>"Invalid parameter type"</error>
   <error>"That is not a container" if container.isa(POLCLASS_CONTAINER) == false</error>
@@ -2452,7 +2464,7 @@ const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items
 
 // special value for List[Items/Mobiles/Statics]*
 const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
-  <return>Array of Structs with members "x", "y", "z" and "objtype" or Error.</return>
+  <return>Array of Structs with members "x", "y", "z", "objtype" and "hue" or Error.</return>
   <error>"Invalid parameter"</error>
   <error>"Realm not found"</error>
   <error>"Invalid Coordinates for Realm"</error>
@@ -2479,7 +2491,93 @@ const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items
 
 // special value for List[Items/Mobiles/Statics]*
 const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
-  <return>Array of Structs with members "x", "y", "z" and "objtype" or Error.</return>
+  <return>Array of Structs with members "x", "y", "z", "objtype" and "hue" or Error.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+
+<function name="ListStaticsNearLocationOfType">
+  <prototype>ListStaticsNearLocationOfType( x, y, z, range, objtype, flags := 0, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="range" value="Integer" />
+  <parameter name="objtype" value="Integer" />
+  <parameter name="flags" value="Integer" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Searches the world for static items within range squares of (x,y,z) of type objtype.</explain>
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+	// ListStatics* flags
+const ITEMS_IGNORE_STATICS      := 0x01;    // Don't list Static Items
+const ITEMS_IGNORE_MULTIS       := 0x02;    // Don't list Multi Items
+
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>Array of Structs with members "x", "y", "z", "objtype" and "hue" or Error.</return>
+  <error>"Realm not found"</error>
+  <error>"Invalid Coordinates for Realm"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListStaticsNearLocationWithFlag">
+  <prototype>ListStaticsNearLocationWithFlag( x, y, z, range, flags, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="z" value="Integer world coordinates" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="range" value="Integer" />
+  <parameter name="flags" value="Integer" />
+  <explain>Gets an array of items if its graphic matches any of the OR'd flags passed. "flags" here are 
+    tiledata.mul flags for the item's graphic.</explain>
+  <explain>Tiledata.mul flags:
+<code>
+const TILEDATA_FLAG_BACKGROUND  := 0x00000001; //Background
+const TILEDATA_FLAG_WEAPON      := 0x00000002; //Weapon
+const TILEDATA_FLAG_TRANSPARENT := 0x00000004; //Transparent
+const TILEDATA_FLAG_TRANSLUCENT := 0x00000008; //Translucent
+const TILEDATA_FLAG_WALL        := 0x00000010; //Wall
+const TILEDATA_FLAG_DAMAGING    := 0x00000020; //Damaging
+const TILEDATA_FLAG_IMPASSABLE  := 0x00000040; //Impassable
+const TILEDATA_FLAG_WET         := 0x00000080; //Wet
+const TILEDATA_FLAG_UNK         := 0x00000100; //Unknown
+const TILEDATA_FLAG_SURFACE     := 0x00000200; //Surface
+const TILEDATA_FLAG_BRIDGE      := 0x00000400; //Bridge
+const TILEDATA_FLAG_STACKABLE   := 0x00000800; //Generic/Stackable
+const TILEDATA_FLAG_WINDOW      := 0x00001000; //Window
+const TILEDATA_FLAG_NOSHOOT     := 0x00002000; //No Shoot
+const TILEDATA_FLAG_PREFIX_A    := 0x00004000; //Prefix A
+const TILEDATA_FLAG_PREFIX_AN   := 0x00008000; //Prefix An
+const TILEDATA_FLAG_INTERNAL    := 0x00010000; //Internal (things like hair, beards, etc)
+const TILEDATA_FLAG_FOLIAGE     := 0x00020000; //Foliage
+const TILEDATA_FLAG_PARTIAL_HUE := 0x00040000; //Partial Hue
+const TILEDATA_FLAG_UNK1        := 0x00080000; //Unknown 1
+const TILEDATA_FLAG_MAP         := 0x00100000; //Map
+const TILEDATA_FLAG_CONTAINER   := 0x00200000; //Container
+const TILEDATA_FLAG_WEARABLE    := 0x00400000; //Wearable
+const TILEDATA_FLAG_LIGHTSOURCE := 0x00800000; //LightSource
+const TILEDATA_FLAG_ANIMATED    := 0x01000000; //Animated
+const TILEDATA_FLAG_HOVEROVER   := 0x02000000; //HoverOver (gargoyle flying tiles)
+const TILEDATA_FLAG_UNK2        := 0x04000000; //Unknown 2
+const TILEDATA_FLAG_ARMOR       := 0x08000000; //Armor
+const TILEDATA_FLAG_ROOF        := 0x10000000; //Roof
+const TILEDATA_FLAG_DOOR        := 0x20000000; //Door
+const TILEDATA_FLAG_STAIRBACK   := 0x40000000; //StairBack
+const TILEDATA_FLAG_STAIRRIGHT  := 0x80000000; //StairRight</code></explain>
+  <explain>Notes: 19 is used for the Z-Range or use LIST_IGNORE_Z constant as Z Parameter to list all Items ignoring Z-Value.
+    Rectangular range is used - x-range and y-range are compared independently.</explain>
+  <explain>Notes: from uo.em constants:
+<code>
+// special value for List[Items/Mobiles/Statics]*
+const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everything</code></explain>
+  <return>Array of Structs with members "x", "y", "z", "objtype" and "hue" or Error.</return>
   <error>"Invalid parameter"</error>
   <error>"Realm not found"</error>
   <error>"Invalid Coordinates for Realm"</error>

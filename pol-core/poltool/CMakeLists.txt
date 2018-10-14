@@ -16,3 +16,5 @@ target_link_libraries(${ex_name} PUBLIC
   z
 )
 dist(${ex_name} .)
+
+use_tidy(${ex_name})

@@ -214,7 +214,7 @@ void ScriptScheduler::run_ready()
       {
         THREAD_CHECKPOINT( scripts, 114 );
 
-        if ( ( ex->pParent != NULL ) && ex->pParent->runnable() )
+        if ( ( ex->pParent != nullptr ) && ex->pParent->runnable() )
         {
           ranlist.push_back( ex );
           // ranlist.splice( ranlist.end(), runlist, itr );
@@ -224,10 +224,10 @@ void ScriptScheduler::run_ready()
         {
           // runlist.erase( itr );
           // Check if the script has a child script running
-          // Set the parent of the child script NULL to stop crashing when trying to return to
+          // Set the parent of the child script nullptr to stop crashing when trying to return to
           // parent script
-          if ( ex->pChild != NULL )
-            ex->pChild->pParent = NULL;
+          if ( ex->pChild != nullptr )
+            ex->pChild->pParent = nullptr;
 
           delete ex;
         }
@@ -315,7 +315,7 @@ bool ScriptScheduler::find_exec( unsigned int pid, UOExecutor** exec )
   }
   else
   {
-    *exec = NULL;
+    *exec = nullptr;
     return false;
   }
 }

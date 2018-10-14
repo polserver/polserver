@@ -906,10 +906,10 @@ bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string&
 BObjectImp* String::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
 {
@@ -1102,7 +1102,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
   case MTH_JOIN:
   {
     BObject* cont;
-    if ( ex.numParams() == 1 && ( cont = ex.getParamObj( 0 ) ) != NULL )
+    if ( ex.numParams() == 1 && ( cont = ex.getParamObj( 0 ) ) != nullptr )
     {
       if ( !( cont->isa( OTArray ) ) )
         return new BError( "string.join expects an array" );
@@ -1116,7 +1116,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
         {
           BObject* bo = ref.get();
 
-          if ( bo == NULL )
+          if ( bo == nullptr )
             continue;
           if ( !first )
             joined << value_;
@@ -1131,7 +1131,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
       return new BError( "string.join(array) requires a parameter." );
   }
   default:
-    return NULL;
+    return nullptr;
   }
 }
 

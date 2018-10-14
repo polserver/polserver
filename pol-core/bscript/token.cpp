@@ -70,11 +70,11 @@ Token::Token()
       dbg_filenum( 0 ),
       dbg_linenum( 0 ),
       lval( 0 ),
-      userfunc( NULL ),
+      userfunc( nullptr ),
       deprecated( false ),
       ownsStr( false ),
       module( Mod_Basic ),
-      token( NULL )
+      token( nullptr )
 {
   register_instance();
 }
@@ -94,7 +94,7 @@ Token::Token( const Token& tok )
       deprecated( tok.deprecated ),
       ownsStr( false ),
       module( tok.module ),
-      token( NULL )
+      token( nullptr )
 {
   register_instance();
   if ( tok.token )
@@ -145,11 +145,11 @@ Token::Token( ModuleID i_module, BTokenId i_id, BTokenType i_type )
       dbg_filenum( 0 ),
       dbg_linenum( 0 ),
       lval( 0 ),
-      userfunc( NULL ),
+      userfunc( nullptr ),
       deprecated( false ),
       ownsStr( false ),
       module( static_cast<unsigned char>( i_module ) ),
-      token( NULL )
+      token( nullptr )
 {
   register_instance();
 }
@@ -162,11 +162,11 @@ Token::Token( BTokenId i_id, BTokenType i_type )
       dbg_filenum( 0 ),
       dbg_linenum( 0 ),
       lval( 0 ),
-      userfunc( NULL ),
+      userfunc( nullptr ),
       deprecated( false ),
       ownsStr( false ),
       module( Mod_Basic ),
-      token( NULL )
+      token( nullptr )
 {
   register_instance();
 }
@@ -183,7 +183,7 @@ Token::Token( ModuleID i_module, BTokenId i_id, BTokenType i_type, UserFunction*
       deprecated( false ),
       ownsStr( false ),
       module( static_cast<unsigned char>( i_module ) ),
-      token( NULL )
+      token( nullptr )
 {
   register_instance();
 }
@@ -198,7 +198,7 @@ void Token::nulStr()
     char* tmp = (char*)token;
     delete[] tmp;
   }
-  token = NULL;
+  token = nullptr;
 }
 
 void Token::setStr( const char* s )
@@ -224,7 +224,7 @@ void Token::copyStr( const char* s )
   }
   else
   {
-    token = NULL;
+    token = nullptr;
   }
 }
 
@@ -241,7 +241,7 @@ void Token::copyStr( const char* s, int len )
   }
   else
   {
-    token = NULL;
+    token = nullptr;
   }
 }
 

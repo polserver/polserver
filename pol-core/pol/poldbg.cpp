@@ -22,7 +22,6 @@
 #include "../bscript/executor.h"
 #include "../bscript/impstr.h"
 #include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/esignal.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
@@ -209,11 +208,11 @@ class DebugContextObjImp : public DebugContextObjImpBase
 {
 public:
   explicit DebugContextObjImp( ref_ptr<DebugContext> rcdctx );
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual BObjectImp* copy() const POL_OVERRIDE;
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) POL_OVERRIDE;
-  virtual BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual BObjectImp* copy() const override;
+  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
+  virtual BObjectRef get_member( const char* membername ) override;
 };
 DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx )
     : DebugContextObjImpBase( &debugcontextobjimp_type, rcdctx )
@@ -275,7 +274,7 @@ BObjectImp* create_debug_context()
 DebugContext::DebugContext()
     : _authorized( Plib::systemstate.config.debug_password.empty() ),
       _done( false ),
-      uoexec_wptr( 0 )
+      uoexec_wptr( nullptr )
 {
 }
 
@@ -581,13 +580,13 @@ std::string DebugContext::cmd_start( const std::string& rest )
 {
   std::string filename = rest;
   ScriptDef sd;
-  if ( !sd.config_nodie( filename, NULL, "scripts/" ) )
+  if ( !sd.config_nodie( filename, nullptr, "scripts/" ) )
     return "Error in script name.";
   if ( !sd.exists() )
     return "Script " + sd.name() + " does not exist.";
 
-  Module::UOExecutorModule* new_uoemod = Core::start_script( sd, NULL );
-  if ( new_uoemod == NULL )
+  Module::UOExecutorModule* new_uoemod = Core::start_script( sd, nullptr );
+  if ( new_uoemod == nullptr )
   {
     return "Unable to start script";
   }
@@ -605,7 +604,7 @@ std::string DebugContext::cmd_call( const std::string& rest, Results& /*results*
   Clib::splitnamevalue( rest, filename, parameters_packed );
 
   ScriptDef sd;
-  if ( !sd.config_nodie( filename, NULL, "scripts/" ) )
+  if ( !sd.config_nodie( filename, nullptr, "scripts/" ) )
     return "Error in script name.";
   if ( !sd.exists() )
     return "Script " + sd.name() + " does not exist.";
@@ -645,7 +644,7 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
   {
     UOExecutor* uoexec = ( *citr ).second;
     std::string name = Clib::strlower( uoexec->scriptname() );
-    if ( strstr( name.c_str(), match.c_str() ) != NULL )
+    if ( strstr( name.c_str(), match.c_str() ) != nullptr )
     {
       results.push_back( Clib::decint( ( *citr ).first ) + " " + uoexec->scriptname() );
     }
@@ -687,7 +686,7 @@ std::string DebugContext::cmd_setscript( const std::string& rest, Results& /*res
 
 std::string DebugContext::cmd_funclist( const std::string& /*rest*/, Results& results )
 {
-  if ( _script.get() == 0 )
+  if ( _script.get() == nullptr )
     return "use setscript first";
 
   // no parameters.
@@ -713,7 +712,7 @@ std::string DebugContext::cmd_funclist( const std::string& /*rest*/, Results& re
 
 std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results )
 {
-  if ( _script.get() == 0 )
+  if ( _script.get() == nullptr )
     return "use setscript first";
 
   // parameter: file#
@@ -748,7 +747,7 @@ std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results
 
 std::string DebugContext::cmd_funcprof( const std::string& /*rest*/, Results& /*results*/ )
 {
-  if ( _script.get() == 0 )
+  if ( _script.get() == nullptr )
     return "use setscript first";
 
   return "";
@@ -982,9 +981,9 @@ std::string DebugContext::cmd_fileline( const std::string& rest )
 
 std::string DebugContext::cmd_files( Results& results )
 {
-  const EScriptProgram* prog = NULL;
+  const EScriptProgram* prog = nullptr;
 
-  if ( _script.get() != 0 )
+  if ( _script.get() != nullptr )
     prog = _script.get();
   else if ( uoexec_wptr.exists() )
     prog = uoexec_wptr.get_weakptr()->prog();
@@ -1004,9 +1003,9 @@ std::string DebugContext::cmd_files( Results& results )
 
 std::string DebugContext::cmd_filecont( const std::string& rest, Results& results )
 {
-  const EScriptProgram* prog = NULL;
+  const EScriptProgram* prog = nullptr;
 
-  if ( _script.get() != 0 )
+  if ( _script.get() != nullptr )
     prog = _script.get();
   else if ( uoexec_wptr.exists() )
     prog = uoexec_wptr.get_weakptr()->prog();
@@ -1241,7 +1240,7 @@ std::string DebugContext::cmd_setlocalpacked( const std::string& rest )
   BObjectRef& ref = ( *uoexec->Locals2 )[varidx];
   BObject& obj = *ref;
   BObjectImp* newimp = BObjectImp::unpack( is );
-  if ( newimp == NULL )
+  if ( newimp == nullptr )
     return "Error: unable to unpack";
 
   obj.setimp( newimp );
@@ -1269,7 +1268,7 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
   BObjectRef& ref = uoexec->Globals2[varidx];
   BObject& obj = *ref;
   BObjectImp* newimp = BObjectImp::unpack( is );
-  if ( newimp == NULL )
+  if ( newimp == nullptr )
     return "Error: unable to unpack";
 
   obj.setimp( newimp );
@@ -1282,7 +1281,7 @@ class DebugClientThread : public Clib::SocketClientThread
 {
 public:
   DebugClientThread( Clib::SocketListener& SL ) : Clib::SocketClientThread( SL ) {}
-  virtual void run() POL_OVERRIDE;
+  virtual void run() override;
 };
 
 void DebugClientThread::run()

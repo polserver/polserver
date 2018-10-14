@@ -139,7 +139,7 @@ public:
 
 private:
   void PreDelete();
-  virtual ~Client();
+  ~Client();
   bool preDisconnect;
   bool disconnect;  // if 1, disconnect this client
 
@@ -280,7 +280,7 @@ private:
 
 inline bool Client::have_queued_data() const
 {
-  return ( first_xmit_buffer != NULL );
+  return ( first_xmit_buffer != nullptr );
 }
 
 

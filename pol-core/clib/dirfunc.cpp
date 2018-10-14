@@ -110,10 +110,10 @@ void find_usefns( const char* dir, const char* fname )
   // now, if dir has a trailing backslash, we use %s%s
   // else, we use %s\\%s
   const char* s = strrchr( use_dir, '\\' );
-  if ( s == NULL )
+  if ( s == nullptr )
     s = strrchr( use_dir, '/' );
 
-  if ( s != NULL && ( s[1] == '\0' ) )  // is trailing
+  if ( s != nullptr && ( s[1] == '\0' ) )  // is trailing
     use_template = "%s%s";
   else
     use_template = "%s\\%s";
@@ -159,7 +159,7 @@ char* buildfnext( const char* directory, const char* filename, const char* exten
 void normalize_dir( char* dir )
 {
   char* s = strrchr( dir, '\\' );
-  if ( s == NULL )
+  if ( s == nullptr )
     return;
   if ( *( s + 1 ) == '\0' )
     *s = '\0';
@@ -175,11 +175,11 @@ static int inner_copy( const char* src, const char* dst, int replaceOk )
   int result = -1;        // default to error
 
   int bufsize = 0;
-  void* buf = NULL;
+  void* buf = nullptr;
 
-  for ( bufsize = 0x4000; buf == NULL && bufsize >= 128; bufsize /= 2 )
+  for ( bufsize = 0x4000; buf == nullptr && bufsize >= 128; bufsize /= 2 )
     buf = malloc( bufsize );
-  if ( buf == NULL )
+  if ( buf == nullptr )
   { /* no errors allowed here! */
     static char dummy[4];
     buf = dummy;

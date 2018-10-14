@@ -22,7 +22,7 @@ SystemState::SystemState()
       tiles_loaded( false )
 {
 }
-SystemState::~SystemState() {}
+SystemState::~SystemState() = default;
 
 void SystemState::deinitialize()
 {

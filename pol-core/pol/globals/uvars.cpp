@@ -365,17 +365,17 @@ void GameState::clear_listen_points()
   {
     ListenPoint* lp = lp_pair.second;
     delete lp;
-    lp_pair.second = NULL;
+    lp_pair.second = nullptr;
   }
   listen_points.clear();
 }
 
 void GameState::unload_intrinsic_weapons()
 {
-  if ( wrestling_weapon != NULL )
+  if ( wrestling_weapon != nullptr )
   {
     wrestling_weapon->destroy();
-    wrestling_weapon = NULL;
+    wrestling_weapon = nullptr;
   }
 }
 
@@ -383,10 +383,10 @@ void GameState::unload_intrinsic_templates()
 {
   for ( auto it = intrinsic_equipments.begin(); it != intrinsic_equipments.end(); ++it )
   {
-    if ( it->second != NULL )
+    if ( it->second != nullptr )
     {
       it->second->destroy();
-      it->second = NULL;
+      it->second = nullptr;
     }
   }
   intrinsic_equipments.clear();
@@ -397,9 +397,9 @@ void GameState::unload_npc_templates()
 {
   for ( auto& templates : npc_templates )
   {
-    if ( templates.second != NULL )
+    if ( templates.second != nullptr )
       delete templates.second;
-    templates.second = NULL;
+    templates.second = nullptr;
   }
   npc_templates.clear();
 

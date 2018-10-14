@@ -11,7 +11,6 @@
 #include <string>
 
 #include "../../bscript/bobject.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../baseobject.h"
 
@@ -36,6 +35,7 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
+class Executor;
 }
 namespace Clib
 {
@@ -44,6 +44,7 @@ class ConfigElem;
 namespace Core
 {
 class EquipDesc;
+class ExportScript;
 }
 namespace Items
 {
@@ -56,30 +57,32 @@ public:
   void reduce_hp_from_hit();
   bool is_intrinsic() const;
 
-  virtual double getQuality() const POL_OVERRIDE;
-  virtual void setQuality( double value ) POL_OVERRIDE;
+  virtual double getQuality() const override;
+  virtual void setQuality( double value ) override;
 
 protected:
   Equipment( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class,
              const Core::EquipDesc* permanent_descriptor );
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
   // virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string&
   // value );
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_double( const char* membername,
-                                                         double value ) POL_OVERRIDE;
+                                                         double value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
+                                                     int value ) override;  // id test
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id,
-                                                            double value ) POL_OVERRIDE;  // id test
+                                                            double value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-  virtual Item* clone() const POL_OVERRIDE;
+  virtual bool script_isa( unsigned isatype ) const override;
+  virtual Item* clone() const override;
 
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
   const Core::EquipDesc* tmpl;
 

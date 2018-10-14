@@ -16,6 +16,7 @@
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
@@ -35,6 +36,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "../uoscrobj.h"
@@ -66,7 +68,7 @@ Item* Item::clone() const
   item->setamount( amount_ );
   item->layer = layer;
   item->tile_layer = tile_layer;
-  item->container = NULL;  // was container
+  item->container = nullptr;  // was container
   item->sellprice_( sellprice_() );
   item->buyprice_( buyprice_() );
   item->newbie( newbie() );
@@ -235,24 +237,24 @@ bool Item::getbuyprice( u32& bp ) const
 
 Core::UObject* Item::owner()
 {
-  if ( container != NULL )
+  if ( container != nullptr )
     return container->self_as_owner();
   else
-    return NULL;
+    return nullptr;
 }
 
 const Core::UObject* Item::owner() const
 {
-  if ( container != NULL )
+  if ( container != nullptr )
     return container->self_as_owner();
   else
-    return NULL;
+    return nullptr;
 }
 
 Core::UObject* Item::toplevel_owner()
 {
   Item* item = this;
-  while ( item->container != NULL )
+  while ( item->container != nullptr )
     item = item->container;
 
   return item;
@@ -261,7 +263,7 @@ Core::UObject* Item::toplevel_owner()
 const Core::UObject* Item::toplevel_owner() const
 {
   const Item* item = this;
-  while ( item->container != NULL )
+  while ( item->container != nullptr )
     item = item->container;
 
   return item;
@@ -387,7 +389,7 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( value != 0 )
     sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
 
-  if ( container != NULL )
+  if ( container != nullptr )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
 
   if ( !on_use_script_.get().empty() )
@@ -525,7 +527,7 @@ void Item::double_click( Network::Client* client )
 
   if ( !on_use_script_.get().empty() )
   {
-    Core::ScriptDef sd( on_use_script_, NULL, "" );
+    Core::ScriptDef sd( on_use_script_, nullptr, "" );
     prog = find_script2( sd,
                          true,  // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
@@ -536,7 +538,7 @@ void Item::double_click( Network::Client* client )
                          Plib::systemstate.config.cache_interactive_scripts );
   }
 
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     if ( client->chr->start_itemuse_script( prog.get(), this, itemdesc.requires_attention ) )
       return;
@@ -613,7 +615,7 @@ void Item::add_to_self( Item*& item )
     insured( false );
 
   item->destroy();
-  item = NULL;
+  item = nullptr;
 }
 
 #ifdef PERGON
@@ -627,7 +629,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   if ( getprop( "ct", value_self ) )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
       time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
     else
       time_self = Core::read_gameclock();
@@ -639,7 +641,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   if ( item_sub->getprop( "ct", value_sub ) )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_sub.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
       time_sub = static_cast<Bscript::BLong*>( imp.impptr() )->value();
     else
       time_sub = Core::read_gameclock();
@@ -675,7 +677,7 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   if ( getprop( "ct", value_self ) )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
       time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
     else
       time_self = Core::read_gameclock();
@@ -711,7 +713,7 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
   if ( ( amount1 + amount2 ) > this->itemdesc().stack_limit )
     return false;
 
-  if ( container != NULL )
+  if ( container != nullptr )
   {
     int more_weight = weight_of( amount_ + amount ) - weight_of( amount_ );
     if ( more_weight > USHRT_MAX /*std::numeric_limits<unsigned short>::max()*/ )
@@ -751,7 +753,7 @@ bool Item::can_add_to_self( const Item& item, bool force_stacking )
  */
 bool Item::has_only_default_cprops( const ItemDesc* compare ) const
 {
-  if ( compare == NULL )
+  if ( compare == nullptr )
     compare = &( itemdesc() );
   // logic same as Item::can_add_to_self()
   Core::PropertyList myprops( getprops() );  // make a copy :(
@@ -790,7 +792,7 @@ bool Item::amount_to_remove_is_partial( u16 this_item_new_amount ) const
 Item* Item::slice_stacked_item( u16 this_item_new_amount )
 {
   Item* new_item = clone();
-  if ( new_item != NULL )
+  if ( new_item != nullptr )
   {
     new_item->setamount( new_item->amount_ - this_item_new_amount );
     setamount( this_item_new_amount );
@@ -801,7 +803,7 @@ Item* Item::slice_stacked_item( u16 this_item_new_amount )
 Item* Item::remove_part_of_stack( u16 amount_to_remove )
 {
   Item* new_item = clone();
-  if ( new_item != NULL )
+  if ( new_item != nullptr )
   {
     new_item->setamount( amount_to_remove );
     subamount( amount_to_remove );
@@ -905,13 +907,13 @@ void Item::on_facing_changed()
 
 void Item::extricate()
 {
-  if ( container != NULL )
+  if ( container != nullptr )
   {
     // hmm, a good place for a virtual?
     if ( Core::IsCharacter( container->serial ) )
     {
       Mobile::Character* chr = chr_from_wornitems( container );
-      passert_always( chr != NULL );  // PRODFIXME linux-crash
+      passert_always( chr != nullptr );  // PRODFIXME linux-crash
       passert_always( chr->is_equipped( this ) );
 
       chr->unequip( this );  // FIXME: should run unequip script
@@ -1063,11 +1065,11 @@ bool Item::check_equip_script( Mobile::Character* chr, bool startup )
 
 bool Item::check_unequip_script()
 {
-  if ( !unequip_script_.get().empty() && container != NULL &&
+  if ( !unequip_script_.get().empty() && container != nullptr &&
        Core::IsCharacter( container->serial ) )
   {
     Mobile::Character* chr = chr_from_wornitems( container );
-    passert_always( chr != NULL );
+    passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
     Bscript::BObject obj( run_unequip_script( chr ) );
@@ -1146,10 +1148,10 @@ bool Item::check_unequiptest_scripts( Mobile::Character* chr )
 
 bool Item::check_unequiptest_scripts()
 {
-  if ( container != NULL && Core::IsCharacter( container->serial ) )
+  if ( container != nullptr && Core::IsCharacter( container->serial ) )
   {
     Mobile::Character* chr = chr_from_wornitems( container );
-    passert_always( chr != NULL );
+    passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
     return check_unequiptest_scripts( chr );
@@ -1172,15 +1174,15 @@ Mobile::Character* Item::GetCharacterOwner()
   {
     Mobile::Character* chr_owner =
         Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
-    if ( chr_owner != NULL )
+    if ( chr_owner != nullptr )
     {
       return chr_owner;
     }
     else
-      return NULL;
+      return nullptr;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 const char* Item::target_tag() const
@@ -1200,6 +1202,15 @@ double Item::getQuality() const
 void Item::setQuality( double value )
 {
   quality( value );
+}
+
+bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                            Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.item_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

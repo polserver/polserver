@@ -41,11 +41,11 @@ void add_item_to_world( Items::Item* item )
 void remove_item_from_world( Items::Item* item )
 {
   // Unregister the item if it is on a multi
-  if ( item->container == NULL && !item->has_gotten_by() )
+  if ( item->container == nullptr && !item->has_gotten_by() )
   {
     Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
 
-    if ( multi != NULL )
+    if ( multi != nullptr )
       multi->unregister_object( item );
   }
 
@@ -172,7 +172,7 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
                                  unsigned short newy, Mobile::Character* chr,
                                  Realms::Realm* oldrealm )
 {
-  if ( oldrealm == NULL )
+  if ( oldrealm == nullptr )
     oldrealm = chr->realm;
 
   // If the char is logged in (logged_in is always true for NPCs), update its position
@@ -214,7 +214,7 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
 void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Item* item,
                             Realms::Realm* oldrealm )
 {
-  if ( oldrealm == NULL )
+  if ( oldrealm == nullptr )
     oldrealm = item->realm;
 
   Zone& oldzone = getzone( oldx, oldy, oldrealm );

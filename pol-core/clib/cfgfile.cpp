@@ -40,25 +40,12 @@ bool commentline( const std::string& str )
 }
 }  // namespace
 
-ConfigProperty::ConfigProperty( const char* name, const char* value )
-    : name_( name ), value_( value )
+ConfigProperty::ConfigProperty( std::string name, std::string value )
+    : name_( std::move( name ) ), value_( std::move( value ) )
 {
 }
 
-ConfigProperty::ConfigProperty( const std::string& name, const std::string& value )
-    : name_( name ), value_( value )
-{
-}
-
-ConfigProperty::ConfigProperty( std::string* pname, std::string* pvalue )
-{
-  pname->swap( name_ );
-  pvalue->swap( value_ );
-}
-
-ConfigProperty::~ConfigProperty() {}
-
-ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( NULL ) {}
+ConfigElemBase::ConfigElemBase() : type_( "" ), rest_( "" ), _source( nullptr ) {}
 size_t ConfigElemBase::estimateSize() const
 {
   return type_.capacity() + rest_.capacity() + sizeof( _source );
@@ -201,7 +188,7 @@ void ConfigElem::get_prop( const char* propname, unsigned int* plong ) const
   auto itr = properties.find( propname );
   if ( itr != properties.end() )
   {
-    *plong = strtoul( ( *itr ).second.c_str(), NULL, 0 );
+    *plong = strtoul( ( *itr ).second.c_str(), nullptr, 0 );
   }
   else
   {
@@ -214,7 +201,7 @@ bool ConfigElem::remove_prop( const char* propname, unsigned int* plong )
   auto itr = properties.find( propname );
   if ( itr != properties.end() )
   {
-    *plong = strtoul( ( *itr ).second.c_str(), NULL, 0 );
+    *plong = strtoul( ( *itr ).second.c_str(), nullptr, 0 );
     properties.erase( itr );
     return true;
   }
@@ -231,7 +218,7 @@ bool VectorConfigElem::remove_prop( const char* propname, unsigned int* plong )
     ConfigProperty* prop = *itr;
     if ( stricmp( prop->name_.c_str(), propname ) == 0 )
     {
-      *plong = strtoul( prop->value_.c_str(), NULL, 0 );
+      *plong = strtoul( prop->value_.c_str(), nullptr, 0 );
       delete prop;
       properties.erase( itr );
       return true;
@@ -248,9 +235,9 @@ bool ConfigElem::remove_prop( const char* propname, unsigned short* psval )
     // FIXME isdigit isxdigit - +
     // or, use endptr
 
-    char* endptr = NULL;
+    char* endptr = nullptr;
     *psval = (unsigned short)strtoul( temp.c_str(), &endptr, 0 );
-    if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+    if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
     {
       std::string errmsg;
       errmsg = "Poorly formed number in property '";
@@ -277,9 +264,9 @@ bool VectorConfigElem::remove_prop( const char* propname, unsigned short* psval 
       // FIXME isdigit isxdigit - +
       // or, use endptr
 
-      char* endptr = NULL;
+      char* endptr = nullptr;
       *psval = (unsigned short)strtoul( prop->value_.c_str(), &endptr, 0 );
-      if ( ( endptr != NULL ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+      if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
       {
         std::string errmsg;
         errmsg = "Poorly formed number in property '";
@@ -298,26 +285,26 @@ bool VectorConfigElem::remove_prop( const char* propname, unsigned short* psval 
 
 void ConfigElem::throw_error( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, false, this );
   throw std::runtime_error( "Configuration file error" );
 }
 void VectorConfigElem::throw_error( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, false, this );
   throw std::runtime_error( "Configuration file error" );
 }
 
 void ConfigElem::warn( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, false, this, false );
 }
 
 void ConfigElem::warn_with_line( const std::string& errmsg ) const
 {
-  if ( _source != NULL )
+  if ( _source != nullptr )
     _source->display_error( errmsg, true, this, false );
 }
 
@@ -375,7 +362,7 @@ unsigned ConfigElem::remove_unsigned( const char* propname )
 {
   std::string temp = remove_string( propname );
 
-  return strtoul( temp.c_str(), NULL, 0 );  // TODO check unsigned range
+  return strtoul( temp.c_str(), nullptr, 0 );  // TODO check unsigned range
 }
 
 unsigned ConfigElem::remove_unsigned( const char* propname, int dflt )
@@ -383,7 +370,7 @@ unsigned ConfigElem::remove_unsigned( const char* propname, int dflt )
   std::string temp;
   if ( remove_prop( propname, &temp ) )
   {
-    return strtoul( temp.c_str(), NULL, 0 );  // TODO check unsigned range
+    return strtoul( temp.c_str(), nullptr, 0 );  // TODO check unsigned range
   }
   else
   {
@@ -452,7 +439,7 @@ float ConfigElem::remove_float( const char* propname, float dflt )
   std::string tmp;
   if ( remove_prop( propname, &tmp ) )
   {
-    return static_cast<float>( strtod( tmp.c_str(), NULL ) );
+    return static_cast<float>( strtod( tmp.c_str(), nullptr ) );
   }
   else
   {
@@ -464,7 +451,7 @@ double ConfigElem::remove_double( const char* propname, double dflt )
   std::string tmp;
   if ( remove_prop( propname, &tmp ) )
   {
-    return strtod( tmp.c_str(), NULL );
+    return strtod( tmp.c_str(), nullptr );
   }
   else
   {
@@ -501,59 +488,40 @@ void ConfigElem::clear_prop( const char* propname )
     continue;
 }
 
-void ConfigElem::add_prop( const char* propname, const char* propval )
+void ConfigElem::add_prop( std::string propname, std::string propval )
 {
-  properties.insert( make_pair( std::string( propname ), std::string( propval ) ) );
+  properties.emplace( std::move( propname ), std::move( propval ) );
 }
-void VectorConfigElem::add_prop( const char* propname, const char* propval )
+void VectorConfigElem::add_prop( std::string propname, std::string propval )
 {
-  ConfigProperty* prop;
-
-  prop = new ConfigProperty( propname, propval );
+  ConfigProperty* prop = new ConfigProperty( std::move( propname ), std::move( propval ) );
 
   properties.push_back( prop );
 }
 
-void ConfigElem::add_prop( const char* propname, unsigned short sval )
+void ConfigElem::add_prop( std::string propname, unsigned short sval )
 {
-  OSTRINGSTREAM os;
-  os << sval;
-
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+  properties.emplace( std::move( propname ), std::to_string( sval ) );
 }
-void ConfigElem::add_prop( const char* propname, short sval )
+void ConfigElem::add_prop( std::string propname, short sval )
 {
-  OSTRINGSTREAM os;
-  os << sval;
-
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+  properties.emplace( std::move( propname ), std::to_string( sval ) );
 }
 
-void VectorConfigElem::add_prop( const char* propname, unsigned short sval )
+void VectorConfigElem::add_prop( std::string propname, unsigned short sval )
 {
-  ConfigProperty* prop;
-  OSTRINGSTREAM os;
-  os << sval;
-
-  prop = new ConfigProperty( propname, OSTRINGSTREAM_STR( os ) );
+  auto prop = new ConfigProperty( std::move( propname ), std::to_string( sval ) );
 
   properties.push_back( prop );
 }
 
-void ConfigElem::add_prop( const char* propname, unsigned int lval )
+void ConfigElem::add_prop( std::string propname, unsigned int lval )
 {
-  OSTRINGSTREAM os;
-  os << lval;
-
-  properties.insert( make_pair( std::string( propname ), OSTRINGSTREAM_STR( os ) ) );
+  properties.emplace( std::move( propname ), std::to_string( lval ) );
 }
-void VectorConfigElem::add_prop( const char* propname, unsigned int lval )
+void VectorConfigElem::add_prop( std::string propname, unsigned int lval )
 {
-  ConfigProperty* prop;
-  OSTRINGSTREAM os;
-  os << lval;
-
-  prop = new ConfigProperty( propname, OSTRINGSTREAM_STR( os ) );
+  auto prop = new ConfigProperty( std::move( propname ), std::to_string( lval ) );
 
   properties.push_back( prop );
 }
@@ -577,7 +545,7 @@ ConfigFile::ConfigFile( const char* i_filename, const char* allowed_types_str )
 #if CFGFILE_USES_IOSTREAMS
       ifs(),
 #else
-      fp( NULL ),
+      fp( nullptr ),
 #endif
       _element_line_start( 0 ),
       _cur_line( 0 )
@@ -591,7 +559,7 @@ ConfigFile::ConfigFile( const std::string& i_filename, const char* allowed_types
 #if CFGFILE_USES_IOSTREAMS
       ifs(),
 #else
-      fp( NULL ),
+      fp( nullptr ),
 #endif
       _element_line_start( 0 ),
       _cur_line( 0 )
@@ -606,7 +574,7 @@ void ConfigFile::init( const char* i_filename, const char* allowed_types_str )
     open( i_filename );
   }
 
-  if ( allowed_types_str != NULL )
+  if ( allowed_types_str != nullptr )
   {
     ISTRINGSTREAM is( allowed_types_str );
     std::string tag;
@@ -661,7 +629,7 @@ ConfigFile::~ConfigFile()
 #if !CFGFILE_USES_IOSTREAMS
   if ( fp )
     fclose( fp );
-  fp = NULL;
+  fp = nullptr;
 #endif
 }
 
@@ -707,7 +675,7 @@ bool ConfigFile::read_properties( ConfigElem& elem )
     if ( propvalue[0] == '\"' )
       convertquotedstring( propvalue );
 
-    ConfigProperty* prop = new ConfigProperty( &propname, &propvalue );
+    ConfigProperty* prop = new ConfigProperty( propname, propvalue );
     elem.properties.push_back( prop );
   }
   return false;
@@ -839,7 +807,7 @@ bool ConfigFile::read_properties( ConfigElem& elem )
       decodequotedstring( propvalue );
     }
 
-    elem.properties.insert( make_pair( propname, propvalue ) );
+    elem.properties.emplace( propname, propvalue );
   }
   return false;
 }
@@ -872,7 +840,7 @@ bool ConfigFile::read_properties( VectorConfigElem& elem )
       decodequotedstring( propvalue );
     }
 
-    auto prop = new ConfigProperty( &propname, &propvalue );
+    auto prop = new ConfigProperty( propname, propvalue );
     elem.properties.push_back( prop );
   }
   return false;
@@ -1021,7 +989,7 @@ void ConfigFile::display_error( const std::string& msg, bool show_curline,
   tmp << ( error ? "Error" : "Warning" ) << " reading configuration file " << _filename << ":\n"
       << "\t" << msg << "\n";
 
-  if ( elem != NULL )
+  if ( elem != nullptr )
   {
     if ( strlen( elem->type() ) > 0 )
     {
@@ -1099,5 +1067,5 @@ void StubConfigSource::display_error( const std::string& msg, bool /*show_curlin
   ERROR_PRINT << ( error ? "Error" : "Warning" ) << " reading configuration element:"
               << "\t" << msg << "\n";
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

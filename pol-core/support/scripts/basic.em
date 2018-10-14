@@ -105,3 +105,5 @@ TypeOfInt( expr ); // returns Integer representation of TypeOf string
 PackJSON( expr ); 
 UnpackJSON( jsonStr );
 Boolean( number ); // returns boolean instance
+EncodeBase64( str );
+DecodeBase64( str );

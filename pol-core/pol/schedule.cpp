@@ -125,9 +125,9 @@ void PeriodicTask::execute( polclock_t now )
 OneShotTask::OneShotTask( OneShotTask** handle, polclock_t run_when_clock )
     : ScheduledTask( run_when_clock ), handle( handle )
 {
-  if ( handle != NULL )
+  if ( handle != nullptr )
   {
-    passert( *handle == NULL );
+    passert( *handle == nullptr );
     *handle = this;
   }
 
@@ -136,16 +136,16 @@ OneShotTask::OneShotTask( OneShotTask** handle, polclock_t run_when_clock )
 
 OneShotTask::~OneShotTask()
 {
-  if ( handle != NULL )
-    *handle = NULL;
+  if ( handle != nullptr )
+    *handle = nullptr;
 }
 
 void OneShotTask::cancel()
 {
   ScheduledTask::cancel();
-  if ( handle != NULL )
-    *handle = NULL;
-  handle = NULL;
+  if ( handle != nullptr )
+    *handle = nullptr;
+  handle = nullptr;
 }
 void OneShotTask::execute( polclock_t /*now_clock*/ )
 {
@@ -164,7 +164,7 @@ time_t now;
 
 if (p_task_list)
 {
-now = poltime(NULL);
+now = poltime(nullptr);
 count = p_task_list->count();
 for( idx = 0; idx < count; idx++ )
 {

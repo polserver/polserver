@@ -8,7 +8,6 @@
 #define UMAP_H
 
 #include "../bscript/bobject.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #ifndef ITEM_H
 #include "item/item.h"
@@ -47,6 +46,7 @@ class MapDesc;
 namespace Core
 {
 struct PKTBI_56;
+class ExportScript;
 
 struct PinPoint
 {
@@ -54,7 +54,7 @@ struct PinPoint
   unsigned short y;
 };
 
-class Map : public Items::Item
+class Map final : public Items::Item
 {
   typedef Items::Item base;
 
@@ -77,30 +77,32 @@ public:
   u16 worldXtoGumpX( u16 worldx );
   u16 worldYtoGumpY( u16 worldy );
 
-  virtual Items::Item* clone() const POL_OVERRIDE;  // dave 12-20
+  virtual Items::Item* clone() const override;  // dave 12-20
   virtual ~Map();
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
 protected:
   Map( const Items::MapDesc& mapdesc );
   friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );
 
-  virtual void builtin_on_use( Network::Client* client ) POL_OVERRIDE;
+  virtual void builtin_on_use( Network::Client* client ) override;
   virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;  /// id test
+                                              Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
   // virtual Bscript::BObjectImp* set_script_member( const char *membername, const std::string&
   // value );
-  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) POL_OVERRIDE;
+  virtual Bscript::BObjectImp* set_script_member( const char* membername, int value ) override;
   virtual Bscript::BObjectImp* set_script_member_id( const int id,
-                                                     int value ) POL_OVERRIDE;  // id test
+                                                     int value ) override;  // id test
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                unsigned int* PC ) const override;
   // virtual Bscript::BObjectImp* set_script_member_double( const char *membername, double value );
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
-  virtual void printProperties( Clib::StreamWriter& sw ) const POL_OVERRIDE;
+  virtual bool script_isa( unsigned isatype ) const override;
+  virtual void printProperties( Clib::StreamWriter& sw ) const override;
   void printPinPoints( Clib::StreamWriter& sw ) const;
-  virtual void readProperties( Clib::ConfigElem& elem ) POL_OVERRIDE;
+  virtual void readProperties( Clib::ConfigElem& elem ) override;
 
 
 private:
