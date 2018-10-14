@@ -158,24 +158,36 @@ UnicodeExecutorModule::~UnicodeExecutorModule()
 
 BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
 {
-  ObjArray* oText;
   const String* lang;
   unsigned short font;
   unsigned short color;
   unsigned short requiredCmdLevel;
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 1, lang ) &&
-       getParam( 2, font ) &&             // todo: getFontParam
-       getParam( 3, color ) &&            // todo: getColorParam
-       getParam( 4, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
+  if ( getStringParam( 1, lang ) && getParam( 2, font ) &&  // todo: getFontParam
+       getParam( 3, color ) &&                              // todo: getColorParam
+       getParam( 4, requiredCmdLevel ) )                    // todo: getRequiredCmdLevelParam
   {
-    size_t textlen = oText->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    std::vector<u16> gwtext;
+    BObjectImp* imp = exec.getParamImp( 0 );
+    if ( imp->isa( BObjectImp::OTArray ) )
+    {
+      ObjArray* ucarr = static_cast<ObjArray*>( imp );
+      size_t textlen = ucarr->ref_arr.size();
+      if ( textlen > SPEECH_MAX_LEN )
+        return new BError( "Unicode array exceeds maximum size." );
+      gwtext.reserve( textlen + 1 );
+      if ( !Core::convertArrayToUC( ucarr, gwtext.data(), textlen ) )
+        return new BError( "Invalid value in Unicode array." );
+    }
+    else if ( imp->isa( BObjectImp::OTString ) )
+    {
+      String* uctext = static_cast<String*>( imp );
+      gwtext = uctext->toUTF16();
+      gwtext.push_back( 0 );
+    }
+    else
+      return new BError( "Param 1 needs to be string or unicode array" );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext( textlen + 1 );
-    if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
-      return new BError( "Invalid value in Unicode array." );
     Core::broadcast( gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color,
                      requiredCmdLevel );
     return new BLong( 1 );
