@@ -56,8 +56,14 @@ class Compare:
 				else:
 					if c1 != c2:
 						print('line: {}'.format(i))
-						print('EXPECTED:', repr(c1))
-						print('GOT:     ', repr(c2))
+						try:
+							print('EXPECTED:', repr(c1))
+						except:
+							pass
+						try:
+							print('GOT:     ', repr(c2))
+						except:
+							pass
 						return False
 				i+=1
 			return True
@@ -267,7 +273,6 @@ if __name__ == '__main__':
 	parser.add_argument('-n', '--num', type=int, default=1,
 		help="Repeat tests this number of times or until it fails (to detect intermittent bugs). O means forever.")
 	args = parser.parse_args()
-
 	compiler=Compiler(args.ecompile)
 	runecl=Executor(args.runecl)
 	if not os.path.exists(args.ecompile) or not os.path.exists(args.runecl):

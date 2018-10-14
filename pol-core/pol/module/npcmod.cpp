@@ -762,7 +762,8 @@ BObjectImp* NPCExecutorModule::SayUC()
       return new BError( "Unicode array exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
+    std::vector<u16> gwtext( textlenucc + 1 );
+    if ( !Core::convertArrayToUC( oText, gwtext.data(), textlenucc ) )
       return new BError( "Invalid value in Unicode array." );
 
     std::string languc = Clib::strupper( lang->value() );
@@ -823,7 +824,8 @@ BObjectImp* NPCExecutorModule::SayUC()
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), nullptr );
+              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext.data(), languc.c_str(),
+                                     nullptr );
           } );
     }
   }

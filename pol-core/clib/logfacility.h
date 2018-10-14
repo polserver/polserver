@@ -27,6 +27,7 @@ extern bool LogfileTimestampEveryLine;
 namespace Logging
 {
 struct LogFileBehaviour;
+class LogFacility;
 
 // generic sink to log into a file
 class LogSinkGenericFile : public LogSink
@@ -41,6 +42,8 @@ public:
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 
 protected:
+  friend class LogFacility;
+
   bool test_for_rollover( std::chrono::time_point<std::chrono::system_clock>& now );
   const LogFileBehaviour* _behaviour;
   std::ofstream _filestream;
@@ -48,6 +51,7 @@ protected:
   struct tm _opened;
   std::chrono::time_point<std::chrono::system_clock> _lasttimestamp;
   bool _active_line;
+  static bool _disabled;
 };
 
 // template function to get the instance of given sink
@@ -145,6 +149,7 @@ public:
   void save( fmt::Writer* message, const std::string& id );
   void registerSink( LogSink* sink );
   void disableDebugLog();
+  void disableFileLog();
   void deinitializeStartLog();
   void closeFlexLog( const std::string& id );
   std::string registerFlexLogger( const std::string& logfilename, bool open_timestamp );

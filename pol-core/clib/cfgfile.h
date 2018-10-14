@@ -72,6 +72,7 @@ protected:
                               bool error = true ) const override;
   POL_NORETURN void display_and_rethrow_exception();
   void register_allowed_type( const char* allowed_type );
+  static void remove_bom( std::string* strbuf );
 
 private:
   std::string _filename;  // saved for exception reporting

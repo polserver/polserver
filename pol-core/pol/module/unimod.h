@@ -41,8 +41,6 @@ namespace Pol
 {
 namespace Module
 {
-extern u16 gwtext[( SPEECH_MAX_LEN + 1 )];
-
 class UnicodeExecutorModule : public Bscript::TmplExecutorModule<UnicodeExecutorModule>
 {
 public:

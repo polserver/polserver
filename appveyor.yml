@@ -26,6 +26,7 @@ build_script:
   #- cmake --build . --config Release -- -j 2
 
 test_script:
+  - set PYTHONIOENCODING=UTF-8
   - cd ..\\testsuite\\escript
   - c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5 -q
   #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\ecompile.exe ..\\..\\bin\\runecl.exe -n 5
@@ -39,10 +40,10 @@ after_test:
 
 deploy: off
 
-notifications:
-- provider: Email
-  to:
-    - polteam@polserver.com
-  on_build_success: false
-  on_build_failure: true
-  on_build_status_changed: true
+#notifications:
+#- provider: Email
+#  to:
+#    - polteam@polserver.com
+#  on_build_success: false
+#  on_build_failure: true
+#  on_build_status_changed: true

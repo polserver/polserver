@@ -59,6 +59,7 @@
 #include "compctx.h"
 #include "compilercfg.h"
 #include "fmodule.h"
+#include "impstr.h"
 #include "modules.h"
 #include "objmembers.h"
 #include "objmethods.h"
@@ -1283,6 +1284,23 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
             }
             */
     // int len = end - ctx.s;   //   "abd" len = 5-1 = 4
+    if ( !String::isValidUnicode( lit ) )
+    {
+      if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
+      {
+        INFO_PRINT << "Warning: invalid unicode character detected. Assuming ISO8859\n" << ctx;
+        if ( compilercfg.ErrorOnWarning )
+          throw std::runtime_error( "Warnings treated as errors." );
+      }
+      if ( !String::sanitizeUnicode( &lit ) )
+      {
+        if ( !compilercfg.DisplayWarnings && !compilercfg.ErrorOnWarning )
+        {
+          INFO_PRINT << "Error: \n" << ctx;
+        }
+        throw std::runtime_error( "Failed to sanitize unicode! " );
+      }
+    }
     tok.id = TOK_STRING;  // this is a misnomer I think!
     tok.type = TYP_OPERAND;
     tok.copyStr( lit.c_str() );

@@ -13,6 +13,7 @@
 #include <ctime>
 #include <iosfwd>
 #include <string>
+#include <utf8/utf8.h>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -354,8 +355,20 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ReadFile()
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray() );
 
   std::string line;
+  bool first_line( true );
   while ( getline( ifs, line ) )
+  {
+    if ( first_line )
+    {
+      first_line = false;
+      if ( line.size() >= 3 )
+      {
+        if ( utf8::starts_with_bom( line.cbegin(), line.cend() ) )
+          line.erase( 0, 3 );
+      }
+    }
     arr->addElement( new String( line ) );
+  }
 
   return arr.release();
 }

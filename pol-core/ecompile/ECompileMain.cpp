@@ -850,6 +850,8 @@ void read_config_file( int argc, char* argv[] )
  */
 int ECompileMain::main()
 {
+  Clib::Logging::global_logger->disableFileLog();
+
   const std::vector<std::string>& binArgs = programArgs();
 
   /**********************************************

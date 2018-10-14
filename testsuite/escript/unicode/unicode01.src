@@ -1,0 +1,4 @@
+
+// This file contains invalid UTF8 characters and should fail to compile// but its valid ISO8859 -> fallback should work
+//var i:=" אעשח";
+var i:=" אעשח";
