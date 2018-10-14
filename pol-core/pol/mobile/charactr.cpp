@@ -2195,7 +2195,7 @@ void Character::clear_opponent_of()
 
 void Character::die()
 {
-  if ( Core::gamestate.system_hooks.can_die != nullptr )
+  if ( Core::gamestate.system_hooks.can_die )
   {
     if ( !Core::gamestate.system_hooks.can_die->call( make_mobileref( this ) ) )
       return;
@@ -2629,7 +2629,7 @@ bool Character::check_skill( Core::USKILLID skillid, int difficulty, unsigned sh
 {
   INC_PROFILEVAR( skill_checks );
   static bool in_here = false;
-  if ( !in_here && Core::gamestate.system_hooks.check_skill_hook != nullptr )
+  if ( !in_here && Core::gamestate.system_hooks.check_skill_hook )
   {
     in_here = true;
     bool res = Core::gamestate.system_hooks.check_skill_hook->call(
@@ -3602,7 +3602,7 @@ void Character::position_changed()
 
 void Character::unhide()
 {
-  if ( Core::gamestate.system_hooks.un_hide != nullptr )
+  if ( Core::gamestate.system_hooks.un_hide )
   {
     if ( !Core::gamestate.system_hooks.un_hide->call( make_mobileref( this ) ) )
       return;
@@ -3888,7 +3888,7 @@ bool Character::move( unsigned char i_dir )
         --stealthsteps_;
     }
 
-    if ( Core::gamestate.system_hooks.ouch_hook != nullptr )
+    if ( Core::gamestate.system_hooks.ouch_hook )
     {
       if ( ( lastz - z ) > 21 )
         Core::gamestate.system_hooks.ouch_hook->call(
@@ -3941,7 +3941,7 @@ void Character::realm_changed()
 
 bool Character::CheckPushthrough()
 {
-  if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook != nullptr )
+  if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook )
   {
     unsigned short newx = x + Core::move_delta[facing].xmove;
     unsigned short newy = y + Core::move_delta[facing].ymove;
@@ -4332,7 +4332,7 @@ bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,
                                  Core::ExportScript** hook, unsigned int* PC ) const
 {
   if ( Core::gamestate.system_hooks.get_method_hook(
-           Core::gamestate.system_hooks.mobile_method_script.get(), methodname, ex, hook, PC ) )
+           Core::gamestate.system_hooks.character_method_script.get(), methodname, ex, hook, PC ) )
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }

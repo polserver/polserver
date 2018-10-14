@@ -6,7 +6,7 @@
            so methods defined for items will be usable in weapons and methods defined in equipment override uobject methods.
            Valid cfg keys are:
            uobject, item, equipment, lockable, map, multi, armor, weapon, door, container, boat,
-           house, spellbook, corpse, npc, mobile, client, account, party, guild
+           house, spellbook, corpse, npc, character, client, account, party, guild
            Itemdesc/Npctemplate specific method scripts will still be first checked.
   Note:    uoclient.cfg MethodScript entry is deprecated
 10-12-2018 DevGIB:

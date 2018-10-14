@@ -1114,7 +1114,7 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes )
   {
     CustomHouseStopEditing( chr, this );
     CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
-    if ( Core::gamestate.system_hooks.close_customhouse_hook != nullptr )
+    if ( Core::gamestate.system_hooks.close_customhouse_hook )
     {
       Core::gamestate.system_hooks.close_customhouse_hook->call(
           make_mobileref( chr ), new Module::EMultiRefObjImp( this ) );

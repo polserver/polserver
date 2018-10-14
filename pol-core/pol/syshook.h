@@ -69,24 +69,24 @@ public:
   SystemHooks();
   void unload_system_hooks();
 
-  ExportedFunction* check_skill_hook;
-  ExportedFunction* open_spellbook_hook;
-  ExportedFunction* get_book_page_hook;
-  ExportedFunction* combat_advancement_hook;
-  ExportedFunction* parry_advancement_hook;
-  ExportedFunction* attack_hook;
-  ExportedFunction* pushthrough_hook;
-  ExportedFunction* speechmul_hook;
-  ExportedFunction* hitmiss_hook;
-  ExportedFunction* on_cast_hook;
-  ExportedFunction* can_decay;
-  ExportedFunction* ouch_hook;
-  ExportedFunction* can_die;
-  ExportedFunction* un_hide;
-  ExportedFunction* close_customhouse_hook;
-  ExportedFunction* warmode_change;
-  ExportedFunction* can_trade;
-  ExportedFunction* consume_ammunition_hook;
+  std::unique_ptr<ExportedFunction> check_skill_hook;
+  std::unique_ptr<ExportedFunction> open_spellbook_hook;
+  std::unique_ptr<ExportedFunction> get_book_page_hook;
+  std::unique_ptr<ExportedFunction> combat_advancement_hook;
+  std::unique_ptr<ExportedFunction> parry_advancement_hook;
+  std::unique_ptr<ExportedFunction> attack_hook;
+  std::unique_ptr<ExportedFunction> pushthrough_hook;
+  std::unique_ptr<ExportedFunction> speechmul_hook;
+  std::unique_ptr<ExportedFunction> hitmiss_hook;
+  std::unique_ptr<ExportedFunction> on_cast_hook;
+  std::unique_ptr<ExportedFunction> can_decay;
+  std::unique_ptr<ExportedFunction> ouch_hook;
+  std::unique_ptr<ExportedFunction> can_die;
+  std::unique_ptr<ExportedFunction> un_hide;
+  std::unique_ptr<ExportedFunction> close_customhouse_hook;
+  std::unique_ptr<ExportedFunction> warmode_change;
+  std::unique_ptr<ExportedFunction> can_trade;
+  std::unique_ptr<ExportedFunction> consume_ammunition_hook;
 
   Bscript::BObjectImp* call_script_method( const char* methodname, Bscript::Executor* ex,
                                            UObject* obj ) const;
@@ -110,7 +110,7 @@ public:
   std::unique_ptr<ExportScript> spellbook_method_script;
   std::unique_ptr<ExportScript> corpse_method_script;
   std::unique_ptr<ExportScript> npc_method_script;
-  std::unique_ptr<ExportScript> mobile_method_script;
+  std::unique_ptr<ExportScript> character_method_script;
   std::unique_ptr<ExportScript> client_method_script;
   std::unique_ptr<ExportScript> account_method_script;
   std::unique_ptr<ExportScript> party_method_script;
