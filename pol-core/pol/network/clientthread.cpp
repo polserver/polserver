@@ -242,7 +242,7 @@ bool client_io_thread( Network::Client* client, bool login )
       checkpoint = 6;
 
       polclock_t polclock_now = polclock();
-      if ( ( polclock_now - client->last_packet_at ) >= 120000 )  // 2 mins
+      if ( ( ( polclock_now - client->last_packet_at ) / POLCLOCKS_PER_SEC ) >= 120 )  // 2 mins
       {
         client->forceDisconnect();
         break;

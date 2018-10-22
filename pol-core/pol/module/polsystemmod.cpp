@@ -292,7 +292,7 @@ BObjectImp* PolSystemExecutorModule::mf_ReloadConfiguration()
 
 BObjectImp* PolSystemExecutorModule::mf_ReadMillisecondClock()
 {
-  return new BLong( Core::polticks_t_to_ms( Core::polclock() ) );
+  return new Double( Core::polclock_t_to_ms( Core::polclock() ) );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_ListenPoints()

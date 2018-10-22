@@ -512,7 +512,7 @@ public:
   void check_attack_after_move();
   void attack( Character* opponent );
   void send_highlight() const;
-  bool manual_set_swing_timer( int time );
+  bool manual_set_swing_timer( Core::polclock_t time );
 
   const CharacterSet& hostiles() const;
   void run_hit_script( Character* defender, double damage );

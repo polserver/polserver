@@ -7,105 +7,72 @@
 #include "polclock.h"
 
 #include <atomic>
+#include <thread>
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#else
-#include <sys/time.h>
-#include <unistd.h>
-#endif
-
-#include "globals/state.h"
+#include "../clib/logfacility.h"
+#include "../clib/spinlock.h"
 
 namespace Pol
 {
 namespace Core
 {
-#ifdef _WIN32
-typedef clock_t polclock_base_type;
-#else
-typedef int polclock_base_type;
-#endif
-static std::atomic<polclock_base_type> polclock_base( 0 );
-static std::atomic<time_t> poltime_base( 0 );
-static std::atomic<time_t> poltime_paused_at( 0 );
-
-polclock_base_type getCurrentPolClockSeconds()
-{
-#ifdef _WIN32
-  return clock();
-#else
-  struct timeval tmv;
-  struct timezone tz;
-  gettimeofday( &tmv, &tz );
-  return tmv.tv_sec;
-#endif
-}
+static PolClock::time_point polclock_base = PolClock::time_point( PolClock::duration( 0 ) );
+static PolClock::time_point poltime_base = PolClock::time_point( PolClock::duration( 0 ) );
+static PolClock::time_point poltime_paused_at = PolClock::time_point( PolClock::duration( 0 ) );
+static PolClock::time_point polclock_paused_at = PolClock::time_point( PolClock::duration( 0 ) );
+static Clib::SpinLock polclock_lock;
 
 void pol_sleep_ms( unsigned int millis )
 {
-#ifdef _WIN32
-  Sleep( millis );
-#else
-  usleep( millis * 1000L );
-#endif
+  std::this_thread::sleep_for( std::chrono::milliseconds( millis ) );
 }
 
 void start_polclock()
 {
-  polclock_base = getCurrentPolClockSeconds();
+  Clib::SpinLockGuard guard( polclock_lock );
+  polclock_base = PolClock::now();
 }
 
 void pause_polclock()
 {
-  stateManager.polclock_paused_at = getCurrentPolClockSeconds();
+  Clib::SpinLockGuard guard( polclock_lock );
+  polclock_paused_at = PolClock::now();
 }
 
 void restart_polclock()
 {
-  polclock_base_type polclock_diff = getCurrentPolClockSeconds() - stateManager.polclock_paused_at;
-  polclock_base += polclock_diff;
-  stateManager.polclock_paused_at = 0;
+  Clib::SpinLockGuard guard( polclock_lock );
+  polclock_base += PolClock::now() - polclock_paused_at;
+  polclock_paused_at = PolClock::time_point( PolClock::duration( 0 ) );
 }
 
 polclock_t polclock()
 {
-#ifdef _WIN32
-#ifndef POLCLOCK_STRETCH
-  return ( clock() - polclock_base ) / POLCLOCK_DIV;
-#else
-  return ( clock() - polclock_base ) / ( POLCLOCK_DIV * POLCLOCK_STRETCH );
-#endif
-#else
-  struct timeval tmv;
-  struct timezone tz;
-  gettimeofday( &tmv, &tz );
-  return ( tmv.tv_sec - polclock_base ) * 100 + tmv.tv_usec / ( 1000L * 10L );
-#endif
+  Clib::SpinLockGuard guard( polclock_lock );
+  return std::chrono::duration_cast<polclock_t_unit>( PolClock::now() - polclock_base ).count() /
+         10;
 }
 
 void start_poltime()
 {
-  poltime_base = time( nullptr );
+  Clib::SpinLockGuard guard( polclock_lock );
+  poltime_base = PolClock::now();
 }
 void pause_poltime()
 {
-  poltime_paused_at = time( nullptr );
+  Clib::SpinLockGuard guard( polclock_lock );
+  poltime_paused_at = PolClock::now();
 }
 void restart_poltime()
 {
-  time_t poltime_diff = time( nullptr ) - poltime_paused_at;
-  poltime_base += poltime_diff;
+  Clib::SpinLockGuard guard( polclock_lock );
+  poltime_base += PolClock::now() - poltime_paused_at;
 }
 
-time_t poltime()
+poltime_t poltime()
 {
-#ifndef POLCLOCK_STRETCH
-  return time( nullptr ) - poltime_base;
-#else
-  return ( time( nullptr ) - poltime_base ) / POLCLOCK_STRETCH;
-#endif
+  Clib::SpinLockGuard guard( polclock_lock );
+  return std::chrono::duration_cast<poltime_t_unit>( PolClock::now() - poltime_base ).count();
 }
 
 void start_pol_clocks()
@@ -127,6 +94,12 @@ void restart_pol_clocks()
 {
   restart_polclock();
   restart_poltime();
+}
+
+bool is_polclock_paused_at_zero()
+{
+  Clib::SpinLockGuard guard( polclock_lock );
+  return polclock_paused_at == PolClock::time_point( PolClock::duration( 0 ) );
 }
 }
 }

@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-14-2018</datemodified>
+		<datemodified>10-22-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-22-2018</date>
+			<author>Turley:</author>
+			<change type="Fixed">Undefined behaviour after ~20 days due to overflow in time measurment. This fixes both internal time measurments e.g. for repeating tasks, swing,.. and for the EScript function ReadMilliSecondClock() see below.</change>
+			<change type="Changed">ReadMillisecondClock() returns now a double instead of an integer to allow higher uptimes.</change>
+		</entry>
 		<entry>
 			<date>10-13-2018</date>
 			<author>Turley:</author>

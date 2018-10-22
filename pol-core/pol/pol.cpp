@@ -557,7 +557,7 @@ void tasks_thread( void )
       TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", sleeptime );
 
       THREAD_CHECKPOINT( tasks, 8 );
-      tasks_thread_sleep( polticks_t_to_ms( sleeptime ) );
+      tasks_thread_sleep( polclock_t_to_ms( sleeptime ) );
       THREAD_CHECKPOINT( tasks, 9 );
     }
   }
@@ -621,7 +621,7 @@ void scripts_thread( void )
     {
       THREAD_CHECKPOINT( scripts, 54 );
 
-      wait_for_pulse( polticks_t_to_ms( sleeptime ) );
+      wait_for_pulse( polclock_t_to_ms( sleeptime ) );
 
       THREAD_CHECKPOINT( scripts, 55 );
     }
@@ -701,7 +701,7 @@ void threadstatus_thread( void )
   // we want this thread to be the last out, so that it can report stuff at shutdown.
   while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
-    if ( !stateManager.polclock_paused_at )
+    if ( is_polclock_paused_at_zero() )
     {
       polclock_t now = polclock();
       if ( now >= stateManager.checkin_clock_times_out_at )

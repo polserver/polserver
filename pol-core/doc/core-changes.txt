@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+10-22-2018 Turley:
+  Fixed:   Undefined behaviour after ~20 days due to overflow in time measurment. This fixes both internal time measurments e.g. for repeating tasks, swing,.. and for the EScript function ReadMilliSecondClock() see below.
+  Changed: ReadMillisecondClock() returns now a double instead of an integer to allow higher uptimes.
 10-13-2018 Turley:
   Added:   syshook.cfg SystemMethod for defining object class method scripts.
            Like itemdesc method scripts overriding builtin methods is possible, the builtin method can be called when prefixing with _.

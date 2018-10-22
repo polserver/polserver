@@ -43,9 +43,8 @@ public:
 
   bool ready( polclock_t now );
   bool late( polclock_t now );
-  polticks_t ticks_late( polclock_t now );
+  polclock_t ticks_late( polclock_t now );
 
-  polticks_t ticks_left( polclock_t now ) const;
   polclock_t clocksleft( polclock_t now );
   polclock_t next_run_clock() const;
   virtual void execute( polclock_t now ) = 0;

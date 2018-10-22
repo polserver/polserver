@@ -58,7 +58,7 @@ inline bool ScheduledTask::late( polclock_t now_clock )
 {
   return ( now_clock > next_run_clock_ );
 }
-inline polticks_t ScheduledTask::ticks_late( polclock_t now_clock )
+inline polclock_t ScheduledTask::ticks_late( polclock_t now_clock )
 {
   return ( now_clock - next_run_clock_ );
 }
