@@ -2,7 +2,6 @@ language: cpp
 
 sudo: false
 
-
 #script:
   #  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
   #  - unzip kaitai-struct-compiler-0.8.zip
@@ -13,6 +12,7 @@ sudo: false
 
 
 cache:
+  ccache: true
   directories:
     - lib/curl-7.57.0
 

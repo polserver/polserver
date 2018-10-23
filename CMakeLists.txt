@@ -23,6 +23,7 @@ set(POL_VERSION 100)
 set(POL_VERSION_NAME "Never Gonna Give You Up")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
+option(NO_CCACHE "Disable ccache even if found" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
 
 option(BUILD_ALL "Build everything" ON)
@@ -77,6 +78,15 @@ if (ENABLE_TIDY)
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     message(STATUS "clang-tidy args: ${TIDY_ARGS}")
     set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "${TIDY_ARGS}")
+  endif()
+endif()
+
+if(NOT NO_CCACHE)
+  find_program(CCACHE_FOUND ccache)
+  if(CCACHE_FOUND)
+    message(STATUS "building with ccache")
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
   endif()
 endif()
 

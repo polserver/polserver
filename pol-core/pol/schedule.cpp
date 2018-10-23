@@ -6,8 +6,6 @@
 
 #include "schedule.h"
 
-#include <ctime>
-
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/tracebuf.h"
@@ -42,8 +40,6 @@ ScheduledTask::ScheduledTask( polclock_t next_run_clock )
     : cancelled( false ), next_run_clock_( next_run_clock ), last_run_clock_( 0 )
 {
 }
-
-ScheduledTask::~ScheduledTask() {}
 
 void ScheduledTask::cancel()
 {
@@ -100,25 +96,10 @@ void PeriodicTask::start()
   add_task( this );
 }
 
-/*
-int PeriodicTask::ready(time_t now)
-{
-return (now >= next_run);
-}
-*/
 void PeriodicTask::execute( polclock_t now )
 {
   last_run_clock_ = now;
   next_run_clock_ += n_clocks;
-
-  /*
-      cout << name_ << ": last=" << last_run_clock_
-      << ", next=" << next_run_clock_
-      << ", n_clocks=" << n_clocks
-      << ", now=" << now
-      << endl;
-      */
-
   ( *f )();
 }
 
@@ -156,33 +137,6 @@ void OneShotTask::execute( polclock_t /*now_clock*/ )
   }
 }
 
-/*void check_scheduled_tasks( void )
-{
-unsigned idx;
-unsigned count;
-time_t now;
-
-if (p_task_list)
-{
-now = poltime(nullptr);
-count = p_task_list->count();
-for( idx = 0; idx < count; idx++ )
-{
-ScheduledTask *task = (*p_task_list)[idx];
-if (task->ready(now))
-{
-task->execute(now);
-}
-
-if (task->cancelled)
-{
-p_task_list->remove( idx );
-delete task;
-}
-}
-}
-}
-*/
 void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity )
 {
   THREAD_CHECKPOINT( tasks, 101 );
@@ -256,5 +210,5 @@ polclock_t calc_scheduler_clocksleft( polclock_t now )
     return 0;  // it's ready now!
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
