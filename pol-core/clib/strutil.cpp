@@ -104,6 +104,13 @@ std::string decint( size_t v )
 }
 #endif
 
+std::string decint( s64 v )
+{
+  OSTRINGSTREAM os;
+  os << v;
+  return OSTRINGSTREAM_STR( os );
+}
+
 void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue )
 {
   std::string::size_type start = istr.find_first_not_of( " \t\r\n" );

@@ -12,6 +12,7 @@
 #define CLIB_STRUTIL_H
 
 #include <string>
+#include "rawtypes.h"
 
 namespace Pol
 {
@@ -33,6 +34,7 @@ std::string decint( unsigned long v );
 #ifdef _WIN64
 std::string decint( size_t v );
 #endif
+std::string decint( s64 v );
 
 void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue );
 
