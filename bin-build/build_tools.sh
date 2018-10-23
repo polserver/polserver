@@ -4,14 +4,20 @@ prune () {
 	make clean
 	rm -r -f pol-core
 	rm -r -f lib
+	rm -r -f docs
 	rm -r -f CMakeFiles
+    rm -r -f Testing
 	rm -f CMakeCache.txt
 	rm -f Makefile
 	rm -f install_manifest.txt
 	rm -f CPack*
 	rm -f pol_global_config.h
 	rm -f pol_revision.h
+	rm -f pol_revision.h.tmp
 	rm -f cmake_install.cmake
+    rm -f build.ninja
+    rm -f rules.ninja
+    rm -f CTest*
 }
 
 case "$1" in

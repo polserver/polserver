@@ -131,3 +131,25 @@ if (BUILD_ALL OR ONLY_POL)
 endif()
 
 add_polrelease_target()
+
+#ctest integration
+#splitted into  each escript testfolder to allow parallel execution
+if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
+  message("activating test target")
+  enable_testing()
+  set(testdir ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/escript)
+  file(GLOB children RELATIVE ${testdir} ${testdir}/*)
+
+  foreach(child ${children})
+    if(IS_DIRECTORY ${testdir}/${child})
+      string(FIND "${child}" "_" out)
+      if(${out} EQUAL 0)
+        continue()
+      endif()
+      add_test(NAME escript_${child}
+        COMMAND performtests.py ${output_bin_dir}/ecompile ${output_bin_dir}/runecl ${child}
+        WORKING_DIRECTORY ${testdir}
+      )
+    endif()
+  endforeach()
+endif()
