@@ -11,8 +11,8 @@
 #ifndef CLIB_STRUTIL_H
 #define CLIB_STRUTIL_H
 
-#include <string>
 #include "rawtypes.h"
+#include <string>
 
 namespace Pol
 {
@@ -47,6 +47,6 @@ void mkupper( std::string& str );
 
 std::string strlower( const std::string& str );
 std::string strupper( const std::string& str );
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif  // CLIB_STRUTIL_H

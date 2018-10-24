@@ -11,6 +11,7 @@
 #include "strutil.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
+#include <format/format.h>
 
 #include "logfacility.h"
 #include "stlutil.h"
@@ -22,93 +23,60 @@ namespace Clib
 {
 std::string hexint( unsigned short v )
 {
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << "0x" << fmt::hex( v ) );
 }
-
 std::string hexint( signed int v )
 {
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << "0x" << fmt::hex( v ) );
 }
 std::string hexint( unsigned int v )
 {
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << "0x" << fmt::hex( v ) );
 }
-
 std::string hexint( signed long v )
 {
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << "0x" << fmt::hex( v ) );
 }
 std::string hexint( unsigned long v )
 {
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << "0x" << fmt::hex( v ) );
 }
 #ifdef _WIN64
 std::string hexint( size_t v )
 {
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << "0x" << fmt::hex( v ) );
 }
 #endif
 
 std::string decint( unsigned short v )
 {
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << v );
 }
-
 std::string decint( signed int v )
 {
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << v );
 }
-
 std::string decint( unsigned int v )
 {
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << v );
 }
-
 std::string decint( signed long v )
 {
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << v );
 }
 std::string decint( unsigned long v )
 {
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << v );
 }
-
 #ifdef _WIN64
 std::string decint( size_t v )
 {
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << v );
 }
 #endif
-
 std::string decint( s64 v )
 {
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
+  return fmt::str( fmt::Writer() << v );
 }
 
 void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue )
@@ -289,5 +257,5 @@ std::string strupper( const std::string& str )
 {
   return boost::to_upper_copy( str );
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
