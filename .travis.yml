@@ -12,7 +12,6 @@ sudo: false
 
 
 cache:
-  ccache: true
   directories:
     - lib/curl-7.57.0
 
@@ -26,7 +25,7 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-7', 'kwstyle', 'ccache']
+          packages: ['g++-7', 'kwstyle']
       env: CXX_P=g++-7 CC_P=gcc-7 NOPCH=0
 
     - os: linux
@@ -34,7 +33,7 @@ matrix:
       addons:
         apt:
           sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'kwstyle', 'ccache']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'kwstyle']
       env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=0
 
     - os: linux
@@ -42,7 +41,7 @@ matrix:
       addons:
         apt:
           sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'ccache']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev']
       env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=1
 
 before_install:

@@ -21,17 +21,19 @@ prune () {
 }
 
 case "$1" in
-	-g|-gcc5)
-		export CXX="g++-5" CC="gcc-5";
-		echo "FORCING GCC-5"
+	-g|-gcc)
+		export CXX="g++" CC="gcc";
+		echo "FORCING GCC"
 		prune
-		./build_linux.sh
+		cmake -GNinja -DUSE_CCACHE=1 -DNO_PCH=1 ..
+        ninja
 		;;
 	-c|-clang37)
 		export CXX="clang++" CC="clang";
 		echo "FORCING CLANG"
 		prune
-		./build_linux.sh
+		cmake -GNinja -DUSE_CCACHE=1 -DNO_PCH=1 ..
+        ninja
 		;;
 	-p|-prune)
 		if [ ${PWD##*/} = "bin-build" ]; then
