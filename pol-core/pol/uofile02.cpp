@@ -12,7 +12,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "uofile.h"
 #include "uofilei.h"
 #include "ustruct.h"
@@ -189,5 +189,5 @@ void rawstaticfullread()
   }
   rawstatic_init = true;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

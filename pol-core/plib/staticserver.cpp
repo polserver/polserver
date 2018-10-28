@@ -12,7 +12,7 @@
 #include "../clib/binaryfile.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
-#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "../clib/timer.h"
 #include "staticblock.h"
 

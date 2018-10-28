@@ -17,6 +17,7 @@
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 #include "../../clib/rawtypes.h"
+#include "../../clib/stlutil.h"
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
 #include "../guilds.h"
@@ -37,7 +38,7 @@ TmplExecutorModule<GuildExecutorModule>::FunctionTable
         {"FindGuild", &GuildExecutorModule::mf_FindGuild},
         {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
 };
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -542,5 +543,5 @@ BObjectImp* GuildExecutorModule::mf_FindGuild()
     return new BError( "Invalid parameter type" );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

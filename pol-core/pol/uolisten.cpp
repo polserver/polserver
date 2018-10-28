@@ -8,11 +8,10 @@
 #include <string.h>
 #include <string>
 
-#include <format/format.h>
 #include "../clib/esignal.h"
 #include "../clib/logfacility.h"
 #include "../clib/socketsvc.h"
-#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/wnsckt.h"
 #include "../plib/systemstate.h"
@@ -22,6 +21,7 @@
 #include "network/cliface.h"
 #include "polsem.h"
 #include "uoclient.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -169,5 +169,5 @@ void start_uo_client_listeners( void )
     threadhelp::start_thread( uo_client_listener_thread, threadname.c_str(), ls );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -201,7 +201,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
                                              // Overwrite on Server-Restart
     item->setprop(
         "ct",
-        "i" + Clib::decint(
+        "i" + Clib::tostring(
                   Core::read_gameclock() ) );  // Pergon: Init Property CreateTime for a new Item
 #endif
 

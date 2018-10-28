@@ -663,7 +663,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop( "ct", "i" + Clib::tostring( time ) );
   increv();
 }
 
@@ -697,7 +697,7 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop( "ct", "i" + Clib::tostring( time ) );
   increv();
 }
 #endif

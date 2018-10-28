@@ -6,12 +6,12 @@
 #include "uofile.h"
 
 #include <cstdio>
-#include <string>
 #include <fstream>
+#include <string>
 
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 
 namespace Pol
@@ -31,12 +31,14 @@ FILE* mapdif_file = nullptr;
 
 std::ifstream uopmapfile;
 
-bool open_uopmap_file( const int mapid ) {
+bool open_uopmap_file( const int mapid )
+{
   std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
   std::string filename = Plib::systemstate.config.uo_datafile_root + filepart;
-  if ( !Clib::FileExists( filename ) ) {
+  if ( !Clib::FileExists( filename ) )
+  {
     INFO_PRINT << filepart << " not found in " << Plib::systemstate.config.uo_datafile_root
-      << ". Searching for old map[N].mul files.\n";
+               << ". Searching for old map[N].mul files.\n";
     return false;
   }
 
@@ -98,7 +100,7 @@ void open_uo_data_files( void )
 
   if ( !uo_readuop || !open_uopmap_file( uo_mapid ) )
     mapfile = open_map_file( "map", uo_mapid );
-  
+
   sidxfile = open_map_file( "staidx", uo_mapid );
   statfile = open_map_file( "statics", uo_mapid );
 
@@ -132,5 +134,5 @@ void open_uo_data_files( void )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

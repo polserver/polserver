@@ -4,6 +4,7 @@
 
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
+#include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
 #include "../module/osmod.h"
 #include "../polsig.h"
@@ -319,5 +320,5 @@ bool ScriptScheduler::find_exec( unsigned int pid, UOExecutor** exec )
     return false;
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -439,8 +439,8 @@ std::string Client::status() const
   if ( ready )
     st += "RDY ";
   st += ipaddrAsString() + " ";
-  st += "CHK: " + Clib::decint( checkpoint ) + " ";
-  st += "PID: " + Clib::decint( thread_pid ) + " ";
+  st += "CHK: " + Clib::tostring( checkpoint ) + " ";
+  st += "PID: " + Clib::tostring( thread_pid ) + " ";
   st += "LAST: " + Clib::hexint( last_msgtype );
   return st;
 }

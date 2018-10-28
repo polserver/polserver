@@ -1540,7 +1540,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
           break;
         }
         std::string str;
-        str = Clib::decint( cfBEu16( strentry->tag ) ) + ": ";
+        str = Clib::tostring( cfBEu16( strentry->tag ) ) + ": ";
         str.reserve( length + str.size() );
         u8 c;
         for ( int si = 0; si < length; ++si )  // ENHANCE: Handle Unicode strings properly (add a

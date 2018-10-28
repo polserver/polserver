@@ -1531,7 +1531,7 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
       std::string message;
       message = "Method script for objtype " + id.objtype_description() +
                 " does not export function " + std::string( methodname ) + " taking " +
-                Clib::decint( pmore.size() + 1 ) + " parameters";
+                Clib::tostring( pmore.size() + 1 ) + " parameters";
       BError* err = new BError( message );
       return BObject( err );
     }
@@ -4369,7 +4369,7 @@ ItemGivenEvent::~ItemGivenEvent()
   if ( item->orphan() || cont->orphan() || chr->orphan() )
     return;
 
-  if ( item->container == cont && Clib::decint( given_time_ ) == Clib::decint( gts ) )
+  if ( item->container == cont && Clib::tostring( given_time_ ) == Clib::tostring( gts ) )
   {
     Core::UContainer* backpack = chr->backpack();
     if ( backpack != nullptr && !chr->dead() )

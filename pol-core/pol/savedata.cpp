@@ -255,8 +255,8 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elaps
     ofs_index.exceptions( std::ios_base::failbit | std::ios_base::badbit );
 
     unsigned save_index = objStorageManager.incremental_save_count + 1;
-    std::string data_basename = "incr-data-" + Clib::decint( save_index );
-    std::string index_basename = "incr-index-" + Clib::decint( save_index );
+    std::string data_basename = "incr-data-" + Clib::tostring( save_index );
+    std::string index_basename = "incr-index-" + Clib::tostring( save_index );
     std::string data_pathname = Plib::systemstate.config.world_data_path + data_basename + ".ndt";
     std::string index_pathname = Plib::systemstate.config.world_data_path + index_basename + ".ndt";
     Clib::open_file( ofs_data, data_pathname, std::ios::out );
@@ -303,8 +303,8 @@ void commit_incremental_saves()
 {
   for ( unsigned save_index = 1;; ++save_index )
   {
-    std::string data_basename = "incr-data-" + Clib::decint( save_index );
-    std::string index_basename = "incr-index-" + Clib::decint( save_index );
+    std::string data_basename = "incr-data-" + Clib::tostring( save_index );
+    std::string index_basename = "incr-index-" + Clib::tostring( save_index );
 
     bool res1 = commit( data_basename );
     bool res2 = commit( index_basename );

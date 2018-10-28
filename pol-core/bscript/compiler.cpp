@@ -3965,7 +3965,7 @@ void Compiler::emitFileLine( CompilerContext& ctx )
   int cnt = program->tokens.count();
   program->fileline.resize( cnt + 1 );
   program->fileline[cnt] =
-      ctx.filename + ", Line " + Clib::decint( static_cast<unsigned int>( ctx.line ) );
+      ctx.filename + ", Line " + Clib::tostring( static_cast<unsigned int>( ctx.line ) );
 }
 void Compiler::emitFileLineIfFileChanged( CompilerContext& ctx )
 {

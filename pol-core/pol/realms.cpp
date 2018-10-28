@@ -37,7 +37,7 @@ bool load_realms()
       continue;
 
     passert_r( gamestate.Realms.size() < MAX_NUMER_REALMS,
-               "You can't use more than " + Clib::decint( MAX_NUMER_REALMS ) + " realms" );
+               "You can't use more than " + Clib::tostring( MAX_NUMER_REALMS ) + " realms" );
 
     POLLOG_INFO << "Loading Realm " << realm_name << ".\n";
     Tools::Timer<> timer;

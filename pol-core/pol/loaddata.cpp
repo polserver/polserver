@@ -42,7 +42,7 @@ void load_incremental_indexes()  // indices is such a stupid word
   {
     unsigned next_incremental_counter = objStorageManager.incremental_save_count + 1;
     std::string filename = Plib::systemstate.config.world_data_path + "incr-index-" +
-                           Clib::decint( next_incremental_counter ) + ".txt";
+                           Clib::tostring( next_incremental_counter ) + ".txt";
     if ( !Clib::FileExists( filename ) )
       break;
 
@@ -81,7 +81,7 @@ void read_incremental_saves()
   for ( unsigned i = 1; i <= objStorageManager.incremental_save_count; ++i )
   {
     std::string filename =
-        Plib::systemstate.config.world_data_path + "incr-data-" + Clib::decint( i ) + ".txt";
+        Plib::systemstate.config.world_data_path + "incr-data-" + Clib::tostring( i ) + ".txt";
     objStorageManager.current_incremental_save = i;
 
     slurp( filename.c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES SYSTEM MULTI STORAGEAREA" );

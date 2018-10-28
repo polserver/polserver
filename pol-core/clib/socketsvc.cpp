@@ -19,7 +19,7 @@ SocketListener::SocketListener( unsigned short port ) : _listen_sck()
 {
   if ( !_listen_sck.listen( port ) )
   {
-    POLLOG_ERROR << "Unable to open listen port " + decint( port );
+    POLLOG_ERROR << "Unable to open listen port " + tostring( port );
     abort();
   }
 }
@@ -30,7 +30,7 @@ SocketListener::SocketListener( unsigned short port, Socket::option opt ) : _lis
 
   if ( !_listen_sck.listen( port ) )
   {
-    POLLOG_ERROR << "Unable to open listen port " + decint( port );
+    POLLOG_ERROR << "Unable to open listen port " + tostring( port );
     abort();
   }
 }

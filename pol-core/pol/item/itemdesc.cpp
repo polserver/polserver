@@ -665,7 +665,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   for ( resource_itr = resources.begin(); resource_itr != resources.end(); ++resource_itr )
   {
     descriptor->addMember( "Resource", new String( resource_itr->rd->name() + " " +
-                                                   Clib::decint( resource_itr->amount ) ) );
+                                                   Clib::tostring( resource_itr->amount ) ) );
   }
 }
 

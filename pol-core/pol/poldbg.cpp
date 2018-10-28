@@ -467,7 +467,7 @@ std::string DebugContext::cmd_stacktrace( Results& results )
   }
   upperLocals2.push_back( exec->Locals2 );
 
-  results.push_back( Clib::decint( stack.size() ) );
+  results.push_back( Clib::tostring( stack.size() ) );
 
   while ( !stack.empty() )
   {
@@ -481,9 +481,9 @@ std::string DebugContext::cmd_stacktrace( Results& results )
 
     size_t left = Locals2->size();
 
-    results.push_back( Clib::decint( PC ) );
-    results.push_back( Clib::decint( prog->dbg_filenum[PC] ) );
-    results.push_back( Clib::decint( prog->dbg_linenum[PC] ) );
+    results.push_back( Clib::tostring( PC ) );
+    results.push_back( Clib::tostring( prog->dbg_filenum[PC] ) );
+    results.push_back( Clib::tostring( prog->dbg_linenum[PC] ) );
 
     std::vector<std::string> results2;
     unsigned block = prog->dbg_ins_blocks[PC];
@@ -500,7 +500,7 @@ std::string DebugContext::cmd_stacktrace( Results& results )
 
       results2.push_back( progblock.localvarnames[varidx] + " " + ptr->pack() );
     }
-    results.push_back( Clib::decint( results2.size() ) );
+    results.push_back( Clib::tostring( results2.size() ) );
 
     for ( std::vector<std::string>::iterator it = results2.begin(); it < results2.end(); ++it )
       results.push_back( *it );
@@ -646,7 +646,7 @@ std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results
     std::string name = Clib::strlower( uoexec->scriptname() );
     if ( strstr( name.c_str(), match.c_str() ) != nullptr )
     {
-      results.push_back( Clib::decint( ( *citr ).first ) + " " + uoexec->scriptname() );
+      results.push_back( Clib::tostring( ( *citr ).first ) + " " + uoexec->scriptname() );
     }
   }
 
@@ -702,8 +702,8 @@ std::string DebugContext::cmd_funclist( const std::string& /*rest*/, Results& re
       cycles += ins.cycles;
     }
 
-    std::string result = func.name + " " + Clib::decint( func.firstPC ) + " " +
-                         Clib::decint( func.lastPC ) + " " + Clib::decint( cycles );
+    std::string result = func.name + " " + Clib::tostring( func.firstPC ) + " " +
+                         Clib::tostring( func.lastPC ) + " " + Clib::tostring( cycles );
     results.push_back( result );
   }
 
@@ -738,7 +738,7 @@ std::string DebugContext::cmd_srcprof( const std::string& rest, Results& results
   {
     unsigned int linenum = ( *itr ).first;
     unsigned int cycles = ( *itr ).second;
-    std::string result = Clib::decint( linenum ) + " " + Clib::decint( cycles );
+    std::string result = Clib::tostring( linenum ) + " " + Clib::tostring( cycles );
     results.push_back( result );
   }
 
@@ -765,7 +765,7 @@ std::string DebugContext::cmd_scriptprofile( const std::string& rest, Results& r
   for ( size_t i = 0; i < count; ++i )
   {
     const Instruction& ins = eprog->instr[i];
-    std::string result = Clib::decint( i ) + " " + Clib::decint( ins.cycles );
+    std::string result = Clib::tostring( i ) + " " + Clib::tostring( ins.cycles );
     results.push_back( result );
   }
   return "";
@@ -785,7 +785,7 @@ std::string DebugContext::cmd_scriptins( const std::string& rest, Results& resul
   size_t count = eprog->instr.size();
   for ( size_t i = 0; i < count; ++i )
   {
-    std::string result = Clib::decint( i ) + " " + eprog->dbg_get_instruction( i );
+    std::string result = Clib::tostring( i ) + " " + eprog->dbg_get_instruction( i );
     results.push_back( result );
   }
   return "";
@@ -831,7 +831,7 @@ std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& resul
 
     std::string result = get_fileline( eprog, filenum, linenum );
     if ( result != "" )
-      results.push_back( Clib::decint( ins ) + " " + result );
+      results.push_back( Clib::tostring( ins ) + " " + result );
 
     last_filenum = filenum;
     last_linenum = linenum;
@@ -976,7 +976,7 @@ std::string DebugContext::cmd_fileline( const std::string& rest )
   if ( prog->dbg_linenum.size() <= ins )
     return "out of range";
   linenum = prog->dbg_linenum[ins];
-  return Clib::decint( filenum ) + " " + Clib::decint( linenum );
+  return Clib::tostring( filenum ) + " " + Clib::tostring( linenum );
 }
 
 std::string DebugContext::cmd_files( Results& results )
@@ -995,7 +995,7 @@ std::string DebugContext::cmd_files( Results& results )
 
   for ( unsigned i = 0; i < prog->dbg_filenames.size(); ++i )
   {
-    std::string tmp = Clib::decint( i ) + " " + prog->dbg_filenames[i];
+    std::string tmp = Clib::tostring( i ) + " " + prog->dbg_filenames[i];
     results.push_back( tmp );
   }
   return "";
@@ -1084,7 +1084,7 @@ std::string DebugContext::cmd_globalvars( Results& results )
     if ( prog->globalvarnames.size() > idx )
       results.push_back( prog->globalvarnames[idx].c_str() );
     else
-      results.push_back( Clib::decint( idx ).c_str() );
+      results.push_back( Clib::tostring( idx ).c_str() );
   }
   return "";
 }
@@ -1183,7 +1183,7 @@ std::string DebugContext::cmd_inslist( const std::string& rest, Results& results
   {
     if ( prog->dbg_filenum[i] == filenum && prog->dbg_linenum[i] == linenum )
     {
-      results.push_back( Clib::decint( i ) );
+      results.push_back( Clib::tostring( i ) );
     }
     else
     {

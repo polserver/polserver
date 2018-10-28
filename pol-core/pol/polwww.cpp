@@ -592,7 +592,7 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
   {
     http_writeline( sck, "HTTP/1.1 200 OK" );
     http_writeline( sck, "Accept-Ranges: bytes" );
-    http_writeline( sck, "Content-Length: " + Clib::decint( fsize ) );
+    http_writeline( sck, "Content-Length: " + Clib::tostring( fsize ) );
     http_writeline( sck, "Content-Type: " + content_type );
     http_writeline( sck, "" );
 

@@ -357,7 +357,7 @@ void read_multi( Clib::ConfigElem& elem )
 std::string elapsed( clock_t start, clock_t end )
 {
   size_t ms = static_cast<size_t>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
-  return Clib::decint( ms ) + " ms";
+  return Clib::tostring( ms ) + " ms";
 }
 
 void slurp( const char* filename, const char* tags, int sysfind_flags )

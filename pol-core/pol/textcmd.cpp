@@ -239,7 +239,7 @@ std::string timeoutstr( polclock_t at )
 {
   polclock_t ticks = at - polclock();
   int seconds = ticks / POLCLOCKS_PER_SEC;
-  return Clib::decint( seconds ) + " seconds";
+  return Clib::tostring( seconds ) + " seconds";
 }
 
 ///
@@ -263,7 +263,7 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
   else if ( mob->is_criminal() )
   {
     send_sysmessage( client, "Mobile is criminal for " + timeoutstr( mob->criminal_until_ ) + " [" +
-                                 Clib::decint( mob->criminal_until_ ) + "]" );
+                                 Clib::tostring( mob->criminal_until_ ) + "]" );
   }
 
   for ( Mobile::Character::MobileCont::const_iterator itr = mob->aggressor_to_.begin();
@@ -271,7 +271,7 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
   {
     send_sysmessage( client, "Aggressor to " + ( *itr ).first->name() + " for " +
                                  timeoutstr( ( *itr ).second ) + " [" +
-                                 Clib::decint( ( *itr ).second ) + "]" );
+                                 Clib::tostring( ( *itr ).second ) + "]" );
   }
 
   for ( Mobile::Character::MobileCont::const_iterator itr = mob->lawfully_damaged_.begin();
@@ -279,7 +279,7 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
   {
     send_sysmessage( client, "Lawfully Damaged " + ( *itr ).first->name() + " for " +
                                  timeoutstr( ( *itr ).second ) + " [" +
-                                 Clib::decint( ( *itr ).second ) + "]" );
+                                 Clib::tostring( ( *itr ).second ) + "]" );
   }
 
   for ( Mobile::Character::ToBeReportableList::const_iterator itr = mob->to_be_reportable_.begin();
@@ -294,13 +294,13 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
   {
     const Mobile::reportable_t& rt = ( *itr );
     send_sysmessage(
-        client, "Reportable: " + Clib::hexint( rt.serial ) + " at " + Clib::decint( rt.polclock ) );
+        client, "Reportable: " + Clib::hexint( rt.serial ) + " at " + Clib::tostring( rt.polclock ) );
   }
 
   if ( mob->repsys_task_ != nullptr )
     send_sysmessage( client, "Repsys task is active, runs in " +
                                  timeoutstr( mob->repsys_task_->next_run_clock() ) + " [" +
-                                 Clib::decint( mob->repsys_task_->next_run_clock() ) + "]" );
+                                 Clib::tostring( mob->repsys_task_->next_run_clock() ) + "]" );
 }
 
 void show_repdata( Mobile::Character* looker, Mobile::Character* mob )
@@ -438,10 +438,10 @@ void textcmd_procs( Network::Client* client )
   send_sysmessage( client, "Process Information:" );
 
   send_sysmessage(
-      client, "Running: " + Clib::decint( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
+      client, "Running: " + Clib::tostring( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
   send_sysmessage(
       client,
-      "Blocked: " + Clib::decint( (unsigned int)( scriptScheduler.getHoldlist().size() ) ) );
+      "Blocked: " + Clib::tostring( (unsigned int)( scriptScheduler.getHoldlist().size() ) ) );
 }
 
 void textcmd_log_profile( Network::Client* client )
@@ -464,7 +464,7 @@ void textcmd_heapcheck( Network::Client* /*client*/ )
 
 void textcmd_threads( Network::Client* client )
 {
-  std::string s = "Child threads: " + Clib::decint( threadhelp::child_threads );
+  std::string s = "Child threads: " + Clib::tostring( threadhelp::child_threads );
   send_sysmessage( client, s );
 }
 

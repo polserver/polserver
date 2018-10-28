@@ -51,7 +51,7 @@ void MapServer::LoadSecondLevelIndex()
   std::fstream::pos_type filesize = infile.FileSize();
   if ( filesize < std::fstream::pos_type( SOLIDX2_FILLER_SIZE ) )
     throw std::runtime_error( filename + " must have size of at least " +
-                              Clib::decint( SOLIDX2_FILLER_SIZE ) + " bytes." );
+                              Clib::tostring( SOLIDX2_FILLER_SIZE ) + " bytes." );
 
   std::fstream::pos_type databytes = filesize - std::fstream::pos_type( SOLIDX2_FILLER_SIZE );
   if ( ( databytes % sizeof( SOLIDX2_ELEM ) ) != 0 )

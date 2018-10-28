@@ -1118,7 +1118,7 @@ int xmain_inner( bool testing )
                std::ios::out | std::ios::trunc );
 
   if ( polpid.is_open() )
-    polpid << Clib::decint( getpid() );
+    polpid << Clib::tostring( getpid() );
   else
     INFO_PRINT << "Cannot create pid file in " << Plib::systemstate.config.pidfile_path << "\n";
 
