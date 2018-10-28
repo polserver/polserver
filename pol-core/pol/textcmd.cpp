@@ -276,8 +276,8 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
         itr != mob->reportable_.end(); ++itr )
   {
     const Mobile::reportable_t& rt = ( *itr );
-    send_sysmessage(
-        client, "Reportable: " + Clib::hexint( rt.serial ) + " at " + Clib::tostring( rt.polclock ) );
+    send_sysmessage( client, "Reportable: " + Clib::hexint( rt.serial ) + " at " +
+                                 Clib::tostring( rt.polclock ) );
   }
 
   if ( mob->repsys_task_ != nullptr )
@@ -421,7 +421,8 @@ void textcmd_procs( Network::Client* client )
   send_sysmessage( client, "Process Information:" );
 
   send_sysmessage(
-      client, "Running: " + Clib::tostring( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
+      client,
+      "Running: " + Clib::tostring( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
   send_sysmessage(
       client,
       "Blocked: " + Clib::tostring( (unsigned int)( scriptScheduler.getHoldlist().size() ) ) );
@@ -710,5 +711,5 @@ bool process_command( Network::Client* client, const char* text, const u16* wtex
 
   return false;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

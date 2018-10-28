@@ -56,7 +56,8 @@ void read_movecost( Clib::ConfigElem& elem, MovementCost& movecost )
     {
       if ( perc > MAX_CARRY_PERC )
       {
-        elem.throw_error( "Max carrying capacity percentage is " + Clib::tostring( MAX_CARRY_PERC ) );
+        elem.throw_error( "Max carrying capacity percentage is " +
+                          Clib::tostring( MAX_CARRY_PERC ) );
       }
       Costs.insert( std::pair<int, double>( perc, mult ) );
     }
@@ -166,5 +167,5 @@ void load_movecost( bool reload )
     memcpy( &settingsManager.movecost_running_mounted, &settingsManager.movecost_running,
             sizeof settingsManager.movecost_running );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
