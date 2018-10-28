@@ -8,6 +8,7 @@
 
 #include "mapfunc.h"
 
+#include "../clib/bitutil.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../pol/ustruct.h"
@@ -56,16 +57,6 @@ std::string flagdescs()
       "L=move land, S=move sea, V=block sight, f=overflight, d=allow drop, g=gradual, +=more "
       "solids, B=blocking, S=stackable, M=movable, E=equippable";
   return out;
-}
-
-bool flags_set( u32 value, u32 flags )
-{
-  return ( value & flags ) == flags;
-}
-
-bool flags_clear( u32 value, u32 flags )
-{
-  return ( ~value & flags ) == flags;
 }
 
 u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot,
@@ -179,8 +170,8 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
     }
   }
 
-  if ( flags_set( uoflags, Core::USTRUCT_TILE::FLAG_FLOOR | Core::USTRUCT_TILE::FLAG_LIQUID |
-                               Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+  if ( Clib::flags_set( uoflags, Core::USTRUCT_TILE::FLAG_FLOOR | Core::USTRUCT_TILE::FLAG_LIQUID |
+                                     Core::USTRUCT_TILE::FLAG_BLOCKING ) )
   {
     // not blocking
   }
@@ -192,8 +183,8 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   {
     mapflags |= FLAG::BLOCKING;
   }
-  else if ( flags_clear( uoflags, Core::USTRUCT_TILE::FLAG_WALL ) &&
-            flags_clear( uoflags, Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+  else if ( Clib::flags_clear( uoflags, Core::USTRUCT_TILE::FLAG_WALL ) &&
+            Clib::flags_clear( uoflags, Core::USTRUCT_TILE::FLAG_BLOCKING ) )
   {
     mapflags |= FLAG::MOVABLE;
   }
@@ -269,5 +260,5 @@ unsigned int readflags( Clib::ConfigElem& elem )
 
   return flags;
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol
