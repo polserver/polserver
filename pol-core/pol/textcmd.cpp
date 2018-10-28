@@ -57,7 +57,6 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "tmpvars.h"
 #include "uconst.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
@@ -180,22 +179,6 @@ void send_move_if_inrange2( Mobile::Character* chr, Network::Client* client )
   {
     send_move( client, chr );
   }
-}
-
-void textcmd_flag1( Network::Client* client, const char* text )
-{
-  tmp_flag1 = (u8)strtoul( text, nullptr, 16 );
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
-}
-
-void textcmd_flag2( Network::Client* client, const char* text )
-{
-  tmp_flag2 = (u8)strtoul( text, nullptr, 16 );
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
 }
 
 void textcmd_resendchars( Network::Client* client )
@@ -698,8 +681,6 @@ bool process_command( Network::Client* client, const char* text, const u16* wtex
     register_command( "startlog", &textcmd_startlog );
     register_command( "stoplog", &textcmd_stoplog );
     register_command( "threads", &textcmd_threads );
-    register_command( "flag1 ", &textcmd_flag1 );
-    register_command( "flag2 ", &textcmd_flag2 );
   }
 
   ++text;  // skip the "/" or "."

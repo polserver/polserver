@@ -388,8 +388,6 @@ set (pol_sources  # sorted !
   tiplist.h
   tiplstwn.cpp
   tips.cpp
-  tmpvars.cpp
-  tmpvars.h
   tooltips.cpp
   tooltips.h
   uconst.h
