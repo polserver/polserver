@@ -8,8 +8,8 @@ platform: x64
 configuration: Release
 
 build:
-  parallel: true
-  project: bin-build/polserver.sln
+#  parallel: true
+#  project: bin-build/polserver.sln
   verbosity: minimal
 
 init:
@@ -17,13 +17,13 @@ init:
 
 install:
   - cd bin-build
-  - cmake .. -G "Visual Studio 15 2017 Win64"
-  #- appveyor DownloadFile "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip" -FileName ninja.zip
-  #- 7z x ninja.zip > nul
-  #- call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-  #- cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+    #  - cmake .. -G "Visual Studio 15 2017 Win64"
+  - appveyor DownloadFile "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip" -FileName ninja.zip
+  - 7z x ninja.zip > nul
+  - call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+  - cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 build_script:
-  #- cmake --build . --config Release -- -j 2
+  - cmake --build . --config Release -- -j 2
 
 test_script:
   - cd ..\\testsuite\\escript
