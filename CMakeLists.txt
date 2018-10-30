@@ -143,7 +143,7 @@ endif()
 add_polrelease_target()
 
 #ctest integration
-#splitted into  each escript testfolder to allow parallel execution
+#splitted into each escript testfolder to allow parallel execution
 if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
   message("activating test target")
   enable_testing()
@@ -157,7 +157,12 @@ if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
         continue()
       endif()
       add_test(NAME escript_${child}
-        COMMAND performtests.py ${output_bin_dir}/ecompile ${output_bin_dir}/runecl ${child}
+        COMMAND ${CMAKE_COMMAND}
+          -Dtestdir=${testdir}
+          -Dsubtest=${child}
+          -Decompile=${output_bin_dir}/ecompile
+          -Drunecl=${output_bin_dir}/runecl
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
         WORKING_DIRECTORY ${testdir}
       )
     endif()
