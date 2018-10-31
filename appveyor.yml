@@ -26,7 +26,7 @@ build_script:
 test_script:
     #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5 -q
     #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\ecompile.exe ..\\..\\bin\\runecl.exe -n 5 -q
-  - ctest -T Test -j 2 --output-on-failure --repeat-until-fail 5
+  - ctest -j 2 --output-on-failure --repeat-until-fail 5
   - cd ..\\testsuite\\style
   - c:\\Python34\\python.exe checknl.py -q
 
