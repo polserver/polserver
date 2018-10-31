@@ -40,8 +40,8 @@ after_test:
       Expand-Archive -Path .\ctest-uploader.zip -DestinationPath .\
       mv .\appveyor-ctest-uploader-* appveyor-ctest-uploader
       . .\appveyor-ctest-uploader\upload-ctest-report.ps1
-      foreach($f in $(ls Testing\*\Test.xml))
-      { upload-ctest-report $f }
+      foreach ($file in $(ls Testing\*\Test.xml))
+      { upload-ctest-report $file }
 
 
 deploy: off
