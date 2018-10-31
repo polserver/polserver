@@ -42,7 +42,7 @@ bool BoatShapeExists( unsigned short /*graphic*/ )
 {
   return true;
 }
-}
+}  // namespace Multi
 
 namespace UoTool
 {
@@ -339,7 +339,9 @@ static int print_verdata_info()
 
   // FIXME: should read this once per run, per file.
   fseek( Core::verfile, 0, SEEK_SET );
-  fread( &num_version_records, sizeof num_version_records, 1, Core::verfile );  // ENDIAN-BROKEN
+  if ( fread( &num_version_records, sizeof num_version_records, 1, Core::verfile ) !=
+       1 )  // ENDIAN-BROKEN
+    throw std::runtime_error( "print_verdata_info: fread(num_version_records) failed." );
 
   INFO_PRINT << "There are " << num_version_records << " version records.\n";
 
@@ -349,7 +351,8 @@ static int print_verdata_info()
 
   for ( int i = 0; i < num_version_records; i++ )
   {
-    fread( &vrec, sizeof vrec, 1, Core::verfile );
+    if ( fread( &vrec, sizeof vrec, 1, Core::verfile ) != 1 )
+      throw std::runtime_error( "print_verdata_info: fread(vrec) failed." );
     if ( vrec.file < 32 )
       ++filecount[vrec.file];
     else
@@ -1119,7 +1122,8 @@ static int checkmultis()
       continue;
     fseek( multi_mul, idxrec.offset, SEEK_SET );
     Core::USTRUCT_MULTI_ELEMENT elem;
-    fread( &elem, sizeof elem, 1, multi_mul );
+    if ( fread( &elem, sizeof elem, 1, multi_mul ) != 1 )
+      throw std::runtime_error( "checkmultis: fread(elem) failed." );
     if ( elem.x != 0 || elem.y != 0 || elem.z != 0 )
     {
       INFO_PRINT << "ERROR: First tile not in center: " << elem.x << " " << elem.y << " " << elem.z
@@ -1133,7 +1137,8 @@ static int checkmultis()
       --itemcount;
       while ( itemcount-- )
       {
-        fread( &elem, sizeof elem, 1, multi_mul );
+        if ( fread( &elem, sizeof elem, 1, multi_mul ) != 1 )
+          throw std::runtime_error( "checkmultis: fread(multi_mul) failed." );
         if ( elem.x == 0 && elem.y == 0 && elem.z == 0 && elem.graphic != 0x0001 && elem.flags )
         {
           INFO_PRINT << "Warning: Found invis tile as center, but could use 0x"
@@ -1239,7 +1244,7 @@ int UoToolMain::main()
   }
 
   std::transform( argvalue.begin(), argvalue.end(), argvalue.begin(),
-                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
 
   if ( argvalue == "tiledump" )
   {
@@ -1364,8 +1369,8 @@ int UoToolMain::main()
   showHelp();
   return 0;
 }
-}
-}  // namespaces
+}  // namespace UoTool
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

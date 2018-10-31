@@ -104,7 +104,8 @@ void readtile( unsigned short tilenum, Core::USTRUCT_TILE* tile )
       int filepos;
       filepos = 4 + ( sizeof *tile ) * ( tilenum & 0x1F );
       fseek( Core::verfile, filepos, SEEK_CUR );
-      fread( tile, sizeof *tile, 1, Core::verfile );
+      if ( fread( tile, sizeof *tile, 1, Core::verfile ) != 1 )
+        throw std::runtime_error( "readtile: fread(tile) failed." );
     }
     else
     {
@@ -116,7 +117,8 @@ void readtile( unsigned short tilenum, Core::USTRUCT_TILE* tile )
                 4 +                               // skip my header
                 ( sizeof( Core::USTRUCT_TILE ) * tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
-      fread( tile, sizeof *tile, 1, Core::tilefile );
+      if ( fread( tile, sizeof *tile, 1, Core::tilefile ) != 1 )
+        throw std::runtime_error( "readtile: fread(tile) failed." );
     }
   }
 
@@ -142,7 +144,8 @@ void readtile( unsigned short tilenum, Core::USTRUCT_TILE_HSA* tile )
       int filepos;
       filepos = 4 + ( sizeof *tile ) * ( tilenum & 0x1F );
       fseek( Core::verfile, filepos, SEEK_CUR );
-      fread( tile, sizeof *tile, 1, Core::verfile );
+      if ( fread( tile, sizeof *tile, 1, Core::verfile ) != 1 )
+        throw std::runtime_error( "readtile: fread(tile) failed." );
     }
     else
     {
@@ -151,7 +154,8 @@ void readtile( unsigned short tilenum, Core::USTRUCT_TILE_HSA* tile )
                 4 +                                   // skip my header
                 ( sizeof( Core::USTRUCT_TILE_HSA ) * tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
-      fread( tile, sizeof *tile, 1, Core::tilefile );
+      if ( fread( tile, sizeof *tile, 1, Core::tilefile ) != 1 )
+        throw std::runtime_error( "readtile: fread(tile) failed." );
     }
   }
 
@@ -173,7 +177,8 @@ void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE* landtile )
       int filepos;
       filepos = 4 + ( sizeof *landtile ) * ( tilenum & 0x1F );
       fseek( Core::verfile, filepos, SEEK_CUR );
-      fread( landtile, sizeof *landtile, 1, Core::verfile );
+      if ( fread( landtile, sizeof *landtile, 1, Core::verfile ) != 1 )
+        throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
     else
     {
@@ -182,7 +187,8 @@ void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE* landtile )
                 4 +              // skip my header
                 ( sizeof( Core::USTRUCT_LAND_TILE ) * tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
-      fread( landtile, sizeof *landtile, 1, Core::tilefile );
+      if ( fread( landtile, sizeof *landtile, 1, Core::tilefile ) != 1 )
+        throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
   }
 
@@ -203,7 +209,8 @@ void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE_HSA* landtile
       int filepos;
       filepos = 4 + ( sizeof *landtile ) * ( tilenum & 0x1F );
       fseek( Core::verfile, filepos, SEEK_CUR );
-      fread( landtile, sizeof *landtile, 1, Core::verfile );
+      if ( fread( landtile, sizeof *landtile, 1, Core::verfile ) != 1 )
+        throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
     else
     {
@@ -212,7 +219,8 @@ void readlandtile( unsigned short tilenum, Core::USTRUCT_LAND_TILE_HSA* landtile
                 4 +              // skip my header
                 ( sizeof( Core::USTRUCT_LAND_TILE_HSA ) * tilenum );
       fseek( Core::tilefile, filepos, SEEK_SET );
-      fread( landtile, sizeof *landtile, 1, Core::tilefile );
+      if ( fread( landtile, sizeof *landtile, 1, Core::tilefile ) != 1 )
+        throw std::runtime_error( "readlandtile: fread(landtile) failed." );
     }
   }
 
@@ -342,7 +350,9 @@ static void read_veridx()
   {
     // FIXME: should read this once per run, per file.
     fseek( verfile, 0, SEEK_SET );
-    fread( &num_version_records, sizeof num_version_records, 1, verfile );  // ENDIAN-BROKEN
+    if ( fread( &num_version_records, sizeof num_version_records, 1, verfile ) !=
+         1 )  // ENDIAN-BROKEN
+      throw std::runtime_error( "read_veridx: fread(num_version_records) failed." );
 
     for ( int i = 0; i < num_version_records; i++ )
     {
@@ -419,5 +429,5 @@ void read_uo_data( void )
   Core::read_static_diffs();
   Core::read_map_difs();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

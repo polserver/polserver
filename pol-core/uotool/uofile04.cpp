@@ -32,7 +32,8 @@ void readwater()
     INFO_PRINT << xblock << "..";
     for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
     {
-      fread( &idxrec, sizeof idxrec, 1, Core::sidxfile );
+      if ( fread( &idxrec, sizeof idxrec, 1, Core::sidxfile ) != 1 )
+        throw std::runtime_error( "readwater: fread(idxrec) failed." );
       int xbase = xblock * 8;
       int ybase = yblock * 8;
 
@@ -43,7 +44,8 @@ void readwater()
         for ( idxrec.length /= 7; idxrec.length > 0; --idxrec.length )
         {
           Core::USTRUCT_STATIC srec;
-          fread( &srec, sizeof srec, 1, Core::statfile );
+          if ( fread( &srec, sizeof srec, 1, Core::statfile ) != 1 )
+            throw std::runtime_error( "readwater: fread(srec) failed." );
 
           if ( srec.z == -5 && iswater( srec.graphic ) )
           {
@@ -57,5 +59,5 @@ void readwater()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

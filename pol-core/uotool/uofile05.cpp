@@ -24,7 +24,8 @@ void staticsmax()
   {
     for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
     {
-      fread( &idxrec, sizeof idxrec, 1, sidxfile );
+      if ( fread( &idxrec, sizeof idxrec, 1, sidxfile ) != 1 )
+        throw std::runtime_error( "staticsmax: fread(idxrec) failed." );
 
       if ( idxrec.length != 0xFFffFFffLu )
       {
@@ -37,5 +38,5 @@ void staticsmax()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
