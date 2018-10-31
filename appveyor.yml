@@ -27,8 +27,7 @@ test_script:
     #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5 -q
     #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\ecompile.exe ..\\..\\bin\\runecl.exe -n 5 -q
   - ctest -T Test -j 2 --output-on-failure --repeat-until-fail 5
-  - cd ..\\testsuite\\escript
-  - cd ..\\style
+  - cd ..\\testsuite\\style
   - c:\\Python34\\python.exe checknl.py -q
 
 after_test:
@@ -36,11 +35,6 @@ after_test:
   - cmake --build . --config Release --target package
   - ps: >-
       Get-ChildItem ..\\bin\\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-      Invoke-WebRequest -Uri https://github.com/kovbal/appveyor-ctest-uploader/archive/v1.0.0.zip -OutFile ctest-uploader.zip
-      Expand-Archive -Path .\ctest-uploader.zip -DestinationPath .\
-      mv .\appveyor-ctest-uploader-* appveyor-ctest-uploader
-      . .\appveyor-ctest-uploader\upload-ctest-report.ps1
-      Get-ChildItem Testing\\*\\Test.xml | % { upload-ctest-report $_.FullName }
 
 deploy: off
 
