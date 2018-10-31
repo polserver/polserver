@@ -387,7 +387,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
           "POL will exit now. Please, post the following to the forum: "
           "http://forums.polserver.com/.\n" );
     string tStackTrace = ExceptionParser::getTrace();
-    printf( tStackTrace.c_str() );
+    printf( "%s", tStackTrace.c_str() );
     printf( "Admin contact: %s\n", m_programAbortReportingReporter.c_str() );
     printf( "Executable: %s\n", PROG_CONFIG::programName().c_str() );
     printf( "Start time: %s\n", m_programStart.c_str() );
@@ -436,7 +436,7 @@ ExceptionParser::ExceptionParser() {}
 
 ExceptionParser::~ExceptionParser() {}
 
-  ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WIN32
 string ExceptionParser::getTrace()
@@ -677,5 +677,5 @@ bool ExceptionParser::programAbortReporting()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol

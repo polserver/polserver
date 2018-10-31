@@ -229,11 +229,6 @@ function(warning_suppression target)
       /wd4786 #identifier trunc for debug
     >
     $<${linux}:
-      -Wno-unknown-pragmas
-      -Wno-unused-result
-      -Wno-unused-function
-      -Wno-format
-      -fno-strict-aliasing  
     >
   )
 endfunction()

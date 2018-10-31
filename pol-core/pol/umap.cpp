@@ -20,6 +20,7 @@
 #include "../clib/cfgelem.h"
 #include "../clib/clib_endian.h"
 #include "../clib/streamsaver.h"
+#include "../clib/strutil.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"
@@ -98,14 +99,14 @@ void Map::readProperties( Clib::ConfigElem& elem )
 
   unsigned short numpins = elem.remove_ushort( "NumPins", 0 );
   std::string pinval;
-  char search_string[6];
   int i, px, py;
   struct PinPoint pp;
 
   for ( i = 0; i < numpins; i++ )
   {
-    sprintf( search_string, "Pin%i", i );
-    pinval = elem.remove_string( search_string );
+    std::string search_string( "Pin" );
+    search_string += Clib::tostring( i );
+    pinval = elem.remove_string( search_string.c_str() );
     sscanf( pinval.c_str(), "%i,%i", &px, &py );
 
     pp.x = static_cast<unsigned short>( px );
@@ -462,5 +463,5 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
     break;
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
