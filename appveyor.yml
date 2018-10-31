@@ -26,7 +26,7 @@ build_script:
 test_script:
     #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\Release\\ecompile.exe ..\\..\\bin\\Release\\runecl.exe -n 5 -q
     #- c:\\Python34\\python.exe performtests.py ..\\..\\bin\\ecompile.exe ..\\..\\bin\\runecl.exe -n 5 -q
-  - ctest -j 2 --output-on-failure --repeat-until-fail 5
+  - ctest -T Test -j 2 --output-on-failure --repeat-until-fail 5
   - cd ..\\testsuite\\escript
   - cd ..\\style
   - c:\\Python34\\python.exe checknl.py -q
@@ -34,7 +34,15 @@ test_script:
 after_test:
   - cd ..\\..\\bin-build
   - cmake --build . --config Release --target package
-  - ps: Get-ChildItem ..\\bin\\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: >-
+      Get-ChildItem ..\\bin\\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+      Invoke-WebRequest -Uri https://github.com/kovbal/appveyor-ctest-uploader/archive/v1.0.0.zip -OutFile ctest-uploader.zip
+      Expand-Archive -Path .\ctest-uploader.zip -DestinationPath .\
+      mv .\appveyor-ctest-uploader-* appveyor-ctest-uploader
+      . .\appveyor-ctest-uploader\upload-ctest-report.ps1
+      foreach($f in $(ls Testing\*\Test.xml))
+      { upload-ctest-report $f }
+
 
 deploy: off
 
