@@ -356,7 +356,8 @@ static void read_veridx()
 
     for ( int i = 0; i < num_version_records; i++ )
     {
-      fread( &vrec, sizeof vrec, 1, verfile );
+      if ( fread( &vrec, sizeof vrec, 1, verfile ) != 1 )
+        throw std::runtime_error( "read_veridx: fread(vrec) failed." );
 
       if ( vrec.file < vidx_count )
       {
