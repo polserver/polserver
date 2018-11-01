@@ -1,7 +1,7 @@
 #include "RawMap.h"
 
-#include "../clib/passert.h"
 #include "../clib/logfacility.h"
+#include "../clib/passert.h"
 
 #include "uopreader/uop.h"
 #include "uopreader/uophash.h"
@@ -189,10 +189,9 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
   return (unsigned int)m_mapinfo_vec.size();
 }
 
-RawMap::RawMap() : m_mapwidth( 0 ), m_mapheight( 0 ) {}
-
-
-RawMap::~RawMap() = default;
+RawMap::RawMap() : is_init( false ), m_mapinfo_vec(), mapdifl(), m_mapwidth( 0 ), m_mapheight( 0 )
+{
+}
 
 }  // namespace Plib
 }  // namespace Pol

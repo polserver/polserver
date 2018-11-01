@@ -1098,7 +1098,9 @@ void Character::make_criminal( int level )
   if ( level )
   {
     Core::polclock_t timeout_at =
-        Core::polclock() + level * Core::settingsManager.repsys_cfg.General.CriminalFlagInterval *
+        Core::polclock() + level *
+                               static_cast<Core::polclock_t>(
+                                   Core::settingsManager.repsys_cfg.General.CriminalFlagInterval ) *
                                Core::POLCLOCKS_PER_SEC;
 
     restart_criminal_timer( timeout_at );

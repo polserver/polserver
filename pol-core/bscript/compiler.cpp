@@ -4982,6 +4982,7 @@ int Compiler::getFileContents( const char* file, char** iv )
   if ( fread( s, filelen, 1, fp ) != 1 )
   {
     fclose( fp );
+    free( s );
     return -1;
   }
 
@@ -5447,46 +5448,46 @@ void Compiler::dump( std::ostream& os )
 {
   program->dump( os );
 }
-}
-}
-/*
-    local x;      [ "x", RSV_LOCAL, # ]
-    local x:=5;      [ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
-    local x,y:=5;    [ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
-    local x:=5,y;
-
-    x := 5;
-
-    declare function foo(a,b,c,d);
-
-    function foo(a,b,c,d)
-    begin
-    return
-    or
-    return "hey"
-    end
-
-    statements:
-
-    if expr [then] statement [else statement];
-
-    do
-    statement;
-    while expr;
-
-    begin
-    statements;
-    end
-
-
-    while expr
-    statement;
-
-
-    Alternative:
-    if expr
-    statments;
-    [else
-    statements; ]
-    endif;
-    */
+}  // namespace Bscript
+}  // namespace Pol
+   /*
+       local x;      [ "x", RSV_LOCAL, # ]
+       local x:=5;      [ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
+       local x,y:=5;    [ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
+       local x:=5,y;
+   
+       x := 5;
+   
+       declare function foo(a,b,c,d);
+   
+       function foo(a,b,c,d)
+       begin
+       return
+       or
+       return "hey"
+       end
+   
+       statements:
+   
+       if expr [then] statement [else statement];
+   
+       do
+       statement;
+       while expr;
+   
+       begin
+       statements;
+       end
+   
+   
+       while expr
+       statement;
+   
+   
+       Alternative:
+       if expr
+       statments;
+       [else
+       statements; ]
+       endif;
+       */
