@@ -137,7 +137,7 @@ void Realm::notify_moved( Mobile::Character& whomoved )
         whomoved.lastx, whomoved.lasty, this, 32,
         [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
 
-	Core::WorldIterator<Core::ItemFilter>::InRange(
+    Core::WorldIterator<Core::ItemFilter>::InRange(
         whomoved.lastx, whomoved.lasty, this, 32,
         [&]( Items::Item* item ) { item->inform_moved( &whomoved ); } );
   }
