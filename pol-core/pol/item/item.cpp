@@ -28,6 +28,7 @@
 #include "../gameclck.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
+#include "../module/uomod.h"
 #include "../network/client.h"
 #include "../objtype.h"
 #include "../polcfg.h"
@@ -1195,6 +1196,14 @@ double Item::getItemdescQuality() const
   return itemdesc().quality;
 }
 
+Core::UOExecutor* Item::uoexec_control()
+{
+  if ( process() != nullptr )
+    return &process()->uoexec;
+
+  return nullptr;
+}
+
 double Item::getQuality() const
 {
   return quality();
@@ -1212,5 +1221,76 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
+
+// Event notifications
+
+bool Item::is_visible_to_me( const Mobile::Character* chr )
+{
+  if ( chr == nullptr )
+    return false;
+  if ( chr->realm != this->realm )
+    return false;  // noone can see across different realms.
+  if ( !chr->logged_in() )
+    return false;
+
+  // Unless the chr is offline or in a different realm,
+  // items can see anyone (I don't want to bother with privs now...)
+  return true;
 }
+
+void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_LEFTAREA ) )
+    return;
+
+  if ( pol_distance( wholeft, this ) > ex->area_size )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( wholeft ) )
+    return;
+
+  ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
 }
+
+void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoentered )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA ) )
+    return;
+
+  if ( pol_distance( whoentered, this ) > ex->area_size )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( whoentered ) )
+    return;
+
+  ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+}
+void Pol::Items::Item::inform_moved( Mobile::Character* moved )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )
+    return;
+
+  const bool are_inrange =
+      ( abs( x - moved->x ) <= ex->area_size ) && ( abs( y - moved->y ) <= ex->area_size );
+
+  const bool were_inrange =
+      ( abs( x - moved->lastx ) <= ex->area_size ) && ( abs( y - moved->lasty ) <= ex->area_size );
+
+  if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
+  {
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+  }
+  else if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+  {
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+  }
+}
+
+}  // namespace Items
+}  // namespace Pol
