@@ -90,5 +90,5 @@ size_t UOExecutor::sizeEstimate() const
 {
   return sizeof( UOExecutor ) + base::sizeEstimate();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

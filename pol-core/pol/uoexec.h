@@ -68,7 +68,7 @@ public:
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const
 {
-  return ( eventmask & eventflag ) ? true : false;	  
+  return ( eventmask & eventflag ) ? true : false;
 }
 
 }  // namespace Core
