@@ -52,7 +52,7 @@ public:
   u64 warn_runaway_on_cycle;
   u64 runaway_cycles;
 
-  bool listens_to( unsigned int eventflag );
+  bool listens_to( unsigned int eventflag ) const;
   bool signal_event( Bscript::BObjectImp* eventimp );
 
   unsigned int eventmask;
@@ -66,7 +66,7 @@ public:
   UOExecutor *pParent, *pChild;
 };
 
-inline bool UOExecutor::listens_to( unsigned int eventflag ) 
+inline bool UOExecutor::listens_to( unsigned int eventflag ) const
 {
   return ( eventmask & eventflag ) ? true : false;	  
 }
