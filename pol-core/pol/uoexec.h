@@ -52,6 +52,9 @@ public:
   u64 warn_runaway_on_cycle;
   u64 runaway_cycles;
 
+  bool listens_to( unsigned int eventflag );
+  bool signal_event( Bscript::BObjectImp* eventimp );
+
   unsigned int eventmask;
   unsigned short area_size;
   unsigned short speech_size;
@@ -62,6 +65,12 @@ public:
 
   UOExecutor *pParent, *pChild;
 };
+
+inline bool UOExecutor::listens_to( unsigned int eventflag ) 
+{
+  return ( eventmask & eventflag ) ? true : false;	  
 }
-}
+
+}  // namespace Core
+}  // namespace Pol
 #endif

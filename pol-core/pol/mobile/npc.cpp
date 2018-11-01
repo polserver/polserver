@@ -646,7 +646,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
-        ex->os_module->signal_event(
+        ex->signal_event(
             new Module::SpeechEvent( src_chr, speech,
                                      Core::TextTypeToString( texttype ) ) );  // DAVE added texttype
     }
@@ -662,7 +662,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
-        ex->os_module->signal_event(
+        ex->signal_event(
             new Module::SpeechEvent( src_chr, speech,
                                      Core::TextTypeToString( texttype ) ) );  // DAVE added texttype
     }
@@ -687,7 +687,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, cons
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
       {
-        ex->os_module->signal_event( new Module::UnicodeSpeechEvent(
+        ex->signal_event( new Module::UnicodeSpeechEvent(
             src_chr, speech, Core::TextTypeToString( texttype ), wspeech, lang, speechtokens ) );
       }
     }
@@ -714,7 +714,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
       {
-        ex->os_module->signal_event( new Module::UnicodeSpeechEvent(
+        ex->signal_event( new Module::UnicodeSpeechEvent(
             src_chr, speech, Core::TextTypeToString( texttype ), wspeech, lang, speechtokens ) );
       }
     }
@@ -728,7 +728,7 @@ void NPC::inform_engaged( Character* engaged )
   {
     if ( ex->eventmask & Core::EVID_ENGAGED )
     {
-      ex->os_module->signal_event( new Module::EngageEvent( engaged ) );
+      ex->signal_event( new Module::EngageEvent( engaged ) );
     }
   }
   // Note, we don't do the base class thing, 'cause we have no client.
@@ -741,7 +741,7 @@ void NPC::inform_disengaged( Character* disengaged )
   {
     if ( ex->eventmask & Core::EVID_DISENGAGED )
     {
-      ex->os_module->signal_event( new Module::DisengageEvent( disengaged ) );
+      ex->signal_event( new Module::DisengageEvent( disengaged ) );
     }
   }
   // Note, we don't do the base class thing, 'cause we have no client.
@@ -756,7 +756,7 @@ void NPC::inform_criminal( Character* thecriminal )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( thecriminal ) )
-        ex->os_module->signal_event(
+        ex->signal_event(
             new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
     }
   }
@@ -772,7 +772,7 @@ void NPC::inform_leftarea( Character* wholeft )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( wholeft ) )
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
       }
     }
   }
@@ -788,7 +788,7 @@ void NPC::inform_enteredarea( Character* whoentered )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( whoentered ) )
-          ex->os_module->signal_event(
+          ex->signal_event(
               new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
       }
     }
@@ -820,12 +820,12 @@ void NPC::inform_moved( Character* moved )
       {
         if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
         {
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
           signaled = true;
         }
         else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
         {
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
           signaled = true;
         }
       }
@@ -837,7 +837,7 @@ void NPC::inform_moved( Character* moved )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( moved ) )
-          ex->os_module->signal_event(
+          ex->signal_event(
               new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
       }
     }
@@ -868,9 +868,9 @@ void NPC::inform_imoved( Character* chr )
            is_visible_to_me( chr ) )
       {
         if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, chr ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, chr ) );
         else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, chr ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, chr ) );
       }
     }
   }
@@ -890,7 +890,7 @@ bool NPC::send_event( Bscript::BObjectImp* event )
 {
   if ( ex != nullptr )
   {
-    if ( ex->os_module->signal_event( event ) )
+    if ( ex->signal_event( event ) )
       return true;
   }
   else
@@ -905,7 +905,7 @@ Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
 {
   if ( ex != nullptr )
   {
-    if ( ex->os_module->signal_event( event ) )
+    if ( ex->signal_event( event ) )
       return new Bscript::BLong( 1 );
     else
     {
@@ -927,7 +927,7 @@ void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, b
   {
     if ( ex->eventmask & Core::EVID_DAMAGED )
     {
-      ex->os_module->signal_event(
+      ex->signal_event(
           new Module::DamageEvent( source, static_cast<unsigned short>( damage / 100 ) ) );
     }
   }
