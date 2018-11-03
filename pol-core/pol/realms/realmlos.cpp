@@ -164,14 +164,9 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     if ( att.realm != tgt.realm )
       return false;
   }
-    // due to the nature of los check the same x,y coordinates get checked, cache the last used
-    // coords to reduce the expensive map/multi read per coordinate
-
-#if ( !defined( _MSC_VER ) || _MSC_VER >= 1900 )
-  static THREADLOCAL LosCache cache;
-#else  // older ms support only primitive types :(
-  LosCache cache;
-#endif
+  // due to the nature of los check the same x,y coordinates get checked, cache the last used
+  // coords to reduce the expensive map/multi read per coordinate
+  static thread_local LosCache cache;
   cache.last_x = 0xFFFF;
   cache.last_y = 0xFFFF;
   cache.shapes.clear();
@@ -348,8 +343,8 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     }
   }
 }
-}
-}
+}  // namespace Realms
+}  // namespace Pol
 
 
 /****************************************************************************/

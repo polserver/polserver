@@ -22,7 +22,6 @@
 #include <time.h>
 #include <vector>
 
-#include "compilerspecifics.h"
 #include "maputil.h"
 
 namespace Pol
@@ -70,7 +69,7 @@ protected:
   virtual void display_error( const std::string& msg, bool show_curline = true,
                               const ConfigElemBase* elem = nullptr,
                               bool error = true ) const override;
-  POL_NORETURN void display_and_rethrow_exception();
+  [[noreturn]] void display_and_rethrow_exception();
   void register_allowed_type( const char* allowed_type );
 
 private:
@@ -95,6 +94,6 @@ public:
   virtual void display_error( const std::string& msg, bool show_curline, const ConfigElemBase* elem,
                               bool error ) const override;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif

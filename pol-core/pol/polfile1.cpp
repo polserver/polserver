@@ -25,7 +25,7 @@ namespace Pol
 {
 namespace Core
 {
-bool cfg_show_illegal_graphic_warning = 1;
+bool cfg_show_illegal_graphic_warning = true;
 
 bool newstat_dont_add( std::vector<Plib::STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
 {

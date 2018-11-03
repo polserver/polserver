@@ -10,6 +10,7 @@
 
 #include <stddef.h>
 
+#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "fnsearch.h"
 #include "globals/uvars.h"
@@ -180,5 +181,5 @@ Items::Item* find_walkon_item( ItemsVector& ivec, short z )
   }
   return nullptr;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

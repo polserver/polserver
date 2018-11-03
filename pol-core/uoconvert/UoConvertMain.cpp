@@ -68,8 +68,8 @@ void UoConvertMain::showHelp()
 using namespace Core;
 using namespace Plib;
 
-bool cfg_use_no_shoot = 0;
-bool cfg_LOS_through_windows = 0;
+bool cfg_use_no_shoot = false;
+bool cfg_LOS_through_windows = false;
 
 std::set<unsigned int> HouseTypes;
 std::set<unsigned int> BoatTypes;

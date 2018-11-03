@@ -17,7 +17,6 @@
 #ifndef __REFPTR_H
 #define __REFPTR_H
 
-#include "compilerspecifics.h"
 #include <atomic>
 
 // **** base class for ref counted classes
@@ -67,7 +66,7 @@ class ref_ptr
 public:
   explicit ref_ptr( T* ptr = 0 );
   ref_ptr( const ref_ptr& rptr );
-  ref_ptr( ref_ptr&& rptr ) POL_NOEXCEPT;
+  ref_ptr( ref_ptr&& rptr ) noexcept;
   ~ref_ptr();
 
   // Operations
@@ -155,7 +154,7 @@ ref_ptr<T>::ref_ptr( const ref_ptr& rptr ) : _ptr( rptr.get() )
 }
 
 template <class T>
-ref_ptr<T>::ref_ptr( ref_ptr&& rptr ) POL_NOEXCEPT : _ptr( rptr._ptr.exchange( nullptr ) )
+ref_ptr<T>::ref_ptr( ref_ptr&& rptr ) noexcept : _ptr( rptr._ptr.exchange( nullptr ) )
 {
 #if REFPTR_DEBUG
   --refptr_count;

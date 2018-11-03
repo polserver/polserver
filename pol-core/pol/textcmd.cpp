@@ -190,7 +190,7 @@ void textcmd_resendchars( Network::Client* client )
 
 void textcmd_shutdown( Network::Client* /*client*/ )
 {
-  Clib::exit_signalled = 1;
+  Clib::exit_signalled = true;
 }
 
 void handle_ident_cursor( Mobile::Character* chr, PKTBI_6C* msgin )

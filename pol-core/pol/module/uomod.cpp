@@ -4665,7 +4665,7 @@ bool UOExecutorModule::is_reserved_to_me( Item* item )
 
 BObjectImp* UOExecutorModule::mf_Shutdown()
 {
-  Clib::exit_signalled = 1;
+  Clib::exit_signalled = true;
 #ifndef _WIN32
   // the catch_signals_thread (actually main) sits with sigwait(),
   // so it won't wake up except by being signalled.

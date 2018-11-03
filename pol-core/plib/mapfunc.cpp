@@ -18,7 +18,7 @@ namespace Pol
 {
 namespace Core
 {
-bool cfg_show_roof_and_platform_warning = 1;
+bool cfg_show_roof_and_platform_warning = true;
 }
 namespace Plib
 {
@@ -213,7 +213,7 @@ u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags )
   lt_flags |= Core::USTRUCT_TILE::FLAG_HALF_HEIGHT;  // the entire map is this way
 
   unsigned int flags = polflags_from_tileflags(
-      tile, lt_flags, 0, 0 );  // Land tiles shouldn't worry about noshoot or windows
+      tile, lt_flags, false, false );  // Land tiles shouldn't worry about noshoot or windows
   return flags;
 }
 

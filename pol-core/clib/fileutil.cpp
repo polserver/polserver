@@ -55,7 +55,7 @@ bool IsDirectory( const char* dir )
     sdir = sdir.erase( sdir.length() - 1, 1 );
   struct stat st;
   if ( stat( sdir.c_str(), &st ) )
-    return 0;
+    return false;
   return ( st.st_mode & S_IFDIR ? true : false );
 }
 

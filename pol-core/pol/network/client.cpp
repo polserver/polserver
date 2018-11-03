@@ -71,8 +71,8 @@ unsigned int Client::instance_counter_;
 std::mutex Client::_SocketMutex;
 
 Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
-    : preDisconnect( 0 ),
-      disconnect( 0 ),
+    : preDisconnect( false ),
+      disconnect( false ),
       acct( nullptr ),
       chr( nullptr ),
       Interface( aInterface ),
@@ -87,7 +87,7 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
       bytes_received( 0 ),
       message_length( 0 ),
       cryptengine( create_crypt_engine( encryption ) ),
-      encrypt_server_stream( 0 ),
+      encrypt_server_stream( false ),
       msgtype_filter( Core::networkManager.login_filter.get() ),
       _fpLog_lock(),
       fpLog( "" ),
@@ -528,7 +528,7 @@ void Client::xmit( const void* data, unsigned short datalen )
       if ( !disconnect )
         POLLOG_ERROR.Format( "Client#{}: Disconnecting client due to send() error (1): {}\n" )
             << instance_ << sckerr;
-      disconnect = 1;
+      disconnect = true;
       THREAD_CHECKPOINT( active_client, 209 );
       return;
     }
@@ -578,7 +578,7 @@ void Client::send_queued_data()
         if ( !disconnect )
           POLLOG.Format( "Client#{}: Disconnecting client due to send() error (2): {}\n" )
               << instance_ << sckerr;
-        disconnect = 1;
+        disconnect = true;
         return;
       }
     }

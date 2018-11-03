@@ -14,7 +14,6 @@
 #include <string>
 
 #include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/fixalloc.h"
 #include "../clib/logfacility.h"
 #include "../clib/random.h"

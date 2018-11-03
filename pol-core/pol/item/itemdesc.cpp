@@ -195,7 +195,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       newbie( elem.remove_bool( "NEWBIE", false ) ),
       insured( elem.remove_bool( "INSURED", false ) ),
       invisible( elem.remove_bool( "INVISIBLE", false ) ),
-      decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
+      decays_on_multis( elem.remove_bool( "DecaysOnMultis", false ) ),
       blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
       no_drop( elem.remove_bool( "NoDrop", false ) ),
       base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),

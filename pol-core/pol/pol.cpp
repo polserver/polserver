@@ -237,7 +237,7 @@ void textcmd_startlog( Network::Client* client );
 void textcmd_stoplog( Network::Client* client );
 void start_client_char( Network::Client* client )
 {
-  client->ready = 1;
+  client->ready = true;
   client->chr->connected( true );
 
   // even if this stuff just gets queued, we still want the client to start
@@ -433,7 +433,7 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 
     chosen_char->client->gd->clear();
     chosen_char->client->forceDisconnect();
-    chosen_char->client->ready = 0;
+    chosen_char->client->ready = false;
     chosen_char->client->msgtype_filter = networkManager.disconnected_filter.get();
 
     // disassociate the objects from each other.
