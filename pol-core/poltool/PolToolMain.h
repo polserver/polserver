@@ -11,7 +11,7 @@ class PolToolMain final : public ProgramMain
 {
 public:
   PolToolMain();
-  virtual ~PolToolMain();
+  virtual ~PolToolMain() = default;
 
 protected:
   virtual int main();

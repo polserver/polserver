@@ -59,7 +59,7 @@ class LogSink_cout final : public LogSink
 {
 public:
   LogSink_cout();
-  virtual ~LogSink_cout(){};
+  virtual ~LogSink_cout() = default;
   virtual void addMessage( fmt::Writer* msg ) override;
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
@@ -69,7 +69,7 @@ class LogSink_cerr final : public LogSink
 {
 public:
   LogSink_cerr();
-  virtual ~LogSink_cerr(){};
+  virtual ~LogSink_cerr() = default;
   virtual void addMessage( fmt::Writer* msg ) override;
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
@@ -79,7 +79,7 @@ class LogSink_pollog final : public LogSinkGenericFile
 {
 public:
   LogSink_pollog();
-  virtual ~LogSink_pollog(){};
+  virtual ~LogSink_pollog() = default;
   void deinitialize_startlog();
 };
 
@@ -88,7 +88,7 @@ class LogSink_scriptlog final : public LogSinkGenericFile
 {
 public:
   LogSink_scriptlog();
-  virtual ~LogSink_scriptlog(){};
+  virtual ~LogSink_scriptlog() = default;
 };
 
 // debug.log file sink
@@ -96,7 +96,7 @@ class LogSink_debuglog final : public LogSinkGenericFile
 {
 public:
   LogSink_debuglog();
-  virtual ~LogSink_debuglog(){};
+  virtual ~LogSink_debuglog() = default;
   virtual void addMessage( fmt::Writer* msg ) override;
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
   void disable();
@@ -108,14 +108,14 @@ class LogSink_leaklog final : public LogSinkGenericFile
 {
 public:
   LogSink_leaklog();
-  virtual ~LogSink_leaklog(){};
+  virtual ~LogSink_leaklog() = default;
 };
 
 class LogSink_flexlog final : public LogSink
 {
 public:
   LogSink_flexlog();
-  virtual ~LogSink_flexlog();
+  virtual ~LogSink_flexlog() = default;
   std::string create( std::string logfilename, bool open_timestamp );
   virtual void addMessage( fmt::Writer* msg ) override;
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
@@ -130,7 +130,7 @@ class LogSink_dual final : public LogSink
 {
 public:
   LogSink_dual();
-  virtual ~LogSink_dual(){};
+  virtual ~LogSink_dual() = default;
   virtual void addMessage( fmt::Writer* msg ) override;
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };

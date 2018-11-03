@@ -33,8 +33,6 @@ MapServer::MapServer( const RealmDescriptor& descriptor ) : _descriptor( descrip
   LoadFirstLevelIndex();
 }
 
-MapServer::~MapServer() = default;
-
 void MapServer::LoadSolids()
 {
   std::string filename = _descriptor.path( "solids.dat" );

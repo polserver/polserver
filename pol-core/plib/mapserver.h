@@ -24,7 +24,7 @@ class MapServer
 public:
   static MapServer* Create( const RealmDescriptor& descriptor );
 
-  virtual ~MapServer();
+  virtual ~MapServer() = default;
 
   virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const = 0;
   void GetMapShapes( MapShapeList& list, unsigned short x, unsigned short y,

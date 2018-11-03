@@ -31,7 +31,7 @@ class SystemState : boost::noncopyable
 {
 public:
   SystemState();
-  ~SystemState();
+  ~SystemState() = default;
   void deinitialize();
 
   Packages packages;

@@ -42,8 +42,6 @@ StaticServer::StaticServer( const RealmDescriptor& descriptor )
   Validate();
 }
 
-StaticServer::~StaticServer() = default;
-
 void StaticServer::Validate() const
 {
   POLLOG_INFO << "Validating statics files: ";

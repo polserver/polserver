@@ -83,8 +83,8 @@ class CCryptBase
 {
   // Constructor / Destructor
 public:
-  CCryptBase();
-  virtual ~CCryptBase();
+  CCryptBase() = default;
+  virtual ~CCryptBase() = default;
 
   enum e_crypttype
   {
@@ -113,7 +113,7 @@ class CCryptBaseCrypt : public CCryptBase
   // Constructor / Destructor
 public:
   CCryptBaseCrypt();
-  virtual ~CCryptBaseCrypt();
+  virtual ~CCryptBaseCrypt() = default;
 
   LoginCrypt lcrypt;
 
@@ -124,12 +124,10 @@ protected:
   unsigned char encrypted_data[MAXBUFFER];
 
   // Member Functions
-public:
-  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) = 0;
-
 protected:
+  void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 );
   virtual void Decrypt( void* pvIn, void* pvOut, int len ) = 0;
 };
-}
-}
+}  // namespace Crypt
+}  // namespace Pol
 #endif  //__CRYPTBASE_H__

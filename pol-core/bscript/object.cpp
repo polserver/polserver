@@ -123,9 +123,6 @@ BObjectImp* BObjectImp::unpack( const char* pstr )
   return unpack( is );
 }
 
-BObject::~BObject() = default;
-
-
 BObject* BObject::clone() const
 {
   return new BObject( objimp->copy() );

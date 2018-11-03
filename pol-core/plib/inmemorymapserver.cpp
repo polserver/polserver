@@ -25,8 +25,6 @@ InMemoryMapServer::InMemoryMapServer( const RealmDescriptor& descriptor ) : MapS
   mapfile.Read( &_mapblocks[0], n_blocks );
 }
 
-InMemoryMapServer::~InMemoryMapServer() = default;
-
 MAPCELL InMemoryMapServer::GetMapCell( unsigned short x, unsigned short y ) const
 {
   passert( x < _descriptor.width && y < _descriptor.height );

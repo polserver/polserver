@@ -19,7 +19,7 @@ class MapTileServer
 {
 public:
   explicit MapTileServer( const RealmDescriptor& descriptor );
-  ~MapTileServer();
+  ~MapTileServer() = default;
 
   MAPTILE_CELL GetMapTile( unsigned short x, unsigned short y );
   size_t sizeEstimate() const;
