@@ -319,6 +319,7 @@ ListEquippedItems( who );
 ListGhostsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
 ListHostiles( character, range := 20, flags := 0 );
 ListItemsAtLocation( x, y, z, realm := _DEFAULT_REALM );
+ListItemsInBoxOfObjType( objtype, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
 ListItemsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
 ListItemsNearLocationOfType( x,y,z, range, objtype, realm := _DEFAULT_REALM );
 ListItemsNearLocationWithFlag( x,y,z, range, flags, realm := _DEFAULT_REALM );

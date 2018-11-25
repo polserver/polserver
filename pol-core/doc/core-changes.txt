@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+11-25-2018 Yukiko:
+  Added:   To uo.em ListItemsInBoxOfObjType( objtype, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)
+           The function returns an array of all items in the bounds of the coordinates matching the ObjType specified.
 10-22-2018 Turley:
   Fixed:   Undefined behaviour after ~20 days due to overflow in time measurment. This fixes both internal time measurments e.g. for repeating tasks, swing,.. and for the EScript function ReadMilliSecondClock() see below.
   Changed: ReadMillisecondClock() returns now a double instead of an integer to allow higher uptimes.
