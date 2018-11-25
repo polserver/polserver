@@ -171,7 +171,8 @@ class CoreChanges:
 					if not curchange:
 						raise LineParseError('Got a change line, but there is no active change', line, l)
 					if not cursub:
-						print("WARNING: malformed subchange at line {}".format(l))
+						if currel.name not in ['POL096','POL095']:
+							print("WARNING: malformed subchange at line {}".format(l))
 						cursub = SubChange(None, m.group(1))
 					cursub.addLine(m.group(2), m.group(1))
 					continue
