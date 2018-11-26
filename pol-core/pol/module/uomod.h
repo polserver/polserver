@@ -133,6 +133,7 @@ public:
   Bscript::BObjectImp* mf_GetMapInfo();
   Bscript::BObjectImp* mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
   Bscript::BObjectImp* mf_ListItemsInBoxOfObjType( /* objtype, x1, y1, z1, x2, y2, z2, realm */ );
+  Bscript::BObjectImp* mf_ListObjectsInBoxOfClass( /* POL_Class, x1, y1, z1, x2, y2, z2, realm */ );
   Bscript::BObjectImp* mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
   Bscript::BObjectImp* mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
   Bscript::BObjectImp* mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, flags, realm */ );

@@ -2299,17 +2299,62 @@ BObjectImp* UOExecutorModule::mf_ListItemsInBoxOfObjType(
   internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
-  //{  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr ) {
-  //   if ( chr->z >= z1 && chr->z <= z2 )
-  //   {
-  //     newarr->addElement( chr->make_ref() );
-  //   }
-  // } );
   WorldIterator<ItemFilter>::InBox( x1, y1, x2, y2, realm, [&]( Items::Item* item ) {
     if ( item->z >= z1 && item->z <= z2 && item->objtype_ == objtype )
     {
       newarr->addElement( item->make_ref() );
  //     INFO_PRINT << "TEST " << item->name() << "\n";
+    }
+  } );
+
+  return newarr.release();
+}
+
+BObjectImp* UOExecutorModule::mf_ListObjectsInBoxOfClass(
+    /* POL_Class, x1, y1, z1, x2, y2, z2, realm */ )
+{
+  unsigned int POL_Class;
+  unsigned short x1, y1;
+  int z1;
+  unsigned short x2, y2;
+  int z2;
+  const String* strrealm;
+  Realms::Realm* realm;
+
+  if ( !( getParam( 0, POL_Class ) && getParam( 1, x1 ) && getParam( 2, y1 ) && getParam( 3, z1 ) &&
+          getParam( 4, x2 ) && getParam( 5, y2 ) && getParam( 6, z2 ) &&
+          getStringParam( 7, strrealm ) ) )
+  {
+    return new BError( "Invalid parameter" );
+  }
+
+  realm = find_realm( strrealm->value() );
+  if ( !realm )
+    return new BError( "Realm not found" );
+
+  if ( x1 > x2 )
+    std::swap( x1, x2 );
+  if ( y1 > y2 )
+    std::swap( y1, y2 );
+  if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
+    std::swap( z1, z2 );
+  // Disabled again: ShardAdmins "loves" this "bug" :o/
+  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
+  //   return new BError("Invalid Coordinates for realm");
+  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+
+  std::unique_ptr<ObjArray> newarr( new ObjArray );
+  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm, [&]( Mobile::Character* chr ) {
+    if ( chr->z >= z1 && chr->z <= z2 && chr->script_isa( POL_Class ) )
+    {
+      newarr->addElement( chr->make_ref() );
+    }
+  } );
+  WorldIterator<ItemFilter>::InBox( x1, y1, x2, y2, realm, [&]( Items::Item* item ) {
+    if ( item->z >= z1 && item->z <= z2 && item->script_isa( POL_Class ) )
+    {
+      newarr->addElement( item->make_ref() );
+      //     INFO_PRINT << "TEST " << item->name() << "\n";
     }
   } );
 
@@ -5660,6 +5705,7 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"GetMapInfo", &UOExecutorModule::mf_GetMapInfo},
         {"ListObjectsInBox", &UOExecutorModule::mf_ListObjectsInBox},
         {"ListItemsInBoxOfObjType", &UOExecutorModule::mf_ListItemsInBoxOfObjType},
+        {"ListObjectsInBoxOfClass", &UOExecutorModule::mf_ListObjectsInBoxOfClass},
         {"ListMultisInBox", &UOExecutorModule::mf_ListMultisInBox},
         {"ListStaticsInBox", &UOExecutorModule::mf_ListStaticsInBox},
         {"ListEquippedItems", &UOExecutorModule::mf_ListEquippedItems},
