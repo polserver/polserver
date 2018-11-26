@@ -397,7 +397,7 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 
 <function name="ListItemsInBoxOfObjType">
   <prototype>ListItemsInBoxOfObjType( objtype, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
-  <parameter name="objtype" value="An nteger value. The ObjType to search for." />
+  <parameter name="objtype" value="An integer value. The ObjType to search for." />
   <parameter name="x1" value="integer, for north west upper corner of box" />
   <parameter name="y1" value="integer, for north west upper corner of box" />
   <parameter name="z1" value="integer, for north west upper corner of box" />
@@ -405,7 +405,7 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
   <parameter name="y2" value="integer, for south east lower corner of box" />
   <parameter name="z2" value="integer, for south east lower corner of box" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
-  <explain>Lists all items inside an imaginary box. Finds items with ObjType numbers matchin objtype.</explain>
+  <explain>Lists all items inside an imaginary box. Finds items with ObjType numbers matching objtype.</explain>
   <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
   <return>Error or Array of items found inside the specified box with the matching ObjType.</return>
   <error>"Invalid parameter"</error>
@@ -424,9 +424,9 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
   <parameter name="y2" value="integer, for south east lower corner of box" />
   <parameter name="z2" value="integer, for south east lower corner of box" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
-  <explain>Lists all items inside an imaginary box. Finds items with ObjType numbers matchin objtype.</explain>
+  <explain>Lists all items inside an imaginary box. Finds items matching the POL_Class.</explain>
   <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
-  <return>Error or Array of items found inside the specified box with the matching ObjType.</return>
+  <return>Error or Array of items found inside the specified box with the matching POL_Class.</return>
   <error>"Invalid parameter"</error>
   <error>"Realm not found"</error>
   <related>Array</related>
