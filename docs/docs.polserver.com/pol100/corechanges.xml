@@ -2,9 +2,26 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-22-2018</datemodified>
+		<datemodified>11-25-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>11-25-2018</date>
+			<author>Yukiko:</author>
+			<change type="Changed">The order of a couple of functions listed in uo.em. They were out of alphabetical order.</change>
+		</entry>
+		<entry>
+			<date>11-25-2018</date>
+			<author>Yukiko:</author>
+			<change type="Added">To uo.em ListItemsInBoxOfObjType( objtype, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)<br/>
+The function returns an array of all items in the bounds of the coordinates matching the ObjType specified.</change>
+		</entry>
+		<entry>
+			<date>11-25-2018</date>
+			<author>Yukiko:</author>
+			<change type="Added">To uo.em ListObjectsInBoxOfClass( POL_Class, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)<br/>
+The function returns an array of all items in the bounds of the coordinates matching the POL_Class specified.</change>
+		</entry>
 		<entry>
 			<date>10-22-2018</date>
 			<author>Turley:</author>
