@@ -1,10 +1,8 @@
 ﻿-- POL100 --
 11-25-2018 Yukiko:
  Changed:  The order of a couple of functions listed in uo.em. They were out of alphabetical order.
-11-25-2018 Yukiko:
  Added:    To uo.em ListItemsInBoxOfObjType( objtype, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)
            The function returns an array of all items in the bounds of the coordinates matching the ObjType specified.
-11-25-2018 Yukiko:
  Added:    To uo.em ListObjectsInBoxOfClass( POL_Class, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)
            The function returns an array of all items in the bounds of the coordinates matching the POL_Class specified.
 10-22-2018 Turley:
