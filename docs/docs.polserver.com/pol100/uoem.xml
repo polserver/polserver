@@ -396,7 +396,7 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 </function>
 
 <function name="ListItemsInBoxOfObjType">
-  <prototype>ListObjectsInBox( objtype, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <prototype>ListItemsInBoxOfObjType( objtype, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
   <parameter name="objtype" value="An nteger value. The ObjType to search for." />
   <parameter name="x1" value="integer, for north west upper corner of box" />
   <parameter name="y1" value="integer, for north west upper corner of box" />
@@ -415,7 +415,7 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 </function>
 
 <function name="ListObjectsInBoxOfClass">
-  <prototype>ListObjectsInBox( POL_Class, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <prototype>ListObjectsInBoxOfClass( POL_Class, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
   <parameter name="POL_Class" value="A POL class to search for eg. POLCLASS_" />
   <parameter name="x1" value="integer, for north west upper corner of box" />
   <parameter name="y1" value="integer, for north west upper corner of box" />
