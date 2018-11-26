@@ -2303,7 +2303,6 @@ BObjectImp* UOExecutorModule::mf_ListItemsInBoxOfObjType(
     if ( item->z >= z1 && item->z <= z2 && item->objtype_ == objtype )
     {
       newarr->addElement( item->make_ref() );
- //     INFO_PRINT << "TEST " << item->name() << "\n";
     }
   } );
 
@@ -2354,7 +2353,6 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBoxOfClass(
     if ( item->z >= z1 && item->z <= z2 && item->script_isa( POL_Class ) )
     {
       newarr->addElement( item->make_ref() );
-      //     INFO_PRINT << "TEST " << item->name() << "\n";
     }
   } );
 
