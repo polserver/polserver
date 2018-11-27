@@ -1224,7 +1224,7 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
 
 // Event notifications
 
-bool Item::is_visible_to_me( const Mobile::Character* chr )
+bool Item::is_visible_to_me( const Mobile::Character* chr ) const
 {
   if ( chr == nullptr )
     return false;

@@ -89,7 +89,7 @@ public:
   virtual void builtin_on_use( Network::Client* client );
   virtual void walk_on( Mobile::Character* chr );
 
-  bool is_visible_to_me( const Mobile::Character* chr );
+  bool is_visible_to_me( const Mobile::Character* chr ) const;
   virtual void inform_leftarea( Mobile::Character* wholeft );
   virtual void inform_enteredarea( Mobile::Character* whoentered );
   virtual void inform_moved( Mobile::Character* moved );

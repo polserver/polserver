@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-22-2018</datemodified>
+		<datemodified>11-27-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>11-27-2018</date>
+			<author>Nando:</author>
+			<change type="Added">Top-level items can now receive ENTEREDAREA and LEFTAREA events.</change>
+		</entry>
 		<entry>
 			<date>10-22-2018</date>
 			<author>Turley:</author>

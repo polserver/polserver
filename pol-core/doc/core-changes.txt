@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+11-27-2018 Nando:
+  Added:   Top-level items can now receive ENTEREDAREA and LEFTAREA events.
 10-22-2018 Turley:
   Fixed:   Undefined behaviour after ~20 days due to overflow in time measurment. This fixes both internal time measurments e.g. for repeating tasks, swing,.. and for the EScript function ReadMilliSecondClock() see below.
   Changed: ReadMillisecondClock() returns now a double instead of an integer to allow higher uptimes.
