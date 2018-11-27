@@ -195,7 +195,7 @@ void create_thread( ThreadData* td, bool dec_child = false )
   if ( h == 0 )  // added for better debugging
   {
     POLLOG.Format(
-        "error in create_thread: {:d} {:d} \"{:s}\" \"{:s}\" {:d} {:d} {:s} {:d} {:d} {:d}\n" )
+        "error in create_thread: {:d} {:d} \"{:s}\" \"{:s}\" {:d} {:d} {:s} {:d} {:d} {:}\n" )
         << errno << _doserrno << strerror( errno ) << strerror( _doserrno ) << threads++
         << (unsigned)thread_stub2 << td->name.c_str() << (unsigned)td->entry
         << (unsigned)td->entry_noparam << td->arg;
