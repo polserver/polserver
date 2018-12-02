@@ -2005,6 +2005,10 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
         POLLOG_ERROR << "Forcing assert crash\n";
         passert_always( false );
       }
+      else if ( type == 5 )
+      {
+        Core::scriptScheduler.estimateSize( true );
+      }
       return new BLong( 1 );
     }
     else

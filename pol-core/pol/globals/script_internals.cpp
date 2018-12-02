@@ -63,7 +63,7 @@ void ScriptScheduler::deinitialize()
   }
 }
 
-ScriptScheduler::Memory ScriptScheduler::estimateSize() const
+ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
 {
   Memory usage;
   memset( &usage, 0, sizeof( usage ) );
@@ -83,47 +83,85 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize() const
   }
   usage.scriptstorage_count = scrstore.size();
 
-
+  fmt::Writer verbose_w;
+  if ( verbose )
+    verbose_w << GET_LOG_FILESTAMP << "\n";
   usage.script_size += 3 * sizeof( UOExecutor** ) + runlist.size() * sizeof( UOExecutor* );
+  if ( verbose )
+    verbose_w << "runlist:\n";
   for ( const auto& exec : runlist )
   {
     if ( exec != nullptr )
+    {
       usage.script_size += exec->sizeEstimate();
+      if ( verbose )
+        verbose_w << exec->scriptname() << " " << exec->sizeEstimate() << "\n";
+    }
   }
   usage.script_count += runlist.size();
 
   usage.script_size += 3 * sizeof( UOExecutor** ) + ranlist.size() * sizeof( UOExecutor* );
+  if ( verbose )
+    verbose_w << "ranlist:\n";
   for ( const auto& exec : ranlist )
   {
     if ( exec != nullptr )
+    {
       usage.script_size += exec->sizeEstimate();
+      if ( verbose )
+        verbose_w << exec->scriptname() << " " << exec->sizeEstimate() << "\n";
+    }
   }
   usage.script_count += ranlist.size();
 
+  if ( verbose )
+    verbose_w << "holdlist:\n";
   for ( const auto& hold : holdlist )
   {
     if ( hold.second != nullptr )
+    {
       usage.script_size += hold.second->sizeEstimate();
+      if ( verbose )
+        verbose_w << hold.second->scriptname() << " " << hold.second->sizeEstimate() << "\n";
+    }
     usage.script_size += sizeof( Core::polclock_t ) + ( sizeof( void* ) * 3 + 1 ) / 2;
   }
   usage.script_count += holdlist.size();
 
   usage.script_size += 3 * sizeof( void* );
+  if ( verbose )
+    verbose_w << "notimeoutholdlist:\n";
   for ( const auto& hold : notimeoutholdlist )
   {
     if ( hold != nullptr )
+    {
       usage.script_size += hold->sizeEstimate() + 3 * sizeof( void* );
+      if ( verbose )
+        verbose_w << hold->scriptname() << " " << hold->sizeEstimate() << "\n";
+    }
   }
   usage.script_count += notimeoutholdlist.size();
 
   usage.script_size += 3 * sizeof( void* );
+  if ( verbose )
+    verbose_w << "debuggerholdlist:\n";
   for ( const auto& hold : debuggerholdlist )
   {
     if ( hold != nullptr )
+    {
       usage.script_size += hold->sizeEstimate() + 3 * sizeof( void* );
+      if ( verbose )
+        verbose_w << hold->scriptname() << " " << hold->sizeEstimate() << "\n";
+    }
   }
   usage.script_count += debuggerholdlist.size();
+  if ( verbose )
+  {
+    auto log = OPEN_FLEXLOG( "log/memoryusagescripts.log", false );
+    FLEXLOG( log ) << verbose_w.str();
 
+    CLOSE_FLEXLOG( log );
+  }
 
   return usage;
 }

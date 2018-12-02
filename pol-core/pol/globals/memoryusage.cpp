@@ -31,7 +31,7 @@ void MemoryUsage::log()
   size_t multibuffer_size = Multi::multidef_buffer.estimateSize();
   auto network_size = networkManager.estimateSize();
   auto object_sizes = objStorageManager.estimateSize();
-  auto script_sizes = scriptScheduler.estimateSize();
+  auto script_sizes = scriptScheduler.estimateSize( false );
   size_t settings_size = settingsManager.estimateSize();
   size_t state_size = stateManager.estimateSize();
   auto config_sizes = configurationbuffer.estimateSize();

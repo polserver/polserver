@@ -46,7 +46,7 @@ public:
     size_t scriptstorage_count;
     size_t scriptstorage_size;
   };
-  Memory estimateSize() const;
+  Memory estimateSize( bool verbose ) const;
 
   void run_ready();
 
