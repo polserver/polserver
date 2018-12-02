@@ -2,7 +2,7 @@
 #define POL_GLOBAL_CONFIG_H
 
 #cmakedefine USE_BOOST_REGEX
-#cmakedefine DEBUG_FLYWEIGHT
+#cmakedefine ENABLE_FLYWEIGHT_REPORT
 #cmakedefine MEMORYLEAK
 #cmakedefine PERGON
 #cmakedefine ESCRIPT_PROFILE
