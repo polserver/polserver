@@ -2009,6 +2009,14 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
       {
         Core::scriptScheduler.estimateSize( true );
       }
+      else if ( type == 6 )
+      {
+        const String* script;
+        if ( !ex.getStringParam( 1, script ) )
+          return new BLong( 0 );
+        Core::scriptScheduler.logScriptVariables( script->data() );
+        return new BLong( 1 );
+      }
       return new BLong( 1 );
     }
     else
@@ -2160,7 +2168,8 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
           << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" ) << color;
     }
 
-    // client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color ) )
+    // client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color )
+    // )
     // );
     client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( valstack );
     client->gd->selcolor_uoemod->uoexec.os_module->revive();
@@ -2443,7 +2452,8 @@ void open_book_handler( Client* client, PKTBI_93* msg )
 
   // Dave changed this 12/19 from sizeof msg->title. The protocol defines garbage after the
   // terminator for
-  // the title and author strings, so we were writing this garbage into save files. This caused some
+  // the title and author strings, so we were writing this garbage into save files. This caused
+  // some
   //"No SERIAL property" bugs, because the parser barfed on the bad characters.
   std::string title( msg->title, strlen( msg->title ) );
   std::string author( msg->author, strlen( msg->author ) );

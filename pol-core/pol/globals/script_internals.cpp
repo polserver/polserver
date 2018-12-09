@@ -358,5 +358,85 @@ bool ScriptScheduler::find_exec( unsigned int pid, UOExecutor** exec )
     return false;
   }
 }
+
+bool ScriptScheduler::logScriptVariables( const std::string& name ) const
+{
+  fmt::Writer log;
+  log << GET_LOG_FILESTAMP << " " << name << "\n";
+  std::vector<Bscript::Executor*> scripts;
+  for ( const auto& exec : runlist )
+  {
+    if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
+      scripts.push_back( exec );
+  }
+  for ( const auto& exec : ranlist )
+  {
+    if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
+      scripts.push_back( exec );
+  }
+  for ( const auto& exec : holdlist )
+  {
+    if ( exec.second != nullptr && stricmp( exec.second->scriptname().c_str(), name.c_str() ) == 0 )
+      scripts.push_back( exec.second );
+  }
+  for ( const auto& exec : notimeoutholdlist )
+  {
+    if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
+      scripts.push_back( exec );
+  }
+  for ( const auto& exec : scripts )
+  {
+    log << "Size: " << exec->sizeEstimate();
+    auto prog = const_cast<Bscript::EScriptProgram*>( exec->prog() );
+    if ( prog->read_dbg_file() != 0 )
+    {
+      log << " failed to load debug info\n";
+      break;
+    }
+    size_t i = 0;
+    log << "\nGlobals\n";
+    for ( const auto& global : exec->Globals2 )
+    {
+      log << "  ";
+      if ( prog->globalvarnames.size() > i )
+        log << prog->globalvarnames[i];
+      else
+        log << i;
+      ++i;
+      log << " (" << global->impref().typeOf() << ") " << global->impref().sizeEstimate() << "\n";
+    }
+    log << "Locals\n";
+    auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals ) {
+      log << "  " << prog->dbg_filenames[prog->dbg_filenum[PC]] << ": " << prog->dbg_linenum[PC]
+          << "\n";
+
+      unsigned block = prog->dbg_ins_blocks[PC];
+      size_t left = locals->size();
+      while ( left )
+      {
+        while ( left <= prog->blocks[block].parentvariables )
+        {
+          block = prog->blocks[block].parentblockidx;
+        }
+        const Bscript::EPDbgBlock& progblock = prog->blocks[block];
+        size_t varidx = left - 1 - progblock.parentvariables;
+        left--;
+        Bscript::BObjectImp* ptr = ( *locals )[varidx]->impptr();
+        log << "  " << progblock.localvarnames[varidx] << " (" << ptr->typeOf() << ") "
+            << ptr->sizeEstimate() << "\n";
+      }
+    };
+    log_stack( exec->PC, exec->Locals2 );
+    for ( int stack_i = exec->ControlStack.size() - 1; stack_i >= 0; --stack_i )
+    {
+      log << "Stack " << stack_i << "\n";
+      log_stack( exec->ControlStack[stack_i].PC, exec->upperLocals2[stack_i] );
+    }
+  }
+  auto logf = OPEN_FLEXLOG( "log/scriptmemory.log", false );
+  FLEXLOG( logf ) << log.str();
+  CLOSE_FLEXLOG( logf );
+  return true;
+}
 }  // namespace Core
 }  // namespace Pol
