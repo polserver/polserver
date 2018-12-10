@@ -427,7 +427,7 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
       }
     };
     log_stack( exec->PC, exec->Locals2 );
-    for ( int stack_i = exec->ControlStack.size() - 1; stack_i >= 0; --stack_i )
+    for ( int stack_i = static_cast<int>( exec->ControlStack.size() ) - 1; stack_i >= 0; --stack_i )
     {
       log << "Stack " << stack_i << "\n";
       log_stack( exec->ControlStack[stack_i].PC, exec->upperLocals2[stack_i] );
