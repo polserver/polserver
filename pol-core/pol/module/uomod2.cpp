@@ -89,7 +89,7 @@
 #include "../sngclick.h"
 #include "../statmsg.h"
 #include "../tooltips.h"
-#include "../uconst.h"
+#include "../../plib/uconst.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"

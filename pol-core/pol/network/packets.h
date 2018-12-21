@@ -23,13 +23,13 @@
 #include "../../clib/rawtypes.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/strutil.h"
+#include "../../plib/uconst.h"
 #include "../layers.h"
 #include "../pktboth.h"
 #include "../pktbothid.h"
 #include "../pktdef.h"
 #include "../pktoutid.h"
 #include "../realms.h"
-#include "../uconst.h"
 #include "packetinterface.h"
 
 namespace Pol
@@ -161,7 +161,7 @@ struct WriteHelper<s8>
   static void Write( s8 x, char buffer[], u16& offset ) { buffer[offset++] = x; };
   static void WriteFlipped( s8 x, char buffer[], u16& offset ) { buffer[offset++] = x; };
 };
-}
+}  // namespace PktWriterTemplateSpecs
 
 // "writer"class
 template <u8 _id, u16 _size, u16 _sub = 0>
@@ -340,7 +340,7 @@ public:
   virtual inline u16 getSize() const override { return SIZE; };
   virtual size_t estimateSize() const override { return SIZE + sizeof( PacketInterface ); };
 };
-}
+}  // namespace PacketWriterDefs
 
 
 // buffer for encrypted Data send with a dummy pktid
@@ -486,6 +486,6 @@ typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F5_ID, 21> PktOut_F5;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F6_ID, 0xFFFF> PktOut_F6;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F7_ID, 0xFFFF> PktOut_F7;
 // Packet defs end
-}
-}
+}  // namespace Network
+}  // namespace Pol
 #endif

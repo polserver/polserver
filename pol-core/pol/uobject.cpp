@@ -20,9 +20,10 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../clib/streamsaver.h"
+#include "../plib/clidata.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "baseobject.h"
-#include "clidata.h"
 #include "dynproperties.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
@@ -34,7 +35,6 @@
 #include "realms/realm.h"
 #include "syshookscript.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "uobjcnt.h"
 
 namespace Pol
@@ -405,5 +405,5 @@ bool UObject::get_method_hook( const char* methodname, Bscript::Executor* ex, Ex
   return gamestate.system_hooks.get_method_hook( gamestate.system_hooks.uobject_method_script.get(),
                                                  methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

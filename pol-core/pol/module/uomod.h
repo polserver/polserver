@@ -32,7 +32,7 @@
 
 #include "../../bscript/execmodl.h"
 #include "../../clib/rawtypes.h"
-#include "../poltype.h"
+#include "../../plib/poltype.h"
 #include "../reftypes.h"
 
 namespace Pol

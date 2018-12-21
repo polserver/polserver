@@ -18,8 +18,8 @@
 
 #include "../../plib/mapshape.h"
 #include "../../plib/realmdescriptor.h"
-#include "../uconst.h"
-#include "../udatfile.h"
+#include "../../plib/uconst.h"
+#include "../../plib/udatfile.h"
 #include "WorldChangeReasons.h"
 
 

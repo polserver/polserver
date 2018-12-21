@@ -19,6 +19,7 @@
 #include "../../clib/rawtypes.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../plib/poltype.h"
 #include "../containr.h"
 #include "../item/item.h"
 #include "../mobile/boundbox.h"
@@ -29,7 +30,6 @@
 #include "../network/packets.h"
 #include "../objtype.h"
 #include "../pktdef.h"
-#include "../poltype.h"
 #include "../unicode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
@@ -989,5 +989,5 @@ BObjectImp* NPCExecutorModule::mf_SetWarMode()
     return new BLong( 0 );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

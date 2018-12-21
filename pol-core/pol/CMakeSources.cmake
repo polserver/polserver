@@ -23,7 +23,6 @@ set (pol_sources  # sorted !
   checkpnt.h
   clfunc.cpp
   clfunc.h
-  clidata.h
   cmbtcfg.cpp
   cmbtcfg.h
   cmdlevel.cpp
@@ -287,9 +286,6 @@ set (pol_sources  # sorted !
   polclock.h
   poldbg.cpp
   poldbg.h
-  polfile.h
-  #polfile1.cpp
-  polfile2.cpp
   polresource.h
   polsem.cpp
   polsem.h
@@ -299,7 +295,6 @@ set (pol_sources  # sorted !
   polstats.h
   poltimer.h
   poltray.ico
-  poltype.h
   polvar.h
   polwww.cpp
   polwww.h
@@ -383,15 +378,11 @@ set (pol_sources  # sorted !
   textcmd.h
   tildecmd.cpp
   tildecmd.h
-  tiles.cpp
-  tiles.h
   tiplist.h
   tiplstwn.cpp
   tips.cpp
   tooltips.cpp
   tooltips.h
-  uconst.h
-  udatfile.h
   ufunc.cpp
   ufunc.h
   ufunc2.cpp
@@ -414,14 +405,6 @@ set (pol_sources  # sorted !
   uoexec.h
   uoexhelp.cpp
   uoexhelp.h
-  uofile.h
-  #uofile00.cpp
-  #uofile01.cpp
-  #uofile02.cpp
-  #uofile06.cpp
-  #uofile07.cpp
-  #uofile08.cpp
-  #uofilei.h
   uolisten.cpp
   uopathnode.h
   uoscrobj.cpp
@@ -429,7 +412,6 @@ set (pol_sources  # sorted !
   uoskills.cpp
   uoskills.h
   useskill.cpp
-  ustruct.h
   utype.h
   uworld.cpp
   uworld.h

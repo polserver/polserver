@@ -21,8 +21,8 @@
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
 #include "../../clib/threadhelp.h"
+#include "../../plib/clidata.h"
 #include "../action.h"
-#include "../clidata.h"
 #include "../cmdlevel.h"
 #include "../layers.h"
 #include "../menu.h"
@@ -49,7 +49,7 @@ class Equipment;
 class Item;
 class ItemDesc;
 class UWeapon;
-}
+}  // namespace Items
 namespace Mobile
 {
 class Attribute;
@@ -257,6 +257,6 @@ private:
   void unload_npc_templates();
 };
 extern GameState gamestate;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

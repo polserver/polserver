@@ -13,14 +13,14 @@
 #include <stdlib.h>
 #include <string>
 
-#include <format/format.h>
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
+#include "../plib/clidata.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "accounts/account.h"
-#include "clidata.h"
 #include "containr.h"
 #include "gameclck.h"
 #include "globals/network.h"
@@ -44,12 +44,12 @@
 #include "scrstore.h"
 #include "skillid.h"
 #include "startloc.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "uoclient.h"
 #include "uoexec.h"
 #include "uoskills.h"
 #include "uworld.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -1367,5 +1367,5 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "mobile/charactr.h"
 #include "multi/customhouses.h"
 #include "multi/house.h"
@@ -20,7 +21,6 @@
 #include "network/packets.h"
 #include "pktdef.h"
 #include "pktin.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "uworld.h"
 
@@ -219,5 +219,5 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

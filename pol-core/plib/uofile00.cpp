@@ -12,7 +12,7 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
-#include "../plib/systemstate.h"
+#include "systemstate.h"
 
 namespace Pol
 {

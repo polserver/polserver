@@ -10,10 +10,10 @@
 #include <stddef.h>
 
 #include "../bscript/bobject.h"
+#include "../plib/uconst.h"
 #include "globals/settings.h"
 #include "globals/uvars.h"
 #include "mobile/charactr.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
@@ -141,5 +141,5 @@ Bscript::BObjectImp* GetListenPoints()
   }
   return arr;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

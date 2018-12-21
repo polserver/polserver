@@ -21,10 +21,10 @@
 #define __PKTOUTH
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "layers.h"
 #include "pktdef.h"
 #include "pktoutid.h"
-#include "uconst.h"
 namespace Pol
 {
 namespace Core
@@ -47,7 +47,7 @@ namespace Core
 //    u16 max_hits;
 //    u8 renameable; // 00, or FF if can rename
 //    u8 moreinfo; // is the data following present?
-//    u8 gender; // GENDER_MALE or GENDER_FEMALE (see uconst.h)
+//    u8 gender; // GENDER_MALE or GENDER_FEMALE (see ../plib/uconst.h)
 //    u16 str;
 //    u16 dex;
 //    u16 intel;
@@ -86,7 +86,7 @@ namespace Core
 //    u16 max_hits;
 //    u8 renameable; // 00, or FF if can rename
 //    u8 moreinfo; // is the data following present?
-//    u8 gender; // GENDER_MALE or GENDER_FEMALE (see uconst.h)
+//    u8 gender; // GENDER_MALE or GENDER_FEMALE (see ../plib/uconst.h)
 //    u16 str;
 //    u16 dex;
 //    u16 intel;
@@ -1292,7 +1292,7 @@ struct PKTOUT_D8
 // static_assert( sizeof(PKTOUT_F3) == 24, "size missmatch" );
 
 #pragma pack( pop )
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

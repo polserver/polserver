@@ -8,8 +8,8 @@
 
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
-#include "../pol/uofilei.h"
-#include "../pol/ustruct.h"
+#include "uofilei.h"
+#include "ustruct.h"
 
 namespace Pol
 {

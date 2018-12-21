@@ -11,8 +11,8 @@
 #include "../clib/bitutil.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
-#include "../pol/ustruct.h"
 #include "mapcell.h"
+#include "ustruct.h"
 
 namespace Pol
 {

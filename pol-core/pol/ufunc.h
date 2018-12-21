@@ -16,9 +16,9 @@
 #include <stddef.h>
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "core.h"
 #include "network/packets.h"
-#include "uconst.h"
 
 namespace Pol
 {
@@ -26,7 +26,7 @@ namespace Network
 {
 class Client;
 class RemoveObjectPkt;
-}
+}  // namespace Network
 namespace Mobile
 {
 class Character;
@@ -257,6 +257,6 @@ void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const c
 void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0,
                         u32 cl_name = 0, u32 cl_descr = 0,
                         std::vector<u32> arguments = std::vector<u32>() );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -8,8 +8,8 @@
 #include <cstddef>
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "network/packets.h"
-#include "uconst.h"
 
 namespace Pol
 {
@@ -60,6 +60,6 @@ void build_sysmessage_cl_affix( Network::PktOut_CC* msg, unsigned int cliloc_num
                                 bool prepend, const u16* arguments = 0,
                                 unsigned short font = DEFAULT_TEXT_FONT,
                                 unsigned short color = DEFAULT_TEXT_COLOR );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -10,10 +10,8 @@
 #ifndef UOFILE_H
 #define UOFILE_H
 
-#include "ustruct.h"
-
 #include "clidata.h"
-#include "uconst.h"
+#include "ustruct.h"
 
 #include <vector>
 
@@ -43,6 +41,9 @@ void open_uo_data_files( void );
 void read_uo_data( void );
 void readwater();
 
+void staticsmax();
+bool iswater( u16 objtype );
+
 extern int uo_mapid;
 extern int uo_usedif;
 extern bool uo_readuop;
@@ -54,6 +55,6 @@ extern int cfg_warning_statics_per_block;
 extern bool cfg_show_illegal_graphic_warning;
 extern bool cfg_show_roof_and_platform_warning;
 extern bool cfg_use_new_hsa_format;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

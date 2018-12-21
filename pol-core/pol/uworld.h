@@ -28,9 +28,9 @@
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
 #include "../plib/realmdescriptor.h"
+#include "../plib/uconst.h"
 #include "realms/WorldChangeReasons.h"
 #include "realms/realm.h"
-#include "uconst.h"
 #include "zone.h"
 
 namespace Pol

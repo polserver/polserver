@@ -18,7 +18,7 @@
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../plib/systemstate.h"
+#include "systemstate.h"
 
 namespace Pol
 {

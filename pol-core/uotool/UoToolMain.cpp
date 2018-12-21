@@ -16,21 +16,20 @@
 #include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "../plib/clidata.h"
+#include "../plib/polfile.h"
+#include "../plib/poltype.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
 #include "../plib/systemstate.h"
-#include "../pol/clidata.h"
+#include "../plib/uconst.h"
+#include "../plib/udatfile.h"
+#include "../plib/uofile.h"
+#include "../plib/uofilei.h"
+#include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
 #include "../pol/multi/multidef.h"
 #include "../pol/objtype.h"
-#include "../pol/polfile.h"
-#include "../pol/poltype.h"
-#include "../pol/uconst.h"
-#include "../pol/udatfile.h"
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-#include "../pol/ustruct.h"
-#include "uofile2.h"  //TODO: remove this file ASAP !!!
 #include <format/format.h>
 
 namespace Pol
@@ -389,7 +388,7 @@ static int print_statics()
         bool hdrshown = false;
         for ( const auto& elem : vec )
         {
-          int height = Core::tileheight( elem.graphic );
+          int height = Core::tileheight_read( elem.graphic );
           if ( elem.graphic >= 0x1796 && elem.graphic <= 0x17b2 )
           {
             if ( elem.z == -5 && height == 0 )
@@ -403,7 +402,7 @@ static int print_statics()
           hdrshown = true;
           INFO_PRINT << "\tOBJT= 0x" << fmt::hexu( elem.graphic ) << "  Z=" << int( elem.z )
                      << "  HT=" << height << "  FLAGS=0x"
-                     << fmt::hexu( Core::tile_uoflags( elem.graphic ) ) << "\n";
+                     << fmt::hexu( Core::tile_uoflags_read( elem.graphic ) ) << "\n";
           ++cnt;
         }
       }

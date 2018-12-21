@@ -15,10 +15,14 @@ namespace Core
 {
 bool groundheight( unsigned short x, unsigned short y, short* z );
 char tileheight( unsigned short tilenum );
+char tileheight_read( unsigned short tilenum );  // uotool version
 unsigned char tilelayer( unsigned short tilenum );
-unsigned int tile_flags( unsigned short tilenum );  // POL flags
+unsigned char tilelayer_read( unsigned short tilenum );  // uotool version
+unsigned int tile_flags( unsigned short tilenum );       // POL flags
 unsigned int tile_uoflags( unsigned short tilenum );
+unsigned int tile_uoflags_read( unsigned short tilenum );  // uotool version
 unsigned short tileweight( unsigned short tilenum );
+unsigned short tileweight_read( unsigned short tilenum );  // uotool version
 std::string tile_desc( unsigned short tilenum );
 
 unsigned int landtile_uoflags( unsigned short landtile );

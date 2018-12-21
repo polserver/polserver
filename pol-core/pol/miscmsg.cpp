@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string>
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
@@ -35,6 +34,7 @@
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "accounts/account.h"
 #include "cmbtcfg.h"
 #include "fnsearch.h"
@@ -55,11 +55,11 @@
 #include "sockio.h"
 #include "spells.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "unicode.h"
 #include "uobject.h"
 #include "uoscrobj.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -634,5 +634,5 @@ void OnChatButton( Client* client )
     client->chr->start_script( prog.get(), false );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

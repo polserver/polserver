@@ -14,12 +14,12 @@
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
+#include "../plib/clidata.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/staticblock.h"
 #include "../plib/systemstate.h"
-#include "clidata.h"
-#include "uofile.h"
-#include "ustruct.h"
+#include "../plib/uofile.h"
+#include "../plib/ustruct.h"
 
 namespace Pol
 {
@@ -164,5 +164,5 @@ int write_pol_static_files( const std::string& realm )
 #endif
   return 0;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

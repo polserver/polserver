@@ -128,5 +128,5 @@ void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsi
   *result_out = result;
   *newz_out = newz;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

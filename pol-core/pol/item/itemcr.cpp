@@ -12,14 +12,13 @@
 #include <stddef.h>
 #include <string>
 
-#include <format/format.h>
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/clidata.h"
 #include "../../plib/systemstate.h"
 #include "../baseobject.h"
-#include "../clidata.h"
 #include "../containr.h"
 #include "../door.h"
 #include "../extobj.h"
@@ -45,6 +44,7 @@
 #include "itemdesc.h"
 #include "weapon.h"
 #include "wepntmpl.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -256,5 +256,5 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 
   return item;
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

@@ -7,8 +7,8 @@
 #ifndef __UFACING_H
 #define __UFACING_H
 
-#include "../poltype.h"
-#include "../uconst.h"
+#include "../../plib/poltype.h"
+#include "../../plib/uconst.h"
 
 #include <array>
 
@@ -20,7 +20,7 @@ class UObject;
 
 extern UFACING away_cvt[8];
 extern std::array<int, 7> adjustments;
-}
+}  // namespace Core
 namespace Mobile
 {
 class Character;
@@ -38,7 +38,7 @@ Core::UFACING direction_toward( Core::xcoord from_x, Core::ycoord from_y, Core::
 
 Core::UFACING direction_away( const Character* src, const Core::UObject* idst );
 Core::UFACING direction_away( const Character* src, Core::xcoord from_x, Core::ycoord from_y );
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
 
 #endif  // UFACING_H

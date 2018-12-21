@@ -12,10 +12,10 @@
 
 #include "../../plib/mapserver.h"
 #include "../../plib/maptileserver.h"
+#include "../../plib/poltype.h"
 #include "../../plib/realmdescriptor.h"
 #include "../../plib/staticserver.h"
 #include "../mobile/charactr.h"
-#include "../poltype.h"
 #include "../ufunc.h"
 #include "../uworld.h"
 #include "WorldChangeReasons.h"

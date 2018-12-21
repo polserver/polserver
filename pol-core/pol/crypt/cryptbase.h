@@ -71,8 +71,8 @@
         S[0x0300 + ( (R)&0xff )]
 
 
+#include "../../plib/uconst.h"
 #include "../sockets.h"
-#include "../uconst.h"
 #include "logincrypt.h"
 namespace Pol
 {

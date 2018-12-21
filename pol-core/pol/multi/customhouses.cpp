@@ -33,8 +33,8 @@
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
+#include "../../plib/clidata.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
 #include "../core.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"
@@ -1121,5 +1121,5 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes )
     }
   }
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

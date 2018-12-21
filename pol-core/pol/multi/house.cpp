@@ -30,6 +30,7 @@
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/uconst.h"
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../globals/object_storage.h"
@@ -45,7 +46,6 @@
 #include "../scrsched.h"
 #include "../scrstore.h"
 #include "../syshookscript.h"
-#include "../uconst.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"
@@ -1031,5 +1031,5 @@ bool UHouse::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

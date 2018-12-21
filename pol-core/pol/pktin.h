@@ -16,10 +16,10 @@
 #define __PKTINH
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "layers.h"
 #include "pktdef.h"
 #include "pktinid.h"
-#include "uconst.h"
 namespace Pol
 {
 namespace Core
@@ -565,6 +565,6 @@ static_assert( sizeof( PKTIN_F8 ) == 106, "size missmatch" );
 
 
 #pragma pack( pop )
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

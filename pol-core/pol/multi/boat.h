@@ -17,9 +17,9 @@
 
 #include "../../bscript/bobject.h"
 #include "../../clib/rawtypes.h"
-#include "../poltype.h"
+#include "../../plib/poltype.h"
+#include "../../plib/uconst.h"
 #include "../reftypes.h"
-#include "../uconst.h"
 #include "multi.h"
 
 namespace Pol
@@ -253,6 +253,6 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat );
 unsigned int get_component_objtype( unsigned char type );
 bool BoatShapeExists( u16 multiid );
 void clean_boatshapes();
-}
-}
+}  // namespace Multi
+}  // namespace Pol
 #endif

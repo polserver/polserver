@@ -10,7 +10,7 @@
 
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
-#include "../plib/systemstate.h"
+#include "systemstate.h"
 #include "uofile.h"
 #include "uofilei.h"
 #include "ustruct.h"
@@ -238,7 +238,8 @@ void read_objinfo( u16 graphic, Core::USTRUCT_TILE_HSA& objinfo )
   readtile( graphic, &objinfo );
 }
 
-char tileheight( unsigned short tilenum )
+
+char tileheight_read( unsigned short tilenum )
 {
   u8 height;
   u32 flags;
@@ -272,7 +273,7 @@ char tileheight( unsigned short tilenum )
     return height;
 }
 
-unsigned char tilelayer( unsigned short tilenum )
+unsigned char tilelayer_read( unsigned short tilenum )
 {
   if ( tilenum <= Plib::systemstate.config.max_tile_id )
   {
@@ -297,7 +298,7 @@ unsigned char tilelayer( unsigned short tilenum )
   }
 }
 
-u16 tileweight( unsigned short tilenum )
+u16 tileweight_read( unsigned short tilenum )
 {
   if ( Core::cfg_use_new_hsa_format )
   {
@@ -315,7 +316,7 @@ u16 tileweight( unsigned short tilenum )
   }
 }
 
-u32 tile_uoflags( unsigned short tilenum )
+u32 tile_uoflags_read( unsigned short tilenum )
 {
   if ( tilenum <= Plib::systemstate.config.max_tile_id )
   {

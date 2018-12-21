@@ -31,6 +31,8 @@
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/tiles.h"
+#include "../../plib/uconst.h"
 #include "../containr.h"
 #include "../extobj.h"
 #include "../fnsearch.h"
@@ -50,8 +52,6 @@
 #include "../realms/realm.h"
 #include "../scrsched.h"
 #include "../syshookscript.h"
-#include "../tiles.h"
-#include "../uconst.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uworld.h"
@@ -1836,5 +1836,5 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat )
   boat->destroy();
   return new Bscript::BLong( 1 );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

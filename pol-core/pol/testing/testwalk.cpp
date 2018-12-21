@@ -4,9 +4,9 @@
  */
 
 #include "../../clib/logfacility.h"
+#include "../../plib/uconst.h"
 #include "../globals/uvars.h"
 #include "../realms/realm.h"
-#include "../uconst.h"
 #include "testenv.h"
 
 namespace Pol
@@ -29,8 +29,7 @@ void test_walk( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, un
   UMulti* multi;
   Item* itm;
   bool res = gamestate.main_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, true /*doors
-block*/,
-                                               MOVEMODE_LAND );
+block*/, MOVEMODE_LAND );
 
   INFO_PRINT << "Got " << res << "," << newz << ": ";
 

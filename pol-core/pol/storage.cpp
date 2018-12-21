@@ -21,6 +21,7 @@
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../clib/streamsaver.h"
+#include "../plib/poltype.h"
 #include "../plib/systemstate.h"
 #include "containr.h"
 #include "fnsearch.h"
@@ -30,7 +31,6 @@
 #include "loaddata.h"
 #include "mkscrobj.h"
 #include "polcfg.h"
-#include "poltype.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -450,5 +450,5 @@ BObjectRef StorageAreasImp::OperSubscript( const BObject& obj )
   }
   return BObjectRef( new BObject( new BError( "Invalid parameter type" ) ) );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

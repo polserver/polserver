@@ -13,10 +13,10 @@
 
 #include "../../bscript/berror.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/uconst.h"
 #include "../multi/boat.h"
 #include "../multi/multi.h"
 #include "../realms/realm.h"
-#include "../uconst.h"
 #include "../uoexhelp.h"
 
 namespace Pol
@@ -34,7 +34,7 @@ TmplExecutorModule<Module::UBoatExecutorModule>::FunctionTable
         {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat},
         {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem},
         {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial}};
-}
+}  // namespace Bscript
 namespace Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
@@ -151,5 +151,5 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem()
     return new Bscript::BError( "Invalid parameter type." );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

@@ -9,7 +9,7 @@
 
 #include <utility>
 
-#include "poltype.h"
+#include "../plib/poltype.h"
 
 namespace Pol
 {

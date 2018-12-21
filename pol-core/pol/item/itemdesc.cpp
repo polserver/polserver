@@ -32,10 +32,11 @@
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
+#include "../../plib/uconst.h"
 #include "../dice.h"
 #include "../extobj.h"
 #include "../globals/settings.h"
@@ -45,7 +46,6 @@
 #include "../proplist.h"
 #include "../resource.h"
 #include "../syshookscript.h"
-#include "../uconst.h"
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "wepntmpl.h"
@@ -1007,7 +1007,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         {
           os << ( *aitr ).get()->impptr()->getStringRep() << " ";
         }
-        elem.add_prop( key, OSTRINGSTREAM_STR( os ));
+        elem.add_prop( key, OSTRINGSTREAM_STR( os ) );
       }
       else
       {
@@ -1060,7 +1060,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     else
     {
       std::string value = val_imp->getStringRep();
-      elem.add_prop( key, std::move(value) );
+      elem.add_prop( key, std::move( value ) );
     }
   }
 

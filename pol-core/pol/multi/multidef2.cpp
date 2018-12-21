@@ -7,13 +7,13 @@
  */
 
 
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
+#include "../../plib/tiles.h"
+#include "../../plib/udatfile.h"
 #include "../item/itemdesc.h"
-#include "../tiles.h"
-#include "../udatfile.h"
 #include "multidef.h"
 
 namespace Pol
@@ -103,5 +103,5 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
   }
   return result;
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

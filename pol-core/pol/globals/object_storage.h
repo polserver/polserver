@@ -9,8 +9,8 @@
 #include <vector>
 
 #include "../../clib/rawtypes.h"
+#include "../../plib/poltype.h"
 #include "../objecthash.h"
-#include "../poltype.h"
 
 namespace Pol
 {
@@ -68,6 +68,6 @@ public:
 };
 
 extern ObjectStorageManager objStorageManager;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -13,23 +13,23 @@
 #include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
 #include "../clib/timer.h"
+#include "../plib/clidata.h"
 #include "../plib/mapcell.h"
 #include "../plib/mapfunc.h"
 #include "../plib/mapshape.h"
 #include "../plib/mapsolid.h"
 #include "../plib/maptile.h"
 #include "../plib/mapwriter.h"
+#include "../plib/polfile.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/systemstate.h"
+#include "../plib/udatfile.h"
+#include "../plib/uofile.h"
+#include "../plib/uofilei.h"
 #include "../plib/uopreader/uop.h"
 #include "../plib/uopreader/uophash.h"
-#include "../pol/clidata.h"
+#include "../plib/ustruct.h"
 #include "../pol/objtype.h"
-#include "../pol/polfile.h"
-#include "../pol/udatfile.h"
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-#include "../pol/ustruct.h"
 
 
 namespace Pol
@@ -1194,7 +1194,7 @@ int UoConvertMain::main()
 
     auto maphash = []( int mapid, size_t chunkidx ) {
       fmt::Writer tmp;
-      tmp << "build/map" << mapid << "legacymul/" << fmt::pad(chunkidx,8,'0') << ".dat";
+      tmp << "build/map" << mapid << "legacymul/" << fmt::pad( chunkidx, 8, '0' ) << ".dat";
       return HashLittle2( tmp.str() );
     };
 
@@ -1222,7 +1222,7 @@ int UoConvertMain::main()
 
     if ( uopfile.header()->nfiles() != filemap.size() )
       INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
-           << uopfile.header()->nfiles() << ")\n";
+                 << uopfile.header()->nfiles() << ")\n";
 
     std::ofstream ofs( mul_mapfile, std::ofstream::binary );
     for ( size_t i = 0; i < filemap.size(); i++ )

@@ -20,13 +20,13 @@
 #include "../../clib/strutil.h"
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/tiles.h"
 #include "../equipdsc.h"
 #include "../extobj.h"
 #include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../layers.h"
 #include "../syshookscript.h"
-#include "../tiles.h"
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "itemdesc.h"
@@ -40,7 +40,7 @@ namespace Mobile
 const char* zone_to_zone_name( unsigned short zone );
 unsigned short layer_to_zone( unsigned short layer );
 unsigned short zone_name_to_zone( const char* zname );
-}
+}  // namespace Mobile
 namespace Items
 {
 /// Since the constructor is doing some wrong guessing to tell when an armor is a shield,
@@ -284,5 +284,5 @@ bool UArmor::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

@@ -13,9 +13,9 @@
 
 #include "../../bscript/bobject.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/udatfile.h"
 #include "../item/item.h"
 #include "../reftypes.h"
-#include "../udatfile.h"
 #include "customhouses.h"
 #include "multi.h"
 
@@ -168,6 +168,6 @@ private:
 
 
 Bscript::BObjectImp* destroy_house( UHouse* house );
-}
-}
+}  // namespace Multi
+}  // namespace Pol
 #endif

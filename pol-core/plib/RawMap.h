@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-#include "../pol/ustruct.h"  // Needed because of USTRUCT_MAPINFO_BLOCK
+#include "ustruct.h"
 
 namespace Pol
 {

@@ -13,8 +13,8 @@
 #include <string>
 
 #include "../../bscript/execmodl.h"
+#include "../../plib/uconst.h"
 #include "../reftypes.h"
-#include "../uconst.h"
 
 namespace Pol
 {
@@ -93,6 +93,6 @@ protected:
 private:
   bool _internal_move( Core::UFACING facing, int run );
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

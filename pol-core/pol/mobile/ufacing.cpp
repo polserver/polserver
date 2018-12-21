@@ -2,9 +2,8 @@
 
 #include "../../clib/clib.h"
 #include "../../clib/random.h"
+#include "../../plib/uconst.h"
 #include "../mdelta.h"
-#include "../poltype.h"
-#include "../uconst.h"
 #include "../uobject.h"
 #include "charactr.h"
 
@@ -22,7 +21,7 @@ UFACING away_cvt[8] = {FACING_S, FACING_SW, FACING_W, FACING_NW,
                        FACING_N, FACING_NE, FACING_E, FACING_SE};
 
 std::array<int, 7> adjustments = {{0, +1, -1, +2, -2, +3, -3}};
-}
+}  // namespace Core
 namespace Mobile
 {
 Core::UFACING GetRandomFacing()
@@ -186,5 +185,5 @@ bool DecodeFacing( const char* dir, Core::UFACING& facing )
     return false;
   return true;
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

@@ -44,6 +44,7 @@
 #include "../../clib/refptr.h"
 #include "../../clib/strset.h"
 #include "../../clib/weakptr.h"
+#include "../../plib/uconst.h"
 #include "../action.h"
 #include "../baseobject.h"
 #include "../dynproperties.h"
@@ -51,7 +52,6 @@
 #include "../polclock.h"
 #include "../reftypes.h"
 #include "../skillid.h"
-#include "../uconst.h"
 #include "../uobject.h"
 #include "../utype.h"
 #include "attribute.h"
@@ -84,7 +84,7 @@ namespace Bscript
 class BObjectImp;
 class EScriptProgram;
 class ObjArray;
-}
+}  // namespace Bscript
 namespace Clib
 {
 class ConfigElem;
@@ -102,7 +102,7 @@ namespace Items
 class Item;
 class UArmor;
 class UWeapon;
-}
+}  // namespace Items
 namespace Core
 {
 class ExportScript;
@@ -130,7 +130,7 @@ void createchar2( Accounts::Account* acct, unsigned index );
 void undo_get_item( Mobile::Character* chr, Items::Item* item );
 void write_characters( SaveContext& sc );
 void write_npcs( SaveContext& sc );
-}
+}  // namespace Core
 namespace Module
 {
 class UOExecutorModule;
@@ -1101,6 +1101,6 @@ inline void NpcPropagateEnteredArea( Character* chr, Character* whoentered )
     chr->inform_enteredarea( whoentered );
   }
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
 #endif

@@ -19,7 +19,7 @@
 #include "uofilei.h"
 #include "ustruct.h"
 
-#include "../plib/RawMap.h"
+#include "RawMap.h"
 
 namespace Pol
 {
@@ -29,7 +29,6 @@ unsigned int num_map_patches = 0;
 }
 namespace Core
 {
-
 static Pol::Plib::RawMap rawmap;
 static bool rawmap_ready = false;
 
@@ -164,5 +163,5 @@ void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPI
     *z = ( zsum - 1 ) / 2;
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

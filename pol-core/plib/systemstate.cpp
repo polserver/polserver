@@ -2,8 +2,8 @@
 #include "systemstate.h"
 
 #include "../clib/stlutil.h"
-#include "../pol/tiles.h"
 #include "pkg.h"
+#include "tiles.h"
 
 namespace Pol
 {
@@ -45,5 +45,5 @@ size_t SystemState::estimatedSize() const
     size += pkg_pair.first.capacity() + sizeof( Package* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
   return size;
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

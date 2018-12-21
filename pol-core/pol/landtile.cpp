@@ -10,9 +10,9 @@
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../plib/clidata.h"
 #include "../plib/mapfunc.h"
 #include "../plib/pkg.h"
-#include "clidata.h"
 #include "globals/uvars.h"
 
 namespace Pol
@@ -49,5 +49,5 @@ unsigned int landtile_flags( unsigned short landtile )
   passert_always( landtile < LANDTILE_COUNT );
   return gamestate.landtiles[landtile].flags;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

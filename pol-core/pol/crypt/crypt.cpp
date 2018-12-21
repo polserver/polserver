@@ -1,6 +1,6 @@
 
 #include "../../clib/passert.h"
-#include "../uconst.h"
+#include "../../plib/uconst.h"
 #include "blowfish.h"
 #include "crypt.h"
 #include "cryptbase.h"

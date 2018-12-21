@@ -29,12 +29,12 @@
 #include "../../bscript/bobject.h"
 #include "../../clib/boostutils.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/uconst.h"
 #include "../dynproperties.h"
 #include "../eventid.h"
 #include "../item/weapon.h"
 #include "../npctmpl.h"
 #include "../reftypes.h"
-#include "../uconst.h"
 
 namespace Pol
 {
@@ -69,7 +69,7 @@ namespace Core
 class RepSystem;
 class UOExecutor;
 class ExportScript;
-}
+}  // namespace Core
 namespace Mobile
 {
 struct Anchor
@@ -285,6 +285,6 @@ inline unsigned short NPC::ar() const
   else
     return ar_;
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
 #endif

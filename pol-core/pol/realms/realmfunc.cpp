@@ -17,14 +17,18 @@
 #include <stddef.h>
 
 #include "../../clib/rawtypes.h"
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapserver.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/maptile.h"
 #include "../../plib/maptileserver.h"
+#include "../../plib/poltype.h"
 #include "../../plib/staticserver.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
+#include "../../plib/tiles.h"
+#include "../../plib/uconst.h"
+#include "../../plib/udatfile.h"
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
 #include "../item/itemdesc.h"
@@ -36,10 +40,6 @@
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../objtype.h"
-#include "../poltype.h"
-#include "../tiles.h"
-#include "../uconst.h"
-#include "../udatfile.h"
 #include "../uworld.h"
 #include "realm.h"
 
@@ -50,7 +50,7 @@ namespace Core
 {
 Items::Item* find_walkon_item( Core::ItemsVector& ivec, short z );
 unsigned char flags_from_tileflags( unsigned int uoflags );
-}
+}  // namespace Core
 // namespace Multi {
 // class UMulti;
 // UMulti* find_supporting_multi( Realms::MultiList& mvec, short z );
@@ -626,7 +626,7 @@ void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned shor
   Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
     Multi::UHouse* house = multi->as_house();
     if ( house != nullptr && house->IsCustom() )  // readshapes switches to working design if the
-                                               // house is being edited,
+                                                  // house is being edited,
       // everyone in the house would use it for walking...
       multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z );
     else
@@ -663,7 +663,7 @@ void Realm::readmultis( Core::StaticList& vec, unsigned short x, unsigned short 
   Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
     Multi::UHouse* house = multi->as_house();
     if ( house != nullptr && house->IsCustom() )  // readshapes switches to working design if the
-                                               // house is being edited,
+                                                  // house is being edited,
       // everyone in the house would use it for walking...
       multi->readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
     else
@@ -785,5 +785,5 @@ void Realm::getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned
   else
     _mapserver->GetMapShapes( shapes, x, y, anyflags );
 }
-}
-}
+}  // namespace Realms
+}  // namespace Pol
