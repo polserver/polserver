@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+12-21-2018 Turley:
+  Fixed:   CPU usage of UseSingleThreadLogin
 11-27-2018 Nando:
   Added:   Top-level items can now receive ENTEREDAREA and LEFTAREA events.
 11-25-2018 Yukiko:
