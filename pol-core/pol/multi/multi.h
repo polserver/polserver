@@ -85,7 +85,7 @@ public:
 
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
-  virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase );
+  virtual bool readobjects( Plib::StaticList& vec, s16 rx, s16 ry, s16 zbase );
 
   virtual ~UMulti();
   virtual size_t estimatedSize() const override;
@@ -105,7 +105,7 @@ inline bool UMulti::readshapes( Plib::MapShapeList& /*vec*/, s16 /*rx*/, s16 /*r
 {
   return false;
 };
-inline bool UMulti::readobjects( Core::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
+inline bool UMulti::readobjects( Plib::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
 {
   return false;
 };

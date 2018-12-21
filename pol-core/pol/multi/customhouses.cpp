@@ -158,7 +158,7 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
   int floor_num = z_to_custom_house_table( elem.z );
   if ( floor_num == -1 )
     return;
-  char adding_height = Core::tileheight( elem.graphic );
+  char adding_height = Plib::tileheight( elem.graphic );
 
   u32 xidx = elem.xoffset + xoff;
   u32 yidx = elem.yoffset + yoff;
@@ -168,7 +168,7 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
-    char existing_height = Core::tileheight( itr->graphic );
+    char existing_height = Plib::tileheight( itr->graphic );
 
     if ( ( ( existing_height == 0 ) && ( adding_height == 0 ) ) ||  // replace floor with floor
          ( ( existing_height != 0 ) && ( adding_height != 0 ) ) )   // or nonfloor with nonfloor
@@ -200,7 +200,7 @@ bool CustomHouseDesign::Erase( u32 xoffset, u32 yoffset, u8 z, int minheight )
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
-    char t_height = Core::tileheight( itr->graphic );
+    char t_height = Plib::tileheight( itr->graphic );
     if ( ( itr->z == z ) && ( t_height >= minheight ) )
     {
       column->erase( itr );
@@ -255,7 +255,7 @@ void CustomHouseDesign::ReplaceDirtFloor( u32 x, u32 y )
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
-    if ( Core::tileheight( itr->graphic ) == 0 )  // a floor tile exists
+    if ( Plib::tileheight( itr->graphic ) == 0 )  // a floor tile exists
     {
       floor_exists = true;
       break;

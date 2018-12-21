@@ -16,7 +16,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 FILE* mapfile = nullptr;
 FILE* sidxfile = nullptr;
@@ -34,10 +34,10 @@ std::ifstream uopmapfile;
 bool open_uopmap_file( const int mapid )
 {
   std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
-  std::string filename = Plib::systemstate.config.uo_datafile_root + filepart;
+  std::string filename = systemstate.config.uo_datafile_root + filepart;
   if ( !Clib::FileExists( filename ) )
   {
-    INFO_PRINT << filepart << " not found in " << Plib::systemstate.config.uo_datafile_root
+    INFO_PRINT << filepart << " not found in " << systemstate.config.uo_datafile_root
                << ". Searching for old map[N].mul files.\n";
     return false;
   }
@@ -48,13 +48,13 @@ bool open_uopmap_file( const int mapid )
 
 FILE* open_uo_file( const std::string& filename_part )
 {
-  std::string filename = Plib::systemstate.config.uo_datafile_root + filename_part;
+  std::string filename = systemstate.config.uo_datafile_root + filename_part;
   FILE* fp = fopen( filename.c_str(), "rb" );
   if ( !fp )
   {
     ERROR_PRINT << "Unable to open UO datafile: " << filename << "\n"
-                << "POL.CFG specifies UODataFileRoot as '"
-                << Plib::systemstate.config.uo_datafile_root << "'.  Is this correct?\n"
+                << "POL.CFG specifies UODataFileRoot as '" << systemstate.config.uo_datafile_root
+                << "'.  Is this correct?\n"
                 << "  The following files must be present in that directory:\n"
                 << "      map0.mul OR map0LegacyMUL.uop\n"
                 << "      multi.idx\n"
@@ -74,7 +74,7 @@ FILE* open_map_file( std::string name, int map_id )
   std::string filename;
 
   filename = name + Clib::tostring( map_id ) + ".mul";
-  if ( uo_mapid == 1 && !Clib::FileExists( Plib::systemstate.config.uo_datafile_root + filename ) )
+  if ( uo_mapid == 1 && !Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
   {
     ERROR_PRINT << "Unable to find UO file: " << filename
                 << ", reading " + name + "0.mul instead.\n";
@@ -104,7 +104,7 @@ void open_uo_data_files( void )
   sidxfile = open_map_file( "staidx", uo_mapid );
   statfile = open_map_file( "statics", uo_mapid );
 
-  if ( Clib::FileExists( ( Plib::systemstate.config.uo_datafile_root + "verdata.mul" ).c_str() ) )
+  if ( Clib::FileExists( ( systemstate.config.uo_datafile_root + "verdata.mul" ).c_str() ) )
   {
     verfile = open_uo_file( "verdata.mul" );
   }
@@ -117,7 +117,7 @@ void open_uo_data_files( void )
   if ( uo_usedif )
   {
     filename = "stadifl" + Clib::tostring( uo_mapid ) + ".mul";
-    if ( Clib::FileExists( Plib::systemstate.config.uo_datafile_root + filename ) )
+    if ( Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
     {
       stadifl_file = open_uo_file( filename );
       filename = "stadifi" + Clib::tostring( uo_mapid ) + ".mul";
@@ -126,7 +126,7 @@ void open_uo_data_files( void )
       stadif_file = open_uo_file( filename );
     }
     filename = "mapdifl" + Clib::tostring( uo_mapid ) + ".mul";
-    if ( Clib::FileExists( Plib::systemstate.config.uo_datafile_root + filename ) )
+    if ( Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
     {
       mapdifl_file = open_uo_file( filename );
       filename = "mapdif" + Clib::tostring( uo_mapid ) + ".mul";
@@ -134,5 +134,5 @@ void open_uo_data_files( void )
     }
   }
 }
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol

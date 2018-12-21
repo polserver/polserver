@@ -220,7 +220,7 @@ public:
 
   std::vector<ConsoleCommand> console_commands;
 
-  std::array<LandTile, LANDTILE_COUNT> landtiles;
+  std::array<Plib::LandTile, Plib::LANDTILE_COUNT> landtiles;
   bool landtiles_loaded;
 
   ListenPoints listen_points;

@@ -121,7 +121,7 @@ std::string Item::name() const
     const ItemDesc& id = this->itemdesc();
 
     if ( id.desc.get().empty() )
-      return Core::tile_desc( graphic );
+      return Plib::tile_desc( graphic );
     else
       return id.desc;
   }
@@ -162,12 +162,12 @@ std::string Item::description() const
     const ItemDesc& id = this->itemdesc();
     if ( id.desc.get().empty() )
     {
-      return Core::format_description( Core::tile_flags( graphic ), Core::tile_desc( graphic ),
+      return Core::format_description( Plib::tile_flags( graphic ), Plib::tile_desc( graphic ),
                                        amount_, suffix );
     }
     else
     {
-      return Core::format_description( Core::tile_flags( graphic ), id.desc, amount_, suffix );
+      return Core::format_description( Plib::tile_flags( graphic ), id.desc, amount_, suffix );
     }
   }
 }
@@ -189,7 +189,7 @@ std::string Item::merchant_description() const
     const ItemDesc& id = this->itemdesc();
     if ( id.desc.get().empty() )
     {
-      return Core::format_description( 0, Core::tile_desc( graphic ), 1, suffix );
+      return Core::format_description( 0, Plib::tile_desc( graphic ), 1, suffix );
     }
     else
     {
@@ -278,7 +278,7 @@ const char* Item::classname() const
 bool Item::default_movable() const
 {
   if ( itemdesc().movable == ItemDesc::DEFAULT )
-    return ( ( Core::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
+    return ( ( Plib::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
   else
     return itemdesc().movable ? true : false;
 }
@@ -559,7 +559,7 @@ unsigned short Item::get_senditem_amount() const
 
 bool Item::setlayer( unsigned char in_layer )
 {
-  if ( Core::tilelayer( graphic ) == in_layer )
+  if ( Plib::tilelayer( graphic ) == in_layer )
   {
     layer = in_layer;
     return true;
@@ -572,7 +572,7 @@ bool Item::setlayer( unsigned char in_layer )
 
 bool Item::stackable() const
 {
-  return ( Core::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
+  return ( Plib::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
 }
 
 void Item::setamount( u16 amount )
@@ -822,7 +822,7 @@ void Item::set_use_script( const std::string& scriptname )
 bool Item::setgraphic( u16 newgraphic )
 {
   /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
-  if ( layer && layer != Core::tilelayer( newgraphic ) )
+  if ( layer && layer != Plib::tilelayer( newgraphic ) )
   {
     return false;
   }
@@ -832,8 +832,8 @@ bool Item::setgraphic( u16 newgraphic )
   {
     set_dirty();
     graphic = newgraphic;
-    height = Core::tileheight( graphic );
-    tile_layer = Core::tilelayer( graphic );
+    height = Plib::tileheight( graphic );
+    tile_layer = Plib::tilelayer( graphic );
 
     /// Update facing on graphic change
     const ItemDesc& id = this->itemdesc();

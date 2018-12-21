@@ -117,6 +117,7 @@ set (pol_sources  # sorted !
   item/weapon.h
   item/wepntmpl.h
   landtile.cpp
+  landtile.h
   layers.h
   lightlvl.h
   listenpt.cpp

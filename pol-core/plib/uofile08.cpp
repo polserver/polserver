@@ -26,15 +26,12 @@ namespace Pol
 namespace Plib
 {
 unsigned int num_map_patches = 0;
-}
-namespace Core
-{
-static Pol::Plib::RawMap rawmap;
+static RawMap rawmap;
 static bool rawmap_ready = false;
 
 void read_map_difs()
 {
-  Plib::num_map_patches = rawmap.load_map_difflist( mapdifl_file );
+  num_map_patches = rawmap.load_map_difflist( mapdifl_file );
 }
 
 static signed char rawmapinfo( unsigned short x, unsigned short y, USTRUCT_MAPINFO* gi )
@@ -73,7 +70,7 @@ void rawmapfullread()
     Simple averaging doesn't seem to work near cliffs and such.
     poltest has a unit test for this.
     */
-bool groundheight( unsigned short x, unsigned short y, short* z )
+bool groundheight_read( unsigned short x, unsigned short y, short* z )
 {
   USTRUCT_MAPINFO md, mi;
   short z1, z2, z3, z4;  // quadrants
@@ -92,7 +89,7 @@ bool groundheight( unsigned short x, unsigned short y, short* z )
     *z = Core::ZCOORD_MIN;
 
   return ( ( mi.landtile < 0x4000 ) &&
-           ( ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_BLOCKING ) == 0 ) );
+           ( ( landtile_uoflags_read( mi.landtile ) & USTRUCT_TILE::FLAG_BLOCKING ) == 0 ) );
 }
 
 void getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi )
@@ -163,5 +160,5 @@ void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPI
     *z = ( zsum - 1 ) / 2;
   }
 }
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol

@@ -33,11 +33,11 @@ const char* TextTypeToString( u8 texttype )
 {
   switch ( texttype )
   {
-  case TEXTTYPE_WHISPER:
+  case Plib::TEXTTYPE_WHISPER:
     return "whisper";
-  case TEXTTYPE_YELL:
+  case Plib::TEXTTYPE_YELL:
     return "yell";
-  case TEXTTYPE_EMOTE:
+  case Plib::TEXTTYPE_EMOTE:
     return "emote";
   default:
     return "default";

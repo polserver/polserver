@@ -16,12 +16,9 @@
 
 namespace Pol
 {
-namespace Core
-{
-bool cfg_show_roof_and_platform_warning = true;
-}
 namespace Plib
 {
+bool cfg_show_roof_and_platform_warning = true;
 std::string flagstr( unsigned int flags )
 {
   std::string tmp;
@@ -64,49 +61,48 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
 {
   u32 mapflags = 0;
 
-  if ( ( uoflags & Core::USTRUCT_TILE::FLAG_LIQUID ) &&
-       ( uoflags & Core::USTRUCT_TILE::FLAG_FLOOR ) )
+  if ( ( uoflags & USTRUCT_TILE::FLAG_LIQUID ) && ( uoflags & USTRUCT_TILE::FLAG_FLOOR ) )
   {
     mapflags |= FLAG::MOVESEA;
   }
-  else if ( ( uoflags & Core::USTRUCT_TILE::FLAG_PLATFORM ) &&
-            ( ~uoflags & Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+  else if ( ( uoflags & USTRUCT_TILE::FLAG_PLATFORM ) &&
+            ( ~uoflags & USTRUCT_TILE::FLAG_BLOCKING ) )
   {
     mapflags |= FLAG::MOVELAND;
   }
 
   // GRADUAL only makes sense if also STANDABLE.
-  if ( ( mapflags & FLAG::MOVELAND ) && ( uoflags & Core::USTRUCT_TILE::FLAG_HALF_HEIGHT ) )
+  if ( ( mapflags & FLAG::MOVELAND ) && ( uoflags & USTRUCT_TILE::FLAG_HALF_HEIGHT ) )
   {
     mapflags |= FLAG::GRADUAL;
   }
 
-  if ( uoflags & Core::USTRUCT_TILE::FLAG_HOVEROVER )
+  if ( uoflags & USTRUCT_TILE::FLAG_HOVEROVER )
   {
     mapflags |= FLAG::OVERFLIGHT;
   }
 
-  if ( uoflags & Core::USTRUCT_TILE::FLAG_PLATFORM )
+  if ( uoflags & USTRUCT_TILE::FLAG_PLATFORM )
   {
     mapflags |= FLAG::ALLOWDROPON;
   }
 
-  if ( uoflags & Core::USTRUCT_TILE::FLAG_STACKABLE )
+  if ( uoflags & USTRUCT_TILE::FLAG_STACKABLE )
   {
     mapflags |= FLAG::STACKABLE;
   }
 
-  if ( uoflags & Core::USTRUCT_TILE::FLAG_EQUIPPABLE )
+  if ( uoflags & USTRUCT_TILE::FLAG_EQUIPPABLE )
   {
     mapflags |= FLAG::EQUIPPABLE;
   }
 
-  if ( uoflags & Core::USTRUCT_TILE::FLAG_DESC_NEEDS_A )
+  if ( uoflags & USTRUCT_TILE::FLAG_DESC_NEEDS_A )
   {
     mapflags |= FLAG::DESC_PREPEND_A;
   }
 
-  if ( uoflags & Core::USTRUCT_TILE::FLAG_DESC_NEEDS_AN )
+  if ( uoflags & USTRUCT_TILE::FLAG_DESC_NEEDS_AN )
   {
     mapflags |= FLAG::DESC_PREPEND_AN;
   }
@@ -114,16 +110,16 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   if ( use_no_shoot )
 
   {
-    if ( ( uoflags & Core::USTRUCT_TILE::FLAG_WALL ) &&
+    if ( ( uoflags & USTRUCT_TILE::FLAG_WALL ) &&
 
-         ( uoflags & ( Core::USTRUCT_TILE::FLAG_BLOCKING | Core::USTRUCT_TILE::FLAG_DOOR ) )
+         ( uoflags & ( USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_DOOR ) )
 
     )
 
       mapflags |= FLAG::BLOCKSIGHT;
 
 
-    if ( uoflags & Core::USTRUCT_TILE::FLAG_NO_SHOOT )
+    if ( uoflags & USTRUCT_TILE::FLAG_NO_SHOOT )
 
       mapflags |= FLAG::BLOCKSIGHT;
 
@@ -131,9 +127,9 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
     if ( !LOS_through_windows )
 
     {
-      if ( ( uoflags & Core::USTRUCT_TILE::FLAG_WINDOW ) &&
+      if ( ( uoflags & USTRUCT_TILE::FLAG_WINDOW ) &&
 
-           ( uoflags & Core::USTRUCT_TILE::FLAG_WALL )
+           ( uoflags & USTRUCT_TILE::FLAG_WALL )
 
       )
 
@@ -142,7 +138,7 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
     else
 
     {
-      if ( uoflags & Core::USTRUCT_TILE::FLAG_WINDOW )
+      if ( uoflags & USTRUCT_TILE::FLAG_WINDOW )
 
         mapflags &= ~FLAG::BLOCKSIGHT;
     }
@@ -151,40 +147,38 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   else
 
   {
-    if ( ( uoflags & Core::USTRUCT_TILE::FLAG_WALL ) &&
-         ( ~uoflags & Core::USTRUCT_TILE::FLAG_BLOCKING ) &&
-         ( uoflags & Core::USTRUCT_TILE::FLAG_DOOR ) )
+    if ( ( uoflags & USTRUCT_TILE::FLAG_WALL ) && ( ~uoflags & USTRUCT_TILE::FLAG_BLOCKING ) &&
+         ( uoflags & USTRUCT_TILE::FLAG_DOOR ) )
     {
       // example: 0xf5 secret door
       mapflags |= FLAG::BLOCKSIGHT;
     }
-    else if ( ( uoflags & Core::USTRUCT_TILE::FLAG_WALL ) &&
-              ( ~uoflags & Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+    else if ( ( uoflags & USTRUCT_TILE::FLAG_WALL ) && ( ~uoflags & USTRUCT_TILE::FLAG_BLOCKING ) )
     {
       // example: 0x245 dungeon arch
     }
-    else if ( uoflags & ( Core::USTRUCT_TILE::FLAG_BLOCKING | Core::USTRUCT_TILE::FLAG_PLATFORM |
-                          Core::USTRUCT_TILE::FLAG_HALF_HEIGHT ) )
+    else if ( uoflags & ( USTRUCT_TILE::FLAG_BLOCKING | USTRUCT_TILE::FLAG_PLATFORM |
+                          USTRUCT_TILE::FLAG_HALF_HEIGHT ) )
     {
       mapflags |= FLAG::BLOCKSIGHT;
     }
   }
 
-  if ( Clib::flags_set( uoflags, Core::USTRUCT_TILE::FLAG_FLOOR | Core::USTRUCT_TILE::FLAG_LIQUID |
-                                     Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+  if ( Clib::flags_set( uoflags, USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID |
+                                     USTRUCT_TILE::FLAG_BLOCKING ) )
   {
     // not blocking
   }
-  else if ( ( uoflags & Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+  else if ( ( uoflags & USTRUCT_TILE::FLAG_BLOCKING ) )
   {
     mapflags |= FLAG::BLOCKING;
   }
-  if ( uoflags & Core::USTRUCT_TILE::FLAG_ROOF )
+  if ( uoflags & USTRUCT_TILE::FLAG_ROOF )
   {
     mapflags |= FLAG::BLOCKING;
   }
-  else if ( Clib::flags_clear( uoflags, Core::USTRUCT_TILE::FLAG_WALL ) &&
-            Clib::flags_clear( uoflags, Core::USTRUCT_TILE::FLAG_BLOCKING ) )
+  else if ( Clib::flags_clear( uoflags, USTRUCT_TILE::FLAG_WALL ) &&
+            Clib::flags_clear( uoflags, USTRUCT_TILE::FLAG_BLOCKING ) )
   {
     mapflags |= FLAG::MOVABLE;
   }
@@ -194,7 +188,7 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
   // everything allows overflight above it.
   // mapflags |= FLAG::OVERFLIGHT;
 
-  if ( Core::cfg_show_roof_and_platform_warning )
+  if ( cfg_show_roof_and_platform_warning )
     if ( ( mapflags & FLAG::BLOCKING ) && ( mapflags & ( FLAG::MOVELAND | FLAG::MOVESEA ) ) )
       INFO_PRINT << " Warning: Tile 0x" << fmt::hexu( tile )
                  << " uses Roof- and Platform-Flag at same time.\n";
@@ -204,13 +198,13 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
 
 u32 polflags_from_landtileflags( unsigned short tile, u32 lt_flags )
 {
-  if ( ~lt_flags & Core::USTRUCT_TILE::FLAG_BLOCKING )
+  if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
   {  // this seems to be the default.
     // used to set FLOOR here only.
-    lt_flags |= Core::USTRUCT_TILE::FLAG_PLATFORM;
+    lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
   }
-  lt_flags |= Core::USTRUCT_TILE::FLAG_FLOOR;
-  lt_flags |= Core::USTRUCT_TILE::FLAG_HALF_HEIGHT;  // the entire map is this way
+  lt_flags |= USTRUCT_TILE::FLAG_FLOOR;
+  lt_flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT;  // the entire map is this way
 
   unsigned int flags = polflags_from_tileflags(
       tile, lt_flags, false, false );  // Land tiles shouldn't worry about noshoot or windows

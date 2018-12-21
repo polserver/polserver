@@ -149,7 +149,7 @@ const char* NPC::classname() const
 //                  unsigned short x2, unsigned short y2 )
 // to ufunc.cpp
 
-bool NPC::anchor_allows_move( Core::UFACING fdir ) const
+bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
 {
   unsigned short newx = x + Core::move_delta[fdir].xmove;
   unsigned short newy = y + Core::move_delta[fdir].ymove;
@@ -173,7 +173,7 @@ bool NPC::anchor_allows_move( Core::UFACING fdir ) const
   return true;
 }
 
-bool NPC::could_move( Core::UFACING fdir ) const
+bool NPC::could_move( Plib::UFACING fdir ) const
 {
   short newz;
   Multi::UMulti* supporting_multi;
@@ -206,7 +206,7 @@ bool NPC::could_move( Core::UFACING fdir ) const
          !npc_path_blocked( fdir ) && anchor_allows_move( fdir );
 }
 
-bool NPC::npc_path_blocked( Core::UFACING fdir ) const
+bool NPC::npc_path_blocked( Plib::UFACING fdir ) const
 {
   if ( can_freemove() ||
        ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )
@@ -383,8 +383,8 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
   if ( !script.get().empty() )
     start_script();
 
-  speech_color( elem.remove_ushort( "SpeechColor", Core::DEFAULT_TEXT_COLOR ) );
-  speech_font( elem.remove_ushort( "SpeechFont", Core::DEFAULT_TEXT_FONT ) );
+  speech_color( elem.remove_ushort( "SpeechColor", Plib::DEFAULT_TEXT_COLOR ) );
+  speech_font( elem.remove_ushort( "SpeechFont", Plib::DEFAULT_TEXT_FONT ) );
   saveonexit( elem.remove_bool( "SaveOnExit", true ) );
 
   mob_flags_.change( MOB_FLAGS::USE_ADJUSTMENTS, elem.remove_bool( "UseAdjustments", true ) );

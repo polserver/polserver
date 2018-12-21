@@ -94,6 +94,7 @@
 #include "../../plib/staticblock.h"
 #include "../../plib/stlastar.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/uconst.h"
 #include "../../plib/udatfile.h"
 #include "../action.h"
 #include "../cfgrepos.h"
@@ -143,7 +144,6 @@
 #include "../scrstore.h"
 #include "../spells.h"
 #include "../target.h"
-#include "../../plib/uconst.h"
 #include "../ufunc.h"
 #include "../uimport.h"
 #include "../umanip.h"
@@ -339,7 +339,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
                                        unsigned short amount, bool force_stacking,
                                        UOExecutorModule* uoemod )
 {
-  if ( ( tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
+  if ( ( Plib::tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
   {
     for ( UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
@@ -1126,7 +1126,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemAtLocation( /* x,y,z,objtype,amount,r
        getObjtypeParam( exec, 3, itemdesc ) && getParam( 4, amount, 1, 60000 ) &&
        getStringParam( 5, strrealm ) && item_create_params_ok( itemdesc->objtype, amount ) )
   {
-    if ( !( tile_flags( itemdesc->graphic ) & Plib::FLAG::STACKABLE ) && ( amount != 1 ) )
+    if ( !( Plib::tile_flags( itemdesc->graphic ) & Plib::FLAG::STACKABLE ) && ( amount != 1 ) )
     {
       return new BError( "That item is not stackable.  Create one at a time." );
     }
@@ -1309,7 +1309,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   {
     return new BError( "NPC template '" + tmplname->value() + "' not found" );
   }
-  MOVEMODE movemode = Character::decode_movemode( elem.read_string( "MoveMode", "L" ) );
+  Plib::MOVEMODE movemode = Character::decode_movemode( elem.read_string( "MoveMode", "L" ) );
 
   short newz;
   Multi::UMulti* dummy_multi;
@@ -1422,7 +1422,7 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
     {
       return new BError( "That item is being used." );
     }
-    if ( ~tile_flags( item->graphic ) & Plib::FLAG::STACKABLE )
+    if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::STACKABLE )
     {
       return new BError( "That item type is not stackable." );
     }
@@ -2277,8 +2277,8 @@ BObjectImp* UOExecutorModule::mf_ListItemsInBoxOfObjType(
   Realms::Realm* realm;
 
   if ( !( getParam( 0, objtype ) && getParam( 1, x1 ) && getParam( 2, y1 ) && getParam( 3, z1 ) &&
-          getParam( 4, x2 ) &&
-          getParam( 5, y2 ) && getParam( 6, z2 ) && getStringParam( 7, strrealm ) ) )
+          getParam( 4, x2 ) && getParam( 5, y2 ) && getParam( 6, z2 ) &&
+          getStringParam( 7, strrealm ) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -2473,7 +2473,7 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
           if ( x1 <= absx && absx <= x2 && y1 <= absy && absy <= y2 )
           {
             // do Z checking
-            int height = tileheight( getgraphic( elem->objtype ) );
+            int height = Plib::tileheight( getgraphic( elem->objtype ) );
             int top = absz + height;
 
             if ( ( z1 <= absz && absz <= z2 ) ||  // bottom point lies between
@@ -2545,7 +2545,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
 
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
-          StaticList mlist;
+          Plib::StaticList mlist;
           realm->readmultis( mlist, wx, wy );
 
           for ( unsigned i = 0; i < mlist.size(); ++i )
@@ -3769,7 +3769,7 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
       return new BError( "Item was destroyed in EquipTest script" );
     }
 
-    item->layer = tilelayer( item->graphic );
+    item->layer = Plib::tilelayer( item->graphic );
 
     if ( item->has_equip_script() )
     {
@@ -4558,7 +4558,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
     short newz;
     Multi::UMulti* multi;
     Item* walkon;
-    if ( realm->lowest_walkheight( x, y, z, &newz, &multi, &walkon, true, MOVEMODE_LAND ) )
+    if ( realm->lowest_walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND ) )
     {
       std::unique_ptr<BStruct> arr( new BStruct );
       arr->addMember( "z", new BLong( newz ) );
@@ -4843,7 +4843,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(
 
     std::unique_ptr<ObjArray> newarr( new ObjArray );
     WorldIterator<ItemFilter>::InRange( x, y, realm, range, [&]( Item* item ) {
-      if ( ( tile_uoflags( item->graphic ) & flags ) )
+      if ( ( Plib::tile_uoflags( item->graphic ) & flags ) )
       {
         if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
         {
@@ -4907,7 +4907,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation( /* x, y, z, flags, realm
 
     if ( !( flags & ITEMS_IGNORE_MULTIS ) )
     {
-      StaticList mlist;
+      Plib::StaticList mlist;
       realm->readmultis( mlist, x, y );
 
       for ( unsigned i = 0; i < mlist.size(); ++i )
@@ -4998,7 +4998,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
 
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
-          StaticList mlist;
+          Plib::StaticList mlist;
           realm->readmultis( mlist, wx, wy );
 
           for ( unsigned i = 0; i < mlist.size(); ++i )
@@ -5468,16 +5468,16 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
        ( getParam( 3, z ) ) && ( getParam( 4, x2_or_dir ) ) && ( getParam( 5, y2_ ) ) &&
        ( getStringParam( 6, realm_name ) ) )
   {
-    MOVEMODE movemode = Character::decode_movemode( movemode_name->value() );
+    Plib::MOVEMODE movemode = Character::decode_movemode( movemode_name->value() );
 
     Realms::Realm* realm = find_realm( realm_name->value() );
     if ( !realm )
       return new BError( "Realm not found." );
     else if ( !realm->valid( x, y, z ) )
       return new BError( "Invalid coordinates for realm." );
-    UFACING dir;
+    Plib::UFACING dir;
     if ( y2_ == -1 )
-      dir = static_cast<UFACING>( x2_or_dir & 0x7 );
+      dir = static_cast<Plib::UFACING>( x2_or_dir & 0x7 );
     else
     {
       if ( !realm->valid( static_cast<xcoord>( x2_or_dir ), static_cast<ycoord>( y2_ ), 0 ) )

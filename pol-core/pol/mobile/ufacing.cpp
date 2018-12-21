@@ -17,170 +17,170 @@ MoveDelta move_delta[8] = {{0, -1},   // 0 is N
                            {+1, 0},   // ...
                            {+1, +1}, {0, +1}, {-1, +1}, {-1, 0}, {-1, -1}};
 
-UFACING away_cvt[8] = {FACING_S, FACING_SW, FACING_W, FACING_NW,
-                       FACING_N, FACING_NE, FACING_E, FACING_SE};
+Plib::UFACING away_cvt[8] = {Plib::FACING_S, Plib::FACING_SW, Plib::FACING_W, Plib::FACING_NW,
+                             Plib::FACING_N, Plib::FACING_NE, Plib::FACING_E, Plib::FACING_SE};
 
 std::array<int, 7> adjustments = {{0, +1, -1, +2, -2, +3, -3}};
 }  // namespace Core
 namespace Mobile
 {
-Core::UFACING GetRandomFacing()
+Plib::UFACING GetRandomFacing()
 {
   int rval = Clib::random_int( 7 );
-  return static_cast<Core::UFACING>( rval );
+  return static_cast<Plib::UFACING>( rval );
 }
 
-const char* FacingStr( Core::UFACING facing )
+const char* FacingStr( Plib::UFACING facing )
 {
   switch ( facing )
   {
-  case Core::FACING_N:
+  case Plib::FACING_N:
     return "N";
-  case Core::FACING_S:
+  case Plib::FACING_S:
     return "S";
-  case Core::FACING_E:
+  case Plib::FACING_E:
     return "E";
-  case Core::FACING_W:
+  case Plib::FACING_W:
     return "W";
-  case Core::FACING_NE:
+  case Plib::FACING_NE:
     return "NE";
-  case Core::FACING_NW:
+  case Plib::FACING_NW:
     return "NW";
-  case Core::FACING_SE:
+  case Plib::FACING_SE:
     return "SE";
-  case Core::FACING_SW:
+  case Plib::FACING_SW:
     return "SW";
   }
   return "";
 }
 
-Core::UFACING direction_toward( const Character* src, const Core::UObject* idst )
+Plib::UFACING direction_toward( const Character* src, const Core::UObject* idst )
 {
   using namespace Core;
   const UObject* dst = idst->toplevel_owner();
   if ( src->x < dst->x )  // East to target
   {
     if ( src->y < dst->y )
-      return FACING_SE;
+      return Plib::FACING_SE;
     else if ( src->y == dst->y )
-      return FACING_E;
+      return Plib::FACING_E;
     else /* src->y > dst->y */
-      return FACING_NE;
+      return Plib::FACING_NE;
   }
   else if ( src->x == dst->x )
   {
     if ( src->y < dst->y )
-      return FACING_S;
+      return Plib::FACING_S;
     else if ( src->y > dst->y )
-      return FACING_N;
+      return Plib::FACING_N;
   }
   else /* src->x > dst->x */  // West to target
   {
     if ( src->y < dst->y )
-      return FACING_SW;
+      return Plib::FACING_SW;
     else if ( src->y == dst->y )
-      return FACING_W;
+      return Plib::FACING_W;
     else /* src->y > dst->y */
-      return FACING_NW;
+      return Plib::FACING_NW;
   }
-  return FACING_N;
+  return Plib::FACING_N;
 }
 
-Core::UFACING direction_toward( const Character* src, Core::xcoord to_x, Core::ycoord to_y )
+Plib::UFACING direction_toward( const Character* src, Core::xcoord to_x, Core::ycoord to_y )
 {
   using namespace Core;
   if ( src->x < to_x )  // East to target
   {
     if ( src->y < to_y )
-      return FACING_SE;
+      return Plib::FACING_SE;
     else if ( src->y == to_y )
-      return FACING_E;
+      return Plib::FACING_E;
     else /* src->y > dst->y */
-      return FACING_NE;
+      return Plib::FACING_NE;
   }
   else if ( src->x == to_x )
   {
     if ( src->y < to_y )
-      return FACING_S;
+      return Plib::FACING_S;
     else if ( src->y > to_y )
-      return FACING_N;
+      return Plib::FACING_N;
   }
   else /* src->x > dst->x */  // West to target
   {
     if ( src->y < to_y )
-      return FACING_SW;
+      return Plib::FACING_SW;
     else if ( src->y == to_y )
-      return FACING_W;
+      return Plib::FACING_W;
     else /* src->y > dst->y */
-      return FACING_NW;
+      return Plib::FACING_NW;
   }
-  return FACING_N;
+  return Plib::FACING_N;
 }
 
-Core::UFACING direction_toward( Core::xcoord from_x, Core::ycoord from_y, Core::xcoord to_x,
+Plib::UFACING direction_toward( Core::xcoord from_x, Core::ycoord from_y, Core::xcoord to_x,
                                 Core::ycoord to_y )
 {
   using namespace Core;
   if ( from_x < to_x )  // East to target
   {
     if ( from_y < to_y )
-      return FACING_SE;
+      return Plib::FACING_SE;
     else if ( from_y == to_y )
-      return FACING_E;
+      return Plib::FACING_E;
     else /* from_y > to_y */
-      return FACING_NE;
+      return Plib::FACING_NE;
   }
   else if ( from_x == to_x )
   {
     if ( from_y < to_y )
-      return FACING_S;
+      return Plib::FACING_S;
     else if ( from_y > to_y )
-      return FACING_N;
+      return Plib::FACING_N;
   }
   else /* from_x > to_x */  // West to target
   {
     if ( from_y < to_y )
-      return FACING_SW;
+      return Plib::FACING_SW;
     else if ( from_y == to_y )
-      return FACING_W;
+      return Plib::FACING_W;
     else /* from_y > to_y */
-      return FACING_NW;
+      return Plib::FACING_NW;
   }
-  return FACING_N;
+  return Plib::FACING_N;
 }
 
-Core::UFACING direction_away( const Character* src, const Core::UObject* idst )
+Plib::UFACING direction_away( const Character* src, const Core::UObject* idst )
 {
-  Core::UFACING toward = direction_toward( src, idst );
-  Core::UFACING away = Core::away_cvt[static_cast<int>( toward )];
+  Plib::UFACING toward = direction_toward( src, idst );
+  Plib::UFACING away = Core::away_cvt[static_cast<int>( toward )];
   return away;
 }
 
-Core::UFACING direction_away( const Character* src, Core::xcoord from_x, Core::ycoord from_y )
+Plib::UFACING direction_away( const Character* src, Core::xcoord from_x, Core::ycoord from_y )
 {
-  Core::UFACING toward = direction_toward( src, from_x, from_y );
-  Core::UFACING away = Core::away_cvt[static_cast<int>( toward )];
+  Plib::UFACING toward = direction_toward( src, from_x, from_y );
+  Plib::UFACING away = Core::away_cvt[static_cast<int>( toward )];
   return away;
 }
 
-bool DecodeFacing( const char* dir, Core::UFACING& facing )
+bool DecodeFacing( const char* dir, Plib::UFACING& facing )
 {
   if ( stricmp( dir, "N" ) == 0 )
-    facing = Core::FACING_N;
+    facing = Plib::FACING_N;
   else if ( stricmp( dir, "S" ) == 0 )
-    facing = Core::FACING_S;
+    facing = Plib::FACING_S;
   else if ( stricmp( dir, "E" ) == 0 )
-    facing = Core::FACING_E;
+    facing = Plib::FACING_E;
   else if ( stricmp( dir, "W" ) == 0 )
-    facing = Core::FACING_W;
+    facing = Plib::FACING_W;
   else if ( stricmp( dir, "NE" ) == 0 )
-    facing = Core::FACING_NE;
+    facing = Plib::FACING_NE;
   else if ( stricmp( dir, "SE" ) == 0 )
-    facing = Core::FACING_SE;
+    facing = Plib::FACING_SE;
   else if ( stricmp( dir, "SW" ) == 0 )
-    facing = Core::FACING_SW;
+    facing = Plib::FACING_SW;
   else if ( stricmp( dir, "NW" ) == 0 )
-    facing = Core::FACING_NW;
+    facing = Plib::FACING_NW;
   else
     return false;
   return true;

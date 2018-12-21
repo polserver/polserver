@@ -23,9 +23,6 @@ namespace Pol
 namespace Plib
 {
 unsigned int num_static_patches = 0;
-}
-namespace Core
-{
 bool static_debug_on = false;
 
 // I'd put these in an anonymous namespace, but the debugger can't see 'em...at least not easily.
@@ -62,7 +59,7 @@ void read_static_diffs()
       ++index;
     }
   }
-  Plib::num_static_patches = index;
+  num_static_patches = index;
 }
 
 void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned short x,
@@ -189,5 +186,5 @@ void rawstaticfullread()
   }
   rawstatic_init = true;
 }
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol

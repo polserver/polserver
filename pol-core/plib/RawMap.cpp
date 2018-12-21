@@ -10,8 +10,6 @@
 #include <cstring>
 #include <map>
 
-using namespace Pol::Core;
-
 namespace Pol
 {
 namespace Plib

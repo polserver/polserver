@@ -280,17 +280,17 @@ bool BoatShapeExists( u16 multiid )
   return Core::gamestate.boatshapes.count( multiid ) != 0;
 }
 
-void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx,
+void UBoat::send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u8 speed, u16 newx,
                               u16 newy, bool relative )
 {
   Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
 
   u16 xmod = newx - x;
   u16 ymod = newy - y;
-  Core::UFACING b_facing = boat_facing();
+  Plib::UFACING b_facing = boat_facing();
 
   if ( relative == false )
-    move_dir = static_cast<Core::UFACING>( ( b_facing + move_dir ) * 7 );
+    move_dir = static_cast<Plib::UFACING>( ( b_facing + move_dir ) * 7 );
 
   msg->offset += 2;  // Length
   msg->Write<u32>( serial_ext );
@@ -341,7 +341,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   msg.Send( client, len );
 }
 
-void UBoat::send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy,
+void UBoat::send_smooth_move_to_inrange( Plib::UFACING move_dir, u8 speed, u16 newx, u16 newy,
                                          bool relative )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
@@ -698,7 +698,7 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
   return bc.mdef.body_contains( rx, ry );
 }
 
-void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation,
+void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocation,
                              unsigned short newx, unsigned short newy, Realms::Realm* oldrealm )
 {
   bool any_orphans = false;
@@ -870,17 +870,17 @@ void UBoat::turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir )
   case LEFT:
     chr->x = x + yd;
     chr->y = y - xd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 6 ) & 7 );
+    chr->facing = static_cast<Plib::UFACING>( ( chr->facing + 6 ) & 7 );
     break;
   case AROUND:
     chr->x = x - xd;
     chr->y = y - yd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 4 ) & 7 );
+    chr->facing = static_cast<Plib::UFACING>( ( chr->facing + 4 ) & 7 );
     break;
   case RIGHT:
     chr->x = x - yd;
     chr->y = y + xd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 2 ) & 7 );
+    chr->facing = static_cast<Plib::UFACING>( ( chr->facing + 2 ) & 7 );
     break;
   case NO_TURN:
     break;
@@ -1203,7 +1203,7 @@ bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms
     x = newx;
     y = newy;
 
-    move_travellers( Core::FACING_N, bc, newx, newy,
+    move_travellers( Plib::FACING_N, bc, newx, newy,
                      oldrealm );  // facing is ignored if params 3 & 4 are not USHRT_MAX
     move_components( oldrealm );
     // NOTE, send_boat_to_inrange pauses those it sends to.
@@ -1222,18 +1222,18 @@ bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms
   return result;
 }
 
-bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
+bool UBoat::move( Plib::UFACING dir, u8 speed, bool relative )
 {
   bool result;
 
   BoatMoveGuard registerguard( this );
 
-  Core::UFACING move_dir;
+  Plib::UFACING move_dir;
 
   if ( relative == false )
     move_dir = dir;
   else
-    move_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
+    move_dir = static_cast<Plib::UFACING>( ( dir + boat_facing() ) & 7 );
 
   unsigned short newx, newy;
   newx = x + Core::move_delta[move_dir].xmove;
@@ -1310,9 +1310,9 @@ const MultiDef& UBoat::multi_ifturn( RELATIVE_DIR dir )
   return *MultiDefByMultiID( multiid_dir );
 }
 
-Core::UFACING UBoat::boat_facing() const
+Plib::UFACING UBoat::boat_facing() const
 {
-  return static_cast<Core::UFACING>( ( multiid & 3 ) * 2 );
+  return static_cast<Plib::UFACING>( ( multiid & 3 ) * 2 );
 }
 
 const BoatShape& UBoat::boatshape() const
@@ -1714,7 +1714,7 @@ void UBoat::create_components()
 
     component->graphic = itr->graphic;
     // component itemdesc entries generally have graphic=1, so they don't get their height set.
-    component->height = Core::tileheight( component->graphic );
+    component->height = Plib::tileheight( component->graphic );
     component->x = x + itr->xdelta;
     component->y = y + itr->ydelta;
     component->z = z + static_cast<s8>( itr->zdelta );

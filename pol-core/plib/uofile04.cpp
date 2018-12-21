@@ -13,7 +13,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 std::set<unsigned int> water;
 
@@ -24,27 +24,27 @@ bool iswater( u16 objtype )
 
 void readwater()
 {
-  Core::USTRUCT_IDX idxrec;
+  USTRUCT_IDX idxrec;
 
-  fseek( Core::sidxfile, 0, SEEK_SET );
+  fseek( sidxfile, 0, SEEK_SET );
   for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
   {
     INFO_PRINT << xblock << "..";
     for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
     {
-      if ( fread( &idxrec, sizeof idxrec, 1, Core::sidxfile ) != 1 )
+      if ( fread( &idxrec, sizeof idxrec, 1, sidxfile ) != 1 )
         throw std::runtime_error( "readwater: fread(idxrec) failed." );
       int xbase = xblock * 8;
       int ybase = yblock * 8;
 
       if ( idxrec.length != 0xFFffFFffLu )
       {
-        fseek( Core::statfile, idxrec.offset, SEEK_SET );
+        fseek( statfile, idxrec.offset, SEEK_SET );
 
         for ( idxrec.length /= 7; idxrec.length > 0; --idxrec.length )
         {
-          Core::USTRUCT_STATIC srec;
-          if ( fread( &srec, sizeof srec, 1, Core::statfile ) != 1 )
+          USTRUCT_STATIC srec;
+          if ( fread( &srec, sizeof srec, 1, statfile ) != 1 )
             throw std::runtime_error( "readwater: fread(srec) failed." );
 
           if ( srec.z == -5 && iswater( srec.graphic ) )
@@ -59,5 +59,5 @@ void readwater()
     }
   }
 }
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol

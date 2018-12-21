@@ -11,9 +11,9 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
-bool groundheight( unsigned short x, unsigned short y, short* z );
+bool groundheight_read( unsigned short x, unsigned short y, short* z );  // uotool version
 char tileheight( unsigned short tilenum );
 char tileheight_read( unsigned short tilenum );  // uotool version
 unsigned char tilelayer( unsigned short tilenum );
@@ -25,8 +25,7 @@ unsigned short tileweight( unsigned short tilenum );
 unsigned short tileweight_read( unsigned short tilenum );  // uotool version
 std::string tile_desc( unsigned short tilenum );
 
-unsigned int landtile_uoflags( unsigned short landtile );
-unsigned int landtile_flags( unsigned short landtile );
+unsigned int landtile_uoflags_read( unsigned short landtile );  // uotool version
 
 const unsigned LANDTILE_COUNT = 0x4000;
 struct LandTile
@@ -34,6 +33,6 @@ struct LandTile
   unsigned int uoflags;
   unsigned int flags;
 };
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol
 #endif

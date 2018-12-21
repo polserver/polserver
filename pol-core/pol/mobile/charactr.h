@@ -458,12 +458,12 @@ public:
   // MOVEMENT
 public:
   bool on_mount() const;
-  static Core::MOVEMODE decode_movemode( const std::string& str );
-  static std::string encode_movemode( Core::MOVEMODE movemode );
+  static Plib::MOVEMODE decode_movemode( const std::string& str );
+  static std::string encode_movemode( Plib::MOVEMODE movemode );
   // if a move were made, what would the new position be?
-  void getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py );
-  bool can_face( Core::UFACING i_facing );
-  bool face( Core::UFACING i_facing, int flags = 0 );
+  void getpos_ifmove( Plib::UFACING i_facing, unsigned short* px, unsigned short* py );
+  bool can_face( Plib::UFACING i_facing );
+  bool face( Plib::UFACING i_facing, int flags = 0 );
   bool move( unsigned char dir );
   bool CustomHousingMove( unsigned char i_dir );
   void tellmove( void );
@@ -809,7 +809,7 @@ public:
     OTHER = 0,
     MULTIMOVE = 1
   } move_reason;
-  Core::MOVEMODE movemode;
+  Plib::MOVEMODE movemode;
   DYN_PROPERTY( lightoverride, int, Core::PROP_LIGHTOVERRIDE, -1 );
   DYN_PROPERTY( lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0 );
 
@@ -916,8 +916,8 @@ public:
   u32 registered_house;
   u16 truecolor;
   u32 trueobjtype;
-  Core::UGENDER gender;
-  Core::URACE race;
+  Plib::UGENDER gender;
+  Plib::URACE race;
   u32 last_corpse;
 
   DYN_PROPERTY( dblclick_wait, u32, Core::PROP_DOUBLECLICK_WAIT, 0 );

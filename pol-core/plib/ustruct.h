@@ -11,7 +11,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 #pragma pack( push, 1 )
 
@@ -236,6 +236,6 @@ struct USTRUCT_POL_MAPINFO_BLOCK
 static_assert( sizeof( USTRUCT_POL_MAPINFO_BLOCK ) == 8 * 8 + 16, "size missmatch" );
 
 #pragma pack( pop )
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif /* __USTRUCT_H */

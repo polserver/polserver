@@ -11,19 +11,19 @@
 #include <string>
 
 #include "../clib/rawtypes.h"
-#include "../plib/mapcell.h"
-#include "../plib/systemstate.h"
+#include "mapcell.h"
+#include "systemstate.h"
 #include "tiles.h"
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 unsigned char tilelayer( unsigned short tilenum )
 {
-  if ( tilenum <= Plib::systemstate.config.max_tile_id )
+  if ( tilenum <= systemstate.config.max_tile_id )
   {
-    return Plib::systemstate.tile[tilenum].layer;
+    return systemstate.tile[tilenum].layer;
   }
   else
   {
@@ -33,10 +33,10 @@ unsigned char tilelayer( unsigned short tilenum )
 
 char tileheight( unsigned short tilenum )
 {
-  if ( tilenum <= Plib::systemstate.config.max_tile_id )
+  if ( tilenum <= systemstate.config.max_tile_id )
   {
-    char height = Plib::systemstate.tile[tilenum].height;
-    if ( Plib::systemstate.tile[tilenum].flags & Plib::FLAG::GRADUAL )
+    char height = systemstate.tile[tilenum].height;
+    if ( systemstate.tile[tilenum].flags & FLAG::GRADUAL )
       height /= 2;
     return height;
   }
@@ -48,9 +48,9 @@ char tileheight( unsigned short tilenum )
 
 u32 tile_flags( unsigned short tilenum )
 {
-  if ( tilenum <= Plib::systemstate.config.max_tile_id )
+  if ( tilenum <= systemstate.config.max_tile_id )
   {
-    return Plib::systemstate.tile[tilenum].flags;
+    return systemstate.tile[tilenum].flags;
   }
   else
   {
@@ -60,9 +60,9 @@ u32 tile_flags( unsigned short tilenum )
 
 u32 tile_uoflags( unsigned short tilenum )
 {
-  if ( tilenum <= Plib::systemstate.config.max_tile_id )
+  if ( tilenum <= systemstate.config.max_tile_id )
   {
-    return Plib::systemstate.tile[tilenum].uoflags;
+    return systemstate.tile[tilenum].uoflags;
   }
   else
   {
@@ -72,9 +72,9 @@ u32 tile_uoflags( unsigned short tilenum )
 
 std::string tile_desc( unsigned short tilenum )
 {
-  if ( tilenum <= Plib::systemstate.config.max_tile_id )
+  if ( tilenum <= systemstate.config.max_tile_id )
   {
-    return Plib::systemstate.tile[tilenum].desc;
+    return systemstate.tile[tilenum].desc;
   }
   else  // a multi, probably
   {
@@ -84,14 +84,14 @@ std::string tile_desc( unsigned short tilenum )
 
 unsigned short tileweight( unsigned short tilenum )
 {
-  if ( tilenum <= Plib::systemstate.config.max_tile_id )
+  if ( tilenum <= systemstate.config.max_tile_id )
   {
-    return Plib::systemstate.tile[tilenum].weight;
+    return systemstate.tile[tilenum].weight;
   }
   else
   {
     return 0;
   }
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

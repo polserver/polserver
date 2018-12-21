@@ -19,7 +19,7 @@ namespace Pol
 {
 #define MAX_STATICS_PER_BLOCK 10000
 
-namespace Core
+namespace Plib
 {
 extern void safe_getmapinfo( unsigned short x, unsigned short y, short* z, USTRUCT_MAPINFO* mi );
 void rawmapfullread();
@@ -55,6 +55,6 @@ extern int cfg_warning_statics_per_block;
 extern bool cfg_show_illegal_graphic_warning;
 extern bool cfg_show_roof_and_platform_warning;
 extern bool cfg_use_new_hsa_format;
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol
 #endif

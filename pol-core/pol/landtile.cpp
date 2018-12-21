@@ -5,6 +5,8 @@
  */
 
 
+#include "landtile.h"
+
 #include <stddef.h>
 
 #include "../clib/cfgelem.h"
@@ -22,7 +24,7 @@ namespace Core
 void load_landtile_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
   unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), nullptr, 0 ) );
-  passert_always( graphic < LANDTILE_COUNT );
+  passert_always( graphic < Plib::LANDTILE_COUNT );
 
   gamestate.landtiles[graphic].uoflags = elem.remove_ulong( "UoFlags" );
   gamestate.landtiles[graphic].flags = Plib::readflags( elem );
@@ -40,13 +42,13 @@ void load_landtile_cfg()
 
 unsigned int landtile_uoflags( unsigned short landtile )
 {
-  passert_always( landtile < LANDTILE_COUNT );
+  passert_always( landtile < Plib::LANDTILE_COUNT );
   return gamestate.landtiles[landtile].uoflags;
 }
 
 unsigned int landtile_flags( unsigned short landtile )
 {
-  passert_always( landtile < LANDTILE_COUNT );
+  passert_always( landtile < Plib::LANDTILE_COUNT );
   return gamestate.landtiles[landtile].flags;
 }
 }  // namespace Core

@@ -12,7 +12,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 inline bool flags_standable( unsigned int flags )
 {
@@ -24,7 +24,7 @@ inline bool flags_swimmable( unsigned int flags )
   return ( flags & ( USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID ) ) ==
          ( USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID );
 }
-void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
+void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
                   short oldz, bool* result_out, short* newz_out )
 {
   short lowest_blocking_z = 128;
@@ -34,7 +34,7 @@ void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsi
   short mapz;
   USTRUCT_MAPINFO mi;
   getmapinfo( x, y, &mapz, &mi );
-  unsigned int mapflags = landtile_uoflags( mi.landtile );
+  unsigned int mapflags = landtile_uoflags_read( mi.landtile );
   if ( !mapflags )
     mapflags = /*USTRUCT_TILE::FLAG_BLOCKING|*/ USTRUCT_TILE::FLAG_PLATFORM;
 
@@ -128,5 +128,5 @@ void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsi
   *result_out = result;
   *newz_out = newz;
 }
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol

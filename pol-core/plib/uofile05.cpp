@@ -12,7 +12,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 void staticsmax()
 {
@@ -38,5 +38,5 @@ void staticsmax()
     }
   }
 }
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol

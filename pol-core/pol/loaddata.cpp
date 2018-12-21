@@ -198,7 +198,7 @@ void insert_deferred_items()
 
 void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
 {
-  item->layer = tilelayer( item->graphic );  // adjust for tiledata changes
+  item->layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
   item->tile_layer = item->layer;            // adjust for tiledata changes
 
   if ( chr->equippable( item ) && item->check_equiptest_scripts( chr, true ) &&

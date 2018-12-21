@@ -287,7 +287,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   }
   else
   {
-    weightmult = Core::tileweight( graphic );
+    weightmult = Plib::tileweight( graphic );
     weightdiv = 1;
   }
 
@@ -690,7 +690,7 @@ std::string ItemDesc::objtype_description() const
 bool ItemDesc::default_movable() const
 {
   if ( movable == DEFAULT )
-    return ( ( Core::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
+    return ( ( Plib::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
   else
     return movable ? true : false;
 }

@@ -11,7 +11,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 extern bool static_debug_on;
 
@@ -112,5 +112,5 @@ void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
     }
   }
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

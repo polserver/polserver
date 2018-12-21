@@ -124,7 +124,7 @@ protected:
   virtual class UHouse* as_house() override;
   virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y,
                            short zbase ) override;
-  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase ) override;
+  virtual bool readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short zbase ) override;
   Bscript::ObjArray* component_list() const;
   Bscript::ObjArray* items_list() const;
   Bscript::ObjArray* mobiles_list() const;

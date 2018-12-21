@@ -58,8 +58,8 @@ void MapWriter::WriteConfigFile()
   ofs_cfg << "    width " << _width << std::endl;
   ofs_cfg << "    height " << _height << std::endl;
   ofs_cfg << "    mapserver memory" << std::endl;
-  ofs_cfg << "    uomapid " << Core::uo_mapid << std::endl;
-  ofs_cfg << "    uodif " << Core::uo_usedif << std::endl;
+  ofs_cfg << "    uomapid " << uo_mapid << std::endl;
+  ofs_cfg << "    uodif " << uo_usedif << std::endl;
   ofs_cfg << "    num_static_patches " << num_static_patches << std::endl;
   ofs_cfg << "    num_map_patches " << num_map_patches << std::endl;
   ofs_cfg << "    season 1" << std::endl;

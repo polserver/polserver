@@ -16,12 +16,9 @@
 
 namespace Pol
 {
-namespace Core
-{
-class Tile;
-}
 namespace Plib
 {
+class Tile;
 class Package;
 
 typedef std::vector<Package*> Packages;
@@ -41,7 +38,7 @@ public:
   struct stat accounts_txt_stat;
 
   Core::PolConfig config;
-  Core::Tile* tile;
+  Tile* tile;
   bool tiles_loaded;
 
   size_t estimatedSize() const;
@@ -50,6 +47,6 @@ private:
 };
 
 extern SystemState systemstate;
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

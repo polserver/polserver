@@ -10,12 +10,12 @@
 #include "uconst.h"
 #include "udatfile.h"
 
-#include <fstream>
 #include <cstdio>
+#include <fstream>
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 extern FILE* mapfile;
 extern FILE* sidxfile;
@@ -35,8 +35,8 @@ FILE* open_uo_file( const std::string& filename_part );
 
 bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
 
-void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
-                  short oldz, bool* result, short* newz );
+void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
+                       short oldz, bool* result, short* newz );  // uotool version
 
 #define VERFILE_MAP0_MUL 0x00
 #define VERFILE_STAIDX0_MUL 0x01
@@ -60,6 +60,6 @@ void standheight( MOVEMODE movemode, StaticList& statics, unsigned short x, unsi
 
 void read_static_diffs();
 void read_map_difs();
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

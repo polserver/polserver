@@ -164,7 +164,7 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
         continue;
 
       if ( realm->walkheight( newx, newy, z, &newz, &supporting_multi, &walkon_item, doors_block,
-                              Core::MOVEMODE_LAND ) )
+                              Plib::MOVEMODE_LAND ) )
       {
         // Forbid diagonal move, if between 2 blockers - OWHorus {2011-04-26)
         bool blocked = false;
@@ -172,9 +172,9 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
         {
           // If both neighbouring tiles are blocked, the move is illegal (diagonal move)
           if ( !realm->walkheight( x + i, y, z, &newz, &supporting_multi, &walkon_item, doors_block,
-                                   Core::MOVEMODE_LAND ) )
+                                   Plib::MOVEMODE_LAND ) )
             blocked = !( realm->walkheight( x, y + j, z, &newz, &supporting_multi, &walkon_item,
-                                            doors_block, Core::MOVEMODE_LAND ) );
+                                            doors_block, Plib::MOVEMODE_LAND ) );
         }
 
         if ( !blocked )

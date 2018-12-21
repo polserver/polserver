@@ -14,27 +14,27 @@
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
-#include "../plib/clidata.h"
-#include "../plib/realmdescriptor.h"
-#include "../plib/staticblock.h"
-#include "../plib/systemstate.h"
-#include "../plib/uofile.h"
-#include "../plib/ustruct.h"
+#include "clidata.h"
+#include "realmdescriptor.h"
+#include "staticblock.h"
+#include "systemstate.h"
+#include "uofile.h"
+#include "ustruct.h"
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 bool cfg_show_illegal_graphic_warning = true;
 
-bool newstat_dont_add( std::vector<Plib::STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
+bool newstat_dont_add( std::vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
 {
   char pheight = tileheight( pstat->graphic );
 
   for ( unsigned i = 0; i < vec.size(); ++i )
   {
-    Plib::STATIC_ENTRY& prec = vec[i];
-    passert_always( prec.objtype <= Plib::systemstate.config.max_tile_id );
+    STATIC_ENTRY& prec = vec[i];
+    passert_always( prec.objtype <= systemstate.config.max_tile_id );
     char height = tileheight( prec.objtype );  // TODO read from itemdesc?
     unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
     if (                                   // flags == pflags &&
@@ -70,11 +70,11 @@ int write_pol_static_files( const std::string& realm )
   FILE* fidx = fopen( statidx_tmp.c_str(), "wb" );
   FILE* fdat = fopen( statics_tmp.c_str(), "wb" );
 
-  Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
+  RealmDescriptor descriptor = RealmDescriptor::Load( realm );
 
   int lastprogress = -1;
   unsigned int index = 0;
-  for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
+  for ( u16 y = 0; y < descriptor.height; y += STATICBLOCK_CHUNK )
   {
     int progress = y * 100L / descriptor.height;
     if ( progress != lastprogress )
@@ -82,23 +82,23 @@ int write_pol_static_files( const std::string& realm )
       INFO_PRINT << "\rCreating POL statics files: " << progress << "%";
       lastprogress = progress;
     }
-    for ( u16 x = 0; x < descriptor.width; x += Plib::STATICBLOCK_CHUNK )
+    for ( u16 x = 0; x < descriptor.width; x += STATICBLOCK_CHUNK )
     {
-      Plib::STATIC_INDEX idx;
+      STATIC_INDEX idx;
       idx.index = index;
       fwrite( &idx, sizeof idx, 1, fidx );
 
       std::vector<USTRUCT_STATIC> pstat;
       int num;
-      std::vector<Plib::STATIC_ENTRY> vec;
+      std::vector<STATIC_ENTRY> vec;
       readstaticblock( &pstat, &num, x, y );
       for ( int i = 0; i < num; ++i )
       {
-        if ( pstat[i].graphic <= Plib::systemstate.config.max_tile_id )
+        if ( pstat[i].graphic <= systemstate.config.max_tile_id )
         {
           if ( !newstat_dont_add( vec, &pstat[i] ) )
           {
-            Plib::STATIC_ENTRY nrec;
+            STATIC_ENTRY nrec;
 
             nrec.objtype = pstat[i].graphic;  // TODO map these?
             nrec.xy = ( pstat[i].x_offset << 4 ) | pstat[i].y_offset;
@@ -118,13 +118,13 @@ int write_pol_static_files( const std::string& realm )
 
           if ( cfg_show_illegal_graphic_warning )
             INFO_PRINT << " Warning: Item with illegal Graphic 0x" << fmt::hexu( pstat[i].graphic )
-                       << " in Area " << x << " " << y << " " << ( x + Plib::STATICBLOCK_CHUNK - 1 )
-                       << " " << ( y + Plib::STATICBLOCK_CHUNK - 1 ) << "\n";
+                       << " in Area " << x << " " << y << " " << ( x + STATICBLOCK_CHUNK - 1 )
+                       << " " << ( y + STATICBLOCK_CHUNK - 1 ) << "\n";
         }
       }
       for ( unsigned i = 0; i < vec.size(); ++i )
       {
-        fwrite( &vec[i], sizeof( Plib::STATIC_ENTRY ), 1, fdat );
+        fwrite( &vec[i], sizeof( STATIC_ENTRY ), 1, fdat );
         ++index;
       }
       if ( vec.empty() )
@@ -135,7 +135,7 @@ int write_pol_static_files( const std::string& realm )
         maxcount = static_cast<unsigned int>( vec.size() );
     }
   }
-  Plib::STATIC_INDEX idx;
+  STATIC_INDEX idx;
   idx.index = index;
   fwrite( &idx, sizeof idx, 1, fidx );
 
@@ -164,5 +164,5 @@ int write_pol_static_files( const std::string& realm )
 #endif
   return 0;
 }
-}  // namespace Core
+}  // namespace Plib
 }  // namespace Pol

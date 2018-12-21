@@ -126,9 +126,9 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   }
   // send to those nearby
   u16 range;
-  if ( type == Core::TEXTTYPE_WHISPER )
+  if ( type == Plib::TEXTTYPE_WHISPER )
     range = Core::settingsManager.ssopt.whisper_range;
-  else if ( type == Core::TEXTTYPE_YELL )
+  else if ( type == Plib::TEXTTYPE_YELL )
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
@@ -333,9 +333,9 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
     }
     // send to those nearby
     u16 range;
-    if ( msgin->type == Core::TEXTTYPE_WHISPER )
+    if ( msgin->type == Plib::TEXTTYPE_WHISPER )
       range = Core::settingsManager.ssopt.whisper_range;
-    else if ( msgin->type == Core::TEXTTYPE_YELL )
+    else if ( msgin->type == Plib::TEXTTYPE_YELL )
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;

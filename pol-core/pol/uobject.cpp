@@ -78,7 +78,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
       serial_ext( 0 ),
       objtype_( objtype ),
       color( 0 ),
-      facing( FACING_N ),
+      facing( Plib::FACING_N ),
       _rev( 0 ),
       name_( "" ),
       flags_(),
@@ -87,7 +87,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
   graphic = Items::getgraphic( objtype );
   flags_.set( OBJ_FLAGS::DIRTY );
   flags_.set( OBJ_FLAGS::SAVE_ON_EXIT );
-  height = tileheight( graphic );
+  height = Plib::tileheight( graphic );
   ++stateManager.uobjcount.uobject_count;
 }
 
@@ -294,7 +294,7 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   graphic = elem.remove_ushort( "GRAPHIC", static_cast<u16>( objtype_ ) );
   fixInvalidGraphic();
 
-  height = tileheight( graphic );
+  height = Plib::tileheight( graphic );
 
   color = elem.remove_ushort( "COLOR", 0 );
 

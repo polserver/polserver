@@ -53,6 +53,7 @@
 #include "../../plib/pkg.h"
 #include "../../plib/staticblock.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/uconst.h"
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../accounts/acscrobj.h"
@@ -89,7 +90,6 @@
 #include "../sngclick.h"
 #include "../statmsg.h"
 #include "../tooltips.h"
-#include "../../plib/uconst.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"
@@ -2152,7 +2152,7 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
 {
   if ( client->chr != nullptr && client->gd != nullptr && client->gd->selcolor_uoemod != nullptr )
   {
-    unsigned short color = cfBEu16( msg->graphic_or_color ) & VALID_ITEM_COLOR_MASK;
+    unsigned short color = cfBEu16( msg->graphic_or_color ) & Plib::VALID_ITEM_COLOR_MASK;
     BObject* valstack;
     if ( color >= 2 && color <= 1001 )
     {
@@ -2880,7 +2880,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
 
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
-          StaticList mlist;
+          Plib::StaticList mlist;
           realm->readmultis( mlist, wx, wy );
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {
@@ -2961,7 +2961,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
 
           for ( unsigned i = 0; i < slist.size(); ++i )
           {
-            if ( ( tile_uoflags( slist[i].objtype ) & flags ) )
+            if ( ( Plib::tile_uoflags( slist[i].objtype ) & flags ) )
             {
               if ( ( z == LIST_IGNORE_Z ) || ( abs( slist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
               {
@@ -2979,11 +2979,11 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
 
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
-          StaticList mlist;
+          Plib::StaticList mlist;
           realm->readmultis( mlist, wx, wy );
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {
-            if ( ( tile_uoflags( mlist[i].graphic ) & flags ) )
+            if ( ( Plib::tile_uoflags( mlist[i].graphic ) & flags ) )
             {
               if ( ( z == LIST_IGNORE_Z ) || ( abs( mlist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
               {

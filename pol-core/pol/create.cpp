@@ -231,9 +231,10 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   }
 
   unsigned short graphic;
-  URACE race;
-  UGENDER gender =
-      ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER ) ? GENDER_FEMALE : GENDER_MALE;
+  Plib::URACE race;
+  Plib::UGENDER gender = ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER )
+                             ? Plib::GENDER_FEMALE
+                             : Plib::GENDER_MALE;
   if ( client->ClientType & Network::CLIENTTYPE_7000 )
   {
     /*
@@ -244,18 +245,18 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     */
     if ( ( msg->Sex & 0x6 ) == 0x6 )
     {
-      race = RACE_GARGOYLE;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_GARGOYLE_FEMALE : UOBJ_GARGOYLE_MALE;
+      race = Plib::RACE_GARGOYLE;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_GARGOYLE_FEMALE : UOBJ_GARGOYLE_MALE;
     }
     else if ( ( msg->Sex & 0x4 ) == 0x4 )
     {
-      race = RACE_ELF;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
+      race = Plib::RACE_ELF;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
     }
     else
     {
-      race = RACE_HUMAN;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
+      race = Plib::RACE_HUMAN;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
     }
   }
   else
@@ -266,13 +267,13 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     */
     if ( ( msg->Sex & Network::FLAG_RACE ) == Network::FLAG_RACE )
     {
-      race = RACE_ELF;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
+      race = Plib::RACE_ELF;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
     }
     else
     {
-      race = RACE_HUMAN;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
+      race = Plib::RACE_HUMAN;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
     }
   }
 
@@ -323,7 +324,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   chr->x = coord.x;
   chr->y = coord.y;
   chr->z = coord.z;
-  chr->facing = FACING_W;
+  chr->facing = Plib::FACING_W;
   chr->realm = realm;
   chr->position_changed();
 
@@ -475,8 +476,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       backpack->add( tmpitem );
   }
 
-  if ( chr->race == RACE_HUMAN ||
-       chr->race == RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
+  if ( chr->race == Plib::RACE_HUMAN ||
+       chr->race == Plib::RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -492,7 +493,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
-    if ( chr->gender == GENDER_FEMALE )
+    if ( chr->gender == Plib::GENDER_FEMALE )
     {
       pantstype = 0x1516;
       shirttype = 0x1517;
@@ -505,19 +506,19 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = tilelayer( pantstype );
+    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = tilelayer( shirttype );
+    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
   }
-  else if ( chr->race == RACE_GARGOYLE )  // Gargoyles have Robes.
+  else if ( chr->race == Plib::RACE_GARGOYLE )  // Gargoyles have Robes.
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -582,7 +583,7 @@ void createchar2( Accounts::Account* acct, unsigned index )
   chr->wornitems->serial_ext = chr->serial_ext;
   chr->position_changed();
   chr->graphic = UOBJ_HUMAN_MALE;
-  chr->gender = GENDER_MALE;
+  chr->gender = Plib::GENDER_MALE;
   chr->trueobjtype = chr->objtype_;
   chr->color = ctBEu16( 0 );
   chr->truecolor = chr->color;
@@ -625,14 +626,14 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   unsigned short graphic;
-  URACE race = ( URACE )( msg->race - 1 );
-  UGENDER gender = ( msg->gender & GENDER_FEMALE ) ? GENDER_FEMALE : GENDER_MALE;
-  if ( race == RACE_HUMAN )
-    graphic = ( gender == GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
-  else if ( race == RACE_ELF )
-    graphic = ( gender == GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
+  Plib::URACE race = ( Plib::URACE )( msg->race - 1 );
+  Plib::UGENDER gender = ( msg->gender & Plib::GENDER_FEMALE ) ? Plib::GENDER_FEMALE : Plib::GENDER_MALE;
+  if ( race == Plib::RACE_HUMAN )
+    graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
+  else if ( race == Plib::RACE_ELF )
+    graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
   else
-    graphic = ( gender == GENDER_FEMALE ) ? UOBJ_GARGOYLE_FEMALE : UOBJ_GARGOYLE_MALE;
+    graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_GARGOYLE_FEMALE : UOBJ_GARGOYLE_MALE;
 
 
   Mobile::Character* chr = new Mobile::Character( graphic );
@@ -684,7 +685,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   chr->z = coord.z;
   chr->realm = realm;
   chr->position_changed();
-  chr->facing = FACING_W;
+  chr->facing = Plib::FACING_W;
 
   bool valid_stats = false;
   unsigned int stat_total = msg->strength + msg->intelligence + msg->dexterity;
@@ -857,8 +858,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       backpack->add( tmpitem );
   }
 
-  if ( chr->race == RACE_HUMAN ||
-       chr->race == RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
+  if ( chr->race == Plib::RACE_HUMAN ||
+       chr->race == Plib::RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -874,7 +875,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
-    if ( chr->gender == GENDER_FEMALE )
+    if ( chr->gender == Plib::GENDER_FEMALE )
     {
       pantstype = 0x1516;
       shirttype = 0x1517;
@@ -887,19 +888,19 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = tilelayer( pantstype );
+    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = tilelayer( shirttype );
+    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
   }
-  else if ( chr->race == RACE_GARGOYLE )  // Gargoyles have Robes.
+  else if ( chr->race == Plib::RACE_GARGOYLE )  // Gargoyles have Robes.
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -983,9 +984,10 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   }
 
   unsigned short graphic;
-  URACE race;
-  UGENDER gender =
-      ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER ) ? GENDER_FEMALE : GENDER_MALE;
+  Plib::URACE race;
+  Plib::UGENDER gender = ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER )
+                       ? Plib::GENDER_FEMALE
+                       : Plib::GENDER_MALE;
   if ( client->ClientType & Network::CLIENTTYPE_7000 )
   {
     /*
@@ -996,18 +998,18 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     */
     if ( ( msg->Sex & 0x6 ) == 0x6 )
     {
-      race = RACE_GARGOYLE;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_GARGOYLE_FEMALE : UOBJ_GARGOYLE_MALE;
+      race = Plib::RACE_GARGOYLE;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_GARGOYLE_FEMALE : UOBJ_GARGOYLE_MALE;
     }
     else if ( ( msg->Sex & 0x4 ) == 0x4 )
     {
-      race = RACE_ELF;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
+      race = Plib::RACE_ELF;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
     }
     else
     {
-      race = RACE_HUMAN;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
+      race = Plib::RACE_HUMAN;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
     }
   }
   else
@@ -1018,13 +1020,13 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     */
     if ( ( msg->Sex & Network::FLAG_RACE ) == Network::FLAG_RACE )
     {
-      race = RACE_ELF;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
+      race = Plib::RACE_ELF;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_ELF_FEMALE : UOBJ_ELF_MALE;
     }
     else
     {
-      race = RACE_HUMAN;
-      graphic = ( gender == GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
+      race = Plib::RACE_HUMAN;
+      graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
     }
   }
 
@@ -1077,7 +1079,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   chr->z = coord.z;
   chr->realm = realm;
   chr->position_changed();
-  chr->facing = FACING_W;
+  chr->facing = Plib::FACING_W;
 
   bool valid_stats = false;
   unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
@@ -1275,8 +1277,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       backpack->add( tmpitem );
   }
 
-  if ( chr->race == RACE_HUMAN ||
-       chr->race == RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
+  if ( chr->race == Plib::RACE_HUMAN ||
+       chr->race == Plib::RACE_ELF )  // Gargoyles dont have shirts, pants, shoes and daggers.
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
@@ -1292,7 +1294,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
-    if ( chr->gender == GENDER_FEMALE )
+    if ( chr->gender == Plib::GENDER_FEMALE )
     {
       pantstype = 0x1516;
       shirttype = 0x1517;
@@ -1305,19 +1307,19 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = tilelayer( pantstype );
+    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = tilelayer( shirttype );
+    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     tmpitem->realm = chr->realm;
     chr->equip( tmpitem );
   }
-  else if ( chr->race == RACE_GARGOYLE )  // Gargoyles have Robes.
+  else if ( chr->race == Plib::RACE_GARGOYLE )  // Gargoyles have Robes.
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );

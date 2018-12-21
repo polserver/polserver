@@ -190,14 +190,14 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
   {
     short newz;
     Item* walkon;
-    item->realm->walkheight( x, y, z, &newz, &multi, &walkon, true, MOVEMODE_LAND );
+    item->realm->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND );
     // note that newz is ignored...
   }
   else
   {
     short newz;
     Item* walkon;
-    if ( !item->realm->walkheight( x, y, z, &newz, &multi, &walkon, true, MOVEMODE_LAND ) )
+    if ( !item->realm->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND ) )
     {
       item->realm = oldrealm;
       return new BError( "Invalid location selected" );

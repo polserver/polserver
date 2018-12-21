@@ -15,7 +15,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 enum UGENDER : u8
 {
@@ -96,6 +96,6 @@ enum MOVEMODE : u8
 const unsigned short DEFAULT_TEXT_FONT = 3;
 const unsigned short DEFAULT_TEXT_COLOR = 0x3B2;
 const unsigned short DEFAULT_TEXT_REQUIREDCMD = 0;
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif /* UCONST_H */

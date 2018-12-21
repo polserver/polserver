@@ -101,7 +101,7 @@ public:
   static unsigned short getkey( short rx, short ry );
 
   // returns true if it finds anything at this rx,ry
-  bool readobjects( Core::StaticList& vec, short rx, short ry, short zbase ) const;
+  bool readobjects( Plib::StaticList& vec, short rx, short ry, short zbase ) const;
   bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase,
                    unsigned int anyflags ) const;
 
@@ -133,6 +133,6 @@ inline unsigned short MultiDef::getkey( short rx, short ry )
   unsigned short key = ( crx << 8 ) | cry;
   return key;
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol
 #endif

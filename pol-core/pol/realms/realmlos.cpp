@@ -175,7 +175,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   Core::WorldIterator<Core::ItemFilter>::InBox(
       std::min( att.x, tgt.x ), std::min( att.y, tgt.y ), std::max( att.x, tgt.x ),
       std::max( att.y, tgt.y ), att.realm, [&]( Items::Item* item ) {
-        u32 flags = Core::tile_flags( item->graphic );
+        u32 flags = Plib::tile_flags( item->graphic );
         if ( flags & Plib::FLAG::BLOCKSIGHT )
         {
           if ( item->serial != tgt.serial && item->serial != att.serial )

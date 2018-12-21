@@ -150,9 +150,9 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* te
       Items::Item* it = Items::Item::create( objtype );
       if ( it != nullptr )
       {
-        color &= VALID_ITEM_COLOR_MASK;
+        color &= Plib::VALID_ITEM_COLOR_MASK;
         it->color = color;
-        it->layer = tilelayer( it->graphic );
+        it->layer = Plib::tilelayer( it->graphic );
         it->realm = chr->realm;
         // FIXME equip scripts, equiptest scripts
         if ( chr->equippable( it ) )

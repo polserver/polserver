@@ -14,7 +14,7 @@
 
 namespace Pol
 {
-namespace Core
+namespace Plib
 {
 class Tile
 {
@@ -26,6 +26,9 @@ public:
   u8 height;
   u8 weight;  // todo mult, div
 };
-}
-}
+
+void load_tiles_cfg();
+
+}  // namespace Plib
+}  // namespace Pol
 #endif

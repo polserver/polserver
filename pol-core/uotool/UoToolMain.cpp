@@ -109,7 +109,7 @@ unsigned char buffer[10000];
 
 #define TILES_START 0x68800
 
-static void display_tileinfo( unsigned short objtype, const Core::USTRUCT_TILE& tile )
+static void display_tileinfo( unsigned short objtype, const USTRUCT_TILE& tile )
 {
   fmt::Writer _tmp;
   _tmp.Format( "objtype:  0x{:04X}\n" ) << objtype;
@@ -140,7 +140,7 @@ static void display_tileinfo( unsigned short objtype, const Core::USTRUCT_TILE& 
 
 static int tiledump( int argc, char** argv )
 {
-  Core::USTRUCT_TILE tile;
+  USTRUCT_TILE tile;
   u32 version;
   if ( argc != 3 )
     return 1;
@@ -172,10 +172,10 @@ static int tiledump( int argc, char** argv )
 
 static int vertile()
 {
-  Core::USTRUCT_TILE tile;
+  USTRUCT_TILE tile;
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   int i;
   for ( i = 0; i <= 0xFFFF; i++ )
@@ -184,16 +184,16 @@ static int vertile()
     read_objinfo( objtype, tile );
     display_tileinfo( objtype, tile );
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int verlandtile()
 {
-  Core::USTRUCT_LAND_TILE landtile;
+  USTRUCT_LAND_TILE landtile;
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   int i;
   for ( i = 0; i <= 0x3FFF; i++ )
@@ -208,16 +208,16 @@ static int verlandtile()
                  << "\t name: " << landtile.name << "\n";
     }
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int landtilehist()
 {
-  Core::USTRUCT_LAND_TILE landtile;
+  USTRUCT_LAND_TILE landtile;
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   typedef std::map<std::string, unsigned> M;
   M tilecount;
@@ -236,16 +236,16 @@ static int landtilehist()
     tmp << elem.first << ": " << elem.second << "\n";
   }
   INFO_PRINT << tmp.str();
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int flagsearch( int argc, char** argv )
 {
-  Core::USTRUCT_TILE tile;
+  USTRUCT_TILE tile;
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   if ( argc < 3 )
     return 1;
@@ -265,14 +265,14 @@ static int flagsearch( int argc, char** argv )
       display_tileinfo( objtype, tile );
     }
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int landtileflagsearch( int argc, char** argv )
 {
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   if ( argc < 3 )
     return 1;
@@ -282,7 +282,7 @@ static int landtileflagsearch( int argc, char** argv )
   if ( argc >= 4 )
     notflags = strtoul( argv[3], nullptr, 0 );
 
-  Core::USTRUCT_LAND_TILE landtile;
+  USTRUCT_LAND_TILE landtile;
 
   int i;
   for ( i = 0; i < 0x4000; i++ )
@@ -297,26 +297,26 @@ static int landtileflagsearch( int argc, char** argv )
                  << "\t name: " << landtile.name << "\n";
     }
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int loschange( int /*argc*/, char** /*argv*/ )
 {
-  Core::USTRUCT_TILE tile;
+  USTRUCT_TILE tile;
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   for ( int i = 0; i <= 0xFFFF; i++ )
   {
     unsigned short objtype = (unsigned short)i;
     read_objinfo( objtype, tile );
 
-    bool old_lostest = ( tile.flags & Core::USTRUCT_TILE::FLAG_WALKBLOCK ) != 0;
+    bool old_lostest = ( tile.flags & USTRUCT_TILE::FLAG_WALKBLOCK ) != 0;
 
-    bool new_lostest = ( tile.flags & ( Core::USTRUCT_TILE::FLAG_WALKBLOCK |
-                                        Core::USTRUCT_TILE::FLAG_NO_SHOOT ) ) != 0;
+    bool new_lostest =
+        ( tile.flags & ( USTRUCT_TILE::FLAG_WALKBLOCK | USTRUCT_TILE::FLAG_NO_SHOOT ) ) != 0;
 
     if ( old_lostest != new_lostest )
     {
@@ -325,20 +325,20 @@ static int loschange( int /*argc*/, char** /*argv*/ )
           << ( old_lostest ? "true" : "false" ) << ( new_lostest ? "true" : "false" );
     }
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int print_verdata_info()
 {
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
   int num_version_records;
-  Core::USTRUCT_VERSION vrec;
+  USTRUCT_VERSION vrec;
 
   // FIXME: should read this once per run, per file.
-  fseek( Core::verfile, 0, SEEK_SET );
-  if ( fread( &num_version_records, sizeof num_version_records, 1, Core::verfile ) !=
+  fseek( verfile, 0, SEEK_SET );
+  if ( fread( &num_version_records, sizeof num_version_records, 1, verfile ) !=
        1 )  // ENDIAN-BROKEN
     throw std::runtime_error( "print_verdata_info: fread(num_version_records) failed." );
 
@@ -350,7 +350,7 @@ static int print_verdata_info()
 
   for ( int i = 0; i < num_version_records; i++ )
   {
-    if ( fread( &vrec, sizeof vrec, 1, Core::verfile ) != 1 )
+    if ( fread( &vrec, sizeof vrec, 1, verfile ) != 1 )
       throw std::runtime_error( "print_verdata_info: fread(vrec) failed." );
     if ( vrec.file < 32 )
       ++filecount[vrec.file];
@@ -364,15 +364,15 @@ static int print_verdata_info()
   }
   if ( inv_filecount )
     INFO_PRINT << inv_filecount << " invalid file indexes\n";
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int print_statics()
 {
   INFO_PRINT << "Reading UO data..\n";
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
   int water = 0;
   int strange_water = 0;
   int cnt = 0;
@@ -380,15 +380,15 @@ static int print_statics()
   {
     for ( u16 x = 5900; x < 5940; x++ )
     {
-      std::vector<Core::StaticRec> vec;
-      Core::readallstatics( vec, x, y );
+      std::vector<StaticRec> vec;
+      readallstatics( vec, x, y );
 
       if ( !vec.empty() )
       {
         bool hdrshown = false;
         for ( const auto& elem : vec )
         {
-          int height = Core::tileheight_read( elem.graphic );
+          int height = Plib::tileheight_read( elem.graphic );
           if ( elem.graphic >= 0x1796 && elem.graphic <= 0x17b2 )
           {
             if ( elem.z == -5 && height == 0 )
@@ -402,7 +402,7 @@ static int print_statics()
           hdrshown = true;
           INFO_PRINT << "\tOBJT= 0x" << fmt::hexu( elem.graphic ) << "  Z=" << int( elem.z )
                      << "  HT=" << height << "  FLAGS=0x"
-                     << fmt::hexu( Core::tile_uoflags_read( elem.graphic ) ) << "\n";
+                     << fmt::hexu( Plib::tile_uoflags_read( elem.graphic ) ) << "\n";
           ++cnt;
         }
       }
@@ -411,7 +411,7 @@ static int print_statics()
   INFO_PRINT << cnt << " statics exist.\n"
              << water << " water tiles exist.\n"
              << strange_water << " strange water tiles exist.\n";
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
@@ -503,7 +503,7 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
   if ( multi->hull.empty() )
     return;
 
-  Core::USTRUCT_TILE tile;
+  USTRUCT_TILE tile;
   read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
   INFO_PRINT << "Multi 0x" << fmt::hexu( i + i + ( Plib::systemstate.config.max_tile_id + 1 ) )
              << " -- " << tile.name << ":\n";
@@ -539,7 +539,7 @@ static void print_multidata( u16 i, Multi::MultiDef* multi )
   if ( multi->hull.empty() )
     return;
 
-  Core::USTRUCT_TILE tile;
+  USTRUCT_TILE tile;
   read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
   INFO_PRINT << "Multi 0x" << fmt::hexu( i + ( Plib::systemstate.config.max_tile_id + 1 ) )
              << " -- " << tile.name << ":\n";
@@ -556,8 +556,8 @@ static void print_multidata( u16 i, Multi::MultiDef* multi )
 static int print_multis()
 {
   INFO_PRINT << "Reading UO data..\n";
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
   Multi::read_multidefs();
 
   for ( u16 i = 0; i < 0x1000; ++i )
@@ -568,7 +568,7 @@ static int print_multis()
       print_multidata( i, Multi::multidef_buffer.multidefs_by_multiid[i] );
     }
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
@@ -578,14 +578,14 @@ static int z_histogram()
   memset( zcount, 0, sizeof( zcount ) );
 
   INFO_PRINT << "Reading UO data..\n";
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
   for ( u16 x = 0; x < 6143; ++x )
   {
     INFO_PRINT << ".";
     for ( u16 y = 0; y < 4095; ++y )
     {
-      Core::USTRUCT_MAPINFO mi;
+      USTRUCT_MAPINFO mi;
       short z;
       getmapinfo( x, y, &z, &mi );
       assert( z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
@@ -598,7 +598,7 @@ static int z_histogram()
     if ( zcount[i] )
       INFO_PRINT << i - 128 << ": " << zcount[i] << "\n";
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
@@ -607,14 +607,14 @@ static int statics_histogram()
   unsigned int counts[1000];
   memset( counts, 0, sizeof counts );
   INFO_PRINT << "Reading UO data..\n";
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
   for ( u16 x = 0; x < 6143; x += 8 )
   {
     INFO_PRINT << ".";
     for ( u16 y = 0; y < 4095; y += 8 )
     {
-      std::vector<Core::USTRUCT_STATIC> p;
+      std::vector<USTRUCT_STATIC> p;
       int count;
 
       readstaticblock( &p, &count, x, y );
@@ -630,7 +630,7 @@ static int statics_histogram()
     if ( counts[i] )
       INFO_PRINT << i << ": " << counts[i] << "\n";
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
@@ -646,7 +646,7 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
     for ( u16 ys = 0; ys < 4096; ys += 8 )
     {
       short z;
-      Core::USTRUCT_POL_MAPINFO_BLOCK blk;
+      USTRUCT_POL_MAPINFO_BLOCK blk;
       memset( &blk, 0, sizeof blk );
       for ( u16 xi = 0; xi < 8; ++xi )
       {
@@ -658,7 +658,7 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
             x = 6142;
           if ( y == 4095 )
             y = 4094;
-          bool walkok = Core::groundheight( x, y, &z );
+          bool walkok = groundheight_read( x, y, &z );
           blk.z[xi][yi] = static_cast<signed char>( z );
           if ( walkok )
             blk.walkok[xi] |= ( 1 << yi );
@@ -674,26 +674,26 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
 static int write_polmap()
 {
   INFO_PRINT << "Reading UO data..\n";
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
   write_polmap( "dngnmap0.pol", 5120, 6144 );
   write_polmap( "map0.pol", 0, 6144 );
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int print_water_data()
 {
-  Core::open_uo_data_files();
-  Core::readwater();
+  open_uo_data_files();
+  readwater();
   return 0;
 }
 
 static bool has_water( u16 x, u16 y )
 {
-  Core::StaticList vec;
+  StaticList vec;
   vec.clear();
-  Core::readstatics( vec, x, y );
+  readstatics( vec, x, y );
   for ( const auto& rec : vec )
   {
     if ( iswater( rec.graphic ) )
@@ -705,7 +705,7 @@ static bool has_water( u16 x, u16 y )
 static int water_search()
 {
   u16 wxl = 1420, wxh = 1480, wyl = 1760, wyh = 1780;
-  Core::open_uo_data_files();
+  open_uo_data_files();
   for ( u16 y = wyl; y < wyh; y++ )
   {
     for ( u16 x = wxl; x < wxh; x++ )
@@ -736,8 +736,8 @@ static int mapdump( int argc, char* argv[] )
     wyh = static_cast<u16>( atoi( argv[5] ) );
   }
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   std::ofstream ofs( "mapdump.html" );
 
@@ -755,16 +755,16 @@ static int mapdump( int argc, char* argv[] )
     {
       ofs << "<td align=left valign=top>";
       short z;
-      Core::USTRUCT_MAPINFO mi;
+      USTRUCT_MAPINFO mi;
       safe_getmapinfo( x, y, &z, &mi );
-      Core::USTRUCT_LAND_TILE landtile;
+      USTRUCT_LAND_TILE landtile;
       readlandtile( mi.landtile, &landtile );
       ofs << "z=" << z << "<br>";
       ofs << "landtile=" << Clib::hexint( mi.landtile ) << " " << landtile.name << "<br>";
       ofs << "&nbsp;flags=" << Clib::hexint( landtile.flags ) << "<br>";
       ofs << "mapz=" << (int)mi.z << "<br>";
 
-      Core::StaticList statics;
+      StaticList statics;
       readallstatics( statics, x, y );
       if ( !statics.empty() )
       {
@@ -786,7 +786,7 @@ static int mapdump( int argc, char* argv[] )
     ofs << "</tr>" << std::endl;
   }
   ofs << "</table>" << std::endl;
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
@@ -797,15 +797,15 @@ struct MapContour
 
 static int contour()
 {
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   auto mc = new MapContour;
   for ( u16 y = 0; y < 4095; ++y )
   {
     for ( u16 x = 0; x < 6143; ++x )
     {
-      static Core::StaticList vec;
+      static StaticList vec;
 
       vec.clear();
 
@@ -813,7 +813,7 @@ static int contour()
 
       bool result;
       short newz;
-      standheight( Core::MOVEMODE_LAND, vec, x, y, 127, &result, &newz );
+      standheight_read( MOVEMODE_LAND, vec, x, y, 127, &result, &newz );
       if ( result )
       {
         mc->z[x][y] = static_cast<signed char>( newz );
@@ -827,7 +827,7 @@ static int contour()
 
   std::ofstream ofs( "contour.dat", std::ios::trunc | std::ios::out | std::ios::binary );
   ofs.write( reinterpret_cast<const char*>( mc ), sizeof( MapContour ) );
-  Core::clear_tiledata();
+  clear_tiledata();
   delete mc;
   return 0;
 }
@@ -835,15 +835,15 @@ static int contour()
 static int findlandtile( int /*argc*/, char** argv )
 {
   int landtile = strtoul( argv[1], nullptr, 0 );
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   for ( u16 y = 0; y < 4095; ++y )
   {
     for ( u16 x = 0; x < 6143; ++x )
     {
       short z;
-      Core::USTRUCT_MAPINFO mi;
+      USTRUCT_MAPINFO mi;
       safe_getmapinfo( x, y, &z, &mi );
       if ( mi.landtile == landtile )
       {
@@ -855,7 +855,7 @@ static int findlandtile( int /*argc*/, char** argv )
     }
   }
 
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
@@ -864,14 +864,14 @@ static int findgraphic( int /*argc*/, char** argv )
   int graphic = strtoul( argv[1], nullptr, 0 );
   INFO_PRINT << "Searching map for statics with graphic=0x" << fmt::hexu( graphic ) << "\n";
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   for ( u16 y = 0; y < 4095; ++y )
   {
     for ( u16 x = 0; x < 6143; ++x )
     {
-      Core::StaticList statics;
+      StaticList statics;
       readallstatics( statics, x, y );
       for ( const auto& rec : statics )
       {
@@ -882,33 +882,33 @@ static int findgraphic( int /*argc*/, char** argv )
       }
     }
   }
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
 static int findlandtileflags( int /*argc*/, char** argv )
 {
   unsigned int flags = strtoul( argv[1], nullptr, 0 );
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
   for ( u16 y = 0; y < 4095; ++y )
   {
     for ( u16 x = 0; x < 6143; ++x )
     {
       short z;
-      Core::USTRUCT_MAPINFO mi;
+      USTRUCT_MAPINFO mi;
       safe_getmapinfo( x, y, &z, &mi );
-      if ( Core::landtile_uoflags( mi.landtile ) & flags )
+      if ( Plib::landtile_uoflags_read( mi.landtile ) & flags )
       {
         INFO_PRINT << x << "," << y << "," << (int)mi.z << ": landtile 0x"
                    << fmt::hexu( mi.landtile ) << ", flags 0x"
-                   << fmt::hexu( Core::landtile_uoflags( mi.landtile ) ) << "\n";
+                   << fmt::hexu( Plib::landtile_uoflags_read( mi.landtile ) ) << "\n";
       }
     }
   }
 
-  Core::clear_tiledata();
+  clear_tiledata();
   return 0;
 }
 
@@ -922,16 +922,16 @@ static int defragstatics( int argc, char** argv )
 
   Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realm );
 
-  Core::uo_mapid = descriptor.uomapid;
-  Core::uo_usedif = descriptor.uodif;
-  Core::uo_map_width = static_cast<unsigned short>( descriptor.width );
-  Core::uo_map_height = static_cast<unsigned short>( descriptor.height );
+  uo_mapid = descriptor.uomapid;
+  uo_usedif = descriptor.uodif;
+  uo_map_width = static_cast<unsigned short>( descriptor.width );
+  uo_map_height = static_cast<unsigned short>( descriptor.height );
 
-  Core::open_uo_data_files();
-  Core::read_uo_data();
+  open_uo_data_files();
+  read_uo_data();
 
-  std::string statidx = "staidx" + Clib::tostring( Core::uo_mapid ) + ".mul";
-  std::string statics = "statics" + Clib::tostring( Core::uo_mapid ) + ".mul";
+  std::string statidx = "staidx" + Clib::tostring( uo_mapid ) + ".mul";
+  std::string statics = "statics" + Clib::tostring( uo_mapid ) + ".mul";
   Clib::RemoveFile( statidx );
   Clib::RemoveFile( statics );
 
@@ -949,16 +949,16 @@ static int defragstatics( int argc, char** argv )
     }
     for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
     {
-      std::vector<Core::USTRUCT_STATIC> pstat;
+      std::vector<USTRUCT_STATIC> pstat;
       int num;
-      std::vector<Core::USTRUCT_STATIC> tilelist;
+      std::vector<USTRUCT_STATIC> tilelist;
       readstaticblock( &pstat, &num, x, y );
       if ( num > 0 )
       {
         int currwritepos = ftell( fmul );
         for ( int i = 0; i < num; ++i )
         {
-          Core::USTRUCT_STATIC& tile = pstat[i];
+          USTRUCT_STATIC& tile = pstat[i];
           if ( tile.graphic < 0x4000 )
           {
             bool first = true;
@@ -974,7 +974,7 @@ static int defragstatics( int argc, char** argv )
             }
             if ( first )
             {
-              Core::USTRUCT_STATIC newtile;
+              USTRUCT_STATIC newtile;
               newtile.graphic = tile.graphic;
               newtile.x_offset = tile.x_offset;
               newtile.y_offset = tile.y_offset;
@@ -984,7 +984,7 @@ static int defragstatics( int argc, char** argv )
             }
           }
         }
-        Core::USTRUCT_IDX idx;
+        USTRUCT_IDX idx;
         idx.offset = ~0u;
         idx.length = ~0u;
         idx.unknown = ~0u;
@@ -993,7 +993,7 @@ static int defragstatics( int argc, char** argv )
           idx.offset = currwritepos;
           for ( const auto& elem : tilelist )
           {
-            fwrite( &elem, sizeof( Core::USTRUCT_STATIC ), 1, fmul );
+            fwrite( &elem, sizeof( USTRUCT_STATIC ), 1, fmul );
           }
           currwritepos = ftell( fmul ) - currwritepos;
           idx.length = currwritepos;
@@ -1004,7 +1004,7 @@ static int defragstatics( int argc, char** argv )
       }
       else
       {
-        Core::USTRUCT_IDX idx;
+        USTRUCT_IDX idx;
         idx.offset = ~0u;
         idx.length = ~0u;
         idx.unknown = ~0u;
@@ -1101,8 +1101,8 @@ static int format_description( int argc, char** argv )
 
 static int checkmultis()
 {
-  FILE* multi_idx = Core::open_uo_file( "multi.idx" );
-  FILE* multi_mul = Core::open_uo_file( "multi.mul" );
+  FILE* multi_idx = open_uo_file( "multi.idx" );
+  FILE* multi_mul = open_uo_file( "multi.mul" );
   if ( fseek( multi_idx, 0, SEEK_SET ) != 0 )
   {
     fclose( multi_idx );
@@ -1114,13 +1114,13 @@ static int checkmultis()
   unsigned warnings = 0;
   unsigned errors = 0;
   unsigned invisitems = 0;
-  Core::USTRUCT_IDX idxrec;
+  USTRUCT_IDX idxrec;
   for ( int i = 0; fread( &idxrec, sizeof idxrec, 1, multi_idx ) == 1; ++i )
   {
     if ( idxrec.offset == 0xFFffFFffLu )
       continue;
     fseek( multi_mul, idxrec.offset, SEEK_SET );
-    Core::USTRUCT_MULTI_ELEMENT elem;
+    USTRUCT_MULTI_ELEMENT elem;
     if ( fread( &elem, sizeof elem, 1, multi_mul ) != 1 )
       throw std::runtime_error( "checkmultis: fread(elem) failed." );
     if ( elem.x != 0 || elem.y != 0 || elem.z != 0 )
@@ -1303,12 +1303,12 @@ int UoToolMain::main()
   }
   else if ( argvalue == "newstatics" )
   {
-    return Core::write_pol_static_files( "main" );
+    return write_pol_static_files( "main" );
   }
   else if ( argvalue == "staticsmax" )
   {
-    Core::open_uo_data_files();
-    Core::staticsmax();
+    open_uo_data_files();
+    staticsmax();
     return 0;
   }
   else if ( argvalue == "watersearch" )
