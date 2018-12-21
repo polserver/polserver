@@ -627,7 +627,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
   unsigned short graphic;
   Plib::URACE race = ( Plib::URACE )( msg->race - 1 );
-  Plib::UGENDER gender = ( msg->gender & Plib::GENDER_FEMALE ) ? Plib::GENDER_FEMALE : Plib::GENDER_MALE;
+  Plib::UGENDER gender =
+      ( msg->gender & Plib::GENDER_FEMALE ) ? Plib::GENDER_FEMALE : Plib::GENDER_MALE;
   if ( race == Plib::RACE_HUMAN )
     graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_HUMAN_FEMALE : UOBJ_HUMAN_MALE;
   else if ( race == Plib::RACE_ELF )
@@ -986,8 +987,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   unsigned short graphic;
   Plib::URACE race;
   Plib::UGENDER gender = ( ( msg->Sex & Network::FLAG_GENDER ) == Network::FLAG_GENDER )
-                       ? Plib::GENDER_FEMALE
-                       : Plib::GENDER_MALE;
+                             ? Plib::GENDER_FEMALE
+                             : Plib::GENDER_MALE;
   if ( client->ClientType & Network::CLIENTTYPE_7000 )
   {
     /*

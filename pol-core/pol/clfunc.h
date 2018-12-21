@@ -50,7 +50,8 @@ void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const char* affi
 
 void private_say_above_cl_affix( Mobile::Character* chr, const UObject* obj,
                                  unsigned int cliloc_num, const char* affix, bool prepend = false,
-                                 const u16* arguments = 0, unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                                 const u16* arguments = 0,
+                                 unsigned short font = Plib::DEFAULT_TEXT_FONT,
                                  unsigned short color = Plib::DEFAULT_TEXT_COLOR );
 
 void build_sysmessage_cl( Network::PktOut_C1* msg, unsigned int cliloc_num,

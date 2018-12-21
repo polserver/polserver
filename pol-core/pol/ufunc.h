@@ -188,7 +188,8 @@ bool say_above( const UObject* obj, const char* text, unsigned short font = Plib
                 unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
 bool say_above( const UObject* obj, const u16* wtext, const char lang[4],
-                unsigned short font = Plib::DEFAULT_TEXT_FONT, unsigned short color = Plib::DEFAULT_TEXT_COLOR,
+                unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
 
 bool private_say_above( Mobile::Character* chr, const UObject* obj, const char* text,
