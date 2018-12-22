@@ -34,7 +34,7 @@ class UserFunction
 {
 public:
   UserFunction();
-  ~UserFunction();
+  ~UserFunction() = default;
 
   std::string name;
   typedef std::vector<UserParam> Parameters;

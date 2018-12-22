@@ -10,7 +10,7 @@
 #include <iosfwd>
 
 #include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 
 namespace Pol
 {
@@ -62,10 +62,6 @@ enum BTokenType : u8
   TYP_FUNCREF = 0x22,
 };
 
-inline std::ostream& operator<<( std::ostream& out, const BTokenType& tok )
-{
-  return out << static_cast<int>( tok );
-}
 
 /**
  * The token ID: what this token is
@@ -279,25 +275,20 @@ enum BTokenId : u16
   TOK_UNUSED,
 };
 
-inline std::ostream& operator<<( std::ostream& out, const BTokenId& tok )
-{
-  return out << static_cast<int>( tok );
-}
-
 enum ESCRIPT_CASE_TYPES : u8
 {
   CASE_TYPE_LONG = 255,
   CASE_TYPE_DEFAULT = 254,
   CASE_STRING_MAXLEN = 253
 };
-}
+}  // namespace Bscript
 
 namespace Clib
 {
 template <>
-std::string tostring( const Bscript::BTokenType& v );
+std::string tostring<Bscript::BTokenType>( const Bscript::BTokenType& v );
 template <>
-std::string tostring( const Bscript::BTokenId& v );
-}
-}
+std::string tostring<Bscript::BTokenId>( const Bscript::BTokenId& v );
+}  // namespace Clib
+}  // namespace Pol
 #endif

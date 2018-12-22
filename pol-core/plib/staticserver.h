@@ -29,7 +29,7 @@ class StaticServer
 {
 public:
   explicit StaticServer( const RealmDescriptor& descriptor );
-  ~StaticServer();
+  ~StaticServer() = default;
   StaticServer& operator=( const StaticServer& ) { return *this; }
   bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
   void getstatics( StaticEntryList& statics, unsigned short x, unsigned short y ) const;

@@ -136,7 +136,7 @@ void disable_nagle( SOCKET sck )
   if ( res < 0 )
   {
     throw std::runtime_error( "Unable to setsockopt (TCP_NODELAY) on listening socket, res=" +
-                              Clib::decint( res ) );
+                              Clib::tostring( res ) );
   }
 }
 
@@ -153,7 +153,7 @@ void apply_socket_options( SOCKET sck )
   if ( res < 0 )
   {
     throw std::runtime_error( "Unable to set socket to nonblocking mode, res=" +
-                              Clib::decint( res ) );
+                              Clib::tostring( res ) );
   }
 }
 SOCKET open_listen_socket( unsigned short port )
@@ -175,7 +175,7 @@ SOCKET open_listen_socket( unsigned short port )
   if ( res < 0 )
   {
     throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " +
-                              Clib::decint( res ) );
+                              Clib::tostring( res ) );
   }
 #endif
 
@@ -195,15 +195,15 @@ SOCKET open_listen_socket( unsigned short port )
   {
     // Aug. 16, 2006. Austin
     //   Added the port number that failed.
-    std::string tmp_error = "Unable to bind listening socket. Port(" + Clib::decint( port ) +
-                            ") Res=" + Clib::decint( res );
+    std::string tmp_error = "Unable to bind listening socket. Port(" + Clib::tostring( port ) +
+                            ") Res=" + Clib::tostring( res );
     throw std::runtime_error( tmp_error );
   }
 
   res = listen( sck, SOMAXCONN );
   if ( res < 0 )
   {
-    throw std::runtime_error( "Listen failed, res=" + Clib::decint( res ) );
+    throw std::runtime_error( "Listen failed, res=" + Clib::tostring( res ) );
   }
 
   return sck;

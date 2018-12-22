@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string>
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
@@ -35,6 +34,7 @@
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "accounts/account.h"
 #include "cmbtcfg.h"
 #include "fnsearch.h"
@@ -55,11 +55,11 @@
 #include "sockio.h"
 #include "spells.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "unicode.h"
 #include "uobject.h"
 #include "uoscrobj.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -362,10 +362,10 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     return;
     break;
   case PKTBI_BF::TYPE_TOGGLE_FLYING:
-    if ( client->chr->race == RACE_GARGOYLE )
+    if ( client->chr->race == Plib::RACE_GARGOYLE )
     {
       // FIXME: add checks if its possible to stand with new movemode
-      client->chr->movemode = ( MOVEMODE )( client->chr->movemode ^ MOVEMODE_FLY );
+      client->chr->movemode = ( Plib::MOVEMODE )( client->chr->movemode ^ Plib::MOVEMODE_FLY );
       send_move_mobile_to_nearby_cansee( client->chr );
       send_goxyz( client, client->chr );
     }
@@ -634,5 +634,5 @@ void OnChatButton( Client* client )
     client->chr->start_script( prog.get(), false );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

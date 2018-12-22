@@ -6,7 +6,6 @@
 
 #ifndef CLIB_CFGELEM_H
 #define CLIB_CFGELEM_H
-#include "compilerspecifics.h"
 #include "maputil.h"
 
 #include <map>
@@ -102,7 +101,7 @@ public:
   void add_prop( std::string propname, unsigned short sval );
   void add_prop( std::string propname, short sval );
 
-  POL_NORETURN void throw_error( const std::string& errmsg ) const;
+  [[noreturn]] void throw_error( const std::string& errmsg ) const;
   void warn( const std::string& errmsg ) const;
   void warn_with_line( const std::string& errmsg ) const;
 
@@ -112,7 +111,7 @@ public:
   void set_source( const ConfigSource* source );
 
 protected:
-  POL_NORETURN void prop_not_found( const char* propname ) const;
+  [[noreturn]] void prop_not_found( const char* propname ) const;
   typedef std::multimap<std::string, std::string, ci_cmp_pred> Props;
   Props properties;
 };
@@ -164,14 +163,14 @@ public:
   void add_prop( std::string propname, unsigned int lval );
   void add_prop( std::string propname, unsigned short sval );
 
-  POL_NORETURN void throw_error( const std::string& errmsg ) const;
+  [[noreturn]] void throw_error( const std::string& errmsg ) const;
   void warn( const std::string& errmsg ) const;
 
   void set_rest( const char* newrest );
   void set_source( const ConfigElem& elem );
 
 protected:
-  POL_NORETURN void prop_not_found( const char* propname ) const;
+  [[noreturn]] void prop_not_found( const char* propname ) const;
   std::string type_;
   std::string rest_;
 
@@ -180,6 +179,6 @@ protected:
 
   ConfigSource* source_;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif

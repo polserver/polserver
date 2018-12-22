@@ -158,7 +158,7 @@ BObjectImp* GetGlobals( const UOExecutor* uoexec )
     if ( uoexec->prog()->globalvarnames.size() > idx )
       dict->addMember( uoexec->prog()->globalvarnames[idx].c_str(), obref );
     else
-      dict->addMember( Clib::decint( idx ).c_str(), obref );
+      dict->addMember( Clib::tostring( idx ).c_str(), obref );
   }
   return dict;
 }

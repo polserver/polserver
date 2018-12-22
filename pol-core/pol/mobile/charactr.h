@@ -44,6 +44,7 @@
 #include "../../clib/refptr.h"
 #include "../../clib/strset.h"
 #include "../../clib/weakptr.h"
+#include "../../plib/uconst.h"
 #include "../action.h"
 #include "../baseobject.h"
 #include "../dynproperties.h"
@@ -51,7 +52,6 @@
 #include "../polclock.h"
 #include "../reftypes.h"
 #include "../skillid.h"
-#include "../uconst.h"
 #include "../uobject.h"
 #include "../utype.h"
 #include "attribute.h"
@@ -84,7 +84,7 @@ namespace Bscript
 class BObjectImp;
 class EScriptProgram;
 class ObjArray;
-}
+}  // namespace Bscript
 namespace Clib
 {
 class ConfigElem;
@@ -102,7 +102,7 @@ namespace Items
 class Item;
 class UArmor;
 class UWeapon;
-}
+}  // namespace Items
 namespace Core
 {
 class ExportScript;
@@ -130,7 +130,7 @@ void createchar2( Accounts::Account* acct, unsigned index );
 void undo_get_item( Mobile::Character* chr, Items::Item* item );
 void write_characters( SaveContext& sc );
 void write_npcs( SaveContext& sc );
-}
+}  // namespace Core
 namespace Module
 {
 class UOExecutorModule;
@@ -458,12 +458,12 @@ public:
   // MOVEMENT
 public:
   bool on_mount() const;
-  static Core::MOVEMODE decode_movemode( const std::string& str );
-  static std::string encode_movemode( Core::MOVEMODE movemode );
+  static Plib::MOVEMODE decode_movemode( const std::string& str );
+  static std::string encode_movemode( Plib::MOVEMODE movemode );
   // if a move were made, what would the new position be?
-  void getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py );
-  bool can_face( Core::UFACING i_facing );
-  bool face( Core::UFACING i_facing, int flags = 0 );
+  void getpos_ifmove( Plib::UFACING i_facing, unsigned short* px, unsigned short* py );
+  bool can_face( Plib::UFACING i_facing );
+  bool face( Plib::UFACING i_facing, int flags = 0 );
   bool move( unsigned char dir );
   bool CustomHousingMove( unsigned char i_dir );
   void tellmove( void );
@@ -512,7 +512,7 @@ public:
   void check_attack_after_move();
   void attack( Character* opponent );
   void send_highlight() const;
-  bool manual_set_swing_timer( int time );
+  bool manual_set_swing_timer( Core::polclock_t time );
 
   const CharacterSet& hostiles() const;
   void run_hit_script( Character* defender, double damage );
@@ -809,7 +809,7 @@ public:
     OTHER = 0,
     MULTIMOVE = 1
   } move_reason;
-  Core::MOVEMODE movemode;
+  Plib::MOVEMODE movemode;
   DYN_PROPERTY( lightoverride, int, Core::PROP_LIGHTOVERRIDE, -1 );
   DYN_PROPERTY( lightoverride_until, Core::gameclock_t, Core::PROP_LIGHTOVERRIDE_UNTIL, 0 );
 
@@ -916,8 +916,8 @@ public:
   u32 registered_house;
   u16 truecolor;
   u32 trueobjtype;
-  Core::UGENDER gender;
-  Core::URACE race;
+  Plib::UGENDER gender;
+  Plib::URACE race;
   u32 last_corpse;
 
   DYN_PROPERTY( dblclick_wait, u32, Core::PROP_DOUBLECLICK_WAIT, 0 );
@@ -1101,6 +1101,6 @@ inline void NpcPropagateEnteredArea( Character* chr, Character* whoentered )
     chr->inform_enteredarea( whoentered );
   }
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
 #endif

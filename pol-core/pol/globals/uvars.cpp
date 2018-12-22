@@ -21,6 +21,7 @@
 #include "../../clib/boostutils.h"
 #include "../../clib/clib_MD5.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
@@ -604,5 +605,5 @@ GameState::Memory GameState::estimateSize() const
   }
   return usage;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

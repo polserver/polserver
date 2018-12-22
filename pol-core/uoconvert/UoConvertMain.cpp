@@ -13,23 +13,24 @@
 #include "../clib/rawtypes.h"
 #include "../clib/stlutil.h"
 #include "../clib/timer.h"
+#include "../plib/clidata.h"
 #include "../plib/mapcell.h"
 #include "../plib/mapfunc.h"
 #include "../plib/mapshape.h"
 #include "../plib/mapsolid.h"
 #include "../plib/maptile.h"
 #include "../plib/mapwriter.h"
+#include "../plib/polfile.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/systemstate.h"
+#include "../plib/udatfile.h"
+#include "../plib/uofile.h"
+#include "../plib/uofilei.h"
 #include "../plib/uopreader/uop.h"
 #include "../plib/uopreader/uophash.h"
-#include "../pol/clidata.h"
+#include "../plib/ustruct.h"
+#include "../pol/landtile.h"
 #include "../pol/objtype.h"
-#include "../pol/polfile.h"
-#include "../pol/udatfile.h"
-#include "../pol/uofile.h"
-#include "../pol/uofilei.h"
-#include "../pol/ustruct.h"
 
 
 namespace Pol
@@ -68,8 +69,8 @@ void UoConvertMain::showHelp()
 using namespace Core;
 using namespace Plib;
 
-bool cfg_use_no_shoot = 0;
-bool cfg_LOS_through_windows = 0;
+bool cfg_use_no_shoot = false;
+bool cfg_LOS_through_windows = false;
 
 std::set<unsigned int> HouseTypes;
 std::set<unsigned int> BoatTypes;
@@ -100,17 +101,17 @@ void display_flags()
             {
               unsigned flags = 0;
               if ( blocking )
-                flags |= Core::USTRUCT_TILE::FLAG_BLOCKING;
+                flags |= USTRUCT_TILE::FLAG_BLOCKING;
               if ( platform )
-                flags |= Core::USTRUCT_TILE::FLAG_PLATFORM;
+                flags |= USTRUCT_TILE::FLAG_PLATFORM;
               if ( walk )
-                flags |= Core::USTRUCT_TILE::FLAG__WALK;
+                flags |= USTRUCT_TILE::FLAG__WALK;
               if ( wall )
-                flags |= Core::USTRUCT_TILE::FLAG_WALL;
+                flags |= USTRUCT_TILE::FLAG_WALL;
               if ( half )
-                flags |= Core::USTRUCT_TILE::FLAG_HALF_HEIGHT;
+                flags |= USTRUCT_TILE::FLAG_HALF_HEIGHT;
               if ( floor )
-                flags |= Core::USTRUCT_TILE::FLAG_FLOOR;
+                flags |= USTRUCT_TILE::FLAG_FLOOR;
 
               unsigned int polflags = Plib::polflags_from_tileflags(
                   0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
@@ -127,7 +128,7 @@ void display_flags()
 
 unsigned char polmap_flags_from_landtile( unsigned short landtile )
 {
-  unsigned int uoflags = landtile_uoflags( landtile );
+  unsigned int uoflags = Plib::landtile_uoflags_read( landtile );
 
   unsigned int polflags =
       Plib::polflags_from_tileflags( landtile, uoflags, cfg_use_no_shoot, cfg_LOS_through_windows );
@@ -162,7 +163,7 @@ void create_maptile( const std::string& realmname )
           unsigned short y = y_base + y_add;
 
           short z;
-          Core::USTRUCT_MAPINFO mi;
+          USTRUCT_MAPINFO mi;
 
           safe_getmapinfo( x, y, &z, &mi );
 
@@ -171,7 +172,7 @@ void create_maptile( const std::string& realmname )
                 << mi.landtile << x << y << z;
 
           // for water, don't average with surrounding tiles.
-          if ( landtile_uoflags( mi.landtile ) & Core::USTRUCT_TILE::FLAG_LIQUID )
+          if ( Plib::landtile_uoflags_read( mi.landtile ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
             z = mi.z;
 
           Plib::MAPTILE_CELL cell;
@@ -476,7 +477,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
             << mi.landtile << x << y << z;
 
       // for water, don't average with surrounding tiles.
-      if ( landtile_uoflags( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
+      if ( Plib::landtile_uoflags_read( mi.landtile ) & USTRUCT_TILE::FLAG_LIQUID )
         z = mi.z;
       short low_z = get_lowestadjacentz( x, y, z );
 
@@ -487,7 +488,7 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
         INFO_PRINT.Format( "Tile 0x{:X} at ({},{},{}) is an invalid ID!\n" )
             << mi.landtile << x << y << z;
 
-      unsigned int lt_flags = landtile_uoflags( mi.landtile );
+      unsigned int lt_flags = Plib::landtile_uoflags_read( mi.landtile );
       if ( ~lt_flags & USTRUCT_TILE::FLAG_BLOCKING )
       {  // this seems to be the default.
         lt_flags |= USTRUCT_TILE::FLAG_PLATFORM;
@@ -1172,7 +1173,7 @@ int UoConvertMain::main()
       else if ( elem.type_is( "TileOptions" ) )
       {
         if ( elem.has_prop( "ShowRoofAndPlatformWarning" ) )
-          Core::cfg_show_roof_and_platform_warning =
+          cfg_show_roof_and_platform_warning =
               elem.remove_bool( "ShowRoofAndPlatformWarning" );
       }
       else if ( elem.type_is( "ClientOptions" ) )
@@ -1194,7 +1195,7 @@ int UoConvertMain::main()
 
     auto maphash = []( int mapid, size_t chunkidx ) {
       fmt::Writer tmp;
-      tmp << "build/map" << mapid << "legacymul/" << fmt::pad(chunkidx,8,'0') << ".dat";
+      tmp << "build/map" << mapid << "legacymul/" << fmt::pad( chunkidx, 8, '0' ) << ".dat";
       return HashLittle2( tmp.str() );
     };
 
@@ -1222,7 +1223,7 @@ int UoConvertMain::main()
 
     if ( uopfile.header()->nfiles() != filemap.size() )
       INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
-           << uopfile.header()->nfiles() << ")\n";
+                 << uopfile.header()->nfiles() << ")\n";
 
     std::ofstream ofs( mul_mapfile, std::ofstream::binary );
     for ( size_t i = 0; i < filemap.size(); i++ )
@@ -1311,7 +1312,7 @@ int UoConvertMain::main()
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
 
-    Core::write_pol_static_files( realm );
+    write_pol_static_files( realm );
   }
   else if ( command == "multis" )
   {

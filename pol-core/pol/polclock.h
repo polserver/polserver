@@ -17,17 +17,21 @@
 #ifndef POLCLOCK_H
 #define POLCLOCK_H
 
-#include <time.h>
+#include <chrono>
 
 namespace Pol
 {
 namespace Core
 {
-typedef int polclock_t;
-typedef int polticks_t;
+typedef std::chrono::milliseconds polclock_t_unit; // in 10ms
+typedef polclock_t_unit::rep polclock_t; // in 10ms
+
+typedef std::chrono::seconds poltime_t_unit;
+typedef poltime_t_unit::rep poltime_t;
+
+typedef std::chrono::steady_clock PolClock;
 
 const polclock_t POLCLOCKS_PER_SEC = 100;
-const unsigned POLCLOCK_DIV = ( CLOCKS_PER_SEC / POLCLOCKS_PER_SEC );
 
 void start_pol_clocks();
 void pause_pol_clocks();
@@ -37,24 +41,25 @@ void pol_sleep_ms( unsigned int millis );
 
 inline bool timer_expired( polclock_t timer_until, polclock_t now )
 {
-  int remaining = timer_until - now;
-  return ( remaining < 0 );
+  return ( (timer_until - now) < 0 );
 }
 inline polclock_t earliest_timer( polclock_t timer1_until, polclock_t timer2_until )
 {
-  int diff = timer1_until - timer2_until;
+  auto diff = timer1_until - timer2_until;
   if ( diff < 0 )
     return timer1_until;
   else
     return timer2_until;
 }
 
-polclock_t polclock();
-time_t poltime();
+polclock_t polclock(); //unit 10ms
+poltime_t poltime(); //unit seconds
 
-inline polticks_t polticks_t_to_ms( polticks_t ticks )
+bool is_polclock_paused_at_zero();
+
+inline polclock_t polclock_t_to_ms( polclock_t clock )
 {
-  return ticks * 10;
+  return clock * 10;
 }
 
 class PolClockPauser

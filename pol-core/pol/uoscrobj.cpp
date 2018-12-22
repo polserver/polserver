@@ -61,6 +61,8 @@
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 #include "../clib/stlutil.h"
+#include "../plib/poltype.h"
+#include "../plib/uconst.h"
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"
 #include "cmdlevel.h"
@@ -96,7 +98,6 @@
 #include "pktdef.h"
 #include "polclass.h"
 #include "polclock.h"
-#include "poltype.h"
 #include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
@@ -104,7 +105,6 @@
 #include "statmsg.h"
 #include "syshookscript.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "umap.h"
 #include "unicode.h"
@@ -1531,7 +1531,7 @@ BObject Item::call_custom_method( const char* methodname, BObjectImpRefVec& pmor
       std::string message;
       message = "Method script for objtype " + id.objtype_description() +
                 " does not export function " + std::string( methodname ) + " taking " +
-                Clib::decint( pmore.size() + 1 ) + " parameters";
+                Clib::tostring( pmore.size() + 1 ) + " parameters";
       BError* err = new BError( message );
       return BObject( err );
     }
@@ -1794,13 +1794,13 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_MOVEMODE:
   {
     std::string mode = "";
-    if ( movemode & Core::MOVEMODE_LAND )
+    if ( movemode & Plib::MOVEMODE_LAND )
       mode = "L";
-    if ( movemode & Core::MOVEMODE_SEA )
+    if ( movemode & Plib::MOVEMODE_SEA )
       mode += "S";
-    if ( movemode & Core::MOVEMODE_AIR )
+    if ( movemode & Plib::MOVEMODE_AIR )
       mode += "A";
-    if ( movemode & Core::MOVEMODE_FLY )
+    if ( movemode & Plib::MOVEMODE_FLY )
       mode += "F";
     return new String( mode );
     break;
@@ -2025,20 +2025,20 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   {
   case MBR_GENDER:
     if ( value )
-      gender = Core::GENDER_FEMALE;
+      gender = Plib::GENDER_FEMALE;
     else
-      gender = Core::GENDER_MALE;
+      gender = Plib::GENDER_MALE;
     return new BLong( gender );
   case MBR_RACE:
-    if ( value == Core::RACE_HUMAN )
-      race = Core::RACE_HUMAN;
-    else if ( value == Core::RACE_ELF )
-      race = Core::RACE_ELF;
-    else if ( value == Core::RACE_GARGOYLE )
-      race = Core::RACE_GARGOYLE;
-    if ( ( race != Core::RACE_GARGOYLE ) &&
-         ( movemode & Core::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
-      movemode = ( Core::MOVEMODE )( movemode ^ Core::MOVEMODE_FLY );  // remove flying
+    if ( value == Plib::RACE_HUMAN )
+      race = Plib::RACE_HUMAN;
+    else if ( value == Plib::RACE_ELF )
+      race = Plib::RACE_ELF;
+    else if ( value == Plib::RACE_GARGOYLE )
+      race = Plib::RACE_GARGOYLE;
+    if ( ( race != Plib::RACE_GARGOYLE ) &&
+         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
+      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = static_cast<unsigned int>( value ) );
@@ -2097,7 +2097,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     }
     return new BLong( carrying_capacity_mod() );
   case MBR_FACING:
-    if ( !face( static_cast<Core::UFACING>( value & PKTIN_02_FACING_MASK ), 0 ) )
+    if ( !face( static_cast<Plib::UFACING>( value & PKTIN_02_FACING_MASK ), 0 ) )
       return new BLong( 0 );
     on_facing_changed();
     return new BLong( 1 );
@@ -2667,7 +2667,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
   case MTH_SETFACING:
   {
     int flags = 0;
-    Core::UFACING i_facing;
+    Plib::UFACING i_facing;
 
     if ( ex.hasParams( 2 ) && !ex.getParam( 1, flags, 0, 1 ) )
       return new BError( "Invalid flags for parameter 1" );
@@ -2682,7 +2682,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     else if ( param0->isa( BObjectImp::OTLong ) )
     {
       BLong* blong = static_cast<BLong*>( param0 );
-      i_facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+      i_facing = static_cast<Plib::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
     }
     else
       return new BError( "Invalid type for parameter 0" );
@@ -4369,7 +4369,7 @@ ItemGivenEvent::~ItemGivenEvent()
   if ( item->orphan() || cont->orphan() || chr->orphan() )
     return;
 
-  if ( item->container == cont && Clib::decint( given_time_ ) == Clib::decint( gts ) )
+  if ( item->container == cont && Clib::tostring( given_time_ ) == Clib::tostring( gts ) )
   {
     Core::UContainer* backpack = chr->backpack();
     if ( backpack != nullptr && !chr->dead() )

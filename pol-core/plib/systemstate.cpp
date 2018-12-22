@@ -2,8 +2,8 @@
 #include "systemstate.h"
 
 #include "../clib/stlutil.h"
-#include "../pol/tiles.h"
 #include "pkg.h"
+#include "tiles.h"
 
 namespace Pol
 {
@@ -22,7 +22,6 @@ SystemState::SystemState()
       tiles_loaded( false )
 {
 }
-SystemState::~SystemState() = default;
 
 void SystemState::deinitialize()
 {
@@ -35,7 +34,7 @@ void SystemState::deinitialize()
 size_t SystemState::estimatedSize() const
 {
   size_t size = sizeof( SystemState );
-  size += ( config.max_tile_id + 1 ) * sizeof( Core::Tile );
+  size += ( config.max_tile_id + 1 ) * sizeof( Tile );
 
   size += 3 * sizeof( Package** ) + packages.capacity() * sizeof( Package* );
   for ( const auto& pkg : packages )
@@ -46,5 +45,5 @@ size_t SystemState::estimatedSize() const
     size += pkg_pair.first.capacity() + sizeof( Package* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
   return size;
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

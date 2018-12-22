@@ -32,10 +32,11 @@
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/strutil.h"
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/pkg.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
+#include "../../plib/uconst.h"
 #include "../dice.h"
 #include "../extobj.h"
 #include "../globals/settings.h"
@@ -45,7 +46,6 @@
 #include "../proplist.h"
 #include "../resource.h"
 #include "../syshookscript.h"
-#include "../uconst.h"
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "wepntmpl.h"
@@ -195,7 +195,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       newbie( elem.remove_bool( "NEWBIE", false ) ),
       insured( elem.remove_bool( "INSURED", false ) ),
       invisible( elem.remove_bool( "INVISIBLE", false ) ),
-      decays_on_multis( elem.remove_bool( "DecaysOnMultis", 0 ) ),
+      decays_on_multis( elem.remove_bool( "DecaysOnMultis", false ) ),
       blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
       no_drop( elem.remove_bool( "NoDrop", false ) ),
       base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
@@ -287,7 +287,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   }
   else
   {
-    weightmult = Core::tileweight( graphic );
+    weightmult = Plib::tileweight( graphic );
     weightdiv = 1;
   }
 
@@ -665,7 +665,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   for ( resource_itr = resources.begin(); resource_itr != resources.end(); ++resource_itr )
   {
     descriptor->addMember( "Resource", new String( resource_itr->rd->name() + " " +
-                                                   Clib::decint( resource_itr->amount ) ) );
+                                                   Clib::tostring( resource_itr->amount ) ) );
   }
 }
 
@@ -690,7 +690,7 @@ std::string ItemDesc::objtype_description() const
 bool ItemDesc::default_movable() const
 {
   if ( movable == DEFAULT )
-    return ( ( Core::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
+    return ( ( Plib::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
   else
     return movable ? true : false;
 }
@@ -1007,7 +1007,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
         {
           os << ( *aitr ).get()->impptr()->getStringRep() << " ";
         }
-        elem.add_prop( key, OSTRINGSTREAM_STR( os ));
+        elem.add_prop( key, OSTRINGSTREAM_STR( os ) );
       }
       else
       {
@@ -1060,7 +1060,7 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
     else
     {
       std::string value = val_imp->getStringRep();
-      elem.add_prop( key, std::move(value) );
+      elem.add_prop( key, std::move( value ) );
     }
   }
 

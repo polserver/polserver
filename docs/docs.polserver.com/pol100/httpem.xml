@@ -4,6 +4,7 @@
 <ESCRIPT>
   <fileheader fname="HTTP.em">
     <filedesc>Functions to send and receive data over an HTTP connection using POL's internal webserver. Scripts in /scripts/www are considered at the top level directory. I.e. http://192.168.0.5:8088/online.ecl </filedesc>
+    <filedesc>Scripts stored in packages can be retrieved by accessing /pkg/packagename/script.ecl I.e. http://127.0.0.1:8088/pkg/guild/guilds.ecl </filedesc>
     <datemodified>10/27/2007</datemodified>
   </fileheader>
     

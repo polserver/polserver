@@ -30,12 +30,13 @@
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
-#include "core.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
+// TODO: get rid of the dependencies and move to plib
+#include "core.h" // todo save_full does not belong here
+#include "globals/state.h" // todo polsig dependency
+#include "globals/uvars.h" // todo split write task
 #include "objtype.h"
-#include "polsig.h"
-#include "proplist.h"
+#include "polsig.h" // thread_checkpoint
+#include "proplist.h" // todo like uvars
 
 namespace Pol
 {

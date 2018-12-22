@@ -425,7 +425,7 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
 
   for ( unsigned short i = 0; i < 500; ++i )
   {
-    std::string name = "Cont" + Clib::decint( i );
+    std::string name = "Cont" + Clib::tostring( i );
     Items::Item* item = nullptr;
     item = area->find_root_item( name );
     if ( item == nullptr )

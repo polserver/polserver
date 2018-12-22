@@ -23,7 +23,7 @@
 
   <function name="ReadMillisecondClock"> 
     <prototype>ReadMillisecondClock()</prototype>
-    <explain>Returns a long integer of the current millisecond clock. TBD: timebase of clock, saved with server?</explain>
+    <explain>Returns a double of the current millisecond clock. The precision is 10ms.</explain>
     <return>Current time in milliseconds.</return>
   </function>
   

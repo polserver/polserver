@@ -14,7 +14,6 @@ StateManager::StateManager()
       gflag_enforce_container_limits( true ),
       gflag_in_system_load( false ),
       gflag_in_system_startup( false ),
-      polclock_paused_at( 0 ),
       stored_last_item_serial( 0 ),
       stored_last_char_serial( 0 ),
       profilevars(),
@@ -26,9 +25,6 @@ StateManager::StateManager()
       checkin_clock_times_out_at( 0 )
 {
 }
-
-StateManager::~StateManager() {}
-
 
 void StateManager::deinitialize() {}
 

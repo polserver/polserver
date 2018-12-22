@@ -25,7 +25,7 @@ public:
   typedef CCryptBase base;
 
   CCryptNoCrypt();
-  virtual ~CCryptNoCrypt();
+  virtual ~CCryptNoCrypt() = default;
 
   // Member Functions
 public:
@@ -43,7 +43,7 @@ public:
 
   CCryptBlowfish();
   CCryptBlowfish( unsigned int masterKey1, unsigned int masterKey2 );
-  virtual ~CCryptBlowfish();
+  virtual ~CCryptBlowfish() = default;
 
   BlowFish bfish;
 
@@ -51,7 +51,6 @@ public:
 public:
   virtual int Receive( void* buffer, int max_expected, SOCKET socket ) override;
   virtual void Init( void* pvSeed, int type = CCryptBase::typeAuto ) override;
-  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) override;
 
 protected:
   virtual void Decrypt( void* pvIn, void* pvOut, int len ) override;
@@ -65,7 +64,7 @@ class CCryptBlowfishOld final : public CCryptBlowfish
 public:
   CCryptBlowfishOld();
   CCryptBlowfishOld( unsigned int masterKey1, unsigned int masterKey2 );
-  virtual ~CCryptBlowfishOld();
+  virtual ~CCryptBlowfishOld() = default;
 
 protected:
   virtual void Decrypt( void* pvIn, void* pvOut, int len ) override;
@@ -79,7 +78,7 @@ class CCrypt12536 final : public CCryptBlowfish
 public:
   CCrypt12536();
   CCrypt12536( unsigned int masterKey1, unsigned int masterKey2 );
-  virtual ~CCrypt12536();
+  virtual ~CCrypt12536() = default;
 
 protected:
   virtual void Decrypt( void* pvIn, void* pvOut, int len ) override;
@@ -92,7 +91,7 @@ class CCryptBlowfishTwofish final : public CCryptBaseCrypt
 public:
   CCryptBlowfishTwofish();
   CCryptBlowfishTwofish( unsigned int masterKey1, unsigned int masterKey2 );
-  virtual ~CCryptBlowfishTwofish();
+  virtual ~CCryptBlowfishTwofish() = default;
 
   BlowFish bfish;
   TwoFish tfish;
@@ -100,7 +99,6 @@ public:
 public:
   virtual int Receive( void* buffer, int max_expected, SOCKET socket ) override;
   virtual void Init( void* pvSeed, int type = CCryptBase::typeAuto ) override;
-  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) override;
 
 protected:
   virtual void Decrypt( void* pvIn, void* pvOut, int len ) override;
@@ -113,7 +111,7 @@ class CCryptTwofish final : public CCryptBaseCrypt
 public:
   CCryptTwofish();
   CCryptTwofish( unsigned int masterKey1, unsigned int masterKey2 );
-  virtual ~CCryptTwofish();
+  virtual ~CCryptTwofish() = default;
 
   TwoFish tfish;
   MD5Crypt md5;
@@ -121,13 +119,12 @@ public:
 public:
   virtual int Receive( void* buffer, int max_expected, SOCKET socket ) override;
   virtual void Init( void* pvSeed, int type = CCryptBase::typeAuto ) override;
-  virtual void SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 ) override;
   virtual void Encrypt( void* pvIn, void* pvOut, int len ) override;
 
 protected:
   virtual void Decrypt( void* pvIn, void* pvOut, int len ) override;
 };
-}
-}
+}  // namespace Crypt
+}  // namespace Pol
 
 #endif  //__CRYPT_H__

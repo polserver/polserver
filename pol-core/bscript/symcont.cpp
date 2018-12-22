@@ -57,7 +57,7 @@ void SymbolContainer::resize( unsigned lengthToAdd )
         s = t;
       else
         throw std::runtime_error( "allocation failure in SymbolContainer::resize(" +
-                                  Clib::decint( allocLen ) + ")" );
+                                  Clib::tostring( allocLen ) + ")" );
     }
   }
 }
@@ -180,8 +180,8 @@ void StoredTokenContainer::append_tok( const StoredToken& sToken, unsigned* ppos
 void StoredTokenContainer::atPut1( const StoredToken& sToken, unsigned position )
 {
   if ( position >= count() )
-    throw std::runtime_error( "Assigning token at invalid position " + Clib::decint( position ) +
-                              ", range is 0.." + Clib::decint( count() - 1 ) );
+    throw std::runtime_error( "Assigning token at invalid position " + Clib::tostring( position ) +
+                              ", range is 0.." + Clib::tostring( count() - 1 ) );
 
   char* dst = s + position * sizeof( StoredToken );
   StoredToken* st = (StoredToken*)dst;
@@ -191,8 +191,8 @@ void StoredTokenContainer::atPut1( const StoredToken& sToken, unsigned position 
 void StoredTokenContainer::atGet1( unsigned position, StoredToken& sToken ) const
 {
   if ( position >= count() )
-    throw std::runtime_error( "Retrieving token at invalid position " + Clib::decint( position ) +
-                              ", range is 0.." + Clib::decint( count() - 1 ) );
+    throw std::runtime_error( "Retrieving token at invalid position " + Clib::tostring( position ) +
+                              ", range is 0.." + Clib::tostring( count() - 1 ) );
 
   char* src = s + position * sizeof( StoredToken );
   StoredToken* st = (StoredToken*)src;

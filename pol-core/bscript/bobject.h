@@ -365,9 +365,8 @@ class BObject final : public ref_counted
 public:
   explicit BObject( BObjectImp* objimp ) : ref_counted(), objimp( objimp ) { passert( objimp ); }
   BObject( const BObject& obj ) : ref_counted(), objimp( obj.objimp ) {}
-  ~BObject();
+  ~BObject() = default;
   // NOTE: BObject should not be derived from!
-
   size_t sizeEstimate() const;
 
   void* operator new( std::size_t len );
@@ -538,8 +537,7 @@ public:
   virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
   virtual BObjectImp* call_method_id( const int id, Executor& ex,
                                       bool forcebuiltin = false ) override;
-  virtual BObjectRef set_member( const char* membername, BObjectImp* value,
-                                 bool copy ) override;
+  virtual BObjectRef set_member( const char* membername, BObjectImp* value, bool copy ) override;
   virtual BObjectRef get_member( const char* membername ) override;
 
   void addElement( BObjectImp* imp );
@@ -954,6 +952,6 @@ T* BApplicObj<T>::operator->()
 {
   return &obj_;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

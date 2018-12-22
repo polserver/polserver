@@ -454,7 +454,6 @@ void LogSink_debuglog::addMessage( fmt::Writer* msg, const std::string& )
 LogSink_leaklog::LogSink_leaklog() : LogSinkGenericFile( &leaklogBehaviour ) {}
 
 LogSink_flexlog::LogSink_flexlog() : LogSink() {}
-LogSink_flexlog::~LogSink_flexlog() = default;
 
 // create and open new logfile with given name, returns unique id
 std::string LogSink_flexlog::create( std::string logfilename, bool open_timestamp )

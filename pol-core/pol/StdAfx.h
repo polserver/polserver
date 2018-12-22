@@ -3,17 +3,6 @@
  * stdafx.h: include file for standard system include files,
  * or project specific include files that are used frequently, but
  * are changed infrequently
- *
- * @par History
- *
- * @note HowTo
- * - Add a normal Header file which includes everything you want in the pch.
- * - Add a normal cpp which only includes this header.
- * - In the project settings C/C++ Precompiled header: Use /Yu
- * - And since the pch header file needs to be included everywhere also use /FI (forced include
- * file) in the advanced section.
- * - The pch needs also to be created and thats why the additional cpp file exists, in the
- * properties of this file instead of "Use /Yu" set it to "Create /Yc"
  */
 
 
@@ -35,6 +24,7 @@
 
 #include "uobject.h"
 
+#include "../plib/uconst.h"           // network/packets include
 #include "layers.h"                   // network/packets include
 #include "network/packetinterface.h"  // network/packets include
 #include "pktboth.h"                  // network/packets include
@@ -42,23 +32,22 @@
 #include "pktdef.h"                   // network/packets include
 #include "pktoutid.h"                 // network/packets include
 #include "realms.h"                   // network/packets include
-#include "uconst.h"                   // network/packets include
 
 #include "network/packets.h"
 
-#include "clidata.h"
 #include "scrdef.h"
 #include "utype.h"
 
-#include "poltype.h"  // region include
-#include "zone.h"     // region include
+#include "../plib/poltype.h"  // region include
+#include "zone.h"             // region include
 
 #include "region.h"
 
+#include "../plib/clidata.h"
+#include "../plib/udatfile.h"
 #include "crypt/cryptkey.h"
 #include "mobile/attribute.h"
 #include "skillid.h"
-#include "udatfile.h"
 
 #include "../bscript/execmodl.h"
 

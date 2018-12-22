@@ -19,6 +19,7 @@
 #include "../bscript/fmodule.h"
 #include "../bscript/impstr.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 #include "fnsearch.h"
@@ -46,7 +47,7 @@ bool getCharacterOrClientParam( Executor& exec, unsigned param, Mobile::Characte
   BObjectImp* imp = exec.getParamImp( param );
   if ( imp == nullptr )
   {
-    exec.setFunctionResult( new BError( "Missing parameter " + Clib::decint( param ) ) );
+    exec.setFunctionResult( new BError( "Missing parameter " + Clib::tostring( param ) ) );
     return false;
   }
   else if ( imp->isa( BObjectImp::OTApplicObj ) )
@@ -142,7 +143,7 @@ bool getCharacterParam( Bscript::Executor& exec, unsigned param, Mobile::Charact
   BObjectImp* imp = exec.getParamImp( param );
   if ( imp == nullptr )
   {
-    exec.setFunctionResult( new BError( "Missing parameter " + Clib::decint( param ) ) );
+    exec.setFunctionResult( new BError( "Missing parameter " + Clib::tostring( param ) ) );
     return false;
   }
   else if ( imp->isa( BObjectImp::OTApplicObj ) )
@@ -639,5 +640,5 @@ bool getVitalParam( Executor& exec, unsigned param, const Vital*& vital )
 
   return true;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

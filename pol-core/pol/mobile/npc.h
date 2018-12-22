@@ -29,12 +29,12 @@
 #include "../../bscript/bobject.h"
 #include "../../clib/boostutils.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/uconst.h"
 #include "../dynproperties.h"
 #include "../eventid.h"
 #include "../item/weapon.h"
 #include "../npctmpl.h"
 #include "../reftypes.h"
-#include "../uconst.h"
 
 namespace Pol
 {
@@ -69,7 +69,7 @@ namespace Core
 class RepSystem;
 class UOExecutor;
 class ExportScript;
-}
+}  // namespace Core
 namespace Mobile
 {
 struct Anchor
@@ -163,9 +163,9 @@ protected:
 public:
   bool use_adjustments() const;
   void use_adjustments( bool newvalue );
-  bool could_move( Core::UFACING dir ) const;
-  bool anchor_allows_move( Core::UFACING dir ) const;
-  bool npc_path_blocked( Core::UFACING dir ) const;
+  bool could_move( Plib::UFACING dir ) const;
+  bool anchor_allows_move( Plib::UFACING dir ) const;
+  bool npc_path_blocked( Plib::UFACING dir ) const;
 
   // EVENTS
 public:
@@ -242,8 +242,8 @@ private:
   Anchor anchor;
   // EVENTS
 private:
-  DYN_PROPERTY( speech_color, u16, Core::PROP_SPEECH_COLOR, Core::DEFAULT_TEXT_COLOR );
-  DYN_PROPERTY( speech_font, u16, Core::PROP_SPEECH_FONT, Core::DEFAULT_TEXT_FONT );
+  DYN_PROPERTY( speech_color, u16, Core::PROP_SPEECH_COLOR, Plib::DEFAULT_TEXT_COLOR );
+  DYN_PROPERTY( speech_font, u16, Core::PROP_SPEECH_FONT, Plib::DEFAULT_TEXT_FONT );
   // SCRIPT
 private:
   boost_utils::script_name_flystring script;
@@ -285,6 +285,6 @@ inline unsigned short NPC::ar() const
   else
     return ar_;
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
 #endif

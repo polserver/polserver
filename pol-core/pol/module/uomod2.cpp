@@ -53,6 +53,7 @@
 #include "../../plib/pkg.h"
 #include "../../plib/staticblock.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/uconst.h"
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../accounts/acscrobj.h"
@@ -89,7 +90,6 @@
 #include "../sngclick.h"
 #include "../statmsg.h"
 #include "../tooltips.h"
-#include "../uconst.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"
@@ -1540,7 +1540,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
           break;
         }
         std::string str;
-        str = Clib::decint( cfBEu16( strentry->tag ) ) + ": ";
+        str = Clib::tostring( cfBEu16( strentry->tag ) ) + ": ";
         str.reserve( length + str.size() );
         u8 c;
         for ( int si = 0; si < length; ++si )  // ENHANCE: Handle Unicode strings properly (add a
@@ -2005,6 +2005,18 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
         POLLOG_ERROR << "Forcing assert crash\n";
         passert_always( false );
       }
+      else if ( type == 5 )
+      {
+        Core::scriptScheduler.estimateSize( true );
+      }
+      else if ( type == 6 )
+      {
+        const String* script;
+        if ( !ex.getStringParam( 1, script ) )
+          return new BLong( 0 );
+        Core::scriptScheduler.logScriptVariables( script->data() );
+        return new BLong( 1 );
+      }
       return new BLong( 1 );
     }
     else
@@ -2140,7 +2152,7 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
 {
   if ( client->chr != nullptr && client->gd != nullptr && client->gd->selcolor_uoemod != nullptr )
   {
-    unsigned short color = cfBEu16( msg->graphic_or_color ) & VALID_ITEM_COLOR_MASK;
+    unsigned short color = cfBEu16( msg->graphic_or_color ) & Plib::VALID_ITEM_COLOR_MASK;
     BObject* valstack;
     if ( color >= 2 && color <= 1001 )
     {
@@ -2156,7 +2168,8 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
           << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" ) << color;
     }
 
-    // client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color ) )
+    // client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color )
+    // )
     // );
     client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( valstack );
     client->gd->selcolor_uoemod->uoexec.os_module->revive();
@@ -2439,7 +2452,8 @@ void open_book_handler( Client* client, PKTBI_93* msg )
 
   // Dave changed this 12/19 from sizeof msg->title. The protocol defines garbage after the
   // terminator for
-  // the title and author strings, so we were writing this garbage into save files. This caused some
+  // the title and author strings, so we were writing this garbage into save files. This caused
+  // some
   //"No SERIAL property" bugs, because the parser barfed on the bad characters.
   std::string title( msg->title, strlen( msg->title ) );
   std::string author( msg->author, strlen( msg->author ) );
@@ -2866,7 +2880,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
 
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
-          StaticList mlist;
+          Plib::StaticList mlist;
           realm->readmultis( mlist, wx, wy );
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {
@@ -2947,7 +2961,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
 
           for ( unsigned i = 0; i < slist.size(); ++i )
           {
-            if ( ( tile_uoflags( slist[i].objtype ) & flags ) )
+            if ( ( Plib::tile_uoflags( slist[i].objtype ) & flags ) )
             {
               if ( ( z == LIST_IGNORE_Z ) || ( abs( slist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
               {
@@ -2965,11 +2979,11 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
 
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
-          StaticList mlist;
+          Plib::StaticList mlist;
           realm->readmultis( mlist, wx, wy );
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {
-            if ( ( tile_uoflags( mlist[i].graphic ) & flags ) )
+            if ( ( Plib::tile_uoflags( mlist[i].graphic ) & flags ) )
             {
               if ( ( z == LIST_IGNORE_Z ) || ( abs( mlist[i].z - z ) < CONST_DEFAULT_ZRANGE ) )
               {

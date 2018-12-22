@@ -21,13 +21,14 @@
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
 #include "../../clib/streamsaver.h"
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
 #include "../containr.h"
 #include "../gameclck.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
+#include "../module/uomod.h"
 #include "../network/client.h"
 #include "../objtype.h"
 #include "../polcfg.h"
@@ -120,7 +121,7 @@ std::string Item::name() const
     const ItemDesc& id = this->itemdesc();
 
     if ( id.desc.get().empty() )
-      return Core::tile_desc( graphic );
+      return Plib::tile_desc( graphic );
     else
       return id.desc;
   }
@@ -161,12 +162,12 @@ std::string Item::description() const
     const ItemDesc& id = this->itemdesc();
     if ( id.desc.get().empty() )
     {
-      return Core::format_description( Core::tile_flags( graphic ), Core::tile_desc( graphic ),
+      return Core::format_description( Plib::tile_flags( graphic ), Plib::tile_desc( graphic ),
                                        amount_, suffix );
     }
     else
     {
-      return Core::format_description( Core::tile_flags( graphic ), id.desc, amount_, suffix );
+      return Core::format_description( Plib::tile_flags( graphic ), id.desc, amount_, suffix );
     }
   }
 }
@@ -188,7 +189,7 @@ std::string Item::merchant_description() const
     const ItemDesc& id = this->itemdesc();
     if ( id.desc.get().empty() )
     {
-      return Core::format_description( 0, Core::tile_desc( graphic ), 1, suffix );
+      return Core::format_description( 0, Plib::tile_desc( graphic ), 1, suffix );
     }
     else
     {
@@ -277,7 +278,7 @@ const char* Item::classname() const
 bool Item::default_movable() const
 {
   if ( itemdesc().movable == ItemDesc::DEFAULT )
-    return ( ( Core::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
+    return ( ( Plib::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
   else
     return itemdesc().movable ? true : false;
 }
@@ -558,7 +559,7 @@ unsigned short Item::get_senditem_amount() const
 
 bool Item::setlayer( unsigned char in_layer )
 {
-  if ( Core::tilelayer( graphic ) == in_layer )
+  if ( Plib::tilelayer( graphic ) == in_layer )
   {
     layer = in_layer;
     return true;
@@ -571,7 +572,7 @@ bool Item::setlayer( unsigned char in_layer )
 
 bool Item::stackable() const
 {
-  return ( Core::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
+  return ( Plib::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
 }
 
 void Item::setamount( u16 amount )
@@ -663,7 +664,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop( "ct", "i" + Clib::tostring( time ) );
   increv();
 }
 
@@ -697,7 +698,7 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop( "ct", "i" + Clib::tostring( time ) );
   increv();
 }
 #endif
@@ -821,7 +822,7 @@ void Item::set_use_script( const std::string& scriptname )
 bool Item::setgraphic( u16 newgraphic )
 {
   /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
-  if ( layer && layer != Core::tilelayer( newgraphic ) )
+  if ( layer && layer != Plib::tilelayer( newgraphic ) )
   {
     return false;
   }
@@ -831,8 +832,8 @@ bool Item::setgraphic( u16 newgraphic )
   {
     set_dirty();
     graphic = newgraphic;
-    height = Core::tileheight( graphic );
-    tile_layer = Core::tilelayer( graphic );
+    height = Plib::tileheight( graphic );
+    tile_layer = Plib::tilelayer( graphic );
 
     /// Update facing on graphic change
     const ItemDesc& id = this->itemdesc();
@@ -1195,6 +1196,14 @@ double Item::getItemdescQuality() const
   return itemdesc().quality;
 }
 
+Core::UOExecutor* Item::uoexec_control()
+{
+  if ( process() != nullptr )
+    return &process()->uoexec;
+
+  return nullptr;
+}
+
 double Item::getQuality() const
 {
   return quality();
@@ -1212,5 +1221,76 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
+
+// Event notifications
+
+bool Item::is_visible_to_me( const Mobile::Character* chr ) const
+{
+  if ( chr == nullptr )
+    return false;
+  if ( chr->realm != this->realm )
+    return false;  // noone can see across different realms.
+  if ( !chr->logged_in() )
+    return false;
+
+  // Unless the chr is offline or in a different realm,
+  // items can see anyone (I don't want to bother with privs now...)
+  return true;
 }
+
+void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_LEFTAREA ) )
+    return;
+
+  if ( pol_distance( wholeft, this ) > ex->area_size )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( wholeft ) )
+    return;
+
+  ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
 }
+
+void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoentered )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA ) )
+    return;
+
+  if ( pol_distance( whoentered, this ) > ex->area_size )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( whoentered ) )
+    return;
+
+  ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+}
+void Pol::Items::Item::inform_moved( Mobile::Character* moved )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )
+    return;
+
+  const bool are_inrange =
+      ( abs( x - moved->x ) <= ex->area_size ) && ( abs( y - moved->y ) <= ex->area_size );
+
+  const bool were_inrange =
+      ( abs( x - moved->lastx ) <= ex->area_size ) && ( abs( y - moved->lasty ) <= ex->area_size );
+
+  if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
+  {
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+  }
+  else if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+  {
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+  }
+}
+
+}  // namespace Items
+}  // namespace Pol

@@ -216,8 +216,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     if ( st.offset >= symbols.length() )
     {
       throw std::runtime_error(
-          "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-          Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+          "Symbol offset of " + Clib::tostring( st.offset ) + " exceeds symbol store length of " +
+          Clib::tostring( symbols.length() ) + " at PC=" + Clib::tostring( position ) );
     }
     token.dataptr = reinterpret_cast<const unsigned char*>( symbols.array() + st.offset );
     return 0;
@@ -225,8 +225,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     if ( st.offset >= symbols.length() )
     {
       throw std::runtime_error(
-          "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-          Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+          "Symbol offset of " + Clib::tostring( st.offset ) + " exceeds symbol store length of " +
+          Clib::tostring( symbols.length() ) + " at PC=" + Clib::tostring( position ) );
     }
     std::memcpy( &token.lval, symbols.array() + st.offset, sizeof( int ) );
     return 0;
@@ -234,8 +234,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     if ( st.offset >= symbols.length() )
     {
       throw std::runtime_error(
-          "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-          Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+          "Symbol offset of " + Clib::tostring( st.offset ) + " exceeds symbol store length of " +
+          Clib::tostring( symbols.length() ) + " at PC=" + Clib::tostring( position ) );
     }
     std::memcpy( &token.dval, symbols.array() + st.offset, sizeof( double ) );
     return 0;
@@ -246,8 +246,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
       if ( st.offset >= symbols.length() )
       {
         throw std::runtime_error(
-            "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-            Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+            "Symbol offset of " + Clib::tostring( st.offset ) + " exceeds symbol store length of " +
+            Clib::tostring( symbols.length() ) + " at PC=" + Clib::tostring( position ) );
       }
       DebugToken* dt = (DebugToken*)( symbols.array() + st.offset );
       token.sourceFile = dt->sourceFile;
@@ -255,10 +255,10 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
 
       if ( dt->strOffset >= symbols.length() )
       {
-        throw std::runtime_error( "Symbol offset of " + Clib::decint( dt->strOffset ) +
+        throw std::runtime_error( "Symbol offset of " + Clib::tostring( dt->strOffset ) +
                                   " exceeds symbol store length of " +
-                                  Clib::decint( symbols.length() ) +
-                                  " at PC=" + Clib::decint( position ) );
+                                  Clib::tostring( symbols.length() ) +
+                                  " at PC=" + Clib::tostring( position ) );
       }
       if ( dt->strOffset )
         token.setStr( symbols.array() + dt->strOffset );
@@ -306,8 +306,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
       if ( st.offset >= symbols.length() )
       {
         throw std::runtime_error(
-            "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-            Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+            "Symbol offset of " + Clib::tostring( st.offset ) + " exceeds symbol store length of " +
+            Clib::tostring( symbols.length() ) + " at PC=" + Clib::tostring( position ) );
       }
       token.setStr( symbols.array() + st.offset );
     }
@@ -329,8 +329,8 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
       if ( st.offset >= symbols.length() )
       {
         throw std::runtime_error(
-            "Symbol offset of " + Clib::decint( st.offset ) + " exceeds symbol store length of " +
-            Clib::decint( symbols.length() ) + " at PC=" + Clib::decint( position ) );
+            "Symbol offset of " + Clib::tostring( st.offset ) + " exceeds symbol store length of " +
+            Clib::tostring( symbols.length() ) + " at PC=" + Clib::tostring( position ) );
       }
       token.setStr( symbols.array() + st.offset );
     }

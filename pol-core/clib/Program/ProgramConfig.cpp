@@ -16,11 +16,6 @@ std::string ProgramConfig::m_programDir = "";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ProgramConfig::ProgramConfig() = default;
-ProgramConfig::~ProgramConfig() = default;
-
-///////////////////////////////////////////////////////////////////////////////
-
 void ProgramConfig::configureProgramEnvironment( const std::string& programName )
 {
   m_programName = programName;

@@ -12,9 +12,9 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/iohelp.h"
-#include "../pol/uofile.h"
 #include "mapcell.h"
 #include "mapsolid.h"
+#include "uofile.h"
 
 
 namespace Pol
@@ -58,8 +58,8 @@ void MapWriter::WriteConfigFile()
   ofs_cfg << "    width " << _width << std::endl;
   ofs_cfg << "    height " << _height << std::endl;
   ofs_cfg << "    mapserver memory" << std::endl;
-  ofs_cfg << "    uomapid " << Core::uo_mapid << std::endl;
-  ofs_cfg << "    uodif " << Core::uo_usedif << std::endl;
+  ofs_cfg << "    uomapid " << uo_mapid << std::endl;
+  ofs_cfg << "    uodif " << uo_usedif << std::endl;
   ofs_cfg << "    num_static_patches " << num_static_patches << std::endl;
   ofs_cfg << "    num_map_patches " << num_map_patches << std::endl;
   ofs_cfg << "    season 1" << std::endl;
@@ -318,5 +318,5 @@ void MapWriter::SetSolidx2Offset( unsigned short x_base, unsigned short y_base,
   _ofs_solidx1.seekp( file_offset, std::ios_base::beg );
   _ofs_solidx1.write( reinterpret_cast<const char*>( &offset ), sizeof offset );
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

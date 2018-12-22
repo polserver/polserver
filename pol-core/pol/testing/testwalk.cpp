@@ -4,9 +4,9 @@
  */
 
 #include "../../clib/logfacility.h"
+#include "../../plib/uconst.h"
 #include "../globals/uvars.h"
 #include "../realms/realm.h"
-#include "../uconst.h"
 #include "testenv.h"
 
 namespace Pol
@@ -29,8 +29,7 @@ void test_walk( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, un
   UMulti* multi;
   Item* itm;
   bool res = gamestate.main_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, true /*doors
-block*/,
-                                               MOVEMODE_LAND );
+block*/, Plib::MOVEMODE_LAND );
 
   INFO_PRINT << "Got " << res << "," << newz << ": ";
 
@@ -54,7 +53,7 @@ block*/,
 }
 
 void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, unsigned short newx,
-                 unsigned short newy, bool doors_block, MOVEMODE movemode, bool exp_result,
+                 unsigned short newy, bool doors_block, Plib::MOVEMODE movemode, bool exp_result,
                  short exp_z )
 {
   short newz;
@@ -246,8 +245,8 @@ void walk_test()
   test_walk( 966, 709, -24, 965, 709, true, -20 );
 
   // walking on water
-  test_walk2( 481, 306, -5, 481, 307, true, MOVEMODE_SEA, true, -5 );
-  test_walk2( 481, 306, -5, 481, 307, true, MOVEMODE_LAND, false, 0 );
+  test_walk2( 481, 306, -5, 481, 307, true, Plib::MOVEMODE_SEA, true, -5 );
+  test_walk2( 481, 306, -5, 481, 307, true, Plib::MOVEMODE_LAND, false, 0 );
 
   // try walking through a fence
   test_walk( 1377, 1492, 10, 1377, 1493, false, 0 );

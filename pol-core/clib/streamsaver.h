@@ -21,7 +21,7 @@ class StreamWriter : boost::noncopyable
 {
 public:
   StreamWriter();
-  virtual ~StreamWriter();
+  virtual ~StreamWriter() = default;
   fmt::Writer& operator()();
   virtual void init( const std::string& filepath ) = 0;
   virtual void flush() = 0;

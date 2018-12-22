@@ -14,7 +14,7 @@
 #include <time.h>
 
 #include "../clib/rawtypes.h"
-#include "poltype.h"
+#include "../plib/poltype.h"
 #include "region.h"
 #include "zone.h"
 
@@ -41,7 +41,7 @@ namespace Items
 {
 void remove_resources( u32 objtype, u16 amount );
 void return_resources( u32 objtype, u16 amount );
-}
+}  // namespace Items
 namespace Core
 {
 class ResourceDef;
@@ -120,6 +120,6 @@ private:
   std::set<unsigned short> tiles_;
   // std::vector<ResourceRegion*> regions_;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif  // RESOURCE_H

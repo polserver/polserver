@@ -9,7 +9,7 @@
 #ifndef MULTI_H
 #define MULTI_H
 
-#include "../udatfile.h"
+#include "../../plib/udatfile.h"
 
 // also consider: multimap<unsigned int, unsigned int>
 // unsigned int is (x << 16) | y
@@ -30,7 +30,7 @@ namespace Bscript
 class BObjectImp;
 class BStruct;
 class Executor;
-}
+}  // namespace Bscript
 namespace Plib
 {
 class MapShapeList;
@@ -85,7 +85,7 @@ public:
 
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
-  virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase );
+  virtual bool readobjects( Plib::StaticList& vec, s16 rx, s16 ry, s16 zbase );
 
   virtual ~UMulti();
   virtual size_t estimatedSize() const override;
@@ -105,15 +105,15 @@ inline bool UMulti::readshapes( Plib::MapShapeList& /*vec*/, s16 /*rx*/, s16 /*r
 {
   return false;
 };
-inline bool UMulti::readobjects( Core::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
+inline bool UMulti::readobjects( Plib::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
 {
   return false;
 };
-}
+}  // namespace Multi
 namespace Core
 {
 void send_multi( Network::Client* client, const Multi::UMulti* multi );
 void send_multi_to_inrange( const Multi::UMulti* multi );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -27,8 +27,8 @@ class CompilerContext
 public:
   CompilerContext();
   CompilerContext( const std::string& filename, int dbg_filenum, const char* s );
-  CompilerContext( const CompilerContext& );
-  CompilerContext& operator=( const CompilerContext& );
+  CompilerContext( const CompilerContext& ) = default;
+  CompilerContext& operator=( const CompilerContext& ) = default;
 
   void printOn( std::ostream& os ) const;
   void printOn( fmt::Writer& writer ) const;

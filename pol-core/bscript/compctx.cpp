@@ -79,14 +79,6 @@ CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, 
 {
 }
 
-CompilerContext::CompilerContext( const CompilerContext& ctx )
-    
-      
-= default;
-
-CompilerContext& CompilerContext::operator=( const CompilerContext& rhs )
-= default;
-
 /**
  * Skips whitespaces. Moves the pointer forward until a non-whitespace is found
  */

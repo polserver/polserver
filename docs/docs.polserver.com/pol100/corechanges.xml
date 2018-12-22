@@ -2,9 +2,34 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-14-2018</datemodified>
+		<datemodified>12-21-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-21-2018</date>
+			<author>Turley:</author>
+			<change type="Fixed">CPU usage of UseSingleThreadLogin</change>
+		</entry>
+		<entry>
+			<date>11-27-2018</date>
+			<author>Nando:</author>
+			<change type="Added">Top-level items can now receive ENTEREDAREA and LEFTAREA events.</change>
+		</entry>
+		<entry>
+			<date>11-25-2018</date>
+			<author>Yukiko:</author>
+			<change type="Changed">The order of a couple of functions listed in uo.em. They were out of alphabetical order.</change>
+			<change type="Added">To uo.em ListItemsInBoxOfObjType( objtype, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)<br/>
+The function returns an array of all items in the bounds of the coordinates matching the ObjType specified.</change>
+			<change type="Added">To uo.em ListObjectsInBoxOfClass( POL_Class, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)<br/>
+The function returns an array of all items in the bounds of the coordinates matching the POL_Class specified.</change>
+		</entry>
+		<entry>
+			<date>10-22-2018</date>
+			<author>Turley:</author>
+			<change type="Fixed">Undefined behaviour after ~20 days due to overflow in time measurment. This fixes both internal time measurments e.g. for repeating tasks, swing,.. and for the EScript function ReadMilliSecondClock() see below.</change>
+			<change type="Changed">ReadMillisecondClock() returns now a double instead of an integer to allow higher uptimes.</change>
+		</entry>
 		<entry>
 			<date>10-13-2018</date>
 			<author>Turley:</author>

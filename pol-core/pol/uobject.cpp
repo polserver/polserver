@@ -20,9 +20,10 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../clib/streamsaver.h"
+#include "../plib/clidata.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "baseobject.h"
-#include "clidata.h"
 #include "dynproperties.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
@@ -34,7 +35,6 @@
 #include "realms/realm.h"
 #include "syshookscript.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "uobjcnt.h"
 
 namespace Pol
@@ -78,7 +78,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
       serial_ext( 0 ),
       objtype_( objtype ),
       color( 0 ),
-      facing( FACING_N ),
+      facing( Plib::FACING_N ),
       _rev( 0 ),
       name_( "" ),
       flags_(),
@@ -87,7 +87,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
   graphic = Items::getgraphic( objtype );
   flags_.set( OBJ_FLAGS::DIRTY );
   flags_.set( OBJ_FLAGS::SAVE_ON_EXIT );
-  height = tileheight( graphic );
+  height = Plib::tileheight( graphic );
   ++stateManager.uobjcount.uobject_count;
 }
 
@@ -294,7 +294,7 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   graphic = elem.remove_ushort( "GRAPHIC", static_cast<u16>( objtype_ ) );
   fixInvalidGraphic();
 
-  height = tileheight( graphic );
+  height = Plib::tileheight( graphic );
 
   color = elem.remove_ushort( "COLOR", 0 );
 
@@ -405,5 +405,5 @@ bool UObject::get_method_hook( const char* methodname, Bscript::Executor* ex, Ex
   return gamestate.system_hooks.get_method_hook( gamestate.system_hooks.uobject_method_script.get(),
                                                  methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

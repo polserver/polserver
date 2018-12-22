@@ -30,7 +30,7 @@ class InMemoryMapServer : public MapServer
 {
 public:
   explicit InMemoryMapServer( const RealmDescriptor& descriptor );
-  virtual ~InMemoryMapServer();
+  virtual ~InMemoryMapServer() = default;
 
   virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
   virtual size_t sizeEstimate() const override;

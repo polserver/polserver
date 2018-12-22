@@ -52,6 +52,5 @@ UserFunction::UserFunction()
 {
 }
 
-UserFunction::~UserFunction() = default;
 }
 }

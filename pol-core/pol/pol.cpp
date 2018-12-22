@@ -237,7 +237,7 @@ void textcmd_startlog( Network::Client* client );
 void textcmd_stoplog( Network::Client* client );
 void start_client_char( Network::Client* client )
 {
-  client->ready = 1;
+  client->ready = true;
   client->chr->connected( true );
 
   // even if this stuff just gets queued, we still want the client to start
@@ -433,7 +433,7 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 
     chosen_char->client->gd->clear();
     chosen_char->client->forceDisconnect();
-    chosen_char->client->ready = 0;
+    chosen_char->client->ready = false;
     chosen_char->client->msgtype_filter = networkManager.disconnected_filter.get();
 
     // disassociate the objects from each other.
@@ -557,7 +557,7 @@ void tasks_thread( void )
       TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", sleeptime );
 
       THREAD_CHECKPOINT( tasks, 8 );
-      tasks_thread_sleep( polticks_t_to_ms( sleeptime ) );
+      tasks_thread_sleep( polclock_t_to_ms( sleeptime ) );
       THREAD_CHECKPOINT( tasks, 9 );
     }
   }
@@ -621,7 +621,7 @@ void scripts_thread( void )
     {
       THREAD_CHECKPOINT( scripts, 54 );
 
-      wait_for_pulse( polticks_t_to_ms( sleeptime ) );
+      wait_for_pulse( polclock_t_to_ms( sleeptime ) );
 
       THREAD_CHECKPOINT( scripts, 55 );
     }
@@ -701,7 +701,7 @@ void threadstatus_thread( void )
   // we want this thread to be the last out, so that it can report stuff at shutdown.
   while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
-    if ( !stateManager.polclock_paused_at )
+    if ( is_polclock_paused_at_zero() )
     {
       polclock_t now = polclock();
       if ( now >= stateManager.checkin_clock_times_out_at )
@@ -1118,7 +1118,7 @@ int xmain_inner( bool testing )
                std::ios::out | std::ios::trunc );
 
   if ( polpid.is_open() )
-    polpid << Clib::decint( getpid() );
+    polpid << Clib::tostring( getpid() );
   else
     INFO_PRINT << "Cannot create pid file in " << Plib::systemstate.config.pidfile_path << "\n";
 

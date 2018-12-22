@@ -77,9 +77,18 @@ std::string UOExecutor::state()
     return "Running";
 }
 
+
+bool UOExecutor::signal_event( Bscript::BObjectImp* eventimp )
+{
+  if ( os_module != nullptr )
+    return os_module->signal_event( eventimp );
+
+  return false;
+}
+
 size_t UOExecutor::sizeEstimate() const
 {
   return sizeof( UOExecutor ) + base::sizeEstimate();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

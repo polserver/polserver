@@ -89,5 +89,9 @@ public:
 std::ostream& operator<<( std::ostream&, const Token& );
 fmt::Writer& operator<<( fmt::Writer&, const Token& );
 }
+namespace Clib{
+template <>
+std::string tostring<Bscript::Token>( const Bscript::Token& v );
+}
 }
 #endif

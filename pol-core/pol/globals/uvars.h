@@ -21,8 +21,8 @@
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
 #include "../../clib/threadhelp.h"
+#include "../../plib/clidata.h"
 #include "../action.h"
-#include "../clidata.h"
 #include "../cmdlevel.h"
 #include "../layers.h"
 #include "../menu.h"
@@ -49,7 +49,7 @@ class Equipment;
 class Item;
 class ItemDesc;
 class UWeapon;
-}
+}  // namespace Items
 namespace Mobile
 {
 class Attribute;
@@ -220,7 +220,7 @@ public:
 
   std::vector<ConsoleCommand> console_commands;
 
-  std::array<LandTile, LANDTILE_COUNT> landtiles;
+  std::array<Plib::LandTile, Plib::LANDTILE_COUNT> landtiles;
   bool landtiles_loaded;
 
   ListenPoints listen_points;
@@ -257,6 +257,6 @@ private:
   void unload_npc_templates();
 };
 extern GameState gamestate;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

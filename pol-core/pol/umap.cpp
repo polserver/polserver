@@ -20,6 +20,7 @@
 #include "../clib/cfgelem.h"
 #include "../clib/clib_endian.h"
 #include "../clib/streamsaver.h"
+#include "../clib/strutil.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"
@@ -94,18 +95,18 @@ void Map::readProperties( Clib::ConfigElem& elem )
   gumpwidth = elem.remove_ushort( "gumpwidth", 0 );
   gumpheight = elem.remove_ushort( "gumpheight", 0 );
   facetid = elem.remove_ushort( "facetid", 0 );
-  editable = elem.remove_bool( "editable", 0 );
+  editable = elem.remove_bool( "editable", false );
 
   unsigned short numpins = elem.remove_ushort( "NumPins", 0 );
   std::string pinval;
-  char search_string[6];
   int i, px, py;
   struct PinPoint pp;
 
   for ( i = 0; i < numpins; i++ )
   {
-    sprintf( search_string, "Pin%i", i );
-    pinval = elem.remove_string( search_string );
+    std::string search_string( "Pin" );
+    search_string += Clib::tostring( i );
+    pinval = elem.remove_string( search_string.c_str() );
     sscanf( pinval.c_str(), "%i,%i", &px, &py );
 
     pp.x = static_cast<unsigned short>( px );
@@ -385,7 +386,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   case PKTBI_56::TYPE_TOGGLE_EDIT:
   {
     // hmm msg->plotstate never seems to be 1 when type is 6
-    my_map->plotting = my_map->plotting ? 0 : 1;
+    my_map->plotting = my_map->plotting ? false : true;
     Network::PktHelper::PacketOut<Network::PktOut_56> msg56;
     msg56->Write<u32>( msg->serial );
     msg56->Write<u8>( PKTBI_56::TYPE_TOGGLE_RESPONSE );
@@ -462,5 +463,5 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
     break;
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

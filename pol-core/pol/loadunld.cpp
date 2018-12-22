@@ -14,6 +14,7 @@
 #include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include "../plib/tiles.h"
 #include "checkpnt.h"
 #include "cmbtcfg.h"
 #include "console.h"
@@ -21,6 +22,7 @@
 #include "globals/settings.h"
 #include "item/equipmnt.h"
 #include "item/itemdesc.h"
+#include "landtile.h"
 #include "objtype.h"
 #include "polcfg.h"
 
@@ -31,24 +33,24 @@ namespace Items
 void preload_test_scripts();
 void unload_itemdesc();
 void load_itemdesc();
-}
+}  // namespace Items
 namespace Mobile
 {
 void unload_armor_zones();
 void load_armor_zones();
 void load_attributes_cfg();
-}
+}  // namespace Mobile
 namespace Multi
 {
 void load_special_storedconfig( const std::string& cfgname );
 void read_multidefs();
 void read_boat_cfg();
-}
+}  // namespace Multi
 namespace Network
 {
 void read_bannedips_config( bool initial_load );
 void initialize_client_interfaces();
-}
+}  // namespace Network
 namespace Module
 {
 void load_fileaccess_cfg();
@@ -87,8 +89,6 @@ void load_uoclient_cfg();
 
 void read_npc_templates();
 
-void load_tiles_cfg();
-void load_landtile_cfg();
 void load_party_cfg( bool reload );
 
 void load_movecost( bool reload );
@@ -212,7 +212,7 @@ void load_data()
   Network::initialize_client_interfaces();
 
   checkpoint( "load_tiles_cfg" );
-  load_tiles_cfg();
+  Plib::load_tiles_cfg();
 
   checkpoint( "load_landtile_cfg" );
   load_landtile_cfg();
@@ -280,5 +280,5 @@ void unload_data()
 
   unload_party();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -42,7 +42,9 @@
 #include "uomod.h"
 
 
+#ifdef _WIN32
 #pragma comment( lib, "crypt32.lib" )
+#endif
 #include <ctime>
 #include <curl/curl.h>
 #include <memory>

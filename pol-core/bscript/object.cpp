@@ -14,7 +14,6 @@
 #include <string>
 
 #include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/fixalloc.h"
 #include "../clib/logfacility.h"
 #include "../clib/random.h"
@@ -123,9 +122,6 @@ BObjectImp* BObjectImp::unpack( const char* pstr )
   ISTRINGSTREAM is( pstr );
   return unpack( is );
 }
-
-BObject::~BObject() = default;
-
 
 BObject* BObject::clone() const
 {

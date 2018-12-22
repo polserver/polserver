@@ -2,7 +2,6 @@ language: cpp
 
 sudo: false
 
-
 #script:
   #  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
   #  - unzip kaitai-struct-compiler-0.8.zip
@@ -68,13 +67,17 @@ script:
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
   - |
     if [[ "$NOPCH" == "0" ]]; then
-      cd ../testsuite/escript
-      ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q || travis_terminate 1;
-      cd ../style
+      ctest -j 2 --output-on-failure --repeat-until-fail 5 || travis_terminate 1;
+    fi
+  - echo -en 'travis_fold:end:script.tests\\r'
+  - echo 'Style...' && echo -en 'travis_fold:start:script.style\\r'
+  - |
+    if [[ "$NOPCH" == "0" ]]; then
+      cd ../testsuite/style
       ./checknl.py -q || travis_terminate 1;
       ./checkstyle.py -q || travis_terminate 1;
     fi
-  - echo -en 'travis_fold:end:script.tests\\r'
+  - echo -en 'travis_fold:end:script.style\\r'
 
 notifications:
   email:

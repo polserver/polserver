@@ -16,6 +16,7 @@
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 #include "../../clib/rawtypes.h"
+#include "../../clib/stlutil.h"
 #include "../clfunc.h"
 #include "../fnsearch.h"
 #include "../globals/settings.h"

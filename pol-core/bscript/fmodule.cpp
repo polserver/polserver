@@ -18,8 +18,6 @@ ModuleFunction::ModuleFunction( const char* fname, int i_nargs, UserFunction* i_
 {
 }
 
-ModuleFunction::~ModuleFunction() = default;
-
 FunctionalityModule::FunctionalityModule( const char* i_modname )
     : have_indexes( false ), modulename( i_modname )
 {

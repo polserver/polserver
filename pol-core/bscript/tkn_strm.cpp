@@ -468,7 +468,6 @@ std::ostream& operator<<( std::ostream& os, const Token& tok )
   tok.printOn( os );
   return os;
 }
-
 fmt::Writer& operator<<( fmt::Writer& w, const Token& tok )
 {
   std::ostringstream os;
@@ -476,5 +475,15 @@ fmt::Writer& operator<<( fmt::Writer& w, const Token& tok )
   w << os.str();
   return w;
 }
+}  // namespace Bscript
+namespace Clib
+{
+template <>
+std::string tostring( const Bscript::Token& tok )
+{
+  std::ostringstream os;
+  tok.printOn( os );
+  return os.str();
 }
-}
+}  // namespace Clib
+}  // namespace Pol

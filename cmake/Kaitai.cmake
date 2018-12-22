@@ -34,6 +34,7 @@ if(${linux})
   target_compile_options(${lib_name} PRIVATE
     -Wno-sign-compare
     -Wno-unused-parameter
+    -fno-strict-aliasing
   )
 endif()
 if (${windows})

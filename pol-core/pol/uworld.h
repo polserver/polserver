@@ -28,9 +28,9 @@
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
 #include "../plib/realmdescriptor.h"
+#include "../plib/uconst.h"
 #include "realms/WorldChangeReasons.h"
 #include "realms/realm.h"
-#include "uconst.h"
 #include "zone.h"
 
 namespace Pol
@@ -189,12 +189,12 @@ private:
   int _xH;
   int _yH;
 };
-}
+}  // namespace
 ///////////////
 // imp
 namespace
 {
-CoordsArea::CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range )
+inline CoordsArea::CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range )
 {
   convert( x - range, y - range, x + range, y + range, realm );
   _xL = x - range;
@@ -207,7 +207,7 @@ CoordsArea::CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range
   _yH = y + range;
 }
 
-CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm )
+inline CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm )
 {
   convert( x1, y1, x2, y2, realm );
   _xL = x1;
@@ -216,12 +216,12 @@ CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* rea
   _yH = y2;
 }
 
-bool CoordsArea::inRange( const UObject* obj ) const
+inline bool CoordsArea::inRange( const UObject* obj ) const
 {
   return ( obj->x >= _xL && obj->x <= _xH && obj->y >= _yL && obj->y <= _yH );
 }
 
-void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )
+inline void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )
 {
   zone_convert_clip( xL, yL, realm, &wxL, &wyL );
   zone_convert_clip( xH, yH, realm, &wxH, &wyH );
@@ -346,6 +346,6 @@ void FilterImp<FilterType::Multi>::call( Core::Zone& zone, const CoordsArea& coo
       f( multi );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

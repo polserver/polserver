@@ -172,7 +172,7 @@ void Socket::disable_nagle()
   if ( res < 0 )
   {
     throw std::runtime_error( "Unable to setsockopt (TCP_NODELAY) on socket, res=" +
-                              Clib::decint( res ) );
+                              Clib::tostring( res ) );
   }
 }
 
@@ -191,7 +191,7 @@ void Socket::apply_socket_options( SOCKET sck )
     if ( res < 0 )
     {
       throw std::runtime_error( "Unable to set listening socket to nonblocking mode, res=" +
-                                decint( res ) );
+                                tostring( res ) );
     }
   }
 }
@@ -207,7 +207,7 @@ void Socket::apply_prebind_socket_options( SOCKET sck )
     if ( res < 0 )
     {
       throw std::runtime_error( "Unable to setsockopt (SO_REUSEADDR) on listening socket, res = " +
-                                decint( res ) );
+                                tostring( res ) );
     }
 #endif
   }

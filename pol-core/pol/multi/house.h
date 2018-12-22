@@ -13,9 +13,9 @@
 
 #include "../../bscript/bobject.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/udatfile.h"
 #include "../item/item.h"
 #include "../reftypes.h"
-#include "../udatfile.h"
 #include "customhouses.h"
 #include "multi.h"
 
@@ -124,7 +124,7 @@ protected:
   virtual class UHouse* as_house() override;
   virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y,
                            short zbase ) override;
-  virtual bool readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase ) override;
+  virtual bool readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short zbase ) override;
   Bscript::ObjArray* component_list() const;
   Bscript::ObjArray* items_list() const;
   Bscript::ObjArray* mobiles_list() const;
@@ -168,6 +168,6 @@ private:
 
 
 Bscript::BObjectImp* destroy_house( UHouse* house );
-}
-}
+}  // namespace Multi
+}  // namespace Pol
 #endif

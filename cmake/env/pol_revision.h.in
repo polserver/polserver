@@ -27,6 +27,12 @@
 #define POL_BUILD_TARGET_TAG_PROFILE ""
 #endif
 
+#ifdef ENABLE_FLYWEIGHT_REPORT
+#define POL_BUILD_TARGET_TAG_FLYWEIGHT " - FlyweightReport"
+#else
+#define POL_BUILD_TARGET_TAG_FLYWEIGHT ""
+#endif
+
 #if defined( LINUX )
 #define POL_ARCH "Linux"
 #else
@@ -35,6 +41,6 @@
 
 #define POL_BUILD_TARGET                                                   \
   ( POL_ARCH " " POL_BUILD_ARCH_BITS_STR "bit" POL_BUILD_TARGET_TAG_PERGON \
-             "" POL_BUILD_TARGET_TAG_MEMLEAK "" POL_BUILD_TARGET_TAG_PROFILE "" POL_REVISION_TAG )
+             "" POL_BUILD_TARGET_TAG_MEMLEAK "" POL_BUILD_TARGET_TAG_PROFILE "" POL_BUILD_TARGET_TAG_FLYWEIGHT "" POL_REVISION_TAG )
 
 #endif /* POL_REVISION_CONFIG_H */

@@ -1,7 +1,10 @@
 
 #include "pol_global_config.h"
 
+#include "RunEclMain.h"
+
 #include <ctime>
+#include <format/format.h>
 #include <iostream>
 
 #include "../bscript/bobject.h"
@@ -16,10 +19,9 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/refptr.h"
+#include "../clib/stlutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
-#include "RunEclMain.h"
-#include <format/format.h>
 
 #include "../pol/globals/ucfg.h"
 #include "../pol/module/basiciomod.h"
@@ -37,7 +39,7 @@ namespace Core
 {
 // See comment in boost_utils::flyweight_initializers
 boost_utils::flyweight_initializers fw_inits;
-}
+}  // namespace Core
 namespace Module
 {
 void load_fileaccess_cfg();
@@ -266,8 +268,8 @@ int RunEclMain::main()
    **********************************************/
   return runecl();
 }
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
