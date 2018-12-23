@@ -10,11 +10,11 @@
 #include <stdlib.h>
 #include <string>
 
-#include <format/format.h>
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
 #include "spells.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -26,7 +26,7 @@ void invoke( Network::Client* client, const char* spellidstr )
   do_cast( client, spellnum );
 }
 
-void invoke( Network::Client* client, const u16* wspellidstr )
+void invoke_unicode( Network::Client* client, const u16* wspellidstr )
 {
   std::wstring wstr = L"";
   for ( size_t i = 0; wspellidstr[i] != L'\0'; i++ )
@@ -47,7 +47,7 @@ bool process_tildecommand( Network::Client* client, const char* textbuf )
   return false;
 }
 
-bool process_tildecommand( Network::Client* client, const u16* wtextbuf )
+bool process_tildecommand_unicode( Network::Client* client, const u16* wtextbuf )
 {
   using std::wcout;
 
@@ -63,10 +63,10 @@ bool process_tildecommand( Network::Client* client, const u16* wtextbuf )
       INFO_PRINT << tmp.str();
     }
 
-    invoke( client, wtextbuf + 2 );
+    invoke_unicode( client, wtextbuf + 2 );
     return true;
   }
   return false;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -122,7 +122,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 }
 
 //////////////////////////////////////////////////////////////////////////
-}
+}  // namespace Core
 namespace Bscript
 {
 using namespace Module;
@@ -135,7 +135,7 @@ TmplExecutorModule<UnicodeExecutorModule>::FunctionTable
         {"RequestInputUC", &UnicodeExecutorModule::mf_RequestInputUC},
         {"SendSysMessageUC", &UnicodeExecutorModule::mf_SendSysMessageUC},
         {"SendTextEntryGumpUC", &UnicodeExecutorModule::mf_SendTextEntryGumpUC}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -188,8 +188,8 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
       return new BError( "Param 1 needs to be string or unicode array" );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    Core::broadcast( gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color,
-                     requiredCmdLevel );
+    Core::broadcast_unicode( gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color,
+                             requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -219,8 +219,8 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
     if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( say_above( obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font,
-                                 color, journal_print ) );
+    return new BLong( say_above_unicode(
+        obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color, journal_print ) );
   }
   else
   {
@@ -249,8 +249,8 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
     if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
       return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( private_say_above( chr, obj, gwtext.data(),
-                                         Clib::strupper( lang->value() ).c_str(), font, color ) );
+    return new BLong( private_say_above_unicode(
+        chr, obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color ) );
   }
   else
   {
@@ -294,7 +294,8 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new Bscript::BError( "Script can't be blocked" );
     }
 
-    Core::send_sysmessage( chr->client, gwtext.data(), Clib::strupper( lang->value() ).c_str() );
+    Core::send_sysmessage_unicode( chr->client, gwtext.data(),
+                                   Clib::strupper( lang->value() ).c_str() );
 
     chr->client->gd->prompt_uniemod = this;
     prompt_chr = chr;
@@ -331,8 +332,8 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
       if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
         return new BError( "Invalid value in Unicode array." );
 
-      Core::send_sysmessage( chr->client, gwtext.data(), Clib::strupper( lang->value() ).c_str(),
-                             font, color );
+      Core::send_sysmessage_unicode( chr->client, gwtext.data(),
+                                     Clib::strupper( lang->value() ).c_str(), font, color );
       return new BLong( 1 );
     }
     else
@@ -353,5 +354,5 @@ BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()
 
   return new BError( "Function not implimented" );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

@@ -234,14 +234,14 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       // Needs to be done char-by-char due to linux's 4-byte unicode!
       for ( size_t i = 0; i < wtextlen; i++ )
         wtmp += static_cast<wchar_t>( cfBEu16( wtext[i] ) );
-      send_sysmessage( client, wtmp, msgin->lang );
+      send_sysmessage_unicode( client, wtmp, msgin->lang );
     }
     return;
   }
 
   if ( cfBEu16( msgin->wtext[0] ) == L'~' )  // we strip tildes out
   {
-    process_tildecommand( client, wtext );
+    process_tildecommand_unicode( client, wtext );
     return;
   }
 
@@ -365,7 +365,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       Core::WorldIterator<Core::NPCFilter>::InRange(
           chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+            npc->on_pc_spoke_unicode( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
           } );
     }
     else
@@ -373,7 +373,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       Core::WorldIterator<Core::NPCFilter>::InRange(
           chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_ghost_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+            npc->on_ghost_pc_spoke_unicode( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
           } );
     }
     sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type, wtext,
@@ -518,5 +518,5 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
   SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen,
                      speechtokens.release() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

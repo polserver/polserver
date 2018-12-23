@@ -824,8 +824,8 @@ BObjectImp* NPCExecutorModule::SayUC()
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext.data(), languc.c_str(),
-                                     nullptr );
+              othernpc->on_pc_spoke_unicode( &npc, ntextbuf, texttype, gwtext.data(),
+                                             languc.c_str(), nullptr );
           } );
     }
   }

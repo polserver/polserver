@@ -1167,8 +1167,8 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
 }
 
 // Unicode System message -- message in lower left corner
-void send_sysmessage( Network::Client* client, const u16* wtext, const char lang[4],
-                      unsigned short font, unsigned short color )
+void send_sysmessage_unicode( Network::Client* client, const u16* wtext, const char lang[4],
+                              unsigned short font, unsigned short color )
 {
   unsigned textlen = 0;
   // textlen = wcslen((const wchar_t*)wtext) + 1;
@@ -1199,15 +1199,15 @@ void send_sysmessage( Network::Client* client, const std::string& text, unsigned
   send_sysmessage( client, text.c_str(), font, color );
 }
 
-void send_sysmessage( Network::Client* client, const std::wstring& wtext, const char lang[4],
-                      unsigned short font, unsigned short color )
+void send_sysmessage_unicode( Network::Client* client, const std::wstring& wtext,
+                              const char lang[4], unsigned short font, unsigned short color )
 {
   using std::wstring;
   u16 uctext[SPEECH_MAX_LEN + 1];
   for ( size_t i = 0; i < wtext.length(); i++ )
     uctext[i] = static_cast<u16>( wtext[i] );
   uctext[wtext.length()] = 0x00;
-  send_sysmessage( client, uctext, lang, font, color );
+  send_sysmessage_unicode( client, uctext, lang, font, color );
 }
 
 void broadcast( const char* text, unsigned short font, unsigned short color,
@@ -1222,15 +1222,15 @@ void broadcast( const char* text, unsigned short font, unsigned short color,
   }
 }
 
-void broadcast( const u16* wtext, const char lang[4], unsigned short font, unsigned short color,
-                unsigned short requiredCmdLevel )
+void broadcast_unicode( const u16* wtext, const char lang[4], unsigned short font,
+                        unsigned short color, unsigned short requiredCmdLevel )
 {
   for ( auto& client : networkManager.clients )
   {
     if ( !client->ready || client->chr->cmdlevel_ < requiredCmdLevel )
       continue;
 
-    send_sysmessage( client, wtext, lang, font, color );
+    send_sysmessage_unicode( client, wtext, lang, font, color );
   }
 }
 
@@ -1288,8 +1288,8 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
   return true;
 }
 
-bool say_above( const UObject* obj, const u16* wtext, const char lang[4], unsigned short font,
-                unsigned short color, unsigned int journal_print )
+bool say_above_unicode( const UObject* obj, const u16* wtext, const char lang[4],
+                        unsigned short font, unsigned short color, unsigned int journal_print )
 {
   unsigned textlen = 0;
   // textlen = wcslen((const wchar_t*)wtext) + 1;
@@ -1359,8 +1359,9 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
   return true;
 }
 
-bool private_say_above( Character* chr, const UObject* obj, const u16* wtext, const char lang[4],
-                        unsigned short font, unsigned short color, unsigned int journal_print )
+bool private_say_above_unicode( Character* chr, const UObject* obj, const u16* wtext,
+                                const char lang[4], unsigned short font, unsigned short color,
+                                unsigned int journal_print )
 {
   unsigned textlen = 0;
   // textlen = wcslen((const wchar_t*)wtext) + 1;

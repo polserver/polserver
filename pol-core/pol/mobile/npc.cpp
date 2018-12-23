@@ -669,8 +669,9 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
   }
 }
 
-void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
-                       const char lang[4], Bscript::ObjArray* speechtokens )
+void NPC::on_pc_spoke_unicode( Character* src_chr, const char* speech, u8 texttype,
+                               const u16* wspeech, const char lang[4],
+                               Bscript::ObjArray* speechtokens )
 {
   if ( ex != nullptr )
   {
@@ -694,9 +695,9 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, cons
   }
 }
 
-void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
-                             const u16* wspeech, const char lang[4],
-                             Bscript::ObjArray* speechtokens )
+void NPC::on_ghost_pc_spoke_unicode( Character* src_chr, const char* speech, u8 texttype,
+                                     const u16* wspeech, const char lang[4],
+                                     Bscript::ObjArray* speechtokens )
 {
   if ( ex != nullptr )
   {
@@ -756,8 +757,7 @@ void NPC::inform_criminal( Character* thecriminal )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( thecriminal ) )
-        ex->signal_event(
-            new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
     }
   }
 }
@@ -788,8 +788,7 @@ void NPC::inform_enteredarea( Character* whoentered )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( whoentered ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
       }
     }
   }
@@ -837,8 +836,7 @@ void NPC::inform_moved( Character* moved )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( moved ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
       }
     }
   }
@@ -1080,5 +1078,5 @@ bool NPC::get_method_hook( const char* methodname, Bscript::Executor* executor,
     return true;
   return base::get_method_hook( methodname, executor, hook, PC );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
