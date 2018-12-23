@@ -6,8 +6,8 @@
 
 #include "pkg.h"
 
-#include <stdlib.h>
 #include "pol_global_config.h"
+#include <stdlib.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -396,7 +396,8 @@ void load_packages( bool quiet )
       while ( elem.remove_prop( "dir", &dir ) )
       {
         dir = Clib::normalized_dir_form( dir );
-        INFO_PRINT << "Searching for packages under " << dir << "\n";
+        if ( !quiet )
+          INFO_PRINT << "Searching for packages under " << dir << "\n";
         load_packages( dir.c_str(), quiet );
       }
     }
@@ -508,5 +509,5 @@ std::string GetPackageCfgPath( const Package* pkg, const std::string& filename )
 
   return filepath;
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

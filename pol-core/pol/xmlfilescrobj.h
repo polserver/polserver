@@ -17,8 +17,10 @@
 #include "../bscript/contiter.h"
 #include "../clib/rawtypes.h"
 
-namespace Pol {
-namespace Bscript {
+namespace Pol
+{
+namespace Bscript
+{
 class Executor;
 }  // namespace Bscript
 }  // namespace Pol
@@ -60,7 +62,7 @@ class BXMLfile final : public Bscript::BObjectImp
 public:
   BXMLfile();
   BXMLfile( std::string filename );
-  ~BXMLfile();
+  ~BXMLfile() = default;
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
   virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
   virtual Bscript::BObjectImp* call_method( const char* methodname,
@@ -69,10 +71,7 @@ public:
                                                bool forcebuiltin = false ) override;
   virtual Bscript::BObjectImp* copy() const override;
   virtual std::string getStringRep() const override;
-  virtual size_t sizeEstimate() const override
-  {
-    return sizeof( *this ) + _filename.capacity();
-  }
+  virtual size_t sizeEstimate() const override { return sizeof( *this ) + _filename.capacity(); }
   virtual const char* typeOf() const override { return "XMLFile"; }
   virtual u8 typeOfInt() const override { return OTXMLFile; }
   virtual bool isTrue() const override;
@@ -91,12 +90,12 @@ private:
 class BXmlNode final : public Bscript::BObjectImp
 {
 public:
-  BXmlNode( TiXmlNode* _node )
-      : Bscript::BObjectImp( Bscript::BObjectImp::OTXMLNode ), node( _node )
+  BXmlNode( TiXmlNode* _node, bool cloned = false )
+      : Bscript::BObjectImp( Bscript::BObjectImp::OTXMLNode ), node( _node ), _cloned( cloned )
   {
   }
-
-  virtual Bscript::BObjectImp* copy() const override { return new BXmlNode( node->Clone() ); }
+  ~BXmlNode();
+  virtual Bscript::BObjectImp* copy() const override { return new BXmlNode( node ); }
   virtual std::string getStringRep() const override;
 
   virtual const char* typeOf() const override { return "XMLNode"; }
@@ -115,8 +114,10 @@ public:
                                                bool forcebuiltin = false ) override;
   virtual Bscript::BObjectRef OperSubscript( const Bscript::BObject& obj ) override;
   TiXmlNode* getNode() const { return node; }
+
 private:
   TiXmlNode* node;
+  bool _cloned;
 };
 
 class BXmlAttribute final : public Bscript::BObjectImp
@@ -127,10 +128,7 @@ public:
   {
   }
 
-  virtual Bscript::BObjectImp* copy() const override
-  {
-    return new BXmlAttribute( node->Clone() );
-  }
+  virtual Bscript::BObjectImp* copy() const override { return new BXmlAttribute( node ); }
 
   virtual std::string getStringRep() const override { return "XMLAttributes"; }
   virtual const char* typeOf() const override { return "XMLAttributes"; }
@@ -149,7 +147,7 @@ public:
 private:
   TiXmlElement* node;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

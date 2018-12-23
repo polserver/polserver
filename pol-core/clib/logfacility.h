@@ -7,8 +7,8 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
-#include <format/format.h>
 #include <boost/noncopyable.hpp>
+#include <format/format.h>
 #include <fstream>
 #include <future>
 #include <map>
@@ -27,6 +27,7 @@ extern bool LogfileTimestampEveryLine;
 namespace Logging
 {
 struct LogFileBehaviour;
+class LogFacility;
 
 // generic sink to log into a file
 class LogSinkGenericFile : public LogSink
@@ -41,6 +42,8 @@ public:
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 
 protected:
+  friend class LogFacility;
+
   bool test_for_rollover( std::chrono::time_point<std::chrono::system_clock>& now );
   const LogFileBehaviour* _behaviour;
   std::ofstream _filestream;
@@ -48,6 +51,7 @@ protected:
   struct tm _opened;
   std::chrono::time_point<std::chrono::system_clock> _lasttimestamp;
   bool _active_line;
+  static bool _disabled;
 };
 
 // template function to get the instance of given sink
@@ -145,6 +149,7 @@ public:
   void save( fmt::Writer* message, const std::string& id );
   void registerSink( LogSink* sink );
   void disableDebugLog();
+  void disableFileLog();
   void deinitializeStartLog();
   void closeFlexLog( const std::string& id );
   std::string registerFlexLogger( const std::string& logfilename, bool open_timestamp );
@@ -183,17 +188,17 @@ private:
 
 extern LogFacility* global_logger;        // pointer to the instance of the main class
 void initLogging( LogFacility* logger );  // initalize the logging
-}
-}
+}  // namespace Logging
+}  // namespace Clib
 
 
 // several helper defines
 //#define DEBUG_LOG_PRINTS
 #ifdef DEBUG_LOG_PRINTS
 #ifdef WINDOWS
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#define __FILENAME__ ( strrchr( __FILE__, '\\' ) ? strrchr( __FILE__, '\\' ) + 1 : __FILE__ )
 #else
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define __FILENAME__ ( strrchr( __FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
 #endif
 #define LOG_PRINT_CALLER_INFO __FILENAME__, __LINE__, __FUNCTION__
 #define LOG_PRINT_CALLER_INFO2 , __FILENAME__, __LINE__, __FUNCTION__
@@ -258,6 +263,6 @@ void initLogging( LogFacility* logger );  // initalize the logging
 #define IS_DEBUGLOG_DISABLED Clib::Logging::LogSink_debuglog::Disabled
 
 #define GET_LOG_FILESTAMP Clib::Logging::LogSink::getTimeStamp()
-}
+}  // namespace Pol
 
 #endif  // CLIB_LOGFACILITY_H

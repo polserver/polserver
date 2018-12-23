@@ -23,6 +23,7 @@
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 
+#include "../pol/globals/ucfg.h"
 #include "../pol/module/basiciomod.h"
 #include "../pol/module/basicmod.h"
 #include "../pol/module/cfgmod.h"
@@ -184,6 +185,10 @@ int RunEclMain::runeclScript( std::string fileName )
 #endif
     INFO_PRINT << tmp.str();
   }
+  // deinit
+  Core::configurationbuffer.deinitialize();
+  Plib::systemstate.deinitialize();
+
   return exres ? 0 : 1;
 }
 
@@ -222,6 +227,8 @@ int RunEclMain::runecl()
 
 int RunEclMain::main()
 {
+  Clib::Logging::global_logger->disableFileLog();
+
   const std::vector<std::string>& binArgs = programArgs();
   Pol::Bscript::escript_config.max_call_depth = 100;
   m_quiet = programArgsFind( "q" );
