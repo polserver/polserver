@@ -7,8 +7,8 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
-#include <format/format.h>
 #include <boost/noncopyable.hpp>
+#include <format/format.h>
 #include <fstream>
 #include <future>
 #include <map>
@@ -188,17 +188,17 @@ private:
 
 extern LogFacility* global_logger;        // pointer to the instance of the main class
 void initLogging( LogFacility* logger );  // initalize the logging
-}
-}
+}  // namespace Logging
+}  // namespace Clib
 
 
 // several helper defines
 //#define DEBUG_LOG_PRINTS
 #ifdef DEBUG_LOG_PRINTS
 #ifdef WINDOWS
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#define __FILENAME__ ( strrchr( __FILE__, '\\' ) ? strrchr( __FILE__, '\\' ) + 1 : __FILE__ )
 #else
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define __FILENAME__ ( strrchr( __FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
 #endif
 #define LOG_PRINT_CALLER_INFO __FILENAME__, __LINE__, __FUNCTION__
 #define LOG_PRINT_CALLER_INFO2 , __FILENAME__, __LINE__, __FUNCTION__
@@ -263,6 +263,6 @@ void initLogging( LogFacility* logger );  // initalize the logging
 #define IS_DEBUGLOG_DISABLED Clib::Logging::LogSink_debuglog::Disabled
 
 #define GET_LOG_FILESTAMP Clib::Logging::LogSink::getTimeStamp()
-}
+}  // namespace Pol
 
 #endif  // CLIB_LOGFACILITY_H

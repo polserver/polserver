@@ -681,7 +681,10 @@ bool Expression::optimize_token( int i )
             // 13: 1L
             // 14: set member id 'warmode' (27) += #
             if ( tokens[tokens.size() - 1]->id == TOK_CONSUMER )
+            {
+              delete tokens.back();
               tokens.pop_back();  // delete consumer
+            }
 
             if ( operand->id == TOK_PLUSEQUAL )
               oper->id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;

@@ -33,8 +33,6 @@ BXMLfile::BXMLfile( std::string filename )
     return;
 }
 
-BXMLfile::~BXMLfile() {}
-
 BObjectRef BXMLfile::get_member_id( const int /*id*/ )  // id test
 {
   return BObjectRef( UninitObject::create() );
@@ -268,6 +266,17 @@ BObjectRef BXMLfile::OperSubscript( const BObject& obj )
   else
   {
     return BObjectRef( new BError( "xml members can only be accessed by name or index" ) );
+  }
+}
+
+BXmlNode::~BXmlNode()
+{
+  // a tiny hack: copy does copy the node just the pointer, only clonenode does, delete this cloned
+  // node if its the last reference and tinyxml does not delete it via parent, clone flag will not
+  // be transfered so only the first instance will be deleted
+  if ( _cloned && node != nullptr && count() == 0 && node->Parent() == nullptr )
+  {
+    delete node;
   }
 }
 
@@ -513,7 +522,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
   }
   case MTH_CLONENODE:
   {
-    return copy();
+    return new BXmlNode( node->Clone(), true );
   }
   default:
     return nullptr;
@@ -679,5 +688,5 @@ BObject* BXMLAttributeIterator::step()
   }
   return nullptr;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

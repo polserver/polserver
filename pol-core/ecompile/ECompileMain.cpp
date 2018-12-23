@@ -627,7 +627,6 @@ void parallel_compile( const std::vector<std::string>& files )
     for ( const auto& file : files )
     {
       pool.push( [&]() {
-
         if ( !par_keep_building || Clib::exit_signalled )
           return;
         try
@@ -901,8 +900,8 @@ int ECompileMain::main()
     return 0;
   }
 }
-}
-}  // namespaces
+}  // namespace ECompile
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

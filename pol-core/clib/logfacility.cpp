@@ -506,10 +506,10 @@ void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg, const std::string& 
 {
   addMessage( msg );
 }
-}
-}
+}  // namespace Logging
+}  // namespace Clib
 bool Clib::Logging::LogSink_debuglog::Disabled = false;
-}
+}  // namespace Pol
 
 // forward define the templates
 // dont want to add all the templates into the header

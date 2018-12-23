@@ -373,7 +373,8 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       Core::WorldIterator<Core::NPCFilter>::InRange(
           chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_ghost_pc_spoke_unicode( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+            npc->on_ghost_pc_spoke_unicode( chr, ntext, msgin->type, wtext, msgin->lang,
+                                            speechtokens );
           } );
     }
     sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type, wtext,

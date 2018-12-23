@@ -6,8 +6,8 @@
 
 #include "pkg.h"
 
-#include <stdlib.h>
 #include "pol_global_config.h"
+#include <stdlib.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -509,5 +509,5 @@ std::string GetPackageCfgPath( const Package* pkg, const std::string& filename )
 
   return filepath;
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol
