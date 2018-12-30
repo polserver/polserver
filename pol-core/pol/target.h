@@ -10,7 +10,7 @@
 #include <array>
 
 #include "../clib/rawtypes.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 
 namespace Pol
 {
@@ -194,7 +194,7 @@ namespace Module
 {
 void handle_script_cursor( Mobile::Character* chr, Core::UObject* obj );
 void handle_coord_cursor( Mobile::Character* chr, Core::PKTBI_6C* msg );
-}
+}  // namespace Module
 namespace Core
 {
 void handle_add_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin );
@@ -235,6 +235,6 @@ public:
   NoLosCharacterCursor startlog_cursor;
   NoLosCharacterCursor stoplog_cursor;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

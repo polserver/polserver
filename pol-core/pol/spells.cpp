@@ -29,7 +29,7 @@
 #include "mkscrobj.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "polclass.h"
 #include "polsig.h"
 #include "scrstore.h"
@@ -516,5 +516,5 @@ void clean_spells()
   }
   gamestate.spells.clear();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

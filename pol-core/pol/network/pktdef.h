@@ -207,7 +207,7 @@ struct PKTOUT_C0
     EFFECT_FIXEDFROM = 0x03
   };
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

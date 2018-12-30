@@ -16,7 +16,7 @@
 #include "containr.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uobject.h"

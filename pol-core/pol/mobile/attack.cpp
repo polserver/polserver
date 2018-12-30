@@ -17,7 +17,7 @@
 #include "../globals/settings.h"
 #include "../guardrgn.h"
 #include "../network/client.h"
-#include "../pktin.h"
+#include "../network/pktin.h"
 #include "../ufunc.h"
 #include "charactr.h"
 
@@ -69,5 +69,5 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
     client->chr->select_opponent( serial );
   }
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

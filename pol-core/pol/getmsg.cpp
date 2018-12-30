@@ -20,7 +20,7 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 #include "ufunc.h"
 #include "uoexec.h"
 
@@ -69,7 +69,7 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
   uoemod->prompt_chr = nullptr;
   client->gd->prompt_uoemod = nullptr;
 }
-}
+}  // namespace Core
 namespace Module
 {
 Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
@@ -110,5 +110,5 @@ Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
 
   return new Bscript::BLong( 0 );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

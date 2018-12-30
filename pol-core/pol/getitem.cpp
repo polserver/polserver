@@ -23,8 +23,8 @@
 #include "item/item.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "reftypes.h"
 #include "statmsg.h"
 #include "ufunc.h"
@@ -397,5 +397,5 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
   register_with_supporting_multi( item );
   send_item_to_inrange( item );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

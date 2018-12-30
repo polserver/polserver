@@ -36,10 +36,10 @@
 #include "../../clib/weakptr.h"
 #include "../../plib/uconst.h"
 #include "../crypt/cryptkey.h"
-#include "../pktdef.h"
-#include "../pktin.h"
 #include "../polclock.h"
 #include "../sockets.h"
+#include "pktdef.h"
+#include "pktin.h"
 
 namespace Pol
 {

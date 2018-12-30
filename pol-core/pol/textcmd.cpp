@@ -52,7 +52,7 @@
 #include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/client.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 #include "polclock.h"
 #include "repsys.h"
 #include "scrdef.h"

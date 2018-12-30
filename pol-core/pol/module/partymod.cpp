@@ -22,9 +22,9 @@
 #include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
+#include "../network/pktdef.h"
 #include "../party.h"
 #include "../party_cfg.h"
-#include "../pktdef.h"
 #include "../syshook.h"
 #include "../unicode.h"
 #include "../uoexhelp.h"
@@ -43,7 +43,7 @@ TmplExecutorModule<PartyExecutorModule>::FunctionTable
         {"SendPartyMsg", &PartyExecutorModule::mf_SendPartyMsg},
         {"SendPrivatePartyMsg", &PartyExecutorModule::mf_SendPrivatePartyMsg},
 };
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -507,5 +507,5 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
   else
     return err;
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

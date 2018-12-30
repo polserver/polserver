@@ -17,10 +17,6 @@
 #include "../core.h"
 #include "../crypt/cryptbase.h"
 #include "../mobile/charactr.h"
-#include "../pktboth.h"
-#include "../pktbothid.h"
-#include "../pktdef.h"
-#include "../pktinid.h"
 #include "../polcfg.h"
 #include "../polclock.h"
 #include "../polsem.h"
@@ -36,6 +32,10 @@
 #include "msghandl.h"
 #include "packethelper.h"
 #include "packets.h"
+#include "pktboth.h"
+#include "pktbothid.h"
+#include "pktdef.h"
+#include "pktinid.h"
 #include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x

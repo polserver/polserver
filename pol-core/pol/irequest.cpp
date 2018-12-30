@@ -21,10 +21,10 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
+#include "network/pktboth.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "party.h"
-#include "pktboth.h"
-#include "pktdef.h"
-#include "pktin.h"
 #include "scrdef.h"
 #include "scrstore.h"
 #include "statmsg.h"
@@ -167,5 +167,5 @@ void srequest( Network::Client* client, PKTIN_34* msg )
   else if ( msg->stattype == STATTYPE_SKILLWINDOW )
     skillrequest( client, serial );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

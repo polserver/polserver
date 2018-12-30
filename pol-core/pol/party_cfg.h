@@ -7,7 +7,7 @@
 #ifndef PARTY_CFG_H
 #define PARTY_CFG_H
 
-#include "pktdef.h"
+#include "network/pktdef.h"
 
 namespace Pol
 {
@@ -78,6 +78,6 @@ const int CLP_No_Party = 3000211;  // You are not in a party.
 const int CLP_No_Invite = 3000222;  // No one has invited you to be in a party.
 const int CLP_Too_Late_Decline =
     3000223;  // Too late to decline, you are already in the party. Try /quit.
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

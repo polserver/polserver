@@ -257,6 +257,15 @@ set (pol_sources  # sorted !
   network/packetinterface.h
   network/packets.cpp
   network/packets.h
+  network/pktboth.h
+  network/pktbothid.h
+  network/pktdef.h
+  network/pktin.h
+  network/pktinid.h
+  network/pktni.h
+  network/pktniid.h
+  network/pktout.h
+  network/pktoutid.h
   npctemplates.cpp
   npctmpl.cpp
   npctmpl.h
@@ -268,15 +277,6 @@ set (pol_sources  # sorted !
   party.cpp
   party.h
   party_cfg.h
-  pktboth.h
-  pktbothid.h
-  pktdef.h
-  pktin.h
-  pktinid.h
-  pktni.h
-  pktniid.h
-  pktout.h
-  pktoutid.h
   pol.cpp
   pol.h
   pol.rc

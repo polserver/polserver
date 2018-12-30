@@ -35,7 +35,7 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "globals/settings.h"
-#include "pktdef.h"
+#include "network/pktdef.h"
 
 namespace Pol
 {
@@ -65,7 +65,7 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.default_doubleclick_range =
       elem.remove_ushort( "DefaultDoubleclickRange", 2 );
   settingsManager.ssopt.default_accessible_range =
-    elem.remove_int( "DefaultAccessibleRange", settingsManager.ssopt.default_doubleclick_range);
+      elem.remove_int( "DefaultAccessibleRange", settingsManager.ssopt.default_doubleclick_range );
   settingsManager.ssopt.default_light_level = elem.remove_ushort( "DefaultLightLevel", 10 );
   settingsManager.ssopt.event_visibility_core_checks =
       elem.remove_bool( "EventVisibilityCoreChecks", false );
@@ -207,5 +207,5 @@ void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )
       cout << "* Stats-at-creation entry: " << *itr << endl;
       */
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

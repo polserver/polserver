@@ -27,10 +27,10 @@
 #include "../plib/uconst.h"           // network/packets include
 #include "layers.h"                   // network/packets include
 #include "network/packetinterface.h"  // network/packets include
-#include "pktboth.h"                  // network/packets include
-#include "pktbothid.h"                // network/packets include
-#include "pktdef.h"                   // network/packets include
-#include "pktoutid.h"                 // network/packets include
+#include "network/pktboth.h"          // network/packets include
+#include "network/pktbothid.h"        // network/packets include
+#include "network/pktdef.h"           // network/packets include
+#include "network/pktoutid.h"         // network/packets include
 #include "realms.h"                   // network/packets include
 
 #include "network/packets.h"

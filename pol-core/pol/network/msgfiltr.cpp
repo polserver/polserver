@@ -14,8 +14,8 @@
 #include <cstring>
 
 #include "../globals/network.h"
-#include "../pktbothid.h"
-#include "../pktinid.h"
+#include "pktbothid.h"
+#include "pktinid.h"
 
 namespace Pol
 {
@@ -62,5 +62,5 @@ void MessageTypeFilter::createMessageFilter()
   networkManager.disconnected_filter = std::unique_ptr<MessageTypeFilter>(
       new MessageTypeFilter( MessageTypeFilter::NormallyDisabled, no_exceptions ) );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

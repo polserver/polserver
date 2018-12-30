@@ -19,8 +19,8 @@
 #include "network/packetdefs.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 #include "uworld.h"
 

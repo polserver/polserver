@@ -26,7 +26,7 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 #include "realms/realm.h"
 #include "syshookscript.h"
 #include "ufunc.h"

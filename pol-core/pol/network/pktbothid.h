@@ -61,5 +61,5 @@ enum PKTBOTHID : unsigned char
 
 };
 }
-}
+}  // namespace Pol
 #endif

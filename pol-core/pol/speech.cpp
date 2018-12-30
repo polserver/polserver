@@ -32,8 +32,8 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "syshook.h"
 #include "textcmd.h"
 #include "tildecmd.h"
@@ -518,5 +518,5 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
   SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen,
                      speechtokens.release() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

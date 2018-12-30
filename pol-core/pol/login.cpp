@@ -38,8 +38,8 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "polcfg.h"
 #include "servdesc.h"
 #include "startloc.h"
@@ -498,7 +498,7 @@ void handle_delete_character( Network::Client* client, PKTIN_83* msg )
   Accounts::Account* acct = client->acct;
   Mobile::Character* chr = acct->get_character( charidx );
   if ( chr->client != nullptr || ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-                                acct->has_active_characters() ) )
+                                   acct->has_active_characters() ) )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -518,5 +518,5 @@ void KR_Verifier_Response( Network::Client* /*client*/, PKTIN_E4* /*msg*/ )
 {
   //
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -34,11 +34,9 @@
 #include "../globals/network.h"
 #include "../globals/state.h"
 #include "../mobile/charactr.h"
-#include "../pktdef.h"
-#include "../pktin.h"
 #include "../polsig.h"
 #include "../realms/WorldChangeReasons.h"
-#include "../ufunc.h" // only in here temporarily, until logout-on-disconnect stuff is removed
+#include "../ufunc.h"  // only in here temporarily, until logout-on-disconnect stuff is removed
 #include "../unicode.h"
 #include "../uoclient.h"
 #include "../uoscrobj.h"
@@ -46,6 +44,8 @@
 #include "../xbuffer.h"
 #include "cgdata.h"
 #include "cliface.h"
+#include "pktdef.h"
+#include "pktin.h"
 
 
 #define PRE_ENCRYPT
@@ -730,5 +730,5 @@ size_t Client::estimatedSize() const
     size += gd->estimatedSize();
   return size;
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

@@ -47,7 +47,7 @@
 #include "../network/client.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
-#include "../pktdef.h"
+#include "../network/pktdef.h"
 #include "../polvar.h"
 #include "../realms/realm.h"
 #include "../scrsched.h"
