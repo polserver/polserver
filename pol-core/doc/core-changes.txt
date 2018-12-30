@@ -1,4 +1,9 @@
 ﻿-- POL100 --
+12-30-2018 Turley:
+  Added:   vitals.cfg optional entry DepletedFunction
+           gets called once the vital reaches 0.
+           Given Argument is character reference
+           Like the other entries the syntax is ScriptName:ExportedFunctionName
 12-21-2018 Turley:
   Fixed:   CPU usage of UseSingleThreadLogin
 11-27-2018 Nando:

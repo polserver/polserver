@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-21-2018</datemodified>
+		<datemodified>12-30-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-30-2018</date>
+			<author>Turley:</author>
+			<change type="Added">vitals.cfg optional entry DepletedFunction<br/>
+gets called once the vital reaches 0.<br/>
+Given Argument is character reference<br/>
+Like the other entries the syntax is ScriptName:ExportedFunctionName</change>
+		</entry>
 		<entry>
 			<date>12-21-2018</date>
 			<author>Turley:</author>

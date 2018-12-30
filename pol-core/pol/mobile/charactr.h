@@ -144,37 +144,20 @@ class PrivUpdater;
 class AttributeValue
 {
 public:
-  AttributeValue() : _base( 0 ), _temp( 0 ), _intrinsic( 0 ), _lockstate( 0 ), _cap( 0 ) {}
-  int effective() const
-  {
-    int v = _base;
-    v += _temp;
-    v += _intrinsic;
-    return ( v > 0 ) ? ( v / 10 ) : 0;
-  }
-  int effective_tenths() const
-  {
-    int v = _base;
-    v += _temp;
-    v += _intrinsic;
-    return ( v > 0 ) ? v : 0;
-  }
+  AttributeValue();
+  int effective() const;
+  int effective_tenths() const;
+  int base() const;
+  void base( unsigned short base );
 
-  int base() const { return _base; }
-  void base( unsigned short base )
-  {
-    passert( base <= ATTRIBUTE_MAX_BASE );
-    _base = base;
-  }
-
-  int temp_mod() const { return _temp; }
-  void temp_mod( short temp ) { _temp = temp; }
-  int intrinsic_mod() const { return _intrinsic; }
-  void intrinsic_mod( short val ) { _intrinsic = val; }
-  unsigned char lock() const { return _lockstate; }
-  void lock( unsigned char lockstate ) { _lockstate = lockstate; }
-  unsigned short cap() const { return _cap; }
-  void cap( unsigned short cap ) { _cap = cap; }
+  int temp_mod() const;
+  void temp_mod( short temp );
+  int intrinsic_mod() const;
+  void intrinsic_mod( short val );
+  unsigned char lock() const;
+  void lock( unsigned char lockstate );
+  unsigned short cap() const;
+  void cap( unsigned short cap );
 
 private:
   unsigned short _base;
@@ -187,66 +170,24 @@ private:
 class VitalValue
 {
 public:
-  VitalValue() : _current( 0 ), _maximum( 0 ), _regenrate( 0 ) {}
+  VitalValue();
   // accessors:
-  int current() const { return _current; }
-  int current_ones() const { return _current / 100; }
-  int current_thousands() const
-  {
-    // use division to prevent overflow
-    return ( _current / 100 ) * 1000 / ( _maximum / 100 );
-  }
-  int maximum() const { return _maximum; }
-  int maximum_ones() const { return _maximum / 100; }
-  bool is_at_maximum() const { return ( _current >= _maximum ); }
-  int regenrate() const { return _regenrate; }
+  int current() const;
+  int current_ones() const;
+  int current_thousands() const;
+  int maximum() const;
+  int maximum_ones() const;
+  bool is_at_maximum() const;
+  int regenrate() const;
   // mutators:
 protected:
   friend class Character;
-  void current( int cur )
-  {
-    _current = cur;
-    if ( _current > _maximum )
-      current( _maximum );
-  }
-  void current_ones( int ones )
-  {
-    _current = ones * 100;
-    if ( _current > _maximum )
-      current( _maximum );
-  }
-  void maximum( int val )
-  {
-    _maximum = val;
-    if ( _current > _maximum )
-      current( _maximum );
-  }
-  void regenrate( int rate ) { _regenrate = rate; }
-  bool consume( unsigned int hamt )
-  {
-    if ( _current >= hamt )
-    {
-      _current -= hamt;
-      return true;
-    }
-    else
-    {
-      _current = 0;
-      return false;
-    }
-  }
-  void produce( unsigned int hamt )
-  {
-    unsigned newcur = _current + hamt;
-    if ( newcur > _maximum || newcur < _current )
-    {
-      _current = _maximum;
-    }
-    else
-    {
-      _current = newcur;
-    }
-  }
+  void current( int cur );
+  void current_ones( int ones );
+  void maximum( int val );
+  void regenrate( int rate );
+  bool consume( unsigned int hamt );
+  void produce( unsigned int hamt );
 
 private:
   unsigned int _current;  // 0 to 10000000 [0 to 100000.00]

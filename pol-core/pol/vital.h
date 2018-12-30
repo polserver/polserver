@@ -40,7 +40,7 @@ public:
 
   ExportedFunction* get_regenrate_func;
   ExportedFunction* get_maximum_func;
-  ExportedFunction* underflow_func;
+  ExportedFunction* depleted_func;
   bool regen_while_dead;
 };
 
@@ -58,6 +58,6 @@ const unsigned int VITAL_MAX_HUNDREDTHS = 10000000L;  // 10,000,000 hundredths =
 
 const unsigned int VITAL_LOWEST_MAX_HUNDREDTHS = 100L;        // 100 hundredths = 1.00
 const unsigned int VITAL_HIGHEST_MAX_HUNDREDTHS = 10000000L;  // 10,000,000 hundredths = 100,000.00
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
