@@ -41,11 +41,11 @@
 #include "../uoclient.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
-#include "../xbuffer.h"
 #include "cgdata.h"
 #include "cliface.h"
 #include "pktdef.h"
 #include "pktin.h"
+#include "xbuffer.h"
 
 
 #define PRE_ENCRYPT

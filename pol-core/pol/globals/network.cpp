@@ -16,8 +16,8 @@
 #include "../network/msghandl.h"
 #include "../network/packethooks.h"
 #include "../network/packetinterface.h"
+#include "../network/sockio.h"
 #include "../servdesc.h"
-#include "../sockio.h"
 #include "../sqlscrobj.h"
 #include "../uoclient.h"
 
@@ -191,5 +191,5 @@ NetworkManager::Memory NetworkManager::estimateSize() const
 
   return usage;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

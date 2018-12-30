@@ -266,6 +266,10 @@ set (pol_sources  # sorted !
   network/pktniid.h
   network/pktout.h
   network/pktoutid.h
+  network/sockets.h
+  network/sockio.cpp
+  network/sockio.h
+  network/xbuffer.h
   npctemplates.cpp
   npctmpl.cpp
   npctmpl.h
@@ -337,9 +341,6 @@ set (pol_sources  # sorted !
   skills.h
   sngclick.cpp
   sngclick.h
-  sockets.h
-  sockio.cpp
-  sockio.h
   speech.cpp
   spelbook.cpp
   spelbook.h
@@ -420,7 +421,6 @@ set (pol_sources  # sorted !
   vital.h
   watch.h
   wthrtype.h
-  xbuffer.h
   xmlfilescrobj.cpp
   xmlfilescrobj.h
   zone.cpp

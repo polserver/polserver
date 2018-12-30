@@ -37,9 +37,9 @@
 #include "../../plib/uconst.h"
 #include "../crypt/cryptkey.h"
 #include "../polclock.h"
-#include "../sockets.h"
 #include "pktdef.h"
 #include "pktin.h"
+#include "sockets.h"
 
 namespace Pol
 {
