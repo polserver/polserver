@@ -48,6 +48,7 @@
 #include "passert.h"
 #include "rawtypes.h"
 #include "refptr.h"
+#include "spinlock.h"
 #include "stlutil.h"
 #include "strutil.h"
 #include "weakptr.h"

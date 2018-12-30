@@ -12,4 +12,9 @@
 // include default pch
 #include "../clib/StdAfx.h"
 
+#include "clidata.h"
+#include "mapcell.h"
+#include "realmdescriptor.h"
+#include "ustruct.h"
+
 #endif
