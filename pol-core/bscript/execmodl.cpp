@@ -50,6 +50,10 @@ bool ExecutorModule::getStringParam( unsigned param, const String*& pstr )
 {
   return exec.getStringParam( param, pstr );
 }
+bool ExecutorModule::getUnicodeStringParam( unsigned param, const String*& pstr )
+{
+  return exec.getUnicodeStringParam( param, pstr );
+}
 bool ExecutorModule::getRealParam( unsigned param, double& value )
 {
   return exec.getRealParam( param, value );
@@ -108,5 +112,5 @@ const std::string& ExecutorModule::scriptname() const
 {
   return exec.prog_->name;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

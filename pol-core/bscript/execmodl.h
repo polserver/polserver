@@ -50,6 +50,7 @@ public:
   void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
   BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
   bool getStringParam( unsigned param, const String*& pstr );
+  bool getUnicodeStringParam( unsigned param, const String*& pstr );  // accepts also BLong array
   bool getRealParam( unsigned param, double& value );
   bool getObjArrayParam( unsigned param, ObjArray*& pobjarr );
 
@@ -161,7 +162,7 @@ inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
 {
   return function_table[idx].funcname;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 
 #endif
