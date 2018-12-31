@@ -37,6 +37,7 @@
 #include "syshook.h"
 #include "textcmd.h"
 #include "tildecmd.h"
+#include "ufunc.h"
 #include "ufuncstd.h"
 #include "uworld.h"
 
@@ -224,17 +225,13 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
 
   chr->last_textcolor( textcol );
 
-  using std::wstring;
-
   if ( wtext[0] == ctBEu16( L'.' ) || wtext[0] == ctBEu16( L'=' ) )
   {
     if ( !process_command( client, ntext, wtext, msgin->lang ) )
     {
-      wstring wtmp( L"Unknown command: " );
-      // Needs to be done char-by-char due to linux's 4-byte unicode!
-      for ( size_t i = 0; i < wtextlen; i++ )
-        wtmp += static_cast<wchar_t>( cfBEu16( wtext[i] ) );
-      send_sysmessage_unicode( client, wtmp, msgin->lang );
+      std::string tmp( "Unknown command: " );
+      send_sysmessage_unicode(
+          client, Bscript::String::toUTF16( tmp, Bscript::String::Tainted::NO ), msgin->lang );
     }
     return;
   }

@@ -1167,16 +1167,10 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
 }
 
 // Unicode System message -- message in lower left corner
-void send_sysmessage_unicode( Network::Client* client, const u16* wtext, const char lang[4],
-                              unsigned short font, unsigned short color )
+void send_sysmessage_unicode( Network::Client* client, const std::vector<u16>& wtext,
+                              const char lang[4], unsigned short font, unsigned short color )
 {
-  unsigned textlen = 0;
-  // textlen = wcslen((const wchar_t*)wtext) + 1;
-  while ( wtext[textlen] != L'\0' )
-    ++textlen;
-  if ( textlen > ( SPEECH_MAX_LEN ) )  // FIXME need to handle this better second msg?
-    textlen = ( SPEECH_MAX_LEN );
-
+  // textlen up to the caller
   PktHelper::PacketOut<PktOut_AE> msg;
   msg->offset += 2;
   msg->Write<u32>( 0x01010101u );
@@ -1186,7 +1180,7 @@ void send_sysmessage_unicode( Network::Client* client, const u16* wtext, const c
   msg->WriteFlipped<u16>( font );
   msg->Write( lang, 4 );
   msg->Write( "System", 30 );
-  msg->WriteFlipped( &wtext[0], static_cast<u16>( textlen ) );
+  msg->WriteFlipped( wtext );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1197,17 +1191,6 @@ void send_sysmessage( Network::Client* client, const std::string& text, unsigned
                       unsigned short color )
 {
   send_sysmessage( client, text.c_str(), font, color );
-}
-
-void send_sysmessage_unicode( Network::Client* client, const std::wstring& wtext,
-                              const char lang[4], unsigned short font, unsigned short color )
-{
-  using std::wstring;
-  u16 uctext[SPEECH_MAX_LEN + 1];
-  for ( size_t i = 0; i < wtext.length(); i++ )
-    uctext[i] = static_cast<u16>( wtext[i] );
-  uctext[wtext.length()] = 0x00;
-  send_sysmessage_unicode( client, uctext, lang, font, color );
 }
 
 void broadcast( const char* text, unsigned short font, unsigned short color,
@@ -1222,7 +1205,7 @@ void broadcast( const char* text, unsigned short font, unsigned short color,
   }
 }
 
-void broadcast_unicode( const u16* wtext, const char lang[4], unsigned short font,
+void broadcast_unicode( const std::vector<u16>& wtext, const char lang[4], unsigned short font,
                         unsigned short color, unsigned short requiredCmdLevel )
 {
   for ( auto& client : networkManager.clients )
@@ -1288,16 +1271,10 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
   return true;
 }
 
-bool say_above_unicode( const UObject* obj, const u16* wtext, const char lang[4],
+bool say_above_unicode( const UObject* obj, const std::vector<u16>& wtext, const char lang[4],
                         unsigned short font, unsigned short color, unsigned int journal_print )
 {
-  unsigned textlen = 0;
-  // textlen = wcslen((const wchar_t*)wtext) + 1;
-  while ( wtext[textlen] != L'\0' )
-    ++textlen;
-  if ( textlen > ( SPEECH_MAX_LEN ) )  // FIXME need to handle this better second msg?
-    textlen = ( SPEECH_MAX_LEN );
-
+  // textlen handled by caller
   PktHelper::PacketOut<PktOut_AE> msg;
   msg->offset += 2;
   msg->Write<u32>( obj->serial_ext );
@@ -1316,7 +1293,7 @@ bool say_above_unicode( const UObject* obj, const u16* wtext, const char lang[4]
     msg->Write( obj->description().c_str(), 30 );
     break;
   }
-  msg->WriteFlipped( &wtext[0], static_cast<u16>( textlen ) );
+  msg->WriteFlipped( wtext );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1359,16 +1336,11 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
   return true;
 }
 
-bool private_say_above_unicode( Character* chr, const UObject* obj, const u16* wtext,
+bool private_say_above_unicode( Character* chr, const UObject* obj, const std::vector<u16>& wtext,
                                 const char lang[4], unsigned short font, unsigned short color,
                                 unsigned int journal_print )
 {
-  unsigned textlen = 0;
-  // textlen = wcslen((const wchar_t*)wtext) + 1;
-  while ( wtext[textlen] != L'\0' )
-    ++textlen;
-  if ( textlen > ( SPEECH_MAX_LEN ) )  // FIXME need to handle this better second msg?
-    textlen = ( SPEECH_MAX_LEN );
+  // textlen handled by caller
   if ( chr->client == nullptr )
     return false;
 
@@ -1390,7 +1362,7 @@ bool private_say_above_unicode( Character* chr, const UObject* obj, const u16* w
     msg->Write( obj->description().c_str(), 30 );
     break;
   }
-  msg->WriteFlipped( &wtext[0], static_cast<u16>( textlen ) );
+  msg->WriteFlipped( wtext );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -2213,7 +2185,6 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
     msg->Write<u16>( 20u );  // a space character
     msg->Write<u16>( 20u );  // a space character
     msg->Write( arguments );
-    msg->Write<u16>( 0u );  // nullptr terminator for unicode string
   }
 
   u16 len = msg->offset;

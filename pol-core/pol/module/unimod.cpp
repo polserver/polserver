@@ -170,12 +170,9 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
   {
     if ( text->length() > SPEECH_MAX_LEN )
       return new BError( "Text exceeds maximum size." );
-    std::vector<u16> gwtext = text->toUTF16();
-    gwtext.push_back( 0 );
-
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    Core::broadcast_unicode( gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color,
+    Core::broadcast_unicode( text->toUTF16(), Clib::strupper( lang->value() ).c_str(), font, color,
                              requiredCmdLevel );
     return new BLong( 1 );
   }
@@ -199,13 +196,12 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
   {
     if ( text->length() > SPEECH_MAX_LEN )
       return new BError( "Text exceeds maximum size." );
-    std::vector<u16> gwtext = text->toUTF16();
-    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
 
-    return new BLong( say_above_unicode(
-        obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color, journal_print ) );
+    return new BLong( say_above_unicode( obj, text->toUTF16(),
+                                         Clib::strupper( lang->value() ).c_str(), font, color,
+                                         journal_print ) );
   }
   else
   {
@@ -227,13 +223,11 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
   {
     if ( text->length() > SPEECH_MAX_LEN )
       return new BError( "Text exceeds maximum size." );
-    std::vector<u16> gwtext = text->toUTF16();
-    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
 
     return new BLong( private_say_above_unicode(
-        chr, obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color ) );
+        chr, obj, text->toUTF16(), Clib::strupper( lang->value() ).c_str(), font, color ) );
   }
   else
   {
@@ -262,8 +256,6 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 
     if ( prompt->length() > SPEECH_MAX_LEN )
       return new BError( "Prompt exceeds maximum size." );
-    std::vector<u16> gwtext = prompt->toUTF16();
-    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
 
@@ -275,7 +267,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new Bscript::BError( "Script can't be blocked" );
     }
 
-    Core::send_sysmessage_unicode( chr->client, gwtext.data(),
+    Core::send_sysmessage_unicode( chr->client, prompt->toUTF16(),
                                    Clib::strupper( lang->value() ).c_str() );
 
     chr->client->gd->prompt_uniemod = this;
@@ -306,12 +298,10 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
     {
       if ( text->length() > SPEECH_MAX_LEN )
         return new BError( "Text exceeds maximum size." );
-      std::vector<u16> gwtext = text->toUTF16();
-      gwtext.push_back( 0 );
       if ( lang->length() != 3 )
         return new BError( "langcode must be a 3-character code." );
 
-      Core::send_sysmessage_unicode( chr->client, gwtext.data(),
+      Core::send_sysmessage_unicode( chr->client, text->toUTF16(),
                                      Clib::strupper( lang->value() ).c_str(), font, color );
       return new BLong( 1 );
     }
