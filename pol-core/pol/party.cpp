@@ -21,6 +21,7 @@
 #include <string>
 #include <time.h>
 
+#include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
@@ -106,20 +107,18 @@ void load_party_cfg_general( Clib::ConfigElem& elem )
     settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
   else
   {
-    std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
     tmp += " ";
-    for ( unsigned i = 0; i < tmp.size(); ++i )
-    {
-      arr->addElement( new Bscript::BLong( static_cast<unsigned char>( tmp[i] ) ) );
-    }
-    settingsManager.party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
+    std::vector<u16> text = Bscript::String::toUTF16( tmp );
+
+    settingsManager.party_cfg.General.PrivateMsgPrefixLen = (unsigned char)text.size();
     if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen > SPEECH_MAX_LEN )
       settingsManager.party_cfg.General.PrivateMsgPrefixLen = SPEECH_MAX_LEN;
-
-    Bscript::ObjArray* arrPtr = arr.get();
-    if ( !Core::convertArrayToUC( arrPtr, settingsManager.party_cfg.General.PrivateMsgPrefix,
-                                  settingsManager.party_cfg.General.PrivateMsgPrefixLen, true ) )
-      settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
+    size_t i = 0;
+    for ( const auto& c : text )
+    {
+      settingsManager.party_cfg.General.PrivateMsgPrefix[i] = cfBEu16( c );
+      ++i;
+    }
   }
 }
 
@@ -683,15 +682,27 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
       return;
     Bscript::BObject obj =
         settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref(), arr );
-    if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+
+    if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
-      unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
-      if ( len > SPEECH_MAX_LEN )
-        len = SPEECH_MAX_LEN;
-      if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
-        return;
-      wtextlen = len + 1;
+      std::vector<u16> vtext;
+      if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+        vtext =
+            std::unique_ptr<Bscript::String>(
+                Bscript::String::fromUCArray( static_cast<Bscript::ObjArray*>( obj.impptr() ) ) )
+                ->toUTF16();
+      else
+        vtext = static_cast<Bscript::String*>( obj.impptr() )->toUTF16();
+      if ( vtext.size() > SPEECH_MAX_LEN )
+        vtext.resize( SPEECH_MAX_LEN );
+      size_t i = 0;
+      for ( auto& c : vtext )
+      {
+        wtext[i] = ctBEu16( c );
+        ++i;
+      }
+      wtext[i] = 0;
+      wtextlen = vtext.size() + 1;
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {
@@ -733,15 +744,26 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
       return;
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object(
         chr->make_ref(), tochr->make_ref(), arr );
-    if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+    if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
-      unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
-      if ( len > SPEECH_MAX_LEN )
-        len = SPEECH_MAX_LEN;
-      if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
-        return;
-      wtextlen = len + 1;
+      std::vector<u16> vtext;
+      if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+        vtext =
+            std::unique_ptr<Bscript::String>(
+                Bscript::String::fromUCArray( static_cast<Bscript::ObjArray*>( obj.impptr() ) ) )
+                ->toUTF16();
+      else
+        vtext = static_cast<Bscript::String*>( obj.impptr() )->toUTF16();
+      if ( vtext.size() > SPEECH_MAX_LEN )
+        vtext.resize( SPEECH_MAX_LEN );
+      size_t i = 0;
+      for ( auto& c : vtext )
+      {
+        wtext[i] = ctBEu16( c );
+        ++i;
+      }
+      wtext[i] = 0;
+      wtextlen = vtext.size() + 1;
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {

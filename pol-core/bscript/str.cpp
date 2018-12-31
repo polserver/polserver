@@ -1170,6 +1170,18 @@ std::string String::fromUTF16( unsigned short* code, size_t len )
   return s;
 }
 
+std::vector<unsigned short> String::toUTF16( std::string text, Tainted san )
+{
+  if ( san == Tainted::YES )
+  {
+    if ( !String::sanitizeUnicode( &text ) )
+      text = "Invalid unicode";
+  }
+  std::vector<unsigned short> u16;
+  utf8::utf8to16( text.begin(), text.end(), std::back_inserter( u16 ) );
+  return u16;
+}
+
 bool String::compare( const String& str ) const
 {
   return value_.compare( str.value_ ) == 0;
@@ -1223,5 +1235,24 @@ bool String::sanitizeUnicode( std::string* str )
   *str = utf8;
   return true;
 }
+
+String* String::fromUCArray( ObjArray* array )
+{
+  std::string res;
+  for ( const auto& c : array->ref_arr )
+  {
+    if ( !c )
+      continue;
+    BObjectImp* imp = c.get()->impptr();
+    if ( imp && imp->isa( BObjectImp::OTLong ) )
+    {
+      BLong* blong = static_cast<BLong*>( imp );
+      if ( blong->value() == 0 )
+        break;
+      res += String::fromUTF32( blong->value() );
+    }
+  }
+  return new String( res );
 }
-}
+}  // namespace Bscript
+}  // namespace Pol

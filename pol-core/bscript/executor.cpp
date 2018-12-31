@@ -716,22 +716,7 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
   }
   else if ( obj->isa( BObjectImp::OTArray ) )
   {
-    ObjArray* array = static_cast<ObjArray*>( obj->impptr() );
-    std::string res;
-    for ( const auto& c : array->ref_arr )
-    {
-      if ( !c )
-        continue;
-      BObjectImp* imp = c.get()->impptr();
-      if ( imp && imp->isa( BObjectImp::OTLong ) )
-      {
-        BLong* blong = static_cast<BLong*>( imp );
-        if ( blong->value() == 0 )
-          break;
-        res += String::fromUTF32( blong->value() );
-      }
-    }
-    pstr = new String( res );
+    pstr = String::fromUCArray( static_cast<ObjArray*>( obj->impptr() ) );
     return true;
   }
   std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +

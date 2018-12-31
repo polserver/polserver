@@ -454,24 +454,27 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 3 )
       return new BError( "SetUnicodeString requires 3 parameters." );
     unsigned short offset, nullterm;
-    ObjArray* unitext;
-    if ( ex.getParam( 0, offset ) && ex.getObjArrayParam( 1, unitext ) &&
+    const String* unitext;
+    if ( ex.getParam( 0, offset ) && ex.getUnicodeStringParam( 1, unitext ) &&
          ex.getParam( 2, nullterm ) )
     {
-      u16 textlen =
-          static_cast<u16>( unitext->ref_arr.size() );  // number of unicode chars, not bytes
-      u16 nulltermlen = nullterm ? 2 : 0;
-      if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
+      std::vector<u16> gwtext = unitext->toUTF16();
+      if ( nullterm )
+        gwtext.push_back( 0 );
+      u16 bytelen = static_cast<u16>( gwtext.size() ) * 2;
+      if ( static_cast<u16>( offset + bytelen ) > buffer.size() )
       {
-        if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
+        if ( !SetSize( ( offset + bytelen ) ) )
         {
           return new BError( "Offset value out of range on a fixed length packet" );
-          ;
         }
       }
-      if ( !Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen,
-                                    true, nullterm ? true : false ) )
-        return new BError( "Invalid value in Unicode array." );
+      for ( const auto& c : gwtext )
+      {
+        u16 fc = cfBEu16( c );
+        std::memcpy( &buffer[offset], &fc, sizeof( fc ) );
+        offset += 2;
+      }
 
       return new BLong( 1 );
     }
@@ -482,24 +485,28 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 3 )
       return new BError( "SetUnicodeStringFlipped requires 3 parameters." );
     unsigned short offset, nullterm;
-    ObjArray* unitext;
-    if ( ex.getParam( 0, offset ) && ex.getObjArrayParam( 1, unitext ) &&
+    const String* unitext;
+    if ( ex.getParam( 0, offset ) && ex.getUnicodeStringParam( 1, unitext ) &&
          ex.getParam( 2, nullterm ) )
     {
-      u16 textlen =
-          static_cast<u16>( unitext->ref_arr.size() );  // number of unicode chars, not bytes
-      u16 nulltermlen = nullterm ? 2 : 0;
-      if ( static_cast<u16>( offset + ( textlen * 2 ) + nulltermlen ) > buffer.size() )
+      std::vector<u16> gwtext = unitext->toUTF16();
+      if ( nullterm )
+        gwtext.push_back( 0 );
+      u16 bytelen = static_cast<u16>( gwtext.size() ) * 2;
+
+      if ( static_cast<u16>( offset + bytelen ) > buffer.size() )
       {
-        if ( !SetSize( ( offset + ( textlen * 2 ) + nulltermlen ) ) )
+        if ( !SetSize( offset + bytelen ) )
         {
           return new BError( "Offset value out of range on a fixed length packet" );
           ;
         }
       }
-      if ( !Core::convertArrayToUC( unitext, reinterpret_cast<u16*>( &buffer[offset] ), textlen,
-                                    false, nullterm ? true : false ) )
-        return new BError( "Invalid value in Unicode array." );
+      for ( const auto& c : gwtext )
+      {
+        std::memcpy( &buffer[offset], &c, sizeof( c ) );
+        offset += 2;
+      }
       return new BLong( 1 );
     }
     break;
@@ -553,5 +560,5 @@ BObjectImp* BPacket::SetSize( u16 newsize, bool /*giveReturn*/ )
   *sizeptr = ctBEu16( newsize );
   return new BLong( oldsize );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

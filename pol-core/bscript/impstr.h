@@ -35,7 +35,7 @@ public:
   explicit String( const std::string& str, Tainted san = Tainted::YES );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
-  virtual ~String() {}
+  virtual ~String() = default;
 
 private:
   explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n );
@@ -72,6 +72,8 @@ public:
   static std::string fromUTF32( unsigned int code );
   static std::string fromUTF16( std::vector<unsigned short> code );
   static std::string fromUTF16( unsigned short* code, size_t len );
+  static std::vector<unsigned short> toUTF16( std::string text, Tainted san = Tainted::YES );
+  static String* fromUCArray( ObjArray* array );
 
   String& operator=( const char* s )
   {
@@ -156,6 +158,6 @@ class ConstString : public String
 public:
   explicit ConstString( const std::string& str ) : String( str, Tainted::YES ) {}
 };
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif
