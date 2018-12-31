@@ -26,7 +26,7 @@
 #include "../network/auxclient.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
-#include "../pktdef.h"
+#include "../network/pktdef.h"
 #include "../polcfg.h"
 #include "../poldbg.h"
 #include "../polsem.h"
@@ -1064,5 +1064,5 @@ BObjectImp* OSExecutorModule::mf_performance_diff()
 
   return new BLong( 0 );  // dummy
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

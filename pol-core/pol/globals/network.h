@@ -11,8 +11,8 @@
 #include "../network/bannedips.h"
 #include "../network/iostats.h"
 #include "../network/msghandl.h"
+#include "../network/sockio.h"
 #include "../polstats.h"
-#include "../sockio.h"
 #include "../uoclient.h"
 
 namespace Pol
@@ -25,7 +25,7 @@ class ClientTransmit;
 class PacketHookData;
 class PacketsSingleton;
 class UOClientInterface;
-}
+}  // namespace Network
 namespace threadhelp
 {
 class DynTaskThreadPool;
@@ -114,6 +114,6 @@ private:
 };
 
 extern NetworkManager networkManager;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

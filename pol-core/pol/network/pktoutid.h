@@ -128,5 +128,5 @@ enum PKTOUTID : unsigned char
   PKTOUT_F7_ID = 0xF7   // Display Multi HSA
 };
 }
-}
+}  // namespace Pol
 #endif

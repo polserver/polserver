@@ -23,6 +23,6 @@ struct XmitBuffer
   unsigned short lenleft;  // how many bytes left to send
   unsigned char data[1];
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

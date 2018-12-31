@@ -15,6 +15,7 @@
 #include "../clib/rawtypes.h"
 #include "pktbothid.h"
 #include "pktdef.h"
+
 namespace Pol
 {
 namespace Core
@@ -1122,6 +1123,6 @@ struct PKTBI_D7
 };
 
 #pragma pack( pop )
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

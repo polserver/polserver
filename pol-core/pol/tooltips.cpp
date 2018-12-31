@@ -24,7 +24,7 @@
 #include "network/packetdefs.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 #include "uobject.h"
 #include "uworld.h"
@@ -138,5 +138,5 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   msg->WriteFlipped<u16>( len );
   msg.Send( client, len );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

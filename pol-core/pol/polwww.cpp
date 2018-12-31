@@ -37,13 +37,13 @@
 #include "globals/uvars.h"
 #include "module/httpmod.h"
 #include "module/uomod.h"
+#include "network/sockets.h"
+#include "network/sockio.h"
 #include "polcfg.h"
 #include "polsem.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "sockets.h"
-#include "sockio.h"
 #include "uoexec.h"
 
 #ifdef _WIN32
@@ -899,5 +899,5 @@ void start_http_server()
 {
   threadhelp::start_thread( http_thread, "HTTP" );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

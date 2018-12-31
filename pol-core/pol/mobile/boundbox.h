@@ -7,7 +7,6 @@
 #ifndef __BOUNDBOX_H
 #define __BOUNDBOX_H
 
-#include <string>
 #include <vector>
 
 namespace Pol
@@ -30,7 +29,6 @@ class BoundingBox
 {
 public:
   bool contains( unsigned short x, unsigned short y ) const;
-  bool read( std::string areadesc );
   void addarea( const Area& area );
 
 private:

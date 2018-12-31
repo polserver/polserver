@@ -257,6 +257,19 @@ set (pol_sources  # sorted !
   network/packetinterface.h
   network/packets.cpp
   network/packets.h
+  network/pktboth.h
+  network/pktbothid.h
+  network/pktdef.h
+  network/pktin.h
+  network/pktinid.h
+  network/pktni.h
+  network/pktniid.h
+  network/pktout.h
+  network/pktoutid.h
+  network/sockets.h
+  network/sockio.cpp
+  network/sockio.h
+  network/xbuffer.h
   npctemplates.cpp
   npctmpl.cpp
   npctmpl.h
@@ -268,15 +281,6 @@ set (pol_sources  # sorted !
   party.cpp
   party.h
   party_cfg.h
-  pktboth.h
-  pktbothid.h
-  pktdef.h
-  pktin.h
-  pktinid.h
-  pktni.h
-  pktniid.h
-  pktout.h
-  pktoutid.h
   pol.cpp
   pol.h
   pol.rc
@@ -337,9 +341,6 @@ set (pol_sources  # sorted !
   skills.h
   sngclick.cpp
   sngclick.h
-  sockets.h
-  sockio.cpp
-  sockio.h
   speech.cpp
   spelbook.cpp
   spelbook.h
@@ -420,7 +421,6 @@ set (pol_sources  # sorted !
   vital.h
   watch.h
   wthrtype.h
-  xbuffer.h
   xmlfilescrobj.cpp
   xmlfilescrobj.h
   zone.cpp

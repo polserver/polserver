@@ -248,5 +248,5 @@ PolSocket::PolSocket()
   FD_ZERO( &err_fd );
   FD_ZERO( &send_fd );
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

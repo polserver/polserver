@@ -25,12 +25,12 @@
 #include "../../clib/strutil.h"
 #include "../../plib/uconst.h"
 #include "../layers.h"
-#include "../pktboth.h"
-#include "../pktbothid.h"
-#include "../pktdef.h"
-#include "../pktoutid.h"
 #include "../realms.h"
 #include "packetinterface.h"
+#include "pktboth.h"
+#include "pktbothid.h"
+#include "pktdef.h"
+#include "pktoutid.h"
 
 namespace Pol
 {

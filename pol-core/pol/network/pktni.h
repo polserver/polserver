@@ -236,6 +236,6 @@ struct PKTNI_64
 static_assert( sizeof( PKTNI_64 ) == 1, "size missmatch" );
 
 #pragma pack( pop )
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif  // PKTNI_H

@@ -12,10 +12,10 @@
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/spinlock.h"
-#include "../pktboth.h"
-#include "../pktbothid.h"
 #include "packethelper.h"
 #include "packetinterface.h"
+#include "pktboth.h"
+#include "pktbothid.h"
 
 namespace Pol
 {
@@ -509,6 +509,6 @@ PacketInterface* GetPacket( u8 id, u16 sub )
                               Clib::hexint( sub ) );
   }
 }
-}
-}
-}
+}  // namespace PktHelper
+}  // namespace Network
+}  // namespace Pol

@@ -32,9 +32,9 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "objtype.h"
-#include "pktdef.h"
-#include "pktin.h"
 #include "realms/realm.h"
 #include "scrdef.h"
 #include "scrsched.h"
@@ -243,5 +243,5 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

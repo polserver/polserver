@@ -12,7 +12,7 @@
 #endif
 
 #include "../../clib/rawtypes.h"
-#include "../pktdef.h"
+#include "../network/pktdef.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
 
@@ -80,6 +80,6 @@ inline bool UnicodeExecutorModule::getUObjectParam( unsigned param, Core::UObjec
 {
   return Core::getUObjectParam( exec, param, objptr );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

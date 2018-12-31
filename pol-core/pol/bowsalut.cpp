@@ -21,7 +21,7 @@
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/packetdefs.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "uworld.h"
 
 namespace Pol
@@ -251,5 +251,5 @@ void handle_action( Network::Client* client, PKTIN_12* cmd )
   else if ( stricmp( (const char*)cmd->data, "salute" ) == 0 )
     send_action_to_inrange( client->chr, ACTION_SALUTE );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -72,7 +72,7 @@
 
 
 #include "../../plib/uconst.h"
-#include "../sockets.h"
+#include "../network/sockets.h"
 #include "logincrypt.h"
 namespace Pol
 {

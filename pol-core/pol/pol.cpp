@@ -112,10 +112,12 @@
 #include "network/packethelper.h"
 #include "network/packethooks.h"
 #include "network/packets.h"
+#include "network/pktboth.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
+#include "network/sockets.h"
+#include "network/sockio.h"
 #include "party.h"
-#include "pktboth.h"
-#include "pktdef.h"
-#include "pktin.h"
 #include "polcfg.h"
 #include "polclock.h"
 #include "poldbg.h"
@@ -128,8 +130,6 @@
 #include "savedata.h"
 #include "scrdef.h"
 #include "scrsched.h"
-#include "sockets.h"
-#include "sockio.h"
 #include "sqlscrobj.h"
 #include "ssopt.h"
 #include "testing/poltest.h"
@@ -172,18 +172,18 @@ namespace Bscript
 {
 void display_executor_instances();
 void display_bobjectimp_instances();
-}
+}  // namespace Bscript
 namespace Items
 {
 void load_intrinsic_weapons();
 void allocate_intrinsic_weapon_serials();
-}
+}  // namespace Items
 namespace Network
 {
 void load_aux_services();
 void start_aux_services();
 void read_bannedips_config( bool initial_load );
-}
+}  // namespace Network
 namespace Core
 {
 void cancel_all_trades();
@@ -1467,4 +1467,4 @@ int xmain_outer( bool testing )
     throw;
   }
 }
-}
+}  // namespace Pol

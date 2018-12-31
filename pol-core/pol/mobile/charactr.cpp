@@ -138,9 +138,9 @@
 #include "../network/packetdefs.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
+#include "../network/pktdef.h"
 #include "../objtype.h"
 #include "../party.h"
-#include "../pktdef.h"
 #include "../polclass.h"
 #include "../polsig.h"
 #include "../polvar.h"
@@ -1534,36 +1534,41 @@ void Character::produce( const Core::Vital* pVital, VitalValue& vv, unsigned int
   set_dirty();
   vv.produce( amt );
   if ( start_ones != vv.current_ones() )
-  {
     Network::ClientInterface::tell_vital_changed( this, pVital );
-  }
 }
 
 bool Character::consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt )
 {
-  bool res;
   int start_ones = vv.current_ones();
   set_dirty();
-  res = vv.consume( amt );
+  bool res = vv.consume( amt );
   if ( start_ones != vv.current_ones() )
   {
     Network::ClientInterface::tell_vital_changed( this, pVital );
+    if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
+      pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
   }
   return res;
 }
 
 void Character::set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones )
 {
+  int start_ones = vv.current_ones();
   set_dirty();
   vv.current_ones( ones );
   Network::ClientInterface::tell_vital_changed( this, pVital );
+  if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
+    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
 }
 
 void Character::set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones )
 {
+  int start_ones = vv.current_ones();
   set_dirty();
   vv.current( ones );
   Network::ClientInterface::tell_vital_changed( this, pVital );
+  if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
+    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
 }
 
 void Character::regen_vital( const Core::Vital* pVital )
@@ -1571,13 +1576,9 @@ void Character::regen_vital( const Core::Vital* pVital )
   VitalValue& vv = vital( pVital->vitalid );
   int rr = vv.regenrate();
   if ( rr > 0 )
-  {
     produce( pVital, vv, rr / 12 );
-  }
   else if ( rr < 0 )
-  {
     consume( pVital, vv, -rr / 12 );
-  }
 }
 
 void Character::calc_vital_stuff( bool i_mod, bool v_mod )
@@ -3823,7 +3824,6 @@ bool Character::move( unsigned char i_dir )
       unsigned short tmv = movecost(
           this, carry_perc, ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) ? true : false, on_mount() );
       VitalValue& stamina = vital( Core::gamestate.pVitalStamina->vitalid );
-      // u16 old_stamina = stamina.current_ones();
       if ( !consume( Core::gamestate.pVitalStamina, stamina, tmv ) )
       {
         private_say_above( this, this, "You are too fatigued to move." );
@@ -4336,5 +4336,140 @@ bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
+
+
+AttributeValue::AttributeValue()
+    : _base( 0 ), _temp( 0 ), _intrinsic( 0 ), _lockstate( 0 ), _cap( 0 )
+{
+}
+int AttributeValue::effective() const
+{
+  int v = _base;
+  v += _temp;
+  v += _intrinsic;
+  return ( v > 0 ) ? ( v / 10 ) : 0;
+}
+int AttributeValue::effective_tenths() const
+{
+  int v = _base;
+  v += _temp;
+  v += _intrinsic;
+  return ( v > 0 ) ? v : 0;
+}
+int AttributeValue::base() const
+{
+  return _base;
+}
+void AttributeValue::base( unsigned short base )
+{
+  passert( base <= ATTRIBUTE_MAX_BASE );
+  _base = base;
+}
+int AttributeValue::temp_mod() const
+{
+  return _temp;
+}
+void AttributeValue::temp_mod( short temp )
+{
+  _temp = temp;
+}
+int AttributeValue::intrinsic_mod() const
+{
+  return _intrinsic;
+}
+void AttributeValue::intrinsic_mod( short val )
+{
+  _intrinsic = val;
+}
+unsigned char AttributeValue::lock() const
+{
+  return _lockstate;
+}
+void AttributeValue::lock( unsigned char lockstate )
+{
+  _lockstate = lockstate;
+}
+unsigned short AttributeValue::cap() const
+{
+  return _cap;
+}
+void AttributeValue::cap( unsigned short cap )
+{
+  _cap = cap;
+}
+
+VitalValue::VitalValue() : _current( 0 ), _maximum( 0 ), _regenrate( 0 ) {}
+int VitalValue::current() const
+{
+  return _current;
+}
+int VitalValue::current_ones() const
+{
+  return _current / 100;
+}
+int VitalValue::current_thousands() const
+{
+  // use division to prevent overflow
+  return ( _current / 100 ) * 1000 / ( _maximum / 100 );
+}
+int VitalValue::maximum() const
+{
+  return _maximum;
+}
+int VitalValue::maximum_ones() const
+{
+  return _maximum / 100;
+}
+bool VitalValue::is_at_maximum() const
+{
+  return ( _current >= _maximum );
+}
+int VitalValue::regenrate() const
+{
+  return _regenrate;
+}
+void VitalValue::current( int cur )
+{
+  _current = cur;
+  if ( _current > _maximum )
+    _current = _maximum;
+}
+void VitalValue::current_ones( int ones )
+{
+  current( ones * 100 );
+}
+void VitalValue::maximum( int val )
+{
+  _maximum = val;
+  if ( _current > _maximum )
+    current( _maximum );
+}
+void VitalValue::regenrate( int rate )
+{
+  _regenrate = rate;
+}
+bool VitalValue::consume( unsigned int hamt )
+{
+  if ( _current > hamt )
+  {
+    _current -= hamt;
+    return true;
+  }
+  _current = 0;
+  return false;
+}
+void VitalValue::produce( unsigned int hamt )
+{
+  unsigned newcur = _current + hamt;
+  if ( newcur > _maximum || newcur < _current )
+  {
+    _current = _maximum;
+  }
+  else
+  {
+    _current = newcur;
+  }
+}
+
 }  // namespace Mobile
 }  // namespace Pol

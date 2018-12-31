@@ -17,8 +17,8 @@
 #include "mobile/charactr.h"
 #include "multi/multi.h"
 #include "network/client.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "realms/realm.h"
 #include "reftypes.h"
 #include "ufunc.h"
@@ -142,5 +142,5 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   equip_on->equip( item );
   send_wornitem_to_inrange( equip_on, item );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

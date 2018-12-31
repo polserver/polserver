@@ -4,9 +4,9 @@
 #include "../../clib/rawtypes.h"
 #include "../globals/settings.h"
 #include "../mobile/charactr.h"
-#include "../pktdef.h"
 #include "../uobject.h"
 #include "client.h"
+#include "pktdef.h"
 
 namespace Pol
 {
@@ -887,5 +887,5 @@ void MoveChrPkt::Send( Client* client )
   _p->Write<u8>( _chr->hilite_color_idx( client->chr ) );
   _p.Send( client );
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

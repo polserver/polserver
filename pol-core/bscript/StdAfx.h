@@ -14,5 +14,9 @@
 // include default pch
 #include "../clib/StdAfx.h"
 
+#include "bobject.h"
+#include "token.h"
+#include "tokens.h"
+
 
 #endif

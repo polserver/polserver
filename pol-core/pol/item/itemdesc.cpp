@@ -42,7 +42,7 @@
 #include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../multi/multidef.h"
-#include "../pktdef.h"
+#include "../network/pktdef.h"
 #include "../proplist.h"
 #include "../resource.h"
 #include "../syshookscript.h"

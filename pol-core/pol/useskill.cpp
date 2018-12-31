@@ -15,7 +15,7 @@
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "polclock.h"
 #include "scrdef.h"
 #include "scrstore.h"
@@ -116,5 +116,5 @@ bool CanUseSkill( Network::Client* client )
 
   return true;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
