@@ -288,6 +288,22 @@ public:
       offset += 2;
     }
   };
+  void Write( const std::vector<u16>& x )
+  {
+    passert_always_r( offset + x.size() * 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
+    std::memcpy( &buffer[offset], x.data(), 2 * x.size() );
+    offset += x.size() * 2;
+  };
+  void WriteFlipped( const std::vector<u16>& x )
+  {
+    passert_always_r( offset + x.size() * 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
+    for ( const auto& c : x )
+    {
+      u16 tmp = ctBEu16( c );
+      std::memcpy( &buffer[offset], &tmp, 2 );
+      offset += 2;
+    }
+  };
 };
 
 // "normal" pkt

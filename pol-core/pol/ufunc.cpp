@@ -2187,7 +2187,7 @@ void sendCharProfile( Character* chr, Character* of_who, const char* title, cons
  * terminator
  */
 void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 cl_name,
-                        u32 cl_descr, std::vector<u32> arguments )
+                        u32 cl_descr, const std::vector<u16>& arguments )
 {
   PktHelper::PacketOut<PktOut_DF> msg;
   msg->offset += 2;  // length will be written later
@@ -2212,8 +2212,7 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
     msg->Write<u8>( 1u );    // unknown, always 1
     msg->Write<u16>( 20u );  // a space character
     msg->Write<u16>( 20u );  // a space character
-    for ( auto it = arguments.begin(); it != arguments.end(); ++it )
-      msg->Write<u16>( *it );
+    msg->Write( arguments );
     msg->Write<u16>( 0u );  // nullptr terminator for unicode string
   }
 

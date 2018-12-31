@@ -257,8 +257,7 @@ void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const c
                       const u16* utext, const u16* etext );
 
 void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0,
-                        u32 cl_name = 0, u32 cl_descr = 0,
-                        std::vector<u32> arguments = std::vector<u32>() );
+                        u32 cl_name = 0, u32 cl_descr = 0, const std::vector<u16>& arguments = std::vector<u16>());
 }  // namespace Core
 }  // namespace Pol
 #endif
