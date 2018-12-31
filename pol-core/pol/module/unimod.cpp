@@ -158,34 +158,21 @@ UnicodeExecutorModule::~UnicodeExecutorModule()
 
 BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
 {
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
   unsigned short requiredCmdLevel;
-  if ( getStringParam( 1, lang ) && getParam( 2, font ) &&  // todo: getFontParam
-       getParam( 3, color ) &&                              // todo: getColorParam
-       getParam( 4, requiredCmdLevel ) )                    // todo: getRequiredCmdLevelParam
+  if ( getUnicodeStringParam( 0, text ) && getStringParam( 1, lang ) &&
+       getParam( 2, font ) &&             // todo: getFontParam
+       getParam( 3, color ) &&            // todo: getColorParam
+       getParam( 4, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
-    std::vector<u16> gwtext;
-    BObjectImp* imp = exec.getParamImp( 0 );
-    if ( imp->isa( BObjectImp::OTArray ) )
-    {
-      ObjArray* ucarr = static_cast<ObjArray*>( imp );
-      size_t textlen = ucarr->ref_arr.size();
-      if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      gwtext.reserve( textlen + 1 );
-      if ( !Core::convertArrayToUC( ucarr, gwtext.data(), textlen ) )
-        return new BError( "Invalid value in Unicode array." );
-    }
-    else if ( imp->isa( BObjectImp::OTString ) )
-    {
-      String* uctext = static_cast<String*>( imp );
-      gwtext = uctext->toUTF16();
-      gwtext.push_back( 0 );
-    }
-    else
-      return new BError( "Param 1 needs to be string or unicode array" );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
+    std::vector<u16> gwtext = text->toUTF16();
+    gwtext.push_back( 0 );
+
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
     Core::broadcast_unicode( gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color,
@@ -201,23 +188,21 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
 BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
 {
   Core::UObject* obj;
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
   int journal_print;
 
-  if ( getUObjectParam( 0, obj ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
+  if ( getUObjectParam( 0, obj ) && getUnicodeStringParam( 1, text ) && getStringParam( 2, lang ) &&
        getParam( 3, font ) && getParam( 4, color ) && getParam( 5, journal_print ) )
   {
-    size_t textlen = oText->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
+    std::vector<u16> gwtext = text->toUTF16();
+    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext( textlen + 1 );
-    if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
-      return new BError( "Invalid value in Unicode array." );
 
     return new BLong( say_above_unicode(
         obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color, journal_print ) );
@@ -232,22 +217,20 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
 {
   Mobile::Character* chr;
   Core::UObject* obj;
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
 
-  if ( getUObjectParam( 0, obj ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
+  if ( getUObjectParam( 0, obj ) && getUnicodeStringParam( 1, text ) && getStringParam( 2, lang ) &&
        getCharacterParam( 3, chr ) && getParam( 4, font ) && getParam( 5, color ) )
   {
-    size_t textlen = oText->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
+    std::vector<u16> gwtext = text->toUTF16();
+    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext( textlen + 1 );
-    if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
-      return new BError( "Invalid value in Unicode array." );
 
     return new BLong( private_say_above_unicode(
         chr, obj, gwtext.data(), Clib::strupper( lang->value() ).c_str(), font, color ) );
@@ -262,10 +245,10 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 {
   Mobile::Character* chr;
   Items::Item* item;
-  ObjArray* oPrompt;
+  const String* prompt;
   const String* lang;
-  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getObjArrayParam( 2, oPrompt ) &&
-       getStringParam( 3, lang ) )
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) &&
+       getUnicodeStringParam( 2, prompt ) && getStringParam( 3, lang ) )
   {
     if ( !chr->has_active_client() )
     {
@@ -277,14 +260,12 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new BError( "Another script has an active prompt" );
     }
 
-    size_t textlen = oPrompt->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( prompt->length() > SPEECH_MAX_LEN )
+      return new BError( "Prompt exceeds maximum size." );
+    std::vector<u16> gwtext = prompt->toUTF16();
+    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext( textlen + 1 );
-    if ( !Core::convertArrayToUC( oPrompt, gwtext.data(), textlen ) )
-      return new BError( "Invalid value in Unicode array." );
 
     if ( !uoexec.suspend() )
     {
@@ -313,24 +294,22 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
 {
   Mobile::Character* chr;
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
 
-  if ( getCharacterParam( 0, chr ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
-       getParam( 3, font ) && getParam( 4, color ) )
+  if ( getCharacterParam( 0, chr ) && getUnicodeStringParam( 1, text ) &&
+       getStringParam( 2, lang ) && getParam( 3, font ) && getParam( 4, color ) )
   {
     if ( chr->has_active_client() )
     {
-      size_t textlen = oText->ref_arr.size();
-      if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
+      if ( text->length() > SPEECH_MAX_LEN )
+        return new BError( "Text exceeds maximum size." );
+      std::vector<u16> gwtext = text->toUTF16();
+      gwtext.push_back( 0 );
       if ( lang->length() != 3 )
         return new BError( "langcode must be a 3-character code." );
-      std::vector<u16> gwtext( textlen + 1 );
-      if ( !Core::convertArrayToUC( oText, gwtext.data(), textlen ) )
-        return new BError( "Invalid value in Unicode array." );
 
       Core::send_sysmessage_unicode( chr->client, gwtext.data(),
                                      Clib::strupper( lang->value() ).c_str(), font, color );

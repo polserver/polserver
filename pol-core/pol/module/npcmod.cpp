@@ -745,11 +745,11 @@ BObjectImp* NPCExecutorModule::SayUC()
   else if ( npc.hidden() )
     npc.unhide();
 
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   int doevent;
 
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
+  if ( getUnicodeStringParam( 0, text ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
   {
     std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
     if ( texttype_str != "default" && texttype_str != "whisper" && texttype_str != "yell" )
@@ -757,14 +757,12 @@ BObjectImp* NPCExecutorModule::SayUC()
       return new BError( "texttype string param must be either 'default', 'whisper', or 'yell'" );
     }
 
-    size_t textlenucc = oText->ref_arr.size();
-    if ( textlenucc > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
+    std::vector<u16> gwtext = text->toUTF16();
+    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    std::vector<u16> gwtext( textlenucc + 1 );
-    if ( !Core::convertArrayToUC( oText, gwtext.data(), textlenucc ) )
-      return new BError( "Invalid value in Unicode array." );
 
     std::string languc = Clib::strupper( lang->value() );
     unsigned textlen = 0;

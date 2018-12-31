@@ -5524,33 +5524,23 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
 {
   Character *chr, *of_who;
   const String* title;
-  ObjArray* uText;
-  ObjArray* eText;
+  const String* uText;
+  const String* eText;
 
   if ( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, of_who ) &&
-       getStringParam( 2, title ) && getObjArrayParam( 3, uText ) && getObjArrayParam( 4, eText ) )
+       getStringParam( 2, title ) && getUnicodeStringParam( 3, uText ) &&
+       getUnicodeStringParam( 4, eText ) )
   {
     if ( chr->logged_in() && of_who->logged_in() )
     {
-      // Get The Unicode message lengths and convert the arrays to UC
-      u16 uwtext[( SPEECH_MAX_LEN + 1 )];
-      u16 ewtext[( SPEECH_MAX_LEN + 1 )];
+      if ( uText->length() > SPEECH_MAX_LEN || eText->length() > SPEECH_MAX_LEN )
+        return new BError( "Text exceeds maximum size." );
+      std::vector<u16> uwtext = uText->toUTF16();
+      uwtext.push_back( 0 );
+      std::vector<u16> ewtext = eText->toUTF16();
+      ewtext.push_back( 0 );
 
-      size_t ulen = uText->ref_arr.size();
-      if ( ulen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-
-      if ( !Core::convertArrayToUC( uText, uwtext, ulen ) )
-        return new BError( "Invalid parameter type" );
-
-      size_t elen = eText->ref_arr.size();
-      if ( elen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-
-      if ( !Core::convertArrayToUC( eText, ewtext, elen ) )
-        return new BError( "Invalid parameter type" );
-
-      sendCharProfile( chr, of_who, title->data(), uwtext, ewtext );
+      sendCharProfile( chr, of_who, title->data(), uwtext.data(), ewtext.data() );
       return new BLong( 1 );
     }
     else
