@@ -502,10 +502,23 @@ public:
   void calc_single_vital( const Core::Vital* pVital );
   void calc_single_attribute( const Attribute* pAttr );
   void set_vitals_to_maximum();  // throw();
+  enum class VitalDepletedReason
+  {
+    // used in depleted hook as reason parameter
+    REGENERATE = 0,
+    DAMAGE,
+    MOVEMENT,
+    DEATH,
+    RESURRECT,
+    SCRIPT,
+  };
   void produce( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
-  bool consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt );
-  void set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
-  void set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones );
+  bool consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt,
+                VitalDepletedReason reason );
+  void set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones,
+                         VitalDepletedReason reason );
+  void set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones,
+                    VitalDepletedReason reason );
 
   // REPUTATION
 public:

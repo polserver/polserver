@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-30-2018</datemodified>
+		<datemodified>01-01-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-01-2019</date>
+			<author>Turley:</author>
+			<change type="Changed">DepletedFunction hook now receives a second parameter: reason<br/>
+The values are:<br/>
+0: Regenerate, 1: Damage, 2: Movement, 3: Death, 4: Resurrect, 5: Script</change>
+		</entry>
 		<entry>
 			<date>12-30-2018</date>
 			<author>Turley:</author>
