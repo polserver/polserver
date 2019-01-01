@@ -676,12 +676,10 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
 
   if ( settingsManager.party_cfg.Hooks.ChangePublicChat )
   {
-    Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
-      return;
-    Bscript::BObject obj =
-        settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref(), arr );
+    std::string text = Bscript::String::fromUTF16( wtext, wtextlen, true );
+    // TODO UNICODE change of param
+    Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePublicChat->call_object(
+        chr->make_ref(), new Bscript::String( text, Bscript::String::Tainted::NO ) );
 
     if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
@@ -738,12 +736,11 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
 
   if ( settingsManager.party_cfg.Hooks.ChangePrivateChat )
   {
-    Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
-      return;
+    std::string text = Bscript::String::fromUTF16( wtext, wtextlen, true );
+    // TODO UNICODE change of param
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object(
-        chr->make_ref(), tochr->make_ref(), arr );
+        chr->make_ref(), tochr->make_ref(),
+        new Bscript::String( text, Bscript::String::Tainted::NO ) );
     if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
       std::vector<u16> vtext;
@@ -1173,17 +1170,17 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
           break;  // quit early on embedded nulls
         if ( wc == L'~' )
           continue;  // skip unprintable tildes.
-        wtextbuf[wtextbuflen++] = ctBEu16( wc );
+        wtextbuf[wtextbuflen++] = themsg[i];
       }
       wtextbuf[wtextbuflen++] = (u16)0;
 
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        std::string text = Bscript::String::fromUTF16( wtextbuf, wtextbuflen, true );
+        // TODO UNICODE change of param
+        settingsManager.party_cfg.Hooks.OnPrivateChat->call(
+            client->chr->make_ref(), member->make_ref(),
+            new Bscript::String( text, Bscript::String::Tainted::NO ) );
       }
 
       party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
@@ -1248,7 +1245,7 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
         break;  // quit early on embedded nulls
       if ( wc == L'~' )
         continue;  // skip unprintable tildes.
-      wtextbuf[wtextbuflen++] = ctBEu16( wc );
+      wtextbuf[wtextbuflen++] = themsg[i];
     }
     wtextbuf[wtextbuflen++] = (u16)0;
 
@@ -1256,11 +1253,11 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     {
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        std::string text = Bscript::String::fromUTF16( wtextbuf, wtextbuflen, true );
+        // TODO UNICODE change of param
+        settingsManager.party_cfg.Hooks.OnPrivateChat->call(
+            client->chr->make_ref(), member->make_ref(),
+            new Bscript::String( text, Bscript::String::Tainted::NO ) );
       }
       party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
     }
@@ -1268,10 +1265,10 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     {
       if ( settingsManager.party_cfg.Hooks.OnPublicChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
+        std::string text = Bscript::String::fromUTF16( wtextbuf, wtextbuflen, true );
+        // TODO UNICODE change of param
+        settingsManager.party_cfg.Hooks.OnPublicChat->call(
+            client->chr->make_ref(), new Bscript::String( text, Bscript::String::Tainted::NO ) );
       }
 
       party->send_member_msg_public( client->chr, wtextbuf, wtextbuflen );

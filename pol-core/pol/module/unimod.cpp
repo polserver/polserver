@@ -77,8 +77,8 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
   std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
   retval->addMember( "lang", new Bscript::String( lang ) );
   // TODO UNICODE uc_text removed
-  retval->addMember( "text",
-                     new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) );
+  retval->addMember( "text", new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ),
+                                                  Bscript::String::Tainted::NO ) );
 
   uniemod->exec.ValueStack.back().set( new Bscript::BObject( retval.release() ) );
   uniemod->uoexec.os_module->revive();
