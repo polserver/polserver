@@ -14,6 +14,7 @@
 #include <string>
 #include <utf8/utf8.h>
 
+#include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "berror.h"
 #include "bobject.h"
@@ -1145,14 +1146,39 @@ std::string String::fromUTF32( unsigned int code )
   return s;
 }
 
-std::string String::fromUTF16( unsigned short* code, size_t len )
+std::string String::fromUTF16( unsigned short* code, size_t len, bool big_endian )
 {
   std::string s;
   size_t short_len = 0;
   // convert until the first null terminator
   while ( code[short_len] != 0 && short_len < len )
     ++short_len;
-  utf8::unchecked::utf16to8( code, code + short_len, std::back_inserter( s ) );
+
+  // minimum incomplete iterator implementation, just for the internal usage with utf8lib to
+  // directly decode flipped bytes
+  struct BigEndianIterator
+  {
+    u16* ptr;
+    BigEndianIterator( u16* begin ) : ptr( begin ){};
+    BigEndianIterator& operator++()
+    {
+      ++ptr;
+      return *this;
+    };
+    BigEndianIterator operator++( int )
+    {
+      BigEndianIterator itr( ptr );
+      ++ptr;
+      return itr;
+    };
+    u16 operator*() { return cfBEu16( *ptr ); };
+    bool operator!=( const BigEndianIterator& o ) { return ptr != o.ptr; };
+  };
+  if ( big_endian )
+    utf8::unchecked::utf16to8( BigEndianIterator( code ), BigEndianIterator( code + short_len ),
+                               std::back_inserter( s ) );
+  else
+    utf8::unchecked::utf16to8( code, code + short_len, std::back_inserter( s ) );
   sanitizeUnicode( &s );
   return s;
 }

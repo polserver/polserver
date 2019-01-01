@@ -73,7 +73,7 @@ public:
   std::vector<unsigned int> toUTF32() const;
   std::vector<unsigned short> toUTF16() const;
   static std::string fromUTF32( unsigned int code );
-  static std::string fromUTF16( unsigned short* code, size_t len );
+  static std::string fromUTF16( unsigned short* code, size_t len, bool big_endian = false );
   static std::vector<unsigned short> toUTF16( std::string text, Tainted san = Tainted::YES );
   static String* fromUCArray( ObjArray* array, bool break_first_null = true );
 
