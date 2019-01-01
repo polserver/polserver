@@ -1,4 +1,8 @@
 ﻿-- POL100 --
+01-01-2019 Turley:
+  Changed: DepletedFunction hook now receives a second parameter: reason
+           The values are:
+           0: Regenerate, 1: Damage, 2: Movement, 3: Death, 4: Resurrect, 5: Script
 12-30-2018 Turley:
   Added:   vitals.cfg optional entry DepletedFunction
            gets called once the vital reaches 0.
