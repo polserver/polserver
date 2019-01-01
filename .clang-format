@@ -33,6 +33,7 @@ Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat:   false
 ExperimentalAutoDetectBinPacking: false
+FixNamespaceComments: true
 ForEachMacros:   [ foreach, Q_FOREACH, BOOST_FOREACH ]
 IndentCaseLabels: false
 IndentWidth:     2

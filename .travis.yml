@@ -2,7 +2,6 @@ language: cpp
 
 sudo: false
 
-
 #script:
   #  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
   #  - unzip kaitai-struct-compiler-0.8.zip
@@ -33,17 +32,17 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev', 'kwstyle']
-      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=0
+          sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'kwstyle']
+      env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=0
 
     - os: linux
       compiler: clang
       addons:
         apt:
-          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev', 'kwstyle']
-      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=1
+          sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev']
+      env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=1
 
 before_install:
   - cd bin-build
@@ -68,13 +67,17 @@ script:
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
   - |
     if [[ "$NOPCH" == "0" ]]; then
-      cd ../testsuite/escript
-      ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q || travis_terminate 1;
-      cd ../style
+      ctest -j 2 --output-on-failure --repeat-until-fail 5 || travis_terminate 1;
+    fi
+  - echo -en 'travis_fold:end:script.tests\\r'
+  - echo 'Style...' && echo -en 'travis_fold:start:script.style\\r'
+  - |
+    if [[ "$NOPCH" == "0" ]]; then
+      cd ../testsuite/style
       ./checknl.py -q || travis_terminate 1;
       ./checkstyle.py -q || travis_terminate 1;
     fi
-  - echo -en 'travis_fold:end:script.tests\\r'
+  - echo -en 'travis_fold:end:script.style\\r'
 
 notifications:
   email:

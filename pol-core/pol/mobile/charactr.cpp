@@ -86,6 +86,7 @@
 #include <stdlib.h>
 #include <string>
 
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib.h"
@@ -97,12 +98,12 @@
 #include "../../clib/random.h"
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
 #include "../accounts/account.h"
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
-#include "../clidata.h"
 #include "../cmbtcfg.h"
 #include "../cmdlevel.h"
 #include "../containr.h"
@@ -137,9 +138,9 @@
 #include "../network/packetdefs.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
+#include "../network/pktdef.h"
 #include "../objtype.h"
 #include "../party.h"
-#include "../pktdef.h"
 #include "../polclass.h"
 #include "../polsig.h"
 #include "../polvar.h"
@@ -155,6 +156,7 @@
 #include "../spelbook.h"
 #include "../statmsg.h"
 #include "../syshook.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
 #include "../uobjcnt.h"
@@ -274,7 +276,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       lasty( 0 ),
       lastz( 0 ),
       move_reason( OTHER ),
-      movemode( Core::MOVEMODE_LAND ),
+      movemode( Plib::MOVEMODE_LAND ),
       // COMBAT
       warmode_wait( 0 ),
       ar_( 0 ),
@@ -331,8 +333,8 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       trueobjtype( 0 ),
       // Note, Item uses the named constructor idiom, but here, it is not used.
       // this is probably okay, but something to keep in mind.
-      gender( Core::GENDER_MALE ),
-      race( Core::RACE_HUMAN ),
+      gender( Plib::GENDER_MALE ),
+      race( Plib::RACE_HUMAN ),
       last_corpse( 0 )
 {
   logged_in( true );  // so initialization scripts etc can see
@@ -671,7 +673,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tTithing\t" << static_cast<int>( tithing() ) << pf_endl;
 
 
-  if ( movemode != Core::MOVEMODE_LAND )
+  if ( movemode != Plib::MOVEMODE_LAND )
     sw() << "\tMoveMode\t" << encode_movemode( movemode ) << pf_endl;
 
   if ( !privs.empty() )
@@ -737,32 +739,32 @@ void Character::printWornItems( Clib::StreamWriter& sw_pc, Clib::StreamWriter& s
   wornitems->print( sw_pc, sw_equip );
 }
 
-Core::MOVEMODE Character::decode_movemode( const std::string& str )
+Plib::MOVEMODE Character::decode_movemode( const std::string& str )
 {
-  Core::MOVEMODE mm = Core::MOVEMODE_NONE;
+  Plib::MOVEMODE mm = Plib::MOVEMODE_NONE;
 
   const auto not_found = std::string::npos;
   if ( str.find( 'L' ) != not_found )
-    mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_LAND );
+    mm = static_cast<Plib::MOVEMODE>( mm + Plib::MOVEMODE_LAND );
   if ( str.find( 'S' ) != not_found )
-    mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_SEA );
+    mm = static_cast<Plib::MOVEMODE>( mm + Plib::MOVEMODE_SEA );
   if ( str.find( 'A' ) != not_found )
-    mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_AIR );
+    mm = static_cast<Plib::MOVEMODE>( mm + Plib::MOVEMODE_AIR );
   if ( str.find( 'F' ) != not_found )
-    mm = static_cast<Core::MOVEMODE>( mm + Core::MOVEMODE_FLY );
+    mm = static_cast<Plib::MOVEMODE>( mm + Plib::MOVEMODE_FLY );
   return mm;
 }
 
-std::string Character::encode_movemode( Core::MOVEMODE mm )
+std::string Character::encode_movemode( Plib::MOVEMODE mm )
 {
   std::string res;
-  if ( mm & Core::MOVEMODE_LAND )
+  if ( mm & Plib::MOVEMODE_LAND )
     res += "L";
-  if ( mm & Core::MOVEMODE_SEA )
+  if ( mm & Plib::MOVEMODE_SEA )
     res += "S";
-  if ( mm & Core::MOVEMODE_AIR )
+  if ( mm & Plib::MOVEMODE_AIR )
     res += "A";
-  if ( mm & Core::MOVEMODE_FLY )
+  if ( mm & Plib::MOVEMODE_FLY )
     res += "F";
   return res;
 }
@@ -846,8 +848,8 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
   mountedsteps_ = elem.remove_ulong( "MOUNTEDSTEPS", 0 );
 
-  gender = static_cast<Core::UGENDER>( elem.remove_ushort( "GENDER" ) );
-  race = static_cast<Core::URACE>( elem.remove_ushort( "RACE", Core::RACE_HUMAN ) );
+  gender = static_cast<Plib::UGENDER>( elem.remove_ushort( "GENDER" ) );
+  race = static_cast<Plib::URACE>( elem.remove_ushort( "RACE", Plib::RACE_HUMAN ) );
 
   if ( elem.remove_bool( "DEAD", false ) )
     mob_flags_.set( MOB_FLAGS::DEAD );
@@ -1401,12 +1403,12 @@ bool Character::equippable( const Items::Item* item ) const
     return false;
   }
 
-  if ( ~Core::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
+  if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
   {
     return false;
   }
   // redundant sanity check
-  if ( Core::tilelayer( item->graphic ) != item->tile_layer )
+  if ( Plib::tilelayer( item->graphic ) != item->tile_layer )
   {
     return false;
   }
@@ -1501,8 +1503,8 @@ void Character::unequip( Items::Item* item )
 
 bool Character::on_mount() const
 {
-  if ( race == Core::RACE_GARGOYLE )
-    return ( movemode & Core::MOVEMODE_FLY ) == 0 ? false : true;
+  if ( race == Plib::RACE_GARGOYLE )
+    return ( movemode & Plib::MOVEMODE_FLY ) == 0 ? false : true;
 
   return layer_is_equipped( Core::LAYER_MOUNT );
 }
@@ -1544,36 +1546,41 @@ void Character::produce( const Core::Vital* pVital, VitalValue& vv, unsigned int
   set_dirty();
   vv.produce( amt );
   if ( start_ones != vv.current_ones() )
-  {
     Network::ClientInterface::tell_vital_changed( this, pVital );
-  }
 }
 
 bool Character::consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt )
 {
-  bool res;
   int start_ones = vv.current_ones();
   set_dirty();
-  res = vv.consume( amt );
+  bool res = vv.consume( amt );
   if ( start_ones != vv.current_ones() )
   {
     Network::ClientInterface::tell_vital_changed( this, pVital );
+    if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
+      pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
   }
   return res;
 }
 
 void Character::set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones )
 {
+  int start_ones = vv.current_ones();
   set_dirty();
   vv.current_ones( ones );
   Network::ClientInterface::tell_vital_changed( this, pVital );
+  if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
+    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
 }
 
 void Character::set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones )
 {
+  int start_ones = vv.current_ones();
   set_dirty();
   vv.current( ones );
   Network::ClientInterface::tell_vital_changed( this, pVital );
+  if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
+    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
 }
 
 void Character::regen_vital( const Core::Vital* pVital )
@@ -1581,13 +1588,9 @@ void Character::regen_vital( const Core::Vital* pVital )
   VitalValue& vv = vital( pVital->vitalid );
   int rr = vv.regenrate();
   if ( rr > 0 )
-  {
     produce( pVital, vv, rr / 12 );
-  }
   else if ( rr < 0 )
-  {
     consume( pVital, vv, -rr / 12 );
-  }
 }
 
 void Character::calc_vital_stuff( bool i_mod, bool v_mod )
@@ -1790,7 +1793,7 @@ u8 Character::get_flag1( Network::Client* other_client ) const
        ( ~other_client->ClientType &
          Network::CLIENTTYPE_7000 ) )  // client >=7 receive the poisonflag with 0x17
     flag1 |= Core::CHAR_FLAG1_POISONED;
-  if ( ( movemode & Core::MOVEMODE_FLY ) &&
+  if ( ( movemode & Plib::MOVEMODE_FLY ) &&
        ( other_client->ClientType & Network::CLIENTTYPE_7000 ) )
     flag1 |= Core::CHAR_FLAG1_FLYING;
   if ( ( Core::settingsManager.ssopt.invul_tag == 2 ) && ( invul() ) )
@@ -2205,7 +2208,7 @@ void Character::clear_opponent_of()
 
 void Character::die()
 {
-  if ( Core::gamestate.system_hooks.can_die != nullptr )
+  if ( Core::gamestate.system_hooks.can_die )
   {
     if ( !Core::gamestate.system_hooks.can_die->call( make_mobileref( this ) ) )
       return;
@@ -2225,15 +2228,15 @@ void Character::die()
   {
     switch ( race )
     {
-    case Core::RACE_HUMAN:
-      graphic = ( gender == Core::GENDER_MALE ) ? UOBJ_HUMAN_MALE_GHOST : UOBJ_HUMAN_FEMALE_GHOST;
+    case Plib::RACE_HUMAN:
+      graphic = ( gender == Plib::GENDER_MALE ) ? UOBJ_HUMAN_MALE_GHOST : UOBJ_HUMAN_FEMALE_GHOST;
       break;
-    case Core::RACE_ELF:
-      graphic = ( gender == Core::GENDER_MALE ) ? UOBJ_ELF_MALE_GHOST : UOBJ_ELF_FEMALE_GHOST;
+    case Plib::RACE_ELF:
+      graphic = ( gender == Plib::GENDER_MALE ) ? UOBJ_ELF_MALE_GHOST : UOBJ_ELF_FEMALE_GHOST;
       break;
-    case Core::RACE_GARGOYLE:
+    case Plib::RACE_GARGOYLE:
       graphic =
-          ( gender == Core::GENDER_MALE ) ? UOBJ_GARGOYLE_MALE_GHOST : UOBJ_GARGOYLE_FEMALE_GHOST;
+          ( gender == Plib::GENDER_MALE ) ? UOBJ_GARGOYLE_MALE_GHOST : UOBJ_GARGOYLE_FEMALE_GHOST;
       break;
     }
   }
@@ -2712,7 +2715,7 @@ bool Character::check_skill( Core::USKILLID skillid, int difficulty, unsigned sh
 {
   INC_PROFILEVAR( skill_checks );
   static bool in_here = false;
-  if ( !in_here && Core::gamestate.system_hooks.check_skill_hook != nullptr )
+  if ( !in_here && Core::gamestate.system_hooks.check_skill_hook )
   {
     in_here = true;
     bool res = Core::gamestate.system_hooks.check_skill_hook->call(
@@ -2852,7 +2855,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       } );
 }
 
-void Character::getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py )
+void Character::getpos_ifmove( Plib::UFACING i_facing, unsigned short* px, unsigned short* py )
 {
   *px = x + Core::move_delta[i_facing].xmove;
   *py = y + Core::move_delta[i_facing].ymove;
@@ -3289,7 +3292,7 @@ void Character::do_hit_failure_effects()
 
 u16 Character::get_damaged_sound() const
 {
-  if ( gender == Core::GENDER_MALE )
+  if ( gender == Plib::GENDER_MALE )
     return SOUND_EFFECT_MALE_DEFENSE;
   return SOUND_EFFECT_FEMALE_DEFENSE;
 }
@@ -3323,7 +3326,19 @@ void Character::attack( Character* opponent )
   if ( weapon->is_projectile() )
   {
     Core::UContainer* bp = backpack();
-    if ( ( bp == nullptr ) || ( weapon->consume_projectile( bp ) == false ) )
+    int check_consume_hook = -1;
+    if ( Core::gamestate.system_hooks.consume_ammunition_hook )
+    {
+      check_consume_hook = Core::gamestate.system_hooks.consume_ammunition_hook->call_long(
+          new Module::ECharacterRefObjImp( this ), new Module::EItemRefObjImp( weapon ) );
+      if ( check_consume_hook == 0 )
+      {
+        return;
+      }
+    }
+
+    if ( ( check_consume_hook == -1 ) &&
+         ( ( bp == nullptr ) || ( weapon->consume_projectile( bp ) == false ) ) )
     {
       // 04/2007 - MuadDib
       // Range through wornitems to find containers and check
@@ -3342,6 +3357,7 @@ void Character::attack( Character* opponent )
                  layer != Core::LAYER_MOUNT )
             {
               Core::UContainer* cont = static_cast<Core::UContainer*>( item );
+
               if ( weapon->consume_projectile( cont ) == true )
               {
                 projectile_check = true;
@@ -3672,7 +3688,7 @@ void Character::position_changed()
 
 void Character::unhide()
 {
-  if ( Core::gamestate.system_hooks.un_hide != nullptr )
+  if ( Core::gamestate.system_hooks.un_hide )
   {
     if ( !Core::gamestate.system_hooks.un_hide->call( make_mobileref( this ) ) )
       return;
@@ -3722,7 +3738,7 @@ bool Character::doors_block() const
     We're sending the "78 create" _before_ the move-approve.
     */
 
-bool Character::can_face( Core::UFACING /*i_facing*/ )
+bool Character::can_face( Plib::UFACING /*i_facing*/ )
 {
   if ( can_freemove() )
     return true;
@@ -3750,7 +3766,7 @@ bool Character::can_face( Core::UFACING /*i_facing*/ )
 }
 
 
-bool Character::face( Core::UFACING i_facing, int flags )
+bool Character::face( Plib::UFACING i_facing, int flags )
 {
   if ( ( flags & 1 ) == 0 )
   {
@@ -3788,7 +3804,7 @@ bool Character::CustomHousingMove( unsigned char i_dir )
     Multi::UHouse* house = multi->as_house();
     if ( house != nullptr )
     {
-      Core::UFACING i_facing = static_cast<Core::UFACING>( i_dir & PKTIN_02_FACING_MASK );
+      Plib::UFACING i_facing = static_cast<Plib::UFACING>( i_dir & PKTIN_02_FACING_MASK );
       if ( i_facing != facing )
       {
         setfacing( static_cast<u8>( i_facing ) );
@@ -3841,7 +3857,7 @@ bool Character::move( unsigned char i_dir )
 
   u8 oldFacing = facing;
 
-  Core::UFACING i_facing = static_cast<Core::UFACING>( i_dir & PKTIN_02_FACING_MASK );
+  Plib::UFACING i_facing = static_cast<Plib::UFACING>( i_dir & PKTIN_02_FACING_MASK );
   if ( !face( i_facing ) )
     return false;
 
@@ -3893,7 +3909,6 @@ bool Character::move( unsigned char i_dir )
       unsigned short tmv = movecost(
           this, carry_perc, ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) ? true : false, on_mount() );
       VitalValue& stamina = vital( Core::gamestate.pVitalStamina->vitalid );
-      // u16 old_stamina = stamina.current_ones();
       if ( !consume( Core::gamestate.pVitalStamina, stamina, tmv ) )
       {
         private_say_above( this, this, "You are too fatigued to move." );
@@ -3958,7 +3973,7 @@ bool Character::move( unsigned char i_dir )
         --stealthsteps_;
     }
 
-    if ( Core::gamestate.system_hooks.ouch_hook != nullptr )
+    if ( Core::gamestate.system_hooks.ouch_hook )
     {
       if ( ( lastz - z ) > 21 )
         Core::gamestate.system_hooks.ouch_hook->call(
@@ -4011,7 +4026,7 @@ void Character::realm_changed()
 
 bool Character::CheckPushthrough()
 {
-  if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook != nullptr )
+  if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook )
   {
     unsigned short newx = x + Core::move_delta[facing].xmove;
     unsigned short newy = y + Core::move_delta[facing].ymove;
@@ -4336,12 +4351,12 @@ size_t Character::estimatedSize() const
                 + sizeof( u16 )                                       /*lasty*/
                 + sizeof( s8 )                                        /*lastz*/
                 + sizeof( MOVEREASON )                                /*move_reason*/
-                + sizeof( Core::MOVEMODE )                            /*movemode*/
+                + sizeof( Plib::MOVEMODE )                            /*movemode*/
                 + sizeof( time_t )                                    /*disable_regeneration_until*/
                 + sizeof( u16 )                                       /*truecolor*/
                 + sizeof( u32 )                                       /*trueobjtype*/
-                + sizeof( Core::UGENDER )                             /*gender*/
-                + sizeof( Core::URACE )                               /*race*/
+                + sizeof( Plib::UGENDER )                             /*gender*/
+                + sizeof( Plib::URACE )                               /*race*/
                 + sizeof( short )                                     /*gradual_boost*/
                 + sizeof( u32 )                                       /*last_corpse*/
                 + sizeof( GOTTEN_ITEM_TYPE )                          /*gotten_item_source*/
@@ -4397,5 +4412,149 @@ void Character::on_delete_from_account()
   if ( realm )
     realm->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
 }
+
+bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                 Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.character_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
+}
+
+
+AttributeValue::AttributeValue()
+    : _base( 0 ), _temp( 0 ), _intrinsic( 0 ), _lockstate( 0 ), _cap( 0 )
+{
+}
+int AttributeValue::effective() const
+{
+  int v = _base;
+  v += _temp;
+  v += _intrinsic;
+  return ( v > 0 ) ? ( v / 10 ) : 0;
+}
+int AttributeValue::effective_tenths() const
+{
+  int v = _base;
+  v += _temp;
+  v += _intrinsic;
+  return ( v > 0 ) ? v : 0;
+}
+int AttributeValue::base() const
+{
+  return _base;
+}
+void AttributeValue::base( unsigned short base )
+{
+  passert( base <= ATTRIBUTE_MAX_BASE );
+  _base = base;
+}
+int AttributeValue::temp_mod() const
+{
+  return _temp;
+}
+void AttributeValue::temp_mod( short temp )
+{
+  _temp = temp;
+}
+int AttributeValue::intrinsic_mod() const
+{
+  return _intrinsic;
+}
+void AttributeValue::intrinsic_mod( short val )
+{
+  _intrinsic = val;
+}
+unsigned char AttributeValue::lock() const
+{
+  return _lockstate;
+}
+void AttributeValue::lock( unsigned char lockstate )
+{
+  _lockstate = lockstate;
+}
+unsigned short AttributeValue::cap() const
+{
+  return _cap;
+}
+void AttributeValue::cap( unsigned short cap )
+{
+  _cap = cap;
+}
+
+VitalValue::VitalValue() : _current( 0 ), _maximum( 0 ), _regenrate( 0 ) {}
+int VitalValue::current() const
+{
+  return _current;
+}
+int VitalValue::current_ones() const
+{
+  return _current / 100;
+}
+int VitalValue::current_thousands() const
+{
+  // use division to prevent overflow
+  return ( _current / 100 ) * 1000 / ( _maximum / 100 );
+}
+int VitalValue::maximum() const
+{
+  return _maximum;
+}
+int VitalValue::maximum_ones() const
+{
+  return _maximum / 100;
+}
+bool VitalValue::is_at_maximum() const
+{
+  return ( _current >= _maximum );
+}
+int VitalValue::regenrate() const
+{
+  return _regenrate;
+}
+void VitalValue::current( int cur )
+{
+  _current = cur;
+  if ( _current > _maximum )
+    _current = _maximum;
+}
+void VitalValue::current_ones( int ones )
+{
+  current( ones * 100 );
+}
+void VitalValue::maximum( int val )
+{
+  _maximum = val;
+  if ( _current > _maximum )
+    current( _maximum );
+}
+void VitalValue::regenrate( int rate )
+{
+  _regenrate = rate;
+}
+bool VitalValue::consume( unsigned int hamt )
+{
+  if ( _current > hamt )
+  {
+    _current -= hamt;
+    return true;
+  }
+  _current = 0;
+  return false;
+}
+void VitalValue::produce( unsigned int hamt )
+{
+  unsigned newcur = _current + hamt;
+  if ( newcur > _maximum || newcur < _current )
+  {
+    _current = _maximum;
+  }
+  else
+  {
+    _current = newcur;
+  }
+}
+
 }  // namespace Mobile
 }  // namespace Pol

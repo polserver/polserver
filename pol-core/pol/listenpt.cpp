@@ -10,11 +10,10 @@
 #include <stddef.h>
 
 #include "../bscript/bobject.h"
+#include "../plib/uconst.h"
 #include "globals/settings.h"
 #include "globals/uvars.h"
 #include "mobile/charactr.h"
-#include "module/osmod.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
@@ -34,11 +33,11 @@ const char* TextTypeToString( u8 texttype )
 {
   switch ( texttype )
   {
-  case TEXTTYPE_WHISPER:
+  case Plib::TEXTTYPE_WHISPER:
     return "whisper";
-  case TEXTTYPE_YELL:
+  case Plib::TEXTTYPE_YELL:
     return "yell";
-  case TEXTTYPE_EMOTE:
+  case Plib::TEXTTYPE_EMOTE:
     return "emote";
   default:
     return "default";
@@ -86,10 +85,10 @@ void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int
              ( inrangex( speaker, toplevel->x, toplevel->y, lp->range ) ) )
         {
           if ( p_wtext && p_lang && p_wtextlen > 0 )
-            lp->uoexec->os_module->signal_event( new Module::UnicodeSpeechEvent(
+            lp->uoexec->signal_event( new Module::UnicodeSpeechEvent(
                 speaker, p_text, TextTypeToString( texttype ), p_wtext, p_lang, speechtokens ) );
           else
-            lp->uoexec->os_module->signal_event(
+            lp->uoexec->signal_event(
                 new Module::SpeechEvent( speaker, p_text, TextTypeToString( texttype ) ) );
         }
       }
@@ -142,5 +141,5 @@ Bscript::BObjectImp* GetListenPoints()
   }
   return arr;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

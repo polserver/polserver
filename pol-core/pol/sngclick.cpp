@@ -12,11 +12,11 @@
 
 #include "../clib/clib_endian.h"
 #include "../clib/passert.h"
+#include "../plib/uconst.h"
 #include "containr.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktin.h"
-#include "uconst.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uobject.h"
@@ -131,5 +131,5 @@ void handle_singleclick( Network::Client* client, PKTIN_09* msg )
   // TODO: report if someone tries to use singleclick without a connected char (should have been
   // blocked)
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

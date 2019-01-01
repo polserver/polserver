@@ -59,7 +59,7 @@ Vital (Vital_Name)
     RegenRateFunction   (string scriptname:exported_func_name)
     MaximumFunction     (string scriptname:exported_func_name)
     [Alias              (string Alias_Name)]...
-    [UnderflowFunction  (string scriptname:exported_func_name)]
+    [DepletedFunction  (string scriptname:exported_func_name)]
     [RegenWhileDead     (integer 0/1 {default 0})]
 }
 [Vital...]
@@ -69,7 +69,7 @@ Vital (Vital_Name)
     <explain>At the LEAST, these attributes must be defined: 'Life', 'Stamina', 'Mana' for use in internal calculations.</explain>
     <explain>RegenRateFunction should return value from -30000 to 30000. Regen rates are in 'hundredths of points per minute.' A current regen rate of 100 (1 point per 5 seconds) would therefore be 1200 (12 points per minute)</explain>
     <explain>MaximumFunction should return the maximum value for this vital, an integer in 'hundreths' between 100 and 10000000 (1-100,000)</explain>
-    <explain>UnderflowFunction not implimented.</explain>
+    <explain>DepletedFunction gets called once the vital reaches zero, the given parameter is the character reference.</explain>
     <related>uoclient.cfg</related>
     <related>attributes.cfg</related>
 </cfgfile>
@@ -120,7 +120,7 @@ Listener
     <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section. If you use Listeners set ListenPort in pol.cfg to 0.</explain>
     <explain>KeepClients: if set to 1 clients keep this listener port even after different gameserver select; actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort</explain>
     <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
-    <explain>MethodScript: General Methodscript for characters</explain>
+    <explain>MethodScript: General Methodscript for characters Deprecated!</explain>
     <related>attributes.cfg</related>
     <related>pol.cfg</related>
     <related>uoskills.cfg</related>
@@ -247,11 +247,19 @@ SystemHookScript (string script_name_with_ecl)
     (SyshookName) (string exported_func_name)
 }
 [SystemHookScript...]
+SystemMethod
+{
+    (MethodHookName) (string scriptname)
+    ...
+}
 </structure>
     <explain>Defines the script file and function to call for the core to call. The script should be in the same package as the syshook.cfg.</explain>
     <explain>The script_name_with_ecl should define a 'program' which will be run on server start.</explain>
     <explain>The exported_func_name should be defined with the 'exported' keyword.</explain>
-    <explain>The list of SyshookNames: CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide, CloseCustomHouse, WarmodeChange, CanTrade</explain>
+    <explain>The list of SyshookNames: CheckSkill, OpenSpellbook, GetBookPage, CombatAdvancement, ParryAdvancement, Attack, Pushthrough, SpeechMul, HitMiss, OnCast, CanDecay, Ouch, CanDie, UnHide, CloseCustomHouse, WarmodeChange, CanTrade, ConsumeAmmunition</explain>
+    <explain>SystemMethod entries define method scripts for given objtypes, the itemdesc/npctemplate specific methodscripts still will be first checked. Inheritance according to the objref documentation will be respected.</explain>
+    <explain>Supported class keys are:</explain>
+    <explain>UObject, Item, Equipment, Lockable, Map, Multi, Armor, Weapon, Door, Container, Boat, House, Spellbook, Corpse, Npc, Character, Client, Account, Party, Guild</explain>
 </cfgfile>
 
 

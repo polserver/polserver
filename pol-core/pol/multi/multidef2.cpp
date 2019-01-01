@@ -7,13 +7,13 @@
  */
 
 
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
+#include "../../plib/tiles.h"
+#include "../../plib/udatfile.h"
 #include "../item/itemdesc.h"
-#include "../tiles.h"
-#include "../udatfile.h"
 #include "multidef.h"
 
 namespace Pol
@@ -21,7 +21,7 @@ namespace Pol
 namespace Multi
 {
 // 8/9/03 this seems to be used only by uofile03 -Syz
-bool MultiDef::readobjects( Core::StaticList& vec, short x, short y, short zbase ) const
+bool MultiDef::readobjects( Plib::StaticList& vec, short x, short y, short zbase ) const
 {
   bool result = false;
   if ( x >= minrx && x <= maxrx && y >= minry && y <= maxry )
@@ -33,12 +33,12 @@ bool MultiDef::readobjects( Core::StaticList& vec, short x, short y, short zbase
       {
         const MULTI_ELEM* elem = ( *itr ).second;
         unsigned short graphic = Items::getgraphic( elem->objtype );
-        if ( Core::tile_flags( graphic ) & Plib::FLAG::WALKBLOCK )
+        if ( Plib::tile_flags( graphic ) & Plib::FLAG::WALKBLOCK )
         {
           if ( elem->is_static )
           {
             vec.push_back(
-                Core::StaticRec( graphic, static_cast<signed char>( elem->z + zbase ) ) );
+                Plib::StaticRec( graphic, static_cast<signed char>( elem->z + zbase ) ) );
             result = true;
           }
           // Shinigami: removed. doesn't make sense. non-static
@@ -68,13 +68,13 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
       {
         const MULTI_ELEM* elem = ( *itr ).second;
         unsigned short graphic = Items::getgraphic( elem->objtype );
-        if ( Core::tile_flags( graphic ) & anyflags )
+        if ( Plib::tile_flags( graphic ) & anyflags )
         {
           if ( elem->is_static )
           {
             Plib::MapShape shape;
             shape.z = elem->z + zbase;
-            shape.height = Core::tileheight( graphic );
+            shape.height = Plib::tileheight( graphic );
             shape.flags = Plib::systemstate.tile[graphic].flags;  // pol_flags_by_tile( graphic );
             if ( !shape.height )
             {
@@ -103,5 +103,5 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbas
   }
   return result;
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

@@ -181,5 +181,5 @@ Items::Item* find_walkon_item( ItemsVector& ivec, short z )
   }
   return nullptr;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

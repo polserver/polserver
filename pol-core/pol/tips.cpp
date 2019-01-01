@@ -12,8 +12,8 @@
 #include "globals/uvars.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 
 namespace Pol
 {
@@ -77,5 +77,5 @@ void handle_get_tip( Network::Client* client, PKTIN_A7* msg )
     send_tip( client, gamestate.tipfilenames[tipnum].c_str(), tipnum );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

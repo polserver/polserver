@@ -138,6 +138,11 @@
 <constant>const FINDSUBSTANCE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</constant>
 <constant>const FINDSUBSTANCE_FIND_ALL      := 0x4; // Find all matches ignoring given amount</constant>
 <constant> </constant>
+<constant>// FindObjtypeInContainer constants</constant>
+<constant>const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).</constant>
+<constant>const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers.</constant>
+<constant>const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</constant>
+<constant> </constant>
 <constant>//  SendTextEntryGump options</constant>
 <constant>const TE_CANCEL_DISABLE := 0;</constant>
 <constant>const TE_CANCEL_ENABLE  := 1;</constant>
@@ -287,10 +292,17 @@ container
 </function>
 
 <function name="FindObjtypeInContainer">
-  <prototype>FindObjtypeInContainer( container, objtype )</prototype>
+  <prototype>FindObjtypeInContainer( container, objtype, flags:=FINDOBJTYPE_RECURSIVE )</prototype>
   <parameter name="container" value="Container reference" />
   <parameter name="objtype" value="integer objtype to find" />
+  <parameter name="flags" value="Integer" />
   <explain>Returns an Item Reference to the first found item matching objtype starting in "container".</explain>
+  <explain>uo.em constants for flags:
+  <code>
+// FindObjtype constants
+const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).
+const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers
+const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.</code></explain>
   <return>Item reference or Error</return>
   <error>"Invalid parameter type"</error>
   <error>"That is not a container" if container.isa(POLCLASS_CONTAINER) == false</error>
@@ -381,6 +393,45 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
   <related>Item</related>
   <related>Character</related>
   <related>Array</related>
+</function>
+
+<function name="ListItemsInBoxOfObjType">
+  <prototype>ListItemsInBoxOfObjType( objtype, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="objtype" value="An integer value. The ObjType to search for." />
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Lists all items inside an imaginary box. Finds items with ObjType numbers matching objtype.</explain>
+  <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
+  <return>Error or Array of items found inside the specified box with the matching ObjType.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>Item</related>
+  <related>Array</related>
+</function>
+
+<function name="ListObjectsInBoxOfClass">
+  <prototype>ListObjectsInBoxOfClass( POL_Class, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="POL_Class" value="A POL class to search for eg. POLCLASS_" />
+  <parameter name="x1" value="integer, for north west upper corner of box" />
+  <parameter name="y1" value="integer, for north west upper corner of box" />
+  <parameter name="z1" value="integer, for north west upper corner of box" />
+  <parameter name="x2" value="integer, for south east lower corner of box" />
+  <parameter name="y2" value="integer, for south east lower corner of box" />
+  <parameter name="z2" value="integer, for south east lower corner of box" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <explain>Lists all items inside an imaginary box. Finds items matching the POL_Class.</explain>
+  <explain>Notes: This function will not generate "Invalid Coordinates for realm" Error, because some Scripter "loves" this "bug" :o/</explain>
+  <return>Error or Array of items found inside the specified box with the matching POL_Class.</return>
+  <error>"Invalid parameter"</error>
+  <error>"Realm not found"</error>
+  <related>Array</related>
+  <related>Character</related>
+  <related>Item</related>
 </function>
 
 <function name="ListMobilesInBox">

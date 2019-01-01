@@ -13,9 +13,8 @@
 #include <string>
 #include <time.h>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
-#include "poltype.h"
+#include "../plib/poltype.h"
 #include "region.h"
 #include "zone.h"
 
@@ -42,7 +41,7 @@ namespace Items
 {
 void remove_resources( u32 objtype, u16 amount );
 void return_resources( u32 objtype, u16 amount );
-}
+}  // namespace Items
 namespace Core
 {
 class ResourceDef;
@@ -65,7 +64,7 @@ class ResourceRegion : public Region
 {
 public:
   explicit ResourceRegion( Clib::ConfigElem& elem, RegionId id );
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual size_t estimateSize() const override;
 
   void read_data( Clib::ConfigElem& elem );
 
@@ -97,13 +96,13 @@ private:
 };
 
 
-class ResourceDef : public RegionGroup<ResourceRegion>
+class ResourceDef final : public RegionGroup<ResourceRegion>
 {
 public:
   explicit ResourceDef( const char* name );
   void read_config( Clib::ConfigElem& elem );
   void read_data( Clib::ConfigElem& elem );
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual size_t estimateSize() const override;
   // void read_region( ConfigElem& elem );
 
   bool findmarker( xcoord x, ycoord y, Realms::Realm* realm, unsigned int objtype );
@@ -121,6 +120,6 @@ private:
   std::set<unsigned short> tiles_;
   // std::vector<ResourceRegion*> regions_;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif  // RESOURCE_H

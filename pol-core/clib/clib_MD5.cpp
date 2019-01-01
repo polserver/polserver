@@ -24,21 +24,21 @@ namespace Pol
 {
 namespace Clib
 {
-static HCRYPTPROV hProv = NULL;
+static HCRYPTPROV hProv = 0;
 
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
   // bool bResult = true;
 
-  // HCRYPTKEY hKey = NULL;
-  // HCRYPTKEY hXchgKey = NULL;
-  HCRYPTHASH hHash = NULL;
+  // HCRYPTKEY hKey = nullptr;
+  // HCRYPTKEY hXchgKey = nullptr;
+  HCRYPTHASH hHash = 0;
 
   if ( !hProv )
   {
-    if ( !CryptAcquireContext( &hProv, NULL, MS_DEF_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )
+    if ( !CryptAcquireContext( &hProv, nullptr, MS_DEF_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )
     {
-      if ( !CryptAcquireContext( &hProv, NULL, NULL, PROV_RSA_FULL, 0 ) )
+      if ( !CryptAcquireContext( &hProv, nullptr, nullptr, PROV_RSA_FULL, 0 ) )
       {
         ERROR_PRINT << "Error " << GetLastError() << " acquiring crypt context\n";
         return false;

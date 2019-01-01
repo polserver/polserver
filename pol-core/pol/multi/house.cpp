@@ -17,7 +17,6 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <stdlib.h>
 
-#include <format/format.h>
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
 #include "../../bscript/objmembers.h"
@@ -31,9 +30,11 @@
 #include "../../plib/mapcell.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/uconst.h"
 #include "../core.h"
 #include "../fnsearch.h"
 #include "../globals/object_storage.h"
+#include "../globals/uvars.h"
 #include "../item/itemdesc.h"
 #include "../mobile/charactr.h"
 #include "../module/osmod.h"
@@ -44,7 +45,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
-#include "../uconst.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"
@@ -54,6 +55,7 @@
 #include "customhouses.h"
 #include "multi.h"
 #include "multidef.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -77,7 +79,7 @@ void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList&
         UMulti* multi = house->realm->find_supporting_multi( item->x, item->y, item->z );
         if ( const_cast<const UMulti*>( multi ) == house )
         {
-          if ( Core::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
+          if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
             items_in.push_front( item );
           else
             items_in.push_back( item );
@@ -595,8 +597,8 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
     {
       Plib::MapShape shape;
       shape.z = itr->z + zbase;
-      shape.height = Core::tileheight( itr->graphic );
-      shape.flags = Core::tile_flags( itr->graphic );
+      shape.height = Plib::tileheight( itr->graphic );
+      shape.flags = Plib::tile_flags( itr->graphic );
       if ( !shape.height )
       {
         ++shape.height;
@@ -609,7 +611,7 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
   return result;
 }
 
-bool UHouse::readobjects( Core::StaticList& vec, short obj_x, short obj_y, short zbase )
+bool UHouse::readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short zbase )
 {
   if ( !custom )
     return false;
@@ -631,8 +633,8 @@ bool UHouse::readobjects( Core::StaticList& vec, short obj_x, short obj_y, short
     elems = design->Elements[i].GetElementsAt( obj_x, obj_y );
     for ( itr = elems->begin(); itr != elems->end(); ++itr )
     {
-      Core::StaticRec rec( itr->graphic, static_cast<signed char>( itr->z + zbase ),
-                           Core::tile_flags( itr->graphic ), Core::tileheight( itr->graphic ) );
+      Plib::StaticRec rec( itr->graphic, static_cast<signed char>( itr->z + zbase ),
+                           Plib::tile_flags( itr->graphic ), Plib::tileheight( itr->graphic ) );
       if ( !rec.height )
       {
         ++rec.height;
@@ -777,7 +779,7 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned shor
       short newz;
       UMulti* multi;
       Items::Item* item;
-      if ( !realm->walkheight( x, y, z, &newz, &multi, &item, true, Core::MOVEMODE_LAND ) )
+      if ( !realm->walkheight( x, y, z, &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
       {
         POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" ) << x << y << z;
         return true;
@@ -871,7 +873,7 @@ void move_to_ground( Items::Item* item )
       item->x = 0;  // move 'self' a bit so it doesn't interfere with itself
       item->y = 0;
       bool res = item->realm->walkheight( sx + xd, sy + yd, item->z, &newz, &multi, &walkon, true,
-                                          Core::MOVEMODE_LAND );
+                                          Plib::MOVEMODE_LAND );
       item->x = sx;
       item->y = sy;
       if ( res )
@@ -1020,5 +1022,14 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
       CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_WORKING );
   }
 }
+
+bool UHouse::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                              Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.house_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
+}  // namespace Multi
+}  // namespace Pol

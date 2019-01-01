@@ -15,7 +15,6 @@
 #include <fstream>
 #include <string>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 
 namespace Pol
@@ -76,25 +75,25 @@ private:
   std::fstream _file;
 };
 
-class BBinaryfile : public Bscript::BObjectImp
+class BBinaryfile final : public Bscript::BObjectImp
 {
 public:
   BBinaryfile();
   BBinaryfile( std::string filename, unsigned short mode, bool _bigendian );
   ~BBinaryfile();
-  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE;  // id test
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
+  virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
-  virtual std::string getStringRep() const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
-  virtual const char* typeOf() const POL_OVERRIDE { return "BinaryFile"; }
-  virtual u8 typeOfInt() const POL_OVERRIDE { return OTBinaryFile; }
-  virtual bool isTrue() const POL_OVERRIDE;
-  virtual bool operator==( const Bscript::BObjectImp& objimp ) const POL_OVERRIDE;
+                                               bool forcebuiltin = false ) override;
+  virtual Bscript::BObjectImp* copy() const override;
+  virtual std::string getStringRep() const override;
+  virtual size_t sizeEstimate() const override;
+  virtual const char* typeOf() const override { return "BinaryFile"; }
+  virtual u8 typeOfInt() const override { return OTBinaryFile; }
+  virtual bool isTrue() const override;
+  virtual bool operator==( const Bscript::BObjectImp& objimp ) const override;
 
 private:
   mutable BinFile file;

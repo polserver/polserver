@@ -2,9 +2,80 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-30-2018</datemodified>
+		<datemodified>12-30-2018</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-30-2018</date>
+			<author>Turley:</author>
+			<change type="Added">vitals.cfg optional entry DepletedFunction<br/>
+gets called once the vital reaches 0.<br/>
+Given Argument is character reference<br/>
+Like the other entries the syntax is ScriptName:ExportedFunctionName</change>
+		</entry>
+		<entry>
+			<date>12-21-2018</date>
+			<author>Turley:</author>
+			<change type="Fixed">CPU usage of UseSingleThreadLogin</change>
+		</entry>
+		<entry>
+			<date>11-27-2018</date>
+			<author>Nando:</author>
+			<change type="Added">Top-level items can now receive ENTEREDAREA and LEFTAREA events.</change>
+		</entry>
+		<entry>
+			<date>11-25-2018</date>
+			<author>Yukiko:</author>
+			<change type="Changed">The order of a couple of functions listed in uo.em. They were out of alphabetical order.</change>
+			<change type="Added">To uo.em ListItemsInBoxOfObjType( objtype, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)<br/>
+The function returns an array of all items in the bounds of the coordinates matching the ObjType specified.</change>
+			<change type="Added">To uo.em ListObjectsInBoxOfClass( POL_Class, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM)<br/>
+The function returns an array of all items in the bounds of the coordinates matching the POL_Class specified.</change>
+		</entry>
+		<entry>
+			<date>10-22-2018</date>
+			<author>Turley:</author>
+			<change type="Fixed">Undefined behaviour after ~20 days due to overflow in time measurment. This fixes both internal time measurments e.g. for repeating tasks, swing,.. and for the EScript function ReadMilliSecondClock() see below.</change>
+			<change type="Changed">ReadMillisecondClock() returns now a double instead of an integer to allow higher uptimes.</change>
+		</entry>
+		<entry>
+			<date>10-13-2018</date>
+			<author>Turley:</author>
+			<change type="Added">syshook.cfg SystemMethod for defining object class method scripts.<br/>
+Like itemdesc method scripts overriding builtin methods is possible, the builtin method can be called when prefixing with _.<br/>
+For UObject classes like shown in the objref docs the inheritance is respected<br/>
+so methods defined for items will be usable in weapons and methods defined in equipment override uobject methods.<br/>
+Valid cfg keys are:<br/>
+uobject, item, equipment, lockable, map, multi, armor, weapon, door, container, boat,<br/>
+house, spellbook, corpse, npc, character, client, account, party, guild<br/>
+Itemdesc/Npctemplate specific method scripts will still be first checked.</change>
+			<change type="Note">uoclient.cfg MethodScript entry is deprecated</change>
+		</entry>
+		<entry>
+			<date>10-12-2018</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Added -1 as acceptable return from ConsumeAmmunition hook which will make the core continue with the normal ammunition checks.</change>
+		</entry>
+		<entry>
+			<date>10-07-2018</date>
+			<author>Turley:</author>
+			<change type="Added">array.sorted_insert(obj, sub_index:=0, reverse:=0)<br/>
+assumes an already sorted array and inserts given obj. sub_index and reverse parameter have to match the sorting criteria of the array.</change>
+		</entry>
+		<entry>
+			<date>10-06-2018</date>
+			<author>DevGIB:</author>
+			<change type="Added">ConsumeAmmunition syshook to hook the cores check for ammunition consumption during combat. Hook should return 1 if combat is to go ahead and 0 if the weapon should not fire.</change>
+		</entry>
+		<entry>
+			<date>09-07-2018</date>
+			<author>DevGIB:</author>
+			<change type="Changed">FindObjtypeInContainer(container, objtype, flags :=0 ) to recurse all containers from base container.</change>
+			<change type="Added">Constants FINDOBJTYPE_RECURSIVE, FINDOBJTYPE_IGNORE_LOCKED and FINDOBJTYPE_ROOT_ONLY to UO.EM</change>
+			<change type="Added">Flags to FindObjtypeInContainer() for only accessing root container, and bypassing locked container checks.</change>
+			<change type="Note">THESE CHANGES TO FindObjtypeInContainer() WILL EFFECTIVELY CHANGE THE DEFAULT FUNCTIONALITY OF THE FUNCTION AS DEFAULT IS NOW TO RECURSE SUB CONTAINERS.</change>
+			<change type="Added">Additional documentation to the Racalac escript guide to include additional information supplied by Yukiko.</change>
+		</entry>
 		<entry>
 			<date>07-27-2018</date>
 			<author>DevGIB:</author>

@@ -167,19 +167,20 @@ void* thread_stub2( void* v_td )
   threadmap.Register( thread_pid(), td->name );
 
   delete td;
-  td = NULL;
+  td = nullptr;
 
-  if ( entry != NULL )
+  if ( entry != nullptr )
     run_thread( entry, arg );
   else
     run_thread( entry_noparam );
 
 #ifdef _WIN32
   _endthreadex( 0 );
-#else
-  pthread_exit( NULL );
-#endif
   return 0;
+#else
+  pthread_exit( nullptr );
+  return nullptr;
+#endif
 }
 
 #ifdef _WIN32
@@ -190,11 +191,11 @@ void create_thread( ThreadData* td, bool dec_child = false )
   std::string threadName = td->name;
 
   unsigned threadid = 0;
-  HANDLE h = (HANDLE)_beginthreadex( NULL, 0, thread_stub2, td, 0, &threadid );
+  HANDLE h = (HANDLE)_beginthreadex( nullptr, 0, thread_stub2, td, 0, &threadid );
   if ( h == 0 )  // added for better debugging
   {
     POLLOG.Format(
-        "error in create_thread: {:d} {:d} \"{:s}\" \"{:s}\" {:d} {:d} {:s} {:d} {:d} {:d}\n" )
+        "error in create_thread: {:d} {:d} \"{:s}\" \"{:s}\" {:d} {:d} {:s} {:d} {:d} {:}\n" )
         << errno << _doserrno << strerror( errno ) << strerror( _doserrno ) << threads++
         << (unsigned)thread_stub2 << td->name.c_str() << (unsigned)td->entry
         << (unsigned)td->entry_noparam << td->arg;
@@ -217,7 +218,7 @@ void create_thread( ThreadData* td, bool dec_child = false )
   int result = pthread_create( &thread, &create_detached_attr, thread_stub2, td );
   if ( result != 0 )  // added for better debugging
   {
-    POLLOG.Format( "error in create_thread: {:d} {:d} \"{:s}\" {:d} {:} {:s} {:} {:} {:d}\n" )
+    POLLOG.Format( "error in create_thread: {:d} {:d} \"{:s}\" {:d} {:} {:s} {:} {:} {:}\n" )
         << result << errno << strerror( errno ) << threads++
         << reinterpret_cast<const void*>( thread_stub2 ) << td->name.c_str()
         << reinterpret_cast<const void*>( td->entry )
@@ -235,7 +236,7 @@ void start_thread( void ( *entry )( void* ), const char* thread_name, void* arg 
   auto td = new ThreadData;
   td->name = thread_name;
   td->entry = entry;
-  td->entry_noparam = NULL;
+  td->entry_noparam = nullptr;
   td->arg = arg;
 
   ++child_threads;
@@ -247,9 +248,9 @@ void start_thread( void ( *entry )( void ), const char* thread_name )
 {
   auto td = new ThreadData;
   td->name = thread_name;
-  td->entry = NULL;
+  td->entry = nullptr;
   td->entry_noparam = entry;
-  td->arg = NULL;
+  td->arg = nullptr;
 
   ++child_threads;
 

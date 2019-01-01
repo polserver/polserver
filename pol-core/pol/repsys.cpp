@@ -25,9 +25,9 @@
 #include "guilds.h"
 #include "mobile/charactr.h"
 #include "mobile/npc.h"
+#include "network/pktdef.h"
 #include "npctmpl.h"
 #include "party.h"
-#include "pktdef.h"
 #include "polsig.h"
 #include "repsys_cfg.h"
 #include "schedule.h"
@@ -1098,7 +1098,9 @@ void Character::make_criminal( int level )
   if ( level )
   {
     Core::polclock_t timeout_at =
-        Core::polclock() + level * Core::settingsManager.repsys_cfg.General.CriminalFlagInterval *
+        Core::polclock() + level *
+                               static_cast<Core::polclock_t>(
+                                   Core::settingsManager.repsys_cfg.General.CriminalFlagInterval ) *
                                Core::POLCLOCKS_PER_SEC;
 
     restart_criminal_timer( timeout_at );

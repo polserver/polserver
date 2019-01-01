@@ -13,6 +13,7 @@
 #include <string>
 
 #include "../../bscript/bstruct.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/logfacility.h"
@@ -29,6 +30,7 @@
 #include "../layers.h"
 #include "../mobile/charactr.h"
 #include "../realms/realm.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../umanip.h"
 #include "../uobject.h"
@@ -301,7 +303,7 @@ UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
 
     wpnelem.add_prop( "HitSound", elem.remove_string( "AttackHitSound", "0" ) );
     wpnelem.add_prop( "MissSound", elem.remove_string( "AttackMissSound", "0" ) );
-    wpnelem.add_prop( "Anim", elem.remove_string( "AttackAnimation", "0" ));
+    wpnelem.add_prop( "Anim", elem.remove_string( "AttackAnimation", "0" ) );
     wpnelem.add_prop( "MaxHp", "1" );
     if ( elem.remove_prop( "AttackHitScript", &tmp ) )
       wpnelem.add_prop( "HitScript", tmp );
@@ -507,6 +509,15 @@ void UWeapon::set_hit_script( const std::string& scriptname )
     passert( tmpl != nullptr );
     hit_script_.config( scriptname, tmpl->pkg, "scripts/items/", true );
   }
+}
+
+bool UWeapon::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                               Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.weapon_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

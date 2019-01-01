@@ -12,19 +12,20 @@
 #pragma warning( disable : 4503 )  // decorated name length exceeded
 #endif
 
-#ifdef DEBUG_FLYWEIGHT
+#ifdef ENABLE_FLYWEIGHT_REPORT
+#include <boost/config.hpp> /* keep it first to prevent nasty warns in MSVC */
 #include <boost/flyweight/factory_tag.hpp>
-#include <boost/flyweight/hashed_factory_fwd.hpp>
-#include <boost/foreach.hpp>
 #include <boost/mpl/aux_/lambda_support.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/identity.hpp>
 #include <boost/multi_index_container.hpp>
+
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+#include <utility>
+#endif
 #include <string>
 #include <vector>
-
-#include "compilerspecifics.h"
 #endif
 #include <boost/flyweight.hpp>
 
@@ -32,22 +33,35 @@ namespace Pol
 {
 namespace boost_utils
 {
-#ifdef DEBUG_FLYWEIGHT
+#ifdef ENABLE_FLYWEIGHT_REPORT
+template <typename Entry, typename Key, typename Hash = boost::mpl::na,
+          typename Pred = boost::mpl::na, typename Allocator = boost::mpl::na>
+class accessible_hashed_factory_class;
+
+template <typename Hash = boost::mpl::na, typename Pred = boost::mpl::na,
+          typename Allocator = boost::mpl::na BOOST_FLYWEIGHT_NOT_A_PLACEHOLDER_EXPRESSION>
+struct accessible_hashed_factory;
+
 class bucket_query
 {
 public:
+  bucket_query();  // register instance in Query
   typedef std::size_t size_type;
-  virtual ~bucket_query(){};
+  virtual ~bucket_query() = default;
   virtual size_type bucket_count() const = 0;
   virtual size_type max_bucket_count() const = 0;
   virtual size_type bucket_size( size_type n ) const = 0;
   virtual size_type estimateSize() const = 0;
 };
 
-extern std::vector<bucket_query*> debug_flyweight_queries;
+struct Query
+{
+  static std::vector<std::pair<size_t, size_t>> getCountAndSize();
+  static void add( bucket_query* b );
+  static std::vector<bucket_query*>* debug_flyweight_queries;
+};
 
-template <typename Entry, typename Key, typename Hash = boost::mpl::na,
-          typename Pred = boost::mpl::na, typename Allocator = boost::mpl::na>
+template <typename Entry, typename Key, typename Hash, typename Pred, typename Allocator>
 class accessible_hashed_factory_class : public boost::flyweights::factory_marker,
                                         public bucket_query
 {
@@ -66,27 +80,18 @@ class accessible_hashed_factory_class : public boost::flyweights::factory_marker
       container_type;
 
 public:
+  accessible_hashed_factory_class() : boost::flyweights::factory_marker(), bucket_query() {}
   typedef const Entry* handle_type;
 
-  accessible_hashed_factory_class() { debug_flyweight_queries.push_back( this ); }
   handle_type insert( const Entry& x ) { return &*cont.insert( x ).first; }
-  void erase( handle_type h ) { cont.erase( cont.iterator_to( *h ) ); }
-  static const Entry& entry( handle_type h ) { return *h; }
-  typedef std::size_t size_type;
 
-  virtual size_type bucket_count() const POL_OVERRIDE { return cont.bucket_count(); }
-  virtual size_type max_bucket_count() const POL_OVERRIDE { return cont.max_bucket_count(); }
-  virtual size_type bucket_size( size_type n ) const POL_OVERRIDE { return cont.bucket_size( n ); }
-  virtual size_type estimateSize() const POL_OVERRIDE
-  {
-    size_type size = 0;
-    BOOST_FOREACH ( const Entry& e, cont )
-    {
-      size += (int)( 4.5 * sizeof( long ) );  // ~overhead
-      size += ( (std::string)e ).capacity();
-    }
-    return size;
-  }
+#if !defined( BOOST_NO_CXX11_RVALUE_REFERENCES )
+  handle_type insert( Entry&& x ) { return &*cont.insert( std::move( x ) ).first; }
+#endif
+
+  void erase( handle_type h ) { cont.erase( cont.iterator_to( *h ) ); }
+
+  static const Entry& entry( handle_type h ) { return *h; }
 
 private:
   container_type cont;
@@ -95,10 +100,25 @@ public:
   typedef accessible_hashed_factory_class type;
   BOOST_MPL_AUX_LAMBDA_SUPPORT( 5, accessible_hashed_factory_class,
                                 ( Entry, Key, Hash, Pred, Allocator ) )
-};
 
-template <typename Hash = boost::mpl::na, typename Pred = boost::mpl::na,
-          typename Allocator = boost::mpl::na BOOST_FLYWEIGHT_NOT_A_PLACEHOLDER_EXPRESSION>
+  virtual size_type bucket_count() const override { return cont.bucket_count(); }
+  virtual size_type max_bucket_count() const override { return cont.max_bucket_count(); }
+  virtual size_type bucket_size( size_type n ) const override { return cont.bucket_size( n ); }
+  virtual size_type estimateSize() const override
+  {
+    size_type size = 0;
+    for ( const Entry& e : cont )
+    {
+      size += (int)( 4.5 * sizeof( long ) );  // ~overhead
+      size += ( (std::string)e ).capacity();
+    }
+    return size;
+  }
+};
+/* hashed_factory_class specifier */
+
+template <typename Hash, typename Pred,
+          typename Allocator BOOST_FLYWEIGHT_NOT_A_PLACEHOLDER_EXPRESSION_DEF>
 struct accessible_hashed_factory : boost::flyweights::factory_marker
 {
   template <typename Entry, typename Key>
@@ -173,8 +193,10 @@ struct flyweight_initializers
   script_name_flystring::initializer fwInit_script_name;
   npctemplate_name_flystring::initializer fwInit_npctemplate_name;
   function_name_flystring::initializer fwInit_func_name;
+
+  ~flyweight_initializers();
 };
-}
-}
+}  // namespace boost_utils
+}  // namespace Pol
 
 #endif

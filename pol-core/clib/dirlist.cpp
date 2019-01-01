@@ -86,13 +86,13 @@ DirList::DirList( const char* dirname )
   dir_ = opendir( dirname );
   next();
 }
-DirList::DirList() : dir_( NULL ) {}
+DirList::DirList() : dir_( nullptr ) {}
 DirList::~DirList()
 {
-  if ( dir_ != NULL )
+  if ( dir_ != nullptr )
   {
     closedir( dir_ );
-    dir_ = NULL;
+    dir_ = nullptr;
   }
 }
 void DirList::open( const char* /*filespec*/ )
@@ -101,7 +101,7 @@ void DirList::open( const char* /*filespec*/ )
 }
 bool DirList::at_end() const
 {
-  return ( dir_ == NULL );
+  return ( dir_ == nullptr );
 }
 
 std::string DirList::name() const
@@ -111,17 +111,17 @@ std::string DirList::name() const
 
 void DirList::next()
 {
-  if ( dir_ != NULL )
+  if ( dir_ != nullptr )
   {
     struct dirent* de = readdir( dir_ );
-    if ( de != NULL )
+    if ( de != nullptr )
     {
       cur_name_ = de->d_name;
     }
     else
     {
       closedir( dir_ );
-      dir_ = NULL;
+      dir_ = nullptr;
     }
   }
 }
@@ -138,7 +138,7 @@ namespace Clib
 {
 PushDir::PushDir( const char* dir )
 {
-  if ( getcwd( savedir_, sizeof savedir_ ) == NULL )
+  if ( getcwd( savedir_, sizeof savedir_ ) == nullptr )
     ok_ = ( chdir( dir ) == 0 );
   else
     ok_ = false;
@@ -164,7 +164,7 @@ std::string curdir()
 #else
   char cdir[256];
 #endif
-  if ( getcwd( cdir, sizeof cdir ) == NULL )
+  if ( getcwd( cdir, sizeof cdir ) == nullptr )
     return normalized_dir_form( cdir );
   return "";
 }

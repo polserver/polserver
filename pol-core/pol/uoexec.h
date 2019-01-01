@@ -15,7 +15,6 @@
 #include <string>
 #include <time.h>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 
@@ -29,7 +28,7 @@ namespace Core
 {
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
-class UOExecutor : public Bscript::Executor
+class UOExecutor final : public Bscript::Executor
 {
   typedef Bscript::Executor base;
 
@@ -39,7 +38,7 @@ public:  // soon to be private ;)
 public:
   UOExecutor();
   virtual ~UOExecutor();
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  virtual size_t sizeEstimate() const override;
 
   bool suspend();
   bool revive();
@@ -53,6 +52,9 @@ public:
   u64 warn_runaway_on_cycle;
   u64 runaway_cycles;
 
+  bool listens_to( unsigned int eventflag ) const;
+  bool signal_event( Bscript::BObjectImp* eventimp );
+
   unsigned int eventmask;
   unsigned short area_size;
   unsigned short speech_size;
@@ -63,6 +65,12 @@ public:
 
   UOExecutor *pParent, *pChild;
 };
+
+inline bool UOExecutor::listens_to( unsigned int eventflag ) const
+{
+  return ( eventmask & eventflag ) ? true : false;
 }
-}
+
+}  // namespace Core
+}  // namespace Pol
 #endif

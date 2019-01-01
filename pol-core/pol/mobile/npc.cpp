@@ -29,6 +29,7 @@
 #include <stdlib.h>
 
 #include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
@@ -53,6 +54,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobjcnt.h"
 #include "../uobject.h"
@@ -147,7 +149,7 @@ const char* NPC::classname() const
 //                  unsigned short x2, unsigned short y2 )
 // to ufunc.cpp
 
-bool NPC::anchor_allows_move( Core::UFACING fdir ) const
+bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
 {
   unsigned short newx = x + Core::move_delta[fdir].xmove;
   unsigned short newy = y + Core::move_delta[fdir].ymove;
@@ -171,7 +173,7 @@ bool NPC::anchor_allows_move( Core::UFACING fdir ) const
   return true;
 }
 
-bool NPC::could_move( Core::UFACING fdir ) const
+bool NPC::could_move( Plib::UFACING fdir ) const
 {
   short newz;
   Multi::UMulti* supporting_multi;
@@ -204,7 +206,7 @@ bool NPC::could_move( Core::UFACING fdir ) const
          !npc_path_blocked( fdir ) && anchor_allows_move( fdir );
 }
 
-bool NPC::npc_path_blocked( Core::UFACING fdir ) const
+bool NPC::npc_path_blocked( Plib::UFACING fdir ) const
 {
   if ( can_freemove() ||
        ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )
@@ -360,8 +362,8 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
   if ( !script.get().empty() )
     start_script();
 
-  speech_color( elem.remove_ushort( "SpeechColor", Core::DEFAULT_TEXT_COLOR ) );
-  speech_font( elem.remove_ushort( "SpeechFont", Core::DEFAULT_TEXT_FONT ) );
+  speech_color( elem.remove_ushort( "SpeechColor", Plib::DEFAULT_TEXT_COLOR ) );
+  speech_font( elem.remove_ushort( "SpeechFont", Plib::DEFAULT_TEXT_FONT ) );
   saveonexit( elem.remove_bool( "SaveOnExit", true ) );
 
   mob_flags_.change( MOB_FLAGS::USE_ADJUSTMENTS, elem.remove_bool( "UseAdjustments", true ) );
@@ -707,7 +709,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
-        ex->os_module->signal_event(
+        ex->signal_event(
             new Module::SpeechEvent( src_chr, speech,
                                      Core::TextTypeToString( texttype ) ) );  // DAVE added texttype
     }
@@ -723,7 +725,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
-        ex->os_module->signal_event(
+        ex->signal_event(
             new Module::SpeechEvent( src_chr, speech,
                                      Core::TextTypeToString( texttype ) ) );  // DAVE added texttype
     }
@@ -748,7 +750,7 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, cons
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
       {
-        ex->os_module->signal_event( new Module::UnicodeSpeechEvent(
+        ex->signal_event( new Module::UnicodeSpeechEvent(
             src_chr, speech, Core::TextTypeToString( texttype ), wspeech, lang, speechtokens ) );
       }
     }
@@ -775,7 +777,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
       {
-        ex->os_module->signal_event( new Module::UnicodeSpeechEvent(
+        ex->signal_event( new Module::UnicodeSpeechEvent(
             src_chr, speech, Core::TextTypeToString( texttype ), wspeech, lang, speechtokens ) );
       }
     }
@@ -789,7 +791,7 @@ void NPC::inform_engaged( Character* engaged )
   {
     if ( ex->eventmask & Core::EVID_ENGAGED )
     {
-      ex->os_module->signal_event( new Module::EngageEvent( engaged ) );
+      ex->signal_event( new Module::EngageEvent( engaged ) );
     }
   }
   // Note, we don't do the base class thing, 'cause we have no client.
@@ -802,7 +804,7 @@ void NPC::inform_disengaged( Character* disengaged )
   {
     if ( ex->eventmask & Core::EVID_DISENGAGED )
     {
-      ex->os_module->signal_event( new Module::DisengageEvent( disengaged ) );
+      ex->signal_event( new Module::DisengageEvent( disengaged ) );
     }
   }
   // Note, we don't do the base class thing, 'cause we have no client.
@@ -817,7 +819,7 @@ void NPC::inform_criminal( Character* thecriminal )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( thecriminal ) )
-        ex->os_module->signal_event(
+        ex->signal_event(
             new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
     }
   }
@@ -833,7 +835,7 @@ void NPC::inform_leftarea( Character* wholeft )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( wholeft ) )
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
       }
     }
   }
@@ -849,7 +851,7 @@ void NPC::inform_enteredarea( Character* whoentered )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( whoentered ) )
-          ex->os_module->signal_event(
+          ex->signal_event(
               new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
       }
     }
@@ -865,7 +867,6 @@ void NPC::inform_moved( Character* moved )
   if ( ex != nullptr )
   {
     bool signaled = false;
-    passert( this != nullptr );
     passert( moved != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
@@ -882,12 +883,12 @@ void NPC::inform_moved( Character* moved )
       {
         if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
         {
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
           signaled = true;
         }
         else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
         {
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
           signaled = true;
         }
       }
@@ -899,7 +900,7 @@ void NPC::inform_moved( Character* moved )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( moved ) )
-          ex->os_module->signal_event(
+          ex->signal_event(
               new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
       }
     }
@@ -915,7 +916,6 @@ void NPC::inform_imoved( Character* chr )
 {
   if ( ex != nullptr )
   {
-    passert( this != nullptr );
     passert( chr != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
@@ -931,9 +931,9 @@ void NPC::inform_imoved( Character* chr )
            is_visible_to_me( chr ) )
       {
         if ( are_inrange && !were_inrange && ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) )
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, chr ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, chr ) );
         else if ( !are_inrange && were_inrange && ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) )
-          ex->os_module->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, chr ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, chr ) );
       }
     }
   }
@@ -953,7 +953,7 @@ bool NPC::send_event( Bscript::BObjectImp* event )
 {
   if ( ex != nullptr )
   {
-    if ( ex->os_module->signal_event( event ) )
+    if ( ex->signal_event( event ) )
       return true;
   }
   else
@@ -968,7 +968,7 @@ Bscript::BObjectImp* NPC::send_event_script( Bscript::BObjectImp* event )
 {
   if ( ex != nullptr )
   {
-    if ( ex->os_module->signal_event( event ) )
+    if ( ex->signal_event( event ) )
       return new Bscript::BLong( 1 );
     else
     {
@@ -990,7 +990,7 @@ void NPC::apply_raw_damage_hundredths( unsigned int damage, Character* source, b
   {
     if ( ex->eventmask & Core::EVID_DAMAGED )
     {
-      ex->os_module->signal_event(
+      ex->signal_event(
           new Module::DamageEvent( source, static_cast<unsigned short>( damage / 100 ) ) );
     }
   }
@@ -1166,6 +1166,15 @@ void NPC::no_drop_exception( bool newvalue )
 std::string NPC::templatename() const
 {
   return template_name;
+}
+
+bool NPC::get_method_hook( const char* methodname, Bscript::Executor* executor,
+                           Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.npc_method_script.get(), methodname, executor, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, executor, hook, PC );
 }
 }
 }

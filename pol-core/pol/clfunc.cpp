@@ -14,7 +14,7 @@
 
 #include "mobile/charactr.h"
 #include "network/packethelper.h"
-#include "pktdef.h"
+#include "network/pktdef.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -313,5 +313,5 @@ void build_sysmessage_cl_affix( PktOut_CC* msg, unsigned int cliloc_num, const c
   msg->WriteFlipped<u16>( len );
   msg->offset = len;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

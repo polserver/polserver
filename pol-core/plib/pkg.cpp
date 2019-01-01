@@ -6,8 +6,8 @@
 
 #include "pkg.h"
 
-#include <stdlib.h>
 #include "pol_global_config.h"
+#include <stdlib.h>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
@@ -18,7 +18,7 @@
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
-#include "../plib/systemstate.h"
+#include "systemstate.h"
 
 namespace Pol
 {
@@ -39,7 +39,7 @@ Package* find_package( const std::string& pkgname )
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -71,13 +71,13 @@ void compare_versions( const std::string& verleft, const std::string& verright, 
   const char* vneed = verright.c_str();
   const char* vhave = verleft.c_str();
 
-  while ( ( vneed != NULL && vneed[0] != '\0' ) || ( vhave != NULL && vhave[0] != '\0' ) )
+  while ( ( vneed != nullptr && vneed[0] != '\0' ) || ( vhave != nullptr && vhave[0] != '\0' ) )
   {
-    char* new_vneed = NULL;
-    char* new_vhave = NULL;
+    char* new_vneed = nullptr;
+    char* new_vhave = nullptr;
     unsigned int vneedpart, vhavepart;
-    vneedpart = ( vneed != NULL ) ? strtoul( vneed, &new_vneed, 0 ) : 0;
-    vhavepart = ( vhave != NULL ) ? strtoul( vhave, &new_vhave, 0 ) : 0;
+    vneedpart = ( vneed != nullptr ) ? strtoul( vneed, &new_vneed, 0 ) : 0;
+    vhavepart = ( vhave != nullptr ) ? strtoul( vhave, &new_vhave, 0 ) : 0;
 
     if ( vhavepart > vneedpart )
     {
@@ -184,13 +184,13 @@ bool Package::check_replacements() const
   for ( const auto& elem : replaces_.elems )
   {
     Package* found = find_package( elem.pkgname );
-    if ( found != NULL )
+    if ( found != nullptr )
     {
       any = true;
       INFO_PRINT << "Package " << desc() << " replaces package " << found->desc() << "\n";
       remove_package( found );
       delete found;
-      found = NULL;
+      found = nullptr;
     }
   }
   return any;
@@ -222,7 +222,7 @@ void Package::check_dependencies() const
   for ( const auto& elem : requires_.elems )
   {
     Package* found = find_package( elem.pkgname );
-    if ( found == NULL )
+    if ( found == nullptr )
     {
       ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
                   << "  Package '" << elem.pkgname << "' is required, but is not installed.\n";
@@ -246,7 +246,7 @@ void Package::check_conflicts() const
   for ( const auto& elem : conflicts_.elems )
   {
     Package* found = find_package( elem.pkgname );
-    if ( found != NULL )
+    if ( found != nullptr )
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
                   << "  Package conflicts with package " << found->desc() << "\n";
@@ -271,7 +271,7 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
   std::unique_ptr<Package> pkg( new Package( pkg_dir, elem ) );
   Package* existing_pkg = find_package( pkg->name() );
 
-  if ( existing_pkg != NULL )
+  if ( existing_pkg != nullptr )
   {
     bool isgreater, isequal;
     compare_versions( pkg->version(), existing_pkg->version(), isgreater, isequal );
@@ -284,7 +284,7 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
                    << pkg->dir() << "\n";
       remove_package( existing_pkg );
       delete existing_pkg;
-      existing_pkg = NULL;
+      existing_pkg = nullptr;
     }
     else if ( isequal )
     {
@@ -396,7 +396,8 @@ void load_packages( bool quiet )
       while ( elem.remove_prop( "dir", &dir ) )
       {
         dir = Clib::normalized_dir_form( dir );
-        INFO_PRINT << "Searching for packages under " << dir << "\n";
+        if ( !quiet )
+          INFO_PRINT << "Searching for packages under " << dir << "\n";
         load_packages( dir.c_str(), quiet );
       }
     }
@@ -414,7 +415,7 @@ bool pkgdef_split( const std::string& spec, const Package* inpkg, const Package*
   {
     if ( spec[1] == ':' )  // '::corefile'  -- a core file
     {
-      *outpkg = NULL;
+      *outpkg = nullptr;
       *path = spec.substr( 2, std::string::npos );
     }
     else  // ':pkgname:pkgfile'  -- a packaged file
@@ -425,7 +426,7 @@ bool pkgdef_split( const std::string& spec, const Package* inpkg, const Package*
         std::string pkgname = spec.substr( 1, second_colon - 1 );
         std::string pkgfile = spec.substr( second_colon + 1, std::string::npos );
         Package* dstpkg = find_package( pkgname );
-        if ( dstpkg != NULL )
+        if ( dstpkg != nullptr )
         {
           *outpkg = dstpkg;
           *path = pkgfile;
@@ -481,7 +482,7 @@ void load_all_cfgs( const char* cfgname, const char* taglist,
 
     while ( cf.read( elem ) )
     {
-      loadentry( NULL, elem );
+      loadentry( nullptr, elem );
     }
   }
   load_packaged_cfgs( cfgname, taglist, loadentry );
@@ -491,7 +492,7 @@ void load_all_cfgs( const char* cfgname, const char* taglist,
 std::string GetPackageCfgPath( const Package* pkg, const std::string& filename )
 {
   std::string filepath;
-  if ( pkg == NULL )
+  if ( pkg == nullptr )
   {  // If no package is sent, assume pol/config/file.xxx
     filepath = "config/" + filename;
   }
@@ -508,5 +509,5 @@ std::string GetPackageCfgPath( const Package* pkg, const std::string& filename )
 
   return filepath;
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

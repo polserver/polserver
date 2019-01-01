@@ -1,7 +1,10 @@
 
 #include "pol_global_config.h"
 
+#include "RunEclMain.h"
+
 #include <ctime>
+#include <format/format.h>
 #include <iostream>
 
 #include "../bscript/bobject.h"
@@ -16,11 +19,11 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/refptr.h"
+#include "../clib/stlutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
-#include "RunEclMain.h"
-#include <format/format.h>
 
+#include "../pol/globals/ucfg.h"
 #include "../pol/module/basiciomod.h"
 #include "../pol/module/basicmod.h"
 #include "../pol/module/cfgmod.h"
@@ -36,7 +39,7 @@ namespace Core
 {
 // See comment in boost_utils::flyweight_initializers
 boost_utils::flyweight_initializers fw_inits;
-}
+}  // namespace Core
 namespace Module
 {
 void load_fileaccess_cfg();
@@ -182,6 +185,10 @@ int RunEclMain::runeclScript( std::string fileName )
 #endif
     INFO_PRINT << tmp.str();
   }
+  // deinit
+  Core::configurationbuffer.deinitialize();
+  Plib::systemstate.deinitialize();
+
   return exres ? 0 : 1;
 }
 
@@ -220,6 +227,8 @@ int RunEclMain::runecl()
 
 int RunEclMain::main()
 {
+  Clib::Logging::global_logger->disableFileLog();
+
   const std::vector<std::string>& binArgs = programArgs();
   Pol::Bscript::escript_config.max_call_depth = 100;
   m_quiet = programArgsFind( "q" );
@@ -232,8 +241,7 @@ int RunEclMain::main()
   if ( !m_quiet )
   {
     double vernum = 1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    ERROR_PRINT << "EScript Executor v" << vernum << "\n"
-                << POL_COPYRIGHT << "\n\n";
+    ERROR_PRINT << "EScript Executor v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
   }
 
   /**********************************************
@@ -260,8 +268,8 @@ int RunEclMain::main()
    **********************************************/
   return runecl();
 }
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

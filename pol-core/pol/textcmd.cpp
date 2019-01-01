@@ -37,11 +37,12 @@
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
+#include "../plib/clidata.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "accounts/account.h"
 #include "allocd.h"
-#include "clidata.h"
 #include "globals/network.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
@@ -51,14 +52,12 @@
 #include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/client.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 #include "polclock.h"
 #include "repsys.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "tmpvars.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "unicode.h"
@@ -151,9 +150,9 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* te
       Items::Item* it = Items::Item::create( objtype );
       if ( it != nullptr )
       {
-        color &= VALID_ITEM_COLOR_MASK;
+        color &= Plib::VALID_ITEM_COLOR_MASK;
         it->color = color;
-        it->layer = tilelayer( it->graphic );
+        it->layer = Plib::tilelayer( it->graphic );
         it->realm = chr->realm;
         // FIXME equip scripts, equiptest scripts
         if ( chr->equippable( it ) )
@@ -182,22 +181,6 @@ void send_move_if_inrange2( Mobile::Character* chr, Network::Client* client )
   }
 }
 
-void textcmd_flag1( Network::Client* client, const char* text )
-{
-  tmp_flag1 = (u8)strtoul( text, nullptr, 16 );
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
-}
-
-void textcmd_flag2( Network::Client* client, const char* text )
-{
-  tmp_flag2 = (u8)strtoul( text, nullptr, 16 );
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_move_if_inrange2( zonechr, client ); } );
-}
-
 void textcmd_resendchars( Network::Client* client )
 {
   Core::WorldIterator<Core::MobileFilter>::InVisualRange(
@@ -207,7 +190,7 @@ void textcmd_resendchars( Network::Client* client )
 
 void textcmd_shutdown( Network::Client* /*client*/ )
 {
-  Clib::exit_signalled = 1;
+  Clib::exit_signalled = true;
 }
 
 void handle_ident_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
@@ -239,7 +222,7 @@ std::string timeoutstr( polclock_t at )
 {
   polclock_t ticks = at - polclock();
   int seconds = ticks / POLCLOCKS_PER_SEC;
-  return Clib::decint( seconds ) + " seconds";
+  return Clib::tostring( seconds ) + " seconds";
 }
 
 ///
@@ -263,7 +246,7 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
   else if ( mob->is_criminal() )
   {
     send_sysmessage( client, "Mobile is criminal for " + timeoutstr( mob->criminal_until_ ) + " [" +
-                                 Clib::decint( mob->criminal_until_ ) + "]" );
+                                 Clib::tostring( mob->criminal_until_ ) + "]" );
   }
 
   for ( Mobile::Character::MobileCont::const_iterator itr = mob->aggressor_to_.begin();
@@ -271,7 +254,7 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
   {
     send_sysmessage( client, "Aggressor to " + ( *itr ).first->name() + " for " +
                                  timeoutstr( ( *itr ).second ) + " [" +
-                                 Clib::decint( ( *itr ).second ) + "]" );
+                                 Clib::tostring( ( *itr ).second ) + "]" );
   }
 
   for ( Mobile::Character::MobileCont::const_iterator itr = mob->lawfully_damaged_.begin();
@@ -279,7 +262,7 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
   {
     send_sysmessage( client, "Lawfully Damaged " + ( *itr ).first->name() + " for " +
                                  timeoutstr( ( *itr ).second ) + " [" +
-                                 Clib::decint( ( *itr ).second ) + "]" );
+                                 Clib::tostring( ( *itr ).second ) + "]" );
   }
 
   for ( Mobile::Character::ToBeReportableList::const_iterator itr = mob->to_be_reportable_.begin();
@@ -293,14 +276,14 @@ void RepSystem::show_repdata( Network::Client* client, Mobile::Character* mob )
         itr != mob->reportable_.end(); ++itr )
   {
     const Mobile::reportable_t& rt = ( *itr );
-    send_sysmessage(
-        client, "Reportable: " + Clib::hexint( rt.serial ) + " at " + Clib::decint( rt.polclock ) );
+    send_sysmessage( client, "Reportable: " + Clib::hexint( rt.serial ) + " at " +
+                                 Clib::tostring( rt.polclock ) );
   }
 
   if ( mob->repsys_task_ != nullptr )
     send_sysmessage( client, "Repsys task is active, runs in " +
                                  timeoutstr( mob->repsys_task_->next_run_clock() ) + " [" +
-                                 Clib::decint( mob->repsys_task_->next_run_clock() ) + "]" );
+                                 Clib::tostring( mob->repsys_task_->next_run_clock() ) + "]" );
 }
 
 void show_repdata( Mobile::Character* looker, Mobile::Character* mob )
@@ -438,10 +421,11 @@ void textcmd_procs( Network::Client* client )
   send_sysmessage( client, "Process Information:" );
 
   send_sysmessage(
-      client, "Running: " + Clib::decint( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
+      client,
+      "Running: " + Clib::tostring( (unsigned int)( scriptScheduler.getRunlist().size() ) ) );
   send_sysmessage(
       client,
-      "Blocked: " + Clib::decint( (unsigned int)( scriptScheduler.getHoldlist().size() ) ) );
+      "Blocked: " + Clib::tostring( (unsigned int)( scriptScheduler.getHoldlist().size() ) ) );
 }
 
 void textcmd_log_profile( Network::Client* client )
@@ -464,7 +448,7 @@ void textcmd_heapcheck( Network::Client* /*client*/ )
 
 void textcmd_threads( Network::Client* client )
 {
-  std::string s = "Child threads: " + Clib::decint( threadhelp::child_threads );
+  std::string s = "Child threads: " + Clib::tostring( threadhelp::child_threads );
   send_sysmessage( client, s );
 }
 
@@ -698,8 +682,6 @@ bool process_command( Network::Client* client, const char* text, const u16* wtex
     register_command( "startlog", &textcmd_startlog );
     register_command( "stoplog", &textcmd_stoplog );
     register_command( "threads", &textcmd_threads );
-    register_command( "flag1 ", &textcmd_flag1 );
-    register_command( "flag2 ", &textcmd_flag2 );
   }
 
   ++text;  // skip the "/" or "."
@@ -729,5 +711,5 @@ bool process_command( Network::Client* client, const char* text, const u16* wtex
 
   return false;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

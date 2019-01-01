@@ -12,7 +12,6 @@
 #define STLUTIL_H
 
 #include "Header_Windows.h"
-#include "compilerspecifics.h"
 #include <cstring>
 #include <sstream>
 
@@ -75,20 +74,12 @@ inline int stringicmp( const char* str1, const S2& str2 )
 #define OSTRINGSTREAM std::ostringstream
 #define OSTRINGSTREAM_STR( x ) x.str()
 
-template <class T>
-std::string tostring( const T& v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
 template <class T, size_t N>
-CONSTEXPR size_t arsize( T ( & )[N] )
+constexpr size_t arsize( T ( & )[N] )
 {
   return N;
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 
 #endif

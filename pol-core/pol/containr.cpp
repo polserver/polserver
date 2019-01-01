@@ -26,12 +26,15 @@
 #include <assert.h>
 #include <cstddef>
 
+#include "../bscript/executor.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/random.h"
 #include "../clib/streamsaver.h"
+#include "../plib/uconst.h"
 #include "globals/state.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -39,7 +42,7 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "statmsg.h"
-#include "uconst.h"
+#include "syshookscript.h"
 #include "ufunc.h"
 #include "umanip.h"
 #include "uobject.h"
@@ -67,9 +70,9 @@ UContainer::~UContainer()
 size_t UContainer::estimatedSize() const
 {
   const size_t size = base::estimatedSize() + sizeof( u16 ) /*held_weight_*/
-                + sizeof( unsigned int )              /*held_item_count_*/
-                // no estimateSize here element is in objhash
-                + 3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
+                      + sizeof( unsigned int )              /*held_item_count_*/
+                      // no estimateSize here element is in objhash
+                      + 3 * sizeof( Items::Item** ) + contents_.capacity() * sizeof( Items::Item* );
   return size;
 }
 
@@ -421,6 +424,30 @@ Items::Item* UContainer::find_addable_stack( const Items::Item* adding_item ) co
   return nullptr;
 }
 
+Items::Item* UContainer::find_objtype( u32 objtype, int flags ) const
+{
+  Items::Item* _item = find_toplevel_objtype( objtype );
+  if ( _item != nullptr )
+    return _item;
+  if ( !( flags & FINDOBJTYPE_ROOT_ONLY ) )
+  {
+    for ( const auto& item : contents_ )
+    {
+      if ( item && item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+      {
+        UContainer* cont = static_cast<UContainer*>( item );
+        if ( !cont->locked() || ( flags & FINDOBJTYPE_IGNORE_LOCKED ) )
+        {
+          auto child_item = cont->find_objtype( objtype, flags );
+          if ( child_item != nullptr )
+            return child_item;
+        }
+      }
+    }
+  }
+  return nullptr;
+}
+
 
 Items::Item* UContainer::find_objtype_noninuse( u32 objtype ) const
 {
@@ -506,7 +533,7 @@ void UContainer::remove( Items::Item* item )
     POLLOG.Format( "UContainer::remove(Item*), serial=0x{:X}, item=0x{:X}, item->cont=0x{:X}\n" )
         << serial << item->serial << item->container->serial;
     passert_always( item->container == this );
-    int* p = 0;
+    int* p = nullptr;
     *p = 6;
   }
 
@@ -910,7 +937,7 @@ unsigned short UContainer::max_items() const
 {
   const auto max_items = desc.max_items + max_items_mod();
 
-  return std::max( 1, std::min<decltype(max_items)>( max_items, MAX_CONTAINER_ITEMS ) );
+  return std::max( 1, std::min<decltype( max_items )>( max_items, MAX_CONTAINER_ITEMS ) );
 }
 
 unsigned short UContainer::max_weight() const
@@ -929,7 +956,7 @@ u8 UContainer::max_slots() const
 {
   const auto max_slots = desc.max_slots + max_slots_mod();
 
-  return std::max( 0, std::min<decltype(max_slots)>( max_slots, MAX_SLOTS ) );
+  return std::max( 0, std::min<decltype( max_slots )>( max_slots, MAX_SLOTS ) );
 }
 
 bool UContainer::no_drop_exception() const
@@ -945,6 +972,15 @@ void UContainer::no_drop_exception( bool newvalue )
 bool UContainer::default_no_drop_exception() const
 {
   return desc.no_drop_exception;
+}
+
+bool UContainer::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                  ExportScript** hook, unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.container_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }  // namespace Core
 }  // namespace Pol

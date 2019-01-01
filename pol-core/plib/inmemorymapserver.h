@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "../clib/binaryfile.h"
-#include "../clib/compilerspecifics.h"
 #include "mapblock.h"
 #include "mapcell.h"
 #include "mapserver.h"
@@ -31,10 +30,10 @@ class InMemoryMapServer : public MapServer
 {
 public:
   explicit InMemoryMapServer( const RealmDescriptor& descriptor );
-  virtual ~InMemoryMapServer();
+  virtual ~InMemoryMapServer() = default;
 
-  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
+  virtual size_t sizeEstimate() const override;
 
 private:
   std::vector<MAPBLOCK> _mapblocks;

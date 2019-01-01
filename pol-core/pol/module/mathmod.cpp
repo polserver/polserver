@@ -52,7 +52,7 @@ TmplExecutorModule<MathExecutorModule>::FunctionTable
         {"ConstE", &MathExecutorModule::mf_ConstE},
 
         {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -377,6 +377,8 @@ Bscript::BObjectImp* MathExecutorModule::mf_FormatRealToString()
     char buffer[200];
     /// @todo: sprintf produces different output on some doubles (eg. M_PI)
     ///        on Windows/Linux. Use something else? 2016-01-23 Bodom
+    /// Turley: as of now 2018-10-30 vs2017 on appveyor and travis show no difference with 64bit. Is
+    /// it just a difference between 64bit and 32bit?
     sprintf( buffer, "%.*g", static_cast<int>( digits ), x );
     return new String( buffer );
   }
@@ -441,5 +443,5 @@ Bscript::BObjectImp* MathExecutorModule::mf_Floor()
     return new BError( "Invalid parameter type" );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

@@ -9,7 +9,7 @@ namespace Pol
 {
 namespace UoTool
 {
-class UoToolMain : public Pol::Clib::ProgramMain
+class UoToolMain final : public Pol::Clib::ProgramMain
 {
 public:
   UoToolMain();

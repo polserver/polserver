@@ -18,20 +18,19 @@
 #include <type_traits>
 
 #include "../../clib/clib_endian.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/strutil.h"
+#include "../../plib/uconst.h"
 #include "../layers.h"
-#include "../pktboth.h"
-#include "../pktbothid.h"
-#include "../pktdef.h"
-#include "../pktoutid.h"
 #include "../realms.h"
-#include "../uconst.h"
 #include "packetinterface.h"
+#include "pktboth.h"
+#include "pktbothid.h"
+#include "pktdef.h"
+#include "pktoutid.h"
 
 namespace Pol
 {
@@ -41,7 +40,7 @@ namespace Network
 namespace PacketWriterDefs
 {
 // "normal" packet queue
-class PacketQueueSingle : public PacketQueue
+class PacketQueueSingle final : public PacketQueue
 {
 public:
   PacketQueueSingle();
@@ -52,14 +51,14 @@ private:
   mutable Clib::SpinLock _lock;
 
 public:
-  virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) POL_OVERRIDE;
-  virtual void Add( PacketInterface* pkt ) POL_OVERRIDE;
-  virtual size_t Count() const POL_OVERRIDE { return _packets.size(); };
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) override;
+  virtual void Add( PacketInterface* pkt ) override;
+  virtual size_t Count() const override { return _packets.size(); };
+  virtual size_t estimateSize() const override;
 };
 
 // packet with subs queue
-class PacketQueueSubs : public PacketQueue
+class PacketQueueSubs final : public PacketQueue
 {
 public:
   PacketQueueSubs();
@@ -70,12 +69,12 @@ private:
   mutable Clib::SpinLock _lock;
 
 public:
-  virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) POL_OVERRIDE;
-  virtual void Add( PacketInterface* pkt ) POL_OVERRIDE;
-  virtual size_t Count() const POL_OVERRIDE;
-  virtual bool HasSubs() const POL_OVERRIDE { return true; };
-  virtual PacketInterfaceQueueMap* GetSubs() POL_OVERRIDE { return &_packets; };
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual PacketInterface* GetNext( u8 id, u16 sub = 0 ) override;
+  virtual void Add( PacketInterface* pkt ) override;
+  virtual size_t Count() const override;
+  virtual bool HasSubs() const override { return true; };
+  virtual PacketInterfaceQueueMap* GetSubs() override { return &_packets; };
+  virtual size_t estimateSize() const override;
 };
 
 // wierdo generic template definitions for packets
@@ -162,7 +161,7 @@ struct WriteHelper<s8>
   static void Write( s8 x, char buffer[], u16& offset ) { buffer[offset++] = x; };
   static void WriteFlipped( s8 x, char buffer[], u16& offset ) { buffer[offset++] = x; };
 };
-}
+}  // namespace PktWriterTemplateSpecs
 
 // "writer"class
 template <u8 _id, u16 _size, u16 _sub = 0>
@@ -173,10 +172,10 @@ public:
   static const u16 SUB = _sub;
   static const u16 SIZE = _size;
   char buffer[SIZE];
-  virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
-  virtual inline u8 getID() const POL_OVERRIDE { return ID; };
-  virtual inline u16 getSize() const POL_OVERRIDE { return SIZE; };
-  virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof( PacketInterface ); };
+  virtual char* getBuffer() override { return &buffer[offset]; };
+  virtual inline u8 getID() const override { return ID; };
+  virtual inline u16 getSize() const override { return SIZE; };
+  virtual size_t estimateSize() const override { return SIZE + sizeof( PacketInterface ); };
   // ---- Buffer Write Methods ----
   // N is the argument which will be static_cast to T
   // Two versions exists: T equals N only check if its integer or enum
@@ -293,11 +292,11 @@ public:
 
 // "normal" pkt
 template <u8 _id, u16 _size>
-class PacketTemplate : public PacketWriter<_id, _size>
+class PacketTemplate final : public PacketWriter<_id, _size>
 {
 public:
   PacketTemplate() { ReSetBuffer(); };
-  virtual void ReSetBuffer() POL_OVERRIDE
+  virtual void ReSetBuffer() override
   {
     memset( PacketWriter<_id, _size>::buffer, 0, _size );
     PacketWriter<_id, _size>::buffer[0] = _id;
@@ -307,23 +306,23 @@ public:
 
 // sub packet
 template <u8 _id, u16 _suboff, u16 _sub, u16 _size>
-class PacketTemplateSub : public PacketWriter<_id, _size, _sub>
+class PacketTemplateSub final : public PacketWriter<_id, _size, _sub>
 {
 public:
   PacketTemplateSub() { ReSetBuffer(); };
-  virtual void ReSetBuffer() POL_OVERRIDE
+  virtual void ReSetBuffer() override
   {
     memset( PacketWriter<_id, _size, _sub>::buffer, 0, _size );
     PacketWriter<_id, _size, _sub>::buffer[0] = _id;
     ( *(u16*)(void*)&PacketWriter<_id, _size, _sub>::buffer[_suboff] ) = cfBEu16( _sub );
     PacketWriter<_id, _size, _sub>::offset = 1;
   };
-  virtual inline u16 getSubID() const POL_OVERRIDE { return _sub; };
+  virtual inline u16 getSubID() const override { return _sub; };
 };
 
 // special def for encrypted buffer
 template <u8 _id, u16 _size>
-class EmptyBufferTemplate : public PacketInterface
+class EmptyBufferTemplate final : public PacketInterface
 {
 public:
   static const u8 ID = _id;
@@ -331,17 +330,17 @@ public:
   static const u16 SIZE = _size;
   EmptyBufferTemplate() { ReSetBuffer(); };
   char buffer[SIZE];
-  virtual void ReSetBuffer() POL_OVERRIDE
+  virtual void ReSetBuffer() override
   {
     memset( buffer, 0, SIZE );
     offset = 0;
   };
-  virtual char* getBuffer() POL_OVERRIDE { return &buffer[offset]; };
-  virtual inline u8 getID() const POL_OVERRIDE { return ID; };
-  virtual inline u16 getSize() const POL_OVERRIDE { return SIZE; };
-  virtual size_t estimateSize() const POL_OVERRIDE { return SIZE + sizeof( PacketInterface ); };
+  virtual char* getBuffer() override { return &buffer[offset]; };
+  virtual inline u8 getID() const override { return ID; };
+  virtual inline u16 getSize() const override { return SIZE; };
+  virtual size_t estimateSize() const override { return SIZE + sizeof( PacketInterface ); };
 };
-}
+}  // namespace PacketWriterDefs
 
 
 // buffer for encrypted Data send with a dummy pktid
@@ -487,6 +486,6 @@ typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F5_ID, 21> PktOut_F5;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F6_ID, 0xFFFF> PktOut_F6;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_F7_ID, 0xFFFF> PktOut_F7;
 // Packet defs end
-}
-}
+}  // namespace Network
+}  // namespace Pol
 #endif

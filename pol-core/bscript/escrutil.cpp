@@ -62,7 +62,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
   int ch = static_cast<unsigned char>( s[0] );
   if ( isdigit( ch ) || ch == '.' || ch == '+' || ch == '-' )
   {
-    char *endptr = NULL, *endptr2 = NULL;
+    char *endptr = nullptr, *endptr2 = nullptr;
     int l = strtol( s, &endptr, radix );
     double d = strtod( s, &endptr2 );
 
@@ -81,20 +81,20 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
               {  // what follows is a comment
                 break;
               }
-              return NULL;
+              return nullptr;
             }
             ++endptr;
           }
         }
         else
-          return NULL;  // overflow, read it as string
+          return nullptr;  // overflow, read it as string
       }
       return new BLong( l );
     }
     else
     {
       if ( !could_be_a_number( s ) )
-        return NULL;
+        return nullptr;
       if ( endptr2 )
       {
         if ( ( d != -HUGE_VAL ) && ( d != +HUGE_VAL ) )
@@ -108,18 +108,18 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
                 // assume what follows is a comment
                 break;
               }
-              return NULL;
+              return nullptr;
             }
             ++endptr2;
           }
         }
         else
-          return NULL;  // overflow, read it as string
+          return nullptr;  // overflow, read it as string
       }
       return new Double( d );
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 BObjectImp* bobject_from_string( const std::string& str, int radix )

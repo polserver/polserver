@@ -49,10 +49,10 @@ extern unsigned scripts_thread_scriptPC;
 
 void force_backtrace( bool complete = false );
 
-POL_NORETURN void passert_failed( const char* expr, const char* file, unsigned line );
-POL_NORETURN void passert_failed( const char* expr, const std::string& reason, const char* file,
+[[noreturn]] void passert_failed( const char* expr, const char* file, unsigned line );
+[[noreturn]] void passert_failed( const char* expr, const std::string& reason, const char* file,
                                   unsigned line );
-}
+}  // namespace Clib
 #if INC_PASSERT
 
 /**
@@ -105,5 +105,5 @@ POL_NORETURN void passert_failed( const char* expr, const std::string& reason, c
 #define passert_paranoid( exp ) ( (void)0 )
 
 #endif
-}
+}  // namespace Pol
 #endif

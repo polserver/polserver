@@ -17,17 +17,12 @@
 #include "../core.h"
 #include "../crypt/cryptbase.h"
 #include "../mobile/charactr.h"
-#include "../pktboth.h"
-#include "../pktbothid.h"
-#include "../pktdef.h"
-#include "../pktinid.h"
 #include "../polcfg.h"
 #include "../polclock.h"
 #include "../polsem.h"
 #include "../schedule.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
-#include "../sockets.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "cgdata.h"  // This might not be needed if the client has a clear_gd() method
@@ -36,6 +31,11 @@
 #include "msghandl.h"
 #include "packethelper.h"
 #include "packets.h"
+#include "pktboth.h"
+#include "pktbothid.h"
+#include "pktdef.h"
+#include "pktinid.h"
+#include "sockets.h"
 #include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
@@ -242,7 +242,7 @@ bool client_io_thread( Network::Client* client, bool login )
       checkpoint = 6;
 
       polclock_t polclock_now = polclock();
-      if ( ( polclock_now - client->last_packet_at ) >= 120000 )  // 2 mins
+      if ( ( ( polclock_now - client->last_packet_at ) / POLCLOCKS_PER_SEC ) >= 120 )  // 2 mins
       {
         client->forceDisconnect();
         break;

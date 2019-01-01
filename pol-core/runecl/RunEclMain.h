@@ -9,7 +9,7 @@ namespace Pol
 {
 namespace Clib
 {
-class RunEclMain : public ProgramMain
+class RunEclMain final : public ProgramMain
 {
 public:
   RunEclMain();

@@ -79,6 +79,9 @@ const int SAVE_INCREMENTAL = 0x01;
 
 const int LOG_DATETIME = 0x01;
 
+const int FINDOBJTYPE_IGNORE_LOCKED = 0x01;
+const int FINDOBJTYPE_ROOT_ONLY = 0x02;
+
 const int FINDSUBSTANCE_IGNORE_LOCKED = 0x01;
 const int FINDSUBSTANCE_ROOT_ONLY = 0x02;
 const int FINDSUBSTANCE_FIND_ALL = 0x04;
@@ -88,6 +91,6 @@ const int JOURNAL_PRINT_YOU_SEE = 0x01;
 
 Items::Item* find_walkon_item( ItemsVector& ivec, short z );
 void restart_all_clients();
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

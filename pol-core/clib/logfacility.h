@@ -7,8 +7,8 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
-#include <format/format.h>
 #include <boost/noncopyable.hpp>
+#include <format/format.h>
 #include <fstream>
 #include <future>
 #include <map>
@@ -17,7 +17,6 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <vector>
 
 #include "Debugging/LogSink.h"
-#include "compilerspecifics.h"
 
 namespace Pol
 {
@@ -28,6 +27,7 @@ extern bool LogfileTimestampEveryLine;
 namespace Logging
 {
 struct LogFileBehaviour;
+class LogFacility;
 
 // generic sink to log into a file
 class LogSinkGenericFile : public LogSink
@@ -38,10 +38,12 @@ public:
   virtual ~LogSinkGenericFile();
   void open_log_file( bool open_timestamp );
   void setBehaviour( const LogFileBehaviour* behaviour, std::string filename );
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 
 protected:
+  friend class LogFacility;
+
   bool test_for_rollover( std::chrono::time_point<std::chrono::system_clock>& now );
   const LogFileBehaviour* _behaviour;
   std::ofstream _filestream;
@@ -49,6 +51,7 @@ protected:
   struct tm _opened;
   std::chrono::time_point<std::chrono::system_clock> _lasttimestamp;
   bool _active_line;
+  static bool _disabled;
 };
 
 // template function to get the instance of given sink
@@ -56,70 +59,70 @@ template <typename Sink>
 Sink* getSink();
 
 // std::cout sink
-class LogSink_cout : public LogSink
+class LogSink_cout final : public LogSink
 {
 public:
   LogSink_cout();
-  virtual ~LogSink_cout(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual ~LogSink_cout() = default;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
 
 // std::cerr sink
-class LogSink_cerr : public LogSink
+class LogSink_cerr final : public LogSink
 {
 public:
   LogSink_cerr();
-  virtual ~LogSink_cerr(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual ~LogSink_cerr() = default;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
 
 // pol.log (and start.log) file sink
-class LogSink_pollog : public LogSinkGenericFile
+class LogSink_pollog final : public LogSinkGenericFile
 {
 public:
   LogSink_pollog();
-  virtual ~LogSink_pollog(){};
+  virtual ~LogSink_pollog() = default;
   void deinitialize_startlog();
 };
 
 // script.log file sink
-class LogSink_scriptlog : public LogSinkGenericFile
+class LogSink_scriptlog final : public LogSinkGenericFile
 {
 public:
   LogSink_scriptlog();
-  virtual ~LogSink_scriptlog(){};
+  virtual ~LogSink_scriptlog() = default;
 };
 
 // debug.log file sink
-class LogSink_debuglog : public LogSinkGenericFile
+class LogSink_debuglog final : public LogSinkGenericFile
 {
 public:
   LogSink_debuglog();
-  virtual ~LogSink_debuglog(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual ~LogSink_debuglog() = default;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
   void disable();
   static bool Disabled;
 };
 
 // leak.log file sink
-class LogSink_leaklog : public LogSinkGenericFile
+class LogSink_leaklog final : public LogSinkGenericFile
 {
 public:
   LogSink_leaklog();
-  virtual ~LogSink_leaklog(){};
+  virtual ~LogSink_leaklog() = default;
 };
 
-class LogSink_flexlog : public LogSink
+class LogSink_flexlog final : public LogSink
 {
 public:
   LogSink_flexlog();
-  virtual ~LogSink_flexlog();
+  virtual ~LogSink_flexlog() = default;
   std::string create( std::string logfilename, bool open_timestamp );
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
   void close( const std::string& id );
 
 private:
@@ -127,13 +130,13 @@ private:
 };
 // template class to perform a dual log eg. cout + pol.log
 template <typename log1, typename log2>
-class LogSink_dual : public LogSink
+class LogSink_dual final : public LogSink
 {
 public:
   LogSink_dual();
-  virtual ~LogSink_dual(){};
-  virtual void addMessage( fmt::Writer* msg ) POL_OVERRIDE;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) POL_OVERRIDE;
+  virtual ~LogSink_dual() = default;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
 };
 
 // main class which starts the logging
@@ -146,6 +149,7 @@ public:
   void save( fmt::Writer* message, const std::string& id );
   void registerSink( LogSink* sink );
   void disableDebugLog();
+  void disableFileLog();
   void deinitializeStartLog();
   void closeFlexLog( const std::string& id );
   std::string registerFlexLogger( const std::string& logfilename, bool open_timestamp );
@@ -184,17 +188,17 @@ private:
 
 extern LogFacility* global_logger;        // pointer to the instance of the main class
 void initLogging( LogFacility* logger );  // initalize the logging
-}
-}
+}  // namespace Logging
+}  // namespace Clib
 
 
 // several helper defines
 //#define DEBUG_LOG_PRINTS
 #ifdef DEBUG_LOG_PRINTS
 #ifdef WINDOWS
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#define __FILENAME__ ( strrchr( __FILE__, '\\' ) ? strrchr( __FILE__, '\\' ) + 1 : __FILE__ )
 #else
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define __FILENAME__ ( strrchr( __FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
 #endif
 #define LOG_PRINT_CALLER_INFO __FILENAME__, __LINE__, __FUNCTION__
 #define LOG_PRINT_CALLER_INFO2 , __FILENAME__, __LINE__, __FUNCTION__
@@ -259,6 +263,6 @@ void initLogging( LogFacility* logger );  // initalize the logging
 #define IS_DEBUGLOG_DISABLED Clib::Logging::LogSink_debuglog::Disabled
 
 #define GET_LOG_FILESTAMP Clib::Logging::LogSink::getTimeStamp()
-}
+}  // namespace Pol
 
 #endif  // CLIB_LOGFACILITY_H

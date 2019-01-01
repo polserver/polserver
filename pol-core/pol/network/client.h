@@ -34,12 +34,12 @@
 #include "../../clib/spinlock.h"
 #include "../../clib/wallclock.h"
 #include "../../clib/weakptr.h"
+#include "../../plib/uconst.h"
 #include "../crypt/cryptkey.h"
-#include "../pktdef.h"
-#include "../pktin.h"
 #include "../polclock.h"
-#include "../sockets.h"
-#include "../uconst.h"
+#include "pktdef.h"
+#include "pktin.h"
+#include "sockets.h"
 
 namespace Pol
 {
@@ -47,12 +47,12 @@ namespace Bscript
 {
 class BObjectImp;
 class BStruct;
-}
+}  // namespace Bscript
 namespace Core
 {
 class MessageTypeFilter;
 struct XmitBuffer;
-}
+}  // namespace Core
 namespace Accounts
 {
 class Account;
@@ -81,9 +81,8 @@ const u16 SA =
     0x40;  // set SA- and KR- and SE- and AOS-Flag in send_feature_enable() too for needed checks
 const u16 HSA = 0x80;  // set HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too
                        // for needed checks
-const u16 TOL =
-    0x100;  // set TOL- and HSA- and SA- and KR- and SE- and AOS-Flag in send_feature_enable() too
-            // for needed checks
+const u16 TOL = 0x100;  // set TOL- and HSA- and SA- and KR- and SE- and AOS-Flag in
+                        // send_feature_enable() too for needed checks
 
 const u8 FLAG_GENDER = 0x01;
 const u8 FLAG_RACE = 0x02;
@@ -139,7 +138,7 @@ public:
 
 private:
   void PreDelete();
-  virtual ~Client();
+  ~Client();
   bool preDisconnect;
   bool disconnect;  // if 1, disconnect this client
 
@@ -312,6 +311,6 @@ inline bool Client::might_use_v2_handler() const
 {
   return ( this->ClientType & Network::CLIENTTYPE_6017 ) != 0;
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol
 #endif

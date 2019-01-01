@@ -10,7 +10,6 @@
 
 #include <string>
 
-#include "../clib/compilerspecifics.h"
 #include "region.h"
 #include "zone.h"
 
@@ -52,7 +51,7 @@ public:
   bool RunLeaveScript( Mobile::Character* chr );
   static bool RunNoCombatCheck( Network::Client* client );
 
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual size_t estimateSize() const override;
 
 private:
   bool guarded_;

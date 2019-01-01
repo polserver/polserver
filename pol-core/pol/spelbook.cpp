@@ -13,6 +13,7 @@
 #include <sstream>
 #include <stddef.h>
 
+#include "../bscript/executor.h"
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
 #include "../clib/streamsaver.h"
@@ -25,6 +26,7 @@
 #include "network/packethelper.h"
 #include "network/packets.h"
 #include "polclass.h"
+#include "syshookscript.h"
 #include "ufunc.h"
 #include "uobject.h"
 
@@ -379,6 +381,15 @@ void Spellbook::send_book_old( Network::Client* client )
   }
 
   client->restart();
+}
+
+bool Spellbook::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                                 unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.spellbook_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 
 void send_spellbook_contents( Network::Client* client, Spellbook& spellbook )

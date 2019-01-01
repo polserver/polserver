@@ -18,10 +18,10 @@
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../clib/streamsaver.h"
+#include "../plib/poltype.h"
 #include "../plib/systemstate.h"
 #include "containr.h"
 #include "fnsearch.h"
@@ -31,7 +31,6 @@
 #include "loaddata.h"
 #include "mkscrobj.h"
 #include "polcfg.h"
-#include "poltype.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -296,11 +295,11 @@ size_t Storage::estimateSize() const
   return size;
 }
 
-class StorageAreaIterator : public ContIterator
+class StorageAreaIterator final : public ContIterator
 {
 public:
   StorageAreaIterator( StorageArea* area, BObject* pIter );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   BObject* m_pIterVal;
@@ -331,19 +330,19 @@ BObject* StorageAreaIterator::step()
 }
 
 
-class StorageAreaImp : public BObjectImp
+class StorageAreaImp final : public BObjectImp
 {
 public:
   StorageAreaImp( StorageArea* area ) : BObjectImp( BObjectImp::OTUnknown ), _area( area ) {}
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreaImp( _area ); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return _area->_name; }
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
-  ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
+  virtual BObjectImp* copy() const override { return new StorageAreaImp( _area ); }
+  virtual std::string getStringRep() const override { return _area->_name; }
+  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
+  ContIterator* createIterator( BObject* pIterVal ) override
   {
     return new StorageAreaIterator( _area, pIterVal );
   }
 
-  BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+  BObjectRef get_member( const char* membername ) override;
 
 private:
   StorageArea* _area;
@@ -369,11 +368,11 @@ BObjectRef StorageAreaImp::get_member( const char* membername )
 }
 
 
-class StorageAreasIterator : public ContIterator
+class StorageAreasIterator final : public ContIterator
 {
 public:
   StorageAreasIterator( BObject* pIter );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   BObject* m_pIterVal;
@@ -402,21 +401,21 @@ BObject* StorageAreasIterator::step()
   return result;
 }
 
-class StorageAreasImp : public BObjectImp
+class StorageAreasImp final : public BObjectImp
 {
 public:
   StorageAreasImp() : BObjectImp( BObjectImp::OTUnknown ) {}
-  virtual BObjectImp* copy() const POL_OVERRIDE { return new StorageAreasImp(); }
-  virtual std::string getStringRep() const POL_OVERRIDE { return "<StorageAreas>"; }
-  virtual size_t sizeEstimate() const POL_OVERRIDE { return sizeof( *this ); }
-  ContIterator* createIterator( BObject* pIterVal ) POL_OVERRIDE
+  virtual BObjectImp* copy() const override { return new StorageAreasImp(); }
+  virtual std::string getStringRep() const override { return "<StorageAreas>"; }
+  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
+  ContIterator* createIterator( BObject* pIterVal ) override
   {
     return new StorageAreasIterator( pIterVal );
   }
 
-  BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+  BObjectRef get_member( const char* membername ) override;
 
-  BObjectRef OperSubscript( const BObject& obj ) POL_OVERRIDE;
+  BObjectRef OperSubscript( const BObject& obj ) override;
 };
 
 BObjectImp* CreateStorageAreasImp()
@@ -451,5 +450,5 @@ BObjectRef StorageAreasImp::OperSubscript( const BObject& obj )
   }
   return BObjectRef( new BObject( new BError( "Invalid parameter type" ) ) );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

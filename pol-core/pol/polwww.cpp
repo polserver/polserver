@@ -37,13 +37,13 @@
 #include "globals/uvars.h"
 #include "module/httpmod.h"
 #include "module/uomod.h"
+#include "network/sockets.h"
+#include "network/sockio.h"
 #include "polcfg.h"
 #include "polsem.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "sockets.h"
-#include "sockio.h"
 #include "uoexec.h"
 
 #ifdef _WIN32
@@ -592,7 +592,7 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
   {
     http_writeline( sck, "HTTP/1.1 200 OK" );
     http_writeline( sck, "Accept-Ranges: bytes" );
-    http_writeline( sck, "Content-Length: " + Clib::decint( fsize ) );
+    http_writeline( sck, "Content-Length: " + Clib::tostring( fsize ) );
     http_writeline( sck, "Content-Type: " + content_type );
     http_writeline( sck, "" );
 
@@ -899,5 +899,5 @@ void start_http_server()
 {
   threadhelp::start_thread( http_thread, "HTTP" );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

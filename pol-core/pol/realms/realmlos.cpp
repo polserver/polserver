@@ -4,7 +4,6 @@
  */
 #include <stdlib.h>
 
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/rawtypes.h"
 #include "../../plib/mapcell.h"
 #include "../baseobject.h"
@@ -165,14 +164,9 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     if ( att.realm != tgt.realm )
       return false;
   }
-    // due to the nature of los check the same x,y coordinates get checked, cache the last used
-    // coords to reduce the expensive map/multi read per coordinate
-
-#if ( !defined( _MSC_VER ) || _MSC_VER >= 1900 )
-  static THREADLOCAL LosCache cache;
-#else  // older ms support only primitive types :(
-  LosCache cache;
-#endif
+  // due to the nature of los check the same x,y coordinates get checked, cache the last used
+  // coords to reduce the expensive map/multi read per coordinate
+  static thread_local LosCache cache;
   cache.last_x = 0xFFFF;
   cache.last_y = 0xFFFF;
   cache.shapes.clear();
@@ -181,7 +175,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   Core::WorldIterator<Core::ItemFilter>::InBox(
       std::min( att.x, tgt.x ), std::min( att.y, tgt.y ), std::max( att.x, tgt.x ),
       std::max( att.y, tgt.y ), att.realm, [&]( Items::Item* item ) {
-        u32 flags = Core::tile_flags( item->graphic );
+        u32 flags = Plib::tile_flags( item->graphic );
         if ( flags & Plib::FLAG::BLOCKSIGHT )
         {
           if ( item->serial != tgt.serial && item->serial != att.serial )
@@ -349,8 +343,8 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
     }
   }
 }
-}
-}
+}  // namespace Realms
+}  // namespace Pol
 
 
 /****************************************************************************/

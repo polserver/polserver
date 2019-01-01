@@ -13,9 +13,8 @@
  * - 2009/07/23 MuadDib:   updates for new Enum::Packet Out ID
  * - 2009/08/06 MuadDib:   Added gotten_by code for items.
  * - 2009/08/09 MuadDib:   Refactor of Packet 0x25 for naming convention
- * - 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return nullptr to reject
- * move instead of a crash.
- *                         Added slot support to find_giveitem_container()
+ * - 2009/08/16 MuadDib:   find_giveitem_container(), removed passert, made it return nullptr to
+ * reject move instead of a crash. Added slot support to find_giveitem_container()
  * - 2009/09/03 MuadDib:   Changes for account related source file relocation
  *                         Changes for multi related source file relocation
  * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
@@ -48,10 +47,10 @@
 #include "network/packetdefs.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
+#include "network/pktboth.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "objtype.h"
-#include "pktboth.h"
-#include "pktdef.h"
-#include "pktin.h"
 #include "polcfg.h"
 #include "realms/realm.h"
 #include "reftypes.h"
@@ -425,7 +424,7 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
 
   for ( unsigned short i = 0; i < 500; ++i )
   {
-    std::string name = "Cont" + Clib::decint( i );
+    std::string name = "Cont" + Clib::tostring( i );
     Items::Item* item = nullptr;
     item = area->find_root_item( name );
     if ( item == nullptr )
@@ -1097,5 +1096,5 @@ void cancel_all_trades()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -3,7 +3,6 @@
 
 #include <atomic>
 #include <boost/noncopyable.hpp>
-#include <time.h>
 
 #include "../../clib/clib.h"
 #include "../../clib/rawtypes.h"
@@ -25,7 +24,7 @@ class StateManager : boost::noncopyable
 {
 public:
   StateManager();
-  ~StateManager();
+  ~StateManager() = default;
   size_t estimateSize() const;
 
   void deinitialize();
@@ -38,8 +37,6 @@ public:
   bool gflag_enforce_container_limits;
   bool gflag_in_system_load;
   bool gflag_in_system_startup;
-
-  std::atomic<clock_t> polclock_paused_at;
 
   unsigned int stored_last_item_serial;
   unsigned int stored_last_char_serial;

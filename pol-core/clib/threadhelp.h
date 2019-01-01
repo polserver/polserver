@@ -90,7 +90,7 @@ public:
 
 private:
   void init( unsigned int max_count, const std::string& name );
-  bool _done;
+  std::atomic<bool> _done;
   msg_queue _msg_queue;
   std::vector<std::thread> _threads;
 };
@@ -111,7 +111,7 @@ public:
   size_t threadpoolsize() const;
 
 protected:
-  bool _done;
+  std::atomic<bool> _done;
 
 private:
   void create_thread();

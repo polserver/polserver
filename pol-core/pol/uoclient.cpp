@@ -10,6 +10,7 @@
 #include <string>
 
 #include "../clib/cfgelem.h"
+#include "../clib/logfacility.h"
 #include "../plib/pkg.h"
 #include "globals/network.h"
 #include "mobile/attribute.h"
@@ -97,7 +98,14 @@ void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
     {
       ExportScript* shs = new ExportScript( pkg, temp );
       if ( shs->Initialize() )
+      {
         networkManager.uoclient_general.method_script = shs;
+        POLLOG_INFO << "\n"
+                       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                       "WARNING: uoclient.cfg MethodScript entry is deprecated! Use syshook.cfg "
+                       "SystemMethod Mobile entry instead.\n"
+                       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+      }
       else
         delete shs;
     }

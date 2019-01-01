@@ -1,14 +1,7 @@
 set (plib_sources  # sorted !
-  ../pol/uofile00.cpp       # TODO: move all uofile*.cpp into the plib folder
-  ../pol/uofile01.cpp
-  ../pol/uofile02.cpp
-  ../pol/uofile06.cpp
-  ../pol/uofile07.cpp
-  ../pol/uofile08.cpp
-  ../uotool/uofile04.cpp 
-  ../uotool/uofile05.cpp
   CMakeSources.cmake 
   StdAfx.h
+  clidata.h
   filemapserver.cpp 
   filemapserver.h
   fsa.h
@@ -30,6 +23,10 @@ set (plib_sources  # sorted !
   mapwriter.h
   pkg.cpp 
   pkg.h
+  polfile.h
+  polfile1.cpp
+  polfile2.cpp
+  poltype.h
   RawMap.cpp
   RawMap.h
   realmdescriptor.cpp 
@@ -40,9 +37,24 @@ set (plib_sources  # sorted !
   stlastar.h
   systemstate.cpp
   systemstate.h
+  tiles.cpp
+  tiles.h
+  uconst.h
+  udatfile.h
   uoexpansion.h
+  uofile.h
+  uofilei.h
+  uofile00.cpp
+  uofile01.cpp
+  uofile02.cpp
+  uofile04.cpp 
+  uofile05.cpp
+  uofile06.cpp
+  uofile07.cpp
+  uofile08.cpp
   uopreader/uop.cpp
   uopreader/uop.h
   uopreader/uopfile.ksy
   uopreader/uophash.h
+  ustruct.h
 )

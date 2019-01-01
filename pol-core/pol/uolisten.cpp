@@ -5,15 +5,15 @@
  */
 
 
+#include <chrono>
 #include <string.h>
 #include <string>
+#include <thread>
 
-#include <format/format.h>
-#include "../clib/compilerspecifics.h"
 #include "../clib/esignal.h"
 #include "../clib/logfacility.h"
 #include "../clib/socketsvc.h"
-#include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
 #include "../clib/wnsckt.h"
 #include "../plib/systemstate.h"
@@ -23,12 +23,13 @@
 #include "network/cliface.h"
 #include "polsem.h"
 #include "uoclient.h"
+#include <format/format.h>
 
 namespace Pol
 {
 namespace Core
 {
-class UoClientThread : public Clib::SocketClientThread
+class UoClientThread final : public Clib::SocketClientThread
 {
 public:
   UoClientThread( UoClientListener* def, Clib::SocketListener& SL )
@@ -37,7 +38,7 @@ public:
   }
   UoClientThread( UoClientThread& copy )
       : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ){};
-  virtual void run() POL_OVERRIDE;
+  virtual void run() override;
   void create();
   virtual ~UoClientThread(){};
 
@@ -114,7 +115,11 @@ void uo_client_listener_thread( void* arg )
   {
     unsigned int timeout = 2;
     if ( !login_clients.empty() )
+    {
+      // waiting for a full second sounds wrong, but we need a sleep in this endless loop
       timeout = 0;
+      std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
+    }
     if ( SL.GetConnection( timeout ) )
     {
       // create an appropriate Client object
@@ -170,5 +175,5 @@ void start_uo_client_listeners( void )
     threadhelp::start_thread( uo_client_listener_thread, threadname.c_str(), ls );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

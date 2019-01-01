@@ -33,6 +33,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/threadhelp.h"
 #include "../clib/timer.h"
+#include "../plib/poltype.h"
 #include "../plib/systemstate.h"
 #include "accounts/accounts.h"
 #include "containr.h"
@@ -51,7 +52,6 @@
 #include "multi/house.h"
 #include "multi/multi.h"
 #include "objecthash.h"
-#include "poltype.h"
 #include "polvar.h"
 #include "resource.h"
 #include "savedata.h"
@@ -69,7 +69,7 @@ namespace Module
 void commit_datastore();
 void read_datastore_dat();
 void write_datastore( Clib::StreamWriter& sw );
-}
+}  // namespace Module
 namespace Core
 {
 void read_party_dat();
@@ -357,7 +357,7 @@ void read_multi( Clib::ConfigElem& elem )
 std::string elapsed( clock_t start, clock_t end )
 {
   size_t ms = static_cast<size_t>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
-  return Clib::decint( ms ) + " ms";
+  return Clib::tostring( ms ) + " ms";
 }
 
 void slurp( const char* filename, const char* tags, int sysfind_flags )
@@ -1415,5 +1415,5 @@ void read_gameservers()
   if ( networkManager.servers.empty() )
     throw std::runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -24,7 +24,7 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 #include "polclass.h"
 #include "realms/realm.h"
 #include "ufunc.h"
@@ -437,5 +437,5 @@ Cursors::Cursors()
       stoplog_cursor( stop_packetlog )
 {
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

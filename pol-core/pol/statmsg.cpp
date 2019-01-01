@@ -63,10 +63,10 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   else
     msg->Write<u8>( 1u );  // Set to oldschool statbar info.
 
-  // if (chr->race == RACE_ELF)
+  // if (chr->race == Plib::RACE_ELF)
   //  msg->Write(static_cast<u8>(chr->gender | FLAG_RACE));
   // else
-  msg->Write<u8>( chr->gender );  // GENDER_MALE or GENDER_FEMALE (see uconst.h)
+  msg->Write<u8>( chr->gender );  // GENDER_MALE or GENDER_FEMALE (see ../plib/uconst.h)
 
   if ( networkManager.uoclient_general.strength.any )
   {

@@ -19,3 +19,4 @@ if (${linux})
   )
 endif()
 
+use_tidy(${lib_name})

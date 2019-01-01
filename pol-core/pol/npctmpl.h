@@ -14,7 +14,6 @@
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/compilerspecifics.h"
 
 namespace Pol
 {
@@ -67,7 +66,7 @@ public:
   size_t estimateSize() const;
   virtual void display_error( const std::string& msg, bool show_curline = true,
                               const Clib::ConfigElemBase* elem = nullptr,
-                              bool error = true ) const POL_OVERRIDE;
+                              bool error = true ) const override;
 
 private:
   std::string _filename;

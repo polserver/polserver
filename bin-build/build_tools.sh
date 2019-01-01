@@ -4,28 +4,36 @@ prune () {
 	make clean
 	rm -r -f pol-core
 	rm -r -f lib
+	rm -r -f docs
 	rm -r -f CMakeFiles
+    rm -r -f Testing
 	rm -f CMakeCache.txt
 	rm -f Makefile
 	rm -f install_manifest.txt
 	rm -f CPack*
 	rm -f pol_global_config.h
 	rm -f pol_revision.h
+	rm -f pol_revision.h.tmp
 	rm -f cmake_install.cmake
+    rm -f build.ninja
+    rm -f rules.ninja
+    rm -f CTest*
 }
 
 case "$1" in
-	-g|-gcc5)
-		export CXX="g++-5" CC="gcc-5";
-		echo "FORCING GCC-5"
+	-g|-gcc)
+		export CXX="g++" CC="gcc";
+		echo "FORCING GCC"
 		prune
-		./build_linux.sh
+		cmake -GNinja -DUSE_CCACHE=1 -DNO_PCH=1 ..
+        ninja
 		;;
 	-c|-clang37)
 		export CXX="clang++" CC="clang";
 		echo "FORCING CLANG"
 		prune
-		./build_linux.sh
+		cmake -GNinja -DUSE_CCACHE=1 -DNO_PCH=1 ..
+        ninja
 		;;
 	-p|-prune)
 		if [ ${PWD##*/} = "bin-build" ]; then

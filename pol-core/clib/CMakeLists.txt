@@ -39,3 +39,4 @@ elseif(${windows})
   )
 endif()
 
+use_tidy(${lib_name})

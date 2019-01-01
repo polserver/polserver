@@ -18,8 +18,8 @@
 
 #include "../../plib/mapshape.h"
 #include "../../plib/realmdescriptor.h"
-#include "../uconst.h"
-#include "../udatfile.h"
+#include "../../plib/uconst.h"
+#include "../../plib/udatfile.h"
 #include "WorldChangeReasons.h"
 
 
@@ -99,14 +99,14 @@ public:
 
   bool walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                    Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                   Core::MOVEMODE movemode, short* gradual_boost = nullptr );
+                   Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
   bool walkheight( const Mobile::Character* chr, unsigned short x, unsigned short y, short oldz,
                    short* newz, Multi::UMulti** pmulti, Items::Item** pwalkon,
                    short* gradual_boost = nullptr );
 
   bool lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                           Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                          Core::MOVEMODE movemode, short* gradual_boost = nullptr );
+                          Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
 
   bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
                    Multi::UMulti** pmulti );
@@ -128,7 +128,7 @@ public:
                    unsigned int flags ) const;
   void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags,
                    MultiList& mvec ) const;
-  void readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const;
+  void readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const;
 
   Core::Zone** zone;
   std::set<unsigned int> global_hulls;  // xy-smashed together
@@ -147,10 +147,10 @@ protected:
     std::vector<Items::Item*> dyn_items;
   };
 
-  static void standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
+  static void standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
                            bool* result, short* newz, short* gradual_boost = nullptr );
 
-  static void lowest_standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
+  static void lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
                                   bool* result, short* newz, short* gradual_boost = nullptr );
 
   static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );

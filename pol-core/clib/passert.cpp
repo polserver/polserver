@@ -14,7 +14,7 @@
 #include "Debugging/ExceptionParser.h"
 #include "esignal.h"
 #include "logfacility.h"
-#include "stlutil.h"
+#include "strutil.h"
 
 #ifdef WINDOWS
 #include "Header_Windows.h"

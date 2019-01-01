@@ -9,9 +9,8 @@
 
 #include <array>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 
 namespace Pol
 {
@@ -63,7 +62,7 @@ protected:
 public:
   virtual ~FullMsgTargetCursor(){};
 
-  virtual void on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msg ) POL_OVERRIDE;
+  virtual void on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msg ) override;
 
 private:
   void ( *func )( Mobile::Character* targetter, PKTBI_6C* msg );
@@ -82,7 +81,7 @@ protected:
 public:
   virtual ~LosCheckedTargetCursor(){};
 
-  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
+  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) override;
 
 private:
   void ( *func )( Mobile::Character*, UObject* targetted );
@@ -102,7 +101,7 @@ protected:
 public:
   virtual ~NoLosCheckedTargetCursor(){};
 
-  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
+  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) override;
 
 private:
   void ( *func )( Mobile::Character*, UObject* targetted );
@@ -123,7 +122,7 @@ public:
   virtual ~LosCheckedCoordCursor(){};
 
   bool send_coord_cursor( Network::Client* client );
-  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
+  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) override;
 
 private:
   void ( *func_ )( Mobile::Character*, PKTBI_6C* );
@@ -144,7 +143,7 @@ public:
 
   void send_placemulti( Network::Client* client, unsigned int objtype, int flags, s16 xoffset,
                         s16 yoffset, u32 hue );
-  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
+  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) override;
 
 private:
   void ( *func_ )( Mobile::Character*, PKTBI_6C* );
@@ -164,7 +163,7 @@ protected:
 
 public:
   virtual ~NoLosCharacterCursor(){};
-  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) POL_OVERRIDE;
+  virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) override;
 
 private:
   void ( *func )( Mobile::Character* targetter, Mobile::Character* targetted );
@@ -183,7 +182,7 @@ protected:
 
 public:
   virtual ~NoLosUObjectCursor(){};
-  virtual void on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg ) POL_OVERRIDE;
+  virtual void on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg ) override;
 
 private:
   void ( *func )( Mobile::Character*, UObject* obj );
@@ -195,7 +194,7 @@ namespace Module
 {
 void handle_script_cursor( Mobile::Character* chr, Core::UObject* obj );
 void handle_coord_cursor( Mobile::Character* chr, Core::PKTBI_6C* msg );
-}
+}  // namespace Module
 namespace Core
 {
 void handle_add_member_cursor( Mobile::Character* chr, PKTBI_6C* msgin );
@@ -236,6 +235,6 @@ public:
   NoLosCharacterCursor startlog_cursor;
   NoLosCharacterCursor stoplog_cursor;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
