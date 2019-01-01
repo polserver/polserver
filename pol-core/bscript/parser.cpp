@@ -493,7 +493,7 @@ ObjMember* getKnownObjMember( const char* token )
   }();
   std::string temp( token );
   std::transform( temp.begin(), temp.end(), temp.begin(),
-                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
   auto member = cache.find( temp );
   if ( member != cache.end() )
     return member->second;
@@ -677,7 +677,7 @@ ObjMethod* getKnownObjMethod( const char* token )
   }();
   std::string temp( token );
   std::transform( temp.begin(), temp.end(), temp.begin(),
-                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
   auto method = cache.find( temp );
   if ( method != cache.end() )
     return method->second;
@@ -979,12 +979,12 @@ void Parser::write_words( std::ostream& os )
   }
 #endif
 
-  /*
-    WTF is going on in this function?  It seems like it waits for a match, followed
-    by a nonmatch?  eh?
+/*
+  WTF is going on in this function?  It seems like it waits for a match, followed
+  by a nonmatch?  eh?
 
-    What does this mean for variables like "IfDone" etc?
-    */
+  What does this mean for variables like "IfDone" etc?
+  */
 
 #if 0
   int Parser::tryReservedWord(Token& tok, char *t, char **s)
@@ -1292,14 +1292,7 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
         if ( compilercfg.ErrorOnWarning )
           throw std::runtime_error( "Warnings treated as errors." );
       }
-      if ( !String::sanitizeUnicode( &lit ) )
-      {
-        if ( !compilercfg.DisplayWarnings && !compilercfg.ErrorOnWarning )
-        {
-          INFO_PRINT << "Error: \n" << ctx;
-        }
-        throw std::runtime_error( "Failed to sanitize unicode! " );
-      }
+      String::sanitizeUnicodeWithIso( &lit );
     }
     tok.id = TOK_STRING;  // this is a misnomer I think!
     tok.type = TYP_OPERAND;
@@ -2487,5 +2480,5 @@ int SmartParser::IP( Expression& expr, CompilerContext& ctx )
   reinit( expr );
   return IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

@@ -42,7 +42,10 @@ private:
 
 public:
   static bool isValidUnicode( const std::string& str );
-  static bool sanitizeUnicode( std::string* str );
+  // if invalid unicode is detected iso8859 is assumed
+  static void sanitizeUnicodeWithIso( std::string* str );
+  // if invalid unicode is detected characters get replaced
+  static void sanitizeUnicode( std::string* str );
 
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
@@ -70,10 +73,9 @@ public:
   std::vector<unsigned int> toUTF32() const;
   std::vector<unsigned short> toUTF16() const;
   static std::string fromUTF32( unsigned int code );
-  static std::string fromUTF16( std::vector<unsigned short> code );
   static std::string fromUTF16( unsigned short* code, size_t len );
   static std::vector<unsigned short> toUTF16( std::string text, Tainted san = Tainted::YES );
-  static String* fromUCArray( ObjArray* array );
+  static String* fromUCArray( ObjArray* array, bool break_first_null = true );
 
   String& operator=( const char* s )
   {

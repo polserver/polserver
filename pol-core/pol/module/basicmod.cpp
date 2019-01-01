@@ -355,25 +355,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
   int break_first_null = static_cast<int>( exec.paramAsLong( 1 ) );
   if ( !arr )
     return new BError( "Invalid parameter type" );
-  for ( Bscript::ObjArray::const_iterator itr = arr->ref_arr.begin(), itrend = arr->ref_arr.end();
-        itr != itrend; ++itr )
-  {
-    BObject* bo = ( itr->get() );
-    if ( bo == nullptr )
-      continue;
-    Bscript::BObjectImp* imp = bo->impptr();
-    if ( imp )
-    {
-      if ( imp->isa( Bscript::BObjectImp::OTLong ) )
-      {
-        BLong* blong = static_cast<BLong*>( imp );
-        if ( break_first_null && blong->value() == 0 )
-          break;
-        res += String::fromUTF32( blong->value() );
-      }
-    }
-  }
-  return new String( res );
+  return String::fromUCArray( arr, break_first_null != 0 );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_Hex()

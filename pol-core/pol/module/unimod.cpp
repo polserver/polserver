@@ -61,66 +61,30 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
     msg->wtext[textlen] = 0x0000;
   }
 
-  bool ok = true;
-  Bscript::BObject* valstack = nullptr;
-
-#if ( 0 )
   // client version of the packet should always send this as a 1??
-  if ( cfBEu16( msg->unk ) != 0x01 )
+  /*if ( cfBEu16( msg->unk ) != 0x01 )
   {
     // ENHANCE: May want to log this, too?
     ok = false;
     valstack = new BObject( new BError( "Malformed return-packet from client" ) );
-  }
-#endif
+  }*/
 
   char lang[4];
   memcpy( lang, msg->lang, 4 );
 
-  if ( ok )
-  {
-    Bscript::ObjArray uc_text;
-    int i;
-    for ( i = 0; i < textlen; i++ )
-    {
-      u16 wc = msg->wtext[i];                   // its not flipped!! ...i hate osi...
-      if ( wc < (u16)0x20 || wc == (u16)0x7F )  // control character! >_<
-      {
-        ok = false;
-        valstack = new Bscript::BObject(
-            new Bscript::BError( "Invalid control characters in text entry" ) );
+  // String::fromUTF16 performs all the error checks
+  // "Invalid unicode" will be returned if completly broken, but do we really need to take care?
+  std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
+  retval->addMember( "lang", new Bscript::String( lang ) );
+  // TODO UNICODE uc_text removed
+  retval->addMember( "text",
+                     new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) );
 
-        POLLOG_ERROR << "Client #" << static_cast<unsigned long>( client->instance_ )
-                     << " (account "
-                     << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" )
-                     << ") sent invalid unicode control characters (RequestInputUC)\n";
-        break;  // for
-      }
-      uc_text.addElement( new Bscript::BLong( wc ) );
-    }
-
-    if ( ok )
-    {
-      if ( uc_text.ref_arr.empty() )
-        valstack = new Bscript::BObject( new Bscript::BLong( 0 ) );
-      else
-      {
-        std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
-        retval->addMember( "lang", new Bscript::String( lang ) );
-        retval->addMember( "uc_text", uc_text.copy() );
-        retval->addMember(
-            "text", new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) );
-        valstack = new Bscript::BObject( retval.release() );
-      }
-    }
-  }
-
-  uniemod->exec.ValueStack.back().set( valstack );  // error or struct, regardless.
+  uniemod->exec.ValueStack.back().set( new Bscript::BObject( retval.release() ) );
   uniemod->uoexec.os_module->revive();
   uniemod->prompt_chr = nullptr;
   client->gd->prompt_uniemod = nullptr;
 }
-
 //////////////////////////////////////////////////////////////////////////
 }  // namespace Core
 namespace Bscript
