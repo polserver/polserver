@@ -1183,6 +1183,17 @@ std::string String::fromUTF16( unsigned short* code, size_t len, bool big_endian
   return s;
 }
 
+std::string String::fromUTF8( const char* code, size_t len )
+{
+  size_t short_len = 0;
+  // convert until the first null terminator
+  while ( code[short_len] != 0 && short_len < len )
+    ++short_len;
+  std::string s( code, short_len );
+  sanitizeUnicode( &s );
+  return s;
+}
+
 std::vector<unsigned short> String::toUTF16( std::string text, Tainted san )
 {
   if ( san == Tainted::YES )
