@@ -167,10 +167,11 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
                                                            Items::Item* item );
 Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Character* dropon );
 void send_tip( Network::Client* client, const std::string& tiptext );
-std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
+std::string get_textcmd_help( Mobile::Character* chr, const std::string& cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );
-Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
+Bscript::BObjectImp* equip_from_template( Mobile::Character* chr,
+                                          const std::string& template_name );
 }  // namespace Core
 namespace Module
 {
@@ -3982,7 +3983,7 @@ BObjectImp* UOExecutorModule::mf_EquipFromTemplate()
   const String* template_name;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, template_name ) )
   {
-    return equip_from_template( chr, template_name->data() );
+    return equip_from_template( chr, template_name->value() );
   }
   else
   {
@@ -4775,7 +4776,7 @@ BObjectImp* UOExecutorModule::mf_GetCommandHelp()
   const String* cmd;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, cmd ) )
   {
-    std::string help = get_textcmd_help( chr, cmd->value().c_str() );
+    std::string help = get_textcmd_help( chr, cmd->value() );
     if ( !help.empty() )
     {
       return new String( help );

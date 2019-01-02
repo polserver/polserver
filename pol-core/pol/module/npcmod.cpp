@@ -759,19 +759,13 @@ BObjectImp* NPCExecutorModule::SayUC()
 
     if ( text->length() > SPEECH_MAX_LEN )
       return new BError( "Text exceeds maximum size." );
-    std::vector<u16> gwtext = text->toUTF16();
-    gwtext.push_back( 0 );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
 
+    std::vector<u16> utf16 = text->toUTF16();
+    if ( utf16.size() > SPEECH_MAX_LEN )
+      utf16.resize( SPEECH_MAX_LEN );
     std::string languc = Clib::strupper( lang->value() );
-    unsigned textlen = 0;
-
-    // textlen = wcslen((const wchar_t*)wtext) + 1;
-    while ( gwtext[textlen] != L'\0' )
-      ++textlen;
-    if ( textlen > SPEECH_MAX_LEN )
-      textlen = SPEECH_MAX_LEN;
 
     u8 texttype;
     if ( texttype_str == "whisper" )
@@ -790,7 +784,7 @@ BObjectImp* NPCExecutorModule::SayUC()
     talkmsg->WriteFlipped<u16>( npc.speech_font() );
     talkmsg->Write( languc.c_str(), 4 );
     talkmsg->Write( npc.description().c_str(), 30 );
-    talkmsg->WriteFlipped( &gwtext[0], static_cast<u16>( textlen ) );
+    talkmsg->WriteFlipped( utf16, true );
     u16 len = talkmsg->offset;
     talkmsg->offset = 1;
     talkmsg->WriteFlipped<u16>( len );
@@ -811,19 +805,11 @@ BObjectImp* NPCExecutorModule::SayUC()
 
     if ( doevent >= 1 )
     {
-      char ntextbuf[SPEECH_MAX_LEN + 1];
-      int ntextbuflen = 0;
-      for ( unsigned i = 0; i < textlen; ++i )
-      {
-        ntextbuf[ntextbuflen++] = std::wcout.narrow( (wchar_t)gwtext[i], '?' );
-      }
-      ntextbuf[ntextbuflen++] = 0;
       Core::WorldIterator<Core::NPCFilter>::InRange(
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke_unicode( &npc, ntextbuf, texttype, gwtext.data(),
-                                             languc.c_str(), nullptr );
+              othernpc->on_pc_spoke( &npc, text->value(), texttype, languc );
           } );
     }
   }
