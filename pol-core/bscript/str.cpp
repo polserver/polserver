@@ -1280,10 +1280,10 @@ void String::sanitizeUnicode( std::string* str )
     {
       // control character found build new string skipping them
       std::string new_s;
-      auto begin = str->begin();
+      begin = str->begin();
       while ( begin != end )
       {
-        auto c = utf8::unchecked::next( begin );
+        c = utf8::unchecked::next( begin );
         if ( ( c >= 0x1u && c < 0x20u ) || c == 0x7Fu || ( c >= 0xC280u && c <= 0xC29Fu ) )
           continue;
         utf8::unchecked::append( c, std::back_inserter( new_s ) );
