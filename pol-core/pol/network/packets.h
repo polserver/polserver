@@ -292,7 +292,7 @@ public:
   {
     passert_always_r( offset + x.size() * 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
     std::memcpy( &buffer[offset], x.data(), 2 * x.size() );
-    offset += x.size() * 2;
+    offset += static_cast<u16>( x.size() * 2 );
     if ( nullterm )
     {
       passert_always_r( offset + 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
