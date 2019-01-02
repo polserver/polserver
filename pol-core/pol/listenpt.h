@@ -9,6 +9,7 @@
 
 #include "../clib/rawtypes.h"
 #include "reftypes.h"
+#include <string>
 
 namespace Pol
 {

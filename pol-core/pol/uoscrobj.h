@@ -248,7 +248,8 @@ public:
 class SpeechEvent final : public Bscript::BStruct
 {
 public:
-  SpeechEvent( Mobile::Character* speaker, const std::string& speech, const char* texttype, std::string lang="", Bscript::ObjArray* speechtokens=nullptr );
+  SpeechEvent( Mobile::Character* speaker, const std::string& speech, const char* texttype,
+               std::string lang = "", Bscript::ObjArray* speechtokens = nullptr );
 };
 
 class DamageEvent final : public Bscript::BStruct
@@ -291,6 +292,6 @@ private:
   Core::CharacterRef given_by_;
   Core::gameclock_t given_time_;
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif  // UOSCROBJ_H
