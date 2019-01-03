@@ -667,7 +667,6 @@ void Party::send_member_msg_public( Mobile::Character* chr, const std::string& t
   std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
   if ( settingsManager.party_cfg.Hooks.ChangePublicChat )
   {
-    // TODO UNICODE change of param
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePublicChat->call_object(
         chr->make_ref(), new Bscript::String( text, Bscript::String::Tainted::NO ) );
 
@@ -718,7 +717,6 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
   std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
   if ( settingsManager.party_cfg.Hooks.ChangePrivateChat )
   {
-    // TODO UNICODE change of param
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object(
         chr->make_ref(), tochr->make_ref(),
         new Bscript::String( text, Bscript::String::Tainted::NO ) );
@@ -1127,7 +1125,6 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       std::string text = Bscript::String::fromUTF16( themsg, intextlen, true );
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        // TODO UNICODE change of param
         settingsManager.party_cfg.Hooks.OnPrivateChat->call(
             client->chr->make_ref(), member->make_ref(),
             new Bscript::String( text, Bscript::String::Tainted::NO ) );
@@ -1181,7 +1178,6 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     {
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        // TODO UNICODE change of param
         settingsManager.party_cfg.Hooks.OnPrivateChat->call(
             client->chr->make_ref(), member->make_ref(),
             new Bscript::String( text, Bscript::String::Tainted::NO ) );
@@ -1192,7 +1188,6 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     {
       if ( settingsManager.party_cfg.Hooks.OnPublicChat )
       {
-        // TODO UNICODE change of param
         settingsManager.party_cfg.Hooks.OnPublicChat->call(
             client->chr->make_ref(), new Bscript::String( text, Bscript::String::Tainted::NO ) );
       }

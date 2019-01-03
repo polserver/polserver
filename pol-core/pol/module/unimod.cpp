@@ -75,7 +75,6 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
   // "Invalid unicode" will be returned if completly broken, but do we really need to take care?
   std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
   retval->addMember( "lang", new Bscript::String( lang ) );
-  // TODO UNICODE uc_text removed
   retval->addMember( "text", new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ),
                                                   Bscript::String::Tainted::NO ) );
 

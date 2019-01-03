@@ -456,8 +456,8 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
       if ( text->length() > SPEECH_MAX_LEN )
         return new BError( "Text exceeds maximum size." );
       if ( Core::settingsManager.party_cfg.Hooks.OnPublicChat )
-        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call(
-            chr->make_ref(), new String( *text ) );  // TODO UNICODE change of param
+        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref(),
+                                                                  new String( *text ) );
 
       party->send_member_msg_public( chr, text->value() );
       return new BLong( 1 );
@@ -485,8 +485,7 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
         return new BError( "Text exceeds maximum size." );
       if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )
         Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call(
-            chr->make_ref(), tochr->make_ref(),
-            new String( *text ) );  // TODO UNICODE change of param
+            chr->make_ref(), tochr->make_ref(), new String( *text ) );
 
       party->send_member_msg_private( chr, tochr, text->value() );
       return new BLong( 1 );

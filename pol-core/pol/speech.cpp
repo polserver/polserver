@@ -409,8 +409,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
     text = Bscript::String::fromUTF16( msgin->wtext, intextlen, true );
   }
   //  SPEECH_MAX_LEN needs to be checked later
-  //  TODO UNICODE check for isprint chars?
-
+  
   if ( msgin->type & 0xc0 )
   {
     speechtokens.reset( new Bscript::ObjArray() );

@@ -600,7 +600,6 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
         std::unique_ptr<UOExecutor> ex( create_script_executor() );
         if ( prog->haveProgram )
         {
-          // TODO UNICODE change of params
           if ( lang )
             ex->pushArg( new Bscript::String( lang ) );
           ex->pushArg( new Bscript::String( params ) );

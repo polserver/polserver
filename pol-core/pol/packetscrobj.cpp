@@ -260,7 +260,6 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
            ( static_cast<u16>( offset + len * 2 ) >
              buffer.size() ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
-      // TODO UNICODE change of return
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len, true );
       return new Bscript::String( str, Bscript::String::Tainted::NO );
@@ -280,7 +279,6 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
            ( static_cast<u16>( offset + len * 2 ) >
              buffer.size() ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
-      // TODO UNICODE change of return
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len );
       return new Bscript::String( str, Bscript::String::Tainted::NO );

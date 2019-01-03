@@ -4254,7 +4254,6 @@ SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
   addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
   addMember( "text", new String( speech ) );
   addMember( "texttype", new String( texttype ) );
-  // TODO UNICODE changed members
   if ( !lang.empty() )
     addMember( "langcode", new String( lang ) );
   if ( speechtokens != nullptr )

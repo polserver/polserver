@@ -254,7 +254,6 @@ Bscript::BStruct* Client::getclientinfo() const
   unsigned maxlen_vd =
       sizeof( clientinfo_.video_description ) / sizeof( clientinfo_.video_description[0] );
   std::string vd = Bscript::String::fromUTF16( &clientinfo_.video_description[0], maxlen_vd, true );
-  // TODO UNICODE change of param
   ret->addMember(
       "video_description",
       new Bscript::String( vd, Bscript::String::Tainted::NO ) );  // Video Card Description
@@ -273,7 +272,6 @@ Bscript::BStruct* Client::getclientinfo() const
 
   unsigned maxlen_lc = sizeof( clientinfo_.langcode ) / sizeof( clientinfo_.langcode[0] );
   std::string lc = Bscript::String::fromUTF16( &clientinfo_.langcode[0], maxlen_lc, true );
-  // TODO UNICODE change of param
   ret->addMember( "langcode",
                   new Bscript::String( lc, Bscript::String::Tainted::NO ) );  // Language Code
 
