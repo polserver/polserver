@@ -14,7 +14,6 @@
 #include "../clfunc.h"
 #include "../mobile/charactr.h"
 #include "../network/pktdef.h"
-#include "../unicode.h"
 #include "../uoexhelp.h"
 
 namespace Pol

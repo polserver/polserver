@@ -48,7 +48,6 @@
 #include "statmsg.h"
 #include "syshook.h"
 #include "ufunc.h"
-#include "unicode.h"
 #include "uobject.h"
 #include "uoclient.h"
 

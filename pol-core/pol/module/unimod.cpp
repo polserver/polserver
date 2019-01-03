@@ -25,7 +25,6 @@
 #include "../network/pktboth.h"
 #include "../network/pktdef.h"
 #include "../ufunc.h"
-#include "../unicode.h"
 #include "../uoexec.h"
 #include "osmod.h"
 

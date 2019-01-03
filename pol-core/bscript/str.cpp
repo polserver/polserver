@@ -1146,7 +1146,7 @@ std::string String::fromUTF32( unsigned int code )
   return s;
 }
 
-std::string String::fromUTF16( unsigned short* code, size_t len, bool big_endian )
+std::string String::fromUTF16( const unsigned short* code, size_t len, bool big_endian )
 {
   std::string s;
   size_t short_len = 0;
@@ -1158,8 +1158,8 @@ std::string String::fromUTF16( unsigned short* code, size_t len, bool big_endian
   // directly decode flipped bytes
   struct BigEndianIterator
   {
-    u16* ptr;
-    BigEndianIterator( u16* begin ) : ptr( begin ){};
+    const u16* ptr;
+    BigEndianIterator( const u16* begin ) : ptr( begin ){};
     BigEndianIterator& operator++()
     {
       ++ptr;

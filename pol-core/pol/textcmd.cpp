@@ -60,7 +60,6 @@
 #include "scrstore.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
-#include "unicode.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 #include "utype.h"

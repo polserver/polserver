@@ -107,7 +107,6 @@
 #include "tooltips.h"
 #include "ufunc.h"
 #include "umap.h"
-#include "unicode.h"
 #include "uobject.h"
 #include "uoclient.h"
 #include "uoexec.h"

@@ -33,7 +33,6 @@
 #include "network/clienttransmit.h"
 #include "realms.h"
 #include "realms/realm.h"
-#include "unicode.h"
 #include "uoexhelp.h"
 #include "uworld.h"
 

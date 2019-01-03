@@ -27,7 +27,6 @@
 #include "../party.h"
 #include "../party_cfg.h"
 #include "../syshook.h"
-#include "../unicode.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 

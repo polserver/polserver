@@ -30,7 +30,6 @@
 #include "../network/packets.h"
 #include "../network/pktdef.h"
 #include "../objtype.h"
-#include "../unicode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "osmod.h"

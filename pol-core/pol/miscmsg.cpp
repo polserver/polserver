@@ -27,6 +27,7 @@
 #include <string>
 
 #include "../bscript/eprog.h"
+#include "../bscript/impstr.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
 #include "../clib/logfacility.h"
@@ -56,7 +57,6 @@
 #include "spells.h"
 #include "tooltips.h"
 #include "ufunc.h"
-#include "unicode.h"
 #include "uobject.h"
 #include "uoscrobj.h"
 #include <format/format.h>
@@ -172,34 +172,14 @@ void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
       u16* themsg = msg->profile_update.wtext;
       int intextlen = ( cfBEu16( msg->msglen ) - 12 ) / sizeof( msg->profile_update.wtext[0] );
 
-      int i = 0;
-
-      u16 wtextbuf[SPEECH_MAX_LEN];
-      u32 wtextbuflen;
-
-      // Preprocess the text into a sanity-checked, printable form in textbuf
       if ( intextlen < 0 )
         intextlen = 0;
       if ( intextlen > SPEECH_MAX_LEN )
         intextlen = SPEECH_MAX_LEN;
-
-      wtextbuflen = 0;
-      for ( i = 0; i < intextlen; i++ )
-      {
-        u16 wc = cfBEu16( themsg[i] );
-        if ( wc == 0 )
-          break;  // quit early on embedded nulls
-        if ( wc == L'~' )
-          continue;  // skip unprintable tildes.
-        wtextbuf[wtextbuflen++] = ctBEu16( wc );
-      }
-
-      Bscript::ObjArray* arr;
-
-      if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                   true ) )  // convert back with ctBEu16()
-        client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( mobile ),
-                                   new Bscript::BLong( msg->mode ), arr );
+      std::string text = Bscript::String::fromUTF16( themsg, intextlen, true );
+      client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( mobile ),
+                                 new Bscript::BLong( msg->mode ),
+                                 new Bscript::String( text, Bscript::String::Tainted::NO ) );
     }
   }
 }

@@ -147,7 +147,6 @@
 #include "../ufunc.h"
 #include "../uimport.h"
 #include "../umanip.h"
-#include "../unicode.h"
 #include "../uobject.h"
 #include "../uoexec.h"
 #include "../uopathnode.h"
