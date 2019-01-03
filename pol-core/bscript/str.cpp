@@ -1124,6 +1124,21 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
   }
 }
 
+bool String::hasUTF8Characters() const
+{
+  return hasUTF8Characters( value_ );
+}
+
+bool String::hasUTF8Characters( const std::string& str )
+{
+  for ( const auto& c : str )
+  {
+    if ( c & 0x80 )
+      return true;
+  }
+  return false;
+}
+
 std::vector<unsigned int> String::toUTF32() const
 {
   std::vector<unsigned int> u32;

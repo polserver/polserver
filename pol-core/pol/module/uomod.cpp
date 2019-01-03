@@ -550,7 +550,10 @@ BObjectImp* UOExecutorModule::broadcast()
        getParam( 2, color ) &&            // todo: getColorParam
        getParam( 3, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
-    Core::broadcast( text, font, color, requiredCmdLevel );
+    if ( !Bscript::String::hasUTF8Characters( text ) )
+      Core::broadcast( text, font, color, requiredCmdLevel );
+    else
+      Core::broadcast_unicode( text, "ENU", font, color, requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -702,7 +705,10 @@ BObjectImp* UOExecutorModule::mf_SendSysMessage()
   {
     if ( chr->has_active_client() )
     {
-      send_sysmessage( chr->client, ptext->data(), font, color );
+      if ( !ptext->hasUTF8Characters() )
+        send_sysmessage( chr->client, ptext->data(), font, color );
+      else
+        Core::send_sysmessage_unicode( chr->client, ptext->value(), "ENU", font, color );
       return new BLong( 1 );
     }
     else
@@ -727,7 +733,11 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
   if ( getUObjectParam( exec, 0, obj ) && getStringParam( 1, ptext ) && getParam( 2, font ) &&
        getParam( 3, color ) && getParam( 4, journal_print ) )
   {
-    return new BLong( say_above( obj, ptext->data(), font, color, journal_print ) );
+    if ( !ptext->hasUTF8Characters() )
+      return new BLong( say_above( obj, ptext->data(), font, color, journal_print ) );
+    else
+      return new BLong(
+          say_above_unicode( obj, ptext->value(), "ENU", font, color, journal_print ) );
   }
   else
   {
@@ -747,7 +757,10 @@ BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
        getCharacterParam( exec, 2, chr ) && getParam( 3, font ) && getParam( 4, color ) &&
        getParam( 5, journal_print ) )
   {
-    return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
+    if ( !ptext->hasUTF8Characters() )
+      return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
+    else
+      return new BLong( private_say_above_unicode( chr, obj, ptext->value(), "ENU", font, color ) );
   }
   else
   {

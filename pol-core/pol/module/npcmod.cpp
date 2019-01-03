@@ -695,19 +695,44 @@ BObjectImp* NPCExecutorModule::say()
 
 
   Network::PktHelper::PacketOut<Network::PktOut_1C> msg;
-  msg->offset += 2;
-  msg->Write<u32>( npc.serial_ext );
-  msg->WriteFlipped<u16>( npc.graphic );
-  msg->Write<u8>( texttype );
-  msg->WriteFlipped<u16>( npc.speech_color() );
-  msg->WriteFlipped<u16>( npc.speech_font() );
-  msg->Write( npc.name().c_str(), 30 );
-  msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
-                        ? SPEECH_MAX_LEN + 1
-                        : static_cast<u16>( strlen( text ) + 1 ) );
-  u16 len = msg->offset;
-  msg->offset = 1;
-  msg->WriteFlipped<u16>( len );
+  Network::PktHelper::PacketOut<Network::PktOut_AE> ucmsg;
+  u16 len = 0;
+  u16 uclen = 0;
+  // switch to other pkt if utf8 found
+  if ( !Bscript::String::hasUTF8Characters( text ) )
+  {
+    msg->offset += 2;
+    msg->Write<u32>( npc.serial_ext );
+    msg->WriteFlipped<u16>( npc.graphic );
+    msg->Write<u8>( texttype );
+    msg->WriteFlipped<u16>( npc.speech_color() );
+    msg->WriteFlipped<u16>( npc.speech_font() );
+    msg->Write( npc.name().c_str(), 30 );
+    msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
+                          ? SPEECH_MAX_LEN + 1
+                          : static_cast<u16>( strlen( text ) + 1 ) );
+    len = msg->offset;
+    msg->offset = 1;
+    msg->WriteFlipped<u16>( len );
+  }
+  else
+  {
+    std::vector<u16> utf16 = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+    if ( utf16.size() > SPEECH_MAX_LEN )
+      utf16.resize( SPEECH_MAX_LEN );
+    ucmsg->offset += 2;
+    ucmsg->Write<u32>( npc.serial_ext );
+    ucmsg->WriteFlipped<u16>( npc.graphic );
+    ucmsg->Write<u8>( texttype );
+    ucmsg->WriteFlipped<u16>( npc.speech_color() );
+    ucmsg->WriteFlipped<u16>( npc.speech_font() );
+    ucmsg->Write( "ENU", 4 );
+    ucmsg->Write( npc.description().c_str(), 30 );
+    ucmsg->WriteFlipped( utf16, true );
+    uclen = ucmsg->offset;
+    ucmsg->offset = 1;
+    ucmsg->WriteFlipped<u16>( uclen );
+  }
 
   // send to those nearby
   u16 range;
@@ -721,7 +746,10 @@ BObjectImp* NPCExecutorModule::say()
                                                           [&]( Mobile::Character* chr ) {
                                                             if ( !chr->is_visible_to_me( &npc ) )
                                                               return;
-                                                            msg.Send( chr->client, len );
+                                                            if ( !uclen )
+                                                              msg.Send( chr->client, len );
+                                                            else
+                                                              ucmsg.Send( chr->client, uclen );
                                                           } );
 
   if ( doevent >= 1 )

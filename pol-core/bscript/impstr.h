@@ -70,6 +70,9 @@ public:
   size_t length() const;
   void toUpper( void );
   void toLower( void );
+
+  bool hasUTF8Characters() const;
+  static bool hasUTF8Characters( const std::string& str );
   std::vector<unsigned int> toUTF32() const;
   std::vector<unsigned short> toUTF16() const;
   static std::string fromUTF32( unsigned int code );

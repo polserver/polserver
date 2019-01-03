@@ -27,6 +27,13 @@ XX-XX-XXXX Turley:
            PacketObj.setunicodestring()/setunicodestringflipped()
            CharRef.addbuff()
   Note:    Item/Mobile names need still to be in ASCII format.
+  Note:    In the case of an unicode string as parameter for the following functions the unicode replacement will be automatically used, with ENU as langcode:
+           Broadcast -> BroadcastUC
+           PrintTextAbovePrivate -> PrintTextAbovePrivateUC
+           PrintTextAbove -> PrintTextAboveUC
+           RequestInput -> RequestInputUC
+           Say -> SayUC
+           SendSysMessage -> SendSysMessageUC
 
 01-01-2019 Turley:
   Changed: DepletedFunction hook now receives a second parameter: reason
