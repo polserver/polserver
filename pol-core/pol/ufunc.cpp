@@ -1168,10 +1168,12 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
 }
 
 // Unicode System message -- message in lower left corner
-void send_sysmessage_unicode( Network::Client* client, const std::vector<u16>& wtext,
-                              const char lang[4], unsigned short font, unsigned short color )
+void send_sysmessage_unicode( Network::Client* client, const std::string& text, const char lang[4],
+                              unsigned short font, unsigned short color )
 {
-  // textlen up to the caller
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
   PktHelper::PacketOut<PktOut_AE> msg;
   msg->offset += 2;
   msg->Write<u32>( 0x01010101u );
@@ -1181,7 +1183,7 @@ void send_sysmessage_unicode( Network::Client* client, const std::vector<u16>& w
   msg->WriteFlipped<u16>( font );
   msg->Write( lang, 4 );
   msg->Write( "System", 30 );
-  msg->WriteFlipped( wtext );
+  msg->WriteFlipped( utf16text );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1206,7 +1208,7 @@ void broadcast( const char* text, unsigned short font, unsigned short color,
   }
 }
 
-void broadcast_unicode( const std::vector<u16>& wtext, const char lang[4], unsigned short font,
+void broadcast_unicode( const std::string& text, const char lang[4], unsigned short font,
                         unsigned short color, unsigned short requiredCmdLevel )
 {
   for ( auto& client : networkManager.clients )
@@ -1214,7 +1216,7 @@ void broadcast_unicode( const std::vector<u16>& wtext, const char lang[4], unsig
     if ( !client->ready || client->chr->cmdlevel_ < requiredCmdLevel )
       continue;
 
-    send_sysmessage_unicode( client, wtext, lang, font, color );
+    send_sysmessage_unicode( client, text, lang, font, color );
   }
 }
 
@@ -1272,10 +1274,12 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
   return true;
 }
 
-bool say_above_unicode( const UObject* obj, const std::vector<u16>& wtext, const char lang[4],
+bool say_above_unicode( const UObject* obj, const std::string& text, const char lang[4],
                         unsigned short font, unsigned short color, unsigned int journal_print )
 {
-  // textlen handled by caller
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
   PktHelper::PacketOut<PktOut_AE> msg;
   msg->offset += 2;
   msg->Write<u32>( obj->serial_ext );
@@ -1294,7 +1298,7 @@ bool say_above_unicode( const UObject* obj, const std::vector<u16>& wtext, const
     msg->Write( obj->description().c_str(), 30 );
     break;
   }
-  msg->WriteFlipped( wtext );
+  msg->WriteFlipped( utf16text );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1337,11 +1341,13 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
   return true;
 }
 
-bool private_say_above_unicode( Character* chr, const UObject* obj, const std::vector<u16>& wtext,
+bool private_say_above_unicode( Character* chr, const UObject* obj, const std::string& text,
                                 const char lang[4], unsigned short font, unsigned short color,
                                 unsigned int journal_print )
 {
-  // textlen handled by caller
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
   if ( chr->client == nullptr )
     return false;
 
@@ -1363,7 +1369,7 @@ bool private_say_above_unicode( Character* chr, const UObject* obj, const std::v
     msg->Write( obj->description().c_str(), 30 );
     break;
   }
-  msg->WriteFlipped( wtext );
+  msg->WriteFlipped( utf16text );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );

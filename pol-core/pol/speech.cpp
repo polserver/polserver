@@ -223,8 +223,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     if ( !process_command( client, text, msgin->lang ) )
     {
       std::string tmp( "Unknown command: " );
-      send_sysmessage_unicode(
-          client, Bscript::String::toUTF16( tmp, Bscript::String::Tainted::NO ), msgin->lang );
+      send_sysmessage_unicode( client, tmp, msgin->lang );
     }
     return;
   }
