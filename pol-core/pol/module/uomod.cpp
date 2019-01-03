@@ -5535,12 +5535,8 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
     {
       if ( uText->length() > SPEECH_MAX_LEN || eText->length() > SPEECH_MAX_LEN )
         return new BError( "Text exceeds maximum size." );
-      std::vector<u16> uwtext = uText->toUTF16();
-      uwtext.push_back( 0 );
-      std::vector<u16> ewtext = eText->toUTF16();
-      ewtext.push_back( 0 );
 
-      sendCharProfile( chr, of_who, title->data(), uwtext.data(), ewtext.data() );
+      sendCharProfile( chr, of_who, title->value(), uText->value(), eText->value() );
       return new BLong( 1 );
     }
     else

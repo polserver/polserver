@@ -254,8 +254,8 @@ void send_season_info( Network::Client* client );
 void send_new_subserver( Network::Client* client );
 void send_fight_occuring( Network::Client* client, Mobile::Character* opponent );
 void send_damage( Mobile::Character* attacker, Mobile::Character* defender, u16 damage );
-void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const char* title,
-                      const u16* utext, const u16* etext );
+void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const std::string& title,
+                      const std::string& utext, const std::string& etext );
 
 void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0,
                         u32 cl_name = 0, u32 cl_descr = 0,

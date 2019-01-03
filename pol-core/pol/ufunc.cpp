@@ -46,6 +46,7 @@
 #include <string.h>
 #include <string>
 
+#include "../bscript/impstr.h"
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
@@ -2109,36 +2110,28 @@ void send_damage( Character* attacker, Character* defender, u16 damage )
     pkt.Send( defender->client );
 }
 
-void sendCharProfile( Character* chr, Character* of_who, const char* title, const u16* utext,
-                      const u16* etext )
+void sendCharProfile( Character* chr, Character* of_who, const std::string& title,
+                      const std::string& utext, const std::string& etext )
 {
   PktHelper::PacketOut<PktOut_B8> msg;
+  std::vector<u16> uwtext = Bscript::String::toUTF16( utext, Bscript::String::Tainted::NO );
+  std::vector<u16> ewtext = Bscript::String::toUTF16( etext, Bscript::String::Tainted::NO );
 
-  size_t newulen = 0, newelen = 0, titlelen;
-
-  while ( utext[newulen] != L'\0' )
-    ++newulen;
-
-  while ( etext[newelen] != L'\0' )
-    ++newelen;
-
-  titlelen = strlen( title );
-
+  size_t titlelen = title.size();
   // Check Lengths
-
   if ( titlelen > SPEECH_MAX_LEN )
     titlelen = SPEECH_MAX_LEN;
-  if ( newulen > SPEECH_MAX_LEN )
-    newulen = SPEECH_MAX_LEN;
-  if ( newelen > SPEECH_MAX_LEN )
-    newelen = SPEECH_MAX_LEN;
+  if ( uwtext.size() > SPEECH_MAX_LEN )
+    uwtext.resize( SPEECH_MAX_LEN );
+  if ( ewtext.size() > SPEECH_MAX_LEN )
+    ewtext.resize( SPEECH_MAX_LEN );
 
   // Build Packet
   msg->offset += 2;
   msg->Write<u32>( of_who->serial_ext );
-  msg->Write( title, static_cast<u16>( titlelen + 1 ) );
-  msg->WriteFlipped( utext, static_cast<u16>( newulen ) );
-  msg->WriteFlipped( etext, static_cast<u16>( newelen ) );
+  msg->Write( title.c_str(), static_cast<u16>( titlelen + 1 ) );
+  msg->WriteFlipped( uwtext );
+  msg->WriteFlipped( ewtext );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
