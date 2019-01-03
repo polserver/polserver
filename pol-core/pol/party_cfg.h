@@ -8,6 +8,7 @@
 #define PARTY_CFG_H
 
 #include "network/pktdef.h"
+#include <string>
 
 namespace Pol
 {
@@ -22,8 +23,7 @@ struct Party_Cfg
     unsigned short MaxPartyMembers;
     bool TreatNoAsPrivate;
     unsigned short DeclineTimeout;
-    u16 PrivateMsgPrefix[SPEECH_MAX_LEN + 1];
-    unsigned char PrivateMsgPrefixLen;
+    std::string PrivateMsgPrefix;
     bool RemoveMemberOnLogoff;
     bool RejoinPartyOnLogon;
   } General;

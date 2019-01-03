@@ -80,9 +80,9 @@ public:
   void send_stats_on_add( Mobile::Character* newmember ) const;
   void on_mana_changed( Mobile::Character* chr ) const;
   void on_stam_changed( Mobile::Character* chr ) const;
-  void send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const;
-  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext,
-                                size_t wtextlen ) const;
+  void send_member_msg_public( Mobile::Character* chr, const std::string& text ) const;
+  void send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr,
+                                const std::string& text ) const;
   u32 leader() const;
   void printOn( Clib::StreamWriter& sw ) const;
   u32 get_member_at( unsigned short pos ) const;
@@ -107,6 +107,6 @@ void on_loggon_party( Mobile::Character* chr );
 void on_loggoff_party( Mobile::Character* chr );
 void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob );
 void invite_timeout( Mobile::Character* mem );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
