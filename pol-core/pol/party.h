@@ -71,7 +71,7 @@ public:
   void set_leader( u32 serial );
   void send_remove_member( Mobile::Character* chr, bool* disband );
   void send_member_list( Mobile::Character* to_chr );
-  void send_msg_to_all( unsigned int clilocnr, const char* affix = 0,
+  void send_msg_to_all( unsigned int clilocnr, const std::string& affix = "",
                         Mobile::Character* exeptchr = nullptr ) const;
   bool test_size() const;
   bool can_add() const;

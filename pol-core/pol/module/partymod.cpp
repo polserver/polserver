@@ -230,7 +230,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
       if ( chr->has_active_client() )
         Core::send_sysmessage_cl( chr->client,
                                   Core::CLP_Added );  // You have been added to the party.
-      obj_->send_msg_to_all( Core::CLP_Joined, chr->name().c_str(), chr );  //  : joined the party.
+      obj_->send_msg_to_all( Core::CLP_Joined, chr->name(), chr );  //  : joined the party.
       obj_->send_member_list( nullptr );
       obj_->send_stats_on_add( chr );
     }
@@ -344,8 +344,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
       if ( leader != nullptr )
       {
         if ( leader->has_active_client() )
-          Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Notify_Decline,
-                                          chr->name().c_str(),
+          Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Notify_Decline, chr->name(),
                                           true );  //: Does not wish to join the party.
       }
 
@@ -417,11 +416,10 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
         Core::settingsManager.party_cfg.Hooks.OnPartyCreate->call( CreatePartyRefObjImp( party ) );
       party->send_msg_to_all( Core::CLP_Added );  // You have been added to the party.
       if ( leader->has_active_client() )
-        Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Joined, firstmem->name().c_str(),
+        Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Joined, firstmem->name(),
                                         true );  //  : joined the party.
       if ( firstmem->has_active_client() )
-        Core::send_sysmessage_cl_affix( firstmem->client, Core::CLP_Joined, leader->name().c_str(),
-                                        true );
+        Core::send_sysmessage_cl_affix( firstmem->client, Core::CLP_Joined, leader->name(), true );
       party->send_member_list( nullptr );
       party->send_stats_on_add( firstmem );
     }

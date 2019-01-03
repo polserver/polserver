@@ -56,10 +56,8 @@ BObjectImp* ClilocExecutorModule::mf_SendSysMessageCL()
 
     if ( text->length() > SPEECH_MAX_LEN )
       return new BError( "Text exceeds maximum size." );
-    std::vector<u16> gwtext = text->toUTF16();
-    gwtext.push_back( 0 );
 
-    Core::send_sysmessage_cl( chr->client, cliloc_num, gwtext.data(), font, color );
+    Core::send_sysmessage_cl( chr->client, cliloc_num, text->value(), font, color );
     return new BLong( 1 );
   }
   else
@@ -83,10 +81,8 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAboveCL()
 
     if ( text->length() > SPEECH_MAX_LEN )
       return new BError( "Text exceeds maximum size." );
-    std::vector<u16> gwtext = text->toUTF16();
-    gwtext.push_back( 0 );
 
-    say_above_cl( obj, cliloc_num, gwtext.data(), font, color );
+    say_above_cl( obj, cliloc_num, text->value(), font, color );
     return new BLong( 1 );
   }
   else
@@ -118,10 +114,8 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
 
     if ( text->length() > SPEECH_MAX_LEN )
       return new BError( "Text exceeds maximum size." );
-    std::vector<u16> gwtext = text->toUTF16();
-    gwtext.push_back( 0 );
 
-    private_say_above_cl( chr, obj, cliloc_num, gwtext.data(), font, color );
+    private_say_above_cl( chr, obj, cliloc_num, text->value(), font, color );
     return new BLong( 1 );
   }
   else

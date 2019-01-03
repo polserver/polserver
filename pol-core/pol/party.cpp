@@ -533,12 +533,12 @@ void Party::send_remove_member( Mobile::Character* remchr, bool* disband )
   }
 }
 
-void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
+void Party::send_msg_to_all( unsigned int clilocnr, const std::string& affix,
                              Mobile::Character* exeptchr ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_C1> msgc1;
   Network::PktHelper::PacketOut<Network::PktOut_CC> msgcc;
-  if ( affix != nullptr )
+  if ( !affix.empty() )
     build_sysmessage_cl_affix( msgcc.Get(), clilocnr, affix, true );
   else
     build_sysmessage_cl( msgc1.Get(), clilocnr );
@@ -552,7 +552,7 @@ void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
       {
         if ( chr->has_active_client() )
         {
-          if ( affix != nullptr )
+          if ( !affix.empty() )
             msgcc.Send( chr->client );
           else
             msgc1.Send( chr->client );
@@ -925,7 +925,7 @@ void on_loggon_party( Mobile::Character* chr )
         send_sysmessage_cl( chr->client, CLP_Rejoined );  // You have rejoined the party.
         party->send_member_list( nullptr );
         party->send_stats_on_add( chr );
-        party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(),
+        party->send_msg_to_all( CLP_Player_Rejoined, chr->name(),
                                 chr );  //: rejoined the party.
       }
     }
@@ -939,7 +939,7 @@ void on_loggon_party( Mobile::Character* chr )
     send_sysmessage_cl( chr->client, CLP_Rejoined );  // You have rejoined the party.
     party->send_member_list( chr );
     party->send_stats_on_add( chr );
-    party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(),
+    party->send_msg_to_all( CLP_Player_Rejoined, chr->name(),
                             chr );  //: rejoined the party.
   }
 }
@@ -1240,7 +1240,7 @@ void handle_accept_invite( Network::Client* client, PKTBI_BF* msg )
             settingsManager.party_cfg.Hooks.OnAddToParty->call( client->chr->make_ref() );
           send_sysmessage_cl( client, CLP_Added );  // You have been added to the party.
 
-          party->send_msg_to_all( CLP_Joined, client->chr->name().c_str(),
+          party->send_msg_to_all( CLP_Joined, client->chr->name(),
                                   client->chr );  //  : joined the party.
           party->send_member_list( nullptr );
           party->send_stats_on_add( client->chr );
@@ -1268,7 +1268,7 @@ void handle_decline_invite( Network::Client* client, PKTBI_BF* msg )
         send_sysmessage_cl(
             client, CLP_Decline );  // You notify them that you do not wish to join the party.
         if ( leader->has_active_client() )
-          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name().c_str(),
+          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name(),
                                     true );  //: Does not wish to join the party.
         if ( settingsManager.party_cfg.Hooks.OnDecline )
           settingsManager.party_cfg.Hooks.OnDecline->call( client->chr->make_ref() );
@@ -1370,7 +1370,7 @@ void invite_timeout( Mobile::Character* mem )
       if ( leader != nullptr )
       {
         if ( leader->has_active_client() )
-          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, mem->name().c_str(),
+          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, mem->name(),
                                     true );  //: Does not wish to join the party.
         if ( !party->test_size() )
           disband_party( leader->serial );
@@ -1390,7 +1390,7 @@ void send_invite( Mobile::Character* member, Mobile::Character* leader )
   msg.Send( member->client );
 
   // : You are invited to join the party. Type /accept to join or /decline to decline the offer.
-  send_sysmessage_cl_affix( member->client, CLP_Invite, leader->name().c_str(), true );
+  send_sysmessage_cl_affix( member->client, CLP_Invite, leader->name(), true );
   send_sysmessage_cl( leader->client, CLP_Invited );  // You have invited them to join the party.
 }
 

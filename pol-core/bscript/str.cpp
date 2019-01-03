@@ -1194,13 +1194,20 @@ std::string String::fromUTF8( const char* code, size_t len )
   return s;
 }
 
-std::vector<unsigned short> String::toUTF16( std::string text, Tainted san )
+std::vector<unsigned short> String::toUTF16( const std::string& text, Tainted san )
 {
-  if ( san == Tainted::YES )
-    String::sanitizeUnicodeWithIso( &text );
-  std::vector<unsigned short> u16;
-  utf8::utf8to16( text.begin(), text.end(), std::back_inserter( u16 ) );
-  return u16;
+  std::vector<unsigned short> utf16;
+  if ( text.empty() )
+    return utf16;
+  if ( san == Tainted::YES && !isValidUnicode( text ) )
+  {
+    std::string san_text( text );
+    String::sanitizeUnicodeWithIso( &san_text );
+    utf8::utf8to16( san_text.begin(), san_text.end(), std::back_inserter( utf16 ) );
+  }
+  else
+    utf8::utf8to16( text.begin(), text.end(), std::back_inserter( utf16 ) );
+  return utf16;
 }
 
 bool String::compare( const String& str ) const
