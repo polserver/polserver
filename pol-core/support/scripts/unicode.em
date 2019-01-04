@@ -22,7 +22,7 @@ const _DEFAULT_UCTEXT_REQUIREDCMD := 0;
 //
 ////////////////////////////////////////////////////////////////
 
-// 'uc_text' is an Array of 2-byte integers,
+// 'uc_text' is a String, or for backward compatibility an Array of 2-byte integers,
 //           where each integer is a Unicode character!
 //
 // 'langcode' is a 3-character "Originating Language" code

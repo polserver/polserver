@@ -229,8 +229,8 @@ const CLOSE_PROFILE   := 8;
 const CLOSE_CONTAINER := 12;
 
 //SendCharProfile
-const CHARPROFILE_NO_UNEDITABLE_TEXT := array;
-const CHARPROFILE_NO_EDITABLE_TEXT := array;
+const CHARPROFILE_NO_UNEDITABLE_TEXT := "";
+const CHARPROFILE_NO_EDITABLE_TEXT := "";
 
 //Accessible
 const ACCESSIBLE_DEFAULT := -1; // uses the default from ssopt

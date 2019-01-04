@@ -73,9 +73,8 @@ public:
 
   bool hasUTF8Characters() const;
   static bool hasUTF8Characters( const std::string& str );
-  std::vector<unsigned int> toUTF32() const;
   std::vector<unsigned short> toUTF16() const;
-  static std::string fromUTF32( unsigned int code );
+  static std::string fromUTF16( unsigned short code );
   static std::string fromUTF16( const unsigned short* code, size_t len, bool big_endian = false );
   static std::string fromUTF8( const char* code, size_t len );
   static std::vector<unsigned short> toUTF16( const std::string& text, Tainted san = Tainted::YES );

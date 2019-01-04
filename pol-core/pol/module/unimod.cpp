@@ -27,6 +27,7 @@
 #include "../ufunc.h"
 #include "../uoexec.h"
 #include "osmod.h"
+#include "uomod.h"
 
 namespace Pol
 {
@@ -46,8 +47,10 @@ void send_unicode_prompt( Client* client, u32 serial )
 
 void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 {
+  // TODO do we really need two of them, this can also be done differently
   Module::UnicodeExecutorModule* uniemod = client->gd->prompt_uniemod;
-  if ( uniemod == nullptr )
+  Module::UOExecutorModule* uoemod = client->gd->prompt_uoemod;
+  if ( uoemod == nullptr && uniemod == nullptr )
     return;  // log it?
 
   int textlen = ( ( cfBEu16( msg->msglen ) - offsetof( Core::PKTBI_C2, wtext ) ) /
@@ -73,15 +76,30 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 
   // String::fromUTF16 performs all the error checks
   // "Invalid unicode" will be returned if completly broken, but do we really need to take care?
-  std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
-  retval->addMember( "lang", new Bscript::String( lang ) );
-  retval->addMember( "text", new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ),
-                                                  Bscript::String::Tainted::NO ) );
+  if ( uniemod != nullptr && uniemod->prompt_chr != nullptr )
+  {
+    std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
+    retval->addMember( "lang", new Bscript::String( lang ) );
+    retval->addMember( "text",
+                       new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ),
+                                            Bscript::String::Tainted::NO ) );
+    uniemod->exec.ValueStack.back().set( new Bscript::BObject( retval.release() ) );
+    uniemod->uoexec.os_module->revive();
+  }
+  else if ( uoemod != nullptr && uoemod->prompt_chr != nullptr )
+  {
+    // called from uo module, directly return string
+    uoemod->exec.ValueStack.back().set( new Bscript::BObject( new Bscript::String(
+        Bscript::String::fromUTF16( msg->wtext, textlen ), Bscript::String::Tainted::NO ) ) );
 
-  uniemod->exec.ValueStack.back().set( new Bscript::BObject( retval.release() ) );
-  uniemod->uoexec.os_module->revive();
-  uniemod->prompt_chr = nullptr;
+    uoemod->uoexec.os_module->revive();
+  }
+  if ( uniemod != nullptr )
+    uniemod->prompt_chr = nullptr;
+  if ( uoemod != nullptr )
+    uoemod->prompt_chr = nullptr;
   client->gd->prompt_uniemod = nullptr;
+  client->gd->prompt_uoemod = nullptr;
 }
 //////////////////////////////////////////////////////////////////////////
 }  // namespace Core

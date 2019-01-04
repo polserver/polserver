@@ -306,10 +306,12 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
   if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    const auto& utf32 = str->toUTF32();
-    if ( utf32.empty() )
+    const auto& utf16 = str->StrStr( 1, 1 )->toUTF16();
+    if ( utf16.empty() )
       return new BLong( 0 );
-    return new BLong( utf32[0] );
+    else if ( utf16.size() > 1 )
+      return new BError( "Cannot be represented by a single number" );
+    return new BLong( utf16[0] );
   }
   else
   {
@@ -323,8 +325,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAscZ()
   String tmp( imp->getStringRep() );
   int nullterm = static_cast<int>( exec.paramAsLong( 1 ) );
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  const auto& utf32 = tmp.toUTF32();
-  for ( const auto& code : utf32 )
+  const auto& utf16 = tmp.toUTF16();
+  for ( const auto& code : utf16 )
   {
     arr->addElement( new BLong( code ) );
   }
@@ -339,7 +341,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChr()
   int val;
   if ( getParam( 0, val ) )
   {
-    return new String( String::fromUTF32( val ) );
+    return new String( String::fromUTF16( static_cast<u16>( val & 0xffff ) ) );
   }
   else
   {

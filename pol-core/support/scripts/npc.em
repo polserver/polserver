@@ -84,7 +84,7 @@ Say( text, text_type:=SAY_TEXTTYPE_DEFAULT, do_event:=SAY_DOEVENT_DISABLE );
 // Instructs an npc to speak in Unicode
 // Texttype is the type of speech the npc will make (Whisper, Normal, Yell)
 // If doevent is enabled, it will send a system event to other npcs.
-// 'uc_text' is an Array of 2-byte integers,
+// 'uc_text' is a String, or for backward compatibility an Array of 2-byte integers,
 //           where each integer is a Unicode character!
 // 'langcode' is a 3-character "Originating Language" code
 //       e.g. ENG, ENU, CHT, DEU, FRA, JPN, RUS, KOR (etc??)

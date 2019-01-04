@@ -1139,13 +1139,6 @@ bool String::hasUTF8Characters( const std::string& str )
   return false;
 }
 
-std::vector<unsigned int> String::toUTF32() const
-{
-  std::vector<unsigned int> u32;
-  utf8::unchecked::utf8to32( value_.begin(), value_.end(), std::back_inserter( u32 ) );
-  return u32;
-}
-
 std::vector<unsigned short> String::toUTF16() const
 {
   std::vector<unsigned short> u16;
@@ -1153,10 +1146,11 @@ std::vector<unsigned short> String::toUTF16() const
   return u16;
 }
 
-std::string String::fromUTF32( unsigned int code )
+std::string String::fromUTF16( unsigned short code )
 {
   std::string s;
-  utf8::unchecked::append( code, std::back_inserter( s ) );
+  std::vector<unsigned short> utf16( 1, code );
+  utf8::unchecked::utf16to8( utf16.begin(), utf16.end(), std::back_inserter( s ) );
   sanitizeUnicode( &s );
   return s;
 }
@@ -1319,6 +1313,7 @@ void String::sanitizeUnicode( std::string* str )
 String* String::fromUCArray( ObjArray* array, bool break_first_null )
 {
   std::string res;
+  std::vector<u16> utf16;
   for ( const auto& c : array->ref_arr )
   {
     if ( !c )
@@ -1329,9 +1324,12 @@ String* String::fromUCArray( ObjArray* array, bool break_first_null )
       BLong* blong = static_cast<BLong*>( imp );
       if ( blong->value() == 0 && break_first_null )
         break;
-      utf8::unchecked::append( blong->value(), std::back_inserter( res ) );
+      utf16.push_back( blong->value() & 0xFFFF );
     }
   }
+  if ( !utf16.empty() )
+    utf8::unchecked::utf16to8( utf16.begin(), utf16.end(), std::back_inserter( res ) );
+
   sanitizeUnicode( &res );
   return new String( res );
 }
