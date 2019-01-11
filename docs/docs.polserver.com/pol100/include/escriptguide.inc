@@ -437,7 +437,7 @@ function requires it. <br><br>
 <p>Suppose you want to find out if the value in the variable "name" exists in
 an array named "people". You can do something like the following to:<br>
 
-foreach person in peopke
+foreach person in people
   if(person == name)
     return _person_iter;
   endif
