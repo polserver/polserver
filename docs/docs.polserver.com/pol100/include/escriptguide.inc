@@ -1,5 +1,5 @@
 <h1>Racalac's eScript Reference and Guide v096<br>
-<font size="2">(Last Updated: Sept 07, 2018)</font></h1>
+<font size="2">(Last Updated: Jan 11, 2019)</font></h1>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -2517,4 +2517,7 @@ value, and then destroy it when the function is done.</p>
 Cleaned HTML code. - Bodom</p>
 <p>v0.7: 07/09/2018<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added additional information regarding AND, OR, XOR, Ones Compliment operators supplied by Yukiko<br>
+</p>
+<p>v0.8: 01/11/2019<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for finding the ordinal location of an element in an array by ThisIsMe<br>
 </p>
