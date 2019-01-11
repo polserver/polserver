@@ -437,14 +437,17 @@ function requires it. <br><br>
 <p>Suppose you want to find out if the value in the variable "name" exists in
 an array named "people". You can do something like the following to:<br>
 
-foreach person in people
+<div class="doc-guide-pre">
+<pre>foreach person in people
   if(person == name)
     return _person_iter;
-  endif
+  endif</pre></div>
 
 or you can do something even simpler:<br>
 
-var in_array := name in people;
+<div class="doc-guide-pre">
+<pre>
+var in_array := name in people;</pre></div>
 
 in_array will be set to the ordinal position where the value in name exists
 in the array or if it is not in the array in_array will be set to 0.<br><br>
