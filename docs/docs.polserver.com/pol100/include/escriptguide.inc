@@ -1,5 +1,5 @@
 <h1>Racalac's eScript Reference and Guide v096<br>
-<font size="2">(Last Updated: Sept 07, 2018)</font></h1>
+<font size="2">(Last Updated: Jan 11, 2019)</font></h1>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -437,14 +437,18 @@ function requires it. <br><br>
 <p>Suppose you want to find out if the value in the variable "name" exists in
 an array named "people". You can do something like the following to:<br>
 
+<div class="doc-guide-pre">
+<pre>
 foreach person in people
   if(person == name)
     return _person_iter;
-  endif
+  endif</pre></div>
 
 or you can do something even simpler:<br>
 
-var in_array := name in people;
+<div class="doc-guide-pre">
+<pre>
+var in_array := name in people;</pre></div>
 
 in_array will be set to the ordinal position where the value in name exists
 in the array or if it is not in the array in_array will be set to 0.<br><br>
@@ -2513,4 +2517,7 @@ value, and then destroy it when the function is done.</p>
 Cleaned HTML code. - Bodom</p>
 <p>v0.7: 07/09/2018<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added additional information regarding AND, OR, XOR, Ones Compliment operators supplied by Yukiko<br>
+</p>
+<p>v0.8: 01/11/2019<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for finding the ordinal location of an element in an array by ThisIsMe<br>
 </p>
