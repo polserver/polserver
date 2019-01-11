@@ -438,7 +438,8 @@ function requires it. <br><br>
 an array named "people". You can do something like the following to:<br>
 
 <div class="doc-guide-pre">
-<pre>foreach person in people
+<pre>
+foreach person in people
   if(person == name)
     return _person_iter;
   endif</pre></div>
