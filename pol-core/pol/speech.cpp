@@ -51,6 +51,8 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   if ( text.empty() )
     return;
 
+  std::string s_text( text );
+  Clib::sanitizeUnicodeWithIso( &s_text );  // use original text for other clients
   Mobile::Character* chr = client->chr;
 
   // validate text color
@@ -61,16 +63,16 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   }
   chr->last_textcolor( textcol );
 
-  if ( text[0] == '.' || text[0] == '=' )
+  if ( s_text[0] == '.' || s_text[0] == '=' )
   {
-    if ( !process_command( client, text ) )
+    if ( !process_command( client, s_text ) )
       send_sysmessage( client, std::string( "Unknown command: " ) + text );
     return;
   }
 
-  if ( text[0] == '~' )
+  if ( s_text[0] == '~' )
   {
-    process_tildecommand( client, text );
+    process_tildecommand( client, s_text );
     return;
   }
 
@@ -156,7 +158,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
     Core::WorldIterator<Core::NPCFilter>::InRange(
         chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-          npc->on_pc_spoke( chr, text, type );
+          npc->on_pc_spoke( chr, s_text, type );
         } );
   }
   else
@@ -164,11 +166,11 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
     Core::WorldIterator<Core::NPCFilter>::InRange(
         chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-          npc->on_ghost_pc_spoke( chr, text, type );
+          npc->on_ghost_pc_spoke( chr, s_text, type );
         } );
   }
 
-  sayto_listening_points( client->chr, text, type );
+  sayto_listening_points( client->chr, s_text, type );
 }
 
 
@@ -197,7 +199,6 @@ void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
       text += ch;
     // ENHANCE: else report client data error? Just log?
   }
-
   handle_processed_speech( client, text, mymsg->type, mymsg->color, mymsg->font );
 }
 
@@ -257,7 +258,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
   talkmsg->Write( msgin->lang, 4 );
   talkmsg->Write( chr->name().c_str(), 30 );
 
-  std::vector<u16> utf16 = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16 = Bscript::String::toUTF16( text );
   if ( utf16.size() > SPEECH_MAX_LEN )
     utf16.resize( SPEECH_MAX_LEN );
   talkmsg->WriteFlipped( utf16, true );
@@ -409,7 +410,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
     text = Bscript::String::fromUTF16( msgin->wtext, intextlen, true );
   }
   //  SPEECH_MAX_LEN needs to be checked later
-  
+
   if ( msgin->type & 0xc0 )
   {
     speechtokens.reset( new Bscript::ObjArray() );
@@ -420,9 +421,9 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
     }
     if ( gamestate.system_hooks.speechmul_hook )
     {
-      gamestate.system_hooks.speechmul_hook->call(
-          make_mobileref( client->chr ), new Bscript::ObjArray( *speechtokens.get() ),
-          new Bscript::String( text, Bscript::String::Tainted::NO ) );
+      gamestate.system_hooks.speechmul_hook->call( make_mobileref( client->chr ),
+                                                   new Bscript::ObjArray( *speechtokens.get() ),
+                                                   new Bscript::String( text ) );
     }
     msgin->type &= ( ~0xC0 );  // Client won't accept C0 text type messages, so must set to 0
   }

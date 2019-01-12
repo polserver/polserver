@@ -657,7 +657,8 @@ bool ConfigFile::read_properties( ConfigElem& elem )
     if ( !cur_line )
       remove_bom( &strbuf );
     ++cur_line;
-
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
     ISTRINGSTREAM is( strbuf );
 
 
@@ -701,6 +702,9 @@ bool ConfigFile::_read( ConfigElem& elem )
       remove_bom( &strbuf );
     ++cur_line;
 
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
+
     string type, rest;
     splitnamevalue( strbuf, type, rest );
 
@@ -736,6 +740,8 @@ bool ConfigFile::_read( ConfigElem& elem )
       throw std::runtime_error( "File ends after element type -- expected a '{'" );
     ++cur_line;
 
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
     if ( strbuf.empty() || strbuf[0] != '{' )
     {
       throw std::runtime_error( "Expected '{' on a blank line after element type" );
@@ -788,6 +794,9 @@ bool ConfigFile::read_properties( ConfigElem& elem )
       remove_bom( &strbuf );
     ++_cur_line;
 
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
+
     ISTRINGSTREAM is( strbuf );
 
 
@@ -820,6 +829,9 @@ bool ConfigFile::read_properties( VectorConfigElem& elem )
     if ( !_cur_line )
       remove_bom( &strbuf );
     ++_cur_line;
+
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
 
     ISTRINGSTREAM is( strbuf );
 
@@ -863,6 +875,9 @@ bool ConfigFile::_read( ConfigElem& elem )
       remove_bom( &strbuf );
     ++_cur_line;
 
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
+
     std::string type, rest;
     splitnamevalue( strbuf, type, rest );
 
@@ -897,6 +912,8 @@ bool ConfigFile::_read( ConfigElem& elem )
       throw std::runtime_error( "File ends after element type -- expected a '{'" );
     strbuf = buffer;
     ++_cur_line;
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
 
     if ( strbuf.empty() || strbuf[0] != '{' )
     {
@@ -929,6 +946,8 @@ bool ConfigFile::_read( VectorConfigElem& elem )
     if ( !_cur_line )
       remove_bom( &strbuf );
     ++_cur_line;
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
 
     std::string type, rest;
     splitnamevalue( strbuf, type, rest );
@@ -964,6 +983,8 @@ bool ConfigFile::_read( VectorConfigElem& elem )
       throw std::runtime_error( "File ends after element type -- expected a '{'" );
     strbuf = buffer;
     ++_cur_line;
+    if ( !isValidUnicode( strbuf ) )
+      sanitizeUnicodeWithIso( &strbuf );
 
     if ( strbuf.empty() || strbuf[0] != '{' )
     {

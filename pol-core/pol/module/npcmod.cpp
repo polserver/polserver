@@ -717,7 +717,7 @@ BObjectImp* NPCExecutorModule::say()
   }
   else
   {
-    std::vector<u16> utf16 = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+    std::vector<u16> utf16 = Bscript::String::toUTF16( text );
     if ( utf16.size() > SPEECH_MAX_LEN )
       utf16.resize( SPEECH_MAX_LEN );
     ucmsg->offset += 2;

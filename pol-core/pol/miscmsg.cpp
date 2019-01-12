@@ -178,8 +178,7 @@ void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
         intextlen = SPEECH_MAX_LEN;
       std::string text = Bscript::String::fromUTF16( themsg, intextlen, true );
       client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( mobile ),
-                                 new Bscript::BLong( msg->mode ),
-                                 new Bscript::String( text, Bscript::String::Tainted::NO ) );
+                                 new Bscript::BLong( msg->mode ), new Bscript::String( text ) );
     }
   }
 }

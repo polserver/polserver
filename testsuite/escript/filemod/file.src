@@ -2,4 +2,6 @@ use file;
 
 print(ReadFile(":filetest:normal.file"));
 print(ReadFile(":filetest:bom.file"));
-print(ReadFile(":filetest:iso.file"));
+var c:=ReadFile(":filetest:iso.file");
+print(c);
+print(c[1].find("ü"));

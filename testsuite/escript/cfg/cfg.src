@@ -5,7 +5,7 @@ function get(cfg)
     var e:= FindConfigElem(cfg,key);
     print(key);
     foreach entry in ListConfigElemProps(e)
-      print(entry+" "+GetConfigString(e,entry));
+      print(entry+" "+GetConfigString(e,entry)+" "+GetConfigString(e, entry).find("ü"));
   endforeach
   endforeach
 endfunction

@@ -85,7 +85,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
         return BObjectRef( new Double( strtod( _row[index - 1], nullptr ) ) );
       return BObjectRef( new BLong( strtoul( _row[index - 1], nullptr, 0 ) ) );
     }
-    return BObjectRef( new String( _row[index - 1] ) );
+    return BObjectRef( new String( _row[index - 1], String::Tainted::YES ) );
   }
   else if ( right.isa( OTString ) )
   {
@@ -105,7 +105,7 @@ BObjectRef BSQLRow::OperSubscript( const BObject& obj )
             return BObjectRef( new Double( strtod( _row[i], nullptr ) ) );
           return BObjectRef( new BLong( strtoul( _row[i], nullptr, 0 ) ) );
         }
-        return BObjectRef( new String( _row[i] ) );
+        return BObjectRef( new String( _row[i], String::Tainted::YES ) );
       }
     }
     return BObjectRef( new BError( "Column does not exist" ) );
@@ -502,7 +502,7 @@ void start_sql_service()
 {
   threadhelp::start_thread( sql_service_thread_stub, "SQLService" );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #undef REGEX_NSPACE
 #endif

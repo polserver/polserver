@@ -1171,7 +1171,7 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
 void send_sysmessage_unicode( Network::Client* client, const std::string& text, const char lang[4],
                               unsigned short font, unsigned short color )
 {
-  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
   PktHelper::PacketOut<PktOut_AE> msg;
@@ -1277,7 +1277,7 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
 bool say_above_unicode( const UObject* obj, const std::string& text, const char lang[4],
                         unsigned short font, unsigned short color, unsigned int journal_print )
 {
-  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
   PktHelper::PacketOut<PktOut_AE> msg;
@@ -1345,7 +1345,7 @@ bool private_say_above_unicode( Character* chr, const UObject* obj, const std::s
                                 const char lang[4], unsigned short font, unsigned short color,
                                 unsigned int journal_print )
 {
-  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
   if ( chr->client == nullptr )
@@ -2120,8 +2120,8 @@ void sendCharProfile( Character* chr, Character* of_who, const std::string& titl
                       const std::string& utext, const std::string& etext )
 {
   PktHelper::PacketOut<PktOut_B8> msg;
-  std::vector<u16> uwtext = Bscript::String::toUTF16( utext, Bscript::String::Tainted::NO );
-  std::vector<u16> ewtext = Bscript::String::toUTF16( etext, Bscript::String::Tainted::NO );
+  std::vector<u16> uwtext = Bscript::String::toUTF16( utext );
+  std::vector<u16> ewtext = Bscript::String::toUTF16( etext );
 
   size_t titlelen = title.size();
   // Check Lengths

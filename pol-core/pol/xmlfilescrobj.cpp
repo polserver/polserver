@@ -211,7 +211,7 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
     printer.SetIndent( indent.c_str() );
 
     file.Accept( &printer );
-    return new String( printer.CStr() );
+    return new String( printer.CStr(), String::Tainted::YES );
   }
 
   default:
@@ -561,7 +561,11 @@ BObjectRef BXmlNode::OperSubscript( const BObject& obj )
 std::string BXmlNode::getStringRep() const
 {
   if ( node->Type() == TiXmlNode::TINYXML_TEXT )
-    return node->ToText()->Value();
+  {
+    std::string text = node->ToText()->Value();
+    Clib::sanitizeUnicodeWithIso( &text );
+    return text;
+  }
   else if ( node->Type() == TiXmlNode::TINYXML_DECLARATION )
   {
     TiXmlDeclaration* dec = node->ToDeclaration();
@@ -569,7 +573,9 @@ std::string BXmlNode::getStringRep() const
     os << "v:" << dec->Version() << " e:" << dec->Encoding() << " s:" << dec->Standalone();
     return OSTRINGSTREAM_STR( os );
   }
-  return node->Value();
+  std::string text = node->Value();
+  Clib::sanitizeUnicodeWithIso( &text );
+  return text;
 }
 
 Bscript::BObjectImp* BXmlAttribute::call_method( const char* methodname, Executor& ex )
@@ -594,7 +600,7 @@ Bscript::BObjectImp* BXmlAttribute::call_method_id( const int id, Executor& /*ex
     TiXmlAttribute* attrib = node->FirstAttribute();
     while ( attrib )
     {
-      arr->addElement( new String( attrib->Name() ) );
+      arr->addElement( new String( attrib->Name(), String::Tainted::YES ) );
       attrib = attrib->Next();
     }
     return arr.release();
@@ -611,7 +617,7 @@ BObjectRef BXmlAttribute::OperSubscript( const BObject& obj )
     const String* keystr = static_cast<const String*>( obj.impptr() );
     const std::string* attrib = node->Attribute( keystr->value() );
     if ( attrib )
-      return BObjectRef( new String( attrib->c_str() ) );
+      return BObjectRef( new String( attrib->c_str(), String::Tainted::YES ) );
     else
       return BObjectRef( new BError( "Failed to find attribute" ) );
   }
@@ -683,7 +689,9 @@ BObject* BXMLAttributeIterator::step()
   if ( nodeAttrib )
   {
     std::unique_ptr<BStruct> details( new BStruct() );
-    details->addMember( nodeAttrib->Name(), new String( nodeAttrib->Value() ) );
+    std::string name = nodeAttrib->Name();
+    Clib::sanitizeUnicodeWithIso( &name );
+    details->addMember( name.c_str(), new String( nodeAttrib->Value(), String::Tainted::YES ) );
     return new BObject( details.release() );
   }
   return nullptr;

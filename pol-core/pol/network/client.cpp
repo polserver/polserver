@@ -254,9 +254,8 @@ Bscript::BStruct* Client::getclientinfo() const
   unsigned maxlen_vd =
       sizeof( clientinfo_.video_description ) / sizeof( clientinfo_.video_description[0] );
   std::string vd = Bscript::String::fromUTF16( &clientinfo_.video_description[0], maxlen_vd, true );
-  ret->addMember(
-      "video_description",
-      new Bscript::String( vd, Bscript::String::Tainted::NO ) );  // Video Card Description
+  ret->addMember( "video_description",
+                  new Bscript::String( vd ) );  // Video Card Description
 
 
   ret->addMember( "video_vendor", new BLong( clientinfo_.video_vendor ) );  // Video Card Vendor ID
@@ -273,7 +272,7 @@ Bscript::BStruct* Client::getclientinfo() const
   unsigned maxlen_lc = sizeof( clientinfo_.langcode ) / sizeof( clientinfo_.langcode[0] );
   std::string lc = Bscript::String::fromUTF16( &clientinfo_.langcode[0], maxlen_lc, true );
   ret->addMember( "langcode",
-                  new Bscript::String( lc, Bscript::String::Tainted::NO ) );  // Language Code
+                  new Bscript::String( lc ) );  // Language Code
 
   std::unique_ptr<ObjArray> arr_u2( new ObjArray );
   for ( unsigned i = 0; i < sizeof( clientinfo_.unknown2 ); ++i )

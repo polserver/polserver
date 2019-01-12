@@ -26,13 +26,13 @@ class String : public BObjectImp
 public:
   enum class Tainted
   {
-    YES,  // performs unicode sanitize should be done for every external value
+    YES,  // performs unicode sanitize should be done for every external value (assuming ISO8859)
     NO    // performs no unicode sanitize should only be used for internal usage
   };
   String() : BObjectImp( OTString ), value_( "" ) {}
-  String( const char* str, int nchars, Tainted san = Tainted::YES );
-  explicit String( const char* str, Tainted san = Tainted::YES );
-  explicit String( const std::string& str, Tainted san = Tainted::YES );
+  String( const char* str, int nchars, Tainted san = Tainted::NO );
+  explicit String( const char* str, Tainted san = Tainted::NO );
+  explicit String( const std::string& str, Tainted san = Tainted::NO );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
   virtual ~String() = default;
@@ -71,7 +71,7 @@ public:
   static std::string fromUTF16( unsigned short code );
   static std::string fromUTF16( const unsigned short* code, size_t len, bool big_endian = false );
   static std::string fromUTF8( const char* code, size_t len );
-  static std::vector<unsigned short> toUTF16( const std::string& text, Tainted san = Tainted::YES );
+  static std::vector<unsigned short> toUTF16( const std::string& text );
   static String* fromUCArray( ObjArray* array, bool break_first_null = true );
 
   String& operator=( const char* s )

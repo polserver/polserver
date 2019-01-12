@@ -664,11 +664,11 @@ void Party::send_member_msg_public( Mobile::Character* chr, const std::string& t
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_PARTY_MSG );
   msg->Write<u32>( chr->serial_ext );
 
-  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( settingsManager.party_cfg.Hooks.ChangePublicChat )
   {
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePublicChat->call_object(
-        chr->make_ref(), new Bscript::String( text, Bscript::String::Tainted::NO ) );
+        chr->make_ref(), new Bscript::String( text ) );
 
     if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
@@ -714,12 +714,11 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_MEMBER_MSG );
   msg->Write<u32>( chr->serial_ext );
 
-  std::vector<u16> utf16text = Bscript::String::toUTF16( text, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( settingsManager.party_cfg.Hooks.ChangePrivateChat )
   {
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object(
-        chr->make_ref(), tochr->make_ref(),
-        new Bscript::String( text, Bscript::String::Tainted::NO ) );
+        chr->make_ref(), tochr->make_ref(), new Bscript::String( text ) );
     if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
       if ( obj->isa( Bscript::BObjectImp::OTArray ) )
@@ -738,8 +737,8 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
   }
   if ( !settingsManager.party_cfg.General.PrivateMsgPrefix.empty() )
   {
-    std::vector<u16> ptext = Bscript::String::toUTF16(
-        settingsManager.party_cfg.General.PrivateMsgPrefix, Bscript::String::Tainted::NO );
+    std::vector<u16> ptext =
+        Bscript::String::toUTF16( settingsManager.party_cfg.General.PrivateMsgPrefix );
     utf16text.insert( utf16text.begin(), ptext.begin(), ptext.end() );
   }
 
@@ -1126,8 +1125,7 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
         settingsManager.party_cfg.Hooks.OnPrivateChat->call(
-            client->chr->make_ref(), member->make_ref(),
-            new Bscript::String( text, Bscript::String::Tainted::NO ) );
+            client->chr->make_ref(), member->make_ref(), new Bscript::String( text ) );
       }
 
       party->send_member_msg_private( client->chr, member, text );
@@ -1179,8 +1177,7 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
         settingsManager.party_cfg.Hooks.OnPrivateChat->call(
-            client->chr->make_ref(), member->make_ref(),
-            new Bscript::String( text, Bscript::String::Tainted::NO ) );
+            client->chr->make_ref(), member->make_ref(), new Bscript::String( text ) );
       }
       party->send_member_msg_private( client->chr, member, text );
     }
@@ -1188,8 +1185,8 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
     {
       if ( settingsManager.party_cfg.Hooks.OnPublicChat )
       {
-        settingsManager.party_cfg.Hooks.OnPublicChat->call(
-            client->chr->make_ref(), new Bscript::String( text, Bscript::String::Tainted::NO ) );
+        settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(),
+                                                            new Bscript::String( text ) );
       }
 
       party->send_member_msg_public( client->chr, text );

@@ -38,7 +38,7 @@ TmplExecutorModule<SQLExecutorModule>::FunctionTable
         {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows},
         {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb},
         {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -302,7 +302,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
   const char* name = result->field_name( index );
   if ( name == nullptr )
     return new BError( "Column does not exist" );
-  return new String( name );
+  return new String( name, String::Tainted::YES );
 }
 
 Bscript::BObjectImp* SQLExecutorModule::mf_AffectedRows()
@@ -367,5 +367,5 @@ MF_NO_MYSQL( mf_NumRows )
 MF_NO_MYSQL( mf_Close )
 MF_NO_MYSQL( mf_FetchRow )
 #endif
-}
-}
+}  // namespace Module
+}  // namespace Pol

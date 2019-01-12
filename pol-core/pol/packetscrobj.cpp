@@ -243,7 +243,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
       while ( real_len < len && *( str_offset + real_len ) )
         real_len++;
 
-      return new String( str_offset, real_len );
+      return new String( str_offset, real_len, String::Tainted::YES );
     }
     break;
   }
@@ -262,7 +262,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
         return new BError( "Offset too high" );
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len, true );
-      return new Bscript::String( str, Bscript::String::Tainted::NO );
+      return new Bscript::String( str );
     }
     break;
   }
@@ -281,7 +281,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
         return new BError( "Offset too high" );
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len );
-      return new Bscript::String( str, Bscript::String::Tainted::NO );
+      return new Bscript::String( str );
     }
     break;
   }

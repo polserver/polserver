@@ -368,7 +368,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ReadFile()
           line.erase( 0, 3 );
       }
     }
-    arr->addElement( new String( line ) );
+    arr->addElement( new String( line, String::Tainted::YES ) );
   }
 
   return arr.release();

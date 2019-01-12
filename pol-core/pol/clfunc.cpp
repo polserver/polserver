@@ -30,7 +30,7 @@ void send_sysmessage_cl( Client* client, /*Character *chr_from, ObjArray* oText,
 {
   PktHelper::PacketOut<PktOut_C1> msg;
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
 
@@ -53,7 +53,7 @@ void say_above_cl( UObject* obj, unsigned int cliloc_num, const std::string& arg
 {
   PktHelper::PacketOut<PktOut_C1> msg;
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
 
@@ -77,7 +77,7 @@ void private_say_above_cl( Mobile::Character* chr, const UObject* obj, unsigned 
 {
   PktHelper::PacketOut<PktOut_C1> msg;
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
 
@@ -102,7 +102,7 @@ void send_sysmessage_cl_affix( Client* client, unsigned int cliloc_num, const st
 {
   PktHelper::PacketOut<PktOut_CC> msg;
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
   unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
@@ -131,7 +131,7 @@ void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const std::strin
 {
   PktHelper::PacketOut<PktOut_CC> msg;
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
   unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
@@ -163,7 +163,7 @@ void private_say_above_cl_affix( Mobile::Character* chr, const UObject* obj,
 {
   PktHelper::PacketOut<PktOut_CC> msg;
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
   unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
@@ -191,7 +191,7 @@ void build_sysmessage_cl( PktOut_C1* msg, unsigned int cliloc_num, const std::st
                           unsigned short font, unsigned short color )
 {
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
 
@@ -214,7 +214,7 @@ void build_sysmessage_cl_affix( PktOut_CC* msg, unsigned int cliloc_num, const s
                                 unsigned short color )
 {
   msg->offset += 2;
-  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments, Bscript::String::Tainted::NO );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
   unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
