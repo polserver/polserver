@@ -291,7 +291,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
   switch ( cfBEu16( msg->subcmd ) )
   {
   case PKTBI_BF::TYPE_CLIENT_LANGUAGE:
-    client->chr->uclang = Clib::strlower( msg->client_lang );
+    client->chr->uclang = Clib::strlowerASCII( msg->client_lang );
     break;
   case PKTBI_BF::TYPE_REQ_FULL_CUSTOM_HOUSE:
     if ( ( client->UOExpansionFlag & AOS ) == 0 )

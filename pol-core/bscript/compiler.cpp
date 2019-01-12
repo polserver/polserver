@@ -5145,6 +5145,7 @@ void Compiler::readCurLine( CompilerContext& ctx )
 bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
 {
   CompilerContext tctx( ctx );
+  tctx.silence_unicode_warnings = true;
   Token tkn;
   for ( ;; )
   {

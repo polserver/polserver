@@ -29,16 +29,16 @@ namespace Core
 CmdLevel::CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum )
     : name( elem.rest() ), cmdlevel( static_cast<unsigned char>( cmdlevelnum ) )
 {
-  Clib::mklower( name );
+  Clib::mklowerASCII( name );
   std::string tmp;
   while ( elem.remove_prop( "DIR", &tmp ) )
   {
-    Clib::mklower( tmp );
+    Clib::mklowerASCII( tmp );
     add_searchdir( nullptr, Clib::normalized_dir_form( tmp ) );
   }
   while ( elem.remove_prop( "ALIAS", &tmp ) )
   {
-    Clib::mklower( tmp );
+    Clib::mklowerASCII( tmp );
     aliases.push_back( tmp );
   }
 }
@@ -177,7 +177,7 @@ void process_package_cmds_cfg( Plib::Package* pkg )
     std::string tmp;
     while ( elem.remove_prop( "DIR", &tmp ) )
     {
-      Clib::mklower( tmp );
+      Clib::mklowerASCII( tmp );
       cmdlevel->add_searchdir_front( pkg, Clib::normalized_dir_form( pkg->dir() + tmp ) );
     }
   }

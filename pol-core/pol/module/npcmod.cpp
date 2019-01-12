@@ -680,7 +680,7 @@ BObjectImp* NPCExecutorModule::say()
     npc.unhide();
 
   const char* text = exec.paramAsString( 0 );
-  std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+  std::string texttype_str = Clib::strlowerASCII( exec.paramAsString( 1 ) );
   int doevent;
   exec.getParam( 2, doevent );
   u8 texttype;
@@ -778,7 +778,7 @@ BObjectImp* NPCExecutorModule::SayUC()
 
   if ( getUnicodeStringParam( 0, text ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
   {
-    std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+    std::string texttype_str = Clib::strlowerASCII( exec.paramAsString( 1 ) );
     if ( texttype_str != "default" && texttype_str != "whisper" && texttype_str != "yell" )
     {
       return new BError( "texttype string param must be either 'default', 'whisper', or 'yell'" );
@@ -792,7 +792,7 @@ BObjectImp* NPCExecutorModule::SayUC()
     std::vector<u16> utf16 = text->toUTF16();
     if ( utf16.size() > SPEECH_MAX_LEN )
       utf16.resize( SPEECH_MAX_LEN );
-    std::string languc = Clib::strupper( lang->value() );
+    std::string languc = Clib::strupperASCII( lang->value() );
 
     u8 texttype;
     if ( texttype_str == "whisper" )

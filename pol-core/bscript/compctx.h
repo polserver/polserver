@@ -49,6 +49,8 @@ public:
   const char* s_begin;
 
   int dbg_filenum;
+  bool silence_unicode_warnings;  // tryLiteral gets executed multiple times flag used to ensure
+                                  // that unicode warning gets only printed once
 };
 
 inline std::ostream& operator<<( std::ostream& os, const CompilerContext& ctx )
@@ -62,6 +64,6 @@ inline fmt::Writer& operator<<( fmt::Writer& writer, const CompilerContext& ctx 
   ctx.printOn( writer );
   return writer;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

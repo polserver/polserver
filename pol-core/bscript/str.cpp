@@ -16,6 +16,7 @@
 
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "berror.h"
 #include "bobject.h"
 #include "executor.h"
@@ -38,13 +39,13 @@ namespace Bscript
 {
 String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() )
 {
-  String::sanitizeUnicodeWithIso( &value_ );
+  Clib::sanitizeUnicodeWithIso( &value_ );
 }
 
 String::String( const char* s, int len, Tainted san ) : BObjectImp( OTString ), value_( s, len )
 {
   if ( san == Tainted::YES )
-    String::sanitizeUnicodeWithIso( &value_ );
+    Clib::sanitizeUnicodeWithIso( &value_ );
 }
 
 String::String( const std::string& str, std::string::size_type pos, std::string::size_type n )
@@ -55,13 +56,13 @@ String::String( const std::string& str, std::string::size_type pos, std::string:
 String::String( const char* str, Tainted san ) : BObjectImp( OTString ), value_( str )
 {
   if ( san == Tainted::YES )
-    String::sanitizeUnicodeWithIso( &value_ );
+    Clib::sanitizeUnicodeWithIso( &value_ );
 }
 
 String::String( const std::string& str, Tainted san ) : BObjectImp( OTString ), value_( str )
 {
   if ( san == Tainted::YES )
-    String::sanitizeUnicodeWithIso( &value_ );
+    Clib::sanitizeUnicodeWithIso( &value_ );
 }
 String* String::StrStr( int begin, int len )
 {
@@ -282,7 +283,7 @@ void String::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
 void String::selfPlusObj( BObjectImp& objimp, BObject& /*obj*/ )
 {
   value_ += objimp.getStringRep();
-  String::sanitizeUnicodeWithIso( &value_ );
+  Clib::sanitizeUnicodeWithIso( &value_ );
 }
 void String::selfPlusObj( BLong& objimp, BObject& /*obj*/ )
 {
@@ -299,7 +300,7 @@ void String::selfPlusObj( String& objimp, BObject& /*obj*/ )
 void String::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 {
   value_ += objimp.getStringRep();
-  String::sanitizeUnicodeWithIso( &value_ );
+  Clib::sanitizeUnicodeWithIso( &value_ );
 }
 
 
@@ -1151,7 +1152,7 @@ std::string String::fromUTF16( unsigned short code )
   std::string s;
   std::vector<unsigned short> utf16( 1, code );
   utf8::unchecked::utf16to8( utf16.begin(), utf16.end(), std::back_inserter( s ) );
-  sanitizeUnicode( &s );
+  Clib::sanitizeUnicode( &s );
   return s;
 }
 
@@ -1188,7 +1189,7 @@ std::string String::fromUTF16( const unsigned short* code, size_t len, bool big_
                                std::back_inserter( s ) );
   else
     utf8::unchecked::utf16to8( code, code + short_len, std::back_inserter( s ) );
-  sanitizeUnicode( &s );
+  Clib::sanitizeUnicode( &s );
   return s;
 }
 
@@ -1199,7 +1200,7 @@ std::string String::fromUTF8( const char* code, size_t len )
   while ( code[short_len] != 0 && short_len < len )
     ++short_len;
   std::string s( code, short_len );
-  sanitizeUnicode( &s );
+  Clib::sanitizeUnicode( &s );
   return s;
 }
 
@@ -1208,10 +1209,10 @@ std::vector<unsigned short> String::toUTF16( const std::string& text, Tainted sa
   std::vector<unsigned short> utf16;
   if ( text.empty() )
     return utf16;
-  if ( san == Tainted::YES && !isValidUnicode( text ) )
+  if ( san == Tainted::YES && !Clib::isValidUnicode( text ) )
   {
     std::string san_text( text );
-    String::sanitizeUnicodeWithIso( &san_text );
+    Clib::sanitizeUnicodeWithIso( &san_text );
     utf8::utf8to16( san_text.begin(), san_text.end(), std::back_inserter( utf16 ) );
   }
   else
@@ -1243,73 +1244,6 @@ bool String::compare( size_t pos1, size_t len1, const String& str, size_t pos2, 
   return value_.compare( pos1, len1, str.value_, pos2, len2 ) == 0;
 }
 
-
-bool String::isValidUnicode( const std::string& str )
-{
-  return utf8::find_invalid( str.begin(), str.end() ) == str.end();
-}
-
-void String::sanitizeUnicodeWithIso( std::string* str )
-{
-  if ( isValidUnicode( *str ) )
-    return;
-  // assume iso8859
-  std::string utf8( "" );
-  utf8.reserve( 2 * str->size() + 1 );
-
-  for ( const auto& s : *str )
-  {
-    if ( !( s & 0x80 ) )
-    {
-      utf8.push_back( s );
-    }
-    else
-    {
-      utf8.push_back( 0xc2 | ( (unsigned char)( s ) >> 6 ) );
-      utf8.push_back( 0xbf & s );
-    }
-  }
-  *str = utf8;
-}
-
-void String::sanitizeUnicode( std::string* str )
-{
-  if ( !isValidUnicode( *str ) )
-  {
-    try
-    {
-      std::string new_s;
-      utf8::replace_invalid( str->begin(), str->end(), std::back_inserter( new_s ) );
-      *str = new_s;
-    }
-    catch ( utf8::exception )
-    {
-      *str = "Invalid unicode";
-    }
-  }
-  auto begin = str->begin();
-  auto end = str->end();
-  while ( begin != end )
-  {
-    auto c = utf8::unchecked::next( begin );
-    if ( ( c >= 0x1u && c < 0x20u ) || c == 0x7Fu || ( c >= 0xC280u && c <= 0xC29Fu ) )
-    {
-      // control character found build new string skipping them
-      std::string new_s;
-      begin = str->begin();
-      while ( begin != end )
-      {
-        c = utf8::unchecked::next( begin );
-        if ( ( c >= 0x1u && c < 0x20u ) || c == 0x7Fu || ( c >= 0xC280u && c <= 0xC29Fu ) )
-          continue;
-        utf8::unchecked::append( c, std::back_inserter( new_s ) );
-      }
-      *str = new_s;
-      break;
-    }
-  }
-}
-
 String* String::fromUCArray( ObjArray* array, bool break_first_null )
 {
   std::string res;
@@ -1330,7 +1264,7 @@ String* String::fromUCArray( ObjArray* array, bool break_first_null )
   if ( !utf16.empty() )
     utf8::unchecked::utf16to8( utf16.begin(), utf16.end(), std::back_inserter( res ) );
 
-  sanitizeUnicode( &res );
+  Clib::sanitizeUnicode( &res );
   return new String( res );
 }
 }  // namespace Bscript

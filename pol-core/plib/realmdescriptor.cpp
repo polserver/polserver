@@ -42,7 +42,7 @@ unsigned short calc_grid_size( const unsigned size )
     grid_size++;
   return static_cast<unsigned short>( grid_size );
 }
-}
+}  // namespace
 
 RealmDescriptor::RealmDescriptor( const std::string& realm_name, const std::string& realm_path,
                                   Clib::ConfigElem& elem )
@@ -55,7 +55,7 @@ RealmDescriptor::RealmDescriptor( const std::string& realm_name, const std::stri
       num_map_patches( elem.remove_unsigned( "num_map_patches", 0 ) ),
       num_static_patches( elem.remove_unsigned( "num_static_patches", 0 ) ),
       season( elem.remove_unsigned( "season", 1 ) ),
-      mapserver_type( Clib::strlower( elem.remove_string( "mapserver", "memory" ) ) ),
+      mapserver_type( Clib::strlowerASCII( elem.remove_string( "mapserver", "memory" ) ) ),
       grid_width( calc_grid_size( width ) ),
       grid_height( calc_grid_size( height ) )
 {
@@ -75,5 +75,5 @@ std::string RealmDescriptor::path( const std::string& filename ) const
   else
     return file_path + "/" + filename;
 }
-}
-}
+}  // namespace Plib
+}  // namespace Pol

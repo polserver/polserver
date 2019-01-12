@@ -637,13 +637,13 @@ std::string DebugContext::cmd_call( const std::string& rest, Results& /*results*
 
 std::string DebugContext::cmd_pidlist( const std::string& rest, Results& results )
 {
-  std::string match = Clib::strlower( rest );
+  std::string match = Clib::strlowerASCII( rest );
 
   for ( PidList::const_iterator citr = scriptScheduler.getPidlist().begin();
         citr != scriptScheduler.getPidlist().end(); ++citr )
   {
     UOExecutor* uoexec = ( *citr ).second;
-    std::string name = Clib::strlower( uoexec->scriptname() );
+    std::string name = Clib::strlowerASCII( uoexec->scriptname() );
     if ( strstr( name.c_str(), match.c_str() ) != nullptr )
     {
       results.push_back( Clib::tostring( ( *citr ).first ) + " " + uoexec->scriptname() );
@@ -1330,5 +1330,5 @@ void debug_listen_thread( void )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

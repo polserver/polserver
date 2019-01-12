@@ -41,12 +41,6 @@ private:
   explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n );
 
 public:
-  static bool isValidUnicode( const std::string& str );
-  // if invalid unicode is detected iso8859 is assumed
-  static void sanitizeUnicodeWithIso( std::string* str );
-  // if invalid unicode is detected characters get replaced
-  static void sanitizeUnicode( std::string* str );
-
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
   static BObjectImp* unpackWithLen( std::istream& is );

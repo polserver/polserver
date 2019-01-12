@@ -104,7 +104,7 @@ void load_party_cfg_general( Clib::ConfigElem& elem )
   std::string tmp = elem.remove_string( "PrivateMsgPrefix", "" );
   if ( !tmp.empty() )
   {
-    Bscript::String::sanitizeUnicodeWithIso( &tmp );
+    Clib::sanitizeUnicodeWithIso( &tmp );
     tmp += " ";
     settingsManager.party_cfg.General.PrivateMsgPrefix = tmp;
   }

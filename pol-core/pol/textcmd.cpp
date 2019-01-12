@@ -508,7 +508,7 @@ std::string get_textcmd_help( Mobile::Character* chr, const std::string& cmd )
    }
  */
   std::string upp( cmd );
-  Clib::mkupper( upp );
+  Clib::mkupperASCII( upp );
   if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
     return "";
 
@@ -573,7 +573,7 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
     }
   */
   std::string upp( scriptname );
-  Clib::mkupper( upp );
+  Clib::mkupperASCII( upp );
   if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
     return false;
 

@@ -128,7 +128,7 @@ PackageList::PackageList( Clib::ConfigElem& elem, const char* tag )
   std::string tmp;
   while ( elem.remove_prop( tag, &tmp ) )
   {
-    Clib::mklower( tmp );
+    Clib::mklowerASCII( tmp );
     ISTRINGSTREAM is( tmp );
     Elem _elem;
     if ( is >> _elem.pkgname )
@@ -158,7 +158,7 @@ Package::Package( const std::string& pkg_dir, Clib::ConfigElem& elem )
       replaces_( elem, "Replaces" ),
       provides_system_home_page_( elem.remove_bool( "ProvidesSystemHomePage", false ) )
 {
-  Clib::mklower( name_ );
+  Clib::mklowerASCII( name_ );
   // CoreRequired can either be a number (94,,95 etc)
   // or a version string (POL095-2003-01-28)
   std::string tmp = elem.read_string( "CoreRequired", "0" );

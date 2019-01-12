@@ -31,12 +31,12 @@
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 // TODO: get rid of the dependencies and move to plib
-#include "core.h" // todo save_full does not belong here
-#include "globals/state.h" // todo polsig dependency
-#include "globals/uvars.h" // todo split write task
+#include "core.h"           // todo save_full does not belong here
+#include "globals/state.h"  // todo polsig dependency
+#include "globals/uvars.h"  // todo split write task
 #include "objtype.h"
-#include "polsig.h" // thread_checkpoint
-#include "proplist.h" // todo like uvars
+#include "polsig.h"    // thread_checkpoint
+#include "proplist.h"  // todo like uvars
 
 namespace Pol
 {
@@ -140,7 +140,7 @@ void PolConfig::read_pol_config( bool initial_load )
   Clib::passert_dump_stack = elem.remove_bool( "DumpStackOnAssertionFailure", false );
 
   std::string tmp = elem.remove_string( "AssertionFailureAction", "abort" );
-  if ( Clib::strlower( tmp ) == "abort" )
+  if ( Clib::strlowerASCII( tmp ) == "abort" )
   {
     Clib::passert_shutdown = false;
     Clib::passert_nosave = false;
@@ -148,7 +148,7 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.assertion_shutdown_save_type =
         SAVE_FULL;  // should never come into play
   }
-  else if ( Clib::strlower( tmp ) == "continue" )
+  else if ( Clib::strlowerASCII( tmp ) == "continue" )
   {
     Clib::passert_shutdown = false;
     Clib::passert_nosave = false;
@@ -156,14 +156,14 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.assertion_shutdown_save_type =
         SAVE_FULL;  // should never come into play
   }
-  else if ( Clib::strlower( tmp ) == "shutdown" )
+  else if ( Clib::strlowerASCII( tmp ) == "shutdown" )
   {
     Clib::passert_shutdown = true;
     Clib::passert_nosave = false;
     Clib::passert_abort = false;
     Plib::systemstate.config.assertion_shutdown_save_type = SAVE_FULL;
   }
-  else if ( Clib::strlower( tmp ) == "shutdown-nosave" )
+  else if ( Clib::strlowerASCII( tmp ) == "shutdown-nosave" )
   {
     Clib::passert_shutdown = true;
     Clib::passert_nosave = true;
@@ -171,14 +171,14 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.assertion_shutdown_save_type =
         SAVE_FULL;  // should never come into play
   }
-  else if ( Clib::strlower( tmp ) == "shutdown-save-full" )
+  else if ( Clib::strlowerASCII( tmp ) == "shutdown-save-full" )
   {
     Clib::passert_shutdown = true;
     Clib::passert_nosave = false;
     Clib::passert_abort = false;
     Plib::systemstate.config.assertion_shutdown_save_type = SAVE_FULL;
   }
-  else if ( Clib::strlower( tmp ) == "shutdown-save-incremental" )
+  else if ( Clib::strlowerASCII( tmp ) == "shutdown-save-incremental" )
   {
     Clib::passert_shutdown = true;
     Clib::passert_nosave = false;
@@ -198,11 +198,11 @@ void PolConfig::read_pol_config( bool initial_load )
   }
 
   tmp = elem.remove_string( "ShutdownSaveType", "full" );
-  if ( Clib::strlower( tmp ) == "full" )
+  if ( Clib::strlowerASCII( tmp ) == "full" )
   {
     Plib::systemstate.config.shutdown_save_type = SAVE_FULL;
   }
-  else if ( Clib::strlower( tmp ) == "incremental" )
+  else if ( Clib::strlowerASCII( tmp ) == "incremental" )
   {
     Plib::systemstate.config.shutdown_save_type = SAVE_INCREMENTAL;
   }
@@ -308,5 +308,5 @@ bool PolConfig::report_program_aborts()
 {
   return Clib::ExceptionParser::programAbortReporting();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

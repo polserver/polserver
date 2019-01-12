@@ -8,7 +8,6 @@
 
 #include <cstring>
 #include <ctype.h>
-
 #include <format/format.h>
 
 namespace Pol
@@ -70,15 +69,24 @@ int eatToCommentEnd( CompilerContext& ctx )
 }  // namespace
 
 CompilerContext::CompilerContext()
-    : s( nullptr ), line( 1 ), filename( "" ), s_begin( nullptr ), dbg_filenum( 0 )
+    : s( nullptr ),
+      line( 1 ),
+      filename( "" ),
+      s_begin( nullptr ),
+      dbg_filenum( 0 ),
+      silence_unicode_warnings( false )
 {
 }
 
 CompilerContext::CompilerContext( const std::string& filename, int dbg_filenum, const char* s )
-    : s( s ), line( 1 ), filename( filename ), s_begin( s ), dbg_filenum( dbg_filenum )
+    : s( s ),
+      line( 1 ),
+      filename( filename ),
+      s_begin( s ),
+      dbg_filenum( dbg_filenum ),
+      silence_unicode_warnings( false )
 {
 }
-
 /**
  * Skips whitespaces. Moves the pointer forward until a non-whitespace is found
  */
@@ -158,5 +166,5 @@ void CompilerContext::printOnShort( fmt::Writer& writer ) const
 {
   writer << filename << ", Line " << line << "\n";
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
