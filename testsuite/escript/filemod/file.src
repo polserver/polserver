@@ -2,3 +2,4 @@ use file;
 
 print(ReadFile(":filetest:normal.file"));
 print(ReadFile(":filetest:bom.file"));
+print(ReadFile(":filetest:iso.file"));

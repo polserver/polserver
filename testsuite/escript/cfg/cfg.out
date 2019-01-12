@@ -1,4 +1,17 @@
 <appobj:ConfigFileRef>
-{ blah, blah2 }
+blah
+a 1
+b ø
+blah2
+c 2
+d k
 <appobj:ConfigFileRef>
-{ blah, blah2 }
+blah
+a 1
+b ø
+blah2
+c 2
+d k
+<appobj:ConfigFileRef>
+blah
+t geändert

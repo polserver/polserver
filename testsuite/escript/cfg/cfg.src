@@ -1,7 +1,15 @@
 use cfgfile;
-var a:=ReadConfigFile(":cfgtests:cfg");
-print(a);
-print(GetConfigStringKeys(a));
-var b:=ReadConfigFile(":cfgtests:cfgbom");
-print(b);
-print(GetConfigStringKeys(b));
+function get(cfg)
+  print(cfg);
+  foreach key in GetConfigStringKeys(cfg)
+    var e:= FindConfigElem(cfg,key);
+    print(key);
+    foreach entry in ListConfigElemProps(e)
+      print(entry+" "+GetConfigString(e,entry));
+  endforeach
+  endforeach
+endfunction
+
+get(ReadConfigFile(":cfgtests:cfg"));
+get(ReadConfigFile(":cfgtests:cfgbom"));
+get(ReadConfigFile(":cfgtests:cfgiso"));
