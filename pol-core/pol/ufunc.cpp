@@ -1168,8 +1168,8 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
 }
 
 // Unicode System message -- message in lower left corner
-void send_sysmessage_unicode( Network::Client* client, const std::string& text, const char lang[4],
-                              unsigned short font, unsigned short color )
+void send_sysmessage_unicode( Network::Client* client, const std::string& text,
+                              const std::string& lang, unsigned short font, unsigned short color )
 {
   std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( utf16text.size() > SPEECH_MAX_LEN )
@@ -1181,7 +1181,7 @@ void send_sysmessage_unicode( Network::Client* client, const std::string& text, 
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
-  msg->Write( lang, 4 );
+  msg->Write( lang.c_str(), 4 );
   msg->Write( "System", 30 );
   msg->WriteFlipped( utf16text );
   u16 len = msg->offset;
@@ -1208,7 +1208,7 @@ void broadcast( const char* text, unsigned short font, unsigned short color,
   }
 }
 
-void broadcast_unicode( const std::string& text, const char lang[4], unsigned short font,
+void broadcast_unicode( const std::string& text, const std::string& lang, unsigned short font,
                         unsigned short color, unsigned short requiredCmdLevel )
 {
   for ( auto& client : networkManager.clients )
@@ -1274,7 +1274,7 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
   return true;
 }
 
-bool say_above_unicode( const UObject* obj, const std::string& text, const char lang[4],
+bool say_above_unicode( const UObject* obj, const std::string& text, const std::string& lang,
                         unsigned short font, unsigned short color, unsigned int journal_print )
 {
   std::vector<u16> utf16text = Bscript::String::toUTF16( text );
@@ -1287,7 +1287,7 @@ bool say_above_unicode( const UObject* obj, const std::string& text, const char 
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
-  msg->Write( lang, 4 );
+  msg->Write( lang.c_str(), 4 );
   switch ( journal_print )
   {
   case JOURNAL_PRINT_YOU_SEE:
@@ -1342,7 +1342,7 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
 }
 
 bool private_say_above_unicode( Character* chr, const UObject* obj, const std::string& text,
-                                const char lang[4], unsigned short font, unsigned short color,
+                                const std::string& lang, unsigned short font, unsigned short color,
                                 unsigned int journal_print )
 {
   std::vector<u16> utf16text = Bscript::String::toUTF16( text );
@@ -1358,7 +1358,7 @@ bool private_say_above_unicode( Character* chr, const UObject* obj, const std::s
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
-  msg->Write( lang, 4 );
+  msg->Write( lang.c_str(), 4 );
   switch ( journal_print )
   {
   case JOURNAL_PRINT_YOU_SEE:

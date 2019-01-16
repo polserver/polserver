@@ -543,7 +543,7 @@ std::string get_textcmd_help( Mobile::Character* chr, const std::string& cmd )
 }
 
 bool start_textcmd_script( Network::Client* client, const std::string& text,
-                           const char* lang = nullptr )
+                           const std::string& lang )
 {
   std::string scriptname;
   std::string params;
@@ -559,20 +559,11 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
     params = "";
   }
 
-  // TODO UNICODE do we need this check?
-  /*
-    t = scriptname.c_str();
-    while ( *t )
-    {
-      if ( !isalnum( *t ) && ( *t != '_' ) )
-      {
-        // cout << "illegal command char: as int = " << int(*t) << ", as char = " << *t << endl;
-        return false;
-      }
-      ++t;
-    }
-  */
-  std::string upp( scriptname );
+  // early out test for invalid scriptnames
+  if ( scriptname.find_first_of( "*\"':;!?#&-+()/\\=" ) != std::string::npos )
+    return false;
+
+  std::string upp( scriptname, 0, 3 );
   Clib::mkupperASCII( upp );
   if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
     return false;
@@ -600,7 +591,7 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
         std::unique_ptr<UOExecutor> ex( create_script_executor() );
         if ( prog->haveProgram )
         {
-          if ( lang )
+          if ( !lang.empty() )
             ex->pushArg( new Bscript::String( lang ) );
           ex->pushArg( new Bscript::String( params ) );
           ex->pushArg( new Module::ECharacterRefObjImp( client->chr ) );
@@ -629,7 +620,7 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
 }
 
 bool process_command( Network::Client* client, const std::string& text,
-                      const char* lang /*nullptr*/ )
+                      const std::string& lang /*""*/ )
 {
   static int init;
   if ( !init )

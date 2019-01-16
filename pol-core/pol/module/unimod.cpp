@@ -151,8 +151,8 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
       return new BError( "Text exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    Core::broadcast_unicode( text->value(), Clib::strupperASCII( lang->value() ).c_str(), font,
-                             color, requiredCmdLevel );
+    Core::broadcast_unicode( text->value(), Clib::strupperASCII( lang->value() ), font, color,
+                             requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -178,9 +178,8 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
 
-    return new BLong( say_above_unicode( obj, text->value(),
-                                         Clib::strupperASCII( lang->value() ).c_str(), font, color,
-                                         journal_print ) );
+    return new BLong( say_above_unicode( obj, text->value(), Clib::strupperASCII( lang->value() ),
+                                         font, color, journal_print ) );
   }
   else
   {
@@ -206,7 +205,7 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
       return new BError( "langcode must be a 3-character code." );
 
     return new BLong( private_say_above_unicode(
-        chr, obj, text->value(), Clib::strupperASCII( lang->value() ).c_str(), font, color ) );
+        chr, obj, text->value(), Clib::strupperASCII( lang->value() ), font, color ) );
   }
   else
   {
@@ -247,7 +246,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
     }
 
     Core::send_sysmessage_unicode( chr->client, prompt->value(),
-                                   Clib::strupperASCII( lang->value() ).c_str() );
+                                   Clib::strupperASCII( lang->value() ) );
 
     chr->client->gd->prompt_uniemod = this;
     prompt_chr = chr;
@@ -281,7 +280,7 @@ BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
         return new BError( "langcode must be a 3-character code." );
 
       Core::send_sysmessage_unicode( chr->client, text->value(),
-                                     Clib::strupperASCII( lang->value() ).c_str(), font, color );
+                                     Clib::strupperASCII( lang->value() ), font, color );
       return new BLong( 1 );
     }
     else

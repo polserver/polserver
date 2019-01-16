@@ -27,7 +27,7 @@ public:
 };
 
 bool process_command( Network::Client* client, const std::string& text,
-                      const char* lang = nullptr );
+                      const std::string& lang = "" );
 }  // namespace Core
 }  // namespace Pol
 #endif

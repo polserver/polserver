@@ -191,10 +191,6 @@ void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
 
     if ( ch == 0 )
       break;
-    // TODO UNICODE why?
-    //    if ( ch == '~' )
-    //      continue;  // skip unprintable tildes.  Probably not a reportable offense.
-
     if ( isprint( ch ) )
       text += ch;
     // ENHANCE: else report client data error? Just log?
@@ -221,10 +217,11 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
 
   if ( text[0] == '.' || text[0] == '=' )
   {
-    if ( !process_command( client, text, msgin->lang ) )
+    std::string lang( msgin->lang );
+    if ( !process_command( client, text, lang ) )
     {
       std::string tmp( "Unknown command: " );
-      send_sysmessage_unicode( client, tmp, msgin->lang );
+      send_sysmessage_unicode( client, tmp, lang );
     }
     return;
   }

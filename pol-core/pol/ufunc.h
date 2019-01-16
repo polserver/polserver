@@ -175,20 +175,21 @@ Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* ad
 void send_sysmessage( Network::Client* client, const char* text,
                       unsigned short font = Plib::DEFAULT_TEXT_FONT,
                       unsigned short color = Plib::DEFAULT_TEXT_COLOR );
-void send_sysmessage_unicode( Network::Client* client, const std::string& text, const char lang[4],
+void send_sysmessage_unicode( Network::Client* client, const std::string& text,
+                              const std::string& lang,
                               unsigned short font = Plib::DEFAULT_TEXT_FONT,
                               unsigned short color = Plib::DEFAULT_TEXT_COLOR );
 void broadcast( const char* text, unsigned short font = Plib::DEFAULT_TEXT_FONT,
                 unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned short requiredCmdLevel = Plib::DEFAULT_TEXT_REQUIREDCMD );
-void broadcast_unicode( const std::string& text, const char lang[4],
+void broadcast_unicode( const std::string& text, const std::string& lang,
                         unsigned short font = Plib::DEFAULT_TEXT_FONT,
                         unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                         unsigned short requiredCmdLevel = Plib::DEFAULT_TEXT_REQUIREDCMD );
 bool say_above( const UObject* obj, const char* text, unsigned short font = Plib::DEFAULT_TEXT_FONT,
                 unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
-bool say_above_unicode( const UObject* obj, const std::string& text, const char lang[4],
+bool say_above_unicode( const UObject* obj, const std::string& text, const std::string& lang,
                         unsigned short font = Plib::DEFAULT_TEXT_FONT,
                         unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                         unsigned int journal_print = JOURNAL_PRINT_NAME );
@@ -198,7 +199,8 @@ bool private_say_above( Mobile::Character* chr, const UObject* obj, const char* 
                         unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                         unsigned int journal_print = JOURNAL_PRINT_NAME );
 bool private_say_above_unicode( Mobile::Character* chr, const UObject* obj, const std::string& text,
-                                const char lang[4], unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                                const std::string& lang,
+                                unsigned short font = Plib::DEFAULT_TEXT_FONT,
                                 unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                                 unsigned int journal_print = JOURNAL_PRINT_NAME );
 
