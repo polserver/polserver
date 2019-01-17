@@ -330,7 +330,7 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
 unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UContainer* bought,
                              PKTBI_3B* msg )
 {
-  unsigned int amt = 0;
+  unsigned int amt = 0, prev_amt = 0;
 
   int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) / sizeof msg->items[0];
 
@@ -346,6 +346,12 @@ unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UConta
     }
     // const ItemDesc& id = find_itemdesc(item->objtype_);
     amt += cfBEu16( msg->items[i].number_bought ) * item->sellprice();
+
+    if ( amt < prev_amt || amt > INT_MAX ) {
+      return INT_MAX + 1U;
+    }
+
+    prev_amt = amt;
   }
   return amt;
 }
@@ -384,6 +390,16 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
   client->gd->vendor_bought.clear();
 
   unsigned int total_cost = calculate_cost( vendor, for_sale, vendor_bought, msg );
+
+  if ( total_cost > INT_MAX )
+  {
+    POLLOG_INFO.Format(
+        "\nWarning: Character 0x{:X} tried to buy items with an overflow from vendor 0x{:X}.\n" )
+        << client->chr->serial << vendor->serial;
+    send_clear_vendorwindow( client, vendor );
+    return;
+  }
+
   if ( total_cost > client->chr->gold_carried() )
   {
     send_clear_vendorwindow( client, vendor );
