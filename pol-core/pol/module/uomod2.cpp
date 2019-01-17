@@ -330,7 +330,7 @@ void send_clear_vendorwindow( Client* client, Character* vendor )
 unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UContainer* bought,
                              PKTBI_3B* msg )
 {
-  unsigned int amt = 0, prev_amt = 0;
+  uint64_t amt = 0, prev_amt = 0;
 
   int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) / sizeof msg->items[0];
 
@@ -347,13 +347,14 @@ unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UConta
     // const ItemDesc& id = find_itemdesc(item->objtype_);
     amt += cfBEu16( msg->items[i].number_bought ) * item->sellprice();
 
-    if ( amt < prev_amt || amt > INT_MAX ) {
+    if ( amt < prev_amt || amt > INT_MAX )
+    {
       return INT_MAX + 1U;
     }
 
     prev_amt = amt;
   }
-  return amt;
+  return static_cast<uint32_t>( amt );
 }
 
 void oldBuyHandler( Client* client, PKTBI_3B* msg )
