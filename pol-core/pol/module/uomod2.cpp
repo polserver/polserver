@@ -345,7 +345,7 @@ unsigned int calculate_cost( Character* /*vendor*/, UContainer* for_sale, UConta
         continue;
     }
     // const ItemDesc& id = find_itemdesc(item->objtype_);
-    amt += cfBEu16( msg->items[i].number_bought ) * item->sellprice();
+    amt += cfBEu16( msg->items[i].number_bought ) * static_cast<uint64_t>( item->sellprice() );
 
     if ( amt < prev_amt || amt > INT_MAX )
     {
