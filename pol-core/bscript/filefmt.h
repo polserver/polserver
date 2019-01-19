@@ -34,6 +34,7 @@ namespace Bscript
 #define ESCRIPT_FILE_VER_000B 0x000B
 #define ESCRIPT_FILE_VER_000C 0x000C
 #define ESCRIPT_FILE_VER_000D 0x000D
+#define ESCRIPT_FILE_VER_000F 0x000F /*unicode*/
 
 /*
     NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
@@ -41,7 +42,7 @@ namespace Bscript
     and report this to users when an older compiled version
     is attempted to be executed - TJ
     */
-#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_000D )
+#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_000F )
 
 struct BSCRIPT_FILE_HDR
 {
@@ -121,6 +122,6 @@ struct BSCRIPT_EXPORTED_FUNCTION
 static_assert( sizeof( BSCRIPT_EXPORTED_FUNCTION ) == 41, "size missmatch" );
 
 #pragma pack( pop )
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

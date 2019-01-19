@@ -2813,7 +2813,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
       if ( text->length() > SPEECH_MAX_LEN )
         return new BError( "Text exceeds maximum size." );
 
-      addBuff( icon, duration, cl_name, cl_descr, text->toUTF16() );
+      addBuff( icon, duration, cl_name, cl_descr, text->value() );
       return new BLong( 1 );
     }
     break;

@@ -207,9 +207,7 @@ struct Buff
   // Description cliloc ID
   u32 cl_descr;
   // Unicode string, arguments to be replaced in cl_descr, separated by tabs
-  // TODO: use a real unicode string class, maybe a vector of them
-  // or not since here the correct format already exists
-  std::vector<u16> arguments;
+  std::string arguments;
 };
 
 struct reportable_t
@@ -719,8 +717,7 @@ protected:
 
   // BUFF/DEBUFF BAR
 public:
-  void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
-                const std::vector<u16>& arguments );
+  void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, const std::string& arguments );
   bool delBuff( u16 icon );
   void clearBuffs();
   void send_buffs();

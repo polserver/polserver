@@ -2154,11 +2154,10 @@ void sendCharProfile( Character* chr, Character* of_who, const std::string& titl
  * @param duration duration in seconds, only for displaying [ignored if show is false]
  * @param cl_name name of the buff, cliloc id [ignored if show is false]
  * @param cl_descr description of the buff, cliloc id [ignored if show is false]
- * @param arguments arguments for cl_descr as unicode string, separated by spaces, without nullptr
- * terminator
+ * @param arguments arguments for cl_descr as string, separated by spaces
  */
 void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 cl_name,
-                        u32 cl_descr, const std::vector<u16>& arguments )
+                        u32 cl_descr, const std::string& arguments )
 {
   PktHelper::PacketOut<PktOut_DF> msg;
   msg->offset += 2;  // length will be written later
@@ -2183,7 +2182,7 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
     msg->Write<u8>( 1u );    // unknown, always 1
     msg->Write<u16>( 20u );  // a space character
     msg->Write<u16>( 20u );  // a space character
-    msg->Write( arguments );
+    msg->Write( Bscript::String::toUTF16( arguments ) );
   }
 
   u16 len = msg->offset;
