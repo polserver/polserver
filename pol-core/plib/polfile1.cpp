@@ -29,13 +29,13 @@ bool cfg_show_illegal_graphic_warning = true;
 
 bool newstat_dont_add( std::vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
 {
-  char pheight = tileheight( pstat->graphic );
+  char pheight = tileheight_read( pstat->graphic );
 
   for ( unsigned i = 0; i < vec.size(); ++i )
   {
     STATIC_ENTRY& prec = vec[i];
     passert_always( prec.objtype <= systemstate.config.max_tile_id );
-    char height = tileheight( prec.objtype );  // TODO read from itemdesc?
+    char height = tileheight_read( prec.objtype );  // TODO read from itemdesc?
     unsigned char xy = ( pstat->x_offset << 4 ) | pstat->y_offset;
     if (                                   // flags == pflags &&
         prec.objtype == pstat->graphic &&  // TODO map objtype->graphic from itemdesc
