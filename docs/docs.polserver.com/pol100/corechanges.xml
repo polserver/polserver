@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-01-2019</datemodified>
+		<datemodified>01-21-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-21-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">account.split() will now return an AccountRef to the new account instead of &quot;true&quot;.</change>
+		</entry>
+		<entry>
+			<date>01-17-2019</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Vendor purchases could overflow</change>
+		</entry>
 		<entry>
 			<date>01-01-2019</date>
 			<author>Turley:</author>

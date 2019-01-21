@@ -441,6 +441,10 @@ Bscript::BObjectImp* AccountObjImp::call_method_id( const int id, Bscript::Execu
           obj_->clear_character( index - 1 );
           chr->acct.set( account );
           account->set_character( 0, chr );
+
+		  // note: I can't return here, otherwise the new account won't be saved to accounts.txt.
+		  //       Check the last lines of this function.
+		  result = new Accounts::AccountObjImp( Accounts::AccountPtrHolder( Core::AccountRef( account ) ) );
         }
         else
           return new BError( "Was impossible to create new Account." );

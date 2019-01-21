@@ -1,4 +1,8 @@
 ﻿-- POL100 --
+01-21-2019 Nando:
+  Changed: account.split() will now return an AccountRef to the new account instead of "true".
+01-17-2019 Kevin:
+    Fixed: Vendor purchases could overflow
 01-01-2019 Turley:
   Changed: DepletedFunction hook now receives a second parameter: reason
            The values are:
