@@ -955,10 +955,10 @@ endprogram</example>
     <return>return value ignored</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
-    <whencalled>When a new player character is created.</whencalled>
+    <whencalled>When a new player character is created by a client.</whencalled>
     <wherelives>The 'program' in oncreate.src file, only in /scripts/misc</wherelives>
     <todefine>If the compiled file exists it is automatically called.</todefine>
-    <explain>This script allows the scripter to run code when a new character is created. Useful for giving out starting equipment, etc.</explain>
+    <explain>This script allows the scripter to run code when a new character is created. Useful for giving out starting equipment, etc. Note that it doesn't run if the character was created via a script (for example, using account.addcharacter()).</explain>
     <example>
 use uo;
 include "include/startEqp";
@@ -979,7 +979,7 @@ endprogram</example>
     <whencalled>When a player character is deleted.</whencalled>
     <wherelives>The 'program' in ondelete.src file, in /scripts/misc or any package</wherelives>
     <todefine>If the compiled file exists it is automatically called.</todefine>
-    <explain>This script allows the scripter to run code when a character is deleted.</explain>
+    <explain>This script allows the scripter to run code when a character is deleted. (Note: differently from the oncreate script, the ondelete script is called also when a character is deleted in a script.)</explain>
     <example>
 use uo;
 program ondelete( character )
