@@ -175,20 +175,21 @@ public:
   }
 };
 
+
 bool flags_match( unsigned int f1, unsigned int f2, unsigned char bits_compare )
 {
   return ( f1 & bits_compare ) == ( f2 & bits_compare );
 }
 
+/*
 bool otherflags_match( unsigned char f1, unsigned char f2, unsigned char bits_exclude )
 {
   return ( f1 & ~bits_exclude ) == ( f2 & ~bits_exclude );
 }
-
 bool differby_exactly( unsigned char f1, unsigned char f2, unsigned char bits )
 {
   return ( ( f1 ^ f2 ) == bits );
-}
+}*/
 
 void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsigned short y )
 {
@@ -250,12 +251,12 @@ void UoConvertMain::create_map( const std::string& realm, unsigned short width,
              << "  Elapsed time: " << timer.ellapsed() << " ms.\n";
 }
 
-bool is_no_draw( USTRUCT_MAPINFO& mi )
+static bool is_no_draw( USTRUCT_MAPINFO& mi )
 {
   return ( mi.landtile == 0x2 );
 }
 
-bool is_cave_exit( USTRUCT_MAPINFO& mi )
+static bool is_cave_exit( USTRUCT_MAPINFO& mi )
 {
   return ( mi.landtile == 0x7ec || mi.landtile == 0x7ed || mi.landtile == 0x7ee ||
            mi.landtile == 0x7ef || mi.landtile == 0x7f0 || mi.landtile == 0x7f1 ||
@@ -266,7 +267,7 @@ bool is_cave_exit( USTRUCT_MAPINFO& mi )
            mi.landtile == 0x1d9 || mi.landtile == 0x1da );
 }
 
-bool is_cave_shadow( USTRUCT_MAPINFO& mi )
+static bool is_cave_shadow( USTRUCT_MAPINFO& mi )
 {
   return ( mi.landtile == 0x1db ||  // shadows above caves
            mi.landtile == 0x1ae ||  // more shadows above caves
@@ -884,7 +885,7 @@ void UoConvertMain::create_multis_cfg()
   fclose( multi_idx );
   fclose( multi_mul );
 }
-void write_flags( FILE* fp, unsigned int flags )
+void UoConvertMain::write_flags( FILE* fp, unsigned int flags )
 {
   if ( flags & FLAG::MOVELAND )
     fprintf( fp, "    MoveLand 1\n" );

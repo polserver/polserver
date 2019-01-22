@@ -28,6 +28,8 @@ public:
 
   void display_flags();
 
+  void write_flags( FILE* fp, unsigned int flags );
+
   void create_tiles_cfg();
   void create_landtiles_cfg();
 
