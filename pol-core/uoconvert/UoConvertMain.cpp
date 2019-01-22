@@ -113,16 +113,6 @@ void UoConvertMain::display_flags()
   }
 }
 
-unsigned char polmap_flags_from_landtile( unsigned short landtile )
-{
-  unsigned int uoflags = Plib::landtile_uoflags_read( landtile );
-
-  unsigned int polflags =
-      Plib::polflags_from_tileflags( landtile, uoflags, cfg_use_no_shoot, cfg_LOS_through_windows );
-  return static_cast<unsigned char>( polflags );
-}
-
-
 void UoConvertMain::create_maptile( const std::string& realmname )
 {
   Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realmname );
