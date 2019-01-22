@@ -46,7 +46,10 @@ using namespace Pol::Plib;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-UoConvertMain::UoConvertMain() : Pol::Clib::ProgramMain() {}
+UoConvertMain::UoConvertMain()
+    : Pol::Clib::ProgramMain(), cfg_use_no_shoot( false ), cfg_LOS_through_windows( false )
+{
+}
 UoConvertMain::~UoConvertMain() {}
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -69,23 +72,7 @@ void UoConvertMain::showHelp()
 using namespace Core;
 using namespace Plib;
 
-bool cfg_use_no_shoot = false;
-bool cfg_LOS_through_windows = false;
-
-std::set<unsigned int> HouseTypes;
-std::set<unsigned int> BoatTypes;
-std::set<unsigned int> StairTypes;
-std::set<unsigned int> MountTypes;
-
-void create_map( const std::string& realm, unsigned short width, unsigned short height );
-void update_map( const std::string& realm, unsigned short x, unsigned short y );
-
-void create_multis_cfg();
-void create_tiles_cfg();
-void create_landtiles_cfg();
-void create_maptile( const std::string& realmname );
-
-void display_flags()
+void UoConvertMain::display_flags()
 {
   for ( unsigned blocking = 0; blocking <= 1; ++blocking )
   {
@@ -136,7 +123,7 @@ unsigned char polmap_flags_from_landtile( unsigned short landtile )
 }
 
 
-void create_maptile( const std::string& realmname )
+void UoConvertMain::create_maptile( const std::string& realmname )
 {
   Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load( realmname );
   uo_map_height = static_cast<unsigned short>( descriptor.height );
@@ -213,13 +200,7 @@ bool differby_exactly( unsigned char f1, unsigned char f2, unsigned char bits )
   return ( ( f1 ^ f2 ) == bits );
 }
 
-void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter& mapwriter );
-
-unsigned empty = 0, nonempty = 0;
-unsigned total_statics = 0;
-unsigned with_more_solids = 0;
-
-void update_map( const std::string& realm, unsigned short x, unsigned short y )
+void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsigned short y )
 {
   auto mapwriter = new MapWriter();
   mapwriter->OpenExistingFiles( realm );
@@ -235,7 +216,8 @@ void update_map( const std::string& realm, unsigned short x, unsigned short y )
              << "total statics=" << total_statics << "\n";
 }
 
-void create_map( const std::string& realm, unsigned short width, unsigned short height )
+void UoConvertMain::create_map( const std::string& realm, unsigned short width,
+                                unsigned short height )
 {
   auto mapwriter = new MapWriter();
   INFO_PRINT << "Creating map base and solids files.\n"
@@ -444,7 +426,8 @@ short get_lowestadjacentz( unsigned short x, unsigned short y, short z )
     return lowest_z;
 }
 
-void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter& mapwriter )
+void UoConvertMain::ProcessSolidBlock( unsigned short x_base, unsigned short y_base,
+                                       MapWriter& mapwriter )
 {
   unsigned int idx2_offset = 0;
   SOLIDX2_ELEM idx2_elem;
@@ -787,8 +770,8 @@ void ProcessSolidBlock( unsigned short x_base, unsigned short y_base, MapWriter&
   mapwriter.SetSolidx2Offset( x_base, y_base, idx2_offset );
 }
 
-void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int offset,
-                  unsigned int length )
+void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
+                                 unsigned int offset, unsigned int length )
 {
   USTRUCT_MULTI_ELEMENT elem;
   unsigned int count;
@@ -870,7 +853,7 @@ void write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul, unsigned int o
   fprintf( multis_cfg, "\n" );
 }
 
-void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
+void UoConvertMain::create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
 {
   if ( fseek( multi_idx, 0, SEEK_SET ) != 0 )
     throw std::runtime_error( "create_multis_cfg: fseek failed" );
@@ -897,7 +880,7 @@ void create_multis_cfg( FILE* multi_idx, FILE* multi_mul, FILE* multis_cfg )
   INFO_PRINT << count << " multi definitions written to multis.cfg\n";
 }
 
-void create_multis_cfg()
+void UoConvertMain::create_multis_cfg()
 {
   FILE* multi_idx = open_uo_file( "multi.idx" );
   FILE* multi_mul = open_uo_file( "multi.mul" );
@@ -939,7 +922,7 @@ void write_flags( FILE* fp, unsigned int flags )
     fprintf( fp, "    DescPrependAn 1\n" );
 }
 
-void create_tiles_cfg()
+void UoConvertMain::create_tiles_cfg()
 {
   FILE* fp = fopen( "tiles.cfg", "wt" );
   int mountCount;
@@ -1005,7 +988,7 @@ void create_tiles_cfg()
   INFO_PRINT << count << " tile definitions written to tiles.cfg\n";
 }
 
-void create_landtiles_cfg()
+void UoConvertMain::create_landtiles_cfg()
 {
   FILE* fp = fopen( "landtiles.cfg", "wt" );
   unsigned count = 0;
@@ -1092,12 +1075,12 @@ int UoConvertMain::main()
 
 
   std::string main_cfg = "uoconvert.cfg";
-  if ( Clib::FileExists( main_cfg.c_str() ) )
+  if ( Clib::FileExists( main_cfg ) )
   {
     std::string temp;
     Clib::ConfigElem elem;
     INFO_PRINT << "Reading uoconvert.cfg.\n";
-    Clib::ConfigFile cf_main( main_cfg.c_str() );
+    Clib::ConfigFile cf_main( main_cfg );
     while ( cf_main.read( elem ) )
     {
       if ( elem.type_is( "MultiTypes" ) )
@@ -1106,25 +1089,25 @@ int UoConvertMain::main()
         ISTRINGSTREAM is_boats( temp );
         std::string graphicnum;
         while ( is_boats >> graphicnum )
-          UoConvert::BoatTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+          BoatTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
 
         temp = elem.remove_string( "Houses" );
         ISTRINGSTREAM is_houses( temp );
         while ( is_houses >> graphicnum )
-          UoConvert::HouseTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+          HouseTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
 
         temp = elem.remove_string( "Stairs" );
         ISTRINGSTREAM is_stairs( temp );
         while ( is_stairs >> graphicnum )
-          UoConvert::StairTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+          StairTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
       }
       else if ( elem.type_is( "LOSOptions" ) )
       {
         if ( elem.has_prop( "UseNoShoot" ) )
-          UoConvert::cfg_use_no_shoot = elem.remove_bool( "UseNoShoot" );
+          UoConvertMain::cfg_use_no_shoot = elem.remove_bool( "UseNoShoot" );
 
         if ( elem.has_prop( "LOSThroughWindows" ) )
-          UoConvert::cfg_LOS_through_windows = elem.remove_bool( "LOSThroughWindows" );
+          UoConvertMain::cfg_LOS_through_windows = elem.remove_bool( "LOSThroughWindows" );
       }
       else if ( elem.type_is( "Mounts" ) )
       {
@@ -1133,7 +1116,7 @@ int UoConvertMain::main()
         ISTRINGSTREAM is_mounts( temp );
         while ( is_mounts >> graphicnum )
         {
-          UoConvert::MountTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+          MountTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
         }
       }
       else if ( elem.type_is( "StaticOptions" ) )
@@ -1173,8 +1156,7 @@ int UoConvertMain::main()
       else if ( elem.type_is( "TileOptions" ) )
       {
         if ( elem.has_prop( "ShowRoofAndPlatformWarning" ) )
-          cfg_show_roof_and_platform_warning =
-              elem.remove_bool( "ShowRoofAndPlatformWarning" );
+          cfg_show_roof_and_platform_warning = elem.remove_bool( "ShowRoofAndPlatformWarning" );
       }
       else if ( elem.type_is( "ClientOptions" ) )
       {
@@ -1291,12 +1273,12 @@ int UoConvertMain::main()
 
     if ( x >= 0 && y >= 0 )
     {
-      UoConvert::update_map( realm, static_cast<u16>( x ), static_cast<u16>( y ) );
+      UoConvertMain::update_map( realm, static_cast<u16>( x ), static_cast<u16>( y ) );
     }
     else
     {
-      UoConvert::create_map( realm, static_cast<unsigned short>( width ),
-                             static_cast<unsigned short>( height ) );
+      UoConvertMain::create_map( realm, static_cast<unsigned short>( width ),
+                                 static_cast<unsigned short>( height ) );
     }
   }
   else if ( command == "statics" )
@@ -1318,19 +1300,19 @@ int UoConvertMain::main()
   {
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
-    UoConvert::create_multis_cfg();
+    UoConvertMain::create_multis_cfg();
   }
   else if ( command == "tiles" )
   {
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
-    UoConvert::create_tiles_cfg();
+    UoConvertMain::create_tiles_cfg();
   }
   else if ( command == "landtiles" )
   {
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
-    UoConvert::create_landtiles_cfg();
+    UoConvertMain::create_landtiles_cfg();
   }
   else if ( command == "maptile" )
   {
@@ -1345,11 +1327,11 @@ int UoConvertMain::main()
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
 
-    UoConvert::create_maptile( realm );
+    UoConvertMain::create_maptile( realm );
   }
   else if ( command == "flags" )
   {
-    UoConvert::display_flags();
+    UoConvertMain::display_flags();
   }
   else  // unknown option
   {
