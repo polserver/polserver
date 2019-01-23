@@ -1031,188 +1031,15 @@ int UoConvertMain::main()
     return 0;  // return "okay"
   }
 
-  /**********************************************
-   * TODO: rework the following cruft from former uoconvert.cpp
-   **********************************************/
-  Plib::systemstate.config.max_tile_id = UOBJ_DEFAULT_MAX;  // default
-  std::string argvalue = programArgsFindEquals( "uodata=", "" );
-  if ( !argvalue.empty() )
-  {
-    Plib::systemstate.config.uo_datafile_root = argvalue;
-    Plib::systemstate.config.uo_datafile_root =
-        Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
-  }
-  else
-  {
-    INFO_PRINT << "Reading pol.cfg.\n";
-    Clib::ConfigFile cf( "pol.cfg" );
-    Clib::ConfigElem elem;
-
-    cf.readraw( elem );
-    Plib::systemstate.config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
-    Plib::systemstate.config.uo_datafile_root =
-        Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
-
-    unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0x0 );
-
-    if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
-      Plib::systemstate.config.max_tile_id = max_tile;
-  }
-
-  unsigned short max_tile =
-      static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", 0x0, true ) );
-  if ( max_tile == UOBJ_DEFAULT_MAX || max_tile == UOBJ_SA_MAX || max_tile == UOBJ_HSA_MAX )
-    Plib::systemstate.config.max_tile_id = max_tile;
-
-
-  std::string main_cfg = "uoconvert.cfg";
-  if ( Clib::FileExists( main_cfg ) )
-  {
-    std::string temp;
-    Clib::ConfigElem elem;
-    INFO_PRINT << "Reading uoconvert.cfg.\n";
-    Clib::ConfigFile cf_main( main_cfg );
-    while ( cf_main.read( elem ) )
-    {
-      if ( elem.type_is( "MultiTypes" ) )
-      {
-        temp = elem.remove_string( "Boats" );
-        ISTRINGSTREAM is_boats( temp );
-        std::string graphicnum;
-        while ( is_boats >> graphicnum )
-          BoatTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-
-        temp = elem.remove_string( "Houses" );
-        ISTRINGSTREAM is_houses( temp );
-        while ( is_houses >> graphicnum )
-          HouseTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-
-        temp = elem.remove_string( "Stairs" );
-        ISTRINGSTREAM is_stairs( temp );
-        while ( is_stairs >> graphicnum )
-          StairTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-      }
-      else if ( elem.type_is( "LOSOptions" ) )
-      {
-        if ( elem.has_prop( "UseNoShoot" ) )
-          UoConvertMain::cfg_use_no_shoot = elem.remove_bool( "UseNoShoot" );
-
-        if ( elem.has_prop( "LOSThroughWindows" ) )
-          UoConvertMain::cfg_LOS_through_windows = elem.remove_bool( "LOSThroughWindows" );
-      }
-      else if ( elem.type_is( "Mounts" ) )
-      {
-        std::string graphicnum;
-        temp = elem.remove_string( "Tiles" );
-        ISTRINGSTREAM is_mounts( temp );
-        while ( is_mounts >> graphicnum )
-        {
-          MountTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
-        }
-      }
-      else if ( elem.type_is( "StaticOptions" ) )
-      {
-        if ( elem.has_prop( "MaxStaticsPerBlock" ) )
-        {
-          UoConvert::cfg_max_statics_per_block = elem.remove_int( "MaxStaticsPerBlock" );
-
-          if ( UoConvert::cfg_max_statics_per_block > MAX_STATICS_PER_BLOCK )
-          {
-            UoConvert::cfg_max_statics_per_block = MAX_STATICS_PER_BLOCK;
-            INFO_PRINT << "max. Statics per Block limited to "
-                       << UoConvert::cfg_max_statics_per_block << " Items\n";
-          }
-          else if ( UoConvert::cfg_max_statics_per_block < 0 )
-            UoConvert::cfg_max_statics_per_block = 1000;
-        }
-
-        if ( elem.has_prop( "WarningStaticsPerBlock" ) )
-        {
-          UoConvert::cfg_warning_statics_per_block = elem.remove_int( "WarningStaticsPerBlock" );
-
-          if ( UoConvert::cfg_warning_statics_per_block > MAX_STATICS_PER_BLOCK )
-          {
-            UoConvert::cfg_warning_statics_per_block = MAX_STATICS_PER_BLOCK;
-            INFO_PRINT << "max. Statics per Block for Warning limited to "
-                       << UoConvert::cfg_warning_statics_per_block << " Items\n";
-          }
-          else if ( UoConvert::cfg_warning_statics_per_block < 0 )
-            UoConvert::cfg_warning_statics_per_block = 1000;
-        }
-
-        if ( elem.has_prop( "ShowIllegalGraphicWarning" ) )
-          UoConvert::cfg_show_illegal_graphic_warning =
-              elem.remove_bool( "ShowIllegalGraphicWarning" );
-      }
-      else if ( elem.type_is( "TileOptions" ) )
-      {
-        if ( elem.has_prop( "ShowRoofAndPlatformWarning" ) )
-          cfg_show_roof_and_platform_warning = elem.remove_bool( "ShowRoofAndPlatformWarning" );
-      }
-      else if ( elem.type_is( "ClientOptions" ) )
-      {
-        if ( elem.has_prop( "UseNewHSAFormat" ) )
-          UoConvert::cfg_use_new_hsa_format = elem.remove_bool( "UseNewHSAFormat" );
-      }
-    }
-  }
+  // Setups uoconvert by finding the path of uo files and max tiles from pol.cfg or command
+  // line arguments. Also loads parameters from uoconvert.cfg.
+  setup_uoconvert();
 
   std::string command = binArgs[1];
   if ( command == "uoptomul" )
   {
-    // this is kludgy and doesn't take into account the UODataPath. Mostly a proof of concept now.
-    UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
-
-    std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
-    std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
-
-    auto maphash = []( int mapid, size_t chunkidx ) {
-      fmt::Writer tmp;
-      tmp << "build/map" << mapid << "legacymul/" << fmt::pad( chunkidx, 8, '0' ) << ".dat";
-      return HashLittle2( tmp.str() );
-    };
-
-    std::ifstream ifs( uop_mapfile, std::ifstream::binary );
-    if ( !ifs )
-    {
-      ERROR_PRINT << "Error when opening mapfile: " << uop_mapfile << '\n';
+    if ( !convert_uop_to_mul() )
       return 1;
-    }
-
-    kaitai::kstream ks( &ifs );
-    uop_t uopfile( &ks );
-
-    // TODO: read all blocks
-    std::map<uint64_t, uop_t::file_t*> filemap;
-    uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
-    for ( auto file : *currentblock->block_body()->files() )
-    {
-      if ( file == nullptr )
-        continue;
-      if ( file->decompressed_size() == 0 )
-        continue;
-      filemap[file->filehash()] = file;
-    }
-
-    if ( uopfile.header()->nfiles() != filemap.size() )
-      INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
-                 << uopfile.header()->nfiles() << ")\n";
-
-    std::ofstream ofs( mul_mapfile, std::ofstream::binary );
-    for ( size_t i = 0; i < filemap.size(); i++ )
-    {
-      auto fileitr = filemap.find( maphash( uo_mapid, i ) );
-      if ( fileitr == filemap.end() )
-      {
-        INFO_PRINT << "Couldn't find file hash: " << maphash( uo_mapid, i );
-        continue;
-      }
-
-      auto file = fileitr->second;
-      ofs << file->data()->filebytes();
-      INFO_PRINT << "Wrote: " << i + 1 << "/" << filemap.size() << '\n';
-    }
-    INFO_PRINT << "Done converting.\n";
   }
   else if ( command == "map" )
   {
@@ -1331,6 +1158,190 @@ int UoConvertMain::main()
   }
   UoConvert::clear_tiledata();
   return 0;
+}
+bool UoConvertMain::convert_uop_to_mul()
+{
+  // this is kludgy and doesn't take into account the UODataPath. Mostly a proof of concept now.
+  UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
+
+  std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
+  std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
+
+  auto maphash = []( int mapid, size_t chunkidx ) {
+    fmt::Writer tmp;
+    tmp << "build/map" << mapid << "legacymul/" << fmt::pad( chunkidx, 8, '0' ) << ".dat";
+    return HashLittle2( tmp.str() );
+  };
+
+  std::ifstream ifs( uop_mapfile, std::ifstream::binary );
+  if ( !ifs )
+  {
+    ERROR_PRINT << "Error when opening mapfile: " << uop_mapfile << '\n';
+    return false;
+  }
+
+  kaitai::kstream ks( &ifs );
+  uop_t uopfile( &ks );
+
+  // TODO: read all blocks
+  std::map<uint64_t, uop_t::file_t*> filemap;
+  uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
+  for ( auto file : *currentblock->block_body()->files() )
+  {
+    if ( file == nullptr )
+      continue;
+    if ( file->decompressed_size() == 0 )
+      continue;
+    filemap[file->filehash()] = file;
+  }
+
+  if ( uopfile.header()->nfiles() != filemap.size() )
+    INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
+               << uopfile.header()->nfiles() << ")\n";
+
+  std::ofstream ofs( mul_mapfile, std::ofstream::binary );
+  for ( size_t i = 0; i < filemap.size(); i++ )
+  {
+    auto fileitr = filemap.find( maphash( uo_mapid, i ) );
+    if ( fileitr == filemap.end() )
+    {
+      INFO_PRINT << "Couldn't find file hash: " << maphash( uo_mapid, i );
+      continue;
+    }
+
+    auto file = fileitr->second;
+    ofs << file->data()->filebytes();
+    INFO_PRINT << "Wrote: " << i + 1 << "/" << filemap.size() << '\n';
+  }
+  INFO_PRINT << "Done converting.\n";
+
+  return true;
+}
+void UoConvertMain::setup_uoconvert()
+{
+  std::string uodata_root = programArgsFindEquals( "uodata=", "" );
+  unsigned short max_tile =
+      static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", 0x0, true ) );
+  
+  // if any of the two is missing, read from pol.cfg
+  if ( uodata_root.empty() || !max_tile )
+  {
+    INFO_PRINT << "Reading pol.cfg.\n";
+    Clib::ConfigFile cf( "pol.cfg" );
+    Clib::ConfigElem elem;
+
+    cf.readraw( elem );
+
+    if ( uodata_root.empty() )
+      uodata_root = elem.remove_string( "UoDataFileRoot" );
+
+    if ( !max_tile )
+      max_tile = elem.remove_ushort( "MaxTileID", 0x0 );
+  }
+  
+  if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
+    max_tile = UOBJ_DEFAULT_MAX;
+  
+  // Save the parameters into this ugly global state we have
+  Plib::systemstate.config.max_tile_id = max_tile;
+  Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( uodata_root );
+
+  // Load parameters from uoconvert.cfg (multi types, mounts, etc)
+  load_uoconvert_cfg();
+}
+void UoConvertMain::load_uoconvert_cfg()
+{
+  std::string main_cfg = "uoconvert.cfg";
+  if ( Clib::FileExists( main_cfg ) )
+  {
+    std::string temp;
+    Clib::ConfigElem elem;
+    INFO_PRINT << "Reading uoconvert.cfg.\n";
+    Clib::ConfigFile cf_main( main_cfg );
+    while ( cf_main.read( elem ) )
+    {
+      if ( elem.type_is( "MultiTypes" ) )
+      {
+        temp = elem.remove_string( "Boats" );
+        ISTRINGSTREAM is_boats( temp );
+        std::string graphicnum;
+        while ( is_boats >> graphicnum )
+          BoatTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+
+        temp = elem.remove_string( "Houses" );
+        ISTRINGSTREAM is_houses( temp );
+        while ( is_houses >> graphicnum )
+          HouseTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+
+        temp = elem.remove_string( "Stairs" );
+        ISTRINGSTREAM is_stairs( temp );
+        while ( is_stairs >> graphicnum )
+          StairTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+      }
+      else if ( elem.type_is( "LOSOptions" ) )
+      {
+        if ( elem.has_prop( "UseNoShoot" ) )
+          UoConvertMain::cfg_use_no_shoot = elem.remove_bool( "UseNoShoot" );
+
+        if ( elem.has_prop( "LOSThroughWindows" ) )
+          UoConvertMain::cfg_LOS_through_windows = elem.remove_bool( "LOSThroughWindows" );
+      }
+      else if ( elem.type_is( "Mounts" ) )
+      {
+        std::string graphicnum;
+        temp = elem.remove_string( "Tiles" );
+        ISTRINGSTREAM is_mounts( temp );
+        while ( is_mounts >> graphicnum )
+        {
+          MountTypes.insert( strtoul( graphicnum.c_str(), nullptr, 0 ) );
+        }
+      }
+      else if ( elem.type_is( "StaticOptions" ) )
+      {
+        if ( elem.has_prop( "MaxStaticsPerBlock" ) )
+        {
+          UoConvert::cfg_max_statics_per_block = elem.remove_int( "MaxStaticsPerBlock" );
+
+          if ( UoConvert::cfg_max_statics_per_block > MAX_STATICS_PER_BLOCK )
+          {
+            UoConvert::cfg_max_statics_per_block = MAX_STATICS_PER_BLOCK;
+            INFO_PRINT << "max. Statics per Block limited to "
+                       << UoConvert::cfg_max_statics_per_block << " Items\n";
+          }
+          else if ( UoConvert::cfg_max_statics_per_block < 0 )
+            UoConvert::cfg_max_statics_per_block = 1000;
+        }
+
+        if ( elem.has_prop( "WarningStaticsPerBlock" ) )
+        {
+          UoConvert::cfg_warning_statics_per_block = elem.remove_int( "WarningStaticsPerBlock" );
+
+          if ( UoConvert::cfg_warning_statics_per_block > MAX_STATICS_PER_BLOCK )
+          {
+            UoConvert::cfg_warning_statics_per_block = MAX_STATICS_PER_BLOCK;
+            INFO_PRINT << "max. Statics per Block for Warning limited to "
+                       << UoConvert::cfg_warning_statics_per_block << " Items\n";
+          }
+          else if ( UoConvert::cfg_warning_statics_per_block < 0 )
+            UoConvert::cfg_warning_statics_per_block = 1000;
+        }
+
+        if ( elem.has_prop( "ShowIllegalGraphicWarning" ) )
+          UoConvert::cfg_show_illegal_graphic_warning =
+              elem.remove_bool( "ShowIllegalGraphicWarning" );
+      }
+      else if ( elem.type_is( "TileOptions" ) )
+      {
+        if ( elem.has_prop( "ShowRoofAndPlatformWarning" ) )
+          cfg_show_roof_and_platform_warning = elem.remove_bool( "ShowRoofAndPlatformWarning" );
+      }
+      else if ( elem.type_is( "ClientOptions" ) )
+      {
+        if ( elem.has_prop( "UseNewHSAFormat" ) )
+          UoConvert::cfg_use_new_hsa_format = elem.remove_bool( "UseNewHSAFormat" );
+      }
+    }
+  }
 }
 }  // namespace UoConvert
 }  // namespace Pol

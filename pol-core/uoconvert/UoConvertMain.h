@@ -54,6 +54,11 @@ public:
 protected:
   virtual int main();
 
+  bool convert_uop_to_mul();
+
+  void setup_uoconvert();
+  void load_uoconvert_cfg();
+
 private:
   virtual void showHelp();
 };
