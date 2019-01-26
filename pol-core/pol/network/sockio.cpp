@@ -209,29 +209,13 @@ SOCKET open_listen_socket( unsigned short port )
   return sck;
 }
 
-const char* AddressToString( struct sockaddr* addr )
+std::string AddressToString( struct sockaddr* addr )
 {
-#if 0 && defined( _WIN32 )
-  // this requires Winsock 2! Ouch.
-  static char buf[ 80 ];
-  DWORD len = sizeof buf;
-  if (WSAAddressToString( addr, sizeof *addr,
-    nullptr, // protocol
-    buf, &len ) != SOCKET_ERROR)
-  {
-    return buf;
-  }
-  else
-  {
-    return "(display error)";
-  }
-#else
   struct sockaddr_in* in_addr = (struct sockaddr_in*)addr;
   if ( addr->sa_family == AF_INET )
     return inet_ntoa( in_addr->sin_addr );
   else
-    return "(display error)";
-#endif
+    return std::string( "(unknown address family " ) + std::to_string( addr->sa_family ) + ")";
 }
 
 PolSocket::PolSocket()

@@ -8,6 +8,7 @@
 #define __SOCKIO_H
 
 #include "sockets.h"
+#include <string>
 
 namespace Pol
 {
@@ -25,7 +26,7 @@ class Client;
 
 void transmit( Client* client, const void* data, int len );
 
-const char* AddressToString( struct sockaddr* addr );
+std::string AddressToString( struct sockaddr* addr );
 
 struct PolSocket
 {
@@ -39,6 +40,6 @@ struct PolSocket
   fd_set send_fd;
   struct timeval select_timeout;
 };
-}
-}
+}  // namespace Network
+}  // namespace Pol
 #endif
