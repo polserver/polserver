@@ -80,10 +80,8 @@ std::string UOExecutor::state()
 
 bool UOExecutor::signal_event( Bscript::BObjectImp* eventimp )
 {
-  if ( os_module != nullptr )
-    return os_module->signal_event( eventimp );
-
-  return false;
+  passert_r( os_module != nullptr, "Object cannot receive events but is receiving them!" );
+  return os_module->signal_event( eventimp );
 }
 
 size_t UOExecutor::sizeEstimate() const
