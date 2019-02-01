@@ -61,9 +61,11 @@ public:
                                                 Core::BSQLConnection* sql, const std::string query,
                                                 const Bscript::ObjArray* params );
 
+  virtual size_t sizeEstimate() const override;
+
 private:
   Core::UOExecutor& uoexec;
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

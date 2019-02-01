@@ -340,5 +340,10 @@ BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()
 
   return new BError( "Function not implimented" );
 }
+
+size_t UnicodeExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
+}
 }  // namespace Module
 }  // namespace Pol

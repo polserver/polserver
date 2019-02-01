@@ -38,7 +38,7 @@ TmplExecutorModule<SQLExecutorModule>::FunctionTable
         {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows},
         {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb},
         {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -47,6 +47,11 @@ SQLExecutorModule::SQLExecutorModule( Bscript::Executor& exec )
     : Bscript::TmplExecutorModule<SQLExecutorModule>( "sql", exec ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )
 {
+}
+
+size_t SQLExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
 }
 
 #ifdef HAVE_MYSQL
@@ -367,5 +372,5 @@ MF_NO_MYSQL( mf_NumRows )
 MF_NO_MYSQL( mf_Close )
 MF_NO_MYSQL( mf_FetchRow )
 #endif
-}
-}
+}  // namespace Module
+}  // namespace Pol

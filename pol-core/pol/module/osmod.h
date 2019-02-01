@@ -13,8 +13,8 @@
 #endif
 
 #include <ctime>
+#include <deque>
 #include <map>
-#include <queue>
 
 #include "../globals/script_internals.h"
 #include "../polclock.h"
@@ -46,7 +46,7 @@ void run_ready( void );
 void check_blocked( polclock_t* pclocksleft );
 void deschedule_executor( UOExecutor* ex );
 polclock_t calc_script_clocksleft( polclock_t now );
-}
+}  // namespace Core
 namespace Module
 {
 class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>
@@ -72,6 +72,9 @@ public:
   bool in_debugger_holdlist() const;
   void revive_debugged();
   Bscript::BObjectImp* clear_event_queue();  // DAVE
+
+  virtual size_t sizeEstimate() const override;
+
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
 
@@ -134,7 +137,7 @@ protected:
     MAX_EVENTQUEUE_SIZE = 20
   };
   unsigned short max_eventqueue_size;  // DAVE 11/24
-  std::queue<Bscript::BObjectImp*> events_;
+  std::deque<Bscript::BObjectImp*> events_;
 
 
   friend class NPCExecutorModule;
@@ -159,7 +162,7 @@ inline bool OSExecutorModule::blocked() const
 {
   return blocked_;
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol
 
 #endif

@@ -31,7 +31,7 @@ TmplExecutorModule<HttpExecutorModule>::FunctionTable
         {"QueryParam", &HttpExecutorModule::mf_QueryParam},
         {"QueryIP", &HttpExecutorModule::mf_QueryIP},
 };
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -201,5 +201,13 @@ void HttpExecutorModule::read_query_ip()
 {
   query_ip_ = sck_.getpeername();
 }
+
+size_t HttpExecutorModule::sizeEstimate() const
+{
+  size_t size = sizeof( *this );
+  for ( const auto& v : params_ )
+    size += v.first.capacity() + v.second.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
+  return size;
 }
-}
+}  // namespace Module
+}  // namespace Pol

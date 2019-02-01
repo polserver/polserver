@@ -30,8 +30,9 @@ TmplExecutorModule<UtilExecutorModule>::FunctionTable
         {"RandomFloat", &UtilExecutorModule::mf_RandomFloat},
         {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll},
         {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime},
-        {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax}};
-}
+        {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax},
+        {"EstimateSize", &UtilExecutorModule::mf_EstimateSize}};
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -181,5 +182,9 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
   else
     return new BError( "Format string too long." );
 }
+Bscript::BObjectImp* UtilExecutorModule::mf_EstimateSize()
+{
+  return new Bscript::BLong( exec.getParamImp( 0 )->sizeEstimate() );
 }
-}
+}  // namespace Module
+}  // namespace Pol

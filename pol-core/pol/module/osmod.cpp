@@ -124,7 +124,7 @@ OSExecutorModule::~OSExecutorModule()
   while ( !events_.empty() )
   {
     Bscript::BObject ob( events_.front() );
-    events_.pop();
+    events_.pop_front();
   }
 }
 
@@ -209,7 +209,7 @@ BObjectImp* OSExecutorModule::wait_for_event()
   if ( !events_.empty() )
   {
     BObjectImp* imp = events_.front();
-    events_.pop();
+    events_.pop_front();
     return imp;
   }
   else
@@ -531,7 +531,7 @@ BObjectImp* OSExecutorModule::clear_event_queue()  // DAVE
   while ( !events_.empty() )
   {
     BObject ob( events_.front() );
-    events_.pop();
+    events_.pop_front();
   }
   return new BLong( 1 );
 }
@@ -789,15 +789,15 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
   {
     if ( events_.size() < max_eventqueue_size )
     {
-      events_.push( imp );
+      events_.push_back( imp );
     }
     else
     {
       if ( Plib::systemstate.config.discard_old_events )
       {
         BObject ob( events_.front() );
-        events_.pop();
-        events_.push( imp );
+        events_.pop_front();
+        events_.push_back( imp );
       }
       else
       {
@@ -1063,6 +1063,18 @@ BObjectImp* OSExecutorModule::mf_performance_diff()
                                         PerfData::collect_perf, perf.release() );
 
   return new BLong( 0 );  // dummy
+}
+
+size_t OSExecutorModule::sizeEstimate() const
+{
+  size_t size = sizeof( *this );
+  for ( const auto& obj : events_ )
+  {
+    if ( obj != nullptr )
+      size += obj->sizeEstimate();
+  }
+  size += 3 * sizeof( Bscript::BObjectImp** ) + events_.size() * sizeof( Bscript::BObjectImp* );
+  return size;
 }
 }  // namespace Module
 }  // namespace Pol

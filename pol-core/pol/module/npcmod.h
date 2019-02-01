@@ -90,6 +90,8 @@ protected:
 
   Bscript::BObjectImp* move_self( Plib::UFACING facing, bool run, bool adjust_ok = false );
 
+  virtual size_t sizeEstimate() const override;
+
 private:
   bool _internal_move( Plib::UFACING facing, int run );
 };
