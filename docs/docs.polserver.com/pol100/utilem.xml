@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="Util.em">
     <filedesc>Utility functions</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>02/02/2019</datemodified>
   </fileheader>
 
   <function name="RandomInt"> 
@@ -59,6 +59,13 @@ d6-2
     <return>String</return>
     <error>"No time string passed."</error>
     <error>"Format string exceeded 100 characters."</error>
+  </function>
+
+  <function name="EstimateSize">
+    <prototype>EstimateSize( obj )</prototype>
+    <parameter name="obj" value="any pol object" />
+    <explain>Takes any object and returns the estimated memoryusage in bytes.</explain>
+    <return>Integer</return>
   </function>
 
 </ESCRIPT>
