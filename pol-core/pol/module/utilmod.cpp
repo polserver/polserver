@@ -184,7 +184,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 }
 Bscript::BObjectImp* UtilExecutorModule::mf_EstimateSize()
 {
-  return new Bscript::BLong( exec.getParamImp( 0 )->sizeEstimate() );
+  return new Bscript::BLong( static_cast<int>( exec.getParamImp( 0 )->sizeEstimate() ) );
 }
 }  // namespace Module
 }  // namespace Pol
