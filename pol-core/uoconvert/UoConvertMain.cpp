@@ -967,6 +967,8 @@ void UoConvertMain::create_tiles_cfg()
     fprintf( fp, "    UoFlags 0x%08lx\n", static_cast<unsigned long>( tile.flags ) );
     if ( tile.layer )
       fprintf( fp, "    Layer %u\n", tile.layer );
+    if ( flags & FLAG::EQUIPPABLE )
+      fprintf( fp, "    AnimID %u\n", tile.anim );
     fprintf( fp, "    Height %u\n", tile.height );
     fprintf( fp, "    Weight %u\n", tile.weight );
     write_flags( fp, flags );
