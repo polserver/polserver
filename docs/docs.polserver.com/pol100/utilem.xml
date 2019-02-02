@@ -61,11 +61,4 @@ d6-2
     <error>"Format string exceeded 100 characters."</error>
   </function>
 
-  <function name="EstimateSize">
-    <prototype>EstimateSize( obj )</prototype>
-    <parameter name="obj" value="any pol object" />
-    <explain>Takes any object and returns the estimated memoryusage in bytes.</explain>
-    <return>Integer</return>
-  </function>
-
 </ESCRIPT>

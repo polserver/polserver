@@ -14,4 +14,3 @@ RandomFloat( below_this_float );    // returns float R such that 0.0 <= R < B
 RandomDiceRoll( dice_string );      
 
 StrFormatTime(format_string, time_stamp:=0);
-EstimateSize(obj);

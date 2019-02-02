@@ -33,7 +33,6 @@ public:
   Bscript::BObjectImp* mf_RandomDiceRoll();
   Bscript::BObjectImp* mf_StrFormatTime();
   Bscript::BObjectImp* mf_RandomIntMinMax();
-  Bscript::BObjectImp* mf_EstimateSize();
 };
 }
 }

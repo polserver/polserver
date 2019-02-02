@@ -168,10 +168,10 @@ result. Doubles will be truncated.
   </function>
 
   <function name="SizeOf">
-    <prototype>SizeOf(expr)</prototype>
-    <parameter name="expr" value="An expression to evaluate" />
+    <prototype>SizeOf(obj)</prototype>
+    <parameter name="obj" value="Any object" />
     <explain>
-      Returns an estimate of the memory used
+      Returns an estimate of the memory used in bytes.
     </explain>
     <return>An int</return>
   </function>

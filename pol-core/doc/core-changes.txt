@@ -1,7 +1,4 @@
 ﻿-- POL100 --
-02-02-2019 Turley:
-  Added:   utils.em EstimateSize(obj)
-           returns estimated memoryusage in bytes of given parameter.
 02-02-2019 Yukiko:
   Added:   uoconvert.exe will now surface the AnimID for equippables to tiles.cfg. This can be used to look-up the gump pic for wearables that are displayed on the paper doll. Add this number to 50000 for male gumpart or 60000 for female gump art. The resulting number will be the gump art that is displayed in the paper doll.
 01-21-2019 Nando:
