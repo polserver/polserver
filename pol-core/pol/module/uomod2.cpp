@@ -1209,7 +1209,7 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     datadlen += static_cast<u32>( addlen );
     bfr->WriteFlipped<u16>( s.length() );
     while ( *string )  // unicode
-      bfr->Write<u16>( static_cast<u16>( *string++ ) << 8 );
+      bfr->Write<u16>( static_cast<u16>( static_cast<u16>( *string++ ) << 8 ) );
   }
   msg->WriteFlipped<u32>( numlines );
   if ( numlines != 0 )
