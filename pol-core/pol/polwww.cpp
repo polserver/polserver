@@ -887,8 +887,9 @@ void http_thread( void )
           [=]() { http_func( client_socket ); } );  // copy socket into queue to keep it valid
     }
   }
-  // it's not safe to access mime_types on shutdown, because gamestate is being cleaned on another thread...
-  //gamestate.mime_types.clear();  // cleanup on exit
+  // it's not safe to access mime_types on shutdown, because gamestate is being cleaned on another
+  // thread...
+  // gamestate.mime_types.clear();  // cleanup on exit
 #ifdef _WIN32
   closesocket( http_socket );
 #else
