@@ -11,23 +11,14 @@ namespace Clib
 {
 namespace Logging
 {
-using namespace std;
 using std::chrono::system_clock;
 
-///////////////////////////////////////////////////////////////////////////////
-
-LogSink::LogSink() {}
-
-LogSink::~LogSink() {}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void LogSink::addTimeStamp( ostream& stream )
+void LogSink::addTimeStamp( std::ostream& stream )
 {
   stream << getTimeStamp();
 }
 
-string LogSink::getTimeStamp()
+std::string LogSink::getTimeStamp()
 {
   fmt::Writer writer;
   time_t tClockTime = system_clock::to_time_t( system_clock::now() );
@@ -41,7 +32,6 @@ string LogSink::getTimeStamp()
   return writer.str();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-}
-}
-}  // namespaces
+}  // namespace Logging
+}  // namespace Clib
+}  // namespace Pol

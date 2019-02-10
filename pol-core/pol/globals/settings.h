@@ -1,8 +1,6 @@
 #ifndef GLOBALS_SETTINGS_H
 #define GLOBALS_SETTINGS_H
 
-#include <boost/noncopyable.hpp>
-
 #include "../cmbtcfg.h"
 #include "../extobj.h"
 #include "../movecost.h"
@@ -16,11 +14,13 @@ namespace Pol
 {
 namespace Core
 {
-class SettingsManager : boost::noncopyable
+class SettingsManager
 {
 public:
   SettingsManager();
   ~SettingsManager();
+  SettingsManager( const SettingsManager& ) = delete;
+  SettingsManager& operator=( const SettingsManager& ) = delete;
 
   void deinitialize();
   size_t estimateSize() const;
@@ -41,6 +41,6 @@ public:
 };
 
 extern SettingsManager settingsManager;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -87,7 +87,7 @@ const char* getExpansionName( ExpansionVersion x );
 class UOExpansion
 {
 public:
-  virtual ~UOExpansion(){};
+  virtual ~UOExpansion() = default;
   virtual bool hasFeature( A9Feature feature ) const = 0;
   virtual bool hasFeature( B9Feature feature ) const = 0;
   virtual u32 A9Flags() const = 0;
@@ -116,9 +116,8 @@ public:
     return myVersion >= version;
   }
 
-private:  // noncopyable
-  ClientFeatures( const ClientFeatures& );
-  ClientFeatures& operator=( const ClientFeatures& );
+  ClientFeatures( const ClientFeatures& ) = delete;
+  ClientFeatures& operator=( const ClientFeatures& ) = delete;
 };
 
 class FlagExpansion : UOExpansion
@@ -149,6 +148,6 @@ public:
   virtual ExpansionVersion version() const override { return m_version; }
   virtual int characterSlots() const override { return m_slots; }
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

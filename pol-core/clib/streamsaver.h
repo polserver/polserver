@@ -1,14 +1,13 @@
 #ifndef CLIB_STREAMSAVER_H
 #define CLIB_STREAMSAVER_H
 
-#include <boost/noncopyable.hpp>
 #include <iosfwd>
 #include <memory>
 #include <string>
 #include <thread>
 
-#include <format/format.h>
 #include "message_queue.h"
+#include <format/format.h>
 #if 0
 #include "timer.h"
 #endif
@@ -17,11 +16,13 @@ namespace Pol
 {
 namespace Clib
 {
-class StreamWriter : boost::noncopyable
+class StreamWriter
 {
 public:
   StreamWriter();
   virtual ~StreamWriter() = default;
+  StreamWriter( const StreamWriter& ) = delete;
+  StreamWriter& operator=( const StreamWriter& ) = delete;
   fmt::Writer& operator()();
   virtual void init( const std::string& filepath ) = 0;
   virtual void flush() = 0;
@@ -95,6 +96,6 @@ private:
   std::list<WriterPtr> _writers_hold;
   std::string _stream_name;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif  // CLIB_STREAMSAVER_H

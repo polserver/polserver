@@ -2,7 +2,6 @@
 #define GLOBALS_STATE_H
 
 #include <atomic>
-#include <boost/noncopyable.hpp>
 
 #include "../../clib/clib.h"
 #include "../../clib/rawtypes.h"
@@ -20,11 +19,13 @@ const u32 ITEMSERIAL_START = 0x40000000Lu;
 const u32 ITEMSERIAL_END = 0x7FffFFffLu;
 
 
-class StateManager : boost::noncopyable
+class StateManager
 {
 public:
   StateManager();
   ~StateManager() = default;
+  StateManager( const StateManager& ) = delete;
+  StateManager& operator=( const StateManager& ) = delete;
   size_t estimateSize() const;
 
   void deinitialize();
@@ -62,6 +63,6 @@ public:
 };
 
 extern StateManager stateManager;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

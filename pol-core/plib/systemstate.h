@@ -2,7 +2,6 @@
 #ifndef PLIB_SYTEMSTATE_H
 #define PLIB_SYTEMSTATE_H
 
-#include <boost/noncopyable.hpp>
 #include <map>
 #include <vector>
 #if !defined( _WIN32 )
@@ -24,11 +23,13 @@ class Package;
 typedef std::vector<Package*> Packages;
 typedef std::map<std::string, Package*, Clib::ci_cmp_pred> PackagesByName;
 
-class SystemState : boost::noncopyable
+class SystemState
 {
 public:
   SystemState();
   ~SystemState() = default;
+  SystemState( const SystemState& ) = delete;
+  SystemState& operator=( const SystemState& ) = delete;
   void deinitialize();
 
   Packages packages;
