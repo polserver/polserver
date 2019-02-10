@@ -77,6 +77,10 @@ void MemoryUsage::log()
   logs.push_back( std::make_pair( "ObjArmorSize", object_sizes.obj_armor_size ) );
   logs.push_back( std::make_pair( "ObjMultiCount", object_sizes.obj_multi_count ) );
   logs.push_back( std::make_pair( "ObjMultiSize", object_sizes.obj_multi_size ) );
+  logs.push_back( std::make_pair( "BObjectAllocatorSize", Bscript::bobject_alloc.memsize ) );
+  logs.push_back( std::make_pair( "UninitAllocatorSize", Bscript::uninit_alloc.memsize ) );
+  logs.push_back( std::make_pair( "BLongAllocatorSize", Bscript::blong_alloc.memsize ) );
+  logs.push_back( std::make_pair( "BDoubleAllocatorSize", Bscript::double_alloc.memsize ) );
 #ifdef ENABLE_FLYWEIGHT_REPORT
   auto flydata = boost_utils::Query::getCountAndSize();
   int i = 0;

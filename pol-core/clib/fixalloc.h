@@ -49,11 +49,13 @@ public:
   void log_stuff( const std::string& detail );
 #endif
 
+  size_t memsize = 0;
+
 protected:
   void* refill( void );
 
 private:
-  Buffer* freelist_;
+  Buffer* freelist_ = nullptr;
 #ifdef MEMORYLEAK
   int buffers;
   int requests;
@@ -117,12 +119,12 @@ void* fixed_allocator<N, B>::refill()
 {
   size_t nbytes = sizeof( Buffer[B] );
 
-  Buffer* morebuf = static_cast<Buffer*>(::operator new( nbytes ) );
+  Buffer* morebuf = static_cast<Buffer*>( ::operator new( nbytes ) );
 
 #ifdef MEMORYLEAK
   buffers++;
 #endif
-
+  memsize += nbytes;
   Buffer* walk = morebuf + 1;
   int count = B - 2;
   while ( count-- )
@@ -176,6 +178,6 @@ void fixed_allocator<N, B>::deallocate( void* vp, size_t size )
   else
     ::operator delete( vp );
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif
