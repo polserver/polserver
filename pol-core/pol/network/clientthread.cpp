@@ -292,7 +292,8 @@ bool client_io_thread( Network::Client* client, bool login )
       PolLock lck;
       client->unregister();
       INFO_PRINT << "Client disconnected from " << Network::AddressToString( &client->ipaddr )
-                 << " (" << networkManager.clients.size() << " connections)\n";
+                 << " (" << networkManager.clients.size() << "/"
+                 << networkManager.getNumberOfLoginClients() << " connections)\n";
 
       CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
                              ToolTipPrioritySystem );

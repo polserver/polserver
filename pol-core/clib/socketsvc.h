@@ -18,7 +18,7 @@ class SocketListener
 public:
   explicit SocketListener( unsigned short port );
   SocketListener( unsigned short port, Socket::option opt );
-  bool GetConnection( unsigned int timeout_sec );
+  bool GetConnection( unsigned int timeout_sec, unsigned int timeout_usec = 0 );
 
   void accept( Socket& newsck );
 
@@ -41,6 +41,6 @@ public:
 protected:
   Socket _sck;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif
