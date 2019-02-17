@@ -93,6 +93,12 @@ class UoClientListener
 {
 public:
   UoClientListener( Clib::ConfigElem& elem );
+  UoClientListener( const UoClientListener& ) = delete;
+  UoClientListener& operator=( const UoClientListener& ) = delete;
+  UoClientListener( UoClientListener&& ) = default;
+  UoClientListener& operator=( UoClientListener&& ) = default;
+  ~UoClientListener() = default;
+
   size_t estimateSize() const;
 
   Crypt::TCryptInfo encryption;

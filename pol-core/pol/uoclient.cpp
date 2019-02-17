@@ -123,7 +123,7 @@ void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 
 void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
-  networkManager.uoclient_listeners.push_back( UoClientListener( elem ) );
+  networkManager.uoclient_listeners.emplace_back( elem );
 }
 
 void load_uoclient_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
